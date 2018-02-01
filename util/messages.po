@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-31 07:01+0100\n"
+"POT-Creation-Date: 2018-02-01 08:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -420,14 +420,13 @@ msgstr ""
 msgid "link to source"
 msgstr ""
 
-#: include/text.php:1767 include/conversation.php:142
-#: include/conversation.php:280 include/like.php:194
+#: include/text.php:1767 include/like.php:194 include/conversation.php:142
+#: include/conversation.php:280
 msgid "event"
 msgstr ""
 
-#: include/text.php:1769 include/conversation.php:150
-#: include/conversation.php:288 include/like.php:192 mod/subthread.php:96
-#: mod/tagger.php:71
+#: include/text.php:1769 include/like.php:192 include/conversation.php:150
+#: include/conversation.php:288 mod/subthread.php:96 mod/tagger.php:71
 msgid "photo"
 msgstr ""
 
@@ -875,437 +874,6 @@ msgstr ""
 msgid "Invalid link protocol"
 msgstr ""
 
-#: include/conversation.php:145 include/conversation.php:155
-#: include/conversation.php:283 include/conversation.php:292
-#: include/like.php:192 mod/subthread.php:96 mod/tagger.php:71
-#: src/Protocol/Diaspora.php:1942
-msgid "status"
-msgstr ""
-
-#: include/conversation.php:162 include/like.php:38
-#: src/Protocol/Diaspora.php:1938
-#, php-format
-msgid "%1$s likes %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:165 include/like.php:42 include/like.php:47
-#, php-format
-msgid "%1$s doesn't like %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:168
-#, php-format
-msgid "%1$s attends %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:171
-#, php-format
-msgid "%1$s doesn't attend %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:174
-#, php-format
-msgid "%1$s attends maybe %2$s's %3$s"
-msgstr ""
-
-#: include/conversation.php:207 mod/dfrn_confirm.php:430
-#: src/Protocol/Diaspora.php:2410
-#, php-format
-msgid "%1$s is now friends with %2$s"
-msgstr ""
-
-#: include/conversation.php:248
-#, php-format
-msgid "%1$s poked %2$s"
-msgstr ""
-
-#: include/conversation.php:302 mod/tagger.php:104
-#, php-format
-msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr ""
-
-#: include/conversation.php:329
-msgid "post/item"
-msgstr ""
-
-#: include/conversation.php:330
-#, php-format
-msgid "%1$s marked %2$s's %3$s as favorite"
-msgstr ""
-
-#: include/conversation.php:606 mod/photos.php:1538 mod/profiles.php:350
-msgid "Likes"
-msgstr ""
-
-#: include/conversation.php:606 mod/photos.php:1538 mod/profiles.php:354
-msgid "Dislikes"
-msgstr ""
-
-#: include/conversation.php:607 include/conversation.php:1679
-#: mod/photos.php:1539
-msgid "Attending"
-msgid_plural "Attending"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/conversation.php:607 mod/photos.php:1539
-msgid "Not attending"
-msgstr ""
-
-#: include/conversation.php:607 mod/photos.php:1539
-msgid "Might attend"
-msgstr ""
-
-#: include/conversation.php:751 mod/photos.php:1606 src/Object/Post.php:175
-msgid "Select"
-msgstr ""
-
-#: include/conversation.php:752 mod/admin.php:1702 mod/contacts.php:821
-#: mod/contacts.php:1019 mod/photos.php:1607 mod/settings.php:740
-#: src/Object/Post.php:176
-msgid "Delete"
-msgstr ""
-
-#: include/conversation.php:784 src/Object/Post.php:353 src/Object/Post.php:354
-#, php-format
-msgid "View %s's profile @ %s"
-msgstr ""
-
-#: include/conversation.php:796 src/Object/Post.php:341
-msgid "Categories:"
-msgstr ""
-
-#: include/conversation.php:797 src/Object/Post.php:342
-msgid "Filed under:"
-msgstr ""
-
-#: include/conversation.php:804 src/Object/Post.php:367
-#, php-format
-msgid "%s from %s"
-msgstr ""
-
-#: include/conversation.php:819
-msgid "View in context"
-msgstr ""
-
-#: include/conversation.php:821 include/conversation.php:1352
-#: mod/message.php:261 mod/message.php:432 mod/wallmessage.php:146
-#: mod/editpost.php:124 mod/photos.php:1510 src/Object/Post.php:392
-msgid "Please wait"
-msgstr ""
-
-#: include/conversation.php:892
-msgid "remove"
-msgstr ""
-
-#: include/conversation.php:896
-msgid "Delete Selected Items"
-msgstr ""
-
-#: include/conversation.php:1058 view/theme/frio/theme.php:356
-msgid "Follow Thread"
-msgstr ""
-
-#: include/conversation.php:1059 src/Model/Contact.php:553
-msgid "View Status"
-msgstr ""
-
-#: include/conversation.php:1060 include/conversation.php:1076
-#: mod/allfriends.php:73 mod/directory.php:153 mod/suggest.php:82
-#: mod/dirfind.php:220 mod/match.php:89 src/Model/Contact.php:496
-#: src/Model/Contact.php:509 src/Model/Contact.php:554
-msgid "View Profile"
-msgstr ""
-
-#: include/conversation.php:1061 src/Model/Contact.php:555
-msgid "View Photos"
-msgstr ""
-
-#: include/conversation.php:1062 src/Model/Contact.php:556
-msgid "Network Posts"
-msgstr ""
-
-#: include/conversation.php:1063 src/Model/Contact.php:557
-msgid "View Contact"
-msgstr ""
-
-#: include/conversation.php:1064 src/Model/Contact.php:559
-msgid "Send PM"
-msgstr ""
-
-#: include/conversation.php:1068 src/Model/Contact.php:560
-msgid "Poke"
-msgstr ""
-
-#: include/conversation.php:1073 mod/allfriends.php:74 mod/follow.php:145
-#: mod/suggest.php:83 mod/contacts.php:587 mod/dirfind.php:221 mod/match.php:90
-#: src/Content/Widget.php:60 src/Model/Contact.php:510
-msgid "Connect/Follow"
-msgstr ""
-
-#: include/conversation.php:1192
-#, php-format
-msgid "%s likes this."
-msgstr ""
-
-#: include/conversation.php:1195
-#, php-format
-msgid "%s doesn't like this."
-msgstr ""
-
-#: include/conversation.php:1198
-#, php-format
-msgid "%s attends."
-msgstr ""
-
-#: include/conversation.php:1201
-#, php-format
-msgid "%s doesn't attend."
-msgstr ""
-
-#: include/conversation.php:1204
-#, php-format
-msgid "%s attends maybe."
-msgstr ""
-
-#: include/conversation.php:1215
-msgid "and"
-msgstr ""
-
-#: include/conversation.php:1221
-#, php-format
-msgid "and %d other people"
-msgstr ""
-
-#: include/conversation.php:1230
-#, php-format
-msgid "<span  %1$s>%2$d people</span> like this"
-msgstr ""
-
-#: include/conversation.php:1231
-#, php-format
-msgid "%s like this."
-msgstr ""
-
-#: include/conversation.php:1234
-#, php-format
-msgid "<span  %1$s>%2$d people</span> don't like this"
-msgstr ""
-
-#: include/conversation.php:1235
-#, php-format
-msgid "%s don't like this."
-msgstr ""
-
-#: include/conversation.php:1238
-#, php-format
-msgid "<span  %1$s>%2$d people</span> attend"
-msgstr ""
-
-#: include/conversation.php:1239
-#, php-format
-msgid "%s attend."
-msgstr ""
-
-#: include/conversation.php:1242
-#, php-format
-msgid "<span  %1$s>%2$d people</span> don't attend"
-msgstr ""
-
-#: include/conversation.php:1243
-#, php-format
-msgid "%s don't attend."
-msgstr ""
-
-#: include/conversation.php:1246
-#, php-format
-msgid "<span  %1$s>%2$d people</span> attend maybe"
-msgstr ""
-
-#: include/conversation.php:1247
-#, php-format
-msgid "%s anttend maybe."
-msgstr ""
-
-#: include/conversation.php:1277 include/conversation.php:1293
-msgid "Visible to <strong>everybody</strong>"
-msgstr ""
-
-#: include/conversation.php:1278 include/conversation.php:1294
-#: mod/message.php:196 mod/message.php:203 mod/message.php:342
-#: mod/message.php:349 mod/wallmessage.php:120 mod/wallmessage.php:127
-msgid "Please enter a link URL:"
-msgstr ""
-
-#: include/conversation.php:1279 include/conversation.php:1295
-msgid "Please enter a video link/URL:"
-msgstr ""
-
-#: include/conversation.php:1280 include/conversation.php:1296
-msgid "Please enter an audio link/URL:"
-msgstr ""
-
-#: include/conversation.php:1281 include/conversation.php:1297
-msgid "Tag term:"
-msgstr ""
-
-#: include/conversation.php:1282 include/conversation.php:1298 mod/filer.php:35
-msgid "Save to Folder:"
-msgstr ""
-
-#: include/conversation.php:1283 include/conversation.php:1299
-msgid "Where are you right now?"
-msgstr ""
-
-#: include/conversation.php:1284
-msgid "Delete item(s)?"
-msgstr ""
-
-#: include/conversation.php:1333
-msgid "Share"
-msgstr ""
-
-#: include/conversation.php:1334 mod/message.php:259 mod/message.php:429
-#: mod/wallmessage.php:144 mod/editpost.php:110
-msgid "Upload photo"
-msgstr ""
-
-#: include/conversation.php:1335 mod/editpost.php:111
-msgid "upload photo"
-msgstr ""
-
-#: include/conversation.php:1336 mod/editpost.php:112
-msgid "Attach file"
-msgstr ""
-
-#: include/conversation.php:1337 mod/editpost.php:113
-msgid "attach file"
-msgstr ""
-
-#: include/conversation.php:1338 mod/message.php:260 mod/message.php:430
-#: mod/wallmessage.php:145 mod/editpost.php:114
-msgid "Insert web link"
-msgstr ""
-
-#: include/conversation.php:1339 mod/editpost.php:115
-msgid "web link"
-msgstr ""
-
-#: include/conversation.php:1340 mod/editpost.php:116
-msgid "Insert video link"
-msgstr ""
-
-#: include/conversation.php:1341 mod/editpost.php:117
-msgid "video link"
-msgstr ""
-
-#: include/conversation.php:1342 mod/editpost.php:118
-msgid "Insert audio link"
-msgstr ""
-
-#: include/conversation.php:1343 mod/editpost.php:119
-msgid "audio link"
-msgstr ""
-
-#: include/conversation.php:1344 mod/editpost.php:120
-msgid "Set your location"
-msgstr ""
-
-#: include/conversation.php:1345 mod/editpost.php:121
-msgid "set location"
-msgstr ""
-
-#: include/conversation.php:1346 mod/editpost.php:122
-msgid "Clear browser location"
-msgstr ""
-
-#: include/conversation.php:1347 mod/editpost.php:123
-msgid "clear location"
-msgstr ""
-
-#: include/conversation.php:1349 mod/editpost.php:137
-msgid "Set title"
-msgstr ""
-
-#: include/conversation.php:1351 mod/editpost.php:139
-msgid "Categories (comma-separated list)"
-msgstr ""
-
-#: include/conversation.php:1353 mod/editpost.php:125
-msgid "Permission settings"
-msgstr ""
-
-#: include/conversation.php:1354 mod/editpost.php:154
-msgid "permissions"
-msgstr ""
-
-#: include/conversation.php:1362 mod/editpost.php:134
-msgid "Public post"
-msgstr ""
-
-#: include/conversation.php:1366 mod/events.php:531 mod/editpost.php:145
-#: mod/photos.php:1529 mod/photos.php:1568 mod/photos.php:1641
-#: src/Object/Post.php:795
-msgid "Preview"
-msgstr ""
-
-#: include/conversation.php:1370 include/items.php:396 mod/fbrowser.php:103
-#: mod/fbrowser.php:134 mod/follow.php:163 mod/message.php:137
-#: mod/suggest.php:41 mod/tagrm.php:18 mod/tagrm.php:103 mod/unfollow.php:117
-#: mod/videos.php:145 mod/editpost.php:148 mod/contacts.php:467
-#: mod/dfrn_request.php:661 mod/photos.php:246 mod/photos.php:335
-#: mod/settings.php:678 mod/settings.php:704
-msgid "Cancel"
-msgstr ""
-
-#: include/conversation.php:1375
-msgid "Post to Groups"
-msgstr ""
-
-#: include/conversation.php:1376
-msgid "Post to Contacts"
-msgstr ""
-
-#: include/conversation.php:1377
-msgid "Private post"
-msgstr ""
-
-#: include/conversation.php:1382 mod/editpost.php:152 src/Model/Profile.php:340
-msgid "Message"
-msgstr ""
-
-#: include/conversation.php:1383 mod/editpost.php:153
-msgid "Browser"
-msgstr ""
-
-#: include/conversation.php:1650
-msgid "View all"
-msgstr ""
-
-#: include/conversation.php:1673
-msgid "Like"
-msgid_plural "Likes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/conversation.php:1676
-msgid "Dislike"
-msgid_plural "Dislikes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/conversation.php:1682
-msgid "Not Attending"
-msgid_plural "Not Attending"
-msgstr[0] ""
-msgstr[1] ""
-
-#: include/conversation.php:1685 src/Content/ContactSelector.php:125
-msgid "Undecided"
-msgid_plural "Undecided"
-msgstr[0] ""
-msgstr[1] ""
-
 #: include/event.php:430
 msgid "all-day"
 msgstr ""
@@ -1391,13 +959,22 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
+#: include/items.php:396 include/conversation.php:1358 mod/fbrowser.php:103
+#: mod/fbrowser.php:134 mod/follow.php:163 mod/message.php:137
+#: mod/suggest.php:41 mod/tagrm.php:18 mod/tagrm.php:103 mod/unfollow.php:117
+#: mod/videos.php:145 mod/editpost.php:148 mod/contacts.php:467
+#: mod/dfrn_request.php:661 mod/photos.php:246 mod/photos.php:335
+#: mod/settings.php:678 mod/settings.php:704
+msgid "Cancel"
+msgstr ""
+
 #: include/items.php:410 mod/allfriends.php:21 mod/api.php:35 mod/api.php:40
 #: mod/attach.php:38 mod/cal.php:301 mod/common.php:26 mod/crepair.php:98
 #: mod/delegate.php:20 mod/events.php:195 mod/follow.php:16 mod/follow.php:57
 #: mod/follow.php:120 mod/fsuggest.php:79 mod/group.php:26 mod/invite.php:18
 #: mod/invite.php:104 mod/manage.php:109 mod/message.php:55 mod/message.php:100
-#: mod/network.php:29 mod/nogroup.php:28 mod/notes.php:30
-#: mod/profile_photo.php:27 mod/profile_photo.php:186 mod/profile_photo.php:197
+#: mod/nogroup.php:28 mod/notes.php:30 mod/profile_photo.php:27
+#: mod/profile_photo.php:186 mod/profile_photo.php:197
 #: mod/profile_photo.php:210 mod/regmod.php:108 mod/repair_ostatus.php:13
 #: mod/suggest.php:60 mod/unfollow.php:15 mod/unfollow.php:57
 #: mod/unfollow.php:90 mod/viewcontacts.php:55 mod/wall_attach.php:74
@@ -1408,7 +985,8 @@ msgstr ""
 #: mod/dirfind.php:24 mod/item.php:162 mod/notifications.php:73
 #: mod/ostatus_subscribe.php:16 mod/photos.php:172 mod/photos.php:1084
 #: mod/poke.php:159 mod/profiles.php:178 mod/profiles.php:615
-#: mod/settings.php:39 mod/settings.php:138 mod/settings.php:667 index.php:421
+#: mod/settings.php:39 mod/settings.php:138 mod/settings.php:667
+#: mod/network.php:29 index.php:421
 msgid "Permission denied."
 msgstr ""
 
@@ -1420,6 +998,17 @@ msgstr ""
 #: src/Content/ForumManager.php:130 src/Content/Widget.php:311
 #: src/Object/Post.php:420 src/App.php:519
 msgid "show more"
+msgstr ""
+
+#: include/like.php:38 include/conversation.php:162
+#: src/Protocol/Diaspora.php:1938
+#, php-format
+msgid "%1$s likes %2$s's %3$s"
+msgstr ""
+
+#: include/like.php:42 include/like.php:47 include/conversation.php:165
+#, php-format
+msgid "%1$s doesn't like %2$s's %3$s"
 msgstr ""
 
 #: include/like.php:52
@@ -1436,6 +1025,417 @@ msgstr ""
 #, php-format
 msgid "%1$s may attend %2$s's %3$s"
 msgstr ""
+
+#: include/like.php:192 include/conversation.php:145
+#: include/conversation.php:155 include/conversation.php:283
+#: include/conversation.php:292 mod/subthread.php:96 mod/tagger.php:71
+#: src/Protocol/Diaspora.php:1942
+msgid "status"
+msgstr ""
+
+#: include/conversation.php:168
+#, php-format
+msgid "%1$s attends %2$s's %3$s"
+msgstr ""
+
+#: include/conversation.php:171
+#, php-format
+msgid "%1$s doesn't attend %2$s's %3$s"
+msgstr ""
+
+#: include/conversation.php:174
+#, php-format
+msgid "%1$s attends maybe %2$s's %3$s"
+msgstr ""
+
+#: include/conversation.php:207 mod/dfrn_confirm.php:430
+#: src/Protocol/Diaspora.php:2410
+#, php-format
+msgid "%1$s is now friends with %2$s"
+msgstr ""
+
+#: include/conversation.php:248
+#, php-format
+msgid "%1$s poked %2$s"
+msgstr ""
+
+#: include/conversation.php:302 mod/tagger.php:104
+#, php-format
+msgid "%1$s tagged %2$s's %3$s with %4$s"
+msgstr ""
+
+#: include/conversation.php:329
+msgid "post/item"
+msgstr ""
+
+#: include/conversation.php:330
+#, php-format
+msgid "%1$s marked %2$s's %3$s as favorite"
+msgstr ""
+
+#: include/conversation.php:604 mod/photos.php:1538 mod/profiles.php:350
+msgid "Likes"
+msgstr ""
+
+#: include/conversation.php:604 mod/photos.php:1538 mod/profiles.php:354
+msgid "Dislikes"
+msgstr ""
+
+#: include/conversation.php:605 include/conversation.php:1667
+#: mod/photos.php:1539
+msgid "Attending"
+msgid_plural "Attending"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/conversation.php:605 mod/photos.php:1539
+msgid "Not attending"
+msgstr ""
+
+#: include/conversation.php:605 mod/photos.php:1539
+msgid "Might attend"
+msgstr ""
+
+#: include/conversation.php:739 mod/photos.php:1606 src/Object/Post.php:175
+msgid "Select"
+msgstr ""
+
+#: include/conversation.php:740 mod/admin.php:1702 mod/contacts.php:821
+#: mod/contacts.php:1019 mod/photos.php:1607 mod/settings.php:740
+#: src/Object/Post.php:176
+msgid "Delete"
+msgstr ""
+
+#: include/conversation.php:772 src/Object/Post.php:353 src/Object/Post.php:354
+#, php-format
+msgid "View %s's profile @ %s"
+msgstr ""
+
+#: include/conversation.php:784 src/Object/Post.php:341
+msgid "Categories:"
+msgstr ""
+
+#: include/conversation.php:785 src/Object/Post.php:342
+msgid "Filed under:"
+msgstr ""
+
+#: include/conversation.php:792 src/Object/Post.php:367
+#, php-format
+msgid "%s from %s"
+msgstr ""
+
+#: include/conversation.php:807
+msgid "View in context"
+msgstr ""
+
+#: include/conversation.php:809 include/conversation.php:1340
+#: mod/message.php:261 mod/message.php:432 mod/wallmessage.php:146
+#: mod/editpost.php:124 mod/photos.php:1510 src/Object/Post.php:392
+msgid "Please wait"
+msgstr ""
+
+#: include/conversation.php:880
+msgid "remove"
+msgstr ""
+
+#: include/conversation.php:884
+msgid "Delete Selected Items"
+msgstr ""
+
+#: include/conversation.php:1046 view/theme/frio/theme.php:356
+msgid "Follow Thread"
+msgstr ""
+
+#: include/conversation.php:1047 src/Model/Contact.php:553
+msgid "View Status"
+msgstr ""
+
+#: include/conversation.php:1048 include/conversation.php:1064
+#: mod/allfriends.php:73 mod/directory.php:153 mod/suggest.php:82
+#: mod/dirfind.php:220 mod/match.php:89 src/Model/Contact.php:496
+#: src/Model/Contact.php:509 src/Model/Contact.php:554
+msgid "View Profile"
+msgstr ""
+
+#: include/conversation.php:1049 src/Model/Contact.php:555
+msgid "View Photos"
+msgstr ""
+
+#: include/conversation.php:1050 src/Model/Contact.php:556
+msgid "Network Posts"
+msgstr ""
+
+#: include/conversation.php:1051 src/Model/Contact.php:557
+msgid "View Contact"
+msgstr ""
+
+#: include/conversation.php:1052 src/Model/Contact.php:559
+msgid "Send PM"
+msgstr ""
+
+#: include/conversation.php:1056 src/Model/Contact.php:560
+msgid "Poke"
+msgstr ""
+
+#: include/conversation.php:1061 mod/allfriends.php:74 mod/follow.php:145
+#: mod/suggest.php:83 mod/contacts.php:587 mod/dirfind.php:221 mod/match.php:90
+#: src/Content/Widget.php:60 src/Model/Contact.php:510
+msgid "Connect/Follow"
+msgstr ""
+
+#: include/conversation.php:1180
+#, php-format
+msgid "%s likes this."
+msgstr ""
+
+#: include/conversation.php:1183
+#, php-format
+msgid "%s doesn't like this."
+msgstr ""
+
+#: include/conversation.php:1186
+#, php-format
+msgid "%s attends."
+msgstr ""
+
+#: include/conversation.php:1189
+#, php-format
+msgid "%s doesn't attend."
+msgstr ""
+
+#: include/conversation.php:1192
+#, php-format
+msgid "%s attends maybe."
+msgstr ""
+
+#: include/conversation.php:1203
+msgid "and"
+msgstr ""
+
+#: include/conversation.php:1209
+#, php-format
+msgid "and %d other people"
+msgstr ""
+
+#: include/conversation.php:1218
+#, php-format
+msgid "<span  %1$s>%2$d people</span> like this"
+msgstr ""
+
+#: include/conversation.php:1219
+#, php-format
+msgid "%s like this."
+msgstr ""
+
+#: include/conversation.php:1222
+#, php-format
+msgid "<span  %1$s>%2$d people</span> don't like this"
+msgstr ""
+
+#: include/conversation.php:1223
+#, php-format
+msgid "%s don't like this."
+msgstr ""
+
+#: include/conversation.php:1226
+#, php-format
+msgid "<span  %1$s>%2$d people</span> attend"
+msgstr ""
+
+#: include/conversation.php:1227
+#, php-format
+msgid "%s attend."
+msgstr ""
+
+#: include/conversation.php:1230
+#, php-format
+msgid "<span  %1$s>%2$d people</span> don't attend"
+msgstr ""
+
+#: include/conversation.php:1231
+#, php-format
+msgid "%s don't attend."
+msgstr ""
+
+#: include/conversation.php:1234
+#, php-format
+msgid "<span  %1$s>%2$d people</span> attend maybe"
+msgstr ""
+
+#: include/conversation.php:1235
+#, php-format
+msgid "%s anttend maybe."
+msgstr ""
+
+#: include/conversation.php:1265 include/conversation.php:1281
+msgid "Visible to <strong>everybody</strong>"
+msgstr ""
+
+#: include/conversation.php:1266 include/conversation.php:1282
+#: mod/message.php:196 mod/message.php:203 mod/message.php:342
+#: mod/message.php:349 mod/wallmessage.php:120 mod/wallmessage.php:127
+msgid "Please enter a link URL:"
+msgstr ""
+
+#: include/conversation.php:1267 include/conversation.php:1283
+msgid "Please enter a video link/URL:"
+msgstr ""
+
+#: include/conversation.php:1268 include/conversation.php:1284
+msgid "Please enter an audio link/URL:"
+msgstr ""
+
+#: include/conversation.php:1269 include/conversation.php:1285
+msgid "Tag term:"
+msgstr ""
+
+#: include/conversation.php:1270 include/conversation.php:1286 mod/filer.php:35
+msgid "Save to Folder:"
+msgstr ""
+
+#: include/conversation.php:1271 include/conversation.php:1287
+msgid "Where are you right now?"
+msgstr ""
+
+#: include/conversation.php:1272
+msgid "Delete item(s)?"
+msgstr ""
+
+#: include/conversation.php:1321
+msgid "Share"
+msgstr ""
+
+#: include/conversation.php:1322 mod/message.php:259 mod/message.php:429
+#: mod/wallmessage.php:144 mod/editpost.php:110
+msgid "Upload photo"
+msgstr ""
+
+#: include/conversation.php:1323 mod/editpost.php:111
+msgid "upload photo"
+msgstr ""
+
+#: include/conversation.php:1324 mod/editpost.php:112
+msgid "Attach file"
+msgstr ""
+
+#: include/conversation.php:1325 mod/editpost.php:113
+msgid "attach file"
+msgstr ""
+
+#: include/conversation.php:1326 mod/message.php:260 mod/message.php:430
+#: mod/wallmessage.php:145 mod/editpost.php:114
+msgid "Insert web link"
+msgstr ""
+
+#: include/conversation.php:1327 mod/editpost.php:115
+msgid "web link"
+msgstr ""
+
+#: include/conversation.php:1328 mod/editpost.php:116
+msgid "Insert video link"
+msgstr ""
+
+#: include/conversation.php:1329 mod/editpost.php:117
+msgid "video link"
+msgstr ""
+
+#: include/conversation.php:1330 mod/editpost.php:118
+msgid "Insert audio link"
+msgstr ""
+
+#: include/conversation.php:1331 mod/editpost.php:119
+msgid "audio link"
+msgstr ""
+
+#: include/conversation.php:1332 mod/editpost.php:120
+msgid "Set your location"
+msgstr ""
+
+#: include/conversation.php:1333 mod/editpost.php:121
+msgid "set location"
+msgstr ""
+
+#: include/conversation.php:1334 mod/editpost.php:122
+msgid "Clear browser location"
+msgstr ""
+
+#: include/conversation.php:1335 mod/editpost.php:123
+msgid "clear location"
+msgstr ""
+
+#: include/conversation.php:1337 mod/editpost.php:137
+msgid "Set title"
+msgstr ""
+
+#: include/conversation.php:1339 mod/editpost.php:139
+msgid "Categories (comma-separated list)"
+msgstr ""
+
+#: include/conversation.php:1341 mod/editpost.php:125
+msgid "Permission settings"
+msgstr ""
+
+#: include/conversation.php:1342 mod/editpost.php:154
+msgid "permissions"
+msgstr ""
+
+#: include/conversation.php:1350 mod/editpost.php:134
+msgid "Public post"
+msgstr ""
+
+#: include/conversation.php:1354 mod/events.php:531 mod/editpost.php:145
+#: mod/photos.php:1529 mod/photos.php:1568 mod/photos.php:1641
+#: src/Object/Post.php:795
+msgid "Preview"
+msgstr ""
+
+#: include/conversation.php:1363
+msgid "Post to Groups"
+msgstr ""
+
+#: include/conversation.php:1364
+msgid "Post to Contacts"
+msgstr ""
+
+#: include/conversation.php:1365
+msgid "Private post"
+msgstr ""
+
+#: include/conversation.php:1370 mod/editpost.php:152 src/Model/Profile.php:340
+msgid "Message"
+msgstr ""
+
+#: include/conversation.php:1371 mod/editpost.php:153
+msgid "Browser"
+msgstr ""
+
+#: include/conversation.php:1638
+msgid "View all"
+msgstr ""
+
+#: include/conversation.php:1661
+msgid "Like"
+msgid_plural "Likes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/conversation.php:1664
+msgid "Dislike"
+msgid_plural "Dislikes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/conversation.php:1670
+msgid "Not Attending"
+msgid_plural "Not Attending"
+msgstr[0] ""
+msgstr[1] ""
+
+#: include/conversation.php:1673 src/Content/ContactSelector.php:125
+msgid "Undecided"
+msgid_plural "Undecided"
+msgstr[0] ""
+msgstr[1] ""
 
 #: mod/allfriends.php:51
 msgid "No friends to display."
@@ -1550,47 +1550,6 @@ msgstr ""
 
 #: mod/common.php:140 mod/contacts.php:877
 msgid "Common Friends"
-msgstr ""
-
-#: mod/community.php:25 mod/directory.php:38 mod/videos.php:211
-#: mod/viewcontacts.php:45 mod/dfrn_request.php:605 mod/display.php:198
-#: mod/photos.php:964 mod/probe.php:13 mod/search.php:98 mod/search.php:104
-#: mod/webfinger.php:16
-msgid "Public access denied."
-msgstr ""
-
-#: mod/community.php:44
-msgid "Community option not available."
-msgstr ""
-
-#: mod/community.php:61
-msgid "Not available."
-msgstr ""
-
-#: mod/community.php:75 src/Content/Nav.php:165
-msgid "Community"
-msgstr ""
-
-#: mod/community.php:78
-msgid "Posts from local users on this server"
-msgstr ""
-
-#: mod/community.php:86
-msgid "Global Timeline"
-msgstr ""
-
-#: mod/community.php:89
-msgid "Posts from users of the federated network"
-msgstr ""
-
-#: mod/community.php:138 mod/search.php:225
-msgid "No results."
-msgstr ""
-
-#: mod/community.php:182
-msgid ""
-"This community stream shows all public posts received by this node. They may "
-"not reflect the opinions of this node’s users."
 msgstr ""
 
 #: mod/credits.php:18
@@ -1750,6 +1709,13 @@ msgstr ""
 
 #: mod/delegate.php:133
 msgid "No entries."
+msgstr ""
+
+#: mod/directory.php:38 mod/videos.php:211 mod/viewcontacts.php:45
+#: mod/dfrn_request.php:605 mod/display.php:198 mod/photos.php:964
+#: mod/probe.php:13 mod/search.php:98 mod/search.php:104 mod/webfinger.php:16
+#: mod/community.php:25
+msgid "Public access denied."
 msgstr ""
 
 #: mod/directory.php:142 mod/notifications.php:253 src/Model/Profile.php:418
@@ -2325,99 +2291,6 @@ msgid "%d message"
 msgid_plural "%d messages"
 msgstr[0] ""
 msgstr[1] ""
-
-#: mod/network.php:191 mod/search.php:37
-msgid "Remove term"
-msgstr ""
-
-#: mod/network.php:198 mod/search.php:46 src/Content/Feature.php:100
-msgid "Saved Searches"
-msgstr ""
-
-#: mod/network.php:199 src/Model/Group.php:401
-msgid "add"
-msgstr ""
-
-#: mod/network.php:544
-#, php-format
-msgid ""
-"Warning: This group contains %s member from a network that doesn't allow non "
-"public messages."
-msgid_plural ""
-"Warning: This group contains %s members from a network that doesn't allow "
-"non public messages."
-msgstr[0] ""
-msgstr[1] ""
-
-#: mod/network.php:547
-msgid "Messages in this group won't be send to these receivers."
-msgstr ""
-
-#: mod/network.php:615
-msgid "No such group"
-msgstr ""
-
-#: mod/network.php:640
-#, php-format
-msgid "Group: %s"
-msgstr ""
-
-#: mod/network.php:666
-msgid "Private messages to this person are at risk of public disclosure."
-msgstr ""
-
-#: mod/network.php:669
-msgid "Invalid contact."
-msgstr ""
-
-#: mod/network.php:912
-msgid "Commented Order"
-msgstr ""
-
-#: mod/network.php:915
-msgid "Sort by Comment Date"
-msgstr ""
-
-#: mod/network.php:920
-msgid "Posted Order"
-msgstr ""
-
-#: mod/network.php:923
-msgid "Sort by Post Date"
-msgstr ""
-
-#: mod/network.php:931 mod/profiles.php:696
-#: src/Core/NotificationsManager.php:184
-msgid "Personal"
-msgstr ""
-
-#: mod/network.php:934
-msgid "Posts that mention or involve you"
-msgstr ""
-
-#: mod/network.php:942
-msgid "New"
-msgstr ""
-
-#: mod/network.php:945
-msgid "Activity Stream - by date"
-msgstr ""
-
-#: mod/network.php:953
-msgid "Shared Links"
-msgstr ""
-
-#: mod/network.php:956
-msgid "Interesting Links"
-msgstr ""
-
-#: mod/network.php:964
-msgid "Starred"
-msgstr ""
-
-#: mod/network.php:967
-msgid "Favourite Posts"
-msgstr ""
 
 #: mod/newmember.php:11
 msgid "Welcome to Friendica"
@@ -6508,6 +6381,11 @@ msgstr ""
 msgid "Additional information"
 msgstr ""
 
+#: mod/profiles.php:696 mod/network.php:931
+#: src/Core/NotificationsManager.php:184
+msgid "Personal"
+msgstr ""
+
 #: mod/profiles.php:697
 msgid "Relation"
 msgstr ""
@@ -6688,6 +6566,14 @@ msgstr ""
 msgid "Create New Profile"
 msgstr ""
 
+#: mod/search.php:37 mod/network.php:191
+msgid "Remove term"
+msgstr ""
+
+#: mod/search.php:46 mod/network.php:198 src/Content/Feature.php:100
+msgid "Saved Searches"
+msgstr ""
+
 #: mod/search.php:105
 msgid "Only logged in users are permitted to perform a search."
 msgstr ""
@@ -6698,6 +6584,10 @@ msgstr ""
 
 #: mod/search.php:130
 msgid "Only one search per minute is permitted for not logged in users."
+msgstr ""
+
+#: mod/search.php:225 mod/community.php:135
+msgid "No results."
 msgstr ""
 
 #: mod/search.php:231
@@ -7497,6 +7387,116 @@ msgstr ""
 msgid "%1$s is following %2$s's %3$s"
 msgstr ""
 
+#: mod/community.php:44
+msgid "Community option not available."
+msgstr ""
+
+#: mod/community.php:61
+msgid "Not available."
+msgstr ""
+
+#: mod/community.php:75
+msgid "Local Community"
+msgstr ""
+
+#: mod/community.php:78
+msgid "Posts from local users on this server"
+msgstr ""
+
+#: mod/community.php:86
+msgid "Global Community"
+msgstr ""
+
+#: mod/community.php:89
+msgid "Posts from users of the whole federated network"
+msgstr ""
+
+#: mod/community.php:179
+msgid ""
+"This community stream shows all public posts received by this node. They may "
+"not reflect the opinions of this node’s users."
+msgstr ""
+
+#: mod/network.php:199 src/Model/Group.php:401
+msgid "add"
+msgstr ""
+
+#: mod/network.php:544
+#, php-format
+msgid ""
+"Warning: This group contains %s member from a network that doesn't allow non "
+"public messages."
+msgid_plural ""
+"Warning: This group contains %s members from a network that doesn't allow "
+"non public messages."
+msgstr[0] ""
+msgstr[1] ""
+
+#: mod/network.php:547
+msgid "Messages in this group won't be send to these receivers."
+msgstr ""
+
+#: mod/network.php:615
+msgid "No such group"
+msgstr ""
+
+#: mod/network.php:640
+#, php-format
+msgid "Group: %s"
+msgstr ""
+
+#: mod/network.php:666
+msgid "Private messages to this person are at risk of public disclosure."
+msgstr ""
+
+#: mod/network.php:669
+msgid "Invalid contact."
+msgstr ""
+
+#: mod/network.php:912
+msgid "Commented Order"
+msgstr ""
+
+#: mod/network.php:915
+msgid "Sort by Comment Date"
+msgstr ""
+
+#: mod/network.php:920
+msgid "Posted Order"
+msgstr ""
+
+#: mod/network.php:923
+msgid "Sort by Post Date"
+msgstr ""
+
+#: mod/network.php:934
+msgid "Posts that mention or involve you"
+msgstr ""
+
+#: mod/network.php:942
+msgid "New"
+msgstr ""
+
+#: mod/network.php:945
+msgid "Activity Stream - by date"
+msgstr ""
+
+#: mod/network.php:953
+msgid "Shared Links"
+msgstr ""
+
+#: mod/network.php:956
+msgid "Interesting Links"
+msgstr ""
+
+#: mod/network.php:964
+msgid "Starred"
+msgstr ""
+
+#: mod/network.php:967
+msgid "Favourite Posts"
+msgstr ""
+
 #: view/theme/duepuntozero/config.php:54 src/Model/User.php:429
 msgid "default"
 msgstr ""
@@ -8208,6 +8208,10 @@ msgstr ""
 
 #: src/Content/Nav.php:142
 msgid "Search site content"
+msgstr ""
+
+#: src/Content/Nav.php:165
+msgid "Community"
 msgstr ""
 
 #: src/Content/Nav.php:165
