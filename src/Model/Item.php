@@ -23,7 +23,6 @@ use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Temporal;
 use dba;
 use Text_LanguageDetect;
 
@@ -1776,7 +1775,7 @@ class Item extends BaseObject
 			$like_item = $existing_like[0];
 
 			// Already voted, undo it
-			$fields = ['deleted' => true, 'unseen' => true, 'changed' => datetime_convert()];
+			$fields = ['deleted' => true, 'unseen' => true, 'changed' => DateTimeFormat::utcNow()];
 			dba::update('item', $fields, ['id' => $like_item['id']]);
 
 			// Clean up the Diaspora signatures for this like
