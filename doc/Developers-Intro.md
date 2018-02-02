@@ -48,6 +48,23 @@ Friendica uses [Composer](https://getcomposer.org) to manage dependencies librar
 
 It's a command-line tool that downloads required libraries into the `vendor` folder and makes any namespaced class in `src` available through the whole application through `boot.php`.
 
+If you want to have git automatically update the dependencies with composer, you can use the `post-merge` [git-hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) with a script similar to this one:
+
+    #/usr/bin/env bash
+    # MIT © Sindre Sorhus - sindresorhus.com
+    # forked by Gianluca Guarini
+    # phponly by Ivo Bathke ;)
+    # modified for Friendica by Tobias Diekershoff
+    changed_files="$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD)"
+    check_run() {
+		    echo "$changed_files" | grep --quiet "$1" && eval "$2"
+    }
+    # `composer install` if the `composer.lock` file gets changed
+    # to update all the php dependencies
+    check_run composer.lock "util/composer.phar install --no-dev"
+
+just place it into `.git/hooks/post-merge` and make it executeable.
+
 * [Class autoloading](help/autoloader)
 * [Using Composer](help/Composer)
 * [How To Move Classes to `src`](help/Developer-How-To-Move-Classes-to-src)
@@ -112,7 +129,7 @@ Have a look at our [issue tracker](https://github.com/friendica/friendica) on gi
 * Try to reproduce a bug that needs more inquiries and write down what you find out.
 * If a bug looks fixed, ask the bug reporters for feedback to find out if the bug can be closed.
 * Fix a bug if you can. Please make the pull request against the *develop* branch of the repository.
-* There is a *Junior Job* label for issues we think might be a good point to start with.
+* There is a *[Junior Job](https://github.com/friendica/friendica/issues?q=is%3Aopen+is%3Aissue+label%3A"Junior+Jobs")* label for issues we think might be a good point to start with.
 	But you don't have to limit yourself to those issues.
 
 ### Web interface
@@ -133,7 +150,7 @@ As Friendica is using a [Twitter/GNU Social compatible API](help/api) any of the
 Furthermore there are several client projects, especially for use with Friendica.
 If you are interested in improving those clients, please contact the developers of the clients directly.
 
-* Android / CynogenMod: **Friendica for Android** [src](https://github.com/max-weller/friendica-for-android), [homepage](http://friendica.android.max-weller.de/) - abandoned
+* Android / LinageOS: **Friendiqa** [src](https://github.com/LubuWest/Friendiqa) developed by [Marco R](https://freunde.ma-nic.de/profile/marco)
 * iOS: *currently no client*
 * SailfishOS: **Friendiy** [src](https://kirgroup.com/projects/fabrixxm/harbour-friendly) - developed by [Fabio](https://kirgroup.com/profile/fabrixxm/?tab=profile)
 * Windows: **Friendica Mobile** for Windows versions [before 8.1](http://windowsphone.com/s?appid=e3257730-c9cf-4935-9620-5261e3505c67) and [Windows 10](https://www.microsoft.com/store/apps/9nblggh0fhmn) - developed by [Gerhard Seeber](http://mozartweg.dyndns.org/friendica/profile/gerhard/?tab=profile)
