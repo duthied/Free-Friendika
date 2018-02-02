@@ -41,6 +41,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 			if ($key[0] === '$') {
 				$key = substr($key, 1);
 			}
+
 			$s->assign($key, $value);
 		}
 		return $s->parsed($template);
@@ -52,6 +53,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 		$template_file = get_template_file($a, SMARTY3_TEMPLATE_FOLDER . '/' . $file, $root);
 		$template = new FriendicaSmarty();
 		$template->filename = $template_file;
+
 		return $template;
 	}
 }
