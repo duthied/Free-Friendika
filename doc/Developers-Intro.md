@@ -48,6 +48,23 @@ Friendica uses [Composer](https://getcomposer.org) to manage dependencies librar
 
 It's a command-line tool that downloads required libraries into the `vendor` folder and makes any namespaced class in `src` available through the whole application through `boot.php`.
 
+If you want to have git automatically update the dependencies with composer, you can use the `post-merge` [git-hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) with a script similar to this one:
+
+    #/usr/bin/env bash
+    # MIT © Sindre Sorhus - sindresorhus.com
+    # forked by Gianluca Guarini
+    # phponly by Ivo Bathke ;)
+    # modified for Friendica by Tobias Diekershoff
+    changed_files="$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD)"
+    check_run() {
+		    echo "$changed_files" | grep --quiet "$1" && eval "$2"
+    }
+    # `composer install` if the `composer.lock` file gets changed
+    # to update all the php dependencies
+    check_run composer.lock "util/composer.phar install --no-dev"
+
+just place it into `.git/hooks/post-merge` and make it executeable.
+
 * [Class autoloading](help/autoloader)
 * [Using Composer](help/Composer)
 * [How To Move Classes to `src`](help/Developer-How-To-Move-Classes-to-src)
