@@ -90,6 +90,9 @@ class Probe
 	/**
 	 * @brief Probes for webfinger path via "host-meta"
 	 *
+	 * We have to check if the servers in the future still will offer this.
+	 * It seems as if it was dropped from the standard.
+	 *
 	 * @param string $host The host part of an url
 	 *
 	 * @return array with template and type of the webfinger template for JSON or XML
