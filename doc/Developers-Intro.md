@@ -112,7 +112,7 @@ Have a look at our [issue tracker](https://github.com/friendica/friendica) on gi
 * Try to reproduce a bug that needs more inquiries and write down what you find out.
 * If a bug looks fixed, ask the bug reporters for feedback to find out if the bug can be closed.
 * Fix a bug if you can. Please make the pull request against the *develop* branch of the repository.
-* There is a *Junior Job* label for issues we think might be a good point to start with.
+* There is a *[Junior Job](https://github.com/friendica/friendica/issues?q=is%3Aopen+is%3Aissue+label%3A"Junior+Jobs")* label for issues we think might be a good point to start with.
 	But you don't have to limit yourself to those issues.
 
 ### Web interface
