@@ -48,7 +48,6 @@ require_once 'include/security.php';
 require_once 'include/html2bbcode.php';
 require_once 'mod/wall_upload.php';
 require_once 'mod/proxy.php';
-require_once 'include/like.php';
 
 define('API_METHOD_ANY', '*');
 define('API_METHOD_GET', 'GET');
@@ -5587,7 +5586,7 @@ function api_friendica_activity($type)
 
 	$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
 
-	$res = do_like($id, $verb);
+	$res = Item::performLike($id, $verb);
 
 	if ($res) {
 		if ($type == "xml") {
