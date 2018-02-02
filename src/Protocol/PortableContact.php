@@ -646,30 +646,51 @@ class PortableContact
 			return false;
 		}
 
-		$nodeinfo_url = '';
+		$nodeinfo1_url = '';
+		$nodeinfo2_url = '';
 
 		foreach ($nodeinfo->links as $link) {
 			if ($link->rel == 'http://nodeinfo.diaspora.software/ns/schema/1.0') {
-				$nodeinfo_url = $link->href;
+				$nodeinfo1_url = $link->href;
+			}
+			if ($link->rel == 'http://nodeinfo.diaspora.software/ns/schema/2.0') {
+				$nodeinfo2_url = $link->href;
 			}
 		}
 
-		if ($nodeinfo_url == '') {
+		if ($nodeinfo1_url . $nodeinfo2_url == '') {
 			return false;
+		}
+
+		$server = [];
+
+		// When the nodeinfo url isn't on the same host, then there is obviously something wrong
+		if (!empty($nodeinfo2_url) && (parse_url($server_url, PHP_URL_HOST) == parse_url($nodeinfo2_url, PHP_URL_HOST))) {
+			$server = self::parseNodeinfo2($nodeinfo2_url);
 		}
 
 		// When the nodeinfo url isn't on the same host, then there is obviously something wrong
-		if (parse_url($server_url, PHP_URL_HOST) != parse_url($nodeinfo_url, PHP_URL_HOST)) {
-			return false;
+		if (empty($server) && !empty($nodeinfo1_url) && (parse_url($server_url, PHP_URL_HOST) == parse_url($nodeinfo1_url, PHP_URL_HOST))) {
+			$server = self::parseNodeinfo1($nodeinfo1_url);
 		}
 
+		return $server;
+	}
+
+	/**
+	 * @brief Parses Nodeinfo 1
+	 *
+	 * @param string $nodeinfo_url address of the nodeinfo path
+	 * @return array Server data
+	 */
+	private static function parseNodeinfo1($nodeinfo_url)
+	{
 		$serverret = Network::curl($nodeinfo_url);
 		if (!$serverret["success"]) {
 			return false;
 		}
 
 		$nodeinfo = json_decode($serverret['body']);
-
 		if (!is_object($nodeinfo)) {
 			return false;
 		}
@@ -718,6 +739,90 @@ class PortableContact
 					$friendica = true;
 				}
 				if ($inbound == 'gnusocial') {
+					$gnusocial = true;
+				}
+			}
+		}
+
+		if ($gnusocial) {
+			$server['network'] = NETWORK_OSTATUS;
+		}
+		if ($diaspora) {
+			$server['network'] = NETWORK_DIASPORA;
+		}
+		if ($friendica) {
+			$server['network'] = NETWORK_DFRN;
+		}
+
+		if (!$server) {
+			return false;
+		}
+
+		return $server;
+	}
+
+	/**
+	 * @brief Parses Nodeinfo 2
+	 *
+	 * @param string $nodeinfo_url address of the nodeinfo path
+	 * @return array Server data
+	 */
+	private static function parseNodeinfo2($nodeinfo_url)
+	{
+		$serverret = Network::curl($nodeinfo_url);
+		if (!$serverret["success"]) {
+			return false;
+		}
+
+		$nodeinfo = json_decode($serverret['body']);
+		if (!is_object($nodeinfo)) {
+			return false;
+		}
+
+		$server = [];
+
+		$server['register_policy'] = REGISTER_CLOSED;
+
+		if (is_bool($nodeinfo->openRegistrations) && $nodeinfo->openRegistrations) {
+			$server['register_policy'] = REGISTER_OPEN;
+		}
+
+		if (is_object($nodeinfo->software)) {
+			if (isset($nodeinfo->software->name)) {
+				$server['platform'] = $nodeinfo->software->name;
+			}
+
+			if (isset($nodeinfo->software->version)) {
+				$server['version'] = $nodeinfo->software->version;
+				// Version numbers on Nodeinfo are presented with additional info, e.g.:
+				// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
+				$server['version'] = preg_replace("=(.+)-(.{4,})=ism", "$1", $server['version']);
+			}
+		}
+
+		if (is_object($nodeinfo->metadata)) {
+			if (isset($nodeinfo->metadata->nodeName)) {
+				$server['site_name'] = $nodeinfo->metadata->nodeName;
+			}
+		}
+
+		if (!empty($nodeinfo->usage->users->total)) {
+			$server['registered-users'] = $nodeinfo->usage->users->total;
+		}
+
+		$diaspora = false;
+		$friendica = false;
+		$gnusocial = false;
+
+		if (is_array($nodeinfo->protocols)) {
+			foreach ($nodeinfo->protocols as $protocol) {
+				if ($protocol == 'diaspora') {
+					$diaspora = true;
+				}
+				if ($protocol == 'friendica') {
+					$friendica = true;
+				}
+				if ($protocol == 'gnusocial') {
 					$gnusocial = true;
 				}
 			}
