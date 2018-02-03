@@ -288,12 +288,7 @@ class App
 		$this->is_friendica_app = ($_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)');
 
 		// Register template engines
-		$dc = get_declared_classes();
-		foreach ($dc as $k) {
-			if (in_array('Friendica\Render\ITemplateEngine', class_implements($k))) {
-				$this->register_template_engine($k);
-			}
-		}
+		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
 
 		self::$a = $this;
 	}
@@ -602,7 +597,7 @@ class App
 			$this->template_engines[$name] = $class;
 		} else {
 			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
-			killme();
+			die();
 		}
 	}
 
