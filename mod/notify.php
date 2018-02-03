@@ -2,13 +2,15 @@
 /**
  * @file mod/notify.php
  */
+
 use Friendica\App;
-use Friendica\Core\NotificationsManager;
 use Friendica\Core\L10n;
+use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Module\Login;
 use Friendica\Model\Item;
+use Friendica\Module\Login;
+use Friendica\Util\Temporal;
 
 function notify_init(App $a)
 {
@@ -68,7 +70,7 @@ function notify_content(App $a)
 				'$item_link' => System::baseUrl(true).'/notify/view/'. $it['id'],
 				'$item_image' => $it['photo'],
 				'$item_text' => strip_tags(bbcode($it['msg'])),
-				'$item_when' => relative_date($it['date'])
+				'$item_when' => Temporal::getRelativeDate($it['date'])
 			]);
 		}
 	} else {

@@ -19,6 +19,7 @@ use Friendica\Model\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
@@ -258,7 +259,7 @@ class Profile
 	 * @param int $block
 	 * @param boolean $show_connect Show connect link
 	 *
-	 * @return HTML string suitable for sidebar inclusion
+	 * @return string HTML sidebar module
 	 *
 	 * @note Returns empty string if passed $profile is wrong type or not populated
 	 *
@@ -740,7 +741,7 @@ class Profile
 
 			if (!empty($a->profile['dob'])
 				&& $a->profile['dob'] > '0001-01-01'
-				&& $age = age($a->profile['dob'], $a->profile['timezone'], '')
+				&& $age = Temporal::getAgeByTimezone($a->profile['dob'], $a->profile['timezone'], '')
 			) {
 				$profile['age'] = [L10n::t('Age:'), $age];
 			}
@@ -755,7 +756,7 @@ class Profile
 			}
 
 			if (strlen($a->profile['howlong']) && $a->profile['howlong'] >= NULL_DATE) {
-				$profile['howlong'] = relative_date($a->profile['howlong'], L10n::t('for %1$d %2$s'));
+				$profile['howlong'] = Temporal::getRelativeDate($a->profile['howlong'], L10n::t('for %1$d %2$s'));
 			}
 
 			if ($a->profile['sexual']) {

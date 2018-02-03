@@ -21,6 +21,7 @@ use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -1648,13 +1649,13 @@ function admin_page_users(App $a)
 			L10n::t('Automatic Friend Account')
 		];
 		$e['page-flags'] = $accounts[$e['page-flags']];
-		$e['register_date'] = relative_date($e['register_date']);
-		$e['login_date'] = relative_date($e['login_date']);
-		$e['lastitem_date'] = relative_date($e['lastitem_date']);
+		$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
+		$e['login_date'] = Temporal::getRelativeDate($e['login_date']);
+		$e['lastitem_date'] = Temporal::getRelativeDate($e['lastitem_date']);
 		//$e['is_admin'] = ($e['email'] === $a->config['admin_email']);
 		$e['is_admin'] = in_array($e['email'], $adminlist);
 		$e['is_deletable'] = (intval($e['uid']) != local_user());
-		$e['deleted'] = ($e['account_removed'] ? relative_date($e['account_expires_on']) : False);
+		$e['deleted'] = ($e['account_removed'] ? Temporal::getRelativeDate($e['account_expires_on']) : False);
 		return $e;
 	};
 	$users = array_map($_setup_users, $users);

@@ -15,9 +15,10 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Object\Post;
-use Friendica\Util\XML;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
+use Friendica\Util\XML;
 
 require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
@@ -791,7 +792,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 					'folders' => $folders,
 					'text' => strip_tags($body_e),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
-					'ago' => (($item['app']) ? L10n::t('%s from %s', relative_date($item['created']),$item['app']) : relative_date($item['created'])),
+					'ago' => (($item['app']) ? L10n::t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
 					'location' => $location_e,
 					'indent' => '',
 					'owner_name' => $owner_name_e,
@@ -1166,7 +1167,7 @@ function builtin_activity_puller($item, &$conv_responses) {
  * @param array $arr = array of pre-linked names of likers/dislikers
  * @param string $type = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
  * @param int $id  = item id
- * @return formatted text
+ * @return string formatted text
  */
 function format_like($cnt, array $arr, $type, $id) {
 	$o = '';

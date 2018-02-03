@@ -15,10 +15,11 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
 use Friendica\Model\Item;
+use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 
 function profiles_init(App $a) {
 
@@ -714,14 +715,14 @@ function profiles_content(App $a) {
 			'$default' => (($is_default) ? '<p id="profile-edit-default-desc">' . L10n::t('This is your <strong>public</strong> profile.<br />It <strong>may</strong> be visible to anybody using the internet.') . '</p>' : ""),
 			'$name' => ['name', L10n::t('Your Full Name:'), $r[0]['name']],
 			'$pdesc' => ['pdesc', L10n::t('Title/Description:'), $r[0]['pdesc']],
-			'$dob' => dob($r[0]['dob']),
+			'$dob' => Temporal::getDateofBirthField($r[0]['dob']),
 			'$hide_friends' => $hide_friends,
 			'$address' => ['address', L10n::t('Street Address:'), $r[0]['address']],
 			'$locality' => ['locality', L10n::t('Locality/City:'), $r[0]['locality']],
 			'$region' => ['region', L10n::t('Region/State:'), $r[0]['region']],
 			'$postal_code' => ['postal_code', L10n::t('Postal/Zip Code:'), $r[0]['postal-code']],
 			'$country_name' => ['country_name', L10n::t('Country:'), $r[0]['country-name']],
-			'$age' => ((intval($r[0]['dob'])) ? '(' . L10n::t('Age: ') . age($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
+			'$age' => ((intval($r[0]['dob'])) ? '(' . L10n::t('Age: ') . Temporal::getAgeByTimezone($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
 			'$gender' => ContactSelector::gender($r[0]['gender']),
 			'$marital' => ContactSelector::maritalStatus($r[0]['marital']),
 			'$with' => ['with', L10n::t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), L10n::t('Examples: cathy123, Cathy Williams, cathy@example.com')],

@@ -55,7 +55,7 @@ class CronJobs
 		}
 
 		if ($command == 'update_contact_birthdays') {
-			update_contact_birthdays();
+			Contact::updateBirthdays();
 			return;
 		}
 

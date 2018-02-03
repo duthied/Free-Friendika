@@ -135,7 +135,7 @@ class Temporal
 			$value = DateTimeFormat::utc(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'Y-m-d');
 		}
 
-		$age = (intval($value) ? age($value, $a->user["timezone"], $a->user["timezone"]) : "");
+		$age = (intval($value) ? self::getAgeByTimezone($value, $a->user["timezone"], $a->user["timezone"]) : "");
 
 		$tpl = get_markup_template("field_input.tpl");
 		$o = replace_macros($tpl,
@@ -165,7 +165,7 @@ class Temporal
 	 */
 	public static function getDateField($min, $max, $default, $id = 'datepicker')
 	{
-		return datetimesel($min, $max, $default, '', $id, true, false, '', '');
+		return self::getDateTimeField($min, $max, $default, '', $id, true, false, '', '');
 	}
 
 	/**
@@ -179,7 +179,7 @@ class Temporal
 	 */
 	public static function getTimeField($h, $m, $id = 'timepicker')
 	{
-		return datetimesel(new DateTime(), new DateTime(), new DateTime("$h:$m"), '', $id, false, true);
+		return self::getDateTimeField(new DateTime(), new DateTime(), new DateTime("$h:$m"), '', $id, false, true);
 	}
 
 	/**
@@ -393,7 +393,7 @@ class Temporal
 	 *
 	 * @return string day 0 = Sunday through 6 = Saturday
 	 */
-	public static function getFirstDayInMonth($y, $m)
+	private static function getFirstDayInMonth($y, $m)
 	{
 		$d = sprintf('%04d-%02d-01 00:00', intval($y), intval($m));
 
@@ -438,8 +438,8 @@ class Temporal
 		}
 
 		$dn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-		$f = get_first_dim($y, $m);
-		$l = get_dim($y, $m);
+		$f = self::getFirstDayInMonth($y, $m);
+		$l = self::getDaysInMonth($y, $m);
 		$d = 1;
 		$dow = 0;
 		$started = false;

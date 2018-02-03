@@ -22,6 +22,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
+use Friendica\Util\Temporal;
 
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
@@ -1622,7 +1623,7 @@ function photos_content(App $a)
 						'$sparkle' => $sparkle,
 						'$title' => $title_e,
 						'$body' => $body_e,
-						'$ago' => relative_date($item['created']),
+						'$ago' => Temporal::getRelativeDate($item['created']),
 						'$indent' => (($item['parent'] != $item['item_id']) ? ' comment' : ''),
 						'$drop' => $drop,
 						'$comment' => $comment
