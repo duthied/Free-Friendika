@@ -613,36 +613,6 @@ function get_markup_template($s, $root = '') {
 	return $template;
 }
 
-
-/**
- *
- * @param App $a
- * @param string $filename
- * @param string $root
- * @return string
- */
-function get_template_file($a, $filename, $root = '') {
-	$theme = current_theme();
-
-	// Make sure $root ends with a slash /
-	if ($root !== '' && substr($root, -1, 1) !== '/') {
-		$root = $root . '/';
-	}
-
-	if (file_exists("{$root}view/theme/$theme/$filename")) {
-		$template_file = "{$root}view/theme/$theme/$filename";
-	} elseif (x($a->theme_info, "extends") && file_exists(sprintf('%sview/theme/%s}/%s', $root, $a->theme_info["extends"], $filename))) {
-		$template_file = sprintf('%sview/theme/%s}/%s', $root, $a->theme_info["extends"], $filename);
-	} elseif (file_exists("{$root}/$filename")) {
-		$template_file = "{$root}/$filename";
-	} else {
-		$template_file = "{$root}view/$filename";
-	}
-
-	return $template_file;
-}
-
-
 /**
  *  for html,xml parsing - let's say you've got
  *  an attribute foobar="class1 class2 class3"
