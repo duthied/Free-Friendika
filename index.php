@@ -166,19 +166,10 @@ if (! x($_SESSION, 'authenticated')) {
 $a->page['htmlhead'] = '';
 $a->page['end'] = '';
 
+$_SESSION['sysmsg']       = defaults($_SESSION, 'sysmsg'      , []);
+$_SESSION['sysmsg_info']  = defaults($_SESSION, 'sysmsg_info' , []);
+$_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 
-if (x($_SESSION, 'sysmsg') === false) {
-	$_SESSION['sysmsg'] = [];
-}
-
-if (x($_SESSION, 'sysmsg_info') === false) {
-	$_SESSION['sysmsg_info'] = [];
-}
-
-// Array for informations about last received items
-if (x($_SESSION, 'last_updated') === false) {
-	$_SESSION['last_updated'] = [];
-}
 /*
  * check_config() is responsible for running update scripts. These automatically
  * update the DB schema whenever we push a new one out. It also checks to see if
