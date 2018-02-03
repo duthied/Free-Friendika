@@ -180,10 +180,10 @@ function admin_content(App $a)
 			'addons'       => ["admin/addons/"      , L10n::t("Addons")               , "addons"],
 			'themes'       => ["admin/themes/"      , L10n::t("Themes")               , "themes"],
 			'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"] ]],
-		'database' => [ L10n::t('Database'), [ 
+		'database' => [ L10n::t('Database'), [
 			'dbsync'       => ["admin/dbsync/"      , L10n::t('DB updates')           , "dbsync"],
 			'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"], ]],
-		'tools' => [ L10n::t('Tools'), [ 
+		'tools' => [ L10n::t('Tools'), [
 			'contactblock' => ["admin/contactblock/", L10n::t('Contact Blocklist')    , "contactblock"],
 			'blocklist'    => ["admin/blocklist/"   , L10n::t('Server Blocklist')     , "blocklist"],
 			'deleteitem'   => ["admin/deleteitem/"  , L10n::t('Delete Item')          , 'deleteitem'], ]],
@@ -192,6 +192,7 @@ function admin_content(App $a)
 			"logsview" => ["admin/viewlogs/", L10n::t("View Logs"), 'viewlogs']
 		]],
 		"diagnostics" => [ L10n::t("Diagnostics"), [
+			"phpinfo" => ['phpinfo/', L10n::t('PHP Info'), 'phpinfo'],
 			"probe" => ['probe/', L10n::t('probe address'), 'probe'],
 			"webfinger" =>['webfinger/', L10n::t('check webfinger'), 'webfinger']
 		]]
