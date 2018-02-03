@@ -11,6 +11,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 
 require_once 'include/datetime.php';
@@ -197,7 +198,7 @@ class DiscoverPoCo {
 				}
 			} else {
 				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-					dbesc(datetime_convert()), dbesc(normalise_link($user["url"])));
+					dbesc(DateTimeFormat::utcNow()), dbesc(normalise_link($user["url"])));
 			}
 
 			// Quit the loop after 3 minutes

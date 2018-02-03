@@ -13,6 +13,7 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Util\DateTimeFormat;
 use dba;
 
 require_once 'include/dba.php';
@@ -123,7 +124,7 @@ class Post extends BaseObject
 		if (strtotime($item['edited']) - strtotime($item['created']) > 1) {
 			$edited = [
 				'label'    => L10n::t('This entry was edited'),
-				'date'     => datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r'),
+				'date'     => DateTimeFormat::local($item['edited'], 'r'),
 				'relative' => relative_date($item['edited'])
 			];
 		}
@@ -300,7 +301,7 @@ class Post extends BaseObject
 
 		$comment = $this->getCommentBox($indent);
 
-		if (strcmp(datetime_convert('UTC', 'UTC', $item['created']), datetime_convert('UTC', 'UTC', 'now - 12 hours')) > 0) {
+		if (strcmp(DateTimeFormat::utc($item['created']), DateTimeFormat::utc('now - 12 hours')) > 0) {
 			$shiny = 'shiny';
 		}
 
@@ -363,7 +364,7 @@ class Post extends BaseObject
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
-			'localtime'       => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
+			'localtime'       => DateTimeFormat::local($item['created'], 'r'),
 			'ago'             => $item['app'] ? L10n::t('%s from %s', relative_date($item['created']), $item['app']) : relative_date($item['created']),
 			'app'             => $item['app'],
 			'created'         => relative_date($item['created']),

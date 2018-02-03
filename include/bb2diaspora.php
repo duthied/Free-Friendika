@@ -3,9 +3,11 @@
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Network\Probe;
+use Friendica\Util\DateTimeFormat;
 use League\HTMLToMarkdown\HtmlConverter;
 
 require_once 'include/event.php';
@@ -241,20 +243,17 @@ function format_event_diaspora($ev) {
 
 	$o .= '**' . (($ev['summary']) ? bb2diaspora($ev['summary']) : bb2diaspora($ev['desc'])) .  '**' . "\n";
 
-	$o .= L10n::t('Starts:') . ' ' . '['
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
-			$ev['start'] , $bd_format ))
-			:  day_translate(datetime_convert('UTC', 'UTC',
-			$ev['start'] , $bd_format)))
-		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['start'])) . ")\n";
+	// @todo What. Is. Going. On. With. This. Useless. Ternary. Operator? - mrpetovan
+	$o .= L10n::t('Starts:') . ' ' . '[' . day_translate(
+			$ev['adjust'] ? DateTimeFormat::utc($ev['start'], $bd_format) : DateTimeFormat::utc($ev['start'], $bd_format)
+		)
+		.  '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(DateTimeFormat::utc($ev['start'])) . ")\n";
 
 	if (! $ev['nofinish']) {
-		$o .= L10n::t('Finishes:') . ' ' . '['
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', 'UTC',
-				$ev['finish'] , $bd_format ))
-				:  day_translate(datetime_convert('UTC', 'UTC',
-				$ev['finish'] , $bd_format )))
-			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(datetime_convert('UTC','UTC',$ev['finish'])) . ")\n";
+		$o .= L10n::t('Finishes:') . ' ' . '[' . day_translate(
+				$ev['adjust'] ? DateTimeFormat::utc($ev['finish'], $bd_format) : DateTimeFormat::utc($ev['finish'], $bd_format)
+			)
+			. '](' . System::baseUrl() . '/localtime/?f=&time=' . urlencode(DateTimeFormat::utc($ev['finish'])) . ")\n";
 	}
 
 	if (strlen($ev['location'])) {

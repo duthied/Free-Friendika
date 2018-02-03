@@ -2,17 +2,19 @@
 /**
  * @file include/ping.php
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
 
 require_once 'include/datetime.php';
@@ -223,8 +225,8 @@ function ping_init(App $a)
 				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(datetime_convert('UTC', 'UTC', 'now + 7 days')),
-				dbesc(datetime_convert('UTC', 'UTC', 'now'))
+				dbesc(DateTimeFormat::utc('now + 7 days')),
+				dbesc(DateTimeFormat::utcNow())
 			);
 			if (DBM::is_result($ev)) {
 				Cache::set($cachekey, $ev, CACHE_HOUR);
@@ -235,7 +237,7 @@ function ping_init(App $a)
 			$all_events = count($ev);
 
 			if ($all_events) {
-				$str_now = datetime_convert('UTC', $a->timezone, 'now', 'Y-m-d');
+				$str_now = DateTimeFormat::timezoneNow($a->timezone, 'Y-m-d');
 				foreach ($ev as $x) {
 					$bd = false;
 					if ($x['type'] === 'birthday') {
@@ -244,7 +246,7 @@ function ping_init(App $a)
 					} else {
 						$events ++;
 					}
-					if (datetime_convert('UTC', ((intval($x['adjust'])) ? $a->timezone : 'UTC'), $x['start'], 'Y-m-d') === $str_now) {
+					if (DateTimeFormat::convert($x['start'], ((intval($x['adjust'])) ? $a->timezone : 'UTC'), 'UTC', 'Y-m-d') === $str_now) {
 						$all_events_today ++;
 						if ($bd) {
 							$birthdays_today ++;
@@ -360,7 +362,7 @@ function ping_init(App $a)
 					$notif['photo'] = proxy_url($notif['photo'], false, PROXY_SIZE_MICRO);
 				}
 
-				$local_time = datetime_convert('UTC', date_default_timezone_get(), $notif['date']);
+				$local_time = DateTimeFormat::local($notif['date']);
 
 				$notifications[] = [
 					'id'        => $notif['id'],

@@ -6,15 +6,15 @@ namespace Friendica\Render;
 
 use Smarty;
 
-define('SMARTY3_TEMPLATE_FOLDER', 'templates');
-
 /**
- * Description of FriendicaSmarty
+ * Friendica extension of the Smarty3 template engine
  *
- * @author benlo
+ * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
 class FriendicaSmarty extends Smarty
 {
+	const SMARTY3_TEMPLATE_FOLDER = 'templates';
+
 	public $filename;
 
 	function __construct()
@@ -26,12 +26,12 @@ class FriendicaSmarty extends Smarty
 
 		// setTemplateDir can be set to an array, which Smarty will parse in order.
 		// The order is thus very important here
-		$template_dirs = ['theme' => "view/theme/$theme/" . SMARTY3_TEMPLATE_FOLDER . "/"];
+		$template_dirs = ['theme' => "view/theme/$theme/" . self::SMARTY3_TEMPLATE_FOLDER . "/"];
 		if (x($a->theme_info, "extends")) {
-			$template_dirs = $template_dirs + ['extends' => "view/theme/" . $a->theme_info["extends"] . "/" . SMARTY3_TEMPLATE_FOLDER . "/"];
+			$template_dirs = $template_dirs + ['extends' => "view/theme/" . $a->theme_info["extends"] . "/" . self::SMARTY3_TEMPLATE_FOLDER . "/"];
 		}
 
-		$template_dirs = $template_dirs + ['base' => "view/" . SMARTY3_TEMPLATE_FOLDER . "/"];
+		$template_dirs = $template_dirs + ['base' => "view/" . self::SMARTY3_TEMPLATE_FOLDER . "/"];
 		$this->setTemplateDir($template_dirs);
 
 		$this->setCompileDir('view/smarty3/compiled/');

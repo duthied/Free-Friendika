@@ -2,6 +2,7 @@
 /**
  * @file include/text.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
@@ -14,6 +15,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Model\Term;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
 require_once "mod/proxy.php";
@@ -613,36 +615,6 @@ function get_markup_template($s, $root = '') {
 	return $template;
 }
 
-
-/**
- *
- * @param App $a
- * @param string $filename
- * @param string $root
- * @return string
- */
-function get_template_file($a, $filename, $root = '') {
-	$theme = current_theme();
-
-	// Make sure $root ends with a slash /
-	if ($root !== '' && substr($root, -1, 1) !== '/') {
-		$root = $root . '/';
-	}
-
-	if (file_exists("{$root}view/theme/$theme/$filename")) {
-		$template_file = "{$root}view/theme/$theme/$filename";
-	} elseif (x($a->theme_info, "extends") && file_exists(sprintf('%sview/theme/%s}/%s', $root, $a->theme_info["extends"], $filename))) {
-		$template_file = sprintf('%sview/theme/%s}/%s', $root, $a->theme_info["extends"], $filename);
-	} elseif (file_exists("{$root}/$filename")) {
-		$template_file = "{$root}/$filename";
-	} else {
-		$template_file = "{$root}view/$filename";
-	}
-
-	return $template_file;
-}
-
-
 /**
  *  for html,xml parsing - let's say you've got
  *  an attribute foobar="class1 class2 class3"
@@ -721,7 +693,7 @@ function logger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-			datetime_convert('UTC', 'UTC', 'now', 'Y-m-d\TH:i:s\Z'),
+			DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			$process_id,
 			$LOGGER_LEVELS[$level],
 			basename($callers[0]['file']),
@@ -787,7 +759,7 @@ function dlogger($msg, $level = 0) {
 
 	$callers = debug_backtrace();
 	$logline = sprintf("%s@\t%s:\t%s:\t%s\t%s\t%s\n",
-			datetime_convert(),
+			DateTimeFormat::utcNow(),
 			$process_id,
 			basename($callers[0]['file']),
 			$callers[0]['line'],

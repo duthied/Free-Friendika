@@ -10,8 +10,11 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use dba;
+use Exception;
+use LightOpenID;
 
 require_once 'boot.php';
 require_once 'include/datetime.php';
@@ -68,7 +71,7 @@ class Login extends BaseModule
 
 			// Otherwise it's probably an openid.
 			try {
-				$openid = new \LightOpenID;
+				$openid = new LightOpenID;
 				$openid->identity = $openid_url;
 				$_SESSION['openid'] = $openid_url;
 				$_SESSION['remember'] = $_POST['remember'];
@@ -118,7 +121,7 @@ class Login extends BaseModule
 
 			// if we haven't failed up this point, log them in.
 			$_SESSION['remember'] = $_POST['remember'];
-			$_SESSION['last_login_date'] = datetime_convert('UTC', 'UTC');
+			$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 			authenticate_success($record, true, true);
 
 			if (x($_SESSION, 'return_url')) {
@@ -217,10 +220,10 @@ class Login extends BaseModule
 				// stays logged in for a long time, e.g. with "Remember Me"
 				$login_refresh = false;
 				if (!x($_SESSION['last_login_date'])) {
-					$_SESSION['last_login_date'] = datetime_convert('UTC', 'UTC');
+					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 				}
-				if (strcmp(datetime_convert('UTC', 'UTC', 'now - 12 hours'), $_SESSION['last_login_date']) > 0) {
-					$_SESSION['last_login_date'] = datetime_convert('UTC', 'UTC');
+				if (strcmp(DateTimeFormat::utc('now - 12 hours'), $_SESSION['last_login_date']) > 0) {
+					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 					$login_refresh = true;
 				}
 				authenticate_success($user, false, false, $login_refresh);

@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 
 function post_var($name) {
@@ -138,7 +139,7 @@ function pubsubhubbub_init(App $a) {
 		  dbesc($hub_callback));
 
 		if ($subscribe) {
-			$last_update = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
+			$last_update = DateTimeFormat::utcNow();
 			$push_flag = 0;
 
 			// if we are just updating an old subscription, keep the

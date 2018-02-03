@@ -12,14 +12,15 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Network\Probe;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
-use Friendica\Protocol\Diaspora;
+use Friendica\Network\Probe;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use dba;
 
@@ -111,7 +112,7 @@ class Contact extends BaseObject
 
 		$return = dba::insert('contact', [
 			'uid'         => $user['uid'],
-			'created'     => datetime_convert(),
+			'created'     => DateTimeFormat::utcNow(),
 			'self'        => 1,
 			'name'        => $user['username'],
 			'nick'        => $user['nickname'],
@@ -128,9 +129,9 @@ class Contact extends BaseObject
 			'poll'        => System::baseUrl() . '/dfrn_poll/'    . $user['nickname'],
 			'confirm'     => System::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
 			'poco'        => System::baseUrl() . '/poco/'         . $user['nickname'],
-			'name-date'   => datetime_convert(),
-			'uri-date'    => datetime_convert(),
-			'avatar-date' => datetime_convert(),
+			'name-date'   => DateTimeFormat::utcNow(),
+			'uri-date'    => DateTimeFormat::utcNow(),
+			'avatar-date' => DateTimeFormat::utcNow(),
 			'closeness'   => 0
 		]);
 
@@ -209,10 +210,10 @@ class Contact extends BaseObject
 		}
 
 		if ($contact['term-date'] <= NULL_DATE) {
-			dba::update('contact', ['term-date' => datetime_convert()], ['id' => $contact['id']]);
+			dba::update('contact', ['term-date' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 
 			if ($contact['url'] != '') {
-				dba::update('contact', ['term-date' => datetime_convert()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE]);
+				dba::update('contact', ['term-date' => DateTimeFormat::utcNow()], ['`nurl` = ? AND `term-date` <= ? AND NOT `self`', normalise_link($contact['url']), NULL_DATE]);
 			}
 		} else {
 			/* @todo
@@ -223,7 +224,7 @@ class Contact extends BaseObject
 
 			/// @todo Check for contact vitality via probing
 			$expiry = $contact['term-date'] . ' + 32 days ';
-			if (datetime_convert() > datetime_convert('UTC', 'UTC', $expiry)) {
+			if (DateTimeFormat::utcNow() > DateTimeFormat::utc($expiry)) {
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
@@ -687,7 +688,7 @@ class Contact extends BaseObject
 			$contact_id = $contact["id"];
 
 			// Update the contact every 7 days
-			$update_contact = ($contact['avatar-date'] < datetime_convert('', '', 'now -7 days'));
+			$update_contact = ($contact['avatar-date'] < DateTimeFormat::utc('now -7 days'));
 
 			// We force the update if the avatar is empty
 			if (!x($contact, 'avatar')) {
@@ -727,7 +728,7 @@ class Contact extends BaseObject
 		if (!$contact_id) {
 			dba::insert('contact', [
 				'uid'       => $uid,
-				'created'   => datetime_convert(),
+				'created'   => DateTimeFormat::utcNow(),
 				'url'       => $data["url"],
 				'nurl'      => normalise_link($data["url"]),
 				'addr'      => $data["addr"],
@@ -748,9 +749,9 @@ class Contact extends BaseObject
 				'request'   => $data["request"],
 				'confirm'   => $data["confirm"],
 				'poco'      => $data["poco"],
-				'name-date' => datetime_convert(),
-				'uri-date'  => datetime_convert(),
-				'avatar-date' => datetime_convert(),
+				'name-date' => DateTimeFormat::utcNow(),
+				'uri-date'  => DateTimeFormat::utcNow(),
+				'avatar-date' => DateTimeFormat::utcNow(),
 				'writable'  => 1,
 				'blocked'   => 0,
 				'readonly'  => 0,
@@ -822,13 +823,13 @@ class Contact extends BaseObject
 		}
 
 		if (($data["addr"] != $contact["addr"]) || ($data["alias"] != $contact["alias"])) {
-			$updated['uri-date'] = datetime_convert();
+			$updated['uri-date'] = DateTimeFormat::utcNow();
 		}
 		if (($data["name"] != $contact["name"]) || ($data["nick"] != $contact["nick"])) {
-			$updated['name-date'] = datetime_convert();
+			$updated['name-date'] = DateTimeFormat::utcNow();
 		}
 
-		$updated['avatar-date'] = datetime_convert();
+		$updated['avatar-date'] = DateTimeFormat::utcNow();
 
 		dba::update('contact', $updated, ['id' => $contact_id], $contact);
 
@@ -1025,7 +1026,7 @@ class Contact extends BaseObject
 			if ($photos) {
 				dba::update(
 					'contact',
-					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => datetime_convert()],
+					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()],
 					['id' => $cid]
 				);
 
@@ -1260,7 +1261,7 @@ class Contact extends BaseObject
 			// create contact record
 			dba::insert('contact', [
 				'uid'     => $uid,
-				'created' => datetime_convert(),
+				'created' => DateTimeFormat::utcNow(),
 				'url'     => $ret['url'],
 				'nurl'    => normalise_link($ret['url']),
 				'addr'    => $ret['addr'],
@@ -1466,6 +1467,58 @@ class Contact extends BaseObject
 			dba::update('contact', ['rel' => CONTACT_IS_FOLLOWER], ['id' => $contact['id']]);
 		} else {
 			Contact::remove($contact['id']);
+		}
+	}
+
+	/**
+	 * @brief Create a birthday event.
+	 *
+	 * Update the year and the birthday.
+	 */
+	public static function updateBirthdays()
+	{
+		// This only handles foreign or alien networks where a birthday has been provided.
+		// In-network birthdays are handled within local_delivery
+
+		$r = q("SELECT * FROM `contact` WHERE `bd` != '' AND `bd` > '0001-01-01' AND SUBSTRING(`bd`, 1, 4) != `bdyear` ");
+		if (DBM::is_result($r)) {
+			foreach ($r as $rr) {
+				logger('update_contact_birthday: ' . $rr['bd']);
+
+				$nextbd = DateTimeFormat::utcNow('Y') . substr($rr['bd'], 4);
+
+				/*
+				 * Add new birthday event for this person
+				 *
+				 * $bdtext is just a readable placeholder in case the event is shared
+				 * with others. We will replace it during presentation to our $importer
+				 * to contain a sparkle link and perhaps a photo.
+				 */
+
+				// Check for duplicates
+				$s = q("SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
+					intval($rr['uid']), intval($rr['id']), dbesc(DateTimeFormat::utc($nextbd)), dbesc('birthday'));
+
+				if (DBM::is_result($s)) {
+					continue;
+				}
+
+				$bdtext = L10n::t('%s\'s birthday', $rr['name']);
+				$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]');
+
+				q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
+				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ", intval($rr['uid']), intval($rr['id']),
+					dbesc(DateTimeFormat::utcNow()), dbesc(DateTimeFormat::utcNow()), dbesc(DateTimeFormat::utc($nextbd)),
+					dbesc(DateTimeFormat::utc($nextbd . ' + 1 day ')), dbesc($bdtext), dbesc($bdtext2), dbesc('birthday'),
+					intval(0)
+				);
+
+
+				// update bdyear
+				q("UPDATE `contact` SET `bdyear` = '%s', `bd` = '%s' WHERE `uid` = %d AND `id` = %d", dbesc(substr($nextbd, 0, 4)),
+					dbesc($nextbd), intval($rr['uid']), intval($rr['id'])
+				);
+			}
 		}
 	}
 }

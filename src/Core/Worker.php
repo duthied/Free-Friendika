@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Process;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Lock;
 use Friendica\Util\Network;
 use dba;
@@ -233,7 +234,7 @@ class Worker
 
 			if ($age > 1) {
 				$stamp = (float)microtime(true);
-				dba::update('workerqueue', ['executed' => datetime_convert()], ['pid' => $mypid, 'done' => false]);
+				dba::update('workerqueue', ['executed' => DateTimeFormat::utcNow()], ['pid' => $mypid, 'done' => false]);
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
@@ -243,7 +244,7 @@ class Worker
 
 			$stamp = (float)microtime(true);
 			if (dba::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
-				Config::set('system', 'last_poller_execution', datetime_convert());
+				Config::set('system', 'last_poller_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 
@@ -276,7 +277,7 @@ class Worker
 
 			if ($age > 1) {
 				$stamp = (float)microtime(true);
-				dba::update('workerqueue', ['executed' => datetime_convert()], ['pid' => $mypid, 'done' => false]);
+				dba::update('workerqueue', ['executed' => DateTimeFormat::utcNow()], ['pid' => $mypid, 'done' => false]);
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
@@ -284,7 +285,7 @@ class Worker
 
 			$stamp = (float)microtime(true);
 			if (dba::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
-				Config::set('system', 'last_poller_execution', datetime_convert());
+				Config::set('system', 'last_poller_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 		} else {
@@ -572,7 +573,7 @@ class Worker
 					}
 					dba::update(
 						'workerqueue',
-						['executed' => NULL_DATE, 'created' => datetime_convert(), 'priority' => $new_priority, 'pid' => 0],
+						['executed' => NULL_DATE, 'created' => DateTimeFormat::utcNow(), 'priority' => $new_priority, 'pid' => 0],
 						['id' => $entry["id"]]
 					);
 				} else {
@@ -823,7 +824,7 @@ class Worker
 		if ($found) {
 			$condition = "`id` IN (".substr(str_repeat("?, ", count($ids)), 0, -2).") AND `pid` = 0 AND NOT `done`";
 			array_unshift($ids, $condition);
-			dba::update('workerqueue', ['executed' => datetime_convert(), 'pid' => $mypid], $ids);
+			dba::update('workerqueue', ['executed' => DateTimeFormat::utcNow(), 'pid' => $mypid], $ids);
 		}
 
 		return $found;
@@ -951,7 +952,7 @@ class Worker
 
 		/// @todo We should clean up the corresponding workerqueue entries as well
 		$condition = ["`created` < ? AND `command` = 'worker.php'",
-				datetime_convert('UTC', 'UTC', "now - ".$timeout." minutes")];
+				DateTimeFormat::utc("now - ".$timeout." minutes")];
 		dba::delete('process', $condition);
 	}
 
@@ -1038,7 +1039,7 @@ class Worker
 
 		$priority = PRIORITY_MEDIUM;
 		$dont_fork = Config::get("system", "worker_dont_fork");
-		$created = datetime_convert();
+		$created = DateTimeFormat::utcNow();
 
 		if (is_int($run_parameter)) {
 			$priority = $run_parameter;

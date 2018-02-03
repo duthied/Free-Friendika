@@ -2,6 +2,7 @@
 /**
  * @file mod/videos.php
  */
+
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
@@ -13,6 +14,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
@@ -168,8 +170,8 @@ function videos_post(App $a) {
 			//echo "<pre>"; var_dump($i); killme();
 			if (DBM::is_result($i)) {
 				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
+					dbesc(DateTimeFormat::utcNow()),
+					dbesc(DateTimeFormat::utcNow()),
 					dbesc($i[0]['uri']),
 					intval(local_user())
 				);

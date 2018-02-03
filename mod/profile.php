@@ -2,9 +2,10 @@
 /**
  * @file mod/profile.php
  */
+
 use Friendica\App;
-use Friendica\Content\Widget;
 use Friendica\Content\Nav;
+use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -15,6 +16,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\DateTimeFormat;
 
 function profile_init(App $a)
 {
@@ -234,7 +236,7 @@ function profile_content(App $a, $update = 0)
 		if ($is_owner || !$last_updated) {
 			$sql_extra4 = " AND `item`.`unseen`";
 		} else {
-			$gmupdate = gmdate("Y-m-d H:i:s", $last_updated);
+			$gmupdate = gmdate(DateTimeFormat::MYSQL, $last_updated);
 			$sql_extra4 = " AND `item`.`received` > '" . $gmupdate . "'";
 		}
 
@@ -270,10 +272,10 @@ function profile_content(App $a, $update = 0)
 		}
 
 		if ($datequery) {
-			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` <= '%s' ", dbesc(datetime_convert(date_default_timezone_get(), '', $datequery))));
+			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` <= '%s' ", dbesc(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 		}
 		if ($datequery2) {
-			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(), '', $datequery2))));
+			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", dbesc(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 		}
 
 		// Belongs the profile page to a forum?

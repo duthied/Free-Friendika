@@ -2,6 +2,7 @@
 /**
  * @file mod/install.php
  */
+
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -9,6 +10,7 @@ use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 
 $install_wizard_pass = 1;
 
@@ -279,7 +281,7 @@ function install_content(App $a) {
 				'$adminmail' => ['adminmail', L10n::t('Site administrator email address'), $adminmail, L10n::t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'],
 
 
-				'$timezone' => field_timezone('timezone', L10n::t('Please select a default timezone for your website'), $timezone, ''),
+				'$timezone' => Temporal::getTimezoneField('timezone', L10n::t('Please select a default timezone for your website'), $timezone, ''),
 				'$language' => ['language', L10n::t('System Language:'), 'en', L10n::t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices],
 				'$baseurl' => System::baseUrl(),
 

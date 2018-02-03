@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file src/Content/OEmbed.php
  */
@@ -6,16 +7,18 @@ namespace Friendica\Content;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use dba;
 use DOMDocument;
-use DOMXPath;
 use DOMNode;
+use DOMText;
+use DOMXPath;
 use Exception;
 
 require_once 'include/dba.php';
@@ -110,7 +113,7 @@ class OEmbed
 						'url' => normalise_link($embedurl),
 						'maxwidth' => $a->videowidth,
 						'content' => $txt,
-						'created' => datetime_convert()
+						'created' => DateTimeFormat::utcNow()
 					], true);
 				}
 

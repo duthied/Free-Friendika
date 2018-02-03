@@ -2,10 +2,12 @@
 /**
  * @file mod/fsuggest.php
  */
+
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 
 function fsuggest_post(App $a)
 {
@@ -50,7 +52,7 @@ function fsuggest_post(App $a)
 				dbesc($r[0]['request']),
 				dbesc($r[0]['photo']),
 				dbesc($hash),
-				dbesc(datetime_convert())
+				dbesc(DateTimeFormat::utcNow())
 			);
 			$r = q("SELECT `id` FROM `fsuggest` WHERE `note` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($hash),
