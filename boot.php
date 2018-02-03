@@ -873,13 +873,10 @@ function get_guid($size = 16, $prefix = "")
 
 /**
  * @brief Used to end the current process, after saving session state.
+ * @deprecated
  */
 function killme()
 {
-	if (!get_app()->is_backend()) {
-		session_write_close();
-	}
-
 	exit();
 }
 
