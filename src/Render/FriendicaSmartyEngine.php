@@ -6,6 +6,8 @@ namespace Friendica\Render;
 
 use Friendica\Core\Addon;
 
+define('SMARTY3_TEMPLATE_FOLDER', 'templates');
+
 class FriendicaSmartyEngine implements ITemplateEngine
 {
 	static $name = "smarty3";
