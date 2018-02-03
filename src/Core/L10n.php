@@ -137,9 +137,10 @@ class L10n
 	 * - L10n::t('Current version: %s, new version: %s', $current_version, $new_version)
 	 *
 	 * @param string $s
+	 * @param array  $vars Variables to interpolate in the translation string
 	 * @return string
 	 */
-	public static function t($s)
+	public static function t($s, ...$vars)
 	{
 		$a = get_app();
 
@@ -147,9 +148,9 @@ class L10n
 			$t = $a->strings[$s];
 			$s = is_array($t) ? $t[0] : $t;
 		}
-		if (func_num_args() > 1) {
-			$args = array_slice(func_get_args(), 1);
-			$s = @vsprintf($s, $args);
+
+		if (count($vars) > 0) {
+			$s = sprintf($s, ...$vars);
 		}
 
 		return $s;
