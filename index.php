@@ -12,10 +12,11 @@ use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Content\Nav;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
-use Friendica\Core\Theme;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Session;
+use Friendica\Core\System;
+use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
@@ -77,7 +78,7 @@ if (!$install) {
 		exit();
 	}
 
-	require_once 'include/session.php';
+	Session::init();
 	Addon::loadHooks();
 	Addon::callHooks('init_1');
 
@@ -165,19 +166,10 @@ if (! x($_SESSION, 'authenticated')) {
 $a->page['htmlhead'] = '';
 $a->page['end'] = '';
 
+$_SESSION['sysmsg']       = defaults($_SESSION, 'sysmsg'      , []);
+$_SESSION['sysmsg_info']  = defaults($_SESSION, 'sysmsg_info' , []);
+$_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 
-if (! x($_SESSION, 'sysmsg')) {
-	$_SESSION['sysmsg'] = [];
-}
-
-if (! x($_SESSION, 'sysmsg_info')) {
-	$_SESSION['sysmsg_info'] = [];
-}
-
-// Array for informations about last received items
-if (! x($_SESSION, 'last_updated')) {
-	$_SESSION['last_updated'] = [];
-}
 /*
  * check_config() is responsible for running update scripts. These automatically
  * update the DB schema whenever we push a new one out. It also checks to see if
@@ -474,7 +466,7 @@ if (isset($_GET["mode"]) && (($_GET["mode"] == "raw") || ($_GET["mode"] == "mini
 	/// @TODO one day, kill those error-surpressing @ stuff, or PHP should ban it
 	@$doc->loadHTML($content);
 
-	$xpath = new DomXPath($doc);
+	$xpath = new DOMXPath($doc);
 
 	$list = $xpath->query("//*[contains(@id,'tread-wrapper-')]");  /* */
 

@@ -18,13 +18,13 @@ require_once 'include/dba.php';
 class Cache
 {
 	/**
-	 * @brief Check for memcache and open a connection if configured
+	 * @brief Check for Memcache and open a connection if configured
 	 *
-	 * @return object|boolean The memcache object - or "false" if not successful
+	 * @return Memcache|boolean The Memcache object - or "false" if not successful
 	 */
 	public static function memcache()
 	{
-		if (!function_exists('memcache_connect')) {
+		if (!class_exists('Memcache', false)) {
 			return false;
 		}
 
@@ -35,7 +35,7 @@ class Cache
 		$memcache_host = Config::get('system', 'memcache_host', '127.0.0.1');
 		$memcache_port = Config::get('system', 'memcache_port', 11211);
 
-		$memcache = new Memcache;
+		$memcache = new Memcache();
 
 		if (!$memcache->connect($memcache_host, $memcache_port)) {
 			return false;
