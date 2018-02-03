@@ -185,23 +185,32 @@ class Temporal
 	/**
 	 * @brief Returns a datetime selector.
 	 *
-	 * @param string $min      Unix timestamp of minimum date
-	 * @param string $max      Unix timestamp of maximum date
-	 * @param string $default  Unix timestamp of default date
-	 * @param string $id       Id and name of datetimepicker (defaults to "datetimepicker")
-	 * @param bool   $pickdate true to show date picker (default)
-	 * @param bool   $picktime true to show time picker (default)
-	 * @param string $minfrom  set minimum date from picker with id $minfrom (none by default)
-	 * @param string $maxfrom  set maximum date from picker with id $maxfrom (none by default)
-	 * @param bool   $required default false
+	 * @param DateTime $minDate     Minimum date
+	 * @param DateTime $maxDate     Maximum date
+	 * @param DateTime $defaultDate Default date
+	 * @param string   $id          Id and name of datetimepicker (defaults to "datetimepicker")
+	 * @param bool     $pickdate    true to show date picker (default)
+	 * @param bool     $picktime    true to show time picker (default)
+	 * @param string   $minfrom     set minimum date from picker with id $minfrom (none by default)
+	 * @param string   $maxfrom     set maximum date from picker with id $maxfrom (none by default)
+	 * @param bool     $required    default false
 	 *
 	 * @return string Parsed HTML output.
 	 *
 	 * @todo Once browser support is better this could probably be replaced with
 	 * native HTML5 date picker.
 	 */
-	public static function getDateTimeField($min, $max, $default, $label, $id = 'datetimepicker', $pickdate = true,
-		$picktime = true, $minfrom = '', $maxfrom = '', $required = false)
+	public static function getDateTimeField(
+		DateTime $minDate,
+		DateTime $maxDate,
+		DateTime $defaultDate,
+		$label,
+		$id       = 'datetimepicker',
+		$pickdate = true,
+		$picktime = true,
+		$minfrom  = '',
+		$maxfrom  = '',
+		$required = false)
 	{
 		// First day of the week (0 = Sunday)
 		$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
@@ -230,41 +239,12 @@ class Temporal
 			$dateformat .= 'H:i';
 		}
 
-		$minjs = $min ? ",minDate: new Date({$min->getTimestamp()}*1000), yearStart: " . $min->format('Y') : '';
-		$maxjs = $max ? ",maxDate: new Date({$max->getTimestamp()}*1000), yearEnd: " . $max->format('Y') : '';
+		$input_text = $defaultDate ? date($dateformat, $defaultDate->getTimestamp()) : '';
 
-		$input_text = $default ? date($dateformat, $default->getTimestamp()) : '';
-		$defaultdatejs = $default ? ",defaultDate: new Date({$default->getTimestamp()}*1000)" : '';
+		$readable_format = str_replace(['Y', 'm', 'd', 'H', 'i'], ['yyyy', 'mm', 'dd', 'HH', 'MM'], $dateformat);
 
-		$pickers = '';
-		if (!$pickdate) {
-			$pickers .= ', datepicker: false';
-		}
-
-		if (!$picktime) {
-			$pickers .= ',timepicker: false';
-		}
-
-		$extra_js = '';
-		$pickers .= ",dayOfWeekStart: " . $firstDay . ",lang:'" . $lang . "'";
-		if ($minfrom != '') {
-			$extra_js .= "\$('#id_$minfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({minDate: currentDateTime})}})";
-		}
-
-		if ($maxfrom != '') {
-			$extra_js .= "\$('#id_$maxfrom').data('xdsoft_datetimepicker').setOptions({onChangeDateTime: function (currentDateTime) { \$('#id_$id').data('xdsoft_datetimepicker').setOptions({maxDate: currentDateTime})}})";
-		}
-
-		$readable_format = $dateformat;
-		$readable_format = str_replace('Y', 'yyyy', $readable_format);
-		$readable_format = str_replace('m', 'mm', $readable_format);
-		$readable_format = str_replace('d', 'dd', $readable_format);
-		$readable_format = str_replace('H', 'HH', $readable_format);
-		$readable_format = str_replace('i', 'MM', $readable_format);
-
-		$tpl = get_markup_template('field_input.tpl');
-		$o .= replace_macros($tpl,
-			[
+		$tpl = get_markup_template('field_datetime.tpl');
+		$o .= replace_macros($tpl, [
 			'$field' => [
 				$id,
 				$label,
@@ -273,11 +253,17 @@ class Temporal
 				$required ? '*' : '',
 				'placeholder="' . $readable_format . '"'
 			],
+			'$datetimepicker' => [
+				'minDate' => $minDate,
+				'maxDate' => $maxDate,
+				'defaultDate' => $defaultDate,
+				'dateformat' => $dateformat,
+				'firstDay' => $firstDay,
+				'lang' => $lang,
+				'minfrom' => $minfrom,
+				'maxfrom' => $maxfrom,
+			]
 		]);
-
-		$o .= "<script type='text/javascript'>";
-		$o .= "\$(function () {var picker = \$('#id_$id').datetimepicker({step:5,format:'$dateformat' $minjs $maxjs $pickers $defaultdatejs}); $extra_js})";
-		$o .= "</script>";
 
 		return $o;
 	}
