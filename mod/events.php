@@ -3,15 +3,16 @@
  * @file mod/events.php
  * @brief The events module
  */
+
 use Friendica\App;
 use Friendica\Content\Nav;
-use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Profile;
 use Friendica\Model\Item;
+use Friendica\Model\Profile;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/bbcode.php';
 require_once 'include/datetime.php';
@@ -75,14 +76,14 @@ function events_post(App $a) {
 	}
 
 	if ($adjust) {
-		$start = datetime_convert(date_default_timezone_get(), 'UTC', $start);
+		$start = DateTimeFormat::convert($start, 'UTC', date_default_timezone_get());
 		if (! $nofinish) {
-			$finish = datetime_convert(date_default_timezone_get(), 'UTC', $finish);
+			$finish = DateTimeFormat::convert($finish, 'UTC', date_default_timezone_get());
 		}
 	} else {
-		$start = datetime_convert('UTC', 'UTC', $start);
+		$start = DateTimeFormat::utc($start);
 		if (! $nofinish) {
-			$finish = datetime_convert('UTC', 'UTC', $finish);
+			$finish = DateTimeFormat::utc($finish);
 		}
 	}
 
@@ -275,8 +276,8 @@ function events_content(App $a) {
 	// The view mode part is similiar to /mod/cal.php
 	if ($mode == 'view') {
 
-		$thisyear  = datetime_convert('UTC', date_default_timezone_get(), 'now', 'Y');
-		$thismonth = datetime_convert('UTC', date_default_timezone_get(), 'now', 'm');
+		$thisyear  = DateTimeFormat::localNow('Y');
+		$thismonth = DateTimeFormat::localNow('m');
 		if (! $y) {
 			$y = intval($thisyear);
 		}
@@ -322,11 +323,11 @@ function events_content(App $a) {
 			}
 		}
 
-		$start  = datetime_convert('UTC', 'UTC', $start);
-		$finish = datetime_convert('UTC', 'UTC', $finish);
+		$start  = DateTimeFormat::utc($start);
+		$finish = DateTimeFormat::utc($finish);
 
-		$adjust_start  = datetime_convert('UTC', date_default_timezone_get(), $start);
-		$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
+		$adjust_start  = DateTimeFormat::local($start);
+		$adjust_finish = DateTimeFormat::local($finish);
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
@@ -350,7 +351,7 @@ function events_content(App $a) {
 		if (DBM::is_result($r)) {
 			$r = sort_by_date($r);
 			foreach ($r as $rr) {
-				$j = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['start'], 'j') : datetime_convert('UTC', 'UTC', $rr['start'], 'j'));
+				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
 				if (! x($links,$j)) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
@@ -464,19 +465,19 @@ function events_content(App $a) {
 			$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
 		}
 
-		$syear  = datetime_convert('UTC', $tz, $sdt, 'Y');
-		$smonth = datetime_convert('UTC', $tz, $sdt, 'm');
-		$sday   = datetime_convert('UTC', $tz, $sdt, 'd');
+		$syear  = DateTimeFormat::convert($sdt, $tz, 'UTC', 'Y');
+		$smonth = DateTimeFormat::convert($sdt, $tz, 'UTC', 'm');
+		$sday   = DateTimeFormat::convert($sdt, $tz, 'UTC', 'd');
 
-		$shour   = ((x($orig_event)) ? datetime_convert('UTC', $tz, $sdt, 'H') : 0);
-		$sminute = ((x($orig_event)) ? datetime_convert('UTC', $tz, $sdt, 'i') : 0);
+		$shour   = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'H') : '00');
+		$sminute = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'i') : '00');
 
-		$fyear  = datetime_convert('UTC', $tz, $fdt, 'Y');
-		$fmonth = datetime_convert('UTC', $tz, $fdt, 'm');
-		$fday   = datetime_convert('UTC', $tz, $fdt, 'd');
+		$fyear  = DateTimeFormat::convert($fdt, $tz, 'UTC', 'Y');
+		$fmonth = DateTimeFormat::convert($fdt, $tz, 'UTC', 'm');
+		$fday   = DateTimeFormat::convert($fdt, $tz, 'UTC', 'd');
 
-		$fhour   = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'H') : 0);
-		$fminute = ((x($orig_event)) ? datetime_convert('UTC', $tz, $fdt, 'i') : 0);
+		$fhour   = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : '00');
+		$fminute = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00');
 
 		require_once 'include/acl_selectors.php' ;
 

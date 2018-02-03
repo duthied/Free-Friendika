@@ -7,8 +7,8 @@ namespace Friendica\Model;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
+use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -17,9 +17,11 @@ use Friendica\Model\Group;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use dba;
 use Exception;
+use LightOpenID;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -286,7 +288,7 @@ class User
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
 
-				$openid = new \LightOpenID;
+				$openid = new LightOpenID;
 				$openid->identity = $openid_url;
 				$openid->returnUrl = System::baseUrl() . '/openid';
 				$openid->required = ['namePerson/friendly', 'contact/email', 'namePerson'];
@@ -394,7 +396,7 @@ class User
 			'verified' => $verified,
 			'blocked'  => $blocked,
 			'timezone' => 'UTC',
-			'register_date' => datetime_convert(),
+			'register_date' => DateTimeFormat::utcNow(),
 			'default-location' => ''
 		]);
 
@@ -611,7 +613,7 @@ class User
 		dba::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		dba::update('user', ['account_removed' => true, 'account_expires_on' => datetime_convert()], ['uid' => $uid]);
+		dba::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utcNow()], ['uid' => $uid]);
 		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
 
 		// Send an update to the directory

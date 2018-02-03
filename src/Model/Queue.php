@@ -6,6 +6,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 use dba;
 
 require_once 'include/dba.php';
@@ -19,9 +20,9 @@ class Queue
 	public static function updateTime($id)
 	{
 		logger('queue: requeue item ' . $id);
-		dba::update('queue', ['last' => datetime_convert()], ['id' => $id]);
+		dba::update('queue', ['last' => DateTimeFormat::utcNow()], ['id' => $id]);
 	}
-	
+
 	/**
 	 * @param string $id id
 	 */
@@ -30,7 +31,7 @@ class Queue
 		logger('queue: remove queue item ' . $id);
 		dba::delete('queue', ['id' => $id]);
 	}
-	
+
 	/**
 	 * @brief Checks if the communication with a given contact had problems recently
 	 *
@@ -45,9 +46,9 @@ class Queue
 			AND `last` > UTC_TIMESTAMP() - INTERVAL 15 MINUTE LIMIT 1",
 			intval($cid)
 		);
-	
+
 		$was_delayed = DBM::is_result($r);
-	
+
 		// We set "term-date" to a current date if the communication has problems.
 		// If the communication works again we reset this value.
 		if ($was_delayed) {
@@ -56,10 +57,10 @@ class Queue
 			);
 			$was_delayed = !DBM::is_result($r);
 		}
-	
+
 		return $was_delayed;
 	}
-	
+
 	/**
 	 * @param string  $cid     cid
 	 * @param string  $network network
@@ -68,17 +69,17 @@ class Queue
 	 */
 	public static function add($cid, $network, $msg, $batch = false)
 	{
-	
+
 		$max_queue = Config::get('system', 'max_contact_queue');
 		if ($max_queue < 1) {
 			$max_queue = 500;
 		}
-	
+
 		$batch_queue = Config::get('system', 'max_batch_queue');
 		if ($batch_queue < 1) {
 			$batch_queue = 1000;
 		}
-	
+
 		$r = q("SELECT COUNT(*) AS `total` FROM `queue` INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
 			WHERE `queue`.`cid` = %d AND `contact`.`self` = 0 ",
 			intval($cid)
@@ -93,7 +94,14 @@ class Queue
 				return;
 			}
 		}
-	
-		dba::insert('queue', ['cid' => $cid, 'network' => $network, 'created' => datetime_convert(), 'last' => datetime_convert(), 'content' => $msg, 'batch' =>($batch) ? 1 : 0]);
+
+		dba::insert('queue', [
+			'cid'     => $cid,
+			'network' => $network,
+			'created' => DateTimeFormat::utcNow(),
+			'last'    => DateTimeFormat::utcNow(),
+			'content' => $msg,
+			'batch'   =>($batch) ? 1 : 0
+		]);
 	}
 }

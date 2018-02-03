@@ -17,9 +17,10 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
-use Friendica\Model\User;
 use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Module\Login;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -739,7 +740,7 @@ function admin_page_summary(App $a)
 	if (!$last_worker_call) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The worker was never executed. Please check your database structure!');
-	} elseif ((strtotime(datetime_convert()) - strtotime($last_worker_call)) > 60 * 60) {
+	} elseif ((strtotime(DateTimeFormat::utcNow()) - strtotime($last_worker_call)) > 60 * 60) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.', $last_worker_call);
 	}

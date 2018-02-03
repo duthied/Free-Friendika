@@ -22,6 +22,7 @@ use Friendica\Model\Term;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\DateTimeFormat;
 use dba;
 use Text_LanguageDetect;
 
@@ -148,7 +149,7 @@ class Item extends BaseObject
 
 		// Set the item to "deleted"
 		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => datetime_convert(), 'changed' => datetime_convert()],
+					'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
 				['id' => $item['id']]);
 
 		create_tags_from_item($item['id']);
@@ -300,11 +301,11 @@ class Item extends BaseObject
 		$arr['owner-name']    = trim(defaults($arr, 'owner-name', ''));
 		$arr['owner-link']    = trim(defaults($arr, 'owner-link', ''));
 		$arr['owner-avatar']  = trim(defaults($arr, 'owner-avatar', ''));
-		$arr['received']      = ((x($arr, 'received') !== false) ? datetime_convert('UTC','UTC', $arr['received']) : datetime_convert());
-		$arr['created']       = ((x($arr, 'created') !== false) ? datetime_convert('UTC','UTC', $arr['created']) : $arr['received']);
-		$arr['edited']        = ((x($arr, 'edited') !== false) ? datetime_convert('UTC','UTC', $arr['edited']) : $arr['created']);
-		$arr['changed']       = ((x($arr, 'changed') !== false) ? datetime_convert('UTC','UTC', $arr['changed']) : $arr['created']);
-		$arr['commented']     = ((x($arr, 'commented') !== false) ? datetime_convert('UTC','UTC', $arr['commented']) : $arr['created']);
+		$arr['received']      = ((x($arr, 'received') !== false) ? DateTimeFormat::utc($arr['received']) : DateTimeFormat::utcNow());
+		$arr['created']       = ((x($arr, 'created') !== false) ? DateTimeFormat::utc($arr['created']) : $arr['received']);
+		$arr['edited']        = ((x($arr, 'edited') !== false) ? DateTimeFormat::utc($arr['edited']) : $arr['created']);
+		$arr['changed']       = ((x($arr, 'changed') !== false) ? DateTimeFormat::utc($arr['changed']) : $arr['created']);
+		$arr['commented']     = ((x($arr, 'commented') !== false) ? DateTimeFormat::utc($arr['commented']) : $arr['created']);
 		$arr['title']         = trim(defaults($arr, 'title', ''));
 		$arr['location']      = trim(defaults($arr, 'location', ''));
 		$arr['coord']         = trim(defaults($arr, 'coord', ''));
@@ -340,13 +341,13 @@ class Item extends BaseObject
 		}
 
 		// Items cannot be stored before they happen ...
-		if ($arr['created'] > datetime_convert()) {
-			$arr['created'] = datetime_convert();
+		if ($arr['created'] > DateTimeFormat::utcNow()) {
+			$arr['created'] = DateTimeFormat::utcNow();
 		}
 
 		// We haven't invented time travel by now.
-		if ($arr['edited'] > datetime_convert()) {
-			$arr['edited'] = datetime_convert();
+		if ($arr['edited'] > DateTimeFormat::utcNow()) {
+			$arr['edited'] = DateTimeFormat::utcNow();
 		}
 
 		if (($arr['author-link'] == "") && ($arr['owner-link'] == "")) {
@@ -740,9 +741,9 @@ class Item extends BaseObject
 		// update the commented timestamp on the parent
 		// Only update "commented" if it is really a comment
 		if (($arr['verb'] == ACTIVITY_POST) || !Config::get("system", "like_no_comment")) {
-			dba::update('item', ['commented' => datetime_convert(), 'changed' => datetime_convert()], ['id' => $parent_id]);
+			dba::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
-			dba::update('item', ['changed' => datetime_convert()], ['id' => $parent_id]);
+			dba::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
 		if ($dsprsig) {
@@ -1642,7 +1643,7 @@ class Item extends BaseObject
 			intval($wall ? 1 : 0)
 		);
 		if (DBM::is_result($r)) {
-			return substr(datetime_convert('',date_default_timezone_get(), $r[0]['created']),0,10);
+			return substr(DateTimeFormat::local($r[0]['created']),0,10);
 		}
 		return false;
 	}
@@ -1774,7 +1775,7 @@ class Item extends BaseObject
 			$like_item = $existing_like[0];
 
 			// Already voted, undo it
-			$fields = ['deleted' => true, 'unseen' => true, 'changed' => datetime_convert()];
+			$fields = ['deleted' => true, 'unseen' => true, 'changed' => DateTimeFormat::utcNow()];
 			dba::update('item', $fields, ['id' => $like_item['id']]);
 
 			// Clean up the Diaspora signatures for this like

@@ -2,9 +2,11 @@
 /**
  * @file mod/localtime.php
  */
+
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Util\Temporal;
 
 require_once 'include/datetime.php';
 
@@ -18,7 +20,7 @@ function localtime_post(App $a)
 	$bd_format = L10n::t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8 AM
 
 	if ($_POST['timezone']) {
-		$a->data['mod-localtime'] = datetime_convert('UTC', $_POST['timezone'], $t, $bd_format);
+		$a->data['mod-localtime'] = DateTimeFormat::convert($t, $_POST['timezone'], 'UTC', $bd_format);
 	}
 }
 
@@ -50,7 +52,7 @@ function localtime_content(App $a)
 
 	$o .= '<p>' . L10n::t('Please select your timezone:') . '</p>';
 
-	$o .= select_timezone(($_REQUEST['timezone']) ? $_REQUEST['timezone'] : 'America/Los_Angeles');
+	$o .= Temporal::getTimezoneSelect(($_REQUEST['timezone']) ? $_REQUEST['timezone'] : 'America/Los_Angeles');
 
 	$o .= '<input type="submit" name="submit" value="' . L10n::t('Submit') . '" /></form>';
 

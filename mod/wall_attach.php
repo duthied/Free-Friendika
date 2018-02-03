@@ -2,10 +2,12 @@
 /**
  * @file mod/wall_attach.php
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
 
 require_once 'include/datetime.php';
@@ -122,7 +124,7 @@ function wall_attach_post(App $a) {
 	$filedata = @file_get_contents($src);
 	$mimetype = Mimetype::getContentType($filename);
 	$hash = get_guid(64);
-	$created = datetime_convert();
+	$created = DateTimeFormat::utcNow();
 
 	$fields = ['uid' => $page_owner_uid, 'hash' => $hash, 'filename' => $filename, 'filetype' => $mimetype,
 		'filesize' => $filesize, 'data' => $filedata, 'created' => $created, 'edited' => $created,

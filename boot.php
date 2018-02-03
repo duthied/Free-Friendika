@@ -21,16 +21,15 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 
 use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendida\Core\L10n;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
 use Friendica\Database\DBStructure;
-use Friendica\Module\Login;
+use Friendica\Model\Contact;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/text.php';
 require_once 'include/datetime.php';
@@ -57,7 +56,6 @@ const DB_UPDATE_FAILED = 2;      // Database check failed
  * This can be used in HTML and JavaScript where needed a line break.
  */
 define('EOL',                    "<br />\r\n");
-define('ATOM_TIME',              'Y-m-d\TH:i:s\Z');
 
 /**
  * @brief Image storage quality.
@@ -1144,14 +1142,14 @@ function feed_birthday($uid, $tz)
 	if (DBM::is_result($p)) {
 		$tmp_dob = substr($p[0]['dob'], 5);
 		if (intval($tmp_dob)) {
-			$y = datetime_convert($tz, $tz, 'now', 'Y');
+			$y = DateTimeFormat::timezoneNow($tz, 'Y');
 			$bd = $y . '-' . $tmp_dob . ' 00:00';
 			$t_dob = strtotime($bd);
-			$now = strtotime(datetime_convert($tz, $tz, 'now'));
+			$now = strtotime(DateTimeFormat::timezoneNow($tz));
 			if ($t_dob < $now) {
 				$bd = $y + 1 . '-' . $tmp_dob . ' 00:00';
 			}
-			$birthday = datetime_convert($tz, 'UTC', $bd, ATOM_TIME);
+			$birthday = DateTimeFormat::convert($bd, 'UTC', $tz, DateTimeFormat::ATOM);
 		}
 	}
 

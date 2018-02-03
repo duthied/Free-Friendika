@@ -26,6 +26,7 @@ use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 use Friendica\Content\Text\BBCode;
@@ -228,7 +229,7 @@ class DFRN
 			}
 		}
 
-		$check_date = datetime_convert('UTC', 'UTC', $last_update, 'Y-m-d H:i:s');
+		$check_date = DateTimeFormat::utc($last_update);
 
 		$r = q(
 			"SELECT `item`.*, `item`.`id` AS `item_id`,
@@ -420,7 +421,7 @@ class DFRN
 
 		XML::addElement($doc, $mail, "dfrn:id", $item['uri']);
 		XML::addElement($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
-		XML::addElement($doc, $mail, "dfrn:sentdate", datetime_convert('UTC', 'UTC', $item['created'] . '+00:00', ATOM_TIME));
+		XML::addElement($doc, $mail, "dfrn:sentdate", DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM));
 		XML::addElement($doc, $mail, "dfrn:subject", $item['title']);
 		XML::addElement($doc, $mail, "dfrn:content", $item['body']);
 
@@ -586,7 +587,7 @@ class DFRN
 
 		/// @todo We need a way to transmit the different page flags like "PAGE_PRVGROUP"
 
-		XML::addElement($doc, $root, "updated", datetime_convert("UTC", "UTC", "now", ATOM_TIME));
+		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
 		$author = self::addAuthor($doc, $owner, $authorelement, $public);
 		$root->appendChild($author);
@@ -621,9 +622,9 @@ class DFRN
 
 		$author = $doc->createElement($authorelement);
 
-		$namdate = datetime_convert('UTC', 'UTC', $owner['name-date'].'+00:00', ATOM_TIME);
-		$uridate = datetime_convert('UTC', 'UTC', $owner['uri-date'].'+00:00', ATOM_TIME);
-		$picdate = datetime_convert('UTC', 'UTC', $owner['avatar-date'].'+00:00', ATOM_TIME);
+		$namdate = DateTimeFormat::utc($owner['name-date'].'+00:00', DateTimeFormat::ATOM);
+		$uridate = DateTimeFormat::utc($owner['uri-date'].'+00:00', DateTimeFormat::ATOM);
+		$picdate = DateTimeFormat::utc($owner['avatar-date'].'+00:00', DateTimeFormat::ATOM);
 
 		$attributes = [];
 
@@ -902,7 +903,7 @@ class DFRN
 		}
 
 		if ($item['deleted']) {
-			$attributes = ["ref" => $item['uri'], "when" => datetime_convert('UTC', 'UTC', $item['edited'] . '+00:00', ATOM_TIME)];
+			$attributes = ["ref" => $item['uri'], "when" => DateTimeFormat::utc($item['edited'] . '+00:00', DateTimeFormat::ATOM)];
 			return XML::createElement($doc, "at:deleted-entry", "", $attributes);
 		}
 
@@ -982,8 +983,8 @@ class DFRN
 		XML::addElement($doc, $entry, "id", $item["uri"]);
 		XML::addElement($doc, $entry, "title", $item["title"]);
 
-		XML::addElement($doc, $entry, "published", datetime_convert("UTC", "UTC", $item["created"] . "+00:00", ATOM_TIME));
-		XML::addElement($doc, $entry, "updated", datetime_convert("UTC", "UTC", $item["edited"] . "+00:00", ATOM_TIME));
+		XML::addElement($doc, $entry, "published", DateTimeFormat::utc($item["created"] . "+00:00", DateTimeFormat::ATOM));
+		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"] . "+00:00", DateTimeFormat::ATOM));
 
 		// "dfrn:env" is used to read the content
 		XML::addElement($doc, $entry, "dfrn:env", base64url_encode($body, true));
@@ -1387,7 +1388,7 @@ class DFRN
 			"SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
 			intval($contact["uid"]),
 			intval($contact["id"]),
-			dbesc(datetime_convert("UTC", "UTC", $birthday)),
+			dbesc(DateTimeFormat::utc($birthday)),
 			dbesc("birthday")
 		);
 
@@ -1405,10 +1406,10 @@ class DFRN
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
 			intval($contact["uid"]),
 			intval($contact["id"]),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert("UTC", "UTC", $birthday)),
-			dbesc(datetime_convert("UTC", "UTC", $birthday . " + 1 day ")),
+			dbesc(DateTimeFormat::utcNow()),
+			dbesc(DateTimeFormat::utcNow()),
+			dbesc(DateTimeFormat::utc($birthday)),
+			dbesc(DateTimeFormat::utc($birthday . " + 1 day ")),
 			dbesc($bdtext),
 			dbesc($bdtext2),
 			dbesc("birthday")
@@ -1888,7 +1889,7 @@ class DFRN
 			intval($suggest["cid"]),
 			dbesc($suggest["body"]),
 			dbesc($hash),
-			dbesc(datetime_convert()),
+			dbesc(DateTimeFormat::utcNow()),
 			intval(0)
 		);
 
@@ -2080,13 +2081,13 @@ class DFRN
 
 		if (self::isEditedTimestampNewer($current, $item)) {
 			// do not accept (ignore) an earlier edit than one we currently have.
-			if (datetime_convert("UTC", "UTC", $item["edited"]) < $current["edited"]) {
+			if (DateTimeFormat::utc($item["edited"]) < $current["edited"]) {
 				return false;
 			}
 
 			$fields = ['title' => $item["title"], 'body' => $item["body"],
-					'tag' => $item["tag"], 'changed' => datetime_convert(),
-					'edited' => datetime_convert("UTC", "UTC", $item["edited"])];
+					'tag' => $item["tag"], 'changed' => DateTimeFormat::utcNow(),
+					'edited' => DateTimeFormat::utc($item["edited"])];
 
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
 			dba::update('item', $fields, $condition);
@@ -2421,7 +2422,7 @@ class DFRN
 
 		// Is there an existing item?
 		if (DBM::is_result($current) && self::isEditedTimestampNewer($current[0], $item)
-			&& (datetime_convert("UTC", "UTC", $item["edited"]) < $current[0]["edited"])
+			&& (DateTimeFormat::utc($item["edited"]) < $current[0]["edited"])
 		) {
 			logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
 			return;
@@ -2752,9 +2753,9 @@ class DFRN
 			}
 		}
 		if ($when) {
-			$when = datetime_convert("UTC", "UTC", $when, "Y-m-d H:i:s");
+			$when = DateTimeFormat::utc($when);
 		} else {
-			$when = datetime_convert("UTC", "UTC", "now", "Y-m-d H:i:s");
+			$when = DateTimeFormat::utcNow();
 		}
 
 		if (!$uri || !$importer["id"]) {
@@ -2835,7 +2836,7 @@ class DFRN
 						`body` = '', `title` = ''
 					WHERE `parent-uri` = '%s' AND `uid` IN (0, %d)",
 					dbesc($when),
-					dbesc(datetime_convert()),
+					dbesc(DateTimeFormat::utcNow()),
 					dbesc($uri),
 					intval($importer["uid"])
 				);
@@ -2848,7 +2849,7 @@ class DFRN
 						`body` = '', `title` = ''
 					WHERE `uri` = '%s' AND `uid` IN (0, %d)",
 					dbesc($when),
-					dbesc(datetime_convert()),
+					dbesc(DateTimeFormat::utcNow()),
 					dbesc($uri),
 					intval($importer["uid"])
 				);
@@ -3156,8 +3157,8 @@ class DFRN
 			return false;
 		}
 
-		$existing_edited = datetime_convert('UTC', 'UTC', $existing['edited']);
-		$update_edited = datetime_convert('UTC', 'UTC', $update['edited']);
+		$existing_edited = DateTimeFormat::utc($existing['edited']);
+		$update_edited = DateTimeFormat::utc($update['edited']);
 
 		return (strcmp($existing_edited, $update_edited) < 0);
 	}

@@ -5,12 +5,14 @@
  * Send email invitations to join social network
  *
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Protocol\Email;
+use Friendica\Util\DateTimeFormat;
 
 function invite_post(App $a)
 {
@@ -60,7 +62,7 @@ function invite_post(App $a)
 
 			$r = q("INSERT INTO `register` (`hash`,`created`) VALUES ('%s', '%s') ",
 				dbesc($code),
-				dbesc(datetime_convert())
+				dbesc(DateTimeFormat::utcNow())
 			);
 
 			if (! is_site_admin()) {
