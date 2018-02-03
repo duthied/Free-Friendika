@@ -9,8 +9,6 @@ use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
-require_once 'include/datetime.php';
-
 function localtime_post(App $a)
 {
 	$t = $_REQUEST['time'];

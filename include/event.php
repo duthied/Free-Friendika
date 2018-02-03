@@ -16,7 +16,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
 require_once 'include/bbcode.php';
-require_once 'include/datetime.php';
 require_once 'include/conversation.php';
 
 function format_event_html($ev, $simple = false) {
@@ -238,7 +237,6 @@ function event_delete($event_id) {
  */
 function event_store($arr) {
 
-	require_once 'include/datetime.php';
 	require_once 'include/items.php';
 	require_once 'include/bbcode.php';
 

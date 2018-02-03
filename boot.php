@@ -32,7 +32,6 @@ use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/text.php';
-require_once 'include/datetime.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');

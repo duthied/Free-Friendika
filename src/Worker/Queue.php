@@ -16,7 +16,6 @@ use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
 

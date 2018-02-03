@@ -25,7 +25,6 @@ class CronJobs
 	{
 		global $a;
 
-		require_once 'include/datetime.php';
 		require_once 'mod/nodeinfo.php';
 
 		// No parameter set? So return

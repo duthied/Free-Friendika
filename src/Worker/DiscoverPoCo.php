@@ -14,8 +14,6 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 
-require_once 'include/datetime.php';
-
 class DiscoverPoCo {
 	/// @todo Clean up this mess of a parameter hell and split it in several classes
 	public static function execute($command = '', $param1 = '', $param2 = '', $param3 = '', $param4 = '')

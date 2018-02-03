@@ -10,8 +10,6 @@ use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
 
-require_once 'include/datetime.php';
-
 function wall_attach_post(App $a) {
 
 	$r_json = (x($_GET,'response') && $_GET['response']=='json');

@@ -11,8 +11,6 @@ use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 
-require_once 'include/datetime.php';
-
 class GProbe {
 	public static function execute($url = '')
 	{

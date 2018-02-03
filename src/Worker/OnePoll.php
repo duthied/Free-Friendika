@@ -24,7 +24,6 @@ class OnePoll
 	public static function execute($contact_id = 0, $command = '') {
 		global $a;
 
-		require_once 'include/datetime.php';
 		require_once 'include/items.php';
 
 		logger('start');
