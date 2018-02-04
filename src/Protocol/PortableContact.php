@@ -502,14 +502,16 @@ class PortableContact
 		$last_updated = "";
 
 		foreach ($entries as $entry) {
-			$published = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
-			$updated = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
+			$published = DateTimeFormat::utc($xpath->query('atom:published/text()', $entry)->item(0)->nodeValue);
+			$updated   = DateTimeFormat::utc($xpath->query('atom:updated/text()'  , $entry)->item(0)->nodeValue);
 
-			if ($last_updated < $published)
+			if ($last_updated < $published) {
 				$last_updated = $published;
+			}
 
-			if ($last_updated < $updated)
+			if ($last_updated < $updated) {
 				$last_updated = $updated;
+			}
 		}
 
 		// Maybe there aren't any entries. Then check if it is a valid feed
@@ -518,7 +520,8 @@ class PortableContact
 				$last_updated = NULL_DATE;
 			}
 		}
-		$fields = ['updated' => DBM::date($last_updated), 'last_contact' => DBM::date()];
+
+		$fields = ['updated' => $last_updated, 'last_contact' => DateTimeFormat::utcNow()];
 		dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 		if (($gcontacts[0]["generation"] == 0)) {
@@ -528,7 +531,7 @@ class PortableContact
 
 		logger("Profile ".$profile." was last updated at ".$last_updated, LOGGER_DEBUG);
 
-		return($last_updated);
+		return $last_updated;
 	}
 
 	public static function updateNeeded($created, $updated, $last_failure, $last_contact)
