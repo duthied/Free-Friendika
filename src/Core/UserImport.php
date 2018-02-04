@@ -173,9 +173,6 @@ class UserImport
 
 		PConfig::set($newuid, 'system', 'previous_addr', $old_handle);
 
-		// Generate a new guid for the account. Otherwise there will be problems with diaspora
-		dba::update('user', ['guid' => generate_user_guid()], ['uid' => $newuid]);
-
 		foreach ($account['profile'] as &$profile) {
 			foreach ($profile as $k => &$v) {
 				$v = str_replace([$oldbaseurl, $oldaddr], [$newbaseurl, $newaddr], $v);
