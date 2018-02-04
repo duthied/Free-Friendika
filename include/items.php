@@ -19,7 +19,6 @@ use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 
 require_once 'include/bbcode.php';
-require_once 'include/tags.php';
 require_once 'include/text.php';
 require_once 'include/threads.php';
 require_once 'mod/share.php';
