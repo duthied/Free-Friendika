@@ -743,7 +743,7 @@ function dlogger($msg, $level = 0) {
 	}
 
 	$dlogip = Config::get('system', 'dlogip');
-	if ($dlogip && $_SERVER['REMOTE_ADDR'] != $dlogip) {
+	if (!is_null($dlogip) && $_SERVER['REMOTE_ADDR'] != $dlogip) {
 		return;
 	}
 
