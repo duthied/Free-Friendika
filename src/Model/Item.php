@@ -70,7 +70,7 @@ class Item extends BaseObject
 				continue;
 			}
 
-			create_tags_from_item($item['id']);
+			Term::insertFromItemId($item['id']);
 			Term::insertFromItemFileById($item['id']);
 			update_thread($item['id']);
 
@@ -152,7 +152,7 @@ class Item extends BaseObject
 					'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
 				['id' => $item['id']]);
 
-		create_tags_from_item($item['id']);
+		Term::insertFromItemId($item['id']);
 		Term::insertFromItemFileById($item['id']);
 		delete_thread($item['id'], $item['parent-uri']);
 
@@ -791,7 +791,7 @@ class Item extends BaseObject
 		 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
-		create_tags_from_item($current_post);
+		Term::insertFromItemId($current_post);
 		Term::insertFromItemFileById($current_post);
 
 		if ($arr['parent-uri'] === $arr['uri']) {

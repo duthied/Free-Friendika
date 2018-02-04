@@ -2092,7 +2092,7 @@ class DFRN
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
 			dba::update('item', $fields, $condition);
 
-			create_tags_from_itemuri($item["uri"], $importer["importer_uid"]);
+			Term::insertFromItemUri($item["uri"], $importer["importer_uid"]);
 			update_thread_uri($item["uri"], $importer["importer_uid"]);
 
 			$changed = true;
@@ -2336,7 +2336,7 @@ class DFRN
 								dbesc($r[0]["tag"] . (strlen($r[0]["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]'),
 								intval($r[0]["id"])
 							);
-							create_tags_from_item($r[0]["id"]);
+							Term::insertFromItemId($r[0]["id"]);
 						}
 					}
 				}
@@ -2824,7 +2824,7 @@ class DFRN
 								dbesc(implode(',', $newtags)),
 								intval($i[0]["id"])
 							);
-							create_tags_from_item($i[0]["id"]);
+							Term::insertFromItemId($i[0]["id"]);
 						}
 					}
 				}
@@ -2840,7 +2840,7 @@ class DFRN
 					dbesc($uri),
 					intval($importer["uid"])
 				);
-				create_tags_from_itemuri($uri, $importer["uid"]);
+				Term::insertFromItemUri($uri, $importer["uid"]);
 				Term::insertFromItemFileByUri($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["uid"]);
 			} else {
@@ -2853,7 +2853,7 @@ class DFRN
 					dbesc($uri),
 					intval($importer["uid"])
 				);
-				create_tags_from_itemuri($uri, $importer["uid"]);
+				Term::insertFromItemUri($uri, $importer["uid"]);
 				Term::insertFromItemFileByUri($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["importer_uid"]);
 

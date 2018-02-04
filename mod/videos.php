@@ -13,6 +13,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
+use Friendica\Model\Term;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 
@@ -175,7 +176,7 @@ function videos_post(App $a) {
 					dbesc($i[0]['uri']),
 					intval(local_user())
 				);
-				create_tags_from_itemuri($i[0]['uri'], local_user());
+				Term::insertFromItemUri($i[0]['uri'], local_user());
 				delete_thread_uri($i[0]['uri'], local_user());
 
 				$url = System::baseUrl();
