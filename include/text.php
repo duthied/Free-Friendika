@@ -737,9 +737,13 @@ function dlogger($msg, $level = 0) {
 		return;
 	}
 
-	$logfile = Config::get('system','dlogfile');
-
+	$logfile = Config::get('system', 'dlogfile');
 	if (! $logfile) {
+		return;
+	}
+
+	$dlogip = Config::get('system', 'dlogip');
+	if (!is_null($dlogip) && $_SERVER['REMOTE_ADDR'] != $dlogip) {
 		return;
 	}
 
