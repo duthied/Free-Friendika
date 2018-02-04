@@ -2091,7 +2091,7 @@ class DFRN
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
 			dba::update('item', $fields, $condition);
 
-			Term::insertFromItemUri($item["uri"], $importer["importer_uid"]);
+			Term::insertFromTagFieldByItemUri($item["uri"], $importer["importer_uid"]);
 			update_thread_uri($item["uri"], $importer["importer_uid"]);
 
 			$changed = true;
@@ -2335,7 +2335,7 @@ class DFRN
 								dbesc($r[0]["tag"] . (strlen($r[0]["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]'),
 								intval($r[0]["id"])
 							);
-							Term::insertFromItemId($r[0]["id"]);
+							Term::insertFromTagFieldByItemId($r[0]["id"]);
 						}
 					}
 				}
@@ -2823,7 +2823,7 @@ class DFRN
 								dbesc(implode(',', $newtags)),
 								intval($i[0]["id"])
 							);
-							Term::insertFromItemId($i[0]["id"]);
+							Term::insertFromTagFieldByItemId($i[0]["id"]);
 						}
 					}
 				}
@@ -2839,8 +2839,8 @@ class DFRN
 					dbesc($uri),
 					intval($importer["uid"])
 				);
-				Term::insertFromItemUri($uri, $importer["uid"]);
-				Term::insertFromItemFileByUri($uri, $importer["uid"]);
+				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
+				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["uid"]);
 			} else {
 				$r = q(
@@ -2852,8 +2852,8 @@ class DFRN
 					dbesc($uri),
 					intval($importer["uid"])
 				);
-				Term::insertFromItemUri($uri, $importer["uid"]);
-				Term::insertFromItemFileByUri($uri, $importer["uid"]);
+				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
+				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["importer_uid"]);
 
 				// if this is a relayed delete, propagate it to other recipients

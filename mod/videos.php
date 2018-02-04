@@ -176,7 +176,7 @@ function videos_post(App $a) {
 					dbesc($i[0]['uri']),
 					intval(local_user())
 				);
-				Term::insertFromItemUri($i[0]['uri'], local_user());
+				Term::insertFromTagFieldByItemUri($i[0]['uri'], local_user());
 				delete_thread_uri($i[0]['uri'], local_user());
 
 				$url = System::baseUrl();

@@ -295,7 +295,7 @@ function photos_post(App $a)
 						dbesc($rr['parent-uri']),
 						intval($page_owner_uid)
 					);
-					Term::insertFromItemUri($rr['parent-uri'], $page_owner_uid);
+					Term::insertFromTagFieldByItemUri($rr['parent-uri'], $page_owner_uid);
 					delete_thread_uri($rr['parent-uri'], $page_owner_uid);
 
 					$drop_id = intval($rr['id']);
@@ -369,7 +369,7 @@ function photos_post(App $a)
 					dbesc($i[0]['uri']),
 					intval($page_owner_uid)
 				);
-				Term::insertFromItemUri($i[0]['uri'], $page_owner_uid);
+				Term::insertFromTagFieldByItemUri($i[0]['uri'], $page_owner_uid);
 				delete_thread_uri($i[0]['uri'], $page_owner_uid);
 
 				$url = System::baseUrl();
@@ -654,7 +654,7 @@ function photos_post(App $a)
 				intval($item_id),
 				intval($page_owner_uid)
 			);
-			Term::insertFromItemId($item_id);
+			Term::insertFromTagFieldByItemId($item_id);
 			update_thread($item_id);
 
 			$best = 0;

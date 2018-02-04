@@ -69,8 +69,8 @@ class Item extends BaseObject
 				continue;
 			}
 
-			Term::insertFromItemId($item['id']);
-			Term::insertFromItemFileById($item['id']);
+			Term::insertFromTagFieldByItemId($item['id']);
+			Term::insertFromFileFieldByItemId($item['id']);
 			update_thread($item['id']);
 
 			Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
@@ -151,8 +151,8 @@ class Item extends BaseObject
 					'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
 				['id' => $item['id']]);
 
-		Term::insertFromItemId($item['id']);
-		Term::insertFromItemFileById($item['id']);
+		Term::insertFromTagFieldByItemId($item['id']);
+		Term::insertFromFileFieldByItemId($item['id']);
 		delete_thread($item['id'], $item['parent-uri']);
 
 		// If it's the parent of a comment thread, kill all the kids
@@ -790,8 +790,8 @@ class Item extends BaseObject
 		 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
-		Term::insertFromItemId($current_post);
-		Term::insertFromItemFileById($current_post);
+		Term::insertFromTagFieldByItemId($current_post);
+		Term::insertFromFileFieldByItemId($current_post);
 
 		if ($arr['parent-uri'] === $arr['uri']) {
 			self::addShadow($current_post);
