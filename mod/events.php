@@ -13,9 +13,9 @@ use Friendica\Database\DBM;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 
 require_once 'include/bbcode.php';
-require_once 'include/datetime.php';
 require_once 'include/event.php';
 require_once 'include/items.php';
 
@@ -310,7 +310,7 @@ function events_content(App $a) {
 			$prevyear --;
 		}
 
-		$dim    = get_dim($y, $m);
+		$dim    = Temporal::getDaysInMonth($y, $m);
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
@@ -395,7 +395,7 @@ function events_content(App $a) {
 			'$new_event' => [System::baseUrl() . '/events/new', L10n::t('Create New Event'), '', ''],
 			'$previous'  => [System::baseUrl() . '/events/$prevyear/$prevmonth', L10n::t('Previous'), '', ''],
 			'$next'      => [System::baseUrl() . '/events/$nextyear/$nextmonth', L10n::t('Next'), '', ''],
-			'$calendar'  => cal($y, $m, $links, ' eventcal'),
+			'$calendar'  => Temporal::getCalendarTable($y, $m, $links, ' eventcal'),
 
 			'$events'    => $events,
 
@@ -510,11 +510,11 @@ function events_content(App $a) {
 			'$title' => L10n::t('Event details'),
 			'$desc' => L10n::t('Starting date and Title are required.'),
 			'$s_text' => L10n::t('Event Starts:') . ' <span class="required" title="' . L10n::t('Required') . '">*</span>',
-			'$s_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $syear+5), DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"), L10n::t('Event Starts:'), 'start_text', true, true, '', '', true),
+			'$s_dsel' => Temporal::getDateTimeField(new DateTime(), DateTime::createFromFormat('Y', $syear+5), DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"), L10n::t('Event Starts:'), 'start_text', true, true, '', '', true),
 			'$n_text' => L10n::t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
 			'$f_text' => L10n::t('Event Finishes:'),
-			'$f_dsel' => datetimesel(new DateTime(), DateTime::createFromFormat('Y', $fyear+5), DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"), L10n::t('Event Finishes:'), 'finish_text', true, true, 'start_text'),
+			'$f_dsel' => Temporal::getDateTimeField(new DateTime(), DateTime::createFromFormat('Y', $fyear+5), DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"), L10n::t('Event Finishes:'), 'finish_text', true, true, 'start_text'),
 			'$a_text' => L10n::t('Adjust for viewer timezone'),
 			'$a_checked' => $a_checked,
 			'$d_text' => L10n::t('Description:'),

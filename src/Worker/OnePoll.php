@@ -4,18 +4,17 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Content\Text\BBCode;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
-use Friendica\Util\Temporal;
-use Friendica\Util\DateTimeFormat;
 use dba;
 
 require_once 'include/dba.php';
@@ -25,7 +24,6 @@ class OnePoll
 	public static function execute($contact_id = 0, $command = '') {
 		global $a;
 
-		require_once 'include/datetime.php';
 		require_once 'include/items.php';
 
 		logger('start');

@@ -12,6 +12,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 
 require_once 'include/acl_selectors.php';
 require_once 'include/conversation.php';
@@ -398,7 +399,7 @@ function message_content(App $a)
 				'delete' => L10n::t('Delete message'),
 				'to_name' => $to_name_e,
 				'date' => DateTimeFormat::local($message['created'], 'D, d M Y - g:i A'),
-				'ago' => relative_date($message['created']),
+				'ago' => Temporal::getRelativeDate($message['created']),
 			];
 
 			$seen = $message['seen'];
@@ -499,7 +500,7 @@ function render_messages(array $msg, $t)
 			'$body' => $body_e,
 			'$to_name' => $to_name_e,
 			'$date' => DateTimeFormat::local($rr['mailcreated'], L10n::t('D, d M Y - g:i A')),
-			'$ago' => relative_date($rr['mailcreated']),
+			'$ago' => Temporal::getRelativeDate($rr['mailcreated']),
 			'$seen' => $rr['mailseen'],
 			'$count' => L10n::tt('%d message', '%d messages', $rr['count']),
 		]);

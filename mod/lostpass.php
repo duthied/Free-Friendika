@@ -11,7 +11,6 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'boot.php';
-require_once 'include/datetime.php';
 require_once 'include/enotify.php';
 require_once 'include/text.php';
 

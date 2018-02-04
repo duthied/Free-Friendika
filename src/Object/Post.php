@@ -14,6 +14,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
@@ -125,7 +126,7 @@ class Post extends BaseObject
 			$edited = [
 				'label'    => L10n::t('This entry was edited'),
 				'date'     => DateTimeFormat::local($item['edited'], 'r'),
-				'relative' => relative_date($item['edited'])
+				'relative' => Temporal::getRelativeDate($item['edited'])
 			];
 		}
 		$commentww = '';
@@ -365,9 +366,9 @@ class Post extends BaseObject
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
 			'localtime'       => DateTimeFormat::local($item['created'], 'r'),
-			'ago'             => $item['app'] ? L10n::t('%s from %s', relative_date($item['created']), $item['app']) : relative_date($item['created']),
+			'ago'             => $item['app'] ? L10n::t('%s from %s', Temporal::getRelativeDate($item['created']), $item['app']) : Temporal::getRelativeDate($item['created']),
 			'app'             => $item['app'],
-			'created'         => relative_date($item['created']),
+			'created'         => Temporal::getRelativeDate($item['created']),
 			'lock'            => $lock,
 			'location'        => $location_e,
 			'indent'          => $indent,

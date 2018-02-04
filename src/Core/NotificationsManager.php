@@ -14,11 +14,11 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 require_once 'include/dba.php';
 require_once 'include/html2plain.php';
-require_once 'include/datetime.php';
 require_once 'include/bbcode.php';
 
 /**
@@ -45,7 +45,7 @@ class NotificationsManager extends BaseObject
 		foreach ($notes as $n) {
 			$local_time = DateTimeFormat::local($n['date']);
 			$n['timestamp'] = strtotime($local_time);
-			$n['date_rel'] = relative_date($n['date']);
+			$n['date_rel'] = Temporal::getRelativeDate($n['date']);
 			$n['msg_html'] = bbcode($n['msg'], false, false, false, false);
 			$n['msg_plain'] = explode("\n", trim(html2plain($n['msg_html'], 0)))[0];
 
@@ -245,7 +245,7 @@ class NotificationsManager extends BaseObject
 						$default_item_url = $it['url'];
 						$default_item_text = strip_tags(bbcode($it['msg']));
 						$default_item_when = DateTimeFormat::local($it['date'], 'r');
-						$default_item_ago = relative_date($it['date']);
+						$default_item_ago = Temporal::getRelativeDate($it['date']);
 						break;
 
 					case 'home':
@@ -255,7 +255,7 @@ class NotificationsManager extends BaseObject
 						$default_item_url = $it['author-link'];
 						$default_item_text = L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']);
 						$default_item_when = DateTimeFormat::local($it['created'], 'r');
-						$default_item_ago = relative_date($it['created']);
+						$default_item_ago = Temporal::getRelativeDate($it['created']);
 						break;
 
 					default:
@@ -267,7 +267,7 @@ class NotificationsManager extends BaseObject
 									? L10n::t("%s created a new post", $it['author-name'])
 									: L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']));
 						$default_item_when = DateTimeFormat::local($it['created'], 'r');
-						$default_item_ago = relative_date($it['created']);
+						$default_item_ago = Temporal::getRelativeDate($it['created']);
 				}
 
 				// Transform the different types of notification in an usable array

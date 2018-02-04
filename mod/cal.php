@@ -18,6 +18,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Temporal;
 
 require_once 'include/event.php';
 
@@ -188,7 +189,7 @@ function cal_content(App $a)
 			$prevyear --;
 		}
 
-		$dim = get_dim($y, $m);
+		$dim = Temporal::getDaysInMonth($y, $m);
 		$start = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
@@ -274,7 +275,7 @@ function cal_content(App $a)
 			'$view' => L10n::t('View'),
 			'$previous' => [System::baseUrl() . "/events/$prevyear/$prevmonth", L10n::t('Previous'), '', ''],
 			'$next' => [System::baseUrl() . "/events/$nextyear/$nextmonth", L10n::t('Next'), '', ''],
-			'$calendar' => cal($y, $m, $links, ' eventcal'),
+			'$calendar' => Temporal::getCalendarTable($y, $m, $links, ' eventcal'),
 			'$events' => $events,
 			"today" => L10n::t("today"),
 			"month" => L10n::t("month"),

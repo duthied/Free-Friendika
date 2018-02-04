@@ -17,6 +17,7 @@ use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Temporal;
 
 require_once 'include/bbcode.php';
 require_once 'include/tags.php';
@@ -428,7 +429,7 @@ function list_post_dates($uid, $wall) {
 	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
 		$dyear = intval(substr($dnow, 0, 4));
 		$dstart = substr($dnow, 0, 8) . '01';
-		$dend = substr($dnow, 0, 8) . get_dim(intval($dnow), intval(substr($dnow, 5)));
+		$dend = substr($dnow, 0, 8) . Temporal::getDaysInMonth(intval($dnow), intval(substr($dnow, 5)));
 		$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
 		$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
 		$str = day_translate(DateTimeFormat::utc($dnow, 'F'));

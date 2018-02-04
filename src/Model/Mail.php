@@ -14,7 +14,6 @@ use Friendica\Util\DateTimeFormat;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/datetime.php';
 
 /**
  * Class to handle private messages

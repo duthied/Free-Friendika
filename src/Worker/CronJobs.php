@@ -25,7 +25,6 @@ class CronJobs
 	{
 		global $a;
 
-		require_once 'include/datetime.php';
 		require_once 'mod/nodeinfo.php';
 
 		// No parameter set? So return
@@ -55,7 +54,7 @@ class CronJobs
 		}
 
 		if ($command == 'update_contact_birthdays') {
-			update_contact_birthdays();
+			Contact::updateBirthdays();
 			return;
 		}
 

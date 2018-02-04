@@ -14,8 +14,6 @@ Class CronHooks {
 	public static function execute($hook = '') {
 		global $a;
 
-		require_once 'include/datetime.php';
-
 		if (($hook != '') && is_array($a->hooks) && array_key_exists("cron", $a->hooks)) {
 			foreach ($a->hooks["cron"] as $single_hook) {
 				if ($single_hook[1] == $hook) {

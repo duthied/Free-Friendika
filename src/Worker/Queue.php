@@ -6,18 +6,16 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
-use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Queue as QueueModel;
-use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/datetime.php';
 require_once 'include/items.php';
 require_once 'include/bbcode.php';
 

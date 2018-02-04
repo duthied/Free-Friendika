@@ -17,8 +17,6 @@ Class Cron {
 	public static function execute($parameter = '', $generation = 0) {
 		global $a;
 
-		require_once 'include/datetime.php';
-
 		// Poll contacts with specific parameters
 		if (!empty($parameter)) {
 			self::pollContacts($parameter, $generation);

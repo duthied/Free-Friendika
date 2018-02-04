@@ -6,8 +6,6 @@ use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Util\DateTimeFormat;
 
-require_once('include/datetime.php');
-
 /**
  * @class MySQL database class
  *

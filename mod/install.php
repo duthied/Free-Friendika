@@ -253,7 +253,6 @@ function install_content(App $a) {
 			return $o;
 		}; break;
 		case 3: { // Site settings
-			require_once('include/datetime.php');
 			$dbhost = ((x($_POST, 'dbhost')) ? notags(trim($_POST['dbhost'])) : 'localhost');
 			$dbuser = notags(trim($_POST['dbuser']));
 			$dbpass = notags(trim($_POST['dbpass']));

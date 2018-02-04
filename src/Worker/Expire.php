@@ -9,8 +9,8 @@ namespace Friendica\Worker;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
-use Friendica\Model\Item;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 use dba;
 
 require_once 'include/dba.php';
@@ -19,7 +19,6 @@ class Expire {
 	public static function execute($param = '', $hook_name = '') {
 		global $a;
 
-		require_once 'include/datetime.php';
 		require_once 'include/items.php';
 
 		Addon::loadHooks();

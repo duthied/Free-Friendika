@@ -1388,7 +1388,7 @@ class Contact extends BaseObject
 				`blocked`, `readonly`, `pending`, `writable`)
 				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
 				intval($importer['uid']),
-				dbesc(datetime_convert()),
+				dbesc(DateTimeFormat::utcNow()),
 				dbesc($url),
 				dbesc(normalise_link($url)),
 				dbesc($name),
@@ -1418,7 +1418,7 @@ class Contact extends BaseObject
 				if (is_array($contact_record)) {
 					dba::insert('intro', ['uid' => $importer['uid'], 'contact-id' => $contact_record['id'],
 								'blocked' => false, 'knowyou' => false,
-								'hash' => $hash, 'datetime' => datetime_convert()]);
+								'hash' => $hash, 'datetime' => DateTimeFormat::utcNow()]);
 				}
 
 				Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);
