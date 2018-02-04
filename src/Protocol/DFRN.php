@@ -2841,7 +2841,7 @@ class DFRN
 					intval($importer["uid"])
 				);
 				create_tags_from_itemuri($uri, $importer["uid"]);
-				Term::createFromItemURI($uri, $importer["uid"]);
+				Term::insertFromItemFileByUri($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["uid"]);
 			} else {
 				$r = q(
@@ -2854,7 +2854,7 @@ class DFRN
 					intval($importer["uid"])
 				);
 				create_tags_from_itemuri($uri, $importer["uid"]);
-				Term::createFromItemURI($uri, $importer["uid"]);
+				Term::insertFromItemFileByUri($uri, $importer["uid"]);
 				update_thread_uri($uri, $importer["importer_uid"]);
 
 				// if this is a relayed delete, propagate it to other recipients

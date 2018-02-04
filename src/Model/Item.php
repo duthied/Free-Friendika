@@ -71,7 +71,7 @@ class Item extends BaseObject
 			}
 
 			create_tags_from_item($item['id']);
-			Term::createFromItem($item['id']);
+			Term::insertFromItemFileById($item['id']);
 			update_thread($item['id']);
 
 			Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
@@ -153,7 +153,7 @@ class Item extends BaseObject
 				['id' => $item['id']]);
 
 		create_tags_from_item($item['id']);
-		Term::createFromItem($item['id']);
+		Term::insertFromItemFileById($item['id']);
 		delete_thread($item['id'], $item['parent-uri']);
 
 		// If it's the parent of a comment thread, kill all the kids
@@ -792,7 +792,7 @@ class Item extends BaseObject
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
 		create_tags_from_item($current_post);
-		Term::createFromItem($current_post);
+		Term::insertFromItemFileById($current_post);
 
 		if ($arr['parent-uri'] === $arr['uri']) {
 			self::addShadow($current_post);

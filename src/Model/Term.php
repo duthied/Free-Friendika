@@ -4,6 +4,7 @@
  */
 namespace Friendica\Model;
 
+use Friendica\Database\DBM;
 use dba;
 
 require_once "include/dba.php";
@@ -14,10 +15,10 @@ class Term
 	 * @param integer $itemid item id
 	 * @return void
 	 */
-	public static function createFromItem($itemid)
+	public static function insertFromItemFileById($itemid)
 	{
 		$message = dba::selectFirst('item', ['uid', 'deleted', 'file'], ['id' => $itemid]);
-		if (!\Friendica\Database\DBM::is_result($message)) {
+		if (!DBM::is_result($message)) {
 			return;
 		}
 
@@ -62,13 +63,13 @@ class Term
 	 * @param integer $uid     uid
 	 * @return void
 	 */
-	public static function createFromItemURI($itemuri, $uid)
+	public static function insertFromItemFileByUri($itemuri, $uid)
 	{
 		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 
 		if (count($messages)) {
 			foreach ($messages as $message) {
-				self::createFromItem($message["id"]);
+				self::insertFromItemFileById($message["id"]);
 			}
 		}
 	}

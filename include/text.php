@@ -1901,7 +1901,7 @@ function file_tag_save_file($uid, $item, $file)
 			);
 		}
 
-		Term::createFromItem($item);
+		Term::insertFromItemFileById($item);
 
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
@@ -1940,7 +1940,7 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false)
 		intval($uid)
 	);
 
-	Term::createFromItem($item);
+	Term::insertFromItemFileById($item);
 
 	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
 		dbesc($file),
