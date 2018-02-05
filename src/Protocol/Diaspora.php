@@ -2857,7 +2857,7 @@ class Diaspora
 
 			// Delete the thread - if it is a starting post and not a comment
 			if ($target_type != 'Comment') {
-				delete_thread($item["id"], $item["parent-uri"]);
+				Item::deleteThread($item["id"], $item["parent-uri"]);
 			}
 
 			logger("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], LOGGER_DEBUG);

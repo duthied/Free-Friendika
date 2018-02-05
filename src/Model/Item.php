@@ -71,7 +71,7 @@ class Item extends BaseObject
 
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
-			update_thread($item['id']);
+			self::updateThread($item['id']);
 
 			Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
 		}
@@ -153,7 +153,7 @@ class Item extends BaseObject
 
 		Term::insertFromTagFieldByItemId($item['id']);
 		Term::insertFromFileFieldByItemId($item['id']);
-		delete_thread($item['id'], $item['parent-uri']);
+		self::deleteThread($item['id'], $item['parent-uri']);
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
@@ -779,9 +779,9 @@ class Item extends BaseObject
 		}
 
 		if ($arr['parent-uri'] === $arr['uri']) {
-			add_thread($current_post);
+			self::addThread($current_post);
 		} else {
-			update_thread($parent_id);
+			self::updateThread($parent_id);
 		}
 
 		dba::commit();
@@ -1289,7 +1289,7 @@ class Item extends BaseObject
 			dbesc($u[0]['deny_gid']),
 			intval($item_id)
 		);
-		update_thread($item_id);
+		self::updateThread($item_id);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', 'tgroup', $item_id);
 
@@ -1873,7 +1873,7 @@ EOT;
 		return true;
 	}
 
-	function add_thread($itemid, $onlyshadow = false) {
+	private static function addThread($itemid, $onlyshadow = false) {
 		$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
 				`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 				`deleted`, `origin`, `forum_mode`, `mention`, `network`, `author-id`, `owner-id`
@@ -1892,17 +1892,17 @@ EOT;
 		}
 	}
 
-	function update_thread_uri($itemuri, $uid) {
+	public static function updateThreadFromUri($itemuri, $uid) {
 		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 	
 		if (DBM::is_result($messages)) {
 			foreach ($messages as $message) {
-				update_thread($message["id"]);
+				self::updateThread($message["id"]);
 			}
 		}
 	}
 
-	function update_thread($itemid, $setmention = false) {
+	public static function updateThread($itemid, $setmention = false) {
 		$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 				`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 	
@@ -1948,17 +1948,17 @@ EOT;
 		logger("Updating public shadow for post ".$items[0]["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 	}
 	
-	function delete_thread_uri($itemuri, $uid) {
+	public static function deleteThreadFromUri($itemuri, $uid) {
 		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
 	
 		if (DBM::is_result($messages)) {
 			foreach ($messages as $message) {
-				delete_thread($message["id"], $itemuri);
+				self::deleteThread($message["id"], $itemuri);
 			}
 		}
 	}
 	
-	function delete_thread($itemid, $itemuri = "") {
+	public static function deleteThread($itemid, $itemuri = "") {
 		$item = q("SELECT `uid` FROM `thread` WHERE `iid` = %d", intval($itemid));
 	
 		if (!DBM::is_result($item)) {
@@ -1969,7 +1969,7 @@ EOT;
 		// Using dba::delete at this time could delete the associated item entries
 		$result = dba::e("DELETE FROM `thread` WHERE `iid` = ?", $itemid);
 	
-		logger("delete_thread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
+		logger("deleteThread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 	
 		if ($itemuri != "") {
 			$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT `deleted` AND NOT (`uid` IN (%d, 0))",
@@ -1978,7 +1978,7 @@ EOT;
 				);
 			if (!DBM::is_result($r)) {
 				dba::delete('item', ['uri' => $itemuri, 'uid' => 0]);
-				logger("delete_thread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
+				logger("deleteThread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 			}
 		}
 	}

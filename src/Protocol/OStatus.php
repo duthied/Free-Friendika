@@ -562,7 +562,7 @@ class OStatus
 			['id' => $deleted["id"]]
 		);
 
-		delete_thread($deleted["id"], $deleted["parent-uri"]);
+		Item::deleteThread($deleted["id"], $deleted["parent-uri"]);
 
 		logger('Deleted item with uri '.$item['uri'].' for user '.$item['uid']);
 	}
