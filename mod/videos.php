@@ -178,7 +178,7 @@ function videos_post(App $a) {
 					intval(local_user())
 				);
 				Term::insertFromTagFieldByItemUri($i[0]['uri'], local_user());
-				Item::deleteThreadFromUri($i[0]['uri'], local_user());
+				Item::deleteThreadByUri($i[0]['uri'], local_user());
 
 				$url = System::baseUrl();
 				$drop_id = intval($i[0]['id']);

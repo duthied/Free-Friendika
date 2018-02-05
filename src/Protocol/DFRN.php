@@ -2091,7 +2091,7 @@ class DFRN
 			dba::update('item', $fields, $condition);
 
 			Term::insertFromTagFieldByItemUri($item["uri"], $importer["importer_uid"]);
-			Item::updateThreadFromUri($item["uri"], $importer["importer_uid"]);
+			Item::updateThreadByUri($item["uri"], $importer["importer_uid"]);
 
 			$changed = true;
 
@@ -2840,7 +2840,7 @@ class DFRN
 				);
 				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
 				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
-				Item::updateThreadFromUri($uri, $importer["uid"]);
+				Item::updateThreadByUri($uri, $importer["uid"]);
 			} else {
 				$r = q(
 					"UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
@@ -2853,7 +2853,7 @@ class DFRN
 				);
 				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
 				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
-				Item::updateThreadFromUri($uri, $importer["importer_uid"]);
+				Item::updateThreadByUri($uri, $importer["importer_uid"]);
 
 				// if this is a relayed delete, propagate it to other recipients
 

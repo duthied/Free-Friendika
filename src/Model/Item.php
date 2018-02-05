@@ -1894,7 +1894,7 @@ EOT;
 		}
 	}
 
-	public static function updateThreadFromUri($itemuri, $uid)
+	public static function updateThreadByUri($itemuri, $uid)
 	{
 		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
 	
@@ -1951,7 +1951,7 @@ EOT;
 		logger("Updating public shadow for post ".$items["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 	}
 	
-	public static function deleteThreadFromUri($itemuri, $uid)
+	public static function deleteThreadByUri($itemuri, $uid)
 	{
 		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
 	

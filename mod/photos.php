@@ -297,7 +297,7 @@ function photos_post(App $a)
 						intval($page_owner_uid)
 					);
 					Term::insertFromTagFieldByItemUri($rr['parent-uri'], $page_owner_uid);
-					Item::deleteThreadFromUri($rr['parent-uri'], $page_owner_uid);
+					Item::deleteThreadByUri($rr['parent-uri'], $page_owner_uid);
 
 					$drop_id = intval($rr['id']);
 
@@ -371,7 +371,7 @@ function photos_post(App $a)
 					intval($page_owner_uid)
 				);
 				Term::insertFromTagFieldByItemUri($i[0]['uri'], $page_owner_uid);
-				Item::deleteThreadFromUri($i[0]['uri'], $page_owner_uid);
+				Item::deleteThreadByUri($i[0]['uri'], $page_owner_uid);
 
 				$url = System::baseUrl();
 				$drop_id = intval($i[0]['id']);
