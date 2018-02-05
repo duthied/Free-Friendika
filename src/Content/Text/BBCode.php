@@ -355,7 +355,7 @@ class BBCode
 		$body = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url]$2[/url]', $body);
 
 		// Remove the abstract
-		$body = self::removeAbstract($body);
+		$body = self::stripAbstract($body);
 
 		// At first look at data that is attached via "type-..." stuff
 		// This will hopefully replaced with a dedicated bbcode later
@@ -1380,7 +1380,7 @@ class BBCode
 		$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'self::escapeNoparseCallback', $text);
 
 		// Remove the abstract element. It is a non visible element.
-		$text = self::removeAbstract($text);
+		$text = self::stripAbstract($text);
 
 		// Move all spaces out of the tags
 		$text = preg_replace("/\[(\w*)\](\s*)/ism", '$2[$1]', $text);
@@ -1941,12 +1941,12 @@ class BBCode
 	}
 
 	/**
-	 * @brief Removes the "abstract" element from the text
+	 * @brief Strips the "abstract" tag from the provided text
 	 *
 	 * @param string $text The text with BBCode
 	 * @return string The same text - but without "abstract" element
 	 */
-	public static function removeAbstract($text)
+	public static function stripAbstract($text)
 	{
 		$text = preg_replace("/[\s|\n]*\[abstract\].*?\[\/abstract\][\s|\n]*/ism", '', $text);
 		$text = preg_replace("/[\s|\n]*\[abstract=.*?\].*?\[\/abstract][\s|\n]*/ism", '', $text);

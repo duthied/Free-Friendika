@@ -930,7 +930,7 @@ class DFRN
 		}
 
 		// Remove the abstract element. It is only locally important.
-		$body = BBCode::removeAbstract($body);
+		$body = BBCode::stripAbstract($body);
 
 		if ($type == 'html') {
 			$htmlbody = $body;
