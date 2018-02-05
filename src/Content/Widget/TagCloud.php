@@ -38,7 +38,7 @@ class TagCloud
 		$o = '';
 		$r = self::tagadelic($uid, $count, $owner_id, $flags, $type);
 		if (count($r)) {
-			$contact = dba::selectFirst('contact', ['url'], ['id' => $uid]);
+			$contact = dba::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 			$url = System::removedBaseUrl($contact['url']);
 
 			foreach ($r as $rr) {
