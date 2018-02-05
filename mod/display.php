@@ -2,9 +2,11 @@
 /**
  * @file mod/display.php
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Network;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -171,7 +173,7 @@ function display_fetchauthor($a, $item) {
 			$profiledata["photo"] = $matches[1];
 		}
 		$profiledata["nickname"] = $profiledata["name"];
-		$profiledata["network"] = GetProfileUsername($profiledata["url"], "", false, true);
+		$profiledata["network"] = Network::matchByProfileUrl($profiledata["url"]);
 
 		$profiledata["address"] = "";
 		$profiledata["about"] = "";

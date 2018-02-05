@@ -2753,7 +2753,7 @@ function api_get_entitities(&$text, $bbcode)
 		return [];
 	}
 
-	$bbcode = bb_CleanPictureLinks($bbcode);
+	$bbcode = BBCode::cleanPictureLinks($bbcode);
 
 	// Change pure links in text to bbcode uris
 	$bbcode = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2]$2[/url]', $bbcode);
@@ -5173,7 +5173,7 @@ function api_clean_plain_items($Text)
 {
 	$include_entities = strtolower(x($_REQUEST, 'include_entities') ? $_REQUEST['include_entities'] : "false");
 
-	$Text = bb_CleanPictureLinks($Text);
+	$Text = BBCode::cleanPictureLinks($Text);
 	$URLSearchString = "^\[\]";
 
 	$Text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);

@@ -13,12 +13,13 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Network;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Object\Image;
 use Friendica\Util\Map;
-use Friendica\Util\Network;
+use Friendica\Util\Network as NetworkUtil;
 use Friendica\Util\ParseUrl;
 
 require_once "include/bbcode.php";
@@ -352,7 +353,7 @@ class BBCode
 		$body = preg_replace("/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url]$2[/url]', $body);
 
 		// Remove the abstract
-		$body = remove_abstract($body);
+		$body = self::removeAbstract($body);
 
 		// At first look at data that is attached via "type-..." stuff
 		// This will hopefully replaced with a dedicated bbcode later
@@ -369,8 +370,8 @@ class BBCode
 
 		// Fetch the abstract from the given target network
 		if ($target_network != "") {
-			$default_abstract = fetch_abstract($b["body"]);
-			$abstract = fetch_abstract($b["body"], $target_network);
+			$default_abstract = self::getAbstract($b["body"]);
+			$abstract = self::getAbstract($b["body"], $target_network);
 
 			// If we post to a network with no limit we only fetch
 			// an abstract exactly for this network
@@ -380,18 +381,18 @@ class BBCode
 		} else {// Try to guess the correct target network
 			switch ($htmlmode) {
 				case 8:
-					$abstract = fetch_abstract($b["body"], NETWORK_TWITTER);
+					$abstract = self::getAbstract($b["body"], NETWORK_TWITTER);
 					break;
 				case 7:
-					$abstract = fetch_abstract($b["body"], NETWORK_STATUSNET);
+					$abstract = self::getAbstract($b["body"], NETWORK_STATUSNET);
 					break;
 				case 6:
-					$abstract = fetch_abstract($b["body"], NETWORK_APPNET);
+					$abstract = self::getAbstract($b["body"], NETWORK_APPNET);
 					break;
 				default: // We don't know the exact target.
 					// We fetch an abstract since there is a posting limit.
 					if ($limit > 0) {
-						$abstract = fetch_abstract($b["body"]);
+						$abstract = self::getAbstract($b["body"]);
 					}
 			}
 		}
@@ -518,7 +519,7 @@ class BBCode
 				} else {
 					$scaled = $mtch[1];
 				}
-				$i = Network::fetchUrl($scaled);
+				$i = NetworkUtil::fetchUrl($scaled);
 				if (!$i) {
 					return $srctext;
 				}
@@ -924,9 +925,9 @@ class BBCode
 	 */
 	public static function pregReplaceInTag($pattern, $replace, $name, $text)
 	{
-		$occurence = 1;
-		$pos = get_bb_tag_pos($text, $name, $occurence);
-		while ($pos !== false && $occurence < 1000) {
+		$occurrences = 0;
+		$pos = self::getTagPosition($text, $name, $occurrences);
+		while ($pos !== false && $occurrences++ < 1000) {
 			$start = substr($text, 0, $pos['start']['open']);
 			$subject = substr($text, $pos['start']['open'], $pos['end']['close'] - $pos['start']['open']);
 			$end = substr($text, $pos['end']['close']);
@@ -937,14 +938,13 @@ class BBCode
 			$subject = preg_replace($pattern, $replace, $subject);
 			$text = $start . $subject . $end;
 
-			$occurence++;
-			$pos = get_bb_tag_pos($text, $name, $occurence);
+			$pos = self::getTagPosition($text, $name, $occurrences);
 		}
 
 		return $text;
 	}
 
-	public static function extractImagesFromItemBody($body)
+	private static function extractImagesFromItemBody($body)
 	{
 		$saved_image = [];
 		$orig_body = $body;
@@ -985,7 +985,7 @@ class BBCode
 		return ['body' => $new_body, 'images' => $saved_image];
 	}
 
-	public static function interpolateSavedImagesIntoItemBody($body, array $images)
+	private static function interpolateSavedImagesIntoItemBody($body, array $images)
 	{
 		$newbody = $body;
 
@@ -1012,7 +1012,7 @@ class BBCode
 	 * @param bool|int $simplehtml
 	 * @return string
 	 */
-	public static function convertShare($share, $simplehtml)
+	private static function convertShare($share, $simplehtml)
 	{
 		$attributes = $share[2];
 
@@ -1082,13 +1082,13 @@ class BBCode
 		if (x($data, "name") && x($data, "addr")) {
 			$userid_compact = $data["name"] . " (" . $data["addr"] . ")";
 		} else {
-			$userid_compact = GetProfileUsername($profile, $author, true);
+			$userid_compact = Network::getAddrFromProfileUrl($profile, $author);
 		}
 
 		if (x($data, "addr")) {
 			$userid = $data["addr"];
 		} else {
-			$userid = GetProfileUsername($profile, $author, false);
+			$userid = Network::formatMention($profile, $author);
 		}
 
 		if (x($data, "name")) {
@@ -1378,7 +1378,7 @@ class BBCode
 		$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'self::escapeNoparseCallback', $text);
 
 		// Remove the abstract element. It is a non visible element.
-		$text = remove_abstract($text);
+		$text = self::removeAbstract($text);
 
 		// Move all spaces out of the tags
 		$text = preg_replace("/\[(\w*)\](\s*)/ism", '$2[$1]', $text);
@@ -1388,7 +1388,7 @@ class BBCode
 		// large data sizes. Stash them away while we do bbcode conversion, and then put them back
 		// in after we've done all the regex matching. We cannot use any preg functions to do this.
 
-		$extracted = bb_extract_images($text);
+		$extracted = self::extractImagesFromItemBody($text);
 		$text = $extracted['body'];
 		$saved_image = $extracted['images'];
 
@@ -1767,7 +1767,7 @@ class BBCode
 		// Shared content
 		$text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
 			function ($match) use ($simple_html) {
-				return bb_ShareAttributes($match, $simple_html);
+				return self::convertShare($match, $simple_html);
 			}, $text);
 
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
@@ -1902,7 +1902,7 @@ class BBCode
 		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . L10n::t('Invalid link protocol') . '">', $text);
 
 		if ($saved_image) {
-			$text = bb_replace_images($text, $saved_image);
+			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);
 		}
 
 		// Clean up the HTML by loading and saving the HTML with the DOM.
@@ -1959,7 +1959,7 @@ class BBCode
 	 * @param string $addon The addon for which the abstract is meant for
 	 * @return string The abstract
 	 */
-	public static function getAbstract($text, $addon = "")
+	private static function getAbstract($text, $addon = "")
 	{
 		$abstract = "";
 		$abstracts = [];
