@@ -8,9 +8,6 @@ use Friendica\Database\DBM;
 use Friendica\Model\Item;
 
 function starred_init(App $a) {
-
-	require_once("include/threads.php");
-
 	$starred = 0;
 
 	if (! local_user()) {

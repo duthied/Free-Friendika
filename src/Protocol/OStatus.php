@@ -25,7 +25,6 @@ use DOMDocument;
 use DOMXPath;
 
 require_once 'include/dba.php';
-require_once 'include/threads.php';
 require_once 'include/html2bbcode.php';
 require_once 'include/bbcode.php';
 require_once 'include/items.php';
