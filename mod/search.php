@@ -201,7 +201,7 @@ function search_content(App $a) {
 			FROM `term`
 				STRAIGHT_JOIN `item` ON `item`.`id`=`term`.`oid` %s
 			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`))
-				AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s' and `item`.`verb` = '%s'
+				AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s' AND `item`.`verb` = '%s'
 			ORDER BY term.created DESC LIMIT %d , %d ",
 				item_fieldlists(), item_joins(), item_condition(),
 				intval(local_user()),
