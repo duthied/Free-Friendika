@@ -1,6 +1,6 @@
 <?php
 /**
- * @file boot.php
+ * @file_tag_unsave_file boot.php
  * This file defines some global constants and includes the central App class.
  */
 
@@ -23,13 +23,14 @@ use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\Protocol;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/text.php';
@@ -233,17 +234,19 @@ define('CP_USERS_AND_GLOBAL',    2);
 
 /**
  * @name Protocols
+ * @deprecated since version 3.6
+ * @see Conversation
  *
  * Different protocols that we are storing
  * @{
  */
-define('PROTOCOL_UNKNOWN',         0);
-define('PROTOCOL_DFRN',            1);
-define('PROTOCOL_DIASPORA',        2);
-define('PROTOCOL_OSTATUS_SALMON',  3);
-define('PROTOCOL_OSTATUS_FEED',    4); // Deprecated
-define('PROTOCOL_GS_CONVERSATION', 5); // Deprecated
-define('PROTOCOL_SPLITTED_CONV',   6);
+define('PROTOCOL_UNKNOWN'        , Conversation::PROTOCOL_UNKNOWN);
+define('PROTOCOL_DFRN'           , Conversation::PROTOCOL_DFRN);
+define('PROTOCOL_DIASPORA'       , Conversation::PROTOCOL_DIASPORA);
+define('PROTOCOL_OSTATUS_SALMON' , Conversation::PROTOCOL_OSTATUS_SALMON);
+define('PROTOCOL_OSTATUS_FEED'   , Conversation::PROTOCOL_OSTATUS_FEED);    // Deprecated
+define('PROTOCOL_GS_CONVERSATION', Conversation::PROTOCOL_GS_CONVERSATION); // Deprecated
+define('PROTOCOL_SPLITTED_CONV'  , Conversation::PROTOCOL_SPLITTED_CONV);
 /**
  * @}
  */
@@ -251,7 +254,7 @@ define('PROTOCOL_SPLITTED_CONV',   6);
 /**
  * @name Network constants
  * @deprecated since version 3.6
- * @see Friendica\Core\Protocol
+ * @see Protocol
  *
  * Network and protocol family types
  * @{
