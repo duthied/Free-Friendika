@@ -29,7 +29,6 @@ require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
 require_once 'include/bbcode.php';
 require_once 'include/security.php';
-require_once 'include/threads.php';
 
 function photos_init(App $a) {
 
@@ -297,7 +296,7 @@ function photos_post(App $a)
 						intval($page_owner_uid)
 					);
 					Term::insertFromTagFieldByItemUri($rr['parent-uri'], $page_owner_uid);
-					delete_thread_uri($rr['parent-uri'], $page_owner_uid);
+					Item::deleteThreadByUri($rr['parent-uri'], $page_owner_uid);
 
 					$drop_id = intval($rr['id']);
 
@@ -371,7 +370,7 @@ function photos_post(App $a)
 					intval($page_owner_uid)
 				);
 				Term::insertFromTagFieldByItemUri($i[0]['uri'], $page_owner_uid);
-				delete_thread_uri($i[0]['uri'], $page_owner_uid);
+				Item::deleteThreadByUri($i[0]['uri'], $page_owner_uid);
 
 				$url = System::baseUrl();
 				$drop_id = intval($i[0]['id']);
@@ -656,7 +655,7 @@ function photos_post(App $a)
 				intval($page_owner_uid)
 			);
 			Term::insertFromTagFieldByItemId($item_id);
-			update_thread($item_id);
+			Item::updateThread($item_id);
 
 			$best = 0;
 			foreach ($p as $scales) {
@@ -1432,7 +1431,7 @@ function photos_content(App $a)
 					intval($link_item['parent']),
 					intval(local_user())
 				);
-				update_thread($link_item['parent']);
+				Item::updateThread($link_item['parent']);
 			}
 
 			if ($link_item['coord']) {

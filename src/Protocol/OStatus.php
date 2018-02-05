@@ -25,7 +25,6 @@ use DOMDocument;
 use DOMXPath;
 
 require_once 'include/dba.php';
-require_once 'include/threads.php';
 require_once 'include/html2bbcode.php';
 require_once 'include/bbcode.php';
 require_once 'include/items.php';
@@ -562,7 +561,7 @@ class OStatus
 			['id' => $deleted["id"]]
 		);
 
-		delete_thread($deleted["id"], $deleted["parent-uri"]);
+		Item::deleteThread($deleted["id"], $deleted["parent-uri"]);
 
 		logger('Deleted item with uri '.$item['uri'].' for user '.$item['uid']);
 	}

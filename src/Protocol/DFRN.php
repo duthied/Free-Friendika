@@ -40,7 +40,6 @@ use HTMLPurifier_Config;
 require_once 'boot.php';
 require_once 'include/dba.php';
 require_once "include/enotify.php";
-require_once "include/threads.php";
 require_once "include/items.php";
 require_once "include/event.php";
 require_once "include/text.php";
@@ -2092,7 +2091,7 @@ class DFRN
 			dba::update('item', $fields, $condition);
 
 			Term::insertFromTagFieldByItemUri($item["uri"], $importer["importer_uid"]);
-			update_thread_uri($item["uri"], $importer["importer_uid"]);
+			Item::updateThreadByUri($item["uri"], $importer["importer_uid"]);
 
 			$changed = true;
 
@@ -2841,7 +2840,7 @@ class DFRN
 				);
 				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
 				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
-				update_thread_uri($uri, $importer["uid"]);
+				Item::updateThreadByUri($uri, $importer["uid"]);
 			} else {
 				$r = q(
 					"UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
@@ -2854,7 +2853,7 @@ class DFRN
 				);
 				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
 				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
-				update_thread_uri($uri, $importer["importer_uid"]);
+				Item::updateThreadByUri($uri, $importer["importer_uid"]);
 
 				// if this is a relayed delete, propagate it to other recipients
 

@@ -12,6 +12,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Protocol\DFRN;
@@ -177,7 +178,7 @@ function videos_post(App $a) {
 					intval(local_user())
 				);
 				Term::insertFromTagFieldByItemUri($i[0]['uri'], local_user());
-				delete_thread_uri($i[0]['uri'], local_user());
+				Item::deleteThreadByUri($i[0]['uri'], local_user());
 
 				$url = System::baseUrl();
 				$drop_id = intval($i[0]['id']);

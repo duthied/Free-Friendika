@@ -27,7 +27,6 @@ use dba;
 use Text_LanguageDetect;
 
 require_once 'boot.php';
-require_once 'include/threads.php';
 require_once 'include/items.php';
 require_once 'include/text.php';
 
@@ -71,7 +70,7 @@ class Item extends BaseObject
 
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
-			update_thread($item['id']);
+			self::updateThread($item['id']);
 
 			Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
 		}
@@ -153,7 +152,7 @@ class Item extends BaseObject
 
 		Term::insertFromTagFieldByItemId($item['id']);
 		Term::insertFromFileFieldByItemId($item['id']);
-		delete_thread($item['id'], $item['parent-uri']);
+		self::deleteThread($item['id'], $item['parent-uri']);
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
@@ -779,9 +778,9 @@ class Item extends BaseObject
 		}
 
 		if ($arr['parent-uri'] === $arr['uri']) {
-			add_thread($current_post);
+			self::addThread($current_post);
 		} else {
-			update_thread($parent_id);
+			self::updateThread($parent_id);
 		}
 
 		dba::commit();
@@ -1289,7 +1288,7 @@ class Item extends BaseObject
 			dbesc($u[0]['deny_gid']),
 			intval($item_id)
 		);
-		update_thread($item_id);
+		self::updateThread($item_id);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', 'tgroup', $item_id);
 
@@ -1871,5 +1870,120 @@ EOT;
 		Worker::add(PRIORITY_HIGH, "Notifier", "like", $new_item_id);
 
 		return true;
+	}
+
+	private static function addThread($itemid, $onlyshadow = false)
+	{
+		$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
+				`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
+				`deleted`, `origin`, `forum_mode`, `mention`, `network`, `author-id`, `owner-id`
+			FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
+	
+		if (!$items) {
+			return;
+		}
+	
+		$item = $items[0];
+		$item['iid'] = $itemid;
+	
+		if (!$onlyshadow) {
+			$result = dba::insert('thread', $item);
+	
+			logger("Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
+		}
+	}
+
+	public static function updateThreadByUri($itemuri, $uid)
+	{
+		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
+	
+		if (DBM::is_result($messages)) {
+			foreach ($messages as $message) {
+				self::updateThread($message["id"]);
+			}
+		}
+	}
+
+	public static function updateThread($itemid, $setmention = false)
+	{
+		$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
+				`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
+	
+		if (!DBM::is_result($items)) {
+			return;
+		}
+	
+		$item = $items[0];
+	
+		if ($setmention) {
+			$item["mention"] = 1;
+		}
+	
+		$sql = "";
+	
+		foreach ($item as $field => $data)
+			if (!in_array($field, ["guid", "title", "body", "rendered-html", "rendered-hash"])) {
+				if ($sql != "") {
+					$sql .= ", ";
+				}
+	
+				$sql .= "`".$field."` = '".dbesc($data)."'";
+			}
+	
+		$result = q("UPDATE `thread` SET ".$sql." WHERE `iid` = %d", intval($itemid));
+	
+		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".print_r($result, true)." ".print_r($item, true), LOGGER_DEBUG);
+	
+		// Updating a shadow item entry
+		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);
+	
+		if (!DBM::is_result($items)) {
+			return;
+		}
+	
+		$result = dba::update(
+			'item',
+			['title' => $item['title'], 'body' => $item['body'], 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']],
+			['id' => $items['id']]
+		);
+
+		logger("Updating public shadow for post ".$items["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
+	}
+	
+	public static function deleteThreadByUri($itemuri, $uid)
+	{
+		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
+	
+		if (DBM::is_result($messages)) {
+			foreach ($messages as $message) {
+				self::deleteThread($message["id"], $itemuri);
+			}
+		}
+	}
+	
+	public static function deleteThread($itemid, $itemuri = "")
+	{
+		$item = dba::select('thread', ['uid'], ['iid' => $itemid]);
+	
+		if (!DBM::is_result($item)) {
+			logger('No thread found for id '.$itemid, LOGGER_DEBUG);
+			return;
+		}
+	
+		// Using dba::delete at this time could delete the associated item entries
+		$result = dba::e("DELETE FROM `thread` WHERE `iid` = ?", $itemid);
+	
+		logger("deleteThread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
+	
+		if ($itemuri != "") {
+			$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT `deleted` AND NOT (`uid` IN (%d, 0))",
+					dbesc($itemuri),
+					intval($item["uid"])
+				);
+			if (!DBM::is_result($r)) {
+				dba::delete('item', ['uri' => $itemuri, 'uid' => 0]);
+				logger("deleteThread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
+			}
+		}
 	}
 }

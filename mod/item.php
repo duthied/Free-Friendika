@@ -32,7 +32,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 
 require_once 'include/enotify.php';
-require_once 'include/threads.php';
 require_once 'include/text.php';
 require_once 'include/items.php';
 

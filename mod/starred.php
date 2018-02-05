@@ -1,13 +1,13 @@
 <?php
-
+/**
+ * @file mod/starred.php
+ */
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
 function starred_init(App $a) {
-
-	require_once("include/threads.php");
-
 	$starred = 0;
 
 	if (! local_user()) {
@@ -38,7 +38,7 @@ function starred_init(App $a) {
 		intval($message_id)
 	);
 
-	update_thread($message_id);
+	Item::updateThread($message_id);
 
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
