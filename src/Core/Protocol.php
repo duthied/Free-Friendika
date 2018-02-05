@@ -1,19 +1,17 @@
 <?php
-
 /*
- * @file src/Core/Network.php
+ * @file src/Core/Protocol.php
  */
-
 namespace Friendica\Core;
 
-use Friendica\Util;
+use Friendica\Util\Network;
 
 /**
  * Manage compatibility with federated networks
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class Network
+class Protocol
 {
 	const DFRN      = 'dfrn';    // Friendica, Mistpark, other DFRN implementations
 	const DIASPORA  = 'dspr';    // Diaspora
@@ -96,7 +94,7 @@ class Network
 		if (preg_match('=https?://(.*)/user/(.*)=ism', $profile_url, $matches)) {
 			$statusnet_host = $matches[1];
 			$statusnet_user = $matches[2];
-			$UserData = Util\Network::fetchUrl('http://' . $statusnet_host . '/api/users/show.json?user_id=' . $statusnet_user);
+			$UserData = Network::fetchUrl('http://' . $statusnet_host . '/api/users/show.json?user_id=' . $statusnet_user);
 			$user = json_decode($UserData);
 			if ($user) {
 				$matches[2] = $user->screen_name;

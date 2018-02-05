@@ -6,7 +6,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\Network;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -173,7 +173,7 @@ function display_fetchauthor($a, $item) {
 			$profiledata["photo"] = $matches[1];
 		}
 		$profiledata["nickname"] = $profiledata["name"];
-		$profiledata["network"] = Network::matchByProfileUrl($profiledata["url"]);
+		$profiledata["network"] = Protocol::matchByProfileUrl($profiledata["url"]);
 
 		$profiledata["address"] = "";
 		$profiledata["about"] = "";

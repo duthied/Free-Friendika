@@ -13,13 +13,13 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\Network;
+use Friendica\Core\Protocol;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Object\Image;
 use Friendica\Util\Map;
-use Friendica\Util\Network as NetworkUtil;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 
 require_once "include/bbcode.php";
@@ -521,7 +521,7 @@ class BBCode
 				} else {
 					$scaled = $mtch[1];
 				}
-				$i = NetworkUtil::fetchUrl($scaled);
+				$i = Network::fetchUrl($scaled);
 				if (!$i) {
 					return $srctext;
 				}
@@ -1084,13 +1084,13 @@ class BBCode
 		if (x($data, "name") && x($data, "addr")) {
 			$userid_compact = $data["name"] . " (" . $data["addr"] . ")";
 		} else {
-			$userid_compact = Network::getAddrFromProfileUrl($profile, $author);
+			$userid_compact = Protocol::getAddrFromProfileUrl($profile, $author);
 		}
 
 		if (x($data, "addr")) {
 			$userid = $data["addr"];
 		} else {
-			$userid = Network::formatMention($profile, $author);
+			$userid = Protocol::formatMention($profile, $author);
 		}
 
 		if (x($data, "name")) {

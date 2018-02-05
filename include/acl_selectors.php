@@ -9,11 +9,11 @@ use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\Network;
+use Friendica\Core\Protocol;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Util\Network as NetworkUtil;
+use Friendica\Util\Network;
 
 require_once "mod/proxy.php";
 
@@ -250,7 +250,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 			}
 
 			if ($privmail) {
-				$trimmed = Network::formatMention($rr['url'], $rr['name']);
+				$trimmed = Protocol::formatMention($rr['url'], $rr['name']);
 			} else {
 				$trimmed = mb_substr($rr['name'],0,20);
 			}
@@ -736,7 +736,7 @@ function navbar_complete(App $a) {
 	if (! $localsearch) {
 		$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
 
-		$x = NetworkUtil::curl(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
+		$x = Network::curl(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
 		if ($x['success']) {
 			$j = json_decode($x['body'],true);
 			if ($j && isset($j['results'])) {

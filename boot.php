@@ -23,7 +23,7 @@ use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\Network;
+use Friendica\Core\Protocol;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -249,33 +249,33 @@ define('PROTOCOL_SPLITTED_CONV',   6);
  */
 
 /**
- * @name Network
+ * @name Network constants
  * @deprecated since version 3.6
- * @see Friendica\Core\Network
+ * @see Friendica\Core\Protocol
  *
  * Network and protocol family types
  * @{
  */
-define('NETWORK_DFRN'     , Network::DFRN);      // Friendica, Mistpark, other DFRN implementations
-define('NETWORK_ZOT'      , Network::ZOT);       // Zot! - Currently unsupported
-define('NETWORK_OSTATUS'  , Network::OSTATUS);   // GNU-social, Pleroma, Mastodon, other OStatus implementations
-define('NETWORK_FEED'     , Network::FEED);      // RSS/Atom feeds with no known "post/notify" protocol
-define('NETWORK_DIASPORA' , Network::DIASPORA);  // Diaspora
-define('NETWORK_MAIL'     , Network::MAIL);      // IMAP/POP
-define('NETWORK_FACEBOOK' , Network::FACEBOOK);  // Facebook API
-define('NETWORK_LINKEDIN' , Network::LINKEDIN);  // LinkedIn
-define('NETWORK_XMPP'     , Network::XMPP);      // XMPP - Currently unsupported
-define('NETWORK_MYSPACE'  , Network::MYSPACE);   // MySpace - Currently unsupported
-define('NETWORK_GPLUS'    , Network::GPLUS);     // Google+
-define('NETWORK_PUMPIO'   , Network::PUMPIO);    // pump.io
-define('NETWORK_TWITTER'  , Network::TWITTER);   // Twitter
-define('NETWORK_DIASPORA2', Network::DIASPORA2); // Diaspora connector
-define('NETWORK_STATUSNET', Network::STATUSNET); // Statusnet connector
-define('NETWORK_APPNET'   , Network::APPNET);    // app.net - Dead protocol
-define('NETWORK_NEWS'     , Network::NEWS);      // Network News Transfer Protocol - Currently unsupported
-define('NETWORK_ICALENDAR', Network::ICALENDAR); // iCalendar - Currently unsupported
-define('NETWORK_PNUT'     , Network::PNUT);      // pnut.io - Currently unsupported
-define('NETWORK_PHANTOM'  , Network::PHANTOM);   // Place holder
+define('NETWORK_DFRN'     , Protocol::DFRN);      // Friendica, Mistpark, other DFRN implementations
+define('NETWORK_ZOT'      , Protocol::ZOT);       // Zot! - Currently unsupported
+define('NETWORK_OSTATUS'  , Protocol::OSTATUS);   // GNU-social, Pleroma, Mastodon, other OStatus implementations
+define('NETWORK_FEED'     , Protocol::FEED);      // RSS/Atom feeds with no known "post/notify" protocol
+define('NETWORK_DIASPORA' , Protocol::DIASPORA);  // Diaspora
+define('NETWORK_MAIL'     , Protocol::MAIL);      // IMAP/POP
+define('NETWORK_FACEBOOK' , Protocol::FACEBOOK);  // Facebook API
+define('NETWORK_LINKEDIN' , Protocol::LINKEDIN);  // LinkedIn
+define('NETWORK_XMPP'     , Protocol::XMPP);      // XMPP - Currently unsupported
+define('NETWORK_MYSPACE'  , Protocol::MYSPACE);   // MySpace - Currently unsupported
+define('NETWORK_GPLUS'    , Protocol::GPLUS);     // Google+
+define('NETWORK_PUMPIO'   , Protocol::PUMPIO);    // pump.io
+define('NETWORK_TWITTER'  , Protocol::TWITTER);   // Twitter
+define('NETWORK_DIASPORA2', Protocol::DIASPORA2); // Diaspora connector
+define('NETWORK_STATUSNET', Protocol::STATUSNET); // Statusnet connector
+define('NETWORK_APPNET'   , Protocol::APPNET);    // app.net - Dead protocol
+define('NETWORK_NEWS'     , Protocol::NEWS);      // Network News Transfer Protocol - Currently unsupported
+define('NETWORK_ICALENDAR', Protocol::ICALENDAR); // iCalendar - Currently unsupported
+define('NETWORK_PNUT'     , Protocol::PNUT);      // pnut.io - Currently unsupported
+define('NETWORK_PHANTOM'  , Protocol::PHANTOM);   // Place holder
 /**
  * @}
  */
