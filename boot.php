@@ -250,6 +250,8 @@ define('PROTOCOL_SPLITTED_CONV',   6);
 
 /**
  * @name Network
+ * @deprecated since version 3.6
+ * @see Friendica\Core\Network
  *
  * Network and protocol family types
  * @{
