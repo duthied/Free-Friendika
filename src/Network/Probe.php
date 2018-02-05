@@ -962,6 +962,10 @@ class Probe
 			}
 		}
 
+		if (substr($webfinger["subject"], 0, 5) == "acct:") {
+			$data["addr"] = substr($webfinger["subject"], 5);
+		}
+
 		if (!isset($data["network"]) || ($hcard_url == "")) {
 			return false;
 		}
