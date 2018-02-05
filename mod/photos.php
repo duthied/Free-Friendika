@@ -29,7 +29,6 @@ require_once 'include/items.php';
 require_once 'include/acl_selectors.php';
 require_once 'include/bbcode.php';
 require_once 'include/security.php';
-require_once 'include/threads.php';
 
 function photos_init(App $a) {
 
