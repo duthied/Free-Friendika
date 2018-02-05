@@ -199,7 +199,7 @@ function profile_content(App $a, $update = 0)
 
 		$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'], true);
 		$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (x($category) ? xmlify($category) : ''));
-		$a->page['aside'] .= tagcloud_wall_widget();
+		$a->page['aside'] .= Widget::tagCloud();
 
 		if (can_write_wall($a->profile['profile_uid'])) {
 			$x = [

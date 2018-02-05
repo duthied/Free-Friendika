@@ -12,12 +12,13 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
-
 use dba;
 
 require_once 'boot.php';
+require_once 'include/dba.php';
 
 class Widget
 {
@@ -311,5 +312,32 @@ class Widget
 			'$more' => L10n::t('show more'),
 			'$items' => $r)
 		);
+	}
+
+	/**
+	 * Insert a tag cloud widget for the present profile.
+	 *
+	 * @brief Insert a tag cloud widget for the present profile.
+	 * @param int     $limit Max number of displayed tags.
+	 * @return string HTML formatted output.
+	 */
+	public static function tagCloud($limit = 50)
+	{
+		$a = get_app();
+
+		if (!$a->profile['profile_uid'] || !$a->profile['url']) {
+			return '';
+		}
+
+		if (Feature::isEnabled($a->profile['profile_uid'], 'tagadelic')) {
+			$owner_id = Contact::getIdForURL($a->profile['url']);
+
+			if (!$owner_id) {
+				return '';
+			}
+			return Widget\TagCloud::getHTML($a->profile['profile_uid'], $limit, $owner_id, 'wall');
+		}
+
+		return '';
 	}
 }
