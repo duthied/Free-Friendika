@@ -1873,14 +1873,16 @@ EOT;
 		return true;
 	}
 
-	private static function addThread($itemid, $onlyshadow = false) {
+	private static function addThread($itemid, $onlyshadow = false)
+	{
 		$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
 				`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 				`deleted`, `origin`, `forum_mode`, `mention`, `network`, `author-id`, `owner-id`
 			FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 	
-		if (!$items)
+		if (!$items) {
 			return;
+		}
 	
 		$item = $items[0];
 		$item['iid'] = $itemid;
@@ -1892,8 +1894,9 @@ EOT;
 		}
 	}
 
-	public static function updateThreadFromUri($itemuri, $uid) {
-		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
+	public static function updateThreadFromUri($itemuri, $uid)
+	{
+		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
 	
 		if (DBM::is_result($messages)) {
 			foreach ($messages as $message) {
@@ -1902,7 +1905,8 @@ EOT;
 		}
 	}
 
-	public static function updateThread($itemid, $setmention = false) {
+	public static function updateThread($itemid, $setmention = false)
+	{
 		$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 				`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 	
@@ -1918,7 +1922,7 @@ EOT;
 	
 		$sql = "";
 	
-		foreach ($item AS $field => $data)
+		foreach ($item as $field => $data)
 			if (!in_array($field, ["guid", "title", "body", "rendered-html", "rendered-hash"])) {
 				if ($sql != "") {
 					$sql .= ", ";
@@ -1932,24 +1936,24 @@ EOT;
 		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".print_r($result, true)." ".print_r($item, true), LOGGER_DEBUG);
 	
 		// Updating a shadow item entry
-		$items = q("SELECT `id` FROM `item` WHERE `guid` = '%s' AND `uid` = 0 LIMIT 1", dbesc($item["guid"]));
+		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);
 	
 		if (!DBM::is_result($items)) {
 			return;
 		}
 	
-		$result = q("UPDATE `item` SET `title` = '%s', `body` = '%s', `rendered-html` = '%s', `rendered-hash` = '%s' WHERE `id` = %d",
-				dbesc($item["title"]),
-				dbesc($item["body"]),
-				dbesc($item["rendered-html"]),
-				dbesc($item["rendered-hash"]),
-				intval($items[0]["id"])
-			);
-		logger("Updating public shadow for post ".$items[0]["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
+		$result = dba::update(
+			'item',
+			['title' => $item['title'], 'body' => $item['body'], 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']],
+			['id' => $items['id']]
+		);
+
+		logger("Updating public shadow for post ".$items["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 	}
 	
-	public static function deleteThreadFromUri($itemuri, $uid) {
-		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
+	public static function deleteThreadFromUri($itemuri, $uid)
+	{
+		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
 	
 		if (DBM::is_result($messages)) {
 			foreach ($messages as $message) {
@@ -1958,8 +1962,9 @@ EOT;
 		}
 	}
 	
-	public static function deleteThread($itemid, $itemuri = "") {
-		$item = q("SELECT `uid` FROM `thread` WHERE `iid` = %d", intval($itemid));
+	public static function deleteThread($itemid, $itemuri = "")
+	{
+		$item = dba::select('thread', ['uid'], ['iid' => $itemid]);
 	
 		if (!DBM::is_result($item)) {
 			logger('No thread found for id '.$itemid, LOGGER_DEBUG);
