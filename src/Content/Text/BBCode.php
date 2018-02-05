@@ -1075,7 +1075,7 @@ class BBCode
 		}
 
 		// We only call this so that a previously unknown contact can be added.
-		// This is important for the function "get_contact_details_by_url".
+		// This is important for the function "Model\Contact::getDetailsByURL()".
 		// This function then can fetch an entry from the contact table.
 		Contact::getIdForURL($profile, 0);
 
