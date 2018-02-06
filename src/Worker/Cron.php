@@ -40,6 +40,9 @@ Class Cron {
 
 		logger('cron: start');
 
+		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
+		Addon::ForkHooks($a->queue['priority'], "cron");
+
 		// run queue delivery process in the background
 		Worker::add(PRIORITY_NEGLIGIBLE, "Queue");
 

@@ -970,9 +970,6 @@ class Worker
 		// Run the cron job that calls all other jobs
 		self::add(PRIORITY_MEDIUM, "Cron");
 
-		// Run the cronhooks job separately from cron for being able to use a different timing
-		self::add(PRIORITY_MEDIUM, "CronHooks");
-
 		// Cleaning dead processes
 		self::killStaleWorkers();
 	}

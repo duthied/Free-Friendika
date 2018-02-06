@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
+use Friendica\Core\Worker;
 
 use dba;
 
@@ -183,6 +184,25 @@ class Addon
 			$a->hooks[$rr['hook']][] = [$rr['file'],$rr['function']];
 		}
 		dba::close($r);
+	}
+
+	/**
+	 * @brief Forks a hook.
+	 *
+	 * Use this function when you want to fork a hook via the worker.
+	 *
+	 * @param string $name of the hook to call
+	 * @param string|array $data to transmit to the callback handler
+	 */
+	public static function ForkHooks($priority, $name, $data = null)
+	{
+		$a = get_app();
+
+		if (is_array($a->hooks) && array_key_exists($name, $a->hooks)) {
+			foreach ($a->hooks[$name] as $hook) {
+				Worker::add($priority, 'ForkHook', $name, json_encode($hook), json_encode($data));
+			}
+		}
 	}
 
 	/**
