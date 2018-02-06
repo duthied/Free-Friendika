@@ -1963,8 +1963,7 @@ EOT;
 	
 	public static function deleteThread($itemid, $itemuri = "")
 	{
-		$item = dba::select('thread', ['uid'], ['iid' => $itemid]);
-	
+		$item = dba::selectFirst('thread', ['uid'], ['iid' => $itemid]);
 		if (!DBM::is_result($item)) {
 			logger('No thread found for id '.$itemid, LOGGER_DEBUG);
 			return;
