@@ -1065,7 +1065,7 @@ CREATE TABLE IF NOT EXISTS `userd` (
 --
 CREATE TABLE IF NOT EXISTS `workerqueue` (
 	`id` int NOT NULL auto_increment COMMENT 'Auto incremented worker task id',
-	`parameter` text COMMENT 'Task command',
+	`parameter` mediumtext COMMENT 'Task command',
 	`priority` tinyint NOT NULL DEFAULT 0 COMMENT 'Task priority',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
 	`pid` int NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',
