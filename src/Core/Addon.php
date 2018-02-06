@@ -194,7 +194,7 @@ class Addon
 	 * @param string $name of the hook to call
 	 * @param string|array $data to transmit to the callback handler
 	 */
-	public static function ForkHooks($priority, $name, $data = null)
+	public static function forkHooks($priority, $name, $data = null)
 	{
 		$a = get_app();
 

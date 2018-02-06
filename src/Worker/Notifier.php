@@ -553,7 +553,7 @@ class Notifier {
 		logger('notifier: calling hooks', LOGGER_DEBUG);
 
 		if ($normal_mode) {
-			Addon::ForkHooks($a->queue['priority'], 'notifier_normal', $target_item);
+			Addon::forkHooks($a->queue['priority'], 'notifier_normal', $target_item);
 		}
 
 		Addon::callHooks('notifier_end',$target_item);
