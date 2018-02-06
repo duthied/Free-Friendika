@@ -178,7 +178,7 @@ class Item extends BaseObject
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
-			self::delete(['parent' => $item['parent']]);
+			self::delete(['parent' => $item['parent']], $priority);
 		}
 
 		// send the notification upstream/downstream
@@ -1683,7 +1683,7 @@ class Item extends BaseObject
 				continue;
 			}
 
-			self::deleteByID($item['id'], PRIORITY_LOW);
+			self::deleteById($item['id'], PRIORITY_LOW);
 		}
 	}
 
