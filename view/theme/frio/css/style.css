@@ -2829,6 +2829,50 @@ section.help-content-wrapper li {
 #adminpage #frio_background_image.input-group {
     display: block;
 }
+#adminpage ul#pluginslist, li.plugin {
+    padding-top: 10px;
+}
+#adminpage li .icon {
+    display: inline-block;
+    vertical-align: text-top;
+    position: relative;
+    padding-left: 5px;
+}
+#adminpage li .icon:before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    margin-left: -20px;
+    margin-top: 2px;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    background-color: #fff;
+    -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+#adminpage li .icon.on:after {
+    font-family: "FontAwesome";
+    content: "\f00c";
+    display: inline-block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    top: 0;
+    margin-left: -20px;
+    margin-top: 2px;
+    padding-left: 3px;
+    padding-top: 1px;
+    font-size: 11px;
+    color: #555555;
+}
+#adminpage .plugin .desc {
+    padding-left: 10px;
+}
 
 /* Register Page*/
 #register-openid-wrapper, #register-name-wrapper, #register-invite-wrapper, #profile-publish-wrapper {
