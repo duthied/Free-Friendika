@@ -1897,15 +1897,8 @@ function file_tag_save_file($uid, $item, $file)
 		intval($uid)
 	);
 	if (DBM::is_result($r)) {
-		if (! stristr($r[0]['file'],'[' . file_tag_encode($file) . ']')) {
-			q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
-				dbesc($r[0]['file'] . '[' . file_tag_encode($file) . ']'),
-				intval($item),
-				intval($uid)
-			);
-		}
-
-		Term::insertFromFileFieldByItemId($item);
+		$fields = ['file' => $r[0]['file'] . '[' . file_tag_encode($file) . ']'];
+		Item::update($fields, ['id' => $item]);
 
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
@@ -1938,13 +1931,8 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false)
 		return false;
 	}
 
-	q("UPDATE `item` SET `file` = '%s' WHERE `id` = %d AND `uid` = %d",
-		dbesc(str_replace($pattern,'',$r[0]['file'])),
-		intval($item),
-		intval($uid)
-	);
-
-	Term::insertFromFileFieldByItemId($item);
+	$fields = ['file' => str_replace($pattern,'',$r[0]['file'])];
+	Item::update($fields, ['id' => $item]);
 
 	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
 		dbesc($file),

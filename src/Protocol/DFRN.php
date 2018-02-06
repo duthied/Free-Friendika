@@ -2088,10 +2088,7 @@ class DFRN
 					'edited' => DateTimeFormat::utc($item["edited"])];
 
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
-			dba::update('item', $fields, $condition);
-
-			Term::insertFromTagFieldByItemUri($item["uri"], $importer["importer_uid"]);
-			Item::updateThreadByUri($item["uri"], $importer["importer_uid"]);
+			Item::update($fields, $condition);
 
 			$changed = true;
 
@@ -2328,13 +2325,9 @@ class DFRN
 
 					// extract tag, if not duplicate, add to parent item
 					if ($xo->content) {
-						if (!(stristr($r[0]["tag"], trim($xo->content)))) {
-							q(
-								"UPDATE `item` SET `tag` = '%s' WHERE `id` = %d",
-								dbesc($r[0]["tag"] . (strlen($r[0]["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]'),
-								intval($r[0]["id"])
-							);
-							Term::insertFromTagFieldByItemId($r[0]["id"]);
+						if (!stristr($r[0]["tag"], trim($xo->content))) {
+							$tag = $r[0]["tag"] . (strlen($r[0]["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
+							Item::update(['tag' => $tag], ['id' => $r[0]["id"]]);
 						}
 					}
 				}
@@ -2746,121 +2739,35 @@ class DFRN
 			if ($attributes->name == "ref") {
 				$uri = $attributes->textContent;
 			}
-			if ($attributes->name == "when") {
-				$when = $attributes->textContent;
-			}
-		}
-		if ($when) {
-			$when = DateTimeFormat::utc($when);
-		} else {
-			$when = DateTimeFormat::utcNow();
 		}
 
 		if (!$uri || !$importer["id"]) {
 			return false;
 		}
 
-		/// @todo Only select the used fields
-		$r = q(
-			"SELECT `item`.*, `contact`.`self` FROM `item` INNER JOIN `contact` on `item`.`contact-id` = `contact`.`id`
-			WHERE `uri` = '%s' AND `item`.`uid` = %d AND `contact-id` = %d AND NOT `item`.`file` LIKE '%%[%%' LIMIT 1",
-			dbesc($uri),
-			intval($importer["uid"]),
-			intval($importer["id"])
-		);
-		if (!DBM::is_result($r)) {
+		$condition = ["`uri` = ? AND `uid` = ? AND `contact-id` = ? AND NOT `file` LIKE '%[%'",
+				$uri, $importer["uid"], $importer["id"]];
+		$item = dba::selectFirst('item', ['id'], $condition);
+		if (!DBM::is_result($item)) {
 			logger("Item with uri " . $uri . " from contact " . $importer["id"] . " for user " . $importer["uid"] . " wasn't found.", LOGGER_DEBUG);
 			return;
+		}
+
+		$entrytype = self::getEntryType($importer, $item);
+
+		if (!$item["deleted"]) {
+			logger('deleting item '.$item["id"].' uri='.$uri, LOGGER_DEBUG);
 		} else {
-			$item = $r[0];
+			return;
+		}
 
-			$entrytype = self::getEntryType($importer, $item);
+		Item::deleteById($item["id"]);
 
-			if (!$item["deleted"]) {
-				logger('deleting item '.$item["id"].' uri='.$uri, LOGGER_DEBUG);
-			} else {
-				return;
-			}
-
-			if ($item["object-type"] == ACTIVITY_OBJ_EVENT) {
-				logger("Deleting event ".$item["event-id"], LOGGER_DEBUG);
-				event_delete($item["event-id"]);
-			}
-
-			if (($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
-				$xo = XML::parseString($item["object"], false);
-				$xt = XML::parseString($item["target"], false);
-
-				if ($xt->type == ACTIVITY_OBJ_NOTE) {
-					$i = q(
-						"SELECT `id`, `contact-id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($xt->id),
-						intval($importer["importer_uid"])
-					);
-					if (DBM::is_result($i)) {
-						// For tags, the owner cannot remove the tag on the author's copy of the post.
-
-						$owner_remove = (($item["contact-id"] == $i[0]["contact-id"]) ? true: false);
-						$author_remove = (($item["origin"] && $item["self"]) ? true : false);
-						$author_copy = (($item["origin"]) ? true : false);
-
-						if ($owner_remove && $author_copy) {
-							return;
-						}
-						if ($author_remove || $owner_remove) {
-							$tags = explode(',', $i[0]["tag"]);
-							$newtags = [];
-							if (count($tags)) {
-								foreach ($tags as $tag) {
-									if (trim($tag) !== trim($xo->body)) {
-										$newtags[] = trim($tag);
-									}
-								}
-							}
-							q(
-								"UPDATE `item` SET `tag` = '%s' WHERE `id` = %d",
-								dbesc(implode(',', $newtags)),
-								intval($i[0]["id"])
-							);
-							Term::insertFromTagFieldByItemId($i[0]["id"]);
-						}
-					}
-				}
-			}
-
-			if ($entrytype == DFRN_TOP_LEVEL) {
-				$r = q(
-					"UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
-						`body` = '', `title` = ''
-					WHERE `parent-uri` = '%s' AND `uid` IN (0, %d)",
-					dbesc($when),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc($uri),
-					intval($importer["uid"])
-				);
-				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
-				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
-				Item::updateThreadByUri($uri, $importer["uid"]);
-			} else {
-				$r = q(
-					"UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s',
-						`body` = '', `title` = ''
-					WHERE `uri` = '%s' AND `uid` IN (0, %d)",
-					dbesc($when),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc($uri),
-					intval($importer["uid"])
-				);
-				Term::insertFromTagFieldByItemUri($uri, $importer["uid"]);
-				Term::insertFromFileFieldByItemUri($uri, $importer["uid"]);
-				Item::updateThreadByUri($uri, $importer["importer_uid"]);
-
-				// if this is a relayed delete, propagate it to other recipients
-
-				if ($entrytype == DFRN_REPLY_RC) {
-					logger("Notifying followers about deletion of post " . $item["id"], LOGGER_DEBUG);
-					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
-				}
+		if ($entrytype != DFRN_TOP_LEVEL) {
+			// if this is a relayed delete, propagate it to other recipients
+			if ($entrytype == DFRN_REPLY_RC) {
+				logger("Notifying followers about deletion of post " . $item["id"], LOGGER_DEBUG);
+				Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
 			}
 		}
 	}

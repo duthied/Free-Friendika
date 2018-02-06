@@ -505,7 +505,7 @@ function admin_page_deleteitem_post(App $a)
 		// associated threads.
 		$r = dba::select('item', ['id'], ['guid' => $guid]);
 		while ($row = dba::fetch($r)) {
-			Item::delete($row['id']);
+			Item::deleteById($row['id']);
 		}
 		dba::close($r);
 	}

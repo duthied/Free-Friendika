@@ -17,6 +17,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
@@ -326,7 +327,7 @@ function networkSetSeen($condition)
 	$unseen = dba::exists('item', $condition);
 
 	if ($unseen) {
-		$r = dba::update('item', ['unseen' => false], $condition);
+		$r = Item::update(['unseen' => false], $condition);
 	}
 }
 

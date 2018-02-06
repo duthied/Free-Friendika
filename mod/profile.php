@@ -13,6 +13,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
@@ -359,7 +360,7 @@ function profile_content(App $a, $update = 0)
 	if ($is_owner) {
 		$unseen = dba::exists('item', ['wall' => true, 'unseen' => true, 'uid' => local_user()]);
 		if ($unseen) {
-			$r = dba::update('item', ['unseen' => false],
+			$r = Item::update(['unseen' => false],
 					['wall' => true, 'unseen' => true, 'uid' => local_user()]);
 		}
 	}

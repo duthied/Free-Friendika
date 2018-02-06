@@ -395,7 +395,7 @@ class OnePoll
 								if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
 									if ($meta->deleted && ! $item['deleted']) {
 										$fields = ['deleted' => true, 'changed' => DateTimeFormat::utcNow()];
-										dba::update('item', $fields, ['id' => $item['id']]);
+										Item::update($fields, ['id' => $item['id']]);
 									}
 
 								switch ($mailconf['action']) {

@@ -552,16 +552,7 @@ class OStatus
 			return;
 		}
 
-		// Currently we don't have a central deletion function that we could use in this case
-		// The function "item_drop" doesn't work for that case
-		dba::update(
-			'item',
-			['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
-			['id' => $deleted["id"]]
-		);
-
-		Item::deleteThread($deleted["id"], $deleted["parent-uri"]);
+		Item::deleteById($deleted["id"]);
 
 		logger('Deleted item with uri '.$item['uri'].' for user '.$item['uid']);
 	}

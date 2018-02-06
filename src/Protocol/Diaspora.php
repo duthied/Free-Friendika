@@ -2842,23 +2842,7 @@ class Diaspora
 				continue;
 			}
 
-			// Currently we don't have a central deletion function that we could use in this case.
-			// The function "item_drop" doesn't work for that case
-			dba::update(
-				'item',
-				[
-					'deleted' => true,
-					'title' => '',
-					'body' => '',
-					'edited' => DateTimeFormat::utcNow(),
-					'changed' => DateTimeFormat::utcNow()],
-				['id' => $item["id"]]
-			);
-
-			// Delete the thread - if it is a starting post and not a comment
-			if ($target_type != 'Comment') {
-				Item::deleteThread($item["id"], $item["parent-uri"]);
-			}
+			Item::deleteById($item["id"]);
 
 			logger("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], LOGGER_DEBUG);
 

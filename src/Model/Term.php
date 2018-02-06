@@ -122,19 +122,6 @@ class Term
 		}
 	}
 
-	public static function insertFromTagFieldByItemUri($itemuri, $uid)
-	{
-		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
-
-		if (DBM::is_result($messages)) {
-			while ($message = dba::fetch($messages)) {
-				self::insertFromTagFieldByItemId($message['id']);
-			}
-			dba::close($messages);
-		}
-	}
-
-
 	/**
 	 * @param integer $itemid item id
 	 * @return void
@@ -178,22 +165,6 @@ class Term
 					'type' => TERM_CATEGORY,
 					'term' => $file
 				]);
-			}
-		}
-	}
-
-	/**
-	 * @param string  $itemuri item uri
-	 * @param integer $uid     uid
-	 * @return void
-	 */
-	public static function insertFromFileFieldByItemUri($itemuri, $uid)
-	{
-		$messages = q("SELECT `id` FROM `item` WHERE uri ='%s' AND uid=%d", dbesc($itemuri), intval($uid));
-
-		if (count($messages)) {
-			foreach ($messages as $message) {
-				self::insertFromFileFieldByItemId($message["id"]);
 			}
 		}
 	}
