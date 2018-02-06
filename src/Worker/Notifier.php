@@ -554,7 +554,6 @@ class Notifier {
 
 		if ($normal_mode) {
 			Addon::ForkHooks($a->queue['priority'], 'notifier_normal', $target_item);
-			//Addon::callHooks('notifier_normal',$target_item);
 		}
 
 		Addon::callHooks('notifier_end',$target_item);
