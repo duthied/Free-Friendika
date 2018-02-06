@@ -348,9 +348,6 @@ function _contact_archive($contact_id, $orig_record)
 		intval($contact_id),
 		intval(local_user())
 	);
-	if ($archived) {
-		q("UPDATE `item` SET `private` = 2 WHERE `contact-id` = %d AND `uid` = %d", intval($contact_id), intval(local_user()));
-	}
 	return DBM::is_result($r);
 }
 

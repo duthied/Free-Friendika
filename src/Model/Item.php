@@ -29,6 +29,7 @@ use Text_LanguageDetect;
 require_once 'boot.php';
 require_once 'include/items.php';
 require_once 'include/text.php';
+require_once 'include/event.php';
 
 class Item extends BaseObject
 {
@@ -81,14 +82,32 @@ class Item extends BaseObject
 	/**
 	 * @brief Delete an item and notify others about it - if it was ours
 	 *
+	 * @param array $condition The condition for finding the item entries
+	 * @param integer $priority Priority for the notification
+	 */
+	public static function delete($condition, $priority = PRIORITY_HIGH)
+	{
+		$items = dba::select('item', ['id'], $condition);
+		while ($item = dba::fetch($items)) {
+			self::deleteById($item['id'], $priority);
+		}
+		dba::close($items);
+	}
+
+	/**
+	 * @brief Delete an item and notify others about it - if it was ours
+	 *
 	 * @param integer $item_id Item ID that should be delete
+	 * @param integer $priority Priority for the notification
 	 *
 	 * @return $boolean success
 	 */
-	public static function delete($item_id, $priority = PRIORITY_HIGH)
+	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
-		$fields = ['id', 'uid', 'parent', 'parent-uri', 'origin', 'deleted', 'file', 'resource-id', 'event-id', 'attach'];
+		$fields = ['id', 'uid', 'parent', 'parent-uri', 'origin', 'deleted',
+			'file', 'resource-id', 'event-id', 'attach',
+			'verb', 'object-type', 'object', 'target', 'contact-id'];
 		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
 			return false;
@@ -134,9 +153,9 @@ class Item extends BaseObject
 			dba::delete('photo', ['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
 		}
 
-		// If item is a link to an event, nuke the event record.
+		// If item is a link to an event, delete the event.
 		if (intval($item['event-id'])) {
-			dba::delete('event', ['id' => $item['event-id'], 'uid' => $item['uid']]);
+			event_delete($item['event-id']);
 		}
 
 		// If item has attachments, drop them
@@ -144,6 +163,9 @@ class Item extends BaseObject
 			preg_match("|attach/(\d+)|", $attach, $matches);
 			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
 		}
+
+		// Delete tags that had been attached to other items
+		self::deleteTagsFromItem($item);
 
 		// Set the item to "deleted"
 		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
@@ -156,10 +178,7 @@ class Item extends BaseObject
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
-			$items = dba::select('item', ['id'], ['parent' => $item['parent']]);
-			while ($row = dba::fetch($items)) {
-				self::delete($row['id'], $priority);
-			}
+			self::delete(['parent' => $item['parent']], $priority);
 		}
 
 		// send the notification upstream/downstream
@@ -168,6 +187,44 @@ class Item extends BaseObject
 		}
 
 		return true;
+	}
+
+	private static function deleteTagsFromItem($item)
+	{
+		if (($item["verb"] != ACTIVITY_TAG) || ($item["object-type"] != ACTIVITY_OBJ_TAGTERM)) {
+			return;
+		}
+
+		$xo = XML::parseString($item["object"], false);
+		$xt = XML::parseString($item["target"], false);
+
+		if ($xt->type != ACTIVITY_OBJ_NOTE) {
+			return;
+		}
+
+		$i = dba::selectFirst('item', ['id', 'contact-id', 'tag'], ['uri' => $xt->id, 'uid' => $item['uid']]);
+		if (!DBM::is_result($i)) {
+			return;
+		}
+
+		// For tags, the owner cannot remove the tag on the author's copy of the post.
+		$owner_remove = ($item["contact-id"] == $i["contact-id"]);
+		$author_copy = $item["origin"];
+
+		if (($owner_remove && $author_copy) || !$owner_remove) {
+			return;
+		}
+
+		$tags = explode(',', $i["tag"]);
+		$newtags = [];
+		if (count($tags)) {
+			foreach ($tags as $tag) {
+				if (trim($tag) !== trim($xo->body)) {
+				       $newtags[] = trim($tag);
+				}
+			}
+		}
+		self::update(['tag' => implode(',', $newtags)], ['id' => $i["id"]]);
 	}
 
 	public static function insert($arr, $force_parent = false, $notify = false, $dontcache = false)
@@ -1626,7 +1683,7 @@ class Item extends BaseObject
 				continue;
 			}
 
-			self::delete($item['id'], PRIORITY_LOW);
+			self::deleteById($item['id'], PRIORITY_LOW);
 		}
 	}
 
@@ -1851,13 +1908,11 @@ EOT;
 			'unseen'        => 1,
 		];
 
-		$new_item_id = Item::insert($new_item);
+		$new_item_id = self::insert($new_item);
 
-		// @todo: Explain this block
-		if (! $item['visible']) {
-			q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d",
-				intval($item['id'])
-			);
+		// If the parent item isn't visible then set it to visible
+		if (!$item['visible']) {
+			self::update(['visible' => true], ['id' => $item['id']]);
 		}
 
 		// Save the author information for the like in case we need to relay to Diaspora
@@ -1878,69 +1933,58 @@ EOT;
 				`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 				`deleted`, `origin`, `forum_mode`, `mention`, `network`, `author-id`, `owner-id`
 			FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
-	
+
 		if (!$items) {
 			return;
 		}
-	
+
 		$item = $items[0];
 		$item['iid'] = $itemid;
-	
+
 		if (!$onlyshadow) {
 			$result = dba::insert('thread', $item);
-	
+
 			logger("Add thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 		}
 	}
 
-	public static function updateThreadByUri($itemuri, $uid)
-	{
-		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
-	
-		if (DBM::is_result($messages)) {
-			foreach ($messages as $message) {
-				self::updateThread($message["id"]);
-			}
-		}
-	}
-
-	public static function updateThread($itemid, $setmention = false)
+	private static function updateThread($itemid, $setmention = false)
 	{
 		$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
 				`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
-	
+
 		if (!DBM::is_result($items)) {
 			return;
 		}
-	
+
 		$item = $items[0];
-	
+
 		if ($setmention) {
 			$item["mention"] = 1;
 		}
-	
+
 		$sql = "";
-	
+
 		foreach ($item as $field => $data)
 			if (!in_array($field, ["guid", "title", "body", "rendered-html", "rendered-hash"])) {
 				if ($sql != "") {
 					$sql .= ", ";
 				}
-	
+
 				$sql .= "`".$field."` = '".dbesc($data)."'";
 			}
-	
+
 		$result = q("UPDATE `thread` SET ".$sql." WHERE `iid` = %d", intval($itemid));
-	
+
 		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".print_r($result, true)." ".print_r($item, true), LOGGER_DEBUG);
-	
+
 		// Updating a shadow item entry
 		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);
-	
+
 		if (!DBM::is_result($items)) {
 			return;
 		}
-	
+
 		$result = dba::update(
 			'item',
 			['title' => $item['title'], 'body' => $item['body'], 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']],
@@ -1949,31 +1993,20 @@ EOT;
 
 		logger("Updating public shadow for post ".$items["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 	}
-	
-	public static function deleteThreadByUri($itemuri, $uid)
-	{
-		$messages = dba::select('item', ['id'], ['uri' => $itemuri, 'uid' => $uid]);
-	
-		if (DBM::is_result($messages)) {
-			foreach ($messages as $message) {
-				self::deleteThread($message["id"], $itemuri);
-			}
-		}
-	}
-	
-	public static function deleteThread($itemid, $itemuri = "")
+
+	private static function deleteThread($itemid, $itemuri = "")
 	{
 		$item = dba::selectFirst('thread', ['uid'], ['iid' => $itemid]);
 		if (!DBM::is_result($item)) {
 			logger('No thread found for id '.$itemid, LOGGER_DEBUG);
 			return;
 		}
-	
+
 		// Using dba::delete at this time could delete the associated item entries
 		$result = dba::e("DELETE FROM `thread` WHERE `iid` = ?", $itemid);
-	
+
 		logger("deleteThread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
-	
+
 		if ($itemuri != "") {
 			$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT `deleted` AND NOT (`uid` IN (%d, 0))",
 					dbesc($itemuri),

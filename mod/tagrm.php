@@ -6,12 +6,13 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
 require_once 'include/bbcode.php';
 
 function tagrm_post(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
@@ -27,7 +28,7 @@ function tagrm_post(App $a) {
 		intval(local_user())
 	);
 
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
@@ -41,17 +42,12 @@ function tagrm_post(App $a) {
 
 	$tag_str = implode(',',$arr);
 
-	q("UPDATE `item` SET `tag` = '%s' WHERE `id` = %d AND `uid` = %d",
-		dbesc($tag_str),
-		intval($item),
-		intval(local_user())
-	);
+	Item::update(['tag' => $tag_str], ['id' => $item]);
 
 	info(L10n::t('Tag removed') . EOL );
 	goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 
 	// NOTREACHED
-
 }
 
 
@@ -60,13 +56,13 @@ function tagrm_content(App $a) {
 
 	$o = '';
 
-	if (! local_user()) {
+	if (!local_user()) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 		// NOTREACHED
 	}
 
 	$item = (($a->argc > 1) ? intval($a->argv[1]) : 0);
-	if (! $item) {
+	if (!$item) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 		// NOTREACHED
 	}
@@ -76,13 +72,13 @@ function tagrm_content(App $a) {
 		intval(local_user())
 	);
 
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
 	$arr = explode(',', $r[0]['tag']);
 
-	if (! count($arr)) {
+	if (!count($arr)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 

@@ -32,13 +32,7 @@ function starred_init(App $a) {
 		$starred = 1;
 	}
 
-	$r = q("UPDATE `item` SET `starred` = %d WHERE `uid` = %d AND `id` = %d",
-		intval($starred),
-		intval(local_user()),
-		intval($message_id)
-	);
-
-	Item::updateThread($message_id);
+	Item::update(['starred' => $starred], ['id' => $message_id]);
 
 	// See if we've been passed a return path to redirect to
 	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');

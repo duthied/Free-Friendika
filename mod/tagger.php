@@ -148,24 +148,16 @@ EOT;
 
 	$post_id = Item::insert($arr);
 
-	if(! $item['visible']) {
-		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",
-			intval($item['id']),
-			intval($owner_uid)
-		);
+	if (!$item['visible']) {
+		Item::update(['visible' => true], ['id' => $item['id']]);
 	}
 
-	$term_objtype = (($item['resource-id']) ? TERM_OBJ_PHOTO : TERM_OBJ_POST );
+	$term_objtype = ($item['resource-id'] ? TERM_OBJ_PHOTO : TERM_OBJ_POST);
         $t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
                 intval($item['id']),
                 dbesc($term)
         );
 	if((! $blocktags) && $t[0]['tcount']==0 ) {
-		/*q("update item set tag = '%s' where id = %d",
-			dbesc($item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . System::baseUrl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
-			intval($item['id'])
-		);*/
-
 		q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
 		   intval($item['id']),
 		   $term_objtype,
@@ -199,14 +191,6 @@ EOT;
 	                   intval($owner_uid)
 	                );
 		}
-
-		/*if(count($x) && !$x[0]['blocktags'] && (! stristr($r[0]['tag'], ']' . $term . '['))) {
-			q("update item set tag = '%s' where id = %d",
-				dbesc($r[0]['tag'] . (strlen($r[0]['tag']) ? ',' : '') . '#[url=' . System::baseUrl() . '/search?tag=' . $term . ']'. $term . '[/url]'),
-				intval($r[0]['id'])
-			);
-		}*/
-
 	}
 
 
@@ -219,6 +203,4 @@ EOT;
 	killme();
 
 	return; // NOTREACHED
-
-
 }

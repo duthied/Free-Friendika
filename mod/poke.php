@@ -135,11 +135,6 @@ function poke_init(App $a) {
 
 	$item_id = Item::insert($arr);
 	if($item_id) {
-		//q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d",
-		//	dbesc(System::baseUrl() . '/display/' . $poster['nickname'] . '/' . $item_id),
-		//	intval($uid),
-		//	intval($item_id)
-		//);
 		Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
 	}
 

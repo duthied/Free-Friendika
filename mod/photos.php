@@ -285,25 +285,12 @@ function photos_post(App $a)
 			);
 
 			// find and delete the corresponding item with all the comments and likes/dislikes
-			$r = q("SELECT `id`, `parent-uri`, `visible` FROM `item` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
+			$r = q("SELECT `id` FROM `item` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
 				intval($page_owner_uid)
 			);
 			if (DBM::is_result($r)) {
 				foreach ($r as $rr) {
-					q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-						dbesc(DateTimeFormat::utcNow()),
-						dbesc($rr['parent-uri']),
-						intval($page_owner_uid)
-					);
-					Term::insertFromTagFieldByItemUri($rr['parent-uri'], $page_owner_uid);
-					Item::deleteThreadByUri($rr['parent-uri'], $page_owner_uid);
-
-					$drop_id = intval($rr['id']);
-
-					// send the notification upstream/downstream as the case may be
-					if ($rr['visible']) {
-						Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
-					}
+					Item::deleteById($rr['id']);
 				}
 			}
 
@@ -358,29 +345,15 @@ function photos_post(App $a)
 				intval($page_owner_uid),
 				dbesc($r[0]['resource-id'])
 			);
-			$i = q("SELECT `id`, `uri`, `visible` FROM `item` WHERE `resource-id` = '%s' AND `uid` = %d LIMIT 1",
+			$i = q("SELECT `id` FROM `item` WHERE `resource-id` = '%s' AND `uid` = %d LIMIT 1",
 				dbesc($r[0]['resource-id']),
 				intval($page_owner_uid)
 			);
 			if (DBM::is_result($i)) {
-				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc($i[0]['uri']),
-					intval($page_owner_uid)
-				);
-				Term::insertFromTagFieldByItemUri($i[0]['uri'], $page_owner_uid);
-				Item::deleteThreadByUri($i[0]['uri'], $page_owner_uid);
-
-				$url = System::baseUrl();
-				$drop_id = intval($i[0]['id']);
+				Item::deleteById($i[0]['id']);
 
 				// Update the photo albums cache
 				Photo::clearAlbumCache($page_owner_uid);
-
-				if ($i[0]['visible']) {
-					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
-				}
 			}
 		}
 
@@ -646,16 +619,9 @@ function photos_post(App $a)
 			}
 			$newinform .= $inform;
 
-			$r = q("UPDATE `item` SET `tag` = '%s', `inform` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d",
-				dbesc($newtag),
-				dbesc($newinform),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc(DateTimeFormat::utcNow()),
-				intval($item_id),
-				intval($page_owner_uid)
-			);
-			Term::insertFromTagFieldByItemId($item_id);
-			Item::updateThread($item_id);
+			$fields = ['tag' => $newtag, 'inform' => $newinform, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
+			$condition = ['id' => $item_id];
+			Item::update($fields, $condition);
 
 			$best = 0;
 			foreach ($p as $scales) {
@@ -1427,11 +1393,7 @@ function photos_content(App $a)
 			);
 
 			if (local_user() && (local_user() == $link_item['uid'])) {
-				q("UPDATE `item` SET `unseen` = 0 WHERE `parent` = %d and `uid` = %d",
-					intval($link_item['parent']),
-					intval(local_user())
-				);
-				Item::updateThread($link_item['parent']);
+				Item::update(['unseen' => false], ['parent' => $link_item['parent']]);
 			}
 
 			if ($link_item['coord']) {

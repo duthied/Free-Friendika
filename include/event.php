@@ -318,13 +318,8 @@ function event_store($arr) {
 			$object .= '<content>' . xmlify(format_event_bbcode($arr)) . '</content>';
 			$object .= '</object>' . "\n";
 
-			q("UPDATE `item` SET `body` = '%s', `object` = '%s', `edited` = '%s' WHERE `id` = %d AND `uid` = %d",
-				dbesc(format_event_bbcode($arr)),
-				dbesc($object),
-				dbesc($arr['edited']),
-				intval($r[0]['id']),
-				intval($arr['uid'])
-			);
+			$fields = ['body' => format_event_bbcode($arr), 'object' => $object, 'edited' => $arr['edited']];
+			Item::update($fields, ['id' => $r[0]['id']]);
 
 			$item_id = $r[0]['id'];
 		} else {
@@ -402,11 +397,7 @@ function event_store($arr) {
 
 		$item_id = Item::insert($item_arr);
 		if ($item_id) {
-			q("UPDATE `item` SET `event-id` = %d  WHERE `uid` = %d AND `id` = %d",
-				intval($event['id']),
-				intval($arr['uid']),
-				intval($item_id)
-			);
+			Item::update(['event-id' => $event['id']], ['id' => $item_id]);
 		}
 
 		Addon::callHooks("event_created", $event['id']);

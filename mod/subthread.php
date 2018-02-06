@@ -152,11 +152,8 @@ EOT;
 
 	$post_id = Item::insert($arr);
 
-	if (! $item['visible']) {
-		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",
-			intval($item['id']),
-			intval($owner_uid)
-		);
+	if (!$item['visible']) {
+		Item::update(['visible' => true], ['id' => $item['id']]);
 	}
 
 	$arr['id'] = $post_id;

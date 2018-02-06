@@ -165,27 +165,13 @@ function videos_post(App $a) {
 				intval(local_user()),
 				dbesc($video_id)
 			);
-			$i = q("SELECT * FROM `item` WHERE `attach` like '%%attach/%s%%' AND `uid` = %d LIMIT 1",
+			$i = q("SELECT `id` FROM `item` WHERE `attach` like '%%attach/%s%%' AND `uid` = %d LIMIT 1",
 				dbesc($video_id),
 				intval(local_user())
 			);
-			//echo "<pre>"; var_dump($i); killme();
+
 			if (DBM::is_result($i)) {
-				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc($i[0]['uri']),
-					intval(local_user())
-				);
-				Term::insertFromTagFieldByItemUri($i[0]['uri'], local_user());
-				Item::deleteThreadByUri($i[0]['uri'], local_user());
-
-				$url = System::baseUrl();
-				$drop_id = intval($i[0]['id']);
-
-				if ($i[0]['visible']) {
-					Worker::add(PRIORITY_HIGH, "Notifier", "drop", $drop_id);
-				}
+				Item::deleteById($i[0]['id']);
 			}
 		}
 
