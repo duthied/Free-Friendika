@@ -1897,9 +1897,10 @@ function file_tag_save_file($uid, $item, $file)
 		intval($uid)
 	);
 	if (DBM::is_result($r)) {
-		$fields = ['file' => $r[0]['file'] . '[' . file_tag_encode($file) . ']'];
-		Item::update($fields, ['id' => $item]);
-
+		if (!stristr($r[0]['file'],'[' . file_tag_encode($file) . ']')) {
+			$fields = ['file' => $r[0]['file'] . '[' . file_tag_encode($file) . ']'];
+			Item::update($fields, ['id' => $item]);
+		}
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
 			PConfig::set($uid, 'system', 'filetags', $saved . '[' . file_tag_encode($file) . ']');
