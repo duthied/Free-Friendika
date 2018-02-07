@@ -64,16 +64,14 @@ class Item extends BaseObject
 		// The condition needn't to be a simple array but could be a complex condition.
 		$items = dba::select('item', ['id', 'origin'], $condition);
 		while ($item = dba::fetch($items)) {
-			// We only need to notfiy others when it is an original entry from us
-			if (!$item['origin']) {
-				continue;
-			}
-
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
 
-			Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
+			// We only need to notfiy others when it is an original entry from us
+			if ($item['origin']) {
+				Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
+			}
 		}
 
 		return $rows;
