@@ -10,6 +10,7 @@ namespace Friendica\Protocol;
 
 use Friendica\App;
 use Friendica\Content\OEmbed;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -29,8 +30,6 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
-use Friendica\Content\Text\BBCode;
-
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -929,7 +928,7 @@ class DFRN
 		}
 
 		// Remove the abstract element. It is only locally important.
-		$body = remove_abstract($body);
+		$body = BBCode::stripAbstract($body);
 
 		if ($type == 'html') {
 			$htmlbody = $body;

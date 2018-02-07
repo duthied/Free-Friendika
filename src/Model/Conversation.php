@@ -11,6 +11,14 @@ require_once "include/dba.php";
 
 class Conversation
 {
+	const PROTOCOL_UNKNOWN         = 0;
+	const PROTOCOL_DFRN            = 1;
+	const PROTOCOL_DIASPORA        = 2;
+	const PROTOCOL_OSTATUS_SALMON  = 3;
+	const PROTOCOL_OSTATUS_FEED    = 4; // Deprecated
+	const PROTOCOL_GS_CONVERSATION = 5; // Deprecated
+	const PROTOCOL_SPLITTED_CONV   = 6;
+
 	/**
 	 * @brief Store the conversation data
 	 *

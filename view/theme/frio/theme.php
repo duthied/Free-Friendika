@@ -6,7 +6,9 @@
  * Author: Rabuzarus <https://friendica.kommune4.de/profile/rabuzarus>
  *
  */
+
 use Friendica\App;
+use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
@@ -15,7 +17,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
-use Friendica\Object\Image;
 
 $frio = "view/theme/frio";
 
@@ -90,10 +91,8 @@ function frio_uninstall()
  */
 function frio_item_photo_links(App $a, &$body_info)
 {
-	$phototypes = Image::supportedTypes();
-	$occurence = 1;
-	$p = bb_find_open_close($body_info['html'], "<a", ">");
-
+	$occurence = 0;
+	$p = Plaintext::getBoundariesPosition($body_info['html'], "<a", ">");
 	while ($p !== false && ($occurence++ < 500)) {
 		$link = substr($body_info['html'], $p['start'], $p['end'] - $p['start']);
 		$matches = [];
@@ -112,7 +111,7 @@ function frio_item_photo_links(App $a, &$body_info)
 			$body_info['html'] = str_replace($link, $newlink, $body_info['html']);
 		}
 
-		$p = bb_find_open_close($body_info['html'], "<a", ">", $occurence);
+		$p = Plaintext::getBoundariesPosition($body_info['html'], "<a", ">", $occurence);
 	}
 }
 
@@ -302,7 +301,7 @@ function frio_acl_lookup(App $a, &$results)
 		$search_txt = dbesc(protect_sprintf(preg_quote($results["search"])));
 		$searching = true;
 	}
-	
+
 	$sql_extra = '';
 	if ($searching) {
 		$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";

@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -72,7 +73,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 	$newbody = '';
 
 	$cnt = 1;
-	$pos = get_bb_tag_pos($origbody, 'url', 1);
+	$pos = BBCode::getTagPosition($origbody, 'url', 0);
 	while ($pos !== false && $cnt < 1000) {
 
 		$search = '/\[url\=(.*?)\]\[!#saved_image([0-9]*)#!\]\[\/url\]' . '/is';
@@ -90,7 +91,8 @@ function item_redir_and_replace_images($body, $images, $cid) {
 		$newbody .= $subject;
 
 		$cnt++;
-		$pos = get_bb_tag_pos($origbody, 'url', 1);
+		// Isn't this supposed to use $cnt value for $occurrences? - @MrPetovan
+		$pos = BBCode::getTagPosition($origbody, 'url', 0);
 	}
 	$newbody .= $origbody;
 
@@ -347,7 +349,7 @@ function localize_item(&$item) {
 	$photo_pattern = "/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is";
 	if (preg_match($photo_pattern, $item['body'])) {
 		$photo_replace = '[url=' . Profile::zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
-		$item['body'] = bb_tag_preg_replace($photo_pattern, $photo_replace, 'url', $item['body']);
+		$item['body'] = BBCode::pregReplaceInTag($photo_pattern, $photo_replace, 'url', $item['body']);
 	}
 
 	// add sparkle links to appropriate permalinks

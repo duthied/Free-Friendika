@@ -2,12 +2,14 @@
 /**
  * @file include/acl_selectors.php
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Protocol;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
@@ -248,7 +250,7 @@ function contact_select($selname, $selclass, $preselected = false, $size = 4, $p
 			}
 
 			if ($privmail) {
-				$trimmed = GetProfileUsername($rr['url'], $rr['name'], false);
+				$trimmed = Protocol::formatMention($rr['url'], $rr['name']);
 			} else {
 				$trimmed = mb_substr($rr['name'],0,20);
 			}
