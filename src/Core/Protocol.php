@@ -49,7 +49,7 @@ class Protocol
 		$network = self::matchByProfileUrl($profile_url, $matches);
 
 		if ($network === self::PHANTOM) {
-			throw new Exception('Unknown network for profile URL: ' . $profile_url);
+			return "";
 		}
 
 		$addr = $matches[2] . '@' . $matches[1];
