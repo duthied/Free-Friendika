@@ -69,6 +69,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **ostatus_poll_timeframe** - Defines how old an item can be to try to complete the conversation with it.
 * **paranoia** (Boolean) - Log out users if their IP address changed.
 * **permit_crawling** (Boolean) - Restricts the search for not logged in users to one search per minute.
+* **queue_no_dead_check** (Boolean) - Ignore if the target contact or server seems to be dead during queue delivery.
 * **worker_debug** (Boolean) - If enabled, it prints out the number of running processes split by priority.
 * **worker_fetch_limit** - Number of worker tasks that are fetched in a single query. Default is 1.
 * **profiler** (Boolean) - Enable internal timings to help optimize code. Needed for "rendertime" addon. Default is false.
