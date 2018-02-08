@@ -5,6 +5,7 @@
 namespace Friendica\Content\Text;
 
 use DOMDocument;
+use DomXPath;
 use Exception;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
