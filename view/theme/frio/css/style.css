@@ -2134,6 +2134,11 @@ ul.dropdown-menu li:hover {
 .section-title-wrapper {
     overflow: hidden;
 }
+/* Home and Login Page */
+body.mod-home .navbar #nav-login,
+body.mod-login .navbar #nav-login {
+    display: none;
+}
 /* Profile-page */
 #profile-content-standard,
 #profile-content-advanced {
