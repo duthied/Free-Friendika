@@ -118,7 +118,7 @@ function frio_form($arr) {
 		'$nav_icon_color'   => array_key_exists("nav_icon_color", $disable) ? "" : ['frio_nav_icon_color', L10n::t('Navigation bar icon color '), $arr['nav_icon_color']],
 		'$link_color'       => array_key_exists("link_color", $disable) ? "" : ['frio_link_color', L10n::t('Link color'), $arr['link_color'], '', $link_colors],
 		'$bgcolor'          => array_key_exists("bgcolor", $disable) ? "" : ['frio_background_color', L10n::t('Set the background color'), $arr['bgcolor']],
-		'$contentbg_transp' => array_key_exists("contentbg_transp", $disable) ? "" : ['frio_contentbg_transp', L10n::t("Content background transparency"), ((isset($arr["contentbg_transp"]) && $arr["contentbg_transp"] != "") ? $arr["contentbg_transp"] : 100)],
+		'$contentbg_transp' => array_key_exists("contentbg_transp", $disable) ? "" : ['frio_contentbg_transp', L10n::t("Content background opacity"), ((isset($arr["contentbg_transp"]) && $arr["contentbg_transp"] != "") ? $arr["contentbg_transp"] : 100)],
 		'$background_image' => array_key_exists("background_image", $disable) ? "" : ['frio_background_image', L10n::t('Set the background image'), $arr['background_image'], $background_image_help],
 		'$bg_image_options' => Image::get_options($arr),
 	];
