@@ -853,19 +853,18 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
 --
 CREATE TABLE IF NOT EXISTS `queue` (
 	`id` int NOT NULL auto_increment COMMENT '',
-	`cid` int NOT NULL DEFAULT 0 COMMENT '',
-	`network` varchar(32) NOT NULL DEFAULT '' COMMENT '',
-	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`cid` int NOT NULL DEFAULT 0 COMMENT 'Message receiver',
+	`network` varchar(32) NOT NULL DEFAULT '' COMMENT 'Receiver\'s network',
+	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'Unique GUID of the message',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date, when the message was created',
+	`last` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last trial',
+	`next` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Next retrial date',
+	`retrial` tinyint NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
 	`content` mediumtext COMMENT '',
 	`batch` boolean NOT NULL DEFAULT '0' COMMENT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `cid` (`cid`),
-	 INDEX `created` (`created`),
 	 INDEX `last` (`last`),
-	 INDEX `network` (`network`),
-	 INDEX `batch` (`batch`)
+	 INDEX `next` (`next`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --

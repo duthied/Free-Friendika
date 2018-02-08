@@ -19,7 +19,22 @@ class Queue
 	public static function updateTime($id)
 	{
 		logger('queue: requeue item ' . $id);
-		dba::update('queue', ['last' => DateTimeFormat::utcNow()], ['id' => $id]);
+		$queue = dba::selectFirst('queue', ['retrial'], ['id' => $id]);
+		if (!DBM::is_result($queue)) {
+			return;
+		}
+
+		$retrial = $queue['retrial'];
+
+		if ($retrial > 14) {
+			self::removeItem($id);
+		}
+
+		// Calculate the delay until the next trial
+		$delay = (($retrial + 3) ** 4) + (rand(1, 30) * ($retrial + 1));
+		$next = DateTimeFormat::utc(date('c', time() + $delay));
+
+		dba::update('queue', ['last' => DateTimeFormat::utcNow(), 'retrial' => $retrial + 1, 'next' => $next], ['id' => $id]);
 	}
 
 	/**

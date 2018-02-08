@@ -1553,17 +1553,16 @@ class DBStructure
 						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Receiver's network"],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Unique GUID of the message"],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date, when the message was created"],
-						"last" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"last" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date of last trial"],
+						"next" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Next retrial date"],
+						"retrial" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
 						"content" => ["type" => "mediumtext", "comment" => ""],
 						"batch" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
-						"cid" => ["cid"],
-						"created" => ["created"],
 						"last" => ["last"],
-						"network" => ["network"],
-						"batch" => ["batch"],
+						"next" => ["next"],
 						]
 				];
 		$database["register"] = [

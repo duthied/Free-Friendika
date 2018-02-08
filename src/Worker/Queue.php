@@ -32,30 +32,12 @@ class Queue
 		$no_dead_check = Config::get('system', 'queue_no_dead_check', false);
 
 		if (!$queue_id) {
-			logger('queue: start');
+			logger('filling queue jobs - start');
 
 			// Handling the pubsubhubbub requests
 			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'PubSubPublish');
 
-			$r = q(
-				"SELECT `queue`.*, `contact`.`name`, `contact`.`uid` FROM `queue`
-				INNER JOIN `contact` ON `queue`.`cid` = `contact`.`id`
-				WHERE `queue`.`created` < UTC_TIMESTAMP() - INTERVAL 3 DAY"
-			);
-
-			if (DBM::is_result($r)) {
-				foreach ($r as $rr) {
-					logger('Removing expired queue item for ' . $rr['name'] . ', uid=' . $rr['uid']);
-					logger('Expired queue data: ' . $rr['content'], LOGGER_DATA);
-				}
-				q("DELETE FROM `queue` WHERE `created` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-			}
-
-			/*
-			 * For the first 12 hours we'll try to deliver every 15 minutes
-			 * After that, we'll only attempt delivery once per hour.
-			 */
-			$r = q("SELECT `id` FROM `queue` WHERE ((`created` > UTC_TIMESTAMP() - INTERVAL 12 HOUR AND `last` < UTC_TIMESTAMP() - INTERVAL 15 MINUTE) OR (`last` < UTC_TIMESTAMP() - INTERVAL 1 HOUR)) ORDER BY `cid`, `created`");
+			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP()"));
 
 			Addon::callHooks('queue_predeliver', $r);
 
@@ -65,6 +47,7 @@ class Queue
 					Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "Queue", (int) $q_item['id']);
 				}
 			}
+			logger('filling queue jobs - end');
 			return;
 		}
 
