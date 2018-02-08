@@ -35,8 +35,8 @@ function manage_post(App $a) {
 
 	$submanage = $r;
 
-	$identity = ((x($_POST['identity'])) ? intval($_POST['identity']) : 0);
-	if (! $identity) {
+	$identity = (x($_POST['identity']) ? intval($_POST['identity']) : 0);
+	if (!$identity) {
 		return;
 	}
 
@@ -57,14 +57,36 @@ function manage_post(App $a) {
 			intval($limited_id)
 		);
 	} else {
-		$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `email` = '%s' AND `password` = '%s' LIMIT 1",
+		// Check if the target user is one of our children
+		$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `parent-uid` = %d LIMIT 1",
 			intval($identity),
-			dbesc($orig_record['email']),
-			dbesc($orig_record['password'])
+			dbesc($orig_record['uid'])
 		);
+
+		// Check if the target user is one of our siblings
+		if (!DBM::is_result($r) && ($orig_record['parent-uid'] != 0)) {
+			$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `parent-uid` = %d LIMIT 1",
+				intval($identity),
+				dbesc($orig_record['parent-uid'])
+			);
+		}
+
+		// Check if it's our parent
+		if (!DBM::is_result($r) && ($orig_record['parent-uid'] != 0) && ($orig_record['parent-uid'] == $identity)) {
+			$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
+				intval($identity)
+			);
+		}
+
+		// Finally check if it's out own user
+		if (!DBM::is_result($r) && ($orig_record['uid'] != 0) && ($orig_record['uid'] == $identity)) {
+			$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
+				intval($identity)
+			);
+		}
 	}
 
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		return;
 	}
 

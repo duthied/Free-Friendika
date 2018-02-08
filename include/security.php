@@ -107,12 +107,35 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		}
 	}
 
-	$r = dba::select('user', ['uid', 'username', 'nickname'],
-		['password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false]);
-	if (DBM::is_result($r)) {
-		$a->identities = dba::inArray($r);
+	if ($master_record['parent-uid'] == 0) {
+		// First add our own entry
+		$a->identities = [['uid' => $master_record['uid'],
+				'username' => $master_record['username'],
+				'nickname' => $master_record['nickname']]];
+
+		// Then add all the children
+		$r = dba::select('user', ['uid', 'username', 'nickname'],
+			['parent-uid' => $master_record['uid'], 'account_removed' => false]);
+		if (DBM::is_result($r)) {
+			$a->identities = array_merge($a->identities, dba::inArray($r));
+		}
 	} else {
+		// Just ensure that the array is always defined
 		$a->identities = [];
+
+		// First entry is our parent
+		$r = dba::select('user', ['uid', 'username', 'nickname'],
+			['uid' => $master_record['parent-uid'], 'account_removed' => false]);
+		if (DBM::is_result($r)) {
+			$a->identities = dba::inArray($r);
+		}
+
+		// Then add all siblings
+		$r = dba::select('user', ['uid', 'username', 'nickname'],
+			['parent-uid' => $master_record['parent-uid'], 'account_removed' => false]);
+		if (DBM::is_result($r)) {
+			$a->identities = array_merge($a->identities, dba::inArray($r));
+		}
 	}
 
 	$r = dba::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
@@ -146,7 +169,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 		// Set the login date for all identities of the user
 		dba::update('user', ['login_date' => DateTimeFormat::utcNow()],
-			['password' => $master_record['password'], 'email' => $master_record['email'], 'account_removed' => false]);
+			['parent-uid' => $master_record['uid'], 'account_removed' => false]);
 	}
 
 	if ($login_initial) {

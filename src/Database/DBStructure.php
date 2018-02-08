@@ -1707,6 +1707,7 @@ class DBStructure
 				"comment" => "The local users",
 				"fields" => [
 						"uid" => ["type" => "mediumint", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"parent-uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "The parent user that has full control about this user"],
 						"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
 						"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
