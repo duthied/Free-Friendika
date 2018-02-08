@@ -145,7 +145,7 @@ class Queue
 			case NETWORK_DIASPORA:
 				if ($contact['notify']) {
 					logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
-					$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true);
+					$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
 
 					if ($deliver_status == (-1)) {
 						QueueModel::updateTime($q_item['id']);

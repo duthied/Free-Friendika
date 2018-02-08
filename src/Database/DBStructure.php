@@ -1551,6 +1551,7 @@ class DBStructure
 						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"last" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"content" => ["type" => "mediumtext", "comment" => ""],

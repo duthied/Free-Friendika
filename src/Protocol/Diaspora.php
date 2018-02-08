@@ -3181,7 +3181,7 @@ class Diaspora
 	 *
 	 * @return int Result of the transmission
 	 */
-	public static function transmit($owner, $contact, $envelope, $public_batch, $queue_run = false, $guid = "")
+	public static function transmit($owner, $contact, $envelope, $public_batch, $queue_run = false, $guid = "", $no_queue = false)
 	{
 		$a = get_app();
 
@@ -3224,24 +3224,14 @@ class Diaspora
 		logger("transmit: ".$logid."-".$guid." returns: ".$return_code);
 
 		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
-			logger("queue message");
-
-			$r = q(
-				"SELECT `id` FROM `queue` WHERE `cid` = %d AND `network` = '%s' AND `content` = '%s' AND `batch` = %d LIMIT 1",
-				intval($contact["id"]),
-				dbesc(NETWORK_DIASPORA),
-				dbesc($envelope),
-				intval($public_batch)
-			);
-			if ($r) {
-				logger("add_to_queue ignored - identical item already in queue");
-			} else {
+			if (!$no_queue) {
+				logger("queue message");
 				// queue message for redelivery
-				Queue::add($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch);
-
-				// The message could not be delivered. We mark the contact as "dead"
-				Contact::markForArchival($contact);
+				Queue::add($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch, $guid);
 			}
+
+			// The message could not be delivered. We mark the contact as "dead"
+			Contact::markForArchival($contact);
 		} elseif (($return_code >= 200) && ($return_code <= 299)) {
 			// We successfully delivered a message, the contact is alive
 			Contact::unmarkForArchival($contact);
@@ -3294,7 +3284,7 @@ class Diaspora
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
 		if ($spool) {
-			Queue::add($contact['id'], NETWORK_DIASPORA, $envelope, $public_batch);
+			Queue::add($contact['id'], NETWORK_DIASPORA, $envelope, $public_batch, $guid);
 			return true;
 		} else {
 			$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);

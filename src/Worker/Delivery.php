@@ -322,7 +322,7 @@ class Delivery {
 
 				if ($deliver_status < 0) {
 					logger('notifier: delivery failed: queuing message');
-					Queue::add($contact['id'], NETWORK_DFRN, $atom);
+					Queue::add($contact['id'], NETWORK_DFRN, $atom, false, $target_item['guid']);
 
 					// The message could not be delivered. We mark the contact as "dead"
 					Contact::markForArchival($contact);

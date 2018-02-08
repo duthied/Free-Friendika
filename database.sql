@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1248
+-- DB_UPDATE_VERSION 1250
 -- ------------------------------------------
 
 
@@ -855,6 +855,7 @@ CREATE TABLE IF NOT EXISTS `queue` (
 	`id` int NOT NULL auto_increment COMMENT '',
 	`cid` int NOT NULL DEFAULT 0 COMMENT '',
 	`network` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`content` mediumtext COMMENT '',

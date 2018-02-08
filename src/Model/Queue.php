@@ -66,7 +66,7 @@ class Queue
 	 * @param string  $msg     message
 	 * @param boolean $batch   batch, default false
 	 */
-	public static function add($cid, $network, $msg, $batch = false)
+	public static function add($cid, $network, $msg, $batch = false, $guid = '')
 	{
 
 		$max_queue = Config::get('system', 'max_contact_queue');
@@ -86,10 +86,10 @@ class Queue
 
 		if (DBM::is_result($r)) {
 			if ($batch &&  ($r[0]['total'] > $batch_queue)) {
-				logger('add_to_queue: too many queued items for batch server ' . $cid . ' - discarding message');
+				logger('too many queued items for batch server ' . $cid . ' - discarding message');
 				return;
 			} elseif ((! $batch) && ($r[0]['total'] > $max_queue)) {
-				logger('add_to_queue: too many queued items for contact ' . $cid . ' - discarding message');
+				logger('too many queued items for contact ' . $cid . ' - discarding message');
 				return;
 			}
 		}
@@ -97,10 +97,12 @@ class Queue
 		dba::insert('queue', [
 			'cid'     => $cid,
 			'network' => $network,
+			'guid'     => $guid,
 			'created' => DateTimeFormat::utcNow(),
 			'last'    => DateTimeFormat::utcNow(),
 			'content' => $msg,
 			'batch'   =>($batch) ? 1 : 0
 		]);
+		logger('Added item ' . $guid . ' for ' . $cid);
 	}
 }
