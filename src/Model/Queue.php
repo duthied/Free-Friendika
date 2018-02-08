@@ -32,7 +32,7 @@ class Queue
 
 		// Calculate the delay until the next trial
 		$delay = (($retrial + 3) ** 4) + (rand(1, 30) * ($retrial + 1));
-		$next = DateTimeFormat::utc('now ' . $delay . ' seconds');
+		$next = DateTimeFormat::utc('now + ' . $delay . ' seconds');
 
 		dba::update('queue', ['last' => DateTimeFormat::utcNow(), 'retrial' => $retrial + 1, 'next' => $next], ['id' => $id]);
 	}
