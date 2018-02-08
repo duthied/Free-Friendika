@@ -6,6 +6,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
+use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Queue as QueueModel;
@@ -27,6 +28,8 @@ class Queue
 
 		$cachekey_deadguy = 'queue_run:deadguy:';
 		$cachekey_server = 'queue_run:server:';
+
+		$no_dead_check = Config::get('system', 'queue_no_dead_check', false);
 
 		if (!$queue_id) {
 			logger('queue: start');
@@ -80,28 +83,30 @@ class Queue
 
 		$dead = Cache::get($cachekey_deadguy . $contact['notify']);
 
-		if (!is_null($dead) && $dead) {
+		if (!is_null($dead) && $dead && !$no_dead_check) {
 			logger('queue: skipping known dead url: ' . $contact['notify']);
 			QueueModel::updateTime($q_item['id']);
 			return;
 		}
 
-		$server = PortableContact::detectServer($contact['url']);
+		if (!$no_dead_check) {
+			$server = PortableContact::detectServer($contact['url']);
 
-		if ($server != "") {
-			$vital = Cache::get($cachekey_server . $server);
+			if ($server != "") {
+				$vital = Cache::get($cachekey_server . $server);
 
-			if (is_null($vital)) {
-				logger("Check server " . $server . " (" . $contact["network"] . ")");
+				if (is_null($vital)) {
+					logger("Check server " . $server . " (" . $contact["network"] . ")");
 
-				$vital = PortableContact::checkServer($server, $contact["network"], true);
-				Cache::set($cachekey_server . $server, $vital, CACHE_QUARTER_HOUR);
-			}
+					$vital = PortableContact::checkServer($server, $contact["network"], true);
+					Cache::set($cachekey_server . $server, $vital, CACHE_QUARTER_HOUR);
+				}
 
-			if (!is_null($vital) && !$vital) {
-				logger('queue: skipping dead server: ' . $server);
-				QueueModel::updateTime($q_item['id']);
-				return;
+				if (!is_null($vital) && !$vital) {
+					logger('queue: skipping dead server: ' . $server);
+					QueueModel::updateTime($q_item['id']);
+					return;
+				}
 			}
 		}
 
