@@ -2411,10 +2411,8 @@ class DFRN
 		);
 
 		// Is there an existing item?
-		if (DBM::is_result($current) && self::isEditedTimestampNewer($current[0], $item)
-			&& (DateTimeFormat::utc($item["edited"]) < $current[0]["edited"])
-		) {
-			logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
+		if (DBM::is_result($current) && !self::isEditedTimestampNewer($current[0], $item)) {
+			logger("Item ".$item["uri"]." already existed in this version.", LOGGER_DEBUG);
 			return;
 		}
 
