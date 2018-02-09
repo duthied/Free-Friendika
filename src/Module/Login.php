@@ -51,87 +51,116 @@ class Login extends BaseModule
 		session_unset();
 		// OpenId Login
 		if (
-			!x($_POST, 'password')
+			empty($_POST['password'])
 			&& (
-				x($_POST, 'openid_url')
-				|| x($_POST, 'username')
+				!empty($_POST['openid_url'])
+				|| !empty($_POST['username'])
 			)
 		) {
-			$noid = Config::get('system', 'no_openid');
+			$openid_url = trim(defaults($_POST, 'openid_url', $_POST['username']));
 
-			$openid_url = trim($_POST['openid_url'] ? : $_POST['username']);
-
-			// if it's an email address or doesn't resolve to a URL, fail.
-			if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
-				notice(L10n::t('Login failed.') . EOL);
-				goaway(self::getApp()->get_baseurl());
-				// NOTREACHED
-			}
-
-			// Otherwise it's probably an openid.
-			try {
-				$openid = new LightOpenID;
-				$openid->identity = $openid_url;
-				$_SESSION['openid'] = $openid_url;
-				$_SESSION['remember'] = $_POST['remember'];
-				$openid->returnUrl = self::getApp()->get_baseurl(true) . '/openid';
-				goaway($openid->authUrl());
-			} catch (Exception $e) {
-				notice(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . L10n::t('The error message was:') . ' ' . $e->getMessage());
-			}
-			// NOTREACHED
+			self::openIdAuthentication($openid_url, !empty($_POST['remember']));
 		}
 
 		if (x($_POST, 'auth-params') && $_POST['auth-params'] === 'login') {
-			$record = null;
-
-			$addon_auth = [
-				'username' => trim($_POST['username']),
-				'password' => trim($_POST['password']),
-				'authenticated' => 0,
-				'user_record' => null
-			];
-
-			/*
-			 * An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
-			 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
-			 * and later addons should not interfere with an earlier one that succeeded.
-			 */
-			Addon::callHooks('authenticate', $addon_auth);
-
-			if ($addon_auth['authenticated'] && count($addon_auth['user_record'])) {
-				$record = $addon_auth['user_record'];
-			} else {
-				$user_id = User::authenticate(trim($_POST['username']), trim($_POST['password']));
-				if ($user_id) {
-					$record = dba::selectFirst('user', [], ['uid' => $user_id]);
-				}
-			}
-
-			if (!$record || !count($record)) {
-				logger('authenticate: failed login attempt: ' . notags(trim($_POST['username'])) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
-				notice(L10n::t('Login failed.') . EOL);
-				goaway(self::getApp()->get_baseurl());
-			}
-
-			if (!$_POST['remember']) {
-				new_cookie(0); // 0 means delete on browser exit
-			}
-
-			// if we haven't failed up this point, log them in.
-			$_SESSION['remember'] = $_POST['remember'];
-			$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-			authenticate_success($record, true, true);
-
-			if (x($_SESSION, 'return_url')) {
-				$return_url = $_SESSION['return_url'];
-				unset($_SESSION['return_url']);
-			} else {
-				$return_url = '';
-			}
-
-			goaway($return_url);
+			self::passwordAuthentication(
+				trim($_POST['username']),
+				trim($_POST['password']),
+				!empty($_POST['remember'])
+			);
 		}
+	}
+
+	/**
+	 * Attempts to authenticate using OpenId
+	 *
+	 * @param string $openid_url OpenID URL string
+	 * @param bool   $remember   Whether to set the session remember flag
+	 */
+	private static function openIdAuthentication($openid_url, $remember)
+	{
+		$noid = Config::get('system', 'no_openid');
+
+		// if it's an email address or doesn't resolve to a URL, fail.
+		if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
+			notice(L10n::t('Login failed.') . EOL);
+			goaway(self::getApp()->get_baseurl());
+			// NOTREACHED
+		}
+
+		// Otherwise it's probably an openid.
+		try {
+			$openid = new LightOpenID;
+			$openid->identity = $openid_url;
+			$_SESSION['openid'] = $openid_url;
+			$_SESSION['remember'] = $remember;
+			$openid->returnUrl = self::getApp()->get_baseurl(true) . '/openid';
+			goaway($openid->authUrl());
+		} catch (Exception $e) {
+			notice(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . L10n::t('The error message was:') . ' ' . $e->getMessage());
+		}
+	}
+
+	/**
+	 * Attempts to authenticate using login/password
+	 *
+	 * @param string $username User name
+	 * @param string $password Clear password
+	 * @param bool   $remember Whether to set the session remember flag
+	 */
+	private static function passwordAuthentication($username, $password, $remember)
+	{
+		$record = null;
+
+		$addon_auth = [
+			'username' => $username,
+			'password' => $password,
+			'authenticated' => 0,
+			'user_record' => null
+		];
+
+		/*
+		 * An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
+		 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
+		 * and later addons should not interfere with an earlier one that succeeded.
+		 */
+		Addon::callHooks('authenticate', $addon_auth);
+
+		try {
+			if ($addon_auth['authenticated']) {
+				$record = $addon_auth['user_record'];
+
+				if (empty($record)) {
+					throw new Exception(L10n::t('Login failed.'));
+				}
+			} else {
+				$record = dba::selectFirst('user', [],
+					['uid' => User::getIdFromPasswordAuthentication($username, $password)]
+				);
+			}
+		} catch (Exception $e) {
+			logger('authenticate: failed login attempt: ' . notags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
+			notice($e->getMessage() . EOL);
+			goaway(self::getApp()->get_baseurl() . '/login');
+		}
+
+		if (!$remember) {
+			new_cookie(0); // 0 means delete on browser exit
+		}
+
+		// if we haven't failed up this point, log them in.
+		$_SESSION['remember'] = $remember;
+		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
+		authenticate_success($record, true, true);
+
+		if (x($_SESSION, 'return_url')) {
+			$return_url = $_SESSION['return_url'];
+			unset($_SESSION['return_url']);
+		} else {
+			$return_url = '';
+		}
+
+		goaway($return_url);
 	}
 
 	/**

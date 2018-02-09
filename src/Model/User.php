@@ -94,56 +94,36 @@ class User
 
 
 	/**
+	 * Authenticate a user with a clear text password
+	 *
 	 * @brief Authenticate a user with a clear text password
-	 *
-	 * User info can be any of the following:
-	 * - User DB object
-	 * - User Id
-	 * - User email or username or nickname
-	 * - User array with at least the uid and the hashed password
-	 *
 	 * @param mixed $user_info
 	 * @param string $password
-	 * @return boolean
+	 * @return int|boolean
+	 * @deprecated since version 3.6
+	 * @see Friendica\Model\User::getIdFromPasswordAuthentication()
 	 */
 	public static function authenticate($user_info, $password)
 	{
-		if (is_object($user_info)) {
-			$user = (array) $user_info;
-		} elseif (is_int($user_info)) {
-			$user = dba::selectFirst('user', ['uid', 'password', 'legacy_password'],
-				[
-					'uid' => $user_info,
-					'blocked' => 0,
-					'account_expired' => 0,
-					'account_removed' => 0,
-					'verified' => 1
-				]
-			);
-		} elseif (is_string($user_info)) {
-			$user = dba::fetch_first('SELECT `uid`, `password`, `legacy_password`
-				FROM `user`
-				WHERE (`email` = ? OR `username` = ? OR `nickname` = ?)
-				AND `blocked` = 0
-				AND `account_expired` = 0
-				AND `account_removed` = 0
-				AND `verified` = 1
-				LIMIT 1',
-				$user_info,
-				$user_info,
-				$user_info
-			);
-		} else {
-			$user = $user_info;
+		try {
+			return self::getIdFromPasswordAuthentication($user_info, $password);
+		} catch (Exception $ex) {
+			return false;
 		}
+	}
 
-		if (!DBM::is_result($user)
-			|| !isset($user['uid'])
-			|| !isset($user['password'])
-			|| !isset($user['legacy_password'])
-		) {
-			throw new Exception('Not enough information to authenticate');
-		}
+	/**
+	 * Returns the user id associated with a successful password authentication
+	 *
+	 * @brief Authenticate a user with a clear text password
+	 * @param mixed $user_info
+	 * @param string $password
+	 * @return int User Id if authentication is successful
+	 * @throws Exception
+	 */
+	public static function getIdFromPasswordAuthentication($user_info, $password)
+	{
+		$user = self::getAuthenticationInfo($user_info);
 
 		if ($user['legacy_password']) {
 			if (password_verify(self::hashPasswordLegacy($password), $user['password'])) {
@@ -159,7 +139,69 @@ class User
 			return $user['uid'];
 		}
 
-		return false;
+		throw new Exception(L10n::t('Login failed'));
+	}
+
+	/**
+	 * Returns authentication info from various parameters types
+	 *
+	 * User info can be any of the following:
+	 * - User DB object
+	 * - User Id
+	 * - User email or username or nickname
+	 * - User array with at least the uid and the hashed password
+	 *
+	 * @param mixed $user_info
+	 * @return array
+	 * @throws Exception
+	 */
+	private static function getAuthenticationInfo($user_info)
+	{
+		if (is_object($user_info) || is_array($user_info)) {
+			if (is_object($user_info)) {
+				$user = (array) $user_info;
+			} else {
+				$user = $user_info;
+			}
+
+			if (!isset($user['uid'])
+				|| !isset($user['password'])
+				|| !isset($user['legacy_password'])
+			) {
+				throw new Exception(L10n::t('Not enough information to authenticate'));
+			}
+		} elseif (is_int($user_info) || is_string($user_info)) {
+			if (is_int($user_info)) {
+				$user = dba::selectFirst('user', ['uid', 'password', 'legacy_password'],
+					[
+						'uid' => $user_info,
+						'blocked' => 0,
+						'account_expired' => 0,
+						'account_removed' => 0,
+						'verified' => 1
+					]
+				);
+			} else {
+				$user = dba::fetch_first('SELECT `uid`, `password`, `legacy_password`
+					FROM `user`
+					WHERE (`email` = ? OR `username` = ? OR `nickname` = ?)
+					AND `blocked` = 0
+					AND `account_expired` = 0
+					AND `account_removed` = 0
+					AND `verified` = 1
+					LIMIT 1',
+					$user_info,
+					$user_info,
+					$user_info
+				);
+			}
+
+			if (!DBM::is_result($user)) {
+				throw new Exception(L10n::t('User not found'));
+			}
+		}
+
+		return $user;
 	}
 
 	/**
