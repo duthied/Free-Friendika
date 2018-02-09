@@ -722,6 +722,10 @@ class Profile
 
 			$profile['fullname'] = [L10n::t('Full Name:'), $a->profile['name']];
 
+			if (Feature::isEnabled($uid, 'profile_membersince')) {
+				$profile['membersince'] = [L10n::t('Member since:'), DateTimeFormat::local($a->profile['register_date'])];
+			}
+
 			if ($a->profile['gender']) {
 				$profile['gender'] = [L10n::t('Gender:'), $a->profile['gender']];
 			}
