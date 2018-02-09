@@ -20,6 +20,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
 require_once "mod/proxy.php";
+require_once "include/event.php";
 require_once "include/conversation.php";
 
 /**
