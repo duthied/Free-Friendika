@@ -2647,7 +2647,7 @@ function api_convert_item($item)
 		$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 	}
 
-	$statushtml = trim(bbcode($body, false, false));
+	$statushtml = bbcode(api_clean_attachments($body), false, false);
 
 	// Workaround for clients with limited HTML parser functionality
 	$search = ["<br>", "<blockquote>", "</blockquote>",
