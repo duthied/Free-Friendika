@@ -202,6 +202,7 @@ function search_content(App $a) {
 				STRAIGHT_JOIN `item` ON `item`.`id`=`term`.`oid` %s
 			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`))
 				AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s' AND `item`.`verb` = '%s'
+				AND NOT `author`.`blocked` AND NOT `author`.`hidden`
 			ORDER BY term.created DESC LIMIT %d , %d ",
 				item_fieldlists(), item_joins(), item_condition(),
 				intval(local_user()),
@@ -215,6 +216,7 @@ function search_content(App $a) {
 		$r = q("SELECT %s
 			FROM `item` %s
 			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
+				AND NOT `author`.`blocked` AND NOT `author`.`hidden`
 				$sql_extra
 			GROUP BY `item`.`uri`, `item`.`id` ORDER BY `item`.`id` DESC LIMIT %d , %d",
 				item_fieldlists(), item_joins(), item_condition(),

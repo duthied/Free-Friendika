@@ -896,11 +896,6 @@ class Item extends BaseObject
 			return;
 		}
 
-		// Is the public contact configured as hidden?
-		if (Contact::isHidden($item["owner-id"]) || Contact::isHidden($item["author-id"])) {
-			return;
-		}
-
 		// Only do these checks if the post isn't a wall post
 		if (!$item["wall"]) {
 			// Check, if hide-friends is activated - then don't do a shadow entry

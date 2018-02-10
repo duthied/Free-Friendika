@@ -194,7 +194,8 @@ function community_getitems($start, $itemspage, $content)
 	} elseif ($content == 'global') {
 		$r = dba::p("SELECT `uri` FROM `thread`
 				INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-				WHERE `thread`.`uid` = 0
+		                INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
+				WHERE `thread`.`uid` = 0 AND NOT `author`.`hidden` AND NOT `author`.`blocked`
 				ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage));
 		return dba::inArray($r);
 	}
