@@ -910,6 +910,7 @@ function community_add_items($parents) {
 	foreach ($parents AS $parent) {
 		$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
 			AND `item`.`parent-uri` = ?
+			AND NOT `author`.`hidden` AND NOT `author`.`blocked`
 			ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
 			local_user(),
 			$parent['uri']

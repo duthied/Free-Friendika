@@ -813,7 +813,9 @@ function networkThreadedView(App $a, $update = 0)
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?" . $sql_tag_nets,
+			INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
+			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?
+				AND NOT `author`.`hidden` AND NOT `author`.`blocked`" . $sql_tag_nets,
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $top_limit, $bottom_limit);
 		$data = dba::inArray($items);
 
