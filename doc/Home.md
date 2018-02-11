@@ -61,11 +61,11 @@ Friendica Documentation and Resources
 
 * [Main Website](https://friendi.ca)
 * Ways to get Support
-** [Friendica Support Forum](https://forum.friendi.ca/~helpers)
-** [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
-** XMPP/Jabber MUC: support(at)forum.friendi.ca
-** IRC: #friendica at irc.freenode.net
-** Matrix: #friendi.ca or #friendica at matrix.org
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
+  * XMPP/Jabber MUC: support(at)forum.friendi.ca
+  * IRC: #friendica at irc.freenode.net
+  * Matrix: #friendi.ca or #friendica at matrix.org
 
 **About**
 

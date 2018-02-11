@@ -61,11 +61,11 @@ Friendica - Dokumentation und Ressourcen
 * [Haupt-Webseite](https://friendi.ca)
 * [Deutsches Friendica-Wiki](http://wiki.toktan.org/doku.php)
 * Support Kanäle
-** [Friendica Support Forum](https://forum.friendi.ca/~helpers)
-** [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) zum Abonnieren der Liste eine E-Mail an ``support-request(at)friendi.ca?subject=subscribe`` senden
-** XMPP/Jabber MUC: support(at)forum.friendi.ca
-** IRC: #friendica auf irc.freenode.net
-** Matrix: #friendi.ca oder #friendica auf matrix.org
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) zum Abonnieren der Liste eine E-Mail an ``support-request(at)friendi.ca?subject=subscribe`` senden
+  * XMPP/Jabber MUC: support(at)forum.friendi.ca
+  * IRC: #friendica auf irc.freenode.net
+  * Matrix: #friendi.ca oder #friendica auf matrix.org
 
 **Über diese Seite**
 
