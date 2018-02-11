@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1250
+-- DB_UPDATE_VERSION 1253
 -- ------------------------------------------
 
 
@@ -1003,6 +1003,7 @@ CREATE TABLE IF NOT EXISTS `tokens` (
 --
 CREATE TABLE IF NOT EXISTS `user` (
 	`uid` mediumint NOT NULL auto_increment COMMENT '',
+	`parent-uid` mediumint NOT NULL DEFAULT 0 COMMENT 'The parent user that has full control about this user',
 	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT '',
 	`username` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`password` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -1065,7 +1066,7 @@ CREATE TABLE IF NOT EXISTS `userd` (
 --
 CREATE TABLE IF NOT EXISTS `workerqueue` (
 	`id` int NOT NULL auto_increment COMMENT 'Auto incremented worker task id',
-	`parameter` mediumtext COMMENT 'Task command',
+	`parameter` mediumblob COMMENT 'Task command',
 	`priority` tinyint NOT NULL DEFAULT 0 COMMENT 'Task priority',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
 	`pid` int NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',

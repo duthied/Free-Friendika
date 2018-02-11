@@ -200,7 +200,7 @@ class Addon
 
 		if (is_array($a->hooks) && array_key_exists($name, $a->hooks)) {
 			foreach ($a->hooks[$name] as $hook) {
-				Worker::add($priority, 'ForkHook', $name, json_encode($hook), json_encode($data));
+				Worker::add($priority, 'ForkHook', $name, $hook, $data);
 			}
 		}
 	}

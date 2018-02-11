@@ -1772,7 +1772,7 @@ class DBStructure
 				"comment" => "Background tasks queue entries",
 				"fields" => [
 						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
-						"parameter" => ["type" => "mediumtext", "comment" => "Task command"],
+						"parameter" => ["type" => "mediumblob", "comment" => "Task command"],
 						"priority" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Task priority"],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Creation date"],
 						"pid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
