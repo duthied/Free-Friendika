@@ -218,7 +218,7 @@ class Worker
 			return false;
 		}
 
-		$argv = json_decode($queue["parameter"]);
+		$argv = json_decode($queue["parameter"], true);
 
 		// Check for existance and validity of the include file
 		$include = $argv[0];
@@ -552,7 +552,7 @@ class Worker
 				$max_duration_defaults = [PRIORITY_CRITICAL => 720, PRIORITY_HIGH => 10, PRIORITY_MEDIUM => 60, PRIORITY_LOW => 180, PRIORITY_NEGLIGIBLE => 720];
 				$max_duration = $max_duration_defaults[$entry["priority"]];
 
-				$argv = json_decode($entry["parameter"]);
+				$argv = json_decode($entry["parameter"], true);
 				$argv[0] = basename($argv[0]);
 
 				// How long is the process already running?
@@ -1001,31 +1001,11 @@ class Worker
 	 */
 	public static function add($cmd)
 	{
-		$proc_args = func_get_args();
+		$args = func_get_args();
 
-		$args = [];
-		if (!count($proc_args)) {
+		if (!count($args)) {
 			return false;
 		}
-
-		// Preserve the first parameter
-		// It could contain a command, the priority or an parameter array
-		// If we use the parameter array we have to protect it from the following function
-		$run_parameter = array_shift($proc_args);
-
-		// expand any arrays
-		foreach ($proc_args as $arg) {
-			if (is_array($arg)) {
-				foreach ($arg as $n) {
-					$args[] = $n;
-				}
-			} else {
-				$args[] = $arg;
-			}
-		}
-
-		// Now we add the run parameters back to the array
-		array_unshift($args, $run_parameter);
 
 		$arr = ['args' => $args, 'run_cmd' => true];
 
@@ -1052,10 +1032,9 @@ class Worker
 			}
 		}
 
-		$argv = $args;
-		array_shift($argv);
+		array_shift($args);
 
-		$parameters = json_encode($argv);
+		$parameters = json_encode($args);
 		$found = dba::exists('workerqueue', ['parameter' => $parameters, 'done' => false]);
 
 		// Quit if there was a database error - a precaution for the update process to 3.5.3
