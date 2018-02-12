@@ -112,27 +112,9 @@ class UserImport
 		}
 
 		// check for username
-		$r = dba::selectFirst('user', ['uid'], ['nickname' => $account['user']['nickname']]);
-		if ($r === false) {
-			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(L10n::t('Error! Cannot check nickname'));
-			return;
-		}
-
-		if (DBM::is_result($r) > 0) {
-			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
-			return;
-		}
-
 		// check if username matches deleted account
-		$r = dba::selectFirst('userd', ['id'], ['username' => $account['user']['nickname']]);
-		if ($r === false) {
-			logger("uimport:check nickname : ERROR : " . dba::errorMessage(), LOGGER_NORMAL);
-			notice(L10n::t('Error! Cannot check nickname'));
-			return;
-		}
-
-		if (DBM::is_result($r) > 0) {
+		if (dba::exists('user', ['nickname' => $account['user']['nickname']])
+			|| dba::exists('userd', ['nickname' => $account['user']['nickname']])) {
 			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
