@@ -24,7 +24,7 @@ require_once 'include/text.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
 
-function add_page_info_data($data) {
+function add_page_info_data($data, $no_photos = false) {
 	Addon::callHooks('page_info_data', $data);
 
 	// It maybe is a rich content, but if it does have everything that a link has,
@@ -92,7 +92,7 @@ function add_page_info_data($data) {
 	return "\n".$text.$hashtags;
 }
 
-function query_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklist = "") {
 
 	$data = ParseUrl::getSiteinfoCached($url, true);
 
@@ -120,8 +120,8 @@ function query_page_info($url, $no_photos = false, $photo = "", $keywords = fals
 	return $data;
 }
 
-function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
-	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
+function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "") {
+	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
 
 	$tags = "";
 	if (isset($data["keywords"]) && count($data["keywords"])) {
@@ -141,9 +141,9 @@ function add_page_keywords($url, $no_photos = false, $photo = "", $keywords = fa
 }
 
 function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
-	$data = query_page_info($url, $no_photos, $photo, $keywords, $keyword_blacklist);
+	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
 
-	$text = add_page_info_data($data);
+	$text = add_page_info_data($data, $no_photos);
 
 	return $text;
 }
