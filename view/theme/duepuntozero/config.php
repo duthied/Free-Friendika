@@ -67,8 +67,7 @@ function clean_form(App $a, &$colorset, $user)
 	}
 
 	$t = get_markup_template("theme_settings.tpl");
-	/// @TODO No need for adding string here, $o is not defined
-	$o .= replace_macros($t, [
+	$o = replace_macros($t, [
 		'$submit'   => L10n::t('Submit'),
 		'$baseurl'  => System::baseUrl(),
 		'$title'    => L10n::t("Theme settings"),
