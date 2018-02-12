@@ -1610,6 +1610,7 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
 function api_search($type)
 {
 	$data = [];
+	$sql_extra = '';
 
 	if (!x($_REQUEST, 'q')) {
 		throw new BadRequestException("q parameter is required.");
@@ -1791,6 +1792,7 @@ function api_statuses_public_timeline($type)
 	$conversation_id = (x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0);
 
 	$start = $page * $count;
+	$sql_extra = '';
 
 	if ($exclude_replies && !$conversation_id) {
 		if ($max_id > 0) {
@@ -2147,7 +2149,6 @@ function api_statuses_repeat($type)
 		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 		AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
 		AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
-		$sql_extra
 		AND `item`.`id`=%d",
 		intval($id)
 	);
@@ -2267,8 +2268,10 @@ function api_statuses_mentions($type)
 	$myurl = substr($myurl, strpos($myurl, '://') + 3);
 	$myurl = str_replace('www.', '', $myurl);
 
+	$sql_extra = '';
+
 	if ($max_id > 0) {
-		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
+		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
 	}
 
 	$r = q(
@@ -2459,7 +2462,7 @@ function api_favorites_create_destroy($type)
 			throw new BadRequestException("Invalid action ".$action);
 	}
 
-	Item::update(['starred' => $item[0]['starred']], ['id' => $itemid]);
+	$r = Item::update(['starred' => $item[0]['starred']], ['id' => $itemid]);
 
 	if ($r === false) {
 		throw new InternalServerErrorException("DB error");
@@ -2934,7 +2937,7 @@ function api_contactlink_to_array($txt)
 		];
 	} else {
 		$res = [
-			'name' => $text,
+			'name' => $txt,
 			'url' => ""
 		];
 	}
@@ -3534,6 +3537,8 @@ function api_ff_ids($type)
 		throw new ForbiddenException();
 	}
 
+	$a = get_app();
+
 	api_get_user($a);
 
 	$stringify_ids = defaults($_REQUEST, 'stringify_ids', false);
@@ -3660,7 +3665,7 @@ function api_direct_messages_new($type)
 	switch ($type) {
 		case "atom":
 		case "rss":
-			$data = api_rss_extra($a, $data, $user_info);
+			$data = api_rss_extra($a, $data, $sender);
 	}
 
 	return api_format_data("direct-messages", $type, $data);
@@ -3791,6 +3796,8 @@ function api_direct_messages_box($type, $box, $verbose)
 
 	// pagination
 	$start = $page * $count;
+
+	$sql_extra = "";
 
 	// filters
 	if ($box=="sentbox") {
@@ -4907,7 +4914,7 @@ function api_friendica_remoteauth()
 	goaway(
 		$contact['poll'] . '?dfrn_id=' . $dfrn_id
 		. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
-		. '&type=profile&sec=' . $sec . $dest . $quiet
+		. '&type=profile&sec=' . $sec . $dest
 	);
 }
 api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
@@ -5226,7 +5233,7 @@ function api_best_nickname(&$contacts)
 {
 	$best_contact = [];
 
-	if (count($contact) == 0) {
+	if (count($contacts) == 0) {
 		return;
 	}
 
@@ -5755,11 +5762,12 @@ api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct
  * @brief search for direct_messages containing a searchstring through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ * @param string $box
  * @return string (success: success=true if found and search_result contains found messages,
  *                          success=false if nothing was found, search_result='nothing found',
  * 		   error: result=error with error message)
  */
-function api_friendica_direct_messages_search($type)
+function api_friendica_direct_messages_search($type, $box = "")
 {
 	$a = get_app();
 

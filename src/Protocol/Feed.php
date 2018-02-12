@@ -402,7 +402,7 @@ class Feed {
 				// We always strip the title since it will be added in the page information
 				$item["title"] = "";
 				$item["body"] = $item["body"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
-				$item["tag"] = add_page_keywords($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
+				$item["tag"] = add_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 				unset($item["attach"]);
 			} else {
@@ -410,7 +410,7 @@ class Feed {
 					if (!empty($tags)) {
 						$item["tag"] = $tags;
 					} else {
-						$item["tag"] = add_page_keywords($item["plink"], false, $preview, true, $contact["ffi_keyword_blacklist"]);
+						$item["tag"] = add_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
 					}
 					$item["body"] .= "\n".$item['tag'];
 				}

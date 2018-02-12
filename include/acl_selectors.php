@@ -716,7 +716,7 @@ function navbar_complete(App $a) {
 	// check if searching in the local global contact table is enabled
 	$localsearch = Config::get('system','poco_local_search');
 
-	$search = $prefix.notags(trim($_REQUEST['search']));
+	$search = notags(trim($_REQUEST['search']));
 	$mode = $_REQUEST['smode'];
 
 	// don't search if search term has less than 2 characters
