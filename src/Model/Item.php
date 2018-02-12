@@ -1294,8 +1294,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		/// @todo Declare $r or lets remove it - Rabuzarus - 2018-02-12.
-		$arr = ['item' => $item, 'user' => $u[0], 'contact' => $r[0]];
+		$arr = ['item' => $item, 'user' => $u[0]];
 
 		Addon::callHooks('tagged', $arr);
 
