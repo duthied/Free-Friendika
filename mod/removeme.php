@@ -49,7 +49,7 @@ function removeme_content(App $a)
 	$_SESSION['remove_account_verify'] = $hash;
 
 	$tpl = get_markup_template('removeme.tpl');
-	$o .= replace_macros($tpl, [
+	$o = replace_macros($tpl, [
 		'$basedir' => System::baseUrl(),
 		'$hash' => $hash,
 		'$title' => L10n::t('Remove My Account'),

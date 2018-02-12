@@ -77,7 +77,7 @@ function notify_content(App $a)
 		$notif_content .= L10n::t('No more system notifications.');
 	}
 
-	$o .= replace_macros($notif_tpl, [
+	$o = replace_macros($notif_tpl, [
 		'$notif_header' => L10n::t('System Notifications'),
 		'$tabs' => false, // $tabs,
 		'$notif_content' => $notif_content,

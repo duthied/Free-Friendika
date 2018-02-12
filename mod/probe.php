@@ -15,7 +15,7 @@ function probe_content(App $a)
 		killme();
 	}
 
-	$o .= '<h3>Probe Diagnostic</h3>';
+	$o  = '<h3>Probe Diagnostic</h3>';
 
 	$o .= '<form action="probe" method="get">';
 	$o .= 'Lookup address: <input type="text" style="width: 250px;" name="addr" value="' . $_GET['addr'] . '" />';

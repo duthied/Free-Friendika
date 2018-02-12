@@ -72,7 +72,7 @@ function tagger_content(App $a) {
 	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
 
 	$link = xmlify('<link rel="alternate" type="text/html" href="'
-		. System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+		. System::baseUrl() . '/display/' . $r['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 
 	$body = xmlify($item['body']);
 

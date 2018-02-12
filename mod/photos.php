@@ -865,7 +865,7 @@ function photos_post(App $a)
 
 	// Create item container
 	$lat = $lon = null;
-	if ($exif && $exif['GPS'] && Feature::isEnabled($channel_id, 'photo_location')) {
+	if ($exif && $exif['GPS'] && Feature::isEnabled($page_owner_uid, 'photo_location')) {
 		$lat = Photo::getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
 		$lon = Photo::getGps($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
 	}

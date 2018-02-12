@@ -38,6 +38,8 @@ function editpost_content(App $a) {
 		return;
 	}
 
+	$geotag = '';
+
 	$o .= replace_macros(get_markup_template("section_title.tpl"),[
 		'$title' => L10n::t('Edit post')
 	]);

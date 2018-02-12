@@ -19,6 +19,7 @@ require_once 'mod/dirfind.php';
 function search_saved_searches() {
 
 	$o = '';
+	$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
 	if (! Feature::isEnabled(local_user(),'savedsearch'))
 		return $o;
@@ -150,7 +151,7 @@ function search_content(App $a) {
 	}
 
 	// contruct a wrapper for the search header
-	$o .= replace_macros(get_markup_template("content_wrapper.tpl"),[
+	$o = replace_macros(get_markup_template("content_wrapper.tpl"),[
 		'name' => "search-header",
 		'$title' => L10n::t("Search"),
 		'$title_size' => 3,
