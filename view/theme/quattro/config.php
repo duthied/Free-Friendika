@@ -69,7 +69,7 @@ function quattro_form(App $a, $align, $color, $tfs, $pfs) {
 	}
 
 	$t = get_markup_template("theme_settings.tpl" );
-	$o .= replace_macros($t, [
+	$o = replace_macros($t, [
 		'$submit'  => L10n::t('Submit'),
 		'$baseurl' => System::baseUrl(),
 		'$title'   => L10n::t("Theme settings"),

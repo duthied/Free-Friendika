@@ -138,7 +138,7 @@ function vier_community_info()
 	$show_lastusers  = get_vier_config("show_lastusers", 1);
 
 	// get_baseurl
-	$url = System::baseUrl($ssl_state);
+	$url = System::baseUrl();
 	$aside['$url'] = $url;
 
 	// comunity_profiles
@@ -247,7 +247,7 @@ function vier_community_info()
 
 			$tpl = get_markup_template('widget_forumlist_right.tpl');
 
-			$page .= replace_macros(
+			$page = replace_macros(
 				$tpl,
 				[
 					'$title'          => L10n::t('Forums'),
