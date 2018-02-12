@@ -51,7 +51,7 @@ class Widget
 			if ($x || is_site_admin()) {
 				$a->page['aside'] .= '<div class="side-link" id="side-invite-remain">'
 					. L10n::tt('%d invitation available', '%d invitations available', $x)
-					. '</div>' . $inv;
+					. '</div>';
 			}
 		}
 

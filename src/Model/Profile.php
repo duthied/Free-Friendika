@@ -625,6 +625,7 @@ class Profile
 		require_once 'include/bbcode.php';
 
 		$a = get_app();
+		$o = '';
 
 		if (!local_user() || $a->is_mobile || $a->is_tablet) {
 			return $o;

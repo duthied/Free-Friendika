@@ -263,6 +263,7 @@ class Item extends BaseObject
 		}
 
 		$arr['guid'] = notags(trim(defaults($arr, 'guid', get_guid(32, $guid_prefix))));
+		/// @todo Declare $uid variable - Rabuzarus - 2018-02-12.
 		$arr['uri'] = notags(trim(defaults($arr, 'uri', item_new_uri($a->get_hostname(), $uid, $arr['guid']))));
 
 		// Store conversation data
@@ -1294,6 +1295,7 @@ class Item extends BaseObject
 			return;
 		}
 
+		/// @todo Declare $r or lets remove it - Rabuzarus - 2018-02-12.
 		$arr = ['item' => $item, 'user' => $u[0], 'contact' => $r[0]];
 
 		Addon::callHooks('tagged', $arr);

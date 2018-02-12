@@ -370,6 +370,9 @@ class Network
 
 		if ($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
 			$matches = [];
+			$new_location_info = @parse_url($curl_info['redirect_url']);
+			$old_location_info = @parse_url($curl_info['url']);
+	
 			preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
 			$newurl = trim(array_pop($matches));
 

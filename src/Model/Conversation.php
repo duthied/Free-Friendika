@@ -66,7 +66,7 @@ class Conversation
 					unset($conversation['source']);
 				}
 				if (!dba::update('conversation', $conversation, ['item-uri' => $conversation['item-uri']], $old_conv)) {
-					logger('Conversation: update for '.$conversation['item-uri'].' from '.$conv['protocol'].' to '.$conversation['protocol'].' failed', LOGGER_DEBUG);
+					logger('Conversation: update for '.$conversation['item-uri'].' from '.$old_conv['protocol'].' to '.$conversation['protocol'].' failed', LOGGER_DEBUG);
 				}
 			} else {
 				if (!dba::insert('conversation', $conversation, true)) {
