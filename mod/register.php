@@ -58,7 +58,7 @@ function register_post(App $a)
 			break;
 	}
 
-	$netpublish = (((x($_POST, 'profile_publish_reg')) &intval($_POST['profile_publish_reg']) = 1) ? 1 : 0);
+	$netpublish = !empty($_POST['profile_publish_reg']);
 
 	$arr = $_POST;
 

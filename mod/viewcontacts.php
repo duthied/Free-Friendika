@@ -46,7 +46,7 @@ function viewcontacts_content(App $a)
 		return;
 	}
 
-	$is_owner = ((local_user() && ($a->profile['profile_uid'] == local_user())) ? true : false);
+	$is_owner = $a->profile['profile_uid'] == local_user();
 
 	$o = "";
 
