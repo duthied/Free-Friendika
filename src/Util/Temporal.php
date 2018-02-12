@@ -127,6 +127,8 @@ class Temporal
 	 */
 	public static function getDateofBirthField($dob)
 	{
+		$a = get_app();
+
 		list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
 		if ($dob < '0000-01-01') {

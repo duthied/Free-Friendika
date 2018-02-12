@@ -90,12 +90,12 @@ class DateTimeFormat
 	{
 		// Defaults to UTC if nothing is set, but throws an exception if set to empty string.
 		// Provide some sane defaults regardless.
-		if ($from === '') {
-			$from = 'UTC';
+		if ($tz_from === '') {
+			$tz_from = 'UTC';
 		}
 
-		if ($to === '') {
-			$to = 'UTC';
+		if ($tz_to === '') {
+			$tz_to = 'UTC';
 		}
 
 		if (($s === '') || (!is_string($s))) {

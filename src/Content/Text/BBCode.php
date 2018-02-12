@@ -1115,7 +1115,7 @@ class BBCode
 				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
 				break;
 			case 3: // Diaspora
-				$headline .= '<b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . $userid . ':</b><br />';
+				$headline = '<b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . $userid . ':</b><br />';
 
 				$text = trim($share[1]);
 

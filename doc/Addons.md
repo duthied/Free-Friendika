@@ -471,3 +471,5 @@ mod/cb.php:	Addon::callHooks('cb_afterpost');
 mod/cb.php:	Addon::callHooks('cb_content', $o);
 
 mod/directory.php:			Addon::callHooks('directory_item', $arr);
+
+src/Model/Item.php Addon::callHooks('tagged', $arr);

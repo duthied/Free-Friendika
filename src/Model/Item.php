@@ -263,7 +263,7 @@ class Item extends BaseObject
 		}
 
 		$arr['guid'] = notags(trim(defaults($arr, 'guid', get_guid(32, $guid_prefix))));
-		$arr['uri'] = notags(trim(defaults($arr, 'uri', item_new_uri($a->get_hostname(), $uid, $arr['guid']))));
+		$arr['uri'] = notags(trim(defaults($arr, 'uri', item_new_uri($a->get_hostname(), $arr['uid'], $arr['guid']))));
 
 		// Store conversation data
 		$arr = Conversation::insert($arr);
@@ -1294,7 +1294,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		$arr = ['item' => $item, 'user' => $u[0], 'contact' => $r[0]];
+		$arr = ['item' => $item, 'user' => $u[0]];
 
 		Addon::callHooks('tagged', $arr);
 
