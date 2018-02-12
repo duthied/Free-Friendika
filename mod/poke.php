@@ -138,10 +138,7 @@ function poke_init(App $a) {
 		Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
 	}
 
-
 	Addon::callHooks('post_local_end', $arr);
-
-	Worker::add(PRIORITY_HIGH, "Notifier", "like", $post_id);
 
 	return;
 }
