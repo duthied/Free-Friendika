@@ -63,10 +63,11 @@ function editpost_content(App $a) {
 
 	$tpl = get_markup_template("jot.tpl");
 
-	if(($group) || (is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))))
+	if (strlen($itm['allow_cid']) || strlen($itm['allow_gid']) || strlen($itm['deny_cid']) || strlen($itm['deny_gid'])) {
 		$lockstate = 'lock';
-	else
+	} else {
 		$lockstate = 'unlock';
+	}
 
 	$jotplugins = '';
 	$jotnets = '';
