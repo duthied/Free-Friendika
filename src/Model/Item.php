@@ -263,8 +263,7 @@ class Item extends BaseObject
 		}
 
 		$arr['guid'] = notags(trim(defaults($arr, 'guid', get_guid(32, $guid_prefix))));
-		/// @todo Declare $uid variable - Rabuzarus - 2018-02-12.
-		$arr['uri'] = notags(trim(defaults($arr, 'uri', item_new_uri($a->get_hostname(), $uid, $arr['guid']))));
+		$arr['uri'] = notags(trim(defaults($arr, 'uri', item_new_uri($a->get_hostname(), $arr['uid'], $arr['guid']))));
 
 		// Store conversation data
 		$arr = Conversation::insert($arr);
