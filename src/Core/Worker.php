@@ -1018,6 +1018,8 @@ class Worker
 		$dont_fork = Config::get("system", "worker_dont_fork");
 		$created = DateTimeFormat::utcNow();
 
+		$run_parameter = array_shift($args);
+
 		if (is_int($run_parameter)) {
 			$priority = $run_parameter;
 		} elseif (is_array($run_parameter)) {
@@ -1031,8 +1033,6 @@ class Worker
 				$dont_fork = $run_parameter['dont_fork'];
 			}
 		}
-
-		array_shift($args);
 
 		$parameters = json_encode($args);
 		$found = dba::exists('workerqueue', ['parameter' => $parameters, 'done' => false]);
