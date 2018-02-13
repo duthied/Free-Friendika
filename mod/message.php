@@ -250,7 +250,6 @@ function message_content(App $a)
 			'$to' => L10n::t('To:'),
 			'$showinputs' => 'true',
 			'$prefill' => $prefill,
-			'$autocomp' => $autocomp,
 			'$preid' => $preid,
 			'$subject' => L10n::t('Subject:'),
 			'$subjtxt' => x($_REQUEST, 'subject') ? strip_tags($_REQUEST['subject']) : '',

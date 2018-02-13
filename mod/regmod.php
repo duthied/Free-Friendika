@@ -55,7 +55,7 @@ function user_allow($hash)
 
 	L10n::pushLang($register[0]['language']);
 
-	User::sendRegisterOpenEmail(
+	$res = User::sendRegisterOpenEmail(
 		$user[0]['email'],
 		$a->config['sitename'],
 		System::baseUrl(),
@@ -100,7 +100,7 @@ function regmod_content(App $a)
 
 	if (!local_user()) {
 		info(L10n::t('Please login.') . EOL);
-		$o .= '<br /><br />' . Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? 0 : 1);
+		$o = '<br /><br />' . Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? 0 : 1);
 		return $o;
 	}
 

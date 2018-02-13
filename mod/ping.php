@@ -571,8 +571,8 @@ function ping_format_xml_data($data, $sysnotify, $notifs, $sysmsgs, $sysmsgs_inf
 	$forums = [];
 	if (count($forums_unseen)) {
 		foreach ($forums_unseen as $key => $item) {
-			$forums[$count . ':forum'] = $item['count'];
-			$forums[$count . ':@attributes'] = ['id' => $item['id']];
+			$forums[$key . ':forum'] = $item['count'];
+			$forums[$key . ':@attributes'] = ['id' => $item['id']];
 		}
 		$data['forums'] = $forums;
 	}

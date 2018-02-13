@@ -13,6 +13,7 @@ function viewsrc_content(App $a) {
 		return;
 	}
 
+	$o = ''; 
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if(! $item_id) {

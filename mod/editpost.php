@@ -38,6 +38,8 @@ function editpost_content(App $a) {
 		return;
 	}
 
+	$geotag = '';
+
 	$o .= replace_macros(get_markup_template("section_title.tpl"),[
 		'$title' => L10n::t('Edit post')
 	]);
@@ -61,10 +63,11 @@ function editpost_content(App $a) {
 
 	$tpl = get_markup_template("jot.tpl");
 
-	if(($group) || (is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))))
+	if (strlen($itm['allow_cid']) || strlen($itm['allow_gid']) || strlen($itm['deny_cid']) || strlen($itm['deny_gid'])) {
 		$lockstate = 'lock';
-	else
+	} else {
 		$lockstate = 'unlock';
+	}
 
 	$jotplugins = '';
 	$jotnets = '';
@@ -140,7 +143,7 @@ function editpost_content(App $a) {
 		'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),
-		'$bang' => (($group) ? '!' : ''),
+		'$bang' => ($lockstate === 'lock' ? '!' : ''),
 		'$profile_uid' => $_SESSION['uid'],
 		'$preview' => L10n::t('Preview'),
 		'$jotplugins' => $jotplugins,

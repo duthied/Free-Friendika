@@ -30,7 +30,7 @@ function localtime_content(App $a)
 		$t = 'now';
 	}
 
-	$o .= '<h3>' . L10n::t('Time Conversion') . '</h3>';
+	$o  = '<h3>' . L10n::t('Time Conversion') . '</h3>';
 
 	$o .= '<p>' . L10n::t('Friendica provides this service for sharing events with other networks and friends in unknown timezones.') . '</p>';
 

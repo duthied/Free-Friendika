@@ -58,6 +58,7 @@ function register_post(App $a)
 			break;
 	}
 
+	$netpublish = !empty($_POST['profile_publish_reg']);
 
 	$arr = $_POST;
 

@@ -128,7 +128,7 @@ function wallmessage_content(App $a) {
 	]);
 
 	$tpl = get_markup_template('wallmessage.tpl');
-	$o .= replace_macros($tpl, [
+	$o = replace_macros($tpl, [
 		'$header' => L10n::t('Send Private Message'),
 		'$subheader' => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
 		'$to' => L10n::t('To:'),
@@ -139,7 +139,6 @@ function wallmessage_content(App $a) {
 		'$text' => ((x($_REQUEST, 'body')) ? escape_tags(htmlspecialchars($_REQUEST['body'])) : ''),
 		'$readonly' => '',
 		'$yourmessage' => L10n::t('Your message:'),
-		'$select' => $select,
 		'$parent' => '',
 		'$upload' => L10n::t('Upload photo'),
 		'$insert' => L10n::t('Insert web link'),

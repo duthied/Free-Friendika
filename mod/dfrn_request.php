@@ -168,7 +168,7 @@ function dfrn_request_post(App $a)
 					$parms['key'] // this was already escaped
 				);
 				if (DBM::is_result($r)) {
-					Group::addMember(User::getDefaultGroup($uid, $r[0]["network"]), $r[0]['id']);
+					Group::addMember(User::getDefaultGroup(local_user(), $r[0]["network"]), $r[0]['id']);
 
 					if (isset($photo)) {
 						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);

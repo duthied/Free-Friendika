@@ -46,6 +46,8 @@ function viewcontacts_content(App $a)
 		return;
 	}
 
+	$is_owner = $a->profile['profile_uid'] == local_user();
+
 	$o = "";
 
 	// tabs
@@ -97,9 +99,6 @@ function viewcontacts_content(App $a)
 		$url = $rr['url'];
 
 		// route DFRN profiles through the redirect
-
-		$is_owner = ((local_user() && ($a->profile['profile_uid'] == local_user())) ? true : false);
-
 		if ($is_owner && ($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
 			$url = 'redir/' . $rr['id'];
 		} else {

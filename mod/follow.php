@@ -41,11 +41,7 @@ function follow_post(App $a) {
 		goaway(System::baseUrl().'/contacts/'.$result['cid']);
 	}
 
-	info(L10n::t('Contact added').EOL);
-
-	if (strstr($return_url, 'contacts')) {
-		goaway(System::baseUrl().'/contacts/'.$contact_id);
-	}
+	info(L10n::t('The contact could not be added.').EOL);
 
 	goaway($return_url);
 	// NOTREACHED

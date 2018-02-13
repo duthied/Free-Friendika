@@ -222,6 +222,7 @@ function install_content(App $a) {
 			$dbdata = notags(trim($_POST['dbdata']));
 			$phpath = notags(trim($_POST['phpath']));
 
+			$adminmail = notags(trim($_POST['adminmail']));
 
 			$tpl = get_markup_template('install_db.tpl');
 			$o .= replace_macros($tpl, [

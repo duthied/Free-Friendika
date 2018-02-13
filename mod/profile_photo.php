@@ -257,7 +257,7 @@ function profile_photo_content(App $a) {
 
 		$tpl = get_markup_template('profile_photo.tpl');
 
-		$o .= replace_macros($tpl,[
+		$o = replace_macros($tpl,[
 			'$user' => $a->user['nickname'],
 			'$lbl_upfile' => L10n::t('Upload File:'),
 			'$lbl_profiles' => L10n::t('Select a profile:'),
@@ -272,9 +272,8 @@ function profile_photo_content(App $a) {
 	}
 	else {
 		$filename = $a->config['imagecrop'] . '-' . $a->config['imagecrop_resolution'] . '.'.$a->config['imagecrop_ext'];
-		$resolution = $a->config['imagecrop_resolution'];
 		$tpl = get_markup_template("cropbody.tpl");
-		$o .= replace_macros($tpl,[
+		$o = replace_macros($tpl,[
 			'$filename' => $filename,
 			'$profile' => intval($_REQUEST['profile']),
 			'$resource' => $a->config['imagecrop'] . '-' . $a->config['imagecrop_resolution'],
@@ -313,6 +312,7 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 
 
 	$smallest = 0;
+	$filename = '';
 
 	$r = Photo::store($Image, local_user(), 0, $hash, $filename, L10n::t('Profile Photos'), 0);
 

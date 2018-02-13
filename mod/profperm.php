@@ -35,6 +35,8 @@ function profperm_content(App $a) {
 		return;
 	}
 
+	$o = '';
+
 	// Switch to text mod interface if we have more than 'n' contacts or group members
 
 	$switchtotext = PConfig::get(local_user(),'system','groupedit_image_limit');
@@ -165,4 +167,3 @@ function profperm_content(App $a) {
 	return $o;
 
 }
-
