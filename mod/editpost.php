@@ -143,7 +143,7 @@ function editpost_content(App $a) {
 		'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),
-		'$bang' => (($group) ? '!' : ''),
+		'$bang' => ($lockstate === 'lock' ? '!' : ''),
 		'$profile_uid' => $_SESSION['uid'],
 		'$preview' => L10n::t('Preview'),
 		'$jotplugins' => $jotplugins,
