@@ -652,7 +652,7 @@ class Probe
 			$result = self::ostatus($webfinger);
 		}
 		if ((!$result && ($network == "")) || ($network == NETWORK_PUMPIO)) {
-			$result = self::pumpio($webfinger);
+			$result = self::pumpio($webfinger, $addr);
 		}
 		if ((!$result && ($network == "")) || ($network == NETWORK_FEED)) {
 			$result = self::feed($uri);
@@ -676,7 +676,6 @@ class Probe
 				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
 			}
 		}
-
 		return $result;
 	}
 
@@ -1332,14 +1331,33 @@ class Probe
 
 		$data = [];
 
-		// This is ugly - but pump.io doesn't seem to know a better way for it
-		$data["name"] = trim($xpath->query("//h1[@class='media-header']")->item(0)->nodeValue);
-		$pos = strpos($data["name"], chr(10));
-		if ($pos) {
-			$data["name"] = trim(substr($data["name"], 0, $pos));
+		$data["name"] = $xpath->query("//span[contains(@class, 'p-name')]")->item(0)->nodeValue;
+
+		if ($data["name"] == '') {
+			// This is ugly - but pump.io doesn't seem to know a better way for it
+			$data["name"] = trim($xpath->query("//h1[@class='media-header']")->item(0)->nodeValue);
+			$pos = strpos($data["name"], chr(10));
+			if ($pos) {
+				$data["name"] = trim(substr($data["name"], 0, $pos));
+			}
 		}
 
-		$avatar = $xpath->query("//img[@class='img-rounded media-object']")->item(0);
+		$data["location"] = $xpath->query("//p[contains(@class, 'p-locality')]")->item(0)->nodeValue;
+
+		if ($data["location"] == '') {
+			$data["location"] = $xpath->query("//p[contains(@class, 'location')]")->item(0)->nodeValue;
+		}
+
+		$data["about"] = $xpath->query("//p[contains(@class, 'p-note')]")->item(0)->nodeValue;
+
+		if ($data["about"] == '') {
+			$data["about"] = $xpath->query("//p[contains(@class, 'summary')]")->item(0)->nodeValue;
+		}
+
+		$avatar = $xpath->query("//img[contains(@class, 'u-photo')]")->item(0);
+		if (!$avatar) {
+			$avatar = $xpath->query("//img[@class='img-rounded media-object']")->item(0);
+		}
 		if ($avatar) {
 			foreach ($avatar->attributes as $attribute) {
 				if ($attribute->name == "src") {
@@ -1347,9 +1365,6 @@ class Probe
 				}
 			}
 		}
-
-		$data["location"] = $xpath->query("//p[@class='location']")->item(0)->nodeValue;
-		$data["about"] = $xpath->query("//p[@class='summary']")->item(0)->nodeValue;
 
 		return $data;
 	}
@@ -1361,7 +1376,7 @@ class Probe
 	 *
 	 * @return array pump.io data
 	 */
-	private static function pumpio($webfinger)
+	private static function pumpio($webfinger, $addr)
 	{
 		$data = [];
 		foreach ($webfinger["links"] as $link) {
@@ -1398,6 +1413,13 @@ class Probe
 		}
 
 		$data = array_merge($data, $profile_data);
+
+		if (($addr != '') && ($data['name'] != '')) {
+			$name = trim(str_replace($addr, '', $data['name']));
+			if ($name != '') {
+				$data['name'] = $name;
+			}
+		}
 
 		return $data;
 	}
