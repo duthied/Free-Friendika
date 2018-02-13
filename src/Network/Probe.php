@@ -652,7 +652,7 @@ class Probe
 			$result = self::ostatus($webfinger);
 		}
 		if ((!$result && ($network == "")) || ($network == NETWORK_PUMPIO)) {
-			$result = self::pumpio($webfinger);
+			$result = self::pumpio($webfinger, $addr);
 		}
 		if ((!$result && ($network == "")) || ($network == NETWORK_FEED)) {
 			$result = self::feed($uri);
@@ -676,7 +676,6 @@ class Probe
 				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
 			}
 		}
-
 		return $result;
 	}
 
@@ -1377,7 +1376,7 @@ class Probe
 	 *
 	 * @return array pump.io data
 	 */
-	private static function pumpio($webfinger)
+	private static function pumpio($webfinger, $addr)
 	{
 		$data = [];
 		foreach ($webfinger["links"] as $link) {
@@ -1414,6 +1413,13 @@ class Probe
 		}
 
 		$data = array_merge($data, $profile_data);
+
+		if (($addr != '') && ($data['name'] != '')) {
+			$name = trim(str_replace($addr, '', $data['name']));
+			if ($name != '') {
+				$data['name'] = $name;
+			}
+		}
 
 		return $data;
 	}
