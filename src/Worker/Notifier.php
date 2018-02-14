@@ -67,6 +67,7 @@ class Notifier {
 		$url_recipients = [];
 
 		$normal_mode = true;
+		$recipients_relocate = [];
 
 		if ($cmd === 'mail') {
 			$normal_mode = false;
@@ -178,6 +179,10 @@ class Notifier {
 		// fill this in with a single salmon slap if applicable
 		$slap = '';
 
+		$followup = false;
+		$recipients_followup = [];
+		$conversants = [];
+		$sql_extra = '';
 		if (! ($mail || $fsuggest || $relocate)) {
 
 			$slap = OStatus::salmon($target_item, $owner);
@@ -320,8 +325,6 @@ class Notifier {
 				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== 'uplink')) {
 					Worker::add($a->queue['priority'], 'Notifier', 'uplink', $item_id);
 				}
-
-				$conversants = [];
 
 				foreach ($items as $item) {
 					$recipients[] = $item['contact-id'];
@@ -519,7 +522,7 @@ class Notifier {
 					// except for Diaspora batch jobs
 					// Don't deliver to folks who have already been delivered to
 
-					if (($rr['network'] !== NETWORK_DIASPORA) && (in_array($rr['id'],$conversants))) {
+					if (($rr['network'] !== NETWORK_DIASPORA) && (in_array($rr['id'], $conversants))) {
 						logger('notifier: already delivered id=' . $rr['id']);
 						continue;
 					}

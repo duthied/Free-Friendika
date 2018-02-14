@@ -565,8 +565,10 @@ class Profile
 				Cache::set($cachekey, $r, CACHE_HOUR);
 			}
 		}
+
+		$total = 0;
+		$classtoday = '';
 		if (DBM::is_result($r)) {
-			$total = 0;
 			$now = strtotime('now');
 			$cids = [];
 

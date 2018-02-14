@@ -30,6 +30,8 @@ class DiscoverPoCo {
 		- check_profile: Update remote profile data
 		*/
 
+		$search = "";
+		$mode = 0;
 		if ($command == "dirsearch") {
 			$search = urldecode($param1);
 			$mode = 1;
@@ -47,10 +49,7 @@ class DiscoverPoCo {
 			$mode = 7;
 		} elseif ($command == "check_profile") {
 			$mode = 8;
-		} elseif ($command == '') {
-			$search = "";
-			$mode = 0;
-		} else {
+		} elseif ($command !== "") {
 			logger("Unknown or missing parameter ".$command."\n");
 			return;
 		}

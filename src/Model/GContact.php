@@ -665,6 +665,8 @@ class GContact
 	{
 		$gcontact_id = 0;
 		$doprobing = false;
+		$last_failure_str = '';
+		$last_contact_str = '';
 
 		if (in_array($contact["network"], [NETWORK_PHANTOM])) {
 			logger("Invalid network for contact url ".$contact["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);

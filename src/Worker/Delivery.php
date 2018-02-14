@@ -34,10 +34,11 @@ class Delivery {
 		$relocate = false;
 		$top_level = false;
 		$recipients = [];
-		$url_recipients = [];
 		$followup = false;
 
 		$normal_mode = true;
+
+		$item = null;
 
 		$recipients[] = $contact_id;
 
@@ -182,16 +183,14 @@ class Delivery {
 
 		}
 
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `blocked` = 0 AND `pending` = 0",
-			intval($contact_id)
+		// We don't deliver our items to blocked or pending contacts, and not to ourselves either
+		$contact = dba::selectFirst('contact', [],
+			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
-
-		if (DBM::is_result($r)) {
-			$contact = $r[0];
-		}
-		if ($contact['self']) {
+		if (!DBM::is_result($contact)) {
 			return;
 		}
+
 		$deliver_status = 0;
 
 		// Transmit via Diaspora if not possible via Friendica
@@ -207,7 +206,7 @@ class Delivery {
 				logger('notifier: '.$target_item["guid"].' dfrndelivery: '.$contact['name']);
 
 				if ($mail) {
-					$item['body'] = Item::fixPrivatePhotos($item['body'],$owner['uid'],null,$message[0]['contact-id']);
+					$item['body'] = Item::fixPrivatePhotos($item['body'], $owner['uid'], null, $item['contact-id']);
 					$atom = DFRN::mail($item, $owner);
 				} elseif ($fsuggest) {
 					$atom = DFRN::fsuggest($item, $owner);

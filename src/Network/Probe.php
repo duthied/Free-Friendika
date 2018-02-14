@@ -1542,27 +1542,29 @@ class Probe
 			return false;
 		}
 
-		if ($uid != 0) {
-			$x = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
+		if ($uid == 0) {
+			return false;
+		}
 
-			$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1", intval($uid));
+		$x = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($uid));
 
-			if (DBM::is_result($x) && DBM::is_result($r)) {
-				$mailbox = Email::constructMailboxName($r[0]);
-				$password = '';
-				openssl_private_decrypt(hex2bin($r[0]['pass']), $password, $x[0]['prvkey']);
-				$mbox = Email::connect($mailbox, $r[0]['user'], $password);
-				if (!mbox) {
-					return false;
-				}
-			}
+		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1", intval($uid));
 
-			$msgs = Email::poll($mbox, $uri);
-			logger('searching '.$uri.', '.count($msgs).' messages found.', LOGGER_DEBUG);
-
-			if (!count($msgs)) {
+		if (DBM::is_result($x) && DBM::is_result($r)) {
+			$mailbox = Email::constructMailboxName($r[0]);
+			$password = '';
+			openssl_private_decrypt(hex2bin($r[0]['pass']), $password, $x[0]['prvkey']);
+			$mbox = Email::connect($mailbox, $r[0]['user'], $password);
+			if (!$mbox) {
 				return false;
 			}
+		}
+
+		$msgs = Email::poll($mbox, $uri);
+		logger('searching '.$uri.', '.count($msgs).' messages found.', LOGGER_DEBUG);
+
+		if (!count($msgs)) {
+			return false;
 		}
 
 		$phost = substr($uri, strpos($uri, '@') + 1);

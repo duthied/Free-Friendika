@@ -389,9 +389,10 @@ class Worker
 		if (Config::get("system", "profiler")) {
 			$duration = microtime(true)-$a->performance["start"];
 
+			$o = '';
 			if (Config::get("rendertime", "callstack")) {
 				if (isset($a->callstack["database"])) {
-					$o = "\nDatabase Read:\n";
+					$o .= "\nDatabase Read:\n";
 					foreach ($a->callstack["database"] as $func => $time) {
 						$time = round($time, 3);
 						if ($time > 0) {
@@ -417,8 +418,6 @@ class Worker
 						}
 					}
 				}
-			} else {
-				$o = '';
 			}
 
 			logger(
@@ -564,6 +563,7 @@ class Worker
 					// We killed the stale process.
 					// To avoid a blocking situation we reschedule the process at the beginning of the queue.
 					// Additionally we are lowering the priority. (But not PRIORITY_CRITICAL)
+					$new_priority = $entry["priority"];
 					if ($entry["priority"] == PRIORITY_HIGH) {
 						$new_priority = PRIORITY_MEDIUM;
 					} elseif ($entry["priority"] == PRIORITY_MEDIUM) {
@@ -768,7 +768,7 @@ class Worker
 		$limit = min($queue_length, ceil($slope * pow($jobs, $exponent)));
 
 		logger('Total: '.$jobs.' - Maximum: '.$queue_length.' - jobs per queue: '.$limit, LOGGER_DEBUG);
-
+		$ids = [];
 		if (self::passingSlow($highest_priority)) {
 			// Are there waiting processes with a higher priority than the currently highest?
 			$result = dba::select(
