@@ -68,6 +68,7 @@ class Feed {
 		$xpath->registerNamespace('poco', NAMESPACE_POCO);
 
 		$author = [];
+		$entries = null;
 
 		// Is it RDF?
 		if ($xpath->query('/rdf:RDF/rss:channel')->length > 0) {
@@ -369,9 +370,8 @@ class Feed {
 				$item["title"] = '';
 			}
 
+			$preview = '';
 			if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] < 3)) {
-				$preview = "";
-
 				// Handle enclosures and treat them as preview picture
 				foreach ($attachments AS $attachment) {
 					if ($attachment["type"] == "image/jpeg") {
@@ -410,6 +410,7 @@ class Feed {
 					if (!empty($tags)) {
 						$item["tag"] = $tags;
 					} else {
+						// @todo $preview is never set in this case, is it intended? - @MrPetovan 2018-02-13
 						$item["tag"] = add_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
 					}
 					$item["body"] .= "\n".$item['tag'];

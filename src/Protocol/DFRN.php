@@ -930,6 +930,7 @@ class DFRN
 		// Remove the abstract element. It is only locally important.
 		$body = BBCode::stripAbstract($body);
 
+		$htmlbody = '';
 		if ($type == 'html') {
 			$htmlbody = $body;
 
@@ -1432,19 +1433,17 @@ class DFRN
 		$author["name"] = $xpath->evaluate($element."/atom:name/text()", $context)->item(0)->nodeValue;
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
-		$r = q(
-			"SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
+		$contact_old = dba::fetch_first("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
 				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`, `contact-type`
-				FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` != '%s'",
-			intval($importer["uid"]),
-			dbesc(normalise_link($author["link"])),
-			dbesc(NETWORK_STATUSNET)
+				FROM `contact` WHERE `uid` = ? AND `nurl` = ? AND `network` != ?",
+			$importer["uid"],
+			normalise_link($author["link"]),
+			NETWORK_STATUSNET
 		);
 
-		if (DBM::is_result($r)) {
-			$contact = $r[0];
-			$author["contact-id"] = $r[0]["id"];
-			$author["network"] = $r[0]["network"];
+		if (DBM::is_result($contact_old)) {
+			$author["contact-id"] = $contact_old["id"];
+			$author["network"] = $contact_old["network"];
 		} else {
 			if (!$onlyfetch) {
 				logger("Contact ".$author["link"]." wasn't found for user ".$importer["uid"]." XML: ".$xml, LOGGER_DEBUG);
@@ -1471,7 +1470,7 @@ class DFRN
 					$width = $attributes->textContent;
 				}
 				if ($attributes->name == "updated") {
-					$contact["avatar-date"] = $attributes->textContent;
+					$contact_old["avatar-date"] = $attributes->textContent;
 				}
 			}
 			if (($width > 0) && ($href != "")) {
@@ -1483,10 +1482,10 @@ class DFRN
 			$author["avatar"] = current($avatarlist);
 		}
 
-		if (DBM::is_result($r) && !$onlyfetch) {
-			logger("Check if contact details for contact " . $r[0]["id"] . " (" . $r[0]["nick"] . ") have to be updated.", LOGGER_DEBUG);
+		if (DBM::is_result($contact_old) && !$onlyfetch) {
+			logger("Check if contact details for contact " . $contact_old["id"] . " (" . $contact_old["nick"] . ") have to be updated.", LOGGER_DEBUG);
 
-			$poco = ["url" => $contact["url"]];
+			$poco = ["url" => $contact_old["url"]];
 
 			// When was the last change to name or uri?
 			$name_element = $xpath->query($element . "/atom:name", $context)->item(0);
@@ -1545,12 +1544,12 @@ class DFRN
 			// If the "hide" element is present then the profile isn't searchable.
 			$hide = intval($xpath->evaluate($element . "/dfrn:hide/text()", $context)->item(0)->nodeValue == "true");
 
-			logger("Hidden status for contact " . $contact["url"] . ": " . $hide, LOGGER_DEBUG);
+			logger("Hidden status for contact " . $contact_old["url"] . ": " . $hide, LOGGER_DEBUG);
 
 			// If the contact isn't searchable then set the contact to "hidden".
 			// Problem: This can be manually overridden by the user.
 			if ($hide) {
-				$contact["hidden"] = true;
+				$contact_old["hidden"] = true;
 			}
 
 			// Save the keywords into the contact table
@@ -1565,8 +1564,6 @@ class DFRN
 			}
 
 			// "dfrn:birthday" contains the birthday converted to UTC
-			$old_bdyear = $contact["bdyear"];
-
 			$birthday = $xpath->evaluate($element . "/dfrn:birthday/text()", $context)->item(0)->nodeValue;
 
 			if (strtotime($birthday) > time()) {
@@ -1590,15 +1587,15 @@ class DFRN
 				$poco["bd"] = $value;
 			}
 
-			$contact = array_merge($contact, $poco);
+			$contact = array_merge($contact_old, $poco);
 
-			if ($old_bdyear != $contact["bdyear"]) {
+			if ($contact_old["bdyear"] != $contact["bdyear"]) {
 				self::birthdayEvent($contact, $birthday);
 			}
 
 			// Get all field names
 			$fields = [];
-			foreach ($r[0] as $field => $data) {
+			foreach ($contact_old as $field => $data) {
 				$fields[$field] = $data;
 			}
 
@@ -1609,18 +1606,19 @@ class DFRN
 			unset($fields["name-date"]);
 			unset($fields["uri-date"]);
 
+			$update = false;
 			// Update check for this field has to be done differently
 			$datefields = ["name-date", "uri-date"];
 			foreach ($datefields as $field) {
-				if (strtotime($contact[$field]) > strtotime($r[0][$field])) {
-					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $r[0][$field] . "'", LOGGER_DEBUG);
+				if (strtotime($contact[$field]) > strtotime($contact_old[$field])) {
+					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", LOGGER_DEBUG);
 					$update = true;
 				}
 			}
 
 			foreach ($fields as $field => $data) {
-				if ($contact[$field] != $r[0][$field]) {
-					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $r[0][$field] . "'", LOGGER_DEBUG);
+				if ($contact[$field] != $contact_old[$field]) {
+					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", LOGGER_DEBUG);
 					$update = true;
 				}
 			}
@@ -1645,7 +1643,7 @@ class DFRN
 				$author["avatar"],
 				$importer["uid"],
 				$contact["id"],
-				(strtotime($contact["avatar-date"]) > strtotime($r[0]["avatar-date"]))
+				(strtotime($contact["avatar-date"]) > strtotime($contact_old["avatar-date"]))
 			);
 
 			/*
@@ -2404,14 +2402,12 @@ class DFRN
 
 		$item["edited"] = $xpath->query("atom:updated/text()", $entry)->item(0)->nodeValue;
 
-		$current = q(
-			"SELECT `id`, `uid`, `edited`, `body` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($item["uri"]),
-			intval($importer["importer_uid"])
+		$current = dba::selectFirst('item',
+			['id', 'uid', 'edited', 'body'],
+			['uri' => $item["uri"], 'uid' => $importer["importer_uid"]]
 		);
-
 		// Is there an existing item?
-		if (DBM::is_result($current) && !self::isEditedTimestampNewer($current[0], $item)) {
+		if (DBM::is_result($current) && !self::isEditedTimestampNewer($current, $item)) {
 			logger("Item ".$item["uri"]." (".$item['edited'].") already existed.", LOGGER_DEBUG);
 			return;
 		}
@@ -2652,7 +2648,7 @@ class DFRN
 
 		// Update content if 'updated' changes
 		if (DBM::is_result($current)) {
-			if (self::updateContent($r[0], $item, $importer, $entrytype)) {
+			if (self::updateContent($current, $item, $importer, $entrytype)) {
 				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
 			} else {
 				logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
@@ -2731,7 +2727,7 @@ class DFRN
 	private static function processDeletion($xpath, $deletion, $importer)
 	{
 		logger("Processing deletions");
-
+		$uri = null;
 		foreach ($deletion->attributes as $attributes) {
 			if ($attributes->name == "ref") {
 				$uri = $attributes->textContent;
