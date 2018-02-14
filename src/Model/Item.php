@@ -1084,17 +1084,15 @@ class Item extends BaseObject
 	private static function updateContact($arr)
 	{
 		// Unarchive the author
-		$contact = dba::selectFirst('contact', [], ['id' => $arr["author-link"]]);
-		if ($contact['term-date'] > NULL_DATE) {
-			 Contact::unmarkForArchival($contact);
+		$contact = dba::selectFirst('contact', [], ['id' => $arr["author-id"]]);
+		if (DBM::is_result($contact)) {
+			Contact::unmarkForArchival($contact);
 		}
 
-		// Unarchive the contact if it is a toplevel posting
-		if ($arr["parent-uri"] === $arr["uri"]) {
-			$contact = dba::selectFirst('contact', [], ['id' => $arr["contact-id"]]);
-			if ($contact['term-date'] > NULL_DATE) {
-				 Contact::unmarkForArchival($contact);
-			}
+		// Unarchive the contact if it's not our own contact
+		$contact = dba::selectFirst('contact', [], ['id' => $arr["contact-id"], 'self' => false]);
+		if (DBM::is_result($contact)) {
+			Contact::unmarkForArchival($contact);
 		}
 
 		$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
