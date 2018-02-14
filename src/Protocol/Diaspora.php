@@ -1057,7 +1057,7 @@ class Diaspora
 		//}
 
 		// We don't seem to like that person
-		if ($contact["blocked"] || $contact["readonly"] || $contact["archive"]) {
+		if ($contact["blocked"] || $contact["readonly"]) {
 			// Maybe blocked, don't accept.
 			return false;
 			// We are following this person?
@@ -3237,7 +3237,7 @@ class Diaspora
 			Contact::unmarkForArchival($contact);
 		}
 
-		return(($return_code) ? $return_code : (-1));
+		return $return_code ? $return_code : -1;
 	}
 
 
