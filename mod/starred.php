@@ -9,6 +9,7 @@ use Friendica\Model\Item;
 
 function starred_init(App $a) {
 	$starred = 0;
+	$message_id = null;
 
 	if (! local_user()) {
 		killme();

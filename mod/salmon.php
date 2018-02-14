@@ -13,19 +13,6 @@ use Friendica\Util\Crypto;
 
 require_once 'include/items.php';
 
-function salmon_return($val) {
-
-	if($val >= 400)
-		$err = 'Error';
-	if($val >= 200 && $val < 300)
-		$err = 'OK';
-
-	logger('mod-salmon returns ' . $val);
-	header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
-	killme();
-
-}
-
 function salmon_post(App $a) {
 
 	$xml = file_get_contents('php://input');
@@ -48,8 +35,9 @@ function salmon_post(App $a) {
 
 	$dom = simplexml_load_string($xml,'SimpleXMLElement',0,NAMESPACE_SALMON_ME);
 
-	// figure out where in the DOM tree our data is hiding
+	$base = null;
 
+	// figure out where in the DOM tree our data is hiding
 	if($dom->provenance->data)
 		$base = $dom->provenance;
 	elseif($dom->env->data)

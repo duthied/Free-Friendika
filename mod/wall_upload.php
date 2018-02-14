@@ -114,7 +114,10 @@ function wall_upload_post(App $a, $desktopmode = true) {
 		killme();
 	}
 
-	$src = "";
+	$src = '';
+	$filename = '';
+	$filesize = 0;
+	$filetype = '';
 	if (x($_FILES, 'userfile')) {
 		$src      = $_FILES['userfile']['tmp_name'];
 		$filename = basename($_FILES['userfile']['name']);
