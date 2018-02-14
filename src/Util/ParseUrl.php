@@ -50,19 +50,11 @@ class ParseUrl
 			return false;
 		}
 
-		$r = q(
-			"SELECT * FROM `parsed_url` WHERE `url` = '%s' AND `guessing` = %d AND `oembed` = %d",
-			dbesc(normalise_link($url)),
-			intval(!$no_guessing),
-			intval($do_oembed)
+		$parsed_url = dba::selectFirst('parsed_url', ['content'],
+			['url' => normalise_link($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
 		);
-
-		if ($r) {
-			$data = $r[0]["content"];
-		}
-
-		if (!is_null($data)) {
-			$data = unserialize($data);
+		if (!empty($parsed_url['content'])) {
+			$data = unserialize($parsed_url['content']);
 			return $data;
 		}
 

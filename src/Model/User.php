@@ -157,6 +157,8 @@ class User
 	 */
 	private static function getAuthenticationInfo($user_info)
 	{
+		$user = null;
+
 		if (is_object($user_info) || is_array($user_info)) {
 			if (is_object($user_info)) {
 				$user = (array) $user_info;

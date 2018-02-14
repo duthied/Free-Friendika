@@ -1365,6 +1365,7 @@ class Contact extends BaseObject
 		$url = notags(trim($datarray['author-link']));
 		$name = notags(trim($datarray['author-name']));
 		$photo = notags(trim($datarray['author-avatar']));
+		$nick = '';
 
 		if (is_object($item)) {
 			$rawtag = $item->get_item_tags(NAMESPACE_ACTIVITY,'actor');
@@ -1398,20 +1399,16 @@ class Contact extends BaseObject
 				intval(CONTACT_IS_FOLLOWER)
 			);
 
-			$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `pending` = 1 LIMIT 1",
-					intval($importer['uid']),
-					dbesc($url)
-			);
-			if (DBM::is_result($r)) {
-				$contact_record = $r[0];
-				Contact::updateAvatar($photo, $importer["uid"], $contact_record["id"], true);
-			}
+			$contact_record = [
+				'id' => dba::lastInsertId(),
+				'network' => NETWORK_OSTATUS
+			];
+			Contact::updateAvatar($photo, $importer["uid"], $contact_record["id"], true);
 
 			/// @TODO Encapsulate this into a function/method
-			$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-				intval($importer['uid'])
-			);
-			if (DBM::is_result($r) && !in_array($r[0]['page-flags'], [PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY])) {
+			$fields = ['uid', 'username', 'email', 'page-flags', 'notify-flags', 'language'];
+			$user = dba::selectFirst('user', $fields, ['uid' => $importer['uid']]);
+			if (DBM::is_result($user) && !in_array($user['page-flags'], [PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY])) {
 				// create notification
 				$hash = random_string();
 
@@ -1423,16 +1420,16 @@ class Contact extends BaseObject
 
 				Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);
 
-				if (($r[0]['notify-flags'] & NOTIFY_INTRO) &&
-					in_array($r[0]['page-flags'], [PAGE_NORMAL])) {
+				if (($user['notify-flags'] & NOTIFY_INTRO) &&
+					in_array($user['page-flags'], [PAGE_NORMAL])) {
 
 					notification([
 						'type'         => NOTIFY_INTRO,
-						'notify_flags' => $r[0]['notify-flags'],
-						'language'     => $r[0]['language'],
-						'to_name'      => $r[0]['username'],
-						'to_email'     => $r[0]['email'],
-						'uid'          => $r[0]['uid'],
+						'notify_flags' => $user['notify-flags'],
+						'language'     => $user['language'],
+						'to_name'      => $user['username'],
+						'to_email'     => $user['email'],
+						'uid'          => $user['uid'],
 						'link'		   => System::baseUrl() . '/notifications/intro',
 						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : L10n::t('[Name Withheld]')),
 						'source_link'  => $contact_record['url'],
@@ -1442,13 +1439,12 @@ class Contact extends BaseObject
 					]);
 
 				}
-			} elseif (DBM::is_result($r) && in_array($r[0]['page-flags'], [PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY])) {
+			} elseif (DBM::is_result($user) && in_array($user['page-flags'], [PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY])) {
 				q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
 						intval($importer['uid']),
 						dbesc($url)
 				);
 			}
-
 		}
 	}
 

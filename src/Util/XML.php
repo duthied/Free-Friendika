@@ -52,6 +52,7 @@ class XML
 			}
 		}
 
+		$element = null;
 		foreach ($array as $key => $value) {
 			if (!isset($element) && isset($xml)) {
 				$element = $xml;
@@ -185,12 +186,13 @@ class XML
 			return(null);
 		}
 
+		$xml_element_copy = '';
 		if (!is_string($xml_element)
 			&& !is_array($xml_element)
 			&& (get_class($xml_element) == 'SimpleXMLElement')
 		) {
-				$xml_element_copy = $xml_element;
-				$xml_element = get_object_vars($xml_element);
+			$xml_element_copy = $xml_element;
+			$xml_element = get_object_vars($xml_element);
 		}
 
 		if (is_array($xml_element)) {

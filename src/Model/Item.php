@@ -251,9 +251,8 @@ class Item extends BaseObject
 			$arr['network'] = trim(defaults($arr, 'network', NETWORK_PHANTOM));
 		}
 
-		if ($notify) {
-			$guid_prefix = "";
-		} elseif ((trim($arr['guid']) == "") && (trim($arr['plink']) != "")) {
+		$guid_prefix = '';
+		if ((trim($arr['guid']) == "") && (trim($arr['plink']) != "")) {
 			$arr['guid'] = self::guidFromUri($arr['plink']);
 		} elseif ((trim($arr['guid']) == "") && (trim($arr['uri']) != "")) {
 			$arr['guid'] = self::guidFromUri($arr['uri']);
@@ -521,6 +520,11 @@ class Item extends BaseObject
 
 		$arr['thr-parent'] = $arr['parent-uri'];
 
+		$notify_type = '';
+		$allow_cid = '';
+		$allow_gid = '';
+		$deny_cid  = '';
+		$deny_gid  = '';
 		if ($arr['parent-uri'] === $arr['uri']) {
 			$parent_id = 0;
 			$parent_deleted = 0;

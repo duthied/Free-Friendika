@@ -91,6 +91,9 @@ class Photo
 	 */
 	public static function importProfilePhoto($image_url, $uid, $cid, $quit_on_error = false)
 	{
+		$thumb = '';
+		$micro = '';
+
 		$photo = dba::selectFirst(
 			'photo', ['resource-id'], ['uid' => $uid, 'contact-id' => $cid, 'scale' => 4, 'album' => 'Contact Photos']
 		);

@@ -67,6 +67,7 @@ class Mail
 			}
 		}
 
+		$convuri = '';
 		if (!$convid) {
 			// create a new conversation
 			$recip_host = substr($contact['url'], strpos($contact['url'], '://') + 3);

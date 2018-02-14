@@ -244,19 +244,18 @@ class DBStructure
 
 		// Compare it
 		foreach ($definition AS $name => $structure) {
-			$is_new_table = False;
+			$is_new_table = false;
 			$group_by = "";
 			$sql3 = "";
+			$is_unique = false;
+			$temp_name = $name;
 			if (!isset($database[$name])) {
 				$r = self::createTable($name, $structure["fields"], $verbose, $action, $structure['indexes']);
 				if (!DBM::is_result($r)) {
 					$errors .= self::printUpdateError($name);
 				}
-				$is_new_table = True;
+				$is_new_table = true;
 			} else {
-				$is_unique = false;
-				$temp_name = $name;
-
 				foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 					if (isset($database[$name]["indexes"][$indexname])) {
 						$current_index_definition = implode(",",$database[$name]["indexes"][$indexname]);
@@ -463,7 +462,7 @@ class DBStructure
 						if ($ignore != "") {
 							dba::e("SET session old_alter_table=1;");
 						} else {
-							dba::e("DROP TABLE IF EXISTS `".$temp_name."`;");
+							$r = dba::e("DROP TABLE IF EXISTS `".$temp_name."`;");
 							if (!DBM::is_result($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;

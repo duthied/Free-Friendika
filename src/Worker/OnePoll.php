@@ -153,6 +153,7 @@ class OnePoll
 		}
 
 		$importer = $r[0];
+		$url = '';
 
 		logger("poll: ({$contact['network']}-{$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 

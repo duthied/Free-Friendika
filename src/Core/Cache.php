@@ -76,6 +76,7 @@ class Cache
 				$seconds = 300;
 				break;
 			case CACHE_MINUTE:
+			default:
 				$seconds = 60;
 				break;
 		}
