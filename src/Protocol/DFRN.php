@@ -1741,7 +1741,7 @@ class DFRN
 		$msg["contact-id"] = $importer["id"];
 		$msg["uri"] = $xpath->query("dfrn:id/text()", $mail)->item(0)->nodeValue;
 		$msg["parent-uri"] = $xpath->query("dfrn:in-reply-to/text()", $mail)->item(0)->nodeValue;
-		$msg["created"] = $xpath->query("dfrn:sentdate/text()", $mail)->item(0)->nodeValue;
+		$msg["created"] = DateTimeFormat::utc($xpath->query("dfrn:sentdate/text()", $mail)->item(0)->nodeValue);
 		$msg["title"] = $xpath->query("dfrn:subject/text()", $mail)->item(0)->nodeValue;
 		$msg["body"] = $xpath->query("dfrn:content/text()", $mail)->item(0)->nodeValue;
 		$msg["seen"] = 0;
