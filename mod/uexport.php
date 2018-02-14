@@ -141,6 +141,7 @@ function uexport_all(App $a) {
 	uexport_account($a);
 	echo "\n";
 
+	$total = 0;
 	$r = q("SELECT count(*) as `total` FROM `item` WHERE `uid` = %d ",
 		intval(local_user())
 	);

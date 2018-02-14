@@ -57,6 +57,7 @@ function subthread_content(App $a) {
 		}
 	}
 
+	$owner = null;
 	// this represents the post owner on this system.
 
 	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
@@ -75,6 +76,7 @@ function subthread_content(App $a) {
 		$remote_owner = $owner;
 
 
+	$contact = null;
 	// This represents the person posting
 
 	if ((local_user()) && (local_user() == $owner_uid)) {

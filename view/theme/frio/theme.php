@@ -217,6 +217,7 @@ function frio_remote_nav($a, &$nav)
 	// And construct a webbie (e.g. mickey@friendica.domain.com for the search in gcontact
 	// We use the webbie for search in gcontact because we don't know if gcontact table stores
 	// the right value if its http or https protocol
+	$webbie = '';
 	if (count($url_parts)) {
 		$server_url = $url_parts[1] . $url_parts[2];
 		$webbie = $url_parts[4] . '@' . $url_parts[2];
@@ -296,14 +297,9 @@ function frio_acl_lookup(App $a, &$results)
 		return;
 	}
 
-	$searching = false;
+	$sql_extra = '';
 	if ($results["search"]) {
 		$search_txt = dbesc(protect_sprintf(preg_quote($results["search"])));
-		$searching = true;
-	}
-
-	$sql_extra = '';
-	if ($searching) {
 		$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";
 	}
 
@@ -311,6 +307,7 @@ function frio_acl_lookup(App $a, &$results)
 		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
 	}
 
+	$total = 0;
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
 	if (DBM::is_result($r)) {
