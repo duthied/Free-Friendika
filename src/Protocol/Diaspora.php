@@ -355,6 +355,9 @@ class Diaspora
 		}
 		$children = $basedom->children('https://joindiaspora.com/protocol');
 
+		$inner_aes_key = null;
+		$inner_iv = null;
+
 		if ($children->header) {
 			$public = true;
 			$author_link = str_replace('acct:', '', $children->header->author_id);
@@ -393,6 +396,7 @@ class Diaspora
 
 		// figure out where in the DOM tree our data is hiding
 
+		$base = null;
 		if ($dom->provenance->data) {
 			$base = $dom->provenance;
 		} elseif ($dom->env->data) {
@@ -638,8 +642,6 @@ class Diaspora
 			return false;
 		}
 
-		$first_child = $data->getName();
-
 		// Is this the new or the old version?
 		if ($data->getName() == "XML") {
 			$oldXML = true;
@@ -668,6 +670,8 @@ class Diaspora
 		$fields = new SimpleXMLElement("<".$type."/>");
 
 		$signed_data = "";
+		$author_signature = null;
+		$parent_author_signature = null;
 
 		foreach ($element->children() as $fieldname => $entry) {
 			if ($oldXML) {
@@ -796,14 +800,11 @@ class Diaspora
 	 */
 	public static function personByHandle($handle)
 	{
-		$r = q(
-			"SELECT * FROM `fcontact` WHERE `network` = '%s' AND `addr` = '%s' LIMIT 1",
-			dbesc(NETWORK_DIASPORA),
-			dbesc($handle)
-		);
-		if ($r) {
-			$person = $r[0];
-			logger("In cache " . print_r($r, true), LOGGER_DEBUG);
+		$update = false;
+
+		$person = dba::selectFirst('fcontact', [], ['network' => NETWORK_DIASPORA, 'addr' => $handle]);
+		if (DBM::is_result($person)) {
+			logger("In cache " . print_r($person, true), LOGGER_DEBUG);
 
 			// update record occasionally so it doesn't get stale
 			$d = strtotime($person["updated"]." +00:00");
@@ -816,7 +817,7 @@ class Diaspora
 			}
 		}
 
-		if (!$person || $update) {
+		if (!DBM::is_result($person) || $update) {
 			logger("create or refresh", LOGGER_DEBUG);
 			$r = Probe::uri($handle, NETWORK_DIASPORA);
 
@@ -827,6 +828,7 @@ class Diaspora
 				$person = $r;
 			}
 		}
+
 		return $person;
 	}
 
@@ -3741,6 +3743,7 @@ class Diaspora
 		$parent = $p[0];
 
 		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
+		$positive = null;
 		if ($item['verb'] === ACTIVITY_LIKE) {
 			$positive = "true";
 		} elseif ($item['verb'] === ACTIVITY_DISLIKE) {
@@ -4181,6 +4184,10 @@ class Diaspora
 		$small = System::baseUrl().'/photo/custom/50/'  .$profile['uid'].'.jpg';
 		$searchable = (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false');
 
+		$dob = null;
+		$about = null;
+		$location = null;
+		$tags = null;
 		if ($searchable === 'true') {
 			$dob = '';
 

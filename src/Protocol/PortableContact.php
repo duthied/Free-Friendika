@@ -317,6 +317,7 @@ class PortableContact
 			$contact['created'] = DateTimeFormat::utcNow();
 		}
 
+		$server_url = '';
 		if ($force) {
 			$server_url = normalise_link(self::detectServer($profile));
 		}

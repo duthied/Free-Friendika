@@ -617,12 +617,7 @@ class Email
 			$currline = $arrbody[$i];
 
 			while ($previousquote < $quotelevel) {
-				if ($sender != '') {
-					$quote = "[quote title=$sender]";
-					$sender = '';
-				} else
-					$quote = "[quote]";
-
+				$quote = "[quote]";
 				$arrbody[$i] = $quote.$arrbody[$i];
 				$previousquote++;
 			}

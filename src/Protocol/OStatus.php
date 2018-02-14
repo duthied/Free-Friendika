@@ -71,55 +71,34 @@ class OStatus
 		}
 		$author["contact-id"] = $contact["id"];
 
-		$found = false;
-
+		$contact = null;
 		if ($aliaslink != '') {
 			$condition = ["`uid` = ? AND `alias` = ? AND `network` != ?",
 					$importer["uid"], $aliaslink, NETWORK_STATUSNET];
-			$r = dba::selectFirst('contact', [], $condition);
-
-			if (DBM::is_result($r)) {
-				$found = true;
-				if ($r['blocked']) {
-					$r['id'] = -1;
-				}
-				$contact = $r;
-				$author["contact-id"] = $r["id"];
-			}
+			$contact = dba::selectFirst('contact', [], $condition);
 		}
 
-		if (!$found && ($author["author-link"] != "")) {
+		if (!DBM::is_result($contact) && $author["author-link"] != '') {
 			if ($aliaslink == "") {
 				$aliaslink = $author["author-link"];
 			}
 
 			$condition = ["`uid` = ? AND `nurl` IN (?, ?) AND `network` != ?", $importer["uid"],
 					normalise_link($author["author-link"]), normalise_link($aliaslink), NETWORK_STATUSNET];
-			$r = dba::selectFirst('contact', [], $condition);
-
-			if (DBM::is_result($r)) {
-				$found = true;
-				if ($r['blocked']) {
-					$r['id'] = -1;
-				}
-				$contact = $r;
-				$author["contact-id"] = $r["id"];
-			}
+			$contact = dba::selectFirst('contact', [], $condition);
 		}
 
-		if (!$found && ($addr != "")) {
+		if (!DBM::is_result($contact) && ($addr != '')) {
 			$condition = ["`uid` = ? AND `addr` = ? AND `network` != ?",
 					$importer["uid"], $addr, NETWORK_STATUSNET];
-			$r = dba::selectFirst('contact', [], $condition);
+			$contact = dba::selectFirst('contact', [], $condition);
+		}
 
-			if (DBM::is_result($r)) {
-				$found = true;
-				if ($r['blocked']) {
-					$r['id'] = -1;
-				}
-				$contact = $r;
-				$author["contact-id"] = $r["id"];
+		if (DBM::is_result($contact)) {
+			if ($contact['blocked']) {
+				$contact['id'] = -1;
 			}
+			$author["contact-id"] = $contact["id"];
 		}
 
 		$avatarlist = [];
@@ -154,7 +133,7 @@ class OStatus
 		$author["owner-avatar"] = $author["author-avatar"];
 
 		// Only update the contacts if it is an OStatus contact
-		if ($r && ($r['id'] > 0) && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
+		if (DBM::is_result($contact) && ($contact['id'] > 0) && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
 
 			// Update contact data
 			$current = $contact;
@@ -738,6 +717,7 @@ class OStatus
 
 			$links = $xpath->query('//link');
 			if ($links) {
+				$file = '';
 				foreach ($links as $link) {
 					$attribute = self::readAttributes($link);
 					if (($attribute['rel'] == 'alternate') && ($attribute['type'] == 'application/atom+xml')) {
@@ -1251,6 +1231,7 @@ class OStatus
 		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 		$root->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
 
+		$title = '';
 		switch ($filter) {
 			case 'activity': $title = L10n::t('%s\'s timeline', $owner['name']); break;
 			case 'posts'   : $title = L10n::t('%s\'s posts'   , $owner['name']); break;
@@ -1385,10 +1366,7 @@ class OStatus
 	 */
 	private static function addAuthor($doc, $owner)
 	{
-		$r = q("SELECT `homepage`, `publish` FROM `profile` WHERE `uid` = %d AND `is-default` LIMIT 1", intval($owner["uid"]));
-		if (DBM::is_result($r)) {
-			$profile = $r[0];
-		}
+		$profile = dba::selectFirst('profile', ['homepage', 'publish'], ['uid' => $owner['uid'], 'is-default' => true]);
 		$author = $doc->createElement("author");
 		XML::addElement($doc, $author, "id", $owner["url"]);
 		XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
@@ -1428,15 +1406,15 @@ class OStatus
 			$author->appendChild($element);
 		}
 
-		if (trim($profile["homepage"]) != "") {
-			$urls = $doc->createElement("poco:urls");
-			XML::addElement($doc, $urls, "poco:type", "homepage");
-			XML::addElement($doc, $urls, "poco:value", $profile["homepage"]);
-			XML::addElement($doc, $urls, "poco:primary", "true");
-			$author->appendChild($urls);
-		}
+		if (DBM::is_result($profile)) {
+			if (trim($profile["homepage"]) != "") {
+				$urls = $doc->createElement("poco:urls");
+				XML::addElement($doc, $urls, "poco:type", "homepage");
+				XML::addElement($doc, $urls, "poco:value", $profile["homepage"]);
+				XML::addElement($doc, $urls, "poco:primary", "true");
+				$author->appendChild($urls);
+			}
 
-		if (count($profile)) {
 			XML::addElement($doc, $author, "followers", "", ["url" => System::baseUrl()."/viewcontacts/".$owner["nick"]]);
 			XML::addElement($doc, $author, "statusnet:profile_info", "", ["local_id" => $owner["uid"]]);
 		}
@@ -1495,6 +1473,8 @@ class OStatus
 	 */
 	private static function entry($doc, $item, $owner, $toplevel = false)
 	{
+		$xml = null;
+
 		$repeated_guid = self::getResharedGuid($item);
 		if ($repeated_guid != "") {
 			$xml = self::reshareEntry($doc, $item, $owner, $repeated_guid, $toplevel);
