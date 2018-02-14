@@ -1376,26 +1376,23 @@ class Diaspora
 	/**
 	 * @brief returns contact details
 	 *
-	 * @param array $contact The default contact if the person isn't found
-	 * @param array $person  The record of the person
-	 * @param int   $uid     The user id
+	 * @param array $def_contact The default contact if the person isn't found
+	 * @param array $person      The record of the person
+	 * @param int   $uid         The user id
 	 *
 	 * @return array
 	 *      'cid' => contact id
 	 *      'network' => network type
 	 */
-	private static function authorContactByUrl($contact, $person, $uid)
+	private static function authorContactByUrl($def_contact, $person, $uid)
 	{
-		$r = q(
-			"SELECT `id`, `network`, `url` FROM `contact` WHERE `nurl` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc(normalise_link($person["url"])),
-			intval($uid)
-		);
-		if ($r) {
-			$cid = $r[0]["id"];
-			$network = $r[0]["network"];
-		} else {
+		$condition = ['nurl' => normalise_link($person["url"]), 'uid' => $uid];
+		$contact = dba::selectFirst('contact', ['id', 'network'], $condition);
+		if (DBM::is_result($contact)) {
 			$cid = $contact["id"];
+			$network = $contact["network"];
+		} else {
+			$cid = $def_contact["id"];
 			$network = NETWORK_DIASPORA;
 		}
 

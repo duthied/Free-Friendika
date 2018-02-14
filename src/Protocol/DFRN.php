@@ -1353,11 +1353,6 @@ class DFRN
 			return 3;
 		}
 
-		if ($contact['term-date'] > NULL_DATE) {
-			logger("dfrn_deliver: $url back from the dead - removing mark for death");
-			Contact::unmarkForArchival($contact);
-		}
-
 		$res = XML::parseString($xml);
 
 		if (!isset($res->status)) {
@@ -1366,6 +1361,10 @@ class DFRN
 
 		if (!empty($res->message)) {
 			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+		}
+
+		if ($res->status == 200) {
+			Contact::unmarkForArchival($contact);
 		}
 
 		return intval($res->status);
