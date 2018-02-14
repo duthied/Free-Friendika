@@ -68,7 +68,7 @@ class UserImport
 			unset($arr['id']);
 		}
 
-		self::check_cols($table, $arr);
+		self::checkCols($table, $arr);
 		$cols = implode("`,`", array_map('dbesc', array_keys($arr)));
 		$vals = implode("','", array_map('dbesc', array_values($arr)));
 		$query = "INSERT INTO `$table` (`$cols`) VALUES ('$vals')";
