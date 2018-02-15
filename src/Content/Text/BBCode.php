@@ -1135,7 +1135,7 @@ class BBCode
 
 				break;
 			case 4:
-				$headline .= '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+				$headline = '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
 				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $link, $userid, $posted);
 				$headline .= ":</b><br />";
 
