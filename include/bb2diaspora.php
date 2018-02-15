@@ -119,11 +119,10 @@ function diaspora_mentions($match) {
  * systems like Diaspora and Libertree
  *
  * @param string $Text
- * @param bool $preserve_nl Effects unclear, unused in Friendica
  * @param bool $fordiaspora Diaspora requires more changes than Libertree
  * @return string
  */
-function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
+function bb2diaspora($Text, $fordiaspora = true) {
 	$a = get_app();
 
 	$OriginalText = $Text;
