@@ -1342,13 +1342,12 @@ class BBCode
 	 * - 8: Used for WP backlink text setting
 	 *
 	 * @param string $text
-	 * @param bool   $preserve_nl
 	 * @param bool   $try_oembed
 	 * @param int    $simple_html
 	 * @param bool   $for_plaintext
 	 * @return string
 	 */
-	public static function convert($text, $preserve_nl = false, $try_oembed = true, $simple_html = false, $for_plaintext = false)
+	public static function convert($text, $try_oembed = true, $simple_html = false, $for_plaintext = false)
 	{
 		$a = get_app();
 
@@ -1472,10 +1471,6 @@ class BBCode
 		$text = self::convertAttachment($text, $simple_html, $try_oembed);
 
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
-
-		if ($preserve_nl) {
-			$text = str_replace(["\n", "\r"], ['', ''], $text);
-		}
 
 		// Remove all hashtag addresses
 		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7])) {
