@@ -7,6 +7,7 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -46,7 +47,7 @@ class NotificationsManager extends BaseObject
 			$local_time = DateTimeFormat::local($n['date']);
 			$n['timestamp'] = strtotime($local_time);
 			$n['date_rel'] = Temporal::getRelativeDate($n['date']);
-			$n['msg_html'] = bbcode($n['msg'], false, false, false, false);
+			$n['msg_html'] = BBCode::convert($n['msg'], false);
 			$n['msg_plain'] = explode("\n", trim(html2plain($n['msg_html'], 0)))[0];
 
 			$rets[] = $n;
@@ -243,7 +244,7 @@ class NotificationsManager extends BaseObject
 						$default_item_link = System::baseUrl(true) . '/notify/view/' . $it['id'];
 						$default_item_image = proxy_url($it['photo'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['url'];
-						$default_item_text = strip_tags(bbcode($it['msg']));
+						$default_item_text = strip_tags(BBCode::convert($it['msg']));
 						$default_item_when = DateTimeFormat::local($it['date'], 'r');
 						$default_item_ago = Temporal::getRelativeDate($it['date']);
 						break;
@@ -843,8 +844,8 @@ class NotificationsManager extends BaseObject
 					'contact_id' => $it['contact-id'],
 					'photo' => ((x($it, 'photo')) ? proxy_url($it['photo'], false, PROXY_SIZE_SMALL) : "images/person-175.jpg"),
 					'name' => $it['name'],
-					'location' => bbcode($it['glocation'], false, false),
-					'about' => bbcode($it['gabout'], false, false),
+					'location' => BBCode::convert($it['glocation'], false),
+					'about' => BBCode::convert($it['gabout'], false),
 					'keywords' => $it['gkeywords'],
 					'gender' => $it['ggender'],
 					'hidden' => $it['hidden'] == 1,

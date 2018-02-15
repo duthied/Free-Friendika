@@ -832,7 +832,7 @@ class DFRN
 				}
 			}
 			if ($r->content) {
-				XML::addElement($doc, $entry, "content", bbcode($r->content), ["type" => "html"]);
+				XML::addElement($doc, $entry, "content", BBCode::convert($r->content), ["type" => "html"]);
 			}
 
 			return $entry;
@@ -938,7 +938,7 @@ class DFRN
 				$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
 			}
 
-			$htmlbody = bbcode($htmlbody, false, false, 7);
+			$htmlbody = BBCode::convert($htmlbody, false, 7);
 		}
 
 		$author = self::addEntryAuthor($doc, "author", $item["author-link"], $item);

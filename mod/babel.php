@@ -2,6 +2,8 @@
 /**
  * @file mod/babel.php
  */
+
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\L10n;
 
@@ -37,7 +39,7 @@ function babel_content()
 		$o .= '<h2>' . L10n::t('Source input: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($text) . EOL . EOL;
 
-		$html = bbcode($text);
+		$html = BBCode::convert($text);
 		$o .= '<h2>' . L10n::t("bbcode \x28raw HTML\x28: ") . '</h2>' . EOL . EOL;
 		$o .= htmlspecialchars($html) . EOL . EOL;
 

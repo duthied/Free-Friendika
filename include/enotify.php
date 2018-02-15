@@ -3,6 +3,7 @@
  * @file include/enotify.php
  */
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -448,7 +449,7 @@ function notification($params)
 		$datarray = [];
 		$datarray['hash']  = $hash;
 		$datarray['name']  = $params['source_name'];
-		$datarray['name_cache'] = strip_tags(bbcode($params['source_name']));
+		$datarray['name_cache'] = strip_tags(BBCode::convert($params['source_name']));
 		$datarray['url']   = $params['source_link'];
 		$datarray['photo'] = $params['source_photo'];
 		$datarray['date']  = DateTimeFormat::utcNow();
@@ -519,7 +520,7 @@ function notification($params)
 
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
 		$msg = replace_macros($epreamble, ['$itemlink' => $itemlink]);
-		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(bbcode($msg)));
+		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
 		q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
 			dbesc($msg),
 			dbesc($msg_cache),
@@ -567,9 +568,9 @@ function notification($params)
 		}
 
 		// textversion keeps linebreaks
-		$textversion = strip_tags(str_replace("<br>", "\n", html_entity_decode(bbcode(stripslashes(str_replace(["\\r\\n", "\\r", "\\n"], "\n",
+		$textversion = strip_tags(str_replace("<br>", "\n", html_entity_decode(BBCode::convert(stripslashes(str_replace(["\\r\\n", "\\r", "\\n"], "\n",
 			$body))),ENT_QUOTES, 'UTF-8')));
-		$htmlversion = html_entity_decode(bbcode(stripslashes(str_replace(["\\r\\n", "\\r", "\\n\\n", "\\n"],
+		$htmlversion = html_entity_decode(BBCode::convert(stripslashes(str_replace(["\\r\\n", "\\r", "\\n\\n", "\\n"],
 			"<br />\n", $body))), ENT_QUOTES, 'UTF-8');
 
 		$datarray = [];

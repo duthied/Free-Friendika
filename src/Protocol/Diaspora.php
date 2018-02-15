@@ -9,6 +9,7 @@
  */
 namespace Friendica\Protocol;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -4197,7 +4198,7 @@ class Diaspora
 			}
 
 			$about = $profile['about'];
-			$about = strip_tags(bbcode($about));
+			$about = strip_tags(BBCode::convert($about));
 
 			$location = Profile::formatLocation($profile);
 			$tags = '';

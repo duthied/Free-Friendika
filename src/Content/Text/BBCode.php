@@ -174,7 +174,7 @@ class BBCode
 		}
 
 		if ($title != "") {
-			$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
+			$title = BBCode::convert(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, true);
 			$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
 			$title = str_replace(["[", "]"], ["&#91;", "&#93;"], $title);
 			$data["title"] = $title;
@@ -409,7 +409,7 @@ class BBCode
 			}
 		}
 
-		$html = bbcode($post["text"].$post["after"], false, false, $htmlmode);
+		$html = BBCode::convert($post["text"].$post["after"], false, $htmlmode);
 		$msg = html2plain($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
@@ -706,7 +706,7 @@ class BBCode
 				}
 
 				if ($data["description"] != "" && $data["description"] != $data["title"]) {
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(bbcode($data["description"])));
+					$return .= sprintf('<blockquote>%s</blockquote>', trim(BBCode::convert($data["description"])));
 				}
 
 				if ($data["type"] == "link") {

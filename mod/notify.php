@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
@@ -69,7 +70,7 @@ function notify_content(App $a)
 			$notif_content .= replace_macros($not_tpl, [
 				'$item_link' => System::baseUrl(true).'/notify/view/'. $it['id'],
 				'$item_image' => $it['photo'],
-				'$item_text' => strip_tags(bbcode($it['msg'])),
+				'$item_text' => strip_tags(BBCode::convert($it['msg'])),
 				'$item_when' => Temporal::getRelativeDate($it['date'])
 			]);
 		}

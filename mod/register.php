@@ -1,9 +1,10 @@
 <?php
 /**
- * @file mod/register.php
+ * @file_tag_list_to_file mod/register.php
  */
 
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -262,7 +263,7 @@ function register_content(App $a)
 		'$invite_id'  => $invite_id,
 		'$realpeople' => $realpeople,
 		'$regtitle'  => L10n::t('Registration'),
-		'$registertext' => x($a->config, 'register_text') ? bbcode($a->config['register_text']) : "",
+		'$registertext' => x($a->config, 'register_text') ? BBCode::convert($a->config['register_text']) : "",
 		'$fillwith'  => $fillwith,
 		'$fillext'   => $fillext,
 		'$oidlabel'  => $oidlabel,

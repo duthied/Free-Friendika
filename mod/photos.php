@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -17,7 +18,6 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
-use Friendica\Model\Term;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
@@ -1411,7 +1411,7 @@ function photos_content(App $a)
 				if (strlen($tag_str)) {
 					$tag_str .= ', ';
 				}
-				$tag_str .= bbcode($t);
+				$tag_str .= BBCode::convert($t);
 			}
 			$tags = [L10n::t('Tags: '), $tag_str];
 			if ($cmd === 'edit') {
@@ -1574,7 +1574,7 @@ function photos_content(App $a)
 
 					$name_e = $profile_name;
 					$title_e = $item['title'];
-					$body_e = bbcode($item['body']);
+					$body_e = BBCode::convert($item['body']);
 
 					$comments .= replace_macros($template,[
 						'$id' => $item['item_id'],

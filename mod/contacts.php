@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
@@ -646,11 +647,11 @@ function contacts_content(App $a)
 			'$profileurllabel' => L10n::t('Profile URL'),
 			'$profileurl' => $contact['url'],
 			'$account_type' => Contact::getAccountType($contact),
-			'$location' => bbcode($contact["location"]),
+			'$location' => BBCode::convert($contact["location"]),
 			'$location_label' => L10n::t("Location:"),
-			'$xmpp' => bbcode($contact["xmpp"]),
+			'$xmpp' => BBCode::convert($contact["xmpp"]),
 			'$xmpp_label' => L10n::t("XMPP:"),
-			'$about' => bbcode($contact["about"], false, false),
+			'$about' => BBCode::convert($contact["about"], false),
 			'$about_label' => L10n::t("About:"),
 			'$keywords' => $contact["keywords"],
 			'$keywords_label' => L10n::t("Tags:"),

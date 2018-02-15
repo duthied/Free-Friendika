@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Smilies;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -376,7 +377,7 @@ function message_content(App $a)
 
 			$from_name_e = $message['from-name'];
 			$subject_e = $message['title'];
-			$body_e = Smilies::replace(bbcode($message['body']));
+			$body_e = Smilies::replace(BBCode::convert($message['body']));
 			$to_name_e = $message['name'];
 
 			$contact = Contact::getDetailsByURL($message['from-url']);

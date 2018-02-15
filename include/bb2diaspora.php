@@ -164,7 +164,7 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 
 	// Convert it to HTML - don't try oembed
 	if ($fordiaspora) {
-		$Text = bbcode($Text, $preserve_nl, false, 3);
+		$Text = BBCode::convert($Text, false, 3);
 
 		// Add all tags that maybe were removed
 		if (preg_match_all("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $OriginalText, $tags)) {
@@ -178,7 +178,7 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 			$Text = $Text." ".$tagline;
 		}
 	} else {
-		$Text = bbcode($Text, $preserve_nl, false, 4);
+		$Text = BBCode::convert($Text, false, 4);
 	}
 
 	// mask some special HTML chars from conversation to markdown
