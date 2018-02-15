@@ -1,6 +1,6 @@
 <?php
 /**
- * @file_tag_list_to_file mod/register.php
+ * @file mod/register.php
  */
 
 use Friendica\App;
