@@ -12,7 +12,6 @@ use League\HTMLToMarkdown\HtmlConverter;
 
 require_once 'include/event.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/bbcode.php';
 
 /**
  * @brief Callback function to replace a Diaspora style mention in a mention for Friendica

@@ -246,7 +246,6 @@ function poco_init(App $a) {
 				}
 				$about = Cache::get("about:" . $contact['updated'] . ":" . $contact['nurl']);
 				if (is_null($about)) {
-					require_once 'include/bbcode.php';
 					$about = BBCode::convert($contact['about'], false);
 					Cache::set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);
 				}

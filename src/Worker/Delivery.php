@@ -19,7 +19,6 @@ use dba;
 
 require_once 'include/html2plain.php';
 require_once 'include/items.php';
-require_once 'include/bbcode.php';
 
 /// @todo This is some ugly code that needs to be split into several methods
 

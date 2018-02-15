@@ -19,7 +19,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
-require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
 

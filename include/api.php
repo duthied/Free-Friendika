@@ -40,7 +40,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
-require_once 'include/bbcode.php';
 require_once 'include/conversation.php';
 require_once 'include/html2plain.php';
 require_once 'mod/share.php';

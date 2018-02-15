@@ -24,7 +24,6 @@ use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
 
 class Profile
@@ -625,8 +624,6 @@ class Profile
 
 	public static function getEvents()
 	{
-		require_once 'include/bbcode.php';
-
 		$a = get_app();
 		$o = '';
 

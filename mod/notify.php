@@ -62,7 +62,6 @@ function notify_content(App $a)
 	$notif_tpl = get_markup_template('notifications.tpl');
 
 	$not_tpl = get_markup_template('notify.tpl');
-	require_once('include/bbcode.php');
 
 	$r = $nm->getAll(['seen'=>0]);
 	if (DBM::is_result($r) > 0) {

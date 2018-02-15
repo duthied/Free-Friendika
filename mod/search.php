@@ -11,7 +11,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-require_once "include/bbcode.php";
 require_once 'include/security.php';
 require_once 'include/conversation.php';
 require_once 'mod/dirfind.php';

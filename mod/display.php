@@ -367,8 +367,8 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$o .= conversation($a, $items, 'display', $update_uid);
 
 	// Preparing the meta header
-	require_once 'include/bbcode.php';
 	require_once 'include/html2plain.php';
+
 	$description = trim(html2plain(BBCode::convert($s[0]["body"], false), 0, true));
 	$title = trim(html2plain(BBCode::convert($s[0]["title"], false), 0, true));
 	$author_name = $s[0]["author-name"];

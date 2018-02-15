@@ -20,7 +20,6 @@ use Friendica\Util\XML;
 
 require_once 'include/dba.php';
 require_once 'include/html2plain.php';
-require_once 'include/bbcode.php';
 
 /**
  * @brief Methods for read and write notifications from/to database

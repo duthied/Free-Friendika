@@ -10,8 +10,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Item;
 
-require_once 'include/bbcode.php';
-
 function tagrm_post(App $a) {
 
 	if (!local_user()) {

@@ -15,7 +15,6 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/enotify.php';
-require_once 'include/bbcode.php';
 
 function register_post(App $a)
 {

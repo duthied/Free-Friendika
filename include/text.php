@@ -1424,9 +1424,6 @@ function prepare_body(&$item, $attach = false, $preview = false) {
  * @return string Formattet HTML.
  */
 function prepare_text($text) {
-
-	require_once 'include/bbcode.php';
-
 	if (stristr($text, '[nosmile]')) {
 		$s = BBCode::convert($text);
 	} else {

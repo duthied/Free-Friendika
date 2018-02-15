@@ -21,7 +21,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
-require_once "include/bbcode.php";
 require_once "include/acl_selectors.php";
 
 function item_extract_images($body) {
@@ -499,7 +498,6 @@ function item_condition() {
  *
  */
 function conversation(App $a, $items, $mode, $update, $preview = false) {
-	require_once 'include/bbcode.php';
 	require_once 'mod/proxy.php';
 
 	$ssl_state = ((local_user()) ? true : false);

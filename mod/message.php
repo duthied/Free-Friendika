@@ -336,8 +336,6 @@ function message_content(App $a)
 			intval(local_user())
 		);
 
-		require_once("include/bbcode.php");
-
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),

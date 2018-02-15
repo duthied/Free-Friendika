@@ -19,7 +19,6 @@ use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Temporal;
 
-require_once 'include/bbcode.php';
 require_once 'include/text.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';

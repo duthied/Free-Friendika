@@ -12,7 +12,6 @@ use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 
-require_once 'include/bbcode.php';
 require_once 'include/html2bbcode.php';
 
 /**
