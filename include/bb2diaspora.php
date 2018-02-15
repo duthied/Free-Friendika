@@ -145,7 +145,7 @@ function bb2diaspora($Text, $fordiaspora = true) {
 	// Converting images with size parameters to simple images. Markdown doesn't know it.
 	$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $Text);
 
-	// Extracting multi-line code blocks before the whitespace processing/code highlighter in bbcode()
+	// Extracting multi-line code blocks before the whitespace processing/code highlighter in BBCode::convert()
 	$codeblocks = [];
 
 	$Text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
