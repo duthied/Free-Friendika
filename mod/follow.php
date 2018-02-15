@@ -164,9 +164,9 @@ function follow_content(App $a) {
 			'$url_label' => L10n::t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,
-			/*'$location' => bbcode($r[0]["location"]),
+			/*'$location' => Friendica\Content\Text\BBCode::::convert($r[0]["location"]),
 			'$location_label' => L10n::t("Location:"),
-			'$about' => bbcode($r[0]["about"], false, false),
+			'$about' => Friendica\Content\Text\BBCode::::convert($r[0]["about"], false, false),
 			'$about_label' => L10n::t("About:"), */
 			'$keywords' => $r[0]["keywords"],
 			'$keywords_label' => L10n::t("Tags:")

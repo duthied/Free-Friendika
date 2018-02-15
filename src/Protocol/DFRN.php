@@ -43,7 +43,6 @@ require_once "include/items.php";
 require_once "include/event.php";
 require_once "include/text.php";
 require_once "include/html2bbcode.php";
-require_once "include/bbcode.php";
 
 /**
  * @brief This class contain functions to create and send DFRN XML files
@@ -832,7 +831,7 @@ class DFRN
 				}
 			}
 			if ($r->content) {
-				XML::addElement($doc, $entry, "content", bbcode($r->content), ["type" => "html"]);
+				XML::addElement($doc, $entry, "content", BBCode::convert($r->content), ["type" => "html"]);
 			}
 
 			return $entry;
@@ -938,7 +937,7 @@ class DFRN
 				$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
 			}
 
-			$htmlbody = bbcode($htmlbody, false, false, 7);
+			$htmlbody = BBCode::convert($htmlbody, false, 7);
 		}
 
 		$author = self::addEntryAuthor($doc, "author", $item["author-link"], $item);

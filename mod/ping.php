@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\L10n;
@@ -18,7 +19,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
-require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
 
@@ -481,8 +481,8 @@ function ping_get_notifications($uid)
 				$notification["name"] = $notification["name_cache"];
 				$notification["message"] = $notification["msg_cache"];
 			} else {
-				$notification["name"] = strip_tags(bbcode($notification["name"]));
-				$notification["message"] = format_notification_message($notification["name"], strip_tags(bbcode($notification["msg"])));
+				$notification["name"] = strip_tags(BBCode::convert($notification["name"]));
+				$notification["message"] = format_notification_message($notification["name"], strip_tags(BBCode::convert($notification["msg"])));
 
 				q(
 					"UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",

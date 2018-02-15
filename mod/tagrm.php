@@ -2,13 +2,13 @@
 /**
  * @file mod/tagrm.php
  */
+
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Item;
-
-require_once 'include/bbcode.php';
 
 function tagrm_post(App $a) {
 
@@ -91,7 +91,7 @@ function tagrm_content(App $a) {
 	$o .= '<ul>';
 
 	foreach ($arr as $x) {
-		$o .= '<li><input type="checkbox" name="tag" value="' . bin2hex($x) . '" >' . bbcode($x) . '</input></li>';
+		$o .= '<li><input type="checkbox" name="tag" value="' . bin2hex($x) . '" >' . BBCode::convert($x) . '</input></li>';
 	}
 
 	$o .= '</ul>';

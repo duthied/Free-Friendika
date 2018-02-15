@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -14,7 +15,6 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/enotify.php';
-require_once 'include/bbcode.php';
 
 function register_post(App $a)
 {
@@ -262,7 +262,7 @@ function register_content(App $a)
 		'$invite_id'  => $invite_id,
 		'$realpeople' => $realpeople,
 		'$regtitle'  => L10n::t('Registration'),
-		'$registertext' => x($a->config, 'register_text') ? bbcode($a->config['register_text']) : "",
+		'$registertext' => x($a->config, 'register_text') ? BBCode::convert($a->config['register_text']) : "",
 		'$fillwith'  => $fillwith,
 		'$fillext'   => $fillext,
 		'$oidlabel'  => $oidlabel,

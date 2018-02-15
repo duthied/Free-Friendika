@@ -15,7 +15,6 @@ use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
-require_once 'include/bbcode.php';
 require_once 'include/event.php';
 require_once 'include/items.php';
 

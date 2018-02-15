@@ -7,6 +7,7 @@ namespace Friendica\Model;
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
@@ -23,7 +24,6 @@ use Friendica\Util\Temporal;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/bbcode.php';
 require_once 'mod/proxy.php';
 
 class Profile
@@ -487,13 +487,13 @@ class Profile
 		}
 
 		if (isset($p['about'])) {
-			$p['about'] = bbcode($p['about']);
+			$p['about'] = BBCode::convert($p['about']);
 		}
 
 		if (isset($p['address'])) {
-			$p['address'] = bbcode($p['address']);
+			$p['address'] = BBCode::convert($p['address']);
 		} else {
-			$p['address'] = bbcode($p['location']);
+			$p['address'] = BBCode::convert($p['location']);
 		}
 
 		if (isset($p['photo'])) {
@@ -624,8 +624,6 @@ class Profile
 
 	public static function getEvents()
 	{
-		require_once 'include/bbcode.php';
-
 		$a = get_app();
 		$o = '';
 
@@ -667,13 +665,13 @@ class Profile
 					$istoday = true;
 				}
 
-				$title = strip_tags(html_entity_decode(bbcode($rr['summary']), ENT_QUOTES, 'UTF-8'));
+				$title = strip_tags(html_entity_decode(BBCode::convert($rr['summary']), ENT_QUOTES, 'UTF-8'));
 
 				if (strlen($title) > 35) {
 					$title = substr($title, 0, 32) . '... ';
 				}
 
-				$description = substr(strip_tags(bbcode($rr['desc'])), 0, 32) . '... ';
+				$description = substr(strip_tags(BBCode::convert($rr['desc'])), 0, 32) . '... ';
 				if (!$description) {
 					$description = L10n::t('[No description]');
 				}

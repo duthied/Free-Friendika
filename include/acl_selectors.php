@@ -186,9 +186,6 @@ function contact_selector($selname, $selclass, $options, $preselected = false)
 
 
 function contact_select($selname, $selclass, $preselected = false, $size = 4, $privmail = false, $celeb = false, $privatenet = false, $tabindex = null) {
-
-	require_once "include/bbcode.php";
-
 	$a = get_app();
 
 	$o = '';

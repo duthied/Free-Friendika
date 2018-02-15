@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Smilies;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -15,7 +16,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Model\Term;
+use Friendica\Render\FriendicaSmarty;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
@@ -1423,13 +1424,10 @@ function prepare_body(&$item, $attach = false, $preview = false) {
  * @return string Formattet HTML.
  */
 function prepare_text($text) {
-
-	require_once 'include/bbcode.php';
-
 	if (stristr($text, '[nosmile]')) {
-		$s = bbcode($text);
+		$s = BBCode::convert($text);
 	} else {
-		$s = Smilies::replace(bbcode($text));
+		$s = Smilies::replace(BBCode::convert($text));
 	}
 
 	return trim($s);

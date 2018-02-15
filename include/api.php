@@ -40,7 +40,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
-require_once 'include/bbcode.php';
 require_once 'include/conversation.php';
 require_once 'include/html2plain.php';
 require_once 'mod/share.php';
@@ -2604,13 +2603,12 @@ function api_format_messages($item, $recipient, $sender)
 	if (x($_GET, 'getText')) {
 		$ret['title'] = $item['title'];
 		if ($_GET['getText'] == 'html') {
-			$ret['text'] = bbcode($item['body'], false, false);
+			$ret['text'] = BBCode::convert($item['body'], false);
 		} elseif ($_GET['getText'] == 'plain') {
-			//$ret['text'] = html2plain(bbcode($item['body'], false, false, true), 0);
-			$ret['text'] = trim(html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0));
+			$ret['text'] = trim(html2plain(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0));
 		}
 	} else {
-		$ret['text'] = $item['title'] . "\n" . html2plain(bbcode(api_clean_plain_items($item['body']), false, false, 2, true), 0);
+		$ret['text'] = $item['title'] . "\n" . html2plain(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0);
 	}
 	if (x($_GET, 'getUserObjects') && $_GET['getUserObjects'] == 'false') {
 		unset($ret['sender']);
@@ -2632,7 +2630,7 @@ function api_convert_item($item)
 	$attachments = api_get_attachments($body);
 
 	// Workaround for ostatus messages where the title is identically to the body
-	$html = bbcode(api_clean_plain_items($body), false, false, 2, true);
+	$html = BBCode::convert(api_clean_plain_items($body), false, 2, true);
 	$statusbody = trim(html2plain($html, 0));
 
 	// handle data: images
@@ -2650,7 +2648,7 @@ function api_convert_item($item)
 		$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
 	}
 
-	$statushtml = bbcode(api_clean_attachments($body), false, false);
+	$statushtml = BBCode::convert(api_clean_attachments($body), false);
 
 	// Workaround for clients with limited HTML parser functionality
 	$search = ["<br>", "<blockquote>", "</blockquote>",
@@ -2664,7 +2662,7 @@ function api_convert_item($item)
 	$statushtml = str_replace($search, $replace, $statushtml);
 
 	if ($item['title'] != "") {
-		$statushtml = "<br><h4>" . bbcode($item['title']) . "</h4><br>" . $statushtml;
+		$statushtml = "<br><h4>" . BBCode::convert($item['title']) . "</h4><br>" . $statushtml;
 	}
 
 	do {
@@ -2682,7 +2680,7 @@ function api_convert_item($item)
 
 	// feeds without body should contain the link
 	if (($item['network'] == NETWORK_FEED) && (strlen($item['body']) == 0)) {
-		$statushtml .= bbcode($item['plink']);
+		$statushtml .= BBCode::convert($item['plink']);
 	}
 
 	$entities = api_get_entitities($statustext, $body);
@@ -3053,18 +3051,18 @@ function api_format_items_profiles($profile_row)
 		'religion'         => $profile_row['religion'],
 		'public_keywords'  => $profile_row['pub_keywords'],
 		'private_keywords' => $profile_row['prv_keywords'],
-		'likes'            => bbcode(api_clean_plain_items($profile_row['likes'])    , false, false, 2, false),
-		'dislikes'         => bbcode(api_clean_plain_items($profile_row['dislikes']) , false, false, 2, false),
-		'about'            => bbcode(api_clean_plain_items($profile_row['about'])    , false, false, 2, false),
-		'music'            => bbcode(api_clean_plain_items($profile_row['music'])    , false, false, 2, false),
-		'book'             => bbcode(api_clean_plain_items($profile_row['book'])     , false, false, 2, false),
-		'tv'               => bbcode(api_clean_plain_items($profile_row['tv'])       , false, false, 2, false),
-		'film'             => bbcode(api_clean_plain_items($profile_row['film'])     , false, false, 2, false),
-		'interest'         => bbcode(api_clean_plain_items($profile_row['interest']) , false, false, 2, false),
-		'romance'          => bbcode(api_clean_plain_items($profile_row['romance'])  , false, false, 2, false),
-		'work'             => bbcode(api_clean_plain_items($profile_row['work'])     , false, false, 2, false),
-		'education'        => bbcode(api_clean_plain_items($profile_row['education']), false, false, 2, false),
-		'social_networks'  => bbcode(api_clean_plain_items($profile_row['contact'])  , false, false, 2, false),
+		'likes'            => BBCode::convert(api_clean_plain_items($profile_row['likes'])    , false, 2),
+		'dislikes'         => BBCode::convert(api_clean_plain_items($profile_row['dislikes']) , false, 2),
+		'about'            => BBCode::convert(api_clean_plain_items($profile_row['about'])    , false, 2),
+		'music'            => BBCode::convert(api_clean_plain_items($profile_row['music'])    , false, 2),
+		'book'             => BBCode::convert(api_clean_plain_items($profile_row['book'])     , false, 2),
+		'tv'               => BBCode::convert(api_clean_plain_items($profile_row['tv'])       , false, 2),
+		'film'             => BBCode::convert(api_clean_plain_items($profile_row['film'])     , false, 2),
+		'interest'         => BBCode::convert(api_clean_plain_items($profile_row['interest']) , false, 2),
+		'romance'          => BBCode::convert(api_clean_plain_items($profile_row['romance'])  , false, 2),
+		'work'             => BBCode::convert(api_clean_plain_items($profile_row['work'])     , false, 2),
+		'education'        => BBCode::convert(api_clean_plain_items($profile_row['education']), false, 2),
+		'social_networks'  => BBCode::convert(api_clean_plain_items($profile_row['contact'])  , false, 2),
 		'homepage'         => $profile_row['homepage'],
 		'users'            => null
 	];

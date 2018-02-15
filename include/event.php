@@ -5,6 +5,7 @@
  */
 
 use Friendica\Content\Feature;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
@@ -15,7 +16,6 @@ use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
-require_once 'include/bbcode.php';
 require_once 'include/conversation.php';
 
 function format_event_html($ev, $simple = false) {
@@ -38,9 +38,9 @@ function format_event_html($ev, $simple = false) {
 	);
 
 	if ($simple) {
-		$o = "<h3>" . bbcode($ev['summary']) . "</h3>";
+		$o = "<h3>" . BBCode::convert($ev['summary']) . "</h3>";
 
-		$o .= "<div>" . bbcode($ev['desc']) . "</div>";
+		$o .= "<div>" . BBCode::convert($ev['desc']) . "</div>";
 
 		$o .= "<h4>" . L10n::t('Starts:') . "</h4><p>" . $event_start . "</p>";
 
@@ -57,7 +57,7 @@ function format_event_html($ev, $simple = false) {
 
 	$o = '<div class="vevent">' . "\r\n";
 
-	$o .= '<div class="summary event-summary">' . bbcode($ev['summary']) . '</div>' . "\r\n";
+	$o .= '<div class="summary event-summary">' . BBCode::convert($ev['summary']) . '</div>' . "\r\n";
 
 	$o .= '<div class="event-start"><span class="event-label">' . L10n::t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. DateTimeFormat::utc($ev['start'], (($ev['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s' ))
@@ -71,11 +71,11 @@ function format_event_html($ev, $simple = false) {
 			. '</span></div>' . "\r\n";
 	}
 
-	$o .= '<div class="description event-description">' . bbcode($ev['desc']) . '</div>' . "\r\n";
+	$o .= '<div class="description event-description">' . BBCode::convert($ev['desc']) . '</div>' . "\r\n";
 
 	if (strlen($ev['location'])) {
 		$o .= '<div class="event-location"><span class="event-label">' . L10n::t('Location:') . '</span>&nbsp;<span class="location">'
-			. bbcode($ev['location'])
+			. BBCode::convert($ev['location'])
 			. '</span></div>' . "\r\n";
 
 		// Include a map of the location if the [map] BBCode is used.
@@ -238,7 +238,6 @@ function event_delete($event_id) {
 function event_store($arr) {
 
 	require_once 'include/items.php';
-	require_once 'include/bbcode.php';
 
 	$a = get_app();
 
@@ -610,15 +609,15 @@ function process_events($arr) {
 				$drop = [System::baseUrl() . '/events/drop/' . $rr['id'], L10n::t('Delete event'), '', ''];
 			}
 
-			$title = strip_tags(html_entity_decode(bbcode($rr['summary']), ENT_QUOTES, 'UTF-8'));
+			$title = strip_tags(html_entity_decode(BBCode::convert($rr['summary']), ENT_QUOTES, 'UTF-8'));
 			if (! $title) {
-				list($title, $_trash) = explode("<br", bbcode($rr['desc']), 2);
+				list($title, $_trash) = explode("<br", BBCode::convert($rr['desc']), 2);
 				$title = strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 			}
 
 			$html = format_event_html($rr);
-			$rr['desc'] = bbcode($rr['desc']);
-			$rr['location'] = bbcode($rr['location']);
+			$rr['desc'] = BBCode::convert($rr['desc']);
+			$rr['location'] = BBCode::convert($rr['location']);
 			$events[] = [
 				'id'     => $rr['id'],
 				'start'  => $start,

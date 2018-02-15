@@ -22,7 +22,6 @@ use Friendica\Database\DBM;
 use Friendica\Model\Item;
 
 require_once 'include/security.php';
-require_once 'include/bbcode.php';
 require_once 'include/items.php';
 
 function poke_init(App $a) {

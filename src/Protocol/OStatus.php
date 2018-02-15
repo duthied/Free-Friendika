@@ -26,7 +26,6 @@ use DOMXPath;
 
 require_once 'include/dba.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/bbcode.php';
 require_once 'include/items.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
@@ -1373,7 +1372,7 @@ class OStatus
 		XML::addElement($doc, $author, "uri", $owner["url"]);
 		XML::addElement($doc, $author, "name", $owner["nick"]);
 		XML::addElement($doc, $author, "email", $owner["addr"]);
-		XML::addElement($doc, $author, "summary", bbcode($owner["about"], false, false, 7));
+		XML::addElement($doc, $author, "summary", BBCode::convert($owner["about"], false, 7));
 
 		$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $owner["url"]];
 		XML::addElement($doc, $author, "link", "", $attributes);
@@ -1398,7 +1397,7 @@ class OStatus
 
 		XML::addElement($doc, $author, "poco:preferredUsername", $owner["nick"]);
 		XML::addElement($doc, $author, "poco:displayName", $owner["name"]);
-		XML::addElement($doc, $author, "poco:note", bbcode($owner["about"], false, false, 7));
+		XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, 7));
 
 		if (trim($owner["location"]) != "") {
 			$element = $doc->createElement("poco:address");
@@ -1879,7 +1878,7 @@ class OStatus
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
 		}
 
-		$body = bbcode($body, false, false, 7);
+		$body = BBCode::convert($body, false, 7);
 
 		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
 

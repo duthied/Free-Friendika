@@ -23,7 +23,6 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 
-require_once "include/bbcode.php";
 require_once "include/event.php";
 require_once "include/html2plain.php";
 require_once "mod/proxy.php";
@@ -174,7 +173,7 @@ class BBCode
 		}
 
 		if ($title != "") {
-			$title = bbcode(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, false, true);
+			$title = BBCode::convert(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, true);
 			$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
 			$title = str_replace(["[", "]"], ["&#91;", "&#93;"], $title);
 			$data["title"] = $title;
@@ -409,7 +408,7 @@ class BBCode
 			}
 		}
 
-		$html = bbcode($post["text"].$post["after"], false, false, $htmlmode);
+		$html = BBCode::convert($post["text"].$post["after"], false, $htmlmode);
 		$msg = html2plain($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
@@ -706,7 +705,7 @@ class BBCode
 				}
 
 				if ($data["description"] != "" && $data["description"] != $data["title"]) {
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(bbcode($data["description"])));
+					$return .= sprintf('<blockquote>%s</blockquote>', trim(BBCode::convert($data["description"])));
 				}
 
 				if ($data["type"] == "link") {
@@ -1135,7 +1134,7 @@ class BBCode
 
 				break;
 			case 4:
-				$headline .= '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
+				$headline = '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
 				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $link, $userid, $posted);
 				$headline .= ":</b><br />";
 
@@ -1342,13 +1341,12 @@ class BBCode
 	 * - 8: Used for WP backlink text setting
 	 *
 	 * @param string $text
-	 * @param bool   $preserve_nl
 	 * @param bool   $try_oembed
 	 * @param int    $simple_html
 	 * @param bool   $for_plaintext
 	 * @return string
 	 */
-	public static function convert($text, $preserve_nl = false, $try_oembed = true, $simple_html = false, $for_plaintext = false)
+	public static function convert($text, $try_oembed = true, $simple_html = false, $for_plaintext = false)
 	{
 		$a = get_app();
 
@@ -1472,10 +1470,6 @@ class BBCode
 		$text = self::convertAttachment($text, $simple_html, $try_oembed);
 
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
-
-		if ($preserve_nl) {
-			$text = str_replace(["\n", "\r"], ['', ''], $text);
-		}
 
 		// Remove all hashtag addresses
 		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7])) {

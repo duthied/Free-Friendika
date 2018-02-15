@@ -12,7 +12,6 @@ use League\HTMLToMarkdown\HtmlConverter;
 
 require_once 'include/event.php';
 require_once 'include/html2bbcode.php';
-require_once 'include/bbcode.php';
 
 /**
  * @brief Callback function to replace a Diaspora style mention in a mention for Friendica
@@ -119,11 +118,10 @@ function diaspora_mentions($match) {
  * systems like Diaspora and Libertree
  *
  * @param string $Text
- * @param bool $preserve_nl Effects unclear, unused in Friendica
  * @param bool $fordiaspora Diaspora requires more changes than Libertree
  * @return string
  */
-function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
+function bb2diaspora($Text, $fordiaspora = true) {
 	$a = get_app();
 
 	$OriginalText = $Text;
@@ -146,7 +144,7 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 	// Converting images with size parameters to simple images. Markdown doesn't know it.
 	$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $Text);
 
-	// Extracting multi-line code blocks before the whitespace processing/code highlighter in bbcode()
+	// Extracting multi-line code blocks before the whitespace processing/code highlighter in BBCode::convert()
 	$codeblocks = [];
 
 	$Text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
@@ -164,7 +162,7 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 
 	// Convert it to HTML - don't try oembed
 	if ($fordiaspora) {
-		$Text = bbcode($Text, $preserve_nl, false, 3);
+		$Text = BBCode::convert($Text, false, 3);
 
 		// Add all tags that maybe were removed
 		if (preg_match_all("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $OriginalText, $tags)) {
@@ -178,7 +176,7 @@ function bb2diaspora($Text, $preserve_nl = false, $fordiaspora = true) {
 			$Text = $Text." ".$tagline;
 		}
 	} else {
-		$Text = bbcode($Text, $preserve_nl, false, 4);
+		$Text = BBCode::convert($Text, false, 4);
 	}
 
 	// mask some special HTML chars from conversation to markdown

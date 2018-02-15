@@ -5,6 +5,7 @@
 
 
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\System;
@@ -245,8 +246,7 @@ function poco_init(App $a) {
 				}
 				$about = Cache::get("about:" . $contact['updated'] . ":" . $contact['nurl']);
 				if (is_null($about)) {
-					require_once 'include/bbcode.php';
-					$about = bbcode($contact['about'], false, false);
+					$about = BBCode::convert($contact['about'], false);
 					Cache::set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);
 				}
 

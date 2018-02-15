@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
@@ -366,10 +367,10 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$o .= conversation($a, $items, 'display', $update_uid);
 
 	// Preparing the meta header
-	require_once 'include/bbcode.php';
 	require_once 'include/html2plain.php';
-	$description = trim(html2plain(bbcode($s[0]["body"], false, false), 0, true));
-	$title = trim(html2plain(bbcode($s[0]["title"], false, false), 0, true));
+
+	$description = trim(html2plain(BBCode::convert($s[0]["body"], false), 0, true));
+	$title = trim(html2plain(BBCode::convert($s[0]["title"], false), 0, true));
 	$author_name = $s[0]["author-name"];
 
 	$image = $a->remove_baseurl($s[0]["author-thumb"]);
