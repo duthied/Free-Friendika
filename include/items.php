@@ -186,7 +186,7 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 		}
 
 		$url = str_replace(['/', '.'], ['\/', '\.'], $matches[1]);
-		$removedlink = preg_replace("/\[url\=" . $url . "\](.*?)\[\/url\]/ism", '', $body);
+		$removedlink = preg_replace("/\[url\=" . preg_quote($url) . "\](.*?)\[\/url\]/ism", '', $body);
 		if (($removedlink == "") || strstr($body, $removedlink)) {
 			$body = $removedlink;
 		}
