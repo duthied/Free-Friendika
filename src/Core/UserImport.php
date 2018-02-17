@@ -114,7 +114,7 @@ class UserImport
 		// check for username
 		// check if username matches deleted account
 		if (dba::exists('user', ['nickname' => $account['user']['nickname']])
-			|| dba::exists('userd', ['nickname' => $account['user']['nickname']])) {
+			|| dba::exists('userd', ['username' => $account['user']['nickname']])) {
 			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
