@@ -12,6 +12,7 @@ use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Photo;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use dba;
@@ -106,17 +107,20 @@ class CronJobs
 	 */
 	private static function expireAndRemoveUsers()
 	{
-		// expire any expired accounts
-		q("UPDATE user SET `account_expired` = 1 where `account_expired` = 0
-			AND `account_expires_on` > '%s'
-			AND `account_expires_on` < UTC_TIMESTAMP()", dbesc(NULL_DATE));
+		// expire any expired regular accounts. Don't expire forums.
+		$condition = ["NOT `account_expired` AND `account_expires_on` > ? AND `account_expires_on` < UTC_TIMESTAMP() AND `page-flags` = 0", NULL_DATE];
+		dba::update('user', ['account_expired' => true], $condition);
+
+		// Remove any freshly expired account
+		$users = dba::select('user', ['uid'], ['account_expired' => true, 'account_removed' => false]);
+		while ($user = dba::fetch($users)) {
+			User::remove($user['uid']);
+		}
 
 		// delete user records for recently removed accounts
-		$r = q("SELECT * FROM `user` WHERE `account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY");
-		if (DBM::is_result($r)) {
-			foreach ($r as $user) {
-				dba::delete('user', ['uid' => $user['uid']]);
-			}
+		$users = dba::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY"]);
+		while ($user = dba::fetch($users)) {
+			dba::delete('user', ['uid' => $user['uid']]);
 		}
 	}
 
