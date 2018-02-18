@@ -38,7 +38,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-02-10 18:14+0100\n"
-"PO-Revision-Date: 2018-02-12 07:37+0000\n"
+"PO-Revision-Date: 2018-02-18 09:10+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -5697,7 +5697,7 @@ msgstr "%s und Du"
 
 #: mod/message.php:502
 msgid "D, d M Y - g:i A"
-msgstr "D, d. M Y - g:i A"
+msgstr "D, d.. M Y - G:i"
 
 #: mod/message.php:505
 #, php-format
