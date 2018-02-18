@@ -465,6 +465,11 @@ class OStatus
 					if (!$valid) {
 						// If not, then it depends on this setting
 						$valid = !Config::get('system', 'ostatus_full_threads');
+						if ($valid) {
+							logger("Item with uri ".self::$itemlist[0]['uri']." will be imported due to the system settings.", LOGGER_DEBUG);
+						}
+					} else {
+						logger("Item with uri ".self::$itemlist[0]['uri']." belongs to a contact (".self::$itemlist[0]['contact-id']."). It will be imported.", LOGGER_DEBUG);
 					}
 					if ($valid) {
 						// Never post a thread when the only interaction by our contact was a like
@@ -475,10 +480,16 @@ class OStatus
 								$valid = true;
 							}
 						}
+						if ($valid) {
+							logger("Item with uri ".self::$itemlist[0]['uri']." will be imported since the thread contains posts or shares.", LOGGER_DEBUG);
+						}
 					}
 				} else {
 					// But we will only import complete threads
 					$valid = dba::exists('item', ['uid' => $importer["uid"], 'uri' => self::$itemlist[0]['parent-uri']]);
+					if ($valid) {
+						logger("Item with uri ".self::$itemlist[0]["uri"]." belongs to parent ".self::$itemlist[0]['parent-uri']." of user ".$importer["uid"].". It will be imported.", LOGGER_DEBUG);
+					}
 				}
 
 				if ($valid) {
