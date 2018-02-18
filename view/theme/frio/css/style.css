@@ -1771,7 +1771,7 @@ code > .hl-main {
     text-decoration: underline;
 }
 .wall-item-actions .separator {
-	margin: 0 .3em;
+    margin: 0 .3em;
 }
 
 /* wall item hover effects */
@@ -2676,6 +2676,53 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 }
 .group {
     margin-left: 20px;
+}
+
+/* Emulates Bootstrap display */
+.settings-block {
+    margin: 0 -15px 5px;
+    color: #333;
+    background-color: rgba(255,255,255,0.95);
+    border-radius: 4px;
+    padding: 10px 15px;
+    box-shadow: 0 0 3px #dadada;
+    -webkit-box-shadow: 0 0 3px #dadada;
+    -moz-box-shadow: 0 0 3px #dadada;
+}
+
+.settings-block.fakelink, .settings-block > .fakelink {
+    padding: 10px 25px;
+    display: block;
+}
+.settings-block > .fakelink {
+    margin: -10px -15px 10px -15px;
+    border-radius: 4px 4px 0 0;
+}
+
+.settings-block.fakelink:hover, .settings-block > .fakelink:hover {
+    color: $link_hover_color;
+}
+.settings-block.fakelink > h3, .settings-block > .fakelink > h3 {
+    margin: 0;
+    padding: 0;
+    color: $link_color;
+    font-size: 18px;
+}
+
+.fakelink > h3:before {
+    padding-right: 10px;
+}
+.settings-block.fakelink > h3:before {
+    font-family: FontAwesome;
+    content: "\f0da"; /* Right Plain Pointer */
+}
+.settings-block > .fakelink > h3:before {
+    font-family: FontAwesome;
+    content: "\f0d7"; /* Bottom Plain Pointer */
+}
+
+h3.connector {
+    line-height: 40px;
 }
 
 /* Intro Notifications */
