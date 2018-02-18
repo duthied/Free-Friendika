@@ -396,7 +396,7 @@ function message_content(App $a)
 				'body' => $body_e,
 				'delete' => L10n::t('Delete message'),
 				'to_name' => $to_name_e,
-				'date' => DateTimeFormat::local($message['created'], 'D, d M Y - g:i A'),
+				'date' => DateTimeFormat::local($message['created'], L10n::t('D, d M Y - g:i A')),
 				'ago' => Temporal::getRelativeDate($message['created']),
 			];
 
