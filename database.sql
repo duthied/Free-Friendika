@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1253
+-- DB_UPDATE_VERSION 1254
 -- ------------------------------------------
 
 
@@ -9,7 +9,7 @@
 --
 CREATE TABLE IF NOT EXISTS `addon` (
 	`id` int NOT NULL auto_increment COMMENT '',
-	`name` varchar(190) NOT NULL DEFAULT '' COMMENT '',
+	`name` varbinary(190) NOT NULL DEFAULT '' COMMENT '',
 	`version` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`installed` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`remote_self` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`rel` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`duplex` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`network` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -179,8 +179,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `alias_uid` (`alias`(32),`uid`),
 	 INDEX `pending_uid` (`pending`,`uid`),
 	 INDEX `blocked_uid` (`blocked`,`uid`),
-	 INDEX `uid_rel_network_poll` (`uid`,`rel`,`network`(4),`poll`(64),`archive`),
-	 INDEX `uid_network_batch` (`uid`,`network`(4),`batch`(64)),
+	 INDEX `uid_rel_network_poll` (`uid`,`rel`,`network`,`poll`(64),`archive`),
+	 INDEX `uid_network_batch` (`uid`,`network`,`batch`(64)),
 	 INDEX `addr_uid` (`addr`(32),`uid`),
 	 INDEX `nurl_uid` (`nurl`(32),`uid`),
 	 INDEX `nick_uid` (`nick`(32),`uid`),
@@ -265,7 +265,7 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	`poll` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`confirm` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`priority` tinyint NOT NULL DEFAULT 0 COMMENT '',
-	`network` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`alias` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`pubkey` text COMMENT '',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
@@ -326,7 +326,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`contact-type` tinyint NOT NULL DEFAULT -1 COMMENT '',
 	`hide` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`nsfw` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`network` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`addr` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`notify` text COMMENT '',
 	`alias` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -337,7 +337,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	 INDEX `name` (`name`(64)),
 	 INDEX `nick` (`nick`(32)),
 	 INDEX `addr` (`addr`(64)),
-	 INDEX `hide_network_updated` (`hide`,`network`(4),`updated`),
+	 INDEX `hide_network_updated` (`hide`,`network`,`updated`),
 	 INDEX `updated` (`updated`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
@@ -395,7 +395,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`registered-users` int NOT NULL DEFAULT 0 COMMENT '',
 	`poco` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`network` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`platform` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
@@ -410,12 +410,12 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 --
 CREATE TABLE IF NOT EXISTS `hook` (
 	`id` int NOT NULL auto_increment COMMENT '',
-	`hook` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`file` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`function` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`hook` varbinary(100) NOT NULL DEFAULT '' COMMENT '',
+	`file` varbinary(200) NOT NULL DEFAULT '' COMMENT '',
+	`function` varbinary(200) NOT NULL DEFAULT '' COMMENT '',
 	`priority` smallint NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `hook_file_function` (`hook`(50),`file`(80),`function`(60))
+	 UNIQUE INDEX `hook_file_function` (`hook`,`file`,`function`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -500,7 +500,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`origin` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`forum_mode` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`mention` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`network` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
 	`rendered-html` mediumtext COMMENT '',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -514,8 +514,8 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_contactid_id` (`uid`,`contact-id`,`id`),
 	 INDEX `uid_created` (`uid`,`created`),
 	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
-	 INDEX `uid_network_received` (`uid`,`network`(4),`received`),
-	 INDEX `uid_network_commented` (`uid`,`network`(4),`commented`),
+	 INDEX `uid_network_received` (`uid`,`network`,`received`),
+	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
 	 INDEX `uid_thrparent` (`uid`,`thr-parent`(190)),
 	 INDEX `uid_parenturi` (`uid`,`parent-uri`(190)),
 	 INDEX `uid_contactid_created` (`uid`,`contact-id`,`created`),
@@ -854,7 +854,7 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
 CREATE TABLE IF NOT EXISTS `queue` (
 	`id` int NOT NULL auto_increment COMMENT '',
 	`cid` int NOT NULL DEFAULT 0 COMMENT 'Message receiver',
-	`network` varchar(32) NOT NULL DEFAULT '' COMMENT 'Receiver\'s network',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Receiver\'s network',
 	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'Unique GUID of the message',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date, when the message was created',
 	`last` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last trial',
@@ -970,7 +970,7 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	`origin` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`forum_mode` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`mention` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`network` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`iid`),
 	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
 	 INDEX `uid_network_created` (`uid`,`network`,`created`),
