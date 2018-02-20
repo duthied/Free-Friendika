@@ -273,7 +273,8 @@ class Photo
 	 *
 	 * @return string
 	 */
-	public static function newResource() {
+	public static function newResource()
+	{
 		return get_guid(32, false);
 	}
 }
