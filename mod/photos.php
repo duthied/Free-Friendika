@@ -838,7 +838,7 @@ function photos_post(App $a)
 
 	$smallest = 0;
 
-	$photo_hash = photo_new_resource();
+	$photo_hash = Photo::newResource();
 
 	$r = Photo::store($Image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 

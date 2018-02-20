@@ -854,11 +854,13 @@ function check_addons(App $a)
 	return;
 }
 
-function get_guid($size = 16, $prefix = "")
+function get_guid($size = 16, $prefix = '')
 {
-	if ($prefix == "") {
+	if (is_bool($prefix)) {
+		$prefix = '';
+	} elseif ($prefix == '') {
 		$a = get_app();
-		$prefix = hash("crc32", $a->get_hostname());
+		$prefix = hash('crc32', $a->get_hostname());
 	}
 
 	while (strlen($prefix) < ($size - 13)) {
@@ -867,10 +869,10 @@ function get_guid($size = 16, $prefix = "")
 
 	if ($size >= 24) {
 		$prefix = substr($prefix, 0, $size - 22);
-		return(str_replace(".", "", uniqid($prefix, true)));
+		return str_replace('.', '', uniqid($prefix, true));
 	} else {
 		$prefix = substr($prefix, 0, max($size - 13, 0));
-		return(uniqid($prefix));
+		return uniqid($prefix);
 	}
 }
 
