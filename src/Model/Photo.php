@@ -100,7 +100,7 @@ class Photo
 		if (x($photo['resource-id'])) {
 			$hash = $photo['resource-id'];
 		} else {
-			$hash = photo_new_resource();
+			$hash = self::newResource();
 		}
 
 		$photo_failure = false;
@@ -266,5 +266,15 @@ class Photo
 	{
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		Cache::set($key, null, CACHE_DAY);
+	}
+
+	/**
+	 * Generate a unique photo ID.
+	 *
+	 * @return string
+	 */
+	public static function newResource()
+	{
+		return get_guid(32, false);
 	}
 }

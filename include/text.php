@@ -489,31 +489,6 @@ function item_new_uri($hostname, $uid, $guid = "") {
 	return $uri;
 }
 
-
-/**
- * Generate a guaranteed unique photo ID.
- * safe from birthday paradox
- *
- * @return string
- */
-function photo_new_resource() {
-
-	do {
-		$found = false;
-		$resource = hash('md5',uniqid(mt_rand(),true));
-		$r = q("SELECT `id` FROM `photo` WHERE `resource-id` = '%s' LIMIT 1",
-			dbesc($resource)
-		);
-
-		if (DBM::is_result($r)) {
-			$found = true;
-		}
-	} while ($found == true);
-
-	return $resource;
-}
-
-
 /**
  * @deprecated
  * wrapper to load a view template, checking for alternate

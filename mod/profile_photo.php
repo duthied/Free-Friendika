@@ -308,7 +308,7 @@ function profile_photo_crop_ui_head(App $a, Image $Image) {
 		$height = $Image->getHeight();
 	}
 
-	$hash = photo_new_resource();
+	$hash = Photo::newResource();
 
 
 	$smallest = 0;

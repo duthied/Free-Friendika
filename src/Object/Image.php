@@ -937,7 +937,7 @@ class Image
 		$width = $Image->getWidth();
 		$height = $Image->getHeight();
 
-		$hash = photo_new_resource();
+		$hash = Photo::newResource();
 
 		$smallest = 0;
 

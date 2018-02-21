@@ -521,7 +521,7 @@ class User
 			if ($Image->isValid()) {
 				$Image->scaleToSquare(175);
 
-				$hash = photo_new_resource();
+				$hash = Photo::newResource();
 
 				$r = Photo::store($Image, $uid, 0, $hash, $filename, L10n::t('Profile Photos'), 4);
 

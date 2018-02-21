@@ -222,7 +222,7 @@ function wall_upload_post(App $a, $desktopmode = true) {
 	$width = $Image->getWidth();
 	$height = $Image->getHeight();
 
-	$hash = photo_new_resource();
+	$hash = Photo::newResource();
 
 	$smallest = 0;
 
