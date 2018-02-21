@@ -386,17 +386,17 @@ class Item extends BaseObject
 		 * via OStatus (maybe Diasporsa as well)
 		 */
 		if (in_array($item['network'], [NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS, ""])) {
-			$select = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
+			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
 				trim($item['uri']), $item['uid'],
 				NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS];
-			$r = dba::selectFirst('item', ['id', 'network'], $select);
-			if (DBM::is_result($r)) {
+			$existing = dba::selectFirst('item', ['id', 'network'], $condition);
+			if (DBM::is_result($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
 				if ($uid != 0) {
-					logger("Item with uri ".$item['uri']." already existed for user ".$uid." with id ".$r["id"]." target network ".$r["network"]." - new network: ".$item['network']);
+					logger("Item with uri ".$item['uri']." already existed for user ".$uid." with id ".$existing["id"]." target network ".$existing["network"]." - new network: ".$item['network']);
 				}
 
-				return $r["id"];
+				return $existing["id"];
 			}
 		}
 
@@ -528,34 +528,34 @@ class Item extends BaseObject
 				'wall', 'private', 'forum_mode'];
 			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
 			$params = ['order' => ['id' => false]];
-			$r = dba::selectFirst('item', $fields, $condition, $params);
+			$parent = dba::selectFirst('item', $fields, $condition, $params);
 
-			if (DBM::is_result($r)) {
+			if (DBM::is_result($parent)) {
 				// is the new message multi-level threaded?
 				// even though we don't support it now, preserve the info
 				// and re-attach to the conversation parent.
 
-				if ($r['uri'] != $r['parent-uri']) {
-					$item['parent-uri'] = $r['parent-uri'];
+				if ($parent['uri'] != $parent['parent-uri']) {
+					$item['parent-uri'] = $parent['parent-uri'];
 
 					$condition = ['uri' => $item['parent-uri'],
 						'parent-uri' => $item['parent-uri'],
 						'uid' => $item['uid']];
 					$params = ['order' => ['id' => false]];
-					$z = dba::selectFirst('item', $fields, $condition, $params);
+					$toplevel_parent = dba::selectFirst('item', $fields, $condition, $params);
 
-					if (DBM::is_result($z)) {
-						$r = $z;
+					if (DBM::is_result($toplevel_parent)) {
+						$parent = $toplevel_parent;
 					}
 				}
 
-				$parent_id      = $r['id'];
-				$parent_deleted = $r['deleted'];
-				$allow_cid      = $r['allow_cid'];
-				$allow_gid      = $r['allow_gid'];
-				$deny_cid       = $r['deny_cid'];
-				$deny_gid       = $r['deny_gid'];
-				$item['wall']    = $r['wall'];
+				$parent_id      = $parent['id'];
+				$parent_deleted = $parent['deleted'];
+				$allow_cid      = $parent['allow_cid'];
+				$allow_gid      = $parent['allow_gid'];
+				$deny_cid       = $parent['deny_cid'];
+				$deny_gid       = $parent['deny_gid'];
+				$item['wall']    = $parent['wall'];
 				$notify_type    = 'comment-new';
 
 				/*
@@ -563,8 +563,8 @@ class Item extends BaseObject
 				 * This differs from the above settings as it subtly allows comments from
 				 * email correspondents to be private even if the overall thread is not.
 				 */
-				if ($r['private']) {
-					$item['private'] = $r['private'];
+				if ($parent['private']) {
+					$item['private'] = $parent['private'];
 				}
 
 				/*
@@ -572,7 +572,7 @@ class Item extends BaseObject
 				 * The original author commented, but as this is a comment, the permissions
 				 * weren't fixed up so it will still show the comment as private unless we fix it here.
 				 */
-				if ((intval($r['forum_mode']) == 1) && $r['private']) {
+				if ((intval($parent['forum_mode']) == 1) && $parent['private']) {
 					$item['private'] = 0;
 				}
 
@@ -687,10 +687,10 @@ class Item extends BaseObject
 		logger('' . print_r($item,true), LOGGER_DATA);
 
 		dba::transaction();
-		$r = dba::insert('item', $item);
+		$ret = dba::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
-		if (DBM::is_result($r)) {
+		if (DBM::is_result($ret)) {
 			$current_post = dba::lastInsertId();
 		} else {
 			// This can happen - for example - if there are locking timeouts.
@@ -725,17 +725,9 @@ class Item extends BaseObject
 
 		// How much entries have we created?
 		// We wouldn't need this query when we could use an unique index - but MySQL has length problems with them.
-		$r = dba::inArray(dba::p("SELECT COUNT(*) AS `entries` FROM `item` WHERE `uri` = ? AND `uid` = ? AND `network` = ?",
-				$item['uri'], $item['uid'] , $item['network']));
+		$entries = dba::count('item', ['uri' => $item['uri'], 'uid' => $item['uid'], 'network' => $item['network']]);
 
-		if (!DBM::is_result($r)) {
-			// This shouldn't happen, since COUNT always works when the database connection is there.
-			logger("We couldn't count the stored entries. Very strange ...");
-			dba::rollback();
-			return 0;
-		}
-
-		if ($r[0]["entries"] > 1) {
+		if ($entries > 1) {
 			// There are duplicates. We delete our just created entry.
 			logger('Duplicated post occurred. uri = ' . $item['uri'] . ' uid = ' . $item['uid']);
 
@@ -743,7 +735,7 @@ class Item extends BaseObject
 			dba::delete('item', ['id' => $current_post]);
 			dba::commit();
 			return 0;
-		} elseif ($r[0]["entries"] == 0) {
+		} elseif ($entries == 0) {
 			// This really should never happen since we quit earlier if there were problems.
 			logger("Something is terribly wrong. We haven't found our created entry.");
 			dba::rollback();
@@ -792,12 +784,12 @@ class Item extends BaseObject
 		 * in it.
 		 */
 		if (!$deleted && !$dontcache) {
-			$r = dba::selectFirst('item', [], ['id' => $current_post]);
-			if (DBM::is_result($r)) {
+			$posted_item = dba::selectFirst('item', [], ['id' => $current_post]);
+			if (DBM::is_result($posted_item)) {
 				if ($notify) {
-					Addon::callHooks('post_local_end', $r);
+					Addon::callHooks('post_local_end', $posted_item);
 				} else {
-					Addon::callHooks('post_remote_end', $r);
+					Addon::callHooks('post_remote_end', $posted_item);
 				}
 			} else {
 				logger('new item not found in DB, id ' . $current_post);
