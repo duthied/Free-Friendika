@@ -903,23 +903,23 @@ class Diaspora
 	}
 
 	/**
-	 * @brief get a handle (user@domain.tld) from a given contact id or gcontact id
+	 * @brief get a handle (user@domain.tld) from a given contact id
 	 *
 	 * @param int $contact_id  The id in the contact table
-	 * @param int $gcontact_id The id in the gcontact table
+	 * @param int $pcontact_id The id in the contact table (Used for the public contact)
 	 *
 	 * @return string the handle
 	 */
-	public static function handleFromContact($contact_id, $gcontact_id = 0)
+	public static function handleFromContact($contact_id, $pcontact_id = 0)
 	{
 		$handle = false;
 
-		logger("contact id is ".$contact_id." - gcontact id is ".$gcontact_id, LOGGER_DEBUG);
+		logger("contact id is ".$contact_id." - pcontact id is ".$pcontact_id, LOGGER_DEBUG);
 
-		if ($gcontact_id != 0) {
+		if ($pcontact_id != 0) {
 			$r = q(
-				"SELECT `addr` FROM `gcontact` WHERE `id` = %d AND `addr` != ''",
-				intval($gcontact_id)
+				"SELECT `addr` FROM `contact` WHERE `id` = %d AND `addr` != ''",
+				intval($pcontact_id)
 			);
 
 			if (DBM::is_result($r)) {
@@ -4009,7 +4009,7 @@ class Diaspora
 	 */
 	public static function sendRetraction($item, $owner, $contact, $public_batch = false, $relay = false)
 	{
-		$itemaddr = self::handleFromContact($item["contact-id"], $item["gcontact-id"]);
+		$itemaddr = self::handleFromContact($item["contact-id"], $item["author-id"]);
 
 		$msg_type = "retraction";
 

@@ -439,7 +439,6 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`forum_mode`,
 `item`.`mention`,
 `item`.`global`,
-`item`.`gcontact-id`,
 `item`.`shadow`,
 */
 

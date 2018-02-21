@@ -7,7 +7,6 @@ namespace Friendica\Database;
 use Friendica\Core\Config;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use dba;
 
 require_once 'include/dba.php';
@@ -22,9 +21,6 @@ class PostUpdate
      */
     public static function update()
     {
-        if (!self::update1192()) {
-            return;
-        }
         if (!self::update1194()) {
             return;
         }
@@ -34,61 +30,6 @@ class PostUpdate
         if (!self::update1206()) {
             return;
         }
-    }
-
-    /**
-     * @brief set the gcontact-id in all item entries
-     *
-     * This job has to be started multiple times until all entries are set.
-     * It isn't started in the update function since it would consume too much time and can be done in the background.
-     *
-     * @return bool "true" when the job is done
-     */
-    private static function update1192()
-    {
-        // Was the script completed?
-        if (Config::get("system", "post_update_version") >= 1192) {
-            return true;
-        }
-
-        // Check if the first step is done (Setting "gcontact-id" in the item table)
-        $r = dba::select('item', ['author-link', 'author-name', 'author-avatar', 'uid', 'network'], ['gcontact-id' => 0], ['limit' => 1000]);
-        if (!$r) {
-            // Are there unfinished entries in the thread table?
-            $r = q("SELECT COUNT(*) AS `total` FROM `thread`
-                INNER JOIN `item` ON `item`.`id` =`thread`.`iid`
-                WHERE `thread`.`gcontact-id` = 0 AND
-                    (`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
-
-            if ($r && ($r[0]["total"] == 0)) {
-                Config::set("system", "post_update_version", 1192);
-                return true;
-            }
-
-            // Update the thread table from the item table
-            q("UPDATE `thread` INNER JOIN `item` ON `item`.`id`=`thread`.`iid`
-                    SET `thread`.`gcontact-id` = `item`.`gcontact-id`
-                WHERE `thread`.`gcontact-id` = 0 AND
-                    (`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
-
-            return false;
-        }
-
-        $item_arr = [];
-        foreach ($r as $item) {
-            $index = $item["author-link"]."-".$item["uid"];
-            $item_arr[$index] = ["author-link" => $item["author-link"],
-                            "uid" => $item["uid"],
-                            "network" => $item["network"]];
-        }
-
-        // Set the "gcontact-id" in the item table and add a new gcontact entry if needed
-        foreach ($item_arr as $item) {
-            $gcontact_id = GContact::getId(["url" => $item['author-link'], "network" => $item['network'],
-                            "photo" => $item['author-avatar'], "name" => $item['author-name']]);
-            dba::update('item', ['gcontact-id' => $gcontact_id], ['uid' => $item['uid'], 'author-link' => $item['author-link'], 'gcontact-id' => 0]);
-        }
-        return false;
     }
 
     /**
@@ -219,7 +160,7 @@ class PostUpdate
                             "uid" => $item["uid"]];
         }
 
-        // Set the "gcontact-id" in the item table and add a new gcontact entry if needed
+        // Set the "author-id" and "owner-id" in the item table and add a new public contact entry if needed
         foreach ($item_arr as $item) {
             $author_id = Contact::getIdForURL($item["author-link"], 0);
             $owner_id = Contact::getIdForURL($item["owner-link"], 0);
