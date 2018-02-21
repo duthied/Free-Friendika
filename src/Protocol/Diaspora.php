@@ -910,7 +910,7 @@ class Diaspora
 	 *
 	 * @return string the handle
 	 */
-	public static function handleFromContact($contact_id, $pcontact_id = 0)
+	private static function handleFromContact($contact_id, $pcontact_id = 0)
 	{
 		$handle = false;
 
