@@ -381,6 +381,7 @@ class OnePoll
 							$datarray = [];
 							$datarray['verb'] = ACTIVITY_POST;
 							$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
+							$datarray['network'] = NETWORK_MAIL;
 							// $meta = Email::messageMeta($mbox, $msg_uid);
 
 							$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));

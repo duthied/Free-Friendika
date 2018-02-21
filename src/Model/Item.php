@@ -273,6 +273,39 @@ class Item extends BaseObject
 		return $guid;
 	}
 
+	private static function contactId($arr)
+	{
+		$contact_id = (int)$arr["contact-id"];
+
+		if (!empty($contact_id)) {
+			return $contact_id;
+		}
+
+		/*
+		 * First we are looking for a suitable contact that matches with the author of the post
+		 * This is done only for comments
+		 */
+		if ($arr['parent-uri'] != $arr['uri']) {
+			$contact_id = Contact::getIdForURL($arr['author-link'], $uid);
+		}
+
+		// If not present then maybe the owner was found
+		if ($contact_id == 0) {
+			$contact_id = Contact::getIdForURL($arr['owner-link'], $uid);
+		}
+
+		// Still missing? Then use the "self" contact of the current user
+		if ($contact_id == 0) {
+			$self = dba::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
+			if (DBM::is_result($self)) {
+				$contact_id = $self["id"];
+			}
+		}
+		logger("Contact-id was missing for post ".$arr["guid"]." from user id ".$uid." - now set to ".$contact_id, LOGGER_DEBUG);
+
+		return $contact_id;
+	}
+
 	public static function insert($arr, $force_parent = false, $notify = false, $dontcache = false)
 	{
 		$a = get_app();
@@ -353,20 +386,17 @@ class Item extends BaseObject
 		 * via OStatus (maybe Diasporsa as well)
 		 */
 		if (in_array($arr['network'], [NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS, ""])) {
-			$r = q("SELECT `id`, `network` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` IN ('%s', '%s', '%s')  LIMIT 1",
-					dbesc(trim($arr['uri'])),
-					intval($uid),
-					dbesc(NETWORK_DIASPORA),
-					dbesc(NETWORK_DFRN),
-					dbesc(NETWORK_OSTATUS)
-				);
+			$select = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
+				trim($arr['uri']), $arr['uid'],
+				NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS];
+			$r = dba::selectFirst('item', ['id', 'network'], $select);
 			if (DBM::is_result($r)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
 				if ($uid != 0) {
-					logger("Item with uri ".$arr['uri']." already existed for user ".$uid." with id ".$r[0]["id"]." target network ".$r[0]["network"]." - new network: ".$arr['network']);
+					logger("Item with uri ".$arr['uri']." already existed for user ".$uid." with id ".$r["id"]." target network ".$r["network"]." - new network: ".$arr['network']);
 				}
 
-				return $r[0]["id"];
+				return $r["id"];
 			}
 		}
 
@@ -433,98 +463,41 @@ class Item extends BaseObject
 			logger("Both author-link and owner-link are empty. Called by: " . System::callstack(), LOGGER_DEBUG);
 		}
 
-		if ($arr['plink'] == "") {
-			$arr['plink'] = System::baseUrl() . '/display/' . urlencode($arr['guid']);
-		}
+		$arr['plink'] = defaults($arr, 'plink', System::baseUrl() . '/display/' . urlencode($arr['guid']));
 
-		if ($arr['network'] == NETWORK_PHANTOM) {
-			$r = q("SELECT `network` FROM `contact` WHERE `network` IN ('%s', '%s', '%s') AND `nurl` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS),
-				dbesc(normalise_link($arr['author-link'])),
-				intval($arr['uid'])
-			);
+		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
+		$arr["contact-id"] = self::contactId($arr);
 
-			if (!DBM::is_result($r)) {
-				$r = q("SELECT `network` FROM `gcontact` WHERE `network` IN ('%s', '%s', '%s') AND `nurl` = '%s' LIMIT 1",
-					dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS),
-					dbesc(normalise_link($arr['author-link']))
-				);
-			}
-
-			if (!DBM::is_result($r)) {
-				$r = q("SELECT `network` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-					intval($arr['contact-id']),
-					intval($arr['uid'])
-				);
-			}
-
-			if (DBM::is_result($r)) {
-				$arr['network'] = $r[0]["network"];
-			}
-
-			// Fallback to friendica (why is it empty in some cases?)
-			if ($arr['network'] == "") {
-				$arr['network'] = NETWORK_DFRN;
-			}
-
-			logger("Set network to " . $arr["network"] . " for " . $arr["uri"], LOGGER_DEBUG);
-		}
-
-		// The contact-id should be set before "self::insert" was called - but there seems to be some issues
-		if ($arr["contact-id"] == 0) {
-			/*
-			 * First we are looking for a suitable contact that matches with the author of the post
-			 * This is done only for comments
-			 */
-			if ($arr['parent-uri'] != $arr['uri']) {
-				$arr["contact-id"] = Contact::getIdForURL($arr['author-link'], $uid);
-			}
-
-			// If not present then maybe the owner was found
-			if ($arr["contact-id"] == 0) {
-				$arr["contact-id"] = Contact::getIdForURL($arr['owner-link'], $uid);
-			}
-
-			// Still missing? Then use the "self" contact of the current user
-			if ($arr["contact-id"] == 0) {
-				$r = q("SELECT `id` FROM `contact` WHERE `self` AND `uid` = %d", intval($uid));
-
-				if (DBM::is_result($r)) {
-					$arr["contact-id"] = $r[0]["id"];
-				}
-			}
-
-			logger("Contact-id was missing for post ".$arr["guid"]." from user id ".$uid." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
-		}
-
-		if ($arr["author-id"] == 0) {
-			$arr["author-id"] = Contact::getIdForURL($arr["author-link"], 0);
-		}
+		$arr['author-id'] = defaults($arr, 'author-id', Contact::getIdForURL($arr["author-link"], 0));
 
 		if (Contact::isBlocked($arr["author-id"])) {
 			logger('Contact '.$arr["author-id"].' is blocked, item '.$arr["uri"].' will not be stored');
 			return 0;
 		}
 
-		if ($arr["owner-id"] == 0) {
-			$arr["owner-id"] = Contact::getIdForURL($arr["owner-link"], 0);
-		}
+		$arr['owner-id'] = defaults($arr, 'owner-id', Contact::getIdForURL($arr["owner-link"], 0));
 
 		if (Contact::isBlocked($arr["owner-id"])) {
 			logger('Contact '.$arr["owner-id"].' is blocked, item '.$arr["uri"].' will not be stored');
 			return 0;
 		}
 
-		if ($arr['guid'] != "") {
-			// Checking if there is already an item with the same guid
-			logger('checking for an item for user '.$arr['uid'].' on network '.$arr['network'].' with the guid '.$arr['guid'], LOGGER_DEBUG);
-			$r = q("SELECT `guid` FROM `item` WHERE `guid` = '%s' AND `network` = '%s' AND `uid` = '%d' LIMIT 1",
-				dbesc($arr['guid']), dbesc($arr['network']), intval($arr['uid']));
-
-			if (DBM::is_result($r)) {
-				logger('found item with guid '.$arr['guid'].' for user '.$arr['uid'].' on network '.$arr['network'], LOGGER_DEBUG);
-				return 0;
+		if ($arr['network'] == NETWORK_PHANTOM) {
+			$contact = Contact::getDetailsByURL($arr['author-link'], $arr['uid']);
+			if (!empty($contact['network'])) {
+				$arr['network'] = $contact["network"];
+			} else {
+				$arr['network'] = NETWORK_DFRN;
 			}
+			logger("Set network to " . $arr["network"] . " for " . $arr["uri"], LOGGER_DEBUG);
+		}
+
+		// Checking if there is already an item with the same guid
+		logger('Checking for an item for user '.$arr['uid'].' on network '.$arr['network'].' with the guid '.$arr['guid'], LOGGER_DEBUG);
+		$condition = ['guid' => $arr['guid'], 'network' => $arr['network'], 'uid' => $arr['uid']];
+		if (dba::exists('item', $condition)) {
+			logger('found item with guid '.$arr['guid'].' for user '.$arr['uid'].' on network '.$arr['network'], LOGGER_DEBUG);
+			return 0;
 		}
 
 		// Check for hashtags in the body and repair or add hashtag links
@@ -537,6 +510,7 @@ class Item extends BaseObject
 		$allow_gid = '';
 		$deny_cid  = '';
 		$deny_gid  = '';
+
 		if ($arr['parent-uri'] === $arr['uri']) {
 			$parent_id = 0;
 			$parent_deleted = 0;
@@ -546,42 +520,42 @@ class Item extends BaseObject
 			$deny_gid  = $arr['deny_gid'];
 			$notify_type = 'wall-new';
 		} else {
-
 			// find the parent and snarf the item id and ACLs
 			// and anything else we need to inherit
 
-			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d ORDER BY `id` ASC LIMIT 1",
-				dbesc($arr['parent-uri']),
-				intval($arr['uid'])
-			);
+			$fields = ['uri', 'parent-uri', 'id', 'deleted',
+				'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+				'wall', 'private', 'forum_mode'];
+			$condition = ['uri' => $arr['parent-uri'], 'uid' => $arr['uid']];
+			$params = ['order' => ['id' => false]];
+			$r = dba::selectFirst('item', $fields, $condition, $params);
 
 			if (DBM::is_result($r)) {
-
 				// is the new message multi-level threaded?
 				// even though we don't support it now, preserve the info
 				// and re-attach to the conversation parent.
 
-				if ($r[0]['uri'] != $r[0]['parent-uri']) {
-					$arr['parent-uri'] = $r[0]['parent-uri'];
-					$z = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `parent-uri` = '%s' AND `uid` = %d
-						ORDER BY `id` ASC LIMIT 1",
-						dbesc($r[0]['parent-uri']),
-						dbesc($r[0]['parent-uri']),
-						intval($arr['uid'])
-					);
+				if ($r['uri'] != $r['parent-uri']) {
+					$arr['parent-uri'] = $r['parent-uri'];
+
+					$condition = ['uri' => $arr['parent-uri'],
+						'parent-uri' => $arr['parent-uri'],
+						'uid' => $arr['uid']];
+					$params = ['order' => ['id' => false]];
+					$z = dba::selectFirst('item', $fields, $condition, $params);
 
 					if (DBM::is_result($z)) {
 						$r = $z;
 					}
 				}
 
-				$parent_id      = $r[0]['id'];
-				$parent_deleted = $r[0]['deleted'];
-				$allow_cid      = $r[0]['allow_cid'];
-				$allow_gid      = $r[0]['allow_gid'];
-				$deny_cid       = $r[0]['deny_cid'];
-				$deny_gid       = $r[0]['deny_gid'];
-				$arr['wall']    = $r[0]['wall'];
+				$parent_id      = $r['id'];
+				$parent_deleted = $r['deleted'];
+				$allow_cid      = $r['allow_cid'];
+				$allow_gid      = $r['allow_gid'];
+				$deny_cid       = $r['deny_cid'];
+				$deny_gid       = $r['deny_gid'];
+				$arr['wall']    = $r['wall'];
 				$notify_type    = 'comment-new';
 
 				/*
@@ -589,8 +563,8 @@ class Item extends BaseObject
 				 * This differs from the above settings as it subtly allows comments from
 				 * email correspondents to be private even if the overall thread is not.
 				 */
-				if ($r[0]['private']) {
-					$arr['private'] = $r[0]['private'];
+				if ($r['private']) {
+					$arr['private'] = $r['private'];
 				}
 
 				/*
@@ -598,15 +572,15 @@ class Item extends BaseObject
 				 * The original author commented, but as this is a comment, the permissions
 				 * weren't fixed up so it will still show the comment as private unless we fix it here.
 				 */
-				if ((intval($r[0]['forum_mode']) == 1) && $r[0]['private']) {
+				if ((intval($r['forum_mode']) == 1) && $r['private']) {
 					$arr['private'] = 0;
 				}
 
 				// If its a post from myself then tag the thread as "mention"
 				logger("Checking if parent ".$parent_id." has to be tagged as mention for user ".$arr['uid'], LOGGER_DEBUG);
-				$u = q("SELECT `nickname` FROM `user` WHERE `uid` = %d", intval($arr['uid']));
+				$u = dba::selectFirst('user', ['nickname'], ['uid' => $arr['uid']]);
 				if (DBM::is_result($u)) {
-					$self = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
+					$self = normalise_link(System::baseUrl() . '/profile/' . $u['nickname']);
 					logger("'myself' is ".$self." for parent ".$parent_id." checking against ".$arr['author-link']." and ".$arr['owner-link'], LOGGER_DEBUG);
 					if ((normalise_link($arr['author-link']) == $self) || (normalise_link($arr['owner-link']) == $self)) {
 						dba::update('thread', ['mention' => true], ['iid' => $parent_id]);
@@ -632,37 +606,25 @@ class Item extends BaseObject
 			}
 		}
 
-		$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `network` IN ('%s', '%s') AND `uid` = %d LIMIT 1",
-			dbesc($arr['uri']),
-			dbesc($arr['network']),
-			dbesc(NETWORK_DFRN),
-			intval($arr['uid'])
-		);
-		if (DBM::is_result($r)) {
+		$condition = ["`uri` = ? AND `network` IN (?, ?) AND `uid` = ?",
+			$arr['uri'], $arr['network'], NETWORK_DFRN, $arr['uid']];
+		if (dba::exists('item', $condition)) {
 			logger('duplicated item with the same uri found. '.print_r($arr,true));
 			return 0;
 		}
 
 		// On Friendica and Diaspora the GUID is unique
 		if (in_array($arr['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
-			$r = q("SELECT `id` FROM `item` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($arr['guid']),
-				intval($arr['uid'])
-			);
-			if (DBM::is_result($r)) {
+			$condition = ['guid' => $arr['guid'], 'uid' => $arr['uid']];
+			if (dba::exists('item', $condition)) {
 				logger('duplicated item with the same guid found. '.print_r($arr,true));
 				return 0;
 			}
 		} else {
 			// Check for an existing post with the same content. There seems to be a problem with OStatus.
-			$r = q("SELECT `id` FROM `item` WHERE `body` = '%s' AND `network` = '%s' AND `created` = '%s' AND `contact-id` = %d AND `uid` = %d LIMIT 1",
-				dbesc($arr['body']),
-				dbesc($arr['network']),
-				dbesc($arr['created']),
-				intval($arr['contact-id']),
-				intval($arr['uid'])
-			);
-			if (DBM::is_result($r)) {
+			$condition = ["`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?",
+					$arr['body'], $arr['network'], $arr['created'], $arr['contact-id'], $arr['uid']];
+			if (dba::exists('item', $condition)) {
 				logger('duplicated item with the same body found. '.print_r($arr,true));
 				return 0;
 			}
@@ -675,9 +637,7 @@ class Item extends BaseObject
 			// Set the global flag on all items if this was a global item entry
 			dba::update('item', ['global' => true], ['uri' => $arr["uri"]]);
 		} else {
-			$isglobal = q("SELECT `global` FROM `item` WHERE `uid` = 0 AND `uri` = '%s'", dbesc($arr["uri"]));
-
-			$arr["global"] = (DBM::is_result($isglobal) && count($isglobal) > 0);
+			$arr["global"] = dba::exists('item', ['uid' => 0, 'uri' => $arr["uri"]]);
 		}
 
 		// ACL settings
@@ -718,8 +678,7 @@ class Item extends BaseObject
 		 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
 		 */
 		if ($arr["uid"] == 0) {
-			$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND `uid` = 0 LIMIT 1", dbesc(trim($arr['uri'])));
-			if (DBM::is_result($r)) {
+			if (dba::exists('item', ['uri' => trim($arr['uri']), 'uid' => 0])) {
 				logger('Global item already stored. URI: '.$arr['uri'].' on network '.$arr['network'], LOGGER_DEBUG);
 				return 0;
 			}
@@ -766,11 +725,8 @@ class Item extends BaseObject
 
 		// How much entries have we created?
 		// We wouldn't need this query when we could use an unique index - but MySQL has length problems with them.
-		$r = q("SELECT COUNT(*) AS `entries` FROM `item` WHERE `uri` = '%s' AND `uid` = %d AND `network` = '%s'",
-			dbesc($arr['uri']),
-			intval($arr['uid']),
-			dbesc($arr['network'])
-		);
+		$r = dba::inArray(dba::p("SELECT COUNT(*) AS `entries` FROM `item` WHERE `uri` = ? AND `uid` = ? AND `network` = ?",
+				$arr['uri'], $arr['uid'] , $arr['network']));
 
 		if (!DBM::is_result($r)) {
 			// This shouldn't happen, since COUNT always works when the database connection is there.
@@ -836,12 +792,12 @@ class Item extends BaseObject
 		 * in it.
 		 */
 		if (!$deleted && !$dontcache) {
-			$r = q('SELECT * FROM `item` WHERE `id` = %d', intval($current_post));
-			if (DBM::is_result($r) && (count($r) == 1)) {
+			$r = dba::selectFirst('item', [], ['id' => $current_post]);
+			if (DBM::is_result($r)) {
 				if ($notify) {
-					Addon::callHooks('post_local_end', $r[0]);
+					Addon::callHooks('post_local_end', $r);
 				} else {
-					Addon::callHooks('post_remote_end', $r[0]);
+					Addon::callHooks('post_remote_end', $r);
 				}
 			} else {
 				logger('new item not found in DB, id ' . $current_post);
@@ -1290,7 +1246,7 @@ class Item extends BaseObject
 				  !$item['wall'] && !$item['origin'] && ($item['id'] == $item['parent'])) {
 				// mmh.. no mention.. community page or private group... no wall.. no origin.. top-post (not a comment)
 				// delete it!
-				logger("no-mention top-level post to communuty or private group. delete.");
+				logger("no-mention top-level post to community or private group. delete.");
 				dba::delete('item', ['id' => $item_id]);
 				return true;
 			}
@@ -1328,23 +1284,15 @@ class Item extends BaseObject
 
 		$forum_mode = (($prvgroup) ? 2 : 1);
 
-		q("UPDATE `item` SET `wall` = 1, `origin` = 1, `forum_mode` = %d, `owner-name` = '%s', `owner-link` = '%s', `owner-avatar` = '%s',
-			`private` = %d, `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s'  WHERE `id` = %d",
-			intval($forum_mode),
-			dbesc($c[0]['name']),
-			dbesc($c[0]['url']),
-			dbesc($c[0]['thumb']),
-			intval($private),
-			dbesc($u[0]['allow_cid']),
-			dbesc($u[0]['allow_gid']),
-			dbesc($u[0]['deny_cid']),
-			dbesc($u[0]['deny_gid']),
-			intval($item_id)
-		);
+		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode,
+			'owner-name' => $c[0]['name'], 'owner-link' => $c[0]['url'], 'owner-avatar' => $c[0]['thumb'],
+			'private' => $private, 'allow_cid' => $u[0]['allow_cid'], 'allow_gid' => $u[0]['allow_gid'],
+			'deny_cid' => $u[0]['deny_cid'], 'deny_gid' => $u[0]['deny_gid']];
+		dba::update('item', $fields, ['id' => $item_id]);
+
 		self::updateThread($item_id);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', 'tgroup', $item_id);
-
 	}
 
 	public static function isRemoteSelf($contact, &$datarray)
@@ -1961,18 +1909,17 @@ EOT;
 
 		$sql = "";
 
-		foreach ($item as $field => $data)
+		$fields = [];
+
+		foreach ($item as $field => $data) {
 			if (!in_array($field, ["guid", "title", "body", "rendered-html", "rendered-hash"])) {
-				if ($sql != "") {
-					$sql .= ", ";
-				}
-
-				$sql .= "`".$field."` = '".dbesc($data)."'";
+				$fields[$field] = $data;
 			}
+		}
 
-		$result = q("UPDATE `thread` SET ".$sql." WHERE `iid` = %d", intval($itemid));
+		$result = dba::update('thread', $fields, ['iid' => $itemid]);
 
-		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".print_r($result, true)." ".print_r($item, true), LOGGER_DEBUG);
+		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result." ".print_r($item, true), LOGGER_DEBUG);
 
 		// Updating a shadow item entry
 		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);
