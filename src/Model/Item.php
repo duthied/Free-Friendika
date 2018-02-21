@@ -16,7 +16,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
-use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Term;
 use Friendica\Object\Image;
@@ -475,7 +474,7 @@ class Item extends BaseObject
 		if ($arr["contact-id"] == 0) {
 			/*
 			 * First we are looking for a suitable contact that matches with the author of the post
-			 * This is done only for comments (See below explanation at "gcontact-id")
+			 * This is done only for comments
 			 */
 			if ($arr['parent-uri'] != $arr['uri']) {
 				$arr["contact-id"] = Contact::getIdForURL($arr['author-link'], $uid);
@@ -496,21 +495,6 @@ class Item extends BaseObject
 			}
 
 			logger("Contact-id was missing for post ".$arr["guid"]." from user id ".$uid." - now set to ".$arr["contact-id"], LOGGER_DEBUG);
-		}
-
-		if (!x($arr, "gcontact-id")) {
-			/*
-			 * The gcontact should mostly behave like the contact. But is is supposed to be global for the system.
-			 * This means that wall posts, repeated posts, etc. should have the gcontact id of the owner.
-			 * On comments the author is the better choice.
-			 */
-			if ($arr['parent-uri'] === $arr['uri']) {
-				$arr["gcontact-id"] = GContact::getId(["url" => $arr['owner-link'], "network" => $arr['network'],
-									 "photo" => $arr['owner-avatar'], "name" => $arr['owner-name']]);
-			} else {
-				$arr["gcontact-id"] = GContact::getId(["url" => $arr['author-link'], "network" => $arr['network'],
-									 "photo" => $arr['author-avatar'], "name" => $arr['author-name']]);
-			}
 		}
 
 		if ($arr["author-id"] == 0) {
@@ -1942,7 +1926,7 @@ EOT;
 	private static function addThread($itemid, $onlyshadow = false)
 	{
 		$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
-				`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
+				`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`,
 				`deleted`, `origin`, `forum_mode`, `mention`, `network`, `author-id`, `owner-id`
 			FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
@@ -1962,7 +1946,7 @@ EOT;
 
 	private static function updateThread($itemid, $setmention = false)
 	{
-		$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`, `gcontact-id`,
+		$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`,
 				`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
 
 		if (!DBM::is_result($items)) {

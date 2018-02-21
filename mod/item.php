@@ -24,7 +24,6 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
@@ -632,8 +631,6 @@ function item_post(App $a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['moderated']     = false;
-	$datarray['gcontact-id']   = GContact::getId(["url" => $datarray['author-link'], "network" => $datarray['network'],
-							"photo" => $datarray['author-avatar'], "name" => $datarray['author-name']]);
 	$datarray['object']        = $object;
 
 	/*
