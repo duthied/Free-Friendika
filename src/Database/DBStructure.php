@@ -131,8 +131,8 @@ class DBStructure
 		if (DBM::is_result($structures)) {
 			foreach ($structures AS $field) {
 				// Replace the default size values so that we don't have to define them
-				$search = ['tinyint(1)', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(9)', 'bigint(20)', 'int(11)'];
-				$replace = ['boolean', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint', 'bigint', 'int'];
+				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
+				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
 				$field["Type"] = str_replace($search, $replace, $field["Type"]);
 
 				$fielddata[$field["Field"]]["type"] = $field["Type"];
@@ -664,12 +664,12 @@ class DBStructure
 		$database["addon"] = [
 				"comment" => "registered addons",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"name" => ["type" => "varchar(190)", "not null" => "1", "default" => "", "comment" => ""],
-						"version" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"name" => ["type" => "varchar(50)", "not null" => "1", "default" => "", "comment" => ""],
+						"version" => ["type" => "varchar(50)", "not null" => "1", "default" => "", "comment" => ""],
 						"installed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"timestamp" => ["type" => "bigint", "not null" => "1", "default" => "0", "comment" => ""],
+						"timestamp" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"plugin_admin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
@@ -680,12 +680,12 @@ class DBStructure
 		$database["attach"] = [
 				"comment" => "file attachments",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
 						"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"filetype" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
-						"filesize" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"filesize" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"data" => ["type" => "longblob", "not null" => "1", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
@@ -716,7 +716,7 @@ class DBStructure
 				"fields" => [
 						"k" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
 						"v" => ["type" => "mediumtext", "comment" => ""],
-						"expire_mode" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"expire_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						],
 				"indexes" => [
@@ -727,10 +727,10 @@ class DBStructure
 		$database["challenge"] = [
 				"comment" => "",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"challenge" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"last_update" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						],
@@ -746,7 +746,7 @@ class DBStructure
 						"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
 						"name" => ["type" => "text", "comment" => ""],
 						"icon" => ["type" => "text", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["client_id"],
@@ -755,9 +755,9 @@ class DBStructure
 		$database["config"] = [
 				"comment" => "main configuration storage",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"cat" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"k" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
+						"k" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
 						"v" => ["type" => "mediumtext", "comment" => ""],
 						],
 				"indexes" => [
@@ -768,14 +768,14 @@ class DBStructure
 		$database["contact"] = [
 				"comment" => "contact table",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"remote_self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"rel" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"rel" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -785,9 +785,9 @@ class DBStructure
 						"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "text", "comment" => ""],
-						"thumb" => ["type" => "text", "comment" => ""],
-						"micro" => ["type" => "text", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"thumb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"micro" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"site-pubkey" => ["type" => "text", "comment" => ""],
 						"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -798,11 +798,11 @@ class DBStructure
 						"pubkey" => ["type" => "text", "comment" => ""],
 						"prvkey" => ["type" => "text", "comment" => ""],
 						"batch" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"request" => ["type" => "text", "comment" => ""],
-						"notify" => ["type" => "text", "comment" => ""],
-						"poll" => ["type" => "text", "comment" => ""],
-						"confirm" => ["type" => "text", "comment" => ""],
-						"poco" => ["type" => "text", "comment" => ""],
+						"request" => ["type" => "varchar(255)", "comment" => ""],
+						"notify" => ["type" => "varchar(255)", "comment" => ""],
+						"poll" => ["type" => "varchar(255)", "comment" => ""],
+						"confirm" => ["type" => "varchar(255)", "comment" => ""],
+						"poco" => ["type" => "varchar(255)", "comment" => ""],
 						"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"usehub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -816,7 +816,7 @@ class DBStructure
 						"avatar-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"term-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"last-item" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"priority" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
 						"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -828,13 +828,13 @@ class DBStructure
 						"pending" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
 						"rating" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
 						"reason" => ["type" => "text", "comment" => ""],
-						"closeness" => ["type" => "tinyint", "not null" => "1", "default" => "99", "comment" => ""],
+						"closeness" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "99", "comment" => ""],
 						"info" => ["type" => "mediumtext", "comment" => ""],
-						"profile-id" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"profile-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"bdyear" => ["type" => "varchar(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"bd" => ["type" => "date", "not null" => "1", "default" => "0001-01-01", "comment" => ""],
 						"notify_new_posts" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"fetch_further_information" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"fetch_further_information" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"ffi_keyword_blacklist" => ["type" => "text", "comment" => ""],
 						],
 				"indexes" => [
@@ -844,8 +844,8 @@ class DBStructure
 						"alias_uid" => ["alias(32)", "uid"],
 						"pending_uid" => ["pending", "uid"],
 						"blocked_uid" => ["blocked", "uid"],
-						"uid_rel_network_poll" => ["uid", "rel", "network(4)", "poll(64)", "archive"],
-						"uid_network_batch" => ["uid", "network(4)", "batch(64)"],
+						"uid_rel_network_poll" => ["uid", "rel", "network", "poll(64)", "archive"],
+						"uid_network_batch" => ["uid", "network", "batch(64)"],
 						"addr_uid" => ["addr(32)", "uid"],
 						"nurl_uid" => ["nurl(32)", "uid"],
 						"nick_uid" => ["nick(32)", "uid"],
@@ -856,10 +856,10 @@ class DBStructure
 		$database["conv"] = [
 				"comment" => "private messages",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"recips" => ["type" => "text", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"creator" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
@@ -877,7 +877,7 @@ class DBStructure
 						"reply-to-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"conversation-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"conversation-href" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"protocol" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"protocol" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"source" => ["type" => "mediumtext", "comment" => ""],
 						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						],
@@ -890,10 +890,10 @@ class DBStructure
 		$database["event"] = [
 				"comment" => "Events",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
@@ -902,7 +902,7 @@ class DBStructure
 						"summary" => ["type" => "text", "comment" => ""],
 						"desc" => ["type" => "text", "comment" => ""],
 						"location" => ["type" => "text", "comment" => ""],
-						"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"type" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
 						"nofinish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"adjust" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
 						"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -919,7 +919,7 @@ class DBStructure
 		$database["fcontact"] = [
 				"comment" => "Diaspora compatible contacts - used in the Diaspora implementation",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -931,8 +931,8 @@ class DBStructure
 						"notify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"poll" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"confirm" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"priority" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"pubkey" => ["type" => "text", "comment" => ""],
 						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
@@ -946,9 +946,9 @@ class DBStructure
 		$database["fsuggest"] = [
 				"comment" => "friend suggestion stuff",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -963,9 +963,9 @@ class DBStructure
 		$database["gcign"] = [
 				"comment" => "contacts ignored by friend suggestions",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"gcid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -976,7 +976,7 @@ class DBStructure
 		$database["gcontact"] = [
 				"comment" => "global contacts",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -996,11 +996,11 @@ class DBStructure
 						"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "-1", "comment" => ""],
 						"hide" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"nsfw" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"notify" => ["type" => "text", "comment" => ""],
+						"notify" => ["type" => "varchar(255)", "comment" => ""],
 						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"generation" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"generation" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"server_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						],
 				"indexes" => [
@@ -1009,18 +1009,18 @@ class DBStructure
 						"name" => ["name(64)"],
 						"nick" => ["nick(32)"],
 						"addr" => ["addr(64)"],
-						"hide_network_updated" => ["hide", "network(4)", "updated"],
+						"hide_network_updated" => ["hide", "network", "updated"],
 						"updated" => ["updated"],
 						]
 				];
 		$database["glink"] = [
 				"comment" => "'friends of friends' linkages derived from poco",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"gcid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-						"zcid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"zcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
 						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						],
 				"indexes" => [
@@ -1032,8 +1032,8 @@ class DBStructure
 		$database["group"] = [
 				"comment" => "privacy groups, group info",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1046,9 +1046,9 @@ class DBStructure
 		$database["group_member"] = [
 				"comment" => "privacy groups, member info",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"gid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["group" => "id"], "comment" => ""],
-						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["group" => "id"], "comment" => ""],
+						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1059,17 +1059,17 @@ class DBStructure
 		$database["gserver"] = [
 				"comment" => "Global servers",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"version" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"site_name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"info" => ["type" => "text", "comment" => ""],
 						"register_policy" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"registered-users" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"registered-users" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"poco" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"last_poco_query" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
@@ -1084,24 +1084,24 @@ class DBStructure
 		$database["hook"] = [
 				"comment" => "addon hook registry",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"hook" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"file" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"function" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"priority" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"hook" => ["type" => "varbinary(100)", "not null" => "1", "default" => "", "comment" => ""],
+						"file" => ["type" => "varbinary(200)", "not null" => "1", "default" => "", "comment" => ""],
+						"function" => ["type" => "varbinary(200)", "not null" => "1", "default" => "", "comment" => ""],
+						"priority" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
-						"hook_file_function" => ["UNIQUE", "hook(50)","file(80)","function(60)"],
+						"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
 						]
 				];
 		$database["intro"] = [
 				"comment" => "",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"fid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["fcontact" => "id"], "comment" => ""],
-						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"fid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["fcontact" => "id"], "comment" => ""],
+						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"note" => ["type" => "text", "comment" => ""],
@@ -1117,16 +1117,16 @@ class DBStructure
 		$database["item"] = [
 				"comment" => "All posts",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => ["thread" => "iid"]],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => ["thread" => "iid"]],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"gcontact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-						"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"gcontact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"type" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
 						"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"gravity" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"parent" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"gravity" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"parent" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
 						"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"extid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"thr-parent" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1135,26 +1135,26 @@ class DBStructure
 						"commented" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"changed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"owner-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"owner-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"owner-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"owner-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"author-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"author-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => ""],
 						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"verb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"object-type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
+						"object-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
 						"object" => ["type" => "text", "comment" => ""],
-						"target-type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"target-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
 						"target" => ["type" => "text", "comment" => ""],
 						"postopts" => ["type" => "text", "comment" => ""],
 						"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"resource-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"event-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["event" => "id"], "comment" => ""],
+						"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"event-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["event" => "id"], "comment" => ""],
 						"tag" => ["type" => "mediumtext", "comment" => ""],
 						"attach" => ["type" => "mediumtext", "comment" => ""],
 						"inform" => ["type" => "mediumtext", "comment" => ""],
@@ -1175,9 +1175,9 @@ class DBStructure
 						"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
 						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"forum_mode" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
 						"rendered-html" => ["type" => "mediumtext", "comment" => ""],
 						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1193,18 +1193,18 @@ class DBStructure
 						"uid_contactid_id" => ["uid","contact-id","id"],
 						"uid_created" => ["uid","created"],
 						"uid_unseen_contactid" => ["uid","unseen","contact-id"],
-						"uid_network_received" => ["uid","network(4)","received"],
-						"uid_network_commented" => ["uid","network(4)","commented"],
+						"uid_network_received" => ["uid","network","received"],
+						"uid_network_commented" => ["uid","network","commented"],
 						"uid_thrparent" => ["uid","thr-parent(190)"],
 						"uid_parenturi" => ["uid","parent-uri(190)"],
 						"uid_contactid_created" => ["uid","contact-id","created"],
 						"authorid_created" => ["author-id","created"],
 						"ownerid" => ["owner-id"],
 						"uid_uri" => ["uid", "uri(190)"],
-						"resource-id" => ["resource-id(191)"],
+						"resource-id" => ["resource-id"],
 						"contactid_allowcid_allowpid_denycid_denygid" => ["contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"], //
-						"uid_type_changed" => ["uid","type(190)","changed"],
-						"contactid_verb" => ["contact-id","verb(190)"],
+						"uid_type_changed" => ["uid","type","changed"],
+						"contactid_verb" => ["contact-id","verb"],
 						"deleted_changed" => ["deleted","changed"],
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],
@@ -1215,10 +1215,10 @@ class DBStructure
 		$database["locks"] = [
 				"comment" => "",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"name" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""],
 						"locked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"pid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1227,14 +1227,14 @@ class DBStructure
 		$database["mail"] = [
 				"comment" => "private messages",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"from-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"from-photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"from-url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"contact-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "relation" => ["contact" => "id"], "comment" => ""],
-						"convid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["conv" => "id"], "comment" => ""],
+						"convid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["conv" => "id"], "comment" => ""],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => ""],
 						"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1257,8 +1257,8 @@ class DBStructure
 		$database["mailacct"] = [
 				"comment" => "Mail account data for fetching mails",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"server" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"port" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"ssltype" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1266,7 +1266,7 @@ class DBStructure
 						"user" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"pass" => ["type" => "text", "comment" => ""],
 						"reply_to" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"action" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"action" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"movetofolder" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"last_check" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
@@ -1278,9 +1278,9 @@ class DBStructure
 		$database["manage"] = [
 				"comment" => "table of accounts that can manage each other",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"mid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"mid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1290,21 +1290,21 @@ class DBStructure
 		$database["notify"] = [
 				"comment" => "notifications",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
-						"type" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
+						"type" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"msg" => ["type" => "mediumtext", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"iid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"parent" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"parent" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
 						"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"verb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"otype" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
+						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
+						"otype" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => ""],
 						"name_cache" => ["type" => "tinytext", "comment" => ""],
 						"msg_cache" => ["type" => "mediumtext", "comment" => ""]
 						],
@@ -1319,11 +1319,11 @@ class DBStructure
 		$database["notify-threads"] = [
 				"comment" => "",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"notify-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["notify" => "id"], "comment" => ""],
-						"master-parent-item" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"parent-item" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
-						"receiver-uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"notify-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["notify" => "id"], "comment" => ""],
+						"master-parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1333,7 +1333,7 @@ class DBStructure
 				"comment" => "cache for OEmbed queries",
 				"fields" => [
 						"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"maxwidth" => ["type" => "mediumint", "not null" => "1", "primary" => "1", "comment" => ""],
+						"maxwidth" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "comment" => ""],
 						"content" => ["type" => "mediumtext", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						],
@@ -1359,10 +1359,10 @@ class DBStructure
 		$database["participation"] = [
 				"comment" => "Storage for participation messages from Diaspora",
 				"fields" => [
-						"iid" => ["type" => "int", "not null" => "1", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
+						"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
 						"server" => ["type" => "varchar(60)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"cid" => ["type" => "int", "not null" => "1", "relation" => ["contact" => "id"], "comment" => ""],
-						"fid" => ["type" => "int", "not null" => "1", "relation" => ["fcontact" => "id"], "comment" => ""],
+						"cid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["contact" => "id"], "comment" => ""],
+						"fid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["fcontact" => "id"], "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["iid", "server"]
@@ -1371,10 +1371,10 @@ class DBStructure
 		$database["pconfig"] = [
 				"comment" => "personal (per user) configuration storage",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cat" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"k" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
+						"k" => ["type" => "varbinary(100)", "not null" => "1", "default" => "", "comment" => ""],
 						"v" => ["type" => "mediumtext", "comment" => ""],
 						],
 				"indexes" => [
@@ -1385,23 +1385,23 @@ class DBStructure
 		$database["photo"] = [
 				"comment" => "photo storage",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
-						"resource-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"guid" => ["type" => "char(16)", "not null" => "1", "default" => "", "comment" => ""],
+						"resource-id" => ["type" => "char(32)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"desc" => ["type" => "text", "comment" => ""],
 						"album" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"type" => ["type" => "varchar(128)", "not null" => "1", "default" => "image/jpeg"],
-						"height" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
-						"width" => ["type" => "smallint", "not null" => "1", "default" => "0", "comment" => ""],
-						"datasize" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"type" => ["type" => "varchar(30)", "not null" => "1", "default" => "image/jpeg"],
+						"height" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"width" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"datasize" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"data" => ["type" => "mediumblob", "not null" => "1", "comment" => ""],
-						"scale" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"scale" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"profile" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
 						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
@@ -1414,15 +1414,15 @@ class DBStructure
 						"uid_contactid" => ["uid", "contact-id"],
 						"uid_profile" => ["uid", "profile"],
 						"uid_album_scale_created" => ["uid", "album(32)", "scale", "created"],
-						"uid_album_resource-id_created" => ["uid", "album(32)", "resource-id(64)", "created"],
-						"resource-id" => ["resource-id(64)"],
+						"uid_album_resource-id_created" => ["uid", "album(32)", "resource-id", "created"],
+						"resource-id" => ["resource-id"],
 						]
 				];
 		$database["poll"] = [
 				"comment" => "Currently unused table for storing poll results",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"q0" => ["type" => "text", "comment" => ""],
 						"q1" => ["type" => "text", "comment" => ""],
 						"q2" => ["type" => "text", "comment" => ""],
@@ -1442,9 +1442,9 @@ class DBStructure
 		$database["poll_result"] = [
 				"comment" => "data for polls - currently unused",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"poll_id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["poll" => "id"]],
-						"choice" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"poll_id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["poll" => "id"]],
+						"choice" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1454,7 +1454,7 @@ class DBStructure
 		$database["process"] = [
 				"comment" => "Currently running system processes",
 				"fields" => [
-						"pid" => ["type" => "int", "not null" => "1", "primary" => "1", "comment" => ""],
+						"pid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => ""],
 						"command" => ["type" => "varbinary(32)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						],
@@ -1466,8 +1466,8 @@ class DBStructure
 		$database["profile"] = [
 				"comment" => "user profiles data",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"profile-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"is-default" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1517,12 +1517,12 @@ class DBStructure
 		$database["profile_check"] = [
 				"comment" => "DFRN remote auth use",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"dfrn_id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"sec" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1531,12 +1531,12 @@ class DBStructure
 		$database["push_subscriber"] = [
 				"comment" => "Used for OStatus: Contains feed subscribers",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"callback_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"topic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"push" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"push" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"last_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"secret" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						],
@@ -1547,9 +1547,9 @@ class DBStructure
 		$database["queue"] = [
 				"comment" => "Queue for messages that couldn't be delivered",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"cid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "Message receiver"],
-						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Receiver's network"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "Message receiver"],
+						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Receiver's network"],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Unique GUID of the message"],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date, when the message was created"],
 						"last" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date of last trial"],
@@ -1567,10 +1567,10 @@ class DBStructure
 		$database["register"] = [
 				"comment" => "registrations requiring admin approval",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"language" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
 						"note" => ["type" => "text", "comment" => ""],
@@ -1582,8 +1582,8 @@ class DBStructure
 		$database["search"] = [
 				"comment" => "",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						],
 				"indexes" => [
@@ -1594,10 +1594,10 @@ class DBStructure
 		$database["session"] = [
 				"comment" => "web session storage",
 				"fields" => [
-						"id" => ["type" => "bigint", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "bigint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"sid" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"data" => ["type" => "text", "comment" => ""],
-						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1608,8 +1608,8 @@ class DBStructure
 		$database["sign"] = [
 				"comment" => "Diaspora signatures",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"iid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
 						"signed_text" => ["type" => "mediumtext", "comment" => ""],
 						"signature" => ["type" => "text", "comment" => ""],
 						"signer" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1622,18 +1622,18 @@ class DBStructure
 		$database["term"] = [
 				"comment" => "item taxonomy (categories, tags, etc.) table",
 				"fields" => [
-						"tid" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"oid" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"otype" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"tid" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"oid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+						"otype" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"aid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"aid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["tid"],
@@ -1646,12 +1646,12 @@ class DBStructure
 		$database["thread"] = [
 				"comment" => "Thread related data",
 				"fields" => [
-						"iid" => ["type" => "int", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"contact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"gcontact-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-						"owner-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"author-id" => ["type" => "int", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"gcontact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
+						"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+						"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"commented" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
@@ -1669,9 +1669,9 @@ class DBStructure
 						"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
 						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"forum_mode" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["iid"],
@@ -1696,7 +1696,7 @@ class DBStructure
 						"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "relation" => ["clients" => "client_id"]],
 						"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
 						"scope" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-						"uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1705,8 +1705,8 @@ class DBStructure
 		$database["user"] = [
 				"comment" => "The local users",
 				"fields" => [
-						"uid" => ["type" => "mediumint", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"parent-uid" => ["type" => "mediumint", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "The parent user that has full control about this user"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"parent-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "The parent user that has full control about this user"],
 						"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
 						"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1731,20 +1731,20 @@ class DBStructure
 						"hidewall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"blocktags" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"unkmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"cntunkmail" => ["type" => "int", "not null" => "1", "default" => "10", "comment" => ""],
+						"cntunkmail" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
 						"notify-flags" => ["type" => "smallint unsigned", "not null" => "1", "default" => "65535", "comment" => ""],
-						"page-flags" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"account-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+						"page-flags" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						"account-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"prvnets" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"pwdreset" => ["type" => "varchar(255)", "comment" => "Password reset request token"],
 						"pwdreset_time" => ["type" => "datetime", "comment" => "Timestamp of the last password reset request"],
-						"maxreq" => ["type" => "int", "not null" => "1", "default" => "10", "comment" => ""],
-						"expire" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"maxreq" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
+						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"account_expired" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"expire_notification_sent" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"def_gid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
+						"def_gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
 						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
 						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
@@ -1759,7 +1759,7 @@ class DBStructure
 		$database["userd"] = [
 				"comment" => "Deleted usernames",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 						"username" => ["type" => "varchar(255)", "not null" => "1", "comment" => ""],
 						],
 				"indexes" => [
@@ -1770,11 +1770,11 @@ class DBStructure
 		$database["workerqueue"] = [
 				"comment" => "Background tasks queue entries",
 				"fields" => [
-						"id" => ["type" => "int", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
 						"parameter" => ["type" => "mediumblob", "comment" => "Task command"],
-						"priority" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Task priority"],
+						"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Task priority"],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Creation date"],
-						"pid" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
+						"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
 						"executed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Execution date"],
 						"done" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marked when the task was done, will be deleted later"],
 						],
