@@ -856,7 +856,7 @@ function check_addons(App $a)
 
 function get_guid($size = 16, $prefix = '')
 {
-	if (is_bool($prefix)) {
+	if (is_bool($prefix) && !$prefix) {
 		$prefix = '';
 	} elseif ($prefix == '') {
 		$a = get_app();
