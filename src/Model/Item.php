@@ -578,9 +578,9 @@ class Item extends BaseObject
 
 				// If its a post from myself then tag the thread as "mention"
 				logger("Checking if parent ".$parent_id." has to be tagged as mention for user ".$item['uid'], LOGGER_DEBUG);
-				$u = dba::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
-				if (DBM::is_result($u)) {
-					$self = normalise_link(System::baseUrl() . '/profile/' . $u['nickname']);
+				$user = dba::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
+				if (DBM::is_result($user)) {
+					$self = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
 					logger("'myself' is ".$self." for parent ".$parent_id." checking against ".$item['author-link']." and ".$item['owner-link'], LOGGER_DEBUG);
 					if ((normalise_link($item['author-link']) == $self) || (normalise_link($item['owner-link']) == $self)) {
 						dba::update('thread', ['mention' => true], ['iid' => $parent_id]);
