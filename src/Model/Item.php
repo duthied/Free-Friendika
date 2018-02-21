@@ -225,6 +225,55 @@ class Item extends BaseObject
 		self::update(['tag' => implode(',', $newtags)], ['id' => $i["id"]]);
 	}
 
+	private static function guid($arr, $notify)
+	{
+		$guid =	notags(trim($arr['guid']));
+
+		if (!empty($guid)) {
+			return $guid;
+		}
+
+		if ($notify) {
+			// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
+			// We add the hash of our own host because our host is the original creator of the post.
+			$prefix_host = get_app()->get_hostname();
+		} else {
+			$prefix_host = '';
+
+			// We are only storing the post so we create a GUID from the original hostname.
+			if (!empty($arr['author-link'])) {
+				$parsed = parse_url($arr['author-link']);
+				if (!empty($parsed['host'])) {
+					$prefix_host = $parsed['host'];
+				}
+			}
+
+			if (empty($prefix_host) && !empty($arr['plink'])) {
+				$parsed = parse_url($arr['plink']);
+				if (!empty($parsed['host'])) {
+					$prefix_host = $parsed['host'];
+				}
+			}
+
+			if (empty($prefix_host) && !empty($arr['uri'])) {
+				$parsed = parse_url($arr['uri']);
+				if (!empty($parsed['host'])) {
+					$prefix_host = $parsed['host'];
+				}
+			}
+		}
+
+		if (!empty($arr['plink'])) {
+			$guid = self::guidFromUri($arr['plink'], $prefix_host);
+		} elseif (!empty($arr['uri'])) {
+			$guid = self::guidFromUri($arr['uri'], $prefix_host);
+		} else {
+			$guid = get_guid(32, hash('crc32', $prefix_host));
+		}
+
+		return $guid;
+	}
+
 	public static function insert($arr, $force_parent = false, $notify = false, $dontcache = false)
 	{
 		$a = get_app();
@@ -236,32 +285,11 @@ class Item extends BaseObject
 			$arr['origin'] = 1;
 			$arr['network'] = NETWORK_DFRN;
 			$arr['protocol'] = PROTOCOL_DFRN;
-
-			// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
-			// In difference to the call to "self::guidFromUri" several lines below we add the hash of our own host.
-			// This is done because our host is the original creator of the post.
-			if (!isset($arr['guid'])) {
-				if (isset($arr['plink'])) {
-					$arr['guid'] = self::guidFromUri($arr['plink'], $a->get_hostname());
-				} elseif (isset($arr['uri'])) {
-					$arr['guid'] = self::guidFromUri($arr['uri'], $a->get_hostname());
-				}
-			}
 		} else {
 			$arr['network'] = trim(defaults($arr, 'network', NETWORK_PHANTOM));
 		}
 
-		$guid_prefix = '';
-		if ((trim($arr['guid']) == "") && (trim($arr['plink']) != "")) {
-			$arr['guid'] = self::guidFromUri($arr['plink']);
-		} elseif ((trim($arr['guid']) == "") && (trim($arr['uri']) != "")) {
-			$arr['guid'] = self::guidFromUri($arr['uri']);
-		} else {
-			$parsed = parse_url($arr["author-link"]);
-			$guid_prefix = hash("crc32", $parsed["host"]);
-		}
-
-		$arr['guid'] = notags(trim(defaults($arr, 'guid', get_guid(32, $guid_prefix))));
+		$arr['guid'] = self::guid($arr, $notify);
 		$arr['uri'] = notags(trim(defaults($arr, 'uri', item_new_uri($a->get_hostname(), $arr['uid'], $arr['guid']))));
 
 		// Store conversation data
@@ -1037,25 +1065,14 @@ class Item extends BaseObject
 	 * @brief Creates an unique guid out of a given uri
 	 *
 	 * @param string $uri uri of an item entry
-	 * @param string $host (Optional) hostname for the GUID prefix
+	 * @param string $host hostname for the GUID prefix
 	 * @return string unique guid
 	 */
-	public static function guidFromUri($uri, $host = "")
+	public static function guidFromUri($uri, $host)
 	{
 		// Our regular guid routine is using this kind of prefix as well
 		// We have to avoid that different routines could accidentally create the same value
 		$parsed = parse_url($uri);
-
-		// When the hostname isn't given, we take it from the uri
-		if ($host == "") {
-			// Is it in the format data@host.tld?
-			if ((count($parsed) == 1) && strstr($uri, '@')) {
-				$mailparts = explode('@', $uri);
-				$host = array_pop($mailparts);
-			} else {
-				$host = $parsed["host"];
-			}
-		}
 
 		// We use a hash of the hostname as prefix for the guid
 		$guid_prefix = hash("crc32", $host);
