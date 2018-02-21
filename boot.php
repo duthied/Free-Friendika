@@ -664,7 +664,7 @@ function check_db($via_worker)
 
 	if (empty($build)) {
 		Config::set('system', 'build', DB_UPDATE_VERSION - 1);
-		$build = DB_UPDATE_VERSION;
+		$build = DB_UPDATE_VERSION - 1;
 	}
 
 	// We don't support upgrading from very old versions anymore
@@ -672,7 +672,7 @@ function check_db($via_worker)
 		die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
 	}
 
-	if ($build != DB_UPDATE_VERSION) {
+	if ($build < DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
 		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
 			update_db();
