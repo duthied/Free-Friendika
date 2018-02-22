@@ -229,7 +229,7 @@ function item_post(App $a) {
 		$verb              = notags(trim($_REQUEST['verb']));
 		$emailcc           = notags(trim($_REQUEST['emailcc']));
 		$body              = escape_tags(trim($_REQUEST['body']));
-		$network           = notags(trim($_REQUEST['network']));
+		$network           = notags(trim(defaults($_REQUEST, 'network', NETWORK_DFRN)));
 		$guid              = get_guid(32);
 
 		$postopts = defaults($_REQUEST, 'postopts', '');
