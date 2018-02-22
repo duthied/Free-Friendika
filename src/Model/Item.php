@@ -1048,9 +1048,7 @@ class Item extends BaseObject
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && ($arr["network"] == NETWORK_DFRN) && ($arr["parent-uri"] === $arr["uri"])) {
-			$isforum = q("SELECT `forum` FROM `contact` WHERE `id` = %d AND `forum`",
-					intval($arr['contact-id']));
-			if (DBM::is_result($isforum)) {
+			if (dba::exists('contact', ['id' => $arr['contact-id'], 'forum' => true])) {
 				$update = true;
 			}
 		}
@@ -1141,11 +1139,11 @@ class Item extends BaseObject
 
 	public static function getGuidById($id)
 	{
-		$r = q("SELECT `guid` FROM `item` WHERE `id` = %d LIMIT 1", intval($id));
-		if (DBM::is_result($r)) {
-			return $r[0]["guid"];
+		$item = dba::selectFirst('item', ['guid'], ['id' => $id]);
+		if (DBM::is_result($item)) {
+			return $item['guid'];
 		} else {
-			return "";
+			return '';
 		}
 	}
 
@@ -1160,26 +1158,28 @@ class Item extends BaseObject
 
 		// Does the given user have this item?
 		if ($uid) {
-			$r = q("SELECT `item`.`id`, `user`.`nickname` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 AND `item`.`moderated` = 0
-					AND `item`.`guid` = '%s' AND `item`.`uid` = %d", dbesc($guid), intval($uid));
-			if (DBM::is_result($r)) {
-				$id = $r[0]["id"];
-				$nick = $r[0]["nickname"];
+			$items = dba::p("SELECT `item`.`id`, `user`.`nickname` FROM `item`
+				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+					AND `item`.`guid` = ? AND `item`.`uid` = ?", $guid, $uid);
+			if ($item = dba::fetch($items)) {
+				$id = $item["id"];
+				$nick = $item["nickname"];
 			}
 		}
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$r = q("SELECT `item`.`id`, `user`.`nickname` FROM `item` INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-				WHERE `item`.`visible` = 1 AND `item`.`deleted` = 0 AND `item`.`moderated` = 0
+			$items = dba::p("SELECT `item`.`id`, `user`.`nickname` FROM `item`
+				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
+				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
-					AND `item`.`private` = 0 AND `item`.`wall` = 1
-					AND `item`.`guid` = '%s'", dbesc($guid));
-			if (DBM::is_result($r)) {
-				$id = $r[0]["id"];
-				$nick = $r[0]["nickname"];
+					AND NOT `item`.`private` AND `item`.`wall`
+					AND `item`.`guid` = ?", $guid);
+			if ($item = dba::fetch($items)) {
+				$id = $item["id"];
+				$nick = $item["nickname"];
 			}
 		}
 		return ["nick" => $nick, "id" => $id];
@@ -1195,33 +1195,26 @@ class Item extends BaseObject
 	{
 		$mention = false;
 
-		$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($uid)
-		);
-		if (!DBM::is_result($u)) {
+		$user = dba::selectFirst('user', [], ['uid' => $uid]);
+		if (!DBM::is_result($user)) {
 			return;
 		}
 
-		$community_page = (($u[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
-		$prvgroup = (($u[0]['page-flags'] == PAGE_PRVGROUP) ? true : false);
+		$community_page = (($user['page-flags'] == PAGE_COMMUNITY) ? true : false);
+		$prvgroup = (($user['page-flags'] == PAGE_PRVGROUP) ? true : false);
 
-		$i = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($item_id),
-			intval($uid)
-		);
-		if (!DBM::is_result($i)) {
+		$item = dba::selectFirst('item', [], ['id' => $item_id]);
+		if (!DBM::is_result($item)) {
 			return;
 		}
 
-		$item = $i[0];
-
-		$link = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
+		$link = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
 
 		/*
 		 * Diaspora uses their own hardwired link URL in @-tags
 		 * instead of the one we supply with webfinger
 		 */
-		$dlink = normalise_link(System::baseUrl() . '/u/' . $u[0]['nickname']);
+		$dlink = normalise_link(System::baseUrl() . '/u/' . $user['nickname']);
 
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
@@ -1245,7 +1238,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		$arr = ['item' => $item, 'user' => $u[0]];
+		$arr = ['item' => $item, 'user' => $user];
 
 		Addon::callHooks('tagged', $arr);
 
@@ -1263,23 +1256,21 @@ class Item extends BaseObject
 		}
 
 		// now change this copy of the post to a forum head message and deliver to all the tgroup members
-		$c = q("SELECT `name`, `url`, `thumb` FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
-			intval($u[0]['uid'])
-		);
-		if (!DBM::is_result($c)) {
+		$self = dba::selectFirst('contact', ['name', 'url', 'thumb'], ['uid' => $uid, 'self' => true]);
+		if (!DBM::is_result($self)) {
 			return;
 		}
 
 		// also reset all the privacy bits to the forum default permissions
 
-		$private = ($u[0]['allow_cid'] || $u[0]['allow_gid'] || $u[0]['deny_cid'] || $u[0]['deny_gid']) ? 1 : 0;
+		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? 1 : 0;
 
-		$forum_mode = (($prvgroup) ? 2 : 1);
+		$forum_mode = ($prvgroup ? 2 : 1);
 
 		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode,
-			'owner-name' => $c[0]['name'], 'owner-link' => $c[0]['url'], 'owner-avatar' => $c[0]['thumb'],
-			'private' => $private, 'allow_cid' => $u[0]['allow_cid'], 'allow_gid' => $u[0]['allow_gid'],
-			'deny_cid' => $u[0]['deny_cid'], 'deny_gid' => $u[0]['deny_gid']];
+			'owner-name' => $self['name'], 'owner-link' => $self['url'], 'owner-avatar' => $self['thumb'],
+			'private' => $private, 'allow_cid' => $user['allow_cid'], 'allow_gid' => $user['allow_gid'],
+			'deny_cid' => $user['deny_cid'], 'deny_gid' => $user['deny_gid']];
 		dba::update('item', $fields, ['id' => $item_id]);
 
 		self::updateThread($item_id);
@@ -1317,14 +1308,14 @@ class Item extends BaseObject
 		$datarray2 = $datarray;
 		logger('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), LOGGER_DEBUG);
 		if ($contact['remote_self'] == 2) {
-			$r = q("SELECT `id`,`url`,`name`,`thumb` FROM `contact` WHERE `uid` = %d AND `self`",
-				intval($contact['uid']));
-			if (DBM::is_result($r)) {
-				$datarray['contact-id'] = $r[0]["id"];
+			$self = dba::selectFirst('contact', ['id', 'name', 'url', 'thumb'],
+					['uid' => $contact['uid'], 'self' => true]);
+			if (DBM::is_result($self)) {
+				$datarray['contact-id'] = $self["id"];
 
-				$datarray['owner-name'] = $r[0]["name"];
-				$datarray['owner-link'] = $r[0]["url"];
-				$datarray['owner-avatar'] = $r[0]["thumb"];
+				$datarray['owner-name'] = $self["name"];
+				$datarray['owner-link'] = $self["url"];
+				$datarray['owner-avatar'] = $self["thumb"];
 
 				$datarray['author-name']   = $datarray['owner-name'];
 				$datarray['author-link']   = $datarray['owner-link'];
@@ -1405,12 +1396,9 @@ class Item extends BaseObject
 				if ($x) {
 					$res = substr($i, $x + 1);
 					$i = substr($i, 0, $x);
-					$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `scale` = %d AND `uid` = %d",
-						dbesc($i),
-						intval($res),
-						intval($uid)
-					);
-					if (DBM::is_result($r)) {
+					$fields = ['data', 'type', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
+					$photo = dba::selectFirst('photo', $fields, ['resource-id' => $i, 'scale' => $res, 'uid' => $uid]);
+					if (DBM::is_result($photo)) {
 						/*
 						 * Check to see if we should replace this photo link with an embedded image
 						 * 1. No need to do so if the photo is public
@@ -1420,21 +1408,21 @@ class Item extends BaseObject
 						 *    permissions, regardless of order but first check to see if they're an exact
 						 *    match to save some processing overhead.
 						 */
-						if (self::hasPermissions($r[0])) {
+						if (self::hasPermissions($photo)) {
 							if ($cid) {
-								$recips = self::enumeratePermissions($r[0]);
+								$recips = self::enumeratePermissions($photo);
 								if (in_array($cid, $recips)) {
 									$replace = true;
 								}
 							} elseif ($item) {
-								if (self::samePermissions($item, $r[0])) {
+								if (self::samePermissions($item, $photo)) {
 									$replace = true;
 								}
 							}
 						}
 						if ($replace) {
-							$data = $r[0]['data'];
-							$type = $r[0]['type'];
+							$data = $photo['data'];
+							$type = $photo['type'];
 
 							// If a custom width and height were specified, apply before embedding
 							if (preg_match("/\[img\=([0-9]*)x([0-9]*)\]/is", substr($orig_body, $img_start, $img_st_close), $match)) {
@@ -1623,18 +1611,13 @@ class Item extends BaseObject
 		}
 	}
 
-	/// @TODO: This query seems to be really slow
 	public static function firstPostDate($uid, $wall = false)
 	{
-		$r = q("SELECT `id`, `created` FROM `item`
-			WHERE `uid` = %d AND `wall` = %d AND `deleted` = 0 AND `visible` = 1 AND `moderated` = 0
-			AND `id` = `parent`
-			ORDER BY `created` ASC LIMIT 1",
-			intval($uid),
-			intval($wall ? 1 : 0)
-		);
-		if (DBM::is_result($r)) {
-			return substr(DateTimeFormat::local($r[0]['created']),0,10);
+		$condition = ['uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
+		$params = ['order' => ['created' => false]];
+		$thread = dba::selectFirst('thread', ['created'], $condition, $params);
+		if (DBM::is_result($thread)) {
+			return substr(DateTimeFormat::local($thread['created']), 0, 10);
 		}
 		return false;
 	}
@@ -1749,6 +1732,7 @@ class Item extends BaseObject
 			$verbs = "'".dbesc($activity)."'";
 		}
 
+		/// @todo This query is expected to be a performance eater due to the "OR" - it has to be changed totally
 		$existing_like = q("SELECT `id`, `guid`, `verb` FROM `item`
 			WHERE `verb` IN ($verbs)
 			AND `deleted` = 0
@@ -1865,16 +1849,16 @@ EOT;
 
 	private static function addThread($itemid, $onlyshadow = false)
 	{
-		$items = q("SELECT `uid`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`,
-				`moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`,
-				`deleted`, `origin`, `forum_mode`, `mention`, `network`, `author-id`, `owner-id`
-			FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
+		$fields = ['uid', 'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private', 'pubmail',
+			'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
+			'deleted', 'origin', 'forum_mode', 'mention', 'network', 'author-id', 'owner-id'];
+		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
+		$item = dba::selectFirst('item', $fields, $condition);
 
-		if (!$items) {
+		if (!DBM::is_result($item)) {
 			return;
 		}
 
-		$item = $items[0];
 		$item['iid'] = $itemid;
 
 		if (!$onlyshadow) {
@@ -1886,14 +1870,15 @@ EOT;
 
 	private static function updateThread($itemid, $setmention = false)
 	{
-		$items = q("SELECT `uid`, `guid`, `title`, `body`, `created`, `edited`, `commented`, `received`, `changed`, `wall`, `private`, `pubmail`, `moderated`, `visible`, `spam`, `starred`, `bookmark`, `contact-id`,
-				`deleted`, `origin`, `forum_mode`, `network`, `rendered-html`, `rendered-hash` FROM `item` WHERE `id` = %d AND (`parent` = %d OR `parent` = 0) LIMIT 1", intval($itemid), intval($itemid));
+		$fields = ['uid', 'guid', 'title', 'body', 'created', 'edited', 'commented', 'received', 'changed',
+			'wall', 'private', 'pubmail', 'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
+			'deleted', 'origin', 'forum_mode', 'network', 'rendered-html', 'rendered-hash'];
+		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
-		if (!DBM::is_result($items)) {
+		$item = dba::selectFirst('item', $fields, $condition);
+		if (!DBM::is_result($item)) {
 			return;
 		}
-
-		$item = $items[0];
 
 		if ($setmention) {
 			$item["mention"] = 1;
@@ -1920,11 +1905,9 @@ EOT;
 			return;
 		}
 
-		$result = dba::update(
-			'item',
-			['title' => $item['title'], 'body' => $item['body'], 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']],
-			['id' => $items['id']]
-		);
+		$fields = ['title' => $item['title'], 'body' => $item['body'],
+			'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
+		$result = dba::update('item', $fields, ['id' => $items['id']]);
 
 		logger("Updating public shadow for post ".$items["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 	}
@@ -1943,11 +1926,8 @@ EOT;
 		logger("deleteThread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 
 		if ($itemuri != "") {
-			$r = q("SELECT `id` FROM `item` WHERE `uri` = '%s' AND NOT `deleted` AND NOT (`uid` IN (%d, 0))",
-					dbesc($itemuri),
-					intval($item["uid"])
-				);
-			if (!DBM::is_result($r)) {
+			$condition = ["`uri` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $itemuri, $item["uid"]];
+			if (!dba::exists('item', $condition)) {
 				dba::delete('item', ['uri' => $itemuri, 'uid' => 0]);
 				logger("deleteThread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 			}
