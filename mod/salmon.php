@@ -17,7 +17,7 @@ function salmon_post(App $a) {
 
 	$xml = file_get_contents('php://input');
 
-	logger('mod-salmon: new salmon ' . $xml, LOGGER_DATA);
+	logger('new salmon ' . $xml, LOGGER_DATA);
 
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
 	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
@@ -46,7 +46,7 @@ function salmon_post(App $a) {
 		$base = $dom;
 
 	if(! $base) {
-		logger('mod-salmon: unable to locate salmon data in xml ');
+		logger('unable to locate salmon data in xml ');
 		System::httpExit(400);
 	}
 
@@ -84,18 +84,18 @@ function salmon_post(App $a) {
 	$author_link = $author["author-link"];
 
 	if(! $author_link) {
-		logger('mod-salmon: Could not retrieve author URI.');
+		logger('Could not retrieve author URI.');
 		System::httpExit(400);
 	}
 
 	// Once we have the author URI, go to the web and try to find their public key
 
-	logger('mod-salmon: Fetching key for ' . $author_link);
+	logger('Fetching key for ' . $author_link);
 
 	$key = Salmon::getKey($author_link, $keyhash);
 
 	if(! $key) {
-		logger('mod-salmon: Could not retrieve author key.');
+		logger('Could not retrieve author key.');
 		System::httpExit(400);
 	}
 
@@ -104,7 +104,7 @@ function salmon_post(App $a) {
 	$m = base64url_decode($key_info[1]);
 	$e = base64url_decode($key_info[2]);
 
-	logger('mod-salmon: key details: ' . print_r($key_info,true), LOGGER_DEBUG);
+	logger('key details: ' . print_r($key_info,true), LOGGER_DEBUG);
 
 	$pubkey = Crypto::meToPem($m, $e);
 
@@ -115,23 +115,23 @@ function salmon_post(App $a) {
 	$mode = 1;
 
 	if (! $verify) {
-		logger('mod-salmon: message did not verify using protocol. Trying compliant format.');
+		logger('message did not verify using protocol. Trying compliant format.');
 		$verify = Crypto::rsaVerify($compliant_format, $signature, $pubkey);
 		$mode = 2;
 	}
 
 	if (! $verify) {
-		logger('mod-salmon: message did not verify using padding. Trying old statusnet format.');
+		logger('message did not verify using padding. Trying old statusnet format.');
 		$verify = Crypto::rsaVerify($stnet_signed_data, $signature, $pubkey);
 		$mode = 3;
 	}
 
 	if (! $verify) {
-		logger('mod-salmon: Message did not verify. Discarding.');
+		logger('Message did not verify. Discarding.');
 		System::httpExit(400);
 	}
 
-	logger('mod-salmon: Message verified with mode '.$mode);
+	logger('Message verified with mode '.$mode);
 
 
 	/*
@@ -151,7 +151,7 @@ function salmon_post(App $a) {
 		intval($importer['uid'])
 	);
 	if (! DBM::is_result($r)) {
-		logger('mod-salmon: Author unknown to us.');
+		logger('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
 		if(PConfig::get($importer['uid'],'system','ostatus_autofriend')) {
 			$result = Contact::createFromProbe($importer['uid'], $author_link);
 			if($result['success']) {
@@ -171,7 +171,7 @@ function salmon_post(App $a) {
 
 	//if((DBM::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
 	if (DBM::is_result($r) && $r[0]['blocked']) {
-		logger('mod-salmon: Ignoring this author.');
+		logger('Ignoring this author.');
 		System::httpExit(202);
 		// NOTREACHED
 	}
