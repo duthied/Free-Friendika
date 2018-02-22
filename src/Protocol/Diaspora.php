@@ -826,7 +826,12 @@ class Diaspora
 			// if Diaspora connectivity is enabled on their server
 			if ($r && ($r["network"] === NETWORK_DIASPORA)) {
 				self::addFContact($r, $update);
-				$person = $r;
+
+				// Fetch the updated or added contact
+				$person = dba::selectFirst('fcontact', [], ['network' => NETWORK_DIASPORA, 'addr' => $handle]);
+				if (!DBM::is_result($person)) {
+					$person = $r;
+				}
 			}
 		}
 
