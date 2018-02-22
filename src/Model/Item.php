@@ -280,7 +280,7 @@ class Item extends BaseObject
 		if (!empty($contact_id)) {
 			return $contact_id;
 		}
-
+		logger('Missing contact-id. Called by: '.System::callstack(), LOGGER_DEBUG);
 		/*
 		 * First we are looking for a suitable contact that matches with the author of the post
 		 * This is done only for comments
@@ -483,6 +483,8 @@ class Item extends BaseObject
 		}
 
 		if ($item['network'] == NETWORK_PHANTOM) {
+			logger('Missing network. Called by: '.System::callstack(), LOGGER_DEBUG);
+
 			$contact = Contact::getDetailsByURL($item['author-link'], $item['uid']);
 			if (!empty($contact['network'])) {
 				$item['network'] = $contact["network"];
@@ -1158,11 +1160,11 @@ class Item extends BaseObject
 
 		// Does the given user have this item?
 		if ($uid) {
-			$items = dba::p("SELECT `item`.`id`, `user`.`nickname` FROM `item`
+			$item = dba::fetch_first("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`guid` = ? AND `item`.`uid` = ?", $guid, $uid);
-			if ($item = dba::fetch($items)) {
+			if (DBM::is_result($item)) {
 				$id = $item["id"];
 				$nick = $item["nickname"];
 			}
@@ -1170,14 +1172,14 @@ class Item extends BaseObject
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$items = dba::p("SELECT `item`.`id`, `user`.`nickname` FROM `item`
+			$item = dba::fetch_first("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
 					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND `item`.`wall`
 					AND `item`.`guid` = ?", $guid);
-			if ($item = dba::fetch($items)) {
+			if (DBM::is_result($item)) {
 				$id = $item["id"];
 				$nick = $item["nickname"];
 			}
