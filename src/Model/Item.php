@@ -286,22 +286,22 @@ class Item extends BaseObject
 		 * This is done only for comments
 		 */
 		if ($item['parent-uri'] != $item['uri']) {
-			$contact_id = Contact::getIdForURL($item['author-link'], $uid);
+			$contact_id = Contact::getIdForURL($item['author-link'], $item['uid']);
 		}
 
 		// If not present then maybe the owner was found
 		if ($contact_id == 0) {
-			$contact_id = Contact::getIdForURL($item['owner-link'], $uid);
+			$contact_id = Contact::getIdForURL($item['owner-link'], $item['uid']);
 		}
 
 		// Still missing? Then use the "self" contact of the current user
 		if ($contact_id == 0) {
-			$self = dba::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
+			$self = dba::selectFirst('contact', ['id'], ['self' => true, 'uid' => $item['uid']]);
 			if (DBM::is_result($self)) {
 				$contact_id = $self["id"];
 			}
 		}
-		logger("Contact-id was missing for post ".$item["guid"]." from user id ".$uid." - now set to ".$contact_id, LOGGER_DEBUG);
+		logger("Contact-id was missing for post ".$item['guid']." from user id ".$item['uid']." - now set to ".$contact_id, LOGGER_DEBUG);
 
 		return $contact_id;
 	}
