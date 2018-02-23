@@ -17,7 +17,7 @@ Vagrant.configure(2) do |config|
   # Create a hostname, don't forget to put it to the `hosts` file
   # This will point to the server's default virtual host
   # TO DO: Make this work with virtualhost along-side xip.io URL
-  config.vm.hostname = "friendica-xenial.dev"
+  config.vm.hostname = "friendica.dev"
 
   # Create a static IP
   config.vm.network :private_network, ip: server_ip
