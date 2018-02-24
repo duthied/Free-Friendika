@@ -1106,40 +1106,40 @@ function settings_content(App $a)
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
 		$profile_in_dir = replace_macros($opt_tpl, [
-			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t("Your profile may be visible in public."), [L10n::t('No'), L10n::t('Yes')]]
+			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t('If you enable this option your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile may be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory')), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	}
 
 	if (strlen(Config::get('system', 'directory'))) {
 		$profile_in_net_dir = replace_macros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], '', [L10n::t('No'), L10n::t('Yes')]]
+			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('If you enable this option your profile will be listed in this nodes <a href="%s">local directory</a>.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	} else {
 		$profile_in_net_dir = '';
 	}
 
 	$hide_friends = replace_macros($opt_tpl, [
-		'$field' => ['hide-friends', L10n::t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], '', [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['hide-friends', L10n::t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], L10n::t('If you enable this option your contacts wont be shown on your profile page. If you add further profiles, you can decide separately for each profile to show your contact list there.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$hide_wall = replace_macros($opt_tpl, [
-		'$field' => ['hidewall', L10n::t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], L10n::t("If enabled, posting public messages to Diaspora and other networks isn't possible."), [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['hidewall', L10n::t('Hide your profile details from unknown viewers?'), $a->user['hidewall'], L10n::t("If you enable this option unknown visitors of your profile page will only see your profile picture, your display name and the nick name you are using. Please note that if this is enabled posting public messages to Diaspora and other networks isn't possible."), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$blockwall = replace_macros($opt_tpl, [
-		'$field' => ['blockwall', L10n::t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), '', [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['blockwall', L10n::t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), L10n::t('If you enable this option your contacts may write new postings on your profile wall, if they are authentificated. These postings will be distributed to your other contacts.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$blocktags = replace_macros($opt_tpl, [
-		'$field' => ['blocktags', L10n::t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), '', [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['blocktags', L10n::t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), L10n::t('If you enable this option your contacts are allowed to tag your postings with additional tags.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$suggestme = replace_macros($opt_tpl, [
-		'$field' => ['suggestme', L10n::t('Allow us to suggest you as a potential friend to new members?'), $suggestme, '', [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['suggestme', L10n::t('Allow us to suggest you as a potential friend to new members?'), $suggestme, L10n::t('If you like, Friendica will suggest your profile to new members of the network as potential interesting contact.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$unkmail = replace_macros($opt_tpl, [
-		'$field' => ['unkmail', L10n::t('Permit unknown people to send you private mail?'), $unkmail, '', [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['unkmail', L10n::t('Permit unknown people to send you private mail?'), $unkmail, L10n::t('If this option is enabled verified user from the Friendica network may send you private messages, even if they are not in your contact list.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	if (!$profile['publish'] && !$profile['net-publish']) {
