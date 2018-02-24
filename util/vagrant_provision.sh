@@ -92,5 +92,6 @@ echo "*/10 * * * * cd /vagrant; /usr/bin/php scripts/worker.php" >> friendicacro
 sudo crontab friendicacron
 sudo rm friendicacron
 
-#Optional: checkout addon repositroy
-#sudo git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
+# friendica needs write access to /tmp
+sudo chmod 777 /tmp
+
