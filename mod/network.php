@@ -818,13 +818,14 @@ function networkThreadedView(App $a, $update = 0)
 		}
 
 		$items = dba::p("SELECT `item`.`uri`, `item`.`id` AS `item_id`, `item`.$ordering AS `order_date` FROM `item`
-			STRAIGHT_JOIN (SELECT `oid` FROM `term` WHERE `term` IN
+			INNER JOIN (SELECT `oid` FROM `term` WHERE `term` IN
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
 			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?
 				AND NOT `contact`.`hidden` AND NOT `contact`.`blocked`" . $sql_tag_nets,
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $top_limit, $bottom_limit);
+
 		$data = dba::inArray($items);
 
 		if (count($data) > 0) {
