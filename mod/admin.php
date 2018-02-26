@@ -539,7 +539,7 @@ function admin_page_federation(App $a)
 	// off one % two of them are needed in the query
 	// Add more platforms if you like, when one returns 0 known nodes it is not
 	// displayed on the stats page.
-	$platforms = ['Friendi%%a', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon', 'Pleroma', 'socialhome'];
+	$platforms = ['Friendi%%a', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon', 'Pleroma', 'socialhome', 'ganggo'];
 	$colors = [
 		'Friendi%%a' => '#ffc018', // orange from the logo
 		'Diaspora'   => '#a1a1a1', // logo is black and white, makes a gray
@@ -550,7 +550,8 @@ function admin_page_federation(App $a)
 		'StatusNet'  => '#789240', // the green from the logo (red and blue have already others
 		'Mastodon'   => '#1a9df9', // blue from the Mastodon logo
 		'Pleroma'    => '#E46F0F', // Orange from the text that is used on Pleroma instances
-		'socialhome' => '#52056b'  // lilac from the Django Image used at the Socialhome homepage
+		'socialhome' => '#52056b' , // lilac from the Django Image used at the Socialhome homepage
+		'ganggo'     => '#69d7e2' // from the favicon
 	];
 	$counts = [];
 	$total = 0;
