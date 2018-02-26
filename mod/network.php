@@ -818,7 +818,7 @@ function networkThreadedView(App $a, $update = 0)
 		}
 
 		$items = dba::p("SELECT `item`.`uri`, `item`.`id` AS `item_id`, `item`.$ordering AS `order_date` FROM `item`
-			INNER JOIN (SELECT `oid` FROM `term` WHERE `term` IN
+			STRAIGHT_JOIN (SELECT `oid` FROM `term` WHERE `term` IN
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
