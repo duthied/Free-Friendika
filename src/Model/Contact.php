@@ -1032,7 +1032,7 @@ class Contact extends BaseObject
 
 				// Update the public contact (contact id = 0)
 				if ($uid != 0) {
-					$pcontact = dba::selectFirst('contact', ['id'], ['nurl' => $contact['nurl']]);
+					$pcontact = dba::selectFirst('contact', ['id'], ['nurl' => $contact['nurl'], 'uid' => 0]);
 					if (DBM::is_result($pcontact)) {
 						self::updateAvatar($avatar, 0, $pcontact['id'], $force);
 					}

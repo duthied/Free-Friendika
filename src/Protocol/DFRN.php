@@ -1431,7 +1431,7 @@ class DFRN
 		$author["name"] = $xpath->evaluate($element."/atom:name/text()", $context)->item(0)->nodeValue;
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
-		$contact_old = dba::fetch_first("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `name-date`, `uri-date`, `addr`,
+		$contact_old = dba::fetch_first("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `avatar`, `name-date`, `uri-date`, `addr`,
 				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`, `contact-type`
 				FROM `contact` WHERE `uid` = ? AND `nurl` = ? AND `network` != ?",
 			$importer["uid"],
@@ -1468,7 +1468,7 @@ class DFRN
 					$width = $attributes->textContent;
 				}
 				if ($attributes->name == "updated") {
-					$contact_old["avatar-date"] = $attributes->textContent;
+					$author["avatar-date"] = $attributes->textContent;
 				}
 			}
 			if (($width > 0) && ($href != "")) {
@@ -1601,6 +1601,7 @@ class DFRN
 			unset($fields["uid"]);
 			unset($fields["url"]);
 			unset($fields["avatar-date"]);
+			unset($fields["avatar"]);
 			unset($fields["name-date"]);
 			unset($fields["uri-date"]);
 
@@ -1638,10 +1639,10 @@ class DFRN
 			}
 
 			Contact::updateAvatar(
-				$author["avatar"],
-				$importer["uid"],
-				$contact["id"],
-				(strtotime($contact["avatar-date"]) > strtotime($contact_old["avatar-date"]))
+				$author['avatar'],
+				$importer['uid'],
+				$contact['id'],
+				(strtotime($contact['avatar-date']) > strtotime($contact_old['avatar-date']) || ($author['avatar'] != $contact_old['avatar']))
 			);
 
 			/*
@@ -1660,7 +1661,7 @@ class DFRN
 			GContact::link($gcid, $importer["uid"], $contact["id"]);
 		}
 
-		return($author);
+		return $author;
 	}
 
 	/**
