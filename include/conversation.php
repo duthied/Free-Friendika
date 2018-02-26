@@ -496,7 +496,7 @@ function item_condition() {
  * that are based on unique features of the calling module.
  *
  */
-function conversation(App $a, $items, $mode, $update, $preview = false) {
+function conversation(App $a, $items, $mode, $update, $preview = false, $order = 'commented') {
 	require_once 'mod/proxy.php';
 
 	$ssl_state = ((local_user()) ? true : false);
@@ -520,6 +520,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 	$previewing = (($preview) ? ' preview ' : '');
 
 	if ($mode === 'network') {
+		$items = conversation_add_children($items, false, $order);
 		$profile_owner = local_user();
 		if (!$update) {
 			/*
@@ -580,7 +581,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
-		$items = community_add_items($items);
+		$items = conversation_add_children($items, true, $order);
 		$profile_owner = 0;
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
@@ -899,15 +900,16 @@ function conversation(App $a, $items, $mode, $update, $preview = false) {
  *
  * @return array items with parents and comments
  */
-function community_add_items($parents) {
+function conversation_add_children($parents, $block_authors, $order) {
 	$max_comments = Config::get("system", "max_comments", 100);
 
 	$items = [];
 
+	$block_sql = $block_authors ? "AND NOT `author`.`hidden` AND NOT `author`.`blocked`" : "";
+
 	foreach ($parents AS $parent) {
 		$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
-			AND `item`.`parent-uri` = ?
-			AND NOT `author`.`hidden` AND NOT `author`.`blocked`
+			AND `item`.`parent-uri` = ? $block_sql
 			ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
 			local_user(),
 			$parent['uri']
@@ -949,7 +951,7 @@ function community_add_items($parents) {
 		}
 	}
 
-	$items = conv_sort($items, "`commented`");
+	$items = conv_sort($items, $order);
 
 	return $items;
 }

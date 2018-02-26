@@ -1191,6 +1191,7 @@ class DBStructure
 						"uid_id" => ["uid","id"],
 						"uid_contactid_id" => ["uid","contact-id","id"],
 						"uid_created" => ["uid","created"],
+						"uid_commented" => ["uid","commented"],
 						"uid_unseen_contactid" => ["uid","unseen","contact-id"],
 						"uid_network_received" => ["uid","network","received"],
 						"uid_network_commented" => ["uid","network","commented"],
