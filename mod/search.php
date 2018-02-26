@@ -146,7 +146,7 @@ function search_content(App $a) {
 	$tag = false;
 	if (x($_GET,'tag')) {
 		$tag = true;
-		$search = ((x($_GET,'tag')) ? notags(trim(rawurldecode($_GET['tag']))) : '');
+		$search = (x($_GET,'tag') ? '#' . notags(trim(rawurldecode($_GET['tag']))) : '');
 	}
 
 	// contruct a wrapper for the search header
