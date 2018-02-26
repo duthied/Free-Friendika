@@ -260,6 +260,12 @@ class Item extends BaseObject
 					$prefix_host = $parsed['host'];
 				}
 			}
+
+			// Is it in the format data@host.tld? - Used for mail contacts
+			if (empty($prefix_host) && !empty($item['author-link']) && strstr($item['author-link'], '@')) {
+				$mailparts = explode('@', $item['author-link']);
+				$prefix_host = array_pop($mailparts);
+			}
 		}
 
 		if (!empty($item['plink'])) {
