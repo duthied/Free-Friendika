@@ -797,8 +797,7 @@ function networkThreadedView(App $a, $update = 0)
 				$_SESSION['network_last_top_limit'] = $top_limit;
 			}
 		} else {
-			$top_limit = DateTimeFormat::utcNow();
-			$bottom_limit = DateTimeFormat::utcNow();
+			$top_limit = $bottom_limit = DateTimeFormat::utcNow();
 		}
 
 		// When checking for updates we need to fetch from the newest date to the newest date before
@@ -806,7 +805,7 @@ function networkThreadedView(App $a, $update = 0)
 		$browser_update = PConfig::get(local_user(), 'system', 'update_interval', 40000) / 1000;
 
 		if (($browser_update > 0) && $update && !empty($_SESSION['network_last_date']) &&
-			($bottom_limit > $_SESSION['network_last_date']) &&
+			(($bottom_limit < $_SESSION['network_last_date']) || ($top_limit == $bottom_limit)) &&
 			((time() - $_SESSION['network_last_date_timestamp']) < ($browser_update * 10))) {
 			$bottom_limit = $_SESSION['network_last_date'];
 		}
