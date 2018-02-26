@@ -1127,7 +1127,7 @@ function settings_content(App $a)
 	]);
 
 	$blockwall = replace_macros($opt_tpl, [
-		'$field' => ['blockwall', L10n::t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), L10n::t('Your contacts may write posts on your profile wall. These posts will be distributed to your other contacts'), [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['blockwall', L10n::t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), L10n::t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$blocktags = replace_macros($opt_tpl, [
