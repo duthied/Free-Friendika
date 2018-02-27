@@ -760,12 +760,19 @@ function networkThreadedView(App $a, $update, $parent)
 	// Fetch a page full of parent items for this page
 	if ($update) {
 		if (!empty($parent)) {
+			// Load only a single thread
 			$sql_extra4 = "`item`.`id` = ".intval($parent);
 		} else {
+			// Load all unseen items
 			$sql_extra4 = "`item`.`unseen`";
 			if (Config::get("system", "like_no_comment")) {
 				$sql_extra4 .= " AND `item`.`verb` = '".ACTIVITY_POST."'";
 			}
+		}
+
+		if ($order === 'post') {
+			// Only show toplevel posts when updating posts in this order mode
+			$sql_extra4 .= " AND `item`.`id` = `item`.`parent`";
 		}
 
 		$r = q("SELECT `item`.`parent-uri` AS `uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
