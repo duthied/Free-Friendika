@@ -38,7 +38,7 @@ function item_extract_images($body) {
 		$img_st_close++; // make it point to AFTER the closing bracket
 		$img_end += $img_start;
 
-		if (! strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
+		if (!strcmp(substr($orig_body, $img_start + $img_st_close, 5), 'data:')) {
 			// This is an embedded image
 
 			$saved_image[$cnt] = substr($orig_body, $img_start + $img_st_close, $img_end - ($img_start + $img_st_close));
@@ -213,7 +213,7 @@ function localize_item(&$item) {
 	}
 	if (stristr($item['verb'], ACTIVITY_POKE)) {
 		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
-		if (! $verb) {
+		if (!$verb) {
 			return;
 		}
 		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) {
@@ -338,7 +338,7 @@ function localize_item(&$item) {
 	$matches = null;
 	if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 		foreach ($matches as $mtch) {
-			if (! strpos($mtch[1], 'zrl=')) {
+			if (!strpos($mtch[1], 'zrl=')) {
 				$item['body'] = str_replace($mtch[0], '@[url=' . Profile::zrl($mtch[1]) . ']', $item['body']);
 			}
 		}
@@ -373,7 +373,7 @@ function count_descendants($item) {
 
 	if ($total > 0) {
 		foreach ($item['children'] as $child) {
-			if (! visible_activity($child)) {
+			if (!visible_activity($child)) {
 				$total --;
 			}
 			$total += count_descendants($child);
@@ -397,7 +397,7 @@ function visible_activity($item) {
 	}
 
 	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
-		if (! (($item['self']) && ($item['uid'] == local_user()))) {
+		if (!($item['self'] && ($item['uid'] == local_user()))) {
 			return false;
 		}
 	}
@@ -636,6 +636,10 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 			foreach ($items as $item) {
 
+				if (!visible_activity($item)) {
+					continue;
+				}
+
 				if ($arr_blocked) {
 					$blocked = false;
 					foreach ($arr_blocked as $b) {
@@ -661,8 +665,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					continue;
 				}
 
-				$profile_name = ((strlen($item['author-name'])) ? $item['author-name'] : $item['name']);
-				if ($item['author-link'] && (! $item['author-name'])) {
+				$profile_name = (strlen($item['author-name']) ? $item['author-name'] : $item['name']);
+				if ($item['author-link'] && !$item['author-name']) {
 					$profile_name = $item['author-link'];
 				}
 
@@ -854,7 +858,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					continue;
 				}
 
-				if (! visible_activity($item)) {
+				if (!visible_activity($item)) {
 					continue;
 				}
 
@@ -984,7 +988,7 @@ function best_link_url($item, &$sparkle, $url = '') {
 			}
 		}
 	}
-	if (! $best_url) {
+	if (!$best_url) {
 		if ($url != '') {
 			$best_url = $url;
 		} elseif (strlen($item['author-link'])) {
@@ -1007,7 +1011,7 @@ function item_photo_menu($item) {
 	$photos_link = '';
 	$posts_link = '';
 
-	if ((local_user()) && local_user() == $item['uid'] && $item['parent'] == $item['id'] && (! $item['self'])) {
+	if (local_user() && local_user() == $item['uid'] && $item['parent'] == $item['id'] && !$item['self']) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
@@ -1120,9 +1124,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 				return;
 		}
 
-		if ((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
+		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
 			$url = $item['author-link'];
-			if ((local_user()) && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && (! $item['self']) && (link_compare($item['author-link'], $item['url']))) {
+			if (local_user() && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && !$item['self'] && link_compare($item['author-link'], $item['url'])) {
 				$url = 'redir/' . $item['contact-id'];
 				$sparkle = ' class="sparkle" ';
 			} else {
@@ -1131,12 +1135,12 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
-			if (! $item['thr-parent']) {
+			if (!$item['thr-parent']) {
 				$item['thr-parent'] = $item['parent-uri'];
 			}
 
-			if (! ((isset($conv_responses[$mode][$item['thr-parent'] . '-l']))
-				&& (is_array($conv_responses[$mode][$item['thr-parent'] . '-l'])))) {
+			if (!(isset($conv_responses[$mode][$item['thr-parent'] . '-l'])
+				&& is_array($conv_responses[$mode][$item['thr-parent'] . '-l']))) {
 				$conv_responses[$mode][$item['thr-parent'] . '-l'] = [];
 			}
 
@@ -1145,7 +1149,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 				continue;
 			}
 
-			if (! isset($conv_responses[$mode][$item['thr-parent']])) {
+			if (!isset($conv_responses[$mode][$item['thr-parent']])) {
 				$conv_responses[$mode][$item['thr-parent']] = 1;
 			} else {
 				$conv_responses[$mode][$item['thr-parent']] ++;
@@ -1472,7 +1476,7 @@ function add_children_to_list(array $children, array &$item_list)
  */
 function smart_flatten_conversation(array $parent)
 {
-	if (! isset($parent['children']) || count($parent['children']) == 0) {
+	if (!isset($parent['children']) || count($parent['children']) == 0) {
 		return $parent;
 	}
 
