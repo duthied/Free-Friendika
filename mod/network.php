@@ -819,7 +819,7 @@ function networkThreadedView(App $a, $update = 0)
 			$top_limit = DateTimeFormat::utcNow();
 		}
 
-		$items = dba::p("SELECT `item`.`uri`, `item`.`id` AS `item_id`, `item`.$ordering AS `order_date` FROM `item`
+		$items = dba::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date` FROM `item`
 			STRAIGHT_JOIN (SELECT `oid` FROM `term` WHERE `term` IN
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
@@ -860,7 +860,7 @@ function networkThreadedView(App $a, $update = 0)
 			if ($date_offset < $item['order_date']) {
 				$date_offset = $item['order_date'];
 			}
-			if (!in_array($item['item_id'], $parents_arr)) {
+			if (!in_array($item['item_id'], $parents_arr) && ($item['item_id'] > 0)) {
 				$parents_arr[] = $item['item_id'];
 			}
 		}
