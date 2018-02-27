@@ -12,14 +12,15 @@ require_once "mod/network.php";
 
 function update_network_content(App $a)
 {
-	$profile_uid = intval($_GET["p"]);
+	$profile_uid = intval($_GET['p']);
+	$parent = intval($_GET['item']);
 
 	header("Content-type: text/html");
 	echo "<!DOCTYPE html><html><body>\r\n";
 	echo "<section>";
 
 	if (!PConfig::get($profile_uid, "system", "no_auto_update") || ($_GET["force"] == 1)) {
-		$text = network_content($a, $profile_uid);
+		$text = network_content($a, $profile_uid, $parent);
 	} else {
 		$text = "";
 	}
