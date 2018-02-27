@@ -764,7 +764,7 @@ function networkThreadedView(App $a, $update = 0)
 		} else {
 			$sql_extra4 = '';
 		}
-		$r = q("SELECT `item`.`uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
+		$r = q("SELECT `item`.`parent-uri` AS `uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
 			FROM `item` $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
