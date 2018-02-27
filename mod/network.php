@@ -857,20 +857,18 @@ function networkThreadedView(App $a, $update = 0)
 		$parents_arr = [];
 
 		foreach ($items as $item) {
+			if ($date_offset < $item['order_date']) {
+				$date_offset = $item['order_date'];
+			}
 			if (!in_array($item['item_id'], $parents_arr)) {
 				$parents_arr[] = $item['item_id'];
 			}
 		}
-
 		$parents_str = implode(', ', $parents_arr);
 	}
 
 	if (x($_GET, 'offset')) {
 		$date_offset = $_GET['offset'];
-	} elseif (count($items)) {
-		$date_offset = $items[0][$order_mode];
-	} else {
-		$date_offset = '';
 	}
 
 	$a->page_offset = $date_offset;

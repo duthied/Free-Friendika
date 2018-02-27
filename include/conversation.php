@@ -901,7 +901,13 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
  * @return array items with parents and comments
  */
 function conversation_add_children($parents, $block_authors, $order) {
-	$max_comments = Config::get("system", "max_comments", 100);
+	$max_comments = Config::get('system', 'max_comments', 100);
+
+	if ($max_comments > 0) {
+		$limit = ' LIMIT '.intval($max_comments + 1);
+	} else {
+		$limit = '';
+	}
 
 	$items = [];
 
@@ -910,7 +916,7 @@ function conversation_add_children($parents, $block_authors, $order) {
 	foreach ($parents AS $parent) {
 		$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
 			AND `item`.`parent-uri` = ? $block_sql
-			ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
+			ORDER BY `item`.`commented` DESC" . $limit,
 			local_user(),
 			$parent['uri']
 		);
