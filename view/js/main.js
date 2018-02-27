@@ -9,7 +9,7 @@ function _resizeIframe(obj, desth) {
 	if (h == (ch + 'px')) {
 		return;
 	}
-	if (desth == ch && ch>0) {
+	if (desth == ch && ch > 0) {
 		obj.style.height  = ch + 'px';
 	}
 	setTimeout(_resizeIframe, 100, obj, ch);
@@ -75,9 +75,9 @@ $(function() {
 	$('body').on('click','[data-role="insert-formatting"]', function(e) {
 		e.preventDefault();
 		var o = $(this);
-		var bbcode  = o.data('bbcode');
+		var bbcode = o.data('bbcode');
 		var id = o.data('id');
-		if (bbcode=="img") {
+		if (bbcode == "img") {
 			Dialog.doImageBrowser("comment", id);
 			return;
 		}
@@ -99,7 +99,7 @@ $(function() {
 	$(".onoff input").each(function() {
 		val = $(this).val();
 		id = $(this).attr("id");
-		$("#"+id+"_onoff ."+ (val==0?"on":"off")).addClass("hidden");
+		$("#"+id+"_onoff ." + (val == 0 ? "on":"off")).addClass("hidden");
 	});
 
 	$(".onoff > a").click(function(event) {
@@ -107,8 +107,8 @@ $(function() {
 		var input = $(this).siblings("input");
 		var val = 1-input.val();
 		var id = input.attr("id");
-		$("#"+id+"_onoff ."+ (val==0?"on":"off")).addClass("hidden");
-		$("#"+id+"_onoff ."+ (val==1?"on":"off")).removeClass("hidden");
+		$("#"+id+"_onoff ." + (val == 0 ? "on":"off")).addClass("hidden");
+		$("#"+id+"_onoff ." + (val == 1 ? "on":"off")).removeClass("hidden");
 		input.val(val);
 	});
 
@@ -130,7 +130,7 @@ $(function() {
 		if (isSelected) {
 			return false;
 		}
-		menu = $( $(this).attr('rel') );
+		menu = $($(this).attr('rel'));
 		e.preventDefault();
 		e.stopPropagation();
 		if (menu.attr('popup') == "false") {
@@ -166,8 +166,8 @@ $(function() {
 
 	/* notifications template */
 	var notifications_tpl= unescape($("#nav-notifications-template[rel=template]").html());
-	var notifications_all = unescape($('<div>').append( $("#nav-notifications-see-all").clone() ).html()); //outerHtml hack
-	var notifications_mark = unescape($('<div>').append( $("#nav-notifications-mark-all").clone() ).html()); //outerHtml hack
+	var notifications_all = unescape($('<div>').append($("#nav-notifications-see-all").clone()).html()); //outerHtml hack
+	var notifications_mark = unescape($('<div>').append($("#nav-notifications-mark-all").clone()).html()); //outerHtml hack
 	var notifications_empty = unescape($("#nav-notifications-menu").html());
 
 	/* enable perfect-scrollbars for different elements */
@@ -260,7 +260,7 @@ $(function() {
 						var notification = new Notification(document.title, {
 										  body: decodeHtml(e.message.replace('&rarr; ', '').format(e.name)),
 										  icon: e.photo,
-										 });
+										});
 						notification['url'] = e.href;
 						notification.addEventListener("click", function(ev) {
 							window.location = ev.target.url;
@@ -345,7 +345,7 @@ $(function() {
 					comparison = top < scrollTop - 1;
 				}
 				if (comparison) {
-					$('html, body').animate({ scrollTop: top }, 200);
+					$('html, body').animate({scrollTop: top}, 200);
 					return false;
 				}
 			});
@@ -396,11 +396,11 @@ function NavUpdate() {
 }
 
 function liveUpdate(src) {
-	if ((src == null) || (stopped) || (! profile_uid)) {
+	if ((src == null) || stopped || !profile_uid) {
 		$('.like-rotator').hide(); return;
 	}
 
-	if (($('.comment-edit-text-full').length) || (in_progress)) {
+	if (($('.comment-edit-text-full').length) || in_progress) {
 		if (livetime) {
 			clearTimeout(livetime);
 		}
@@ -493,7 +493,7 @@ function imgdull(node) {
 function dolike(ident,verb) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
-	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
+	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate);
 	liking = 1;
 	force_update = true;
 	update_item = ident.toString();
@@ -502,7 +502,7 @@ function dolike(ident,verb) {
 function dosubthread(ident) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
-	$.get('subthread/' + ident.toString(), NavUpdate );
+	$.get('subthread/' + ident.toString(), NavUpdate);
 	liking = 1;
 }
 
@@ -573,7 +573,7 @@ function lockview(event,id) {
 		lockvisible = true;
 		$.get('lockview/' + id, function(data) {
 			$('#panel').html(data);
-			$('#panel').css({ 'left': cursor.x + 5 , 'top': cursor.y + 5});
+			$('#panel').css({'left': cursor.x + 5 , 'top': cursor.y + 5});
 			$('#panel').show();
 		});
 	}
@@ -625,7 +625,7 @@ function preview_comment(id) {
 		function(data) {
 			if (data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
-				$("#comment-edit-preview-" + id + " a").click(function() { return false; });
+				$("#comment-edit-preview-" + id + " a").click(function() {return false;});
 			}
 		},
 		"json"
@@ -652,7 +652,7 @@ function preview_post() {
 		function(data) {
 			if (data.preview) {
 				$("#jot-preview-content").html(data.preview);
-				$("#jot-preview-content" + " a").click(function() { return false; });
+				$("#jot-preview-content" + " a").click(function() {return false;});
 			}
 		},
 		"json"
@@ -723,26 +723,26 @@ function loadScrollContent() {
 }
 
 function bin2hex(s) {
-        // Converts the binary representation of data to hex
-        //
-        // version: 812.316
-        // discuss at: http://phpjs.org/functions/bin2hex
-        // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-        // +   bugfixed by: Onno Marsman
-        // +   bugfixed by: Linuxworld
-        // *     example 1: bin2hex('Kev');
-        // *     returns 1: '4b6576'
-        // *     example 2: bin2hex(String.fromCharCode(0x00));
-        // *     returns 2: '00'
-        var v,i, f = 0, a = [];
-        s += '';
-        f = s.length;
+	// Converts the binary representation of data to hex
+	//
+	// version: 812.316
+	// discuss at: http://phpjs.org/functions/bin2hex
+	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	// +   bugfixed by: Onno Marsman
+	// +   bugfixed by: Linuxworld
+	// *     example 1: bin2hex('Kev');
+	// *     returns 1: '4b6576'
+	// *     example 2: bin2hex(String.fromCharCode(0x00));
+	// *     returns 2: '00'
+	var v,i, f = 0, a = [];
+	s += '';
+	f = s.length;
 
-        for (i = 0; i<f; i++) {
-            a[i] = s.charCodeAt(i).toString(16).replace(/^([\da-f])$/,"0$1");
-        }
+	for (i = 0; i<f; i++) {
+		a[i] = s.charCodeAt(i).toString(16).replace(/^([\da-f])$/,"0$1");
+	}
 
-        return a.join('');
+	return a.join('');
 }
 
 function groupChangeMember(gid, cid, sec_token) {

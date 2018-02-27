@@ -760,10 +760,12 @@ function networkThreadedView(App $a, $update, $parent)
 	// Fetch a page full of parent items for this page
 	if ($update) {
 		if (!empty($parent)) {
-logger('Blubb: '.$parent);
 			$sql_extra4 = "`item`.`id` = ".intval($parent);
 		} else {
 			$sql_extra4 = "`item`.`unseen`";
+			if (Config::get("system", "like_no_comment")) {
+				$sql_extra4 .= " AND `item`.`verb` = '".ACTIVITY_POST."'";
+			}
 		}
 
 		$r = q("SELECT `item`.`parent-uri` AS `uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
