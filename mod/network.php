@@ -439,7 +439,7 @@ function networkFlatView(App $a, $update = 0)
 
 		if (!Config::get('theme', 'hide_eventlist')) {
 			$o .= Profile::getBirthdays();
-			$o .= Profile::getEvents();
+			$o .= Profile::getEventsReminderHTML();
 		}
 	}
 
@@ -677,7 +677,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 	if (!$gid && !$cid && !$update && !Config::get('theme', 'hide_eventlist')) {
 		$o .= Profile::getBirthdays();
-		$o .= Profile::getEvents();
+		$o .= Profile::getEventsReminderHTML();
 	}
 
 	if ($datequery) {
