@@ -768,11 +768,10 @@ function networkThreadedView(App $a, $update, $parent)
 			if (Config::get("system", "like_no_comment")) {
 				$sql_extra4 .= " AND `item`.`verb` = '".ACTIVITY_POST."'";
 			}
-		}
-
-		if ($order === 'post') {
-			// Only show toplevel posts when updating posts in this order mode
-			$sql_extra4 .= " AND `item`.`id` = `item`.`parent`";
+			if ($order === 'post') {
+				// Only show toplevel posts when updating posts in this order mode
+				$sql_extra4 .= " AND `item`.`id` = `item`.`parent`";
+			}
 		}
 
 		$r = q("SELECT `item`.`parent-uri` AS `uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
