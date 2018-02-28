@@ -352,7 +352,7 @@ function profile_content(App $a, $update = 0)
 
 	if ($is_owner && !$update && !Config::get('theme', 'hide_eventlist')) {
 		$o .= Profile::getBirthdays();
-		$o .= Profile::getEvents();
+		$o .= Profile::getEventsReminderHTML();
 	}
 
 

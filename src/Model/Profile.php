@@ -622,7 +622,7 @@ class Profile
 		]);
 	}
 
-	public static function getEvents()
+	public static function getEventsReminderHTML()
 	{
 		$a = get_app();
 		$o = '';
@@ -642,9 +642,21 @@ class Profile
 		$classtoday = '';
 
 		$s = dba::p(
-			"SELECT `event`.* FROM `event`
-			WHERE `event`.`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?
-			ORDER BY `start` ASC ",
+			"SELECT `event`.*, `item`.`id`, `item`.`thr-parent`, `item`.`parent-uri`
+			FROM `event`
+			LEFT JOIN `item`
+				ON `item`.`uid` = `event`.`uid`
+				AND `item`.`parent-uri` = `event`.`uri`
+				AND `item`.`verb` = ?
+				AND `item`.`visible`
+				AND NOT `item`.`deleted`
+			WHERE `event`.`uid` = ?
+			AND  `event`.`type` != 'birthday'
+			AND  `event`.`start` < ?
+			AND  `event`.`start` >= ?
+			AND `item`.`id` IS NULL
+			ORDER BY  `event`.`start` ASC",
+			ACTIVITY_ATTENDNO,
 			local_user(),
 			DateTimeFormat::utc('now + 7 days'),
 			DateTimeFormat::utc('now - 1 days')
