@@ -642,24 +642,26 @@ class Profile
 		$classtoday = '';
 
 		$s = dba::p(
-			"SELECT `event`.*, `item`.`id`, `item`.`thr-parent`, `item`.`parent-uri`
+			"SELECT *
 			FROM `event`
-			LEFT JOIN `item`
-				ON `item`.`uid` = `event`.`uid`
-				AND `item`.`parent-uri` = `event`.`uri`
-				AND `item`.`verb` = ?
-				AND `item`.`visible`
-				AND NOT `item`.`deleted`
 			WHERE `event`.`uid` = ?
 			AND  `event`.`type` != 'birthday'
 			AND  `event`.`start` < ?
 			AND  `event`.`start` >= ?
-			AND `item`.`id` IS NULL
+			AND NOT EXISTS (
+				SELECT `id`
+				FROM `item`
+				WHERE `item`.`uid` = `event`.`uid`
+				AND `item`.`parent-uri` = `event`.`uri`
+				AND `item`.`verb` = ?
+				AND `item`.`visible`
+				AND NOT `item`.`deleted`
+			)
 			ORDER BY  `event`.`start` ASC",
-			ACTIVITY_ATTENDNO,
 			local_user(),
 			DateTimeFormat::utc('now + 7 days'),
-			DateTimeFormat::utc('now - 1 days')
+			DateTimeFormat::utc('now - 1 days'),
+			ACTIVITY_ATTENDNO
 		);
 
 		$r = [];
