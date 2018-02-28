@@ -50,7 +50,7 @@ var src = null;
 var prev = null;
 var livetime = null;
 var force_update = false;
-var update_item = null;
+var update_item = 0;
 var stopped = false;
 var totStopped = false;
 var timer = null;
@@ -424,7 +424,7 @@ function liveUpdate(src) {
 	$.get(update_url,function(data) {
 		in_progress = false;
 		force_update = false;
-		update_item = null;
+		update_item = 0;
 
 		// add a new thread
 		$('.toplevel_item',data).each(function() {
