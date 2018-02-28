@@ -358,7 +358,7 @@ function networkConversation($a, $items, $mode, $update, $ordering = '')
 	return $o;
 }
 
-function network_content(App $a, $update = 0)
+function network_content(App $a, $update = 0, $parent = 0)
 {
 	if (!local_user()) {
 		return Login::form();
@@ -385,7 +385,7 @@ function network_content(App $a, $update = 0)
 	if ($nouveau) {
 		$o = networkFlatView($a, $update);
 	} else {
-		$o = networkThreadedView($a, $update);
+		$o = networkThreadedView($a, $update, $parent);
 	}
 
 	return $o;
@@ -476,7 +476,7 @@ function networkFlatView(App $a, $update = 0)
  * @param integer $update Used for the automatic reloading
  * @return string HTML of the network content in flat view
  */
-function networkThreadedView(App $a, $update = 0)
+function networkThreadedView(App $a, $update, $parent)
 {
 	// Rawmode is used for fetching new content at the end of the page
 	$rawmode = (isset($_GET['mode']) AND ( $_GET['mode'] == 'raw'));
@@ -759,17 +759,27 @@ function networkThreadedView(App $a, $update = 0)
 
 	// Fetch a page full of parent items for this page
 	if ($update) {
-		if (Config::get('system', 'like_no_comment')) {
-			$sql_extra4 = " AND `item`.`verb` = '" . ACTIVITY_POST . "'";
+		if (!empty($parent)) {
+			// Load only a single thread
+			$sql_extra4 = "`item`.`id` = ".intval($parent);
 		} else {
-			$sql_extra4 = '';
+			// Load all unseen items
+			$sql_extra4 = "`item`.`unseen`";
+			if (Config::get("system", "like_no_comment")) {
+				$sql_extra4 .= " AND `item`.`verb` = '".ACTIVITY_POST."'";
+			}
+			if ($order === 'post') {
+				// Only show toplevel posts when updating posts in this order mode
+				$sql_extra4 .= " AND `item`.`id` = `item`.`parent`";
+			}
 		}
+
 		$r = q("SELECT `item`.`parent-uri` AS `uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
 			FROM `item` $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` $sql_extra4
-			AND NOT `item`.`moderated` AND `item`.`unseen`
+			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
+			AND NOT `item`.`moderated` AND $sql_extra4
 			$sql_extra3 $sql_extra $sql_range $sql_nets
 			ORDER BY `order_date` DESC LIMIT 100",
 			intval(local_user())
