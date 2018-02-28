@@ -345,7 +345,7 @@ function networkConversation($a, $items, $mode, $update, $ordering = '')
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
 
-	$o = conversation($a, $items, $mode, $update, $ordering);
+	$o = conversation($a, $items, $mode, $update, false, $ordering);
 
 	if (!$update) {
 		if (PConfig::get(local_user(), 'system', 'infinite_scroll')) {
@@ -689,9 +689,6 @@ function networkThreadedView(App $a, $update, $parent)
 				dbesc(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 	}
 
-	$sql_order = '';
-	$order_mode = 'received';
-
 	if ($conv) {
 		$sql_extra3 .= " AND $sql_table.`mention`";
 	}
@@ -699,14 +696,10 @@ function networkThreadedView(App $a, $update, $parent)
 	// Normal conversation view
 	if ($order === 'post') {
 		$ordering = '`created`';
-		if ($sql_order == '') {
-			$order_mode = 'created';
-		}
+		$order_mode = 'created';
 	} else {
 		$ordering = '`commented`';
-		if ($sql_order == '') {
-			$order_mode = 'commented';
-		}
+		$order_mode = 'commented';
 	}
 
 	if ($sql_order == '') {
