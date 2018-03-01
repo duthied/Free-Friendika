@@ -207,7 +207,7 @@ function message_content(App $a)
 			'$linkurl' => L10n::t('Please enter a link URL:')
 		]);
 
-		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : false;
+		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : [];
 
 		$prename = $preurl = $preid = '';
 
