@@ -242,7 +242,8 @@ class Delivery {
 						}
 
 						if ($normal_mode) {
-							if ($item_id == $item['id'] || $item['id'] == $item['parent']) {
+							// Only add the parent when we don't delete other items.
+							if ($item_id == $item['id'] || (($item['id'] == $item['parent']) && ($cmd != 'drop'))) {
 								$item["entry:comment-allow"] = true;
 								$item["entry:cid"] = (($top_level) ? $contact['id'] : 0);
 								$msgitems[] = $item;
