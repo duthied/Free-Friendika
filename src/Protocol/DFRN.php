@@ -2737,12 +2737,26 @@ class DFRN
 			return false;
 		}
 
-		$condition = ["`uri` = ? AND `uid` = ? AND `contact-id` = ? AND NOT `file` LIKE '%[%'",
-				$uri, $importer["uid"], $importer["id"]];
-		$item = dba::selectFirst('item', ['id'], $condition);
+		$condition = ["`uri` = ? AND `uid` = ? AND NOT `file` LIKE '%[%'", $uri, $importer["uid"]];
+		$item = dba::selectFirst('item', ['id', 'parent', 'contact-id'], $condition);
 		if (!DBM::is_result($item)) {
-			logger("Item with uri " . $uri . " from contact " . $importer["id"] . " for user " . $importer["uid"] . " wasn't found.", LOGGER_DEBUG);
+			logger("Item with uri " . $uri . " for user " . $importer["uid"] . " wasn't found.", LOGGER_DEBUG);
 			return;
+		}
+
+		// When it is a starting post it has to belong to the person that wants to delete it
+		if (($item['id'] == $item['parent']) && ($item['contact-id'] != $importer["id"])) {
+			logger("Item with uri " . $uri . " don't belong to contact " . $importer["id"] . " - ignoring deletion.", LOGGER_DEBUG);
+			return;
+		}
+
+		// Comments can be deleted by the thread owner or comment owner
+		if (($item['id'] != $item['parent']) && ($item['contact-id'] != $importer["id"])) {
+			$condition = ['id' => $item['parent'], 'contact-id' => $importer["id"]];
+			if (!dba::exists('item', $condition)) {
+				logger("Item with uri " . $uri . " wasn't found or mustn't be deleted by contact " . $importer["id"] . " - ignoring deletion.", LOGGER_DEBUG);
+				return;
+			}
 		}
 
 		$entrytype = self::getEntryType($importer, $item);
