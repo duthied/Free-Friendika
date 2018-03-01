@@ -258,7 +258,7 @@ function register_content(App $a)
 		'$permonly'    => $a->config['register_policy'] == REGISTER_APPROVE,
 		'$permonlybox' => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node')],
 		'$invite_desc' => L10n::t('Membership on this site is by invitation only.'),
-		'$invite_label' => L10n::t('Your invitation ID: '),
+		'$invite_label' => L10n::t('Your invitation code: '),
 		'$invite_id'  => $invite_id,
 		'$realpeople' => $realpeople,
 		'$regtitle'  => L10n::t('Registration'),
