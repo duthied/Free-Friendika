@@ -115,7 +115,7 @@ class Acl extends BaseObject
 		}
 
 		$stmt = dba::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
-			WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 			$sql_extra
 			ORDER BY `name` ASC ", intval(local_user())
 		);
