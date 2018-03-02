@@ -8,13 +8,14 @@
 # mytbk <mytbk920423@gmail.com>, 2017
 # mytbk <mytbk920423@gmail.com>, 2017
 # Matthew Exon <transifex.mexon@spamgourmet.com>, 2012-2013
+# 朱陈锬 <tangenters@outlook.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-02-26 17:52+0100\n"
-"PO-Revision-Date: 2018-02-27 01:58+0000\n"
-"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
+"PO-Revision-Date: 2018-03-01 15:30+0000\n"
+"Last-Translator: 朱陈锬 <tangenters@outlook.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/Friendica/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -37,7 +38,7 @@ msgstr "请上传一张简介照片"
 
 #: include/security.php:84
 msgid "Welcome back "
-msgstr "欢迎归来"
+msgstr "欢迎回来"
 
 #: include/security.php:431
 msgid ""
@@ -68,7 +69,7 @@ msgstr "显示"
 
 #: include/acl_selectors.php:368 view/theme/vier/config.php:115
 msgid "don't show"
-msgstr "不显示"
+msgstr "不要显示"
 
 #: include/acl_selectors.php:374 mod/editpost.php:136
 msgid "CC: email addresses"
@@ -91,7 +92,7 @@ msgstr "关闭"
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
-msgstr[0] ""
+msgstr[0] "达到每日 %d 发文限制。这篇文章被拒绝发出。"
 
 #: include/api.php:1205
 #, php-format
@@ -276,7 +277,7 @@ msgstr "删除选的项目"
 
 #: include/conversation.php:1051 view/theme/frio/theme.php:352
 msgid "Follow Thread"
-msgstr "关注线绳"
+msgstr ""
 
 #: include/conversation.php:1052 src/Model/Contact.php:554
 msgid "View Status"
@@ -537,7 +538,7 @@ msgstr "发到组"
 
 #: include/conversation.php:1369
 msgid "Post to Contacts"
-msgstr "发到熟人"
+msgstr "发给联系人"
 
 #: include/conversation.php:1370
 msgid "Private post"
@@ -1086,11 +1087,11 @@ msgstr ""
 
 #: include/event.php:1011 include/event.php:1013
 msgid "Show map"
-msgstr ""
+msgstr "显示地图"
 
 #: include/event.php:1012
 msgid "Hide map"
-msgstr ""
+msgstr "隐藏地图"
 
 #: include/items.php:342 mod/notice.php:22 mod/admin.php:269
 #: mod/admin.php:1762 mod/admin.php:2010 mod/display.php:70
@@ -1179,17 +1180,17 @@ msgstr ""
 
 #: include/text.php:884
 msgid "No contacts"
-msgstr "没有熟人"
+msgstr "没有联系人"
 
 #: include/text.php:908
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
-msgstr[0] "%d熟人"
+msgstr[0] "%d 联系人"
 
 #: include/text.php:921
 msgid "View Contacts"
-msgstr "看熟人"
+msgstr "查看联系人"
 
 #: include/text.php:1010 mod/editpost.php:112 mod/filer.php:35
 #: mod/notes.php:68
@@ -1198,7 +1199,7 @@ msgstr "保存"
 
 #: include/text.php:1010
 msgid "Follow"
-msgstr ""
+msgstr "关注"
 
 #: include/text.php:1016 mod/search.php:155 src/Content/Nav.php:142
 msgid "Search"
@@ -1271,11 +1272,11 @@ msgstr "指了"
 
 #: include/text.php:1079
 msgid "rebuff"
-msgstr "窝脖儿"
+msgstr "拒绝"
 
 #: include/text.php:1079
 msgid "rebuffed"
-msgstr "窝脖儿了"
+msgstr "已拒绝"
 
 #: include/text.php:1114
 msgid "Sep"
@@ -1283,7 +1284,7 @@ msgstr ""
 
 #: include/text.php:1315 mod/videos.php:381
 msgid "View Video"
-msgstr "看视频"
+msgstr "察看视频"
 
 #: include/text.php:1332
 msgid "bytes"
@@ -1385,7 +1386,7 @@ msgstr "文章创建了"
 
 #: mod/common.php:91
 msgid "No contacts in common."
-msgstr "没有共同熟人。"
+msgstr "没有共同的联系人。"
 
 #: mod/common.php:140 mod/contacts.php:877
 msgid "Common Friends"
@@ -1400,11 +1401,11 @@ msgid ""
 "Friendica is a community project, that would not be possible without the "
 "help of many people. Here is a list of those who have contributed to the "
 "code or the translation of Friendica. Thank you all!"
-msgstr ""
+msgstr "Friendica 是一个社区项目，如果没有许多人的努力她将无法实现。这里列出了那些为代码作出贡献或者参与本地化翻译的人们。感谢大家的努力！"
 
 #: mod/crepair.php:87
 msgid "Contact settings applied."
-msgstr "熟人设置应用了。"
+msgstr "联系人设置已应用。"
 
 #: mod/crepair.php:89
 msgid "Contact update failed."
@@ -1413,13 +1414,13 @@ msgstr "熟人更新失败。"
 #: mod/crepair.php:110 mod/dfrn_confirm.php:131 mod/fsuggest.php:29
 #: mod/fsuggest.php:97
 msgid "Contact not found."
-msgstr "没找到熟人。"
+msgstr "没有找到联系人。"
 
 #: mod/crepair.php:114
 msgid ""
 "<strong>WARNING: This is highly advanced</strong> and if you enter incorrect"
 " information your communications with this contact may stop working."
-msgstr "<strong>注意：这是很高等的</strong>，你输入错的信息你和熟人的沟通会弄失灵了。"
+msgstr "<strong>警告：此为进阶</strong>，如果您输入不正确的信息，您也许无法与这位联系人的正常通讯。"
 
 #: mod/crepair.php:115
 msgid ""
@@ -1441,7 +1442,7 @@ msgstr "复制为我自己的文章"
 
 #: mod/crepair.php:144
 msgid "Return to contact editor"
-msgstr "回归熟人处理器"
+msgstr "返回到联系人编辑器"
 
 #: mod/crepair.php:146
 msgid "Refetch contact data"
@@ -1516,7 +1517,7 @@ msgstr "新照片从这个URL"
 #: mod/search.php:104 mod/videos.php:200 mod/viewcontacts.php:45
 #: mod/webfinger.php:16
 msgid "Public access denied."
-msgstr "公众看拒绝"
+msgstr "拒绝公开访问"
 
 #: mod/directory.php:142 mod/notifications.php:253 src/Model/Profile.php:420
 #: src/Model/Profile.php:731
@@ -1716,7 +1717,7 @@ msgstr "入门"
 
 #: mod/newmember.php:17
 msgid "Friendica Walk-Through"
-msgstr "Friendica游览"
+msgstr "Friendica 漫游"
 
 #: mod/newmember.php:17
 msgid ""
@@ -1806,7 +1807,7 @@ msgstr "输入你电子邮件使用信息在插销设置页，要是你想用你
 
 #: mod/newmember.php:39
 msgid "Go to Your Contacts Page"
-msgstr "您的熟人页"
+msgstr "转到您的联系人页面"
 
 #: mod/newmember.php:39
 msgid ""
@@ -1887,7 +1888,7 @@ msgstr "看%s的简介[%s]"
 
 #: mod/nogroup.php:43 mod/contacts.php:944
 msgid "Edit contact"
-msgstr "编熟人"
+msgstr "编辑联系人"
 
 #: mod/nogroup.php:63
 msgid "Contacts who are not members of a group"
@@ -1982,7 +1983,7 @@ msgstr "这个网站超过一天最多账户注册。请明天再试。"
 
 #: mod/uimport.php:70 mod/register.php:285
 msgid "Import"
-msgstr "进口"
+msgstr ""
 
 #: mod/uimport.php:72
 msgid "Move account"
@@ -2046,15 +2047,15 @@ msgstr "运作再网址"
 msgid ""
 "Please visit <a href=\"https://friendi.ca\">Friendi.ca</a> to learn more "
 "about the Friendica project."
-msgstr ""
+msgstr "请浏览 <a href=\"https://friendi.ca\">Friendi.ca</a> 以了解更多关于 Friendica 项目的信息。"
 
 #: mod/friendica.php:86
 msgid "Bug reports and issues: please visit"
-msgstr "问题报案：请去"
+msgstr "Bug 及 issues 报告：请访问"
 
 #: mod/friendica.php:86
 msgid "the bugtracker at github"
-msgstr ""
+msgstr "在 github 上的错误追踪系统"
 
 #: mod/friendica.php:89
 msgid ""
@@ -2064,11 +2065,11 @@ msgstr "建议，夸奖，捐赠，等－请发邮件到「 Info」在Friendica�
 
 #: mod/friendica.php:103
 msgid "Installed addons/apps:"
-msgstr ""
+msgstr "已安装的插件/应用："
 
 #: mod/friendica.php:117
 msgid "No installed addons/apps"
-msgstr ""
+msgstr "没有已安装的插件或应用"
 
 #: mod/friendica.php:122
 msgid "On this server the following remote servers are blocked."
@@ -2177,7 +2178,7 @@ msgstr "否"
 
 #: mod/notifications.php:200 mod/notifications.php:205
 msgid "Shall your connection be bidirectional or not?"
-msgstr ""
+msgstr "是否启用双向连接？"
 
 #: mod/notifications.php:201 mod/notifications.php:206
 #, php-format
@@ -2265,7 +2266,7 @@ msgstr ""
 
 #: mod/ostatus_subscribe.php:38
 msgid "Couldn't fetch information for contact."
-msgstr ""
+msgstr "无法获取联系人信息。"
 
 #: mod/ostatus_subscribe.php:47
 msgid "Couldn't fetch friends for contact."
@@ -2379,7 +2380,7 @@ msgstr "空的URL供应，或URL解不了码。"
 
 #: mod/dfrn_confirm.php:535
 msgid "Contact record was not found for you on our site."
-msgstr "熟人记录在我们的网站找不了。"
+msgstr "无法在本站点为您找到联系人记录。"
 
 #: mod/dfrn_confirm.php:549
 #, php-format
@@ -2595,7 +2596,7 @@ msgstr "性取向"
 
 #: mod/profiles.php:381
 msgid "XMPP"
-msgstr ""
+msgstr "XMPP"
 
 #: mod/profiles.php:385
 msgid "Homepage"
@@ -2650,7 +2651,7 @@ msgstr "藏起来发现您的熟人／朋友单不让这个简介看着看？"
 
 #: mod/profiles.php:671
 msgid "Show more profile fields:"
-msgstr ""
+msgstr "显示更多简介内容："
 
 #: mod/profiles.php:683
 msgid "Profile Actions"
@@ -2934,7 +2935,7 @@ msgstr "资料"
 
 #: mod/admin.php:177
 msgid "Overview"
-msgstr ""
+msgstr "概览"
 
 #: mod/admin.php:178 mod/admin.php:654
 msgid "Federation Statistics"
@@ -2954,7 +2955,7 @@ msgstr "用户"
 
 #: mod/admin.php:182 mod/admin.php:1812 mod/admin.php:1872 mod/settings.php:85
 msgid "Addons"
-msgstr ""
+msgstr "插件"
 
 #: mod/admin.php:183 mod/admin.php:2081 mod/admin.php:2125
 msgid "Themes"
@@ -2986,7 +2987,7 @@ msgstr ""
 
 #: mod/admin.php:190 mod/admin.php:311
 msgid "Server Blocklist"
-msgstr ""
+msgstr "服务器屏蔽列表"
 
 #: mod/admin.php:191 mod/admin.php:470
 msgid "Delete Item"
@@ -3006,15 +3007,15 @@ msgstr ""
 
 #: mod/admin.php:197
 msgid "PHP Info"
-msgstr ""
+msgstr "PHP Info"
 
 #: mod/admin.php:198
 msgid "probe address"
-msgstr "试探地址"
+msgstr "探测地址"
 
 #: mod/admin.php:199
 msgid "check webfinger"
-msgstr "查webfinger"
+msgstr ""
 
 #: mod/admin.php:218 src/Content/Nav.php:217
 msgid "Admin"
@@ -3042,7 +3043,7 @@ msgstr "删除域名"
 
 #: mod/admin.php:304
 msgid "Check to delete this entry from the blocklist"
-msgstr ""
+msgstr "选中以从列表中删除此条目"
 
 #: mod/admin.php:310 mod/admin.php:427 mod/admin.php:469 mod/admin.php:653
 #: mod/admin.php:688 mod/admin.php:784 mod/admin.php:1262 mod/admin.php:1695
@@ -3068,7 +3069,7 @@ msgstr ""
 
 #: mod/admin.php:314
 msgid "Add new entry to block list"
-msgstr ""
+msgstr "添加新条目到屏蔽列表"
 
 #: mod/admin.php:315
 msgid "Server Domain"
@@ -3090,27 +3091,27 @@ msgstr "添加条目"
 
 #: mod/admin.php:318
 msgid "Save changes to the blocklist"
-msgstr ""
+msgstr "保存变更到屏蔽列表"
 
 #: mod/admin.php:319
 msgid "Current Entries in the Blocklist"
-msgstr ""
+msgstr "屏蔽列表中的当前条目"
 
 #: mod/admin.php:322
 msgid "Delete entry from blocklist"
-msgstr ""
+msgstr "删除屏蔽列表中的条目"
 
 #: mod/admin.php:325
 msgid "Delete entry from blocklist?"
-msgstr ""
+msgstr "从屏蔽列表删除条目？"
 
 #: mod/admin.php:351
 msgid "Server added to blocklist."
-msgstr ""
+msgstr "服务器已添加到屏蔽列表。"
 
 #: mod/admin.php:367
 msgid "Site blocklist updated."
-msgstr ""
+msgstr "站点屏蔽列表已更新。"
 
 #: mod/admin.php:390 util/global_community_block.php:53
 msgid "The contact has been blocked from the node"
@@ -3143,7 +3144,7 @@ msgstr ""
 
 #: mod/admin.php:431 mod/admin.php:1698
 msgid "select all"
-msgstr "都选"
+msgstr "全选"
 
 #: mod/admin.php:432
 msgid "select none"
@@ -3204,7 +3205,7 @@ msgstr ""
 
 #: mod/admin.php:474
 msgid "GUID"
-msgstr ""
+msgstr "GUID"
 
 #: mod/admin.php:474
 msgid "The GUID of the item you want to delete."
@@ -3240,7 +3241,7 @@ msgstr ""
 
 #: mod/admin.php:691
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: mod/admin.php:692
 msgid "Recipient Name"
@@ -3286,7 +3287,7 @@ msgstr ""
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
-msgstr ""
+msgstr "有新的 Friendica 版本可供下载。您当前的版本为 %1$s，上游版本为 %2$s"
 
 #: mod/admin.php:738
 msgid ""
@@ -3336,7 +3337,7 @@ msgstr "通知排队"
 
 #: mod/admin.php:785
 msgid "Summary"
-msgstr "总算"
+msgstr "概要"
 
 #: mod/admin.php:787
 msgid "Registered users"
@@ -3388,7 +3389,7 @@ msgstr "已停用"
 
 #: mod/admin.php:1192
 msgid "Users, Global Contacts"
-msgstr ""
+msgstr "用户，全球联系人"
 
 #: mod/admin.php:1193
 msgid "Users, Global Contacts/fallback"
@@ -3440,15 +3441,15 @@ msgstr "自签证书，只在本地链接使用 SSL（不推荐）"
 
 #: mod/admin.php:1240
 msgid "Don't check"
-msgstr ""
+msgstr "请勿检查"
 
 #: mod/admin.php:1241
 msgid "check the stable version"
-msgstr ""
+msgstr "检查稳定版"
 
 #: mod/admin.php:1242
 msgid "check the development version"
-msgstr ""
+msgstr "检查开发版本"
 
 #: mod/admin.php:1264 mod/admin.php:1873 mod/admin.php:2126 mod/admin.php:2200
 #: mod/admin.php:2347 mod/delegate.php:161 mod/settings.php:679
@@ -3623,7 +3624,7 @@ msgstr "最多像素在上传图片的长度。默认-1，意思是无限。"
 
 #: mod/admin.php:1292
 msgid "JPEG image quality"
-msgstr "JPEG图片质量"
+msgstr "JPEG 图片质量"
 
 #: mod/admin.php:1292
 msgid ""
@@ -3707,7 +3708,7 @@ msgstr ""
 
 #: mod/admin.php:1302
 msgid "Block public"
-msgstr "拦公开"
+msgstr ""
 
 #: mod/admin.php:1302
 msgid ""
@@ -3789,7 +3790,7 @@ msgstr "选择这个之后，用户们允许表明熟人当遥远的自身在熟
 
 #: mod/admin.php:1310
 msgid "Block multiple registrations"
-msgstr "拦一人多注册"
+msgstr "阻止多次注册"
 
 #: mod/admin.php:1310
 msgid "Disallow users to register additional accounts for use as pages."
@@ -3797,11 +3798,11 @@ msgstr "不允许用户注册别的账户为当页。"
 
 #: mod/admin.php:1311
 msgid "OpenID support"
-msgstr "OpenID支持"
+msgstr "OpenID 支持"
 
 #: mod/admin.php:1311
 msgid "OpenID support for registration and logins."
-msgstr "OpenID支持注册和登录。"
+msgstr "支持使用 OpenID 注册和登录。"
 
 #: mod/admin.php:1312
 msgid "Fullname check"
@@ -3863,7 +3864,7 @@ msgstr ""
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
-msgstr ""
+msgstr "Diaspora 支持无法启用，因为 Friendica 被安装到了一个子目录。"
 
 #: mod/admin.php:1320
 msgid "Enable Diaspora support"
@@ -3881,7 +3882,7 @@ msgstr "只允许 Friendica 联系人"
 msgid ""
 "All contacts must use Friendica protocols. All other built-in communication "
 "protocols disabled."
-msgstr "所有的熟人要用Friendica协议 。别的内装的沟通协议都已停用。"
+msgstr "所有联系人必须使用 Friendica 协议 。所有其他内置沟通协议都已停用。"
 
 #: mod/admin.php:1322
 msgid "Verify SSL"
@@ -3969,7 +3970,7 @@ msgstr ""
 
 #: mod/admin.php:1333
 msgid "Days between requery"
-msgstr ""
+msgstr "重新查询间隔天数"
 
 #: mod/admin.php:1333
 msgid "Number of days after which a server is requeried for his contacts."
@@ -4024,7 +4025,7 @@ msgstr ""
 
 #: mod/admin.php:1340
 msgid "Check upstream version"
-msgstr ""
+msgstr "检查上游版本"
 
 #: mod/admin.php:1340
 msgid ""
@@ -4274,7 +4275,7 @@ msgstr "注册信息为%s"
 #, php-format
 msgid "%s user blocked/unblocked"
 msgid_plural "%s users blocked/unblocked"
-msgstr[0] "%s用户拦／不拦了"
+msgstr[0] ""
 
 #: mod/admin.php:1535
 #, php-format
@@ -4290,12 +4291,12 @@ msgstr "用户 '%s' 被删除了"
 #: mod/admin.php:1590
 #, php-format
 msgid "User '%s' unblocked"
-msgstr "用户「%s」无拦了"
+msgstr ""
 
 #: mod/admin.php:1590
 #, php-format
 msgid "User '%s' blocked"
-msgstr "用户「%s」拦了"
+msgstr ""
 
 #: mod/admin.php:1689 mod/admin.php:1701 mod/admin.php:1714 mod/admin.php:1732
 #: src/Content/ContactSelector.php:82
@@ -4633,7 +4634,7 @@ msgstr "联系人更新了。"
 
 #: mod/contacts.php:222 mod/dfrn_request.php:419
 msgid "Failed to update contact record."
-msgstr "更新熟人记录失败了。"
+msgstr "更新联系人记录失败。"
 
 #: mod/contacts.php:413
 msgid "Contact has been blocked"
@@ -4653,7 +4654,7 @@ msgstr "联系人已被解除忽视"
 
 #: mod/contacts.php:435
 msgid "Contact has been archived"
-msgstr "把联系存档了"
+msgstr "联系人已存档"
 
 #: mod/contacts.php:435
 msgid "Contact has been unarchived"
@@ -4732,7 +4733,7 @@ msgstr "取消息"
 
 #: mod/contacts.php:566
 msgid "Fetch keywords"
-msgstr ""
+msgstr "获取关键字"
 
 #: mod/contacts.php:567
 msgid "Fetch information and keywords"
@@ -4763,7 +4764,7 @@ msgstr ""
 
 #: mod/contacts.php:607
 msgid "Edit contact notes"
-msgstr "编辑熟人便条"
+msgstr "编辑联系人便条"
 
 #: mod/contacts.php:611
 msgid "Block/Unblock contact"
@@ -4771,7 +4772,7 @@ msgstr "屏蔽/解除屏蔽联系人"
 
 #: mod/contacts.php:612
 msgid "Ignore contact"
-msgstr "忽视熟人"
+msgstr "忽略联系人"
 
 #: mod/contacts.php:613
 msgid "Repair URL settings"
@@ -4838,7 +4839,7 @@ msgstr "逗号分的关键词不应该翻译成主题标签，如果“取消息
 
 #: mod/contacts.php:653 src/Model/Profile.php:424
 msgid "XMPP:"
-msgstr ""
+msgstr "XMPP："
 
 #: mod/contacts.php:658
 msgid "Actions"
@@ -4867,7 +4868,7 @@ msgstr "显示所有的联系人"
 
 #: mod/contacts.php:718
 msgid "Unblocked"
-msgstr "不拦了"
+msgstr ""
 
 #: mod/contacts.php:721
 msgid "Only show unblocked contacts"
@@ -4887,7 +4888,7 @@ msgstr "忽视的"
 
 #: mod/contacts.php:737
 msgid "Only show ignored contacts"
-msgstr "只表示忽视的熟人"
+msgstr "只显示忽略的联系人"
 
 #: mod/contacts.php:742
 msgid "Archived"
@@ -4895,7 +4896,7 @@ msgstr "在存档"
 
 #: mod/contacts.php:745
 msgid "Only show archived contacts"
-msgstr "只表示档案熟人"
+msgstr "只显示已存档联系人"
 
 #: mod/contacts.php:750
 msgid "Hidden"
@@ -4903,11 +4904,11 @@ msgstr "隐藏的"
 
 #: mod/contacts.php:753
 msgid "Only show hidden contacts"
-msgstr "只表示隐藏的熟人"
+msgstr "只显示隐藏的联系人"
 
 #: mod/contacts.php:809
 msgid "Search your contacts"
-msgstr "搜索您的熟人"
+msgstr "搜索您的联系人"
 
 #: mod/contacts.php:810 mod/search.php:236
 #, php-format
@@ -4936,7 +4937,7 @@ msgstr "简介内容"
 
 #: mod/contacts.php:869
 msgid "View all contacts"
-msgstr "看所有的熟人"
+msgstr "查看所有联系人"
 
 #: mod/contacts.php:880
 msgid "View all common friends"
@@ -4972,7 +4973,7 @@ msgstr "交替档案现状"
 
 #: mod/contacts.php:1021
 msgid "Delete contact"
-msgstr "删除熟人"
+msgstr "删除联系人"
 
 #: mod/delegate.php:142
 msgid "No parent user"
@@ -5121,7 +5122,7 @@ msgstr "确认"
 
 #: mod/dfrn_request.php:527
 msgid "Hide this contact"
-msgstr "隐藏这个熟人"
+msgstr "隐藏这个联系人"
 
 #: mod/dfrn_request.php:530
 #, php-format
@@ -5262,11 +5263,11 @@ msgstr "－选择－"
 
 #: mod/follow.php:44
 msgid "The contact could not be added."
-msgstr ""
+msgstr "无法添加此联系人。"
 
 #: mod/follow.php:72
 msgid "You already added this contact."
-msgstr "你已经添加了这个联系人。"
+msgstr "您已添加此联系人。"
 
 #: mod/follow.php:81
 msgid "Diaspora support isn't enabled. Contact can't be added."
@@ -5834,7 +5835,7 @@ msgstr "没有选择的接受者。"
 
 #: mod/message.php:77
 msgid "Unable to locate contact information."
-msgstr "找不到熟人信息。"
+msgstr "无法找到联系人信息。"
 
 #: mod/message.php:80 mod/wallmessage.php:63
 msgid "Message could not be sent."
@@ -5968,7 +5969,7 @@ msgstr "私人通信给这个人回被公开。"
 
 #: mod/network.php:672
 msgid "Invalid contact."
-msgstr "无效熟人。"
+msgstr "无效的联系人。"
 
 #: mod/network.php:920
 msgid "Commented Order"
@@ -6040,7 +6041,7 @@ msgstr "每人"
 
 #: mod/photos.php:184
 msgid "Contact information unavailable"
-msgstr "熟人信息不可用"
+msgstr "联系人信息不可用"
 
 #: mod/photos.php:204
 msgid "Album not found."
@@ -6133,7 +6134,7 @@ msgstr "给组表示"
 
 #: mod/photos.php:1107 mod/photos.php:1450 mod/settings.php:1234
 msgid "Show to Contacts"
-msgstr "给熟人表示"
+msgstr "展示给联系人"
 
 #: mod/photos.php:1167
 msgid "Edit Album"
@@ -6371,7 +6372,7 @@ msgstr "能见被"
 
 #: mod/profperm.php:140
 msgid "All Contacts (with secure profile access)"
-msgstr "所有熟人(跟安全地简介使用权)"
+msgstr ""
 
 #: mod/register.php:99
 msgid ""
@@ -6560,7 +6561,7 @@ msgstr "特点更新了"
 
 #: mod/settings.php:371
 msgid "Relocate message has been send to your contacts"
-msgstr "调动信息寄给您的熟人"
+msgstr "调动消息已发送给您的联系人"
 
 #: mod/settings.php:383 src/Model/User.php:312
 msgid "Passwords do not match. Password unchanged."
@@ -6588,7 +6589,7 @@ msgstr " 请用一个更短的名字。"
 
 #: mod/settings.php:496
 msgid " Name too short."
-msgstr " 名字太短。"
+msgstr " 名字过短。"
 
 #: mod/settings.php:504
 msgid "Wrong Password"
@@ -6784,7 +6785,7 @@ msgstr "回答地址："
 
 #: mod/settings.php:871
 msgid "Send public posts to all email contacts:"
-msgstr "发公开的文章给所有的邮件熟人："
+msgstr "发送公开文章给所有的邮件联系人："
 
 #: mod/settings.php:872
 msgid "Action after import:"
@@ -6924,7 +6925,7 @@ msgstr "主题设置"
 
 #: mod/settings.php:1006
 msgid "Unable to find your profile. Please contact your admin."
-msgstr ""
+msgstr "无法找到您的简介。请联系您的管理员。"
 
 #: mod/settings.php:1048
 msgid "Account Types"
@@ -6958,7 +6959,7 @@ msgstr ""
 
 #: mod/settings.php:1065
 msgid "News Page"
-msgstr ""
+msgstr "新闻页面"
 
 #: mod/settings.php:1066
 msgid ""
@@ -6996,7 +6997,7 @@ msgstr ""
 
 #: mod/settings.php:1081
 msgid "Public Forum"
-msgstr ""
+msgstr "公共论坛"
 
 #: mod/settings.php:1082
 msgid "Automatically approves all contact requests."
@@ -7053,7 +7054,7 @@ msgstr ""
 
 #: mod/settings.php:1122
 msgid "Hide your contact/friend list from viewers of your default profile?"
-msgstr "藏起来  发现您的熟人／朋友单不让这个简介看着看？\n "
+msgstr "在您的默认简介中向访问者隐藏您的联系人/朋友列表？"
 
 #: mod/settings.php:1122
 msgid ""
@@ -7064,7 +7065,7 @@ msgstr ""
 
 #: mod/settings.php:1126
 msgid "Hide your profile details from anonymous viewers?"
-msgstr ""
+msgstr "对匿名访问者隐藏详细简介？"
 
 #: mod/settings.php:1126
 msgid ""
@@ -7413,7 +7414,7 @@ msgstr "上传新视频"
 
 #: mod/viewcontacts.php:87
 msgid "No contacts."
-msgstr "没有熟人。"
+msgstr "没有联系人。"
 
 #: mod/viewsrc.php:12
 msgid "Access denied."
@@ -7505,7 +7506,7 @@ msgstr ""
 
 #: view/theme/frio/config.php:97
 msgid "Default"
-msgstr ""
+msgstr "默认"
 
 #: view/theme/frio/config.php:109
 msgid "Note"
@@ -7541,11 +7542,11 @@ msgstr ""
 
 #: view/theme/frio/config.php:122
 msgid "Set the background image"
-msgstr "设置北京图片"
+msgstr "设置背景图片"
 
 #: view/theme/frio/config.php:127
 msgid "Login page background image"
-msgstr ""
+msgstr "登录页面背景图片"
 
 #: view/theme/frio/config.php:130
 msgid "Login page background color"
@@ -7561,7 +7562,7 @@ msgstr ""
 
 #: view/theme/frio/theme.php:243
 msgid "Visitor"
-msgstr ""
+msgstr "访客"
 
 #: view/theme/frio/theme.php:256 src/Content/Nav.php:97
 #: src/Module/Login.php:311
@@ -7570,7 +7571,7 @@ msgstr "注销"
 
 #: view/theme/frio/theme.php:256 src/Content/Nav.php:97
 msgid "End this session"
-msgstr "结束这段时间"
+msgstr "结束此次会话"
 
 #: view/theme/frio/theme.php:259 src/Content/Nav.php:100
 #: src/Content/Nav.php:181
@@ -8535,7 +8536,7 @@ msgstr "嵌入内容"
 
 #: src/Content/Widget.php:33
 msgid "Add New Contact"
-msgstr "增添新的熟人"
+msgstr "添加新的联系人"
 
 #: src/Content/Widget.php:34
 msgid "Enter address or web location"
@@ -8591,7 +8592,7 @@ msgstr "种类"
 #, php-format
 msgid "%d contact in common"
 msgid_plural "%d contacts in common"
-msgstr[0] "%d共同熟人"
+msgstr[0] "%d 个共同的联系人"
 
 #: src/Database/DBStructure.php:32
 msgid "There are no tables on MyISAM."
@@ -8672,7 +8673,7 @@ msgstr "编辑组"
 
 #: src/Model/Contact.php:559
 msgid "Drop Contact"
-msgstr "删除熟人"
+msgstr "删除联系人"
 
 #: src/Model/Contact.php:962
 msgid "Organisation"
@@ -8741,7 +8742,7 @@ msgstr "有限的简介。这人不会接受直达／私人通信从您。"
 
 #: src/Model/Contact.php:1290
 msgid "Unable to retrieve contact information."
-msgstr "不能取回熟人消息。"
+msgstr "无法检索联系人信息。"
 
 #: src/Model/Contact.php:1502
 #, php-format
@@ -8835,7 +8836,7 @@ msgstr "j F"
 
 #: src/Model/Profile.php:751
 msgid "Age:"
-msgstr "年纪："
+msgstr "年龄："
 
 #: src/Model/Profile.php:764
 #, php-format
@@ -8852,7 +8853,7 @@ msgstr "爱好／兴趣"
 
 #: src/Model/Profile.php:808
 msgid "Contact information and Social Networks:"
-msgstr "熟人消息和社会化网络"
+msgstr "联系人消息和社交网络："
 
 #: src/Model/Profile.php:812
 msgid "Musical interests:"
@@ -8950,19 +8951,19 @@ msgstr "不能用这个邮件地址。"
 
 #: src/Model/User.php:401
 msgid "Your nickname can only contain a-z, 0-9 and _."
-msgstr ""
+msgstr "您的昵称只能由字母、数字和下划线组成。"
 
 #: src/Model/User.php:408 src/Model/User.php:464
 msgid "Nickname is already registered. Please choose another."
-msgstr "昵称已经报到。请选择新的。"
+msgstr "此昵称已被注册。请选择新的昵称。"
 
 #: src/Model/User.php:418
 msgid "SERIOUS ERROR: Generation of security keys failed."
-msgstr "要紧错误：产生安全钥匙失败了。"
+msgstr "严重错误：安全密钥生成失败。"
 
 #: src/Model/User.php:451 src/Model/User.php:455
 msgid "An error occurred during registration. Please try again."
-msgstr "报到出了问题。请再试。"
+msgstr "注册出现问题。请再次尝试。"
 
 #: src/Model/User.php:480
 msgid "An error occurred creating your default profile. Please try again."
@@ -9163,7 +9164,7 @@ msgstr "喜欢"
 
 #: src/Object/Post.php:296
 msgid "dislike"
-msgstr "讨厌"
+msgstr "不喜欢"
 
 #: src/Object/Post.php:299
 msgid "Share this"
