@@ -1723,7 +1723,7 @@ class Item extends BaseObject
 			$item_contact_id = $owner_self_contact['id'];
 			$item_contact = $owner_self_contact;
 		} else {
-			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid);
+			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid, true);
 			$item_contact = dba::selectFirst('contact', [], ['id' => $item_contact_id]);
 			if (!DBM::is_result($item_contact)) {
 				logger('like: unknown item contact ' . $item_contact_id);
