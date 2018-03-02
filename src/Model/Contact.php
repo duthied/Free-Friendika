@@ -669,11 +669,11 @@ class Contact extends BaseObject
 
 		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
 		// We first try the nurl (http://server.tld/nick), most common case
-		$contact = dba::selectFirst('contact', ['id', 'avatar-date'], ['nurl' => normalise_link($url), 'uid' => $uid]);
+		$contact = dba::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['nurl' => normalise_link($url), 'uid' => $uid]);
 
 		// Then the addr (nick@server.tld)
 		if (!DBM::is_result($contact)) {
-			$contact = dba::selectFirst('contact', ['id', 'avatar-date'], ['addr' => $url, 'uid' => $uid]);
+			$contact = dba::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['addr' => $url, 'uid' => $uid]);
 		}
 
 		// Then the alias (which could be anything)
