@@ -593,11 +593,11 @@ function item_post(App $a) {
 	$datarray['owner-name']    = $contact_record['name'];
 	$datarray['owner-link']    = $contact_record['url'];
 	$datarray['owner-avatar']  = $contact_record['thumb'];
-	$datarray['owner-id']      = Contact::getIdForURL($datarray['owner-link'], 0);
+	$datarray['owner-id']      = Contact::getIdForURL($datarray['owner-link']);
 	$datarray['author-name']   = $author['name'];
 	$datarray['author-link']   = $author['url'];
 	$datarray['author-avatar'] = $author['thumb'];
-	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link'], 0);
+	$datarray['author-id']     = Contact::getIdForURL($datarray['author-link']);
 	$datarray['created']       = DateTimeFormat::utcNow();
 	$datarray['edited']        = DateTimeFormat::utcNow();
 	$datarray['commented']     = DateTimeFormat::utcNow();

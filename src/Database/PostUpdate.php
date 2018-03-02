@@ -162,8 +162,8 @@ class PostUpdate
 
         // Set the "author-id" and "owner-id" in the item table and add a new public contact entry if needed
         foreach ($item_arr as $item) {
-            $author_id = Contact::getIdForURL($item["author-link"], 0);
-            $owner_id = Contact::getIdForURL($item["owner-link"], 0);
+            $author_id = Contact::getIdForURL($item["author-link"]);
+            $owner_id = Contact::getIdForURL($item["owner-link"]);
 
             if ($author_id == 0)
                 $author_id = -1;

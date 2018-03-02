@@ -474,14 +474,14 @@ class Item extends BaseObject
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
 
-		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"], 0));
+		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"]));
 
 		if (Contact::isBlocked($item["author-id"])) {
 			logger('Contact '.$item["author-id"].' is blocked, item '.$item["uri"].' will not be stored');
 			return 0;
 		}
 
-		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"], 0));
+		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"]));
 
 		if (Contact::isBlocked($item["owner-id"])) {
 			logger('Contact '.$item["owner-id"].' is blocked, item '.$item["uri"].' will not be stored');
@@ -897,7 +897,7 @@ class Item extends BaseObject
 				$item['uid'] = 0;
 				$item['origin'] = 0;
 				$item['wall'] = 0;
-				$item['contact-id'] = Contact::getIdForURL($item['author-link'], 0);
+				$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 				if (in_array($item['type'], ["net-comment", "wall-comment"])) {
 					$item['type'] = 'remote-comment';
@@ -951,7 +951,7 @@ class Item extends BaseObject
 		$item['uid'] = 0;
 		$item['origin'] = 0;
 		$item['wall'] = 0;
-		$item['contact-id'] = Contact::getIdForURL($item['author-link'], 0);
+		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
 			$item['type'] = 'remote-comment';

@@ -384,7 +384,7 @@ function admin_page_contactblock_post(App $a)
 	check_form_security_token_redirectOnErr('/admin/contactblock', 'admin_contactblock');
 
 	if (x($_POST, 'page_contactblock_block')) {
-		$contact_id = Contact::getIdForURL($contact_url, 0);
+		$contact_id = Contact::getIdForURL($contact_url);
 		if ($contact_id) {
 			Contact::block($contact_id);
 			notice(L10n::t('The contact has been blocked from the node'));
