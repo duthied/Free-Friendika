@@ -43,7 +43,7 @@ require_once '.htconfig.php';
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 
-$contact_id = Contact::getIdForURL($argv[1], 0);
+$contact_id = Contact::getIdForURL($argv[1]);
 if (!$contact_id) {
 	echo L10n::t('Could not find any contact entry for this URL (%s)', $nurl);
 	echo "\r\n";

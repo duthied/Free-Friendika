@@ -186,7 +186,7 @@ class OStatus
 			}
 
 			// Ensure that we are having this contact (with uid=0)
-			$cid = Contact::getIdForURL($aliaslink, 0);
+			$cid = Contact::getIdForURL($aliaslink, 0, true);
 
 			if ($cid) {
 				$fields = ['url', 'nurl', 'name', 'nick', 'alias', 'about', 'location'];
@@ -2108,7 +2108,7 @@ class OStatus
 		}
 
 		$check_date = DateTimeFormat::utc($last_update);
-		$authorid = Contact::getIdForURL($owner["url"], 0);
+		$authorid = Contact::getIdForURL($owner["url"], 0, true);
 
 		$sql_extra = '';
 		if ($filter === 'posts') {
