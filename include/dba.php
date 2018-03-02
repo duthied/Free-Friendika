@@ -664,16 +664,24 @@ class dba {
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {
+		$a = get_app();
+
+		$stamp1 = microtime(true);
+
+		$columns = [];
+
 		if (!is_object($stmt)) {
 			return false;
 		}
 
 		switch (self::$driver) {
 			case 'pdo':
-				return $stmt->fetch(PDO::FETCH_ASSOC);
+				$columns = $stmt->fetch(PDO::FETCH_ASSOC);
+				break;
 			case 'mysqli':
 				if (get_class($stmt) == 'mysqli_result') {
-					return $stmt->fetch_assoc();
+					$columns = $stmt->fetch_assoc();
+					break;
 				}
 
 				// This code works, but is slow
@@ -698,12 +706,14 @@ class dba {
 				$result = $stmt->result_metadata();
 				$fields = $result->fetch_fields();
 
-				$columns = [];
 				foreach ($cols_num AS $param => $col) {
 					$columns[$fields[$param]->name] = $col;
 				}
-				return $columns;
 		}
+
+		$a->save_timestamp($stamp1, 'database');
+
+		return $columns;
 	}
 
 	/**
@@ -1287,17 +1297,27 @@ class dba {
 	 * @return boolean was the close successful?
 	 */
 	public static function close($stmt) {
+		$a = get_app();
+
+		$stamp1 = microtime(true);
+
 		if (!is_object($stmt)) {
 			return false;
 		}
 
 		switch (self::$driver) {
 			case 'pdo':
-				return $stmt->closeCursor();
+				$ret = $stmt->closeCursor();
+				break;
 			case 'mysqli':
 				$stmt->free_result();
-				return $stmt->close();
+				$ret = $stmt->close();
+				break;
 		}
+
+		$a->save_timestamp($stamp1, 'database');
+
+		return $ret;
 	}
 }
 
