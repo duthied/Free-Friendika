@@ -7,7 +7,7 @@ use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Acl;
+use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -243,7 +243,7 @@ function message_content(App $a)
 		$prefill = $preselect ? $prename : '';
 
 		// the ugly select box
-		$select = Acl::getMessageContactSelectHTML('messageto', 'message-to-select', $preselect, 4, 10);
+		$select = ACL::getMessageContactSelectHTML('messageto', 'message-to-select', $preselect, 4, 10);
 
 		$tpl = get_markup_template('prv_message.tpl');
 		$o .= replace_macros($tpl, [

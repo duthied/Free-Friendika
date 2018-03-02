@@ -4,7 +4,7 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Acl;
+use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Module\Login;
@@ -37,8 +37,8 @@ function bookmarklet_content(App $a)
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
 			'lockstate' => ((is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))) ? 'lock' : 'unlock'),
-			'default_perms' => Acl::getDefaultUserPermissions($a->user),
-			'acl' => Acl::getFullSelectorHTML($a->user, true),
+			'default_perms' => ACL::getDefaultUserPermissions($a->user),
+			'acl' => ACL::getFullSelectorHTML($a->user, true),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),

@@ -6,7 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
-use Friendica\Core\Acl;
+use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -1223,7 +1223,7 @@ function settings_content(App $a)
 		'$permissions' => L10n::t('Default Post Permissions'),
 		'$permdesc' => L10n::t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
-		'$aclselect' => Acl::getFullSelectorHTML($a->user),
+		'$aclselect' => ACL::getFullSelectorHTML($a->user),
 		'$suggestme' => $suggestme,
 		'$blockwall'=> $blockwall, // array('blockwall', L10n::t('Allow friends to post to your profile page:'), !$blockwall, ''),
 		'$blocktags'=> $blocktags, // array('blocktags', L10n::t('Allow friends to tag your posts:'), !$blocktags, ''),
