@@ -1538,6 +1538,8 @@ class Contact extends BaseObject
 			$return[] = $contact['id'];
 		}
 
+		dba::close($stmt);
+
 		$contact_ids = $return;
 	}
 }
