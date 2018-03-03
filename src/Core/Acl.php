@@ -33,7 +33,7 @@ use function replace_macros;
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class Acl extends BaseObject
+class ACL extends BaseObject
 {
 	/**
 	 * Returns a select input tag with all the contact of the local user
