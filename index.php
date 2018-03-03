@@ -78,6 +78,7 @@ if (!$install) {
 		exit();
 	}
 
+	Config::init();
 	Session::init();
 	Addon::loadHooks();
 	Addon::callHooks('init_1');
