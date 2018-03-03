@@ -1245,7 +1245,7 @@ class dba {
 						$placeholders = substr(str_repeat("?, ", count($value)), 0, -2);
 						$condition_string .= "`" . $field . "` IN (" . $placeholders . ")";
 					} else {
-						$new_values[] = $value;
+						$new_values[$field] = $value;
 						$condition_string .= "`" . $field . "` = ?";
 					}
 				}
