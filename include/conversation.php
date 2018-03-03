@@ -1247,7 +1247,7 @@ function format_like($cnt, array $arr, $type, $id) {
 				break;
 			case 'attendmaybe':
 				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
-				$explikers = L10n::t('%s anttend maybe.', $likers);
+				$explikers = L10n::t('%s attend maybe.', $likers);
 				break;
 		}
 
