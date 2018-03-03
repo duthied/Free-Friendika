@@ -81,9 +81,11 @@ function directory_content(App $a)
 	$publish = ((Config::get('system', 'publish_all')) ? '' : " AND `publish` = 1 " );
 
 
-	$total = q("SELECT COUNT(*) AS `total` FROM `profile`
-			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra "
+	$total = dba::inArray(
+			dba::p("SELECT COUNT(*) AS `total` FROM `profile`
+				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra "
+			)
 	);
 	if (DBM::is_result($total)) {
 		$a->set_pager_total($total[0]['total']);
