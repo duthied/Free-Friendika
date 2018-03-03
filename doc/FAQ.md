@@ -171,8 +171,15 @@ Depending on the features of the client you might encounter some glitches in usa
 ### Where I can find help?
 
 If you have problems with your Friendica page, you can ask the community at the [Friendica Support Group](https://forum.friendi.ca/profile/helpers).
-If you can't use your default profile you can use an account at a public site [list](https://dir.friendica.social/servers) or you can use the Librelist mailing list.
-If you want to use the mailing list, please just send a mail to friendica AT librelist DOT com.
+If you can't use your default profile you can use an account at a public site [list](https://dir.friendica.social/servers).
+
+In case you do not want to set up another account on Friendica, you can also use one of the following channels to reach out for help:
+
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
+  * XMPP/Jabber MUC: support(at)forum.friendi.ca
+  * IRC: #friendica at irc.freenode.net
+  * Matrix: #friendi.ca or #friendica at matrix.org
 
 If you are a theme developer, you will find help at this forum: [Friendica Theme Developers](https://friendica.eu/profile/ftdevs).
 
