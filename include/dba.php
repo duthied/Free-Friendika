@@ -145,7 +145,7 @@ class dba {
 	 *
 	 * @param string $query The database query that will be analyzed
 	 */
-	private static function log_index($query) {
+	private static function logIndex($query) {
 		$a = get_app();
 
 		if (empty($a->config["system"]["db_log_index"])) {
@@ -272,7 +272,7 @@ class dba {
 	 * @param array $args The parameters that are to replace the ? placeholders
 	 * @return string The replaced SQL query
 	 */
-	private static function replace_parameters($sql, $args) {
+	private static function replaceParameters($sql, $args) {
 		$offset = 0;
 		foreach ($args AS $param => $value) {
 			if (is_int($args[$param]) || is_float($args[$param])) {
@@ -413,7 +413,7 @@ class dba {
 
 				// The fallback routine is called as well when there are no arguments
 				if (!$can_be_prepared || (count($args) == 0)) {
-					$retval = self::$db->query(self::replace_parameters($sql, $args));
+					$retval = self::$db->query(self::replaceParameters($sql, $args));
 					if (self::$db->errno) {
 						self::$error = self::$db->error;
 						self::$errorno = self::$db->errno;
@@ -476,7 +476,7 @@ class dba {
 			$errorno = self::$errorno;
 
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
-				System::callstack(8)."\n".self::replace_parameters($sql, $params));
+				System::callstack(8)."\n".self::replaceParameters($sql, $params));
 
 			self::$error = $error;
 			self::$errorno = $errorno;
@@ -496,7 +496,7 @@ class dba {
 				@file_put_contents($a->config["system"]["db_log"], DateTimeFormat::utcNow()."\t".$duration."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
-						substr(self::replace_parameters($sql, $args), 0, 2000)."\n", FILE_APPEND);
+						substr(self::replaceParameters($sql, $args), 0, 2000)."\n", FILE_APPEND);
 			}
 		}
 		return $retval;
@@ -541,7 +541,7 @@ class dba {
 			$errorno = self::$errorno;
 
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
-				System::callstack(8)."\n".self::replace_parameters($sql, $params));
+				System::callstack(8)."\n".self::replaceParameters($sql, $params));
 
 			self::$error = $error;
 			self::$errorno = $errorno;
@@ -567,10 +567,10 @@ class dba {
 
 		$fields = [];
 
-		$array_element = each($condition);
-		$array_key = $array_element['key'];
-		if (!is_int($array_key)) {
-			$fields = [$array_key];
+		reset($condition);
+		$first_key = key($condition);
+		if (!is_int($first_key)) {
+			$fields = [$first_key];
 		}
 
 		$stmt = self::select($table, $fields, $condition, ['limit' => 1]);
@@ -846,7 +846,7 @@ class dba {
 	 *
 	 * This process must only be started once, since the value is cached.
 	 */
-	private static function build_relation_data() {
+	private static function buildRelationData() {
 		$definition = DBStructure::definition();
 
 		foreach ($definition AS $table => $structure) {
@@ -895,7 +895,7 @@ class dba {
 
 		// To speed up the whole process we cache the table relations
 		if (count(self::$relation) == 0) {
-			self::build_relation_data();
+			self::buildRelationData();
 		}
 
 		// Is there a relation entry for the table?
@@ -950,11 +950,14 @@ class dba {
 
 			foreach ($commands AS $command) {
 				$conditions = $command['conditions'];
+				reset($conditions);
+				$first_key = key($conditions);
+
 				$condition_string = self::buildCondition($conditions);
 
-				if ((count($command['conditions']) > 1) || is_int($array_key)) {
+				if ((count($command['conditions']) > 1) || is_int($first_key)) {
 					$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
-					logger(self::replace_parameters($sql, $conditions), LOGGER_DATA);
+					logger(self::replaceParameters($sql, $conditions), LOGGER_DATA);
 
 					if (!self::e($sql, $conditions)) {
 						if ($do_transaction) {
@@ -984,7 +987,7 @@ class dba {
 						$sql = "DELETE FROM `" . $table . "` WHERE `" . $field . "` IN (" .
 							substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
 
-						logger(self::replace_parameters($sql, $field_values), LOGGER_DATA);
+						logger(self::replaceParameters($sql, $field_values), LOGGER_DATA);
 
 						if (!self::e($sql, $field_values)) {
 							if ($do_transaction) {
@@ -1225,13 +1228,13 @@ class dba {
 	 * @param array $condition
 	 * @return string
 	 */
-	private static function buildCondition(&$condition = [])
+	private static function buildCondition(array &$condition = [])
 	{
 		$condition_string = '';
-		if (is_array($condition) && (count($condition) > 0)) {
-			$array_element = each($condition);
-			$array_key = $array_element['key'];
-			if (is_int($array_key)) {
+		if (count($condition) > 0) {
+			reset($condition);
+			$first_key = key($condition);
+			if (is_int($first_key)) {
 				$condition_string = " WHERE ".array_shift($condition);
 			} else {
 				$new_values = [];
