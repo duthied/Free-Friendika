@@ -37,7 +37,7 @@ require_once 'include/text.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Asparagus');
-define('FRIENDICA_VERSION',      '3.6-dev');
+define('FRIENDICA_VERSION',      '3.6-rc');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('DB_UPDATE_VERSION',      1255);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
