@@ -181,8 +181,6 @@ In case you do not want to set up another account on Friendica, you can also use
   * IRC: #friendica at irc.freenode.net
   * Matrix: #friendi.ca or #friendica at matrix.org
 
-If you are a theme developer, you will find help at this forum: [Friendica Theme Developers](https://friendica.eu/profile/ftdevs).
-
 Admin
 --------
 

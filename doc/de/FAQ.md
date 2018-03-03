@@ -199,8 +199,6 @@ Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch 
   * IRC: #friendica at irc.freenode.net
   * Matrix: #friendi.ca or #friendica at matrix.org.
 
-Wenn Du ein Theme-Entwickler bist, wirst Du in diesem Forum Hilfe finden: [Friendica Theme Developers](https://friendica.eu/profile/ftdevs).
-
 Admin
 --------
 
