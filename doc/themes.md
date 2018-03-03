@@ -6,7 +6,6 @@ To change the look of friendica you have to touch the themes.
 The current default theme is [Vier](https://github.com/friendica/friendica/tree/master/view/theme/vier) but there are numerous others.
 Have a look at [friendica-themes.com](http://friendica-themes.com) for an overview of the existing themes.
 In case none of them suits your needs, there are several ways to change a theme.
-If you need help theming, there is a forum @[ftdevs@friendica.eu](https://friendica.eu/profile/ftdevs) where you can ask theme specific questions and present your themes.
 
 So, how to work on the UI of friendica.
 
@@ -206,7 +205,7 @@ Basically what you have to do is identify which template you have to change so i
 Adopt the CSS of the theme accordingly.
 And iterate the process until you have the theme the way you want it.
 
-*Use the source Luke.* and don't hesitate to ask in @[ftdevs](https://friendica.eu/profile/ftdevs) or @[helpers](https://forum.friendi.ca/profile/helpers).
+*Use the source Luke.* and don't hesitate to ask in @[developers](https://forum.friendi.ca/profile/developers) or @[helpers](https://forum.friendi.ca/profile/helpers).
 
 ## Special Files
 
