@@ -950,13 +950,7 @@ class dba {
 
 			foreach ($commands AS $command) {
 				$conditions = $command['conditions'];
-				$array_element = each($conditions);
-				$array_key = $array_element['key'];
-				if (is_int($array_key)) {
-					$condition_string = " WHERE " . array_shift($conditions);
-				} else {
-					$condition_string = " WHERE `" . implode("` = ? AND `", array_keys($conditions)) . "` = ?";
-				}
+				$condition_string = self::buildCondition($conditions);
 
 				if ((count($command['conditions']) > 1) || is_int($array_key)) {
 					$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
@@ -1047,13 +1041,7 @@ class dba {
 
 		$table = self::escape($table);
 
-		$array_element = each($condition);
-		$array_key = $array_element['key'];
-		if (is_int($array_key)) {
-			$condition_string = " WHERE ".array_shift($condition);
-		} else {
-			$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
-		}
+		$condition_string = self::buildCondition($condition);
 
 		if (is_bool($old_fields)) {
 			$do_insert = $old_fields;
@@ -1148,6 +1136,8 @@ class dba {
 			return false;
 		}
 
+		$table = self::escape($table);
+
 		if (count($fields) > 0) {
 			$select_fields = "`" . implode("`, `", array_values($fields)) . "`";
 		} else {
@@ -1235,16 +1225,32 @@ class dba {
 	 * @param array $condition
 	 * @return string
 	 */
-	private static function buildCondition(array &$condition = [])
+	private static function buildCondition(&$condition = [])
 	{
 		$condition_string = '';
-		if (count($condition) > 0) {
+		if (is_array($condition) && (count($condition) > 0)) {
 			$array_element = each($condition);
 			$array_key = $array_element['key'];
 			if (is_int($array_key)) {
 				$condition_string = " WHERE ".array_shift($condition);
 			} else {
-				$condition_string = " WHERE `".implode("` = ? AND `", array_keys($condition))."` = ?";
+				$new_values = [];
+				$condition_string = "";
+				foreach ($condition as $field => $value) {
+					if ($condition_string != "") {
+						$condition_string .= " AND ";
+					}
+					if (is_array($value)) {
+						$new_values = array_merge($new_values, array_values($value));
+						$placeholders = substr(str_repeat("?, ", count($value)), 0, -2);
+						$condition_string .= "`" . $field . "` IN (" . $placeholders . ")";
+					} else {
+						$new_values[] = $value;
+						$condition_string .= "`" . $field . "` = ?";
+					}
+				}
+				$condition_string = " WHERE " . $condition_string;
+				$condition = $new_values;
 			}
 		}
 
