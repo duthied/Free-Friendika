@@ -1645,7 +1645,7 @@ function get_responses($conv_responses, $response_verbs, $ob, $item) {
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
 		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], '');
-		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', '');
+		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', []);
 		$ret[$v]['self']  = defaults($conv_responses[$v], $item['uri'] . '-self', '0');
 		if (count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
