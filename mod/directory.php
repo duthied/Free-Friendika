@@ -86,7 +86,7 @@ function directory_content(App $a) {
 
 	$limit = intval($a->pager['start']).",".intval($a->pager['itemspage']);
 
-	$r = q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+	$r = dba::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
 			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
@@ -100,7 +100,7 @@ function directory_content(App $a) {
 			$photo = 'photo';
 		}
 
-		foreach ($r as $rr) {
+		while ($rr = dba::fetch($r)) {
 
 			$itemurl= '';
 
@@ -187,6 +187,7 @@ function directory_content(App $a) {
 
 			$entries[] = $arr['entry'];
 		}
+		dba::close($r);
 
 		$tpl = get_markup_template('directory_header.tpl');
 
