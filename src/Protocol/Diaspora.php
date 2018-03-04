@@ -36,7 +36,6 @@ use SimpleXMLElement;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
-require_once 'include/bb2diaspora.php';
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
