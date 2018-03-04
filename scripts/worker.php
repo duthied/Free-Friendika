@@ -37,7 +37,7 @@ Config::load();
 check_db(true);
 
 // Quit when in maintenance
-if (Config::get('system', 'maintenance', true)) {
+if (Config::get('system', 'maintenance', false, true)) {
 	return;
 }
 
