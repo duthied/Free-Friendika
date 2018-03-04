@@ -87,7 +87,7 @@ class Markdown extends BaseObject
 		// Escaping the hash tags
 		$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
 
-		$s = Markdown::convert($s);
+		$s = self::convert($s);
 
 		$regexp = "/@\{(?:([^\}]+?); )?([^\} ]+)\}/";
 		$s = preg_replace_callback($regexp, ['self', 'diasporaMention2BBCodeCallback'], $s);
