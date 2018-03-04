@@ -5913,10 +5913,12 @@ function api_saved_searches_list($type)
 	$result = [];
 	while ($term = $terms->fetch()) {
 		$result[] = [
-			'name' => $term['term'],
-			'query' => $term['term'],
+			'created_at' => api_date(time()),
+			'id' => intval($term['id']),
 			'id_str' => $term['id'],
-			'id' => intval($term['id'])
+			'name' => $term['term'],
+			'position' => null,
+			'query' => $term['term']
 		];
 	}
 
