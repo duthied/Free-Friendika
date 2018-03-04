@@ -49,7 +49,7 @@ function babel_content()
 		$o .= '<h2>' . L10n::t('bbcode => html2bbcode: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($bbcode) . EOL . EOL;
 
-		$diaspora = bb2diaspora($text);
+		$diaspora = BBCode::toMarkdown($text);
 		$o .= '<h2>' . L10n::t('bb2diaspora: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($diaspora) . EOL . EOL;
 
@@ -57,7 +57,7 @@ function babel_content()
 		$o .= '<h2>' . L10n::t('bb2diaspora => Markdown: ') . '</h2>' . EOL . EOL;
 		$o .= $html . EOL . EOL;
 
-		$bbcode = diaspora2bb($diaspora);
+		$bbcode = Markdown::toBBCode($diaspora);
 		$o .= '<h2>' . L10n::t('bb2diaspora => diaspora2bb: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($bbcode) . EOL . EOL;
 
@@ -71,7 +71,7 @@ function babel_content()
 		$o .= '<h2>' . L10n::t("Source input \x28Diaspora format\x29: ") . '</h2>' . EOL . EOL;
 		$o .= '<pre>' . $d2bbtext . '</pre>' . EOL . EOL;
 
-		$bb = diaspora2bb($d2bbtext);
+		$bb = Markdown::toBBCode($d2bbtext);
 		$o .= '<h2>' . L10n::t('diaspora2bb: ') . '</h2>' . EOL . EOL;
 		$o .= '<pre>' . $bb . '</pre>' . EOL . EOL;
 	}
