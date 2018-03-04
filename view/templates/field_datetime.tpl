@@ -1,4 +1,6 @@
-{{include file='field_input.tpl' field=$field}}<script type="text/javascript">
+{{include file='field_input.tpl' field=$field}}
+
+<script type="text/javascript">
 	$(function () {
 		$('#id_{{$field.0}}').datetimepicker({
 			step: 5,
@@ -17,6 +19,10 @@
 			dayOfWeekStart: {{$datetimepicker.firstDay}},
 			lang: '{{$datetimepicker.lang}}'
 		});
+{{if $datetimepicker.lang}}
+		jQuery.datetimepicker.setLocale('{{$datetimepicker.lang}}');
+{{/if}}
+
 {{if $datetimepicker.minfrom }}
 		$('#id_{{$datetimepicker.minfrom}}').data('xdsoft_datetimepicker').setOptions({
 			onChangeDateTime: function (currentDateTime) {
