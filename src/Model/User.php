@@ -382,7 +382,7 @@ class User
 			throw new Exception(L10n::t('Not a valid email address.'));
 		}
 
-		if (dba::exists('user', ['email' => $email])) {
+		if (Config::get('system', 'block_extended_register', false) && dba::exists('user', ['email' => $email])) {
 			throw new Exception(L10n::t('Cannot use that email.'));
 		}
 
