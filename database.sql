@@ -59,9 +59,9 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	`v` mediumtext COMMENT 'cached serialized value',
 	`expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of cache expiration',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of cache insertion',
-	PRIMARY KEY (`k`),
-	KEY `k_expires` (`k`,`expires`) USING BTREE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
+	 PRIMARY KEY(`k`),
+	 INDEX `k_expires` (`k`,`expires`)
+) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
 -- TABLE challenge
