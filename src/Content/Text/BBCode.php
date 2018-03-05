@@ -1,33 +1,37 @@
 <?php
+
 /**
  * @file src/Content/Text/BBCode.php
  */
+
 namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DomXPath;
 use Exception;
+use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
-use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\Protocol;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use League\HTMLToMarkdown\HtmlConverter;
 
 require_once "include/event.php";
 require_once "include/html2plain.php";
 require_once "mod/proxy.php";
 
-class BBCode
+class BBCode extends BaseObject
 {
 	/**
 	 * @brief Fetches attachment data that were generated the old way
@@ -173,7 +177,7 @@ class BBCode
 		}
 
 		if ($title != "") {
-			$title = BBCode::convert(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, true);
+			$title = self::convert(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, true);
 			$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
 			$title = str_replace(["[", "]"], ["&#91;", "&#93;"], $title);
 			$data["title"] = $title;
@@ -408,7 +412,7 @@ class BBCode
 			}
 		}
 
-		$html = BBCode::convert($post["text"].$post["after"], false, $htmlmode);
+		$html = self::convert($post["text"].$post["after"], false, $htmlmode);
 		$msg = html2plain($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
@@ -705,7 +709,7 @@ class BBCode
 				}
 
 				if ($data["description"] != "" && $data["description"] != $data["title"]) {
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(BBCode::convert($data["description"])));
+					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($data["description"])));
 				}
 
 				if ($data["type"] == "link") {
@@ -1202,7 +1206,7 @@ class BBCode
 		$text = Cache::get($match[1]);
 
 		if (is_null($text)) {
-			$a = get_app();
+			$a = self::getApp();
 
 			$stamp1 = microtime(true);
 
@@ -1261,7 +1265,7 @@ class BBCode
 		$text = Cache::get($match[1]);
 
 		if (is_null($text)) {
-			$a = get_app();
+			$a = self::getApp();
 
 			$stamp1 = microtime(true);
 
@@ -1285,7 +1289,7 @@ class BBCode
 
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
-				$xpath = new DomXPath($doc);
+				$xpath = new DOMXPath($doc);
 				$list = $xpath->query("//meta[@name]");
 				foreach ($list as $node) {
 					$attr = [];
@@ -1348,7 +1352,7 @@ class BBCode
 	 */
 	public static function convert($text, $try_oembed = true, $simple_html = false, $for_plaintext = false)
 	{
-		$a = get_app();
+		$a = self::getApp();
 
 		/*
 		 * preg_match_callback function to replace potential Oembed tags with Oembed content
@@ -1977,5 +1981,149 @@ class BBCode
 		}
 
 		return $abstract;
+	}
+
+	/**
+	 * @brief Callback function to replace a Friendica style mention in a mention for Diaspora
+	 *
+	 * @param array $match Matching values for the callback
+	 * @return string Replaced mention
+	 */
+	private static function bbCodeMention2DiasporaCallback($match)
+	{
+		$contact = Contact::getDetailsByURL($match[3]);
+
+		if (empty($contact['addr'])) {
+			$contact = Probe::uri($match[3]);
+		}
+
+		if (empty($contact['addr'])) {
+			return $match[0];
+		}
+
+		$mention = '@{' . $match[2] . '; ' . $contact['addr'] . '}';
+		return $mention;
+	}
+
+	/**
+	 * @brief Converts a BBCode text into Markdown
+	 *
+	 * This function converts a BBCode item body to be sent to Markdown-enabled
+	 * systems like Diaspora and Libertree
+	 *
+	 * @param string $text
+	 * @param bool   $for_diaspora Diaspora requires more changes than Libertree
+	 * @return string
+	 */
+	public static function toMarkdown($text, $for_diaspora = true)
+	{
+		$a = self::getApp();
+
+		$original_text = $text;
+
+		// Since Diaspora is creating a summary for links, this function removes them before posting
+		if ($for_diaspora) {
+			$text = self::removeShareInformation($text);
+		}
+
+		/**
+		 * Transform #tags, strip off the [url] and replace spaces with underscore
+		 */
+		$url_search_string = "^\[\]";
+		$text = preg_replace_callback("/#\[url\=([$url_search_string]*)\](.*?)\[\/url\]/i",
+			function ($matches) {
+				return '#' . str_replace(' ', '_', $matches[2]);
+			},
+			$text
+		);
+
+		// Converting images with size parameters to simple images. Markdown doesn't know it.
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
+
+		// Extracting multi-line code blocks before the whitespace processing/code highlighter in self::convert()
+		$codeblocks = [];
+
+		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+			function ($matches) use (&$codeblocks) {
+				$return = $matches[0];
+				if (strpos($matches[2], "\n") !== false) {
+					$return = '#codeblock-' . count($codeblocks) . '#';
+
+					$prefix = '````' . $matches[1] . PHP_EOL;
+					$codeblocks[] = $prefix . trim($matches[2]) . PHP_EOL . '````';
+				}
+				return $return;
+			},
+			$text
+		);
+
+		// Convert it to HTML - don't try oembed
+		if ($for_diaspora) {
+			$text = self::convert($text, false, 3);
+
+			// Add all tags that maybe were removed
+			if (preg_match_all("/#\[url\=([$url_search_string]*)\](.*?)\[\/url\]/ism", $original_text, $tags)) {
+				$tagline = "";
+				foreach ($tags[2] as $tag) {
+					$tag = html_entity_decode($tag, ENT_QUOTES, 'UTF-8');
+					if (!strpos(html_entity_decode($text, ENT_QUOTES, 'UTF-8'), '#' . $tag)) {
+						$tagline .= '#' . $tag . ' ';
+					}
+				}
+				$text = $text . " " . $tagline;
+			}
+		} else {
+			$text = self::convert($text, false, 4);
+		}
+
+		// mask some special HTML chars from conversation to markdown
+		$text = str_replace(['&lt;', '&gt;', '&amp;'], ['&_lt_;', '&_gt_;', '&_amp_;'], $text);
+
+		// If a link is followed by a quote then there should be a newline before it
+		// Maybe we should make this newline at every time before a quote.
+		$text = str_replace(["</a><blockquote>"], ["</a><br><blockquote>"], $text);
+
+		$stamp1 = microtime(true);
+
+		// Now convert HTML to Markdown
+		$converter = new HtmlConverter();
+		$text = $converter->convert($text);
+
+		// unmask the special chars back to HTML
+		$text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $text);
+
+		$a->save_timestamp($stamp1, "parser");
+
+		// Libertree has a problem with escaped hashtags.
+		$text = str_replace(['\#'], ['#'], $text);
+
+		// Remove any leading or trailing whitespace, as this will mess up
+		// the Diaspora signature verification and cause the item to disappear
+		$text = trim($text);
+
+		if ($for_diaspora) {
+			$url_search_string = "^\[\]";
+			$text = preg_replace_callback(
+				"/([@]\[(.*?)\])\(([$url_search_string]*?)\)/ism",
+				['self', 'bbCodeMention2DiasporaCallback'],
+				$text
+			);
+		}
+
+		// Restore code blocks
+		$text = preg_replace_callback('/#codeblock-([0-9]+)#/iU',
+			function ($matches) use ($codeblocks) {
+				$return = '';
+				if (isset($codeblocks[intval($matches[1])])) {
+					$return = $codeblocks[$matches[1]];
+				}
+				return $return;
+			},
+			$text
+		);
+
+		Addon::callHooks('bb2diaspora', $text);
+
+		return $text;
 	}
 }

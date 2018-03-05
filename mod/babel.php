@@ -7,7 +7,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\L10n;
 
-require_once 'include/bb2diaspora.php';
 require_once 'include/html2bbcode.php';
 
 function visible_lf($s)
@@ -49,16 +48,16 @@ function babel_content()
 		$o .= '<h2>' . L10n::t('bbcode => html2bbcode: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($bbcode) . EOL . EOL;
 
-		$diaspora = bb2diaspora($text);
-		$o .= '<h2>' . L10n::t('bb2diaspora: ') . '</h2>' . EOL . EOL;
+		$diaspora = BBCode::toMarkdown($text);
+		$o .= '<h2>' . L10n::t('BBCode::toMarkdown: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($diaspora) . EOL . EOL;
 
 		$html = Markdown::convert($diaspora);
-		$o .= '<h2>' . L10n::t('bb2diaspora => Markdown: ') . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . L10n::t('BBCode::toMarkdown =>  Markdown::convert: ') . '</h2>' . EOL . EOL;
 		$o .= $html . EOL . EOL;
 
-		$bbcode = diaspora2bb($diaspora);
-		$o .= '<h2>' . L10n::t('bb2diaspora => diaspora2bb: ') . '</h2>' . EOL . EOL;
+		$bbcode = Markdown::toBBCode($diaspora);
+		$o .= '<h2>' . L10n::t('BBCode::toMarkdown => Markdown::toBBCode: ') . '</h2>' . EOL . EOL;
 		$o .= visible_lf($bbcode) . EOL . EOL;
 
 		$bbcode = html2bbcode($html);
@@ -71,7 +70,7 @@ function babel_content()
 		$o .= '<h2>' . L10n::t("Source input \x28Diaspora format\x29: ") . '</h2>' . EOL . EOL;
 		$o .= '<pre>' . $d2bbtext . '</pre>' . EOL . EOL;
 
-		$bb = diaspora2bb($d2bbtext);
+		$bb = Markdown::toBBCode($d2bbtext);
 		$o .= '<h2>' . L10n::t('diaspora2bb: ') . '</h2>' . EOL . EOL;
 		$o .= '<pre>' . $bb . '</pre>' . EOL . EOL;
 	}
