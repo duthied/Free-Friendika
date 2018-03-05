@@ -47,8 +47,6 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 			$config = dba::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
 			if (DBM::is_result($config)) {
 				$this->setPreloadedValue($cat, $k, $config['v']);
-			} else {
-				$this->deletePreloadedValue($cat, $k);
 			}
 		}
 
