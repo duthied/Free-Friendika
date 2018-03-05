@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-02 12:02+0100\n"
-"PO-Revision-Date: 2018-03-03 08:28+0000\n"
+"PO-Revision-Date: 2018-03-04 04:03+0000\n"
 "Last-Translator: 朱陈锬 <tangenters@outlook.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/Friendica/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -1144,12 +1144,12 @@ msgstr "%s 不参加。"
 #: include/conversation.php:1249
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend maybe"
-msgstr ""
+msgstr "<span  %1$s>%2$d人</span>可能参加"
 
 #: include/conversation.php:1250
 #, php-format
 msgid "%s anttend maybe."
-msgstr ""
+msgstr "%s 可能参加。"
 
 #: include/conversation.php:1280 include/conversation.php:1296
 msgid "Visible to <strong>everybody</strong>"
@@ -1409,7 +1409,7 @@ msgstr "联系人设置已应用。"
 
 #: mod/crepair.php:89
 msgid "Contact update failed."
-msgstr "熟人更新失败。"
+msgstr "联系人更新失败。"
 
 #: mod/crepair.php:110 mod/dfrn_confirm.php:131 mod/fsuggest.php:29
 #: mod/fsuggest.php:97
@@ -1571,7 +1571,7 @@ msgstr "照片"
 #: mod/photos.php:1659 mod/photos.php:1673 src/Model/Photo.php:244
 #: src/Model/Photo.php:253
 msgid "Contact Photos"
-msgstr "熟人照片"
+msgstr "联系人照片"
 
 #: mod/fbrowser.php:105 mod/fbrowser.php:136 mod/profile_photo.php:265
 msgid "Upload"
@@ -1644,7 +1644,7 @@ msgstr "成员"
 
 #: mod/group.php:216 mod/contacts.php:710
 msgid "All Contacts"
-msgstr "所有的熟人"
+msgstr "所有联系人"
 
 #: mod/group.php:217 mod/network.php:639
 msgid "Group is empty"
@@ -1660,7 +1660,7 @@ msgstr "添加联系人"
 
 #: mod/group.php:266 mod/profperm.php:115
 msgid "Click on a contact to add or remove."
-msgstr "点击熟人为添加或删除。"
+msgstr "单击联系人以添加或删除。"
 
 #: mod/hcard.php:18
 msgid "No profile"
@@ -2237,7 +2237,7 @@ msgstr "显示全部"
 #: mod/notifications.php:322
 #, php-format
 msgid "No more %s notifications."
-msgstr ""
+msgstr "没有更多的 %s 通知。"
 
 #: mod/oexchange.php:30
 msgid "Post successful."
@@ -2363,7 +2363,7 @@ msgstr "远程站点报告："
 
 #: mod/dfrn_confirm.php:396
 msgid "Unable to set contact photo."
-msgstr "不会指定熟人照片。"
+msgstr "无法设置联系人照片。"
 
 #: mod/dfrn_confirm.php:498
 #, php-format
@@ -2530,7 +2530,7 @@ msgstr "您一注册，请页跟我连接，用我的简介在："
 msgid ""
 "For more information about the Friendica project and why we feel it is "
 "important, please visit http://friendi.ca"
-msgstr ""
+msgstr "欲了解更多关于 Friendica 项目的信息以及为什么我们认为这很重要，请访问 http://friendi.ca"
 
 #: mod/manage.php:180
 msgid "Manage Identities and/or Pages"
@@ -3055,7 +3055,7 @@ msgstr ""
 
 #: mod/contacts.php:462 mod/contacts.php:814
 msgid "Do you really want to delete this contact?"
-msgstr "您真的想删除这个熟人吗？"
+msgstr "您真的想删除这个联系人吗？"
 
 #: mod/contacts.php:480
 msgid "Contact has been removed."
@@ -3519,7 +3519,7 @@ msgstr "您的介绍发布了。"
 msgid ""
 "Remote subscription can't be done for your network. Please subscribe "
 "directly on your system."
-msgstr ""
+msgstr "无法为您的网络完成远程订阅。请直接在您的系统上订阅。"
 
 #: mod/dfrn_request.php:493
 msgid "Please login to confirm introduction."
@@ -8783,7 +8783,7 @@ msgid ""
 "\t\t\tDear %1$s,\n"
 "\t\t\t\tThank you for registering at %2$s. Your account has been created.\n"
 "\t\t"
-msgstr ""
+msgstr "\n\t\t\t亲爱的 %1$s，\n\t\t\t\t感谢您在 %2$s 注册。您的账户已被创建。\n\t\t"
 
 #: src/Model/User.php:602
 #, php-format
