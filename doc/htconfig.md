@@ -58,11 +58,11 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **max_processes_backend** - Maximum number of concurrent database processes for background tasks. Default value is 5.
 * **max_processes_frontend** - Maximum number of concurrent database processes for foreground tasks. Default value is 20.
 * **min_poll_interval** - minimal distance in minutes between two polls for a contact. Default is 1. Reasonable values are between 1 and 59.
-* **session_handler** ([database]|cache|native) - Whether to use Cache to store session data or to use PHP native session storage
-* **cache_driver** ([database]|memcache|memcached) - Whether to use Memcache or Memcached to store temporary cache
+* **session_handler** (database|cache|native) - Whether to use Cache to store session data or to use PHP native session storage. Default value is `database`.
+* **cache_driver** (database|memcache|memcached) - Whether to use Memcache or Memcached to store temporary cache. Default value is `database`.
 * **memcache_host** - Host name of the memcache daemon. Default is '127.0.0.1'.
 * **memcache_port** - Port number of the memcache daemon. Default is 11211.
-* **memcached_hosts** - Array of Memcached servers info [host, port(, weight)]. Default is [['127.0.0.1', 11211]]
+* **memcached_hosts** - Array of Memcached servers info `[host, port(, weight)]`. Default value is `[['127.0.0.1', 11211]]`.
 * **no_count** (Boolean) - Don't do count calculations (currently only when showing albums)
 * **no_oembed** (Boolean) - Don't use OEmbed to fetch more information about a link.
 * **no_smilies** (Boolean) - Don't show smilies.
