@@ -62,8 +62,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **cache_driver** ([database]|memcache|memcached) - Whether to use Memcache or Memcached to store temporary cache
 * **memcache_host** - Host name of the memcache daemon. Default is '127.0.0.1'.
 * **memcache_port** - Port number of the memcache daemon. Default is 11211.
-* **memcached_host** - Host name of the memcached daemon. Default is '127.0.0.1'.
-* **memcached_port** - Port number of the memcached daemon. Default is 11211.
+* **memcached_hosts** - Array of Memcached servers info [host, port(, weight)]. Default is [['127.0.0.1', 11211]]
 * **no_count** (Boolean) - Don't do count calculations (currently only when showing albums)
 * **no_oembed** (Boolean) - Don't use OEmbed to fetch more information about a link.
 * **no_smilies** (Boolean) - Don't show smilies.

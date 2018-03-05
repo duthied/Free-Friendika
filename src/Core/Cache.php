@@ -36,10 +36,9 @@ class Cache extends \Friendica\BaseObject
 				self::$driver = new Cache\MemcacheCacheDriver($memcache_host, $memcache_port);
 				break;
 			case 'memcached':
-				$memcached_host = Config::get('system', 'memcached_host', '127.0.0.1');
-				$memcached_port = Config::get('system', 'memcached_port', 11211);
+				$memcached_hosts = Config::get('system', 'memcached_hosts', [['127.0.0.1', 11211]]);
 
-				self::$driver = new Cache\MemcachedCacheDriver($memcached_host, $memcached_port);
+				self::$driver = new Cache\MemcachedCacheDriver($memcached_hosts);
 				break;
 			default:
 				self::$driver = new Cache\DatabaseCacheDriver();

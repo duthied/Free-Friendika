@@ -17,7 +17,7 @@ class MemcachedCacheDriver extends BaseObject implements ICacheDriver
 	 */
 	private $memcached;
 
-	public function __construct($memcached_host, $memcached_port)
+	public function __construct(array $memcached_hosts)
 	{
 		if (!class_exists('Memcached', false)) {
 			throw new \Exception('Memcached class isn\'t available');
@@ -25,8 +25,10 @@ class MemcachedCacheDriver extends BaseObject implements ICacheDriver
 
 		$this->memcached = new \Memcached();
 
-		if (!$this->memcached->addServer($memcached_host, $memcached_port)) {
-			throw new \Exception('Expected Memcached server at ' . $memcached_host . ':' . $memcached_port . ' isn\'t available');
+		$this->memcached->addServers($memcached_hosts);
+
+		if (count($this->memcached->getServerList()) == 0) {
+			throw new \Exception('Expected Memcached servers aren\'t available, config:' . var_export($memcached_hosts, true));
 		}
 	}
 
