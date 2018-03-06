@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 3.6-dev (Asparagus)
--- DB_UPDATE_VERSION 1255
+-- DB_UPDATE_VERSION 1256
 -- ------------------------------------------
 
 
@@ -55,12 +55,12 @@ CREATE TABLE IF NOT EXISTS `auth_codes` (
 -- TABLE cache
 --
 CREATE TABLE IF NOT EXISTS `cache` (
-	`k` varbinary(255) NOT NULL COMMENT '',
-	`v` mediumtext COMMENT '',
-	`expire_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`k` varbinary(255) NOT NULL COMMENT 'cache key',
+	`v` mediumtext COMMENT 'cached serialized value',
+	`expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of cache expiration',
+	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of cache insertion',
 	 PRIMARY KEY(`k`),
-	 INDEX `expire_mode_updated` (`expire_mode`,`updated`)
+	 INDEX `k_expires` (`k`,`expires`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
