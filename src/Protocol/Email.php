@@ -6,8 +6,6 @@ namespace Friendica\Protocol;
 
 use Friendica\Content\Text\HTML;
 
-require_once 'include/html2plain.php';
-
 /**
  * @brief Email class
  */

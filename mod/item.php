@@ -808,7 +808,6 @@ function item_post(App $a) {
 				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = prepare_body($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
-				include_once 'include/html2plain.php';
 				$params =  [
 					'fromName' => $a->user['username'],
 					'fromEmail' => $a->user['email'],

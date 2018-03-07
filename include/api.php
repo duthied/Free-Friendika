@@ -42,11 +42,9 @@ use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 require_once 'include/conversation.php';
-require_once 'include/html2plain.php';
 require_once 'mod/share.php';
 require_once 'mod/item.php';
 require_once 'include/security.php';
-require_once 'include/html2bbcode.php';
 require_once 'mod/wall_upload.php';
 require_once 'mod/proxy.php';
 

@@ -46,8 +46,6 @@ function oexchange_content(App $a) {
 		return;
 	}
 
-	require_once('include/html2bbcode.php');
-
 	$post = [];
 
 	$post['profile_uid'] = local_user();

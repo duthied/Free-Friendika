@@ -10,8 +10,6 @@ use Friendica\BaseObject;
 use Friendica\Model\Contact;
 use Michelf\MarkdownExtra;
 
-require_once  'include/html2bbcode.php';
-
 /**
  * Friendica-specific usage of Markdown
  *
