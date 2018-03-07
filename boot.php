@@ -20,6 +20,7 @@
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
@@ -536,6 +537,7 @@ function get_app()
 
 	if (empty($a)) {
 		$a = new App(dirname(__DIR__));
+		BaseObject::setApp($a);
 	}
 
 	return $a;

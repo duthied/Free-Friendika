@@ -2,16 +2,17 @@
 /**
  * @file util/maintenance.php
  */
+
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
 
-if (empty($a)) {
-	$a = new App(dirname(__DIR__));
-}
+$a = new App(dirname(__DIR__));
+BaseObject::setApp($a);
 
 @include(".htconfig.php");
 
