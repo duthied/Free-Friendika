@@ -34,6 +34,7 @@
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Core\Config;
 use Friendica\Util\ExAuth;
 
 if (sizeof($_SERVER["argv"]) == 0) {
@@ -59,6 +60,8 @@ BaseObject::setApp($a);
 @include ".htconfig.php";
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
+
+Config::load();
 
 $oAuth = new ExAuth();
 

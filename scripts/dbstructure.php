@@ -19,6 +19,8 @@ BaseObject::setApp($a);
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 
+Config::load();
+
 if ($_SERVER["argc"] == 2) {
 	switch ($_SERVER["argv"][1]) {
 		case "dryrun":

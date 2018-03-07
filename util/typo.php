@@ -18,11 +18,9 @@ include 'boot.php';
 $a = new App(dirname(__DIR__));
 BaseObject::setApp($a);
 
-if (x($a->config, 'php_path')) {
-	$phpath = $a->config['php_path'];
-} else {
-	$phpath = 'php';
-}
+@include '.htconfig.php';
+
+$phpath = $a->getConfigValue('config', 'php_path', 'php');
 
 echo 'Directory: src' . PHP_EOL;
 $Iterator = new RecursiveDirectoryIterator('src');
