@@ -47,7 +47,7 @@ class NotificationsManager extends BaseObject
 			$n['timestamp'] = strtotime($local_time);
 			$n['date_rel'] = Temporal::getRelativeDate($n['date']);
 			$n['msg_html'] = BBCode::convert($n['msg'], false);
-			$n['msg_plain'] = explode("\n", trim(html2plain($n['msg_html'], 0)))[0];
+			$n['msg_plain'] = explode("\n", trim(Friendica\Content\Text\HTML::toPlaintext($n['msg_html'], 0)))[0];
 
 			$rets[] = $n;
 		}

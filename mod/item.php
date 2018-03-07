@@ -816,7 +816,7 @@ function item_post(App $a) {
 					'replyTo' => $a->user['email'],
 					'messageSubject' => $subject,
 					'htmlVersion' => $message,
-					'textVersion' => html2plain($html.$disclaimer)
+					'textVersion' => Friendica\Content\Text\HTML::toPlaintext($html.$disclaimer)
 				];
 				Emailer::send($params);
 			}

@@ -330,7 +330,7 @@ class Email
 		$body .= "Content-Transfer-Encoding: 8bit\n";
 		$body .= "Content-Type: text/plain; charset=utf-8; format=flowed\n\n";
 
-		$body .= html2plain($html)."\n";
+		$body .= Friendica\Content\Text\HTML::toPlaintext($html)."\n";
 
 		$body .= "--=_".$part."\n";
 		$body .= "Content-Transfer-Encoding: 8bit\n";

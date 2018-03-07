@@ -413,7 +413,7 @@ class BBCode extends BaseObject
 		}
 
 		$html = self::convert($post["text"].$post["after"], false, $htmlmode);
-		$msg = html2plain($html, 0, true);
+		$msg = HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
 		$link = "";

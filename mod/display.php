@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -369,8 +370,8 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	// Preparing the meta header
 	require_once 'include/html2plain.php';
 
-	$description = trim(html2plain(BBCode::convert($s[0]["body"], false), 0, true));
-	$title = trim(html2plain(BBCode::convert($s[0]["title"], false), 0, true));
+	$description = trim(HTML::toPlaintext(BBCode::convert($s[0]["body"], false), 0, true));
+	$title = trim(HTML::toPlaintext(BBCode::convert($s[0]["title"], false), 0, true));
 	$author_name = $s[0]["author-name"];
 
 	$image = $a->remove_baseurl($s[0]["author-thumb"]);
