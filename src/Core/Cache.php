@@ -12,14 +12,14 @@ use Friendica\Core\Config;
  */
 class Cache extends \Friendica\BaseObject
 {
-	const MONTH        = 0;
-	const WEEK         = 1;
-	const DAY          = 2;
-	const HOUR         = 3;
-	const HALF_HOUR    = 4;
-	const QUARTER_HOUR = 5;
-	const FIVE_MINUTES = 6;
-	const MINUTE       = 7;
+	const MONTH        = 2592000;
+	const WEEK         = 604800;
+	const DAY          = 86400;
+	const HOUR         = 3600;
+	const HALF_HOUR    = 1800;
+	const QUARTER_HOUR = 900;
+	const FIVE_MINUTES = 300;
+	const MINUTE       = 60;
 
 	/**
 	 * @var Cache\ICacheDriver
@@ -43,45 +43,6 @@ class Cache extends \Friendica\BaseObject
 			default:
 				self::$driver = new Cache\DatabaseCacheDriver();
 		}
-	}
-
-	/**
-	 * @brief Return the duration for a given cache level
-	 *
-	 * @param integer $level Cache level
-	 *
-	 * @return integer The cache duration in seconds
-	 */
-	public static function duration($level)
-	{
-		switch ($level) {
-			case self::MONTH:
-				$seconds = 2592000;
-				break;
-			case self::WEEK:
-				$seconds = 604800;
-				break;
-			case self::DAY:
-				$seconds = 86400;
-				break;
-			case self::HOUR:
-				$seconds = 3600;
-				break;
-			case self::HALF_HOUR:
-				$seconds = 1800;
-				break;
-			case self::QUARTER_HOUR:
-				$seconds = 900;
-				break;
-			case self::FIVE_MINUTES:
-				$seconds = 300;
-				break;
-			case self::MINUTE:
-			default:
-				$seconds = 60;
-				break;
-		}
-		return $seconds;
 	}
 
 	/**
