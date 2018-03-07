@@ -764,27 +764,6 @@ class BBCode extends BaseObject
 		return $text . "\n" . $data["after"];
 	}
 
-	private static function cleanCss($input)
-	{
-		$cleaned = "";
-
-		$input = strtolower($input);
-
-		for ($i = 0; $i < strlen($input); $i++) {
-			$char = substr($input, $i, 1);
-
-			if (($char >= "a") && ($char <= "z")) {
-				$cleaned .= $char;
-			}
-
-			if (!(strpos(" #;:0123456789-_.%", $char) === false)) {
-				$cleaned .= $char;
-			}
-		}
-
-		return $cleaned;
-	}
-
 	/**
 	 * Converts [url] BBCodes in a format that looks fine on Mastodon. (callback function)
 	 *
@@ -1629,7 +1608,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback(
 			"(\[style=(.*?)\](.*?)\[\/style\])ism",
 			function ($match) {
-				return "<span style=\"" . self::cleanCss($match[1]) . ";\">" . $match[2] . "</span>";
+				return "<span style=\"" . HTML::sanitizeCSS($match[1]) . ";\">" . $match[2] . "</span>";
 			},
 			$text
 		);
@@ -1638,7 +1617,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback(
 			"(\[class=(.*?)\](.*?)\[\/class\])ism",
 			function ($match) {
-				return "<span class=\"" . self::cleanCss($match[1]) . "\">" . $match[2] . "</span>";
+				return "<span class=\"" . HTML::sanitizeCSS($match[1]) . "\">" . $match[2] . "</span>";
 			},
 			$text
 		);
