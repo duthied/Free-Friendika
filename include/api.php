@@ -10,6 +10,7 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -1096,7 +1097,7 @@ function api_statuses_mediap($type)
 		$purifier = new HTMLPurifier($config);
 		$txt = $purifier->purify($txt);
 	}
-	$txt = html2bbcode($txt);
+	$txt = HTML::toBBCode($txt);
 
 	$a->argv[1]=$user_info['screen_name']; //should be set to username?
 
@@ -1147,7 +1148,7 @@ function api_statuses_update($type)
 			$purifier = new HTMLPurifier($config);
 			$txt = $purifier->purify($txt);
 
-			$_REQUEST['body'] = html2bbcode($txt);
+			$_REQUEST['body'] = HTML::toBBCode($txt);
 		}
 	} else {
 		$_REQUEST['body'] = requestdata('status');

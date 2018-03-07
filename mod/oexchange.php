@@ -52,7 +52,7 @@ function oexchange_content(App $a) {
 
 	$post['profile_uid'] = local_user();
 	$post['return'] = '/oexchange/done' ;
-	$post['body'] = html2bbcode($s);
+	$post['body'] = Friendica\Content\Text\HTML::toBBCode($s);
 	$post['type'] = 'wall';
 
 	$_REQUEST = $post;

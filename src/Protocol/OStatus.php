@@ -5,6 +5,7 @@
 namespace Friendica\Protocol;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -168,7 +169,7 @@ class OStatus
 
 			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
 			if ($value != "") {
-				$contact["about"] = html2bbcode($value);
+				$contact["about"] = HTML::toBBCode($value);
 			}
 
 			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
@@ -557,7 +558,7 @@ class OStatus
 	 */
 	private static function processPost($xpath, $entry, &$item, $importer)
 	{
-		$item["body"] = html2bbcode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
+		$item["body"] = HTML::toBBCode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
 		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
 		if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
 			$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
@@ -659,7 +660,7 @@ class OStatus
 		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
 			$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
 
-			$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
+			$item["body"] = HTML::toBBCode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 		}
 
 		if (($self != '') && empty($item['protocol'])) {
@@ -1014,7 +1015,7 @@ class OStatus
 		$item["author-link"] = $orig_author["author-link"];
 		$item["author-avatar"] = $orig_author["author-avatar"];
 
-		$item["body"] = html2bbcode($orig_body);
+		$item["body"] = HTML::toBBCode($orig_body);
 		$item["created"] = $orig_created;
 		$item["edited"] = $orig_edited;
 

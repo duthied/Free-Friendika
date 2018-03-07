@@ -363,7 +363,7 @@ class Feed {
 			if (self::titleIsBody($item["title"], $body)) {
 				$item["title"] = "";
 			}
-			$item["body"] = html2bbcode($body, $basepath);
+			$item["body"] = Friendica\Content\Text\HTML::toBBCode($body, $basepath);
 
 			if (($item["body"] == '') && ($item["title"] != '')) {
 				$item["body"] = $item["title"];

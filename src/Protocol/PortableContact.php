@@ -9,6 +9,7 @@
 
 namespace Friendica\Protocol;
 
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -155,7 +156,7 @@ class PortableContact
 			}
 
 			if (isset($entry->aboutMe)) {
-				$about = html2bbcode($entry->aboutMe);
+				$about = HTML::toBBCode($entry->aboutMe);
 			}
 
 			if (isset($entry->gender)) {
@@ -1669,7 +1670,7 @@ class PortableContact
 			}
 
 			if (isset($entry->aboutMe)) {
-				$about = html2bbcode($entry->aboutMe);
+				$about = HTML::toBBCode($entry->aboutMe);
 			}
 
 			if (isset($entry->gender)) {

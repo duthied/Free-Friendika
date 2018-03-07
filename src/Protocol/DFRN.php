@@ -2454,7 +2454,7 @@ class DFRN
 			$purifier = new HTMLPurifier($config);
 			$item['body'] = $purifier->purify($item['body']);
 
-			$item['body'] = @html2bbcode($item['body']);
+			$item['body'] = @Friendica\Content\Text\HTML::toBBCode($item['body']);
 		}
 
 		/// @todo We should check for a repeated post and if we know the repeated author.

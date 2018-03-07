@@ -4,6 +4,8 @@
  */
 namespace Friendica\Protocol;
 
+use Friendica\Content\Text\HTML;
+
 require_once 'include/html2plain.php';
 
 /**
@@ -111,7 +113,7 @@ class Email
 			if (trim($ret['body']) == '') {
 				$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
 			} else {
-				$ret['body'] = html2bbcode($ret['body']);
+				$ret['body'] = HTML::toBBCode($ret['body']);
 			}
 		} else {
 			$text = '';
@@ -128,7 +130,7 @@ class Email
 				}
 			}
 			if (trim($html) != '') {
-				$ret['body'] = html2bbcode($html);
+				$ret['body'] = HTML::toBBCode($html);
 			} else {
 				$ret['body'] = $text;
 			}
