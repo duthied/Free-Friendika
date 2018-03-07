@@ -8,7 +8,7 @@ use Friendica\Database\DBM;
 require_once 'include/dba.php';
 
 /**
- * JustInTime ConfigAdapter
+ * JustInTime Configuration Adapter
  *
  * Default Config Adapter. Provides the best performance for pages loading few configuration variables.
  *
@@ -27,17 +27,15 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 			return;
 		}
 
-		$a = self::getApp();
-
 		$configs = dba::select('config', ['v', 'k'], ['cat' => $cat]);
 		while ($config = dba::fetch($configs)) {
 			$k = $config['k'];
-			if ($cat === 'config') {
-				$a->config[$k] = $config['v'];
-			} else {
-				$a->config[$cat][$k] = $config['v'];
-				self::$cache[$cat][$k] = $config['v'];
-				self::$in_db[$cat][$k] = true;
+
+			self::getApp()->setConfigValue($cat, $k, $config['v']);
+
+			if ($cat !== 'config') {
+				$this->cache[$cat][$k] = $config['v'];
+				$this->in_db[$cat][$k] = true;
 			}
 		}
 		dba::close($configs);
@@ -96,11 +94,7 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 			return true;
 		}
 
-		if ($cat === 'config') {
-			$a->config[$k] = $dbvalue;
-		} elseif ($cat != 'system') {
-			$a->config[$cat][$k] = $dbvalue;
-		}
+		self::getApp()->setConfigValue($cat, $k, $value);
 
 		// Assign the just added value to the cache
 		$this->cache[$cat][$k] = $dbvalue;

@@ -8,7 +8,7 @@ use Friendica\Database\DBM;
 require_once 'include/dba.php';
 
 /**
- * JustInTime PConfigAdapter
+ * JustInTime User Configuration Adapter
  *
  * Default PConfig Adapter. Provides the best performance for pages loading few configuration variables.
  *
@@ -26,7 +26,9 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 		if (DBM::is_result($pconfigs)) {
 			while ($pconfig = dba::fetch($pconfigs)) {
 				$k = $pconfig['k'];
-				$a->config[$uid][$cat][$k] = $pconfig['v'];
+
+				self::getApp()->setPConfigValue($uid, $cat, $k, $pconfig['v']);
+
 				$this->in_db[$uid][$cat][$k] = true;
 			}
 		} else if ($cat != 'config') {
@@ -59,12 +61,15 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 		$pconfig = dba::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
 		if (DBM::is_result($pconfig)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
-			$a->config[$uid][$cat][$k] = $val;
+
+			self::getApp()->setPConfigValue($uid, $cat, $k, $val);
+
 			$this->in_db[$uid][$cat][$k] = true;
 
 			return $val;
 		} else {
-			$a->config[$uid][$cat][$k] = '!<unset>!';
+			self::getApp()->setPConfigValue($uid, $cat, $k, '!<unset>!');
+
 			$this->in_db[$uid][$cat][$k] = false;
 
 			return $default_value;
@@ -73,8 +78,6 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 	public function set($uid, $cat, $k, $value)
 	{
-		$a = self::getApp();
-
 		// We store our setting values in a string variable.
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
@@ -86,7 +89,7 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 			return true;
 		}
 
-		$a->config[$uid][$cat][$k] = $dbvalue;
+		self::getApp()->setPConfigValue($uid, $cat, $k, $value);
 
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
@@ -103,10 +106,9 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 	public function delete($uid, $cat, $k)
 	{
-		$a = self::getApp();
+		self::getApp()->deletePConfigValue($uid, $cat, $k);
 
-		if (!empty($a->config[$uid][$cat][$k])) {
-			unset($a->config[$uid][$cat][$k]);
+		if (!empty($this->in_db[$uid][$cat][$k])) {
 			unset($this->in_db[$uid][$cat][$k]);
 		}
 

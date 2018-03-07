@@ -29,9 +29,7 @@ class Config extends BaseObject
 
 	public static function init()
 	{
-		$a = self::getApp();
-
-		if (isset($a->config['system']['config_adapter']) && $a->config['system']['config_adapter'] == 'preload') {
+		if (self::getApp()->getConfigValue('system', 'config_adapter') == 'preload') {
 			self::$adapter = new Config\PreloadConfigAdapter();
 		} else {
 			self::$adapter = new Config\JITConfigAdapter();

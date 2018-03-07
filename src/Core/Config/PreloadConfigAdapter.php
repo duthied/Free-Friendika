@@ -11,9 +11,9 @@ use Friendica\Database\DBM;
 require_once 'include/dba.php';
 
 /**
- * Preload ConfigAdapter
+ * Preload Configuration Adapter
  *
- * Minimize the number of database queries to retrieve configuration values at the cost of memory.
+ * Minimizes the number of database queries to retrieve configuration values at the cost of memory.
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
@@ -34,7 +34,7 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 
 		$configs = dba::select('config', ['cat', 'v', 'k']);
 		while ($config = dba::fetch($configs)) {
-			$this->setPreloadedValue($config['cat'], $config['k'], $config['v']);
+			self::getApp()->setConfigValue($config['cat'], $config['k'], $config['v']);
 		}
 		dba::close($configs);
 
@@ -46,11 +46,11 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 		if ($refresh) {
 			$config = dba::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
 			if (DBM::is_result($config)) {
-				$this->setPreloadedValue($cat, $k, $config['v']);
+				self::getApp()->setConfigValue($cat, $k, $config['v']);
 			}
 		}
 
-		$return = $this->getPreloadedValue($cat, $k, $default_value);
+		$return = self::getApp()->getConfigValue($cat, $k, $default_value);
 
 		return $return;
 	}
@@ -62,11 +62,11 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 		// The exception are array values.
 		$compare_value = !is_array($value) ? (string)$value : $value;
 
-		if ($this->getPreloadedValue($cat, $k) === $compare_value) {
+		if (self::getApp()->getConfigValue($cat, $k) === $compare_value) {
 			return true;
 		}
 
-		$this->setPreloadedValue($cat, $k, $value);
+		self::getApp()->setConfigValue($cat, $k, $value);
 
 		// manage array value
 		$dbvalue = is_array($value) ? serialize($value) : $value;
@@ -81,80 +81,10 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 
 	public function delete($cat, $k)
 	{
-		$this->deletePreloadedValue($cat, $k);
+		self::getApp()->deleteConfigValue($cat, $k);
 
 		$result = dba::delete('config', ['cat' => $cat, 'k' => $k]);
 
 		return $result;
-	}
-
-	/**
-	 * Retrieves a preloaded value from the App config cache
-	 *
-	 * @param string $cat
-	 * @param string $k
-	 * @param mixed  $default
-	 */
-	private function getPreloadedValue($cat, $k, $default = null)
-	{
-		$a = self::getApp();
-
-		$return = $default;
-
-		if ($cat === 'config') {
-			if (isset($a->config[$k])) {
-				$return = $a->config[$k];
-			}
-		} else {
-			if (isset($a->config[$cat][$k])) {
-				$return = $a->config[$cat][$k];
-			}
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Sets a preloaded value in the App config cache
-	 *
-	 * Accepts raw output from the config table
-	 *
-	 * @param string $cat
-	 * @param string $k
-	 * @param mixed $v
-	 */
-	private function setPreloadedValue($cat, $k, $v)
-	{
-		$a = self::getApp();
-
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
-
-		if ($cat === 'config') {
-			$a->config[$k] = $value;
-		} else {
-			$a->config[$cat][$k] = $value;
-		}
-	}
-
-	/**
-	 * Deletes a preloaded value from the App config cache
-	 *
-	 * @param string $cat
-	 * @param string $k
-	 */
-	private function deletePreloadedValue($cat, $k)
-	{
-		$a = self::getApp();
-
-		if ($cat === 'config') {
-			if (isset($a->config[$k])) {
-				unset($a->config[$k]);
-			}
-		} else {
-			if (isset($a->config[$cat][$k])) {
-				unset($a->config[$cat][$k]);
-			}
-		}
 	}
 }
