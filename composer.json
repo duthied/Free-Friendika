@@ -54,8 +54,8 @@
 		"preferred-install": "dist",
 		"fxp-asset": {
             "installer-paths": {
-                "npm-asset-library": "vendor/asset",
-                "bower-asset-library": "vendor/asset"
+                "npm-asset-library": "view/asset",
+                "bower-asset-library": "view/asset"
             }
         }
 	},
