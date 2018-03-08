@@ -2642,7 +2642,7 @@ class Diaspora
 	 *
 	 * @return array The fetched item
 	 */
-	private static function originalItem($guid, $orig_author, $author)
+	public static function originalItem($guid, $orig_author)
 	{
 		// Do we already have this item?
 		$r = q(
@@ -2736,7 +2736,7 @@ class Diaspora
 			return true;
 		}
 
-		$original_item = self::originalItem($root_guid, $root_author, $author);
+		$original_item = self::originalItem($root_guid, $root_author);
 		if (!$original_item) {
 			return false;
 		}
@@ -3451,24 +3451,21 @@ class Diaspora
 		// Skip if it isn't a pure repeated messages
 		// Does it start with a share?
 		if ((strpos($body, "[share") > 0) && $complete) {
-			return(false);
+			return false;
 		}
 
 		// Does it end with a share?
 		if (strlen($body) > (strrpos($body, "[/share]") + 8)) {
-			return(false);
+			return false;
 		}
 
 		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
 		// Skip if there is no shared message in there
 		if ($body == $attributes) {
-			return(false);
+			return false;
 		}
 
 		// If we don't do the complete check we quit here
-		if (!$complete) {
-			return true;
-		}
 
 		$guid = "";
 		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
@@ -3481,7 +3478,7 @@ class Diaspora
 			$guid = $matches[1];
 		}
 
-		if ($guid != "") {
+		if (($guid != "") && $complete) {
 			$r = q(
 				"SELECT `contact-id` FROM `item` WHERE `guid` = '%s' AND `network` IN ('%s', '%s') LIMIT 1",
 				dbesc($guid),
@@ -3492,7 +3489,7 @@ class Diaspora
 				$ret= [];
 				$ret["root_handle"] = self::handleFromContact($r[0]["contact-id"]);
 				$ret["root_guid"] = $guid;
-				return($ret);
+				return $ret;
 			}
 		}
 
@@ -3509,28 +3506,22 @@ class Diaspora
 
 		$ret= [];
 
-		$ret["root_handle"] = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
-		if (($ret["root_handle"] == $profile) || ($ret["root_handle"] == "")) {
-			return(false);
+		if ($profile != "") {
+			if (Contact::getIdForURL($profile)) {
+				$author = Contact::getDetailsByURL($profile);
+				$ret["root_handle"] = $author['addr'];
+			}
 		}
 
-		$link = "";
-		preg_match("/link='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "") {
-			$link = $matches[1];
+		if (!empty($guid)) {
+			$ret["root_guid"] = $guid;
 		}
 
-		preg_match('/link="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "") {
-			$link = $matches[1];
+		if (empty($ret) && !$complete) {
+			return true;
 		}
 
-		$ret["root_guid"] = preg_replace("=https?://(.*)/posts/(.*)=ism", "$2", $link);
-		if (($ret["root_guid"] == $link) || (trim($ret["root_guid"]) == "")) {
-			return(false);
-		}
-
-		return($ret);
+		return $ret;
 	}
 
 	/**
