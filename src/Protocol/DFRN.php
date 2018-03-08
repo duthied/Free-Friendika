@@ -11,6 +11,7 @@ namespace Friendica\Protocol;
 use Friendica\App;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -2453,7 +2454,7 @@ class DFRN
 			$purifier = new HTMLPurifier($config);
 			$item['body'] = $purifier->purify($item['body']);
 
-			$item['body'] = @Friendica\Content\Text\HTML::toBBCode($item['body']);
+			$item['body'] = @HTML::toBBCode($item['body']);
 		}
 
 		/// @todo We should check for a repeated post and if we know the repeated author.

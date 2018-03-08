@@ -10,6 +10,8 @@ use Friendica\Database\DBM;
 use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Util\Network;
+use Friendica\Content\Text\HTML;
+
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -362,7 +364,7 @@ class Feed {
 			if (self::titleIsBody($item["title"], $body)) {
 				$item["title"] = "";
 			}
-			$item["body"] = Friendica\Content\Text\HTML::toBBCode($body, $basepath);
+			$item["body"] = HTML::toBBCode($body, $basepath);
 
 			if (($item["body"] == '') && ($item["title"] != '')) {
 				$item["body"] = $item["title"];
