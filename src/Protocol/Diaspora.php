@@ -2211,7 +2211,10 @@ class Diaspora
 		}
 
 		logger('Received participation for ID: '.$item['id'].' - Contact: '.$contact_id.' - Server: '.$server, LOGGER_DEBUG);
-		dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'fid' => $person['id'], 'server' => $server]);
+
+		if (!dba::exists('participation', ['iid' => $item['id'], 'server' => $server])) {
+			dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'fid' => $person['id'], 'server' => $server]);
+		}
 
 		// Send all existing comments and likes to the requesting server
 		$comments = dba::p("SELECT `item`.`id`, `item`.`verb`, `contact`.`self`
