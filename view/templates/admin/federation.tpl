@@ -1,4 +1,4 @@
-<script src="{{$baseurl}}/vendor/asset/Chart-js/dist/Chart.min.js"></script>
+<script src="{{$baseurl}}/view/asset/Chart-js/dist/Chart.min.js"></script>
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
