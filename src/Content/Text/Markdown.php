@@ -9,6 +9,7 @@ namespace Friendica\Content\Text;
 use Friendica\BaseObject;
 use Friendica\Model\Contact;
 use Michelf\MarkdownExtra;
+use Friendica\Content\Text\HTML;
 
 /**
  * Friendica-specific usage of Markdown
@@ -92,7 +93,7 @@ class Markdown extends BaseObject
 
 		$s = str_replace('&#35;', '#', $s);
 
-		$s = Friendica\Content\Text\HTML::toBBCode($s);
+		$s = HTML::toBBCode($s);
 
 		// protect the recycle symbol from turning into a tag, but without unescaping angles and naked ampersands
 		$s = str_replace('&#x2672;', html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8'), $s);
