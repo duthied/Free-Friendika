@@ -15,7 +15,6 @@ use DOMDocument;
 use DOMXPath;
 
 require_once 'include/dba.php';
-require_once 'include/html2bbcode.php';
 require_once 'include/items.php';
 
 /**
@@ -363,7 +362,7 @@ class Feed {
 			if (self::titleIsBody($item["title"], $body)) {
 				$item["title"] = "";
 			}
-			$item["body"] = html2bbcode($body, $basepath);
+			$item["body"] = Friendica\Content\Text\HTML::toBBCode($body, $basepath);
 
 			if (($item["body"] == '') && ($item["title"] != '')) {
 				$item["body"] = $item["title"];

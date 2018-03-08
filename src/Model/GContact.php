@@ -20,7 +20,6 @@ use dba;
 use Exception;
 
 require_once 'include/dba.php';
-require_once 'include/html2bbcode.php';
 
 /**
  * @brief This class handles GlobalContact related functions

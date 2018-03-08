@@ -28,7 +28,6 @@ use Friendica\Util\ParseUrl;
 use League\HTMLToMarkdown\HtmlConverter;
 
 require_once "include/event.php";
-require_once "include/html2plain.php";
 require_once "mod/proxy.php";
 
 class BBCode extends BaseObject
@@ -413,7 +412,7 @@ class BBCode extends BaseObject
 		}
 
 		$html = self::convert($post["text"].$post["after"], false, $htmlmode);
-		$msg = html2plain($html, 0, true);
+		$msg = HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
 		$link = "";
@@ -762,27 +761,6 @@ class BBCode extends BaseObject
 		}
 
 		return $text . "\n" . $data["after"];
-	}
-
-	private static function cleanCss($input)
-	{
-		$cleaned = "";
-
-		$input = strtolower($input);
-
-		for ($i = 0; $i < strlen($input); $i++) {
-			$char = substr($input, $i, 1);
-
-			if (($char >= "a") && ($char <= "z")) {
-				$cleaned .= $char;
-			}
-
-			if (!(strpos(" #;:0123456789-_.%", $char) === false)) {
-				$cleaned .= $char;
-			}
-		}
-
-		return $cleaned;
 	}
 
 	/**
@@ -1629,7 +1607,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback(
 			"(\[style=(.*?)\](.*?)\[\/style\])ism",
 			function ($match) {
-				return "<span style=\"" . self::cleanCss($match[1]) . ";\">" . $match[2] . "</span>";
+				return "<span style=\"" . HTML::sanitizeCSS($match[1]) . ";\">" . $match[2] . "</span>";
 			},
 			$text
 		);
@@ -1638,7 +1616,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback(
 			"(\[class=(.*?)\](.*?)\[\/class\])ism",
 			function ($match) {
-				return "<span class=\"" . self::cleanCss($match[1]) . "\">" . $match[2] . "</span>";
+				return "<span class=\"" . HTML::sanitizeCSS($match[1]) . "\">" . $match[2] . "</span>";
 			},
 			$text
 		);

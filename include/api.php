@@ -10,6 +10,7 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -41,11 +42,9 @@ use Friendica\Util\Network;
 use Friendica\Util\XML;
 
 require_once 'include/conversation.php';
-require_once 'include/html2plain.php';
 require_once 'mod/share.php';
 require_once 'mod/item.php';
 require_once 'include/security.php';
-require_once 'include/html2bbcode.php';
 require_once 'mod/wall_upload.php';
 require_once 'mod/proxy.php';
 
@@ -1096,7 +1095,7 @@ function api_statuses_mediap($type)
 		$purifier = new HTMLPurifier($config);
 		$txt = $purifier->purify($txt);
 	}
-	$txt = html2bbcode($txt);
+	$txt = HTML::toBBCode($txt);
 
 	$a->argv[1]=$user_info['screen_name']; //should be set to username?
 
@@ -1147,7 +1146,7 @@ function api_statuses_update($type)
 			$purifier = new HTMLPurifier($config);
 			$txt = $purifier->purify($txt);
 
-			$_REQUEST['body'] = html2bbcode($txt);
+			$_REQUEST['body'] = HTML::toBBCode($txt);
 		}
 	} else {
 		$_REQUEST['body'] = requestdata('status');
@@ -2624,10 +2623,10 @@ function api_format_messages($item, $recipient, $sender)
 		if ($_GET['getText'] == 'html') {
 			$ret['text'] = BBCode::convert($item['body'], false);
 		} elseif ($_GET['getText'] == 'plain') {
-			$ret['text'] = trim(html2plain(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0));
+			$ret['text'] = trim(HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0));
 		}
 	} else {
-		$ret['text'] = $item['title'] . "\n" . html2plain(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0);
+		$ret['text'] = $item['title'] . "\n" . HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0);
 	}
 	if (x($_GET, 'getUserObjects') && $_GET['getUserObjects'] == 'false') {
 		unset($ret['sender']);
@@ -2650,7 +2649,7 @@ function api_convert_item($item)
 
 	// Workaround for ostatus messages where the title is identically to the body
 	$html = BBCode::convert(api_clean_plain_items($body), false, 2, true);
-	$statusbody = trim(html2plain($html, 0));
+	$statusbody = trim(HTML::toPlaintext($html, 0));
 
 	// handle data: images
 	$statusbody = api_format_items_embeded_images($item, $statusbody);

@@ -42,7 +42,6 @@ require_once "include/enotify.php";
 require_once "include/items.php";
 require_once "include/event.php";
 require_once "include/text.php";
-require_once "include/html2bbcode.php";
 
 /**
  * @brief This class contain functions to create and send DFRN XML files
@@ -2454,7 +2453,7 @@ class DFRN
 			$purifier = new HTMLPurifier($config);
 			$item['body'] = $purifier->purify($item['body']);
 
-			$item['body'] = @html2bbcode($item['body']);
+			$item['body'] = @Friendica\Content\Text\HTML::toBBCode($item['body']);
 		}
 
 		/// @todo We should check for a repeated post and if we know the repeated author.

@@ -17,7 +17,6 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use dba;
 
-require_once 'include/html2plain.php';
 require_once 'include/items.php';
 
 /// @todo This is some ugly code that needs to be split into several methods
