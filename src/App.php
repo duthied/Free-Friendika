@@ -944,4 +944,116 @@ class App
 
 		return true;
 	}
+
+	/**
+	 * @param string $cat     Config category
+	 * @param string $k       Config key
+	 * @param mixed  $default Default value if it isn't set
+	 */
+	public function getConfigValue($cat, $k, $default = null)
+	{
+		$return = $default;
+
+		if ($cat === 'config') {
+			if (isset($this->config[$k])) {
+				$return = $this->config[$k];
+			}
+		} else {
+			if (isset($this->config[$cat][$k])) {
+				$return = $this->config[$cat][$k];
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Sets a value in the config cache. Accepts raw output from the config table
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Value to set
+	 */
+	public function setConfigValue($cat, $k, $v)
+	{
+		// Only arrays are serialized in database, so we have to unserialize sparingly
+		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
+
+		if ($cat === 'config') {
+			$this->config[$k] = $value;
+		} else {
+			$this->config[$cat][$k] = $value;
+		}
+	}
+
+	/**
+	 * Deletes a value from the config cache
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 */
+	public function deleteConfigValue($cat, $k)
+	{
+		if ($cat === 'config') {
+			if (isset($this->config[$k])) {
+				unset($this->config[$k]);
+			}
+		} else {
+			if (isset($this->config[$cat][$k])) {
+				unset($this->config[$cat][$k]);
+			}
+		}
+	}
+
+
+	/**
+	 * Retrieves a value from the user config cache
+	 *
+	 * @param int    $uid     User Id
+	 * @param string $cat     Config category
+	 * @param string $k       Config key
+	 * @param mixed  $default Default value if key isn't set
+	 */
+	public function getPConfigValue($uid, $cat, $k, $default = null)
+	{
+		$return = $default;
+
+		if (isset($this->config[$uid][$cat][$k])) {
+			$return = $this->config[$uid][$cat][$k];
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Sets a value in the user config cache
+	 *
+	 * Accepts raw output from the pconfig table
+	 *
+	 * @param int    $uid User Id
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Value to set
+	 */
+	public function setPConfigValue($uid, $cat, $k, $v)
+	{
+		// Only arrays are serialized in database, so we have to unserialize sparingly
+		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
+
+		$this->config[$uid][$cat][$k] = $value;
+	}
+
+	/**
+	 * Deletes a value from the user config cache
+	 *
+	 * @param int    $uid User Id
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 */
+	public function deletePConfigValue($uid, $cat, $k)
+	{
+		if (isset($this->config[$uid][$cat][$k])) {
+			unset($this->config[$uid][$cat][$k]);
+		}
+	}
 }

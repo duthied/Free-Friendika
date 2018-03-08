@@ -24,9 +24,7 @@ use Friendica\Module\Login;
 
 require_once 'boot.php';
 
-if (empty($a)) {
-	$a = new App(__DIR__);
-}
+$a = new App(__DIR__);
 BaseObject::setApp($a);
 
 // We assume that the index.php is called by a frontend process
@@ -78,6 +76,7 @@ if (!$install) {
 		exit();
 	}
 
+	Config::init();
 	Session::init();
 	Addon::loadHooks();
 	Addon::callHooks('init_1');

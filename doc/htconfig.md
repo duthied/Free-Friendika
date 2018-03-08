@@ -27,6 +27,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **always_show_preview** (Boolean) - Only show small preview picures. Default value is false.
 * **block_local_dir** (Boolean) - Blocks the access to the directory of the local users.
 * **auth_cookie_lifetime** (Integer) - Number of days that should pass without any activity before a user who chose "Remember me" when logging in is considered logged out. Defaults to 7.
+* **config_adapter** (jit|preload) - Allow to switch the configuration adapter to improve performances at the cost of memory consumption. Default value is "jit"
 * **curl_range_bytes** - Maximum number of bytes that should be fetched. Default is 0, which mean "no limit".
 * **db_log** - Name of a logfile to log slow database queries
 * **db_loglimit** - If a database call lasts longer than this value it is logged

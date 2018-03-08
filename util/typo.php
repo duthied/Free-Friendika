@@ -5,7 +5,9 @@
 // Run this from cmdline in basedir and quickly see if we've
 // got any parse errors in our application files.
 
+
 use Friendica\App;
+use Friendica\BaseObject;
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set('display_errors', '1');
@@ -13,15 +15,12 @@ ini_set('log_errors', '0');
 
 include 'boot.php';
 
-if (empty($a)) {
-	$a = new App(dirname(__DIR__));
-}
+$a = new App(dirname(__DIR__));
+BaseObject::setApp($a);
 
-if (x($a->config, 'php_path')) {
-	$phpath = $a->config['php_path'];
-} else {
-	$phpath = 'php';
-}
+@include '.htconfig.php';
+
+$phpath = $a->getConfigValue('config', 'php_path', 'php');
 
 echo 'Directory: src' . PHP_EOL;
 $Iterator = new RecursiveDirectoryIterator('src');
