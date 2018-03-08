@@ -22,6 +22,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\XML;
 use dba;
 use Text_LanguageDetect;
 
