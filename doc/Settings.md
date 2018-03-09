@@ -57,6 +57,21 @@ The `vier` theme for instance is mobile friendly.
 
 ### Registration
 
+#### Register policy
+
+With this drop down selector you can set the nodes registration policy.
+You can chose between the following modes:
+
+* **open**: Everybody can register a new account and start using it right away.
+* **requires approval**: Everybody can register a new account, but the admin has to approve it before it can be used.
+* **closed**: No new registrations are possible.
+
+##### Invitation based registry
+
+Additionally to the setting in the admin panel, you can devide if registrations are only possible using an invitation code or not.
+To enable invitation based registration, you have to set the `invitation_only` setting in the [.htconfig.php](/doc/htconfig) file.
+If you want to use this method, the registration policy has to be set to either *open* or *requires approval*.
+
 #### Check Full Names
 
 You may find a lot of spammers trying to register on your site.
