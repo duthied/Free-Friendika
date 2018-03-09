@@ -54,6 +54,20 @@ Das `vier` Theme z.B. unterstützt kleine Anzeigen und benötigt kein zusätzlic
 
 ### Registrierung
 
+#### Registrierungsmethode
+
+Diese Einstellung regelt die Art der Registrierung.
+Dabei kannst du zwischen den folgenden Optionen wählen:
+
+* **Offen**: Jeder kann ein neues Nutzerkonto anlegen und es sofort benutzen.
+* **Bedarf der Zustimmung**: Jeder kann ein Nutzerkonto anlegen. Dieses muss allerdings durch den Admin freigeschaltet werden, bevor es verwendet werden kann.
+* **Geschlossen**: Es können keine weiteren Nutzerkonten angelegt werden.
+
+##### Einladungen 
+
+Zusätzlich zu den oben genannten Möglichkeiten, kann die Registrierung eines neuen Nutzerkontos an eine Einladung durch einen bestehenden Nutzer gekoppelt werden.
+Hierzu muss in der [.htconfig.php](/help/htconfig) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
+
 #### Namen auf Vollständigkeit überprüfen
 
 Es kann vorkommen, dass viele Spammer versuchen, sich auf deiner Seite zu registrieren. 
