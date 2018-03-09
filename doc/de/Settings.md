@@ -66,7 +66,7 @@ Dabei kannst du zwischen den folgenden Optionen wählen:
 ##### Einladungen 
 
 Zusätzlich zu den oben genannten Möglichkeiten, kann die Registrierung eines neuen Nutzerkontos an eine Einladung durch einen bestehenden Nutzer gekoppelt werden.
-Hierzu muss in der [.htconfig.php](/doc/htconfig) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
+Hierzu muss in der [.htconfig.php](/help/htconfig) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
 
 #### Namen auf Vollständigkeit überprüfen
 

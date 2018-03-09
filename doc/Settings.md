@@ -69,7 +69,7 @@ You can chose between the following modes:
 ##### Invitation based registry
 
 Additionally to the setting in the admin panel, you can devide if registrations are only possible using an invitation code or not.
-To enable invitation based registration, you have to set the `invitation_only` setting in the [.htconfig.php](/doc/htconfig) file.
+To enable invitation based registration, you have to set the `invitation_only` setting in the [.htconfig.php](/help/htconfig) file.
 If you want to use this method, the registration policy has to be set to either *open* or *requires approval*.
 
 #### Check Full Names
