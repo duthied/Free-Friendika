@@ -15,7 +15,7 @@ function babel_content()
 {
 	$results = [];
 	if (!empty($_REQUEST['text'])) {
-		switch(defaults($_REQUEST, 'type', 'bbcode')) {
+		switch (defaults($_REQUEST, 'type', 'bbcode')) {
 			case 'bbcode':
 				$bbcode = trim($_REQUEST['text']);
 				$results[] = [
@@ -105,12 +105,11 @@ function babel_content()
 
 	$tpl = get_markup_template('babel.tpl');
 	$o = replace_macros($tpl, [
-		'$text' => ['text', L10n::t('Source text'), defaults($_REQUEST, 'text', ''), ''],
-		'$type_bbcode'   => ['type', L10n::t('BBCode')  , 'bbcode'  , '', defaults($_REQUEST, 'type', 'bbcode') == 'bbcode'],
+		'$text'          => ['text', L10n::t('Source text'), defaults($_REQUEST, 'text', ''), ''],
+		'$type_bbcode'   => ['type', L10n::t('BBCode'), 'bbcode', '', defaults($_REQUEST, 'type', 'bbcode') == 'bbcode'],
 		'$type_markdown' => ['type', L10n::t('Markdown'), 'markdown', '', defaults($_REQUEST, 'type', 'bbcode') == 'markdown'],
-		'$type_html'     => ['type', L10n::t('HTML')    , 'html'    , '', defaults($_REQUEST, 'type', 'bbcode') == 'html'],
-
-		'$results' => $results
+		'$type_html'     => ['type', L10n::t('HTML'), 'html', '', defaults($_REQUEST, 'type', 'bbcode') == 'html'],
+		'$results'       => $results
 	]);
 
 	return $o;
