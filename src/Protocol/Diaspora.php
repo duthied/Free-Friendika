@@ -221,11 +221,20 @@ class Diaspora
 
 		$signable_data = $msg.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
 
+		if ($handle == '') {
+			logger('No author could be decoded. Discarding. Message: ' . $envelope);
+			return false;
+		}
+
 		$key = self::key($handle);
+		if ($key == '') {
+			logger("Couldn't get a key for handle " . $handle . ". Discarding.");
+			return false;
+		}
 
 		$verify = Crypto::rsaVerify($signable_data, $sig, $key);
 		if (!$verify) {
-			logger('Message did not verify. Discarding.');
+			logger('Message from ' . $handle . ' did not verify. Discarding.');
 			return false;
 		}
 
@@ -321,7 +330,16 @@ class Diaspora
 		// Get the senders' public key
 		$key_id = $base->sig[0]->attributes()->key_id[0];
 		$author_addr = base64_decode($key_id);
+		if ($author_addr == '') {
+			logger('No author could be decoded. Discarding. Message: ' . $xml);
+			System::httpExit(400);
+		}
+
 		$key = self::key($author_addr);
+		if ($key == '') {
+			logger("Couldn't get a key for handle " . $author_addr . ". Discarding.");
+			System::httpExit(400);
+		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 		if (!$verify) {
