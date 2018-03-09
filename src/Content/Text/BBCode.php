@@ -1123,13 +1123,13 @@ class BBCode
 				}
 
 				if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
+					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
+				} else {
 					$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
 
 					if ($link != "") {
 						$text .= '<br /><a href="' . $link . '">[l]</a>';
 					}
-				} else {
-					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
 				}
 
 				break;
