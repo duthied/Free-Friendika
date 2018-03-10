@@ -207,13 +207,10 @@ class Feed {
 		}
 
 		$items = [];
+		// Importing older entries first
+		for($i = $entries->length - 1; $i >= 0;--$i) {
+			$entry = $entries->item($i);
 
-		$entrylist = [];
-
-		foreach ($entries AS $entry) {
-			$entrylist[] = $entry;
-		}
-		foreach (array_reverse($entrylist) AS $entry) {
 			$item = array_merge($header, $author);
 
 			$alternate = $xpath->query("atom:link[@rel='alternate']", $entry)->item(0)->attributes;
@@ -309,7 +306,7 @@ class Feed {
 
 			$attachments = [];
 
-			$enclosures = $xpath->query("enclosure", $entry);
+			$enclosures = $xpath->query("enclosure|atom:link[@rel='enclosure']", $entry);
 			foreach ($enclosures AS $enclosure) {
 				$href = "";
 				$length = "";
@@ -317,7 +314,7 @@ class Feed {
 				$title = "";
 
 				foreach ($enclosure->attributes AS $attributes) {
-					if ($attributes->name == "url") {
+					if ($attributes->name == "url" || $attributes->name == "href") {
 						$href = $attributes->textContent;
 					} elseif ($attributes->name == "length") {
 						$length = $attributes->textContent;
