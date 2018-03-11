@@ -754,7 +754,7 @@ class BBCode
 		if (($data["url"] != "") && ($data["title"] != "")) {
 			$text .= "\n[url=" . $data["url"] . "]" . $data["title"] . "[/url]";
 		} elseif (($data["url"] != "")) {
-			$text .= "\n" . $data["url"];
+			$text .= "\n[url]" . $data["url"] . "[/url]";
 		}
 
 		return $text . "\n" . $data["after"];
@@ -829,6 +829,47 @@ class BBCode
 			$html .= '%s</a>';
 			return sprintf($html, $url, $scheme, $styled_url);
 		}
+	}
+
+	/**
+	 * @brief Shortens [url] BBCodes in a format that looks less ugly than the full address. (callback function)
+	 * @param array $match Array with the matching values
+	 * @return string reformatted link including HTML codes
+	 */
+	private static function shortenVisibleUrlCallback($match)
+	{
+		$url = $match[1];
+
+		if (isset($match[2]) && ($match[1] != $match[2])) {
+			return $match[0];
+		}
+
+		$parts = parse_url($url);
+		if (!isset($parts['scheme'])) {
+			return $match[0];
+		}
+
+		return self::shortenVisibleUrl($url);
+	}
+
+	/**
+	 * @brief Shortens [url] BBCodes in a format that looks less ugly than the full address.
+	 * @param string $url URL that is about to be reformatted
+	 * @return string reformatted link including HTML codes
+	 */
+	private static function shortenVisibleUrl($url)
+	{
+		$parts = parse_url($url);
+		$scheme = $parts['scheme'] . '://';
+		$styled_url = str_replace($scheme, '', $url);
+
+		if (strlen($styled_url) > 30) {
+			$styled_url = substr($styled_url, 0, 30) . "…";
+		}
+
+		$html = '<a href="%s" target="_blank">%s</a>';
+
+		return sprintf($html, $url, $styled_url);
 	}
 
 	/*
@@ -1459,6 +1500,9 @@ class BBCode
 			if ($simple_html == 7) {
 				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
 				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
+			} else {
+				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::shortenVisibleUrlCallback', $text);
+				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::shortenVisibleUrlCallback', $text);
 			}
 		} else {
 			$text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $text);
