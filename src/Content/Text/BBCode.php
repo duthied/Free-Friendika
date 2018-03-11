@@ -863,9 +863,10 @@ class BBCode
 		$scheme = $parts['scheme'] . '://';
 		$styled_url = str_replace($scheme, '', $url);
 
-		if (strlen($styled_url) > 30) {
-			$styled_url = substr($styled_url, 0, 30) . "…";
-		}
+//		Currently deactivated, due to preview problems inside of Diaspora
+//		if (strlen($styled_url) > 30) {
+//			$styled_url = substr($styled_url, 0, 30) . "…";
+//		}
 
 		$html = '<a href="%s" target="_blank">%s</a>';
 
