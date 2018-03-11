@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\User;
 
 require_once 'mod/settings.php';
 
@@ -28,6 +29,19 @@ function delegate_post(App $a)
 	check_form_security_token_redirectOnErr('/delegate', 'delegate');
 
 	$parent_uid = defaults($_POST, 'parent_user', 0);
+	$parent_password = defaults($_POST, 'parent_password', '');
+
+	$user = dba::selectFirst('user', ['nickname'], ['uid' => $parent_uid]);
+	if (!DBM::is_result($user)) {
+		notice(L10n::t('Parent user not found.') . EOL);
+		return;
+	}
+
+	$success = User::authenticate($user['nickname'], trim($parent_password));
+	if (!$success) {
+		notice(L10n::t('Permission denied.') . EOL);
+		return;
+	}
 
 	dba::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
 }
@@ -70,16 +84,6 @@ function delegate_content(App $a)
 		goaway(System::baseUrl() . '/delegate');
 	}
 
-	// These people can manage this account/page with full privilege
-	$full_managers = [];
-	$r = q("SELECT * FROM `user` WHERE `email` = '%s' AND `password` = '%s' ",
-		dbesc($a->user['email']),
-		dbesc($a->user['password'])
-	);
-	if (DBM::is_result($r)) {
-		$full_managers = $r;
-	}
-
 	// find everybody that currently has delegated management to this account/page
 	$delegates = [];
 	$r = q("SELECT * FROM `user` WHERE `uid` IN (SELECT `uid` FROM `manage` WHERE `mid` = %d)",
@@ -90,10 +94,6 @@ function delegate_content(App $a)
 	}
 
 	$uids = [];
-	foreach ($full_managers as $rr) {
-		$uids[] = $rr['uid'];
-	}
-
 	foreach ($delegates as $rr) {
 		$uids[] = $rr['uid'];
 	}
@@ -153,18 +153,21 @@ function delegate_content(App $a)
 		}
 	}
 
+	if (!is_null($parent_user)) {
+		$parent_password = ['parent_password', L10n::t('Parent Password:'), '', L10n::t('Please enter the password of the parent account to legitimize your request.')];
+	}
+
 	$o = replace_macros(get_markup_template('delegate.tpl'), [
 		'$form_security_token' => get_form_security_token('delegate'),
 		'$parent_header' => L10n::t('Parent User'),
 		'$parent_user' => $parent_user,
+		'$parent_password' => $parent_password,
 		'$parent_desc' => L10n::t('Parent users have total control about this account, including the account settings. Please double check whom you give this access.'),
 		'$submit' => L10n::t('Save Settings'),
 		'$header' => L10n::t('Delegate Page Management'),
 		'$delegates_header' => L10n::t('Delegates'),
 		'$base' => System::baseUrl(),
 		'$desc' => L10n::t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
-		'$head_managers' => L10n::t('Existing Page Managers'),
-		'$managers' => $full_managers,
 		'$head_delegates' => L10n::t('Existing Page Delegates'),
 		'$delegates' => $delegates,
 		'$head_potentials' => L10n::t('Potential Delegates'),
