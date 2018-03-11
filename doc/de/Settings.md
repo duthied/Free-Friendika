@@ -122,6 +122,15 @@ Unautorisierte Personen haben ebenfalls nicht die Möglichkeit, Freundschaftsanf
 Die Standardeinstellung ist deaktiviert. 
 Verfügbar in Version 2.2 und höher.
 
+#### Für Besucher verfügbare Gemeinschaftsseiten
+
+Die Gemeinschaftsseiten zeigen all öffentlichen Beiträge.
+Es gibt zwei Gemeinschaftsseiten, eine lokale auf der die Beiträge der Nutzer des Knotens gesammelt werden und eine globale auf der alle bekannten Beiträge aus dem gesamten Netzwerk erscheinen.
+Mit dieser Einstellung kann geregelt werden, welche dieser beiden Seiten Besucher aufrufen können.
+Angemeldete Nutzer des Knotens können grundsätzlich beide Seiten verwenden.
+
+**Hinweis**: Einige Einstellungen, wie z.B. das Verbergen von Kontakten auf der Profilseite, können die Sichtbarkeit der Beiträge auf der Gemeinschaftsseiten beeinflussen.
+
 #### Erlaubte Domains für Kontakte
 
 Kommagetrennte Liste von Domains, welche eine Freundschaft mit dieser Seite eingehen dürfen. 
