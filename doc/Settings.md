@@ -126,6 +126,14 @@ Unauthorised persons will also not be able to request friendship with site membe
 Default is false.
 Available in version 2.2 or greater.
 
+#### Community pages for Visitors
+
+The community pages show all public postings, separated by their origin being local or the entire network.
+With this setting you can select which community pages will be shown to visitors of your Friendica node.
+Your local users will always have access to both pages.
+
+**Note**: Several settings, like users hiding their contacts from the public will prevent the postings to show up on the global community page.
+
 #### Allowed Friend Domains
 
 Comma separated list of domains which are allowed to establish friendships with this site.
