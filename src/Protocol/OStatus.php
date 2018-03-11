@@ -2094,7 +2094,7 @@ class OStatus
 		}
 
 		$owner = dba::fetch_first(
-			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`
+			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
 				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` AND `user`.`nickname` = ? LIMIT 1",
 			$owner_nick
@@ -2119,12 +2119,14 @@ class OStatus
 			$sql_extra .= sprintf(" AND `item`.`object-type` = '%s' ", dbesc(ACTIVITY_OBJ_COMMENT));
 		}
 
+		if ($owner['account-type'] != ACCOUNT_TYPE_COMMUNITY) {
+			$sql_extra .= sprintf(" AND `item`.`contact-id` = %d AND `item`.`author-id` = %d ", intval($owner["id"]), intval($authorid));
+		}
+
 		$items = q(
 			"SELECT `item`.*, `item`.`id` AS `item_id` FROM `item` USE INDEX (`uid_contactid_created`)
 				STRAIGHT_JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 				WHERE `item`.`uid` = %d
-				AND `item`.`contact-id` = %d
-				AND `item`.`author-id` = %d
 				AND `item`.`created` > '%s'
 				AND NOT `item`.`deleted`
 				AND NOT `item`.`private`
@@ -2133,8 +2135,6 @@ class OStatus
 				$sql_extra
 				ORDER BY `item`.`created` DESC LIMIT %d",
 			intval($owner["uid"]),
-			intval($owner["id"]),
-			intval($authorid),
 			dbesc($check_date),
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DFRN),
