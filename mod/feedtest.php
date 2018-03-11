@@ -16,7 +16,11 @@ require_once 'include/text.php';
 
 function feedtest_content(App $a)
 {
-	//$a->page['template'] = "wide-2-columns";
+	if (!local_user()) {
+		info(L10n::t('You must be logged in to use this module'));
+		return;
+	};
+
 	$result = [];
 	if (!empty($_REQUEST['url'])) {
 		$url = $_REQUEST['url'];
