@@ -38,7 +38,7 @@ Requirements
 Installation procedure
 ---
 
-###Get Friendica
+### Get Friendica
 
 Unpack the Friendica files into the root of your web server document area.
 If you are able to do so, we recommend using git to clone the source repository rather than to use a packaged tar or zip file.
@@ -64,7 +64,7 @@ Clone the addon repository (separately):
 
 If you copy the directory tree to your webserver, make sure that you also copy .htaccess - as "dot" files are often hidden and aren't normally copied.
 
-###Create a database
+### Create a database
 
 Create an empty database and note the access details (hostname, username, password, database name).
 
@@ -79,7 +79,7 @@ In this case find the [mysqld] section in your my.cnf file and add the line :
 Restart mysql and you should be fine.
 
 
-###Run the installer
+### Run the installer
 
 Point your web browser to the new site and follow the instructions.
 Please note any error messages and correct these before continuing.
@@ -96,7 +96,7 @@ Registration errors should all be recoverable automatically.
 If you get any *critical* failure at this point, it generally indicates the database was not installed correctly.
 You might wish to move/rename .htconfig.php to another name and empty (called 'dropping') the database tables, so that you can start fresh.
 
-###Set up the worker
+### Set up the worker
 
 Set up a cron job or scheduled task to run the worker once every 5-10 minutes in order to perform background processing.
 Example:
@@ -118,7 +118,8 @@ If it is not possible to set up a cron job then please activate the "frontend wo
 
 Once you have installed Friendica and created an admin account as part of the process, you can access the admin panel of your installation and do most of the server wide configuration from there
 
-###Set up a backup plan
+### Set up a backup plan
+
 Bad things will happen.
 Let there be a hardware failure, a corrupted database or whatever you can think of.
 So once the installation of your Friendica node is done, you should make yourself a backup plan.
