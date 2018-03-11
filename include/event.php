@@ -40,7 +40,7 @@ function format_event_html($ev, $simple = false) {
 	if ($simple) {
 		$o = "<h3>" . BBCode::convert($ev['summary']) . "</h3>";
 
-		$o .= "<div>" . BBCode::convert($ev['desc']) . "</div>";
+		$o .= "<p>" . BBCode::convert($ev['desc']) . "</p>";
 
 		$o .= "<h4>" . L10n::t('Starts:') . "</h4><p>" . $event_start . "</p>";
 
@@ -49,7 +49,7 @@ function format_event_html($ev, $simple = false) {
 		}
 
 		if (strlen($ev['location'])) {
-			$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . $ev['location'] . "</p>";
+			$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . BBCode::convert($ev['location']) . "</p>";
 		}
 
 		return $o;

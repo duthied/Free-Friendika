@@ -1604,9 +1604,7 @@ class BBCode
 			$text = preg_replace_callback(
 				"/\[map\](.*?)\[\/map\]/ism",
 				function ($match) {
-					// the extra space in the following line is intentional
-					// Whyyy? - @MrPetovan
-					return str_replace($match[0], '<div class="map"  >' . Map::byLocation($match[1]) . '</div>', $match[0]);
+					return str_replace($match[0], '<p class="map">' . Map::byLocation($match[1]) . '</p>', $match[0]);
 				},
 				$text
 			);
@@ -1615,9 +1613,7 @@ class BBCode
 			$text = preg_replace_callback(
 				"/\[map=(.*?)\]/ism",
 				function ($match) {
-					// the extra space in the following line is intentional
-					// Whyyy? - @MrPetovan
-					return str_replace($match[0], '<div class="map"  >' . Map::byCoordinates(str_replace('/', ' ', $match[1])) . '</div>', $match[0]);
+					return str_replace($match[0], '<p class="map">' . Map::byCoordinates(str_replace('/', ' ', $match[1])) . '</p>', $match[0]);
 				},
 				$text
 			);
