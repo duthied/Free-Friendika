@@ -2131,6 +2131,7 @@ class OStatus
 				AND NOT `item`.`deleted`
 				AND NOT `item`.`private`
 				AND `item`.`visible`
+				AND `item`.`wall`
 				AND `thread`.`network` IN ('%s', '%s')
 				$sql_extra
 				ORDER BY `item`.`created` DESC LIMIT %d",

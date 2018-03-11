@@ -898,7 +898,11 @@ class Item extends BaseObject
 				$item['uid'] = 0;
 				$item['origin'] = 0;
 				$item['wall'] = 0;
-				$item['contact-id'] = Contact::getIdForURL($item['author-link']);
+				if ($item['uri'] == $item['parent-uri']) {
+					$item['contact-id'] = Contact::getIdForURL($item['owner-link']);
+				} else {
+					$item['contact-id'] = Contact::getIdForURL($item['author-link']);
+				}
 
 				if (in_array($item['type'], ["net-comment", "wall-comment"])) {
 					$item['type'] = 'remote-comment';
@@ -1265,10 +1269,12 @@ class Item extends BaseObject
 		}
 
 		// now change this copy of the post to a forum head message and deliver to all the tgroup members
-		$self = dba::selectFirst('contact', ['name', 'url', 'thumb'], ['uid' => $uid, 'self' => true]);
+		$self = dba::selectFirst('contact', ['id', 'name', 'url', 'thumb'], ['uid' => $uid, 'self' => true]);
 		if (!DBM::is_result($self)) {
 			return;
 		}
+
+		$owner_id = Contact::getIdForURL($self['url']);
 
 		// also reset all the privacy bits to the forum default permissions
 
@@ -1276,10 +1282,10 @@ class Item extends BaseObject
 
 		$forum_mode = ($prvgroup ? 2 : 1);
 
-		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode,
-			'owner-name' => $self['name'], 'owner-link' => $self['url'], 'owner-avatar' => $self['thumb'],
-			'private' => $private, 'allow_cid' => $user['allow_cid'], 'allow_gid' => $user['allow_gid'],
-			'deny_cid' => $user['deny_cid'], 'deny_gid' => $user['deny_gid']];
+		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
+			'owner-id' => $owner_id, 'owner-name' => $self['name'], 'owner-link' => $self['url'],
+			'owner-avatar' => $self['thumb'], 'private' => $private, 'allow_cid' => $user['allow_cid'],
+			'allow_gid' => $user['allow_gid'], 'deny_cid' => $user['deny_cid'], 'deny_gid' => $user['deny_gid']];
 		dba::update('item', $fields, ['id' => $item_id]);
 
 		self::updateThread($item_id);
