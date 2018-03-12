@@ -406,7 +406,7 @@ function acl_lookup(App $a, $out_type = 'json')
 		$search = $_REQUEST['query'];
 	}
 
-	logger("Searching for ".$search." - type ".$type, LOGGER_DEBUG);
+	logger("Searching for ".$search." - type ".$type." conversation ".$conv_id, LOGGER_DEBUG);
 
 	if ($search != '') {
 		$sql_extra = "AND `name` LIKE '%%".dbesc($search)."%%'";
@@ -612,6 +612,14 @@ function acl_lookup(App $a, $out_type = 'json')
 	}
 
 	$items = array_merge($groups, $contacts);
+
+	// At multi threaded posts the conv_id is not the parent of the whole thread
+	if ($conv_id > 0) {
+		$parent_item = dba::selectFirst('item', ['parent'], ['id' => $conv_id]);
+		if (DBM::is_result($parent_item)) {
+			$conv_id = $parent_item['parent'];
+		}
+	}
 
 	if ($conv_id) {
 		/*
