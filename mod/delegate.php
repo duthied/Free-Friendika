@@ -31,16 +31,18 @@ function delegate_post(App $a)
 	$parent_uid = defaults($_POST, 'parent_user', 0);
 	$parent_password = defaults($_POST, 'parent_password', '');
 
-	$user = dba::selectFirst('user', ['nickname'], ['uid' => $parent_uid]);
-	if (!DBM::is_result($user)) {
-		notice(L10n::t('Parent user not found.') . EOL);
-		return;
-	}
+	if ($parent_uid != 0) {
+		$user = dba::selectFirst('user', ['nickname'], ['uid' => $parent_uid]);
+		if (!DBM::is_result($user)) {
+			notice(L10n::t('Parent user not found.') . EOL);
+			return;
+		}
 
-	$success = User::authenticate($user['nickname'], trim($parent_password));
-	if (!$success) {
-		notice(L10n::t('Permission denied.') . EOL);
-		return;
+		$success = User::authenticate($user['nickname'], trim($parent_password));
+		if (!$success) {
+			notice(L10n::t('Permission denied.') . EOL);
+			return;
+		}
 	}
 
 	dba::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
