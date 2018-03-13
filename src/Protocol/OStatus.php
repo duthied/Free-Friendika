@@ -660,8 +660,9 @@ class OStatus
 		// Mastodon Content Warning
 		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
 			$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
-
-			$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
+			if (!empty($clear_text)) {
+				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
+			}
 		}
 
 		if (($self != '') && empty($item['protocol'])) {
