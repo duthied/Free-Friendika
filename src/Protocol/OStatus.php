@@ -604,21 +604,6 @@ class OStatus
 			$item["coord"] = $georsspoint->item(0)->nodeValue;
 		}
 
-		$categories = $xpath->query('atom:category', $entry);
-		if ($categories) {
-			foreach ($categories as $category) {
-				foreach ($category->attributes as $attributes) {
-					if ($attributes->name == "term") {
-						$term = $attributes->textContent;
-						if (strlen($item["tag"])) {
-							$item["tag"] .= ',';
-						}
-						$item["tag"] .= "#[url=".System::baseUrl()."/search?tag=".$term."]".$term."[/url]";
-					}
-				}
-			}
-		}
-
 		$self = '';
 		$add_body = '';
 
@@ -658,10 +643,12 @@ class OStatus
 		}
 
 		// Mastodon Content Warning
+		$content_warning = false;
 		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
 			$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
 			if (!empty($clear_text)) {
 				$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
+				$content_warning = true;
 			}
 		}
 
@@ -684,6 +671,25 @@ class OStatus
 			$item["gravity"] = GRAVITY_COMMENT;
 		} else {
 			$item["parent-uri"] = $item["uri"];
+		}
+
+		$categories = $xpath->query('atom:category', $entry);
+		if ($categories) {
+			foreach ($categories as $category) {
+				foreach ($category->attributes as $attributes) {
+					if ($attributes->name == "term") {
+						$term = $attributes->textContent;
+						// don't add nsfw with content warning
+						// Background: "nsfw" is set automatically by Mastodon and superfluous
+						if (!$content_warning || ($term != 'nsfw')) {
+							if (strlen($item["tag"])) {
+								$item["tag"] .= ',';
+							}
+							$item["tag"] .= "#[url=".System::baseUrl()."/search?tag=".$term."]".$term."[/url]";
+						}
+					}
+				}
+			}
 		}
 
 		if (($item['author-link'] != '') && !empty($item['protocol'])) {
