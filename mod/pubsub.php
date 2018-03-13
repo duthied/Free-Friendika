@@ -108,7 +108,7 @@ function pubsub_post(App $a)
 			logger('No record for ' . $nick .' with contact id ' . $contact_id . ' - using '.$author['contact-id'].' instead.');
 		}
 		if (!DBM::is_result($contact)) {
-			logger('Contact ' . $contact_id . ' for user ' . $nick . " wasn't found - ignored.");
+			logger('Contact ' . $contact_id . ' for user ' . $nick . " wasn't found - ignored. XML: " . $xml);
 			hub_post_return();
 		}
 	}
