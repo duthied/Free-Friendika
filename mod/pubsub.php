@@ -129,7 +129,7 @@ function pubsub_post(App $a)
 	consume_feed($xml, $importer, $contact, $feedhub);
 
 	// do it a second time for DFRN so that any children find their parents.
-        if ($contact['network'] === NETWORK_DFRN) {
+	if ($contact['network'] === NETWORK_DFRN) {
 		consume_feed($xml, $importer, $contact, $feedhub);
 	}
 
