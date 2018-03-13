@@ -246,13 +246,12 @@ class OStatus
 		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
 		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
-		$entries = $xpath->query('/atom:entry');
+		$contact = ["id" => 0];
 
-		foreach ($entries as $entry) {
-			// fetch the author
-			$author = self::fetchAuthor($xpath, $entry, $importer, $contact, true);
-			return $author;
-		}
+		// Fetch the first author
+		$authordata = $xpath->query('//author')->item(0);
+		$author = self::fetchAuthor($xpath, $authordata, $importer, $contact, true);
+		return $author;
 	}
 
 	/**

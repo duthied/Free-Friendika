@@ -72,7 +72,7 @@ if (!$install) {
 	if (Config::get('system', 'force_ssl') && ($a->get_scheme() == "http")
 		&& (intval(Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL)
 		&& (substr(System::baseUrl(), 0, 8) == "https://")
-	) {
+		&& ($_SERVER['REQUEST_METHOD'] == 'GET')) {
 		header("HTTP/1.1 302 Moved Temporarily");
 		header("Location: " . System::baseUrl() . "/" . $a->query_string);
 		exit();

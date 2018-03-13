@@ -2,15 +2,15 @@
 
 use Friendica\App;
 use Friendica\Database\DBM;
+use Friendica\Protocol\OStatus;
 
 function hub_return($valid,$body) {
 
-	if($valid) {
+	if ($valid) {
 		header($_SERVER["SERVER_PROTOCOL"] . ' 200 ' . 'OK');
 		echo $body;
 		killme();
-	}
-	else {
+	} else {
 		header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . 'Not Found');
 		killme();
 	}
@@ -34,15 +34,14 @@ function pubsub_init(App $a) {
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );
 
-	if($_SERVER['REQUEST_METHOD'] === 'GET') {
-
+	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		$hub_mode      = ((x($_GET,'hub_mode'))          ? notags(trim($_GET['hub_mode']))          : '');
 		$hub_topic     = ((x($_GET,'hub_topic'))         ? notags(trim($_GET['hub_topic']))         : '');
 		$hub_challenge = ((x($_GET,'hub_challenge'))     ? notags(trim($_GET['hub_challenge']))     : '');
 		$hub_lease     = ((x($_GET,'hub_lease_seconds')) ? notags(trim($_GET['hub_lease_seconds'])) : '');
 		$hub_verify    = ((x($_GET,'hub_verify_token'))  ? notags(trim($_GET['hub_verify_token']))  : '');
 
-		logger('pubsub: Subscription from ' . $_SERVER['REMOTE_ADDR']);
+		logger('pubsub: Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
 		logger('pubsub: data: ' . print_r($_GET,true), LOGGER_DATA);
 
 		$subscribe = (($hub_mode === 'subscribe') ? 1 : 0);
@@ -50,7 +49,7 @@ function pubsub_init(App $a) {
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			dbesc($nick)
 		);
-		if (! DBM::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			logger('pubsub: local account not found: ' . $nick);
 			hub_return(false, '');
 		}
@@ -65,36 +64,34 @@ function pubsub_init(App $a) {
 			intval($contact_id),
 			intval($owner['uid'])
 		);
-		if (! DBM::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			logger('pubsub: contact '.$contact_id.' not found.');
 			hub_return(false, '');
 		}
 
-		if ($hub_topic)
-			if(! link_compare($hub_topic,$r[0]['poll'])) {
+		if ($hub_topic) {
+			if (!link_compare($hub_topic,$r[0]['poll'])) {
 				logger('pubsub: hub topic ' . $hub_topic . ' != ' . $r[0]['poll']);
 				// should abort but let's humour them.
 			}
+		}
 
 		$contact = $r[0];
 
 		// We must initiate an unsubscribe request with a verify_token.
 		// Don't allow outsiders to unsubscribe us.
 
-		if($hub_mode === 'unsubscribe') {
-			if(! strlen($hub_verify)) {
+		if ($hub_mode === 'unsubscribe') {
+			if (!strlen($hub_verify)) {
 				logger('pubsub: bogus unsubscribe');
 				hub_return(false, '');
 			}
 			logger('pubsub: unsubscribe success');
 		}
 
-		if ($hub_mode)
-			$r = q("UPDATE `contact` SET `subhub` = %d WHERE `id` = %d",
-				intval($subscribe),
-				intval($contact['id'])
-			);
-
+		if ($hub_mode) {
+			dba::update('contact', ['subhub' => $subscribe], ['id' => $contact['id']]);
+		}
  		hub_return(true, $hub_challenge);
 	}
 }
@@ -109,18 +106,13 @@ function pubsub_post(App $a) {
 	logger('pubsub: user-agent: ' . $_SERVER['HTTP_USER_AGENT'] );
 	logger('pubsub: data: ' . $xml, LOGGER_DATA);
 
-//	if(! stristr($xml,'<?xml')) {
-//		logger('pubsub_post: bad xml');
-//		hub_post_return();
-//	}
-
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );
 
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 		dbesc($nick)
 	);
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		hub_post_return();
 	}
 
@@ -135,19 +127,26 @@ function pubsub_post(App $a) {
 		dbesc(NETWORK_FEED)
 	);
 
-	if (! DBM::is_result($r)) {
-		logger('pubsub: no contact record for "'.$nick.' ('.$contact_id.')" - ignored. '.$xml);
-		hub_post_return();
+	if (!DBM::is_result($r)) {
+		$author = OStatus::salmonAuthor($xml, $importer);
+		if (!empty($author['contact-id'])) {
+			$contact = dba::selectFirst('contact', [], ['id' => $author['contact-id']]);
+			if (!in_array($contact['rel'], [CONTACT_IS_SHARING, CONTACT_IS_FRIEND]) && ($contact['network'] != NETWORK_FEED)) {
+				logger('Contact ' . $author['contact-id'] . ' is not expected to share with us - ignored.');
+				hub_post_return();
+			}
+			logger('pubsub: no contact record for "'.$nick.' ('.$contact_id.')" - using '.$author['contact-id'].' instead.');
+		}
+	} else {
+		$contact = $r[0];
 	}
-
-	$contact = $r[0];
 
 	// we have no way to match Diaspora guid's with atom post id's and could get duplicates.
 	// we'll assume that direct delivery is robust (and this is a bad assumption, but the duplicates are messy).
 
-	if($r[0]['network'] === NETWORK_DIASPORA)
+	if ($r[0]['network'] === NETWORK_DIASPORA) {
 		hub_post_return();
-
+	}
 	$feedhub = '';
 
 	require_once('include/items.php');
