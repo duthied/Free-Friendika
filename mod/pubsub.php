@@ -57,19 +57,24 @@ function pubsub_init(App $a) {
 
 		$owner = $r[0];
 
-		$sql_extra = ((strlen($hub_verify)) ? sprintf(" AND `hub-verify` = '%s' ", dbesc($hub_verify)) : '');
+		if (!empty($hub_verify)) {
+			$sql_extra = sprintf(" AND `hub-verify` = '%s' ", dbesc($hub_verify));
+			$log_info = 'hub-verify: ' . $hub_verify;
+		} else {
+			$sql_extra = sprintf(" AND `id` = %d ", intval($contact_id));
+			$log_info = 'contact-id: ' . $contact_id;
+		}
 
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d
-			AND `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1",
-			intval($contact_id),
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d
+			AND NOT `blocked` AND NOT `pending` $sql_extra LIMIT 1",
 			intval($owner['uid'])
 		);
 		if (!DBM::is_result($r)) {
-			logger('pubsub: contact '.$contact_id.' not found.');
+			logger('pubsub: contact not found. ' . $log_info);
 			hub_return(false, '');
 		}
 
-		if ($hub_topic) {
+		if (!empty($hub_topic)) {
 			if (!link_compare($hub_topic,$r[0]['poll'])) {
 				logger('pubsub: hub topic ' . $hub_topic . ' != ' . $r[0]['poll']);
 				// should abort but let's humour them.
@@ -86,11 +91,11 @@ function pubsub_init(App $a) {
 				logger('pubsub: bogus unsubscribe');
 				hub_return(false, '');
 			}
-			logger('pubsub: unsubscribe success');
 		}
 
-		if ($hub_mode) {
+		if (!empty($hub_mode)) {
 			dba::update('contact', ['subhub' => $subscribe], ['id' => $contact['id']]);
+			logger('pubsub: ' . $hub_mode . ' success');
 		}
  		hub_return(true, $hub_challenge);
 	}
