@@ -662,7 +662,6 @@ class OStatus
 			$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
 			if (!empty($clear_text)) {
 				$item['content-warning'] = html2bbcode($clear_text);
-				//$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
 			}
 		}
 
