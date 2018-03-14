@@ -228,7 +228,7 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
  *
  * @TODO find proper type-hints
  */
-function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0) {
+function consume_feed($xml, $importer, $contact, &$hub, $datedir = 0, $pass = 0) {
 	if ($contact['network'] === NETWORK_OSTATUS) {
 		if ($pass < 2) {
 			// Test - remove before flight
