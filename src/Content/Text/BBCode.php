@@ -705,7 +705,7 @@ class BBCode
 				}
 
 				if ($data["description"] != "" && $data["description"] != $data["title"]) {
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(BBCode::convert($data["description"])));
+					$return .= sprintf('<blockquote>%s</blockquote>', trim($data["description"]));
 				}
 
 				if ($data["type"] == "link") {
