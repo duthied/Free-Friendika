@@ -28,7 +28,7 @@
 						<p><a href="{{$repair_ostatus_url}}">{{$repair_ostatus_text}}</a></p>
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" id="general-submit" name="general-submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
