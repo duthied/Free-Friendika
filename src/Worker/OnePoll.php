@@ -582,15 +582,12 @@ class OnePoll
 
 			logger("Consume feed of contact ".$contact['id']);
 
-			// Use a copy of the contact to avoid problems.
-			// The contact parameter is called by reference.
-			$contact2 = $contact;
-			consume_feed($xml, $importer, $contact2, $hub, 1, 1);
+			consume_feed($xml, $importer, $contact, $hub);
 
-			// do it twice. Ensures that children of parents which may be later in the stream aren't tossed
-
-			$contact2 = $contact;
-			consume_feed($xml, $importer, $contact2, $hub, 1, 2);
+			// do it a second time for DFRN so that any children find their parents.
+			if ($contact['network'] === NETWORK_DFRN) {
+				consume_feed($xml, $importer, $contact, $hub);
+			}
 
 			$hubmode = 'subscribe';
 			if ($contact['network'] === NETWORK_DFRN || $contact['blocked'] || $contact['readonly']) {
