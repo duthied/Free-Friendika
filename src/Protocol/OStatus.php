@@ -679,9 +679,10 @@ class OStatus
 				foreach ($category->attributes as $attributes) {
 					if ($attributes->name == "term") {
 						$term = $attributes->textContent;
-						// don't add nsfw with content warning
-						// Background: "nsfw" is set automatically by Mastodon and superfluous
-						if (!$content_warning || ($term != 'nsfw')) {
+						// don't add nsfw with content warning if enabled.
+						// Background: "nsfw" is set automatically by Mastodon
+						if (!Config::get('system', 'remove_nsfw_with_cw', false) ||
+							!$content_warning || ($term != 'nsfw')) {
 							if (strlen($item["tag"])) {
 								$item["tag"] .= ',';
 							}
