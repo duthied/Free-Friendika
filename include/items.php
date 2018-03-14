@@ -290,7 +290,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 		return;
 	}
 
-	$push_url = Config::get('system','url') . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
+	$push_url = System::baseUrl() . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
 
 	// Use a single verify token, even if multiple hubs
 	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : random_string());

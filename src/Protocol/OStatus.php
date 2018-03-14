@@ -246,13 +246,12 @@ class OStatus
 		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
 		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
 
-		$entries = $xpath->query('/atom:entry');
+		$contact = ["id" => 0];
 
-		foreach ($entries as $entry) {
-			// fetch the author
-			$author = self::fetchAuthor($xpath, $entry, $importer, $contact, true);
-			return $author;
-		}
+		// Fetch the first author
+		$authordata = $xpath->query('//author')->item(0);
+		$author = self::fetchAuthor($xpath, $authordata, $importer, $contact, true);
+		return $author;
 	}
 
 	/**
@@ -661,8 +660,9 @@ class OStatus
 		// Mastodon Content Warning
 		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
 			$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
-
-			$item["body"] = html2bbcode($clear_text) . '[spoiler]' . $item["body"] . '[/spoiler]';
+			if (!empty($clear_text)) {
+				$item['content-warning'] = html2bbcode($clear_text);
+			}
 		}
 
 		if (($self != '') && empty($item['protocol'])) {

@@ -445,7 +445,7 @@ These Fields are not added below (yet). They are here to for bug search.
 	return "`item`.`author-id`, `item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
 		`item`.`owner-id`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
 		`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
-		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`,
+		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`content-warning`,
 		`item`.`commented`, `item`.`created`, `item`.`edited`, `item`.`received`,
 		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
 		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,

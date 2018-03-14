@@ -1182,6 +1182,11 @@ function put_item_in_cache(&$item, $update = false)
 		// I'm not sure if we should store it permanently, so we save the old value.
 		$body = $item["body"];
 
+		// Add the content warning
+		if (!empty($item['content-warning'])) {
+			$item["body"] = $item['content-warning'] . '[spoiler]' . $item["body"] . '[/spoiler]';
+		}
+
 		$a = get_app();
 		redir_private_images($a, $item);
 

@@ -1143,6 +1143,7 @@ class DBStructure
 						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => ""],
 						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],

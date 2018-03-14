@@ -207,8 +207,7 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] == 'connectors'))
-	{
+	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
 		if (x($_POST, 'general-submit')) {
