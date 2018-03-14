@@ -25,6 +25,7 @@ use Friendica\Util\ParseUrl;
 
 require_once "include/event.php";
 require_once "include/html2plain.php";
+require_once "include/html2bbcode.php";
 require_once "mod/proxy.php";
 
 class BBCode
@@ -705,9 +706,10 @@ class BBCode
 				}
 
 				if ($data["description"] != "" && $data["description"] != $data["title"]) {
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(BBCode::convert($data["description"])));
+					// Sanitize the HTML by converting it to BBCode
+					$bbcode = html2bbcode($data["description"]);
+					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
 				}
-
 				if ($data["type"] == "link") {
 					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 				}
