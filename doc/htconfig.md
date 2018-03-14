@@ -87,7 +87,6 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **relay_server_tags** - Comma separated list of tags for the "tags" subscription (see "relay_scrope")
 * **relay_user_tags** (Boolean) - If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".
 * **remove_multiplicated_lines** (Boolean) - If enabled, multiple linefeeds in items are stripped to a single one.
-* **remove_nsfw_with_cw** (Boolean) - If enabled, the "nsfw" will be removed from Mastodon posts with content warning.
 * **show_unsupported_addons** (Boolean) - Show all addons including the unsupported ones.
 * **show_unsupported_themes** (Boolean) - Show all themes including the unsupported ones.
 * **show_global_community_hint** (Boolean) - When the global community page is enabled, use this option to display a hint above the stream, that this is a collection of all public top-level postings that arrive on your node.
