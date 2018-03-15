@@ -1177,7 +1177,7 @@ function redir_private_images($a, &$item)
  * @param array $item
  * @param bool  $update
  *
- * @todo Remove reference, simply return "rendered-html"
+ * @todo Remove reference, simply return "rendered-html" and "rendered-hash"
  */
 function put_item_in_cache(&$item, $update = false)
 {
