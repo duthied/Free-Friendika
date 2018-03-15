@@ -24,7 +24,7 @@ Wir planen, diese Einschränkung in einer zukünftigen Version zu beheben.
     - Apache mit einer aktiverten mod-rewrite-Funktion und dem Eintrag "Options All", so dass du die lokale .htaccess-Datei nutzen kannst
     - PHP  5.6+. Je neuer, desto besser.
         - PHP *Kommandozeilen*-Zugang mit register_argc_argv auf "true" gesetzt in der php.ini-Datei
-        - Curl, GD, PDO, MySQLi, xml und OpenSSL-Erweiterung
+        - Curl, GD, PDO, MySQLi, xml, zip und OpenSSL-Erweiterung
         - etwas in der Art eines Email-Servers oder eines Gateways wie PHP mail()
     - Mysql 5.5.3+
     - die Möglichkeit, wiederkehrende Aufgaben mit cron (Linux/Mac) oder "Scheduled Tasks" einzustellen (Windows) [Beachte: andere Optionen sind in Abschnitt 7 dieser Dokumentation zu finden]
