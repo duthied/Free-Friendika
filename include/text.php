@@ -1169,8 +1169,25 @@ function redir_private_images($a, &$item)
 	}
 }
 
+/**
+ * Sets the "rendered-html" field of the provided item
+ *
+ * Body is preserved to avoid side-effects as we modify it just-in-time for spoilers and private image links
+ *
+ * @param array $item
+ * @param bool  $update
+ *
+ * @todo Remove reference, simply return "rendered-html" and "rendered-hash"
+ */
 function put_item_in_cache(&$item, $update = false)
 {
+	$body = $item["body"];
+
+	// Add the content warning
+	if (!empty($item['content-warning'])) {
+		$item["body"] = $item['content-warning'] . '[spoiler]' . $item["body"] . '[/spoiler]';
+	}
+
 	$rendered_hash = defaults($item, 'rendered-hash', '');
 
 	if ($rendered_hash == ''
@@ -1178,27 +1195,19 @@ function put_item_in_cache(&$item, $update = false)
 		|| $rendered_hash != hash("md5", $item["body"])
 		|| Config::get("system", "ignore_cache")
 	) {
-		// The function "redir_private_images" changes the body.
-		// I'm not sure if we should store it permanently, so we save the old value.
-		$body = $item["body"];
-
-		// Add the content warning
-		if (!empty($item['content-warning'])) {
-			$item["body"] = $item['content-warning'] . '[spoiler]' . $item["body"] . '[/spoiler]';
-		}
-
 		$a = get_app();
 		redir_private_images($a, $item);
 
 		$item["rendered-html"] = prepare_text($item["body"]);
 		$item["rendered-hash"] = hash("md5", $item["body"]);
-		$item["body"] = $body;
 
 		if ($update && ($item["id"] > 0)) {
 			dba::update('item', ['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
 					['id' => $item["id"]], false);
 		}
 	}
+
+	$item["body"] = $body;
 }
 
 /**
