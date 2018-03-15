@@ -673,9 +673,11 @@ class OStatus
 			self::fetchConversation($item['conversation-href'], $item['conversation-uri']);
 		}
 
-		if (isset($item["parent-uri"]) && ($related != '')) {
+		if (isset($item["parent-uri"])) {
 			if (!dba::exists('item', ['uid' => $importer["uid"], 'uri' => $item['parent-uri']])) {
-				self::fetchRelated($related, $item["parent-uri"], $importer);
+				if ($related != '') {
+					self::fetchRelated($related, $item["parent-uri"], $importer);
+				}
 			} else {
 				logger('Reply with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.', LOGGER_DEBUG);
 			}
