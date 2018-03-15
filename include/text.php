@@ -1171,6 +1171,11 @@ function redir_private_images($a, &$item)
 
 function put_item_in_cache(&$item, $update = false)
 {
+	// Add the content warning
+	if (!empty($item['content-warning'])) {
+		$item["body"] = $item['content-warning'] . '[spoiler]' . $item["body"] . '[/spoiler]';
+	}
+
 	$rendered_hash = defaults($item, 'rendered-hash', '');
 
 	if ($rendered_hash == ''
@@ -1181,11 +1186,6 @@ function put_item_in_cache(&$item, $update = false)
 		// The function "redir_private_images" changes the body.
 		// I'm not sure if we should store it permanently, so we save the old value.
 		$body = $item["body"];
-
-		// Add the content warning
-		if (!empty($item['content-warning'])) {
-			$item["body"] = $item['content-warning'] . '[spoiler]' . $item["body"] . '[/spoiler]';
-		}
 
 		$a = get_app();
 		redir_private_images($a, $item);
