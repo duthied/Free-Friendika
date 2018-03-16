@@ -18,6 +18,12 @@ require_once 'include/event.php';
 
 function dfrn_notify_post(App $a) {
 	logger(__function__, LOGGER_TRACE);
+
+	if (empty($_POST)) {
+		require_once 'mod/salmon.php';
+		salmon_post($a);
+	}
+
 	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? notags(trim($_POST['dfrn_id']))   : '');
 	$dfrn_version = ((x($_POST,'dfrn_version')) ? (float) $_POST['dfrn_version']    : 2.0);
 	$challenge    = ((x($_POST,'challenge'))    ? notags(trim($_POST['challenge'])) : '');

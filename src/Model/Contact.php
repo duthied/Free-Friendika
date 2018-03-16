@@ -185,8 +185,6 @@ class Contact extends BaseObject
 			}
 		} elseif ($contact['network'] == NETWORK_DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
-		//} elseif ($contact['network'] === NETWORK_DFRN) {
-		//	DFRN::deliver($user, $contact, 'placeholder', 1);
 		}
 	}
 
@@ -1377,7 +1375,7 @@ class Contact extends BaseObject
 		}
 
 		if (is_array($contact)) {
-			if (($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
+			if (($contact['rel'] == CONTACT_IS_SHARING)
 				|| ($sharing && $contact['rel'] == CONTACT_IS_FOLLOWER)) {
 				dba::update('contact', ['rel' => CONTACT_IS_FRIEND, 'writable' => true],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
