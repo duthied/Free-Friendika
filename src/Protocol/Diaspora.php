@@ -3217,13 +3217,14 @@ class Diaspora
 		}
 
 		$logid = random_string(4);
-		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
-		// Fetch the fcontact entry when there is missing data
-		// Will possibly happen when data is transmitted to a DFRN contact
-		if (empty($dest_url) && !empty($contact['addr'])) {
+		// We always try to use the data from the fcontact table.
+		// This is important for transmitting data to Friendica servers.
+		if (!empty($contact['addr'])) {
 			$fcontact = self::personByHandle($contact['addr']);
 			$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
+		} else {
+			$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 		}
 
 		if (!$dest_url) {
