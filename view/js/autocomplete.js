@@ -77,6 +77,10 @@ function contact_format(item) {
 		return "<div>" + item.text + "</div>";
 }
 
+function tag_format(item) {
+	return "<div class='dropdown-item'>" + '#' + item.text + "</div>";
+}
+
 function editor_replace(item) {
 	if (typeof item.replace !== 'undefined') {
 		return '$1$2' + item.replace;
@@ -212,6 +216,15 @@ function string2bb(element) {
 			template: contact_format,
 		};
 
+		// Autocomplete hashtags
+		tags = {
+			match: /(^|\s)(\#)([^ \n]{2,})$/,
+			index: 3,
+			search: function(term, callback) { $.getJSON(baseurl + '/hashtag/' + '?f=&t=' + term).done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
+			replace: function(item) { return "$1$2" + item.text + ' '; },
+			template: tag_format
+		};
+
 		// Autocomplete smilies e.g. ":like"
 		smilies = {
 			match: /(^|\s)(:[a-z]{2,})$/,
@@ -222,7 +235,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts, forums, smilies], {className:'acpopup', zIndex:10000});
+		this.textcomplete([contacts, forums, smilies, tags], {className:'acpopup', zIndex:10000});
 	};
 })( jQuery );
 
@@ -248,8 +261,18 @@ function string2bb(element) {
 			replace: webbie_replace,
 			template: contact_format,
 		};
+
+		// Autocomplete hashtags
+		tags = {
+			match: /(^|\s)(\#)([^ \n]{2,})$/,
+			index: 3,
+			search: function(term, callback) { $.getJSON(baseurl + '/hashtag/' + '?f=&t=' + term).done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
+			replace: function(item) { return "$1$2" + item.text; },
+			template: tag_format
+		};
+
 		this.attr('autocomplete', 'off');
-		var a = this.textcomplete([contacts, community], {className:'acpopup', maxCount:100, zIndex: 10000, appendTo:'nav'});
+		var a = this.textcomplete([contacts, community, tags], {className:'acpopup', maxCount:100, zIndex: 10000, appendTo:'nav'});
 		a.on('textComplete:select', function(e, value, strategy) { submit_form(this); });
 	};
 })( jQuery );
