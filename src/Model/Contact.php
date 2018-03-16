@@ -173,20 +173,18 @@ class Contact extends BaseObject
 	 */
 	public static function terminateFriendship(array $user, array $contact)
 	{
-		if ($contact['network'] === NETWORK_OSTATUS) {
+		if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DFRN])) {
 			// create an unfollow slap
 			$item = [];
 			$item['verb'] = NAMESPACE_OSTATUS . "/unfollow";
 			$item['follow'] = $contact["url"];
 			$slap = OStatus::salmon($item, $user);
 
-			if ((x($contact, 'notify')) && (strlen($contact['notify']))) {
+			if (!empty($contact['notify'])) {
 				Salmon::slapper($user, $contact['notify'], $slap);
 			}
-		} elseif ($contact['network'] === NETWORK_DIASPORA) {
+		} elseif ($contact['network'] == NETWORK_DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
-		} elseif ($contact['network'] === NETWORK_DFRN) {
-			DFRN::deliver($user, $contact, 'placeholder', 1);
 		}
 	}
 
@@ -1168,7 +1166,26 @@ class Contact extends BaseObject
 			return result;
 		}
 
-		if ($ret['network'] === NETWORK_DFRN) {
+		// check if we already have a contact
+		// the poll url is more reliable than the profile url, as we may have
+		// indirect links or webfinger links
+
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` IN ('%s', '%s') AND `network` = '%s' AND NOT `pending` LIMIT 1",
+			intval($uid),
+			dbesc($ret['poll']),
+			dbesc(normalise_link($ret['poll'])),
+			dbesc($ret['network'])
+		);
+
+		if (!DBM::is_result($r)) {
+			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' AND NOT `pending` LIMIT 1",
+				intval($uid),
+				dbesc(normalise_link($url)),
+				dbesc($ret['network'])
+			);
+		}
+
+		if (($ret['network'] === NETWORK_DFRN) && !DBM::is_result($r)) {
 			if ($interactive) {
 				if (strlen($a->path)) {
 					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
@@ -1180,7 +1197,7 @@ class Contact extends BaseObject
 
 				// NOTREACHED
 			}
-		} elseif (Config::get('system', 'dfrn_only')) {
+		} elseif (Config::get('system', 'dfrn_only') && ($ret['network'] != NETWORK_DFRN)) {
 			$result['message'] = L10n::t('This site is not configured to allow communications with other networks.') . EOL;
 			$result['message'] != L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			return $result;
@@ -1228,25 +1245,6 @@ class Contact extends BaseObject
 
 		if (in_array($ret['network'], [NETWORK_MAIL, NETWORK_DIASPORA])) {
 			$writeable = 1;
-		}
-
-		// check if we already have a contact
-		// the poll url is more reliable than the profile url, as we may have
-		// indirect links or webfinger links
-
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` IN ('%s', '%s') AND `network` = '%s' LIMIT 1",
-			intval($uid),
-			dbesc($ret['poll']),
-			dbesc(normalise_link($ret['poll'])),
-			dbesc($ret['network'])
-		);
-
-		if (!DBM::is_result($r)) {
-			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' LIMIT 1",
-				intval($uid),
-				dbesc(normalise_link($url)),
-				dbesc($ret['network'])
-			);
 		}
 
 		if (DBM::is_result($r)) {
@@ -1309,16 +1307,16 @@ class Contact extends BaseObject
 		);
 
 		if (DBM::is_result($r)) {
-			if (($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
+			if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DFRN])) {
 				// create a follow slap
 				$item = [];
 				$item['verb'] = ACTIVITY_FOLLOW;
 				$item['follow'] = $contact["url"];
 				$slap = OStatus::salmon($item, $r[0]);
-				Salmon::slapper($r[0], $contact['notify'], $slap);
-			}
-
-			if ($contact['network'] == NETWORK_DIASPORA) {
+				if (!empty($contact['notify'])) {
+					Salmon::slapper($r[0], $contact['notify'], $slap);
+				}
+			} elseif ($contact['network'] == NETWORK_DIASPORA) {
 				$ret = Diaspora::sendShare($a->user, $contact);
 				logger('share returns: ' . $ret);
 			}
@@ -1377,7 +1375,7 @@ class Contact extends BaseObject
 		}
 
 		if (is_array($contact)) {
-			if (($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
+			if (($contact['rel'] == CONTACT_IS_SHARING)
 				|| ($sharing && $contact['rel'] == CONTACT_IS_FOLLOWER)) {
 				dba::update('contact', ['rel' => CONTACT_IS_FRIEND, 'writable' => true],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);

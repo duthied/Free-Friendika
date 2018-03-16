@@ -33,7 +33,7 @@ function unfollow_post(App $a)
 	if (!DBM::is_result($contact)) {
 		notice(L10n::t("Contact wasn't found or can't be unfollowed."));
 	} else {
-		if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA])) {
+		if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN])) {
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
 				intval($uid)
@@ -75,7 +75,7 @@ function unfollow_content(App $a)
 		// NOTREACHED
 	}
 
-	if (!in_array($contact['network'], [NETWORK_DIASPORA, NETWORK_OSTATUS])) {
+	if (!in_array($contact['network'], [NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_DFRN])) {
 		notice(L10n::t("Unfollowing is currently not supported by your network.").EOL);
 		$submit = "";
 		// NOTREACHED
