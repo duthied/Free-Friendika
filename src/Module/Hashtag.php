@@ -11,10 +11,11 @@ use dba;
 /**
  * Hashtag module.
  */
-class Hashtag extends BaseModule {
-
-	public static function init()
+class Hashtag extends BaseModule
 {
+
+	public static function content()
+	{
 		$result = [];
 
 		$t = escape_tags($_REQUEST['t']);
