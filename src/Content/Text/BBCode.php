@@ -678,7 +678,7 @@ class BBCode
 
 		$return = '';
 		if ($simplehtml == 7) {
-			$return = self::convertUrlForMastodon($data["url"]);
+			$return = self::convertUrlForOStatus($data["url"]);
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 		} else {
@@ -790,7 +790,7 @@ class BBCode
 	 * @param array $match Array with the matching values
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForMastodonCallback($match)
+	private static function convertUrlForOStatusCallback($match)
 	{
 		$url = $match[1];
 
@@ -803,34 +803,27 @@ class BBCode
 			return $match[0];
 		}
 
-		return self::convertUrlForMastodon($url);
+		return self::convertUrlForOStatus($url);
 	}
 
 	/**
-	 * @brief Converts [url] BBCodes in a format that looks fine on Mastodon and GNU Social.
+	 * @brief Converts [url] BBCodes in a format that looks fine on OStatus systems.
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForMastodon($url)
+	private static function convertUrlForOStatus($url)
 	{
 		$parts = parse_url($url);
 		$scheme = $parts['scheme'] . '://';
 		$styled_url = str_replace($scheme, '', $url);
 
-		$html = '<a href="%s" class="attachment" rel="nofollow noopener" target="_blank">' .
-			'<span class="invisible">%s</span>';
-
 		if (strlen($styled_url) > 30) {
-			$html .= '<span class="ellipsis">%s</span>' .
-				'<span class="invisible">%s</span></a>';
-
-			$ellipsis = substr($styled_url, 0, 30);
-			$rest = substr($styled_url, 30);
-			return sprintf($html, $url, $scheme, $ellipsis, $rest);
-		} else {
-			$html .= '%s</a>';
-			return sprintf($html, $url, $scheme, $styled_url);
+			$styled_url = substr($styled_url, 0, 30) . "…";
 		}
+
+		$html = '<a href="%s" target="_blank">%s</a>';
+
+		return sprintf($html, $url, $styled_url);
 	}
 
 	/**
@@ -1501,8 +1494,8 @@ class BBCode
 			$autolink_regex = "/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism";
 			$text = preg_replace($autolink_regex, '$1[url]$2[/url]', $text);
 			if ($simple_html == 7) {
-				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
-				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
+				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 			} else {
 				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::shortenVisibleUrlCallback', $text);
 				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::shortenVisibleUrlCallback', $text);
