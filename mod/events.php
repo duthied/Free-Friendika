@@ -170,7 +170,7 @@ function events_post(App $a) {
 	$datarray['allow_gid'] = $str_group_allow;
 	$datarray['deny_cid']  = $str_contact_deny;
 	$datarray['deny_gid']  = $str_group_deny;
-	$datarray['private']   = (($private_event) ? 1 : 0);
+	$datarray['private']   = $private_event;
 	$datarray['id']        = $event_id;
 
 	if (intval($_REQUEST['preview'])) {

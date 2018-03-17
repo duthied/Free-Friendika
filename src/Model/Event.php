@@ -223,17 +223,17 @@ class Event extends BaseObject
 	 *
 	 * Store the event in the event table and create an event item in the item table.
 	 *
-	 * @param array $event Array with event data.
-	 * @return int The event id.
+	 * @param array $arr Array with event data.
+	 * @return int The new event id.
 	 */
 	public static function store($arr)
 	{
 		$a = self::getApp();
 
-		$event['uri']       =        defaults($arr, 'uri'      , item_new_uri($a->get_hostname(), $event['uid']));
 		$event['id']        = intval(defaults($arr, 'id'       , 0));
 		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
 		$event['cid']       = intval(defaults($arr, 'cid'      , 0));
+		$event['uri']       =        defaults($arr, 'uri'      , item_new_uri($a->get_hostname(), $event['uid']));
 		$event['type']      =        defaults($arr, 'type'     , 'event');
 		$event['summary']   =        defaults($arr, 'summary'  , '');
 		$event['desc']      =        defaults($arr, 'desc'     , '');
@@ -242,7 +242,6 @@ class Event extends BaseObject
 		$event['allow_gid'] =        defaults($arr, 'allow_gid', '');
 		$event['deny_cid']  =        defaults($arr, 'deny_cid' , '');
 		$event['deny_gid']  =        defaults($arr, 'deny_gid' , '');
-		$event['private']   = intval(defaults($arr, 'private'  , 0));
 		$event['adjust']    = intval(defaults($arr, 'adjust'   , 0));
 		$event['nofinish']  = intval(defaults($arr, 'nofinish' , !empty($event['start']) && empty($event['finish'])));
 
@@ -253,6 +252,7 @@ class Event extends BaseObject
 		if ($event['finish'] < NULL_DATE) {
 			$event['finish'] = NULL_DATE;
 		}
+		$private = intval(defaults($arr, 'private', 0));
 
 		$condition = ['uid' => $event['uid']];
 		if ($event['cid']) {
@@ -330,7 +330,7 @@ class Event extends BaseObject
 			$item_arr['allow_gid']     = $event['allow_gid'];
 			$item_arr['deny_cid']      = $event['deny_cid'];
 			$item_arr['deny_gid']      = $event['deny_gid'];
-			$item_arr['private']       = $event['private'];
+			$item_arr['private']       = $private;
 			$item_arr['visible']       = 1;
 			$item_arr['verb']          = ACTIVITY_POST;
 			$item_arr['object-type']   = ACTIVITY_OBJ_EVENT;
