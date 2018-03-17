@@ -255,12 +255,14 @@ class Event extends BaseObject
 		}
 		$private = intval(defaults($arr, 'private', 0));
 
-		$condition = ['uid' => $event['uid']];
+		$conditions = ['uid' => $event['uid']];
 		if ($event['cid']) {
-			$condition['id'] = $event['cid'];
+			$conditions['id'] = $event['cid'];
+		} else {
+			$conditions['self'] = true;
 		}
 
-		$contact = dba::selectFirst('contact', [], ['id' => $event['cid'], 'uid' => $event['uid']]);
+		$contact = dba::selectFirst('contact', [], $conditions);
 
 		// Existing event being modified.
 		if ($event['id']) {
