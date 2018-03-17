@@ -1302,7 +1302,7 @@ class PortableContact
 				if (isset($data->version)) {
 					$network = NETWORK_DFRN;
 
-					$noscrape = $data->no_scrape_url;
+					$noscrape = defaults($data->no_scrape_url, '');
 					$version = $data->version;
 					$site_name = $data->site_name;
 					$info = $data->info;

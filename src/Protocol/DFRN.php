@@ -2079,8 +2079,8 @@ class DFRN
 				return false;
 			}
 
-			$fields = ['title' => $item["title"], 'body' => $item["body"],
-					'tag' => $item["tag"], 'changed' => DateTimeFormat::utcNow(),
+			$fields = ['title' => defaults($item, 'title', ''), 'body' => defaults($item, 'body', ''),
+					'tag' => defaults($item, 'tag', ''), 'changed' => DateTimeFormat::utcNow(),
 					'edited' => DateTimeFormat::utc($item["edited"])];
 
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
