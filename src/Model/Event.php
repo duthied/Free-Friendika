@@ -29,7 +29,7 @@ class Event extends BaseObject
 
 	public static function getHTML(array $event, $simple = false)
 	{
-		if (!is_array($event) || !!count($event)) {
+		if (empty($event)) {
 			return '';
 		}
 
