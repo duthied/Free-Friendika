@@ -22,8 +22,6 @@ use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
-require_once 'include/event.php';
-
 function cal_init(App $a)
 {
 	if ($a->argc > 1) {

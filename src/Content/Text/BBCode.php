@@ -28,7 +28,6 @@ use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use League\HTMLToMarkdown\HtmlConverter;
 
-require_once "include/event.php";
 require_once "mod/proxy.php";
 
 class BBCode extends BaseObject
