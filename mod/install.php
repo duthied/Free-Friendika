@@ -540,7 +540,7 @@ function load_database_rem($v, $i) {
 }
 
 function load_database() {
-	$errors = DBStructure::update(false, true);
+	$errors = DBStructure::update(false, true, true);
 
 	return $errors;
 }
