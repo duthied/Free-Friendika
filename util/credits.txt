@@ -16,6 +16,7 @@ Andrej Stieben
 André Alves
 André Lohan
 Andy H3
+Andy Hee
 AndyHee
 Anthronaut
 Arian - Cazare Muncitori
@@ -28,6 +29,7 @@ beardyunixer
 Beatriz Vital
 Ben Roberts
 ben-utzer
+Benjamin Lorteau
 bufalo1973
 Calango Jr
 Carlos Solís
@@ -75,6 +77,7 @@ Frederico Gonçalves Guimarães
 Gerhard Seeber
 gerhard6380
 Gert Cauwenberg
+GLComo
 greeneyedred
 Gregory Smith
 Haakon Meland Eriksen
@@ -91,7 +94,6 @@ Jak
 Jakob
 Jens Tautenhahn
 jensp
-Jeroen S
 jeroenpraat
 Johannes Schwab
 John Brazil
@@ -169,6 +171,7 @@ Silke Meyer
 Simon L'nu
 Simó Albert i Beltran
 soko1
+St John Karp
 Stanislav N.
 StefOfficiel
 Sveinn í Felli
@@ -207,3 +210,4 @@ zotlabs
 zottel
 Zvi ben Yaakov (a.k.a rdc)
 Михаил
+朱陈锬
