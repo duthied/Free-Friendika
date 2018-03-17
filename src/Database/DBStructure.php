@@ -199,6 +199,7 @@ class DBStructure
 	 *
 	 * @param bool  $verbose
 	 * @param bool  $action     Whether to actually apply the update
+	 * @param bool  $install    Is this the initial update during the installation?
 	 * @param array $tables     An array of the database tables
 	 * @param array $definition An array of the definition tables
 	 * @return string Empty string if the update is successful, error messages otherwise
