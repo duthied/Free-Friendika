@@ -149,10 +149,17 @@ function dirfind_content(App $a, $prefix = "") {
 					continue;
 				}
 
+				$urlparts = parse_url($result["nurl"]);
+
+				// Ignore results that look strange.
+				// For historic reasons the gcontact table does contain some garbage.
+				if (!empty($urlparts['query']) || !empty($urlparts['fragment'])) {
+					continue;
+				}
+
 				$result = Contact::getDetailsByURL($result["nurl"], local_user());
 
 				if ($result["name"] == "") {
-					$urlparts = parse_url($result["nurl"]);
 					$result["name"] = end(explode("/", $urlparts["path"]));
 				}
 
