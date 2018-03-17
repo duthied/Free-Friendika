@@ -1302,7 +1302,7 @@ class PortableContact
 				if (isset($data->version)) {
 					$network = NETWORK_DFRN;
 
-					$noscrape = $data->no_scrape_url;
+					$noscrape = defaults($data->no_scrape_url, '');
 					$version = $data->version;
 					$site_name = $data->site_name;
 					$info = $data->info;
@@ -1355,12 +1355,11 @@ class PortableContact
 		$info = strip_tags($info);
 		$platform = strip_tags($platform);
 
-		$fields = ['url' => $server_url, 'version' => defaults($version, ''),
-				'site_name' => defaults($site_name, ''), 'info' => defaults($info, ''),
-				'register_policy' => defaults($register_policy, 0), 'poco' => defaults($poco, ''),
-				'noscrape' => defaults($noscrape, ''), 'network' => defaults($network, ''),
-				'platform' => defaults($platform, ''), 'registered-users' => defaults($registered_users, 0),
-				'last_contact' => defaults($last_contact, ''), 'last_failure' => defaults($last_failure, '')];
+		$fields = ['url' => $server_url, 'version' => $version,
+				'site_name' => $site_name, 'info' => $info, 'register_policy' => $register_policy,
+				'poco' => $poco, 'noscrape' => $noscrape, 'network' => $network,
+				'platform' => $platform, 'registered-users' => $registered_users,
+				'last_contact' => $last_contact, 'last_failure' => $last_failure];
 
 		if ($found) {
 			dba::update('gserver', $fields, ['nurl' => normalise_link($server_url)]);
