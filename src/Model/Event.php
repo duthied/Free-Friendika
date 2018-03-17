@@ -230,6 +230,7 @@ class Event extends BaseObject
 	{
 		$a = self::getApp();
 
+		$event = [];
 		$event['id']        = intval(defaults($arr, 'id'       , 0));
 		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
 		$event['cid']       = intval(defaults($arr, 'cid'      , 0));
