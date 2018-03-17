@@ -114,28 +114,22 @@ function dirfind_content(App $a, $prefix = "") {
 
 			/// @TODO These 2 SELECTs are not checked on validity with DBM::is_result()
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
-					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = 0
-					WHERE NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
-						((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR
-						(`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
-						(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR
-						`gcontact`.`location` LIKE '%s' OR `gcontact`.`addr` LIKE '%s' OR
-						`gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql",
+					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s') AND
+						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
+						(`url` LIKE '%s' OR `name` LIKE '%s' OR `location` LIKE '%s' OR
+						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql",
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)));
 
-			$results = q("SELECT `gcontact`.`nurl`
+			$results = q("SELECT `nurl`
 					FROM `gcontact`
-					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = 0
-					WHERE NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
-						((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR
-						(`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
-						(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR
-						`gcontact`.`location` LIKE '%s' OR `gcontact`.`addr` LIKE '%s' OR
-						`gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql
-						GROUP BY `gcontact`.`nurl`
-						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
+					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s') AND
+						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
+						(`url` LIKE '%s' OR `name` LIKE '%s' OR `location` LIKE '%s' OR
+						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql
+						GROUP BY `nurl`
+						ORDER BY `updated` DESC LIMIT %d, %d",
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
