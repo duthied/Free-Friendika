@@ -504,6 +504,7 @@ class Event extends BaseObject
 		}
 
 		// Query for the event by date.
+		// @todo Slow query (518 seconds to run), to be optimzed
 		$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
 					`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
 				LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`

@@ -339,7 +339,7 @@ function events_content(App $a) {
 
 		// get events by id or by date
 		if ($event_params['event_id']) {
-			$r = Event::getListById(local_user(), $event_params['event-id']);
+			$r = Event::getListById(local_user(), $event_params['event_id']);
 		} else {
 			$r = Event::getListByDate(local_user(), $event_params);
 		}
@@ -370,7 +370,7 @@ function events_content(App $a) {
 		}
 
 		if (x($_GET, 'id')) {
-			$tpl =  get_markup_template("event.tpl");
+			$tpl = get_markup_template("event.tpl");
 		} else {
 			$tpl = get_markup_template("events_js.tpl");
 		}
