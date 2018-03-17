@@ -15,6 +15,7 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
+use Friendica\Database\DBM;
 
 require_once 'mod/contacts.php';
 
@@ -113,32 +114,28 @@ function dirfind_content(App $a, $prefix = "") {
 
 			/// @TODO These 2 SELECTs are not checked on validity with DBM::is_result()
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
-					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
-						AND `contact`.`network` = `gcontact`.`network`
-						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
-						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
-					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
-					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
-						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql",
-					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
+					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = 0
+					WHERE NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
+						((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR
+						(`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
+						(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR
+						`gcontact`.`location` LIKE '%s' OR `gcontact`.`addr` LIKE '%s' OR
+						`gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql",
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)));
 
-			$results = q("SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`photo`, `gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`
+			$results = q("SELECT `gcontact`.`nurl`
 					FROM `gcontact`
-					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
-						AND `contact`.`network` = `gcontact`.`network`
-						AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
-						AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
-					WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
-					((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-					(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`location` LIKE '%s' OR
-						`gcontact`.`addr` LIKE '%s' OR `gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql
+					LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = 0
+					WHERE NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
+						((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR
+						(`gcontact`.`updated` >= `gcontact`.`last_failure`)) AND
+						(`gcontact`.`url` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR
+						`gcontact`.`location` LIKE '%s' OR `gcontact`.`addr` LIKE '%s' OR
+						`gcontact`.`about` LIKE '%s' OR `gcontact`.`keywords` LIKE '%s') $extra_sql
 						GROUP BY `gcontact`.`nurl`
 						ORDER BY `gcontact`.`updated` DESC LIMIT %d, %d",
-					intval(local_user()), dbesc(CONTACT_IS_SHARING), dbesc(CONTACT_IS_FRIEND),
 					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
 					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
@@ -148,14 +145,14 @@ function dirfind_content(App $a, $prefix = "") {
 			$j->items_page = $perpage;
 			$j->page = $a->pager['page'];
 			foreach ($results AS $result) {
-				if (PortableContact::alternateOStatusUrl($result["url"])) {
+				if (PortableContact::alternateOStatusUrl($result["nurl"])) {
 					continue;
 				}
 
-				$result = Contact::getDetailsByURL($result["url"], local_user(), $result);
+				$result = Contact::getDetailsByURL($result["nurl"], local_user());
 
 				if ($result["name"] == "") {
-					$urlparts = parse_url($result["url"]);
+					$urlparts = parse_url($result["nurl"]);
 					$result["name"] = end(explode("/", $urlparts["path"]));
 				}
 
@@ -204,11 +201,10 @@ function dirfind_content(App $a, $prefix = "") {
 				if ($jj->cid > 0) {
 					$connlnk = "";
 					$conntxt = "";
-					$contact = q("SELECT * FROM `contact` WHERE `id` = %d",
-							intval($jj->cid));
-					if ($contact) {
-						$photo_menu = Contact::photoMenu($contact[0]);
-						$details = _contact_detail_for_template($contact[0]);
+					$contact = dba::selectFirst('contact', [], ['id' => $jj->cid]);
+					if (DBM::is_result($contact)) {
+						$photo_menu = Contact::photoMenu($contact);
+						$details = _contact_detail_for_template($contact);
 						$alt_text = $details['alt_text'];
 					} else {
 						$photo_menu = [];

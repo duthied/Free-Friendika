@@ -514,7 +514,7 @@ class Contact extends BaseObject
 		}
 
 		$sparkle = false;
-		if ($contact['network'] === NETWORK_DFRN) {
+		if (($contact['network'] === NETWORK_DFRN) && !$contact['self']) {
 			$sparkle = true;
 			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
 		} else {
@@ -531,18 +531,21 @@ class Contact extends BaseObject
 			$profile_link = $profile_link . '?url=profile';
 		}
 
-		if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
+		if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_DIASPORA]) && !$contact['self']) {
 			$pm_url = System::baseUrl() . '/message/new/' . $contact['id'];
 		}
 
-		if ($contact['network'] == NETWORK_DFRN) {
+		if (($contact['network'] == NETWORK_DFRN) && !$contact['self']) {
 			$poke_link = System::baseUrl() . '/poke/?f=&c=' . $contact['id'];
 		}
 
 		$contact_url = System::baseUrl() . '/contacts/' . $contact['id'];
 
 		$posts_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/posts';
-		$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
+
+		if (!$contact['self']) {
+			$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
+		}
 
 		/**
 		 * Menu array:
