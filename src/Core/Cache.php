@@ -100,6 +100,24 @@ class Cache extends \Friendica\BaseObject
 	}
 
 	/**
+	 * @brief Delete a value from the cache
+	 *
+	 * @param string $key The key to the cached data
+	 *
+	 * @return bool
+	 */
+	public static function delete($key)
+	{
+		$time = microtime(true);
+
+		$return = self::getDriver()->delete($key);
+
+		self::getApp()->save_timestamp($time, 'cache_write');
+
+		return $return;
+	}
+
+	/**
 	 * @brief Remove outdated data from the cache
 	 *
 	 * @param integer $max_level The maximum cache level that is to be cleared
