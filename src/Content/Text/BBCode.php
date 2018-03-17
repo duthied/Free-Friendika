@@ -20,6 +20,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Model\Event;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Map;
@@ -1373,7 +1374,7 @@ class BBCode extends BaseObject
 		// After we're finished processing the bbcode we'll
 		// replace all of the event code with a reformatted version.
 
-		$ev = bbtoevent($text);
+		$ev = Event::fromBBCode($text);
 
 		// Replace any html brackets with HTML Entities to prevent executing HTML or script
 		// Don't use strip_tags here because it breaks [url] search by replacing & with amp
@@ -1811,7 +1812,7 @@ class BBCode extends BaseObject
 		// start which is always required). Allow desc with a missing summary for compatibility.
 
 		if ((x($ev, 'desc') || x($ev, 'summary')) && x($ev, 'start')) {
-			$sub = format_event_html($ev, $simple_html);
+			$sub = Event::getHTML($ev, $simple_html);
 
 			$text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism", '', $text);
 			$text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism", '', $text);

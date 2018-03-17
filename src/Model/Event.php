@@ -105,7 +105,7 @@ class Event extends BaseObject
 	 * @param array $event Array which contains the event data.
 	 * @return string The event as a bbcode formatted string.
 	 */
-	public static function getBBCode(array $event)
+	private static function getBBCode(array $event)
 	{
 		$o = '';
 
@@ -289,10 +289,10 @@ class Event extends BaseObject
 			$item = dba::selectFirst('item', ['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
 			if (DBM::is_result($item)) {
 				$object = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($event['uri']) . '</id>';
-				$object .= '<content>' . xmlify(format_event_bbcode($event)) . '</content>';
+				$object .= '<content>' . xmlify(self::getBBCode($event)) . '</content>';
 				$object .= '</object>' . "\n";
 
-				$fields = ['body' => format_event_bbcode($event), 'object' => $object, 'edited' => $event['edited']];
+				$fields = ['body' => self::getBBCode($event), 'object' => $object, 'edited' => $event['edited']];
 				Item::update($fields, ['id' => $item['id']]);
 
 				$item_id = $item['id'];
@@ -335,11 +335,11 @@ class Event extends BaseObject
 			$item_arr['verb']          = ACTIVITY_POST;
 			$item_arr['object-type']   = ACTIVITY_OBJ_EVENT;
 			$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
-			$item_arr['body']          = format_event_bbcode($event);
+			$item_arr['body']          = self::getBBCode($event);
 			$item_arr['event-id']      = $event['id'];
 
 			$item_arr['object']  = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($event['uri']) . '</id>';
-			$item_arr['object'] .= '<content>' . xmlify(format_event_bbcode($event)) . '</content>';
+			$item_arr['object'] .= '<content>' . xmlify(self::getBBCode($event)) . '</content>';
 			$item_arr['object'] .= '</object>' . "\n";
 
 			$item_id = Item::insert($item_arr);
@@ -429,7 +429,7 @@ class Event extends BaseObject
 	 *
 	 * @todo We should replace this with a separate update function if there is some time left.
 	 */
-	public static function removeDuplicates(array $dates)
+	private static function removeDuplicates(array $dates)
 	{
 		$dates2 = [];
 
@@ -470,7 +470,7 @@ class Event extends BaseObject
 		);
 
 		if (DBM::is_result($r)) {
-			$return = event_remove_duplicates($r);
+			$return = self::removeDuplicates($r);
 		}
 
 		return $return;
@@ -519,7 +519,7 @@ class Event extends BaseObject
 		);
 
 		if (DBM::is_result($r)) {
-			$return = event_remove_duplicates($r);
+			$return = self::removeDuplicates($r);
 		}
 
 		return $return;
@@ -570,7 +570,7 @@ class Event extends BaseObject
 				$title = strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 			}
 
-			$html = format_event_html($event);
+			$html = self::getHTML($event);
 			$event['desc']     = BBCode::convert($event['desc']);
 			$event['location'] = BBCode::convert($event['location']);
 			$event_list[] = [
@@ -605,7 +605,7 @@ class Event extends BaseObject
 	 *
 	 * @todo Implement timezone support
 	 */
-	public static function formatListForExport(array $events, $format, $timezone)
+	private static function formatListForExport(array $events, $format, $timezone)
 	{
 		if (!count($events)) {
 			return '';
@@ -712,7 +712,7 @@ class Event extends BaseObject
 	 *
 	 * @return array Query results.
 	 */
-	public static function getListByUserId($uid = 0)
+	private static function getListByUserId($uid = 0)
 	{
 		$return = [];
 
@@ -761,11 +761,11 @@ class Event extends BaseObject
 		}
 
 		// Get all events which are owned by a uid (respects permissions).
-		$events = events_by_uid($uid);
+		$events = self::getListByUserId($uid);
 
 		// We have the events that are available for the requestor.
 		// Now format the output according to the requested format.
-		$res = event_format_export($events, $format, $timezone);
+		$res = self::formatListForExport($events, $format, $timezone);
 
 		// If there are results the precess was successfull.
 		if (!empty($res)) {
@@ -861,7 +861,7 @@ class Event extends BaseObject
 		}
 
 		// Format the event location.
-		$location = event_location2array($item['event-location']);
+		$location = self::locationToArray($item['event-location']);
 
 		// Construct the profile link (magic-auth).
 		$sp = false;
@@ -916,7 +916,7 @@ class Event extends BaseObject
 	 * 'address' => The address of the location,<br>
 	 * 'coordinates' => Latitude‎ and longitude‎ (e.g. '48.864716,2.349014').<br>
 	 */
-	public static function locationToArray($s = '') {
+	private static function locationToArray($s = '') {
 		if ($s == '') {
 			return [];
 		}

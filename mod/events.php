@@ -6,11 +6,13 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
@@ -31,7 +33,7 @@ function events_init(App $a) {
 			return;
 		}
 
-		$cal_widget = widget_events();
+		$cal_widget = CalendarExport::getHTML();
 
 		if (! x($a->page,'aside')) {
 			$a->page['aside'] = '';
@@ -155,7 +157,6 @@ function events_post(App $a) {
 
 
 	$datarray = [];
-	$datarray['guid']      = get_guid(32);
 	$datarray['start']     = $start;
 	$datarray['finish']    = $finish;
 	$datarray['summary']   = $summary;
@@ -172,16 +173,14 @@ function events_post(App $a) {
 	$datarray['deny_gid']  = $str_group_deny;
 	$datarray['private']   = (($private_event) ? 1 : 0);
 	$datarray['id']        = $event_id;
-	$datarray['created']   = $created;
-	$datarray['edited']    = $edited;
 
 	if (intval($_REQUEST['preview'])) {
-		$html = format_event_html($datarray);
+		$html = Event::getHTML($datarray);
 		echo $html;
 		killme();
 	}
 
-	$item_id = event_store($datarray);
+	$item_id = Event::store($datarray);
 
 	if (! $cid) {
 		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
@@ -222,7 +221,7 @@ function events_content(App $a) {
 	}
 
 	// get the translation strings for the callendar
-	$i18n = get_event_strings();
+	$i18n = Event::getStrings();
 
 	$htpl = get_markup_template('event_head.tpl');
 	$a->page['htmlhead'] .= replace_macros($htpl, [
@@ -331,25 +330,25 @@ function events_content(App $a) {
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
-			'event_id'      => (x($_GET, 'id') ? $_GET['id'] : 0),
+			'event_id'      => intval(defaults($_GET, 'id', 0)),
 			'start'         => $start,
 			'finish'        => $finish,
 			'adjust_start'  => $adjust_start,
 			'adjust_finish' => $adjust_finish,
-			'ignored'       => $ignored,
+			'ignore'        => $ignored,
 		];
 
 		// get events by id or by date
-		if (x($_GET, 'id')) {
-			$r = event_by_id(local_user(), $event_params);
+		if ($event_params['event_id']) {
+			$r = Event::getListById(local_user(), $event_params['event-id']);
 		} else {
-			$r = events_by_date(local_user(), $event_params);
+			$r = Event::getListByDate(local_user(), $event_params);
 		}
 
 		$links = [];
 
 		if (DBM::is_result($r)) {
-			$r = sort_by_date($r);
+			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
 				if (! x($links,$j)) {
@@ -362,8 +361,8 @@ function events_content(App $a) {
 
 		// transform the event in a usable array
 		if (DBM::is_result($r)) {
-			$r = sort_by_date($r);
-			$events = process_events($r);
+			$r = Event::sortByDate($r);
+			$events = Event::prepareListForTemplate($r);
 		}
 
 		if ($a->argc > 1 && $a->argv[1] === 'json'){
@@ -543,8 +542,7 @@ function events_content(App $a) {
 	if ($mode === 'drop' && $event_id) {
 		$del = 0;
 
-		$params = ['event_id' => ($event_id)];
-		$ev = event_by_id(local_user(), $params);
+		$ev = Event::getListById(local_user(), $event_id);
 
 		// Delete only real events (no birthdays)
 		if (DBM::is_result($ev) && $ev[0]['type'] == 'event') {
