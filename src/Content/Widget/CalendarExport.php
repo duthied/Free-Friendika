@@ -6,6 +6,7 @@
 
 namespace Friendica\Content\Widget;
 
+use Friendica\Content\Feature;
 use Friendica\Core\L10n;
 
 require_once 'boot.php';
@@ -26,38 +27,20 @@ class CalendarExport
 	public static function getHTML() {
 		$a = get_app();
 
-//		$owner_uid = $a->data['user']['uid'];
-//		// The permission testing is a little bit tricky because we have to respect many cases.
-//
-//		// It's not the private events page (we don't get the $owner_uid for /events).
-//		if (! local_user() && ! $owner_uid) {
-//			return;
-//		}
-//
-//		/*
-//		 * Cal logged in user (test permission at foreign profile page).
-//		 * If the $owner uid is available we know it is part of one of the profile pages (like /cal).
-//		 * So we have to test if if it's the own profile page of the logged in user
-//		 * or a foreign one. For foreign profile pages we need to check if the feature
-//		 * for exporting the cal is enabled (otherwise the widget would appear for logged in users
-//		 * on foreigen profile pages even if the widget is disabled).
-//		 */
-//		if (intval($owner_uid) && local_user() !== $owner_uid && ! Feature::isEnabled($owner_uid, "export_calendar")) {
-//			return;
-//		}
-//
-//		/*
-//		 * If it's a kind of profile page (intval($owner_uid)) return if the user not logged in and
-//		 * export feature isn't enabled.
-//		 */
-//		if (intval($owner_uid) && ! local_user() && ! Feature::isEnabled($owner_uid, "export_calendar")) {
-//			return;
-//		}
+		$owner_uid = $a->data['user']['uid'];
+
+		// The permission testing is a little bit tricky because we have to respect many cases.
+
+		// It's not the private events page (we don't get the $owner_uid for /events).
+		if (!local_user() && !$owner_uid) {
+			return;
+		}
+
 		/*
-		 * All the legacy checks above seem to be equivalent to the check below, see https://ethercalc.org/z6ehv1tut9cm
-		 * If there is a mistake in the spreadsheet, please notify @MrPetovan on GitHub or by email mrpetovan@gmail.com
+		 * If it's a kind of profile page (intval($owner_uid)) return if the user not logged in and
+		 * export feature isn't enabled.
 		 */
-		if (!local_user()) {
+		if (!local_user() && $owner_uid && !Feature::isEnabled($owner_uid, 'export_calendar')) {
 			return;
 		}
 
