@@ -2023,12 +2023,10 @@ class OStatus
 		$mentioned = $newmentions;
 
 		foreach ($mentioned as $mention) {
-			$r = q(
-				"SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
-				intval($owner["uid"]),
-				dbesc(normalise_link($mention))
-			);
-			if ($r[0]["forum"] || $r[0]["prv"]) {
+			$condition = ['uid' => $owner['uid'], 'nurl' => normalise_link($mention)];
+			$contact = dba::selectFirst('contact', ['forum', 'prv', 'self', 'contact-type'], $condition);
+			if ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == ACCOUNT_TYPE_COMMUNITY) ||
+				($contact['self'] && ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY))) {
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
@@ -2043,6 +2041,12 @@ class OStatus
 						"href" => $mention]
 				);
 			}
+		}
+
+		if ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY) {
+			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
+									"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
+									"href" => $owner['url']]);
 		}
 
 		if (!$item["private"]) {
