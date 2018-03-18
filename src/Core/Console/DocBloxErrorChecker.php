@@ -123,7 +123,7 @@ HELP;
 	private function commandExists($command)
 	{
 		$prefix = strpos(strtolower(PHP_OS),'win') > -1 ? 'where' : 'which';
-		exec("{$prefix} {$command}", $output = [], $returnVal = 0);
+		exec("{$prefix} {$command}", $output, $returnVal);
 		return $returnVal === 0;
 	}
 
