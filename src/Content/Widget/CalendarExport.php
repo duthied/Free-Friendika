@@ -37,6 +37,10 @@ class CalendarExport
 		}
 
 		/*
+		 * If it's a kind of profile page (intval($owner_uid)) return if the user not logged in and
+		 * export feature isn't enabled.
+		 */
+		/*
 		 * Cal logged in user (test permission at foreign profile page).
 		 * If the $owner uid is available we know it is part of one of the profile pages (like /cal).
 		 * So we have to test if if it's the own profile page of the logged in user
