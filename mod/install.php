@@ -397,7 +397,8 @@ function check_funcs(&$checks) {
 	check_add($ck_funcs, L10n::t('PDO or MySQLi PHP module'), true, true, "");
 	check_add($ck_funcs, L10n::t('mb_string PHP module'), true, true, "");
 	check_add($ck_funcs, L10n::t('XML PHP module'), true, true, "");
-	check_add($ck_funcs, L10n::t('iconv module'), true, true, "");
+	check_add($ck_funcs, L10n::t('iconv PHP module'), true, true, "");
+	check_add($ck_funcs, L10n::t('POSIX PHP module'), true, true, "");
 
 	if (function_exists('apache_get_modules')) {
 		if (! in_array('mod_rewrite',apache_get_modules())) {
@@ -432,8 +433,12 @@ function check_funcs(&$checks) {
 		$ck_funcs[4]['help'] = L10n::t('Error: mb_string PHP module required but not installed.');
 	}
 	if (! function_exists('iconv_strlen')) {
+		$ck_funcs[6]['status'] = false;
+		$ck_funcs[6]['help'] = L10n::t('Error: iconv PHP module required but not installed.');
+	}
+	if (! function_exists('posix_kill')) {
 		$ck_funcs[7]['status'] = false;
-		$ck_funcs[7]['help'] = L10n::t('Error: iconv PHP module required but not installed.');
+		$ck_funcs[7]['help'] = L10n::t('Error: POSIX PHP module required but not installed.');
 	}
 
 	$checks = array_merge($checks, $ck_funcs);
@@ -442,8 +447,8 @@ function check_funcs(&$checks) {
 	try {
 		$xml = new DOMDocument();
 	} catch (Exception $e) {
-		$ck_funcs[6]['status'] = false;
-		$ck_funcs[6]['help'] = L10n::t('Error, XML PHP module required but not installed.');
+		$ck_funcs[5]['status'] = false;
+		$ck_funcs[5]['help'] = L10n::t('Error, XML PHP module required but not installed.');
 	}
 }
 
