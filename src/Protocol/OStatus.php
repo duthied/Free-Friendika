@@ -1288,6 +1288,13 @@ class OStatus
 			"rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
+		if ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY) {
+			$condition = ['uid' => $owner['uid'], 'self' => false, 'pending' => false,
+					'archive' => false, 'hidden' => false, 'blocked' => false];
+			$members = dba::count('contact', $condition);
+			XML::addElement($doc, $root, "statusnet:group_info", "", ["member_count" => $members]);
+		}
+
 		return $root;
 	}
 
@@ -1379,16 +1386,22 @@ class OStatus
 	 *
 	 * @return object author element
 	 */
-	private static function addAuthor($doc, $owner)
+	private static function addAuthor($doc, $owner, $show_profile = true)
 	{
 		$profile = dba::selectFirst('profile', ['homepage', 'publish'], ['uid' => $owner['uid'], 'is-default' => true]);
 		$author = $doc->createElement("author");
 		XML::addElement($doc, $author, "id", $owner["url"]);
-		XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
+		if ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY) {
+			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_GROUP);
+		} else {
+			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
+		}
 		XML::addElement($doc, $author, "uri", $owner["url"]);
 		XML::addElement($doc, $author, "name", $owner["nick"]);
 		XML::addElement($doc, $author, "email", $owner["addr"]);
-		XML::addElement($doc, $author, "summary", BBCode::convert($owner["about"], false, 7));
+		if ($show_profile) {
+			XML::addElement($doc, $author, "summary", BBCode::convert($owner["about"], false, 7));
+		}
 
 		$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $owner["url"]];
 		XML::addElement($doc, $author, "link", "", $attributes);
@@ -1413,15 +1426,17 @@ class OStatus
 
 		XML::addElement($doc, $author, "poco:preferredUsername", $owner["nick"]);
 		XML::addElement($doc, $author, "poco:displayName", $owner["name"]);
-		XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, 7));
+		if ($show_profile) {
+			XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, 7));
 
-		if (trim($owner["location"]) != "") {
-			$element = $doc->createElement("poco:address");
-			XML::addElement($doc, $element, "poco:formatted", $owner["location"]);
-			$author->appendChild($element);
+			if (trim($owner["location"]) != "") {
+				$element = $doc->createElement("poco:address");
+				XML::addElement($doc, $element, "poco:formatted", $owner["location"]);
+				$author->appendChild($element);
+			}
 		}
 
-		if (DBM::is_result($profile)) {
+		if (DBM::is_result($profile) && !$show_profile) {
 			if (trim($profile["homepage"]) != "") {
 				$urls = $doc->createElement("poco:urls");
 				XML::addElement($doc, $urls, "poco:type", "homepage");
@@ -1432,11 +1447,12 @@ class OStatus
 
 			XML::addElement($doc, $author, "followers", "", ["url" => System::baseUrl()."/viewcontacts/".$owner["nick"]]);
 			XML::addElement($doc, $author, "statusnet:profile_info", "", ["local_id" => $owner["uid"]]);
+
+			if ($profile["publish"]) {
+				XML::addElement($doc, $author, "mastodon:scope", "public");
+			}
 		}
 
-		if ($profile["publish"]) {
-			XML::addElement($doc, $author, "mastodon:scope", "public");
-		}
 		return $author;
 	}
 
@@ -1598,7 +1614,7 @@ class OStatus
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
-		$title = self::entryHeader($doc, $entry, $owner, $toplevel);
+		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
 
 		$r = q(
 			"SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' AND NOT `private` AND `network` IN ('%s', '%s', '%s') LIMIT 1",
@@ -1627,7 +1643,7 @@ class OStatus
 
 		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
 
-		$author = self::addAuthor($doc, $contact);
+		$author = self::addAuthor($doc, $contact, false);
 		$as_object->appendChild($author);
 
 		$as_object2 = $doc->createElement("activity:object");
@@ -1669,7 +1685,7 @@ class OStatus
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
-		$title = self::entryHeader($doc, $entry, $owner, $toplevel);
+		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
 
 		$verb = NAMESPACE_ACTIVITY_SCHEMA."favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
@@ -1792,7 +1808,7 @@ class OStatus
 
 		$item["body"] = sprintf($message, $owner["nick"], $contact["nick"]);
 
-		self::entryHeader($doc, $entry, $owner, $toplevel);
+		self::entryHeader($doc, $entry, $owner, $item, $toplevel);
 
 		self::entryContent($doc, $entry, $item, $owner, $title);
 
@@ -1820,7 +1836,7 @@ class OStatus
 			logger("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", LOGGER_DEBUG);
 		}
 
-		$title = self::entryHeader($doc, $entry, $owner, $toplevel);
+		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
 
 		XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 
@@ -1841,12 +1857,18 @@ class OStatus
 	 *
 	 * @return string The title for the element
 	 */
-	private static function entryHeader($doc, &$entry, $owner, $toplevel)
+	private static function entryHeader($doc, &$entry, $owner, $item, $toplevel)
 	{
 		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
 			$title = sprintf("New note by %s", $owner["nick"]);
+
+			if ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY) {
+				$contact = self::contactEntry($item['author-link'], $owner);
+				$author = self::addAuthor($doc, $contact, false);
+				$entry->appendChild($author);
+			}
 		} else {
 			$entry = $doc->createElementNS(NAMESPACE_ATOM1, "entry");
 
@@ -2001,12 +2023,10 @@ class OStatus
 		$mentioned = $newmentions;
 
 		foreach ($mentioned as $mention) {
-			$r = q(
-				"SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
-				intval($owner["uid"]),
-				dbesc(normalise_link($mention))
-			);
-			if ($r[0]["forum"] || $r[0]["prv"]) {
+			$condition = ['uid' => $owner['uid'], 'nurl' => normalise_link($mention)];
+			$contact = dba::selectFirst('contact', ['forum', 'prv', 'self', 'contact-type'], $condition);
+			if ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == ACCOUNT_TYPE_COMMUNITY) ||
+				($contact['self'] && ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY))) {
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
@@ -2021,6 +2041,12 @@ class OStatus
 						"href" => $mention]
 				);
 			}
+		}
+
+		if ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY) {
+			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
+									"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
+									"href" => $owner['url']]);
 		}
 
 		if (!$item["private"]) {
