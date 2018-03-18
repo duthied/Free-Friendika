@@ -433,12 +433,12 @@ function check_funcs(&$checks) {
 		$ck_funcs[4]['help'] = L10n::t('Error: mb_string PHP module required but not installed.');
 	}
 	if (! function_exists('iconv_strlen')) {
-		$ck_funcs[7]['status'] = false;
-		$ck_funcs[7]['help'] = L10n::t('Error: iconv PHP module required but not installed.');
+		$ck_funcs[6]['status'] = false;
+		$ck_funcs[6]['help'] = L10n::t('Error: iconv PHP module required but not installed.');
 	}
 	if (! function_exists('posix_kill')) {
-		$ck_funcs[8]['status'] = false;
-		$ck_funcs[0]['help'] = L10n::t('Error: POSIX PHP module required but not installed.');
+		$ck_funcs[7]['status'] = false;
+		$ck_funcs[7]['help'] = L10n::t('Error: POSIX PHP module required but not installed.');
 	}
 
 	$checks = array_merge($checks, $ck_funcs);
@@ -447,8 +447,8 @@ function check_funcs(&$checks) {
 	try {
 		$xml = new DOMDocument();
 	} catch (Exception $e) {
-		$ck_funcs[6]['status'] = false;
-		$ck_funcs[6]['help'] = L10n::t('Error, XML PHP module required but not installed.');
+		$ck_funcs[5]['status'] = false;
+		$ck_funcs[5]['help'] = L10n::t('Error, XML PHP module required but not installed.');
 	}
 }
 
