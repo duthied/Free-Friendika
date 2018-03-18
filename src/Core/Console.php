@@ -31,6 +31,7 @@ Commands:
 	maintenance            Set maintenance mode for this node
 	php2po                 Generate a messages.po file from a strings.php file
 	po2php                 Generate a strings.php file from a messages.po file
+	typo                   Checks for parse errors in Friendica files
 
 Options:
 	-h|--help|-? Show help information
