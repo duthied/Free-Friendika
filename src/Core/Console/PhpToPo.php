@@ -18,19 +18,18 @@ class PhpToPo extends \Asika\SimpleConsole\Console
 	protected function getHelp()
 	{
 		$help = <<<HELP
-console php2po - Generate a messages.po file from a string.php file
+console php2po - Generate a messages.po file from a strings.php file
 Usage
-	bin/console php2po [-p <n>] <path/to/strings.php> [-h|--help|-?] [-v]
-
-Options:
-	-p <n> Number of plural forms/ Default: 2
+	bin/console php2po [-p <n>] [--base <file>] <path/to/strings.php> [-h|--help|-?] [-v]
 
 Description
 	Read a strings.php file and create the according messages.po in the same directory
 
 Options
-    -h|--help|-? Show help information
-    -v           Show more debug information.
+	-p <n>        Number of plural forms. Default: 2
+	--base <file> Path to base messages.po file. Default: util/messages.po
+	-h|--help|-?  Show help information
+	-v            Show more debug information.
 HELP;
 		return $help;
 	}
@@ -64,7 +63,7 @@ HELP;
 			throw new \RuntimeException('Supplied directory isn\'t writable.');
 		}
 
-		$pofile = dirname($phpfile) . '/messages.po';
+		$pofile = dirname($phpfile) . DIRECTORY_SEPARATOR . 'messages.po';
 
 		// start !
 		include_once($phpfile);
@@ -86,12 +85,7 @@ HELP;
 		// search for plural info
 		$lang = "";
 		$lang_logic = "";
-		$lang_pnum = 2;
-
-		$_idx = array_search('-p', $argv);
-		if ($_idx !== false) {
-			$lang_pnum = $argv[$_idx + 1];
-		}
+		$lang_pnum = $this->getOption('p', 2);
 
 		$infile = file($phpfile);
 		foreach ($infile as $l) {
@@ -113,14 +107,16 @@ HELP;
 		$out .= sprintf('"Plural-Forms: nplurals=%s; plural=%s;\n"', $lang_pnum, $lang_logic) . "\n";
 		$out .= "\n";
 
-		$this->out('Loading base message.po...');
+		$base_path = $this->getOption('base', 'util' . DIRECTORY_SEPARATOR . 'messages.po');
 
 		// load base messages.po and extract msgids
 		$base_msgids = [];
-		$base_f = file("util/messages.po");
+		$base_f = file($base_path);
 		if (!$base_f) {
-			throw new \RuntimeException('The base util/messages.po file is missing.');
+			throw new \RuntimeException('The base ' . $base_path . ' file is missing or unavailable to read.');
 		}
+
+		$this->out('Loading base file ' . $base_path . '...');
 
 		$_f = 0;
 		$_mid = "";
@@ -158,7 +154,6 @@ HELP;
 			}
 		}
 
-		$this->out('Done.');
 		$this->out('Creating ' . $pofile . '...');
 
 		// create msgid and msgstr
@@ -189,13 +184,11 @@ HELP;
 			$out .= "\n";
 		}
 
-		file_put_contents($pofile, $out);
+		if (!file_put_contents($pofile, $out)) {
+			throw new \RuntimeException('Unable to write to ' . $pofile);
+		}
 
-		$this->out('Done.');
-
-		if ($warnings == "") {
-			$this->out('No warnings.');
-		} else {
+		if ($warnings != '') {
 			$this->out($warnings);
 		}
 
