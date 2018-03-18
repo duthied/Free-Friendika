@@ -21,11 +21,15 @@ class Console extends \Asika\SimpleConsole\Console
 Usage: bin/console [--version] [-h|--help|-?] <command> [<args>] [-v]
 
 Commands:
-	config               Edit site config
-	createdoxygen        Generate Doxygen headers
-	docbloxerrorchecker  Checks the file tree for DocBlox errors
-	globalcommunityblock Silence remote profile from global community page
-	help                 Show help about a command, e.g (bin/console help config)
+	config                 Edit site config
+	createdoxygen          Generate Doxygen headers
+	docbloxerrorchecker    Check the file tree for DocBlox errors
+	extract                Generate translation string file for the Friendica project (deprecated)
+	globalcommunityblock   Block remote profile from interacting with this node
+	globalcommunitysilence Silence remote profile from global community page
+	help                   Show help about a command, e.g (bin/console help config)
+	maintenance            Set maintenance mode for this node
+	php2po                 Generate a messages.po file from a strings.php file
 
 Options:
 	-h|--help|-? Show help information
