@@ -51,8 +51,12 @@ if (!$install) {
 require_once "include/dba.php";
 
 if (!$install) {
-	dba::connect($db_host, $db_user, $db_pass, $db_data, $install);
+	$result = dba::connect($db_host, $db_user, $db_pass, $db_data);
 	unset($db_host, $db_user, $db_pass, $db_data);
+
+	if (!$result) {
+		System::unavailable();
+	}
 
 	/**
 	 * Load configs from db. Overwrite configs from .htconfig.php
