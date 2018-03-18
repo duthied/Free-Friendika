@@ -30,6 +30,7 @@ Commands:
 	help                   Show help about a command, e.g (bin/console help config)
 	maintenance            Set maintenance mode for this node
 	php2po                 Generate a messages.po file from a strings.php file
+	po2php                 Generate a strings.php file from a messages.po file
 
 Options:
 	-h|--help|-? Show help information
@@ -108,6 +109,8 @@ HELP;
 			case 'maintenance': $subconsole = new Console\Maintenance($subargs);
 				break;
 			case 'php2po': $subconsole = new Console\PhpToPo($subargs);
+				break;
+			case 'po2php': $subconsole = new Console\PoToPhp($subargs);
 				break;
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Command ' . $command . ' doesn\'t exist');
