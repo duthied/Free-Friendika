@@ -112,6 +112,8 @@ HELP;
 				break;
 			case 'po2php': $subconsole = new Console\PoToPhp($subargs);
 				break;
+			case 'typo': $subconsole = new Console\Typo($subargs);
+				break;
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Command ' . $command . ' doesn\'t exist');
 		}
