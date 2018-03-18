@@ -95,7 +95,15 @@ HELP;
 				break;
 			case 'docbloxerrorchecker' : $subconsole = new Console\DocBloxErrorChecker($subargs);
 				break;
+			case 'extract' : $subconsole = new Console\Extract($subargs);
+				break;
 			case 'globalcommunityblock': $subconsole = new Console\GlobalCommunityBlock($subargs);
+				break;
+			case 'globalcommunitysilence': $subconsole = new Console\GlobalCommunitySilence($subargs);
+				break;
+			case 'maintenance': $subconsole = new Console\Maintenance($subargs);
+				break;
+			case 'php2po': $subconsole = new Console\PhpToPo($subargs);
 				break;
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Command ' . $command . ' doesn\'t exist');
