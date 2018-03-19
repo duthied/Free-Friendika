@@ -64,7 +64,11 @@ Description
 		Shows the value of the provided key in the category
 
 	bin/console config <category> <key> <value>
-		Set the value of the provided key in the category
+		Sets the value of the provided key in the category
+
+Notes:
+	Setting config entries which are manually set in .htconfig.php may result in
+	conflict between database settings and the manual startup settings.
 
 Options
     -h|--help|-? Show help information
