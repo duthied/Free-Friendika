@@ -4,8 +4,41 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ff4187b4f7167583a3b8caa5f7c2a8a",
+    "content-hash": "6a87e56bade65fa14f5f74e74109b66f",
     "packages": [
+        {
+            "name": "asika/simple-console",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/asika32764/php-simple-console.git",
+                "reference": "0b624c1a999849dc6481a47182e58d593bf65068"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/asika32764/php-simple-console/zipball/0b624c1a999849dc6481a47182e58d593bf65068",
+                "reference": "0b624c1a999849dc6481a47182e58d593bf65068",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Asika\\SimpleConsole\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simon Asika",
+                    "email": "asika32764@gmail.com"
+                }
+            ],
+            "description": "One file console framework to help you write build scripts.",
+            "time": "2018-03-08T12:05:40+00:00"
+        },
         {
             "name": "bower-asset/Chart-js",
             "version": "v2.7.1",
