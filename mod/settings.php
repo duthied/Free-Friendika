@@ -1274,7 +1274,7 @@ function settings_content(App $a)
 
 		'$detailed_notif' => ['detailed_notif', L10n::t('Show detailled notifications'),
 									PConfig::get(local_user(), 'system', 'detailed_notif'),
-									L10n::t('Per default the notificiation are condensed to a single notification per item. When enabled, every notification is displayed.')],
+									L10n::t('Per default, notifications are condensed to a single notification per item. When enabled every notification is displayed.')],
 
 		'$h_advn' => L10n::t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => L10n::t('Change the behaviour of this account for special situations'),
