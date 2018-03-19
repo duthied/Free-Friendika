@@ -25,21 +25,21 @@ function events_init(App $a) {
 		return;
 	}
 
-	if ($a->argc > 1) {
-		// If it's a json request abort here because we don't
-		// need the widget data
-		if ($a->argv[1] === 'json') {
-			return;
-		}
-
-		$cal_widget = CalendarExport::getHTML();
-
-		if (! x($a->page,'aside')) {
-			$a->page['aside'] = '';
-		}
-
-		$a->page['aside'] .= $cal_widget;
+	// If it's a json request abort here because we don't
+	// need the widget data
+	if ($a->argc > 1 && $a->argv[1] === 'json') {
+		return;
 	}
+
+	if (empty($a->page['aside'])) {
+		$a->page['aside'] = '';
+	}
+
+	$a->data['user'] = $_SESSION['user'];
+
+	$cal_widget = CalendarExport::getHTML();
+
+	$a->page['aside'] .= $cal_widget;
 
 	return;
 }
