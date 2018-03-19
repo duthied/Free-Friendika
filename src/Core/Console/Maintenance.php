@@ -8,24 +8,8 @@ require_once 'boot.php';
 require_once 'include/dba.php';
 
 /**
- * @brief tool to silence accounts on the global community page
+ * @brief Sets maintenance mode for this node
  *
- * With this tool, you can silence an account on the global community page.
- * Postings from silenced accounts will not be displayed on the community
- * page. This silencing does only affect the display on the community page,
- * accounts following the silenced accounts will still get their postings.
- *
- * Usage: pass the URL of the profile to be silenced account as only parameter
- *        at the command line when running this tool. E.g.
- *
- *        $> util/global_community_silence.php http://example.com/profile/bob
- *
- *        will silence bob@example.com so that his postings won't appear at
- *        the global community page.
- *
- * License: AGPLv3 or later, same as Friendica
- *
- * @author Tobias Diekershoff
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
 class Maintenance extends \Asika\SimpleConsole\Console
