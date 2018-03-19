@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * @file scripts/worker.php
+ * @file bin/worker.php
  * @brief Starts the background processing
  */
 

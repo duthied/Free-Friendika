@@ -104,7 +104,7 @@ while (true) {
 	set_time_limit(0);
 
 	// Call the worker
-	$cmdline = $php.' scripts/worker.php';
+	$cmdline = $php.' bin/worker.php';
 
 	$executed = false;
 

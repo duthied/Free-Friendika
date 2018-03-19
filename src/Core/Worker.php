@@ -1003,7 +1003,7 @@ class Worker
 	 */
 	public static function spawnWorker()
 	{
-		$args = ["scripts/worker.php", "no_cron"];
+		$args = ["bin/worker.php", "no_cron"];
 		get_app()->proc_run($args);
 	}
 
