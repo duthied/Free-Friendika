@@ -78,11 +78,11 @@ More info at http://www.gnu.org/software/hello/manual/gettext/Plural-forms.html
 
 Xgettext and .po workflow
 
-1. Run util/run_xgettext.sh script (on *unix sistems, with GNU xgettext installed)
+1. Run bin/run_xgettext.sh script (on *unix sistems, with GNU xgettext installed)
 	This script runs xgettext on source tree, extracting strings from L10n::t() and L10n::tt()
 	functions, and creates a util/messages.po file.
 
-	$ cd util; ./run_xgettext.sh
+	$ cd bin; ./run_xgettext.sh
 
 2. copy util/messages.po to view/lang/<language>/messages.po
 	Replace <language> with the language you are working on - e.g. 'es', 'fr', 'de', etc.
@@ -111,7 +111,7 @@ Xgettext and .po workflow
  	to create the strings.php file
 
 When strings are added or modified in source, you could run
-	$ cd util; ./run_xgettext.sh ../view/lang/<language>/messages.po
+	$ cd bin; ./run_xgettext.sh ../view/lang/<language>/messages.po
 	to extract strings from source files and join them with the existing .po file:
 	new strings are added, the existing are not overwritten.
 
