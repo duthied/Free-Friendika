@@ -72,7 +72,7 @@ $a->string["%d message sent"] = Array(
 The function string_plural_select($n) defined in strings.php, return the string
 index to use, related to the numbers of item (value of $n).
 
-This is modelled after ngettext function of GNU gettext.
+This is modeled after ngettext function of GNU gettext.
 More info at http://www.gnu.org/software/hello/manual/gettext/Plural-forms.html
 
 
@@ -117,10 +117,4 @@ When strings are added or modified in source, you could run
 
 If you already translated Friendica using strings.php, you could import your old
 translation to messages.po. Run:
-$ php util/php2po.php view/lang/<language>/strings.php
-
-
-You may also use the util/string_translator.php web interface to translate the string file, but it is disabled for website security reasons. The web server will need write permission to your language directories and the "Deny ..." line in util/.htaccess will need to be modified or commented to use the utility.
-
-
-
+$ php bin/console php2po view/lang/<language>/strings.php
