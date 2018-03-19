@@ -1062,7 +1062,7 @@ function linkify($s) {
  * Load poke verbs
  *
  * @return array index is present tense verb
-				 value is array containing past tense verb, translation of present, translation of past
+ * 				 value is array containing past tense verb, translation of present, translation of past
  * @hook poke_verbs pokes array
  */
 function get_poke_verbs() {
