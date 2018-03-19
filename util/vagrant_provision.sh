@@ -88,7 +88,7 @@ echo "create database friendica DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_ge
 $MYSQL -uroot -proot friendica < /vagrant/friendica_test_data.sql
 
 # create cronjob - activate if you have enough memory in you dev VM
-echo "*/10 * * * * cd /vagrant; /usr/bin/php scripts/worker.php" >> friendicacron
+echo "*/10 * * * * cd /vagrant; /usr/bin/php bin/worker.php" >> friendicacron
 sudo crontab friendicacron
 sudo rm friendicacron
 

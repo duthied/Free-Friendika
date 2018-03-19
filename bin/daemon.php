@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * @file scripts/daemon.php
+ * @file bin/daemon.php
  * @brief Run the worker from a daemon.
  *
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
@@ -104,7 +104,7 @@ while (true) {
 	set_time_limit(0);
 
 	// Call the worker
-	$cmdline = $php.' scripts/worker.php';
+	$cmdline = $php.' bin/worker.php';
 
 	$executed = false;
 

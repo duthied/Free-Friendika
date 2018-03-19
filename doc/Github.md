@@ -13,7 +13,7 @@ Introduction to the workflow with our GitHub repository
 3. Fork the Friendica repository from [https://github.com/friendica/friendica.git](https://github.com/friendica/friendica.git).
 4. Clone your fork from your GitHub account to your machine.
 Follow the instructions provided here: [http://help.github.com/fork-a-repo/](http://help.github.com/fork-a-repo/) to create and use your own tracking fork on GitHub
-5. Run `util/composer.phar install` in Friendica's folder.
+5. Run `bin/composer.phar install` in Friendica's folder.
 6. Commit your changes to your fork.
 Then go to your GitHub page and create a "Pull request" to notify us to merge your work.
 
