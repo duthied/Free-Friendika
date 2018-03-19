@@ -1,6 +1,6 @@
 Utilities
 
-typo.php  - is a crude syntax checker to avoid checking in files with simple
+php bin/console typo - is a crude syntax checker to avoid checking in files with simple
 typos. It basically just loads each of our project files at once. Run from
 cmdline and see if any parsing errors are reported.
 
