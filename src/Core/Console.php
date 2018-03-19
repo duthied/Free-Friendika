@@ -13,16 +13,29 @@ class Console extends \Asika\SimpleConsole\Console
 	protected $helpOptions = [];
 	protected $customHelpOptions = ['h', 'help', '?'];
 
+	protected $subConsoles = [
+		'config'                 => __NAMESPACE__ . '\Console\Config',
+		'createdoxygen'          => __NAMESPACE__ . '\Console\CreateDoxygen',
+		'docbloxerrorchecker'    => __NAMESPACE__ . '\Console\DocBloxErrorChecker',
+		'dbstructure'            => __NAMESPACE__ . '\Console\DatabaseStructure',
+		'extract'                => __NAMESPACE__ . '\Console\Extract',
+		'globalcommunityblock'   => __NAMESPACE__ . '\Console\GlobalCommunityBlock',
+		'globalcommunitysilence' => __NAMESPACE__ . '\Console\GlobalCommunitySilence',
+		'maintenance'            => __NAMESPACE__ . '\Console\Maintenance',
+		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
+		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
+		'typo'                   => __NAMESPACE__ . '\Console\Typo',
+	];
+
 	protected function getHelp()
 	{
-
-
 		$help = <<<HELP
 Usage: bin/console [--version] [-h|--help|-?] <command> [<args>] [-v]
 
 Commands:
 	config                 Edit site config
 	createdoxygen          Generate Doxygen headers
+	dbstructure            Do database updates
 	docbloxerrorchecker    Check the file tree for DocBlox errors
 	extract                Generate translation string file for the Friendica project (deprecated)
 	globalcommunityblock   Block remote profile from interacting with this node
@@ -89,35 +102,16 @@ HELP;
 			$this->out('Command: ' . $command);
 		}
 
+		if (!isset($this->subConsoles[$command])) {
+			throw new \Asika\SimpleConsole\CommandArgsException('Command ' . $command . ' doesn\'t exist');
+		}
+
 		$subargs = $this->args;
 		array_unshift($subargs, $this->executable);
 
-		$subconsole = null;
+		$className = $this->subConsoles[$command];
 
-		switch ($command) {
-			case 'config' : $subconsole = new Console\Config($subargs);
-				break;
-			case 'createdoxygen' : $subconsole = new Console\CreateDoxygen($subargs);
-				break;
-			case 'docbloxerrorchecker' : $subconsole = new Console\DocBloxErrorChecker($subargs);
-				break;
-			case 'extract' : $subconsole = new Console\Extract($subargs);
-				break;
-			case 'globalcommunityblock': $subconsole = new Console\GlobalCommunityBlock($subargs);
-				break;
-			case 'globalcommunitysilence': $subconsole = new Console\GlobalCommunitySilence($subargs);
-				break;
-			case 'maintenance': $subconsole = new Console\Maintenance($subargs);
-				break;
-			case 'php2po': $subconsole = new Console\PhpToPo($subargs);
-				break;
-			case 'po2php': $subconsole = new Console\PoToPhp($subargs);
-				break;
-			case 'typo': $subconsole = new Console\Typo($subargs);
-				break;
-			default:
-				throw new \Asika\SimpleConsole\CommandArgsException('Command ' . $command . ' doesn\'t exist');
-		}
+		$subconsole = new $className($subargs);
 
 		foreach ($this->options as $name => $value) {
 			$subconsole->setOption($name, $value);
