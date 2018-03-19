@@ -39,7 +39,7 @@ function babel_content()
 		$o .= visible_lf($text) . EOL . EOL;
 
 		$html = BBCode::convert($text);
-		$o .= '<h2>' . L10n::t("bbcode \x28raw HTML\x28: ") . '</h2>' . EOL . EOL;
+		$o .= '<h2>' . L10n::t("bbcode \x28raw HTML\x29: ") . '</h2>' . EOL . EOL;
 		$o .= htmlspecialchars($html) . EOL . EOL;
 
 		$o .= '<h2>' . L10n::t('bbcode: ') . '</h2>' . EOL . EOL;
