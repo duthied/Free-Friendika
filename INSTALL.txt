@@ -66,7 +66,7 @@ OR
 
 	git clone https://github.com/friendica/friendica [web server folder]
 	cd [web server folder]
-	php util/composer.phar install
+	php bin/composer.phar install
 
 3. Create an empty database and note the access details (hostname, username,
 password, database name).

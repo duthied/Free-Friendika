@@ -61,7 +61,7 @@ If you want to have git automatically update the dependencies with composer, you
     }
     # `composer install` if the `composer.lock` file gets changed
     # to update all the php dependencies
-    check_run composer.lock "util/composer.phar install --no-dev"
+    check_run composer.lock "bin/composer.phar install --no-dev"
 
 just place it into `.git/hooks/post-merge` and make it executable.
 

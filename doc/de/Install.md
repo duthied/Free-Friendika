@@ -49,7 +49,7 @@ Wir planen, diese Einschränkung in einer zukünftigen Version zu beheben.
 
         `cd meinewebseite`
         `git pull`
-        `util/composer.phar install`
+        `bin/composer.phar install`
 
     - Addons installieren
         - zunächst solltest du **in** deinem Webseitenordner sein
