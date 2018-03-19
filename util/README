@@ -107,7 +107,7 @@ Xgettext and .po workflow
 	of the many .po editors out there, like QtLinguist
 
 5. run
-	$ php util/po2php.php view/lang/<language>/messages.po
+	$ php bin/console po2php view/lang/<language>/messages.po
  	to create the strings.php file
 
 When strings are added or modified in source, you could run
