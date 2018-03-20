@@ -1,7 +1,7 @@
 Version 3.6 (2018-03-xx)
   Friendica Core:
     Updates to the translations (DE, EN_GB, EN_US, ES, FR, IT, ZH_CN) [translation teams]
-    Update for the Danish and French regions [Alkarex]
+    Updates for the Danish and French regions [Alkarex]
     Update for the documentation [andyhee, annando, rabuzarus, ratten, rudlof, silke, tobiasd]
     Updates to the themes [annando, fabrixxm, hoergen, rebeka-catalina, rabuzarus]
     Enhancements to the ARIA support in frio [rabuzarus]
