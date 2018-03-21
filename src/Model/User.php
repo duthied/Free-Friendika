@@ -5,6 +5,7 @@
  */
 namespace Friendica\Model;
 
+use DivineOmega\PasswordExposed\PasswordStatus;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -22,6 +23,7 @@ use Friendica\Util\Network;
 use dba;
 use Exception;
 use LightOpenID;
+use function password_exposed;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -101,7 +103,7 @@ class User
 	 * @param string $password
 	 * @return int|boolean
 	 * @deprecated since version 3.6
-	 * @see Friendica\Model\User::getIdFromPasswordAuthentication()
+	 * @see User::getIdFromPasswordAuthentication()
 	 */
 	public static function authenticate($user_info, $password)
 	{
@@ -214,6 +216,17 @@ class User
 	public static function generateNewPassword()
 	{
 		return autoname(6) . mt_rand(100, 9999);
+	}
+
+	/**
+	 * Checks if the provided plaintext password has been exposed or not
+	 *
+	 * @param string $password
+	 * @return bool
+	 */
+	public static function isPasswordExposed($password)
+	{
+		return password_exposed($password) === PasswordStatus::EXPOSED;
 	}
 
 	/**
