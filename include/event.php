@@ -243,11 +243,17 @@ function event_store($arr) {
 
 	$arr['created'] = (($arr['created'])     ? DateTimeFormat::utc($arr['created']) : DateTimeFormat::utcNow());
 	$arr['edited']  = (($arr['edited'])      ? DateTimeFormat::utc($arr['edited'])  : DateTimeFormat::utcNow());
+	$arr['start']   = (($arr['start'])       ? DateTimeFormat::utc($arr['start'])   : NULL_DATE);
+	$arr['finish']  = (($arr['finish'])      ? DateTimeFormat::utc($arr['finish'])  : NULL_DATE);
 	$arr['type']    = (($arr['type'])        ? $arr['type']            : 'event' );
 	$arr['cid']     = ((intval($arr['cid'])) ? intval($arr['cid'])     : 0);
 	$arr['uri']     = (x($arr, 'uri')        ? $arr['uri']             : item_new_uri($a->get_hostname(), $arr['uid']));
 	$arr['private'] = ((x($arr, 'private'))  ? intval($arr['private']) : 0);
 	$arr['guid']    = get_guid(32);
+
+	if ($arr['finish'] < NULL_DATE) {
+		$arr['finish'] = NULL_DATE;
+	}
 
 	if ($arr['cid']) {
 		$c = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
