@@ -84,7 +84,7 @@ Zum Konvertieren von Videos in das lizenfreie Videoformat WebM gibt es unter Win
 <a name="avatars"></a>
 ### Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?
 
-Ja. 
+Ja.
 Auf Deiner ["Profile verwalten/editieren"-Seite](../profiles) wählst Du zunächst das gewünschte Profil aus. 
 Anschließend siehst Du eine Seite mit allen Infos zu diesem Profil. 
 Klicke nun oben auf den Link "Profilbild ändern" und lade im nächsten Fenster ein Bild von Deinem PC hoch. 
@@ -124,7 +124,8 @@ Wir können also Dein Profil blockieren und es so erscheinen lassen, als wären 
 <a name="hashtag"></a>
 ### Kann ich einem Hashtag folgen?
 
-Ja. Füge die Tags zu Deinen gespeicherten Suchen hinzu, sie werden automatisch auf der Netzwerk-Seite auftauchen.
+Ja.
+Füge die Tags zu Deinen gespeicherten Suchen hinzu, sie werden automatisch auf der Netzwerk-Seite auftauchen.
 Bitte beachte, dass Deine Antworten auf solche Posts aus technischen Gründen nicht unter dem "Persönlich"-Reiter auf der Netzwerk-Seite und der gesamte Thread nicht per API zu sehen sind.
 
 <a name="rss"></a>

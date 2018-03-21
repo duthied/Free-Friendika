@@ -70,7 +70,8 @@ See Wikipedia for more of them ([video](http://en.wikipedia.org/wiki/HTML5_video
 <a name="avatars"></a>
 ### Is it possible to have different avatars per profile?
 
-Yes. On your Edit/Manage Profiles page, you will find a "change profile photo" link.
+Yes.
+On your Edit/Manage Profiles page, you will find a "change profile photo" link.
 Clicking this will take you to a page where you can upload a photograph and select which profile it will be associated with.
 To avoid privacy leakage, we only display the photograph associated with your default profile as the avatar in your posts.
 
