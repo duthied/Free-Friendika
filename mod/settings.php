@@ -388,18 +388,18 @@ function settings_post(App $a)
 		if (!x($newpass) || !x($confirm)) {
 			notice(L10n::t('Empty passwords are not allowed. Password unchanged.') . EOL);
 			$err = true;
-        }
+		}
 
 		if (!$a->getConfigValue('system', 'disable_password_exposed', false) && User::isPasswordExposed($newpass)) {
 			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
 			$err = true;
 		}
 
-        //  check if the old password was supplied correctly before changing it to the new value
-        if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
-            notice(L10n::t('Wrong password.') . EOL);
-            $err = true;
-        }
+		//  check if the old password was supplied correctly before changing it to the new value
+		if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
+			notice(L10n::t('Wrong password.') . EOL);
+			$err = true;
+		}
 
 		if (!$err) {
 			$result = User::updatePassword(local_user(), $newpass);
