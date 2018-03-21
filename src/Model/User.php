@@ -224,7 +224,7 @@ class User
 	 * @param string $password
 	 * @return bool
 	 */
-	public static function checkPasswordExposed($password)
+	public static function isPasswordExposed($password)
 	{
 		return password_exposed($password) === PasswordStatus::EXPOSED;
 	}

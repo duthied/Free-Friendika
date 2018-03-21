@@ -390,7 +390,7 @@ function settings_post(App $a)
 			$err = true;
         }
 
-		if (User::checkPasswordExposed($newpass)) {
+		if (User::isPasswordExposed($newpass)) {
 			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
 			$err = true;
 		}
