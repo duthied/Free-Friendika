@@ -10,7 +10,7 @@ Nutzer
 * **[Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?](help/FAQ#avatars)**
 * **[Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?](help/FAQ#contacts)**
 * **[Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?](help/FAQ#removed)**
-* **[Kann ich einem hashtag folgen?](help/FAQ#hashtag)**
+* **[Kann ich einem Hashtag folgen?](help/FAQ#hashtag)**
 * **[Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?](help/FAQ#rss)**
 * **[Gibt es Clients für Friendica?](help/FAQ#clients)**
 * **[Wo finde ich Hilfe?](help/FAQ#help)**
@@ -122,19 +122,10 @@ Dieses Vorgehen setzt voraus, dass Dein Profil für 24 Stunden weiterhin "teilwe
 Wir können also Dein Profil blockieren und es so erscheinen lassen, als wären alle Daten sofort gelöscht, allerdings warten wir 24 Stunden (bzw. bis alle Deine Kontakte informiert wurden), bevor wir die Daten auch physikalisch löschen.
 
 <a name="hashtag"></a>
-### Kann ich einem hashtag folgen?
+### Kann ich einem Hashtag folgen?
 
-Nein. 
-Die Möglichkeit, einem hashtag zu folgen, ist eine interessante Technik, führt aber zu einigen Schwierigkeiten. 
-
-1.) Alle Beiträge, die diesen tag nutzen, müssten zu allen Seiten im Netzwerk kopiert werden. Das erhöht den Speicherbedarf und beeinträchtigt kleine Seiten. Die Nutzung von geteilten Hosting-Angeboten (Shared Hosting) wäre praktisch unmöglich. 
-
-2.) Die Verbreitung von Spam wäre vereinfacht (tag-Spam ist z.B. bei Twitter ein schwerwiegendes Problem)
-
-3.) Der wichtigste Grund der gegen diese Technik spricht ist, dass sie eine natürliche Ausrichtung auf größere Seiten mit mehr getaggten Inhalten zur Folge hat. Dies kann z.B. aufkommen, wenn Dein Netzwerk tags anstelle von anderen Kommunikationsmitteln wie Gruppen oder Foren nutzt. 
-
-Stattdessen bieten wir andere Mechanismen, um globale Unterhaltungen zu erreichen, dabei aber eine angemesse Basis für kleine und große Seiten zu bieten. 
-Hierzu gehören Foren, Gruppen und geteilte tags. 
+Ja. Füge die Tags zu Deinen gespeicherten Suchen hinzu, sie werden automatisch auf der Netzwerk-Seite auftauchen.
+Bitte beachte, dass Deine Antworten auf solche Posts aus technischen Gründen nicht unter dem "Persönlich"-Reiter auf der Netzwerk-Seite und der gesamte Thread nicht per API zu sehen sind.
 
 <a name="rss"></a>
 ### Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?

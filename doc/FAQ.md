@@ -111,15 +111,9 @@ After that, your account is deleted.
 <a name="hashtag"></a>
 ### Can I follow a hashtag?
 
-No. The act of 'following' a hashtags is an interesting technology, but presents a few issues.
-
-1. Posts would have to be copied to all sites on the network that are "listening" to that hashtag. This would increase the storage demands to the detriment of small sites. It would make the use of shared hosting practically impossible.
-
-2. Making spam easy (tag spam is a serious issue on Twitter for instance)
-
-3. It creates a natural bias towards large sites which hold more tagged content - if your network uses tagging instead of other conversation federation mechanisms such as groups/forums.
-
-Instead, we offer other mechanisms for wide-area conversations while retaining a 'level playing ground' for both large and small sites, such as forums and community pages and shared tags.
+Yes. Simply add the hash tag to your saved searches.
+The posts will appear on your network page.
+For technical reasons, your answers to such posts won't appear on the "personal" tab in the network page and the whole thread isn't accessible via the API.
 
 <a name="rss"></a>
 ### How to create a RSS feed of the stream?
