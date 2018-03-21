@@ -241,8 +241,8 @@ function event_store($arr) {
 
 	$a = get_app();
 
-	$arr['created'] = (($arr['created'])     ? $arr['created']         : DateTimeFormat::utcNow());
-	$arr['edited']  = (($arr['edited'])      ? $arr['edited']          : DateTimeFormat::utcNow());
+	$arr['created'] = (($arr['created'])     ? DateTimeFormat::utc($arr['created']) : DateTimeFormat::utcNow());
+	$arr['edited']  = (($arr['edited'])      ? DateTimeFormat::utc($arr['edited'])  : DateTimeFormat::utcNow());
 	$arr['type']    = (($arr['type'])        ? $arr['type']            : 'event' );
 	$arr['cid']     = ((intval($arr['cid'])) ? intval($arr['cid'])     : 0);
 	$arr['uri']     = (x($arr, 'uri')        ? $arr['uri']             : item_new_uri($a->get_hostname(), $arr['uid']));
