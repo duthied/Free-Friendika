@@ -390,6 +390,11 @@ function settings_post(App $a)
 			$err = true;
         }
 
+		if (User::checkPasswordExposed($newpass)) {
+			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
+			$err = true;
+		}
+
         //  check if the old password was supplied correctly before changing it to the new value
         if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
             notice(L10n::t('Wrong password.') . EOL);
