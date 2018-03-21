@@ -390,7 +390,7 @@ function settings_post(App $a)
 			$err = true;
 		}
 
-		if (!$a->getConfigValue('system', 'disable_password_exposed', false) && User::isPasswordExposed($newpass)) {
+		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($newpass)) {
 			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
 			$err = true;
 		}
