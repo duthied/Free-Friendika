@@ -1605,8 +1605,8 @@ class BBCode
 		if (strpos($text, '[/map]') !== false) {
 			$text = preg_replace_callback(
 				"/\[map\](.*?)\[\/map\]/ism",
-				function ($match) {
-					return str_replace($match[0], '<p class="map">' . Map::byLocation($match[1]) . '</p>', $match[0]);
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byLocation($match[1], $simple_html) . '</p>', $match[0]);
 				},
 				$text
 			);
@@ -1614,14 +1614,14 @@ class BBCode
 		if (strpos($text, '[map=') !== false) {
 			$text = preg_replace_callback(
 				"/\[map=(.*?)\]/ism",
-				function ($match) {
-					return str_replace($match[0], '<p class="map">' . Map::byCoordinates(str_replace('/', ' ', $match[1])) . '</p>', $match[0]);
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byCoordinates(str_replace('/', ' ', $match[1]), $simple_html) . '</p>', $match[0]);
 				},
 				$text
 			);
 		}
 		if (strpos($text, '[map]') !== false) {
-			$text = preg_replace("/\[map\]/", '<div class="map"></div>', $text);
+			$text = preg_replace("/\[map\]/", '<p class="map"></p>', $text);
 		}
 
 		// Check for headers
