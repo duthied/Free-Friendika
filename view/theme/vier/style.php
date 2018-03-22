@@ -18,7 +18,7 @@ if (empty($style)) {
 	$style = "plus";
 }
 
-$stylecss='';
+$stylecss = '';
 $modified = '';
 
 foreach (['style', $style] as $file) {
