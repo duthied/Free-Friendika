@@ -356,6 +356,10 @@ class Item extends BaseObject
 			}
 		}
 
+		if (!empty($item['thr-parent'])) {
+			$item['parent-uri'] = $item['thr-parent'];
+		}
+
 		if (x($item, 'gravity')) {
 			$item['gravity'] = intval($item['gravity']);
 		} elseif ($item['parent-uri'] === $item['uri']) {
