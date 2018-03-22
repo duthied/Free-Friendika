@@ -3,7 +3,7 @@ Version 3.6 (2018-03-xx)
     Updates to the translations (DE, EN_GB, EN_US, ES, FR, IT, ZH_CN) [translation teams]
     Updates for the Danish and French regions [Alkarex]
     Update for the documentation [andyhee, annando, rabuzarus, ratten, rudlof, silke, tobiasd]
-    Updates to the themes [annando, fabrixxm, hoergen, rebeka-catalina, rabuzarus]
+    Updates to the themes [Andi-K, annando, fabrixxm, hoergen, rebeka-catalina, rabuzarus]
     Enhancements to the ARIA support in frio [rabuzarus]
     Enhancements to the DB handling and structure [annando]
     Enhancements to the API [annando, fabrixxm, MrPetovan, rudlof]
@@ -26,7 +26,7 @@ Version 3.6 (2018-03-xx)
     Enhancements to the menu layout in the admin panel [tobiasd]
     Enhancements to the extraction of strings to be translated [fabrixxm, MrPetovan]
     Enhancements to the installation wizard [annando, tobias]
-    Enhancements to the events [hoergen, MrPetovan, rabuzarus]
+    Enhancements to the events [annando, hoergen, MrPetovan, rabuzarus]
     Enhancements to the handling of email contacts [annando]
     Enhancements to the Vagrant configuration of the development VM [tobias]
     Enhancements to the probing of pump.io profiles [annando]
@@ -121,7 +121,7 @@ Version 3.6 (2018-03-xx)
     4279, 4281, 4290, 4294, 4295, 4296, 4304, 4306, 4319, 4348, 4362,
     4368, 4377, 4390, 4395, 4396, 4409, 4412, 4426, 4431, 4445, 4450,
     4452, 4458, 4463, 4481, 4482, 4495, 4497, 4498, 4508, 4518, 4520,
-    4522, 4535, 4543, 4550, 4555, 4556, 4571, 4575, 4611, 4620
+    4522, 4535, 4543, 4550, 4555, 4556, 4571, 4575, 4610, 4611, 4620
 
 Version 3.5.4 (2017-10-16)
   Friendica Core:
