@@ -41,6 +41,8 @@ php.ini file [or see 'poormancron' in section 8]
 
 		- some form of email server or email gateway such that PHP mail() works
 
+		- The POSIX module of PHP needs to be activated (e.g. RHEL, CentOS have disabled it)
+
 	- Mysql 5.5.3+ or an equivalant alternative for MySQL (MariaDB, Percona Server etc.)
 
 	- ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks

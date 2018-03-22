@@ -45,6 +45,14 @@ function contacts_init(App $a)
 	}
 
 	if (DBM::is_result($contact)) {
+		if ($contact['self']) {
+			if (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts")) {
+				goaway('profile/' . $contact['nick']);
+			} else {
+				goaway('profile/' . $contact['nick'] . '?tab=profile');
+			}
+		}
+
 		$a->data['contact'] = $contact;
 
 		if (($a->data['contact']['network'] != "") && ($a->data['contact']['network'] != NETWORK_DFRN)) {
@@ -936,6 +944,13 @@ function _contact_detail_for_template($rr)
 		$url = "redir/{$rr['id']}";
 		$sparkle = ' class="sparkle" ';
 	} else {
+		$url = $rr['url'];
+		$sparkle = '';
+	}
+
+	if ($rr['self']) {
+		$dir_icon = 'images/larrow.gif';
+		$alt_text = L10n::t('This is you');
 		$url = $rr['url'];
 		$sparkle = '';
 	}

@@ -101,6 +101,7 @@ class dba {
 			if (!$install) {
 				System::unavailable();
 			}
+			return false;
 		}
 		$a->save_timestamp($stamp1, "network");
 

@@ -29,6 +29,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use Friendica\Util\Map;
 use dba;
 use SimpleXMLElement;
 
@@ -3217,13 +3218,14 @@ class Diaspora
 		}
 
 		$logid = random_string(4);
-		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
-		// Fetch the fcontact entry when there is missing data
-		// Will possibly happen when data is transmitted to a DFRN contact
-		if (empty($dest_url) && !empty($contact['addr'])) {
+		// We always try to use the data from the fcontact table.
+		// This is important for transmitting data to Friendica servers.
+		if (!empty($contact['addr'])) {
 			$fcontact = self::personByHandle($contact['addr']);
 			$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
+		} else {
+			$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 		}
 
 		if (!$dest_url) {
@@ -3617,10 +3619,18 @@ class Diaspora
 			$eventdata['description'] = html_entity_decode(bb2diaspora($event['desc']));
 		}
 		if ($event['location']) {
+			$event['location'] = preg_replace("/\[map\](.*?)\[\/map\]/ism", '$1', $event['location']);
+			$coord = Map::getCoordinates($event['location']);
+
 			$location = [];
 			$location["address"] = html_entity_decode(bb2diaspora($event['location']));
-			$location["lat"] = 0;
-			$location["lng"] = 0;
+			if (!empty($coord['lat']) && !empty($coord['lon'])) {
+				$location["lat"] = $coord['lat'];
+				$location["lng"] = $coord['lon'];
+			} else {
+				$location["lat"] = 0;
+				$location["lng"] = 0;
+			}
 			$eventdata['location'] = $location;
 		}
 
@@ -3714,7 +3724,13 @@ class Diaspora
 				if (count($event)) {
 					$message['event'] = $event;
 
-					/// @todo Once Diaspora supports it, we will remove the body
+					if (!empty($event['location']['address']) &&
+						!empty($event['location']['lat']) &&
+						!empty($event['location']['lng'])) {
+						$message['location'] = $event['location'];
+					}
+
+					/// @todo Once Diaspora supports it, we will remove the body and the location hack above
 					// $message['text'] = '';
 				}
 			}
