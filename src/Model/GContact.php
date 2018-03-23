@@ -36,56 +36,53 @@ class GContact
 	 */
 	public static function searchByName($search, $mode = '')
 	{
-		if ($search) {
-			// check supported networks
-			if (Config::get('system', 'diaspora_enabled')) {
-				$diaspora = NETWORK_DIASPORA;
-			} else {
-				$diaspora = NETWORK_DFRN;
-			}
-
-			if (!Config::get('system', 'ostatus_disabled')) {
-				$ostatus = NETWORK_OSTATUS;
-			} else {
-				$ostatus = NETWORK_DFRN;
-			}
-
-			// check if we search only communities or every contact
-			if ($mode === "community") {
-				$extra_sql = " AND `community`";
-			} else {
-				$extra_sql = "";
-			}
-
-			$search .= "%";
-
-			$results = q(
-				"SELECT `contact`.`id` AS `cid`, `gcontact`.`url`, `gcontact`.`name`, `gcontact`.`nick`, `gcontact`.`photo`,
-						`gcontact`.`network`, `gcontact`.`keywords`, `gcontact`.`addr`, `gcontact`.`community`
-				FROM `gcontact`
-				LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl`
-					AND `contact`.`uid` = %d AND NOT `contact`.`blocked`
-					AND NOT `contact`.`pending` AND `contact`.`rel` IN ('%s', '%s')
-				WHERE (`contact`.`id` > 0 OR (NOT `gcontact`.`hide` AND `gcontact`.`network` IN ('%s', '%s', '%s') AND
-				((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR
-				(`gcontact`.`updated` >= `gcontact`.`last_failure`)))) AND
-				(`gcontact`.`addr` LIKE '%s' OR `gcontact`.`name` LIKE '%s' OR `gcontact`.`nick` LIKE '%s') $extra_sql
-					GROUP BY `gcontact`.`nurl`
-					ORDER BY `gcontact`.`nurl` DESC
-					LIMIT 1000",
-				intval(local_user()),
-				dbesc(CONTACT_IS_SHARING),
-				dbesc(CONTACT_IS_FRIEND),
-				dbesc(NETWORK_DFRN),
-				dbesc($ostatus),
-				dbesc($diaspora),
-				dbesc(escape_tags($search)),
-				dbesc(escape_tags($search)),
-				dbesc(escape_tags($search))
-			);
-
-			return $results;
+		if (empty($search)) {
+			return [];
 		}
+
+		// check supported networks
+		if (Config::get('system', 'diaspora_enabled')) {
+			$diaspora = NETWORK_DIASPORA;
+		} else {
+			$diaspora = NETWORK_DFRN;
+		}
+
+		if (!Config::get('system', 'ostatus_disabled')) {
+			$ostatus = NETWORK_OSTATUS;
+		} else {
+			$ostatus = NETWORK_DFRN;
+		}
+
+		// check if we search only communities or every contact
+		if ($mode === "community") {
+			$extra_sql = " AND `community`";
+		} else {
+			$extra_sql = "";
+		}
+
+		$search .= "%";
+
+		$results = dba::p("SELECT `nurl` FROM `gcontact`
+			WHERE NOT `hide` AND `network` IN (?, ?, ?) AND
+				((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
+				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
+				GROUP BY `nurl` ORDER BY `nurl` DESC LIMIT 1000",
+			NETWORK_DFRN, $ostatus, $diaspora, $search, $search, $search
+		);
+
+		$gcontacts = [];
+		while ($result = dba::fetch($results)) {
+			$urlparts = parse_url($result["nurl"]);
+
+			// Ignore results that look strange.
+			// For historic reasons the gcontact table does contain some garbage.
+			if (!empty($urlparts['query']) || !empty($urlparts['fragment'])) {
+				continue;
+			}
+
+			$gcontacts[] = Contact::getDetailsByURL($result["nurl"], local_user());
+		}
+		return $gcontacts;
 	}
 
 	/**

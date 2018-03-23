@@ -945,6 +945,15 @@ class PortableContact
 			$register_policy = $gserver["register_policy"];
 			$registered_users = $gserver["registered-users"];
 
+			// See discussion under https://forum.friendi.ca/display/0b6b25a8135aabc37a5a0f5684081633
+			// It can happen that a zero date is in the database, but storing it again is forbidden.
+			if ($last_contact < NULL_DATE) {
+				$last_contact = NULL_DATE;
+			}
+			if ($last_failure < NULL_DATE) {
+				$last_failure = NULL_DATE;
+			}
+
 			if (!$force && !self::updateNeeded($gserver["created"], "", $last_failure, $last_contact)) {
 				logger("Use cached data for server ".$server_url, LOGGER_DEBUG);
 				return ($last_contact >= $last_failure);
@@ -1302,7 +1311,7 @@ class PortableContact
 				if (isset($data->version)) {
 					$network = NETWORK_DFRN;
 
-					$noscrape = $data->no_scrape_url;
+					$noscrape = defaults($data->no_scrape_url, '');
 					$version = $data->version;
 					$site_name = $data->site_name;
 					$info = $data->info;

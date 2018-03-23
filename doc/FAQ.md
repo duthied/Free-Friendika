@@ -70,7 +70,8 @@ See Wikipedia for more of them ([video](http://en.wikipedia.org/wiki/HTML5_video
 <a name="avatars"></a>
 ### Is it possible to have different avatars per profile?
 
-Yes. On your Edit/Manage Profiles page, you will find a "change profile photo" link.
+Yes.
+On your Edit/Manage Profiles page, you will find a "change profile photo" link.
 Clicking this will take you to a page where you can upload a photograph and select which profile it will be associated with.
 To avoid privacy leakage, we only display the photograph associated with your default profile as the avatar in your posts.
 
@@ -111,15 +112,9 @@ After that, your account is deleted.
 <a name="hashtag"></a>
 ### Can I follow a hashtag?
 
-No. The act of 'following' a hashtags is an interesting technology, but presents a few issues.
-
-1. Posts would have to be copied to all sites on the network that are "listening" to that hashtag. This would increase the storage demands to the detriment of small sites. It would make the use of shared hosting practically impossible.
-
-2. Making spam easy (tag spam is a serious issue on Twitter for instance)
-
-3. It creates a natural bias towards large sites which hold more tagged content - if your network uses tagging instead of other conversation federation mechanisms such as groups/forums.
-
-Instead, we offer other mechanisms for wide-area conversations while retaining a 'level playing ground' for both large and small sites, such as forums and community pages and shared tags.
+Yes. Simply add the hash tag to your saved searches.
+The posts will appear on your network page.
+For technical reasons, your answers to such posts won't appear on the "personal" tab in the network page and the whole thread isn't accessible via the API.
 
 <a name="rss"></a>
 ### How to create a RSS feed of the stream?
@@ -171,10 +166,15 @@ Depending on the features of the client you might encounter some glitches in usa
 ### Where I can find help?
 
 If you have problems with your Friendica page, you can ask the community at the [Friendica Support Group](https://forum.friendi.ca/profile/helpers).
-If you can't use your default profile you can use an account at a public site [list](https://dir.friendica.social/servers) or you can use the Librelist mailing list.
-If you want to use the mailing list, please just send a mail to friendica AT librelist DOT com.
+If you can't use your default profile you can use an account at a public site [list](https://dir.friendica.social/servers).
 
-If you are a theme developer, you will find help at this forum: [Friendica Theme Developers](https://friendica.eu/profile/ftdevs).
+In case you do not want to set up another account on Friendica, you can also use one of the following channels to reach out for help:
+
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
+  * XMPP/Jabber MUC: support(at)forum.friendi.ca
+  * IRC: #friendica at irc.freenode.net
+  * Matrix: #friendi.ca or #friendica at matrix.org
 
 Admin
 --------

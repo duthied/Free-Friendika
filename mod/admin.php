@@ -1568,7 +1568,7 @@ function admin_page_users(App $a)
 	if ($a->argc > 2) {
 		$uid = $a->argv[3];
 		$user = dba::selectFirst('user', ['username', 'blocked'], ['uid' => $uid]);
-		if (DBM::is_result($user)) {
+		if (!DBM::is_result($user)) {
 			notice('User not found' . EOL);
 			goaway('admin/users');
 			return ''; // NOTREACHED

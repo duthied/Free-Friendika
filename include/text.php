@@ -1062,7 +1062,7 @@ function linkify($s) {
  * Load poke verbs
  *
  * @return array index is present tense verb
-				 value is array containing past tense verb, translation of present, translation of past
+ * 				 value is array containing past tense verb, translation of present, translation of past
  * @hook poke_verbs pokes array
  */
 function get_poke_verbs() {
@@ -1169,8 +1169,25 @@ function redir_private_images($a, &$item)
 	}
 }
 
+/**
+ * Sets the "rendered-html" field of the provided item
+ *
+ * Body is preserved to avoid side-effects as we modify it just-in-time for spoilers and private image links
+ *
+ * @param array $item
+ * @param bool  $update
+ *
+ * @todo Remove reference, simply return "rendered-html" and "rendered-hash"
+ */
 function put_item_in_cache(&$item, $update = false)
 {
+	$body = $item["body"];
+
+	// Add the content warning
+	if (!empty($item['content-warning'])) {
+		$item["body"] = $item['content-warning'] . '[spoiler]' . $item["body"] . '[/spoiler]';
+	}
+
 	$rendered_hash = defaults($item, 'rendered-hash', '');
 
 	if ($rendered_hash == ''
@@ -1178,22 +1195,19 @@ function put_item_in_cache(&$item, $update = false)
 		|| $rendered_hash != hash("md5", $item["body"])
 		|| Config::get("system", "ignore_cache")
 	) {
-		// The function "redir_private_images" changes the body.
-		// I'm not sure if we should store it permanently, so we save the old value.
-		$body = $item["body"];
-
 		$a = get_app();
 		redir_private_images($a, $item);
 
 		$item["rendered-html"] = prepare_text($item["body"]);
 		$item["rendered-hash"] = hash("md5", $item["body"]);
-		$item["body"] = $body;
 
 		if ($update && ($item["id"] > 0)) {
 			dba::update('item', ['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
 					['id' => $item["id"]], false);
 		}
 	}
+
+	$item["body"] = $body;
 }
 
 /**
@@ -1281,62 +1295,55 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 
 	$as = '';
 	$vhead = false;
-	$arr = explode('[/attach],', $item['attach']);
-	if (count($arr)) {
-		foreach ($arr as $r) {
-			$matches = false;
-			$icon = '';
-			$cnt = preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r ,$matches, PREG_SET_ORDER);
-			if ($cnt) {
-				foreach ($matches as $mtch) {
-					$mime = $mtch[3];
+	$matches = [];
+	preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\"(?: title=\"(.*?)\")?|', $item['attach'], $matches, PREG_SET_ORDER);
+	foreach ($matches as $mtch) {
+		$mime = $mtch[3];
 
-					if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
-						$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
-					} else {
-						$the_url = $mtch[1];
-					}
-
-					if (strpos($mime, 'video') !== false) {
-						if (!$vhead) {
-							$vhead = true;
-							$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
-								'$baseurl' => System::baseUrl(),
-							]);
-							$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), [
-								'$baseurl' => System::baseUrl(),
-							]);
-						}
-
-						$id = end(explode('/', $the_url));
-						$as .= replace_macros(get_markup_template('video_top.tpl'), [
-							'$video' => [
-								'id'     => $id,
-								'title'  => L10n::t('View Video'),
-								'src'    => $the_url,
-								'mime'   => $mime,
-							],
-						]);
-					}
-
-					$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
-					if ($filetype) {
-						$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
-						$filesubtype = str_replace('.', '-', $filesubtype);
-					} else {
-						$filetype = 'unkn';
-						$filesubtype = 'unkn';
-					}
-
-					$title = ((strlen(trim($mtch[4]))) ? escape_tags(trim($mtch[4])) : escape_tags($mtch[1]));
-					$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
-
-					$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-					$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
-				}
-			}
+		if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
+			$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
+		} else {
+			$the_url = $mtch[1];
 		}
+
+		if (strpos($mime, 'video') !== false) {
+			if (!$vhead) {
+				$vhead = true;
+				$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
+					'$baseurl' => System::baseUrl(),
+				]);
+				$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), [
+					'$baseurl' => System::baseUrl(),
+				]);
+			}
+
+			$id = end(explode('/', $the_url));
+			$as .= replace_macros(get_markup_template('video_top.tpl'), [
+				'$video' => [
+					'id'     => $id,
+					'title'  => L10n::t('View Video'),
+					'src'    => $the_url,
+					'mime'   => $mime,
+				],
+			]);
+		}
+
+		$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
+		if ($filetype) {
+			$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
+			$filesubtype = str_replace('.', '-', $filesubtype);
+		} else {
+			$filetype = 'unkn';
+			$filesubtype = 'unkn';
+		}
+
+		$title = escape_tags(trim(!empty($mtch[4]) ? $mtch[4] : $mtch[1]));
+		$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
+
+		$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
+		$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
 	}
+
 	if ($as != '') {
 		$s .= '<div class="body-attach">'.$as.'<div class="clear"></div></div>';
 	}

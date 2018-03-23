@@ -217,7 +217,7 @@ class Network
 
 			$newurl = $curl_info['redirect_url'];
 
-			if (($new_location_info['path'] == '') && ( $new_location_info['host'] != '')) {
+			if (($new_location_info['path'] == '') && ($new_location_info['host'] != '')) {
 				$newurl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
 			}
 
@@ -228,6 +228,11 @@ class Network
 			}
 			if (strpos($newurl, '/') === 0) {
 				$newurl = $old_location_info["scheme"]."://".$old_location_info["host"].$newurl;
+			}
+			$old_location_query = @parse_url($url, PHP_URL_QUERY);
+
+			if ($old_location_query != '') {
+				$newurl .= '?' . $old_location_query;
 			}
 
 			if (filter_var($newurl, FILTER_VALIDATE_URL)) {

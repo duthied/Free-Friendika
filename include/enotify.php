@@ -16,10 +16,10 @@ use Friendica\Util\Emailer;
  * @brief Creates a notification entry and possibly sends a mail
  *
  * @param array $params Array with the elements:
-			uid, item, parent, type, otype, verb, event,
-			link, subject, body, to_name, to_email, source_name,
-			source_link, activity, preamble, notify_flags,
-			language, show_in_notification_page
+ *			uid, item, parent, type, otype, verb, event,
+ *			link, subject, body, to_name, to_email, source_name,
+ *			source_link, activity, preamble, notify_flags,
+ *			language, show_in_notification_page
  */
 function notification($params)
 {
@@ -368,7 +368,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 				);
 
-				$body = L10n::t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s ' . "\x28" . '%4$s' . "\x28",
+				$body = L10n::t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s ' . "\x28" . '%4$s' . "\x29",
 					$params['source_name'],
 					$siteurl, $params['source_mail'],
 					$params['source_nick']

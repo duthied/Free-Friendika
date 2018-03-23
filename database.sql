@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 3.6-dev (Asparagus)
+-- Friendica 2018-05-dev (Tazmans Flax-lilly)
 -- DB_UPDATE_VERSION 1256
 -- ------------------------------------------
 
@@ -466,6 +466,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`author-link` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`author-avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT '',
 	`app` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT '',

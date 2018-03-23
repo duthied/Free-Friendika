@@ -37,9 +37,11 @@ local .htaccess file
 		- PHP *command line* access with register_argc_argv set to true in the
 php.ini file [or see 'poormancron' in section 8]
 
-		- curl, gd (with at least jpeg support), mysql, mbstring, xml and openssl extensions
+		- curl, gd (with at least jpeg support), mysql, mbstring, xml, zip and openssl extensions
 
 		- some form of email server or email gateway such that PHP mail() works
+
+		- The POSIX module of PHP needs to be activated (e.g. RHEL, CentOS have disabled it)
 
 	- Mysql 5.5.3+ or an equivalant alternative for MySQL (MariaDB, Percona Server etc.)
 
@@ -129,24 +131,16 @@ assistance. Friendica will not work correctly if you cannot perform this step.
 You should also be sure that $a->config['php_path'] is set correctly, it should
 look like (changing it to the correct PHP location)
 
-$a->config['php_path'] = '/usr/local/php53/bin/php'
-  
-Alternative: You may be able to use the 'poormancron' addon to perform this
-step if you are using a recent Friendica release. 'poormancron' may result in
-perfomance and memory issues and is only suitable for small sites with one or
-two users and a handful of contacts. To do this, edit the file 
-".htconfig.php" and look for a line describing your addons. On a fresh 
-installation, it will look like
+$a->config['php_path'] = '/usr/local/php56/bin/php'
 
-$a->config['system']['addon'] = 'js_upload';
+Alternative: If you cannot use a cron job as described above, you can use
+the frontend worker and an external cron service to trigger the execution
+of the worker script. You can enable the frontend worker after the installation
+from the admin panel of your node and call
 
-This indicates the "js_upload" addon module is enabled. You may add additional 
-addons using this same line in the configuration file. Change it to 
-read
+		 https://example.com/worker
 
-$a->config['system']['addon'] = 'js_upload,poormancron';
-
-and save your changes.
+with the service of your choice.
 
 9. (Recommended) Set up a backup plan
 

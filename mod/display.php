@@ -212,7 +212,11 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
 		$item = dba::selectFirst('item', ['uid', 'parent'], ['id' => $item_id]);
-		$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
+		if ($item['uid'] != 0) {
+			$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
+		} else {
+			$a->profile = ['uid' => intval($update_uid), 'profile_uid' => intval($update_uid)];
+		}
 		$item_parent = $item['parent'];
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);

@@ -38,9 +38,9 @@ function format_event_html($ev, $simple = false) {
 	);
 
 	if ($simple) {
-		$o = "<h3>" . BBCode::convert($ev['summary']) . "</h3>";
+		$o = "<h3>" . BBCode::convert($ev['summary'], false, $simple) . "</h3>";
 
-		$o .= "<div>" . BBCode::convert($ev['desc']) . "</div>";
+		$o .= "<p>" . BBCode::convert($ev['desc'], false, $simple) . "</p>";
 
 		$o .= "<h4>" . L10n::t('Starts:') . "</h4><p>" . $event_start . "</p>";
 
@@ -49,7 +49,7 @@ function format_event_html($ev, $simple = false) {
 		}
 
 		if (strlen($ev['location'])) {
-			$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . $ev['location'] . "</p>";
+			$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . BBCode::convert($ev['location'], false, $simple) . "</p>";
 		}
 
 		return $o;
@@ -57,7 +57,7 @@ function format_event_html($ev, $simple = false) {
 
 	$o = '<div class="vevent">' . "\r\n";
 
-	$o .= '<div class="summary event-summary">' . BBCode::convert($ev['summary']) . '</div>' . "\r\n";
+	$o .= '<div class="summary event-summary">' . BBCode::convert($ev['summary'], false, $simple) . '</div>' . "\r\n";
 
 	$o .= '<div class="event-start"><span class="event-label">' . L10n::t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. DateTimeFormat::utc($ev['start'], (($ev['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s' ))
@@ -71,16 +71,16 @@ function format_event_html($ev, $simple = false) {
 			. '</span></div>' . "\r\n";
 	}
 
-	$o .= '<div class="description event-description">' . BBCode::convert($ev['desc']) . '</div>' . "\r\n";
+	$o .= '<div class="description event-description">' . BBCode::convert($ev['desc'], false, $simple) . '</div>' . "\r\n";
 
 	if (strlen($ev['location'])) {
 		$o .= '<div class="event-location"><span class="event-label">' . L10n::t('Location:') . '</span>&nbsp;<span class="location">'
-			. BBCode::convert($ev['location'])
+			. BBCode::convert($ev['location'], false, $simple)
 			. '</span></div>' . "\r\n";
 
 		// Include a map of the location if the [map] BBCode is used.
 		if (strpos($ev['location'], "[map") !== false) {
-			$map = Map::byLocation($ev['location']);
+			$map = Map::byLocation($ev['location'], $simple);
 			if ($map !== $ev['location']) {
 				$o.= $map;
 			}
@@ -241,13 +241,19 @@ function event_store($arr) {
 
 	$a = get_app();
 
-	$arr['created'] = (($arr['created'])     ? $arr['created']         : DateTimeFormat::utcNow());
-	$arr['edited']  = (($arr['edited'])      ? $arr['edited']          : DateTimeFormat::utcNow());
+	$arr['created'] = (($arr['created'])     ? DateTimeFormat::utc($arr['created']) : DateTimeFormat::utcNow());
+	$arr['edited']  = (($arr['edited'])      ? DateTimeFormat::utc($arr['edited'])  : DateTimeFormat::utcNow());
+	$arr['start']   = (($arr['start'])       ? DateTimeFormat::utc($arr['start'])   : NULL_DATE);
+	$arr['finish']  = (($arr['finish'])      ? DateTimeFormat::utc($arr['finish'])  : NULL_DATE);
 	$arr['type']    = (($arr['type'])        ? $arr['type']            : 'event' );
 	$arr['cid']     = ((intval($arr['cid'])) ? intval($arr['cid'])     : 0);
 	$arr['uri']     = (x($arr, 'uri')        ? $arr['uri']             : item_new_uri($a->get_hostname(), $arr['uid']));
 	$arr['private'] = ((x($arr, 'private'))  ? intval($arr['private']) : 0);
 	$arr['guid']    = get_guid(32);
+
+	if ($arr['finish'] < NULL_DATE) {
+		$arr['finish'] = NULL_DATE;
+	}
 
 	if ($arr['cid']) {
 		$c = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",

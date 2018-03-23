@@ -228,7 +228,7 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
  *
  * @TODO find proper type-hints
  */
-function consume_feed($xml, $importer, &$contact, &$hub, $datedir = 0, $pass = 0) {
+function consume_feed($xml, $importer, $contact, &$hub, $datedir = 0, $pass = 0) {
 	if ($contact['network'] === NETWORK_OSTATUS) {
 		if ($pass < 2) {
 			// Test - remove before flight
@@ -290,7 +290,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 		return;
 	}
 
-	$push_url = Config::get('system','url') . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
+	$push_url = System::baseUrl() . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
 
 	// Use a single verify token, even if multiple hubs
 	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : random_string());

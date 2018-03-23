@@ -201,7 +201,7 @@ class Worker
 		$mypid = getmypid();
 
 		// Quit when in maintenance
-		if (Config::get('system', 'maintenance', true)) {
+		if (Config::get('system', 'maintenance', false, true)) {
 			logger("Maintenance mode - quit process ".$mypid, LOGGER_DEBUG);
 			return false;
 		}
