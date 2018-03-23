@@ -89,7 +89,7 @@ php bin/composer.phar install
 cp /vagrant/util/htconfig.vagrant.php /vagrant/.htconfig.php
 
 # create the friendica database
-echo "create database friendica DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci" | mysql -u root -proot
+echo "create database friendica DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci" | $MYSQL -u root -proot
 # import test database
 $MYSQL -uroot -proot friendica < /vagrant/friendica_test_data.sql
 
