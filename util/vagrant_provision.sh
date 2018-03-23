@@ -1,7 +1,7 @@
 #!/bin/bash
 #Script to setup the vagrant instance for running friendica
 #
-#DO NOT RUN on your physical machine as this won't be of any use 
+#DO NOT RUN on your physical machine as this won't be of any use
 #and f.e. deletes your /var/www/ folder!
 echo "Friendica configuration settings"
 sudo apt-get update
@@ -13,6 +13,7 @@ sudo apt-get install virtualbox-guest-x11
 echo ">>> Installing *.xip.io self-signed SSL"
 SSL_DIR="/etc/ssl/xip.io"
 DOMAIN="*.xip.io"
+EXTRADOMAIN="friendica.local"
 PASSPHRASE="vaprobash"
 SUBJ="
 C=US
@@ -20,6 +21,7 @@ ST=Connecticut
 O=Vaprobash
 localityName=New Haven
 commonName=$DOMAIN
+subjectAltName=DNS:$EXTRADOMAIN
 organizationalUnitName=
 emailAddress=
 "
@@ -35,7 +37,7 @@ sudo apt-get install -y apache2
 sudo a2enmod rewrite actions ssl
 sudo cp /vagrant/util/vagrant_vhost.sh /usr/local/bin/vhost
 sudo chmod guo+x /usr/local/bin/vhost
-    sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica-xenial.dev
+    sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
     sudo a2dissite 000-default
     sudo service apache2 restart
 
@@ -43,7 +45,6 @@ sudo chmod guo+x /usr/local/bin/vhost
 echo ">>> Installing PHP7"
 sudo apt-get install -y php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring php-xml imagemagick php-imagick
 sudo systemctl restart apache2
-
 
 #Install mysql
 echo ">>> Installing Mysql"
@@ -69,8 +70,8 @@ systemctl restart mysql
 
 
 #configure rudimentary mail server (local delivery only)
-#add Friendica accounts for local user accounts, use email address like vagrant@friendica.dev, read the email with 'mail'.
-debconf-set-selections <<< "postfix postfix/mailname string friendica-xenial.dev"
+#add Friendica accounts for local user accounts, use email address like vagrant@friendica.local, read the email with 'mail'.
+debconf-set-selections <<< "postfix postfix/mailname string friendica.local"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'"
 sudo apt-get install -y postfix mailutils libmailutils-dev
 sudo echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfriendica4:	vagrant\nfriendica5:	vagrant" >> /etc/aliases && sudo newaliases
@@ -78,6 +79,11 @@ sudo echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfri
 #make the vagrant directory the docroot
 sudo rm -rf /var/www/
 sudo ln -fs /vagrant /var/www
+
+# install deps with composer
+sudo apt install unzip
+cd /var/www
+php bin/composer.phar install
 
 # initial config file for friendica in vagrant
 cp /vagrant/util/htconfig.vagrant.php /vagrant/.htconfig.php
@@ -94,4 +100,3 @@ sudo rm friendicacron
 
 # friendica needs write access to /tmp
 sudo chmod 777 /tmp
-
