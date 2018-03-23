@@ -49,6 +49,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **ignore_cache** (Boolean) - For development only. Disables the item cache.
 * **instances_social_key** - Key to the API of https://instances.social which retrieves data about mastodon servers. See https://instances.social/api/token to get an API key.
 * **ipv4_resolve** (Boolean) - Resolve IPV4 addresses only. Don't resolve to IPV6. Default value is false.
+* **invitation_only** (Boolean) -  If set true registration is only possible after a current member of the node has send an invitation. Default is false.
 * **like_no_comment** (Boolean) - Don't update the "commented" value of an item when it is liked.
 * **local_block** (Boolean) - Used in conjunction with "block_public".
 * **local_search** (Boolean) - Blocks search for users who are not logged in to prevent crawlers from blocking your system.

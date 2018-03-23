@@ -9,6 +9,7 @@ use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
+use Friendica\Database\DBM;
 
 function follow_post(App $a) {
 
@@ -60,19 +61,20 @@ function follow_content(App $a) {
 
 	$submit = L10n::t('Submit Request');
 
-	// There is a current issue. It seems as if you can't start following a Friendica that is following you
-	// With Diaspora this works - but Friendica is special, it seems ...
-	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
+	// Don't try to add a pending contact
+	$r = q("SELECT `pending` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
 		(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
 		`network` != '%s' LIMIT 1",
 		intval(local_user()), dbesc(CONTACT_IS_FOLLOWER), dbesc(NETWORK_DFRN), dbesc(normalise_link($url)),
 		dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
 
 	if ($r) {
-		notice(L10n::t('You already added this contact.').EOL);
-		$submit = "";
-		//goaway($_SESSION['return_url']);
-		// NOTREACHED
+		if ($r[0]['pending']) {
+			notice(L10n::t('You already added this contact.').EOL);
+			$submit = "";
+			//goaway($_SESSION['return_url']);
+			// NOTREACHED
+		}
 	}
 
 	$ret = Probe::uri($url);
@@ -102,7 +104,7 @@ function follow_content(App $a) {
 		$ret["url"] = $ret["addr"];
 	}
 
-	if ($ret['network'] === NETWORK_DFRN) {
+	if (($ret['network'] === NETWORK_DFRN) && !DBM::is_result($r)) {
 		$request = $ret["request"];
 		$tpl = get_markup_template('dfrn_request.tpl');
 	} else {

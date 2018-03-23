@@ -199,12 +199,13 @@ class DBStructure
 	 *
 	 * @param bool  $verbose
 	 * @param bool  $action     Whether to actually apply the update
+	 * @param bool  $install    Is this the initial update during the installation?
 	 * @param array $tables     An array of the database tables
 	 * @param array $definition An array of the definition tables
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 */
-	public static function update($verbose, $action, array $tables = null, array $definition = null) {
-		if ($action) {
+	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null) {
+		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
 			Config::set('system', 'maintenance_reason', L10n::t(': Database update', DBM::date().' '.date('e')));
 		}
@@ -455,7 +456,9 @@ class DBStructure
 				}
 
 				if ($action) {
-					Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
+					if (!$install) {
+						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
+					}
 
 					// Ensure index conversion to unique removes duplicates
 					if ($is_unique && ($temp_name != $name)) {
@@ -505,15 +508,15 @@ class DBStructure
 			}
 		}
 
-		if ($action) {
+		if ($action && !$install) {
 			Config::set('system', 'maintenance', 0);
 			Config::set('system', 'maintenance_reason', '');
-		}
 
-		if ($errors) {
-			Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
-		} else {
-			Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+			if ($errors) {
+				Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
+			} else {
+				Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+			}
 		}
 
 		return $errors;
@@ -1143,6 +1146,7 @@ class DBStructure
 						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => ""],
 						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],

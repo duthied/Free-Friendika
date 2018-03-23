@@ -7,7 +7,7 @@
 namespace Friendica\Content\Text;
 
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 use Exception;
 use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
@@ -680,7 +680,7 @@ class BBCode extends BaseObject
 
 		$return = '';
 		if ($simplehtml == 7) {
-			$return = self::convertUrlForMastodon($data["url"]);
+			$return = self::convertUrlForOStatus($data["url"]);
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 		} else {
@@ -708,9 +708,10 @@ class BBCode extends BaseObject
 				}
 
 				if ($data["description"] != "" && $data["description"] != $data["title"]) {
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($data["description"])));
+					// Sanitize the HTML by converting it to BBCode
+					$bbcode = HTML::toBBCode($data["description"]);
+					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
 				}
-
 				if ($data["type"] == "link") {
 					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 				}
@@ -757,7 +758,7 @@ class BBCode extends BaseObject
 		if (($data["url"] != "") && ($data["title"] != "")) {
 			$text .= "\n[url=" . $data["url"] . "]" . $data["title"] . "[/url]";
 		} elseif (($data["url"] != "")) {
-			$text .= "\n" . $data["url"];
+			$text .= "\n[url]" . $data["url"] . "[/url]";
 		}
 
 		return $text . "\n" . $data["after"];
@@ -770,7 +771,7 @@ class BBCode extends BaseObject
 	 * @param array $match Array with the matching values
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForMastodonCallback($match)
+	private static function convertUrlForOStatusCallback($match)
 	{
 		$url = $match[1];
 
@@ -783,34 +784,27 @@ class BBCode extends BaseObject
 			return $match[0];
 		}
 
-		return self::convertUrlForMastodon($url);
+		return self::convertUrlForOStatus($url);
 	}
 
 	/**
-	 * @brief Converts [url] BBCodes in a format that looks fine on Mastodon and GNU Social.
+	 * @brief Converts [url] BBCodes in a format that looks fine on OStatus systems.
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForMastodon($url)
+	private static function convertUrlForOStatus($url)
 	{
 		$parts = parse_url($url);
 		$scheme = $parts['scheme'] . '://';
 		$styled_url = str_replace($scheme, '', $url);
 
-		$html = '<a href="%s" class="attachment" rel="nofollow noopener" target="_blank">' .
-			'<span class="invisible">%s</span>';
-
 		if (strlen($styled_url) > 30) {
-			$html .= '<span class="ellipsis">%s</span>' .
-				'<span class="invisible">%s</span></a>';
-
-			$ellipsis = substr($styled_url, 0, 30);
-			$rest = substr($styled_url, 30);
-			return sprintf($html, $url, $scheme, $ellipsis, $rest);
-		} else {
-			$html .= '%s</a>';
-			return sprintf($html, $url, $scheme, $styled_url);
+			$styled_url = substr($styled_url, 0, 30) . "…";
 		}
+
+		$html = '<a href="%s" target="_blank">%s</a>';
+
+		return sprintf($html, $url, $styled_url);
 	}
 
 	/*
@@ -1105,13 +1099,13 @@ class BBCode extends BaseObject
 				}
 
 				if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
+					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
+				} else {
 					$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
 
 					if ($link != "") {
 						$text .= '<br /><a href="' . $link . '">[l]</a>';
 					}
-				} else {
-					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
 				}
 
 				break;
@@ -1207,7 +1201,7 @@ class BBCode extends BaseObject
 
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
-				$xpath = new DomXPath($doc);
+				$xpath = new DOMXPath($doc);
 				$list = $xpath->query("//meta[@name]");
 				foreach ($list as $node) {
 					$attr = [];
@@ -1439,8 +1433,8 @@ class BBCode extends BaseObject
 			$autolink_regex = "/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism";
 			$text = preg_replace($autolink_regex, '$1[url]$2[/url]', $text);
 			if ($simple_html == 7) {
-				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
-				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
+				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 			}
 		} else {
 			$text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $text);
@@ -1540,10 +1534,8 @@ class BBCode extends BaseObject
 		if (strpos($text, '[/map]') !== false) {
 			$text = preg_replace_callback(
 				"/\[map\](.*?)\[\/map\]/ism",
-				function ($match) {
-					// the extra space in the following line is intentional
-					// Whyyy? - @MrPetovan
-					return str_replace($match[0], '<div class="map"  >' . Map::byLocation($match[1]) . '</div>', $match[0]);
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byLocation($match[1], $simple_html) . '</p>', $match[0]);
 				},
 				$text
 			);
@@ -1551,16 +1543,14 @@ class BBCode extends BaseObject
 		if (strpos($text, '[map=') !== false) {
 			$text = preg_replace_callback(
 				"/\[map=(.*?)\]/ism",
-				function ($match) {
-					// the extra space in the following line is intentional
-					// Whyyy? - @MrPetovan
-					return str_replace($match[0], '<div class="map"  >' . Map::byCoordinates(str_replace('/', ' ', $match[1])) . '</div>', $match[0]);
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byCoordinates(str_replace('/', ' ', $match[1]), $simple_html) . '</p>', $match[0]);
 				},
 				$text
 			);
 		}
 		if (strpos($text, '[map]') !== false) {
-			$text = preg_replace("/\[map\]/", '<div class="map"></div>', $text);
+			$text = preg_replace("/\[map\]/", '<p class="map"></p>', $text);
 		}
 
 		// Check for headers

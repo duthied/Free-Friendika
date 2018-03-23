@@ -10,7 +10,7 @@ Nutzer
 * **[Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?](help/FAQ#avatars)**
 * **[Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?](help/FAQ#contacts)**
 * **[Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?](help/FAQ#removed)**
-* **[Kann ich einem hashtag folgen?](help/FAQ#hashtag)**
+* **[Kann ich einem Hashtag folgen?](help/FAQ#hashtag)**
 * **[Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?](help/FAQ#rss)**
 * **[Gibt es Clients für Friendica?](help/FAQ#clients)**
 * **[Wo finde ich Hilfe?](help/FAQ#help)**
@@ -85,9 +85,9 @@ Zum Konvertieren von Videos in das lizenfreie Videoformat WebM gibt es unter Win
 ### Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?
 
 Ja.
-Auf Deiner ["Profile verwalten/editieren"-Seite](../profiles) wählst Du zunächst das gewünschte Profil aus.
-Anschließend siehst Du eine Seite mit allen Infos zu diesem Profil.
-Klicke nun oben auf den Link "Profilbild ändern" und lade im nächsten Fenster ein Bild von Deinem PC hoch.
+Auf Deiner ["Profile verwalten/editieren"-Seite](../profiles) wählst Du zunächst das gewünschte Profil aus. 
+Anschließend siehst Du eine Seite mit allen Infos zu diesem Profil. 
+Klicke nun oben auf den Link "Profilbild ändern" und lade im nächsten Fenster ein Bild von Deinem PC hoch. 
 Um Deine privaten Daten zu schützen, wird in Beiträgen nur das Bild aus Deinem öffentlichen Profil angezeigt.
 
 <a name="contacts"></a>
@@ -122,19 +122,11 @@ Dieses Vorgehen setzt voraus, dass Dein Profil für 24 Stunden weiterhin "teilwe
 Wir können also Dein Profil blockieren und es so erscheinen lassen, als wären alle Daten sofort gelöscht, allerdings warten wir 24 Stunden (bzw. bis alle Deine Kontakte informiert wurden), bevor wir die Daten auch physikalisch löschen.
 
 <a name="hashtag"></a>
-### Kann ich einem hashtag folgen?
+### Kann ich einem Hashtag folgen?
 
-Nein.
-Die Möglichkeit, einem hashtag zu folgen, ist eine interessante Technik, führt aber zu einigen Schwierigkeiten.
-
-1.) Alle Beiträge, die diesen tag nutzen, müssten zu allen Seiten im Netzwerk kopiert werden. Das erhöht den Speicherbedarf und beeinträchtigt kleine Seiten. Die Nutzung von geteilten Hosting-Angeboten (Shared Hosting) wäre praktisch unmöglich.
-
-2.) Die Verbreitung von Spam wäre vereinfacht (tag-Spam ist z.B. bei Twitter ein schwerwiegendes Problem)
-
-3.) Der wichtigste Grund der gegen diese Technik spricht ist, dass sie eine natürliche Ausrichtung auf größere Seiten mit mehr getaggten Inhalten zur Folge hat. Dies kann z.B. aufkommen, wenn Dein Netzwerk tags anstelle von anderen Kommunikationsmitteln wie Gruppen oder Foren nutzt.
-
-Stattdessen bieten wir andere Mechanismen, um globale Unterhaltungen zu erreichen, dabei aber eine angemesse Basis für kleine und große Seiten zu bieten.
-Hierzu gehören Foren, Gruppen und geteilte tags.
+Ja.
+Füge die Tags zu Deinen gespeicherten Suchen hinzu, sie werden automatisch auf der Netzwerk-Seite auftauchen.
+Bitte beachte, dass Deine Antworten auf solche Posts aus technischen Gründen nicht unter dem "Persönlich"-Reiter auf der Netzwerk-Seite und der gesamte Thread nicht per API zu sehen sind.
 
 <a name="rss"></a>
 ### Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?
@@ -188,11 +180,16 @@ Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell f
 <a name="help"></a>
 ### Wo finde ich Hilfe?
 
-Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) oder im [deutschen Friendica-Support-Forum](http://toktan.org/profile/wiki) fragen oder Dir das [deutsche Wiki](http://wiki.toktan.org/doku.php) anschauen.
-Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](https://tryfriendica.de) bzw. einen Account auf einer öffentlichen Seite ([Liste](https://dir.friendica.social/servers)) nutzen, oder Du wählst die Librelist-mailing-Liste.
-Wenn Du die Mailing-Liste nutzen willst, schicke eine Mail an friendica AT librelist PUNKT com.
+Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) oder im [deutschen Friendica-Support-Forum](http://toktan.org/profile/wiki) fragen oder Dir das [deutsche Wiki](http://wiki.toktan.org/doku.php) anschauen. 
+Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](https://tryfriendica.de) bzw. einen Account auf einer öffentlichen Seite ([Liste](https://dir.friendica.social/servers)) nutzen.
 
-Wenn Du ein Theme-Entwickler bist, wirst Du in diesem Forum Hilfe finden: [Friendica Theme Developers](https://friendica.eu/profile/ftdevs).
+Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
+
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
+  * XMPP/Jabber MUC: support(at)forum.friendi.ca
+  * IRC: #friendica at irc.freenode.net
+  * Matrix: #friendi.ca or #friendica at matrix.org.
 
 Admin
 --------
