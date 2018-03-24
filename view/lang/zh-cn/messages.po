@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-05 16:37+0100\n"
-"PO-Revision-Date: 2018-03-07 14:45+0000\n"
+"PO-Revision-Date: 2018-03-24 04:12+0000\n"
 "Last-Translator: 朱陈锬 <tangenters@outlook.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/Friendica/friendica/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -1386,7 +1386,7 @@ msgstr "普通朋友们"
 
 #: mod/credits.php:18
 msgid "Credits"
-msgstr ""
+msgstr "贡献"
 
 #: mod/credits.php:19
 msgid ""
@@ -2997,7 +2997,7 @@ msgstr "现在不理的"
 
 #: mod/contacts.php:635
 msgid "Currently archived"
-msgstr "现在存档着"
+msgstr "当前已存档"
 
 #: mod/contacts.php:636
 msgid "Awaiting connection acknowledge"
@@ -3061,7 +3061,7 @@ msgstr "显示所有的联系人"
 
 #: mod/contacts.php:718
 msgid "Unblocked"
-msgstr ""
+msgstr "未屏蔽的"
 
 #: mod/contacts.php:721
 msgid "Only show unblocked contacts"
@@ -3085,7 +3085,7 @@ msgstr "只显示忽略的联系人"
 
 #: mod/contacts.php:742
 msgid "Archived"
-msgstr "在存档"
+msgstr "已存档"
 
 #: mod/contacts.php:745
 msgid "Only show archived contacts"
@@ -3159,7 +3159,7 @@ msgstr "是你的粉丝"
 
 #: mod/contacts.php:929
 msgid "you are a fan of"
-msgstr "你喜欢"
+msgstr "您已关注"
 
 #: mod/contacts.php:997
 msgid "Toggle Blocked status"
@@ -3392,11 +3392,11 @@ msgstr "Friendica"
 
 #: mod/dfrn_request.php:657
 msgid "GNU Social (Pleroma, Mastodon)"
-msgstr ""
+msgstr "GNU Social (Pleroma, Mastodon)"
 
 #: mod/dfrn_request.php:658
 msgid "Diaspora (Socialhome, Hubzilla)"
-msgstr ""
+msgstr "Diaspora (Socialhome, Hubzilla)"
 
 #: mod/dfrn_request.php:659
 #, php-format
@@ -3669,11 +3669,11 @@ msgstr "错误：mbstring PHP模块必要可没安装的。"
 
 #: mod/install.php:436
 msgid "Error: iconv PHP module required but not installed."
-msgstr ""
+msgstr "错误：需要 iconv PHP 模块但它并没有被安装。"
 
 #: mod/install.php:446
 msgid "Error, XML PHP module required but not installed."
-msgstr ""
+msgstr "部件错误，需要 XML PHP 模块但它并没有被安装。"
 
 #: mod/install.php:458
 msgid ""
@@ -4464,7 +4464,7 @@ msgstr "管理"
 
 #: mod/admin.php:219
 msgid "Addon Features"
-msgstr ""
+msgstr "插件特性"
 
 #: mod/admin.php:220
 msgid "User registrations waiting for confirmation"
@@ -4520,7 +4520,7 @@ msgstr "服务器域名"
 msgid ""
 "The domain of the new server to add to the block list. Do not include the "
 "protocol."
-msgstr ""
+msgstr "需要添加到服务器屏蔽列表的服务器的域名。请勿包括协议。"
 
 #: mod/admin.php:316
 msgid "Block reason"
@@ -5442,7 +5442,7 @@ msgstr "检查上游版本"
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
-msgstr ""
+msgstr "启用在 github 上检查新的 Friendica 版本。如果发现新版本，您将在管理员概要面板得到通知。"
 
 #: mod/admin.php:1341
 msgid "Suppress Tags"
@@ -6583,7 +6583,7 @@ msgstr ""
 #: mod/profile.php:79 src/Protocol/OStatus.php:1246
 #, php-format
 msgid "%s's timeline"
-msgstr ""
+msgstr "%s 的时间线"
 
 #: mod/profile.php:194
 msgid "Tips for New Members"
