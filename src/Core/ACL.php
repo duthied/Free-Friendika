@@ -221,6 +221,10 @@ class ACL extends BaseObject
 		return $o;
 	}
 
+	private static function fixACL(&$item) {
+		$item = intval(str_replace(['<', '>'], ['', ''], $item));
+	}
+
 	/**
 	 * Return the default permission of the provided user array
 	 *
@@ -241,6 +245,12 @@ class ACL extends BaseObject
 		$deny_cid = $matches[1];
 		preg_match_all($acl_regex, defaults($user, 'deny_gid', ''), $matches);
 		$deny_gid = $matches[1];
+
+		// Reformats the ACL data so that it is accepted by the JS frontend
+                array_walk($allow_cid, 'self::fixACL');
+                array_walk($allow_gid, 'self::fixACL');
+                array_walk($deny_cid, 'self::fixACL');
+                array_walk($deny_gid, 'self::fixACL');
 
 		Contact::pruneUnavailable($allow_cid);
 
@@ -290,7 +300,7 @@ class ACL extends BaseObject
 						L10n::t('Hide your profile details from unknown viewers?'));
 			}
 		}
-
+logger('Blubb: '.json_encode($perms));
 		$tpl = get_markup_template('acl_selector.tpl');
 		$o = replace_macros($tpl, [
 			'$showall' => L10n::t('Visible to everybody'),
