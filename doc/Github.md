@@ -70,7 +70,7 @@ Don't hesitate to ask us in case of doubt.
 3. Check your code for typos.
 There is a console command called *typo* for this.
 
-	$> php bin/console typo
+	$> php bin/console.php typo
 
 Check out how to work with [our Vagrant](help/Vagrant) to save a lot of setup time!
 
