@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018-05-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1257
+-- DB_UPDATE_VERSION 1258
 -- ------------------------------------------
 
 
@@ -122,9 +122,9 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`attag` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`thumb` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`micro` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`photo` varchar(255) DEFAULT '' COMMENT '',
+	`thumb` varchar(255) DEFAULT '' COMMENT '',
+	`micro` varchar(255) DEFAULT '' COMMENT '',
 	`site-pubkey` text COMMENT '',
 	`issued-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -1078,4 +1078,5 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `priority_created` (`priority`,`created`),
 	 INDEX `executed` (`executed`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
+
 
