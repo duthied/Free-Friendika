@@ -39,7 +39,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-05 16:37+0100\n"
-"PO-Revision-Date: 2018-03-19 17:22+0000\n"
+"PO-Revision-Date: 2018-03-24 14:47+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -5244,7 +5244,7 @@ msgstr "Unterbinde Mehrfachregistrierung"
 
 #: mod/admin.php:1310
 msgid "Disallow users to register additional accounts for use as pages."
-msgstr "Benutzern nicht erlauben, weitere Konten als zusätzliche Profile anzulegen."
+msgstr "Benutzern nicht erlauben, weitere Konten für Organisationsseiten o.ä. mit der gleichen E-Mail Adresse anzulegen, um diese als ."
 
 #: mod/admin.php:1311
 msgid "OpenID support"
