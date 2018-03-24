@@ -37,7 +37,7 @@ Assuming you want to convert the German localization which is placed in view/lan
     2. Execute the po2php command, which will place the translation
        in the strings.php file that is used by friendica.
 
-       $> php bin/console po2php view/lang/de/messages.po
+       $> php bin/console.php po2php view/lang/de/messages.po
 
        The output of the script will be placed at view/lang/de/strings.php where
        friendica is expecting it, so you can test your translation immediately.
@@ -92,7 +92,7 @@ To update the translation files after you have translated strings of e.g. Espera
 
 And then use the `po2php` command described above to convert the `messages.po` file to the `strings.php` file Friendica is loading.
 
-    $> php bin/console po2php view/lang/eo/messages.po
+    $> php bin/console.php po2php view/lang/eo/messages.po
 
 Afterwards, just commit the two changed files to a feature branch of your Friendica repository, push the changes to github and open a pull request for your changes.
 
