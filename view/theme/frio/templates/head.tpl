@@ -8,10 +8,10 @@
 
 {{* All needed css files - Note: css must be inserted before js files *}}
 <link rel="stylesheet" href="view/global.css" type="text/css" media="all" />
-<link rel="stylesheet" href="vendor/asset/jquery-colorbox/example5/colorbox.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="vendor/asset/jgrowl/jquery.jgrowl.min.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="vendor/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="vendor/asset/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/asset/jquery-colorbox/example5/colorbox.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/asset/jgrowl/jquery.jgrowl.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/asset/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="vendor/pear/text_highlighter/sample.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap.min.css" type="text/css" media="screen"/>
@@ -57,36 +57,36 @@
 <!--[if IE]>
 <script type="text/javascript" src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
-<script type="text/javascript" src="view/js/modernizr.js" ></script>
-<script type="text/javascript" src="vendor/asset/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="view/js/jquery.textinputs.js" ></script>
-<script type="text/javascript" src="view/js/jquery-textcomplete/jquery.textcomplete.min.js" ></script>
-<script type="text/javascript" src="view/js/autocomplete.js" ></script>
-<script type="text/javascript" src="vendor/asset/jquery-colorbox/jquery.colorbox-min.js"></script>
-<script type="text/javascript" src="vendor/asset/jgrowl/jquery.jgrowl.min.js"></script>
-<script type="text/javascript" src="vendor/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="vendor/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" ></script>
-<script type="text/javascript" src="view/js/acl.js" ></script>
-<script type="text/javascript" src="vendor/asset/base64/base64.min.js" ></script>
-<script type="text/javascript" src="view/js/main.js" ></script>
+<script type="text/javascript" async src="view/js/modernizr.js"></script>
+<script type="text/javascript" src="view/asset/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" async src="view/js/jquery.textinputs.js"></script>
+<script type="text/javascript" src="view/js/jquery-textcomplete/jquery.textcomplete.min.js"></script>
+<script type="text/javascript" src="view/js/autocomplete.js"></script>
+<script type="text/javascript" async src="view/asset/jquery-colorbox/jquery.colorbox-min.js"></script>
+<script type="text/javascript" async src="view/asset/jgrowl/jquery.jgrowl.min.js"></script>
+<script type="text/javascript" async src="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" async src="view/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
+<script type="text/javascript" src="view/js/acl.js"></script>
+<script type="text/javascript" async src="view/asset/base64/base64.min.js"></script>
+<script type="text/javascript" async src="view/js/main.js"></script>
 
-<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/jasny/js/jasny-bootstrap.custom.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap-select/js/bootstrap-select.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/ekko-lightbox/ekko-lightbox.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/flexMenu/flexmenu.custom.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/jsmart/jsmart.custom.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/jquery-scrollspy/jquery-scrollspy.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/autosize/autosize.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/sticky-kit/jquery.sticky-kit.min.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/jasny/js/jasny-bootstrap.custom.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/bootstrap-select/js/bootstrap-select.min.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/ekko-lightbox/ekko-lightbox.min.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/flexMenu/flexmenu.custom.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/jsmart/jsmart.custom.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/jquery-scrollspy/jquery-scrollspy.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/autosize/autosize.min.js"></script>
+<script type="text/javascript" async src="view/theme/frio/frameworks/sticky-kit/jquery.sticky-kit.min.js"></script>
 
 {{* own js files *}}
-<script type="text/javascript" src="view/theme/frio/js/theme.js"></script>
-<script type="text/javascript" src="view/theme/frio/js/modal.js"></script>
-<script type="text/javascript" src="view/theme/frio/js/hovercard.js"></script>
-<script type="text/javascript" src="view/theme/frio/js/textedit.js"></script>
+<script type="text/javascript" async src="view/theme/frio/js/theme.js"></script>
+<script type="text/javascript" async src="view/theme/frio/js/modal.js"></script>
+<script type="text/javascript" async src="view/theme/frio/js/hovercard.js"></script>
+<script type="text/javascript" async src="view/theme/frio/js/textedit.js"></script>
 
 <script type="text/javascript">
 	window.showMore = "{{$showmore}}";

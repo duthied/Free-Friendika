@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 3.6-rc (Asparagus)
--- DB_UPDATE_VERSION 1256
+-- Friendica 2018-05-dev (The Tazmans Flax-lily)
+-- DB_UPDATE_VERSION 1258
 -- ------------------------------------------
 
 
@@ -55,12 +55,12 @@ CREATE TABLE IF NOT EXISTS `auth_codes` (
 -- TABLE cache
 --
 CREATE TABLE IF NOT EXISTS `cache` (
-	`k` varbinary(255) NOT NULL COMMENT '',
-	`v` mediumtext COMMENT '',
-	`expire_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`k` varbinary(255) NOT NULL COMMENT 'cache key',
+	`v` mediumtext COMMENT 'cached serialized value',
+	`expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of cache expiration',
+	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of cache insertion',
 	 PRIMARY KEY(`k`),
-	 INDEX `expire_mode_updated` (`expire_mode`,`updated`)
+	 INDEX `k_expires` (`k`,`expires`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -122,9 +122,9 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`attag` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`thumb` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`micro` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`photo` varchar(255) DEFAULT '' COMMENT '',
+	`thumb` varchar(255) DEFAULT '' COMMENT '',
+	`micro` varchar(255) DEFAULT '' COMMENT '',
 	`site-pubkey` text COMMENT '',
 	`issued-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -1078,4 +1078,5 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `priority_created` (`priority`,`created`),
 	 INDEX `executed` (`executed`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
+
 

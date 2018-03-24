@@ -265,7 +265,7 @@ include/cronhooks.php:		Addon::callHooks('cron', $d);
 
 include/security.php:		Addon::callHooks('logged_in', $a->user);
 
-include/html2bbcode.php:	Addon::callHooks('html2bbcode', $text);
+src/Content/Text/HTML.php:	Addon::callHooks('html2bbcode', $text);
 
 include/Contact.php:		Addon::callHooks('remove_user',$r[0]);
 

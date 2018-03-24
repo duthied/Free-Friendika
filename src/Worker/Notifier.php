@@ -18,7 +18,6 @@ use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/html2plain.php';
 require_once 'include/items.php';
 
 /*

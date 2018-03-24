@@ -715,16 +715,16 @@ class DBStructure
 						]
 				];
 		$database["cache"] = [
-				"comment" => "Used to store different data that doesn't to be stored for a long time",
+				"comment" => "Stores temporary data",
 				"fields" => [
-						"k" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"v" => ["type" => "mediumtext", "comment" => ""],
-						"expire_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"k" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "cache key"],
+						"v" => ["type" => "mediumtext", "comment" => "cached serialized value"],
+						"expires" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of cache expiration"],
+						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of cache insertion"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["k"],
-						"expire_mode_updated" => ["expire_mode", "updated"],
+						"k_expires" => ["k", "expires"],
 						]
 				];
 		$database["challenge"] = [
@@ -788,9 +788,9 @@ class DBStructure
 						"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"thumb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"micro" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
+						"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
+						"micro" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
 						"site-pubkey" => ["type" => "text", "comment" => ""],
 						"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],

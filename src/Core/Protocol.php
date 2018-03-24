@@ -119,6 +119,6 @@ class Protocol
 	 */
 	public static function formatMention($profile_url, $display_name)
 	{
-		return $display_name . '(' . self::getAddrFromProfileUrl($profile_url) . ')';
+		return $display_name . ' (' . self::getAddrFromProfileUrl($profile_url) . ')';
 	}
 }

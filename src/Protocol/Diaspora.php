@@ -7,9 +7,11 @@
  * This implementation here interprets the old and the new protocol and sends the new one.
  * In the future we will remove most stuff from "validPosting" and interpret only the new protocol.
  */
+
 namespace Friendica\Protocol;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -35,7 +37,6 @@ use SimpleXMLElement;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
-require_once 'include/bb2diaspora.php';
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
@@ -1748,7 +1749,7 @@ class Diaspora
 
 		$datarray["plink"] = self::plink($author, $guid, $parent_item['guid']);
 
-		$body = diaspora2bb($text);
+		$body = Markdown::toBBCode($text);
 
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
 
@@ -1815,7 +1816,7 @@ class Diaspora
 			return false;
 		}
 
-		$body = diaspora2bb($msg_text);
+		$body = Markdown::toBBCode($msg_text);
 		$message_uri = $msg_author.":".$msg_guid;
 
 		$person = self::personByHandle($msg_author);
@@ -2149,7 +2150,7 @@ class Diaspora
 			return false;
 		}
 
-		$body = diaspora2bb($text);
+		$body = Markdown::toBBCode($text);
 
 		$body = self::replacePeopleGuid($body, $person["url"]);
 
@@ -2304,8 +2305,8 @@ class Diaspora
 		$image_url = unxmlify($data->image_url);
 		$birthday = unxmlify($data->birthday);
 		$gender = unxmlify($data->gender);
-		$about = diaspora2bb(unxmlify($data->bio));
-		$location = diaspora2bb(unxmlify($data->location));
+		$about = Markdown::toBBCode(unxmlify($data->bio));
+		$location = Markdown::toBBCode(unxmlify($data->location));
 		$searchable = (unxmlify($data->searchable) == "true");
 		$nsfw = (unxmlify($data->nsfw) == "true");
 		$tags = unxmlify($data->tag_string);
@@ -2682,7 +2683,7 @@ class Diaspora
 			if (self::isReshare($r[0]["body"], true)) {
 				$r = [];
 			} elseif (self::isReshare($r[0]["body"], false) || strstr($r[0]["body"], "[share")) {
-				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+				$r[0]["body"] = Markdown::toBBCode(BBCode::toMarkdown($r[0]["body"]));
 
 				$r[0]["body"] = self::replacePeopleGuid($r[0]["body"], $r[0]["author-link"]);
 
@@ -2717,7 +2718,7 @@ class Diaspora
 				if (DBM::is_result($r)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 					if (self::isReshare($r[0]["body"], false)) {
-						$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+						$r[0]["body"] = Markdown::toBBCode(BBCode::toMarkdown($r[0]["body"]));
 						$r[0]["body"] = self::replacePeopleGuid($r[0]["body"], $r[0]["author-link"]);
 					}
 
@@ -2961,7 +2962,7 @@ class Diaspora
 			}
 		}
 
-		$body = diaspora2bb($text);
+		$body = Markdown::toBBCode($text);
 
 		$datarray = [];
 
@@ -3613,17 +3614,17 @@ class Diaspora
 			$eventdata['end'] = DateTimeFormat::convert($event['finish'], "UTC", $eventdata['timezone'], $mask);
 		}
 		if ($event['summary']) {
-			$eventdata['summary'] = html_entity_decode(bb2diaspora($event['summary']));
+			$eventdata['summary'] = html_entity_decode(BBCode::toMarkdown($event['summary']));
 		}
 		if ($event['desc']) {
-			$eventdata['description'] = html_entity_decode(bb2diaspora($event['desc']));
+			$eventdata['description'] = html_entity_decode(BBCode::toMarkdown($event['desc']));
 		}
 		if ($event['location']) {
 			$event['location'] = preg_replace("/\[map\](.*?)\[\/map\]/ism", '$1', $event['location']);
 			$coord = Map::getCoordinates($event['location']);
 
 			$location = [];
-			$location["address"] = html_entity_decode(bb2diaspora($event['location']));
+			$location["address"] = html_entity_decode(BBCode::toMarkdown($event['location']));
 			if (!empty($coord['lat']) && !empty($coord['lon'])) {
 				$location["lat"] = $coord['lat'];
 				$location["lng"] = $coord['lon'];
@@ -3678,7 +3679,7 @@ class Diaspora
 			$body = $item["body"];
 
 			// convert to markdown
-			$body = html_entity_decode(bb2diaspora($body));
+			$body = html_entity_decode(BBCode::toMarkdown($body));
 
 			// Adding the title
 			if (strlen($title)) {
@@ -3869,7 +3870,7 @@ class Diaspora
 
 		$parent = $p[0];
 
-		$text = html_entity_decode(bb2diaspora($item["body"]));
+		$text = html_entity_decode(BBCode::toMarkdown($item["body"]));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		$comment = ["author" => self::myHandle($owner),
@@ -4105,7 +4106,7 @@ class Diaspora
 			"participants" => $cnv["recips"]
 		];
 
-		$body = bb2diaspora($item["body"]);
+		$body = BBCode::toMarkdown($item["body"]);
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		$msg = [
