@@ -1176,7 +1176,7 @@ $a->strings["Don't replace locally-hosted private photos in posts with an embedd
 $a->strings["Allow Users to set remote_self"] = "Nutzern erlauben das remote_self Flag zu setzen";
 $a->strings["With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream."] = "Ist dies ausgewählt kann jeder Nutzer jeden seiner Kontakte als remote_self (entferntes Konto) im Kontakt reparieren Dialog markieren. Nach dem setzten dieses Flags werden alle Top-Level Beiträge dieser Kontakte automatisch in den Stream dieses Nutzers gepostet.";
 $a->strings["Block multiple registrations"] = "Unterbinde Mehrfachregistrierung";
-$a->strings["Disallow users to register additional accounts for use as pages."] = "Benutzern nicht erlauben, weitere Konten als zusätzliche Profile anzulegen.";
+$a->strings["Disallow users to register additional accounts for use as pages."] = "Benutzern nicht erlauben, weitere Konten für Organisationsseiten o.ä. mit der gleichen E-Mail Adresse anzulegen, um diese als .";
 $a->strings["OpenID support"] = "OpenID Unterstützung";
 $a->strings["OpenID support for registration and logins."] = "OpenID-Unterstützung für Registrierung und Login.";
 $a->strings["Fullname check"] = "Namen auf Vollständigkeit überprüfen";
