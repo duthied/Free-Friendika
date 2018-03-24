@@ -98,7 +98,7 @@ HELP;
 				$out .= '}}' . "\n";
 			}
 
-			if ($k != "" && substr($l, 0, 7) == 'msgstr ') {
+			if ($k != '' && substr($l, 0, 7) == 'msgstr ') {
 				if ($ink) {
 					$ink = false;
 					$out .= '$a->strings["' . $k . '"] = ';
@@ -109,11 +109,12 @@ HELP;
 					$out .= '"' . $v . '"';
 				}
 
-				$v = substr($l, 8, $len - 11);
+				$v = substr($l, 8, $len - 10);
 				$v = preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $v);
 
 				$inv = true;
 			}
+
 			if ($k != "" && substr($l, 0, 7) == 'msgstr[') {
 				if ($ink) {
 					$ink = false;
@@ -125,9 +126,10 @@ HELP;
 				}
 
 				if (!$arr) {
-					$arr = True;
+					$arr = true;
 					$out .= "[\n";
 				}
+
 				$match = [];
 				preg_match("|\[([0-9]*)\] (.*)|", $l, $match);
 				$out .= "\t"
@@ -152,9 +154,11 @@ HELP;
 					$inv = false;
 					$out .= '"' . $v . '"';
 				}
+
 				if ($k != "") {
 					$out .= ($arr) ? "];\n" : ";\n";
 				}
+
 				$arr = false;
 				$k = str_replace("msgid ", "", $l);
 				if ($k != '""') {
