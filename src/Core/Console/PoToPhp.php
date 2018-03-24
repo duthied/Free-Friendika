@@ -109,7 +109,7 @@ HELP;
 					$out .= '"' . $v . '"';
 				}
 
-				$v = substr($l, 8, $len - 11);
+				$v = substr($l, 8, $len - 10);
 				$v = preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $v);
 
 				$inv = true;
