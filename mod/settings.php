@@ -13,6 +13,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
@@ -484,10 +485,7 @@ function settings_post(App $a)
 
 	$err = '';
 
-	$name_change = false;
-
 	if ($username != $a->user['username']) {
-		$name_change = true;
 		if (strlen($username) > 40) {
 			$err .= L10n::t(' Please use a shorter name.');
 		}
@@ -627,14 +625,7 @@ function settings_post(App $a)
 		intval(local_user())
 	);
 
-
-	if ($name_change) {
-		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
-			dbesc($username),
-			dbesc(DateTimeFormat::utcNow()),
-			intval(local_user())
-		);
-	}
+	Contact::updateSelfFromUserID(local_user());
 
 	if (($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background

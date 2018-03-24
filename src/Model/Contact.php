@@ -139,6 +139,70 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Updates the self-contact for the provided user id
+	 *
+	 * @param int $uid
+	 * @param boolean $update_avatar Force the avatar update
+	 */
+	public static function updateSelfFromUserID($uid, $update_avatar = false)
+	{
+		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
+			'xmpp', 'contact-type', 'forum', 'prv'];
+		$self = dba::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
+		if (!DBM::is_result($self)) {
+			return;
+		}
+
+		$fields = ['nickname', 'page-flags', 'account-type'];
+		$user = dba::selectFirst('user', $fields, ['uid' => $uid]);
+		if (!DBM::is_result($user)) {
+			return;
+		}
+
+		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
+			'country-name', 'gender', 'pub_keywords', 'xmpp'];
+		$profile = dba::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
+		if (!DBM::is_result($profile)) {
+			return;
+		}
+
+		$avatar_resource = dba::selectFirst('photo', ['resource-id'], ['uid' => $uid, 'profile' => true]);
+
+		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
+			'location' => Profile::formatLocation($profile),
+			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
+			'gender' => $profile['gender'], 'avatar' => $profile['photo'],
+			'contact-type' => $user['account-type'], 'xmpp' => $profile['xmpp']];
+
+/*
+                $r = q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s'  WHERE `self` AND `uid` = %d",
+-                                               dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
+-                                               dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
+-                                               dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-6.' . $Image->getExt()),
+-                                               intval(local_user())
+-                                       );
+
+*/
+		$fields['forum'] = $user['page-flags'] == PAGE_COMMUNITY;
+		$fields['prv'] = $user['page-flags'] == PAGE_PRVGROUP;
+
+		$update = false;
+
+		foreach ($fields as $field => $content) {
+			if ($self[$field] != $content) {
+				$update = true;
+			}
+		}
+
+		if ($update) {
+			$fields['name-date'] = DateTimeFormat::utcNow();
+			dba::update('contact', $fields, ['id' => $self['id']]);
+		}
+
+		Contact::updateAvatar($fields['avatar'], $uid, $self['id'], $update_avatar);
+	}
+
+	/**
 	 * @brief Marks a contact for removal
 	 *
 	 * @param int $id contact id

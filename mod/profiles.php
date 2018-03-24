@@ -485,29 +485,15 @@ function profiles_post(App $a) {
 			info(L10n::t('Profile updated.') . EOL);
 		}
 
-
-		if ($namechanged && $is_default) {
-			$r = q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-				dbesc($name),
-				dbesc(DateTimeFormat::utcNow()),
-				intval(local_user())
-			);
-			$r = q("UPDATE `user` set `username` = '%s' where `uid` = %d",
-				dbesc($name),
-				intval(local_user())
-			);
-		}
-
 		if ($is_default) {
-			$location = Profile::formatLocation(["locality" => $locality, "region" => $region, "country-name" => $country_name]);
+			if ($namechanged) {
+				$r = q("UPDATE `user` set `username` = '%s' where `uid` = %d",
+					dbesc($name),
+					intval(local_user())
+				);
+			}
 
-			q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
-				dbesc($about),
-				dbesc($location),
-				dbesc($pub_keywords),
-				dbesc($gender),
-				intval(local_user())
-			);
+			Contact::updateSelfFromUserID(local_user());
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
