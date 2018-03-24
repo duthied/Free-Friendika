@@ -873,7 +873,8 @@ class GContact
 
 			// Now update the contact entry with the user id "0" as well.
 			// This is used for the shadow copies of public items.
-
+			/// @todo Check if we really should do this.
+			// The quality of the gcontact table is mostly lower than the public contact
 			$public_contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link($contact["url"]), 'uid' => 0]);
 			if (DBM::is_result($public_contact)) {
 				logger("Update public contact ".$public_contact["id"], LOGGER_DEBUG);
@@ -893,6 +894,12 @@ class GContact
 						'keywords' => $contact['keywords'], 'alias' => $contact['alias'],
 						'contact-type' => $contact['contact-type'], 'url' => $contact['url'],
 						'location' => $contact['location'], 'about' => $contact['about']];
+
+				// Don't update the birthday field if not set or invalid
+				if (empty($contact['birthday']) || ($contact['birthday'] < '0001-01-01')) {
+					unset($fields['bd']);
+				}
+
 
 				dba::update('contact', $fields, ['id' => $public_contact["id"]], $old_contact);
 			}
