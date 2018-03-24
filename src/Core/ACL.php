@@ -300,7 +300,7 @@ class ACL extends BaseObject
 						L10n::t('Hide your profile details from unknown viewers?'));
 			}
 		}
-logger('Blubb: '.json_encode($perms));
+
 		$tpl = get_markup_template('acl_selector.tpl');
 		$o = replace_macros($tpl, [
 			'$showall' => L10n::t('Visible to everybody'),
