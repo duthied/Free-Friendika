@@ -221,7 +221,8 @@ class ACL extends BaseObject
 		return $o;
 	}
 
-	private static function fixACL(&$item) {
+	private static function fixACL(&$item)
+	{
 		$item = intval(str_replace(['<', '>'], ['', ''], $item));
 	}
 
@@ -247,10 +248,10 @@ class ACL extends BaseObject
 		$deny_gid = $matches[1];
 
 		// Reformats the ACL data so that it is accepted by the JS frontend
-                array_walk($allow_cid, 'self::fixACL');
-                array_walk($allow_gid, 'self::fixACL');
-                array_walk($deny_cid, 'self::fixACL');
-                array_walk($deny_gid, 'self::fixACL');
+		array_walk($allow_cid, 'self::fixACL');
+		array_walk($allow_gid, 'self::fixACL');
+		array_walk($deny_cid, 'self::fixACL');
+		array_walk($deny_gid, 'self::fixACL');
 
 		Contact::pruneUnavailable($allow_cid);
 
