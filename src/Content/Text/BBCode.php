@@ -76,10 +76,12 @@ class BBCode extends BaseObject
 
 					$picturedata = Image::getInfoFromURL($matches[1]);
 
-					if (($picturedata[0] >= 500) && ($picturedata[0] >= $picturedata[1])) {
-						$post["image"] = $matches[1];
-					} else {
-						$post["preview"] = $matches[1];
+					if ($picturedata) {
+						if (($picturedata[0] >= 500) && ($picturedata[0] >= $picturedata[1])) {
+							$post["image"] = $matches[1];
+						} else {
+							$post["preview"] = $matches[1];
+						}
 					}
 				}
 
@@ -266,7 +268,7 @@ class BBCode extends BaseObject
 						$post["text"] = str_replace($pictures[0][0], "", $body);
 					} else {
 						$imgdata = Image::getInfoFromURL($pictures[0][1]);
-						if (substr($imgdata["mime"], 0, 6) == "image/") {
+						if ($imgdata && substr($imgdata["mime"], 0, 6) == "image/") {
 							$post["type"] = "photo";
 							$post["image"] = $pictures[0][1];
 							$post["preview"] = $pictures[0][2];
