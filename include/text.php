@@ -1239,33 +1239,33 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		return $ev;
 	}
 
-	if (!Config::get('system','suppress_tags')) {
-		$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
-				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
+	$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
+			intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
-		while ($tag = dba::fetch($taglist)) {
-			if ($tag["url"] == "") {
-				$tag["url"] = $searchpath.strtolower($tag["term"]);
-			}
-
-			$orig_tag = $tag["url"];
-
-			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
-
-			if ($tag["type"] == TERM_HASHTAG) {
-				if ($orig_tag != $tag["url"]) {
-					$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
-				}
-				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
-				$prefix = "#";
-			} elseif ($tag["type"] == TERM_MENTION) {
-				$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
-				$prefix = "@";
-			}
-			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
+	while ($tag = dba::fetch($taglist)) {
+		if ($tag["url"] == "") {
+			$tag["url"] = $searchpath . strtolower($tag["term"]);
 		}
-		dba::close($taglist);
+
+		$orig_tag = $tag["url"];
+
+		$tag["url"] = best_link_url($item, $sp, $tag["url"]);
+
+		if ($tag["type"] == TERM_HASHTAG) {
+			if ($orig_tag != $tag["url"]) {
+				$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
+			}
+
+			$hashtags[] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+			$prefix = "#";
+		} elseif ($tag["type"] == TERM_MENTION) {
+			$mentions[] = "@<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+			$prefix = "@";
+		}
+
+		$tags[] = $prefix . "<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
 	}
+	dba::close($taglist);
 
 	$item['tags'] = $tags;
 	$item['hashtags'] = $hashtags;
