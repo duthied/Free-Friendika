@@ -1313,7 +1313,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds attachement data to the XML document
+	 * @brief Adds attachment data to the XML document
 	 *
 	 * @param object $doc  XML document
 	 * @param object $root XML root element where the hub links are added
@@ -1328,11 +1328,13 @@ class OStatus
 		switch ($siteinfo["type"]) {
 			case 'photo':
 				$imgdata = Image::getInfoFromURL($siteinfo["image"]);
-				$attributes = ["rel" => "enclosure",
-						"href" => $siteinfo["image"],
-						"type" => $imgdata["mime"],
-						"length" => intval($imgdata["size"])];
-				XML::addElement($doc, $root, "link", "", $attributes);
+				if ($imgdata) {
+					$attributes = ["rel" => "enclosure",
+							"href" => $siteinfo["image"],
+							"type" => $imgdata["mime"],
+							"length" => intval($imgdata["size"])];
+					XML::addElement($doc, $root, "link", "", $attributes);
+				}
 				break;
 			case 'video':
 				$attributes = ["rel" => "enclosure",
@@ -1348,12 +1350,14 @@ class OStatus
 
 		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
 			$imgdata = Image::getInfoFromURL($siteinfo["image"]);
-			$attributes = ["rel" => "enclosure",
-					"href" => $siteinfo["image"],
-					"type" => $imgdata["mime"],
-					"length" => intval($imgdata["size"])];
+			if ($imgdata) {
+				$attributes = ["rel" => "enclosure",
+						"href" => $siteinfo["image"],
+						"type" => $imgdata["mime"],
+						"length" => intval($imgdata["size"])];
 
-			XML::addElement($doc, $root, "link", "", $attributes);
+				XML::addElement($doc, $root, "link", "", $attributes);
+			}
 		}
 
 		$arr = explode('[/attach],', $item['attach']);
