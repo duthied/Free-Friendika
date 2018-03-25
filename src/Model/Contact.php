@@ -22,6 +22,7 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Object\Image;
 use dba;
 
 require_once 'boot.php';
@@ -147,7 +148,7 @@ class Contact extends BaseObject
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
-			'xmpp', 'contact-type', 'forum', 'prv'];
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date'];
 		$self = dba::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBM::is_result($self)) {
 			return;
@@ -166,23 +167,36 @@ class Contact extends BaseObject
 			return;
 		}
 
-		$avatar_resource = dba::selectFirst('photo', ['resource-id'], ['uid' => $uid, 'profile' => true]);
+		$avatar = dba::selectFirst('photo', ['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 
 		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
-			'location' => Profile::formatLocation($profile),
+			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
 			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
 			'gender' => $profile['gender'], 'avatar' => $profile['photo'],
 			'contact-type' => $user['account-type'], 'xmpp' => $profile['xmpp']];
 
-/*
-                $r = q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s'  WHERE `self` AND `uid` = %d",
--                                               dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
--                                               dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
--                                               dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-6.' . $Image->getExt()),
--                                               intval(local_user())
--                                       );
+		if ($update_avatar) {
+			$fields['avatar-date'] = DateTimeFormat::utcNow();
+		}
 
-*/
+		// Creating the path to the avatar, beginning with the file suffix
+		$types = Image::supportedTypes();
+		if (isset($types[$avatar['type']])) {
+			$file_suffix = $types[$avatar['type']];
+		} else {
+			$file_suffix = 'jpg';
+		}
+
+		// We are adding a timestamp value so that other systems won't use cached content
+		$timestamp = strtotime($fields['avatar-date']);
+
+		$prefix = System::baseUrl() . '/photo/' .$avatar['resource-id'] . '-';
+		$suffix = '.' . $file_suffix . '?ts=' . $timestamp;
+
+		$fields['photo'] = $prefix . '4' . $suffix;
+		$fields['thumb'] = $prefix . '5' . $suffix;
+		$fields['micro'] = $prefix . '6' . $suffix;
+
 		$fields['forum'] = $user['page-flags'] == PAGE_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == PAGE_PRVGROUP;
 
@@ -198,8 +212,6 @@ class Contact extends BaseObject
 			$fields['name-date'] = DateTimeFormat::utcNow();
 			dba::update('contact', $fields, ['id' => $self['id']]);
 		}
-
-		Contact::updateAvatar($fields['avatar'], $uid, $self['id'], $update_avatar);
 	}
 
 	/**
