@@ -771,6 +771,10 @@ class Image
 	{
 		$data = [];
 
+		if (empty($url)) {
+			return $data;
+		}
+
 		$data = Cache::get($url);
 
 		if (is_null($data) || !$data || !is_array($data)) {
