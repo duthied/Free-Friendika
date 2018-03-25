@@ -167,35 +167,41 @@ class Contact extends BaseObject
 			return;
 		}
 
-		$avatar = dba::selectFirst('photo', ['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
-
 		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
 			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
 			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
 			'gender' => $profile['gender'], 'avatar' => $profile['photo'],
 			'contact-type' => $user['account-type'], 'xmpp' => $profile['xmpp']];
 
-		if ($update_avatar) {
-			$fields['avatar-date'] = DateTimeFormat::utcNow();
-		}
+		$avatar = dba::selectFirst('photo', ['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
+		if (DBM::is_result($avatar)) {
+			if ($update_avatar) {
+				$fields['avatar-date'] = DateTimeFormat::utcNow();
+			}
 
-		// Creating the path to the avatar, beginning with the file suffix
-		$types = Image::supportedTypes();
-		if (isset($types[$avatar['type']])) {
-			$file_suffix = $types[$avatar['type']];
+			// Creating the path to the avatar, beginning with the file suffix
+			$types = Image::supportedTypes();
+			if (isset($types[$avatar['type']])) {
+				$file_suffix = $types[$avatar['type']];
+			} else {
+				$file_suffix = 'jpg';
+			}
+
+			// We are adding a timestamp value so that other systems won't use cached content
+			$timestamp = strtotime($fields['avatar-date']);
+
+			$prefix = System::baseUrl() . '/photo/' .$avatar['resource-id'] . '-';
+			$suffix = '.' . $file_suffix . '?ts=' . $timestamp;
+
+			$fields['photo'] = $prefix . '4' . $suffix;
+			$fields['thumb'] = $prefix . '5' . $suffix;
+			$fields['micro'] = $prefix . '6' . $suffix;
 		} else {
-			$file_suffix = 'jpg';
+			// We hadn't found a photo entry, so we use the default avatar
+			$fields['photo'] = System::baseUrl() . '/images/person-175.jpg';
+			$fields['thumb'] = System::baseUrl() . '/images/person-80.jpg';
+			$fields['micro'] = System::baseUrl() . '/images/person-48.jpg';
 		}
-
-		// We are adding a timestamp value so that other systems won't use cached content
-		$timestamp = strtotime($fields['avatar-date']);
-
-		$prefix = System::baseUrl() . '/photo/' .$avatar['resource-id'] . '-';
-		$suffix = '.' . $file_suffix . '?ts=' . $timestamp;
-
-		$fields['photo'] = $prefix . '4' . $suffix;
-		$fields['thumb'] = $prefix . '5' . $suffix;
-		$fields['micro'] = $prefix . '6' . $suffix;
 
 		$fields['forum'] = $user['page-flags'] == PAGE_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == PAGE_PRVGROUP;
