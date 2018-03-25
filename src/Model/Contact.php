@@ -22,6 +22,7 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Object\Image;
 use dba;
 
 require_once 'boot.php';
@@ -136,6 +137,84 @@ class Contact extends BaseObject
 		]);
 
 		return $return;
+	}
+
+	/**
+	 * Updates the self-contact for the provided user id
+	 *
+	 * @param int $uid
+	 * @param boolean $update_avatar Force the avatar update
+	 */
+	public static function updateSelfFromUserID($uid, $update_avatar = false)
+	{
+		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'nurl'];
+		$self = dba::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
+		if (!DBM::is_result($self)) {
+			return;
+		}
+
+		$fields = ['nickname', 'page-flags', 'account-type'];
+		$user = dba::selectFirst('user', $fields, ['uid' => $uid]);
+		if (!DBM::is_result($user)) {
+			return;
+		}
+
+		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
+			'country-name', 'gender', 'pub_keywords', 'xmpp'];
+		$profile = dba::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
+		if (!DBM::is_result($profile)) {
+			return;
+		}
+
+		$avatar = dba::selectFirst('photo', ['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
+
+		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
+			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
+			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
+			'gender' => $profile['gender'], 'avatar' => $profile['photo'],
+			'contact-type' => $user['account-type'], 'xmpp' => $profile['xmpp']];
+
+		if ($update_avatar) {
+			$fields['avatar-date'] = DateTimeFormat::utcNow();
+		}
+
+		// Creating the path to the avatar, beginning with the file suffix
+		$types = Image::supportedTypes();
+		if (isset($types[$avatar['type']])) {
+			$file_suffix = $types[$avatar['type']];
+		} else {
+			$file_suffix = 'jpg';
+		}
+
+		// We are adding a timestamp value so that other systems won't use cached content
+		$timestamp = strtotime($fields['avatar-date']);
+
+		$prefix = System::baseUrl() . '/photo/' .$avatar['resource-id'] . '-';
+		$suffix = '.' . $file_suffix . '?ts=' . $timestamp;
+
+		$fields['photo'] = $prefix . '4' . $suffix;
+		$fields['thumb'] = $prefix . '5' . $suffix;
+		$fields['micro'] = $prefix . '6' . $suffix;
+
+		$fields['forum'] = $user['page-flags'] == PAGE_COMMUNITY;
+		$fields['prv'] = $user['page-flags'] == PAGE_PRVGROUP;
+
+		$update = false;
+
+		foreach ($fields as $field => $content) {
+			if ($self[$field] != $content) {
+				$update = true;
+			}
+		}
+
+		if ($update) {
+			$fields['name-date'] = DateTimeFormat::utcNow();
+			dba::update('contact', $fields, ['id' => $self['id']]);
+
+			// Update the public contact as well
+			dba::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
+		}
 	}
 
 	/**
