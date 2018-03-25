@@ -148,7 +148,7 @@ class Contact extends BaseObject
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
-			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date'];
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'nurl'];
 		$self = dba::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBM::is_result($self)) {
 			return;
@@ -211,6 +211,9 @@ class Contact extends BaseObject
 		if ($update) {
 			$fields['name-date'] = DateTimeFormat::utcNow();
 			dba::update('contact', $fields, ['id' => $self['id']]);
+
+			// Update the public contact as well
+			dba::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 		}
 	}
 
