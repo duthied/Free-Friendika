@@ -6,6 +6,8 @@
 
 ### Friendica version you encountered the problem
 
+see `example.com/friendica` on your Friendica node for the version information.
+
 ### Friendica source (git, zip)
 
 ### PHP version
