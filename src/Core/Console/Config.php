@@ -79,6 +79,8 @@ HELP;
 
 	protected function doExecute()
 	{
+		$a = get_app();
+
 		if ($this->getOption('v')) {
 			$this->out('Executable: ' . $this->executable);
 			$this->out('Class: ' . __CLASS__);

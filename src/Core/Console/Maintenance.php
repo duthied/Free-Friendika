@@ -47,6 +47,8 @@ HELP;
 
 	protected function doExecute()
 	{
+		$a = get_app();
+
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
 			$this->out('Arguments: ' . var_export($this->args, true));
