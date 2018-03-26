@@ -1379,7 +1379,7 @@ class PortableContact
 		}
 
 		if (!$failure && in_array($fields['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
-			self::discoverRelay(server_url);
+			self::discoverRelay($server_url);
 		}
 
 		logger("End discovery for server " . $server_url, LOGGER_DEBUG);
@@ -1401,13 +1401,15 @@ class PortableContact
 			return;
 		}
 
-		$gserver = dba::selectFirst('gserver', ['id'], ['nurl' => normalise_link($server_url)]);
+		$gserver = dba::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => normalise_link($server_url)]);
 		if (!DBM::is_result($gserver)) {
 			return;
 		}
 
-		$fields = ['relay-subscribe' => $data->subscribe, 'relay-scope' => $data->scope];
-		dba::update('gserver', $fields, ['id' => $gserver['id']]);
+		if (($gserver['relay-subscribe'] != $data->subscribe) || ($gserver['relay-scope'] != $data->scope)) {
+			$fields = ['relay-subscribe' => $data->subscribe, 'relay-scope' => $data->scope];
+			dba::update('gserver', $fields, ['id' => $gserver['id']]);
+		}
 
 		dba::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
 		if ($data->scope == 'tags') {
