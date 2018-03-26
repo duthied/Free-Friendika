@@ -1377,9 +1377,42 @@ class PortableContact
 			$fields['created'] = DateTimeFormat::utcNow();
 			dba::insert('gserver', $fields);
 		}
+
+		if (in_array($fields['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
+			self::discoverRelay(server_url);
+		}
+
 		logger("End discovery for server " . $server_url, LOGGER_DEBUG);
 
 		return !$failure;
+	}
+
+	private static function discoverRelay($server_url)
+	{
+		logger("Discover relay data for server " . $server_url, LOGGER_DEBUG);
+
+		$serverret = Network::curl($server_url."/.well-known/x-social-relay");
+		if (!$serverret["success"]) {
+			return;
+		}
+
+		$data = json_decode($serverret['body']);
+		if (!is_object($data)) {
+			return;
+		}
+
+		$gserver = dba::selectFirst('gserver', ['id'], ['nurl' => normalise_link($server_url)]);
+		if (!DBM::is_result($gserver)) {
+			return;
+		}
+
+		$fields = ['relay-subscribe' => $data->subscribe, 'relay-scope' => $data->scope];
+		dba::update('gserver', $fields, ['id' => $gserver['id']]);
+
+		dba::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
+		foreach ($data->tags as $tag) {
+			dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
+		}
 	}
 
 	/**
@@ -1463,8 +1496,8 @@ class PortableContact
 				$header = ['Authorization: Bearer '.$accesstoken];
 				$serverdata = Network::curl($api, false, $redirects, ['headers' => $header]);
 				if ($serverdata['success']) {
-				        $servers = json_decode($serverdata['body']);
-				        foreach ($servers->instances as $server) {
+					$servers = json_decode($serverdata['body']);
+					foreach ($servers->instances as $server) {
 						$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
 						Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $url);
 					}

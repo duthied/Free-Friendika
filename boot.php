@@ -41,7 +41,7 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
 define('FRIENDICA_VERSION',      '2018-05-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1258);
+define('DB_UPDATE_VERSION',      1259);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
