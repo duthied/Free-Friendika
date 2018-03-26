@@ -1378,7 +1378,7 @@ class PortableContact
 			dba::insert('gserver', $fields);
 		}
 
-		if (in_array($fields['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
+		if (!$failure && in_array($fields['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
 			self::discoverRelay(server_url);
 		}
 
@@ -1410,8 +1410,10 @@ class PortableContact
 		dba::update('gserver', $fields, ['id' => $gserver['id']]);
 
 		dba::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
-		foreach ($data->tags as $tag) {
-			dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
+		if ($data->scope == 'tags') {
+			foreach ($data->tags as $tag) {
+				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
+			}
 		}
 	}
 
