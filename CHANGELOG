@@ -2,11 +2,11 @@ Version 3.6 (2018-03-23)
   Friendica Core:
     Updates to the translations (DE, EN_GB, EN_US, ES, FR, IT, ZH_CN) [translation teams]
     Updates for the Danish and French regions [Alkarex]
-    Update for the documentation [andyhee, annando, rabuzarus, ratten, rudlof, silke, tobiasd]
+    Update for the documentation [andyhee, annando, rabuzarus, ratten, rudloff, silke, tobiasd]
     Updates to the themes [Andi-K, annando, fabrixxm, hoergen, rebeka-catalina, rabuzarus]
     Enhancements to the ARIA support in frio [rabuzarus]
     Enhancements to the DB handling and structure [annando]
-    Enhancements to the API [annando, fabrixxm, MrPetovan, rudlof]
+    Enhancements to the API [annando, fabrixxm, MrPetovan, rudloff]
     Enhancements to the support of Open Graph with images [hoergen]
     Enhancements to the Diaspora federation (participation signal, relay of dislikes, basic forum support for D*, Birthdays) [annando]
     Enhancements to the OStatus federation [annando]
