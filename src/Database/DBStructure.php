@@ -1074,6 +1074,8 @@ class DBStructure
 						"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"relay-subscribe" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Has the server subscribed to the relay system"],
+						"relay-scope" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => "The scope of messages that the server wants to get"],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"last_poco_query" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
 						"last_contact" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
@@ -1082,6 +1084,17 @@ class DBStructure
 				"indexes" => [
 						"PRIMARY" => ["id"],
 						"nurl" => ["UNIQUE", "nurl(190)"],
+						]
+				];
+		$database["gserver-tag"] = [
+				"comment" => "Tags that the server has subscribed",
+				"fields" => [
+						"gserver-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gserver" => "id"], "primary" => "1", "comment" => "The id of the gserver"],
+						"tag" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "primary" => "1", "comment" => "Tag that the server has subscribed"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["gserver-id", "tag"],
+						"tag" => ["tag"],
 						]
 				];
 		$database["hook"] = [

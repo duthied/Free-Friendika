@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018-05-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1258
+-- DB_UPDATE_VERSION 1259
 -- ------------------------------------------
 
 
@@ -397,12 +397,24 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`platform` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`relay-subscribe` boolean NOT NULL DEFAULT '0' COMMENT 'Has the server subscribed to the relay system',
+	`relay-scope` varchar(10) NOT NULL DEFAULT '' COMMENT 'The scope of messages that the server wants to get',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `nurl` (`nurl`(190))
+) DEFAULT COLLATE utf8mb4_general_ci;
+
+--
+-- TABLE gserver-tag
+--
+CREATE TABLE IF NOT EXISTS `gserver-tag` (
+	`gserver-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'The id of the gserver',
+	`tag` varchar(100) NOT NULL DEFAULT '' COMMENT 'Tag that the server has subscribed',
+	 PRIMARY KEY(`gserver-id`,`tag`),
+	 INDEX `tag` (`tag`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
