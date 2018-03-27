@@ -1387,6 +1387,11 @@ class PortableContact
 		return !$failure;
 	}
 
+	/**
+	 * @brief Fetch relay data from a given server url
+	 *
+	 * @param string $server_url address of the server
+	 */
 	private static function discoverRelay($server_url)
 	{
 		logger("Discover relay data for server " . $server_url, LOGGER_DEBUG);
