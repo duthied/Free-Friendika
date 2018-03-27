@@ -3222,7 +3222,7 @@ class Diaspora
 
 		// We always try to use the data from the fcontact table.
 		// This is important for transmitting data to Friendica servers.
-		if (!empty($contact['addr'])) {
+		if (!empty($contact['addr']) && ($contact['network'] != NETWORK_DIASPORA)) {
 			$fcontact = self::personByHandle($contact['addr']);
 			$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
 		} else {
