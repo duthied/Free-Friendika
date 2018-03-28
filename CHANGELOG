@@ -1,3 +1,34 @@
+Version 3.6.1 (2018-03-xx)
+  Friendica Core:
+    Update to the translations (DE, PL, ZN CH) [translation teams]
+    Update to the documentation [annando, rudloff, tobiasd]
+    Enhancements to the DB handling [annando]
+    Enhancements to the relais system [annando]
+    Enhancements to the handling of URL that contain unicode characters [annando]
+    Enhancements to the Vagrant VM configuration [fabrixxm]
+    Enhancementa to the Babel module [MrPetovan]
+    Fixed a bug in the relocation process of a Friendica instance [annando]
+    Fixed a bug in the shell wrapper for the console [MrPetovan]
+    Fixed a bug with the console tool po2php [MrPetovan]
+    Fixed a bug in the ACL [annando, MrPetovan]
+    Fixed a bug that prevented the deletion of contact groups [annando]
+    Fixed wrong version of a dependency preventing the usage of PHP 5.6 [MrPetovan]
+    Added preloading config adampter [MrPetovan]
+    Added memcached support [MrPetovan]
+    Added password exposure check [MrPetovan]
+    Added a console to unify the PHP utility scripts [MrPetovan]
+    Added hashtag autocompletion [rabuzarus]
+    Added feedtest module [MrPetovan]
+    The execute-ables were moved from /util to /bin [MrPetovan]
+    General code refactoring and beautification work [annando, MrPetovan]
+
+  Friendica Addons:
+    Updates to the translations (NL, PL, ZH CN) [translation teams]
+    NSFW: add hashtag only hiding [MrPetovan]
+
+  Closed Issues:
+    4601, 4616, 4647, 4660, 4661, 4663, 4664, 4665, 4666, 4669, 4670
+
 Version 3.6 (2018-03-23)
   Friendica Core:
     Updates to the translations (DE, EN_GB, EN_US, ES, FR, IT, ZH_CN) [translation teams]
