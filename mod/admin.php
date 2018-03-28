@@ -871,8 +871,9 @@ function admin_page_site_post(App $a)
 		update_table("gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
-		$a->set_baseurl($new_url);
+		Config::set('system', 'hostname', parse_url($new_url,  PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
+		$a->set_baseurl($new_url);
 
 		// send relocate
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
