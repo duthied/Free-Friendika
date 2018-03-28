@@ -485,7 +485,7 @@ class Notifier {
 
 			if ($diaspora_delivery) {
 				if (!$followup) {
-					$r0 = Diaspora::relayList();
+					$r0 = Diaspora::relayList($item_id);
 				}
 
 				$r1 = q("SELECT `batch`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`name`) AS `name`, ANY_VALUE(`network`) AS `network`

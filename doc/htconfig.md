@@ -85,6 +85,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **proxy_cache_time** - Time after which the cache is cleared. Default value is one day.
 * **pushpoll_frequency** -
 * **qsearch_limit** - Default value is 100.
+* **relay_directly** (Boolean) - Enables the direct transfer without using the relay servers
 * **relay_server** - Experimental Diaspora feature. Address of the relay server where public posts should be send to. For example https://podrelay.net
 * **relay_subscribe** (Boolean) - Enables the receiving of public posts from the relay. They will be included in the search and on the community page when it is set up to show all public items.
 * **relay_scope** - Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.
