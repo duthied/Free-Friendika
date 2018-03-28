@@ -43,6 +43,7 @@ Assuming you want to convert the German localization which is placed in view/lan
 
        The output of the script will be placed at view/lang/de/strings.php where
        friendica is expecting it, so you can test your translation immediately.
+       *Please note that the console tool has to be called from the base directory of your Friendica installation.*
 
     3. Visit your friendica page to check if it still works in the language you
        just translated. If not try to find the error, most likely PHP will give

@@ -28,6 +28,7 @@ The location of the translated files in the source tree is
 where LNG-CODE is the language code used, e.g. de for German or fr for French.
 The translated strings come as a "message.po" file from transifex which needs to be translated into the PHP file friendica uses.
 To do so, place the file in the directory mentioned above and use the "po2php" command from the console.
+*Please note that the console tool has to be called from the base directory of your Friendica installation.*
 
 Assuming you want to convert the German localization which is placed in view/lang/de/message.po you would do the following.
 
