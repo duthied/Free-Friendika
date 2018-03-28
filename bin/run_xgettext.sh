@@ -45,7 +45,7 @@ case "$MODE" in
 	;;
 	'default')
 		cd "$FULLPATH/.."
-		OUTFILE="$FULLPATH/messages.po"
+		OUTFILE="$FULLPATH/../util/messages.po"
 		FINDSTARTDIR="."
 		# skip addon folder
 		FINDOPTS="( -wholename */addon -or -wholename */addons-extra -or -wholename */smarty3 ) -prune -o"
