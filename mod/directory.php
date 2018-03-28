@@ -78,13 +78,12 @@ function directory_content(App $a)
 				(`profile`.`prv_keywords` LIKE '%$search%'))";
 	}
 
-	$publish = ((Config::get('system', 'publish_all')) ? '' : " AND `publish` = 1 " );
+	$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 " );
 
 
-	$cnt = dba::selectFirst("SELECT COUNT(*) AS `total` FROM `profile`
+	$cnt = dba::fetch_first("SELECT COUNT(*) AS `total` FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $sql_extra "
-	);
+				WHERE `is-default` $publish AND NOT `user`.`blocked` $sql_extra");
 	if (DBM::is_result($cnt)) {
 		$a->set_pager_total($cnt['total']);
 	}
