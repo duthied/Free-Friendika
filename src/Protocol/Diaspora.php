@@ -47,60 +47,100 @@ class Diaspora
 	/**
 	 * @brief Return a list of relay servers
 	 *
-	 * This is an experimental Diaspora feature.
+	 * The list contains not only the official relays but also servers that we serve directly
 	 *
+	 * @param integer $item_id   The id of the item that is sent
 	 * @return array of relay servers
 	 */
-	public static function relayList()
+	public static function relayList($item_id)
 	{
+		$serverlist = [];
+
+		// Fetching relay servers
 		$serverdata = Config::get("system", "relay_server");
-		if ($serverdata == "") {
-			return [];
-		}
-
-		$relay = [];
-
-		$servers = explode(",", $serverdata);
-
-		foreach ($servers as $server) {
-			$server = trim($server);
-			$addr = "relay@".str_replace("http://", "", normalise_link($server));
-			$batch = $server."/receive/public";
-
-			$relais = q(
-				"SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' AND `addr` = '%s' AND `nurl` = '%s' LIMIT 1",
-				dbesc($batch),
-				dbesc($addr),
-				dbesc(normalise_link($server))
-			);
-
-			if (!$relais) {
-				$r = q(
-					"INSERT INTO `contact` (`uid`, `created`, `name`, `nick`, `addr`, `url`, `nurl`, `batch`, `network`, `rel`, `blocked`, `pending`, `writable`, `name-date`, `uri-date`, `avatar-date`)
-					VALUES (0, '%s', '%s', 'relay', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, '%s', '%s', '%s')",
-					DateTimeFormat::utcNow(),
-					dbesc($addr),
-					dbesc($addr),
-					dbesc($server),
-					dbesc(normalise_link($server)),
-					dbesc($batch),
-					dbesc(NETWORK_DIASPORA),
-					intval(CONTACT_IS_FOLLOWER),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow())
-				);
-
-				$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
-				if ($relais) {
-					$relay[] = $relais[0];
-				}
-			} else {
-				$relay[] = $relais[0];
+		if ($serverdata != "") {
+			$servers = explode(",", $serverdata);
+			foreach ($servers as $server) {
+				$serverlist[$server] = trim($server);
 			}
 		}
 
-		return $relay;
+		if (Config::get("system", "relay_directly", false)) {
+			// Servers that want to get all content
+			$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'all']);
+			while ($server = dba::fetch($servers)) {
+				$serverlist[$server['url']] = $server['url'];
+			}
+
+			// All tags of the current post
+			$condition = ['otype' => TERM_OBJ_POST, 'type' => TERM_HASHTAG, 'oid' => $item_id];
+			$tags = dba::select('term', ['term'], $condition);
+			$taglist = [];
+			while ($tag = dba::fetch($tags)) {
+				$taglist[] = $tag['term'];
+			}
+
+			// All servers who wants content with this tag
+			$tagserverlist = [];
+			$tagserver = dba::select('gserver-tag', ['gserver-id'], ['tag' => $taglist]);
+			while ($server = dba::fetch($tagserver)) {
+				$tagserverlist[] = $server['gserver-id'];
+			}
+
+			// All adresses with the given id
+			$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
+			while ($server = dba::fetch($servers)) {
+				$serverlist[$server['url']] = $server['url'];
+			}
+		}
+
+		// Now we are collecting all relay contacts
+		$contacts = [];
+		foreach ($serverlist as $server_url) {
+			// We don't send messages to ourselves
+			if (!link_compare($server_url, System::baseUrl())) {
+				$contacts[] = self::getRelayContactId($server_url);
+			}
+		}
+
+		return $contacts;
+	}
+
+	/**
+	 * @brief Return a contact for a given server address or creates a dummy entry
+	 *
+	 * @param string $server_url The url of the server
+	 * @return array with the contact
+	 */
+	private static function getRelayContactId($server_url)
+	{
+		$batch = $server_url . '/receive/public';
+
+		$fields = ['batch', 'id', 'name', 'network'];
+		$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
+				'archive' => false, 'blocked' => false];
+		$contact = dba::selectFirst('contact', $fields, $condition);
+		if (DBM::is_result($contact)) {
+			return $contact;
+		} else {
+			$fields = ['uid' => 0, 'created' => DateTimeFormat::utcNow(),
+				'name' => 'relay', 'nick' => 'relay',
+				'url' => $server_url, 'nurl' => normalise_link($server_url),
+				'batch' => $batch, 'network' => NETWORK_DIASPORA,
+				'rel' => CONTACT_IS_FOLLOWER, 'blocked' => false,
+				'pending' => false, 'writable' => true];
+			dba::insert('contact', $fields);
+
+			$fields = ['batch', 'id', 'name', 'network'];
+			$contact = dba::selectFirst('contact', $fields, $condition);
+			if (DBM::is_result($contact)) {
+				return $contact;
+			}
+
+		}
+
+		// It should never happen that we arrive here
+		return [];
 	}
 
 	/**
