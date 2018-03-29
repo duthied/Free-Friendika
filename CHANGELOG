@@ -5,7 +5,7 @@ Version 3.6.1 (2018-03-xx)
     Enhancements to the DB handling [annando]
     Enhancements to the relay system [annando]
     Enhancements to the handling of URL that contain unicode characters [annando]
-    Enhancements to the Vagrant VM configuration [fabrixxm]
+    Enhancements to the Vagrant VM configuration [fabrixxm, tobiasd]
     Enhancementa to the Babel module [MrPetovan]
     Fixed a bug in the relocation process of a Friendica instance [annando]
     Fixed a bug in the shell wrapper for the console [MrPetovan]
