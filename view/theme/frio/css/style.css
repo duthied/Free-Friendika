@@ -1087,6 +1087,9 @@ color: rgba(255,255,255,.85);
 aside .vcard #profile-photo-wrapper:hover .tool .action {
     opacity: 1;
 }
+aside .vcard #profile-photo-wrapper.crop-preview {
+    padding: 0;
+}
 aside .vcard .profile-header {
     margin-bottom: 20px;
 }
