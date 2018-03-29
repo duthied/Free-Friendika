@@ -43,7 +43,7 @@ sudo chmod guo+x /usr/local/bin/vhost
 
 #Install php
 echo ">>> Installing PHP7"
-sudo apt-get install -y php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring php-xml imagemagick php-imagick
+sudo apt-get install -y php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring php-xml imagemagick php-imagick php-zip
 sudo systemctl restart apache2
 
 #Install mysql
