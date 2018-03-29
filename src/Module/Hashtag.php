@@ -31,7 +31,7 @@ class Hashtag extends BaseModule
 			intval(TERM_HASHTAG)
 		);
 		while ($tag = dba::fetch($taglist)) {
-			$result[] = ['text' => strtolower($tag['term'])];
+			$result[] = ['text' => $tag['term']];
 		}
 		dba::close($taglist);
 
