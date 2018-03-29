@@ -25,7 +25,7 @@ function babel_content()
 
 				$html = Text\BBCode::convert($bbcode);
 				$results[] = [
-					'title' => L10n::t("BBCode::convert \x28raw HTML\x28"),
+					'title' => L10n::t("BBCode::convert \x28raw HTML\x29"),
 					'content' => htmlspecialchars($html)
 				];
 
