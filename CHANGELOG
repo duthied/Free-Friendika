@@ -3,7 +3,7 @@ Version 3.6.1 (2018-03-xx)
     Update to the translations (DE, PL, ZN CH) [translation teams]
     Update to the documentation [annando, rudloff, tobiasd]
     Enhancements to the DB handling [annando]
-    Enhancements to the relais system [annando]
+    Enhancements to the relay system [annando]
     Enhancements to the handling of URL that contain unicode characters [annando]
     Enhancements to the Vagrant VM configuration [fabrixxm]
     Enhancementa to the Babel module [MrPetovan]
