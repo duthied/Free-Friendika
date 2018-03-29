@@ -35,23 +35,12 @@
 		"npm-asset/jquery-datetimepicker": "^2.4.0",
 		"npm-asset/jgrowl": "^1.4",
 		"npm-asset/fullcalendar": "^3.0.1",
-		"fengyuanchen/cropperjs": "1.2.2"
+		"npm-asset/cropperjs": "1.2.2"
 	},
 	"repositories": [
 		{
 			"type": "vcs",
 			"url": "https://github.com/pear/Text_Highlighter"
-		},
-		{
-			"type": "package",
-			"package": {
-				"name": "fengyuanchen/cropperjs",
-				"version": "1.2.2",
-				"dist": {
-					"url": "https://github.com/fengyuanchen/cropperjs/archive/v1.2.2.zip",
-					"type": "zip"
-				}
-			}
 		}
 	],
 	"autoload": {
