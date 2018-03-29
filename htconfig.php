@@ -3,7 +3,7 @@
 // If automatic system installation fails:
 
 
-die('The configuration done manually contains some mistakes. Please have a look at your .htconfig.php file.');
+die('The configuration you did manually contains some mistakes. Please have a look at your .htconfig.php file.');
 // If you are doing the configuration manually, please remove the line above
 
 
