@@ -1294,7 +1294,7 @@ class BBCode extends BaseObject
 	{
 		if (in_array(strtolower($match[1]),
 				['php', 'css', 'mysql', 'sql', 'abap', 'diff', 'html', 'perl', 'ruby',
-				'vbscript', 'avrc', 'dtd', 'java', 'xml', 'cpp', 'python', 'javascript', 'js', 'sh'])
+				'vbscript', 'avrc', 'dtd', 'java', 'xml', 'cpp', 'python', 'javascript', 'js', 'sh', 'bash'])
 		) {
 			return text_highlight($match[2], strtolower($match[1]));
 		}
