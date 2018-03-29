@@ -13,25 +13,25 @@
 
 <script type="text/javascript" language="javascript">
 
-		var image = document.getElementById('croppa');
-		var cropper = new Cropper(image, {
-			aspectRatio: 1 / 1,
-			viewMode: 1,
-			preview: '#profile-photo-wrapper, .crop-preview',
-			crop: function(e) {
-				$( '#x1' ).val(e.detail.x);
-				$( '#y1' ).val(e.detail.y);
-				$( '#x2' ).val(e.detail.x + e.detail.width);
-				$( '#y2' ).val(e.detail.y + e.detail.height);
-				$( '#width' ).val(e.detail.scaleX);
-				$( '#height' ).val(e.detail.scaleY);
-			},
-			ready: function() {
-				// Add the "crop-preview" class to the preview element ("profile-photo-wrapper").
-				var cwrapper = document.getElementById("profile-photo-wrapper");
-				cwrapper.classList.add("crop-preview");
-			}
-		});
+	var image = document.getElementById('croppa');
+	var cropper = new Cropper(image, {
+		aspectRatio: 1 / 1,
+		viewMode: 1,
+		preview: '#profile-photo-wrapper, .crop-preview',
+		crop: function(e) {
+			$( '#x1' ).val(e.detail.x);
+			$( '#y1' ).val(e.detail.y);
+			$( '#x2' ).val(e.detail.x + e.detail.width);
+			$( '#y2' ).val(e.detail.y + e.detail.height);
+			$( '#width' ).val(e.detail.scaleX);
+			$( '#height' ).val(e.detail.scaleY);
+		},
+		ready: function() {
+			// Add the "crop-preview" class to the preview element ("profile-photo-wrapper").
+			var cwrapper = document.getElementById("profile-photo-wrapper");
+			cwrapper.classList.add("crop-preview");
+		}
+	});
 
 </script>
 
