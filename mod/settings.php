@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -13,6 +14,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
@@ -386,13 +388,18 @@ function settings_post(App $a)
 		if (!x($newpass) || !x($confirm)) {
 			notice(L10n::t('Empty passwords are not allowed. Password unchanged.') . EOL);
 			$err = true;
-        }
+		}
 
-        //  check if the old password was supplied correctly before changing it to the new value
-        if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
-            notice(L10n::t('Wrong password.') . EOL);
-            $err = true;
-        }
+		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($newpass)) {
+			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
+			$err = true;
+		}
+
+		//  check if the old password was supplied correctly before changing it to the new value
+		if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
+			notice(L10n::t('Wrong password.') . EOL);
+			$err = true;
+		}
 
 		if (!$err) {
 			$result = User::updatePassword(local_user(), $newpass);
@@ -484,10 +491,7 @@ function settings_post(App $a)
 
 	$err = '';
 
-	$name_change = false;
-
 	if ($username != $a->user['username']) {
-		$name_change = true;
 		if (strlen($username) > 40) {
 			$err .= L10n::t(' Please use a shorter name.');
 		}
@@ -627,14 +631,7 @@ function settings_post(App $a)
 		intval(local_user())
 	);
 
-
-	if ($name_change) {
-		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
-			dbesc($username),
-			dbesc(DateTimeFormat::utcNow()),
-			intval(local_user())
-		);
-	}
+	Contact::updateSelfFromUserID(local_user());
 
 	if (($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background
@@ -998,8 +995,6 @@ function settings_content(App $a)
 	 * ACCOUNT SETTINGS
 	 */
 
-	require_once('include/acl_selectors.php');
-
 	$profile = dba::selectFirst('profile', [], ['is-default' => true, 'uid' => local_user()]);
 	if (!DBM::is_result($profile)) {
 		notice(L10n::t('Unable to find your profile. Please contact your admin.') . EOL);
@@ -1223,7 +1218,7 @@ function settings_content(App $a)
 		'$permissions' => L10n::t('Default Post Permissions'),
 		'$permdesc' => L10n::t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
-		'$aclselect' => populate_acl($a->user),
+		'$aclselect' => ACL::getFullSelectorHTML($a->user),
 		'$suggestme' => $suggestme,
 		'$blockwall'=> $blockwall, // array('blockwall', L10n::t('Allow friends to post to your profile page:'), !$blockwall, ''),
 		'$blocktags'=> $blocktags, // array('blocktags', L10n::t('Allow friends to tag your posts:'), !$blocktags, ''),
@@ -1274,7 +1269,7 @@ function settings_content(App $a)
 
 		'$detailed_notif' => ['detailed_notif', L10n::t('Show detailled notifications'),
 									PConfig::get(local_user(), 'system', 'detailed_notif'),
-									L10n::t('Per default the notificiation are condensed to a single notification per item. When enabled, every notification is displayed.')],
+									L10n::t('Per default, notifications are condensed to a single notification per item. When enabled every notification is displayed.')],
 
 		'$h_advn' => L10n::t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => L10n::t('Change the behaviour of this account for special situations'),

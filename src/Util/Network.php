@@ -79,6 +79,18 @@ class Network
 
 		$a = get_app();
 
+		$parts = parse_url($url);
+		$path_parts = explode('/', $parts['path']);
+		foreach ($path_parts as $part) {
+		        if (strlen($part) <> mb_strlen($part)) {
+				$parts2[] = rawurlencode($part);
+		        } else {
+		                $parts2[] = $part;
+		        }
+		}
+		$parts['path'] =  implode('/', $parts2);
+		$url = self::unparseURL($parts);
+
 		if (self::isUrlBlocked($url)) {
 			logger('domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return $ret;

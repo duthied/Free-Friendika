@@ -8,6 +8,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -19,7 +20,6 @@ use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 require_once 'include/dba.php';
-require_once 'include/html2plain.php';
 
 /**
  * @brief Methods for read and write notifications from/to database
@@ -47,7 +47,7 @@ class NotificationsManager extends BaseObject
 			$n['timestamp'] = strtotime($local_time);
 			$n['date_rel'] = Temporal::getRelativeDate($n['date']);
 			$n['msg_html'] = BBCode::convert($n['msg'], false);
-			$n['msg_plain'] = explode("\n", trim(html2plain($n['msg_html'], 0)))[0];
+			$n['msg_plain'] = explode("\n", trim(HTML::toPlaintext($n['msg_html'], 0)))[0];
 
 			$rets[] = $n;
 		}

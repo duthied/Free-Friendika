@@ -14,6 +14,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Render\FriendicaSmarty;
@@ -21,7 +22,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
 require_once "mod/proxy.php";
-require_once "include/event.php";
 require_once "include/conversation.php";
 
 /**
@@ -1235,37 +1235,37 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	// In order to provide theme developers more possibilities, event items
 	// are treated differently.
 	if ($item['object-type'] === ACTIVITY_OBJ_EVENT && isset($item['event-id'])) {
-		$ev = format_event_item($item);
+		$ev = Event::getItemHTML($item);
 		return $ev;
 	}
 
-	if (!Config::get('system','suppress_tags')) {
-		$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
-				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
+	$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
+			intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
-		while ($tag = dba::fetch($taglist)) {
-			if ($tag["url"] == "") {
-				$tag["url"] = $searchpath.strtolower($tag["term"]);
-			}
-
-			$orig_tag = $tag["url"];
-
-			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
-
-			if ($tag["type"] == TERM_HASHTAG) {
-				if ($orig_tag != $tag["url"]) {
-					$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
-				}
-				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
-				$prefix = "#";
-			} elseif ($tag["type"] == TERM_MENTION) {
-				$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
-				$prefix = "@";
-			}
-			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
+	while ($tag = dba::fetch($taglist)) {
+		if ($tag["url"] == "") {
+			$tag["url"] = $searchpath . strtolower($tag["term"]);
 		}
-		dba::close($taglist);
+
+		$orig_tag = $tag["url"];
+
+		$tag["url"] = best_link_url($item, $sp, $tag["url"]);
+
+		if ($tag["type"] == TERM_HASHTAG) {
+			if ($orig_tag != $tag["url"]) {
+				$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
+			}
+
+			$hashtags[] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+			$prefix = "#";
+		} elseif ($tag["type"] == TERM_MENTION) {
+			$mentions[] = "@<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+			$prefix = "@";
+		}
+
+		$tags[] = $prefix . "<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
 	}
+	dba::close($taglist);
 
 	$item['tags'] = $tags;
 	$item['hashtags'] = $hashtags;
@@ -2028,6 +2028,10 @@ function format_network_name($network, $url = 0) {
 function text_highlight($s, $lang) {
 	if ($lang === 'js') {
 		$lang = 'javascript';
+	}
+
+	if ($lang === 'bash') {
+		$lang = 'sh';
 	}
 
 	// @TODO: Replace Text_Highlighter_Renderer_Html by scrivo/highlight.php

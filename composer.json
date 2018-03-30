@@ -15,6 +15,8 @@
 	"require": {
 		"php": ">5.6",
 		"ext-xml": "*",
+		"asika/simple-console": "^1.0",
+		"divineomega/password_exposed": "^2.4",
 		"ezyang/htmlpurifier": "~4.7.0",
 		"league/html-to-markdown": "~4.4.1",
 		"lightopenid/lightopenid": "dev-master",
@@ -32,14 +34,15 @@
 		"npm-asset/jquery-colorbox": "^1.6",
 		"npm-asset/jquery-datetimepicker": "^2.4.0",
 		"npm-asset/jgrowl": "^1.4",
-		"npm-asset/fullcalendar": "^3.0.1"
+		"npm-asset/fullcalendar": "^3.0.1",
+		"npm-asset/cropperjs": "1.2.2"
 	},
 	"repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/pear/Text_Highlighter"
-        }
-    ],
+		{
+			"type": "vcs",
+			"url": "https://github.com/pear/Text_Highlighter"
+		}
+	],
 	"autoload": {
 		"psr-4": {
 			"Friendica\\": "src/"
@@ -53,11 +56,11 @@
 		"optimize-autoloader": true,
 		"preferred-install": "dist",
 		"fxp-asset": {
-            "installer-paths": {
-                "npm-asset-library": "vendor/asset",
-                "bower-asset-library": "vendor/asset"
-            }
-        }
+			"installer-paths": {
+				"npm-asset-library": "view/asset",
+				"bower-asset-library": "view/asset"
+			}
+		}
 	},
 	"archive": {
 		"exclude": [

@@ -18,7 +18,6 @@ use Friendica\Protocol\Salmon;
 use dba;
 
 require_once 'include/dba.php';
-require_once 'include/html2plain.php';
 require_once 'include/items.php';
 
 /*
@@ -486,7 +485,7 @@ class Notifier {
 
 			if ($diaspora_delivery) {
 				if (!$followup) {
-					$r0 = Diaspora::relayList();
+					$r0 = Diaspora::relayList($item_id);
 				}
 
 				$r1 = q("SELECT `batch`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`name`) AS `name`, ANY_VALUE(`network`) AS `network`

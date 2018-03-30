@@ -9,6 +9,7 @@
 
 namespace Friendica\Protocol;
 
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -23,7 +24,6 @@ use DOMXPath;
 use Exception;
 
 require_once 'include/dba.php';
-require_once 'include/html2bbcode.php';
 
 class PortableContact
 {
@@ -155,7 +155,7 @@ class PortableContact
 			}
 
 			if (isset($entry->aboutMe)) {
-				$about = html2bbcode($entry->aboutMe);
+				$about = HTML::toBBCode($entry->aboutMe);
 			}
 
 			if (isset($entry->gender)) {
@@ -1377,9 +1377,51 @@ class PortableContact
 			$fields['created'] = DateTimeFormat::utcNow();
 			dba::insert('gserver', $fields);
 		}
+
+		if (!$failure && in_array($fields['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
+			self::discoverRelay($server_url);
+		}
+
 		logger("End discovery for server " . $server_url, LOGGER_DEBUG);
 
 		return !$failure;
+	}
+
+	/**
+	 * @brief Fetch relay data from a given server url
+	 *
+	 * @param string $server_url address of the server
+	 */
+	private static function discoverRelay($server_url)
+	{
+		logger("Discover relay data for server " . $server_url, LOGGER_DEBUG);
+
+		$serverret = Network::curl($server_url."/.well-known/x-social-relay");
+		if (!$serverret["success"]) {
+			return;
+		}
+
+		$data = json_decode($serverret['body']);
+		if (!is_object($data)) {
+			return;
+		}
+
+		$gserver = dba::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => normalise_link($server_url)]);
+		if (!DBM::is_result($gserver)) {
+			return;
+		}
+
+		if (($gserver['relay-subscribe'] != $data->subscribe) || ($gserver['relay-scope'] != $data->scope)) {
+			$fields = ['relay-subscribe' => $data->subscribe, 'relay-scope' => $data->scope];
+			dba::update('gserver', $fields, ['id' => $gserver['id']]);
+		}
+
+		dba::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
+		if ($data->scope == 'tags') {
+			foreach ($data->tags as $tag) {
+				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
+			}
+		}
 	}
 
 	/**
@@ -1463,8 +1505,8 @@ class PortableContact
 				$header = ['Authorization: Bearer '.$accesstoken];
 				$serverdata = Network::curl($api, false, $redirects, ['headers' => $header]);
 				if ($serverdata['success']) {
-				        $servers = json_decode($serverdata['body']);
-				        foreach ($servers->instances as $server) {
+					$servers = json_decode($serverdata['body']);
+					foreach ($servers->instances as $server) {
 						$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
 						Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $url);
 					}
@@ -1678,7 +1720,7 @@ class PortableContact
 			}
 
 			if (isset($entry->aboutMe)) {
-				$about = html2bbcode($entry->aboutMe);
+				$about = HTML::toBBCode($entry->aboutMe);
 			}
 
 			if (isset($entry->gender)) {

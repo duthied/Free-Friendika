@@ -718,7 +718,7 @@ function admin_page_summary(App $a)
 	$warningtext = [];
 	if (DBM::is_result($r)) {
 		$showwarning = true;
-		$warningtext[] = L10n::t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php scripts/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+		$warningtext[] = L10n::t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
 	// the local version of Friendica. Check is opt-in, source may be master or devel branch
@@ -735,7 +735,7 @@ function admin_page_summary(App $a)
 	}
 	if (Config::get('system', 'dbupdate') == DB_UPDATE_FAILED) {
 		$showwarning = true;
-		$warningtext[] = L10n::t('The database update failed. Please run "php scripts/dbstructure.php update" from the command line and have a look at the errors that might appear.');
+		$warningtext[] = L10n::t('The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.');
 	}
 
 	$last_worker_call = Config::get('system', 'last_poller_execution', false);
@@ -871,8 +871,9 @@ function admin_page_site_post(App $a)
 		update_table("gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
-		$a->set_baseurl($new_url);
+		Config::set('system', 'hostname', parse_url($new_url,  PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
+		$a->set_baseurl($new_url);
 
 		// send relocate
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
@@ -960,10 +961,18 @@ function admin_page_site_post(App $a)
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
+
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
 	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
+
+	$relay_directly		=	((x($_POST,'relay_directly'))		? True						: False);
+	$relay_server		=	((x($_POST,'relay_server'))		? notags(trim($_POST['relay_server']))		: '');
+	$relay_subscribe	=	((x($_POST,'relay_subscribe'))		? True						: False);
+	$relay_scope		=	((x($_POST,'relay_scope'))		? notags(trim($_POST['relay_scope']))		: '');
+	$relay_server_tags	=	((x($_POST,'relay_server_tags'))	? notags(trim($_POST['relay_server_tags']))	: '');
+	$relay_user_tags	=	((x($_POST,'relay_user_tags'))		? True						: False);
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
@@ -1118,10 +1127,19 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'basepath', $basepath);
 	Config::set('system', 'proxy_disabled', $proxy_disabled);
 	Config::set('system', 'only_tag_search', $only_tag_search);
+
 	Config::set('system', 'worker_queues', $worker_queues);
 	Config::set('system', 'worker_dont_fork', $worker_dont_fork);
 	Config::set('system', 'worker_fastlane', $worker_fastlane);
 	Config::set('system', 'frontend_worker', $worker_frontend);
+
+	Config::set('system', 'relay_directly', $relay_directly);
+	Config::set('system', 'relay_server', $relay_server);
+	Config::set('system', 'relay_subscribe', $relay_subscribe);
+	Config::set('system', 'relay_scope', $relay_scope);
+	Config::set('system', 'relay_server_tags', $relay_server_tags);
+	Config::set('system', 'relay_user_tags', $relay_user_tags);
+
 	Config::set('system', 'rino_encrypt', $rino);
 
 	info(L10n::t('Site settings updated.') . EOL);
@@ -1270,6 +1288,7 @@ function admin_page_site(App $a)
 		'$portable_contacts' => L10n::t('Auto Discovered Contact Directory'),
 		'$performance' => L10n::t('Performance'),
 		'$worker_title' => L10n::t('Worker'),
+		'$relay_title' => L10n::t('Message Relay'),
 		'$relocate' => L10n::t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
@@ -1349,12 +1368,19 @@ function admin_page_site(App $a)
 
 		'$relocate_url'		=> ['relocate_url', L10n::t("New base url"), System::baseUrl(), L10n::t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],
 
-		'$rino' 		=> ['rino', L10n::t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => "Disabled", 1 => "Enabled"]],
+		'$rino' 		=> ['rino', L10n::t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => L10n::t("Disabled"), 1 => L10n::t("Enabled")]],
 
 		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")],
 		'$worker_dont_fork'	=> ['worker_dont_fork', L10n::t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), L10n::t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
 		'$worker_fastlane'	=> ['worker_fastlane', L10n::t("Enable fastlane"), Config::get('system','worker_fastlane'), L10n::t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
 		'$worker_frontend'	=> ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system','frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed \x28e.g. messages being delivered\x29. On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
+
+		'$relay_subscribe' 	=> ['relay_subscribe', L10n::t("Subscribe to relay"), Config::get('system','relay_subscribe'), L10n::t("Enables the receiving of public posts from the relay. They will be included in the search, subscribed tags and on the global community page.")],
+		'$relay_server'		=> ['relay_server', L10n::t("Relay server"), Config::get('system','relay_server'), L10n::t("Address of the relay server where public posts should be send to. For example https://relay.diasp.org")],
+		'$relay_directly'	=> ['relay_directly', L10n::t("Direct relay transfer"), Config::get('system','relay_directly'), L10n::t("Enables the direct transfer to other servers without using the relay servers")],
+		'$relay_scope'		=> ['relay_scope', L10n::t("Relay scope"), Config::get('system','relay_scope'), L10n::t("Can be 'all' or 'tags'. 'all' means that every public post should be received. 'tags' means that only posts with selected tags should be received."), ['' => L10n::t('Disabled'), 'all' => L10n::t('all'), 'tags' => L10n::t('tags')]],
+		'$relay_server_tags' 	=> ['relay_server_tags', L10n::t("Server tags"), Config::get('system','relay_server_tags'), L10n::t("Comma separated list of tags for the 'tags' subscription.")],
+		'$relay_user_tags' 	=> ['relay_user_tags', L10n::t("Allow user tags"), Config::get('system','relay_user_tags'), L10n::t("If enabled, the tags from the saved searches will used for the 'tags' subscription in addition to the 'relay_server_tags'.")],
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 	]);

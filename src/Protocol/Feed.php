@@ -10,12 +10,13 @@ use Friendica\Database\DBM;
 use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Util\Network;
+use Friendica\Content\Text\HTML;
+
 use dba;
 use DOMDocument;
 use DOMXPath;
 
 require_once 'include/dba.php';
-require_once 'include/html2bbcode.php';
 require_once 'include/items.php';
 
 /**
@@ -360,7 +361,7 @@ class Feed {
 			if (self::titleIsBody($item["title"], $body)) {
 				$item["title"] = "";
 			}
-			$item["body"] = html2bbcode($body, $basepath);
+			$item["body"] = HTML::toBBCode($body, $basepath);
 
 			if (($item["body"] == '') && ($item["title"] != '')) {
 				$item["body"] = $item["title"];
