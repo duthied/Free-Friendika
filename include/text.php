@@ -2030,6 +2030,10 @@ function text_highlight($s, $lang) {
 		$lang = 'javascript';
 	}
 
+	if ($lang === 'bash') {
+		$lang = 'sh';
+	}
+
 	// @TODO: Replace Text_Highlighter_Renderer_Html by scrivo/highlight.php
 
 	// Autoload the library to make constants available
