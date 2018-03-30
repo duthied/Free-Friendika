@@ -176,7 +176,10 @@ function follow_content(App $a)
 
 	$a->page['aside'] = '';
 
-	Profile::load($a, '', 0, Contact::getDetailsByURL($ret['url']), false);
+	$profiledata = Contact::getDetailsByURL($ret['url']);
+	if ($profiledata) {
+		Profile::load($a, '', 0, $profiledata, false);
+	}
 
 	if ($gcontact_id <> 0) {
 		$o .= replace_macros(get_markup_template('section_title.tpl'),
