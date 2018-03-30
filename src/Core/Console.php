@@ -22,6 +22,7 @@ class Console extends \Asika\SimpleConsole\Console
 		'globalcommunityblock'   => __NAMESPACE__ . '\Console\GlobalCommunityBlock',
 		'globalcommunitysilence' => __NAMESPACE__ . '\Console\GlobalCommunitySilence',
 		'maintenance'            => __NAMESPACE__ . '\Console\Maintenance',
+		'newpassword'            => __NAMESPACE__ . '\Console\NewPassword',
 		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
 		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
 		'typo'                   => __NAMESPACE__ . '\Console\Typo',
@@ -42,6 +43,7 @@ Commands:
 	globalcommunitysilence Silence remote profile from global community page
 	help                   Show help about a command, e.g (bin/console help config)
 	maintenance            Set maintenance mode for this node
+	newpassword            Set a new password for a given user
 	php2po                 Generate a messages.po file from a strings.php file
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
