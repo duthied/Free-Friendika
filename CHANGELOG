@@ -7,6 +7,7 @@ Version 3.6.1 (2018-03-xx)
     Enhancements to the handling of URL that contain unicode characters [annando]
     Enhancements to the Vagrant VM configuration [fabrixxm, tobiasd]
     Enhancementa to the Babel module [MrPetovan]
+    Enhancements to the display it the [code] elements [MrPetovan]
     Fixed a bug in the relocation process of a Friendica instance [annando]
     Fixed a bug in the shell wrapper for the console [MrPetovan]
     Fixed a bug with the console tool po2php [MrPetovan]
@@ -21,13 +22,15 @@ Version 3.6.1 (2018-03-xx)
     Added feedtest module [MrPetovan]
     The execute-ables were moved from /util to /bin [MrPetovan]
     General code refactoring and beautification work [annando, MrPetovan]
+    Switced to cropperjs to better support touch screen devices [rabuzarus]
 
   Friendica Addons:
     Updates to the translations (NL, PL, ZH CN) [translation teams]
     NSFW: add hashtag only hiding [MrPetovan]
 
   Closed Issues:
-    4601, 4616, 4647, 4660, 4661, 4663, 4664, 4665, 4666, 4669, 4670
+    4572, 4601, 4616, 4647, 4660, 4661, 4663, 4664, 4665, 4666, 4669
+    4670
 
 Version 3.6 (2018-03-23)
   Friendica Core:
