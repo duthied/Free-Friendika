@@ -55,7 +55,6 @@ function dfrn_notify_post(App $a) {
 			}
 
 			// Set the user id. This is important if this is a public contact
-			$importer['uid']  = $user['uid'];
 			$importer['importer_uid']  = $user['uid'];
 
 			// Now we should be able to import it
