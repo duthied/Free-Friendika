@@ -10,15 +10,13 @@ use Friendica\Database\DBM;
 use dba;
 
 /**
- * @brief tool to block an account from the node
+ * @brief tool to set a new password for a user
  *
- * With this tool, you can block an account in such a way, that no postings
- * or comments this account writes are accepted to the node.
+ * With this tool, you can set a new password for a user
  *
  * License: AGPLv3 or later, same as Friendica
  *
- * @author Tobias Diekershoff <mrpetovan@gmail.com>
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Michael Vogel <heluecht@pirati.ca>
  */
 class NewPassword extends \Asika\SimpleConsole\Console
 {
@@ -84,7 +82,7 @@ HELP;
 			throw new \RuntimeException(L10n::t('Password update failed. Please try again.'));
 		}
 
-		$this->out(L10n::t('Password changed.', $nick));
+		$this->out(L10n::t('Password changed.'));
 
 		return 0;
 	}

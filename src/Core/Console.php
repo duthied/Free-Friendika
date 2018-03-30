@@ -43,7 +43,7 @@ Commands:
 	globalcommunitysilence Silence remote profile from global community page
 	help                   Show help about a command, e.g (bin/console help config)
 	maintenance            Set maintenance mode for this node
-	newpassword            Set an new password for a given user
+	newpassword            Set a new password for a given user
 	php2po                 Generate a messages.po file from a strings.php file
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
