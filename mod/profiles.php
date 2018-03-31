@@ -14,6 +14,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
