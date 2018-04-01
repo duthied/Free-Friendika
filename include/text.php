@@ -1183,11 +1183,6 @@ function put_item_in_cache(&$item, $update = false)
 {
 	$body = $item["body"];
 
-	// Add the content warning
-	if (!empty($item['content-warning'])) {
-		$item["body"] = $item['content-warning'] . '[spoiler]' . $item["body"] . '[/spoiler]';
-	}
-
 	$rendered_hash = defaults($item, 'rendered-hash', '');
 
 	if ($rendered_hash == ''
