@@ -635,8 +635,21 @@ function admin_page_federation(App $a)
 			$v = $newVv;
 		}
 
-		foreach ($v as $key => $vv)
-			$v[$key]["version"] = trim(strip_tags($vv["version"]));
+		// Assure that the versions are sorted correctly
+		$v2 = [];
+		$versions = [];
+		foreach ($v as $vv) {
+			$version = trim(strip_tags($vv["version"]));
+			$v2[$version] = $vv;
+			$versions[] = $version;
+		}
+
+		usort($versions, 'version_compare');
+
+		$v = [];
+		foreach ($versions as $version) {
+			$v[] = $v2[$version];
+		}
 
 		// the 3rd array item is needed for the JavaScript graphs as JS does
 		// not like some characters in the names of variables...

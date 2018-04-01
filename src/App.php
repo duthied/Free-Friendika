@@ -212,12 +212,6 @@ class App
 			. $this->basepath . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
 			. $this->basepath);
 
-
-		if (is_array($_SERVER['argv']) && $_SERVER['argc'] > 1 && substr(end($_SERVER['argv']), 0, 4) == 'http') {
-			$this->set_baseurl(array_pop($_SERVER['argv']));
-			$_SERVER['argc'] --;
-		}
-
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 9) === 'pagename=') {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
 
@@ -867,9 +861,6 @@ class App
 		Cache::set($cachekey, time(), CACHE_MINUTE);
 
 		array_unshift($args, ((x($this->config, 'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
-
-		// add baseurl to args. cli scripts can't construct it
-		$args[] = $this->get_baseurl();
 
 		for ($x = 0; $x < count($args); $x ++) {
 			$args[$x] = escapeshellarg($args[$x]);
