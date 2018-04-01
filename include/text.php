@@ -1270,7 +1270,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 
 	// Compile eventual content filter reasons
 	$filter_reasons = [];
-	if (!$is_preview && !$item['self']) {
+	if (!$is_preview && !($item['self'] && local_user() == $item['uid'])) {
 		if (!empty($item['content-warning']) && (!local_user() || !PConfig::get(local_user(), 'social', 'disable_cw', false))) {
 			$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
 		}
@@ -1305,9 +1305,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	$s = $hook_data['html'];
 	unset($hook_data);
 
-	if (!$is_preview && !$item['self']) {
-		$s = apply_content_filter($s, $filter_reasons);
-	}
+	$s = apply_content_filter($s, $filter_reasons);
 
 	if (! $attach) {
 		// Replace the blockquotes with quotes that are used in mails.
