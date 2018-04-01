@@ -39,7 +39,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-28 08:41+0200\n"
-"PO-Revision-Date: 2018-03-31 20:50+0000\n"
+"PO-Revision-Date: 2018-04-01 18:13+0000\n"
 "Last-Translator: Waldemar Stoczkowski <waldemar.stoczkowski@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -338,7 +338,7 @@ msgstr "%s nie lubię tego."
 #: include/conversation.php:1239
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend"
-msgstr ""
+msgstr "<span  %1$s>%2$dosoby</span> uczestniczą"
 
 #: include/conversation.php:1240
 #, php-format
@@ -3879,7 +3879,7 @@ msgstr "Aktualizacja bazy danych nie powiodła się. Uruchom polecenie \"php bin
 
 #: mod/admin.php:744
 msgid "The worker was never executed. Please check your database structure!"
-msgstr ""
+msgstr "Pracownik nigdy nie został stracony. Sprawdź swoją strukturę bazy danych!"
 
 #: mod/admin.php:747
 #, php-format
@@ -3938,7 +3938,7 @@ msgstr "Aktywne dodatki"
 
 #: mod/admin.php:826
 msgid "Can not parse base url. Must have at least <scheme>://<domain>"
-msgstr ""
+msgstr "Nie można zanalizować podstawowego adresu URL. Musi mieć co najmniej <scheme>: //<domain>"
 
 #: mod/admin.php:1144
 msgid "Site settings updated."
@@ -4270,7 +4270,7 @@ msgstr "Rozdzielana przecinkami lista domen dozwolonych w adresach e-mail do rej
 
 #: mod/admin.php:1318
 msgid "No OEmbed rich content"
-msgstr ""
+msgstr "Brak treści multimedialnych ze znaczkiem HTML"
 
 #: mod/admin.php:1318
 msgid ""
@@ -4440,13 +4440,13 @@ msgstr "Normalnie importujemy każdą treść z naszych kontaktów OStatus. W te
 
 #: mod/admin.php:1335
 msgid "OStatus support can only be enabled if threading is enabled."
-msgstr ""
+msgstr "Obsługa OStatus może być włączona tylko wtedy, gdy włączone jest wątkowanie."
 
 #: mod/admin.php:1337
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
-msgstr ""
+msgstr "Obsługa Diaspory nie może być włączona, ponieważ Friendica została zainstalowana w podkatalogu."
 
 #: mod/admin.php:1338
 msgid "Enable Diaspora support"
@@ -4454,7 +4454,7 @@ msgstr "Włączyć obsługę Diaspory"
 
 #: mod/admin.php:1338
 msgid "Provide built-in Diaspora network compatibility."
-msgstr ""
+msgstr "Zapewnij wbudowaną kompatybilność z siecią Diaspora."
 
 #: mod/admin.php:1339
 msgid "Only allow Friendica contacts"
@@ -4494,7 +4494,7 @@ msgstr "Wartość jest w sekundach. Ustaw na 0 dla nieograniczonej (niezalecane)
 
 #: mod/admin.php:1344
 msgid "Maximum Load Average"
-msgstr ""
+msgstr "Maksymalne obciążenie średnie"
 
 #: mod/admin.php:1344
 msgid ""
@@ -4504,7 +4504,7 @@ msgstr "Maksymalne obciążenie systemu przed dostawą i odpytywaniem jest odroc
 
 #: mod/admin.php:1345
 msgid "Maximum Load Average (Frontend)"
-msgstr ""
+msgstr "Maksymalne obciążenie średnie (Frontend)"
 
 #: mod/admin.php:1345
 msgid "Maximum system load before the frontend quits service - default 50."
@@ -4518,31 +4518,31 @@ msgstr "Minimalna pamięć"
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
-msgstr ""
+msgstr "Minimalna wolna pamięć w MB dla pracownika. Potrzebuje dostępu do /proc/ meminfo - domyślnie 0 (wyłączone)."
 
 #: mod/admin.php:1347
 msgid "Maximum table size for optimization"
-msgstr ""
+msgstr "Maksymalny rozmiar stołu do optymalizacji"
 
 #: mod/admin.php:1347
 msgid ""
 "Maximum table size (in MB) for the automatic optimization - default 100 MB. "
 "Enter -1 to disable it."
-msgstr ""
+msgstr "Maksymalny rozmiar tabeli (w MB) dla automatycznej optymalizacji - domyślnie 100 MB. Wprowadź -1, aby go wyłączyć."
 
 #: mod/admin.php:1348
 msgid "Minimum level of fragmentation"
-msgstr ""
+msgstr "Minimalny poziom fragmentacji"
 
 #: mod/admin.php:1348
 msgid ""
 "Minimum fragmenation level to start the automatic optimization - default "
 "value is 30%."
-msgstr ""
+msgstr "Minimalny poziom fragmentacji, aby rozpocząć automatyczną optymalizację - domyślna wartość to 30%."
 
 #: mod/admin.php:1350
 msgid "Periodical check of global contacts"
-msgstr ""
+msgstr "Okresowa kontrola kontaktów globalnych"
 
 #: mod/admin.php:1350
 msgid ""
@@ -4556,7 +4556,7 @@ msgstr "Dni między żądaniem"
 
 #: mod/admin.php:1351
 msgid "Number of days after which a server is requeried for his contacts."
-msgstr ""
+msgstr "Liczba dni, po upływie których serwer jest żądany dla swoich kontaktów."
 
 #: mod/admin.php:1352
 msgid "Discover contacts from other servers"
@@ -4722,14 +4722,14 @@ msgstr "Na współdzielonych hostach ustaw to na 2. W większych systemach warto
 
 #: mod/admin.php:1373
 msgid "Don't use 'proc_open' with the worker"
-msgstr ""
+msgstr "Nie używaj 'proc_open' z robotnikiem"
 
 #: mod/admin.php:1373
 msgid ""
 "Enable this if your system doesn't allow the use of 'proc_open'. This can "
 "happen on shared hosters. If this is enabled you should increase the "
 "frequency of worker calls in your crontab."
-msgstr ""
+msgstr "Włącz to, jeśli twój system nie zezwala na użycie 'proc_open'. Może się to zdarzyć w przypadku współdzielonych hosterów. Jeśli ta opcja jest włączona, powinieneś zwiększyć częstotliwość wywołań pracowniczych w twoim pliku crontab."
 
 #: mod/admin.php:1374
 msgid "Enable fastlane"
@@ -4743,7 +4743,7 @@ msgstr "Po włączeniu system Fastlane uruchamia dodatkowego pracownika, jeśli 
 
 #: mod/admin.php:1375
 msgid "Enable frontend worker"
-msgstr ""
+msgstr "Włącz pracownika frontend"
 
 #: mod/admin.php:1375
 #, php-format
@@ -4753,11 +4753,11 @@ msgid ""
 "might want to call %s/worker on a regular basis via an external cron job. "
 "You should only enable this option if you cannot utilize cron/scheduled jobs"
 " on your server."
-msgstr ""
+msgstr "Po włączeniu proces roboczy jest wyzwalany, gdy wykonywany jest dostęp do zaplecza \\x28e.g. wiadomości są dostarczane\\x29. W mniejszych witrynach możesz chcieć wywoływać %s/robotnika regularnie przez zewnętrzne zadanie cron. Tę opcję należy włączyć tylko wtedy, gdy nie można używać zadań cron/zaplanowanych na serwerze."
 
 #: mod/admin.php:1377
 msgid "Subscribe to relay"
-msgstr ""
+msgstr "Subskrybuj przekaźnik"
 
 #: mod/admin.php:1377
 msgid ""
@@ -4773,27 +4773,27 @@ msgstr "Serwer przekazujący"
 msgid ""
 "Address of the relay server where public posts should be send to. For "
 "example https://relay.diasp.org"
-msgstr ""
+msgstr "Adres serwera przekazującego, do którego należy wysyłać publiczne posty. Na przykład https://relay.diasp.org"
 
 #: mod/admin.php:1379
 msgid "Direct relay transfer"
-msgstr ""
+msgstr "Bezpośredni transfer przekaźników"
 
 #: mod/admin.php:1379
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
-msgstr ""
+msgstr "Umożliwia bezpośredni transfer do innych serwerów bez korzystania z serwerów przekazujących"
 
 #: mod/admin.php:1380
 msgid "Relay scope"
-msgstr ""
+msgstr "Zakres przekaźnika"
 
 #: mod/admin.php:1380
 msgid ""
 "Can be 'all' or 'tags'. 'all' means that every public post should be "
 "received. 'tags' means that only posts with selected tags should be "
 "received."
-msgstr ""
+msgstr "Może być 'wszystkim' lub 'tagami'. 'wszystko' oznacza, że ​​każdy post publiczny powinien zostać odebrany. 'tagi' oznaczają, że powinny być odbierane tylko posty z wybranymi tagami."
 
 #: mod/admin.php:1380
 msgid "all"
@@ -4809,7 +4809,7 @@ msgstr "Serwer tagów"
 
 #: mod/admin.php:1381
 msgid "Comma separated list of tags for the 'tags' subscription."
-msgstr ""
+msgstr "Lista oddzielonych przecinkami znaczników dla subskrypcji 'tagów'."
 
 #: mod/admin.php:1382
 msgid "Allow user tags"
@@ -4819,7 +4819,7 @@ msgstr "Pozwól na tagi użytkowników"
 msgid ""
 "If enabled, the tags from the saved searches will used for the 'tags' "
 "subscription in addition to the 'relay_server_tags'."
-msgstr ""
+msgstr "Po włączeniu tagi z zapisanych wyszukiwań będą używane do subskrypcji 'tagów' oprócz 'relay_server_tags'."
 
 #: mod/admin.php:1410
 msgid "Update has been marked successful"
@@ -4828,32 +4828,32 @@ msgstr "Aktualizacja została oznaczona jako udana"
 #: mod/admin.php:1417
 #, php-format
 msgid "Database structure update %s was successfully applied."
-msgstr ""
+msgstr "Pomyślnie zastosowano aktualizację %s struktury bazy danych."
 
 #: mod/admin.php:1420
 #, php-format
 msgid "Executing of database structure update %s failed with error: %s"
-msgstr ""
+msgstr "Wykonanie aktualizacji %s struktury bazy danych nie powiodło się z powodu błędu:%s"
 
 #: mod/admin.php:1433
 #, php-format
 msgid "Executing %s failed with error: %s"
-msgstr ""
+msgstr "Wykonanie %s nie powiodło się z powodu błędu:%s"
 
 #: mod/admin.php:1435
 #, php-format
 msgid "Update %s was successfully applied."
-msgstr ""
+msgstr "Aktualizacja %s została pomyślnie zastosowana."
 
 #: mod/admin.php:1438
 #, php-format
 msgid "Update %s did not return a status. Unknown if it succeeded."
-msgstr ""
+msgstr "Aktualizacja %s nie zwróciła statusu. Nieznane, jeśli się udało."
 
 #: mod/admin.php:1441
 #, php-format
 msgid "There was no additional update function %s that needed to be called."
-msgstr ""
+msgstr "Nie było dodatkowej funkcji %s aktualizacji, która musiała zostać wywołana."
 
 #: mod/admin.php:1461
 msgid "No failed updates."
@@ -4870,7 +4870,7 @@ msgstr "Błąd aktualizacji"
 #: mod/admin.php:1468
 msgid ""
 "This does not include updates prior to 1139, which did not return a status."
-msgstr ""
+msgstr "Nie dotyczy to aktualizacji przed 1139, który nie zwrócił statusu."
 
 #: mod/admin.php:1469
 msgid "Mark success (if update was manually applied)"
@@ -4886,7 +4886,7 @@ msgid ""
 "\n"
 "\t\t\tDear %1$s,\n"
 "\t\t\t\tthe administrator of %2$s has set up an account for you."
-msgstr ""
+msgstr "\n\t\t\tSzanowny/a Panie/Pani %1$s, \n\t\t\t\tadministrator %2$s założył dla ciebie konto."
 
 #: mod/admin.php:1512
 #, php-format
@@ -4916,7 +4916,7 @@ msgid ""
 "\t\t\tyou to make some new and interesting friends.\n"
 "\n"
 "\t\t\tThank you and welcome to %4$s."
-msgstr ""
+msgstr "\n\t\t\tDane logowania są następuje:\n\n\t\t\tLokalizacja witryny:\t%1$s\n\t\t\tNazwa użytkownika:\t\t%2$s\n\t\t\tHasło:\t\t%3$s\n\n\t\t\tPo zalogowaniu możesz zmienić hasło ze strony \"Ustawienia\" na koncie\n\t\t\tw\n\n\t\t\t Poświęć chwilę, aby przejrzeć inne ustawienia konta na tej stronie\n\n\t\t\tMożesz również dodać podstawowe informacje do swojego domyślnego profilu\n\t\t\t(na stronie 'Profil'), aby inne osoby mogły łatwo Cię znaleźć.\n\n\t\t\tZalecamy ustawienie imienia i nazwiska, dodanie zdjęcia profilowego,\n\t\t\tdodanie niektórych \"słów kluczowych\" profilu (bardzo przydatne w nawiązywaniu nowych znajomości) - i\n\t\t\tbyć może w jakim kraju mieszkasz; jeśli nie chcesz być bardziej konkretny\n\t\t\tniż to.\n\n \t\t\tW pełni szanujemy Twoje prawo do prywatności i żaden z tych elementów nie jest konieczny.\n\t\t\tJeśli jesteś nowy i nie znasz nikogo tutaj, mogą ci pomóc\n\t\t\tmożesz tworzyć nowych i interesujących przyjaciół\n\n\t\t\tDziękuję i zapraszam%4$s"
 
 #: mod/admin.php:1544 src/Model/User.php:647
 #, php-format
@@ -5089,7 +5089,7 @@ msgid ""
 "There are currently no addons available on your node. You can find the "
 "official addon repository at %1$s and might find other interesting addons in"
 " the open addon registry at %2$s"
-msgstr ""
+msgstr "W twoim węźle nie ma obecnie żadnych dodatków. Możesz znaleźć oficjalne repozytorium dodatków na %1$s i możesz znaleźć inne interesujące dodatki w otwartym rejestrze dodatków na %2$s"
 
 #: mod/admin.php:2024
 msgid "No themes found."
@@ -5168,14 +5168,14 @@ msgstr "Aby włączyć rejestrowanie błędów i ostrzeżeń PHP, możesz dodać
 msgid ""
 "Error trying to open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see "
 "if file %1$s exist and is readable."
-msgstr ""
+msgstr "Błąd podczas próby otwarcia <strong>%1$s</strong> pliku dziennika. \\r\\n <br/>Sprawdź, czy plik %1$s istnieje i czy można go odczytać."
 
 #: mod/admin.php:2270
 #, php-format
 msgid ""
 "Couldn't open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see if file"
 " %1$s is readable."
-msgstr ""
+msgstr "Nie można otworzyć <strong>%1$s</strong>pliku dziennika. \\r\\n<br/>Sprawdź, czy plik %1$s jest czytelny."
 
 #: mod/admin.php:2361 mod/admin.php:2362 mod/settings.php:775
 msgid "Off"
@@ -5188,7 +5188,7 @@ msgstr "Włącz"
 #: mod/admin.php:2362
 #, php-format
 msgid "Lock feature %s"
-msgstr ""
+msgstr "Funkcja blokady %s"
 
 #: mod/admin.php:2370
 msgid "Manage Additional Features"
@@ -5236,7 +5236,7 @@ msgstr ""
 
 #: mod/babel.php:83
 msgid "Raw HTML input"
-msgstr ""
+msgstr "Surowe wejście HTML"
 
 #: mod/babel.php:88
 msgid "HTML Input"
@@ -5449,7 +5449,7 @@ msgstr "Pobierz informacje i słowa kluczowe"
 
 #: mod/contacts.php:599 mod/unfollow.php:100
 msgid "Disconnect/Unfollow"
-msgstr ""
+msgstr "Rozłącz/Nie obserwuj"
 
 #: mod/contacts.php:608
 msgid "Contact"
@@ -5681,11 +5681,11 @@ msgstr "Przełącz na Zablokowany"
 
 #: mod/contacts.php:1021
 msgid "Toggle Ignored status"
-msgstr ""
+msgstr "Przełącz ignorowany status"
 
 #: mod/contacts.php:1029
 msgid "Toggle Archive status"
-msgstr ""
+msgstr "Przełącz status archiwum"
 
 #: mod/contacts.php:1037
 msgid "Delete contact"
@@ -5720,7 +5720,7 @@ msgstr "Użytkownicy nadrzędni mają pełną kontrolę nad tym kontem, w tym ta
 
 #: mod/delegate.php:169 src/Content/Nav.php:204
 msgid "Delegate Page Management"
-msgstr ""
+msgstr "Deleguj zarządzanie stronami"
 
 #: mod/delegate.php:170
 msgid "Delegates"
@@ -5780,7 +5780,7 @@ msgstr "Brak odwiedzin (niektóre odwiedziny mogą być ukryte)."
 #: mod/dirfind.php:49
 #, php-format
 msgid "People Search - %s"
-msgstr ""
+msgstr "Szukaj osób - %s"
 
 #: mod/dirfind.php:60
 #, php-format
@@ -5789,7 +5789,7 @@ msgstr "Przeszukiwanie forum - %s"
 
 #: mod/events.php:105 mod/events.php:107
 msgid "Event can not end before it has started."
-msgstr ""
+msgstr "Wydarzenie nie może się zakończyć przed jego rozpoczęciem."
 
 #: mod/events.php:114 mod/events.php:116
 msgid "Event title and start time are required."
@@ -6015,7 +6015,7 @@ msgstr "Linia komend PHP"
 
 #: mod/install.php:344
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
-msgstr ""
+msgstr "Plik wykonywalny PHP nie jest php cli binarny (może być wersją cgi-fgci)"
 
 #: mod/install.php:345
 msgid "Found PHP version: "
@@ -6184,7 +6184,7 @@ msgstr "Upewnij się, że użytkownik, na którym działa serwer WWW (np. www-da
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
-msgstr ""
+msgstr "Uwaga: jako środek bezpieczeństwa, powinieneś dać serwerowi dostęp do zapisu view/smarty3/ jedynie - nie do plików szablonów (.tpl), które zawiera."
 
 #: mod/install.php:485
 msgid "view/smarty3 is writable"
@@ -6193,7 +6193,7 @@ msgstr "view/smarty3 jest zapisywalny"
 #: mod/install.php:501
 msgid ""
 "Url rewrite in .htaccess is not working. Check your server configuration."
-msgstr ""
+msgstr "Nie działa URL w .htaccess popraw. Sprawdź konfigurację serwera."
 
 #: mod/install.php:503
 msgid "Url rewrite is working"
@@ -6226,7 +6226,7 @@ msgstr "<h1>Co dalej</h1>"
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the "
 "worker."
-msgstr ""
+msgstr "WAŻNE: Będziesz musiał [ręcznie] ustawić zaplanowane zadanie dla pracownika."
 
 #: mod/install.php:560
 #, php-format
@@ -6234,7 +6234,7 @@ msgid ""
 "Go to your new Friendica node <a href=\"%s/register\">registration page</a> "
 "and register as new user. Remember to use the same email you have entered as"
 " administrator email. This will allow you to enter the site admin panel."
-msgstr ""
+msgstr "Przejdź do <a href=\"%s/register\">strony rejestracji</a> nowego węzła Friendica i zarejestruj się jako nowy użytkownik. Pamiętaj, aby użyć adresu e-mail wprowadzonego jako e-mail administratora. To pozwoli Ci wejść do panelu administratora witryny."
 
 #: mod/item.php:114
 msgid "Unable to locate original post."
@@ -6273,19 +6273,19 @@ msgstr "Post dodany pomyślnie"
 
 #: mod/ostatus_subscribe.php:21
 msgid "Subscribing to OStatus contacts"
-msgstr ""
+msgstr "Subskrybowanie kontaktów OStatus"
 
 #: mod/ostatus_subscribe.php:33
 msgid "No contact provided."
-msgstr ""
+msgstr "Brak kontaktu."
 
 #: mod/ostatus_subscribe.php:40
 msgid "Couldn't fetch information for contact."
-msgstr ""
+msgstr "Nie można pobrać informacji o kontakcie."
 
 #: mod/ostatus_subscribe.php:50
 msgid "Couldn't fetch friends for contact."
-msgstr ""
+msgstr "Nie można pobrać znajomych do kontaktu."
 
 #: mod/ostatus_subscribe.php:78
 msgid "success"
@@ -6444,7 +6444,7 @@ msgstr " - Odwiedźa %1$s's %2$s"
 #: mod/profiles.php:578
 #, php-format
 msgid "%1$s has an updated %2$s, changing %3$s."
-msgstr ""
+msgstr "%1$sma zaktualizowany %2$s,  zmiana%3$s."
 
 #: mod/profiles.php:632
 msgid "Hide contacts and friends:"
@@ -6594,13 +6594,13 @@ msgstr "Napisz o sobie..."
 
 #: mod/profiles.php:718
 msgid "XMPP (Jabber) address:"
-msgstr ""
+msgstr "Adres XMPP (Jabber):"
 
 #: mod/profiles.php:718
 msgid ""
 "The XMPP address will be propagated to your contacts so that they can follow"
 " you."
-msgstr ""
+msgstr "Adres XMPP będzie propagowany do Twoich kontaktów, aby mogli Cię śledzić."
 
 #: mod/profiles.php:719
 msgid "Homepage URL:"
@@ -6708,7 +6708,7 @@ msgstr "Portale społecznościowe"
 
 #: mod/settings.php:94 src/Content/Nav.php:204
 msgid "Delegations"
-msgstr ""
+msgstr "Delegowanie"
 
 #: mod/settings.php:101
 msgid "Connected apps"
@@ -6790,7 +6790,7 @@ msgstr "Prywatne forum nie ma uprawnień do prywatności. Użyj domyślnej grupy
 
 #: mod/settings.php:575
 msgid "Private forum has no privacy permissions and no default privacy group."
-msgstr ""
+msgstr "Prywatne forum nie ma uprawnień do prywatności ani domyślnej grupy prywatności."
 
 #: mod/settings.php:615
 msgid "Settings updated."
@@ -6867,7 +6867,7 @@ msgstr "wyłączony"
 #: mod/settings.php:804 mod/settings.php:805
 #, php-format
 msgid "Built-in support for %s connectivity is %s"
-msgstr ""
+msgstr "Wbudowane wsparcie dla %s łączność jest %s"
 
 #: mod/settings.php:805
 msgid "GNU Social (OStatus)"
@@ -6879,11 +6879,11 @@ msgstr "Dostęp do e-maila nie jest w pełni sprawny na tej stronie"
 
 #: mod/settings.php:846
 msgid "General Social Media Settings"
-msgstr ""
+msgstr "Ogólne ustawienia mediów społecznościowych"
 
 #: mod/settings.php:847
 msgid "Disable intelligent shortening"
-msgstr ""
+msgstr "Wyłącz inteligentne skracanie"
 
 #: mod/settings.php:847
 msgid ""
@@ -7008,13 +7008,13 @@ msgstr "Mobilny motyw:"
 
 #: mod/settings.php:965
 msgid "Suppress warning of insecure networks"
-msgstr ""
+msgstr "Ukryj ostrzeżenie przed niebezpiecznymi sieciami"
 
 #: mod/settings.php:965
 msgid ""
 "Should the system suppress the warning that the current group contains "
 "members of networks that can't receive non public postings."
-msgstr ""
+msgstr "System powinien pominąć ostrzeżenie, że bieżąca grupa zawiera członków sieci, którzy nie mogą otrzymywać komentarzy niepublicznych"
 
 #: mod/settings.php:966
 msgid "Update browser every xx seconds"
@@ -7026,7 +7026,7 @@ msgstr "Minimum 10 sekund. Wprowadź -1, aby go wyłączyć."
 
 #: mod/settings.php:967
 msgid "Number of items to display per page:"
-msgstr ""
+msgstr "Liczba elementów do wyświetlenia na stronie:"
 
 #: mod/settings.php:967 mod/settings.php:968
 msgid "Maximum of 100 items"
@@ -7064,17 +7064,17 @@ msgstr "Automatyczne aktualizacje tylko u góry strony sieci"
 msgid ""
 "When disabled, the network page is updated all the time, which could be "
 "confusing while reading."
-msgstr ""
+msgstr "Po wyłączeniu strona sieciowa jest cały czas aktualizowana, co może być mylące podczas czytania."
 
 #: mod/settings.php:975
 msgid "Bandwith Saver Mode"
-msgstr ""
+msgstr "Tryb oszczędzania przepustowości"
 
 #: mod/settings.php:975
 msgid ""
 "When enabled, embedded content is not displayed on automatic updates, they "
 "only show on page reload."
-msgstr ""
+msgstr "Po włączeniu wbudowana zawartość nie jest wyświetlana w automatycznych aktualizacjach, wyświetlają się tylko przy przeładowaniu strony."
 
 #: mod/settings.php:976
 msgid "Smart Threading"
@@ -7084,7 +7084,7 @@ msgstr "Inteligentne gwintowanie"
 msgid ""
 "When enabled, suppress extraneous thread indentation while keeping it where "
 "it matters. Only works if threading is available and enabled."
-msgstr ""
+msgstr "Włączenie tej opcji powoduje pomijanie wcięcia nitek zewnętrznych, zachowując je w dowolnym miejscu. Działa tylko wtedy, gdy wątki są dostępne i włączone."
 
 #: mod/settings.php:978
 msgid "General Theme Settings"
@@ -7118,7 +7118,7 @@ msgstr "Podtypy osobistych stron"
 
 #: mod/settings.php:1044
 msgid "Community Forum Subtypes"
-msgstr ""
+msgstr "Podtypy społeczności forum"
 
 #: mod/settings.php:1051
 msgid "Personal Page"
@@ -7136,7 +7136,7 @@ msgstr "Strona Organizacji"
 msgid ""
 "Account for an organisation that automatically approves contact requests as "
 "\"Followers\"."
-msgstr ""
+msgstr "Konto dla organizacji, która automatycznie zatwierdza prośby o kontakt jako \"Obserwatorzy\"."
 
 #: mod/settings.php:1059
 msgid "News Page"
@@ -7146,15 +7146,15 @@ msgstr "Strona Wiadomości"
 msgid ""
 "Account for a news reflector that automatically approves contact requests as"
 " \"Followers\"."
-msgstr ""
+msgstr "Konto dla reflektora wiadomości, który automatycznie zatwierdza prośby o kontakt jako \"Obserwatorzy\"."
 
 #: mod/settings.php:1063
 msgid "Community Forum"
-msgstr ""
+msgstr "Forum społecznościowe"
 
 #: mod/settings.php:1064
 msgid "Account for community discussions."
-msgstr ""
+msgstr "Konto do dyskusji w społeczności."
 
 #: mod/settings.php:1067
 msgid "Normal Account Page"
@@ -7168,7 +7168,7 @@ msgstr "Konto dla zwykłego profilu osobistego, który wymaga ręcznej zgody \"P
 
 #: mod/settings.php:1071
 msgid "Soapbox Page"
-msgstr ""
+msgstr "Strona Soapbox"
 
 #: mod/settings.php:1072
 msgid ""
@@ -7219,7 +7219,7 @@ msgstr "Opublikować swój domyślny profil w swoim lokalnym katalogu stron?"
 msgid ""
 "Your profile will be published in the global friendica directories (e.g. <a "
 "href=\"%s\">%s</a>). Your profile will be visible in public."
-msgstr ""
+msgstr "Twój profil zostanie opublikowany w globalnych katalogach friendica (np.<a href=\"%s\">%s</a>). Twój profil będzie widoczny publicznie."
 
 #: mod/settings.php:1109
 msgid "Publish your default profile in the global social directory?"
@@ -7299,7 +7299,7 @@ msgstr "Profil <strong>nie jest opublikowany</strong>"
 #: mod/settings.php:1146
 #, php-format
 msgid "Your Identity Address is <strong>'%s'</strong> or '%s'."
-msgstr ""
+msgstr "Twój adres tożsamości to <strong>'%s'</strong> lub '%s'."
 
 #: mod/settings.php:1153
 msgid "Automatically expire posts after this many days:"
@@ -7335,7 +7335,7 @@ msgstr "Wygasanie zdjęć:"
 
 #: mod/settings.php:1160
 msgid "Only expire posts by others:"
-msgstr ""
+msgstr "Tylko wygasaj posty innych osób:"
 
 #: mod/settings.php:1190
 msgid "Account Settings"
@@ -7445,11 +7445,11 @@ msgstr "przyjmowanie prośby o dodanie do znajomych"
 
 #: mod/settings.php:1252
 msgid "joining a forum/community"
-msgstr ""
+msgstr "dołączanie do forum/społeczności"
 
 #: mod/settings.php:1253
 msgid "making an <em>interesting</em> profile change"
-msgstr ""
+msgstr "dokonaj <em>interesującej</em> zmiany profilu"
 
 #: mod/settings.php:1254
 msgid "Send a notification email when:"
@@ -7493,15 +7493,15 @@ msgstr "Aktywuj powiadomienia na pulpicie"
 
 #: mod/settings.php:1264
 msgid "Show desktop popup on new notifications"
-msgstr ""
+msgstr "Pokaż wyskakujące okienko dla nowych powiadomień"
 
 #: mod/settings.php:1266
 msgid "Text-only notification emails"
-msgstr ""
+msgstr "E-maile z powiadomieniami tekstowymi"
 
 #: mod/settings.php:1268
 msgid "Send text only notification emails, without the html part"
-msgstr ""
+msgstr "Wysyłaj tylko e-maile z powiadomieniami tekstowymi, bez części html"
 
 #: mod/settings.php:1270
 msgid "Show detailled notifications"
@@ -7511,15 +7511,15 @@ msgstr "Pokaż szczegółowe powiadomienia"
 msgid ""
 "Per default, notifications are condensed to a single notification per item. "
 "When enabled every notification is displayed."
-msgstr ""
+msgstr "Domyślne powiadomienia są skondensowane z jednym powiadomieniem dla każdego przedmiotu. Po włączeniu wyświetlane jest każde powiadomienie."
 
 #: mod/settings.php:1274
 msgid "Advanced Account/Page Type Settings"
-msgstr ""
+msgstr "Zaawansowane ustawienia konta/rodzaju strony"
 
 #: mod/settings.php:1275
 msgid "Change the behaviour of this account for special situations"
-msgstr ""
+msgstr "Zmień zachowanie tego konta w sytuacjach specjalnych"
 
 #: mod/settings.php:1278
 msgid "Relocate"
@@ -7533,23 +7533,23 @@ msgstr "Jeśli ten profil został przeniesiony z innego serwera, a niektóre z T
 
 #: mod/settings.php:1280
 msgid "Resend relocate message to contacts"
-msgstr ""
+msgstr "Wyślij ponownie przenieść wiadomości do kontaktów"
 
 #: mod/unfollow.php:34
 msgid "Contact wasn't found or can't be unfollowed."
-msgstr ""
+msgstr "Kontakt nie został znaleziony lub nie można go pominąć."
 
 #: mod/unfollow.php:47
 msgid "Contact unfollowed"
-msgstr ""
+msgstr "Skontaktuj się z obserwowanym"
 
 #: mod/unfollow.php:73
 msgid "You aren't a friend of this contact."
-msgstr ""
+msgstr "Nie jesteś przyjacielem tego kontaktu."
 
 #: mod/unfollow.php:79
 msgid "Unfollowing is currently not supported by your network."
-msgstr ""
+msgstr "Brak obserwowania nie jest obecnie obsługiwany przez twoją sieć."
 
 #: view/theme/duepuntozero/config.php:54 src/Model/User.php:488
 msgid "default"
@@ -7585,7 +7585,7 @@ msgstr ""
 
 #: view/theme/frio/php/Image.php:25
 msgid "Repeat the image"
-msgstr ""
+msgstr "Powtórz obraz"
 
 #: view/theme/frio/php/Image.php:25
 msgid "Will repeat your image to fill the background."
@@ -7781,7 +7781,7 @@ msgstr "Profile społeczności"
 
 #: view/theme/vier/config.php:125
 msgid "Help or @NewHere ?"
-msgstr ""
+msgstr "Pomoc lub @NewHere?"
 
 #: view/theme/vier/config.php:126 view/theme/vier/theme.php:389
 msgid "Connect Services"
@@ -7860,7 +7860,7 @@ msgstr "Ukryć szczegóły twojego profilu przed nieznajomymi?"
 #: src/Core/ACL.php:300
 #, php-format
 msgid "Connectors disabled, since \"%s\" is enabled."
-msgstr ""
+msgstr "Wtyczki są wyłączone, ponieważ \"%s\" jest włączone."
 
 #: src/Core/ACL.php:307
 msgid "Visible to everybody"
@@ -7906,12 +7906,12 @@ msgstr "%s przestał lubić post %s"
 #: src/Core/NotificationsManager.php:307
 #, php-format
 msgid "%s is attending %s's event"
-msgstr ""
+msgstr "%suczestniczy %sw wydarzeniu "
 
 #: src/Core/NotificationsManager.php:320
 #, php-format
 msgid "%s is not attending %s's event"
-msgstr ""
+msgstr "%snie uczestniczy %s w wydarzeniu "
 
 #: src/Core/NotificationsManager.php:333
 #, php-format
@@ -8088,7 +8088,7 @@ msgstr "Google+"
 
 #: src/Content/ContactSelector.php:90
 msgid "pump.io"
-msgstr ""
+msgstr "pump.io"
 
 #: src/Content/ContactSelector.php:91
 msgid "Twitter"
@@ -8096,7 +8096,7 @@ msgstr "Twitter"
 
 #: src/Content/ContactSelector.php:92
 msgid "Diaspora Connector"
-msgstr ""
+msgstr "Wtyczka Diaspora"
 
 #: src/Content/ContactSelector.php:93
 msgid "GNU Social Connector"
@@ -8108,7 +8108,7 @@ msgstr ""
 
 #: src/Content/ContactSelector.php:95
 msgid "App.net"
-msgstr ""
+msgstr "App.net"
 
 #: src/Content/ContactSelector.php:125
 msgid "Male"
@@ -8486,7 +8486,7 @@ msgstr "Eksportuj kalendarz publiczny"
 
 #: src/Content/Feature.php:83
 msgid "Ability for visitors to download the public calendar"
-msgstr ""
+msgstr "Możliwość pobierania kalendarza publicznego przez odwiedzających"
 
 #: src/Content/Feature.php:88
 msgid "Post Composition Features"
@@ -8502,7 +8502,7 @@ msgstr "Zezwalaj na podgląd postów i komentarzy przed ich opublikowaniem"
 
 #: src/Content/Feature.php:90
 msgid "Auto-mention Forums"
-msgstr ""
+msgstr "Automatyczne wymienianie forów"
 
 #: src/Content/Feature.php:90
 msgid ""
@@ -8571,7 +8571,7 @@ msgstr "Włącz kartę, aby wyświetlić tylko nowe posty sieciowe (z ostatnich 
 
 #: src/Content/Feature.php:108
 msgid "Network Shared Links Tab"
-msgstr ""
+msgstr "Karta Połączone karty sieciowe"
 
 #: src/Content/Feature.php:108
 msgid "Enable tab to display only Network posts with links in them"
@@ -8627,7 +8627,7 @@ msgstr "Nie lubię Postów"
 
 #: src/Content/Feature.php:119
 msgid "Ability to dislike posts/comments"
-msgstr ""
+msgstr "Możliwa niechęć do postów/komentarzy"
 
 #: src/Content/Feature.php:120
 msgid "Star Posts"
@@ -8767,7 +8767,7 @@ msgid ""
 "\t\t\t\tbut when I tried to install it, something went terribly wrong.\n"
 "\t\t\t\tThis needs to be fixed soon and I can't do it alone. Please contact a\n"
 "\t\t\t\tfriendica developer if you can not help me on your own. My database might be invalid."
-msgstr ""
+msgstr "\n\t\t\t\tDeweloperzy friendica wydali niedawno aktualizację %s,\n\t\t\t\tale podczas próby instalacji, coś poszło nie tak.\n\t\t\t\tZostanie to naprawione wkrótce i nie mogę tego zrobić sam. Proszę skontaktować się z \n\t\t\t\tprogramistami friendica, jeśli nie możesz mi pomóc na własną rękę. Moja baza danych może być nieprawidłowa."
 
 #: src/Database/DBStructure.php:80
 #, php-format
