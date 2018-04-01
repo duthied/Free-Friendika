@@ -1270,17 +1270,19 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 
 	// Compile eventual content filter reasons
 	$filter_reasons = [];
-	if (!empty($item['content-warning']) && !PConfig::get(local_user(), 'social', 'disable_cw')) {
-		$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
-	}
+	if (!$is_preview && !$item['self']) {
+		if (!empty($item['content-warning']) && (!local_user() || !PConfig::get(local_user(), 'social', 'disable_cw', false))) {
+			$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
+		}
 
-	$hook_data = [
-		'item' => $item,
-		'filter_reasons' => $filter_reasons
-	];
-	Addon::callHooks('content_filter', $hook_data);
-	$filter_reasons = $hook_data['filter_reasons'];
-	unset($hook_data);
+		$hook_data = [
+			'item' => $item,
+			'filter_reasons' => $filter_reasons
+		];
+		Addon::callHooks('content_filter', $hook_data);
+		$filter_reasons = $hook_data['filter_reasons'];
+		unset($hook_data);
+	}
 
 	// Update the cached values if there is no "zrl=..." on the links.
 	$update = (!local_user() && !remote_user() && ($item["uid"] == 0));
@@ -1303,7 +1305,9 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	$s = $hook_data['html'];
 	unset($hook_data);
 
-	$s = apply_content_filter($s, $filter_reasons);
+	if (!$is_preview && !$item['self']) {
+		$s = apply_content_filter($s, $filter_reasons);
+	}
 
 	if (! $attach) {
 		// Replace the blockquotes with quotes that are used in mails.
