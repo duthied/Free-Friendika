@@ -1209,15 +1209,17 @@ function put_item_in_cache(&$item, $update = false)
  * @brief Given an item array, convert the body element from bbcode to html and add smilie icons.
  * If attach is true, also add icons for item attachments.
  *
- * @param array $item
+ * @param array   $item
  * @param boolean $attach
+ * @param boolean $is_preview
  * @return string item body html
  * @hook prepare_body_init item array before any work
- * @hook prepare_body ('item'=>item array, 'html'=>body string) after first bbcode to html
+ * @hook content_filter ('item'=>item array, 'filter_reasons'=>string array) before first bbcode to html
+ * @hook prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
  * @hook prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
  */
-function prepare_body(&$item, $attach = false, $preview = false) {
-
+function prepare_body(array &$item, $attach = false, $is_preview = false)
+{
 	$a = get_app();
 	Addon::callHooks('prepare_body_init', $item);
 
@@ -1266,6 +1268,20 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
 
+	// Compile eventual content filter reasons
+	$filter_reasons = [];
+	if (!empty($item['content-warning']) && !PConfig::get(local_user(), 'social', 'disable_cw')) {
+		$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
+	}
+
+	$hook_data = [
+		'item' => $item,
+		'filter_reasons' => $filter_reasons
+	];
+	Addon::callHooks('content_filter', $hook_data);
+	$filter_reasons = $hook_data['filter_reasons'];
+	unset($hook_data);
+
 	// Update the cached values if there is no "zrl=..." on the links.
 	$update = (!local_user() && !remote_user() && ($item["uid"] == 0));
 
@@ -1277,9 +1293,17 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	put_item_in_cache($item, $update);
 	$s = $item["rendered-html"];
 
-	$prep_arr = ['item' => $item, 'html' => $s, 'preview' => $preview];
-	Addon::callHooks('prepare_body', $prep_arr);
-	$s = $prep_arr['html'];
+	$hook_data = [
+		'item' => $item,
+		'html' => $s,
+		'preview' => $is_preview,
+		'filter_reasons' => $filter_reasons
+	];
+	Addon::callHooks('prepare_body', $hook_data);
+	$s = $hook_data['html'];
+	unset($hook_data);
+
+	$s = apply_content_filter($s, $filter_reasons);
 
 	if (! $attach) {
 		// Replace the blockquotes with quotes that are used in mails.
@@ -1388,10 +1412,39 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
 	}
 
-	$prep_arr = ['item' => $item, 'html' => $s];
-	Addon::callHooks('prepare_body_final', $prep_arr);
+	$hook_data = ['item' => $item, 'html' => $s];
+	Addon::callHooks('prepare_body_final', $hook_data);
 
-	return $prep_arr['html'];
+	return $hook_data['html'];
+}
+
+/**
+ * Given a HTML text and a set of filtering reasons, adds a content hiding header with the provided reasons
+ *
+ * Reasons are expected to have been translated already.
+ *
+ * @param string $html
+ * @param array  $reasons
+ * @return string
+ */
+function apply_content_filter($html, array $reasons)
+{
+	if (count($reasons)) {
+		$rnd = random_string(8);
+		$content_filter_html = '<ul>';
+		foreach ($reasons as $reason) {
+			$content_filter_html .= '<li>' . htmlspecialchars($reason) . '</li>' . PHP_EOL;
+		}
+		$content_filter_html .= '</ul>
+			<div id="content-filter-wrap-' . $rnd . '" class="fakelink" onclick=openClose(\'content-filter-' . $rnd . '\'); >' .
+			L10n::t('Click to open/close') .
+			'</div>
+			<div id="content-filter-' . $rnd . '" style="display: none;">';
+
+		$html = $content_filter_html . $html . '</div>';
+	}
+
+	return $html;
 }
 
 /**
