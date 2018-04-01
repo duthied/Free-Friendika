@@ -2681,6 +2681,10 @@ class DFRN
 				return true;
 			}
 		} else { // $entrytype == DFRN_TOP_LEVEL
+			if ($importer["readonly"]) {
+				logger('ignoring read-only contact '.$importer["id"]);
+				return;
+			}
 			if ($importer["uid"] == 0) {
 				logger("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", LOGGER_DEBUG);
 				return;
@@ -2857,21 +2861,16 @@ class DFRN
 			self::processRelocation($xpath, $relocation, $importer);
 		}
 
-		if ($importer["readonly"]) {
-			// We aren't receiving stuff from this person. But we will quietly ignore them
-			// rather than a blatant "go away" message.
-			logger('ignoring contact '.$importer["id"]);
-			return 403;
-		}
+		if (($importer["uid"] != 0) && !$importer["readonly"]) {
+			$mails = $xpath->query("/atom:feed/dfrn:mail");
+			foreach ($mails as $mail) {
+				self::processMail($xpath, $mail, $importer);
+			}
 
-		$mails = $xpath->query("/atom:feed/dfrn:mail");
-		foreach ($mails as $mail) {
-			self::processMail($xpath, $mail, $importer);
-		}
-
-		$suggestions = $xpath->query("/atom:feed/dfrn:suggest");
-		foreach ($suggestions as $suggestion) {
-			self::processSuggestion($xpath, $suggestion, $importer);
+			$suggestions = $xpath->query("/atom:feed/dfrn:suggest");
+			foreach ($suggestions as $suggestion) {
+				self::processSuggestion($xpath, $suggestion, $importer);
+			}
 		}
 
 		$deletions = $xpath->query("/atom:feed/at:deleted-entry");
