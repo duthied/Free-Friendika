@@ -1431,15 +1431,15 @@ function apply_content_filter($html, array $reasons)
 {
 	if (count($reasons)) {
 		$rnd = random_string(8);
-		$content_filter_html = '<ul>';
+		$content_filter_html = '<ul class="content-filter-reasons">';
 		foreach ($reasons as $reason) {
 			$content_filter_html .= '<li>' . htmlspecialchars($reason) . '</li>' . PHP_EOL;
 		}
 		$content_filter_html .= '</ul>
-			<div id="content-filter-wrap-' . $rnd . '" class="fakelink" onclick=openClose(\'content-filter-' . $rnd . '\'); >' .
+			<p><span id="content-filter-wrap-' . $rnd . '" class="fakelink content-filter-button" onclick=openClose(\'content-filter-' . $rnd . '\'); >' .
 			L10n::t('Click to open/close') .
-			'</div>
-			<div id="content-filter-' . $rnd . '" style="display: none;">';
+			'</span></p>
+			<div id="content-filter-' . $rnd . '" class="content-filter-content" style="display: none;">';
 
 		$html = $content_filter_html . $html . '</div>';
 	}
