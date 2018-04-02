@@ -1393,15 +1393,13 @@ class DFRN
 		// $public_batch = !$items[0]['private'];
 		$public_batch = false;
 
-		$msg = DFRN::entries($items, $owner);
-
 		$fcontact = Diaspora::personByHandle($contact['addr']);
 		if (empty($fcontact)) {
 			logger("unable to find contact details");
 			return;
 		}
 
-		$envelope = Diaspora::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
+		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
 
 		$dest_url = ($public_batch ? $fcontact["batch"] : $contact["notify"]);
 
