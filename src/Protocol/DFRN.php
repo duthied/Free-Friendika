@@ -1402,7 +1402,7 @@ class DFRN
 
 		$ret = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
 
-		/// @ToDo: Add better treating of return codes
+		/// @ToDo: Add better treatment of return codes
 		return $a->get_curl_code();
 	}
 
