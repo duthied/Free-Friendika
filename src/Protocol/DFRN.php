@@ -1366,7 +1366,7 @@ class DFRN
 		}
 
 		if (!empty($res->message)) {
-			logger('Transmit returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
 		if ($res->status == 200) {
@@ -1429,7 +1429,7 @@ class DFRN
 		}
 
 		if (!empty($res->message)) {
-			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+			logger('Transmit returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
 		if ($res->status == 200) {
