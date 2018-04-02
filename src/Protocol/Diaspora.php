@@ -3205,7 +3205,7 @@ class Diaspora
 	 *
 	 * @return string The message that will be transmitted to other servers
 	 */
-	private static function buildMessage($msg, $user, $contact, $prvkey, $pubkey, $public = false)
+	public static function buildMessage($msg, $user, $contact, $prvkey, $pubkey, $public = false)
 	{
 		// The message is put into an envelope with the sender's signature
 		$envelope = self::buildMagicEnvelope($msg, $user);

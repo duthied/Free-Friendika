@@ -31,6 +31,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use Friendica\Protocol\Diaspora;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -1369,6 +1370,43 @@ class DFRN
 	}
 
 	/**
+	 * @brief Delivers items to the contacts via the Diaspora transport layer
+	 *
+	 * @param array $owner    Owner record
+	 * @param array $contact  Contact record of the receiver
+	 * @param array $items    Items that will be transmitted
+	 *
+	 * @return int HTTP Deliver status
+	 */
+	public static function buildAndTransmit($owner, $contact, $items)
+	{
+		$a = get_app();
+
+		// Currently disabled, at first we will not use the batch delivery
+		// $public_batch = !$items[0]['private'];
+		$public_batch = false;
+
+		$msg = DFRN::entries($items, $owner);
+
+		$fcontact = Diaspora::personByHandle($contact['addr']);
+		if (empty($fcontact)) {
+			logger("unable to find contact details");
+			return;
+		}
+
+		$envelope = Diaspora::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
+
+		$dest_url = ($public_batch ? $fcontact["batch"] : $contact["notify"]);
+
+		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
+
+		$ret = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+
+		/// @ToDo: Add better treatment of return codes
+		return $a->get_curl_code();
+	}
+
+	/**
 	 * @brief Add new birthday event for this person
 	 *
 	 * @param array  $contact  Contact record
@@ -1433,7 +1471,7 @@ class DFRN
 		$contact_old = dba::fetch_first("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `avatar`, `name-date`, `uri-date`, `addr`,
 				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`, `contact-type`
 				FROM `contact` WHERE `uid` = ? AND `nurl` = ? AND `network` != ?",
-			$importer["uid"],
+			$importer["importer_uid"],
 			normalise_link($author["link"]),
 			NETWORK_STATUSNET
 		);
@@ -1443,7 +1481,7 @@ class DFRN
 			$author["network"] = $contact_old["network"];
 		} else {
 			if (!$onlyfetch) {
-				logger("Contact ".$author["link"]." wasn't found for user ".$importer["uid"]." XML: ".$xml, LOGGER_DEBUG);
+				logger("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml, LOGGER_DEBUG);
 			}
 
 			$author["contact-id"] = $importer["id"];
@@ -1639,7 +1677,7 @@ class DFRN
 
 			Contact::updateAvatar(
 				$author['avatar'],
-				$importer['uid'],
+				$importer['importer_uid'],
 				$contact['id'],
 				(strtotime($contact['avatar-date']) > strtotime($contact_old['avatar-date']) || ($author['avatar'] != $contact_old['avatar']))
 			);
@@ -1657,7 +1695,7 @@ class DFRN
 			$poco["contact-type"] = $contact["contact-type"];
 			$gcid = GContact::update($poco);
 
-			GContact::link($gcid, $importer["uid"], $contact["id"]);
+			GContact::link($gcid, $importer["importer_uid"], $contact["id"]);
 		}
 
 		return $author;
@@ -2617,7 +2655,7 @@ class DFRN
 				if ((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
 					logger("Event in item ".$item["uri"]." was found.", LOGGER_DEBUG);
 					$ev["cid"]     = $importer["id"];
-					$ev["uid"]     = $importer["uid"];
+					$ev["uid"]     = $importer["importer_uid"];
 					$ev["uri"]     = $item["uri"];
 					$ev["edited"]  = $item["edited"];
 					$ev["private"] = $item["private"];
@@ -2626,7 +2664,7 @@ class DFRN
 					$r = q(
 						"SELECT `id` FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
 						dbesc($item["uri"]),
-						intval($importer["uid"])
+						intval($importer["importer_uid"])
 					);
 					if (DBM::is_result($r)) {
 						$ev["id"] = $r[0]["id"];
@@ -2681,6 +2719,14 @@ class DFRN
 				return true;
 			}
 		} else { // $entrytype == DFRN_TOP_LEVEL
+			if ($importer["readonly"]) {
+				logger('ignoring read-only contact '.$importer["id"]);
+				return;
+			}
+			if ($importer["uid"] == 0) {
+				logger("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", LOGGER_DEBUG);
+				return;
+			}
 			if (!link_compare($item["owner-link"], $importer["url"])) {
 				/*
 				 * The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
@@ -2736,10 +2782,10 @@ class DFRN
 			return false;
 		}
 
-		$condition = ["`uri` = ? AND `uid` = ? AND NOT `file` LIKE '%[%'", $uri, $importer["uid"]];
+		$condition = ["`uri` = ? AND `uid` = ? AND NOT `file` LIKE '%[%'", $uri, $importer["importer_uid"]];
 		$item = dba::selectFirst('item', ['id', 'parent', 'contact-id'], $condition);
 		if (!DBM::is_result($item)) {
-			logger("Item with uri " . $uri . " for user " . $importer["uid"] . " wasn't found.", LOGGER_DEBUG);
+			logger("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.", LOGGER_DEBUG);
 			return;
 		}
 
@@ -2808,7 +2854,7 @@ class DFRN
 		$xpath->registerNamespace("statusnet", NAMESPACE_STATUSNET);
 
 		$header = [];
-		$header["uid"] = $importer["uid"];
+		$header["uid"] = $importer["importer_uid"];
 		$header["network"] = NETWORK_DFRN;
 		$header["type"] = "remote";
 		$header["wall"] = 0;
@@ -2827,7 +2873,7 @@ class DFRN
 			self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false, $xml);
 		}
 
-		logger("Import DFRN message for user " . $importer["uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
+		logger("Import DFRN message for user " . $importer["importer_uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
 
 		// The account type is new since 3.5.1
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
@@ -2853,21 +2899,16 @@ class DFRN
 			self::processRelocation($xpath, $relocation, $importer);
 		}
 
-		if ($importer["readonly"]) {
-			// We aren't receiving stuff from this person. But we will quietly ignore them
-			// rather than a blatant "go away" message.
-			logger('ignoring contact '.$importer["id"]);
-			return 403;
-		}
+		if (($importer["uid"] != 0) && !$importer["readonly"]) {
+			$mails = $xpath->query("/atom:feed/dfrn:mail");
+			foreach ($mails as $mail) {
+				self::processMail($xpath, $mail, $importer);
+			}
 
-		$mails = $xpath->query("/atom:feed/dfrn:mail");
-		foreach ($mails as $mail) {
-			self::processMail($xpath, $mail, $importer);
-		}
-
-		$suggestions = $xpath->query("/atom:feed/dfrn:suggest");
-		foreach ($suggestions as $suggestion) {
-			self::processSuggestion($xpath, $suggestion, $importer);
+			$suggestions = $xpath->query("/atom:feed/dfrn:suggest");
+			foreach ($suggestions as $suggestion) {
+				self::processSuggestion($xpath, $suggestion, $importer);
+			}
 		}
 
 		$deletions = $xpath->query("/atom:feed/at:deleted-entry");
@@ -2895,7 +2936,7 @@ class DFRN
 				self::processEntry($header, $xpath, $entry, $importer, $xml);
 			}
 		}
-		logger("Import done for user " . $importer["uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
+		logger("Import done for user " . $importer["importer_uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
 		return 200;
 	}
 

@@ -12,15 +12,58 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\Diaspora;
 
 require_once 'include/items.php';
 
 function dfrn_notify_post(App $a) {
 	logger(__function__, LOGGER_TRACE);
 
-	if (empty($_POST)) {
-		require_once 'mod/salmon.php';
-		salmon_post($a);
+	$postdata = file_get_contents('php://input');
+
+	if (empty($_POST) || !empty($postdata)) {
+		$data = json_decode($postdata);
+		if (is_object($data)) {
+			$nick = defaults($a->argv, 1, '');
+			$user = dba::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
+			if (!DBM::is_result($user)) {
+				System::httpExit(500);
+			}
+			$msg = Diaspora::decodeRaw($user, $postdata);
+
+			// Check if the user has got this contact
+			$cid = Contact::getIdForURL($msg['author'], $user['uid']);
+			if (!$cid) {
+				// Otherwise there should be a public contact
+				$cid = Contact::getIdForURL($msg['author']);
+				if (!$cid) {
+					logger('Contact not found for address ' . $msg['author']);
+					System::xmlExit(3, 'Contact not found');
+				}
+			}
+
+			// We now have some contact, so we fetch it
+			$importer = dba::fetch_first("SELECT *, `name` as `senderName`
+							FROM `contact`
+							WHERE NOT `blocked` AND `id` = ? LIMIT 1",
+							$cid);
+
+			// This should never fail
+			if (!DBM::is_result($importer)) {
+				logger('Contact not found for address ' . $msg['author']);
+				System::xmlExit(3, 'Contact not found');
+			}
+
+			// Set the user id. This is important if this is a public contact
+			$importer['importer_uid']  = $user['uid'];
+
+			// Now we should be able to import it
+			$ret = DFRN::import($msg['message'], $importer);
+			System::xmlExit($ret, 'Done');
+		} else {
+			require_once 'mod/salmon.php';
+			salmon_post($a, $postdata);
+		}
 	}
 
 	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? notags(trim($_POST['dfrn_id']))   : '');
