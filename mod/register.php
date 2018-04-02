@@ -284,6 +284,9 @@ function register_content(App $a)
 		'$sitename'  => $a->get_hostname(),
 		'$importh'   => L10n::t('Import'),
 		'$importt'   => L10n::t('Import your profile to this friendica instance'),
+		'$showtoslink' => Config::get('system', 'tosdisplay'),
+		'$tostext'   => L10n::t('Terms of Service'),
+		'$baseurl'   => System::baseurl(),
 		'$form_security_token' => get_form_security_token("register")
 	]);
 	return $o;
