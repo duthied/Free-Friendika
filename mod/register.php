@@ -262,7 +262,7 @@ function register_content(App $a)
 		'$invite_id'  => $invite_id,
 		'$realpeople' => $realpeople,
 		'$regtitle'  => L10n::t('Registration'),
-		'$registertext' => x($a->config, 'register_text') ? BBCode::convert($a->config['register_text']) : "",
+		'$registertext' => BBCode::convert(Config::get('config', 'register_text', '')),
 		'$fillwith'  => $fillwith,
 		'$fillext'   => $fillext,
 		'$oidlabel'  => $oidlabel,
