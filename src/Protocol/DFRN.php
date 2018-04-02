@@ -1156,7 +1156,7 @@ class DFRN
 		// At first try the Diaspora transport layer
 		$ret = self::transmit($owner, $contact, $atom);
 		if ($ret >= 200) {
-			logger('Delivery via Diaspora transport layer was successfull with status ' . $ret);
+			logger('Delivery via Diaspora transport layer was successful with status ' . $ret);
 			return $ret;
 		}
 
