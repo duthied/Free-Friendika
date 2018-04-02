@@ -31,6 +31,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use Friendica\Protocol\Diaspora;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -1366,6 +1367,43 @@ class DFRN
 		}
 
 		return intval($res->status);
+	}
+
+	/**
+	 * @brief Delivers items to the contacts via the Diaspora transport layer
+	 *
+	 * @param array $owner    Owner record
+	 * @param array $contact  Contact record of the receiver
+	 * @param array $items    Items that will be transmitted
+	 *
+	 * @return int HTTP Deliver status
+	 */
+	public static function buildAndTransmit($owner, $contact, $items)
+	{
+		$a = get_app();
+
+		// Currently disabled, at first we will not use the batch delivery
+		// $public_batch = !$items[0]['private'];
+		$public_batch = false;
+
+		$msg = DFRN::entries($items, $owner);
+
+		$fcontact = Diaspora::personByHandle($contact['addr']);
+		if (empty($fcontact)) {
+			logger("unable to find contact details");
+			return;
+		}
+
+		$envelope = Diaspora::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
+
+		$dest_url = ($public_batch ? $fcontact["batch"] : $contact["notify"]);
+
+		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
+
+		$ret = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+
+		/// @ToDo: Add better treating of return codes
+		return $a->get_curl_code();
 	}
 
 	/**

@@ -32,10 +32,10 @@ function dfrn_notify_post(App $a) {
 			$msg = Diaspora::decodeRaw($user, $postdata);
 
 			// Check if the user has got this contact
-			$cid = getIdForURL($msg['author'], $user['uid']);
+			$cid = Contact::getIdForURL($msg['author'], $user['uid']);
 			if (!$cid) {
 				// Otherwise there should be a public contact
-				$cid = getIdForURL($msg['author']);
+				$cid = Contact::getIdForURL($msg['author']);
 				if (!$cid) {
 					logger('Contact not found for address ' . $msg['author']);
 					System::xmlExit(3, 'Contact not found');
@@ -59,7 +59,7 @@ function dfrn_notify_post(App $a) {
 
 			// Now we should be able to import it
 			$ret = DFRN::import($msg['message'], $importer);
-			System::xmlExit($ret, 'Processed');
+			System::xmlExit($ret, 'Done');
 		} else {
 			require_once 'mod/salmon.php';
 			salmon_post($a, $postdata);
