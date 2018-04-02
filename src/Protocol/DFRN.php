@@ -1146,12 +1146,19 @@ class DFRN
 	 * @param string $atom     Content that will be transmitted
 	 * @param bool   $dissolve (to be documented)
 	 *
-	 * @return int Deliver status. -1 means an error.
+	 * @return int Deliver status. Negative values mean an error.
 	 * @todo Add array type-hint for $owner, $contact
 	 */
 	public static function deliver($owner, $contact, $atom, $dissolve = false)
 	{
 		$a = get_app();
+
+		// At first try the Diaspora transport layer
+		$ret = self::transmit($owner, $contact, $atom);
+		if ($ret >= 200) {
+			logger('Delivery via Diaspora transport layer was successfull with status ' . $ret);
+			return $ret;
+		}
 
 		$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
 
@@ -1359,7 +1366,7 @@ class DFRN
 		}
 
 		if (!empty($res->message)) {
-			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+			logger('Transmit returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
 		if ($res->status == 200) {
@@ -1370,15 +1377,15 @@ class DFRN
 	}
 
 	/**
-	 * @brief Delivers items to the contacts via the Diaspora transport layer
+	 * @brief Transmits atom content to the contacts via the Diaspora transport layer
 	 *
-	 * @param array $owner    Owner record
-	 * @param array $contact  Contact record of the receiver
-	 * @param array $items    Items that will be transmitted
+	 * @param array  $owner    Owner record
+	 * @param array  $contact  Contact record of the receiver
+	 * @param string $atom     Content that will be transmitted
 	 *
-	 * @return int HTTP Deliver status
+	 * @return int Deliver status. Negative values mean an error.
 	 */
-	public static function buildAndTransmit($owner, $contact, $items)
+	public static function transmit($owner, $contact, $atom)
 	{
 		$a = get_app();
 
@@ -1400,10 +1407,38 @@ class DFRN
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
-		$ret = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$xml = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
 
-		/// @ToDo: Add better treatment of return codes
-		return $a->get_curl_code();
+		$curl_stat = $a->get_curl_code();
+		if (!$curl_stat || empty($xml)) {
+			return -9; // timed out
+		}
+
+		if (($curl_stat == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
+			return -10;
+		}
+
+		if (strpos($xml, '<?xml') === false) {
+			logger('no valid XML returned');
+			logger('returned XML: ' . $xml, LOGGER_DATA);
+			return 3;
+		}
+
+		$res = XML::parseString($xml);
+
+		if (!isset($res->status)) {
+			return -11;
+		}
+
+		if (!empty($res->message)) {
+			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+		}
+
+		if ($res->status == 200) {
+			Contact::unmarkForArchival($contact);
+		}
+
+		return intval($res->status);
 	}
 
 	/**
