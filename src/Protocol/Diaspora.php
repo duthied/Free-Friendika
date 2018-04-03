@@ -82,15 +82,19 @@ class Diaspora
 
 			// All servers who wants content with this tag
 			$tagserverlist = [];
-			$tagserver = dba::select('gserver-tag', ['gserver-id'], ['tag' => $taglist]);
-			while ($server = dba::fetch($tagserver)) {
-				$tagserverlist[] = $server['gserver-id'];
+			if (!empty($taglist)) {
+				$tagserver = dba::select('gserver-tag', ['gserver-id'], ['tag' => $taglist]);
+				while ($server = dba::fetch($tagserver)) {
+					$tagserverlist[] = $server['gserver-id'];
+				}
 			}
 
 			// All adresses with the given id
-			$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
-			while ($server = dba::fetch($servers)) {
-				$serverlist[$server['url']] = $server['url'];
+			if (!empty($tagserverlist)) {
+				$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
+				while ($server = dba::fetch($servers)) {
+					$serverlist[$server['url']] = $server['url'];
+				}
 			}
 		}
 
