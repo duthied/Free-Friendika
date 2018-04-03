@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-02 18:46+0200\n"
+"POT-Creation-Date: 2018-04-03 06:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5701,36 +5701,6 @@ msgstr ""
 msgid "Create New Profile"
 msgstr ""
 
-#: mod/tos.php:29 mod/register.php:288 mod/admin.php:188 mod/admin.php:302
-msgid "Terms of Service"
-msgstr ""
-
-#: mod/tos.php:32
-msgid "Privacy Statement"
-msgstr ""
-
-#: mod/tos.php:33
-msgid ""
-"At the time of registration, and for providing communications between the "
-"user account and their contacts, the user has to provide a display name (pen "
-"name), a nickname and a working email address. The names will be accessible "
-"on the profile page of the account by any visitor of the page even if other "
-"profile details are not displayed. The email address will only be used to "
-"send the user notifications about interactions, but wont be visibly "
-"displayed. The listing of an account in the nodes user directory or the "
-"global user directory is optional and can be controlled in the user "
-"settings, it is not necessary for communication."
-msgstr ""
-
-#: mod/tos.php:34
-#, php-format
-msgid ""
-"At any point in time a logged in user can export their account data from the "
-"<a href=\"%1$s/settings/uexport\">account settings</a>. If the user wants to "
-"delete their account they can do so at <a href=\"%1$s\">%1$s</a>. The "
-"deletion of the account will be permanent."
-msgstr ""
-
 #: mod/register.php:99
 msgid ""
 "Registration successful. Please check your email for further instructions."
@@ -5826,6 +5796,10 @@ msgstr ""
 
 #: mod/register.php:286
 msgid "Import your profile to this friendica instance"
+msgstr ""
+
+#: mod/register.php:288 mod/admin.php:188 mod/admin.php:302 mod/tos.php:48
+msgid "Terms of Service"
 msgstr ""
 
 #: mod/friendica.php:77
@@ -7549,6 +7523,32 @@ msgstr ""
 
 #: mod/admin.php:2437
 msgid "Manage Additional Features"
+msgstr ""
+
+#: mod/tos.php:51
+msgid "Privacy Statement"
+msgstr ""
+
+#: mod/tos.php:52
+msgid ""
+"At the time of registration, and for providing communications between the "
+"user account and their contacts, the user has to provide a display name (pen "
+"name), an username (nickname) and a working email address. The names will be "
+"accessible on the profile page of the account by any visitor of the page, "
+"even if other profile details are not displayed. The email address will only "
+"be used to send the user notifications about interactions, but wont be "
+"visibly displayed. The listing of an account in the node's user directory or "
+"the global user directory is optional and can be controlled in the user "
+"settings, it is not necessary for communication."
+msgstr ""
+
+#: mod/tos.php:53
+#, php-format
+msgid ""
+"At any point in time a logged in user can export their account data from the "
+"<a href=\"%1$s/settings/uexport\">account settings</a>. If the user wants to "
+"delete their account they can do so at <a href=\"%1$s/removeme\">%1$s/"
+"removeme</a>. The deletion of the account will be permanent."
 msgstr ""
 
 #: src/Core/UserImport.php:104
