@@ -116,6 +116,11 @@ function friendica_content(App $a)
 	} else {
 		$o .= '<p>' . L10n::t('No installed addons/apps') . '</p>' . PHP_EOL;
 	}
+	
+	if (Config::get('system', 'tosdisplay'))
+	{
+		$o .= '<p>'.L10n::t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', System::baseurl()).'</p>';
+	}
 
 	$blocklist = Config::get('system', 'blocklist');
 	if (count($blocklist)) {

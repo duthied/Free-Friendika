@@ -109,6 +109,9 @@ function admin_post(App $a)
 				}
 				$return_path = 'admin/themes/' . $theme;
 				break;
+			case 'tos':
+				admin_page_tos_post($a);
+				break;
 			case 'features':
 				admin_page_features_post($a);
 				break;
@@ -181,7 +184,8 @@ function admin_content(App $a)
 			'users'        => ["admin/users/"       , L10n::t("Users")                , "users"],
 			'addons'       => ["admin/addons/"      , L10n::t("Addons")               , "addons"],
 			'themes'       => ["admin/themes/"      , L10n::t("Themes")               , "themes"],
-			'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"] ]],
+			'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"],
+			'tos'          => ["admin/tos/"         , L10n::t("Terms of Service")     , "tos"] ]],
 		'database' => [ L10n::t('Database'), [
 			'dbsync'       => ["admin/dbsync/"      , L10n::t('DB updates')           , "dbsync"],
 			'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"], ]],
@@ -265,6 +269,9 @@ function admin_content(App $a)
 			case 'deleteitem':
 				$o = admin_page_deleteitem($a);
 				break;
+			case 'tos':
+				$o = admin_page_tos($a);
+				break;
 			default:
 				notice(L10n::t("Item not found."));
 		}
@@ -281,6 +288,50 @@ function admin_content(App $a)
 	}
 }
 
+/**
+ * @brief Subpage to define the display of a Terms of Usage page.
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_tos(App $a)
+{
+	$t = get_markup_template('admin/tos.tpl');
+	return replace_macros($t, [
+		'$title' => L10n::t('Administration'),
+		'$page' => L10n::t('Terms of Service'),
+		'$displaytos' => ['displaytos', L10n::t('Display Terms of Service'), Config::get('system', 'tosdisplay'), L10n::t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
+		'$displayprivstatement' => ['displayprivstatement', L10n::t('Display Privacy Statement'), Config::get('system','tosprivstatement'), L10n::t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.','https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
+		'$tostext' => ['tostext', L10n::t('The Terms of Usage'), Config::get('system', 'tostext'), L10n::t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
+		'$form_security_token' => get_form_security_token("admin_tos"),
+		'$submit' => L10n::t('Save Settings'),
+	]);
+}
+/**
+ * @brief Process send data from Admin TOS Page
+ *
+ * @param App $a
+ */
+function admin_page_tos_post(App $a)
+{
+	check_form_security_token_redirectOnErr('/admin/tos', 'admin_tos');
+
+	if (!x($_POST, "page_tos")) {
+		return;
+	}
+
+	$displaytos = ((x($_POST, 'displaytos')) ? True : False);
+	$displayprivstatement = ((x($_POST, 'displayprivstatement')) ? True : False);
+	$tostext = ((x($_POST, 'tostext')) ? strip_tags(trim($_POST['tostext'])) : '');
+
+	Config::set('system', 'tosdisplay', $displaytos);
+	Config::set('system', 'tosprivstatement', $displayprivstatement);
+	Config::set('system', 'tostext', $tostext);
+
+	goaway('admin/tos');
+
+	return; // NOTREACHED
+}
 /**
  * @brief Subpage to modify the server wide block list via the admin panel.
  *
@@ -920,7 +971,7 @@ function admin_page_site_post(App $a)
 	$daily_registrations	=	((x($_POST,'max_daily_registrations'))	? intval(trim($_POST['max_daily_registrations']))	:0);
 	$abandon_days	    	=	((x($_POST,'abandon_days'))		? intval(trim($_POST['abandon_days']))		:  0);
 
-	$register_text		=	((x($_POST,'register_text'))		? notags(trim($_POST['register_text']))		: '');
+	$register_text		=	((x($_POST,'register_text'))		? strip_tags(trim($_POST['register_text']))		: '');
 
 	$allowed_sites		=	((x($_POST,'allowed_sites'))		? notags(trim($_POST['allowed_sites']))		: '');
 	$allowed_email		=	((x($_POST,'allowed_email'))		? notags(trim($_POST['allowed_email']))		: '');
@@ -1325,7 +1376,7 @@ function admin_page_site(App $a)
 
 		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), $a->config['register_policy'], "", $register_choices],
 		'$daily_registrations'	=> ['max_daily_registrations', L10n::t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), L10n::t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
-		'$register_text'	=> ['register_text', L10n::t("Register text"), $a->config['register_text'], L10n::t("Will be displayed prominently on the registration page.")],
+		'$register_text'	=> ['register_text', L10n::t("Register text"), $a->config['register_text'], L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
 		'$abandon_days'		=> ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
 		'$allowed_sites'	=> ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system','allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
 		'$allowed_email'	=> ['allowed_email', L10n::t("Allowed email domains"), Config::get('system','allowed_email'), L10n::t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
@@ -1546,6 +1597,8 @@ function admin_page_users_post(App $a)
 			We fully respect your right to privacy, and none of these items are necessary.
 			If you are new and do not know anybody here, they may help
 			you to make some new and interesting friends.
+
+			If you ever want to delete your account, you can do so at %1$s/removeme
 
 			Thank you and welcome to %4$s.'));
 
