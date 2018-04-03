@@ -165,6 +165,7 @@ function lostpass_generate_password($user)
 		notification([
 			'type'     => SYSTEM_EMAIL,
 			'to_email' => $user['email'],
+			'uid'      => $user['uid'],
 			'subject'  => L10n::t('Your password has been changed at %s', $sitename),
 			'preamble' => $preamble,
 			'body'     => $body
