@@ -318,10 +318,12 @@ class Delivery {
 
 				logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
 
-				if ($deliver_status < 200) {
+				if ($deliver_status < 0) {
 					logger('notifier: delivery failed: queuing message');
 					Queue::add($contact['id'], NETWORK_DFRN, $atom, false, $target_item['guid']);
+				}
 
+				if ($deliver_status < 200) {
 					// The message could not be delivered. We mark the contact as "dead"
 					Contact::markForArchival($contact);
 				} else {
