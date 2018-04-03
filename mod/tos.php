@@ -56,6 +56,4 @@ function tos_content(App $a) {
 		return;
 	}
 
-	return $o;
-
 }
