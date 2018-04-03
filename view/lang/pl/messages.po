@@ -39,7 +39,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-28 08:41+0200\n"
-"PO-Revision-Date: 2018-04-01 18:13+0000\n"
+"PO-Revision-Date: 2018-04-02 19:35+0000\n"
 "Last-Translator: Waldemar Stoczkowski <waldemar.stoczkowski@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -649,7 +649,7 @@ msgstr "%1$sopublikowano na ścianie profilu w %2$s "
 #: include/enotify.php:186
 #, php-format
 msgid "%1$s posted to [url=%2$s]your wall[/url]"
-msgstr ""
+msgstr "%1$s wysłano do [url =%2$s]twojej ściany[/url] "
 
 #: include/enotify.php:198
 #, php-format
@@ -664,7 +664,7 @@ msgstr "%1$s oznaczono Cię tagiem %2$s"
 #: include/enotify.php:201
 #, php-format
 msgid "%1$s [url=%2$s]tagged you[/url]."
-msgstr ""
+msgstr "%1$s [url=%2$s]oznaczył Cię[/url]. "
 
 #: include/enotify.php:213
 #, php-format
@@ -723,7 +723,7 @@ msgstr "Otrzymałeś wstęp od '%1$s'  z %2$s"
 #: include/enotify.php:265
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr ""
+msgstr "Otrzymałeś [url=%1$s] wprowadzenie [/ url] z %2$s."
 
 #: include/enotify.php:270 include/enotify.php:316
 #, php-format
@@ -2399,7 +2399,7 @@ msgstr ""
 
 #: mod/dfrn_request.php:658
 msgid "Diaspora (Socialhome, Hubzilla)"
-msgstr ""
+msgstr "Diaspora (Socialhome, Hubzilla)"
 
 #: mod/dfrn_request.php:659
 #, php-format
@@ -2662,13 +2662,13 @@ msgstr "Proszę się zalogować."
 
 #: mod/removeme.php:55 mod/removeme.php:58
 msgid "Remove My Account"
-msgstr "Usuń konto"
+msgstr "Usuń moje konto"
 
 #: mod/removeme.php:56
 msgid ""
 "This will completely remove your account. Once this has been done it is not "
 "recoverable."
-msgstr "Spowoduje to całkowite usunięcie Twojego konta. Po wykonaniu tej czynności nie można jej odzyskać."
+msgstr "Spowoduje to całkowite usunięcie Twojego konta. Po wykonaniu tej czynności nie można jej cofnąć."
 
 #: mod/removeme.php:57
 msgid "Please enter your password for verification:"
@@ -3498,7 +3498,7 @@ msgstr "Wstaw nowe filmy"
 
 #: mod/admin.php:106
 msgid "Theme settings updated."
-msgstr "Ustawienia szablonu zmienione."
+msgstr "Zaktualizowano ustawienia motywów."
 
 #: mod/admin.php:176 src/Content/Nav.php:174
 msgid "Information"
@@ -3530,7 +3530,7 @@ msgstr "Dodatki"
 
 #: mod/admin.php:183 mod/admin.php:2106 mod/admin.php:2150
 msgid "Themes"
-msgstr "Temat"
+msgstr "Wygląd"
 
 #: mod/admin.php:184 mod/settings.php:65
 msgid "Additional features"
@@ -3554,7 +3554,7 @@ msgstr "Narzędzia"
 
 #: mod/admin.php:189
 msgid "Contact Blocklist"
-msgstr "Skontaktuj się z Blocklist"
+msgstr "Lista zablokowanych kontaktów"
 
 #: mod/admin.php:190 mod/admin.php:311
 msgid "Server Blocklist"
@@ -3578,7 +3578,7 @@ msgstr "Diagnostyka"
 
 #: mod/admin.php:197
 msgid "PHP Info"
-msgstr ""
+msgstr "Informacje o PHP"
 
 #: mod/admin.php:198
 msgid "probe address"
@@ -3995,11 +3995,11 @@ msgstr "Rok"
 
 #: mod/admin.php:1222
 msgid "Multi user instance"
-msgstr "Tryb MultiUsera"
+msgstr "Tryb wielu użytkowników"
 
 #: mod/admin.php:1245
 msgid "Closed"
-msgstr "Zamknięty"
+msgstr "Zamknięta"
 
 #: mod/admin.php:1246
 msgid "Requires approval"
@@ -4007,7 +4007,7 @@ msgstr "Wymagane zatwierdzenie."
 
 #: mod/admin.php:1247
 msgid "Open"
-msgstr "Otwórz"
+msgstr "Otwarte"
 
 #: mod/admin.php:1251
 msgid "No SSL policy, links will track page SSL state"
@@ -4109,7 +4109,7 @@ msgstr "Link do ikony, która będzie używana w przeglądarkach."
 
 #: mod/admin.php:1299
 msgid "Touch icon"
-msgstr "Kliknij ikonę"
+msgstr "Dołącz ikonę"
 
 #: mod/admin.php:1299
 msgid "Link to an icon that will be used for tablets and mobiles."
@@ -4124,7 +4124,7 @@ msgstr "Dodatkowe informacje"
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
-msgstr "W przypadku serwerów publicznych: możesz tu dodać dodatkowe informacje, które będą wymienione na %s/serwerach."
+msgstr "W przypadku serwerów publicznych: możesz tu dodać dodatkowe informacje, które będą wymienione na %s/servers."
 
 #: mod/admin.php:1301
 msgid "System language"
@@ -4142,11 +4142,11 @@ msgstr "Domyślny motyw systemu - może być nadpisany przez profil użytkownika
 
 #: mod/admin.php:1303
 msgid "Mobile system theme"
-msgstr "Mobilny motyw systemowy"
+msgstr "Motyw systemu mobilnego"
 
 #: mod/admin.php:1303
 msgid "Theme for mobile devices"
-msgstr "Szablon dla mobilnych urządzeń"
+msgstr "Motyw na urządzenia mobilne"
 
 #: mod/admin.php:1304
 msgid "SSL link policy"
@@ -4178,11 +4178,11 @@ msgstr "Chowa pozycje menu dla stron pomocy ze strony nawigacyjnej. Możesz nada
 
 #: mod/admin.php:1307
 msgid "Single user instance"
-msgstr "Tryb SingleUsera"
+msgstr "Tryb pojedynczego użytkownika"
 
 #: mod/admin.php:1307
 msgid "Make this instance multi-user or single-user for the named user"
-msgstr "Ustawia tryb multi lub single dla wybranych użytkowników."
+msgstr "Ustawia tryb dla wielu użytkowników lub pojedynczego użytkownika dla nazwanego użytkownika"
 
 #: mod/admin.php:1308
 msgid "Maximum image size"
@@ -4216,18 +4216,18 @@ msgstr "Wczytywanie JPEGS będzie zapisane z tymi ustawieniami jakości [0-100] 
 
 #: mod/admin.php:1312
 msgid "Register policy"
-msgstr "Zarejestruj polisę"
+msgstr "Zasady rejestracji"
 
 #: mod/admin.php:1313
 msgid "Maximum Daily Registrations"
-msgstr "Maksymalnie dziennych rejestracji"
+msgstr "Maksymalna dzienna rejestracja"
 
 #: mod/admin.php:1313
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
-msgstr "Jeśli rejestracja jest dozwolona powyżej, określa maksymalną liczbę nowych rejestracji użytkowników do zaakceptowania na dzień. Jeśli rejestr jest ustawiony na zamknięty, to ustawienie nie ma wpływu."
+msgstr "Jeśli rejestracja powyżej jest dozwolona, to określa maksymalną liczbę nowych rejestracji użytkowników do zaakceptowania na dzień. Jeśli rejestracja jest ustawiona na \"Zamknięta\", to ustawienie to nie ma wpływu."
 
 #: mod/admin.php:1314
 msgid "Register text"
@@ -5093,7 +5093,7 @@ msgstr "W twoim węźle nie ma obecnie żadnych dodatków. Możesz znaleźć ofi
 
 #: mod/admin.php:2024
 msgid "No themes found."
-msgstr "Nie znaleziono tematu."
+msgstr "Nie znaleziono motywów."
 
 #: mod/admin.php:2098
 msgid "Screenshot"
@@ -5152,7 +5152,7 @@ msgstr "Poziom logów"
 
 #: mod/admin.php:2234
 msgid "PHP logging"
-msgstr ""
+msgstr "Logowanie w PHP"
 
 #: mod/admin.php:2235
 msgid ""
@@ -5200,39 +5200,39 @@ msgstr "Źródło wejściowe"
 
 #: mod/babel.php:28
 msgid "BBCode::convert (raw HTML("
-msgstr ""
+msgstr "BBCode::przekształć (raw HTML("
 
 #: mod/babel.php:33
 msgid "BBCode::convert"
-msgstr ""
+msgstr "BBCode::przekształć"
 
 #: mod/babel.php:39
 msgid "BBCode::convert => HTML::toBBCode"
-msgstr ""
+msgstr "BBCode::przekształć => HTML::toBBCode"
 
 #: mod/babel.php:45
 msgid "BBCode::toMarkdown"
-msgstr ""
+msgstr "BBCode::toMarkdown"
 
 #: mod/babel.php:51
 msgid "BBCode::toMarkdown => Markdown::convert"
-msgstr ""
+msgstr "BBCode::toMarkdown => Markdown::przekształć"
 
 #: mod/babel.php:57
 msgid "BBCode::toMarkdown => Markdown::toBBCode"
-msgstr ""
+msgstr "BBCode::toMarkdown => Markdown::toBBCode"
 
 #: mod/babel.php:63
 msgid "BBCode::toMarkdown =>  Markdown::convert => HTML::toBBCode"
-msgstr ""
+msgstr "BBCode::toMarkdown => Markdown::przekształć => HTML::toBBCode"
 
 #: mod/babel.php:70
 msgid "Source input \\x28Diaspora format\\x29"
-msgstr ""
+msgstr "Źródło wejściowe \\x28Diaspora format\\x29"
 
 #: mod/babel.php:76
 msgid "Markdown::toBBCode"
-msgstr ""
+msgstr "Markdown::toBBCode"
 
 #: mod/babel.php:83
 msgid "Raw HTML input"
@@ -5240,15 +5240,15 @@ msgstr "Surowe wejście HTML"
 
 #: mod/babel.php:88
 msgid "HTML Input"
-msgstr ""
+msgstr "Wejście HTML"
 
 #: mod/babel.php:94
 msgid "HTML::toBBCode"
-msgstr ""
+msgstr "HTML::toBBCode"
 
 #: mod/babel.php:100
 msgid "HTML::toPlaintext"
-msgstr ""
+msgstr "HTML::toPlaintext"
 
 #: mod/babel.php:108
 msgid "Source text"
@@ -5256,11 +5256,11 @@ msgstr "Tekst źródłowy"
 
 #: mod/babel.php:109
 msgid "BBCode"
-msgstr ""
+msgstr "BBCode"
 
 #: mod/babel.php:110
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: mod/babel.php:111
 msgid "HTML"
@@ -5551,7 +5551,7 @@ msgstr "Rozdzielana przecinkami lista słów kluczowych, które nie powinny zost
 
 #: mod/contacts.php:662 src/Model/Profile.php:424
 msgid "XMPP:"
-msgstr ""
+msgstr "XMPP:"
 
 #: mod/contacts.php:667
 msgid "Actions"
@@ -6037,7 +6037,7 @@ msgstr "To jest wymagane do dostarczenia wiadomości do pracy."
 
 #: mod/install.php:361
 msgid "PHP register_argc_argv"
-msgstr ""
+msgstr "PHP register_argc_argv"
 
 #: mod/install.php:384
 msgid ""
@@ -6069,7 +6069,7 @@ msgstr "Moduł PHP OpenSSL"
 
 #: mod/install.php:397
 msgid "PDO or MySQLi PHP module"
-msgstr ""
+msgstr "Moduł PDO lub MySQLi PHP"
 
 #: mod/install.php:398
 msgid "mb_string PHP module"
@@ -6434,7 +6434,7 @@ msgstr "profil publiczny"
 #: mod/profiles.php:575
 #, php-format
 msgid "%1$s changed %2$s to &ldquo;%3$s&rdquo;"
-msgstr ""
+msgstr "%1$szmienione %2$s  na &ldquo;%3$s&rdquo;"
 
 #: mod/profiles.php:576
 #, php-format
@@ -7004,7 +7004,7 @@ msgstr "Wyświetl motyw:"
 
 #: mod/settings.php:964
 msgid "Mobile Theme:"
-msgstr "Mobilny motyw:"
+msgstr "Motyw dla urządzeń mobilnych:"
 
 #: mod/settings.php:965
 msgid "Suppress warning of insecure networks"
@@ -7581,7 +7581,7 @@ msgstr ""
 
 #: view/theme/duepuntozero/config.php:74
 msgid "Variations"
-msgstr ""
+msgstr "Zmiana"
 
 #: view/theme/frio/php/Image.php:25
 msgid "Repeat the image"
@@ -8490,7 +8490,7 @@ msgstr "Możliwość pobierania kalendarza publicznego przez odwiedzających"
 
 #: src/Content/Feature.php:88
 msgid "Post Composition Features"
-msgstr ""
+msgstr "Funkcje po ułożeniu"
 
 #: src/Content/Feature.php:89
 msgid "Post Preview"
