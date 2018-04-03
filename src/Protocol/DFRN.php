@@ -1203,13 +1203,13 @@ class DFRN
 		$xml = $ret['body'];
 
 		$curl_stat = $a->get_curl_code();
-		if (!$curl_stat) {
+		if (empty($curl_stat)) {
 			return -3; // timed out
 		}
 
 		logger('dfrn_deliver: ' . $xml, LOGGER_DATA);
 
-		if (! $xml) {
+		if (empty($xml)) {
 			return 3;
 		}
 
@@ -1222,7 +1222,7 @@ class DFRN
 		$res = XML::parseString($xml);
 
 		if ((intval($res->status) != 0) || (! strlen($res->challenge)) || (! strlen($res->dfrn_id))) {
-			return (($res->status) ? $res->status : 3);
+			return ($res->status ? $res->status : 3);
 		}
 
 		$postvars     = [];
@@ -1345,11 +1345,11 @@ class DFRN
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 
 		$curl_stat = $a->get_curl_code();
-		if ((!$curl_stat) || (!strlen($xml))) {
+		if (empty($curl_stat) || empty($xml)) {
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
+		if (($curl_stat == 503) && stristr($a->get_curl_headers(), 'retry-after')) {
 			return -10;
 		}
 
@@ -1361,7 +1361,7 @@ class DFRN
 
 		$res = XML::parseString($xml);
 
-		if (!isset($res->status)) {
+		if (empty($res->status)) {
 			return -11;
 		}
 
@@ -1385,18 +1385,27 @@ class DFRN
 	 *
 	 * @return int Deliver status. Negative values mean an error.
 	 */
-	public static function transmit($owner, $contact, $atom)
+	public static function transmit($owner, $contact, $atom, $public_batch = false)
 	{
 		$a = get_app();
 
-		// Currently disabled, at first we will not use the batch delivery
-		// $public_batch = !$items[0]['private'];
-		$public_batch = false;
+		if (empty($contact['addr'])) {
+			logger('Empty contact handle for ' . $contact['id'] . ' - ' . $contact['url'] . ' - trying to update it.');
+			if (Contact::updateFromProbe($contact['id'])) {
+				$new_contact = dba::selectFirst('contact', ['addr'], ['id' => $contact['id']]);
+				$contact['addr'] = $new_contact['addr'];
+			}
+
+			if (empty($contact['addr'])) {
+				logger('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
+				return -21;
+			}
+		}
 
 		$fcontact = Diaspora::personByHandle($contact['addr']);
 		if (empty($fcontact)) {
-			logger("unable to find contact details");
-			return;
+			logger('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
+			return -21;
 		}
 
 		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
@@ -1408,7 +1417,8 @@ class DFRN
 		$xml = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
 
 		$curl_stat = $a->get_curl_code();
-		if (!$curl_stat || empty($xml)) {
+		if (empty($curl_stat) || empty($xml)) {
+			logger('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
 			return -9; // timed out
 		}
 
@@ -1417,19 +1427,19 @@ class DFRN
 		}
 
 		if (strpos($xml, '<?xml') === false) {
-			logger('no valid XML returned');
-			logger('returned XML: ' . $xml, LOGGER_DATA);
+			logger('No valid XML returned from ' . $contact['id'] . ' - ' . $dest_url);
+			logger('Returned XML: ' . $xml, LOGGER_DATA);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
-		if (!isset($res->status)) {
+		if (empty($res->status)) {
 			return -11;
 		}
 
 		if (!empty($res->message)) {
-			logger('Transmit returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+			logger('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
 		if ($res->status == 200) {

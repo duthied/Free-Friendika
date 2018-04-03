@@ -318,7 +318,7 @@ class Delivery {
 
 				logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
 
-				if ($deliver_status < 0) {
+				if ($deliver_status < 200) {
 					logger('notifier: delivery failed: queuing message');
 					Queue::add($contact['id'], NETWORK_DFRN, $atom, false, $target_item['guid']);
 
