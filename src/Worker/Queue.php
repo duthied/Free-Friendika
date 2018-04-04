@@ -63,6 +63,11 @@ class Queue
 			return;
 		}
 
+		if (empty($contact['notify'])) {
+			QueueModel::removeItem($q_item['id']);
+			return;
+		}
+
 		$dead = Cache::get($cachekey_deadguy . $contact['notify']);
 
 		if (!is_null($dead) && $dead && !$no_dead_check) {
@@ -109,37 +114,33 @@ class Queue
 				logger('queue: dfrndelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 				$deliver_status = DFRN::deliver($owner, $contact, $data);
 
-				if ($deliver_status == (-1)) {
+				if (($deliver_status >= 200) && ($deliver_status <= 299)) {
+					QueueModel::removeItem($q_item['id']);
+				} else {
+					QueueModel::updateTime($q_item['id']);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
+				}
+				break;
+			case NETWORK_OSTATUS:
+				logger('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
+				$deliver_status = Salmon::slapper($owner, $contact['notify'], $data);
+
+				if ($deliver_status == -1) {
 					QueueModel::updateTime($q_item['id']);
 					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 				} else {
 					QueueModel::removeItem($q_item['id']);
 				}
 				break;
-			case NETWORK_OSTATUS:
-				if ($contact['notify']) {
-					logger('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
-					$deliver_status = Salmon::slapper($owner, $contact['notify'], $data);
-
-					if ($deliver_status == (-1)) {
-						QueueModel::updateTime($q_item['id']);
-						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
-					} else {
-						QueueModel::removeItem($q_item['id']);
-					}
-				}
-				break;
 			case NETWORK_DIASPORA:
-				if ($contact['notify']) {
-					logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
-					$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
+				logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
+				$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
 
-					if ($deliver_status == (-1)) {
-						QueueModel::updateTime($q_item['id']);
-						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
-					} else {
-						QueueModel::removeItem($q_item['id']);
-					}
+				if (($deliver_status >= 200) && ($deliver_status <= 299)) {
+					QueueModel::removeItem($q_item['id']);
+				} else {
+					QueueModel::updateTime($q_item['id']);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
 				}
 				break;
 
@@ -154,7 +155,7 @@ class Queue
 				}
 				break;
 		}
-		logger('Deliver status ' . (int) $deliver_status . ' for item ' . $q_item['id'] . ' to ' . $contact['name'] . ' <' . $contact['url'] . '>');
+		logger('Deliver status ' . (int)$deliver_status . ' for item ' . $q_item['id'] . ' to ' . $contact['name'] . ' <' . $contact['url'] . '>');
 
 		return;
 	}

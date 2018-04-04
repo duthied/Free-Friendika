@@ -313,7 +313,7 @@ class Delivery {
 				if (!Queue::wasDelayed($contact['id'])) {
 					$deliver_status = DFRN::deliver($owner, $contact, $atom);
 				} else {
-					$deliver_status = (-1);
+					$deliver_status = -1;
 				}
 
 				logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
@@ -323,12 +323,12 @@ class Delivery {
 					Queue::add($contact['id'], NETWORK_DFRN, $atom, false, $target_item['guid']);
 				}
 
-				if ($deliver_status < 200) {
-					// The message could not be delivered. We mark the contact as "dead"
-					Contact::markForArchival($contact);
-				} else {
+				if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 					// We successfully delivered a message, the contact is alive
 					Contact::unmarkForArchival($contact);
+				} else {
+					// The message could not be delivered. We mark the contact as "dead"
+					Contact::markForArchival($contact);
 				}
 
 				break;
