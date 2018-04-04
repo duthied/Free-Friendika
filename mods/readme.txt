@@ -9,7 +9,7 @@ sample-nginx.config
 sample-systemd.timer
 sample-systemd.service
 
-		Sample .timer and .service file to start worker.php
+		Sample systemd unit files to start worker.php periodically.
 		
 		Please place them in the correct location for your system,
 		typically this is /etc/systemd/system/friendicaworker.timer 
