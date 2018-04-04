@@ -1,6 +1,10 @@
 Accesskeys in Friendica
 =======================
 
+* [Home](help)
+
+For an overview of the modifier key of the different browsers we suggest this [Wikipedia](https://en.wikipedia.org/wiki/Access_key) article.
+
 General
 -------
 * p: profile
@@ -10,6 +14,11 @@ General
 * a: admin
 * f: notifications
 * u: user menu (in themes "vier" and "quattro")
+
+/community
+--------
+* l: Local community
+* g: Global community
 
 /profile
 --------
@@ -37,10 +46,7 @@ General
 * o: Profile
 * t: Contacts
 * d: Common friends
-* b: Toggle Blocked status
-* i: Toggle Ignored status
-* v: Toggle Archive status
-* r: Repair
+* r: Advanced
 
 /message
 --------
@@ -68,7 +74,7 @@ General
 * o: Account
 * t: Additional features
 * w: Social Networks
-* l: Plugins
+* l: Addons
 * d: Delegations
 * b: Connected apps
 * e: Export personal data

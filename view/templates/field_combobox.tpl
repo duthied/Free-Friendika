@@ -7,12 +7,12 @@
 		   {{foreach $field.4 as $opt=>$val}}<option value="{{$val|escape:'html'}}">{{/foreach}}
 		</datalist> *}}
 		
-		<input id="id_{{$field.0}}" type="text" value="{{$field.2}}">
+		<input id="id_{{$field.0}}" type="text" value="{{$field.2}}" aria-describedby='{{$field.0}}_tip'>
 		<select id="select_{{$field.0}}" onChange="$('#id_{{$field.0}}').val($(this).val())">
 			<option value="">{{$field.5}}</option>
 			{{foreach $field.4 as $opt=>$val}}<option value="{{$val|escape:'html'}}">{{$val}}</option>{{/foreach}}
 		</select>
 		
-		<span class='field_help'>{{$field.3}}</span>
+		<span class='field_help' role='tooltip' id='{{$field.0}}_tip'>{{$field.3}}</span>
 	</div>
 

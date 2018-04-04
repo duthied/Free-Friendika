@@ -19,6 +19,7 @@
 
 {{include file="field_input.tpl" field=$adminmail}}
 {{$timezone}}
+{{include file="field_select.tpl" field=$language}}
 
 <input id="install-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" /> 
 

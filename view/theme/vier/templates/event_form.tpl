@@ -13,56 +13,48 @@
 <input type="hidden" name="uri" value="{{$uri}}" />
 <input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
-<div id="event-start-text">{{$s_text}}</div>
 {{$s_dsel}}
 
-<div id="event-finish-text">{{$f_text}}</div>
 {{$f_dsel}}
 
-<div id="event-datetime-break"></div>
+{{include file="field_checkbox.tpl" field=$nofinish}}
 
-<input type="checkbox" name="nofinish" value="1" id="event-nofinish-checkbox" {{$n_checked}} /> <div id="event-nofinish-text">{{$n_text}}</div>
+{{include file="field_checkbox.tpl" field=$adjust}}
 
-<div id="event-nofinish-break"></div>
-
-<input type="checkbox" name="adjust" value="1" id="event-adjust-checkbox" {{$a_checked}} /> <div id="event-adjust-text">{{$a_text}}</div>
-
-<div id="event-adjust-break"></div>
-
-<div id="event-summary-text">{{$t_text}}</div>
-<input type="text" size="65" id="event-summary" name="summary" value="{{$t_orig|escape:'html'}}" />
+{{include file="field_input.tpl" field=$summary}}
 
 
 <div id="event-desc-text">{{$d_text}}</div>
-<textarea id="comment-edit-text-desc" rows="8" cols="64" name="desc">{{$d_orig}}</textarea>
+<textarea id="comment-edit-text-desc" rows="8" cols="64" name="desc" autocomplete="off">{{$d_orig}}</textarea>
 <div id="event-desc-text-edit-bb" class="comment-edit-bb">
-	<a title="{{$edimg}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="img" data-id="desc"><i class="icon-picture"></i></a>      
-	<a title="{{$edurl}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="url" data-id="desc"><i class="icon-link"></i></a>
-	<a title="{{$edvideo}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="video" data-id="desc"><i class="icon-film"></i></a>
+	<a title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="desc"><i class="icon-picture"></i></a>
+	<a title="{{$edurl}}" data-role="insert-formatting" data-bbcode="url" data-id="desc"><i class="icon-link"></i></a>
+	<a title="{{$edvideo}}" data-role="insert-formatting" data-bbcode="video" data-id="desc"><i class="icon-film"></i></a>
 
-	<a title="{{$eduline}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="u" data-id="desc"><i class="icon-underline"></i></a>
-	<a title="{{$editalic}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="i" data-id="desc"><i class="icon-italic"></i></a>
-	<a title="{{$edbold}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="b" data-id="desc"><i class="icon-bold"></i></a>
-	<a title="{{$edquote}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="quote" data-id="desc"><i class="icon-quote-left"></i></a>
+	<a title="{{$eduline}}" data-role="insert-formatting" data-bbcode="u" data-id="desc"><i class="icon-underline"></i></a>
+	<a title="{{$editalic}}" data-role="insert-formatting" data-bbcode="i" data-id="desc"><i class="icon-italic"></i></a>
+	<a title="{{$edbold}}" data-role="insert-formatting" data-bbcode="b" data-id="desc"><i class="icon-bold"></i></a>
+	<a title="{{$edquote}}" data-role="insert-formatting" data-bbcode="quote" data-id="desc"><i class="icon-quote-left"></i></a>
 </div>
 
 <div id="event-location-text">{{$l_text}}</div>
 <textarea id="comment-edit-text-location" rows="4" cols="64" name="location">{{$l_orig}}</textarea>
 <div id="event-location-text-edit-bb" class="comment-edit-bb">
-	<a title="{{$edimg}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="img" data-id="location"><i class="icon-picture"></i></a>      
-	<a title="{{$edurl}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="url" data-id="location"><i class="icon-link"></i></a>
-	<a title="{{$edvideo}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="video" data-id="location"><i class="icon-film"></i></a>
+	<a title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="location"><i class="icon-picture"></i></a>
+	<a title="{{$edurl}}" data-role="insert-formatting" data-bbcode="url" data-id="location"><i class="icon-link"></i></a>
+	<a title="{{$edvideo}}" data-role="insert-formatting" data-bbcode="video" data-id="location"><i class="icon-film"></i></a>
 
-	<a title="{{$eduline}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="u" data-id="location"><i class="icon-underline"></i></a>
-	<a title="{{$editalic}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="i" data-id="location"><i class="icon-italic"></i></a>
-	<a title="{{$edbold}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="b" data-id="location"><i class="icon-bold"></i></a>
-	<a title="{{$edquote}}" data-role="insert-formatting" data-comment="{{$comment}}" data-bbcode="quote" data-id="location"><i class="icon-quote-left"></i></a>
+	<a title="{{$eduline}}" data-role="insert-formatting" data-bbcode="u" data-id="location"><i class="icon-underline"></i></a>
+	<a title="{{$editalic}}" data-role="insert-formatting" data-bbcode="i" data-id="location"><i class="icon-italic"></i></a>
+	<a title="{{$edbold}}" data-role="insert-formatting" data-bbcode="b" data-id="location"><i class="icon-bold"></i></a>
+	<a title="{{$edquote}}" data-role="insert-formatting" data-bbcode="quote" data-id="location"><i class="icon-quote-left"></i></a>
 </div>
 
 <div id="event-location-break"></div>
 
-<input type="checkbox" name="share" value="1" id="event-share-checkbox" {{$sh_checked}} /> <div id="event-share-text">{{$sh_text}}</div>
-<div id="event-share-break"></div>
+{{if ! $eid}}
+{{include file="field_checkbox.tpl" field=$share}}
+{{/if}}
 
 {{$acl}}
 

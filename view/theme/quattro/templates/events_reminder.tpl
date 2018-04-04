@@ -1,18 +1,20 @@
-<link rel='stylesheet' type='text/css' href='{{$baseurl}}/library/fullcalendar/fullcalendar.css' />
-<script language="javascript" type="text/javascript"
-          src="{{$baseurl}}/library/fullcalendar/fullcalendar.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.min.css" />
+<link rel="stylesheet" type="text/css" href="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.print.min.css" />
+<script type="text/javascript" src="{{$baseurl}}/vendor/asset/moment/min/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/vendor/asset/fullcalendar/dist/fullcalendar.min.js"></script>
 <script>
 	// start calendar from yesterday
 	var yesterday= new Date()
 	yesterday.setDate(yesterday.getDate()-1)
-	
+
 	function showEvent(eventid) {
 		$.get(
 			'{{$baseurl}}/events/?id='+eventid,
 			function(data){
 				$.colorbox({html:data});
 			}
-		);			
+		);
 	}
 	$(document).ready(function() {
 		$('#events-reminder').fullCalendar({
@@ -21,14 +23,10 @@
 			month: yesterday.getMonth(),
 			date: yesterday.getDate(),
 			events: '{{$baseurl}}/events/json/',
-			header: {
-				left: '',
-				center: '',
-				right: ''
-			},			
+			header: false,
 			timeFormat: 'H(:mm)',
 			defaultView: 'basicWeek',
-			height: 50,
+			contentHeight: 50,
 			eventClick: function(calEvent, jsEvent, view) {
 				showEvent(calEvent.id);
 			}

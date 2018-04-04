@@ -1,14 +1,14 @@
 <?php
 
-require_once('include/Scrape.php');
+use Friendica\App;
+use Friendica\Network\Probe;
 
-function acctlink_init(&$a) {
-
-	if(x($_GET,'addr')) {
+function acctlink_init()
+{
+	if (x($_GET, 'addr')) {
 		$addr = trim($_GET['addr']);
-		$res = probe_url($addr);
-		//logger('acctlink: ' . print_r($res,true));
-		if($res['url']) {
+		$res = Probe::uri($addr);
+		if ($res['url']) {
 			goaway($res['url']);
 			killme();
 		}

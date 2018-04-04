@@ -22,7 +22,7 @@ This is the default selection.
 Community Forum/Celebrity Accounts provide the ability for people to become friends/fans of the forum without requiring approval.
 
 The exact setting you would use depends on how you wish to interact with people who join the page.
-The "Soapbox" setting let's the page owner control all communications.
+The "Soapbox" setting lets the page owner control all communications.
 Everything you post will go out to the forum members, but there will be no opportunity for interaction.
 This setting would typically be used for announcements or corporate communications.
 
@@ -53,9 +53,17 @@ Posting to Community forums
 
 If you are a member of a community forum, you may post to the forum by including an @-tag in the post mentioning the forum.
 For example @bicycle would send my post to all members of the group "bicycle" in addition to the normal recipients.
-If your post is private you must also explicitly include the group in the post permissions (to allow the forum "contact" to see the post) **and** mention it in a tag (which redistributes the post to the forum members).  
+If you mention a forum (you are a member of) in a new posting, the posting will be distributed to all members of the forum, regardless of your privacy settings for the posting.
+Also, if the forum is a public forum, your posting will be public for the all internet users.
+If your post is private you must also explicitly include the group in the post permissions (to allow the forum "contact" to see the post) **and** mention it in a tag (which redistributes the post to the forum members).
+Posting privately to a public forum, will result in your posting being displayed on the forum wall, but not on yours.
 
-You may also post to a community forum by posting a "wall-to-wall" post using secure cross-site authentication.   
+Additionally it is possible to address a forum with the exclamation mark.
+In the example above this means that you can address the bicycle forum via !bicycle.
+The difference to the @ is that the post will only be sent to the addressed forum.
+This also means that you shouldn't address multiple forums in a single post in that way since it will only be distributed by one the forums.
+
+You may also post to a community forum by posting a "wall-to-wall" post using secure cross-site authentication.
 
 Comments which are relayed to community forums will be relayed back to the original post creator.
 Mentioning the forum with an @-tag in a comment does not relay the message, as distribution is controlled entirely by the original post creator. 

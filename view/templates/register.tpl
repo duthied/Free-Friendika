@@ -3,6 +3,7 @@
 <form action="register" method="post" id="register-form">
 
 	<input type="hidden" name="photo" value="{{$photo}}" />
+	<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 	{{if $registertext != ""}}<div class="error-message">{{$registertext}} </div>{{/if}}
 
@@ -56,6 +57,10 @@
 		<input type="text" maxlength="60" size="32" name="nickname" id="register-nickname" value="{{$nickname|escape:'html'}}" ><div id="register-sitename">@{{$sitename}}</div>
 	</div>
 	<div id="register-nickname-end" ></div>
+
+{{if $permonly}}
+    {{include file="field_textarea.tpl" field=$permonlybox}}
+{{/if}}
 
 	{{$publish}}
 

@@ -5,10 +5,9 @@
 <p id="dfrn-request-intro">
 {{$page_desc}}<br />
 <ul id="dfrn-request-networks">
-<li><a href="http://friendica.com" title="{{$friendica}}">{{$friendica}}</a></li>
-<li><a href="http://joindiaspora.com" title="{{$diaspora}}">{{$diaspora}}</a> {{$diasnote}}</li>
-<li><a href="http://ostatus.org" title="{{$public_net}}" >{{$statusnet}}</a></li>
-{{if $emailnet}}<li>{{$emailnet}}</li>{{/if}}
+<li><a href="http://friendi.ca" title="{{$friendica}}">{{$friendica}}</a></li>
+<li><a href="https://diasporafoundation.org" title="{{$diaspora}}">{{$diaspora}}</a> {{$diasnote}}</li>
+<li><a href="https://gnu.io/social/" title="{{$statusnet}}" >{{$statusnet}}</a></li>
 </ul>
 {{$invite_desc}}
 </p>
@@ -18,13 +17,13 @@
 {{/if}}
 
 {{if $request}}
-<form action="{{$request}}" method="post" />
+<form action="{{$request}}" method="post">
 {{else}}
-<form action="dfrn_request/{{$nickname}}" method="post" />
+<form action="dfrn_request/{{$nickname}}" method="post">
 {{/if}}
 
 {{if $photo}}
-<img src="{{$photo}}" alt="" id="dfrn-request-photo">
+<img src="{{$photo}}" alt="" id="dfrn-request-photo" />
 {{/if}}
 
 {{if $url}}<dl><dt>{{$url_label}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>{{/if}}

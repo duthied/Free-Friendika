@@ -1,66 +1,77 @@
 <?php
-require_once("mod/hostxrd.php");
-require_once("mod/nodeinfo.php");
 
-function _well_known_init(&$a){
+use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\System;
+
+require_once 'mod/hostxrd.php';
+require_once 'mod/nodeinfo.php';
+require_once 'mod/xrd.php';
+
+function _well_known_init(App $a)
+{
 	if ($a->argc > 1) {
-		switch($a->argv[1]) {
+		switch ($a->argv[1]) {
 			case "host-meta":
 				hostxrd_init($a);
 				break;
 			case "x-social-relay":
-				wk_social_relay($a);
+				wk_social_relay();
 				break;
 			case "nodeinfo":
 				nodeinfo_wellknown($a);
 				break;
+			case "webfinger":
+				xrd_init($a);
+				break;
 		}
 	}
-	http_status_exit(404);
+	System::httpExit(404);
 	killme();
 }
 
-function wk_social_relay(&$a) {
+function wk_social_relay()
+{
+	$subscribe = (bool) Config::get('system', 'relay_subscribe', false);
 
-	define('SR_SCOPE_ALL', 'all');
-	define('SR_SCOPE_TAGS', 'tags');
+	if ($subscribe) {
+		$scope = Config::get('system', 'relay_scope', SR_SCOPE_ALL);
+	} else {
+		$scope = SR_SCOPE_NONE;
+	}
 
-	$subscribe = (bool)get_config('system', 'relay_subscribe');
-
-	if ($subscribe)
-		$scope = get_config('system', 'relay_scope');
-	else
-		$scope = "";
-
-	$tags = array();
+	$tags = [];
 
 	if ($scope == SR_SCOPE_TAGS) {
-
-		$server_tags = get_config('system', 'relay_server_tags');
+		$server_tags = Config::get('system', 'relay_server_tags');
 		$tagitems = explode(",", $server_tags);
 
-		foreach($tagitems AS $tag)
+		foreach ($tagitems AS $tag) {
 			$tags[trim($tag, "# ")] = trim($tag, "# ");
+		}
 
-		if (get_config('system', 'relay_user_tags')) {
+		if (Config::get('system', 'relay_user_tags')) {
 			$terms = q("SELECT DISTINCT(`term`) FROM `search`");
 
-			foreach($terms AS $term) {
+			foreach ($terms AS $term) {
 				$tag = trim($term["term"], "#");
 				$tags[$tag] = $tag;
 			}
 		}
 	}
 
-	$taglist = array();
-	foreach($tags AS $tag)
+	$taglist = [];
+	foreach ($tags AS $tag) {
 		$taglist[] = $tag;
+	}
 
-	$relay = array("subscribe" => $subscribe,
-			"scope" => $scope,
-			"tags" => $taglist);
+	$relay = [
+		"subscribe" => $subscribe,
+		"scope" => $scope,
+		"tags" => $taglist
+	];
 
 	header('Content-type: application/json; charset=utf-8');
-	echo json_encode($relay, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
+	echo json_encode($relay, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	exit;
 }

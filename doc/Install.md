@@ -10,7 +10,7 @@ Not every PHP/MySQL hosting provider will be able to support Friendica.
 Many will.
 But **please** review the requirements and confirm these with your hosting provider prior to installation.
 
-Also if you encounter installation issues, please let us know via the [helper](http://helpers.pyxis.uberspace.de/profile/helpers) or the [developer](https://friendika.openmindspace.org/profile/friendicadevelopers) forum or [file an issue](https://github.com/friendica/friendica/issues).
+Also if you encounter installation issues, please let us know via the [helper](http://forum.friendi.ca/profile/helpers) or the [developer](https://forum.friendi.ca/profile/developers) forum or [file an issue](https://github.com/friendica/friendica/issues).
 Please be as clear as you can about your operating environment and provide as much detail as possible about any error messages you may see, so that we can prevent it from happening in the future.
 Due to the large variety of operating systems and PHP platforms in existence we may have only limited ability to debug your PHP installation or acquire any missing modules - but we will do our best to solve any general code issues.
 If you do not have a Friendica account yet, you can register a temporary one at [tryfriendica.de](https://tryfriendica.de) and join the forums mentioned above from there.
@@ -26,12 +26,12 @@ Requirements
 ---
 
 * Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-* PHP  5.2+. The later the better. You'll need 5.3 for encryption of key exchange conversations. On a Windows environment, 5.2+ might not work as the function dns_get_record() is only available with version 5.3.
+* PHP 5.6+ (PHP 7 is recommended for performance)
 * PHP *command line* access with register_argc_argv set to true in the php.ini file
-* curl, gd, mysql, hash and openssl extensions
+* Curl, GD, PDO, MySQLi, hash, xml, zip and OpenSSL extensions
+* The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
 * some form of email server or email gateway such that PHP mail() works
-* mcrypt (optional; used for server-to-server message encryption)
-* Mysql 5.x or an equivalant alternative for MySQL (MariaDB etc.)
+* Mysql 5.5.3+ or an equivalant alternative for MySQL (MariaDB, Percona Server etc.)
 * the ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows) (Note: other options are presented in Section 7 of this document.)
 * Installation into a top-level domain or sub-domain (without a directory/path component in the URL) is preferred. Directory paths will not be as convenient to use and have not been thoroughly tested.
 * If your hosting provider doesn't allow Unix shell access, you might have trouble getting everything to work.
@@ -39,14 +39,16 @@ Requirements
 Installation procedure
 ---
 
-###Get Friendica
+### Get Friendica
 
 Unpack the Friendica files into the root of your web server document area.
 If you are able to do so, we recommend using git to clone the source repository rather than to use a packaged tar or zip file.
 This makes the software much easier to update.
-The Linux command to clone the repository into a directory "mywebsite" would be
+The Linux commands to clone the repository into a directory "mywebsite" would be
 
     git clone https://github.com/friendica/friendica.git mywebsite
+    cd mywebsite
+    util/composer.phar install
 
 Make sure the folder *view/smarty3* exists and is writable by the webserver user
 
@@ -63,16 +65,27 @@ Clone the addon repository (separately):
 
 If you copy the directory tree to your webserver, make sure that you also copy .htaccess - as "dot" files are often hidden and aren't normally copied.
 
-###Create a database
+### Create a database
 
 Create an empty database and note the access details (hostname, username, password, database name).
 
 Friendica needs the permission to create and delete fields and tables in its own database.
 
-###Run the installer
+With newer releases of MySQL (5.7.17 or newer), you might need to set the sql_mode to '' (blank).
+Use this setting when the installer is unable to create all the needed tables due to a timestamp format problem.
+In this case find the [mysqld] section in your my.cnf file and add the line :
+
+    sql_mode = ''
+
+Restart mysql and you should be fine.
+
+
+### Run the installer
 
 Point your web browser to the new site and follow the instructions.
 Please note any error messages and correct these before continuing.
+
+If you need to specify a port for the connection to the database, you can do so in the host name setting for the database.
 
 *If* the automated installation fails for any reason, check the following:
 
@@ -84,53 +97,33 @@ Registration errors should all be recoverable automatically.
 If you get any *critical* failure at this point, it generally indicates the database was not installed correctly.
 You might wish to move/rename .htconfig.php to another name and empty (called 'dropping') the database tables, so that you can start fresh.
 
-###Set up the poller
+### Set up the worker
 
-Set up a cron job or scheduled task to run the poller once every 5-10 minutes in order to perform background processing.
+Set up a cron job or scheduled task to run the worker once every 5-10 minutes in order to perform background processing.
 Example:
 
-    cd /base/directory; /path/to/php include/poller.php
+    cd /base/directory; /path/to/php scripts/worker.php
 
 Change "/base/directory", and "/path/to/php" as appropriate for your situation.
 
 If you are using a Linux server, run "crontab -e" and add a line like the
 one shown, substituting for your unique paths and settings:
 
-    */10 * * * * cd /home/myname/mywebsite; /usr/bin/php include/poller.php
+    */10 * * * * cd /home/myname/mywebsite; /usr/bin/php scripts/worker.php
 
 You can generally find the location of PHP by executing "which php".
 If you run into trouble with this section please contact your hosting provider for assistance.
 Friendica will not work correctly if you cannot perform this step.
 
-Alternative: You may be able to use the 'poormancron' plugin to perform this step.
-To do this, edit the file ".htconfig.php" and look for a line describing your plugins.
-On a fresh installation, it will look like this:
-
-    $a->config['system']['addon'] = 'js_upload';
-
-It indicates the "js_upload" addon module is enabled.
-You may add additional addons/plugins using this same line in the configuration file.
-Change it to read
-
-    $a->config['system']['addon'] = 'js_upload,poormancron';
-
-and save your changes.
+If it is not possible to set up a cron job then please activate the "frontend worker" in the administration interface.
 
 Once you have installed Friendica and created an admin account as part of the process, you can access the admin panel of your installation and do most of the server wide configuration from there
 
-Updating your installation with git
----
+### Set up a backup plan
 
-You can get the latest changes at any time with
+Bad things will happen.
+Let there be a hardware failure, a corrupted database or whatever you can think of.
+So once the installation of your Friendica node is done, you should make yourself a backup plan.
 
-    cd mywebsite
-    git pull
-
-The default branch to use it the ``master`` branch, which is the stable version of Friendica.
-If you want to use and test bleeding edge code please checkout the ``develop`` branch.
-The new features and fixes will be merged from ``develop`` into ``master`` when they are stable approx four times a year.
-
-The addon tree has to be updated separately like so:
-
-    cd mywebsite/addon
-    git pull
+The most important file is the `.htconfig.php` file in the base directory.
+As it stores all your data, you should also have a recent dump of your Friendica database at hand, should you have to recover your node.

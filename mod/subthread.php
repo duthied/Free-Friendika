@@ -1,11 +1,18 @@
 <?php
+/**
+ * @file mod/subthread.php
+ */
+use Friendica\App;
+use Friendica\Core\Addon;
+use Friendica\Core\L10n;
+use Friendica\Core\System;
+use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
-require_once('include/security.php');
-require_once('include/bbcode.php');
-require_once('include/items.php');
+require_once 'include/security.php';
+require_once 'include/items.php';
 
-
-function subthread_content(&$a) {
+function subthread_content(App $a) {
 
 	if(! local_user() && ! remote_user()) {
 		return;
@@ -20,7 +27,7 @@ function subthread_content(&$a) {
 		dbesc($item_id)
 	);
 
-	if(! $item_id || (! count($r))) {
+	if(! $item_id || (! DBM::is_result($r))) {
 		logger('subthread: no item ' . $item_id);
 		return;
 	}
@@ -29,7 +36,7 @@ function subthread_content(&$a) {
 
 	$owner_uid = $item['uid'];
 
-	if(! can_write_wall($a,$owner_uid)) {
+	if(! can_write_wall($owner_uid)) {
 		return;
 	}
 
@@ -41,52 +48,55 @@ function subthread_content(&$a) {
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if(! count($r))
+		if (! DBM::is_result($r)) {
 			return;
-		if(! $r[0]['self'])
+		}
+		if (! $r[0]['self']) {
 			$remote_owner = $r[0];
+		}
 	}
 
-	// this represents the post owner on this system. 
+	$owner = null;
+	// this represents the post owner on this system.
 
 	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if(count($r))
+	if (DBM::is_result($r))
 		$owner = $r[0];
 
-	if(! $owner) {
+	if (! $owner) {
 		logger('like: no owner');
 		return;
 	}
 
-	if(! $remote_owner)
+	if (! $remote_owner)
 		$remote_owner = $owner;
 
 
+	$contact = null;
 	// This represents the person posting
 
-	if((local_user()) && (local_user() == $owner_uid)) {
+	if ((local_user()) && (local_user() == $owner_uid)) {
 		$contact = $owner;
-	}
-	else {
+	} else {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if(count($r))
+		if (DBM::is_result($r))
 			$contact = $r[0];
 	}
-	if(! $contact) {
+	if (! $contact) {
 		return;
 	}
 
 	$uri = item_new_uri($a->get_hostname(),$owner_uid);
 
-	$post_type = (($item['resource-id']) ? t('photo') : t('status'));
-	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
-	$link = xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
+	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
+	$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 
 	$obj = <<< EOT
@@ -100,13 +110,15 @@ function subthread_content(&$a) {
 		<content>$body</content>
 	</object>
 EOT;
-	$bodyverb = t('%1$s is following %2$s\'s %3$s');
+	$bodyverb = L10n::t('%1$s is following %2$s\'s %3$s');
 
-	if(! isset($bodyverb))
-			return; 
+	if (! isset($bodyverb)) {
+		return;
+	}
 
-	$arr = array();
+	$arr = [];
 
+	$arr['guid'] = get_guid(32);
 	$arr['uri'] = $uri;
 	$arr['uid'] = $owner_uid;
 	$arr['contact-id'] = $contact['id'];
@@ -123,10 +135,10 @@ EOT;
 	$arr['author-name'] = $contact['name'];
 	$arr['author-link'] = $contact['url'];
 	$arr['author-avatar'] = $contact['thumb'];
-	
+
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-	$plink = '[url=' . $a->get_baseurl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
+	$plink = '[url=' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink );
 
 	$arr['verb'] = $activity;
@@ -138,20 +150,16 @@ EOT;
 	$arr['deny_gid'] = $item['deny_gid'];
 	$arr['visible'] = 1;
 	$arr['unseen'] = 1;
-	$arr['last-child'] = 0;
 
-	$post_id = item_store($arr);
+	$post_id = Item::insert($arr);
 
-	if(! $item['visible']) {
-		$r = q("UPDATE `item` SET `visible` = 1 WHERE `id` = %d AND `uid` = %d",
-			intval($item['id']),
-			intval($owner_uid)
-		);
+	if (!$item['visible']) {
+		Item::update(['visible' => true], ['id' => $item['id']]);
 	}
 
 	$arr['id'] = $post_id;
 
-	call_hooks('post_local_end', $arr);
+	Addon::callHooks('post_local_end', $arr);
 
 	killme();
 

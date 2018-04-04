@@ -3,10 +3,9 @@
 * [Home](help)
 
 To change the look of friendica you have to touch the themes.
-The current default theme is [duepunto zero](https://github.com/friendica/friendica/tree/master/view/theme/duepuntozero) but there are numerous others.
+The current default theme is [Vier](https://github.com/friendica/friendica/tree/master/view/theme/vier) but there are numerous others.
 Have a look at [friendica-themes.com](http://friendica-themes.com) for an overview of the existing themes.
 In case none of them suits your needs, there are several ways to change a theme.
-If you need help theming, there is a forum @[ftdevs@friendica.eu](https://friendica.eu/profile/ftdevs) where you can ask theme specific questions and present your themes.
 
 So, how to work on the UI of friendica.
 
@@ -65,11 +64,11 @@ they will be overwritten by files in
 
 ### Theme Variations
 
-Many themes are more *theme families* then only one theme.
+Many themes are more *theme families* than only one theme.
 *duepunto zero* and *vier* allow easily to add new theme variation.
 We will go through the process of creating a new variation for *duepunto zero*.
 The same  (well almost, some names change) procedure applies to the *vier* theme.
-And similar steps are needed for *quattro* but this theme is using [lessc](http://lesscss.org/#docs) to maintaine the CSS files..
+And similar steps are needed for *quattro* but this theme is using [lesscss](http://lesscss.org/#docs) to maintain the CSS files..
 
 In
 
@@ -88,12 +87,12 @@ The template (theme_settings.tpl)
     </div>
 
 defines a formular consisting of a [select](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) pull-down which contains all aviable variants and s submit button.
-See the documentation about [SMARTY3 templates](/help/snarty3-templates.md) for a summary of friendica specific blocks other then the select element.
+See the documentation about [SMARTY3 templates](/help/snarty3-templates.md) for a summary of friendica specific blocks other than the select element.
 But we don't really need to change anything at the template itself.
 
 The template alone wont work though.
 You make friendica aware of its existance and tell it how to use the template file, by defining a config.php file.
-It needs to define at lest the following functions
+It needs to define at least the following functions
 
 * theme_content
 * theme_post
@@ -109,27 +108,28 @@ The _post functions handle the processing of the send form, in this case they sa
 To make your own variation appear in the menu, all you need to do is to create a new CSS file in the deriv directoy and include it in the array in the config.php:
 
     $colorset = array(
-        'default'=>t('default'),
-        'greenzero'=>t('greenzero'),
-        'purplezero'=>t('purplezero'),
-        'easterbunny'=>t('easterbunny'),
-        'darkzero'=>t('darkzero'),
-        'comix'=>t('comix'),
-        'slackr'=>t('slackr'),
+        'default'=>L10n::t('default'),
+        'greenzero'=>L10n::t('greenzero'),
+        'purplezero'=>L10n::t('purplezero'),
+        'easterbunny'=>L10n::t('easterbunny'),
+        'darkzero'=>L10n::t('darkzero'),
+        'comix'=>L10n::t('comix'),
+        'slackr'=>L10n::t('slackr'),
     );
 
 the 1st part of the line is the name of the CSS file (without the .css) the 2nd part is the common name of the variant.
-Calling the t() function with the common name makes the string translateable.
+Calling the L10n::t() function with the common name makes the string translateable.
 The selected 1st part will be saved in the database by the theme_post function.
 
-    function theme_post(&$a){
+    function theme_post(App $a){
         // non local users shall not pass
-        if(! local_user())
+        if (! local_user()) {
             return;
+        }
         // if the one specific submit button was pressed then proceed
         if (isset($_POST['duepuntozero-settings-submit'])){
             // and save the selection key into the personal config of the user
-            set_pconfig(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+            PConfig::set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
         }
     }
 
@@ -137,9 +137,9 @@ Now that this information is set in the database, what should friendica do with 
 For this, have a look at the theme.php file of the *duepunto zero*.
 There you'll find somethink alike
 
-        $colorset = get_pconfig( local_user(), 'duepuntozero','colorset');
+        $colorset = PConfig::get( local_user(), 'duepuntozero','colorset');
         if (!$colorset)
-            $colorset = get_config('duepuntozero', 'colorset');
+            $colorset = Config::get('duepuntozero', 'colorset');
         if ($colorset) {
             if ($colorset == 'greenzero')
                 $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";
@@ -158,7 +158,7 @@ If you think your color variation could be benifical for other friendica users a
 
 ### Inheritation
 
-Say, you like the duepuntozero but you want to have the content of the outer columns  left and right exchanged.
+Say, you like the duepuntozero but you want to have the content of the outer columns left and right exchanged.
 That would be not a color variation as shown above.
 Instead we will create a new theme, duepuntozero_lr, inherit the properties of duepuntozero and make small changes to the underlying php files.
 
@@ -167,11 +167,11 @@ The content of this file should be something like
 
     <?php
     /* meta informations for the theme, see below */
-    function duepuntozero_lr_init(&$a) {
+    function duepuntozero_lr_init(App $a) {
         $a-> theme_info = array(
             'extends' => 'duepuntozero'.
         );
-        set_template_engine($a, 'smarty3');
+        $a->set_template_engine('smarty3');
         /* and more stuff e.g. the JavaScript function for the header */
     }
 
@@ -201,11 +201,11 @@ That done, you can select it in the settings like any other activated theme.
 ## Creating a Theme from Scratch
 
 Keep patient.
-Basically what you have to do is identifying which template you have to change so it looks more like what you want.
+Basically what you have to do is identify which template you have to change so it looks more like what you want.
 Adopt the CSS of the theme accordingly.
 And iterate the process until you have the theme the way you want it.
 
-*Use the source Luke.* and don't hesitate to ask in @[ftdevs](https://friendica.eu/profile/ftdevs) or @[helpers](https://helpers.pyxis.uberspace.de/profile/helpers).
+*Use the source Luke.* and don't hesitate to ask in @[developers](https://forum.friendi.ca/profile/developers) or @[helpers](https://forum.friendi.ca/profile/helpers).
 
 ## Special Files
 
@@ -229,7 +229,7 @@ Supported formats are PNG and JPEG.
 ### theme.php
 
 This is the main definition file of the theme.
-In the header of that file, some meta information are stored.
+In the header of that file, some meta information is stored.
 For example, have a look at the theme.php of the *quattro* theme:
 
     <?php
@@ -241,21 +241,21 @@ For example, have a look at the theme.php of the *quattro* theme:
      * Maintainer: Tobias <https://f.diekershoff.de/profile/tobias>
      */
 
-You see the definition of the themes name, it's version and the initial author of the theme.
-These three information should be listed.
-If the original author is not anymore working on the theme, but a maintainer has taken over, the maintainer should be listed as well.
-The information from the theme header will be displayed in the admin panelö.
+You see the definition of the theme's name, it's version and the initial author of the theme.
+These three pieces of information should be listed.
+If the original author is no longer working on the theme, but a maintainer has taken over, the maintainer should be listed as well.
+The information from the theme header will be displayed in the admin panel.
 
-Next crucial part of the theme.php file is a definition of an init function.
+The next crucial part of the theme.php file is a definition of an init function.
 The name of the function is <theme-name>_init.
 So in the case of quattro it is
 
-    function quattro_init(&$a) {
+    function quattro_init(App $a) {
       $a->theme_info = array();
-      set_template_engine($a, 'smarty3');
+      $a->set_template_engine('smarty3');
     }
 
-Here we have set the basic theme information, in this case they are empthy.
+Here we have set the basic theme information, in this case they are empty.
 But the array needs to be set.
 And we have set the template engine that should be used by friendica for this theme.
 At the moment you should use the *smarty3* engine.

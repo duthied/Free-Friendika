@@ -1,4 +1,4 @@
-<h1>{{"Drop contact"|t}}</h1>
+<h1>{{$header}}</h1>
 
 {{include file="contact_template.tpl" no_contacts_checkbox=True}}
 

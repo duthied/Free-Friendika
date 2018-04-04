@@ -64,7 +64,7 @@
 .icon.unlock {
   background-image: url("../../../images/icons/22/unlock.png");
 }
-.icon.plugin {
+.icon.addon {
   background-image: url("../../../images/icons/22/plugin.png");
 }
 .icon.type-unkn {
@@ -143,7 +143,7 @@
 .icon.s10.unlock {
   background-image: url("../../../images/icons/10/unlock.png");
 }
-.icon.s10.plugin {
+.icon.s10.addon {
   background-image: url("../../../images/icons/10/plugin.png");
 }
 .icon.s10.type-unkn {
@@ -222,7 +222,7 @@
 .icon.s16.unlock {
   background-image: url("../../../images/icons/16/unlock.png");
 }
-.icon.s16.plugin {
+.icon.s16.addon {
   background-image: url("../../../images/icons/16/plugin.png");
 }
 .icon.s16.type-unkn {
@@ -301,7 +301,7 @@
 .icon.s22.unlock {
   background-image: url("../../../images/icons/22/unlock.png");
 }
-.icon.s22.plugin {
+.icon.s22.addon {
   background-image: url("../../../images/icons/22/plugin.png");
 }
 .icon.s22.type-unkn {
@@ -380,7 +380,7 @@
 .icon.s48.unlock {
   background-image: url("../../../images/icons/48/unlock.png");
 }
-.icon.s48.plugin {
+.icon.s48.addon {
   background-image: url("../../../images/icons/48/plugin.png");
 }
 .icon.s48.type-unkn {
@@ -463,7 +463,7 @@ a:hover {
   text-decoration: underline;
 }
 blockquote {
-  background: #ffffff;
+  background: #FFFFFF;
   padding: 1em;
   margin-left: 1em;
   border-left: 1em solid #e6e6e6;
@@ -544,7 +544,6 @@ header {
   margin: 0;
   padding: 0;
   /*width: 100%; height: 12px; */
-
   z-index: 110;
   color: #ffffff;
 }
@@ -745,8 +744,12 @@ ul.menu-popup .toolbar a:hover {
 }
 /* autocomplete popup */
 .autocomplete,
-.acpopup {
+.acpopup-mce {
   max-height: 150px;
+}
+.autocomplete,
+.acpopup-mce,
+.acpopup {
   background-color: #ffffff;
   color: #2d2d2d;
   border: 1px solid #364e59;
@@ -773,6 +776,15 @@ ul.menu-popup .toolbar a:hover {
 }
 .autocomplete > div.selected,
 .acpopupitem.selected {
+  background-color: #ccff42;
+}
+.textcomplete-item {
+  color: #2d2d2d;
+}
+.textcomplete-item a:hover {
+  color: #2d2d2d;
+}
+.textcomplete-item.active {
   background-color: #ccff42;
 }
 #nav-notifications-menu {
@@ -922,7 +934,6 @@ aside .posted-date-selector-months {
   overflow: auto;
   height: auto;
   /*.contact-block-div { width:60px; height: 60px; }*/
-
 }
 #contact-block .contact-block-h4 {
   float: left;
@@ -1004,7 +1015,6 @@ aside .posted-date-selector-months {
   margin-bottom: 2em;
   /*.action .s10 { width: 10px; overflow: hidden; padding: 0;}
 	.action .s16 { width: 16px; overflow: hidden; padding: 0;}*/
-
 }
 .widget h3 {
   padding: 0;
@@ -1200,6 +1210,9 @@ section {
 .wall-item-container .wall-item-actions-social a {
   margin-right: 3em;
 }
+.wall-item-container .wall-item-actions-social a.active {
+  font-weight: bold;
+}
 .wall-item-container .wall-item-actions-tools {
   float: right;
   width: 15%;
@@ -1308,7 +1321,6 @@ section {
   height: 32px;
   margin-left: 16px;
   /*background: url(../../../images/icons/22/user.png) no-repeat center center;*/
-
 }
 .comment-edit-preview .contact-photo-menu-button {
   top: 15px !important;
@@ -1447,9 +1459,12 @@ blockquote.shared_content {
 }
 .oembed.video > a.embed_video {
   display: block;
-  float: none;
+  position: relative;
 }
 .oembed.video > a.embed_video > div {
+  position: absolute;
+  top: 0px;
+  left: 0px;
   background: rgba(255, 255, 255, 0.36) url(../../../images/icons/48/play.png) no-repeat center center !important;
 }
 /* threaded comments */
@@ -1654,6 +1669,9 @@ span[id^="showmore-wrap"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+#contact-edit-status-wrapper {
+  border-color: #9ade00;
 }
 /* editor */
 .jothidden {
@@ -2136,10 +2154,6 @@ ul.tabs li .active {
   margin: 0 10px 10px 0;
   position: relative;
 }
-.videos .video-top-wrapper .video-js {
-  width: 200px!important;
-  height: 132px!important;
-}
 .videos .video-top-wrapper .video-delete {
   position: absolute;
   opacity: 0;
@@ -2241,7 +2255,6 @@ ul.tabs li .active {
   min-height: 22px;
   padding-top: 6px;
   /* a { display: block;}*/
-
 }
 #photo-caption {
   display: block;
@@ -2464,6 +2477,9 @@ footer {
   margin-top: 25px;
   clear: both;
 }
+.pager .disabled {
+	display: none;
+}
 /**
  * ADMIN
  */
@@ -2498,11 +2514,11 @@ footer {
   clear: left;
   text-align: right;
 }
-#adminpage #pluginslist {
+#adminpage #addonslist {
   margin: 0;
   padding: 0;
 }
-#adminpage .plugin {
+#adminpage .addon {
   list-style: none;
   display: block;
   border: 1px solid #888888;
@@ -2510,10 +2526,10 @@ footer {
   margin-bottom: 5px;
   clear: left;
 }
-#adminpage .plugin desc {
+#adminpage .addon desc {
   margin-left: 2.5em;
 }
-#adminpage .toggleplugin {
+#adminpage .toggleaddon {
   float: left;
   margin-right: 1em;
 }

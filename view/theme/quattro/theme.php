@@ -7,9 +7,10 @@
  * Maintainer: Tobias <https://diekershoff.homeunix.net/friendica/profile/tobias>
  */
 
-function quattro_init(&$a) {
-	$a->theme_info = array();
+use Friendica\App;
+use Friendica\Core\System;
 
-	$a->page['htmlhead'] .= '<script src="'.$a->get_baseurl().'/view/theme/quattro/tinycon.min.js"></script>';
-	$a->page['htmlhead'] .= '<script src="'.$a->get_baseurl().'/view/theme/quattro/js/quattro.js"></script>';;
+function quattro_init(App $a) {
+	$a->page['htmlhead'] .= '<script src="'.System::baseUrl().'/view/theme/quattro/tinycon.min.js"></script>';
+	$a->page['htmlhead'] .= '<script src="'.System::baseUrl().'/view/theme/quattro/js/quattro.js"></script>';;
 }

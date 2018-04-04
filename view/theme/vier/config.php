@@ -3,22 +3,31 @@
  * Theme settings
  */
 
+use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\L10n;
+use Friendica\Core\PConfig;
+use Friendica\Core\System;
 
-
-function theme_content(&$a){
-	if(!local_user())
+function theme_content(App $a)
+{
+	if (!local_user()) {
 		return;
+	}
 
-	if (!function_exists('get_vier_config'))
+	if (!function_exists('get_vier_config')) {
 		return;
+	}
 
-	$style = get_pconfig(local_user(), 'vier', 'style');
+	$style = PConfig::get(local_user(), 'vier', 'style');
 
-	if ($style == "")
-		$style = get_config('vier', 'style');
+	if ($style == "") {
+		$style = Config::get('vier', 'style');
+	}
 
-	if ($style == "")
+	if ($style == "") {
 		$style = "plus";
+	}
 
 	$show_pages = get_vier_config('show_pages', true);
 	$show_profiles = get_vier_config('show_profiles', true);
@@ -31,38 +40,40 @@ function theme_content(&$a){
 			$show_services, $show_friends, $show_lastusers);
 }
 
-function theme_post(&$a){
-	if(! local_user())
+function theme_post(App $a)
+{
+	if (! local_user()) {
 		return;
+	}
 
-	if (isset($_POST['vier-settings-submit'])){
-		set_pconfig(local_user(), 'vier', 'style', $_POST['vier_style']);
-		set_pconfig(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
-		set_pconfig(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
-		set_pconfig(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
-		set_pconfig(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
-		set_pconfig(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
-		set_pconfig(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+	if (isset($_POST['vier-settings-submit'])) {
+		PConfig::set(local_user(), 'vier', 'style', $_POST['vier_style']);
+		PConfig::set(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
+		PConfig::set(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
+		PConfig::set(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
+		PConfig::set(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
+		PConfig::set(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
+		PConfig::set(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
 	}
 }
 
 
-function theme_admin(&$a){
+function theme_admin(App $a) {
 
 	if (!function_exists('get_vier_config'))
 		return;
 
-	$style = get_config('vier', 'style');
+	$style = Config::get('vier', 'style');
 
-	$helperlist = get_config('vier', 'helperlist');
+	$helperlist = Config::get('vier', 'helperlist');
 
 	if ($helperlist == "")
-		$helperlist = "https://helpers.pyxis.uberspace.de/profile/helpers";
+		$helperlist = "https://forum.friendi.ca/profile/helpers";
 
 	$t = get_markup_template("theme_admin_settings.tpl");
-	$o .= replace_macros($t, array(
-		'$helperlist' => array('vier_helperlist', t('Comma separated list of helper forums'), $helperlist, '', ''),
-		));
+	$o = replace_macros($t, [
+		'$helperlist' => ['vier_helperlist', L10n::t('Comma separated list of helper forums'), $helperlist, '', ''],
+		]);
 
 	$show_pages = get_vier_config('show_pages', true, true);
 	$show_profiles = get_vier_config('show_profiles', true, true);
@@ -76,44 +87,45 @@ function theme_admin(&$a){
 	return $o;
 }
 
-function theme_admin_post(&$a){
+function theme_admin_post(App $a) {
 	if (isset($_POST['vier-settings-submit'])){
-		set_config('vier', 'style', $_POST['vier_style']);
-		set_config('vier', 'show_pages', $_POST['vier_show_pages']);
-		set_config('vier', 'show_profiles', $_POST['vier_show_profiles']);
-		set_config('vier', 'show_helpers', $_POST['vier_show_helpers']);
-		set_config('vier', 'show_services', $_POST['vier_show_services']);
-		set_config('vier', 'show_friends', $_POST['vier_show_friends']);
-		set_config('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
-		set_config('vier', 'helperlist', $_POST['vier_helperlist']);
+		Config::set('vier', 'style', $_POST['vier_style']);
+		Config::set('vier', 'show_pages', $_POST['vier_show_pages']);
+		Config::set('vier', 'show_profiles', $_POST['vier_show_profiles']);
+		Config::set('vier', 'show_helpers', $_POST['vier_show_helpers']);
+		Config::set('vier', 'show_services', $_POST['vier_show_services']);
+		Config::set('vier', 'show_friends', $_POST['vier_show_friends']);
+		Config::set('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		Config::set('vier', 'helperlist', $_POST['vier_helperlist']);
 	}
 }
 
-
-function vier_form(&$a, $style, $show_pages, $show_profiles, $show_helpers, $show_services, $show_friends, $show_lastusers){
-	$styles = array(
-		"plus"=>"Plus",
+/// @TODO $a is no longer used
+function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $show_services, $show_friends, $show_lastusers) {
+	$styles = [
 		"breathe"=>"Breathe",
-		"dark"=>"Dark",
-		"shadow"=>"Shadow",
 		"netcolour"=>"Coloured Networks",
-		"flat"=>"Flat"
-	);
+		"dark"=>"Dark",
+		"flat"=>"Flat",
+		"plus"=>"Plus",
+		"plusminus"=>"Plus Minus",
+		"shadow"=>"Shadow"
+	];
 
-	$show_or_not = array('0'=>t("don't show"),     '1'=>t("show"),);
+	$show_or_not = ['0' => L10n::t("don't show"), '1' => L10n::t("show"),];
 
 	$t = get_markup_template("theme_settings.tpl");
-	$o .= replace_macros($t, array(
-		'$submit' => t('Submit'),
-		'$baseurl' => $a->get_baseurl(),
-		'$title' => t("Theme settings"),
-		'$style' => array('vier_style',t ('Set style'),$style,'',$styles),
-		'$show_pages' => array('vier_show_pages', t('Community Pages'), $show_pages, '', $show_or_not),
-		'$show_profiles' => array('vier_show_profiles', t('Community Profiles'), $show_profiles, '', $show_or_not),
-		'$show_helpers' => array('vier_show_helpers', t('Help or @NewHere ?'), $show_helpers, '', $show_or_not),
-		'$show_services' => array('vier_show_services', t('Connect Services'), $show_services, '', $show_or_not),
-		'$show_friends' => array('vier_show_friends', t('Find Friends'), $show_friends, '', $show_or_not),
-		'$show_lastusers' => array('vier_show_lastusers', t('Last users'), $show_lastusers, '', $show_or_not)
-	));
+	$o = replace_macros($t, [
+		'$submit' => L10n::t('Submit'),
+		'$baseurl' => System::baseUrl(),
+		'$title' => L10n::t("Theme settings"),
+		'$style' => ['vier_style', L10n::t('Set style'), $style, '', $styles],
+		'$show_pages' => ['vier_show_pages', L10n::t('Community Pages'), $show_pages, '', $show_or_not],
+		'$show_profiles' => ['vier_show_profiles', L10n::t('Community Profiles'), $show_profiles, '', $show_or_not],
+		'$show_helpers' => ['vier_show_helpers', L10n::t('Help or @NewHere ?'), $show_helpers, '', $show_or_not],
+		'$show_services' => ['vier_show_services', L10n::t('Connect Services'), $show_services, '', $show_or_not],
+		'$show_friends' => ['vier_show_friends', L10n::t('Find Friends'), $show_friends, '', $show_or_not],
+		'$show_lastusers' => ['vier_show_lastusers', L10n::t('Last users'), $show_lastusers, '', $show_or_not]
+	]);
 	return $o;
 }

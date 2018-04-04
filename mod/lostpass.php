@@ -1,57 +1,60 @@
 <?php
+/**
+ * @file mod/lostpass.php
+ */
 
-require_once('include/email.php');
-require_once('include/enotify.php');
-require_once('include/text.php');
+use Friendica\App;
+use Friendica\Core\L10n;
+use Friendica\Core\System;
+use Friendica\Database\DBM;
+use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 
-function lostpass_post(&$a) {
+require_once 'boot.php';
+require_once 'include/enotify.php';
+require_once 'include/text.php';
 
+function lostpass_post(App $a)
+{
 	$loginame = notags(trim($_POST['login-name']));
-	if(! $loginame)
-		goaway(z_root());
-
-	$r = q("SELECT * FROM `user` WHERE ( `email` = '%s' OR `nickname` = '%s' ) AND `verified` = 1 AND `blocked` = 0 LIMIT 1",
-		dbesc($loginame),
-		dbesc($loginame)
-	);
-
-	if(! count($r)) {
-		notice( t('No valid account found.') . EOL);
-		goaway(z_root());
+	if (!$loginame) {
+		goaway(System::baseUrl());
 	}
 
-	$uid = $r[0]['uid'];
-	$username = $r[0]['username'];
-	$email = $r[0]['email'];
+	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
+	$user = dba::selectFirst('user', ['uid', 'username', 'email'], $condition);
+	if (!DBM::is_result($user)) {
+		notice(L10n::t('No valid account found.') . EOL);
+		goaway(System::baseUrl());
+	}
 
-	$new_password = autoname(12) . mt_rand(100,9999);
-	$new_password_encoded = hash('whirlpool',$new_password);
+	$pwdreset_token = autoname(12) . mt_rand(1000, 9999);
 
-	$r = q("UPDATE `user` SET `pwdreset` = '%s' WHERE `uid` = %d",
-		dbesc($new_password_encoded),
-		intval($uid)
-	);
-	if($r)
-		info( t('Password reset request issued. Check your email.') . EOL);
-
+	$fields = [
+		'pwdreset' => $pwdreset_token,
+		'pwdreset_time' => DateTimeFormat::utcNow()
+	];
+	$result = dba::update('user', $fields, ['uid' => $user['uid']]);
+	if ($result) {
+		info(L10n::t('Password reset request issued. Check your email.') . EOL);
+	}
 
 	$sitename = $a->config['sitename'];
-	$siteurl = $a->get_baseurl();
-	$resetlink = $a->get_baseurl() . '/lostpass?verify=' . $new_password;
+	$resetlink = System::baseUrl() . '/lostpass/' . $pwdreset_token;
 
-	$preamble = deindent(t('
+	$preamble = deindent(L10n::t('
 		Dear %1$s,
 			A request was recently received at "%2$s" to reset your account
 		password. In order to confirm this request, please select the verification link
 		below or paste it into your web browser address bar.
 
 		If you did NOT request this change, please DO NOT follow the link
-		provided and ignore and/or delete this email.
+		provided and ignore and/or delete this email, the request will expire shortly.
 
 		Your password will not be changed unless we can verify that you
-		issued this request.'));
-	$body = deindent(t('
-		Follow this link to verify your identity:
+		issued this request.', $user['username'], $sitename));
+	$body = deindent(L10n::t('
+		Follow this link soon to verify your identity:
 
 		%1$s
 
@@ -61,108 +64,111 @@ function lostpass_post(&$a) {
 		The login details are as follows:
 
 		Site Location:	%2$s
-		Login Name:	%3$s'));
+		Login Name:	%3$s', $resetlink, System::baseUrl(), $user['email']));
 
-	$preamble = sprintf($preamble, $username, $sitename);
-	$body = sprintf($body, $resetlink, $siteurl, $email);
+	notification([
+		'type'     => SYSTEM_EMAIL,
+		'to_email' => $user['email'],
+		'subject'  => L10n::t('Password reset requested at %s', $sitename),
+		'preamble' => $preamble,
+		'body'     => $body
+	]);
 
-	notification(array(
-		'type' => "SYSTEM_EMAIL",
-		'to_email' => $email,
-		'subject'=> sprintf( t('Password reset requested at %s'),$sitename),
-		'preamble'=> $preamble,
-		'body' => $body));
-
-	goaway(z_root());
-
+	goaway(System::baseUrl());
 }
 
+function lostpass_content(App $a)
+{
+	$o = '';
+	if ($a->argc > 1) {
+		$pwdreset_token = $a->argv[1];
 
-function lostpass_content(&$a) {
+		$user = dba::selectFirst('user', ['uid', 'username', 'email', 'pwdreset_time'], ['pwdreset' => $pwdreset_token]);
+		if (!DBM::is_result($user)) {
+			notice(L10n::t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
 
-
-	if(x($_GET,'verify')) {
-		$verify = $_GET['verify'];
-		$hash = hash('whirlpool', $verify);
-
-		$r = q("SELECT * FROM `user` WHERE `pwdreset` = '%s' LIMIT 1",
-			dbesc($hash)
-		);
-		if(! count($r)) {
-			$o =  t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed.");
-			return $o;
-		}
-		$uid = $r[0]['uid'];
-		$username = $r[0]['username'];
-		$email = $r[0]['email'];
-
-		$new_password = autoname(6) . mt_rand(100,9999);
-		$new_password_encoded = hash('whirlpool',$new_password);
-
-		$r = q("UPDATE `user` SET `password` = '%s', `pwdreset` = ''  WHERE `uid` = %d",
-			dbesc($new_password_encoded),
-			intval($uid)
-		);
-		if($r) {
-			$tpl = get_markup_template('pwdreset.tpl');
-			$o .= replace_macros($tpl,array(
-				'$lbl1' => t('Password Reset'),
-				'$lbl2' => t('Your password has been reset as requested.'),
-				'$lbl3' => t('Your new password is'),
-				'$lbl4' => t('Save or copy your new password - and then'),
-				'$lbl5' => '<a href="' . $a->get_baseurl() . '">' . t('click here to login') . '</a>.',
-				'$lbl6' => t('Your password may be changed from the <em>Settings</em> page after successful login.'),
-				'$newpass' => $new_password,
-				'$baseurl' => $a->get_baseurl()
-
-			));
-				info("Your password has been reset." . EOL);
-
-
-			$sitename = $a->config['sitename'];
-			$siteurl = $a->get_baseurl();
-			// $username, $email, $new_password
-			$preamble = deindent(t('
-				Dear %1$s,
-					Your password has been changed as requested. Please retain this
-				information for your records (or change your password immediately to
-				something that you will remember).
-			'));
-			$body = deindent(t('
-				Your login details are as follows:
-
-				Site Location:	%1$s
-				Login Name:	%2$s
-				Password:	%3$s
-
-				You may change that password from your account settings page after logging in.
-			'));
-
-			$preamble = sprintf($preamble, $username);
-			$body = sprintf($body, $siteurl, $email, $new_password);
-
-			notification(array(
-				'type' => "SYSTEM_EMAIL",
-				'to_email' => $email,
-				'subject'=> sprintf( t('Your password has been changed at %s'),$sitename),
-				'preamble'=> $preamble,
-				'body' => $body));
-
-			return $o;
+			return lostpass_form();
 		}
 
+		// Password reset requests expire in 60 minutes
+		if ($user['pwdreset_time'] < DateTimeFormat::utc('now - 1 hour')) {
+			$fields = [
+				'pwdreset' => null,
+				'pwdreset_time' => null
+			];
+			dba::update('user', $fields, ['uid' => $user['uid']]);
+
+			notice(L10n::t('Request has expired, please make a new one.'));
+
+			return lostpass_form();
+		}
+
+		return lostpass_generate_password($user);
+	} else {
+		return lostpass_form();
 	}
-	else {
-		$tpl = get_markup_template('lostpass.tpl');
+}
 
-		$o .= replace_macros($tpl,array(
-			'$title' => t('Forgot your Password?'),
-			'$desc' => t('Enter your email address and submit to have your password reset. Then check your email for further instructions.'),
-			'$name' => t('Nickname or Email: '),
-			'$submit' => t('Reset')
-		));
+function lostpass_form()
+{
+	$tpl = get_markup_template('lostpass.tpl');
+	$o = replace_macros($tpl, [
+		'$title' => L10n::t('Forgot your Password?'),
+		'$desc' => L10n::t('Enter your email address and submit to have your password reset. Then check your email for further instructions.'),
+		'$name' => L10n::t('Nickname or Email: '),
+		'$submit' => L10n::t('Reset')
+	]);
 
-		return $o;
+	return $o;
+}
+
+function lostpass_generate_password($user)
+{
+	$o = '';
+	$a = get_app();
+
+	$new_password = User::generateNewPassword();
+	$result = User::updatePassword($user['uid'], $new_password);
+	if (DBM::is_result($result)) {
+		$tpl = get_markup_template('pwdreset.tpl');
+		$o .= replace_macros($tpl, [
+			'$lbl1'    => L10n::t('Password Reset'),
+			'$lbl2'    => L10n::t('Your password has been reset as requested.'),
+			'$lbl3'    => L10n::t('Your new password is'),
+			'$lbl4'    => L10n::t('Save or copy your new password - and then'),
+			'$lbl5'    => '<a href="' . System::baseUrl() . '">' . L10n::t('click here to login') . '</a>.',
+			'$lbl6'    => L10n::t('Your password may be changed from the <em>Settings</em> page after successful login.'),
+			'$newpass' => $new_password,
+			'$baseurl' => System::baseUrl()
+		]);
+
+		info("Your password has been reset." . EOL);
+
+		$sitename = $a->config['sitename'];
+		$preamble = deindent(L10n::t('
+			Dear %1$s,
+				Your password has been changed as requested. Please retain this
+			information for your records ' . "\x28" . 'or change your password immediately to
+			something that you will remember' . "\x29" . '.
+		', $user['username']));
+		$body = deindent(L10n::t('
+			Your login details are as follows:
+
+			Site Location:	%1$s
+			Login Name:	%2$s
+			Password:	%3$s
+
+			You may change that password from your account settings page after logging in.
+		', System::baseUrl(), $user['email'], $new_password));
+
+		notification([
+			'type'     => SYSTEM_EMAIL,
+			'to_email' => $user['email'],
+			'subject'  => L10n::t('Your password has been changed at %s', $sitename),
+			'preamble' => $preamble,
+			'body'     => $body
+		]);
 	}
 
+	return $o;
 }

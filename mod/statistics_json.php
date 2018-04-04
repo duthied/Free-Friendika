@@ -1,42 +1,46 @@
 <?php
+
 /**
  * @file mod/statistics_json.php
  */
 
-require_once("include/plugin.php");
+use Friendica\App;
+use Friendica\Core\Addon;
+use Friendica\Core\Config;
+use Friendica\Core\System;
 
-function statistics_json_init(&$a) {
+function statistics_json_init(App $a) {
 
-        if (!get_config("system", "nodeinfo")) {
-                http_status_exit(404);
-                killme();
-        }
+	if (!Config::get("system", "nodeinfo")) {
+		System::httpExit(404);
+		killme();
+	}
 
-	$statistics = array(
-			"name" => $a->config["sitename"],
-			"network" => FRIENDICA_PLATFORM,
-			"version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION,
-			"registrations_open" => ($a->config['register_policy'] != 0),
-			"total_users" => get_config('nodeinfo','total_users'),
-			"active_users_halfyear" => get_config('nodeinfo','active_users_halfyear'),
-			"active_users_monthly" => get_config('nodeinfo','active_users_monthly'),
-			"local_posts" => get_config('nodeinfo','local_posts')
-			);
+	$statistics = [
+		"name" => $a->config["sitename"],
+		"network" => FRIENDICA_PLATFORM,
+		"version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION,
+		"registrations_open" => ($a->config['register_policy'] != 0),
+		"total_users" => Config::get('nodeinfo', 'total_users'),
+		"active_users_halfyear" => Config::get('nodeinfo', 'active_users_halfyear'),
+		"active_users_monthly" => Config::get('nodeinfo', 'active_users_monthly'),
+		"local_posts" => Config::get('nodeinfo', 'local_posts')
+	];
 
-	$statistics["services"] = array();
-	$statistics["services"]["appnet"] = plugin_enabled("appnet");
-	$statistics["services"]["blogger"] = plugin_enabled("blogger");
-	$statistics["services"]["buffer"] = plugin_enabled("buffer");
-	$statistics["services"]["dreamwidth"] = plugin_enabled("dwpost");
-	$statistics["services"]["facebook"] = plugin_enabled("fbpost");
-	$statistics["services"]["gnusocial"] = plugin_enabled("statusnet");
-	$statistics["services"]["googleplus"] = plugin_enabled("gpluspost");
-	$statistics["services"]["libertree"] = plugin_enabled("libertree");
-	$statistics["services"]["livejournal"] = plugin_enabled("ljpost");
-	$statistics["services"]["pumpio"] = plugin_enabled("pumpio");
-	$statistics["services"]["twitter"] = plugin_enabled("twitter");
-	$statistics["services"]["tumblr"] = plugin_enabled("tumblr");
-	$statistics["services"]["wordpress"] = plugin_enabled("wppost");
+	$statistics["services"] = [];
+	$statistics["services"]["appnet"] = Addon::isEnabled("appnet");
+	$statistics["services"]["blogger"] = Addon::isEnabled("blogger");
+	$statistics["services"]["buffer"] = Addon::isEnabled("buffer");
+	$statistics["services"]["dreamwidth"] = Addon::isEnabled("dwpost");
+	$statistics["services"]["facebook"] = Addon::isEnabled("fbpost");
+	$statistics["services"]["gnusocial"] = Addon::isEnabled("statusnet");
+	$statistics["services"]["googleplus"] = Addon::isEnabled("gpluspost");
+	$statistics["services"]["libertree"] = Addon::isEnabled("libertree");
+	$statistics["services"]["livejournal"] = Addon::isEnabled("ljpost");
+	$statistics["services"]["pumpio"] = Addon::isEnabled("pumpio");
+	$statistics["services"]["twitter"] = Addon::isEnabled("twitter");
+	$statistics["services"]["tumblr"] = Addon::isEnabled("tumblr");
+	$statistics["services"]["wordpress"] = Addon::isEnabled("wppost");
 
 	$statistics["appnet"] = $statistics["services"]["appnet"];
 	$statistics["blogger"] = $statistics["services"]["blogger"];
@@ -53,7 +57,7 @@ function statistics_json_init(&$a) {
 	$statistics["wordpress"] = $statistics["services"]["wordpress"];
 
 	header("Content-Type: application/json");
-	echo json_encode($statistics, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
-	logger("statistics_init: printed ".print_r($statistics, true), LOGGER_DATA);
+	echo json_encode($statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+	logger("statistics_init: printed " . print_r($statistics, true), LOGGER_DATA);
 	killme();
 }

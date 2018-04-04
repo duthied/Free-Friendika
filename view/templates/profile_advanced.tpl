@@ -1,10 +1,17 @@
 
-<h2>{{$title}}</h2>
+{{include file="section_title.tpl"}}
 
 <dl id="aprofile-fullname" class="aprofile">
  <dt>{{$profile.fullname.0}}</dt>
  <dd>{{$profile.fullname.1}}</dd>
 </dl>
+
+{{if $profile.membersince}}
+<dl id="aprofile-membersince" class="aprofile">
+ <dt>{{$profile.membersince.0}}</dt>
+ <dd>{{$profile.membersince.1}}</dd>
+</dl>
+{{/if}}
 
 {{if $profile.gender}}
 <dl id="aprofile-gender" class="aprofile">

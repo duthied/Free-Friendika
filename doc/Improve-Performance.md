@@ -3,7 +3,7 @@ How to improve the performance of a Friendica site
 
 * [Home](help)
 
-Feel free to ask in the [Friendica support forum](https://helpers.pyxis.uberspace.de/profile/helpers) if you need some clarification about the following instructions or if you need help in any other way.
+Feel free to ask in the [Friendica support forum](https://forum.friendi.ca/profile/helpers) if you need some clarification about the following instructions or if you need help in any other way.
 
 System configuration
 --------
@@ -22,16 +22,16 @@ If you have many OStatus contacts then completing of conversations can take some
 
 When using MyISAM (default) or InnoDB on MariaDB 10 this speeds up search.
 
-Plugins
+Addons
 --------
 
-Active the following plugins:
+Active the following addons:
 
     rendertime
 
 ###rendertime
 
-This plugin doesn't speed up your system. 
+This addon doesn't speed up your system. 
 It helps to analyze your bottlenecks.
 
 When enabled you see some values at the bottom of every page.

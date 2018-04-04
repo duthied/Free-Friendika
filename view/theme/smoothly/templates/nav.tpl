@@ -11,7 +11,7 @@
 		{{if $nav.notifications}}<a rel="#nav-notifications-menu" id="notify-update" class="nav-ajax-update" href="{{$nav.notifications.0}}"  title="{{$nav.notifications.1}}"></a>{{/if}}
 
 		<ul id="nav-notifications-menu" class="menu-popup">
-			<li id="nav-notifications-mark-all"><a href="#" onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.1}}</a></li>
+			<li id="nav-notifications-mark-all"><a href="#" onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.3}}</a></li>
 			<li id="nav-notifications-see-all"><a href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a></li>
 			<li class="empty">{{$emptynotifications}}</li>
 		</ul>
@@ -30,9 +30,9 @@
 		
 			{{if $nav.network}}<li><a id="nav-network-link" class="nav-commlink {{$nav.network.2}}" href="{{$nav.network.0}}">{{$nav.network.1}}</a></li>{{/if}}
 		
-				{{if $nav.community}}
-				<li><a id="nav-community-link" class="nav-commlink {{$nav.community.2}}" href="{{$nav.community.0}}">{{$nav.community.1}}</a></li>
-				{{/if}}
+			{{if $nav.community}}
+			<li><a id="nav-community-link" class="nav-commlink {{$nav.community.2}}" href="{{$nav.community.0}}">{{$nav.community.1}}</a></li>
+			{{/if}}
 
 			<li><a id="nav-search-link" class="nav-link {{$nav.search.2}}" href="{{$nav.search.0}}">{{$nav.search.1}}</a></li>
 			<li><a id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}">{{$nav.directory.1}}</a></li>

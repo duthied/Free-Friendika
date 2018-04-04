@@ -2,24 +2,40 @@
 Abinoam P. Marques Jr.
 Abrax
 Adam Jurkiewicz
+Adam Magness
+Albert
+Alberto Díaz Tormo
 Alex
+Alexander Fortin
 Alexander Kampmann
+Alexandre Alapetite
 AlfredSK
 Andi Stadler
 Andreas H.
+Andrej Stieben
+André Alves
 André Lohan
+Andy H3
+Andy Hee
+AndyHee
 Anthronaut
 Arian - Cazare Muncitori
+Athalbert
 aweiher
 axelt
 balderino
 Beanow
+beardyunixer
+Beatriz Vital
+Ben Roberts
+ben-utzer
 bufalo1973
 Calango Jr
 Carlos Solís
 Carsten Pfeiffer
 Cat Gray
 Chris Case
+Christian González
 Christian M. Grube
 Christian Vogeley
 Cohan Robinson
@@ -31,6 +47,9 @@ Daniel Dupriest
 Daria Początek
 David
 David Martín Miranda
+David Rabel
+Dean Townsley
+Denis Chenu
 Devlon Duthie
 Diego Souza
 Domovoy
@@ -38,6 +57,7 @@ Doru  DEACONU
 Dylan Thiedeke
 Développeur égaré
 eddy2508
+Eelco Maljaars
 effex7
 Elena
 emilia.krawczyk
@@ -53,8 +73,10 @@ foss
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
+Gerhard Seeber
 gerhard6380
 Gert Cauwenberg
+GLComo
 greeneyedred
 Gregory Smith
 Haakon Meland Eriksen
@@ -62,13 +84,19 @@ Hans Meine
 hauke
 Hauke Altmann
 Hauke Zühl
+Herbert Thielen
+hoergen
 Hubert Kościański
+Hypolite Petovan
+irhen
 Jak
 Jakob
+Jens Tautenhahn
 jensp
 jeroenpraat
 Johannes Schwab
 John Brazil
+Jonatan Nyberg
 Josef Moravek
 juanman
 julia.domagalska
@@ -95,6 +123,7 @@ Mats Sjöberg
 Matthew Exon
 Matthias
 Matthias Moritz
+Mauro Batini
 Max Weller
 mhnxo
 Michael Johnston
@@ -102,26 +131,35 @@ Michael Vogel
 Michal Šupler
 Michalina
 Mike Macgirvin
+mytbk
 Nicola Spanti
 Olaf Conradi
 Oliver
 Olivier
+Olivier Mehani
 Olivier Migeot
+Paolo Wave
 Pavel Morozov
 Perig Gouanvic
 peturisfeld
+Pierre Rudloff
 Piotr Blonkowski
 pokerazor
 Rabuzarus
 Radek
-Rafael
+Rafael Garau
 Rainulf Pineda
 Ralph
+Ratten
 rcmaniac
 rebeka-catalina
 repat
 Ricardo Pereira
+RJ Madsen
+Roland Häder
 Rui Andrada
+S.Krumbholz
+Sakałoŭ Alaksiej
 Sam
 Sandro Santilli
 Sebastian Egbers
@@ -131,6 +169,8 @@ Seth
 Silke Meyer
 Simon L'nu
 Simó Albert i Beltran
+soko1
+St John Karp
 Stanislav N.
 StefOfficiel
 Sveinn í Felli
@@ -140,6 +180,7 @@ szymon.filip
 Sérgio Lima
 Taekus
 Tazman DeVille
+Thecross
 Thomas
 Thomas Willingham
 thorsten23
@@ -150,19 +191,22 @@ tomamplius
 tomtom84
 Tony Baldwin
 TORminator
+trebor
 tschlotfeldt
 Tubuntu
-tupambae
-tuscanhobbit
+Tupambae.org
 U-SOUND\mike
 ufic
 Vasudev Kamath
 Vasya Novikov
 vislav
+Vít Šesták 'v6ak'
 Yasen Pramatarov
 ylms
 Zach Prezkuta
 Zered
+zotlabs
 zottel
 Zvi ben Yaakov (a.k.a rdc)
 Михаил
+朱陈锬

@@ -1,5 +1,5 @@
 
-<div id="live-display"></div>
+<div id="live-photos"></div>
 <h3><a href="{{$album.0}}">{{$album.1}}</a></h3>
 
 <div id="photo-edit-link-wrap">

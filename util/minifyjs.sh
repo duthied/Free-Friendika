@@ -5,13 +5,11 @@ command -v uglifyjs >/dev/null 2>&1 || { echo >&2 "I require UglifyJS but it's n
 MINIFY_CMD=uglifyjs
 
 JSFILES=(
-	"js/acl.js"
-	"js/ajaxupload.js"
-	"js/country.js"
-	"js/fk.autocomplete.js"
-	"js/jquery.htmlstream.js"
-	"js/main.js"
-	"js/webtoolkit.base64.js"
+	"view/js/acl.js"
+	"view/js/ajaxupload.js"
+	"view/js/country.js"
+	"view/js/main.js"
+	"vendor/asset/base64/base64.min.js"
 	"view/theme/frost/js/acl.js"
 	"view/theme/frost/js/jquery.divgrow-1.3.1.f1.js"
 	"view/theme/frost/js/main.js"
@@ -24,9 +22,6 @@ JSFILES=(
 )
 JSFILES2=(
 	"library/colorbox/jquery.colorbox.js"
-)
-JSFILES3=(
-	"library/tinymce/jscripts/tiny_mce/plugins/bbcode/editor_plugin_src.js"
 )
 
 for i in ${JSFILES[@]}

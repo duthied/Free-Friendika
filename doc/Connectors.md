@@ -57,13 +57,15 @@ All that the pages need to have is a discoverable feed using either the RSS or A
 Twitter
 ---
 
-To follow a Twitter member, put the URL of the Twitter member's main page into the Connect box on your [Contacts](contacts) page.
+To follow a Twitter member, the Twitter-Connector (Addon) needs to be configured on your node.
+If this is the case put the URL of the Twitter member's main page into the Connect box on your [Contacts](contacts) page.
 To reply, you must have the Twitter connector installed, and reply using your own status editor.
 Begin the message with @twitterperson replacing with the Twitter username.
 
 Email
 ---
 
+If the php module for IMAP support is available on your server, Friendica can connect to email contacts as well.
 Configure the email connector from your [Settings](settings) page.
 Once this has been done, you may enter an email address to connect with using the Connect box on your [Contacts](contacts) page.
 They must be the sender of a message which is currently in your INBOX for the connection to succeed.

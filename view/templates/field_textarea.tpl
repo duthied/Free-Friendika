@@ -2,6 +2,6 @@
 	
 	<div class='field textarea'>
 		<label for='id_{{$field.0}}'>{{$field.1}}</label>
-		<textarea name='{{$field.0}}' id='id_{{$field.0}}'>{{$field.2}}</textarea>
-		<span class='field_help'>{{$field.3}}</span>
+		<textarea name='{{$field.0}}' id='id_{{$field.0}}' aria-describedby='{{$field.0}}_tip'>{{$field.2}}</textarea>
+		<span class='field_help' role='tooltip' id='{{$field.0}}_tip'>{{$field.3}}</span>
 	</div>

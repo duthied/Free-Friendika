@@ -4,8 +4,8 @@
 // Copy or rename this file to .htconfig.php
 
 $db_host = 'localhost';
-$db_user = 'root';
-$db_pass = 'root';
+$db_user = 'friendica';
+$db_pass = 'friendica';
 $db_data = 'friendica';
 
 // If you are using a subdirectory of your domain you will need to put the
@@ -33,7 +33,7 @@ $a->config['sitename'] = "My Friend Network";
 
 $a->config['register_policy'] = REGISTER_OPEN;
 $a->config['register_text'] = '';
-$a->config['admin_email'] = 'vagrant@friendica.dev';
+$a->config['admin_email'] = 'admin@friendica.dev';
 
 // Maximum size of an imported message, 0 is unlimited
 
@@ -47,15 +47,11 @@ $a->config['system']['maximagesize'] = 800000;
 
 $a->config['php_path'] = '/usr/bin/php';
 
-// PuSH - aka pubsubhubbub URL. This makes delivery of public posts as fast as private posts
-
-$a->config['system']['huburl'] = '[internal]';
 
 // Server-to-server private message encryption (RINO) is allowed by default.
-// Encryption will only be provided if this setting is true and the
-// PHP mcrypt extension is installed on both systems
+// set to 0 to disable, 1 to enable
 
-$a->config['system']['rino_encrypt'] = true;
+$a->config['system']['rino_encrypt'] = 1;
 
 // default system theme
 
@@ -69,10 +65,12 @@ $a->config['system']['no_regfullname'] = true;
 //$a->config['system']['block_local_dir'] = false;
 
 // Location of the global directory
-$a->config['system']['directory'] = 'http://dir.friendi.ca';
+$a->config['system']['directory'] = 'http://dir.friendica.social';
 
 // turn on friendica's log
 $a->config['system']['debugging'] = true;
 $a->config['system']['logfile'] = 'logfile.out';
 $a->config['system']['loglevel'] = LOGGER_DEBUG;
 
+// display php errors
+ini_set('display_errors', '1');

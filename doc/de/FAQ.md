@@ -10,21 +10,24 @@ Nutzer
 * **[Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?](help/FAQ#avatars)**
 * **[Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?](help/FAQ#contacts)**
 * **[Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?](help/FAQ#removed)**
-* **[Kann ich einem hashtag folgen?](help/FAQ#hashtag)**
+* **[Kann ich einem Hashtag folgen?](help/FAQ#hashtag)**
 * **[Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?](help/FAQ#rss)**
+* **[Gibt es Clients für Friendica?](help/FAQ#clients)**
 * **[Wo finde ich Hilfe?](help/FAQ#help)**
 
 Admins
 
 * **[Kann ich mehrere Domains mit den selben Dateien aufsetzen?](help/FAQ#multiple)**
 * **[Wo kann ich den Quellcode von Friendica, Addons und Themes finden?](help/FAQ#sources)**
+* **[Ich habe meine E-Mail Adresse geändern und jetzt ist das Admin Panel verschwunden?](help/FAQ#adminaccount1)**
+* **[Kann es mehr als einen Admin auf einer Friendica Instanz geben?](help/FAQ#adminaccount2)**
+* **[Die Datenbank Struktur schein nicht aktuell zu sein. Was kann ich tun?](help/FAQ#dbupdate)**
 
 Nutzer
 --------
-****
-<a name="ssl"></a>
 
-**Warum erhalte ich Warnungen über fehlende Zertifikate?**
+<a name="ssl"></a>
+### Warum erhalte ich Warnungen über fehlende Zertifikate?
 
 Manchmal erhältst Du eine Browser-Warnung über fehlende Zertifikate. 
 Diese Warnungen können drei Gründe haben:
@@ -54,8 +57,7 @@ Einige erlauben die Nutzung von freien Zertifikaten oder lassen Dich ihre eigene
 Andere erlauben nur kostenpflichtige Zertifikate als eigenes Angebot bzw. von anderen Anbietern. 
 
 <a name="upload"></a>
-
-**Wie kann ich Bilder, Dateien, Links, Video und Audio in Beiträge einfügen?**
+### Wie kann ich Bilder, Dateien, Links, Video und Audio in Beiträge einfügen?
 
 Bilder können direkt im [Beitragseditor](help/Text_editor) vom Computer hochgeladen werden. 
 Eine Übersicht aller Bilder, die auf Deinem Server liegen, findest Du unter <i>deineSeite.de/photos/profilname</i>. 
@@ -80,18 +82,16 @@ Friendica verwendet zur Einbettung HTML5. Das bedeutet, dass je nach Browser und
 Zum Konvertieren von Videos in das lizenfreie Videoformat WebM gibt es unter Windows das kostenlose Programm [Xmedia-Recode](http://www.xmedia-recode.de/).
 
 <a name="avatars"></a>
+### Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?
 
-**Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?**
-
-Ja. 
+Ja.
 Auf Deiner ["Profile verwalten/editieren"-Seite](../profiles) wählst Du zunächst das gewünschte Profil aus. 
 Anschließend siehst Du eine Seite mit allen Infos zu diesem Profil. 
 Klicke nun oben auf den Link "Profilbild ändern" und lade im nächsten Fenster ein Bild von Deinem PC hoch. 
 Um Deine privaten Daten zu schützen, wird in Beiträgen nur das Bild aus Deinem öffentlichen Profil angezeigt.
 
 <a name="contacts"></a>
-
-**Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?**
+### Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?
 
 Wir verhindern direkte Kommunikation mit blockierten Kontakten. 
 Sie gehören nicht zu den Empfängern beim Versand von Beiträgen und deren Beiträge werden auch nicht importiert. 
@@ -104,7 +104,7 @@ Ignorierte Kontakte können weiterhin Beiträge und private Nachrichten von Dir 
 Deren Beiträge und private Nachrichten werden allerdings nicht importiert. 
 Wie bei blockierten Beiträgen siehst Du auch hier weiterhin die Kommentare dieser Person zu anderen Beiträgen Deiner Freunde. 
 
-[Ein Plugin namens "blockem" kann installiert werden, um alle Beiträge einer bestimmten Person in Deinem Stream zu verstecken bzw. zu verkürzen. 
+[Ein Erweiterung namens "blockem" kann installiert werden, um alle Beiträge einer bestimmten Person in Deinem Stream zu verstecken bzw. zu verkürzen. 
 Dabei werden auch Kommentare dieser Person in Beiträgen Deiner Freunde blockiert.]
 
 Ein archivierter Kontakt bedeutet, dass Kommunikation nicht möglich ist und auch nicht versucht wird (das ist z.B. sinnvoll, wenn eine Person zu einem neuen Server gewechselt ist und das alte Profil gelöscht hat). 
@@ -114,8 +114,7 @@ Ein versteckter Kontakt wird in keiner "Freundeliste" erscheinen (außer für di
 Trotzdem wird ein versteckter Kontakt normal in Unterhaltungen angezeigt - was für andere Kontakte ein Hinweis sein kann, dass diese Person als versteckter Kontakt in Deiner Liste ist. 
 
 <a name="removed"></a>
-
-**Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?**
+### Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?
 
 Wenn Du Deinen Account löschst, wird sofort der gesamte Inhalt auf Deinem Server gelöscht und ein Löschbefehl an alle Deine Kontakte verschickt. 
 Dadurch wirst Du ebenfalls aus dem globalen Verzeichnis gelöscht. 
@@ -123,59 +122,80 @@ Dieses Vorgehen setzt voraus, dass Dein Profil für 24 Stunden weiterhin "teilwe
 Wir können also Dein Profil blockieren und es so erscheinen lassen, als wären alle Daten sofort gelöscht, allerdings warten wir 24 Stunden (bzw. bis alle Deine Kontakte informiert wurden), bevor wir die Daten auch physikalisch löschen.
 
 <a name="hashtag"></a>
+### Kann ich einem Hashtag folgen?
 
-**Kann ich einem hashtag folgen?**
-
-Nein. 
-Die Möglichkeit, einem hashtag zu folgen, ist eine interessante Technik, führt aber zu einigen Schwierigkeiten. 
-
-1.) Alle Beiträge, die diesen tag nutzen, müssten zu allen Seiten im Netzwerk kopiert werden. Das erhöht den Speicherbedarf und beeinträchtigt kleine Seiten. Die Nutzung von geteilten Hosting-Angeboten (Shared Hosting) wäre praktisch unmöglich. 
-
-2.) Die Verbreitung von Spam wäre vereinfacht (tag-Spam ist z.B. bei Twitter ein schwerwiegendes Problem)
-
-3.) Der wichtigste Grund der gegen diese Technik spricht ist, dass sie eine natürliche Ausrichtung auf größere Seiten mit mehr getaggten Inhalten zur Folge hat. Dies kann z.B. aufkommen, wenn Dein Netzwerk tags anstelle von anderen Kommunikationsmitteln wie Gruppen oder Foren nutzt. 
-
-Stattdessen bieten wir andere Mechanismen, um globale Unterhaltungen zu erreichen, dabei aber eine angemesse Basis für kleine und große Seiten zu bieten. 
-Hierzu gehören Foren, Gruppen und geteilte tags. 
+Ja.
+Füge die Tags zu Deinen gespeicherten Suchen hinzu, sie werden automatisch auf der Netzwerk-Seite auftauchen.
+Bitte beachte, dass Deine Antworten auf solche Posts aus technischen Gründen nicht unter dem "Persönlich"-Reiter auf der Netzwerk-Seite und der gesamte Thread nicht per API zu sehen sind.
 
 <a name="rss"></a>
-
-**Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?**
+### Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?
 
 Wenn Du die Beiträge Deines Accounts mit RSS teilen willst, dann kannst Du einen der folgenden Links nutzen:
 
-RSS-Feed Deiner Beiträge
+#### RSS-Feed Deiner Beiträge
 
-	deineSeite.de/**dfrn_poll/profilname  
+	deineSeite.de/feed/[profilname]/posts
 
-	Beispiel: Friendica Support 
+Beispiel: Friendica Support 
 	
-	https://helpers.pyxis.uberspace.de/dfrn_poll/helpers
+	https://forum.friendi.ca/feed/helpers/posts
 
-RSS-Feed aller Unterhaltungen auf Deiner Seite
+#### RSS-Feed all deiner Beiträge und Antworten
 
-	deineSeite.de/dfrn_poll/profilname/converse
+    deineSeite.de/dfrn_poll/feed/[profilname]/comments
 	
-	Beispiel: Friendica Support 
+Beispiel: Friendica Support 
 	
-	https://helpers.pyxis.uberspace.de/dfrn_poll/helpers/converse
+    https://forum.friendi.ca/feeds/helpers/comments
+
+#### RSS-Feed all deiner Aktivitäten
+
+    deineSeite.de/feed/[profilname]/
+
+<a name="clients">
+### Gibt es Clients für Friendica?
+
+Friendica verwendet eine [Twitter/GNU Social](help/api) kompatible API.
+Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du den API Pfad entsprechend änderst.
+
+Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
+
+* Android
+  * [Friendiqa](https://github.com/lubuwest/friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
+  * AndStatus
+  * Twidere
+  * Mustard and Mustard-Mod
+* SailfishOS
+  * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
+* Linux
+  * Hotot
+  * Choqok
+* MacOS X
+  * Hotot
+* Windows
+  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
+  * Hotot
 
 <a name="help"></a>
+### Wo finde ich Hilfe?
 
-**Wo finde ich Hilfe?**
+Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) oder im [deutschen Friendica-Support-Forum](http://toktan.org/profile/wiki) fragen oder Dir das [deutsche Wiki](http://wiki.toktan.org/doku.php) anschauen. 
+Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](https://tryfriendica.de) bzw. einen Account auf einer öffentlichen Seite ([Liste](https://dir.friendica.social/servers)) nutzen.
 
-Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://helpers.pyxis.uberspace.de/profile/helpers) oder im [deutschen Friendica-Support-Forum](http://toktan.org/profile/wiki) fragen oder Dir das [deutsche Wiki](http://wiki.toktan.org/doku.php) anschauen. 
-Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](http://friendica.com/node/31) bzw. einen Account auf einer öffentlichen Seite ([Liste](http://dir.friendica.com/siteinfo)) nutzen, oder Du wählst die Librelist-mailing-Liste. 
-Wenn Du die Mailing-Liste nutzen willst, schicke eine Mail an friendica AT librelist PUNKT com.
+Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
 
-Wenn Du ein Theme-Entwickler bist, wirst Du in diesem Forum Hilfe finden: [Friendica Theme Developers](https://friendica.eu/profile/ftdevs).
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
+  * XMPP/Jabber MUC: support(at)forum.friendi.ca
+  * IRC: #friendica at irc.freenode.net
+  * Matrix: #friendi.ca or #friendica at matrix.org.
 
 Admin
 --------
-*****
-<a name="multiple"></a>
 
-**Kann ich mehrere Domains mit den selben Dateien aufsetzen?**
+<a name="multiple"></a>
+### Kann ich mehrere Domains mit den selben Dateien aufsetzen?
 
 Ja, das ist möglich. 
 Es ist allerdings nicht möglich, eine Datenbank durch zwei Domains zu nutzen. 
@@ -183,8 +203,7 @@ Solange Du Deine .htconfig.php allerdings so einrichtest, dass das System nicht 
 Alle Cache-Aspekte und der Zugriffsschutz können pro Instanz konfiguriert werden.
 
 <a name="sources"></a>
-
-**Wo kann ich den Quellcode von Friendica, Addons und Themes finden?**
+### Wo kann ich den Quellcode von Friendica, Addons und Themes finden?
 
 Du kannst den Friendica-Quellcode [hier](https://github.com/friendica/friendica) finden. 
 Dort findest Du immer die aktuellste stabile Version von Friendica. 
@@ -193,3 +212,28 @@ Der Quellcode von Friendica Red ist [hier](https://github.com/friendica/red) zu 
 Addons findest Du auf [dieser Seite](https://github.com/friendica/friendica-addons).
 
 Wenn Du neue Themen suchst, findest Du sie auf [Friendica-Themes.com](http://friendica-themes.com/).
+
+<a name="adminaccount1"></a>
+### Ich habe meine E-Mail Adresse geändern und jetzt ist das Admin Panel verschwunden?
+
+Bitte aktualisiere deine E-Mail Adresse in der <tt>.htconfig.php</tt> Datei.
+
+<a name="adminaccount2"></a>
+### Kann es mehr als einen Admin auf einer Friendica Instanz geben?
+
+Ja.
+Du kannst in der <tt>.htconfig.php</tt> Datei mehrere E-Mail Adressen auflisten.
+Die aufgelisteten Adressen werden mit Kommata von einander getrennt.
+
+<a name="dbupdate">
+### Die Datenbank Struktur schein nicht aktuell zu sein. Was kann ich tun?
+
+Rufe bitte im Admin Panel den Punkt [DB Updates](/admin/dbsync/) auf und folge dem Link *Datenbank Struktur überprüfen*.
+Damit wird ein Hintergrundprozess gestartet der die Struktur deiner Datenbank überprüft und gegebenenfalls aktualisiert.
+
+Du kannst das Struktur Updatee auch manuell auf der Kommandoeingabe ausführen.
+Starte dazu bitte vom Grundverzeichnis deiner Friendica Instanz folgendes Skript:
+
+    scripts/dbstructure.php update
+
+sollten bei der Ausführung Fehler auftreten, kontaktiere bitte das [Support Forum](https://forum.friendi.ca/profile/helpers).

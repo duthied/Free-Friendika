@@ -1,27 +1,34 @@
 <?php
 
+use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\System;
+use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
+
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
 }
 
-function pubsubhubbub_init(&$a) {
+function pubsubhubbub_init(App $a) {
 	// PuSH subscription must be considered "public" so just block it
 	// if public access isn't enabled.
-	if (get_config('system', 'block_public')) {
-		http_status_exit(403);
+	if (Config::get('system', 'block_public')) {
+		System::httpExit(403);
 	}
 
 	// Subscription request from subscriber
 	// https://pubsubhubbub.googlecode.com/git/pubsubhubbub-core-0.4.html#anchor4
 	// Example from GNU Social:
-    // [hub_mode] => subscribe
-    // [hub_callback] => http://status.local/main/push/callback/1
-    // [hub_verify] => sync
-    // [hub_verify_token] => af11...
-    // [hub_secret] => af11...
-    // [hub_topic] => http://friendica.local/dfrn_poll/sazius
+	// [hub_mode] => subscribe
+	// [hub_callback] => http://status.local/main/push/callback/1
+	// [hub_verify] => sync
+	// [hub_verify_token] => af11...
+	// [hub_secret] => af11...
+	// [hub_topic] => http://friendica.local/dfrn_poll/sazius
 
-	if($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$hub_mode = post_var('hub_mode');
 		$hub_callback = post_var('hub_callback');
 		$hub_verify = post_var('hub_verify');
@@ -32,22 +39,27 @@ function pubsubhubbub_init(&$a) {
 		// check for valid hub_mode
 		if ($hub_mode === 'subscribe') {
 			$subscribe = 1;
-		} else if ($hub_mode === 'unsubscribe') {
+		} elseif ($hub_mode === 'unsubscribe') {
 			$subscribe = 0;
 		} else {
 			logger("pubsubhubbub: invalid hub_mode=$hub_mode, ignoring.");
-			http_status_exit(404);
+			System::httpExit(404);
 		}
 
 		logger("pubsubhubbub: $hub_mode request from " .
 			   $_SERVER['REMOTE_ADDR']);
 
-		// get the nick name from the topic, a bit hacky but needed
+		// get the nick name from the topic, a bit hacky but needed as a fallback
 		$nick = substr(strrchr($hub_topic, "/"), 1);
+
+		// Normally the url should now contain the nick name as last part of the url
+		if ($a->argc > 1) {
+			$nick = $a->argv[1];
+		}
 
 		if (!$nick) {
 			logger('pubsubhubbub: bad hub_topic=$hub_topic, ignoring.');
-			http_status_exit(404);
+			System::httpExit(404);
 		}
 
 		// fetch user from database given the nickname
@@ -55,9 +67,9 @@ function pubsubhubbub_init(&$a) {
 			   " AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 			   dbesc($nick));
 
-		if(!count($r)) {
+		if (!DBM::is_result($r)) {
 			logger('pubsubhubbub: local account not found: ' . $nick);
-			http_status_exit(404);
+			System::httpExit(404);
 		}
 
 		$owner = $r[0];
@@ -66,25 +78,25 @@ function pubsubhubbub_init(&$a) {
 		if ($r[0]['hidewall']) {
 			logger('pubsubhubbub: local user ' . $nick .
 				   'has chosen to hide wall, ignoring.');
-			http_status_exit(403);
+			System::httpExit(403);
 		}
 
 		// get corresponding row from contact table
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked`".
 			   " AND NOT `pending` AND `self` LIMIT 1",
 			   intval($owner['uid']));
-		if(!count($r)) {
+		if (!DBM::is_result($r)) {
 			logger('pubsubhubbub: contact not found.');
-			http_status_exit(404);
+			System::httpExit(404);
 		}
 
 		$contact = $r[0];
 
 		// sanity check that topic URLs are the same
-		if(!link_compare($hub_topic, $contact['poll'])) {
+		if (!link_compare($hub_topic, $contact['poll'])) {
 			logger('pubsubhubbub: hub topic ' . $hub_topic . ' != ' .
 				   $contact['poll']);
-			http_status_exit(404);
+			System::httpExit(404);
 		}
 
 		// do subscriber verification according to the PuSH protocol
@@ -100,14 +112,14 @@ function pubsubhubbub_init(&$a) {
 		// we don't actually enforce the lease time because GNU
 		// Social/StatusNet doesn't honour it (yet)
 
-		$body = fetch_url($hub_callback . "?" . $params);
+		$body = Network::fetchUrl($hub_callback . "?" . $params);
 		$ret = $a->get_curl_code();
 
 		// give up if the HTTP return code wasn't a success (2xx)
 		if ($ret < 200 || $ret > 299) {
 			logger("pubsubhubbub: subscriber verification at $hub_callback ".
 				   "returned $ret, ignoring.");
-			http_status_exit(404);
+			System::httpExit(404);
 		}
 
 		// check that the correct hub_challenge code was echoed back
@@ -115,7 +127,7 @@ function pubsubhubbub_init(&$a) {
 			logger("pubsubhubbub: subscriber did not echo back ".
 				   "hub.challenge, ignoring.");
 			logger("\"$hub_challenge\" != \"".trim($body)."\"");
-			http_status_exit(404);
+			System::httpExit(404);
 		}
 
 		// fetch the old subscription if it exists
@@ -127,12 +139,12 @@ function pubsubhubbub_init(&$a) {
 		  dbesc($hub_callback));
 
 		if ($subscribe) {
-			$last_update = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
+			$last_update = DateTimeFormat::utcNow();
 			$push_flag = 0;
 
 			// if we are just updating an old subscription, keep the
 			// old values for push and last_update
-			if (count($r)) {
+			if (DBM::is_result($r)) {
 				$last_update = $r[0]['last_update'];
 				$push_flag = $r[0]['push'];
 			}
@@ -153,10 +165,8 @@ function pubsubhubbub_init(&$a) {
 			logger("pubsubhubbub: successfully unsubscribed [$hub_callback].");
 			// we do nothing here, since the row was already deleted
 		}
-		http_status_exit(202);
+		System::httpExit(202);
 	}
 
 	killme();
 }
-
-?>

@@ -7,11 +7,11 @@ Friendica Documentation and Resources
 	* [Account Basics](help/Account-Basics)
 	* [New User Quick Start](help/Quick-Start-guide)
 	* [Creating posts](help/Text_editor)
-        * [BBCode tag reference](help/BBCode)
+	* [BBCode tag reference](help/BBCode)
 	* [Comment, sort and delete posts](help/Text_comment)
 	* [Profiles](help/Profiles)
 	* [Accesskey reference](help/Accesskeys)
-    * [Events](help/events)
+	* [Events](help/events)
 * You and other users
 	* [Connectors](help/Connectors)
 	* [Making Friends](help/Making-Friends)
@@ -20,7 +20,6 @@ Friendica Documentation and Resources
 	* [Community Forums](help/Forums)
 	* [Chats](help/Chats)
 * Further information
-	* [Improve Performance](help/Improve-Performance)
 	* [Move your account](help/Move-Account)
 	* [Delete your account](help/Remove-Account)
 	* [Frequently asked questions (FAQ)](help/FAQ)
@@ -28,30 +27,45 @@ Friendica Documentation and Resources
 **Admin Manual**
 
 * [Install](help/Install)
-* [Settings](help/Settings)
+* [Update](help/Update)
+* [Settings & Admin Panel](help/Settings)
 * [Installing Connectors (Twitter/GNU Social)](help/Installing-Connectors)
 * [Install an ejabberd server (XMPP chat) with synchronized credentials](help/install-ejabberd)
-* [Message Flow](help/Message-Flow)
 * [Using SSL with Friendica](help/SSL)
-* [Twitter/GNU Social API Functions](help/api)
 * [Config values that can only be set in .htconfig.php](help/htconfig)
+* [Improve Performance](help/Improve-Performance)
 
 **Developer Manual**
 
-* [Where to get started?](help/Developers-Intro)
-* [Help on Github](help/Github)
-* [Help on Vagrant](help/Vagrant)
-* [How to translate Friendica](help/translations)
-* [Bugs and Issues](help/Bugs-and-Issues)
-* [Plugin Development](help/Plugins)
-* [Theme Development](help/themes)
-* [Smarty 3 Templates](help/smarty3-templates)
-* [Code - Reference(Doxygen generated - sets cookies)](doc/html/)
+* [Get started](help/Developers-Intro)
+* Set up development environment
+	* [Help on Github](help/Github)
+	* [Help on Vagrant](help/Vagrant)
+	* [Bugs and Issues](help/Bugs-and-Issues)
+* Code structure
+	* [Addon Development](help/Addons)
+	* [Theme Development](help/themes)
+	* [Smarty 3 Templates](help/smarty3-templates)
+* How To
+	* [Translate Friendica](help/translations)
+	* [Use Composer](help/Composer)
+	* [Move classes to `src`](help/Developer-How-To-Move-Classes-to-src)
+* Reference
+	* [Twitter/GNU Social API Functions](help/api)
+	* [Code (Doxygen generated - sets cookies)](doc/html/)
+	* [Protocol Documentation](help/Protocol)
+	* [Database schema documantation](help/database)
+	* [Class Autoloading](help/autoloader)
 
 **External Resources**
 
-* [Main Website](http://friendica.com)
-* [Mailing List Archive](http://librelist.com/browser/friendica/)
+* [Main Website](https://friendi.ca)
+* Ways to get Support
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
+  * XMPP/Jabber MUC: support(at)forum.friendi.ca
+  * IRC: #friendica at irc.freenode.net
+  * Matrix: #friendi.ca or #friendica at matrix.org
 
 **About**
 

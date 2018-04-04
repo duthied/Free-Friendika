@@ -6,6 +6,9 @@
 echo "Friendica configuration settings"
 sudo apt-get update
 
+# Install virtualbox guest additions
+sudo apt-get install virtualbox-guest-x11
+
 #Selfsigned cert
 echo ">>> Installing *.xip.io self-signed SSL"
 SSL_DIR="/etc/ssl/xip.io"
@@ -32,16 +35,14 @@ sudo apt-get install -y apache2
 sudo a2enmod rewrite actions ssl
 sudo cp /vagrant/util/vagrant_vhost.sh /usr/local/bin/vhost
 sudo chmod guo+x /usr/local/bin/vhost
-sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.dev
-sudo a2dissite 000-default
-sudo service apache2 restart
+    sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica-xenial.dev
+    sudo a2dissite 000-default
+    sudo service apache2 restart
 
 #Install php
-echo ">>> Installing PHP5"
-sudo apt-get install -y php5 libapache2-mod-php5 php5-cli php5-mysql php5-curl php5-gd
-sudo apt-get install -y imagemagick
-sudo apt-get install -y php5-imagick
-sudo service apache2 restart
+echo ">>> Installing PHP7"
+sudo apt-get install -y php libapache2-mod-php php-cli php-mysql php-curl php-gd php-mbstring php-xml imagemagick php-imagick
+sudo systemctl restart apache2
 
 
 #Install mysql
@@ -59,12 +60,17 @@ Q1="GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION;"
 Q2="FLUSH PRIVILEGES;"
 SQL="${Q1}${Q2}"
 $MYSQL -uroot -proot -e "$SQL"
-service mysql restart
+# add a separate database user for friendica
+$MYSQL -uroot -proot -e "CREATE USER 'friendica'@'localhost' identified by 'friendica';"
+$MYSQL -uroot -proot -e "GRANT ALL PRIVILEGES ON friendica.* TO 'friendica'@'localhost';"
+$MYSQL -uroot -proot -e "FLUSH PRIVILEGES"
+systemctl restart mysql
+
 
 
 #configure rudimentary mail server (local delivery only)
 #add Friendica accounts for local user accounts, use email address like vagrant@friendica.dev, read the email with 'mail'.
-debconf-set-selections <<< "postfix postfix/mailname string friendica.dev"
+debconf-set-selections <<< "postfix postfix/mailname string friendica-xenial.dev"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'"
 sudo apt-get install -y postfix mailutils libmailutils-dev
 sudo echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfriendica4:	vagrant\nfriendica5:	vagrant" >> /etc/aliases && sudo newaliases
@@ -77,14 +83,15 @@ sudo ln -fs /vagrant /var/www
 cp /vagrant/util/htconfig.vagrant.php /vagrant/.htconfig.php
 
 # create the friendica database
-echo "create database friendica" | mysql -u root -proot
+echo "create database friendica DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci" | mysql -u root -proot
 # import test database
 $MYSQL -uroot -proot friendica < /vagrant/friendica_test_data.sql
 
-#create cronjob
-echo "*/10 * * * * cd /vagrant; /usr/bin/php include/poller.php" >> friendicacron
+# create cronjob - activate if you have enough memory in you dev VM
+echo "*/10 * * * * cd /vagrant; /usr/bin/php scripts/worker.php" >> friendicacron
 sudo crontab friendicacron
 sudo rm friendicacron
 
-#Optional: checkout addon repositroy
-#sudo git clone https://github.com/friendica/friendica-addons.git /vagrant/addon
+# friendica needs write access to /tmp
+sudo chmod 777 /tmp
+

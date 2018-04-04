@@ -1,69 +1,117 @@
 <?php
+/**
+ * @file mod/xrd.php
+ */
+use Friendica\App;
+use Friendica\Core\Addon;
+use Friendica\Core\System;
+use Friendica\Database\DBM;
+use Friendica\Protocol\Salmon;
 
-require_once('include/crypto.php');
-
-function xrd_init(&$a) {
-
-	$uri = urldecode(notags(trim($_GET['uri'])));
-
-	if(substr($uri,0,4) === 'http')
-		$name = basename($uri);
-	else {
-		$local = str_replace('acct:', '', $uri);
-		if(substr($local,0,2) == '//')
-			$local = substr($local,2);
-
-		$name = substr($local,0,strpos($local,'@'));
+function xrd_init(App $a)
+{
+	if ($a->argv[0] == 'xrd') {
+		$uri = urldecode(notags(trim($_GET['uri'])));
+		if ($_SERVER['HTTP_ACCEPT'] == 'application/jrd+json') {
+			$mode = 'json';
+		} else {
+			$mode = 'xml';
+		}
+	} else {
+		$uri = urldecode(notags(trim($_GET['resource'])));
+		if ($_SERVER['HTTP_ACCEPT'] == 'application/xrd+xml') {
+			$mode = 'xml';
+		} else {
+			$mode = 'json';
+		}
 	}
 
-	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' LIMIT 1",
-		dbesc($name)
-	);
-	if(! count($r))
-		killme();
+	if (substr($uri, 0, 4) === 'http') {
+		$name = ltrim(basename($uri), '~');
+	} else {
+		$local = str_replace('acct:', '', $uri);
+		if (substr($local, 0, 2) == '//') {
+			$local = substr($local, 2);
+		}
 
-	$salmon_key = salmon_key($r[0]['spubkey']);
+		$name = substr($local, 0, strpos($local, '@'));
+	}
+
+	$user = dba::selectFirst('user', [], ['nickname' => $name]);
+	if (!DBM::is_result($user)) {
+		killme();
+	}
+
+	$profile_url = System::baseUrl().'/profile/'.$user['nickname'];
+
+	$alias = str_replace('/profile/', '/~', $profile_url);
+
+	$addr = 'acct:'.$user['nickname'].'@'.$a->get_hostname();
+	if ($a->get_path()) {
+		$addr .= '/'.$a->get_path();
+	}
+
+	if ($mode == 'xml') {
+		xrd_xml($a, $addr, $alias, $profile_url, $user);
+	} else {
+		xrd_json($a, $addr, $alias, $profile_url, $user);
+	}
+}
+
+function xrd_json($a, $uri, $alias, $profile_url, $r)
+{
+	$salmon_key = Salmon::salmonKey($r['spubkey']);
+
+	header('Access-Control-Allow-Origin: *');
+	header("Content-type: application/json; charset=utf-8");
+
+	$json = ['subject' => $uri,
+			'aliases' => [$alias, $profile_url],
+			'links' => [['rel' => NAMESPACE_DFRN, 'href' => $profile_url],
+					['rel' => NAMESPACE_FEED, 'type' => 'application/atom+xml', 'href' => System::baseUrl().'/dfrn_poll/'.$r['nickname']],
+					['rel' => 'http://webfinger.net/rel/profile-page', 'type' => 'text/html', 'href' => $profile_url],
+					['rel' => 'http://microformats.org/profile/hcard', 'type' => 'text/html', 'href' => System::baseUrl().'/hcard/'.$r['nickname']],
+					['rel' => NAMESPACE_POCO, 'href' => System::baseUrl().'/poco/'.$r['nickname']],
+					['rel' => 'http://webfinger.net/rel/avatar', 'type' => 'image/jpeg', 'href' => System::baseUrl().'/photo/profile/'.$r['uid'].'.jpg'],
+					['rel' => 'http://joindiaspora.com/seed_location', 'type' => 'text/html', 'href' => System::baseUrl()],
+					['rel' => 'salmon', 'href' => System::baseUrl().'/salmon/'.$r['nickname']],
+					['rel' => 'http://salmon-protocol.org/ns/salmon-replies', 'href' => System::baseUrl().'/salmon/'.$r['nickname']],
+					['rel' => 'http://salmon-protocol.org/ns/salmon-mention', 'href' => System::baseUrl().'/salmon/'.$r['nickname'].'/mention'],
+					['rel' => 'http://ostatus.org/schema/1.0/subscribe', 'template' => System::baseUrl().'/follow?url={uri}'],
+					['rel' => 'magic-public-key', 'href' => 'data:application/magic-public-key,'.$salmon_key]
+	]];
+	echo json_encode($json);
+	killme();
+}
+
+function xrd_xml($a, $uri, $alias, $profile_url, $r)
+{
+	$salmon_key = Salmon::salmonKey($r['spubkey']);
 
 	header('Access-Control-Allow-Origin: *');
 	header("Content-type: text/xml");
 
-	if(get_config('system','diaspora_enabled')) {
-		//$tpl = file_get_contents('view/xrd_diaspora.tpl');
-		$tpl = get_markup_template('xrd_diaspora.tpl');
-		$dspr = replace_macros($tpl,array(
-			'$baseurl' => $a->get_baseurl(),
-			'$dspr_guid' => $r[0]['guid'],
-			'$dspr_key' => base64_encode(pemtorsa($r[0]['pubkey']))
-		));
-	}
-	else
-		$dspr = '';
-
-	//$tpl = file_get_contents('view/xrd_person.tpl');
 	$tpl = get_markup_template('xrd_person.tpl');
 
-	$o = replace_macros($tpl, array(
-		'$nick'        => $r[0]['nickname'],
+	$o = replace_macros($tpl, [
+		'$nick'        => $r['nickname'],
 		'$accturi'     => $uri,
-		'$profile_url' => $a->get_baseurl() . '/profile/'       . $r[0]['nickname'],
-		'$hcard_url'   => $a->get_baseurl() . '/hcard/'         . $r[0]['nickname'],
-		'$atom'        => $a->get_baseurl() . '/dfrn_poll/'     . $r[0]['nickname'],
-		'$zot_post'    => $a->get_baseurl() . '/post/'          . $r[0]['nickname'],
-		'$poco_url'    => $a->get_baseurl() . '/poco/'          . $r[0]['nickname'],
-		'$photo'       => $a->get_baseurl() . '/photo/profile/' . $r[0]['uid']      . '.jpg',
-		'$dspr'        => $dspr,
-		'$salmon'      => $a->get_baseurl() . '/salmon/'        . $r[0]['nickname'],
-		'$salmen'      => $a->get_baseurl() . '/salmon/'        . $r[0]['nickname'] . '/mention',
-		'$subscribe'   => $a->get_baseurl() . '/follow?url={uri}',
-		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key,
-		'$bigkey'      =>  salmon_key($r[0]['pubkey'])
-	));
+		'$alias'       => $alias,
+		'$profile_url' => $profile_url,
+		'$hcard_url'   => System::baseUrl() . '/hcard/'         . $r['nickname'],
+		'$atom'        => System::baseUrl() . '/dfrn_poll/'     . $r['nickname'],
+		'$poco_url'    => System::baseUrl() . '/poco/'          . $r['nickname'],
+		'$photo'       => System::baseUrl() . '/photo/profile/' . $r['uid']      . '.jpg',
+		'$baseurl' => System::baseUrl(),
+		'$salmon'      => System::baseUrl() . '/salmon/'        . $r['nickname'],
+		'$salmen'      => System::baseUrl() . '/salmon/'        . $r['nickname'] . '/mention',
+		'$subscribe'   => System::baseUrl() . '/follow?url={uri}',
+		'$modexp'      => 'data:application/magic-public-key,'  . $salmon_key]
+	);
 
-
-	$arr = array('user' => $r[0], 'xml' => $o);
-	call_hooks('personal_xrd', $arr);
+	$arr = ['user' => $r, 'xml' => $o];
+	Addon::callHooks('personal_xrd', $arr);
 
 	echo $arr['xml'];
 	killme();
-
 }

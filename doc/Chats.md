@@ -3,24 +3,24 @@ Chats
 
 * [Home](help)
 
-There are two possibilities to use a chat on your friendica site
+There are two possibilities to use chat on your friendica site
 
 * IRC Chat
 * Jappix
 
-IRC-Chat Plugin
+IRC-Chat Addon
 ---
 
-After activating the plugin, you can find the chat at [yoursite.com/irc](../irc).
+After activating the addon, you can find the chat at [yoursite.com/irc](../irc).
 Note: you can use this chat without any login at your site so that everyone could use it.
 
-If you follow the link, you will see the login page of the IR chat.
+If you follow the link, you will see the login page of the IRC chat.
 Now choose a nickname and a chatroom.
-You can choose every name for the room, even something like #superchatwhosenameisonlyknownbyme.
-At last, solve the captchas and click the connect button.
+You can choose any name you like for the room, even something like #superchatwhosenameisonlyknownbyme.
+Finally, solve the captchas and click the connect button.
 
 The following window shows some text while connecting.
-This text isn't importend for you, just wait for the next window.
+This text isn't important, just wait for the next window.
 The first line shows your name and your current IP address.
 The right part of the window shows all users.
 The lower part of the window contains an input field.
@@ -28,8 +28,8 @@ The lower part of the window contains an input field.
 Jappix Mini
 ---
 
-The Jappix Mini Plugin creates a chatbox for jabber- and XMPP-contacts.
-You should already have a jabber/XMPP-account before setting up the plugin.
+The Jappix Mini Addon creates a chatbox for jabber- and XMPP-contacts.
+You should already have a jabber/XMPP-account before setting up the addon.
 You can find more information at [jabber.org](http://www.jabber.org/).
 
 You can use several servers to create an account:
@@ -48,15 +48,15 @@ Or you can download a tar archive here: [jappixmini.tgz](https://github.com/frie
 Just unpack the file and rename the directory to „jappixmini“.
 Next, upload this directory and the .tgz-file into your addon directory of your friendica installation.
 
-Now you can activate the plugin globally on the admin pages.
-In the plugin sidebar, you will find an entry of jappix now (where you can also find twitter, GNU Social and others).
-The following page shows the settings of this plugin.
+Now you can activate the addon globally on the admin pages.
+In the addon sidebar, you will find an entry of jappix now (where you can also find twitter, GNU Social and others).
+The following page shows the settings of this addon.
 
 Activate the BOSH proxy.
 
 ###2. Settings
 
-Go to your user account settings next and choose the plugin page.
+Go to your user account settings next and choose the addon page.
 Scroll down until you find the Jappix Mini addon settings.
 
 At first you have to activate the addon.
