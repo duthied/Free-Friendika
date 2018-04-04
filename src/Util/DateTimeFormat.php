@@ -109,6 +109,9 @@ class DateTimeFormat
 		 * months and days always start with 1.
 		 */
 		if (substr($s, 0, 10) <= '0001-01-01') {
+			if ($s < '0000-00-00') {
+				$s = '0000-00-00';
+			}
 			$d = new DateTime($s . ' + 32 days', new DateTimeZone('UTC'));
 			return str_replace('1', '0', $d->format($format));
 		}
