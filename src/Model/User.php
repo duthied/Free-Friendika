@@ -615,9 +615,9 @@ class User
 		$body = deindent(L10n::t('
 			The login details are as follows:
 
-			Site Location:	%1$s
-			Login Name:		%2$s
-			Password:		%3$s
+			Site Location:	%3$s
+			Login Name:		%1$s
+			Password:		%5$s
 
 			You may change your password from your account "Settings" page after logging
 			in.
@@ -636,9 +636,9 @@ class User
 			If you are new and do not know anybody here, they may help
 			you to make some new and interesting friends.
 
-			If you ever want to delete your account, you can do so at %1$s/removeme
+			If you ever want to delete your account, you can do so at %3$s/removeme
 
-			Thank you and welcome to %4$s.'));
+			Thank you and welcome to %2$s.'));
 
 		$preamble = sprintf($preamble, $username, $sitename);
 		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
