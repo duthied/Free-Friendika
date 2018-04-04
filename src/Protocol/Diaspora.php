@@ -3264,13 +3264,15 @@ class Diaspora
 
 		$logid = random_string(4);
 
+		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
+
 		// We always try to use the data from the fcontact table.
 		// This is important for transmitting data to Friendica servers.
-		if (!empty($contact['addr']) && ($contact['network'] != NETWORK_DIASPORA)) {
+		if (!empty($contact['addr'])) {
 			$fcontact = self::personByHandle($contact['addr']);
-			$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
-		} else {
-			$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
+			if (!empty($fcontact)) {
+				$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
+			}
 		}
 
 		if (!$dest_url) {
