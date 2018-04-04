@@ -1,0 +1,8 @@
+[Unit]
+Description=Friendica Worker
+
+[Service]
+User=http
+#Adapt the path in the following line to your system, use 'which php' to find php path,
+#provide the absolute path for worker.php
+ExecStart=/usr/bin/php /www/path/bin/worker.php &

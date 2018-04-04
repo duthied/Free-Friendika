@@ -30,7 +30,7 @@ User
 
 SSL (Secure Socket Layer) is a technology to encrypt data transfer between computers.
 Sometimes your browser warns you about a missing or invalid certificate.
-These warnings can have three reasons: 
+These warnings can have three reasons:
 
 1. The server you are connected to doesn't offer SSL encryption.
 2. The server has a self-signed certificate (not recommended).
@@ -49,8 +49,8 @@ Generally, you can attach any kind of file to a post.
 This is possible by using the "paper-clip"-symbol in the editor.
 These files will be linked to your post and can be downloaded by your contacts.
 But it's not possible to get a preview for these items.
-Because of this, this upload method is only recommended for office or zipped files. 
-If you want to share content from Dropbox, Owncloud or any other [filehoster](http://en.wikipedia.org/wiki/Comparison_of_file_hosting_services), use the "link"-button (chain-symbol). 
+Because of this, this upload method is only recommended for office or zipped files.
+If you want to share content from Dropbox, Owncloud or any other [filehoster](http://en.wikipedia.org/wiki/Comparison_of_file_hosting_services), use the "link"-button (chain-symbol).
 
 When you're adding URLs of other webpages with the "link"-button, Friendica tries to create a small preview.
 If this doesn't work, try to add the link by typing: [url=http://example.com]*self-chosen name*[/url].
@@ -58,9 +58,9 @@ If this doesn't work, try to add the link by typing: [url=http://example.com]*se
 You can also add video and audio files to posts.
 However, instead of a direct upload you have to use one of the following methods:
 
-1. Add the video or audio link of a hoster (Youtube, Vimeo, Soundcloud and anyone else with oembed/opengraph-support). Videos will be shown with a preview image you can click on to start. SoundCloud directly inserts a player to your post. 
+1. Add the video or audio link of a hoster (Youtube, Vimeo, Soundcloud and anyone else with oembed/opengraph-support). Videos will be shown with a preview image you can click on to start. SoundCloud directly inserts a player to your post.
 
-2. If you have your own server, you can upload multimedia files via FTP and insert the URL. 
+2. If you have your own server, you can upload multimedia files via FTP and insert the URL.
 
 Friendica uses HTML5 for embedding content.
 Therefore, the supported files are dependent on your browser and operating system.
@@ -125,16 +125,16 @@ If you want to share your public page via rss you can use one of the following l
 
 	basic-url.com//feed/[nickname]/posts
 
-Example: Friendica Support 
-	
+Example: Friendica Support
+
 	https://forum.friendi.ca/feed/helpers/posts
 
 #### RSS feed of the conversations at your site
 
 	basic-url.com/feed/profilename/comments
-	
-Example: Friendica Support 
-	
+
+Example: Friendica Support
+
 	https://forum.friendi.ca/feed/helpers/comments
 
 <a name="clients"></a>
@@ -192,7 +192,7 @@ There you will always find the current stable version of friendica.
 
 Addons are listed at [this page](https://github.com/friendica/friendica-addons).
 
-If you are searching for new themes, you can find them at [Friendica-Themes.com](http://friendica-themes.com/) 
+If you are searching for new themes, you can find them at [Friendica-Themes.com](http://friendica-themes.com/)
 
 <a name="adminaccount1"></a>
 ### I've changed my email address now the admin panel is gone?
@@ -213,8 +213,8 @@ The listed emails need to be separated by a comma.
 Please have a look at the Admin panel under [DB updates](/admin/dbsync/) and follow the link to *check database structure*.
 This will start a background process to check if the structure is up to the current definition.
 
-You can manually execute the structure update from the CLI in the base directory of your Friendica installation by running the following script:
+You can manually execute the structure update from the CLI in the base directory of your Friendica installation by running the following command:
 
-    scripts/dbstructure.php update
+    bin/console dbstructure update
 
 if there occur any errors, please contact the [support forum](https://forum.friendi.ca/profile/helpers).

@@ -13,9 +13,11 @@ use Friendica\Util\Crypto;
 
 require_once 'include/items.php';
 
-function salmon_post(App $a) {
+function salmon_post(App $a, $xml = '') {
 
-	$xml = file_get_contents('php://input');
+	if (empty($xml)) {
+		$xml = file_get_contents('php://input');
+	}
 
 	logger('new salmon ' . $xml, LOGGER_DATA);
 

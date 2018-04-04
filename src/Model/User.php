@@ -5,6 +5,7 @@
  */
 namespace Friendica\Model;
 
+use DivineOmega\PasswordExposed\PasswordStatus;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -22,6 +23,7 @@ use Friendica\Util\Network;
 use dba;
 use Exception;
 use LightOpenID;
+use function password_exposed;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -101,7 +103,7 @@ class User
 	 * @param string $password
 	 * @return int|boolean
 	 * @deprecated since version 3.6
-	 * @see Friendica\Model\User::getIdFromPasswordAuthentication()
+	 * @see User::getIdFromPasswordAuthentication()
 	 */
 	public static function authenticate($user_info, $password)
 	{
@@ -214,6 +216,17 @@ class User
 	public static function generateNewPassword()
 	{
 		return autoname(6) . mt_rand(100, 9999);
+	}
+
+	/**
+	 * Checks if the provided plaintext password has been exposed or not
+	 *
+	 * @param string $password
+	 * @return bool
+	 */
+	public static function isPasswordExposed($password)
+	{
+		return password_exposed($password) === PasswordStatus::EXPOSED;
 	}
 
 	/**
@@ -601,11 +614,12 @@ class User
 		'));
 		$body = deindent(L10n::t('
 			The login details are as follows:
-				Site Location:	%3$s
-				Login Name:	%1$s
-				Password:	%5$s
 
-			You may change your password from your account Settings page after logging
+			Site Location:	%1$s
+			Login Name:		%2$s
+			Password:		%3$s
+
+			You may change your password from your account "Settings" page after logging
 			in.
 
 			Please take a few moments to review the other account settings on that page.
@@ -614,7 +628,7 @@ class User
 			' . "\x28" . 'on the "Profiles" page' . "\x29" . ' so that other people can easily find you.
 
 			We recommend setting your full name, adding a profile photo,
-			adding some profile keywords ' . "\x28" . 'very useful in making new friends' . "\x29" . ' - and
+			adding some profile "keywords" ' . "\x28" . 'very useful in making new friends' . "\x29" . ' - and
 			perhaps what country you live in; if you do not wish to be more specific
 			than that.
 
@@ -622,8 +636,9 @@ class User
 			If you are new and do not know anybody here, they may help
 			you to make some new and interesting friends.
 
+			If you ever want to delete your account, you can do so at %1$s/removeme
 
-			Thank you and welcome to %2$s.'));
+			Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $username, $sitename);
 		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);

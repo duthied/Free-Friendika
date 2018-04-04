@@ -46,13 +46,11 @@ function oexchange_content(App $a) {
 		return;
 	}
 
-	require_once('include/html2bbcode.php');
-
 	$post = [];
 
 	$post['profile_uid'] = local_user();
 	$post['return'] = '/oexchange/done' ;
-	$post['body'] = html2bbcode($s);
+	$post['body'] = Friendica\Content\Text\HTML::toBBCode($s);
 	$post['type'] = 'wall';
 
 	$_REQUEST = $post;

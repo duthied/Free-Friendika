@@ -4,8 +4,8 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\L10n;
 use Friendica\BaseObject;
+use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use dba;
 
@@ -40,7 +40,7 @@ class Group extends BaseObject
 				// was restricted to this group may now be seen by the new group members.
 				$group = dba::selectFirst('group', ['deleted'], ['id' => $gid]);
 				if (DBM::is_result($group) && $group['deleted']) {
-					dba::update('group', ['deleted' => 0], ['gid' => $gid]);
+					dba::update('group', ['deleted' => 0], ['id' => $gid]);
 					notice(L10n::t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.') . EOL);
 				}
 				return true;
@@ -138,7 +138,7 @@ class Group extends BaseObject
 			return false;
 		}
 
-		$group = dba::selectFirst('group', ['uid'], ['gid' => $gid]);
+		$group = dba::selectFirst('group', ['uid'], ['id' => $gid]);
 		if (!DBM::is_result($group)) {
 			return false;
 		}
@@ -289,8 +289,7 @@ class Group extends BaseObject
 		}
 
 		if ($check_dead && !$use_gcontact) {
-			require_once 'include/acl_selectors.php';
-			$return = prune_deadguys($return);
+			Contact::pruneUnavailable($return);
 		}
 		return $return;
 	}

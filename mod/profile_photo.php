@@ -9,6 +9,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Object\Image;
@@ -105,16 +106,9 @@ function profile_photo_post(App $a) {
 
 				// If setting for the default profile, unset the profile photo flag from any other photos I own
 
-				if($is_default_profile) {
+				if ($is_default_profile) {
 					$r = q("UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
 						dbesc($base_image['resource-id']),
-						intval(local_user())
-					);
-
-					$r = q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s'  WHERE `self` AND `uid` = %d",
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-6.' . $Image->getExt()),
 						intval(local_user())
 					);
 				} else {
@@ -126,13 +120,7 @@ function profile_photo_post(App $a) {
 					);
 				}
 
-				// we'll set the updated profile-photo timestamp even if it isn't the default profile,
-				// so that browsers will do a cache update unconditionally
-
-				$r = q("UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-					dbesc(DateTimeFormat::utcNow()),
-					intval(local_user())
-				);
+				Contact::updateSelfFromUserID(local_user(), true);
 
 				info(L10n::t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
 				// Update global directory in background
@@ -229,10 +217,7 @@ function profile_photo_content(App $a) {
 				dbesc($resource_id)
 				);
 
-			$r = q("UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-				dbesc(DateTimeFormat::utcNow()),
-				intval(local_user())
-			);
+			Contact::updateSelfFromUserID(local_user(), true);
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];

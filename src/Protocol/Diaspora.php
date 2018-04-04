@@ -7,9 +7,11 @@
  * This implementation here interprets the old and the new protocol and sends the new one.
  * In the future we will remove most stuff from "validPosting" and interpret only the new protocol.
  */
+
 namespace Friendica\Protocol;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -35,7 +37,6 @@ use SimpleXMLElement;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
-require_once 'include/bb2diaspora.php';
 
 /**
  * @brief This class contain functions to create and send Diaspora XML files
@@ -46,60 +47,104 @@ class Diaspora
 	/**
 	 * @brief Return a list of relay servers
 	 *
-	 * This is an experimental Diaspora feature.
+	 * The list contains not only the official relays but also servers that we serve directly
 	 *
+	 * @param integer $item_id   The id of the item that is sent
 	 * @return array of relay servers
 	 */
-	public static function relayList()
+	public static function relayList($item_id)
 	{
+		$serverlist = [];
+
+		// Fetching relay servers
 		$serverdata = Config::get("system", "relay_server");
-		if ($serverdata == "") {
-			return [];
-		}
-
-		$relay = [];
-
-		$servers = explode(",", $serverdata);
-
-		foreach ($servers as $server) {
-			$server = trim($server);
-			$addr = "relay@".str_replace("http://", "", normalise_link($server));
-			$batch = $server."/receive/public";
-
-			$relais = q(
-				"SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' AND `addr` = '%s' AND `nurl` = '%s' LIMIT 1",
-				dbesc($batch),
-				dbesc($addr),
-				dbesc(normalise_link($server))
-			);
-
-			if (!$relais) {
-				$r = q(
-					"INSERT INTO `contact` (`uid`, `created`, `name`, `nick`, `addr`, `url`, `nurl`, `batch`, `network`, `rel`, `blocked`, `pending`, `writable`, `name-date`, `uri-date`, `avatar-date`)
-					VALUES (0, '%s', '%s', 'relay', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, '%s', '%s', '%s')",
-					DateTimeFormat::utcNow(),
-					dbesc($addr),
-					dbesc($addr),
-					dbesc($server),
-					dbesc(normalise_link($server)),
-					dbesc($batch),
-					dbesc(NETWORK_DIASPORA),
-					intval(CONTACT_IS_FOLLOWER),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow())
-				);
-
-				$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
-				if ($relais) {
-					$relay[] = $relais[0];
-				}
-			} else {
-				$relay[] = $relais[0];
+		if ($serverdata != "") {
+			$servers = explode(",", $serverdata);
+			foreach ($servers as $server) {
+				$serverlist[$server] = trim($server);
 			}
 		}
 
-		return $relay;
+		if (Config::get("system", "relay_directly", false)) {
+			// Servers that want to get all content
+			$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'all']);
+			while ($server = dba::fetch($servers)) {
+				$serverlist[$server['url']] = $server['url'];
+			}
+
+			// All tags of the current post
+			$condition = ['otype' => TERM_OBJ_POST, 'type' => TERM_HASHTAG, 'oid' => $item_id];
+			$tags = dba::select('term', ['term'], $condition);
+			$taglist = [];
+			while ($tag = dba::fetch($tags)) {
+				$taglist[] = $tag['term'];
+			}
+
+			// All servers who wants content with this tag
+			$tagserverlist = [];
+			if (!empty($taglist)) {
+				$tagserver = dba::select('gserver-tag', ['gserver-id'], ['tag' => $taglist]);
+				while ($server = dba::fetch($tagserver)) {
+					$tagserverlist[] = $server['gserver-id'];
+				}
+			}
+
+			// All adresses with the given id
+			if (!empty($tagserverlist)) {
+				$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
+				while ($server = dba::fetch($servers)) {
+					$serverlist[$server['url']] = $server['url'];
+				}
+			}
+		}
+
+		// Now we are collecting all relay contacts
+		$contacts = [];
+		foreach ($serverlist as $server_url) {
+			// We don't send messages to ourselves
+			if (!link_compare($server_url, System::baseUrl())) {
+				$contacts[] = self::getRelayContactId($server_url);
+			}
+		}
+
+		return $contacts;
+	}
+
+	/**
+	 * @brief Return a contact for a given server address or creates a dummy entry
+	 *
+	 * @param string $server_url The url of the server
+	 * @return array with the contact
+	 */
+	private static function getRelayContactId($server_url)
+	{
+		$batch = $server_url . '/receive/public';
+
+		$fields = ['batch', 'id', 'name', 'network'];
+		$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
+				'archive' => false, 'blocked' => false];
+		$contact = dba::selectFirst('contact', $fields, $condition);
+		if (DBM::is_result($contact)) {
+			return $contact;
+		} else {
+			$fields = ['uid' => 0, 'created' => DateTimeFormat::utcNow(),
+				'name' => 'relay', 'nick' => 'relay',
+				'url' => $server_url, 'nurl' => normalise_link($server_url),
+				'batch' => $batch, 'network' => NETWORK_DIASPORA,
+				'rel' => CONTACT_IS_FOLLOWER, 'blocked' => false,
+				'pending' => false, 'writable' => true];
+			dba::insert('contact', $fields);
+
+			$fields = ['batch', 'id', 'name', 'network'];
+			$contact = dba::selectFirst('contact', $fields, $condition);
+			if (DBM::is_result($contact)) {
+				return $contact;
+			}
+
+		}
+
+		// It should never happen that we arrive here
+		return [];
 	}
 
 	/**
@@ -1748,7 +1793,7 @@ class Diaspora
 
 		$datarray["plink"] = self::plink($author, $guid, $parent_item['guid']);
 
-		$body = diaspora2bb($text);
+		$body = Markdown::toBBCode($text);
 
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
 
@@ -1815,7 +1860,7 @@ class Diaspora
 			return false;
 		}
 
-		$body = diaspora2bb($msg_text);
+		$body = Markdown::toBBCode($msg_text);
 		$message_uri = $msg_author.":".$msg_guid;
 
 		$person = self::personByHandle($msg_author);
@@ -2149,7 +2194,7 @@ class Diaspora
 			return false;
 		}
 
-		$body = diaspora2bb($text);
+		$body = Markdown::toBBCode($text);
 
 		$body = self::replacePeopleGuid($body, $person["url"]);
 
@@ -2304,8 +2349,8 @@ class Diaspora
 		$image_url = unxmlify($data->image_url);
 		$birthday = unxmlify($data->birthday);
 		$gender = unxmlify($data->gender);
-		$about = diaspora2bb(unxmlify($data->bio));
-		$location = diaspora2bb(unxmlify($data->location));
+		$about = Markdown::toBBCode(unxmlify($data->bio));
+		$location = Markdown::toBBCode(unxmlify($data->location));
 		$searchable = (unxmlify($data->searchable) == "true");
 		$nsfw = (unxmlify($data->nsfw) == "true");
 		$tags = unxmlify($data->tag_string);
@@ -2682,7 +2727,7 @@ class Diaspora
 			if (self::isReshare($r[0]["body"], true)) {
 				$r = [];
 			} elseif (self::isReshare($r[0]["body"], false) || strstr($r[0]["body"], "[share")) {
-				$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+				$r[0]["body"] = Markdown::toBBCode(BBCode::toMarkdown($r[0]["body"]));
 
 				$r[0]["body"] = self::replacePeopleGuid($r[0]["body"], $r[0]["author-link"]);
 
@@ -2717,7 +2762,7 @@ class Diaspora
 				if (DBM::is_result($r)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 					if (self::isReshare($r[0]["body"], false)) {
-						$r[0]["body"] = diaspora2bb(bb2diaspora($r[0]["body"]));
+						$r[0]["body"] = Markdown::toBBCode(BBCode::toMarkdown($r[0]["body"]));
 						$r[0]["body"] = self::replacePeopleGuid($r[0]["body"], $r[0]["author-link"]);
 					}
 
@@ -2961,7 +3006,7 @@ class Diaspora
 			}
 		}
 
-		$body = diaspora2bb($text);
+		$body = Markdown::toBBCode($text);
 
 		$datarray = [];
 
@@ -3164,7 +3209,7 @@ class Diaspora
 	 *
 	 * @return string The message that will be transmitted to other servers
 	 */
-	private static function buildMessage($msg, $user, $contact, $prvkey, $pubkey, $public = false)
+	public static function buildMessage($msg, $user, $contact, $prvkey, $pubkey, $public = false)
 	{
 		// The message is put into an envelope with the sender's signature
 		$envelope = self::buildMagicEnvelope($msg, $user);
@@ -3219,13 +3264,15 @@ class Diaspora
 
 		$logid = random_string(4);
 
+		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
+
 		// We always try to use the data from the fcontact table.
 		// This is important for transmitting data to Friendica servers.
 		if (!empty($contact['addr'])) {
 			$fcontact = self::personByHandle($contact['addr']);
-			$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
-		} else {
-			$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
+			if (!empty($fcontact)) {
+				$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
+			}
 		}
 
 		if (!$dest_url) {
@@ -3613,17 +3660,17 @@ class Diaspora
 			$eventdata['end'] = DateTimeFormat::convert($event['finish'], "UTC", $eventdata['timezone'], $mask);
 		}
 		if ($event['summary']) {
-			$eventdata['summary'] = html_entity_decode(bb2diaspora($event['summary']));
+			$eventdata['summary'] = html_entity_decode(BBCode::toMarkdown($event['summary']));
 		}
 		if ($event['desc']) {
-			$eventdata['description'] = html_entity_decode(bb2diaspora($event['desc']));
+			$eventdata['description'] = html_entity_decode(BBCode::toMarkdown($event['desc']));
 		}
 		if ($event['location']) {
 			$event['location'] = preg_replace("/\[map\](.*?)\[\/map\]/ism", '$1', $event['location']);
 			$coord = Map::getCoordinates($event['location']);
 
 			$location = [];
-			$location["address"] = html_entity_decode(bb2diaspora($event['location']));
+			$location["address"] = html_entity_decode(BBCode::toMarkdown($event['location']));
 			if (!empty($coord['lat']) && !empty($coord['lon'])) {
 				$location["lat"] = $coord['lat'];
 				$location["lng"] = $coord['lon'];
@@ -3678,7 +3725,7 @@ class Diaspora
 			$body = $item["body"];
 
 			// convert to markdown
-			$body = html_entity_decode(bb2diaspora($body));
+			$body = html_entity_decode(BBCode::toMarkdown($body));
 
 			// Adding the title
 			if (strlen($title)) {
@@ -3869,7 +3916,7 @@ class Diaspora
 
 		$parent = $p[0];
 
-		$text = html_entity_decode(bb2diaspora($item["body"]));
+		$text = html_entity_decode(BBCode::toMarkdown($item["body"]));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		$comment = ["author" => self::myHandle($owner),
@@ -4105,7 +4152,7 @@ class Diaspora
 			"participants" => $cnv["recips"]
 		];
 
-		$body = bb2diaspora($item["body"]);
+		$body = BBCode::toMarkdown($item["body"]);
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		$msg = [
