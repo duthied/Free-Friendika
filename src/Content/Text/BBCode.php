@@ -242,6 +242,8 @@ class BBCode extends BaseObject
 			// Simplify image codes
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
+			$body = preg_replace("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
+
 			$URLSearchString = "^\[\]";
 			if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
@@ -1718,6 +1720,9 @@ class BBCode extends BaseObject
 			$text
 		);
 
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: $1px;" >', $text);
+		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
+
 		$text = preg_replace_callback("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism",
 			function ($matches) {
 				$matches[1] = proxy_url($matches[1]);
@@ -1725,9 +1730,6 @@ class BBCode extends BaseObject
 				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '">';
 			},
 			$text);
-
-		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: $1px;" >', $text);
-		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
 
 		// Images
 		// [img]pathtoimage[/img]
