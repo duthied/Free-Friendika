@@ -223,7 +223,7 @@ include/security.php:	Addon::callHooks('logged_in', $a->user);
 include/text.php:	Addon::callHooks('contact_block_end', $arr);
 include/text.php:	Addon::callHooks('poke_verbs', $arr);
 include/text.php:	Addon::callHooks('prepare_body_init', $item);
-include/text.php:	Addon::callHooks('content_filter', $hook_data);
+include/text.php:	Addon::callHooks('prepare_body_content_filter', $hook_data);
 include/text.php:	Addon::callHooks('prepare_body', $hook_data);
 include/text.php:	Addon::callHooks('prepare_body_final', $hook_data);
 

@@ -295,7 +295,7 @@ Called at the start of prepare_body
 Hook data:
     'item' => item array (input/output)
 
-### 'content_filter'
+### 'prepare_body_content_filter'
 Called before the HTML conversion in prepare_body. If the item matches a content filter rule set by an addon, it should
 just add the reason to the filter_reasons element of the hook data.
 Hook data:
@@ -353,7 +353,7 @@ include/security.php:	Addon::callHooks('logged_in', $a->user);
 include/text.php:	Addon::callHooks('contact_block_end', $arr);
 include/text.php:	Addon::callHooks('poke_verbs', $arr);
 include/text.php:	Addon::callHooks('prepare_body_init', $item);
-include/text.php:	Addon::callHooks('content_filter', $hook_data);
+include/text.php:	Addon::callHooks('prepare_body_content_filter', $hook_data);
 include/text.php:	Addon::callHooks('prepare_body', $hook_data);
 include/text.php:	Addon::callHooks('prepare_body_final', $hook_data);
 

@@ -1214,7 +1214,7 @@ function put_item_in_cache(&$item, $update = false)
  * @param boolean $is_preview
  * @return string item body html
  * @hook prepare_body_init item array before any work
- * @hook content_filter ('item'=>item array, 'filter_reasons'=>string array) before first bbcode to html
+ * @hook prepare_body_content_filter ('item'=>item array, 'filter_reasons'=>string array) before first bbcode to html
  * @hook prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
  * @hook prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
  */
@@ -1279,7 +1279,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 			'item' => $item,
 			'filter_reasons' => $filter_reasons
 		];
-		Addon::callHooks('content_filter', $hook_data);
+		Addon::callHooks('prepare_body_content_filter', $hook_data);
 		$filter_reasons = $hook_data['filter_reasons'];
 		unset($hook_data);
 	}
