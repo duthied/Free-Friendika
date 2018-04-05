@@ -757,7 +757,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 				$profile_name_e = $profile_name;
 
-				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'social', 'disable_cw', false)) {
+				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
 					$title_e = ucfirst($item['content-warning']);
 				} else {
 					$title_e = $item['title'];

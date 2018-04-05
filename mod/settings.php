@@ -212,7 +212,7 @@ function settings_post(App $a)
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
 		if (x($_POST, 'general-submit')) {
-			PConfig::set(local_user(), 'social', 'disable_cw', intval($_POST['disable_cw']));
+			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
 			PConfig::set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			PConfig::set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
 			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
@@ -787,7 +787,7 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
-		$disable_cw                = intval(PConfig::get(local_user(), 'social', 'disable_cw'));
+		$disable_cw                = intval(PConfig::get(local_user(), 'system', 'disable_cw'));
 		$no_intelligent_shortening = intval(PConfig::get(local_user(), 'system', 'no_intelligent_shortening'));
 		$ostatus_autofriend        = intval(PConfig::get(local_user(), 'system', 'ostatus_autofriend'));
 		$default_group             = PConfig::get(local_user(), 'ostatus', 'default_group');

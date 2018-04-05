@@ -1271,7 +1271,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	// Compile eventual content filter reasons
 	$filter_reasons = [];
 	if (!$is_preview && !($item['self'] && local_user() == $item['uid'])) {
-		if (!empty($item['content-warning']) && (!local_user() || !PConfig::get(local_user(), 'social', 'disable_cw', false))) {
+		if (!empty($item['content-warning']) && (!local_user() || !PConfig::get(local_user(), 'system', 'disable_cw', false))) {
 			$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
 		}
 
