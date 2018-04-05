@@ -1329,6 +1329,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$tpl = get_markup_template("jot.tpl");
 
 	$o .= replace_macros($tpl,[
+		'$new_post' => L10n::t('New Post'),
 		'$return_path'  => $query_str,
 		'$action'       => 'item',
 		'$share'        => defaults($x, 'button', L10n::t('Share')),
