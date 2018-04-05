@@ -756,7 +756,13 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				list($categories, $folders) = get_cats_and_terms($item);
 
 				$profile_name_e = $profile_name;
-				$item['title_e'] = $item['title'];
+
+				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'social', 'disable_cw', false)) {
+					$title_e = ucfirst($item['content-warning']);
+				} else {
+					$title_e = $item['title'];
+				}
+
 				$body_e = $body;
 				$tags_e = $tags;
 				$hashtags_e = $hashtags;
@@ -781,7 +787,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					'sparkle' => $sparkle,
 					'lock' => $lock,
 					'thumb' => System::removedBaseUrl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
-					'title' => $item['title_e'],
+					'title' => $title_e,
 					'body' => $body_e,
 					'tags' => $tags_e,
 					'hashtags' => $hashtags_e,
