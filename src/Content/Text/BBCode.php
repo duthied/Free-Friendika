@@ -242,9 +242,10 @@ class BBCode extends BaseObject
 			// Simplify image codes
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
+			$URLSearchString = "^\[\]";
+
 			$body = preg_replace("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
 
-			$URLSearchString = "^\[\]";
 			if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
 					// Checking, if the link goes to a picture
