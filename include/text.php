@@ -1184,6 +1184,7 @@ function put_item_in_cache(&$item, $update = false)
 	$body = $item["body"];
 
 	$rendered_hash = defaults($item, 'rendered-hash', '');
+	$rendered_html = defaults($item, 'rendered-html', '');
 
 	if ($rendered_hash == ''
 		|| $item["rendered-html"] == ""
@@ -1195,6 +1196,16 @@ function put_item_in_cache(&$item, $update = false)
 
 		$item["rendered-html"] = prepare_text($item["body"]);
 		$item["rendered-hash"] = hash("md5", $item["body"]);
+
+		// Force an update if the generated values differ from the existing ones
+		if ($rendered_hash != $item["rendered-hash"]) {
+			$update = true;
+		}
+
+		// Only compare the HTML when we forcefully ignore the cache
+		if (Config::get("system", "ignore_cache") && ($rendered_html != $item["rendered-html"])) {
+			$update = true;
+		}
 
 		if ($update && ($item["id"] > 0)) {
 			dba::update('item', ['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
