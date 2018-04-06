@@ -19,7 +19,6 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
 
@@ -213,6 +212,7 @@ function settings_post(App $a)
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
 		if (x($_POST, 'general-submit')) {
+			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
 			PConfig::set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			PConfig::set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
 			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
@@ -787,6 +787,7 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
+		$disable_cw                = intval(PConfig::get(local_user(), 'system', 'disable_cw'));
 		$no_intelligent_shortening = intval(PConfig::get(local_user(), 'system', 'no_intelligent_shortening'));
 		$ostatus_autofriend        = intval(PConfig::get(local_user(), 'system', 'ostatus_autofriend'));
 		$default_group             = PConfig::get(local_user(), 'ostatus', 'default_group');
@@ -844,6 +845,7 @@ function settings_content(App $a)
 			'$ostat_enabled' => $ostat_enabled,
 
 			'$general_settings' => L10n::t('General Social Media Settings'),
+			'$disable_cw' => ['disable_cw', L10n::t('Disable Content Warning'), $disable_cw, L10n::t('Users on networks like Mastodon or Pleroma are able to set a content warning field which collapse their post by default. This disables the automatic collapsing and sets the content warning as the post title. Doesn\'t affect any other content filtering you eventually set up.')],
 			'$no_intelligent_shortening' => ['no_intelligent_shortening', L10n::t('Disable intelligent shortening'), $no_intelligent_shortening, L10n::t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.')],
 			'$ostatus_autofriend' => ['snautofollow', L10n::t("Automatically follow any GNU Social \x28OStatus\x29 followers/mentioners"), $ostatus_autofriend, L10n::t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.')],
 			'$default_group' => Group::displayGroupSelection(local_user(), $default_group, L10n::t("Default group for OStatus contacts")),

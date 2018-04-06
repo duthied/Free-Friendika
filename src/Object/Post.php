@@ -316,7 +316,13 @@ class Post extends BaseObject
 		$body_e       = $body;
 		$text_e       = strip_tags($body);
 		$name_e       = $profile_name;
-		$title_e      = $item['title'];
+
+		if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
+			$title_e = ucfirst($item['content-warning']);
+		} else {
+			$title_e = $item['title'];
+		}
+
 		$location_e   = $location;
 		$owner_name_e = $this->getOwnerName();
 
