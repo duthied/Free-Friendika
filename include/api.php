@@ -3381,7 +3381,7 @@ function api_lists_statuses($type)
 		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
 	}
 
-	$statuses = q(
+	$statuses = dba::p(
 		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
@@ -3390,18 +3390,15 @@ function api_lists_statuses($type)
 		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `verb` = '%s'
+		WHERE `item`.`uid` = ? AND `verb` = ?
 		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		$sql_extra
-		AND `item`.`id`>%d
-		AND `group_member`.`gid` = %d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($since_id),
-		intval($_REQUEST['list_id']),
-		intval($start),
-		intval($count)
+		AND `item`.`id`>?
+		AND `group_member`.`gid` = ?
+		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count),
+		api_user(),
+		ACTIVITY_POST,
+		$since_id,
+		$_REQUEST['list_id']
 	);
 
 	$items = api_format_items($statuses, $user_info, false, $type);
