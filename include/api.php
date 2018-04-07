@@ -3393,6 +3393,7 @@ function api_lists_statuses($type)
 		STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
 		WHERE `item`.`uid` = ? AND `verb` = ?
 		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
+		$sql_extra
 		AND `item`.`id`>?
 		AND `group_member`.`gid` = ?
 		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count),
