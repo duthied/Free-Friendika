@@ -55,6 +55,19 @@ class Group extends BaseObject
 	}
 
 	/**
+	 * Update group information.
+	 *
+	 * @param  int	  $id   Group ID
+	 * @param  string $name Group name
+	 *
+	 * @return bool Was the update successful?
+	 */
+	public static function update($id, $name)
+	{
+		return dba::update('group', ['name' => $name], ['id' => $id]);
+	}
+
+	/**
 	 * @brief Get a list of group ids a contact belongs to
 	 *
 	 * @param int $cid

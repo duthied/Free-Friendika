@@ -1702,7 +1702,7 @@ function api_statuses_home_timeline($type)
 	unset($_GET["screen_name"]);
 
 	$user_info = api_get_user($a);
-	// get last newtork messages
+	// get last network messages
 
 	// params
 	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
@@ -1798,7 +1798,7 @@ function api_statuses_public_timeline($type)
 	}
 
 	$user_info = api_get_user($a);
-	// get last newtork messages
+	// get last network messages
 
 	// params
 	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
@@ -2270,7 +2270,7 @@ function api_statuses_mentions($type)
 	unset($_GET["screen_name"]);
 
 	$user_info = api_get_user($a);
-	// get last newtork messages
+	// get last network messages
 
 
 	// params
@@ -3269,22 +3269,6 @@ function api_help_test($type)
 api_register_func('api/help/test', 'api_help_test', false);
 
 /**
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
- * @return array|string
- */
-function api_lists($type)
-{
-	$ret = [];
-	/// @TODO $ret is not filled here?
-	return api_format_data('lists', $type, ["lists_list" => $ret]);
-}
-
-/// @TODO move to top of file or somewhere better
-api_register_func('api/lists', 'api_lists', true);
-
-/**
  * Returns all lists the user subscribes to.
  *
  * @param string $type Return type (atom, rss, xml, json)
@@ -3301,6 +3285,139 @@ function api_lists_list($type)
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/lists/list', 'api_lists_list', true);
+api_register_func('api/lists/subscriptions', 'api_lists_list', true);
+
+/**
+ * Returns all groups the user owns.
+ *
+ * @param string $type Return type (atom, rss, xml, json)
+ *
+ * @return array|string
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-ownerships
+ */
+function api_lists_ownerships($type)
+{
+	$a = get_app();
+
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+
+	// params
+	$user_info = api_get_user($a);
+	$uid = $user_info['uid'];
+
+	$groups = dba::select('group', [], ['deleted' => 0, 'uid' => $uid]);
+
+	// loop through all groups
+	$lists = [];
+	foreach ($groups as $group) {
+		if ($group['visible']) {
+			$mode = 'public';
+		} else {
+			$mode = 'private';
+		}
+		$lists[] = [
+			'name' => $group['name'],
+			'id' => intval($group['id']),
+			'id_str' => (string) $group['id'],
+			'user' => $user_info,
+			'mode' => $mode
+		];
+	}
+	return api_format_data("lists", $type, ['lists' => ['lists' => $lists]]);
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/lists/ownerships', 'api_lists_ownerships', true);
+
+/**
+ * Returns recent statuses from users in the specified group.
+ *
+ * @param string $type Return type (atom, rss, xml, json)
+ *
+ * @return array|string
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-ownerships
+ */
+function api_lists_statuses($type)
+{
+	$a = get_app();
+
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+
+	unset($_REQUEST["user_id"]);
+	unset($_GET["user_id"]);
+
+	unset($_REQUEST["screen_name"]);
+	unset($_GET["screen_name"]);
+
+	$user_info = api_get_user($a);
+	if (empty($_REQUEST, 'list_id')) {
+		throw new BadRequestException('list_id not specified');
+	}
+
+	// params
+	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
+	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+	if ($page < 0) {
+		$page = 0;
+	}
+	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
+	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
+	$exclude_replies = (x($_REQUEST, 'exclude_replies') ? 1 : 0);
+	$conversation_id = (x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0);
+
+	$start = $page * $count;
+
+	$sql_extra = '';
+	if ($max_id > 0) {
+		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+	}
+	if ($exclude_replies > 0) {
+		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
+	}
+	if ($conversation_id > 0) {
+		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+	}
+
+	$statuses = dba::p(
+		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
+		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
+		`contact`.`id` AS `cid`, `group_member`.`gid`
+		FROM `item`
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+		STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
+		WHERE `item`.`uid` = ? AND `verb` = ?
+		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
+		$sql_extra
+		AND `item`.`id`>?
+		AND `group_member`.`gid` = ?
+		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count),
+		api_user(),
+		ACTIVITY_POST,
+		$since_id,
+		$_REQUEST['list_id']
+	);
+
+	$items = api_format_items($statuses, $user_info, false, $type);
+
+	$data = ['status' => $items];
+	switch ($type) {
+		case "atom":
+		case "rss":
+			$data = api_rss_extra($a, $data, $user_info);
+			break;
+	}
+
+	return api_format_data("statuses", $type, $data);
+}
+
+/// @TODO move to top of file or somewhere better
+api_register_func('api/lists/statuses', 'api_lists_statuses', true);
 
 /**
  * Considers friends and followers lists to be private and won't return
@@ -5436,15 +5553,15 @@ function api_friendica_group_delete($type)
 }
 api_register_func('api/friendica/group_delete', 'api_friendica_group_delete', true, API_METHOD_DELETE);
 
-
 /**
- * Create the specified group with the posted array of contacts.
+ * Delete a group.
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-destroy
  */
-function api_friendica_group_create($type)
+function api_lists_destroy($type)
 {
 	$a = get_app();
 
@@ -5454,11 +5571,45 @@ function api_friendica_group_create($type)
 
 	// params
 	$user_info = api_get_user($a);
-	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$gid = (x($_REQUEST, 'list_id') ? $_REQUEST['list_id'] : 0);
 	$uid = $user_info['uid'];
-	$json = json_decode($_POST['json'], true);
-	$users = $json['user'];
 
+	// error if no gid specified
+	if ($gid == 0) {
+		throw new BadRequestException('gid not specified');
+	}
+
+	// get data of the specified group id
+	$group = dba::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
+	// error message if specified gid is not in database
+	if (!$group) {
+		throw new BadRequestException('gid not available');
+	}
+
+	if (Group::remove($gid)) {
+		$list = [
+			'name' => $group['name'],
+			'id' => intval($gid),
+			'id_str' => (string) $gid,
+			'user' => $user_info
+		];
+
+		return api_format_data("lists", $type, ['lists' => $list]);
+	}
+}
+api_register_func('api/lists/destroy', 'api_lists_destroy', true, API_METHOD_DELETE);
+
+/**
+ * Add a new group to the database.
+ *
+ * @param  string $name  Group name
+ * @param  int	  $uid   User ID
+ * @param  array  $users List of users to add to the group
+ *
+ * @return array
+ */
+function group_create($name, $uid, $users = [])
+{
 	// error if no name specified
 	if ($name == "") {
 		throw new BadRequestException('group name not specified');
@@ -5515,11 +5666,72 @@ function api_friendica_group_create($type)
 
 	// return success message incl. missing users in array
 	$status = ($erroraddinguser ? "missing user" : ($reactivate_group ? "reactivated" : "ok"));
-	$success = ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
+
+	return ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
+}
+
+/**
+ * Create the specified group with the posted array of contacts.
+ *
+ * @param string $type Return type (atom, rss, xml, json)
+ *
+ * @return array|string
+ */
+function api_friendica_group_create($type)
+{
+	$a = get_app();
+
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+
+	// params
+	$user_info = api_get_user($a);
+	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$uid = $user_info['uid'];
+	$json = json_decode($_POST['json'], true);
+	$users = $json['user'];
+
+	$success = group_create($name, $uid, $users);
+
 	return api_format_data("group_create", $type, ['result' => $success]);
 }
 api_register_func('api/friendica/group_create', 'api_friendica_group_create', true, API_METHOD_POST);
 
+/**
+ * Create a new group.
+ *
+ * @param string $type Return type (atom, rss, xml, json)
+ *
+ * @return array|string
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-create
+ */
+function api_lists_create($type)
+{
+	$a = get_app();
+
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+
+	// params
+	$user_info = api_get_user($a);
+	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$uid = $user_info['uid'];
+
+	$success = group_create($name, $uid);
+	if ($success['success']) {
+		$grp = [
+			'name' => $success['name'],
+			'id' => intval($success['gid']),
+			'id_str' => (string) $success['gid'],
+			'user' => $user_info
+		];
+
+		return api_format_data("lists", $type, ['lists'=>$grp]);
+	}
+}
+api_register_func('api/lists/create', 'api_lists_create', true, API_METHOD_POST);
 
 /**
  * Update the specified group with the posted array of contacts.
@@ -5593,6 +5805,56 @@ function api_friendica_group_update($type)
 }
 
 api_register_func('api/friendica/group_update', 'api_friendica_group_update', true, API_METHOD_POST);
+
+/**
+ * Update information about a group.
+ *
+ * @param string $type Return type (atom, rss, xml, json)
+ *
+ * @return array|string
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-update
+ */
+function api_lists_update($type)
+{
+	$a = get_app();
+
+	if (api_user() === false) {
+		throw new ForbiddenException();
+	}
+
+	// params
+	$user_info = api_get_user($a);
+	$gid = (x($_REQUEST, 'list_id') ? $_REQUEST['list_id'] : 0);
+	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$uid = $user_info['uid'];
+
+	// error if no gid specified
+	if ($gid == 0) {
+		throw new BadRequestException('gid not specified');
+	}
+
+	// get data of the specified group id
+	$group = dba::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
+	// error message if specified gid is not in database
+	if (!$group) {
+		throw new BadRequestException('gid not available');
+	}
+
+	if (Group::update($gid, $name)) {
+		$list = [
+			'name' => $name,
+			'id' => intval($gid),
+			'id_str' => (string) $gid,
+			'user' => $user_info
+		];
+
+		return api_format_data("lists", $type, ['lists' => $list]);
+	}
+
+	return api_format_data("group_update", $type, ['result' => $success]);
+}
+
+api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST);
 
 /**
  *
