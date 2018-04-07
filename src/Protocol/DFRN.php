@@ -1361,8 +1361,13 @@ class DFRN
 
 		$res = XML::parseString($xml);
 
-		if (empty($res->status)) {
+		if (!isset($res->status)) {
 			return -11;
+		}
+
+		// Possibly old servers had returned an empty value when everything was okay
+		if (empty($res->status)) {
+			$res->status = 200;
 		}
 
 		if (!empty($res->message)) {
@@ -1405,7 +1410,7 @@ class DFRN
 		$fcontact = Diaspora::personByHandle($contact['addr']);
 		if (empty($fcontact)) {
 			logger('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
-			return -21;
+			return -22;
 		}
 
 		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
@@ -1435,7 +1440,7 @@ class DFRN
 		$res = XML::parseString($xml);
 
 		if (empty($res->status)) {
-			return -11;
+			return -23;
 		}
 
 		if (!empty($res->message)) {
