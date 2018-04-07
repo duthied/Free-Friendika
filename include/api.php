@@ -5707,7 +5707,7 @@ api_register_func('api/friendica/group_create', 'api_friendica_group_create', tr
  * @return array|string
  * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-create
  */
-function api_list_create($type)
+function api_lists_create($type)
 {
 	$a = get_app();
 
@@ -5732,7 +5732,7 @@ function api_list_create($type)
 		return api_format_data("lists", $type, ['lists'=>$grp]);
 	}
 }
-api_register_func('api/lists/create', 'api_list_create', true, API_METHOD_POST);
+api_register_func('api/lists/create', 'api_lists_create', true, API_METHOD_POST);
 
 /**
  * Update the specified group with the posted array of contacts.
