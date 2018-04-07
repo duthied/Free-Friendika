@@ -3307,27 +3307,25 @@ function api_lists_ownerships($type)
 	$user_info = api_get_user($a);
 	$uid = $user_info['uid'];
 
-	$r = q(
-		"SELECT * FROM `group` WHERE `deleted` = 0 AND `uid` = %d",
-		intval($uid)
-	);
+	$groups = dba::select('group', [], ['deleted' => 0, 'uid' => intval($uid)]);
 
 	// loop through all groups
-	foreach ($r as $rr) {
-		if ($rr['visible']) {
+	$lists = [];
+	foreach ($groups as $group) {
+		if ($group['visible']) {
 			$mode = 'public';
 		} else {
 			$mode = 'private';
 		}
-		$grps[] = [
-			'name' => $rr['name'],
-			'id' => intval($rr['id']),
-			'id_str' => (string) $rr['id'],
+		$lists[] = [
+			'name' => $group['name'],
+			'id' => intval($group['id']),
+			'id_str' => (string) $group['id'],
 			'user' => $user_info,
 			'mode' => $mode
 		];
 	}
-	return api_format_data("lists", $type, ['lists' => ['lists'=>$grps]]);
+	return api_format_data("lists", $type, ['lists' => ['lists' => $lists]]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3383,7 +3381,7 @@ function api_lists_statuses($type)
 		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
 	}
 
-	$r = q(
+	$statuses = q(
 		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
 		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
@@ -3406,9 +3404,9 @@ function api_lists_statuses($type)
 		intval($count)
 	);
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$items = api_format_items($statuses, $user_info, false, $type);
 
-	$data = ['status' => $ret];
+	$data = ['status' => $items];
 	switch ($type) {
 		case "atom":
 		case "rss":
@@ -5583,25 +5581,21 @@ function api_lists_destroy($type)
 	}
 
 	// get data of the specified group id
-	$r = q(
-		"SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d",
-		intval($uid),
-		intval($gid)
-	);
+	$group = dba::selectFirst('group', [], ['uid' => intval($uid), 'id' => intval($gid)]);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($r)) {
+	if (!$group) {
 		throw new BadRequestException('gid not available');
 	}
 
 	if (Group::remove($gid)) {
-		$grp = [
-			'name' => $r[0]['name'],
+		$list = [
+			'name' => $group['name'],
 			'id' => intval($gid),
 			'id_str' => (string) $gid,
 			'user' => $user_info
 		];
 
-		return api_format_data("lists", $type, ['lists'=>$grp]);
+		return api_format_data("lists", $type, ['lists' => $list]);
 	}
 }
 api_register_func('api/lists/destroy', 'api_lists_destroy', true, API_METHOD_DELETE);
@@ -5841,25 +5835,21 @@ function api_lists_update($type)
 	}
 
 	// get data of the specified group id
-	$r = q(
-		"SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d",
-		intval($uid),
-		intval($gid)
-	);
+	$group = dba::selectFirst('group', [], ['uid' => intval($uid), 'id' => intval($gid)]);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($r)) {
+	if (!$group) {
 		throw new BadRequestException('gid not available');
 	}
 
 	if (Group::update($gid, $name)) {
-		$grp = [
+		$list = [
 			'name' => $name,
 			'id' => intval($gid),
 			'id_str' => (string) $gid,
 			'user' => $user_info
 		];
 
-		return api_format_data("lists", $type, ['lists'=>$grp]);
+		return api_format_data("lists", $type, ['lists' => $list]);
 	}
 
 	return api_format_data("group_update", $type, ['result' => $success]);
