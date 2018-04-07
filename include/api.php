@@ -3355,6 +3355,9 @@ function api_lists_statuses($type)
 
 	$user_info = api_get_user($a);
 	// get last newtork messages
+	if (!x($_REQUEST, 'list_id')) {
+		throw new BadRequestException('list_id not specified');
+	}
 
 	// params
 	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
