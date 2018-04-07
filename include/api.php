@@ -3408,22 +3408,6 @@ function api_lists_statuses($type)
 
 	$ret = api_format_items($r, $user_info, false, $type);
 
-	// Set all posts from the query above to seen
-	$idarray = [];
-	foreach ($r as $item) {
-		$idarray[] = intval($item["id"]);
-	}
-
-	$idlist = implode(",", $idarray);
-
-	if ($idlist != "") {
-		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `id` IN (%s)", $idlist);
-
-		if ($unseen) {
-			q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
-		}
-	}
-
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
