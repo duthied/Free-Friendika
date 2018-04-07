@@ -3354,7 +3354,7 @@ function api_lists_statuses($type)
 	unset($_GET["screen_name"]);
 
 	$user_info = api_get_user($a);
-	if (!x($_REQUEST, 'list_id')) {
+	if (empty($_REQUEST, 'list_id')) {
 		throw new BadRequestException('list_id not specified');
 	}
 
