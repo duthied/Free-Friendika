@@ -1047,4 +1047,24 @@ class App
 			unset($this->config[$uid][$cat][$k]);
 		}
 	}
+
+	/**
+	 * Generates the site's default sender email address
+	 *
+	 * @return string
+	 */
+	public function getSenderEmailAddress()
+	{
+		$sender_email = Config::get('config', 'sender_email');
+		if (empty($sender_email)) {
+			$hostname = $this->get_hostname();
+			if (strpos($hostname, ':')) {
+				$hostname = substr($hostname, 0, strpos($hostname, ':'));
+			}
+
+			$sender_email = L10n::t('noreply') . '@' . $hostname;
+		}
+
+		return $sender_email;
+	}
 }
