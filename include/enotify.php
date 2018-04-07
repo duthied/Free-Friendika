@@ -45,10 +45,7 @@ function notification($params)
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}
 
-	$sender_email = $a->config['sender_email'];
-	if (empty($sender_email)) {
-		$sender_email = L10n::t('noreply').'@'.$hostname;
-	}
+	$sender_email = $a->getSenderEmailAddress();
 
 	if ($params['type'] != SYSTEM_EMAIL) {
 		$user = dba::selectFirst('user', ['nickname', 'page-flags'],
