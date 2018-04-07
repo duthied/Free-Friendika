@@ -35,7 +35,7 @@ sudo openssl x509 -req -days 365 -in "$SSL_DIR/xip.io.csr" -signkey "$SSL_DIR/xi
 echo ">>> Installing Apache2 webserver"
 sudo apt-get install -y apache2
 sudo a2enmod rewrite actions ssl
-sudo cp /vagrant/util/vagrant_vhost.sh /usr/local/bin/vhost
+sudo cp /vagrant/bin/dev/vagrant_vhost.sh /usr/local/bin/vhost
 sudo chmod guo+x /usr/local/bin/vhost
     sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
     sudo a2dissite 000-default
