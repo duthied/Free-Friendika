@@ -3366,7 +3366,6 @@ function api_lists_statuses($type)
 	}
 	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
 	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
-	//$since_id = 0;//$since_id = (x($_REQUEST, 'since_id')?$_REQUEST['since_id'] : 0);
 	$exclude_replies = (x($_REQUEST, 'exclude_replies') ? 1 : 0);
 	$conversation_id = (x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0);
 
