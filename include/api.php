@@ -1702,7 +1702,7 @@ function api_statuses_home_timeline($type)
 	unset($_GET["screen_name"]);
 
 	$user_info = api_get_user($a);
-	// get last newtork messages
+	// get last network messages
 
 	// params
 	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
@@ -1798,7 +1798,7 @@ function api_statuses_public_timeline($type)
 	}
 
 	$user_info = api_get_user($a);
-	// get last newtork messages
+	// get last network messages
 
 	// params
 	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
@@ -2270,7 +2270,7 @@ function api_statuses_mentions($type)
 	unset($_GET["screen_name"]);
 
 	$user_info = api_get_user($a);
-	// get last newtork messages
+	// get last network messages
 
 
 	// params
@@ -3354,7 +3354,6 @@ function api_lists_statuses($type)
 	unset($_GET["screen_name"]);
 
 	$user_info = api_get_user($a);
-	// get last newtork messages
 	if (!x($_REQUEST, 'list_id')) {
 		throw new BadRequestException('list_id not specified');
 	}
