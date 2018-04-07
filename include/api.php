@@ -3403,7 +3403,7 @@ function api_lists_statuses($type)
 		$_REQUEST['list_id']
 	);
 
-	$items = api_format_items($statuses, $user_info, false, $type);
+	$items = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $items];
 	switch ($type) {
