@@ -27,7 +27,7 @@ class ContactSelector
 
 		$o .= "<select id=\"contact-profile-selector\" class=\"form-control\" $disabled name=\"profile-assign\" >\r\n";
 
-		$s = dba::select('profile', ['id', 'profile-name', 'is-default'], ['uid' => $$_SESSION['uid']]);
+		$s = dba::select('profile', ['id', 'profile-name', 'is-default'], ['uid' => $_SESSION['uid']]);
 		$r = dba::inArray($s);
 
 		if (DBM::is_result($r)) {
