@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
   end
 
   # Enable provisioning with a shell script.
-  config.vm.provision "shell", path: "./util/vagrant_provision.sh"
+  config.vm.provision "shell", path: "./bin/dev/vagrant_provision.sh"
     # run: "always"
     # run: "once"
 end
