@@ -287,7 +287,7 @@ class Event extends BaseObject
 				'nofinish' => $event['nofinish'],
 			];
 
-			dba::update('event', $updated_fields, ['id' => $event['cid'], 'uid' => $event['uid']]);
+			dba::update('event', $updated_fields, ['id' => $event['id'], 'uid' => $event['uid']]);
 
 			$item = dba::selectFirst('item', ['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
 			if (DBM::is_result($item)) {
