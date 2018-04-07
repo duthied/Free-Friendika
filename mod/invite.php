@@ -77,8 +77,8 @@ function invite_post(App $a)
 			$nmessage = $message;
 		}
 
-		$additional_headers = 'From: ' . $a->getSenderEmailAddress() . "\n"
-			. 'Sender: ' . $a->user['email'] . "\n"
+		$additional_headers = 'From: ' . $a->user['email'] . "\n"
+			. 'Sender: ' . $a->getSenderEmailAddress() . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"
 			. 'Content-transfer-encoding: 8bit';
 
