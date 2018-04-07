@@ -3307,7 +3307,7 @@ function api_lists_ownerships($type)
 	$user_info = api_get_user($a);
 	$uid = $user_info['uid'];
 
-	$groups = dba::select('group', [], ['deleted' => 0, 'uid' => intval($uid)]);
+	$groups = dba::select('group', [], ['deleted' => 0, 'uid' => $uid]);
 
 	// loop through all groups
 	$lists = [];
@@ -5581,7 +5581,7 @@ function api_lists_destroy($type)
 	}
 
 	// get data of the specified group id
-	$group = dba::selectFirst('group', [], ['uid' => intval($uid), 'id' => intval($gid)]);
+	$group = dba::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
 	// error message if specified gid is not in database
 	if (!$group) {
 		throw new BadRequestException('gid not available');
@@ -5835,7 +5835,7 @@ function api_lists_update($type)
 	}
 
 	// get data of the specified group id
-	$group = dba::selectFirst('group', [], ['uid' => intval($uid), 'id' => intval($gid)]);
+	$group = dba::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
 	// error message if specified gid is not in database
 	if (!$group) {
 		throw new BadRequestException('gid not available');
