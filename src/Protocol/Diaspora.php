@@ -103,7 +103,10 @@ class Diaspora
 		foreach ($serverlist as $server_url) {
 			// We don't send messages to ourselves
 			if (!link_compare($server_url, System::baseUrl())) {
-				$contacts[] = self::getRelayContactId($server_url);
+				$cid = self::getRelayContactId($server_url);
+				if (!is_bool($cid)) {
+					$contacts[] = $cid;
+				}
 			}
 		}
 
@@ -120,11 +123,30 @@ class Diaspora
 	{
 		$batch = $server_url . '/receive/public';
 
-		$fields = ['batch', 'id', 'name', 'network'];
+		$fields = ['batch', 'id', 'name', 'network', 'nick',
+			'url', 'archive', 'blocked', 'contact-type'];
+		// Fetch the first unarchived, unblocked account
 		$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
-				'archive' => false, 'blocked' => false];
+			'archive' => false, 'blocked' => false];
 		$contact = dba::selectFirst('contact', $fields, $condition);
+
+		// If there is nothing found, we check if there is already a relay account
+		if (!DBM::is_result($contact)) {
+			$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
+				'contact-type' => ACCOUNT_TYPE_RELAY];
+			$contact = dba::selectFirst('contact', $fields, $condition);
+		}
 		if (DBM::is_result($contact)) {
+			if ($contact['archive'] || $contact['blocked']) {
+				return false;
+			}
+
+			// Mark relay accounts as a relay, if this hadn't been the case before
+			if (($contact['url'] == $server_url) && ($contact['nick'] == 'relay') &&
+				($contact['name'] == 'relay') && ($contact['contact-type'] != ACCOUNT_TYPE_RELAY)) {
+				$fields = ['contact-type' => ACCOUNT_TYPE_RELAY];
+				dba::update('contact', $fields, ['id' => $contact['id']]);
+			}
 			return $contact;
 		} else {
 			$fields = ['uid' => 0, 'created' => DateTimeFormat::utcNow(),
@@ -132,6 +154,7 @@ class Diaspora
 				'url' => $server_url, 'nurl' => normalise_link($server_url),
 				'batch' => $batch, 'network' => NETWORK_DIASPORA,
 				'rel' => CONTACT_IS_FOLLOWER, 'blocked' => false,
+				'contact-type' => ACCOUNT_TYPE_RELAY,
 				'pending' => false, 'writable' => true];
 			dba::insert('contact', $fields);
 
@@ -3299,7 +3322,7 @@ class Diaspora
 		logger("transmit: ".$logid."-".$guid." returns: ".$return_code);
 
 		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
-			if (!$no_queue) {
+			if (!$no_queue && ($contact['contact-type'] != ACCOUNT_TYPE_RELAY)) {
 				logger("queue message");
 				// queue message for redelivery
 				Queue::add($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch, $guid);

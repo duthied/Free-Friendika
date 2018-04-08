@@ -212,12 +212,16 @@ define('PAGE_PRVGROUP',          5);
  *
  * ACCOUNT_TYPE_COMMUNITY - the account is community forum
  *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
+ *
+ * ACCOUNT_TYPE_RELAY - the account is a relay
+ *      This will only be assigned to contacts, not to user accounts
  * @{
  */
 define('ACCOUNT_TYPE_PERSON',      0);
 define('ACCOUNT_TYPE_ORGANISATION', 1);
 define('ACCOUNT_TYPE_NEWS',        2);
 define('ACCOUNT_TYPE_COMMUNITY',   3);
+define('ACCOUNT_TYPE_RELAY',       4);
 /**
  * @}
  */
