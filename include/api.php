@@ -3354,7 +3354,7 @@ function api_lists_statuses($type)
 	unset($_GET["screen_name"]);
 
 	$user_info = api_get_user($a);
-	if (empty($_REQUEST, 'list_id')) {
+	if (empty($_REQUEST['list_id'])) {
 		throw new BadRequestException('list_id not specified');
 	}
 
@@ -3403,7 +3403,7 @@ function api_lists_statuses($type)
 		$_REQUEST['list_id']
 	);
 
-	$items = api_format_items($statuses, $user_info, false, $type);
+	$items = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $items];
 	switch ($type) {
