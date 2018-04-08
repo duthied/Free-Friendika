@@ -127,18 +127,18 @@ class User
 	{
 		$user = self::getAuthenticationInfo($user_info);
 
-		if ($user['legacy_password']) {
-			if (password_verify(self::hashPasswordLegacy($password), $user['password'])) {
-				self::updatePassword($user['uid'], $password);
-
-				return $user['uid'];
-			}
-		} elseif (password_verify($password, $user['password'])) {
+		if (password_verify($password, $user['password'])) {
 			if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
 				self::updatePassword($user['uid'], $password);
 			}
 
 			return $user['uid'];
+		} elseif (!empty($user['legacy_password']) || strpos($user['password'], '$') === false) {
+			if (self::hashPasswordLegacy($password) === $user['password']) {
+				self::updatePassword($user['uid'], $password);
+
+				return $user['uid'];
+			}
 		}
 
 		throw new Exception(L10n::t('Login failed'));
