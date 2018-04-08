@@ -170,13 +170,12 @@ class User
 
 			if (!isset($user['uid'])
 				|| !isset($user['password'])
-				|| !isset($user['legacy_password'])
 			) {
 				throw new Exception(L10n::t('Not enough information to authenticate'));
 			}
 		} elseif (is_int($user_info) || is_string($user_info)) {
 			if (is_int($user_info)) {
-				$user = dba::selectFirst('user', ['uid', 'password', 'legacy_password'],
+				$user = dba::selectFirst('user', ['uid', 'password'],
 					[
 						'uid' => $user_info,
 						'blocked' => 0,
@@ -186,7 +185,7 @@ class User
 					]
 				);
 			} else {
-				$user = dba::fetch_first('SELECT `uid`, `password`, `legacy_password`
+				$user = dba::fetch_first('SELECT `uid`, `password`
 					FROM `user`
 					WHERE (`email` = ? OR `username` = ? OR `nickname` = ?)
 					AND `blocked` = 0
@@ -277,7 +276,6 @@ class User
 			'password' => $pasword_hashed,
 			'pwdreset' => null,
 			'pwdreset_time' => null,
-			'legacy_password' => false
 		];
 		return dba::update('user', $fields, ['uid' => $uid]);
 	}
