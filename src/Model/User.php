@@ -133,7 +133,7 @@ class User
 			}
 
 			return $user['uid'];
-		} elseif (!empty($user['legacy_password']) || strpos($user['password'], '$') === false) {
+		} elseif (strpos($user['password'], '$') === false) {
 			if (self::hashPasswordLegacy($password) === $user['password']) {
 				self::updatePassword($user['uid'], $password);
 
