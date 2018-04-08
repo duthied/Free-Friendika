@@ -136,7 +136,8 @@ class Queue
 				logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 				$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
 
-				if (($deliver_status >= 200) && ($deliver_status <= 299)) {
+				if ((($deliver_status >= 200) && ($deliver_status <= 299)) ||
+					($contact['contact-type'] == ACCOUNT_TYPE_RELAY)) {
 					QueueModel::removeItem($q_item['id']);
 				} else {
 					QueueModel::updateTime($q_item['id']);
