@@ -123,29 +123,29 @@ class Diaspora
 	{
 		$batch = $server_url . '/receive/public';
 
-		$fields = ['batch', 'id', 'name', 'network', 'nick',
-			'url', 'archive', 'blocked', 'contact-type'];
-		// Fetch the first unarchived, unblocked account
+		$fields = ['batch', 'id', 'name', 'network', 'archive', 'blocked'];
+
+		// Fetch the relay contact
 		$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
-			'archive' => false, 'blocked' => false];
+			'contact-type' => ACCOUNT_TYPE_RELAY];
 		$contact = dba::selectFirst('contact', $fields, $condition);
 
-		// If there is nothing found, we check if there is already a relay account
+		// If there is nothing found, we check if there is some unmarked relay
+		// This code segment can be removed before the release 2018-05
 		if (!DBM::is_result($contact)) {
 			$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
-				'contact-type' => ACCOUNT_TYPE_RELAY];
+				'name' => 'relay', 'nick' => 'relay', 'url' => $server_url];
 			$contact = dba::selectFirst('contact', $fields, $condition);
+
+			if (DBM::is_result($contact)) {
+				// Mark the relay account as a relay account
+				$fields = ['contact-type' => ACCOUNT_TYPE_RELAY];
+				dba::update('contact', $fields, ['id' => $contact['id']]);
+			}
 		}
 		if (DBM::is_result($contact)) {
 			if ($contact['archive'] || $contact['blocked']) {
 				return false;
-			}
-
-			// Mark relay accounts as a relay, if this hadn't been the case before
-			if (($contact['url'] == $server_url) && ($contact['nick'] == 'relay') &&
-				($contact['name'] == 'relay') && ($contact['contact-type'] != ACCOUNT_TYPE_RELAY)) {
-				$fields = ['contact-type' => ACCOUNT_TYPE_RELAY];
-				dba::update('contact', $fields, ['id' => $contact['id']]);
 			}
 			return $contact;
 		} else {
