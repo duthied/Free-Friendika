@@ -267,7 +267,7 @@ function api_check_method($method)
  * @brief Main API entry point
  *
  * @param object $a App
- * @return string API call result
+ * @return string|array API call result
  */
 function api_call(App $a)
 {
@@ -421,7 +421,7 @@ function api_call(App $a)
  *
  * @param string $type Return type (xml, json, rss, as)
  * @param object $e    HTTPException Error object
- * @return string error message formatted as $type
+ * @return string|array error message formatted as $type
  */
 function api_error($type, $e)
 {
@@ -3818,7 +3818,7 @@ api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, AP
  * @brief delete a direct_message from mail table through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  * @see https://developer.twitter.com/en/docs/direct-messages/sending-and-receiving/api-reference/delete-message
  */
 function api_direct_messages_destroy($type)
@@ -4098,7 +4098,7 @@ api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
  * @brief delete a complete photoalbum with all containing photos from database through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photoalbum_delete($type)
 {
@@ -4153,7 +4153,7 @@ function api_fr_photoalbum_delete($type)
  * @brief update the name of the album for all photos of an album
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photoalbum_update($type)
 {
@@ -4202,7 +4202,7 @@ function api_fr_photoalbum_update($type)
  * @brief list all photos of the authenticated user
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photos_list($type)
 {
@@ -4248,7 +4248,7 @@ function api_fr_photos_list($type)
  * @brief upload a new photo or change an existing photo
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photo_create_update($type)
 {
@@ -4396,7 +4396,7 @@ function api_fr_photo_create_update($type)
  * @brief delete a single photo from the database through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photo_delete($type)
 {
@@ -4479,7 +4479,7 @@ function api_fr_photo_detail($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  *
- * @return string
+ * @return string|array
  * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
  */
 function api_account_update_profile_image($type)
@@ -5912,7 +5912,7 @@ api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activit
  * @brief Returns notifications
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
 */
 function api_friendica_notification($type)
 {
@@ -5946,7 +5946,7 @@ function api_friendica_notification($type)
  * @brief Set notification as seen and returns associated item (if possible)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_friendica_notification_seen($type)
 {
@@ -5995,7 +5995,7 @@ api_register_func('api/friendica/notification', 'api_friendica_notification', tr
  * @brief update a direct_message to seen state
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string (success result=ok, error result=error with error message)
+ * @return string|array (success result=ok, error result=error with error message)
  */
 function api_friendica_direct_messages_setseen($type)
 {
@@ -6053,7 +6053,7 @@ api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @param string $box
- * @return string (success: success=true if found and search_result contains found messages,
+ * @return string|array (success: success=true if found and search_result contains found messages,
  *                          success=false if nothing was found, search_result='nothing found',
  * 		   error: result=error with error message)
  */
@@ -6116,7 +6116,7 @@ api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_
  * @brief return data of all the profiles a user has to the client
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_friendica_profile_show($type)
 {
