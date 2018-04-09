@@ -223,7 +223,7 @@ function api_login(App $a)
 		$record = $addon_auth['user_record'];
 	} else {
 		$user_id = User::authenticate(trim($user), trim($password));
-		if ($user_id) {
+		if ($user_id !== false) {
 			$record = dba::selectFirst('user', [], ['uid' => $user_id]);
 		}
 	}
@@ -387,9 +387,7 @@ function api_call(App $a)
 						break;
 					case "json":
 						header("Content-Type: application/json");
-						foreach ($return as $rr) {
-							$json = json_encode($rr);
-						}
+						$json = json_encode(end($return));
 						if (x($_GET, 'callback')) {
 							$json = $_GET['callback'] . "(" . $json . ")";
 						}
@@ -531,7 +529,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact id with uid = 0
 	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
-		$user = dbesc(api_unique_id_to_nurl($contact_id));
+		$user = dbesc(api_unique_id_to_nurl(intval($contact_id)));
 
 		if ($user == "") {
 			throw new BadRequestException("User not found.");
@@ -577,7 +575,7 @@ function api_get_user(App $a, $contact_id = null)
 		$argid = count($called_api);
 		list($user, $null) = explode(".", $a->argv[$argid]);
 		if (is_numeric($user)) {
-			$user = dbesc(api_unique_id_to_nurl($user));
+			$user = dbesc(api_unique_id_to_nurl(intval($user)));
 
 			if ($user == "") {
 				return false;
@@ -620,7 +618,9 @@ function api_get_user(App $a, $contact_id = null)
 	);
 
 	// Selecting the id by priority, friendica first
-	api_best_nickname($uinfo);
+	if (is_array($uinfo)) {
+		api_best_nickname($uinfo);
+	}
 
 	// if the contact wasn't found, fetch it from the contacts with uid = 0
 	if (!DBM::is_result($uinfo)) {
@@ -992,6 +992,7 @@ function api_format_data($root_element, $type, $data)
 			$ret = api_create_xml($data, $root_element);
 			break;
 		case "json":
+		default:
 			$ret = $data;
 			break;
 	}
@@ -1429,7 +1430,7 @@ function api_status_show($type)
 			$status_info["entities"] = $converted["entities"];
 		}
 
-		if (($lastwall['item_network'] != "") && ($status["source"] == 'web')) {
+		if (($lastwall['item_network'] != "") && ($status_info["source"] == 'web')) {
 			$status_info["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
 		} elseif (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $status_info["source"])) {
 			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['item_network'], $user_info['url']).')');
@@ -1438,15 +1439,15 @@ function api_status_show($type)
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($status_info["user"]["uid"]);
 		unset($status_info["user"]["self"]);
+
+		logger('status_info: '.print_r($status_info, true), LOGGER_DEBUG);
+
+		if ($type == "raw") {
+			return $status_info;
+		}
+
+		return api_format_data("statuses", $type, ['status' => $status_info]);
 	}
-
-	logger('status_info: '.print_r($status_info, true), LOGGER_DEBUG);
-
-	if ($type == "raw") {
-		return $status_info;
-	}
-
-	return api_format_data("statuses", $type, ['status' => $status_info]);
 }
 
 /**
@@ -3980,7 +3981,9 @@ function api_direct_messages_box($type, $box, $verbose)
 			$sender = $user_info;
 		}
 
-		$ret[] = api_format_messages($item, $recipient, $sender);
+		if (isset($recipient) && isset($sender)) {
+			$ret[] = api_format_messages($item, $recipient, $sender);
+		}
 	}
 
 
@@ -4531,6 +4534,8 @@ function api_account_update_profile_image($type)
 		$fileext = "jpg";
 	} elseif ($filetype == "image/png") {
 		$fileext = "png";
+	} else {
+		throw new InternalServerErrorException('Unsupported filetype');
 	}
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
@@ -4811,7 +4816,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		logger("photo upload: new profile image upload ended", LOGGER_DEBUG);
 	}
 
-	if ($r) {
+	if (isset($r) && $r) {
 		// create entry in 'item'-table on new uploads to enable users to comment/like/dislike the photo
 		if ($photo_id == null && $mediatype == "photo") {
 			post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility);
@@ -5349,7 +5354,7 @@ function api_clean_attachments($body)
 {
 	$data = BBCode::getAttachmentData($body);
 
-	if (!$data) {
+	if (empty($data)) {
 		return $body;
 	}
 	$body = "";
@@ -5475,6 +5480,7 @@ function api_friendica_group_show($type)
 	}
 
 	// loop through all groups and retrieve all members for adding data in the user array
+	$grps = [];
 	foreach ($r as $rr) {
 		$members = Contact::getByGroupId($rr['id']);
 		$users = [];
@@ -5673,7 +5679,7 @@ function group_create($name, $uid, $users = [])
 	}
 
 	// return success message incl. missing users in array
-	$status = ($erroraddinguser ? "missing user" : ($reactivate_group ? "reactivated" : "ok"));
+	$status = ($erroraddinguser ? "missing user" : ((isset($reactivate_group) && $reactivate_group) ? "reactivated" : "ok"));
 
 	return ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
 }
@@ -5781,7 +5787,7 @@ function api_friendica_group_update($type)
 		foreach ($users as $user) {
 			$found = ($user['cid'] == $cid ? true : false);
 		}
-		if (!$found) {
+		if (!isset($found) || !$found) {
 			Group::removeMemberByName($uid, $name, $cid);
 		}
 	}
@@ -5858,8 +5864,6 @@ function api_lists_update($type)
 
 		return api_format_data("lists", $type, ['lists' => $list]);
 	}
-
-	return api_format_data("group_update", $type, ['result' => $success]);
 }
 
 api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST);
@@ -6101,7 +6105,9 @@ function api_friendica_direct_messages_search($type, $box = "")
 				$sender = $user_info;
 			}
 
-			$ret[] = api_format_messages($item, $recipient, $sender);
+			if (isset($recipient) && isset($sender)) {
+				$ret[] = api_format_messages($item, $recipient, $sender);
+			}
 		}
 		$success = ['success' => true, 'search_results' => $ret];
 	}
@@ -6153,19 +6159,20 @@ function api_friendica_profile_show($type)
 	}
 	// loop through all returned profiles and retrieve data and users
 	$k = 0;
+	$profiles = [];
 	foreach ($r as $rr) {
 		$profile = api_format_items_profiles($rr);
 
 		// select all users from contact table, loop and prepare standard return for user data
 		$users = [];
-		$r = q(
+		$nurls = q(
 			"SELECT `id`, `nurl` FROM `contact` WHERE `uid`= %d AND `profile-id` = %d",
 			intval(api_user()),
 			intval($rr['profile_id'])
 		);
 
-		foreach ($r as $rr) {
-			$user = api_get_user($a, $rr['nurl']);
+		foreach ($nurls as $nurl) {
+			$user = api_get_user($a, $nurl['nurl']);
 			($type == "xml") ? $users[$k++ . ":user"] = $user : $users[] = $user;
 		}
 		$profile['users'] = $users;
