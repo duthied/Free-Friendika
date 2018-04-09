@@ -1630,6 +1630,13 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  */
 function api_search($type)
 {
+	$a = get_app();
+	$user_info = api_get_user($a);
+
+	if (api_user() === false || $user_info === false) {
+		throw new ForbiddenException();
+	}
+
 	$data = [];
 	$sql_extra = '';
 
@@ -1668,7 +1675,7 @@ function api_search($type)
 		$since_id
 	);
 
-	$data['status'] = api_format_items(dba::inArray($r), api_get_user(get_app()));
+	$data['status'] = api_format_items(dba::inArray($r), $user_info);
 
 	return api_format_data("statuses", $type, $data);
 }
@@ -1690,8 +1697,9 @@ api_register_func('api/search', 'api_search', true);
 function api_statuses_home_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -1701,7 +1709,6 @@ function api_statuses_home_timeline($type)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	// get last network messages
 
 	// params
@@ -1792,12 +1799,12 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
 function api_statuses_public_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
-	$user_info = api_get_user($a);
 	// get last network messages
 
 	// params
@@ -1901,12 +1908,11 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
 function api_statuses_networkpublic_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	$since_id        = x($_REQUEST, 'since_id')        ? $_REQUEST['since_id']        : 0;
 	$max_id          = x($_REQUEST, 'max_id')          ? $_REQUEST['max_id']          : 0;
@@ -1971,12 +1977,11 @@ api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpu
 function api_statuses_show($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	// params
 	$id = intval($a->argv[3]);
@@ -2045,12 +2050,11 @@ api_register_func('api/statuses/show', 'api_statuses_show', true);
 function api_conversation_show($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	// params
 	$id = intval($a->argv[3]);
@@ -2258,8 +2262,9 @@ api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METH
 function api_statuses_mentions($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -2269,9 +2274,7 @@ function api_statuses_mentions($type)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	// get last network messages
-
 
 	// params
 	$since_id = defaults($_REQUEST, 'since_id', 0);
@@ -2350,12 +2353,11 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
 function api_statuses_user_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	logger(
 		"api_statuses_user_timeline: api_user: ". api_user() .
@@ -2520,14 +2522,13 @@ function api_favorites($type)
 	global $called_api;
 
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
 	$called_api = [];
-
-	$user_info = api_get_user($a);
 
 	// in friendica starred item are private
 	// return favorites only for self
@@ -3343,7 +3344,8 @@ function api_lists_statuses($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) {
+	$user_info = api_get_user($a);
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -3353,7 +3355,6 @@ function api_lists_statuses($type)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	if (empty($_REQUEST['list_id'])) {
 		throw new BadRequestException('list_id not specified');
 	}
@@ -3903,8 +3904,9 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 function api_direct_messages_box($type, $box, $verbose)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -3928,7 +3930,6 @@ function api_direct_messages_box($type, $box, $verbose)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	$profile_url = $user_info["url"];
 
 	// pagination
@@ -4886,6 +4887,13 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
  */
 function prepare_photo_data($type, $scale, $photo_id)
 {
+	$a = get_app();
+	$user_info = api_get_user($a);
+
+	if ($user_info === false) {
+		throw new ForbiddenException();
+	}
+
 	$scale_sql = ($scale === false ? "" : sprintf("AND scale=%d", intval($scale)));
 	$data_sql = ($scale === false ? "" : "data, ");
 
@@ -4966,7 +4974,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	);
 
 	// prepare output of comments
-	$commentData = api_format_items($r, api_get_user(get_app()), false, $type);
+	$commentData = api_format_items($r, $user_info, false, $type);
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
@@ -5943,8 +5951,9 @@ function api_friendica_notification($type)
 function api_friendica_notification_seen($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 	if ($a->argc!==4) {
@@ -5969,7 +5978,6 @@ function api_friendica_notification_seen($type)
 		);
 		if ($r!==false) {
 			// we found the item, return it to the user
-			$user_info = api_get_user($a);
 			$ret = api_format_items($r, $user_info, false, $type);
 			$data = ['status' => $ret];
 			return api_format_data("status", $type, $data);
