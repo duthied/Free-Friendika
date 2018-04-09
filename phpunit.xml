@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<phpunit>
+    <testsuites>
+        <testsuite>
+            <directory suffix="_test.php">tests/</directory>
+			<exclude>tests/template_test.php</exclude>
+			<exclude>tests/get_tags_test.php</exclude>
+        </testsuite>
+    </testsuites>
+</phpunit>
