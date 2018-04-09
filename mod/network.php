@@ -837,7 +837,7 @@ function networkThreadedView(App $a, $update, $parent)
 			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?
 				AND NOT `contact`.`hidden` AND NOT `contact`.`blocked`" . $sql_tag_nets,
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG,
-			intval(CONTACT_IS_SHARING),	intval(CONTACT_IS_FRIEND),
+			CONTACT_IS_SHARING, CONTACT_IS_FRIEND,
 			$top_limit, $bottom_limit);
 
 		$data = dba::inArray($items);
