@@ -36,7 +36,7 @@ class Queue
 			// Handling the pubsubhubbub requests
 			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'PubSubPublish');
 
-			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP()"));
+			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
 
 			Addon::callHooks('queue_predeliver', $r);
 

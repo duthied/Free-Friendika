@@ -541,8 +541,8 @@ class Notifier {
 		if ($push_notify) {
 			// Set push flag for PuSH subscribers to this topic,
 			// they will be notified in queue.php
-			q("UPDATE `push_subscriber` SET `push` = 1 ".
-			  "WHERE `nickname` = '%s' AND `push` = 0", dbesc($owner['nickname']));
+			$condition = ['push' => false, 'nickname' => $owner['nickname']];
+			dba::update('push_subscriber', ['push' => true], $condition);
 
 			logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
