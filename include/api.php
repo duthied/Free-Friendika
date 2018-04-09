@@ -981,7 +981,7 @@ function api_create_xml($data, $root_element)
  * @param string $type         Return type (atom, rss, xml, json)
  * @param array  $data         JSON style array
  *
- * @return (string|object|array) XML data or JSON data
+ * @return (string|array) XML data or JSON data
  */
 function api_format_data($root_element, $type, $data)
 {
