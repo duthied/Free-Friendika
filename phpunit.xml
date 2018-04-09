@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
-<phpunit>
+<phpunit bootstrap="boot.php">
     <testsuites>
         <testsuite>
-            <directory suffix="_test.php">tests/</directory>
-			<exclude>tests/template_test.php</exclude>
-			<exclude>tests/get_tags_test.php</exclude>
+            <directory>tests/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
