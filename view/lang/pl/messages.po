@@ -39,7 +39,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-07 18:39+0000\n"
+"PO-Revision-Date: 2018-04-08 16:58+0000\n"
 "Last-Translator: Waldemar Stoczkowski <waldemar.stoczkowski@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -480,7 +480,7 @@ msgstr "zdjęcie"
 #: src/Protocol/Diaspora.php:2006
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
-msgstr "%1$s lubi %2$s's %3$s"
+msgstr "%1$s lubi to %2$s's %3$s"
 
 #: include/conversation.php:167 src/Model/Item.php:1671
 #, php-format
@@ -529,11 +529,11 @@ msgstr "%1$s oznacz %2$s's %3$s jako ulubione"
 
 #: include/conversation.php:605 mod/photos.php:1501 mod/profiles.php:355
 msgid "Likes"
-msgstr "Lubi"
+msgstr "Lubię to"
 
 #: include/conversation.php:605 mod/photos.php:1501 mod/profiles.php:359
 msgid "Dislikes"
-msgstr "Nie lubi"
+msgstr "Nie lubię tego"
 
 #: include/conversation.php:606 include/conversation.php:1687
 #: mod/photos.php:1502
@@ -702,12 +702,12 @@ msgstr "<span  %1$s>%2$dosoby</span> uczestniczą"
 #: include/conversation.php:1246
 #, php-format
 msgid "%s attend."
-msgstr ""
+msgstr "%suczestniczy"
 
 #: include/conversation.php:1249
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't attend"
-msgstr ""
+msgstr "<span  %1$s>%2$dludzie</span> nie uczestniczą"
 
 #: include/conversation.php:1250
 #, php-format
@@ -3006,7 +3006,7 @@ msgstr "Ulubione posty"
 
 #: mod/notes.php:52 src/Model/Profile.php:946
 msgid "Personal Notes"
-msgstr "Osobiste notatki"
+msgstr "Notatki"
 
 #: mod/oexchange.php:30
 msgid "Post successful."
@@ -4346,11 +4346,11 @@ msgstr "(Używany do wyszukiwania profili, niepokazywany innym)"
 
 #: mod/profiles.php:726 src/Model/Profile.php:814
 msgid "Likes:"
-msgstr "Lubi:"
+msgstr "Lubią to:"
 
 #: mod/profiles.php:727 src/Model/Profile.php:818
 msgid "Dislikes:"
-msgstr "Nie lubi:"
+msgstr "Nie lubię tego:"
 
 #: mod/profiles.php:728
 msgid "Musical interests"
@@ -5283,7 +5283,7 @@ msgstr "Domena nowego serwera do dodania do listy bloków. Nie dołączaj protok
 
 #: mod/admin.php:367
 msgid "Block reason"
-msgstr ""
+msgstr "Powód zablokowania"
 
 #: mod/admin.php:368
 msgid "Add Entry"
@@ -6518,7 +6518,7 @@ msgid ""
 "\t\t\tIf you ever want to delete your account, you can do so at %1$s/removeme\n"
 "\n"
 "\t\t\tThank you and welcome to %4$s."
-msgstr ""
+msgstr "\n\t\t\tDane logowania są następuje:\n\t\t\tLokalizacja witryny:\t%1$s\n\t\t\tNazwa użytkownika:%2$s\n\t\t\tHasło:%3$s\n\n\t\t\tPo zalogowaniu możesz zmienić hasło do swojego konta na stronie \"Ustawienia\"\n \t\t\tProszę poświęć chwilę, aby przejrzeć inne ustawienia konta na tej stronie.\n\n\t\t\tMożesz również dodać podstawowe informacje do swojego domyślnego profilu\n\t\t\t(na stronie \"Profil\"), aby inne osoby mogły łatwo Cię znaleźć.\n\n\t\t\tZalecamy ustawienie imienia i nazwiska, dodanie zdjęcia profilowego,\n\t\t\tdodanie niektórych \"słów kluczowych\" profilu (bardzo przydatne w nawiązywaniu nowych znajomości) - i\n\t\t\tbyć może w jakim kraju mieszkasz; jeśli nie chcesz być bardziej szczegółowy.\n\n\t\t\tW pełni szanujemy Twoje prawo do prywatności i żaden z tych elementów nie jest konieczny.\n\t\t\tJeśli jesteś nowy i nie znasz tutaj nikogo, oni mogą ci pomóc\n\t\t\tmożesz zdobyć nowych interesujących przyjaciół\n\n\t\t\tJeśli kiedykolwiek zechcesz usunąć swoje konto, możesz to zrobić w %1$s/Usuń konto\n\n\t\t\tDziękujemy i Zapraszamy do%4$s"
 
 #: mod/admin.php:1611 src/Model/User.php:649
 #, php-format
@@ -7433,7 +7433,7 @@ msgstr "Wygasające posty:"
 
 #: mod/settings.php:1159
 msgid "Expire personal notes:"
-msgstr "Wygasające notatki osobiste:"
+msgstr "Wygasanie osobistych notatek:"
 
 #: mod/settings.php:1160
 msgid "Expire starred posts:"
@@ -7710,7 +7710,7 @@ msgstr "%s polubił wpis %s"
 #: src/Core/NotificationsManager.php:294
 #, php-format
 msgid "%s disliked %s's post"
-msgstr "%s przestał lubić post %s"
+msgstr "%s nie lubi tych %s postów"
 
 #: src/Core/NotificationsManager.php:307
 #, php-format
@@ -7917,11 +7917,11 @@ msgstr "Twoje wydarzenia"
 
 #: src/Content/Nav.php:105
 msgid "Personal notes"
-msgstr "Osobiste notatki"
+msgstr "Notatki"
 
 #: src/Content/Nav.php:105
 msgid "Your personal notes"
-msgstr "Twoje osobiste notatki"
+msgstr "Twoje prywatne notatki"
 
 #: src/Content/Nav.php:114
 msgid "Sign in"
@@ -9160,7 +9160,7 @@ msgid ""
 "\t\t\tIf you ever want to delete your account, you can do so at %3$s/removeme\n"
 "\n"
 "\t\t\tThank you and welcome to %2$s."
-msgstr ""
+msgstr "\n\t\t\tDane logowania są następuje:\n\t\t\tLokalizacja witryny:\t%3$s\n\t\t\tNazwa użytkownika:\t\t%1$s\n\t\t\tHasło:\t\t%5$s\n\n\t\t\tPo zalogowaniu możesz zmienić hasło do swojego konta na stronie \"Ustawienia\"\n \t\t\tProszę poświęć chwilę, aby przejrzeć inne ustawienia konta na tej stronie.\n\n\t\t\tMożesz również dodać podstawowe informacje do swojego domyślnego profilu\n\t\t\t(na stronie \"Profil\"), aby inne osoby mogły łatwo Cię znaleźć.\n\n\t\t\tZalecamy ustawienie imienia i nazwiska, dodanie zdjęcia profilowego,\n\t\t\tdodanie niektórych \"słów kluczowych\" profilu (bardzo przydatne w nawiązywaniu nowych znajomości) - i\n\t\t\tbyć może w jakim kraju mieszkasz; jeśli nie chcesz być bardziej szczegółowy.\n\n\t\t\tW pełni szanujemy Twoje prawo do prywatności i żaden z tych elementów nie jest konieczny.\n\t\t\tJeśli jesteś nowy i nie znasz tutaj nikogo, oni mogą ci pomóc\n\t\t\tmożesz zdobyć nowych interesujących przyjaciół\n\n\t\t\tJeśli kiedykolwiek zechcesz usunąć swoje konto, możesz to zrobić w %3$s/Usuń konto\n\n\t\t\tDziękujemy i Zapraszamy do %2$s."
 
 #: src/Protocol/OStatus.php:1799
 #, php-format
@@ -9251,11 +9251,11 @@ msgstr "dodaj tag"
 
 #: src/Object/Post.php:296
 msgid "like"
-msgstr "polub"
+msgstr "lubię to"
 
 #: src/Object/Post.php:297
 msgid "dislike"
-msgstr "Nie lubię"
+msgstr "nie lubię tego"
 
 #: src/Object/Post.php:300
 msgid "Share this"
