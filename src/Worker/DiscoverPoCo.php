@@ -13,6 +13,7 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use dba;
 
 class DiscoverPoCo {
 	/// @todo Clean up this mess of a parameter hell and split it in several classes
@@ -158,8 +159,8 @@ class DiscoverPoCo {
 
 			$urlparts = parse_url($user["url"]);
 			if (!isset($urlparts["scheme"])) {
-				q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
-					dbesc(NETWORK_PHANTOM), dbesc(normalise_link($user["url"])));
+				dba::update('gcontact', ['network' => NETWORK_PHANTOM],
+					['nurl' => normalise_link($user["url"])]);
 				continue;
 			 }
 
@@ -171,8 +172,8 @@ class DiscoverPoCo {
 						"identi.ca" => NETWORK_PUMPIO,
 						"alpha.app.net" => NETWORK_APPNET];
 
-				q("UPDATE `gcontact` SET `network` = '%s' WHERE `nurl` = '%s'",
-					dbesc($networks[$urlparts["host"]]), dbesc(normalise_link($user["url"])));
+				dba::update('gcontact', ['network' => $networks[$urlparts["host"]]],
+					['nurl' => normalise_link($user["url"])]);
 				continue;
 			}
 
@@ -194,8 +195,8 @@ class DiscoverPoCo {
 					return;
 				}
 			} else {
-				q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `nurl` = '%s'",
-					dbesc(DateTimeFormat::utcNow()), dbesc(normalise_link($user["url"])));
+				dba::update('gcontact', ['last_failure' => DateTimeFormat::utcNow()],
+					['nurl' => normalise_link($user["url"])]);
 			}
 
 			// Quit the loop after 3 minutes
