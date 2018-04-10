@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-08 17:35+0000\n"
+"PO-Revision-Date: 2018-04-09 16:48+0000\n"
 "Last-Translator: Kris\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
@@ -2363,7 +2363,7 @@ msgstr "Aikavyöhyke: %s"
 #: mod/localtime.php:46
 #, php-format
 msgid "Converted localtime: %s"
-msgstr ""
+msgstr "Muunnettu paikallisaika: %s"
 
 #: mod/localtime.php:52
 msgid "Please select your timezone:"
@@ -3690,7 +3690,7 @@ msgstr ""
 
 #: mod/unfollow.php:47
 msgid "Contact unfollowed"
-msgstr ""
+msgstr "Kontaktia ei enää seurata"
 
 #: mod/unfollow.php:73
 msgid "You aren't a friend of this contact."
@@ -3833,7 +3833,7 @@ msgstr "Tapahtuma poistettu"
 
 #: mod/profile_photo.php:55
 msgid "Image uploaded but image cropping failed."
-msgstr ""
+msgstr "Kuva ladattu mutta kuvan rajaus epäonnistui."
 
 #: mod/profile_photo.php:88 mod/profile_photo.php:96 mod/profile_photo.php:104
 #: mod/profile_photo.php:315
@@ -5255,7 +5255,7 @@ msgstr ""
 
 #: mod/admin.php:402
 msgid "Server added to blocklist."
-msgstr ""
+msgstr "Palvelin lisätty estolistalle"
 
 #: mod/admin.php:418
 msgid "Site blocklist updated."
@@ -5274,8 +5274,8 @@ msgstr ""
 #, php-format
 msgid "%s contact unblocked"
 msgid_plural "%s contacts unblocked"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s kontakti poistettu estolistalta"
+msgstr[1] "%s kontaktia poistettu estolistalta"
 
 #: mod/admin.php:479
 msgid "Remote Contact Blocklist"
@@ -5639,7 +5639,7 @@ msgstr ""
 
 #: mod/admin.php:1362
 msgid "Banner/Logo"
-msgstr ""
+msgstr "Banneri/logo"
 
 #: mod/admin.php:1363
 msgid "Shortcut icon"
@@ -6401,7 +6401,7 @@ msgstr ""
 
 #: mod/admin.php:1526
 msgid "No failed updates."
-msgstr ""
+msgstr "Ei epäonnistuineita päivityksiä."
 
 #: mod/admin.php:1527
 msgid "Check database structure"
@@ -6491,12 +6491,12 @@ msgstr "Käyttäjä '%s' poistettu"
 #: mod/admin.php:1682
 #, php-format
 msgid "User '%s' unblocked"
-msgstr ""
+msgstr "Käyttäjä '%s' poistettu estolistalta"
 
 #: mod/admin.php:1682
 #, php-format
 msgid "User '%s' blocked"
-msgstr ""
+msgstr "Käyttäjä '%s' estetty"
 
 #: mod/admin.php:1781 mod/admin.php:1793 mod/admin.php:1806 mod/admin.php:1824
 #: src/Content/ContactSelector.php:82
@@ -6676,7 +6676,7 @@ msgstr "Tyhjennä"
 
 #: mod/admin.php:2297
 msgid "Enable Debugging"
-msgstr ""
+msgstr "Ota virheenkorjaustila käyttöön"
 
 #: mod/admin.php:2298
 msgid "Log file"
@@ -6734,11 +6734,11 @@ msgstr ""
 
 #: mod/admin.php:2437
 msgid "Manage Additional Features"
-msgstr ""
+msgstr "Hallitse lisäominaisuudet"
 
 #: mod/settings.php:72
 msgid "Display"
-msgstr ""
+msgstr "Ulkonäkö"
 
 #: mod/settings.php:79 mod/settings.php:842
 msgid "Social Networks"
@@ -7619,7 +7619,7 @@ msgstr ""
 
 #: src/Core/NotificationsManager.php:171
 msgid "System"
-msgstr ""
+msgstr "Järjestelmä"
 
 #: src/Core/NotificationsManager.php:192 src/Content/Nav.php:124
 #: src/Content/Nav.php:181
@@ -7680,7 +7680,7 @@ msgstr "Ystävä/yhteyspyyntö"
 
 #: src/Core/NotificationsManager.php:851
 msgid "New Follower"
-msgstr ""
+msgstr "Uusi seuraaja"
 
 #: src/Core/ACL.php:295
 msgid "Post to Email"
@@ -7875,7 +7875,7 @@ msgstr "Luo tili"
 
 #: src/Content/Nav.php:134
 msgid "Help and documentation"
-msgstr ""
+msgstr "Ohjeet ja dokmentointi"
 
 #: src/Content/Nav.php:138
 msgid "Apps"
@@ -7912,7 +7912,7 @@ msgstr ""
 
 #: src/Content/Nav.php:174
 msgid "Information about this friendica instance"
-msgstr ""
+msgstr "Lisätietoja tästä Friendica -instanssista"
 
 #: src/Content/Nav.php:178 view/theme/frio/theme.php:266
 msgid "Conversations from your friends"
@@ -8079,7 +8079,7 @@ msgstr ""
 
 #: src/Content/Feature.php:98
 msgid "Group Filter"
-msgstr ""
+msgstr "Ryhmäsuodatin"
 
 #: src/Content/Feature.php:98
 msgid "Enable widget to display Network posts only from selected group"
@@ -8087,7 +8087,7 @@ msgstr ""
 
 #: src/Content/Feature.php:99
 msgid "Network Filter"
-msgstr ""
+msgstr "Verkkosuodatin"
 
 #: src/Content/Feature.php:99
 msgid "Enable widget to display Network posts only from selected network"
@@ -8289,67 +8289,67 @@ msgstr[1] ""
 
 #: src/Content/ContactSelector.php:55
 msgid "Frequently"
-msgstr ""
+msgstr "Usein"
 
 #: src/Content/ContactSelector.php:56
 msgid "Hourly"
-msgstr ""
+msgstr "Tunneittain"
 
 #: src/Content/ContactSelector.php:57
 msgid "Twice daily"
-msgstr ""
+msgstr "Kahdesti päivässä"
 
 #: src/Content/ContactSelector.php:58
 msgid "Daily"
-msgstr ""
+msgstr "Päivittäin"
 
 #: src/Content/ContactSelector.php:59
 msgid "Weekly"
-msgstr ""
+msgstr "Viikottain"
 
 #: src/Content/ContactSelector.php:60
 msgid "Monthly"
-msgstr ""
+msgstr "Kuukausittain"
 
 #: src/Content/ContactSelector.php:80
 msgid "OStatus"
-msgstr ""
+msgstr "OStatus"
 
 #: src/Content/ContactSelector.php:81
 msgid "RSS/Atom"
-msgstr ""
+msgstr "RSS/Atom"
 
 #: src/Content/ContactSelector.php:84
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: src/Content/ContactSelector.php:85
 msgid "Zot!"
-msgstr ""
+msgstr "Zot!"
 
 #: src/Content/ContactSelector.php:86
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #: src/Content/ContactSelector.php:87
 msgid "XMPP/IM"
-msgstr ""
+msgstr "XMPP/IM"
 
 #: src/Content/ContactSelector.php:88
 msgid "MySpace"
-msgstr ""
+msgstr "MySpace"
 
 #: src/Content/ContactSelector.php:89
 msgid "Google+"
-msgstr ""
+msgstr "Google+"
 
 #: src/Content/ContactSelector.php:90
 msgid "pump.io"
-msgstr ""
+msgstr "pump.io"
 
 #: src/Content/ContactSelector.php:91
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: src/Content/ContactSelector.php:92
 msgid "Diaspora Connector"
@@ -8361,19 +8361,19 @@ msgstr ""
 
 #: src/Content/ContactSelector.php:94
 msgid "pnut"
-msgstr ""
+msgstr "pnut"
 
 #: src/Content/ContactSelector.php:95
 msgid "App.net"
-msgstr ""
+msgstr "App.net"
 
 #: src/Content/ContactSelector.php:125
 msgid "Male"
-msgstr ""
+msgstr "Mies"
 
 #: src/Content/ContactSelector.php:125
 msgid "Female"
-msgstr ""
+msgstr "Nainen"
 
 #: src/Content/ContactSelector.php:125
 msgid "Currently Male"
