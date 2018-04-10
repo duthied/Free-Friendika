@@ -577,14 +577,12 @@ function api_get_user(App $a, $contact_id = null)
 		if (is_numeric($user)) {
 			$user = dbesc(api_unique_id_to_nurl(intval($user)));
 
-			if ($user == "") {
-				return false;
-			}
-
-			$url = $user;
-			$extra_query = "AND `contact`.`nurl` = '%s' ";
-			if (api_user() !== false) {
-				$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
+			if ($user != "") {
+				$url = $user;
+				$extra_query = "AND `contact`.`nurl` = '%s' ";
+				if (api_user() !== false) {
+					$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
+				}
 			}
 		} else {
 			$user = dbesc($user);
