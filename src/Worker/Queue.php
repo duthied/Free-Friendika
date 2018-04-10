@@ -86,7 +86,7 @@ class Queue
 					logger("Check server " . $server . " (" . $contact["network"] . ")");
 
 					$vital = PortableContact::checkServer($server, $contact["network"], true);
-					Cache::set($cachekey_server . $server, $vital, CACHE_QUARTER_HOUR);
+					Cache::set($cachekey_server . $server, $vital, CACHE_MINUTE);
 				}
 
 				if (!is_null($vital) && !$vital) {
@@ -118,7 +118,7 @@ class Queue
 					QueueModel::removeItem($q_item['id']);
 				} else {
 					QueueModel::updateTime($q_item['id']);
-					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_MINUTE);
 				}
 				break;
 			case NETWORK_OSTATUS:
@@ -127,7 +127,7 @@ class Queue
 
 				if ($deliver_status == -1) {
 					QueueModel::updateTime($q_item['id']);
-					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_MINUTE);
 				} else {
 					QueueModel::removeItem($q_item['id']);
 				}
@@ -141,7 +141,7 @@ class Queue
 					QueueModel::removeItem($q_item['id']);
 				} else {
 					QueueModel::updateTime($q_item['id']);
-					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_MINUTE);
 				}
 				break;
 

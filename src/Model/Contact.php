@@ -306,7 +306,9 @@ class Contact extends BaseObject
 			 */
 
 			/// @todo Check for contact vitality via probing
-			$expiry = $contact['term-date'] . ' + 32 days ';
+			$archival_days = Config::get('system', 'archival_days', 32);
+
+			$expiry = $contact['term-date'] . ' + ' . $archival_days . ' days ';
 			if (DateTimeFormat::utcNow() > DateTimeFormat::utc($expiry)) {
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
