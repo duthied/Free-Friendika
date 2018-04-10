@@ -3319,7 +3319,7 @@ class Diaspora
 			}
 		}
 
-		logger("transmit: ".$logid."-".$guid." returns: ".$return_code);
+		logger("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
 		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
 			if (!$no_queue && ($contact['contact-type'] != ACCOUNT_TYPE_RELAY)) {
