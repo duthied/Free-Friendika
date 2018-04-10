@@ -32,6 +32,10 @@ class PreloadPConfigAdapter extends BaseObject implements IPConfigAdapter
 			return;
 		}
 
+		if (empty($uid)) {
+			return;
+		}
+
 		$pconfigs = dba::select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		while ($pconfig = dba::fetch($pconfigs)) {
 			self::getApp()->setPConfigValue($uid, $pconfig['cat'], $pconfig['k'], $pconfig['v']);
@@ -43,6 +47,10 @@ class PreloadPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 	public function get($uid, $cat, $k, $default_value = null, $refresh = false)
 	{
+		if (!$this->config_loaded) {
+			$this->load($uid, $cat);
+		}
+
 		if ($refresh) {
 			$config = dba::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
 			if (DBM::is_result($config)) {
@@ -59,6 +67,9 @@ class PreloadPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 	public function set($uid, $cat, $k, $value)
 	{
+		if (!$this->config_loaded) {
+			$this->load($uid, $cat);
+		}
 		// We store our setting values as strings.
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
@@ -83,6 +94,10 @@ class PreloadPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 	public function delete($uid, $cat, $k)
 	{
+		if (!$this->config_loaded) {
+			$this->load($uid, $cat);
+		}
+
 		self::getApp()->deletePConfigValue($uid, $cat, $k);
 
 		$result = dba::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
