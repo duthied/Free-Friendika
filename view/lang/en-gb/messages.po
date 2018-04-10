@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-08 17:48+0000\n"
-"Last-Translator: Kris\n"
+"PO-Revision-Date: 2018-04-09 14:04+0000\n"
+"Last-Translator: Andy H3 <andy@hubup.pro>\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/Friendica/friendica/language/en_GB/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -356,7 +356,7 @@ msgstr "You've received a [url=%1$s]registration request[/url] from %2$s."
 #: include/enotify.php:371
 #, php-format
 msgid "Full Name:\t%1$s\\nSite Location:\t%2$s\\nLogin Name:\t%3$s (%4$s)"
-msgstr ""
+msgstr "Full Name:\t%1$s\\nSite Location:\t%2$s\\nLogin Name:\t%3$s (%4$s)"
 
 #: include/enotify.php:377
 #, php-format
@@ -726,7 +726,7 @@ msgstr "Delete item(s)?"
 
 #: include/conversation.php:1338
 msgid "New Post"
-msgstr ""
+msgstr "New post"
 
 #: include/conversation.php:1341
 msgid "Share"
@@ -1146,7 +1146,7 @@ msgstr "Dec"
 #: include/text.php:1275
 #, php-format
 msgid "Content warning: %s"
-msgstr ""
+msgstr "Content warning: %s"
 
 #: include/text.php:1345 mod/videos.php:380
 msgid "View Video"
@@ -1158,7 +1158,7 @@ msgstr "bytes"
 
 #: include/text.php:1395 include/text.php:1406 include/text.php:1442
 msgid "Click to open/close"
-msgstr "Click to open/close"
+msgstr "Reveal/hide"
 
 #: include/text.php:1559
 msgid "View on separate page"
@@ -2382,7 +2382,7 @@ msgstr "Profile Visibility Editor"
 
 #: mod/profperm.php:115 mod/group.php:265
 msgid "Click on a contact to add or remove."
-msgstr "Click on a contact to add or remove."
+msgstr "Click on a contact to add or remove it."
 
 #: mod/profperm.php:124
 msgid "Visible To"
@@ -2670,11 +2670,11 @@ msgstr "Example: bob@example.com, mary@example.com"
 
 #: mod/feedtest.php:20
 msgid "You must be logged in to use this module"
-msgstr ""
+msgstr "You must be logged in to use this module"
 
 #: mod/feedtest.php:48
 msgid "Source URL"
-msgstr ""
+msgstr "Source URL"
 
 #: mod/fsuggest.php:72
 msgid "Friend suggestion sent."
@@ -3217,7 +3217,7 @@ msgstr "Upload new videos"
 
 #: mod/delegate.php:37
 msgid "Parent user not found."
-msgstr ""
+msgstr "Parent user not found."
 
 #: mod/delegate.php:144
 msgid "No parent user"
@@ -3225,12 +3225,12 @@ msgstr "No parent user"
 
 #: mod/delegate.php:159
 msgid "Parent Password:"
-msgstr ""
+msgstr "Parent password:"
 
 #: mod/delegate.php:159
 msgid ""
 "Please enter the password of the parent account to legitimize your request."
-msgstr ""
+msgstr "Please enter the password of the parent account to authorise this request."
 
 #: mod/delegate.php:164
 msgid "Parent User"
@@ -3542,7 +3542,7 @@ msgstr "Error: iconv PHP module required but not installed."
 
 #: mod/install.php:441
 msgid "Error: POSIX PHP module required but not installed."
-msgstr ""
+msgstr "Error: POSIX PHP module required but not installed."
 
 #: mod/install.php:451
 msgid "Error, XML PHP module required but not installed."
@@ -3916,19 +3916,19 @@ msgstr "No entries (entries may be hidden)."
 
 #: mod/babel.php:22
 msgid "Source input"
-msgstr ""
+msgstr "Source input"
 
 #: mod/babel.php:28
 msgid "BBCode::convert (raw HTML)"
-msgstr ""
+msgstr "BBCode::convert (raw HTML)"
 
 #: mod/babel.php:33
 msgid "BBCode::convert"
-msgstr ""
+msgstr "BBCode::convert"
 
 #: mod/babel.php:39
 msgid "BBCode::convert => HTML::toBBCode"
-msgstr ""
+msgstr "BBCode::convert => HTML::toBBCode"
 
 #: mod/babel.php:45
 msgid "BBCode::toMarkdown"
@@ -3940,15 +3940,15 @@ msgstr "BBCode::toMarkdown => Markdown::convert"
 
 #: mod/babel.php:57
 msgid "BBCode::toMarkdown => Markdown::toBBCode"
-msgstr ""
+msgstr "BBCode::toMarkdown => Markdown::toBBCode"
 
 #: mod/babel.php:63
 msgid "BBCode::toMarkdown =>  Markdown::convert => HTML::toBBCode"
-msgstr ""
+msgstr "BBCode::toMarkdown =>  Markdown::convert => HTML::toBBCode"
 
 #: mod/babel.php:70
 msgid "Source input \\x28Diaspora format\\x29"
-msgstr ""
+msgstr "Source input \\x28Diaspora format\\x29"
 
 #: mod/babel.php:76
 msgid "Markdown::toBBCode"
@@ -3956,11 +3956,11 @@ msgstr "Markdown::toBBCode"
 
 #: mod/babel.php:83
 msgid "Raw HTML input"
-msgstr ""
+msgstr "Raw HTML input"
 
 #: mod/babel.php:88
 msgid "HTML Input"
-msgstr ""
+msgstr "HTML input"
 
 #: mod/babel.php:94
 msgid "HTML::toBBCode"
@@ -3972,7 +3972,7 @@ msgstr "HTML::toPlaintext"
 
 #: mod/babel.php:108
 msgid "Source text"
-msgstr ""
+msgstr "Source text"
 
 #: mod/babel.php:109
 msgid "BBCode"
@@ -4741,7 +4741,7 @@ msgid ""
 "visibly displayed. The listing of an account in the node's user directory or"
 " the global user directory is optional and can be controlled in the user "
 "settings, it is not necessary for communication."
-msgstr ""
+msgstr "At the time of registration, and for providing communications between the user account and their contacts, the user has to provide a display name (pen name), an username (nickname) and a working email address. The names will be accessible on the profile page of the account by any visitor of the page, even if other profile details are not displayed. The email address will only be used to send the user notifications about interactions, but wont be visibly displayed. The listing of an account in the node's user directory or the global user directory is optional and can be controlled in the user settings, it is not necessary for communication."
 
 #: mod/_tos.php:53 src/Module/Tos.php:53
 #, php-format
@@ -4751,7 +4751,7 @@ msgid ""
 "to delete their account they can do so at <a "
 "href=\"%1$s/removeme\">%1$s/removeme</a>. The deletion of the account will "
 "be permanent."
-msgstr ""
+msgstr "At any point in time a logged in user can export their account data from the <a href=\"%1$s/settings/uexport\">account settings</a>. If the user wants to delete their account they can do so at <a href=\"%1$s/removeme\">%1$s/removeme</a>. The deletion of the account will be permanent."
 
 #: mod/friendica.php:77
 msgid "This is Friendica, version"
@@ -4792,7 +4792,7 @@ msgstr "No installed addons/apps"
 #: mod/friendica.php:122
 #, php-format
 msgid "Read about the <a href=\"%1$s/tos\">Terms of Service</a> of this node."
-msgstr ""
+msgstr "Read about the <a href=\"%1$s/tos\">Terms of Service</a> of this node."
 
 #: mod/friendica.php:127
 msgid "On this server the following remote servers are blocked."
@@ -5150,34 +5150,34 @@ msgstr "Administration"
 
 #: mod/admin.php:303
 msgid "Display Terms of Service"
-msgstr ""
+msgstr "Display Terms of Service"
 
 #: mod/admin.php:303
 msgid ""
 "Enable the Terms of Service page. If this is enabled a link to the terms "
 "will be added to the registration form and the general information page."
-msgstr ""
+msgstr "Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page."
 
 #: mod/admin.php:304
 msgid "Display Privacy Statement"
-msgstr ""
+msgstr "Display Privacy Statement"
 
 #: mod/admin.php:304
 #, php-format
 msgid ""
 "Show some informations regarding the needed information to operate the node "
 "according e.g. to <a href=\"%s\" target=\"_blank\">EU-GDPR</a>."
-msgstr ""
+msgstr "Show some informations regarding the needed information to operate the node according e.g. to <a href=\"%s\" target=\"_blank\">EU-GDPR</a>."
 
 #: mod/admin.php:305
 msgid "The Terms of Service"
-msgstr ""
+msgstr "Terms of Service"
 
 #: mod/admin.php:305
 msgid ""
 "Enter the Terms of Service for your node here. You can use BBCode. Headers "
 "of sections should be [h2] and below."
-msgstr ""
+msgstr "Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] or lower."
 
 #: mod/admin.php:353
 msgid "The blocked domain"
@@ -5415,7 +5415,7 @@ msgid ""
 "converting the table engines. You may also use the command <tt>php "
 "bin/console.php dbstructure toinnodb</tt> of your Friendica installation for"
 " an automatic conversion.<br />"
-msgstr ""
+msgstr "Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href=\"%s\">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />"
 
 #: mod/admin.php:792
 #, php-format
@@ -5429,7 +5429,7 @@ msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
-msgstr ""
+msgstr "The database update failed. Please run \"php bin/console.php dbstructure update\" from the command line and check for errors that may appear."
 
 #: mod/admin.php:808
 msgid "The worker was never executed. Please check your database structure!"
@@ -5608,7 +5608,7 @@ msgstr "Worker"
 
 #: mod/admin.php:1355
 msgid "Message Relay"
-msgstr ""
+msgstr "Message relay"
 
 #: mod/admin.php:1356
 msgid ""
@@ -5774,7 +5774,7 @@ msgstr "Registration text"
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
-msgstr ""
+msgstr "Will be displayed prominently on the registration page. You may use BBCode here."
 
 #: mod/admin.php:1380
 msgid "Accounts abandoned after x days"
@@ -6247,7 +6247,7 @@ msgstr "Encryption layer between nodes."
 
 #: mod/admin.php:1435
 msgid "Enabled"
-msgstr ""
+msgstr "Enabled"
 
 #: mod/admin.php:1437
 msgid "Maximum number of parallel workers"
@@ -6296,69 +6296,69 @@ msgstr "Worker process is triggered when backend access is performed \\x28e.g. m
 
 #: mod/admin.php:1442
 msgid "Subscribe to relay"
-msgstr ""
+msgstr "Subscribe to relay"
 
 #: mod/admin.php:1442
 msgid ""
 "Enables the receiving of public posts from the relay. They will be included "
 "in the search, subscribed tags and on the global community page."
-msgstr ""
+msgstr "Receive public posts from the specified relay. Post will be included in searches, subscribed tags and on the global community page."
 
 #: mod/admin.php:1443
 msgid "Relay server"
-msgstr ""
+msgstr "Relay server"
 
 #: mod/admin.php:1443
 msgid ""
 "Address of the relay server where public posts should be send to. For "
 "example https://relay.diasp.org"
-msgstr ""
+msgstr "Address of the relay server where public posts should be send to. For example https://relay.diasp.org"
 
 #: mod/admin.php:1444
 msgid "Direct relay transfer"
-msgstr ""
+msgstr "Direct relay transfer"
 
 #: mod/admin.php:1444
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
-msgstr ""
+msgstr "Enables direct transfer to other servers without using a relay server."
 
 #: mod/admin.php:1445
 msgid "Relay scope"
-msgstr ""
+msgstr "Relay scope"
 
 #: mod/admin.php:1445
 msgid ""
 "Can be 'all' or 'tags'. 'all' means that every public post should be "
 "received. 'tags' means that only posts with selected tags should be "
 "received."
-msgstr ""
+msgstr "Set to 'all' or 'tags'. 'all' means receive every public post; 'tags' receive public posts only with specified tags."
 
 #: mod/admin.php:1445
 msgid "all"
-msgstr ""
+msgstr "all"
 
 #: mod/admin.php:1445
 msgid "tags"
-msgstr ""
+msgstr "tags"
 
 #: mod/admin.php:1446
 msgid "Server tags"
-msgstr ""
+msgstr "Server tags"
 
 #: mod/admin.php:1446
 msgid "Comma separated list of tags for the 'tags' subscription."
-msgstr ""
+msgstr "Comma separated tags for subscription."
 
 #: mod/admin.php:1447
 msgid "Allow user tags"
-msgstr ""
+msgstr "Allow user tags"
 
 #: mod/admin.php:1447
 msgid ""
 "If enabled, the tags from the saved searches will used for the 'tags' "
 "subscription in addition to the 'relay_server_tags'."
-msgstr ""
+msgstr "Use user-generated tags from saved searches for 'tags' subscription in addition to 'relay_server_tags'."
 
 #: mod/admin.php:1475
 msgid "Update has been marked successful"
@@ -6457,7 +6457,7 @@ msgid ""
 "\t\t\tIf you ever want to delete your account, you can do so at %1$s/removeme\n"
 "\n"
 "\t\t\tThank you and welcome to %4$s."
-msgstr ""
+msgstr "\n\t\t\tThe login details are as follows:\n\n\t\t\tSite Location:\t%1$s\n\t\t\tLogin Name:\t\t%2$s\n\t\t\tPassword:\t\t%3$s\n\n\t\t\tYou may change your password from your account \"Settings\" page after logging\n\t\t\tin.\n\n\t\t\tPlease take a few moments to review the other account settings on that page.\n\n\t\t\tYou may also wish to add some basic information to your default profile\n\t\t\t(on the \"Profiles\" page) so that other people can easily find you.\n\n\t\t\tWe recommend setting your full name, adding a profile photo,\n\t\t\tadding some profile \"keywords\" (very useful in making new friends) - and\n\t\t\tperhaps what country you live in; if you do not wish to be more specific\n\t\t\tthan that.\n\n\t\t\tWe fully respect your right to privacy, and none of these items are necessary.\n\t\t\tIf you are new and do not know anybody here, they may help\n\t\t\tyou to make some new and interesting friends.\n\n\t\t\tIf you ever want to delete your account, you can do so at %1$s/removeme\n\n\t\t\tThank you and welcome to %4$s."
 
 #: mod/admin.php:1611 src/Model/User.php:649
 #, php-format
@@ -6783,7 +6783,7 @@ msgstr "Empty passwords are not allowed. Password unchanged."
 msgid ""
 "The new password has been exposed in a public data dump, please choose "
 "another."
-msgstr ""
+msgstr "The new password has been exposed in a public data dump; please choose another."
 
 #: mod/settings.php:400
 msgid "Wrong password."
@@ -6924,7 +6924,7 @@ msgid ""
 " field which collapse their post by default. This disables the automatic "
 "collapsing and sets the content warning as the post title. Doesn't affect "
 "any other content filtering you eventually set up."
-msgstr "Users on networks like Mastodon or Pleroma can set a content warning field which collapses their post by default. This disables the automatic collapsing and sets the content warning as the post title. It doesn't affect any other content filtering you set up later."
+msgstr "Users on networks like Mastodon or Pleroma are able to set a content warning field which collapses their post by default. This disables the automatic collapsing and sets the content warning as the post title. It doesn't affect any other content filtering you may set up."
 
 #: mod/settings.php:849
 msgid "Disable intelligent shortening"
@@ -7059,7 +7059,7 @@ msgstr "Suppress warning of insecure networks"
 msgid ""
 "Should the system suppress the warning that the current group contains "
 "members of networks that can't receive non public postings."
-msgstr "Suppresses warnings if groups contains members whose networks that cannot receive non-public postings."
+msgstr "Suppresses warnings if groups contains members whose networks cannot receive non-public postings."
 
 #: mod/settings.php:968
 msgid "Update browser every xx seconds"
@@ -7430,7 +7430,7 @@ msgstr "Language:"
 msgid ""
 "Set the language we use to show you friendica interface and to send you "
 "emails"
-msgstr "Set the language of your Friendica interface and emails receiving"
+msgstr "Set the language of your Friendica interface and emails sent to you."
 
 #: mod/settings.php:1213
 msgid "Default Post Location:"
@@ -7458,7 +7458,7 @@ msgstr "Default post permissions"
 
 #: mod/settings.php:1221
 msgid "(click to open/close)"
-msgstr "(click to open/close)"
+msgstr "(reveal/hide)"
 
 #: mod/settings.php:1231
 msgid "Default Private Post"
@@ -8364,47 +8364,47 @@ msgstr "App.net"
 
 #: src/Content/ContactSelector.php:125
 msgid "Male"
-msgstr ""
+msgstr "Male"
 
 #: src/Content/ContactSelector.php:125
 msgid "Female"
-msgstr ""
+msgstr "Female"
 
 #: src/Content/ContactSelector.php:125
 msgid "Currently Male"
-msgstr ""
+msgstr "Currently male"
 
 #: src/Content/ContactSelector.php:125
 msgid "Currently Female"
-msgstr ""
+msgstr "Currently female"
 
 #: src/Content/ContactSelector.php:125
 msgid "Mostly Male"
-msgstr ""
+msgstr "Mostly male"
 
 #: src/Content/ContactSelector.php:125
 msgid "Mostly Female"
-msgstr ""
+msgstr "Mostly female"
 
 #: src/Content/ContactSelector.php:125
 msgid "Transgender"
-msgstr ""
+msgstr "Transgender"
 
 #: src/Content/ContactSelector.php:125
 msgid "Intersex"
-msgstr ""
+msgstr "Intersex"
 
 #: src/Content/ContactSelector.php:125
 msgid "Transsexual"
-msgstr ""
+msgstr "Transsexual"
 
 #: src/Content/ContactSelector.php:125
 msgid "Hermaphrodite"
-msgstr ""
+msgstr "Hermaphrodite"
 
 #: src/Content/ContactSelector.php:125
 msgid "Neuter"
-msgstr ""
+msgstr "Neuter"
 
 #: src/Content/ContactSelector.php:125
 msgid "Non-specific"
@@ -9089,7 +9089,7 @@ msgid ""
 "\t\t\tIf you ever want to delete your account, you can do so at %3$s/removeme\n"
 "\n"
 "\t\t\tThank you and welcome to %2$s."
-msgstr ""
+msgstr "\n\t\t\tThe login details are as follows:\n\n\t\t\tSite Location:\t%3$s\n\t\t\tLogin Name:\t\t%1$s\n\t\t\tPassword:\t\t%5$s\n\n\t\t\tYou may change your password from your account \"Settings\" page after logging\n\t\t\tin.\n\n\t\t\tPlease take a few moments to review the other account settings on that page.\n\n\t\t\tYou may also wish to add some basic information to your default profile\n\t\t\t(on the \"Profiles\" page) so that other people can easily find you.\n\n\t\t\tWe recommend setting your full name, adding a profile photo,\n\t\t\tadding some profile \"keywords\" (very useful in making new friends) - and\n\t\t\tperhaps what country you live in; if you do not wish to be more specific\n\t\t\tthan that.\n\n\t\t\tWe fully respect your right to privacy, and none of these items are necessary.\n\t\t\tIf you are new and do not know anybody here, they may help\n\t\t\tyou to make some new and interesting friends.\n\n\t\t\tIf you ever want to delete your account, you can do so at %3$s/removeme\n\n\t\t\tThank you and welcome to %2$s."
 
 #: src/Protocol/OStatus.php:1799
 #, php-format
