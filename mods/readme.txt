@@ -19,3 +19,11 @@ sample-systemd.service
 		issue in Github (https://github.com/friendica/friendica/issues).
 		This is for usage of systemd instead of cron to start the worker.php
 		periodically, the solution is work-in-progress and can surely be improved.
+
+home.css
+home.html
+
+		Example files to customize the landing page of your Friendica node.
+		The home.html file contains the text of the page, the home.css file
+		the style information. The login box will be added according to the
+		other system settings.
