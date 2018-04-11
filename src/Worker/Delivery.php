@@ -399,7 +399,7 @@ class Delivery {
 							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
 						}
 					} else {
-						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'],'UTF-8') .' <noreply@'.$a->get_hostname() .'>'. "\n";
+						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'], 'UTF-8') . ' <noreply@' . $a->get_hostname() . '>' . "\n";
 					}
 
 					//if ($reply_to)
