@@ -49,10 +49,12 @@ class Diaspora
 	 *
 	 * The list contains not only the official relays but also servers that we serve directly
 	 *
-	 * @param integer $item_id   The id of the item that is sent
+	 * @param integer $item_id  The id of the item that is sent
+	 * @param array   $contacts The previously fetched contacts
+	 *
 	 * @return array of relay servers
 	 */
-	public static function relayList($item_id)
+	public static function relayList($item_id, $contacts = [])
 	{
 		$serverlist = [];
 
@@ -99,14 +101,25 @@ class Diaspora
 		}
 
 		// Now we are collecting all relay contacts
-		$contacts = [];
 		foreach ($serverlist as $server_url) {
 			// We don't send messages to ourselves
-			if (!link_compare($server_url, System::baseUrl())) {
-				$cid = self::getRelayContactId($server_url);
-				if (!is_bool($cid)) {
-					$contacts[] = $cid;
+			if (link_compare($server_url, System::baseUrl())) {
+				continue;
+			}
+			$contact = self::getRelayContact($server_url);
+			if (is_bool($contact)) {
+				continue;
+			}
+
+			$exists = false;
+			foreach ($contacts as $entry) {
+				if ($entry['batch'] == $contact['batch']) {
+					$exists = true;
 				}
+			}
+
+			if (!$exists) {
+				$contacts[] = $contact;
 			}
 		}
 
@@ -119,7 +132,7 @@ class Diaspora
 	 * @param string $server_url The url of the server
 	 * @return array with the contact
 	 */
-	private static function getRelayContactId($server_url)
+	private static function getRelayContact($server_url)
 	{
 		$batch = $server_url . '/receive/public';
 
