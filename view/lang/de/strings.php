@@ -32,7 +32,7 @@ $a->strings["%1\$s sent you %2\$s."] = "%1\$s schickte Dir %2\$s.";
 $a->strings["Please visit %s to view and/or reply to your private messages."] = "Bitte besuche %s, um Deine privaten Nachrichten anzusehen und/oder zu beantworten.";
 $a->strings["%1\$s commented on [url=%2\$s]a %3\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]a %3\$s[/url]";
 $a->strings["%1\$s commented on [url=%2\$s]%3\$s's %4\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]%3\$ss %4\$s[/url]";
-$a->strings["%1\$s commented on [url=%2\$s]your %3\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]deine %3\$s[/url]";
+$a->strings["%1\$s commented on [url=%2\$s]your %3\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]deinen %3\$s[/url]";
 $a->strings["[Friendica:Notify] Comment to conversation #%1\$d by %2\$s"] = "[Friendica-Meldung] Kommentar zum Beitrag #%1\$d von %2\$s";
 $a->strings["%s commented on an item/conversation you have been following."] = "%s hat einen Beitrag kommentiert, dem Du folgst.";
 $a->strings["Please visit %s to view and/or reply to the conversation."] = "Bitte besuche %s, um die Konversation anzusehen und/oder zu kommentieren.";
