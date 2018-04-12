@@ -1418,7 +1418,14 @@ class PortableContact
 
 		dba::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
 		if ($data->scope == 'tags') {
+			// Avoid duplicates
+			$tags = [];
 			foreach ($data->tags as $tag) {
+				$tag = strtolower($tag);
+				$tags[$tag] = $tag;
+			}
+
+			foreach ($tags as $tag) {
 				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
 			}
 		}

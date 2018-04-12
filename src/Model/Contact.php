@@ -345,8 +345,13 @@ class Contact extends BaseObject
 		$fields = ['term-date' => NULL_DATE, 'archive' => false];
 		dba::update('contact', $fields, ['id' => $contact['id']]);
 
-		if ($contact['url'] != '') {
+		if (!empty($contact['url'])) {
 			dba::update('contact', $fields, ['nurl' => normalise_link($contact['url'])]);
+		}
+
+		if (!empty($contact['batch'])) {
+			$condition = ['batch' => $contact['batch'], 'contact-type' => ACCOUNT_TYPE_RELAY];
+			dba::update('contact', $fields, $condition);
 		}
 	}
 
