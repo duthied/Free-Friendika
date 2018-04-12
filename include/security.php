@@ -405,12 +405,21 @@ function get_form_security_token($typename = '')
 
 function check_form_security_token($typename = '', $formname = 'form_security_token')
 {
-	if (!x($_REQUEST, $formname)) {
-		return false;
+	$hash = null;
+
+	if (!empty($_REQUEST[$formname])) {
+		/// @TODO Careful, not secured!
+		$hash = $_REQUEST[$formname];
 	}
 
-	/// @TODO Careful, not secured!
-	$hash = $_REQUEST[$formname];
+	if (!empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+		/// @TODO Careful, not secured!
+		$hash = $_SERVER['HTTP_X_CSRF_TOKEN'];
+	}
+
+	if (empty($hash)) {
+		return false;
+	}
 
 	$max_livetime = 10800; // 3 hours
 
