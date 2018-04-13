@@ -53,7 +53,7 @@ The Linux commands to clone the repository into a directory "mywebsite" would be
 Make sure the folder *view/smarty3* exists and is writable by the webserver user
 
     mkdir view/smarty3
-    chmod 777 view/smarty3
+    chmod www-data:www-data view/smarty3
 
 Get the addons by going into your website folder.
 
