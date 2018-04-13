@@ -49,7 +49,7 @@ This is used in many places to identify your account, and once set it cannot be 
 
 ###Directory Publishing
 
-The registration form also allows you to choose whether or not to list your account in the online directory.
+The registration form also allows you to choose whether or not to list your account in the online directory of your node.
 This is like a "phone book" and you may choose to be unlisted.
 We recommend that you select 'Yes' so that other people (friends, family, etc.) will be able to find you.
 If you choose 'No', you will essentially be invisible and have few opportunities for interaction.
@@ -98,6 +98,8 @@ See Also
 ---
 
 * [Profiles](help/Profiles)
+
+* [Global Directory](help/Making-Friends#1_1) 
 
 * [Groups and Privacy](help/Groups-and-Privacy)
 
