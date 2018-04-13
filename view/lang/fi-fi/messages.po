@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-10 18:27+0000\n"
+"PO-Revision-Date: 2018-04-12 15:55+0000\n"
 "Last-Translator: Kris\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
@@ -1298,15 +1298,15 @@ msgstr "Ole hyvä ja paina selaimesi 'Takaisin'-painiketta <strong>nyt</strong>,
 
 #: mod/crepair.php:129 mod/crepair.php:131
 msgid "No mirroring"
-msgstr ""
+msgstr "Ei peilausta"
 
 #: mod/crepair.php:129
 msgid "Mirror as forwarded posting"
-msgstr ""
+msgstr "Peilaa välitettynä julkaisuna"
 
 #: mod/crepair.php:129 mod/crepair.php:131
 msgid "Mirror as my own posting"
-msgstr ""
+msgstr "Peilaa omana julkaisuna"
 
 #: mod/crepair.php:144
 msgid "Return to contact editor"
@@ -1334,7 +1334,7 @@ msgstr ""
 
 #: mod/crepair.php:152
 msgid "Mirror postings from this contact"
-msgstr ""
+msgstr "Peilaa tämän kontaktin julkaisut"
 
 #: mod/crepair.php:154
 msgid ""
@@ -1561,7 +1561,7 @@ msgstr ""
 
 #: mod/newmember.php:40
 msgid "Go to Your Site's Directory"
-msgstr ""
+msgstr "Näytä oman sivuston luettelo"
 
 #: mod/newmember.php:40
 msgid ""
@@ -1615,7 +1615,7 @@ msgstr "Avun saaminen"
 
 #: mod/newmember.php:54
 msgid "Go to the Help Section"
-msgstr ""
+msgstr "Näytä ohjeet"
 
 #: mod/newmember.php:54
 msgid ""
@@ -1956,7 +1956,7 @@ msgstr ""
 
 #: mod/dfrn_confirm.php:396
 msgid "Unable to set contact photo."
-msgstr ""
+msgstr "Kontaktin kuvaa ei voitu asettaa"
 
 #: mod/dfrn_confirm.php:498
 #, php-format
@@ -2387,7 +2387,7 @@ msgstr ""
 
 #: mod/profperm.php:115 mod/group.php:265
 msgid "Click on a contact to add or remove."
-msgstr ""
+msgstr "Valitse kontakti, jota haluat poistaa tai lisätä."
 
 #: mod/profperm.php:124
 msgid "Visible To"
@@ -4861,7 +4861,7 @@ msgstr ""
 
 #: mod/lostpass.php:102
 msgid "Request has expired, please make a new one."
-msgstr ""
+msgstr "Pyyntö on vanhentunut, tehkää uusi pyyntö."
 
 #: mod/lostpass.php:117
 msgid "Forgot your Password?"
@@ -4955,7 +4955,7 @@ msgstr "Rekisteröityminen onnistui."
 
 #: mod/register.php:115
 msgid "Your registration can not be processed."
-msgstr ""
+msgstr "Rekisteröintisi ei voida käsitellä."
 
 #: mod/register.php:162
 msgid "Your registration is pending approval by the site owner."
@@ -5597,7 +5597,7 @@ msgstr "Tiedoston lataus"
 
 #: mod/admin.php:1350
 msgid "Policies"
-msgstr ""
+msgstr "Käytännöt"
 
 #: mod/admin.php:1352
 msgid "Auto Discovered Contact Directory"

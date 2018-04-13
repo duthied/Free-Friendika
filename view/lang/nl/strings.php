@@ -370,7 +370,7 @@ $a->strings["Edit contact"] = "Contact bewerken";
 $a->strings["Contacts who are not members of a group"] = "Contacten die geen leden zijn van een groep";
 $a->strings["Not Extended"] = "";
 $a->strings["Resubscribing to OStatus contacts"] = "";
-$a->strings["Error"] = "";
+$a->strings["Error"] = "Fout";
 $a->strings["Done"] = "Klaar";
 $a->strings["Keep this window open until done."] = "Houd dit scherm open tot het klaar is";
 $a->strings["Do you really want to delete this suggestion?"] = "Wil je echt dit voorstel verwijderen?";
@@ -1289,7 +1289,7 @@ $a->strings["The email address your server shall use to send notification emails
 $a->strings["Banner/Logo"] = "Banner/Logo";
 $a->strings["Shortcut icon"] = "";
 $a->strings["Link to an icon that will be used for browsers."] = "";
-$a->strings["Touch icon"] = "";
+$a->strings["Touch icon"] = "Pictogram voor smartphones";
 $a->strings["Link to an icon that will be used for tablets and mobiles."] = "";
 $a->strings["Additional Info"] = "";
 $a->strings["For public servers: you can add additional information here that will be listed at %s/servers."] = "";

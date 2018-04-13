@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-11 14:34+0000\n"
+"PO-Revision-Date: 2018-04-12 13:16+0000\n"
 "Last-Translator: Karel <karel@dasrakel.eu>\n"
 "Language-Team: Dutch (http://www.transifex.com/Friendica/friendica/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -1649,7 +1649,7 @@ msgstr ""
 
 #: mod/repair_ostatus.php:34
 msgid "Error"
-msgstr ""
+msgstr "Fout"
 
 #: mod/repair_ostatus.php:48 mod/ostatus_subscribe.php:64
 msgid "Done"
@@ -5653,7 +5653,7 @@ msgstr ""
 
 #: mod/admin.php:1364
 msgid "Touch icon"
-msgstr ""
+msgstr "Pictogram voor smartphones"
 
 #: mod/admin.php:1364
 msgid "Link to an icon that will be used for tablets and mobiles."
