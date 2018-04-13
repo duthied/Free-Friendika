@@ -446,7 +446,7 @@ class Network
 		/// @TODO Really suppress function outcomes? Why not find them + debug them?
 		$h = @parse_url($url);
 
-		if ((is_array($h)) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+		if ((is_array($h)) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
 			return $url;
 		}
 
@@ -471,7 +471,7 @@ class Network
 
 		$h = substr($addr, strpos($addr, '@') + 1);
 
-		if (($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_PTR + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+		if (($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
 			return true;
 		}
 		return false;
