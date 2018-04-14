@@ -220,6 +220,11 @@ class Contact extends BaseObject
 
 			// Update the public contact as well
 			dba::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
+
+			// Update the profile
+			$fields = ['photo' => System::baseUrl() . '/photo/profile/' .$uid . '.jpg',
+				'thumb' => System::baseUrl() . '/photo/avatar/' . $uid .'.jpg'];
+			dba::update('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		}
 	}
 
