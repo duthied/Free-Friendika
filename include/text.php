@@ -1234,12 +1234,6 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	$a = get_app();
 	Addon::callHooks('prepare_body_init', $item);
 
-	$searchpath = System::baseUrl() . "/search?tag=";
-
-	$tags = [];
-	$hashtags = [];
-	$mentions = [];
-
 	// In order to provide theme developers more possibilities, event items
 	// are treated differently.
 	if ($item['object-type'] === ACTIVITY_OBJ_EVENT && isset($item['event-id'])) {
@@ -1247,37 +1241,11 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 		return $ev;
 	}
 
-	$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
-			intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
+	$tags = \Friendica\Model\Term::populateTagsFromItem($item);
 
-	while ($tag = dba::fetch($taglist)) {
-		if ($tag["url"] == "") {
-			$tag["url"] = $searchpath . strtolower($tag["term"]);
-		}
-
-		$orig_tag = $tag["url"];
-
-		$tag["url"] = best_link_url($item, $sp, $tag["url"]);
-
-		if ($tag["type"] == TERM_HASHTAG) {
-			if ($orig_tag != $tag["url"]) {
-				$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
-			}
-
-			$hashtags[] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-			$prefix = "#";
-		} elseif ($tag["type"] == TERM_MENTION) {
-			$mentions[] = "@<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-			$prefix = "@";
-		}
-
-		$tags[] = $prefix . "<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-	}
-	dba::close($taglist);
-
-	$item['tags'] = $tags;
-	$item['hashtags'] = $hashtags;
-	$item['mentions'] = $mentions;
+	$item['tags'] = $tags['tags'];
+	$item['hashtags'] = $tags['hashtags'];
+	$item['mentions'] = $tags['mentions'];
 
 	// Compile eventual content filter reasons
 	$filter_reasons = [];
