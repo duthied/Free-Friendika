@@ -1019,6 +1019,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT '',
 	`username` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`password` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`legacy_password` boolean NOT NULL DEFAULT '0' COMMENT 'Is the password hash double-hashed?',
 	`nickname` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`email` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`openid` varchar(255) NOT NULL DEFAULT '' COMMENT '',

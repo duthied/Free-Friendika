@@ -149,9 +149,12 @@ function update_1203() {
 }
 
 function update_1244() {
+	// Sets legacy_password for all legacy hashes
+	dba::update('user', ['legacy_password' => true], ['SUBSTR(password, 1, 4) != "$2y$"']);
+
 	// All legacy hashes are re-hashed using the new secure hashing function
-	$stmt = dba::select('user', ['uid', 'password'], ['password NOT LIKE "$%"']);
-	while ($user = dba::fetch($stmt)) {
+	$stmt = dba::select('user', ['uid', 'password'], ['legacy_password' => true]);
+	while($user = dba::fetch($stmt)) {
 		dba::update('user', ['password' => User::hashPassword($user['password'])], ['uid' => $user['uid']]);
 	}
 
