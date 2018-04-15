@@ -3760,6 +3760,12 @@ class Diaspora
 			$title = $item["title"];
 			$body = $item["body"];
 
+			if ($item['author-link'] != $item['owner-link']) {
+				require_once 'mod/share.php';
+				$body = share_header($item['author-name'], $item['author-link'], $item['author-avatar'],
+					"", $item['created'], $item['plink']) . $body . '[/share]';
+			}
+
 			// convert to markdown
 			$body = html_entity_decode(BBCode::toMarkdown($body));
 
