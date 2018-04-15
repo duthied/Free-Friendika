@@ -7,6 +7,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\User;
 
+require_once 'include/enotify.php';
+
 function removeme_post(App $a)
 {
 	if (!local_user()) {
@@ -27,6 +29,25 @@ function removeme_post(App $a)
 
 	if ($_POST['verify'] !== $_SESSION['remove_account_verify']) {
 		return;
+	}
+
+	// send notification to admins so that they can clean um the backups
+	// send email to admins
+	$admin_mail_list = "'" . implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email'])))) . "'";
+	$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
+		$admin_mail_list
+	);
+	foreach ($adminlist as $admin) {
+		notification([
+			'type'         => SYSTEM_EMAIL,
+			'subject'      => L10n::t('[Friendica System Notify]') . ' ' . L10n::t('User deleted their account'),
+			'preamble'     => L10n::t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
+			'body'         => L10n::t('The user id is %d', local_user()),
+			'to_email'     => $admin['email'],
+			'uid'          => $admin['uid'],
+			'language'     => $admin['language'] ? $admin['language'] : 'en',
+			'show_in_notification_page' => false
+		]);
 	}
 
 	if (User::authenticate($a->user, trim($_POST['qxz_password']))) {

@@ -357,7 +357,7 @@ function notification($params)
 	if ($params['type'] == NOTIFY_SYSTEM) {
 		switch($params['event']) {
 			case "SYSTEM_REGISTER_REQUEST":
-				$subject = L10n::t('[Friendica System:Notify] registration request');
+				$subject = L10n::t('[Friendica System Notify]') . ' ' . L10n::t('registration request');
 
 				$preamble = L10n::t('You\'ve received a registration request from \'%1$s\' at %2$s', $params['source_name'], $sitename);
 				$epreamble = L10n::t('You\'ve received a [url=%1$s]registration request[/url] from %2$s.',
