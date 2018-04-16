@@ -5,6 +5,7 @@
 {{if $displayprivstatement}}
 <h2>{{$privstatementtitle}}</h2>
 <p>{{$privoperate}}</p>
+<p>{{$privdistribute}}</p>
 <p>{{$privdelete}}</p>
 {{/if}}
 
