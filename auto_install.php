@@ -13,7 +13,9 @@ if (file_exists('.htconfig.php') && filesize('.htconfig.php')) {
 }
 
 // Remove die from config file
-copy_config_file();
+$fileContent = file_get_contents('./htconfig.php');
+$fileContent = str_replace('die', '//die', $fileContent);
+file_put_contents('.htautoinstall.php', $fileContent);
 
 require_once 'boot.php';
 require_once 'mod/install.php';
@@ -108,13 +110,6 @@ if (!copy('.htautoinstall.php', '.htconfig.php')) {
 echo " Complete!\n\n";
 
 echo "\nInstallation is finished\n";
-
-function copy_config_file()
-{
-	$fileContent = file_get_contents('./htconfig.php');
-	$fileContent = str_replace('die', '//die', $fileContent);
-	file_put_contents('.htautoinstall.php', $fileContent);
-}
 
 /**
  * @param App $app
