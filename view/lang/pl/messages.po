@@ -39,7 +39,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-10 19:14+0000\n"
+"PO-Revision-Date: 2018-04-15 10:14+0000\n"
 "Last-Translator: Waldemar Stoczkowski <waldemar.stoczkowski@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -229,17 +229,17 @@ msgstr "%1$s[url=%2$s]udostępnił wpis[/url]."
 #: include/enotify.php:228
 #, php-format
 msgid "[Friendica:Notify] %1$s poked you"
-msgstr "[Friendica: Powiadomienie] %1$s poked you"
+msgstr "[Friendica: Powiadomienie] %1$s zaczepia Cię"
 
 #: include/enotify.php:230
 #, php-format
 msgid "%1$s poked you at %2$s"
-msgstr ""
+msgstr "%1$s zaczepił Cię %2$s"
 
 #: include/enotify.php:231
 #, php-format
 msgid "%1$s [url=%2$s]poked you[/url]."
-msgstr ""
+msgstr "%1$s[url=%2$s] zaczepił Cię[/url]."
 
 #: include/enotify.php:247
 #, php-format
@@ -511,7 +511,7 @@ msgstr "%1$s jest teraz znajomym z %2$s"
 #: include/conversation.php:250
 #, php-format
 msgid "%1$s poked %2$s"
-msgstr ""
+msgstr "%1$s zaczepił Cię %2$s"
 
 #: include/conversation.php:304 mod/tagger.php:110
 #, php-format
@@ -520,7 +520,7 @@ msgstr "%1$s zaznaczył %2$s'go %3$s przy użyciu %4$s"
 
 #: include/conversation.php:331
 msgid "post/item"
-msgstr ""
+msgstr "stanowisko/pozycja"
 
 #: include/conversation.php:332
 #, php-format
@@ -1001,7 +1001,7 @@ msgstr "zaczep"
 
 #: include/text.php:1074
 msgid "poked"
-msgstr "zaczepiony"
+msgstr "zaczepił Cię"
 
 #: include/text.php:1075
 msgid "ping"
@@ -1502,7 +1502,7 @@ msgstr "Pierwsze kroki"
 
 #: mod/newmember.php:17
 msgid "Friendica Walk-Through"
-msgstr ""
+msgstr "Friendica Przejdź-Przez"
 
 #: mod/newmember.php:17
 msgid ""
@@ -2384,7 +2384,7 @@ msgstr "Wyślij zgłoszenie"
 
 #: mod/localtime.php:19 src/Model/Event.php:36 src/Model/Event.php:814
 msgid "l F d, Y \\@ g:i A"
-msgstr "l F d, R \\@ g:m AM/PM"
+msgstr ""
 
 #: mod/localtime.php:33
 msgid "Time Conversion"
@@ -6969,7 +6969,7 @@ msgstr "Wbudowane wsparcie dla %s łączność jest %s"
 
 #: mod/settings.php:806
 msgid "GNU Social (OStatus)"
-msgstr ""
+msgstr "GNU Społeczny (OStatus)"
 
 #: mod/settings.php:837
 msgid "Email access is disabled on this site."
@@ -7595,7 +7595,7 @@ msgstr "Jesteś oznaczony tagiem w poście"
 
 #: mod/settings.php:1264
 msgid "You are poked/prodded/etc. in a post"
-msgstr ""
+msgstr "Jesteś zaczepiony/zaczepiona/itp. w poście"
 
 #: mod/settings.php:1266
 msgid "Activate desktop notifications"
@@ -8423,7 +8423,7 @@ msgstr "Łącze Diaspora"
 
 #: src/Content/ContactSelector.php:93
 msgid "GNU Social Connector"
-msgstr ""
+msgstr "GNU Połączenie Społecznościowe"
 
 #: src/Content/ContactSelector.php:94
 msgid "pnut"
@@ -8431,7 +8431,7 @@ msgstr ""
 
 #: src/Content/ContactSelector.php:95
 msgid "App.net"
-msgstr ""
+msgstr "App.net"
 
 #: src/Content/ContactSelector.php:125
 msgid "Male"
@@ -8459,7 +8459,7 @@ msgstr "Głównie kobieta"
 
 #: src/Content/ContactSelector.php:125
 msgid "Transgender"
-msgstr ""
+msgstr "Transseksualny"
 
 #: src/Content/ContactSelector.php:125
 msgid "Intersex"
@@ -8961,12 +8961,12 @@ msgstr "Urodziny %s"
 #: src/Model/Event.php:53 src/Model/Event.php:70 src/Model/Event.php:419
 #: src/Model/Event.php:882
 msgid "Starts:"
-msgstr "Start:"
+msgstr "Rozpoczęcie:"
 
 #: src/Model/Event.php:56 src/Model/Event.php:76 src/Model/Event.php:420
 #: src/Model/Event.php:886
 msgid "Finishes:"
-msgstr "Wykończenia:"
+msgstr "Zakończenie:"
 
 #: src/Model/Event.php:368
 msgid "all-day"
@@ -9380,7 +9380,7 @@ msgstr ""
 
 #: view/theme/duepuntozero/config.php:57
 msgid "easterbunny"
-msgstr ""
+msgstr "Zajączek wielkanocny"
 
 #: view/theme/duepuntozero/config.php:58
 msgid "darkzero"
