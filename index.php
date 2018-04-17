@@ -228,8 +228,36 @@ if (strlen($a->module)) {
 	 */
 
 	// Compatibility with the Android Diaspora client
-	if ($a->module == "stream") {
-		$a->module = "network";
+	if ($a->module == 'stream') {
+		goaway('network?f=&order=post');
+	}
+
+	if ($a->module == 'conversations') {
+		goaway('message');
+	}
+
+	if ($a->module == 'commented') {
+		goaway('network?f=&order=comment');
+	}
+
+	if ($a->module == 'liked') {
+		goaway('network?f=&order=comment');
+	}
+
+	if ($a->module == 'activity') {
+		goaway('network/?f=&conv=1');
+	}
+
+	if (($a->module == 'status_messages') && ($a->cmd == 'status_messages/new')) {
+		goaway('bookmarklet');
+	}
+
+	if (($a->module == 'user') && ($a->cmd == 'user/edit')) {
+		goaway('settings');
+	}
+
+	if (($a->module == 'tag_followings') && ($a->cmd == 'tag_followings/manage')) {
+		goaway('search');
 	}
 
 	// Compatibility with the Firefox App
