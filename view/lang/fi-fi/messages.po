@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-12 15:55+0000\n"
+"PO-Revision-Date: 2018-04-16 19:25+0000\n"
 "Last-Translator: Kris\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
@@ -51,21 +51,21 @@ msgstr "'%s' tietokantapalvelimen DNS-tieto ei löydy"
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Päivittäinen julkaisuraja (%d) on tullut täyteen. Julkaisu hylätty."
+msgstr[1] "Päivittäinen julkaisuraja (%d) on tullut täyteen. Julkaisu hylätty."
 
 #: include/api.php:1223
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
 "Weekly posting limit of %d posts reached. The post was rejected."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Viikottainen julkaisuraja (%d) on tullut täyteen. Julkaisu hylätty."
+msgstr[1] "Viikottainen julkaisuraja (%d) on tullut täyteen. Julkaisu hylätty."
 
 #: include/api.php:1247
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
-msgstr ""
+msgstr "Kuukausittainen julkaisuraja (%d) on tullut täyteen. Julkaisu hylätty."
 
 #: include/api.php:4400 mod/photos.php:88 mod/photos.php:194
 #: mod/photos.php:722 mod/photos.php:1149 mod/photos.php:1166
@@ -277,7 +277,7 @@ msgstr "[Friendica:Notify] Kaveripyyntö vastaanotettu"
 #: include/enotify.php:307
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr ""
+msgstr "Sait kaverikutsun henkilöltä '%1$s' (%2$s)"
 
 #: include/enotify.php:308
 #, php-format
@@ -1665,7 +1665,7 @@ msgstr "Haluatko varmasti poistaa ehdotuksen?"
 msgid ""
 "No suggestions available. If this is a new site, please try again in 24 "
 "hours."
-msgstr ""
+msgstr "Ehdotuksia ei löydy. Jos tämä on uusi sivusto, kokeile uudelleen vuorokauden kuluttua."
 
 #: mod/suggest.php:84 mod/suggest.php:104
 msgid "Ignore/Hide"
@@ -1913,7 +1913,7 @@ msgstr "OpenID -protokollavirhe. Tunnusta ei vastaanotettu."
 #: mod/openid.php:66
 msgid ""
 "Account not found and OpenID registration is not permitted on this site."
-msgstr ""
+msgstr "Käyttäjätiliä ei löytynyt. Rekisteröityminen OpenID:n kautta ei ole sallittua tällä sivustolla."
 
 #: mod/openid.php:116 src/Module/Login.php:86 src/Module/Login.php:134
 msgid "Login failed."
@@ -2294,7 +2294,7 @@ msgstr "Ystävä/yhteyspyyntö"
 msgid ""
 "Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, "
 "testuser@gnusocial.de"
-msgstr ""
+msgstr "Esim. jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de"
 
 #: mod/dfrn_request.php:652 mod/follow.php:149
 msgid "Please answer the following:"
@@ -2418,7 +2418,7 @@ msgstr "Poista tilini"
 msgid ""
 "This will completely remove your account. Once this has been done it is not "
 "recoverable."
-msgstr ""
+msgstr "Tämä poistaa käyttäjätilisi pysyvästi. Poistoa ei voi perua myöhemmin."
 
 #: mod/removeme.php:57
 msgid "Please enter your password for verification:"
@@ -2515,7 +2515,7 @@ msgstr "Ei enää järjestelmäilmoituksia."
 
 #: mod/ping.php:292
 msgid "{0} wants to be your friend"
-msgstr ""
+msgstr "{0} lähetti kaveripyynnön"
 
 #: mod/ping.php:307
 msgid "{0} sent you a message"
@@ -2617,7 +2617,7 @@ msgstr "Kohteet joilla tunnisteet: %s"
 #: mod/search.php:236 mod/contacts.php:819
 #, php-format
 msgid "Results for: %s"
-msgstr ""
+msgstr "Tulokset haulla: %s"
 
 #: mod/bookmarklet.php:23 src/Content/Nav.php:114 src/Module/Login.php:312
 msgid "Login"
@@ -2928,7 +2928,7 @@ msgstr "Henkilökohtainen"
 
 #: mod/network.php:943
 msgid "Posts that mention or involve you"
-msgstr ""
+msgstr "Julkaisut jotka liittyvät sinuun"
 
 #: mod/network.php:951
 msgid "New"
@@ -3373,7 +3373,7 @@ msgstr "Tietokannan käyttäjän salasana"
 
 #: mod/install.php:239
 msgid "For security reasons the password must not be empty"
-msgstr ""
+msgstr "Turvallisuussyistä salasanakenttä ei saa olla tyhjä"
 
 #: mod/install.php:240
 msgid "Database Name"
@@ -3666,7 +3666,7 @@ msgstr "Kontakti puuttuu."
 
 #: mod/ostatus_subscribe.php:40
 msgid "Couldn't fetch information for contact."
-msgstr ""
+msgstr "Kontaktin tietoja ei voitu hakea."
 
 #: mod/ostatus_subscribe.php:50
 msgid "Couldn't fetch friends for contact."
@@ -3985,7 +3985,7 @@ msgstr "BBCode"
 
 #: mod/babel.php:110
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: mod/babel.php:111
 msgid "HTML"
@@ -4568,7 +4568,7 @@ msgstr "Arkistoitu tällä hetkellä"
 
 #: mod/contacts.php:645
 msgid "Awaiting connection acknowledge"
-msgstr ""
+msgstr "Odotetaan yhteyden kuittausta"
 
 #: mod/contacts.php:646
 msgid ""
@@ -4813,7 +4813,7 @@ msgstr ""
 
 #: mod/lostpass.php:39
 msgid "Password reset request issued. Check your email."
-msgstr ""
+msgstr "Salasanan nollauspyyntö lähetetty. Tarkista sähköpostisi."
 
 #: mod/lostpass.php:45
 #, php-format
@@ -4959,7 +4959,7 @@ msgstr "Rekisteröintisi ei voida käsitellä."
 
 #: mod/register.php:162
 msgid "Your registration is pending approval by the site owner."
-msgstr ""
+msgstr "Rekisteröintisi odottaa ylläpitäjän hyväksyntää."
 
 #: mod/register.php:220
 msgid ""
@@ -4979,7 +4979,7 @@ msgstr "OpenID -tunnus (valinnainen):"
 
 #: mod/register.php:234
 msgid "Include your profile in member directory?"
-msgstr ""
+msgstr "Lisää profiilisi jäsenluetteloon?"
 
 #: mod/register.php:259
 msgid "Note for the admin"
@@ -5239,7 +5239,7 @@ msgstr "Lisää merkintä"
 
 #: mod/admin.php:369
 msgid "Save changes to the blocklist"
-msgstr ""
+msgstr "Tallenna muutoksia estolistaan"
 
 #: mod/admin.php:370
 msgid "Current Entries in the Blocklist"
@@ -5353,7 +5353,7 @@ msgstr ""
 
 #: mod/admin.php:564
 msgid "Item marked for deletion."
-msgstr ""
+msgstr "Kohde merkitty poistettavaksi."
 
 #: mod/admin.php:635
 msgid "unknown"
@@ -5457,7 +5457,7 @@ msgstr ""
 
 #: mod/admin.php:818 mod/admin.php:1741
 msgid "Public Forum Account"
-msgstr ""
+msgstr "Julkinen foorumitili"
 
 #: mod/admin.php:819 mod/admin.php:1742
 msgid "Automatic Friend Account"
@@ -5465,11 +5465,11 @@ msgstr ""
 
 #: mod/admin.php:820
 msgid "Blog Account"
-msgstr ""
+msgstr "Blogitili"
 
 #: mod/admin.php:821
 msgid "Private Forum Account"
-msgstr ""
+msgstr "Yksityinen foorumitili"
 
 #: mod/admin.php:843
 msgid "Message queues"
@@ -5481,7 +5481,7 @@ msgstr "Yhteenveto"
 
 #: mod/admin.php:851
 msgid "Registered users"
-msgstr ""
+msgstr "Rekisteröityneet käyttäjät"
 
 #: mod/admin.php:853
 msgid "Pending registrations"
@@ -5505,11 +5505,11 @@ msgstr "Sivuston asetukset päivitettiin."
 
 #: mod/admin.php:1236 mod/settings.php:905
 msgid "No special theme for mobile devices"
-msgstr ""
+msgstr "Ei mobiiliteemaa"
 
 #: mod/admin.php:1265
 msgid "No community page"
-msgstr ""
+msgstr "Ei yhteisösivua"
 
 #: mod/admin.php:1266
 msgid "Public postings from users of this site"
@@ -5557,7 +5557,7 @@ msgstr "Suljettu"
 
 #: mod/admin.php:1311
 msgid "Requires approval"
-msgstr ""
+msgstr "Edellyttää hyväksyntää"
 
 #: mod/admin.php:1312
 msgid "Open"
@@ -5643,7 +5643,7 @@ msgstr "Banneri/logo"
 
 #: mod/admin.php:1363
 msgid "Shortcut icon"
-msgstr ""
+msgstr "Pikakuvake"
 
 #: mod/admin.php:1363
 msgid "Link to an icon that will be used for browsers."
@@ -5688,7 +5688,7 @@ msgstr "Mobiili järjestelmäteema"
 
 #: mod/admin.php:1368
 msgid "Theme for mobile devices"
-msgstr ""
+msgstr "Mobiiliteema"
 
 #: mod/admin.php:1369
 msgid "SSL link policy"
@@ -5998,7 +5998,7 @@ msgstr "Salli Diaspora-tuki"
 
 #: mod/admin.php:1403
 msgid "Provide built-in Diaspora network compatibility."
-msgstr ""
+msgstr "Ota käyttöön Diaspora-yhteensopivuus"
 
 #: mod/admin.php:1404
 msgid "Only allow Friendica contacts"
@@ -6008,7 +6008,7 @@ msgstr "Salli ainoastaan Friendica -kontakteja"
 msgid ""
 "All contacts must use Friendica protocols. All other built-in communication "
 "protocols disabled."
-msgstr ""
+msgstr "Kaikkien kontaktien on käytettävä Friendica-protokollaa. Kaikki muut protokollat poistetaan käytöstä."
 
 #: mod/admin.php:1405
 msgid "Verify SSL"
@@ -6128,7 +6128,7 @@ msgstr ""
 
 #: mod/admin.php:1419
 msgid "Search the local directory"
-msgstr ""
+msgstr "Paikallisluettelohaku"
 
 #: mod/admin.php:1419
 msgid ""
@@ -6139,7 +6139,7 @@ msgstr ""
 
 #: mod/admin.php:1421
 msgid "Publish server information"
-msgstr ""
+msgstr "Julkaise palvelintiedot"
 
 #: mod/admin.php:1421
 msgid ""
@@ -6730,7 +6730,7 @@ msgstr "Päällä"
 #: mod/admin.php:2429
 #, php-format
 msgid "Lock feature %s"
-msgstr ""
+msgstr "Lukitse ominaisuus %s"
 
 #: mod/admin.php:2437
 msgid "Manage Additional Features"
@@ -6778,11 +6778,11 @@ msgstr ""
 
 #: mod/settings.php:384 src/Model/User.php:325
 msgid "Passwords do not match. Password unchanged."
-msgstr ""
+msgstr "Salasanat eivät täsmää. Salasana ennallaan."
 
 #: mod/settings.php:389
 msgid "Empty passwords are not allowed. Password unchanged."
-msgstr ""
+msgstr "Tyhjä salasanakenttä ei ole sallittu. Salasana ennallaan."
 
 #: mod/settings.php:394 src/Core/Console/NewPassword.php:78
 msgid ""
@@ -6852,11 +6852,11 @@ msgstr "Uudelleenohjaus"
 
 #: mod/settings.php:681 mod/settings.php:707
 msgid "Icon url"
-msgstr ""
+msgstr "Kuvakkeen URL-osoite"
 
 #: mod/settings.php:692
 msgid "You can't edit this application."
-msgstr ""
+msgstr "Et voi muokata tätä sovellusta."
 
 #: mod/settings.php:735
 msgid "Connected Apps"
@@ -6996,7 +6996,7 @@ msgstr "IMAP-porttti:"
 
 #: mod/settings.php:865
 msgid "Security:"
-msgstr ""
+msgstr "Turvallisuus:"
 
 #: mod/settings.php:865 mod/settings.php:870
 msgid "None"
@@ -7208,7 +7208,7 @@ msgstr ""
 
 #: mod/settings.php:1069
 msgid "Normal Account Page"
-msgstr ""
+msgstr "Tavallinen käyttäjätili"
 
 #: mod/settings.php:1070
 msgid ""
@@ -7555,7 +7555,7 @@ msgstr ""
 
 #: mod/settings.php:1272
 msgid "Show detailled notifications"
-msgstr ""
+msgstr "Näytä yksityiskohtaiset ilmoitukset"
 
 #: mod/settings.php:1274
 msgid ""
@@ -7615,7 +7615,7 @@ msgstr[1] ""
 
 #: src/Core/UserImport.php:278
 msgid "Done. You can now login with your username and password"
-msgstr ""
+msgstr "Suoritettu. Voit nyt kirjautua sisään käyttäjätunnuksellasi."
 
 #: src/Core/NotificationsManager.php:171
 msgid "System"
@@ -7688,7 +7688,7 @@ msgstr "Viesti sähköpostiin"
 
 #: src/Core/ACL.php:301
 msgid "Hide your profile details from unknown viewers?"
-msgstr ""
+msgstr "Piilota profiilitietosi tuntemattomilta?"
 
 #: src/Core/ACL.php:300
 #, php-format
@@ -8179,7 +8179,7 @@ msgstr ""
 
 #: src/Content/Feature.php:120
 msgid "Star Posts"
-msgstr ""
+msgstr "Tähtimerkityt julkaisut"
 
 #: src/Content/Feature.php:120
 msgid "Ability to mark special posts with a star indicator"
@@ -8238,19 +8238,19 @@ msgstr[1] ""
 
 #: src/Content/Widget.php:59
 msgid "Find People"
-msgstr ""
+msgstr "Löydä ihmisiä"
 
 #: src/Content/Widget.php:60
 msgid "Enter name or interest"
-msgstr ""
+msgstr "Syötä nimi tai harrastus"
 
 #: src/Content/Widget.php:62
 msgid "Examples: Robert Morgenstein, Fishing"
-msgstr ""
+msgstr "Esim. Matti Meikäläinen, kalastus yms."
 
 #: src/Content/Widget.php:65 view/theme/vier/theme.php:202
 msgid "Similar Interests"
-msgstr ""
+msgstr "Yhteiset harrastukset"
 
 #: src/Content/Widget.php:66
 msgid "Random Profile"
@@ -8262,7 +8262,7 @@ msgstr "Kutsu kavereita"
 
 #: src/Content/Widget.php:68
 msgid "View Global Directory"
-msgstr ""
+msgstr "Katso maailmanlaajuista luetteloa"
 
 #: src/Content/Widget.php:159
 msgid "Networks"
@@ -8377,11 +8377,11 @@ msgstr "Nainen"
 
 #: src/Content/ContactSelector.php:125
 msgid "Currently Male"
-msgstr ""
+msgstr "Tällä hetkellä mies"
 
 #: src/Content/ContactSelector.php:125
 msgid "Currently Female"
-msgstr ""
+msgstr "Tällä hetkellä nainen"
 
 #: src/Content/ContactSelector.php:125
 msgid "Mostly Male"
@@ -8393,23 +8393,23 @@ msgstr ""
 
 #: src/Content/ContactSelector.php:125
 msgid "Transgender"
-msgstr ""
+msgstr "Transsukupuolinen"
 
 #: src/Content/ContactSelector.php:125
 msgid "Intersex"
-msgstr ""
+msgstr "Intersukupuolinen"
 
 #: src/Content/ContactSelector.php:125
 msgid "Transsexual"
-msgstr ""
+msgstr "Transsukupuolinen"
 
 #: src/Content/ContactSelector.php:125
 msgid "Hermaphrodite"
-msgstr ""
+msgstr "Hermafrodiitti"
 
 #: src/Content/ContactSelector.php:125
 msgid "Neuter"
-msgstr ""
+msgstr "Neutri"
 
 #: src/Content/ContactSelector.php:125
 msgid "Non-specific"
@@ -8469,7 +8469,7 @@ msgstr ""
 
 #: src/Content/ContactSelector.php:147
 msgid "Nonsexual"
-msgstr ""
+msgstr "Aseksuaali"
 
 #: src/Content/ContactSelector.php:169
 msgid "Single"
@@ -8537,7 +8537,7 @@ msgstr "Kumppanit"
 
 #: src/Content/ContactSelector.php:169
 msgid "Cohabiting"
-msgstr ""
+msgstr "Avoliitossa"
 
 #: src/Content/ContactSelector.php:169
 msgid "Common law"
@@ -8585,7 +8585,7 @@ msgstr "Epävarma"
 
 #: src/Content/ContactSelector.php:169
 msgid "It's complicated"
-msgstr ""
+msgstr "Se on monimutkaista"
 
 #: src/Content/ContactSelector.php:169
 msgid "Don't care"
@@ -8614,7 +8614,7 @@ msgstr ""
 msgid ""
 "The error message is\n"
 "[pre]%s[/pre]"
-msgstr ""
+msgstr "Virheviesti on\n[pre]%s[/pre]"
 
 #: src/Database/DBStructure.php:191
 #, php-format
@@ -8622,7 +8622,7 @@ msgid ""
 "\n"
 "Error %d occurred during database update:\n"
 "%s\n"
-msgstr ""
+msgstr "\n%d virhe tapahtui tietokannan päivityksen aikana:\n%s\n"
 
 #: src/Database/DBStructure.php:194
 msgid "Errors encountered performing database changes: "
@@ -8643,7 +8643,7 @@ msgstr "[ei aihetta]"
 
 #: src/Model/Profile.php:97
 msgid "Requested account is not available."
-msgstr ""
+msgstr "Pyydetty käyttäjätili ei ole saatavilla."
 
 #: src/Model/Profile.php:168 src/Model/Profile.php:399
 #: src/Model/Profile.php:859
@@ -8757,7 +8757,7 @@ msgstr "Foorumit:"
 
 #: src/Model/Profile.php:949
 msgid "Only You Can See This"
-msgstr ""
+msgstr "Vain sinä näet tämän"
 
 #: src/Model/Item.php:1676
 #, php-format
@@ -8799,7 +8799,7 @@ msgstr "Muokkaa ryhmää"
 
 #: src/Model/Group.php:406
 msgid "Contacts not in any group"
-msgstr ""
+msgstr "Kontaktit ilman ryhmää"
 
 #: src/Model/Group.php:407
 msgid "Create a new group"
@@ -8811,7 +8811,7 @@ msgstr "Muokkaa ryhmiä"
 
 #: src/Model/Contact.php:645
 msgid "Drop Contact"
-msgstr ""
+msgstr "Poista kontakti"
 
 #: src/Model/Contact.php:1048
 msgid "Organisation"
@@ -8827,7 +8827,7 @@ msgstr "Keskustelupalsta"
 
 #: src/Model/Contact.php:1233
 msgid "Connect URL missing."
-msgstr ""
+msgstr "Yhteys URL-linkki puuttuu."
 
 #: src/Model/Contact.php:1242
 msgid ""
@@ -8916,7 +8916,7 @@ msgstr "Syy."
 
 #: src/Model/Event.php:417
 msgid "No events to display"
-msgstr ""
+msgstr "Ei näytettäviä tapahtumia."
 
 #: src/Model/Event.php:543
 msgid "l, F j"
@@ -9018,7 +9018,7 @@ msgstr ""
 
 #: src/Model/User.php:431
 msgid "SERIOUS ERROR: Generation of security keys failed."
-msgstr ""
+msgstr "VAKAVA VIRHE: Salausavainten luominen epäonnistui."
 
 #: src/Model/User.php:464 src/Model/User.php:468
 msgid "An error occurred during registration. Please try again."
@@ -9117,7 +9117,7 @@ msgstr "ei enää seuraa"
 #: src/Protocol/DFRN.php:1477
 #, php-format
 msgid "%s\\'s birthday"
-msgstr ""
+msgstr "%s\\ käyttäjän syntymäpäivä"
 
 #: src/Protocol/Diaspora.php:2651
 msgid "Sharing notification from Diaspora network"
@@ -9440,11 +9440,11 @@ msgstr "Värimalli"
 
 #: view/theme/quattro/config.php:78
 msgid "Posts font size"
-msgstr ""
+msgstr "Julkaisujen fonttikoko"
 
 #: view/theme/quattro/config.php:79
 msgid "Textareas font size"
-msgstr ""
+msgstr "Tekstikenttien fonttikoko"
 
 #: view/theme/vier/config.php:75
 msgid "Comma separated list of helper forums"
@@ -9472,11 +9472,11 @@ msgstr "Yhdistä palvelut"
 
 #: view/theme/vier/config.php:127 view/theme/vier/theme.php:199
 msgid "Find Friends"
-msgstr ""
+msgstr "Etsi kavereita"
 
 #: view/theme/vier/config.php:128 view/theme/vier/theme.php:181
 msgid "Last users"
-msgstr ""
+msgstr "Viimeisimmät käyttäjät"
 
 #: view/theme/vier/theme.php:200
 msgid "Local Directory"
@@ -9493,4 +9493,4 @@ msgstr "Mobiilisivusto päälle/pois"
 #: boot.php:791
 #, php-format
 msgid "Update %s failed. See error logs."
-msgstr ""
+msgstr "%s päivitys epäonnistui, katso virhelokit."
