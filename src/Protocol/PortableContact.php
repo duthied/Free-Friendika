@@ -1421,7 +1421,7 @@ class PortableContact
 			// Avoid duplicates
 			$tags = [];
 			foreach ($data->tags as $tag) {
-				$tag = strtolower($tag);
+				$tag = mb_strtolower($tag);
 				$tags[$tag] = $tag;
 			}
 
