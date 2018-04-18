@@ -12,6 +12,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
+use dba;
 
 require_once 'include/items.php';
 
@@ -76,9 +77,8 @@ class PubSubPublish {
 			logger('successfully pushed to '.$rr['callback_url']);
 
 			// set last_update to the "created" date of the last item, and reset push=0
-			q("UPDATE `push_subscriber` SET `push` = 0, last_update = '%s' WHERE id = %d",
-				dbesc($last_update),
-				intval($rr['id']));
+			$fields = ['push' => 0, 'last_update' => $last_update];
+			dba::update('push_subscriber', $fields, ['id' => $rr['id']]);
 
 		} else {
 			logger('error when pushing to '.$rr['callback_url'].' HTTP: '.$ret);
@@ -90,9 +90,7 @@ class PubSubPublish {
 			if ($new_push > 30) // OK, let's give up
 				$new_push = 0;
 
-			q("UPDATE `push_subscriber` SET `push` = %d WHERE id = %d",
-				$new_push,
-				intval($rr['id']));
+			dba::update('push_subscriber', ['push' => $new_push], ['id' => $rr['id']]);
 		}
 	}
 }

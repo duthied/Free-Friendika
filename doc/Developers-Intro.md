@@ -16,7 +16,6 @@ Whether you feel like an expert or like a newbie - join us with your ideas!
 The discussion of Friendica development takes place in the following Friendica forums:
 
 * The main [forum for Friendica development](https://forum.friendi.ca/profile/developers)
-* The [forum for Friendica theme development](https://friendica.eu/profile/ftdevs)
 
 ## Help other users
 
@@ -61,7 +60,7 @@ If you want to have git automatically update the dependencies with composer, you
     }
     # `composer install` if the `composer.lock` file gets changed
     # to update all the php dependencies
-    check_run composer.lock "util/composer.phar install --no-dev"
+    check_run composer.lock "bin/composer.phar install --no-dev"
 
 just place it into `.git/hooks/post-merge` and make it executable.
 
@@ -141,7 +140,7 @@ If you want to get involved here:
 * Look at the first steps that were made (e.g. the clean theme).
 	Ask us to find out whom to talk to about their experiences.
 * Talk to design people if you know any.
-* Let us know about your plans [in the dev forum](https://forum.friendi.ca/profile/developers) or the [theme developer forum](https://friendica.eu/profile/ftdevs).
+* Let us know about your plans [in the dev forum](https://forum.friendi.ca/profile/developers)
 	Do not worry about cross-posting.
 
 ### Client software

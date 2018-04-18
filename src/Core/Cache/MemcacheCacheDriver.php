@@ -61,7 +61,7 @@ class MemcacheCacheDriver extends BaseObject implements ICacheDriver
 			self::getApp()->get_hostname() . ":" . $key,
 			serialize($value),
 			MEMCACHE_COMPRESSED,
-			Cache::duration($duration)
+			time() + $duration
 		);
 	}
 

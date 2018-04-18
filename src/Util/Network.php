@@ -79,6 +79,18 @@ class Network
 
 		$a = get_app();
 
+		$parts = parse_url($url);
+		$path_parts = explode('/', $parts['path']);
+		foreach ($path_parts as $part) {
+		        if (strlen($part) <> mb_strlen($part)) {
+				$parts2[] = rawurlencode($part);
+		        } else {
+		                $parts2[] = $part;
+		        }
+		}
+		$parts['path'] =  implode('/', $parts2);
+		$url = self::unparseURL($parts);
+
 		if (self::isUrlBlocked($url)) {
 			logger('domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return $ret;
@@ -217,7 +229,7 @@ class Network
 
 			$newurl = $curl_info['redirect_url'];
 
-			if (($new_location_info['path'] == '') && ( $new_location_info['host'] != '')) {
+			if (($new_location_info['path'] == '') && ($new_location_info['host'] != '')) {
 				$newurl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
 			}
 
@@ -228,6 +240,11 @@ class Network
 			}
 			if (strpos($newurl, '/') === 0) {
 				$newurl = $old_location_info["scheme"]."://".$old_location_info["host"].$newurl;
+			}
+			$old_location_query = @parse_url($url, PHP_URL_QUERY);
+
+			if ($old_location_query != '') {
+				$newurl .= '?' . $old_location_query;
 			}
 
 			if (filter_var($newurl, FILTER_VALIDATE_URL)) {
@@ -429,7 +446,7 @@ class Network
 		/// @TODO Really suppress function outcomes? Why not find them + debug them?
 		$h = @parse_url($url);
 
-		if ((is_array($h)) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+		if ((is_array($h)) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
 			return $url;
 		}
 
@@ -454,7 +471,7 @@ class Network
 
 		$h = substr($addr, strpos($addr, '@') + 1);
 
-		if (($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_PTR + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+		if (($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
 			return true;
 		}
 		return false;

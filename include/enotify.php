@@ -12,16 +12,14 @@ use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 
-require_once 'include/html2bbcode.php';
-
 /**
  * @brief Creates a notification entry and possibly sends a mail
  *
  * @param array $params Array with the elements:
-			uid, item, parent, type, otype, verb, event,
-			link, subject, body, to_name, to_email, source_name,
-			source_link, activity, preamble, notify_flags,
-			language, show_in_notification_page
+ *			uid, item, parent, type, otype, verb, event,
+ *			link, subject, body, to_name, to_email, source_name,
+ *			source_link, activity, preamble, notify_flags,
+ *			language, show_in_notification_page
  */
 function notification($params)
 {
@@ -47,10 +45,7 @@ function notification($params)
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}
 
-	$sender_email = $a->config['sender_email'];
-	if (empty($sender_email)) {
-		$sender_email = L10n::t('noreply').'@'.$hostname;
-	}
+	$sender_email = $a->getSenderEmailAddress();
 
 	if ($params['type'] != SYSTEM_EMAIL) {
 		$user = dba::selectFirst('user', ['nickname', 'page-flags'],
@@ -362,7 +357,7 @@ function notification($params)
 	if ($params['type'] == NOTIFY_SYSTEM) {
 		switch($params['event']) {
 			case "SYSTEM_REGISTER_REQUEST":
-				$subject = L10n::t('[Friendica System:Notify] registration request');
+				$subject = L10n::t('[Friendica System Notify]') . ' ' . L10n::t('registration request');
 
 				$preamble = L10n::t('You\'ve received a registration request from \'%1$s\' at %2$s', $params['source_name'], $sitename);
 				$epreamble = L10n::t('You\'ve received a [url=%1$s]registration request[/url] from %2$s.',
@@ -370,7 +365,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 				);
 
-				$body = L10n::t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s ' . "\x28" . '%4$s' . "\x28",
+				$body = L10n::t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s ' . "\x28" . '%4$s' . "\x29",
 					$params['source_name'],
 					$siteurl, $params['source_mail'],
 					$params['source_nick']

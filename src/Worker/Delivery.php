@@ -17,7 +17,6 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use dba;
 
-require_once 'include/html2plain.php';
 require_once 'include/items.php';
 
 /// @todo This is some ugly code that needs to be split into several methods
@@ -209,7 +208,7 @@ class Delivery {
 					$atom = DFRN::mail($item, $owner);
 				} elseif ($fsuggest) {
 					$atom = DFRN::fsuggest($item, $owner);
-					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id']));
+					dba::delete('fsuggest', ['id' => $item['id']]);
 				} elseif ($relocate) {
 					$atom = DFRN::relocate($owner, $uid);
 				} elseif ($followup) {
@@ -291,9 +290,7 @@ class Delivery {
 					if ($x && count($x)) {
 						$write_flag = ((($x[0]['rel']) && ($x[0]['rel'] != CONTACT_IS_SHARING)) ? true : false);
 						if ((($owner['page-flags'] == PAGE_COMMUNITY) || $write_flag) && !$x[0]['writable']) {
-							q("UPDATE `contact` SET `writable` = 1 WHERE `id` = %d",
-								intval($x[0]['id'])
-							);
+							dba::update('contact', ['writable' => true], ['id' => $x[0]['id']]);
 							$x[0]['writable'] = 1;
 						}
 
@@ -314,7 +311,7 @@ class Delivery {
 				if (!Queue::wasDelayed($contact['id'])) {
 					$deliver_status = DFRN::deliver($owner, $contact, $atom);
 				} else {
-					$deliver_status = (-1);
+					$deliver_status = -1;
 				}
 
 				logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
@@ -322,12 +319,14 @@ class Delivery {
 				if ($deliver_status < 0) {
 					logger('notifier: delivery failed: queuing message');
 					Queue::add($contact['id'], NETWORK_DFRN, $atom, false, $target_item['guid']);
+				}
 
-					// The message could not be delivered. We mark the contact as "dead"
-					Contact::markForArchival($contact);
-				} else {
+				if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 					// We successfully delivered a message, the contact is alive
 					Contact::unmarkForArchival($contact);
+				} else {
+					// The message could not be delivered. We mark the contact as "dead"
+					Contact::markForArchival($contact);
 				}
 
 				break;
@@ -400,7 +399,7 @@ class Delivery {
 							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
 						}
 					} else {
-						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'],'UTF-8') .' <'. L10n::t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
+						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'], 'UTF-8') . ' <noreply@' . $a->get_hostname() . '>' . "\n";
 					}
 
 					//if ($reply_to)

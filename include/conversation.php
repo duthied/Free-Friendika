@@ -443,7 +443,7 @@ These Fields are not added below (yet). They are here to for bug search.
 	return "`item`.`author-id`, `item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
 		`item`.`owner-id`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
 		`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
-		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`,
+		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`content-warning`,
 		`item`.`commented`, `item`.`created`, `item`.`edited`, `item`.`received`,
 		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
 		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,
@@ -756,7 +756,13 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				list($categories, $folders) = get_cats_and_terms($item);
 
 				$profile_name_e = $profile_name;
-				$item['title_e'] = $item['title'];
+
+				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
+					$title_e = ucfirst($item['content-warning']);
+				} else {
+					$title_e = $item['title'];
+				}
+
 				$body_e = $body;
 				$tags_e = $tags;
 				$hashtags_e = $hashtags;
@@ -781,7 +787,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					'sparkle' => $sparkle,
 					'lock' => $lock,
 					'thumb' => System::removedBaseUrl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
-					'title' => $item['title_e'],
+					'title' => $title_e,
 					'body' => $body_e,
 					'tags' => $tags_e,
 					'hashtags' => $hashtags_e,
@@ -1245,7 +1251,7 @@ function format_like($cnt, array $arr, $type, $id) {
 				break;
 			case 'attendmaybe':
 				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
-				$explikers = L10n::t('%s anttend maybe.', $likers);
+				$explikers = L10n::t('%s attend maybe.', $likers);
 				break;
 		}
 
@@ -1329,6 +1335,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$tpl = get_markup_template("jot.tpl");
 
 	$o .= replace_macros($tpl,[
+		'$new_post' => L10n::t('New Post'),
 		'$return_path'  => $query_str,
 		'$action'       => 'item',
 		'$share'        => defaults($x, 'button', L10n::t('Share')),
@@ -1643,7 +1650,7 @@ function get_responses($conv_responses, $response_verbs, $ob, $item) {
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
 		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], '');
-		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', '');
+		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', []);
 		$ret[$v]['self']  = defaults($conv_responses[$v], $item['uri'] . '-self', '0');
 		if (count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);

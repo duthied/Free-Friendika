@@ -1087,6 +1087,9 @@ color: rgba(255,255,255,.85);
 aside .vcard #profile-photo-wrapper:hover .tool .action {
     opacity: 1;
 }
+aside .vcard #profile-photo-wrapper.crop-preview {
+    padding: 0;
+}
 aside .vcard .profile-header {
     margin-bottom: 20px;
 }
@@ -2285,6 +2288,10 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .group-actions a {
     font-size: 18px;
 }
+
+.contact-group-actions .fa-times-circle { color: #D00000;}
+.contact-group-actions .fa-plus-circle { color: #008000;}
+
 #group-edit-wrapper {
     display: none;
 }

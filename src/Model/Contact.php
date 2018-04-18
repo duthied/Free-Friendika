@@ -22,6 +22,7 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Object\Image;
 use dba;
 
 require_once 'boot.php';
@@ -139,6 +140,95 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Updates the self-contact for the provided user id
+	 *
+	 * @param int $uid
+	 * @param boolean $update_avatar Force the avatar update
+	 */
+	public static function updateSelfFromUserID($uid, $update_avatar = false)
+	{
+		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'nurl'];
+		$self = dba::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
+		if (!DBM::is_result($self)) {
+			return;
+		}
+
+		$fields = ['nickname', 'page-flags', 'account-type'];
+		$user = dba::selectFirst('user', $fields, ['uid' => $uid]);
+		if (!DBM::is_result($user)) {
+			return;
+		}
+
+		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
+			'country-name', 'gender', 'pub_keywords', 'xmpp'];
+		$profile = dba::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
+		if (!DBM::is_result($profile)) {
+			return;
+		}
+
+		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
+			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
+			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
+			'gender' => $profile['gender'], 'avatar' => $profile['photo'],
+			'contact-type' => $user['account-type'], 'xmpp' => $profile['xmpp']];
+
+		$avatar = dba::selectFirst('photo', ['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
+		if (DBM::is_result($avatar)) {
+			if ($update_avatar) {
+				$fields['avatar-date'] = DateTimeFormat::utcNow();
+			}
+
+			// Creating the path to the avatar, beginning with the file suffix
+			$types = Image::supportedTypes();
+			if (isset($types[$avatar['type']])) {
+				$file_suffix = $types[$avatar['type']];
+			} else {
+				$file_suffix = 'jpg';
+			}
+
+			// We are adding a timestamp value so that other systems won't use cached content
+			$timestamp = strtotime($fields['avatar-date']);
+
+			$prefix = System::baseUrl() . '/photo/' .$avatar['resource-id'] . '-';
+			$suffix = '.' . $file_suffix . '?ts=' . $timestamp;
+
+			$fields['photo'] = $prefix . '4' . $suffix;
+			$fields['thumb'] = $prefix . '5' . $suffix;
+			$fields['micro'] = $prefix . '6' . $suffix;
+		} else {
+			// We hadn't found a photo entry, so we use the default avatar
+			$fields['photo'] = System::baseUrl() . '/images/person-175.jpg';
+			$fields['thumb'] = System::baseUrl() . '/images/person-80.jpg';
+			$fields['micro'] = System::baseUrl() . '/images/person-48.jpg';
+		}
+
+		$fields['forum'] = $user['page-flags'] == PAGE_COMMUNITY;
+		$fields['prv'] = $user['page-flags'] == PAGE_PRVGROUP;
+
+		$update = false;
+
+		foreach ($fields as $field => $content) {
+			if ($self[$field] != $content) {
+				$update = true;
+			}
+		}
+
+		if ($update) {
+			$fields['name-date'] = DateTimeFormat::utcNow();
+			dba::update('contact', $fields, ['id' => $self['id']]);
+
+			// Update the public contact as well
+			dba::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
+
+			// Update the profile
+			$fields = ['photo' => System::baseUrl() . '/photo/profile/' .$uid . '.jpg',
+				'thumb' => System::baseUrl() . '/photo/avatar/' . $uid .'.jpg'];
+			dba::update('profile', $fields, ['uid' => $uid, 'is-default' => true]);
+		}
+	}
+
+	/**
 	 * @brief Marks a contact for removal
 	 *
 	 * @param int $id contact id
@@ -173,20 +263,18 @@ class Contact extends BaseObject
 	 */
 	public static function terminateFriendship(array $user, array $contact)
 	{
-		if ($contact['network'] === NETWORK_OSTATUS) {
+		if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DFRN])) {
 			// create an unfollow slap
 			$item = [];
 			$item['verb'] = NAMESPACE_OSTATUS . "/unfollow";
 			$item['follow'] = $contact["url"];
 			$slap = OStatus::salmon($item, $user);
 
-			if ((x($contact, 'notify')) && (strlen($contact['notify']))) {
+			if (!empty($contact['notify'])) {
 				Salmon::slapper($user, $contact['notify'], $slap);
 			}
-		} elseif ($contact['network'] === NETWORK_DIASPORA) {
+		} elseif ($contact['network'] == NETWORK_DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
-		} elseif ($contact['network'] === NETWORK_DFRN) {
-			DFRN::deliver($user, $contact, 'placeholder', 1);
 		}
 	}
 
@@ -223,7 +311,9 @@ class Contact extends BaseObject
 			 */
 
 			/// @todo Check for contact vitality via probing
-			$expiry = $contact['term-date'] . ' + 32 days ';
+			$archival_days = Config::get('system', 'archival_days', 32);
+
+			$expiry = $contact['term-date'] . ' + ' . $archival_days . ' days ';
 			if (DateTimeFormat::utcNow() > DateTimeFormat::utc($expiry)) {
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
@@ -260,8 +350,13 @@ class Contact extends BaseObject
 		$fields = ['term-date' => NULL_DATE, 'archive' => false];
 		dba::update('contact', $fields, ['id' => $contact['id']]);
 
-		if ($contact['url'] != '') {
+		if (!empty($contact['url'])) {
 			dba::update('contact', $fields, ['nurl' => normalise_link($contact['url'])]);
+		}
+
+		if (!empty($contact['batch'])) {
+			$condition = ['batch' => $contact['batch'], 'contact-type' => ACCOUNT_TYPE_RELAY];
+			dba::update('contact', $fields, $condition);
 		}
 	}
 
@@ -516,7 +611,7 @@ class Contact extends BaseObject
 		}
 
 		$sparkle = false;
-		if ($contact['network'] === NETWORK_DFRN) {
+		if (($contact['network'] === NETWORK_DFRN) && !$contact['self']) {
 			$sparkle = true;
 			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
 		} else {
@@ -533,18 +628,21 @@ class Contact extends BaseObject
 			$profile_link = $profile_link . '?url=profile';
 		}
 
-		if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
+		if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_DIASPORA]) && !$contact['self']) {
 			$pm_url = System::baseUrl() . '/message/new/' . $contact['id'];
 		}
 
-		if ($contact['network'] == NETWORK_DFRN) {
+		if (($contact['network'] == NETWORK_DFRN) && !$contact['self']) {
 			$poke_link = System::baseUrl() . '/poke/?f=&c=' . $contact['id'];
 		}
 
 		$contact_url = System::baseUrl() . '/contacts/' . $contact['id'];
 
 		$posts_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/posts';
-		$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
+
+		if (!$contact['self']) {
+			$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
+		}
 
 		/**
 		 * Menu array:
@@ -1168,7 +1266,26 @@ class Contact extends BaseObject
 			return result;
 		}
 
-		if ($ret['network'] === NETWORK_DFRN) {
+		// check if we already have a contact
+		// the poll url is more reliable than the profile url, as we may have
+		// indirect links or webfinger links
+
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` IN ('%s', '%s') AND `network` = '%s' AND NOT `pending` LIMIT 1",
+			intval($uid),
+			dbesc($ret['poll']),
+			dbesc(normalise_link($ret['poll'])),
+			dbesc($ret['network'])
+		);
+
+		if (!DBM::is_result($r)) {
+			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' AND NOT `pending` LIMIT 1",
+				intval($uid),
+				dbesc(normalise_link($url)),
+				dbesc($ret['network'])
+			);
+		}
+
+		if (($ret['network'] === NETWORK_DFRN) && !DBM::is_result($r)) {
 			if ($interactive) {
 				if (strlen($a->path)) {
 					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
@@ -1180,7 +1297,7 @@ class Contact extends BaseObject
 
 				// NOTREACHED
 			}
-		} elseif (Config::get('system', 'dfrn_only')) {
+		} elseif (Config::get('system', 'dfrn_only') && ($ret['network'] != NETWORK_DFRN)) {
 			$result['message'] = L10n::t('This site is not configured to allow communications with other networks.') . EOL;
 			$result['message'] != L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			return $result;
@@ -1228,25 +1345,6 @@ class Contact extends BaseObject
 
 		if (in_array($ret['network'], [NETWORK_MAIL, NETWORK_DIASPORA])) {
 			$writeable = 1;
-		}
-
-		// check if we already have a contact
-		// the poll url is more reliable than the profile url, as we may have
-		// indirect links or webfinger links
-
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` IN ('%s', '%s') AND `network` = '%s' LIMIT 1",
-			intval($uid),
-			dbesc($ret['poll']),
-			dbesc(normalise_link($ret['poll'])),
-			dbesc($ret['network'])
-		);
-
-		if (!DBM::is_result($r)) {
-			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' LIMIT 1",
-				intval($uid),
-				dbesc(normalise_link($url)),
-				dbesc($ret['network'])
-			);
 		}
 
 		if (DBM::is_result($r)) {
@@ -1309,16 +1407,16 @@ class Contact extends BaseObject
 		);
 
 		if (DBM::is_result($r)) {
-			if (($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
+			if (in_array($contact['network'], [NETWORK_OSTATUS, NETWORK_DFRN])) {
 				// create a follow slap
 				$item = [];
 				$item['verb'] = ACTIVITY_FOLLOW;
 				$item['follow'] = $contact["url"];
 				$slap = OStatus::salmon($item, $r[0]);
-				Salmon::slapper($r[0], $contact['notify'], $slap);
-			}
-
-			if ($contact['network'] == NETWORK_DIASPORA) {
+				if (!empty($contact['notify'])) {
+					Salmon::slapper($r[0], $contact['notify'], $slap);
+				}
+			} elseif ($contact['network'] == NETWORK_DIASPORA) {
 				$ret = Diaspora::sendShare($a->user, $contact);
 				logger('share returns: ' . $ret);
 			}
@@ -1377,7 +1475,7 @@ class Contact extends BaseObject
 		}
 
 		if (is_array($contact)) {
-			if (($contact['network'] == NETWORK_OSTATUS && $contact['rel'] == CONTACT_IS_SHARING)
+			if (($contact['rel'] == CONTACT_IS_SHARING)
 				|| ($sharing && $contact['rel'] == CONTACT_IS_FOLLOWER)) {
 				dba::update('contact', ['rel' => CONTACT_IS_FRIEND, 'writable' => true],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);

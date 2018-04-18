@@ -199,12 +199,13 @@ class DBStructure
 	 *
 	 * @param bool  $verbose
 	 * @param bool  $action     Whether to actually apply the update
+	 * @param bool  $install    Is this the initial update during the installation?
 	 * @param array $tables     An array of the database tables
 	 * @param array $definition An array of the definition tables
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 */
-	public static function update($verbose, $action, array $tables = null, array $definition = null) {
-		if ($action) {
+	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null) {
+		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
 			Config::set('system', 'maintenance_reason', L10n::t(': Database update', DBM::date().' '.date('e')));
 		}
@@ -455,7 +456,9 @@ class DBStructure
 				}
 
 				if ($action) {
-					Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
+					if (!$install) {
+						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
+					}
 
 					// Ensure index conversion to unique removes duplicates
 					if ($is_unique && ($temp_name != $name)) {
@@ -505,15 +508,15 @@ class DBStructure
 			}
 		}
 
-		if ($action) {
+		if ($action && !$install) {
 			Config::set('system', 'maintenance', 0);
 			Config::set('system', 'maintenance_reason', '');
-		}
 
-		if ($errors) {
-			Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
-		} else {
-			Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+			if ($errors) {
+				Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
+			} else {
+				Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+			}
 		}
 
 		return $errors;
@@ -785,9 +788,9 @@ class DBStructure
 						"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"thumb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"micro" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"photo" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
+						"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
+						"micro" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
 						"site-pubkey" => ["type" => "text", "comment" => ""],
 						"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1071,6 +1074,8 @@ class DBStructure
 						"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 						"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"relay-subscribe" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Has the server subscribed to the relay system"],
+						"relay-scope" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => "The scope of messages that the server wants to get"],
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"last_poco_query" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
 						"last_contact" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
@@ -1079,6 +1084,17 @@ class DBStructure
 				"indexes" => [
 						"PRIMARY" => ["id"],
 						"nurl" => ["UNIQUE", "nurl(190)"],
+						]
+				];
+		$database["gserver-tag"] = [
+				"comment" => "Tags that the server has subscribed",
+				"fields" => [
+						"gserver-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gserver" => "id"], "primary" => "1", "comment" => "The id of the gserver"],
+						"tag" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "primary" => "1", "comment" => "Tag that the server has subscribed"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["gserver-id", "tag"],
+						"tag" => ["tag"],
 						]
 				];
 		$database["hook"] = [
@@ -1143,6 +1159,7 @@ class DBStructure
 						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => ""],
 						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],

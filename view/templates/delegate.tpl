@@ -7,6 +7,7 @@
 <form action="{{$baseurl}}/delegate" method="post">
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 {{include file="field_select.tpl" field=$parent_user}}
+{{include file="field_password.tpl" field=$parent_password}}
 <div class="submit"><input type="submit" name="delegate" value="{{$submit|escape:'html'}}" /></div>
 </form>
 </div>
@@ -15,23 +16,6 @@
 <h4>{{$delegates_header}}</h4>
 
 <div id="delegate-desc" class="delegate-desc">{{$desc}}</div>
-
-{{if $managers}}
-<h4>{{$head_managers}}</h4>
-
-{{foreach $managers as $x}}
-
-<div class="contact-block-div">
-<a class="contact-block-link" href="#" >
-<img class="contact-block-img" src="{{$base}}/photo/thumb/{{$x.uid}}" title="{{$x.username}} ({{$x.nickname}})" />
-</a>
-</div>
-
-{{/foreach}}
-<div class="clear"></div>
-<hr />
-{{/if}}
-
 
 <h4>{{$head_delegates}}</h4>
 

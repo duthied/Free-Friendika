@@ -771,10 +771,15 @@ function networkThreadedView(App $a, $update, $parent)
 			FROM `item` $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+				AND (`item`.`parent-uri` != `item`.`uri`
+					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
+					OR `contact`.`rel` IN (%d, %d) AND NOT `contact`.`readonly`)
 			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
 			AND NOT `item`.`moderated` AND $sql_extra4
 			$sql_extra3 $sql_extra $sql_range $sql_nets
 			ORDER BY `order_date` DESC LIMIT 100",
+			intval(CONTACT_IS_SHARING),
+			intval(CONTACT_IS_FRIEND),
 			intval(local_user())
 		);
 	} else {
@@ -783,10 +788,15 @@ function networkThreadedView(App $a, $update, $parent)
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+				AND (`item`.`parent-uri` != `item`.`uri`
+					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
+					OR `contact`.`rel` IN (%d, %d) AND NOT `contact`.`readonly`)
 			WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
 			AND NOT `thread`.`moderated`
 			$sql_extra2 $sql_extra3 $sql_range $sql_extra $sql_nets
 			ORDER BY `order_date` DESC $pager_sql",
+			intval(CONTACT_IS_SHARING),
+			intval(CONTACT_IS_FRIEND),
 			intval(local_user())
 		);
 	}
@@ -827,9 +837,14 @@ function networkThreadedView(App $a, $update, $parent)
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
+				AND (`item`.`parent-uri` != `item`.`uri`
+					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
+					OR `contact`.`rel` IN (?, ?) AND NOT `contact`.`readonly`)
 			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?
 				AND NOT `contact`.`hidden` AND NOT `contact`.`blocked`" . $sql_tag_nets,
-			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $top_limit, $bottom_limit);
+			local_user(), TERM_OBJ_POST, TERM_HASHTAG,
+			CONTACT_IS_SHARING, CONTACT_IS_FRIEND,
+			$top_limit, $bottom_limit);
 
 		$data = dba::inArray($items);
 

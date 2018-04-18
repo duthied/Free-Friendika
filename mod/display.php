@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -211,7 +212,11 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
 		$item = dba::selectFirst('item', ['uid', 'parent'], ['id' => $item_id]);
-		$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
+		if ($item['uid'] != 0) {
+			$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
+		} else {
+			$a->profile = ['uid' => intval($update_uid), 'profile_uid' => intval($update_uid)];
+		}
 		$item_parent = $item['parent'];
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
@@ -367,10 +372,8 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$o .= conversation($a, $items, 'display', $update_uid);
 
 	// Preparing the meta header
-	require_once 'include/html2plain.php';
-
-	$description = trim(html2plain(BBCode::convert($s[0]["body"], false), 0, true));
-	$title = trim(html2plain(BBCode::convert($s[0]["title"], false), 0, true));
+	$description = trim(HTML::toPlaintext(BBCode::convert($s[0]["body"], false), 0, true));
+	$title = trim(HTML::toPlaintext(BBCode::convert($s[0]["title"], false), 0, true));
 	$author_name = $s[0]["author-name"];
 
 	$image = $a->remove_baseurl($s[0]["author-thumb"]);

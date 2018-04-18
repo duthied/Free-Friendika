@@ -35,28 +35,28 @@ function invite_post(App $a)
 	}
 
 
-	$recips  = ((x($_POST, 'recipients')) ? explode("\n", $_POST['recipients']) : []);
-	$message = ((x($_POST, 'message'))    ? notags(trim($_POST['message']))    : '');
+	$recipients  = !empty($_POST['recipients']) ? explode("\n", $_POST['recipients']) : [];
+	$message     = !empty($_POST['message'])    ? notags(trim($_POST['message']))     : '';
 
 	$total = 0;
 
 	if (Config::get('system', 'invitation_only')) {
-		$invonly = true;
-		$x = PConfig::get(local_user(), 'system', 'invites_remaining');
-		if ((! $x) && (! is_site_admin())) {
+		$invitation_only = true;
+		$invites_remaining = PConfig::get(local_user(), 'system', 'invites_remaining');
+		if ((! $invites_remaining) && (! is_site_admin())) {
 			return;
 		}
 	}
 
-	foreach ($recips as $recip) {
-		$recip = trim($recip);
+	foreach ($recipients as $recipient) {
+		$recipient = trim($recipient);
 
-		if (! valid_email($recip)) {
-			notice(L10n::t('%s : Not a valid email address.', $recip) . EOL);
+		if (! valid_email($recipient)) {
+			notice(L10n::t('%s : Not a valid email address.', $recipient) . EOL);
 			continue;
 		}
 
-		if ($invonly && ($x || is_site_admin())) {
+		if ($invitation_only && ($invites_remaining || is_site_admin())) {
 			$code = autoname(8) . srand(1000, 9999);
 			$nmessage = str_replace('$invite_code', $code, $message);
 
@@ -66,9 +66,9 @@ function invite_post(App $a)
 			);
 
 			if (! is_site_admin()) {
-				$x --;
-				if ($x >= 0) {
-					PConfig::set(local_user(), 'system', 'invites_remaining', $x);
+				$invites_remaining --;
+				if ($invites_remaining >= 0) {
+					PConfig::set(local_user(), 'system', 'invites_remaining', $invites_remaining);
 				} else {
 					return;
 				}
@@ -77,11 +77,16 @@ function invite_post(App $a)
 			$nmessage = $message;
 		}
 
-		$res = mail($recip, Email::encodeHeader(L10n::t('Please join us on Friendica'), 'UTF-8'),
-			$nmessage,
-			"From: " . $a->user['email'] . "\n"
+		$additional_headers = 'From: ' . $a->user['email'] . "\n"
+			. 'Sender: ' . $a->getSenderEmailAddress() . "\n"
 			. 'Content-type: text/plain; charset=UTF-8' . "\n"
-			. 'Content-transfer-encoding: 8bit' );
+			. 'Content-transfer-encoding: 8bit';
+
+		$res = mail(
+			$recipient,
+			Email::encodeHeader(L10n::t('Please join us on Friendica'), 'UTF-8'),
+			$nmessage,
+			$additional_headers);
 
 		if ($res) {
 			$total ++;
@@ -92,7 +97,7 @@ function invite_post(App $a)
 				return;
 			}
 		} else {
-			notice(L10n::t('%s : Message delivery failed.', $recip) . EOL);
+			notice(L10n::t('%s : Message delivery failed.', $recipient) . EOL);
 		}
 
 	}

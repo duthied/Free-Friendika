@@ -24,9 +24,7 @@ use Friendica\Module\Login;
 
 require_once 'boot.php';
 
-if (empty($a)) {
-	$a = new App(__DIR__);
-}
+$a = new App(__DIR__);
 BaseObject::setApp($a);
 
 // We assume that the index.php is called by a frontend process
@@ -53,8 +51,12 @@ if (!$install) {
 require_once "include/dba.php";
 
 if (!$install) {
-	dba::connect($db_host, $db_user, $db_pass, $db_data, $install);
+	$result = dba::connect($db_host, $db_user, $db_pass, $db_data);
 	unset($db_host, $db_user, $db_pass, $db_data);
+
+	if (!$result) {
+		System::unavailable();
+	}
 
 	/**
 	 * Load configs from db. Overwrite configs from .htconfig.php
@@ -72,12 +74,13 @@ if (!$install) {
 	if (Config::get('system', 'force_ssl') && ($a->get_scheme() == "http")
 		&& (intval(Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL)
 		&& (substr(System::baseUrl(), 0, 8) == "https://")
-	) {
+		&& ($_SERVER['REQUEST_METHOD'] == 'GET')) {
 		header("HTTP/1.1 302 Moved Temporarily");
 		header("Location: " . System::baseUrl() . "/" . $a->query_string);
 		exit();
 	}
 
+	Config::init();
 	Session::init();
 	Addon::loadHooks();
 	Addon::callHooks('init_1');
@@ -225,8 +228,36 @@ if (strlen($a->module)) {
 	 */
 
 	// Compatibility with the Android Diaspora client
-	if ($a->module == "stream") {
-		$a->module = "network";
+	if ($a->module == 'stream') {
+		goaway('network?f=&order=post');
+	}
+
+	if ($a->module == 'conversations') {
+		goaway('message');
+	}
+
+	if ($a->module == 'commented') {
+		goaway('network?f=&order=comment');
+	}
+
+	if ($a->module == 'liked') {
+		goaway('network?f=&order=comment');
+	}
+
+	if ($a->module == 'activity') {
+		goaway('network/?f=&conv=1');
+	}
+
+	if (($a->module == 'status_messages') && ($a->cmd == 'status_messages/new')) {
+		goaway('bookmarklet');
+	}
+
+	if (($a->module == 'user') && ($a->cmd == 'user/edit')) {
+		goaway('settings');
+	}
+
+	if (($a->module == 'tag_followings') && ($a->cmd == 'tag_followings/manage')) {
+		goaway('search');
 	}
 
 	// Compatibility with the Firefox App

@@ -8,6 +8,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -19,7 +20,6 @@ use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 require_once 'include/dba.php';
-require_once 'include/html2plain.php';
 
 /**
  * @brief Methods for read and write notifications from/to database
@@ -47,7 +47,7 @@ class NotificationsManager extends BaseObject
 			$n['timestamp'] = strtotime($local_time);
 			$n['date_rel'] = Temporal::getRelativeDate($n['date']);
 			$n['msg_html'] = BBCode::convert($n['msg'], false);
-			$n['msg_plain'] = explode("\n", trim(html2plain($n['msg_html'], 0)))[0];
+			$n['msg_plain'] = explode("\n", trim(HTML::toPlaintext($n['msg_html'], 0)))[0];
 
 			$rets[] = $n;
 		}
@@ -135,7 +135,7 @@ class NotificationsManager extends BaseObject
 	public function setSeen($note, $seen = true)
 	{
 		return q(
-			"UPDATE `notify` SET `seen` = %d WHERE ( `link` = '%s' OR ( `parent` != 0 AND `parent` = %d AND `otype` = '%s' )) AND `uid` = %d",
+			"UPDATE `notify` SET `seen` = %d WHERE (`link` = '%s' OR (`parent` != 0 AND `parent` = %d AND `otype` = '%s')) AND `uid` = %d",
 			intval($seen),
 			dbesc($note['link']),
 			intval($note['parent']),
@@ -384,16 +384,18 @@ class NotificationsManager extends BaseObject
 	private function networkTotal($seen = 0)
 	{
 		$sql_seen = "";
+		$index_hint = "";
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` = 1 ";
+			$sql_seen = " AND `item`.`unseen` ";
+			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
 		}
 
 		$r = q(
 			"SELECT COUNT(*) AS `total`
-				FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`visible` = 1 AND `pitem`.`parent` != 0 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
+				FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
+				WHERE `item`.`visible` AND `pitem`.`parent` != 0 AND
+				NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`
 				$sql_seen",
 			intval(local_user())
 		);
@@ -423,18 +425,20 @@ class NotificationsManager extends BaseObject
 		$total = $this->networkTotal($seen);
 		$notifs = [];
 		$sql_seen = "";
+		$index_hint = "";
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` = 1 ";
+			$sql_seen = " AND `item`.`unseen` ";
+			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
 		}
 
 		$r = q(
 			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
 				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
-			FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
-			WHERE `item`.`visible` = 1 AND `pitem`.`parent` != 0 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
+			FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
+			WHERE `item`.`visible` AND `pitem`.`parent` != 0 AND
+				NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`
 				$sql_seen
 			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
 			intval(local_user()),
@@ -466,7 +470,7 @@ class NotificationsManager extends BaseObject
 		$sql_seen = "";
 
 		if ($seen === 0) {
-			$sql_seen = " AND `seen` = 0 ";
+			$sql_seen = " AND NOT `seen` ";
 		}
 
 		$r = q(
@@ -501,7 +505,7 @@ class NotificationsManager extends BaseObject
 		$sql_seen = "";
 
 		if ($seen === 0) {
-			$sql_seen = " AND `seen` = 0 ";
+			$sql_seen = " AND NOT `seen` ";
 		}
 
 		$r = q(
@@ -536,7 +540,7 @@ class NotificationsManager extends BaseObject
 		$myurl = str_replace(['www.', '.'], ['', '\\.'], $myurl);
 		$diasp_url = str_replace('/profile/', '/u/', $myurl);
 		$sql_extra = sprintf(
-			" AND ( `item`.`author-link` regexp '%s' OR `item`.`tag` regexp '%s' OR `item`.`tag` regexp '%s' ) ",
+			" AND (`item`.`author-link` REGEXP '%s' OR `item`.`tag` REGEXP '%s' OR `item`.`tag` REGEXP '%s') ",
 			dbesc($myurl . '$'),
 			dbesc($myurl . '\\]'),
 			dbesc($diasp_url . '\\]')
@@ -555,19 +559,21 @@ class NotificationsManager extends BaseObject
 	private function personalTotal($seen = 0)
 	{
 		$sql_seen = "";
+		$index_hint = "";
 		$sql_extra = $this->personalSqlExtra();
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` = 1 ";
+			$sql_seen = " AND `item`.`unseen` ";
+			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
 		}
 
 		$r = q(
 			"SELECT COUNT(*) AS `total`
-				FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`visible` = 1
+				FROM `item` $index_hint
+				WHERE `item`.`visible`
 				$sql_extra
 				$sql_seen
-				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0 ",
+				AND NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`",
 			intval(local_user())
 		);
 		if (DBM::is_result($r)) {
@@ -597,20 +603,22 @@ class NotificationsManager extends BaseObject
 		$sql_extra = $this->personalSqlExtra();
 		$notifs = [];
 		$sql_seen = "";
+		$index_hint = "";
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` = 1 ";
+			$sql_seen = " AND `item`.`unseen` ";
+			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
 		}
 
 		$r = q(
 			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
 				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
-			FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id`=`item`.`parent`
-			WHERE `item`.`visible` = 1
+			FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
+			WHERE `item`.`visible`
 				$sql_extra
 				$sql_seen
-				AND `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 0
+				AND NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`
 			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
 			intval(local_user()),
 			intval($start),
@@ -639,13 +647,15 @@ class NotificationsManager extends BaseObject
 	private function homeTotal($seen = 0)
 	{
 		$sql_seen = "";
+		$index_hint = "";
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` = 1 ";
+			$sql_seen = " AND `item`.`unseen` ";
+			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
 		}
 
 		$r = q(
-			"SELECT COUNT(*) AS `total` FROM `item`
+			"SELECT COUNT(*) AS `total` FROM `item` $index_hint
 				WHERE `item`.`visible` = 1 AND
 				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
 				$sql_seen",
@@ -677,18 +687,20 @@ class NotificationsManager extends BaseObject
 		$total = $this->homeTotal($seen);
 		$notifs = [];
 		$sql_seen = "";
+		$index_hint = "";
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` = 1 ";
+			$sql_seen = " AND `item`.`unseen` ";
+			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
 		}
 
 		$r = q(
 			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
 				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
 				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
-			FROM `item` INNER JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
-			WHERE `item`.`visible` = 1 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
+			FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
+			WHERE `item`.`visible` AND
+				NOT `item`.`deleted` AND `item`.`uid` = %d AND `item`.`wall`
 				$sql_seen
 			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
 			intval(local_user()),

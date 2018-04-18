@@ -60,12 +60,12 @@ class System extends BaseObject
 		$previous = ['class' => '', 'function' => ''];
 
 		// The ignore list contains all functions that are only wrapper functions
-		$ignore = ['fetchUrl'];
+		$ignore = ['fetchUrl', 'call_user_func_array'];
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
-				// Don't show multiple calls from the same function (mostly used for "dba" class)
-				if (($previous['class'] != $func['class']) && ($previous['function'] != 'q')) {
+				// Don't show multiple calls from the "dba" class to show the essential parts of the callstack
+				if ((($previous['class'] != $func['class']) || ($func['class'] != 'dba')) && ($previous['function'] != 'q')) {
 					$classparts = explode("\\", $func['class']);
 					$callstack[] = array_pop($classparts).'::'.$func['function'];
 					$previous = $func;

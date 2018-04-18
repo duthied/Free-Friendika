@@ -36,7 +36,7 @@ class Queue
 			// Handling the pubsubhubbub requests
 			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'PubSubPublish');
 
-			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP()"));
+			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
 
 			Addon::callHooks('queue_predeliver', $r);
 
@@ -63,6 +63,11 @@ class Queue
 			return;
 		}
 
+		if (empty($contact['notify'])) {
+			QueueModel::removeItem($q_item['id']);
+			return;
+		}
+
 		$dead = Cache::get($cachekey_deadguy . $contact['notify']);
 
 		if (!is_null($dead) && $dead && !$no_dead_check) {
@@ -81,7 +86,7 @@ class Queue
 					logger("Check server " . $server . " (" . $contact["network"] . ")");
 
 					$vital = PortableContact::checkServer($server, $contact["network"], true);
-					Cache::set($cachekey_server . $server, $vital, CACHE_QUARTER_HOUR);
+					Cache::set($cachekey_server . $server, $vital, CACHE_MINUTE);
 				}
 
 				if (!is_null($vital) && !$vital) {
@@ -109,37 +114,34 @@ class Queue
 				logger('queue: dfrndelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 				$deliver_status = DFRN::deliver($owner, $contact, $data);
 
-				if ($deliver_status == (-1)) {
+				if (($deliver_status >= 200) && ($deliver_status <= 299)) {
+					QueueModel::removeItem($q_item['id']);
+				} else {
 					QueueModel::updateTime($q_item['id']);
-					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_MINUTE);
+				}
+				break;
+			case NETWORK_OSTATUS:
+				logger('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
+				$deliver_status = Salmon::slapper($owner, $contact['notify'], $data);
+
+				if ($deliver_status == -1) {
+					QueueModel::updateTime($q_item['id']);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_MINUTE);
 				} else {
 					QueueModel::removeItem($q_item['id']);
 				}
 				break;
-			case NETWORK_OSTATUS:
-				if ($contact['notify']) {
-					logger('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
-					$deliver_status = Salmon::slapper($owner, $contact['notify'], $data);
-
-					if ($deliver_status == (-1)) {
-						QueueModel::updateTime($q_item['id']);
-						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
-					} else {
-						QueueModel::removeItem($q_item['id']);
-					}
-				}
-				break;
 			case NETWORK_DIASPORA:
-				if ($contact['notify']) {
-					logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
-					$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
+				logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
+				$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
 
-					if ($deliver_status == (-1)) {
-						QueueModel::updateTime($q_item['id']);
-						Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_QUARTER_HOUR);
-					} else {
-						QueueModel::removeItem($q_item['id']);
-					}
+				if ((($deliver_status >= 200) && ($deliver_status <= 299)) ||
+					($contact['contact-type'] == ACCOUNT_TYPE_RELAY)) {
+					QueueModel::removeItem($q_item['id']);
+				} else {
+					QueueModel::updateTime($q_item['id']);
+					Cache::set($cachekey_deadguy . $contact['notify'], true, CACHE_MINUTE);
 				}
 				break;
 
@@ -154,7 +156,7 @@ class Queue
 				}
 				break;
 		}
-		logger('Deliver status ' . (int) $deliver_status . ' for item ' . $q_item['id'] . ' to ' . $contact['name'] . ' <' . $contact['url'] . '>');
+		logger('Deliver status ' . (int)$deliver_status . ' for item ' . $q_item['id'] . ' to ' . $contact['name'] . ' <' . $contact['url'] . '>');
 
 		return;
 	}

@@ -212,12 +212,6 @@ class App
 			. $this->basepath . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
 			. $this->basepath);
 
-
-		if (is_array($_SERVER['argv']) && $_SERVER['argc'] > 1 && substr(end($_SERVER['argv']), 0, 4) == 'http') {
-			$this->set_baseurl(array_pop($_SERVER['argv']));
-			$_SERVER['argc'] --;
-		}
-
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 9) === 'pagename=') {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
 
@@ -868,9 +862,6 @@ class App
 
 		array_unshift($args, ((x($this->config, 'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
 
-		// add baseurl to args. cli scripts can't construct it
-		$args[] = $this->get_baseurl();
-
 		for ($x = 0; $x < count($args); $x ++) {
 			$args[$x] = escapeshellarg($args[$x]);
 		}
@@ -943,5 +934,137 @@ class App
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param string $cat     Config category
+	 * @param string $k       Config key
+	 * @param mixed  $default Default value if it isn't set
+	 */
+	public function getConfigValue($cat, $k, $default = null)
+	{
+		$return = $default;
+
+		if ($cat === 'config') {
+			if (isset($this->config[$k])) {
+				$return = $this->config[$k];
+			}
+		} else {
+			if (isset($this->config[$cat][$k])) {
+				$return = $this->config[$cat][$k];
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Sets a value in the config cache. Accepts raw output from the config table
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Value to set
+	 */
+	public function setConfigValue($cat, $k, $v)
+	{
+		// Only arrays are serialized in database, so we have to unserialize sparingly
+		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
+
+		if ($cat === 'config') {
+			$this->config[$k] = $value;
+		} else {
+			$this->config[$cat][$k] = $value;
+		}
+	}
+
+	/**
+	 * Deletes a value from the config cache
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 */
+	public function deleteConfigValue($cat, $k)
+	{
+		if ($cat === 'config') {
+			if (isset($this->config[$k])) {
+				unset($this->config[$k]);
+			}
+		} else {
+			if (isset($this->config[$cat][$k])) {
+				unset($this->config[$cat][$k]);
+			}
+		}
+	}
+
+
+	/**
+	 * Retrieves a value from the user config cache
+	 *
+	 * @param int    $uid     User Id
+	 * @param string $cat     Config category
+	 * @param string $k       Config key
+	 * @param mixed  $default Default value if key isn't set
+	 */
+	public function getPConfigValue($uid, $cat, $k, $default = null)
+	{
+		$return = $default;
+
+		if (isset($this->config[$uid][$cat][$k])) {
+			$return = $this->config[$uid][$cat][$k];
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Sets a value in the user config cache
+	 *
+	 * Accepts raw output from the pconfig table
+	 *
+	 * @param int    $uid User Id
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Value to set
+	 */
+	public function setPConfigValue($uid, $cat, $k, $v)
+	{
+		// Only arrays are serialized in database, so we have to unserialize sparingly
+		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
+
+		$this->config[$uid][$cat][$k] = $value;
+	}
+
+	/**
+	 * Deletes a value from the user config cache
+	 *
+	 * @param int    $uid User Id
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 */
+	public function deletePConfigValue($uid, $cat, $k)
+	{
+		if (isset($this->config[$uid][$cat][$k])) {
+			unset($this->config[$uid][$cat][$k]);
+		}
+	}
+
+	/**
+	 * Generates the site's default sender email address
+	 *
+	 * @return string
+	 */
+	public function getSenderEmailAddress()
+	{
+		$sender_email = Config::get('config', 'sender_email');
+		if (empty($sender_email)) {
+			$hostname = $this->get_hostname();
+			if (strpos($hostname, ':')) {
+				$hostname = substr($hostname, 0, strpos($hostname, ':'));
+			}
+
+			$sender_email = 'noreply@' . $hostname;
+		}
+
+		return $sender_email;
 	}
 }

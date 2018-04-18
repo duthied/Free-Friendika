@@ -7,7 +7,7 @@
 namespace Friendica\Content\Text;
 
 use DOMDocument;
-use DomXPath;
+use DOMXPath;
 use Exception;
 use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
@@ -20,6 +20,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
+use Friendica\Model\Event;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Map;
@@ -27,8 +28,6 @@ use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use League\HTMLToMarkdown\HtmlConverter;
 
-require_once "include/event.php";
-require_once "include/html2plain.php";
 require_once "mod/proxy.php";
 
 class BBCode extends BaseObject
@@ -77,10 +76,12 @@ class BBCode extends BaseObject
 
 					$picturedata = Image::getInfoFromURL($matches[1]);
 
-					if (($picturedata[0] >= 500) && ($picturedata[0] >= $picturedata[1])) {
-						$post["image"] = $matches[1];
-					} else {
-						$post["preview"] = $matches[1];
+					if ($picturedata) {
+						if (($picturedata[0] >= 500) && ($picturedata[0] >= $picturedata[1])) {
+							$post["image"] = $matches[1];
+						} else {
+							$post["preview"] = $matches[1];
+						}
 					}
 				}
 
@@ -242,6 +243,9 @@ class BBCode extends BaseObject
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
 			$URLSearchString = "^\[\]";
+
+			$body = preg_replace("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
+
 			if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
 					// Checking, if the link goes to a picture
@@ -267,7 +271,7 @@ class BBCode extends BaseObject
 						$post["text"] = str_replace($pictures[0][0], "", $body);
 					} else {
 						$imgdata = Image::getInfoFromURL($pictures[0][1]);
-						if (substr($imgdata["mime"], 0, 6) == "image/") {
+						if ($imgdata && substr($imgdata["mime"], 0, 6) == "image/") {
 							$post["type"] = "photo";
 							$post["image"] = $pictures[0][1];
 							$post["preview"] = $pictures[0][2];
@@ -413,7 +417,7 @@ class BBCode extends BaseObject
 		}
 
 		$html = self::convert($post["text"].$post["after"], false, $htmlmode);
-		$msg = html2plain($html, 0, true);
+		$msg = HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
 		$link = "";
@@ -681,7 +685,7 @@ class BBCode extends BaseObject
 
 		$return = '';
 		if ($simplehtml == 7) {
-			$return = self::convertUrlForMastodon($data["url"]);
+			$return = self::convertUrlForOStatus($data["url"]);
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
 		} else {
@@ -709,9 +713,10 @@ class BBCode extends BaseObject
 				}
 
 				if ($data["description"] != "" && $data["description"] != $data["title"]) {
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($data["description"])));
+					// Sanitize the HTML by converting it to BBCode
+					$bbcode = HTML::toBBCode($data["description"]);
+					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
 				}
-
 				if ($data["type"] == "link") {
 					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 				}
@@ -758,31 +763,10 @@ class BBCode extends BaseObject
 		if (($data["url"] != "") && ($data["title"] != "")) {
 			$text .= "\n[url=" . $data["url"] . "]" . $data["title"] . "[/url]";
 		} elseif (($data["url"] != "")) {
-			$text .= "\n" . $data["url"];
+			$text .= "\n[url]" . $data["url"] . "[/url]";
 		}
 
 		return $text . "\n" . $data["after"];
-	}
-
-	private static function cleanCss($input)
-	{
-		$cleaned = "";
-
-		$input = strtolower($input);
-
-		for ($i = 0; $i < strlen($input); $i++) {
-			$char = substr($input, $i, 1);
-
-			if (($char >= "a") && ($char <= "z")) {
-				$cleaned .= $char;
-			}
-
-			if (!(strpos(" #;:0123456789-_.%", $char) === false)) {
-				$cleaned .= $char;
-			}
-		}
-
-		return $cleaned;
 	}
 
 	/**
@@ -792,7 +776,7 @@ class BBCode extends BaseObject
 	 * @param array $match Array with the matching values
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForMastodonCallback($match)
+	private static function convertUrlForOStatusCallback($match)
 	{
 		$url = $match[1];
 
@@ -805,34 +789,27 @@ class BBCode extends BaseObject
 			return $match[0];
 		}
 
-		return self::convertUrlForMastodon($url);
+		return self::convertUrlForOStatus($url);
 	}
 
 	/**
-	 * @brief Converts [url] BBCodes in a format that looks fine on Mastodon and GNU Social.
+	 * @brief Converts [url] BBCodes in a format that looks fine on OStatus systems.
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForMastodon($url)
+	private static function convertUrlForOStatus($url)
 	{
 		$parts = parse_url($url);
 		$scheme = $parts['scheme'] . '://';
 		$styled_url = str_replace($scheme, '', $url);
 
-		$html = '<a href="%s" class="attachment" rel="nofollow noopener" target="_blank">' .
-			'<span class="invisible">%s</span>';
-
 		if (strlen($styled_url) > 30) {
-			$html .= '<span class="ellipsis">%s</span>' .
-				'<span class="invisible">%s</span></a>';
-
-			$ellipsis = substr($styled_url, 0, 30);
-			$rest = substr($styled_url, 30);
-			return sprintf($html, $url, $scheme, $ellipsis, $rest);
-		} else {
-			$html .= '%s</a>';
-			return sprintf($html, $url, $scheme, $styled_url);
+			$styled_url = substr($styled_url, 0, 30) . "…";
 		}
+
+		$html = '<a href="%s" target="_blank">%s</a>';
+
+		return sprintf($html, $url, $styled_url);
 	}
 
 	/*
@@ -1127,13 +1104,13 @@ class BBCode extends BaseObject
 				}
 
 				if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
+					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
+				} else {
 					$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
 
 					if ($link != "") {
 						$text .= '<br /><a href="' . $link . '">[l]</a>';
 					}
-				} else {
-					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
 				}
 
 				break;
@@ -1229,7 +1206,7 @@ class BBCode extends BaseObject
 
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
-				$xpath = new DomXPath($doc);
+				$xpath = new DOMXPath($doc);
 				$list = $xpath->query("//meta[@name]");
 				foreach ($list as $node) {
 					$attr = [];
@@ -1318,13 +1295,17 @@ class BBCode extends BaseObject
 
 	private static function textHighlightCallback($match)
 	{
+		// Fallback in case the language doesn't exist
+		$return = '[code]' . $match[2] . '[/code]';
+
 		if (in_array(strtolower($match[1]),
 				['php', 'css', 'mysql', 'sql', 'abap', 'diff', 'html', 'perl', 'ruby',
-				'vbscript', 'avrc', 'dtd', 'java', 'xml', 'cpp', 'python', 'javascript', 'js', 'sh'])
+				'vbscript', 'avrc', 'dtd', 'java', 'xml', 'cpp', 'python', 'javascript', 'js', 'sh', 'bash'])
 		) {
-			return text_highlight($match[2], strtolower($match[1]));
+			$return = text_highlight($match[2], strtolower($match[1]));
 		}
-		return $match[0];
+
+		return $return;
 	}
 
 	/**
@@ -1401,7 +1382,7 @@ class BBCode extends BaseObject
 		// After we're finished processing the bbcode we'll
 		// replace all of the event code with a reformatted version.
 
-		$ev = bbtoevent($text);
+		$ev = Event::fromBBCode($text);
 
 		// Replace any html brackets with HTML Entities to prevent executing HTML or script
 		// Don't use strip_tags here because it breaks [url] search by replacing & with amp
@@ -1461,8 +1442,8 @@ class BBCode extends BaseObject
 			$autolink_regex = "/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism";
 			$text = preg_replace($autolink_regex, '$1[url]$2[/url]', $text);
 			if ($simple_html == 7) {
-				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
-				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForMastodonCallback', $text);
+				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 			}
 		} else {
 			$text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $text);
@@ -1562,10 +1543,8 @@ class BBCode extends BaseObject
 		if (strpos($text, '[/map]') !== false) {
 			$text = preg_replace_callback(
 				"/\[map\](.*?)\[\/map\]/ism",
-				function ($match) {
-					// the extra space in the following line is intentional
-					// Whyyy? - @MrPetovan
-					return str_replace($match[0], '<div class="map"  >' . Map::byLocation($match[1]) . '</div>', $match[0]);
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byLocation($match[1], $simple_html) . '</p>', $match[0]);
 				},
 				$text
 			);
@@ -1573,16 +1552,14 @@ class BBCode extends BaseObject
 		if (strpos($text, '[map=') !== false) {
 			$text = preg_replace_callback(
 				"/\[map=(.*?)\]/ism",
-				function ($match) {
-					// the extra space in the following line is intentional
-					// Whyyy? - @MrPetovan
-					return str_replace($match[0], '<div class="map"  >' . Map::byCoordinates(str_replace('/', ' ', $match[1])) . '</div>', $match[0]);
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byCoordinates(str_replace('/', ' ', $match[1]), $simple_html) . '</p>', $match[0]);
 				},
 				$text
 			);
 		}
 		if (strpos($text, '[map]') !== false) {
-			$text = preg_replace("/\[map\]/", '<div class="map"></div>', $text);
+			$text = preg_replace("/\[map\]/", '<p class="map"></p>', $text);
 		}
 
 		// Check for headers
@@ -1606,7 +1583,7 @@ class BBCode extends BaseObject
 		$text = preg_replace("(\[u\](.*?)\[\/u\])ism", '<u>$1</u>', $text);
 
 		// Check for strike-through text
-		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<strike>$1</strike>', $text);
+		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<s>$1</s>', $text);
 
 		// Check for over-line text
 		$text = preg_replace("(\[o\](.*?)\[\/o\])ism", '<span class="overline">$1</span>', $text);
@@ -1629,7 +1606,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback(
 			"(\[style=(.*?)\](.*?)\[\/style\])ism",
 			function ($match) {
-				return "<span style=\"" . self::cleanCss($match[1]) . ";\">" . $match[2] . "</span>";
+				return "<span style=\"" . HTML::sanitizeCSS($match[1]) . ";\">" . $match[2] . "</span>";
 			},
 			$text
 		);
@@ -1638,7 +1615,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback(
 			"(\[class=(.*?)\](.*?)\[\/class\])ism",
 			function ($match) {
-				return "<span class=\"" . self::cleanCss($match[1]) . "\">" . $match[2] . "</span>";
+				return "<span class=\"" . HTML::sanitizeCSS($match[1]) . "\">" . $match[2] . "</span>";
 			},
 			$text
 		);
@@ -1747,6 +1724,14 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: $1px;" >', $text);
 		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
 
+		$text = preg_replace_callback("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism",
+			function ($matches) {
+				$matches[1] = proxy_url($matches[1]);
+				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
+				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '">';
+			},
+			$text);
+
 		// Images
 		// [img]pathtoimage[/img]
 		$text = preg_replace_callback(
@@ -1843,7 +1828,7 @@ class BBCode extends BaseObject
 		// start which is always required). Allow desc with a missing summary for compatibility.
 
 		if ((x($ev, 'desc') || x($ev, 'summary')) && x($ev, 'start')) {
-			$sub = format_event_html($ev, $simple_html);
+			$sub = Event::getHTML($ev, $simple_html);
 
 			$text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism", '', $text);
 			$text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism", '', $text);
@@ -1878,10 +1863,12 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback("/\[nobb\](.*?)\[\/nobb\]/ism", 'self::unescapeNoparseCallback', $text);
 		$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'self::unescapeNoparseCallback', $text);
 
-
+		/// @todo What is the meaning of these lines?
 		$text = preg_replace('/\[\&amp\;([#a-z0-9]+)\;\]/', '&$1;', $text);
 		$text = preg_replace('/\&\#039\;/', '\'', $text);
-		$text = preg_replace('/\&quot\;/', '"', $text);
+
+		// Currently deactivated, it made problems with " inside of alt texts.
+		//$text = preg_replace('/\&quot\;/', '"', $text);
 
 		// fix any escaped ampersands that may have been converted into links
 		$text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $text);

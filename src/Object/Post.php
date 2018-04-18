@@ -8,6 +8,7 @@ use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
@@ -315,7 +316,13 @@ class Post extends BaseObject
 		$body_e       = $body;
 		$text_e       = strip_tags($body);
 		$name_e       = $profile_name;
-		$title_e      = $item['title'];
+
+		if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
+			$title_e = ucfirst($item['content-warning']);
+		} else {
+			$title_e = $item['title'];
+		}
+
 		$location_e   = $location;
 		$owner_name_e = $this->getOwnerName();
 
@@ -337,6 +344,7 @@ class Post extends BaseObject
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
+			'suppress_tags'   => Config::get('system', 'suppress_tags'),
 			'tags'            => $item['tags'],
 			'hashtags'        => $item['hashtags'],
 			'mentions'        => $item['mentions'],

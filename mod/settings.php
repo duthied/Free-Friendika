@@ -14,11 +14,11 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Protocol\Email;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
 
@@ -208,11 +208,11 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (($a->argc > 1) && ($a->argv[1] == 'connectors'))
-	{
+	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
 		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
 
 		if (x($_POST, 'general-submit')) {
+			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
 			PConfig::set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			PConfig::set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
 			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
@@ -388,13 +388,18 @@ function settings_post(App $a)
 		if (!x($newpass) || !x($confirm)) {
 			notice(L10n::t('Empty passwords are not allowed. Password unchanged.') . EOL);
 			$err = true;
-        }
+		}
 
-        //  check if the old password was supplied correctly before changing it to the new value
-        if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
-            notice(L10n::t('Wrong password.') . EOL);
-            $err = true;
-        }
+		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($newpass)) {
+			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
+			$err = true;
+		}
+
+		//  check if the old password was supplied correctly before changing it to the new value
+		if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
+			notice(L10n::t('Wrong password.') . EOL);
+			$err = true;
+		}
 
 		if (!$err) {
 			$result = User::updatePassword(local_user(), $newpass);
@@ -486,10 +491,7 @@ function settings_post(App $a)
 
 	$err = '';
 
-	$name_change = false;
-
 	if ($username != $a->user['username']) {
-		$name_change = true;
 		if (strlen($username) > 40) {
 			$err .= L10n::t(' Please use a shorter name.');
 		}
@@ -629,14 +631,7 @@ function settings_post(App $a)
 		intval(local_user())
 	);
 
-
-	if ($name_change) {
-		q("UPDATE `contact` SET `name` = '%s', `name-date` = '%s' WHERE `uid` = %d AND `self`",
-			dbesc($username),
-			dbesc(DateTimeFormat::utcNow()),
-			intval(local_user())
-		);
-	}
+	Contact::updateSelfFromUserID(local_user());
 
 	if (($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background
@@ -792,6 +787,7 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
+		$disable_cw                = intval(PConfig::get(local_user(), 'system', 'disable_cw'));
 		$no_intelligent_shortening = intval(PConfig::get(local_user(), 'system', 'no_intelligent_shortening'));
 		$ostatus_autofriend        = intval(PConfig::get(local_user(), 'system', 'ostatus_autofriend'));
 		$default_group             = PConfig::get(local_user(), 'ostatus', 'default_group');
@@ -849,6 +845,7 @@ function settings_content(App $a)
 			'$ostat_enabled' => $ostat_enabled,
 
 			'$general_settings' => L10n::t('General Social Media Settings'),
+			'$disable_cw' => ['disable_cw', L10n::t('Disable Content Warning'), $disable_cw, L10n::t('Users on networks like Mastodon or Pleroma are able to set a content warning field which collapse their post by default. This disables the automatic collapsing and sets the content warning as the post title. Doesn\'t affect any other content filtering you eventually set up.')],
 			'$no_intelligent_shortening' => ['no_intelligent_shortening', L10n::t('Disable intelligent shortening'), $no_intelligent_shortening, L10n::t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.')],
 			'$ostatus_autofriend' => ['snautofollow', L10n::t("Automatically follow any GNU Social \x28OStatus\x29 followers/mentioners"), $ostatus_autofriend, L10n::t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.')],
 			'$default_group' => Group::displayGroupSelection(local_user(), $default_group, L10n::t("Default group for OStatus contacts")),
@@ -1111,7 +1108,7 @@ function settings_content(App $a)
 
 	if (strlen(Config::get('system', 'directory'))) {
 		$profile_in_net_dir = replace_macros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be publishedin this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
+			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	} else {
 		$profile_in_net_dir = '';
@@ -1274,7 +1271,7 @@ function settings_content(App $a)
 
 		'$detailed_notif' => ['detailed_notif', L10n::t('Show detailled notifications'),
 									PConfig::get(local_user(), 'system', 'detailed_notif'),
-									L10n::t('Per default the notificiation are condensed to a single notification per item. When enabled, every notification is displayed.')],
+									L10n::t('Per default, notifications are condensed to a single notification per item. When enabled every notification is displayed.')],
 
 		'$h_advn' => L10n::t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => L10n::t('Change the behaviour of this account for special situations'),

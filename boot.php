@@ -20,6 +20,7 @@
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
@@ -37,10 +38,10 @@ use Friendica\Util\DateTimeFormat;
 require_once 'include/text.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
-define('FRIENDICA_CODENAME',     'Asparagus');
-define('FRIENDICA_VERSION',      '3.6-dev');
+define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
+define('FRIENDICA_VERSION',      '2018-05-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1256);
+define('DB_UPDATE_VERSION',      1259);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -211,12 +212,16 @@ define('PAGE_PRVGROUP',          5);
  *
  * ACCOUNT_TYPE_COMMUNITY - the account is community forum
  *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
+ *
+ * ACCOUNT_TYPE_RELAY - the account is a relay
+ *      This will only be assigned to contacts, not to user accounts
  * @{
  */
 define('ACCOUNT_TYPE_PERSON',      0);
 define('ACCOUNT_TYPE_ORGANISATION', 1);
 define('ACCOUNT_TYPE_NEWS',        2);
 define('ACCOUNT_TYPE_COMMUNITY',   3);
+define('ACCOUNT_TYPE_RELAY',       4);
 /**
  * @}
  */
@@ -536,6 +541,7 @@ function get_app()
 
 	if (empty($a)) {
 		$a = new App(dirname(__DIR__));
+		BaseObject::setApp($a);
 	}
 
 	return $a;
@@ -947,10 +953,12 @@ function public_contact()
  */
 function remote_user()
 {
-	// You cannot be both local and remote
-	if (local_user()) {
-		return false;
-	}
+	// You cannot be both local and remote.
+	// Unncommented by rabuzarus because remote authentication to local
+	// profiles wasn't possible anymore (2018-04-12).
+//	if (local_user()) {
+//		return false;
+//	}
 	if (x($_SESSION, 'authenticated') && x($_SESSION, 'visitor_id')) {
 		return intval($_SESSION['visitor_id']);
 	}

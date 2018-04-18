@@ -2,6 +2,8 @@
 
 namespace Friendica\Worker;
 
+use dba;
+
 class TagUpdate
 {
 	public static function execute()
@@ -13,18 +15,14 @@ class TagUpdate
 			if ($message['uid'] == 0) {
 				$global = true;
 
-				q("UPDATE `term` SET `global` = 1 WHERE `otype` = %d AND `guid` = '%s'",
-					intval(TERM_OBJ_POST), dbesc($message['guid']));
+				dba::update('term', ['global' => true], ['otype' => TERM_OBJ_POST, 'guid' => $message['guid']]);
 			} else {
-				$isglobal = q("SELECT `global` FROM `term` WHERE `uid` = 0 AND `otype` = %d AND `guid` = '%s'",
-					intval(TERM_OBJ_POST), dbesc($message['guid']));
-
-				$global = (count($isglobal) > 0);
+				$global = (dba::count('term', ['uid' => 0, 'otype' => TERM_OBJ_POST, 'guid' => $message['guid']]) > 0);
 			}
 
-			q("UPDATE `term` SET `guid` = '%s', `created` = '%s', `received` = '%s', `global` = %d WHERE `otype` = %d AND `oid` = %d",
-				dbesc($message['guid']), dbesc($message['created']), dbesc($message['received']),
-				intval($global), intval(TERM_OBJ_POST), intval($message['oid']));
+			$fields = ['guid' => $message['guid'], 'created' => $message['created'],
+				'received' => $message['received'], 'global' => $global];
+			dba::update('term', $fields, ['otype' => TERM_OBJ_POST, 'oid' => $message['oid']]);
 		}
 
 		dba::close($messages);
@@ -33,7 +31,7 @@ class TagUpdate
 
 		logger('fetched messages: ' . dba::num_rows($messages));
 		while ($message = dba::fetch(messages)) {
-			q("UPDATE `item` SET `global` = 1 WHERE `guid` = '%s'", dbesc($message['guid']));
+			dba::update('item', ['global' => true], ['guid' => $message['guid']]);
 		}
 
 		dba::close($messages);

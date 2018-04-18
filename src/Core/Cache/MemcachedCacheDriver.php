@@ -52,7 +52,7 @@ class MemcachedCacheDriver extends BaseObject implements ICacheDriver
 		return $this->memcached->set(
 			self::getApp()->get_hostname() . ":" . $key,
 			$value,
-			Cache::duration($duration)
+			time() + $duration
 		);
 	}
 

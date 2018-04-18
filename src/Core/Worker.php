@@ -201,7 +201,7 @@ class Worker
 		$mypid = getmypid();
 
 		// Quit when in maintenance
-		if (Config::get('system', 'maintenance', true)) {
+		if (Config::get('system', 'maintenance', false, true)) {
 			logger("Maintenance mode - quit process ".$mypid, LOGGER_DEBUG);
 			return false;
 		}
@@ -1003,7 +1003,7 @@ class Worker
 	 */
 	public static function spawnWorker()
 	{
-		$args = ["scripts/worker.php", "no_cron"];
+		$args = ["bin/worker.php", "no_cron"];
 		get_app()->proc_run($args);
 	}
 

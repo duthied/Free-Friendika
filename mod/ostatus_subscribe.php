@@ -29,12 +29,14 @@ function ostatus_subscribe_content(App $a) {
 	if (PConfig::get($uid, "ostatus", "legacy_friends") == "") {
 
 		if ($_REQUEST["url"] == "") {
+			PConfig::delete($uid, "ostatus", "legacy_contact");
 			return $o.L10n::t("No contact provided.");
 		}
 
 		$contact = Probe::uri($_REQUEST["url"]);
 
 		if (!$contact) {
+			PConfig::delete($uid, "ostatus", "legacy_contact");
 			return $o.L10n::t("Couldn't fetch information for contact.");
 		}
 
@@ -44,6 +46,7 @@ function ostatus_subscribe_content(App $a) {
 		$data = Network::curl($api."statuses/friends.json?screen_name=".$contact["nick"]);
 
 		if (!$data["success"]) {
+			PConfig::delete($uid, "ostatus", "legacy_contact");
 			return $o.L10n::t("Couldn't fetch friends for contact.");
 		}
 

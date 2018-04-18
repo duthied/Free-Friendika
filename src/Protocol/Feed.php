@@ -10,12 +10,13 @@ use Friendica\Database\DBM;
 use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Util\Network;
+use Friendica\Content\Text\HTML;
+
 use dba;
 use DOMDocument;
 use DOMXPath;
 
 require_once 'include/dba.php';
-require_once 'include/html2bbcode.php';
 require_once 'include/items.php';
 
 /**
@@ -85,9 +86,9 @@ class Feed {
 		if ($xpath->query('/atom:feed')->length > 0) {
 			$alternate = $xpath->query("atom:link[@rel='alternate']")->item(0)->attributes;
 			if (is_object($alternate)) {
-				foreach ($alternate AS $attributes) {
-					if ($attributes->name == "href") {
-						$author["author-link"] = $attributes->textContent;
+				foreach ($alternate AS $attribute) {
+					if ($attribute->name == "href") {
+						$author["author-link"] = $attribute->textContent;
 					}
 				}
 			}
@@ -98,9 +99,9 @@ class Feed {
 			if ($author["author-link"] == "") {
 				$self = $xpath->query("atom:link[@rel='self']")->item(0)->attributes;
 				if (is_object($self)) {
-					foreach ($self AS $attributes) {
-						if ($attributes->name == "href") {
-							$author["author-link"] = $attributes->textContent;
+					foreach ($self AS $attribute) {
+						if ($attribute->name == "href") {
+							$author["author-link"] = $attribute->textContent;
 						}
 					}
 				}
@@ -140,9 +141,9 @@ class Feed {
 				}
 				$avatar = $xpath->evaluate("atom:author/atom:link[@rel='avatar']")->item(0)->attributes;
 				if (is_object($avatar)) {
-					foreach ($avatar AS $attributes) {
-						if ($attributes->name == "href") {
-							$author["author-avatar"] = $attributes->textContent;
+					foreach ($avatar AS $attribute) {
+						if ($attribute->name == "href") {
+							$author["author-avatar"] = $attribute->textContent;
 						}
 					}
 				}
@@ -207,13 +208,10 @@ class Feed {
 		}
 
 		$items = [];
+		// Importing older entries first
+		for($i = $entries->length - 1; $i >= 0;--$i) {
+			$entry = $entries->item($i);
 
-		$entrylist = [];
-
-		foreach ($entries AS $entry) {
-			$entrylist[] = $entry;
-		}
-		foreach (array_reverse($entrylist) AS $entry) {
 			$item = array_merge($header, $author);
 
 			$alternate = $xpath->query("atom:link[@rel='alternate']", $entry)->item(0)->attributes;
@@ -221,9 +219,9 @@ class Feed {
 				$alternate = $xpath->query("atom:link", $entry)->item(0)->attributes;
 			}
 			if (is_object($alternate)) {
-				foreach ($alternate AS $attributes) {
-					if ($attributes->name == "href") {
-						$item["plink"] = $attributes->textContent;
+				foreach ($alternate AS $attribute) {
+					if ($attribute->name == "href") {
+						$item["plink"] = $attribute->textContent;
 					}
 				}
 			}
@@ -309,20 +307,20 @@ class Feed {
 
 			$attachments = [];
 
-			$enclosures = $xpath->query("enclosure", $entry);
+			$enclosures = $xpath->query("enclosure|atom:link[@rel='enclosure']", $entry);
 			foreach ($enclosures AS $enclosure) {
 				$href = "";
 				$length = "";
 				$type = "";
 				$title = "";
 
-				foreach ($enclosure->attributes AS $attributes) {
-					if ($attributes->name == "url") {
-						$href = $attributes->textContent;
-					} elseif ($attributes->name == "length") {
-						$length = $attributes->textContent;
-					} elseif ($attributes->name == "type") {
-						$type = $attributes->textContent;
+				foreach ($enclosure->attributes AS $attribute) {
+					if (in_array($attribute->name, ["url", "href"])) {
+						$href = $attribute->textContent;
+					} elseif ($attribute->name == "length") {
+						$length = $attribute->textContent;
+					} elseif ($attribute->name == "type") {
+						$type = $attribute->textContent;
 					}
 				}
 				if (strlen($item["attach"])) {
@@ -363,7 +361,7 @@ class Feed {
 			if (self::titleIsBody($item["title"], $body)) {
 				$item["title"] = "";
 			}
-			$item["body"] = html2bbcode($body, $basepath);
+			$item["body"] = HTML::toBBCode($body, $basepath);
 
 			if (($item["body"] == '') && ($item["title"] != '')) {
 				$item["body"] = $item["title"];

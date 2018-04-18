@@ -13,7 +13,7 @@ use Friendica\Util\DateTimeFormat;
  */
 
 class dba {
-	public static $connected = true;
+	public static $connected = false;
 
 	private static $_server_info = '';
 	private static $db;
@@ -48,17 +48,14 @@ class dba {
 		$db = trim($db);
 
 		if (!(strlen($server) && strlen($user))) {
-			self::$connected = false;
-			self::$db = null;
 			return false;
 		}
 
 		if ($install) {
-			if (strlen($server) && ($server !== 'localhost') && ($server !== '127.0.0.1')) {
-				if (! dns_get_record($server, DNS_A + DNS_CNAME + DNS_PTR)) {
+			// server has to be a non-empty string that is not 'localhost' and not an IP
+			if (strlen($server) && ($server !== 'localhost') && filter_var($server, FILTER_VALIDATE_IP) === false) {
+				if (! dns_get_record($server, DNS_A + DNS_CNAME)) {
 					self::$error = L10n::t('Cannot locate DNS info for database server \'%s\'', $server);
-					self::$connected = false;
-					self::$db = null;
 					return false;
 				}
 			}
@@ -79,7 +76,6 @@ class dba {
 				self::$db = @new PDO($connect, $user, $pass);
 				self::$connected = true;
 			} catch (PDOException $e) {
-				self::$connected = false;
 			}
 		}
 
@@ -98,13 +94,10 @@ class dba {
 		// No suitable SQL driver was found.
 		if (!self::$connected) {
 			self::$db = null;
-			if (!$install) {
-				System::unavailable();
-			}
 		}
 		$a->save_timestamp($stamp1, "network");
 
-		return true;
+		return self::$connected;
 	}
 
 	/**

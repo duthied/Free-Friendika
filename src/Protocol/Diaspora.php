@@ -31,6 +31,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use Friendica\Util\Map;
 use dba;
 use SimpleXMLElement;
 
@@ -46,60 +47,140 @@ class Diaspora
 	/**
 	 * @brief Return a list of relay servers
 	 *
-	 * This is an experimental Diaspora feature.
+	 * The list contains not only the official relays but also servers that we serve directly
+	 *
+	 * @param integer $item_id  The id of the item that is sent
+	 * @param array   $contacts The previously fetched contacts
 	 *
 	 * @return array of relay servers
 	 */
-	public static function relayList()
+	public static function relayList($item_id, $contacts = [])
 	{
+		$serverlist = [];
+
+		// Fetching relay servers
 		$serverdata = Config::get("system", "relay_server");
-		if ($serverdata == "") {
-			return [];
-		}
-
-		$relay = [];
-
-		$servers = explode(",", $serverdata);
-
-		foreach ($servers as $server) {
-			$server = trim($server);
-			$addr = "relay@".str_replace("http://", "", normalise_link($server));
-			$batch = $server."/receive/public";
-
-			$relais = q(
-				"SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' AND `addr` = '%s' AND `nurl` = '%s' LIMIT 1",
-				dbesc($batch),
-				dbesc($addr),
-				dbesc(normalise_link($server))
-			);
-
-			if (!$relais) {
-				$r = q(
-					"INSERT INTO `contact` (`uid`, `created`, `name`, `nick`, `addr`, `url`, `nurl`, `batch`, `network`, `rel`, `blocked`, `pending`, `writable`, `name-date`, `uri-date`, `avatar-date`)
-					VALUES (0, '%s', '%s', 'relay', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, '%s', '%s', '%s')",
-					DateTimeFormat::utcNow(),
-					dbesc($addr),
-					dbesc($addr),
-					dbesc($server),
-					dbesc(normalise_link($server)),
-					dbesc($batch),
-					dbesc(NETWORK_DIASPORA),
-					intval(CONTACT_IS_FOLLOWER),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow()),
-					dbesc(DateTimeFormat::utcNow())
-				);
-
-				$relais = q("SELECT `batch`, `id`, `name`,`network` FROM `contact` WHERE `uid` = 0 AND `batch` = '%s' LIMIT 1", dbesc($batch));
-				if ($relais) {
-					$relay[] = $relais[0];
-				}
-			} else {
-				$relay[] = $relais[0];
+		if ($serverdata != "") {
+			$servers = explode(",", $serverdata);
+			foreach ($servers as $server) {
+				$serverlist[$server] = trim($server);
 			}
 		}
 
-		return $relay;
+		if (Config::get("system", "relay_directly", false)) {
+			// Servers that want to get all content
+			$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'all']);
+			while ($server = dba::fetch($servers)) {
+				$serverlist[$server['url']] = $server['url'];
+			}
+
+			// All tags of the current post
+			$condition = ['otype' => TERM_OBJ_POST, 'type' => TERM_HASHTAG, 'oid' => $item_id];
+			$tags = dba::select('term', ['term'], $condition);
+			$taglist = [];
+			while ($tag = dba::fetch($tags)) {
+				$taglist[] = $tag['term'];
+			}
+
+			// All servers who wants content with this tag
+			$tagserverlist = [];
+			if (!empty($taglist)) {
+				$tagserver = dba::select('gserver-tag', ['gserver-id'], ['tag' => $taglist]);
+				while ($server = dba::fetch($tagserver)) {
+					$tagserverlist[] = $server['gserver-id'];
+				}
+			}
+
+			// All adresses with the given id
+			if (!empty($tagserverlist)) {
+				$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
+				while ($server = dba::fetch($servers)) {
+					$serverlist[$server['url']] = $server['url'];
+				}
+			}
+		}
+
+		// Now we are collecting all relay contacts
+		foreach ($serverlist as $server_url) {
+			// We don't send messages to ourselves
+			if (link_compare($server_url, System::baseUrl())) {
+				continue;
+			}
+			$contact = self::getRelayContact($server_url);
+			if (is_bool($contact)) {
+				continue;
+			}
+
+			$exists = false;
+			foreach ($contacts as $entry) {
+				if ($entry['batch'] == $contact['batch']) {
+					$exists = true;
+				}
+			}
+
+			if (!$exists) {
+				$contacts[] = $contact;
+			}
+		}
+
+		return $contacts;
+	}
+
+	/**
+	 * @brief Return a contact for a given server address or creates a dummy entry
+	 *
+	 * @param string $server_url The url of the server
+	 * @return array with the contact
+	 */
+	private static function getRelayContact($server_url)
+	{
+		$batch = $server_url . '/receive/public';
+
+		$fields = ['batch', 'id', 'name', 'network', 'archive', 'blocked'];
+
+		// Fetch the relay contact
+		$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
+			'contact-type' => ACCOUNT_TYPE_RELAY];
+		$contact = dba::selectFirst('contact', $fields, $condition);
+
+		// If there is nothing found, we check if there is some unmarked relay
+		// This code segment can be removed before the release 2018-05
+		if (!DBM::is_result($contact)) {
+			$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
+				'name' => 'relay', 'nick' => 'relay', 'url' => $server_url];
+			$contact = dba::selectFirst('contact', $fields, $condition);
+
+			if (DBM::is_result($contact)) {
+				// Mark the relay account as a relay account
+				$fields = ['contact-type' => ACCOUNT_TYPE_RELAY];
+				dba::update('contact', $fields, ['id' => $contact['id']]);
+			}
+		}
+		if (DBM::is_result($contact)) {
+			if ($contact['archive'] || $contact['blocked']) {
+				return false;
+			}
+			return $contact;
+		} else {
+			$fields = ['uid' => 0, 'created' => DateTimeFormat::utcNow(),
+				'name' => 'relay', 'nick' => 'relay',
+				'url' => $server_url, 'nurl' => normalise_link($server_url),
+				'batch' => $batch, 'network' => NETWORK_DIASPORA,
+				'rel' => CONTACT_IS_FOLLOWER, 'blocked' => false,
+				'contact-type' => ACCOUNT_TYPE_RELAY,
+				'pending' => false, 'writable' => true];
+			dba::insert('contact', $fields);
+
+			$fields = ['batch', 'id', 'name', 'network'];
+			$contact = dba::selectFirst('contact', $fields, $condition);
+			if (DBM::is_result($contact)) {
+				return $contact;
+			}
+
+		}
+
+		// It should never happen that we arrive here
+		return [];
 	}
 
 	/**
@@ -222,11 +303,20 @@ class Diaspora
 
 		$signable_data = $msg.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
 
+		if ($handle == '') {
+			logger('No author could be decoded. Discarding. Message: ' . $envelope);
+			return false;
+		}
+
 		$key = self::key($handle);
+		if ($key == '') {
+			logger("Couldn't get a key for handle " . $handle . ". Discarding.");
+			return false;
+		}
 
 		$verify = Crypto::rsaVerify($signable_data, $sig, $key);
 		if (!$verify) {
-			logger('Message did not verify. Discarding.');
+			logger('Message from ' . $handle . ' did not verify. Discarding.');
 			return false;
 		}
 
@@ -322,7 +412,16 @@ class Diaspora
 		// Get the senders' public key
 		$key_id = $base->sig[0]->attributes()->key_id[0];
 		$author_addr = base64_decode($key_id);
+		if ($author_addr == '') {
+			logger('No author could be decoded. Discarding. Message: ' . $xml);
+			System::httpExit(400);
+		}
+
 		$key = self::key($author_addr);
+		if ($key == '') {
+			logger("Couldn't get a key for handle " . $author_addr . ". Discarding.");
+			System::httpExit(400);
+		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 		if (!$verify) {
@@ -2212,7 +2311,10 @@ class Diaspora
 		}
 
 		logger('Received participation for ID: '.$item['id'].' - Contact: '.$contact_id.' - Server: '.$server, LOGGER_DEBUG);
-		dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'fid' => $person['id'], 'server' => $server]);
+
+		if (!dba::exists('participation', ['iid' => $item['id'], 'server' => $server])) {
+			dba::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'fid' => $person['id'], 'server' => $server]);
+		}
 
 		// Send all existing comments and likes to the requesting server
 		$comments = dba::p("SELECT `item`.`id`, `item`.`verb`, `contact`.`self`
@@ -3143,7 +3245,7 @@ class Diaspora
 	 *
 	 * @return string The message that will be transmitted to other servers
 	 */
-	private static function buildMessage($msg, $user, $contact, $prvkey, $pubkey, $public = false)
+	public static function buildMessage($msg, $user, $contact, $prvkey, $pubkey, $public = false)
 	{
 		// The message is put into an envelope with the sender's signature
 		$envelope = self::buildMagicEnvelope($msg, $user);
@@ -3197,13 +3299,16 @@ class Diaspora
 		}
 
 		$logid = random_string(4);
+
 		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
-		// Fetch the fcontact entry when there is missing data
-		// Will possibly happen when data is transmitted to a DFRN contact
-		if (empty($dest_url) && !empty($contact['addr'])) {
+		// We always try to use the data from the fcontact table.
+		// This is important for transmitting data to Friendica servers.
+		if (!empty($contact['addr'])) {
 			$fcontact = self::personByHandle($contact['addr']);
-			$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
+			if (!empty($fcontact)) {
+				$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
+			}
 		}
 
 		if (!$dest_url) {
@@ -3227,10 +3332,10 @@ class Diaspora
 			}
 		}
 
-		logger("transmit: ".$logid."-".$guid." returns: ".$return_code);
+		logger("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
 		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
-			if (!$no_queue) {
+			if (!$no_queue && ($contact['contact-type'] != ACCOUNT_TYPE_RELAY)) {
 				logger("queue message");
 				// queue message for redelivery
 				Queue::add($contact["id"], NETWORK_DIASPORA, $envelope, $public_batch, $guid);
@@ -3588,10 +3693,18 @@ class Diaspora
 			$eventdata['description'] = html_entity_decode(BBCode::toMarkdown($event['desc']));
 		}
 		if ($event['location']) {
+			$event['location'] = preg_replace("/\[map\](.*?)\[\/map\]/ism", '$1', $event['location']);
+			$coord = Map::getCoordinates($event['location']);
+
 			$location = [];
 			$location["address"] = html_entity_decode(BBCode::toMarkdown($event['location']));
-			$location["lat"] = 0;
-			$location["lng"] = 0;
+			if (!empty($coord['lat']) && !empty($coord['lon'])) {
+				$location["lat"] = $coord['lat'];
+				$location["lng"] = $coord['lon'];
+			} else {
+				$location["lat"] = 0;
+				$location["lng"] = 0;
+			}
 			$eventdata['location'] = $location;
 		}
 
@@ -3637,6 +3750,12 @@ class Diaspora
 		} else {
 			$title = $item["title"];
 			$body = $item["body"];
+
+			if ($item['author-link'] != $item['owner-link']) {
+				require_once 'mod/share.php';
+				$body = share_header($item['author-name'], $item['author-link'], $item['author-avatar'],
+					"", $item['created'], $item['plink']) . $body . '[/share]';
+			}
 
 			// convert to markdown
 			$body = html_entity_decode(BBCode::toMarkdown($body));
@@ -3685,7 +3804,13 @@ class Diaspora
 				if (count($event)) {
 					$message['event'] = $event;
 
-					/// @todo Once Diaspora supports it, we will remove the body
+					if (!empty($event['location']['address']) &&
+						!empty($event['location']['lat']) &&
+						!empty($event['location']['lng'])) {
+						$message['location'] = $event['location'];
+					}
+
+					/// @todo Once Diaspora supports it, we will remove the body and the location hack above
 					// $message['text'] = '';
 				}
 			}

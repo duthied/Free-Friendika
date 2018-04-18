@@ -37,7 +37,7 @@ class DatabaseCacheDriver implements ICacheDriver
 	{
 		$fields = [
 			'v'       => serialize($value),
-			'expires' => DateTimeFormat::utc('now + ' . Cache::duration($duration) . ' seconds'),
+			'expires' => DateTimeFormat::utc('now + ' . $duration . ' seconds'),
 			'updated' => DateTimeFormat::utcNow()
 		];
 

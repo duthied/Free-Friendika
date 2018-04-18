@@ -109,6 +109,9 @@ function admin_post(App $a)
 				}
 				$return_path = 'admin/themes/' . $theme;
 				break;
+			case 'tos':
+				admin_page_tos_post($a);
+				break;
 			case 'features':
 				admin_page_features_post($a);
 				break;
@@ -181,7 +184,8 @@ function admin_content(App $a)
 			'users'        => ["admin/users/"       , L10n::t("Users")                , "users"],
 			'addons'       => ["admin/addons/"      , L10n::t("Addons")               , "addons"],
 			'themes'       => ["admin/themes/"      , L10n::t("Themes")               , "themes"],
-			'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"] ]],
+			'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"],
+			'tos'          => ["admin/tos/"         , L10n::t("Terms of Service")     , "tos"] ]],
 		'database' => [ L10n::t('Database'), [
 			'dbsync'       => ["admin/dbsync/"      , L10n::t('DB updates')           , "dbsync"],
 			'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"], ]],
@@ -265,6 +269,9 @@ function admin_content(App $a)
 			case 'deleteitem':
 				$o = admin_page_deleteitem($a);
 				break;
+			case 'tos':
+				$o = admin_page_tos($a);
+				break;
 			default:
 				notice(L10n::t("Item not found."));
 		}
@@ -281,6 +288,50 @@ function admin_content(App $a)
 	}
 }
 
+/**
+ * @brief Subpage to define the display of a Terms of Usage page.
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_tos(App $a)
+{
+	$t = get_markup_template('admin/tos.tpl');
+	return replace_macros($t, [
+		'$title' => L10n::t('Administration'),
+		'$page' => L10n::t('Terms of Service'),
+		'$displaytos' => ['displaytos', L10n::t('Display Terms of Service'), Config::get('system', 'tosdisplay'), L10n::t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
+		'$displayprivstatement' => ['displayprivstatement', L10n::t('Display Privacy Statement'), Config::get('system','tosprivstatement'), L10n::t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.','https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
+		'$tostext' => ['tostext', L10n::t('The Terms of Service'), Config::get('system', 'tostext'), L10n::t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
+		'$form_security_token' => get_form_security_token("admin_tos"),
+		'$submit' => L10n::t('Save Settings'),
+	]);
+}
+/**
+ * @brief Process send data from Admin TOS Page
+ *
+ * @param App $a
+ */
+function admin_page_tos_post(App $a)
+{
+	check_form_security_token_redirectOnErr('/admin/tos', 'admin_tos');
+
+	if (!x($_POST, "page_tos")) {
+		return;
+	}
+
+	$displaytos = ((x($_POST, 'displaytos')) ? True : False);
+	$displayprivstatement = ((x($_POST, 'displayprivstatement')) ? True : False);
+	$tostext = ((x($_POST, 'tostext')) ? strip_tags(trim($_POST['tostext'])) : '');
+
+	Config::set('system', 'tosdisplay', $displaytos);
+	Config::set('system', 'tosprivstatement', $displayprivstatement);
+	Config::set('system', 'tostext', $tostext);
+
+	goaway('admin/tos');
+
+	return; // NOTREACHED
+}
 /**
  * @brief Subpage to modify the server wide block list via the admin panel.
  *
@@ -635,8 +686,21 @@ function admin_page_federation(App $a)
 			$v = $newVv;
 		}
 
-		foreach ($v as $key => $vv)
-			$v[$key]["version"] = trim(strip_tags($vv["version"]));
+		// Assure that the versions are sorted correctly
+		$v2 = [];
+		$versions = [];
+		foreach ($v as $vv) {
+			$version = trim(strip_tags($vv["version"]));
+			$v2[$version] = $vv;
+			$versions[] = $version;
+		}
+
+		usort($versions, 'version_compare');
+
+		$v = [];
+		foreach ($versions as $version) {
+			$v[] = $v2[$version];
+		}
 
 		// the 3rd array item is needed for the JavaScript graphs as JS does
 		// not like some characters in the names of variables...
@@ -718,7 +782,7 @@ function admin_page_summary(App $a)
 	$warningtext = [];
 	if (DBM::is_result($r)) {
 		$showwarning = true;
-		$warningtext[] = L10n::t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php scripts/dbstructure.php toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
+		$warningtext[] = L10n::t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
 	// Check if github.com/friendica/master/VERSION is higher then
 	// the local version of Friendica. Check is opt-in, source may be master or devel branch
@@ -735,7 +799,7 @@ function admin_page_summary(App $a)
 	}
 	if (Config::get('system', 'dbupdate') == DB_UPDATE_FAILED) {
 		$showwarning = true;
-		$warningtext[] = L10n::t('The database update failed. Please run "php scripts/dbstructure.php update" from the command line and have a look at the errors that might appear.');
+		$warningtext[] = L10n::t('The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.');
 	}
 
 	$last_worker_call = Config::get('system', 'last_poller_execution', false);
@@ -871,8 +935,9 @@ function admin_page_site_post(App $a)
 		update_table("gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
-		$a->set_baseurl($new_url);
+		Config::set('system', 'hostname', parse_url($new_url,  PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
+		$a->set_baseurl($new_url);
 
 		// send relocate
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
@@ -906,7 +971,7 @@ function admin_page_site_post(App $a)
 	$daily_registrations	=	((x($_POST,'max_daily_registrations'))	? intval(trim($_POST['max_daily_registrations']))	:0);
 	$abandon_days	    	=	((x($_POST,'abandon_days'))		? intval(trim($_POST['abandon_days']))		:  0);
 
-	$register_text		=	((x($_POST,'register_text'))		? notags(trim($_POST['register_text']))		: '');
+	$register_text		=	((x($_POST,'register_text'))		? strip_tags(trim($_POST['register_text']))		: '');
 
 	$allowed_sites		=	((x($_POST,'allowed_sites'))		? notags(trim($_POST['allowed_sites']))		: '');
 	$allowed_email		=	((x($_POST,'allowed_email'))		? notags(trim($_POST['allowed_email']))		: '');
@@ -960,10 +1025,18 @@ function admin_page_site_post(App $a)
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
+
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
 	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
+
+	$relay_directly		=	((x($_POST,'relay_directly'))		? True						: False);
+	$relay_server		=	((x($_POST,'relay_server'))		? notags(trim($_POST['relay_server']))		: '');
+	$relay_subscribe	=	((x($_POST,'relay_subscribe'))		? True						: False);
+	$relay_scope		=	((x($_POST,'relay_scope'))		? notags(trim($_POST['relay_scope']))		: '');
+	$relay_server_tags	=	((x($_POST,'relay_server_tags'))	? notags(trim($_POST['relay_server_tags']))	: '');
+	$relay_user_tags	=	((x($_POST,'relay_user_tags'))		? True						: False);
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
@@ -1118,10 +1191,19 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'basepath', $basepath);
 	Config::set('system', 'proxy_disabled', $proxy_disabled);
 	Config::set('system', 'only_tag_search', $only_tag_search);
+
 	Config::set('system', 'worker_queues', $worker_queues);
 	Config::set('system', 'worker_dont_fork', $worker_dont_fork);
 	Config::set('system', 'worker_fastlane', $worker_fastlane);
 	Config::set('system', 'frontend_worker', $worker_frontend);
+
+	Config::set('system', 'relay_directly', $relay_directly);
+	Config::set('system', 'relay_server', $relay_server);
+	Config::set('system', 'relay_subscribe', $relay_subscribe);
+	Config::set('system', 'relay_scope', $relay_scope);
+	Config::set('system', 'relay_server_tags', $relay_server_tags);
+	Config::set('system', 'relay_user_tags', $relay_user_tags);
+
 	Config::set('system', 'rino_encrypt', $rino);
 
 	info(L10n::t('Site settings updated.') . EOL);
@@ -1270,6 +1352,7 @@ function admin_page_site(App $a)
 		'$portable_contacts' => L10n::t('Auto Discovered Contact Directory'),
 		'$performance' => L10n::t('Performance'),
 		'$worker_title' => L10n::t('Worker'),
+		'$relay_title' => L10n::t('Message Relay'),
 		'$relocate' => L10n::t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
@@ -1293,7 +1376,7 @@ function admin_page_site(App $a)
 
 		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), $a->config['register_policy'], "", $register_choices],
 		'$daily_registrations'	=> ['max_daily_registrations', L10n::t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), L10n::t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
-		'$register_text'	=> ['register_text', L10n::t("Register text"), $a->config['register_text'], L10n::t("Will be displayed prominently on the registration page.")],
+		'$register_text'	=> ['register_text', L10n::t("Register text"), $a->config['register_text'], L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
 		'$abandon_days'		=> ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
 		'$allowed_sites'	=> ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system','allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
 		'$allowed_email'	=> ['allowed_email', L10n::t("Allowed email domains"), Config::get('system','allowed_email'), L10n::t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
@@ -1301,7 +1384,7 @@ function admin_page_site(App $a)
 		'$allowed_oembed'	=> ['allowed_oembed', L10n::t("Allowed OEmbed domains"), Config::get('system','allowed_oembed'), L10n::t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")],
 		'$block_public'		=> ['block_public', L10n::t("Block public"), Config::get('system','block_public'), L10n::t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")],
 		'$force_publish'	=> ['publish_all', L10n::t("Force publish"), Config::get('system','publish_all'), L10n::t("Check to force all profiles on this site to be listed in the site directory.")],
-		'$global_directory'	=> ['directory', L10n::t("Global directory URL"), Config::get('system','directory'), L10n::t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")],
+		'$global_directory'	=> ['directory', L10n::t("Global directory URL"), Config::get('system', 'directory', 'https://dir.friendica.social'), L10n::t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")],
 		'$newuser_private'	=> ['newuser_private', L10n::t("Private posts by default for new users"), Config::get('system','newuser_private'), L10n::t("Set default post permissions for all new members to the default privacy group rather than public.")],
 		'$enotify_no_content'	=> ['enotify_no_content', L10n::t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), L10n::t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")],
 		'$private_addons'	=> ['private_addons', L10n::t("Disallow public access to addons listed in the apps menu."), Config::get('config','private_addons'), L10n::t("Checking this box will restrict addons listed in the apps menu to members only.")],
@@ -1317,17 +1400,17 @@ function admin_page_site(App $a)
 		'$ostatus_not_able'	=> L10n::t("OStatus support can only be enabled if threading is enabled."),
 		'$diaspora_able'	=> $diaspora_able,
 		'$diaspora_not_able'	=> L10n::t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
-		'$diaspora_enabled'	=> ['diaspora_enabled', L10n::t("Enable Diaspora support"), Config::get('system','diaspora_enabled'), L10n::t("Provide built-in Diaspora network compatibility.")],
+		'$diaspora_enabled'	=> ['diaspora_enabled', L10n::t("Enable Diaspora support"), Config::get('system', 'diaspora_enabled', $diaspora_able), L10n::t("Provide built-in Diaspora network compatibility.")],
 		'$dfrn_only'		=> ['dfrn_only', L10n::t('Only allow Friendica contacts'), Config::get('system','dfrn_only'), L10n::t("All contacts must use Friendica protocols. All other built-in communication protocols disabled.")],
 		'$verifyssl' 		=> ['verifyssl', L10n::t("Verify SSL"), Config::get('system','verifyssl'), L10n::t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect \x28at all\x29 to self-signed SSL sites.")],
 		'$proxyuser'		=> ['proxyuser', L10n::t("Proxy user"), Config::get('system','proxyuser'), ""],
 		'$proxy'		=> ['proxy', L10n::t("Proxy URL"), Config::get('system','proxy'), ""],
-		'$timeout'		=> ['timeout', L10n::t("Network timeout"), (x(Config::get('system','curl_timeout'))?Config::get('system','curl_timeout'):60), L10n::t("Value is in seconds. Set to 0 for unlimited \x28not recommended\x29.")],
-		'$maxloadavg'		=> ['maxloadavg', L10n::t("Maximum Load Average"), ((intval(Config::get('system','maxloadavg')) > 0)?Config::get('system','maxloadavg'):50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
-		'$maxloadavg_frontend'	=> ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), ((intval(Config::get('system','maxloadavg_frontend')) > 0)?Config::get('system','maxloadavg_frontend'):50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
-		'$min_memory'		=> ['min_memory', L10n::t("Minimal Memory"), ((intval(Config::get('system','min_memory')) > 0)?Config::get('system','min_memory'):0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
+		'$timeout'		=> ['timeout', L10n::t("Network timeout"), Config::get('system', 'curl_timeout', 60), L10n::t("Value is in seconds. Set to 0 for unlimited \x28not recommended\x29.")],
+		'$maxloadavg'		=> ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
+		'$maxloadavg_frontend'	=> ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), Config::get('system', 'maxloadavg_frontend', 50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
+		'$min_memory'		=> ['min_memory', L10n::t("Minimal Memory"), Config::get('system', 'min_memory', 0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
 		'$optimize_max_tablesize'=> ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization - default 100 MB. Enter -1 to disable it.")],
-		'$optimize_fragmentation'=> ['optimize_fragmentation', L10n::t("Minimum level of fragmentation"), ((intval(Config::get('system','optimize_fragmentation')) > 0)?Config::get('system','optimize_fragmentation'):30), L10n::t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")],
+		'$optimize_fragmentation'=> ['optimize_fragmentation', L10n::t("Minimum level of fragmentation"), Config::get('system', 'optimize_fragmentation', 30), L10n::t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")],
 
 		'$poco_completion'	=> ['poco_completion', L10n::t("Periodical check of global contacts"), Config::get('system','poco_completion'), L10n::t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
 		'$poco_requery_days'	=> ['poco_requery_days', L10n::t("Days between requery"), Config::get('system','poco_requery_days'), L10n::t("Number of days after which a server is requeried for his contacts.")],
@@ -1349,12 +1432,19 @@ function admin_page_site(App $a)
 
 		'$relocate_url'		=> ['relocate_url', L10n::t("New base url"), System::baseUrl(), L10n::t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],
 
-		'$rino' 		=> ['rino', L10n::t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => "Disabled", 1 => "Enabled"]],
+		'$rino' 		=> ['rino', L10n::t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => L10n::t("Disabled"), 1 => L10n::t("Enabled")]],
 
 		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")],
 		'$worker_dont_fork'	=> ['worker_dont_fork', L10n::t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), L10n::t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
 		'$worker_fastlane'	=> ['worker_fastlane', L10n::t("Enable fastlane"), Config::get('system','worker_fastlane'), L10n::t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
 		'$worker_frontend'	=> ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system','frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed \x28e.g. messages being delivered\x29. On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
+
+		'$relay_subscribe' 	=> ['relay_subscribe', L10n::t("Subscribe to relay"), Config::get('system','relay_subscribe'), L10n::t("Enables the receiving of public posts from the relay. They will be included in the search, subscribed tags and on the global community page.")],
+		'$relay_server'		=> ['relay_server', L10n::t("Relay server"), Config::get('system', 'relay_server', 'https://relay.diasp.org'), L10n::t("Address of the relay server where public posts should be send to. For example https://relay.diasp.org")],
+		'$relay_directly'	=> ['relay_directly', L10n::t("Direct relay transfer"), Config::get('system','relay_directly'), L10n::t("Enables the direct transfer to other servers without using the relay servers")],
+		'$relay_scope'		=> ['relay_scope', L10n::t("Relay scope"), Config::get('system','relay_scope'), L10n::t("Can be 'all' or 'tags'. 'all' means that every public post should be received. 'tags' means that only posts with selected tags should be received."), ['' => L10n::t('Disabled'), 'all' => L10n::t('all'), 'tags' => L10n::t('tags')]],
+		'$relay_server_tags' 	=> ['relay_server_tags', L10n::t("Server tags"), Config::get('system','relay_server_tags'), L10n::t("Comma separated list of tags for the 'tags' subscription.")],
+		'$relay_user_tags' 	=> ['relay_user_tags', L10n::t("Allow user tags"), Config::get('system', 'relay_user_tags', true), L10n::t("If enabled, the tags from the saved searches will used for the 'tags' subscription in addition to the 'relay_server_tags'.")],
 
 		'$form_security_token'	=> get_form_security_token("admin_site")
 	]);
@@ -1508,6 +1598,8 @@ function admin_page_users_post(App $a)
 			If you are new and do not know anybody here, they may help
 			you to make some new and interesting friends.
 
+			If you ever want to delete your account, you can do so at %1$s/removeme
+
 			Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $user['username'], $a->config['sitename']);
@@ -1568,7 +1660,7 @@ function admin_page_users(App $a)
 	if ($a->argc > 2) {
 		$uid = $a->argv[3];
 		$user = dba::selectFirst('user', ['username', 'blocked'], ['uid' => $uid]);
-		if (DBM::is_result($user)) {
+		if (!DBM::is_result($user)) {
 			notice('User not found' . EOL);
 			goaway('admin/users');
 			return ''; // NOTREACHED

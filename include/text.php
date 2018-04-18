@@ -14,6 +14,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Render\FriendicaSmarty;
@@ -21,7 +22,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
 require_once "mod/proxy.php";
-require_once "include/event.php";
 require_once "include/conversation.php";
 
 /**
@@ -1062,7 +1062,7 @@ function linkify($s) {
  * Load poke verbs
  *
  * @return array index is present tense verb
-				 value is array containing past tense verb, translation of present, translation of past
+ * 				 value is array containing past tense verb, translation of present, translation of past
  * @hook poke_verbs pokes array
  */
 function get_poke_verbs() {
@@ -1169,46 +1169,68 @@ function redir_private_images($a, &$item)
 	}
 }
 
+/**
+ * Sets the "rendered-html" field of the provided item
+ *
+ * Body is preserved to avoid side-effects as we modify it just-in-time for spoilers and private image links
+ *
+ * @param array $item
+ * @param bool  $update
+ *
+ * @todo Remove reference, simply return "rendered-html" and "rendered-hash"
+ */
 function put_item_in_cache(&$item, $update = false)
 {
+	$body = $item["body"];
+
 	$rendered_hash = defaults($item, 'rendered-hash', '');
+	$rendered_html = defaults($item, 'rendered-html', '');
 
 	if ($rendered_hash == ''
 		|| $item["rendered-html"] == ""
 		|| $rendered_hash != hash("md5", $item["body"])
 		|| Config::get("system", "ignore_cache")
 	) {
-		// The function "redir_private_images" changes the body.
-		// I'm not sure if we should store it permanently, so we save the old value.
-		$body = $item["body"];
-
 		$a = get_app();
 		redir_private_images($a, $item);
 
 		$item["rendered-html"] = prepare_text($item["body"]);
 		$item["rendered-hash"] = hash("md5", $item["body"]);
-		$item["body"] = $body;
+
+		// Force an update if the generated values differ from the existing ones
+		if ($rendered_hash != $item["rendered-hash"]) {
+			$update = true;
+		}
+
+		// Only compare the HTML when we forcefully ignore the cache
+		if (Config::get("system", "ignore_cache") && ($rendered_html != $item["rendered-html"])) {
+			$update = true;
+		}
 
 		if ($update && ($item["id"] > 0)) {
 			dba::update('item', ['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
 					['id' => $item["id"]], false);
 		}
 	}
+
+	$item["body"] = $body;
 }
 
 /**
  * @brief Given an item array, convert the body element from bbcode to html and add smilie icons.
  * If attach is true, also add icons for item attachments.
  *
- * @param array $item
+ * @param array   $item
  * @param boolean $attach
+ * @param boolean $is_preview
  * @return string item body html
  * @hook prepare_body_init item array before any work
- * @hook prepare_body ('item'=>item array, 'html'=>body string) after first bbcode to html
+ * @hook prepare_body_content_filter ('item'=>item array, 'filter_reasons'=>string array) before first bbcode to html
+ * @hook prepare_body ('item'=>item array, 'html'=>body string, 'is_preview'=>boolean, 'filter_reasons'=>string array) after first bbcode to html
  * @hook prepare_body_final ('item'=>item array, 'html'=>body string) after attach icons and blockquote special case handling (spoiler, author)
  */
-function prepare_body(&$item, $attach = false, $preview = false) {
-
+function prepare_body(array &$item, $attach = false, $is_preview = false)
+{
 	$a = get_app();
 	Addon::callHooks('prepare_body_init', $item);
 
@@ -1221,41 +1243,57 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	// In order to provide theme developers more possibilities, event items
 	// are treated differently.
 	if ($item['object-type'] === ACTIVITY_OBJ_EVENT && isset($item['event-id'])) {
-		$ev = format_event_item($item);
+		$ev = Event::getItemHTML($item);
 		return $ev;
 	}
 
-	if (!Config::get('system','suppress_tags')) {
-		$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
-				intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
+	$taglist = dba::p("SELECT `type`, `term`, `url` FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?) ORDER BY `tid`",
+			intval(TERM_OBJ_POST), intval($item['id']), intval(TERM_HASHTAG), intval(TERM_MENTION));
 
-		while ($tag = dba::fetch($taglist)) {
-			if ($tag["url"] == "") {
-				$tag["url"] = $searchpath.strtolower($tag["term"]);
-			}
-
-			$orig_tag = $tag["url"];
-
-			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
-
-			if ($tag["type"] == TERM_HASHTAG) {
-				if ($orig_tag != $tag["url"]) {
-					$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
-				}
-				$hashtags[] = "#<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
-				$prefix = "#";
-			} elseif ($tag["type"] == TERM_MENTION) {
-				$mentions[] = "@<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
-				$prefix = "@";
-			}
-			$tags[] = $prefix."<a href=\"".$tag["url"]."\" target=\"_blank\">".$tag["term"]."</a>";
+	while ($tag = dba::fetch($taglist)) {
+		if ($tag["url"] == "") {
+			$tag["url"] = $searchpath . strtolower($tag["term"]);
 		}
-		dba::close($taglist);
+
+		$orig_tag = $tag["url"];
+
+		$tag["url"] = best_link_url($item, $sp, $tag["url"]);
+
+		if ($tag["type"] == TERM_HASHTAG) {
+			if ($orig_tag != $tag["url"]) {
+				$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
+			}
+
+			$hashtags[] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+			$prefix = "#";
+		} elseif ($tag["type"] == TERM_MENTION) {
+			$mentions[] = "@<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+			$prefix = "@";
+		}
+
+		$tags[] = $prefix . "<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
 	}
+	dba::close($taglist);
 
 	$item['tags'] = $tags;
 	$item['hashtags'] = $hashtags;
 	$item['mentions'] = $mentions;
+
+	// Compile eventual content filter reasons
+	$filter_reasons = [];
+	if (!$is_preview && !($item['self'] && local_user() == $item['uid'])) {
+		if (!empty($item['content-warning']) && (!local_user() || !PConfig::get(local_user(), 'system', 'disable_cw', false))) {
+			$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
+		}
+
+		$hook_data = [
+			'item' => $item,
+			'filter_reasons' => $filter_reasons
+		];
+		Addon::callHooks('prepare_body_content_filter', $hook_data);
+		$filter_reasons = $hook_data['filter_reasons'];
+		unset($hook_data);
+	}
 
 	// Update the cached values if there is no "zrl=..." on the links.
 	$update = (!local_user() && !remote_user() && ($item["uid"] == 0));
@@ -1268,9 +1306,17 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 	put_item_in_cache($item, $update);
 	$s = $item["rendered-html"];
 
-	$prep_arr = ['item' => $item, 'html' => $s, 'preview' => $preview];
-	Addon::callHooks('prepare_body', $prep_arr);
-	$s = $prep_arr['html'];
+	$hook_data = [
+		'item' => $item,
+		'html' => $s,
+		'preview' => $is_preview,
+		'filter_reasons' => $filter_reasons
+	];
+	Addon::callHooks('prepare_body', $hook_data);
+	$s = $hook_data['html'];
+	unset($hook_data);
+
+	$s = apply_content_filter($s, $filter_reasons);
 
 	if (! $attach) {
 		// Replace the blockquotes with quotes that are used in mails.
@@ -1281,62 +1327,55 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 
 	$as = '';
 	$vhead = false;
-	$arr = explode('[/attach],', $item['attach']);
-	if (count($arr)) {
-		foreach ($arr as $r) {
-			$matches = false;
-			$icon = '';
-			$cnt = preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|',$r ,$matches, PREG_SET_ORDER);
-			if ($cnt) {
-				foreach ($matches as $mtch) {
-					$mime = $mtch[3];
+	$matches = [];
+	preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\"(?: title=\"(.*?)\")?|', $item['attach'], $matches, PREG_SET_ORDER);
+	foreach ($matches as $mtch) {
+		$mime = $mtch[3];
 
-					if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
-						$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
-					} else {
-						$the_url = $mtch[1];
-					}
-
-					if (strpos($mime, 'video') !== false) {
-						if (!$vhead) {
-							$vhead = true;
-							$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
-								'$baseurl' => System::baseUrl(),
-							]);
-							$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), [
-								'$baseurl' => System::baseUrl(),
-							]);
-						}
-
-						$id = end(explode('/', $the_url));
-						$as .= replace_macros(get_markup_template('video_top.tpl'), [
-							'$video' => [
-								'id'     => $id,
-								'title'  => L10n::t('View Video'),
-								'src'    => $the_url,
-								'mime'   => $mime,
-							],
-						]);
-					}
-
-					$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
-					if ($filetype) {
-						$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
-						$filesubtype = str_replace('.', '-', $filesubtype);
-					} else {
-						$filetype = 'unkn';
-						$filesubtype = 'unkn';
-					}
-
-					$title = ((strlen(trim($mtch[4]))) ? escape_tags(trim($mtch[4])) : escape_tags($mtch[1]));
-					$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
-
-					$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-					$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
-				}
-			}
+		if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
+			$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
+		} else {
+			$the_url = $mtch[1];
 		}
+
+		if (strpos($mime, 'video') !== false) {
+			if (!$vhead) {
+				$vhead = true;
+				$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
+					'$baseurl' => System::baseUrl(),
+				]);
+				$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), [
+					'$baseurl' => System::baseUrl(),
+				]);
+			}
+
+			$id = end(explode('/', $the_url));
+			$as .= replace_macros(get_markup_template('video_top.tpl'), [
+				'$video' => [
+					'id'     => $id,
+					'title'  => L10n::t('View Video'),
+					'src'    => $the_url,
+					'mime'   => $mime,
+				],
+			]);
+		}
+
+		$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
+		if ($filetype) {
+			$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
+			$filesubtype = str_replace('.', '-', $filesubtype);
+		} else {
+			$filetype = 'unkn';
+			$filesubtype = 'unkn';
+		}
+
+		$title = escape_tags(trim(!empty($mtch[4]) ? $mtch[4] : $mtch[1]));
+		$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
+
+		$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
+		$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
 	}
+
 	if ($as != '') {
 		$s .= '<div class="body-attach">'.$as.'<div class="clear"></div></div>';
 	}
@@ -1386,10 +1425,39 @@ function prepare_body(&$item, $attach = false, $preview = false) {
 		$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
 	}
 
-	$prep_arr = ['item' => $item, 'html' => $s];
-	Addon::callHooks('prepare_body_final', $prep_arr);
+	$hook_data = ['item' => $item, 'html' => $s];
+	Addon::callHooks('prepare_body_final', $hook_data);
 
-	return $prep_arr['html'];
+	return $hook_data['html'];
+}
+
+/**
+ * Given a HTML text and a set of filtering reasons, adds a content hiding header with the provided reasons
+ *
+ * Reasons are expected to have been translated already.
+ *
+ * @param string $html
+ * @param array  $reasons
+ * @return string
+ */
+function apply_content_filter($html, array $reasons)
+{
+	if (count($reasons)) {
+		$rnd = random_string(8);
+		$content_filter_html = '<ul class="content-filter-reasons">';
+		foreach ($reasons as $reason) {
+			$content_filter_html .= '<li>' . htmlspecialchars($reason) . '</li>' . PHP_EOL;
+		}
+		$content_filter_html .= '</ul>
+			<p><span id="content-filter-wrap-' . $rnd . '" class="fakelink content-filter-button" onclick=openClose(\'content-filter-' . $rnd . '\'); >' .
+			L10n::t('Click to open/close') .
+			'</span></p>
+			<div id="content-filter-' . $rnd . '" class="content-filter-content" style="display: none;">';
+
+		$html = $content_filter_html . $html . '</div>';
+	}
+
+	return $html;
 }
 
 /**
@@ -2021,6 +2089,10 @@ function format_network_name($network, $url = 0) {
 function text_highlight($s, $lang) {
 	if ($lang === 'js') {
 		$lang = 'javascript';
+	}
+
+	if ($lang === 'bash') {
+		$lang = 'sh';
 	}
 
 	// @TODO: Replace Text_Highlighter_Renderer_Html by scrivo/highlight.php
