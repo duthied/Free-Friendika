@@ -43,7 +43,7 @@ Commands:
 	globalcommunityblock   Block remote profile from interacting with this node
 	globalcommunitysilence Silence remote profile from global community page
 	help                   Show help about a command, e.g (bin/console help config)
-	install                Starts automatic installation of friendica based on values from htconfig.php
+	autoinstall            Starts automatic installation of friendica based on values from htconfig.php
 	maintenance            Set maintenance mode for this node
 	newpassword            Set a new password for a given user
 	php2po                 Generate a messages.po file from a strings.php file
