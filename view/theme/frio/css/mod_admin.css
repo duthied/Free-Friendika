@@ -1,0 +1,6 @@
+
+#users img.icon, #deleted img.icon { height: 24px; }
+.opened .caret { transform: rotate(180deg); }
+tr.details td,
+tr.details th
+{ border-top: 0!important; }

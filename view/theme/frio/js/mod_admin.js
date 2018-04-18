@@ -20,12 +20,27 @@ $(function() {
 		}
 	});
 
-	function selectall(cls) {
-		$('.' + cls).prop('checked', true);
-		return false;
-	}
-	function selectnone(cls) {
-		$('.' + cls).prop('checked', false);
-		return false;
-	}
 });
+
+function selectall(cls) {
+	$('.' + cls).prop('checked', true);
+	return false;
+}
+function selectnone(cls) {
+	$('.' + cls).prop('checked', false);
+	return false;
+}
+
+
+// Users
+function confirm_delete(uname){
+	return confirm( "{{$confirm_delete}}".format(uname));
+}
+function confirm_delete_multi(){
+	return confirm("{{$confirm_delete_multi}}");
+}
+function details(uid) {
+	$("#user-"+uid+"-detail").toggleClass("hidden");
+	$("#user-"+uid).toggleClass("opened");
+	return false;
+}
