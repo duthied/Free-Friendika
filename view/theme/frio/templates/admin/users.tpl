@@ -1,4 +1,3 @@
-
 <script>
 	function confirm_delete(uname){
 		return confirm( "{{$confirm_delete}}".format(uname));
@@ -30,7 +29,7 @@
 </div>
 
 	<form action="{{$baseurl}}/admin/users" method="post">
-    <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 
 		<!--
