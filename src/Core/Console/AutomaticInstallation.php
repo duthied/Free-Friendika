@@ -16,11 +16,7 @@ class AutomaticInstallation extends Console
 		return <<<HELP
 Installation - Install Friendica automatically
 Synopsis
-	bin/console install [-h|--help|-?] [-v] [-a] 
-
-Description
-	bin/console install
-		Installs Friendica with data based on the htconfig.php file
+	bin/console autoinstall [-h|--help|-?] [-v] [-a] 
 
 Notes:
     Not checking .htaccess/URL-Rewrite during CLI installation.
@@ -34,67 +30,62 @@ HELP;
 
 	protected function doExecute()
 	{
-		// remove die and copy config file
-		$fileContent = file_get_contents('./htconfig.php');
-		$fileContent = str_replace('die', '//die', $fileContent);
-		file_put_contents('.htautoinstall.php', $fileContent);
-
 		// Initialise the app
-		$this->output("Initializing setup...\n");
+		$this->out("Initializing setup...\n");
 
 		$a = get_app();
 		$db_host = '';
 		$db_user = '';
 		$db_pass = '';
 		$db_data = '';
-		require_once '.htautoinstall.php';
+		require_once 'htconfig.php';
 
-		$this->output(" Complete!\n\n");
+		$this->out(" Complete!\n\n");
 
 		// Check basic setup
-		$this->output("Checking basic setup...\n");
+		$this->out("Checking basic setup...\n");
 
 		$checkResults = [];
 		$checkResults['basic'] = $this->runBasicChecks($a);
 		$errorMessage = $this->extractErrors($checkResults['basic']);
 
 		if ($errorMessage !== '') {
-			die($errorMessage);
+			throw new \RuntimeException($errorMessage);
 		}
 
-		$this->output(" Complete!\n\n");
+		$this->out(" Complete!\n\n");
 
 		// Check database connection
-		$this->output("Checking database...\n");
+		$this->out("Checking database...\n");
 
 		$checkResults['db'] = array();
 		$checkResults['db'][] = $this->runDatabaseCheck($db_host, $db_user, $db_pass, $db_data);
 		$errorMessage = $this->extractErrors($checkResults['db']);
 
 		if ($errorMessage !== '') {
-			die($errorMessage);
+			throw new \RuntimeException($errorMessage);
 		}
 
-		$this->output(" Complete!\n\n");
+		$this->out(" Complete!\n\n");
 
 		// Install database
-		$this->output("Inserting data into database...\n");
+		$this->out("Inserting data into database...\n");
 
 		$checkResults['data'] = load_database();
 
 		if ($checkResults['data'] !== '') {
-			die("ERROR: DB Database creation error. Is the DB empty?\n");
+			throw new \RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
 		}
 
-		$this->output(" Complete!\n\n");
+		$this->out(" Complete!\n\n");
 
 		// Copy config file
-		$this->output("Saving config file...\n");
-		if (!copy('.htautoinstall.php', '.htconfig.php')) {
-			die("ERROR: Saving config file failed. Please copy .htautoinstall.php to .htconfig.php manually.\n");
+		$this->out("Saving config file...\n");
+		if (!copy('htconfig.php', '.htconfig.php')) {
+			throw new \RuntimeException("ERROR: Saving config file failed. Please copy .htautoinstall.php to .htconfig.php manually.\n");
 		}
-		$this->output(" Complete!\n\n");
-		$this->output("\nInstallation is finished\n");
+		$this->out(" Complete!\n\n");
+		$this->out("\nInstallation is finished\n");
 
 		return 0;
 	}
@@ -103,7 +94,7 @@ HELP;
 	 * @param App $app
 	 * @return array
 	 */
-	public function runBasicChecks($app)
+	private function runBasicChecks($app)
 	{
 		$checks = [];
 
@@ -116,10 +107,10 @@ HELP;
 		if (!empty($app->config['php_path'])) {
 			check_php($app->config['php_path'], $checks);
 		} else {
-			die(" ERROR: The php_path is not set in the config. Please check the file .htconfig.php.\n");
+			throw new \RuntimeException(" ERROR: The php_path is not set in the config. Please check the file .htconfig.php.\n");
 		}
 
-		$this->output(" NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.\n");
+		$this->out(" NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.\n");
 
 		return $checks;
 	}
@@ -131,7 +122,7 @@ HELP;
 	 * @param $db_data
 	 * @return array
 	 */
-	public function runDatabaseCheck($db_host, $db_user, $db_pass, $db_data)
+	private function runDatabaseCheck($db_host, $db_user, $db_pass, $db_data)
 	{
 		$result = array(
 			'title' => 'MySQL Connection',
@@ -153,7 +144,7 @@ HELP;
 	 * @param array $results
 	 * @return string
 	 */
-	public function extractErrors($results)
+	private function extractErrors($results)
 	{
 		$errorMessage = '';
 		$allChecksRequired = $this->getOption('a') !== null;
@@ -166,16 +157,5 @@ HELP;
 		}
 
 		return $errorMessage;
-	}
-
-	/**
-	 * @param string $text
-	 */
-	public function output($text)
-	{
-		$debugInfo = $this->getOption('v') !== null;
-		if ($debugInfo) {
-			echo $text;
-		}
 	}
 }
