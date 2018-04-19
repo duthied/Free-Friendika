@@ -1,4 +1,6 @@
 
+#admin-users.adminpage { padding-left:0; padding-right: 0;}
+#admin-users.adminpage > h1 { padding: 0 15px; }
 #users img.icon, #deleted img.icon { height: 24px; }
 .opened .caret { transform: rotate(180deg); }
 tr.details td,

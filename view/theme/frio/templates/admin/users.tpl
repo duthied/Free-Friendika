@@ -2,9 +2,7 @@
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css" type="text/css" media="screen"/>
 
 <div id="admin-users" class="adminpage  generic-page-wrapper">
-<div class="panel panel-default">
-	<div class="panel-body"><h1>{{$title}} - {{$page}}</h1></div>
-</div>
+	<h1>{{$title}} - {{$page}}</h1>
 
 	<form action="{{$baseurl}}/admin/users" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
@@ -24,36 +22,44 @@
 				<table id="pending" class="table table-hover">
 					<thead>
 					<tr>
+						<th></th>
 						{{foreach $th_pending as $th}}<th>{{$th}}</th>{{/foreach}}
-						<th>
-							<a href="#" onclick="return selectall('pending_ckbx');"><i class="fa fa-check-square-o" aria-hidden="true"></i></a>
-							<a href="#" onclick="return selectnone('pending_ckbx');"><i class="fa fa-square-o" aria-hidden="true"></i></a>
-						</th>
 						<th></th>
 					</tr>
 					</thead>
 					<tbody>
 				{{foreach $pending as $u}}
 					<tr>
+						<td><input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}" /></td>
 						<td>{{$u.created}}</td>
-						<td >{{$u.name}}</td>
+						<td>{{$u.name}}</td>
 						<td>{{$u.email}}</td>
-						<td ><input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}" /></td>
 						<td>
 							<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" title="{{$approve}}"><i class="fa fa-thumbs-up" aria-hidden="true"></i></a>
 							<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" title="{{$deny}}"><i class="fa fa-thumbs-down" aria-hidden="true"></i></a>
 						</td>
 					</tr>
 					<tr class="details">
+						<td></td>
 						<th>{{$pendingnotetext}}</th>
 						<td colspan="4">{{$u.note}}</td>
 					</tr>
 				{{/foreach}}
 					</tbody>
 				</table>
-				<div class="panel-footer text-right">
-					<button type="submit" name="page_users_deny" class="btn btn-primary"><i class="fa fa-thumbs-down" aria-hidden="true"></i> {{$deny}}</button>
-					<button type="submit" name="page_users_approve" class="btn btn-warinig"><i class="fa fa-thumbs-up" aria-hidden="true"></i> {{$approve}}</button>
+				<div class="panel-footer">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="btn-group" role="group">
+								<button type="button" class="btn btn-default selectall" data-select-all="pending_ckbx"><i class="fa fa-check-square-o" aria-hidden="true"></i></button>
+								<button type="button" class="btn btn-default selectnone" data-select-none="pending_ckbx"><i class="fa fa-square-o" aria-hidden="true"></i></button>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<button type="submit" name="page_users_deny" class="btn btn-primary"><i class="fa fa-thumbs-down" aria-hidden="true"></i> {{$deny}}</button>
+							<button type="submit" name="page_users_approve" class="btn btn-warinig"><i class="fa fa-thumbs-up" aria-hidden="true"></i> {{$approve}}</button>
+						</div>
+					</div>
 				</div>
 			{{else}}
 				<div class="panel-body text-center text-muted">{{$no_pending}}</div>
@@ -74,10 +80,7 @@
 			<table id="users" class="table table-hover">
 				<thead>
 				<tr>
-					<th>
-						<a href="#" onclick="return selectall('users_ckbx');"><i class="fa fa-check-square-o" aria-hidden="true"></i></a>
-						<a href="#" onclick="return selectnone('users_ckbx');"><i class="fa fa-square-o" aria-hidden="true"></i></a>
-					</th>
+					<th></th>
 					<th></th>
 					{{foreach $th_users as $k=>$th}}
 					{{if $k < 2 || $order_users == $th.1 || ($k==5 && !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1])) }}
@@ -164,7 +167,7 @@
 									<i class="fa fa-circle-o" aria-hidden="true"></i>
 									{{/if}}
 								</a>
-								<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" title="{{$delete}}" onclick="return confirm_delete('{{$u.name}}')"><i class="fa fa-trash" aria-hidden="true"></i></a>
+								<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" title="{{$delete}}" onclick="return confirm_delete('{{$confirm_delete}}','{{$u.name}}')"><i class="fa fa-trash" aria-hidden="true"></i></a>
 							{{else}}
 								&nbsp;
 							{{/if}}
@@ -173,9 +176,19 @@
 				{{/foreach}}
 				</tbody>
 			</table>
-			<div class="panel-footer text-right">
-						<button type="submit" name="page_users_block" class="btn btn-warning">	<i class="fa fa-ban" aria-hidden="true"></i> {{$block}} / <i class="fa fa-circle-o" aria-hidden="true"></i> {{$unblock}}</button>
-						<button type="submit" name="page_users_delete" class="btn btn-danger" onclick="return confirm_delete_multi()"><i class="fa fa-trash" aria-hidden="true"></i> {{$delete}}</button>
+			<div class="panel-footer">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="btn-group" role="group">
+							<button type="button" class="btn btn-default selectall" data-select-all="users_ckbx"><i class="fa fa-check-square-o" aria-hidden="true"></i></button>
+							<button type="button" class="btn btn-default selectnone" data-select-none="users_ckbx"><i class="fa fa-square-o" aria-hidden="true"></i></button>
+						</div>
+					</div>
+					<div class="col-md-6 text-right">
+							<button type="submit" name="page_users_block" class="btn btn-warning">	<i class="fa fa-ban" aria-hidden="true"></i> {{$block}} / <i class="fa fa-circle-o" aria-hidden="true"></i> {{$unblock}}</button>
+							<button type="submit" name="page_users_delete" class="btn btn-danger" onclick="return confirm_delete('{{$confirm_delete_multi}}')"><i class="fa fa-trash" aria-hidden="true"></i> {{$delete}}</button>
+					</div>
+				</div>
 			</div>
 		{{else}}
 			<div class="panel-body text-center bg-danger">NO USERS?!?</div>
@@ -214,7 +227,7 @@
 			<tbody>
 			{{foreach $deleted as $u}}
 				<tr>
-					<td><img src="{{$u.micro}}" title="{{$u.nickname}}"></td>
+					<td><img class="icon" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
 					<td><a href="{{$u.url}}" title="{{$u.nickname}}" >{{$u.name}}</a></td>
 					<td>{{$u.email}}</td>
 					<td>{{$u.deleted}}</td>
@@ -234,18 +247,20 @@
 	*
 	**
 -->
-<form action="{{$baseurl}}/admin/users" method="post">
-	<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
+	<form action="{{$baseurl}}/admin/users" method="post">
+		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
-	<div class="panel panel-default">
-		<div class="panel-heading"><h3 class="panel-title">{{$h_newuser}}</h3></div>
-		<div class="panel-body">
-			{{include file="field_input.tpl" field=$newusername}}
-			{{include file="field_input.tpl" field=$newusernickname}}
-			{{include file="field_input.tpl" field=$newuseremail}}
+		<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title">{{$h_newuser}}</h3></div>
+			<div class="panel-body">
+				{{include file="field_input.tpl" field=$newusername}}
+				{{include file="field_input.tpl" field=$newusernickname}}
+				{{include file="field_input.tpl" field=$newuseremail}}
+			</div>
+			<div class="panel-footer text-right">
+				<button type="submit" class="btn btn-primary">{{$submit}}</button>
+			</form>
 		</div>
-		<div class="panel-footer text-right">
-		  <button type="submit" class="btn btn-primary">{{$submit}}</button>
-	  </form>
-	</div>
-</form>
+	</form>
+
+</div>
