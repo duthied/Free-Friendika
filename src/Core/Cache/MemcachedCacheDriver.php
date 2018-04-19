@@ -50,7 +50,7 @@ class MemcachedCacheDriver extends BaseObject implements ICacheDriver
 	{
 		// We store with the hostname as key to avoid problems with other applications
 		return $this->memcached->set(
-			self::getApp()->get_hostname() . ":" . $key,
+			self::getApp()->get_hostname() . ':' . $key,
 			$value,
 			time() + $duration
 		);
@@ -58,7 +58,9 @@ class MemcachedCacheDriver extends BaseObject implements ICacheDriver
 
 	public function delete($key)
 	{
-		return $this->memcached->delete($key);
+		$return = $this->memcached->delete(self::getApp()->get_hostname() . ':' . $key);
+
+		return $return;
 	}
 
 	public function clear()
