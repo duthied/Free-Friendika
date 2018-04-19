@@ -1528,36 +1528,29 @@ class Diaspora
 	 */
 	private static function plink($addr, $guid, $parent_guid = '')
 	{
-		$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
+		$contact = Contact::getDetailsByAddr($addr);
 
 		// Fallback
-		if (!DBM::is_result($r)) {
+		if (!$contact) {
 			if ($parent_guid != '') {
-				return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
+				return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
 			} else {
-				return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
+				return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
 			}
 		}
 
-		// Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
-		// So we try another way as well.
-		$s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
-		if (DBM::is_result($s)) {
-			$r[0]["network"] = $s[0]["network"];
+		if ($contact["network"] == NETWORK_DFRN) {
+			return str_replace("/profile/" . $contact["nick"] . "/", "/display/" . $guid, $contact["url"] . "/");
 		}
 
-		if ($r[0]["network"] == NETWORK_DFRN) {
-			return str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/");
-		}
-
-		if (self::isRedmatrix($r[0]["url"])) {
-			return $r[0]["url"]."/?f=&mid=".$guid;
+		if (self::isRedmatrix($contact["url"])) {
+			return $contact["url"] . "/?f=&mid=" . $guid;
 		}
 
 		if ($parent_guid != '') {
-			return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
+			return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
 		} else {
-			return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
+			return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
 		}
 	}
 
