@@ -112,7 +112,7 @@ function friendica_content(App $a)
 				$s .= $p;
 			}
 		}
-		$o .= '<div style="margin-left: 25px; margin-right: 25px;">' . $s . '</div>' . PHP_EOL;
+		$o .= '<div style="margin-left: 25px; margin-right: 25px; margin-bottom: 25px;">' . $s . '</div>' . PHP_EOL;
 	} else {
 		$o .= '<p>' . L10n::t('No installed addons/apps') . '</p>' . PHP_EOL;
 	}
