@@ -1482,6 +1482,11 @@ class Contact extends BaseObject
 			}
 			// send email notification to owner?
 		} else {
+			if (dba::exists('contact', ['nurl' => normalise_link($url), 'uid' => $importer['uid'], 'pending' => true])) {
+				logger('ignoring duplicated connection request from pending contact ' . $url);
+				return;
+			}
+
 			// create contact record
 			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
 				`blocked`, `readonly`, `pending`, `writable`)
