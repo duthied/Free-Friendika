@@ -1528,36 +1528,29 @@ class Diaspora
 	 */
 	private static function plink($addr, $guid, $parent_guid = '')
 	{
-		$r = q("SELECT `url`, `nick`, `network` FROM `fcontact` WHERE `addr`='%s' LIMIT 1", dbesc($addr));
+		$contact = Contact::getDetailsByAddr($addr);
 
 		// Fallback
-		if (!DBM::is_result($r)) {
+		if (!$contact) {
 			if ($parent_guid != '') {
-				return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
+				return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
 			} else {
-				return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
+				return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
 			}
 		}
 
-		// Friendica contacts are often detected as Diaspora contacts in the "fcontact" table
-		// So we try another way as well.
-		$s = q("SELECT `network` FROM `gcontact` WHERE `nurl`='%s' LIMIT 1", dbesc(normalise_link($r[0]["url"])));
-		if (DBM::is_result($s)) {
-			$r[0]["network"] = $s[0]["network"];
+		if ($contact["network"] == NETWORK_DFRN) {
+			return str_replace("/profile/" . $contact["nick"] . "/", "/display/" . $guid, $contact["url"] . "/");
 		}
 
-		if ($r[0]["network"] == NETWORK_DFRN) {
-			return str_replace("/profile/".$r[0]["nick"]."/", "/display/".$guid, $r[0]["url"]."/");
-		}
-
-		if (self::isRedmatrix($r[0]["url"])) {
-			return $r[0]["url"]."/?f=&mid=".$guid;
+		if (self::isRedmatrix($contact["url"])) {
+			return $contact["url"] . "/?f=&mid=" . $guid;
 		}
 
 		if ($parent_guid != '') {
-			return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
+			return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
 		} else {
-			return "https://".substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
+			return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
 		}
 	}
 
@@ -2744,35 +2737,33 @@ class Diaspora
 	 *
 	 * @return array The fetched item
 	 */
-	private static function originalItem($guid, $orig_author, $author)
+	public static function originalItem($guid, $orig_author)
 	{
 		// Do we already have this item?
-		$r = q(
-			"SELECT `body`, `tag`, `app`, `created`, `object-type`, `uri`, `guid`,
-				`author-name`, `author-link`, `author-avatar`
-				FROM `item` WHERE `guid` = '%s' AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
-			dbesc($guid)
-		);
+		$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
+			'author-name', 'author-link', 'author-avatar'];
+		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false];
+		$item = dba::selectfirst('item', $fields, $condition);
 
-		if (DBM::is_result($r)) {
+		if (DBM::is_result($item)) {
 			logger("reshared message ".$guid." already exists on system.");
 
 			// Maybe it is already a reshared item?
 			// Then refetch the content, if it is a reshare from a reshare.
 			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
-			if (self::isReshare($r[0]["body"], true)) {
+			if (self::isReshare($item["body"], true)) {
 				$r = [];
-			} elseif (self::isReshare($r[0]["body"], false) || strstr($r[0]["body"], "[share")) {
-				$r[0]["body"] = Markdown::toBBCode(BBCode::toMarkdown($r[0]["body"]));
+			} elseif (self::isReshare($item["body"], false) || strstr($item["body"], "[share")) {
+				$item["body"] = Markdown::toBBCode(BBCode::toMarkdown($item["body"]));
 
-				$r[0]["body"] = self::replacePeopleGuid($r[0]["body"], $r[0]["author-link"]);
+				$item["body"] = self::replacePeopleGuid($item["body"], $item["author-link"]);
 
 				// Add OEmbed and other information to the body
-				$r[0]["body"] = add_page_info_to_body($r[0]["body"], false, true);
+				$item["body"] = add_page_info_to_body($item["body"], false, true);
 
-				return $r[0];
+				return $item;
 			} else {
-				return $r[0];
+				return $item;
 			}
 		}
 
@@ -2788,21 +2779,19 @@ class Diaspora
 			}
 
 			if ($item_id) {
-				$r = q(
-					"SELECT `body`, `tag`, `app`, `created`, `object-type`, `uri`, `guid`,
-						`author-name`, `author-link`, `author-avatar`
-					FROM `item` WHERE `id` = %d AND `visible` AND NOT `deleted` AND `body` != '' LIMIT 1",
-					intval($item_id)
-				);
+				$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
+					'author-name', 'author-link', 'author-avatar'];
+				$condition = ['id' => $item_id, 'visible' => true, 'deleted' => false];
+				$item = dba::selectfirst('item', $fields, $condition);
 
-				if (DBM::is_result($r)) {
+				if (DBM::is_result($item)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
-					if (self::isReshare($r[0]["body"], false)) {
-						$r[0]["body"] = Markdown::toBBCode(BBCode::toMarkdown($r[0]["body"]));
-						$r[0]["body"] = self::replacePeopleGuid($r[0]["body"], $r[0]["author-link"]);
+					if (self::isReshare($item["body"], false)) {
+						$item["body"] = Markdown::toBBCode(BBCode::toMarkdown($item["body"]));
+						$item["body"] = self::replacePeopleGuid($item["body"], $item["author-link"]);
 					}
 
-					return $r[0];
+					return $item;
 				}
 			}
 		}
@@ -2838,7 +2827,7 @@ class Diaspora
 			return true;
 		}
 
-		$original_item = self::originalItem($root_guid, $root_author, $author);
+		$original_item = self::originalItem($root_guid, $root_author);
 		if (!$original_item) {
 			return false;
 		}
@@ -3556,24 +3545,21 @@ class Diaspora
 		// Skip if it isn't a pure repeated messages
 		// Does it start with a share?
 		if ((strpos($body, "[share") > 0) && $complete) {
-			return(false);
+			return false;
 		}
 
 		// Does it end with a share?
 		if (strlen($body) > (strrpos($body, "[/share]") + 8)) {
-			return(false);
+			return false;
 		}
 
 		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
 		// Skip if there is no shared message in there
 		if ($body == $attributes) {
-			return(false);
+			return false;
 		}
 
 		// If we don't do the complete check we quit here
-		if (!$complete) {
-			return true;
-		}
 
 		$guid = "";
 		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
@@ -3586,18 +3572,14 @@ class Diaspora
 			$guid = $matches[1];
 		}
 
-		if ($guid != "") {
-			$r = q(
-				"SELECT `contact-id` FROM `item` WHERE `guid` = '%s' AND `network` IN ('%s', '%s') LIMIT 1",
-				dbesc($guid),
-				NETWORK_DFRN,
-				NETWORK_DIASPORA
-			);
-			if ($r) {
+		if (($guid != "") && $complete) {
+			$condition = ['guid' => $guid, 'network' => [NETWORK_DFRN, NETWORK_DIASPORA]];
+			$item = dba::selectFirst('item', ['contact-id'], $condition);
+			if (DBM::is_result($item)) {
 				$ret= [];
-				$ret["root_handle"] = self::handleFromContact($r[0]["contact-id"]);
+				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
 				$ret["root_guid"] = $guid;
-				return($ret);
+				return $ret;
 			}
 		}
 
@@ -3614,28 +3596,22 @@ class Diaspora
 
 		$ret= [];
 
-		$ret["root_handle"] = preg_replace("=https?://(.*)/u/(.*)=ism", "$2@$1", $profile);
-		if (($ret["root_handle"] == $profile) || ($ret["root_handle"] == "")) {
-			return(false);
+		if ($profile != "") {
+			if (Contact::getIdForURL($profile)) {
+				$author = Contact::getDetailsByURL($profile);
+				$ret["root_handle"] = $author['addr'];
+			}
 		}
 
-		$link = "";
-		preg_match("/link='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "") {
-			$link = $matches[1];
+		if (!empty($guid)) {
+			$ret["root_guid"] = $guid;
 		}
 
-		preg_match('/link="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "") {
-			$link = $matches[1];
+		if (empty($ret) && !$complete) {
+			return true;
 		}
 
-		$ret["root_guid"] = preg_replace("=https?://(.*)/posts/(.*)=ism", "$2", $link);
-		if (($ret["root_guid"] == $link) || (trim($ret["root_guid"]) == "")) {
-			return(false);
-		}
-
-		return($ret);
+		return $ret;
 	}
 
 	/**
