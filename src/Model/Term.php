@@ -9,6 +9,7 @@ use Friendica\Database\DBM;
 use dba;
 
 require_once 'boot.php';
+require_once 'include/conversation.php';
 require_once 'include/dba.php';
 
 class Term
@@ -167,5 +168,57 @@ class Term
 				]);
 			}
 		}
+	}
+
+	/**
+	 * Sorts an item's tags into mentions, hashtags and other tags. Generate personalized URLs by user and modify the
+	 * provided item's body with them.
+	 *
+	 * @param array $item
+	 * @return array
+	 */
+	public static function populateTagsFromItem(&$item)
+	{
+		$return = [
+			'tags' => [],
+			'hashtags' => [],
+			'mentions' => [],
+		];
+
+		$searchpath = System::baseUrl() . "/search?tag=";
+
+		$taglist = dba::select(
+			'term',
+			['type', 'term', 'url'],
+			["`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION],
+			['order' => ['tid']]
+		);
+
+		while ($tag = dba::fetch($taglist)) {
+			if ($tag["url"] == "") {
+				$tag["url"] = $searchpath . strtolower($tag["term"]);
+			}
+
+			$orig_tag = $tag["url"];
+
+			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
+
+			if ($tag["type"] == TERM_HASHTAG) {
+				if ($orig_tag != $tag["url"]) {
+					$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
+				}
+
+				$return['hashtags'][] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+				$prefix = "#";
+			} elseif ($tag["type"] == TERM_MENTION) {
+				$return['mentions'][] = "@<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+				$prefix = "@";
+			}
+
+			$return['tags'][] = $prefix . "<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+		}
+		dba::close($taglist);
+
+		return $return;
 	}
 }
