@@ -24,7 +24,7 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 
 	public function read($session_id)
 	{
-		if (!x($session_id)) {
+		if (empty($session_id)) {
 			return '';
 		}
 
@@ -58,9 +58,9 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 			return true;
 		}
 
-		Cache::set('session:' . $session_id, $session_data, Session::$expire);
+		$return = Cache::set('session:' . $session_id, $session_data, Session::$expire);
 
-		return true;
+		return $return;
 	}
 
 	public function close()
@@ -70,8 +70,9 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 
 	public function destroy($id)
 	{
-		Cache::delete('session:' . $id);
-		return true;
+		$return = Cache::delete('session:' . $id);
+
+		return $return;
 	}
 
 	public function gc($maxlifetime)
