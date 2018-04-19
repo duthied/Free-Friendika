@@ -49,13 +49,13 @@
 				</table>
 				<div class="panel-footer">
 					<div class="row">
-						<div class="col-md-6">
+						<div class="col-xs-3">
 							<div class="btn-group" role="group">
 								<button type="button" class="btn btn-default selectall" data-select-all="pending_ckbx"><i class="fa fa-check-square-o" aria-hidden="true"></i></button>
 								<button type="button" class="btn btn-default selectnone" data-select-none="pending_ckbx"><i class="fa fa-square-o" aria-hidden="true"></i></button>
 							</div>
 						</div>
-						<div class="col-md-6">
+						<div class="col-xs-9">
 							<button type="submit" name="page_users_deny" class="btn btn-primary"><i class="fa fa-thumbs-down" aria-hidden="true"></i> {{$deny}}</button>
 							<button type="submit" name="page_users_approve" class="btn btn-warinig"><i class="fa fa-thumbs-up" aria-hidden="true"></i> {{$approve}}</button>
 						</div>
@@ -131,7 +131,7 @@
 						<td>{{$u.page_flags}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}</td>
 						{{/if}}
 						<td class="text-right">
-							<a href="#" onclick="return details({{$u.uid}})"><span class="caret"></span></i>
+							<button type="button" class="btn-link" onclick="return details({{$u.uid}})"><span class="caret"></span></button>
 						</td>
 					</tr>
 					<tr id="user-{{$u.uid}}-detail" class="hidden details">
@@ -178,13 +178,13 @@
 			</table>
 			<div class="panel-footer">
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-xs-3">
 						<div class="btn-group" role="group">
 							<button type="button" class="btn btn-default selectall" data-select-all="users_ckbx"><i class="fa fa-check-square-o" aria-hidden="true"></i></button>
 							<button type="button" class="btn btn-default selectnone" data-select-none="users_ckbx"><i class="fa fa-square-o" aria-hidden="true"></i></button>
 						</div>
 					</div>
-					<div class="col-md-6 text-right">
+					<div class="col-xs-9 text-right">
 							<button type="submit" name="page_users_block" class="btn btn-warning">	<i class="fa fa-ban" aria-hidden="true"></i> {{$block}} / <i class="fa fa-circle-o" aria-hidden="true"></i> {{$unblock}}</button>
 							<button type="submit" name="page_users_delete" class="btn btn-danger" onclick="return confirm_delete('{{$confirm_delete_multi}}')"><i class="fa fa-trash" aria-hidden="true"></i> {{$delete}}</button>
 					</div>
