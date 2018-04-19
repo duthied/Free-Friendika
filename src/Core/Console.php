@@ -21,6 +21,7 @@ class Console extends \Asika\SimpleConsole\Console
 		'extract'                => __NAMESPACE__ . '\Console\Extract',
 		'globalcommunityblock'   => __NAMESPACE__ . '\Console\GlobalCommunityBlock',
 		'globalcommunitysilence' => __NAMESPACE__ . '\Console\GlobalCommunitySilence',
+		'autoinstall'            => __NAMESPACE__ . '\Console\AutomaticInstallation',
 		'maintenance'            => __NAMESPACE__ . '\Console\Maintenance',
 		'newpassword'            => __NAMESPACE__ . '\Console\NewPassword',
 		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
@@ -42,6 +43,7 @@ Commands:
 	globalcommunityblock   Block remote profile from interacting with this node
 	globalcommunitysilence Silence remote profile from global community page
 	help                   Show help about a command, e.g (bin/console help config)
+	autoinstall            Starts automatic installation of friendica based on values from htconfig.php
 	maintenance            Set maintenance mode for this node
 	newpassword            Set a new password for a given user
 	php2po                 Generate a messages.po file from a strings.php file
