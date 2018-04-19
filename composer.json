@@ -30,6 +30,7 @@
 		"bower-asset/base64": "^1.0",
 		"bower-asset/Chart-js": "^2.7",
 		"bower-asset/perfect-scrollbar": "^0.6",
+		"bower-asset/vue": "^2.5",
 		"npm-asset/jquery": "^2.0",
 		"npm-asset/jquery-colorbox": "^1.6",
 		"npm-asset/jquery-datetimepicker": "^2.4.0",

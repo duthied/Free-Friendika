@@ -20,6 +20,7 @@ $(function() {
 		}
 	});
 
+
 	function selectall(cls) {
 		$('.' + cls).prop('checked', true);
 		return false;
@@ -28,4 +29,17 @@ $(function() {
 		$('.' + cls).prop('checked', false);
 		return false;
 	}
+
+
 });
+
+// Users
+function confirm_delete(msg, uname){
+	return confirm(msg.format(uname));
+}
+
+function details(uid) {
+	$("#user-"+uid+"-detail").toggleClass("hidden");
+	$("#user-"+uid).toggleClass("opened");
+	return false;
+}

@@ -668,33 +668,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					$profile_name = $item['author-link'];
 				}
 
-				$tags = [];
-				$hashtags = [];
-				$mentions = [];
-
-				$searchpath = System::baseUrl()."/search?tag=";
-
-				$taglist = dba::select('term', ['type', 'term', 'url'],
-							["`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION],
-							['order' => ['tid']]);
-
-				while ($tag = dba::fetch($taglist)) {
-					if ($tag["url"] == "") {
-						$tag["url"] = $searchpath . strtolower($tag["term"]);
-					}
-
-					$tag["url"] = best_link_url($item, $sp, $tag["url"]);
-
-					if ($tag["type"] == TERM_HASHTAG) {
-						$hashtags[] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-						$prefix = "#";
-					} elseif ($tag["type"] == TERM_MENTION) {
-						$mentions[] = "@<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-						$prefix = "@";
-					}
-					$tags[] = $prefix."<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-				}
-				dba::close($taglist);
+				$tags = \Friendica\Model\Term::populateTagsFromItem($item);
 
 				$sp = false;
 				$profile_link = best_link_url($item, $sp);
@@ -764,9 +738,9 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				}
 
 				$body_e = $body;
-				$tags_e = $tags;
-				$hashtags_e = $hashtags;
-				$mentions_e = $mentions;
+				$tags_e = $tags['tags'];
+				$hashtags_e = $tags['hashtags'];
+				$mentions_e = $tags['mentions'];
 				$location_e = $location;
 				$owner_name_e = $owner_name;
 
