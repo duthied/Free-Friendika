@@ -17,6 +17,9 @@ class AutomaticInstallation extends Console
 Installation - Install Friendica automatically
 Synopsis
 	bin/console autoinstall [-h|--help|-?] [-v] [-a] 
+	
+Description
+    Installs Friendica with data based on the htconfig.php file
 
 Notes:
     Not checking .htaccess/URL-Rewrite during CLI installation.
