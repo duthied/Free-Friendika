@@ -128,7 +128,26 @@
 						{{/if}}
 
 						{{if !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1]) }}
-						<td>{{$u.page_flags}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}</td>
+
+						<td>
+							<i class="fa
+								{{if $u.page_flags_raw==0}}fa-user{{/if}}					{{* PAGE_NORMAL *}}
+								{{if $u.page_flags_raw==1}}fa-bullhorn{{/if}}			{{* PAGE_SOAPBOX *}}
+								{{if $u.page_flags_raw==2}}fa-users{{/if}}				{{* PAGE_COMMUNITY *}}
+								{{if $u.page_flags_raw==3}}fa-heart{{/if}}				{{* PAGE_FREELOVE *}}
+								{{if $u.page_flags_raw==4}}fa-rss{{/if}}					{{* PAGE_BLOG *}}
+								{{if $u.page_flags_raw==5}}fa-user-secret{{/if}}	{{* PAGE_PRVGROUP *}}
+							" title="{{$u.page_flags}}"></i>
+							{{if $u.page_flags_raw==0 && $u.account_type_raw > 0}}
+							<i class="fa
+								{{if $u.account_type_raw==1}}fa-sitemap{{/if}}			{{* ACCOUNT_TYPE_ORGANISATION *}}
+								{{if $u.account_type_raw==2}}fa-newspaper-o{{/if}}	{{* ACCOUNT_TYPE_NEWS *}}
+								{{if $u.account_type_raw==3}}fa-comments{{/if}}			{{* ACCOUNT_TYPE_COMMUNITY *}}
+							" title="{{$u.account_type}}"></i>
+							{{/if}}
+							{{if $u.is_admin}}<i class="fa fa-user-md text-primary" title="{{$siteadmin}}"></i>{{/if}}
+							{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired}}"></i>{{/if}}
+						</td>
 						{{/if}}
 						<td class="text-right">
 							<button type="button" class="btn-link" onclick="return details({{$u.uid}})"><span class="caret"></span></button>
