@@ -1735,13 +1735,27 @@ function admin_page_users(App $a)
 
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 	$_setup_users = function ($e) use ($adminlist) {
-		$accounts = [
-			L10n::t('Normal Account'),
-			L10n::t('Automatic Follower Account'),
-			L10n::t('Public Forum Account'),
-			L10n::t('Automatic Friend Account')
+		$page_types = [
+			PAGE_NORMAL => L10n::t('Normal Account Page'),
+			PAGE_SOAPBOX => L10n::t('Soapbox Page'),
+			PAGE_COMMUNITY => L10n::t('Public Forum'),
+			PAGE_FREELOVE => L10n::t('Automatic Friend Page'),
+			PAGE_PRVGROUP => L10n::t('Private Forum')
 		];
-		$e['page-flags'] = $accounts[$e['page-flags']];
+		$account_types = [
+			ACCOUNT_TYPE_PERSON => L10n::t('Personal Page'),
+			ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
+			ACCOUNT_TYPE_NEWS => L10n::t('News Page'),
+			ACCOUNT_TYPE_COMMUNITY => L10n::t('Community Forum')
+		];
+
+
+
+		$e['page-flags-raw'] = $e['page-flags'];
+		$e['page-flags'] = $page_types[$e['page-flags']];
+		$e['account-type-raw'] = $e['account-type'];
+		$e['account-type'] = $account_types[$e['account-type']];
+
 		$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
 		$e['login_date'] = Temporal::getRelativeDate($e['login_date']);
 		$e['lastitem_date'] = Temporal::getRelativeDate($e['lastitem_date']);
@@ -1778,8 +1792,7 @@ function admin_page_users(App $a)
 		array_push($users, array_pop($tmp_users));
 	}
 
-	$th_users = array_map(null, [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Account')], $valid_orders
-	);
+	$th_users = array_map(null, [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Type')], $valid_orders);
 
 	$t = get_markup_template('admin/users.tpl');
 	$o = replace_macros($t, [
