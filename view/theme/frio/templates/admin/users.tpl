@@ -55,7 +55,7 @@
 								<button type="button" class="btn btn-default selectnone" data-select-none="pending_ckbx"><i class="fa fa-square-o" aria-hidden="true"></i></button>
 							</div>
 						</div>
-						<div class="col-xs-9">
+						<div class="col-xs-9 text-right">
 							<button type="submit" name="page_users_deny" class="btn btn-primary"><i class="fa fa-thumbs-down" aria-hidden="true"></i> {{$deny}}</button>
 							<button type="submit" name="page_users_approve" class="btn btn-warinig"><i class="fa fa-thumbs-up" aria-hidden="true"></i> {{$approve}}</button>
 						</div>
@@ -84,7 +84,7 @@
 					<th></th>
 					{{foreach $th_users as $k=>$th}}
 					{{if $k < 2 || $order_users == $th.1 || ($k==5 && !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1])) }}
-					<th>
+					<th class="th-{{$k}}">
 						<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}">
 							{{if $order_users == $th.1}}
 								{{if $order_direction_users == "+"}}
@@ -112,7 +112,7 @@
 							&nbsp;
 						{{/if}}
 						</td>
-						<td><img class="icon" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
+						<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
 						<td><a href="{{$u.url}}" title="{{$u.nickname}}"> {{$u.name}}</a></td>
 						<td>{{$u.email}}</td>
 						{{if $order_users == $th_users.2.1}}
@@ -227,7 +227,7 @@
 			<tbody>
 			{{foreach $deleted as $u}}
 				<tr>
-					<td><img class="icon" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
+					<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
 					<td><a href="{{$u.url}}" title="{{$u.nickname}}" >{{$u.name}}</a></td>
 					<td>{{$u.email}}</td>
 					<td>{{$u.deleted}}</td>
