@@ -27,7 +27,7 @@ class NewPassword extends \Asika\SimpleConsole\Console
 		$help = <<<HELP
 console newpassword - Creates a new password for a given user
 Usage
-	bin/console newpassword <nickname> <password> [-h|--help|-?] [-v]
+	bin/console newpassword <nickname> [<password>] [-h|--help|-?] [-v]
 
 Description
 	Creates a new password for a user without using the "forgot password" functionality.
@@ -67,11 +67,20 @@ HELP;
 		}
 
 		$nick = $this->getArgument(0);
-		$password = $this->getArgument(1);
 
 		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nick]);
 		if (!DBM::is_result($user)) {
 			throw new \RuntimeException(L10n::t('User not found'));
+		}
+
+		$password = $this->getArgument(1);
+		if (is_null($password)) {
+			$this->out(L10n::t('Enter new password: '), false);
+			$password = \Seld\CliPrompt\CliPrompt::hiddenPrompt(true);
+		}
+
+		if (!$password) {
+			throw new \RuntimeException(L10n::t('Password can\'t be empty'));
 		}
 
 		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($password)) {
