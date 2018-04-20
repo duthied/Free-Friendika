@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-06 16:58+0200\n"
-"PO-Revision-Date: 2018-04-18 01:42+0000\n"
+"PO-Revision-Date: 2018-04-18 22:44+0000\n"
 "Last-Translator: Kris\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
@@ -2422,7 +2422,7 @@ msgstr "Tämä poistaa käyttäjätilisi pysyvästi. Poistoa ei voi perua myöhe
 
 #: mod/removeme.php:57
 msgid "Please enter your password for verification:"
-msgstr ""
+msgstr "Syötä salasanasi varmistusta varten:"
 
 #: mod/viewcontacts.php:87
 msgid "No contacts."
@@ -3845,7 +3845,7 @@ msgstr "Kuvan pienentäminen [%s] epäonnistui."
 msgid ""
 "Shift-reload the page or clear browser cache if the new photo does not "
 "display immediately."
-msgstr ""
+msgstr "Jos kuva ei näy heti, lataa sivu uudelleen tai tyhjennä selaimen välimuisti."
 
 #: mod/profile_photo.php:134
 msgid "Unable to process image"
@@ -4112,7 +4112,7 @@ msgstr "Piilota kontaktit ja kaverit:"
 
 #: mod/profiles.php:638
 msgid "Hide your contact/friend list from viewers of this profile?"
-msgstr ""
+msgstr "Piilota tämän profiilin kontakti/kaverilista?"
 
 #: mod/profiles.php:658
 msgid "Show more profile fields:"
@@ -5217,7 +5217,7 @@ msgstr ""
 
 #: mod/admin.php:365
 msgid "Add new entry to block list"
-msgstr ""
+msgstr "Lisää uusi kohde estolistaan"
 
 #: mod/admin.php:366
 msgid "Server Domain"
@@ -5247,11 +5247,11 @@ msgstr ""
 
 #: mod/admin.php:373
 msgid "Delete entry from blocklist"
-msgstr ""
+msgstr "Poista kohde estolistalta"
 
 #: mod/admin.php:376
 msgid "Delete entry from blocklist?"
-msgstr ""
+msgstr "Poista kohde estolistalta?"
 
 #: mod/admin.php:402
 msgid "Server added to blocklist."
@@ -5279,7 +5279,7 @@ msgstr[1] "%s kontaktia poistettu estolistalta"
 
 #: mod/admin.php:479
 msgid "Remote Contact Blocklist"
-msgstr ""
+msgstr "Etäkontakti estolista"
 
 #: mod/admin.php:480
 msgid ""
@@ -5289,7 +5289,7 @@ msgstr ""
 
 #: mod/admin.php:481
 msgid "Block Remote Contact"
-msgstr ""
+msgstr "Estä etäkontakti"
 
 #: mod/admin.php:482 mod/admin.php:1790
 msgid "select all"
@@ -5305,11 +5305,11 @@ msgstr ""
 
 #: mod/admin.php:488
 msgid "Blocked Remote Contacts"
-msgstr ""
+msgstr "Estetty etäkontaktit"
 
 #: mod/admin.php:489
 msgid "Block New Remote Contact"
-msgstr ""
+msgstr "Estä uusi etäkontakti"
 
 #: mod/admin.php:490
 msgid "Photo"
@@ -5324,7 +5324,7 @@ msgstr[1] "Yhteensä %s estettyjä kontakteja"
 
 #: mod/admin.php:500
 msgid "URL of the remote contact to block."
-msgstr ""
+msgstr "Estettävän etäkontaktin URL-osoite"
 
 #: mod/admin.php:522
 msgid "Delete this Item"
@@ -5720,7 +5720,7 @@ msgstr ""
 
 #: mod/admin.php:1372
 msgid "Single user instance"
-msgstr ""
+msgstr "Yksittäisen käyttäjän instanssi"
 
 #: mod/admin.php:1372
 msgid "Make this instance multi-user or single-user for the named user"
@@ -6690,7 +6690,7 @@ msgstr ""
 
 #: mod/admin.php:2299
 msgid "Log level"
-msgstr ""
+msgstr "Lokitaso"
 
 #: mod/admin.php:2301
 msgid "PHP logging"
@@ -6840,11 +6840,11 @@ msgstr "Lisää sovellus"
 
 #: mod/settings.php:678 mod/settings.php:704
 msgid "Consumer Key"
-msgstr ""
+msgstr "Kuluttajan avain"
 
 #: mod/settings.php:679 mod/settings.php:705
 msgid "Consumer Secret"
-msgstr ""
+msgstr "Kuluttajasalaisuus"
 
 #: mod/settings.php:680 mod/settings.php:706
 msgid "Redirect"
@@ -7050,7 +7050,7 @@ msgstr "Näyttöasetukset"
 
 #: mod/settings.php:965 mod/settings.php:989
 msgid "Display Theme:"
-msgstr ""
+msgstr "Käyttöliittymän teema:"
 
 #: mod/settings.php:966
 msgid "Mobile Theme:"
@@ -7104,7 +7104,7 @@ msgstr ""
 
 #: mod/settings.php:975
 msgid "Infinite scroll"
-msgstr ""
+msgstr "Loputon selaaminen"
 
 #: mod/settings.php:976
 msgid "Automatic updates only at the top of the network page"
@@ -7142,7 +7142,7 @@ msgstr "Yleiset teeman asetukset"
 
 #: mod/settings.php:981
 msgid "Custom Theme Settings"
-msgstr ""
+msgstr "Mukautetut teema-asetukset"
 
 #: mod/settings.php:982
 msgid "Content Settings"
@@ -7887,7 +7887,7 @@ msgstr "Lisäosa sovelluksia, apuohjelmia, pelejä"
 
 #: src/Content/Nav.php:142
 msgid "Search site content"
-msgstr ""
+msgstr "Sivustohaku"
 
 #: src/Content/Nav.php:165
 msgid "Community"
@@ -8135,7 +8135,7 @@ msgstr ""
 
 #: src/Content/Feature.php:114
 msgid "Select and delete multiple posts/comments at once"
-msgstr ""
+msgstr "Valitse ja poista monta julkaisua/kommentia yhtaikaa"
 
 #: src/Content/Feature.php:115
 msgid "Edit Sent Posts"
@@ -8143,7 +8143,7 @@ msgstr "Muokkaa lähetetyt julkaisut"
 
 #: src/Content/Feature.php:115
 msgid "Edit and correct posts and comments after sending"
-msgstr ""
+msgstr "Muokkaa ja korjaa julkaisuja ja kommenteja julkaisun jälkeen"
 
 #: src/Content/Feature.php:116
 msgid "Tagging"
@@ -8626,7 +8626,7 @@ msgstr "\n%d virhe tapahtui tietokannan päivityksen aikana:\n%s\n"
 
 #: src/Database/DBStructure.php:194
 msgid "Errors encountered performing database changes: "
-msgstr ""
+msgstr "Tietokannan muokkauksessa tapahtui virheitä:"
 
 #: src/Database/DBStructure.php:210
 msgid ": Database update"
@@ -8762,17 +8762,17 @@ msgstr "Vain sinä näet tämän"
 #: src/Model/Item.php:1676
 #, php-format
 msgid "%1$s is attending %2$s's %3$s"
-msgstr ""
+msgstr "%1$s osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
 
 #: src/Model/Item.php:1681
 #, php-format
 msgid "%1$s is not attending %2$s's %3$s"
-msgstr ""
+msgstr "%1$s ei osallistu tapahtumaan %3$s, jonka järjestää %2$s"
 
 #: src/Model/Item.php:1686
 #, php-format
 msgid "%1$s may attend %2$s's %3$s"
-msgstr ""
+msgstr "%1$s ehkä osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
 
 #: src/Model/Group.php:44
 msgid ""
@@ -9133,7 +9133,7 @@ msgstr "(ei aihetta)"
 
 #: src/Object/Post.php:128
 msgid "This entry was edited"
-msgstr ""
+msgstr "Tämä kohde oli muokattu"
 
 #: src/Object/Post.php:182
 msgid "save to folder"
