@@ -17,9 +17,12 @@ $db_user = '{{$dbuser}}';
 $db_pass = '{{$dbpass}}';
 $db_data = '{{$dbdata}}';
 
-// Set this variable to true, if you want to use environment variables for mysql
-$db_use_env_vars = false;
-if ($db_use_env_vars === true) {
+// Use environment variables for mysql if they are set beforehand
+if (!empty(getenv('MYSQL_HOST'))
+   && !empty(getenv('MYSQL_PORT'))
+   && !empty(getenv('MYSQL_USERNAME'))
+   && !empty(getenv('MYSQL_PASSWORD'))
+   && !empty(getenv('MYSQL_DATABASE'))) {
 	$db_host = getenv('MYSQL_HOST') . ':' . getenv('MYSQL_PORT');
 	$db_user = getenv('MYSQL_USERNAME');
 	$db_pass = getenv('MYSQL_PASSWORD');
