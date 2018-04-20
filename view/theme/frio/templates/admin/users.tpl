@@ -173,7 +173,7 @@
 
 							{{if in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1]) }}
 								<p><a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.5.1}}">
-										&#8597; {{$th_users.5.0}}</a> : {{$u.page_flags}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}</p>
+										&#8597; {{$th_users.5.0}}</a> : {{$u.page_flags}}{{if $u.page_flags_raw==0 && $u.account_type_raw > 0}}, {{$u.account_type}}{{/if}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}</p>
 							{{/if}}
 
 						</td>
