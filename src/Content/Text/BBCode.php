@@ -342,6 +342,23 @@ class BBCode extends BaseObject
 		return $post;
 	}
 
+	/**
+	 * @brief Converts a BBCode text into plaintext
+	 *
+	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
+	 *
+	 * @return string
+	 */
+	public static function toPlaintext($text, $keep_urls = true)
+	{
+		$naked_text = preg_replace('/\[(.+?)\]/','', $text);
+		if (!$keep_urls) {
+			$naked_text = preg_replace('#https?\://[^\s<]+[^\s\.\)]#i', '', $naked_text);
+		}
+
+		return $naked_text;
+	}
+
 	public static function scaleExternalImages($srctext, $include_link = true, $scale_replace = false)
 	{
 		// Suppress "view full size"
