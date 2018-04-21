@@ -26,7 +26,6 @@ if (!isset($minimal)) {
 		<script  type="text/javascript">var baseurl = "<?php echo System::baseUrl(); ?>";</script>
 		<script type="text/javascript">var frio = "<?php echo 'view/theme/frio'; ?>";</script>
 <?php
-		$baseurl = System::baseUrl();
 		$basepath = $a->path ? "/" . $a->path . "/" : "/";
 		$frio = "view/theme/frio";
 
