@@ -208,7 +208,7 @@ class Delivery {
 					$atom = DFRN::mail($item, $owner);
 				} elseif ($fsuggest) {
 					$atom = DFRN::fsuggest($item, $owner);
-					q("DELETE FROM `fsuggest` WHERE `id` = %d LIMIT 1", intval($item['id']));
+					dba::delete('fsuggest', ['id' => $item['id']]);
 				} elseif ($relocate) {
 					$atom = DFRN::relocate($owner, $uid);
 				} elseif ($followup) {
@@ -290,9 +290,7 @@ class Delivery {
 					if ($x && count($x)) {
 						$write_flag = ((($x[0]['rel']) && ($x[0]['rel'] != CONTACT_IS_SHARING)) ? true : false);
 						if ((($owner['page-flags'] == PAGE_COMMUNITY) || $write_flag) && !$x[0]['writable']) {
-							q("UPDATE `contact` SET `writable` = 1 WHERE `id` = %d",
-								intval($x[0]['id'])
-							);
+							dba::update('contact', ['writable' => true], ['id' => $x[0]['id']]);
 							$x[0]['writable'] = 1;
 						}
 
@@ -401,7 +399,7 @@ class Delivery {
 							$headers  = 'From: '.Email::encodeHeader($local_user[0]['username'],'UTF-8').' <'.$local_user[0]['email'].'>'."\n";
 						}
 					} else {
-						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'],'UTF-8') .' <'. L10n::t('noreply') .'@'.$a->get_hostname() .'>'. "\n";
+						$headers  = 'From: '. Email::encodeHeader($local_user[0]['username'], 'UTF-8') . ' <noreply@' . $a->get_hostname() . '>' . "\n";
 					}
 
 					//if ($reply_to)

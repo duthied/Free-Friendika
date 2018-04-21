@@ -1062,7 +1062,7 @@ class App
 				$hostname = substr($hostname, 0, strpos($hostname, ':'));
 			}
 
-			$sender_email = L10n::t('noreply') . '@' . $hostname;
+			$sender_email = 'noreply@' . $hostname;
 		}
 
 		return $sender_email;

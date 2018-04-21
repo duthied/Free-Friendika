@@ -223,7 +223,7 @@ function api_login(App $a)
 		$record = $addon_auth['user_record'];
 	} else {
 		$user_id = User::authenticate(trim($user), trim($password));
-		if ($user_id) {
+		if ($user_id !== false) {
 			$record = dba::selectFirst('user', [], ['uid' => $user_id]);
 		}
 	}
@@ -267,7 +267,7 @@ function api_check_method($method)
  * @brief Main API entry point
  *
  * @param object $a App
- * @return string API call result
+ * @return string|array API call result
  */
 function api_call(App $a)
 {
@@ -387,9 +387,7 @@ function api_call(App $a)
 						break;
 					case "json":
 						header("Content-Type: application/json");
-						foreach ($return as $rr) {
-							$json = json_encode($rr);
-						}
+						$json = json_encode(end($return));
 						if (x($_GET, 'callback')) {
 							$json = $_GET['callback'] . "(" . $json . ")";
 						}
@@ -421,7 +419,7 @@ function api_call(App $a)
  *
  * @param string $type Return type (xml, json, rss, as)
  * @param object $e    HTTPException Error object
- * @return string error message formatted as $type
+ * @return string|array error message formatted as $type
  */
 function api_error($type, $e)
 {
@@ -531,7 +529,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact id with uid = 0
 	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
-		$user = dbesc(api_unique_id_to_nurl($contact_id));
+		$user = dbesc(api_unique_id_to_nurl(intval($contact_id)));
 
 		if ($user == "") {
 			throw new BadRequestException("User not found.");
@@ -577,16 +575,14 @@ function api_get_user(App $a, $contact_id = null)
 		$argid = count($called_api);
 		list($user, $null) = explode(".", $a->argv[$argid]);
 		if (is_numeric($user)) {
-			$user = dbesc(api_unique_id_to_nurl($user));
+			$user = dbesc(api_unique_id_to_nurl(intval($user)));
 
-			if ($user == "") {
-				return false;
-			}
-
-			$url = $user;
-			$extra_query = "AND `contact`.`nurl` = '%s' ";
-			if (api_user() !== false) {
-				$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
+			if ($user != "") {
+				$url = $user;
+				$extra_query = "AND `contact`.`nurl` = '%s' ";
+				if (api_user() !== false) {
+					$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
+				}
 			}
 		} else {
 			$user = dbesc($user);
@@ -620,7 +616,9 @@ function api_get_user(App $a, $contact_id = null)
 	);
 
 	// Selecting the id by priority, friendica first
-	api_best_nickname($uinfo);
+	if (is_array($uinfo)) {
+		api_best_nickname($uinfo);
+	}
 
 	// if the contact wasn't found, fetch it from the contacts with uid = 0
 	if (!DBM::is_result($uinfo)) {
@@ -981,7 +979,7 @@ function api_create_xml($data, $root_element)
  * @param string $type         Return type (atom, rss, xml, json)
  * @param array  $data         JSON style array
  *
- * @return (string|object|array) XML data or JSON data
+ * @return (string|array) XML data or JSON data
  */
 function api_format_data($root_element, $type, $data)
 {
@@ -992,6 +990,7 @@ function api_format_data($root_element, $type, $data)
 			$ret = api_create_xml($data, $root_element);
 			break;
 		case "json":
+		default:
 			$ret = $data;
 			break;
 	}
@@ -1429,7 +1428,7 @@ function api_status_show($type)
 			$status_info["entities"] = $converted["entities"];
 		}
 
-		if (($lastwall['item_network'] != "") && ($status["source"] == 'web')) {
+		if (($lastwall['item_network'] != "") && ($status_info["source"] == 'web')) {
 			$status_info["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
 		} elseif (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $status_info["source"])) {
 			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['item_network'], $user_info['url']).')');
@@ -1438,15 +1437,15 @@ function api_status_show($type)
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
 		unset($status_info["user"]["uid"]);
 		unset($status_info["user"]["self"]);
+
+		logger('status_info: '.print_r($status_info, true), LOGGER_DEBUG);
+
+		if ($type == "raw") {
+			return $status_info;
+		}
+
+		return api_format_data("statuses", $type, ['status' => $status_info]);
 	}
-
-	logger('status_info: '.print_r($status_info, true), LOGGER_DEBUG);
-
-	if ($type == "raw") {
-		return $status_info;
-	}
-
-	return api_format_data("statuses", $type, ['status' => $status_info]);
 }
 
 /**
@@ -1630,6 +1629,13 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  */
 function api_search($type)
 {
+	$a = get_app();
+	$user_info = api_get_user($a);
+
+	if (api_user() === false || $user_info === false) {
+		throw new ForbiddenException();
+	}
+
 	$data = [];
 	$sql_extra = '';
 
@@ -1668,7 +1674,7 @@ function api_search($type)
 		$since_id
 	);
 
-	$data['status'] = api_format_items(dba::inArray($r), api_get_user(get_app()));
+	$data['status'] = api_format_items(dba::inArray($r), $user_info);
 
 	return api_format_data("statuses", $type, $data);
 }
@@ -1690,8 +1696,9 @@ api_register_func('api/search', 'api_search', true);
 function api_statuses_home_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -1701,7 +1708,6 @@ function api_statuses_home_timeline($type)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	// get last network messages
 
 	// params
@@ -1792,12 +1798,12 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
 function api_statuses_public_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
-	$user_info = api_get_user($a);
 	// get last network messages
 
 	// params
@@ -1901,12 +1907,11 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
 function api_statuses_networkpublic_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	$since_id        = x($_REQUEST, 'since_id')        ? $_REQUEST['since_id']        : 0;
 	$max_id          = x($_REQUEST, 'max_id')          ? $_REQUEST['max_id']          : 0;
@@ -1971,12 +1976,11 @@ api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpu
 function api_statuses_show($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	// params
 	$id = intval($a->argv[3]);
@@ -2045,12 +2049,11 @@ api_register_func('api/statuses/show', 'api_statuses_show', true);
 function api_conversation_show($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	// params
 	$id = intval($a->argv[3]);
@@ -2258,8 +2261,9 @@ api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METH
 function api_statuses_mentions($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -2269,9 +2273,7 @@ function api_statuses_mentions($type)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	// get last network messages
-
 
 	// params
 	$since_id = defaults($_REQUEST, 'since_id', 0);
@@ -2350,12 +2352,11 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
 function api_statuses_user_timeline($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-
-	$user_info = api_get_user($a);
 
 	logger(
 		"api_statuses_user_timeline: api_user: ". api_user() .
@@ -2520,14 +2521,13 @@ function api_favorites($type)
 	global $called_api;
 
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
 	$called_api = [];
-
-	$user_info = api_get_user($a);
 
 	// in friendica starred item are private
 	// return favorites only for self
@@ -3343,7 +3343,8 @@ function api_lists_statuses($type)
 {
 	$a = get_app();
 
-	if (api_user() === false) {
+	$user_info = api_get_user($a);
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -3353,7 +3354,6 @@ function api_lists_statuses($type)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	if (empty($_REQUEST['list_id'])) {
 		throw new BadRequestException('list_id not specified');
 	}
@@ -3817,7 +3817,7 @@ api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, AP
  * @brief delete a direct_message from mail table through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  * @see https://developer.twitter.com/en/docs/direct-messages/sending-and-receiving/api-reference/delete-message
  */
 function api_direct_messages_destroy($type)
@@ -3903,8 +3903,9 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 function api_direct_messages_box($type, $box, $verbose)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 
@@ -3928,7 +3929,6 @@ function api_direct_messages_box($type, $box, $verbose)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$user_info = api_get_user($a);
 	$profile_url = $user_info["url"];
 
 	// pagination
@@ -3979,7 +3979,9 @@ function api_direct_messages_box($type, $box, $verbose)
 			$sender = $user_info;
 		}
 
-		$ret[] = api_format_messages($item, $recipient, $sender);
+		if (isset($recipient) && isset($sender)) {
+			$ret[] = api_format_messages($item, $recipient, $sender);
+		}
 	}
 
 
@@ -4097,7 +4099,7 @@ api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
  * @brief delete a complete photoalbum with all containing photos from database through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photoalbum_delete($type)
 {
@@ -4152,7 +4154,7 @@ function api_fr_photoalbum_delete($type)
  * @brief update the name of the album for all photos of an album
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photoalbum_update($type)
 {
@@ -4201,7 +4203,7 @@ function api_fr_photoalbum_update($type)
  * @brief list all photos of the authenticated user
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photos_list($type)
 {
@@ -4247,7 +4249,7 @@ function api_fr_photos_list($type)
  * @brief upload a new photo or change an existing photo
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photo_create_update($type)
 {
@@ -4395,7 +4397,7 @@ function api_fr_photo_create_update($type)
  * @brief delete a single photo from the database through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_fr_photo_delete($type)
 {
@@ -4478,7 +4480,7 @@ function api_fr_photo_detail($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  *
- * @return string
+ * @return string|array
  * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
  */
 function api_account_update_profile_image($type)
@@ -4530,6 +4532,8 @@ function api_account_update_profile_image($type)
 		$fileext = "jpg";
 	} elseif ($filetype == "image/png") {
 		$fileext = "png";
+	} else {
+		throw new InternalServerErrorException('Unsupported filetype');
 	}
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
@@ -4810,7 +4814,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		logger("photo upload: new profile image upload ended", LOGGER_DEBUG);
 	}
 
-	if ($r) {
+	if (isset($r) && $r) {
 		// create entry in 'item'-table on new uploads to enable users to comment/like/dislike the photo
 		if ($photo_id == null && $mediatype == "photo") {
 			post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility);
@@ -4886,6 +4890,13 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
  */
 function prepare_photo_data($type, $scale, $photo_id)
 {
+	$a = get_app();
+	$user_info = api_get_user($a);
+
+	if ($user_info === false) {
+		throw new ForbiddenException();
+	}
+
 	$scale_sql = ($scale === false ? "" : sprintf("AND scale=%d", intval($scale)));
 	$data_sql = ($scale === false ? "" : "data, ");
 
@@ -4966,7 +4977,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	);
 
 	// prepare output of comments
-	$commentData = api_format_items($r, api_get_user(get_app()), false, $type);
+	$commentData = api_format_items($r, $user_info, false, $type);
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
@@ -5341,7 +5352,7 @@ function api_clean_attachments($body)
 {
 	$data = BBCode::getAttachmentData($body);
 
-	if (!$data) {
+	if (empty($data)) {
 		return $body;
 	}
 	$body = "";
@@ -5467,6 +5478,7 @@ function api_friendica_group_show($type)
 	}
 
 	// loop through all groups and retrieve all members for adding data in the user array
+	$grps = [];
 	foreach ($r as $rr) {
 		$members = Contact::getByGroupId($rr['id']);
 		$users = [];
@@ -5665,7 +5677,7 @@ function group_create($name, $uid, $users = [])
 	}
 
 	// return success message incl. missing users in array
-	$status = ($erroraddinguser ? "missing user" : ($reactivate_group ? "reactivated" : "ok"));
+	$status = ($erroraddinguser ? "missing user" : ((isset($reactivate_group) && $reactivate_group) ? "reactivated" : "ok"));
 
 	return ['success' => true, 'gid' => $gid, 'name' => $name, 'status' => $status, 'wrong users' => $errorusers];
 }
@@ -5773,7 +5785,7 @@ function api_friendica_group_update($type)
 		foreach ($users as $user) {
 			$found = ($user['cid'] == $cid ? true : false);
 		}
-		if (!$found) {
+		if (!isset($found) || !$found) {
 			Group::removeMemberByName($uid, $name, $cid);
 		}
 	}
@@ -5850,8 +5862,6 @@ function api_lists_update($type)
 
 		return api_format_data("lists", $type, ['lists' => $list]);
 	}
-
-	return api_format_data("group_update", $type, ['result' => $success]);
 }
 
 api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST);
@@ -5904,7 +5914,7 @@ api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activit
  * @brief Returns notifications
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
 */
 function api_friendica_notification($type)
 {
@@ -5938,13 +5948,14 @@ function api_friendica_notification($type)
  * @brief Set notification as seen and returns associated item (if possible)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_friendica_notification_seen($type)
 {
 	$a = get_app();
+	$user_info = api_get_user($a);
 
-	if (api_user() === false) {
+	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
 	if ($a->argc!==4) {
@@ -5969,7 +5980,6 @@ function api_friendica_notification_seen($type)
 		);
 		if ($r!==false) {
 			// we found the item, return it to the user
-			$user_info = api_get_user($a);
 			$ret = api_format_items($r, $user_info, false, $type);
 			$data = ['status' => $ret];
 			return api_format_data("status", $type, $data);
@@ -5987,7 +5997,7 @@ api_register_func('api/friendica/notification', 'api_friendica_notification', tr
  * @brief update a direct_message to seen state
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string (success result=ok, error result=error with error message)
+ * @return string|array (success result=ok, error result=error with error message)
  */
 function api_friendica_direct_messages_setseen($type)
 {
@@ -6045,7 +6055,7 @@ api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @param string $box
- * @return string (success: success=true if found and search_result contains found messages,
+ * @return string|array (success: success=true if found and search_result contains found messages,
  *                          success=false if nothing was found, search_result='nothing found',
  * 		   error: result=error with error message)
  */
@@ -6093,7 +6103,9 @@ function api_friendica_direct_messages_search($type, $box = "")
 				$sender = $user_info;
 			}
 
-			$ret[] = api_format_messages($item, $recipient, $sender);
+			if (isset($recipient) && isset($sender)) {
+				$ret[] = api_format_messages($item, $recipient, $sender);
+			}
 		}
 		$success = ['success' => true, 'search_results' => $ret];
 	}
@@ -6108,7 +6120,7 @@ api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_
  * @brief return data of all the profiles a user has to the client
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string
+ * @return string|array
  */
 function api_friendica_profile_show($type)
 {
@@ -6145,19 +6157,20 @@ function api_friendica_profile_show($type)
 	}
 	// loop through all returned profiles and retrieve data and users
 	$k = 0;
+	$profiles = [];
 	foreach ($r as $rr) {
 		$profile = api_format_items_profiles($rr);
 
 		// select all users from contact table, loop and prepare standard return for user data
 		$users = [];
-		$r = q(
+		$nurls = q(
 			"SELECT `id`, `nurl` FROM `contact` WHERE `uid`= %d AND `profile-id` = %d",
 			intval(api_user()),
 			intval($rr['profile_id'])
 		);
 
-		foreach ($r as $rr) {
-			$user = api_get_user($a, $rr['nurl']);
+		foreach ($nurls as $nurl) {
+			$user = api_get_user($a, $nurl['nurl']);
 			($type == "xml") ? $users[$k++ . ":user"] = $user : $users[] = $user;
 		}
 		$profile['users'] = $users;

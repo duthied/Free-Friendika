@@ -1803,6 +1803,8 @@ class DBStructure
 						]
 				];
 
+		\Friendica\Core\Addon::callHooks('dbstructure_definition', $database);
+
 		return $database;
 	}
 }

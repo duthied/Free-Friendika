@@ -46,8 +46,10 @@ function wk_social_relay()
 		$server_tags = Config::get('system', 'relay_server_tags');
 		$tagitems = explode(",", $server_tags);
 
+		/// @todo Check if it was better to use "strtolower" on the tags
 		foreach ($tagitems AS $tag) {
-			$tags[trim($tag, "# ")] = trim($tag, "# ");
+			$tag = trim($tag, "# ");
+			$tags[$tag] = $tag;
 		}
 
 		if (Config::get('system', 'relay_user_tags')) {
@@ -62,7 +64,9 @@ function wk_social_relay()
 
 	$taglist = [];
 	foreach ($tags AS $tag) {
-		$taglist[] = $tag;
+		if (!empty($tag)) {
+			$taglist[] = $tag;
+		}
 	}
 
 	$relay = [

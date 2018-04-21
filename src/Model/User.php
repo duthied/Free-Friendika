@@ -127,13 +127,23 @@ class User
 	{
 		$user = self::getAuthenticationInfo($user_info);
 
-		if ($user['legacy_password']) {
+		if (strpos($user['password'], '$') === false) {
+			//Legacy hash that has not been replaced by a new hash yet
+			if (self::hashPasswordLegacy($password) === $user['password']) {
+				self::updatePassword($user['uid'], $password);
+
+				return $user['uid'];
+			}
+		} elseif (!empty($user['legacy_password'])) {
+			//Legacy hash that has been double-hashed and not replaced by a new hash yet
+			//Warning: `legacy_password` is not necessary in sync with the content of `password`
 			if (password_verify(self::hashPasswordLegacy($password), $user['password'])) {
 				self::updatePassword($user['uid'], $password);
 
 				return $user['uid'];
 			}
 		} elseif (password_verify($password, $user['password'])) {
+			//New password hash
 			if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
 				self::updatePassword($user['uid'], $password);
 			}
@@ -248,6 +258,10 @@ class User
 	 */
 	public static function hashPassword($password)
 	{
+		if (!trim($password)) {
+			throw new Exception(L10n::t('Password can\'t be empty'));
+		}
+
 		return password_hash($password, PASSWORD_DEFAULT);
 	}
 

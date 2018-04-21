@@ -1583,7 +1583,7 @@ class BBCode extends BaseObject
 		$text = preg_replace("(\[u\](.*?)\[\/u\])ism", '<u>$1</u>', $text);
 
 		// Check for strike-through text
-		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<strike>$1</strike>', $text);
+		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<s>$1</s>', $text);
 
 		// Check for over-line text
 		$text = preg_replace("(\[o\](.*?)\[\/o\])ism", '<span class="overline">$1</span>', $text);

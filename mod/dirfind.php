@@ -223,7 +223,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 				$entry = [
 					'alt_text' => $alt_text,
-					'url' => Profile::zrl($jj->url),
+					'url' => Profile::magicLink($jj->url),
 					'itemurl' => $itemurl,
 					'name' => htmlentities($jj->name),
 					'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),

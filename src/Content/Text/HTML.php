@@ -221,6 +221,9 @@ class HTML
 		self::tagToBBCode($doc, 'b', [], '[b]', '[/b]');
 		self::tagToBBCode($doc, 'i', [], '[i]', '[/i]');
 		self::tagToBBCode($doc, 'u', [], '[u]', '[/u]');
+		self::tagToBBCode($doc, 's', [], '[s]', '[/s]');
+		self::tagToBBCode($doc, 'del', [], '[s]', '[/s]');
+		self::tagToBBCode($doc, 'strike', [], '[s]', '[/s]');
 
 		self::tagToBBCode($doc, 'big', [], "[size=large]", "[/size]");
 		self::tagToBBCode($doc, 'small', [], "[size=small]", "[/size]");

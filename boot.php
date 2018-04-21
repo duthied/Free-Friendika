@@ -953,10 +953,12 @@ function public_contact()
  */
 function remote_user()
 {
-	// You cannot be both local and remote
-	if (local_user()) {
-		return false;
-	}
+	// You cannot be both local and remote.
+	// Unncommented by rabuzarus because remote authentication to local
+	// profiles wasn't possible anymore (2018-04-12).
+//	if (local_user()) {
+//		return false;
+//	}
 	if (x($_SESSION, 'authenticated') && x($_SESSION, 'visitor_id')) {
 		return intval($_SESSION['visitor_id']);
 	}

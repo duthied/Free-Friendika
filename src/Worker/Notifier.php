@@ -479,15 +479,9 @@ class Notifier {
 
 
 		if ($public_message) {
-
-			$r0 = [];
 			$r1 = [];
 
 			if ($diaspora_delivery) {
-				if (!$followup) {
-					$r0 = Diaspora::relayList($item_id);
-				}
-
 				$r1 = q("SELECT `batch`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`name`) AS `name`, ANY_VALUE(`network`) AS `network`
 					FROM `contact` WHERE `network` = '%s' AND `batch` != ''
 					AND `uid` = %d AND `rel` != %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` GROUP BY `batch`",
@@ -500,17 +494,17 @@ class Notifier {
 				// The function will ensure that there are no duplicates
 				$r1 = Diaspora::participantsForThread($item_id, $r1);
 
+				// Add the relay to the list, avoid duplicates
+				if (!$followup) {
+					$r1 = Diaspora::relayList($item_id, $r1);
+				}
 			}
 
-			$r2 = q("SELECT `id`, `name`,`network` FROM `contact`
-				WHERE `network` in ('%s') AND `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `rel` != %d",
-				dbesc(NETWORK_DFRN),
-				intval($owner['uid']),
-				intval(CONTACT_IS_SHARING)
-			);
+			$condition = ['network' => NETWORK_DFRN, 'uid' => $owner['uid'], 'blocked' => false,
+				'pending' => false, 'archive' => false, 'rel' => [CONTACT_IS_FOLLOWER, CONTACT_IS_FRIEND]];
+			$r2 = dba::inArray(dba::select('contact', ['id', 'name', 'network'], $condition));
 
-
-			$r = array_merge($r2, $r1, $r0);
+			$r = array_merge($r2, $r1);
 
 			if (DBM::is_result($r)) {
 				logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
@@ -541,8 +535,8 @@ class Notifier {
 		if ($push_notify) {
 			// Set push flag for PuSH subscribers to this topic,
 			// they will be notified in queue.php
-			q("UPDATE `push_subscriber` SET `push` = 1 ".
-			  "WHERE `nickname` = '%s' AND `push` = 0", dbesc($owner['nickname']));
+			$condition = ['push' => false, 'nickname' => $owner['nickname']];
+			dba::update('push_subscriber', ['push' => true], $condition);
 
 			logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 

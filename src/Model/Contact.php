@@ -220,6 +220,11 @@ class Contact extends BaseObject
 
 			// Update the public contact as well
 			dba::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
+
+			// Update the profile
+			$fields = ['photo' => System::baseUrl() . '/photo/profile/' .$uid . '.jpg',
+				'thumb' => System::baseUrl() . '/photo/avatar/' . $uid .'.jpg'];
+			dba::update('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		}
 	}
 
@@ -306,7 +311,9 @@ class Contact extends BaseObject
 			 */
 
 			/// @todo Check for contact vitality via probing
-			$expiry = $contact['term-date'] . ' + 32 days ';
+			$archival_days = Config::get('system', 'archival_days', 32);
+
+			$expiry = $contact['term-date'] . ' + ' . $archival_days . ' days ';
 			if (DateTimeFormat::utcNow() > DateTimeFormat::utc($expiry)) {
 				/* Relationship is really truly dead. archive them rather than
 				 * delete, though if the owner tries to unarchive them we'll start
@@ -343,8 +350,13 @@ class Contact extends BaseObject
 		$fields = ['term-date' => NULL_DATE, 'archive' => false];
 		dba::update('contact', $fields, ['id' => $contact['id']]);
 
-		if ($contact['url'] != '') {
+		if (!empty($contact['url'])) {
 			dba::update('contact', $fields, ['nurl' => normalise_link($contact['url'])]);
+		}
+
+		if (!empty($contact['batch'])) {
+			$condition = ['batch' => $contact['batch'], 'contact-type' => ACCOUNT_TYPE_RELAY];
+			dba::update('contact', $fields, $condition);
 		}
 	}
 
@@ -1470,6 +1482,11 @@ class Contact extends BaseObject
 			}
 			// send email notification to owner?
 		} else {
+			if (dba::exists('contact', ['nurl' => normalise_link($url), 'uid' => $importer['uid'], 'pending' => true])) {
+				logger('ignoring duplicated connection request from pending contact ' . $url);
+				return;
+			}
+
 			// create contact record
 			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
 				`blocked`, `readonly`, `pending`, `writable`)

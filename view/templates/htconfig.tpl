@@ -17,6 +17,18 @@ $db_user = '{{$dbuser}}';
 $db_pass = '{{$dbpass}}';
 $db_data = '{{$dbdata}}';
 
+// Use environment variables for mysql if they are set beforehand
+if (!empty(getenv('MYSQL_HOST'))
+   && !empty(getenv('MYSQL_PORT'))
+   && !empty(getenv('MYSQL_USERNAME'))
+   && !empty(getenv('MYSQL_PASSWORD'))
+   && !empty(getenv('MYSQL_DATABASE'))) {
+	$db_host = getenv('MYSQL_HOST') . ':' . getenv('MYSQL_PORT');
+	$db_user = getenv('MYSQL_USERNAME');
+	$db_pass = getenv('MYSQL_PASSWORD');
+	$db_data = getenv('MYSQL_DATABASE');
+}
+
 // Set the database connection charset to full Unicode (utf8mb4).
 // Changing this value will likely corrupt the special characters.
 // You have been warned.

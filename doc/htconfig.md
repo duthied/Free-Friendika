@@ -25,8 +25,9 @@ Example: To set the automatic database cleanup process add this line to your .ht
 
 * **allowed_link_protocols** (Array) - Allowed protocols in links URLs, add at your own risk. http is always allowed.
 * **always_show_preview** (Boolean) - Only show small preview picures. Default value is false.
-* **block_local_dir** (Boolean) - Blocks the access to the directory of the local users.
+* **archival_days** (Integer) - Number of days that we try to deliver content before we archive a contact. Defaults to 32.
 * **auth_cookie_lifetime** (Integer) - Number of days that should pass without any activity before a user who chose "Remember me" when logging in is considered logged out. Defaults to 7.
+* **block_local_dir** (Boolean) - Blocks the access to the directory of the local users.
 * **config_adapter** (jit|preload) - Allow to switch the configuration adapter to improve performances at the cost of memory consumption. Default value is "jit"
 * **curl_range_bytes** - Maximum number of bytes that should be fetched. Default is 0, which mean "no limit".
 * **db_log** - Name of a logfile to log slow database queries

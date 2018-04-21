@@ -86,7 +86,7 @@ function friendica_content(App $a)
 	$o .= L10n::t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">'.L10n::t('the bugtracker at github').'</a>';
 	$o .= '</p>' . PHP_EOL;
 	$o .= '<p>';
-	$o .= L10n::t('Suggestions, praise, donations, etc. - please email "Info" at Friendica - dot com');
+	$o .= L10n::t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca');
 	$o .= '</p>' . PHP_EOL;
 
 	$visible_addons = [];
@@ -112,7 +112,7 @@ function friendica_content(App $a)
 				$s .= $p;
 			}
 		}
-		$o .= '<div style="margin-left: 25px; margin-right: 25px;">' . $s . '</div>' . PHP_EOL;
+		$o .= '<div style="margin-left: 25px; margin-right: 25px; margin-bottom: 25px;">' . $s . '</div>' . PHP_EOL;
 	} else {
 		$o .= '<p>' . L10n::t('No installed addons/apps') . '</p>' . PHP_EOL;
 	}
