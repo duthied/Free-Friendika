@@ -152,6 +152,7 @@ Dialog._load = function(url) {
 	var jsbrowser = function() {
 		FileBrowser.init(nickname, type, hash);
 	};
+	loadScript("view/js/ajaxupload.js");
 	loadScript("view/theme/frio/js/filebrowser.js", jsbrowser);
 };
 
