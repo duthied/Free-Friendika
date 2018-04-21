@@ -2409,10 +2409,13 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     height: 48px;
     width: 48px;
 }
-
 #prvmail-end {
     clear:both;
 }
+#modal #prvmail-text-edit-bb .bb-img {
+    display: none;
+}
+
 /* photos */
 .photo-album-actions {
     margin-bottom: 10px;
