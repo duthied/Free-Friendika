@@ -93,7 +93,6 @@ class dba {
 
 		// No suitable SQL driver was found.
 		if (!self::$connected) {
-			self::$driver = null;
 			self::$db = null;
 		}
 		$a->save_timestamp($stamp1, "network");

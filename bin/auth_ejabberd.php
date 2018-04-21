@@ -57,7 +57,7 @@ require_once "include/dba.php";
 $a = new App(dirname(__DIR__));
 BaseObject::setApp($a);
 
-@include "config/.htconfig.php";
+@include ".htconfig.php";
 dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 

@@ -42,7 +42,7 @@ This will not delete the virtual machine.
 9. To ultimately delete the virtual machine run
 
         $> vagrant destroy
-        $> rm /vagrant/config/.htconfig.php
+        $> rm /vagrant/.htconfig.php
 
 to make sure that you can start from scratch with another "vagrant up".
 
