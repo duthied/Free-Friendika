@@ -1808,7 +1808,7 @@ class BBCode extends BaseObject
 	 * @param string $addon The addon for which the abstract is meant for
 	 * @return string The abstract
 	 */
-	private static function getAbstract($text, $addon = "")
+	public static function getAbstract($text, $addon = "")
 	{
 		$abstract = "";
 		$abstracts = [];
