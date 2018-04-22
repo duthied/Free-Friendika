@@ -217,6 +217,8 @@ function dfrn_dispatch_public($postdata)
 					WHERE NOT `blocked` AND `id` = ? LIMIT 1",
 					$contact['id']);
 
+	$importer['importer_uid']  = 0;
+
 	// This should never fail
 	if (!DBM::is_result($importer)) {
 		logger('Contact not found for address ' . $msg['author']);
