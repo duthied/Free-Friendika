@@ -643,8 +643,6 @@ class Profile
 		$bd_format = L10n::t('g A l F d'); // 8 AM Friday January 18
 		$classtoday = '';
 
-		$self = dba::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
-
 		$s = dba::p(
 			"SELECT `event`.*
 			FROM `event`
@@ -663,7 +661,7 @@ class Profile
 			local_user(),
 			DateTimeFormat::utc('now + 7 days'),
 			DateTimeFormat::utc('now - 1 days'),
-			$self['id'],
+			public_contact(),
 			ACTIVITY_ATTEND,
 			ACTIVITY_ATTENDMAYBE
 		);
