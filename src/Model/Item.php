@@ -7,6 +7,7 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Content\Text;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -977,35 +978,35 @@ class Item extends BaseObject
 	 * if possible and not already present.
 	 * Expects "body" element to exist in $arr.
 	 */
-	private static function addLanguageInPostopts(&$arr)
+	private static function addLanguageInPostopts(&$item)
 	{
-		if (x($arr, 'postopts')) {
-			if (strstr($arr['postopts'], 'lang=')) {
+		if (!empty($item['postopts'])) {
+			if (strstr($item['postopts'], 'lang=')) {
 				// do not override
 				return;
 			}
-			$postopts = $arr['postopts'];
+			$postopts = $item['postopts'];
 		} else {
 			$postopts = "";
 		}
 
-		$naked_body = preg_replace('/\[(.+?)\]/','', $arr['body']);
-		$l = new Text_LanguageDetect();
-		$lng = $l->detect($naked_body, 3);
+		$naked_body = Text\BBCode::toPlaintext($item['body'], false);
 
-		if (sizeof($lng) > 0) {
-			if ($postopts != "") {
+		$languages = (new Text_LanguageDetect())->detect($naked_body, 3);
+
+		if (sizeof($languages) > 0) {
+			if ($postopts != '') {
 				$postopts .= '&'; // arbitrary separator, to be reviewed
 			}
 
 			$postopts .= 'lang=';
 			$sep = "";
 
-			foreach ($lng as $language => $score) {
+			foreach ($languages as $language => $score) {
 				$postopts .= $sep . $language . ";" . $score;
 				$sep = ':';
 			}
-			$arr['postopts'] = $postopts;
+			$item['postopts'] = $postopts;
 		}
 	}
 
