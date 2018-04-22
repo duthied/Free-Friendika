@@ -115,9 +115,9 @@ At this point visit your website again, and register your personal account.
 
 * Does ".htconfig.php" already exist? If yes, the automatic installation won't start
 * Are the settings inside "htconfig.php" correct? If not, edit the file again.
-* Is the empty MySQL-database created? If not, import the contents of "database.sql" with phpmyadmin or the mysql command line.
+* Is the empty MySQL-database created? If not, create it.
 
-For more information during the installation, you can use this command line option;
+For more information during the installation, you can use this command line option
 
     bin/console autoinstall -v
 
