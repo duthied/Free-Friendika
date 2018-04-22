@@ -858,6 +858,9 @@ class dba {
 	 *
 	 * @param string  $table       Table name
 	 * @param array   $conditions  Field condition(s)
+	 * @param array   $options
+	 *                - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 *                           relations
 	 * @param boolean $in_process  Internal use: Only do a commit after the last delete
 	 * @param array   $callstack   Internal use: prevent endless loops
 	 *
