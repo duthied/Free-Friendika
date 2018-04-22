@@ -1415,7 +1415,16 @@ class DFRN
 
 		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
 
-		$dest_url = ($public_batch ? $fcontact["batch"] : $contact["notify"]);
+		// Create the endpoint for public posts. This is some WIP and should later be added to the probing
+		if ($public_batch && empty($contact["batch"])) {
+			$parts = parse_url($contact["notify"]);
+			$path_parts = explode('/', $parts['path']);
+			array_pop($path_parts);
+			$parts['path'] =  implode('/', $path_parts);
+			$contact["batch"] = Network::unparseURL($parts);
+		}
+
+		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
@@ -2771,7 +2780,7 @@ class DFRN
 				logger('ignoring read-only contact '.$importer["id"]);
 				return;
 			}
-			if ($importer["uid"] == 0) {
+			if (($importer["uid"] == 0) && ($importer["importer_uid"] != 0)) {
 				logger("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", LOGGER_DEBUG);
 				return;
 			}
