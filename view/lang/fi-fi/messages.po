@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-20 09:30+0200\n"
-"PO-Revision-Date: 2018-04-21 00:12+0000\n"
+"PO-Revision-Date: 2018-04-21 15:04+0000\n"
 "Last-Translator: Kris\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
@@ -234,7 +234,7 @@ msgstr "Arkistoitu kansioon:"
 #: include/conversation.php:777 src/Object/Post.php:377
 #, php-format
 msgid "%s from %s"
-msgstr ""
+msgstr "%s sovelluksesta %s"
 
 #: include/conversation.php:792
 msgid "View in context"
@@ -2293,7 +2293,7 @@ msgstr "Vastaanottaja"
 
 #: mod/poke.php:195
 msgid "Choose what you wish to do to recipient"
-msgstr ""
+msgstr "Valitse mitä haluat tehdä vastaanottajalle"
 
 #: mod/poke.php:198
 msgid "Make this post private"
@@ -2313,7 +2313,7 @@ msgstr "Virheellinen profiilitunniste."
 
 #: mod/profperm.php:111
 msgid "Profile Visibility Editor"
-msgstr ""
+msgstr "Profiilin näkyvyyden muokkaaminen"
 
 #: mod/profperm.php:115 mod/group.php:265
 msgid "Click on a contact to add or remove."
@@ -3406,7 +3406,7 @@ msgstr "Estetty tila päälle/pois"
 
 #: mod/contacts.php:1021
 msgid "Toggle Ignored status"
-msgstr ""
+msgstr "Sivuuta/seuraa"
 
 #: mod/contacts.php:1029
 msgid "Toggle Archive status"
@@ -4393,7 +4393,7 @@ msgstr ""
 msgid ""
 "Currently this node is aware of %d nodes with %d registered users from the "
 "following platforms:"
-msgstr ""
+msgstr "Tällä hetkellä tämä solmu havaitsee %d muita solmuja joissa %d rekisteröityneitä käyttäjiä. Tarkemmat tiedot:"
 
 #: mod/admin.php:755
 msgid "ID"
@@ -4501,7 +4501,7 @@ msgstr "Rekisteröityneet käyttäjät"
 
 #: mod/admin.php:853
 msgid "Pending registrations"
-msgstr ""
+msgstr "Vireillä olevat rekisteröinnit"
 
 #: mod/admin.php:854
 msgid "Version"
@@ -5010,7 +5010,7 @@ msgstr "OStatus-tuki voidaan ottaa käyttöön ainoastaan jos ketjuttaminen on j
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
-msgstr ""
+msgstr "Diaspora -tukea ei voitu ottaa käyttöön koska Friendica on asennettu alihakemistoon."
 
 #: mod/admin.php:1403
 msgid "Enable Diaspora support"
@@ -5397,7 +5397,7 @@ msgstr "Tietokannan rakenteen %s-päivitys onnistui."
 #: mod/admin.php:1485
 #, php-format
 msgid "Executing of database structure update %s failed with error: %s"
-msgstr ""
+msgstr "Tietokannan rakennepäivitys %s epäonnistui virheviestillä %s"
 
 #: mod/admin.php:1498
 #, php-format
@@ -5557,7 +5557,7 @@ msgstr "Pyynnön päivämäärä"
 
 #: mod/admin.php:1794
 msgid "No registrations."
-msgstr ""
+msgstr "Ei rekisteröintejä."
 
 #: mod/admin.php:1795
 msgid "Note from the user"
@@ -5663,7 +5663,7 @@ msgstr "Kuvakaappaus"
 
 #: mod/admin.php:2219
 msgid "Reload active themes"
-msgstr ""
+msgstr "Lataa aktiiviset teemat uudelleen"
 
 #: mod/admin.php:2224
 #, php-format
@@ -6025,7 +6025,7 @@ msgstr ""
 #: mod/invite.php:152
 msgid ""
 "Once you have registered, please connect with me via my profile page at:"
-msgstr ""
+msgstr "Kun olet rekisteröitynyt, lähetä minulle kaverikutsun profiilisivuni kautta:"
 
 #: mod/invite.php:154
 msgid ""
@@ -6193,7 +6193,7 @@ msgstr "Ryhmä: %s"
 
 #: mod/network.php:669
 msgid "Private messages to this person are at risk of public disclosure."
-msgstr ""
+msgstr "Yksityisviestit lähetetty tälle henkilölle saattaa näkyä muillekin."
 
 #: mod/network.php:672
 msgid "Invalid contact."
@@ -6743,7 +6743,7 @@ msgstr "Poista tili"
 
 #: mod/settings.php:168
 msgid "Missing some important data!"
-msgstr ""
+msgstr "Tärkeää dataa puuttuu!"
 
 #: mod/settings.php:279
 msgid "Failed to connect with email account using the settings provided."
@@ -7161,7 +7161,7 @@ msgstr "Henkilökohtainen sivu"
 
 #: mod/settings.php:1054
 msgid "Account for a personal profile."
-msgstr ""
+msgstr "Henkilökohtaisen profiilin käyttäjätili."
 
 #: mod/settings.php:1057
 msgid "Organisation Page"
@@ -7292,7 +7292,7 @@ msgstr ""
 
 #: mod/settings.php:1126
 msgid "Allow friends to post to your profile page?"
-msgstr ""
+msgstr "Anna kavereiden julkaista profiilisivullasi?"
 
 #: mod/settings.php:1126
 msgid ""
@@ -7472,7 +7472,7 @@ msgstr "Huomautusasetukset"
 
 #: mod/settings.php:1252
 msgid "By default post a status message when:"
-msgstr ""
+msgstr "Oletuksena julkaise tilapäivitys kun:"
 
 #: mod/settings.php:1253
 msgid "accepting a friend request"
@@ -7484,7 +7484,7 @@ msgstr "liityt foorumiin/yhteisöön"
 
 #: mod/settings.php:1255
 msgid "making an <em>interesting</em> profile change"
-msgstr ""
+msgstr "muokkaat <em>kiinnostavalla tavalla</em> profiiliasi"
 
 #: mod/settings.php:1256
 msgid "Send a notification email when:"
@@ -7520,7 +7520,7 @@ msgstr "Sinut on merkitty julkaisuun"
 
 #: mod/settings.php:1264
 msgid "You are poked/prodded/etc. in a post"
-msgstr ""
+msgstr "sinut on tökätty tms. julkaisussa"
 
 #: mod/settings.php:1266
 msgid "Activate desktop notifications"
@@ -7528,7 +7528,7 @@ msgstr "Ota työpöytäilmoitukset käyttöön"
 
 #: mod/settings.php:1266
 msgid "Show desktop popup on new notifications"
-msgstr ""
+msgstr "Näytä uudet ilmoitukset ponnahdusikkunassa"
 
 #: mod/settings.php:1268
 msgid "Text-only notification emails"
@@ -7889,11 +7889,11 @@ msgstr "Sulje"
 
 #: src/Core/Console/NewPassword.php:78
 msgid "Enter new password: "
-msgstr ""
+msgstr "Syötä uusi salasana:"
 
 #: src/Core/Console/NewPassword.php:83 src/Model/User.php:262
 msgid "Password can't be empty"
-msgstr ""
+msgstr "Salasanakenttä ei saa olla tyhjä"
 
 #: src/Core/NotificationsManager.php:171
 msgid "System"
@@ -7931,17 +7931,17 @@ msgstr "%s ei tykännyt julkaisusta jonka kirjoitti %s"
 #: src/Core/NotificationsManager.php:307
 #, php-format
 msgid "%s is attending %s's event"
-msgstr ""
+msgstr "%s osallistuu tapahtumaan jonka järjestää %s"
 
 #: src/Core/NotificationsManager.php:320
 #, php-format
 msgid "%s is not attending %s's event"
-msgstr ""
+msgstr "%s ei osallistu tapahtumaan jonka järjestää %s"
 
 #: src/Core/NotificationsManager.php:333
 #, php-format
 msgid "%s may attend %s's event"
-msgstr ""
+msgstr "%s ehkä osallistuu tapahtumaan jonka järjestää %s"
 
 #: src/Core/NotificationsManager.php:350
 #, php-format
@@ -8037,7 +8037,7 @@ msgstr "Kuva/valokuva"
 #: src/Content/Text/BBCode.php:1119
 #, php-format
 msgid "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
-msgstr ""
+msgstr "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
 
 #: src/Content/Text/BBCode.php:1677 src/Content/Text/BBCode.php:1699
 msgid "$1 wrote:"
@@ -8268,7 +8268,7 @@ msgstr ""
 
 #: src/Content/Feature.php:105
 msgid "Network Tabs"
-msgstr ""
+msgstr "Verkko välilehdet"
 
 #: src/Content/Feature.php:106
 msgid "Network Personal Tab"
@@ -8352,7 +8352,7 @@ msgstr "Tähtimerkityt julkaisut"
 
 #: src/Content/Feature.php:120
 msgid "Ability to mark special posts with a star indicator"
-msgstr ""
+msgstr "Salli julkaisujen tähtimerkintä"
 
 #: src/Content/Feature.php:121
 msgid "Mute Post Notifications"
@@ -8730,7 +8730,7 @@ msgstr "Iloinen"
 
 #: src/Content/ContactSelector.php:169
 msgid "Not looking"
-msgstr ""
+msgstr "Ei etsi"
 
 #: src/Content/ContactSelector.php:169
 msgid "Swinger"
@@ -8738,7 +8738,7 @@ msgstr ""
 
 #: src/Content/ContactSelector.php:169
 msgid "Betrayed"
-msgstr ""
+msgstr "Petetty"
 
 #: src/Content/ContactSelector.php:169
 msgid "Separated"
@@ -8816,7 +8816,7 @@ msgstr ": Tietokannan päivitys"
 #: src/Database/DBStructure.php:460
 #, php-format
 msgid "%s: updating %s table."
-msgstr ""
+msgstr "%s: päivitetään %s-taulukkoa."
 
 #: src/Model/Mail.php:40 src/Model/Mail.php:174
 msgid "[no subject]"
@@ -8870,11 +8870,11 @@ msgstr ""
 
 #: src/Model/Contact.php:1302 src/Model/Contact.php:1316
 msgid "No compatible communication protocols or feeds were discovered."
-msgstr ""
+msgstr "Yhteensopivia viestintäprotokolleja tai syötteitä ei löytynyt."
 
 #: src/Model/Contact.php:1314
 msgid "The profile address specified does not provide adequate information."
-msgstr ""
+msgstr "Annettu profiiliosoite ei sisällä riittävästi tietoa."
 
 #: src/Model/Contact.php:1319
 msgid "An author or name was not found."
@@ -8908,7 +8908,7 @@ msgstr ""
 
 #: src/Model/Contact.php:1388
 msgid "Unable to retrieve contact information."
-msgstr ""
+msgstr "Kontaktin tietoja ei voitu hakea."
 
 #: src/Model/Contact.php:1605
 #, php-format
@@ -9420,15 +9420,15 @@ msgstr "tähtimerkitty"
 
 #: src/Object/Post.php:274
 msgid "ignore thread"
-msgstr ""
+msgstr "Sivuuta keskustelu"
 
 #: src/Object/Post.php:275
 msgid "unignore thread"
-msgstr ""
+msgstr "Seuraa keskustelua"
 
 #: src/Object/Post.php:276
 msgid "toggle ignore status"
-msgstr ""
+msgstr "Sivuuta/seuraa"
 
 #: src/Object/Post.php:285
 msgid "add tag"
