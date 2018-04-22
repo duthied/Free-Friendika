@@ -1412,15 +1412,24 @@ function apply_content_filter($html, array $reasons)
 {
 	if (count($reasons)) {
 		$rnd = random_string(8);
-		$content_filter_html = '<ul class="content-filter-reasons">';
-		foreach ($reasons as $reason) {
-			$content_filter_html .= '<li>' . htmlspecialchars($reason) . '</li>' . PHP_EOL;
+
+		if (count($reasons) > 1) {
+			$content_filter_html = '<ul class="content-filter-reasons">';
+			foreach ($reasons as $reason) {
+				$content_filter_html .= '<li>' . htmlspecialchars($reason) . '</li>' . PHP_EOL;
+			}
+			$content_filter_html .= '</ul>
+				<p><button type="button" id="content-filter-wrap-' . $rnd . '" class="btn btn-default btn-small content-filter-button" onclick="openClose(\'content-filter-' . $rnd . '\');"><i class="glyphicon glyphicon-eye-open"></i> ' .
+				L10n::t('Click to open/close') .
+				'</button></p>';
+		} elseif (count($reasons) == 1) {
+			$reason = array_pop($reasons);
+			$content_filter_html .= '<p>' . htmlspecialchars($reason) . ' <button type="button" id="content-filter-wrap-' . $rnd . '" class="btn btn-default btn-xs content-filter-button" onclick="openClose(\'content-filter-' . $rnd . '\');"><i class="glyphicon glyphicon-eye-open"></i> ' .
+				L10n::t('Click to open/close') .
+				'</button></p>';
 		}
-		$content_filter_html .= '</ul>
-			<p><span id="content-filter-wrap-' . $rnd . '" class="fakelink content-filter-button" onclick=openClose(\'content-filter-' . $rnd . '\'); >' .
-			L10n::t('Click to open/close') .
-			'</span></p>
-			<div id="content-filter-' . $rnd . '" class="content-filter-content" style="display: none;">';
+
+		$content_filter_html .= '<div id="content-filter-' . $rnd . '" class="content-filter-content" style="display: none;">';
 
 		$html = $content_filter_html . $html . '</div>';
 	}
