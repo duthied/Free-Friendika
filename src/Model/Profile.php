@@ -646,9 +646,9 @@ class Profile
 		$self = dba::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
 
 		$s = dba::p(
-			"SELECT *
+			"SELECT `event`.*
 			FROM `event`
-			JOIN `item`
+			INNER JOIN `item`
 				ON `item`.`uid` = `event`.`uid`
 				AND `item`.`parent-uri` = `event`.`uri`
 			WHERE `event`.`uid` = ?
