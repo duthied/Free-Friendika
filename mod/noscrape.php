@@ -23,9 +23,18 @@ function noscrape_init(App $a)
 
 	Profile::load($a, $which, $profile);
 
+	$json_info = [
+		'addr'     => $a->profile['addr'],
+		'nick'     => $which,
+		'guid'     => $a->profile['guid'],
+		'key'      => $a->profile['pubkey'],
+		'homepage' => System::baseUrl()."/profile/{$which}",
+		'comm'     => ($a->profile['account-type'] == ACCOUNT_TYPE_COMMUNITY),
+	];
+
 	if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
 		header('Content-type: application/json; charset=utf-8');
-		$json_info = ["hide" => true];
+		$json_info["hide"] = true;
 		echo json_encode($json_info);
 		exit;
 	}
@@ -36,17 +45,9 @@ function noscrape_init(App $a)
 
 	$contactPhoto = dba::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
 
-	$json_info = [
-		'fn'       => $a->profile['name'],
-		'addr'     => $a->profile['addr'],
-		'nick'     => $which,
-		'guid'     => $a->profile['guid'],
-		'key'      => $a->profile['pubkey'],
-		'homepage' => System::baseUrl()."/profile/{$which}",
-		'comm'     => (x($a->profile, 'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY),
-		'photo'    => $contactPhoto["photo"],
-		'tags'     => $keywords
-	];
+	$json_info['fn'] = $a->profile['name'];
+	$json_info['photo'] = $contactPhoto["photo"];
+	$json_info['tags'] = $keywords;
 
 	if (is_array($a->profile) && !$a->profile['hide-friends']) {
 		/// @todo What should this value tell us?

@@ -423,7 +423,7 @@ class Contact extends BaseObject
 		// Fetch the data from the gcontact table
 		if (!DBM::is_result($r)) {
 			$s = dba::p("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
-			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
+			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, 0 AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = ?", normalise_link($url));
 			$r = dba::inArray($s);
 		}

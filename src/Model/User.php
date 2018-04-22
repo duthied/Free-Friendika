@@ -258,6 +258,10 @@ class User
 	 */
 	public static function hashPassword($password)
 	{
+		if (!trim($password)) {
+			throw new Exception(L10n::t('Password can\'t be empty'));
+		}
+
 		return password_hash($password, PASSWORD_DEFAULT);
 	}
 

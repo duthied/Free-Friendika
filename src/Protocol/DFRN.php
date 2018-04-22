@@ -1467,33 +1467,33 @@ class DFRN
 		// Check for duplicates
 		$r = q(
 			"SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
-			intval($contact["uid"]),
-			intval($contact["id"]),
+			intval($contact['uid']),
+			intval($contact['id']),
 			dbesc(DateTimeFormat::utc($birthday)),
-			dbesc("birthday")
+			dbesc('birthday')
 		);
 
 		if (DBM::is_result($r)) {
 			return;
 		}
 
-		logger("updating birthday: ".$birthday." for contact ".$contact["id"]);
+		logger('updating birthday: ' . $birthday . ' for contact ' . $contact['id']);
 
-		$bdtext = L10n::t("%s\'s birthday", $contact["name"]);
-		$bdtext2 = L10n::t("Happy Birthday %s", " [url=".$contact["url"]."]".$contact["name"]."[/url]");
+		$bdtext = L10n::t('%s\'s birthday', $contact['name']);
+		$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]');
 
 		$r = q(
 			"INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-			intval($contact["uid"]),
-			intval($contact["id"]),
+			intval($contact['uid']),
+			intval($contact['id']),
 			dbesc(DateTimeFormat::utcNow()),
 			dbesc(DateTimeFormat::utcNow()),
 			dbesc(DateTimeFormat::utc($birthday)),
-			dbesc(DateTimeFormat::utc($birthday . " + 1 day ")),
+			dbesc(DateTimeFormat::utc($birthday . ' + 1 day ')),
 			dbesc($bdtext),
 			dbesc($bdtext2),
-			dbesc("birthday")
+			dbesc('birthday')
 		);
 	}
 
@@ -2923,6 +2923,9 @@ class DFRN
 
 		logger("Import DFRN message for user " . $importer["importer_uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
 
+		// is it a public forum? Private forums aren't exposed with this method
+		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()")->item(0)->nodeValue);
+
 		// The account type is new since 3.5.1
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
 			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()")->item(0)->nodeValue);
@@ -2930,16 +2933,16 @@ class DFRN
 			if ($accounttype != $importer["contact-type"]) {
 				dba::update('contact', ['contact-type' => $accounttype], ['id' => $importer["id"]]);
 			}
-		}
-
-		// is it a public forum? Private forums aren't supported with this method
-		// This is deprecated since 3.5.1
-		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()")->item(0)->nodeValue);
-
-		if ($forum != $importer["forum"]) {
+			// A forum contact can either have set "forum" or "prv" - but not both
+			if (($accounttype == ACCOUNT_TYPE_COMMUNITY) && (($forum != $importer["forum"]) || ($forum == $importer["prv"]))) {
+				$condition = ['(`forum` != ? OR `prv` != ?) AND `id` = ?', $forum, !$forum, $importer["id"]];
+				dba::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);
+			}
+		} elseif ($forum != $importer["forum"]) { // Deprecated since 3.5.1
 			$condition = ['`forum` != ? AND `id` = ?', $forum, $importer["id"]];
 			dba::update('contact', ['forum' => $forum], $condition);
 		}
+
 
 		// We are processing relocations even if we are ignoring a contact
 		$relocations = $xpath->query("/atom:feed/dfrn:relocate");

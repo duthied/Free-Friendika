@@ -55,7 +55,7 @@
 								<button type="button" class="btn btn-default selectnone" data-select-none="pending_ckbx"><i class="fa fa-square-o" aria-hidden="true"></i></button>
 							</div>
 						</div>
-						<div class="col-xs-9">
+						<div class="col-xs-9 text-right">
 							<button type="submit" name="page_users_deny" class="btn btn-primary"><i class="fa fa-thumbs-down" aria-hidden="true"></i> {{$deny}}</button>
 							<button type="submit" name="page_users_approve" class="btn btn-warinig"><i class="fa fa-thumbs-up" aria-hidden="true"></i> {{$approve}}</button>
 						</div>
@@ -84,7 +84,7 @@
 					<th></th>
 					{{foreach $th_users as $k=>$th}}
 					{{if $k < 2 || $order_users == $th.1 || ($k==5 && !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1])) }}
-					<th>
+					<th class="th-{{$k}}">
 						<a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th.1}}">
 							{{if $order_users == $th.1}}
 								{{if $order_direction_users == "+"}}
@@ -112,7 +112,7 @@
 							&nbsp;
 						{{/if}}
 						</td>
-						<td><img class="icon" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
+						<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
 						<td><a href="{{$u.url}}" title="{{$u.nickname}}"> {{$u.name}}</a></td>
 						<td>{{$u.email}}</td>
 						{{if $order_users == $th_users.2.1}}
@@ -128,7 +128,26 @@
 						{{/if}}
 
 						{{if !in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1]) }}
-						<td>{{$u.page_flags}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}</td>
+
+						<td>
+							<i class="fa
+								{{if $u.page_flags_raw==0}}fa-user{{/if}}					{{* PAGE_NORMAL *}}
+								{{if $u.page_flags_raw==1}}fa-bullhorn{{/if}}			{{* PAGE_SOAPBOX *}}
+								{{if $u.page_flags_raw==2}}fa-users{{/if}}				{{* PAGE_COMMUNITY *}}
+								{{if $u.page_flags_raw==3}}fa-heart{{/if}}				{{* PAGE_FREELOVE *}}
+								{{if $u.page_flags_raw==4}}fa-rss{{/if}}					{{* PAGE_BLOG *}}
+								{{if $u.page_flags_raw==5}}fa-user-secret{{/if}}	{{* PAGE_PRVGROUP *}}
+							" title="{{$u.page_flags}}"></i>
+							{{if $u.page_flags_raw==0 && $u.account_type_raw > 0}}
+							<i class="fa
+								{{if $u.account_type_raw==1}}fa-sitemap{{/if}}			{{* ACCOUNT_TYPE_ORGANISATION *}}
+								{{if $u.account_type_raw==2}}fa-newspaper-o{{/if}}	{{* ACCOUNT_TYPE_NEWS *}}
+								{{if $u.account_type_raw==3}}fa-comments{{/if}}			{{* ACCOUNT_TYPE_COMMUNITY *}}
+							" title="{{$u.account_type}}"></i>
+							{{/if}}
+							{{if $u.is_admin}}<i class="fa fa-user-md text-primary" title="{{$siteadmin}}"></i>{{/if}}
+							{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired}}"></i>{{/if}}
+						</td>
 						{{/if}}
 						<td class="text-right">
 							<button type="button" class="btn-link" onclick="return details({{$u.uid}})"><span class="caret"></span></button>
@@ -154,7 +173,7 @@
 
 							{{if in_array($order_users,[$th_users.2.1, $th_users.3.1, $th_users.4.1]) }}
 								<p><a href="{{$baseurl}}/admin/users/?o={{if $order_direction_users == "+"}}-{{/if}}{{$th_users.5.1}}">
-										&#8597; {{$th_users.5.0}}</a> : {{$u.page_flags}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}</p>
+										&#8597; {{$th_users.5.0}}</a> : {{$u.page_flags}}{{if $u.page_flags_raw==0 && $u.account_type_raw > 0}}, {{$u.account_type}}{{/if}} {{if $u.is_admin}}({{$siteadmin}}){{/if}} {{if $u.account_expired}}({{$accountexpired}}){{/if}}</p>
 							{{/if}}
 
 						</td>
@@ -227,7 +246,7 @@
 			<tbody>
 			{{foreach $deleted as $u}}
 				<tr>
-					<td><img class="icon" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
+					<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
 					<td><a href="{{$u.url}}" title="{{$u.nickname}}" >{{$u.name}}</a></td>
 					<td>{{$u.email}}</td>
 					<td>{{$u.deleted}}</td>
