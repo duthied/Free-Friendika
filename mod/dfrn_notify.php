@@ -198,6 +198,9 @@ function dfrn_notify_post(App $a) {
 
 function dfrn_dispatch_public($postdata)
 {
+	/// @todo Currently disabled, until there is a working item distribution for public posts
+	return false;
+
 	$msg = Diaspora::decodeRaw([], $postdata);
 	if (!$msg) {
 		// We have to fail silently to be able to hand it over to the salmon parser
