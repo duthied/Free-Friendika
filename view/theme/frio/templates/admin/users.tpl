@@ -98,7 +98,7 @@
 				<div class="section-subtitle-wrapper" role="tab" id="admin-settings-user">
 					<h4>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-user-collapse" aria-expanded="false" aria-controls="admin-settings-user-collapse">
-							{{$h_users}} ({{count($th_users)}})
+							{{$h_users}} ({{count($users)}})
 						</a>
 					</h4>
 				</div>
