@@ -894,7 +894,7 @@ class dba {
 		}
 
 		// Is there a relation entry for the table?
-		if (isset(self::$relation[$table])) {
+		if ($cascade && isset(self::$relation[$table])) {
 			// We only allow a simple "one field" relation.
 			$field = array_keys(self::$relation[$table])[0];
 			$rel_def = array_values(self::$relation[$table])[0];
