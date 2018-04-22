@@ -25,24 +25,13 @@ function dfrn_notify_post(App $a) {
 		$data = json_decode($postdata);
 		if (is_object($data)) {
 			$nick = defaults($a->argv, 1, '');
-			$public = empty($nick);
-			if (!$public) {
-				$user = dba::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
-				if (!DBM::is_result($user)) {
-					System::httpExit(500);
-				}
-			} else {
-				// We don't need the user with public posts
-				$user = [];
-			}
-			$msg = Diaspora::decodeRaw($user, $postdata);
 
-			if ($public) {
-				dfrn_dispatch_public($msg);
-			} else {
-				dfrn_dispatch_private($user, $msg);
+			$user = dba::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
+			if (!DBM::is_result($user)) {
+				System::httpExit(500);
 			}
-		} else {
+			dfrn_dispatch_private($user, $postdata);
+		} elseif (!dfrn_dispatch_public($postdata)) {
 			require_once 'mod/salmon.php';
 			salmon_post($a, $postdata);
 		}
@@ -207,10 +196,16 @@ function dfrn_notify_post(App $a) {
 	// NOTREACHED
 }
 
-function dfrn_dispatch_public($msg)
+function dfrn_dispatch_public($postdata)
 {
+	$msg = Diaspora::decodeRaw([], $postdata);
+	if (!$msg) {
+		// We have to fail silently to be able to hand it over to the salmon parser
+		return false;
+	}
+
 	// Fetch the corresponding public contact
-	$contact = getDetailsByAddr($msg['author'], 0);
+	$contact = Contact::getDetailsByAddr($msg['author'], 0);
 	if (!$contact) {
 		logger('Contact not found for address ' . $msg['author']);
 		System::xmlExit(3, 'Contact not found');
@@ -220,7 +215,7 @@ function dfrn_dispatch_public($msg)
 	$importer = dba::fetch_first("SELECT *, `name` as `senderName`
 					FROM `contact`
 					WHERE NOT `blocked` AND `id` = ? LIMIT 1",
-					$cid);
+					$contact['id']);
 
 	// This should never fail
 	if (!DBM::is_result($importer)) {
@@ -235,8 +230,13 @@ function dfrn_dispatch_public($msg)
 	System::xmlExit($ret, 'Done');
 }
 
-function dfrn_dispatch_private($user, $msg)
+function dfrn_dispatch_private($user, $postdata)
 {
+	$msg = Diaspora::decodeRaw($user, $postdata);
+	if (!$msg) {
+		System::xmlExit(4, 'Unable to parse message');
+	}
+
 	// Check if the user has got this contact
 	$cid = Contact::getIdForURL($msg['author'], $user['uid']);
 	if (!$cid) {
