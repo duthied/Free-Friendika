@@ -160,9 +160,8 @@ class ItemContent extends BaseObject
 				} elseif (!isset($post['url'])) {
 					$limit = $limit - 23;
 					$post['url'] = $item['plink'];
-					// Which purpose has this line? It is now uncommented, but left as a reminder
-					//} elseif (strpos($b['body'], '[share') !== false) {
-					//	$post['url'] = $b['plink'];
+				} elseif (strpos($item['body'], '[share') !== false) {
+					$post['url'] = $item['plink'];
 				} elseif (PConfig::get($item['uid'], 'system', 'no_intelligent_shortening')) {
 					$post['url'] = $item['plink'];
 				}
