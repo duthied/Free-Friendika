@@ -643,27 +643,29 @@ class Profile
 		$bd_format = L10n::t('g A l F d'); // 8 AM Friday January 18
 		$classtoday = '';
 
+		$self = dba::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
+
 		$s = dba::p(
 			"SELECT *
 			FROM `event`
-			WHERE `event`.`uid` = ?
-			AND  `event`.`type` != 'birthday'
-			AND  `event`.`start` < ?
-			AND  `event`.`start` >= ?
-			AND NOT EXISTS (
-				SELECT `id`
-				FROM `item`
-				WHERE `item`.`uid` = `event`.`uid`
+			JOIN `item`
+				ON `item`.`uid` = `event`.`uid`
 				AND `item`.`parent-uri` = `event`.`uri`
-				AND `item`.`verb` = ?
-				AND `item`.`visible`
-				AND NOT `item`.`deleted`
-			)
+			WHERE `event`.`uid` = ?
+			AND `event`.`type` != 'birthday'
+			AND `event`.`start` < ?
+			AND `event`.`start` >= ?
+			AND `item`.`author-id` = ?
+			AND (`item`.`verb` = ? OR `item`.`verb` = ?)
+			AND `item`.`visible`
+			AND NOT `item`.`deleted`
 			ORDER BY  `event`.`start` ASC",
 			local_user(),
 			DateTimeFormat::utc('now + 7 days'),
 			DateTimeFormat::utc('now - 1 days'),
-			ACTIVITY_ATTENDNO
+			$self['id'],
+			ACTIVITY_ATTEND,
+			ACTIVITY_ATTENDMAYBE
 		);
 
 		$r = [];
