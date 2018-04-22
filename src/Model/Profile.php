@@ -644,26 +644,26 @@ class Profile
 		$classtoday = '';
 
 		$s = dba::p(
-			"SELECT *
+			"SELECT `event`.*
 			FROM `event`
-			WHERE `event`.`uid` = ?
-			AND  `event`.`type` != 'birthday'
-			AND  `event`.`start` < ?
-			AND  `event`.`start` >= ?
-			AND NOT EXISTS (
-				SELECT `id`
-				FROM `item`
-				WHERE `item`.`uid` = `event`.`uid`
+			INNER JOIN `item`
+				ON `item`.`uid` = `event`.`uid`
 				AND `item`.`parent-uri` = `event`.`uri`
-				AND `item`.`verb` = ?
-				AND `item`.`visible`
-				AND NOT `item`.`deleted`
-			)
+			WHERE `event`.`uid` = ?
+			AND `event`.`type` != 'birthday'
+			AND `event`.`start` < ?
+			AND `event`.`start` >= ?
+			AND `item`.`author-id` = ?
+			AND (`item`.`verb` = ? OR `item`.`verb` = ?)
+			AND `item`.`visible`
+			AND NOT `item`.`deleted`
 			ORDER BY  `event`.`start` ASC",
 			local_user(),
 			DateTimeFormat::utc('now + 7 days'),
 			DateTimeFormat::utc('now - 1 days'),
-			ACTIVITY_ATTENDNO
+			public_contact(),
+			ACTIVITY_ATTEND,
+			ACTIVITY_ATTENDMAYBE
 		);
 
 		$r = [];
