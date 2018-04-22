@@ -1,7 +1,7 @@
 <script type="text/javascript" src="view/theme/frio/js/mod_admin.js"></script>
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css" type="text/css" media="screen"/>
 
-<div id="admin-users" class="adminpage  generic-page-wrapper">
+<div id="admin-users" class="adminpage generic-page-wrapper">
 	<h1>{{$title}} - {{$page}}</h1>
 
 	<form action="{{$baseurl}}/admin/users" method="post">
@@ -20,7 +20,7 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="admin-settings-pending">
 					<h4>
-						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-pending-collapse" aria-expanded="false" aria-controls="admin-settings-pending-collapse">
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-pending-collapse" aria-expanded="{{if count($pending) > 0}}true{{else}}false{{/if}}" aria-controls="admin-settings-pending-collapse">
 							{{$h_pending}} ({{count($pending)}})
 						</a>
 					</h4>
