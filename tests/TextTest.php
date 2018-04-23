@@ -67,7 +67,7 @@ class TextTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(1, strlen($autoname1));
 
 		$autoname2=autoname(1);
-		$this->assertEquals(1, count($autoname2));
+		$this->assertEquals(1, strlen($autoname2));
 	}
 
 	/**
