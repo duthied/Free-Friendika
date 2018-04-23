@@ -33,9 +33,11 @@
 </div>
 </form>
 
+{{if $register}}
 <div id="login-extra-links">
 	<h3 id="login-head" class="sr-only">{{$register.title|escape:'html'}}</h3>
-	{{if $register}}<a href="register" title="{{$register.title|escape:'html'}}" id="register-link">{{$register.desc}}</a>{{/if}}
+	<a href="register" title="{{$register.title|escape:'html'}}" id="register-link">{{$register.desc}}</a>
 </div>
+{{/if}}
 
 <script type="text/javascript"> $(document).ready(function() { $("#id_{{$lname.0}}").focus();} );</script>
