@@ -49,7 +49,7 @@ class ForumManager
 			"SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb`
 			FROM `contact`
 				WHERE `network`= 'dfrn' AND $select AND `uid` = ?
-				AND NOT `blocked` AND NOT `hidden` AND NOT `pending` AND NOT `archive`
+				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `success_update` > `failure_update`
 			$order ",
 			$uid
