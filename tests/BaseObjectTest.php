@@ -11,7 +11,7 @@ use Friendica\BaseObject;
 if (!class_exists('\PHPUnit\Framework\TestCase')) {
     class_alias('\PHPUnit_Framework_TestCase', '\PHPUnit\Framework\TestCase');
 }
-use \PHPUnit_Framework_TestCase;
+#use \PHPUnit_Framework_TestCase;
 /**
  * Tests for the BaseObject class.
  */
