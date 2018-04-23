@@ -232,10 +232,11 @@ define('ACCOUNT_TYPE_RELAY',       4);
  * Type of the community page
  * @{
  */
-define('CP_NO_COMMUNITY_PAGE',  -1);
-define('CP_USERS_ON_SERVER',     0);
-define('CP_GLOBAL_COMMUNITY',    1);
-define('CP_USERS_AND_GLOBAL',    2);
+define('CP_NO_INTERNAL_COMMUNITY', -2);
+define('CP_NO_COMMUNITY_PAGE',     -1);
+define('CP_USERS_ON_SERVER',        0);
+define('CP_GLOBAL_COMMUNITY',       1);
+define('CP_USERS_AND_GLOBAL',       2);
 /**
  * @}
  */

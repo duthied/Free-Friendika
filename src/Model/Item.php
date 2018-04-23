@@ -851,7 +851,7 @@ class Item extends BaseObject
 	public static function addShadow($itemid)
 	{
 		$fields = ['uid', 'wall', 'private', 'moderated', 'visible', 'contact-id', 'deleted', 'network', 'author-id', 'owner-id'];
-		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
+		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
 		$item = dba::selectFirst('item', $fields, $condition);
 
 		if (!DBM::is_result($item)) {
@@ -873,27 +873,9 @@ class Item extends BaseObject
 			return;
 		}
 
-		// Only do these checks if the post isn't a wall post
-		if (!$item["wall"]) {
-			// Check, if hide-friends is activated - then don't do a shadow entry
-			if (dba::exists('profile', ['is-default' => true, 'uid' => $item['uid'], 'hide-friends' => true])) {
-				return;
-			}
-
-			// Check if the contact is hidden or blocked
-			if (!dba::exists('contact', ['hidden' => false, 'blocked' => false, 'id' => $item['contact-id']])) {
-				return;
-			}
-		}
-
-		// Only add a shadow, if the profile isn't hidden
-		if (dba::exists('user', ['uid' => $item['uid'], 'hidewall' => true])) {
-			return;
-		}
-
 		$item = dba::selectFirst('item', [], ['id' => $itemid]);
 
-		if (DBM::is_result($item) && ($item["allow_cid"] == '')  && ($item["allow_gid"] == '') &&
+		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
 			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
 
 			if (!dba::exists('item', ['uri' => $item['uri'], 'uid' => 0])) {
