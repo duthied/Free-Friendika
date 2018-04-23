@@ -1197,6 +1197,7 @@ class DFRN
 		$ret = Network::curl($url);
 
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			Contact::markForArchival($contact);
 			return -2; // timed out
 		}
 
@@ -1204,24 +1205,28 @@ class DFRN
 
 		$curl_stat = $a->get_curl_code();
 		if (empty($curl_stat)) {
+			Contact::markForArchival($contact);
 			return -3; // timed out
 		}
 
 		logger('dfrn_deliver: ' . $xml, LOGGER_DATA);
 
 		if (empty($xml)) {
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			logger('dfrn_deliver: no valid XML returned');
 			logger('dfrn_deliver: returned XML: ' . $xml, LOGGER_DATA);
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
-		if ((intval($res->status) != 0) || (! strlen($res->challenge)) || (! strlen($res->dfrn_id))) {
+		if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
+			Contact::markForArchival($contact);
 			return ($res->status ? $res->status : 3);
 		}
 
@@ -1274,6 +1279,7 @@ class DFRN
 		if ($final_dfrn_id != $orig_id) {
 			logger('dfrn_deliver: wrong dfrn_id.');
 			// did not decode properly - cannot trust this site
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
@@ -1309,6 +1315,7 @@ class DFRN
 					break;
 				default:
 					logger("rino: invalid requested version '$rino_remote_version'");
+					Contact::markForArchival($contact);
 					return -8;
 			}
 
@@ -1346,22 +1353,26 @@ class DFRN
 
 		$curl_stat = $a->get_curl_code();
 		if (empty($curl_stat) || empty($xml)) {
+			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && stristr($a->get_curl_headers(), 'retry-after')) {
+			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			logger('dfrn_deliver: phase 2: no valid XML returned');
 			logger('dfrn_deliver: phase 2: returned XML: ' . $xml, LOGGER_DATA);
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!isset($res->status)) {
+			Contact::markForArchival($contact);
 			return -11;
 		}
 
@@ -1374,7 +1385,7 @@ class DFRN
 			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
-		if ($res->status == 200) {
+		if (($res->status >= 200) && ($res->status <= 299)) {
 			Contact::unmarkForArchival($contact);
 		}
 
@@ -1403,6 +1414,7 @@ class DFRN
 
 			if (empty($contact['addr'])) {
 				logger('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
+				Contact::markForArchival($contact);
 				return -21;
 			}
 		}
@@ -1410,6 +1422,7 @@ class DFRN
 		$fcontact = Diaspora::personByHandle($contact['addr']);
 		if (empty($fcontact)) {
 			logger('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
+			Contact::markForArchival($contact);
 			return -22;
 		}
 
@@ -1433,22 +1446,26 @@ class DFRN
 		$curl_stat = $a->get_curl_code();
 		if (empty($curl_stat) || empty($xml)) {
 			logger('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
+			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
+			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			logger('No valid XML returned from ' . $contact['id'] . ' - ' . $dest_url);
 			logger('Returned XML: ' . $xml, LOGGER_DATA);
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (empty($res->status)) {
+			Contact::markForArchival($contact);
 			return -23;
 		}
 
@@ -1456,7 +1473,7 @@ class DFRN
 			logger('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
-		if ($res->status == 200) {
+		if (($res->status >= 200) && ($res->status <= 299)) {
 			Contact::unmarkForArchival($contact);
 		}
 
