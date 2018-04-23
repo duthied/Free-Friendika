@@ -78,7 +78,7 @@ class Post extends BaseObject
 		}
 
 		// Prepare the children
-		if (count($data['children'])) {
+		if (!empty($data['children'])) {
 			foreach ($data['children'] as $item) {
 				// Only add will be displayed
 				if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {

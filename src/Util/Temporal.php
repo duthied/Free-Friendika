@@ -59,7 +59,7 @@ class Temporal
 
 		$o = '<select id="timezone_select" name="timezone">';
 
-		usort($timezone_identifiers, [self, 'timezoneCompareCallback']);
+		usort($timezone_identifiers, [__CLASS__, 'timezoneCompareCallback']);
 		$continent = '';
 		foreach ($timezone_identifiers as $value) {
 			$ex = explode("/", $value);

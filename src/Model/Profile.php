@@ -92,14 +92,14 @@ class Profile
 	{
 		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname]);
 
-		if (!$user && !count($user) && !count($profiledata)) {
+		if (!DBM::is_result($user) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice(L10n::t('Requested account is not available.') . EOL);
 			$a->error = 404;
 			return;
 		}
 
-		if (!x($a->page, 'aside')) {
+		if (empty($a->page['aside'])) {
 			$a->page['aside'] = '';
 		}
 
@@ -155,10 +155,6 @@ class Profile
 		$theme_info_file = 'view/theme/' . current_theme() . '/theme.php';
 		if (file_exists($theme_info_file)) {
 			require_once $theme_info_file;
-		}
-
-		if (!x($a->page, 'aside')) {
-			$a->page['aside'] = '';
 		}
 
 		if (local_user() && local_user() == $a->profile['uid'] && $profiledata) {
