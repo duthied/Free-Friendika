@@ -63,7 +63,7 @@ class Queue
 			return;
 		}
 
-		if (empty($contact['notify'])) {
+		if (empty($contact['notify']) || $contact['archive']) {
 			QueueModel::removeItem($q_item['id']);
 			return;
 		}
