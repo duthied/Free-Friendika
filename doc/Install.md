@@ -99,7 +99,9 @@ You might wish to move/rename .htconfig.php to another name and empty (called 'd
 
 ### Option B: Run the automatic install script
 
-Open the file htconfig.php in the main Friendica directory with a text editor. Remove the `die('...');` line and edit the lines to suit your installation (MySQL, language, theme etc.), then save the file (do not rename it). 
+Open the file htconfig.php in the main Friendica directory with a text editor.
+Remove the `die('...');` line and edit the lines to suit your installation (MySQL, language, theme etc.).
+Then save the file (do not rename it). 
 
 Navigate to the main Friendica directory and execute the following command:
 
