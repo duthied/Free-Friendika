@@ -52,6 +52,7 @@ class App
 	public $argv;
 	public $argc;
 	public $module;
+	public $install_mode = false;
 	public $pager;
 	public $strings;
 	public $basepath;
