@@ -5,12 +5,16 @@
 
 namespace Friendica\Test;
 
-use PHPUnit_Framework_TestCase;
+//use PHPUnit_Framework_TestCase;
+// backward compatibility
+if (!class_exists('\PHPUnit\Framework\TestCase')) {
+    class_alias('\PHPUnit_Framework_TestCase', '\PHPUnit\Framework\TestCase');
+}
 
 /**
  * Tests for text functions.
  */
-class TextTest extends PHPUnit_Framework_TestCase
+class TextTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
