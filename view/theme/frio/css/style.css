@@ -3153,6 +3153,8 @@ section .profile-match-wrapper {
     clear: both;
 }
 #register-link {
+    color: white;
+    background: #8ad0a1;
     width: 100%;
 }
 #login-end {
@@ -3214,7 +3216,7 @@ section .profile-match-wrapper {
     }
     .mod-home.is-not-singleuser .login-form > #login-extra-links {
         margin-top: unset;
-        background-color: #8ad0a1;
+        background-color: white;
     }
 
     .mod-home.is-not-singleuser .login-form > #login-form label,
