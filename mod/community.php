@@ -30,6 +30,11 @@ function community_content(App $a, $update = 0)
 
 	$page_style = Config::get('system', 'community_page_style');
 
+	if ($page_style == CP_NO_INTERNAL_COMMUNITY) {
+		notice(L10n::t('Access denied.') . EOL);
+		return;
+	}
+
 	if ($a->argc > 1) {
 		$content = $a->argv[1];
 	} else {

@@ -161,7 +161,8 @@ class Nav
 			}
 		}
 
-		if (local_user() || Config::get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) {
+		if ((local_user() || Config::get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) &&
+			!(Config::get('system', 'community_page_style') == CP_NO_INTERNAL_COMMUNITY)) {
 			$nav['community'] = ['community', L10n::t('Community'), '', L10n::t('Conversations on this and other servers')];
 		}
 
