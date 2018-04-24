@@ -865,32 +865,32 @@ class Item extends BaseObject
 
 		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
 			$parent['owner-id'], CONTACT_IS_SHARING,  CONTACT_IS_FRIEND];
-		$contacts = dba::select('contact', [], $condition);
+		$contacts = dba::select('contact', ['uid'], $condition);
 		while ($contact = dba::fetch($contacts)) {
-			self::storeForUser($itemid, $item, $contact);
+			self::storeForUser($itemid, $item, $contact['uid']);
 		}
 	}
 
 	/**
 	 * @brief Store public items for the receivers
 	 *
-	 * @param integer $itemid  Item ID that should be added
-	 * @param array   $item    The item entry that will be stored
-	 * @param array   $contact The contact that will receive the item entry
+	 * @param integer $itemid Item ID that should be added
+	 * @param array   $item   The item entry that will be stored
+	 * @param integer $uid    The user that will receive the item entry
 	 */
-	private static function storeForUser($itemid, $item, $contact)
+	private static function storeForUser($itemid, $item, $uid)
 	{
-		$item['uid'] = $contact['uid'];
+		$item['uid'] = $uid;
 		$item['origin'] = 0;
 		$item['wall'] = 0;
 		if ($item['uri'] == $item['parent-uri']) {
-			$item['contact-id'] = Contact::getIdForURL($item['owner-link'], $contact['uid']);
+			$item['contact-id'] = Contact::getIdForURL($item['owner-link'], $uid);
 		} else {
-			$item['contact-id'] = Contact::getIdForURL($item['author-link'], $contact['uid']);
+			$item['contact-id'] = Contact::getIdForURL($item['author-link'], $uid);
 		}
 
 		if (empty($item['contact-id'])) {
-			$self = dba::selectFirst('contact', ['id'], ['self' => true, 'uid' => $contact['uid']]);
+			$self = dba::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
 			if (!DBM::is_result($self)) {
 				return;
 			}
@@ -908,9 +908,9 @@ class Item extends BaseObject
 		$distributed = self::insert($item, false, false, true);
 
 		if (!$distributed) {
-			logger("Distributed public item " . $itemid . " for user " . $contact['uid'] . " wasn't stored", LOGGER_DEBUG);
+			logger("Distributed public item " . $itemid . " for user " . $uid . " wasn't stored", LOGGER_DEBUG);
 		} else {
-			logger("Distributed public item " . $itemid . " for user " . $contact['uid'] . " with id " . $distributed, LOGGER_DEBUG);
+			logger("Distributed public item " . $itemid . " for user " . $uid . " with id " . $distributed, LOGGER_DEBUG);
 		}
 	}
 

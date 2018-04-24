@@ -2773,7 +2773,7 @@ class DFRN
 			if ($posted_id) {
 				logger("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, LOGGER_DEBUG);
 
-				IF ($item['uid'] == 0) {
+				if ($item['uid'] == 0) {
 					Item::distribute($posted_id);
 				}
 
