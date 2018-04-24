@@ -618,10 +618,13 @@ class Diaspora
 
 		// This is only needed for private postings since this is already done for public ones before
 		if (is_null($fields)) {
+			$private = true;
 			if (!($fields = self::validPosting($msg))) {
 				logger("Invalid posting");
 				return false;
 			}
+		} else {
+			$private = false;
 		}
 
 		$type = $fields->getName();
@@ -630,27 +633,47 @@ class Diaspora
 
 		switch ($type) {
 			case "account_migration":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveAccountMigration($importer, $fields);
 
 			case "account_deletion":
-				return self::receiveAccountDeletion($importer, $fields);
+				return self::receiveAccountDeletion($fields);
 
 			case "comment":
 				return self::receiveComment($importer, $sender, $fields, $msg["message"]);
 
 			case "contact":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveContactRequest($importer, $fields);
 
 			case "conversation":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveConversation($importer, $msg, $fields);
 
 			case "like":
 				return self::receiveLike($importer, $sender, $fields);
 
 			case "message":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveMessage($importer, $fields);
 
 			case "participation":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveParticipation($importer, $fields);
 
 			case "photo": // Not implemented
@@ -660,6 +683,10 @@ class Diaspora
 				return self::receivePollParticipation($importer, $fields);
 
 			case "profile":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveProfile($importer, $fields);
 
 			case "reshare":
@@ -1601,25 +1628,23 @@ class Diaspora
 	/**
 	 * @brief Processes an account deletion
 	 *
-	 * @param array  $importer Array of the importer user
 	 * @param object $data     The message object
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveAccountDeletion($importer, $data)
+	private static function receiveAccountDeletion($data)
 	{
-		/// @todo Account deletion should remove the contact from the global contacts as well
-
 		$author = notags(unxmlify($data->author));
 
-		$contact = self::contactByHandle($importer["uid"], $author);
-		if (!$contact) {
-			logger("cannot find contact for author: ".$author);
-			return false;
+		$contacts = dba::select('contact', ['id'], ['addr' => $author]);
+		while ($contact = dba::fetch($contacts)) {
+			Contact::remove($contact["id"]);
 		}
 
-		// We now remove the contact
-		Contact::remove($contact["id"]);
+		dba::delete('gcontact', ['addr' => $author]);
+
+		logger('Removed contacts for ' . $author);
+
 		return true;
 	}
 
