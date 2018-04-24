@@ -3341,7 +3341,10 @@ img.photo-album-photo {
 .videos .video-top-wrapper:hover .video-delete {
   opacity: 1;
 }
-
+/* invite page */
+#invite-wrapper textarea {
+  width: 100%;
+}
 /* upload/select popup */
   fbrowser.image .photo-album-image-wrapper { margin-left: 10px; }
   #message-preview { margin-top: 15px; }

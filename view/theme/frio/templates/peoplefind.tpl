@@ -18,6 +18,6 @@
 	<div class="side-link" id="side-suggest-link"><a href="suggest" >{{$nv.suggest}}</a></div>
 
 	{{if $nv.inv}} 
-	<div class="side-link" id="side-invite-link" ><a href="invite" >{{$nv.inv}}</a></div>
+	<div class="side-link" id="side-invite-link" ><button type="button" class="btn-link" onclick="addToModal('invite'); return false;">{{$nv.inv}}</button></div>
 	{{/if}}
 </div>
