@@ -54,7 +54,7 @@ define('API_METHOD_POST', 'POST,PUT');
 define('API_METHOD_DELETE', 'POST,DELETE');
 
 $API = [];
-$called_api = null;
+$called_api = [];
 
 /**
  * It is not sufficient to use local_user() to check whether someone is allowed to use the API,
@@ -2200,7 +2200,7 @@ function api_statuses_repeat($type)
 	}
 
 	// this should output the last post (the one we just posted).
-	$called_api = null;
+	$called_api = [];
 	return api_status_show($type);
 }
 
