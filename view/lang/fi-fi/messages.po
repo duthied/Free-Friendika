@@ -15,8 +15,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-22 11:15+0200\n"
-"PO-Revision-Date: 2018-04-22 14:11+0000\n"
-"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
+"PO-Revision-Date: 2018-04-23 13:50+0000\n"
+"Last-Translator: Kris\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -154,7 +154,7 @@ msgstr "[Friendica:Notify] %s merkitsi sinut"
 #: include/enotify.php:197
 #, php-format
 msgid "%1$s tagged you at %2$s"
-msgstr ""
+msgstr "%1$s merkitsi sinut kohteessa %2$s"
 
 #: include/enotify.php:198
 #, php-format
@@ -199,7 +199,7 @@ msgstr "[Friendica:Notify] %s merkitsi julkaisusi"
 #: include/enotify.php:246
 #, php-format
 msgid "%1$s tagged your post at %2$s"
-msgstr ""
+msgstr "%1$s merkitsi julkaisusi kohteessa %2$s"
 
 #: include/enotify.php:247
 #, php-format
@@ -2013,7 +2013,7 @@ msgstr "Tallennetut haut"
 
 #: src/Content/Feature.php:100
 msgid "Save search terms for re-use"
-msgstr ""
+msgstr "Tallenna hakutermit myöhempää käyttöä varten"
 
 #: src/Content/Feature.php:105
 msgid "Network Tabs"
@@ -2069,7 +2069,7 @@ msgstr "Tunnisteet"
 
 #: src/Content/Feature.php:116
 msgid "Ability to tag existing posts"
-msgstr ""
+msgstr "Saa merkitä olemassa olevia julkaisuja"
 
 #: src/Content/Feature.php:117
 msgid "Post Categories"
@@ -2125,7 +2125,7 @@ msgstr "Tunnistepilvi"
 
 #: src/Content/Feature.php:128
 msgid "Provide a personal tag cloud on your profile page"
-msgstr ""
+msgstr "Näytä henkilökohtainen tunnistepilvi profiilisivullasi"
 
 #: src/Content/Feature.php:129
 msgid "Display Membership Date"
@@ -2651,7 +2651,7 @@ msgstr "Yhteisö"
 
 #: src/Content/Nav.php:165
 msgid "Conversations on this and other servers"
-msgstr ""
+msgstr "Keskustelut täällä ja muilla palvelimilla"
 
 #: src/Content/Nav.php:172
 msgid "Directory"
@@ -2659,7 +2659,7 @@ msgstr "Luettelo"
 
 #: src/Content/Nav.php:172
 msgid "People directory"
-msgstr ""
+msgstr "Henkilöluettelo"
 
 #: src/Content/Nav.php:174 mod/admin.php:179
 msgid "Information"
@@ -2985,11 +2985,11 @@ msgstr "kautta"
 
 #: src/Object/Post.php:367
 msgid "Wall-to-Wall"
-msgstr ""
+msgstr "Seinäjulkaisu"
 
 #: src/Object/Post.php:368
 msgid "via Wall-To-Wall:"
-msgstr ""
+msgstr "seinäjulkaisun kautta"
 
 #: src/Object/Post.php:399 src/Object/Post.php:795 mod/photos.php:1490
 #: mod/photos.php:1529 mod/photos.php:1602
@@ -3054,7 +3054,7 @@ msgstr "Video"
 
 #: src/Database/DBStructure.php:32
 msgid "There are no tables on MyISAM."
-msgstr ""
+msgstr "MyISAMissa ei ole taulukoita."
 
 #: src/Database/DBStructure.php:75
 #, php-format
@@ -3392,7 +3392,7 @@ msgstr ""
 #: mod/dirfind.php:49
 #, php-format
 msgid "People Search - %s"
-msgstr ""
+msgstr "Käyttäjähaku - %s"
 
 #: mod/dirfind.php:60
 #, php-format
@@ -4666,7 +4666,7 @@ msgstr "Lähetä julkiset julkaisut kaikille kontakteille:"
 
 #: mod/settings.php:870
 msgid "Action after import:"
-msgstr ""
+msgstr "Toiminta tuonnin jälkeen:"
 
 #: mod/settings.php:870
 msgid "Move to folder"
@@ -4718,7 +4718,7 @@ msgstr "Päivitä selain xx sekunnin välein"
 
 #: mod/settings.php:968
 msgid "Minimum of 10 seconds. Enter -1 to disable it."
-msgstr ""
+msgstr "Vähintään 10 sekuntia. -1 poistaa ominaisuuden käytöstä."
 
 #: mod/settings.php:969
 msgid "Number of items to display per page:"
@@ -4963,11 +4963,11 @@ msgstr ""
 
 #: mod/settings.php:1130
 msgid "Allow friends to tag your posts?"
-msgstr ""
+msgstr "Anna kavereiden lisätä tunnisteita julkaisuusi?"
 
 #: mod/settings.php:1130
 msgid "Your contacts can add additional tags to your posts."
-msgstr ""
+msgstr "Kontaktisi voi lisätä ylimääräisiä tunnisteita julkaisuusi."
 
 #: mod/settings.php:1134
 msgid "Allow us to suggest you as a potential friend to new members?"
@@ -5889,7 +5889,7 @@ msgstr "Worker"
 
 #: mod/admin.php:1355
 msgid "Message Relay"
-msgstr ""
+msgstr "Viestirele"
 
 #: mod/admin.php:1356
 msgid ""
@@ -6059,7 +6059,7 @@ msgstr "Näkyvästi esillä rekisteröitymissivulla. Voit käyttää BBCodeia."
 
 #: mod/admin.php:1380
 msgid "Accounts abandoned after x days"
-msgstr ""
+msgstr "Käyttäjätilit hylätään X päivän jälkeen"
 
 #: mod/admin.php:1380
 msgid ""
@@ -6380,7 +6380,7 @@ msgstr ""
 
 #: mod/admin.php:1417
 msgid "Discover contacts from other servers"
-msgstr ""
+msgstr "Etsi kontakteja muilta palvelimilta"
 
 #: mod/admin.php:1417
 msgid ""
@@ -6441,7 +6441,7 @@ msgstr "Piilota tunnisteet"
 
 #: mod/admin.php:1424
 msgid "Suppress showing a list of hashtags at the end of the posting."
-msgstr ""
+msgstr "Piilota tunnistelista julkaisun lopussa."
 
 #: mod/admin.php:1425
 msgid "Path to item cache"
@@ -6502,7 +6502,7 @@ msgstr ""
 
 #: mod/admin.php:1431
 msgid "Only search in tags"
-msgstr ""
+msgstr "Tunnistehaku"
 
 #: mod/admin.php:1431
 msgid "On large systems the text search can slow down the system extremely."
@@ -6563,7 +6563,7 @@ msgstr ""
 
 #: mod/admin.php:1440
 msgid "Enable frontend worker"
-msgstr ""
+msgstr "Ota Frontend Worker käyttöön"
 
 #: mod/admin.php:1440
 #, php-format
@@ -6577,7 +6577,7 @@ msgstr ""
 
 #: mod/admin.php:1442
 msgid "Subscribe to relay"
-msgstr ""
+msgstr "Relen tilaus"
 
 #: mod/admin.php:1442
 msgid ""
@@ -6587,7 +6587,7 @@ msgstr ""
 
 #: mod/admin.php:1443
 msgid "Relay server"
-msgstr ""
+msgstr "Relepalvelin"
 
 #: mod/admin.php:1443
 msgid ""
@@ -6597,7 +6597,7 @@ msgstr ""
 
 #: mod/admin.php:1444
 msgid "Direct relay transfer"
-msgstr ""
+msgstr "Suora releen siirto"
 
 #: mod/admin.php:1444
 msgid ""
@@ -6606,7 +6606,7 @@ msgstr ""
 
 #: mod/admin.php:1445
 msgid "Relay scope"
-msgstr ""
+msgstr "Relen soveltamisala"
 
 #: mod/admin.php:1445
 msgid ""
@@ -6629,7 +6629,7 @@ msgstr "palvelintunnisteet"
 
 #: mod/admin.php:1446
 msgid "Comma separated list of tags for the 'tags' subscription."
-msgstr ""
+msgstr "Pilkulla erotettu tunnistelista tunnistetilausta varten."
 
 #: mod/admin.php:1447
 msgid "Allow user tags"
@@ -6639,7 +6639,7 @@ msgstr "Salli käyttäjien tunnisteet"
 msgid ""
 "If enabled, the tags from the saved searches will used for the 'tags' "
 "subscription in addition to the 'relay_server_tags'."
-msgstr ""
+msgstr "Jos otettu käyttöön, tunnisteet tallennetuista hauista käytetään tunnistetilaukseen 'relay_server_tags'in lisäksi."
 
 #: mod/admin.php:1475
 msgid "Update has been marked successful"
