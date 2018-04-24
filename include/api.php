@@ -2716,7 +2716,7 @@ function api_convert_item($item)
  *
  * @param string $body
  *
- * @return array|false
+ * @return array
  */
 function api_get_attachments(&$body)
 {
@@ -2727,7 +2727,7 @@ function api_get_attachments(&$body)
 	$ret = preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $text, $images);
 
 	if (!$ret) {
-		return false;
+		return [];
 	}
 
 	$attachments = [];
