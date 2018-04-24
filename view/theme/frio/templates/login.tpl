@@ -32,6 +32,7 @@
 			<input type="hidden" name="{{$k}}" value="{{$v|escape:'html'}}" />
 		{{/foreach}}
 
+		<div id="login-end"></div>
 	</div>
 </form>
 

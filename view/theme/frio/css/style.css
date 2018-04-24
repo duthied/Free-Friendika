@@ -3155,6 +3155,9 @@ section .profile-match-wrapper {
 #register-link {
     width: 100%;
 }
+#login-end {
+    clear: both;
+}
 
 .mod-home.is-not-singleuser,
 .mod-login {
@@ -3179,11 +3182,6 @@ section .profile-match-wrapper {
     margin-top: 2.5%;
 }
 
-.mod-home.is-not-singleuser .login-form > #login-form,
-.mod-home.is-not-singleuser .login-form > #login-extra-links,
-.mod-login #content #login-form {
-    overflow: hidden;
-}
 .mod-home.is-not-singleuser .login-form > #login-extra-links {
     margin-top: 4em;
     margin-bottom: 1em;
