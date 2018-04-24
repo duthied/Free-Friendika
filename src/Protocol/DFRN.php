@@ -2773,6 +2773,10 @@ class DFRN
 			if ($posted_id) {
 				logger("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, LOGGER_DEBUG);
 
+				IF ($item['uid'] == 0) {
+					Item::distribute($posted_id);
+				}
+
 				$item["id"] = $posted_id;
 
 				$r = q(
@@ -2826,6 +2830,10 @@ class DFRN
 			$posted_id = Item::insert($item, false, $notify);
 
 			logger("Item was stored with id ".$posted_id, LOGGER_DEBUG);
+
+			if ($item['uid'] == 0) {
+				Item::distribute($posted_id);
+			}
 
 			if (stristr($item["verb"], ACTIVITY_POKE)) {
 				self::doPoke($item, $importer, $posted_id);

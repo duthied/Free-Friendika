@@ -840,6 +840,81 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Distributes public items to the receivers
+	 *
+	 * @param integer $itemid Item ID that should be added
+	 */
+	public static function distribute($itemid)
+	{
+		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
+		$parent = dba::selectFirst('item', ['owner-id'], $condition);
+		if (!DBM::is_result($parent)) {
+			return;
+		}
+
+		// Only distribute public items from native networks
+		$condition = ['id' => $itemid, 'uid' => 0,
+			'network' => [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""],
+			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
+		$item = dba::selectFirst('item', [], ['id' => $itemid]);
+		if (!DBM::is_result($item)) {
+			return;
+		}
+
+		unset($item['id']);
+
+		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
+			$parent['owner-id'], CONTACT_IS_SHARING,  CONTACT_IS_FRIEND];
+		$contacts = dba::select('contact', [], $condition);
+		while ($contact = dba::fetch($contacts)) {
+			self::storeForUser($itemid, $item, $contact);
+		}
+	}
+
+	/**
+	 * @brief Store public items for the receivers
+	 *
+	 * @param integer $itemid  Item ID that should be added
+	 * @param array   $item    The item entry that will be stored
+	 * @param array   $contact The contact that will receive the item entry
+	 */
+	private static function storeForUser($itemid, $item, $contact)
+	{
+		$item['uid'] = $contact['uid'];
+		$item['origin'] = 0;
+		$item['wall'] = 0;
+		if ($item['uri'] == $item['parent-uri']) {
+			$item['contact-id'] = Contact::getIdForURL($item['owner-link'], $contact['uid']);
+		} else {
+			$item['contact-id'] = Contact::getIdForURL($item['author-link'], $contact['uid']);
+		}
+
+		if (empty($item['contact-id'])) {
+			$self = dba::selectFirst('contact', ['id'], ['self' => true, 'uid' => $contact['uid']]);
+			if (!DBM::is_result($self)) {
+				return;
+			}
+			$item['contact-id'] = $self['id'];
+		}
+
+		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
+			$item['type'] = 'remote-comment';
+		} elseif ($item['type'] == 'wall') {
+			$item['type'] = 'remote';
+		}
+
+		/// @todo Handling of "event-id"
+
+		$distributed = self::insert($item, false, false, true);
+
+		if (!$distributed) {
+			logger("Distributed public item " . $itemid . " for user " . $contact['uid'] . " wasn't stored", LOGGER_DEBUG);
+		} else {
+			logger("Distributed public item " . $itemid . " for user " . $contact['uid'] . " with id " . $distributed, LOGGER_DEBUG);
+		}
+	}
+
+	/**
 	 * @brief Add a shadow entry for a given item id that is a thread starter
 	 *
 	 * We store every public item entry additionally with the user id "0".
@@ -850,7 +925,7 @@ class Item extends BaseObject
 	 */
 	public static function addShadow($itemid)
 	{
-		$fields = ['uid', 'wall', 'private', 'moderated', 'visible', 'contact-id', 'deleted', 'network', 'author-id', 'owner-id'];
+		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network'];
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
 		$item = dba::selectFirst('item', $fields, $condition);
 
