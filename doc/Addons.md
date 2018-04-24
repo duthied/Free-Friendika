@@ -335,6 +335,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks('page_end', $a->page['content']);
     
 ### include/api.php
+
 	Addon::callHooks('logged_in', $a->user);
 	Addon::callHooks('authenticate', $addon_auth);
 	Addon::callHooks('logged_in', $a->user);
