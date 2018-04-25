@@ -8,7 +8,7 @@ use Friendica\Model\Profile;
 
 require_once 'view/theme/frio/php/PHPColors/Color.php';
 
-$schemecss = "";
+$schemecss = '';
 $schemecssfile = false;
 $scheme_modified = 0;
 
@@ -19,15 +19,15 @@ if ($a->module !== 'install') {
 		PConfig::load($uid, 'frio');
 
 		// Load the profile owners pconfig.
-		$schema           = PConfig::get($uid, "frio", "schema");
-		$nav_bg           = PConfig::get($uid, "frio", "nav_bg");
-		$nav_icon_color   = PConfig::get($uid, "frio", "nav_icon_color");
-		$link_color       = PConfig::get($uid, "frio", "link_color");
-		$bgcolor          = PConfig::get($uid, "frio", "background_color");
-		$contentbg_transp = PConfig::get($uid, "frio", "contentbg_transp");
-		$background_image = PConfig::get($uid, "frio", "background_image");
-		$bg_image_option  = PConfig::get($uid, "frio", "bg_image_option");
-		$modified         = PConfig::get($uid, "frio", "css_modified");
+		$schema           = PConfig::get($uid, 'frio', 'schema');
+		$nav_bg           = PConfig::get($uid, 'frio', 'nav_bg');
+		$nav_icon_color   = PConfig::get($uid, 'frio', 'nav_icon_color');
+		$link_color       = PConfig::get($uid, 'frio', 'link_color');
+		$bgcolor          = PConfig::get($uid, 'frio', 'background_color');
+		$contentbg_transp = PConfig::get($uid, 'frio', 'contentbg_transp');
+		$background_image = PConfig::get($uid, 'frio', 'background_image');
+		$bg_image_option  = PConfig::get($uid, 'frio', 'bg_image_option');
+		$modified         = PConfig::get($uid, 'frio', 'css_modified');
 
 		// There is maybe the case that the user did never modify the theme settings.
 		// In this case we store the present time.
@@ -38,17 +38,17 @@ if ($a->module !== 'install') {
 		Config::load('frio');
 
 		// Load frios system config.
-		$schema           = Config::get("frio", "schema");
-		$nav_bg           = Config::get("frio", "nav_bg");
-		$nav_icon_color   = Config::get("frio", "nav_icon_color");
-		$link_color       = Config::get("frio", "link_color");
-		$bgcolor          = Config::get("frio", "background_color");
-		$contentbg_transp = Config::get("frio", "contentbg_transp");
-		$background_image = Config::get("frio", "background_image");
-		$bg_image_option  = Config::get("frio", "bg_image_option");
-		$login_bg_image   = Config::get("frio", "login_bg_image");
-		$login_bg_color   = Config::get("frio", "login_bg_color");
-		$modified         = Config::get("frio", "css_modified");
+		$schema           = Config::get('frio', 'schema');
+		$nav_bg           = Config::get('frio', 'nav_bg');
+		$nav_icon_color   = Config::get('frio', 'nav_icon_color');
+		$link_color       = Config::get('frio', 'link_color');
+		$bgcolor          = Config::get('frio', 'background_color');
+		$contentbg_transp = Config::get('frio', 'contentbg_transp');
+		$background_image = Config::get('frio', 'background_image');
+		$bg_image_option  = Config::get('frio', 'bg_image_option');
+		$login_bg_image   = Config::get('frio', 'login_bg_image');
+		$login_bg_color   = Config::get('frio', 'login_bg_color');
+		$modified         = Config::get('frio', 'css_modified');
 
 		// There is maybe the case that the user did never modify the theme settings.
 		// In this case we store the present time.
@@ -68,7 +68,7 @@ if (x($_REQUEST, 'schema')) {
 }
 
 // Sanitize the data.
-$schema = !empty($schema) ? basename($schema) : "";
+$schema = !empty($schema) ? basename($schema) : '';
 
 
 if (($schema) && ($schema != '---')) {
@@ -96,10 +96,10 @@ if (!$schema) {
 
 //Set some defaults - we have to do this after pulling owner settings, and we have to check for each setting
 //individually.  If we don't, we'll have problems if a user has set one, but not all options.
-$nav_bg           = (empty($nav_bg)           ? "#708fa0"      : $nav_bg);
-$nav_icon_color   = (empty($nav_icon_color)   ? "#fff"         : $nav_icon_color);
-$link_color       = (empty($link_color)       ? "#6fdbe8"      : $link_color);
-$bgcolor          = (empty($bgcolor)          ? "#ededed"      : $bgcolor);
+$nav_bg           = (empty($nav_bg)           ? '#708fa0'      : $nav_bg);
+$nav_icon_color   = (empty($nav_icon_color)   ? '#fff'         : $nav_icon_color);
+$link_color       = (empty($link_color)       ? '#6fdbe8'      : $link_color);
+$bgcolor          = (empty($bgcolor)          ? '#ededed'      : $bgcolor);
 // The background image can not be empty. So we use a dummy jpg if no image was set.
 $background_image = (empty($background_image) ? 'img/none.jpg' : $background_image);
 $modified         = (empty($modified)         ? time()         : $modified);
@@ -109,9 +109,9 @@ $modified         = (empty($modified)         ? time()         : $modified);
 if (empty($login_bg_image) && empty($login_bg_color)) {
 	$login_bg_image = 'img/login_bg.jpg';
 }
-$login_bg_color   = (empty($login_bg_color)   ? "#ededed"      : $login_bg_color);
+$login_bg_color   = (empty($login_bg_color)   ? '#ededed'      : $login_bg_color);
 
-$contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != "") ? $contentbg_transp : 100);
+$contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != '') ? $contentbg_transp : 100);
 
 // Calculate some colors in dependance of existing colors.
 // Some colors are calculated to don't have too many selection
@@ -153,21 +153,21 @@ if (!isset($bg_image_option)) {
 	$bg_image_option = null;
 }
 switch ($bg_image_option) {
-	case "stretch":
-		$background_size_img = "100%";
+	case 'stretch':
+		$background_size_img = '100%';
 		break;
-	case "cover":
-		$background_size_img = "cover";
+	case 'cover':
+		$background_size_img = 'cover';
 		break;
-	case "repeat":
-		$background_size_img = "auto";
+	case 'repeat':
+		$background_size_img = 'auto';
 		break;
-	case "contain":
-		$background_size_img = "contain";
+	case 'contain':
+		$background_size_img = 'contain';
 		break;
 
 	default:
-		$background_size_img = "auto";
+		$background_size_img = 'auto';
 		break;
 }
 
@@ -219,7 +219,7 @@ header('Last-Modified: ' . $modified);
 // Only send the CSS file if it was changed.
 if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 	$cached_modified = gmdate('r', strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']));
-	$cached_etag = str_replace(['"', "-gzip"], ['', ''],
+	$cached_etag = str_replace(['"', '-gzip'], ['', ''],
 				stripslashes($_SERVER['HTTP_IF_NONE_MATCH']));
 
 	if (($cached_modified == $modified) && ($cached_etag == $etag)) {

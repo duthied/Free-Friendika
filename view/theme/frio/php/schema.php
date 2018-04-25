@@ -22,41 +22,41 @@ use Friendica\Core\PConfig;
 function get_schema_info($schema)
 {
 	$theme = current_theme();
-	$themepath = "view/theme/" . $theme . "/";
+	$themepath = 'view/theme/' . $theme . '/';
 	$schema = PConfig::get(local_user(), 'frio', 'schema');
 
 	$info = [
 		'name' => $schema,
-		'description' => "",
+		'description' => '',
 		'author' => [],
-		'version' => "",
+		'version' => '',
 		'overwrites' => []
 	];
 
-	if (!is_file($themepath . "schema/" . $schema . ".php")) return $info;
+	if (!is_file($themepath . 'schema/' . $schema . '.php')) return $info;
 
-	$f = file_get_contents($themepath . "schema/" . $schema . ".php");
+	$f = file_get_contents($themepath . 'schema/' . $schema . '.php');
 
-	$r = preg_match("|/\*.*\*/|msU", $f, $m);
+	$r = preg_match('|/\*.*\*/|msU', $f, $m);
 
 	if ($r) {
 		$ll = explode("\n", $m[0]);
 		foreach ($ll as $l) {
 			$l = trim($l, "\t\n\r */");
-			if ($l != "") {
-				list($k, $v) = array_map("trim", explode(":", $l, 2));
+			if ($l != '') {
+				list($k, $v) = array_map('trim', explode(':', $l, 2));
 				$k = strtolower($k);
-				if ($k == "author") {
-					$r = preg_match("|([^<]+)<([^>]+)>|", $v, $m);
+				if ($k == 'author') {
+					$r = preg_match('|([^<]+)<([^>]+)>|', $v, $m);
 					if ($r) {
 						$info['author'][] = ['name' => $m[1], 'link' => $m[2]];
 					} else {
 						$info['author'][] = ['name' => $v];
 					}
-				} elseif ($k == "overwrites") {
+				} elseif ($k == 'overwrites') {
 					$theme_settings = explode(',', str_replace(' ', '', $v));
 					foreach ($theme_settings as $key => $value) {
-						$info["overwrites"][$value] = true;
+						$info['overwrites'][$value] = true;
 					}
 				} else {
 					if (array_key_exists($k, $info)) {
