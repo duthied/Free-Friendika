@@ -99,13 +99,13 @@ function frio_form($arr)
 	}
 
 	$scheme_choices = [];
-	$scheme_choices['---'] = L10n::t('Default');
+	$scheme_choices['---'] = L10n::t('Custom');
 	$files = glob('view/theme/frio/scheme/*.php');
 	if ($files) {
 		foreach ($files as $file) {
 			$f = basename($file, '.php');
 			if ($f != 'default') {
-				$scheme_name = $f;
+				$scheme_name = ucfirst($f);
 				$scheme_choices[$f] = $scheme_name;
 			}
 		}
@@ -118,7 +118,7 @@ function frio_form($arr)
 		'$submit'           => L10n::t('Submit'),
 		'$baseurl'          => System::baseUrl(),
 		'$title'            => L10n::t('Theme settings'),
-		'$scheme'           => ['frio_scheme', L10n::t('Select scheme'), $arr['scheme'], '', $scheme_choices],
+		'$scheme'           => ['frio_scheme', L10n::t('Select color scheme'), $arr['scheme'], '', $scheme_choices],
 		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', L10n::t('Navigation bar background color'), $arr['nav_bg'], '', false],
 		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', L10n::t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
 		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', L10n::t('Link color'), $arr['link_color'], '', false],
