@@ -1,41 +1,41 @@
 <?php
 
 /**
- * @brief: Get info header of the shema
+ * @brief: Get info header of the scheme
  *
- * This function parses the header of the shemename.php file for inormations like
+ * This function parses the header of the schemename.php file for informations like
  * Author, Description and Overwrites. Most of the code comes from the Addon::getInfo()
- * function. We use this to get the variables which get overwritten through the shema.
+ * function. We use this to get the variables which get overwritten through the scheme.
  * All color variables which get overwritten through the theme have to be
- * listed (comma seperated) in the shema header under Overwrites:
- * This seemst not to be the best solution. We need to investigate further.
+ * listed (comma separated) in the scheme header under Overwrites:
+ * This seems not to be the best solution. We need to investigate further.
  *
- * @param string $schema Name of the shema
+ * @param string $scheme Name of the scheme
  * @return array With theme information
  *    'author' => Author Name
- *    'description' => Schema description
- *    'version' => Schema version
+ *    'description' => Scheme description
+ *    'version' => Scheme version
  *    'overwrites' => Variables which overwriting custom settings
  */
 use Friendica\Core\PConfig;
 
-function get_schema_info($schema)
+function get_scheme_info($scheme)
 {
 	$theme = current_theme();
 	$themepath = 'view/theme/' . $theme . '/';
-	$schema = PConfig::get(local_user(), 'frio', 'schema');
+	$scheme = PConfig::get(local_user(), 'frio', 'scheme');
 
 	$info = [
-		'name' => $schema,
+		'name' => $scheme,
 		'description' => '',
 		'author' => [],
 		'version' => '',
 		'overwrites' => []
 	];
 
-	if (!is_file($themepath . 'schema/' . $schema . '.php')) return $info;
+	if (!is_file($themepath . 'scheme/' . $scheme . '.php')) return $info;
 
-	$f = file_get_contents($themepath . 'schema/' . $schema . '.php');
+	$f = file_get_contents($themepath . 'scheme/' . $scheme . '.php');
 
 	$r = preg_match('|/\*.*\*/|msU', $f, $m);
 

@@ -19,7 +19,7 @@ if ($a->module !== 'install') {
 		PConfig::load($uid, 'frio');
 
 		// Load the profile owners pconfig.
-		$schema           = PConfig::get($uid, 'frio', 'schema');
+		$scheme           = PConfig::get($uid, 'frio', 'scheme');
 		$nav_bg           = PConfig::get($uid, 'frio', 'nav_bg');
 		$nav_icon_color   = PConfig::get($uid, 'frio', 'nav_icon_color');
 		$link_color       = PConfig::get($uid, 'frio', 'link_color');
@@ -38,7 +38,7 @@ if ($a->module !== 'install') {
 		Config::load('frio');
 
 		// Load frios system config.
-		$schema           = Config::get('frio', 'schema');
+		$scheme           = Config::get('frio', 'scheme');
 		$nav_bg           = Config::get('frio', 'nav_bg');
 		$nav_icon_color   = Config::get('frio', 'nav_icon_color');
 		$link_color       = Config::get('frio', 'link_color');
@@ -59,38 +59,38 @@ if ($a->module !== 'install') {
 }
 
 // Now load the scheme.  If a value is changed above, we'll keep the settings
-// If not, we'll keep those defined by the schema
-// Setting $schema to '' wasn't working for some reason, so we'll check it's
+// If not, we'll keep those defined by the scheme
+// Setting $scheme to '' wasn't working for some reason, so we'll check it's
 // not --- like the mobile theme does instead.
-// Allow layouts to over-ride the schema.
-if (x($_REQUEST, 'schema')) {
-	$schema = $_REQUEST['schema'];
+// Allow layouts to over-ride the scheme.
+if (x($_REQUEST, 'scheme')) {
+	$scheme = $_REQUEST['scheme'];
 }
 
 // Sanitize the data.
-$schema = !empty($schema) ? basename($schema) : '';
+$scheme = !empty($scheme) ? basename($scheme) : '';
 
 
-if (($schema) && ($schema != '---')) {
-	if (file_exists('view/theme/frio/schema/' . $schema . '.php')) {
-		$schemefile = 'view/theme/frio/schema/' . $schema . '.php';
+if (($scheme) && ($scheme != '---')) {
+	if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
+		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 		require_once $schemefile;
 	}
-	if (file_exists('view/theme/frio/schema/' . $schema . '.css')) {
-		$schemecssfile = 'view/theme/frio/schema/' . $schema . '.css';
+	if (file_exists('view/theme/frio/scheme/' . $scheme . '.css')) {
+		$schemecssfile = 'view/theme/frio/scheme/' . $scheme . '.css';
 	}
 }
 
-// If we haven't got a schema, load the default.  We shouldn't touch this - we
+// If we haven't got a scheme, load the default.  We shouldn't touch this - we
 // should leave it for admins to define for themselves.
-// default.php and default.css MUST be symlinks to existing schema files.
-if (!$schema) {
-	if (file_exists('view/theme/frio/schema/default.php')) {
-		$schemefile = 'view/theme/frio/schema/default.php';
+// default.php and default.css MUST be symlinks to existing scheme files.
+if (!$scheme) {
+	if (file_exists('view/theme/frio/scheme/default.php')) {
+		$schemefile = 'view/theme/frio/scheme/default.php';
 		require_once $schemefile;
 	}
-	if (file_exists('view/theme/frio/schema/default.css')) {
-		$schemecssfile = 'view/theme/frio/schema/default.css';
+	if (file_exists('view/theme/frio/scheme/default.css')) {
+		$schemecssfile = 'view/theme/frio/scheme/default.css';
 	}
 }
 

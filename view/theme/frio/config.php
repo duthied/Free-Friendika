@@ -15,7 +15,7 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		PConfig::set(local_user(), 'frio', 'schema',           $_POST['frio_schema']);
+		PConfig::set(local_user(), 'frio', 'scheme',           $_POST['frio_scheme']);
 		PConfig::set(local_user(), 'frio', 'nav_bg',           $_POST['frio_nav_bg']);
 		PConfig::set(local_user(), 'frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']);
 		PConfig::set(local_user(), 'frio', 'link_color',       $_POST['frio_link_color']);
@@ -34,7 +34,7 @@ function theme_admin_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		Config::set('frio', 'schema',           $_POST['frio_schema']);
+		Config::set('frio', 'scheme',           $_POST['frio_scheme']);
 		Config::set('frio', 'nav_bg',           $_POST['frio_nav_bg']);
 		Config::set('frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']);
 		Config::set('frio', 'link_color',       $_POST['frio_link_color']);
@@ -55,7 +55,7 @@ function theme_content(App $a)
 	}
 	$arr = [];
 
-	$arr['schema']           = PConfig::get(local_user(), 'frio', 'schema');
+	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme');
 	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg');
 	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color');
 	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color');
@@ -74,7 +74,7 @@ function theme_admin(App $a)
 	}
 	$arr = [];
 
-	$arr['schema']           = Config::get('frio', 'schema');
+	$arr['scheme']           = Config::get('frio', 'scheme');
 	$arr['nav_bg']           = Config::get('frio', 'nav_bg');
 	$arr['nav_icon_color']   = Config::get('frio', 'nav_icon_color');
 	$arr['link_color']       = Config::get('frio', 'link_color');
@@ -90,9 +90,9 @@ function theme_admin(App $a)
 
 function frio_form($arr)
 {
-	require_once 'view/theme/frio/php/schema.php';
+	require_once 'view/theme/frio/php/scheme.php';
 
-	$scheme_info = get_schema_info($arr['schema']);
+	$scheme_info = get_scheme_info($arr['scheme']);
 	$disable = $scheme_info['overwrites'];
 	if (!is_array($disable)) {
 		$disable = [];
@@ -100,7 +100,7 @@ function frio_form($arr)
 
 	$scheme_choices = [];
 	$scheme_choices['---'] = L10n::t('Default');
-	$files = glob('view/theme/frio/schema/*.php');
+	$files = glob('view/theme/frio/scheme/*.php');
 	if ($files) {
 		foreach ($files as $file) {
 			$f = basename($file, '.php');
@@ -118,7 +118,7 @@ function frio_form($arr)
 		'$submit'           => L10n::t('Submit'),
 		'$baseurl'          => System::baseUrl(),
 		'$title'            => L10n::t('Theme settings'),
-		'$schema'           => ['frio_schema', L10n::t('Select scheme'), $arr['schema'], '', $scheme_choices],
+		'$scheme'           => ['frio_scheme', L10n::t('Select scheme'), $arr['scheme'], '', $scheme_choices],
 		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', L10n::t('Navigation bar background color'), $arr['nav_bg'], '', false],
 		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', L10n::t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
 		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', L10n::t('Link color'), $arr['link_color'], '', false],

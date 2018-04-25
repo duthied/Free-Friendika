@@ -4,7 +4,7 @@
 <script src="{{$baseurl}}/view/theme/frio/frameworks/jRange/jquery.range.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
 
-{{include file="field_select.tpl" field=$schema}}
+{{include file="field_select.tpl" field=$scheme}}
 
 {{if $nav_bg}}{{include file="field_colorinput.tpl" field=$nav_bg}}{{/if}}
 {{if $nav_icon_color}}{{include file="field_colorinput.tpl" field=$nav_icon_color}}{{/if}}
