@@ -8,7 +8,8 @@ use Friendica\Core\System;
 
 require_once 'view/theme/frio/php/Image.php';
 
-function theme_post(App $a) {
+function theme_post(App $a)
+{
 	if (!local_user()) {
 		return;
 	}
@@ -26,7 +27,8 @@ function theme_post(App $a) {
 	}
 }
 
-function theme_admin_post(App $a) {
+function theme_admin_post(App $a)
+{
 	if (!local_user()) {
 		return;
 	}
@@ -46,7 +48,8 @@ function theme_admin_post(App $a) {
 	}
 }
 
-function theme_content(App $a) {
+function theme_content(App $a)
+{
 	if (!local_user()) {
 		return;
 	}
@@ -64,7 +67,8 @@ function theme_content(App $a) {
 	return frio_form($arr);
 }
 
-function theme_admin(App $a) {
+function theme_admin(App $a)
+{
 	if (!local_user()) {
 		return;
 	}
@@ -84,7 +88,8 @@ function theme_admin(App $a) {
 	return frio_form($arr);
 }
 
-function frio_form($arr) {
+function frio_form($arr)
+{
 	require_once("view/theme/frio/php/schema.php");
 
 	$scheme_info = get_schema_info($arr["schema"]);
@@ -106,7 +111,7 @@ function frio_form($arr) {
 		}
 	}
 
-	$background_image_help = "<strong>" . L10n::t("Note"). ": </strong>".L10n::t("Check image permissions if all users are allowed to visit the image");
+	$background_image_help = "<strong>" . L10n::t("Note") . ": </strong>" . L10n::t("Check image permissions if all users are allowed to visit the image");
 
 	$t = get_markup_template('theme_settings.tpl');
 	$ctx = [
@@ -123,13 +128,13 @@ function frio_form($arr) {
 		'$bg_image_options' => Image::get_options($arr),
 	];
 
-	if (array_key_exists("login_bg_image", $arr) &&  !array_key_exists("login_bg_image", $disable)) {
-		$ctx['$login_bg_image']  = ['frio_login_bg_image', L10n::t('Login page background image'), $arr['login_bg_image'], $background_image_help, false];
-	}
-	if (array_key_exists("login_bg_color", $arr) &&  !array_key_exists("login_bg_color", $disable)) {
-		$ctx['$login_bg_color']  = ['frio_login_bg_color', L10n::t('Login page background color'), $arr['login_bg_color'], L10n::t('Leave background image and color empty for theme defaults'), false];
+	if (array_key_exists("login_bg_image", $arr) && !array_key_exists("login_bg_image", $disable)) {
+		$ctx['$login_bg_image'] = ['frio_login_bg_image', L10n::t('Login page background image'), $arr['login_bg_image'], $background_image_help, false];
 	}
 
+	if (array_key_exists("login_bg_color", $arr) && !array_key_exists("login_bg_color", $disable)) {
+		$ctx['$login_bg_color'] = ['frio_login_bg_color', L10n::t('Login page background color'), $arr['login_bg_color'], L10n::t('Leave background image and color empty for theme defaults'), false];
+	}
 
 	$o = replace_macros($t, $ctx);
 

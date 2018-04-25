@@ -84,7 +84,7 @@ if (($schema) && ($schema != '---')) {
 // If we haven't got a schema, load the default.  We shouldn't touch this - we
 // should leave it for admins to define for themselves.
 // default.php and default.css MUST be symlinks to existing schema files.
-if (! $schema) {
+if (!$schema) {
 	if (file_exists('view/theme/frio/schema/default.php')) {
 		$schemefile = 'view/theme/frio/schema/default.php';
 		require_once $schemefile;
@@ -102,15 +102,14 @@ $link_color       = (empty($link_color)       ? "#6fdbe8"      : $link_color);
 $bgcolor          = (empty($bgcolor)          ? "#ededed"      : $bgcolor);
 // The background image can not be empty. So we use a dummy jpg if no image was set.
 $background_image = (empty($background_image) ? 'img/none.jpg' : $background_image);
-$modified         = (empty($modified)         ? time()         :$modified);
+$modified         = (empty($modified)         ? time()         : $modified);
 
 
 // set a default login bg image if no custom image and no custom bg color are set.
 if (empty($login_bg_image) && empty($login_bg_color)) {
-	$login_bg_image   = (empty($login_bg_image)   ? 'img/login_bg.jpg' : $login_bg_image);
+	$login_bg_image = 'img/login_bg.jpg';
 }
-$login_bg_color = (empty($login_bg_color) ? "#ededed" : $login_bg_color);
-
+$login_bg_color   = (empty($login_bg_color)   ? "#ededed"      : $login_bg_color);
 
 $contentbg_transp = ((isset($contentbg_transp) && $contentbg_transp != "") ? $contentbg_transp : 100);
 
@@ -158,7 +157,7 @@ switch ($bg_image_option) {
 		$background_size_img = "100%";
 		break;
 	case "cover":
-		$background_size_img ="cover";
+		$background_size_img = "cover";
 		break;
 	case "repeat":
 		$background_size_img = "auto";
@@ -175,7 +174,7 @@ switch ($bg_image_option) {
 // Convert transparency level from percentage to opacity value.
 $contentbg_transp = $contentbg_transp / 100;
 
-$options =  [
+$options = [
 	'$nav_bg'                      => $nav_bg,
 	'$nav_icon_color'              => $nav_icon_color,
 	'$nav_icon_hover_color'        => $nav_icon_hover_color,
@@ -214,8 +213,8 @@ $etag = md5($css);
 
 // Set a header for caching.
 header('Cache-Control: public');
-header('ETag: "'.$etag.'"');
-header('Last-Modified: '.$modified);
+header('ETag: "' . $etag . '"');
+header('Last-Modified: ' . $modified);
 
 // Only send the CSS file if it was changed.
 if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
