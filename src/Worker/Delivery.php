@@ -168,11 +168,6 @@ class Delivery {
 
 		$deliver_status = 0;
 
-		// Transmit via Diaspora if not possible via Friendica
-		if (($item['uid'] == 0) && ($contact['network'] == NETWORK_DFRN)) {
-			$contact['network'] = NETWORK_DIASPORA;
-		}
-
 		logger("Delivering " . $cmd . " followup=$followup - network ".$contact['network']);
 
 		switch ($contact['network']) {
@@ -301,10 +296,14 @@ class Delivery {
 			return;
 		}
 
-		if (!Queue::wasDelayed($contact['id'])) {
+		if ($items[0]['uid'] == 0) {
+			$deliver_status = DFRN::transmit($owner, $contact, $atom);
+			if ($deliver_status < 200) {
+				// Transmit via Diaspora if not possible via Friendica
+				self::deliverDiaspora($cmd, $contact, $owner, $target_item, $public_message, $top_level, $followup, false);
+				return;
+			}
 			$deliver_status = DFRN::deliver($owner, $contact, $atom);
-		} else {
-			$deliver_status = -1;
 		}
 
 		logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
@@ -377,6 +376,8 @@ class Delivery {
 
 	private static function deliverMail($cmd, $contact, $owner, $target_item)
 	{
+		global $a;
+
 		if (Config::get('system','dfrn_only')) {
 			return;
 		}
@@ -402,7 +403,7 @@ class Delivery {
 			$reply_to = $mailacct['reply_to'];
 		}
 
-		$subject  = (($target_item['title']) ? Email::encodeHeader($target_item['title'], 'UTF-8') : L10n::t("\x28no subject\x29"));
+		$subject  = ($target_item['title'] ? Email::encodeHeader($target_item['title'], 'UTF-8') : L10n::t("\x28no subject\x29"));
 
 		// only expose our real email address to true friends
 
@@ -445,7 +446,7 @@ class Delivery {
 				$subject = 'Re: ' . $subject;
 			}
 		}
-		Email::send($addr, $subject, $headers, $it);
+		Email::send($addr, $subject, $headers, $target_item);
 	}
 
 	private static function getItemContact($item, $contacts)
