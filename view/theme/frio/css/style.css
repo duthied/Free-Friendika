@@ -27,6 +27,7 @@ body {
     background-color: $background_color;
     background-image: url("$background_image");
     background-size: $background_size_img;
+    background-repeat: $background_repeat;
     background-attachment: fixed;
     color: #777;
     /*color: #555;*/

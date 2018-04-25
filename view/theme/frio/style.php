@@ -152,22 +152,28 @@ if (!isset($link_hover_color)) {
 if (!isset($bg_image_option)) {
 	$bg_image_option = null;
 }
+
 switch ($bg_image_option) {
 	case 'stretch':
 		$background_size_img = '100%';
+		$background_repeat = 'no-repeat';
 		break;
 	case 'cover':
 		$background_size_img = 'cover';
+		$background_repeat = 'no-repeat';
 		break;
 	case 'repeat':
 		$background_size_img = 'auto';
+		$background_repeat = 'repeat';
 		break;
 	case 'contain':
 		$background_size_img = 'contain';
+		$background_repeat = 'repeat';
 		break;
 
 	default:
 		$background_size_img = 'auto';
+		$background_repeat = 'no-repeat';
 		break;
 }
 
@@ -187,6 +193,7 @@ $options = [
 	'$contentbg_transp'            => $contentbg_transp,
 	'$background_image'            => $background_image,
 	'$background_size_img'         => $background_size_img,
+	'$background_repeat'           => $background_repeat,
 	'$login_bg_image'              => $login_bg_image,
 	'$login_bg_color'              => $login_bg_color
 ];

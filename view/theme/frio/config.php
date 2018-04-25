@@ -111,7 +111,7 @@ function frio_form($arr)
 		}
 	}
 
-	$background_image_help = '<strong>' . L10n::t('Note') . ': </strong>' . L10n::t('Check image permissions if all users are allowed to visit the image');
+	$background_image_help = '<strong>' . L10n::t('Note') . ': </strong>' . L10n::t('Check image permissions if all users are allowed to see the image');
 
 	$t = get_markup_template('theme_settings.tpl');
 	$ctx = [
@@ -123,8 +123,9 @@ function frio_form($arr)
 		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', L10n::t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
 		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', L10n::t('Link color'), $arr['link_color'], '', false],
 		'$background_color' => array_key_exists('background_color', $disable) ? '' : ['frio_background_color', L10n::t('Set the background color'), $arr['background_color'], '', false],
-		'$contentbg_transp' => array_key_exists('contentbg_transp', $disable) ? '' : ['frio_contentbg_transp', L10n::t('Content background opacity'), ((isset($arr['contentbg_transp']) && $arr['contentbg_transp'] != '') ? $arr['contentbg_transp'] : 100), ''],
+		'$contentbg_transp' => array_key_exists('contentbg_transp', $disable) ? '' : ['frio_contentbg_transp', L10n::t('Content background opacity'), defaults($arr, 'contentbg_transp', 100), ''],
 		'$background_image' => array_key_exists('background_image', $disable) ? '' : ['frio_background_image', L10n::t('Set the background image'), $arr['background_image'], $background_image_help, false],
+		'$bg_image_options_title' => L10n::t('Background image style'),
 		'$bg_image_options' => Image::get_options($arr),
 	];
 
