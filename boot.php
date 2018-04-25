@@ -486,6 +486,16 @@ define('SR_SCOPE_TAGS', 'tags');
  */
 define('NULL_DATE', '0001-01-01 00:00:00');
 
+/**
+ * Deliver commands
+ */
+define('DELIVER_MAIL',       'mail');
+define('DELIVER_SUGGESTION', 'suggest');
+define('DELIVER_RELOCATION', 'relocate');
+define('DELIVER_DELETION',   'drop');
+define('DELIVER_POST',       'wall-new');
+define('DELIVER_COMMENT',    'comment-new');
+
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM")) {
 	define("SIGTERM", 15);
