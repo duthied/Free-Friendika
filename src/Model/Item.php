@@ -863,7 +863,7 @@ class Item extends BaseObject
 
 		unset($item['id']);
 
-		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
+		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND NOT `readonly` AND `rel` IN (?, ?)",
 			$parent['owner-id'], CONTACT_IS_SHARING,  CONTACT_IS_FRIEND];
 		$contacts = dba::select('contact', ['uid'], $condition);
 		while ($contact = dba::fetch($contacts)) {
