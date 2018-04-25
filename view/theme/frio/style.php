@@ -23,7 +23,7 @@ if ($a->module !== 'install') {
 		$nav_bg           = PConfig::get($uid, 'frio', 'nav_bg');
 		$nav_icon_color   = PConfig::get($uid, 'frio', 'nav_icon_color');
 		$link_color       = PConfig::get($uid, 'frio', 'link_color');
-		$bgcolor          = PConfig::get($uid, 'frio', 'background_color');
+		$background_color = PConfig::get($uid, 'frio', 'background_color');
 		$contentbg_transp = PConfig::get($uid, 'frio', 'contentbg_transp');
 		$background_image = PConfig::get($uid, 'frio', 'background_image');
 		$bg_image_option  = PConfig::get($uid, 'frio', 'bg_image_option');
@@ -42,7 +42,7 @@ if ($a->module !== 'install') {
 		$nav_bg           = Config::get('frio', 'nav_bg');
 		$nav_icon_color   = Config::get('frio', 'nav_icon_color');
 		$link_color       = Config::get('frio', 'link_color');
-		$bgcolor          = Config::get('frio', 'background_color');
+		$background_color = Config::get('frio', 'background_color');
 		$contentbg_transp = Config::get('frio', 'contentbg_transp');
 		$background_image = Config::get('frio', 'background_image');
 		$bg_image_option  = Config::get('frio', 'bg_image_option');
@@ -99,7 +99,7 @@ if (!$scheme) {
 $nav_bg           = (empty($nav_bg)           ? '#708fa0'      : $nav_bg);
 $nav_icon_color   = (empty($nav_icon_color)   ? '#fff'         : $nav_icon_color);
 $link_color       = (empty($link_color)       ? '#6fdbe8'      : $link_color);
-$bgcolor          = (empty($bgcolor)          ? '#ededed'      : $bgcolor);
+$background_color = (empty($background_color) ? '#ededed'      : $background_color);
 // The background image can not be empty. So we use a dummy jpg if no image was set.
 $background_image = (empty($background_image) ? 'img/none.jpg' : $background_image);
 $modified         = (empty($modified)         ? time()         : $modified);
@@ -183,7 +183,7 @@ $options = [
 	'$menu_background_hover_color' => $menu_background_hover_color,
 	'$btn_primary_color'           => $nav_icon_color,
 	'$btn_primary_hover_color'     => $menu_background_hover_color,
-	'$bgcolor'                     => $bgcolor,
+	'$background_color'            => $background_color,
 	'$contentbg_transp'            => $contentbg_transp,
 	'$background_image'            => $background_image,
 	'$background_size_img'         => $background_size_img,

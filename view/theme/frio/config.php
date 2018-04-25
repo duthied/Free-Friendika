@@ -59,7 +59,7 @@ function theme_content(App $a)
 	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg');
 	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color');
 	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color');
-	$arr['bgcolor']          = PConfig::get(local_user(), 'frio', 'background_color');
+	$arr['background_color'] = PConfig::get(local_user(), 'frio', 'background_color');
 	$arr['contentbg_transp'] = PConfig::get(local_user(), 'frio', 'contentbg_transp');
 	$arr['background_image'] = PConfig::get(local_user(), 'frio', 'background_image');
 	$arr['bg_image_option']  = PConfig::get(local_user(), 'frio', 'bg_image_option');
@@ -78,12 +78,12 @@ function theme_admin(App $a)
 	$arr['nav_bg']           = Config::get('frio', 'nav_bg');
 	$arr['nav_icon_color']   = Config::get('frio', 'nav_icon_color');
 	$arr['link_color']       = Config::get('frio', 'link_color');
-	$arr['bgcolor']          = Config::get('frio', 'background_color');
+	$arr['background_color'] = Config::get('frio', 'background_color');
 	$arr['contentbg_transp'] = Config::get('frio', 'contentbg_transp');
 	$arr['background_image'] = Config::get('frio', 'background_image');
 	$arr['bg_image_option']  = Config::get('frio', 'bg_image_option');
 	$arr['login_bg_image']   = Config::get('frio', 'login_bg_image');
-	$arr['login_bg_color']	 = Config::get('frio', 'login_bg_color');
+	$arr['login_bg_color']   = Config::get('frio', 'login_bg_color');
 
 	return frio_form($arr);
 }
@@ -122,7 +122,7 @@ function frio_form($arr)
 		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', L10n::t('Navigation bar background color'), $arr['nav_bg'], '', false],
 		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', L10n::t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
 		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', L10n::t('Link color'), $arr['link_color'], '', false],
-		'$bgcolor'          => array_key_exists('bgcolor', $disable) ? '' : ['frio_background_color', L10n::t('Set the background color'), $arr['bgcolor'], '', false],
+		'$background_color' => array_key_exists('background_color', $disable) ? '' : ['frio_background_color', L10n::t('Set the background color'), $arr['background_color'], '', false],
 		'$contentbg_transp' => array_key_exists('contentbg_transp', $disable) ? '' : ['frio_contentbg_transp', L10n::t('Content background opacity'), ((isset($arr['contentbg_transp']) && $arr['contentbg_transp'] != '') ? $arr['contentbg_transp'] : 100), ''],
 		'$background_image' => array_key_exists('background_image', $disable) ? '' : ['frio_background_image', L10n::t('Set the background image'), $arr['background_image'], $background_image_help, false],
 		'$bg_image_options' => Image::get_options($arr),

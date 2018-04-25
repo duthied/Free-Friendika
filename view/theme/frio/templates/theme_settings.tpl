@@ -10,7 +10,7 @@
 {{if $nav_icon_color}}{{include file="field_colorinput.tpl" field=$nav_icon_color}}{{/if}}
 {{if $link_color}}{{include file="field_colorinput.tpl" field=$link_color}}{{/if}}
 
-{{if $bgcolor}}{{include file="field_colorinput.tpl" field=$bgcolor}}{{/if}}
+{{if $background_color}}{{include file="field_colorinput.tpl" field=$background_color}}{{/if}}
 
 {{* The slider for the content opacity - We use no template for this since it is only used at this page *}}
 {{if $contentbg_transp}}
