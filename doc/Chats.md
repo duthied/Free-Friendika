@@ -37,7 +37,7 @@ You can use several servers to create an account:
 * [https://jappix.com](https://jappix.com)
 * [http://xmpp.net](http://xmpp.net)
 
-###1. Basics
+### 1. Basics
 
 At first you have to get the current version. You can either pull it from [Github](https://github.com) like so:
 
@@ -54,7 +54,7 @@ The following page shows the settings of this addon.
 
 Activate the BOSH proxy.
 
-###2. Settings
+### 2. Settings
 
 Go to your user account settings next and choose the addon page.
 Scroll down until you find the Jappix Mini addon settings.

@@ -50,7 +50,7 @@ This will take you through a similar process.
 
 Connect to users of alternate networks
 ---
-###Across the Federation and Fedivese
+### Across the Federation and Fedivese
 You can also use your Identity Address or other people's Identity Addresses to become friends across the so-called Federation/Fedivese of open source social media.
 Currently, Friendica supports connections with people on diaspora*, Red, Hubzilla, GNU Social, StatusNet, Mastodon, Pleroma, socialhome, and ganggo platforms.
 
@@ -60,13 +60,13 @@ Note: Some versions of GNU Social software may require the full URL to your prof
 
 People on these networks can also initiate contact with you, if they know your contact details.
 
-###Other social media
+### Other social media
 If you server provides this functionality, you can also connect with people one
 Twitter or important feeds from Tumblr, Wordpress, and many more.
 
 To connect, enter their contact details in the "connect" box on your "Contacts" page.
 
-###Email
+### Email
 If you have supplied your mailbox connection information on your Settings page, you can enter the email address of anybody that has sent you a message recently and have their email messages show up in your social stream.
 You can also reply to them from within Friendica.  
 
@@ -76,7 +76,7 @@ In order to avoid abuse or spam, you must have an email from Alice with the corr
 Subscribing to mailing lists is done in the same way, but without the use of the "mailto:" prefix.
 To subscribe to a mailing list, enter the email in following example format "mailling-list@list-server.net".
 
-###Syndication feeds
+### Syndication feeds
 You can "follow" almost anybody or any website that produces a syndication feed (RSS/Atom,etc.).
 If we can find an information stream and a name to attach to the contact, we'll try to connect with them. 
 
