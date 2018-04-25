@@ -300,7 +300,7 @@ function frio_acl_lookup(App $a, &$results)
 	$sql_extra = '';
 	if ($results["search"]) {
 		$search_txt = dbesc(protect_sprintf(preg_quote($results["search"])));
-		$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";
+		$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%' OR `addr` LIKE '%%" . dbesc($search_txt) . "%%') ";
 	}
 
 	if ($nets) {

@@ -464,6 +464,22 @@ td.federation-data {
   opacity: 0.3;
 }
 
+/* help widget */
+aside .help-aside-wrapper ul {
+  padding-left: 1em;
+}
+
+aside .help-aside-wrapper h1 {
+  font-size:2em
+}
+
+.md_warning {
+  padding: 1em;
+  border: #ff0000 solid 2px;
+  background-color: #f9a3a3;
+  color: #ffffff;
+}
+
 #forum-widget-collapse:hover {
   opacity: 1.0;
 }
