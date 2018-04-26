@@ -61,14 +61,18 @@ class Delivery {
 			$parent_id = intval($target_item['parent']);
 			$uid = $target_item['cuid'];
 
-			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
-				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-				WHERE `parent` = %d AND visible = 1 AND moderated = 0 ORDER BY `id` ASC",
-				intval($parent_id)
-			);
-
-			if (!DBM::is_result($items)) {
-				return;
+			if ($parent_id != $item_id) {
+				$parent = dba::fetch_first("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
+								FROM `item`
+								LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
+								WHERE `item`.`id` = ? AND `visible` AND NOT `moderated`", $parent_id);
+				if (!DBM::is_result($parent)) {
+					return;
+				}
+				$items = [$parent, $target_item];
+			} else {
+				$parent = $target_item;
+				$items = [$target_item];
 			}
 
 			// avoid race condition with deleting entries
@@ -81,12 +85,10 @@ class Delivery {
 			// When commenting too fast after delivery, a post wasn't recognized as top level post.
 			// The count then showed more than one entry. The additional check should help.
 			// The check for the "count" should be superfluous, but I'm not totally sure by now, so we keep it.
-			if ((($items[0]['id'] == $item_id) || (count($items) == 1)) && ($items[0]['uri'] === $items[0]['parent-uri'])) {
+			if ((($parent['id'] == $item_id) || (count($items) == 1)) && ($parent['uri'] === $parent['parent-uri'])) {
 				logger('Top level post');
 				$top_level = true;
 			}
-
-			$parent = $items[0];
 
 			// This is IMPORTANT!!!!
 
@@ -193,23 +195,13 @@ class Delivery {
 		} elseif ($cmd == DELIVER_RELOCATION) {
 			$atom = DFRN::relocate($owner, $owner['uid']);
 		} elseif ($followup) {
-			$msgitems = [];
-			$msgitems[] = $target_item;
+			$msgitems = [$target_item];
 			$atom = DFRN::entries($msgitems, $owner);
 		} else {
 			$msgitems = [];
 			foreach ($items as $item) {
-				if (!$item['parent']) {
-					return;
-				}
-
-				// private emails may be in included in public conversations. Filter them.
-				if ($public_message && $item['private']) {
-					return;
-				}
-
 				// Only add the parent when we don't delete other items.
-				if ($target_item['id'] == $item['id'] || (($item['id'] == $item['parent']) && ($cmd != DELIVER_DELETION))) {
+				if (($target_item['id'] == $item['id']) || ($cmd != DELIVER_DELETION)) {
 					$item["entry:comment-allow"] = true;
 					$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
 					$msgitems[] = $item;
@@ -266,6 +258,7 @@ class Delivery {
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				return;
 			}
+		} else {
 			$deliver_status = DFRN::deliver($owner, $contact, $atom);
 		}
 
