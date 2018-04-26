@@ -19,8 +19,6 @@ use dba;
 
 require_once 'include/items.php';
 
-/// @todo This is some ugly code that needs to be split into several methods
-
 class Delivery {
 	public static function execute($cmd, $item_id, $contact_id) {
 		global $a;
@@ -46,34 +44,33 @@ class Delivery {
 		} elseif ($cmd == DELIVER_RELOCATION) {
 			$uid = $item_id;
 		} else {
-			// find ancestors
-			$target_item = dba::fetch_first("SELECT `item`.*, `contact`.`uid` AS `cuid`,
-								`sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
-							FROM `item`
-							INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-							LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-							WHERE `item`.`id` = ? AND `visible` AND NOT `moderated`", $item_id);
-
-			if (!DBM::is_result($target_item) || !intval($target_item['parent'])) {
+			$item = dba::selectFirst('item', ['parent'], ['id' => $item_id]);
+			if (!DBM::is_result($item) || empty($item['parent'])) {
 				return;
 			}
+			$parent_id = intval($item['parent']);
 
-			$parent_id = intval($target_item['parent']);
-			$uid = $target_item['cuid'];
-
-			if ($parent_id != $item_id) {
-				$parent = dba::fetch_first("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
-								FROM `item`
-								LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-								WHERE `item`.`id` = ? AND `visible` AND NOT `moderated`", $parent_id);
-				if (!DBM::is_result($parent)) {
-					return;
+			$itemdata = dba::p("SELECT `item`.*, `contact`.`uid` AS `cuid`,
+							`sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
+						FROM `item`
+						INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+						LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
+						WHERE `item`.`id` IN (?, ?) AND `visible` AND NOT `moderated`
+						ORDER BY `item`.`id`",
+					$item_id, $parent_id);
+			$items = [];
+			while ($item = dba::fetch($itemdata)) {
+				if ($item['id'] == $parent_id) {
+					$parent = $item;
 				}
-				$items = [$parent, $target_item];
-			} else {
-				$parent = $target_item;
-				$items = [$target_item];
+				if ($item['id'] == $item_id) {
+					$target_item = $item;
+				}
+				$items[] = $item;
 			}
+			dba::close($itemdata);
+
+			$uid = $target_item['cuid'];
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {
