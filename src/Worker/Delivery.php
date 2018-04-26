@@ -25,13 +25,11 @@ class Delivery {
 	public static function execute($cmd, $item_id, $contact_id) {
 		global $a;
 
-		logger('delivery: invoked: '.$cmd.': '.$item_id.' to '.$contact_id, LOGGER_DEBUG);
+		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, LOGGER_DEBUG);
 
 		$top_level = false;
-		$recipients = [];
 		$followup = false;
-
-		$recipients[] = $contact_id;
+		$public_message = false;
 
 		if ($cmd == DELIVER_MAIL) {
 			$target_item = dba::selectFirst('mail', [], ['id' => $item_id]);
@@ -39,14 +37,12 @@ class Delivery {
 				return;
 			}
 			$uid = $target_item['uid'];
-			$recipients[] = $target_item['contact-id'];
 		} elseif ($cmd == DELIVER_SUGGESTION) {
 			$target_item = dba::selectFirst('fsuggest', [], ['id' => $item_id]);
 			if (!DBM::is_result($message)) {
 				return;
 			}
 			$uid = $target_item['uid'];
-			$recipients[] = $target_item['contact-id'];
 		} elseif ($cmd == DELIVER_RELOCATION) {
 			$uid = $item_id;
 		} else {
@@ -64,7 +60,6 @@ class Delivery {
 
 			$parent_id = intval($target_item['parent']);
 			$uid = $target_item['cuid'];
-			$updated = $target_item['edited'];
 
 			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
 				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
@@ -76,25 +71,7 @@ class Delivery {
 				return;
 			}
 
-			$icontacts = null;
-			$contacts_arr = [];
-			foreach ($items as $item) {
-				if (!in_array($item['contact-id'],$contacts_arr)) {
-					$contacts_arr[] = intval($item['contact-id']);
-				}
-			}
-			if (count($contacts_arr)) {
-				$str_contacts = implode(',',$contacts_arr);
-				$icontacts = q("SELECT * FROM `contact`
-					WHERE `id` IN ( $str_contacts ) "
-				);
-			}
-			if (!DBM::is_result($icontacts)) {
-				return;
-			}
-
 			// avoid race condition with deleting entries
-
 			if ($items[0]['deleted']) {
 				foreach ($items as $item) {
 					$item['deleted'] = 1;
@@ -105,22 +82,10 @@ class Delivery {
 			// The count then showed more than one entry. The additional check should help.
 			// The check for the "count" should be superfluous, but I'm not totally sure by now, so we keep it.
 			if ((($items[0]['id'] == $item_id) || (count($items) == 1)) && ($items[0]['uri'] === $items[0]['parent-uri'])) {
-				logger('delivery: top level post');
+				logger('Top level post');
 				$top_level = true;
 			}
-		}
 
-		$owner = User::getOwnerDataById($uid);
-		if (!$owner) {
-			return;
-		}
-
-		// We don't treat Forum posts as "wall-to-wall" to be able to post them via Diaspora
-		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != ACCOUNT_TYPE_COMMUNITY);
-
-		$public_message = true;
-
-		if (!in_array($cmd, [DELIVER_MAIL, DELIVER_SUGGESTION, DELIVER_RELOCATION])) {
 			$parent = $items[0];
 
 			// This is IMPORTANT!!!!
@@ -132,8 +97,8 @@ class Delivery {
 			// and we will relay the whole lot.
 
 			$localhost = $a->get_hostname();
-			if (strpos($localhost,':')) {
-				$localhost = substr($localhost,0,strpos($localhost,':'));
+			if (strpos($localhost, ':')) {
+				$localhost = substr($localhost, 0, strpos($localhost, ':'));
 			}
 			/**
 			 *
@@ -144,18 +109,23 @@ class Delivery {
 			 */
 
 			if (!$top_level && ($parent['wall'] == 0) && stristr($target_item['uri'], $localhost)) {
-				logger('followup '.$target_item["guid"], LOGGER_DEBUG);
+				logger('Followup ' . $target_item["guid"], LOGGER_DEBUG);
 				// local followup to remote post
 				$followup = true;
 			}
 
-			if (strlen($parent['allow_cid'])
-				|| strlen($parent['allow_gid'])
-				|| strlen($parent['deny_cid'])
-				|| strlen($parent['deny_gid'])
-				|| $parent["private"]) {
-				$public_message = false; // private recipients, not public
+			if (empty($parent['allow_cid'])
+				&& empty($parent['allow_gid'])
+				&& empty($parent['deny_cid'])
+				&& empty($parent['deny_gid'])
+				&& !$parent["private"]) {
+				$public_message = true;
 			}
+		}
+
+		$owner = User::getOwnerDataById($uid);
+		if (!DBM::is_result($owner)) {
+			return;
 		}
 
 		// We don't deliver our items to blocked or pending contacts, and not to ourselves either
@@ -166,18 +136,22 @@ class Delivery {
 			return;
 		}
 
-		$deliver_status = 0;
+		// Transmit via Diaspora if the thread had started as Diaspora post
+		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
+		if (isset($parent) && ($parent['network'] == NETWORK_DIASPORA) && ($contact['network'] == NETWORK_DFRN)) {
+			$contact['network'] = NETWORK_DIASPORA;
+		}
 
-		logger("Delivering " . $cmd . " followup=$followup - network ".$contact['network']);
+		logger("Delivering " . $cmd . " followup=$followup - via network " . $contact['network']);
 
 		switch ($contact['network']) {
 
 			case NETWORK_DFRN:
-				self::deliverDFRN($cmd, $contact, $icontacts, $owner, $items, $target_item, $public_message, $top_level, $followup);
+				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				break;
 
 			case NETWORK_DIASPORA:
-				self::deliverDiaspora($cmd, $contact, $owner, $target_item, $public_message, $top_level, $followup, $walltowall);
+				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				break;
 
 			case NETWORK_OSTATUS:
@@ -204,9 +178,9 @@ class Delivery {
 		return;
 	}
 
-	private static function deliverDFRN($cmd, $contact, $icontacts, $owner, $items, $target_item, $public_message, $top_level, $followup)
+	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
-		logger('notifier: '.$target_item["guid"].' dfrndelivery: '.$contact['name']);
+		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . $contact['addr']);
 
 		if ($cmd == DELIVER_MAIL) {
 			$item = $target_item;
@@ -234,29 +208,18 @@ class Delivery {
 					return;
 				}
 
-				$item_contact = self::getItemContact($item, $icontacts);
-				if (!$item_contact) {
-					return;
-				}
-
-				if (!in_array($cmd, [DELIVER_MAIL, DELIVER_SUGGESTION, DELIVER_RELOCATION])) {
-					// Only add the parent when we don't delete other items.
-					if ($target_item['id'] == $item['id'] || (($item['id'] == $item['parent']) && ($cmd != DELIVER_DELETION))) {
-						$item["entry:comment-allow"] = true;
-						$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
-						$msgitems[] = $item;
-					}
-				} else {
+				// Only add the parent when we don't delete other items.
+				if ($target_item['id'] == $item['id'] || (($item['id'] == $item['parent']) && ($cmd != DELIVER_DELETION))) {
 					$item["entry:comment-allow"] = true;
+					$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
 					$msgitems[] = $item;
 				}
 			}
 			$atom = DFRN::entries($msgitems,$owner);
 		}
 
-		logger('notifier entry: '.$contact["url"].' '.$target_item["guid"].' entry: '.$atom, LOGGER_DEBUG);
+		logger('Notifier entry: ' . $contact["url"] . ' ' . $target_item["guid"] . ' entry: ' . $atom, LOGGER_DATA);
 
-		logger('notifier: '.$atom, LOGGER_DATA);
 		$basepath =  implode('/', array_slice(explode('/',$contact['url']),0,3));
 
 		// perform local delivery if we are on the same site
@@ -300,16 +263,16 @@ class Delivery {
 			$deliver_status = DFRN::transmit($owner, $contact, $atom);
 			if ($deliver_status < 200) {
 				// Transmit via Diaspora if not possible via Friendica
-				self::deliverDiaspora($cmd, $contact, $owner, $target_item, $public_message, $top_level, $followup, false);
+				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				return;
 			}
 			$deliver_status = DFRN::deliver($owner, $contact, $atom);
 		}
 
-		logger('notifier: dfrn_delivery to '.$contact["url"].' with guid '.$target_item["guid"].' returns '.$deliver_status);
+		logger('Delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
 
 		if ($deliver_status < 0) {
-			logger('notifier: delivery failed: queuing message');
+			logger('Delivery failed: queuing message ' . $target_item["guid"] );
 			Queue::add($contact['id'], NETWORK_DFRN, $atom, false, $target_item['guid']);
 		}
 
@@ -322,15 +285,18 @@ class Delivery {
 		}
 	}
 
-	private static function deliverDiaspora($cmd, $contact, $owner, $target_item, $public_message, $top_level, $followup, $walltowall)
+	private static function deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
+		// We don't treat Forum posts as "wall-to-wall" to be able to post them via Diaspora
+		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != ACCOUNT_TYPE_COMMUNITY);
+
 		if ($public_message) {
 			$loc = 'public batch ' . $contact['batch'];
 		} else {
-			$loc = $contact['name'];
+			$loc = $contact['addr'];
 		}
 
-		logger('delivery: diaspora batch deliver: ' . $loc);
+		logger('Deliver ' . $target_item["guid"] . ' via Diaspora to ' . $loc);
 
 		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
 			return;
@@ -371,7 +337,7 @@ class Delivery {
 			return;
 		}
 
-		logger('Unknown mode ' . $cmd . ' for '.$contact['name']);
+		logger('Unknown mode ' . $cmd . ' for ' . $loc);
 	}
 
 	private static function deliverMail($cmd, $contact, $owner, $target_item)
@@ -396,6 +362,8 @@ class Delivery {
 		if (!DBM::is_result($local_user)) {
 			return;
 		}
+
+		logger('Deliver ' . $target_item["guid"] . ' via mail to ' . $contact['addr']);
 
 		$reply_to = '';
 		$mailacct = dba::selectFirst('mailacct', ['reply_to'], ['uid' => $owner['uid']]);
@@ -447,18 +415,5 @@ class Delivery {
 			}
 		}
 		Email::send($addr, $subject, $headers, $target_item);
-	}
-
-	private static function getItemContact($item, $contacts)
-	{
-		if (!count($contacts) || !is_array($item)) {
-			return false;
-		}
-		foreach ($contacts as $contact) {
-			if ($contact['id'] == $item['contact-id']) {
-				return $contact;
-			}
-		}
-		return false;
 	}
 }
