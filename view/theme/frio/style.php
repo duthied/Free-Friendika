@@ -19,7 +19,7 @@ if ($a->module !== 'install') {
 		PConfig::load($uid, 'frio');
 
 		// Load the profile owners pconfig.
-		$scheme           = PConfig::get($uid, 'frio', 'scheme');
+		$scheme           = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
 		$nav_bg           = PConfig::get($uid, 'frio', 'nav_bg');
 		$nav_icon_color   = PConfig::get($uid, 'frio', 'nav_icon_color');
 		$link_color       = PConfig::get($uid, 'frio', 'link_color');
@@ -38,7 +38,7 @@ if ($a->module !== 'install') {
 		Config::load('frio');
 
 		// Load frios system config.
-		$scheme           = Config::get('frio', 'scheme');
+		$scheme           = Config::get('frio', 'scheme', Config::get('frio', 'schema'));
 		$nav_bg           = Config::get('frio', 'nav_bg');
 		$nav_icon_color   = Config::get('frio', 'nav_icon_color');
 		$link_color       = Config::get('frio', 'link_color');

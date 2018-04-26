@@ -55,7 +55,7 @@ function theme_content(App $a)
 	}
 	$arr = [];
 
-	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme');
+	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema'));
 	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg');
 	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color');
 	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color');
@@ -74,7 +74,7 @@ function theme_admin(App $a)
 	}
 	$arr = [];
 
-	$arr['scheme']           = Config::get('frio', 'scheme');
+	$arr['scheme']           = Config::get('frio', 'scheme', Config::get('frio', 'scheme'));
 	$arr['nav_bg']           = Config::get('frio', 'nav_bg');
 	$arr['nav_icon_color']   = Config::get('frio', 'nav_icon_color');
 	$arr['link_color']       = Config::get('frio', 'link_color');

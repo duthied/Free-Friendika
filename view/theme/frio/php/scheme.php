@@ -23,7 +23,7 @@ function get_scheme_info($scheme)
 {
 	$theme = current_theme();
 	$themepath = 'view/theme/' . $theme . '/';
-	$scheme = PConfig::get(local_user(), 'frio', 'scheme');
+	$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'scheme'));
 
 	$info = [
 		'name' => $scheme,

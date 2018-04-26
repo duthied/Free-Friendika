@@ -43,7 +43,7 @@ if (!isset($minimal)) {
 		if (is_null($uid)) {
 			$uid = Profile::getThemeUid();
 		}
-		$scheme = PConfig::get($uid, 'frio', 'scheme');
+		$scheme = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
 		if (($scheme) && ($scheme != '---')) {
 			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
