@@ -204,12 +204,12 @@ class Delivery {
 					$msgitems[] = $item;
 				}
 			}
-			$atom = DFRN::entries($msgitems,$owner);
+			$atom = DFRN::entries($msgitems, $owner);
 		}
 
 		logger('Notifier entry: ' . $contact["url"] . ' ' . $target_item["guid"] . ' entry: ' . $atom, LOGGER_DATA);
 
-		$basepath =  implode('/', array_slice(explode('/',$contact['url']),0,3));
+		$basepath =  implode('/', array_slice(explode('/', $contact['url']), 0, 3));
 
 		// perform local delivery if we are on the same site
 
@@ -248,6 +248,8 @@ class Delivery {
 			return;
 		}
 
+		// We don't have a relationship with contacts on a public post.
+		// Se we transmit with the new method and via Diaspora as a fallback
 		if ($items[0]['uid'] == 0) {
 			$deliver_status = DFRN::transmit($owner, $contact, $atom);
 			if ($deliver_status < 200) {
@@ -400,7 +402,7 @@ class Delivery {
 					}
 				}
 			}
-			if (strncasecmp($subject,  'RE:', 3)) {
+			if (strncasecmp($subject, 'RE:', 3)) {
 				$subject = 'Re: ' . $subject;
 			}
 		}
