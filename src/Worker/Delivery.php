@@ -4,6 +4,7 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -19,10 +20,8 @@ use dba;
 
 require_once 'include/items.php';
 
-class Delivery {
+class Delivery extends BaseObject {
 	public static function execute($cmd, $item_id, $contact_id) {
-		global $a;
-
 		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, LOGGER_DEBUG);
 
 		$top_level = false;
@@ -95,7 +94,7 @@ class Delivery {
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			$localhost = $a->get_hostname();
+			$localhost = self::getApp()->get_hostname();
 			if (strpos($localhost, ':')) {
 				$localhost = substr($localhost, 0, strpos($localhost, ':'));
 			}
@@ -334,8 +333,6 @@ class Delivery {
 
 	private static function deliverMail($cmd, $contact, $owner, $target_item)
 	{
-		global $a;
-
 		if (Config::get('system','dfrn_only')) {
 			return;
 		}
@@ -375,7 +372,7 @@ class Delivery {
 				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8').' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
-			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . $a->get_hostname() . '>' . "\n";
+			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . self::getApp()->get_hostname() . '>' . "\n";
 		}
 
 		$headers .= 'Message-Id: <' . Email::iri2msgid($target_item['uri']) . '>' . "\n";
