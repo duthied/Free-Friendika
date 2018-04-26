@@ -21,10 +21,10 @@ class Image
 	public static function get_options($arr)
 	{
 		$bg_image_options = [
-			'stretch' => ['frio_bg_image_option', L10n::t("Stretch"), "stretch", L10n::t("Resize image to the width of the screen and show background color below on long pages."), ($arr["bg_image_option"] == "stretch")],
-			'cover'   => ['frio_bg_image_option', L10n::t("Resize, fill and clip"), "cover", L10n::t("Resize image to fill entire screen, clipping either the right or the bottom."), ($arr["bg_image_option"] == "cover")],
-			'repeat'  => ['frio_bg_image_option', L10n::t("Repeat"), "repeat", L10n::t("Repeat image to fill the screen."), ($arr["bg_image_option"] == "repeat")],
-			'contain' => ['frio_bg_image_option', L10n::t("Repeat one row"), "contain", L10n::t("Resize image to repeat it on a single row, either vertical or horizontal."), ($arr["bg_image_option"] == "contain")],
+			'stretch' => ['frio_bg_image_option', L10n::t('Stretch'), 'stretch', L10n::t('Resize image to the width of the screen and show background color below on long pages.'), ($arr['bg_image_option'] == 'stretch')],
+			'cover'   => ['frio_bg_image_option', L10n::t('Resize, fill and clip'), 'cover', L10n::t('Resize image to fill entire screen, clipping either the right or the bottom.'), ($arr['bg_image_option'] == 'cover')],
+			'repeat'  => ['frio_bg_image_option', L10n::t('Repeat'), 'repeat', L10n::t('Repeat image to fill the screen.'), ($arr['bg_image_option'] == 'repeat')],
+			'contain' => ['frio_bg_image_option', L10n::t('Repeat one row'), 'contain', L10n::t('Resize image to repeat it on a single row, either vertical or horizontal.'), ($arr['bg_image_option'] == 'contain')],
 		];
 
 		return $bg_image_options;
