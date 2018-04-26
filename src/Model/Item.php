@@ -862,6 +862,14 @@ class Item extends BaseObject
 		}
 
 		unset($item['id']);
+		unset($item['parent']);
+		unset($item['mention']);
+		unset($item['wall']);
+		unset($item['origin']);
+		unset($item['global']);
+		unset($item['starred']);
+		unset($item['rendered-hash']);
+		unset($item['rendered-html']);
 
 		$users = [];
 
