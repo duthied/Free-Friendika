@@ -950,7 +950,7 @@ class Profile
 			];
 		}
 
-		if ((!$is_owner) && ((count($a->profile)) || (!$a->profile['hide-friends']))) {
+		if (!$is_owner && empty($a->profile['hide-friends'])) {
 			$tabs[] = [
 				'label' => L10n::t('Contacts'),
 				'url'   => System::baseUrl() . '/viewcontacts/' . $nickname,
