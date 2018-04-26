@@ -862,12 +862,33 @@ class Item extends BaseObject
 		}
 
 		unset($item['id']);
+		unset($item['parent']);
+		unset($item['mention']);
+		unset($item['wall']);
+		unset($item['origin']);
+		unset($item['global']);
+		unset($item['starred']);
+		unset($item['rendered-hash']);
+		unset($item['rendered-html']);
 
-		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
+		$users = [];
+
+		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND NOT `readonly` AND `rel` IN (?, ?)",
 			$parent['owner-id'], CONTACT_IS_SHARING,  CONTACT_IS_FRIEND];
 		$contacts = dba::select('contact', ['uid'], $condition);
 		while ($contact = dba::fetch($contacts)) {
-			self::storeForUser($itemid, $item, $contact['uid']);
+			$users[$contact['uid']] = $contact['uid'];
+		}
+
+		if ($item['uri'] != $item['parent-uri']) {
+			$parents = dba::select('item', ['uid'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+			while ($parent = dba::fetch($parents)) {
+				$users[$parent['uid']] = $parent['uid'];
+			}
+		}
+
+		foreach ($users as $uid) {
+			self::storeForUser($itemid, $item, $uid);
 		}
 	}
 

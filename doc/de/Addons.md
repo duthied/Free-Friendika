@@ -101,7 +101,7 @@ Derzeitige Hooks
 
 **'post_remote'** - wird aufgerufen, wenn ein Beitrag aus einer anderen Quelle empfangen wird. Dies kann auch genutzt werden, um lokale Aktivitäten oder systemgenerierte Nachrichten zu veröffentlichen/posten.
     $b ist das Item-Array einer Information, die in der Datenbank und im Item gespeichert ist.
-    	{Bitte beachte: der Seiteninhalt ist bbcode - nicht HTML)
+        {Bitte beachte: der Seiteninhalt ist bbcode - nicht HTML)
 
 **'settings_form'** - wird aufgerufen, wenn die HTML-Ausgabe für die Einstellungsseite generiert wird.
     $b ist die HTML-Ausgabe (String) der Einstellungsseite vor dem finalen "</form>"-Tag.
@@ -191,184 +191,300 @@ Komplette Liste der Hook-Callbacks
 
 Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Apr-2018 generiert): Bitte schau in die Quellcodes für Details zu Hooks, die oben nicht dokumentiert sind.
 
-index.php:	Addon::callHooks('init_1');
-index.php:	Addon::callHooks('app_menu', $arr);
-index.php:	Addon::callHooks('page_content_top', $a->page['content']);
-index.php:	Addon::callHooks($a->module.'_mod_init', $placeholder);
-index.php:	Addon::callHooks($a->module.'_mod_init', $placeholder);
-index.php:	Addon::callHooks($a->module.'_mod_post', $_POST);
-index.php:	Addon::callHooks($a->module.'_mod_afterpost', $placeholder);
-index.php:	Addon::callHooks($a->module.'_mod_content', $arr);
-index.php:	Addon::callHooks($a->module.'_mod_aftercontent', $arr);
-index.php:	Addon::callHooks('page_end', $a->page['content']);
+### index.php
 
-include/api.php:	Addon::callHooks('logged_in', $a->user);
-include/api.php:	Addon::callHooks('authenticate', $addon_auth);
-include/api.php:	Addon::callHooks('logged_in', $a->user);
+    Addon::callHooks('init_1');
+    Addon::callHooks('app_menu', $arr);
+    Addon::callHooks('page_content_top', $a->page['content']);
+    Addon::callHooks($a->module.'_mod_init', $placeholder);
+    Addon::callHooks($a->module.'_mod_init', $placeholder);
+    Addon::callHooks($a->module.'_mod_post', $_POST);
+    Addon::callHooks($a->module.'_mod_afterpost', $placeholder);
+    Addon::callHooks($a->module.'_mod_content', $arr);
+    Addon::callHooks($a->module.'_mod_aftercontent', $arr);
+    Addon::callHooks('page_end', $a->page['content']);
+    
+### include/api.php
 
-include/enotify.php:	Addon::callHooks('enotify', $h);
-include/enotify.php:	Addon::callHooks('enotify_store', $datarray);
-include/enotify.php:	Addon::callHooks('enotify_mail', $datarray);
-include/enotify.php:	Addon::callHooks('check_item_notification', $notification_data);
+    Addon::callHooks('logged_in', $a->user);
+    Addon::callHooks('authenticate', $addon_auth);
+    Addon::callHooks('logged_in', $a->user);
 
-include/conversation.php:	Addon::callHooks('conversation_start', $cb);
-include/conversation.php:	Addon::callHooks('render_location', $locate);
-include/conversation.php:	Addon::callHooks('display_item', $arr);
-include/conversation.php:	Addon::callHooks('display_item', $arr);
-include/conversation.php:	Addon::callHooks('item_photo_menu', $args);
-include/conversation.php:	Addon::callHooks('jot_tool', $jotplugins);
+### include/enotify.php
 
-include/security.php:	Addon::callHooks('logged_in', $a->user);
+    Addon::callHooks('enotify', $h);
+    Addon::callHooks('enotify_store', $datarray);
+    Addon::callHooks('enotify_mail', $datarray);
+    Addon::callHooks('check_item_notification', $notification_data);
+    
+### include/conversation.php
 
-include/text.php:	Addon::callHooks('contact_block_end', $arr);
-include/text.php:	Addon::callHooks('poke_verbs', $arr);
-include/text.php:	Addon::callHooks('prepare_body_init', $item);
-include/text.php:	Addon::callHooks('prepare_body_content_filter', $hook_data);
-include/text.php:	Addon::callHooks('prepare_body', $hook_data);
-include/text.php:	Addon::callHooks('prepare_body_final', $hook_data);
+    Addon::callHooks('conversation_start', $cb);
+    Addon::callHooks('render_location', $locate);
+    Addon::callHooks('display_item', $arr);
+    Addon::callHooks('display_item', $arr);
+    Addon::callHooks('item_photo_menu', $args);
+    Addon::callHooks('jot_tool', $jotplugins);
 
-include/items.php:	Addon::callHooks('page_info_data', $data);
+### include/security.php
 
-mod/directory.php:	Addon::callHooks('directory_item', $arr);
+    Addon::callHooks('logged_in', $a->user);
 
-mod/xrd.php:	Addon::callHooks('personal_xrd', $arr);
+### include/text.php
 
-mod/ping.php:	Addon::callHooks('network_ping', $arr);
+    Addon::callHooks('contact_block_end', $arr);
+    Addon::callHooks('poke_verbs', $arr);
+    Addon::callHooks('prepare_body_init', $item);
+    Addon::callHooks('prepare_body_content_filter', $hook_data);
+    Addon::callHooks('prepare_body', $hook_data);
+    Addon::callHooks('prepare_body_final', $hook_data);
 
-mod/parse_url.php:	Addon::callHooks("parse_link", $arr);
+### include/items.php
 
-mod/manage.php:	Addon::callHooks('home_init', $ret);
+    Addon::callHooks('page_info_data', $data);
 
-mod/acl.php:	Addon::callHooks('acl_lookup_end', $results);
+### mod/directory.php
 
-mod/network.php:	Addon::callHooks('network_content_init', $arr);
-mod/network.php:	Addon::callHooks('network_tabs', $arr);
+    Addon::callHooks('directory_item', $arr);
 
-mod/friendica.php:	Addon::callHooks('about_hook', $o);
-mod/subthread.php:	Addon::callHooks('post_local_end', $arr);
+### mod/xrd.php
 
-mod/profiles.php:	Addon::callHooks('profile_post', $_POST);
-mod/profiles.php:	Addon::callHooks('profile_edit', $arr);
+    Addon::callHooks('personal_xrd', $arr);
 
-mod/settings.php:	Addon::callHooks('addon_settings_post', $_POST);
-mod/settings.php:	Addon::callHooks('connector_settings_post', $_POST);
-mod/settings.php:	Addon::callHooks('display_settings_post', $_POST);
-mod/settings.php:	Addon::callHooks('settings_post', $_POST);
-mod/settings.php:	Addon::callHooks('addon_settings', $settings_addons);
-mod/settings.php:	Addon::callHooks('connector_settings', $settings_connectors);
-mod/settings.php:	Addon::callHooks('display_settings', $o);
-mod/settings.php:	Addon::callHooks('settings_form', $o);
+### mod/ping.php
 
-mod/photos.php:	Addon::callHooks('photo_post_init', $_POST);
-mod/photos.php:	Addon::callHooks('photo_post_file', $ret);
-mod/photos.php:	Addon::callHooks('photo_post_end', $foo);
-mod/photos.php:	Addon::callHooks('photo_post_end', $foo);
-mod/photos.php:	Addon::callHooks('photo_post_end', $foo);
-mod/photos.php:	Addon::callHooks('photo_post_end', $foo);
-mod/photos.php:	Addon::callHooks('photo_post_end', intval($item_id));
-mod/photos.php:	Addon::callHooks('photo_upload_form', $ret);
+    Addon::callHooks('network_ping', $arr);
 
-mod/profile.php:	Addon::callHooks('profile_advanced', $o);
+### mod/parse_url.php
 
-mod/home.php:	Addon::callHooks('home_init', $ret);
-mod/home.php:	Addon::callHooks("home_content", $content);
+    Addon::callHooks("parse_link", $arr);
 
-mod/poke.php:	Addon::callHooks('post_local_end', $arr);
+### mod/manage.php
 
-mod/contacts.php:	Addon::callHooks('contact_edit_post', $_POST);
-mod/contacts.php:	Addon::callHooks('contact_edit', $arr);
+    Addon::callHooks('home_init', $ret);
 
-mod/tagger.php:	Addon::callHooks('post_local_end', $arr);
+### mod/acl.php
 
-mod/lockview.php:	Addon::callHooks('lockview_content', $item);
+    Addon::callHooks('acl_lookup_end', $results);
 
-mod/uexport.php:	Addon::callHooks('uexport_options', $options);
+### mod/network.php
 
-mod/register.php:	Addon::callHooks('register_post', $arr);
-mod/register.php:	Addon::callHooks('register_form', $arr);
+    Addon::callHooks('network_content_init', $arr);
+    Addon::callHooks('network_tabs', $arr);
 
-mod/item.php:	Addon::callHooks('post_local_start', $_REQUEST);
-mod/item.php:	Addon::callHooks('post_local', $datarray);
-mod/item.php:	Addon::callHooks('post_local_end', $datarray);
+### mod/friendica.php
 
-mod/editpost.php:	Addon::callHooks('jot_tool', $jotplugins);
+    Addon::callHooks('about_hook', $o);
+    
+### mod/subthread.php
 
-src/Network/FKOAuth1.php:	Addon::callHooks('logged_in', $a->user);
+    Addon::callHooks('post_local_end', $arr);
 
-src/Render/FriendicaSmartyEngine.php:	Addon::callHooks("template_vars", $arr);
+### mod/profiles.php
 
-src/Model/Item.php:	Addon::callHooks('post_local', $item);
-src/Model/Item.php:	Addon::callHooks('post_remote', $item);
-src/Model/Item.php:	Addon::callHooks('post_local_end', $posted_item);
-src/Model/Item.php:	Addon::callHooks('post_remote_end', $posted_item);
-src/Model/Item.php:	Addon::callHooks('tagged', $arr);
-src/Model/Item.php:	Addon::callHooks('post_local_end', $new_item);
+    Addon::callHooks('profile_post', $_POST);
+    Addon::callHooks('profile_edit', $arr);
 
-src/Model/Contact.php:	Addon::callHooks('contact_photo_menu', $args);
-src/Model/Contact.php:	Addon::callHooks('follow', $arr);
+### mod/settings.php
 
-src/Model/Profile.php:	Addon::callHooks('profile_sidebar_enter', $profile);
-src/Model/Profile.php:	Addon::callHooks('profile_sidebar', $arr);
-src/Model/Profile.php:	Addon::callHooks('profile_tabs', $arr);
-src/Model/Profile.php:	Addon::callHooks('zrl_init', $arr);
+    Addon::callHooks('addon_settings_post', $_POST);
+    Addon::callHooks('connector_settings_post', $_POST);
+    Addon::callHooks('display_settings_post', $_POST);
+    Addon::callHooks('settings_post', $_POST);
+    Addon::callHooks('addon_settings', $settings_addons);
+    Addon::callHooks('connector_settings', $settings_connectors);
+    Addon::callHooks('display_settings', $o);
+    Addon::callHooks('settings_form', $o);
 
-src/Model/Event.php:	Addon::callHooks('event_updated', $event['id']);
-src/Model/Event.php:	Addon::callHooks("event_created", $event['id']);
+### mod/photos.php
 
-src/Model/User.php:	Addon::callHooks('register_account', $uid);
-src/Model/User.php:	Addon::callHooks('remove_user', $user);
+    Addon::callHooks('photo_post_init', $_POST);
+    Addon::callHooks('photo_post_file', $ret);
+    Addon::callHooks('photo_post_end', $foo);
+    Addon::callHooks('photo_post_end', $foo);
+    Addon::callHooks('photo_post_end', $foo);
+    Addon::callHooks('photo_post_end', $foo);
+    Addon::callHooks('photo_post_end', intval($item_id));
+    Addon::callHooks('photo_upload_form', $ret);
 
-src/Content/Text/BBCode.php:	Addon::callHooks('bbcode', $text);
-src/Content/Text/BBCode.php:	Addon::callHooks('bb2diaspora', $text);
+### mod/profile.php
 
-src/Content/Text/HTML.php:	Addon::callHooks('html2bbcode', $message);
+    Addon::callHooks('profile_advanced', $o);
 
-src/Content/Smilies.php:	Addon::callHooks('smilie', $params);
+### mod/home.php
 
-src/Content/Feature.php:	Addon::callHooks('isEnabled', $arr);
-src/Content/Feature.php:	Addon::callHooks('get', $arr);
+    Addon::callHooks('home_init', $ret);
+    Addon::callHooks("home_content", $content);
 
-src/Content/ContactSelector.php:	Addon::callHooks('network_to_name', $nets);
-src/Content/ContactSelector.php:	Addon::callHooks('gender_selector', $select);
-src/Content/ContactSelector.php:	Addon::callHooks('sexpref_selector', $select);
-src/Content/ContactSelector.php:	Addon::callHooks('marital_selector', $select);
+### mod/poke.php
 
-src/Content/OEmbed.php:	Addon::callHooks('oembed_fetch_url', $embedurl, $j);
+    Addon::callHooks('post_local_end', $arr);
 
-src/Content/Nav.php:	Addon::callHooks('page_header', $a->page['nav']);
-src/Content/Nav.php:	Addon::callHooks('nav_info', $nav);
+### mod/contacts.php
 
-src/Worker/Directory.php:	Addon::callHooks('globaldir_update', $arr);
-src/Worker/Notifier.php:	Addon::callHooks('notifier_end', $target_item);
-src/Worker/Queue.php:	Addon::callHooks('queue_predeliver', $r);
-src/Worker/Queue.php:	Addon::callHooks('queue_deliver', $params);
+    Addon::callHooks('contact_edit_post', $_POST);    
+    Addon::callHooks('contact_edit', $arr);
 
-src/Module/Login.php:	Addon::callHooks('authenticate', $addon_auth);
-src/Module/Login.php:	Addon::callHooks('login_hook', $o);
-src/Module/Logout.php:	Addon::callHooks("logging_out");
+### mod/tagger.php
 
-src/Object/Post.php:	Addon::callHooks('render_location', $locate);
-src/Object/Post.php:	Addon::callHooks('display_item', $arr);
+    Addon::callHooks('post_local_end', $arr);
 
-src/Core/ACL.php:	Addon::callHooks('contact_select_options', $x);
-src/Core/ACL.php:	Addon::callHooks($a->module.'_pre_'.$selname, $arr);
-src/Core/ACL.php:	Addon::callHooks($a->module.'_post_'.$selname, $o);
-src/Core/ACL.php:	Addon::callHooks($a->module.'_pre_'.$selname, $arr);
-src/Core/ACL.php:	Addon::callHooks($a->module.'_post_'.$selname, $o);
-src/Core/ACL.php:	Addon::callHooks('jot_networks', $jotnets);
+### mod/lockview.php
 
-src/Core/Worker.php:	Addon::callHooks("proc_run", $arr);
+    Addon::callHooks('lockview_content', $item);
 
-src/Util/Emailer.php:	Addon::callHooks('emailer_send_prepare', $params);
-src/Util/Emailer.php:	Addon::callHooks("emailer_send", $hookdata);
+### mod/uexport.php
 
-src/Util/Map.php:	Addon::callHooks('generate_map', $arr);
-src/Util/Map.php:	Addon::callHooks('generate_named_map', $arr);
-src/Util/Map.php:	Addon::callHooks('Map::getCoordinates', $arr);
+    Addon::callHooks('uexport_options', $options);
 
-src/Util/Network.php:	Addon::callHooks('avatar_lookup', $avatar);
+### mod/register.php
 
-src/Util/ParseUrl.php:	Addon::callHooks("getsiteinfo", $siteinfo);
+    Addon::callHooks('register_post', $arr);
+    Addon::callHooks('register_form', $arr);
 
-src/Protocol/DFRN.php:	Addon::callHooks('atom_feed_end', $atom);
-src/Protocol/DFRN.php:	Addon::callHooks('atom_feed_end', $atom);
+### mod/item.php
+
+    Addon::callHooks('post_local_start', $_REQUEST);
+    Addon::callHooks('post_local', $datarray);
+    Addon::callHooks('post_local_end', $datarray);
+
+### mod/editpost.php
+
+    Addon::callHooks('jot_tool', $jotplugins);
+
+### src/Network/FKOAuth1.php
+
+    Addon::callHooks('logged_in', $a->user);
+
+### src/Render/FriendicaSmartyEngine.php
+
+    Addon::callHooks("template_vars", $arr);
+
+### src/Model/Item.php
+
+    Addon::callHooks('post_local', $item);
+    Addon::callHooks('post_remote', $item);
+    Addon::callHooks('post_local_end', $posted_item);
+    Addon::callHooks('post_remote_end', $posted_item);
+    Addon::callHooks('tagged', $arr);
+    Addon::callHooks('post_local_end', $new_item);
+
+### src/Model/Contact.php
+
+    Addon::callHooks('contact_photo_menu', $args);
+    Addon::callHooks('follow', $arr);
+
+### src/Model/Profile.php
+
+    Addon::callHooks('profile_sidebar_enter', $profile);
+    Addon::callHooks('profile_sidebar', $arr);
+    Addon::callHooks('profile_tabs', $arr);
+    Addon::callHooks('zrl_init', $arr);
+
+### src/Model/Event.php
+
+    Addon::callHooks('event_updated', $event['id']);
+    Addon::callHooks("event_created", $event['id']);
+
+### src/Model/User.php
+
+    Addon::callHooks('register_account', $uid);
+    Addon::callHooks('remove_user', $user);
+
+### src/Content/Text/BBCode.php
+
+    Addon::callHooks('bbcode', $text);
+    Addon::callHooks('bb2diaspora', $text);
+
+### src/Content/Text/HTML.php
+
+    Addon::callHooks('html2bbcode', $message);
+
+### src/Content/Smilies.php
+
+    Addon::callHooks('smilie', $params);
+
+### src/Content/Feature.php
+
+    Addon::callHooks('isEnabled', $arr);
+    Addon::callHooks('get', $arr);
+
+### src/Content/ContactSelector.php
+
+    Addon::callHooks('network_to_name', $nets);
+    Addon::callHooks('gender_selector', $select);
+    Addon::callHooks('sexpref_selector', $select);
+    Addon::callHooks('marital_selector', $select);
+
+### src/Content/OEmbed.php
+
+    Addon::callHooks('oembed_fetch_url', $embedurl, $j);
+
+### src/Content/Nav.php
+
+    Addon::callHooks('page_header', $a->page['nav']);
+    Addon::callHooks('nav_info', $nav);
+
+### src/Worker/Directory.php
+
+    Addon::callHooks('globaldir_update', $arr);
+
+### src/Worker/Notifier.php
+
+    Addon::callHooks('notifier_end', $target_item);
+
+### src/Worker/Queue.php
+
+    Addon::callHooks('queue_predeliver', $r);
+    Addon::callHooks('queue_deliver', $params);
+
+### src/Module/Login.php
+
+    Addon::callHooks('authenticate', $addon_auth);
+    Addon::callHooks('login_hook', $o);
+
+### src/Module/Logout.php
+
+    Addon::callHooks("logging_out");
+
+### src/Object/Post.php
+
+    Addon::callHooks('render_location', $locate);
+    Addon::callHooks('display_item', $arr);
+
+### src/Core/ACL.php
+
+    Addon::callHooks('contact_select_options', $x);
+    Addon::callHooks($a->module.'_pre_'.$selname, $arr);
+    Addon::callHooks($a->module.'_post_'.$selname, $o);
+    Addon::callHooks($a->module.'_pre_'.$selname, $arr);
+    Addon::callHooks($a->module.'_post_'.$selname, $o);
+    Addon::callHooks('jot_networks', $jotnets);
+
+### src/Core/Worker.php
+
+    Addon::callHooks("proc_run", $arr);
+
+### src/Util/Emailer.php
+
+    Addon::callHooks('emailer_send_prepare', $params);
+    Addon::callHooks("emailer_send", $hookdata);
+
+### src/Util/Map.php
+
+    Addon::callHooks('generate_map', $arr);
+    Addon::callHooks('generate_named_map', $arr);
+    Addon::callHooks('Map::getCoordinates', $arr);
+
+### src/Util/Network.php
+
+    Addon::callHooks('avatar_lookup', $avatar);
+
+### src/Util/ParseUrl.php
+
+    Addon::callHooks("getsiteinfo", $siteinfo);
+
+### src/Protocol/DFRN.php
+
+    Addon::callHooks('atom_feed_end', $atom);
+    Addon::callHooks('atom_feed_end', $atom);

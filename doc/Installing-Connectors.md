@@ -32,7 +32,7 @@ Twitter Addon for Friendica
 * tobias.diekershoff@gmx.net
 * License: 3-clause BSD license
 
-###Configuration
+### Configuration
 To use this addon you need a OAuth Consumer key pair (key & secret).
 You can get it from [Twitter](https://twitter.com/apps).
 
@@ -46,7 +46,7 @@ Add this key pair to your global .htconfig.php:
 
 After this, your users can configure their Twitter account settings from "Settings -> Connector Settings".
 
-###More documentation
+### More documentation
 
 Find the author's documentation here: [http://diekershoff.homeunix.net/redmine/wiki/friendikaplugin/Twitter_Plugin](http://diekershoff.homeunix.net/redmine/wiki/friendikaplugin/Twitter_Plugin)
 
@@ -58,7 +58,7 @@ GNU Social Addon for Friendica
 * tobias.diekershoff@gmx.net
 * License: 3-clause BSD license
 
-###Configuration
+### Configuration
 
 When the addon is activated the user has to acquire the following in order to connect to the GNU Social account of choice.
 

@@ -16,19 +16,19 @@ If you'd like to have your own server, you can do that too.
 Visit [the Friendica website](http://friendi.ca/) to download the code with setup instructions.
 It's a very simple installation process that anybody experienced in hosting websites, or with basic Linux experience can handle easily.
 
-###OpenID
+### OpenID
 
 The first field on the Registration page is for an OpenID address.
 If you do not have an OpenID address or do not wish to use OpenID, leave this field blank.
 If you have an OpenID account elsewhere and wish to use it, enter the address into this field and click 'Register'.
 Friendica will attempt to extract as much information as possible from your OpenID provider and return to this page with those items already filled in.
 
-###Your Full Name
+### Your Full Name
 
 Please provide your full name **as you would like it to be displayed on this system**.
 Most people use their real name for this, but you're under no obligation to do so yourself.
 
-###Email Address
+### Email Address
 
 Please provide a valid email address.
 Your email address is **never** published.
@@ -38,7 +38,7 @@ This doesn't have to be your primary email address, but it does need to be a rea
 You can't get your initial password, or reset a lost password later without it.
 This is the only bit of personal information that has to be accurate.
 
-###Nickname
+### Nickname
 
 A nickname is used to generate web addresses for many of your personal pages, and is also treated like an email address when establishing communications with others.
 Due to the way that the nickname is used, it has some limitations. 
@@ -47,7 +47,7 @@ It also must be unique on this system.
 This is used in many places to identify your account, and once set it cannot be changed.
 
 
-###Directory Publishing
+### Directory Publishing
 
 The registration form also allows you to choose whether or not to list your account in the online directory of your node.
 This is like a "phone book" and you may choose to be unlisted.
@@ -55,7 +55,7 @@ We recommend that you select 'Yes' so that other people (friends, family, etc.) 
 If you choose 'No', you will essentially be invisible and have few opportunities for interaction.
 Whichever you choose, this can be changed any time from your Settings page after you login. 
 
-###Register
+### Register
 
 Once you have provided the necessary details, click the 'Register' button.
 An email will be sent to you providing your account login details.
