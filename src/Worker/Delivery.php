@@ -269,7 +269,10 @@ class Delivery extends BaseObject {
 		// We don't have a relationship with contacts on a public post.
 		// Se we transmit with the new method and via Diaspora as a fallback
 		if ($items[0]['uid'] == 0) {
-			$deliver_status = DFRN::transmit($owner, $contact, $atom);
+			// Transmit in public if it's a relay post
+			$public_dfrn = ($contact['contact-type'] == ACCOUNT_TYPE_RELAY);
+
+			$deliver_status = DFRN::transmit($owner, $contact, $atom, $public_dfrn);
 			if (($deliver_status < 200) || ($deliver_status > 299)) {
 				// Transmit via Diaspora if not possible via Friendica
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);

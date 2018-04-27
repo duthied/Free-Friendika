@@ -1405,25 +1405,27 @@ class DFRN
 	{
 		$a = get_app();
 
-		if (empty($contact['addr'])) {
-			logger('Empty contact handle for ' . $contact['id'] . ' - ' . $contact['url'] . ' - trying to update it.');
-			if (Contact::updateFromProbe($contact['id'])) {
-				$new_contact = dba::selectFirst('contact', ['addr'], ['id' => $contact['id']]);
-				$contact['addr'] = $new_contact['addr'];
-			}
-
+		if (!$public_batch) {
 			if (empty($contact['addr'])) {
-				logger('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
-				Contact::markForArchival($contact);
-				return -21;
-			}
-		}
+				logger('Empty contact handle for ' . $contact['id'] . ' - ' . $contact['url'] . ' - trying to update it.');
+				if (Contact::updateFromProbe($contact['id'])) {
+					$new_contact = dba::selectFirst('contact', ['addr'], ['id' => $contact['id']]);
+					$contact['addr'] = $new_contact['addr'];
+				}
 
-		$fcontact = Diaspora::personByHandle($contact['addr']);
-		if (empty($fcontact)) {
-			logger('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
-			Contact::markForArchival($contact);
-			return -22;
+				if (empty($contact['addr'])) {
+					logger('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
+					Contact::markForArchival($contact);
+					return -21;
+				}
+			}
+
+			$fcontact = Diaspora::personByHandle($contact['addr']);
+			if (empty($fcontact)) {
+				logger('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
+				Contact::markForArchival($contact);
+				return -22;
+			}
 		}
 
 		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
