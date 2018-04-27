@@ -596,9 +596,9 @@ class Diaspora
 		}
 
 		$importer = ["uid" => 0, "page-flags" => PAGE_FREELOVE];
-		$message_id = self::dispatch($importer, $msg, $fields);
+		$success = self::dispatch($importer, $msg, $fields);
 
-		return $message_id;
+		return $success;
 	}
 
 	/**
@@ -2729,10 +2729,15 @@ class Diaspora
 	 */
 	public static function originalItem($guid, $orig_author)
 	{
+		if (empty($guid)) {
+			logger('Empty guid. Quitting.');
+			return false;
+		}
+
 		// Do we already have this item?
 		$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
-		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false];
+		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 		$item = dba::selectfirst('item', $fields, $condition);
 
 		if (DBM::is_result($item)) {
@@ -2742,7 +2747,7 @@ class Diaspora
 			// Then refetch the content, if it is a reshare from a reshare.
 			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 			if (self::isReshare($item["body"], true)) {
-				$r = [];
+				$item = [];
 			} elseif (self::isReshare($item["body"], false) || strstr($item["body"], "[share")) {
 				$item["body"] = Markdown::toBBCode(BBCode::toMarkdown($item["body"]));
 
@@ -2757,21 +2762,26 @@ class Diaspora
 			}
 		}
 
-		if (!DBM::is_result($r)) {
-			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
-			logger("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
-			$item_id = self::storeByGuid($guid, $server);
-
-			if (!$item_id) {
-				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
-				logger("2nd try: reshared message ".$guid." will be fetched without SLL from the server ".$server);
-				$item_id = self::storeByGuid($guid, $server);
+		if (!DBM::is_result($item)) {
+			if (empty($orig_author)) {
+				logger('Empty author for guid ' . $guid . '. Quitting.');
+				return false;
 			}
 
-			if ($item_id) {
+			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
+			logger("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
+			$stored = self::storeByGuid($guid, $server);
+
+			if (!$stored) {
+				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
+				logger("2nd try: reshared message ".$guid." will be fetched without SLL from the server ".$server);
+				$stored = self::storeByGuid($guid, $server);
+			}
+
+			if ($stored) {
 				$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 					'author-name', 'author-link', 'author-avatar'];
-				$condition = ['id' => $item_id, 'visible' => true, 'deleted' => false];
+				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 				$item = dba::selectfirst('item', $fields, $condition);
 
 				if (DBM::is_result($item)) {
