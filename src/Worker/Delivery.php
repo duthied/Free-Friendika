@@ -21,6 +21,13 @@ use dba;
 require_once 'include/items.php';
 
 class Delivery extends BaseObject {
+	const MAIL =       'mail';
+	const SUGGESTION = 'suggest';
+	const RELOCATION = 'relocate';
+	const DELETION =   'drop';
+	const POST =       'wall-new';
+	const COMMENT =    'comment-new';
+
 	public static function execute($cmd, $item_id, $contact_id) {
 		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, LOGGER_DEBUG);
 
@@ -28,19 +35,19 @@ class Delivery extends BaseObject {
 		$followup = false;
 		$public_message = false;
 
-		if ($cmd == DELIVER_MAIL) {
+		if ($cmd == self::MAIL) {
 			$target_item = dba::selectFirst('mail', [], ['id' => $item_id]);
 			if (!DBM::is_result($message)) {
 				return;
 			}
 			$uid = $target_item['uid'];
-		} elseif ($cmd == DELIVER_SUGGESTION) {
+		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = dba::selectFirst('fsuggest', [], ['id' => $item_id]);
 			if (!DBM::is_result($message)) {
 				return;
 			}
 			$uid = $target_item['uid'];
-		} elseif ($cmd == DELIVER_RELOCATION) {
+		} elseif ($cmd == self::RELOCATION) {
 			$uid = $item_id;
 		} else {
 			$item = dba::selectFirst('item', ['parent'], ['id' => $item_id]);
@@ -180,15 +187,15 @@ class Delivery extends BaseObject {
 	{
 		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . $contact['addr']);
 
-		if ($cmd == DELIVER_MAIL) {
+		if ($cmd == self::MAIL) {
 			$item = $target_item;
 			$item['body'] = Item::fixPrivatePhotos($item['body'], $owner['uid'], null, $item['contact-id']);
 			$atom = DFRN::mail($item, $owner);
-		} elseif ($cmd == DELIVER_SUGGESTION) {
+		} elseif ($cmd == self::SUGGESTION) {
 			$item = $target_item;
 			$atom = DFRN::fsuggest($item, $owner);
 			dba::delete('fsuggest', ['id' => $item['id']]);
-		} elseif ($cmd == DELIVER_RELOCATION) {
+		} elseif ($cmd == self::RELOCATION) {
 			$atom = DFRN::relocate($owner, $owner['uid']);
 		} elseif ($followup) {
 			$msgitems = [$target_item];
@@ -197,7 +204,7 @@ class Delivery extends BaseObject {
 			$msgitems = [];
 			foreach ($items as $item) {
 				// Only add the parent when we don't delete other items.
-				if (($target_item['id'] == $item['id']) || ($cmd != DELIVER_DELETION)) {
+				if (($target_item['id'] == $item['id']) || ($cmd != self::DELETION)) {
 					$item["entry:comment-allow"] = true;
 					$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
 					$msgitems[] = $item;
@@ -292,12 +299,12 @@ class Delivery extends BaseObject {
 		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
 			return;
 		}
-		if ($cmd == DELIVER_MAIL) {
+		if ($cmd == self::MAIL) {
 			Diaspora::sendMail($target_item, $owner, $contact);
 			return;
 		}
 
-		if ($cmd == DELIVER_SUGGESTION) {
+		if ($cmd == self::SUGGESTION) {
 			return;
 		}
 		if (!$contact['pubkey'] && !$public_message) {
@@ -308,7 +315,7 @@ class Delivery extends BaseObject {
 			logger('diaspora retract: ' . $loc);
 			Diaspora::sendRetraction($target_item, $owner, $contact, $public_message);
 			return;
-		} elseif ($cmd == DELIVER_RELOCATION) {
+		} elseif ($cmd == self::RELOCATION) {
 			Diaspora::sendAccountMigration($owner, $contact, $owner['uid']);
 			return;
 		} elseif ($followup) {
@@ -343,7 +350,7 @@ class Delivery extends BaseObject {
 			return;
 		}
 
-		if (!in_array($cmd, [DELIVER_POST, DELIVER_COMMENT])) {
+		if (!in_array($cmd, [self::POST, self::COMMENT])) {
 			return;
 		}
 
