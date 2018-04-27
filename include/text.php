@@ -637,7 +637,7 @@ function logger($msg, $level = 0) {
 
 	// turn off logger in install mode
 	if (
-		$a->install_mode
+		$a->mode == APP_MODE_INSTALL
 		|| !dba::$connected
 	) {
 		return;
@@ -709,7 +709,7 @@ function dlogger($msg, $level = 0) {
 
 	// turn off logger in install mode
 	if (
-		$a->install_mode
+		$a->mode == APP_MODE_INSTALL
 		|| !dba::$connected
 	) {
 		return;

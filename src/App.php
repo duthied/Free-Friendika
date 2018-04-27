@@ -14,6 +14,10 @@ use Detection\MobileDetect;
 
 use Exception;
 
+define ('APP_MODE_NORMAL', 0);
+define ('APP_MODE_INSTALL', 1);
+define ('APP_MODE_MAINTENANCE', 2);
+
 require_once 'boot.php';
 require_once 'include/text.php';
 
@@ -52,7 +56,7 @@ class App
 	public $argv;
 	public $argc;
 	public $module;
-	public $install_mode = false;
+	public $mode = APP_MODE_NORMAL;
 	public $pager;
 	public $strings;
 	public $basepath;
@@ -288,6 +292,14 @@ class App
 
 		// Register template engines
 		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
+
+		/**
+		 * Load the configuration file which contains our DB credentials.
+		 * Ignore errors. If the file doesn't exist or is empty, we are running in
+		 * installation mode.	 *
+		 */
+		$this->mode = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? APP_MODE_NORMAL : APP_MODE_INSTALL);
+
 
 		self::$a = $this;
 	}

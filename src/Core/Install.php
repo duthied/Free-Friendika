@@ -17,8 +17,8 @@ use DOMDocument;
  */
 class Install extends BaseObject
 {
-	public static function setInstallMode($mode = true) {
-		self::getApp()->install_mode = $mode;
+	public static function setInstallMode() {
+		self::getApp()->mode = APP_MODE_INSTALL;
 	}
 
 	public static function check($phpath = 'php')
