@@ -11,6 +11,7 @@
 			<div id="login-lost-password-link">
 				<a href="lostpass" title="{{$lostpass|escape:'html'}}" id="lost-password-link" >{{$lostlink}}</a>
 			</div>
+			<div id="login-end"></div>
 		</div>
 
 		{{if $openid}}

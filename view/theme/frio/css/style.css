@@ -3187,7 +3187,6 @@ section .profile-match-wrapper {
 
 .mod-home.is-not-singleuser .login-form > #login-extra-links {
     margin-top: 4em;
-    margin-bottom: 1em;
 }
 
 .mod-home.is-not-singleuser .login-form > #login-form label,
@@ -3213,7 +3212,6 @@ section .profile-match-wrapper {
         background-color: #fff;
         padding: 1em;
         position: relative;
-        margin-top: 4em;
     }
     .mod-home.is-not-singleuser .login-form > #login-extra-links {
         margin-top: unset;
@@ -3225,7 +3223,7 @@ section .profile-match-wrapper {
         color: #444;
     }
 
-    .mod-home.is-not-singleuser .login-form > #login-form::before,
+    .mod-home.is-not-singleuser .login-form::before,
     .mod-login #content #login-form::before {
         display: block;
         position: absolute;
@@ -3238,7 +3236,7 @@ section .profile-match-wrapper {
         z-index: -1;
     }
 
-    .mod-home.is-not-singleuser .login-form > #login-form::after,
+    .mod-home.is-not-singleuser .login-form::after,
     .mod-login #content #login-form::after {
         display: block;
         position: absolute;
