@@ -183,6 +183,18 @@ class Delivery extends BaseObject {
 		return;
 	}
 
+	/**
+	 * @brief Deliver content via DFRN
+	 *
+	 * @param string  $cmd            Command
+	 * @param array   $contact        Contact record of the receiver
+	 * @param array   $owner          Owner record of the sender
+	 * @param array   $items          Item record of the content and the parent
+	 * @param array   $target_item    Item record of the content
+	 * @param boolean $public_message Is the content public?
+	 * @param boolean $top_level      Is it a thread starter?
+	 * @param boolean $followup       Is it an answer to a remote post?
+	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
 		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . $contact['addr']);
@@ -283,6 +295,18 @@ class Delivery extends BaseObject {
 		}
 	}
 
+	/**
+	 * @brief Deliver content via Diaspora
+	 *
+	 * @param string  $cmd            Command
+	 * @param array   $contact        Contact record of the receiver
+	 * @param array   $owner          Owner record of the sender
+	 * @param array   $items          Item record of the content and the parent
+	 * @param array   $target_item    Item record of the content
+	 * @param boolean $public_message Is the content public?
+	 * @param boolean $top_level      Is it a thread starter?
+	 * @param boolean $followup       Is it an answer to a remote post?
+	 */
 	private static function deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
 		// We don't treat Forum posts as "wall-to-wall" to be able to post them via Diaspora
@@ -338,6 +362,14 @@ class Delivery extends BaseObject {
 		logger('Unknown mode ' . $cmd . ' for ' . $loc);
 	}
 
+	/**
+	 * @brief Deliver content via mail
+	 *
+	 * @param string $cmd         Command
+	 * @param array  $contact     Contact record of the receiver
+	 * @param array  $owner       Owner record of the sender
+	 * @param array  $target_item Item record of the content
+	 */
 	private static function deliverMail($cmd, $contact, $owner, $target_item)
 	{
 		if (Config::get('system','dfrn_only')) {
