@@ -2774,7 +2774,7 @@ class Diaspora
 
 			if (!$stored) {
 				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
-				logger("2nd try: reshared message ".$guid." will be fetched without SLL from the server ".$server);
+				logger("2nd try: reshared message ".$guid." will be fetched without SSL from the server ".$server);
 				$stored = self::storeByGuid($guid, $server);
 			}
 
