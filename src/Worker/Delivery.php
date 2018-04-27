@@ -270,7 +270,7 @@ class Delivery extends BaseObject {
 		// Se we transmit with the new method and via Diaspora as a fallback
 		if ($items[0]['uid'] == 0) {
 			$deliver_status = DFRN::transmit($owner, $contact, $atom);
-			if ($deliver_status < 200) {
+			if (($deliver_status < 200) || ($deliver_status > 299)) {
 				// Transmit via Diaspora if not possible via Friendica
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				return;
