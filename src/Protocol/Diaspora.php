@@ -832,6 +832,10 @@ class Diaspora
 
 		if (isset($parent_author_signature)) {
 			$key = self::key($msg["author"]);
+			if (empty($key)) {
+				logger("No key found for parent author ".$msg["author"], LOGGER_DEBUG);
+				return false;
+			}
 
 			if (!Crypto::rsaVerify($signed_data, $parent_author_signature, $key, "sha256")) {
 				logger("No valid parent author signature for parent author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
@@ -840,6 +844,10 @@ class Diaspora
 		}
 
 		$key = self::key($fields->author);
+		if (empty($key)) {
+			logger("No key found for author ".$fields->author, LOGGER_DEBUG);
+			return false;
+		}
 
 		if (!Crypto::rsaVerify($signed_data, $author_signature, $key, "sha256")) {
 			logger("No valid author signature for author ".$fields->author. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
