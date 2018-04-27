@@ -24,9 +24,10 @@ and open the template in the editor.
 
 body {
     padding-top: 110px;
-    background-color: $bgcolor;
+    background-color: $background_color;
     background-image: url("$background_image");
     background-size: $background_size_img;
+    background-repeat: $background_repeat;
     background-attachment: fixed;
     color: #777;
     /*color: #555;*/

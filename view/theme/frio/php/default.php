@@ -43,10 +43,10 @@ if (!isset($minimal)) {
 		if (is_null($uid)) {
 			$uid = Profile::getThemeUid();
 		}
-		$schema = PConfig::get($uid, 'frio', 'schema');
-		if (($schema) && ($schema != '---')) {
-			if (file_exists('view/theme/frio/schema/' . $schema . '.php')) {
-				$schemefile = 'view/theme/frio/schema/' . $schema . '.php';
+		$scheme = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
+		if (($scheme) && ($scheme != '---')) {
+			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
+				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 				require_once $schemefile;
 			}
 		} else {
