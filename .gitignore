@@ -9,6 +9,7 @@ include/jquery-1.4.2.min.js
 favicon.*
 home.html
 addon
+*.orig
 *~
 robots.txt
 
