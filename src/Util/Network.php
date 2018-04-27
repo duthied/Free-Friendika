@@ -36,7 +36,13 @@ class Network
 	 */
 	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
 	{
-		$ret = self::curl(
+		$ret = fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
+
+		return($ret['body']);
+	}
+	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
+	{
+		return self::curl(
 			$url,
 			$binary,
 			$redirects,
@@ -45,8 +51,6 @@ class Network
 			'cookiejar'=>$cookiejar
 			]
 		);
-
-		return($ret['body']);
 	}
 
 	/**
