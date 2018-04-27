@@ -20,7 +20,8 @@ use dba;
 
 require_once 'include/items.php';
 
-class Delivery extends BaseObject {
+class Delivery extends BaseObject
+{
 	const MAIL =       'mail';
 	const SUGGESTION = 'suggest';
 	const RELOCATION = 'relocate';
@@ -28,7 +29,8 @@ class Delivery extends BaseObject {
 	const POST =       'wall-new';
 	const COMMENT =    'comment-new';
 
-	public static function execute($cmd, $item_id, $contact_id) {
+	public static function execute($cmd, $item_id, $contact_id)
+	{
 		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, LOGGER_DEBUG);
 
 		$top_level = false;
