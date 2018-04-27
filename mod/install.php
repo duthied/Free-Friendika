@@ -303,12 +303,13 @@ function install_content(App $a) {
  * required : boolean
  * help		: string optional
  */
-function check_add(&$checks, $title, $status, $required, $help) {
+function check_add(&$checks, $title, $status, $required, $help, $error_msg = "") {
 	$checks[] = [
 		'title' => $title,
 		'status' => $status,
 		'required' => $required,
 		'help'	=> $help,
+		'error_msg' => $error_msg,
 	];
 }
 
@@ -489,18 +490,24 @@ function check_smarty3(&$checks) {
 function check_htaccess(&$checks) {
 	$status = true;
 	$help = "";
+	$error_msg = "";
 	if (function_exists('curl_init')) {
-		$test = Network::fetchUrl(System::baseUrl()."/install/testrewrite");
+		$test = Network::fetchUrlFull(System::baseUrl()."/install/testrewrite");
 
-		if ($test != "ok") {
-			$test = Network::fetchUrl(normalise_link(System::baseUrl()."/install/testrewrite"));
+		$url = normalise_link(System::baseUrl()."/install/testrewrite");
+		if ($test['body'] != "ok") {
+			$test = Network::fetchUrlFull($url);
 		}
 
-		if ($test != "ok") {
+		if ($test['body'] != "ok") {
 			$status = false;
 			$help = L10n::t('Url rewrite in .htaccess is not working. Check your server configuration.');
+			$error_msg = [];
+			$error_msg['head'] = L10n::t('Error message from Curl when fetching');
+			$error_msg['url'] = $test['redirect_url'];
+			$error_msg['msg'] = $test['error'];
 		}
-		check_add($checks, L10n::t('Url rewrite is working'), $status, true, $help);
+		check_add($checks, L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
 	} else {
 		// cannot check modrewrite if libcurl is not installed
 		/// @TODO Maybe issue warning here?
