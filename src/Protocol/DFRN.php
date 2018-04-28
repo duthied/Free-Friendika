@@ -2799,10 +2799,6 @@ class DFRN
 				return true;
 			}
 		} else { // $entrytype == DFRN_TOP_LEVEL
-			if ($importer["readonly"]) {
-				logger('ignoring read-only contact '.$importer["id"]);
-				return;
-			}
 			if (($importer["uid"] == 0) && ($importer["importer_uid"] != 0)) {
 				logger("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", LOGGER_DEBUG);
 				return;

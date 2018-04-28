@@ -1151,7 +1151,7 @@ class Diaspora
 		//}
 
 		// We don't seem to like that person
-		if ($contact["blocked"] || $contact["readonly"]) {
+		if ($contact["blocked"]) {
 			// Maybe blocked, don't accept.
 			return false;
 			// We are following this person?
