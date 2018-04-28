@@ -513,7 +513,7 @@ function load_view_file($s) {
 		return $content;
 	}
 
-	$theme = current_theme();
+	$theme = $a->getCurrentTheme();
 
 	if (file_exists("$d/theme/$theme/$b")) {
 		$stamp1 = microtime(true);

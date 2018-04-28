@@ -21,12 +21,12 @@ function load_page(App $a)
 	} elseif ((isset($_GET['mode']) && ($_GET['mode'] == 'none'))) {
 		require 'view/theme/frio/none.php';
 	} else {
-		$template = 'view/theme/' . current_theme() . '/'
+		$template = 'view/theme/' . $a->getCurrentTheme() . '/'
 			. ((x($a->page, 'template')) ? $a->page['template'] : 'default' ) . '.php';
 		if (file_exists($template)) {
 			require_once $template;
 		} else {
-			require_once str_replace('theme/' . current_theme() . '/', '', $template);
+			require_once str_replace('theme/' . $a->getCurrentTheme() . '/', '', $template);
 		}
 	}
 }

@@ -62,7 +62,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 			$root = $root . '/';
 		}
 
-		$theme = current_theme();
+		$theme = $a->getCurrentTheme();
 		$filename = $template::SMARTY3_TEMPLATE_FOLDER . '/' . $file;
 
 		if (file_exists("{$root}view/theme/$theme/$filename")) {

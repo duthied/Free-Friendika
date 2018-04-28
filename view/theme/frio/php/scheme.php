@@ -19,9 +19,11 @@
  */
 use Friendica\Core\PConfig;
 
+require_once 'boot.php';
+
 function get_scheme_info($scheme)
 {
-	$theme = current_theme();
+	$theme = get_app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
 	$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'scheme'));
 

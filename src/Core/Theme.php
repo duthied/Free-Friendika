@@ -162,7 +162,7 @@ class Theme
 		} else {
 			$parent = 'NOPATH';
 		}
-		$theme = current_theme();
+		$theme = get_app()->getCurrentTheme();
 		$thname = $theme;
 		$ext = substr($file, strrpos($file, '.') + 1);
 		$paths = [
