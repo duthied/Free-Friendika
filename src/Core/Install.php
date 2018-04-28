@@ -5,6 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
+use Friendica\App;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
@@ -18,7 +19,7 @@ use DOMDocument;
 class Install extends BaseObject
 {
 	public static function setInstallMode() {
-		self::getApp()->mode = APP_MODE_INSTALL;
+		self::getApp()->mode = App::MODE_INSTALL;
 	}
 
 	public static function check($phpath = 'php')

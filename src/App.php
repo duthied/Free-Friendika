@@ -14,10 +14,6 @@ use Detection\MobileDetect;
 
 use Exception;
 
-define ('APP_MODE_NORMAL', 0);
-define ('APP_MODE_INSTALL', 1);
-define ('APP_MODE_MAINTENANCE', 2);
-
 require_once 'boot.php';
 require_once 'include/text.php';
 
@@ -36,6 +32,10 @@ require_once 'include/text.php';
  */
 class App
 {
+	const MODE_NORMAL = 0;
+	const MODE_INSTALL = 1;
+	const MODE_MAINTENANCE = 2;
+
 	public $module_loaded = false;
 	public $module_class = null;
 	public $query_string;
@@ -56,7 +56,7 @@ class App
 	public $argv;
 	public $argc;
 	public $module;
-	public $mode = APP_MODE_NORMAL;
+	public $mode = App::MODE_NORMAL;
 	public $pager;
 	public $strings;
 	public $basepath;
@@ -298,7 +298,7 @@ class App
 		 * Ignore errors. If the file doesn't exist or is empty, we are running in
 		 * installation mode.	 *
 		 */
-		$this->mode = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? APP_MODE_NORMAL : APP_MODE_INSTALL);
+		$this->mode = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? App::MODE_NORMAL : App::MODE_INSTALL);
 
 
 		self::$a = $this;
@@ -1079,5 +1079,20 @@ class App
 		}
 
 		return $sender_email;
+	}
+
+	/**
+	 * @note Checks, if the App is in the Maintenance-Mode
+	 *
+	 * @return boolean
+	 */
+	public function checkMaintenanceMode()
+	{
+		if (Config::get('system', 'maintenance')) {
+			$this->mode = App::MODE_MAINTENANCE;
+			return true;
+		}
+
+		return false;
 	}
 }

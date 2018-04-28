@@ -32,7 +32,7 @@ BaseObject::setApp($a);
 $a->backend = false;
 
 // Only load config if found, don't suppress errors
-if (!$a->mode == APP_MODE_INSTALL) {
+if (!$a->mode == App::MODE_INSTALL) {
 	include ".htconfig.php";
 }
 
@@ -42,7 +42,7 @@ if (!$a->mode == APP_MODE_INSTALL) {
 
 require_once "include/dba.php";
 
-if (!$a->mode == APP_MODE_INSTALL) {
+if (!$a->mode == App::MODE_INSTALL) {
 	$result = dba::connect($db_host, $db_user, $db_pass, $db_data);
 	unset($db_host, $db_user, $db_pass, $db_data);
 
@@ -77,7 +77,7 @@ if (!$a->mode == APP_MODE_INSTALL) {
 	Addon::loadHooks();
 	Addon::callHooks('init_1');
 
-	$a->mode = ((Config::get('system', 'maintenance')) ? APP_MODE_MAINTENANCE : APP_MODE_NORMAL);
+	$a->checkMaintenanceMode();
 }
 
 $lang = L10n::getBrowserLanguage();
@@ -121,7 +121,7 @@ if ((x($_SESSION, 'language')) && ($_SESSION['language'] !== $lang)) {
 	L10n::loadTranslationTable($lang);
 }
 
-if ((x($_GET, 'zrl')) && $a->mode == APP_MODE_NORMAL) {
+if ((x($_GET, 'zrl')) && $a->mode == App::MODE_NORMAL) {
 	// Only continue when the given profile link seems valid
 	// Valid profile links contain a path with "/profile/" and no query parameters
 	if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "")
@@ -173,9 +173,9 @@ $_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 
 // in install mode, any url loads install module
 // but we need "view" module for stylesheet
-if ($a->mode == APP_MODE_INSTALL && $a->module!="view") {
+if ($a->mode == App::MODE_INSTALL && $a->module!="view") {
 	$a->module = 'install';
-} elseif ($a->mode == APP_MODE_MAINTENANCE && $a->module!="view") {
+} elseif ($a->mode == App::MODE_MAINTENANCE && $a->module!="view") {
 	$a->module = 'maintenance';
 } else {
 	check_url($a);
@@ -334,7 +334,7 @@ if (! x($a->page, 'content')) {
 	$a->page['content'] = '';
 }
 
-if ($a->mode == APP_MODE_NORMAL) {
+if ($a->mode == App::MODE_NORMAL) {
 	Addon::callHooks('page_content_top', $a->page['content']);
 }
 

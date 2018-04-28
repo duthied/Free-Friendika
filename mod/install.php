@@ -51,7 +51,7 @@ function install_post(App $a) {
 			$phpath = notags(trim($_POST['phpath']));
 
 			require_once("include/dba.php");
-			if (!dba::connect($dbhost, $dbuser, $dbpass, $dbdata, true)) {
+			if (!dba::connect($dbhost, $dbuser, $dbpass, $dbdata)) {
 				$a->data['db_conn_failed'] = true;
 			}
 
@@ -70,7 +70,7 @@ function install_post(App $a) {
 			$rino = 1;
 
 			// connect to db
-			dba::connect($dbhost, $dbuser, $dbpass, $dbdata, true);
+			dba::connect($dbhost, $dbuser, $dbpass, $dbdata);
 
 			Install::install($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail, $rino);
 

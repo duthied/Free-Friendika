@@ -137,7 +137,7 @@ HELP;
 		);
 
 
-		if (!dba::connect($db_host, $db_user, $db_pass, $db_data, true)) {
+		if (!dba::connect($db_host, $db_user, $db_pass, $db_data)) {
 			$result['status'] = false;
 			$result['help'] = 'Failed, please check your MySQL settings and credentials.';
 		}
