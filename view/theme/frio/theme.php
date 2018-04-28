@@ -18,7 +18,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 
-$frio = "view/theme/frio";
+$frio = 'view/theme/frio';
 
 global $frio;
 
@@ -34,21 +34,21 @@ function frio_init(App $a)
 
 	$style = PConfig::get(local_user(), 'frio', 'style');
 
-	$frio = "view/theme/frio";
+	$frio = 'view/theme/frio';
 
 	global $frio;
 
 	// if the device is a mobile device set js is_mobile
 	// variable so the js scripts can use this information
 	if ($a->is_mobile || $a->is_tablet) {
-		$a->page["htmlhead"] .= <<< EOT
+		$a->page['htmlhead'] .= <<< EOT
 			<script type="text/javascript">
 				var is_mobile = 1;
 			</script>
 EOT;
 	}
 
-	if ($style == "") {
+	if ($style == '') {
 		$style = Config::get('frio', 'style');
 	}
 }
@@ -62,7 +62,7 @@ function frio_install()
 	Addon::registerHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
 	Addon::registerHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
-	logger("installed theme frio");
+	logger('installed theme frio');
 }
 
 function frio_uninstall()
@@ -74,7 +74,7 @@ function frio_uninstall()
 	Addon::unregisterHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
 	Addon::unregisterHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
-	logger("uninstalled theme frio");
+	logger('uninstalled theme frio');
 }
 
 /**
@@ -92,26 +92,26 @@ function frio_uninstall()
 function frio_item_photo_links(App $a, &$body_info)
 {
 	$occurence = 0;
-	$p = Plaintext::getBoundariesPosition($body_info['html'], "<a", ">");
+	$p = Plaintext::getBoundariesPosition($body_info['html'], '<a', '>');
 	while ($p !== false && ($occurence++ < 500)) {
 		$link = substr($body_info['html'], $p['start'], $p['end'] - $p['start']);
 		$matches = [];
 
-		preg_match("/\/photos\/[\w]+\/image\/([\w]+)/", $link, $matches);
+		preg_match('/\/photos\/[\w]+\/image\/([\w]+)/', $link, $matches);
 		if ($matches) {
 			// Replace the link for the photo's page with a direct link to the photo itself
 			$newlink = str_replace($matches[0], "/photo/{$matches[1]}", $link);
 
 			// Add a "quiet" parameter to any redir links to prevent the "XX welcomes YY" info boxes
-			$newlink = preg_replace("/href=\"([^\"]+)\/redir\/([^\"]+)&url=([^\"]+)\"/", 'href="$1/redir/$2&quiet=1&url=$3"', $newlink);
+			$newlink = preg_replace('/href="([^"]+)\/redir\/([^"]+)&url=([^"]+)"/', 'href="$1/redir/$2&quiet=1&url=$3"', $newlink);
 
 			// Having any arguments to the link for Colorbox causes it to fetch base64 code instead of the image
-			$newlink = preg_replace("/\/[?&]zrl=([^&\"]+)/", '', $newlink);
+			$newlink = preg_replace('/\/[?&]zrl=([^&"]+)/', '', $newlink);
 
 			$body_info['html'] = str_replace($link, $newlink, $body_info['html']);
 		}
 
-		$p = Plaintext::getBoundariesPosition($body_info['html'], "<a", ">", $occurence);
+		$p = Plaintext::getBoundariesPosition($body_info['html'], '<a', '>', $occurence);
 	}
 }
 
@@ -127,10 +127,10 @@ function frio_item_photo_links(App $a, &$body_info)
  */
 function frio_item_photo_menu(App $a, &$arr)
 {
-	foreach ($arr["menu"] as $k => $v) {
+	foreach ($arr['menu'] as $k => $v) {
 		if (strpos($v, 'poke/?f=&c=') === 0 || strpos($v, 'message/new/') === 0) {
-			$v = "javascript:addToModal('" . $v . "'); return false;";
-			$arr["menu"][$k] = $v;
+			$v = 'javascript:addToModal(\'' . $v . '\'); return false;';
+			$arr['menu'][$k] = $v;
 		}
 	}
 }
@@ -149,9 +149,9 @@ function frio_item_photo_menu(App $a, &$arr)
  */
 function frio_contact_photo_menu(App $a, &$args)
 {
-	$cid = $args["contact"]["id"];
-	$pokelink = $args["menu"]["poke"][1];
-	$pmlink = $args["menu"]["pm"][1];
+	$cid = $args['contact']['id'];
+	$pokelink = $args['menu']['poke'][1];
+	$pmlink = $args['menu']['pm'][1];
 
 	// Set the the indicator for opening the status, profile and photo pages
 	// in a new tab to false if the contact a dfrn (friendica) contact
@@ -160,12 +160,12 @@ function frio_contact_photo_menu(App $a, &$args)
 	// friendica servers as remote user or visitor
 	//
 	// The value for opening in a new tab is e.g. when
-	// $args["menu"]["status"][2] is true. If the value of the [2] key is true
+	// $args['menu']['status'][2] is true. If the value of the [2] key is true
 	// and if it's a friendica contact we set it to false
-	foreach ($args["menu"] as $k => $v) {
-		if ($k === "status" || $k === "profile" || $k === "photos") {
-			$v[2] = (($args["contact"]["network"] === "dfrn") ? false : true);
-			$args["menu"][$k][2] = $v[2];
+	foreach ($args['menu'] as $k => $v) {
+		if ($k === 'status' || $k === 'profile' || $k === 'photos') {
+			$v[2] = (($args['contact']['network'] === 'dfrn') ? false : true);
+			$args['menu'][$k][2] = $v[2];
 		}
 	}
 
@@ -173,11 +173,11 @@ function frio_contact_photo_menu(App $a, &$args)
 	// Later we can make conditions in the corresponing templates (e.g.
 	// contact_template.tpl)
 	if (strpos($pokelink, 'poke/?f=&c=' . $cid) !== false) {
-		$args["menu"]["poke"][3] = "modal";
+		$args['menu']['poke'][3] = 'modal';
 	}
 
 	if (strpos($pmlink, 'message/new/' . $cid) !== false) {
-		$args["menu"]["pm"][3] = "modal";
+		$args['menu']['pm'][3] = 'modal';
 	}
 }
 
@@ -231,43 +231,43 @@ function frio_remote_nav($a, &$nav)
 		// user info
 		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self`", intval($a->user['uid']));
 
-		$r[0]['photo'] = (DBM::is_result($r) ? $a->remove_baseurl($r[0]['micro']) : "images/person-48.jpg");
+		$r[0]['photo'] = (DBM::is_result($r) ? $a->remove_baseurl($r[0]['micro']) : 'images/person-48.jpg');
 		$r[0]['name'] = $a->user['username'];
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
-		$nav['remote'] = L10n::t("Guest");
+		$nav['remote'] = L10n::t('Guest');
 	} elseif (Profile::getMyURL()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			dbesc($webbie));
-		$nav['remote'] = L10n::t("Visitor");
+		$nav['remote'] = L10n::t('Visitor');
 	} else {
 		$r = false;
 	}
 
 	if (DBM::is_result($r)) {
 		$nav['userinfo'] = [
-			'icon' => (DBM::is_result($r) ? $r[0]['photo'] : "images/person-48.jpg"),
+			'icon' => (DBM::is_result($r) ? $r[0]['photo'] : 'images/person-48.jpg'),
 			'name' => $r[0]['name'],
 		];
 	}
 
 	if (!local_user() && !empty($server_url)) {
-		$nav['logout'] = [$server_url . '/logout', L10n::t('Logout'), "", L10n::t('End this session')];
+		$nav['logout'] = [$server_url . '/logout', L10n::t('Logout'), '', L10n::t('End this session')];
 
 		// user menu
-		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'], L10n::t('Status'), "", L10n::t('Your posts and conversations')];
-		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'] . '?tab=profile', L10n::t('Profile'), "", L10n::t('Your profile page')];
-		$nav['usermenu'][] = [$server_url . '/photos/' . $a->user['nickname'], L10n::t('Photos'), "", L10n::t('Your photos')];
-		$nav['usermenu'][] = [$server_url . '/videos/' . $a->user['nickname'], L10n::t('Videos'), "", L10n::t('Your videos')];
-		$nav['usermenu'][] = [$server_url . '/events/', L10n::t('Events'), "", L10n::t('Your events')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
+		$nav['usermenu'][] = [$server_url . '/photos/' . $a->user['nickname'], L10n::t('Photos'), '', L10n::t('Your photos')];
+		$nav['usermenu'][] = [$server_url . '/videos/' . $a->user['nickname'], L10n::t('Videos'), '', L10n::t('Your videos')];
+		$nav['usermenu'][] = [$server_url . '/events/', L10n::t('Events'), '', L10n::t('Your events')];
 
 		// navbar links
-		$nav['network'] = [$server_url . '/network', L10n::t('Network'), "", L10n::t('Conversations from your friends')];
-		$nav['events'] = [$server_url . '/events', L10n::t('Events'), "", L10n::t('Events and Calendar')];
-		$nav['messages'] = [$server_url . '/message', L10n::t('Messages'), "", L10n::t('Private mail')];
-		$nav['settings'] = [$server_url . '/settings', L10n::t('Settings'), "", L10n::t('Account settings')];
-		$nav['contacts'] = [$server_url . '/contacts', L10n::t('Contacts'), "", L10n::t('Manage/edit friends and contacts')];
+		$nav['network'] = [$server_url . '/network', L10n::t('Network'), '', L10n::t('Conversations from your friends')];
+		$nav['events'] = [$server_url . '/events', L10n::t('Events'), '', L10n::t('Events and Calendar')];
+		$nav['messages'] = [$server_url . '/message', L10n::t('Messages'), '', L10n::t('Private mail')];
+		$nav['settings'] = [$server_url . '/settings', L10n::t('Settings'), '', L10n::t('Account settings')];
+		$nav['contacts'] = [$server_url . '/contacts', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
 		$nav['sitename'] = $a->config['sitename'];
 	}
 }
@@ -289,17 +289,17 @@ function frio_acl_lookup(App $a, &$results)
 {
 	require_once 'mod/contacts.php';
 
-	$nets = x($_GET, "nets") ? notags(trim($_GET["nets"])) : "";
+	$nets = x($_GET, 'nets') ? notags(trim($_GET['nets'])) : '';
 
 	// we introduce a new search type, r should do the same query like it's
 	// done in /mod/contacts for connections
-	if ($results["type"] !== "r") {
+	if ($results['type'] !== 'r') {
 		return;
 	}
 
 	$sql_extra = '';
-	if ($results["search"]) {
-		$search_txt = dbesc(protect_sprintf(preg_quote($results["search"])));
+	if ($results['search']) {
+		$search_txt = dbesc(protect_sprintf(preg_quote($results['search'])));
 		$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";
 	}
 
@@ -311,7 +311,7 @@ function frio_acl_lookup(App $a, &$results)
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
 	if (DBM::is_result($r)) {
-		$total = $r[0]["total"];
+		$total = $r[0]['total'];
 	}
 
 	$sql_extra3 = Widget::unavailableNetworks();
@@ -328,8 +328,8 @@ function frio_acl_lookup(App $a, &$results)
 		}
 	}
 
-	$results["items"] = $contacts;
-	$results["tot"] = $total;
+	$results['items'] = $contacts;
+	$results['tot'] = $total;
 }
 
 /**

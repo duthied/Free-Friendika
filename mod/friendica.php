@@ -116,14 +116,14 @@ function friendica_content(App $a)
 	} else {
 		$o .= '<p>' . L10n::t('No installed addons/apps') . '</p>' . PHP_EOL;
 	}
-	
+
 	if (Config::get('system', 'tosdisplay'))
 	{
 		$o .= '<p>'.L10n::t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', System::baseurl()).'</p>';
 	}
 
-	$blocklist = Config::get('system', 'blocklist');
-	if (count($blocklist)) {
+	$blocklist = Config::get('system', 'blocklist', []);
+	if (!empty($blocklist)) {
 		$o .= '<div id="about_blocklist"><p>' . L10n::t('On this server the following remote servers are blocked.') . '</p>' . PHP_EOL;
 		$o .= '<table class="table"><thead><tr><th>' . L10n::t('Blocked domain') . '</th><th>' . L10n::t('Reason for the block') . '</th></thead><tbody>' . PHP_EOL;
 		foreach ($blocklist as $b) {

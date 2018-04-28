@@ -1411,18 +1411,13 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 function apply_content_filter($html, array $reasons)
 {
 	if (count($reasons)) {
-		$rnd = random_string(8);
-		$content_filter_html = '<ul class="content-filter-reasons">';
-		foreach ($reasons as $reason) {
-			$content_filter_html .= '<li>' . htmlspecialchars($reason) . '</li>' . PHP_EOL;
-		}
-		$content_filter_html .= '</ul>
-			<p><span id="content-filter-wrap-' . $rnd . '" class="fakelink content-filter-button" onclick=openClose(\'content-filter-' . $rnd . '\'); >' .
-			L10n::t('Click to open/close') .
-			'</span></p>
-			<div id="content-filter-' . $rnd . '" class="content-filter-content" style="display: none;">';
-
-		$html = $content_filter_html . $html . '</div>';
+		$tpl = get_markup_template('wall/content_filter.tpl');
+		$html = replace_macros($tpl, [
+			'$reasons'   => $reasons,
+			'$rnd'       => random_string(8),
+			'$openclose' => L10n::t('Click to open/close'),
+			'$html'      => $html
+		]);
 	}
 
 	return $html;

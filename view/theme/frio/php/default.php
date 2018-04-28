@@ -26,40 +26,43 @@ if (!isset($minimal)) {
 		<script  type="text/javascript">var baseurl = "<?php echo System::baseUrl(); ?>";</script>
 		<script type="text/javascript">var frio = "<?php echo 'view/theme/frio'; ?>";</script>
 <?php
-	$baseurl = System::baseUrl();
-	$frio = "view/theme/frio";
-	// Because we use minimal for modals the header and the included js stuff should be only loaded
-	// if the page is an standard page (so we don't have it twice for modals)
-	//
-	/// @todo Think about to move js stuff in the footer
-	if (!$minimal && x($page, 'htmlhead')) {
-		echo $page['htmlhead'];
-	}
-	// Add the theme color meta
-	// It makes mobile Chrome UI match Frio's top bar color.
-	$uid = $a->profile_uid;
-	if (is_null($uid)) {
-		$uid = Profile::getThemeUid();
-	}
-	$schema = PConfig::get($uid, 'frio', 'schema');
-	if (($schema) && ($schema != '---')) {
-		if (file_exists('view/theme/frio/schema/' . $schema . '.php')) {
-			$schemefile = 'view/theme/frio/schema/' . $schema . '.php';
-			require_once $schemefile;
-		}
-	} else {
-		$nav_bg = PConfig::get($uid, 'frio', 'nav_bg');
-	}
-	if (!$nav_bg) {
-		$nav_bg = "#708fa0";
-	}
-	echo '
-		<meta name="theme-color" content="' . $nav_bg . '" />';
+		$basepath = $a->path ? "/" . $a->path . "/" : "/";
+		$frio = "view/theme/frio";
 
-	$is_singleuser = Config::get('system','singleuser');
-	$is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
+		// Because we use minimal for modals the header and the included js stuff should be only loaded
+		// if the page is an standard page (so we don't have it twice for modals)
+		//
+		/// @todo Think about to move js stuff in the footer
+		if (!$minimal && x($page, 'htmlhead')) {
+			echo $page['htmlhead'];
+		}
+
+		// Add the theme color meta
+		// It makes mobile Chrome UI match Frio's top bar color.
+		$uid = $a->profile_uid;
+		if (is_null($uid)) {
+			$uid = Profile::getThemeUid();
+		}
+		$scheme = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
+		if (($scheme) && ($scheme != '---')) {
+			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
+				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
+				require_once $schemefile;
+			}
+		} else {
+			$nav_bg = PConfig::get($uid, 'frio', 'nav_bg');
+		}
+		if (!$nav_bg) {
+			$nav_bg = "#708fa0";
+		}
+		echo '
+			<meta name="theme-color" content="' . $nav_bg . '" />';
+
+		$is_singleuser = Config::get('system','singleuser');
+		$is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 	</head>
+
 	<body id="top" class="mod-<?php echo $a->module." ".$is_singleuser_class;?>">
 		<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
@@ -90,8 +93,8 @@ if (!isset($minimal)) {
 			<div class="container">
 				<div class="row">
 <?php
-					if ((!x($_REQUEST, 'pagename') || $_REQUEST['pagename'] != "lostpass") && ($_SERVER['REQUEST_URI'] != "/")) {
-						echo '
+				if ((!x($_REQUEST, 'pagename') || $_REQUEST['pagename'] != "lostpass") && ($_SERVER['REQUEST_URI'] != $basepath)) {
+					echo '
 					<aside class="col-lg-3 col-md-3 offcanvas-sm offcanvas-xs">';
 
 						if (x($page, 'aside')) {
@@ -107,18 +110,18 @@ if (!isset($minimal)) {
 
 					<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12" id="content">
 						<section class="sectiontop ';
-						echo $a->argv[0];
-						echo '-content-wrapper">';
-						if (x($page, 'content')) {
-							echo $page['content'];
-						}
-						echo '
-								<div id="pause"></div> <!-- The pause/resume Ajax indicator -->
+							echo $a->argv[0];
+							echo '-content-wrapper">';
+							if (x($page, 'content')) {
+								echo $page['content'];
+							}
+							echo '
+							<div id="pause"></div> <!-- The pause/resume Ajax indicator -->
 						</section>
 					</div>
 						';
-					} else {
-						echo '
+				} else {
+					echo '
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="content" style="margin-top:50px;">';
 						if (x($page, 'content')) {
 							echo $page['content'];
@@ -126,7 +129,7 @@ if (!isset($minimal)) {
 						echo '
 					</div>
 					';
-					}
+				}
 ?>
 				</div><!--row-->
 			</div><!-- container -->

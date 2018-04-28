@@ -92,14 +92,14 @@ class Profile
 	{
 		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname]);
 
-		if (!$user && !count($user) && !count($profiledata)) {
+		if (!DBM::is_result($user) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice(L10n::t('Requested account is not available.') . EOL);
 			$a->error = 404;
 			return;
 		}
 
-		if (!x($a->page, 'aside')) {
+		if (empty($a->page['aside'])) {
 			$a->page['aside'] = '';
 		}
 
@@ -155,10 +155,6 @@ class Profile
 		$theme_info_file = 'view/theme/' . current_theme() . '/theme.php';
 		if (file_exists($theme_info_file)) {
 			require_once $theme_info_file;
-		}
-
-		if (!x($a->page, 'aside')) {
-			$a->page['aside'] = '';
 		}
 
 		if (local_user() && local_user() == $a->profile['uid'] && $profiledata) {
@@ -644,26 +640,26 @@ class Profile
 		$classtoday = '';
 
 		$s = dba::p(
-			"SELECT *
+			"SELECT `event`.*
 			FROM `event`
-			WHERE `event`.`uid` = ?
-			AND  `event`.`type` != 'birthday'
-			AND  `event`.`start` < ?
-			AND  `event`.`start` >= ?
-			AND NOT EXISTS (
-				SELECT `id`
-				FROM `item`
-				WHERE `item`.`uid` = `event`.`uid`
+			INNER JOIN `item`
+				ON `item`.`uid` = `event`.`uid`
 				AND `item`.`parent-uri` = `event`.`uri`
-				AND `item`.`verb` = ?
-				AND `item`.`visible`
-				AND NOT `item`.`deleted`
-			)
+			WHERE `event`.`uid` = ?
+			AND `event`.`type` != 'birthday'
+			AND `event`.`start` < ?
+			AND `event`.`start` >= ?
+			AND `item`.`author-id` = ?
+			AND (`item`.`verb` = ? OR `item`.`verb` = ?)
+			AND `item`.`visible`
+			AND NOT `item`.`deleted`
 			ORDER BY  `event`.`start` ASC",
 			local_user(),
 			DateTimeFormat::utc('now + 7 days'),
 			DateTimeFormat::utc('now - 1 days'),
-			ACTIVITY_ATTENDNO
+			public_contact(),
+			ACTIVITY_ATTEND,
+			ACTIVITY_ATTENDMAYBE
 		);
 
 		$r = [];
@@ -954,7 +950,7 @@ class Profile
 			];
 		}
 
-		if ((!$is_owner) && ((count($a->profile)) || (!$a->profile['hide-friends']))) {
+		if (!$is_owner && empty($a->profile['hide-friends'])) {
 			$tabs[] = [
 				'label' => L10n::t('Contacts'),
 				'url'   => System::baseUrl() . '/viewcontacts/' . $nickname,

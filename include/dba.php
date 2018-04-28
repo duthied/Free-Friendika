@@ -860,12 +860,15 @@ class dba {
 	 *
 	 * @param string  $table       Table name
 	 * @param array   $conditions  Field condition(s)
+	 * @param array   $options
+	 *                - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 *                           relations (default: true)
 	 * @param boolean $in_process  Internal use: Only do a commit after the last delete
 	 * @param array   $callstack   Internal use: prevent endless loops
 	 *
 	 * @return boolean|array was the delete successful? When $in_process is set: deletion data
 	 */
-	public static function delete($table, array $conditions, $in_process = false, array &$callstack = [])
+	public static function delete($table, array $conditions, array $options = [], $in_process = false, array &$callstack = [])
 	{
 		if (empty($table) || empty($conditions)) {
 			logger('Table and conditions have to be set');
@@ -888,13 +891,15 @@ class dba {
 
 		$commands[$key] = ['table' => $table, 'conditions' => $conditions];
 
+		$cascade = defaults($options, 'cascade', true);
+
 		// To speed up the whole process we cache the table relations
-		if (count(self::$relation) == 0) {
+		if ($cascade && count(self::$relation) == 0) {
 			self::buildRelationData();
 		}
 
 		// Is there a relation entry for the table?
-		if (isset(self::$relation[$table])) {
+		if ($cascade && isset(self::$relation[$table])) {
 			// We only allow a simple "one field" relation.
 			$field = array_keys(self::$relation[$table])[0];
 			$rel_def = array_values(self::$relation[$table])[0];
@@ -907,7 +912,7 @@ class dba {
 			if ((count($conditions) == 1) && ($field == array_keys($conditions)[0])) {
 				foreach ($rel_def AS $rel_table => $rel_fields) {
 					foreach ($rel_fields AS $rel_field) {
-						$retval = self::delete($rel_table, [$rel_field => array_values($conditions)[0]], true, $callstack);
+						$retval = self::delete($rel_table, [$rel_field => array_values($conditions)[0]], $options, true, $callstack);
 						$commands = array_merge($commands, $retval);
 					}
 				}
@@ -921,7 +926,7 @@ class dba {
 
 				while ($row = self::fetch($data)) {
 					// Now we accumulate the delete commands
-					$retval = self::delete($table, [$field => $row[$field]], true, $callstack);
+					$retval = self::delete($table, [$field => $row[$field]], $options, true, $callstack);
 					$commands = array_merge($commands, $retval);
 				}
 
@@ -968,7 +973,7 @@ class dba {
 					// Split the SQL queries in chunks of 100 values
 					// We do the $i stuff here to make the code better readable
 					$i = $counter[$key_table][$key_condition];
-					if (count($compacted[$key_table][$key_condition][$i]) > 100) {
+					if (isset($compacted[$key_table][$key_condition][$i]) && count($compacted[$key_table][$key_condition][$i]) > 100) {
 						++$i;
 					}
 

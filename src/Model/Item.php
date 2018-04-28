@@ -7,6 +7,7 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Content\Text;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -839,6 +840,101 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Distributes public items to the receivers
+	 *
+	 * @param integer $itemid Item ID that should be added
+	 */
+	public static function distribute($itemid)
+	{
+		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
+		$parent = dba::selectFirst('item', ['owner-id'], $condition);
+		if (!DBM::is_result($parent)) {
+			return;
+		}
+
+		// Only distribute public items from native networks
+		$condition = ['id' => $itemid, 'uid' => 0,
+			'network' => [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""],
+			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
+		$item = dba::selectFirst('item', [], ['id' => $itemid]);
+		if (!DBM::is_result($item)) {
+			return;
+		}
+
+		unset($item['id']);
+		unset($item['parent']);
+		unset($item['mention']);
+		unset($item['wall']);
+		unset($item['origin']);
+		unset($item['starred']);
+		unset($item['rendered-hash']);
+		unset($item['rendered-html']);
+
+		$users = [];
+
+		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND NOT `readonly` AND `rel` IN (?, ?)",
+			$parent['owner-id'], CONTACT_IS_SHARING,  CONTACT_IS_FRIEND];
+		$contacts = dba::select('contact', ['uid'], $condition);
+		while ($contact = dba::fetch($contacts)) {
+			$users[$contact['uid']] = $contact['uid'];
+		}
+
+		if ($item['uri'] != $item['parent-uri']) {
+			$parents = dba::select('item', ['uid'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+			while ($parent = dba::fetch($parents)) {
+				$users[$parent['uid']] = $parent['uid'];
+			}
+		}
+
+		foreach ($users as $uid) {
+			self::storeForUser($itemid, $item, $uid);
+		}
+	}
+
+	/**
+	 * @brief Store public items for the receivers
+	 *
+	 * @param integer $itemid Item ID that should be added
+	 * @param array   $item   The item entry that will be stored
+	 * @param integer $uid    The user that will receive the item entry
+	 */
+	private static function storeForUser($itemid, $item, $uid)
+	{
+		$item['uid'] = $uid;
+		$item['origin'] = 0;
+		$item['wall'] = 0;
+		if ($item['uri'] == $item['parent-uri']) {
+			$item['contact-id'] = Contact::getIdForURL($item['owner-link'], $uid);
+		} else {
+			$item['contact-id'] = Contact::getIdForURL($item['author-link'], $uid);
+		}
+
+		if (empty($item['contact-id'])) {
+			$self = dba::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
+			if (!DBM::is_result($self)) {
+				return;
+			}
+			$item['contact-id'] = $self['id'];
+		}
+
+		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
+			$item['type'] = 'remote-comment';
+		} elseif ($item['type'] == 'wall') {
+			$item['type'] = 'remote';
+		}
+
+		/// @todo Handling of "event-id"
+
+		$distributed = self::insert($item, false, false, true);
+
+		if (!$distributed) {
+			logger("Distributed public item " . $itemid . " for user " . $uid . " wasn't stored", LOGGER_DEBUG);
+		} else {
+			logger("Distributed public item " . $itemid . " for user " . $uid . " with id " . $distributed, LOGGER_DEBUG);
+		}
+	}
+
+	/**
 	 * @brief Add a shadow entry for a given item id that is a thread starter
 	 *
 	 * We store every public item entry additionally with the user id "0".
@@ -849,8 +945,8 @@ class Item extends BaseObject
 	 */
 	public static function addShadow($itemid)
 	{
-		$fields = ['uid', 'wall', 'private', 'moderated', 'visible', 'contact-id', 'deleted', 'network', 'author-id', 'owner-id'];
-		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
+		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network'];
+		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
 		$item = dba::selectFirst('item', $fields, $condition);
 
 		if (!DBM::is_result($item)) {
@@ -872,35 +968,22 @@ class Item extends BaseObject
 			return;
 		}
 
-		// Only do these checks if the post isn't a wall post
-		if (!$item["wall"]) {
-			// Check, if hide-friends is activated - then don't do a shadow entry
-			if (dba::exists('profile', ['is-default' => true, 'uid' => $item['uid'], 'hide-friends' => true])) {
-				return;
-			}
-
-			// Check if the contact is hidden or blocked
-			if (!dba::exists('contact', ['hidden' => false, 'blocked' => false, 'id' => $item['contact-id']])) {
-				return;
-			}
-		}
-
-		// Only add a shadow, if the profile isn't hidden
-		if (dba::exists('user', ['uid' => $item['uid'], 'hidewall' => true])) {
-			return;
-		}
-
 		$item = dba::selectFirst('item', [], ['id' => $itemid]);
 
-		if (DBM::is_result($item) && ($item["allow_cid"] == '')  && ($item["allow_gid"] == '') &&
+		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
 			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
 
 			if (!dba::exists('item', ['uri' => $item['uri'], 'uid' => 0])) {
 				// Preparing public shadow (removing user specific data)
-				unset($item['id']);
 				$item['uid'] = 0;
-				$item['origin'] = 0;
-				$item['wall'] = 0;
+				unset($item['id']);
+				unset($item['parent']);
+				unset($item['wall']);
+				unset($item['mention']);
+				unset($item['origin']);
+				unset($item['starred']);
+				unset($item['rendered-hash']);
+				unset($item['rendered-html']);
 				if ($item['uri'] == $item['parent-uri']) {
 					$item['contact-id'] = Contact::getIdForURL($item['owner-link']);
 				} else {
@@ -954,11 +1037,20 @@ class Item extends BaseObject
 			return;
 		}
 
+		// Save "origin" and "parent" state
+		$origin = $item['origin'];
+		$parent = $item['parent'];
+
 		// Preparing public shadow (removing user specific data)
-		unset($item['id']);
 		$item['uid'] = 0;
-		$item['origin'] = 0;
-		$item['wall'] = 0;
+		unset($item['id']);
+		unset($item['parent']);
+		unset($item['wall']);
+		unset($item['mention']);
+		unset($item['origin']);
+		unset($item['starred']);
+		unset($item['rendered-hash']);
+		unset($item['rendered-html']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
@@ -970,6 +1062,14 @@ class Item extends BaseObject
 		$public_shadow = self::insert($item, false, false, true);
 
 		logger("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, LOGGER_DEBUG);
+
+		// If this was a comment to a Diaspora post we don't get our comment back.
+		// This means that we have to distribute the comment by ourselves.
+		if ($origin) {
+			if (dba::exists('item', ['id' => $parent, 'network' => NETWORK_DIASPORA])) {
+				self::distribute($public_shadow);
+			}
+		}
 	}
 
 	 /**
@@ -977,35 +1077,35 @@ class Item extends BaseObject
 	 * if possible and not already present.
 	 * Expects "body" element to exist in $arr.
 	 */
-	private static function addLanguageInPostopts(&$arr)
+	private static function addLanguageInPostopts(&$item)
 	{
-		if (x($arr, 'postopts')) {
-			if (strstr($arr['postopts'], 'lang=')) {
+		if (!empty($item['postopts'])) {
+			if (strstr($item['postopts'], 'lang=')) {
 				// do not override
 				return;
 			}
-			$postopts = $arr['postopts'];
+			$postopts = $item['postopts'];
 		} else {
 			$postopts = "";
 		}
 
-		$naked_body = preg_replace('/\[(.+?)\]/','', $arr['body']);
-		$l = new Text_LanguageDetect();
-		$lng = $l->detect($naked_body, 3);
+		$naked_body = Text\BBCode::toPlaintext($item['body'], false);
 
-		if (sizeof($lng) > 0) {
-			if ($postopts != "") {
+		$languages = (new Text_LanguageDetect())->detect($naked_body, 3);
+
+		if (sizeof($languages) > 0) {
+			if ($postopts != '') {
 				$postopts .= '&'; // arbitrary separator, to be reviewed
 			}
 
 			$postopts .= 'lang=';
 			$sep = "";
 
-			foreach ($lng as $language => $score) {
+			foreach ($languages as $language => $score) {
 				$postopts .= $sep . $language . ";" . $score;
 				$sep = ':';
 			}
-			$arr['postopts'] = $postopts;
+			$item['postopts'] = $postopts;
 		}
 	}
 

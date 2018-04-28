@@ -1197,6 +1197,7 @@ class DFRN
 		$ret = Network::curl($url);
 
 		if ($ret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			Contact::markForArchival($contact);
 			return -2; // timed out
 		}
 
@@ -1204,24 +1205,28 @@ class DFRN
 
 		$curl_stat = $a->get_curl_code();
 		if (empty($curl_stat)) {
+			Contact::markForArchival($contact);
 			return -3; // timed out
 		}
 
 		logger('dfrn_deliver: ' . $xml, LOGGER_DATA);
 
 		if (empty($xml)) {
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			logger('dfrn_deliver: no valid XML returned');
 			logger('dfrn_deliver: returned XML: ' . $xml, LOGGER_DATA);
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
-		if ((intval($res->status) != 0) || (! strlen($res->challenge)) || (! strlen($res->dfrn_id))) {
+		if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
+			Contact::markForArchival($contact);
 			return ($res->status ? $res->status : 3);
 		}
 
@@ -1274,6 +1279,7 @@ class DFRN
 		if ($final_dfrn_id != $orig_id) {
 			logger('dfrn_deliver: wrong dfrn_id.');
 			// did not decode properly - cannot trust this site
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
@@ -1309,6 +1315,7 @@ class DFRN
 					break;
 				default:
 					logger("rino: invalid requested version '$rino_remote_version'");
+					Contact::markForArchival($contact);
 					return -8;
 			}
 
@@ -1346,22 +1353,26 @@ class DFRN
 
 		$curl_stat = $a->get_curl_code();
 		if (empty($curl_stat) || empty($xml)) {
+			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && stristr($a->get_curl_headers(), 'retry-after')) {
+			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			logger('dfrn_deliver: phase 2: no valid XML returned');
 			logger('dfrn_deliver: phase 2: returned XML: ' . $xml, LOGGER_DATA);
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!isset($res->status)) {
+			Contact::markForArchival($contact);
 			return -11;
 		}
 
@@ -1374,7 +1385,7 @@ class DFRN
 			logger('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
-		if ($res->status == 200) {
+		if (($res->status >= 200) && ($res->status <= 299)) {
 			Contact::unmarkForArchival($contact);
 		}
 
@@ -1394,28 +1405,41 @@ class DFRN
 	{
 		$a = get_app();
 
-		if (empty($contact['addr'])) {
-			logger('Empty contact handle for ' . $contact['id'] . ' - ' . $contact['url'] . ' - trying to update it.');
-			if (Contact::updateFromProbe($contact['id'])) {
-				$new_contact = dba::selectFirst('contact', ['addr'], ['id' => $contact['id']]);
-				$contact['addr'] = $new_contact['addr'];
-			}
-
+		if (!$public_batch) {
 			if (empty($contact['addr'])) {
-				logger('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
-				return -21;
-			}
-		}
+				logger('Empty contact handle for ' . $contact['id'] . ' - ' . $contact['url'] . ' - trying to update it.');
+				if (Contact::updateFromProbe($contact['id'])) {
+					$new_contact = dba::selectFirst('contact', ['addr'], ['id' => $contact['id']]);
+					$contact['addr'] = $new_contact['addr'];
+				}
 
-		$fcontact = Diaspora::personByHandle($contact['addr']);
-		if (empty($fcontact)) {
-			logger('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
-			return -22;
+				if (empty($contact['addr'])) {
+					logger('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
+					Contact::markForArchival($contact);
+					return -21;
+				}
+			}
+
+			$fcontact = Diaspora::personByHandle($contact['addr']);
+			if (empty($fcontact)) {
+				logger('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
+				Contact::markForArchival($contact);
+				return -22;
+			}
 		}
 
 		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
 
-		$dest_url = ($public_batch ? $fcontact["batch"] : $contact["notify"]);
+		// Create the endpoint for public posts. This is some WIP and should later be added to the probing
+		if ($public_batch && empty($contact["batch"])) {
+			$parts = parse_url($contact["notify"]);
+			$path_parts = explode('/', $parts['path']);
+			array_pop($path_parts);
+			$parts['path'] =  implode('/', $path_parts);
+			$contact["batch"] = Network::unparseURL($parts);
+		}
+
+		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
@@ -1424,22 +1448,26 @@ class DFRN
 		$curl_stat = $a->get_curl_code();
 		if (empty($curl_stat) || empty($xml)) {
 			logger('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
+			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
+			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			logger('No valid XML returned from ' . $contact['id'] . ' - ' . $dest_url);
 			logger('Returned XML: ' . $xml, LOGGER_DATA);
+			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (empty($res->status)) {
+			Contact::markForArchival($contact);
 			return -23;
 		}
 
@@ -1447,7 +1475,7 @@ class DFRN
 			logger('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
 		}
 
-		if ($res->status == 200) {
+		if (($res->status >= 200) && ($res->status <= 299)) {
 			Contact::unmarkForArchival($contact);
 		}
 
@@ -1467,33 +1495,33 @@ class DFRN
 		// Check for duplicates
 		$r = q(
 			"SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
-			intval($contact["uid"]),
-			intval($contact["id"]),
+			intval($contact['uid']),
+			intval($contact['id']),
 			dbesc(DateTimeFormat::utc($birthday)),
-			dbesc("birthday")
+			dbesc('birthday')
 		);
 
 		if (DBM::is_result($r)) {
 			return;
 		}
 
-		logger("updating birthday: ".$birthday." for contact ".$contact["id"]);
+		logger('updating birthday: ' . $birthday . ' for contact ' . $contact['id']);
 
-		$bdtext = L10n::t("%s\'s birthday", $contact["name"]);
-		$bdtext2 = L10n::t("Happy Birthday %s", " [url=".$contact["url"]."]".$contact["name"]."[/url]");
+		$bdtext = L10n::t('%s\'s birthday', $contact['name']);
+		$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]');
 
 		$r = q(
 			"INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-			intval($contact["uid"]),
-			intval($contact["id"]),
+			intval($contact['uid']),
+			intval($contact['id']),
 			dbesc(DateTimeFormat::utcNow()),
 			dbesc(DateTimeFormat::utcNow()),
 			dbesc(DateTimeFormat::utc($birthday)),
-			dbesc(DateTimeFormat::utc($birthday . " + 1 day ")),
+			dbesc(DateTimeFormat::utc($birthday . ' + 1 day ')),
 			dbesc($bdtext),
 			dbesc($bdtext2),
-			dbesc("birthday")
+			dbesc('birthday')
 		);
 	}
 
@@ -2747,6 +2775,10 @@ class DFRN
 			if ($posted_id) {
 				logger("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, LOGGER_DEBUG);
 
+				if ($item['uid'] == 0) {
+					Item::distribute($posted_id);
+				}
+
 				$item["id"] = $posted_id;
 
 				$r = q(
@@ -2771,7 +2803,7 @@ class DFRN
 				logger('ignoring read-only contact '.$importer["id"]);
 				return;
 			}
-			if ($importer["uid"] == 0) {
+			if (($importer["uid"] == 0) && ($importer["importer_uid"] != 0)) {
 				logger("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", LOGGER_DEBUG);
 				return;
 			}
@@ -2800,6 +2832,10 @@ class DFRN
 			$posted_id = Item::insert($item, false, $notify);
 
 			logger("Item was stored with id ".$posted_id, LOGGER_DEBUG);
+
+			if ($item['uid'] == 0) {
+				Item::distribute($posted_id);
+			}
 
 			if (stristr($item["verb"], ACTIVITY_POKE)) {
 				self::doPoke($item, $importer, $posted_id);
@@ -2923,6 +2959,9 @@ class DFRN
 
 		logger("Import DFRN message for user " . $importer["importer_uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
 
+		// is it a public forum? Private forums aren't exposed with this method
+		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()")->item(0)->nodeValue);
+
 		// The account type is new since 3.5.1
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
 			$accounttype = intval($xpath->evaluate("/atom:feed/dfrn:account_type/text()")->item(0)->nodeValue);
@@ -2930,16 +2969,16 @@ class DFRN
 			if ($accounttype != $importer["contact-type"]) {
 				dba::update('contact', ['contact-type' => $accounttype], ['id' => $importer["id"]]);
 			}
-		}
-
-		// is it a public forum? Private forums aren't supported with this method
-		// This is deprecated since 3.5.1
-		$forum = intval($xpath->evaluate("/atom:feed/dfrn:community/text()")->item(0)->nodeValue);
-
-		if ($forum != $importer["forum"]) {
+			// A forum contact can either have set "forum" or "prv" - but not both
+			if (($accounttype == ACCOUNT_TYPE_COMMUNITY) && (($forum != $importer["forum"]) || ($forum == $importer["prv"]))) {
+				$condition = ['(`forum` != ? OR `prv` != ?) AND `id` = ?', $forum, !$forum, $importer["id"]];
+				dba::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);
+			}
+		} elseif ($forum != $importer["forum"]) { // Deprecated since 3.5.1
 			$condition = ['`forum` != ? AND `id` = ?', $forum, $importer["id"]];
 			dba::update('contact', ['forum' => $forum], $condition);
 		}
+
 
 		// We are processing relocations even if we are ignoring a contact
 		$relocations = $xpath->query("/atom:feed/dfrn:relocate");

@@ -68,7 +68,7 @@ class PubSubPublish {
 					$rr['topic']),
 				"X-Hub-Signature: sha1=".$hmac_sig];
 
-		logger('POST '.print_r($headers, true)."\n".$params, LOGGER_DEBUG);
+		logger('POST '.print_r($headers, true)."\n".$params, LOGGER_DATA);
 
 		Network::post($rr['callback_url'], $params, $headers);
 		$ret = $a->get_curl_code();

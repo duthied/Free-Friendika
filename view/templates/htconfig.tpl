@@ -107,7 +107,7 @@ $a->config['system']['no_regfullname'] = true;
 //$a->config['system']['block_local_dir'] = false;
 
 // Location of the global directory
-$a->config['system']['directory'] = 'http://dir.friendica.social';
+$a->config['system']['directory'] = 'https://dir.friendica.social';
 
 // Authentication cookie lifetime, in days
 $a->config['system']['auth_cookie_lifetime'] = 7;

@@ -1120,6 +1120,7 @@ function admin_page_site_post(App $a)
 	}
 	Config::set('system', 'language', $language);
 	Config::set('system', 'theme', $theme);
+	Theme::install($theme);
 
 	if ($theme_mobile == '---') {
 		Config::delete('system', 'mobile-theme');
@@ -1262,6 +1263,7 @@ function admin_page_site(App $a)
 
 	/* Community page style */
 	$community_page_style_choices = [
+		CP_NO_INTERNAL_COMMUNITY => L10n::t("No community page for local users"),
 		CP_NO_COMMUNITY_PAGE => L10n::t("No community page"),
 		CP_USERS_ON_SERVER => L10n::t("Public postings from users of this site"),
 		CP_GLOBAL_COMMUNITY => L10n::t("Public postings from the federated network"),

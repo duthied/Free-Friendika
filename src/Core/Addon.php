@@ -246,7 +246,7 @@ class Addon
 		} else {
 			// remove orphan hooks
 			$condition = ['hook' => $name, 'file' => $hook[0], 'function' => $hook[1]];
-			dba::delete('hook', $condition);
+			dba::delete('hook', $condition, ['cascade' => false]);
 		}
 	}
 

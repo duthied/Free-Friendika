@@ -144,14 +144,13 @@ function invite_content(App $a) {
 
 	$o = replace_macros($tpl, [
 		'$form_security_token' => get_form_security_token("send_invite"),
-		'$invite'              => L10n::t('Send invitations'),
-		'$addr_text'           => L10n::t('Enter email addresses, one per line:'),
-		'$msg_text'            => L10n::t('Your message:'),
-		'$default_message'     => L10n::t('You are cordially invited to join me and other close friends on Friendica - and help us to create a better social web.') . "\r\n" . "\r\n"
+		'$title'               => L10n::t('Send invitations'),
+		'$recipients'          => ['recipients', L10n::t('Enter email addresses, one per line:')],
+		'$message'             => ['message', L10n::t('Your message:'),L10n::t('You are cordially invited to join me and other close friends on Friendica - and help us to create a better social web.') . "\r\n" . "\r\n"
 			. $linktxt
 			. "\r\n" . "\r\n" . (($invonly) ? L10n::t('You will need to supply this invitation code: $invite_code') . "\r\n" . "\r\n" : '') .L10n::t('Once you have registered, please connect with me via my profile page at:')
 			. "\r\n" . "\r\n" . System::baseUrl() . '/profile/' . $a->user['nickname']
-			. "\r\n" . "\r\n" . L10n::t('For more information about the Friendica project and why we feel it is important, please visit http://friendi.ca') . "\r\n" . "\r\n"  ,
+			. "\r\n" . "\r\n" . L10n::t('For more information about the Friendica project and why we feel it is important, please visit http://friendi.ca') . "\r\n" . "\r\n"],
 		'$submit'              => L10n::t('Submit')
 	]);
 

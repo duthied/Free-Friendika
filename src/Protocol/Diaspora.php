@@ -590,59 +590,15 @@ class Diaspora
 			return false;
 		}
 
-		if (!($postdata = self::validPosting($msg))) {
+		if (!($fields = self::validPosting($msg))) {
 			logger("Invalid posting");
 			return false;
 		}
 
-		$fields = $postdata['fields'];
+		$importer = ["uid" => 0, "page-flags" => PAGE_FREELOVE];
+		$success = self::dispatch($importer, $msg, $fields);
 
-		// Is it a an action (comment, like, ...) for our own post?
-		if (isset($fields->parent_guid) && !$postdata["relayed"]) {
-			$guid = notags(unxmlify($fields->parent_guid));
-			$importer = self::importerForGuid($guid);
-			if (is_array($importer)) {
-				logger("delivering to origin: ".$importer["name"]);
-				$message_id = self::dispatch($importer, $msg, $fields);
-				return $message_id;
-			}
-		}
-
-		// Process item retractions. This has to be done separated from the other stuff,
-		// since retractions for comments could come even from non followers.
-		if (!empty($fields) && in_array($fields->getName(), ['retraction'])) {
-			$target = notags(unxmlify($fields->target_type));
-			if (in_array($target, ["Comment", "Like", "Post", "Reshare", "StatusMessage"])) {
-				logger('processing retraction for '.$target, LOGGER_DEBUG);
-				$importer = ["uid" => 0, "page-flags" => PAGE_FREELOVE];
-				$message_id = self::dispatch($importer, $msg, $fields);
-				return $message_id;
-			}
-		}
-
-		// Now distribute it to the followers
-		$r = q(
-			"SELECT `user`.* FROM `user` WHERE `user`.`uid` IN
-			(SELECT `contact`.`uid` FROM `contact` WHERE `contact`.`network` = '%s' AND `contact`.`addr` = '%s')
-			AND NOT `account_expired` AND NOT `account_removed`",
-			dbesc(NETWORK_DIASPORA),
-			dbesc($msg["author"])
-		);
-
-		if (DBM::is_result($r)) {
-			foreach ($r as $rr) {
-				logger("delivering to: ".$rr["username"]);
-				self::dispatch($rr, $msg, $fields);
-			}
-		} elseif (!Config::get('system', 'relay_subscribe', false)) {
-			logger("Unwanted message from ".$msg["author"]." send by ".$_SERVER["REMOTE_ADDR"]." with ".$_SERVER["HTTP_USER_AGENT"].": ".print_r($msg, true), LOGGER_DEBUG);
-		} else {
-			// Use a dummy importer to import the data for the public copy
-			$importer = ["uid" => 0, "page-flags" => PAGE_FREELOVE];
-			$message_id = self::dispatch($importer, $msg, $fields);
-		}
-
-		return $message_id;
+		return $success;
 	}
 
 	/**
@@ -662,11 +618,13 @@ class Diaspora
 
 		// This is only needed for private postings since this is already done for public ones before
 		if (is_null($fields)) {
-			if (!($postdata = self::validPosting($msg))) {
+			$private = true;
+			if (!($fields = self::validPosting($msg))) {
 				logger("Invalid posting");
 				return false;
 			}
-			$fields = $postdata['fields'];
+		} else {
+			$private = false;
 		}
 
 		$type = $fields->getName();
@@ -675,27 +633,47 @@ class Diaspora
 
 		switch ($type) {
 			case "account_migration":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveAccountMigration($importer, $fields);
 
 			case "account_deletion":
-				return self::receiveAccountDeletion($importer, $fields);
+				return self::receiveAccountDeletion($fields);
 
 			case "comment":
 				return self::receiveComment($importer, $sender, $fields, $msg["message"]);
 
 			case "contact":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveContactRequest($importer, $fields);
 
 			case "conversation":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveConversation($importer, $msg, $fields);
 
 			case "like":
 				return self::receiveLike($importer, $sender, $fields);
 
 			case "message":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveMessage($importer, $fields);
 
 			case "participation":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveParticipation($importer, $fields);
 
 			case "photo": // Not implemented
@@ -705,6 +683,10 @@ class Diaspora
 				return self::receivePollParticipation($importer, $fields);
 
 			case "profile":
+				if (!$private) {
+					logger('Message with type ' . $type . ' is not private, quitting.');
+					return false;
+				}
 				return self::receiveProfile($importer, $fields);
 
 			case "reshare":
@@ -840,7 +822,7 @@ class Diaspora
 
 		// Only some message types have signatures. So we quit here for the other types.
 		if (!in_array($type, ["comment", "like"])) {
-			return ["fields" => $fields, "relayed" => false];
+			return $fields;
 		}
 		// No author_signature? This is a must, so we quit.
 		if (!isset($author_signature)) {
@@ -849,25 +831,29 @@ class Diaspora
 		}
 
 		if (isset($parent_author_signature)) {
-			$relayed = true;
-
 			$key = self::key($msg["author"]);
+			if (empty($key)) {
+				logger("No key found for parent author ".$msg["author"], LOGGER_DEBUG);
+				return false;
+			}
 
 			if (!Crypto::rsaVerify($signed_data, $parent_author_signature, $key, "sha256")) {
 				logger("No valid parent author signature for parent author ".$msg["author"]. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$parent_author_signature, LOGGER_DEBUG);
 				return false;
 			}
-		} else {
-			$relayed = false;
 		}
 
 		$key = self::key($fields->author);
+		if (empty($key)) {
+			logger("No key found for author ".$fields->author, LOGGER_DEBUG);
+			return false;
+		}
 
 		if (!Crypto::rsaVerify($signed_data, $author_signature, $key, "sha256")) {
 			logger("No valid author signature for author ".$fields->author. " in type ".$type." - signed data: ".$signed_data." - Message: ".$msg["message"]." - Signature ".$author_signature, LOGGER_DEBUG);
 			return false;
 		} else {
-			return ["fields" => $fields, "relayed" => $relayed];
+			return $fields;
 		}
 	}
 
@@ -1650,25 +1636,23 @@ class Diaspora
 	/**
 	 * @brief Processes an account deletion
 	 *
-	 * @param array  $importer Array of the importer user
 	 * @param object $data     The message object
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveAccountDeletion($importer, $data)
+	private static function receiveAccountDeletion($data)
 	{
-		/// @todo Account deletion should remove the contact from the global contacts as well
-
 		$author = notags(unxmlify($data->author));
 
-		$contact = self::contactByHandle($importer["uid"], $author);
-		if (!$contact) {
-			logger("cannot find contact for author: ".$author);
-			return false;
+		$contacts = dba::select('contact', ['id'], ['addr' => $author]);
+		while ($contact = dba::fetch($contacts)) {
+			Contact::remove($contact["id"]);
 		}
 
-		// We now remove the contact
-		Contact::remove($contact["id"]);
+		dba::delete('gcontact', ['addr' => $author]);
+
+		logger('Removed contacts for ' . $author);
+
 		return true;
 	}
 
@@ -1836,6 +1820,9 @@ class Diaspora
 
 		if ($message_id) {
 			logger("Stored comment ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+			if ($datarray['uid'] == 0) {
+				Item::distribute($message_id);
+			}
 		}
 
 		// If we are the origin of the parent we store the original data and notify our followers
@@ -2157,6 +2144,9 @@ class Diaspora
 
 		if ($message_id) {
 			logger("Stored like ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+			if ($datarray['uid'] == 0) {
+				Item::distribute($message_id);
+			}
 		}
 
 		// like on comments have the comment as parent. So we need to fetch the toplevel parent
@@ -2739,10 +2729,15 @@ class Diaspora
 	 */
 	public static function originalItem($guid, $orig_author)
 	{
+		if (empty($guid)) {
+			logger('Empty guid. Quitting.');
+			return false;
+		}
+
 		// Do we already have this item?
 		$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
-		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false];
+		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 		$item = dba::selectfirst('item', $fields, $condition);
 
 		if (DBM::is_result($item)) {
@@ -2752,7 +2747,7 @@ class Diaspora
 			// Then refetch the content, if it is a reshare from a reshare.
 			// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 			if (self::isReshare($item["body"], true)) {
-				$r = [];
+				$item = [];
 			} elseif (self::isReshare($item["body"], false) || strstr($item["body"], "[share")) {
 				$item["body"] = Markdown::toBBCode(BBCode::toMarkdown($item["body"]));
 
@@ -2767,21 +2762,26 @@ class Diaspora
 			}
 		}
 
-		if (!DBM::is_result($r)) {
-			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
-			logger("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
-			$item_id = self::storeByGuid($guid, $server);
-
-			if (!$item_id) {
-				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
-				logger("2nd try: reshared message ".$guid." will be fetched without SLL from the server ".$server);
-				$item_id = self::storeByGuid($guid, $server);
+		if (!DBM::is_result($item)) {
+			if (empty($orig_author)) {
+				logger('Empty author for guid ' . $guid . '. Quitting.');
+				return false;
 			}
 
-			if ($item_id) {
+			$server = "https://".substr($orig_author, strpos($orig_author, "@") + 1);
+			logger("1st try: reshared message ".$guid." will be fetched via SSL from the server ".$server);
+			$stored = self::storeByGuid($guid, $server);
+
+			if (!$stored) {
+				$server = "http://".substr($orig_author, strpos($orig_author, "@") + 1);
+				logger("2nd try: reshared message ".$guid." will be fetched without SSL from the server ".$server);
+				$stored = self::storeByGuid($guid, $server);
+			}
+
+			if ($stored) {
 				$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 					'author-name', 'author-link', 'author-avatar'];
-				$condition = ['id' => $item_id, 'visible' => true, 'deleted' => false];
+				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 				$item = dba::selectfirst('item', $fields, $condition);
 
 				if (DBM::is_result($item)) {
@@ -2883,6 +2883,9 @@ class Diaspora
 
 		if ($message_id) {
 			logger("Stored reshare ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+			if ($datarray['uid'] == 0) {
+				Item::distribute($message_id);
+			}
 			return true;
 		} else {
 			return false;
@@ -3107,6 +3110,9 @@ class Diaspora
 
 		if ($message_id) {
 			logger("Stored item ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
+			if ($datarray['uid'] == 0) {
+				Item::distribute($message_id);
+			}
 			return true;
 		} else {
 			return false;

@@ -23,6 +23,12 @@ function babel_content()
 					'content' => visible_lf($bbcode)
 				];
 
+				$plain = Text\BBCode::toPlaintext($bbcode, false);
+				$results[] = [
+					'title' => L10n::t('BBCode::toPlaintext'),
+					'content' => visible_lf($plain)
+				];
+
 				$html = Text\BBCode::convert($bbcode);
 				$results[] = [
 					'title' => L10n::t("BBCode::convert \x28raw HTML\x29"),

@@ -5,12 +5,15 @@
 
 namespace Friendica\Test;
 
-use PHPUnit_Framework_TestCase;
+// backward compatibility
+if (!class_exists('\PHPUnit\Framework\TestCase')) {
+    class_alias('\PHPUnit_Framework_TestCase', '\PHPUnit\Framework\TestCase');
+}
 
 /**
  * Tests for text functions.
  */
-class TextTest extends PHPUnit_Framework_TestCase
+class TextTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -61,10 +64,10 @@ class TextTest extends PHPUnit_Framework_TestCase
 	public function testAutonameLength1()
 	{
 		$autoname1=autoname(1);
-		$this->assertEquals(1, count($autoname1));
+		$this->assertEquals(1, strlen($autoname1));
 
 		$autoname2=autoname(1);
-		$this->assertEquals(1, count($autoname2));
+		$this->assertEquals(1, strlen($autoname2));
 	}
 
 	/**

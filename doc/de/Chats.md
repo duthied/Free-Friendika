@@ -8,7 +8,7 @@ Du hast derzeit zwei Möglichkeiten, einen Chat auf Deiner Friendica-Seite zu be
 * IRC - Internet Relay Chat
 * Jappix
 
-##IRC Addon
+## IRC Addon
 
 Sobald das Addon aktiviert ist, kannst Du den Chat unter [deineSeite.de/irc](../irc) finden.
 Beachte aber, dass dieser Chat auch ohne Anmeldung auf Deiner Seite zugänglich ist und somit auch Fremde diesen Chat mitnutzen können.
@@ -27,7 +27,7 @@ Unten hast Du ein Eingabefeld, um Beiträge zu schreiben.
 
 Weiter Informationen zu IRC findest Du zum Beispiel auf <a href="http://wiki.ubuntuusers.de/IRC" target="_blank">ubuntuusers.de</a>, in <a href="https://de.wikipedia.org/wiki/Internet_Relay_Chat" target="_blank">Wikipedia</a> oder bei <a href="http://www.irchelp.org/" target="_blank">icrhelp.org</a> (in Englisch).
 
-##Jappix Mini
+## Jappix Mini
 
 Das Jappix Mini Addon erlaubt das Erstellen einer Chatbox für Jabber/XMPP-Kontakte.
 Ein Jabber/XMPP Account sollte vor der Installation bereits vorhanden sein.

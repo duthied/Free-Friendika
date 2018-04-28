@@ -33,7 +33,7 @@
 			{{/if}}
 			<ul class="comment-edit-bb-{{$id}} comment-icon-list nav nav-pills pull-right">
 				<li>
-					<button type="button" class="btn-link icon" style="cursor: pointer;" aria-label="{{$edimg}}" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
+					<button type="button" class="btn-link icon bb-img" style="cursor: pointer;" aria-label="{{$edimg}}" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
 						<i class="fa fa-picture-o"></i>
 					</button>
 				</li>
