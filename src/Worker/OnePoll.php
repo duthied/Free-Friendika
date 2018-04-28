@@ -309,7 +309,7 @@ class OnePoll
 
 			// Are we allowed to import from this person?
 
-			if ($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked'] || $contact['readonly']) {
+			if ($contact['rel'] == CONTACT_IS_FOLLOWER || $contact['blocked']) {
 				// set the last-update so we don't keep polling
 				dba::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 				return;
@@ -590,7 +590,7 @@ class OnePoll
 			}
 
 			$hubmode = 'subscribe';
-			if ($contact['network'] === NETWORK_DFRN || $contact['blocked'] || $contact['readonly']) {
+			if ($contact['network'] === NETWORK_DFRN || $contact['blocked']) {
 				$hubmode = 'unsubscribe';
 			}
 
