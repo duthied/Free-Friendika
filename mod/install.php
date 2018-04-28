@@ -140,37 +140,11 @@ function install_content(App $a) {
 	switch ($install_wizard_pass) {
 		case 1: { // System check
 
-
-			$checks = [];
-
-			check_funcs($checks);
-
-			check_imagik($checks);
-
-			check_htconfig($checks);
-
-			check_smarty3($checks);
-
-			check_keys($checks);
-
 			if (x($_POST, 'phpath')) {
 				$phpath = notags(trim($_POST['phpath']));
 			}
 
-			check_php($phpath, $checks);
-
-			check_htaccess($checks);
-
-			/// @TODO Maybe move this out?
-			function check_passed($v, $c) {
-				if ($c['required']) {
-					$v = $v && $c['status'];
-				}
-				return $v;
-			}
-			$checkspassed = array_reduce($checks, "check_passed", true);
-
-
+			list($checks, $checkspassed) = Install::check($phpath);
 
 			$tpl = get_markup_template('install_checks.tpl');
 			$o .= replace_macros($tpl, [
