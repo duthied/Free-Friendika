@@ -470,11 +470,14 @@ These Fields are not added below (yet). They are here to for bug search.
  * @brief SQL join for contacts that are needed for displaying items
  */
 function item_joins() {
-	return "STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND
-		(NOT `contact`.`blocked` OR `contact`.`pending`)
+	return sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+		AND `contact`.`rel` IN (%s, %s)
+		AND NOT (`contact`.`blocked` OR `contact`.`readonly` OR `contact`.`pending`)
 		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`
-		LEFT JOIN `event` ON `event-id` = `event`.`id`";
+		LEFT JOIN `event` ON `event-id` = `event`.`id`",
+		CONTACT_IS_SHARING, CONTACT_IS_FRIEND
+	);
 }
 
 /**
