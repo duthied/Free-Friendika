@@ -24,9 +24,10 @@ and open the template in the editor.
 
 body {
     padding-top: 110px;
-    background-color: $bgcolor;
+    background-color: $background_color;
     background-image: url("$background_image");
     background-size: $background_size_img;
+    background-repeat: $background_repeat;
     background-attachment: fixed;
     color: #777;
     /*color: #555;*/
@@ -3136,12 +3137,30 @@ section .profile-match-wrapper {
  * Login page
  */
 #login-submit-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
+    float: right;
 }
 #lost-password-link { flex-grow: 2; }
+#login-lost-password-link {
+    margin-bottom: 10px;
+    float: right;
+}
+#div_id_remember {
+    float: left;
+}
+#id_password_wrapper {
+    margin-bottom: unset;
+}
+#login_openid {
+    clear: both;
+}
+#register-link {
+    color: white;
+    background: #8ad0a1;
+    width: 100%;
+}
+#login-end {
+    clear: both;
+}
 
 .mod-home.is-not-singleuser,
 .mod-login {
@@ -3166,11 +3185,14 @@ section .profile-match-wrapper {
     margin-top: 2.5%;
 }
 
+.mod-home.is-not-singleuser .login-form > #login-extra-links {
+    margin-top: 4em;
+}
+
 .mod-home.is-not-singleuser .login-form > #login-form label,
 .mod-login #content #login-form label {
     color: #eee;
 }
-
 
 .mod-home.is-not-singleuser .login-panel-content,
 .mod-login .login-panel-content {
@@ -3185,11 +3207,15 @@ section .profile-match-wrapper {
     }
 
     .mod-home.is-not-singleuser .login-form > #login-form,
+    .mod-home.is-not-singleuser .login-form > #login-extra-links,
     .mod-login #content #login-form {
         background-color: #fff;
         padding: 1em;
         position: relative;
-        margin-top: 4em;
+    }
+    .mod-home.is-not-singleuser .login-form > #login-extra-links {
+        margin-top: unset;
+        background-color: white;
     }
 
     .mod-home.is-not-singleuser .login-form > #login-form label,
@@ -3197,7 +3223,7 @@ section .profile-match-wrapper {
         color: #444;
     }
 
-    .mod-home.is-not-singleuser .login-form > #login-form::before,
+    .mod-home.is-not-singleuser .login-form::before,
     .mod-login #content #login-form::before {
         display: block;
         position: absolute;
@@ -3210,7 +3236,7 @@ section .profile-match-wrapper {
         z-index: -1;
     }
 
-    .mod-home.is-not-singleuser .login-form > #login-form::after,
+    .mod-home.is-not-singleuser .login-form::after,
     .mod-login #content #login-form::after {
         display: block;
         position: absolute;

@@ -2422,8 +2422,58 @@ aside #div_id_remember label {
  float:  inherit;
 }
 
+#login-group {
+  overflow: hidden;
+}
+
+#login-head {
+  position: unset;
+  width: unset;
+  height: unset;
+  margin-bottom: 10px;
+}
+
+div #wrapper_username {
+  padding: 0px;
+}
+
+div #wrapper_password {
+  padding: 0px;
+  margin-bottom: 0px;
+}
+
+#div_id_remember {
+  float: left;
+  width: unset;
+}
+
+#remember_tip {
+  display: none;
+}
+
+#login-submit-wrapper {
+  float: right;
+}
+
+#login-form {
+  margin-top: 20px;
+}
+
+#login-extra-links, #login-form {
+  /* width: 341px; */
+  width: 341px;
+  clear: both;
+  border-top: 3px solid white;
+  padding-top: 20px;
+}
+
 aside div #login-submit-button {
   margin-left:0px;
+}
+
+#login-lost-password-link {
+  margin-bottom: 10px;
+  float: right;
 }
 
 aside #register-link, aside #lost-password-link {

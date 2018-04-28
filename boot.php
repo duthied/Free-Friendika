@@ -1292,7 +1292,7 @@ function get_server()
 	$server = Config::get("system", "directory");
 
 	if ($server == "") {
-		$server = "http://dir.friendica.social";
+		$server = "https://dir.friendica.social";
 	}
 
 	return($server);
