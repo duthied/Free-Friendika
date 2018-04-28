@@ -36,7 +36,7 @@ class Network
 	 */
 	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
 	{
-		$ret = fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
+		$ret = self::fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
 
 		return $ret['body'];
 	}
