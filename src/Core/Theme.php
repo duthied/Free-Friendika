@@ -180,4 +180,25 @@ class Theme
 		}
 		return '';
 	}
+
+	/**
+	 * @brief Return relative path to theme stylesheet file
+	 *
+	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
+	 *
+	 * @param string $theme Theme name
+	 *
+	 * @return string
+	 */
+	public static function getStylesheetPath($theme)
+	{
+		$a = get_app();
+
+		$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
+		if (file_exists('view/theme/' . $theme . '/style.php')) {
+			return 'view/theme/' . $theme . '/style.pcss' . $opts;
+		}
+
+		return 'view/theme/' . $theme . '/style.css';
+	}
 }
