@@ -471,8 +471,9 @@ These Fields are not added below (yet). They are here to for bug search.
  */
 function item_joins() {
 	return sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND (`contact`.`rel` IN (%s, %s) OR `contact`.`self`)
-		AND NOT (`contact`.`blocked` OR `contact`.`readonly` OR `contact`.`pending`)
+		AND NOT `contact`.`blocked`
+		AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
+		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`))
 		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`
 		LEFT JOIN `event` ON `event-id` = `event`.`id`",
