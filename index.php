@@ -322,7 +322,7 @@ if (strlen($a->module)) {
 /**
  * Load current theme info
  */
-$theme_info_file = "view/theme/".current_theme()."/theme.php";
+$theme_info_file = 'view/theme/' . $a->getCurrentTheme() . '/theme.php';
 if (file_exists($theme_info_file)) {
 	require_once $theme_info_file;
 }
@@ -355,8 +355,8 @@ if ($a->module_loaded) {
 		$func($a);
 	}
 
-	if (function_exists(str_replace('-', '_', current_theme()) . '_init')) {
-		$func = str_replace('-', '_', current_theme()) . '_init';
+	if (function_exists(str_replace('-', '_', $a->getCurrentTheme()) . '_init')) {
+		$func = str_replace('-', '_', $a->getCurrentTheme()) . '_init';
 		$func($a);
 	}
 
@@ -394,8 +394,8 @@ if ($a->module_loaded) {
 		$a->page['content'] .= $arr['content'];
 	}
 
-	if (function_exists(str_replace('-', '_', current_theme()) . '_content_loaded')) {
-		$func = str_replace('-', '_', current_theme()) . '_content_loaded';
+	if (function_exists(str_replace('-', '_', $a->getCurrentTheme()) . '_content_loaded')) {
+		$func = str_replace('-', '_', $a->getCurrentTheme()) . '_content_loaded';
 		$func($a);
 	}
 }
@@ -470,7 +470,7 @@ if ($a->is_mobile || $a->is_tablet) {
  */
 
 if (!$a->theme['stylesheet']) {
-	$stylesheet = current_theme_url();
+	$stylesheet = $a->getCurrentThemeStylesheetPath();
 } else {
 	$stylesheet = $a->theme['stylesheet'];
 }
