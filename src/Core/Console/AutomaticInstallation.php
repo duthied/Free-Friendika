@@ -8,6 +8,7 @@ use Friendica\App;
 use Friendica\Core\Install;
 
 require_once 'mod/install.php';
+require_once 'include/dba.php';
 
 class AutomaticInstallation extends Console
 {
@@ -76,7 +77,7 @@ HELP;
 		// Install database
 		$this->out("Inserting data into database...\n");
 
-		$checkResults['data'] = Install::loadDatabase();
+		$checkResults['data'] = Install::installDatabaseStructure();
 
 		if ($checkResults['data'] !== '') {
 			throw new \RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
@@ -104,7 +105,7 @@ HELP;
 		$checks = [];
 
 		Install::checkFunctions($checks);
-		Install::checkImagik($checks);
+		Install::checkImagick($checks);
 		Install::checkHtConfig($checks);
 		Install::checkSmarty3($checks);
 		Install::checkKeys($checks);

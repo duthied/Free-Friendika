@@ -14,22 +14,33 @@ use Exception;
 use DOMDocument;
 
 /**
- * @brief Contains the class with install relevant stuff *
+ * Contains methods for installation purpose of Friendica
  */
 class Install extends BaseObject
 {
+	/**
+	 * Sets the install-mode for further methods
+	 */
 	public static function setInstallMode()
 	{
 		self::getApp()->mode = App::MODE_INSTALL;
 	}
 
+	/**
+	 * Checks the current installation environment. There are optional and mandatory checks.
+	 *
+	 * @param string $phpath Optional path to the PHP binary (Default is 'php')
+	 *
+	 * @return array First element is a list of all checks and their results,
+	 *               the second element is a list of passed checks
+	 */
 	public static function check($phpath = 'php')
 	{
 		$checks = [];
 
 		self::checkFunctions($checks);
 
-		self::checkImagik($checks);
+		self::checkImagick($checks);
 
 		self::checkHtConfig($checks);
 
@@ -53,6 +64,22 @@ class Install extends BaseObject
 		return array($checks, $checkspassed);
 	}
 
+	/**
+	 * Executes the installation of Friendica in the given environment.
+	 * - Creates `.htconfig.php`
+	 * - Installs Database Structure
+	 *
+	 * @param string 	$urlpath 	Path based on the URL of Friendica (e.g. '/friendica')
+	 * @param string 	$dbhost 	Hostname/IP of the Friendica Database
+	 * @param string 	$dbuser 	Username of the Database connection credentials
+	 * @param string 	$dbpass 	Password of the Database connection credentials
+	 * @param string 	$dbdata 	Name of the Database
+	 * @param string 	$phpath 	Path to the PHP-Binary (e.g. 'php' or '/usr/bin/php')
+	 * @param string 	$timezone 	Timezone of the Friendica Installaton (e.g. 'Europe/Berlin')
+	 * @param string 	$language 	2-letter ISO 639-1 code (eg. 'en')
+	 * @param string 	$adminmail 	Mail-Adress of the administrator
+	 * @param int 		$rino		Rino-enabled (1 = true, 0 = false)
+	 */
 	public static function install($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail, $rino = 1)
 	{
 		$tpl = get_markup_template('htconfig.tpl');
@@ -69,13 +96,12 @@ class Install extends BaseObject
 			'$rino' => $rino
 		]);
 
-
 		$result = file_put_contents('.htconfig.php', $txt);
 		if (! $result) {
 			self::getApp()->data['txt'] = $txt;
 		}
 
-		$errors = self::loadDatabase();
+		$errors = self::installDatabaseStructure();
 
 		if ($errors) {
 			self::getApp()->data['db_failed'] = $errors;
@@ -85,13 +111,16 @@ class Install extends BaseObject
 	}
 
 	/**
-	 * checks   : array passed to template
-	 * title    : string
-	 * status   : boolean
-	 * required : boolean
-	 * help		: string optional
+	 * Adds new checks to the array $checks
+	 *
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @param string $title The title of the current check
+	 * @param bool $status 1 = check passed, 0 = check not passed
+	 * @param bool $required 1 = check is mandatory, 0 = check is optional
+	 * @param string $help A help-string for the current check
+	 * @param string $error_msg Optional. A error message, if the current check failed
 	 */
-	private static function addCheck(&$checks, $title, $status, $required, $help)
+	private static function addCheck(&$checks, $title, $status, $required, $help, $error_msg = "")
 	{
 		$checks[] = [
 			'title' => $title,
@@ -102,6 +131,18 @@ class Install extends BaseObject
 		];
 	}
 
+	/**
+	 * PHP Check
+	 *
+	 * Checks the PHP environment.
+	 *
+	 * - Checks if a PHP binary is available
+	 * - Checks if it is the CLI version
+	 * - Checks if "register_argc_argv" is enabled
+ 	 *
+	 * @param string $phpath Optional. The Path to the PHP-Binary
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 */
 	public static function checkPHP(&$phpath, &$checks)
 	{
 		$passed = $passed2 = $passed3 = false;
@@ -138,7 +179,6 @@ class Install extends BaseObject
 			self::addCheck($checks, L10n::t('PHP cli binary'), $passed2, true, $help);
 		}
 
-
 		if ($passed2) {
 			$str = autoname(8);
 			$cmd = "$phpath testargs.php $str";
@@ -151,15 +191,20 @@ class Install extends BaseObject
 			}
 			self::addCheck($checks, L10n::t('PHP register_argc_argv'), $passed3, true, $help);
 		}
-
-
 	}
 
+	/**
+	 * OpenSSL Check
+	 *
+	 * Checks the OpenSSL Environment
+	 *
+	 * - Checks, if the command "openssl_pkey_new" is available
+	 *
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 */
 	public static function checkKeys(&$checks)
 	{
-
 		$help = '';
-
 		$res = false;
 
 		if (function_exists('openssl_pkey_new')) {
@@ -171,16 +216,28 @@ class Install extends BaseObject
 		}
 
 		// Get private key
-
 		if (!$res) {
 			$help .= L10n::t('Error: the "openssl_pkey_new" function on this system is not able to generate encryption keys') . EOL;
 			$help .= L10n::t('If running under Windows, please see "http://www.php.net/manual/en/openssl.installation.php".');
 		}
 		self::addCheck($checks, L10n::t('Generate encryption keys'), $res, true, $help);
-
 	}
 
-
+	/**
+	 * PHP functions Check
+	 *
+	 * Checks the following PHP functions
+	 * - libCurl
+	 * - GD Graphics
+	 * - OpenSSL
+	 * - PDO or MySQLi
+	 * - mb_string
+	 * - XML
+	 * - iconv
+	 * - POSIX
+	 *
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 */
 	public static function checkFunctions(&$checks)
 	{
 		$ck_funcs = [];
@@ -245,7 +302,13 @@ class Install extends BaseObject
 		}
 	}
 
-
+	/**
+	 * ".htconfig.php" - Check
+	 *
+	 * Checks if it's possible to create the ".htconfig.php"
+	 *
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 */
 	public static function checkHtConfig(&$checks)
 	{
 		$status = true;
@@ -264,6 +327,13 @@ class Install extends BaseObject
 
 	}
 
+	/**
+	 * Smarty3 Template Check
+	 *
+	 * Checks, if the directory of Smarty3 is writable
+	 *
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 */
 	public static function checkSmarty3(&$checks)
 	{
 		$status = true;
@@ -281,6 +351,13 @@ class Install extends BaseObject
 
 	}
 
+	/**
+	 * ".htaccess" - Check
+	 *
+	 * Checks, if "url_rewrite" is enabled in the ".htaccess" file
+	 *
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 */
 	public static function checkHtAccess(&$checks)
 	{
 		$status = true;
@@ -302,14 +379,21 @@ class Install extends BaseObject
 				$error_msg['url'] = $test['redirect_url'];
 				$error_msg['msg'] = $test['error'];
 			}
-			self::addCheck($checks, L10n::t('Url rewrite is working'), $status, true, $help);
+			self::addCheck($checks, L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
 		} else {
 			// cannot check modrewrite if libcurl is not installed
 			/// @TODO Maybe issue warning here?
 		}
 	}
 
-	public static function checkImagik(&$checks)
+	/**
+	 * Imagick Check
+	 *
+	 * Checks, if the imagick module is available
+	 *
+	 * @param array $checks The list of all checks (by-ref parameter!)
+	 */
+	public static function checkImagick(&$checks)
 	{
 		$imagick = false;
 		$gif = false;
@@ -331,7 +415,12 @@ class Install extends BaseObject
 		}
 	}
 
-	public static function loadDatabase()
+	/**
+	 * Installs the Database structure
+	 *
+	 * @return string A possible error
+	 */
+	public static function installDatabaseStructure()
 	{
 		$errors = DBStructure::update(false, true, true);
 
