@@ -348,7 +348,6 @@ class Install extends BaseObject
 		}
 
 		self::addCheck($checks, L10n::t('view/smarty3 is writable'), $status, true, $help);
-
 	}
 
 	/**
