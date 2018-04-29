@@ -5,6 +5,7 @@ namespace Friendica\Core\Console;
 use Asika\SimpleConsole\Console;
 use dba;
 use Friendica\App;
+use Friendica\Core\Install;
 
 require_once 'mod/install.php';
 require_once 'include/dba.php';
@@ -43,6 +44,8 @@ HELP;
 		$db_data = '';
 		require_once 'htconfig.php';
 
+		Install::setInstallMode();
+
 		$this->out(" Complete!\n\n");
 
 		// Check basic setup
@@ -74,7 +77,7 @@ HELP;
 		// Install database
 		$this->out("Inserting data into database...\n");
 
-		$checkResults['data'] = load_database();
+		$checkResults['data'] = Install::installDatabaseStructure();
 
 		if ($checkResults['data'] !== '') {
 			throw new \RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
@@ -101,14 +104,14 @@ HELP;
 	{
 		$checks = [];
 
-		check_funcs($checks);
-		check_imagik($checks);
-		check_htconfig($checks);
-		check_smarty3($checks);
-		check_keys($checks);
+		Install::checkFunctions($checks);
+		Install::checkImagick($checks);
+		Install::checkHtConfig($checks);
+		Install::checkSmarty3($checks);
+		Install::checkKeys($checks);
 
 		if (!empty($app->config['php_path'])) {
-			check_php($app->config['php_path'], $checks);
+			Install::checkPHP($app->config['php_path'], $checks);
 		} else {
 			throw new \RuntimeException(" ERROR: The php_path is not set in the config. Please check the file .htconfig.php.\n");
 		}
@@ -135,7 +138,7 @@ HELP;
 		);
 
 
-		if (!dba::connect($db_host, $db_user, $db_pass, $db_data, true)) {
+		if (!dba::connect($db_host, $db_user, $db_pass, $db_data)) {
 			$result['status'] = false;
 			$result['help'] = 'Failed, please check your MySQL settings and credentials.';
 		}

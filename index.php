@@ -31,16 +31,8 @@ BaseObject::setApp($a);
 // The value is set to "true" by default in boot.php
 $a->backend = false;
 
-/**
- * Load the configuration file which contains our DB credentials.
- * Ignore errors. If the file doesn't exist or is empty, we are running in
- * installation mode.
- */
-
-$install = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? false : true);
-
-// Only load config if found, don't surpress errors
-if (!$install) {
+// Only load config if found, don't suppress errors
+if (!$a->mode == App::MODE_INSTALL) {
 	include ".htconfig.php";
 }
 
@@ -50,7 +42,7 @@ if (!$install) {
 
 require_once "include/dba.php";
 
-if (!$install) {
+if (!$a->mode == App::MODE_INSTALL) {
 	$result = dba::connect($db_host, $db_user, $db_pass, $db_data);
 	unset($db_host, $db_user, $db_pass, $db_data);
 
@@ -85,7 +77,7 @@ if (!$install) {
 	Addon::loadHooks();
 	Addon::callHooks('init_1');
 
-	$maintenance = Config::get('system', 'maintenance');
+	$a->checkMaintenanceMode();
 }
 
 $lang = L10n::getBrowserLanguage();
@@ -129,7 +121,7 @@ if ((x($_SESSION, 'language')) && ($_SESSION['language'] !== $lang)) {
 	L10n::loadTranslationTable($lang);
 }
 
-if ((x($_GET, 'zrl')) && (!$install && !$maintenance)) {
+if ((x($_GET, 'zrl')) && $a->mode == App::MODE_NORMAL) {
 	// Only continue when the given profile link seems valid
 	// Valid profile links contain a path with "/profile/" and no query parameters
 	if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "")
@@ -181,9 +173,9 @@ $_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 
 // in install mode, any url loads install module
 // but we need "view" module for stylesheet
-if ($install && $a->module!="view") {
+if ($a->mode == App::MODE_INSTALL && $a->module!="view") {
 	$a->module = 'install';
-} elseif ($maintenance && $a->module!="view") {
+} elseif ($a->mode == App::MODE_MAINTENANCE && $a->module!="view") {
 	$a->module = 'maintenance';
 } else {
 	check_url($a);
@@ -342,7 +334,7 @@ if (! x($a->page, 'content')) {
 	$a->page['content'] = '';
 }
 
-if (!$install && !$maintenance) {
+if ($a->mode == App::MODE_NORMAL) {
 	Addon::callHooks('page_content_top', $a->page['content']);
 }
 
