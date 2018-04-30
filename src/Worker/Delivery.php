@@ -270,7 +270,7 @@ class Delivery extends BaseObject
 
 		// We don't have a relationship with contacts on a public post.
 		// Se we transmit with the new method and via Diaspora as a fallback
-		if ($items[0]['uid'] == 0) {
+		if (($items[0]['uid'] == 0) || ($contact['uid'] == 0)) {
 			// Transmit in public if it's a relay post
 			$public_dfrn = ($contact['contact-type'] == ACCOUNT_TYPE_RELAY);
 
