@@ -836,14 +836,10 @@ function networkThreadedView(App $a, $update, $parent)
 			STRAIGHT_JOIN (SELECT `oid` FROM `term` WHERE `term` IN
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
-				AND (`item`.`parent-uri` != `item`.`uri`
-					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
-					OR `contact`.`rel` IN (?, ?) AND NOT `contact`.`readonly`)
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ?
-				AND NOT `contact`.`hidden` AND NOT `contact`.`blocked`" . $sql_tag_nets,
+				AND NOT `author`.`hidden` AND NOT `author`.`blocked`" . $sql_tag_nets,
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG,
-			CONTACT_IS_SHARING, CONTACT_IS_FRIEND,
 			$top_limit, $bottom_limit);
 
 		$data = dba::inArray($items);
@@ -860,7 +856,12 @@ function networkThreadedView(App $a, $update, $parent)
 				$s[$item['uri']] = $item;
 			}
 			foreach ($data as $item) {
-				$s[$item['uri']] = $item;
+				// Don't show hash tag posts from blocked or ignored contacts
+				$condition = ["`nurl` = ? AND `uid` = ? AND (`blocked` OR `readonly`)",
+					normalise_link($item['author-link']), local_user()];
+				if (!dba::exists('contact', $condition)) {
+					$s[$item['uri']] = $item;
+				}
 			}
 			$r = $s;
 		}

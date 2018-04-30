@@ -862,12 +862,32 @@ class Item extends BaseObject
 		}
 
 		unset($item['id']);
+		unset($item['parent']);
+		unset($item['mention']);
+		unset($item['wall']);
+		unset($item['origin']);
+		unset($item['starred']);
+		unset($item['rendered-hash']);
+		unset($item['rendered-html']);
 
-		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND NOT `readonly` AND `rel` IN (?, ?)",
+		$users = [];
+
+		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
 			$parent['owner-id'], CONTACT_IS_SHARING,  CONTACT_IS_FRIEND];
 		$contacts = dba::select('contact', ['uid'], $condition);
 		while ($contact = dba::fetch($contacts)) {
-			self::storeForUser($itemid, $item, $contact['uid']);
+			$users[$contact['uid']] = $contact['uid'];
+		}
+
+		if ($item['uri'] != $item['parent-uri']) {
+			$parents = dba::select('item', ['uid'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+			while ($parent = dba::fetch($parents)) {
+				$users[$parent['uid']] = $parent['uid'];
+			}
+		}
+
+		foreach ($users as $uid) {
+			self::storeForUser($itemid, $item, $uid);
 		}
 	}
 
@@ -955,10 +975,15 @@ class Item extends BaseObject
 
 			if (!dba::exists('item', ['uri' => $item['uri'], 'uid' => 0])) {
 				// Preparing public shadow (removing user specific data)
-				unset($item['id']);
 				$item['uid'] = 0;
-				$item['origin'] = 0;
-				$item['wall'] = 0;
+				unset($item['id']);
+				unset($item['parent']);
+				unset($item['wall']);
+				unset($item['mention']);
+				unset($item['origin']);
+				unset($item['starred']);
+				unset($item['rendered-hash']);
+				unset($item['rendered-html']);
 				if ($item['uri'] == $item['parent-uri']) {
 					$item['contact-id'] = Contact::getIdForURL($item['owner-link']);
 				} else {
@@ -1012,11 +1037,20 @@ class Item extends BaseObject
 			return;
 		}
 
+		// Save "origin" and "parent" state
+		$origin = $item['origin'];
+		$parent = $item['parent'];
+
 		// Preparing public shadow (removing user specific data)
-		unset($item['id']);
 		$item['uid'] = 0;
-		$item['origin'] = 0;
-		$item['wall'] = 0;
+		unset($item['id']);
+		unset($item['parent']);
+		unset($item['wall']);
+		unset($item['mention']);
+		unset($item['origin']);
+		unset($item['starred']);
+		unset($item['rendered-hash']);
+		unset($item['rendered-html']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
@@ -1028,6 +1062,14 @@ class Item extends BaseObject
 		$public_shadow = self::insert($item, false, false, true);
 
 		logger("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, LOGGER_DEBUG);
+
+		// If this was a comment to a Diaspora post we don't get our comment back.
+		// This means that we have to distribute the comment by ourselves.
+		if ($origin) {
+			if (dba::exists('item', ['id' => $parent, 'network' => NETWORK_DIASPORA])) {
+				self::distribute($public_shadow);
+			}
+		}
 	}
 
 	 /**

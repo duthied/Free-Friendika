@@ -1120,6 +1120,7 @@ function admin_page_site_post(App $a)
 	}
 	Config::set('system', 'language', $language);
 	Config::set('system', 'theme', $theme);
+	Theme::install($theme);
 
 	if ($theme_mobile == '---') {
 		Config::delete('system', 'mobile-theme');

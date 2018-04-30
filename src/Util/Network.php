@@ -36,7 +36,30 @@ class Network
 	 */
 	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
 	{
-		$ret = self::curl(
+		$ret = self::fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
+
+		return $ret['body'];
+	}
+
+	/**
+	 * @brief Curl wrapper with array of return values.
+	 *
+	 * Inner workings and parameters are the same as @ref fetchUrl but returns an array with
+	 * all the information collected during the fetch.
+	 *
+	 * @param string  $url            URL to fetch
+	 * @param boolean $binary         default false
+	 *                                TRUE if asked to return binary results (file download)
+	 * @param integer $redirects      The recursion counter for internal use - default 0
+	 * @param integer $timeout        Timeout in seconds, default system config value or 60 seconds
+	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
+	 * @param string  $cookiejar      Path to cookie jar file
+	 *
+	 * @return array With all relevant information, 'body' contains the actual fetched content.
+	 */
+	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
+	{
+		return self::curl(
 			$url,
 			$binary,
 			$redirects,
@@ -45,8 +68,6 @@ class Network
 			'cookiejar'=>$cookiejar
 			]
 		);
-
-		return($ret['body']);
 	}
 
 	/**

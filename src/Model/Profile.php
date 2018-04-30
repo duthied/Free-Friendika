@@ -152,7 +152,7 @@ class Profile
 
 		$a->set_template_engine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
-		$theme_info_file = 'view/theme/' . current_theme() . '/theme.php';
+		$theme_info_file = 'view/theme/' . $a->getCurrentTheme() . '/theme.php';
 		if (file_exists($theme_info_file)) {
 			require_once $theme_info_file;
 		}
@@ -950,7 +950,7 @@ class Profile
 			];
 		}
 
-		if ((!$is_owner) && ((count($a->profile)) || (!$a->profile['hide-friends']))) {
+		if (!$is_owner && empty($a->profile['hide-friends'])) {
 			$tabs[] = [
 				'label' => L10n::t('Contacts'),
 				'url'   => System::baseUrl() . '/viewcontacts/' . $nickname,

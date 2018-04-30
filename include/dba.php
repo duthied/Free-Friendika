@@ -1,5 +1,6 @@
 <?php
 
+use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
@@ -24,7 +25,7 @@ class dba {
 	private static $in_transaction = false;
 	private static $relation = [];
 
-	public static function connect($serveraddr, $user, $pass, $db, $install = false) {
+	public static function connect($serveraddr, $user, $pass, $db) {
 		if (!is_null(self::$db)) {
 			return true;
 		}
@@ -51,7 +52,7 @@ class dba {
 			return false;
 		}
 
-		if ($install) {
+		if ($a->mode == App::MODE_INSTALL) {
 			// server has to be a non-empty string that is not 'localhost' and not an IP
 			if (strlen($server) && ($server !== 'localhost') && filter_var($server, FILTER_VALIDATE_IP) === false) {
 				if (! dns_get_record($server, DNS_A + DNS_CNAME)) {
@@ -93,6 +94,7 @@ class dba {
 
 		// No suitable SQL driver was found.
 		if (!self::$connected) {
+			self::$driver = null;
 			self::$db = null;
 		}
 		$a->save_timestamp($stamp1, "network");

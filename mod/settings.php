@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -354,6 +355,7 @@ function settings_post(App $a)
 				theme_post($a);
 			}
 		}
+		Theme::install($theme);
 
 		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
 				dbesc($theme),

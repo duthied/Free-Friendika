@@ -513,7 +513,7 @@ function load_view_file($s) {
 		return $content;
 	}
 
-	$theme = current_theme();
+	$theme = $a->getCurrentTheme();
 
 	if (file_exists("$d/theme/$theme/$b")) {
 		$stamp1 = microtime(true);
@@ -637,7 +637,7 @@ function logger($msg, $level = 0) {
 
 	// turn off logger in install mode
 	if (
-		$a->module == 'install'
+		$a->mode == App::MODE_INSTALL
 		|| !dba::$connected
 	) {
 		return;
@@ -709,7 +709,7 @@ function dlogger($msg, $level = 0) {
 
 	// turn off logger in install mode
 	if (
-		$a->module == 'install'
+		$a->mode == App::MODE_INSTALL
 		|| !dba::$connected
 	) {
 		return;
@@ -1249,7 +1249,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 
 	// Compile eventual content filter reasons
 	$filter_reasons = [];
-	if (!$is_preview && !($item['self'] && local_user() == $item['uid'])) {
+	if (!$is_preview && public_contact() != $item['author-id']) {
 		if (!empty($item['content-warning']) && (!local_user() || !PConfig::get(local_user(), 'system', 'disable_cw', false))) {
 			$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
 		}

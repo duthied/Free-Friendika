@@ -32,6 +32,10 @@ require_once 'include/text.php';
  */
 class App
 {
+	const MODE_NORMAL = 0;
+	const MODE_INSTALL = 1;
+	const MODE_MAINTENANCE = 2;
+
 	public $module_loaded = false;
 	public $module_class = null;
 	public $query_string;
@@ -52,6 +56,7 @@ class App
 	public $argv;
 	public $argc;
 	public $module;
+	public $mode = App::MODE_NORMAL;
 	public $pager;
 	public $strings;
 	public $basepath;
@@ -287,6 +292,14 @@ class App
 
 		// Register template engines
 		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
+
+		/**
+		 * Load the configuration file which contains our DB credentials.
+		 * Ignore errors. If the file doesn't exist or is empty, we are running in
+		 * installation mode.	 *
+		 */
+		$this->mode = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? App::MODE_NORMAL : App::MODE_INSTALL);
+
 
 		self::$a = $this;
 	}
@@ -1066,5 +1079,101 @@ class App
 		}
 
 		return $sender_email;
+	}
+
+	/**
+	 * @note Checks, if the App is in the Maintenance-Mode
+	 *
+	 * @return boolean
+	 */
+	public function checkMaintenanceMode()
+	{
+		if (Config::get('system', 'maintenance')) {
+			$this->mode = App::MODE_MAINTENANCE;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns the current theme name.
+	 *
+	 * @return string
+	 */
+	public function getCurrentTheme()
+	{
+		if (!$this->current_theme) {
+			$this->computeCurrentTheme();
+		}
+
+		return $this->current_theme;
+	}
+
+	/**
+	 * Computes the current theme name based on the node settings, the user settings and the device type
+	 *
+	 * @throws Exception
+	 */
+	private function computeCurrentTheme()
+	{
+		$system_theme = Config::get('system', 'theme');
+		if (!$system_theme) {
+			throw new Exception(L10n::t('No system theme config value set.'));
+		}
+
+		// Sane default
+		$this->current_theme = $system_theme;
+
+		$allowed_themes = explode(',', Config::get('system', 'allowed_themes', $system_theme));
+
+		$page_theme = null;
+		// Find the theme that belongs to the user whose stuff we are looking at
+		if ($this->profile_uid && ($this->profile_uid != local_user())) {
+			// Allow folks to override user themes and always use their own on their own site.
+			// This works only if the user is on the same server
+			$user = dba::selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
+			if (DBM::is_result($user) && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
+				$page_theme = $user['theme'];
+			}
+		}
+
+		$user_theme = defaults($_SESSION, 'theme', $system_theme);
+		// Specific mobile theme override
+		if (($this->is_mobile || $this->is_tablet) && defaults($_SESSION, 'show-mobile', true)) {
+			$system_mobile_theme = Config::get('system', 'mobile-theme');
+			$user_mobile_theme = defaults($_SESSION, 'mobile-theme', $system_mobile_theme);
+
+			// --- means same mobile theme as desktop
+			if (!empty($user_mobile_theme) && $user_mobile_theme !== '---') {
+				$user_theme = $user_mobile_theme;
+			}
+		}
+
+		if ($page_theme) {
+			$theme_name = $page_theme;
+		} else {
+			$theme_name = $user_theme;
+		}
+
+		if ($theme_name
+			&& in_array($theme_name, $allowed_themes)
+			&& (file_exists('view/theme/' . $theme_name . '/style.css')
+			|| file_exists('view/theme/' . $theme_name . '/style.php'))
+		) {
+			$this->current_theme = $theme_name;
+		}
+	}
+
+	/**
+	 * @brief Return full URL to theme which is currently in effect.
+	 *
+	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
+	 *
+	 * @return string
+	 */
+	public function getCurrentThemeStylesheetPath()
+	{
+		return Core\Theme::getStylesheetPath($this->getCurrentTheme());
 	}
 }

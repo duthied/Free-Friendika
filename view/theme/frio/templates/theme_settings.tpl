@@ -4,13 +4,13 @@
 <script src="{{$baseurl}}/view/theme/frio/frameworks/jRange/jquery.range.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
 
-{{include file="field_select.tpl" field=$schema}}
+{{include file="field_select.tpl" field=$scheme}}
 
 {{if $nav_bg}}{{include file="field_colorinput.tpl" field=$nav_bg}}{{/if}}
 {{if $nav_icon_color}}{{include file="field_colorinput.tpl" field=$nav_icon_color}}{{/if}}
 {{if $link_color}}{{include file="field_colorinput.tpl" field=$link_color}}{{/if}}
 
-{{if $bgcolor}}{{include file="field_colorinput.tpl" field=$bgcolor}}{{/if}}
+{{if $background_color}}{{include file="field_colorinput.tpl" field=$background_color}}{{/if}}
 
 {{* The slider for the content opacity - We use no template for this since it is only used at this page *}}
 {{if $contentbg_transp}}
@@ -25,6 +25,7 @@
 {{if $background_image}}{{include file="field_fileinput.tpl" field=$background_image}}{{/if}}
 
 <div id="frio_bg_image_options" style="display: none;">
+	<label>{{$bg_image_options_title}}:</label>
 {{foreach $bg_image_options as $options}}
 	{{include file="field_radio.tpl" field=$options}}
 {{/foreach}}
