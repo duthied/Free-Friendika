@@ -134,53 +134,56 @@ class Diaspora
 	 */
 	private static function getRelayContact($server_url)
 	{
-		$batch = $server_url . '/receive/public';
-
 		$fields = ['batch', 'id', 'name', 'network', 'archive', 'blocked'];
 
 		// Fetch the relay contact
-		$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
+		$condition = ['uid' => 0, 'nurl' => normalise_link($server_url),
 			'contact-type' => ACCOUNT_TYPE_RELAY];
 		$contact = dba::selectFirst('contact', $fields, $condition);
 
-		// If there is nothing found, we check if there is some unmarked relay
-		// This code segment can be removed before the release 2018-05
-		if (!DBM::is_result($contact)) {
-			$condition = ['uid' => 0, 'network' => NETWORK_DIASPORA, 'batch' => $batch,
-				'name' => 'relay', 'nick' => 'relay', 'url' => $server_url];
-			$contact = dba::selectFirst('contact', $fields, $condition);
-
-			if (DBM::is_result($contact)) {
-				// Mark the relay account as a relay account
-				$fields = ['contact-type' => ACCOUNT_TYPE_RELAY];
-				dba::update('contact', $fields, ['id' => $contact['id']]);
-			}
-		}
 		if (DBM::is_result($contact)) {
 			if ($contact['archive'] || $contact['blocked']) {
 				return false;
 			}
 			return $contact;
 		} else {
-			$fields = ['uid' => 0, 'created' => DateTimeFormat::utcNow(),
-				'name' => 'relay', 'nick' => 'relay',
-				'url' => $server_url, 'nurl' => normalise_link($server_url),
-				'batch' => $batch, 'network' => NETWORK_DIASPORA,
-				'rel' => CONTACT_IS_FOLLOWER, 'blocked' => false,
-				'contact-type' => ACCOUNT_TYPE_RELAY,
-				'pending' => false, 'writable' => true];
-			dba::insert('contact', $fields);
+			self::setRelayContact($server_url);
 
-			$fields = ['batch', 'id', 'name', 'network'];
 			$contact = dba::selectFirst('contact', $fields, $condition);
 			if (DBM::is_result($contact)) {
 				return $contact;
 			}
-
 		}
 
 		// It should never happen that we arrive here
 		return [];
+	}
+
+	/**
+	 * @brief Update or insert a relay contact
+	 *
+	 * @param string $server_url The url of the server
+	 * @param array $network_fields Optional network specific fields
+	 */
+	public static function setRelayContact($server_url, $network_fields = [])
+	{
+		$fields = ['created' => DateTimeFormat::utcNow(),
+			'name' => 'relay', 'nick' => 'relay',
+			'url' => $server_url, 'network' => NETWORK_DIASPORA,
+			'batch' => $server_url . '/receive/public',
+			'rel' => CONTACT_IS_FOLLOWER, 'blocked' => false,
+			'pending' => false, 'writable' => true];
+
+		$fields = array_merge($fields, $network_fields);
+
+		$condition = ['uid' => 0, 'nurl' => normalise_link($server_url),
+			'contact-type' => ACCOUNT_TYPE_RELAY];
+
+		if (dba::exists('contact', $condition)) {
+			unset($fields['created']);
+		}
+
+		dba::update('contact', $fields, $condition, true);
 	}
 
 	/**

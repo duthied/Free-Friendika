@@ -199,7 +199,7 @@ class Delivery extends BaseObject
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
-		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . $contact['addr']);
+		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . (empty($contact['addr']) ? $contact['url'] : $contact['addr']));
 
 		if ($cmd == self::MAIL) {
 			$item = $target_item;
@@ -270,11 +270,18 @@ class Delivery extends BaseObject
 
 		// We don't have a relationship with contacts on a public post.
 		// Se we transmit with the new method and via Diaspora as a fallback
-		if ($items[0]['uid'] == 0) {
+		if (($items[0]['uid'] == 0) || ($contact['uid'] == 0)) {
 			// Transmit in public if it's a relay post
 			$public_dfrn = ($contact['contact-type'] == ACCOUNT_TYPE_RELAY);
 
 			$deliver_status = DFRN::transmit($owner, $contact, $atom, $public_dfrn);
+
+			// We never spool failed relay deliveries
+			if ($public_dfrn) {
+				logger('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+				return;
+			}
+
 			if (($deliver_status < 200) || ($deliver_status > 299)) {
 				// Transmit via Diaspora if not possible via Friendica
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);

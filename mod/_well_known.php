@@ -70,9 +70,11 @@ function wk_social_relay()
 	}
 
 	$relay = [
-		"subscribe" => $subscribe,
-		"scope" => $scope,
-		"tags" => $taglist
+		'subscribe' => $subscribe,
+		'scope' => $scope,
+		'tags' => $taglist,
+		'protocols' => ['diaspora' => System::baseUrl() . '/receive/public',
+			'dfrn' => System::baseUrl() . '/dfrn_notify']
 	];
 
 	header('Content-type: application/json; charset=utf-8');

@@ -1426,9 +1426,12 @@ class DFRN
 				Contact::markForArchival($contact);
 				return -22;
 			}
+			$pubkey = $fcontact['pubkey'];
+		} else {
+			$pubkey = '';
 		}
 
-		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $fcontact['pubkey'], $public_batch);
+		$envelope = Diaspora::buildMessage($atom, $owner, $contact, $owner['uprvkey'], $pubkey, $public_batch);
 
 		// Create the endpoint for public posts. This is some WIP and should later be added to the probing
 		if ($public_batch && empty($contact["batch"])) {
