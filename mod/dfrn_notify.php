@@ -208,7 +208,7 @@ function dfrn_dispatch_public($postdata)
 	$contact = Contact::getDetailsByAddr($msg['author'], 0);
 	if (!$contact) {
 		logger('Contact not found for address ' . $msg['author']);
-		System::xmlExit(3, 'Contact not found');
+		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
 
 	// We now have some contact, so we fetch it
@@ -222,7 +222,7 @@ function dfrn_dispatch_public($postdata)
 	// This should never fail
 	if (!DBM::is_result($importer)) {
 		logger('Contact not found for address ' . $msg['author']);
-		System::xmlExit(3, 'Contact not found');
+		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
 
 	logger('Importing post from ' . $msg['author'] . ' with the public envelope.', LOGGER_DEBUG);
@@ -246,7 +246,7 @@ function dfrn_dispatch_private($user, $postdata)
 		$cid = Contact::getIdForURL($msg['author']);
 		if (!$cid) {
 			logger('Contact not found for address ' . $msg['author']);
-			System::xmlExit(3, 'Contact not found');
+			System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 		}
 	}
 
@@ -259,7 +259,7 @@ function dfrn_dispatch_private($user, $postdata)
 	// This should never fail
 	if (!DBM::is_result($importer)) {
 		logger('Contact not found for address ' . $msg['author']);
-		System::xmlExit(3, 'Contact not found');
+		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
 
 	// Set the user id. This is important if this is a public contact
