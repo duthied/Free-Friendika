@@ -199,7 +199,7 @@ class Delivery extends BaseObject
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
-		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . empty($contact['addr']) ? $contact['url'] : $contact['addr']);
+		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . (empty($contact['addr']) ? $contact['url'] : $contact['addr']));
 
 		if ($cmd == self::MAIL) {
 			$item = $target_item;
