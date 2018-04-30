@@ -444,6 +444,11 @@ class Probe
 
 				$old_fields = dba::selectFirst('contact', $fieldnames, $condition);
 
+				// When the contact doesn't exist, the value "true" will trigger an insert
+				if (!$old_fields) {
+					$old_fields = true;
+				}
+
 				dba::update('contact', $fields, $condition, $old_fields);
 			}
 		}
