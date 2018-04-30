@@ -18,6 +18,7 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Protocol\Diaspora;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -1429,6 +1430,20 @@ class PortableContact
 				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
 			}
 		}
+
+		// Create or update the relay contact
+		$fields = [];
+		if (isset($data->protocols)) {
+			if (isset($data->protocols->diaspora)) {
+				$fields['network'] = NETWORK_DIASPORA;
+				$fields['batch'] = $data->protocols->diaspora;
+			}
+			if (isset($data->protocols->dfrn)) {
+				$fields['network'] = NETWORK_DFRN;
+				$fields['batch'] = $data->protocols->dfrn;
+			}
+		}
+		Diaspora::setRelayContact($server_url, $fields);
 	}
 
 	/**
