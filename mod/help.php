@@ -69,7 +69,7 @@ function help_content(App $a) {
 	if ($filename !== "Home") {
 		// create TOC but not for home
 		$lines = explode("\n", $html);
-		$toc="<style>aside ul {padding-left: 1em;}aside h1{font-size:2em}</style><h2>TOC</h2><ul id='toc'>";
+		$toc="<h2>TOC</h2><ul id='toc'>";
 		$lastlevel=1;
 		$idnum = [0,0,0,0,0,0,0];
 		foreach($lines as &$line){
@@ -94,16 +94,9 @@ function help_content(App $a) {
 		for($k=0;$k<$lastlevel; $k++) $toc.="</ul>";
 		$html = implode("\n",$lines);
 
-		$a->page['aside'] = '<section class="help-aside-wrapper">' . $toc . $a->page['aside'] . '</section>';
+		$a->page['aside'] = '<div class="help-aside-wrapper widget"><div id="toc-wrapper">' . $toc . '</div>' . $a->page['aside'] . '</div>';
 	}
 
-	$html = "
-		<style>
-		.md_warning {
-			padding: 1em; border: #ff0000 solid 2px;
-			background-color: #f9a3a3; color: #ffffff;
-		}
-		</style>".$html;
 	return $html;
 
 }

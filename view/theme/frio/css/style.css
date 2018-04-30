@@ -99,7 +99,6 @@ blockquote {
 code {
     white-space: pre-wrap;
 }
-.help-content-wrapper code, .help-aside-wrapper code {display: inline}
 
 /**
  * mobile aside
@@ -1054,6 +1053,25 @@ aside > #datebrowse-sidebar .posted-date-selector-months > ul > li{
 }
 aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover{
     padding-left: 27px;
+}
+
+/* help page widget */
+aside > .help-content-wrapper code, .help-aside-wrapper code {
+    display: inline
+}
+aside > .help-aside-wrapper p strong:first-child {
+    display: block;
+    margin: 1em 0 0em;
+}
+aside > .help-aside-wrapper h1 {
+    font-weight: bold;
+    font-size: 16px;
+    margin: 0;
+    padding: 20px 0 10px;
+}
+aside > .help-aside-wrapper h2 {
+    font-weight: bold;
+    font-size: 14px;
 }
 
 /* vcard / h-card */
