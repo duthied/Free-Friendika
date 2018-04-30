@@ -275,6 +275,13 @@ class Delivery extends BaseObject
 			$public_dfrn = ($contact['contact-type'] == ACCOUNT_TYPE_RELAY);
 
 			$deliver_status = DFRN::transmit($owner, $contact, $atom, $public_dfrn);
+
+			// We never spool failed relay deliveries
+			if ($public_dfrn) {
+				logger('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+				return;
+			}
+
 			if (($deliver_status < 200) || ($deliver_status > 299)) {
 				// Transmit via Diaspora if not possible via Friendica
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
