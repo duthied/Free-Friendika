@@ -93,7 +93,7 @@ HELP;
 		// Copy config file
 		$this->out("Saving config file...\n");
 		if ($config_file != '.htconfig.php' && !copy($config_file, '.htconfig.php')) {
-			throw new \RuntimeException("ERROR: Saving config file failed. Please copy htconfig.php to .htconfig.php manually.\n");
+			throw new \RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '.htconfig.php' manually.\n");
 		}
 		$this->out(" Complete!\n\n");
 		$this->out("\nInstallation is finished\n");
