@@ -1168,8 +1168,7 @@ aside #search-text, aside #side-follow-url, aside #side-peoplefind-url, right_as
 }
 
 aside #side-peoplefind-submit, right_aside #side-peoplefind-submit {
-  width: 25%;
-  float: right;
+  float: left;
 }
 
 #side-match-link {
