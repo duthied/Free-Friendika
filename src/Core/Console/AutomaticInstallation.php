@@ -29,6 +29,7 @@ Options
     -h|--help|-? Show help information
     -v           Show more debug information.
     -a           All setup checks are required (except .htaccess)
+    -f           prepared config file (e.g. ".htconfig.php" itself)
 HELP;
 	}
 
@@ -42,7 +43,11 @@ HELP;
 		$db_user = '';
 		$db_pass = '';
 		$db_data = '';
-		require_once 'htconfig.php';
+
+		$config_file = $this->getOption('f', 'htconfig.php');
+
+		$this->out("Using config $config_file...\n");
+		require_once $config_file;
 
 		Install::setInstallMode();
 
@@ -87,8 +92,8 @@ HELP;
 
 		// Copy config file
 		$this->out("Saving config file...\n");
-		if (!copy('htconfig.php', '.htconfig.php')) {
-			throw new \RuntimeException("ERROR: Saving config file failed. Please copy .htautoinstall.php to .htconfig.php manually.\n");
+		if ($config_file != '.htconfig.php' && !copy($config_file, '.htconfig.php')) {
+			throw new \RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '.htconfig.php' manually.\n");
 		}
 		$this->out(" Complete!\n\n");
 		$this->out("\nInstallation is finished\n");
