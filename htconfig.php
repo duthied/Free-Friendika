@@ -3,9 +3,6 @@
 // If automatic system installation fails:
 
 
-die('The configuration you did manually contains some mistakes. Please have a look at your .htconfig.php file.');
-// If you are doing the configuration manually, please remove the line above
-
 
 // Copy or rename this file to .htconfig.php
 
@@ -16,17 +13,17 @@ die('The configuration you did manually contains some mistakes. Please have a lo
 
 // Then set the following for your MySQL installation
 
-$db_host = 'your.mysqlhost.com';
-$db_user = 'mysqlusername';
-$db_pass = 'mysqlpassword';
-$db_data = 'mysqldatabasename';
+$db_host = 'localhost';
+$db_user = 'friendica';
+$db_pass = 'friendica';
+$db_data = 'friendica';
 
 // Use environment variables for mysql if they are set beforehand
 if (!empty(getenv('MYSQL_HOST'))
-   && !empty(getenv('MYSQL_PORT'))
-   && !empty(getenv('MYSQL_USERNAME'))
-   && !empty(getenv('MYSQL_PASSWORD'))
-   && !empty(getenv('MYSQL_DATABASE'))) {
+	&& !empty(getenv('MYSQL_PORT'))
+	&& !empty(getenv('MYSQL_USERNAME'))
+	&& !empty(getenv('MYSQL_PASSWORD'))
+	&& !empty(getenv('MYSQL_DATABASE'))) {
 	$db_host = getenv('MYSQL_HOST') . ':' . getenv('MYSQL_PORT');
 	$db_user = getenv('MYSQL_USERNAME');
 	$db_pass = getenv('MYSQL_PASSWORD');
@@ -41,15 +38,15 @@ $a->config['system']['db_charset'] = "utf8mb4";
 // Choose a legal default timezone. If you are unsure, use "America/Los_Angeles".
 // It can be changed later and only applies to timestamps for anonymous viewers.
 
-$default_timezone = 'America/Los_Angeles';
+$default_timezone = 'Europe/Berlin';
 
 // Default system language
 
-$a->config['system']['language'] = 'en';
+$a->config['system']['language'] = 'de';
 
 // What is your site name?
 
-$a->config['sitename'] = "Friendica Social Network";
+$a->config['sitename'] = "Philipp Test";
 
 // Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
 // Be certain to create your own personal account before setting

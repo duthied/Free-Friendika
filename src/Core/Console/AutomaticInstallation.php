@@ -29,7 +29,7 @@ Options
     -h|--help|-? Show help information
     -v           Show more debug information.
     -a           All setup checks are required (except .htaccess)
-    -f 			 "htconfig.php" file
+    -f           prepared config file (e.g. ".htconfig.php" itself)
 HELP;
 	}
 
