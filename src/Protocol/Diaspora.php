@@ -68,6 +68,12 @@ class Diaspora
 		}
 
 		if (Config::get("system", "relay_directly", false)) {
+			// We distribute our stuff based on the parent to ensure that the thread will be complete
+			$parent = dba::selectFirst('item', ['parent'], ['id' => $item_id]);
+			if (!DBM::is_result($parent)) {
+				return;
+			}
+
 			// Servers that want to get all content
 			$servers = dba::select('gserver', ['url'], ['relay-subscribe' => true, 'relay-scope' => 'all']);
 			while ($server = dba::fetch($servers)) {
@@ -75,7 +81,7 @@ class Diaspora
 			}
 
 			// All tags of the current post
-			$condition = ['otype' => TERM_OBJ_POST, 'type' => TERM_HASHTAG, 'oid' => $item_id];
+			$condition = ['otype' => TERM_OBJ_POST, 'type' => TERM_HASHTAG, 'oid' => $parent['parent']];
 			$tags = dba::select('term', ['term'], $condition);
 			$taglist = [];
 			while ($tag = dba::fetch($tags)) {

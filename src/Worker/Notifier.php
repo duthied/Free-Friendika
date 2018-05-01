@@ -15,16 +15,11 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
+use Friendica\Worker\Delivery;
 use dba;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
-
-/*
- * This file was at one time responsible for doing all deliveries, but this caused
- * big problems when the process was killed or stalled during the delivery process.
- * It now invokes separate queues that are delivering via delivery.php and pubsubpublish.php.
- */
 
 /*
  * The notifier is typically called with:
@@ -57,9 +52,6 @@ class Notifier {
 
 		logger('notifier: invoked: '.$cmd.': '.$item_id, LOGGER_DEBUG);
 
-		$mail = false;
-		$fsuggest = false;
-		$relocate = false;
 		$top_level = false;
 		$recipients = [];
 		$url_recipients = [];
@@ -67,32 +59,23 @@ class Notifier {
 		$normal_mode = true;
 		$recipients_relocate = [];
 
-		if ($cmd === 'mail') {
+		if ($cmd == Delivery::MAIL) {
 			$normal_mode = false;
-			$mail = true;
-			$message = q("SELECT * FROM `mail` WHERE `id` = %d LIMIT 1",
-					intval($item_id)
-			);
-			if (!count($message)) {
+			$message = dba::selectFirst('mail', ['uid', 'contact-id'], ['id' => $item_id]);
+			if (!DBM::is_result($message)) {
 				return;
 			}
-			$uid = $message[0]['uid'];
-			$recipients[] = $message[0]['contact-id'];
-			$item = $message[0];
-		} elseif ($cmd === 'suggest') {
+			$uid = $message['uid'];
+			$recipients[] = $message['contact-id'];
+		} elseif ($cmd == Delivery::SUGGESTION) {
 			$normal_mode = false;
-			$fsuggest = true;
-
-			$suggest = q("SELECT * FROM `fsuggest` WHERE `id` = %d LIMIT 1",
-				intval($item_id)
-			);
-			if (!count($suggest)) {
+			$suggest = dba::selectFirst('fsuggest', ['uid', 'cid'], ['id' => $item_id]);
+			if (!DBM::is_result($suggest)) {
 				return;
 			}
-			$uid = $suggest[0]['uid'];
-			$recipients[] = $suggest[0]['cid'];
-			$item = $suggest[0];
-		} elseif ($cmd === 'removeme') {
+			$uid = $suggest['uid'];
+			$recipients[] = $suggest['cid'];
+		} elseif ($cmd == Delivery::REMOVAL) {
 			$r = q("SELECT `contact`.*, `user`.`prvkey` AS `uprvkey`,
 					`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
 					`user`.`page-flags`, `user`.`prvnets`, `user`.`account-type`, `user`.`guid`
@@ -112,9 +95,8 @@ class Notifier {
 				Contact::terminateFriendship($user, $contact);
 			}
 			return;
-		} elseif ($cmd === 'relocate') {
+		} elseif ($cmd == Delivery::RELOCATION) {
 			$normal_mode = false;
-			$relocate = true;
 			$uid = $item_id;
 
 			$recipients_relocate = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND `network` IN ('%s', '%s')",
@@ -174,17 +156,11 @@ class Notifier {
 		// Deliver directly to a forum, don't PuSH
 		$direct_forum_delivery = false;
 
-		// fill this in with a single salmon slap if applicable
-		$slap = '';
-
 		$followup = false;
 		$recipients_followup = [];
 		$conversants = [];
-		$sql_extra = '';
-		if (! ($mail || $fsuggest || $relocate)) {
 
-			$slap = OStatus::salmon($target_item, $owner);
-
+		if (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::RELOCATION])) {
 			$parent = $items[0];
 
 			$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
@@ -406,19 +382,16 @@ class Notifier {
 				}
 
 				// It only makes sense to distribute answers to OStatus messages to Friendica and OStatus - but not Diaspora
-				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."')";
+				$networks = [NETWORK_OSTATUS, NETWORK_DFRN];
 			} else {
-				$sql_extra = " AND `network` IN ('".NETWORK_OSTATUS."', '".NETWORK_DFRN."', '".NETWORK_DIASPORA."', '".NETWORK_MAIL."')";
+				$networks = [NETWORK_OSTATUS, NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_MAIL];
 			}
 		} else {
 			$public_message = false;
 		}
 
 		// If this is a public message and pubmail is set on the parent, include all your email contacts
-
-		$mail_disabled = ((function_exists('imap_open') && (!Config::get('system','imap_disabled'))) ? 0 : 1);
-
-		if (!$mail_disabled) {
+		if (function_exists('imap_open') && !Config::get('system','imap_disabled')) {
 			if (!strlen($target_item['allow_cid']) && !strlen($target_item['allow_gid'])
 				&& !strlen($target_item['deny_cid']) && !strlen($target_item['deny_gid'])
 				&& intval($target_item['pubmail'])) {
@@ -434,27 +407,24 @@ class Notifier {
 			}
 		}
 
-		if ($followup) {
-			$recip_str = implode(', ', $recipients_followup);
-		} else {
-			$recip_str = implode(', ', $recipients);
-		}
-		if ($relocate) {
+		if (($cmd == Delivery::RELOCATION)) {
 			$r = $recipients_relocate;
 		} else {
-			$r = q("SELECT `id`, `url`, `network`, `self` FROM `contact`
-				WHERE `id` IN (%s) AND NOT `blocked` AND NOT `pending` AND NOT `archive`".$sql_extra,
-				dbesc($recip_str)
-			);
+			if ($followup) {
+				$recipients = $recipients_followup;
+			}
+			$condition = ['id' => $recipients, 'self' => false,
+				'blocked' => false, 'pending' => false, 'archive' => false];
+			if (!empty($networks)) {
+				$condition['network'] = $networks;
+			}
+			$contacts = dba::select('contact', ['id', 'url', 'network'], $condition);
+			$r = dba::inArray($contacts);
 		}
 
 		// delivery loop
-
 		if (DBM::is_result($r)) {
 			foreach ($r as $contact) {
-				if ($contact['self']) {
-					continue;
-				}
 				logger("Deliver ".$target_item["guid"]." to ".$contact['url']." via network ".$contact['network'], LOGGER_DEBUG);
 
 				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
@@ -464,19 +434,16 @@ class Notifier {
 
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
-
-		if ($slap && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
-			if (!Config::get('system', 'dfrn_only')) {
-				foreach ($url_recipients as $url) {
-					if ($url) {
-						logger('notifier: urldelivery: ' . $url);
-						$deliver_status = Salmon::slapper($owner, $url, $slap);
-						/// @TODO Redeliver/queue these items on failure, though there is no contact record
-					}
+		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
+			$slap = OStatus::salmon($target_item, $owner);
+			foreach ($url_recipients as $url) {
+				if ($url) {
+					logger('notifier: urldelivery: ' . $url);
+					$deliver_status = Salmon::slapper($owner, $url, $slap);
+					/// @TODO Redeliver/queue these items on failure, though there is no contact record
 				}
 			}
 		}
-
 
 		if ($public_message) {
 			$r1 = [];
@@ -510,7 +477,6 @@ class Notifier {
 				logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
 
 				foreach ($r as $rr) {
-
 					// except for Diaspora batch jobs
 					// Don't deliver to folks who have already been delivered to
 
@@ -519,7 +485,7 @@ class Notifier {
 						continue;
 					}
 
-					if (!$mail && !$fsuggest && !$followup) {
+					if (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
 						logger('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
 						Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 								'Delivery', $cmd, $item_id, (int)$rr['id']);
@@ -528,7 +494,6 @@ class Notifier {
 			}
 
 			$push_notify = true;
-
 		}
 
 		// Notify PuSH subscribers (Used for OStatus distribution of regular posts)
