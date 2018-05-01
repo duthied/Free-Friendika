@@ -28,6 +28,7 @@ class Delivery extends BaseObject
 	const DELETION =   'drop';
 	const POST =       'wall-new';
 	const COMMENT =    'comment-new';
+	const REMOVAL =    'removeme';
 
 	public static function execute($cmd, $item_id, $contact_id)
 	{
@@ -39,13 +40,13 @@ class Delivery extends BaseObject
 
 		if ($cmd == self::MAIL) {
 			$target_item = dba::selectFirst('mail', [], ['id' => $item_id]);
-			if (!DBM::is_result($message)) {
+			if (!DBM::is_result($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = dba::selectFirst('fsuggest', [], ['id' => $item_id]);
-			if (!DBM::is_result($message)) {
+			if (!DBM::is_result($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
