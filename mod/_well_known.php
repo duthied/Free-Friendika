@@ -52,7 +52,7 @@ function wk_social_relay()
 			$tags[$tag] = $tag;
 		}
 
-		if (get_config('system', 'relay_user_tags')) {
+		if (Config::get('system', 'relay_user_tags')) {
 			$terms = q("SELECT DISTINCT(`term`) FROM `search`");
 
 			foreach ($terms AS $term) {
