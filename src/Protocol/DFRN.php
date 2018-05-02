@@ -2080,7 +2080,6 @@ class DFRN
 			'confirm' => $relocate["confirm"], 'notify' => $relocate["notify"],
 			'poll' => $relocate["poll"], 'site-pubkey' => $relocate["sitepubkey"]];
 		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer["id"], normalise_link($old["url"])];
-		dba::update('contact', $fields, $condition);
 
 		// @TODO No dba:update here?
 		dba::update('contact', $fields, $condition);
