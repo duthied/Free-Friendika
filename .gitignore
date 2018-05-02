@@ -23,9 +23,11 @@ report/
 .buildpath
 .externalToolBuilders
 .settings
+
 #ignore OSX .DS_Store files
 .DS_Store
 
+#ignore NetBeans IDE's private files (at least)
 /nbproject/private/
 
 #ignore smarty cache
@@ -60,3 +62,6 @@ vendor/*
 
 #ignore addons/ directory
 addons/
+
+#Ignore .htaccess as it may contain local changes
+.htaccess
