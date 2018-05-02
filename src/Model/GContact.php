@@ -239,10 +239,8 @@ class GContact
 
 			if ($alternate && ($gcontact['network'] == NETWORK_OSTATUS)) {
 				// Delete the old entry - if it exists
-				$r = q("SELECT `id` FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
-				if (DBM::is_result($r)) {
-					q("DELETE FROM `gcontact` WHERE `nurl` = '%s'", dbesc(normalise_link($orig_profile)));
-					q("DELETE FROM `glink` WHERE `gcid` = %d", intval($r[0]["id"]));
+				if (dba::exists('item', ['nurl' => normalise_link($orig_profile)])) {
+					dba::delete('gcontact', ['nurl' => normalise_link($orig_profile)]);
 				}
 			}
 		}

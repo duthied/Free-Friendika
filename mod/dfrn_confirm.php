@@ -283,12 +283,9 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				notice(L10n::t('Remote site reported: ') . $message . EOL);
 			}
 
-			if (($status == 0) && ($intro_id)) {
+			if (($status == 0) && $intro_id) {
 				// Success. Delete the notification.
-				q("DELETE FROM `intro` WHERE `id` = %d AND `uid` = %d",
-					intval($intro_id),
-					intval($uid)
-				);
+				dba::delete('intro', ['id' => $intro_id]);
 			}
 
 			if ($status != 0) {
@@ -360,10 +357,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				}
 			}
 
-			q("DELETE FROM `intro` WHERE `id` = %d AND `uid` = %d",
-				intval($intro_id),
-				intval($uid)
-			);
+			dba::delete('intro', ['id' => $intro_id]);
 
 			$r = q("UPDATE `contact` SET `name-date` = '%s',
 				`uri-date` = '%s',

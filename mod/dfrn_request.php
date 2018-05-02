@@ -263,13 +263,9 @@ function dfrn_request_post(App $a)
 		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
 				if (!$rr['rel']) {
-					q("DELETE FROM `contact` WHERE `id` = %d AND NOT `self`",
-						intval($rr['cid'])
-					);
+					dba::delete('contact', ['id' => $rr['cid'], 'self' => false]);
 				}
-				q("DELETE FROM `intro` WHERE `id` = %d",
-					intval($rr['iid'])
-				);
+				dba::delete('intro', ['id' => $rr['iid']]);
 			}
 		}
 

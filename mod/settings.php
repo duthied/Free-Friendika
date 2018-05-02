@@ -149,9 +149,7 @@ function settings_post(App $a)
 		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
 
 		$key = $_POST['remove'];
-		q("DELETE FROM tokens WHERE id='%s' AND uid=%d",
-			dbesc($key),
-			local_user());
+		dba::delete('tokens', ['id' => $key]);
 		goaway(System::baseUrl(true)."/settings/oauth/");
 		return;
 	}
@@ -714,9 +712,7 @@ function settings_content(App $a)
 		if (($a->argc > 3) && ($a->argv[2] === 'delete')) {
 			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth', 't');
 
-			q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
-					dbesc($a->argv[3]),
-					local_user());
+			dba::delete('clients', ['client_id' => $a->argv[3], 'uid' => local_user()]);
 			goaway(System::baseUrl(true)."/settings/oauth/");
 			return;
 		}

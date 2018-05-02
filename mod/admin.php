@@ -1106,9 +1106,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'touch_icon', $touch_icon);
 
 	if ($banner == "") {
-		// don't know why, but del_config doesn't work...
-		q("DELETE FROM `config` WHERE `cat` = '%s' AND `k` = '%s' LIMIT 1", dbesc("system"), dbesc("banner")
-		);
+		Config::delete('system', 'banner');
 	} else {
 		Config::set('system', 'banner', $banner);
 	}
