@@ -148,7 +148,7 @@ function message_content(App $a)
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
-			if (dba::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
+			if (dba::delete('mail', ['id' => $a->argv[2]])) {
 				info(L10n::t('Message deleted.') . EOL);
 			}
 			//goaway(System::baseUrl(true) . '/message' );
