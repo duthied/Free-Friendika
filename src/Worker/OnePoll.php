@@ -78,7 +78,7 @@ class OnePoll
 					$last_updated = $contact['last-item'];
 				}
 
-				$fields = ['last-item' => $last_updated, 'last-update' => $updated, 'success_update' => $updated];
+				$fields = ['last-item' => DateTimeFormat::utc($last_updated), 'last-update' => $updated, 'success_update' => $updated];
 				self::updateContact($contact, $fields);
 				Contact::unmarkForArchival($contact);
 			} else {
