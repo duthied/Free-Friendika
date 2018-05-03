@@ -965,7 +965,7 @@ class BBCode extends BaseObject
 				}
 
 				if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
-					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
+					$text .= '<br /><a href="' . $link . '" title="' . $link . '">' . $link . '</a>';
 				} else {
 					$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
 
