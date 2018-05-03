@@ -448,6 +448,7 @@ class Probe
 				if (!$old_fields) {
 					$old_fields = true;
 					$fields['blocked'] = false;
+					$fields['pending'] = false;
 				}
 
 				dba::update('contact', $fields, $condition, $old_fields);
