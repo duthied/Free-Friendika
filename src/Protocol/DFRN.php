@@ -2078,94 +2078,31 @@ class DFRN
 		// Update the gcontact entry
 		$relocate["server_url"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $relocate["url"]);
 
-		$x = q(
-			"UPDATE `gcontact` SET
-					`name` = '%s',
-					`photo` = '%s',
-					`url` = '%s',
-					`nurl` = '%s',
-					`addr` = '%s',
-					`connect` = '%s',
-					`notify` = '%s',
-					`server_url` = '%s'
-			WHERE `nurl` = '%s';",
-			dbesc($relocate["name"]),
-			dbesc($relocate["avatar"]),
-			dbesc($relocate["url"]),
-			dbesc(normalise_link($relocate["url"])),
-			dbesc($relocate["addr"]),
-			dbesc($relocate["addr"]),
-			dbesc($relocate["notify"]),
-			dbesc($relocate["server_url"]),
-			dbesc(normalise_link($old["url"]))
-		);
+		$fields = ['name' => $relocate["name"], 'photo' => $relocate["avatar"],
+			'url' => $relocate["url"], 'nurl' => normalise_link($relocate["url"]),
+			'addr' => $relocate["addr"], 'connect' => $relocate["addr"],
+			'notify' => $relocate["notify"], 'server_url' => $relocate["server_url"]];
+		dba::update('gcontact', $fields, ['nurl' => normalise_link($old["url"])]);
 
 		// Update the contact table. We try to find every entry.
-		$x = q(
-			"UPDATE `contact` SET
-					`name` = '%s',
-					`avatar` = '%s',
-					`url` = '%s',
-					`nurl` = '%s',
-					`addr` = '%s',
-					`request` = '%s',
-					`confirm` = '%s',
-					`notify` = '%s',
-					`poll` = '%s',
-					`site-pubkey` = '%s'
-			WHERE (`id` = %d AND `uid` = %d) OR (`nurl` = '%s');",
-			dbesc($relocate["name"]),
-			dbesc($relocate["avatar"]),
-			dbesc($relocate["url"]),
-			dbesc(normalise_link($relocate["url"])),
-			dbesc($relocate["addr"]),
-			dbesc($relocate["request"]),
-			dbesc($relocate["confirm"]),
-			dbesc($relocate["notify"]),
-			dbesc($relocate["poll"]),
-			dbesc($relocate["sitepubkey"]),
-			intval($importer["id"]),
-			intval($importer["importer_uid"]),
-			dbesc(normalise_link($old["url"]))
-		);
+		$fields = ['name' => $relocate["name"], 'avatar' => $relocate["avatar"],
+			'url' => $relocate["url"], 'nurl' => normalise_link($relocate["url"]),
+			'addr' => $relocate["addr"], 'request' => $relocate["request"],
+			'confirm' => $relocate["confirm"], 'notify' => $relocate["notify"],
+			'poll' => $relocate["poll"], 'site-pubkey' => $relocate["sitepubkey"]];
+		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer["id"], normalise_link($old["url"])];
+		dba::update('contact', $fields, $condition);
 
 		Contact::updateAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
 
-		if ($x === false) {
-			return false;
-		}
+		logger('Contacts are updated.');
 
 		// update items
-		/// @todo This is an extreme performance killer
-		$fields = [
-			'owner-link' => [$old["url"], $relocate["url"]],
-			'author-link' => [$old["url"], $relocate["url"]],
-			//'owner-avatar' => array($old["photo"], $relocate["photo"]),
-			//'author-avatar' => array($old["photo"], $relocate["photo"]),
-		];
-		foreach ($fields as $n => $f) {
-			$r = q(
-				"SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
-				$n,
-				dbesc($f[0]),
-				intval($importer["importer_uid"])
-			);
+		// This is an extreme performance killer
+		Item::update(['owner-link' => $relocate["url"]], ['owner-link' => $old["url"], 'uid' => $importer["importer_uid"]]);
+		Item::update(['author-link' => $relocate["url"]], ['author-link' => $old["url"], 'uid' => $importer["importer_uid"]]);
 
-			if (DBM::is_result($r)) {
-				$x = q(
-					"UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
-					$n,
-					dbesc($f[1]),
-					$n,
-					dbesc($f[0]),
-					intval($importer["importer_uid"])
-				);
-
-				if ($x === false) {
-					return false;
-				}
-			}
-		}
+		logger('Items are updated.');
 
 		/// @TODO
 		/// merge with current record, current contents have priority

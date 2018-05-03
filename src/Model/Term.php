@@ -29,8 +29,7 @@ class Term
 		}
 
 		// Clean up all tags
-		dba::e("DELETE FROM `term` WHERE `otype` = ? AND `oid` = ? AND `type` IN (?, ?)",
-			TERM_OBJ_POST, $itemid, TERM_HASHTAG, TERM_MENTION);
+		dba::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]]);
 
 		if ($message['deleted']) {
 			return;
@@ -135,11 +134,7 @@ class Term
 		}
 
 		// Clean up all tags
-		q("DELETE FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` IN (%d, %d)",
-			intval(TERM_OBJ_POST),
-			intval($itemid),
-			intval(TERM_FILE),
-			intval(TERM_CATEGORY));
+		dba::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_FILE, TERM_CATEGORY]]);
 
 		if ($message["deleted"]) {
 			return;

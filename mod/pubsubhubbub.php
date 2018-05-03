@@ -135,8 +135,7 @@ function pubsubhubbub_init(App $a) {
 		  dbesc($hub_callback));
 
 		// delete old subscription if it exists
-		q("DELETE FROM `push_subscriber` WHERE `callback_url` = '%s'",
-		  dbesc($hub_callback));
+		dba::delete('push_subscriber', ['callback_url' => $hub_callback]);
 
 		if ($subscribe) {
 			$last_update = DateTimeFormat::utcNow();

@@ -1763,13 +1763,10 @@ function api_statuses_home_timeline($type)
 		$idarray[] = intval($item["id"]);
 	}
 
-	$idlist = implode(",", $idarray);
-
-	if ($idlist != "") {
-		$unseen = q("SELECT `id` FROM `item` WHERE `unseen` AND `id` IN (%s)", $idlist);
-
+	if (!empty($idarray)) {
+		$unseen = dba::exists('item', ['unseen' => true, 'id' => $idarray]);
 		if ($unseen) {
-			q("UPDATE `item` SET `unseen` = 0 WHERE `unseen` AND `id` IN (%s)", $idlist);
+			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
 	}
 

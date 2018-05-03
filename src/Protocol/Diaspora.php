@@ -1608,34 +1608,9 @@ class Diaspora
 		logger('Contacts are updated.');
 
 		// update items
-		/// @todo This is an extreme performance killer
-		$fields = [
-			'owner-link' => [$contact["url"], $data["url"]],
-			'author-link' => [$contact["url"], $data["url"]],
-		];
-		foreach ($fields as $n => $f) {
-			$r = q(
-				"SELECT `id` FROM `item` WHERE `%s` = '%s' AND `uid` = %d LIMIT 1",
-				$n,
-				dbesc($f[0]),
-				intval($importer["uid"])
-			);
-
-			if (DBM::is_result($r)) {
-				$x = q(
-					"UPDATE `item` SET `%s` = '%s' WHERE `%s` = '%s' AND `uid` = %d",
-					$n,
-					dbesc($f[1]),
-					$n,
-					dbesc($f[0]),
-					intval($importer["uid"])
-				);
-
-				if ($x === false) {
-					return false;
-				}
-			}
-		}
+		// This is an extreme performance killer
+		Item::update(['owner-link' => $data["url"]], ['owner-link' => $contact["url"], 'uid' => $importer["uid"]]);
+		Item::update(['author-link' => $data["url"]], ['author-link' => $contact["url"], 'uid' => $importer["uid"]]);
 
 		logger('Items are updated.');
 

@@ -148,11 +148,7 @@ function message_content(App $a)
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
-			$r = q("DELETE FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($a->argv[2]),
-				intval(local_user())
-			);
-			if ($r) {
+			if (dba::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
 				info(L10n::t('Message deleted.') . EOL);
 			}
 			//goaway(System::baseUrl(true) . '/message' );
@@ -166,22 +162,7 @@ function message_content(App $a)
 				$parent = $r[0]['parent-uri'];
 				$convid = $r[0]['convid'];
 
-				$r = q("DELETE FROM `mail` WHERE `parent-uri` = '%s' AND `uid` = %d ",
-					dbesc($parent),
-					intval(local_user())
-				);
-
-				// remove diaspora conversation pointer
-				// Actually if we do this, we can never receive another reply to that conversation,
-				// as we will never again have the info we need to re-create it.
-				// We'll just have to orphan it.
-				//if ($convid) {
-				//	q("delete from conv where id = %d limit 1",
-				//		intval($convid)
-				//	);
-				//}
-
-				if ($r) {
+				if (dba::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
 					info(L10n::t('Conversation removed.') . EOL);
 				}
 			}
