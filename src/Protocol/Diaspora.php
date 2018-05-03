@@ -3571,7 +3571,11 @@ class Diaspora
 				$ret["root_guid"] = $guid;
 				return $ret;
 			}
+		} elseif (($guid == "") && $complete) {
+			return false;
 		}
+
+		$ret["root_guid"] = $guid;
 
 		$profile = "";
 		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
@@ -3591,10 +3595,6 @@ class Diaspora
 				$author = Contact::getDetailsByURL($profile);
 				$ret["root_handle"] = $author['addr'];
 			}
-		}
-
-		if (!empty($guid)) {
-			$ret["root_guid"] = $guid;
 		}
 
 		if (empty($ret) && !$complete) {
