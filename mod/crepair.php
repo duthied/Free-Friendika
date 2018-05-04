@@ -121,7 +121,7 @@ function crepair_content(App $a)
 	// Disable remote self for everything except feeds.
 	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
 	// Problem is, you couldn't reply to both networks.
-	if (!in_array($contact['network'], [NETWORK_FEED, NETWORK_DFRN, NETWORK_DIASPORA])) {
+	if (!in_array($contact['network'], [NETWORK_FEED, NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_TWITTER])) {
 		$allow_remote_self = false;
 	}
 
