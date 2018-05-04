@@ -474,8 +474,8 @@ function item_joins() {
 		AND NOT `contact`.`blocked`
 		AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
 		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`))
-		LEFT JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
-		LEFT JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`
+		INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id` AND NOT `author`.`blocked`
+		INNER JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id` AND NOT `owner`.`blocked`
 		LEFT JOIN `event` ON `event-id` = `event`.`id`",
 		CONTACT_IS_SHARING, CONTACT_IS_FRIEND
 	);
