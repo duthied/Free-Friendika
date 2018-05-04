@@ -4170,21 +4170,11 @@ function api_fr_photoalbum_update($type)
 		throw new BadRequestException("no new albumname specified");
 	}
 	// check if album is existing
-	$r = q(
-		"SELECT `id` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
-		intval(api_user()),
-		dbesc($album)
-	);
-	if (!DBM::is_result($r)) {
+	if (!dba::exists('photo', ['uid' => api_user(), 'album' => $album])) {
 		throw new BadRequestException("album not available");
 	}
 	// now let's update all photos to the albumname
-	$result = q(
-		"UPDATE `photo` SET `album` = '%s' WHERE `uid` = %d AND `album` = '%s'",
-		dbesc($album_new),
-		intval(api_user()),
-		dbesc($album)
-	);
+	$result = dba::update('photo', ['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
 
 	// return success of updating or error message
 	if ($result) {
@@ -4486,7 +4476,7 @@ function api_account_update_profile_image($type)
 		throw new ForbiddenException();
 	}
 	// input params
-	$profileid = defaults($_REQUEST, 'profile_id', 0);
+	$profile_id = defaults($_REQUEST, 'profile_id', 0);
 
 	// error if image data is missing
 	if (!x($_FILES, 'image')) {
@@ -4494,17 +4484,13 @@ function api_account_update_profile_image($type)
 	}
 
 	// check if specified profile id is valid
-	if ($profileid != 0) {
-		$r = q(
-			"SELECT `id` FROM `profile` WHERE `uid` = %d AND `id` = %d",
-			intval(api_user()),
-			intval($profileid)
-		);
+	if ($profile_id != 0) {
+		$profile = dba::selectFirst('profile', ['is-default'], ['uid' => api_user(), 'id' => $profile_id]);
 		// error message if specified profile id is not in database
-		if (!DBM::is_result($r)) {
+		if (!DBM::is_result($profile)) {
 			throw new BadRequestException("profile_id not available");
 		}
-		$is_default_profile = $r['profile'];
+		$is_default_profile = $profile['is-default'];
 	} else {
 		$is_default_profile = 1;
 	}
@@ -4534,37 +4520,15 @@ function api_account_update_profile_image($type)
 	}
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
-		q(
-			"UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
-			dbesc($data['photo']['id']),
-			intval(local_user())
-		);
-
-		q(
-			"UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s'  WHERE `self` AND `uid` = %d",
-			dbesc(System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $fileext),
-			dbesc(System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $fileext),
-			dbesc(System::baseUrl() . '/photo/' . $data['photo']['id'] . '-6.' . $fileext),
-			intval(local_user())
-		);
+		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
+		dba::update('photo', ['profile' => false], $condition);
 	} else {
-		q(
-			"UPDATE `profile` SET `photo` = '%s', `thumb` = '%s' WHERE `id` = %d AND `uid` = %d",
-			dbesc(System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype),
-			dbesc(System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype),
-			intval($_REQUEST['profile']),
-			intval(local_user())
-		);
+		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype,
+			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype];
+		dba::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
 	}
 
-	// we'll set the updated profile-photo timestamp even if it isn't the default profile,
-	// so that browsers will do a cache update unconditionally
-
-	q(
-		"UPDATE `contact` SET `avatar-date` = '%s' WHERE `self` = 1 AND `uid` = %d",
-		dbesc(DateTimeFormat::utcNow()),
-		intval(local_user())
-	);
+	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
 	//$user = api_get_user(get_app());
@@ -5044,15 +5008,9 @@ function api_friendica_remoteauth()
 
 	$sec = random_string();
 
-	q(
-		"INSERT INTO `profile_check` ( `uid`, `cid`, `dfrn_id`, `sec`, `expire`)
-		VALUES( %d, %s, '%s', '%s', %d )",
-		intval(api_user()),
-		intval($cid),
-		dbesc($dfrn_id),
-		dbesc($sec),
-		intval(time() + 45)
-	);
+	$fields = ['uid' => api_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id,
+		'sec' => $sec, 'expire' => time() + 45];
+	dba::insert('profile_check', $fields);
 
 	logger($contact['name'] . ' ' . $sec, LOGGER_DEBUG);
 	$dest = ($url ? '&destination_url=' . $url : '');
@@ -6014,25 +5972,14 @@ function api_friendica_direct_messages_setseen($type)
 		return api_format_data("direct_messages_setseen", $type, ['$result' => $answer]);
 	}
 
-	// get data of the specified message id
-	$r = q(
-		"SELECT `id` FROM `mail` WHERE `id` = %d AND `uid` = %d",
-		intval($id),
-		intval($uid)
-	);
-
 	// error message if specified id is not in database
-	if (!DBM::is_result($r)) {
+	if (!dba::exists('mail', ['id' => $id, 'uid' => $uid])) {
 		$answer = ['result' => 'error', 'message' => 'message id not in database'];
 		return api_format_data("direct_messages_setseen", $type, ['$result' => $answer]);
 	}
 
 	// update seen indicator
-	$result = q(
-		"UPDATE `mail` SET `seen` = 1 WHERE `id` = %d AND `uid` = %d",
-		intval($id),
-		intval($uid)
-	);
+	$result = dba::update('mail', ['seen' => true], ['id' => $id]);
 
 	if ($result) {
 		// return success
@@ -6128,18 +6075,18 @@ function api_friendica_profile_show($type)
 	}
 
 	// input params
-	$profileid = (x($_REQUEST, 'profile_id') ? $_REQUEST['profile_id'] : 0);
+	$profile_id = (x($_REQUEST, 'profile_id') ? $_REQUEST['profile_id'] : 0);
 
 	// retrieve general information about profiles for user
 	$multi_profiles = Feature::isEnabled(api_user(), 'multi_profiles');
 	$directory = Config::get('system', 'directory');
 
 	// get data of the specified profile id or all profiles of the user if not specified
-	if ($profileid != 0) {
+	if ($profile_id != 0) {
 		$r = q(
 			"SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d",
 			intval(api_user()),
-			intval($profileid)
+			intval($profile_id)
 		);
 
 		// error message if specified gid is not in database

@@ -2969,12 +2969,10 @@ class Diaspora
 			case "StatusMessage":
 				return self::itemRetraction($importer, $contact, $data);
 
-			case "Contact":
-			case "Person":
-				/// @todo What should we do with an "unshare"?
-				// Removing the contact isn't correct since we still can read the public items
-				Contact::remove($contact["id"]);
-				return true;
+			case "PollParticipation":
+			case "Photo":
+				// Currently unsupported
+				break;
 
 			default:
 				logger("Unknown target type ".$target_type);
