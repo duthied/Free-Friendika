@@ -2767,6 +2767,10 @@ class DFRN
 
 			$posted_id = Item::insert($item, false, $notify);
 
+			if ($notify) {
+				$notify = $notify;
+			}
+
 			logger("Item was stored with id ".$posted_id, LOGGER_DEBUG);
 
 			if ($item['uid'] == 0) {

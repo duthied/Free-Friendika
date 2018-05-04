@@ -925,7 +925,15 @@ class Item extends BaseObject
 
 		/// @todo Handling of "event-id"
 
-		$distributed = self::insert($item, false, false, true);
+		$notify = false;
+		if ($item['uri'] == $item['parent-uri']) {
+			$contact = dba::selectFirst('contact', [], ['id' => $item['contact-id'], 'self' => false]);
+			if (DBM::is_result($contact)) {
+				$notify = self::isRemoteSelf($contact, $item);
+			}
+		}
+
+		$distributed = self::insert($item, false, $notify, true);
 
 		if (!$distributed) {
 			logger("Distributed public item " . $itemid . " for user " . $uid . " wasn't stored", LOGGER_DEBUG);
@@ -1406,20 +1414,24 @@ class Item extends BaseObject
 
 		// Prevent the forwarding of posts that are forwarded
 		if ($datarray["extid"] == NETWORK_DFRN) {
+			logger('Already forwarded', LOGGER_DEBUG);
 			return false;
 		}
 
 		// Prevent to forward already forwarded posts
 		if ($datarray["app"] == $a->get_hostname()) {
+			logger('Already forwarded (second test)', LOGGER_DEBUG);
 			return false;
 		}
 
 		// Only forward posts
 		if ($datarray["verb"] != ACTIVITY_POST) {
+			logger('No post', LOGGER_DEBUG);
 			return false;
 		}
 
 		if (($contact['network'] != NETWORK_FEED) && $datarray['private']) {
+			logger('Not public', LOGGER_DEBUG);
 			return false;
 		}
 
@@ -1441,6 +1453,10 @@ class Item extends BaseObject
 
 				unset($datarray['created']);
 				unset($datarray['edited']);
+
+				unset($datarray['network']);
+				unset($datarray['owner-id']);
+				unset($datarray['author-id']);
 			}
 
 			if ($contact['network'] != NETWORK_FEED) {
@@ -1448,7 +1464,8 @@ class Item extends BaseObject
 				unset($datarray["plink"]);
 				$datarray["uri"] = item_new_uri($a->get_hostname(), $contact['uid'], $datarray["guid"]);
 				$datarray["parent-uri"] = $datarray["uri"];
-				$datarray["extid"] = $contact['network'];
+				$datarray["thr-parent"] = $datarray["uri"];
+				$datarray["extid"] = NETWORK_DFRN;
 				$urlpart = parse_url($datarray2['author-link']);
 				$datarray["app"] = $urlpart["host"];
 			} else {
@@ -1458,10 +1475,11 @@ class Item extends BaseObject
 
 		if ($contact['network'] != NETWORK_FEED) {
 			// Store the original post
-			$r = self::insert($datarray2, false, false);
-			logger('remote-self post original item - Contact '.$contact['url'].' return '.$r.' Item '.print_r($datarray2, true), LOGGER_DEBUG);
+			$result = self::insert($datarray2, false, false);
+			logger('remote-self post original item - Contact '.$contact['url'].' return '.$result.' Item '.print_r($datarray2, true), LOGGER_DEBUG);
 		} else {
 			$datarray["app"] = "Feed";
+			$result = true;
 		}
 
 		// Trigger automatic reactions for addons
@@ -1471,7 +1489,7 @@ class Item extends BaseObject
 		$_SESSION["authenticated"] = true;
 		$_SESSION["uid"] = $contact['uid'];
 
-		return true;
+		return $result;
 	}
 
 	/**
