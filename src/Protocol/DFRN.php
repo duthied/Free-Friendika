@@ -2768,7 +2768,7 @@ class DFRN
 			$posted_id = Item::insert($item, false, $notify);
 
 			if ($notify) {
-				$notify = $notify;
+				$posted_id = $notify;
 			}
 
 			logger("Item was stored with id ".$posted_id, LOGGER_DEBUG);
