@@ -274,7 +274,7 @@ class Install extends BaseObject
 			$ck_funcs[3]['status'] = false;
 			$ck_funcs[3]['help'] = L10n::t('Error: PDO or MySQLi PHP module required but not installed.');
 		}
-		if (!function_exists('mysqli_connect') && class_exists('pdo') && !in_array('mysql', PDO::getAvailableDrivers())) {
+		if (!function_exists('mysqli_connect') && class_exists('pdo') && !in_array('mysql', \PDO::getAvailableDrivers())) {
 			$ck_funcs[3]['status'] = false;
 			$ck_funcs[3]['help'] = L10n::t('Error: The MySQL driver for PDO is not installed.');
 		}
