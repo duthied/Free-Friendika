@@ -4476,7 +4476,7 @@ function api_account_update_profile_image($type)
 		throw new ForbiddenException();
 	}
 	// input params
-	$profileid = defaults($_REQUEST, 'profile_id', 0);
+	$profile_id = defaults($_REQUEST, 'profile_id', 0);
 
 	// error if image data is missing
 	if (!x($_FILES, 'image')) {
@@ -4484,8 +4484,8 @@ function api_account_update_profile_image($type)
 	}
 
 	// check if specified profile id is valid
-	if ($profileid != 0) {
-		$profile = dba::selectFirst('profile', ['is-default'], ['uid' => api_user(), 'id' => $profileid]);
+	if ($profile_id != 0) {
+		$profile = dba::selectFirst('profile', ['is-default'], ['uid' => api_user(), 'id' => $profile_id]);
 		// error message if specified profile id is not in database
 		if (!DBM::is_result($profile)) {
 			throw new BadRequestException("profile_id not available");
@@ -4520,19 +4520,12 @@ function api_account_update_profile_image($type)
 	}
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
-		q(
-			"UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
-			dbesc($data['photo']['id']),
-			intval(api_user())
-		);
+		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
+		dba::update('photo', ['profile' => false], $condition);
 	} else {
-		q(
-			"UPDATE `profile` SET `photo` = '%s', `thumb` = '%s' WHERE `id` = %d AND `uid` = %d",
-			dbesc(System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype),
-			dbesc(System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype),
-			intval($_REQUEST['profile']),
-			intval(api_user())
-		);
+		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype,
+			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype];
+		dba::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
 	}
 
 	Contact::updateSelfFromUserID(api_user(), true);
@@ -6082,18 +6075,18 @@ function api_friendica_profile_show($type)
 	}
 
 	// input params
-	$profileid = (x($_REQUEST, 'profile_id') ? $_REQUEST['profile_id'] : 0);
+	$profile_id = (x($_REQUEST, 'profile_id') ? $_REQUEST['profile_id'] : 0);
 
 	// retrieve general information about profiles for user
 	$multi_profiles = Feature::isEnabled(api_user(), 'multi_profiles');
 	$directory = Config::get('system', 'directory');
 
 	// get data of the specified profile id or all profiles of the user if not specified
-	if ($profileid != 0) {
+	if ($profile_id != 0) {
 		$r = q(
 			"SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d",
 			intval(api_user()),
-			intval($profileid)
+			intval($profile_id)
 		);
 
 		// error message if specified gid is not in database
