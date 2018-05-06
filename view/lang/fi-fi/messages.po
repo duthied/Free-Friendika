@@ -9,14 +9,15 @@
 # Beluga, 2012-2013
 # Beluga, 2013
 # Beluga, 2012
+# Samuli Valavuo <svalavuo@gmail.com>, 2018
 # teho, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-29 07:13+0200\n"
-"PO-Revision-Date: 2018-04-29 13:19+0000\n"
-"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
+"PO-Revision-Date: 2018-05-04 12:15+0000\n"
+"Last-Translator: Samuli Valavuo <svalavuo@gmail.com>\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -160,7 +161,7 @@ msgstr "Katso yksityisviestisi kohteessa %s."
 #: include/enotify.php:138
 #, php-format
 msgid "%1$s commented on [url=%2$s]a %3$s[/url]"
-msgstr ""
+msgstr "%1$s kommentoi [url=%2$s] %3$s[/url]"
 
 #: include/enotify.php:146
 #, php-format
@@ -186,7 +187,7 @@ msgstr "%s kommentoi kohteessa/keskustelussa jota seuraat."
 #: include/enotify.php:218 include/enotify.php:237 include/enotify.php:252
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
-msgstr ""
+msgstr "Käy %s nähdäksesi keskustelun ja/tai vastataksesi siihen"
 
 #: include/enotify.php:180
 #, php-format
@@ -226,7 +227,7 @@ msgstr "[Friendica:Notify] %s jakoi uuden julkaisun"
 #: include/enotify.php:212
 #, php-format
 msgid "%1$s shared a new post at %2$s"
-msgstr ""
+msgstr "%1$s jakoi uuden julkaisun %2$s"
 
 #: include/enotify.php:213
 #, php-format
@@ -318,7 +319,7 @@ msgstr "Sait kaverikutsun henkilöltä '%1$s' (%2$s)"
 #, php-format
 msgid ""
 "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr ""
+msgstr "Sait [url=%1$s] kaveriehdotuksen[/url] %2$s käyttäjältä %3$s."
 
 #: include/enotify.php:311
 msgid "Name:"
@@ -365,7 +366,7 @@ msgid ""
 "communication - such as private messaging and some profile interactions. If "
 "this is a celebrity or community page, these settings were applied "
 "automatically."
-msgstr ""
+msgstr "'%1$s' on hyväksynyt sinut faniksi. Tämä rajoittaa joitain kommunikointitapoja - kuten yksityisviestiettely ja joitain profiilitoimintoja. Jos tämä on julkisuuden henkilö tai yhteisösivu, asetukset on valittu automaattisesti."
 
 #: include/enotify.php:348
 #, php-format
@@ -423,7 +424,7 @@ msgstr "Tervetuloa takaisin"
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
-msgstr ""
+msgstr "Lomakkeen turvallisuusavain oli väärin. Tämä voi johtua siitä, että lomake on ollut avoinna liian kauan (>3 tuntia) ennen sen lähettämistä."
 
 #: include/conversation.php:144 include/conversation.php:282
 #: include/text.php:1748 src/Model/Item.php:1895
@@ -3401,11 +3402,11 @@ msgstr "Tallenna asetukset"
 
 #: mod/delegate.php:169 src/Content/Nav.php:201
 msgid "Delegate Page Management"
-msgstr ""
+msgstr "Delegoi sivunhallinta"
 
 #: mod/delegate.php:170
 msgid "Delegates"
-msgstr ""
+msgstr "Valtuutetut"
 
 #: mod/delegate.php:172
 msgid ""
@@ -3416,11 +3417,11 @@ msgstr ""
 
 #: mod/delegate.php:173
 msgid "Existing Page Delegates"
-msgstr ""
+msgstr "Sivun valtuutetut"
 
 #: mod/delegate.php:175
 msgid "Potential Delegates"
-msgstr ""
+msgstr "Mahdolliset valtuutetut"
 
 #: mod/delegate.php:178
 msgid "Add"
@@ -3428,7 +3429,7 @@ msgstr "Lisää"
 
 #: mod/delegate.php:179
 msgid "No entries."
-msgstr ""
+msgstr "Ei kohteita."
 
 #: mod/events.php:105 mod/events.php:107
 msgid "Event can not end before it has started."
@@ -3909,7 +3910,7 @@ msgstr "julkinen profiili"
 #: mod/profiles.php:576
 #, php-format
 msgid "%1$s changed %2$s to &ldquo;%3$s&rdquo;"
-msgstr ""
+msgstr "%1$s muokkasi kohteen %2$s kohteeksi &ldquo;%3$s&rdquo;"
 
 #: mod/profiles.php:577
 #, php-format
@@ -4301,7 +4302,7 @@ msgstr "Friendica -solmullasi käyttäjä poisti tilinsä. Varmista että hänen
 #: mod/removeme.php:45
 #, php-format
 msgid "The user id is %d"
-msgstr ""
+msgstr "Käyttäjätunnus on %d"
 
 #: mod/removeme.php:76 mod/removeme.php:79
 msgid "Remove My Account"
@@ -6945,7 +6946,7 @@ msgstr "pois käytöstä"
 #: mod/settings.php:807 mod/settings.php:808
 #, php-format
 msgid "Built-in support for %s connectivity is %s"
-msgstr ""
+msgstr "Sisäänrakennettu tuki palvelulle %s on %s"
 
 #: mod/settings.php:808
 msgid "GNU Social (OStatus)"
@@ -7627,7 +7628,7 @@ msgstr "Muunnelmat"
 
 #: view/theme/frio/php/Image.php:24
 msgid "Top Banner"
-msgstr ""
+msgstr "Yläpalkki"
 
 #: view/theme/frio/php/Image.php:24
 msgid ""
@@ -7637,7 +7638,7 @@ msgstr ""
 
 #: view/theme/frio/php/Image.php:25
 msgid "Full screen"
-msgstr ""
+msgstr "Koko näyttö"
 
 #: view/theme/frio/php/Image.php:25
 msgid ""
@@ -7655,7 +7656,7 @@ msgstr ""
 
 #: view/theme/frio/php/Image.php:27
 msgid "Mosaic"
-msgstr ""
+msgstr "Mosaiikki"
 
 #: view/theme/frio/php/Image.php:27
 msgid "Repeat image to fill the screen."
@@ -7667,7 +7668,7 @@ msgstr ""
 
 #: view/theme/frio/config.php:114
 msgid "Note"
-msgstr ""
+msgstr "Muistiinpano"
 
 #: view/theme/frio/config.php:114
 msgid "Check image permissions if all users are allowed to see the image"
@@ -7675,7 +7676,7 @@ msgstr ""
 
 #: view/theme/frio/config.php:121
 msgid "Select color scheme"
-msgstr ""
+msgstr "Valitse värimalli"
 
 #: view/theme/frio/config.php:122
 msgid "Navigation bar background color"
@@ -7703,7 +7704,7 @@ msgstr "Valitse taustakuva"
 
 #: view/theme/frio/config.php:128
 msgid "Background image style"
-msgstr ""
+msgstr "Taustakuvan tyyli"
 
 #: view/theme/frio/config.php:133
 msgid "Login page background image"
@@ -7715,7 +7716,7 @@ msgstr "Sisäänkirjautumissivun taustaväri"
 
 #: view/theme/frio/config.php:137
 msgid "Leave background image and color empty for theme defaults"
-msgstr ""
+msgstr "Jätä taustakuva ja väri tyhjäksi käyttääksesi teeman oletuksia"
 
 #: view/theme/frio/theme.php:238
 msgid "Guest"
@@ -7936,11 +7937,11 @@ msgstr "Sulje"
 
 #: src/Core/Console/NewPassword.php:78
 msgid "Enter new password: "
-msgstr ""
+msgstr "Syötä uusi salasana:"
 
 #: src/Core/Console/NewPassword.php:83 src/Model/User.php:262
 msgid "Password can't be empty"
-msgstr ""
+msgstr "Salasanakenttä ei voi olla tyhjä"
 
 #: src/Core/Console/ArchiveContact.php:67
 #, php-format
@@ -8117,11 +8118,11 @@ msgstr "Yleiset ominaisuudet"
 
 #: src/Content/Feature.php:81
 msgid "Multiple Profiles"
-msgstr ""
+msgstr "Monia profiileja"
 
 #: src/Content/Feature.php:81
 msgid "Ability to create multiple profiles"
-msgstr ""
+msgstr "Mahdollisuus luoda useita profiileja"
 
 #: src/Content/Feature.php:82
 msgid "Photo Location"
@@ -8131,7 +8132,7 @@ msgstr "Kuvan sijainti"
 msgid ""
 "Photo metadata is normally stripped. This extracts the location (if present)"
 " prior to stripping metadata and links it to a map."
-msgstr ""
+msgstr "Kuvan metadata poistetaan normaalisti. Tämä ottaa paikkatiedon (jos olemassa) ennen poistoa ja linkittää sen karttaan."
 
 #: src/Content/Feature.php:83
 msgid "Export Public Calendar"
@@ -8139,11 +8140,11 @@ msgstr "Vie julkinen kalenteri"
 
 #: src/Content/Feature.php:83
 msgid "Ability for visitors to download the public calendar"
-msgstr ""
+msgstr "Vierailijoiden mahdollisuus ladata julkinen kalenteri"
 
 #: src/Content/Feature.php:88
 msgid "Post Composition Features"
-msgstr ""
+msgstr "Kirjoittamisen ominaisuudet"
 
 #: src/Content/Feature.php:89
 msgid "Post Preview"
@@ -8151,7 +8152,7 @@ msgstr "Viestin esikatselu"
 
 #: src/Content/Feature.php:89
 msgid "Allow previewing posts and comments before publishing them"
-msgstr ""
+msgstr "Mahdollistaa viestien esikatselun ennen niiden julkaisua"
 
 #: src/Content/Feature.php:90
 msgid "Auto-mention Forums"
@@ -8172,7 +8173,7 @@ msgstr "Päivämäärähaku"
 
 #: src/Content/Feature.php:96
 msgid "Ability to select posts by date ranges"
-msgstr ""
+msgstr "Mahdollisuus valita viestejä päivämäärärajauksella"
 
 #: src/Content/Feature.php:97 src/Content/Feature.php:127
 msgid "List Forums"
@@ -8272,15 +8273,15 @@ msgstr "Tallennetut kansiot"
 
 #: src/Content/Feature.php:118
 msgid "Ability to file posts under folders"
-msgstr ""
+msgstr "Mahdollisuus tallettaa viestejä kansioihin"
 
 #: src/Content/Feature.php:119
 msgid "Dislike Posts"
-msgstr ""
+msgstr "Inhoa viestejä"
 
 #: src/Content/Feature.php:119
 msgid "Ability to dislike posts/comments"
-msgstr ""
+msgstr "Mahdollisuus inhota viestejä/kommentteja"
 
 #: src/Content/Feature.php:120
 msgid "Star Posts"
@@ -8500,7 +8501,7 @@ msgstr "Biseksuaali"
 
 #: src/Content/ContactSelector.php:147
 msgid "Autosexual"
-msgstr ""
+msgstr "Autoseksuaalinen"
 
 #: src/Content/ContactSelector.php:147
 msgid "Abstinent"
@@ -8516,7 +8517,7 @@ msgstr ""
 
 #: src/Content/ContactSelector.php:147
 msgid "Fetish"
-msgstr ""
+msgstr "Fetissi"
 
 #: src/Content/ContactSelector.php:147
 msgid "Oodles"
@@ -8536,11 +8537,11 @@ msgstr "Yksinäinen"
 
 #: src/Content/ContactSelector.php:169
 msgid "Available"
-msgstr ""
+msgstr "Saatavilla"
 
 #: src/Content/ContactSelector.php:169
 msgid "Unavailable"
-msgstr ""
+msgstr "Ei saatavilla"
 
 #: src/Content/ContactSelector.php:169
 msgid "Has crush"
@@ -8556,11 +8557,11 @@ msgstr "Seurustelee"
 
 #: src/Content/ContactSelector.php:169
 msgid "Unfaithful"
-msgstr ""
+msgstr "Uskoton"
 
 #: src/Content/ContactSelector.php:169
 msgid "Sex Addict"
-msgstr ""
+msgstr "Sekririippuvainen"
 
 #: src/Content/ContactSelector.php:169 src/Model/User.php:519
 msgid "Friends"
@@ -8568,11 +8569,11 @@ msgstr "Kaverit"
 
 #: src/Content/ContactSelector.php:169
 msgid "Friends/Benefits"
-msgstr ""
+msgstr "Kaverit eduilla"
 
 #: src/Content/ContactSelector.php:169
 msgid "Casual"
-msgstr ""
+msgstr "Tavallinen"
 
 #: src/Content/ContactSelector.php:169
 msgid "Engaged"
@@ -8608,7 +8609,7 @@ msgstr "Ei etsi"
 
 #: src/Content/ContactSelector.php:169
 msgid "Swinger"
-msgstr ""
+msgstr "Parinvaihtaja"
 
 #: src/Content/ContactSelector.php:169
 msgid "Betrayed"
@@ -8616,7 +8617,7 @@ msgstr "Petetty"
 
 #: src/Content/ContactSelector.php:169
 msgid "Separated"
-msgstr ""
+msgstr "Asumuserossa"
 
 #: src/Content/ContactSelector.php:169
 msgid "Unstable"
@@ -8652,7 +8653,7 @@ msgstr "Kysy minulta"
 
 #: src/Content/Nav.php:53
 msgid "Nothing new here"
-msgstr ""
+msgstr "Täällä ei ole mitään uutta"
 
 #: src/Content/Nav.php:57
 msgid "Clear notifications"
@@ -8660,11 +8661,11 @@ msgstr "Tyhjennä ilmoitukset"
 
 #: src/Content/Nav.php:105
 msgid "Personal notes"
-msgstr ""
+msgstr "Henkilökohtaiset merkinnät"
 
 #: src/Content/Nav.php:105
 msgid "Your personal notes"
-msgstr ""
+msgstr "Henkilökohtaiset merkintäsi"
 
 #: src/Content/Nav.php:114
 msgid "Sign in"
@@ -8720,7 +8721,7 @@ msgstr "Verkon nollaus"
 
 #: src/Content/Nav.php:180
 msgid "Load Network page with no filters"
-msgstr ""
+msgstr "Lataa verkkosivu ilman suotimia"
 
 #: src/Content/Nav.php:186
 msgid "Friend Requests"
@@ -8732,7 +8733,7 @@ msgstr "Näytä kaikki ilmoitukset"
 
 #: src/Content/Nav.php:189
 msgid "Mark all system notifications seen"
-msgstr ""
+msgstr "Merkitse kaikki järjestelmäviestit nähdyiksi"
 
 #: src/Content/Nav.php:193
 msgid "Inbox"
@@ -8902,11 +8903,11 @@ msgstr "Poista tapahtuma"
 
 #: src/Model/Event.php:815
 msgid "D g:i A"
-msgstr ""
+msgstr "D g:i A"
 
 #: src/Model/Event.php:816
 msgid "g:i A"
-msgstr ""
+msgstr "g:i A"
 
 #: src/Model/Event.php:901 src/Model/Event.php:903
 msgid "Show map"
@@ -8957,11 +8958,11 @@ msgstr "Kirjautuminen epäonnistui"
 
 #: src/Model/User.php:185
 msgid "Not enough information to authenticate"
-msgstr ""
+msgstr "Ei tarpeeksi tietoja kirjautumiseen"
 
 #: src/Model/User.php:346
 msgid "An invitation is required."
-msgstr ""
+msgstr "Vaaditaa kutsu."
 
 #: src/Model/User.php:350
 msgid "Invitation could not be verified."
@@ -8975,7 +8976,7 @@ msgstr "Virheellinen OpenID url-osoite"
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
-msgstr ""
+msgstr "Kohtasimme ongelman antamasi OpenID:n kanssa. Ole hyvä ja tarkista ID:n oikea kirjoitusasu."
 
 #: src/Model/User.php:370 src/Module/Login.php:100
 msgid "The error message was:"
@@ -8995,7 +8996,7 @@ msgstr "Nimi on liian lyhyt."
 
 #: src/Model/User.php:400
 msgid "That doesn't appear to be your full (First Last) name."
-msgstr ""
+msgstr "Tuo ei vakuta täydeltä nimeltäsi (Etunimi Sukunimi)."
 
 #: src/Model/User.php:405
 msgid "Your email domain is not among those allowed on this site."
@@ -9031,12 +9032,12 @@ msgstr "Oletusprofiilin luominen epäonnistui. Yritä uudelleen."
 
 #: src/Model/User.php:514
 msgid "An error occurred creating your self contact. Please try again."
-msgstr ""
+msgstr "Yhteystietojesi luonti epäonnistui. Yritä uudelleen."
 
 #: src/Model/User.php:523
 msgid ""
 "An error occurred creating your default contact group. Please try again."
-msgstr ""
+msgstr "Oletusryhmäsi luonti epäonnistui. Yritä uudelleen."
 
 #: src/Model/User.php:597
 #, php-format
@@ -9045,7 +9046,7 @@ msgid ""
 "\t\t\tDear %1$s,\n"
 "\t\t\t\tThank you for registering at %2$s. Your account is pending for approval by the administrator.\n"
 "\t\t"
-msgstr ""
+msgstr "\n\t\t\tHei %1$s,\n\t\t\t\tKiitoksia rekisteröitymisestä sivustolle %2$s. Tilisi on odottamassa ylläpidon hyväksyntää.\n\t\t"
 
 #: src/Model/User.php:607
 #, php-format
@@ -9059,7 +9060,7 @@ msgid ""
 "\t\t\tDear %1$s,\n"
 "\t\t\t\tThank you for registering at %2$s. Your account has been created.\n"
 "\t\t"
-msgstr ""
+msgstr "\n\t\t\tHei %1$s,\n\t\t\t\tKiitoksia rekisteröinnistä sivustolle %2$s. Tilisi on luotu.\n\t\t"
 
 #: src/Model/User.php:629
 #, php-format
@@ -9117,12 +9118,12 @@ msgstr "Yhteys URL-linkki puuttuu."
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
-msgstr ""
+msgstr "Kontaktia ei pystytty lisäämään. Tarkista verkkoasetukset omista asetuksistasi (Settings -> Social Networks)."
 
 #: src/Model/Contact.php:1301
 msgid ""
 "This site is not configured to allow communications with other networks."
-msgstr ""
+msgstr "Tämä sivusto ei salli yhteyksiä muiden verkkojen kanssa.."
 
 #: src/Model/Contact.php:1302 src/Model/Contact.php:1316
 msgid "No compatible communication protocols or feeds were discovered."
@@ -9134,7 +9135,7 @@ msgstr "Annettu profiiliosoite ei sisällä riittävästi tietoa."
 
 #: src/Model/Contact.php:1319
 msgid "An author or name was not found."
-msgstr ""
+msgstr "Julkaisija tai nimi puuttuu."
 
 #: src/Model/Contact.php:1322
 msgid "No browser URL could be matched to this address."
@@ -9148,19 +9149,19 @@ msgstr ""
 
 #: src/Model/Contact.php:1326
 msgid "Use mailto: in front of address to force email check."
-msgstr ""
+msgstr "Käytä \"mailto:\" osoitteen edessä pakottaaksesi sähköpostin tarkastuksen."
 
 #: src/Model/Contact.php:1332
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
-msgstr ""
+msgstr "Profiilin osoite kuuluu verkkoon, joka on poistettu tältä sivustolta."
 
 #: src/Model/Contact.php:1337
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
-msgstr ""
+msgstr "Rajoitettu profiili. Tämä henkilö ei pysty/tule saamaan suoria/henkilökohtaisia ilmoituksia sinulta."
 
 #: src/Model/Contact.php:1388
 msgid "Unable to retrieve contact information."
@@ -9210,11 +9211,11 @@ msgstr "Hallitse/muokkaa profiilit"
 
 #: src/Model/Profile.php:546 src/Model/Profile.php:639
 msgid "g A l F d"
-msgstr ""
+msgstr "g A l F d"
 
 #: src/Model/Profile.php:547
 msgid "F d"
-msgstr ""
+msgstr "F d"
 
 #: src/Model/Profile.php:604 src/Model/Profile.php:701
 msgid "[today]"
@@ -9246,11 +9247,11 @@ msgstr "Liittymispäivämäärä:"
 
 #: src/Model/Profile.php:747
 msgid "j F, Y"
-msgstr ""
+msgstr "j F, Y"
 
 #: src/Model/Profile.php:748
 msgid "j F"
-msgstr ""
+msgstr "j F"
 
 #: src/Model/Profile.php:763
 msgid "Age:"
@@ -9329,7 +9330,7 @@ msgstr "ei enää seuraa"
 
 #: src/Protocol/Diaspora.php:2670
 msgid "Sharing notification from Diaspora network"
-msgstr ""
+msgstr "Ilmoitus Diaspora -verkosta tapahtuneesta jakamisesta."
 
 #: src/Protocol/Diaspora.php:3762
 msgid "Attachments:"
@@ -9483,7 +9484,7 @@ msgstr "jaa"
 
 #: src/Object/Post.php:365
 msgid "to"
-msgstr ""
+msgstr "henkilölle"
 
 #: src/Object/Post.php:366
 msgid "via"
