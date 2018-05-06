@@ -433,6 +433,7 @@ Friendica doesn't allow showing the friends of other users.
 #### Parameters
 
 * include_entities: "true" shows entities for pictures and links (Default: false)
+* count: how many items should be shown (Default: 20)
 
 ---
 
