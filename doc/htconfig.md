@@ -15,7 +15,7 @@ Especially don't do that with undocumented values.
 The header of the section describes the category, the value is the parameter.
 Example: To set the automatic database cleanup process add this line to your .htconfig.php:
 
-    $a->config['system']['dbclean'] = true;
+    $a->config['system']['always_show_preview'] = true;
 
 ## jabber ##
 * **debug** (Boolean) - Enable debug level for the jabber account synchronisation.
@@ -37,8 +37,6 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **db_loglimit_index** - Number of index rows needed to be logged for indexes on the watchlist
 * **db_loglimit_index_high** - Number of index rows to be logged anyway (for any index)
 * **db_log_index_blacklist** - Blacklist of indexes that shouldn't be watched
-* **dbclean** (Boolean) - Enable the automatic database cleanup process
-* **dbclean-expire-days** (Integer) - Days after which remote items will be deleted. Own items, and marked or filed items are kept.
 * **diaspora_test** (Boolean) - For development only. Disables the message transfer.
 * **disable_email_validation** (Boolean) - Disables the check if a mail address is in a valid format and can be resolved via DNS.
 * **disable_url_validation** (Boolean) - Disables the DNS lookup of an URL.

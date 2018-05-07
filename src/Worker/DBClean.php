@@ -69,15 +69,24 @@ class DBClean {
 
 		// Get the expire days for step 8 and 9
 		$days = Config::get('system', 'dbclean-expire-days', 0);
+		$days_unclaimed = Config::get('system', 'dbclean-expire-unclaimed', 90);
+
+		if ($days_unclaimed == 0) {
+			$days_unclaimed = $days;
+		}
 
 		if ($stage == 1) {
+			if ($days_unclaimed <= 0) {
+				return;
+			}
+
 			$last_id = Config::get('system', 'dbclean-last-id-1', 0);
 
 			logger("Deleting old global item entries from item table without user copy. Last ID: ".$last_id);
 			$r = dba::p("SELECT `id` FROM `item` WHERE `uid` = 0 AND
 						NOT EXISTS (SELECT `guid` FROM `item` AS `i` WHERE `item`.`guid` = `i`.`guid` AND `i`.`uid` != 0) AND
-						`received` < UTC_TIMESTAMP() - INTERVAL 90 DAY AND `id` >= ?
-					ORDER BY `id` LIMIT ".intval($limit), $last_id);
+						`received` < UTC_TIMESTAMP() - INTERVAL ? DAY AND `id` >= ?
+					ORDER BY `id` LIMIT ".intval($limit), $days_unclaimed, $last_id);
 			$count = dba::num_rows($r);
 			if ($count > 0) {
 				logger("found global item orphans: ".$count);
