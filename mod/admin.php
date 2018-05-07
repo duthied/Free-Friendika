@@ -1014,6 +1014,9 @@ function admin_page_site_post(App $a)
 	$ssl_policy		=	((x($_POST,'ssl_policy'))		? intval($_POST['ssl_policy']) 			: 0);
 	$force_ssl		=	((x($_POST,'force_ssl'))		? True   					: False);
 	$hide_help		=	((x($_POST,'hide_help'))		? True   					: False);
+	$dbclean		=	((x($_POST,'dbclean'))			? True   					: False);
+	$dbclean_expire_days	=	((x($_POST,'dbclean_expire_days'))	? intval($_POST['dbclean_expire_days'])		: 0);
+	$dbclean_unclaimed	=	((x($_POST,'dbclean_unclaimed'))	? intval($_POST['dbclean_unclaimed'])		: 0);
 	$suppress_tags		=	((x($_POST,'suppress_tags'))		? True   					: False);
 	$itemcache		=	((x($_POST,'itemcache'))		? notags(trim($_POST['itemcache']))		: '');
 	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
@@ -1168,6 +1171,15 @@ function admin_page_site_post(App $a)
 
 	Config::set('system', 'force_ssl', $force_ssl);
 	Config::set('system', 'hide_help', $hide_help);
+
+	Config::set('system', 'dbclean', $dbclean);
+	Config::set('system', 'dbclean-expire-days', $dbclean_expire_days);
+
+	if ($dbclean_unclaimed == 0) {
+		$dbclean_unclaimed = $dbclean_expire_days;
+	}
+
+	Config::set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
 	if ($itemcache != '') {
 		$itemcache = App::realpath($itemcache);
@@ -1422,6 +1434,9 @@ function admin_page_site(App $a)
 
 		'$check_new_version_url' => ['check_new_version_url', L10n::t("Check upstream version"), Config::get('system', 'check_new_version_url'), L10n::t("Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview."), $check_git_version_choices],
 		'$suppress_tags'	=> ['suppress_tags', L10n::t("Suppress Tags"), Config::get('system','suppress_tags'), L10n::t("Suppress showing a list of hashtags at the end of the posting.")],
+		'$dbclean'		=> ['dbclean', L10n::t("Clean database"), Config::get('system','dbclean', false), L10n::t("Remove old remote items, orphaned database records and old content from some other helper tables.")],
+		'$dbclean_expire_days' 	=> ['dbclean_expire_days', L10n::t("Lifespan of remote items"), Config::get('system','dbclean-expire-days', 0), L10n::t("When the database cleanup is enabled, this defines the days after which remote items will be deleted. Own items, and marked or filed items are always kept. 0 disables this behaviour.")],
+		'$dbclean_unclaimed' 	=> ['dbclean_unclaimed', L10n::t("Lifespan of unclaimed items"), Config::get('system','dbclean-expire-unclaimed', 90), L10n::t("When the database cleanup is enabled, this defines the days after which unclaimed remote items (mostly content from the relay) will be deleted. Default value is 90 days. Defaults to the general lifespan value of remote items if set to 0.")],
 		'$itemcache'		=> ['itemcache', L10n::t("Path to item cache"), Config::get('system','itemcache'), L10n::t("The item caches buffers generated bbcode and external images.")],
 		'$itemcache_duration' 	=> ['itemcache_duration', L10n::t("Cache duration in seconds"), Config::get('system','itemcache_duration'), L10n::t("How long should the cache files be hold? Default value is 86400 seconds \x28One day\x29. To disable the item cache, set the value to -1.")],
 		'$max_comments' 	=> ['max_comments', L10n::t("Maximum numbers of comments per post"), Config::get('system','max_comments'), L10n::t("How much comments should be shown for each post? Default value is 100.")],
