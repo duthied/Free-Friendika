@@ -52,17 +52,24 @@ class Item extends BaseObject
 			return false;
 		}
 
+		// To ensure the data integrity we do it in an transaction
+		dba::transaction();
+
+		// We cannot simply expand the condition to check for origin entries
+		// The condition needn't to be a simple array but could be a complex condition.
+		// And we have to execute this query before the update to ensure to fetch the same data.
+		$items = dba::select('item', ['id', 'origin'], $condition);
+
 		$success = dba::update('item', $fields, $condition);
 
 		if (!$success) {
+			dba::close($items);
+			dba::rollback();
 			return false;
 		}
 
 		$rows = dba::affected_rows();
 
-		// We cannot simply expand the condition to check for origin entries
-		// The condition needn't to be a simple array but could be a complex condition.
-		$items = dba::select('item', ['id', 'origin'], $condition);
 		while ($item = dba::fetch($items)) {
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
@@ -74,6 +81,8 @@ class Item extends BaseObject
 			}
 		}
 
+		dba::close($items);
+		dba::commit();
 		return $rows;
 	}
 
@@ -2008,7 +2017,7 @@ EOT;
 	{
 		$fields = ['uid', 'guid', 'title', 'body', 'created', 'edited', 'commented', 'received', 'changed',
 			'wall', 'private', 'pubmail', 'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
-			'deleted', 'origin', 'forum_mode', 'network', 'rendered-html', 'rendered-hash'];
+			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id', 'rendered-html', 'rendered-hash'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
 		$item = dba::selectFirst('item', $fields, $condition);
