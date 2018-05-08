@@ -189,7 +189,7 @@ WHERE `hook` LIKE 'plugin_%'");
 
 function update_1260() {
 	Config::set('system', 'maintenance', 1);
-	Config::set('system', 'maintenance_reason', L10n::t('%1: Updating author-id and owner-id in item and thread table. ', DBM::date().' '.date('e')));
+	Config::set('system', 'maintenance_reason', L10n::t('%s: Updating author-id and owner-id in item and thread table. ', DBM::date().' '.date('e')));
 
 	$items = dba::p("SELECT `id`, `owner-link`, `owner-name`, `owner-avatar`, `network` FROM `item`
 		WHERE `owner-id` = 0 AND `owner-link` != ''");
