@@ -804,7 +804,7 @@ class Contact extends BaseObject
 		$data = Probe::uri($url, "", $uid);
 
 		// Last try in gcontact for unsupported networks
-		if (!in_array($data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL])) {
+		if (!in_array($data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL, NETWORK_FEED])) {
 			if ($uid != 0) {
 				return 0;
 			}
