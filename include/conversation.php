@@ -902,7 +902,7 @@ function conversation_add_children($parents, $block_authors, $order) {
 	foreach ($parents AS $parent) {
 		$thread_items = dba::p(item_query()."AND `item`.`parent-uri` = ?
 			AND `item`.`uid` IN (0, ?) $block_sql
-			ORDER BY `parent` DESC, `gravity` ASC, `id` ASC" . $limit,
+			ORDER BY `item`.`commented` DESC" . $limit,
 			$parent['uri'], local_user());
 
 		$comments = dba::inArray($thread_items);
