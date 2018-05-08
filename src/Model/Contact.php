@@ -752,10 +752,11 @@ class Contact extends BaseObject
 	 * @param string  $url       Contact URL
 	 * @param integer $uid       The user id for the contact (0 = public contact)
 	 * @param boolean $no_update Don't update the contact
+	 * @param array   $default   Default value for creating the contact when every else fails
 	 *
 	 * @return integer Contact ID
 	 */
-	public static function getIdForURL($url, $uid = 0, $no_update = false)
+	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [])
 	{
 		logger("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), LOGGER_DEBUG);
 
@@ -810,12 +811,42 @@ class Contact extends BaseObject
 			}
 
 			// Get data from the gcontact table
-			$gcontact = dba::selectFirst('gcontact', ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'], ['nurl' => normalise_link($url)]);
-			if (!DBM::is_result($gcontact)) {
-				return 0;
+			$fields = ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'];
+			$contact = dba::selectFirst('gcontact', $fields, ['nurl' => normalise_link($url)]);
+			if (!DBM::is_result($contact)) {
+				$contact = dba::selectFirst('contact', $fields, ['nurl' => normalise_link($url)]);
 			}
 
-			$data = array_merge($data, $gcontact);
+			if (!DBM::is_result($contact)) {
+				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+					'photo', 'keywords', 'location', 'about', 'network',
+					'priority', 'batch', 'request', 'confirm', 'poco'];
+				$contact = dba::selectFirst('contact', $fields, ['addr' => $url]);
+			}
+
+			if (!DBM::is_result($contact)) {
+				// The link could be provided as http although we stored it as https
+				$ssl_url = str_replace('http://', 'https://', $url);
+				$condition = ['alias' => [$url, normalise_link($url), $ssl_url]];
+				$contact = dba::selectFirst('contact', $fields, $condition);
+			}
+
+			if (!DBM::is_result($contact)) {
+				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+					'photo', 'network', 'priority', 'batch', 'request', 'confirm'];
+				$condition = ['url' => [$url, normalise_link($url), $ssl_url]];
+				$contact = dba::selectFirst('fcontact', $fields, $condition);
+			}
+
+			if (!empty($default)) {
+				$contact = $default;
+			}
+
+			if (!DBM::is_result($contact)) {
+				return 0;
+			} else {
+				$data = array_merge($data, $contact);
+			}
 		}
 
 		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url)) {

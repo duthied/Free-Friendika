@@ -5,6 +5,8 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\User;
 
 require_once 'include/dba.php';
@@ -183,4 +185,44 @@ WHERE `hook` LIKE 'plugin_%'");
 
 	// Make sure we install the new renamed ones
 	Addon::reload();
+}
+
+function update_1260() {
+	Config::set('system', 'maintenance', 1);
+	Config::set('system', 'maintenance_reason', L10n::t('%s: Updating author-id and owner-id in item and thread table. ', DBM::date().' '.date('e')));
+
+	$items = dba::p("SELECT `id`, `owner-link`, `owner-name`, `owner-avatar`, `network` FROM `item`
+		WHERE `owner-id` = 0 AND `owner-link` != ''");
+	while ($item = dba::fetch($items)) {
+		$contact = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
+			'avatar' => $item['owner-avatar'], 'network' => $item['network']];
+		$cid = Contact::getIdForURL($item['owner-link'], 0, false, $contact);
+		if (empty($cid)) {
+			continue;
+		}
+		Item::update(['owner-id' => $cid], ['id' => $item['id']]);
+	}
+	dba::close($items);
+
+	dba::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id`
+		SET `thread`.`owner-id` = `item`.`owner-id` WHERE `thread`.`owner-id` = 0");
+
+	$items = dba::p("SELECT `id`, `author-link`, `author-name`, `author-avatar`, `network` FROM `item`
+		WHERE `author-id` = 0 AND `author-link` != ''");
+	while ($item = dba::fetch($items)) {
+		$contact = ['url' => $item['author-link'], 'name' => $item['author-name'],
+			'avatar' => $item['author-avatar'], 'network' => $item['network']];
+		$cid = Contact::getIdForURL($item['author-link'], 0, false, $contact);
+		if (empty($cid)) {
+			continue;
+		}
+		Item::update(['author-id' => $cid], ['id' => $item['id']]);
+	}
+	dba::close($items);
+
+	dba::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id`
+		SET `thread`.`author-id` = `item`.`author-id` WHERE `thread`.`author-id` = 0");
+
+	Config::set('system', 'maintenance', 0);
+	return UPDATE_SUCCESS;
 }
