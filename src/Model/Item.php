@@ -488,14 +488,20 @@ class Item extends BaseObject
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
 
-		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"]));
+		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
+			'avatar' => $item['author-avatar'], 'network' => $item['network']];
+
+		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"], 0, false, $default));
 
 		if (Contact::isBlocked($item["author-id"])) {
 			logger('Contact '.$item["author-id"].' is blocked, item '.$item["uri"].' will not be stored');
 			return 0;
 		}
 
-		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"]));
+		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
+			'avatar' => $item['owner-avatar'], 'network' => $item['network']];
+
+		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"], 0, false, $default));
 
 		if (Contact::isBlocked($item["owner-id"])) {
 			logger('Contact '.$item["owner-id"].' is blocked, item '.$item["uri"].' will not be stored');
