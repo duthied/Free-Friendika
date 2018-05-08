@@ -8,6 +8,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Core\L10n;
 
 require_once 'include/dba.php';
 
