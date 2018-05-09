@@ -489,7 +489,7 @@ class Item extends BaseObject
 		$item["contact-id"] = self::contactId($item);
 
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
-			'avatar' => $item['author-avatar'], 'network' => $item['network']];
+			'photo' => $item['author-avatar'], 'network' => $item['network']];
 
 		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"], 0, false, $default));
 
@@ -499,7 +499,7 @@ class Item extends BaseObject
 		}
 
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
-			'avatar' => $item['owner-avatar'], 'network' => $item['network']];
+			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
 		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"], 0, false, $default));
 

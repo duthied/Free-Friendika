@@ -196,7 +196,7 @@ function update_1260() {
 		WHERE `owner-id` = 0 AND `owner-link` != ''");
 	while ($item = dba::fetch($items)) {
 		$contact = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
-			'avatar' => $item['owner-avatar'], 'network' => $item['network']];
+			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 		$cid = Contact::getIdForURL($item['owner-link'], 0, false, $contact);
 		if (empty($cid)) {
 			continue;
@@ -212,7 +212,7 @@ function update_1260() {
 		WHERE `author-id` = 0 AND `author-link` != ''");
 	while ($item = dba::fetch($items)) {
 		$contact = ['url' => $item['author-link'], 'name' => $item['author-name'],
-			'avatar' => $item['author-avatar'], 'network' => $item['network']];
+			'photo' => $item['author-avatar'], 'network' => $item['network']];
 		$cid = Contact::getIdForURL($item['author-link'], 0, false, $contact);
 		if (empty($cid)) {
 			continue;
