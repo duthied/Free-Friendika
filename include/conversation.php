@@ -473,7 +473,7 @@ function item_joins() {
 	return sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		AND NOT `contact`.`blocked`
 		AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`))
+		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
 		INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id` AND NOT `author`.`blocked`
 		INNER JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id` AND NOT `owner`.`blocked`
 		LEFT JOIN `event` ON `event-id` = `event`.`id`",
