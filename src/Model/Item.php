@@ -1032,8 +1032,9 @@ class Item extends BaseObject
 		}
 
 		// Is this a shadow entry?
-		if ($item['uid'] == 0)
+		if ($item['uid'] == 0) {
 			return;
+		}
 
 		// Is there a shadow parent?
 		if (!dba::exists('item', ['uri' => $item['parent-uri'], 'uid' => 0])) {
@@ -1073,10 +1074,8 @@ class Item extends BaseObject
 
 		// If this was a comment to a Diaspora post we don't get our comment back.
 		// This means that we have to distribute the comment by ourselves.
-		if ($origin) {
-			if (dba::exists('item', ['id' => $parent, 'network' => NETWORK_DIASPORA])) {
-				self::distribute($public_shadow);
-			}
+		if ($origin && dba::exists('item', ['id' => $parent, 'network' => NETWORK_DIASPORA])) {
+			self::distribute($public_shadow);
 		}
 	}
 
@@ -1087,14 +1086,14 @@ class Item extends BaseObject
 	 */
 	private static function addLanguageInPostopts(&$item)
 	{
+		$postopts = "";
+
 		if (!empty($item['postopts'])) {
 			if (strstr($item['postopts'], 'lang=')) {
 				// do not override
 				return;
 			}
 			$postopts = $item['postopts'];
-		} else {
-			$postopts = "";
 		}
 
 		$naked_body = Text\BBCode::toPlaintext($item['body'], false);

@@ -1120,7 +1120,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
-			if (!$item['thr-parent']) {
+			if (!x($item, 'thr-parent')) {
 				$item['thr-parent'] = $item['parent-uri'];
 			}
 

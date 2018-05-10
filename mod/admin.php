@@ -1770,8 +1770,8 @@ function admin_page_users(App $a)
 		$e['page-flags-raw'] = $e['page-flags'];
 		$e['page-flags'] = $page_types[$e['page-flags']];
 
-		$e['account-type-raw'] = ($e['page_flags_raw']==0) ? $e['account-type'] : -1;
-		$e['account-type'] = ($e['page_flags_raw']==0) ? $account_types[$e['account-type']] : "";
+		$e['account-type-raw'] = ($e['page_flags_raw'] == 0) ? $e['account-type'] : -1;
+		$e['account-type'] = ($e['page_flags_raw'] == 0) ? $account_types[$e['account-type']] : "";
 
 		$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
 		$e['login_date'] = Temporal::getRelativeDate($e['login_date']);

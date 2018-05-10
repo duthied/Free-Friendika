@@ -1948,7 +1948,7 @@ class OStatus
 	 * @param bool   $complete default true
 	 * @return void
 	 */
-	private static function entryFooter($doc, $entry, $item, $owner, $complete = true)
+	private static function entryFooter($doc, $entry, array $item, array $owner, $complete = true)
 	{
 		$mentioned = [];
 
@@ -1988,6 +1988,7 @@ class OStatus
 
 			if (isset($parent_item)) {
 				$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $parent_item);
+
 				if (DBM::is_result($r)) {
 					if ($r['conversation-uri'] != '') {
 						$conversation_uri = $r['conversation-uri'];
@@ -2048,9 +2049,11 @@ class OStatus
 		}
 
 		if ($owner['account-type'] == ACCOUNT_TYPE_COMMUNITY) {
-			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
-									"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
-									"href" => $owner['url']]);
+			XML::addElement($doc, $entry, "link", "", [
+				"rel" => "mentioned",
+				"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
+				"href" => $owner['url']
+			]);
 		}
 
 		if (!$item["private"]) {

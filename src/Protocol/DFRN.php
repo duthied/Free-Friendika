@@ -892,7 +892,7 @@ class DFRN
 	 * @return object XML entry object
 	 * @todo Find proper type-hints
 	 */
-	private static function entry($doc, $type, $item, $owner, $comment = false, $cid = 0, $single = false)
+	private static function entry($doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
 	{
 		$mentioned = [];
 

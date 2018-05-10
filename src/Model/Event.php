@@ -803,10 +803,10 @@ class Event extends BaseObject
 	/**
 	 * @brief Format an item array with event data to HTML.
 	 *
-	 * @param arr $item Array with item and event data.
+	 * @param array $item Array with item and event data.
 	 * @return string HTML output.
 	 */
-	public static function getItemHTML($item) {
+	public static function getItemHTML(array $item) {
 		$same_date = false;
 		$finish    = false;
 
