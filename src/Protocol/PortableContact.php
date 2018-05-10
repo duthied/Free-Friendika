@@ -1436,11 +1436,19 @@ class PortableContact
 		if (isset($data->protocols)) {
 			if (isset($data->protocols->diaspora)) {
 				$fields['network'] = NETWORK_DIASPORA;
-				$fields['batch'] = $data->protocols->diaspora;
+				if (isset($data->protocols->diaspora->receive)) {
+					$fields['batch'] = $data->protocols->diaspora->receive;
+				} elseif (is_string($data->protocols->diaspora)) {
+					$fields['batch'] = $data->protocols->diaspora;
+				}
 			}
 			if (isset($data->protocols->dfrn)) {
 				$fields['network'] = NETWORK_DFRN;
-				$fields['batch'] = $data->protocols->dfrn;
+				if (isset($data->protocols->dfrn->receive)) {
+					$fields['batch'] = $data->protocols->dfrn->receive;
+				} elseif (is_string($data->protocols->dfrn)) {
+					$fields['batch'] = $data->protocols->dfrn;
+				}
 			}
 		}
 		Diaspora::setRelayContact($server_url, $fields);
