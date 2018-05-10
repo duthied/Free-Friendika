@@ -227,3 +227,9 @@ function update_1260() {
 	Config::set('system', 'maintenance', 0);
 	return UPDATE_SUCCESS;
 }
+
+function update_1261() {
+	// This fixes the results of an issue in the develop branch of 2018-05.
+	dba::update('contact', ['blocked' => false, 'pending' => false], ['uid' => 0, 'blocked' => true, 'pending' => true]);
+	return UPDATE_SUCCESS;
+}
