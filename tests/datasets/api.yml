@@ -44,6 +44,18 @@ contact:
         url: http://localhost/profile/othercontact
         pending: false
         blocked: false
+        rel: 0
+        network: dfrn
+    -
+        id: 44
+        uid: 42
+        name: Friend contact
+        nick: friendcontact
+        self: false
+        nurl: http://localhost/profile/friendcontact
+        url: http://localhost/profile/friendcontact
+        pending: false
+        blocked: false
         rel: 2
         network: dfrn
 
@@ -126,6 +138,20 @@ item:
         allow_gid: ''
         deny_cid: ''
         deny_gid: ''
+    -
+        id: 6
+        visible: true
+        contact-id: 44
+        author-id: 44
+        owner-id: 42
+        uid: 42
+        verb: http://activitystrea.ms/schema/1.0/post
+        unseen: false
+        body: Friend user status
+        parent: 6
+        author-link: http://localhost/profile/othercontact
+        wall: true
+        starred: false
 
 thread:
     -
@@ -138,6 +164,12 @@ thread:
         iid: 3
         visible: true
         contact-id: 43
+        uid: 0
+        wall: true
+    -
+        iid: 6
+        visible: true
+        contact-id: 44
         uid: 0
         wall: true
 
