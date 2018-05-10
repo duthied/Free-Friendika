@@ -1427,7 +1427,7 @@ class PortableContact
 			}
 
 			foreach ($tags as $tag) {
-				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
+				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag], true);
 			}
 		}
 
