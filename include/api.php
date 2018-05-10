@@ -5272,27 +5272,27 @@ function api_in_reply_to($item)
 
 /**
  *
- * @param string $Text
+ * @param string $text
  *
  * @return string
  */
-function api_clean_plain_items($Text)
+function api_clean_plain_items($text)
 {
 	$include_entities = strtolower(x($_REQUEST, 'include_entities') ? $_REQUEST['include_entities'] : "false");
 
-	$Text = BBCode::cleanPictureLinks($Text);
+	$text = BBCode::cleanPictureLinks($text);
 	$URLSearchString = "^\[\]";
 
-	$Text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
+	$text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $text);
 
 	if ($include_entities == "true") {
-		$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url=$1]$1[/url]', $Text);
+		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url=$1]$1[/url]', $text);
 	}
 
 	// Simplify "attachment" element
-	$Text = api_clean_attachments($Text);
+	$text = api_clean_attachments($text);
 
-	return($Text);
+	return $text;
 }
 
 /**
