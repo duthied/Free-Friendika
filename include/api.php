@@ -935,7 +935,7 @@ function api_reformat_xml(&$item, &$key)
  *
  * @return string The XML data
  */
-function api_create_xml($data, $root_element)
+function api_create_xml(array $data, $root_element)
 {
 	$childname = key($data);
 	$data2 = array_pop($data);
@@ -960,7 +960,7 @@ function api_create_xml($data, $root_element)
 		$i = 1;
 
 		foreach ($data2 as $item) {
-			$data4[$i++.":".$childname] = $item;
+			$data4[$i++ . ":" . $childname] = $item;
 		}
 
 		$data2 = $data4;

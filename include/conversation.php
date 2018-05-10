@@ -1609,16 +1609,16 @@ function sort_thr_commented(array $a, array $b)
 }
 
 function render_location_dummy(array $item) {
-	if ($item['location'] != "") {
+	if (x($item, 'location') && !empty($item['location'])) {
 		return $item['location'];
 	}
 
-	if ($item['coord'] != "") {
+	if (x($item, 'coord') && !empty($item['coord'])) {
 		return $item['coord'];
 	}
 }
 
-function get_responses(array $conv_responses, array $response_verbs, $ob, $item) {
+function get_responses(array $conv_responses, array $response_verbs, $ob, array $item) {
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
