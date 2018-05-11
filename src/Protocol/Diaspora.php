@@ -2349,21 +2349,17 @@ class Diaspora
 			$birthday = $contact["bd"];
 		}
 
-		$r = q(
-			"UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `bd` = '%s',
-				`location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
-			dbesc($name),
-			dbesc($nick),
-			dbesc($author),
-			dbesc(DateTimeFormat::utcNow()),
-			dbesc($birthday),
-			dbesc($location),
-			dbesc($about),
-			dbesc($keywords),
-			dbesc($gender),
-			intval($contact["id"]),
-			intval($importer["uid"])
-		);
+		$fields = ['name' => $name, 'location' => $location,
+			'name-date' => DateTimeFormat::utcNow(),
+			'about' => $about, 'gender' => $gender,
+			'addr' => $author, 'nick' => $nick,
+			'keywords' => $keywords];
+
+		if (!empty($birthday)) {
+			$fields['bd'] = $birthday;
+		}
+
+		dba::update('contact', $fields, ['id' => $contact['id']]);
 
 		$gcontact = ["url" => $contact["url"], "network" => NETWORK_DIASPORA, "generation" => 2,
 					"photo" => $image_url, "name" => $name, "location" => $location,
