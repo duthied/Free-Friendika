@@ -522,7 +522,12 @@ class PortableContact
 			}
 		}
 
-		$fields = ['updated' => $last_updated, 'last_contact' => DateTimeFormat::utcNow()];
+		$fields = ['last_contact' => DateTimeFormat::utcNow()];
+
+		if (!empty($last_updated)) {
+			$fields['updated'] = $last_updated;
+		}
+
 		dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 		if (($gcontacts[0]["generation"] == 0)) {

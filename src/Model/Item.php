@@ -2047,7 +2047,7 @@ EOT;
 
 		$result = dba::update('thread', $fields, ['iid' => $itemid]);
 
-		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result." ".print_r($item, true), LOGGER_DEBUG);
+		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result, LOGGER_DEBUG);
 
 		// Updating a shadow item entry
 		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);
