@@ -2162,6 +2162,7 @@ function admin_page_themes(App $a)
 		}
 
 		$readme = null;
+
 		if (is_file("view/theme/$theme/README.md")) {
 			$readme = Markdown::convert(file_get_contents("view/theme/$theme/README.md"), false);
 		} elseif (is_file("view/theme/$theme/README")) {
