@@ -176,7 +176,7 @@ class Post extends BaseObject
 			'dropping' => $dropping,
 			'pagedrop' => ((Feature::isEnabled($conv->getProfileOwner(), 'multi_delete')) ? $item['pagedrop'] : ''),
 			'select'   => L10n::t('Select'),
-			'delete'   => L10n::t('Delete'),
+			'delete'   => L10n::t('Remove from your stream'),
 		];
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? L10n::t("save to folder") : false);
