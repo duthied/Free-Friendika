@@ -3515,6 +3515,10 @@ class Diaspora
 				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
 				$ret["root_guid"] = $guid;
 				return $ret;
+			} elseif ($complete) {
+				// We are resharing something that isn't a DFRN or Diaspora post.
+				// So we have to return "false" on "$complete" to not trigger a reshare.
+				return false;
 			}
 		} elseif (($guid == "") && $complete) {
 			return false;
