@@ -181,6 +181,7 @@ class DFRN
 				for ($x = 0; $x < count($groups); $x ++) {
 					$groups[$x] = '<' . intval($groups[$x]) . '>' ;
 				}
+
 				$gs = implode('|', $groups);
 			} else {
 				$gs = '<<>>' ; // Impossible to match

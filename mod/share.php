@@ -5,6 +5,7 @@ use Friendica\Database\DBM;
 
 function share_init(App $a) {
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+
 	if (!$post_id || !local_user()) {
 		killme();
 	}
@@ -14,9 +15,11 @@ function share_init(App $a) {
 		WHERE `item`.`id` = %d LIMIT 1",
 		intval($post_id)
 	);
+
 	if (!DBM::is_result($r) || ($r[0]['private'] == 1)) {
 		killme();
 	}
+
 	if (strpos($r[0]['body'], "[/share]") !== false) {
 		$pos = strpos($r[0]['body'], "[share");
 		$o = substr($r[0]['body'], $pos);
@@ -26,6 +29,7 @@ function share_init(App $a) {
 		if ($r[0]['title']) {
 			$o .= '[b]'.$r[0]['title'].'[/b]'."\n";
 		}
+
 		$o .= $r[0]['body'];
 		$o .= "[/share]";
 	}
@@ -34,6 +38,7 @@ function share_init(App $a) {
 	killme();
 }
 
+/// @TODO Rewrite to handle over whole record array
 function share_header($author, $profile, $avatar, $guid, $posted, $link) {
 	$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author).
 		"' profile='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile).
@@ -42,9 +47,11 @@ function share_header($author, $profile, $avatar, $guid, $posted, $link) {
 	if ($guid) {
 		$header .= "' guid='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
 	}
+
 	if ($posted) {
 		$header .= "' posted='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
 	}
+
 	$header .= "' link='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link)."']";
 
 	return $header;
