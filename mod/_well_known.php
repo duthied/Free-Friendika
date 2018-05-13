@@ -43,7 +43,6 @@ function wk_social_relay()
 	$tags = [];
 
 	if ($scope == SR_SCOPE_TAGS) {
-
 		$server_tags = get_config('system', 'relay_server_tags');
 		$tagitems = explode(",", $server_tags);
 
