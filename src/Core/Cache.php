@@ -40,6 +40,12 @@ class Cache extends \Friendica\BaseObject
 
 				self::$driver = new Cache\MemcachedCacheDriver($memcached_hosts);
 				break;
+			case 'redis':
+				$redis_host = Config::get('system', 'redis_host', '127.0.0.1');
+				$redis_port = Config::get('system', 'redis_port', 6379);
+
+				self::$driver = new Cache\RedisCacheDriver($redis_host, $redis_port);
+				break;
 			default:
 				self::$driver = new Cache\DatabaseCacheDriver();
 		}
