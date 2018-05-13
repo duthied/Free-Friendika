@@ -43,7 +43,7 @@ function wk_social_relay()
 	$tags = [];
 
 	if ($scope == SR_SCOPE_TAGS) {
-		$server_tags = get_config('system', 'relay_server_tags');
+		$server_tags = Config::get('system', 'relay_server_tags');
 		$tagitems = explode(",", $server_tags);
 
 		/// @todo Check if it was better to use "strtolower" on the tags
@@ -52,7 +52,7 @@ function wk_social_relay()
 			$tags[$tag] = $tag;
 		}
 
-		if (get_config('system', 'relay_user_tags')) {
+		if (Config::get('system', 'relay_user_tags')) {
 			$terms = q("SELECT DISTINCT(`term`) FROM `search`");
 
 			foreach ($terms AS $term) {
