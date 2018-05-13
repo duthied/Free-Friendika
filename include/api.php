@@ -4517,6 +4517,7 @@ function api_account_update_profile_image($type)
 	} else {
 		throw new InternalServerErrorException('Unsupported filetype');
 	}
+
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
@@ -4530,7 +4531,6 @@ function api_account_update_profile_image($type)
 	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
-	//$user = api_get_user(get_app());
 	$url = System::baseUrl() . '/profile/' . get_app()->user['nickname'];
 	if ($url && strlen(Config::get('system', 'directory'))) {
 		Worker::add(PRIORITY_LOW, "Directory", $url);
