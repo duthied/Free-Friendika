@@ -254,6 +254,7 @@ function can_write_wall($owner)
 	return false;
 }
 
+/// @TODO $groups should be array
 function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 {
 	$local_user = local_user();
@@ -305,7 +306,7 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 		if ($remote_verified) {
 			$gs = '<<>>'; // should be impossible to match
 
-			if (is_array($groups) && count($groups)) {
+			if (is_array($groups)) {
 				foreach ($groups as $g) {
 					$gs .= '|<' . intval($g) . '>';
 				}

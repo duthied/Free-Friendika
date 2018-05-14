@@ -391,8 +391,8 @@ function visible_activity($item) {
 		}
 	}
 
-	/// @TODO such things are unneccessary code-complexibilities and should be avoided
-	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && !(x($item, 'self') && ($item['uid'] == local_user()))) {
+	// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
+	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && empty($item['self']) && $item['uid'] == local_user()) {
 		return false;
 	}
 
