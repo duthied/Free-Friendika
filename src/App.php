@@ -861,18 +861,6 @@ class App
 			return;
 		}
 
-		// If the last worker fork was less than 2 seconds before then don't fork another one.
-		// This should prevent the forking of masses of workers.
-		$cachekey = 'app:proc_run:started';
-		$result = Cache::get($cachekey);
-
-		if (!is_null($result) && ( time() - $result) < 2) {
-			return;
-		}
-
-		// Set the timestamp of the last proc_run
-		Cache::set($cachekey, time(), CACHE_MINUTE);
-
 		array_unshift($args, ((x($this->config, 'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
 
 		for ($x = 0; $x < count($args); $x ++) {
