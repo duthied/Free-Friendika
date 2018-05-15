@@ -355,6 +355,13 @@ class Item extends BaseObject
 			unset($item['dsprsig']);
 		}
 
+		if (!empty($item['diaspora_signed_text'])) {
+			$diaspora_signed_text = $item['diaspora_signed_text'];
+			unset($item['diaspora_signed_text']);
+		} else {
+			$diaspora_signed_text = '';
+		}
+
 		// Converting the plink
 		/// @TODO Check if this is really still needed
 		if ($item['network'] == NETWORK_OSTATUS) {
@@ -553,7 +560,7 @@ class Item extends BaseObject
 
 			$fields = ['uri', 'parent-uri', 'id', 'deleted',
 				'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-				'wall', 'private', 'forum_mode'];
+				'wall', 'private', 'forum_mode', 'origin'];
 			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
 			$params = ['order' => ['id' => false]];
 			$parent = dba::selectFirst('item', $fields, $condition, $params);
@@ -805,6 +812,12 @@ class Item extends BaseObject
 						'signature' => $dsprsig->signature, 'signer' => $dsprsig->signer]);
 		}
 
+		if (!empty($diaspora_signed_text)) {
+			// Formerly we stored the signed text, the signature and the author in different fields.
+			// We now store the raw data so that we are more flexible.
+			dba::insert('sign', ['iid' => $current_post, 'signed_text' => $diaspora_signed_text]);
+		}
+
 		$deleted = self::tagDeliver($item['uid'], $current_post);
 
 		/*
@@ -849,6 +862,8 @@ class Item extends BaseObject
 
 		if ($notify) {
 			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
+		} elseif (!empty($parent) && $parent['origin']) {
+			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", "comment-import", $current_post);
 		}
 
 		return $current_post;
@@ -857,9 +872,10 @@ class Item extends BaseObject
 	/**
 	 * @brief Distributes public items to the receivers
 	 *
-	 * @param integer $itemid Item ID that should be added
+	 * @param integer $itemid      Item ID that should be added
+	 * @param string  $signed_text Original text (for Diaspora signatures), JSON encoded.
 	 */
-	public static function distribute($itemid)
+	public static function distribute($itemid, $signed_text = '')
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
 		$parent = dba::selectFirst('item', ['owner-id'], $condition);
@@ -894,14 +910,22 @@ class Item extends BaseObject
 			$users[$contact['uid']] = $contact['uid'];
 		}
 
+		$origin_uid = 0;
+
 		if ($item['uri'] != $item['parent-uri']) {
-			$parents = dba::select('item', ['uid'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+			$parents = dba::select('item', ['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
 			while ($parent = dba::fetch($parents)) {
 				$users[$parent['uid']] = $parent['uid'];
+				if ($parent['origin'] && !$item['origin']) {
+					$origin_uid = $parent['uid'];
+				}
 			}
 		}
 
 		foreach ($users as $uid) {
+			if ($origin_uid == $uid) {
+				$item['diaspora_signed_text'] = $signed_text;
+			}
 			self::storeForUser($itemid, $item, $uid);
 		}
 	}
