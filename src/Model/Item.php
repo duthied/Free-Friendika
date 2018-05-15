@@ -112,8 +112,8 @@ class Item extends BaseObject
 	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
-		$fields = ['id', 'uid', 'parent', 'parent-uri', 'origin', 'deleted',
-			'file', 'resource-id', 'event-id', 'attach',
+		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
+			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id'];
 		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
@@ -188,8 +188,13 @@ class Item extends BaseObject
 			self::delete(['parent' => $item['parent']], $priority);
 		}
 
-		// send the notification upstream/downstream
+		// Is it our comment and/or our thread?
 		if ($item['origin'] || $parent['origin']) {
+
+			// When we delete the original post we will delete all existing copies on the server as well
+			self::delete(['uri' => $item['uri'], 'deleted' => false], $priority);
+
+			// send the notification upstream/downstream
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
 		}
 
