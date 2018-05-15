@@ -62,6 +62,3 @@ vendor/*
 
 #ignore addons/ directory
 addons/
-
-#Ignore .htaccess as it may contain local changes
-.htaccess
