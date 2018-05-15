@@ -344,6 +344,14 @@ Mit den folgenden Einstellungen kannst du die Zugriffsdaten für den Datenbank S
     $db_pass = 'db_password';
     $db_data = 'database_name';
 
+Sollten alle der folgenden Environment-Variablen gesetzt sein, wird Friendica diese anstatt der vorher konfigurierten Werte nutzen.
+
+    MYSQL_HOST
+    MYSQL_PORT
+    MYSQL_USERNAME
+    MYSQL_PASSWORD
+    MYSQL_DATABASE
+
 ## Administratoren
 
 Du kannst einen, oder mehrere Accounts, zu Administratoren machen.
