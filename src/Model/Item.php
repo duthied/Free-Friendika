@@ -189,7 +189,7 @@ class Item extends BaseObject
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
-			self::delete(['parent' => $item['parent']], $priority);
+			self::delete(['parent' => $item['parent'], 'deleted' => false], $priority);
 		}
 
 		// Is it our comment and/or our thread?
