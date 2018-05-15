@@ -344,6 +344,12 @@ class Item extends BaseObject
 			$item['origin'] = 1;
 			$item['network'] = NETWORK_DFRN;
 			$item['protocol'] = PROTOCOL_DFRN;
+
+			if (is_int($notify)) {
+				$priority = $notify;
+			} else {
+				$priority = PRIORITY_HIGH;
+			}
 		} else {
 			$item['network'] = trim(defaults($item, 'network', NETWORK_PHANTOM));
 		}
@@ -872,7 +878,7 @@ class Item extends BaseObject
 		check_user_notification($current_post);
 
 		if ($notify) {
-			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
 		} elseif (!empty($parent) && $parent['origin']) {
 			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", "comment-import", $current_post);
 		}

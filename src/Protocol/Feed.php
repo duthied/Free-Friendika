@@ -430,6 +430,9 @@ class Feed {
 					$item['guid'] = Item::guidFromUri($orig_plink, $a->get_hostname());
 					unset($item['uri']);
 					unset($item['parent-uri']);
+
+					// Set the delivery priority for "remote self" to "medium"
+					$notify = PRIORITY_MEDIUM;
 				}
 
 				$id = Item::insert($item, false, $notify);
