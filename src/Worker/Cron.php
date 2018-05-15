@@ -74,6 +74,7 @@ Class Cron {
 		$d1 = Config::get('system', 'last_expire_day');
 		$d2 = intval(DateTimeFormat::utcNow('d'));
 
+		// Daily cron calls
 		if ($d2 != intval($d1)) {
 
 			Worker::add(PRIORITY_LOW, "CronJobs", "update_contact_birthdays");
@@ -90,11 +91,20 @@ Class Cron {
 
 			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
 
-			// Delete all done workerqueue entries
-			dba::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR']);
-
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
+		}
+
+		// Hourly cron calls
+		if (Config::get('system', 'last_cron_hourly', 0) + 3600 < time()) {
+
+			// Delete all done workerqueue entries
+			dba::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
+
+			// Optimizing this table only last seconds
+			dba::e("OPTIMIZE TABLE `workerqueue`");
+
+			Config::set('system', 'last_cron_hourly', time());
 		}
 
 		// Poll contacts
