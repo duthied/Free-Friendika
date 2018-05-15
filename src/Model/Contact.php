@@ -1294,7 +1294,7 @@ class Contact extends BaseObject
 
 		if (($network != '') && ($ret['network'] != $network)) {
 			logger('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
-			return result;
+			return $result;
 		}
 
 		// check if we already have a contact
