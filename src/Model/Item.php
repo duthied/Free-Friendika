@@ -183,6 +183,10 @@ class Item extends BaseObject
 		Term::insertFromFileFieldByItemId($item['id']);
 		self::deleteThread($item['id'], $item['parent-uri']);
 
+		if (!dba::exists('item', ["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
+			self::delete(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
+		}
+
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
 			self::delete(['parent' => $item['parent']], $priority);
