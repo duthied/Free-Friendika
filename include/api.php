@@ -935,7 +935,7 @@ function api_reformat_xml(&$item, &$key)
  *
  * @return string The XML data
  */
-function api_create_xml($data, $root_element)
+function api_create_xml(array $data, $root_element)
 {
 	$childname = key($data);
 	$data2 = array_pop($data);
@@ -960,7 +960,7 @@ function api_create_xml($data, $root_element)
 		$i = 1;
 
 		foreach ($data2 as $item) {
-			$data4[$i++.":".$childname] = $item;
+			$data4[$i++ . ":" . $childname] = $item;
 		}
 
 		$data2 = $data4;
@@ -4379,7 +4379,6 @@ function api_fr_photo_create_update($type)
 	throw new InternalServerErrorException("unknown error - this error on uploading or updating a photo should never happen");
 }
 
-
 /**
  * @brief delete a single photo from the database through api
  *
@@ -4518,6 +4517,7 @@ function api_account_update_profile_image($type)
 	} else {
 		throw new InternalServerErrorException('Unsupported filetype');
 	}
+
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
@@ -4531,7 +4531,6 @@ function api_account_update_profile_image($type)
 	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
-	//$user = api_get_user(get_app());
 	$url = System::baseUrl() . '/profile/' . get_app()->user['nickname'];
 	if ($url && strlen(Config::get('system', 'directory'))) {
 		Worker::add(PRIORITY_LOW, "Directory", $url);
@@ -5273,27 +5272,27 @@ function api_in_reply_to($item)
 
 /**
  *
- * @param string $Text
+ * @param string $text
  *
  * @return string
  */
-function api_clean_plain_items($Text)
+function api_clean_plain_items($text)
 {
 	$include_entities = strtolower(x($_REQUEST, 'include_entities') ? $_REQUEST['include_entities'] : "false");
 
-	$Text = BBCode::cleanPictureLinks($Text);
+	$text = BBCode::cleanPictureLinks($text);
 	$URLSearchString = "^\[\]";
 
-	$Text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
+	$text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $text);
 
 	if ($include_entities == "true") {
-		$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url=$1]$1[/url]', $Text);
+		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url=$1]$1[/url]', $text);
 	}
 
 	// Simplify "attachment" element
-	$Text = api_clean_attachments($Text);
+	$text = api_clean_attachments($text);
 
-	return($Text);
+	return $text;
 }
 
 /**

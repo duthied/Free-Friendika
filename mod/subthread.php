@@ -63,17 +63,19 @@ function subthread_content(App $a) {
 		WHERE `contact`.`self` = 1 AND `contact`.`uid` = %d LIMIT 1",
 		intval($owner_uid)
 	);
-	if (DBM::is_result($r))
+
+	if (DBM::is_result($r)) {
 		$owner = $r[0];
+	}
 
 	if (! $owner) {
 		logger('like: no owner');
 		return;
 	}
 
-	if (! $remote_owner)
+	if (! $remote_owner) {
 		$remote_owner = $owner;
-
+	}
 
 	$contact = null;
 	// This represents the person posting
@@ -85,8 +87,10 @@ function subthread_content(App $a) {
 			intval($_SESSION['visitor_id']),
 			intval($owner_uid)
 		);
-		if (DBM::is_result($r))
+
+		if (DBM::is_result($r)) {
 			$contact = $r[0];
+		}
 	}
 	if (! $contact) {
 		return;

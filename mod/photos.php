@@ -1243,9 +1243,11 @@ function photos_content(App $a)
 		$prevlink = '';
 		$nextlink = '';
 
-		/// @todo This query is totally bad, the whole functionality has to be changed
-		// The query leads to a really intense used index.
-		// By now we hide it if someone wants to.
+		/*
+		 * @todo This query is totally bad, the whole functionality has to be changed
+		 * The query leads to a really intense used index.
+		 * By now we hide it if someone wants to.
+		 */
 		if (!Config::get('system', 'no_count', false)) {
 			$order_field = defaults($_GET, 'order', '');
 			if ($order_field === 'posted') {
@@ -1280,8 +1282,10 @@ function photos_content(App $a)
  			}
 		}
 
-		if (count($ph) == 1)
+		if (count($ph) == 1) {
 			$hires = $lores = $ph[0];
+		}
+
 		if (count($ph) > 1) {
 			if ($ph[1]['scale'] == 2) {
 				// original is 640 or less, we can display it directly
@@ -1293,6 +1297,7 @@ function photos_content(App $a)
 		}
 
 		$album_link = 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
+
 		$tools = null;
 		$lock = null;
 
@@ -1319,8 +1324,9 @@ function photos_content(App $a)
 			]);
 		}
 
-		if ($prevlink)
+		if ($prevlink) {
 			$prevlink = [$prevlink, '<div class="icon prev"></div>'] ;
+		}
 
 		$photo = [
 			'href' => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
@@ -1681,8 +1687,9 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos')))
+			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos'))) {
 				continue;
+			}
 
 			$twist = !$twist;
 

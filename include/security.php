@@ -254,6 +254,7 @@ function can_write_wall($owner)
 	return false;
 }
 
+/// @TODO $groups should be array
 function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 {
 	$local_user = local_user();
@@ -275,6 +276,13 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 	 */
 	if ($local_user && $local_user == $owner_id) {
 		$sql = '';
+	/**
+	 * Authenticated visitor. Unless pre-verified,
+	 * check that the contact belongs to this $owner_id
+	 * and load the groups the visitor belongs to.
+	 * If pre-verified, the caller is expected to have already
+	 * done this and passed the groups into this function.
+	 */
 	} elseif ($remote_user) {
 		/*
 		 * Authenticated visitor. Unless pre-verified,
@@ -298,9 +306,10 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 		if ($remote_verified) {
 			$gs = '<<>>'; // should be impossible to match
 
-			if (is_array($groups) && count($groups)) {
-				foreach ($groups as $g)
+			if (is_array($groups)) {
+				foreach ($groups as $g) {
 					$gs .= '|<' . intval($g) . '>';
+				}
 			}
 
 			$sql = sprintf(

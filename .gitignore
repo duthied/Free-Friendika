@@ -9,7 +9,6 @@ include/jquery-1.4.2.min.js
 favicon.*
 home.html
 addon
-*.orig
 *~
 robots.txt
 
@@ -24,9 +23,11 @@ report/
 .buildpath
 .externalToolBuilders
 .settings
+
 #ignore OSX .DS_Store files
 .DS_Store
 
+#ignore NetBeans IDE's private files (at least)
 /nbproject/private/
 
 #ignore smarty cache
@@ -53,9 +54,14 @@ nbproject
 #ignore things from transifex-client
 venv/
 
-#ignore Composer dependencies
-/vendor
-/view/asset
+#ignore all in 'vendor' as `utils/composer.phar install` will bring it back
+vendor/*
 
 #ignore config files from JetBrains
 /.idea
+
+#ignore addons/ directory
+addons/
+
+#Ignore .htaccess as it may contain local changes
+.htaccess
