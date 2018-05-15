@@ -172,12 +172,30 @@ class Post extends BaseObject
 			$dropping = true;
 		}
 
+		$origin = $item['origin'];
+
+		if (!$origin) {
+			/// @todo This shouldn't be done as query here, but better during the data creation.
+			// it is now done here, since during the RC phase we shouldn't make to intense changes.
+			$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
+			if (DBM::is_result($parent)) {
+				$origin = $parent['origin'];
+			}
+		}
+
+		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
+		$delete = $origin ? L10n::t('Delete') : L10n::t('Remove from your stream');
+
 		$drop = [
 			'dropping' => $dropping,
 			'pagedrop' => ((Feature::isEnabled($conv->getProfileOwner(), 'multi_delete')) ? $item['pagedrop'] : ''),
 			'select'   => L10n::t('Select'),
-			'delete'   => L10n::t('Remove from your stream'),
+			'delete'   => $delete,
 		];
+
+		if (!local_user()) {
+			$drop = false;
+		}
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? L10n::t("save to folder") : false);
 
