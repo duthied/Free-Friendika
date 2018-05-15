@@ -1747,6 +1747,12 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 
+		// If we are the origin of the parent we store the original data.
+		// We notify our followers during the item storage.
+		if ($parent_item["origin"]) {
+			$datarray['diaspora_signed_text'] = json_encode($data);
+		}
+
 		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
@@ -1756,18 +1762,8 @@ class Diaspora
 		if ($message_id) {
 			logger("Stored comment ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 			if ($datarray['uid'] == 0) {
-				Item::distribute($message_id);
+				Item::distribute($message_id, json_encode($data));
 			}
-		}
-
-		// If we are the origin of the parent we store the original data and notify our followers
-		if ($message_id && $parent_item["origin"]) {
-			// Formerly we stored the signed text, the signature and the author in different fields.
-			// We now store the raw data so that we are more flexible.
-			dba::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($data)]);
-
-			// notify others
-			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
 		}
 
 		return true;
@@ -2071,6 +2067,20 @@ class Diaspora
 
 		$datarray["body"] = self::constructLikeBody($contact, $parent_item, $guid);
 
+		// like on comments have the comment as parent. So we need to fetch the toplevel parent
+		if ($parent_item["id"] != $parent_item["parent"]) {
+			$toplevel = dba::selectFirst('item', ['origin'], ['id' => $parent_item["parent"]]);
+			$origin = $toplevel["origin"];
+		} else {
+			$origin = $parent_item["origin"];
+		}
+
+		// If we are the origin of the parent we store the original data.
+		// We notify our followers during the item storage.
+		if ($origin) {
+			$datarray['diaspora_signed_text'] = json_encode($data);
+		}
+
 		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
@@ -2080,26 +2090,8 @@ class Diaspora
 		if ($message_id) {
 			logger("Stored like ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 			if ($datarray['uid'] == 0) {
-				Item::distribute($message_id);
+				Item::distribute($message_id, json_encode($data));
 			}
-		}
-
-		// like on comments have the comment as parent. So we need to fetch the toplevel parent
-		if ($parent_item["id"] != $parent_item["parent"]) {
-			$toplevel = dba::selectFirst('item', ['origin'], ['id' => $parent_item["parent"]]);
-			$origin = $toplevel["origin"];
-		} else {
-			$origin = $parent_item["origin"];
-		}
-
-		// If we are the origin of the parent we store the original data and notify our followers
-		if ($message_id && $origin) {
-			// Formerly we stored the signed text, the signature and the author in different fields.
-			// We now store the raw data so that we are more flexible.
-			dba::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($data)]);
-
-			// notify others
-			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
 		}
 
 		return true;
