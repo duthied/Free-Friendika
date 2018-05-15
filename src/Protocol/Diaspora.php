@@ -2868,12 +2868,6 @@ class Diaspora
 			Item::deleteById($item["id"]);
 
 			logger("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], LOGGER_DEBUG);
-
-			// Now check if the retraction needs to be relayed by us
-			if ($parent["origin"]) {
-				// notify others
-				Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
-			}
 		}
 
 		return true;

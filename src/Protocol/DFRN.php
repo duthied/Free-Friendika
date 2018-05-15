@@ -2719,23 +2719,6 @@ class DFRN
 					Item::distribute($posted_id);
 				}
 
-				$item["id"] = $posted_id;
-
-				$r = q(
-					"SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-					intval($posted_id),
-					intval($importer["importer_uid"])
-				);
-				if (DBM::is_result($r)) {
-					$parent = $r[0]["parent"];
-					$parent_uri = $r[0]["parent-uri"];
-				}
-
-				if ($posted_id && $parent && ($entrytype == DFRN::REPLY_RC)) {
-					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
-					Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $posted_id);
-				}
-
 				return true;
 			}
 		} else { // $entrytype == DFRN::TOP_LEVEL
@@ -2837,14 +2820,6 @@ class DFRN
 		}
 
 		Item::deleteById($item["id"]);
-
-		if ($entrytype != DFRN::TOP_LEVEL) {
-			// if this is a relayed delete, propagate it to other recipients
-			if ($entrytype == DFRN::REPLY_RC) {
-				logger("Notifying followers about deletion of post " . $item["id"], LOGGER_DEBUG);
-				Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
-			}
-		}
 	}
 
 	/**
