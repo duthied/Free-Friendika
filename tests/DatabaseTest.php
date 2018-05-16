@@ -52,8 +52,6 @@ abstract class DatabaseTest extends TestCase
 	 */
 	protected function getDataSet()
 	{
-		return new YamlDataSet(
-			__DIR__.'/datasets/api.yml'
-		);
+		return new YamlDataSet(__DIR__ . '/datasets/api.yml');
 	}
 }
