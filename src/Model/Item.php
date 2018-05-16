@@ -112,15 +112,17 @@ class Item extends BaseObject
 	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
-		$fields = ['id', 'uid', 'parent', 'parent-uri', 'origin', 'deleted',
-			'file', 'resource-id', 'event-id', 'attach',
+		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
+			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id'];
 		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
+			logger('Item with ID ' . $item_id . " hasn't been found.", LOGGER_DEBUG);
 			return false;
 		}
 
 		if ($item['deleted']) {
+			logger('Item with ID ' . $item_id . ' has already been deleted.', LOGGER_DEBUG);
 			return false;
 		}
 
@@ -128,8 +130,6 @@ class Item extends BaseObject
 		if (!DBM::is_result($parent)) {
 			$parent = ['origin' => false];
 		}
-
-		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
 
 		// clean up categories and tags so they don't end up as orphans
 
@@ -183,15 +183,26 @@ class Item extends BaseObject
 		Term::insertFromFileFieldByItemId($item['id']);
 		self::deleteThread($item['id'], $item['parent-uri']);
 
-		// If it's the parent of a comment thread, kill all the kids
-		if ($item['id'] == $item['parent']) {
-			self::delete(['parent' => $item['parent']], $priority);
+		if (!dba::exists('item', ["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
+			self::delete(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
-		// send the notification upstream/downstream
+		// If it's the parent of a comment thread, kill all the kids
+		if ($item['id'] == $item['parent']) {
+			self::delete(['parent' => $item['parent'], 'deleted' => false], $priority);
+		}
+
+		// Is it our comment and/or our thread?
 		if ($item['origin'] || $parent['origin']) {
+
+			// When we delete the original post we will delete all existing copies on the server as well
+			self::delete(['uri' => $item['uri'], 'deleted' => false], $priority);
+
+			// send the notification upstream/downstream
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
 		}
+
+		logger('Item with ID ' . $item_id . " has been deleted.", LOGGER_DEBUG);
 
 		return true;
 	}
@@ -333,6 +344,12 @@ class Item extends BaseObject
 			$item['origin'] = 1;
 			$item['network'] = NETWORK_DFRN;
 			$item['protocol'] = PROTOCOL_DFRN;
+
+			if (is_int($notify)) {
+				$priority = $notify;
+			} else {
+				$priority = PRIORITY_HIGH;
+			}
 		} else {
 			$item['network'] = trim(defaults($item, 'network', NETWORK_PHANTOM));
 		}
@@ -861,7 +878,7 @@ class Item extends BaseObject
 		check_user_notification($current_post);
 
 		if ($notify) {
-			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
 		} elseif (!empty($parent) && $parent['origin']) {
 			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", "comment-import", $current_post);
 		}
