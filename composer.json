@@ -47,7 +47,8 @@
 	],
 	"autoload": {
 		"psr-4": {
-			"Friendica\\": "src/"
+			"Friendica\\": "src/",
+			"Friendica\\Test\\": "tests/"
 		},
 		"psr-0": {
 			"": "library/"
@@ -68,5 +69,13 @@
 		"exclude": [
 			"log", "cache", "/photo", "/proxy"
 		]
+	},
+	"require-dev": {
+		"phpunit/dbunit": "^2.0",
+		"phpdocumentor/reflection-docblock": "^3.0.2",
+		"phpunit/php-token-stream": "^1.4.2"
+	},
+	"scripts": {
+		"test": "phpunit"
 	}
 }

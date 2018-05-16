@@ -7,4 +7,14 @@ php:
  - 7.1
  - 7.2
 
-install: composer install
+services:
+ - mysql
+env:
+ - USER=travis DB=test
+
+install:
+ - composer install
+before_script:
+ - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+ # In order to avoid bin/worker.php warnings
+ - touch .htconfig.php

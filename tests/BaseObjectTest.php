@@ -7,14 +7,12 @@ namespace Friendica\Test;
 
 use Friendica\App;
 use Friendica\BaseObject;
-// backward compatibility
-if (!class_exists('\PHPUnit\Framework\TestCase')) {
-    class_alias('\PHPUnit_Framework_TestCase', '\PHPUnit\Framework\TestCase');
-}
+use PHPUnit\Framework\TestCase;
+
 /**
  * Tests for the BaseObject class.
  */
-class BaseObjectTest extends \PHPUnit\Framework\TestCase
+class BaseObjectTest extends TestCase
 {
 
 	/**
