@@ -48,7 +48,7 @@ abstract class DatabaseTest extends TestCase
 			}
 		}
 
-		return $this->createDefaultDBConnection(dba::get_db(), 'friendica_test:');
+		return $this->createDefaultDBConnection(dba::get_db(), getenv('DB'));
 	}
 
 	/**
