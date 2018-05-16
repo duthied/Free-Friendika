@@ -543,7 +543,7 @@ function settings_post(App $a)
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
 		if (Network::isUrlValid($openid)) {
 			logger('updating openidserver');
-			$open_id_obj = new LightOpenID;
+			$open_id_obj = new LightOpenID($a->get_hostname());
 			$open_id_obj->identity = $openid;
 			$openidserver = $open_id_obj->discover($open_id_obj->identity);
 		} else {
