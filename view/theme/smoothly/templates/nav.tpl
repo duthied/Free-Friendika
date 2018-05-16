@@ -50,6 +50,7 @@
 			{{if $nav.admin}}<li><a id="nav-admin-link" class="nav-commlink {{$nav.admin.2}}" href="{{$nav.admin.0}}">{{$nav.admin.1}}</a></li>{{/if}}
 			
 			{{if $nav.help}}<li><a id="nav-help-link" class="nav-link {{$nav.help.2}}" href="{{$nav.help.0}}">{{$nav.help.1}}</a></li>{{/if}}
+			{{if $nav.tos}}<li><a id="nav-tos-link" class="nav-link {{$nav.tos.2}}" href="{{$nav.tos.0}}">{{$nav.tos.1}}</a></li>{{/if}}
 
 			{{if $nav.login}}<li><a id="nav-login-link" class="nav-link {{$nav.login.2}}" href="{{$nav.login.0}}">{{$nav.login.1}}</a></li> {{/if}}
 			{{if $nav.logout}}<li><a id="nav-logout-link" class="nav-commlink nav-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}">{{$nav.logout.1}}</a></li> {{/if}}
