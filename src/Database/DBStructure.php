@@ -1799,7 +1799,7 @@ class DBStructure
 						"pid" => ["pid"],
 						"parameter" => ["parameter(64)"],
 						"priority_created" => ["priority", "created"],
-						"executed" => ["executed"],
+						"done_executed" => ["done", "executed"],
 						]
 				];
 
