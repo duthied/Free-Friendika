@@ -117,12 +117,12 @@ class Item extends BaseObject
 			'verb', 'object-type', 'object', 'target', 'contact-id'];
 		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
-			logger('Item with ID ' . $item_id . " hadn't been found.", LOGGER_DEBUG);
+			logger('Item with ID ' . $item_id . " hasn't been found.", LOGGER_DEBUG);
 			return false;
 		}
 
 		if ($item['deleted']) {
-			logger('Item with ID ' . $item_id . ' is already deleted.', LOGGER_DEBUG);
+			logger('Item with ID ' . $item_id . ' has already been deleted.', LOGGER_DEBUG);
 			return false;
 		}
 
@@ -202,7 +202,7 @@ class Item extends BaseObject
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
 		}
 
-		logger('Item with ID ' . $item_id . " had been deleted.", LOGGER_DEBUG);
+		logger('Item with ID ' . $item_id . " has been deleted.", LOGGER_DEBUG);
 
 		return true;
 	}
