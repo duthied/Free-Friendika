@@ -22,6 +22,12 @@ abstract class DatabaseTest extends TestCase
 
 	/**
 	 * Get database connection.
+	 *
+	 * This function is executed before each test in order to get a database connection that can be used by tests.
+	 * If no prior connection is available, it tries to create one using the USER, PASS and DB environment variables.
+	 *
+	 * If it could not connect to the database, the test is skipped.
+	 *
 	 * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
 	 * @see https://phpunit.de/manual/5.7/en/database.html
 	 */
