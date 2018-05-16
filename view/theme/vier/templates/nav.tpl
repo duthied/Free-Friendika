@@ -43,6 +43,7 @@
 			<ul id="nav-site-menu" class="menu-popup">
 				{{if $nav.help}} <li role="menuitem"><a class="{{$nav.help.2}}" href="{{$nav.help.0}}" title="{{$nav.help.3}}" >{{$nav.help.1}}</a></li>{{/if}}
 				<li role="menuitem"><a class="{{$nav.about.2}}" href="{{$nav.about.0}}" title="{{$nav.about.3}}" >{{$nav.about.1}}</a></li>
+				{{if $nav.tos}}<a class="{{$nav.tos.2}}" href="{{$nav.tos.0}}" title="{{$nav.tos.3}}" >{{$nav.tos.1}}</a></li>{{/if}}
 				<li role="menuitem"><a class="{{$nav.directory.2}}" href="{{$nav.directory.0}}" title="{{$nav.directory.3}}" >{{$nav.directory.1}}</a></li>
 			</ul>
 		</li>

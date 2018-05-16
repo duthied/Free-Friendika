@@ -78,6 +78,7 @@
 
 				{{if $nav.logout}}<li><a class="menu-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" >{{$nav.logout.1}}</a></li>{{/if}}
 				{{if $nav.login}}<li><a class="{{$nav.login.2}}" href="{{$nav.login.0}}" title="{{$nav.login.3}}" >{{$nav.login.1}}</a><li>{{/if}}
+				{{if $nav.tos}}<li><a class="menu-sep {{$nav.tos.2}}" href="{{$nav.tos.0}}" title="{{$nav.tos.3}}">{{$nav.tos.1}}</a></li>{{/if}}				
 			</ul>		
 		</li>
 		

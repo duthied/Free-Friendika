@@ -174,6 +174,10 @@ class Nav
 
 		$nav['about'] = ['friendica', L10n::t('Information'), '', L10n::t('Information about this friendica instance')];
 
+		if (Config::get('system', 'tosdisplay')) {
+			$nav['tos'] = ['tos', L10n::t('Terms of Service'), '', L10n::t('Terms of Service of this Friendica instance')];
+		}
+
 		// The following nav links are only show to logged in users
 		if (local_user()) {
 			$nav['network'] = ['network', L10n::t('Network'), '', L10n::t('Conversations from your friends')];
