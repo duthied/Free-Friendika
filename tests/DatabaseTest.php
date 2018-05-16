@@ -11,7 +11,6 @@ use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit\Framework\TestCase;
-use PDO;
 
 /**
  * Abstract class used by tests that need a database.
