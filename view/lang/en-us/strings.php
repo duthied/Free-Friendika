@@ -2,6 +2,7 @@
 
 if(! function_exists("string_plural_select_en_us")) {
 function string_plural_select_en_us($n){
+	$n = intval($n);
 	return ($n != 1);;
 }}
 ;
