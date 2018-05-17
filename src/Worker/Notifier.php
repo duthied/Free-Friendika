@@ -11,6 +11,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
+use Friendica\Model\PushSubscriber;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -501,13 +502,12 @@ class Notifier {
 			// Set push flag for PuSH subscribers to this topic,
 			// they will be notified in queue.php
 			$condition = ['push' => false, 'nickname' => $owner['nickname']];
-			dba::update('push_subscriber', ['push' => true], $condition);
+			dba::update('push_subscriber', ['push' => true, 'next_try' => NULL_DATE], $condition);
 
 			logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
 			// Handling the pubsubhubbub requests
-			Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
-					'PubSubPublish');
+			PushSubscriber::publishFeed($a->queue['priority']);
 		}
 
 		logger('notifier: calling hooks for ' . $cmd . ' ' . $item_id, LOGGER_DEBUG);
