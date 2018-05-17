@@ -34,7 +34,7 @@ class Queue
 			logger('filling queue jobs - start');
 
 			// Handling the pubsubhubbub requests
-			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'PubSubPublish');
+			Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'PubSubPublish');
 
 			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
 

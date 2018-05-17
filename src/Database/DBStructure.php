@@ -1553,12 +1553,14 @@ class DBStructure
 						"callback_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"topic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"push" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"last_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"push" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
+						"last_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date of last successful trial"],
+						"next_try" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Next retrial date"],
 						"secret" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
+						"next_try" => ["next_try"],
 						]
 				];
 		$database["queue"] = [
