@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Queue as QueueModel;
+use Friendica\Model\PushSubscriber;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\PortableContact;
@@ -34,7 +35,7 @@ class Queue
 			logger('filling queue jobs - start');
 
 			// Handling the pubsubhubbub requests
-			Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], 'PubSubPublish');
+			PushSubscriber::publishFeed(PRIORITY_LOW);
 
 			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
 
