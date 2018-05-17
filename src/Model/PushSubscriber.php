@@ -14,7 +14,7 @@ class PushSubscriber
 	/**
 	 * @param string $priority Priority for push workers
 	 */
-	public static function publishFeed($priority = PRIORITY_HIGH)
+	public static function publishFeed($default_priority = PRIORITY_HIGH)
 	{
 		// We'll push to each subscriber that has push > 0,
 		// i.e. there has been an update (set in notifier.php).
@@ -24,7 +24,10 @@ class PushSubscriber
 			// We always handle retries with low priority
 			if ($subscriber["push"] > 1) {
 				$priority = PRIORITY_LOW;
+			} else {
+				$priority = $default_priority;
 			}
+
 			logger("Publish feed to " . $subscriber["callback_url"] . " with priority " . $priority, LOGGER_DEBUG);
 			Worker::add($priority, 'PubSubPublish', (int)$subscriber["id"]);
 		}
