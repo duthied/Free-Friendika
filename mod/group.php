@@ -226,7 +226,7 @@ function group_content(App $a) {
 			$entry['label'] = 'members';
 			$entry['photo_menu'] = '';
 			$entry['change_member'] = [
-				'title'     => L10n::t("Remove Contact"),
+				'title'     => L10n::t("Remove contact from group"),
 				'gid'       => $group['id'],
 				'cid'       => $member['id'],
 				'sec_token' => $sec_token
@@ -250,7 +250,7 @@ function group_content(App $a) {
 				$entry['label'] = 'contacts';
 				$entry['photo_menu'] = '';
 				$entry['change_member'] = [
-					'title'     => L10n::t("Add Contact"),
+					'title'     => L10n::t("Add contact to group"),
 					'gid'       => $group['id'],
 					'cid'       => $member['id'],
 					'sec_token' => $sec_token
