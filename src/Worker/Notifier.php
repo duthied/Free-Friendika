@@ -510,7 +510,7 @@ class Notifier {
 					'PubSubPublish');
 		}
 
-		logger('notifier: calling hooks', LOGGER_DEBUG);
+		logger('notifier: calling hooks for ' . $cmd . ' ' . $item_id, LOGGER_DEBUG);
 
 		if ($normal_mode) {
 			Addon::forkHooks($a->queue['priority'], 'notifier_normal', $target_item);

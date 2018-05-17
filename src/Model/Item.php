@@ -75,8 +75,9 @@ class Item extends BaseObject
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
 
-			// We only need to notfiy others when it is an original entry from us
-			if ($item['origin']) {
+			// We only need to notfiy others when it is an original entry from us.
+			// Only call the notifier when the item has some content relevant change.
+			if ($item['origin'] && in_array('edited', array_keys($fields))) {
 				Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
 			}
 		}
