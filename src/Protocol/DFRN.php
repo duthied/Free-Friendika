@@ -2140,10 +2140,6 @@ class DFRN
 			Item::update($fields, $condition);
 
 			$changed = true;
-
-			if ($entrytype == DFRN::REPLY_RC) {
-				Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $current["id"]);
-			}
 		}
 		return $changed;
 	}
