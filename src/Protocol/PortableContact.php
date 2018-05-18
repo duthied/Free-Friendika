@@ -1527,8 +1527,10 @@ class PortableContact
 		if ($serverdata) {
 			$servers = json_decode($serverdata);
 
-			foreach ($servers->pods as $server) {
-				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", "https://".$server->host);
+			if (is_array($servers->pods)) {
+				foreach ($servers->pods as $server) {
+					Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", "https://".$server->host);
+				}
 			}
 		}
 
