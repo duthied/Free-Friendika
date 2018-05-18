@@ -206,6 +206,16 @@ class Contact extends BaseObject
 		$fields['forum'] = $user['page-flags'] == PAGE_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == PAGE_PRVGROUP;
 
+		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
+		$fields['url'] = System::baseUrl() . '/profile/' . $user['nickname'];
+		$fields['nurl'] = normalise_link($fields['url']);
+		$fields['addr'] = $user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+		$fields['request'] = System::baseUrl() . '/dfrn_request/' . $user['nickname'];
+		$fields['notify'] = System::baseUrl() . '/dfrn_notify/'  . $user['nickname'];
+		$fields['poll'] = System::baseUrl() . '/dfrn_poll/'    . $user['nickname'];
+		$fields['confirm'] = System::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
+		$fields['poco'] = System::baseUrl() . '/poco/'         . $user['nickname'];
+
 		$update = false;
 
 		foreach ($fields as $field => $content) {
