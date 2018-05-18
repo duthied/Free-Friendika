@@ -42,12 +42,11 @@ function pubsubhubbub_init(App $a) {
 		} elseif ($hub_mode === 'unsubscribe') {
 			$subscribe = 0;
 		} else {
-			logger("pubsubhubbub: invalid hub_mode=$hub_mode, ignoring.");
+			logger("Invalid hub_mode=$hub_mode, ignoring.");
 			System::httpExit(404);
 		}
 
-		logger("pubsubhubbub: $hub_mode request from " .
-			   $_SERVER['REMOTE_ADDR']);
+		logger("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
 
 		// get the nick name from the topic, a bit hacky but needed as a fallback
 		$nick = substr(strrchr($hub_topic, "/"), 1);
@@ -58,44 +57,37 @@ function pubsubhubbub_init(App $a) {
 		}
 
 		if (!$nick) {
-			logger('pubsubhubbub: bad hub_topic=$hub_topic, ignoring.');
+			logger('Bad hub_topic=$hub_topic, ignoring.');
 			System::httpExit(404);
 		}
 
 		// fetch user from database given the nickname
-		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s'" .
-			   " AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
-			   dbesc($nick));
-
-		if (!DBM::is_result($r)) {
-			logger('pubsubhubbub: local account not found: ' . $nick);
+		$condition = ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false];
+		$owner = dba::selectFirst('user', ['uid', 'hidewall'], $condition);
+		if (!DBM::is_result($owner)) {
+			logger('Local account not found: ' . $nick . ' - topic: ' . $hub_topic . ' - callback: ' . $hub_callback);
 			System::httpExit(404);
 		}
 
-		$owner = $r[0];
-
 		// abort if user's wall is supposed to be private
-		if ($r[0]['hidewall']) {
-			logger('pubsubhubbub: local user ' . $nick .
-				   'has chosen to hide wall, ignoring.');
+		if ($owner['hidewall']) {
+			logger('Local user ' . $nick . 'has chosen to hide wall, ignoring.');
 			System::httpExit(403);
 		}
 
 		// get corresponding row from contact table
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked`".
-			   " AND NOT `pending` AND `self` LIMIT 1",
-			   intval($owner['uid']));
-		if (!DBM::is_result($r)) {
-			logger('pubsubhubbub: contact not found.');
+		$condition = ['uid' => $owner['uid'], 'blocked' => false,
+			'pending' => false, 'self' => true];
+		$contact = dba::selectFirst('contact', ['poll'], $condition);
+		if (!DBM::is_result($contact)) {
+			logger('Self contact for user ' . $owner['uid'] . ' not found.');
 			System::httpExit(404);
 		}
 
-		$contact = $r[0];
-
 		// sanity check that topic URLs are the same
-		if (!link_compare($hub_topic, $contact['poll'])) {
-			logger('pubsubhubbub: hub topic ' . $hub_topic . ' != ' .
-				   $contact['poll']);
+		$hub_topic2 = str_replace('/feed/', '/dfrn_poll/', $hub_topic);
+		if (!link_compare($hub_topic, $contact['poll']) && !link_compare($hub_topic2, $contact['poll'])) {
+			logger('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
 			System::httpExit(404);
 		}
 
@@ -117,22 +109,19 @@ function pubsubhubbub_init(App $a) {
 
 		// give up if the HTTP return code wasn't a success (2xx)
 		if ($ret < 200 || $ret > 299) {
-			logger("pubsubhubbub: subscriber verification at $hub_callback ".
-				   "returned $ret, ignoring.");
+			logger("Subscriber verification for $hub_topic at $hub_callback returned $ret, ignoring.");
 			System::httpExit(404);
 		}
 
 		// check that the correct hub_challenge code was echoed back
 		if (trim($body) !== $hub_challenge) {
-			logger("pubsubhubbub: subscriber did not echo back ".
-				   "hub.challenge, ignoring.");
+			logger("Subscriber did not echo back hub.challenge, ignoring.");
 			logger("\"$hub_challenge\" != \"".trim($body)."\"");
 			System::httpExit(404);
 		}
 
 		// fetch the old subscription if it exists
-		$r = q("SELECT * FROM `push_subscriber` WHERE `callback_url` = '%s'",
-		  dbesc($hub_callback));
+		$subscriber = dba::selectFirst('push_subscriber', ['last_update', 'push'], ['callback_url' => $hub_callback]);
 
 		// delete old subscription if it exists
 		dba::delete('push_subscriber', ['callback_url' => $hub_callback]);
@@ -142,30 +131,25 @@ function pubsubhubbub_init(App $a) {
 			$push_flag = 0;
 
 			// if we are just updating an old subscription, keep the
-			// old values for push and last_update
-			if (DBM::is_result($r)) {
-				$last_update = $r[0]['last_update'];
-				$push_flag = $r[0]['push'];
+			// old values for last_update but reset the push
+			if (DBM::is_result($subscriber)) {
+				$last_update = $subscriber['last_update'];
+				$push_flag = min($subscriber['push'], 1);
 			}
 
 			// subscribe means adding the row to the table
-			q("INSERT INTO `push_subscriber` (`uid`, `callback_url`, " .
-			  "`topic`, `nickname`, `push`, `last_update`, `secret`) values " .
-			  "(%d, '%s', '%s', '%s', %d, '%s', '%s')",
-			  intval($owner['uid']),
-			  dbesc($hub_callback),
-			  dbesc($hub_topic),
-			  dbesc($nick),
-			  intval($push_flag),
-			  dbesc($last_update),
-			  dbesc($hub_secret));
-			logger("pubsubhubbub: successfully subscribed [$hub_callback].");
+			$fields = ['uid' => $owner['uid'], 'callback_url' => $hub_callback,
+				'topic' => $hub_topic, 'nickname' => $nick, 'push' => $push_flag,
+				'last_update' => $last_update, 'renewed' => DateTimeFormat::utcNow(),
+				'secret' => $hub_secret];
+			dba::insert('push_subscriber', $fields);
+
+			logger("Successfully subscribed [$hub_callback].");
 		} else {
-			logger("pubsubhubbub: successfully unsubscribed [$hub_callback].");
+			logger("Successfully unsubscribed [$hub_callback].");
 			// we do nothing here, since the row was already deleted
 		}
 		System::httpExit(202);
 	}
-
 	killme();
 }
