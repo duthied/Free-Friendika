@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.05-rc (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1263
+-- DB_UPDATE_VERSION 1264
 -- ------------------------------------------
 
 
@@ -858,6 +858,7 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
 	`push` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
 	`last_update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last successful trial',
 	`next_try` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Next retrial date',
+	`renewed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last subscription renewal',
 	`secret` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `next_try` (`next_try`)
