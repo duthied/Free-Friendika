@@ -284,6 +284,11 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			}
 
 			if (($status == 0) && $intro_id) {
+				$intro = dba::selectFirst('intro', ['note'], ['id' => $intro_id]);
+				if (DBM::is_result($intro)) {
+					dba::update('contact', ['reason' => $intro['note']], ['id' => $contact_id]);
+				}
+
 				// Success. Delete the notification.
 				dba::delete('intro', ['id' => $intro_id]);
 			}
@@ -385,7 +390,6 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			);
 		}
 
-		/// @TODO is DBM::is_result() working here?
 		if (!DBM::is_result($r)) {
 			notice(L10n::t('Unable to set contact photo.') . EOL);
 		}
