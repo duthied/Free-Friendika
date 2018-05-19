@@ -67,6 +67,12 @@
 	{{if $showtoslink}}
 	<p><a href="{{$baseurl}}/tos">{{$tostext}}</a></p>
 	{{/if}}
+	{{if $showprivstatement}}
+	<h4>{{$privstatement.0}}</h4>
+	{{for $i=1 to 3}}
+	<p>{{$privstatement[$i]}}</p>
+	{{/for}}
+	{{/if}}
 
 	<div id="register-submit-wrapper">
 		<input type="submit" name="submit" id="register-submit-button" value="{{$regbutt|escape:'html'}}" />

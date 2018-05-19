@@ -12,6 +12,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\User;
+use Friendica\Module\Tos;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/enotify.php';
@@ -252,6 +253,8 @@ function register_content(App $a)
 
 	$tpl = $arr['template'];
 
+	$tos = new Tos();
+
 	$o = replace_macros($tpl, [
 		'$oidhtml' => $oidhtml,
 		'$invitations' => Config::get('system', 'invitation_only'),
@@ -286,6 +289,8 @@ function register_content(App $a)
 		'$importt'   => L10n::t('Import your profile to this friendica instance'),
 		'$showtoslink' => Config::get('system', 'tosdisplay'),
 		'$tostext'   => L10n::t('Terms of Service'),
+		'$showprivstatement' => Config::get('system', 'tosprivstatement'),
+		'$privstatement' => $tos->privblock,
 		'$baseurl'   => System::baseurl(),
 		'$form_security_token' => get_form_security_token("register")
 	]);
