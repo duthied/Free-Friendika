@@ -333,13 +333,9 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$sql_extra = item_permissions_sql($a->profile['uid'], $remote_contact, $groups);
 
 	if ($update) {
-		$r = dba::p("SELECT `id` FROM `item` WHERE
-			`item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
-			$sql_extra AND `unseen`",
-			$item_id
-		);
-
-		if (dba::num_rows($r) == 0) {
+		if (!dba::exists('item',
+			["`item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
+			$sql_extra AND `unseen` AND `uid` != 0", $item_id])) {
 			return '';
 		}
 	}
