@@ -50,7 +50,6 @@
 			<h3 class="heading">{{$fullname}}{{if $addr}}&nbsp;({{$addr}}){{/if}}</h3>
 			<form class="intro-approve-form" action="dfrn_confirm" method="post">
 				{{include file="field_checkbox.tpl" field=$hidden}}
-				{{include file="field_checkbox.tpl" field=$activity}}
 				<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}" >
 				<input type="hidden" name="intro_id" value="{{$intro_id}}" >
 				<input type="hidden" name="contact_id" value="{{$contact_id}}" >

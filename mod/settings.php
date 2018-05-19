@@ -442,9 +442,6 @@ function settings_post(App $a)
 	$suggestme        = ((x($_POST, 'suggestme')) ? intval($_POST['suggestme'])  : 0);
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
-	$post_newfriend   = (($_POST['post_newfriend'] == 1) ? 1: 0);
-	$post_joingroup   = (($_POST['post_joingroup'] == 1) ? 1: 0);
-	$post_profilechange   = (($_POST['post_profilechange'] == 1) ? 1: 0);
 
 	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
@@ -558,9 +555,6 @@ function settings_post(App $a)
 	PConfig::set(local_user(), 'expire', 'network_only', $expire_network_only);
 
 	PConfig::set(local_user(), 'system', 'suggestme', $suggestme);
-	PConfig::set(local_user(), 'system', 'post_newfriend', $post_newfriend);
-	PConfig::set(local_user(), 'system', 'post_joingroup', $post_joingroup);
-	PConfig::set(local_user(), 'system', 'post_profilechange', $post_profilechange);
 
 	PConfig::set(local_user(), 'system', 'email_textonly', $email_textonly);
 	PConfig::set(local_user(), 'system', 'detailed_notif', $detailed_notif);
@@ -1020,9 +1014,6 @@ function settings_content(App $a)
 	$expire_photos = PConfig::get(local_user(), 'expire', 'photos', false);
 	$expire_network_only = PConfig::get(local_user(), 'expire', 'network_only', false);
 	$suggestme = PConfig::get(local_user(), 'system', 'suggestme', false);
-	$post_newfriend = PConfig::get(local_user(), 'system', 'post_newfriend', false);
-	$post_joingroup = PConfig::get(local_user(), 'system', 'post_joingroup', false);
-	$post_profilechange = PConfig::get(local_user(), 'system', 'post_profilechange', false);
 
 	// nowarn_insecure
 
@@ -1247,10 +1238,6 @@ function settings_content(App $a)
 
 
 		'$h_not' 	=> L10n::t('Notification Settings'),
-		'$activity_options' => L10n::t('By default post a status message when:'),
-		'$post_newfriend' => ['post_newfriend',  L10n::t('accepting a friend request'), $post_newfriend, ''],
-		'$post_joingroup' => ['post_joingroup',  L10n::t('joining a forum/community'), $post_joingroup, ''],
-		'$post_profilechange' => ['post_profilechange',  L10n::t('making an <em>interesting</em> profile change'), $post_profilechange, ''],
 		'$lbl_not' 	=> L10n::t('Send a notification email when:'),
 		'$notify1'	=> ['notify1', L10n::t('You receive an introduction'), ($notify & NOTIFY_INTRO), NOTIFY_INTRO, ''],
 		'$notify2'	=> ['notify2', L10n::t('Your introductions are confirmed'), ($notify & NOTIFY_CONFIRM), NOTIFY_CONFIRM, ''],

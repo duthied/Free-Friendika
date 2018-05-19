@@ -577,7 +577,6 @@ function dfrn_request_content(App $a)
 						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
 						'duplex'   => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
-						'activity' => intval(PConfig::get($r[0]['uid'], 'system', 'post_newfriend'))
 					];
 					dfrn_confirm_post($a, $handsfree);
 				}
