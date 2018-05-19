@@ -4,8 +4,8 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Model\PushSubscriber;
 
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
@@ -120,35 +120,8 @@ function pubsubhubbub_init(App $a) {
 			System::httpExit(404);
 		}
 
-		// fetch the old subscription if it exists
-		$subscriber = dba::selectFirst('push_subscriber', ['last_update', 'push'], ['callback_url' => $hub_callback]);
+		PushSubscriber::renew($owner['uid'], $nick, $subscribe, $hub_callback, $hub_topic, $hub_secret);
 
-		// delete old subscription if it exists
-		dba::delete('push_subscriber', ['callback_url' => $hub_callback]);
-
-		if ($subscribe) {
-			$last_update = DateTimeFormat::utcNow();
-			$push_flag = 0;
-
-			// if we are just updating an old subscription, keep the
-			// old values for last_update but reset the push
-			if (DBM::is_result($subscriber)) {
-				$last_update = $subscriber['last_update'];
-				$push_flag = min($subscriber['push'], 1);
-			}
-
-			// subscribe means adding the row to the table
-			$fields = ['uid' => $owner['uid'], 'callback_url' => $hub_callback,
-				'topic' => $hub_topic, 'nickname' => $nick, 'push' => $push_flag,
-				'last_update' => $last_update, 'renewed' => DateTimeFormat::utcNow(),
-				'secret' => $hub_secret];
-			dba::insert('push_subscriber', $fields);
-
-			logger("Successfully subscribed [$hub_callback].");
-		} else {
-			logger("Successfully unsubscribed [$hub_callback].");
-			// we do nothing here, since the row was already deleted
-		}
 		System::httpExit(202);
 	}
 	killme();

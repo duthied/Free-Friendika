@@ -499,15 +499,10 @@ class Notifier {
 
 		// Notify PuSH subscribers (Used for OStatus distribution of regular posts)
 		if ($push_notify) {
-			// Set push flag for PuSH subscribers to this topic,
-			// they will be notified in queue.php
-			$condition = ['push' => false, 'nickname' => $owner['nickname']];
-			dba::update('push_subscriber', ['push' => true, 'next_try' => NULL_DATE], $condition);
-
 			logger('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
 
 			// Handling the pubsubhubbub requests
-			PushSubscriber::publishFeed($a->queue['priority']);
+			PushSubscriber::publishFeed($owner['uid'], $a->queue['priority']);
 		}
 
 		logger('notifier: calling hooks for ' . $cmd . ' ' . $item_id, LOGGER_DEBUG);

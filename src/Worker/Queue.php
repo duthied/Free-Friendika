@@ -35,7 +35,7 @@ class Queue
 			logger('filling queue jobs - start');
 
 			// Handling the pubsubhubbub requests
-			PushSubscriber::publishFeed();
+			PushSubscriber::requeue();
 
 			$r = dba::inArray(dba::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
 

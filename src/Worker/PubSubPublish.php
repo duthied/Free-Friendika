@@ -7,12 +7,10 @@ namespace Friendica\Worker;
 
 use Friendica\App;
 use Friendica\Core\System;
-use Friendica\Core\Config;
-use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
-use Friendica\Util\DateTimeFormat;
+use Friendica\Model\PushSubscriber;
 use dba;
 
 require_once 'include/items.php';
@@ -65,30 +63,11 @@ class PubSubPublish {
 		if ($ret >= 200 && $ret <= 299) {
 			logger('Successfully pushed to ' . $subscriber['callback_url']);
 
-			// set last_update to the "created" date of the last item, and reset push=0
-			$fields = ['push' => 0, 'next_try' => NULL_DATE, 'last_update' => $last_update];
-			dba::update('push_subscriber', $fields, $condition);
-
+			PushSubscriber::reset($subscriber['id'], $last_update);
 		} else {
 			logger('Delivery error when pushing to ' . $subscriber['callback_url'] . ' HTTP: ' . $ret);
 
-			// we use the push variable also as a counter, if we failed we
-			// increment this until some upper limit where we give up
-			$retrial = $subscriber['push'];
-
-			if ($retrial > 14) {
-				dba::update('push_subscriber', ['push' => 0, 'next_try' => NULL_DATE], $condition);
-				logger('Delivery error: Giving up for ' . $subscriber['callback_url'], LOGGER_DEBUG);
-			} else {
-				// Calculate the delay until the next trial
-				$delay = (($retrial + 3) ** 4) + (rand(1, 30) * ($retrial + 1));
-				$next = DateTimeFormat::utc('now + ' . $delay . ' seconds');
-
-				$retrial = $retrial + 1;
-
-				dba::update('push_subscriber', ['push' => $retrial, 'next_try' => $next], $condition);
-				logger('Delivery error: Next try (' . $retrial . ') for ' . $subscriber['callback_url'] . ' at ' . $next, LOGGER_DEBUG);
-			}
+			PushSubscriber::delay($subscriber['id']);
 		}
 	}
 }
