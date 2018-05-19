@@ -1250,7 +1250,7 @@ class Item extends BaseObject
 		}
 	}
 
-	private static function setHashtags(&$item)
+	public static function setHashtags(&$item)
 	{
 
 		$tags = get_tags($item["body"]);
