@@ -34,7 +34,7 @@ function removeme_post(App $a)
 	// send notification to admins so that they can clean um the backups
 	// send email to admins
 	$admin_mails = explode(",", str_replace(" ", "", $a->config['admin_email']));
-	foreach (admin_mails as $mail) {
+	foreach ($admin_mails as $mail) {
 		$admin = dba::selectFirst('user', ['uid', 'language', 'email'], ['email' => $mail]);
 		if (!DBM::is_result($admin)) {
 			continue;
