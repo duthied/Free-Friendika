@@ -290,7 +290,7 @@ function register_content(App $a)
 		'$showtoslink' => Config::get('system', 'tosdisplay'),
 		'$tostext'   => L10n::t('Terms of Service'),
 		'$showprivstatement' => Config::get('system', 'tosprivstatement'),
-		'$privstatement' => $tos->privblock,
+		'$privstatement' => $tos->privacy_complete,
 		'$baseurl'   => System::baseurl(),
 		'$form_security_token' => get_form_security_token("register")
 	]);
