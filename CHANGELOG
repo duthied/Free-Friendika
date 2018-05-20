@@ -70,7 +70,7 @@ Version 2018.05 (2018-05-xx)
     Use the diaspora transport layer for the DFRN protocol as well [annando]
 
   Friendica Addons:
-    Updates to the translations (DE, EN_GB, EN_US, FI, IT, NL, PL, ZH_CN) [translation teams]
+    Updates to the translations (DE, EN_GB, EN_US, ES, FI, FR, IT, NL, PL, ZH_CN) [translation teams]
     NSFW: add hashtag only hiding [MrPetovan]
     notifyall: fixed a bug in handling the sender name [tobiasd]
     Twitter: fixed a bug during the creation of public contacts [annando]
