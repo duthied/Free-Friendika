@@ -7,7 +7,7 @@ Version 2018.05 (2018-05-xx)
     Enhancements to the handling of URL that contain unicode characters [annando]
     Enhancements to the Vagrant VM configuration [fabrixxm, tobiasd]
     Enhancementa to the Babel module [MrPetovan]
-    Enhancements to the display it the [code] elements [MrPetovan]
+    Enhancements to the display of the [code] elements [MrPetovan]
     Enhancements to the federation (OStatus, diaspora) [annando]
     Enhancements to the PHP7.2 compatibility [Alkarex, MrPetovan, Quix0r]
     Enhancements to the themes (frio, vier) [astifter, fabrixxm, koyuawsmbrtn, M-arcus, MrPetovan, Quix0r, rabuzarus]
@@ -20,7 +20,7 @@ Version 2018.05 (2018-05-xx)
     Enhancements to the display of events [MrPetovan]
     Enhancements to the language detection of postings [MrPetovan]
     Enhancements to the memcached handling [MrPetovan]
-    Enhancements tot he Dandelion app support [annando]
+    Enhancements to the Dandelion app support [annando]
     Enhancements to the API [rudloff]
     Enhancements to the systemd timer example [ben-utzer]
     Enhancements to the notification emails to better integrate the securemail addon [tobiasd]
@@ -66,7 +66,7 @@ Version 2018.05 (2018-05-xx)
     The execute-ables were moved from /util to /bin [MrPetovan]
     The execute-ables for the developers were moved from /util to /bin/dev [MrPetovan]
     General code refactoring and beautification work [annando, MrPetovan, rudloff]
-    Switced to cropperjs to better support touch screen devices [rabuzarus]
+    Switched to cropperjs to better support touch screen devices [rabuzarus]
     Use the diaspora transport layer for the DFRN protocol as well [annando]
 
   Friendica Addons:
