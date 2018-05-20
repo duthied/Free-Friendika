@@ -80,7 +80,6 @@ foss
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
-Friendica
 Gerhard Seeber
 gerhard6380
 Gert Cauwenberg
@@ -94,7 +93,6 @@ Hauke Altmann
 Hauke Zühl
 Herbert Thielen
 hoergen
-hoergen oostende
 Hubert Kościański
 Hypolite Petovan
 Ilmari
@@ -215,7 +213,6 @@ Tubuntu
 Tupambae.org
 U-SOUND\mike
 ufic
-utzer
 Vasudev Kamath
 Vasya Novikov
 vislav
