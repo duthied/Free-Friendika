@@ -1,8 +1,10 @@
 23n
 Abinoam P. Marques Jr.
 Abrax
+Adam Clark
 Adam Jurkiewicz
 Adam Magness
+AgnesElisa
 Albert
 Alberto Díaz Tormo
 Alex
@@ -10,6 +12,7 @@ Alexander Fortin
 Alexander Kampmann
 Alexandre Alapetite
 AlfredSK
+Andi
 Andi Stadler
 Andreas H.
 Andreas Neustifter
@@ -28,6 +31,8 @@ balderino
 Beanow
 beardyunixer
 Beatriz Vital
+Beluga
+Ben
 Ben Roberts
 ben-utzer
 bufalo1973
@@ -40,6 +45,7 @@ Christian González
 Christian M. Grube
 Christian Vogeley
 Cohan Robinson
+Copiis Praeesse
 Cyboulette
 Cyryl Sochacki
 czarnystokrotek
@@ -89,11 +95,13 @@ Herbert Thielen
 hoergen
 Hubert Kościański
 Hypolite Petovan
+Ilmari
 irhen
 Jak
 Jakob
 Jens Tautenhahn
 jensp
+Jeroen De Meerleer
 jeroenpraat
 Johannes Schwab
 John Brazil
@@ -101,10 +109,13 @@ Jonatan Nyberg
 Josef Moravek
 juanman
 julia.domagalska
+Karel
 Karel Vandecandelaere
 Karolina
 Keith Fernie
 Klaus Weidenbach
+Koyu Berteon
+Kris
 Lea1995polish
 Leberwurscht
 Leonard Lausen
@@ -115,6 +126,7 @@ Magdalena Gazda
 Mai Anh Nguyen
 Manuel Pérez Monís
 Marcin Klessa
+Marcus Müller
 Mariusz Pisz
 marmor
 Marquis_de_Carabas
@@ -143,6 +155,7 @@ Paolo Wave
 Pavel Morozov
 Perig Gouanvic
 peturisfeld
+Philipp Holzer
 Pierre Rudloff
 Piotr Blonkowski
 pokerazor
@@ -162,6 +175,7 @@ Rui Andrada
 S.Krumbholz
 Sakałoŭ Alaksiej
 Sam
+Samuli Valavuo
 Sandro Santilli
 Sebastian Egbers
 sella
@@ -181,6 +195,7 @@ szymon.filip
 Sérgio Lima
 Taekus
 Tazman DeVille
+teho
 Thecross
 Thomas
 Thomas Willingham
@@ -202,6 +217,7 @@ Vasudev Kamath
 Vasya Novikov
 vislav
 Vít Šesták 'v6ak'
+Waldemar Stoczkowski
 Yasen Pramatarov
 ylms
 Zach Prezkuta
@@ -210,4 +226,5 @@ zotlabs
 zottel
 Zvi ben Yaakov (a.k.a rdc)
 Михаил
+Олексій Замковий
 朱陈锬
