@@ -1091,6 +1091,10 @@ class App
 	 */
 	public function getCurrentTheme()
 	{
+		if ($this->mode == App::MODE_INSTALL) {
+			return '';
+		}
+
 		if (!$this->current_theme) {
 			$this->computeCurrentTheme();
 		}
