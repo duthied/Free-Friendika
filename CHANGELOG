@@ -1,6 +1,6 @@
 Version 2018.05 (2018-05-xx)
   Friendica Core:
-    Update to the translations (DE, EN-GB, EN-US, FI, IS, IT, NL, PL, ZN CH) [translation teams]
+    Update to the translations (DE, EN-GB, EN-US, FI, IS, IT, NL, PL, RU, ZN CH) [translation teams]
     Update to the documentation [andyhee, annando, fabrixxm, M-arcus, MrPedovan, rudloff, tobiasd]
     Enhancements to the DB handling [annando]
     Enhancements to the relay system [annando]
