@@ -47,7 +47,7 @@ Version 2018.05 (2018-05-xx)
     Fixed a bug that prevented the selection of displayed profiles for other Friendica contacts [MrPetovan]
     Fixed the version sorting in the federation statistics page [annando]
     Added an optional module to display the Terms of Service [tobiasd]
-    Added preloading config adampter [MrPetovan]
+    Added preloading config adapter [MrPetovan]
     Added a console to unify the PHP utility scripts [MrPetovan]
     Added a tool to set user passwords to the console [annando]
     Added memcached support [MrPetovan]
