@@ -2158,6 +2158,9 @@ ul.dropdown-menu li:hover {
     overflow: hidden;
 }
 /* Home and Login Page */
+body.mod-home nav.navbar .nav>li>a:hover {
+    background-color: rgba(255,255,255,0.2);
+}
 body.mod-home .navbar #nav-login,
 body.mod-login .navbar #nav-login {
     display: none;

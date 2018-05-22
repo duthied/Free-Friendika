@@ -241,10 +241,15 @@
 		</div>
 		<div class="pull-right">
 			<ul class="nav navbar-nav navbar-right">
-				<li>
+				<li role="presentation">
 					<a href="login?mode=none" id="nav-login"
 						data-toggle="tooltip" aria-label="{{$nav.login.3}}" title="{{$nav.login.3}}">
 							<i class="fa fa-sign-in fa-fw" aria-hidden="true"></i>
+					</a>
+				</li>
+				<li role="presentation">
+					<a href="{{$nav.about.0}}" id="nav-about" data-toggle="tooltip" aria-label="{{$nav.about.3}}" title="{{$nav.about.3}}">
+						<i class="fa fa-info fa-fw" aria-hidden="true"></i>
 					</a>
 				</li>
 			</ul>
