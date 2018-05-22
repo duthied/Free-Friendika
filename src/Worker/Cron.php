@@ -58,9 +58,6 @@ Class Cron {
 		// Call possible post update functions
 		Worker::add(PRIORITY_LOW, "CronJobs", "post_update");
 
-		// update nodeinfo data
-		Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
-
 		// Clear cache entries
 		Worker::add(PRIORITY_LOW, "CronJobs", "clear_cache");
 
@@ -79,20 +76,23 @@ Class Cron {
 
 			Worker::add(PRIORITY_LOW, "CronJobs", "update_contact_birthdays");
 
+			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
+
+			// update nodeinfo data
+			Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
+
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
 
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "suggestions");
-
-			Config::set('system', 'last_expire_day', $d2);
 
 			Worker::add(PRIORITY_LOW, 'Expire');
 
 			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 
-			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
-
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
+
+			Config::set('system', 'last_expire_day', $d2);
 		}
 
 		// Hourly cron calls
