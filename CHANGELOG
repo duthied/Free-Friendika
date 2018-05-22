@@ -75,15 +75,15 @@ Version 2018.05 (2018-05-xx)
 
   Friendica Addons:
     Updates to the translations (DE, EN_GB, EN_US, ES, FI, FR, IT, NL, PL, ZH_CN) [translation teams]
+    advancedcontentfilter: new addon with advanced filter capabilities [MrPetova]
+    catavatar: new addon for profile pictures based on David Revoy's cat-avatar generator [annando, fabrixxm, tobiasd]
+    languagefilter: better help text [andyhee]
+    mathjax: fixed the config form and adopted new CDN URL [tobiasd]
     NSFW: add hashtag only hiding [MrPetovan]
     notifyall: fixed a bug in handling the sender name [tobiasd]
     Twitter: fixed a bug during the creation of public contacts [annando]
     Twitter: remote self now also works for Twitter contacts [annando]
     Twitter: optimizations for sending media [annando]
-    advancedcontentfilter: added new advanced addon to filter the network stream [MrPetova]
-    catavatar: cleanup and enhancements [annando, fabrixxm, tobiasd]
-    mathjax: fixed the config form and adopted new CDN URL [tobiasd]
-    languagefilter: better help text [andyhee]
 
   Closed Issues:
      839, 1729, 2115, 2247, 2781, 2880, 3174, 3395, 3409, 3412, 3611,
