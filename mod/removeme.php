@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\User;
+use Friendica\Database\DBM;
 
 require_once 'include/enotify.php';
 
