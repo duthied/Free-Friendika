@@ -23,6 +23,7 @@ class dba {
 	private static $errorno = 0;
 	private static $affected_rows = 0;
 	private static $in_transaction = false;
+	private static $in_retrial = false;
 	private static $relation = [];
 
 	public static function connect($serveraddr, $user, $pass, $db) {
@@ -49,6 +50,7 @@ class dba {
 		$db = trim($db);
 
 		if (!(strlen($server) && strlen($user))) {
+echo "1";
 			return false;
 		}
 
@@ -100,6 +102,21 @@ class dba {
 		$a->save_timestamp($stamp1, "network");
 
 		return self::$connected;
+	}
+
+	public static function reconnect() {
+		// This variable is only defined here again to prevent warning messages
+		// It is a local variable and should hopefully not interfere with the global one.
+		$a = new App(dirname(__DIR__));
+
+		// We have to the the variable to "null" to force a new connection
+		self::$db = null;
+		include '.htconfig.php';
+
+		$ret = self::connect($db_host, $db_user, $db_pass, $db_data);
+		unset($db_host, $db_user, $db_pass, $db_data);
+
+		return $ret;
 	}
 
 	/**
@@ -473,10 +490,18 @@ class dba {
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
 				System::callstack(8)."\n".self::replaceParameters($sql, $params));
 
-			// It doesn't make sense to continue when the database connection was lost
+			// On a lost connection we try to reconnect - but only once.
 			if ($errorno == 2006) {
-				logger('Giving up because of database error '.$errorno.': '.$error);
-				exit(1);
+				if (self::$in_retrial || !self::reconnect()) {
+					// It doesn't make sense to continue when the database connection was lost
+					logger('Giving up because of database error '.$errorno.': '.$error);
+					exit(1);
+				} else {
+					// We try it again
+					logger('Reconnected after database error '.$errorno.': '.$error);
+					self::$in_retrial = true;
+					return self::p($sql, $params);
+				}
 			}
 
 			self::$error = $error;
