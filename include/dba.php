@@ -473,6 +473,12 @@ class dba {
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
 				System::callstack(8)."\n".self::replaceParameters($sql, $params));
 
+			// It doesn't make sense to continue when the database connection was lost
+			if ($errorno == 2006) {
+				logger('Giving up because of database error '.$errorno.': '.$error);
+				exit(1);
+			}
+
 			self::$error = $error;
 			self::$errorno = $errorno;
 		}
