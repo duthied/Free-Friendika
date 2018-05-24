@@ -90,7 +90,7 @@ class Profile
 	 */
 	public static function load(App $a, $nickname, $profile = 0, $profiledata = [], $show_connect = true)
 	{
-		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname]);
+		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
 		if (!DBM::is_result($user) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
