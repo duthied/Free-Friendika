@@ -494,7 +494,11 @@ echo "1";
 			if ($errorno == 2006) {
 				if (self::$in_retrial || !self::reconnect()) {
 					// It doesn't make sense to continue when the database connection was lost
-					logger('Giving up because of database error '.$errorno.': '.$error);
+					if (self::$in_retrial) {
+						logger('Giving up retrial because of database error '.$errorno.': '.$error);
+					} else {
+						logger("Couldn't reconnect after database error ".$errorno.': '.$error);
+					}
 					exit(1);
 				} else {
 					// We try it again
