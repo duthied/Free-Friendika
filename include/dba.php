@@ -449,23 +449,23 @@ echo "1";
 					break;
 				}
 
-				$params = '';
+				$param_types = '';
 				$values = [];
 				foreach ($args AS $param => $value) {
 					if (is_int($args[$param])) {
-						$params .= 'i';
+						$param_types .= 'i';
 					} elseif (is_float($args[$param])) {
-						$params .= 'd';
+						$param_types .= 'd';
 					} elseif (is_string($args[$param])) {
-						$params .= 's';
+						$param_types .= 's';
 					} else {
-						$params .= 'b';
+						$param_types .= 'b';
 					}
 					$values[] = &$args[$param];
 				}
 
 				if (count($values) > 0) {
-					array_unshift($values, $params);
+					array_unshift($values, $param_types);
 					call_user_func_array([$stmt, 'bind_param'], $values);
 				}
 
@@ -488,7 +488,7 @@ echo "1";
 			$errorno = self::$errorno;
 
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
-				System::callstack(8)."\n".self::replaceParameters($sql, $params));
+				System::callstack(8)."\n".self::replaceParameters($sql, $args));
 
 			// On a lost connection we try to reconnect - but only once.
 			if ($errorno == 2006) {
@@ -500,7 +500,7 @@ echo "1";
 					// We try it again
 					logger('Reconnected after database error '.$errorno.': '.$error);
 					self::$in_retrial = true;
-					return self::p($sql, $params);
+					return self::p($sql, $args);
 				}
 			}
 
