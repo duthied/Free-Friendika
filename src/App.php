@@ -9,6 +9,8 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
+use dba;
 
 use Detection\MobileDetect;
 
@@ -1095,9 +1097,10 @@ class App
 			return '';
 		}
 
-		if (!$this->current_theme) {
-			$this->computeCurrentTheme();
-		}
+		//// @TODO Compute the current theme only once (this behavior has
+		/// already been implemented, but it didn't work well -
+		/// https://github.com/friendica/friendica/issues/5092)
+		$this->computeCurrentTheme();
 
 		return $this->current_theme;
 	}
