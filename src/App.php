@@ -1096,7 +1096,7 @@ class App
 		}
 
 		//// @TODO Compute the current theme only once (this behavior has
-		/// already been implemented, but it didn' work well -
+		/// already been implemented, but it didn't work well -
 		/// https://github.com/friendica/friendica/issues/5092)
 		$this->computeCurrentTheme();
 
