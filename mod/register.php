@@ -234,7 +234,7 @@ function register_content(App $a)
 			'$instance' => 'reg',
 			'$pubdesc' => L10n::t('Include your profile in member directory?'),
 			'$yes_selected' => ' checked="checked" ',
-			'$no_selected' => '',
+			'$no_selected' => 'checked',
 			'$str_yes' => L10n::t('Yes'),
 			'$str_no' => L10n::t('No'),
 		]);
