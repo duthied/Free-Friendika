@@ -25,6 +25,7 @@ Version 2018.05 (2018-05-xx)
     Enhancements to the systemd timer example [ben-utzer]
     Enhancements to the notification emails to better integrate the securemail addon [tobiasd]
     Enhancements to the caching/loading mechanisms [MrPetovan]
+    Enhancements to the sample-nginx configfile to not use $uri in the rewrite rules [anmol26s]
     Fixed a bug in the relocation process of a Friendica instance [annando]
     Fixed a bug in the shell wrapper for the console [MrPetovan]
     Fixed a bug with the console tool po2php [MrPetovan]
@@ -88,12 +89,12 @@ Version 2018.05 (2018-05-xx)
 
   Closed Issues:
      839, 1729, 2115, 2247, 2781, 2880, 3174, 3395, 3409, 3412, 3611,
-    3834, 3837, 3979, 4572, 4601, 4616, 4629, 4647, 4655, 4660, 4661,
-    4663, 4664, 4665, 4666, 4669, 4670, 4681, 4695, 4670, 4689, 4730,
-    4749, 4760, 4772, 4786, 4790, 4791, 4816, 4867, 4878, 4819, 4860,
-    4876, 4879, 4886, 4898, 4899, 4902, 4921, 4926, 4927, 4928, 4938,
-    4943, 4946, 4947, 4965, 4976, 4966, 4994, 4997, 5002, 5014, 5033,
-    5043, 5050, 5051, 5056, 5063, 5010, 5111, 5116
+    3834, 3837, 3979, 4146, 4572, 4601, 4616, 4629, 4647, 4655, 4660,
+    4661, 4663, 4664, 4665, 4666, 4669, 4670, 4681, 4695, 4670, 4689,
+    4730, 4749, 4760, 4772, 4786, 4790, 4791, 4816, 4867, 4878, 4819,
+    4860, 4876, 4879, 4886, 4898, 4899, 4902, 4921, 4926, 4927, 4928,
+    4938, 4943, 4946, 4947, 4965, 4976, 4966, 4994, 4997, 5002, 5014,
+    5033, 5043, 5050, 5051, 5056, 5063, 5010, 5111, 5116
 
 Version 3.6 (2018-03-23)
   Friendica Core:
