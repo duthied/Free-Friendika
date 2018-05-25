@@ -9,6 +9,8 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
+use dba;
 
 use Detection\MobileDetect;
 
