@@ -75,7 +75,7 @@ Version 2018.05 (2018-05-xx)
     Use the diaspora transport layer for the DFRN protocol as well [annando]
 
   Friendica Addons:
-    Updates to the translations (DE, EN_GB, EN_US, ES, FI, FR, IT, NL, PL, ZH_CN) [translation teams]
+    Updates to the translations (DE, EN_GB, EN_US, ES, FI, FR, IS, IT, NL, PL, RU, ZH_CN) [translation teams]
     advancedcontentfilter: new addon with advanced filter capabilities [MrPetova]
     catavatar: new addon for profile pictures based on David Revoy's cat-avatar generator [annando, fabrixxm, tobiasd]
     languagefilter: better help text [andyhee]
