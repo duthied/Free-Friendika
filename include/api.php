@@ -2256,7 +2256,7 @@ function api_statuses_destroy($type)
 
 	$ret = api_statuses_show($type);
 
-	Item::deleteById($id);
+	Item::deleteById($id, PRIORITY_HIGH, api_user());
 
 	return $ret;
 }
@@ -4148,7 +4148,7 @@ function api_fr_photoalbum_delete($type)
 		if (!DBM::is_result($photo_item)) {
 			throw new InternalServerErrorException("problem with deleting items occured");
 		}
-		Item::deleteById($photo_item[0]['id']);
+		Item::deleteById($photo_item[0]['id'], PRIORITY_HIGH, api_user());
 	}
 
 	// now let's delete all photos from the album
@@ -4441,7 +4441,7 @@ function api_fr_photo_delete($type)
 		}
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		Item::deleteById($photo_item[0]['id']);
+		Item::deleteById($photo_item[0]['id'], PRIORITY_HIGH, api_user());
 
 		$answer = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
 		return api_format_data("photo_delete", $type, ['$result' => $answer]);
