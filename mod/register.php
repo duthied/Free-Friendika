@@ -233,8 +233,8 @@ function register_content(App $a)
 		$profile_publish = replace_macros($publish_tpl, [
 			'$instance' => 'reg',
 			'$pubdesc' => L10n::t('Include your profile in member directory?'),
-			'$yes_selected' => ' checked="checked" ',
-			'$no_selected' => 'checked',
+			'$yes_selected' => '',
+			'$no_selected' => ' checked="checked"',
 			'$str_yes' => L10n::t('Yes'),
 			'$str_no' => L10n::t('No'),
 		]);
