@@ -201,7 +201,15 @@ class Item extends BaseObject
 
 			// send the notification upstream/downstream
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+		} elseif ($item['uid'] != 0) {
+
+			// When we delete just our local user copy of an item, we have to set an marker to hide it
+			$global_item = dba::selectFirst('item', ['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
+			if (DBM::is_result($global_item)) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
+			}
 		}
+
 
 		logger('Item with ID ' . $item_id . " has been deleted.", LOGGER_DEBUG);
 

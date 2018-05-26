@@ -346,7 +346,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 		return '';
 	}
 
-	$r = dba::p(item_query()."AND `item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
+	$r = dba::p(item_query(local_user())."AND `item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
 		AND `item`.`uid` IN (0, ?) $sql_extra
 		ORDER BY `item`.`uid` ASC, `parent` DESC, `gravity` ASC, `id` ASC",
 		$item_id, local_user()

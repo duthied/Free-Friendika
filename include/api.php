@@ -1663,7 +1663,7 @@ function api_search($type)
 
 	$r = dba::p(
 		"SELECT ".item_fieldlists()."
-		FROM `item` ".item_joins()."
+		FROM `item` ".item_joins(api_user())."
 		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
 		AND `item`.`body` LIKE CONCAT('%',?,'%')
 		$sql_extra
@@ -1827,7 +1827,7 @@ function api_statuses_public_timeline($type)
 			"SELECT " . item_fieldlists() . "
 			FROM `thread`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			" . item_joins() . "
+			" . item_joins(api_user()) . "
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid`
 				AND NOT `user`.`hidewall`
 			AND `verb` = ?
@@ -1856,7 +1856,7 @@ function api_statuses_public_timeline($type)
 		$r = dba::p(
 			"SELECT " . item_fieldlists() . "
 			FROM `item`
-			" . item_joins() . "
+			" . item_joins(api_user()) . "
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 				AND NOT `user`.`hidewall`
 			AND `verb` = ?
@@ -1930,7 +1930,7 @@ function api_statuses_networkpublic_timeline($type)
 		"SELECT " . item_fieldlists() . "
 		FROM `thread`
 		STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-		" . item_joins() . "
+		" . item_joins(api_user()) . "
 		WHERE `thread`.`uid` = 0
 		AND `verb` = ?
 		AND NOT `thread`.`private`
