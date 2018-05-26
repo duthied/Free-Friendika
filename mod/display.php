@@ -369,7 +369,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if (!$update) {
 		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
 	}
-	$o .= conversation($a, $items, 'display', $update_uid);
+	$o .= conversation($a, $items, 'display', $update_uid, false, 'commented', local_user());
 
 	// Preparing the meta header
 	$description = trim(HTML::toPlaintext(BBCode::convert($s[0]["body"], false), 0, true));

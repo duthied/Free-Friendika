@@ -241,7 +241,7 @@ function search_content(App $a) {
 	]);
 
 	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
-	$o .= conversation($a,$r,'search',false);
+	$o .= conversation($a, $r, 'search', false, false, 'commented', local_user());
 
 	$o .= alt_pager($a,count($r));
 

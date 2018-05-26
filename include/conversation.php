@@ -587,7 +587,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
-		$items = conversation_add_children($items, true, $order);
+		$items = conversation_add_children($items, true, $order, $uid);
 		$profile_owner = 0;
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
@@ -890,7 +890,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
  *
  * @return array items with parents and comments
  */
-function conversation_add_children($parents, $block_authors, $order, $uid = 0) {
+function conversation_add_children($parents, $block_authors, $order, $uid) {
 	$max_comments = Config::get('system', 'max_comments', 100);
 
 	if ($max_comments > 0) {
