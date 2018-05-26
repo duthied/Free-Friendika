@@ -210,7 +210,6 @@ class Item extends BaseObject
 			}
 		}
 
-
 		logger('Item with ID ' . $item_id . " has been deleted.", LOGGER_DEBUG);
 
 		return true;
