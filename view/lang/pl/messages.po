@@ -39,8 +39,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-20 14:22+0200\n"
-"PO-Revision-Date: 2018-05-20 13:51+0000\n"
-"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
+"PO-Revision-Date: 2018-05-24 16:34+0000\n"
+"Last-Translator: Waldemar Stoczkowski <waldemar.stoczkowski@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3946,11 +3946,11 @@ msgstr "Członkowie"
 
 #: mod/group.php:229
 msgid "Remove contact from group"
-msgstr ""
+msgstr "Usuń kontakt z grupy"
 
 #: mod/group.php:253
 msgid "Add contact to group"
-msgstr ""
+msgstr "Dodaj kontakt do grupy"
 
 #: mod/openid.php:29
 msgid "OpenID protocol error. No ID returned."
@@ -4104,7 +4104,7 @@ msgstr "Pokaż niektóre informacje dotyczące potrzebnych informacji do obsług
 
 #: mod/admin.php:307
 msgid "Privacy Statement Preview"
-msgstr ""
+msgstr "Podgląd oświadczenia o prywatności"
 
 #: mod/admin.php:309
 msgid "The Terms of Service"
@@ -5020,7 +5020,7 @@ msgstr "Maksymalny rozmiar stołu do optymalizacji"
 msgid ""
 "Maximum table size (in MB) for the automatic optimization. Enter -1 to "
 "disable it."
-msgstr ""
+msgstr "Maksymalny rozmiar tablicy (w MB) do automatycznej optymalizacji. Wprowadź -1, aby go wyłączyć."
 
 #: mod/admin.php:1425
 msgid "Minimum level of fragmentation"
@@ -8804,7 +8804,7 @@ msgstr "Informacje o tej instancji friendica"
 
 #: src/Content/Nav.php:178
 msgid "Terms of Service of this Friendica instance"
-msgstr ""
+msgstr "Warunki świadczenia usług tej instancji Friendica"
 
 #: src/Content/Nav.php:184
 msgid "Network Reset"
@@ -9448,7 +9448,7 @@ msgid ""
 "This data is required for communication and is passed on to the nodes of the"
 " communication partners and is stored there. Users can enter additional "
 "private data that may be transmitted to the communication partners accounts."
-msgstr ""
+msgstr "Te dane są wymagane do komunikacji i są przekazywane do węzłów partnerów komunikacyjnych i są tam przechowywane. Użytkownicy mogą wprowadzać dodatkowe prywatne dane, które mogą być przesyłane na konta partnerów komunikacyjnych."
 
 #: src/Module/Tos.php:36 src/Module/Tos.php:76
 #, php-format
@@ -9459,7 +9459,7 @@ msgid ""
 "href=\"%1$s/removeme\">%1$s/removeme</a>. The deletion of the account will "
 "be permanent. Deletion of the data will also be requested from the nodes of "
 "the communication partners."
-msgstr ""
+msgstr "W dowolnym momencie zalogowany użytkownik może wyeksportować dane swojego konta z <a href=\"%1$s/settings/uexport\">ustawień konta</a>. Jeśli użytkownik chce usunąć swoje konto, może to zrobić w<a href=\"%1$s/removeme\">%1$s / Usuń mnie</a>. Usunięcie konta będzie trwałe. Skasowanie danych będzie również wymagane od węzłów partnerów komunikacyjnych."
 
 #: src/Module/Tos.php:39 src/Module/Tos.php:73
 msgid "Privacy Statement"
@@ -9471,7 +9471,7 @@ msgstr "Ten wpis został zedytowany"
 
 #: src/Object/Post.php:187
 msgid "Remove from your stream"
-msgstr ""
+msgstr "Usuń ze swojego strumienia"
 
 #: src/Object/Post.php:200
 msgid "save to folder"
