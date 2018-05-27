@@ -151,7 +151,7 @@ function autoname($len) {
 				'nd','ng','nk','nt','rn','rp','rt'];
 
 	$noend = ['bl', 'br', 'cl','cr','dr','fl','fr','gl','gr',
-				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh'];
+				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh','q'];
 
 	$start = mt_rand(0,2);
 	if ($start == 0) {
@@ -177,15 +177,13 @@ function autoname($len) {
 	$word = substr($word,0,$len);
 
 	foreach ($noend as $noe) {
-		if ((strlen($word) > 2) && (substr($word, -2) == $noe)) {
-			$word = substr($word, 0, -1);
+		$noelen = strlen($noe);
+		if ((strlen($word) > $noelen) && (substr($word, -$noelen) == $noe)) {
+			$word = autoname($len);
 			break;
 		}
 	}
 
-	if (substr($word, -1) == 'q') {
-		$word = substr($word, 0, -1);
-	}
 	return $word;
 }
 
