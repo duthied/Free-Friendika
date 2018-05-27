@@ -1791,7 +1791,7 @@ class DBStructure
 				"fields" => [
 						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => "Item id"],
 						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hidden marker"],
+						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide an item from the user"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["uid", "iid"],
