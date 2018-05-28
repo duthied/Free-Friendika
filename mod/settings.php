@@ -1108,7 +1108,7 @@ function settings_content(App $a)
 	]);
 
 	$hide_wall = replace_macros($opt_tpl, [
-		'$field' => ['hidewall', L10n::t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], L10n::t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Disables posting public messages to Diaspora and other networks.'), [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['hidewall', L10n::t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], L10n::t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Disables posting public messages to Diaspora and other networks. For technical reasons your profile will still have a public Atom feed that will contain your public postings.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$blockwall = replace_macros($opt_tpl, [
