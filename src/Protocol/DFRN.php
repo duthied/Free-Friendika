@@ -2807,15 +2807,13 @@ class DFRN
 			}
 		}
 
-		$entrytype = self::getEntryType($importer, $item);
-
-		if (!$item["deleted"]) {
-			logger('deleting item '.$item["id"].' uri='.$uri, LOGGER_DEBUG);
-		} else {
+		if ($item["deleted"]) {
 			return;
 		}
 
-		Item::deleteById($item["id"]);
+		logger('deleting item '.$item["id"].' uri='.$uri, LOGGER_DEBUG);
+
+		Item::delete(['id' => $item["id"]]);
 	}
 
 	/**

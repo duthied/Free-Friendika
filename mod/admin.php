@@ -555,14 +555,9 @@ function admin_page_deleteitem_post(App $a)
 		if (strpos($guid, '/')) {
 			$guid = substr($guid, strrpos($guid, '/') + 1);
 		}
-		// Now that we have the GUID get all IDs of the associated entries in the
-		// item table of the DB and drop those items, which will also delete the
+		// Now that we have the GUID, drop those items, which will also delete the
 		// associated threads.
-		$r = dba::select('item', ['id'], ['guid' => $guid]);
-		while ($row = dba::fetch($r)) {
-			Item::deleteById($row['id']);
-		}
-		dba::close($r);
+		Item::delete(['guid' => $guid]);
 	}
 
 	info(L10n::t('Item marked for deletion.') . EOL);

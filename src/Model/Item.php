@@ -92,13 +92,38 @@ class Item extends BaseObject
 	 *
 	 * @param array $condition The condition for finding the item entries
 	 * @param integer $priority Priority for the notification
-	 * @param integer $uid User who wants to delete the item
 	 */
-	public static function delete($condition, $priority = PRIORITY_HIGH, $uid = 0)
+	public static function delete($condition, $priority = PRIORITY_HIGH)
 	{
 		$items = dba::select('item', ['id'], $condition);
 		while ($item = dba::fetch($items)) {
-			self::deleteById($item['id'], $priority, $uid);
+			self::deleteById($item['id'], $priority);
+		}
+		dba::close($items);
+	}
+
+	/**
+	 * @brief Delete an item for an user and notify others about it - if it was ours
+	 *
+	 * @param array $condition The condition for finding the item entries
+	 * @param integer $uid User who wants to delete this item
+	 */
+	public static function deleteForUser($condition, $uid)
+	{
+		if ($uid == 0) {
+			return;
+		}
+
+		$items = dba::select('item', ['id', 'uid'], $condition);
+		while ($item = dba::fetch($items)) {
+			// "Deleting" global items just means hiding them
+			if ($item['uid'] == 0) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
+			} elseif ($item['uid'] == $uid) {
+				self::deleteById($item['id'], PRIORITY_HIGH);
+			} else {
+				logger('Wrong ownership. Not deleting item ' . $item['id']);
+			}
 		}
 		dba::close($items);
 	}
@@ -108,11 +133,10 @@ class Item extends BaseObject
 	 *
 	 * @param integer $item_id Item ID that should be delete
 	 * @param integer $priority Priority for the notification
-	 * @param integer $uid User who wants to delete the item
 	 *
 	 * @return boolean success
 	 */
-	public static function deleteById($item_id, $priority = PRIORITY_HIGH, $uid = 0)
+	private static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
@@ -132,12 +156,6 @@ class Item extends BaseObject
 		$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
 		if (!DBM::is_result($parent)) {
 			$parent = ['origin' => false];
-		}
-
-		// "Deleting" global items just means hiding them
-		if (($item['uid'] == 0) && ($uid != 0)) {
-			dba::update('user-item', ['hidden' => true], ['iid' => $item_id, 'uid' => $uid], true);
-			return true;
 		}
 
 		// clean up categories and tags so they don't end up as orphans

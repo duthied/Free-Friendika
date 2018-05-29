@@ -284,14 +284,7 @@ function photos_post(App $a)
 			);
 
 			// find and delete the corresponding item with all the comments and likes/dislikes
-			$r = q("SELECT `id` FROM `item` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
-				intval($page_owner_uid)
-			);
-			if (DBM::is_result($r)) {
-				foreach ($r as $rr) {
-					Item::deleteById($rr['id'], PRIORITY_HIGH, $page_owner_uid);
-				}
-			}
+			Item::deleteForUser(['resource-id' => $res, 'uid' => $page_owner_uid], $page_owner_uid);
 
 			// Update the photo albums cache
 			Photo::clearAlbumCache($page_owner_uid);
@@ -344,16 +337,11 @@ function photos_post(App $a)
 				intval($page_owner_uid),
 				dbesc($r[0]['resource-id'])
 			);
-			$i = q("SELECT `id` FROM `item` WHERE `resource-id` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($r[0]['resource-id']),
-				intval($page_owner_uid)
-			);
-			if (DBM::is_result($i)) {
-				Item::deleteById($i[0]['id'], PRIORITY_HIGH, $page_owner_uid);
 
-				// Update the photo albums cache
-				Photo::clearAlbumCache($page_owner_uid);
-			}
+			Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
+
+			// Update the photo albums cache
+			Photo::clearAlbumCache($page_owner_uid);
 		}
 
 		goaway('photos/' . $a->data['user']['nickname']);

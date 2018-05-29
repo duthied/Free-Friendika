@@ -2785,7 +2785,7 @@ class Diaspora
 
 		while ($item = dba::fetch($r)) {
 			// Fetch the parent item
-			$parent = dba::selectFirst('item', ['author-link', 'origin'], ['id' => $item["parent"]]);
+			$parent = dba::selectFirst('item', ['author-link'], ['id' => $item["parent"]]);
 
 			// Only delete it if the parent author really fits
 			if (!link_compare($parent["author-link"], $contact["url"]) && !link_compare($item["author-link"], $contact["url"])) {
@@ -2793,7 +2793,7 @@ class Diaspora
 				continue;
 			}
 
-			Item::deleteById($item["id"]);
+			Item::delete(['id' => $item["id"]]);
 
 			logger("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], LOGGER_DEBUG);
 		}
