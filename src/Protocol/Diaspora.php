@@ -2793,7 +2793,7 @@ class Diaspora
 				continue;
 			}
 
-			Item::delete(['id' => $item["id"]]);
+			Item::delete(['id' => $item['id']]);
 
 			logger("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], LOGGER_DEBUG);
 		}

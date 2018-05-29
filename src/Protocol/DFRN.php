@@ -2811,9 +2811,9 @@ class DFRN
 			return;
 		}
 
-		logger('deleting item '.$item["id"].' uri='.$uri, LOGGER_DEBUG);
+		logger('deleting item '.$item['id'].' uri='.$uri, LOGGER_DEBUG);
 
-		Item::delete(['id' => $item["id"]]);
+		Item::delete(['id' => $item['id']]);
 	}
 
 	/**
