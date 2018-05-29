@@ -103,6 +103,32 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Delete an item for an user and notify others about it - if it was ours
+	 *
+	 * @param array $condition The condition for finding the item entries
+	 * @param integer $uid User who wants to delete this item
+	 */
+	public static function deleteForUser($condition, $uid)
+	{
+		if ($uid == 0) {
+			return;
+		}
+
+		$items = dba::select('item', ['id', 'uid'], $condition);
+		while ($item = dba::fetch($items)) {
+			// "Deleting" global items just means hiding them
+			if ($item['uid'] == 0) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
+			} elseif ($item['uid'] == $uid) {
+				self::deleteById($item['id'], PRIORITY_HIGH);
+			} else {
+				logger('Wrong ownership. Not deleting item ' . $item['id']);
+			}
+		}
+		dba::close($items);
+	}
+
+	/**
 	 * @brief Delete an item and notify others about it - if it was ours
 	 *
 	 * @param integer $item_id Item ID that should be delete
@@ -110,7 +136,7 @@ class Item extends BaseObject
 	 *
 	 * @return boolean success
 	 */
-	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
+	private static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
@@ -201,6 +227,13 @@ class Item extends BaseObject
 
 			// send the notification upstream/downstream
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+		} elseif ($item['uid'] != 0) {
+
+			// When we delete just our local user copy of an item, we have to set a marker to hide it
+			$global_item = dba::selectFirst('item', ['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
+			if (DBM::is_result($global_item)) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
+			}
 		}
 
 		logger('Item with ID ' . $item_id . " has been deleted.", LOGGER_DEBUG);

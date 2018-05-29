@@ -537,13 +537,12 @@ class OStatus
 	private static function deleteNotice($item)
 	{
 		$condition = ['uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']];
-		$deleted = dba::selectFirst('item', ['id', 'parent-uri'], $condition);
-		if (!DBM::is_result($deleted)) {
-			logger('Item from '.$item['author-link'].' with uri '.$item['uri'].' for user '.$item['uid']." wasn't found. We don't delete it. ");
+		if (!dba::exists('item', $condition)) {
+			logger('Item from '.$item['author-link'].' with uri '.$item['uri'].' for user '.$item['uid']." wasn't found. We don't delete it.");
 			return;
 		}
 
-		Item::deleteById($deleted["id"]);
+		Item::delete($condition);
 
 		logger('Deleted item with uri '.$item['uri'].' for user '.$item['uid']);
 	}
