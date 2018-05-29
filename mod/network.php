@@ -456,8 +456,8 @@ function networkFlatView(App $a, $update = 0)
 	$items = q("SELECT %s FROM `item` $sql_post_table %s
 		WHERE %s AND `item`.`uid` = %d
 		ORDER BY `item`.`id` DESC $pager_sql ",
-		item_fieldlists(), item_joins($_SESSION['uid']), item_condition(),
-		intval($_SESSION['uid'])
+		item_fieldlists(), item_joins(local_user()), item_condition(),
+		intval(local_user())
 	);
 
 	$condition = ['unseen' => true, 'uid' => local_user()];
@@ -610,7 +610,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", dbesc($nets)) : '');
 
 	if ($gid) {
-		$group = dba::selectFirst('group', ['name'], ['id' => $gid, 'uid' => $_SESSION['uid']]);
+		$group = dba::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
 		if (!DBM::is_result($group)) {
 			if ($update) {
 				killme();
@@ -626,7 +626,7 @@ function networkThreadedView(App $a, $update, $parent)
 			$contact_str_self = '';
 
 			$contact_str = implode(',', $contacts);
-			$self = dba::selectFirst('contact', ['id'], ['uid' => $_SESSION['uid'], 'self' => true]);
+			$self = dba::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
 			if (DBM::is_result($self)) {
 				$contact_str_self = $self['id'];
 			}
