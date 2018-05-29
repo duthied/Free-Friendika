@@ -2137,7 +2137,7 @@ ul.dropdown-menu li:hover {
 #adminpage, .delegate-content-wrapper, .uexport-content-wrapper,
 .viewcontacts-content-wrapper, .dfrn_request-content-wrapper,
 .friendica-content-wrapper, .credits-content-wrapper, .nogroup-content-wrapper,
-.profperm-content-wrapper, .invite-content-wrapper {
+.profperm-content-wrapper, .invite-content-wrapper, .tos-content-wrapper {
     min-height: calc(100vh - 150px);
     padding: 15px;
     padding-bottom: 20px;
