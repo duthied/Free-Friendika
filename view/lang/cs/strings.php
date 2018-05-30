@@ -1361,7 +1361,7 @@ $a->strings["Beginning of week:"] = "";
 $a->strings["Don't show notices"] = "Nezobrazovat oznámění";
 $a->strings["Infinite scroll"] = "Nekonečné posouvání";
 $a->strings["Automatic updates only at the top of the network page"] = "Automatické aktualizace pouze na hlavní stránce Síť.";
-$a->strings["Bandwidth Saver Mode"] = "";
+$a->strings["Bandwith Saver Mode"] = "";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "";
 $a->strings["General Theme Settings"] = "";
 $a->strings["Custom Theme Settings"] = "";
@@ -1665,7 +1665,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Základní cesta k instalaci";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "";
 $a->strings["Disable picture proxy"] = "Vypnutí obrázkové proxy";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "Obrázková proxi zvyšuje výkonnost a soukromí. Neměla by být použita na systémech s pomalým připojením k síti.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "Obrázková proxi zvyšuje výkonnost a soukromí. Neměla by být použita na systémech s pomalým připojením k síti.";
 $a->strings["Enable old style pager"] = "Aktivovat \"old style\" stránkování ";
 $a->strings["The old style pager has page numbers but slows down massively the page speed."] = " \"old style\" stránkování zobrazuje čísla stránek ale značně zpomaluje rychlost stránky.";
 $a->strings["Only search in tags"] = "Hledat pouze ve štítkách";

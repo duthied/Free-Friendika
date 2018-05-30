@@ -1164,7 +1164,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Chemin de base de l'installation";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "Si le système ne peut pas détecter le chemin de l'installation, entrez le bon chemin ici. Ce paramètre doit être utilisé uniquement si vous avez des accès restreints à votre système et que vous n'avez qu'un lien symbolique vers le répertoire web.";
 $a->strings["Disable picture proxy"] = "Désactiver le proxy image ";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "Le proxy d'image augmente les performances et l'intimité. Il ne devrait pas être utilisé sur des systèmes avec une très faible bande passante.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "Le proxy d'image augmente les performances et l'intimité. Il ne devrait pas être utilisé sur des systèmes avec une très faible bande passante.";
 $a->strings["Only search in tags"] = "Rechercher seulement dans les étiquettes";
 $a->strings["On large systems the text search can slow down the system extremely."] = "La recherche textuelle peut ralentir considérablement les systèmes de grande taille.";
 $a->strings["New base url"] = "Nouvelle URL de base";
@@ -1569,7 +1569,7 @@ $a->strings["Don't show notices"] = "Ne plus afficher les avis";
 $a->strings["Infinite scroll"] = "Défilement infini";
 $a->strings["Automatic updates only at the top of the network page"] = "Mises à jour automatiques seulement en haut de la page Réseau";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "Si désactivé, la page Réseau est mise à jour en permanence, ce qui peut rendre la lecture difficile.";
-$a->strings["Bandwidth Saver Mode"] = "Limiter le transfert de données";
+$a->strings["Bandwith Saver Mode"] = "Limiter le transfert de données";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "Si activé, le contenu intégré aux pages est mis à jour uniquement lors du rafraîchissement manuel des pages : il n'est plus mis à jour lors des rafraîchissements automatiques.";
 $a->strings["Smart Threading"] = "";
 $a->strings["When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled."] = "";

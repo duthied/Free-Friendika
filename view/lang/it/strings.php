@@ -1164,7 +1164,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Percorso base all'installazione";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "Se il sistema non è in grado di rilevare il percorso corretto per l'installazione, immettere il percorso corretto qui. Questa impostazione deve essere inserita solo se si utilizza un sistema limitato e/o collegamenti simbolici al tuo webroot.";
 $a->strings["Disable picture proxy"] = "Disabilita il proxy immagini";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "Il proxy immagini aumenta le performance e la privacy. Non dovrebbe essere usato su server con poca banda disponibile.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "Il proxy immagini aumenta le performance e la privacy. Non dovrebbe essere usato su server con poca banda disponibile.";
 $a->strings["Only search in tags"] = "Cerca solo nei tag";
 $a->strings["On large systems the text search can slow down the system extremely."] = "Su server con molti dati, la ricerca nel testo può estremamente rallentare il sistema.";
 $a->strings["New base url"] = "Nuovo url base";
@@ -1569,7 +1569,7 @@ $a->strings["Don't show notices"] = "Non mostrare gli avvisi";
 $a->strings["Infinite scroll"] = "Scroll infinito";
 $a->strings["Automatic updates only at the top of the network page"] = "Aggiornamenti automatici solo in cima alla pagina \"rete\"";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "Quando disabilitato, la pagina \"rete\" è aggiornata continuamente, cosa che può confondere durante la lettura.";
-$a->strings["Bandwidth Saver Mode"] = "Modalità Salva Banda";
+$a->strings["Bandwith Saver Mode"] = "Modalità Salva Banda";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "Quando abilitato, il contenuto embeddato non è mostrato quando la pagina si aggiorna automaticamente, ma solo quando la pagina viene ricaricata.";
 $a->strings["Smart Threading"] = "Smart Threading";
 $a->strings["When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled."] = "Quando è abilitato, rimuove i rientri eccessivi nella visualizzazione delle discussioni, mantenendoli dove sono importanti. Funziona solo se le conversazioni a thread sono disponibili e abilitate.";

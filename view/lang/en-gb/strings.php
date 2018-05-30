@@ -1164,7 +1164,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Base path to installation";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.";
 $a->strings["Disable picture proxy"] = "Disable picture proxy";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.";
 $a->strings["Only search in tags"] = "Only search in tags";
 $a->strings["On large systems the text search can slow down the system extremely."] = "On large systems the text search can slow down the system significantly.";
 $a->strings["New base url"] = "New base URL";
@@ -1569,7 +1569,7 @@ $a->strings["Don't show notices"] = "Don't show notices";
 $a->strings["Infinite scroll"] = "Infinite scroll";
 $a->strings["Automatic updates only at the top of the network page"] = "Automatically updates only top of the network page";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "When disabled, the network page is updated all the time, which could be confusing while reading.";
-$a->strings["Bandwidth Saver Mode"] = "Bandwidth saving mode";
+$a->strings["Bandwith Saver Mode"] = "Bandwith saving mode";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "If enabled, embedded content is not displayed on automatic updates; it is only shown on page reload.";
 $a->strings["Smart Threading"] = "Smart threading";
 $a->strings["When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled."] = "Suppresses extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled.";

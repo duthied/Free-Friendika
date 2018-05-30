@@ -1149,7 +1149,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "基础安装路线";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "如果您的系统无法为您检测到正确的安装路径，请在这里输入正确的路径。此配置仅在您使用设有限制的系统时符号链接到网页服务器根目录使用。";
 $a->strings["Disable picture proxy"] = "停用图片代理";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "";
 $a->strings["Only search in tags"] = "";
 $a->strings["On large systems the text search can slow down the system extremely."] = "在大型系统中，正文搜索会极大降低系统运行速度。";
 $a->strings["New base url"] = "新基础URL";
@@ -1551,7 +1551,7 @@ $a->strings["Don't show notices"] = "不显示提示";
 $a->strings["Infinite scroll"] = "无限的滚动";
 $a->strings["Automatic updates only at the top of the network page"] = "仅在返回到网页头部时自动更新";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "禁用后，网页将会一直更新，这可能会对阅读造成干扰。";
-$a->strings["Bandwidth Saver Mode"] = "省流量模式";
+$a->strings["Bandwith Saver Mode"] = "省流量模式";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "当启用时，嵌入的内容不会在自动更新时显示，它们只在页面重载时显示。";
 $a->strings["Smart Threading"] = "";
 $a->strings["When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled."] = "";

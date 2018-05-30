@@ -1394,7 +1394,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Ruta base para la instalación";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "Si el sistema no puede detectar el acceso correcto a la instalación, ingrese la dirección correcta aquí. Esta configuración solo debería utilizarse si si usa un sistema restringido y enlaces simbolicos a su webroot.";
 $a->strings["Disable picture proxy"] = "Deshabilitar proxy de imagen";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "El proxy de imagen mejora el performance y privacidad. No debería ser usado en sistemas con poco ancho de banda.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "El proxy de imagen mejora el performance y privacidad. No debería ser usado en sistemas con poco ancho de banda.";
 $a->strings["Only search in tags"] = "Solo buscar en tags";
 $a->strings["On large systems the text search can slow down the system extremely."] = "En sistemas grandes, la búsqueda de texto puede enlentecer el sistema gravemente.";
 $a->strings["New base url"] = "Nueva URLbase";
@@ -1895,7 +1895,7 @@ $a->strings["Don't show notices"] = "No mostrara avisos";
 $a->strings["Infinite scroll"] = "pagina infinita (sroll)";
 $a->strings["Automatic updates only at the top of the network page"] = "Actualizaciones automaticas solo estando al principio de la pagina";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "Cuando está deshabilitada, la página de red se actualiza constantemente, lo que podría ser confuso al leer.";
-$a->strings["Bandwidth Saver Mode"] = "Modo de guardado de ancho de banda";
+$a->strings["Bandwith Saver Mode"] = "Modo de guardado de ancho de banda";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "Cuando está habilitado, el contenido incrustado no se muestra en las actualizaciones automáticas, sólo en las páginas recargadas.";
 $a->strings["General Theme Settings"] = "Ajustes generales de tema";
 $a->strings["Custom Theme Settings"] = "Ajustes personalizados de tema";

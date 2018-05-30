@@ -1348,7 +1348,7 @@ $a->strings["Beginning of week:"] = "";
 $a->strings["Don't show notices"] = "";
 $a->strings["Infinite scroll"] = "";
 $a->strings["Automatic updates only at the top of the network page"] = "";
-$a->strings["Bandwidth Saver Mode"] = "";
+$a->strings["Bandwith Saver Mode"] = "";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "";
 $a->strings["General Theme Settings"] = "";
 $a->strings["Custom Theme Settings"] = "";
@@ -1652,7 +1652,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "";
 $a->strings["Disable picture proxy"] = "";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "";
 $a->strings["Enable old style pager"] = "";
 $a->strings["The old style pager has page numbers but slows down massively the page speed."] = "";
 $a->strings["Only search in tags"] = "";

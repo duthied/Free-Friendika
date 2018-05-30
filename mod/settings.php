@@ -966,7 +966,7 @@ function settings_content(App $a)
 			'$noinfo'	=> ['noinfo', L10n::t("Don't show notices"), $noinfo, ''],
 			'$infinite_scroll'	=> ['infinite_scroll', L10n::t("Infinite scroll"), $infinite_scroll, ''],
 			'$no_auto_update'	=> ['no_auto_update', L10n::t("Automatic updates only at the top of the network page"), $no_auto_update, L10n::t('When disabled, the network page is updated all the time, which could be confusing while reading.')],
-			'$bandwidth_saver' => ['bandwidth_saver', L10n::t('Bandwidth Saver Mode'), $bandwidth_saver, L10n::t('When enabled, embedded content is not displayed on automatic updates, they only show on page reload.')],
+			'$bandwidth_saver' => ['bandwidth_saver', L10n::t('Bandwith Saver Mode'), $bandwidth_saver, L10n::t('When enabled, embedded content is not displayed on automatic updates, they only show on page reload.')],
 			'$smart_threading' => ['smart_threading', L10n::t('Smart Threading'), $smart_threading, L10n::t('When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled.')],
 
 			'$d_tset' => L10n::t('General Theme Settings'),

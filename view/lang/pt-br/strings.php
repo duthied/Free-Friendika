@@ -1531,7 +1531,7 @@ $a->strings["Don't show notices"] = "Não mostra avisos";
 $a->strings["Infinite scroll"] = "rolamento infinito";
 $a->strings["Automatic updates only at the top of the network page"] = "Atualizações automáticas só na parte superior da página da rede";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "";
-$a->strings["Bandwidth Saver Mode"] = "";
+$a->strings["Bandwith Saver Mode"] = "";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "";
 $a->strings["General Theme Settings"] = "";
 $a->strings["Custom Theme Settings"] = "";
@@ -1845,7 +1845,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Diretório base para instalação";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "";
 $a->strings["Disable picture proxy"] = "Disabilitar proxy de imagem";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "O proxy de imagem aumenta o desempenho e privacidade. Ele não deve ser usado em sistemas com largura de banda muito baixa.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "O proxy de imagem aumenta o desempenho e privacidade. Ele não deve ser usado em sistemas com largura de banda muito baixa.";
 $a->strings["Only search in tags"] = "Somente pesquisa nas estiquetas";
 $a->strings["On large systems the text search can slow down the system extremely."] = "Em grandes sistemas a pesquisa de texto pode deixar o sistema muito lento.";
 $a->strings["New base url"] = "Nova URL base";

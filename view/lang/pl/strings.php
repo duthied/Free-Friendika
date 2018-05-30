@@ -1194,7 +1194,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Podstawowa ścieżka do instalacji";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "Jeśli system nie może wykryć poprawnej ścieżki do instalacji, wprowadź tutaj poprawną ścieżkę. To ustawienie powinno być ustawione tylko wtedy, gdy używasz ograniczonego systemu i dowiązań symbolicznych do twojego webroota.";
 $a->strings["Disable picture proxy"] = "Wyłącz obraz proxy";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "Proxy obrazu zwiększa wydajność i prywatność. Nie należy go stosować w systemach o bardzo niskiej przepustowości.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "Proxy obrazu zwiększa wydajność i prywatność. Nie należy go stosować w systemach o bardzo niskiej przepustowości.";
 $a->strings["Only search in tags"] = "Szukaj tylko w tagach";
 $a->strings["On large systems the text search can slow down the system extremely."] = "W dużych systemach wyszukiwanie tekstu może wyjątkowo spowolnić system.";
 $a->strings["New base url"] = "Nowy bazowy adres url";
@@ -1605,7 +1605,7 @@ $a->strings["Don't show notices"] = "Nie pokazuj powiadomień";
 $a->strings["Infinite scroll"] = "Nieskończone przewijanie";
 $a->strings["Automatic updates only at the top of the network page"] = "Automatyczne aktualizacje tylko u góry strony sieci";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "Po wyłączeniu strona sieciowa jest cały czas aktualizowana, co może być mylące podczas czytania.";
-$a->strings["Bandwidth Saver Mode"] = "Tryb oszczędzania przepustowości";
+$a->strings["Bandwith Saver Mode"] = "Tryb oszczędzania przepustowości";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "Po włączeniu wbudowana zawartość nie jest wyświetlana w automatycznych aktualizacjach, wyświetlają się tylko przy przeładowaniu strony.";
 $a->strings["Smart Threading"] = "Inteligentne wątki";
 $a->strings["When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled."] = "Włączenie tej opcji powoduje pomijanie wcięcia wątków zewnętrznych, zachowując je w dowolnym miejscu. Działa tylko wtedy, gdy wątki są dostępne i włączone.";
