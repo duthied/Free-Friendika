@@ -1442,7 +1442,7 @@ function admin_page_site(App $a)
 		'$max_comments' 	=> ['max_comments', L10n::t("Maximum numbers of comments per post"), Config::get('system','max_comments'), L10n::t("How much comments should be shown for each post? Default value is 100.")],
 		'$temppath'		=> ['temppath', L10n::t("Temp path"), Config::get('system','temppath'), L10n::t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")],
 		'$basepath'		=> ['basepath', L10n::t("Base path to installation"), Config::get('system','basepath'), L10n::t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")],
-		'$proxy_disabled'	=> ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system','proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth.")],
+		'$proxy_disabled'	=> ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system','proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")],
 		'$only_tag_search'	=> ['only_tag_search', L10n::t("Only search in tags"), Config::get('system','only_tag_search'), L10n::t("On large systems the text search can slow down the system extremely.")],
 
 		'$relocate_url'		=> ['relocate_url', L10n::t("New base url"), System::baseUrl(), L10n::t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],
