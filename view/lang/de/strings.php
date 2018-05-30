@@ -1164,7 +1164,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "Basis-Pfad zur Installation";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "Falls das System nicht den korrekten Pfad zu deiner Installation gefunden hat, gib den richtigen Pfad bitte hier ein. Du solltest hier den Pfad nur auf einem eingeschränkten System angeben müssen, bei dem du mit symbolischen Links auf dein Webverzeichnis verweist.";
 $a->strings["Disable picture proxy"] = "Bilder Proxy deaktivieren";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "Der Proxy für Bilder verbessert die Leistung und Privatsphäre der Nutzer. Er sollte nicht auf Systemen verwendet werden, die nur über begrenzte Bandbreite verfügen.";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "Der Proxy für Bilder verbessert die Leistung und Privatsphäre der Nutzer. Er sollte nicht auf Systemen verwendet werden, die nur über begrenzte Bandbreite verfügen.";
 $a->strings["Only search in tags"] = "Nur in Tags suchen";
 $a->strings["On large systems the text search can slow down the system extremely."] = "Auf großen Knoten kann die Volltext-Suche das System ausbremsen.";
 $a->strings["New base url"] = "Neue Basis-URL";
@@ -1569,7 +1569,7 @@ $a->strings["Don't show notices"] = "Info-Popups nicht anzeigen";
 $a->strings["Infinite scroll"] = "Endloses Scrollen";
 $a->strings["Automatic updates only at the top of the network page"] = "Automatische Updates nur, wenn Du oben auf der Netzwerkseite bist.";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "Wenn dies deaktiviert ist, wird die Netzwerk Seite aktualisiert, wann immer neue Beiträge eintreffen, egal an welcher Stelle gerade gelesen wird.";
-$a->strings["Bandwith Saver Mode"] = "Bandbreiten-Spar-Modus";
+$a->strings["Bandwidth Saver Mode"] = "Bandbreiten-Spar-Modus";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "Wenn aktiviert, wird der eingebettete Inhalt nicht automatisch aktualisiert. In diesem Fall Seite bitte neu laden.";
 $a->strings["Smart Threading"] = "Intelligentes Threading";
 $a->strings["When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled."] = "Ist dies aktiviert, werden Einrückungen in Unterhaltungen unterdrückt wo sie nicht benötigt werden. Werden sie benötigt, werden die Threads weiterhin eingerückt.";

@@ -1164,7 +1164,7 @@ $a->strings["If you have a restricted system where the webserver can't access th
 $a->strings["Base path to installation"] = "";
 $a->strings["If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."] = "";
 $a->strings["Disable picture proxy"] = "";
-$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith."] = "";
+$a->strings["The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth."] = "";
 $a->strings["Only search in tags"] = "";
 $a->strings["On large systems the text search can slow down the system extremely."] = "";
 $a->strings["New base url"] = "";
@@ -1569,7 +1569,7 @@ $a->strings["Don't show notices"] = "Ekki birta tilkynningar";
 $a->strings["Infinite scroll"] = "";
 $a->strings["Automatic updates only at the top of the network page"] = "";
 $a->strings["When disabled, the network page is updated all the time, which could be confusing while reading."] = "";
-$a->strings["Bandwith Saver Mode"] = "";
+$a->strings["Bandwidth Saver Mode"] = "";
 $a->strings["When enabled, embedded content is not displayed on automatic updates, they only show on page reload."] = "";
 $a->strings["Smart Threading"] = "";
 $a->strings["When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled."] = "";
