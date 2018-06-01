@@ -49,7 +49,8 @@ Version 2018.05 (2018-05-xx)
     Fixed a bug that prevented the selection of displayed profiles for other Friendica contacts [MrPetovan]
     Fixed the version sorting in the federation statistics page [annando]
     Fixed a bug in the nodeinfo calculation of total comments [annando]
-    Added an optional module to display the Terms of Service [tobiasd]
+    Fixed a bug during registration that prevented the detected language to be saved [tobiasd]
+    Added an optional module to display the Terms of Service [rabuzarus, tobiasd]
     Added testfeed module [MrPetovan]
     Added hashtag autocomplete (ported from Hubzilla) [rabuzarus]
     Added password exposed check [MrPetovan]
@@ -69,8 +70,10 @@ Version 2018.05 (2018-05-xx)
     Added parts of the list API [rudloff]
     Added support of ALT texts for images [annando]
     Removed the connection postings [annando]
+    Corrected a long standing typo in config variable names; should your bandwidth saver mode stop working please turn it off and on again [abanink]
     The execute-ables were moved from /util to /bin [MrPetovan]
     The execute-ables for the developers were moved from /util to /bin/dev [MrPetovan]
+    The last year deprecated themes frost and frost mobile got removed from the Friendica repository. They can be found in the dedicated repository for deprecated themes [tobiasd]
     General code refactoring and beautification work [annando, MrPetovan, rudloff]
     Switched to cropperjs to better support touch screen devices [rabuzarus]
     Use the diaspora transport layer for the DFRN protocol as well [annando]
@@ -88,13 +91,14 @@ Version 2018.05 (2018-05-xx)
     Twitter: optimizations for sending media [annando]
 
   Closed Issues:
-     839, 1729, 2115, 2247, 2781, 2880, 3174, 3395, 3409, 3412, 3611,
-    3834, 3837, 3979, 4146, 4572, 4601, 4616, 4629, 4647, 4655, 4660,
+     839, 1186, 1729, 2115, 2247, 2781, 2880, 3174, 3395, 3409, 3412,
+    3611, 3834, 3837, 3979, 4146, 4572, 4601, 4616, 4629, 4647, 4660,
     4661, 4663, 4664, 4665, 4666, 4669, 4670, 4681, 4695, 4670, 4689,
     4730, 4749, 4760, 4772, 4786, 4790, 4791, 4816, 4867, 4878, 4819,
     4860, 4876, 4879, 4886, 4898, 4899, 4902, 4921, 4926, 4927, 4928,
     4938, 4943, 4946, 4947, 4965, 4976, 4966, 4994, 4997, 5002, 5014,
-    5033, 5043, 5050, 5051, 5056, 5063, 5010, 5111, 5116
+    5033, 5043, 5050, 5051, 5056, 5063, 5067, 5010, 5111, 5116, 5128,
+    5137, 5147
 
 Version 3.6 (2018-03-23)
   Friendica Core:
