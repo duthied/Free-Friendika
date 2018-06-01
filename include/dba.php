@@ -52,16 +52,6 @@ class dba {
 			return false;
 		}
 
-		if ($a->mode == App::MODE_INSTALL) {
-			// server has to be a non-empty string that is not 'localhost' and not an IP
-			if (strlen($server) && ($server !== 'localhost') && filter_var($server, FILTER_VALIDATE_IP) === false) {
-				if (! dns_get_record($server, DNS_A + DNS_CNAME)) {
-					self::$error = L10n::t('Cannot locate DNS info for database server \'%s\'', $server);
-					return false;
-				}
-			}
-		}
-
 		if (class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 			self::$driver = 'pdo';
 			$connect = "mysql:host=".$server.";dbname=".$db;

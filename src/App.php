@@ -9,6 +9,8 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBM;
+use dba;
 
 use Detection\MobileDetect;
 
@@ -861,18 +863,6 @@ class App
 			return;
 		}
 
-		// If the last worker fork was less than 2 seconds before then don't fork another one.
-		// This should prevent the forking of masses of workers.
-		$cachekey = 'app:proc_run:started';
-		$result = Cache::get($cachekey);
-
-		if (!is_null($result) && ( time() - $result) < 2) {
-			return;
-		}
-
-		// Set the timestamp of the last proc_run
-		Cache::set($cachekey, time(), CACHE_MINUTE);
-
 		array_unshift($args, ((x($this->config, 'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
 
 		for ($x = 0; $x < count($args); $x ++) {
@@ -1103,9 +1093,14 @@ class App
 	 */
 	public function getCurrentTheme()
 	{
-		if (!$this->current_theme) {
-			$this->computeCurrentTheme();
+		if ($this->mode == App::MODE_INSTALL) {
+			return '';
 		}
+
+		//// @TODO Compute the current theme only once (this behavior has
+		/// already been implemented, but it didn't work well -
+		/// https://github.com/friendica/friendica/issues/5092)
+		$this->computeCurrentTheme();
 
 		return $this->current_theme;
 	}

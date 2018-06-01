@@ -401,10 +401,12 @@ function visible_activity($item) {
 
 /**
  * @brief SQL query for items
+ *
+ * @param int $uid user id
  */
-function item_query() {
+function item_query($uid = 0) {
 	return "SELECT " . item_fieldlists() . " FROM `item` " .
-		item_joins() . " WHERE " . item_condition();
+		item_joins($uid) . " WHERE " . item_condition();
 }
 
 /**
@@ -429,7 +431,6 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`bookmark`,
 `item`.`unseen`,
 `item`.`deleted`,
-`item`.`origin`,
 `item`.`forum_mode`,
 `item`.`mention`,
 `item`.`global`,
@@ -442,7 +443,7 @@ These Fields are not added below (yet). They are here to for bug search.
 		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`content-warning`,
 		`item`.`commented`, `item`.`created`, `item`.`edited`, `item`.`received`,
 		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
-		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`,
+		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`, `item`.`origin`,
 		`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,
 		`item`.`location`, `item`.`coord`, `item`.`app`, `item`.`attach`,
 		`item`.`rendered-hash`, `item`.`rendered-html`, `item`.`object`,
@@ -464,16 +465,19 @@ These Fields are not added below (yet). They are here to for bug search.
 
 /**
  * @brief SQL join for contacts that are needed for displaying items
+ *
+ * @param int $uid user id
  */
-function item_joins() {
+function item_joins($uid = 0) {
 	return sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 		AND NOT `contact`.`blocked`
 		AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`))
+		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
 		INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id` AND NOT `author`.`blocked`
 		INNER JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id` AND NOT `owner`.`blocked`
+		LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
 		LEFT JOIN `event` ON `event-id` = `event`.`id`",
-		CONTACT_IS_SHARING, CONTACT_IS_FRIEND
+		CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid)
 	);
 }
 
@@ -481,7 +485,7 @@ function item_joins() {
  * @brief SQL condition for items that are needed for displaying items
  */
 function item_condition() {
-	return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`";
+	return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
 }
 
 /**
@@ -494,7 +498,7 @@ function item_condition() {
  * that are based on unique features of the calling module.
  *
  */
-function conversation(App $a, $items, $mode, $update, $preview = false, $order = 'commented') {
+function conversation(App $a, $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0) {
 	require_once 'mod/proxy.php';
 
 	$ssl_state = ((local_user()) ? true : false);
@@ -518,7 +522,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 	$previewing = (($preview) ? ' preview ' : '');
 
 	if ($mode === 'network') {
-		$items = conversation_add_children($items, false, $order);
+		$items = conversation_add_children($items, false, $order, $uid);
 		$profile_owner = local_user();
 		if (!$update) {
 			/*
@@ -579,7 +583,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
-		$items = conversation_add_children($items, true, $order);
+		$items = conversation_add_children($items, true, $order, $uid);
 		$profile_owner = 0;
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
@@ -882,7 +886,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
  *
  * @return array items with parents and comments
  */
-function conversation_add_children($parents, $block_authors, $order) {
+function conversation_add_children($parents, $block_authors, $order, $uid) {
 	$max_comments = Config::get('system', 'max_comments', 100);
 
 	if ($max_comments > 0) {
@@ -896,37 +900,12 @@ function conversation_add_children($parents, $block_authors, $order) {
 	$block_sql = $block_authors ? "AND NOT `author`.`hidden` AND NOT `author`.`blocked`" : "";
 
 	foreach ($parents AS $parent) {
-		$thread_items = dba::p(item_query()." AND `item`.`uid` = ?
-			AND `item`.`parent-uri` = ? $block_sql
-			ORDER BY `item`.`commented` DESC" . $limit,
-			local_user(),
-			$parent['uri']
-		);
+		$thread_items = dba::p(item_query(local_user())."AND `item`.`parent-uri` = ?
+			AND `item`.`uid` IN (0, ?) $block_sql
+			ORDER BY `item`.`uid` ASC, `item`.`commented` DESC" . $limit,
+			$parent['uri'], local_user());
+
 		$comments = dba::inArray($thread_items);
-
-		// Check if the original item is in the result.
-		// When commenting from the community page there can be incomplete threads
-		if (count($comments) > 0) {
-			$parent_found = false;
-			foreach ($comments as $comment) {
-				if ($comment['uri'] == $comment['parent-uri']) {
-					$parent_found = true;
-					break;
-				}
-			}
-			if (!$parent_found) {
-				$comments = [];
-			}
-		}
-
-		if (count($comments) == 0) {
-			$thread_items = dba::p(item_query()." AND `item`.`uid` = 0
-				AND `item`.`parent-uri` = ?
-				ORDER BY `item`.`commented` DESC LIMIT ".intval($max_comments + 1),
-				$parent['uri']
-			);
-			$comments = dba::inArray($thread_items);
-		}
 
 		if (count($comments) != 0) {
 			$items = array_merge($items, $comments);

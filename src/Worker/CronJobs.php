@@ -26,8 +26,6 @@ class CronJobs
 	{
 		global $a;
 
-		require_once 'mod/nodeinfo.php';
-
 		// No parameter set? So return
 		if ($command == '') {
 			return;

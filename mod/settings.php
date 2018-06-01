@@ -442,9 +442,6 @@ function settings_post(App $a)
 	$suggestme        = ((x($_POST, 'suggestme')) ? intval($_POST['suggestme'])  : 0);
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
-	$post_newfriend   = (($_POST['post_newfriend'] == 1) ? 1: 0);
-	$post_joingroup   = (($_POST['post_joingroup'] == 1) ? 1: 0);
-	$post_profilechange   = (($_POST['post_profilechange'] == 1) ? 1: 0);
 
 	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
@@ -543,7 +540,7 @@ function settings_post(App $a)
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
 		if (Network::isUrlValid($openid)) {
 			logger('updating openidserver');
-			$open_id_obj = new LightOpenID;
+			$open_id_obj = new LightOpenID($a->get_hostname());
 			$open_id_obj->identity = $openid;
 			$openidserver = $open_id_obj->discover($open_id_obj->identity);
 		} else {
@@ -558,9 +555,6 @@ function settings_post(App $a)
 	PConfig::set(local_user(), 'expire', 'network_only', $expire_network_only);
 
 	PConfig::set(local_user(), 'system', 'suggestme', $suggestme);
-	PConfig::set(local_user(), 'system', 'post_newfriend', $post_newfriend);
-	PConfig::set(local_user(), 'system', 'post_joingroup', $post_joingroup);
-	PConfig::set(local_user(), 'system', 'post_profilechange', $post_profilechange);
 
 	PConfig::set(local_user(), 'system', 'email_textonly', $email_textonly);
 	PConfig::set(local_user(), 'system', 'detailed_notif', $detailed_notif);
@@ -972,7 +966,7 @@ function settings_content(App $a)
 			'$noinfo'	=> ['noinfo', L10n::t("Don't show notices"), $noinfo, ''],
 			'$infinite_scroll'	=> ['infinite_scroll', L10n::t("Infinite scroll"), $infinite_scroll, ''],
 			'$no_auto_update'	=> ['no_auto_update', L10n::t("Automatic updates only at the top of the network page"), $no_auto_update, L10n::t('When disabled, the network page is updated all the time, which could be confusing while reading.')],
-			'$bandwidth_saver' => ['bandwidth_saver', L10n::t('Bandwith Saver Mode'), $bandwidth_saver, L10n::t('When enabled, embedded content is not displayed on automatic updates, they only show on page reload.')],
+			'$bandwidth_saver' => ['bandwidth_saver', L10n::t('Bandwidth Saver Mode'), $bandwidth_saver, L10n::t('When enabled, embedded content is not displayed on automatic updates, they only show on page reload.')],
 			'$smart_threading' => ['smart_threading', L10n::t('Smart Threading'), $smart_threading, L10n::t('When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled.')],
 
 			'$d_tset' => L10n::t('General Theme Settings'),
@@ -1020,9 +1014,6 @@ function settings_content(App $a)
 	$expire_photos = PConfig::get(local_user(), 'expire', 'photos', false);
 	$expire_network_only = PConfig::get(local_user(), 'expire', 'network_only', false);
 	$suggestme = PConfig::get(local_user(), 'system', 'suggestme', false);
-	$post_newfriend = PConfig::get(local_user(), 'system', 'post_newfriend', false);
-	$post_joingroup = PConfig::get(local_user(), 'system', 'post_joingroup', false);
-	$post_profilechange = PConfig::get(local_user(), 'system', 'post_profilechange', false);
 
 	// nowarn_insecure
 
@@ -1100,13 +1091,13 @@ function settings_content(App $a)
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
 		$profile_in_dir = replace_macros($opt_tpl, [
-			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory')), [L10n::t('No'), L10n::t('Yes')]]
+			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	}
 
 	if (strlen(Config::get('system', 'directory'))) {
 		$profile_in_net_dir = replace_macros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
+			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory')), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	} else {
 		$profile_in_net_dir = '';
@@ -1117,7 +1108,7 @@ function settings_content(App $a)
 	]);
 
 	$hide_wall = replace_macros($opt_tpl, [
-		'$field' => ['hidewall', L10n::t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], L10n::t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Disables posting public messages to Diaspora and other networks.'), [L10n::t('No'), L10n::t('Yes')]],
+		'$field' => ['hidewall', L10n::t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], L10n::t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
 	$blockwall = replace_macros($opt_tpl, [
@@ -1247,10 +1238,6 @@ function settings_content(App $a)
 
 
 		'$h_not' 	=> L10n::t('Notification Settings'),
-		'$activity_options' => L10n::t('By default post a status message when:'),
-		'$post_newfriend' => ['post_newfriend',  L10n::t('accepting a friend request'), $post_newfriend, ''],
-		'$post_joingroup' => ['post_joingroup',  L10n::t('joining a forum/community'), $post_joingroup, ''],
-		'$post_profilechange' => ['post_profilechange',  L10n::t('making an <em>interesting</em> profile change'), $post_profilechange, ''],
 		'$lbl_not' 	=> L10n::t('Send a notification email when:'),
 		'$notify1'	=> ['notify1', L10n::t('You receive an introduction'), ($notify & NOTIFY_INTRO), NOTIFY_INTRO, ''],
 		'$notify2'	=> ['notify2', L10n::t('Your introductions are confirmed'), ($notify & NOTIFY_CONFIRM), NOTIFY_CONFIRM, ''],

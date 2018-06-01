@@ -167,6 +167,10 @@
 							{{if $nav.admin}}
 							<li role="presentation"><a role="menuitem" id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i> {{$nav.admin.1}}</a></li>
 							{{/if}}
+							{{if $nav.tos}}
+							<li role="presentation" class="divider"></li>
+							<li role="presentation"><a role="menuitem" id="nav-tos-link" class="nav-link {{$nav.tos.2}}" href="{{$nav.tos.0}}" title="{{$nav.tos.3}}" ><i class="fa fa-file-text" aria-hidden="true"></i> {{$nav.tos.1}}</a></li>
+							{{/if}}
 							<li role="presentation" class="divider"></li>
 							{{if $nav.logout}}
 							<li role="presentation"><a role="menuitem" id="nav-logout-link" class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" ><i class="fa fa fa-sign-out fa-fw" aria-hidden="true"></i> {{$nav.logout.1}}</a></li>
@@ -238,10 +242,15 @@
 		</div>
 		<div class="pull-right">
 			<ul class="nav navbar-nav navbar-right">
-				<li>
+				<li role="presentation">
 					<a href="login?mode=none" id="nav-login"
 						data-toggle="tooltip" aria-label="{{$nav.login.3}}" title="{{$nav.login.3}}">
 							<i class="fa fa-sign-in fa-fw" aria-hidden="true"></i>
+					</a>
+				</li>
+				<li role="presentation">
+					<a href="{{$nav.about.0}}" id="nav-about" data-toggle="tooltip" aria-label="{{$nav.about.3}}" title="{{$nav.about.3}}">
+						<i class="fa fa-info fa-fw" aria-hidden="true"></i>
 					</a>
 				</li>
 			</ul>

@@ -8,5 +8,9 @@
 		{{include file="field_textarea.tpl" field=$tostext}}
 		<div class="submit"><input type="submit" name="page_tos" value="{{$submit|escape:'html'}}" /></div>
 	</form>
+	<h2>{{$preview}}</h2>
+	{{for $i=1 to 3}}
+	<p>{{$privtext[$i]}}</p>
+	{{/for}}
 </div>
 

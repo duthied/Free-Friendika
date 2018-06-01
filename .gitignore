@@ -54,8 +54,9 @@ nbproject
 #ignore things from transifex-client
 venv/
 
-#ignore all in 'vendor' as `utils/composer.phar install` will bring it back
-vendor/*
+#ignore Composer dependencies
+/vendor
+/view/asset
 
 #ignore config files from JetBrains
 /.idea

@@ -75,6 +75,7 @@ function profile_init(App $a)
 	}
 
 	$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which . '" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
@@ -338,7 +339,7 @@ function profile_content(App $a, $update = 0)
 
 		$parents_str = implode(', ', $parents_arr);
 
-		$items = q(item_query() . " AND `item`.`uid` = %d
+		$items = q(item_query($a->profile['profile_uid']) . " AND `item`.`uid` = %d
 			AND `item`.`parent` IN (%s)
 			$sql_extra ",
 			intval($a->profile['profile_uid']),
@@ -364,7 +365,7 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
-	$o .= conversation($a, $items, 'profile', $update);
+	$o .= conversation($a, $items, 'profile', $update, false, 'commented', local_user());
 
 	if (!$update) {
 		$o .= alt_pager($a, count($items));

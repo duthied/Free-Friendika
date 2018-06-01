@@ -83,14 +83,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$duplex   = $handsfree['duplex'];
 			$cid      = 0;
 			$hidden   = intval(defaults($handsfree, 'hidden'  , 0));
-			$activity = intval(defaults($handsfree, 'activity', 0));
 		} else {
 			$dfrn_id  = notags(trim(defaults($_POST, 'dfrn_id'   , '')));
 			$intro_id =      intval(defaults($_POST, 'intro_id'  , 0));
 			$duplex   =      intval(defaults($_POST, 'duplex'    , 0));
 			$cid      =      intval(defaults($_POST, 'contact_id', 0));
 			$hidden   =      intval(defaults($_POST, 'hidden'    , 0));
-			$activity =      intval(defaults($_POST, 'activity'  , 0));
 		}
 
 		/*
@@ -284,6 +282,11 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			}
 
 			if (($status == 0) && $intro_id) {
+				$intro = dba::selectFirst('intro', ['note'], ['id' => $intro_id]);
+				if (DBM::is_result($intro)) {
+					dba::update('contact', ['reason' => $intro['note']], ['id' => $contact_id]);
+				}
+
 				// Success. Delete the notification.
 				dba::delete('intro', ['id' => $intro_id]);
 			}
@@ -385,7 +388,6 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			);
 		}
 
-		/// @TODO is DBM::is_result() working here?
 		if (!DBM::is_result($r)) {
 			notice(L10n::t('Unable to set contact photo.') . EOL);
 		}
@@ -396,50 +398,6 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			if (DBM::is_result($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				$ret = Diaspora::sendShare($user, $contact);
 				logger('share returns: ' . $ret);
-			}
-
-			// Send a new friend post if we are allowed to...
-			$profile = dba::selectFirst('profile', ['hide-friends'], ['is-default' => true, 'uid' => $uid]);
-			if (x($profile, 'hide-friends') === 0 && $activity && !$hidden) {
-				$self = dba::selectFirst('contact', [], ['self' => true, 'uid' => $uid]);
-				if (DBM::is_result($self)) {
-					$arr = [];
-					$arr['guid'] = get_guid(32);
-					$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $uid);
-					$arr['uid'] = $uid;
-					$arr['contact-id'] = $self['id'];
-					$arr['wall'] = 1;
-					$arr['type'] = 'wall';
-					$arr['gravity'] = 0;
-					$arr['origin'] = 1;
-					$arr['author-name']   = $arr['owner-name']   = $self['name'];
-					$arr['author-link']   = $arr['owner-link']   = $self['url'];
-					$arr['author-avatar'] = $arr['owner-avatar'] = $self['thumb'];
-
-					$A = '[url=' . $self['url'] . ']' . $self['name'] . '[/url]';
-					$B = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
-					$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
-
-					$arr['verb'] = ACTIVITY_FRIEND;
-					$arr['object-type'] = ACTIVITY_OBJ_PERSON;
-					$arr['body'] = L10n::t('%1$s is now friends with %2$s', $A, $B) . "\n\n\n" . $BPhoto;
-
-					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $contact['name'] . '</title>'
-						. '<id>' . $contact['url'] . '/' . $contact['name'] . '</id>';
-					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $contact['url'] . '" />' . "\n");
-					$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $contact['thumb'] . '" />' . "\n");
-					$arr['object'] .= '</link></object>' . "\n";
-
-					$arr['allow_cid'] = $user['allow_cid'];
-					$arr['allow_gid'] = $user['allow_gid'];
-					$arr['deny_cid']  = $user['deny_cid'];
-					$arr['deny_gid']  = $user['deny_gid'];
-
-					$i = Item::insert($arr);
-					if ($i) {
-						Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
-					}
-				}
 			}
 		}
 
@@ -661,49 +619,6 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			}
 		}
 
-		// Send a new friend post if we are allowed to...
-		if ($page && intval(PConfig::get($local_uid, 'system', 'post_joingroup'))) {
-			$profile = dba::selectFirst('profile', ['hide-friends'], ['is-default' => true, 'uid' => $local_uid]);
-			if (x($profile, 'hide-friends') === 0) {
-				$self = dba::selectFirst('contact', [], ['self' => true, 'uid' => $local_uid]);
-				if (DBM::is_result($self)) {
-					$arr = [];
-					$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $local_uid);
-					$arr['uid'] = $local_uid;
-					$arr['contact-id'] = $self['id'];
-					$arr['wall'] = 1;
-					$arr['type'] = 'wall';
-					$arr['gravity'] = 0;
-					$arr['origin'] = 1;
-					$arr['author-name']   = $arr['owner-name']   = $self['name'];
-					$arr['author-link']   = $arr['owner-link']   = $self['url'];
-					$arr['author-avatar'] = $arr['owner-avatar'] = $self['thumb'];
-
-					$A = '[url=' . $self['url'] . ']' . $self['name'] . '[/url]';
-					$B = '[url=' . $combined['url'] . ']' . $combined['name'] . '[/url]';
-					$BPhoto = '[url=' . $combined['url'] . ']' . '[img]' . $combined['thumb'] . '[/img][/url]';
-
-					$arr['verb'] = ACTIVITY_JOIN;
-					$arr['object-type'] = ACTIVITY_OBJ_GROUP;
-					$arr['body'] = L10n::t('%1$s has joined %2$s', $A, $B) . "\n\n\n" . $BPhoto;
-					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_GROUP . '</type><title>' . $combined['name'] . '</title>'
-						. '<id>' . $combined['url'] . '/' . $combined['name'] . '</id>';
-					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $combined['url'] . '" />' . "\n");
-					$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $combined['thumb'] . '" />' . "\n");
-					$arr['object'] .= '</link></object>' . "\n";
-
-					$arr['allow_cid'] = $user['allow_cid'];
-					$arr['allow_gid'] = $user['allow_gid'];
-					$arr['deny_cid']  = $user['deny_cid'];
-					$arr['deny_gid']  = $user['deny_gid'];
-
-					$i = Item::insert($arr);
-					if ($i) {
-						Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
-					}
-				}
-			}
-		}
 		System::xmlExit(0); // Success
 		return; // NOTREACHED
 		////////////////////// End of this scenario ///////////////////////////////////////////////

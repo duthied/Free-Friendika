@@ -211,13 +211,14 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$item = dba::selectFirst('item', ['uid', 'parent'], ['id' => $item_id]);
+		$item = dba::selectFirst('item', ['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
 		if ($item['uid'] != 0) {
 			$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
 		} else {
 			$a->profile = ['uid' => intval($update_uid), 'profile_uid' => intval($update_uid)];
 		}
 		$item_parent = $item['parent'];
+		$item_parent_uri = $item['parent-uri'];
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
 
@@ -225,23 +226,25 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 			$item_parent = 0;
 
 			if (local_user()) {
-				$r = dba::fetch_first("SELECT `id`, `parent` FROM `item`
+				$r = dba::fetch_first("SELECT `id`, `parent`, `parent-uri` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND `guid` = ? AND `uid` = ?", $a->argv[1], local_user());
 				if (DBM::is_result($r)) {
 					$item_id = $r["id"];
 					$item_parent = $r["parent"];
+					$item_parent_uri = $r['parent-uri'];
 				}
 			}
 
 			if ($item_parent == 0) {
-				$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent` FROM `item`
+				$r = dba::fetch_first("SELECT `item`.`id`, `item`.`parent`, `item`.`parent-uri` FROM `item`
 					WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 						AND NOT `item`.`private` AND `item`.`uid` = 0
 						AND `item`.`guid` = ?", $a->argv[1]);
 				if (DBM::is_result($r)) {
 					$item_id = $r["id"];
 					$item_parent = $r["parent"];
+					$item_parent_uri = $r['parent-uri'];
 				}
 			}
 		}
@@ -332,22 +335,21 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	$sql_extra = item_permissions_sql($a->profile['uid'], $remote_contact, $groups);
 
-	if ($update) {
-		$r = dba::p("SELECT `id` FROM `item` WHERE
-			`item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
-			$sql_extra AND `unseen`",
-			$item_id
-		);
-
-		if (dba::num_rows($r) == 0) {
-			return '';
-		}
+	if (local_user() && (local_user() == $a->profile['uid'])) {
+		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
+		$unseen = dba::exists('item', $condition);
+	} else {
+		$unseen = false;
 	}
 
-	$r = dba::p(item_query()."AND `item`.`parent` = (SELECT `parent` FROM `item` WHERE `id` = ?)
-		$sql_extra
-		ORDER BY `parent` DESC, `gravity` ASC, `id` ASC",
-		$item_id
+	if ($update && !$unseen) {
+		return '';
+	}
+
+	$r = dba::p(item_query(local_user())."AND `item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
+		AND `item`.`uid` IN (0, ?) $sql_extra
+		ORDER BY `item`.`uid` ASC, `parent` DESC, `gravity` ASC, `id` ASC",
+		$item_id, local_user()
 	);
 
 	if (!DBM::is_result($r)) {
@@ -357,11 +359,9 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	$s = dba::inArray($r);
 
-	if (local_user() && (local_user() == $a->profile['uid'])) {
-		$unseen = dba::selectFirst('item', ['id'], ['parent' => $s[0]['parent'], 'unseen' => true]);
-		if (DBM::is_result($unseen)) {
-			dba::update('item', ['unseen' => false], ['parent' => $s[0]['parent'], 'unseen' => true]);
-		}
+	if ($unseen) {
+		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
+		dba::update('item', ['unseen' => false], $condition);
 	}
 
 	$items = conv_sort($s, "`commented`");
@@ -369,7 +369,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if (!$update) {
 		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
 	}
-	$o .= conversation($a, $items, 'display', $update_uid);
+	$o .= conversation($a, $items, 'display', $update_uid, false, 'commented', local_user());
 
 	// Preparing the meta header
 	$description = trim(HTML::toPlaintext(BBCode::convert($s[0]["body"], false), 0, true));

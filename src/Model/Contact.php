@@ -206,6 +206,16 @@ class Contact extends BaseObject
 		$fields['forum'] = $user['page-flags'] == PAGE_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == PAGE_PRVGROUP;
 
+		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
+		$fields['url'] = System::baseUrl() . '/profile/' . $user['nickname'];
+		$fields['nurl'] = normalise_link($fields['url']);
+		$fields['addr'] = $user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+		$fields['request'] = System::baseUrl() . '/dfrn_request/' . $user['nickname'];
+		$fields['notify'] = System::baseUrl() . '/dfrn_notify/'  . $user['nickname'];
+		$fields['poll'] = System::baseUrl() . '/dfrn_poll/'    . $user['nickname'];
+		$fields['confirm'] = System::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
+		$fields['poco'] = System::baseUrl() . '/poco/'         . $user['nickname'];
+
 		$update = false;
 
 		foreach ($fields as $field => $content) {
@@ -752,10 +762,11 @@ class Contact extends BaseObject
 	 * @param string  $url       Contact URL
 	 * @param integer $uid       The user id for the contact (0 = public contact)
 	 * @param boolean $no_update Don't update the contact
+	 * @param array   $default   Default value for creating the contact when every else fails
 	 *
 	 * @return integer Contact ID
 	 */
-	public static function getIdForURL($url, $uid = 0, $no_update = false)
+	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [])
 	{
 		logger("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), LOGGER_DEBUG);
 
@@ -804,18 +815,48 @@ class Contact extends BaseObject
 		$data = Probe::uri($url, "", $uid);
 
 		// Last try in gcontact for unsupported networks
-		if (!in_array($data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL])) {
+		if (!in_array($data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL, NETWORK_FEED])) {
 			if ($uid != 0) {
 				return 0;
 			}
 
 			// Get data from the gcontact table
-			$gcontact = dba::selectFirst('gcontact', ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'], ['nurl' => normalise_link($url)]);
-			if (!DBM::is_result($gcontact)) {
-				return 0;
+			$fields = ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'];
+			$contact = dba::selectFirst('gcontact', $fields, ['nurl' => normalise_link($url)]);
+			if (!DBM::is_result($contact)) {
+				$contact = dba::selectFirst('contact', $fields, ['nurl' => normalise_link($url)]);
 			}
 
-			$data = array_merge($data, $gcontact);
+			if (!DBM::is_result($contact)) {
+				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+					'photo', 'keywords', 'location', 'about', 'network',
+					'priority', 'batch', 'request', 'confirm', 'poco'];
+				$contact = dba::selectFirst('contact', $fields, ['addr' => $url]);
+			}
+
+			if (!DBM::is_result($contact)) {
+				// The link could be provided as http although we stored it as https
+				$ssl_url = str_replace('http://', 'https://', $url);
+				$condition = ['alias' => [$url, normalise_link($url), $ssl_url]];
+				$contact = dba::selectFirst('contact', $fields, $condition);
+			}
+
+			if (!DBM::is_result($contact)) {
+				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+					'photo', 'network', 'priority', 'batch', 'request', 'confirm'];
+				$condition = ['url' => [$url, normalise_link($url), $ssl_url]];
+				$contact = dba::selectFirst('fcontact', $fields, $condition);
+			}
+
+			if (!empty($default)) {
+				$contact = $default;
+			}
+
+			if (!DBM::is_result($contact)) {
+				return 0;
+			} else {
+				$data = array_merge($data, $contact);
+			}
 		}
 
 		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url)) {
@@ -1008,7 +1049,7 @@ class Contact extends BaseObject
 
 		$contact = ($r[0]["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
-		$r = q(item_query() . " AND `item`.`" . $contact . "` = %d AND " . $sql .
+		$r = q(item_query(local_user()) . " AND `item`.`" . $contact . "` = %d AND " . $sql .
 			" AND `item`.`verb` = '%s' ORDER BY `item`.`created` DESC LIMIT %d, %d",
 			intval($author_id), intval(local_user()), dbesc(ACTIVITY_POST),
 			intval($a->pager['start']), intval($a->pager['itemspage'])
@@ -1263,7 +1304,7 @@ class Contact extends BaseObject
 
 		if (($network != '') && ($ret['network'] != $network)) {
 			logger('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
-			return result;
+			return $result;
 		}
 
 		// check if we already have a contact

@@ -52,28 +52,38 @@ class Item extends BaseObject
 			return false;
 		}
 
+		// To ensure the data integrity we do it in an transaction
+		dba::transaction();
+
+		// We cannot simply expand the condition to check for origin entries
+		// The condition needn't to be a simple array but could be a complex condition.
+		// And we have to execute this query before the update to ensure to fetch the same data.
+		$items = dba::select('item', ['id', 'origin'], $condition);
+
 		$success = dba::update('item', $fields, $condition);
 
 		if (!$success) {
+			dba::close($items);
+			dba::rollback();
 			return false;
 		}
 
 		$rows = dba::affected_rows();
 
-		// We cannot simply expand the condition to check for origin entries
-		// The condition needn't to be a simple array but could be a complex condition.
-		$items = dba::select('item', ['id', 'origin'], $condition);
 		while ($item = dba::fetch($items)) {
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
 
-			// We only need to notfiy others when it is an original entry from us
-			if ($item['origin']) {
+			// We only need to notfiy others when it is an original entry from us.
+			// Only call the notifier when the item has some content relevant change.
+			if ($item['origin'] && in_array('edited', array_keys($fields))) {
 				Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
 			}
 		}
 
+		dba::close($items);
+		dba::commit();
 		return $rows;
 	}
 
@@ -93,6 +103,32 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Delete an item for an user and notify others about it - if it was ours
+	 *
+	 * @param array $condition The condition for finding the item entries
+	 * @param integer $uid User who wants to delete this item
+	 */
+	public static function deleteForUser($condition, $uid)
+	{
+		if ($uid == 0) {
+			return;
+		}
+
+		$items = dba::select('item', ['id', 'uid'], $condition);
+		while ($item = dba::fetch($items)) {
+			// "Deleting" global items just means hiding them
+			if ($item['uid'] == 0) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
+			} elseif ($item['uid'] == $uid) {
+				self::deleteById($item['id'], PRIORITY_HIGH);
+			} else {
+				logger('Wrong ownership. Not deleting item ' . $item['id']);
+			}
+		}
+		dba::close($items);
+	}
+
+	/**
 	 * @brief Delete an item and notify others about it - if it was ours
 	 *
 	 * @param integer $item_id Item ID that should be delete
@@ -100,18 +136,20 @@ class Item extends BaseObject
 	 *
 	 * @return boolean success
 	 */
-	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
+	private static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
-		$fields = ['id', 'uid', 'parent', 'parent-uri', 'origin', 'deleted',
-			'file', 'resource-id', 'event-id', 'attach',
+		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
+			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id'];
 		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
+			logger('Item with ID ' . $item_id . " hasn't been found.", LOGGER_DEBUG);
 			return false;
 		}
 
 		if ($item['deleted']) {
+			logger('Item with ID ' . $item_id . ' has already been deleted.', LOGGER_DEBUG);
 			return false;
 		}
 
@@ -119,8 +157,6 @@ class Item extends BaseObject
 		if (!DBM::is_result($parent)) {
 			$parent = ['origin' => false];
 		}
-
-		logger('delete item: ' . $item['id'], LOGGER_DEBUG);
 
 		// clean up categories and tags so they don't end up as orphans
 
@@ -174,15 +210,33 @@ class Item extends BaseObject
 		Term::insertFromFileFieldByItemId($item['id']);
 		self::deleteThread($item['id'], $item['parent-uri']);
 
-		// If it's the parent of a comment thread, kill all the kids
-		if ($item['id'] == $item['parent']) {
-			self::delete(['parent' => $item['parent']], $priority);
+		if (!dba::exists('item', ["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
+			self::delete(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
-		// send the notification upstream/downstream
-		if ($item['origin'] || $parent['origin']) {
-			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+		// If it's the parent of a comment thread, kill all the kids
+		if ($item['id'] == $item['parent']) {
+			self::delete(['parent' => $item['parent'], 'deleted' => false], $priority);
 		}
+
+		// Is it our comment and/or our thread?
+		if ($item['origin'] || $parent['origin']) {
+
+			// When we delete the original post we will delete all existing copies on the server as well
+			self::delete(['uri' => $item['uri'], 'deleted' => false], $priority);
+
+			// send the notification upstream/downstream
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+		} elseif ($item['uid'] != 0) {
+
+			// When we delete just our local user copy of an item, we have to set a marker to hide it
+			$global_item = dba::selectFirst('item', ['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
+			if (DBM::is_result($global_item)) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
+			}
+		}
+
+		logger('Item with ID ' . $item_id . " has been deleted.", LOGGER_DEBUG);
 
 		return true;
 	}
@@ -324,6 +378,12 @@ class Item extends BaseObject
 			$item['origin'] = 1;
 			$item['network'] = NETWORK_DFRN;
 			$item['protocol'] = PROTOCOL_DFRN;
+
+			if (is_int($notify)) {
+				$priority = $notify;
+			} else {
+				$priority = PRIORITY_HIGH;
+			}
 		} else {
 			$item['network'] = trim(defaults($item, 'network', NETWORK_PHANTOM));
 		}
@@ -344,6 +404,13 @@ class Item extends BaseObject
 			$encoded_signature = $item['dsprsig'];
 			$dsprsig = json_decode(base64_decode($item['dsprsig']));
 			unset($item['dsprsig']);
+		}
+
+		if (!empty($item['diaspora_signed_text'])) {
+			$diaspora_signed_text = $item['diaspora_signed_text'];
+			unset($item['diaspora_signed_text']);
+		} else {
+			$diaspora_signed_text = '';
 		}
 
 		// Converting the plink
@@ -479,14 +546,20 @@ class Item extends BaseObject
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
 
-		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"]));
+		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
+			'photo' => $item['author-avatar'], 'network' => $item['network']];
+
+		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"], 0, false, $default));
 
 		if (Contact::isBlocked($item["author-id"])) {
 			logger('Contact '.$item["author-id"].' is blocked, item '.$item["uri"].' will not be stored');
 			return 0;
 		}
 
-		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"]));
+		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
+			'photo' => $item['owner-avatar'], 'network' => $item['network']];
+
+		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"], 0, false, $default));
 
 		if (Contact::isBlocked($item["owner-id"])) {
 			logger('Contact '.$item["owner-id"].' is blocked, item '.$item["uri"].' will not be stored');
@@ -538,7 +611,7 @@ class Item extends BaseObject
 
 			$fields = ['uri', 'parent-uri', 'id', 'deleted',
 				'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-				'wall', 'private', 'forum_mode'];
+				'wall', 'private', 'forum_mode', 'origin'];
 			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
 			$params = ['order' => ['id' => false]];
 			$parent = dba::selectFirst('item', $fields, $condition, $params);
@@ -790,6 +863,12 @@ class Item extends BaseObject
 						'signature' => $dsprsig->signature, 'signer' => $dsprsig->signer]);
 		}
 
+		if (!empty($diaspora_signed_text)) {
+			// Formerly we stored the signed text, the signature and the author in different fields.
+			// We now store the raw data so that we are more flexible.
+			dba::insert('sign', ['iid' => $current_post, 'signed_text' => $diaspora_signed_text]);
+		}
+
 		$deleted = self::tagDeliver($item['uid'], $current_post);
 
 		/*
@@ -833,7 +912,9 @@ class Item extends BaseObject
 		check_user_notification($current_post);
 
 		if ($notify) {
-			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
+		} elseif (!empty($parent) && $parent['origin']) {
+			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", "comment-import", $current_post);
 		}
 
 		return $current_post;
@@ -842,9 +923,10 @@ class Item extends BaseObject
 	/**
 	 * @brief Distributes public items to the receivers
 	 *
-	 * @param integer $itemid Item ID that should be added
+	 * @param integer $itemid      Item ID that should be added
+	 * @param string  $signed_text Original text (for Diaspora signatures), JSON encoded.
 	 */
-	public static function distribute($itemid)
+	public static function distribute($itemid, $signed_text = '')
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
 		$parent = dba::selectFirst('item', ['owner-id'], $condition);
@@ -879,14 +961,22 @@ class Item extends BaseObject
 			$users[$contact['uid']] = $contact['uid'];
 		}
 
+		$origin_uid = 0;
+
 		if ($item['uri'] != $item['parent-uri']) {
-			$parents = dba::select('item', ['uid'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+			$parents = dba::select('item', ['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
 			while ($parent = dba::fetch($parents)) {
 				$users[$parent['uid']] = $parent['uid'];
+				if ($parent['origin'] && !$item['origin']) {
+					$origin_uid = $parent['uid'];
+				}
 			}
 		}
 
 		foreach ($users as $uid) {
+			if ($origin_uid == $uid) {
+				$item['diaspora_signed_text'] = $signed_text;
+			}
 			self::storeForUser($itemid, $item, $uid);
 		}
 	}
@@ -1192,7 +1282,7 @@ class Item extends BaseObject
 		}
 	}
 
-	private static function setHashtags(&$item)
+	public static function setHashtags(&$item)
 	{
 
 		$tags = get_tags($item["body"]);
@@ -2007,7 +2097,7 @@ EOT;
 	{
 		$fields = ['uid', 'guid', 'title', 'body', 'created', 'edited', 'commented', 'received', 'changed',
 			'wall', 'private', 'pubmail', 'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
-			'deleted', 'origin', 'forum_mode', 'network', 'rendered-html', 'rendered-hash'];
+			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id', 'rendered-html', 'rendered-hash'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
 		$item = dba::selectFirst('item', $fields, $condition);
@@ -2031,7 +2121,7 @@ EOT;
 
 		$result = dba::update('thread', $fields, ['iid' => $itemid]);
 
-		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result." ".print_r($item, true), LOGGER_DEBUG);
+		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result, LOGGER_DEBUG);
 
 		// Updating a shadow item entry
 		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);

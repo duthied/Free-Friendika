@@ -90,7 +90,8 @@ class Login extends BaseModule
 
 		// Otherwise it's probably an openid.
 		try {
-			$openid = new LightOpenID;
+			$a = get_app();
+			$openid = new LightOpenID($a->get_hostname());
 			$openid->identity = $openid_url;
 			$_SESSION['openid'] = $openid_url;
 			$_SESSION['remember'] = $remember;

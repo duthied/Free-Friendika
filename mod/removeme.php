@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\User;
+use Friendica\Database\DBM;
 
 require_once 'include/enotify.php';
 
@@ -33,11 +34,12 @@ function removeme_post(App $a)
 
 	// send notification to admins so that they can clean um the backups
 	// send email to admins
-	$admin_mail_list = "'" . implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email'])))) . "'";
-	$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
-		$admin_mail_list
-	);
-	foreach ($adminlist as $admin) {
+	$admin_mails = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	foreach ($admin_mails as $mail) {
+		$admin = dba::selectFirst('user', ['uid', 'language', 'email'], ['email' => $mail]);
+		if (!DBM::is_result($admin)) {
+			continue;
+		}
 		notification([
 			'type'         => SYSTEM_EMAIL,
 			'subject'      => L10n::t('[Friendica System Notify]') . ' ' . L10n::t('User deleted their account'),

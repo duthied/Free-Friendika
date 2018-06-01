@@ -50,9 +50,9 @@ require_once "include/text.php";
 class DFRN
 {
 
-	const DFRN_TOP_LEVEL = 0;	// Top level posting
-	const DFRN_REPLY = 1;		// Regular reply that is stored locally
-	const DFRN_REPLY_RC = 2;	// Reply that will be relayed
+	const TOP_LEVEL = 0;	// Top level posting
+	const REPLY = 1;		// Regular reply that is stored locally
+	const REPLY_RC = 2;	// Reply that will be relayed
 
 	/**
 	 * @brief Generates the atom entries for delivery.php
@@ -2146,10 +2146,6 @@ class DFRN
 			Item::update($fields, $condition);
 
 			$changed = true;
-
-			if ($entrytype == DFRN_REPLY_RC) {
-				Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $current["id"]);
-			}
 		}
 		return $changed;
 	}
@@ -2217,12 +2213,12 @@ class DFRN
 			}
 
 			if ($is_a_remote_action) {
-				return DFRN_REPLY_RC;
+				return DFRN::REPLY_RC;
 			} else {
-				return DFRN_REPLY;
+				return DFRN::REPLY;
 			}
 		} else {
-			return DFRN_TOP_LEVEL;
+			return DFRN::TOP_LEVEL;
 		}
 	}
 
@@ -2296,7 +2292,7 @@ class DFRN
 	{
 		logger("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype, LOGGER_DEBUG);
 
-		if (($entrytype == DFRN_TOP_LEVEL)) {
+		if (($entrytype == DFRN::TOP_LEVEL)) {
 			// The filling of the the "contact" variable is done for legcy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
 			$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($importer["id"]));
@@ -2640,7 +2636,7 @@ class DFRN
 		$entrytype = self::getEntryType($importer, $item);
 
 		// Now assign the rest of the values that depend on the type of the message
-		if (in_array($entrytype, [DFRN_REPLY, DFRN_REPLY_RC])) {
+		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
 			if (!isset($item["object-type"])) {
 				$item["object-type"] = ACTIVITY_OBJ_COMMENT;
 			}
@@ -2662,10 +2658,10 @@ class DFRN
 			}
 		}
 
-		if ($entrytype == DFRN_REPLY_RC) {
+		if ($entrytype == DFRN::REPLY_RC) {
 			$item["type"] = "remote-comment";
 			$item["wall"] = 1;
-		} elseif ($entrytype == DFRN_TOP_LEVEL) {
+		} elseif ($entrytype == DFRN::TOP_LEVEL) {
 			if (!isset($item["object-type"])) {
 				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 			}
@@ -2714,7 +2710,7 @@ class DFRN
 			return;
 		}
 
-		if (in_array($entrytype, [DFRN_REPLY, DFRN_REPLY_RC])) {
+		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
 			$posted_id = Item::insert($item);
 			$parent = 0;
 
@@ -2725,26 +2721,9 @@ class DFRN
 					Item::distribute($posted_id);
 				}
 
-				$item["id"] = $posted_id;
-
-				$r = q(
-					"SELECT `parent`, `parent-uri` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-					intval($posted_id),
-					intval($importer["importer_uid"])
-				);
-				if (DBM::is_result($r)) {
-					$parent = $r[0]["parent"];
-					$parent_uri = $r[0]["parent-uri"];
-				}
-
-				if ($posted_id && $parent && ($entrytype == DFRN_REPLY_RC)) {
-					logger("Notifying followers about comment ".$posted_id, LOGGER_DEBUG);
-					Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $posted_id);
-				}
-
 				return true;
 			}
-		} else { // $entrytype == DFRN_TOP_LEVEL
+		} else { // $entrytype == DFRN::TOP_LEVEL
 			if (($importer["uid"] == 0) && ($importer["importer_uid"] != 0)) {
 				logger("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", LOGGER_DEBUG);
 				return;
@@ -2835,23 +2814,13 @@ class DFRN
 			}
 		}
 
-		$entrytype = self::getEntryType($importer, $item);
-
-		if (!$item["deleted"]) {
-			logger('deleting item '.$item["id"].' uri='.$uri, LOGGER_DEBUG);
-		} else {
+		if ($item["deleted"]) {
 			return;
 		}
 
-		Item::deleteById($item["id"]);
+		logger('deleting item '.$item['id'].' uri='.$uri, LOGGER_DEBUG);
 
-		if ($entrytype != DFRN_TOP_LEVEL) {
-			// if this is a relayed delete, propagate it to other recipients
-			if ($entrytype == DFRN_REPLY_RC) {
-				logger("Notifying followers about deletion of post " . $item["id"], LOGGER_DEBUG);
-				Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
-			}
-		}
+		Item::delete(['id' => $item['id']]);
 	}
 
 	/**

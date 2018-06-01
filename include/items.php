@@ -29,7 +29,7 @@ function add_page_info_data($data, $no_photos = false) {
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
 	if (($data["type"] == "rich") && is_string($data["title"]) &&
-		is_string($data["text"]) && (sizeof($data["images"]) > 0)) {
+		is_string($data["text"]) && !empty($data["images"])) {
 		$data["type"] = "link";
 	}
 
@@ -63,7 +63,7 @@ function add_page_info_data($data, $no_photos = false) {
 		$text .= " title='".$data["title"]."'";
 	}
 
-	if (sizeof($data["images"]) > 0) {
+	if (!empty($data["images"])) {
 		$preview = str_replace(["[", "]"], ["&#91;", "&#93;"], htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
 		// if the preview picture is larger than 500 pixels then show it in a larger mode
 		// But only, if the picture isn't higher than large (To prevent huge posts)
@@ -322,7 +322,7 @@ function drop_items($items) {
 
 	if (count($items)) {
 		foreach ($items as $item) {
-			$owner = Item::deleteById($item);
+			$owner = Item::deleteForUser(['id' => $item], local_user());
 			if ($owner && !$uid)
 				$uid = $owner;
 		}
@@ -394,7 +394,7 @@ function drop_item($id) {
 		}
 
 		// delete the item
-		Item::deleteById($item['id']);
+		Item::deleteForUser(['id' => $item['id']], local_user());
 
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED

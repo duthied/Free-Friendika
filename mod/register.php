@@ -12,6 +12,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\User;
+use Friendica\Module\Tos;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/enotify.php';
@@ -232,8 +233,8 @@ function register_content(App $a)
 		$profile_publish = replace_macros($publish_tpl, [
 			'$instance' => 'reg',
 			'$pubdesc' => L10n::t('Include your profile in member directory?'),
-			'$yes_selected' => ' checked="checked" ',
-			'$no_selected' => '',
+			'$yes_selected' => '',
+			'$no_selected' => ' checked="checked"',
 			'$str_yes' => L10n::t('Yes'),
 			'$str_no' => L10n::t('No'),
 		]);
@@ -251,6 +252,8 @@ function register_content(App $a)
 	Addon::callHooks('register_form', $arr);
 
 	$tpl = $arr['template'];
+
+	$tos = new Tos();
 
 	$o = replace_macros($tpl, [
 		'$oidhtml' => $oidhtml,
@@ -286,6 +289,8 @@ function register_content(App $a)
 		'$importt'   => L10n::t('Import your profile to this friendica instance'),
 		'$showtoslink' => Config::get('system', 'tosdisplay'),
 		'$tostext'   => L10n::t('Terms of Service'),
+		'$showprivstatement' => Config::get('system', 'tosprivstatement'),
+		'$privstatement' => $tos->privacy_complete,
 		'$baseurl'   => System::baseurl(),
 		'$form_security_token' => get_form_security_token("register")
 	]);

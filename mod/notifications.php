@@ -173,7 +173,6 @@ function notifications_content(App $a) {
 						'$fullname' => $it['name'],
 						'$url' => $it['url'],
 						'$hidden' => ['hidden', L10n::t('Hide this contact from others'), ($it['hidden'] == 1), ''],
-						'$activity' => ['activity', L10n::t('Post a new friend activity'), $it['post_newfriend'], L10n::t('if applicable')],
 
 						'$knowyou' => $it['knowyou'],
 						'$approve' => L10n::t('Approve'),
@@ -252,7 +251,6 @@ function notifications_content(App $a) {
 						'$gender' => $it['gender'],
 						'$lbl_gender' => L10n::t('Gender:'),
 						'$hidden' => ['hidden', L10n::t('Hide this contact from others'), ($it['hidden'] == 1), ''],
-						'$activity' => ['activity', L10n::t('Post a new friend activity'), $it['post_newfriend'], L10n::t('if applicable')],
 						'$url' => $it['url'],
 						'$zrl' => $it['zrl'],
 						'$lbl_url' => L10n::t('Profile URL'),

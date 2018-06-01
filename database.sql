@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2018-05-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1260
+-- Friendica 2018.08-dev (The Tazmans Flax-lily)
+-- DB_UPDATE_VERSION 1267
 -- ------------------------------------------
 
 
@@ -855,10 +855,13 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
 	`callback_url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`topic` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`nickname` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`push` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`last_update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`push` tinyint NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
+	`last_update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last successful trial',
+	`next_try` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Next retrial date',
+	`renewed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last subscription renewal',
 	`secret` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `next_try` (`next_try`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
@@ -1074,6 +1077,16 @@ CREATE TABLE IF NOT EXISTS `userd` (
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 --
+-- TABLE user-item
+--
+CREATE TABLE IF NOT EXISTS `user-item` (
+	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item id',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Hidden marker',
+	 PRIMARY KEY(`uid`,`iid`)
+) DEFAULT COLLATE utf8mb4_general_ci;
+
+--
 -- TABLE workerqueue
 --
 CREATE TABLE IF NOT EXISTS `workerqueue` (
@@ -1088,7 +1101,7 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `pid` (`pid`),
 	 INDEX `parameter` (`parameter`(64)),
 	 INDEX `priority_created` (`priority`,`created`),
-	 INDEX `executed` (`executed`)
+	 INDEX `done_executed` (`done`,`executed`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
 
