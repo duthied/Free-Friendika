@@ -1686,4 +1686,49 @@ class Contact extends BaseObject
 
 		$contact_ids = $return;
 	}
+
+	/**
+	 * @brief Returns a magic link to authenticate remote visitors
+	 *
+	 * @param string $contact_url The address of the target contact profile
+	 * @param integer $url An url that we will be redirected to after the authentication
+	 *
+	 * @return string with "redir" link
+	 */
+	public static function magicLink($contact_url, $url = '')
+	{
+		$cid = self::getIdForURL($contact_url);
+		if (empty($cid)) {
+			return ($url != '') ? $url : $contact_url;
+		}
+
+		return self::magicLinkbyId($cid, $url);
+	}
+
+	/**
+	 * @brief Returns a magic link to authenticate remote visitors
+	 *
+	 * @param integer $cid The contact id of the target contact profile
+	 * @param integer $url An url that we will be redirected to after the authentication
+	 *
+	 * @return string with "redir" link
+	 */
+	public static function magicLinkbyId($cid, $url = '')
+	{
+		// Direkt auf die URL verweisen, wenn die Host-Angaben unterschiedlich sind
+
+		$contact = dba::selectFirst('contact', ['network', 'url'], ['id' => $cid]);
+
+		if ($contact['network'] != NETWORK_DFRN) {
+			return ($url != '') ? $url : $contact['url'];
+		}
+
+		$redirect = 'redir/' . $cid;
+
+		if ($url != '') {
+			$redirect .= '?url=' . $url;
+		}
+
+		return $redirect;
+        }
 }

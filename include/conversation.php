@@ -350,16 +350,7 @@ function localize_item(&$item) {
 	}
 
 	// add sparkle links to appropriate permalinks
-
-	$x = stristr($item['plink'],'/display/');
-	if ($x) {
-		$sparkle = false;
-		$y = best_link_url($item, $sparkle);
-
-		if (strstr($y, '/redir/')) {
-			$item['plink'] = $y . '?f=&url=' . $item['plink'];
-		}
-	}
+	$item['plink'] = Contact::magicLink($item['author-link'], $item['plink']);
 }
 
 /**
@@ -678,16 +669,10 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 				$tags = \Friendica\Model\Term::populateTagsFromItem($item);
 
-				$sp = false;
-				$profile_link = best_link_url($item, $sp);
-				if ($profile_link === 'mailbox') {
-					$profile_link = '';
-				}
+				$profile_link = Contact::magicLink($item['author-link']);
 
-				if ($sp) {
+				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
-				} else {
-					$profile_link = Profile::zrl($profile_link);
 				}
 
 				if (!x($item, 'author-thumb') || ($item['author-thumb'] == "")) {
@@ -982,11 +967,8 @@ function item_photo_menu($item) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
-	$sparkle = false;
-	$profile_link = best_link_url($item, $sparkle);
-	if ($profile_link === 'mailbox') {
-		$profile_link = '';
-	}
+	$profile_link = Contact::magicLink($item['author-link']);
+	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
 	$network = '';
@@ -1092,12 +1074,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 		}
 
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
-			$url = $item['author-link'];
-			if (local_user() && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && !$item['self'] && link_compare($item['author-link'], $item['url'])) {
-				$url = 'redir/' . $item['contact-id'];
+			$url = Contact::MagicLink($item['author-link']);
+			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
-			} else {
-				$url = Profile::zrl($url);
 			}
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';

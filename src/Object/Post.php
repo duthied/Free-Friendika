@@ -205,16 +205,9 @@ class Post extends BaseObject
 			$profile_name = $item['author-link'];
 		}
 
-		$sp = false;
-		$profile_link = best_link_url($item, $sp);
-		if ($profile_link === 'mailbox') {
-			$profile_link = '';
-		}
-
-		if ($sp) {
+		$profile_link = Contact::magicLink($item['author-link']);
+		if (strpos($profile_link, 'redir/') === 0) {
 			$sparkle = ' sparkle';
-		} else {
-			$profile_link = Profile::zrl($profile_link);
 		}
 
 		if (($item['network'] == NETWORK_FEED) || empty($item['author-thumb'])) {
