@@ -169,7 +169,7 @@ function videos_post(App $a) {
 			);
 
 			if (DBM::is_result($i)) {
-				Item::deleteById($i[0]['id']);
+				Item::deleteForUser(['id' => $i[0]['id']], local_user());
 			}
 		}
 

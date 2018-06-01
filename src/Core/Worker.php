@@ -999,6 +999,7 @@ class Worker
 	}
 
 	/**
+	 * @brief Spawns a new worker
 	 * @return void
 	 */
 	public static function spawnWorker()

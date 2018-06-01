@@ -661,6 +661,11 @@ function item_post(App $a) {
 		$datarray['edit'] = true;
 	}
 
+	// Check for hashtags in the body and repair or add hashtag links
+	if ($preview || $orig_post) {
+		Item::setHashtags($datarray);
+	}
+
 	// preview mode - prepare the body for display and send it via json
 	if ($preview) {
 		require_once 'include/conversation.php';
@@ -872,7 +877,7 @@ function item_content(App $a) {
 	$o = '';
 	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
 		if (is_ajax()) {
-			$o = Item::deleteById($a->argv[2]);
+			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
 			$o = drop_item($a->argv[2]);
 		}

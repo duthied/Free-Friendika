@@ -920,7 +920,7 @@ class Diaspora
 			// Note that Friendica contacts will return a "Diaspora person"
 			// if Diaspora connectivity is enabled on their server
 			if ($r && ($r["network"] === NETWORK_DIASPORA)) {
-				self::addFContact($r, $update);
+				self::updateFContact($r);
 
 				// Fetch the updated or added contact
 				$person = dba::selectFirst('fcontact', [], ['network' => NETWORK_DIASPORA, 'addr' => $handle]);
@@ -936,70 +936,21 @@ class Diaspora
 	/**
 	 * @brief Updates the fcontact table
 	 *
-	 * @param array $arr    The fcontact data
-	 * @param bool  $update Update or insert?
-	 *
-	 * @return string The id of the fcontact entry
+	 * @param array $arr The fcontact data
 	 */
-	private static function addFContact($arr, $update = false)
+	private static function updateFContact($arr)
 	{
-		if ($update) {
-			$r = q(
-				"UPDATE `fcontact` SET
-					`name` = '%s',
-					`photo` = '%s',
-					`request` = '%s',
-					`nick` = '%s',
-					`addr` = '%s',
-					`guid` = '%s',
-					`batch` = '%s',
-					`notify` = '%s',
-					`poll` = '%s',
-					`confirm` = '%s',
-					`alias` = '%s',
-					`pubkey` = '%s',
-					`updated` = '%s'
-				WHERE `url` = '%s' AND `network` = '%s'",
-				dbesc($arr["name"]),
-				dbesc($arr["photo"]),
-				dbesc($arr["request"]),
-				dbesc($arr["nick"]),
-				dbesc(strtolower($arr["addr"])),
-				dbesc($arr["guid"]),
-				dbesc($arr["batch"]),
-				dbesc($arr["notify"]),
-				dbesc($arr["poll"]),
-				dbesc($arr["confirm"]),
-				dbesc($arr["alias"]),
-				dbesc($arr["pubkey"]),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc($arr["url"]),
-				dbesc($arr["network"])
-			);
-		} else {
-			$r = q(
-				"INSERT INTO `fcontact` (`url`,`name`,`photo`,`request`,`nick`,`addr`, `guid`,
-					`batch`, `notify`,`poll`,`confirm`,`network`,`alias`,`pubkey`,`updated`)
-				VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
-				dbesc($arr["url"]),
-				dbesc($arr["name"]),
-				dbesc($arr["photo"]),
-				dbesc($arr["request"]),
-				dbesc($arr["nick"]),
-				dbesc($arr["addr"]),
-				dbesc($arr["guid"]),
-				dbesc($arr["batch"]),
-				dbesc($arr["notify"]),
-				dbesc($arr["poll"]),
-				dbesc($arr["confirm"]),
-				dbesc($arr["network"]),
-				dbesc($arr["alias"]),
-				dbesc($arr["pubkey"]),
-				dbesc(DateTimeFormat::utcNow())
-			);
-		}
+		$fields = ['name' => $arr["name"], 'photo' => $arr["photo"],
+			'request' => $arr["request"], 'nick' => $arr["nick"],
+			'addr' => strtolower($arr["addr"]), 'guid' => $arr["guid"],
+			'batch' => $arr["batch"], 'notify' => $arr["notify"],
+			'poll' => $arr["poll"], 'confirm' => $arr["confirm"],
+			'alias' => $arr["alias"], 'pubkey' => $arr["pubkey"],
+			'updated' => DateTimeFormat::utcNow()];
 
-		return $r;
+		$condition = ['url' => $arr["url"], 'network' => $arr["network"]];
+
+		dba::update('fcontact', $fields, $condition, true);
 	}
 
 	/**
@@ -1796,6 +1747,12 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 
+		// If we are the origin of the parent we store the original data.
+		// We notify our followers during the item storage.
+		if ($parent_item["origin"]) {
+			$datarray['diaspora_signed_text'] = json_encode($data);
+		}
+
 		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
@@ -1805,18 +1762,8 @@ class Diaspora
 		if ($message_id) {
 			logger("Stored comment ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 			if ($datarray['uid'] == 0) {
-				Item::distribute($message_id);
+				Item::distribute($message_id, json_encode($data));
 			}
-		}
-
-		// If we are the origin of the parent we store the original data and notify our followers
-		if ($message_id && $parent_item["origin"]) {
-			// Formerly we stored the signed text, the signature and the author in different fields.
-			// We now store the raw data so that we are more flexible.
-			dba::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($data)]);
-
-			// notify others
-			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
 		}
 
 		return true;
@@ -2120,6 +2067,20 @@ class Diaspora
 
 		$datarray["body"] = self::constructLikeBody($contact, $parent_item, $guid);
 
+		// like on comments have the comment as parent. So we need to fetch the toplevel parent
+		if ($parent_item["id"] != $parent_item["parent"]) {
+			$toplevel = dba::selectFirst('item', ['origin'], ['id' => $parent_item["parent"]]);
+			$origin = $toplevel["origin"];
+		} else {
+			$origin = $parent_item["origin"];
+		}
+
+		// If we are the origin of the parent we store the original data.
+		// We notify our followers during the item storage.
+		if ($origin) {
+			$datarray['diaspora_signed_text'] = json_encode($data);
+		}
+
 		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
@@ -2129,26 +2090,8 @@ class Diaspora
 		if ($message_id) {
 			logger("Stored like ".$datarray["guid"]." with message id ".$message_id, LOGGER_DEBUG);
 			if ($datarray['uid'] == 0) {
-				Item::distribute($message_id);
+				Item::distribute($message_id, json_encode($data));
 			}
-		}
-
-		// like on comments have the comment as parent. So we need to fetch the toplevel parent
-		if ($parent_item["id"] != $parent_item["parent"]) {
-			$toplevel = dba::selectFirst('item', ['origin'], ['id' => $parent_item["parent"]]);
-			$origin = $toplevel["origin"];
-		} else {
-			$origin = $parent_item["origin"];
-		}
-
-		// If we are the origin of the parent we store the original data and notify our followers
-		if ($message_id && $origin) {
-			// Formerly we stored the signed text, the signature and the author in different fields.
-			// We now store the raw data so that we are more flexible.
-			dba::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($data)]);
-
-			// notify others
-			Worker::add(PRIORITY_HIGH, "Notifier", "comment-import", $message_id);
 		}
 
 		return true;
@@ -2398,21 +2341,17 @@ class Diaspora
 			$birthday = $contact["bd"];
 		}
 
-		$r = q(
-			"UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `name-date` = '%s', `bd` = '%s',
-				`location` = '%s', `about` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `id` = %d AND `uid` = %d",
-			dbesc($name),
-			dbesc($nick),
-			dbesc($author),
-			dbesc(DateTimeFormat::utcNow()),
-			dbesc($birthday),
-			dbesc($location),
-			dbesc($about),
-			dbesc($keywords),
-			dbesc($gender),
-			intval($contact["id"]),
-			intval($importer["uid"])
-		);
+		$fields = ['name' => $name, 'location' => $location,
+			'name-date' => DateTimeFormat::utcNow(),
+			'about' => $about, 'gender' => $gender,
+			'addr' => $author, 'nick' => $nick,
+			'keywords' => $keywords];
+
+		if (!empty($birthday)) {
+			$fields['bd'] = $birthday;
+		}
+
+		dba::update('contact', $fields, ['id' => $contact['id']]);
 
 		$gcontact = ["url" => $contact["url"], "network" => NETWORK_DIASPORA, "generation" => 2,
 					"photo" => $image_url, "name" => $name, "location" => $location,
@@ -2447,78 +2386,6 @@ class Diaspora
 				['id' => $contact["id"], 'uid' => $importer["uid"]]
 			);
 		}
-		// send notification
-
-		$r = q(
-			"SELECT `hide-friends` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
-			intval($importer["uid"])
-		);
-
-		if ($r && !$r[0]["hide-friends"] && !$contact["hidden"] && intval(PConfig::get($importer["uid"], "system", "post_newfriend"))) {
-			$self = q(
-				"SELECT * FROM `contact` WHERE `self` AND `uid` = %d LIMIT 1",
-				intval($importer["uid"])
-			);
-
-			// they are not CONTACT_IS_FOLLOWER anymore but that's what we have in the array
-
-			if ($self && $contact["rel"] == CONTACT_IS_FOLLOWER) {
-				$arr = [];
-				$arr["protocol"] = PROTOCOL_DIASPORA;
-				$arr["uri"] = $arr["parent-uri"] = item_new_uri($a->get_hostname(), $importer["uid"]);
-				$arr["uid"] = $importer["uid"];
-				$arr["contact-id"] = $self[0]["id"];
-				$arr["wall"] = 1;
-				$arr["type"] = 'wall';
-				$arr["gravity"] = 0;
-				$arr["origin"] = 1;
-				$arr["author-name"] = $arr["owner-name"] = $self[0]["name"];
-				$arr["author-link"] = $arr["owner-link"] = $self[0]["url"];
-				$arr["author-avatar"] = $arr["owner-avatar"] = $self[0]["thumb"];
-				$arr["verb"] = ACTIVITY_FRIEND;
-				$arr["object-type"] = ACTIVITY_OBJ_PERSON;
-
-				$A = "[url=".$self[0]["url"]."]".$self[0]["name"]."[/url]";
-				$B = "[url=".$contact["url"]."]".$contact["name"]."[/url]";
-				$BPhoto = "[url=".$contact["url"]."][img]".$contact["thumb"]."[/img][/url]";
-				$arr["body"] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$BPhoto;
-
-				$arr["object"] = self::constructNewFriendObject($contact);
-
-				$user = dba::selectFirst('user', ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['uid' => $importer["uid"]]);
-
-				$arr["allow_cid"] = $user["allow_cid"];
-				$arr["allow_gid"] = $user["allow_gid"];
-				$arr["deny_cid"]  = $user["deny_cid"];
-				$arr["deny_gid"]  = $user["deny_gid"];
-
-				$i = Item::insert($arr);
-				if ($i) {
-					Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
-				}
-			}
-		}
-	}
-
-	/**
-	 * @brief Creates a XML object for a "new friend" message
-	 *
-	 * @param array $contact Array of the contact
-	 *
-	 * @return string The XML
-	 */
-	private static function constructNewFriendObject($contact)
-	{
-		$objtype = ACTIVITY_OBJ_PERSON;
-		$link = '<link rel="alternate" type="text/html" href="'.$contact["url"].'" />'."\n".
-			'<link rel="photo" type="image/jpeg" href="'.$contact["thumb"].'" />'."\n";
-
-		$xmldata = ["object" => ["type" => $objtype,
-						"title" => $contact["name"],
-						"id" => $contact["url"]."/".$contact["name"],
-						"link" => $link]];
-
-		return XML::fromArray($xmldata, $xml, true);
 	}
 
 	/**
@@ -2918,7 +2785,7 @@ class Diaspora
 
 		while ($item = dba::fetch($r)) {
 			// Fetch the parent item
-			$parent = dba::selectFirst('item', ['author-link', 'origin'], ['id' => $item["parent"]]);
+			$parent = dba::selectFirst('item', ['author-link'], ['id' => $item["parent"]]);
 
 			// Only delete it if the parent author really fits
 			if (!link_compare($parent["author-link"], $contact["url"]) && !link_compare($item["author-link"], $contact["url"])) {
@@ -2926,15 +2793,9 @@ class Diaspora
 				continue;
 			}
 
-			Item::deleteById($item["id"]);
+			Item::delete(['id' => $item['id']]);
 
 			logger("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], LOGGER_DEBUG);
-
-			// Now check if the retraction needs to be relayed by us
-			if ($parent["origin"]) {
-				// notify others
-				Worker::add(PRIORITY_HIGH, "Notifier", "drop", $item["id"]);
-			}
 		}
 
 		return true;
@@ -3568,6 +3429,10 @@ class Diaspora
 				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
 				$ret["root_guid"] = $guid;
 				return $ret;
+			} elseif ($complete) {
+				// We are resharing something that isn't a DFRN or Diaspora post.
+				// So we have to return "false" on "$complete" to not trigger a reshare.
+				return false;
 			}
 		} elseif (($guid == "") && $complete) {
 			return false;

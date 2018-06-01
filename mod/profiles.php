@@ -403,9 +403,6 @@ function profiles_post(App $a) {
 				$comma2 = (($region && $country_name) ? ', ' : '');
 				$value = $locality . $comma1 . $region . $comma2 . $country_name;
 			}
-
-			profile_activity($changes,$value);
-
 		}
 
 		$r = q("UPDATE `profile`
@@ -509,96 +506,6 @@ function profiles_post(App $a) {
 		}
 	}
 }
-
-
-function profile_activity($changed, $value) {
-	$a = get_app();
-
-	if (! local_user() || ! is_array($changed) || ! count($changed)) {
-		return;
-	}
-
-	if ($a->user['hidewall'] || Config::get('system', 'block_public')) {
-		return;
-	}
-
-	if (! PConfig::get(local_user(), 'system', 'post_profilechange')) {
-		return;
-	}
-
-	require_once 'include/items.php';
-
-	$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
-		intval(local_user())
-	);
-
-	if (! DBM::is_result($self)) {
-		return;
-	}
-
-	$arr = [];
-
-	$arr['guid'] = get_guid(32);
-	$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), local_user());
-	$arr['uid'] = local_user();
-	$arr['contact-id'] = $self[0]['id'];
-	$arr['wall'] = 1;
-	$arr['type'] = 'wall';
-	$arr['gravity'] = 0;
-	$arr['origin'] = 1;
-	$arr['author-name'] = $arr['owner-name'] = $self[0]['name'];
-	$arr['author-link'] = $arr['owner-link'] = $self[0]['url'];
-	$arr['author-avatar'] = $arr['owner-avatar'] = $self[0]['thumb'];
-	$arr['verb'] = ACTIVITY_UPDATE;
-	$arr['object-type'] = ACTIVITY_OBJ_PROFILE;
-
-	$A = '[url=' . $self[0]['url'] . ']' . $self[0]['name'] . '[/url]';
-
-
-	$changes = '';
-	$t = count($changed);
-	$z = 0;
-	foreach ($changed as $ch) {
-		if (strlen($changes)) {
-			if ($z == ($t - 1)) {
-				$changes .= L10n::t(' and ');
-			} else {
-				$changes .= ', ';
-			}
-		}
-		$z ++;
-		$changes .= $ch;
-	}
-
-	$prof = '[url=' . $self[0]['url'] . '?tab=profile' . ']' . L10n::t('public profile') . '[/url]';
-
-	if ($t == 1 && strlen($value)) {
-		$message = L10n::t('%1$s changed %2$s to &ldquo;%3$s&rdquo;', $A, $changes, $value);
-		$message .= "\n\n" . L10n::t(' - Visit %1$s\'s %2$s', $A, $prof);
-	} else {
-		$message = 	L10n::t('%1$s has an updated %2$s, changing %3$s.', $A, $prof, $changes);
-	}
-
-
-	$arr['body'] = $message;
-
-	$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PROFILE . '</type><title>' . $self[0]['name'] . '</title>'
-	. '<id>' . $self[0]['url'] . '/' . $self[0]['name'] . '</id>';
-	$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $self[0]['url'] . '?tab=profile' . '" />' . "\n");
-	$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $self[0]['thumb'] . '" />' . "\n");
-	$arr['object'] .= '</link></object>' . "\n";
-
-	$arr['allow_cid'] = $a->user['allow_cid'];
-	$arr['allow_gid'] = $a->user['allow_gid'];
-	$arr['deny_cid']  = $a->user['deny_cid'];
-	$arr['deny_gid']  = $a->user['deny_gid'];
-
-	$i = Item::insert($arr);
-	if ($i) {
-		Worker::add(PRIORITY_HIGH, "Notifier", "activity", $i);
-	}
-}
-
 
 function profiles_content(App $a) {
 

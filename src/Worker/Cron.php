@@ -58,9 +58,6 @@ Class Cron {
 		// Call possible post update functions
 		Worker::add(PRIORITY_LOW, "CronJobs", "post_update");
 
-		// update nodeinfo data
-		Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
-
 		// Clear cache entries
 		Worker::add(PRIORITY_LOW, "CronJobs", "clear_cache");
 
@@ -74,27 +71,42 @@ Class Cron {
 		$d1 = Config::get('system', 'last_expire_day');
 		$d2 = intval(DateTimeFormat::utcNow('d'));
 
+		// Daily cron calls
 		if ($d2 != intval($d1)) {
 
 			Worker::add(PRIORITY_LOW, "CronJobs", "update_contact_birthdays");
+
+			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
+
+			// update nodeinfo data
+			Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
 
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
 
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "suggestions");
 
-			Config::set('system', 'last_expire_day', $d2);
-
 			Worker::add(PRIORITY_LOW, 'Expire');
 
 			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 
-			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
-
-			// Delete all done workerqueue entries
-			dba::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR']);
-
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
+
+			Config::set('system', 'last_expire_day', $d2);
+		}
+
+		// Hourly cron calls
+		if (Config::get('system', 'last_cron_hourly', 0) + 3600 < time()) {
+
+			// Delete all done workerqueue entries
+			dba::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
+
+			// Optimizing this table only last seconds
+			if (Config::get('system', 'optimize_workerqueue', false)) {
+				dba::e("OPTIMIZE TABLE `workerqueue`");
+			}
+
+			Config::set('system', 'last_cron_hourly', time());
 		}
 
 		// Poll contacts

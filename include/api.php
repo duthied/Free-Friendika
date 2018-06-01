@@ -1663,7 +1663,7 @@ function api_search($type)
 
 	$r = dba::p(
 		"SELECT ".item_fieldlists()."
-		FROM `item` ".item_joins()."
+		FROM `item` ".item_joins(api_user())."
 		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
 		AND `item`.`body` LIKE CONCAT('%',?,'%')
 		$sql_extra
@@ -1827,7 +1827,7 @@ function api_statuses_public_timeline($type)
 			"SELECT " . item_fieldlists() . "
 			FROM `thread`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			" . item_joins() . "
+			" . item_joins(api_user()) . "
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid`
 				AND NOT `user`.`hidewall`
 			AND `verb` = ?
@@ -1856,7 +1856,7 @@ function api_statuses_public_timeline($type)
 		$r = dba::p(
 			"SELECT " . item_fieldlists() . "
 			FROM `item`
-			" . item_joins() . "
+			" . item_joins(api_user()) . "
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
 				AND NOT `user`.`hidewall`
 			AND `verb` = ?
@@ -1930,7 +1930,7 @@ function api_statuses_networkpublic_timeline($type)
 		"SELECT " . item_fieldlists() . "
 		FROM `thread`
 		STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-		" . item_joins() . "
+		" . item_joins(api_user()) . "
 		WHERE `thread`.`uid` = 0
 		AND `verb` = ?
 		AND NOT `thread`.`private`
@@ -2002,6 +2002,19 @@ function api_statuses_show($type)
 		$sql_extra .= " AND `item`.`id` = %d";
 	}
 
+	// try to fetch the item for the local user - or the public item, if there is no local one
+	$uri_item = dba::selectFirst('item', ['uri'], ['id' => $id]);
+	if (!DBM::is_result($uri_item)) {
+		throw new BadRequestException("There is no status with this id.");
+	}
+
+	$item = dba::selectFirst('item', ['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	if (!DBM::is_result($item)) {
+		throw new BadRequestException("There is no status with this id.");
+	}
+
+	$id = $item['id'];
+
 	$r = q(
 		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
@@ -2011,7 +2024,7 @@ function api_statuses_show($type)
 		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` = %d AND `item`.`verb` = '%s'
+		AND `item`.`uid` IN (0, %d) AND `item`.`verb` = '%s'
 		$sql_extra",
 		intval(api_user()),
 		dbesc(ACTIVITY_POST),
@@ -2075,21 +2088,24 @@ function api_conversation_show($type)
 
 	logger('API: api_conversation_show: '.$id);
 
-	$r = q("SELECT `parent` FROM `item` WHERE `id` = %d", intval($id));
-	if (DBM::is_result($r)) {
-		$id = $r[0]["parent"];
+	// try to fetch the item for the local user - or the public item, if there is no local one
+	$item = dba::selectFirst('item', ['parent-uri'], ['id' => $id]);
+	if (!DBM::is_result($item)) {
+		throw new BadRequestException("There is no status with this id.");
 	}
+
+	$parent = dba::selectFirst('item', ['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	if (!DBM::is_result($parent)) {
+		throw new BadRequestException("There is no status with this id.");
+	}
+
+	$id = $parent['id'];
 
 	$sql_extra = '';
 
 	if ($max_id > 0) {
 		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
 	}
-
-	// Not sure why this query was so complicated. We should keep it here for a while,
-	// just to make sure that we really don't need it.
-	//	FROM `item` INNER JOIN (SELECT `uri`,`parent` FROM `item` WHERE `id` = %d) AS `temp1`
-	//	ON (`item`.`thr-parent` = `temp1`.`uri` AND `item`.`parent` = `temp1`.`parent`)
 
 	$r = q(
 		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
@@ -2101,7 +2117,7 @@ function api_conversation_show($type)
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`parent` = %d AND `item`.`visible`
 		AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` = %d AND `item`.`verb` = '%s'
+		AND `item`.`uid` IN (0, %d) AND `item`.`verb` = '%s'
 		AND `item`.`id`>%d $sql_extra
 		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 		intval($id),
@@ -2240,7 +2256,7 @@ function api_statuses_destroy($type)
 
 	$ret = api_statuses_show($type);
 
-	Item::deleteById($id);
+	Item::deleteForUser(['id' => $id], api_user());
 
 	return $ret;
 }
@@ -4132,7 +4148,7 @@ function api_fr_photoalbum_delete($type)
 		if (!DBM::is_result($photo_item)) {
 			throw new InternalServerErrorException("problem with deleting items occured");
 		}
-		Item::deleteById($photo_item[0]['id']);
+		Item::deleteForUser(['id' => $photo_item[0]['id']], api_user());
 	}
 
 	// now let's delete all photos from the album
@@ -4424,7 +4440,7 @@ function api_fr_photo_delete($type)
 		}
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		Item::deleteById($photo_item[0]['id']);
+		Item::deleteForUser(['id' => $photo_item[0]['id']], api_user());
 
 		$answer = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
 		return api_format_data("photo_delete", $type, ['$result' => $answer]);

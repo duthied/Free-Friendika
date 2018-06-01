@@ -522,7 +522,12 @@ class PortableContact
 			}
 		}
 
-		$fields = ['updated' => $last_updated, 'last_contact' => DateTimeFormat::utcNow()];
+		$fields = ['last_contact' => DateTimeFormat::utcNow()];
+
+		if (!empty($last_updated)) {
+			$fields['updated'] = $last_updated;
+		}
+
 		dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 		if (($gcontacts[0]["generation"] == 0)) {
@@ -1415,7 +1420,7 @@ class PortableContact
 			}
 
 			foreach ($tags as $tag) {
-				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag]);
+				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag], true);
 			}
 		}
 
@@ -1424,11 +1429,19 @@ class PortableContact
 		if (isset($data->protocols)) {
 			if (isset($data->protocols->diaspora)) {
 				$fields['network'] = NETWORK_DIASPORA;
-				$fields['batch'] = $data->protocols->diaspora;
+				if (isset($data->protocols->diaspora->receive)) {
+					$fields['batch'] = $data->protocols->diaspora->receive;
+				} elseif (is_string($data->protocols->diaspora)) {
+					$fields['batch'] = $data->protocols->diaspora;
+				}
 			}
 			if (isset($data->protocols->dfrn)) {
 				$fields['network'] = NETWORK_DFRN;
-				$fields['batch'] = $data->protocols->dfrn;
+				if (isset($data->protocols->dfrn->receive)) {
+					$fields['batch'] = $data->protocols->dfrn->receive;
+				} elseif (is_string($data->protocols->dfrn)) {
+					$fields['batch'] = $data->protocols->dfrn;
+				}
 			}
 		}
 		Diaspora::setRelayContact($server_url, $fields);
@@ -1502,8 +1515,10 @@ class PortableContact
 		if ($serverdata) {
 			$servers = json_decode($serverdata);
 
-			foreach ($servers->pods as $server) {
-				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", "https://".$server->host);
+			if (is_array($servers->pods)) {
+				foreach ($servers->pods as $server) {
+					Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", "https://".$server->host);
+				}
 			}
 		}
 

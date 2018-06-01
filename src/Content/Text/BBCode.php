@@ -359,6 +359,16 @@ class BBCode extends BaseObject
 		return $naked_text;
 	}
 
+	private static function proxyUrl($image, $simplehtml = false)
+	{
+		// Only send proxied pictures to API and for internal display
+		if (in_array($simplehtml, [false, 2])) {
+			return proxy_url($image);
+		} else {
+			return $image;
+		}
+	}
+
 	public static function scaleExternalImages($srctext, $include_link = true, $scale_replace = false)
 	{
 		// Suppress "view full size"
@@ -562,13 +572,13 @@ class BBCode extends BaseObject
 				}
 
 				if ($data["image"] != "") {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], proxy_url($data["image"]), $data["title"]);
+					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
 				} elseif ($data["preview"] != "") {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], proxy_url($data["preview"]), $data["title"]);
+					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
 				}
 
 				if (($data["type"] == "photo") && ($data["url"] != "") && ($data["image"] != "")) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], proxy_url($data["image"]), $data["title"]);
+					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
 				} else {
 					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 				}
@@ -839,7 +849,7 @@ class BBCode extends BaseObject
 			// it loops over the array starting from the first element and going sequentially
 			// to the last element
 			$newbody = str_replace('[$#saved_image' . $cnt . '#$]',
-				'<img src="' . proxy_url($image) . '" alt="' . L10n::t('Image/photo') . '" />', $newbody);
+				'<img src="' . self::proxyUrl($image) . '" alt="' . L10n::t('Image/photo') . '" />', $newbody);
 			$cnt++;
 		}
 
@@ -1571,12 +1581,12 @@ class BBCode extends BaseObject
 		// [img=widthxheight]image source[/img]
 		$text = preg_replace_callback(
 			"/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism",
-			function ($matches) {
+			function ($matches) use ($simple_html) {
 				if (strpos($matches[3], "data:image/") === 0) {
 					return $matches[0];
 				}
 
-				$matches[3] = proxy_url($matches[3]);
+				$matches[3] = self::proxyUrl($matches[3], $simple_html);
 				return "[img=" . $matches[1] . "x" . $matches[2] . "]" . $matches[3] . "[/img]";
 			},
 			$text
@@ -1586,8 +1596,8 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
 
 		$text = preg_replace_callback("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism",
-			function ($matches) {
-				$matches[1] = proxy_url($matches[1]);
+			function ($matches) use ($simple_html) {
+				$matches[1] = self::proxyUrl($matches[1], $simple_html);
 				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
 				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '">';
 			},
@@ -1597,12 +1607,12 @@ class BBCode extends BaseObject
 		// [img]pathtoimage[/img]
 		$text = preg_replace_callback(
 			"/\[img\](.*?)\[\/img\]/ism",
-			function ($matches) {
+			function ($matches) use ($simple_html) {
 				if (strpos($matches[1], "data:image/") === 0) {
 					return $matches[0];
 				}
 
-				$matches[1] = proxy_url($matches[1]);
+				$matches[1] = self::proxyUrl($matches[1], $simple_html);
 				return "[img]" . $matches[1] . "[/img]";
 			},
 			$text

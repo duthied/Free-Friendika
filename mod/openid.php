@@ -19,7 +19,7 @@ function openid_content(App $a) {
 
 	if((x($_GET,'openid_mode')) && (x($_SESSION,'openid'))) {
 
-		$openid = new LightOpenID;
+		$openid = new LightOpenID($a->get_hostname());
 
 		if($openid->validate()) {
 

@@ -20,6 +20,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\Login;
+use Friendica\Module\Tos;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
@@ -296,12 +297,15 @@ function admin_content(App $a)
  */
 function admin_page_tos(App $a)
 {
+	$tos = new Tos();
 	$t = get_markup_template('admin/tos.tpl');
 	return replace_macros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Terms of Service'),
 		'$displaytos' => ['displaytos', L10n::t('Display Terms of Service'), Config::get('system', 'tosdisplay'), L10n::t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
 		'$displayprivstatement' => ['displayprivstatement', L10n::t('Display Privacy Statement'), Config::get('system','tosprivstatement'), L10n::t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.','https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
+		'$preview' => L10n::t('Privacy Statement Preview'),
+		'$privtext' => $tos->privacy_complete,
 		'$tostext' => ['tostext', L10n::t('The Terms of Service'), Config::get('system', 'tostext'), L10n::t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
 		'$form_security_token' => get_form_security_token("admin_tos"),
 		'$submit' => L10n::t('Save Settings'),
@@ -551,14 +555,9 @@ function admin_page_deleteitem_post(App $a)
 		if (strpos($guid, '/')) {
 			$guid = substr($guid, strrpos($guid, '/') + 1);
 		}
-		// Now that we have the GUID get all IDs of the associated entries in the
-		// item table of the DB and drop those items, which will also delete the
+		// Now that we have the GUID, drop those items, which will also delete the
 		// associated threads.
-		$r = dba::select('item', ['id'], ['guid' => $guid]);
-		while ($row = dba::fetch($r)) {
-			Item::deleteById($row['id']);
-		}
-		dba::close($r);
+		Item::delete(['guid' => $guid]);
 	}
 
 	info(L10n::t('Item marked for deletion.') . EOL);
@@ -1345,14 +1344,10 @@ function admin_page_site(App $a)
 	}
 	$diaspora_able = ($a->get_path() == "");
 
-	$optimize_max_tablesize = Config::get('system', 'optimize_max_tablesize', 100);
+	$optimize_max_tablesize = Config::get('system', 'optimize_max_tablesize', -1);
 
-	if ($optimize_max_tablesize < -1) {
+	if ($optimize_max_tablesize <= 0) {
 		$optimize_max_tablesize = -1;
-	}
-
-	if ($optimize_max_tablesize == 0) {
-		$optimize_max_tablesize = 100;
 	}
 
 	$t = get_markup_template('admin/site.tpl');
@@ -1399,7 +1394,7 @@ function admin_page_site(App $a)
 		'$no_oembed_rich_content' => ['no_oembed_rich_content', L10n::t("No OEmbed rich content"), Config::get('system','no_oembed_rich_content'), L10n::t("Don't show the rich content \x28e.g. embedded PDF\x29, except from the domains listed below.")],
 		'$allowed_oembed'	=> ['allowed_oembed', L10n::t("Allowed OEmbed domains"), Config::get('system','allowed_oembed'), L10n::t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")],
 		'$block_public'		=> ['block_public', L10n::t("Block public"), Config::get('system','block_public'), L10n::t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")],
-		'$force_publish'	=> ['publish_all', L10n::t("Force publish"), Config::get('system','publish_all'), L10n::t("Check to force all profiles on this site to be listed in the site directory.")],
+		'$force_publish'	=> ['publish_all', L10n::t("Force publish"), Config::get('system','publish_all'), L10n::t("Check to force all profiles on this site to be listed in the site directory.") . '<strong>' . L10n::t('Enabling this may violate privacy laws like the GDPR') . '</strong>'],
 		'$global_directory'	=> ['directory', L10n::t("Global directory URL"), Config::get('system', 'directory', 'https://dir.friendica.social'), L10n::t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")],
 		'$newuser_private'	=> ['newuser_private', L10n::t("Private posts by default for new users"), Config::get('system','newuser_private'), L10n::t("Set default post permissions for all new members to the default privacy group rather than public.")],
 		'$enotify_no_content'	=> ['enotify_no_content', L10n::t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), L10n::t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")],
@@ -1425,7 +1420,7 @@ function admin_page_site(App $a)
 		'$maxloadavg'		=> ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
 		'$maxloadavg_frontend'	=> ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), Config::get('system', 'maxloadavg_frontend', 50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
 		'$min_memory'		=> ['min_memory', L10n::t("Minimal Memory"), Config::get('system', 'min_memory', 0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
-		'$optimize_max_tablesize'=> ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization - default 100 MB. Enter -1 to disable it.")],
+		'$optimize_max_tablesize'=> ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization. Enter -1 to disable it.")],
 		'$optimize_fragmentation'=> ['optimize_fragmentation', L10n::t("Minimum level of fragmentation"), Config::get('system', 'optimize_fragmentation', 30), L10n::t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")],
 
 		'$poco_completion'	=> ['poco_completion', L10n::t("Periodical check of global contacts"), Config::get('system','poco_completion'), L10n::t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
@@ -1446,7 +1441,7 @@ function admin_page_site(App $a)
 		'$max_comments' 	=> ['max_comments', L10n::t("Maximum numbers of comments per post"), Config::get('system','max_comments'), L10n::t("How much comments should be shown for each post? Default value is 100.")],
 		'$temppath'		=> ['temppath', L10n::t("Temp path"), Config::get('system','temppath'), L10n::t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")],
 		'$basepath'		=> ['basepath', L10n::t("Base path to installation"), Config::get('system','basepath'), L10n::t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")],
-		'$proxy_disabled'	=> ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system','proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")],
+		'$proxy_disabled'	=> ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system','proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth.")],
 		'$only_tag_search'	=> ['only_tag_search', L10n::t("Only search in tags"), Config::get('system','only_tag_search'), L10n::t("On large systems the text search can slow down the system extremely.")],
 
 		'$relocate_url'		=> ['relocate_url', L10n::t("New base url"), System::baseUrl(), L10n::t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],

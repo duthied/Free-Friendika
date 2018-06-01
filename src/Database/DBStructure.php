@@ -207,7 +207,7 @@ class DBStructure
 	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null) {
 		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', L10n::t(': Database update', DBM::date().' '.date('e')));
+			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DBM::date().' '.date('e')));
 		}
 
 		$errors = '';
@@ -1553,12 +1553,15 @@ class DBStructure
 						"callback_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"topic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"push" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"last_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
+						"push" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
+						"last_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date of last successful trial"],
+						"next_try" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Next retrial date"],
+						"renewed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date of last subscription renewal"],
 						"secret" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
+						"next_try" => ["next_try"],
 						]
 				];
 		$database["queue"] = [
@@ -1783,6 +1786,17 @@ class DBStructure
 						"username" => ["username(32)"],
 						]
 				];
+		$database["user-item"] = [
+				"comment" => "User specific item data",
+				"fields" => [
+						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => "Item id"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide an item from the user"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["uid", "iid"],
+						]
+				];
 		$database["workerqueue"] = [
 				"comment" => "Background tasks queue entries",
 				"fields" => [
@@ -1799,7 +1813,7 @@ class DBStructure
 						"pid" => ["pid"],
 						"parameter" => ["parameter(64)"],
 						"priority_created" => ["priority", "created"],
-						"executed" => ["executed"],
+						"done_executed" => ["done", "executed"],
 						]
 				];
 

@@ -4,8 +4,8 @@
 
 {{if $displayprivstatement}}
 <h2>{{$privstatementtitle}}</h2>
-<p>{{$privoperate}}</p>
-<p>{{$privdistribute}}</p>
-<p>{{$privdelete}}</p>
+<p>{{$privacy_operate}}</p>
+<p>{{$privacy_distribute}}</p>
+<p>{{$privacy_delete}}</p>
 {{/if}}
 

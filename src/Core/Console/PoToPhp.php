@@ -94,6 +94,7 @@ HELP;
 				$fnname = 'string_plural_select_' . $lang;
 				$out .= 'if(! function_exists("' . $fnname . '")) {' . "\n";
 				$out .= 'function ' . $fnname . '($n){' . "\n";
+				$out .= '	$n = intval($n);' . "\n";
 				$out .= '	return ' . $cond . ';' . "\n";
 				$out .= '}}' . "\n";
 			}

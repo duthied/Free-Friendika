@@ -10,6 +10,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Util\Network;
+require_once 'include/dba.php';
 
 function nodeinfo_wellknown(App $a) {
 	$nodeinfo = ['links' => [['rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
@@ -153,7 +154,7 @@ function nodeinfo_cron() {
 
 	$a = get_app();
 
-	// If the addon 'statistics_json' is enabled then disable it and actrivate nodeinfo.
+	// If the addon 'statistics_json' is enabled then disable it and activate nodeinfo.
 	if (Addon::isEnabled('statistics_json')) {
 		Config::set('system', 'nodeinfo', true);
 
@@ -176,17 +177,8 @@ function nodeinfo_cron() {
 	if (!Config::get('system', 'nodeinfo')) {
 		return;
 	}
-	$last = Config::get('nodeinfo', 'last_calucation');
 
-	if ($last) {
-		// Calculate every 24 hours
-		$next = $last + (24 * 60 * 60);
-		if ($next > time()) {
-			logger('calculation intervall not reached');
-			return;
-		}
-	}
-        logger('cron_start');
+	logger('cron_start');
 
 	$users = q("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
 			FROM `user`
@@ -196,60 +188,43 @@ function nodeinfo_cron() {
 				AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
 				AND NOT `user`.`account_expired`");
 	if (is_array($users)) {
-			$total_users = count($users);
-			$active_users_halfyear = 0;
-			$active_users_monthly = 0;
+		$total_users = count($users);
+		$active_users_halfyear = 0;
+		$active_users_monthly = 0;
 
-			$halfyear = time() - (180 * 24 * 60 * 60);
-			$month = time() - (30 * 24 * 60 * 60);
+		$halfyear = time() - (180 * 24 * 60 * 60);
+		$month = time() - (30 * 24 * 60 * 60);
 
-			foreach ($users AS $user) {
-				if ((strtotime($user['login_date']) > $halfyear) ||
-					(strtotime($user['last-item']) > $halfyear)) {
-					++$active_users_halfyear;
-				}
-				if ((strtotime($user['login_date']) > $month) ||
-					(strtotime($user['last-item']) > $month)) {
-					++$active_users_monthly;
-				}
+		foreach ($users AS $user) {
+			if ((strtotime($user['login_date']) > $halfyear) ||
+				(strtotime($user['last-item']) > $halfyear)) {
+				++$active_users_halfyear;
 			}
-			Config::set('nodeinfo', 'total_users', $total_users);
-		        logger('total_users: '.$total_users, LOGGER_DEBUG);
+			if ((strtotime($user['login_date']) > $month) ||
+				(strtotime($user['last-item']) > $month)) {
+				++$active_users_monthly;
+			}
+		}
+		Config::set('nodeinfo', 'total_users', $total_users);
+		Config::set('nodeinfo', 'active_users_halfyear', $active_users_halfyear);
+		Config::set('nodeinfo', 'active_users_monthly', $active_users_monthly);
 
-			Config::set('nodeinfo', 'active_users_halfyear', $active_users_halfyear);
-			Config::set('nodeinfo', 'active_users_monthly', $active_users_monthly);
+		logger('total_users: ' . $total_users . '/' . $active_users_halfyear. '/' . $active_users_monthly, LOGGER_DEBUG);
 	}
 
-	$posts = q("SELECT COUNT(*) AS `local_posts` FROM `thread` WHERE `thread`.`wall` AND `thread`.`uid` != 0");
-
-	if (!is_array($posts)) {
-		$local_posts = -1;
-	} else {
-		$local_posts = $posts[0]['local_posts'];
-	}
+	$local_posts = dba::count('thread', ["`wall` AND NOT `deleted` AND `uid` != 0"]);
 	Config::set('nodeinfo', 'local_posts', $local_posts);
+	logger('local_posts: ' . $local_posts, LOGGER_DEBUG);
 
-        logger('local_posts: '.$local_posts, LOGGER_DEBUG);
-
-	$posts = q("SELECT COUNT(*) AS `local_comments` FROM `contact`
-			INNER JOIN `item` ON `item`.`contact-id` = `contact`.`id` AND `item`.`uid` = `contact`.`uid` AND
-				`item`.`id` != `item`.`parent` AND `item`.`network` IN ('%s', '%s', '%s')
-			WHERE `contact`.`self`",
-			dbesc(NETWORK_OSTATUS), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_DFRN));
-
-	if (!is_array($posts)) {
-		$local_comments = -1;
-	} else {
-		$local_comments = $posts[0]['local_comments'];
-	}
+	$local_comments = dba::count('item', ["`origin` AND `id` != `parent` AND NOT `deleted` AND `uid` != 0"]);
 	Config::set('nodeinfo', 'local_comments', $local_comments);
+	logger('local_comments: ' . $local_comments, LOGGER_DEBUG);
 
 	// Now trying to register
 	$url = 'http://the-federation.info/register/'.$a->get_hostname();
-        logger('registering url: '.$url, LOGGER_DEBUG);
+	logger('registering url: '.$url, LOGGER_DEBUG);
 	$ret = Network::fetchUrl($url);
-        logger('registering answer: '.$ret, LOGGER_DEBUG);
+	logger('registering answer: '.$ret, LOGGER_DEBUG);
 
-        logger('cron_end');
-	Config::set('nodeinfo', 'last_calucation', time());
+	logger('cron_end');
 }

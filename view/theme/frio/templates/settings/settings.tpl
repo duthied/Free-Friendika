@@ -171,15 +171,6 @@
 					<div class="section-content-tools-wrapper">
 						<div id="settings-notifications">
 
-							<div id="settings-activity-desc"><h4>{{$activity_options}}</h4></div>
-
-							<div class="group">
-								{{include file="field_checkbox.tpl" field=$post_newfriend}}
-								{{include file="field_checkbox.tpl" field=$post_joingroup}}
-								{{include file="field_checkbox.tpl" field=$post_profilechange}}
-							</div>
-
-
 							<div id="settings-notify-desc"><h4>{{$lbl_not}}</h4></div>
 
 							<div class="group">
