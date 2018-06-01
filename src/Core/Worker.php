@@ -688,7 +688,7 @@ class Worker
 			logger("Load: ".$load."/".$maxsysload." - processes: ".$active."/".$entries.$processlist." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
 			// Are there fewer workers running as possible? Then fork a new one.
-			if (!Config::get("system", "worker_dont_fork") && ($queues > ($active + 1)) && ($entries > 1)) {
+			if (!Config::get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && ($entries > 1)) {
 				logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
 				self::spawnWorker();
 			}
@@ -1040,7 +1040,7 @@ class Worker
 		}
 
 		$priority = PRIORITY_MEDIUM;
-		$dont_fork = Config::get("system", "worker_dont_fork");
+		$dont_fork = Config::get("system", "worker_dont_fork", false);
 		$created = DateTimeFormat::utcNow();
 
 		$run_parameter = array_shift($args);

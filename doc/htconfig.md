@@ -124,3 +124,11 @@ The configuration variables db_host, db_user, db_pass and db_data are holding yo
 If you need to specify a port to access the database, you can do so by appending ":portnumber" to the db_host variable.
 
     $db_host = 'your.mysqlhost.com:123456';
+
+If all of the following environment variables are set, Friendica will use them instead of the previously configured variables for the db:
+
+    MYSQL_HOST
+    MYSQL_PORT
+    MYSQL_USERNAME
+    MYSQL_PASSWORD
+    MYSQL_DATABASE

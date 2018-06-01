@@ -56,6 +56,7 @@ Friendica - Dokumentation und Ressourcen
 * [Code-Referenz (mit doxygen generiert - setzt Cookies)](doc/html/)
 * [Twitter/GNU Social API Functions](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
+* [Run tests](help/Tests) (EN)
 
 **Externe Ressourcen**
 
@@ -72,4 +73,3 @@ Friendica - Dokumentation und Ressourcen
 
 * [Seite/Friendica-Version](friendica)
 * [Mitwirkenden bei Friendica](credits)
-

@@ -93,6 +93,15 @@ class dba {
 	}
 
 	/**
+	 * Return the database object.
+	 * @return PDO|mysqli
+	 */
+	public static function get_db()
+	{
+		return self::$db;
+	}
+
+	/**
 	 * @brief Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current

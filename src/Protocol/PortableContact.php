@@ -1321,20 +1321,8 @@ class PortableContact
 					$version = $data->version;
 					$site_name = $data->site_name;
 					$info = $data->info;
-					$register_policy_str = $data->register_policy;
+					$register_policy = constant($data->register_policy);
 					$platform = $data->platform;
-
-					switch ($register_policy_str) {
-						case "REGISTER_CLOSED":
-							$register_policy = REGISTER_CLOSED;
-							break;
-						case "REGISTER_APPROVE":
-							$register_policy = REGISTER_APPROVE;
-							break;
-						case "REGISTER_OPEN":
-							$register_policy = REGISTER_OPEN;
-							break;
-					}
 				}
 			}
 		}

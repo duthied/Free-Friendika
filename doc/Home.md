@@ -51,6 +51,7 @@ Friendica Documentation and Resources
 	* [Translate Friendica](help/translations)
 	* [Use Composer](help/Composer)
 	* [Move classes to `src`](help/Developer-How-To-Move-Classes-to-src)
+	* [Run tests](help/Tests)
 * Reference
 	* [Twitter/GNU Social API Functions](help/api)
 	* [Code (Doxygen generated - sets cookies)](doc/html/)
@@ -72,4 +73,3 @@ Friendica Documentation and Resources
 
 * [Site/Version Info](friendica)
 * [Friendica Credits](credits)
-

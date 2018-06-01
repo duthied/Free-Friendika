@@ -116,7 +116,7 @@ function localize_item(&$item) {
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 	}
 
-	/// @Separted ???
+	/// @TODO Separted ???
 	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 	if (activity_match($item['verb'], ACTIVITY_LIKE)
 		|| activity_match($item['verb'], ACTIVITY_DISLIKE)
@@ -162,22 +162,19 @@ function localize_item(&$item) {
 
 		if (activity_match($item['verb'], ACTIVITY_LIKE)) {
 			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_DISLIKE)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_DISLIKE)) {
 			$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_ATTEND)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_ATTEND)) {
 			$bodyverb = L10n::t('%1$s attends %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_ATTENDNO)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_ATTENDNO)) {
 			$bodyverb = L10n::t('%1$s doesn\'t attend %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
 			$bodyverb = L10n::t('%1$s attends maybe %2$s\'s %3$s');
 		}
-		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 
+		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 	}
+
 	if (activity_match($item['verb'], ACTIVITY_FRIEND)) {
 
 		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
@@ -304,8 +301,8 @@ function localize_item(&$item) {
 		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag );
 
 	}
-	if (activity_match($item['verb'], ACTIVITY_FAVORITE)) {
 
+	if (activity_match($item['verb'], ACTIVITY_FAVORITE)) {
 		if ($item['object-type'] == "") {
 			return;
 		}
@@ -385,10 +382,9 @@ function visible_activity($item) {
 		}
 	}
 
-	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
-		if (!($item['self'] && ($item['uid'] == local_user()))) {
-			return false;
-		}
+	// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
+	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && empty($item['self']) && $item['uid'] == local_user()) {
+		return false;
 	}
 
 	return true;
@@ -1081,7 +1077,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
-			if (!$item['thr-parent']) {
+			if (!x($item, 'thr-parent')) {
 				$item['thr-parent'] = $item['parent-uri'];
 			}
 
@@ -1569,19 +1565,17 @@ function sort_thr_commented(array $a, array $b)
 	return strcmp($b['commented'], $a['commented']);
 }
 
-/// @TODO Add type-hint
-function render_location_dummy($item) {
-	if ($item['location'] != "") {
+function render_location_dummy(array $item) {
+	if (x($item, 'location') && !empty($item['location'])) {
 		return $item['location'];
 	}
 
-	if ($item['coord'] != "") {
+	if (x($item, 'coord') && !empty($item['coord'])) {
 		return $item['coord'];
 	}
 }
 
-/// @TODO Add type-hint
-function get_responses($conv_responses, $response_verbs, $ob, $item) {
+function get_responses(array $conv_responses, array $response_verbs, $ob, array $item) {
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];

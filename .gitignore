@@ -9,7 +9,6 @@ include/jquery-1.4.2.min.js
 favicon.*
 home.html
 addon
-*.orig
 *~
 robots.txt
 
@@ -24,9 +23,11 @@ report/
 .buildpath
 .externalToolBuilders
 .settings
+
 #ignore OSX .DS_Store files
 .DS_Store
 
+#ignore NetBeans IDE's private files (at least)
 /nbproject/private/
 
 #ignore smarty cache
@@ -59,3 +60,6 @@ venv/
 
 #ignore config files from JetBrains
 /.idea
+
+#ignore addons/ directory
+addons/

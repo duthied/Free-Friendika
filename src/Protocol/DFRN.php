@@ -63,7 +63,7 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN entries
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	public static function entries($items, $owner)
 	{
@@ -81,7 +81,7 @@ class DFRN
 			$root->appendChild($entry);
 		}
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -120,8 +120,6 @@ class DFRN
 			}
 		}
 
-
-
 		// default permissions - anonymous user
 
 		$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
@@ -134,6 +132,7 @@ class DFRN
 		);
 
 		if (! DBM::is_result($r)) {
+			logger(sprintf('No contact found for nickname=%d', $owner_nick), LOGGER_WARNING);
 			killme();
 		}
 
@@ -169,6 +168,7 @@ class DFRN
 			);
 
 			if (! DBM::is_result($r)) {
+				logger(sprintf('No contact found for uid=%d', $owner_id), LOGGER_WARNING);
 				killme();
 			}
 
@@ -177,8 +177,10 @@ class DFRN
 			$groups = Group::getIdsByContactId($contact['id']);
 
 			if (count($groups)) {
-				for ($x = 0; $x < count($groups); $x ++)
+				for ($x = 0; $x < count($groups); $x ++) {
 					$groups[$x] = '<' . intval($groups[$x]) . '>' ;
+				}
+
 				$gs = implode('|', $groups);
 			} else {
 				$gs = '<<>>' ; // Impossible to match
@@ -219,10 +221,8 @@ class DFRN
 			//$sql_extra .= file_tag_file_query('item',$category,'category');
 		}
 
-		if ($public_feed) {
-			if (! $converse) {
-				$sql_extra .= " AND `contact`.`self` = 1 ";
-			}
+		if ($public_feed && ! $converse) {
+			$sql_extra .= " AND `contact`.`self` = 1 ";
 		}
 
 		$check_date = DateTimeFormat::utc($last_update);
@@ -397,7 +397,7 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN mail
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	public static function mail($item, $owner)
 	{
@@ -423,7 +423,7 @@ class DFRN
 
 		$root->appendChild($mail);
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -433,7 +433,7 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN suggestions
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	public static function fsuggest($item, $owner)
 	{
@@ -452,7 +452,7 @@ class DFRN
 
 		$root->appendChild($suggest);
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -462,7 +462,7 @@ class DFRN
 	 * @param int   $uid   User ID
 	 *
 	 * @return string DFRN relocations
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	public static function relocate($owner, $uid)
 	{
@@ -487,7 +487,6 @@ class DFRN
 			$photos[$p['scale']] = System::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
 		}
 
-		unset($rp, $ext);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -511,7 +510,7 @@ class DFRN
 
 		$root->appendChild($relocate);
 
-		return(trim($doc->saveXML()));
+		return trim($doc->saveXML());
 	}
 
 	/**
@@ -524,7 +523,7 @@ class DFRN
 	 * @param bool   $public        Is it a header for public posts?
 	 *
 	 * @return object XML root object
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	private static function addHeader($doc, $owner, $authorelement, $alternatelink = "", $public = false)
 	{
@@ -600,7 +599,7 @@ class DFRN
 	 * @param boolean $public        boolean
 	 *
 	 * @return object XML author object
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	private static function addAuthor($doc, $owner, $authorelement, $public)
 	{
@@ -744,7 +743,7 @@ class DFRN
 	 * @param array  $item        Item elements
 	 *
 	 * @return object XML author object
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	private static function addEntryAuthor($doc, $element, $contact_url, $item)
 	{
@@ -785,7 +784,7 @@ class DFRN
 	 * @param string $activity activity value
 	 *
 	 * @return object XML activity object
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	private static function createActivity($doc, $element, $activity)
 	{
@@ -796,12 +795,15 @@ class DFRN
 			if (!$r) {
 				return false;
 			}
+
 			if ($r->type) {
 				XML::addElement($doc, $entry, "activity:object-type", $r->type);
 			}
+
 			if ($r->id) {
 				XML::addElement($doc, $entry, "id", $r->id);
 			}
+
 			if ($r->title) {
 				XML::addElement($doc, $entry, "title", $r->title);
 			}
@@ -848,7 +850,7 @@ class DFRN
 	 * @param array  $item Item element
 	 *
 	 * @return object XML attachment object
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
 	private static function getAttachment($doc, $root, $item)
 	{
@@ -888,9 +890,9 @@ class DFRN
 	 * @param bool   $single  If set, the entry is created as an XML document with a single "entry" element
 	 *
 	 * @return object XML entry object
-	 * @todo Add type-hints
+	 * @todo Find proper type-hints
 	 */
-	private static function entry($doc, $type, $item, $owner, $comment = false, $cid = 0, $single = false)
+	private static function entry($doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
 	{
 		$mentioned = [];
 
@@ -934,7 +936,7 @@ class DFRN
 			$htmlbody = $body;
 
 			if ($item['title'] != "") {
-				$htmlbody = "[b]".$item['title']."[/b]\n\n".$htmlbody;
+				$htmlbody = "[b]" . $item['title'] . "[/b]\n\n" . $htmlbody;
 			}
 
 			$htmlbody = BBCode::convert($htmlbody, false, 7);
@@ -1061,6 +1063,7 @@ class DFRN
 
 		$tags = Item::getFeedTags($item);
 
+		/// @TODO Combine this with similar below if() block?
 		if (count($tags)) {
 			foreach ($tags as $t) {
 				if (($type != 'html') || ($t[0] != "@")) {
@@ -1288,7 +1291,6 @@ class DFRN
 		if ($dissolve) {
 			$postvars['dissolve'] = '1';
 		}
-
 
 		if ((($contact['rel']) && ($contact['rel'] != CONTACT_IS_SHARING) && (! $contact['blocked'])) || ($owner['page-flags'] == PAGE_COMMUNITY)) {
 			$postvars['data'] = $atom;
@@ -1571,12 +1573,12 @@ class DFRN
 		// Until now we aren't serving different sizes - but maybe later
 		$avatarlist = [];
 		/// @todo check if "avatar" or "photo" would be the best field in the specification
-		$avatars = $xpath->query($element."/atom:link[@rel='avatar']", $context);
+		$avatars = $xpath->query($element . "/atom:link[@rel='avatar']", $context);
 		foreach ($avatars as $avatar) {
 			$href = "";
 			$width = 0;
 			foreach ($avatar->attributes as $attributes) {
-				/// @TODO Rewrite these similar if () to one switch
+				/// @TODO Rewrite these similar if() to one switch
 				if ($attributes->name == "href") {
 					$href = $attributes->textContent;
 				}
@@ -1591,6 +1593,7 @@ class DFRN
 				$avatarlist[$width] = $href;
 			}
 		}
+
 		if (count($avatarlist) > 0) {
 			krsort($avatarlist);
 			$author["avatar"] = current($avatarlist);
@@ -2091,6 +2094,9 @@ class DFRN
 			'confirm' => $relocate["confirm"], 'notify' => $relocate["notify"],
 			'poll' => $relocate["poll"], 'site-pubkey' => $relocate["sitepubkey"]];
 		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer["id"], normalise_link($old["url"])];
+		dba::update('contact', $fields, $condition);
+
+		// @TODO No dba:update here?
 		dba::update('contact', $fields, $condition);
 
 		Contact::updateAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
@@ -2699,7 +2705,7 @@ class DFRN
 			if (self::updateContent($current, $item, $importer, $entrytype)) {
 				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
 			} else {
-				logger("Item ".$item["uri"]." already existed.", LOGGER_DEBUG);
+				logger("Item " . $item["uri"] . " already existed.", LOGGER_DEBUG);
 			}
 			return;
 		}
@@ -2775,6 +2781,7 @@ class DFRN
 	{
 		logger("Processing deletions");
 		$uri = null;
+
 		foreach ($deletion->attributes as $attributes) {
 			if ($attributes->name == "ref") {
 				$uri = $attributes->textContent;

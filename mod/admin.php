@@ -65,7 +65,7 @@ function admin_post(App $a)
 			case 'addons':
 				if ($a->argc > 2 &&
 					is_file("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php")) {
-					@include_once("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php");
+					include_once "addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php";
 					if (function_exists($a->argv[2] . '_addon_admin_post')) {
 						$func = $a->argv[2] . '_addon_admin_post';
 						$func($a);
@@ -916,6 +916,7 @@ function admin_page_site_post(App $a)
 			$upds = implode(", ", $upd);
 
 			$r = q("UPDATE %s SET %s;", $table_name, $upds);
+
 			if (!DBM::is_result($r)) {
 				notice("Failed updating '$table_name': " . dba::errorMessage());
 				goaway('admin/site');
@@ -1297,15 +1298,18 @@ function admin_page_site(App $a)
 	$user_names = [];
 	$user_names['---'] = L10n::t('Multi user instance');
 	$users = q("SELECT `username`, `nickname` FROM `user`");
+
 	foreach ($users as $user) {
 		$user_names[$user['nickname']] = $user['username'];
 	}
 
 	/* Banner */
 	$banner = Config::get('system', 'banner');
+
 	if ($banner == false) {
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
+
 	$banner = htmlspecialchars($banner);
 	$info = Config::get('config', 'info');
 	$info = htmlspecialchars($info);
@@ -1437,7 +1441,7 @@ function admin_page_site(App $a)
 		'$max_comments' 	=> ['max_comments', L10n::t("Maximum numbers of comments per post"), Config::get('system','max_comments'), L10n::t("How much comments should be shown for each post? Default value is 100.")],
 		'$temppath'		=> ['temppath', L10n::t("Temp path"), Config::get('system','temppath'), L10n::t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")],
 		'$basepath'		=> ['basepath', L10n::t("Base path to installation"), Config::get('system','basepath'), L10n::t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")],
-		'$proxy_disabled'	=> ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system','proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwith.")],
+		'$proxy_disabled'	=> ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system','proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth.")],
 		'$only_tag_search'	=> ['only_tag_search', L10n::t("Only search in tags"), Config::get('system','only_tag_search'), L10n::t("On large systems the text search can slow down the system extremely.")],
 
 		'$relocate_url'		=> ['relocate_url', L10n::t("New base url"), System::baseUrl(), L10n::t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],
@@ -1501,9 +1505,12 @@ function admin_page_dbsync(App $a)
 
 	if ($a->argc > 2 && intval($a->argv[2])) {
 		require_once 'update.php';
+
 		$func = 'update_' . intval($a->argv[2]);
+
 		if (function_exists($func)) {
 			$retval = $func();
+
 			if ($retval === UPDATE_FAILED) {
 				$o .= L10n::t("Executing %s failed with error: %s", $func, $retval);
 			} elseif ($retval === UPDATE_SUCCESS) {
@@ -1516,11 +1523,13 @@ function admin_page_dbsync(App $a)
 			$o .= L10n::t('There was no additional update function %s that needed to be called.', $func) . "<br />";
 			Config::set('database', $func, 'success');
 		}
+
 		return $o;
 	}
 
 	$failed = [];
 	$r = q("SELECT `k`, `v` FROM `config` WHERE `cat` = 'database' ");
+
 	if (DBM::is_result($r)) {
 		foreach ($r as $rr) {
 			$upd = intval(substr($rr['k'], 7));
@@ -1530,6 +1539,7 @@ function admin_page_dbsync(App $a)
 			$failed[] = $upd;
 		}
 	}
+
 	if (!count($failed)) {
 		$o = replace_macros(get_markup_template('structure_check.tpl'), [
 			'$base' => System::baseUrl(true),
@@ -1764,8 +1774,8 @@ function admin_page_users(App $a)
 		$e['page-flags-raw'] = $e['page-flags'];
 		$e['page-flags'] = $page_types[$e['page-flags']];
 
-		$e['account-type-raw'] = ($e['page_flags_raw']==0) ? $e['account-type'] : -1;
-		$e['account-type'] = ($e['page_flags_raw']==0) ? $account_types[$e['account-type']] : "";
+		$e['account-type-raw'] = ($e['page_flags_raw'] == 0) ? $e['account-type'] : -1;
+		$e['account-type'] = ($e['page_flags_raw'] == 0) ? $account_types[$e['account-type']] : "";
 
 		$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
 		$e['login_date'] = Temporal::getRelativeDate($e['login_date']);
@@ -1916,7 +1926,7 @@ function admin_page_addons(App $a)
 
 		$admin_form = "";
 		if (in_array($addon, $a->addons_admin)) {
-			@require_once("addon/$addon/$addon.php");
+			require_once "addon/$addon/$addon.php";
 			$func = $addon . '_addon_admin';
 			$func($a, $admin_form);
 		}
@@ -2157,6 +2167,7 @@ function admin_page_themes(App $a)
 		}
 
 		$readme = null;
+
 		if (is_file("view/theme/$theme/README.md")) {
 			$readme = Markdown::convert(file_get_contents("view/theme/$theme/README.md"), false);
 		} elseif (is_file("view/theme/$theme/README")) {

@@ -274,6 +274,7 @@ function consume_feed($xml, $importer, $contact, &$hub, $datedir = 0, $pass = 0)
 function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 
 	$a = get_app();
+	$r = null;
 
 	if (is_array($importer)) {
 		$r = q("SELECT `nickname` FROM `user` WHERE `uid` = %d LIMIT 1",
