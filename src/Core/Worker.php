@@ -53,10 +53,15 @@ class Worker
 		// We now start the process. This is done after the load check since this could increase the load.
 		self::startProcess();
 
+		// The daemon doesn't need to fork new workers anymore, since we started a process
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(false);
+		}
+
 		// Kill stale processes every 5 minutes
-		$last_cleanup = Config::get('system', 'poller_last_cleaned', 0);
+		$last_cleanup = Config::get('system', 'worker_last_cleaned', 0);
 		if (time() > ($last_cleanup + 300)) {
-			Config::set('system', 'poller_last_cleaned', time());
+			Config::set('system', 'worker_last_cleaned', time());
 			self::killStaleWorkers();
 		}
 
@@ -108,16 +113,16 @@ class Worker
 				}
 
 				// If possible we will fetch new jobs for this worker
-				if (!$refetched && Lock::set('poller_worker_process', 0)) {
+				if (!$refetched && Lock::set('worker_process', 0)) {
 					$stamp = (float)microtime(true);
 					$refetched = self::findWorkerProcesses($passing_slow);
 					self::$db_duration += (microtime(true) - $stamp);
-					Lock::remove('poller_worker_process');
+					Lock::remove('worker_process');
 				}
 			}
 
 			// To avoid the quitting of multiple workers only one worker at a time will execute the check
-			if (Lock::set('poller_worker', 0)) {
+			if (Lock::set('worker', 0)) {
 				$stamp = (float)microtime(true);
 				// Count active workers and compare them with a maximum value that depends on the load
 				if (self::tooMuchWorkers()) {
@@ -130,7 +135,7 @@ class Worker
 					logger('Memory limit reached, quitting.', LOGGER_DEBUG);
 					return;
 				}
-				Lock::remove('poller_worker');
+				Lock::remove('worker');
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
@@ -139,6 +144,9 @@ class Worker
 				logger('Process lifetime reached, quitting.', LOGGER_DEBUG);
 				return;
 			}
+		}
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(false);
 		}
 		logger("Couldn't select a workerqueue entry, quitting.", LOGGER_DEBUG);
 	}
@@ -244,7 +252,7 @@ class Worker
 
 			$stamp = (float)microtime(true);
 			if (dba::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
-				Config::set('system', 'last_poller_execution', DateTimeFormat::utcNow());
+				Config::set('system', 'last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 
@@ -285,7 +293,7 @@ class Worker
 
 			$stamp = (float)microtime(true);
 			if (dba::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
-				Config::set('system', 'last_poller_execution', DateTimeFormat::utcNow());
+				Config::set('system', 'last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 		} else {
@@ -851,6 +859,11 @@ class Worker
 			dba::update('workerqueue', ['executed' => DateTimeFormat::utcNow(), 'pid' => $mypid], $ids);
 		}
 
+		// The daemon doesn't need to fork new workers anymore, since we are inside the worker
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(false);
+		}
+
 		return $found;
 	}
 
@@ -873,7 +886,7 @@ class Worker
 		dba::close($r);
 
 		$stamp = (float)microtime(true);
-		if (!Lock::set('poller_worker_process')) {
+		if (!Lock::set('worker_process')) {
 			return false;
 		}
 		self::$lock_duration = (microtime(true) - $stamp);
@@ -882,7 +895,7 @@ class Worker
 		$found = self::findWorkerProcesses($passing_slow);
 		self::$db_duration += (microtime(true) - $stamp);
 
-		Lock::remove('poller_worker_process');
+		Lock::remove('worker_process');
 
 		if ($found) {
 			$r = dba::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
@@ -1071,19 +1084,25 @@ class Worker
 			dba::insert('workerqueue', ['parameter' => $parameters, 'created' => $created, 'priority' => $priority]);
 		}
 
+		// We tell the daemon that a new job entry exists
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(true);
+			return true;
+		}
+
 		// Should we quit and wait for the worker to be called as a cronjob?
 		if ($dont_fork) {
 			return true;
 		}
 
 		// If there is a lock then we don't have to check for too much worker
-		if (!Lock::set('poller_worker', 0)) {
+		if (!Lock::set('worker', 0)) {
 			return true;
 		}
 
 		// If there are already enough workers running, don't fork another one
 		$quit = self::tooMuchWorkers();
-		Lock::remove('poller_worker');
+		Lock::remove('worker');
 
 		if ($quit) {
 			return true;
@@ -1120,5 +1139,31 @@ class Worker
 	public static function endProcess()
 	{
 		return Process::deleteByPid();
+	}
+
+	private static function checkIPC()
+	{
+		dba::e("CREATE TABLE IF NOT EXISTS `worker-ipc` (`key` integer, `jobs` boolean) ENGINE = MEMORY;");
+	}
+
+	public static function IPCSetJobState($jobs)
+	{
+		self::checkIPC();
+
+		dba::update('worker-ipc', ['jobs' => $jobs], ['key' => 1], true);
+	}
+
+	public static function IPCJobsExists()
+	{
+		self::checkIPC();
+
+		$row = dba::selectFirst('worker-ipc', ['jobs'], ['key' => 1]);
+
+		// When we don't have a row, no job is running
+		if (!DBM::is_result($row)) {
+			return false;
+		}
+
+		return (bool)$row['jobs'];
 	}
 }

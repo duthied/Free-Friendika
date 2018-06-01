@@ -26,7 +26,7 @@ class dba {
 	private static $relation = [];
 
 	public static function connect($serveraddr, $user, $pass, $db) {
-		if (!is_null(self::$db)) {
+		if (!is_null(self::$db) && self::connected()) {
 			return true;
 		}
 
