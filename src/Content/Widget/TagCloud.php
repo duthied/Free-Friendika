@@ -91,10 +91,12 @@ class TagCloud
 		// Fetch tags
 		$r = dba::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
 			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = ?
 			WHERE `term`.`uid` = ? AND `term`.`type` = ?
 			AND `term`.`otype` = ?
 			AND $item_condition $sql_options
 			GROUP BY `term` ORDER BY `total` DESC $limit",
+			$uid,
 			$uid,
 			$type,
 			TERM_OBJ_POST
