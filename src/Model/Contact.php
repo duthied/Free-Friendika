@@ -1699,7 +1699,7 @@ class Contact extends BaseObject
 	{
 		$cid = self::getIdForURL($contact_url, 0, true);
 		if (empty($cid)) {
-			return ($url != '') ? $url : $contact_url;
+			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
 		return self::magicLinkbyId($cid, $url);
@@ -1718,7 +1718,7 @@ class Contact extends BaseObject
 		$contact = dba::selectFirst('contact', ['network', 'url', 'uid'], ['id' => $cid]);
 
 		if ($contact['network'] != NETWORK_DFRN) {
-			return ($url != '') ? $url : $contact['url'];
+			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 		}
 
 		// Only redirections to the same host do make sense
