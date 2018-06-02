@@ -868,7 +868,7 @@ class Event extends BaseObject
 		$location = self::locationToArray($item['event-location']);
 
 		// Construct the profile link (magic-auth).
-		$profile_link = Contact::magicLink($item['author-link']);
+		$profile_link = Contact::magicLinkById($item['author-id']);
 
 		$tpl = get_markup_template('event_stream_item.tpl');
 		$return = replace_macros($tpl, [

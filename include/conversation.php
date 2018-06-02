@@ -14,6 +14,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
@@ -268,8 +269,8 @@ function localize_item(&$item) {
 
 		$obj = $r[0];
 
-		$author  = '[url=' . Contact::magicLink($item['author-link']) . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . Contact::magicLink($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
+		$author  = '[url=' . Contact::magicLinkById($item['author-id']) . ']' . $item['author-name'] . '[/url]';
+		$objauthor =  '[url=' . Contact::magicLinkById($obj['author-id']) . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
 			case ACTIVITY_POST:
@@ -341,12 +342,12 @@ function localize_item(&$item) {
 	// add zrl's to public images
 	$photo_pattern = "/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is";
 	if (preg_match($photo_pattern, $item['body'])) {
-		$photo_replace = '[url=' . Contact::magicLink('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
+		$photo_replace = '[url=' . Profile::zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
 		$item['body'] = BBCode::pregReplaceInTag($photo_pattern, $photo_replace, 'url', $item['body']);
 	}
 
 	// add sparkle links to appropriate permalinks
-	$item['plink'] = Contact::magicLink($item['author-link'], $item['plink']);
+	$item['plink'] = Contact::magicLinkById($item['author-id'], $item['plink']);
 }
 
 /**
@@ -664,7 +665,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 				$tags = \Friendica\Model\Term::populateTagsFromItem($item);
 
-				$profile_link = Contact::magicLink($item['author-link']);
+				$profile_link = Contact::magicLinkbyId($item['author-id']);
 
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
@@ -920,7 +921,7 @@ function item_photo_menu($item) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
-	$profile_link = Contact::magicLink($item['author-link']);
+	$profile_link = Contact::magicLinkById($item['author-id']);
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
@@ -1027,7 +1028,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 		}
 
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
-			$url = Contact::MagicLink($item['author-link']);
+			$url = Contact::MagicLinkbyId($item['author-id']);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
 			}

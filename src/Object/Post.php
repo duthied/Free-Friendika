@@ -204,7 +204,7 @@ class Post extends BaseObject
 			$profile_name = $item['author-link'];
 		}
 
-		$profile_link = Contact::magicLink($item['author-link']);
+		$profile_link = Contact::magicLinkById($item['author-id']);
 		if (strpos($profile_link, 'redir/') === 0) {
 			$sparkle = ' sparkle';
 		}
@@ -861,7 +861,7 @@ class Post extends BaseObject
 						$this->owner_photo = $this->getDataValue('owner-avatar');
 						$this->owner_name = $this->getDataValue('owner-name');
 						$this->wall_to_wall = true;
-						$this->owner_url = Contact::magicLink($this->getDataValue('owner-link'));
+						$this->owner_url = Contact::magicLinkById($this->getDataValue('owner-id'));
 					}
 				}
 			}

@@ -1296,7 +1296,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	foreach ($matches as $mtch) {
 		$mime = $mtch[3];
 
-		$the_url = Contact::magicLink($item['author-link'], $mtch[1]);
+		$the_url = Contact::magicLinkById($item['author-id'], $mtch[1]);
 
 		if (strpos($mime, 'video') !== false) {
 			if (!$vhead) {
