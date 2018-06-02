@@ -197,10 +197,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img]' . $Bphoto . '[/img][/url]';
 		}
 
 		$item['body'] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
@@ -234,10 +234,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
 		}
 
 		/*
@@ -269,8 +269,8 @@ function localize_item(&$item) {
 
 		$obj = $r[0];
 
-		$author  = '[url=' . Profile::zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . Profile::zrl($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
+		$author  = '[url=' . Contact::magicLinkById($item['author-id']) . ']' . $item['author-name'] . '[/url]';
+		$objauthor =  '[url=' . Contact::magicLinkById($obj['author-id']) . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
 			case ACTIVITY_POST:
@@ -323,8 +323,8 @@ function localize_item(&$item) {
 				$target = $r[0];
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];
-				$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-				$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+				$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 				$P = '[url=' . $target['plink'] . ']' . L10n::t('post/item') . '[/url]';
 				$item['body'] = L10n::t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
 			}
@@ -334,7 +334,7 @@ function localize_item(&$item) {
 	if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 		foreach ($matches as $mtch) {
 			if (!strpos($mtch[1], 'zrl=')) {
-				$item['body'] = str_replace($mtch[0], '@[url=' . Profile::zrl($mtch[1]) . ']', $item['body']);
+				$item['body'] = str_replace($mtch[0], '@[url=' . Contact::magicLink($mtch[1]) . ']', $item['body']);
 			}
 		}
 	}
@@ -347,16 +347,7 @@ function localize_item(&$item) {
 	}
 
 	// add sparkle links to appropriate permalinks
-
-	$x = stristr($item['plink'],'/display/');
-	if ($x) {
-		$sparkle = false;
-		$y = best_link_url($item, $sparkle);
-
-		if (strstr($y, '/redir/')) {
-			$item['plink'] = $y . '?f=&url=' . $item['plink'];
-		}
-	}
+	$item['plink'] = Contact::magicLinkById($item['author-id'], $item['plink']);
 }
 
 /**
@@ -674,16 +665,10 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 				$tags = \Friendica\Model\Term::populateTagsFromItem($item);
 
-				$sp = false;
-				$profile_link = best_link_url($item, $sp);
-				if ($profile_link === 'mailbox') {
-					$profile_link = '';
-				}
+				$profile_link = Contact::magicLinkbyId($item['author-id']);
 
-				if ($sp) {
+				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
-				} else {
-					$profile_link = Profile::zrl($profile_link);
 				}
 
 				if (!x($item, 'author-thumb') || ($item['author-thumb'] == "")) {
@@ -923,48 +908,6 @@ function conversation_add_children($parents, $block_authors, $order, $uid) {
 	return $items;
 }
 
-function best_link_url($item, &$sparkle, $url = '') {
-
-	$best_url = '';
-	$sparkle  = false;
-
-	$clean_url = normalise_link($item['author-link']);
-
-	if (local_user()) {
-		$condition = [
-			'network' => NETWORK_DFRN,
-			'uid' => local_user(),
-			'nurl' => normalise_link($clean_url),
-			'pending' => false
-		];
-		$contact = dba::selectFirst('contact', ['id'], $condition);
-		if (DBM::is_result($contact)) {
-			$best_url = 'redir/' . $contact['id'];
-			$sparkle = true;
-			if ($url != '') {
-				$hostname = get_app()->get_hostname();
-				if (!strstr($url, $hostname)) {
-					$best_url .= "?url=".$url;
-				} else {
-					$best_url = $url;
-				}
-			}
-		}
-	}
-	if (!$best_url) {
-		if ($url != '') {
-			$best_url = $url;
-		} elseif (strlen($item['author-link'])) {
-			$best_url = $item['author-link'];
-		} else {
-			$best_url = $item['url'];
-		}
-	}
-
-	return $best_url;
-}
-
-
 function item_photo_menu($item) {
 	$sub_link = '';
 	$poke_link = '';
@@ -978,11 +921,8 @@ function item_photo_menu($item) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
-	$sparkle = false;
-	$profile_link = best_link_url($item, $sparkle);
-	if ($profile_link === 'mailbox') {
-		$profile_link = '';
-	}
+	$profile_link = Contact::magicLinkById($item['author-id']);
+	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
 	$network = '';
@@ -1000,7 +940,7 @@ function item_photo_menu($item) {
 		$photos_link = $profile_link . '?url=photos';
 		$profile_link = $profile_link . '?url=profile';
 	} else {
-		$profile_link = Profile::zrl($profile_link);
+		$profile_link = Contact::magicLink($profile_link);
 	}
 
 	if ($cid && !$item['self']) {
@@ -1088,12 +1028,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 		}
 
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
-			$url = $item['author-link'];
-			if (local_user() && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && !$item['self'] && link_compare($item['author-link'], $item['url'])) {
-				$url = 'redir/' . $item['contact-id'];
+			$url = Contact::MagicLinkbyId($item['author-id']);
+			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
-			} else {
-				$url = Profile::zrl($url);
 			}
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';

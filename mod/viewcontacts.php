@@ -96,15 +96,6 @@ function viewcontacts_content(App $a)
 			continue;
 		}
 
-		$url = $rr['url'];
-
-		// route DFRN profiles through the redirect
-		if ($is_owner && ($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
-			$url = 'redir/' . $rr['id'];
-		} else {
-			$url = Profile::zrl($url);
-		}
-
 		$contact_details = Contact::getDetailsByURL($rr['url'], $a->profile['uid'], $rr);
 
 		$contacts[] = [
@@ -118,7 +109,7 @@ function viewcontacts_content(App $a)
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],
 			'account_type'  => Contact::getAccountType($contact_details),
-			'url' => $url,
+			'url' => Contact::magicLink($rr['url']),
 			'sparkle' => '',
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),

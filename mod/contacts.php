@@ -65,7 +65,7 @@ function contacts_init(App $a)
 		$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), [
 			'$name' => htmlentities($a->data['contact']['name']),
 			'$photo' => $a->data['contact']['photo'],
-			'$url' => ($a->data['contact']['network'] == NETWORK_DFRN) ? "redir/" . $a->data['contact']['id'] : $a->data['contact']['url'],
+			'$url' => Contact::MagicLink($a->data['contact']['url']),
 			'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
 			'$network_name' => $networkname,
 			'$network' => L10n::t('Network:'),
@@ -536,11 +536,10 @@ function contacts_content(App $a)
 
 		$relation_text = sprintf($relation_text, htmlentities($contact['name']));
 
-		if (($contact['network'] === NETWORK_DFRN) && ($contact['rel'])) {
-			$url = "redir/{$contact['id']}";
+		$url = Contact::magicLink($contact['url']);
+		if (strpos($url, 'redir/') === 0) {
 			$sparkle = ' class="sparkle" ';
 		} else {
-			$url = $contact['url'];
 			$sparkle = '';
 		}
 
@@ -940,11 +939,11 @@ function _contact_detail_for_template($rr)
 		default:
 			break;
 	}
-	if (($rr['network'] === NETWORK_DFRN) && ($rr['rel'])) {
-		$url = "redir/{$rr['id']}";
+
+	$url = Contact::magicLink($rr['url']);
+	if (strpos($url, 'redir/') === 0) {
 		$sparkle = ' class="sparkle" ';
 	} else {
-		$url = $rr['url'];
 		$sparkle = '';
 	}
 

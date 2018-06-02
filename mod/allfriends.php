@@ -70,7 +70,7 @@ function allfriends_content(App $a)
 		} else {
 			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
 			$photo_menu = [
-				'profile' => [L10n::t("View Profile"), Profile::zrl($rr['url'])],
+				'profile' => [L10n::t("View Profile"), Contact::magicLink($rr['url'])],
 				'follow' => [L10n::t("Connect/Follow"), $connlnk]
 			];
 		}

@@ -1538,14 +1538,10 @@ function photos_content(App $a)
 						continue;
 					}
 
-					$redirect_url = 'redir/' . $item['cid'];
-
-					if (local_user() && ($item['contact-uid'] == local_user())
-						&& ($item['network'] == NETWORK_DFRN) && !$item['self']) {
-						$profile_url = $redirect_url;
+					$profile_url = Contact::MagicLinkById($item['cid']);
+					if (strpos($profile_url, 'redir/') === 0) {
 						$sparkle = ' sparkle';
 					} else {
-						$profile_url = $item['url'];
 						$sparkle = '';
 					}
 

@@ -598,7 +598,7 @@ class Contact extends BaseObject
 
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
-				$profile_link = Profile::zrl($contact['url']);
+				$profile_link = self::magicLink($contact['url']);
 				$menu = ['profile' => [L10n::t('View Profile'), $profile_link, true]];
 
 				return $menu;
@@ -609,7 +609,7 @@ class Contact extends BaseObject
 			if (DBM::is_result($contact_own)) {
 				return self::photoMenu($contact_own, $uid);
 			} else {
-				$profile_link = Profile::zrl($contact['url']);
+				$profile_link = self::magicLink($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
 				$menu = [
 					'profile' => [L10n::t('View Profile'), $profile_link, true],
@@ -1686,4 +1686,56 @@ class Contact extends BaseObject
 
 		$contact_ids = $return;
 	}
+
+	/**
+	 * @brief Returns a magic link to authenticate remote visitors
+	 *
+	 * @param string $contact_url The address of the target contact profile
+	 * @param integer $url An url that we will be redirected to after the authentication
+	 *
+	 * @return string with "redir" link
+	 */
+	public static function magicLink($contact_url, $url = '')
+	{
+		$cid = self::getIdForURL($contact_url, 0, true);
+		if (empty($cid)) {
+			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
+		}
+
+		return self::magicLinkbyId($cid, $url);
+	}
+
+	/**
+	 * @brief Returns a magic link to authenticate remote visitors
+	 *
+	 * @param integer $cid The contact id of the target contact profile
+	 * @param integer $url An url that we will be redirected to after the authentication
+	 *
+	 * @return string with "redir" link
+	 */
+	public static function magicLinkbyId($cid, $url = '')
+	{
+		$contact = dba::selectFirst('contact', ['network', 'url', 'uid'], ['id' => $cid]);
+
+		if ($contact['network'] != NETWORK_DFRN) {
+			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
+		}
+
+		// Only redirections to the same host do make sense
+		if (($url != '') && (parse_url($url, PHP_URL_HOST) != parse_url($contact['url'], PHP_URL_HOST))) {
+			return $url;
+		}
+
+		if ($contact['uid'] != 0) {
+			return self::magicLink($contact['url'], $url);
+		}
+
+		$redirect = 'redir/' . $cid;
+
+		if ($url != '') {
+			$redirect .= '?url=' . $url;
+		}
+
+		return $redirect;
+        }
 }

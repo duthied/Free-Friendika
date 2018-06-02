@@ -189,7 +189,6 @@ function dfrn_request_post(App $a)
 				}
 
 				// (ignore reply, nothing we can do it failed)
-				// Old: goaway(Profile::zrl($dfrn_url));
 				goaway($forwardurl);
 				return; // NOTREACHED
 			}
