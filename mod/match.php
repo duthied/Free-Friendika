@@ -86,14 +86,14 @@ function match_content(App $a)
 					$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 					$connlnk = System::baseUrl() . '/follow/?url=' . $jj->url;
 					$photo_menu = [
-						'profile' => [L10n::t("View Profile"), Profile::zrl($jj->url)],
+						'profile' => [L10n::t("View Profile"), Contact::magicLink($jj->url)],
 						'follow' => [L10n::t("Connect/Follow"), $connlnk]
 					];
 
 					$contact_details = Contact::getDetailsByURL($jj->url, local_user());
 
 					$entry = [
-						'url' => Profile::zrl($jj->url),
+						'url' => Contact::magicLink($jj->url),
 						'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $jj->url),
 						'name' => $jj->name,
 						'details'       => $contact_details['location'],

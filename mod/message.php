@@ -341,11 +341,8 @@ function message_content(App $a)
 			if ($message['from-url'] == $myprofile) {
 				$from_url = $myprofile;
 				$sparkle = '';
-			} elseif ($message['contact-id'] != 0) {
-				$from_url = 'redir/' . $message['contact-id'];
-				$sparkle = ' sparkle';
 			} else {
-				$from_url = $message['from-url'] . "?zrl=" . urlencode($myprofile);
+				$from_url = Contact::magicLink($message['from-url']);
 				$sparkle = ' sparkle';
 			}
 
@@ -470,7 +467,7 @@ function render_messages(array $msg, $t)
 		$rslt .= replace_macros($tpl, [
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
-			'$from_url' => (($rr['network'] === NETWORK_DFRN) ? 'redir/' . $rr['contact-id'] : $rr['url']),
+			'$from_url' => Contact::magicLink($rr['url']),
 			'$from_addr' => $contact['addr'],
 			'$sparkle' => ' sparkle',
 			'$from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),

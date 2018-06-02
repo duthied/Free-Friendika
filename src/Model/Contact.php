@@ -598,7 +598,7 @@ class Contact extends BaseObject
 
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
-				$profile_link = Profile::zrl($contact['url']);
+				$profile_link = self::magicLink($contact['url']);
 				$menu = ['profile' => [L10n::t('View Profile'), $profile_link, true]];
 
 				return $menu;
@@ -609,7 +609,7 @@ class Contact extends BaseObject
 			if (DBM::is_result($contact_own)) {
 				return self::photoMenu($contact_own, $uid);
 			} else {
-				$profile_link = Profile::zrl($contact['url']);
+				$profile_link = self::magicLink($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
 				$menu = [
 					'profile' => [L10n::t('View Profile'), $profile_link, true],
@@ -1697,7 +1697,7 @@ class Contact extends BaseObject
 	 */
 	public static function magicLink($contact_url, $url = '')
 	{
-		$cid = self::getIdForURL($contact_url);
+		$cid = self::getIdForURL($contact_url, 0, true);
 		if (empty($cid)) {
 			return ($url != '') ? $url : $contact_url;
 		}
@@ -1717,10 +1717,14 @@ class Contact extends BaseObject
 	{
 		// Direkt auf die URL verweisen, wenn die Host-Angaben unterschiedlich sind
 
-		$contact = dba::selectFirst('contact', ['network', 'url'], ['id' => $cid]);
+		$contact = dba::selectFirst('contact', ['network', 'url', 'uid'], ['id' => $cid]);
 
 		if ($contact['network'] != NETWORK_DFRN) {
 			return ($url != '') ? $url : $contact['url'];
+		}
+
+		if ($contact['uid'] != 0) {
+			return self::magicLink($contact['url'], $url);
 		}
 
 		$redirect = 'redir/' . $cid;

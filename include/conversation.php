@@ -14,7 +14,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
@@ -197,10 +196,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img]' . $Bphoto . '[/img][/url]';
 		}
 
 		$item['body'] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
@@ -234,10 +233,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
 		}
 
 		/*
@@ -269,8 +268,8 @@ function localize_item(&$item) {
 
 		$obj = $r[0];
 
-		$author  = '[url=' . Profile::zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . Profile::zrl($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
+		$author  = '[url=' . Contact::magicLink($item['author-link']) . ']' . $item['author-name'] . '[/url]';
+		$objauthor =  '[url=' . Contact::magicLink($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
 			case ACTIVITY_POST:
@@ -323,8 +322,8 @@ function localize_item(&$item) {
 				$target = $r[0];
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];
-				$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-				$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+				$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 				$P = '[url=' . $target['plink'] . ']' . L10n::t('post/item') . '[/url]';
 				$item['body'] = L10n::t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
 			}
@@ -334,7 +333,7 @@ function localize_item(&$item) {
 	if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 		foreach ($matches as $mtch) {
 			if (!strpos($mtch[1], 'zrl=')) {
-				$item['body'] = str_replace($mtch[0], '@[url=' . Profile::zrl($mtch[1]) . ']', $item['body']);
+				$item['body'] = str_replace($mtch[0], '@[url=' . Contact::magicLink($mtch[1]) . ']', $item['body']);
 			}
 		}
 	}
@@ -342,7 +341,7 @@ function localize_item(&$item) {
 	// add zrl's to public images
 	$photo_pattern = "/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is";
 	if (preg_match($photo_pattern, $item['body'])) {
-		$photo_replace = '[url=' . Profile::zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
+		$photo_replace = '[url=' . Contact::magicLink('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
 		$item['body'] = BBCode::pregReplaceInTag($photo_pattern, $photo_replace, 'url', $item['body']);
 	}
 
@@ -908,48 +907,6 @@ function conversation_add_children($parents, $block_authors, $order, $uid) {
 	return $items;
 }
 
-function best_link_url($item, &$sparkle, $url = '') {
-
-	$best_url = '';
-	$sparkle  = false;
-
-	$clean_url = normalise_link($item['author-link']);
-
-	if (local_user()) {
-		$condition = [
-			'network' => NETWORK_DFRN,
-			'uid' => local_user(),
-			'nurl' => normalise_link($clean_url),
-			'pending' => false
-		];
-		$contact = dba::selectFirst('contact', ['id'], $condition);
-		if (DBM::is_result($contact)) {
-			$best_url = 'redir/' . $contact['id'];
-			$sparkle = true;
-			if ($url != '') {
-				$hostname = get_app()->get_hostname();
-				if (!strstr($url, $hostname)) {
-					$best_url .= "?url=".$url;
-				} else {
-					$best_url = $url;
-				}
-			}
-		}
-	}
-	if (!$best_url) {
-		if ($url != '') {
-			$best_url = $url;
-		} elseif (strlen($item['author-link'])) {
-			$best_url = $item['author-link'];
-		} else {
-			$best_url = $item['url'];
-		}
-	}
-
-	return $best_url;
-}
-
-
 function item_photo_menu($item) {
 	$sub_link = '';
 	$poke_link = '';
@@ -982,7 +939,7 @@ function item_photo_menu($item) {
 		$photos_link = $profile_link . '?url=photos';
 		$profile_link = $profile_link . '?url=profile';
 	} else {
-		$profile_link = Profile::zrl($profile_link);
+		$profile_link = Contact::magicLink($profile_link);
 	}
 
 	if ($cid && !$item['self']) {

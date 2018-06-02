@@ -118,7 +118,7 @@ function unfollow_content(App $a)
 			'$nickname' => "",
 			'$name' => $contact["name"],
 			'$url' => $contact["url"],
-			'$zrl' => Profile::zrl($contact["url"]),
+			'$zrl' => Contact::magicLink($contact["url"]),
 			'$url_label' => L10n::t("Profile URL"),
 			'$myaddr' => $myaddr,
 			'$request' => $request,

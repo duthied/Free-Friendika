@@ -961,13 +961,9 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	$redir = false;
 
 	if ($redirect) {
-		$redirect_url = 'redir/' . $contact['id'];
-		if (local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
-			$redir = true;
-			$url = $redirect_url;
+		$url = Contact::magicLink($contact['url']);
+		if (strpos($url, 'redir/') === 0) {
 			$sparkle = ' sparkle';
-		} else {
-			$url = Profile::zrl($url);
 		}
 	}
 
@@ -1300,11 +1296,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	foreach ($matches as $mtch) {
 		$mime = $mtch[3];
 
-		if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
-			$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
-		} else {
-			$the_url = $mtch[1];
-		}
+		$the_url = Contact::magicLink($item['author-link'], $mtch[1]);
 
 		if (strpos($mime, 'video') !== false) {
 			if (!$vhead) {

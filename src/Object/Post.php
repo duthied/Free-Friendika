@@ -13,7 +13,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use dba;
@@ -71,7 +70,7 @@ class Post extends BaseObject
 		}
 
 		$this->writable = $this->getDataValue('writable') || $this->getDataValue('self');
-		$this->redirect_url = 'redir/' . $this->getDataValue('cid');
+		$this->redirect_url = Contact::magicLinkById($this->getDataValue('cid'));
 
 		if (!$this->isToplevel()) {
 			$this->threaded = true;
@@ -840,7 +839,7 @@ class Post extends BaseObject
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.
 
-					$this->owner_url = Profile::zrl($a->page_contact['url']);
+					$this->owner_url = Contact::magicLink($a->page_contact['url']);
 					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
 					$this->wall_to_wall = true;
@@ -862,14 +861,7 @@ class Post extends BaseObject
 						$this->owner_photo = $this->getDataValue('owner-avatar');
 						$this->owner_name = $this->getDataValue('owner-name');
 						$this->wall_to_wall = true;
-						// If it is our contact, use a friendly redirect link
-						if ($this->getDataValue('network') === NETWORK_DFRN
-							&& link_compare($this->getDataValue('owner-link'), $this->getDataValue('url'))
-						) {
-							$this->owner_url = $this->getRedirectUrl();
-						} else {
-							$this->owner_url = Profile::zrl($this->getDataValue('owner-link'));
-						}
+						$this->owner_url = Contact::magicLink($this->getDataValue('owner-link'));
 					}
 				}
 			}
