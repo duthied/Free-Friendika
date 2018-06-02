@@ -1715,12 +1715,15 @@ class Contact extends BaseObject
 	 */
 	public static function magicLinkbyId($cid, $url = '')
 	{
-		// Direkt auf die URL verweisen, wenn die Host-Angaben unterschiedlich sind
-
 		$contact = dba::selectFirst('contact', ['network', 'url', 'uid'], ['id' => $cid]);
 
 		if ($contact['network'] != NETWORK_DFRN) {
 			return ($url != '') ? $url : $contact['url'];
+		}
+
+		// Only redirections to the same host do make sense
+		if (($url != '') && (parse_url($url, PHP_URL_HOST) != parse_url($contact['url'], PHP_URL_HOST))) {
+			return $url;
 		}
 
 		if ($contact['uid'] != 0) {
