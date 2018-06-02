@@ -1141,22 +1141,25 @@ class Worker
 		return Process::deleteByPid();
 	}
 
-	private static function checkIPC()
-	{
-		dba::e("CREATE TABLE IF NOT EXISTS `worker-ipc` (`key` integer, `jobs` boolean) ENGINE = MEMORY;");
-	}
-
+	/**
+	 * Set the flag if some job is waiting
+	 *
+	 * @brief Set the flag if some job is waiting
+	 * @param boolean $jobs Is there a waiting job?
+	 */
 	public static function IPCSetJobState($jobs)
 	{
-		self::checkIPC();
-
 		dba::update('worker-ipc', ['jobs' => $jobs], ['key' => 1], true);
 	}
 
+	/**
+	 * Checks if some worker job waits to be executed
+	 *
+	 * @brief Checks if some worker job waits to be executed
+	 * @return bool
+	 */
 	public static function IPCJobsExists()
 	{
-		self::checkIPC();
-
 		$row = dba::selectFirst('worker-ipc', ['jobs'], ['key' => 1]);
 
 		// When we don't have a row, no job is running
