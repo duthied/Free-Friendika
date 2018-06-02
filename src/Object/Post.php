@@ -184,7 +184,7 @@ class Post extends BaseObject
 		}
 
 		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
-		$delete = $origin ? L10n::t('Delete') : L10n::t('Remove here');
+		$delete = $origin ? L10n::t('Delete globally') : L10n::t('Remove locally');
 
 		$drop = [
 			'dropping' => $dropping,
