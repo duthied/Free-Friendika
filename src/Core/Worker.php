@@ -1084,14 +1084,14 @@ class Worker
 			dba::insert('workerqueue', ['parameter' => $parameters, 'created' => $created, 'priority' => $priority]);
 		}
 
-		// We tell the daemon that a new job entry exists
-		if (Config::get('system', 'worker_daemon_mode', false)) {
-			self::IPCSetJobState(true);
+		// Should we quit and wait for the worker to be called as a cronjob?
+		if ($dont_fork) {
 			return true;
 		}
 
-		// Should we quit and wait for the worker to be called as a cronjob?
-		if ($dont_fork) {
+		// We tell the daemon that a new job entry exists
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(true);
 			return true;
 		}
 
