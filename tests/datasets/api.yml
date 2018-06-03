@@ -90,8 +90,8 @@ item:
         id: 1
         visible: true
         contact-id: 42
-        author-id: 45
-        owner-id: 45
+        author-id: 42
+        owner-id: 42
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: true
@@ -108,8 +108,8 @@ item:
         id: 2
         visible: true
         contact-id: 42
-        author-id: 45
-        owner-id: 45
+        author-id: 42
+        owner-id: 42
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: false
