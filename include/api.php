@@ -492,7 +492,7 @@ function api_rss_extra(App $a, $arr, $user_info)
  */
 function api_unique_id_to_nurl($id)
 {
-	$r = dba::selectFirst('contact', ['nurl'], ['uid' => 0, 'id' => $id]);
+	$r = dba::selectFirst('contact', ['nurl'], ['id' => $id]);
 
 	if (DBM::is_result($r)) {
 		return $r["nurl"];
@@ -532,7 +532,7 @@ function api_get_user(App $a, $contact_id = null)
 		$user = dbesc(api_unique_id_to_nurl(intval($contact_id)));
 
 		if ($user == "") {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ID ".$contact_id." not found.");
 		}
 
 		$url = $user;
@@ -546,7 +546,7 @@ function api_get_user(App $a, $contact_id = null)
 		$user = dbesc(api_unique_id_to_nurl($_GET['user_id']));
 
 		if ($user == "") {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ID ".$_GET['user_id']." not found.");
 		}
 
 		$url = $user;
@@ -670,13 +670,14 @@ function api_get_user(App $a, $contact_id = null)
 				'statusnet_profile_url' => $r[0]["url"],
 				'uid' => 0,
 				'cid' => Contact::getIdForURL($r[0]["url"], api_user(), true),
+				'pid' => Contact::getIdForURL($r[0]["url"], 0, true),
 				'self' => 0,
 				'network' => $r[0]["network"],
 			];
 
 			return $ret;
 		} else {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ".$url." not found.");
 		}
 	}
 
@@ -809,6 +810,7 @@ function api_get_user(App $a, $contact_id = null)
 		'statusnet_profile_url' => $uinfo[0]['url'],
 		'uid' => intval($uinfo[0]['uid']),
 		'cid' => intval($uinfo[0]['cid']),
+		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, true),
 		'self' => $uinfo[0]['self'],
 		'network' => $uinfo[0]['network'],
 	];
@@ -856,16 +858,12 @@ function api_get_user(App $a, $contact_id = null)
  */
 function api_item_get_user(App $a, $item)
 {
-	$status_user = api_get_user($a, $item["author-link"]);
+	$status_user = api_get_user($a, $item["author-id"]);
 
-	$status_user["protected"] = (($item["allow_cid"] != "") ||
-					($item["allow_gid"] != "") ||
-					($item["deny_cid"] != "") ||
-					($item["deny_gid"] != "") ||
-					$item["private"]);
+	$status_user["protected"] = $item["private"];
 
 	if ($item['thr-parent'] == $item['uri']) {
-		$owner_user = api_get_user($a, $item["owner-link"]);
+		$owner_user = api_get_user($a, $item["owner-id"]);
 	} else {
 		$owner_user = $status_user;
 	}
@@ -1356,31 +1354,17 @@ function api_status_show($type)
 	logger('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
 
 	if ($type == "raw") {
-		$privacy_sql = "AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''";
+		$privacy_sql = "AND NOT `private`";
 	} else {
 		$privacy_sql = "";
 	}
 
 	// get last public wall message
-	$lastwall = q(
-		"SELECT `item`.*
-			FROM `item`
-			WHERE `item`.`contact-id` = %d AND `item`.`uid` = %d
-				AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
-				AND `item`.`type` != 'activity' $privacy_sql
-			ORDER BY `item`.`id` DESC
-			LIMIT 1",
-		intval($user_info['cid']),
-		intval(api_user()),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url'])),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url']))
-	);
+	$condition = ["`owner-id` = ? AND `uid` = ? AND `type` != 'activity' ".$privacy_sql,
+		$user_info['pid'], api_user()];
+	$lastwall = dba::selectFirst('item', [], $condition, ['order' => ['id' => true]]);
 
 	if (DBM::is_result($lastwall)) {
-		$lastwall = $lastwall[0];
-
 		$in_reply_to = api_in_reply_to($lastwall);
 
 		$converted = api_convert_item($lastwall);
@@ -1428,10 +1412,10 @@ function api_status_show($type)
 			$status_info["entities"] = $converted["entities"];
 		}
 
-		if (($lastwall['item_network'] != "") && ($status_info["source"] == 'web')) {
-			$status_info["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
-		} elseif (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $status_info["source"])) {
-			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['item_network'], $user_info['url']).')');
+		if ($status_info["source"] == 'web') {
+			$status_info["source"] = ContactSelector::networkToName($lastwall['network'], $user_info['url']);
+		} elseif (ContactSelector::networkToName($lastwall['network'], $user_info['url']) != $status_info["source"]) {
+			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['network'], $user_info['url']).')');
 		}
 
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -1460,28 +1444,12 @@ function api_users_show($type)
 	$a = get_app();
 
 	$user_info = api_get_user($a);
-	$lastwall = q(
-		"SELECT `item`.*
-			FROM `item`
-			INNER JOIN `contact` ON `contact`.`id`=`item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			WHERE `item`.`uid` = %d AND `verb` = '%s' AND `item`.`contact-id` = %d
-				AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
-				AND `type`!='activity'
-				AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
-			ORDER BY `id` DESC
-			LIMIT 1",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($user_info['cid']),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url'])),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url']))
-	);
+
+	$condition = ["`owner-id` = ? AND `uid` = ? AND `verb` = ? AND `type` != 'activity' AND NOT `private`",
+		$user_info['pid'], api_user(), ACTIVITY_POST];
+	$lastwall = dba::selectFirst('item', [], $condition, ['order' => ['id' => true]]);
 
 	if (DBM::is_result($lastwall)) {
-		$lastwall = $lastwall[0];
-
 		$in_reply_to = api_in_reply_to($lastwall);
 
 		$converted = api_convert_item($lastwall);
@@ -1519,12 +1487,12 @@ function api_users_show($type)
 			$user_info["status"]["entities"] = $converted["entities"];
 		}
 
-		if (($lastwall['item_network'] != "") && ($user_info["status"]["source"] == 'web')) {
-			$user_info["status"]["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
+		if ($user_info["status"]["source"] == 'web') {
+			$user_info["status"]["source"] = ContactSelector::networkToName($lastwall['network'], $user_info['url']);
 		}
 
-		if (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $user_info["status"]["source"])) {
-			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) . ')');
+		if (ContactSelector::networkToName($lastwall['network'], $user_info['url']) != $user_info["status"]["source"]) {
+			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . ContactSelector::networkToName($lastwall['network'], $user_info['url']) . ')');
 		}
 	}
 
@@ -1573,10 +1541,10 @@ function api_users_search($type)
 			}
 			$userlist = ["users" => $userlist];
 		} else {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ".$_GET["q"]." not found.");
 		}
 	} else {
-		throw new BadRequestException("User not found.");
+		throw new BadRequestException("No user specified.");
 	}
 
 	return api_format_data("users", $type, $userlist);
@@ -1735,19 +1703,14 @@ function api_statuses_home_timeline($type)
 		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+	$r = q("SELECT `item`.* FROM `item`
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`uid` = %d AND `verb` = '%s'
 		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 		$sql_extra
-		AND `item`.`id`>%d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
+		AND `item`.`id` > %d
+		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 		intval(api_user()),
 		dbesc(ACTIVITY_POST),
 		intval($since_id),
@@ -2016,12 +1979,8 @@ function api_statuses_show($type)
 	$id = $item['id'];
 
 	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+		"SELECT `item`.* FROM `item`
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 		AND `item`.`uid` IN (0, %d) AND `item`.`verb` = '%s'
@@ -2107,13 +2066,8 @@ function api_conversation_show($type)
 		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+	$r = q("SELECT `item`.* FROM `item`
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`parent` = %d AND `item`.`visible`
 		AND NOT `item`.`moderated` AND NOT `item`.`deleted`
@@ -2175,17 +2129,11 @@ function api_statuses_repeat($type)
 
 	logger('API: api_statuses_repeat: '.$id);
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`nick` as `reply_author`,
-		`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+	$r = q("SELECT `item`.* FROM `item`
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
-		AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
+		AND NOT `item`.`private`
 		AND `item`.`id`=%d",
 		intval($id)
 	);
@@ -2299,36 +2247,25 @@ function api_statuses_mentions($type)
 
 	$start = ($page - 1) * $count;
 
-	// Ugly code - should be changed
-	$myurl = System::baseUrl() . '/profile/'. $a->user['nickname'];
-	$myurl = substr($myurl, strpos($myurl, '://') + 3);
-	$myurl = str_replace('www.', '', $myurl);
-
 	$sql_extra = '';
 
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item` FORCE INDEX (`uid_id`)
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+	$r = q("SELECT `item`.* FROM `item` FORCE INDEX (`uid_id`)
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`uid` = %d AND `verb` = '%s'
-		AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
+		WHERE `item`.`uid` = %d AND `item`.`verb` = '%s'
+		AND `item`.`author-id` != %d
 		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND !`ignored`)
+		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND NOT `ignored`)
 		$sql_extra
-		AND `item`.`id`>%d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
+		AND `item`.`id` > %d
+		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 		intval(api_user()),
 		dbesc(ACTIVITY_POST),
-		dbesc(protect_sprintf($myurl)),
-		dbesc(protect_sprintf($myurl)),
+		intval($user_info['pid']),
 		intval(api_user()),
 		intval($since_id),
 		intval($start),
@@ -2408,20 +2345,15 @@ function api_statuses_user_timeline($type)
 		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item` FORCE INDEX (`uid_contactid_id`)
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+	$r = q("SELECT `item`.* FROM `item` FORCE INDEX (`uid_contactid_id`)
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`uid` = %d AND `verb` = '%s'
 		AND `item`.`contact-id` = %d
 		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
 		$sql_extra
 		AND `item`.`id` > %d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
+		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 		intval(api_user()),
 		dbesc(ACTIVITY_POST),
 		intval($user_info['cid']),
@@ -2566,20 +2498,15 @@ function api_favorites($type)
 			$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
 		}
 
-		$r = q(
-			"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`
-			FROM `item`, `contact`
+		$r = q("SELECT `item`.* FROM `item`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			WHERE `item`.`uid` = %d
-			AND `item`.`visible` = 1 AND `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `item`.`starred` = 1
-			AND `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
+			AND `item`.`starred`
 			$sql_extra
 			AND `item`.`id`>%d
-			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
+			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
 			intval(api_user()),
 			intval($since_id),
 			intval($start),
@@ -3001,8 +2928,8 @@ function api_format_items_activities(&$item, $type = "json")
 	];
 
 	$items = q(
-		'SELECT * FROM item
-			WHERE uid=%d AND `thr-parent`="%s" AND visible AND NOT deleted',
+		'SELECT * FROM `item`
+			WHERE `uid` = %d AND `thr-parent` = "%s" AND `visible` AND NOT `deleted`',
 		intval($item['uid']),
 		dbesc($item['uri'])
 	);
@@ -3012,7 +2939,7 @@ function api_format_items_activities(&$item, $type = "json")
 		//builtin_activity_puller($i, $activities);
 
 		// get user data and add it to the array of the activity
-		$user = api_get_user($a, $i['author-link']);
+		$user = api_get_user($a, $i['author-id']);
 		switch ($i['verb']) {
 			case ACTIVITY_LIKE:
 				$activities['like'][] = $user;
@@ -3168,26 +3095,18 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			$status["entities"] = $converted["entities"];
 		}
 
-		if (($item['item_network'] != "") && ($status["source"] == 'web')) {
-			$status["source"] = ContactSelector::networkToName($item['item_network'], $user_info['url']);
-		} elseif (($item['item_network'] != "") && (ContactSelector::networkToName($item['item_network'], $user_info['url']) != $status["source"])) {
-			$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['item_network'], $user_info['url']).')');
+		if ($status["source"] == 'web') {
+			$status["source"] = ContactSelector::networkToName($item['network'], $user_info['url']);
+		} elseif (ContactSelector::networkToName($item['network'], $user_info['url']) != $status["source"]) {
+			$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $user_info['url']).')');
 		}
-
-
-		// Retweets are only valid for top postings
-		// It doesn't work reliable with the link if its a feed
-		//$IsRetweet = ($item['owner-link'] != $item['author-link']);
-		//if ($IsRetweet)
-		//	$IsRetweet = (($item['owner-name'] != $item['author-name']) || ($item['owner-avatar'] != $item['author-avatar']));
-
 
 		if ($item["id"] == $item["parent"]) {
 			$retweeted_item = api_share_as_retweet($item);
 			if ($retweeted_item !== false) {
 				$retweeted_status = $status;
 				try {
-					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-link"]);
+					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
 				} catch (BadRequestException $e) {
 					// user not found. should be found?
 					/// @todo check if the user should be always found
@@ -3395,13 +3314,8 @@ function api_lists_statuses($type)
 		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
 	}
 
-	$statuses = dba::p(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`, `group_member`.`gid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+	$statuses = dba::p("SELECT `item`.* FROM `item`
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
 		WHERE `item`.`uid` = ? AND `verb` = ?
@@ -4936,13 +4850,8 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$data['photo']['friendica_activities'] = api_format_items_activities($item[0], $type);
 
 	// retrieve comments on photo
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
+	$r = q("SELECT `item`.* FROM `item`
+		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`parent` = %d AND `item`.`visible`
 		AND NOT `item`.`moderated` AND NOT `item`.`deleted`
@@ -5254,7 +5163,7 @@ function api_in_reply_to($item)
 		$in_reply_to['status_id_str'] = (string) intval($in_reply_to['status_id']);
 
 		$r = q(
-			"SELECT `contact`.`nick`, `contact`.`name`, `contact`.`id`, `contact`.`url` FROM item
+			"SELECT `contact`.`nick`, `contact`.`name`, `contact`.`id`, `contact`.`url` FROM `item`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
 			WHERE `item`.`id` = %d LIMIT 1",
 			intval($in_reply_to['status_id'])

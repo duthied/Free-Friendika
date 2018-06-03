@@ -442,7 +442,7 @@ function ping_get_notifications($uid)
 
 	do {
 		$r = q(
-			"SELECT `notify`.*, `item`.`visible`, `item`.`spam`, `item`.`deleted`
+			"SELECT `notify`.*, `item`.`visible`, `item`.`deleted`
 			FROM `notify` LEFT JOIN `item` ON `item`.`id` = `notify`.`iid`
 			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
 			AND NOT (`notify`.`type` IN (%d, %d))
@@ -469,10 +469,6 @@ function ping_get_notifications($uid)
 				$notification["visible"] = true;
 			}
 
-			if (is_null($notification["spam"])) {
-				$notification["spam"] = 0;
-			}
-
 			if (is_null($notification["deleted"])) {
 				$notification["deleted"] = 0;
 			}
@@ -495,7 +491,6 @@ function ping_get_notifications($uid)
 			$notification["href"] = System::baseUrl() . "/notify/view/" . $notification["id"];
 
 			if ($notification["visible"]
-				&& !$notification["spam"]
 				&& !$notification["deleted"]
 				&& !(x($result, $notification["parent"]) && is_array($result[$notification["parent"]]))
 			) {

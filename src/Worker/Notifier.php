@@ -164,10 +164,11 @@ class Notifier {
 		if (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::RELOCATION])) {
 			$parent = $items[0];
 
-			$thr_parent = q("SELECT `network`, `author-link`, `owner-link` FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
-				dbesc($target_item["thr-parent"]), intval($target_item["uid"]));
+			$fields = ['network', 'author-id', 'owner-id'];
+			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
+			$thr_parent = dba::selectFirst('item', $fields, $condition);
 
-			logger('GUID: '.$target_item["guid"].': Parent is '.$parent['network'].'. Thread parent is '.$thr_parent[0]['network'], LOGGER_DEBUG);
+			logger('GUID: '.$target_item["guid"].': Parent is '.$parent['network'].'. Thread parent is '.$thr_parent['network'], LOGGER_DEBUG);
 
 			// This is IMPORTANT!!!!
 
@@ -213,7 +214,7 @@ class Notifier {
 			}
 
 			// Special treatment for forum posts
-			if (($target_item['author-link'] != $target_item['owner-link']) &&
+			if (($target_item['author-id'] != $target_item['owner-id']) &&
 				($owner['id'] != $target_item['contact-id']) &&
 				($target_item['uri'] === $target_item['parent-uri'])) {
 
@@ -247,7 +248,7 @@ class Notifier {
 						$target_item['deny_cid'].$target_item['deny_gid']) == 0))
 					$push_notify = true;
 
-				if (($thr_parent && ($thr_parent[0]['network'] == NETWORK_OSTATUS)) || ($parent['network'] == NETWORK_OSTATUS)) {
+				if (($thr_parent && ($thr_parent['network'] == NETWORK_OSTATUS)) || ($parent['network'] == NETWORK_OSTATUS)) {
 					$push_notify = true;
 
 					if ($parent["network"] == NETWORK_OSTATUS) {
@@ -333,37 +334,21 @@ class Notifier {
 
 			// If the thread parent is OStatus then do some magic to distribute the messages.
 			// We have not only to look at the parent, since it could be a Friendica thread.
-			if (($thr_parent && ($thr_parent[0]['network'] == NETWORK_OSTATUS)) || ($parent['network'] == NETWORK_OSTATUS)) {
+			if (($thr_parent && ($thr_parent['network'] == NETWORK_OSTATUS)) || ($parent['network'] == NETWORK_OSTATUS)) {
 				$diaspora_delivery = false;
 
-				logger('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent[0]['author-link']." - Owner: ".$thr_parent[0]['owner-link'], LOGGER_DEBUG);
+				logger('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent['author-id']." - Owner: ".$thr_parent['owner-id'], LOGGER_DEBUG);
 
 				// Send a salmon to the parent author
-				$r = q("SELECT `url`, `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
-					dbesc(normalise_link($thr_parent[0]['author-link'])),
-					intval($uid));
-				if (DBM::is_result($r)) {
-					$probed_contact = $r[0];
-				} else {
-					$probed_contact = Probe::uri($thr_parent[0]['author-link']);
-				}
-
-				if ($probed_contact["notify"] != "") {
+				$probed_contact = dba::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['author-id']]);
+				if (DBM::is_result($probed_contact) && !empty($probed_contact["notify"])) {
 					logger('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}
 
 				// Send a salmon to the parent owner
-				$r = q("SELECT `url`, `notify` FROM `contact` WHERE `nurl`='%s' AND `uid` IN (0, %d) AND `notify` != ''",
-					dbesc(normalise_link($thr_parent[0]['owner-link'])),
-					intval($uid));
-				if (DBM::is_result($r)) {
-					$probed_contact = $r[0];
-				} else {
-					$probed_contact = Probe::uri($thr_parent[0]['owner-link']);
-				}
-
-				if ($probed_contact["notify"] != "") {
+				$probed_contact = dba::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['owner-id']]);
+				if (DBM::is_result($probed_contact) && !empty($probed_contact["notify"])) {
 					logger('Notify parent owner '.$probed_contact["url"].': '.$probed_contact["notify"]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}

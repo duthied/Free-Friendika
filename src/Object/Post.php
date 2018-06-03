@@ -198,6 +198,13 @@ class Post extends BaseObject
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? L10n::t("save to folder") : false);
 
+		if ($item['network'] == NETWORK_FEED) {
+			$item['author-avatar'] = $item['contact-avatar'];
+			$item['author-name'] = $item['contact-name'];
+			$item['owner-avatar'] = $item['contact-avatar'];
+			$item['owner-name'] = $item['contact-name'];
+		}
+
 		$diff_author = !link_compare($item['url'], $item['author-link']);
 		$profile_name = htmlentities(((strlen($item['author-name'])) && $diff_author) ? $item['author-name'] : $item['name']);
 		if ($item['author-link'] && (!$item['author-name'])) {
@@ -207,14 +214,6 @@ class Post extends BaseObject
 		$profile_link = Contact::magicLinkById($item['author-id']);
 		if (strpos($profile_link, 'redir/') === 0) {
 			$sparkle = ' sparkle';
-		}
-
-		if (($item['network'] == NETWORK_FEED) || empty($item['author-thumb'])) {
-			$item['author-thumb'] = $item['author-avatar'];
-		}
-
-		if (($item['network'] == NETWORK_FEED) || empty($item['owner-thumb'])) {
-			$item['owner-thumb'] = $item['owner-avatar'];
 		}
 
 		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
@@ -369,7 +368,7 @@ class Post extends BaseObject
 			'profile_url'     => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name'            => $name_e,
-			'thumb'           => $a->remove_baseurl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
+			'thumb'           => $a->remove_baseurl(proxy_url($item['author-avatar'], false, PROXY_SIZE_THUMB)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
@@ -382,7 +381,7 @@ class Post extends BaseObject
 			'indent'          => $indent,
 			'shiny'           => $shiny,
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => $a->remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
+			'owner_photo'     => $a->remove_baseurl(proxy_url($item['owner-avatar'], false, PROXY_SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
 			'plink'           => get_plink($item),
 			'edpost'          => Feature::isEnabled($conv->getProfileOwner(), 'edit_posts') ? $edpost : '',

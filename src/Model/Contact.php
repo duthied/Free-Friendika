@@ -944,21 +944,36 @@ class Contact extends BaseObject
 			'name' => $data['name'],
 			'nick' => $data['nick']];
 
-		// Only fill the pubkey if it was empty before. We have to prevent identity theft.
-		if (!empty($contact['pubkey'])) {
-			unset($contact['pubkey']);
-		} else {
-			$updated['pubkey'] = $data['pubkey'];
-		}
-
 		if ($data['keywords'] != '') {
 			$updated['keywords'] = $data['keywords'];
 		}
 		if ($data['location'] != '') {
 			$updated['location'] = $data['location'];
 		}
-		if ($data['about'] != '') {
-			$updated['about'] = $data['about'];
+
+		// Update the technical stuff as well - if filled
+		if ($data['notify'] != '') {
+			$updated['notify'] = $data['notify'];
+		}
+		if ($data['poll'] != '') {
+			$updated['poll'] = $data['poll'];
+		}
+		if ($data['batch'] != '') {
+			$updated['batch'] = $data['batch'];
+		}
+		if ($data['request'] != '') {
+			$updated['request'] = $data['request'];
+		}
+		if ($data['confirm'] != '') {
+			$updated['confirm'] = $data['confirm'];
+		}
+		if ($data['poco'] != '') {
+			$updated['poco'] = $data['poco'];
+		}
+
+		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
+		if (empty($contact['pubkey'])) {
+			$updated['pubkey'] = $data['pubkey'];
 		}
 
 		if (($data["addr"] != $contact["addr"]) || ($data["alias"] != $contact["alias"])) {

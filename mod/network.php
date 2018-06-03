@@ -103,7 +103,6 @@ function network_init(App $a)
 				'/new', //new
 				'',     //starred
 				'',     //bookmarked
-				'',     //spam
 			];
 			$tab_args = [
 				'f=&order=comment', //all
@@ -112,7 +111,6 @@ function network_init(App $a)
 				'',                 //new
 				'f=&star=1',        //starred
 				'f=&bmark=1',       //bookmarked
-				'f=&spam=1',        //spam
 			];
 
 			$k = array_search('active', $last_sel_tabs);
@@ -218,9 +216,8 @@ function saved_searches($search)
  * 		'/network/new',				=> $new_active = 'active'
  * 		'/network?f=&star=1',		=> $starred_active = 'active'
  * 		'/network?f=&bmark=1',		=> $bookmarked_active = 'active'
- * 		'/network?f=&spam=1',		=> $spam_active = 'active'
  *
- * @return Array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active);
+ * @return Array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
  */
 function network_query_get_sel_tab(App $a)
 {
@@ -230,7 +227,6 @@ function network_query_get_sel_tab(App $a)
 	$bookmarked_active = '';
 	$all_active = '';
 	$conv_active = '';
-	$spam_active = '';
 	$postord_active = '';
 
 	if (($a->argc > 1 && $a->argv[1] === 'new') || ($a->argc > 2 && $a->argv[2] === 'new')) {
@@ -249,11 +245,7 @@ function network_query_get_sel_tab(App $a)
 		$conv_active = 'active';
 	}
 
-	if (x($_GET, 'spam')) {
-		$spam_active = 'active';
-	}
-
-	if (($new_active == '') && ($starred_active == '') && ($bookmarked_active == '') && ($conv_active == '') && ($spam_active == '')) {
+	if (($new_active == '') && ($starred_active == '') && ($bookmarked_active == '') && ($conv_active == '')) {
 		$no_active = 'active';
 	}
 
@@ -264,7 +256,7 @@ function network_query_get_sel_tab(App $a)
 		}
 	}
 
-	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active];
+	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active];
 }
 
 function network_query_get_sel_group(App $a)
@@ -928,7 +920,7 @@ function network_tabs(App $a)
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// $a->page['content'] .= '<div class="tabs-wrapper">';
-	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
+	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
 
 	// if no tabs are selected, defaults to comments
 	if ($no_active == 'active') {
@@ -1004,7 +996,7 @@ function network_tabs(App $a)
 	// save selected tab, but only if not in file mode
 	if (!x($_GET, 'file')) {
 		PConfig::set(local_user(), 'network.view', 'tab.selected', [
-			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active
+			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active
 		]);
 	}
 

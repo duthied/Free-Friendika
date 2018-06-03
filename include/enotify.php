@@ -152,7 +152,7 @@ function notification($params)
 		}
 
 		// "your post"
-		if (DBM::is_result($item) && $item['owner-name'] == $item['author-name'] && $item['wall']) {
+		if (DBM::is_result($item) && $item['owner-id'] == $item['author-id'] && $item['wall']) {
 			$dest_str = L10n::t('%1$s commented on [url=%2$s]your %3$s[/url]',
 				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 				$itemlink,
