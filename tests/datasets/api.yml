@@ -65,7 +65,7 @@ item:
         visible: true
         contact-id: 42
         author-id: 42
-        owner-id: 42
+        owner-id: 45
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: true
@@ -83,7 +83,7 @@ item:
         visible: true
         contact-id: 42
         author-id: 42
-        owner-id: 42
+        owner-id: 45
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: false
