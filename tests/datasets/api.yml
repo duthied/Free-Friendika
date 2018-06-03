@@ -58,14 +58,40 @@ contact:
         blocked: false
         rel: 2
         network: dfrn
+    -
+        id: 45
+        uid: 0
+        name: Self contact
+        nick: selfcontact
+        self: true
+        nurl: http://localhost/profile/selfcontact
+        url: http://localhost/profile/selfcontact
+        about: User used in tests
+        pending: false
+        blocked: false
+        rel: 0
+        network: dfrn
+    -
+        id: 46
+        uid: 0
+        name: Friend contact
+        nick: friendcontact
+        self: false
+        nurl: http://localhost/profile/friendcontact
+        url: http://localhost/profile/friendcontact
+        pending: false
+        blocked: false
+        rel: 0
+        network: dfrn
+    -
 
 item:
     -
         id: 1
         visible: true
         contact-id: 42
-        author-id: 42
-        owner-id: 42
+        author-id: 45
+        owner-id: 45
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: true
@@ -82,8 +108,8 @@ item:
         id: 2
         visible: true
         contact-id: 42
-        author-id: 42
-        owner-id: 42
+        author-id: 45
+        owner-id: 45
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: false
