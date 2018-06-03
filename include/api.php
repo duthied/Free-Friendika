@@ -532,7 +532,7 @@ function api_get_user(App $a, $contact_id = null)
 		$user = dbesc(api_unique_id_to_nurl(intval($contact_id)));
 
 		if ($user == "") {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ID ".$contact_id." not found.");
 		}
 
 		$url = $user;
@@ -546,7 +546,7 @@ function api_get_user(App $a, $contact_id = null)
 		$user = dbesc(api_unique_id_to_nurl($_GET['user_id']));
 
 		if ($user == "") {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ID ".$_GET['user_id']." not found.");
 		}
 
 		$url = $user;
@@ -677,7 +677,7 @@ function api_get_user(App $a, $contact_id = null)
 
 			return $ret;
 		} else {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ".$url." not found.");
 		}
 	}
 
@@ -1541,10 +1541,10 @@ function api_users_search($type)
 			}
 			$userlist = ["users" => $userlist];
 		} else {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ".$_GET["q"]." not found.");
 		}
 	} else {
-		throw new BadRequestException("User not found.");
+		throw new BadRequestException("No user specified.");
 	}
 
 	return api_format_data("users", $type, $userlist);
