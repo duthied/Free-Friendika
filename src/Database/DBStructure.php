@@ -174,7 +174,7 @@ class DBStructure
 			echo "--\n";
 			echo "-- TABLE $name\n";
 			echo "--\n";
-			self::createTable($name, $structure['fields'], true, false, $structure["indexes"]);
+			self::createTable($name, $structure, true, false);
 
 			echo "\n";
 		}
@@ -251,7 +251,7 @@ class DBStructure
 			$is_unique = false;
 			$temp_name = $name;
 			if (!isset($database[$name])) {
-				$r = self::createTable($name, $structure["fields"], $verbose, $action, $structure['indexes']);
+				$r = self::createTable($name, $structure, $verbose, $action);
 				if (!DBM::is_result($r)) {
 					$errors .= self::printUpdateError($name);
 				}
@@ -369,6 +369,18 @@ class DBStructure
 				if (isset($database[$name]["table_status"]["Comment"])) {
 					if ($database[$name]["table_status"]["Comment"] != $structure['comment']) {
 						$sql2 = "COMMENT = '".dbesc($structure['comment'])."'";
+
+						if ($sql3 == "") {
+							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+						} else {
+							$sql3 .= ", ".$sql2;
+						}
+					}
+				}
+
+				if (isset($database[$name]["table_status"]["Engine"]) && isset($structure['engine'])) {
+					if ($database[$name]["table_status"]["Engine"] != $structure['engine']) {
+						$sql2 = "ENGINE = '".dbesc($structure['engine'])."'";
 
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
@@ -554,20 +566,22 @@ class DBStructure
 		return($fieldstruct);
 	}
 
-	private static function createTable($name, $fields, $verbose, $action, $indexes=null) {
+	private static function createTable($name, $structure, $verbose, $action) {
 		$r = true;
 
+		$engine = "";
+		$comment = "";
 		$sql_rows = [];
 		$primary_keys = [];
-		foreach ($fields AS $fieldname => $field) {
+		foreach ($structure["fields"] AS $fieldname => $field) {
 			$sql_rows[] = "`".dbesc($fieldname)."` ".self::FieldCommand($field);
 			if (x($field,'primary') && $field['primary']!='') {
 				$primary_keys[] = $fieldname;
 			}
 		}
 
-		if (!is_null($indexes)) {
-			foreach ($indexes AS $indexname => $fieldnames) {
+		if (!is_null($structure["indexes"])) {
+			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 				$sql_index = self::createIndex($indexname, $fieldnames, "");
 				if (!is_null($sql_index)) {
 					$sql_rows[] = $sql_index;
@@ -575,9 +589,18 @@ class DBStructure
 			}
 		}
 
+		if (!is_null($structure["engine"])) {
+			$engine = " ENGINE=" . $structure["engine"];
+		}
+
+		if (!is_null($structure["comment"])) {
+			$comment = " COMMENT='" . dbesc($structure["comment"]) . "'";
+		}
+
 		$sql = implode(",\n\t", $sql_rows);
 
-		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT COLLATE utf8mb4_general_ci";
+		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql.
+				"\n)" . $engine . " DEFAULT COLLATE utf8mb4_general_ci" . $comment;
 		if ($verbose) {
 			echo $sql.";\n";
 		}
@@ -1797,6 +1820,18 @@ class DBStructure
 						"PRIMARY" => ["uid", "iid"],
 						]
 				];
+		$database["worker-ipc"] = [
+				"comment" => "Inter process communication between the frontend and the worker",
+				"fields" => [
+						"key" => ["type" => "int", "not null" => "1", "primary" => "1", "comment" => ""],
+						"jobs" => ["type" => "boolean", "comment" => "Flag for outstanding jobs"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["key"],
+						],
+				"engine" => "MEMORY",
+				];
+
 		$database["workerqueue"] = [
 				"comment" => "Background tasks queue entries",
 				"fields" => [

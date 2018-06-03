@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.08-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1267
+-- DB_UPDATE_VERSION 1268
 -- ------------------------------------------
 
 
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `addon` (
 	`plugin_admin` boolean NOT NULL DEFAULT '0' COMMENT '1 = has admin config, 0 = has no admin config',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `name` (`name`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registered addons';
 
 --
 -- TABLE attach
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `attach` (
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
 	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='file attachments';
 
 --
 -- TABLE auth_codes
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `auth_codes` (
 	`expires` int NOT NULL DEFAULT 0 COMMENT '',
 	`scope` varchar(250) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
 -- TABLE cache
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `cache` (
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of cache insertion',
 	 PRIMARY KEY(`k`),
 	 INDEX `k_expires` (`k`,`expires`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Stores temporary data';
 
 --
 -- TABLE challenge
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `challenge` (
 	`type` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`last_update` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE clients
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `clients` (
 	`icon` text COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`client_id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
 -- TABLE config
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `config` (
 	`v` mediumtext COMMENT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `cat_k` (`cat`,`k`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='main configuration storage';
 
 --
 -- TABLE contact
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `nick_uid` (`nick`(32),`uid`),
 	 INDEX `dfrn-id` (`dfrn-id`(64)),
 	 INDEX `issued-id` (`issued-id`(64))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
 
 --
 -- TABLE conv
@@ -202,7 +202,7 @@ CREATE TABLE IF NOT EXISTS `conv` (
 	`subject` text COMMENT 'subject of initial message',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='private messages';
 
 --
 -- TABLE conversation
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 	 PRIMARY KEY(`item-uri`),
 	 INDEX `conversation-uri` (`conversation-uri`),
 	 INDEX `received` (`received`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Raw data and structure information for messages';
 
 --
 -- TABLE event
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_start` (`uid`,`start`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Events';
 
 --
 -- TABLE fcontact
@@ -272,7 +272,7 @@ CREATE TABLE IF NOT EXISTS `fcontact` (
 	 PRIMARY KEY(`id`),
 	 INDEX `addr` (`addr`(32)),
 	 UNIQUE INDEX `url` (`url`(190))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora compatible contacts - used in the Diaspora implementation';
 
 --
 -- TABLE fsuggest
@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS `fsuggest` (
 	`note` text COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='friend suggestion stuff';
 
 --
 -- TABLE gcign
@@ -300,7 +300,7 @@ CREATE TABLE IF NOT EXISTS `gcign` (
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `gcid` (`gcid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contacts ignored by friend suggestions';
 
 --
 -- TABLE gcontact
@@ -339,7 +339,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	 INDEX `addr` (`addr`(64)),
 	 INDEX `hide_network_updated` (`hide`,`network`,`updated`),
 	 INDEX `updated` (`updated`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='global contacts';
 
 --
 -- TABLE glink
@@ -354,7 +354,7 @@ CREATE TABLE IF NOT EXISTS `glink` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `cid_uid_gcid_zcid` (`cid`,`uid`,`gcid`,`zcid`),
 	 INDEX `gcid` (`gcid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='\'friends of friends\' linkages derived from poco';
 
 --
 -- TABLE group
@@ -367,7 +367,7 @@ CREATE TABLE IF NOT EXISTS `group` (
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'human readable name of group',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, group info';
 
 --
 -- TABLE group_member
@@ -379,7 +379,7 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 	 PRIMARY KEY(`id`),
 	 INDEX `contactid` (`contact-id`),
 	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, member info';
 
 --
 -- TABLE gserver
@@ -405,7 +405,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `nurl` (`nurl`(190))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
 -- TABLE gserver-tag
@@ -415,7 +415,7 @@ CREATE TABLE IF NOT EXISTS `gserver-tag` (
 	`tag` varchar(100) NOT NULL DEFAULT '' COMMENT 'Tag that the server has subscribed',
 	 PRIMARY KEY(`gserver-id`,`tag`),
 	 INDEX `tag` (`tag`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Tags that the server has subscribed';
 
 --
 -- TABLE hook
@@ -428,7 +428,7 @@ CREATE TABLE IF NOT EXISTS `hook` (
 	`priority` smallint unsigned NOT NULL DEFAULT 0 COMMENT 'not yet implemented - can be used to sort conflicts in hook handling by calling handlers in priority order',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `hook_file_function` (`hook`,`file`,`function`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='addon hook registry';
 
 --
 -- TABLE intro
@@ -446,7 +446,7 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	`blocked` boolean NOT NULL DEFAULT '1' COMMENT '',
 	`ignore` boolean NOT NULL DEFAULT '0' COMMENT '',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE item
@@ -465,7 +465,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`thr-parent` varchar(255) NOT NULL DEFAULT '' COMMENT 'If the parent of this item is not the top-level item in the conversation, the uri of the immediate parent; otherwise set to parent-uri',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation timestamp.',
-	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of  last edit (default is created)',
+	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last edit (default is created)',
 	`commented` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last comment/reply to this item',
 	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime',
 	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date that something in the conversation changed, indicating clients should fetch the conversation again',
@@ -487,7 +487,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`target-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams target type if applicable (URI)',
 	`target` text COMMENT 'JSON encoded target structure if used',
 	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
-	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL toa displayable copy  of the message at its source',
+	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
 	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
 	`event-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Used to link to the event.id',
 	`tag` mediumtext COMMENT '',
@@ -544,7 +544,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `uid_authorlink` (`uid`,`author-link`(190)),
 	 INDEX `uid_ownerlink` (`uid`,`owner-link`(190))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='All posts';
 
 --
 -- TABLE locks
@@ -555,7 +555,7 @@ CREATE TABLE IF NOT EXISTS `locks` (
 	`locked` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process ID',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE mail
@@ -584,7 +584,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	 INDEX `uri` (`uri`(64)),
 	 INDEX `parent-uri` (`parent-uri`(64)),
 	 INDEX `contactid` (`contact-id`(32))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='private messages';
 
 --
 -- TABLE mailacct
@@ -604,7 +604,7 @@ CREATE TABLE IF NOT EXISTS `mailacct` (
 	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`last_check` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Mail account data for fetching mails';
 
 --
 -- TABLE manage
@@ -615,7 +615,7 @@ CREATE TABLE IF NOT EXISTS `manage` (
 	`mid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_mid` (`uid`,`mid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='table of accounts that can manage each other';
 
 --
 -- TABLE notify
@@ -643,7 +643,7 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	 INDEX `seen_uid_date` (`seen`,`uid`,`date`),
 	 INDEX `uid_date` (`uid`,`date`),
 	 INDEX `uid_type_link` (`uid`,`type`,`link`(190))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='notifications';
 
 --
 -- TABLE notify-threads
@@ -655,7 +655,7 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE oembed
@@ -667,7 +667,7 @@ CREATE TABLE IF NOT EXISTS `oembed` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
 	 PRIMARY KEY(`url`,`maxwidth`),
 	 INDEX `created` (`created`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='cache for OEmbed queries';
 
 --
 -- TABLE parsed_url
@@ -680,7 +680,7 @@ CREATE TABLE IF NOT EXISTS `parsed_url` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
 	 PRIMARY KEY(`url`,`guessing`,`oembed`),
 	 INDEX `created` (`created`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='cache for \'parse_url\' queries';
 
 --
 -- TABLE participation
@@ -691,7 +691,7 @@ CREATE TABLE IF NOT EXISTS `participation` (
 	`cid` int unsigned NOT NULL COMMENT '',
 	`fid` int unsigned NOT NULL COMMENT '',
 	 PRIMARY KEY(`iid`,`server`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Storage for participation messages from Diaspora';
 
 --
 -- TABLE pconfig
@@ -704,7 +704,7 @@ CREATE TABLE IF NOT EXISTS `pconfig` (
 	`v` mediumtext COMMENT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_cat_k` (`uid`,`cat`,`k`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='personal (per user) configuration storage';
 
 --
 -- TABLE photo
@@ -739,7 +739,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	 INDEX `uid_album_scale_created` (`uid`,`album`(32),`scale`,`created`),
 	 INDEX `uid_album_resource-id_created` (`uid`,`album`(32),`resource-id`,`created`),
 	 INDEX `resource-id` (`resource-id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='photo storage';
 
 --
 -- TABLE poll
@@ -759,7 +759,7 @@ CREATE TABLE IF NOT EXISTS `poll` (
 	`q9` text COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Currently unused table for storing poll results';
 
 --
 -- TABLE poll_result
@@ -770,7 +770,7 @@ CREATE TABLE IF NOT EXISTS `poll_result` (
 	`choice` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `poll_id` (`poll_id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='data for polls - currently unused';
 
 --
 -- TABLE process
@@ -781,7 +781,7 @@ CREATE TABLE IF NOT EXISTS `process` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`pid`),
 	 INDEX `command` (`command`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Currently running system processes';
 
 --
 -- TABLE profile
@@ -831,7 +831,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`net-publish` boolean NOT NULL DEFAULT '0' COMMENT 'publish profile in global directory',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_is-default` (`uid`,`is-default`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='user profiles data';
 
 --
 -- TABLE profile_check
@@ -844,7 +844,7 @@ CREATE TABLE IF NOT EXISTS `profile_check` (
 	`sec` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='DFRN remote auth use';
 
 --
 -- TABLE push_subscriber
@@ -862,7 +862,7 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
 	`secret` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `next_try` (`next_try`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Used for OStatus: Contains feed subscribers';
 
 --
 -- TABLE queue
@@ -881,7 +881,7 @@ CREATE TABLE IF NOT EXISTS `queue` (
 	 PRIMARY KEY(`id`),
 	 INDEX `last` (`last`),
 	 INDEX `next` (`next`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Queue for messages that couldn\'t be delivered';
 
 --
 -- TABLE register
@@ -895,7 +895,7 @@ CREATE TABLE IF NOT EXISTS `register` (
 	`language` varchar(16) NOT NULL DEFAULT '' COMMENT '',
 	`note` text COMMENT '',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registrations requiring admin approval';
 
 --
 -- TABLE search
@@ -906,7 +906,7 @@ CREATE TABLE IF NOT EXISTS `search` (
 	`term` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
 -- TABLE session
@@ -919,7 +919,7 @@ CREATE TABLE IF NOT EXISTS `session` (
 	 PRIMARY KEY(`id`),
 	 INDEX `sid` (`sid`(64)),
 	 INDEX `expire` (`expire`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='web session storage';
 
 --
 -- TABLE sign
@@ -932,7 +932,7 @@ CREATE TABLE IF NOT EXISTS `sign` (
 	`signer` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `iid` (`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora signatures';
 
 --
 -- TABLE term
@@ -955,7 +955,7 @@ CREATE TABLE IF NOT EXISTS `term` (
 	 INDEX `uid_otype_type_term_global_created` (`uid`,`otype`,`type`,`term`(32),`global`,`created`),
 	 INDEX `uid_otype_type_url` (`uid`,`otype`,`type`,`url`(64)),
 	 INDEX `guid` (`guid`(64))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='item taxonomy (categories, tags, etc.) table';
 
 --
 -- TABLE thread
@@ -998,7 +998,7 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	 INDEX `uid_commented` (`uid`,`commented`),
 	 INDEX `uid_wall_created` (`uid`,`wall`,`created`),
 	 INDEX `private_wall_origin_commented` (`private`,`wall`,`origin`,`commented`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
 --
 -- TABLE tokens
@@ -1011,7 +1011,7 @@ CREATE TABLE IF NOT EXISTS `tokens` (
 	`scope` varchar(200) NOT NULL DEFAULT '' COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
 -- TABLE user
@@ -1064,7 +1064,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`openidserver` text COMMENT '',
 	 PRIMARY KEY(`uid`),
 	 INDEX `nickname` (`nickname`(32))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
 --
 -- TABLE userd
@@ -1074,7 +1074,7 @@ CREATE TABLE IF NOT EXISTS `userd` (
 	`username` varchar(255) NOT NULL COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `username` (`username`(32))
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Deleted usernames';
 
 --
 -- TABLE user-item
@@ -1082,9 +1082,18 @@ CREATE TABLE IF NOT EXISTS `userd` (
 CREATE TABLE IF NOT EXISTS `user-item` (
 	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item id',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Hidden marker',
+	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
 	 PRIMARY KEY(`uid`,`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
+
+--
+-- TABLE worker-ipc
+--
+CREATE TABLE IF NOT EXISTS `worker-ipc` (
+	`key` int NOT NULL COMMENT '',
+	`jobs` boolean COMMENT 'Flag for outstanding jobs',
+	 PRIMARY KEY(`key`)
+) ENGINE=MEMORY DEFAULT COLLATE utf8mb4_general_ci COMMENT='Inter process communication between the frontend and the worker';
 
 --
 -- TABLE workerqueue
@@ -1102,6 +1111,6 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `parameter` (`parameter`(64)),
 	 INDEX `priority_created` (`priority`,`created`),
 	 INDEX `done_executed` (`done`,`executed`)
-) DEFAULT COLLATE utf8mb4_general_ci;
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
 
 
