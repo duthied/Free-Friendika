@@ -1632,7 +1632,7 @@ function api_search($type)
 	$r = dba::p(
 		"SELECT ".item_fieldlists()."
 		FROM `item` ".item_joins(api_user())."
-		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
+		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`public`))
 		AND `item`.`body` LIKE CONCAT('%',?,'%')
 		$sql_extra
 		AND `item`.`id`>?
