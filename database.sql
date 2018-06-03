@@ -465,7 +465,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`thr-parent` varchar(255) NOT NULL DEFAULT '' COMMENT 'If the parent of this item is not the top-level item in the conversation, the uri of the immediate parent; otherwise set to parent-uri',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation timestamp.',
-	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of  last edit (default is created)',
+	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last edit (default is created)',
 	`commented` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last comment/reply to this item',
 	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime',
 	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date that something in the conversation changed, indicating clients should fetch the conversation again',
@@ -487,7 +487,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`target-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams target type if applicable (URI)',
 	`target` text COMMENT 'JSON encoded target structure if used',
 	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
-	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL toa displayable copy  of the message at its source',
+	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
 	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
 	`event-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Used to link to the event.id',
 	`tag` mediumtext COMMENT '',
@@ -504,7 +504,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`moderated` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`spam` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`starred` boolean NOT NULL DEFAULT '0' COMMENT 'item has been favourited',
 	`bookmark` boolean NOT NULL DEFAULT '0' COMMENT 'item has been bookmarked',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'item has not been seen',
@@ -515,7 +514,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network from where the item comes from',
 	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
 	`rendered-html` mediumtext COMMENT 'item.body converted to html',
-	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `guid` (`guid`(191)),
 	 INDEX `uri` (`uri`(191)),
@@ -976,7 +974,6 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`moderated` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`spam` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`starred` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`ignored` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`bookmark` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1082,7 +1079,7 @@ CREATE TABLE IF NOT EXISTS `userd` (
 CREATE TABLE IF NOT EXISTS `user-item` (
 	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item id',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Hidden marker',
+	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
 	 PRIMARY KEY(`uid`,`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci;
 
