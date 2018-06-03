@@ -2066,7 +2066,7 @@ function api_conversation_show($type)
 		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
 	}
 
-	$r = q("SELECT `* FROM `item`
+	$r = q("SELECT `item`.`*` FROM `item`
 		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`parent` = %d AND `item`.`visible`
