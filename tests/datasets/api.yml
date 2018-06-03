@@ -74,7 +74,7 @@ item:
         author-link: http://localhost/profile/selfcontact
         wall: true
         starred: true
-        private: false
+        private: 0
         allow_cid: ''
         allow_gid: ''
         deny_cid: ''
@@ -135,7 +135,7 @@ item:
         author-link: http://localhost/profile/othercontact
         wall: true
         starred: false
-        private: false
+        private: 0
         allow_cid: ''
         allow_gid: ''
         deny_cid: ''
