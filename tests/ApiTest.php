@@ -74,7 +74,6 @@ class ApiTest extends DatabaseTest
 	{
 		$this->assertEquals($this->selfUser['id'], $user['uid']);
 		$this->assertEquals($this->selfUser['id'], $user['cid']);
-		$this->assertEquals($this->selfUser['id'], $user['pid']);
 		$this->assertEquals(1, $user['self']);
 		$this->assertEquals('Friendica', $user['location']);
 		$this->assertEquals($this->selfUser['name'], $user['name']);
