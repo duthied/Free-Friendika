@@ -492,7 +492,7 @@ function api_rss_extra(App $a, $arr, $user_info)
  */
 function api_unique_id_to_nurl($id)
 {
-	$r = dba::selectFirst('contact', ['nurl'], ['uid' => 0, 'id' => $id]);
+	$r = dba::selectFirst('contact', ['nurl'], ['id' => $id]);
 
 	if (DBM::is_result($r)) {
 		return $r["nurl"];
