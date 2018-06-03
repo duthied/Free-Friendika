@@ -514,6 +514,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network from where the item comes from',
 	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
 	`rendered-html` mediumtext COMMENT 'item.body converted to html',
+	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `guid` (`guid`(191)),
 	 INDEX `uri` (`uri`(191)),

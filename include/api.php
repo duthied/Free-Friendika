@@ -1632,7 +1632,7 @@ function api_search($type)
 	$r = dba::p(
 		"SELECT ".item_fieldlists()."
 		FROM `item` ".item_joins(api_user())."
-		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`public`))
+		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
 		AND `item`.`body` LIKE CONCAT('%',?,'%')
 		$sql_extra
 		AND `item`.`id`>?
@@ -2066,7 +2066,7 @@ function api_conversation_show($type)
 		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
 	}
 
-	$r = q("SELECT `item`.`*` FROM `item`
+	$r = q("SELECT `item`.* FROM `item`
 		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 		WHERE `item`.`parent` = %d AND `item`.`visible`

@@ -1195,6 +1195,7 @@ class DBStructure
 						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network from where the item comes from"],
 						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
 						"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
+						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],

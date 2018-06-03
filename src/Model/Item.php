@@ -724,6 +724,16 @@ class Item extends BaseObject
 			}
 		}
 
+		// Is this item available in the global items (with uid=0)?
+		if ($item["uid"] == 0) {
+			$item["global"] = true;
+
+			// Set the global flag on all items if this was a global item entry
+			dba::update('item', ['global' => true], ['uri' => $item["uri"]]);
+		} else {
+			$item["global"] = dba::exists('item', ['uid' => 0, 'uri' => $item["uri"]]);
+		}
+
 		// ACL settings
 		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
 			$private = 1;
