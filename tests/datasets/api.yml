@@ -58,32 +58,6 @@ contact:
         blocked: false
         rel: 2
         network: dfrn
-    -
-        id: 45
-        uid: 0
-        name: Self contact
-        nick: selfcontact
-        self: false
-        nurl: http://localhost/profile/selfcontact
-        url: http://localhost/profile/selfcontact
-        about: User used in tests
-        pending: false
-        blocked: false
-        rel: 0
-        network: dfrn
-    -
-        id: 46
-        uid: 0
-        name: Friend contact
-        nick: friendcontact
-        self: false
-        nurl: http://localhost/profile/friendcontact
-        url: http://localhost/profile/friendcontact
-        pending: false
-        blocked: false
-        rel: 0
-        network: dfrn
-    -
 
 item:
     -
