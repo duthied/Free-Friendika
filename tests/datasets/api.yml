@@ -63,7 +63,7 @@ contact:
         uid: 0
         name: Self contact
         nick: selfcontact
-        self: true
+        self: false
         nurl: http://localhost/profile/selfcontact
         url: http://localhost/profile/selfcontact
         about: User used in tests
