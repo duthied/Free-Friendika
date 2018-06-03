@@ -928,7 +928,7 @@ function admin_page_site_post(App $a)
 		update_table("term", ['url'], $old_url, $new_url);
 		update_table("contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
 		update_table("gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
-		update_table("item", ['owner-link', 'owner-avatar', 'author-link', 'author-avatar', 'body', 'plink', 'tag'], $old_url, $new_url);
+		update_table("item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);
 
 		// update profile addresses in the format "user@server.tld"
 		update_table("contact", ['addr'], $old_host, $new_host);

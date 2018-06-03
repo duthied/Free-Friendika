@@ -1185,7 +1185,6 @@ class DBStructure
 						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"spam" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been favourited"],
 						"bookmark" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been bookmarked"],
 						"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "item has not been seen"],
@@ -1196,7 +1195,6 @@ class DBStructure
 						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network from where the item comes from"],
 						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
 						"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
-						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
@@ -1681,7 +1679,6 @@ class DBStructure
 						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"spam" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"bookmark" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],

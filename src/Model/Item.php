@@ -566,6 +566,14 @@ class Item extends BaseObject
 			return 0;
 		}
 
+		//unset($item['author-link']);
+		//unset($item['author-name']);
+		//unset($item['author-avatar']);
+
+		//unset($item['owner-link']);
+		unset($item['owner-name']);
+		unset($item['owner-avatar']);
+
 		if ($item['network'] == NETWORK_PHANTOM) {
 			logger('Missing network. Called by: '.System::callstack(), LOGGER_DEBUG);
 
@@ -714,16 +722,6 @@ class Item extends BaseObject
 				logger('duplicated item with the same body found. '.print_r($item,true));
 				return 0;
 			}
-		}
-
-		// Is this item available in the global items (with uid=0)?
-		if ($item["uid"] == 0) {
-			$item["global"] = true;
-
-			// Set the global flag on all items if this was a global item entry
-			dba::update('item', ['global' => true], ['uri' => $item["uri"]]);
-		} else {
-			$item["global"] = dba::exists('item', ['uid' => 0, 'uri' => $item["uri"]]);
 		}
 
 		// ACL settings
@@ -1483,8 +1481,7 @@ class Item extends BaseObject
 		$forum_mode = ($prvgroup ? 2 : 1);
 
 		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
-			'owner-id' => $owner_id, 'owner-name' => $self['name'], 'owner-link' => $self['url'],
-			'owner-avatar' => $self['thumb'], 'private' => $private, 'allow_cid' => $user['allow_cid'],
+			'owner-id' => $owner_id, 'owner-link' => $self['url'], 'private' => $private, 'allow_cid' => $user['allow_cid'],
 			'allow_gid' => $user['allow_gid'], 'deny_cid' => $user['deny_cid'], 'deny_gid' => $user['deny_gid']];
 		dba::update('item', $fields, ['id' => $item_id]);
 
@@ -2075,7 +2072,7 @@ EOT;
 	private static function addThread($itemid, $onlyshadow = false)
 	{
 		$fields = ['uid', 'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private', 'pubmail',
-			'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
+			'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
 			'deleted', 'origin', 'forum_mode', 'mention', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 		$item = dba::selectFirst('item', $fields, $condition);
@@ -2096,7 +2093,7 @@ EOT;
 	private static function updateThread($itemid, $setmention = false)
 	{
 		$fields = ['uid', 'guid', 'title', 'body', 'created', 'edited', 'commented', 'received', 'changed',
-			'wall', 'private', 'pubmail', 'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
+			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
 			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id', 'rendered-html', 'rendered-hash'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 

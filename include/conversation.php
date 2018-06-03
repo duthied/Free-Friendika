@@ -418,7 +418,6 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`inform`,
 `item`.`pubmail`,
 `item`.`visible`,
-`item`.`spam`,
 `item`.`bookmark`,
 `item`.`unseen`,
 `item`.`deleted`,
@@ -426,10 +425,12 @@ These Fields are not added below (yet). They are here to for bug search.
 `item`.`mention`,
 `item`.`global`,
 `item`.`shadow`,
+ `item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
+ `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
 */
 
-	return "`item`.`author-id`, `item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
-		`item`.`owner-id`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
+	return "`item`.`author-id`,
+		`item`.`owner-id`,
 		`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
 		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`content-warning`,
 		`item`.`commented`, `item`.`created`, `item`.`edited`, `item`.`received`,
@@ -441,7 +442,9 @@ These Fields are not added below (yet). They are here to for bug search.
 		`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
 		`item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
 
-		`author`.`thumb` AS `author-thumb`, `owner`.`thumb` AS `owner-thumb`,
+		`author`.`url` AS `author-link`, `author`.`name` AS `author-name`, `author`.`thumb` AS `author-avatar`,
+		`owner`.`url` AS `owner-link`, `owner`.`name` AS `owner-name`, `owner`.`thumb` AS `owner-avatar`,
+		`contact`.`url` AS `contact-link`, `contact`.`name` AS `contact-name`, `contact`.`thumb` AS `contact-avatar`,
 
 		`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
 		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`,
@@ -532,7 +535,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				. ((x($_GET, 'bmark'))  ? '&bmark='  . $_GET['bmark']  : '')
 				. ((x($_GET, 'liked'))  ? '&liked='  . $_GET['liked']  : '')
 				. ((x($_GET, 'conv'))   ? '&conv='   . $_GET['conv']   : '')
-				. ((x($_GET, 'spam'))   ? '&spam='   . $_GET['spam']   : '')
 				. ((x($_GET, 'nets'))   ? '&nets='   . $_GET['nets']   : '')
 				. ((x($_GET, 'cmin'))   ? '&cmin='   . $_GET['cmin']   : '')
 				. ((x($_GET, 'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
@@ -658,6 +660,13 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					continue;
 				}
 
+				if ($item['network'] == NETWORK_FEED) {
+					$item['author-avatar'] = $item['contact-avatar'];
+					$item['author-name'] = $item['contact-name'];
+					$item['owner-avatar'] = $item['contact-avatar'];
+					$item['owner-name'] = $item['contact-name'];
+				}
+
 				$profile_name = (strlen($item['author-name']) ? $item['author-name'] : $item['name']);
 				if ($item['author-link'] && !$item['author-name']) {
 					$profile_name = $item['author-link'];
@@ -669,24 +678,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
-				}
-
-				if (!x($item, 'author-thumb') || ($item['author-thumb'] == "")) {
-					$author_contact = Contact::getDetailsByURL($item['author-link'], $profile_owner);
-					if ($author_contact["thumb"]) {
-						$item['author-thumb'] = $author_contact["thumb"];
-					} else {
-						$item['author-thumb'] = $item['author-avatar'];
-					}
-				}
-
-				if (!isset($item['owner-thumb']) || ($item['owner-thumb'] == "")) {
-					$owner_contact = Contact::getDetailsByURL($item['owner-link'], $profile_owner);
-					if ($owner_contact["thumb"]) {
-						$item['owner-thumb'] = $owner_contact["thumb"];
-					} else {
-						$item['owner-thumb'] = $item['owner-avatar'];
-					}
 				}
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
@@ -749,7 +740,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					'name' => $profile_name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => System::removedBaseUrl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
+					'thumb' => System::removedBaseUrl(proxy_url($item['author-avatar'], false, PROXY_SIZE_THUMB)),
 					'title' => $title_e,
 					'body' => $body_e,
 					'tags' => $tags_e,
@@ -768,7 +759,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => System::removedBaseUrl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
+					'owner_photo' => System::removedBaseUrl(proxy_url($item['owner-avatar'], false, PROXY_SIZE_THUMB)),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
