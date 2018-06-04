@@ -40,7 +40,9 @@ function worker_init(){
 		// But since it doesn't destroy anything, we just try to get more execution time in any way.
 		set_time_limit(0);
 
-		if (poller_claim_process($r[0])) {
+		$fields = ['executed' => DateTimeFormat::utcNow(), 'pid' => getmypid(), 'done' => false];
+		$condition =  ['id' => $r[0]["id"], 'pid' => 0];
+		if (dba::update('workerqueue', $fields, $condition)) {
 			Worker::execute($r[0]);
 		}
 	}

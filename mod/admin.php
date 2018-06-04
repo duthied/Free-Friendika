@@ -801,7 +801,7 @@ function admin_page_summary(App $a)
 		$warningtext[] = L10n::t('The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.');
 	}
 
-	$last_worker_call = Config::get('system', 'last_poller_execution', false);
+	$last_worker_call = Config::get('system', 'last_worker_execution', false);
 	if (!$last_worker_call) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The worker was never executed. Please check your database structure!');
