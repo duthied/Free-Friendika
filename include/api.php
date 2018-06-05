@@ -1066,7 +1066,7 @@ function requestdata($k)
 }
 
 /**
- * Waitman Gobble Mod
+ * Deprecated function to upload media.
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
@@ -1098,14 +1098,12 @@ function api_statuses_mediap($type)
 	}
 	$txt = HTML::toBBCode($txt);
 
-	$a->argv[1]=$user_info['screen_name']; //should be set to username?
+	$a->argv[1] = $user_info['screen_name']; //should be set to username?
 
-	// tell wall_upload function to return img info instead of echo
-	$_REQUEST['hush'] = 'yeah';
-	$bebop = wall_upload_post($a);
+	$picture = wall_upload_post($a, false);
 
 	// now that we have the img url in bbcode we can add it to the status and insert the wall item.
-	$_REQUEST['body'] = $txt . "\n\n" . $bebop;
+	$_REQUEST['body'] = $txt . "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
 	item_post($a);
 
 	// this should output the last post (the one we just posted).
@@ -1254,10 +1252,9 @@ function api_statuses_update($type)
 
 	if (x($_FILES, 'media')) {
 		// upload the image if we have one
-		$_REQUEST['hush'] = 'yeah'; //tell wall_upload function to return img info instead of echo
-		$media = wall_upload_post($a);
-		if (strlen($media) > 0) {
-			$_REQUEST['body'] .= "\n\n" . $media;
+		$picture = wall_upload_post($a, false);
+		if (is_array($media)) {
+			$_REQUEST['body'] .= "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
 		}
 	}
 
