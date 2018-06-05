@@ -1253,7 +1253,7 @@ function api_statuses_update($type)
 	if (x($_FILES, 'media')) {
 		// upload the image if we have one
 		$picture = wall_upload_post($a, false);
-		if (is_array($media)) {
+		if (is_array($picture)) {
 			$_REQUEST['body'] .= "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
 		}
 	}
