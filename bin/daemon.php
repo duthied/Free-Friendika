@@ -132,7 +132,7 @@ $last_cron = 0;
 // Now running as a daemon.
 while (true) {
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
-		logger('Forcing cron worker call.');
+		logger('Forcing cron worker call.', LOGGER_DEBUG);
 		$do_cron = true;
 	}
 
