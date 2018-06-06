@@ -127,10 +127,20 @@ file_put_contents($pidfile, $pid);
 $wait_interval = intval(Config::get('system', 'cron_interval', 5)) * 60;
 
 $do_cron = true;
+$last_cron = 0;
 
 // Now running as a daemon.
 while (true) {
+	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
+		logger('Forcing cron worker call.', LOGGER_DEBUG);
+		$do_cron = true;
+	}
+
 	Worker::spawnWorker($do_cron);
+
+	if ($do_cron) {
+		$last_cron = time();
+	}
 
 	logger("Sleeping", LOGGER_DEBUG);
 	$i = 0;
