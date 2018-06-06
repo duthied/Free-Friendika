@@ -126,16 +126,25 @@ file_put_contents($pidfile, $pid);
 
 $wait_interval = intval(Config::get('system', 'cron_interval', 5)) * 60;
 
+$do_cron = true;
+
 // Now running as a daemon.
 while (true) {
-	logger('Call the worker', LOGGER_DEBUG);
-	Worker::spawnWorker();
+	Worker::spawnWorker($do_cron);
 
-	logger("Sleep for $wait_interval seconds - or when a worker needs to be called", LOGGER_DEBUG);
+	logger("Sleeping", LOGGER_DEBUG);
 	$i = 0;
 	do {
 		sleep(1);
 	} while (($i++ < $wait_interval) && !Worker::IPCJobsExists());
+
+	if ($i >= $wait_interval) {
+		$do_cron = true;
+		logger("Woke up after $wait_interval seconds.", LOGGER_DEBUG);
+	} else {
+		$do_cron = false;
+		logger("Worker jobs are calling to be forked.", LOGGER_DEBUG);
+	}
 }
 
 function shutdown() {

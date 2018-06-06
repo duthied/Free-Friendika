@@ -1015,9 +1015,14 @@ class Worker
 	 * @brief Spawns a new worker
 	 * @return void
 	 */
-	public static function spawnWorker()
+	public static function spawnWorker($do_cron = false)
 	{
-		$args = ["bin/worker.php", "no_cron"];
+		$args = ["bin/worker.php"];
+
+		if (!$do_cron) {
+			$args[] = "no_cron";
+		}
+
 		get_app()->proc_run($args);
 	}
 
