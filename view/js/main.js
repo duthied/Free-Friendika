@@ -395,6 +395,19 @@ function NavUpdate() {
 	timer = setTimeout(NavUpdate, updateInterval);
 }
 
+function callAddonHooks(typeOfHook) {
+	if (typeof addon_hooks !== 'undefined') {
+		var myTypeOfHooks = addon_hooks[typeOfHook]; 
+		if (typeof myTypeOfHooks !== 'undefined') {
+			for (addon_hook_idx = 0; addon_hook_idx < myTypeOfHooks.length; addon_hook_idx++) {
+				var hookfnstr = myTypeOfHooks[addon_hook_idx];
+				var hookfn = window[hookfnstr];
+				if (typeof hookfn === "function") hookfn();
+			}
+		}
+	} 
+}
+
 function liveUpdate(src) {
 	if ((src == null) || stopped || !profile_uid) {
 		$('.like-rotator').hide(); return;
@@ -460,6 +473,8 @@ function liveUpdate(src) {
 			prev = ident;
 		});
 
+		callAddonHooks("postprocess");
+
 		$('.like-rotator').hide();
 		if (commentBusy) {
 			commentBusy = false;
@@ -469,7 +484,9 @@ function liveUpdate(src) {
 		$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
 		/* autocomplete bbcode */
 		$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
+
 	});
+
 }
 
 function imgbright(node) {

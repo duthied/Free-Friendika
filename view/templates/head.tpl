@@ -44,6 +44,10 @@
 <script type="text/javascript" src="view/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" ></script>
 <script type="text/javascript" src="view/js/acl.js" ></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js" ></script>
+<script type="text/javascript" src="view/js/addon-hooks.js" ></script>
+{{foreach $addon_hooks as $addon_hook}}
+<script type="text/javascript" src="addon/{{$addon_hook}}/{{$addon_hook}}.js"></script>
+{{/foreach}}
 <script type="text/javascript" src="view/js/main.js" ></script>
 <script>
 
