@@ -33,6 +33,40 @@ require_once 'include/text.php';
 
 class Item extends BaseObject
 {
+	public static function select(array $fields = [], array $condition = [], $params = [], $uid = null)
+	{
+		require_once 'include/conversation.php';
+
+		$item_fields = ['id', 'guid'];
+
+		$select_fields = item_fieldlists();
+
+		$condition_string = dba::buildCondition($condition);
+
+		foreach ($item_fields as $field) {
+			$search = [" `" . $field . "`", "(`" . $field . "`"];
+			$replace = [" `item`.`" . $field . "`", "(`item`.`" . $field . "`"];
+			$condition_string = str_replace($search, $replace, $condition_string);
+		}
+
+		$condition_string = $condition_string . ' AND ' . item_condition();
+
+		if (!empty($uid)) {
+			$condition_string .= " AND `item`.`uid` = ?";
+			$condition['uid'] = $uid;
+		}
+
+		$param_string = dba::buildParameter($params);
+
+		$table = "`item` " . item_joins($uid);
+
+		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
+echo $sql;
+		$result = dba::p($sql, $condition);
+
+		return dba::inArray($result);
+	}
+
 	/**
 	 * @brief Update existing item entries
 	 *
