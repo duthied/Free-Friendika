@@ -7,6 +7,4 @@ function Addon_registerHook( type, hookfnstr )
 	}
 
 	addon_hooks[type].push( hookfnstr );
-	
-	console.log("addon_hooks type "+type+" has "+addon_hooks[type].length+" hooks registered");
 }
