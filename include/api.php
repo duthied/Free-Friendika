@@ -1920,7 +1920,7 @@ function api_statuses_show($type)
 	$statuses = Item::select(api_user(), [], $condition, $params);
 
 	/// @TODO How about copying this to above methods which don't check $r ?
-	if (!DBM::is_result($items)) {
+	if (!DBM::is_result($statuses)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
@@ -2000,7 +2000,7 @@ function api_conversation_show($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::select(api_user(), [], $condition, $params);
 
-	if (!DBM::is_result($items)) {
+	if (!DBM::is_result($statuses)) {
 		throw new BadRequestException("There is no status with id $id.");
 	}
 
