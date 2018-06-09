@@ -33,6 +33,17 @@ require_once 'include/text.php';
 
 class Item extends BaseObject
 {
+	/**
+	 * Retrieve a single record from the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param integer $uid User ID
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
 	public static function selectFirst($uid, array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
@@ -47,6 +58,16 @@ class Item extends BaseObject
 		}
 	}
 
+	/**
+	 * @brief Select rows from the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
 	public static function select($uid, array $selected = [], array $condition = [], $params = [])
 	{
 		$fields = self::fieldlist();
@@ -57,7 +78,7 @@ class Item extends BaseObject
 
 		$condition_string = self::addTablesToFields($condition_string, $fields);
 
-		$condition_string = $condition_string . ' AND ' . self::condition();
+		$condition_string = $condition_string . ' AND ' . self::condition(false);
 
 		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
 
@@ -68,6 +89,17 @@ class Item extends BaseObject
 		return dba::p($sql, $condition);
 	}
 
+	/**
+	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param integer $uid User ID
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
 	public static function selectFirstThread($uid, array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
@@ -82,6 +114,16 @@ class Item extends BaseObject
 		}
 	}
 
+	/**
+	 * @brief Select rows from the starting post in the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
 	public static function selectThread($uid, array $selected = [], array $condition = [], $params = [])
 	{
 		$fields = self::fieldlist();
@@ -98,7 +140,7 @@ class Item extends BaseObject
 		$condition_string = self::addTablesToFields($condition_string, $threadfields);
 		$condition_string = self::addTablesToFields($condition_string, $fields);
 
-		$condition_string = $condition_string . ' AND ' . self::condition();
+		$condition_string = $condition_string . ' AND ' . self::condition(true);
 
 		$param_string = dba::buildParameter($params);
 		$param_string = self::addTablesToFields($param_string, $threadfields);
@@ -111,6 +153,11 @@ class Item extends BaseObject
 		return dba::p($sql, $condition);
 	}
 
+	/**
+	 * @brief Returns a list of fields that are associated with the item table
+	 *
+	 * @return array field list
+	 */
 	private static function fieldlist()
 	{
 		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
@@ -137,11 +184,32 @@ class Item extends BaseObject
 			'contact' => $contact_fields, 'event' => $event_fields];
 	}
 
-	private static function condition()
+	/**
+	 * @brief Returns SQL condition for the "select" functions
+	 *
+	 * @param boolean $thread_mode Called for the items (false) or for the threads (true)
+	 *
+	 * @return string SQL condition
+	 */
+	private static function condition($thread_mode)
 	{
-		return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
+		if ($thread_mode) {
+			$master_table = "`thread`";
+		} else {
+			$master_table = "`item`";
+		}
+		return "$master_table.`visible` AND NOT $master_table.`deleted` AND NOT $master_table.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
 	}
 
+	/**
+	 * @brief Returns all needed "JOIN" commands for the "select" functions
+	 *
+	 * @param integer $uid User ID
+	 * @param string $sql_commands The parts of the built SQL commands in the "select" functions
+	 * @param boolean $thread_mode Called for the items (false) or for the threads (true)
+	 *
+	 * @return string The SQL joins for the "select" functions
+	 */
 	private static function constructJoins($uid, $sql_commands, $thread_mode)
 	{
 		if ($thread_mode) {
@@ -155,13 +223,13 @@ class Item extends BaseObject
 		}
 
 		$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
-	                AND NOT `contact`.`blocked`
-	                AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-	                OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
-	                STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
-	                STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
-	                LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
-	                CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+			AND NOT `contact`.`blocked`
+			AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
+			OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
+			CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
 
 		if (strpos($sql_commands, "`group_member`.") !== false) {
 			$joins .= " STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = $master_table.`contact-id`";
@@ -178,6 +246,14 @@ class Item extends BaseObject
 		return $joins;
 	}
 
+	/**
+	 * @brief Add the field list for the "select" functions
+	 *
+	 * @param array $fields The field definition array
+	 * @param array $selected The array with the selected fields from the "select" functions
+	 *
+	 * @return string The field list
+	 */
 	private static function constructSelectFields($fields, $selected)
 	{
 		$selection = [];
@@ -195,6 +271,14 @@ class Item extends BaseObject
 		return implode(", ", $selection);
 	}
 
+	/**
+	 * @brief add table definition to fields in an SQL query
+	 *
+	 * @param string $query SQL query
+	 * @param array $fields The field definition array
+	 *
+	 * @return string the changed SQL query
+	 */
 	private static function addTablesToFields($query, $fields)
 	{
 		foreach ($fields as $table => $table_fields) {

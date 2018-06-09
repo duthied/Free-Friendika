@@ -1615,18 +1615,18 @@ function api_search($type)
 
 	$start = $page * $count;
 
-        $condition = ["`verb` = ? AND `item`.`id` > ?
+	$condition = ["`verb` = ? AND `item`.`id` > ?
 		AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
 		AND `item`.`body` LIKE CONCAT('%',?,'%')",
 		ACTIVITY_POST, $since_id, api_user(), $_REQUEST['q']];
 
-        if ($max_id > 0) {
-                $condition[0] .= " AND `item`.`id` <= ?";
-                $condition[] = $max_id;
-        }
+	if ($max_id > 0) {
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
+	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-        $statuses = Item::select(api_user(), [], $condition, $params);
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
 	$data['status'] = api_format_items(dba::inArray($statuses), $user_info);
 
@@ -1762,30 +1762,30 @@ function api_statuses_public_timeline($type)
 		$condition = ["`verb` = ? AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
 			ACTIVITY_POST, $since_id];
 
-	        if ($max_id > 0) {
-	                $condition[0] .= " AND `thread`.`iid` <= ?";
-	                $condition[] = $max_id;
-	        }
+		if ($max_id > 0) {
+			$condition[0] .= " AND `thread`.`iid` <= ?";
+			$condition[] = $max_id;
+		}
 
-	        $params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-	        $statuses = Item::selectThread(api_user(), [], $condition, $params);
+		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
+		$statuses = Item::selectThread(api_user(), [], $condition, $params);
 
 		$r = dba::inArray($statuses);
 	} else {
 		$condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND NOT `user`.`hidewall` AND `item`.`origin`",
 			api_user(), ACTIVITY_POST, $since_id];
 
-	        if ($max_id > 0) {
-	                $condition[0] .= " AND `item`.`id` <= ?";
-	                $condition[] = $max_id;
-	        }
-	        if ($conversation_id > 0) {
-	                $condition[0] .= " AND `item`.`parent` = ?";
-	                $condition[] = $conversation_id;
-	        }
+		if ($max_id > 0) {
+			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[] = $max_id;
+		}
+		if ($conversation_id > 0) {
+			$condition[0] .= " AND `item`.`parent` = ?";
+			$condition[] = $conversation_id;
+		}
 
-	        $params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	        $statuses = Item::select(api_user(), [], $condition, $params);
+		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$statuses = Item::select(api_user(), [], $condition, $params);
 
 		$r = dba::inArray($statuses);
 	}
@@ -1838,13 +1838,13 @@ function api_statuses_networkpublic_timeline($type)
 	$condition = ["`uid` = 0 AND `verb` = ? AND `thread`.`iid` > ? AND NOT `private`",
 		ACTIVITY_POST, $since_id];
 
-        if ($max_id > 0) {
-                $condition[0] .= " AND `thread`.`iid` <= ?";
-                $condition[] = $max_id;
-        }
+	if ($max_id > 0) {
+		$condition[0] .= " AND `thread`.`iid` <= ?";
+		$condition[] = $max_id;
+	}
 
-        $params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-        $statuses = Item::selectThread(api_user(), [], $condition, $params);
+	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectThread(api_user(), [], $condition, $params);
 
 	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
@@ -2298,7 +2298,7 @@ function api_favorites_create_destroy($type)
 		$itemid = intval($_REQUEST['id']);
 	}
 
-        $item = Item::selectFirst(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
+	$item = Item::selectFirst(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
 
 	if (!DBM::is_result($item)) {
 		throw new BadRequestException("Invalid item.");
@@ -3180,20 +3180,20 @@ function api_lists_statuses($type)
 
 	$start = $page * $count;
 
-        $condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND `group_member`.`gid` = ?",
+	$condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND `group_member`.`gid` = ?",
 		api_user(), ACTIVITY_POST, $since_id, $_REQUEST['list_id']];
 
-        if ($max_id > 0) {
-                $condition[0] .= " AND `item`.`id` <= ?";
-                $condition[] = $max_id;
-        }
-        if ($exclude_replies > 0) {
-                $condition[0] .= ' AND `item`.`parent` = `item`.`id`';
-        }
-        if ($conversation_id > 0) {
-                $condition[0] .= " AND `item`.`parent` = ?";
-                $condition[] = $conversation_id;
-        }
+	if ($max_id > 0) {
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
+	}
+	if ($exclude_replies > 0) {
+		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
+	}
+	if ($conversation_id > 0) {
+		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[] = $conversation_id;
+	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::select(api_user(), [], $condition, $params);
