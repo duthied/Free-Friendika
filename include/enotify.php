@@ -129,7 +129,7 @@ function notification($params)
 		$item = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$item = dba::selectFirst('item', [], ['id' => $parent_id]);
+			$item = Item::selectFirst($params['uid'], [], ['id' => $parent_id]);
 		}
 
 		$item_post_type = item_post_type($item);
@@ -739,13 +739,15 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	// Only act if it is a "real" post
 	// We need the additional check for the "local_profile" because of mixed situations on connector networks
-	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-name`, `author-link`, `author-avatar`, `guid`,
+	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-id`, `guid`,
 			`parent-uri`, `uri`, `contact-id`
 			FROM `item` WHERE `id` = %d AND `verb` IN ('%s', '') AND `type` != 'activity' AND
 				NOT (`author-link` IN ($profile_list))  LIMIT 1",
 		intval($itemid), dbesc(ACTIVITY_POST));
 	if (!$item)
 		return false;
+
+	$author = dba::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item[0]['author-id']]);
 
 	// Generate the notification array
 	$params = [];
@@ -758,9 +760,9 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$params["parent"] = $item[0]["parent"];
 	$params["link"] = System::baseUrl().'/display/'.urlencode($item[0]["guid"]);
 	$params["otype"] = 'item';
-	$params["source_name"] = $item[0]["author-name"];
-	$params["source_link"] = $item[0]["author-link"];
-	$params["source_photo"] = $item[0]["author-avatar"];
+	$params["source_name"] = $author["name"];
+	$params["source_link"] = $author["url"];
+	$params["source_photo"] = $author["thumb"];
 
 	if ($item[0]["parent-uri"] === $item[0]["uri"]) {
 		// Send a notification for every new post?

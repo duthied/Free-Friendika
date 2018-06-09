@@ -33,38 +33,184 @@ require_once 'include/text.php';
 
 class Item extends BaseObject
 {
-	public static function select(array $fields = [], array $condition = [], $params = [], $uid = null)
+	public static function selectFirst($uid, array $fields = [], array $condition = [], $params = [])
 	{
-		require_once 'include/conversation.php';
+		$params['limit'] = 1;
+		$result = self::select($uid, $fields, $condition, $params);
 
-		$item_fields = ['id', 'guid'];
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = dba::fetch($result);
+			dba::close($result);
+			return $row;
+		}
+	}
 
-		$select_fields = item_fieldlists();
+	public static function select($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$fields = self::fieldlist();
+
+		$select_fields = self::constructSelectFields($fields, $selected);
 
 		$condition_string = dba::buildCondition($condition);
 
-		foreach ($item_fields as $field) {
-			$search = [" `" . $field . "`", "(`" . $field . "`"];
-			$replace = [" `item`.`" . $field . "`", "(`item`.`" . $field . "`"];
-			$condition_string = str_replace($search, $replace, $condition_string);
-		}
+		$condition_string = self::addTablesToFields($condition_string, $fields);
 
-		$condition_string = $condition_string . ' AND ' . item_condition();
+		$condition_string = $condition_string . ' AND ' . self::condition();
 
-		if (!empty($uid)) {
-			$condition_string .= " AND `item`.`uid` = ?";
-			$condition['uid'] = $uid;
-		}
+		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
 
-		$param_string = dba::buildParameter($params);
-
-		$table = "`item` " . item_joins($uid);
+		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false);
 
 		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
-echo $sql;
-		$result = dba::p($sql, $condition);
 
-		return dba::inArray($result);
+		return dba::p($sql, $condition);
+	}
+
+	public static function selectFirstThread($uid, array $fields = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+		$result = self::selectThread($uid, $fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = dba::fetch($result);
+			dba::close($result);
+			return $row;
+		}
+	}
+
+	public static function selectThread($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$fields = self::fieldlist();
+
+		$threadfields = ['thread' => ['iid', 'uid', 'contact-id', 'owner-id', 'author-id',
+			'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private',
+			'pubmail', 'moderated', 'visible', 'starred', 'ignored', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'network']];
+
+		$select_fields = self::constructSelectFields($fields, $selected);
+
+		$condition_string = dba::buildCondition($condition);
+
+		$condition_string = self::addTablesToFields($condition_string, $threadfields);
+		$condition_string = self::addTablesToFields($condition_string, $fields);
+
+		$condition_string = $condition_string . ' AND ' . self::condition();
+
+		$param_string = dba::buildParameter($params);
+		$param_string = self::addTablesToFields($param_string, $threadfields);
+		$param_string = self::addTablesToFields($param_string, $fields);
+
+		$table = "`thread` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, true);
+
+		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
+
+		return dba::p($sql, $condition);
+	}
+
+	private static function fieldlist()
+	{
+		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
+			'uri', 'thr-parent', 'parent-uri', 'content-warning',
+			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
+			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
+			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'id' => 'item_id', 'network' => 'item_network'];
+
+		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
+		$owner_fields = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
+		$contact_fields = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
+			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias'];
+
+		$event_fields = ['created' => 'event-created', 'edited' => 'event-edited',
+			'start' => 'event-start','finish' => 'event-finish',
+			'summary' => 'event-summary','desc' => 'event-desc',
+			'location' => 'event-location', 'type' => 'event-type',
+			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
+			'ignore' => 'event-ignore', 'id' => 'event-id'];
+
+		return ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
+			'contact' => $contact_fields, 'event' => $event_fields];
+	}
+
+	private static function condition()
+	{
+		return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
+	}
+
+	private static function constructJoins($uid, $sql_commands, $thread_mode)
+	{
+		if ($thread_mode) {
+			$master_table = "`thread`";
+			$master_table_key = "`thread`.`iid`";
+			$joins = "STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid` ";
+		} else {
+			$master_table = "`item`";
+			$master_table_key = "`item`.`id`";
+			$joins = '';
+		}
+
+		$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
+	                AND NOT `contact`.`blocked`
+	                AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
+	                OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
+	                STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
+	                STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
+	                LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
+	                CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+
+		if (strpos($sql_commands, "`group_member`.") !== false) {
+			$joins .= " STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = $master_table.`contact-id`";
+		}
+
+		if (strpos($sql_commands, "`user`.") !== false) {
+			$joins .= " STRAIGHT_JOIN `user` ON `user`.`uid` = $master_table.`uid`";
+		}
+
+		if (strpos($sql_commands, "`event`.") !== false) {
+			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
+		}
+
+		return $joins;
+	}
+
+	private static function constructSelectFields($fields, $selected)
+	{
+		$selection = [];
+		foreach ($fields as $table => $table_fields) {
+			foreach ($table_fields as $field => $select) {
+				if (empty($selected) || in_array($select, $selected)) {
+					if (is_int($field)) {
+						$selection[] = "`" . $table . "`.`".$select."`";
+					} else {
+						$selection[] = "`" . $table . "`.`" . $field . "` AS `".$select ."`";
+					}
+				}
+			}
+		}
+		return implode(", ", $selection);
+	}
+
+	private static function addTablesToFields($query, $fields)
+	{
+		foreach ($fields as $table => $table_fields) {
+			foreach ($table_fields as $alias => $field) {
+				if (is_int($alias)) {
+					$replace_field = $field;
+				} else {
+					$replace_field = $alias;
+				}
+
+				$search = "/([^\.])`" . $field . "`/i";
+				$replace = "$1`" . $table . "`.`" . $replace_field . "`";
+				$query = preg_replace($search, $replace, $query);
+			}
+		}
+		return $query;
 	}
 
 	/**
