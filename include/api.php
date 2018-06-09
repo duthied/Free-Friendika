@@ -1695,11 +1695,13 @@ function api_statuses_home_timeline($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::select(api_user(), [], $condition, $params);
 
-	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$items = dba::inArray($statuses);
+
+	$ret = api_format_items($items, $user_info, false, $type);
 
 	// Set all posts from the query above to seen
 	$idarray = [];
-	foreach ($r as $item) {
+	foreach ($items as $item) {
 		$idarray[] = intval($item["id"]);
 	}
 
