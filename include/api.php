@@ -1772,8 +1772,8 @@ function api_statuses_public_timeline($type)
 
 		$r = dba::inArray($statuses);
 	} else {
-		$condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND NOT `user`.`hidewall` AND `item`.`origin`",
-			api_user(), ACTIVITY_POST, $since_id];
+		$condition = ["`verb` = ? AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
+			ACTIVITY_POST, $since_id];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `item`.`id` <= ?";
