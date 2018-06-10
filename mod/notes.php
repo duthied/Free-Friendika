@@ -27,36 +27,21 @@ function notes_init(App $a)
 
 function notes_content(App $a, $update = false)
 {
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
 	require_once 'include/security.php';
 	require_once 'include/conversation.php';
-	$groups = [];
 
-
-	$o = '';
-
-	$remote_contact = false;
-
-	$contact_id = $_SESSION['cid'];
-	$contact = $a->contact;
-
-	$is_owner = true;
-
-	$o ="";
-	$o .= Profile::getTabs($a, true);
+	$o = Profile::getTabs($a, true);
 
 	if (!$update) {
 		$o .= '<h3>' . L10n::t('Personal Notes') . '</h3>';
 
-		$commpage = false;
-		$commvisitor = false;
-
 		$x = [
-			'is_owner' => $is_owner,
+			'is_owner' => true,
 			'allow_location' => (($a->user['allow_location']) ? true : false),
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
@@ -72,34 +57,17 @@ function notes_content(App $a, $update = false)
 		$o .= status_editor($a, $x, $a->contact['id']);
 	}
 
-	// Construct permissions
+	$condition = ["`uid` = ? AND `type` = 'note' AND `id` = `parent` AND NOT `wall`
+		AND `allow_cid` = ? AND `contact-id` = ?",
+		local_user(), '<' . $a->contact['id'] . '>', $a->contact['id']];
 
-	// default permissions - anonymous user
+	$notes = dba::count('item', $condition);
 
-	$sql_extra = " AND `item`.`allow_cid` = '<" . $a->contact['id'] . ">' ";
+	$a->set_pager_total($notes);
+	$a->set_pager_itemspage(40);
 
-	/// @todo We seem to need "Item::count" as function as well
-	$r = q("SELECT COUNT(*) AS `total`
-		FROM `item` %s
-		WHERE %s AND `item`.`uid` = %d AND `item`.`type` = 'note'
-		AND `contact`.`self` AND `item`.`id` = `item`.`parent` AND NOT `item`.`wall`
-		$sql_extra ",
-		item_joins(local_user()),
-		item_condition(),
-		intval(local_user())
-	);
-
-	if (DBM::is_result($r)) {
-		$a->set_pager_total($r[0]['total']);
-		$a->set_pager_itemspage(40);
-	}
-
-	$condition = ["`uid` = ? AND `type` = 'note' AND NOT `wall`
-		AND `id` = `parent` AND `allow_cid` = ?",
-		local_user(), '<' . $a->contact['id'] . '>'];
 	$params = ['order' => ['created' => true],
 		'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-
 	$r = Item::select(local_user(), ['item_id'], $condition, $params);
 
 	if (DBM::is_result($r)) {
