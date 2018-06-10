@@ -97,24 +97,28 @@ logger('Starting worker daemon.', LOGGER_DEBUG);
 echo "Starting worker daemon.\n";
 
 // Switch over to daemon mode.
-if ($pid = pcntl_fork())
+if ($pid = pcntl_fork()) {
 	return;     // Parent
+}
 
 fclose(STDIN);  // Close all of the standard
 fclose(STDOUT); // file descriptors as we
 fclose(STDERR); // are running as a daemon.
 
+dba::disconnect();
+
 register_shutdown_function('shutdown');
 
-if (posix_setsid() < 0)
+if (posix_setsid() < 0) {
 	return;
+}
 
-if ($pid = pcntl_fork())
+if ($pid = pcntl_fork()) {
 	return;     // Parent
+}
 
 // We lose the database connection upon forking
 dba::connect($db_host, $db_user, $db_pass, $db_data);
-unset($db_host, $db_user, $db_pass, $db_data);
 
 Config::set('system', 'worker_daemon_mode', true);
 
@@ -139,6 +143,11 @@ while (true) {
 	Worker::spawnWorker($do_cron);
 
 	if ($do_cron) {
+		// We force a disconnect and reconnect of the database connection.
+		// This is done to ensure that the connection don't get lost over time.
+		dba::disconnect();
+		dba::connect($db_host, $db_user, $db_pass, $db_data);
+
 		$last_cron = time();
 	}
 
