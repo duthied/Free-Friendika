@@ -78,6 +78,7 @@ function notes_content(App $a, $update = false)
 
 	$sql_extra = " AND `item`.`allow_cid` = '<" . $a->contact['id'] . ">' ";
 
+	/// @todo We seem to need "Item::count" as function as well
 	$r = q("SELECT COUNT(*) AS `total`
 		FROM `item` %s
 		WHERE %s AND `item`.`uid` = %d AND `item`.`type` = 'note'
@@ -93,26 +94,21 @@ function notes_content(App $a, $update = false)
 		$a->set_pager_itemspage(40);
 	}
 
-	$r = q("SELECT `item`.`id` AS `item_id` FROM `item` %s
-		WHERE %s AND `item`.`uid` = %d AND `item`.`type` = 'note'
-		AND `item`.`id` = `item`.`parent` AND NOT `item`.`wall`
-		$sql_extra
-		ORDER BY `item`.`created` DESC LIMIT %d ,%d ",
-		item_joins(local_user()),
-		item_condition(),
-		intval(local_user()),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
+	$condition = ["`uid` = ? AND `type` = 'note' AND NOT `wall`
+		AND `id` = `parent` AND `allow_cid` = ?",
+		local_user(), '<' . $a->contact['id'] . '>'];
+	$params = ['order' => ['created' => true],
+		'limit' => [$a->pager['start'], $a->pager['itemspage']]];
 
-	);
-
-	$parents_arr = [];
-	$parents_str = '';
+	$r = Item::select(local_user(), ['item_id'], $condition, $params);
 
 	if (DBM::is_result($r)) {
-		foreach ($r as $rr) {
+		$parents_arr = [];
+
+		while ($rr = dba::fetch($r)) {
 			$parents_arr[] = $rr['item_id'];
 		}
+		dba::close($r);
 
 		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
 		$result = Item::select(local_user(), [], $condition);
