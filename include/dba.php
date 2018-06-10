@@ -93,6 +93,26 @@ class dba {
 	}
 
 	/**
+	 * Disconnects the current database connection
+	 */
+	public static function disconnect()
+	{
+		if (is_null(self::$db)) {
+			return;
+		}
+
+		switch (self::$driver) {
+			case 'pdo':
+				self::$db = null;
+				break;
+			case 'mysqli':
+				self::$db->close();
+				self::$db = null;
+				break;
+		}
+	}
+
+	/**
 	 * Return the database object.
 	 * @return PDO|mysqli
 	 */
