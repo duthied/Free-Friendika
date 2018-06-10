@@ -1055,22 +1055,22 @@ class Contact extends BaseObject
 		}
 
 		if (in_array($r[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""])) {
-			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = %d AND NOT `item`.`global`))";
+			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
 		} else {
-			$sql = "`item`.`uid` = %d";
+			$sql = "`item`.`uid` = ?";
 		}
 
 		$author_id = intval($r[0]["author-id"]);
 
 		$contact = ($r[0]["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
-		$r = q(item_query(local_user()) . " AND `item`.`" . $contact . "` = %d AND " . $sql .
-			" AND `item`.`verb` = '%s' ORDER BY `item`.`created` DESC LIMIT %d, %d",
-			intval($author_id), intval(local_user()), dbesc(ACTIVITY_POST),
-			intval($a->pager['start']), intval($a->pager['itemspage'])
-		);
+		$condition = ["`$contact` = ? AND `verb` = ? AND " . $sql,
+			$author_id, ACTIVITY_POST, local_user()];
+		$params = ['order' => ['created' => true],
+			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$r = Item::select(local_user(), [], $condition, $params);
 
-		$o = conversation($a, $r, 'contact-posts', false);
+		$o = conversation($a, dba::inArray($r), 'contact-posts', false);
 
 		$o .= alt_pager($a, count($r));
 

@@ -48,7 +48,7 @@ contact:
         network: dfrn
     -
         id: 44
-        uid: 42
+        uid: 0
         name: Friend contact
         nick: friendcontact
         self: false
@@ -74,6 +74,7 @@ item:
         author-link: http://localhost/profile/selfcontact
         wall: true
         starred: true
+        origin: true
         allow_cid: ''
         allow_gid: ''
         deny_cid: ''
@@ -92,6 +93,7 @@ item:
         author-link: http://localhost/profile/selfcontact
         wall: true
         starred: false
+        origin: true
     -
         id: 3
         visible: true
@@ -106,20 +108,22 @@ item:
         author-link: http://localhost/profile/othercontact
         wall: true
         starred: false
+        origin: true
     -
         id: 4
         visible: true
-        contact-id: 43
-        author-id: 43
+        contact-id: 44
+        author-id: 44
         owner-id: 42
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: false
-        body: Other user reply
+        body: Friend user reply
         parent: 1
         author-link: http://localhost/profile/othercontact
         wall: true
         starred: false
+        origin: true
     -
         id: 5
         visible: true
@@ -134,6 +138,7 @@ item:
         author-link: http://localhost/profile/othercontact
         wall: true
         starred: false
+        origin: true
         allow_cid: ''
         allow_gid: ''
         deny_cid: ''
@@ -152,24 +157,31 @@ item:
         author-link: http://localhost/profile/othercontact
         wall: true
         starred: false
+        origin: true
 
 thread:
     -
         iid: 1
         visible: true
         contact-id: 42
+        author-id: 42
+        owner-id: 42
         uid: 42
         wall: true
     -
         iid: 3
         visible: true
         contact-id: 43
+        author-id: 43
+        owner-id: 43
         uid: 0
         wall: true
     -
         iid: 6
         visible: true
         contact-id: 44
+        author-id: 44
+        owner-id: 44
         uid: 0
         wall: true
 

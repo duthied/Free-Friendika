@@ -15,6 +15,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\Item;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
@@ -467,8 +468,8 @@ function item_joins($uid = 0) {
 		AND NOT `contact`.`blocked`
 		AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
 		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
-		INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id` AND NOT `author`.`blocked`
-		INNER JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id` AND NOT `owner`.`blocked`
+		STRAIGHT_JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id` AND NOT `author`.`blocked`
+		STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id` AND NOT `owner`.`blocked`
 		LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
 		LEFT JOIN `event` ON `event-id` = `event`.`id`",
 		CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid)
@@ -734,7 +735,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					'guid' => (($preview) ? 'Q0' : $item['guid']),
 					'network' => $item['item_network'],
 					'network_name' => ContactSelector::networkToName($item['item_network'], $profile_link),
-					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
+					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
 					'name' => $profile_name_e,
@@ -865,21 +866,21 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 function conversation_add_children($parents, $block_authors, $order, $uid) {
 	$max_comments = Config::get('system', 'max_comments', 100);
 
+	$params = ['order' => ['uid', 'commented' => true]];
+
 	if ($max_comments > 0) {
-		$limit = ' LIMIT '.intval($max_comments + 1);
-	} else {
-		$limit = '';
+		$params['limit'] = $max_comments;
 	}
 
 	$items = [];
 
-	$block_sql = $block_authors ? "AND NOT `author`.`hidden` AND NOT `author`.`blocked`" : "";
-
 	foreach ($parents AS $parent) {
-		$thread_items = dba::p(item_query(local_user())."AND `item`.`parent-uri` = ?
-			AND `item`.`uid` IN (0, ?) $block_sql
-			ORDER BY `item`.`uid` ASC, `item`.`commented` DESC" . $limit,
-			$parent['uri'], local_user());
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) ",
+			$parent['uri'], local_user()];
+		if ($block_authors) {
+			$condition[0] .= "AND NOT `author`.`hidden`";
+		}
+		$thread_items = Item::select(local_user(), [], $condition, $params);
 
 		$comments = dba::inArray($thread_items);
 

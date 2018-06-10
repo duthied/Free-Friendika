@@ -34,6 +34,270 @@ require_once 'include/text.php';
 class Item extends BaseObject
 {
 	/**
+	 * Retrieve a single record from the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param integer $uid User ID
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirst($uid, array $fields = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+		$result = self::select($uid, $fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = dba::fetch($result);
+			dba::close($result);
+			return $row;
+		}
+	}
+
+	/**
+	 * @brief Select rows from the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function select($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$fields = self::fieldlist();
+
+		$select_fields = self::constructSelectFields($fields, $selected);
+
+		$condition_string = dba::buildCondition($condition);
+
+		$condition_string = self::addTablesToFields($condition_string, $fields);
+
+		$condition_string = $condition_string . ' AND ' . self::condition(false);
+
+		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
+
+		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false);
+
+		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
+
+		return dba::p($sql, $condition);
+	}
+
+	/**
+	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param integer $uid User ID
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirstThread($uid, array $fields = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+		$result = self::selectThread($uid, $fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = dba::fetch($result);
+			dba::close($result);
+			return $row;
+		}
+	}
+
+	/**
+	 * @brief Select rows from the starting post in the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function selectThread($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$fields = self::fieldlist();
+
+		$threadfields = ['thread' => ['iid', 'uid', 'contact-id', 'owner-id', 'author-id',
+			'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private',
+			'pubmail', 'moderated', 'visible', 'starred', 'ignored', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'network']];
+
+		$select_fields = self::constructSelectFields($fields, $selected);
+
+		$condition_string = dba::buildCondition($condition);
+
+		$condition_string = self::addTablesToFields($condition_string, $threadfields);
+		$condition_string = self::addTablesToFields($condition_string, $fields);
+
+		$condition_string = $condition_string . ' AND ' . self::condition(true);
+
+		$param_string = dba::buildParameter($params);
+		$param_string = self::addTablesToFields($param_string, $threadfields);
+		$param_string = self::addTablesToFields($param_string, $fields);
+
+		$table = "`thread` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, true);
+
+		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
+
+		return dba::p($sql, $condition);
+	}
+
+	/**
+	 * @brief Returns a list of fields that are associated with the item table
+	 *
+	 * @return array field list
+	 */
+	private static function fieldlist()
+	{
+		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
+			'uri', 'thr-parent', 'parent-uri', 'content-warning',
+			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
+			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
+			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'id' => 'item_id', 'network' => 'item_network'];
+
+		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
+		$owner_fields = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
+		$contact_fields = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
+			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias'];
+
+		$event_fields = ['created' => 'event-created', 'edited' => 'event-edited',
+			'start' => 'event-start','finish' => 'event-finish',
+			'summary' => 'event-summary','desc' => 'event-desc',
+			'location' => 'event-location', 'type' => 'event-type',
+			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
+			'ignore' => 'event-ignore', 'id' => 'event-id'];
+
+		return ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
+			'contact' => $contact_fields, 'event' => $event_fields];
+	}
+
+	/**
+	 * @brief Returns SQL condition for the "select" functions
+	 *
+	 * @param boolean $thread_mode Called for the items (false) or for the threads (true)
+	 *
+	 * @return string SQL condition
+	 */
+	private static function condition($thread_mode)
+	{
+		if ($thread_mode) {
+			$master_table = "`thread`";
+		} else {
+			$master_table = "`item`";
+		}
+		return "$master_table.`visible` AND NOT $master_table.`deleted` AND NOT $master_table.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
+	}
+
+	/**
+	 * @brief Returns all needed "JOIN" commands for the "select" functions
+	 *
+	 * @param integer $uid User ID
+	 * @param string $sql_commands The parts of the built SQL commands in the "select" functions
+	 * @param boolean $thread_mode Called for the items (false) or for the threads (true)
+	 *
+	 * @return string The SQL joins for the "select" functions
+	 */
+	private static function constructJoins($uid, $sql_commands, $thread_mode)
+	{
+		if ($thread_mode) {
+			$master_table = "`thread`";
+			$master_table_key = "`thread`.`iid`";
+			$joins = "STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid` ";
+		} else {
+			$master_table = "`item`";
+			$master_table_key = "`item`.`id`";
+			$joins = '';
+		}
+
+		$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
+			AND NOT `contact`.`blocked`
+			AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
+			OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
+			CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+
+		if (strpos($sql_commands, "`group_member`.") !== false) {
+			$joins .= " STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = $master_table.`contact-id`";
+		}
+
+		if (strpos($sql_commands, "`user`.") !== false) {
+			$joins .= " STRAIGHT_JOIN `user` ON `user`.`uid` = $master_table.`uid`";
+		}
+
+		if (strpos($sql_commands, "`event`.") !== false) {
+			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
+		}
+
+		return $joins;
+	}
+
+	/**
+	 * @brief Add the field list for the "select" functions
+	 *
+	 * @param array $fields The field definition array
+	 * @param array $selected The array with the selected fields from the "select" functions
+	 *
+	 * @return string The field list
+	 */
+	private static function constructSelectFields($fields, $selected)
+	{
+		$selection = [];
+		foreach ($fields as $table => $table_fields) {
+			foreach ($table_fields as $field => $select) {
+				if (empty($selected) || in_array($select, $selected)) {
+					if (is_int($field)) {
+						$selection[] = "`" . $table . "`.`".$select."`";
+					} else {
+						$selection[] = "`" . $table . "`.`" . $field . "` AS `".$select ."`";
+					}
+				}
+			}
+		}
+		return implode(", ", $selection);
+	}
+
+	/**
+	 * @brief add table definition to fields in an SQL query
+	 *
+	 * @param string $query SQL query
+	 * @param array $fields The field definition array
+	 *
+	 * @return string the changed SQL query
+	 */
+	private static function addTablesToFields($query, $fields)
+	{
+		foreach ($fields as $table => $table_fields) {
+			foreach ($table_fields as $alias => $field) {
+				if (is_int($alias)) {
+					$replace_field = $field;
+				} else {
+					$replace_field = $alias;
+				}
+
+				$search = "/([^\.])`" . $field . "`/i";
+				$replace = "$1`" . $table . "`.`" . $replace_field . "`";
+				$query = preg_replace($search, $replace, $query);
+			}
+		}
+		return $query;
+	}
+
+	/**
 	 * @brief Update existing item entries
 	 *
 	 * @param array $fields The fields that are to be changed

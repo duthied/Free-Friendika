@@ -14,6 +14,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 
@@ -345,11 +346,10 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 		return '';
 	}
 
-	$r = dba::p(item_query(local_user())."AND `item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
-		AND `item`.`uid` IN (0, ?) $sql_extra
-		ORDER BY `item`.`uid` ASC, `parent` DESC, `gravity` ASC, `id` ASC",
-		$item_id, local_user()
-	);
+	$condition = ["`item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
+		AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, local_user()];
+	$params = ['order' => ['uid', 'parent' => true, 'gravity', 'id']];
+	$r = Item::select(local_user(), [], $condition, $params);
 
 	if (!DBM::is_result($r)) {
 		notice(L10n::t('Item not found.') . EOL);

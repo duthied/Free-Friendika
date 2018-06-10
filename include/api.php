@@ -686,14 +686,8 @@ function api_get_user(App $a, $contact_id = null)
 			$uinfo[0]['network'] = NETWORK_DFRN;
 		}
 
-		$usr = q(
-			"SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval(api_user())
-		);
-		$profile = q(
-			"SELECT * FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
-			intval(api_user())
-		);
+		$usr = dba::selectFirst('user', ['default-location'], ['uid' => api_user()]);
+		$profile = dba::selectFirst('profile', ['about'], ['uid' => api_user(), 'is-default' => true]);
 
 		/// @TODO old-lost code? (twice)
 		// Counting is deactivated by now, due to performance issues
@@ -760,14 +754,14 @@ function api_get_user(App $a, $contact_id = null)
 
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
-	if (!empty($profile[0]['about'])) {
-		$description = $profile[0]['about'];
+	if (!empty($profile['about'])) {
+		$description = $profile['about'];
 	} else {
 		$description = $uinfo[0]["about"];
 	}
 
-	if (!empty($usr[0]['default-location'])) {
-		$location = $usr[0]['default-location'];
+	if (!empty($usr['default-location'])) {
+		$location = $usr['default-location'];
 	} elseif (!empty($uinfo[0]["location"])) {
 		$location = $uinfo[0]["location"];
 	} else {
@@ -1602,7 +1596,6 @@ function api_search($type)
 	}
 
 	$data = [];
-	$sql_extra = '';
 
 	if (!x($_REQUEST, 'q')) {
 		throw new BadRequestException("q parameter is required.");
@@ -1622,24 +1615,20 @@ function api_search($type)
 
 	$start = $page * $count;
 
+	$condition = ["`verb` = ? AND `item`.`id` > ?
+		AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
+		AND `item`.`body` LIKE CONCAT('%',?,'%')",
+		ACTIVITY_POST, $since_id, api_user(), $_REQUEST['q']];
+
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = dba::p(
-		"SELECT ".item_fieldlists()."
-		FROM `item` ".item_joins(api_user())."
-		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
-		AND `item`.`body` LIKE CONCAT('%',?,'%')
-		$sql_extra
-		AND `item`.`id`>?
-		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count)." ",
-		api_user(),
-		$_REQUEST['q'],
-		$since_id
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
-	$data['status'] = api_format_items(dba::inArray($r), $user_info);
+	$data['status'] = api_format_items(dba::inArray($statuses), $user_info);
 
 	return api_format_data("statuses", $type, $data);
 }
@@ -1689,37 +1678,30 @@ function api_statuses_home_timeline($type)
 
 	$start = $page * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `verb` = ? AND `item`.`id` > ?", api_user(), ACTIVITY_POST, $since_id];
+
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 	if ($exclude_replies > 0) {
-		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 	if ($conversation_id > 0) {
-		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[] = $conversation_id;
 	}
 
-	$r = q("SELECT `item`.* FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`uid` = %d AND `verb` = '%s'
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		$sql_extra
-		AND `item`.`id` > %d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$items = dba::inArray($statuses);
+
+	$ret = api_format_items($items, $user_info, false, $type);
 
 	// Set all posts from the query above to seen
 	$idarray = [];
-	foreach ($r as $item) {
+	foreach ($items as $item) {
 		$idarray[] = intval($item["id"]);
 	}
 
@@ -1779,61 +1761,35 @@ function api_statuses_public_timeline($type)
 	$sql_extra = '';
 
 	if ($exclude_replies && !$conversation_id) {
+		$condition = ["`verb` = ? AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
+			ACTIVITY_POST, $since_id];
+
 		if ($max_id > 0) {
-			$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
+			$condition[0] .= " AND `thread`.`iid` <= ?";
+			$condition[] = $max_id;
 		}
 
-		$r = dba::p(
-			"SELECT " . item_fieldlists() . "
-			FROM `thread`
-			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			" . item_joins(api_user()) . "
-			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid`
-				AND NOT `user`.`hidewall`
-			AND `verb` = ?
-			AND NOT `thread`.`private`
-			AND `thread`.`wall`
-			AND `thread`.`visible`
-			AND NOT `thread`.`deleted`
-			AND NOT `thread`.`moderated`
-			AND `thread`.`iid` > ?
-			$sql_extra
-			ORDER BY `thread`.`iid` DESC
-			LIMIT " . intval($start) . ", " . intval($count),
-			ACTIVITY_POST,
-			$since_id
-		);
+		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
+		$statuses = Item::selectThread(api_user(), [], $condition, $params);
 
-		$r = dba::inArray($r);
+		$r = dba::inArray($statuses);
 	} else {
+		$condition = ["`verb` = ? AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
+			ACTIVITY_POST, $since_id];
+
 		if ($max_id > 0) {
-			$sql_extra = 'AND `item`.`id` <= ' . intval($max_id);
+			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[] = $max_id;
 		}
 		if ($conversation_id > 0) {
-			$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+			$condition[0] .= " AND `item`.`parent` = ?";
+			$condition[] = $conversation_id;
 		}
 
-		$r = dba::p(
-			"SELECT " . item_fieldlists() . "
-			FROM `item`
-			" . item_joins(api_user()) . "
-			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
-				AND NOT `user`.`hidewall`
-			AND `verb` = ?
-			AND NOT `item`.`private`
-			AND `item`.`wall`
-			AND `item`.`visible`
-			AND NOT `item`.`deleted`
-			AND NOT `item`.`moderated`
-			AND `item`.`id` > ?
-			$sql_extra
-			ORDER BY `item`.`id` DESC
-			LIMIT " . intval($start) . ", " . intval($count),
-			ACTIVITY_POST,
-			$since_id
-		);
+		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$statuses = Item::select(api_user(), [], $condition, $params);
 
-		$r = dba::inArray($r);
+		$r = dba::inArray($statuses);
 	}
 
 	$ret = api_format_items($r, $user_info, false, $type);
@@ -1881,33 +1837,18 @@ function api_statuses_networkpublic_timeline($type)
 	}
 	$start = ($page - 1) * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = 0 AND `verb` = ? AND `thread`.`iid` > ? AND NOT `private`",
+		ACTIVITY_POST, $since_id];
+
 	if ($max_id > 0) {
-		$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
+		$condition[0] .= " AND `thread`.`iid` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = dba::p(
-		"SELECT " . item_fieldlists() . "
-		FROM `thread`
-		STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-		" . item_joins(api_user()) . "
-		WHERE `thread`.`uid` = 0
-		AND `verb` = ?
-		AND NOT `thread`.`private`
-		AND `thread`.`visible`
-		AND NOT `thread`.`deleted`
-		AND NOT `thread`.`moderated`
-		AND `thread`.`iid` > ?
-		$sql_extra
-		ORDER BY `thread`.`iid` DESC
-		LIMIT " . intval($start) . ", " . intval($count),
-		ACTIVITY_POST,
-		$since_id
-	);
+	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectThread(api_user(), [], $condition, $params);
 
-	$r = dba::inArray($r);
-
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -1955,13 +1896,6 @@ function api_statuses_show($type)
 
 	$conversation = (x($_REQUEST, 'conversation') ? 1 : 0);
 
-	$sql_extra = '';
-	if ($conversation) {
-		$sql_extra .= " AND `item`.`parent` = %d ORDER BY `id` ASC ";
-	} else {
-		$sql_extra .= " AND `item`.`id` = %d";
-	}
-
 	// try to fetch the item for the local user - or the public item, if there is no local one
 	$uri_item = dba::selectFirst('item', ['uri'], ['id' => $id]);
 	if (!DBM::is_result($uri_item)) {
@@ -1975,24 +1909,22 @@ function api_statuses_show($type)
 
 	$id = $item['id'];
 
-	$r = q(
-		"SELECT `item`.* FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` IN (0, %d) AND `item`.`verb` = '%s'
-		$sql_extra",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($id)
-	);
+	if ($conversation) {
+		$condition = ['parent' => $id, 'verb' => ACTIVITY_POST];
+		$params = ['order' => ['id' => true]];
+	} else {
+		$condition = ['id' => $id, 'verb' => ACTIVITY_POST];
+		$params = [];
+	}
+
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
 	/// @TODO How about copying this to above methods which don't check $r ?
-	if (!DBM::is_result($r)) {
+	if (!DBM::is_result($statuses)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
 	if ($conversation) {
 		$data = ['status' => $ret];
@@ -2057,33 +1989,22 @@ function api_conversation_show($type)
 
 	$id = $parent['id'];
 
-	$sql_extra = '';
+	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `verb` = ? AND `item`.`id` > ?",
+		$id, api_user(), ACTIVITY_POST, $since_id];
 
 	if ($max_id > 0) {
-		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = q("SELECT `item`.* FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`parent` = %d AND `item`.`visible`
-		AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` IN (0, %d) AND `item`.`verb` = '%s'
-		AND `item`.`id`>%d $sql_extra
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
-		intval($id),
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
-	if (!DBM::is_result($r)) {
-		throw new BadRequestException("There is no status with this id.");
+	if (!DBM::is_result($statuses)) {
+		throw new BadRequestException("There is no status with id $id.");
 	}
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	return api_format_data("statuses", $type, $data);
@@ -2126,24 +2047,17 @@ function api_statuses_repeat($type)
 
 	logger('API: api_statuses_repeat: '.$id);
 
-	$r = q("SELECT `item`.* FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND NOT `item`.`private`
-		AND `item`.`id`=%d",
-		intval($id)
-	);
+	$fields = ['body', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+	$item = Item::selectFirst(api_user(), $fields, ['id' => $id, 'private' => false]);
 
-	/// @TODO other style than above functions!
-	if (DBM::is_result($r) && $r[0]['body'] != "") {
-		if (strpos($r[0]['body'], "[/share]") !== false) {
-			$pos = strpos($r[0]['body'], "[share");
-			$post = substr($r[0]['body'], $pos);
+	if (DBM::is_result($item) && $item['body'] != "") {
+		if (strpos($item['body'], "[/share]") !== false) {
+			$pos = strpos($item['body'], "[share");
+			$post = substr($item['body'], $pos);
 		} else {
-			$post = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
+			$post = share_header($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
 
-			$post .= $r[0]['body'];
+			$post .= $item['body'];
 			$post .= "[/share]";
 		}
 		$_REQUEST['body'] = $post;
@@ -2244,32 +2158,19 @@ function api_statuses_mentions($type)
 
 	$start = ($page - 1) * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `verb` = ? AND `item`.`id` > ? AND `author-id` != ?
+		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = ? AND `mention` AND NOT `ignored`)",
+		api_user(), ACTIVITY_POST, $since_id, $user_info['pid'], api_user()];
 
 	if ($max_id > 0) {
-		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = q("SELECT `item`.* FROM `item` FORCE INDEX (`uid_id`)
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`uid` = %d AND `item`.`verb` = '%s'
-		AND `item`.`author-id` != %d
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND NOT `ignored`)
-		$sql_extra
-		AND `item`.`id` > %d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($user_info['pid']),
-		intval(api_user()),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -2325,41 +2226,31 @@ function api_statuses_user_timeline($type)
 	}
 	$start = ($page - 1) * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `verb` = ? AND `item`.`id` > ? AND `item`.`contact-id` = ?",
+		api_user(), ACTIVITY_POST, $since_id, $user_info['cid']];
+
 	if ($user_info['self'] == 1) {
-		$sql_extra .= " AND `item`.`wall` = 1 ";
+		$condition[0] .= ' AND `item`.`wall` ';
 	}
 
 	if ($exclude_replies > 0) {
-		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 
 	if ($conversation_id > 0) {
-		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[] = $conversation_id;
 	}
 
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = q("SELECT `item`.* FROM `item` FORCE INDEX (`uid_contactid_id`)
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`uid` = %d AND `verb` = '%s'
-		AND `item`.`contact-id` = %d
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		$sql_extra
-		AND `item`.`id` > %d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($user_info['cid']),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
-	$ret = api_format_items($r, $user_info, true, $type);
+	$ret = api_format_items(dba::inArray($statuses), $user_info, true, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -2409,24 +2300,24 @@ function api_favorites_create_destroy($type)
 		$itemid = intval($_REQUEST['id']);
 	}
 
-	$item = q("SELECT * FROM `item` WHERE `id`=%d AND `uid`=%d LIMIT 1", $itemid, api_user());
+	$item = Item::selectFirst(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
 
-	if (!DBM::is_result($item) || count($item) == 0) {
+	if (!DBM::is_result($item)) {
 		throw new BadRequestException("Invalid item.");
 	}
 
 	switch ($action) {
 		case "create":
-			$item[0]['starred'] = 1;
+			$item['starred'] = 1;
 			break;
 		case "destroy":
-			$item[0]['starred'] = 0;
+			$item['starred'] = 0;
 			break;
 		default:
 			throw new BadRequestException("Invalid action ".$action);
 	}
 
-	$r = Item::update(['starred' => $item[0]['starred']], ['id' => $itemid]);
+	$r = Item::update(['starred' => $item['starred']], ['id' => $itemid]);
 
 	if ($r === false) {
 		throw new InternalServerErrorException("DB error");
@@ -2434,7 +2325,7 @@ function api_favorites_create_destroy($type)
 
 
 	$user_info = api_get_user($a);
-	$rets = api_format_items($item, $user_info, false, $type);
+	$rets = api_format_items([$item], $user_info, false, $type);
 	$ret = $rets[0];
 
 	$data = ['status' => $ret];
@@ -2478,8 +2369,6 @@ function api_favorites($type)
 	if ($user_info['self'] == 0) {
 		$ret = [];
 	} else {
-		$sql_extra = "";
-
 		// params
 		$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
 		$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
@@ -2491,26 +2380,19 @@ function api_favorites($type)
 
 		$start = $page*$count;
 
+		$condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND `starred`",
+			api_user(), ACTIVITY_POST, $since_id];
+
+		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+
 		if ($max_id > 0) {
-			$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[] = $max_id;
 		}
 
-		$r = q("SELECT `item`.* FROM `item`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			WHERE `item`.`uid` = %d
-			AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-			AND `item`.`starred`
-			$sql_extra
-			AND `item`.`id`>%d
-			ORDER BY `item`.`id` DESC LIMIT %d ,%d",
-			intval(api_user()),
-			intval($since_id),
-			intval($start),
-			intval($count)
-		);
+		$statuses = Item::select(api_user(), [], $condition, $params);
 
-		$ret = api_format_items($r, $user_info, false, $type);
+		$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 	}
 
 	$data = ['status' => $ret];
@@ -3300,32 +3182,23 @@ function api_lists_statuses($type)
 
 	$start = $page * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND `group_member`.`gid` = ?",
+		api_user(), ACTIVITY_POST, $since_id, $_REQUEST['list_id']];
+
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 	if ($exclude_replies > 0) {
-		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 	if ($conversation_id > 0) {
-		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[] = $conversation_id;
 	}
 
-	$statuses = dba::p("SELECT `item`.* FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
-		WHERE `item`.`uid` = ? AND `verb` = ?
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		$sql_extra
-		AND `item`.`id`>?
-		AND `group_member`.`gid` = ?
-		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count),
-		api_user(),
-		ACTIVITY_POST,
-		$since_id,
-		$_REQUEST['list_id']
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::select(api_user(), [], $condition, $params);
 
 	$items = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
@@ -4847,19 +4720,13 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$data['photo']['friendica_activities'] = api_format_items_activities($item[0], $type);
 
 	// retrieve comments on photo
-	$r = q("SELECT `item`.* FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`parent` = %d AND `item`.`visible`
-		AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` = %d AND (`item`.`verb`='%s' OR `type`='photo')",
-		intval($item[0]['parent']),
-		intval(api_user()),
-		dbesc(ACTIVITY_POST)
-	);
+	$condition = ["`parent` = ? AND `uid` = ? AND (`verb` = ? OR `type`='photo')",
+		$item[0]['parent'], api_user(), ACTIVITY_POST];
+
+	$statuses = Item::select(api_user(), [], $condition);
 
 	// prepare output of comments
-	$commentData = api_format_items($r, $user_info, false, $type);
+	$commentData = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
@@ -5849,14 +5716,10 @@ function api_friendica_notification_seen($type)
 	$nm->setSeen($note);
 	if ($note['otype']=='item') {
 		// would be really better with an ItemsManager and $im->getByID() :-P
-		$r = q(
-			"SELECT * FROM `item` WHERE `id`=%d AND `uid`=%d",
-			intval($note['iid']),
-			intval(local_user())
-		);
-		if ($r!==false) {
+		$item = Item::selectFirst(api_user(), [], ['id' => $note['iid'], 'uid' => api_user()]);
+		if (DBM::is_result($$item)) {
 			// we found the item, return it to the user
-			$ret = api_format_items($r, $user_info, false, $type);
+			$ret = api_format_items([$item], $user_info, false, $type);
 			$data = ['status' => $ret];
 			return api_format_data("status", $type, $data);
 		}

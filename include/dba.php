@@ -1148,29 +1148,9 @@ class dba {
 
 		$condition_string = self::buildCondition($condition);
 
-		$order_string = '';
-		if (isset($params['order'])) {
-			$order_string = " ORDER BY ";
-			foreach ($params['order'] AS $fields => $order) {
-				if (!is_int($fields)) {
-					$order_string .= "`" . $fields . "` " . ($order ? "DESC" : "ASC") . ", ";
-				} else {
-					$order_string .= "`" . $order . "`, ";
-				}
-			}
-			$order_string = substr($order_string, 0, -2);
-		}
+		$param_string = self::buildParameter($params);
 
-		$limit_string = '';
-		if (isset($params['limit']) && is_int($params['limit'])) {
-			$limit_string = " LIMIT " . $params['limit'];
-		}
-
-		if (isset($params['limit']) && is_array($params['limit'])) {
-			$limit_string = " LIMIT " . intval($params['limit'][0]) . ", " . intval($params['limit'][1]);
-		}
-
-		$sql = "SELECT " . $select_fields . " FROM `" . $table . "`" . $condition_string . $order_string . $limit_string;
+		$sql = "SELECT " . $select_fields . " FROM `" . $table . "`" . $condition_string . $param_string;
 
 		$result = self::p($sql, $condition);
 
@@ -1227,14 +1207,14 @@ class dba {
 	 * @param array $condition
 	 * @return string
 	 */
-	private static function buildCondition(array &$condition = [])
+	public static function buildCondition(array &$condition = [])
 	{
 		$condition_string = '';
 		if (count($condition) > 0) {
 			reset($condition);
 			$first_key = key($condition);
 			if (is_int($first_key)) {
-				$condition_string = " WHERE ".array_shift($condition);
+				$condition_string = " WHERE (" . array_shift($condition) . ")";
 			} else {
 				$new_values = [];
 				$condition_string = "";
@@ -1251,12 +1231,45 @@ class dba {
 						$condition_string .= "`" . $field . "` = ?";
 					}
 				}
-				$condition_string = " WHERE " . $condition_string;
+				$condition_string = " WHERE (" . $condition_string . ")";
 				$condition = $new_values;
 			}
 		}
 
 		return $condition_string;
+	}
+
+	/**
+	 * @brief Returns the SQL parameter string built from the provided parameter array
+	 *
+	 * @param array $params
+	 * @return string
+	 */
+	public static function buildParameter(array $params = [])
+	{
+		$order_string = '';
+		if (isset($params['order'])) {
+			$order_string = " ORDER BY ";
+			foreach ($params['order'] AS $fields => $order) {
+				if (!is_int($fields)) {
+					$order_string .= "`" . $fields . "` " . ($order ? "DESC" : "ASC") . ", ";
+				} else {
+					$order_string .= "`" . $order . "`, ";
+				}
+			}
+			$order_string = substr($order_string, 0, -2);
+		}
+
+		$limit_string = '';
+		if (isset($params['limit']) && is_int($params['limit'])) {
+			$limit_string = " LIMIT " . $params['limit'];
+		}
+
+		if (isset($params['limit']) && is_array($params['limit'])) {
+			$limit_string = " LIMIT " . intval($params['limit'][0]) . ", " . intval($params['limit'][1]);
+		}
+
+		return $order_string.$limit_string;
 	}
 
 	/**

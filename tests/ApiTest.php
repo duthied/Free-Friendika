@@ -1871,7 +1871,7 @@ class ApiTest extends DatabaseTest
 		$this->app->argv[1] = '1.1';
 		$this->app->argv[3] = 'create';
 		$this->app->argc = 10;
-		$_REQUEST['id'] = 1;
+		$_REQUEST['id'] = 3;
 		$result = api_favorites_create_destroy('json');
 		$this->assertStatus($result['status']);
 	}
@@ -1885,7 +1885,7 @@ class ApiTest extends DatabaseTest
 		$this->app->argv[1] = '1.1';
 		$this->app->argv[3] = 'create';
 		$this->app->argc = 10;
-		$_REQUEST['id'] = 1;
+		$_REQUEST['id'] = 3;
 		$result = api_favorites_create_destroy('rss');
 		$this->assertXml($result, 'status');
 	}
@@ -1899,7 +1899,7 @@ class ApiTest extends DatabaseTest
 		$this->app->argv[1] = '1.1';
 		$this->app->argv[3] = 'destroy';
 		$this->app->argc = 10;
-		$_REQUEST['id'] = 1;
+		$_REQUEST['id'] = 3;
 		$result = api_favorites_create_destroy('json');
 		$this->assertStatus($result['status']);
 	}
