@@ -15,6 +15,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\Item;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
@@ -865,21 +866,21 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 function conversation_add_children($parents, $block_authors, $order, $uid) {
 	$max_comments = Config::get('system', 'max_comments', 100);
 
+	$params = ['order' => ['uid', 'commented' => true]];
+
 	if ($max_comments > 0) {
-		$limit = ' LIMIT '.intval($max_comments + 1);
-	} else {
-		$limit = '';
+		$params['limit'] = $max_comments;
 	}
 
 	$items = [];
 
-	$block_sql = $block_authors ? "AND NOT `author`.`hidden` AND NOT `author`.`blocked`" : "";
-
 	foreach ($parents AS $parent) {
-		$thread_items = dba::p(item_query(local_user())."AND `item`.`parent-uri` = ?
-			AND `item`.`uid` IN (0, ?) $block_sql
-			ORDER BY `item`.`uid` ASC, `item`.`commented` DESC" . $limit,
-			$parent['uri'], local_user());
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) ",
+			$parent['uri'], local_user()];
+		if ($block_authors) {
+			$condition[0] .= "AND NOT `author`.`hidden`";
+		}
+		$thread_items = Item::select(local_user(), [], $condition, $params);
 
 		$comments = dba::inArray($thread_items);
 

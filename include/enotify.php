@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
+use Friendica\Model\Item;
 
 /**
  * @brief Creates a notification entry and possibly sends a mail
