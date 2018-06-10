@@ -7,6 +7,7 @@ use Friendica\Content\Nav;
 use Friendica\Core\L10n;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
+use Friendica\Model\Item;
 
 function notes_init(App $a)
 {
@@ -112,22 +113,11 @@ function notes_content(App $a, $update = false)
 		foreach ($r as $rr) {
 			$parents_arr[] = $rr['item_id'];
 		}
-		$parents_str = implode(', ', $parents_arr);
 
-		$r = q("SELECT %s FROM `item` %s
-			WHERE %s AND `item`.`uid` = %d AND `item`.`parent` IN (%s)
-			$sql_extra
-			ORDER BY `parent` DESC, `gravity` ASC, `item`.`id` ASC ",
-			item_fieldlists(),
-			item_joins(local_user()),
-			item_condition(),
-			intval(local_user()),
-			dbesc($parents_str)
-		);
-
-		if (DBM::is_result($r)) {
-			$items = conv_sort($r, "`commented`");
-
+		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
+		$result = Item::select(local_user(), [], $condition);
+		if (DBM::is_result($result)) {
+			$items = conv_sort(dba::inArray($result), 'commented');
 			$o .= conversation($a, $items, 'notes', $update);
 		}
 	}
