@@ -337,16 +337,9 @@ function profile_content(App $a, $update = 0)
 			$parents_arr[] = $rr['item_id'];
 		}
 
-		$parents_str = implode(', ', $parents_arr);
-
-		$items = q(item_query($a->profile['profile_uid']) . " AND `item`.`uid` = %d
-			AND `item`.`parent` IN (%s)
-			$sql_extra ",
-			intval($a->profile['profile_uid']),
-			dbesc($parents_str)
-		);
-
-		$items = conv_sort($items, 'created');
+		$condition = ['uid' => $a->profile['profile_uid'], 'parent' => $parents_arr];
+		$result = Item::select($a->profile['profile_uid'], [], $condition);
+		$items = conv_sort(dba::inArray($result), 'created');
 	} else {
 		$items = [];
 	}
