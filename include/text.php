@@ -152,7 +152,7 @@ function autoname($len) {
 				'nd','ng','nk','nt','rn','rp','rt'];
 
 	$noend = ['bl', 'br', 'cl','cr','dr','fl','fr','gl','gr',
-				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh'];
+				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh','q'];
 
 	$start = mt_rand(0,2);
 	if ($start == 0) {
@@ -178,14 +178,13 @@ function autoname($len) {
 	$word = substr($word,0,$len);
 
 	foreach ($noend as $noe) {
-		if ((strlen($word) > 2) && (substr($word, -2) == $noe)) {
-			$word = substr($word, 0, -1);
+		$noelen = strlen($noe);
+		if ((strlen($word) > $noelen) && (substr($word, -$noelen) == $noe)) {
+			$word = autoname($len);
 			break;
 		}
 	}
-	if (substr($word, -1) == 'q') {
-		$word = substr($word, 0, -1);
-	}
+
 	return $word;
 }
 
@@ -453,7 +452,7 @@ function perms2str($p) {
 	if (is_array($p)) {
 		$tmp = $p;
 	} else {
-		$tmp = explode(',',$p);
+		$tmp = explode(',', $p);
 	}
 
 	if (is_array($tmp)) {
@@ -962,13 +961,9 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	$redir = false;
 
 	if ($redirect) {
-		$redirect_url = 'redir/' . $contact['id'];
-		if (local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
-			$redir = true;
-			$url = $redirect_url;
+		$url = Contact::magicLink($contact['url']);
+		if (strpos($url, 'redir/') === 0) {
 			$sparkle = ' sparkle';
-		} else {
-			$url = Profile::zrl($url);
 		}
 	}
 
@@ -1301,11 +1296,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	foreach ($matches as $mtch) {
 		$mime = $mtch[3];
 
-		if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
-			$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
-		} else {
-			$the_url = $mtch[1];
-		}
+		$the_url = Contact::magicLinkById($item['author-id'], $mtch[1]);
 
 		if (strpos($mime, 'video') !== false) {
 			if (!$vhead) {
@@ -1661,10 +1652,11 @@ function bb_translate_video($s) {
 	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
 	if ($r) {
 		foreach ($matches as $mtch) {
-			if ((stristr($mtch[1],'youtube')) || (stristr($mtch[1],'youtu.be')))
-				$s = str_replace($mtch[0],'[youtube]' . $mtch[1] . '[/youtube]',$s);
-			elseif (stristr($mtch[1],'vimeo'))
-				$s = str_replace($mtch[0],'[vimeo]' . $mtch[1] . '[/vimeo]',$s);
+			if ((stristr($mtch[1], 'youtube')) || (stristr($mtch[1], 'youtu.be'))) {
+				$s = str_replace($mtch[0], '[youtube]' . $mtch[1] . '[/youtube]', $s);
+			} elseif (stristr($mtch[1], 'vimeo')) {
+				$s = str_replace($mtch[0], '[vimeo]' . $mtch[1] . '[/vimeo]', $s);
+			}
 		}
 	}
 	return $s;
@@ -1782,7 +1774,7 @@ function file_tag_file_query($table,$s,$type = 'file') {
 }
 
 // ex. given music,video return <music><video> or [music][video]
-function file_tag_list_to_file($list,$type = 'file') {
+function file_tag_list_to_file($list, $type = 'file') {
 	$tag_list = '';
 	if (strlen($list)) {
 		$list_array = explode(",",$list);
@@ -1804,7 +1796,7 @@ function file_tag_list_to_file($list,$type = 'file') {
 }
 
 // ex. given <music><video>[friends], return music,video or friends
-function file_tag_file_to_list($file,$type = 'file') {
+function file_tag_file_to_list($file, $type = 'file') {
 	$matches = false;
 	$list = '';
 	if ($type == 'file') {
@@ -1830,8 +1822,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 
 	if (!intval($uid)) {
 		return false;
-	}
-	if ($file_old == $file_new) {
+	} elseif ($file_old == $file_new) {
 		return true;
 	}
 
@@ -1854,8 +1845,9 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_new_tags = explode(",",file_tag_file_to_list($file_new,$type));
 
 		foreach ($check_new_tags as $tag) {
-			if (! stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket))
+			if (! stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$new_tags[] = $tag;
+			}
 		}
 
 		$filetags_updated .= file_tag_list_to_file(implode(",",$new_tags),$type);
@@ -1865,8 +1857,9 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_deleted_tags = explode(",",file_tag_file_to_list($file_old,$type));
 
 		foreach ($check_deleted_tags as $tag) {
-			if (! stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket))
+			if (! stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$deleted_tags[] = $tag;
+			}
 		}
 
 		foreach ($deleted_tags as $key => $tag) {
@@ -1980,17 +1973,22 @@ function protect_sprintf($s) {
 	return str_replace('%', '%%', $s);
 }
 
-
+/// @TODO Rewrite this
 function is_a_date_arg($s) {
 	$i = intval($s);
+
 	if ($i > 1900) {
 		$y = date('Y');
+
 		if ($i <= $y + 1 && strpos($s, '-') == 4) {
-			$m = intval(substr($s,5));
-			if ($m > 0 && $m <= 12)
+			$m = intval(substr($s, 5));
+
+			if ($m > 0 && $m <= 12) {
 				return true;
+			}
 		}
 	}
+
 	return false;
 }
 
@@ -2008,6 +2006,7 @@ function deindent($text, $chr = "[\t ]", $count = NULL) {
 		preg_match("|^" . $chr . "*|", $lines[$k], $m);
 		$count = strlen($m[0]);
 	}
+
 	for ($k = 0; $k < count($lines); $k++) {
 		$lines[$k] = preg_replace("|^" . $chr . "{" . $count . "}|", "", $lines[$k]);
 	}

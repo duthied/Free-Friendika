@@ -29,9 +29,7 @@ class PConfig extends BaseObject
 
 	public static function init($uid)
 	{
-		$a = self::getApp();
-
-		if (isset($a->config['system']['config_adapter']) && $a->config['system']['config_adapter'] == 'preload') {
+		if (Config::get('system', 'config_adapter') == 'preload') {
 			self::$adapter = new Config\PreloadPConfigAdapter($uid);
 		} else {
 			self::$adapter = new Config\JITPConfigAdapter($uid);

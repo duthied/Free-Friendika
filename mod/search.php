@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
 require_once 'include/security.php';
 require_once 'include/conversation.php';
@@ -197,34 +198,34 @@ function search_content(App $a) {
 	if ($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-		$r = q("SELECT %s
-			FROM `term`
-				STRAIGHT_JOIN `item` ON `item`.`id`=`term`.`oid` %s
-			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`))
-				AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s' AND `item`.`verb` = '%s'
-				AND NOT `author`.`blocked` AND NOT `author`.`hidden`
-			ORDER BY term.created DESC LIMIT %d , %d ",
-				item_fieldlists(), item_joins(), item_condition(),
-				intval(local_user()),
-				intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)), dbesc(ACTIVITY_POST),
-				intval($a->pager['start']), intval($a->pager['itemspage']));
+		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
+			AND `otype` = ? AND `type` = ? AND `term` = ?",
+			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $search];
+		$params = ['order' => ['created' => true],
+			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$terms = dba::select('term', ['oid'], $condition, $params);
+
+		$itemids = [];
+		while ($term = dba::fetch($terms)) {
+			$itemids[] = $term['oid'];
+		}
+		dba::close($terms);
+
+		$items = Item::select(local_user(), [], ['id' => array_reverse($itemids)]);
+		$r = dba::inArray($items);
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
 
-		$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-
-		$r = q("SELECT %s
-			FROM `item` %s
-			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
-				AND NOT `author`.`blocked` AND NOT `author`.`hidden`
-				$sql_extra
-			GROUP BY `item`.`uri`, `item`.`id` ORDER BY `item`.`id` DESC LIMIT %d , %d",
-				item_fieldlists(), item_joins(), item_condition(),
-				intval(local_user()),
-				intval($a->pager['start']), intval($a->pager['itemspage']));
+		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
+			AND `body` LIKE CONCAT('%',?,'%')",
+			local_user(), $search];
+		$params = ['order' => ['id' => true],
+			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$items = Item::select(local_user(), [], $condition, $params);
+		$r = dba::inArray($items);
 	}
 
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		info(L10n::t('No results.') . EOL);
 		return $o;
 	}
@@ -241,7 +242,7 @@ function search_content(App $a) {
 	]);
 
 	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
-	$o .= conversation($a,$r,'search',false);
+	$o .= conversation($a, $r, 'search', false, false, 'commented', local_user());
 
 	$o .= alt_pager($a,count($r));
 

@@ -803,10 +803,10 @@ class Event extends BaseObject
 	/**
 	 * @brief Format an item array with event data to HTML.
 	 *
-	 * @param arr $item Array with item and event data.
+	 * @param array $item Array with item and event data.
 	 * @return string HTML output.
 	 */
-	public static function getItemHTML($item) {
+	public static function getItemHTML(array $item) {
 		$same_date = false;
 		$finish    = false;
 
@@ -868,12 +868,7 @@ class Event extends BaseObject
 		$location = self::locationToArray($item['event-location']);
 
 		// Construct the profile link (magic-auth).
-		$sp = false;
-		$profile_link = best_link_url($item, $sp);
-
-		if (!$sp) {
-			$profile_link = Profile::zrl($profile_link);
-		}
+		$profile_link = Contact::magicLinkById($item['author-id']);
 
 		$tpl = get_markup_template('event_stream_item.tpl');
 		$return = replace_macros($tpl, [

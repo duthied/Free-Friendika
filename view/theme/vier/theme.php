@@ -17,6 +17,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 
@@ -153,7 +154,6 @@ function vier_community_info()
 			foreach ($r as $rr) {
 				$entry = replace_macros($tpl, [
 					'$id' => $rr['id'],
-					//'$profile_link' => Profile::zrl($rr['url']),
 					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
 					'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_MICRO),
 					'$alt_text' => $rr['name'],
@@ -234,7 +234,7 @@ function vier_community_info()
 
 				$entry = [
 					'url'          => 'network?f=&cid=' . $contact['id'],
-					'external_url' => 'redir/' . $contact['id'],
+					'external_url' => Contact::magicLink($contact['url']),
 					'name'         => $contact['name'],
 					'cid'          => $contact['id'],
 					'selected'     => $selected,
@@ -285,7 +285,7 @@ function vier_community_info()
 		}
 
 		foreach ($r as $index => $helper) {
-			$r[$index]["url"] = Profile::zrl($helper["url"]);
+			$r[$index]["url"] = Contact::magicLink($helper["url"]);
 		}
 
 		$r[] = ["url" => "help/Quick-Start-guide", "name" => L10n::t("Quick Start")];

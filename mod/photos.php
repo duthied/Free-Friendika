@@ -284,14 +284,7 @@ function photos_post(App $a)
 			);
 
 			// find and delete the corresponding item with all the comments and likes/dislikes
-			$r = q("SELECT `id` FROM `item` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
-				intval($page_owner_uid)
-			);
-			if (DBM::is_result($r)) {
-				foreach ($r as $rr) {
-					Item::deleteById($rr['id']);
-				}
-			}
+			Item::deleteForUser(['resource-id' => $res, 'uid' => $page_owner_uid], $page_owner_uid);
 
 			// Update the photo albums cache
 			Photo::clearAlbumCache($page_owner_uid);
@@ -344,16 +337,11 @@ function photos_post(App $a)
 				intval($page_owner_uid),
 				dbesc($r[0]['resource-id'])
 			);
-			$i = q("SELECT `id` FROM `item` WHERE `resource-id` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($r[0]['resource-id']),
-				intval($page_owner_uid)
-			);
-			if (DBM::is_result($i)) {
-				Item::deleteById($i[0]['id']);
 
-				// Update the photo albums cache
-				Photo::clearAlbumCache($page_owner_uid);
-			}
+			Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
+
+			// Update the photo albums cache
+			Photo::clearAlbumCache($page_owner_uid);
 		}
 
 		goaway('photos/' . $a->data['user']['nickname']);
@@ -1243,9 +1231,11 @@ function photos_content(App $a)
 		$prevlink = '';
 		$nextlink = '';
 
-		/// @todo This query is totally bad, the whole functionality has to be changed
-		// The query leads to a really intense used index.
-		// By now we hide it if someone wants to.
+		/*
+		 * @todo This query is totally bad, the whole functionality has to be changed
+		 * The query leads to a really intense used index.
+		 * By now we hide it if someone wants to.
+		 */
 		if (!Config::get('system', 'no_count', false)) {
 			$order_field = defaults($_GET, 'order', '');
 			if ($order_field === 'posted') {
@@ -1280,8 +1270,10 @@ function photos_content(App $a)
  			}
 		}
 
-		if (count($ph) == 1)
+		if (count($ph) == 1) {
 			$hires = $lores = $ph[0];
+		}
+
 		if (count($ph) > 1) {
 			if ($ph[1]['scale'] == 2) {
 				// original is 640 or less, we can display it directly
@@ -1293,6 +1285,7 @@ function photos_content(App $a)
 		}
 
 		$album_link = 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
+
 		$tools = null;
 		$lock = null;
 
@@ -1319,8 +1312,9 @@ function photos_content(App $a)
 			]);
 		}
 
-		if ($prevlink)
+		if ($prevlink) {
 			$prevlink = [$prevlink, '<div class="icon prev"></div>'] ;
+		}
 
 		$photo = [
 			'href' => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
@@ -1544,14 +1538,10 @@ function photos_content(App $a)
 						continue;
 					}
 
-					$redirect_url = 'redir/' . $item['cid'];
-
-					if (local_user() && ($item['contact-uid'] == local_user())
-						&& ($item['network'] == NETWORK_DFRN) && !$item['self']) {
-						$profile_url = $redirect_url;
+					$profile_url = Contact::MagicLinkById($item['cid']);
+					if (strpos($profile_url, 'redir/') === 0) {
 						$sparkle = ' sparkle';
 					} else {
-						$profile_url = $item['url'];
 						$sparkle = '';
 					}
 
@@ -1681,8 +1671,9 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos')))
+			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos'))) {
 				continue;
+			}
 
 			$twist = !$twist;
 

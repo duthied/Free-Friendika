@@ -598,7 +598,7 @@ class Contact extends BaseObject
 
 		if ($contact['uid'] != $uid) {
 			if ($uid == 0) {
-				$profile_link = Profile::zrl($contact['url']);
+				$profile_link = self::magicLink($contact['url']);
 				$menu = ['profile' => [L10n::t('View Profile'), $profile_link, true]];
 
 				return $menu;
@@ -609,7 +609,7 @@ class Contact extends BaseObject
 			if (DBM::is_result($contact_own)) {
 				return self::photoMenu($contact_own, $uid);
 			} else {
-				$profile_link = Profile::zrl($contact['url']);
+				$profile_link = self::magicLink($contact['url']);
 				$connlnk = 'follow/?url=' . $contact['url'];
 				$menu = [
 					'profile' => [L10n::t('View Profile'), $profile_link, true],
@@ -944,21 +944,36 @@ class Contact extends BaseObject
 			'name' => $data['name'],
 			'nick' => $data['nick']];
 
-		// Only fill the pubkey if it was empty before. We have to prevent identity theft.
-		if (!empty($contact['pubkey'])) {
-			unset($contact['pubkey']);
-		} else {
-			$updated['pubkey'] = $data['pubkey'];
-		}
-
 		if ($data['keywords'] != '') {
 			$updated['keywords'] = $data['keywords'];
 		}
 		if ($data['location'] != '') {
 			$updated['location'] = $data['location'];
 		}
-		if ($data['about'] != '') {
-			$updated['about'] = $data['about'];
+
+		// Update the technical stuff as well - if filled
+		if ($data['notify'] != '') {
+			$updated['notify'] = $data['notify'];
+		}
+		if ($data['poll'] != '') {
+			$updated['poll'] = $data['poll'];
+		}
+		if ($data['batch'] != '') {
+			$updated['batch'] = $data['batch'];
+		}
+		if ($data['request'] != '') {
+			$updated['request'] = $data['request'];
+		}
+		if ($data['confirm'] != '') {
+			$updated['confirm'] = $data['confirm'];
+		}
+		if ($data['poco'] != '') {
+			$updated['poco'] = $data['poco'];
+		}
+
+		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
+		if (empty($contact['pubkey'])) {
+			$updated['pubkey'] = $data['pubkey'];
 		}
 
 		if (($data["addr"] != $contact["addr"]) || ($data["alias"] != $contact["alias"])) {
@@ -1040,22 +1055,22 @@ class Contact extends BaseObject
 		}
 
 		if (in_array($r[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""])) {
-			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = %d AND NOT `item`.`global`))";
+			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
 		} else {
-			$sql = "`item`.`uid` = %d";
+			$sql = "`item`.`uid` = ?";
 		}
 
 		$author_id = intval($r[0]["author-id"]);
 
 		$contact = ($r[0]["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
-		$r = q(item_query() . " AND `item`.`" . $contact . "` = %d AND " . $sql .
-			" AND `item`.`verb` = '%s' ORDER BY `item`.`created` DESC LIMIT %d, %d",
-			intval($author_id), intval(local_user()), dbesc(ACTIVITY_POST),
-			intval($a->pager['start']), intval($a->pager['itemspage'])
-		);
+		$condition = ["`$contact` = ? AND `verb` = ? AND " . $sql,
+			$author_id, ACTIVITY_POST, local_user()];
+		$params = ['order' => ['created' => true],
+			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$r = Item::select(local_user(), [], $condition, $params);
 
-		$o = conversation($a, $r, 'contact-posts', false);
+		$o = conversation($a, dba::inArray($r), 'contact-posts', false);
 
 		$o .= alt_pager($a, count($r));
 
@@ -1686,4 +1701,56 @@ class Contact extends BaseObject
 
 		$contact_ids = $return;
 	}
+
+	/**
+	 * @brief Returns a magic link to authenticate remote visitors
+	 *
+	 * @param string $contact_url The address of the target contact profile
+	 * @param integer $url An url that we will be redirected to after the authentication
+	 *
+	 * @return string with "redir" link
+	 */
+	public static function magicLink($contact_url, $url = '')
+	{
+		$cid = self::getIdForURL($contact_url, 0, true);
+		if (empty($cid)) {
+			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
+		}
+
+		return self::magicLinkbyId($cid, $url);
+	}
+
+	/**
+	 * @brief Returns a magic link to authenticate remote visitors
+	 *
+	 * @param integer $cid The contact id of the target contact profile
+	 * @param integer $url An url that we will be redirected to after the authentication
+	 *
+	 * @return string with "redir" link
+	 */
+	public static function magicLinkbyId($cid, $url = '')
+	{
+		$contact = dba::selectFirst('contact', ['network', 'url', 'uid'], ['id' => $cid]);
+
+		if ($contact['network'] != NETWORK_DFRN) {
+			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
+		}
+
+		// Only redirections to the same host do make sense
+		if (($url != '') && (parse_url($url, PHP_URL_HOST) != parse_url($contact['url'], PHP_URL_HOST))) {
+			return $url;
+		}
+
+		if ($contact['uid'] != 0) {
+			return self::magicLink($contact['url'], $url);
+		}
+
+		$redirect = 'redir/' . $cid;
+
+		if ($url != '') {
+			$redirect .= '?url=' . $url;
+		}
+
+		return $redirect;
+        }
 }

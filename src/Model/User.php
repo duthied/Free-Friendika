@@ -331,6 +331,7 @@ class User
 		$confirm    = x($data, 'confirm')    ? trim($data['confirm'])            : '';
 		$blocked    = x($data, 'blocked')    ? intval($data['blocked'])          : 0;
 		$verified   = x($data, 'verified')   ? intval($data['verified'])         : 0;
+		$language   = x($data, 'language')   ? notags(trim($data['language'])) : 'en';
 
 		$publish = x($data, 'profile_publish_reg') && intval($data['profile_publish_reg']) ? 1 : 0;
 		$netpublish = strlen(Config::get('system', 'directory')) ? $publish : 0;
@@ -466,6 +467,7 @@ class User
 			'sprvkey'  => $sprvkey,
 			'verified' => $verified,
 			'blocked'  => $blocked,
+			'language' => $language,
 			'timezone' => 'UTC',
 			'register_date' => DateTimeFormat::utcNow(),
 			'default-location' => ''

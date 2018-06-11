@@ -74,7 +74,6 @@ class TagCloud
 	 */
 	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG)
 	{
-		$item_condition = item_condition();
 		$sql_options = item_permissions_sql($uid);
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
 
@@ -93,7 +92,8 @@ class TagCloud
 			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
 			WHERE `term`.`uid` = ? AND `term`.`type` = ?
 			AND `term`.`otype` = ?
-			AND $item_condition $sql_options
+			AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+			$sql_options
 			GROUP BY `term` ORDER BY `total` DESC $limit",
 			$uid,
 			$type,

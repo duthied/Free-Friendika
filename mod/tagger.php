@@ -159,11 +159,13 @@ EOT;
 	}
 
 	$term_objtype = ($item['resource-id'] ? TERM_OBJ_PHOTO : TERM_OBJ_POST);
-        $t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
-                intval($item['id']),
-                dbesc($term)
-        );
-	if((! $blocktags) && $t[0]['tcount']==0 ) {
+
+	$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
+		intval($item['id']),
+		dbesc($term)
+	);
+
+	if ((!$blocktags) && $t[0]['tcount'] == 0 ) {
 		q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
 		   intval($item['id']),
 		   $term_objtype,
@@ -176,26 +178,28 @@ EOT;
 
 	// if the original post is on this site, update it.
 
-	$r = q("select `tag`,`id`,`uid` from item where `origin` = 1 AND `uri` = '%s' LIMIT 1",
+	$r = q("SELECT `tag`,`id`,`uid` FROM `item` WHERE `origin`=1 AND `uri`='%s' LIMIT 1",
 		dbesc($item['uri'])
 	);
+
 	if (DBM::is_result($r)) {
-		$x = q("SELECT `blocktags` FROM `user` WHERE `uid` = %d limit 1",
+		$x = q("SELECT `blocktags` FROM `user` WHERE `uid`=%d LIMIT 1",
 			intval($r[0]['uid'])
 		);
-		$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
+		$t = q("SELECT COUNT(`tid`) AS `tcount` FROM `term` WHERE `oid`=%d AND `term`='%s'",
 			intval($r[0]['id']),
 			dbesc($term)
 		);
-		if(count($x) && !$x[0]['blocktags'] && $t[0]['tcount']==0){
-			q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
-	                   intval($r[0]['id']),
-	                   $term_objtype,
-	                   TERM_HASHTAG,
-	                   dbesc($term),
-	                   dbesc(System::baseUrl() . '/search?tag=' . $term),
-	                   intval($owner_uid)
-	                );
+
+		if (DBM::is_result($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
+			q("INSERT INTO term (`oid`, `otype`, `type`, `term`, `url`, `uid`) VALUE (%d, %d, %d, '%s', '%s', %d)",
+				intval($r[0]['id']),
+				$term_objtype,
+				TERM_HASHTAG,
+				dbesc($term),
+				dbesc(System::baseUrl() . '/search?tag=' . $term),
+				intval($owner_uid)
+			);
 		}
 	}
 

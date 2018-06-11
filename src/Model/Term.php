@@ -196,7 +196,7 @@ class Term
 
 			$orig_tag = $tag["url"];
 
-			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
+			$tag["url"] = Contact::magicLinkById($item['author-id'], $tag['url']);
 
 			if ($tag["type"] == TERM_HASHTAG) {
 				if ($orig_tag != $tag["url"]) {

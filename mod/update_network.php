@@ -29,7 +29,7 @@ function update_network_content(App $a)
 	$replace = "<img\${1} dst=\"\${2}\"";
 	$text = preg_replace($pattern, $replace, $text);
 
-	if (PConfig::get(local_user(), "system", "bandwith_saver")) {
+	if (PConfig::get(local_user(), "system", "bandwidth_saver")) {
 		$replace = "<br />" . L10n::t("[Embedded content - reload page to view]") . "<br />";
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
 		$text = preg_replace($pattern, $replace, $text);

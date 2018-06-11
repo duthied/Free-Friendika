@@ -90,7 +90,7 @@ class Profile
 	 */
 	public static function load(App $a, $nickname, $profile = 0, $profiledata = [], $show_connect = true)
 	{
-		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname]);
+		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
 		if (!DBM::is_result($user) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
@@ -496,7 +496,7 @@ class Profile
 			$p['photo'] = proxy_url($p['photo'], false, PROXY_SIZE_SMALL);
 		}
 
-		$p['url'] = self::magicLink($p['url']);
+		$p['url'] = Contact::magicLink($p['url']);
 
 		$tpl = get_markup_template('profile_vcard.tpl');
 		$o .= replace_macros($tpl, [
@@ -594,12 +594,8 @@ class Profile
 					$cids[] = $rr['cid'];
 
 					$today = (((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now)) ? true : false);
-					$url = $rr['url'];
-					if ($rr['network'] === NETWORK_DFRN) {
-						$url = System::baseUrl() . '/redir/' . $rr['cid'];
-					}
 
-					$rr['link'] = $url;
+					$rr['link'] = Contact::magicLink($rr['url']);
 					$rr['title'] = $rr['name'];
 					$rr['date'] = day_translate(DateTimeFormat::convert($rr['start'], $a->timezone, 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . L10n::t('[today]') : '');
 					$rr['startime'] = null;
@@ -1001,29 +997,6 @@ class Profile
 			$arr = ['zrl' => $my_url, 'url' => $a->cmd];
 			Addon::callHooks('zrl_init', $arr);
 		}
-	}
-
-	/**
-	 * @brief Returns a magic link to authenticate remote visitors
-	 *
-	 * @param string $contact_url The address of the contact profile
-	 * @param integer $uid The user id, "local_user" is the default
-	 *
-	 * @return string with "redir" link
-	 */
-	public static function magicLink($contact_url, $uid = -1)
-	{
-		if ($uid == -1) {
-			$uid = local_user();
-		}
-		$condition = ['pending' => false, 'uid' => $uid,
-				'nurl' => normalise_link($contact_url),
-				'network' => NETWORK_DFRN, 'self' => false];
-		$contact = dba::selectFirst('contact', ['id'], $condition);
-		if (DBM::is_result($contact)) {
-			return System::baseUrl() . '/redir/' . $contact['id'];
-		}
-		return self::zrl($contact_url);
 	}
 
 	public static function zrl($s, $force = false)

@@ -274,6 +274,7 @@ function consume_feed($xml, $importer, $contact, &$hub, $datedir = 0, $pass = 0)
 function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 
 	$a = get_app();
+	$r = null;
 
 	if (is_array($importer)) {
 		$r = q("SELECT `nickname` FROM `user` WHERE `uid` = %d LIMIT 1",
@@ -321,7 +322,7 @@ function drop_items($items) {
 
 	if (count($items)) {
 		foreach ($items as $item) {
-			$owner = Item::deleteById($item);
+			$owner = Item::deleteForUser(['id' => $item], local_user());
 			if ($owner && !$uid)
 				$uid = $owner;
 		}
@@ -393,7 +394,7 @@ function drop_item($id) {
 		}
 
 		// delete the item
-		Item::deleteById($item['id']);
+		Item::deleteForUser(['id' => $item['id']], local_user());
 
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 		//NOTREACHED

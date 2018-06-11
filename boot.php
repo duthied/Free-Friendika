@@ -39,9 +39,9 @@ require_once 'include/text.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
-define('FRIENDICA_VERSION',      '2018.05-rc');
+define('FRIENDICA_VERSION',      '2018.08-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1265);
+define('DB_UPDATE_VERSION',      1268);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -1076,6 +1076,7 @@ function is_site_admin()
 	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
 
 	//if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
+	/// @TODO This if() + 2 returns can be shrinked into one return
 	if (local_user() && x($a->user, 'email') && x($a->config, 'admin_email') && in_array($a->user['email'], $adminlist)) {
 		return true;
 	}
@@ -1173,7 +1174,7 @@ function random_digits($digits)
 {
 	$rn = '';
 	for ($i = 0; $i < $digits; $i++) {
-		/// @TODO rand() is different to mt_rand() and maybe lesser "random"
+		/// @TODO Avoid rand/mt_rand, when it comes to cryptography, they are generating predictable (seedable) numbers.
 		$rn .= rand(0, 9);
 	}
 	return $rn;
@@ -1187,7 +1188,7 @@ function get_server()
 		$server = "https://dir.friendica.social";
 	}
 
-	return($server);
+	return $server;
 }
 
 function get_temppath()
@@ -1236,7 +1237,7 @@ function get_cachefile($file, $writemode = true)
 	$cache = get_itemcachepath();
 
 	if ((!$cache) || (!is_dir($cache))) {
-		return("");
+		return "";
 	}
 
 	$subfolder = $cache . "/" . substr($file, 0, 2);
@@ -1250,7 +1251,6 @@ function get_cachefile($file, $writemode = true)
 		}
 	}
 
-	/// @TODO no need to put braces here
 	return $cachepath;
 }
 
@@ -1357,7 +1357,6 @@ function get_spoolpath()
 	return "";
 }
 
-
 if (!function_exists('exif_imagetype')) {
 	function exif_imagetype($file)
 	{
@@ -1395,7 +1394,7 @@ function validate_include(&$file)
 	}
 
 	// Simply return flag
-	return ($valid);
+	return $valid;
 }
 
 function current_load()

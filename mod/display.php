@@ -14,6 +14,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 
@@ -49,8 +50,7 @@ function display_init(App $a)
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
-						`author-avatar`, `network`, `body`, `uid`, `owner-link`
+			$r = dba::fetch_first("SELECT `id`, `parent`, `author-id`, `body`, `uid`
 				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
 					AND `guid` = ? AND `uid` = ? LIMIT 1", $a->argv[1], local_user());
 			if (DBM::is_result($r)) {
@@ -60,8 +60,7 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBM::is_result($r)) {
-			$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
-						`author-avatar`, `network`, `body`, `uid`, `owner-link`
+			$r = dba::fetch_first("SELECT `id`, `parent`, `author-id`, `body`, `uid`
 				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
 					AND NOT `private` AND `uid` = 0
 					AND `guid` = ? LIMIT 1", $a->argv[1]);
@@ -73,8 +72,7 @@ function display_init(App $a)
 			return;
 		}
 	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
-		$r = dba::fetch_first("SELECT `id`, `parent`, `author-name`, `author-link`,
-					`author-avatar`, `network`, `body`, `uid`, `owner-link`
+		$r = dba::fetch_first("SELECT `id`, `parent`, `author-id`, `body`, `uid`
 			FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
 				AND NOT `private` AND `uid` = 0
 				AND `id` = ? LIMIT 1", $a->argv[2]);
@@ -87,7 +85,7 @@ function display_init(App $a)
 		}
 
 		if ($r["id"] != $r["parent"]) {
-			$r = dba::fetch_first("SELECT `id`, `author-name`, `author-link`, `author-avatar`, `network`, `body`, `uid`, `owner-link` FROM `item`
+			$r = dba::fetch_first("SELECT `id`, `author-id`, `body`, `uid` FROM `item`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `id` = ?", $r["parent"]);
 		}
@@ -117,14 +115,16 @@ function display_init(App $a)
 }
 
 function display_fetchauthor($a, $item) {
+	$author = dba::selectFirst('contact', ['name', 'nick', 'photo', 'network', 'url'], ['id' => $item['author-id']]);
+
 	$profiledata = [];
-	$profiledata["uid"] = -1;
-	$profiledata["nickname"] = $item["author-name"];
-	$profiledata["name"] = $item["author-name"];
-	$profiledata["picdate"] = "";
-	$profiledata["photo"] = $item["author-avatar"];
-	$profiledata["url"] = $item["author-link"];
-	$profiledata["network"] = $item["network"];
+	$profiledata['uid'] = -1;
+	$profiledata['nickname'] = $author['nick'];
+	$profiledata['name'] = $author['name'];
+	$profiledata['picdate'] = '';
+	$profiledata['photo'] = $author['photo'];
+	$profiledata['url'] = $author['url'];
+	$profiledata['network'] = $author['network'];
 
 	// Check for a repeated message
 	$skip = false;
@@ -346,11 +346,10 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 		return '';
 	}
 
-	$r = dba::p(item_query()."AND `item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
-		AND `item`.`uid` IN (0, ?) $sql_extra
-		ORDER BY `item`.`uid` ASC, `parent` DESC, `gravity` ASC, `id` ASC",
-		$item_id, local_user()
-	);
+	$condition = ["`item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
+		AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, local_user()];
+	$params = ['order' => ['uid', 'parent' => true, 'gravity', 'id']];
+	$r = Item::select(local_user(), [], $condition, $params);
 
 	if (!DBM::is_result($r)) {
 		notice(L10n::t('Item not found.') . EOL);
@@ -369,7 +368,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	if (!$update) {
 		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
 	}
-	$o .= conversation($a, $items, 'display', $update_uid);
+	$o .= conversation($a, $items, 'display', $update_uid, false, 'commented', local_user());
 
 	// Preparing the meta header
 	$description = trim(HTML::toPlaintext(BBCode::convert($s[0]["body"], false), 0, true));

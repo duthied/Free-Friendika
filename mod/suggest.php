@@ -79,7 +79,7 @@ function suggest_content(App $a) {
 		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
 		$photo_menu = [
-			'profile' => [L10n::t("View Profile"), Profile::zrl($rr["url"])],
+			'profile' => [L10n::t("View Profile"), Contact::magicLink($rr["url"])],
 			'follow' => [L10n::t("Connect/Follow"), $connlnk],
 			'hide' => [L10n::t('Ignore/Hide'), $ignlnk]
 		];
@@ -87,7 +87,7 @@ function suggest_content(App $a) {
 		$contact_details = Contact::getDetailsByURL($rr["url"], local_user(), $rr);
 
 		$entry = [
-			'url' => Profile::zrl($rr['url']),
+			'url' => Contact::magicLink($rr['url']),
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'img_hover' => $rr['url'],
 			'name' => $contact_details['name'],

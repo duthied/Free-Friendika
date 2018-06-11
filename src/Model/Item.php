@@ -34,6 +34,270 @@ require_once 'include/text.php';
 class Item extends BaseObject
 {
 	/**
+	 * Retrieve a single record from the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param integer $uid User ID
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirst($uid, array $fields = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+		$result = self::select($uid, $fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = dba::fetch($result);
+			dba::close($result);
+			return $row;
+		}
+	}
+
+	/**
+	 * @brief Select rows from the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function select($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$fields = self::fieldlist();
+
+		$select_fields = self::constructSelectFields($fields, $selected);
+
+		$condition_string = dba::buildCondition($condition);
+
+		$condition_string = self::addTablesToFields($condition_string, $fields);
+
+		$condition_string = $condition_string . ' AND ' . self::condition(false);
+
+		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
+
+		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false);
+
+		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
+
+		return dba::p($sql, $condition);
+	}
+
+	/**
+	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param integer $uid User ID
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirstThread($uid, array $fields = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+		$result = self::selectThread($uid, $fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = dba::fetch($result);
+			dba::close($result);
+			return $row;
+		}
+	}
+
+	/**
+	 * @brief Select rows from the starting post in the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function selectThread($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$fields = self::fieldlist();
+
+		$threadfields = ['thread' => ['iid', 'uid', 'contact-id', 'owner-id', 'author-id',
+			'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private',
+			'pubmail', 'moderated', 'visible', 'starred', 'ignored', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'network']];
+
+		$select_fields = self::constructSelectFields($fields, $selected);
+
+		$condition_string = dba::buildCondition($condition);
+
+		$condition_string = self::addTablesToFields($condition_string, $threadfields);
+		$condition_string = self::addTablesToFields($condition_string, $fields);
+
+		$condition_string = $condition_string . ' AND ' . self::condition(true);
+
+		$param_string = dba::buildParameter($params);
+		$param_string = self::addTablesToFields($param_string, $threadfields);
+		$param_string = self::addTablesToFields($param_string, $fields);
+
+		$table = "`thread` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, true);
+
+		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
+
+		return dba::p($sql, $condition);
+	}
+
+	/**
+	 * @brief Returns a list of fields that are associated with the item table
+	 *
+	 * @return array field list
+	 */
+	private static function fieldlist()
+	{
+		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
+			'uri', 'thr-parent', 'parent-uri', 'content-warning',
+			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
+			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
+			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'id' => 'item_id', 'network' => 'item_network'];
+
+		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
+		$owner_fields = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
+		$contact_fields = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
+			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias'];
+
+		$event_fields = ['created' => 'event-created', 'edited' => 'event-edited',
+			'start' => 'event-start','finish' => 'event-finish',
+			'summary' => 'event-summary','desc' => 'event-desc',
+			'location' => 'event-location', 'type' => 'event-type',
+			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
+			'ignore' => 'event-ignore', 'id' => 'event-id'];
+
+		return ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
+			'contact' => $contact_fields, 'event' => $event_fields];
+	}
+
+	/**
+	 * @brief Returns SQL condition for the "select" functions
+	 *
+	 * @param boolean $thread_mode Called for the items (false) or for the threads (true)
+	 *
+	 * @return string SQL condition
+	 */
+	private static function condition($thread_mode)
+	{
+		if ($thread_mode) {
+			$master_table = "`thread`";
+		} else {
+			$master_table = "`item`";
+		}
+		return "$master_table.`visible` AND NOT $master_table.`deleted` AND NOT $master_table.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
+	}
+
+	/**
+	 * @brief Returns all needed "JOIN" commands for the "select" functions
+	 *
+	 * @param integer $uid User ID
+	 * @param string $sql_commands The parts of the built SQL commands in the "select" functions
+	 * @param boolean $thread_mode Called for the items (false) or for the threads (true)
+	 *
+	 * @return string The SQL joins for the "select" functions
+	 */
+	private static function constructJoins($uid, $sql_commands, $thread_mode)
+	{
+		if ($thread_mode) {
+			$master_table = "`thread`";
+			$master_table_key = "`thread`.`iid`";
+			$joins = "STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid` ";
+		} else {
+			$master_table = "`item`";
+			$master_table_key = "`item`.`id`";
+			$joins = '';
+		}
+
+		$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
+			AND NOT `contact`.`blocked`
+			AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
+			OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
+			CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+
+		if (strpos($sql_commands, "`group_member`.") !== false) {
+			$joins .= " STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = $master_table.`contact-id`";
+		}
+
+		if (strpos($sql_commands, "`user`.") !== false) {
+			$joins .= " STRAIGHT_JOIN `user` ON `user`.`uid` = $master_table.`uid`";
+		}
+
+		if (strpos($sql_commands, "`event`.") !== false) {
+			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
+		}
+
+		return $joins;
+	}
+
+	/**
+	 * @brief Add the field list for the "select" functions
+	 *
+	 * @param array $fields The field definition array
+	 * @param array $selected The array with the selected fields from the "select" functions
+	 *
+	 * @return string The field list
+	 */
+	private static function constructSelectFields($fields, $selected)
+	{
+		$selection = [];
+		foreach ($fields as $table => $table_fields) {
+			foreach ($table_fields as $field => $select) {
+				if (empty($selected) || in_array($select, $selected)) {
+					if (is_int($field)) {
+						$selection[] = "`" . $table . "`.`".$select."`";
+					} else {
+						$selection[] = "`" . $table . "`.`" . $field . "` AS `".$select ."`";
+					}
+				}
+			}
+		}
+		return implode(", ", $selection);
+	}
+
+	/**
+	 * @brief add table definition to fields in an SQL query
+	 *
+	 * @param string $query SQL query
+	 * @param array $fields The field definition array
+	 *
+	 * @return string the changed SQL query
+	 */
+	private static function addTablesToFields($query, $fields)
+	{
+		foreach ($fields as $table => $table_fields) {
+			foreach ($table_fields as $alias => $field) {
+				if (is_int($alias)) {
+					$replace_field = $field;
+				} else {
+					$replace_field = $alias;
+				}
+
+				$search = "/([^\.])`" . $field . "`/i";
+				$replace = "$1`" . $table . "`.`" . $replace_field . "`";
+				$query = preg_replace($search, $replace, $query);
+			}
+		}
+		return $query;
+	}
+
+	/**
 	 * @brief Update existing item entries
 	 *
 	 * @param array $fields The fields that are to be changed
@@ -103,6 +367,32 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Delete an item for an user and notify others about it - if it was ours
+	 *
+	 * @param array $condition The condition for finding the item entries
+	 * @param integer $uid User who wants to delete this item
+	 */
+	public static function deleteForUser($condition, $uid)
+	{
+		if ($uid == 0) {
+			return;
+		}
+
+		$items = dba::select('item', ['id', 'uid'], $condition);
+		while ($item = dba::fetch($items)) {
+			// "Deleting" global items just means hiding them
+			if ($item['uid'] == 0) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
+			} elseif ($item['uid'] == $uid) {
+				self::deleteById($item['id'], PRIORITY_HIGH);
+			} else {
+				logger('Wrong ownership. Not deleting item ' . $item['id']);
+			}
+		}
+		dba::close($items);
+	}
+
+	/**
 	 * @brief Delete an item and notify others about it - if it was ours
 	 *
 	 * @param integer $item_id Item ID that should be delete
@@ -110,7 +400,7 @@ class Item extends BaseObject
 	 *
 	 * @return boolean success
 	 */
-	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
+	private static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
@@ -201,6 +491,13 @@ class Item extends BaseObject
 
 			// send the notification upstream/downstream
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+		} elseif ($item['uid'] != 0) {
+
+			// When we delete just our local user copy of an item, we have to set a marker to hide it
+			$global_item = dba::selectFirst('item', ['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
+			if (DBM::is_result($global_item)) {
+				dba::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
+			}
 		}
 
 		logger('Item with ID ' . $item_id . " has been deleted.", LOGGER_DEBUG);
@@ -532,6 +829,14 @@ class Item extends BaseObject
 			logger('Contact '.$item["owner-id"].' is blocked, item '.$item["uri"].' will not be stored');
 			return 0;
 		}
+
+		//unset($item['author-link']);
+		//unset($item['author-name']);
+		//unset($item['author-avatar']);
+
+		//unset($item['owner-link']);
+		unset($item['owner-name']);
+		unset($item['owner-avatar']);
 
 		if ($item['network'] == NETWORK_PHANTOM) {
 			logger('Missing network. Called by: '.System::callstack(), LOGGER_DEBUG);
@@ -1089,8 +1394,9 @@ class Item extends BaseObject
 		}
 
 		// Is this a shadow entry?
-		if ($item['uid'] == 0)
+		if ($item['uid'] == 0) {
 			return;
+		}
 
 		// Is there a shadow parent?
 		if (!dba::exists('item', ['uri' => $item['parent-uri'], 'uid' => 0])) {
@@ -1130,10 +1436,8 @@ class Item extends BaseObject
 
 		// If this was a comment to a Diaspora post we don't get our comment back.
 		// This means that we have to distribute the comment by ourselves.
-		if ($origin) {
-			if (dba::exists('item', ['id' => $parent, 'network' => NETWORK_DIASPORA])) {
-				self::distribute($public_shadow);
-			}
+		if ($origin && dba::exists('item', ['id' => $parent, 'network' => NETWORK_DIASPORA])) {
+			self::distribute($public_shadow);
 		}
 	}
 
@@ -1144,14 +1448,14 @@ class Item extends BaseObject
 	 */
 	private static function addLanguageInPostopts(&$item)
 	{
+		$postopts = "";
+
 		if (!empty($item['postopts'])) {
 			if (strstr($item['postopts'], 'lang=')) {
 				// do not override
 				return;
 			}
 			$postopts = $item['postopts'];
-		} else {
-			$postopts = "";
 		}
 
 		$naked_body = Text\BBCode::toPlaintext($item['body'], false);
@@ -1451,8 +1755,7 @@ class Item extends BaseObject
 		$forum_mode = ($prvgroup ? 2 : 1);
 
 		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
-			'owner-id' => $owner_id, 'owner-name' => $self['name'], 'owner-link' => $self['url'],
-			'owner-avatar' => $self['thumb'], 'private' => $private, 'allow_cid' => $user['allow_cid'],
+			'owner-id' => $owner_id, 'owner-link' => $self['url'], 'private' => $private, 'allow_cid' => $user['allow_cid'],
 			'allow_gid' => $user['allow_gid'], 'deny_cid' => $user['deny_cid'], 'deny_gid' => $user['deny_gid']];
 		dba::update('item', $fields, ['id' => $item_id]);
 
@@ -2043,7 +2346,7 @@ EOT;
 	private static function addThread($itemid, $onlyshadow = false)
 	{
 		$fields = ['uid', 'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private', 'pubmail',
-			'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
+			'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
 			'deleted', 'origin', 'forum_mode', 'mention', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 		$item = dba::selectFirst('item', $fields, $condition);
@@ -2064,7 +2367,7 @@ EOT;
 	private static function updateThread($itemid, $setmention = false)
 	{
 		$fields = ['uid', 'guid', 'title', 'body', 'created', 'edited', 'commented', 'received', 'changed',
-			'wall', 'private', 'pubmail', 'moderated', 'visible', 'spam', 'starred', 'bookmark', 'contact-id',
+			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
 			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id', 'rendered-html', 'rendered-hash'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 

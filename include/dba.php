@@ -27,7 +27,7 @@ class dba {
 	private static $relation = [];
 
 	public static function connect($serveraddr, $user, $pass, $db) {
-		if (!is_null(self::$db)) {
+		if (!is_null(self::$db) && self::connected()) {
 			return true;
 		}
 
@@ -52,16 +52,6 @@ class dba {
 		if (!(strlen($server) && strlen($user))) {
 echo "1";
 			return false;
-		}
-
-		if ($a->mode == App::MODE_INSTALL) {
-			// server has to be a non-empty string that is not 'localhost' and not an IP
-			if (strlen($server) && ($server !== 'localhost') && filter_var($server, FILTER_VALIDATE_IP) === false) {
-				if (! dns_get_record($server, DNS_A + DNS_CNAME)) {
-					self::$error = L10n::t('Cannot locate DNS info for database server \'%s\'', $server);
-					return false;
-				}
-			}
 		}
 
 		if (class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
@@ -117,6 +107,35 @@ echo "1";
 		unset($db_host, $db_user, $db_pass, $db_data);
 
 		return $ret;
+	}
+
+	/**
+	 * Disconnects the current database connection
+	 */
+	public static function disconnect()
+	{
+		if (is_null(self::$db)) {
+			return;
+		}
+
+		switch (self::$driver) {
+			case 'pdo':
+				self::$db = null;
+				break;
+			case 'mysqli':
+				self::$db->close();
+				self::$db = null;
+				break;
+		}
+	}
+
+	/**
+	 * Return the database object.
+	 * @return PDO|mysqli
+	 */
+	public static function get_db()
+	{
+		return self::$db;
 	}
 
 	/**
@@ -1184,29 +1203,9 @@ echo "1";
 
 		$condition_string = self::buildCondition($condition);
 
-		$order_string = '';
-		if (isset($params['order'])) {
-			$order_string = " ORDER BY ";
-			foreach ($params['order'] AS $fields => $order) {
-				if (!is_int($fields)) {
-					$order_string .= "`" . $fields . "` " . ($order ? "DESC" : "ASC") . ", ";
-				} else {
-					$order_string .= "`" . $order . "`, ";
-				}
-			}
-			$order_string = substr($order_string, 0, -2);
-		}
+		$param_string = self::buildParameter($params);
 
-		$limit_string = '';
-		if (isset($params['limit']) && is_int($params['limit'])) {
-			$limit_string = " LIMIT " . $params['limit'];
-		}
-
-		if (isset($params['limit']) && is_array($params['limit'])) {
-			$limit_string = " LIMIT " . intval($params['limit'][0]) . ", " . intval($params['limit'][1]);
-		}
-
-		$sql = "SELECT " . $select_fields . " FROM `" . $table . "`" . $condition_string . $order_string . $limit_string;
+		$sql = "SELECT " . $select_fields . " FROM `" . $table . "`" . $condition_string . $param_string;
 
 		$result = self::p($sql, $condition);
 
@@ -1263,14 +1262,14 @@ echo "1";
 	 * @param array $condition
 	 * @return string
 	 */
-	private static function buildCondition(array &$condition = [])
+	public static function buildCondition(array &$condition = [])
 	{
 		$condition_string = '';
 		if (count($condition) > 0) {
 			reset($condition);
 			$first_key = key($condition);
 			if (is_int($first_key)) {
-				$condition_string = " WHERE ".array_shift($condition);
+				$condition_string = " WHERE (" . array_shift($condition) . ")";
 			} else {
 				$new_values = [];
 				$condition_string = "";
@@ -1287,12 +1286,45 @@ echo "1";
 						$condition_string .= "`" . $field . "` = ?";
 					}
 				}
-				$condition_string = " WHERE " . $condition_string;
+				$condition_string = " WHERE (" . $condition_string . ")";
 				$condition = $new_values;
 			}
 		}
 
 		return $condition_string;
+	}
+
+	/**
+	 * @brief Returns the SQL parameter string built from the provided parameter array
+	 *
+	 * @param array $params
+	 * @return string
+	 */
+	public static function buildParameter(array $params = [])
+	{
+		$order_string = '';
+		if (isset($params['order'])) {
+			$order_string = " ORDER BY ";
+			foreach ($params['order'] AS $fields => $order) {
+				if (!is_int($fields)) {
+					$order_string .= "`" . $fields . "` " . ($order ? "DESC" : "ASC") . ", ";
+				} else {
+					$order_string .= "`" . $order . "`, ";
+				}
+			}
+			$order_string = substr($order_string, 0, -2);
+		}
+
+		$limit_string = '';
+		if (isset($params['limit']) && is_int($params['limit'])) {
+			$limit_string = " LIMIT " . $params['limit'];
+		}
+
+		if (isset($params['limit']) && is_array($params['limit'])) {
+			$limit_string = " LIMIT " . intval($params['limit'][0]) . ", " . intval($params['limit'][1]);
+		}
+
+		return $order_string.$limit_string;
 	}
 
 	/**

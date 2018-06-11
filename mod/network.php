@@ -103,7 +103,6 @@ function network_init(App $a)
 				'/new', //new
 				'',     //starred
 				'',     //bookmarked
-				'',     //spam
 			];
 			$tab_args = [
 				'f=&order=comment', //all
@@ -112,7 +111,6 @@ function network_init(App $a)
 				'',                 //new
 				'f=&star=1',        //starred
 				'f=&bmark=1',       //bookmarked
-				'f=&spam=1',        //spam
 			];
 
 			$k = array_search('active', $last_sel_tabs);
@@ -218,9 +216,8 @@ function saved_searches($search)
  * 		'/network/new',				=> $new_active = 'active'
  * 		'/network?f=&star=1',		=> $starred_active = 'active'
  * 		'/network?f=&bmark=1',		=> $bookmarked_active = 'active'
- * 		'/network?f=&spam=1',		=> $spam_active = 'active'
  *
- * @return Array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active);
+ * @return Array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
  */
 function network_query_get_sel_tab(App $a)
 {
@@ -230,7 +227,6 @@ function network_query_get_sel_tab(App $a)
 	$bookmarked_active = '';
 	$all_active = '';
 	$conv_active = '';
-	$spam_active = '';
 	$postord_active = '';
 
 	if (($a->argc > 1 && $a->argv[1] === 'new') || ($a->argc > 2 && $a->argv[2] === 'new')) {
@@ -249,11 +245,7 @@ function network_query_get_sel_tab(App $a)
 		$conv_active = 'active';
 	}
 
-	if (x($_GET, 'spam')) {
-		$spam_active = 'active';
-	}
-
-	if (($new_active == '') && ($starred_active == '') && ($bookmarked_active == '') && ($conv_active == '') && ($spam_active == '')) {
+	if (($new_active == '') && ($starred_active == '') && ($bookmarked_active == '') && ($conv_active == '')) {
 		$no_active = 'active';
 	}
 
@@ -264,7 +256,7 @@ function network_query_get_sel_tab(App $a)
 		}
 	}
 
-	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active];
+	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active];
 }
 
 function network_query_get_sel_group(App $a)
@@ -345,7 +337,7 @@ function networkConversation($a, $items, $mode, $update, $ordering = '')
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
 
-	$o = conversation($a, $items, $mode, $update, false, $ordering);
+	$o = conversation($a, $items, $mode, $update, false, $ordering, local_user());
 
 	if (!$update) {
 		if (PConfig::get(local_user(), 'system', 'infinite_scroll')) {
@@ -456,8 +448,8 @@ function networkFlatView(App $a, $update = 0)
 	$items = q("SELECT %s FROM `item` $sql_post_table %s
 		WHERE %s AND `item`.`uid` = %d
 		ORDER BY `item`.`id` DESC $pager_sql ",
-		item_fieldlists(), item_joins(), item_condition(),
-		intval($_SESSION['uid'])
+		item_fieldlists(), item_joins(local_user()), item_condition(),
+		intval(local_user())
 	);
 
 	$condition = ['unseen' => true, 'uid' => local_user()];
@@ -610,7 +602,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", dbesc($nets)) : '');
 
 	if ($gid) {
-		$group = dba::selectFirst('group', ['name'], ['id' => $gid, 'uid' => $_SESSION['uid']]);
+		$group = dba::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
 		if (!DBM::is_result($group)) {
 			if ($update) {
 				killme();
@@ -626,7 +618,7 @@ function networkThreadedView(App $a, $update, $parent)
 			$contact_str_self = '';
 
 			$contact_str = implode(',', $contacts);
-			$self = dba::selectFirst('contact', ['id'], ['uid' => $_SESSION['uid'], 'self' => true]);
+			$self = dba::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
 			if (DBM::is_result($self)) {
 				$contact_str_self = $self['id'];
 			}
@@ -774,12 +766,15 @@ function networkThreadedView(App $a, $update, $parent)
 				AND (`item`.`parent-uri` != `item`.`uri`
 					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
 					OR `contact`.`rel` IN (%d, %d) AND NOT `contact`.`readonly`)
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
 			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted`
+			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
 			AND NOT `item`.`moderated` AND $sql_extra4
 			$sql_extra3 $sql_extra $sql_range $sql_nets
 			ORDER BY `order_date` DESC LIMIT 100",
 			intval(CONTACT_IS_SHARING),
 			intval(CONTACT_IS_FRIEND),
+			intval(local_user()),
 			intval(local_user())
 		);
 	} else {
@@ -791,12 +786,15 @@ function networkThreadedView(App $a, $update, $parent)
 				AND (`item`.`parent-uri` != `item`.`uri`
 					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
 					OR `contact`.`rel` IN (%d, %d) AND NOT `contact`.`readonly`)
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
 			WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
 			AND NOT `thread`.`moderated`
+			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
 			$sql_extra2 $sql_extra3 $sql_range $sql_extra $sql_nets
 			ORDER BY `order_date` DESC $pager_sql",
 			intval(CONTACT_IS_SHARING),
 			intval(CONTACT_IS_FRIEND),
+			intval(local_user()),
 			intval(local_user())
 		);
 	}
@@ -922,7 +920,7 @@ function network_tabs(App $a)
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// $a->page['content'] .= '<div class="tabs-wrapper">';
-	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
+	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
 
 	// if no tabs are selected, defaults to comments
 	if ($no_active == 'active') {
@@ -998,7 +996,7 @@ function network_tabs(App $a)
 	// save selected tab, but only if not in file mode
 	if (!x($_GET, 'file')) {
 		PConfig::set(local_user(), 'network.view', 'tab.selected', [
-			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active
+			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active
 		]);
 	}
 
