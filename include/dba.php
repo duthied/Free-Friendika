@@ -598,6 +598,13 @@ class dba {
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
 				System::callstack(8)."\n".self::replaceParameters($sql, $params));
 
+			// On a lost connection we simply quit.
+			// A reconnect like in self::p could be dangerous with modifications
+			if ($errorno == 2006) {
+				logger('Giving up because of database error '.$errorno.': '.$error);
+				exit(1);
+			}
+
 			self::$error = $error;
 			self::$errorno = $errorno;
 		}
