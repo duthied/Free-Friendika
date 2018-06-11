@@ -322,8 +322,8 @@ class DBStructure
 							$parameters['comment'] = "";
 						}
 
-						$current_field_definition = implode(",", $field_definition);
-						$new_field_definition = implode(",", $parameters);
+						$current_field_definition = dba::clean_query(implode(",", $field_definition));
+						$new_field_definition = dba::clean_query(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {
@@ -1074,7 +1074,7 @@ class DBStructure
 				"fields" => [
 						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 						"gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["group" => "id"], "comment" => "groups.id of the associated group"],
-						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "contact.id  of the member assigned to the associated group"],
+						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "contact.id of the member assigned to the associated group"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],
