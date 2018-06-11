@@ -25,6 +25,10 @@ class dba {
 	private static $in_transaction = false;
 	private static $in_retrial = false;
 	private static $relation = [];
+	private static $db_serveraddr = '';
+	private static $db_user = '';
+	private static $db_pass = '';
+	private static $db_name = '';
 
 	public static function connect($serveraddr, $user, $pass, $db) {
 		if (!is_null(self::$db) && self::connected()) {
@@ -34,6 +38,12 @@ class dba {
 		$a = get_app();
 
 		$stamp1 = microtime(true);
+
+		// We are storing these values for being able to perform a reconnect
+		self::$db_serveraddr = $serveraddr;
+		self::$db_user = $user;
+		self::$db_pass = $pass;
+		self::$db_name = $db;
 
 		$serveraddr = trim($serveraddr);
 
@@ -50,7 +60,6 @@ class dba {
 		$db = trim($db);
 
 		if (!(strlen($server) && strlen($user))) {
-echo "1";
 			return false;
 		}
 
@@ -94,21 +103,6 @@ echo "1";
 		return self::$connected;
 	}
 
-	public static function reconnect() {
-		// This variable is only defined here again to prevent warning messages
-		// It is a local variable and should hopefully not interfere with the global one.
-		$a = new App(dirname(__DIR__));
-
-		// We have to the the variable to "null" to force a new connection
-		self::$db = null;
-		include '.htconfig.php';
-
-		$ret = self::connect($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-
-		return $ret;
-	}
-
 	/**
 	 * Disconnects the current database connection
 	 */
@@ -127,6 +121,16 @@ echo "1";
 				self::$db = null;
 				break;
 		}
+	}
+
+	/**
+	 * Perform a reconnect of an existing database connection
+	 */
+	public static function reconnect() {
+		self::disconnect();
+
+		$ret = self::connect(self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name);
+		return $ret;
 	}
 
 	/**
@@ -523,7 +527,9 @@ echo "1";
 					// We try it again
 					logger('Reconnected after database error '.$errorno.': '.$error);
 					self::$in_retrial = true;
-					return self::p($sql, $args);
+					$ret = self::p($sql, $args);
+					self::$in_retrial = false;
+					return $ret;
 				}
 			}
 

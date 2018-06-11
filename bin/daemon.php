@@ -119,6 +119,7 @@ if ($pid = pcntl_fork()) {
 
 // We lose the database connection upon forking
 dba::connect($db_host, $db_user, $db_pass, $db_data);
+unset($db_host, $db_user, $db_pass, $db_data);
 
 Config::set('system', 'worker_daemon_mode', true);
 
@@ -143,10 +144,9 @@ while (true) {
 	Worker::spawnWorker($do_cron);
 
 	if ($do_cron) {
-		// We force a disconnect and reconnect of the database connection.
+		// We force a reconnect of the database connection.
 		// This is done to ensure that the connection don't get lost over time.
-		dba::disconnect();
-		dba::connect($db_host, $db_user, $db_pass, $db_data);
+		dba::reconnect();
 
 		$last_cron = time();
 	}
