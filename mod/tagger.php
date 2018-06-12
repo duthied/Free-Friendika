@@ -15,7 +15,7 @@ require_once 'include/items.php';
 
 function tagger_content(App $a) {
 
-	if(! local_user() && ! remote_user()) {
+	if (!local_user() && !remote_user()) {
 		return;
 	}
 
@@ -23,24 +23,21 @@ function tagger_content(App $a) {
 	// no commas allowed
 	$term = str_replace([',',' '],['','_'],$term);
 
-	if(! $term)
+	if (!$term) {
 		return;
+	}
 
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
 
 	logger('tagger: tag ' . $term . ' item ' . $item_id);
 
 
-	$r = q("SELECT * FROM `item` WHERE `id` = '%s' LIMIT 1",
-		dbesc($item_id)
-	);
+	$item = Item::selectFirst(local_user(), [], ['id' => $item_id]);
 
-	if(! $item_id || (! DBM::is_result($r))) {
+	if (!$item_id || !DBM::is_result($item)) {
 		logger('tagger: no item ' . $item_id);
 		return;
 	}
-
-	$item = $r[0];
 
 	$owner_uid = $item['uid'];
 	$owner_nick = '';
@@ -54,15 +51,16 @@ function tagger_content(App $a) {
 		$blocktags = $r[0]['blocktags'];
 	}
 
-	if(local_user() != $owner_uid)
+	if (local_user() != $owner_uid) {
 		return;
+	}
 
 	$r = q("select * from contact where self = 1 and uid = %d limit 1",
 		intval(local_user())
 	);
-	if (DBM::is_result($r))
+	if (DBM::is_result($r)) {
 			$contact = $r[0];
-	else {
+	} else {
 		logger('tagger: no contact_id');
 		return;
 	}
@@ -109,7 +107,7 @@ EOT;
 
 	$bodyverb = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s');
 
-	if (! isset($bodyverb)) {
+	if (!isset($bodyverb)) {
 		return;
 	}
 
@@ -165,7 +163,7 @@ EOT;
 		dbesc($term)
 	);
 
-	if ((!$blocktags) && $t[0]['tcount'] == 0 ) {
+	if (!$blocktags && $t[0]['tcount'] == 0) {
 		q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
 		   intval($item['id']),
 		   $term_objtype,
