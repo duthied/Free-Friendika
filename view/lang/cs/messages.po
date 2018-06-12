@@ -3,8 +3,9 @@
 # This file is distributed under the same license as the Friendica package.
 # 
 # Translators:
+# Aditoo, 2018
 # Josef Moravek <josef.moravek@bydleni.cz>, 2014
-# Lorem Ipsum <aditoo@seznam.cz>, 2018
+# Aditoo, 2018
 # michal_s <msupler@gmail.com>, 2011-2015
 # michal_s <msupler@gmail.com>, 2015
 msgid ""
@@ -12,8 +13,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-02 08:49+0200\n"
-"PO-Revision-Date: 2018-06-09 20:39+0000\n"
-"Last-Translator: Lorem Ipsum <aditoo@seznam.cz>\n"
+"PO-Revision-Date: 2018-06-12 12:30+0000\n"
+"Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,7 +33,7 @@ msgstr "Děkujeme, "
 #: include/enotify.php:37
 #, php-format
 msgid "%s Administrator"
-msgstr "%s Administrátor"
+msgstr "%s administrátor"
 
 #: include/enotify.php:39
 #, php-format
@@ -42,12 +43,12 @@ msgstr "%1$s, %2$s administrátor"
 #: include/enotify.php:95
 #, php-format
 msgid "[Friendica:Notify] New mail received at %s"
-msgstr "[Friendica:Upozornění] Obdržena nová zpráva na %s"
+msgstr "[Friendica:Oznámení] Obdržena nová zpráva na %s"
 
 #: include/enotify.php:97
 #, php-format
 msgid "%1$s sent you a new private message at %2$s."
-msgstr "%1$s Vám poslal novou soukromou zprávu na %2$s."
+msgstr "%1$s Vám poslal/a novou soukromou zprávu na %2$s."
 
 #: include/enotify.php:98
 msgid "a private message"
@@ -66,7 +67,7 @@ msgstr "Prosím navštivte %s pro zobrazení Vašich soukromých zpráv a možno
 #: include/enotify.php:138
 #, php-format
 msgid "%1$s commented on [url=%2$s]a %3$s[/url]"
-msgstr "%1$s okomentoval na [url=%2$s]%3$s[/url]"
+msgstr "%1$s okomentoval/a [url=%2$s]%3$s[/url]"
 
 #: include/enotify.php:146
 #, php-format
@@ -81,7 +82,7 @@ msgstr "%1$s okomentoval/a [url=%2$s]Váš/Vaši %3$s[/url]"
 #: include/enotify.php:168
 #, php-format
 msgid "[Friendica:Notify] Comment to conversation #%1$d by %2$s"
-msgstr "[Friendica:Upozornění] Komentář ke konverzaci #%1$d od %2$s"
+msgstr "[Friendica:Oznámení] Komentář ke konverzaci #%1$d od %2$s"
 
 #: include/enotify.php:170
 #, php-format
@@ -97,7 +98,7 @@ msgstr "Prosím navštivte %s pro zobrazení konverzace a možnosti odpovědět.
 #: include/enotify.php:180
 #, php-format
 msgid "[Friendica:Notify] %s posted to your profile wall"
-msgstr "[Friendica:Upozornění] %s přidal/a příspěvek na Vaši profilovou zeď"
+msgstr "[Friendica:Oznámení] %s přidal/a příspěvek na Vaši profilovou zeď"
 
 #: include/enotify.php:182
 #, php-format
@@ -112,12 +113,12 @@ msgstr "%1$s přidal/a příspěvek na [url=%2$s]Vaši zeď[/url]"
 #: include/enotify.php:195
 #, php-format
 msgid "[Friendica:Notify] %s tagged you"
-msgstr "[Friendica:Upozornění] %s Vás označil/a"
+msgstr "[Friendica:Oznámení] %s Vás označil/a"
 
 #: include/enotify.php:197
 #, php-format
 msgid "%1$s tagged you at %2$s"
-msgstr "%1$s Vás označil/a v %2$s"
+msgstr "%1$s Vás označil/a na %2$s"
 
 #: include/enotify.php:198
 #, php-format
@@ -127,7 +128,7 @@ msgstr "%1$s [url=%2$s]Vás označil/a[/url]."
 #: include/enotify.php:210
 #, php-format
 msgid "[Friendica:Notify] %s shared a new post"
-msgstr "[Friendica:Upozornění] %s sdílel/a nový příspěvek"
+msgstr "[Friendica:Oznámení] %s sdílel/a nový příspěvek"
 
 #: include/enotify.php:212
 #, php-format
@@ -142,7 +143,7 @@ msgstr "%1$s [url=%2$s]sdílel/a příspěvek[/url]."
 #: include/enotify.php:225
 #, php-format
 msgid "[Friendica:Notify] %1$s poked you"
-msgstr "[Friendica:Upozornění] %1$s Vás šťouchnul/a"
+msgstr "[Friendica:Oznámení] %1$s Vás šťouchnul/a"
 
 #: include/enotify.php:227
 #, php-format
@@ -157,7 +158,7 @@ msgstr "Uživatel %1$s [url=%2$s]Vás šťouchnul/a[/url]."
 #: include/enotify.php:244
 #, php-format
 msgid "[Friendica:Notify] %s tagged your post"
-msgstr "[Friendica:Upozornění] %s označil/a Váš příspěvek"
+msgstr "[Friendica:Oznámení] %s označil/a Váš příspěvek"
 
 #: include/enotify.php:246
 #, php-format
@@ -171,12 +172,12 @@ msgstr "%1$s označil/a [url=%2$s]Váš příspěvek[/url]"
 
 #: include/enotify.php:259
 msgid "[Friendica:Notify] Introduction received"
-msgstr "[Friendica:Upozornění] Obdrženo představení"
+msgstr "[Friendica:Oznámení] Obdrženo představení"
 
 #: include/enotify.php:261
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr "Obdržel/a jste představení od '%1$s' na %2$s"
+msgstr "Obdržel/a jste představení od \"%1$s\" na %2$s"
 
 #: include/enotify.php:262
 #, php-format
@@ -195,7 +196,7 @@ msgstr "Prosím navštivte %s pro schválení či zamítnutí představení."
 
 #: include/enotify.php:277
 msgid "[Friendica:Notify] A new person is sharing with you"
-msgstr "[Friendica:Upozornění] Nový člověk s vámi sdílí"
+msgstr "[Friendica:Oznámení] Nový člověk s vámi sdílí"
 
 #: include/enotify.php:279 include/enotify.php:280
 #, php-format
@@ -204,7 +205,7 @@ msgstr "Uživatel %1$s s vámi sdílí na %2$s"
 
 #: include/enotify.php:287
 msgid "[Friendica:Notify] You have a new follower"
-msgstr "[Friendica:Upozornění] Máte nového následovníka"
+msgstr "[Friendica:Oznámení] Máte nového následovníka"
 
 #: include/enotify.php:289 include/enotify.php:290
 #, php-format
@@ -213,18 +214,18 @@ msgstr "Máte nového následovníka na %2$s : %1$s"
 
 #: include/enotify.php:302
 msgid "[Friendica:Notify] Friend suggestion received"
-msgstr "[Friendica:Upozornění] Obdržen návrh na přátelství"
+msgstr "[Friendica:Oznámení] Obdržen návrh pro přátelství"
 
 #: include/enotify.php:304
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr "Obdržel jste návrh přátelství od '%1$s' na %2$s"
+msgstr "Obdržel jste návrh pro přátelství od '%1$s' na %2$s"
 
 #: include/enotify.php:305
 #, php-format
 msgid ""
 "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr "Obdržel jste [url=%1$s]návrh přátelství[/url] s %2$s from %3$s."
+msgstr "Obdržel jste [url=%1$s]návrh pro přátelství[/url] s %2$s from %3$s."
 
 #: include/enotify.php:311
 msgid "Name:"
@@ -241,12 +242,12 @@ msgstr "Prosím navštivte %s pro schválení či zamítnutí doporučení."
 
 #: include/enotify.php:323 include/enotify.php:338
 msgid "[Friendica:Notify] Connection accepted"
-msgstr "[Friendica:Upozornění] Spojení akceptováno"
+msgstr "[Friendica:Oznámení] Spojení akceptováno"
 
 #: include/enotify.php:325 include/enotify.php:340
 #, php-format
 msgid "'%1$s' has accepted your connection request at %2$s"
-msgstr "'%1$s' akceptoval váš požadavek na spojení na %2$s"
+msgstr "\"%1$s\" akceptoval váš požadavek na spojení na %2$s"
 
 #: include/enotify.php:326 include/enotify.php:341
 #, php-format
@@ -271,14 +272,14 @@ msgid ""
 "communication - such as private messaging and some profile interactions. If "
 "this is a celebrity or community page, these settings were applied "
 "automatically."
-msgstr "'%1$s' se rozhodl/a Vás přijmout jako fanouška, což omezuje některé formy komunikace - například soukoromé zprávy a některé interakce s profily. Pokud je toto stránka celebrity či komunity, byla tato nastavení aplikována automaticky."
+msgstr "\"%1$s\" se rozhodl/a Vás přijmout jako fanouška, což omezuje některé formy komunikace - například soukoromé zprávy a některé interakce s profily. Pokud je toto stránka celebrity či komunity, byla tato nastavení aplikována automaticky."
 
 #: include/enotify.php:348
 #, php-format
 msgid ""
 "'%1$s' may choose to extend this into a two-way or more permissive "
 "relationship in the future."
-msgstr "'%1$s' se může rozhodnout tento vztah v budoucnosti rozšířit do obousměrného či jiného liberálnějšího vztahu."
+msgstr "\"%1$s\" se může rozhodnout tento vztah v budoucnosti rozšířit do obousměrného či jiného liberálnějšího vztahu."
 
 #: include/enotify.php:350
 #, php-format
@@ -306,7 +307,7 @@ msgstr "Obdržel jste [url=%1$s]žádost o registraci[/url] od '%2$s'."
 #: include/enotify.php:368
 #, php-format
 msgid "Full Name:\t%1$s\\nSite Location:\t%2$s\\nLogin Name:\t%3$s (%4$s)"
-msgstr "Celé jméno:\t%1$s\\nAdresa stránky:\t%2$s\\nPřihlašovací jméno:\t%3$s (%4$s)"
+msgstr "Celé jméno:\t\t%1$s\\nAdresa stránky:\t\t%2$s\\nPřihlašovací jméno:\t%3$s (%4$s)"
 
 #: include/enotify.php:374
 #, php-format
@@ -344,7 +345,7 @@ msgstr "Byl dosažen měsíční limit %d příspěvků. Příspěvek byl odmít
 #: mod/photos.php:1154 mod/photos.php:1678 src/Model/User.php:555
 #: src/Model/User.php:563 src/Model/User.php:571
 msgid "Profile Photos"
-msgstr "Profilové fotografie"
+msgstr "Profilové fotky"
 
 #: include/conversation.php:144 include/conversation.php:279
 #: include/text.php:1749 src/Model/Item.php:2002
@@ -356,24 +357,24 @@ msgstr "událost"
 #: mod/subthread.php:101 mod/tagger.php:72 src/Model/Item.php:2000
 #: src/Protocol/Diaspora.php:1957
 msgid "status"
-msgstr "Stav"
+msgstr "stav"
 
 #: include/conversation.php:152 include/conversation.php:287
 #: include/text.php:1751 mod/subthread.php:101 mod/tagger.php:72
 #: src/Model/Item.php:2000
 msgid "photo"
-msgstr "fotografie"
+msgstr "fotka"
 
 #: include/conversation.php:164 src/Model/Item.php:1873
 #: src/Protocol/Diaspora.php:1953
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
-msgstr "%1$s má rád %2$s' na %3$s"
+msgstr "%1$s se líbí %3$s %2$s"
 
 #: include/conversation.php:166 src/Model/Item.php:1878
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
-msgstr "%1$s nemá rád %2$s na %3$s"
+msgstr "%1$s se nelíbí %3$s %2$s"
 
 #: include/conversation.php:168
 #, php-format
@@ -403,7 +404,7 @@ msgstr "%1$s šťouchnul %2$s"
 #: include/conversation.php:301 mod/tagger.php:110
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr "%1$s označen uživatelem %2$s %3$s s %4$s"
+msgstr "%1$s označil %3$s %2$s s %4$s"
 
 #: include/conversation.php:328
 msgid "post/item"
@@ -412,7 +413,7 @@ msgstr "příspěvek/položka"
 #: include/conversation.php:329
 #, php-format
 msgid "%1$s marked %2$s's %3$s as favorite"
-msgstr "uživatel %1$s označil %2$s's %3$s jako oblíbeného"
+msgstr "uživatel %1$s označil %3$s %2$s jako oblíbené"
 
 #: include/conversation.php:609 mod/photos.php:1495 mod/profiles.php:355
 msgid "Likes"
@@ -992,7 +993,7 @@ msgstr "dát facku"
 
 #: include/text.php:1077
 msgid "slapped"
-msgstr "být uhozen"
+msgstr "uhozen"
 
 #: include/text.php:1078
 msgid "finger"
@@ -1371,7 +1372,7 @@ msgid ""
 "On your <em>Settings</em> page -  change your initial password. Also make a "
 "note of your Identity Address. This looks just like an email address - and "
 "will be useful in making friends on the free social web."
-msgstr "Na Vaší stránce <em>Nastavení</em> - si změňte Vaše první heslo.\nVěnujte také svou pozornost k adrese identity. Vypadá jako emailová adresa a bude Vám užitečná pro navazování přátelství na svobodné sociální síti."
+msgstr "Na Vaší stránce <em>Nastavení</em> si změňte Vaše první heslo.\nVěnujte také svou pozornost k adrese Identity. Vypadá jako emailová adresa a bude Vám užitečná pro navazování přátelství na svobodném sociálním webu."
 
 #: mod/newmember.php:22
 msgid ""
@@ -1610,7 +1611,7 @@ msgstr "Žádná klíčová slova k porovnání. Prosím, přidejte klíčová s
 
 #: mod/match.php:104
 msgid "is interested in:"
-msgstr "zajímá se o:"
+msgstr "se zajímá o:"
 
 #: mod/match.php:120
 msgid "Profile Match"
@@ -1622,13 +1623,13 @@ msgstr "Žádné shody"
 
 #: mod/manage.php:180
 msgid "Manage Identities and/or Pages"
-msgstr "Správa identit a / nebo stránek"
+msgstr "Správa identit a/nebo stránek"
 
 #: mod/manage.php:181
 msgid ""
 "Toggle between different identities or community/group pages which share "
 "your account details or which you have been granted \"manage\" permissions"
-msgstr "Přepnutí mezi různými identitami nebo komunitními/skupinovými stránkami, které sdílí Vaše detaily účtu, nebo kterým jste přidělili oprávnění nastavovat přístupová práva."
+msgstr "Přepínání mezi různými identitami nebo komunitními/skupinovými stránkami, které sdílí Vaše detaily účtu, nebo kterým jste přidělili oprávnění nastavovat přístupová práva."
 
 #: mod/manage.php:182
 msgid "Select an identity to manage: "
@@ -1658,7 +1659,7 @@ msgstr "Omlouváme se, možná je Váš soubor větší než je povolené maximu
 
 #: mod/wall_attach.php:101
 msgid "Or - did you try to upload an empty file?"
-msgstr "Nebo - nenahrával jste prázdný soubor?"
+msgstr "Nebo - nenahrával/a jste prázdný soubor?"
 
 #: mod/wall_attach.php:112
 #, php-format
@@ -1671,7 +1672,7 @@ msgstr "Nahrání souboru se nezdařilo."
 
 #: mod/filer.php:34
 msgid "- select -"
-msgstr "- vyber -"
+msgstr "- vyberte -"
 
 #: mod/localtime.php:19 src/Model/Event.php:36 src/Model/Event.php:814
 msgid "l F d, Y \\@ g:i A"
@@ -2399,7 +2400,7 @@ msgstr "Vrátit z archívu"
 
 #: mod/contacts.php:832
 msgid "Batch Actions"
-msgstr ""
+msgstr "Dávkové (batch) akce"
 
 #: mod/contacts.php:858 mod/unfollow.php:132 mod/follow.php:186
 #: src/Model/Profile.php:889
@@ -2944,7 +2945,7 @@ msgstr "Pro více informací o projektu Friendica, prosím, navštivte stránku 
 
 #: mod/friendica.php:86
 msgid "Bug reports and issues: please visit"
-msgstr "Pro hlášení chyb a námětů na změny navštivte:"
+msgstr "Pro hlášení chyb a námětů na změny navštivte"
 
 #: mod/friendica.php:86
 msgid "the bugtracker at github"
@@ -3008,7 +3009,7 @@ msgid "%d message sent."
 msgid_plural "%d messages sent."
 msgstr[0] "%d zpráva odeslána."
 msgstr[1] "%d zprávy odeslány."
-msgstr[2] "%d zprávy odeslány."
+msgstr[2] "%d zpráv odesláno."
 msgstr[3] "%d zprávy odeslány."
 
 #: mod/invite.php:122
@@ -3021,14 +3022,14 @@ msgid ""
 "Visit %s for a list of public sites that you can join. Friendica members on "
 "other sites can all connect with each other, as well as with members of many"
 " other social networks."
-msgstr "Navštivte %s pro seznam veřejných serverů, na kterých se můžete přidat. Členové Friendica se mohou navzájem propojovat, stejně tak jako se mohou přiopojit se členy mnoha dalších sociálních sítí."
+msgstr "Navštivte %s pro seznam veřejných serverů, na kterých se můžete přidat. Členové Friendica na jiných serverech se mohou spojit mezi sebou, jakožto i se členy mnoha dalších sociálních sítí."
 
 #: mod/invite.php:132
 #, php-format
 msgid ""
 "To accept this invitation, please visit and register at %s or any other "
 "public Friendica website."
-msgstr "K akceptaci této pozvánky prosím navštivte a registrujte se na %s nebo na kterékoliv jiném veřejném Friendica serveru."
+msgstr "K přijetí této pozvánky prosím navštivte a registrujte se na %s nebo na kterékoliv jiném veřejném Friendica serveru."
 
 #: mod/invite.php:133
 #, php-format
@@ -3037,7 +3038,7 @@ msgid ""
 "web that is owned and controlled by its members. They can also connect with "
 "many traditional social networks. See %s for a list of alternate Friendica "
 "sites you can join."
-msgstr "Friendica servery jsou všechny propojené a vytváří tak rozsáhlou sociální síť s důrazem na soukromý a je pod kontrolou svých členů. Členové se mohou propojovat s mnoha dalšími tradičními sociálními sítěmi. Navštivte %s pro seznam alternativních Friendica serverů kde se můžete přidat."
+msgstr "Stránky Friendica jsou navzájem propojené a vytváří tak obrovský sociální web s dúrazem na soukromí, kterou vlastní a kontrojují její členové, Mohou se také připojit k mnoha tradičním socilním sítím. Navštivte %s pro seznam alternativních serverů Friendica, ke kterým se můžete přidat."
 
 #: mod/invite.php:137
 msgid ""
@@ -3050,7 +3051,7 @@ msgid ""
 "Friendica sites all inter-connect to create a huge privacy-enhanced social "
 "web that is owned and controlled by its members. They can also connect with "
 "many traditional social networks."
-msgstr "Stránky Friendica jsou navzájem propojené a vytváří tak obrovskou sociální síť rozšířenou o soukromí, kterou vlastní a kontrojují její členové, Mohou se také připojit k mnoha tradičním socilním sítím."
+msgstr "Stránky Friendica jsou navzájem propojené a vytváří tak obrovský sociální web s dúrazem na soukromí, kterou vlastní a kontrojují její členové, Mohou se také připojit k mnoha tradičním socilním sítím."
 
 #: mod/invite.php:140
 #, php-format
@@ -3069,7 +3070,7 @@ msgstr "Zadejte e-mailové adresy, jednu na řádek:"
 msgid ""
 "You are cordially invited to join me and other close friends on Friendica - "
 "and help us to create a better social web."
-msgstr "Jste srdečně pozván se připojit ke mně a k mým blízkým přátelům na Friendica - a pomoci nám vytvořit lepší sociální síť."
+msgstr "Jste srdečně pozván/a se připojit ke mně a k mým blízkým přátelům na Friendica - a pomoci nám vytvořit lepší sociální web."
 
 #: mod/invite.php:151
 msgid "You will need to supply this invitation code: $invite_code"
@@ -3098,13 +3099,13 @@ msgstr "Aktualizace kontaktu selhala."
 msgid ""
 "<strong>WARNING: This is highly advanced</strong> and if you enter incorrect"
 " information your communications with this contact may stop working."
-msgstr "<strong>Varování: Toto je velmi pokročilé</strong> a pokud zadáte nesprávné informace, Vaše komunikace s tímto kontaktem může přestat fungovat."
+msgstr "<strong>VAROVÁNÍ: Toto je velmi pokročilé</strong> a pokud zadáte nesprávné informace, Vaše komunikace s tímto kontaktem může přestat fungovat."
 
 #: mod/crepair.php:115
 msgid ""
 "Please use your browser 'Back' button <strong>now</strong> if you are "
 "uncertain what to do on this page."
-msgstr "Prosím použijte <strong>ihned</strong> v prohlížeči tlačítko \"zpět\" pokud si nejste jistí co dělat na této stránce."
+msgstr "Prosím použijte <strong>ihned</strong> v prohlížeči tlačítko \"zpět\" pokud si nejste jisti, co dělat na této stránce."
 
 #: mod/crepair.php:129 mod/crepair.php:131
 msgid "No mirroring"
@@ -3138,7 +3139,7 @@ msgstr "Zrcadlení příspěvků od tohoto kontaktu"
 msgid ""
 "Mark this contact as remote_self, this will cause friendica to repost new "
 "entries from this contact."
-msgstr "Označit tento kontakt jako \"remote_self\", s tímto nastavením freindica bude přeposílat všechny nové příspěvky od tohoto kontaktu."
+msgstr "Označit tento kontakt jako \"remote_self\", s tímto nastavením bude friendica přeposílat všechny nové příspěvky od tohoto kontaktu."
 
 #: mod/crepair.php:158 mod/admin.php:494 mod/admin.php:1816 mod/admin.php:1827
 #: mod/admin.php:1840 mod/admin.php:1856 mod/settings.php:671
@@ -3215,7 +3216,7 @@ msgstr "Vaše databáze Friendica  byla nainstalována."
 msgid ""
 "You may need to import the file \"database.sql\" manually using phpmyadmin "
 "or mysql."
-msgstr "Toto je nejčastěji nastavením oprávnění, kdy webový server nemusí být schopen zapisovat soubory do Vašeho adresáře - i když Vy můžete."
+msgstr "Pravděpodobně budete muset manuálně importovat soubor \"database.sql\" pomocí phpMyAdmin či MySQL."
 
 #: mod/install.php:109 mod/install.php:155 mod/install.php:267
 msgid "Please see the file \"INSTALL.txt\"."
@@ -3600,7 +3601,7 @@ msgstr "Serverová doména"
 msgid ""
 "The domain of the new server to add to the block list. Do not include the "
 "protocol."
-msgstr "Doména serveru, který má být přidán na blokovací seznam. Nezahrnujte protokol (\"http://\")."
+msgstr "Doména serveru, který má být přidán na blokovací seznam. Vynechejte protokol (\"http://\")."
 
 #: mod/admin.php:371
 msgid "Block reason"
@@ -3826,7 +3827,7 @@ msgstr "Pracovník nebyl nikdy spuštěn. Prosím zkontrolujte strukturu Vaší 
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please"
 " check your crontab settings."
-msgstr ""
+msgstr "Pracovník byl naposledy spuštěn v %s UTC. Toto je více než jedna hodina. Prosím zkontrolujte si nastavení crontab."
 
 #: mod/admin.php:815
 msgid "Normal Account"
@@ -3834,11 +3835,11 @@ msgstr "Normální účet"
 
 #: mod/admin.php:816
 msgid "Automatic Follower Account"
-msgstr ""
+msgstr "Automatický účet následovníka"
 
 #: mod/admin.php:817
 msgid "Public Forum Account"
-msgstr ""
+msgstr "Veřejný účet na fóru"
 
 #: mod/admin.php:818
 msgid "Automatic Friend Account"
@@ -3850,7 +3851,7 @@ msgstr "Účet Blogu"
 
 #: mod/admin.php:820
 msgid "Private Forum Account"
-msgstr ""
+msgstr "Soukromá účet na fóru"
 
 #: mod/admin.php:842
 msgid "Message queues"
@@ -3874,7 +3875,7 @@ msgstr "Verze"
 
 #: mod/admin.php:858
 msgid "Active addons"
-msgstr ""
+msgstr "Aktivní doplňky"
 
 #: mod/admin.php:889
 msgid "Can not parse base url. Must have at least <scheme>://<domain>"
@@ -3890,7 +3891,7 @@ msgstr "Žádný speciální motiv pro mobilní zařízení"
 
 #: mod/admin.php:1276
 msgid "No community page for local users"
-msgstr ""
+msgstr "Žádná komunitní stránka pro lokální uživatele"
 
 #: mod/admin.php:1277
 msgid "No community page"
@@ -3902,11 +3903,11 @@ msgstr "Počet veřejných příspěvků od uživatele na této stránce"
 
 #: mod/admin.php:1279
 msgid "Public postings from the federated network"
-msgstr ""
+msgstr "Veřejné příspěvky z federované sítě"
 
 #: mod/admin.php:1280
 msgid "Public postings from local users and the federated network"
-msgstr ""
+msgstr "Veřejné příspěvky od lokálních uživatelů a z federované sítě"
 
 #: mod/admin.php:1286
 msgid "Users, Global Contacts"
@@ -3914,7 +3915,7 @@ msgstr "Uživatelé, Všechny kontakty"
 
 #: mod/admin.php:1287
 msgid "Users, Global Contacts/fallback"
-msgstr ""
+msgstr "Uživatelé, globální kontakty/fallback"
 
 #: mod/admin.php:1291
 msgid "One month"
@@ -3962,15 +3963,15 @@ msgstr "Certifikát podepsaný sám sebou, použít SSL pouze pro lokální odka
 
 #: mod/admin.php:1337
 msgid "Don't check"
-msgstr ""
+msgstr "Nezkontrolovat"
 
 #: mod/admin.php:1338
 msgid "check the stable version"
-msgstr ""
+msgstr "zkontrolovat stabilní verzi"
 
 #: mod/admin.php:1339
 msgid "check the development version"
-msgstr ""
+msgstr "zkontrolovat verzi ve vývoji"
 
 #: mod/admin.php:1358
 msgid "Republish users to directory"
@@ -3998,7 +3999,7 @@ msgstr "Výkonnost"
 
 #: mod/admin.php:1365
 msgid "Worker"
-msgstr ""
+msgstr "Pracovník"
 
 #: mod/admin.php:1366
 msgid "Message Relay"
@@ -4036,7 +4037,7 @@ msgstr "Ikona zkratky"
 
 #: mod/admin.php:1374
 msgid "Link to an icon that will be used for browsers."
-msgstr ""
+msgstr "Odkaz k ikoně, která bude použita pro prohlížeče."
 
 #: mod/admin.php:1375
 msgid "Touch icon"
@@ -4044,7 +4045,7 @@ msgstr "Dotyková ikona"
 
 #: mod/admin.php:1375
 msgid "Link to an icon that will be used for tablets and mobiles."
-msgstr ""
+msgstr "Odkaz k ikoně, která bude použita pro tablety a mobilní zařízení."
 
 #: mod/admin.php:1376
 msgid "Additional Info"
@@ -4055,7 +4056,7 @@ msgstr "Dodatečné informace"
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
-msgstr ""
+msgstr "Pro veřejné servery: zde můžete přidat dodatečné informace, které budou vypsané na stránce %s/servers."
 
 #: mod/admin.php:1377
 msgid "System language"
@@ -4168,7 +4169,7 @@ msgstr "Registrace textu"
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
-msgstr ""
+msgstr "Bude zobrazeno viditelně na stránce registrace. Zde můžete používat BBCode."
 
 #: mod/admin.php:1391
 msgid "Accounts abandoned after x days"
@@ -4203,56 +4204,56 @@ msgstr "Čárkou oddělený seznam domén emalových adres, kterým je povoleno 
 
 #: mod/admin.php:1394
 msgid "No OEmbed rich content"
-msgstr ""
+msgstr "Žádný obohacený obsah oEmbed"
 
 #: mod/admin.php:1394
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
-msgstr ""
+msgstr "Neukazovat obohacený obsah (např. vložené PDF dokumenty), kromě toho z domén vypsaných níže."
 
 #: mod/admin.php:1395
 msgid "Allowed OEmbed domains"
-msgstr ""
+msgstr "Povolené domény pro oEmbed"
 
 #: mod/admin.php:1395
 msgid ""
 "Comma separated list of domains which oembed content is allowed to be "
 "displayed. Wildcards are accepted."
-msgstr ""
+msgstr "Výpis domén, u nichž je povoleno zobrazit obsah oEmbed, oddělených čárkami. Zástupné znaky jsou povoleny."
 
 #: mod/admin.php:1396
 msgid "Block public"
-msgstr "Blokovat veřejnost"
+msgstr "Blokovat veřejný přístup"
 
 #: mod/admin.php:1396
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
-msgstr "Označemím přepínače zablokujete veřejný přístup ke všem jinak veřejně přístupným soukromým stránkám uživatelům, kteří nebudou přihlášeni."
+msgstr "Označením zablokujete veřejný přístup ke všem jinak veřejně přístupným osobním stránkám nepřihlášeným uživatelům."
 
 #: mod/admin.php:1397
 msgid "Force publish"
-msgstr "Publikovat"
+msgstr "Vynutit publikaci"
 
 #: mod/admin.php:1397
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
-msgstr "Označením přepínače budou včechny profily na tomto webu uvedeny v adresáři webu."
+msgstr "Označením budou všechny profily na tomto serveru uvedeny v adresáři stránky."
 
 #: mod/admin.php:1397
 msgid "Enabling this may violate privacy laws like the GDPR"
-msgstr ""
+msgstr "Povolení této funkce může porušit zákony o ochraně soukromí, jako je Obecné nařízení o ochraně osobních údajů (GDPR)"
 
 #: mod/admin.php:1398
 msgid "Global directory URL"
-msgstr ""
+msgstr "Adresa URL globálního adresáře"
 
 #: mod/admin.php:1398
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
-msgstr ""
+msgstr "Adresa URL globálního adresáře. Pokud toto není nastaveno, globální adresář bude aplikaci naprosto nedostupný."
 
 #: mod/admin.php:1399
 msgid "Private posts by default for new users"
@@ -4317,7 +4318,7 @@ msgstr "Znemožnit uživatelům registraci dodatečných účtů k použití jak
 
 #: mod/admin.php:1405
 msgid "OpenID support"
-msgstr "podpora OpenID"
+msgstr "Podpora OpenID"
 
 #: mod/admin.php:1405
 msgid "OpenID support for registration and logins."
@@ -4335,13 +4336,13 @@ msgstr "Přimět uživatele k registraci s mezerou mezi jménu a příjmením v 
 
 #: mod/admin.php:1407
 msgid "Community pages for visitors"
-msgstr ""
+msgstr "Komunitní stránky pro návštěvníky"
 
 #: mod/admin.php:1407
 msgid ""
 "Which community pages should be available for visitors. Local users always "
 "see both pages."
-msgstr ""
+msgstr "Které komunitní stránky by měly být viditelné pro návštěvníky. Lokální uživatelé vždy vidí obě stránky."
 
 #: mod/admin.php:1408
 msgid "Posts per user on community page"
@@ -4366,24 +4367,24 @@ msgstr "Poskytnout zabudouvanou kompatibilitu s OStatus (StatusNet, GNU Social a
 
 #: mod/admin.php:1410
 msgid "Only import OStatus threads from our contacts"
-msgstr ""
+msgstr "Pouze importovat vlákna z OStatus z našich kontaktů"
 
 #: mod/admin.php:1410
 msgid ""
 "Normally we import every content from our OStatus contacts. With this option"
 " we only store threads that are started by a contact that is known on our "
 "system."
-msgstr ""
+msgstr "Běžně importujeme všechen obsah z našich kontaktů na OStatus. S touto volbou uchováváme vlákna počatá kontaktem, který je na našem systému známý."
 
 #: mod/admin.php:1411
 msgid "OStatus support can only be enabled if threading is enabled."
-msgstr ""
+msgstr "Podpora pro OStatus může být zapnuta pouze, je-li povolen threading."
 
 #: mod/admin.php:1413
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
-msgstr ""
+msgstr "Podpora pro Diasporu nemůže být zapnuta, protože Friendica byla nainstalována do podadresáře."
 
 #: mod/admin.php:1414
 msgid "Enable Diaspora support"
@@ -4423,7 +4424,7 @@ msgstr "Proxy URL adresa"
 
 #: mod/admin.php:1419
 msgid "Network timeout"
-msgstr "čas síťového spojení vypršelo (timeout)"
+msgstr "Čas síťového spojení vypršel (timeout)"
 
 #: mod/admin.php:1419
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
@@ -4449,33 +4450,33 @@ msgstr "Maximální zatížení systému předtím, než frontend ukončí služ
 
 #: mod/admin.php:1422
 msgid "Minimal Memory"
-msgstr ""
+msgstr "Minimální paměť"
 
 #: mod/admin.php:1422
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
-msgstr ""
+msgstr "Minimální volná paměť v MB pro pracovníka. Potřebuje přístup do /proc/meminfo - výchozí hodnota 0 (deaktivováno)"
 
 #: mod/admin.php:1423
 msgid "Maximum table size for optimization"
-msgstr ""
+msgstr "Maximální velikost tabulky pro optimalizaci"
 
 #: mod/admin.php:1423
 msgid ""
 "Maximum table size (in MB) for the automatic optimization. Enter -1 to "
 "disable it."
-msgstr ""
+msgstr "Maximální velikost tabulky (v MB) pro automatickou optimalizaci. Zadáním -1 ji vypnete."
 
 #: mod/admin.php:1424
 msgid "Minimum level of fragmentation"
-msgstr ""
+msgstr "Minimální úroveň fragmentace"
 
 #: mod/admin.php:1424
 msgid ""
 "Minimum fragmenation level to start the automatic optimization - default "
 "value is 30%."
-msgstr ""
+msgstr "Minimální úroveň fragmentace pro spuštění automatické optimalizace - výchozí hodnota je 30%."
 
 #: mod/admin.php:1426
 msgid "Periodical check of global contacts"
@@ -4485,15 +4486,15 @@ msgstr "Pravidelně ověřování globálních kontaktů"
 msgid ""
 "If enabled, the global contacts are checked periodically for missing or "
 "outdated data and the vitality of the contacts and servers."
-msgstr ""
+msgstr "Pokud je toto povoleno, budou globální kontakty pravidelně kontrolovány pro zastaralá data a životnost kontaktů a serverů."
 
 #: mod/admin.php:1427
 msgid "Days between requery"
-msgstr ""
+msgstr "Dny mezi dotazy"
 
 #: mod/admin.php:1427
 msgid "Number of days after which a server is requeried for his contacts."
-msgstr ""
+msgstr "Počet dnů, po kterých je server znovu dotázán na své kontakty"
 
 #: mod/admin.php:1428
 msgid "Discover contacts from other servers"
@@ -4507,7 +4508,7 @@ msgid ""
 "and older friendica servers, where global contacts weren't available. The "
 "fallback increases the server load, so the recommened setting is 'Users, "
 "Global Contacts'."
-msgstr ""
+msgstr "Periodicky dotazovat ostatní servery pro kontakty. Můžete si vybrat mezi možnostmi: \"uživatelé\" - uživatelé na vzdáleném systému, a \"globální kontakty\" - aktivní kontakty, které jsou známy na systému. Funkce fallback je určena pro servery Redmatrix a starší servery Friendica, kde globální kontakty nejsou dostupné. Fallback zvyšuje serverovou zátěž, doporučené nastavení je proto \"Uživatelé, globální kontakty\"."
 
 #: mod/admin.php:1429
 msgid "Timeframe for fetching global contacts"
@@ -4528,7 +4529,7 @@ msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
-msgstr ""
+msgstr "Prohledat lokální adresář místo globálního adresáře. Při lokálním prohledávání bude každé hledání provedeno v globálním adresáři na pozadí. To vylepšuje výsledky při zopakování hledání."
 
 #: mod/admin.php:1432
 msgid "Publish server information"
@@ -4540,17 +4541,17 @@ msgid ""
 "contains the name and version of the server, number of users with public "
 "profiles, number of posts and the activated protocols and connectors. See <a"
 " href='http://the-federation.info/'>the-federation.info</a> for details."
-msgstr ""
+msgstr "Pokud je toto povoleno, budou zveřejněna obecná data o serveru a jeho používání. Data obsahují jméno a verzi serveru, počet uživatelů s vřejnými profily, počet příspěvků a aktivované protokoly a konektory. Pro více informací navštivte <a href='http://the-federation.info/'>the-federation.info</a>."
 
 #: mod/admin.php:1434
 msgid "Check upstream version"
-msgstr ""
+msgstr "Zkontrolovat upstreamovou verzi"
 
 #: mod/admin.php:1434
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
-msgstr ""
+msgstr "Umožní kontrolovat nové verze Friendica na GitHubu. Pokud existuje nová verze, budete informován/a na přehledu administračního panelu."
 
 #: mod/admin.php:1435
 msgid "Suppress Tags"
@@ -4558,28 +4559,28 @@ msgstr "Potlačit štítky"
 
 #: mod/admin.php:1435
 msgid "Suppress showing a list of hashtags at the end of the posting."
-msgstr "Potlačit zobrazení listu hastagů na konci zprávy."
+msgstr "Potlačit zobrazení seznamu hastagů na konci příspěvků."
 
 #: mod/admin.php:1436
 msgid "Clean database"
-msgstr ""
+msgstr "Vyčistit databázi"
 
 #: mod/admin.php:1436
 msgid ""
 "Remove old remote items, orphaned database records and old content from some"
 " other helper tables."
-msgstr ""
+msgstr "Odstranit staré vzdálené položky, osiřelé záznamy v databázi a starý obsah z některých dalších pomocných tabulek."
 
 #: mod/admin.php:1437
 msgid "Lifespan of remote items"
-msgstr ""
+msgstr "Životnost vzdálených položek"
 
 #: mod/admin.php:1437
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "remote items will be deleted. Own items, and marked or filed items are "
 "always kept. 0 disables this behaviour."
-msgstr ""
+msgstr "Pokud je zapnuto čištění databáze, tato funkce definuje dny, po kterých budou vzdálené položky smazány. Vlastní položky a označené či vyplněné položky jsou vždy ponechány. Hodnota 0 tuto funkci vypíná."
 
 #: mod/admin.php:1438
 msgid "Lifespan of unclaimed items"
@@ -4595,7 +4596,7 @@ msgstr ""
 
 #: mod/admin.php:1439
 msgid "Path to item cache"
-msgstr "Cesta k položkám vyrovnávací paměti"
+msgstr "Cesta k položkám v mezipaměti"
 
 #: mod/admin.php:1439
 msgid "The item caches buffers generated bbcode and external images."
@@ -4775,21 +4776,21 @@ msgstr ""
 
 #: mod/admin.php:1460
 msgid "Server tags"
-msgstr ""
+msgstr "Serverové štítky"
 
 #: mod/admin.php:1460
 msgid "Comma separated list of tags for the 'tags' subscription."
-msgstr ""
+msgstr "Seznam štítků pro odběr \"tags\", oddělených čárkami."
 
 #: mod/admin.php:1461
 msgid "Allow user tags"
-msgstr ""
+msgstr "Povolit uživatelské štítky"
 
 #: mod/admin.php:1461
 msgid ""
 "If enabled, the tags from the saved searches will used for the 'tags' "
 "subscription in addition to the 'relay_server_tags'."
-msgstr ""
+msgstr "Pokud je toto povoleno, budou štítky z uložených hledání vedle odběru \"relay_server_tags\" použity i pro odběr \"tags\"."
 
 #: mod/admin.php:1489
 msgid "Update has been marked successful"
@@ -4938,7 +4939,7 @@ msgstr "Stránka \"Soapbox\""
 
 #: mod/admin.php:1761 mod/settings.php:1066
 msgid "Public Forum"
-msgstr ""
+msgstr "Veřejné fórum"
 
 #: mod/admin.php:1762 mod/settings.php:1070
 msgid "Automatic Friend Page"
@@ -4946,23 +4947,23 @@ msgstr "Automatická stránka přítele"
 
 #: mod/admin.php:1763
 msgid "Private Forum"
-msgstr ""
+msgstr "Soukromé fórum"
 
 #: mod/admin.php:1766 mod/settings.php:1042
 msgid "Personal Page"
-msgstr ""
+msgstr "Osobní stránka"
 
 #: mod/admin.php:1767 mod/settings.php:1046
 msgid "Organisation Page"
-msgstr ""
+msgstr "Stránka organizace"
 
 #: mod/admin.php:1768 mod/settings.php:1050
 msgid "News Page"
-msgstr ""
+msgstr "Zpravodajská stránka"
 
 #: mod/admin.php:1769 mod/settings.php:1054
 msgid "Community Forum"
-msgstr ""
+msgstr "Komunitní fórum"
 
 #: mod/admin.php:1816 mod/admin.php:1827 mod/admin.php:1840 mod/admin.php:1858
 #: src/Content/ContactSelector.php:82
@@ -4983,7 +4984,7 @@ msgstr "Poslední položka"
 
 #: mod/admin.php:1816
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: mod/admin.php:1823
 msgid "Add User"
@@ -5007,7 +5008,7 @@ msgstr "Žádné registrace."
 
 #: mod/admin.php:1829
 msgid "Note from the user"
-msgstr ""
+msgstr "Poznámka od uživatele"
 
 #: mod/admin.php:1830 mod/notifications.php:178 mod/notifications.php:262
 msgid "Approve"
@@ -5064,12 +5065,12 @@ msgstr "Emailová adresa nového uživatele."
 #: mod/admin.php:1900
 #, php-format
 msgid "Addon %s disabled."
-msgstr ""
+msgstr "Doplněk %s zakázán."
 
 #: mod/admin.php:1904
 #, php-format
 msgid "Addon %s enabled."
-msgstr ""
+msgstr "Doplněk %s povolen."
 
 #: mod/admin.php:1914 mod/admin.php:2163
 msgid "Disable"
@@ -5093,7 +5094,7 @@ msgstr "Správce: "
 
 #: mod/admin.php:2000
 msgid "Reload active addons"
-msgstr ""
+msgstr "Znovu načíst aktivní doplňky"
 
 #: mod/admin.php:2005
 #, php-format
@@ -5101,7 +5102,7 @@ msgid ""
 "There are currently no addons available on your node. You can find the "
 "official addon repository at %1$s and might find other interesting addons in"
 " the open addon registry at %2$s"
-msgstr ""
+msgstr "Aktuálně nejsou na Vašem serveru k dispozici žádné doplňky. Oficiální repozitář doplňků najdete na %1$s a další zajímavé doplňky můžete najít v otevřeném registru doplňků na %2$s"
 
 #: mod/admin.php:2125
 msgid "No themes found."
@@ -5134,11 +5135,11 @@ msgstr "Nastavení protokolu aktualizováno."
 
 #: mod/admin.php:2317
 msgid "PHP log currently enabled."
-msgstr ""
+msgstr "PHP záznamy jsou aktuálně povolené."
 
 #: mod/admin.php:2319
 msgid "PHP log currently disabled."
-msgstr ""
+msgstr "PHP záznamy jsou aktuálně povolené."
 
 #: mod/admin.php:2328
 msgid "Clear"
@@ -5164,7 +5165,7 @@ msgstr "Úroveň auditu"
 
 #: mod/admin.php:2336
 msgid "PHP logging"
-msgstr ""
+msgstr "Záznamování PHP"
 
 #: mod/admin.php:2337
 msgid ""
@@ -5173,21 +5174,21 @@ msgid ""
 "'error_log' line is relative to the friendica top-level directory and must "
 "be writeable by the web server. The option '1' for 'log_errors' and "
 "'display_errors' is to enable these options, set to '0' to disable them."
-msgstr ""
+msgstr "Pro umožnění zaznamenávání PHP chyb a varování, můžete přidat do souboru .htconfig.php na vaší instalaci následující: Název souboru nastavený v řádku \"error_log\" je relativní ke kořenovému adresáři Friendica a webový server musí mít povolení na něj zapisovat. Možnost \"1\" pro \"log_errors\" a \"display_errors\" tyto funkce povoluje, nastavením hodnoty na \"0\" je zakážete."
 
 #: mod/admin.php:2368
 #, php-format
 msgid ""
 "Error trying to open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see "
 "if file %1$s exist and is readable."
-msgstr ""
+msgstr "Chyba při otevírání záznamu <strong>%1$s</strong>.\\r\\n<br/>Zkontrolujte, jestli soubor %1$s existuje a může se číst."
 
 #: mod/admin.php:2372
 #, php-format
 msgid ""
 "Couldn't open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see if file"
 " %1$s is readable."
-msgstr ""
+msgstr "Nelze otevřít záznam <strong>%1$s</strong>.\\r\\n<br/>Zkontrolujte, jestli se soubor %1$s může číst."
 
 #: mod/admin.php:2463 mod/admin.php:2464 mod/settings.php:767
 msgid "Off"
@@ -5216,7 +5217,7 @@ msgstr "Není k dispozici."
 
 #: mod/community.php:81
 msgid "Local Community"
-msgstr ""
+msgstr "Lokální komunita"
 
 #: mod/community.php:84
 msgid "Posts from local users on this server"
@@ -5224,11 +5225,11 @@ msgstr ""
 
 #: mod/community.php:92
 msgid "Global Community"
-msgstr ""
+msgstr "Globální komunita"
 
 #: mod/community.php:95
 msgid "Posts from users of the whole federated network"
-msgstr ""
+msgstr "Příspěvky od uživatelů z celé federované sítě"
 
 #: mod/community.php:141 mod/search.php:228
 msgid "No results."
@@ -5238,7 +5239,7 @@ msgstr "Žádné výsledky."
 msgid ""
 "This community stream shows all public posts received by this node. They may"
 " not reflect the opinions of this node’s users."
-msgstr ""
+msgstr "Tento komunitní proud ukazuje všechny veřejné příspěvky, které tento server přijme. Nemusí odrážet názory uživatelů serveru."
 
 #: mod/dfrn_confirm.php:74 mod/profiles.php:39 mod/profiles.php:149
 #: mod/profiles.php:196 mod/profiles.php:525
@@ -5399,7 +5400,7 @@ msgstr "Vaše žádost o propojení byla odeslána."
 msgid ""
 "Remote subscription can't be done for your network. Please subscribe "
 "directly on your system."
-msgstr ""
+msgstr "Vzdálený odběr nemůže být na Vaší síti proveden. Prosím, přihlaste se k odběru přímo na Vašem systému."
 
 #: mod/dfrn_request.php:489
 msgid "Please login to confirm introduction."
@@ -5440,7 +5441,7 @@ msgstr "Prosím zadejte Vaši adresu identity jedné z následujících podporov
 msgid ""
 "If you are not yet a member of the free social web, <a href=\"%s\">follow "
 "this link to find a public Friendica site and join us today</a>."
-msgstr ""
+msgstr "Pokud ještě nejste členem svobodného sociálního webu, <a href=\"%s\">klikněte na tento odkaz, najděte si veřejný server Friendica a připojte se k nám ještě dnes</a>."
 
 #: mod/dfrn_request.php:645
 msgid "Friend/Connection Request"
@@ -5450,7 +5451,7 @@ msgstr "Požadavek o přátelství / kontaktování"
 msgid ""
 "Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, "
 "testuser@gnusocial.de"
-msgstr ""
+msgstr "Příklady: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de"
 
 #: mod/dfrn_request.php:651 src/Content/ContactSelector.php:79
 msgid "Friendica"
@@ -5458,11 +5459,11 @@ msgstr "Friendica"
 
 #: mod/dfrn_request.php:652
 msgid "GNU Social (Pleroma, Mastodon)"
-msgstr ""
+msgstr "GNU social (Pleroma, Mastodon)"
 
 #: mod/dfrn_request.php:653
 msgid "Diaspora (Socialhome, Hubzilla)"
-msgstr ""
+msgstr "Diaspora (Socialhome, Hubzilla)"
 
 #: mod/dfrn_request.php:654
 #, php-format
@@ -5525,7 +5526,7 @@ msgstr "Sdílet tuto událost"
 
 #: mod/events.php:532 src/Model/Profile.php:862
 msgid "Basic"
-msgstr ""
+msgstr "Základní"
 
 #: mod/events.php:534 mod/photos.php:1086 mod/photos.php:1435
 #: src/Core/ACL.php:318
@@ -5534,11 +5535,11 @@ msgstr "Oprávnění:"
 
 #: mod/events.php:553
 msgid "Failed to remove event"
-msgstr ""
+msgstr "Odstranění události selhalo"
 
 #: mod/events.php:555
 msgid "Event removed"
-msgstr ""
+msgstr "Událost odstraněna"
 
 #: mod/group.php:36
 msgid "Group created."
@@ -5586,7 +5587,7 @@ msgstr "Editor skupin"
 
 #: mod/group.php:203
 msgid "Edit Group Name"
-msgstr ""
+msgstr "Upravit název skupiny"
 
 #: mod/group.php:213
 msgid "Members"
@@ -5598,11 +5599,11 @@ msgstr "Skupina je prázdná"
 
 #: mod/group.php:229
 msgid "Remove contact from group"
-msgstr ""
+msgstr "Odebrat kontakt ze skupiny"
 
 #: mod/group.php:253
 msgid "Add contact to group"
-msgstr ""
+msgstr "Přidat kontakt ke skupině"
 
 #: mod/item.php:114
 msgid "Unable to locate original post."
@@ -5655,14 +5656,14 @@ msgid ""
 msgid_plural ""
 "Warning: This group contains %s members from a network that doesn't allow "
 "non public messages."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Varování: Tato skupina obsahuje %s člena ze sítě, která nepovoluje posílání soukromých zpráv."
+msgstr[1] "Varování: Tato skupina obsahuje %s členy ze sítě, která nepovoluje posílání soukromých zpráv."
+msgstr[2] "Varování: Tato skupina obsahuje %s členů ze sítě, která nepovoluje posílání soukromých zpráv."
+msgstr[3] "Varování: Tato skupina obsahuje %s členů ze sítě, která nepovoluje posílání soukromých zpráv."
 
 #: mod/network.php:550
 msgid "Messages in this group won't be send to these receivers."
-msgstr ""
+msgstr "Zprávy v této skupině nebudou těmto příjemcům doručeny."
 
 #: mod/network.php:618
 msgid "No such group"
@@ -5790,7 +5791,7 @@ msgstr "ne"
 
 #: mod/notifications.php:199 mod/notifications.php:204
 msgid "Shall your connection be bidirectional or not?"
-msgstr ""
+msgstr "Má Vaše spojení být obousměrné, nebo ne?"
 
 #: mod/notifications.php:200 mod/notifications.php:205
 #, php-format
@@ -5844,7 +5845,7 @@ msgstr "Žádná další %s oznámení"
 
 #: mod/openid.php:29
 msgid "OpenID protocol error. No ID returned."
-msgstr "Chyba OpenID protokolu. Navrátilo se žádné ID."
+msgstr "Chyba OpenID protokolu. Nebylo navráceno žádné ID."
 
 #: mod/openid.php:66
 msgid ""
@@ -5906,17 +5907,17 @@ msgstr "%1$s byl označen v %2$s uživatelem %3$s"
 
 #: mod/photos.php:757
 msgid "Image upload didn't complete, please try again"
-msgstr ""
+msgstr "Nahrávání obrázku nebylo dokončeno, zkuste to prosím znovu"
 
 #: mod/photos.php:760
 msgid "Image file is missing"
-msgstr ""
+msgstr "Chybí soubor obrázku"
 
 #: mod/photos.php:765
 msgid ""
 "Server can't accept new file upload at this time, please contact your "
 "administrator"
-msgstr ""
+msgstr "Server v tuto chvíli nemůže akceptovat nové nahrané soubory, prosím kontaktujte Vašeho administrátora"
 
 #: mod/photos.php:791
 msgid "Image file is empty."
@@ -6259,7 +6260,7 @@ msgstr "Ulice:"
 
 #: mod/profiles.php:615
 msgid "Locality/City:"
-msgstr "Město:"
+msgstr "Lokalita/Město:"
 
 #: mod/profiles.php:616
 msgid "Region/State:"
@@ -6427,7 +6428,7 @@ msgstr "Vaše registrace čeká na schválení vlastníkem serveru."
 msgid ""
 "You may (optionally) fill in this form via OpenID by supplying your OpenID "
 "and clicking 'Register'."
-msgstr "Tento formulář můžete (volitelně) vyplnit s pomocí OpenID tím, že vyplníte své OpenID a kliknutete na tlačítko 'Zaregistrovat'."
+msgstr "Tento formulář můžete (volitelně) vyplnit s pomocí OpenID tím, že vyplníte své OpenID a kliknutete na tlačítko \"Zaregistrovat\"."
 
 #: mod/register.php:222
 msgid ""
@@ -6758,7 +6759,7 @@ msgstr "Normálně se systém snaží nalézt nejlepší link pro přidání zkr
 
 #: mod/settings.php:842
 msgid "Automatically follow any GNU Social (OStatus) followers/mentioners"
-msgstr "Automaticky následovat jakékoliv GNU Social (OStatus) následníky/přispivatele"
+msgstr "Automaticky následovat jakékoliv GNU Social (OStatus) následníky/zmiňovatele"
 
 #: mod/settings.php:842
 msgid ""
@@ -6856,7 +6857,7 @@ msgstr ""
 #: mod/settings.php:908
 #, php-format
 msgid "%s - (Experimental)"
-msgstr ""
+msgstr "%s - (Experimentální)"
 
 #: mod/settings.php:951
 msgid "Display Settings"
@@ -7211,7 +7212,7 @@ msgstr "Vaše časové pásmo:"
 
 #: mod/settings.php:1201
 msgid "Your Language:"
-msgstr ""
+msgstr "Váš jazyk:"
 
 #: mod/settings.php:1201
 msgid ""
@@ -7777,17 +7778,17 @@ msgstr "Uživateli %s se nelíbí příspěvek uživatele %s"
 #: src/Core/NotificationsManager.php:307
 #, php-format
 msgid "%s is attending %s's event"
-msgstr "%s se účastní události %s"
+msgstr "%s se zúčastní události %s"
 
 #: src/Core/NotificationsManager.php:320
 #, php-format
 msgid "%s is not attending %s's event"
-msgstr "%s se neúčastní události %s"
+msgstr "%s se nezúčastní události %s"
 
 #: src/Core/NotificationsManager.php:333
 #, php-format
 msgid "%s may attend %s's event"
-msgstr "%s by se mohl zúčastnit události %s"
+msgstr "%s by se mohl/a zúčastnit události %s"
 
 #: src/Core/NotificationsManager.php:350
 #, php-format
@@ -8123,11 +8124,11 @@ msgstr "Šifrovaný obsah"
 
 #: src/Content/Text/BBCode.php:1750
 msgid "Invalid source protocol"
-msgstr ""
+msgstr "Neplatný zdrojový protocol"
 
 #: src/Content/Text/BBCode.php:1761
 msgid "Invalid link protocol"
-msgstr ""
+msgstr "Neplatný linkový protokol"
 
 #: src/Content/OEmbed.php:253
 msgid "Embedding disabled"
@@ -8139,15 +8140,15 @@ msgstr "vložený obsah"
 
 #: src/Content/Widget/CalendarExport.php:61
 msgid "Export"
-msgstr ""
+msgstr "Exportovat"
 
 #: src/Content/Widget/CalendarExport.php:62
 msgid "Export calendar as ical"
-msgstr ""
+msgstr "Exportovat kalendář jako ical"
 
 #: src/Content/Widget/CalendarExport.php:63
 msgid "Export calendar as csv"
-msgstr ""
+msgstr "Exportovat kalendář jako csv"
 
 #: src/Content/ContactSelector.php:55
 msgid "Frequently"
@@ -8521,7 +8522,7 @@ msgstr "Schopnost vytvořit vícenásobné profily"
 
 #: src/Content/Feature.php:82
 msgid "Photo Location"
-msgstr ""
+msgstr "Umístění fotky"
 
 #: src/Content/Feature.php:82
 msgid ""
@@ -8551,12 +8552,12 @@ msgstr "Povolit náhledy příspěvků a komentářů před jejich zveřejnění
 
 #: src/Content/Feature.php:90
 msgid "Auto-mention Forums"
-msgstr "Automaticky zmíněná Fóra"
+msgstr "Automaticky zmínit fóra"
 
 #: src/Content/Feature.php:90
 msgid ""
 "Add/remove mention when a forum page is selected/deselected in ACL window."
-msgstr ""
+msgstr "Přidat/odstranit zmínku, když je stránka na fóru označena/odznačena v okně ACL."
 
 #: src/Content/Feature.php:95
 msgid "Network Sidebar"
@@ -8688,11 +8689,11 @@ msgstr "Možnost stlumit upozornění pro vlákno"
 
 #: src/Content/Feature.php:126
 msgid "Advanced Profile Settings"
-msgstr ""
+msgstr "Pokročilá nastavení profilu"
 
 #: src/Content/Feature.php:127
 msgid "Show visitors public community forums at the Advanced Profile Page"
-msgstr ""
+msgstr "Ukázat návštěvníkům veřejná komunitní fóra na stránce pokročilého profilu"
 
 #: src/Content/Feature.php:128
 msgid "Tag Cloud"
@@ -8704,11 +8705,11 @@ msgstr ""
 
 #: src/Content/Feature.php:129
 msgid "Display Membership Date"
-msgstr ""
+msgstr "Zobrazit datum členství"
 
 #: src/Content/Feature.php:129
 msgid "Display membership date in profile"
-msgstr ""
+msgstr "Zobrazit v profilu datum připojení"
 
 #: src/Content/Nav.php:53
 msgid "Nothing new here"
@@ -8940,7 +8941,7 @@ msgstr "Chybí URL adresa pro připojení."
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
-msgstr ""
+msgstr "Kontakt nemohl být přidán. Prosím zkontrolujte relevantní přihlašovací údaje sítě na stránce Nastavení -> Sociální sítě."
 
 #: src/Model/Contact.php:1342
 msgid ""
@@ -8967,7 +8968,7 @@ msgstr "Této adrese neodpovídá žádné URL prohlížeče."
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
-msgstr "Není možné namapovat adresu identity ve stylu @ s žádným možným protokolem ani emailovým kontaktem."
+msgstr "Není možné namapovat adresu Identity ve stylu @ s žádným možným protokolem ani emailovým kontaktem."
 
 #: src/Model/Contact.php:1367
 msgid "Use mailto: in front of address to force email check."
@@ -9060,17 +9061,17 @@ msgstr "Skrýt mapu"
 #: src/Model/Item.php:1883
 #, php-format
 msgid "%1$s is attending %2$s's %3$s"
-msgstr ""
+msgstr "%1$s se zúčactní %3$s %2$s"
 
 #: src/Model/Item.php:1888
 #, php-format
 msgid "%1$s is not attending %2$s's %3$s"
-msgstr ""
+msgstr "%1$s se nezúčastní %3$s %2$s"
 
 #: src/Model/Item.php:1893
 #, php-format
 msgid "%1$s may attend %2$s's %3$s"
-msgstr ""
+msgstr "%1$s by se mohl/a zúčastnit %3$s %2$s"
 
 #: src/Model/Profile.php:97
 msgid "Requested account is not available."
@@ -9099,7 +9100,7 @@ msgstr "F d"
 
 #: src/Model/Profile.php:604 src/Model/Profile.php:701
 msgid "[today]"
-msgstr "[Dnes]"
+msgstr "[dnes]"
 
 #: src/Model/Profile.php:615
 msgid "Birthday Reminders"
@@ -9172,7 +9173,7 @@ msgstr "Film/tanec/kultura/zábava:"
 
 #: src/Model/Profile.php:840
 msgid "Love/Romance:"
-msgstr "Láska/romance"
+msgstr "Láska/romantika"
 
 #: src/Model/Profile.php:844
 msgid "Work/employment:"
@@ -9270,12 +9271,12 @@ msgstr "Došlo k chybě při vytváření Vašeho výchozího profilu. Zkuste to
 
 #: src/Model/User.php:516
 msgid "An error occurred creating your self contact. Please try again."
-msgstr ""
+msgstr "Došlo k chybě při vytváření Vašeho kontaktu na sebe. Zkuste to prosím znovu."
 
 #: src/Model/User.php:525
 msgid ""
 "An error occurred creating your default contact group. Please try again."
-msgstr ""
+msgstr "Došlo k chybě při vytváření Vaší výchozí skupiny kontaktů. Zkuste to prosím znovu."
 
 #: src/Model/User.php:599
 #, php-format
@@ -9334,7 +9335,7 @@ msgstr "\n\t\t\tZde jsou vaše přihlašovací detaily:\n\n\t\t\tAdresa stránky
 
 #: src/Protocol/Diaspora.php:2521
 msgid "Sharing notification from Diaspora network"
-msgstr "Sdílení oznámení ze sítě Diaspora"
+msgstr "Oznámení o sdílení ze sítě Diaspora"
 
 #: src/Protocol/Diaspora.php:3609
 msgid "Attachments:"
@@ -9360,7 +9361,7 @@ msgstr "přestal sledovat"
 
 #: src/Worker/Delivery.php:415
 msgid "(no subject)"
-msgstr "(Bez předmětu)"
+msgstr "(bez předmětu)"
 
 #: src/Module/Logout.php:28
 msgid "Logged out."
@@ -9413,14 +9414,14 @@ msgid ""
 "visibly displayed. The listing of an account in the node's user directory or"
 " the global user directory is optional and can be controlled in the user "
 "settings, it is not necessary for communication."
-msgstr ""
+msgstr "Ve chvíli registrace, a pro poskytování komunikace mezi uživatelským účtem a jeho kontakty, musí uživatel poskytnout zobrazované jméno (pseudonym), uživatelské jméno (předzdívku) a funkční e-mailovou adresu. Jména budou dostupná na profilové stránce účtu pro kteréhokoliv návštěvníka, i kdyby ostatní detaily nebyly zobrazeny. E-mailová adresa bude použita pouze pro zasílání oznámení o interakcích, nebude ale viditelně zobrazována. Zápis účtu do adresáře účtů serveru nebo globálního adresáře účtů je nepovinný a může být ovládán v nastavení uživatele, není potřebný pro komunikaci."
 
 #: src/Module/Tos.php:35 src/Module/Tos.php:75
 msgid ""
 "This data is required for communication and is passed on to the nodes of the"
 " communication partners and is stored there. Users can enter additional "
 "private data that may be transmitted to the communication partners accounts."
-msgstr ""
+msgstr "Tato data jsou vyžadována ke komunikaci a jsou předávána serverům komunikačních partnerů a jsou tam ukládána. Uživatelé mohou zadávat dodatečná soukromá data, která mohou být odeslána na účty komunikačních partnerů."
 
 #: src/Module/Tos.php:36 src/Module/Tos.php:76
 #, php-format
@@ -9431,7 +9432,7 @@ msgid ""
 "href=\"%1$s/removeme\">%1$s/removeme</a>. The deletion of the account will "
 "be permanent. Deletion of the data will also be requested from the nodes of "
 "the communication partners."
-msgstr ""
+msgstr "Přihlášený uživatel si kdykoliv může exportovat svoje data účtu z <a href=\"%1$s/settings/uexport\">nastavení účtu</a>. Pokud by chtěl uživatel svůj účet smazat, může tak učinit na stránce <a href=\"%1$s/removeme\">%1$s/removeme</a>. Smazání účtu bude trvalé. Na serverech komunikačních partnerů bude zároveň vyžádáno smazání dat."
 
 #: src/Module/Tos.php:39 src/Module/Tos.php:73
 msgid "Privacy Statement"
@@ -9475,7 +9476,7 @@ msgstr "odebrat hvězdu"
 
 #: src/Object/Post.php:273
 msgid "toggle star status"
-msgstr "přepnout hvězdu"
+msgstr "přepínat hvězdu"
 
 #: src/Object/Post.php:276
 msgid "starred"
@@ -9491,7 +9492,7 @@ msgstr "přestat ignorovat vlákno"
 
 #: src/Object/Post.php:284
 msgid "toggle ignore status"
-msgstr "přepnout stav Ignorování"
+msgstr "přepínat stav ignorování"
 
 #: src/Object/Post.php:293
 msgid "add tag"
@@ -9534,7 +9535,7 @@ msgstr "ze zdi na zeď"
 msgid "%d comment"
 msgid_plural "%d comments"
 msgstr[0] "%d komentář"
-msgstr[1] "%d komentářů"
+msgstr[1] "%d komentáře"
 msgstr[2] "%d komentářů"
 msgstr[3] "%d komentářů"
 
@@ -9584,7 +9585,7 @@ msgstr "Není nastavena konfigurační hodnota systémového motivu."
 
 #: index.php:464
 msgid "toggle mobile"
-msgstr "přepínatt mobilní zobrazení"
+msgstr "přepínat mobilní zobrazení"
 
 #: boot.php:796
 #, php-format
