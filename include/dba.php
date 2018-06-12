@@ -23,7 +23,12 @@ class dba {
 	private static $errorno = 0;
 	private static $affected_rows = 0;
 	private static $in_transaction = false;
+	private static $in_retrial = false;
 	private static $relation = [];
+	private static $db_serveraddr = '';
+	private static $db_user = '';
+	private static $db_pass = '';
+	private static $db_name = '';
 
 	public static function connect($serveraddr, $user, $pass, $db) {
 		if (!is_null(self::$db) && self::connected()) {
@@ -33,6 +38,12 @@ class dba {
 		$a = get_app();
 
 		$stamp1 = microtime(true);
+
+		// We are storing these values for being able to perform a reconnect
+		self::$db_serveraddr = $serveraddr;
+		self::$db_user = $user;
+		self::$db_pass = $pass;
+		self::$db_name = $db;
 
 		$serveraddr = trim($serveraddr);
 
@@ -110,6 +121,16 @@ class dba {
 				self::$db = null;
 				break;
 		}
+	}
+
+	/**
+	 * Perform a reconnect of an existing database connection
+	 */
+	public static function reconnect() {
+		self::disconnect();
+
+		$ret = self::connect(self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name);
+		return $ret;
 	}
 
 	/**
@@ -451,23 +472,23 @@ class dba {
 					break;
 				}
 
-				$params = '';
+				$param_types = '';
 				$values = [];
 				foreach ($args AS $param => $value) {
 					if (is_int($args[$param])) {
-						$params .= 'i';
+						$param_types .= 'i';
 					} elseif (is_float($args[$param])) {
-						$params .= 'd';
+						$param_types .= 'd';
 					} elseif (is_string($args[$param])) {
-						$params .= 's';
+						$param_types .= 's';
 					} else {
-						$params .= 'b';
+						$param_types .= 'b';
 					}
 					$values[] = &$args[$param];
 				}
 
 				if (count($values) > 0) {
-					array_unshift($values, $params);
+					array_unshift($values, $param_types);
 					call_user_func_array([$stmt, 'bind_param'], $values);
 				}
 
@@ -490,7 +511,27 @@ class dba {
 			$errorno = self::$errorno;
 
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
-				System::callstack(8)."\n".self::replaceParameters($sql, $params));
+				System::callstack(8)."\n".self::replaceParameters($sql, $args));
+
+			// On a lost connection we try to reconnect - but only once.
+			if ($errorno == 2006) {
+				if (self::$in_retrial || !self::reconnect()) {
+					// It doesn't make sense to continue when the database connection was lost
+					if (self::$in_retrial) {
+						logger('Giving up retrial because of database error '.$errorno.': '.$error);
+					} else {
+						logger("Couldn't reconnect after database error ".$errorno.': '.$error);
+					}
+					exit(1);
+				} else {
+					// We try it again
+					logger('Reconnected after database error '.$errorno.': '.$error);
+					self::$in_retrial = true;
+					$ret = self::p($sql, $args);
+					self::$in_retrial = false;
+					return $ret;
+				}
+			}
 
 			self::$error = $error;
 			self::$errorno = $errorno;
@@ -556,6 +597,13 @@ class dba {
 
 			logger('DB Error '.self::$errorno.': '.self::$error."\n".
 				System::callstack(8)."\n".self::replaceParameters($sql, $params));
+
+			// On a lost connection we simply quit.
+			// A reconnect like in self::p could be dangerous with modifications
+			if ($errorno == 2006) {
+				logger('Giving up because of database error '.$errorno.': '.$error);
+				exit(1);
+			}
 
 			self::$error = $error;
 			self::$errorno = $errorno;
