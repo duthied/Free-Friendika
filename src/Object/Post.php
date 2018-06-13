@@ -192,7 +192,7 @@ class Post extends BaseObject
 			'delete'   => $delete,
 		];
 
-		if (!local_user()) {
+		if (!local_user() || ($item['uid'] == 0)) {
 			$drop = false;
 		}
 
