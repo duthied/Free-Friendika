@@ -1009,7 +1009,7 @@ class PortableContact
 
 		// Maybe the page is unencrypted only?
 		$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
-		if (!$serverret["success"] || ($serverret["body"] == "") || (@sizeof($xmlobj) == 0) || !is_object($xmlobj)) {
+		if (!$serverret["success"] || ($serverret["body"] == "") || (empty($xmlobj) == 0) || !is_object($xmlobj)) {
 			$server_url = str_replace("https://", "http://", $server_url);
 
 			// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
@@ -1025,7 +1025,7 @@ class PortableContact
 			$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 		}
 
-		if (!$serverret["success"] || ($serverret["body"] == "") || (sizeof($xmlobj) == 0) || !is_object($xmlobj)) {
+		if (!$serverret["success"] || ($serverret["body"] == "") || (empty($xmlobj) == 0) || !is_object($xmlobj)) {
 			// Workaround for bad configured servers (known nginx problem)
 			if (!in_array($serverret["debug"]["http_code"], ["403", "404"])) {
 				$failure = true;
