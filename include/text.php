@@ -1280,8 +1280,6 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	$s = $hook_data['html'];
 	unset($hook_data);
 
-	$s = apply_content_filter($s, $filter_reasons);
-
 	if (! $attach) {
 		// Replace the blockquotes with quotes that are used in mails.
 		$mailquote = '<blockquote type="cite" class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">';
@@ -1384,6 +1382,8 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 		$ps = $a->theme_info['item_image_size'];
 		$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
 	}
+
+	$s = apply_content_filter($s, $filter_reasons);
 
 	$hook_data = ['item' => $item, 'html' => $s];
 	Addon::callHooks('prepare_body_final', $hook_data);
