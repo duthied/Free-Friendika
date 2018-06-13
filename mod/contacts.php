@@ -969,6 +969,7 @@ function _contact_detail_for_template($rr)
 		'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
 		'url' => $url,
 		'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
+		'nick' => htmlentities($rr['nick']),
 	];
 }
 
