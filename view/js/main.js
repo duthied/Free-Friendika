@@ -460,6 +460,8 @@ function liveUpdate(src) {
 			prev = ident;
 		});
 
+		callAddonHooks("postprocess_liveupdate");
+
 		$('.like-rotator').hide();
 		if (commentBusy) {
 			commentBusy = false;
@@ -469,7 +471,9 @@ function liveUpdate(src) {
 		$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
 		/* autocomplete bbcode */
 		$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
+
 	});
+
 }
 
 function imgbright(node) {

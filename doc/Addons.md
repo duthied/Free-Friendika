@@ -25,22 +25,24 @@ Addons should contain a comment block with the four following parameters:
      * Author: John Q. Public <john@myfriendicasite.com>
      */
 
+Please also add a README or README.md file to the addon directory.
+It will be displayed in the admin panel and should include some further information in addition to the header information.
+
+PHP addon hooks
+---
+
 Register your addon hooks during installation.
 
     Addon::registerHook($hookname, $file, $function);
 
-$hookname is a string and corresponds to a known Friendica hook.
+$hookname is a string and corresponds to a known Friendica PHP hook.
 
 $file is a pathname relative to the top-level Friendica directory.
-This *should* be 'addon/addon_name/addon_name.php' in most cases.
+This *should* be 'addon/*addon_name*/*addon_name*.php' in most cases.
 
 $function is a string and is the name of the function which will be executed when the hook is called.
 
-Please also add a README or README.md file to the addon directory.
-It will be displayed in the admin panel and should include some further information in addition to the header information.
-
-Arguments
----
+#### Arguments
 Your hook callback functions will be called with at least one and possibly two arguments
 
     function myhook_function(App $a, &$b) {
@@ -50,7 +52,7 @@ Your hook callback functions will be called with at least one and possibly two a
 
 If you wish to make changes to the calling data, you must declare them as reference variables (with '&') during function declaration.
 
-#### $a
+##### $a
 $a is the Friendica 'App' class.
 It contains a wealth of information about the current state of Friendica:
 
@@ -61,10 +63,26 @@ It contains a wealth of information about the current state of Friendica:
 
 It is recommeded you call this '$a' to match its usage elsewhere.
 
-#### $b
+##### $b
 $b can be called anything you like.
 This is information specific to the hook currently being processed, and generally contains information that is being immediately processed or acted on that you can use, display, or alter.
 Remember to declare it with '&' if you wish to alter it.
+
+JavaScript addon hooks
+---
+
+Register your addon hooks in file 'addon/*addon_name*/*addon_name*.js'.
+
+    Addon_registerHook(type,hookfnstr);
+
+*type* is the name of the hook and corresponds to a known Friendica JavaScript hook.
+*hookfnstr* is the name of your JavaScript function to execute.
+
+No arguments are provided to your JavaScript callback function. Example:
+
+    function myhook_function() {
+  
+    }
 
 Modules
 ---
@@ -106,7 +124,7 @@ In your code, like in the function addon_name_content(), load the template file 
 
 See also the wiki page [Quick Template Guide](https://github.com/friendica/friendica/wiki/Quick-Template-Guide).
 
-Current hooks
+Current PHP hooks
 -------------
 
 ### 'authenticate'
@@ -315,6 +333,12 @@ Called at the end of prepare_body.
 Hook data:
     'item' => item array (input)
     'html' => converted item body (input/output)
+
+Current JavaScript hooks
+-------------
+
+### 'postprocess_liveupdate'
+Called at the end of the live update process (XmlHttpRequest)
 
 Complete list of hook callbacks
 ---
@@ -618,3 +642,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
 
     Addon::callHooks('atom_feed_end', $atom);
     Addon::callHooks('atom_feed_end', $atom);
+
+### view/js/main.js
+
+    callAddonHooks("postprocess_liveupdate");
