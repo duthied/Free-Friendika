@@ -2,6 +2,7 @@
 
 use Friendica\App;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 
 function share_init(App $a) {
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
@@ -10,27 +11,25 @@ function share_init(App $a) {
 		killme();
 	}
 
-	$r = q("SELECT item.*, contact.network FROM `item`
-		INNER JOIN `contact` ON `item`.`contact-id` = `contact`.`id`
-		WHERE `item`.`id` = %d LIMIT 1",
-		intval($post_id)
-	);
+	$fields = ['private', 'body', 'author-name', 'author-link', 'author-avatar',
+		'guid', 'created', 'plink', 'title'];
+	$item = Item::selectFirst(local_user(), $fields, ['id' => $post_id]);
 
-	if (!DBM::is_result($r) || ($r[0]['private'] == 1)) {
+	if (!DBM::is_result($item) || $item['private']) {
 		killme();
 	}
 
-	if (strpos($r[0]['body'], "[/share]") !== false) {
-		$pos = strpos($r[0]['body'], "[share");
-		$o = substr($r[0]['body'], $pos);
+	if (strpos($item['body'], "[/share]") !== false) {
+		$pos = strpos($item['body'], "[share");
+		$o = substr($item['body'], $pos);
 	} else {
-		$o = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
+		$o = share_header($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
 
-		if ($r[0]['title']) {
-			$o .= '[b]'.$r[0]['title'].'[/b]'."\n";
+		if ($item['title']) {
+			$o .= '[b]'.$item['title'].'[/b]'."\n";
 		}
 
-		$o .= $r[0]['body'];
+		$o .= $item['body'];
 		$o .= "[/share]";
 	}
 

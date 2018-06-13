@@ -8,6 +8,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 
 require_once 'include/dba.php';
 require_once 'mod/proxy.php';
@@ -250,39 +251,39 @@ function acl_content(App $a)
 		 * but first get known contacts url to filter them out
 		 */
 		$known_contacts = array_map(function ($i) {
-			return dbesc($i['link']);
+			return $i['link'];
 		}, $contacts);
 
 		$unknown_contacts = [];
-		$r = q("SELECT `author-link`
-				FROM `item` WHERE `parent` = %d
-					AND (`author-name` LIKE '%%%s%%' OR `author-link` LIKE '%%%s%%')
-					AND `author-link` NOT IN ('%s')
-				GROUP BY `author-link`, `author-avatar`, `author-name`
-				ORDER BY `author-name` ASC
-				",
-			intval($conv_id),
-			dbesc($search),
-			dbesc($search),
-			implode("', '", $known_contacts)
-		);
-		if (DBM::is_result($r)) {
-			foreach ($r as $row) {
-				$contact = Contact::getDetailsByURL($row['author-link']);
 
-				if (count($contact) > 0) {
-					$unknown_contacts[] = [
-						'type'    => 'c',
-						'photo'   => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
-						'name'    => htmlentities($contact['name']),
-						'id'      => intval($contact['cid']),
-						'network' => $contact['network'],
-						'link'    => $contact['url'],
-						'nick'    => htmlentities(defaults($contact, 'nick', $contact['addr'])),
-						'addr'    => htmlentities(defaults($contact, 'addr', $contact['url'])),
-						'forum'   => $contact['forum']
-					];
-				}
+		$condition = ["`parent` = ?", $conv_id];
+		$params = ['order' => ['author-name' => true]];
+		$authors = Item::select(local_user(), ['author-link'], $condition, $params);
+		$item_authors = [];
+		while ($author = dba::fetch($authors)) {
+			$item_authors[$author['author-link']] = $author['author-link'];
+		}
+		dba::close($authors);
+
+		foreach ($item_authors as $author) {
+			if (in_array($author, $known_contacts)) {
+				continue;
+			}
+
+			$contact = Contact::getDetailsByURL($author);
+
+			if (count($contact) > 0) {
+				$unknown_contacts[] = [
+					'type'    => 'c',
+					'photo'   => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
+					'name'    => htmlentities($contact['name']),
+					'id'      => intval($contact['cid']),
+					'network' => $contact['network'],
+					'link'    => $contact['url'],
+					'nick'    => htmlentities(defaults($contact, 'nick', $contact['addr'])),
+					'addr'    => htmlentities(defaults($contact, 'addr', $contact['url'])),
+					'forum'   => $contact['forum']
+				];
 			}
 		}
 

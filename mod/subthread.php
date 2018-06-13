@@ -14,7 +14,7 @@ require_once 'include/items.php';
 
 function subthread_content(App $a) {
 
-	if(! local_user() && ! remote_user()) {
+	if (!local_user() && !remote_user()) {
 		return;
 	}
 
@@ -22,36 +22,32 @@ function subthread_content(App $a) {
 
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
 
-	$r = q("SELECT * FROM `item` WHERE `parent` = '%s' OR `parent-uri` = '%s' and parent = id LIMIT 1",
-		dbesc($item_id),
-		dbesc($item_id)
-	);
+	$condition = ["`parent` = ? OR `parent-uri` = ? AND `parent` = `id`", $item_id, $item_id];
+	$item = Item::selectFirst(local_user(), [], $condition);
 
-	if(! $item_id || (! DBM::is_result($r))) {
+	if (empty($item_id) || !DBM::is_result($item)) {
 		logger('subthread: no item ' . $item_id);
 		return;
 	}
 
-	$item = $r[0];
-
 	$owner_uid = $item['uid'];
 
-	if(! can_write_wall($owner_uid)) {
+	if (!can_write_wall($owner_uid)) {
 		return;
 	}
 
 	$remote_owner = null;
 
-	if(! $item['wall']) {
+	if (!$item['wall']) {
 		// The top level post may have been written by somebody on another system
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if (! DBM::is_result($r)) {
+		if (!DBM::is_result($r)) {
 			return;
 		}
-		if (! $r[0]['self']) {
+		if (!$r[0]['self']) {
 			$remote_owner = $r[0];
 		}
 	}
@@ -68,19 +64,19 @@ function subthread_content(App $a) {
 		$owner = $r[0];
 	}
 
-	if (! $owner) {
+	if (!$owner) {
 		logger('like: no owner');
 		return;
 	}
 
-	if (! $remote_owner) {
+	if (!$remote_owner) {
 		$remote_owner = $owner;
 	}
 
 	$contact = null;
 	// This represents the person posting
 
-	if ((local_user()) && (local_user() == $owner_uid)) {
+	if (local_user() && (local_user() == $owner_uid)) {
 		$contact = $owner;
 	} else {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -92,7 +88,7 @@ function subthread_content(App $a) {
 			$contact = $r[0];
 		}
 	}
-	if (! $contact) {
+	if (!$contact) {
 		return;
 	}
 
@@ -116,7 +112,7 @@ function subthread_content(App $a) {
 EOT;
 	$bodyverb = L10n::t('%1$s is following %2$s\'s %3$s');
 
-	if (! isset($bodyverb)) {
+	if (!isset($bodyverb)) {
 		return;
 	}
 
@@ -168,5 +164,3 @@ EOT;
 	killme();
 
 }
-
-

@@ -26,31 +26,31 @@ require_once 'include/items.php';
 
 function poke_init(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		return;
 	}
 
 	$uid = local_user();
 	$verb = notags(trim($_GET['verb']));
 
-	if (! $verb) {
+	if (!$verb) {
 		return;
 	}
 
 	$verbs = get_poke_verbs();
 
-	if (! array_key_exists($verb,$verbs)) {
+	if (!array_key_exists($verb, $verbs)) {
 		return;
 	}
 
 	$activity = ACTIVITY_POKE . '#' . urlencode($verbs[$verb][0]);
 
 	$contact_id = intval($_GET['cid']);
-	if (! $contact_id) {
+	if (!$contact_id) {
 		return;
 	}
 
-	$parent = ((x($_GET,'parent')) ? intval($_GET['parent']) : 0);
+	$parent = (x($_GET,'parent') ? intval($_GET['parent']) : 0);
 
 
 	logger('poke: verb ' . $verb . ' contact ' . $contact_id, LOGGER_DEBUG);
@@ -61,49 +61,45 @@ function poke_init(App $a) {
 		intval($uid)
 	);
 
-	if (! DBM::is_result($r)) {
+	if (!DBM::is_result($r)) {
 		logger('poke: no contact ' . $contact_id);
 		return;
 	}
 
 	$target = $r[0];
 
-	if($parent) {
-		$r = q("SELECT `uri`, `private`, `allow_cid`, `allow_gid`, `deny_cid`, `deny_gid`
-			FROM `item` WHERE `id` = %d AND `parent` = %d AND `uid` = %d LIMIT 1",
-			intval($parent),
-			intval($parent),
-			intval($uid)
-		);
-		if (DBM::is_result($r)) {
-			$parent_uri = $r[0]['uri'];
-			$private    = $r[0]['private'];
-			$allow_cid  = $r[0]['allow_cid'];
-			$allow_gid  = $r[0]['allow_gid'];
-			$deny_cid   = $r[0]['deny_cid'];
-			$deny_gid   = $r[0]['deny_gid'];
+	if ($parent) {
+		$fields = ['uri', 'private', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
+		$condition = ['id' => $parent, 'parent' => $parent, 'uid' => $uid];
+		$item = Item::selectFirst(local_user(), $fields, $condition);
+
+		if (DBM::is_result($item)) {
+			$parent_uri = $item['uri'];
+			$private    = $item['private'];
+			$allow_cid  = $item['allow_cid'];
+			$allow_gid  = $item['allow_gid'];
+			$deny_cid   = $item['deny_cid'];
+			$deny_gid   = $item['deny_gid'];
 		}
-	}
-	else {
+	} else {
+		$private = (x($_GET,'private') ? intval($_GET['private']) : 0);
 
-		$private = ((x($_GET,'private')) ? intval($_GET['private']) : 0);
-
-		$allow_cid     = (($private) ? '<' . $target['id']. '>' : $a->user['allow_cid']);
-		$allow_gid     = (($private) ? '' : $a->user['allow_gid']);
-		$deny_cid      = (($private) ? '' : $a->user['deny_cid']);
-		$deny_gid      = (($private) ? '' : $a->user['deny_gid']);
+		$allow_cid     = ($private ? '<' . $target['id']. '>' : $a->user['allow_cid']);
+		$allow_gid     = ($private ? '' : $a->user['allow_gid']);
+		$deny_cid      = ($private ? '' : $a->user['deny_cid']);
+		$deny_gid      = ($private ? '' : $a->user['deny_gid']);
 	}
 
 	$poster = $a->contact;
 
-	$uri = item_new_uri($a->get_hostname(),$uid);
+	$uri = item_new_uri($a->get_hostname(), $uid);
 
 	$arr = [];
 
 	$arr['guid']          = get_guid(32);
 	$arr['uid']           = $uid;
 	$arr['uri']           = $uri;
-	$arr['parent-uri']    = (($parent_uri) ? $parent_uri : $uri);
+	$arr['parent-uri']    = ($parent_uri ? $parent_uri : $uri);
 	$arr['type']          = 'activity';
 	$arr['wall']          = 1;
 	$arr['contact-id']    = $poster['id'];
@@ -133,7 +129,7 @@ function poke_init(App $a) {
 	$arr['object'] .= '</link></object>' . "\n";
 
 	$item_id = Item::insert($arr);
-	if($item_id) {
+	if ($item_id) {
 		Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
 	}
 
@@ -146,7 +142,7 @@ function poke_init(App $a) {
 
 function poke_content(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -154,14 +150,14 @@ function poke_content(App $a) {
 	$name = '';
 	$id = '';
 
-	if(intval($_GET['c'])) {
+	if (intval($_GET['c'])) {
 		$r = q("SELECT `id`,`name` FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($_GET['c']),
 			intval(local_user())
 		);
 		if (DBM::is_result($r)) {
-			$name = $r[0]['name'];
-			$id = $r[0]['id'];
+			$name = $item['name'];
+			$id = $item['id'];
 		}
 	}
 
@@ -175,16 +171,17 @@ function poke_content(App $a) {
 	]);
 
 
-	$parent = ((x($_GET,'parent')) ? intval($_GET['parent']) : '0');
+	$parent = (x($_GET,'parent') ? intval($_GET['parent']) : '0');
 
 
 	$verbs = get_poke_verbs();
 
 	$shortlist = [];
-	foreach($verbs as $k => $v)
-		if($v[1] !== 'NOTRANSLATION')
-			$shortlist[] = [$k,$v[1]];
-
+	foreach ($verbs as $k => $v) {
+		if ($v[1] !== 'NOTRANSLATION') {
+			$shortlist[] = [$k, $v[1]];
+		}
+	}
 
 	$tpl = get_markup_template('poke_content.tpl');
 
@@ -202,5 +199,4 @@ function poke_content(App $a) {
 	]);
 
 	return $o;
-
 }
