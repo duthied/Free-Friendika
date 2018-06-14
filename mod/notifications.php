@@ -164,14 +164,22 @@ function notifications_content(App $a) {
 			switch ($it['label']) {
 				case 'friend_suggestion':
 					$notif_content[] = replace_macros($sugg, [
-						'$str_notifytype' => L10n::t('Notification type: '),
+						'$type' => $it['label'],
+						'$str_notifytype' => L10n::t('Notification type:'),
 						'$notify_type' => $it['notify_type'],
 						'$intro_id' => $it['intro_id'],
-						'$madeby' => L10n::t('suggested by %s', $it['madeby']),
-						'$contact_id' => $it['contact-id'],
+						'$lbl_madeby' => L10n::t('Suggested by:'),
+						'$madeby' => $it['madeby'],
+						'$madeby_url' => $it['madeby_url'],
+						'$madeby_zrl' => $it['madeby_zrl'],
+						'$madeby_addr' => $it['madeby_addr'],
+						'$contact_id' => $it['contact_id'],
 						'$photo' => $it['photo'],
 						'$fullname' => $it['name'],
 						'$url' => $it['url'],
+						'$zrl' => $it['zrl'],
+						'$lbl_url' => L10n::t('Profile URL'),
+						'$addr' => $it['addr'],
 						'$hidden' => ['hidden', L10n::t('Hide this contact from others'), ($it['hidden'] == 1), ''],
 
 						'$knowyou' => $it['knowyou'],
@@ -232,8 +240,9 @@ function notifications_content(App $a) {
 					}
 
 					$notif_content[] = replace_macros($tpl, [
+						'$type' => $it['label'],
 						'$header' => htmlentities($header),
-						'$str_notifytype' => L10n::t('Notification type: '),
+						'$str_notifytype' => L10n::t('Notification type:'),
 						'$notify_type' => $it['notify_type'],
 						'$dfrn_text' => $dfrn_text,
 						'$dfrn_id' => $it['dfrn_id'],
