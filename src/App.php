@@ -976,6 +976,10 @@ class App
 		if ($cat === 'config') {
 			$this->config[$k] = $value;
 		} else {
+			if (!isset($this->config[$cat])) {
+				$this->config[$cat] = [];
+			}
+
 			$this->config[$cat][$k] = $value;
 		}
 	}
@@ -1033,6 +1037,14 @@ class App
 	{
 		// Only arrays are serialized in database, so we have to unserialize sparingly
 		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
+
+		if (!isset($this->config[$uid])) {
+			$this->config[$uid] = [];
+		}
+
+		if (!isset($this->config[$uid][$cat])) {
+			$this->config[$uid][$cat] = [];
+		}
 
 		$this->config[$uid][$cat][$k] = $value;
 	}
