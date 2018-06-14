@@ -550,6 +550,10 @@ function filter_replace(item) {
 		this.attr('autocomplete','off');
 		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
 
+		if(autosubmit) {
+			a.on('textComplete:select', function(e,value,strategy) {submit_form(this);});
+		}
+
 		a.on('textComplete:select', function(e, value, strategy) {
 			$(".dropdown-menu.textcomplete-dropdown.media-list").show();
 		});
