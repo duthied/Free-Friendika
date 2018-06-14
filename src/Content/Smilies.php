@@ -145,6 +145,27 @@ class Smilies
 		return $params;
 	}
 
+
+	/**
+	 * Copied from http://php.net/manual/en/function.str-replace.php#88569
+	 * Modified for camel caps: renamed stro_replace -> strOrigReplace
+	 *
+	 * When using str_replace(...), values that did not exist in the original string (but were put there by previous
+	 * replacements) will be replaced continuously.  This string replacement function is designed to replace the values
+	 * in $search with those in $replace while not factoring in prior replacements.  Note that this function will
+	 * always look for the longest possible match first and then work its way down to individual characters.
+	 *
+	 * @param array $search list of strings or characters that need to be replaced
+	 * @param array $replace list of strings or characters that will replace the corresponding values in $search
+	 * @param string $subject the string on which this operation is being performed
+	 *
+	 * @return string $subject with all substrings in the $search array replaced by the values in the $replace array
+	 */
+	private static function strOrigReplace($search, $replace, $subject)
+	{
+		return strtr($subject, array_combine($search, $replace));
+	}
+
 	/**
 	 * @brief Replaces text emoticons with graphical images
 	 *
@@ -196,7 +217,7 @@ class Smilies
 			}
 		} else {
 			$params['string'] = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $params['string']);
-			$s = str_replace($params['texts'], $params['icons'], $params['string']);
+			$s = self::strOrigReplace($params['texts'], $params['icons'], $params['string']);
 		}
 
 		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::decode', $s);
