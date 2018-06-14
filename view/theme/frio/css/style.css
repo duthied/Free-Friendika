@@ -2815,7 +2815,7 @@ ul.notif-network-list > li:hover .intro-action-buttons {
 }
 .intro-desc-label, .intro-url-label, .intro-network-label,
 .intro-location-label, .intro-gender-label, .intro-keywords-label,
-.intro-about-label, .intro-knowyou-label {
+.intro-about-label, .intro-knowyou-label, .intro-madeby-label {
     font-weight: bold;
 }
 .intro-contact-info.xs .intro-url-label, .intro-contact-info.xs .intro-network-label,
