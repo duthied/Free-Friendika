@@ -71,6 +71,29 @@ Remember to declare it with '&' if you wish to alter it.
 JavaScript addon hooks
 ---
 
+#### PHP part
+Make sure your JavaScript addon file (addon/*addon_name*/*addon_name*.js) is listed in the document response. 
+
+In your addon install function, add:
+
+    Addon::registerHook('template_vars', 'addon/<addon_name>/<addon_name>.php', '<addon_name>_template_vars');
+    
+In your addon uninstall function, add:
+
+    Addon::unregisterHook('template_vars', 'addon/<addon_name>/<addon_name>.php', '<addon_name>_template_vars');
+
+Then, add your addon name to the *addon_hooks* template variable array:
+
+     function <addon_name>_template_vars($a, &$arr)
+       {
+         if (!array_key_exists('addon_hooks',$arr['vars']))
+         {
+            $arr['vars']['addon_hooks'] = array();
+         }
+       $arr['vars']['addon_hooks'][] = "<addon_name>";
+       }
+
+#### JavaScript part
 Register your addon hooks in file 'addon/*addon_name*/*addon_name*.js'.
 
     Addon_registerHook(type,hookfnstr);
