@@ -52,6 +52,8 @@ if (in_array("status", $_SERVER["argv"])) {
 	$mode = "status";
 }
 
+$foreground = in_array("--foreground", $_SERVER["argv"]);
+
 if (!isset($mode)) {
 	die("Please use either 'start', 'stop' or 'status'.\n");
 }
@@ -94,40 +96,44 @@ if (!empty($pid) && posix_kill($pid, 0)) {
 }
 
 logger('Starting worker daemon.', LOGGER_DEBUG);
-echo "Starting worker daemon.\n";
 
-// Switch over to daemon mode.
-if ($pid = pcntl_fork()) {
-	return;     // Parent
+if (!$foreground) {
+	echo "Starting worker daemon.\n";
+
+	// Switch over to daemon mode.
+	if ($pid = pcntl_fork()) {
+		return;     // Parent
+	}
+
+	fclose(STDIN);  // Close all of the standard
+	fclose(STDOUT); // file descriptors as we
+	fclose(STDERR); // are running as a daemon.
+
+	dba::disconnect();
+
+	register_shutdown_function('shutdown');
+
+	if (posix_setsid() < 0) {
+		return;
+	}
+
+	if ($pid = pcntl_fork()) {
+		return;     // Parent
+	}
+
+	$pid = getmypid();
+	file_put_contents($pidfile, $pid);
+
+	// We lose the database connection upon forking
+	dba::connect($db_host, $db_user, $db_pass, $db_data);
 }
 
-fclose(STDIN);  // Close all of the standard
-fclose(STDOUT); // file descriptors as we
-fclose(STDERR); // are running as a daemon.
-
-dba::disconnect();
-
-register_shutdown_function('shutdown');
-
-if (posix_setsid() < 0) {
-	return;
-}
-
-if ($pid = pcntl_fork()) {
-	return;     // Parent
-}
-
-// We lose the database connection upon forking
-dba::connect($db_host, $db_user, $db_pass, $db_data);
 unset($db_host, $db_user, $db_pass, $db_data);
 
 Config::set('system', 'worker_daemon_mode', true);
 
 // Just to be sure that this script really runs endlessly
 set_time_limit(0);
-
-$pid = getmypid();
-file_put_contents($pidfile, $pid);
 
 $wait_interval = intval(Config::get('system', 'cron_interval', 5)) * 60;
 
@@ -152,12 +158,21 @@ while (true) {
 	}
 
 	logger("Sleeping", LOGGER_DEBUG);
-	$i = 0;
+	$start = time();
 	do {
-		sleep(1);
-	} while (($i++ < $wait_interval) && !Worker::IPCJobsExists());
+		$seconds = (time() - $start);
 
-	if ($i >= $wait_interval) {
+		// logarithmic wait time calculation.
+		// Background: After jobs had been started, they often fork many workers.
+		// To not waste too much time, the sleep period increases.
+		$arg = (($seconds + 1) / ($wait_interval / 9)) + 1;
+		$sleep = round(log10($arg) * 1000000, 0);
+		usleep($sleep);
+
+		$timeout = ($seconds >= $wait_interval);
+	} while (!$timeout && !Worker::IPCJobsExists());
+
+	if ($timeout) {
 		$do_cron = true;
 		logger("Woke up after $wait_interval seconds.", LOGGER_DEBUG);
 	} else {
