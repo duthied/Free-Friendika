@@ -85,7 +85,7 @@ class Item extends BaseObject
 		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false);
 
 		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
-//echo $sql;
+
 		return dba::p($sql, $condition);
 	}
 
@@ -160,6 +160,13 @@ class Item extends BaseObject
 	 */
 	private static function fieldlist($selected)
 	{
+		/*
+		These Fields are not added below. They are here to for bug search.
+		'type', 'extid', 'changed', 'moderated', 'target-type', 'target', 'resource-id',
+		'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
+		'forum_mode', 'mention', 'global', 'shadow',
+		*/
+
 		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
 			'uri', 'thr-parent', 'parent-uri', 'content-warning',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',

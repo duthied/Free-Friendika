@@ -435,28 +435,33 @@ function networkFlatView(App $a, $update = 0)
 		}
 	}
 
-	if (strlen($file)) {
-		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-			dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
-	} else {
-		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
-	}
-
 	$pager_sql = networkPager($a, $update);
 
-	// show all items unthreaded in reverse created date order
-	$items = q("SELECT %s FROM `item` $sql_post_table %s
-		WHERE %s AND `item`.`uid` = %d
-		ORDER BY `item`.`id` DESC $pager_sql ",
-		item_fieldlists(), item_joins(local_user()), item_condition(),
-		intval(local_user())
-	);
+	if (strlen($file)) {
+		$condition = ["`term` = ? AND `otype` = ? AND `type` = ? AND `uid` = ?",
+			$file, TERM_OBJ_POST, TERM_FILE, local_user()];
+		$params = ['order' => ['tid' => true], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$result = dba::select('term', ['oid'], $condition);
+
+		$posts = [];
+		while ($term = dba::fetch($result)) {
+			$posts[] = $term['oid'];
+		}
+		dba::close($terms);
+
+		$condition = ['uid' => local_user(), 'id' => $posts];
+	} else {
+		$condition = ['uid' => local_user()];
+	}
+
+	$params = ['order' => ['id' => true], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+	$result = Item::select(local_user(), [], $condition, $params);
+	$items = dba::inArray($result);
 
 	$condition = ['unseen' => true, 'uid' => local_user()];
 	networkSetSeen($condition);
 
-	$mode = 'network-new';
-	$o .= networkConversation($a, $items, $mode, $update);
+	$o .= networkConversation($a, $items, 'network-new', $update);
 
 	return $o;
 }

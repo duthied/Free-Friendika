@@ -738,14 +738,18 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	// Only act if it is a "real" post
 	// We need the additional check for the "local_profile" because of mixed situations on connector networks
 	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-id`, `guid`,
-			`parent-uri`, `uri`, `contact-id`
+			`parent-uri`, `uri`, `contact-id`, `network`
 			FROM `item` WHERE `id` = %d AND `verb` IN ('%s', '') AND `type` != 'activity' AND
 				NOT (`author-link` IN ($profile_list))  LIMIT 1",
 		intval($itemid), dbesc(ACTIVITY_POST));
 	if (!$item)
 		return false;
 
-	$author = dba::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item[0]['author-id']]);
+	if ($item[0]['network'] != NETWORK_FEED) {
+		$author = dba::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item[0]['author-id']]);
+	} else {
+		$author = dba::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item[0]['contact-id']]);
+	}
 
 	// Generate the notification array
 	$params = [];
