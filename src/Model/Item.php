@@ -70,7 +70,7 @@ class Item extends BaseObject
 	 */
 	public static function select($uid, array $selected = [], array $condition = [], $params = [])
 	{
-		$fields = self::fieldlist();
+		$fields = self::fieldlist($selected);
 
 		$select_fields = self::constructSelectFields($fields, $selected);
 
@@ -85,7 +85,7 @@ class Item extends BaseObject
 		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false);
 
 		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
-
+//echo $sql;
 		return dba::p($sql, $condition);
 	}
 
@@ -126,7 +126,7 @@ class Item extends BaseObject
 	 */
 	public static function selectThread($uid, array $selected = [], array $condition = [], $params = [])
 	{
-		$fields = self::fieldlist();
+		$fields = self::fieldlist($selected);
 
 		$threadfields = ['thread' => ['iid', 'uid', 'contact-id', 'owner-id', 'author-id',
 			'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private',
@@ -158,14 +158,14 @@ class Item extends BaseObject
 	 *
 	 * @return array field list
 	 */
-	private static function fieldlist()
+	private static function fieldlist($selected)
 	{
 		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
 			'uri', 'thr-parent', 'parent-uri', 'content-warning',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
 			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'unseen',
 			'id' => 'item_id', 'network' => 'item_network'];
 
 		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
@@ -180,8 +180,15 @@ class Item extends BaseObject
 			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
 			'ignore' => 'event-ignore', 'id' => 'event-id'];
 
-		return ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
+		$fields = ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
 			'contact' => $contact_fields, 'event' => $event_fields];
+
+		if (!empty($selected)) {
+			$fields['parent-item'] = ['guid' => 'parent-guid'];
+			$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
+		}
+
+		return $fields;
 	}
 
 	/**
@@ -241,6 +248,14 @@ class Item extends BaseObject
 
 		if (strpos($sql_commands, "`event`.") !== false) {
 			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
+		}
+
+		if ((strpos($sql_commands, "`parent-item`.") !== false) || (strpos($sql_commands, "`parent-author`.") !== false)) {
+			$joins .= " STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`";
+		}
+
+		if (strpos($sql_commands, "`parent-item-author`.") !== false) {
+			$joins .= " STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`";
 		}
 
 		return $joins;

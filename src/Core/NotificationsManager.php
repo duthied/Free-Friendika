@@ -15,9 +15,11 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
+use dba;
 
 require_once 'include/dba.php';
 
@@ -250,22 +252,22 @@ class NotificationsManager extends BaseObject
 
 					case 'home':
 						$default_item_label = 'comment';
-						$default_item_link = System::baseUrl(true) . '/display/' . $it['pguid'];
+						$default_item_link = System::baseUrl(true) . '/display/' . $it['parent-guid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
-						$default_item_text = L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']);
+						$default_item_text = L10n::t("%s commented on %s's post", $it['author-name'], $it['parent-author-name']);
 						$default_item_when = DateTimeFormat::local($it['created'], 'r');
 						$default_item_ago = Temporal::getRelativeDate($it['created']);
 						break;
 
 					default:
 						$default_item_label = (($it['id'] == $it['parent']) ? 'post' : 'comment');
-						$default_item_link = System::baseUrl(true) . '/display/' . $it['pguid'];
+						$default_item_link = System::baseUrl(true) . '/display/' . $it['parent-guid'];
 						$default_item_image = proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO);
 						$default_item_url = $it['author-link'];
 						$default_item_text = (($it['id'] == $it['parent'])
 									? L10n::t("%s created a new post", $it['author-name'])
-									: L10n::t("%s commented on %s's post", $it['author-name'], $it['pname']));
+									: L10n::t("%s commented on %s's post", $it['author-name'], $it['parent-author-name']));
 						$default_item_when = DateTimeFormat::local($it['created'], 'r');
 						$default_item_ago = Temporal::getRelativeDate($it['created']);
 				}
@@ -275,10 +277,10 @@ class NotificationsManager extends BaseObject
 					case ACTIVITY_LIKE:
 						$notif = [
 							'label' => 'like',
-							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
+							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => L10n::t("%s liked %s's post", $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s liked %s's post", $it['author-name'], $it['parent-author-name']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -288,10 +290,10 @@ class NotificationsManager extends BaseObject
 					case ACTIVITY_DISLIKE:
 						$notif = [
 							'label' => 'dislike',
-							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
+							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => L10n::t("%s disliked %s's post", $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s disliked %s's post", $it['author-name'], $it['parent-author-name']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -301,10 +303,10 @@ class NotificationsManager extends BaseObject
 					case ACTIVITY_ATTEND:
 						$notif = [
 							'label' => 'attend',
-							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
+							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => L10n::t("%s is attending %s's event", $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s is attending %s's event", $it['author-name'], $it['parent-author-name']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -314,10 +316,10 @@ class NotificationsManager extends BaseObject
 					case ACTIVITY_ATTENDNO:
 						$notif = [
 							'label' => 'attendno',
-							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
+							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => L10n::t("%s is not attending %s's event", $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s is not attending %s's event", $it['author-name'], $it['parent-author-name']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -327,10 +329,10 @@ class NotificationsManager extends BaseObject
 					case ACTIVITY_ATTENDMAYBE:
 						$notif = [
 							'label' => 'attendmaybe',
-							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
+							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
-							'text' => L10n::t("%s may attend %s's event", $it['author-name'], $it['pname']),
+							'text' => L10n::t("%s may attend %s's event", $it['author-name'], $it['parent-author-name']),
 							'when' => $default_item_when,
 							'ago' => $default_item_ago,
 							'seen' => $it['seen']
@@ -344,7 +346,7 @@ class NotificationsManager extends BaseObject
 
 						$notif = [
 							'label' => 'friend',
-							'link' => System::baseUrl(true) . '/display/' . $it['pguid'],
+							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
 							'image' => proxy_url($it['author-avatar'], false, PROXY_SIZE_MICRO),
 							'url' => $it['author-link'],
 							'text' => L10n::t("%s is now friends with %s", $it['author-name'], $it['fname']),
@@ -375,38 +377,6 @@ class NotificationsManager extends BaseObject
 	}
 
 	/**
-	 * @brief Total number of network notifications
-	 * @param int|string $seen If 0 only include notifications into the query
-	 * 	                       which aren't marked as "seen"
-	 *
-	 * @return int Number of network notifications
-	 */
-	private function networkTotal($seen = 0)
-	{
-		$sql_seen = "";
-		$index_hint = "";
-
-		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` ";
-			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
-		}
-
-		$r = q(
-			"SELECT COUNT(*) AS `total`
-				FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
-				WHERE `item`.`visible` AND `pitem`.`parent` != 0 AND
-				NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`
-				$sql_seen",
-			intval(local_user())
-		);
-		if (DBM::is_result($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
-	}
-
-	/**
 	 * @brief Get network notifications
 	 *
 	 * @param int|string $seen  If 0 only include notifications into the query
@@ -416,72 +386,34 @@ class NotificationsManager extends BaseObject
 	 *
 	 * @return array with
 	 * 	string 'ident' => Notification identifier
-	 * 	int 'total' => Total number of available network notifications
 	 * 	array 'notifications' => Network notifications
 	 */
 	public function networkNotifs($seen = 0, $start = 0, $limit = 80)
 	{
 		$ident = 'network';
-		$total = $this->networkTotal($seen);
 		$notifs = [];
-		$sql_seen = "";
-		$index_hint = "";
+
+		$condition = ['wall' => false, 'uid' => local_user()];
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` ";
-			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
+			$condition['unseen'] = true;
 		}
 
-		$r = q(
-			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
-				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
-			FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
-			WHERE `item`.`visible` AND `pitem`.`parent` != 0 AND
-				NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`
-				$sql_seen
-			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
-			intval(local_user()),
-			intval($start),
-			intval($limit)
-		);
-		if (DBM::is_result($r)) {
-			$notifs = $this->formatNotifs($r, $ident);
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'created',
+			'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
+		$items = Item::select(local_user(), $fields, $condition, $params);
+
+		if (DBM::is_result($items)) {
+			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
 		}
 
 		$arr = [
 			'notifications' => $notifs,
 			'ident' => $ident,
-			'total' => $total,
 		];
 
 		return $arr;
-	}
-
-	/**
-	 * @brief Total number of system notifications
-	 * @param int|string $seen If 0 only include notifications into the query
-	 * 	                       which aren't marked as "seen"
-	 *
-	 * @return int Number of system notifications
-	 */
-	private function systemTotal($seen = 0)
-	{
-		$sql_seen = "";
-
-		if ($seen === 0) {
-			$sql_seen = " AND NOT `seen` ";
-		}
-
-		$r = q(
-			"SELECT COUNT(*) AS `total` FROM `notify` WHERE `uid` = %d $sql_seen",
-			intval(local_user())
-		);
-		if (DBM::is_result($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
 	}
 
 	/**
@@ -494,13 +426,11 @@ class NotificationsManager extends BaseObject
 	 *
 	 * @return array with
 	 * 	string 'ident' => Notification identifier
-	 * 	int 'total' => Total number of available system notifications
 	 * 	array 'notifications' => System notifications
 	 */
 	public function systemNotifs($seen = 0, $start = 0, $limit = 80)
 	{
 		$ident = 'system';
-		$total = $this->systemTotal($seen);
 		$notifs = [];
 		$sql_seen = "";
 
@@ -522,65 +452,9 @@ class NotificationsManager extends BaseObject
 		$arr = [
 			'notifications' => $notifs,
 			'ident' => $ident,
-			'total' => $total,
 		];
 
 		return $arr;
-	}
-
-	/**
-	 * @brief Additional SQL query string for the personal notifications
-	 *
-	 * @return string The additional SQL query
-	 */
-	private function personalSqlExtra()
-	{
-		$myurl = System::baseUrl(true) . '/profile/' . self::getApp()->user['nickname'];
-		$myurl = substr($myurl, strpos($myurl, '://') + 3);
-		$myurl = str_replace(['www.', '.'], ['', '\\.'], $myurl);
-		$diasp_url = str_replace('/profile/', '/u/', $myurl);
-		$sql_extra = sprintf(
-			" AND (`item`.`author-link` REGEXP '%s' OR `item`.`tag` REGEXP '%s' OR `item`.`tag` REGEXP '%s') ",
-			dbesc($myurl . '$'),
-			dbesc($myurl . '\\]'),
-			dbesc($diasp_url . '\\]')
-		);
-
-		return $sql_extra;
-	}
-
-	/**
-	 * @brief Total number of personal notifications
-	 * @param int|string $seen If 0 only include notifications into the query
-	 * 	                       which aren't marked as "seen"
-	 *
-	 * @return int Number of personal notifications
-	 */
-	private function personalTotal($seen = 0)
-	{
-		$sql_seen = "";
-		$index_hint = "";
-		$sql_extra = $this->personalSqlExtra();
-
-		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` ";
-			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
-		}
-
-		$r = q(
-			"SELECT COUNT(*) AS `total`
-				FROM `item` $index_hint
-				WHERE `item`.`visible`
-				$sql_extra
-				$sql_seen
-				AND NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`",
-			intval(local_user())
-		);
-		if (DBM::is_result($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
 	}
 
 	/**
@@ -593,79 +467,38 @@ class NotificationsManager extends BaseObject
 	 *
 	 * @return array with
 	 * 	string 'ident' => Notification identifier
-	 * 	int 'total' => Total number of available personal notifications
 	 * 	array 'notifications' => Personal notifications
 	 */
 	public function personalNotifs($seen = 0, $start = 0, $limit = 80)
 	{
 		$ident = 'personal';
-		$total = $this->personalTotal($seen);
-		$sql_extra = $this->personalSqlExtra();
 		$notifs = [];
-		$sql_seen = "";
-		$index_hint = "";
+
+		$myurl = str_replace('http://', '', self::getApp()->contact['nurl']);
+		$diasp_url = str_replace('/profile/', '/u/', $myurl);
+
+		$condition = ["NOT `wall` AND `uid` = ? AND (`item`.`author-id` = ? OR `item`.`tag` REGEXP ? OR `item`.`tag` REGEXP ?)",
+			local_user(), public_contact(), $myurl . '\\]', $diasp_url . '\\]'];
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` ";
-			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
+			$condition[0] .= " AND `unseen`";
 		}
 
-		$r = q(
-			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
-				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
-			FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
-			WHERE `item`.`visible`
-				$sql_extra
-				$sql_seen
-				AND NOT `item`.`deleted` AND `item`.`uid` = %d AND NOT `item`.`wall`
-			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
-			intval(local_user()),
-			intval($start),
-			intval($limit)
-		);
-		if (DBM::is_result($r)) {
-			$notifs = $this->formatNotifs($r, $ident);
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'created',
+			'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
+		$items = Item::select(local_user(), $fields, $condition, $params);
+
+		if (DBM::is_result($items)) {
+			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
 		}
 
 		$arr = [
 			'notifications' => $notifs,
 			'ident' => $ident,
-			'total' => $total,
 		];
 
 		return $arr;
-	}
-
-	/**
-	 * @brief Total number of home notifications
-	 * @param int|string $seen If 0 only include notifications into the query
-	 * 	                       which aren't marked as "seen"
-	 *
-	 * @return int Number of home notifications
-	 */
-	private function homeTotal($seen = 0)
-	{
-		$sql_seen = "";
-		$index_hint = "";
-
-		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` ";
-			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
-		}
-
-		$r = q(
-			"SELECT COUNT(*) AS `total` FROM `item` $index_hint
-				WHERE `item`.`visible` = 1 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `item`.`wall` = 1
-				$sql_seen",
-			intval(local_user())
-		);
-		if (DBM::is_result($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
 	}
 
 	/**
@@ -678,74 +511,34 @@ class NotificationsManager extends BaseObject
 	 *
 	 * @return array with
 	 * 	string 'ident' => Notification identifier
-	 * 	int 'total' => Total number of available home notifications
 	 * 	array 'notifications' => Home notifications
 	 */
 	public function homeNotifs($seen = 0, $start = 0, $limit = 80)
 	{
 		$ident = 'home';
-		$total = $this->homeTotal($seen);
 		$notifs = [];
-		$sql_seen = "";
-		$index_hint = "";
+
+		$condition = ['wall' => true, 'uid' => local_user()];
 
 		if ($seen === 0) {
-			$sql_seen = " AND `item`.`unseen` ";
-			$index_hint = "USE INDEX (`uid_unseen_contactid`)";
+			$condition['unseen'] = true;
 		}
 
-		$r = q(
-			"SELECT `item`.`id`,`item`.`parent`, `item`.`verb`, `item`.`author-name`, `item`.`unseen`,
-				`item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object` AS `object`,
-				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`, `pitem`.`guid` AS `pguid`
-			FROM `item` $index_hint STRAIGHT_JOIN `item` AS `pitem` ON `pitem`.`id`=`item`.`parent`
-			WHERE `item`.`visible` AND
-				NOT `item`.`deleted` AND `item`.`uid` = %d AND `item`.`wall`
-				$sql_seen
-			ORDER BY `item`.`created` DESC LIMIT %d, %d ",
-			intval(local_user()),
-			intval($start),
-			intval($limit)
-		);
-		if (DBM::is_result($r)) {
-			$notifs = $this->formatNotifs($r, $ident);
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'created',
+			'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
+		$items = Item::select(local_user(), $fields, $condition, $params);
+
+		if (DBM::is_result($items)) {
+			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
 		}
 
 		$arr = [
 			'notifications' => $notifs,
 			'ident' => $ident,
-			'total' => $total,
 		];
 
 		return $arr;
-	}
-
-	/**
-	 * @brief Total number of introductions
-	 * @param bool $all If false only include introductions into the query
-	 * 	                which aren't marked as ignored
-	 *
-	 * @return int Number of introductions
-	 */
-	private function introTotal($all = false)
-	{
-		$sql_extra = "";
-
-		if (!$all) {
-			$sql_extra = " AND `ignore` = 0 ";
-		}
-
-		$r = q(
-			"SELECT COUNT(*) AS `total` FROM `intro`
-			WHERE `intro`.`uid` = %d $sql_extra AND `intro`.`blocked` = 0 ",
-			intval($_SESSION['uid'])
-		);
-
-		if (DBM::is_result($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
 	}
 
 	/**
@@ -758,13 +551,11 @@ class NotificationsManager extends BaseObject
 	 *
 	 * @return array with
 	 *	string 'ident' => Notification identifier
-	 *	int 'total' => Total number of available introductions
 	 *	array 'notifications' => Introductions
 	 */
 	public function introNotifs($all = false, $start = 0, $limit = 80)
 	{
 		$ident = 'introductions';
-		$total = $this->introTotal($all);
 		$notifs = [];
 		$sql_extra = "";
 
@@ -796,7 +587,6 @@ class NotificationsManager extends BaseObject
 
 		$arr = [
 			'ident' => $ident,
-			'total' => $total,
 			'notifications' => $notifs,
 		];
 
