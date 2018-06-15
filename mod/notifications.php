@@ -11,29 +11,25 @@ use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 
-function notifications_post(App $a) {
-
-	if (! local_user()) {
+function notifications_post(App $a)
+{
+	if (!local_user()) {
 		goaway(System::baseUrl());
 	}
 
 	$request_id = (($a->argc > 1) ? $a->argv[1] : 0);
 
-	if($request_id === "all")
+	if ($request_id === "all") {
 		return;
+	}
 
-	if($request_id) {
+	if ($request_id) {
+		$intro = dba::selectFirst('intro', ['id', 'contact-id', 'fid'], ['id' => $request_id, 'uid' => local_user()]);
 
-		$r = q("SELECT * FROM `intro` WHERE `id` = %d  AND `uid` = %d LIMIT 1",
-			intval($request_id),
-			intval(local_user())
-		);
-
-		if (DBM::is_result($r)) {
-			$intro_id = $r[0]['id'];
-			$contact_id = $r[0]['contact-id'];
-		}
-		else {
+		if (DBM::is_result($intro)) {
+			$intro_id = $intro['id'];
+			$contact_id = $intro['contact-id'];
+		} else {
 			notice(L10n::t('Invalid request identifier.') . EOL);
 			return;
 		}
@@ -41,35 +37,31 @@ function notifications_post(App $a) {
 		// If it is a friend suggestion, the contact is not a new friend but an existing friend
 		// that should not be deleted.
 
-		$fid = $r[0]['fid'];
+		$fid = $intro['fid'];
 
-		if($_POST['submit'] == L10n::t('Discard')) {
-			$r = q("DELETE FROM `intro` WHERE `id` = %d",
-				intval($intro_id)
-			);
-			if(! $fid) {
+		if ($_POST['submit'] == L10n::t('Discard')) {
+			dba::delete('intro', ['id' => $intro_id]);
 
+			if (!$fid) {
 				// The check for blocked and pending is in case the friendship was already approved
 				// and we just want to get rid of the now pointless notification
-
-				$r = q("DELETE FROM `contact` WHERE `id` = %d AND `uid` = %d AND `self` = 0 AND `blocked` = 1 AND `pending` = 1",
-					intval($contact_id),
-					intval(local_user())
-				);
+				$condition = ['id' => $contact_id, 'uid' => local_user(),
+					'self' => false, 'blocked' => true, 'pending' => true];
+				dba::delete('contact', $condition);
 			}
 			goaway('notifications/intros');
 		}
-		if($_POST['submit'] == L10n::t('Ignore')) {
-			$r = q("UPDATE `intro` SET `ignore` = 1 WHERE `id` = %d",
-				intval($intro_id));
+
+		if ($_POST['submit'] == L10n::t('Ignore')) {
+			dba::update('intro', ['ignore' => true], ['id' => $intro_id]);
 			goaway('notifications/intros');
 		}
 	}
 }
 
-function notifications_content(App $a) {
-
-	if (! local_user()) {
+function notifications_content(App $a)
+{
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -102,26 +94,22 @@ function notifications_content(App $a) {
 		$notifs = $nm->introNotifs($all, $startrec, $perpage);
 
 	// Get the network notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'network')) {
-
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'network')) {
 		$notif_header = L10n::t('Network Notifications');
 		$notifs = $nm->networkNotifs($show, $startrec, $perpage);
 
 	// Get the system notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'system')) {
-
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'system')) {
 		$notif_header = L10n::t('System Notifications');
 		$notifs = $nm->systemNotifs($show, $startrec, $perpage);
 
 	// Get the personal notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'personal')) {
-
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'personal')) {
 		$notif_header = L10n::t('Personal Notifications');
 		$notifs = $nm->personalNotifs($show, $startrec, $perpage);
 
 	// Get the home notifications
-	} else if (($a->argc > 1) && ($a->argv[1] == 'home')) {
-
+	} elseif (($a->argc > 1) && ($a->argv[1] == 'home')) {
 		$notif_header = L10n::t('Home Notifications');
 		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
 
@@ -129,7 +117,6 @@ function notifications_content(App $a) {
 
 
 	// Set the pager
-	$a->set_pager_total($notifs['total']);
 	$a->set_pager_itemspage($perpage);
 
 	// Add additional informations (needed for json output)
@@ -144,8 +131,7 @@ function notifications_content(App $a) {
 	$notif_tpl = get_markup_template('notifications.tpl');
 
 	// Process the data for template creation
-	if($notifs['ident'] === 'introductions') {
-
+	if ($notifs['ident'] === 'introductions') {
 		$sugg = get_markup_template('suggestions.tpl');
 		$tpl = get_markup_template("intros.tpl");
 
@@ -192,8 +178,8 @@ function notifications_content(App $a) {
 					$knowyou   = '';
 					$dfrn_text = '';
 
-					if($it['network'] === NETWORK_DFRN || $it['network'] === NETWORK_DIASPORA) {
-						if($it['network'] === NETWORK_DFRN) {
+					if ($it['network'] === NETWORK_DFRN || $it['network'] === NETWORK_DIASPORA) {
+						if ($it['network'] === NETWORK_DFRN) {
 							$lbl_knowyou = L10n::t('Claims to be known to you: ');
 							$knowyou = (($it['knowyou']) ? L10n::t('yes') : L10n::t('no'));
 							$helptext = L10n::t('Shall your connection be bidirectional or not?');
@@ -220,8 +206,9 @@ function notifications_content(App $a) {
 
 					$header = $it["name"];
 
-					if ($it["addr"] != "")
+					if ($it["addr"] != "") {
 						$header .= " <".$it["addr"].">";
+					}
 
 					$header .= " (".ContactSelector::networkToName($it['network'], $it['url']).")";
 
@@ -269,12 +256,12 @@ function notifications_content(App $a) {
 			}
 		}
 
-		if($notifs['total'] == 0)
+		if (count($notifs['notifications']) == 0) {
 			info(L10n::t('No introductions.') . EOL);
+		}
 
 	// Normal notifications (no introductions)
 	} else {
-
 		// The template files we need in different cases for formatting the content
 		$tpl_item_like = 'notifications_likes_item.tpl';
 		$tpl_item_dislike = 'notifications_dislikes_item.tpl';
@@ -306,17 +293,13 @@ function notifications_content(App $a) {
 			]);
 		}
 
-		// It doesn't make sense to show the Show unread / Show all link visible if the user is on the
-		// "Show all" page and there are no notifications. So we will hide it.
-		if ($show == 0 || intval($show) && $notifs['total'] > 0) {
-			$notif_show_lnk = [
-				'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
-				'text' => ($show ? L10n::t('Show unread') : L10n::t('Show all')),
-			];
-		}
+		$notif_show_lnk = [
+			'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
+			'text' => ($show ? L10n::t('Show unread') : L10n::t('Show all')),
+		];
 
 		// Output if there aren't any notifications available
-		if ($notifs['total'] == 0) {
+		if (count($notifs['notifications']) == 0) {
 			$notif_nocontent = L10n::t('No more %s notifications.', $notifs['ident']);
 		}
 	}
@@ -327,7 +310,7 @@ function notifications_content(App $a) {
 		'$notif_content' => $notif_content,
 		'$notif_nocontent' => $notif_nocontent,
 		'$notif_show_lnk' => $notif_show_lnk,
-		'$notif_paginate' => paginate($a)
+		'$notif_paginate' => alt_pager($a, count($notif_content))
 	]);
 
 	return $o;
