@@ -366,7 +366,7 @@ function notification($params)
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 				);
 
-				$body = L10n::t('Full Name:	%1$s\nSite Location:	%2$s\nLogin Name:	%3$s ' . "\x28" . '%4$s' . "\x29",
+				$body = L10n::t("Full Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
 					$params['source_name'],
 					$siteurl, $params['source_mail'],
 					$params['source_nick']
@@ -562,11 +562,8 @@ function notification($params)
 			}
 		}
 
-		// textversion keeps linebreaks
-		$textversion = strip_tags(str_replace("<br>", "\n", html_entity_decode(BBCode::convert(stripslashes(str_replace(["\\r\\n", "\\r", "\\n"], "\n",
-			$body))),ENT_QUOTES, 'UTF-8')));
-		$htmlversion = html_entity_decode(BBCode::convert(stripslashes(str_replace(["\\r\\n", "\\r", "\\n\\n", "\\n"],
-			"<br />\n", $body))), ENT_QUOTES, 'UTF-8');
+		$textversion = BBCode::toPlaintext($body);
+		$htmlversion = BBCode::convert($body);
 
 		$datarray = [];
 		$datarray['banner'] = $banner;
