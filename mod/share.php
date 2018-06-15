@@ -15,7 +15,7 @@ function share_init(App $a) {
 		'guid', 'created', 'plink', 'title'];
 	$item = Item::selectFirst(local_user(), $fields, ['id' => $post_id]);
 
-	if (!DBM::is_result($item) || $item['private']) {
+	if (!DBM::is_result($item) || $item['private'] == 1) {
 		killme();
 	}
 
