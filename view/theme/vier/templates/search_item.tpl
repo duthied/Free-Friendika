@@ -30,7 +30,7 @@
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
-			{{$item.body}}
+			<div class="wall-item-body">{{$item.body}}</div>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
