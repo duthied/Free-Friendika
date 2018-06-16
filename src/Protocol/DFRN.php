@@ -228,17 +228,10 @@ class DFRN
 		$check_date = DateTimeFormat::utc($last_update);
 
 		$r = q(
-			"SELECT `item`.*, `item`.`id` AS `item_id`,
-			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
-			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
-			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
+			"SELECT `item`.`id`
 			FROM `item` USE INDEX (`uid_wall_changed`) $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-			WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`moderated` AND `item`.`parent` != 0
-			AND `item`.`wall` AND `item`.`changed` > '%s'
+			WHERE `item`.`uid` = %d AND `item`.`wall` AND `item`.`changed` > '%s'
 			$sql_extra
 			ORDER BY `item`.`parent` ".$sort.", `item`.`created` ASC LIMIT 0, 300",
 			intval($owner_id),
@@ -246,12 +239,25 @@ class DFRN
 			dbesc($sort)
 		);
 
+		$ids = [];
+		foreach ($r as $item) {
+			$ids[] = $item['id'];
+		}
+
+		$condition = ['id' => $ids];
+		$fields = ['author-id', 'uid', 'id', 'parent', 'uri', 'thr-parent',
+			'parent-uri', 'created', 'edited', 'verb', 'object-type',
+			'guid', 'private', 'title', 'body', 'location', 'coord', 'app',
+			'attach', 'object', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'extid', 'target', 'tag', 'bookmark', 'deleted',
+			'author-link', 'owner-link', 'signed_text', 'signature', 'signer'];
+		$ret = Item::select($owner_id, $fields, $condition);
+		$items = dba::inArray($ret);
+
 		/*
 		 * Will check further below if this actually returned results.
 		 * We will provide an empty feed if that is the case.
 		 */
-
-		$items = $r;
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
@@ -321,33 +327,24 @@ class DFRN
 	public static function itemFeed($item_id, $conversation = false)
 	{
 		if ($conversation) {
-			$condition = '`item`.`parent`';
+			$condition = ['parent' => $item_id];
 		} else {
-			$condition = '`item`.`id`';
+			$condition = ['id' => $item_id];
 		}
 
-		$r = q(
-			"SELECT `item`.*, `item`.`id` AS `item_id`,
-			`contact`.`name`, `contact`.`network`, `contact`.`photo`, `contact`.`url`,
-			`contact`.`name-date`, `contact`.`uri-date`, `contact`.`avatar-date`,
-			`contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`sign`.`signed_text`, `sign`.`signature`, `sign`.`signer`
-			FROM `item`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-			WHERE %s = %d AND `item`.`visible` AND NOT `item`.`moderated` AND `item`.`parent` != 0
-			AND NOT `item`.`private`",
-			$condition,
-			intval($item_id)
-		);
-
-		if (!DBM::is_result($r)) {
+		$fields = ['author-id', 'uid', 'id', 'parent', 'uri', 'thr-parent',
+			'parent-uri', 'created', 'edited', 'verb', 'object-type',
+			'guid', 'private', 'title', 'body', 'location', 'coord', 'app',
+			'attach', 'object', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'extid', 'target', 'tag', 'bookmark', 'deleted',
+			'author-link', 'owner-link', 'signed_text', 'signature', 'signer'];
+		$ret = Item::select(0, $fields, $condition);
+		$items = dba::inArray($ret);
+		if (!DBM::is_result($items)) {
 			killme();
 		}
 
-		$items = $r;
-		$item = $r[0];
+		$item = $items[0];
 
 		if ($item['uid'] != 0) {
 			$owner = User::getOwnerDataById($item['uid']);
@@ -2253,6 +2250,8 @@ class DFRN
 			}
 
 			if ($Blink && link_compare($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
+				$author = dba::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
+
 				// send a notification
 				notification(
 					[
@@ -2264,10 +2263,9 @@ class DFRN
 					"uid"          => $importer["importer_uid"],
 					"item"         => $item,
 					"link"         => System::baseUrl()."/display/".urlencode(Item::getGuidById($posted_id)),
-					"source_name"  => stripslashes($item["author-name"]),
-					"source_link"  => $item["author-link"],
-					"source_photo" => ((link_compare($item["author-link"], $importer["url"]))
-						? $importer["thumb"] : $item["author-avatar"]),
+					"source_name"  => $author["name"],
+					"source_link"  => $author["url"],
+					"source_photo" => $author["thumb"],
 					"verb"         => $item["verb"],
 					"otype"        => "person",
 					"activity"     => $verb,
@@ -2334,9 +2332,9 @@ class DFRN
 				// only one like or dislike per person
 				// splitted into two queries for performance issues
 				$r = q(
-					"SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
+					"SELECT `id` FROM `item` WHERE `uid` = %d AND `author-id` = %d AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
 					intval($item["uid"]),
-					dbesc($item["author-link"]),
+					intval($item["author-id"]),
 					dbesc($item["verb"]),
 					dbesc($item["parent-uri"])
 				);
@@ -2345,9 +2343,9 @@ class DFRN
 				}
 
 				$r = q(
-					"SELECT `id` FROM `item` WHERE `uid` = %d AND `author-link` = '%s' AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
+					"SELECT `id` FROM `item` WHERE `uid` = %d AND `author-id` = %d AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
 					intval($item["uid"]),
-					dbesc($item["author-link"]),
+					intval($item["author-id"]),
 					dbesc($item["verb"]),
 					dbesc($item["parent-uri"])
 				);
@@ -2469,16 +2467,14 @@ class DFRN
 		// Fetch the owner
 		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", true);
 
-		$item["owner-name"] = $owner["name"];
 		$item["owner-link"] = $owner["link"];
-		$item["owner-avatar"] = $owner["avatar"];
+		$item["owner-id"] = Contact::getIdForURL($owner["link"], 0);
 
 		// fetch the author
 		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", true);
 
-		$item["author-name"] = $author["name"];
 		$item["author-link"] = $author["link"];
-		$item["author-avatar"] = $author["avatar"];
+		$item["author-id"] = Contact::getIdForURL($author["link"], 0);
 
 		$item["title"] = $xpath->query("atom:title/text()", $entry)->item(0)->nodeValue;
 
@@ -2736,9 +2732,8 @@ class DFRN
 				 * but we're going to unconditionally correct it here so that the post will always be owned by our contact.
 				 */
 				logger('Correcting item owner.', LOGGER_DEBUG);
-				$item["owner-name"]   = $importer["senderName"];
-				$item["owner-link"]   = $importer["url"];
-				$item["owner-avatar"] = $importer["thumb"];
+				$item["owner-link"] = $importer["url"];
+				$item["owner-id"] = Contact::getIdForURL($importer["url"], 0);
 			}
 
 			if (($importer["rel"] == CONTACT_IS_FOLLOWER) && (!self::tgroupCheck($importer["importer_uid"], $item))) {

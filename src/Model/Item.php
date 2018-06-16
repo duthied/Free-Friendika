@@ -162,9 +162,6 @@ class Item extends BaseObject
 	{
 		/*
 		These Fields are not added below. They are here to for bug search.
-		'type', 'extid', 'changed', 'moderated', 'target-type', 'target', 'resource-id',
-		'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
-		'forum_mode', 'mention', 'global', 'shadow',
 		*/
 
 		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
@@ -172,13 +169,24 @@ class Item extends BaseObject
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
 			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'unseen',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'id' => 'item_id', 'network' => 'item_network'];
+
+		// The additional fields aren't needed to be selected by default.
+		// We need them to select the correct tables. To see the difference we split the arrays
+		if (!empty($selected)) {
+			$additional_item_fields = ['type', 'extid', 'changed', 'moderated', 'target-type', 'target',
+				'resource-id', 'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
+				'forum_mode', 'mention', 'global', 'shadow'];
+
+			$item_fields = array_merge($item_fields, $additional_item_fields);
+		}
 
 		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
 		$owner_fields = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
 		$contact_fields = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
-			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias'];
+			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias',
+			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
 
 		$event_fields = ['created' => 'event-created', 'edited' => 'event-edited',
 			'start' => 'event-start','finish' => 'event-finish',
@@ -193,6 +201,7 @@ class Item extends BaseObject
 		if (!empty($selected)) {
 			$fields['parent-item'] = ['guid' => 'parent-guid'];
 			$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
+			$fields['sign'] = ['signed_text', 'signature', 'signer'];
 		}
 
 		return $fields;
@@ -255,6 +264,10 @@ class Item extends BaseObject
 
 		if (strpos($sql_commands, "`event`.") !== false) {
 			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
+		}
+
+		if (strpos($sql_commands, "`sign`.") !== false) {
+			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
 		}
 
 		if ((strpos($sql_commands, "`parent-item`.") !== false) || (strpos($sql_commands, "`parent-author`.") !== false)) {
