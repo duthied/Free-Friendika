@@ -15,6 +15,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
@@ -127,20 +128,14 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$items_unseen = q(
-			"SELECT `item`.`id`, `item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
-				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`,
-				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`
-				FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id` = `item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `pitem`.`parent` != 0
-				AND `item`.`contact-id` != %d
-				ORDER BY `item`.`created` DESC",
-			intval(local_user()),
-			intval(local_user())
-		);
+		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ?", local_user(), local_user()];
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+		$params = ['order' => ['created' => true]];
+		$items = Item::select(local_user(), $fields, $condition, $params);
 
-		if (DBM::is_result($items_unseen)) {
+		if (DBM::is_result($items)) {
+			$items_unseen = dba::inArray($items);
 			$arr = ['items' => $items_unseen];
 			Addon::callHooks('network_ping', $arr);
 

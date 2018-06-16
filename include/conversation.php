@@ -392,98 +392,6 @@ function visible_activity($item) {
 }
 
 /**
- * @brief SQL query for items
- *
- * @param int $uid user id
- */
-function item_query($uid = 0) {
-	return "SELECT " . item_fieldlists() . " FROM `item` " .
-		item_joins($uid) . " WHERE " . item_condition();
-}
-
-/**
- * @brief List of all data fields that are needed for displaying items
- */
-function item_fieldlists() {
-
-/*
-These Fields are not added below (yet). They are here to for bug search.
-`item`.`type`,
-`item`.`extid`,
-`item`.`changed`,
-`item`.`moderated`,
-`item`.`target-type`,
-`item`.`target`,
-`item`.`resource-id`,
-`item`.`tag`,
-`item`.`inform`,
-`item`.`pubmail`,
-`item`.`visible`,
-`item`.`bookmark`,
-`item`.`unseen`,
-`item`.`deleted`,
-`item`.`forum_mode`,
-`item`.`mention`,
-`item`.`global`,
-`item`.`shadow`,
- `item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
- `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
-*/
-
-	return "`item`.`author-id`,
-		`item`.`owner-id`,
-		`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
-		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`content-warning`,
-		`item`.`commented`, `item`.`created`, `item`.`edited`, `item`.`received`,
-		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
-		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`, `item`.`origin`,
-		`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,
-		`item`.`location`, `item`.`coord`, `item`.`app`, `item`.`attach`,
-		`item`.`rendered-hash`, `item`.`rendered-html`, `item`.`object`,
-		`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
-		`item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-
-		`author`.`url` AS `author-link`, `author`.`name` AS `author-name`, `author`.`thumb` AS `author-avatar`,
-		`owner`.`url` AS `owner-link`, `owner`.`name` AS `owner-name`, `owner`.`thumb` AS `owner-avatar`,
-		`contact`.`url` AS `contact-link`, `contact`.`name` AS `contact-name`, `contact`.`thumb` AS `contact-avatar`,
-
-		`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
-		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`,
-
-		`event`.`created` AS `event-created`, `event`.`edited` AS `event-edited`,
-		`event`.`start` AS `event-start`,`event`.`finish` AS `event-finish`,
-		`event`.`summary` AS `event-summary`,`event`.`desc` AS `event-desc`,
-		`event`.`location` AS `event-location`, `event`.`type` AS `event-type`,
-		`event`.`nofinish` AS `event-nofinish`,`event`.`adjust` AS `event-adjust`,
-		`event`.`ignore` AS `event-ignore`, `event`.`id` AS `event-id`";
-}
-
-/**
- * @brief SQL join for contacts that are needed for displaying items
- *
- * @param int $uid user id
- */
-function item_joins($uid = 0) {
-	return sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND NOT `contact`.`blocked`
-		AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
-		STRAIGHT_JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id` AND NOT `author`.`blocked`
-		STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id` AND NOT `owner`.`blocked`
-		LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
-		LEFT JOIN `event` ON `event-id` = `event`.`id`",
-		CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid)
-	);
-}
-
-/**
- * @brief SQL condition for items that are needed for displaying items
- */
-function item_condition() {
-	return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
-}
-
-/**
  * "Render" a conversation or list of items for HTML display.
  * There are two major forms of display:
  *      - Sequential or unthreaded ("New Item View" or search results)
@@ -931,8 +839,6 @@ function item_photo_menu($item) {
 		$status_link = $profile_link . '?url=status';
 		$photos_link = $profile_link . '?url=photos';
 		$profile_link = $profile_link . '?url=profile';
-	} else {
-		$profile_link = Contact::magicLink($profile_link);
 	}
 
 	if ($cid && !$item['self']) {

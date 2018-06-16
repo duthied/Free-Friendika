@@ -238,6 +238,11 @@ class NotificationsManager extends BaseObject
 					$it['seen'] = ($it['unseen'] > 0 ? false : true);
 				}
 
+				// For feed items we use the user's contact, since the avatar is mostly self choosen.
+				if (!empty($it['network']) && $it['network'] == NETWORK_FEED) {
+					$it['author-avatar'] = $it['contact-avatar'];
+				}
+
 				// Depending on the identifier of the notification we need to use different defaults
 				switch ($ident) {
 					case 'system':
@@ -399,8 +404,8 @@ class NotificationsManager extends BaseObject
 			$condition['unseen'] = true;
 		}
 
-		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'created',
-			'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
 		$items = Item::select(local_user(), $fields, $condition, $params);
 
@@ -484,8 +489,8 @@ class NotificationsManager extends BaseObject
 			$condition[0] .= " AND `unseen`";
 		}
 
-		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'created',
-			'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
 		$items = Item::select(local_user(), $fields, $condition, $params);
 
@@ -524,8 +529,8 @@ class NotificationsManager extends BaseObject
 			$condition['unseen'] = true;
 		}
 
-		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'created',
-			'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
 		$items = Item::select(local_user(), $fields, $condition, $params);
 
