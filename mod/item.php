@@ -576,7 +576,7 @@ function item_post(App $a) {
 
 	$notify_type = ($parent ? 'comment-new' : 'wall-new');
 
-	$uri = ($message_id ? $message_id : item_new_uri($a->get_hostname(), $profile_uid, $guid));
+	$uri = ($message_id ? $message_id : Item::newURI($profile_uid, $guid));
 
 	// Fallback so that we alway have a parent uri
 	if (!$thr_parent_uri || !$parent) {

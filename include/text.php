@@ -462,33 +462,6 @@ function perms2str($p) {
 	return $ret;
 }
 
-
-/**
- * generate a guaranteed unique (for this domain) item ID for ATOM
- * safe from birthday paradox
- *
- * @param string $hostname
- * @param int $uid
- * @return string
- */
-function item_new_uri($hostname, $uid, $guid = "") {
-
-	do {
-		if ($guid == "") {
-			$hash = get_guid(32);
-		} else {
-			$hash = $guid;
-			$guid = "";
-		}
-
-		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
-
-		$dups = dba::exists('item', ['uri' => $uri]);
-	} while ($dups == true);
-
-	return $uri;
-}
-
 /**
  * @deprecated
  * wrapper to load a view template, checking for alternate

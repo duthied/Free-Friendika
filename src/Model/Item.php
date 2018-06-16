@@ -675,7 +675,7 @@ class Item extends BaseObject
 		}
 
 		$item['guid'] = self::guid($item, $notify);
-		$item['uri'] = notags(trim(defaults($item, 'uri', item_new_uri($a->get_hostname(), $item['uid'], $item['guid']))));
+		$item['uri'] = notags(trim(defaults($item, 'uri', self::newURI($item['uid'], $item['guid']))));
 
 		// Store conversation data
 		$item = Conversation::insert($item);
@@ -853,8 +853,8 @@ class Item extends BaseObject
 		}
 
 		//unset($item['author-link']);
-		//unset($item['author-name']);
-		//unset($item['author-avatar']);
+		unset($item['author-name']);
+		unset($item['author-avatar']);
 
 		//unset($item['owner-link']);
 		unset($item['owner-name']);
@@ -1529,6 +1529,29 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * generate an unique URI
+	 *
+	 * @param integer $uid User id
+	 * @param string $guid An existing GUID (Otherwise it will be generated)
+	 *
+	 * @return string
+	 */
+	public static function newURI($uid, $guid = "")
+	{
+		if ($guid == "") {
+			$guid = get_guid(32);
+		}
+
+		$hostname = self::getApp()->get_hostname();
+
+		$user = dba::selectFirst('user', ['nickname'], ['uid' => $uid]);
+
+		$uri = "urn:X-dfrn:" . $hostname . ':' . $user['nickname'] . ':' . $guid;
+
+		return $uri;
+	}
+
+	/**
 	 * @brief Set "success_update" and "last-item" to the date of the last time we heard from this contact
 	 *
 	 * This can be used to filter for inactive contacts.
@@ -1844,7 +1867,7 @@ class Item extends BaseObject
 			if ($contact['network'] != NETWORK_FEED) {
 				$datarray["guid"] = get_guid(32);
 				unset($datarray["plink"]);
-				$datarray["uri"] = item_new_uri($a->get_hostname(), $contact['uid'], $datarray["guid"]);
+				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
 				$datarray["parent-uri"] = $datarray["uri"];
 				$datarray["thr-parent"] = $datarray["uri"];
 				$datarray["extid"] = NETWORK_DFRN;
@@ -2316,7 +2339,7 @@ EOT;
 
 		$new_item = [
 			'guid'          => get_guid(32),
-			'uri'           => item_new_uri(self::getApp()->get_hostname(), $item['uid']),
+			'uri'           => self::newURI($item['uid']),
 			'uid'           => $item['uid'],
 			'contact-id'    => $item_contact_id,
 			'type'          => 'activity',
