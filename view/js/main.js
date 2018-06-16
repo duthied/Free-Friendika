@@ -418,6 +418,9 @@ function liveUpdate(src) {
 	if ($(document).scrollTop() == 0) {
 		force_update = true;
 	}
+
+	var orgHeight = $("section").height();
+
 	var udargs = ((netargs.length) ? '/' + netargs : '');
 	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&force=' + ((force_update) ? 1 : 0) + '&item=' + update_item;
 
@@ -426,41 +429,41 @@ function liveUpdate(src) {
 		force_update = false;
 		update_item = 0;
 
-		// add a new thread
-		$('.toplevel_item',data).each(function() {
-			var ident = $(this).attr('id');
+		$('.wall-item-body', data).imagesLoaded(function() {
+			// add a new thread
+			$('.toplevel_item',data).each(function() {
+				var ident = $(this).attr('id');
 
-			if ($('#' + ident).length == 0 && profile_page == 1) {
-				$('img',this).each(function() {
-					$(this).attr('src',$(this).attr('dst'));
-				});
-				$('#' + prev).after($(this));
-			} else {
-				// Find out if the hidden comments are open, so we can keep it that way
-				// if a new comment has been posted
-				var id = $('.hide-comments-total', this).attr('id');
-				if (typeof id != 'undefined') {
-					id = id.split('-')[3];
-					var commentsOpen = $("#collapsed-comments-" + id).is(":visible");
-				}
+				// Add new top-level item.
+				if ($('#' + ident).length == 0 && profile_page == 1) {
+					$('#' + prev).after($(this));
 
-				$('img',this).each(function() {
-					$(this).attr('src',$(this).attr('dst'));
-				});
-				$('html').height($('html').height());
-				$('#' + ident).replaceWith($(this));
+				// Replace already existing thread.
+				} else {
+					// Find out if the hidden comments are open, so we can keep it that way
+					// if a new comment has been posted
+					var id = $('.hide-comments-total', this).attr('id');
+					if (typeof id != 'undefined') {
+						id = id.split('-')[3];
+						var commentsOpen = $("#collapsed-comments-" + id).is(":visible");
+					}
 
-				if (typeof id != 'undefined') {
-					if (commentsOpen) {
-						showHideComments(id);
+					$('#' + ident).replaceWith($(this));
+
+					if (typeof id != 'undefined') {
+						if (commentsOpen) {
+							showHideComments(id);
+						}
 					}
 				}
-				$('html').height('auto');
-			}
-			prev = ident;
+				prev = ident;
+			});
 		});
 
 		callAddonHooks("postprocess_liveupdate");
+
+		// Update the scroll position.
+		$(window).scrollTop($(window).scrollTop() + $("section").height() - orgHeight);
 
 		$('.like-rotator').hide();
 		if (commentBusy) {
