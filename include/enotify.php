@@ -724,23 +724,24 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	$profiles = $profiles2;
 
-	$profile_list = "";
+	$ret = dba::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
 
-	foreach ($profiles AS $profile) {
-		if ($profile_list != "")
-			$profile_list .= "', '";
+	$contacts = [];
 
-		$profile_list .= dbesc($profile);
+	while ($contact = dba::fetch($ret)) {
+		$contacts[] = $contact['id'];
 	}
 
-	$profile_list = "'".$profile_list."'";
+	$contact_list = implode(',', $contacts);
+
+	dba::close($ret);
 
 	// Only act if it is a "real" post
 	// We need the additional check for the "local_profile" because of mixed situations on connector networks
 	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-id`, `guid`,
 			`parent-uri`, `uri`, `contact-id`, `network`
 			FROM `item` WHERE `id` = %d AND `verb` IN ('%s', '') AND `type` != 'activity' AND
-				NOT (`author-link` IN ($profile_list))  LIMIT 1",
+				NOT (`author-id` IN ($contact_list)) LIMIT 1",
 		intval($itemid), dbesc(ACTIVITY_POST));
 	if (!$item)
 		return false;
@@ -807,7 +808,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	// Is it a post that the user had started or where he interacted?
 	$parent = q("SELECT `thread`.`iid` FROM `thread` INNER JOIN `item` ON `item`.`parent` = `thread`.`iid`
 			WHERE `thread`.`iid` = %d AND NOT `thread`.`ignored` AND
-				(`thread`.`mention` OR `item`.`author-link` IN ($profile_list))
+				(`thread`.`mention` OR `item`.`author-id` IN ($contact_list))
 			LIMIT 1",
 			intval($item[0]["parent"]));
 
