@@ -131,7 +131,7 @@ function ping_init(App $a)
 		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ?", local_user(), local_user()];
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
-                $params = ['order' => ['created' => true]];
+		$params = ['order' => ['created' => true]];
                 $items = Item::select(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
