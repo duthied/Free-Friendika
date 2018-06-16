@@ -92,7 +92,7 @@ function subthread_content(App $a) {
 		return;
 	}
 
-	$uri = item_new_uri($a->get_hostname(),$owner_uid);
+	$uri = Item::newURI($owner_uid);
 
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );

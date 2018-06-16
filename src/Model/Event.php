@@ -234,7 +234,7 @@ class Event extends BaseObject
 		$event['id']        = intval(defaults($arr, 'id'       , 0));
 		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
 		$event['cid']       = intval(defaults($arr, 'cid'      , 0));
-		$event['uri']       =        defaults($arr, 'uri'      , item_new_uri($a->get_hostname(), $event['uid']));
+		$event['uri']       =        defaults($arr, 'uri'      , Item::newURI($event['uid']));
 		$event['type']      =        defaults($arr, 'type'     , 'event');
 		$event['summary']   =        defaults($arr, 'summary'  , '');
 		$event['desc']      =        defaults($arr, 'desc'     , '');

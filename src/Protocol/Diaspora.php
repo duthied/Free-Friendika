@@ -1602,11 +1602,21 @@ class Diaspora
 	 */
 	private static function getUriFromGuid($author, $guid, $onlyfound = false)
 	{
-		$r = q("SELECT `uri` FROM `item` WHERE `guid` = '%s' LIMIT 1", dbesc($guid));
-		if (DBM::is_result($r)) {
-			return $r[0]["uri"];
+		$item = dba::selectFirst('item', ['uri'], ['guid' => $guid]);
+		if (DBM::is_result($item)) {
+			return $item["uri"];
 		} elseif (!$onlyfound) {
-			return $author.":".$guid;
+			$contact = Contact::getDetailsByAddr($author, 0);
+			if (!empty($contact['network'])) {
+				$prefix = 'urn:X-' . $contact['network'] . ':';
+			} else {
+				// This fallback should happen most unlikely
+				$prefix = 'urn:X-dspr:';
+			}
+
+			$author_parts = explode('@', $author);
+
+			return $prefix . $author_parts[1] . ':' . $author_parts[0] . ':'. $guid;
 		}
 
 		return "";

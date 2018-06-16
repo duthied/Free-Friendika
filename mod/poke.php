@@ -92,7 +92,7 @@ function poke_init(App $a) {
 
 	$poster = $a->contact;
 
-	$uri = item_new_uri($a->get_hostname(), $uid);
+	$uri = Item::newURI($uid);
 
 	$arr = [];
 

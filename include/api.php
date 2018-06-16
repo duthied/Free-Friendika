@@ -4599,7 +4599,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility = false)
 {
 	// get data about the api authenticated user
-	$uri = item_new_uri(get_app()->get_hostname(), intval(api_user()));
+	$uri = Item::newURI(intval(api_user()));
 	$owner_record = q("SELECT * FROM `contact` WHERE `uid`= %d AND `self` LIMIT 1", intval(api_user()));
 
 	$arr = [];

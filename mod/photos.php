@@ -454,7 +454,7 @@ function photos_post(App $a)
 		if (!$item_id) {
 			// Create item container
 			$title = '';
-			$uri = item_new_uri($a->get_hostname(),$page_owner_uid);
+			$uri = Item::newURI($page_owner_uid);
 
 			$arr = [];
 			$arr['guid']          = get_guid(32);
@@ -624,7 +624,7 @@ function photos_post(App $a)
 
 			if (count($taginfo)) {
 				foreach ($taginfo as $tagged) {
-					$uri = item_new_uri($a->get_hostname(), $page_owner_uid);
+					$uri = Item::newURI($page_owner_uid);
 
 					$arr = [];
 					$arr['guid']          = get_guid(32);
@@ -848,7 +848,7 @@ function photos_post(App $a)
 		$smallest = 2;
 	}
 
-	$uri = item_new_uri($a->get_hostname(), $page_owner_uid);
+	$uri = Item::newURI($page_owner_uid);
 
 	// Create item container
 	$lat = $lon = null;
