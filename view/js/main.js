@@ -395,6 +395,47 @@ function NavUpdate() {
 	timer = setTimeout(NavUpdate, updateInterval);
 }
 
+function updateConvItems(data) {
+	// add a new thread
+	$('.toplevel_item',data).each(function() {
+		var ident = $(this).attr('id');
+
+		// Add new top-level item.
+		if ($('#' + ident).length == 0 && profile_page == 1) {
+			$('#' + prev).after($(this));
+
+		// Replace already existing thread.
+		} else {
+			// Find out if the hidden comments are open, so we can keep it that way
+			// if a new comment has been posted
+			var id = $('.hide-comments-total', this).attr('id');
+			if (typeof id != 'undefined') {
+				id = id.split('-')[3];
+				var commentsOpen = $("#collapsed-comments-" + id).is(":visible");
+			}
+
+			$('#' + ident).replaceWith($(this));
+
+			if (typeof id != 'undefined') {
+				if (commentsOpen) {
+					showHideComments(id);
+				}
+			}
+		}
+		prev = ident;
+	});
+
+	$('.like-rotator').hide();
+	if (commentBusy) {
+		commentBusy = false;
+		$('body').css('cursor', 'auto');
+	}
+	/* autocomplete @nicknames */
+	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
+	/* autocomplete bbcode */
+	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
+}
+
 function liveUpdate(src) {
 	if ((src == null) || stopped || !profile_uid) {
 		$('.like-rotator').hide(); return;
@@ -430,50 +471,13 @@ function liveUpdate(src) {
 		update_item = 0;
 
 		$('.wall-item-body', data).imagesLoaded(function() {
-			// add a new thread
-			$('.toplevel_item',data).each(function() {
-				var ident = $(this).attr('id');
+			updateConvItems(data);
 
-				// Add new top-level item.
-				if ($('#' + ident).length == 0 && profile_page == 1) {
-					$('#' + prev).after($(this));
-
-				// Replace already existing thread.
-				} else {
-					// Find out if the hidden comments are open, so we can keep it that way
-					// if a new comment has been posted
-					var id = $('.hide-comments-total', this).attr('id');
-					if (typeof id != 'undefined') {
-						id = id.split('-')[3];
-						var commentsOpen = $("#collapsed-comments-" + id).is(":visible");
-					}
-
-					$('#' + ident).replaceWith($(this));
-
-					if (typeof id != 'undefined') {
-						if (commentsOpen) {
-							showHideComments(id);
-						}
-					}
-				}
-				prev = ident;
-			});
+			// Update the scroll position.
+			$(window).scrollTop($(window).scrollTop() + $("section").height() - orgHeight);
 		});
 
 		callAddonHooks("postprocess_liveupdate");
-
-		// Update the scroll position.
-		$(window).scrollTop($(window).scrollTop() + $("section").height() - orgHeight);
-
-		$('.like-rotator').hide();
-		if (commentBusy) {
-			commentBusy = false;
-			$('body').css('cursor', 'auto');
-		}
-		/* autocomplete @nicknames */
-		$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
-		/* autocomplete bbcode */
-		$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 
 	});
 
