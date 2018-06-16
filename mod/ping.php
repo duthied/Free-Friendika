@@ -132,7 +132,7 @@ function ping_init(App $a)
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['created' => true]];
-                $items = Item::select(local_user(), $fields, $condition, $params);
+		$items = Item::select(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
 			$items_unseen = dba::inArray($items);

@@ -1070,9 +1070,11 @@ class Contact extends BaseObject
 			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
 		$r = Item::select(local_user(), [], $condition, $params);
 
-		$o = conversation($a, dba::inArray($r), 'contact-posts', false);
+		$items = dba::inArray($r);
+		
+		$o = conversation($a, $items, 'contact-posts', false);
 
-		$o .= alt_pager($a, count($r));
+		$o .= alt_pager($a, count($items));
 
 		return $o;
 	}

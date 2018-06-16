@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab5a551aff0505691c4836d063fc5171",
+    "content-hash": "4fcae78061a3eb72f91e4fa81e53af56",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -771,6 +771,49 @@
             "time": "2018-01-03T13:39:39+00:00"
         },
         {
+            "name": "npm-asset/ev-emitter",
+            "version": "1.1.1",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/ev-emitter/-/ev-emitter-1.1.1.tgz",
+                "reference": null,
+                "shasum": "8f18b0ce5c76a5d18017f71c0a795c65b9138f2a"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/metafizzy/ev-emitter/issues"
+                },
+                "npm-asset-main": "ev-emitter.js",
+                "npm-asset-directories": {
+                    "test": "test"
+                },
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/metafizzy/ev-emitter.git"
+                },
+                "npm-asset-scripts": {
+                    "test": "mocha test/test"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David DeSandro"
+                }
+            ],
+            "description": "lil' event emitter",
+            "homepage": "https://github.com/metafizzy/ev-emitter#readme",
+            "keywords": [
+                "emitter",
+                "event",
+                "pubsub"
+            ],
+            "time": "2017-07-06T13:46:38+00:00"
+        },
+        {
             "name": "npm-asset/fullcalendar",
             "version": "3.8.2",
             "dist": {
@@ -881,6 +924,70 @@
                 "jquery-plugin"
             ],
             "time": "2018-01-30T23:49:01+00:00"
+        },
+        {
+            "name": "npm-asset/imagesloaded",
+            "version": "4.1.4",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/imagesloaded/-/imagesloaded-4.1.4.tgz",
+                "reference": null,
+                "shasum": "1376efcd162bb768c34c3727ac89cc04051f3cc7"
+            },
+            "require": {
+                "npm-asset/ev-emitter": ">=1.0.0,<2.0.0"
+            },
+            "require-dev": {
+                "npm-asset/chalk": ">=1.1.1,<2.0.0",
+                "npm-asset/cheerio": ">=0.19.0,<0.20.0",
+                "npm-asset/gulp": ">=3.9.0,<4.0.0",
+                "npm-asset/gulp-jshint": ">=1.11.2,<2.0.0",
+                "npm-asset/gulp-json-lint": ">=0.1.0,<0.2.0",
+                "npm-asset/gulp-rename": ">=1.2.2,<2.0.0",
+                "npm-asset/gulp-replace": ">=0.5.4,<0.6.0",
+                "npm-asset/gulp-requirejs-optimize": "dev-github:metafizzy/gulp-requirejs-optimize",
+                "npm-asset/gulp-uglify": ">=1.4.2,<2.0.0",
+                "npm-asset/gulp-util": ">=3.0.7,<4.0.0",
+                "npm-asset/highlight.js": ">=8.9.1,<9.0.0",
+                "npm-asset/marked": ">=0.3.5,<0.4.0",
+                "npm-asset/minimist": ">=1.2.0,<2.0.0",
+                "npm-asset/transfob": ">=1.0.0,<2.0.0"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/desandro/imagesloaded/issues"
+                },
+                "npm-asset-main": "imagesloaded.js",
+                "npm-asset-directories": {
+                    "test": "test"
+                },
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git://github.com/desandro/imagesloaded.git"
+                },
+                "npm-asset-scripts": {
+                    "test": "echo \"Error: no test specified\" && exit 1"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David DeSandro"
+                }
+            ],
+            "description": "JavaScript is all like _You images done yet or what?_",
+            "homepage": "https://github.com/desandro/imagesloaded",
+            "keywords": [
+                "dom",
+                "images",
+                "jquery-plugin",
+                "loaded",
+                "ui"
+            ],
+            "time": "2018-01-02T16:56:03+00:00"
         },
         {
             "name": "npm-asset/jgrowl",
