@@ -239,7 +239,9 @@ class Item extends BaseObject
 	 */
 	private static function fieldlist($selected)
 	{
-		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
+		$fields = [];
+
+		$fields['item'] = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
 			'uri', 'thr-parent', 'parent-uri', 'content-warning',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
@@ -250,24 +252,25 @@ class Item extends BaseObject
 			'resource-id', 'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
 			'forum_mode', 'mention', 'global', 'shadow'];
 
-		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
-		$owner_fields = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
-		$contact_fields = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
+		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
+
+		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
+
+		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
 			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
 			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
 
-		$event_fields = ['created' => 'event-created', 'edited' => 'event-edited',
+		$fields['parent-item'] = ['guid' => 'parent-guid'];
+
+		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
+
+		$fields['event'] = ['created' => 'event-created', 'edited' => 'event-edited',
 			'start' => 'event-start','finish' => 'event-finish',
 			'summary' => 'event-summary','desc' => 'event-desc',
 			'location' => 'event-location', 'type' => 'event-type',
 			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
 			'ignore' => 'event-ignore', 'id' => 'event-id'];
 
-		$fields = ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
-			'contact' => $contact_fields, 'event' => $event_fields];
-
-		$fields['parent-item'] = ['guid' => 'parent-guid'];
-		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
 		$fields['sign'] = ['signed_text', 'signature', 'signer'];
 
 		return $fields;
