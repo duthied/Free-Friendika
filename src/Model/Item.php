@@ -33,8 +33,31 @@ require_once 'include/text.php';
 
 class Item extends BaseObject
 {
+	// Field list that is used to display the items
+	const DISPLAY_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid',
+			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
+			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach',
+			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id', 'item_network',
+			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'owner-id', 'owner-link', 'owner-name', 'owner-avatar',
+			'contact-id', 'contact-link', 'contact-name', 'contact-avatar',
+			'network', 'url', 'name', 'writable', 'self', 'cid', 'alias',
+			'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
+			'event-summary', 'event-desc', 'event-location', 'event-type',
+			'event-nofinish', 'event-adjust', 'event-ignore', 'event-id'];
+
+	// Field list that is used to deliver items via the protocols
+	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid',
+			'created', 'edited', 'verb', 'object-type', 'object', 'target',
+			'private', 'title', 'body', 'location', 'coord', 'app',
+			'attach', 'tag', 'bookmark', 'deleted', 'extid',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'author-id', 'author-link', 'owner-link', 'contact-uid',
+			'signed_text', 'signature', 'signer'];
+
 	/**
-	 * Retrieve a single record from the item table and returns it in an associative array
+	 * Retrieve a single record from the item table for a given user and returns it in an associative array
 	 *
 	 * @brief Retrieve a single record from a table
 	 * @param integer $uid User ID
@@ -44,10 +67,53 @@ class Item extends BaseObject
 	 * @return bool|array
 	 * @see dba::select
 	 */
-	public static function selectFirst($uid, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::selectFirst($selected, $condition, $params);
+	}
+
+	/**
+	 * @brief Select rows from the item table for a given user
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $selected  Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::select($selected, $condition, $params);
+	}
+
+	/**
+	 * Retrieve a single record from the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirst(array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
-		$result = self::select($uid, $fields, $condition, $params);
+
+		$result = self::select($fields, $condition, $params);
 
 		if (is_bool($result)) {
 			return $result;
@@ -61,15 +127,22 @@ class Item extends BaseObject
 	/**
 	 * @brief Select rows from the item table
 	 *
-	 * @param integer $uid User ID
-	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $selected  Array of selected fields, empty for all
 	 * @param array  $condition Array of fields for condition
 	 * @param array  $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 */
-	public static function select($uid, array $selected = [], array $condition = [], $params = [])
+	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
+		$uid = 0;
+		$usermode = false;
+
+		if (isset($params['uid'])) {
+			$uid = $params['uid'];
+			$usermode = true;
+		}
+
 		$fields = self::fieldlist($selected);
 
 		$select_fields = self::constructSelectFields($fields, $selected);
@@ -78,7 +151,9 @@ class Item extends BaseObject
 
 		$condition_string = self::addTablesToFields($condition_string, $fields);
 
-		$condition_string = $condition_string . ' AND ' . self::condition(false);
+		if ($usermode) {
+			$condition_string = $condition_string . ' AND ' . self::condition(false);
+		}
 
 		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
 
@@ -100,10 +175,10 @@ class Item extends BaseObject
 	 * @return bool|array
 	 * @see dba::select
 	 */
-	public static function selectFirstThread($uid, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstThreadForUser($uid, array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
-		$result = self::selectThread($uid, $fields, $condition, $params);
+		$result = self::selectThreadForUser($uid, $fields, $condition, $params);
 
 		if (is_bool($result)) {
 			return $result;
@@ -124,8 +199,12 @@ class Item extends BaseObject
 	 *
 	 * @return boolean|object
 	 */
-	public static function selectThread($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
 	{
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
 		$fields = self::fieldlist($selected);
 
 		$threadfields = ['thread' => ['iid', 'uid', 'contact-id', 'owner-id', 'author-id',
@@ -160,40 +239,39 @@ class Item extends BaseObject
 	 */
 	private static function fieldlist($selected)
 	{
-		/*
-		These Fields are not added below. They are here to for bug search.
-		'type', 'extid', 'changed', 'moderated', 'target-type', 'target', 'resource-id',
-		'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
-		'forum_mode', 'mention', 'global', 'shadow',
-		*/
+		$fields = [];
 
-		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
-			'uri', 'thr-parent', 'parent-uri', 'content-warning',
-			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
-			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'unseen',
+		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
+			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
+			'created', 'edited', 'commented', 'received', 'changed',
+			'title', 'body', 'app', 'verb', 'object-type', 'object', 'target-type', 'target',
+			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'file', 'location', 'coord', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
+			'rendered-hash', 'rendered-html', 'global', 'shadow', 'content-warning',
 			'id' => 'item_id', 'network' => 'item_network'];
 
-		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
-		$owner_fields = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
-		$contact_fields = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
-			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias'];
+		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
 
-		$event_fields = ['created' => 'event-created', 'edited' => 'event-edited',
+		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
+
+		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
+			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
+			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
+
+		$fields['parent-item'] = ['guid' => 'parent-guid'];
+
+		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
+
+		$fields['event'] = ['created' => 'event-created', 'edited' => 'event-edited',
 			'start' => 'event-start','finish' => 'event-finish',
 			'summary' => 'event-summary','desc' => 'event-desc',
 			'location' => 'event-location', 'type' => 'event-type',
 			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
 			'ignore' => 'event-ignore', 'id' => 'event-id'];
 
-		$fields = ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
-			'contact' => $contact_fields, 'event' => $event_fields];
-
-		if (!empty($selected)) {
-			$fields['parent-item'] = ['guid' => 'parent-guid'];
-			$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
-		}
+		$fields['sign'] = ['signed_text', 'signature', 'signer'];
 
 		return $fields;
 	}
@@ -255,6 +333,10 @@ class Item extends BaseObject
 
 		if (strpos($sql_commands, "`event`.") !== false) {
 			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
+		}
+
+		if (strpos($sql_commands, "`sign`.") !== false) {
+			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
 		}
 
 		if ((strpos($sql_commands, "`parent-item`.") !== false) || (strpos($sql_commands, "`parent-author`.") !== false)) {

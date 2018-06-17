@@ -407,7 +407,7 @@ class NotificationsManager extends BaseObject
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
-		$items = Item::select(local_user(), $fields, $condition, $params);
+		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
 			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
@@ -492,7 +492,7 @@ class NotificationsManager extends BaseObject
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
-		$items = Item::select(local_user(), $fields, $condition, $params);
+		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
 			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
@@ -532,7 +532,7 @@ class NotificationsManager extends BaseObject
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
-		$items = Item::select(local_user(), $fields, $condition, $params);
+		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
 			$notifs = $this->formatNotifs(dba::inArray($items), $ident);

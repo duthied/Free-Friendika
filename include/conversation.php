@@ -788,7 +788,7 @@ function conversation_add_children($parents, $block_authors, $order, $uid) {
 		if ($block_authors) {
 			$condition[0] .= "AND NOT `author`.`hidden`";
 		}
-		$thread_items = Item::select(local_user(), [], $condition, $params);
+		$thread_items = Item::selectForUser(local_user(), [], $condition, $params);
 
 		$comments = dba::inArray($thread_items);
 

@@ -23,7 +23,7 @@ function subthread_content(App $a) {
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
 
 	$condition = ["`parent` = ? OR `parent-uri` = ? AND `parent` = `id`", $item_id, $item_id];
-	$item = Item::selectFirst(local_user(), [], $condition);
+	$item = Item::selectFirst([], $condition);
 
 	if (empty($item_id) || !DBM::is_result($item)) {
 		logger('subthread: no item ' . $item_id);

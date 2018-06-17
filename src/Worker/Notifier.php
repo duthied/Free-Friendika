@@ -10,6 +10,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Model\PushSubscriber;
 use Friendica\Network\Probe;
@@ -104,26 +105,26 @@ class Notifier {
 						intval($uid), NETWORK_DFRN, NETWORK_DIASPORA);
 		} else {
 			// find ancestors
-			$target_item = dba::fetch_first("SELECT `item`.*, `contact`.`uid` AS `cuid` FROM `item`
-						INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-						WHERE `item`.`id` = ? AND `visible` AND NOT `moderated`", $item_id);
+			$condition = ['id' => $item_id, 'visible' => true, 'moderated' => false];
+			$target_item = Item::selectFirst([], $condition);
 
 			if (!DBM::is_result($target_item) || !intval($target_item['parent'])) {
 				return;
 			}
 
 			$parent_id = intval($target_item['parent']);
-			$uid = $target_item['cuid'];
+			$uid = $target_item['contact-uid'];
 			$updated = $target_item['edited'];
 
-			$items = q("SELECT `item`.*, `sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
-				FROM `item` LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id` WHERE `parent` = %d AND visible AND NOT moderated ORDER BY `id` ASC",
-				intval($parent_id)
-			);
+			$condition = ['parent' => $parent_id, 'visible' => true, 'moderated' => false];
+			$params = ['order' => ['id']];
+			$ret = Item::select([], $condition, $params);
 
-			if (!count($items)) {
+			if (!DBM::is_result($ret)) {
 				return;
 			}
+
+			$items = dba::inArray($ret);
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {

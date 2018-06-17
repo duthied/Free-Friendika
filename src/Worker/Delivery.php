@@ -59,14 +59,10 @@ class Delivery extends BaseObject
 			}
 			$parent_id = intval($item['parent']);
 
-			$itemdata = dba::p("SELECT `item`.*, `contact`.`uid` AS `cuid`,
-							`sign`.`signed_text`,`sign`.`signature`,`sign`.`signer`
-						FROM `item`
-						INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-						LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`
-						WHERE `item`.`id` IN (?, ?) AND `visible` AND NOT `moderated`
-						ORDER BY `item`.`id`",
-					$item_id, $parent_id);
+			$condition = ['id' => [$item_id, $parent_id], 'visible' => true, 'moderated' => false];
+			$params = ['order' => ['id']];
+			$itemdata = Item::select([], $condition, $params);
+
 			$items = [];
 			while ($item = dba::fetch($itemdata)) {
 				if ($item['id'] == $parent_id) {
@@ -79,7 +75,7 @@ class Delivery extends BaseObject
 			}
 			dba::close($itemdata);
 
-			$uid = $target_item['cuid'];
+			$uid = $target_item['contact-uid'];
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {

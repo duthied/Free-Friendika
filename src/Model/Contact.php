@@ -1068,10 +1068,10 @@ class Contact extends BaseObject
 			$author_id, ACTIVITY_POST, local_user()];
 		$params = ['order' => ['created' => true],
 			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-		$r = Item::select(local_user(), [], $condition, $params);
+		$r = Item::selectForUser(local_user(), [], $condition, $params);
 
 		$items = dba::inArray($r);
-		
+
 		$o = conversation($a, $items, 'contact-posts', false);
 
 		$o .= alt_pager($a, count($items));

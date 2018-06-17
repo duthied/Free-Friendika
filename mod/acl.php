@@ -258,7 +258,7 @@ function acl_content(App $a)
 
 		$condition = ["`parent` = ?", $conv_id];
 		$params = ['order' => ['author-name' => true]];
-		$authors = Item::select(local_user(), ['author-link'], $condition, $params);
+		$authors = Item::selectForUser(local_user(), ['author-link'], $condition, $params);
 		$item_authors = [];
 		while ($author = dba::fetch($authors)) {
 			$item_authors[$author['author-link']] = $author['author-link'];

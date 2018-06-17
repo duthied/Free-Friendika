@@ -69,7 +69,7 @@ class Diaspora
 
 		if (Config::get("system", "relay_directly", false)) {
 			// We distribute our stuff based on the parent to ensure that the thread will be complete
-			$parent = dba::selectFirst('item', ['parent'], ['id' => $item_id]);
+			$parent = Item::selectFirst(['parent'], ['id' => $item_id]);
 			if (!DBM::is_result($parent)) {
 				return;
 			}
@@ -1170,15 +1170,10 @@ class Diaspora
 	 */
 	private static function messageExists($uid, $guid)
 	{
-		$r = q(
-			"SELECT `id` FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($uid),
-			dbesc($guid)
-		);
-
-		if (DBM::is_result($r)) {
+		$item = Item::selectFirst(['id'], ['uid' => $uid, 'guid' => $guid]);
+		if (DBM::is_result($item)) {
 			logger("message ".$guid." already exists for user ".$uid);
-			return $r[0]["id"];
+			return $item["id"];
 		}
 
 		return false;
@@ -1385,16 +1380,13 @@ class Diaspora
 	 */
 	private static function parentItem($uid, $guid, $author, $contact)
 	{
-		$r = q(
-			"SELECT `id`, `parent`, `body`, `wall`, `uri`, `guid`, `private`, `origin`,
-				`author-name`, `author-link`, `author-avatar`,
-				`owner-name`, `owner-link`, `owner-avatar`
-			FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($uid),
-			dbesc($guid)
-		);
+		$fields = ['id', 'parent', 'body', 'wall', 'uri', 'guid', 'private', 'origin',
+			'author-name', 'author-link', 'author-avatar',
+			'owner-name', 'owner-link', 'owner-avatar'];
+		$condition = ['uid' => $uid, 'guid' => $guid];
+		$item = Item::selectFirst($fields, $condition);
 
-		if (!$r) {
+		if (!DBM::is_result($item)) {
 			$result = self::storeByGuid($guid, $contact["url"], $uid);
 
 			if (!$result) {
@@ -1405,23 +1397,16 @@ class Diaspora
 			if ($result) {
 				logger("Fetched missing item ".$guid." - result: ".$result, LOGGER_DEBUG);
 
-				$r = q(
-					"SELECT `id`, `body`, `wall`, `uri`, `private`, `origin`,
-						`author-name`, `author-link`, `author-avatar`,
-						`owner-name`, `owner-link`, `owner-avatar`
-					FROM `item` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-					intval($uid),
-					dbesc($guid)
-				);
+				$item = Item::selectFirst($fields, $condition);
 			}
 		}
 
-		if (!$r) {
+		if (!DBM::is_result($item)) {
 			logger("parent item not found: parent: ".$guid." - user: ".$uid);
 			return false;
 		} else {
 			logger("parent item found: parent: ".$guid." - user: ".$uid);
-			return $r[0];
+			return $item;
 		}
 	}
 
@@ -1602,7 +1587,7 @@ class Diaspora
 	 */
 	private static function getUriFromGuid($author, $guid, $onlyfound = false)
 	{
-		$item = dba::selectFirst('item', ['uri'], ['guid' => $guid]);
+		$item = Item::selectFirst(['uri'], ['guid' => $guid]);
 		if (DBM::is_result($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
@@ -1632,9 +1617,9 @@ class Diaspora
 	 */
 	private static function getGuidFromUri($uri, $uid)
 	{
-		$r = q("SELECT `guid` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1", dbesc($uri), intval($uid));
-		if (DBM::is_result($r)) {
-			return $r[0]["guid"];
+		$item = Item::selectFirst(['guid'], ['uri' => $uri, 'uid' => $uid]);
+		if (DBM::is_result($item)) {
+			return $item["guid"];
 		} else {
 			return false;
 		}
@@ -1649,11 +1634,10 @@ class Diaspora
 	 */
 	private static function importerForGuid($guid)
 	{
-		$item = dba::fetch_first("SELECT `uid` FROM `item` WHERE `origin` AND `guid` = ? LIMIT 1", $guid);
-
+		$item = Item::selectFirst(['uid'], ['origin' => true, 'guid' => $guid]);
 		if (DBM::is_result($item)) {
 			logger("Found user ".$item['uid']." as owner of item ".$guid, LOGGER_DEBUG);
-			$contact = dba::fetch_first("SELECT * FROM `contact` WHERE `self` AND `uid` = ?", $item['uid']);
+			$contact = dba::selectFirst('contact', [], ['self' => true, 'uid' => $item['uid']]);
 			if (DBM::is_result($contact)) {
 				return $contact;
 			}
@@ -1721,13 +1705,11 @@ class Diaspora
 		$datarray["contact-id"] = $author_contact["cid"];
 		$datarray["network"]  = $author_contact["network"];
 
-		$datarray["author-name"] = $person["name"];
 		$datarray["author-link"] = $person["url"];
-		$datarray["author-avatar"] = ((x($person, "thumb")) ? $person["thumb"] : $person["photo"]);
+		$datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
 
-		$datarray["owner-name"] = $contact["name"];
 		$datarray["owner-link"] = $contact["url"];
-		$datarray["owner-avatar"] = ((x($contact, "thumb")) ? $contact["thumb"] : $contact["photo"]);
+		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
@@ -2056,13 +2038,11 @@ class Diaspora
 		$datarray["contact-id"] = $author_contact["cid"];
 		$datarray["network"]  = $author_contact["network"];
 
-		$datarray["author-name"] = $person["name"];
 		$datarray["author-link"] = $person["url"];
-		$datarray["author-avatar"] = ((x($person, "thumb")) ? $person["thumb"] : $person["photo"]);
+		$datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
 
-		$datarray["owner-name"] = $contact["name"];
 		$datarray["owner-link"] = $contact["url"];
-		$datarray["owner-avatar"] = ((x($contact, "thumb")) ? $contact["thumb"] : $contact["photo"]);
+		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
@@ -2079,7 +2059,7 @@ class Diaspora
 
 		// like on comments have the comment as parent. So we need to fetch the toplevel parent
 		if ($parent_item["id"] != $parent_item["parent"]) {
-			$toplevel = dba::selectFirst('item', ['origin'], ['id' => $parent_item["parent"]]);
+			$toplevel = Item::selectFirst(['origin'], ['id' => $parent_item["parent"]]);
 			$origin = $toplevel["origin"];
 		} else {
 			$origin = $parent_item["origin"];
@@ -2216,7 +2196,7 @@ class Diaspora
 			return false;
 		}
 
-		$item = dba::selectFirst('item', ['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
+		$item = Item::selectFirst(['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
 		if (!DBM::is_result($item)) {
 			logger('Item not found, no origin or private: '.$parent_guid);
 			return false;
@@ -2237,11 +2217,11 @@ class Diaspora
 		}
 
 		// Send all existing comments and likes to the requesting server
-		$comments = dba::p("SELECT `item`.`id`, `item`.`verb`, `contact`.`self`
-				FROM `item`
-				INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				WHERE `item`.`parent` = ? AND `item`.`id` != `item`.`parent`", $item['id']);
+		$comments = Item::select(['id', 'verb', 'self'], ['parent' => $item['id']]);
 		while ($comment = dba::fetch($comments)) {
+			if ($comment['id'] == $comment['parent']) {
+				continue;
+			}
 			if ($comment['verb'] == ACTIVITY_POST) {
 				$cmd = $comment['self'] ? 'comment-new' : 'comment-import';
 			} else {
@@ -2599,7 +2579,7 @@ class Diaspora
 		$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
-		$item = dba::selectfirst('item', $fields, $condition);
+		$item = Item::selectFirst($fields, $condition);
 
 		if (DBM::is_result($item)) {
 			logger("reshared message ".$guid." already exists on system.");
@@ -2643,7 +2623,7 @@ class Diaspora
 				$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 					'author-name', 'author-link', 'author-avatar'];
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
-				$item = dba::selectfirst('item', $fields, $condition);
+				$item = Item::selectFirst($fields, $condition);
 
 				if (DBM::is_result($item)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
@@ -2701,13 +2681,11 @@ class Diaspora
 		$datarray["contact-id"] = $contact["id"];
 		$datarray["network"]  = NETWORK_DIASPORA;
 
-		$datarray["author-name"] = $contact["name"];
 		$datarray["author-link"] = $contact["url"];
-		$datarray["author-avatar"] = ((x($contact, "thumb")) ? $contact["thumb"] : $contact["photo"]);
+		$datarray["author-id"] = Contact::getIdForURL($contact["url"], 0);
 
-		$datarray["owner-name"] = $datarray["author-name"];
 		$datarray["owner-link"] = $datarray["author-link"];
-		$datarray["owner-avatar"] = $datarray["author-avatar"];
+		$datarray["owner-id"] = $datarray["author-id"];
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
@@ -2787,7 +2765,7 @@ class Diaspora
 		} else {
 			$condition = ["`guid` = ? AND `uid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid, $importer['uid']];
 		}
-		$r = dba::select('item', $fields, $condition);
+		$r = Item::select($fields, $condition);
 		if (!DBM::is_result($r)) {
 			logger("Target guid ".$target_guid." was not found on this system for user ".$importer['uid'].".");
 			return false;
@@ -2795,7 +2773,7 @@ class Diaspora
 
 		while ($item = dba::fetch($r)) {
 			// Fetch the parent item
-			$parent = dba::selectFirst('item', ['author-link'], ['id' => $item["parent"]]);
+			$parent = Item::selectFirst(['author-link'], ['id' => $item["parent"]]);
 
 			// Only delete it if the parent author really fits
 			if (!link_compare($parent["author-link"], $contact["url"]) && !link_compare($item["author-link"], $contact["url"])) {
@@ -2921,13 +2899,11 @@ class Diaspora
 		$datarray["contact-id"] = $contact["id"];
 		$datarray["network"] = NETWORK_DIASPORA;
 
-		$datarray["author-name"] = $contact["name"];
 		$datarray["author-link"] = $contact["url"];
-		$datarray["author-avatar"] = ((x($contact, "thumb")) ? $contact["thumb"] : $contact["photo"]);
+		$datarray["author-id"] = Contact::getIdForURL($contact["url"], 0);
 
-		$datarray["owner-name"] = $datarray["author-name"];
 		$datarray["owner-link"] = $datarray["author-link"];
-		$datarray["owner-avatar"] = $datarray["author-avatar"];
+		$datarray["owner-id"] = $datarray["author-id"];
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
@@ -3433,7 +3409,7 @@ class Diaspora
 
 		if (($guid != "") && $complete) {
 			$condition = ['guid' => $guid, 'network' => [NETWORK_DFRN, NETWORK_DIASPORA]];
-			$item = dba::selectFirst('item', ['contact-id'], $condition);
+			$item = Item::selectFirst(['contact-id'], $condition);
 			if (DBM::is_result($item)) {
 				$ret= [];
 				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
@@ -3700,15 +3676,10 @@ class Diaspora
 	 */
 	private static function constructLike($item, $owner)
 	{
-		$p = q(
-			"SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-			dbesc($item["thr-parent"])
-		);
-		if (!DBM::is_result($p)) {
+		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
+		if (!DBM::is_result($parent)) {
 			return false;
 		}
-
-		$parent = $p[0];
 
 		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
 		$positive = null;
@@ -3736,15 +3707,10 @@ class Diaspora
 	 */
 	private static function constructAttend($item, $owner)
 	{
-		$p = q(
-			"SELECT `guid`, `uri`, `parent-uri` FROM `item` WHERE `uri` = '%s' LIMIT 1",
-			dbesc($item["thr-parent"])
-		);
-		if (!DBM::is_result($p)) {
+		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
+		if (!DBM::is_result($parent)) {
 			return false;
 		}
-
-		$parent = $p[0];
 
 		switch ($item['verb']) {
 			case ACTIVITY_ATTEND:
@@ -3785,17 +3751,10 @@ class Diaspora
 			return $result;
 		}
 
-		$p = q(
-			"SELECT `guid` FROM `item` WHERE `parent` = %d AND `id` = %d LIMIT 1",
-			intval($item["parent"]),
-			intval($item["parent"])
-		);
-
-		if (!DBM::is_result($p)) {
+		$parent = Item::selectFirst(['guid'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
+		if (!DBM::is_result($parent)) {
 			return false;
 		}
-
-		$parent = $p[0];
 
 		$text = html_entity_decode(BBCode::toMarkdown($item["body"]));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
@@ -4265,16 +4224,16 @@ class Diaspora
 
 		$contact["uprvkey"] = $r[0]['prvkey'];
 
-		$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1", intval($post_id));
-		if (!DBM::is_result($r)) {
+		$item = Item::selectFirst([], ['id' => $post_id]);
+		if (!DBM::is_result($item)) {
 			return false;
 		}
 
-		if (!in_array($r[0]["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+		if (!in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
 
-		$message = self::constructLike($r[0], $contact);
+		$message = self::constructLike($item, $contact);
 		if ($message === false) {
 			return false;
 		}
