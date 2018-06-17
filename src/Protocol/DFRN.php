@@ -245,14 +245,7 @@ class DFRN
 		}
 
 		if (!empty($ids)) {
-			$condition = ['id' => $ids];
-			$fields = ['author-id', 'uid', 'id', 'parent', 'uri', 'thr-parent',
-				'parent-uri', 'created', 'edited', 'verb', 'object-type',
-				'guid', 'private', 'title', 'body', 'location', 'coord', 'app',
-				'attach', 'object', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-				'extid', 'target', 'tag', 'bookmark', 'deleted',
-				'author-link', 'owner-link', 'signed_text', 'signature', 'signer'];
-			$ret = Item::select($fields, $condition);
+			$ret = Item::select(Item::DELIVER_FIELDLIST, ['id' => $ids]);
 			$items = dba::inArray($ret);
 		} else {
 			$items = [];
@@ -336,13 +329,7 @@ class DFRN
 			$condition = ['id' => $item_id];
 		}
 
-		$fields = ['author-id', 'uid', 'id', 'parent', 'uri', 'thr-parent',
-			'parent-uri', 'created', 'edited', 'verb', 'object-type',
-			'guid', 'private', 'title', 'body', 'location', 'coord', 'app',
-			'attach', 'object', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'extid', 'target', 'tag', 'bookmark', 'deleted',
-			'author-link', 'owner-link', 'signed_text', 'signature', 'signer'];
-		$ret = Item::select($fields, $condition);
+		$ret = Item::select(Item::DELIVER_FIELDLIST, $condition);
 		$items = dba::inArray($ret);
 		if (!DBM::is_result($items)) {
 			killme();
