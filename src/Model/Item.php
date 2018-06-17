@@ -241,16 +241,16 @@ class Item extends BaseObject
 	{
 		$fields = [];
 
-		$fields['item'] = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
-			'uri', 'thr-parent', 'parent-uri', 'content-warning',
-			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
-			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'id' => 'item_id', 'network' => 'item_network',
-			'type', 'extid', 'changed', 'moderated', 'target-type', 'target',
-			'resource-id', 'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
-			'forum_mode', 'mention', 'global', 'shadow'];
+		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
+			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
+			'created', 'edited', 'commented', 'received', 'changed',
+			'title', 'body', 'app', 'verb', 'object-type', 'object', 'target-type', 'target',
+			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'file', 'location', 'coord', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
+			'rendered-hash', 'rendered-html', 'global', 'shadow', 'content-warning',
+			'id' => 'item_id', 'network' => 'item_network'];
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
 
