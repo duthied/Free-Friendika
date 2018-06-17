@@ -69,7 +69,7 @@ class Diaspora
 
 		if (Config::get("system", "relay_directly", false)) {
 			// We distribute our stuff based on the parent to ensure that the thread will be complete
-			$parent = Item::selectFirst(0, ['parent'], ['id' => $item_id]);
+			$parent = Item::selectFirst(['parent'], ['id' => $item_id]);
 			if (!DBM::is_result($parent)) {
 				return;
 			}
@@ -1170,7 +1170,7 @@ class Diaspora
 	 */
 	private static function messageExists($uid, $guid)
 	{
-		$item = Item::selectFirst($uid, ['id'], ['uid' => $uid, 'guid' => $guid]);
+		$item = Item::selectFirst(['id'], ['uid' => $uid, 'guid' => $guid]);
 		if (DBM::is_result($item)) {
 			logger("message ".$guid." already exists for user ".$uid);
 			return $item["id"];
@@ -1384,7 +1384,7 @@ class Diaspora
 			'author-name', 'author-link', 'author-avatar',
 			'owner-name', 'owner-link', 'owner-avatar'];
 		$condition = ['uid' => $uid, 'guid' => $guid];
-		$item = Item::selectFirst($uid, $fields, $condition);
+		$item = Item::selectFirst($fields, $condition);
 
 		if (!DBM::is_result($item)) {
 			$result = self::storeByGuid($guid, $contact["url"], $uid);
@@ -1397,7 +1397,7 @@ class Diaspora
 			if ($result) {
 				logger("Fetched missing item ".$guid." - result: ".$result, LOGGER_DEBUG);
 
-				$item = Item::selectFirst($uid, $fields, $condition);
+				$item = Item::selectFirst($fields, $condition);
 			}
 		}
 
@@ -1587,7 +1587,7 @@ class Diaspora
 	 */
 	private static function getUriFromGuid($author, $guid, $onlyfound = false)
 	{
-		$item = Item::selectFirst(0, ['uri'], ['guid' => $guid]);
+		$item = Item::selectFirst(['uri'], ['guid' => $guid]);
 		if (DBM::is_result($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
@@ -1617,7 +1617,7 @@ class Diaspora
 	 */
 	private static function getGuidFromUri($uri, $uid)
 	{
-		$item = Item::selectFirst($uid, ['guid'], ['uri' => $uri, 'uid' => $uid]);
+		$item = Item::selectFirst(['guid'], ['uri' => $uri, 'uid' => $uid]);
 		if (DBM::is_result($item)) {
 			return $item["guid"];
 		} else {
@@ -1634,7 +1634,7 @@ class Diaspora
 	 */
 	private static function importerForGuid($guid)
 	{
-		$item = Item::selectFirst(0, ['uid'], ['origin' => true, 'guid' => $guid]);
+		$item = Item::selectFirst(['uid'], ['origin' => true, 'guid' => $guid]);
 		if (DBM::is_result($item)) {
 			logger("Found user ".$item['uid']." as owner of item ".$guid, LOGGER_DEBUG);
 			$contact = dba::selectFirst('contact', [], ['self' => true, 'uid' => $item['uid']]);
@@ -2059,7 +2059,7 @@ class Diaspora
 
 		// like on comments have the comment as parent. So we need to fetch the toplevel parent
 		if ($parent_item["id"] != $parent_item["parent"]) {
-			$toplevel = Item::selectFirst($importer["uid"], ['origin'], ['id' => $parent_item["parent"]]);
+			$toplevel = Item::selectFirst(['origin'], ['id' => $parent_item["parent"]]);
 			$origin = $toplevel["origin"];
 		} else {
 			$origin = $parent_item["origin"];
@@ -2196,7 +2196,7 @@ class Diaspora
 			return false;
 		}
 
-		$item = Item::selectFirst(0, ['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
+		$item = Item::selectFirst(['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
 		if (!DBM::is_result($item)) {
 			logger('Item not found, no origin or private: '.$parent_guid);
 			return false;
@@ -2217,7 +2217,7 @@ class Diaspora
 		}
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Item::select(0, ['id', 'verb', 'self'], ['parent' => $item['id']]);
+		$comments = Item::select(['id', 'verb', 'self'], ['parent' => $item['id']]);
 		while ($comment = dba::fetch($comments)) {
 			if ($comment['id'] == $comment['parent']) {
 				continue;
@@ -2579,7 +2579,7 @@ class Diaspora
 		$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
-		$item = Item::selectFirst(0, $fields, $condition);
+		$item = Item::selectFirst($fields, $condition);
 
 		if (DBM::is_result($item)) {
 			logger("reshared message ".$guid." already exists on system.");
@@ -2623,7 +2623,7 @@ class Diaspora
 				$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 					'author-name', 'author-link', 'author-avatar'];
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
-				$item = Item::selectFirst(0, $fields, $condition);
+				$item = Item::selectFirst($fields, $condition);
 
 				if (DBM::is_result($item)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
@@ -2765,7 +2765,7 @@ class Diaspora
 		} else {
 			$condition = ["`guid` = ? AND `uid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid, $importer['uid']];
 		}
-		$r = Item::select($importer['uid'], $fields, $condition);
+		$r = Item::select($fields, $condition);
 		if (!DBM::is_result($r)) {
 			logger("Target guid ".$target_guid." was not found on this system for user ".$importer['uid'].".");
 			return false;
@@ -2773,7 +2773,7 @@ class Diaspora
 
 		while ($item = dba::fetch($r)) {
 			// Fetch the parent item
-			$parent = Item::selectFirst(0, ['author-link'], ['id' => $item["parent"]]);
+			$parent = Item::selectFirst(['author-link'], ['id' => $item["parent"]]);
 
 			// Only delete it if the parent author really fits
 			if (!link_compare($parent["author-link"], $contact["url"]) && !link_compare($item["author-link"], $contact["url"])) {
@@ -3409,7 +3409,7 @@ class Diaspora
 
 		if (($guid != "") && $complete) {
 			$condition = ['guid' => $guid, 'network' => [NETWORK_DFRN, NETWORK_DIASPORA]];
-			$item = Item::selectFirst(0, ['contact-id'], $condition);
+			$item = Item::selectFirst(['contact-id'], $condition);
 			if (DBM::is_result($item)) {
 				$ret= [];
 				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
@@ -3676,7 +3676,7 @@ class Diaspora
 	 */
 	private static function constructLike($item, $owner)
 	{
-		$parent = Item::selectFirst(0, ['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
+		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
 		if (!DBM::is_result($parent)) {
 			return false;
 		}
@@ -3707,7 +3707,7 @@ class Diaspora
 	 */
 	private static function constructAttend($item, $owner)
 	{
-		$parent = Item::selectFirst(0, ['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
+		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
 		if (!DBM::is_result($parent)) {
 			return false;
 		}
@@ -3751,7 +3751,7 @@ class Diaspora
 			return $result;
 		}
 
-		$parent = Item::selectFirst(0, ['guid'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
+		$parent = Item::selectFirst(['guid'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
 		if (!DBM::is_result($parent)) {
 			return false;
 		}
@@ -4224,7 +4224,7 @@ class Diaspora
 
 		$contact["uprvkey"] = $r[0]['prvkey'];
 
-		$item = Item::selectFirst(0, [], ['id' => $post_id]);
+		$item = Item::selectFirst([], ['id' => $post_id]);
 		if (!DBM::is_result($item)) {
 			return false;
 		}

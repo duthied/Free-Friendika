@@ -68,7 +68,7 @@ function notes_content(App $a, $update = false)
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-	$r = Item::select(local_user(), ['item_id'], $condition, $params);
+	$r = Item::selectForUser(local_user(), ['item_id'], $condition, $params);
 
 	if (DBM::is_result($r)) {
 		$parents_arr = [];
@@ -79,7 +79,7 @@ function notes_content(App $a, $update = false)
 		dba::close($r);
 
 		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
-		$result = Item::select(local_user(), Item::DISPLAY_FIELDLIST, $condition);
+		$result = Item::selectForUser(local_user(), [], $condition);
 		if (DBM::is_result($result)) {
 			$items = conv_sort(dba::inArray($result), 'commented');
 			$o .= conversation($a, $items, 'notes', $update);

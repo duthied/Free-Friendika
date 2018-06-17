@@ -32,7 +32,7 @@ function tagger_content(App $a) {
 	logger('tagger: tag ' . $term . ' item ' . $item_id);
 
 
-	$item = Item::selectFirst(local_user(), [], ['id' => $item_id]);
+	$item = Item::selectFirst([], ['id' => $item_id]);
 
 	if (!$item_id || !DBM::is_result($item)) {
 		logger('tagger: no item ' . $item_id);

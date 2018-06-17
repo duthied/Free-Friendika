@@ -130,7 +130,7 @@ function notification($params)
 		$item = null;
 
 		if ($params['otype'] === 'item' && $parent_id) {
-			$item = Item::selectFirst($params['uid'], [], ['id' => $parent_id]);
+			$item = Item::selectFirstForUser($params['uid'], [], ['id' => $parent_id]);
 		}
 
 		$item_post_type = item_post_type($item);

@@ -71,7 +71,7 @@ function poke_init(App $a) {
 	if ($parent) {
 		$fields = ['uri', 'private', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 		$condition = ['id' => $parent, 'parent' => $parent, 'uid' => $uid];
-		$item = Item::selectFirst(local_user(), $fields, $condition);
+		$item = Item::selectFirst($fields, $condition);
 
 		if (DBM::is_result($item)) {
 			$parent_uri = $item['uri'];

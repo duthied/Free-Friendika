@@ -1626,7 +1626,7 @@ function api_search($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	$data['status'] = api_format_items(dba::inArray($statuses), $user_info);
 
@@ -1693,7 +1693,7 @@ function api_statuses_home_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	$items = dba::inArray($statuses);
 
@@ -1770,7 +1770,7 @@ function api_statuses_public_timeline($type)
 		}
 
 		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-		$statuses = Item::selectThread(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+		$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
 		$r = dba::inArray($statuses);
 	} else {
@@ -1787,7 +1787,7 @@ function api_statuses_public_timeline($type)
 		}
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-		$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 		$r = dba::inArray($statuses);
 	}
@@ -1846,7 +1846,7 @@ function api_statuses_networkpublic_timeline($type)
 	}
 
 	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectThread(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
 	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
@@ -1917,7 +1917,7 @@ function api_statuses_show($type)
 		$params = [];
 	}
 
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	/// @TODO How about copying this to above methods which don't check $r ?
 	if (!DBM::is_result($statuses)) {
@@ -1998,7 +1998,7 @@ function api_conversation_show($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	if (!DBM::is_result($statuses)) {
 		throw new BadRequestException("There is no status with id $id.");
@@ -2048,7 +2048,7 @@ function api_statuses_repeat($type)
 	logger('API: api_statuses_repeat: '.$id);
 
 	$fields = ['body', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-	$item = Item::selectFirst(api_user(), $fields, ['id' => $id, 'private' => false]);
+	$item = Item::selectFirst($fields, ['id' => $id, 'private' => false]);
 
 	if (DBM::is_result($item) && $item['body'] != "") {
 		if (strpos($item['body'], "[/share]") !== false) {
@@ -2168,7 +2168,7 @@ function api_statuses_mentions($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
@@ -2248,7 +2248,7 @@ function api_statuses_user_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	$ret = api_format_items(dba::inArray($statuses), $user_info, true, $type);
 
@@ -2300,7 +2300,7 @@ function api_favorites_create_destroy($type)
 		$itemid = intval($_REQUEST['id']);
 	}
 
-	$item = Item::selectFirst(api_user(), Item::DISPLAY_FIELDLIST, ['id' => $itemid, 'uid' => api_user()]);
+	$item = Item::selectFirstForUser(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
 
 	if (!DBM::is_result($item)) {
 		throw new BadRequestException("Invalid item.");
@@ -2390,7 +2390,7 @@ function api_favorites($type)
 			$condition[] = $max_id;
 		}
 
-		$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 		$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 	}
@@ -3198,7 +3198,7 @@ function api_lists_statuses($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	$items = api_format_items(dba::inArray($statuses), $user_info, false, $type);
 
@@ -4723,7 +4723,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$condition = ["`parent` = ? AND `uid` = ? AND (`verb` = ? OR `type`='photo')",
 		$item[0]['parent'], api_user(), ACTIVITY_POST];
 
-	$statuses = Item::select(api_user(), Item::DISPLAY_FIELDLIST, $condition);
+	$statuses = Item::selectForUser(api_user(), [], $condition);
 
 	// prepare output of comments
 	$commentData = api_format_items(dba::inArray($statuses), $user_info, false, $type);
@@ -5716,7 +5716,7 @@ function api_friendica_notification_seen($type)
 	$nm->setSeen($note);
 	if ($note['otype']=='item') {
 		// would be really better with an ItemsManager and $im->getByID() :-P
-		$item = Item::selectFirst(api_user(), Item::DISPLAY_FIELDLIST, ['id' => $note['iid'], 'uid' => api_user()]);
+		$item = Item::selectFirstForUser(api_user(), [], ['id' => $note['iid'], 'uid' => api_user()]);
 		if (DBM::is_result($$item)) {
 			// we found the item, return it to the user
 			$ret = api_format_items([$item], $user_info, false, $type);

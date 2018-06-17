@@ -244,15 +244,19 @@ class DFRN
 			$ids[] = $item['id'];
 		}
 
-		$condition = ['id' => $ids];
-		$fields = ['author-id', 'uid', 'id', 'parent', 'uri', 'thr-parent',
-			'parent-uri', 'created', 'edited', 'verb', 'object-type',
-			'guid', 'private', 'title', 'body', 'location', 'coord', 'app',
-			'attach', 'object', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'extid', 'target', 'tag', 'bookmark', 'deleted',
-			'author-link', 'owner-link', 'signed_text', 'signature', 'signer'];
-		$ret = Item::select($owner_id, $fields, $condition);
-		$items = dba::inArray($ret);
+		if (!empty($ids)) {
+			$condition = ['id' => $ids];
+			$fields = ['author-id', 'uid', 'id', 'parent', 'uri', 'thr-parent',
+				'parent-uri', 'created', 'edited', 'verb', 'object-type',
+				'guid', 'private', 'title', 'body', 'location', 'coord', 'app',
+				'attach', 'object', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+				'extid', 'target', 'tag', 'bookmark', 'deleted',
+				'author-link', 'owner-link', 'signed_text', 'signature', 'signer'];
+			$ret = Item::select($fields, $condition);
+			$items = dba::inArray($ret);
+		} else {
+			$items = [];
+		}
 
 		/*
 		 * Will check further below if this actually returned results.
@@ -338,7 +342,7 @@ class DFRN
 			'attach', 'object', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'extid', 'target', 'tag', 'bookmark', 'deleted',
 			'author-link', 'owner-link', 'signed_text', 'signature', 'signer'];
-		$ret = Item::select(0, $fields, $condition);
+		$ret = Item::select($fields, $condition);
 		$items = dba::inArray($ret);
 		if (!DBM::is_result($items)) {
 			killme();

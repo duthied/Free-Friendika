@@ -57,7 +57,7 @@ class Item extends BaseObject
 			'signed_text', 'signature', 'signer'];
 
 	/**
-	 * Retrieve a single record from the item table and returns it in an associative array
+	 * Retrieve a single record from the item table for a given user and returns it in an associative array
 	 *
 	 * @brief Retrieve a single record from a table
 	 * @param integer $uid User ID
@@ -67,10 +67,53 @@ class Item extends BaseObject
 	 * @return bool|array
 	 * @see dba::select
 	 */
-	public static function selectFirst($uid, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::selectFirst($selected, $condition, $params);
+	}
+
+	/**
+	 * @brief Select rows from the item table for a given user
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $selected  Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::select($selected, $condition, $params);
+	}
+
+	/**
+	 * Retrieve a single record from the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
+	 * @param array  $fields
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirst(array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
-		$result = self::select($uid, $fields, $condition, $params);
+
+		$result = self::select($fields, $condition, $params);
 
 		if (is_bool($result)) {
 			return $result;
@@ -84,15 +127,22 @@ class Item extends BaseObject
 	/**
 	 * @brief Select rows from the item table
 	 *
-	 * @param integer $uid User ID
-	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $selected  Array of selected fields, empty for all
 	 * @param array  $condition Array of fields for condition
 	 * @param array  $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 */
-	public static function select($uid, array $selected = [], array $condition = [], $params = [])
+	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
+		$uid = 0;
+		$usermode = false;
+
+		if (isset($params['uid'])) {
+			$uid = $params['uid'];
+			$usermode = true;
+		}
+
 		$fields = self::fieldlist($selected);
 
 		$select_fields = self::constructSelectFields($fields, $selected);
@@ -101,7 +151,9 @@ class Item extends BaseObject
 
 		$condition_string = self::addTablesToFields($condition_string, $fields);
 
-		$condition_string = $condition_string . ' AND ' . self::condition(false);
+		if ($usermode) {
+			$condition_string = $condition_string . ' AND ' . self::condition(false);
+		}
 
 		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
 
@@ -123,10 +175,10 @@ class Item extends BaseObject
 	 * @return bool|array
 	 * @see dba::select
 	 */
-	public static function selectFirstThread($uid, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstThreadForUser($uid, array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
-		$result = self::selectThread($uid, $fields, $condition, $params);
+		$result = self::selectThreadForUser($uid, $fields, $condition, $params);
 
 		if (is_bool($result)) {
 			return $result;
@@ -147,8 +199,12 @@ class Item extends BaseObject
 	 *
 	 * @return boolean|object
 	 */
-	public static function selectThread($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
 	{
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
 		$fields = self::fieldlist($selected);
 
 		$threadfields = ['thread' => ['iid', 'uid', 'contact-id', 'owner-id', 'author-id',
@@ -183,10 +239,6 @@ class Item extends BaseObject
 	 */
 	private static function fieldlist($selected)
 	{
-		/*
-		These Fields are not added below. They are here to for bug search.
-		*/
-
 		$item_fields = ['author-id', 'owner-id', 'contact-id', 'uid', 'id', 'parent',
 			'uri', 'thr-parent', 'parent-uri', 'content-warning',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
