@@ -33,6 +33,29 @@ require_once 'include/text.php';
 
 class Item extends BaseObject
 {
+	// Field list that is used to display the items
+	const DISPLAY_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid',
+			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
+			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach',
+			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id', 'item_network',
+			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'owner-id', 'owner-link', 'owner-name', 'owner-avatar',
+			'contact-id', 'contact-link', 'contact-name', 'contact-avatar',
+			'network', 'url', 'name', 'writable', 'self', 'cid', 'alias',
+			'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
+			'event-summary', 'event-desc', 'event-location', 'event-type',
+			'event-nofinish', 'event-adjust', 'event-ignore', 'event-id'];
+
+	// Field list that is used to deliver items via the protocols
+	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid',
+			'created', 'edited', 'verb', 'object-type', 'object', 'target',
+			'private', 'title', 'body', 'location', 'coord', 'app',
+			'attach', 'tag', 'bookmark', 'deleted', 'extid',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'author-id', 'author-link', 'owner-link', 'contact-uid',
+			'signed_text', 'signature', 'signer'];
+
 	/**
 	 * Retrieve a single record from the item table and returns it in an associative array
 	 *
@@ -170,22 +193,15 @@ class Item extends BaseObject
 			'guid', 'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'event-id',
 			'location', 'coord', 'app', 'attach', 'rendered-hash', 'rendered-html', 'object',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'id' => 'item_id', 'network' => 'item_network'];
-
-		// The additional fields aren't needed to be selected by default.
-		// We need them to select the correct tables. To see the difference we split the arrays
-		if (!empty($selected)) {
-			$additional_item_fields = ['type', 'extid', 'changed', 'moderated', 'target-type', 'target',
-				'resource-id', 'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
-				'forum_mode', 'mention', 'global', 'shadow'];
-
-			$item_fields = array_merge($item_fields, $additional_item_fields);
-		}
+			'id' => 'item_id', 'network' => 'item_network',
+			'type', 'extid', 'changed', 'moderated', 'target-type', 'target',
+			'resource-id', 'tag', 'inform', 'pubmail', 'visible', 'bookmark', 'unseen', 'deleted',
+			'forum_mode', 'mention', 'global', 'shadow'];
 
 		$author_fields = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
 		$owner_fields = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
 		$contact_fields = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
-			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias',
+			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
 			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
 
 		$event_fields = ['created' => 'event-created', 'edited' => 'event-edited',
@@ -198,11 +214,9 @@ class Item extends BaseObject
 		$fields = ['item' => $item_fields, 'author' => $author_fields, 'owner' => $owner_fields,
 			'contact' => $contact_fields, 'event' => $event_fields];
 
-		if (!empty($selected)) {
-			$fields['parent-item'] = ['guid' => 'parent-guid'];
-			$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
-			$fields['sign'] = ['signed_text', 'signature', 'signer'];
-		}
+		$fields['parent-item'] = ['guid' => 'parent-guid'];
+		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
+		$fields['sign'] = ['signed_text', 'signature', 'signer'];
 
 		return $fields;
 	}

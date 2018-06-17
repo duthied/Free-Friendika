@@ -349,7 +349,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 	$condition = ["`item`.`parent-uri` = (SELECT `parent-uri` FROM `item` WHERE `id` = ?)
 		AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, local_user()];
 	$params = ['order' => ['uid', 'parent' => true, 'gravity', 'id']];
-	$r = Item::select(local_user(), [], $condition, $params);
+	$r = Item::select(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
 	if (!DBM::is_result($r)) {
 		notice(L10n::t('Item not found.') . EOL);

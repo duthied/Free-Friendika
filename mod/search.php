@@ -211,7 +211,7 @@ function search_content(App $a) {
 		}
 		dba::close($terms);
 
-		$items = Item::select(local_user(), [], ['id' => array_reverse($itemids)]);
+		$items = Item::select(local_user(), Item::DISPLAY_FIELDLIST, ['id' => array_reverse($itemids)]);
 		$r = dba::inArray($items);
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
@@ -221,7 +221,7 @@ function search_content(App $a) {
 			local_user(), $search];
 		$params = ['order' => ['id' => true],
 			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-		$items = Item::select(local_user(), [], $condition, $params);
+		$items = Item::select(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 		$r = dba::inArray($items);
 	}
 

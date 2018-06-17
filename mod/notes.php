@@ -79,7 +79,7 @@ function notes_content(App $a, $update = false)
 		dba::close($r);
 
 		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
-		$result = Item::select(local_user(), [], $condition);
+		$result = Item::select(local_user(), Item::DISPLAY_FIELDLIST, $condition);
 		if (DBM::is_result($result)) {
 			$items = conv_sort(dba::inArray($result), 'commented');
 			$o .= conversation($a, $items, 'notes', $update);

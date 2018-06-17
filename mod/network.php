@@ -455,7 +455,7 @@ function networkFlatView(App $a, $update = 0)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-	$result = Item::select(local_user(), [], $condition, $params);
+	$result = Item::select(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 	$items = dba::inArray($result);
 
 	$condition = ['unseen' => true, 'uid' => local_user()];
