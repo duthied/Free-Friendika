@@ -311,10 +311,11 @@ class Probe
 	 * @param string  $network Test for this specific network
 	 * @param integer $uid     User ID for the probe (only used for mails)
 	 * @param boolean $cache   Use cached values?
+	 * @param boolean $insert  Insert the contact into the contact table.
 	 *
 	 * @return array uri data
 	 */
-	public static function uri($uri, $network = "", $uid = -1, $cache = true)
+	public static function uri($uri, $network = "", $uid = -1, $cache = true, $insert = false)
 	{
 		if ($cache) {
 			$result = Cache::get("Probe::uri:".$network.":".$uri);
@@ -463,10 +464,18 @@ class Probe
 				$condition = ['nurl' => normalise_link($data["url"]), 'self' => false, 'uid' => 0];
 
 				// "$old_fields" will return a "false" when the contact doesn't exist.
-				// This won't trigger an insert. This is intended, since we only need
-				// public contacts for everyone we store items from.
-				// We don't need to store every contact on the planet.
+				// This won't trigger an insert except $insert is set to true.
+				// This is intended, since we only need public contacts
+				// for everyone we store items from. We don't need to store
+				// every contact on the planet.
 				$old_fields = dba::selectFirst('contact', $fieldnames, $condition);
+
+				// When the contact doesn't exist, the value "true" will trigger an insert
+				if (!$old_fields && $insert) {
+					$old_fields = true;
+					$fields['blocked'] = false;
+					$fields['pending'] = false;
+				}
 
 				$fields['name-date'] = DateTimeFormat::utcNow();
 				$fields['uri-date'] = DateTimeFormat::utcNow();

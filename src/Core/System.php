@@ -163,17 +163,17 @@ EOT;
 	}
 
 	/**
-	 * @brief Encodes content to json
+	 * @brief Encodes content to json.
 	 *
 	 * This function encodes an array to json format
 	 * and adds an application/json HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
-	 * @param array $x The input content
+	 * @param array  $x The input content.
+	 * @param string $content_type Type of the input (Default: 'application/json').
 	 */
-	public static function jsonExit($x)
-	{
-		header("content-type: application/json");
+	public static function jsonExit($x, $content_type = 'application/json') {
+		header("Content-type: $content_type");
 		echo json_encode($x);
 		killme();
 	}
