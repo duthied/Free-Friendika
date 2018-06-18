@@ -19,6 +19,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
@@ -175,18 +176,13 @@ function photos_post(App $a)
 		killme();
 	}
 
-	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
-		WHERE `user`.`uid` = %d AND `self` = 1 LIMIT 1",
-		intval($page_owner_uid)
-	);
+	$owner_record = User::getOwnerDataById($page_owner_uid);
 
-	if (!DBM::is_result($r)) {
+	if (!$owner_record) {
 		notice(L10n::t('Contact information unavailable') . EOL);
 		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		killme();
 	}
-
-	$owner_record = $r[0];
 
 	if ($a->argc > 3 && $a->argv[2] === 'album') {
 		$album = hex2bin($a->argv[3]);
@@ -487,14 +483,11 @@ function photos_post(App $a)
 		}
 
 		if ($item_id) {
-			$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($item_id),
-				intval($page_owner_uid)
-			);
+			$item = Item::selectFirst(['tag', 'inform'], ['id' => $item_id, 'uid' => $page_owner_uid]);
 		}
-		if (DBM::is_result($r)) {
-			$old_tag    = $r[0]['tag'];
-			$old_inform = $r[0]['inform'];
+		if (DBM::is_result($item)) {
+			$old_tag    = $item['tag'];
+			$old_inform = $item['inform'];
 		}
 
 		if (strlen($rawtags)) {

@@ -633,16 +633,12 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				$location_e = $location;
 				$owner_name_e = $owner_name;
 
-				if ($item['item_network'] == "") {
-					$item['item_network'] = $item['network'];
-				}
-
 				$tmp_item = [
 					'template' => $tpl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
 					'guid' => (($preview) ? 'Q0' : $item['guid']),
-					'network' => $item['item_network'],
-					'network_name' => ContactSelector::networkToName($item['item_network'], $profile_link),
+					'network' => $item['network'],
+					'network_name' => ContactSelector::networkToName($item['network'], $profile_link),
 					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
@@ -688,7 +684,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				Addon::callHooks('display_item', $arr);
 
 				$threads[$threadsid]['id'] = $item['item_id'];
-				$threads[$threadsid]['network'] = $item['item_network'];
+				$threads[$threadsid]['network'] = $item['network'];
 				$threads[$threadsid]['items'] = [$arr['output']];
 
 			}

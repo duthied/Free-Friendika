@@ -8,6 +8,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Model\Item;
 use Friendica\Database\DBM;
 
 function editpost_content(App $a) {
@@ -26,11 +27,9 @@ function editpost_content(App $a) {
 		return;
 	}
 
-	$itm = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($post_id),
-		intval(local_user())
-	);
-
+	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+		'type', 'body', 'title', 'file'];
+	$itm = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 	if (! DBM::is_result($itm)) {
 		notice(L10n::t('Item not found') . EOL);
 		return;
@@ -124,8 +123,8 @@ function editpost_content(App $a) {
 		'$shortnoloc' => L10n::t('clear location'),
 		'$wait' => L10n::t('Please wait'),
 		'$permset' => L10n::t('Permission settings'),
-		'$ptyp' => $itm[0]['type'],
-		'$content' => undo_post_tagging($itm[0]['body']),
+		'$ptyp' => $itm['type'],
+		'$content' => undo_post_tagging($itm['body']),
 		'$post_id' => $post_id,
 		'$baseurl' => System::baseUrl(),
 		'$defloc' => $a->user['default-location'],
@@ -134,9 +133,9 @@ function editpost_content(App $a) {
 		'$emailcc' => L10n::t('CC: email addresses'),
 		'$public' => L10n::t('Public post'),
 		'$jotnets' => $jotnets,
-		'$title' => htmlspecialchars($itm[0]['title']),
+		'$title' => htmlspecialchars($itm['title']),
 		'$placeholdertitle' => L10n::t('Set title'),
-		'$category' => file_tag_file_to_list($itm[0]['file'], 'category'),
+		'$category' => file_tag_file_to_list($itm['file'], 'category'),
 		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t("Categories \x28comma-separated list\x29") : ''),
 		'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,

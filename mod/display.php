@@ -43,6 +43,8 @@ function display_init(App $a)
 
 	$r = false;
 
+	$fields = ['id', 'parent', 'author-id', 'body', 'uid'];
+
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
 		$nick = "";
@@ -50,9 +52,7 @@ function display_init(App $a)
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$r = dba::fetch_first("SELECT `id`, `parent`, `author-id`, `body`, `uid`
-				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
-					AND `guid` = ? AND `uid` = ? LIMIT 1", $a->argv[1], local_user());
+			$r = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'uid' => local_user()]);
 			if (DBM::is_result($r)) {
 				$nick = $a->user["nickname"];
 			}
@@ -60,54 +60,44 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBM::is_result($r)) {
-			$r = dba::fetch_first("SELECT `id`, `parent`, `author-id`, `body`, `uid`
-				FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
-					AND NOT `private` AND `uid` = 0
-					AND `guid` = ? LIMIT 1", $a->argv[1]);
-		}
-
-		if (!DBM::is_result($r)) {
-			$a->error = 404;
-			notice(L10n::t('Item not found.') . EOL);
-			return;
+			$r = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => false, 'uid' => 0]);
 		}
 	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
-		$r = dba::fetch_first("SELECT `id`, `parent`, `author-id`, `body`, `uid`
-			FROM `item` WHERE `visible` AND NOT `deleted` AND NOT `moderated`
-				AND NOT `private` AND `uid` = 0
-				AND `id` = ? LIMIT 1", $a->argv[2]);
+		$r = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => false, 'uid' => 0]);
 	}
 
-	if (DBM::is_result($r)) {
-		if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-			logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
-			displayShowFeed($r["id"], false);
-		}
+	if (!DBM::is_result($r) || $r['deleted']) {
+		$a->error = 404;
+		notice(L10n::t('Item not found.') . EOL);
+		return;
+	}
 
-		if ($r["id"] != $r["parent"]) {
-			$r = dba::fetch_first("SELECT `id`, `author-id`, `body`, `uid` FROM `item`
-				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND `id` = ?", $r["parent"]);
-		}
+	if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
+		logger('Directly serving XML for id '.$r["id"], LOGGER_DEBUG);
+		displayShowFeed($r["id"], false);
+	}
 
-		$profiledata = display_fetchauthor($a, $r);
+	if ($r["id"] != $r["parent"]) {
+		$r = Item::selectFirstForUser(local_user(), $fields, ['id' => $r["parent"]]);
+	}
 
-		if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
-			$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
+	$profiledata = display_fetchauthor($a, $r);
 
-			if (($nickname != $a->user["nickname"])) {
-				$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-					INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-					WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
-					$nickname
-				);
-				if (DBM::is_result($r)) {
-					$profiledata = $r;
-				}
-				$profiledata["network"] = NETWORK_DFRN;
-			} else {
-				$profiledata = [];
+	if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
+		$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
+
+		if (($nickname != $a->user["nickname"])) {
+			$r = dba::fetch_first("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
+				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+				WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
+				$nickname
+			);
+			if (DBM::is_result($r)) {
+				$profiledata = $r;
 			}
+			$profiledata["network"] = NETWORK_DFRN;
+		} else {
+			$profiledata = [];
 		}
 	}
 

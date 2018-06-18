@@ -1122,18 +1122,8 @@ function api_statuses_update($type)
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
-			$r = q(
-				"SELECT COUNT(*) AS `posts_day` FROM `item` WHERE `uid`=%d AND `wall`
-				AND `created` > '%s' AND `id` = `parent`",
-				intval(api_user()),
-				dbesc($datefrom)
-			);
-
-			if (DBM::is_result($r)) {
-				$posts_day = $r[0]["posts_day"];
-			} else {
-				$posts_day = 0;
-			}
+			$condition = ["`uid` = ? AND `wall` AND `created` > ? AND `id` = `parent`", api_user(), $datefrom];
+			$posts_day = dba::count('item', $condition);
 
 			if ($posts_day > $throttle_day) {
 				logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
@@ -1146,18 +1136,8 @@ function api_statuses_update($type)
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
-			$r = q(
-				"SELECT COUNT(*) AS `posts_week` FROM `item` WHERE `uid`=%d AND `wall`
-				AND `created` > '%s' AND `id` = `parent`",
-				intval(api_user()),
-				dbesc($datefrom)
-			);
-
-			if (DBM::is_result($r)) {
-				$posts_week = $r[0]["posts_week"];
-			} else {
-				$posts_week = 0;
-			}
+			$condition = ["`uid` = ? AND `wall` AND `created` > ? AND `id` = `parent`", api_user(), $datefrom];
+			$posts_week = dba::count('item', $condition);
 
 			if ($posts_week > $throttle_week) {
 				logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
@@ -1170,18 +1150,8 @@ function api_statuses_update($type)
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
-			$r = q(
-				"SELECT COUNT(*) AS `posts_month` FROM `item` WHERE `uid`=%d AND `wall`
-				AND `created` > '%s' AND `id` = `parent`",
-				intval(api_user()),
-				dbesc($datefrom)
-			);
-
-			if (DBM::is_result($r)) {
-				$posts_month = $r[0]["posts_month"];
-			} else {
-				$posts_month = 0;
-			}
+			$condition = ["`uid` = ? AND `wall` AND `created` > ? AND `id` = `parent`", api_user(), $datefrom];
+			$posts_month = dba::count('item', $condition);
 
 			if ($posts_month > $throttle_month) {
 				logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
@@ -2755,14 +2725,10 @@ function api_format_items_activities(&$item, $type = "json")
 		'attendmaybe' => [],
 	];
 
-	$items = q(
-		'SELECT * FROM `item`
-			WHERE `uid` = %d AND `thr-parent` = "%s" AND `visible` AND NOT `deleted`',
-		intval($item['uid']),
-		dbesc($item['uri'])
-	);
+	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
+	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	foreach ($items as $i) {
+	while ($i = dba::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
@@ -2788,6 +2754,8 @@ function api_format_items_activities(&$item, $type = "json")
 				break;
 		}
 	}
+
+	dba::close($ret);
 
 	if ($type == "xml") {
 		$xml_activities = [];
@@ -3872,16 +3840,13 @@ function api_fr_photoalbum_delete($type)
 	// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 	// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
 	foreach ($r as $rr) {
-		$photo_item = q(
-			"SELECT `id` FROM `item` WHERE `uid` = %d AND `resource-id` = '%s' AND `type` = 'photo'",
-			intval(local_user()),
-			dbesc($rr['resource-id'])
-		);
+		$condition = ['uid' => local_user(), 'resource-id' => $rr['resource-id'], 'type' => 'photo'];
+		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
 
 		if (!DBM::is_result($photo_item)) {
 			throw new InternalServerErrorException("problem with deleting items occured");
 		}
-		Item::deleteForUser(['id' => $photo_item[0]['id']], api_user());
+		Item::deleteForUser(['id' => $photo_item['id']], api_user());
 	}
 
 	// now let's delete all photos from the album
@@ -4162,18 +4127,15 @@ function api_fr_photo_delete($type)
 	// return success of deletion or error message
 	if ($result) {
 		// retrieve the id of the parent element (the photo element)
-		$photo_item = q(
-			"SELECT `id` FROM `item` WHERE `uid` = %d AND `resource-id` = '%s' AND `type` = 'photo'",
-			intval(local_user()),
-			dbesc($photo_id)
-		);
+		$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
 
 		if (!DBM::is_result($photo_item)) {
 			throw new InternalServerErrorException("problem with deleting items occured");
 		}
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		Item::deleteForUser(['id' => $photo_item[0]['id']], api_user());
+		Item::deleteForUser(['id' => $photo_item['id']], api_user());
 
 		$answer = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
 		return api_format_data("photo_delete", $type, ['$result' => $answer]);
@@ -4661,12 +4623,10 @@ function prepare_photo_data($type, $scale, $photo_id)
 	}
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
-	$item = q(
-		"SELECT * FROM `item` WHERE `uid` = %d AND `resource-id` = '%s' AND `type` = 'photo'",
-		intval(local_user()),
-		dbesc($photo_id)
-	);
-	$data['photo']['friendica_activities'] = api_format_items_activities($item[0], $type);
+	$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+	$item = Item::selectFirstForUser(local_user(), ['id'], $condition);
+
+	$data['photo']['friendica_activities'] = api_format_items_activities($item, $type);
 
 	// retrieve comments on photo
 	$condition = ["`parent` = ? AND `uid` = ? AND (`verb` = ? OR `type`='photo')",
@@ -4961,35 +4921,26 @@ function api_in_reply_to($item)
 	$in_reply_to['screen_name'] = null;
 
 	if (($item['thr-parent'] != $item['uri']) && (intval($item['parent']) != intval($item['id']))) {
-		$r = q(
-			"SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
-			intval($item['uid']),
-			dbesc($item['thr-parent'])
-		);
-
-		if (DBM::is_result($r)) {
-			$in_reply_to['status_id'] = intval($r[0]['id']);
+		$parent = Item::selectFirst(['id'], ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
+		if (DBM::is_result($parent)) {
+			$in_reply_to['status_id'] = intval($parent['id']);
 		} else {
 			$in_reply_to['status_id'] = intval($item['parent']);
 		}
 
 		$in_reply_to['status_id_str'] = (string) intval($in_reply_to['status_id']);
 
-		$r = q(
-			"SELECT `contact`.`nick`, `contact`.`name`, `contact`.`id`, `contact`.`url` FROM `item`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
-			WHERE `item`.`id` = %d LIMIT 1",
-			intval($in_reply_to['status_id'])
-		);
+		$fields = ['author-nick', 'author-name', 'author-id', 'author-link'];
+		$parent = Item::selectFirst($fields, ['id' => $in_reply_to['status_id']]);
 
-		if (DBM::is_result($r)) {
-			if ($r[0]['nick'] == "") {
-				$r[0]['nick'] = api_get_nick($r[0]["url"]);
+		if (DBM::is_result($parent)) {
+			if ($parent['author-nick'] == "") {
+				$parent['author-nick'] = api_get_nick($parent['author-link']);
 			}
 
-			$in_reply_to['screen_name'] = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
-			$in_reply_to['user_id'] = intval($r[0]['id']);
-			$in_reply_to['user_id_str'] = (string) intval($r[0]['id']);
+			$in_reply_to['screen_name'] = (($parent['author-nick']) ? $parent['author-nick'] : $parent['author-name']);
+			$in_reply_to['user_id'] = intval($parent['author-id']);
+			$in_reply_to['user_id_str'] = (string) intval($parent['author-id']);
 		}
 
 		// There seems to be situation, where both fields are identical:

@@ -15,6 +15,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
@@ -1619,22 +1620,14 @@ class OStatus
 
 		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
 
-		$r = q(
-			"SELECT * FROM `item` WHERE `uid` = %d AND `guid` = '%s' AND NOT `private` AND `network` IN ('%s', '%s', '%s') LIMIT 1",
-			intval($owner["uid"]),
-			dbesc($repeated_guid),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
-		);
-		if (DBM::is_result($r)) {
-			$repeated_item = $r[0];
-		} else {
+		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => false,
+			'network' => [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]];
+		$repeated_item = Item::selectFirst([], $condition);
+		if (!DBM::is_result($repeated_item)) {
 			return false;
 		}
-		$contact = self::contactEntry($repeated_item['author-link'], $owner);
 
-		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
+		$contact = self::contactEntry($repeated_item['author-link'], $owner);
 
 		$title = $owner["nick"]." repeated a notice by ".$contact["nick"];
 
@@ -1695,16 +1688,11 @@ class OStatus
 
 		$as_object = $doc->createElement("activity:object");
 
-		$parent = q(
-			"SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d",
-			dbesc($item["thr-parent"]),
-			intval($item["uid"])
-		);
-		$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
+		$parent = Item::selectFirst([], ['uri' => $item["thr-parent"], 'uid' => $item["uid"]]);
 
-		XML::addElement($doc, $as_object, "activity:object-type", self::constructObjecttype($parent[0]));
+		XML::addElement($doc, $as_object, "activity:object-type", self::constructObjecttype($parent));
 
-		self::entryContent($doc, $as_object, $parent[0], $owner, "New entry");
+		self::entryContent($doc, $as_object, $parent, $owner, "New entry");
 
 		$entry->appendChild($as_object);
 
@@ -1952,22 +1940,19 @@ class OStatus
 		$mentioned = [];
 
 		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
-			$parent = q("SELECT `guid`, `author-link`, `owner-link` FROM `item` WHERE `id` = %d", intval($item["parent"]));
+			$parent = item::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item["parent"]]);
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
-			$thrparent = q(
-				"SELECT `guid`, `author-link`, `owner-link`, `plink` FROM `item` WHERE `uid` = %d AND `uri` = '%s'",
-				intval($owner["uid"]),
-				dbesc($parent_item)
-			);
-			if ($thrparent) {
-				$mentioned[$thrparent[0]["author-link"]] = $thrparent[0]["author-link"];
-				$mentioned[$thrparent[0]["owner-link"]] = $thrparent[0]["owner-link"];
-				$parent_plink = $thrparent[0]["plink"];
+			$thrparent = item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $parent_item]);
+
+			if (DBM::is_result($thrparent)) {
+				$mentioned[$thrparent["author-link"]] = $thrparent["author-link"];
+				$mentioned[$thrparent["owner-link"]] = $thrparent["owner-link"];
+				$parent_plink = $thrparent["plink"];
 			} else {
-				$mentioned[$parent[0]["author-link"]] = $parent[0]["author-link"];
-				$mentioned[$parent[0]["owner-link"]] = $parent[0]["owner-link"];
-				$parent_plink = System::baseUrl()."/display/".$parent[0]["guid"];
+				$mentioned[$parent["author-link"]] = $parent["author-link"];
+				$mentioned[$parent["owner-link"]] = $parent["owner-link"];
+				$parent_plink = System::baseUrl()."/display/".$parent["guid"];
 			}
 
 			$attributes = [
@@ -2130,13 +2115,8 @@ class OStatus
 			return $result['feed'];
 		}
 
-		$owner = dba::fetch_first(
-			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
-				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-				WHERE `contact`.`self` AND `user`.`nickname` = ? LIMIT 1",
-			$owner_nick
-		);
-		if (!DBM::is_result($owner)) {
+		$owner = User::getOwnerDataByNick($owner_nick);
+		if (!$owner) {
 			return;
 		}
 
@@ -2147,37 +2127,28 @@ class OStatus
 		$check_date = DateTimeFormat::utc($last_update);
 		$authorid = Contact::getIdForURL($owner["url"], 0, true);
 
-		$sql_extra = '';
+		$condition = ["`uid` = ? AND `created` > ? AND NOT `deleted`
+			AND NOT `private` AND `visible` AND `wall` AND `parent-network` IN (?, ?)",
+			$owner["uid"], $check_date, NETWORK_OSTATUS, NETWORK_DFRN];
+
 		if ($filter === 'posts') {
-			$sql_extra .= ' AND `item`.`id` = `item`.`parent` ';
+			$condition[0] .= " AND `id` = `parent`";
 		}
 
 		if ($filter === 'comments') {
-			$sql_extra .= sprintf(" AND `item`.`object-type` = '%s' ", dbesc(ACTIVITY_OBJ_COMMENT));
+			$condition[0] .= " AND `object-type` = ? ";
+			$condition[] = ACTIVITY_OBJ_COMMENT;
 		}
 
 		if ($owner['account-type'] != ACCOUNT_TYPE_COMMUNITY) {
-			$sql_extra .= sprintf(" AND `item`.`contact-id` = %d AND `item`.`author-id` = %d ", intval($owner["id"]), intval($authorid));
+			$condition[0] .= " AND `contact-id` = ? AND `author-id` = ?";
+			$condition[] = $owner["id"];
+			$condition[] = $authorid;
 		}
 
-		$items = q(
-			"SELECT `item`.*, `item`.`id` AS `item_id` FROM `item` USE INDEX (`uid_contactid_created`)
-				STRAIGHT_JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-				WHERE `item`.`uid` = %d
-				AND `item`.`created` > '%s'
-				AND NOT `item`.`deleted`
-				AND NOT `item`.`private`
-				AND `item`.`visible`
-				AND `item`.`wall`
-				AND `thread`.`network` IN ('%s', '%s')
-				$sql_extra
-				ORDER BY `item`.`created` DESC LIMIT %d",
-			intval($owner["uid"]),
-			dbesc($check_date),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_DFRN),
-			intval($max_items)
-		);
+		$params = ['order' => ['created' => true], 'limit' => $max_items];
+		$ret = Item::select([], $condition, $params);
+		$items = dba::inArray($ret);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;

@@ -66,6 +66,21 @@ class User
 	}
 
 	/**
+	 * @brief Get owner data by nick name
+	 *
+	 * @param int $nick
+	 * @return boolean|array
+	 */
+	public static function getOwnerDataByNick($nick)
+	{
+		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nick]);
+		if (!DBM::is_result($user)) {
+			return false;
+		}
+		return self::getOwnerDataById($user['uid']);
+	}
+
+	/**
 	 * @brief Returns the default group for a given user and network
 	 *
 	 * @param int $uid User id

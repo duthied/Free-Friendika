@@ -38,8 +38,8 @@ class Item extends BaseObject
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach',
 			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id', 'item_network',
-			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar',
 			'contact-id', 'contact-link', 'contact-name', 'contact-avatar',
 			'network', 'url', 'name', 'writable', 'self', 'cid', 'alias',
@@ -250,17 +250,19 @@ class Item extends BaseObject
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
 			'rendered-hash', 'rendered-html', 'global', 'shadow', 'content-warning',
-			'id' => 'item_id', 'network' => 'item_network'];
+			'id' => 'item_id', 'network'];
 
-		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
+		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
+			'thumb' => 'author-avatar', 'nick' => 'author-nick', 'network' => 'author-network'];
 
-		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
+		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name',
+			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
 			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
-			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
+			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id', 'network' => 'contact-network'];
 
-		$fields['parent-item'] = ['guid' => 'parent-guid'];
+		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network'];
 
 		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
 
