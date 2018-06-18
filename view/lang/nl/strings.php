@@ -1594,7 +1594,7 @@ $a->strings["Hide your contact/friend list from viewers of your default profile?
 $a->strings["Your contact list won't be shown in your default profile page. You can decide to show your contact list separately for each additional profile you create"] = "Je contact lijst zal niet getoond worden in je standaard profiel pagina. Je kan beslissen om je contact lijst apart te tonen per bijkomend profiel dat je aanmaakt.";
 $a->strings["Hide your profile details from anonymous viewers?"] = "Je profiel details verbergen voor anonieme bezoekers?";
 $a->strings["Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means."] = "Anonieme bezoekers zullen alleen je profiel foto zien, je naam en de bijnaam die je gebruikt op je profiel pagina. Je publieke berichten en reacties zullen nog altijd toegankelijk zijn via andere wegen.";
-$a->strings["Allow friends to post to your profile page?"] = "Vrienden toestaan om op jou profielpagina te posten?";
+$a->strings["Allow friends to post to your profile page?"] = "Vrienden toestaan om op jouw profielpagina te posten?";
 $a->strings["Your contacts may write posts on your profile wall. These posts will be distributed to your contacts"] = "Je contacten kunnen berichten schrijven op je tijdslijn. Deze berichten zullen verspreid worden naar je contacten";
 $a->strings["Allow friends to tag your posts?"] = "Sta vrienden toe om jouw berichten te labelen?";
 $a->strings["Your contacts can add additional tags to your posts."] = "Je contacten kunnen tags toevoegen aan je berichten.";
