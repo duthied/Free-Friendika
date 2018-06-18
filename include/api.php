@@ -688,59 +688,8 @@ function api_get_user(App $a, $contact_id = null)
 
 		$usr = dba::selectFirst('user', ['default-location'], ['uid' => api_user()]);
 		$profile = dba::selectFirst('profile', ['about'], ['uid' => api_user(), 'is-default' => true]);
-
-		/// @TODO old-lost code? (twice)
-		// Counting is deactivated by now, due to performance issues
-		// count public wall messages
-		//$r = q("SELECT COUNT(*) as `count` FROM `item` WHERE `uid` = %d AND `wall`",
-		//		intval($uinfo[0]['uid'])
-		//);
-		//$countitms = $r[0]['count'];
-		$countitms = 0;
-	} else {
-		// Counting is deactivated by now, due to performance issues
-		//$r = q("SELECT count(*) as `count` FROM `item`
-		//		WHERE  `contact-id` = %d",
-		//		intval($uinfo[0]['id'])
-		//);
-		//$countitms = $r[0]['count'];
-		$countitms = 0;
 	}
-
-		/// @TODO old-lost code? (twice)
-		/*
-		// Counting is deactivated by now, due to performance issues
-		// count friends
-		$r = q("SELECT count(*) as `count` FROM `contact`
-				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND NOT `blocked` AND NOT `pending` AND `hidden`=0",
-				intval($uinfo[0]['uid']),
-				intval(CONTACT_IS_SHARING),
-				intval(CONTACT_IS_FRIEND)
-		);
-		$countfriends = $r[0]['count'];
-
-		$r = q("SELECT count(*) as `count` FROM `contact`
-				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND NOT `blocked` AND NOT `pending` AND `hidden`=0",
-				intval($uinfo[0]['uid']),
-				intval(CONTACT_IS_FOLLOWER),
-				intval(CONTACT_IS_FRIEND)
-		);
-		$countfollowers = $r[0]['count'];
-
-		$r = q("SELECT count(*) as `count` FROM item where starred = 1 and uid = %d and deleted = 0",
-			intval($uinfo[0]['uid'])
-		);
-		$starred = $r[0]['count'];
-
-
-		if (! $uinfo[0]['self']) {
-			$countfriends = 0;
-			$countfollowers = 0;
-			$starred = 0;
-		}
-		*/
+	$countitms = 0;
 	$countfriends = 0;
 	$countfollowers = 0;
 	$starred = 0;

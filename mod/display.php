@@ -360,7 +360,7 @@ function display_content(App $a, $update = false, $update_uid = 0) {
 
 	if ($unseen) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
-		dba::update('item', ['unseen' => false], $condition);
+		Item::update(['unseen' => false], $condition);
 	}
 
 	$items = conv_sort($s, "`commented`");

@@ -6,6 +6,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 use dba;
 
 require_once 'boot.php';
@@ -114,7 +115,7 @@ class Term
 				$users = q("SELECT `uid` FROM `contact` WHERE self AND (`url` = '%s' OR `nurl` = '%s')", $link, $link);
 				foreach ($users AS $user) {
 					if ($user['uid'] == $message['uid']) {
-						dba::update('item', ['mention' => true], ['id' => $itemid]);
+						Item::update(['mention' => true], ['id' => $itemid]);
 						dba::update('thread', ['mention' => true], ['iid' => $message['parent']]);
 					}
 				}
