@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-02 08:49+0200\n"
-"PO-Revision-Date: 2018-06-06 18:50+0000\n"
+"PO-Revision-Date: 2018-06-16 17:39+0000\n"
 "Last-Translator: Pascal <pascal.deklerck@gmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/Friendica/friendica/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -7060,7 +7060,7 @@ msgstr "Anonieme bezoekers zullen alleen je profiel foto zien, je naam en de bij
 
 #: mod/settings.php:1115
 msgid "Allow friends to post to your profile page?"
-msgstr "Vrienden toestaan om op jou profielpagina te posten?"
+msgstr "Vrienden toestaan om op jouw profielpagina te posten?"
 
 #: mod/settings.php:1115
 msgid ""
