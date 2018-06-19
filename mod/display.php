@@ -41,7 +41,7 @@ function display_init(App $a)
 		}
 	}
 
-	$item = false;
+	$item = null;
 
 	$fields = ['id', 'parent', 'author-id', 'body', 'uid'];
 
