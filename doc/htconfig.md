@@ -85,6 +85,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **pushpoll_frequency** -
 * **qsearch_limit** - Default value is 100.
 * **remove_multiplicated_lines** (Boolean) - If enabled, multiple linefeeds in items are stripped to a single one.
+* **sendmail_params** (Boolean) - Normal sendmail command parameters will be added when the PHP mail() function is called for sending e-mails.  This ensures the Sender Email address setting is applied to the message envelope rather than the host's default address.
 * **show_unsupported_addons** (Boolean) - Show all addons including the unsupported ones.
 * **show_unsupported_themes** (Boolean) - Show all themes including the unsupported ones.
 * **show_global_community_hint** (Boolean) - When the global community page is enabled, use this option to display a hint above the stream, that this is a collection of all public top-level postings that arrive on your node.
