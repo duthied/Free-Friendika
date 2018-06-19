@@ -306,7 +306,7 @@ class Item extends BaseObject
 			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
-			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
+			'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
 			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id', 'network' => 'contact-network'];
 
 		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network'];
