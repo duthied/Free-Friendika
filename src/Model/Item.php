@@ -38,8 +38,8 @@ class Item extends BaseObject
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach',
 			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id', 'item_network',
-			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar',
 			'contact-id', 'contact-link', 'contact-name', 'contact-avatar',
 			'network', 'url', 'name', 'writable', 'self', 'cid', 'alias',
@@ -165,20 +165,62 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Select rows from the starting post in the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::selectThread($selected, $condition, $params);
+	}
+
+	/**
 	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
 	 *
 	 * @brief Retrieve a single record from a table
 	 * @param integer $uid User ID
+	 * @param array  $selected
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirstThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::selectFirstThread($selected, $condition, $params);
+	}
+
+	/**
+	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
 	 * @param array  $fields
 	 * @param array  $condition
 	 * @param array  $params
 	 * @return bool|array
 	 * @see dba::select
 	 */
-	public static function selectFirstThreadForUser($uid, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstThread(array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
-		$result = self::selectThreadForUser($uid, $fields, $condition, $params);
+		$result = self::selectThread($fields, $condition, $params);
 
 		if (is_bool($result)) {
 			return $result;
@@ -192,17 +234,20 @@ class Item extends BaseObject
 	/**
 	 * @brief Select rows from the starting post in the item table
 	 *
-	 * @param integer $uid User ID
-	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $selected  Array of selected fields, empty for all
 	 * @param array  $condition Array of fields for condition
 	 * @param array  $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 */
-	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectThread(array $selected = [], array $condition = [], $params = [])
 	{
-		if (empty($selected)) {
-			$selected = Item::DISPLAY_FIELDLIST;
+		$uid = 0;
+		$usermode = false;
+
+		if (isset($params['uid'])) {
+			$uid = $params['uid'];
+			$usermode = true;
 		}
 
 		$fields = self::fieldlist($selected);
@@ -219,7 +264,9 @@ class Item extends BaseObject
 		$condition_string = self::addTablesToFields($condition_string, $threadfields);
 		$condition_string = self::addTablesToFields($condition_string, $fields);
 
-		$condition_string = $condition_string . ' AND ' . self::condition(true);
+		if ($usermode) {
+			$condition_string = $condition_string . ' AND ' . self::condition(true);
+		}
 
 		$param_string = dba::buildParameter($params);
 		$param_string = self::addTablesToFields($param_string, $threadfields);
@@ -250,17 +297,19 @@ class Item extends BaseObject
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
 			'rendered-hash', 'rendered-html', 'global', 'shadow', 'content-warning',
-			'id' => 'item_id', 'network' => 'item_network'];
+			'id' => 'item_id', 'network'];
 
-		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name', 'thumb' => 'author-avatar'];
+		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
+			'thumb' => 'author-avatar', 'nick' => 'author-nick', 'network' => 'author-network'];
 
-		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name', 'thumb' => 'owner-avatar'];
+		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name',
+			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
 			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
-			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
+			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id', 'network' => 'contact-network'];
 
-		$fields['parent-item'] = ['guid' => 'parent-guid'];
+		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network'];
 
 		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
 

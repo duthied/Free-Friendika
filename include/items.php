@@ -335,16 +335,13 @@ function drop_item($id) {
 
 	// locate item to be deleted
 
-	$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
-		intval($id)
-	);
+	$fields = ['id', 'uid', 'contact-id', 'deleted'];
+	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
-	if (!DBM::is_result($r)) {
+	if (!DBM::is_result($item)) {
 		notice(L10n::t('Item not found.') . EOL);
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 	}
-
-	$item = $r[0];
 
 	if ($item['deleted']) {
 		return 0;
@@ -364,7 +361,6 @@ function drop_item($id) {
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {
-
 		// Check if we should do HTML-based delete confirmation
 		if ($_REQUEST['confirm']) {
 			// <form> can't take arguments in its "action" parameter

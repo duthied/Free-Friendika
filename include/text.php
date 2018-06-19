@@ -1177,8 +1177,8 @@ function put_item_in_cache(&$item, $update = false)
 		}
 
 		if ($update && ($item["id"] > 0)) {
-			dba::update('item', ['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
-					['id' => $item["id"]], false);
+			Item::update(['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
+					['id' => $item["id"]]);
 		}
 	}
 

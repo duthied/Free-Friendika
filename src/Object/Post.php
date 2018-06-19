@@ -326,17 +326,17 @@ class Post extends BaseObject
 		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
-		if (!in_array($item["item_network"], [NETWORK_DFRN, NETWORK_DIASPORA]) && isset($buttons["dislike"])) {
+		if (!in_array($item["network"], [NETWORK_DFRN, NETWORK_DIASPORA]) && isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$isevent = false;
 			$tagger = '';
 		}
 
-		if (($item["item_network"] == NETWORK_FEED) && isset($buttons["like"])) {
+		if (($item["network"] == NETWORK_FEED) && isset($buttons["like"])) {
 			unset($buttons["like"]);
 		}
 
-		if (($item["item_network"] == NETWORK_MAIL) && isset($buttons["like"])) {
+		if (($item["network"] == NETWORK_MAIL) && isset($buttons["like"])) {
 			unset($buttons["like"]);
 		}
 
@@ -401,8 +401,8 @@ class Post extends BaseObject
 			'wait'            => L10n::t('Please wait'),
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
-			'network'         => $item["item_network"],
-			'network_name'    => ContactSelector::networkToName($item['item_network'], $profile_link),
+			'network'         => $item["network"],
+			'network_name'    => ContactSelector::networkToName($item['network'], $profile_link),
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
