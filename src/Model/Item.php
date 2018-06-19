@@ -296,7 +296,7 @@ class Item extends BaseObject
 			'file', 'location', 'coord', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
-			'rendered-hash', 'rendered-html', 'global', 'shadow', 'content-warning',
+			'rendered-hash', 'rendered-html', 'global', 'content-warning',
 			'id' => 'item_id', 'network'];
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
