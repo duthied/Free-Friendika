@@ -984,7 +984,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 			'$action_url' => $url,
 			'$search_label' => L10n::t('Search'),
 			'$save_label' => $save_label,
-			'$savedsearch' => Feature::isEnabled(local_user(),'savedsearch'),
+			'$savedsearch' => local_user() && Feature::isEnabled(local_user(),'savedsearch'),
 			'$search_hint' => L10n::t('@name, !forum, #tags, content'),
 			'$mode' => $mode
 		];
