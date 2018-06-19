@@ -6,8 +6,10 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Util\DateTimeFormat;
 
-function worker_init(){
+function worker_init()
+{
 
 	if (!Config::get("system", "frontend_worker")) {
 		return;
@@ -35,7 +37,6 @@ function worker_init(){
 	Worker::callWorker();
 
 	if ($r = Worker::workerProcess()) {
-
 		// On most configurations this parameter wouldn't have any effect.
 		// But since it doesn't destroy anything, we just try to get more execution time in any way.
 		set_time_limit(0);
