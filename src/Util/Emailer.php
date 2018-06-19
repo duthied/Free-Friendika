@@ -72,20 +72,28 @@ class Emailer
 		$multipartMessageBody .=
 			"--" . $mimeBoundary . "--\n";					// message ending
 
+		if (Config::get("system", "sendmail_params", true)) {
+			$sendmail_params = '-f ' . $params['fromEmail'];
+		} else {
+			$sendmail_params = null;
+		}
+
 		// send the message
 		$hookdata = [
 			'to' => $params['toEmail'],
 			'subject' => $messageSubject,
 			'body' => $multipartMessageBody,
-			'headers' => $messageHeader
+			'headers' => $messageHeader,
+			'parameters' => $sendmail_params
 		];
 		//echo "<pre>"; var_dump($hookdata); killme();
 		Addon::callHooks("emailer_send", $hookdata);
 		$res = mail(
-			$hookdata['to'],							// send to address
-			$hookdata['subject'],						// subject
-			$hookdata['body'], 	 						// message body
-			$hookdata['headers']						// message headers
+			$hookdata['to'],
+			$hookdata['subject'],
+			$hookdata['body'],
+			$hookdata['headers'],
+			$hookdata['parameters']
 		);
 		logger("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
 		logger("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
