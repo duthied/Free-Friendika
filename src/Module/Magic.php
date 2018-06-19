@@ -5,8 +5,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Database\DBM;
-use Friendica\Network\Probe;
+use Friendica\Model\Contact;
 use Friendica\Util\HTTPSig;
 use Friendica\Util\Network;
 
@@ -35,32 +34,28 @@ class Magic extends BaseModule
 		// NOTE: I guess $dest isn't just the profile url (could be also 
 		// other profile pages e.g. photo). We need to find a solution
 		// to be able to redirct to other pages than the contact profile.
-		$fields = ["id", "nurl", "url"];
-		$condition = ["nurl" => normalise_link($dest)];
+		$cid = Contact::getIdForURL($dest);
 
-		$contact = dba::selectFirst("contact", $fields, $condition);
-
-		if (!DBM::is_result($contact)) {
-			// If we don't have a contact record, try to probe it.
-			/// @todo: Also check against the $addr.
-			Probe::uri($dest, '', -1, true, true);
-			$contact = dba::selectFirst("contact", $fields, $condition);
+		if (!$cid && !empty($addr)) {
+			$cid = Contact::getIdForURL($addr);
 		}
 
-		if (!DBM::is_result($contact)) {
-			logger("No contact record found: " . print_r($_REQUEST, true), LOGGER_DEBUG);
+		if (!$cid) {
+			logger('No contact record found: ' . print_r($_REQUEST, true), LOGGER_DEBUG);
 			goaway($dest);
 		}
 
+		$contact = dba::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
+
 		// Redirect if the contact is already authenticated on this site.
-		if (array_key_exists("id", $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->get_baseurl())) !== false) {
+		if (array_key_exists('id', $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->get_baseurl())) !== false) {
 			if($test) {
 				$ret['success'] = true;
 				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;
 				return $ret;
 			}
 
-			logger("Contact is already authenticated", LOGGER_DEBUG);
+			logger('Contact is already authenticated', LOGGER_DEBUG);
 			goaway($dest);
 		}
 
@@ -73,7 +68,7 @@ class Magic extends BaseModule
 				// NOTE: we need another solution because this does only work
 				// for friendica contacts :-/ . We should have the basepath
 				// of a contact also in the contact table.
-				$exp = explode("/profile/", $contact['url']);
+				$exp = explode('/profile/', $contact['url']);
 				$basepath = $exp[0];
 
 				$headers = [];

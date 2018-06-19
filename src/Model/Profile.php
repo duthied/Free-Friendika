@@ -19,7 +19,6 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Verify;
 use Friendica\Protocol\Diaspora;
-use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
@@ -1013,21 +1012,13 @@ class Profile
 				Addon::callHooks('zrl_init', $arr);
 
 				// Try to find the public contact entry of the visitor.
-				$fields = ["id", "url"];
-				$condition = ['uid' => 0, 'nurl' => normalise_link($my_url)];
-
-				$contact = dba::selectFirst('contact',$fields, $condition);
-
-				// Not found? Try to probe the visitor.
-				if (!DBM::is_result($contact)) {
-					Probe::uri($my_url, '', -1, true, true);
-					$contact = dba::selectFirst('contact',$fields, $condition);
-				}
-
-				if (!DBM::is_result($contact)) {
+				$cid = Contact::getIdForURL($my_url);
+				if (!$cid) {
 					logger('No contact record found for ' . $my_url, LOGGER_DEBUG);
 					return;
 				}
+
+				$contact = dba::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
 				if (DBM::is_result($contact) && remote_user() && remote_user() === $contact['id']) {
 					// The visitor is already authenticated.
@@ -1039,12 +1030,12 @@ class Profile
 				// Try to avoid recursion - but send them home to do a proper magic auth.
 				$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
 				// The other instance needs to know where to redirect.
-				$dest = urlencode(System::baseUrl() . "/" . $query);
+				$dest = urlencode(System::baseUrl() . '/' . $query);
 
 				// We need to extract the basebath from the profile url
 				// to redirect the visitors '/magic' module.
 				// Note: We should have the basepath of a contact also in the contact table.
-				$urlarr = explode("/profile/", $contact['url']);
+				$urlarr = explode('/profile/', $contact['url']);
 				$basepath = $urlarr[0];
 
 				if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
@@ -1077,17 +1068,13 @@ class Profile
 		}
 
 		// Try to find the public contact entry of the visitor.
-		$condition = ["uid" => 0, "addr" => $visitor_handle];
-		$visitor = dba::selectFirst("contact", [], $condition);
-
-		if (!DBM::is_result($visitor)) {
-			Probe::uri($visitor_handle, '', -1, true, true);
-			$visitor = dba::selectFirst("contact", [], $condition);
-		}
-		if(!DBM::is_result($visitor)) {
+		$cid = Contact::getIdForURL($visitor_handle);
+		if(!$cid) {
 			logger('owt: unable to finger ' . $visitor_handle, LOGGER_DEBUG);
 			return;
 		}
+
+		$visitor = dba::selectFirst('contact', [], ['id' => $cid]);
 
 		// Authenticate the visitor.
 		$_SESSION['authenticated'] = 1;
@@ -1108,6 +1095,7 @@ class Profile
 		 *   * \e array \b session
 		 */
 		Addon::callHooks('magic_auth_success', $arr);
+
 		$a->contact = $visitor;
 
 		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->get_hostname(), $visitor['name']));

@@ -26,9 +26,10 @@ class HTTPSig
 	 *
 	 * @see https://tools.ietf.org/html/rfc5843
 	 *
-	 * @param string $body The value to create the digest for
-	 * @param boolean $set (optional, default true)
+	 * @param string  $body The value to create the digest for
+	 * @param boolean $set  (optional, default true)
 	 *   If set send a Digest HTTP header
+	 * 
 	 * @return string The generated digest of $body
 	 */
 	public static function generateDigest($body, $set = true)
@@ -119,7 +120,7 @@ class HTTPSig
 			$algorithm = 'sha512';
 		}
 
-		if ($key && function_exists($key)) { /// @todo What function do we check for - maybe we check now for a method !!!
+		if ($key && function_exists($key)) {
 			$result['signer'] = $sig_block['keyId'];
 			$key = $key($sig_block['keyId']);
 		}

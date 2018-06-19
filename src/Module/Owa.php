@@ -7,9 +7,8 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
+use Friendica\Model\Contact;
 use Friendica\Model\Verify;
-use Friendica\Network\Probe;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSig;
 
 use dba;
@@ -46,17 +45,13 @@ class Owa extends BaseModule
 
 					if ($keyId) {
 						// Try to find the public contact entry of the handle.
-						$handle = str_replace("acct:", "", $keyId);
-						$fields = ["id", "url", "addr", "pubkey"];
-						$condition = ["addr" => $handle, "uid" => 0];
+						$handle = str_replace('acct:', '', $keyId);
 
-						$contact = dba::selectFirst("contact", $fields, $condition);
+						$cid       = Contact::getIdForURL($handle);
+						$fields    = ['id', 'url', 'addr', 'pubkey'];
+						$condition = ['id' => $cid];
 
-						// Not found? Try to probe with the handle.
-						if(!DBM::is_result($contact)) {
-							Probe::uri($handle, '', -1, true, true);
-							$contact = dba::selectFirst("contact", $fields, $condition);
-						}
+						$contact = dba::selectFirst('contact', $fields, $condition);
 
 						if (DBM::is_result($contact)) {
 							// Try to verify the signed header with the public key of the contact record
