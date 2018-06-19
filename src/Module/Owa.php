@@ -23,6 +23,8 @@ use dba;
  * If the signature verifies a token is returned.
  *
  * This token may be exchanged for an authenticated cookie.
+ * 
+ * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/Zotlabs/Module/Owa.php
  */
 class Owa extends BaseModule
 {

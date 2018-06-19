@@ -14,6 +14,8 @@ use dba;
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
  *
+ * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/Zotlabs/Web/HTTPSig.php
+ * 
  * @see https://tools.ietf.org/html/draft-cavage-http-signatures-07
  */
 

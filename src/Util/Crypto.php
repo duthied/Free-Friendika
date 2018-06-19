@@ -251,6 +251,8 @@ class Crypto
 	/**
 	 * Encrypt a string with 'aes-256-cbc' cipher method.
 	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
 	 * @param string $data
 	 * @param string $key   The key used for encryption.
 	 * @param string $iv    A non-NULL Initialization Vector.
@@ -265,6 +267,8 @@ class Crypto
 	/**
 	 * Decrypt a string with 'aes-256-cbc' cipher method.
 	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
 	 * @param string $data
 	 * @param string $key   The key used for decryption.
 	 * @param string $iv    A non-NULL Initialization Vector.
@@ -278,6 +282,8 @@ class Crypto
 
 	/**
 	 * Encrypt a string with 'aes-256-ctr' cipher method.
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 * 
 	 * @param string $data
 	 * @param string $key   The key used for encryption.
@@ -295,6 +301,8 @@ class Crypto
 	/**
 	 * Decrypt a string with 'aes-256-cbc' cipher method.
 	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
 	 * @param string $data
 	 * @param string $key   The key used for decryption.
 	 * @param string $iv    A non-NULL Initialization Vector.
@@ -309,6 +317,8 @@ class Crypto
 	}
 
 	/**
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 * 
 	 * @param string $data
 	 * @param string $pubkey The public key.
@@ -325,6 +335,8 @@ class Crypto
 	}
 
 	/**
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 * 
 	 * @param type $data
 	 * @param type $pubkey The public key.
@@ -375,6 +387,8 @@ class Crypto
 
 	/**
 	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
 	 * @param string $data
 	 * @param string $pubkey
 	 * 
@@ -407,6 +421,8 @@ class Crypto
 
 	/**
 	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
 	 * @param string $data
 	 * @param string $prvkey  The private key used for decryption.
 	 * 
@@ -426,6 +442,8 @@ class Crypto
 	}
 
 	/**
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 * 
 	 * @param string $data
 	 * @param string $prvkey  The private key used for decryption.
@@ -451,6 +469,8 @@ class Crypto
 	}
 
 	/**
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 * 
 	 * @param array  $data
 	 * @param string $prvkey  The private key used for decryption.

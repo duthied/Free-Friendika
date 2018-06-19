@@ -12,6 +12,11 @@ use Friendica\Util\Network;
 
 use dba;
 
+/**
+ * Magic Auth (remote authentication) module.
+ * 
+ * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/Zotlabs/Module/Magic.php
+ */
 class Magic extends BaseModule
 {
 	public static function init()

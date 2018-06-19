@@ -987,6 +987,8 @@ class Profile
 	 * redirects the visitor to his/her instance to start the magic auth (Authentication)
 	 * process.
 	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/channel.php
+	 * 
 	 * @param App $a Application instance.
 	 */
 	public static function zrlInit(App $a)
@@ -1055,6 +1057,8 @@ class Profile
 	/**
 	 * OpenWebAuth authentication.
 	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
+	 * 
 	 * @param string $token
 	 */
 	public static function owtInit($token)

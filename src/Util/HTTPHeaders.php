@@ -4,6 +4,9 @@
  */
 namespace Friendica\Util;
 
+/**
+ * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/Zotlabs/Web/HTTPHeaders.php
+ */
 class HTTPHeaders
 {
 	private $in_progress = [];
