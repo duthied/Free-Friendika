@@ -165,20 +165,62 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Select rows from the starting post in the item table
+	 *
+	 * @param integer $uid User ID
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 */
+	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::selectThread($selected, $condition, $params);
+	}
+
+	/**
 	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
 	 *
 	 * @brief Retrieve a single record from a table
 	 * @param integer $uid User ID
+	 * @param array  $selected
+	 * @param array  $condition
+	 * @param array  $params
+	 * @return bool|array
+	 * @see dba::select
+	 */
+	public static function selectFirstThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['uid'] = $uid;
+
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		return self::selectFirstThread($selected, $condition, $params);
+	}
+
+	/**
+	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
+	 *
+	 * @brief Retrieve a single record from a table
 	 * @param array  $fields
 	 * @param array  $condition
 	 * @param array  $params
 	 * @return bool|array
 	 * @see dba::select
 	 */
-	public static function selectFirstThreadForUser($uid, array $fields = [], array $condition = [], $params = [])
+	public static function selectFirstThread(array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
-		$result = self::selectThreadForUser($uid, $fields, $condition, $params);
+		$result = self::selectThread($fields, $condition, $params);
 
 		if (is_bool($result)) {
 			return $result;
@@ -192,17 +234,20 @@ class Item extends BaseObject
 	/**
 	 * @brief Select rows from the starting post in the item table
 	 *
-	 * @param integer $uid User ID
-	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $selected  Array of selected fields, empty for all
 	 * @param array  $condition Array of fields for condition
 	 * @param array  $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 */
-	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	public static function selectThread(array $selected = [], array $condition = [], $params = [])
 	{
-		if (empty($selected)) {
-			$selected = Item::DISPLAY_FIELDLIST;
+		$uid = 0;
+		$usermode = false;
+
+		if (isset($params['uid'])) {
+			$uid = $params['uid'];
+			$usermode = true;
 		}
 
 		$fields = self::fieldlist($selected);
@@ -219,7 +264,9 @@ class Item extends BaseObject
 		$condition_string = self::addTablesToFields($condition_string, $threadfields);
 		$condition_string = self::addTablesToFields($condition_string, $fields);
 
-		$condition_string = $condition_string . ' AND ' . self::condition(true);
+		if ($usermode) {
+			$condition_string = $condition_string . ' AND ' . self::condition(true);
+		}
 
 		$param_string = dba::buildParameter($params);
 		$param_string = self::addTablesToFields($param_string, $threadfields);

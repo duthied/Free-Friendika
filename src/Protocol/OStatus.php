@@ -2104,20 +2104,23 @@ class OStatus
 	{
 		$stamp = microtime(true);
 
+		$owner = User::getOwnerDataByNick($owner_nick);
+		if (!$owner) {
+			return;
+		}
+
 		$cachekey = "ostatus:feed:" . $owner_nick . ":" . $filter . ":" . $last_update;
 
 		$previous_created = $last_update;
 
-		$result = Cache::get($cachekey);
-		if (!$nocache && !is_null($result)) {
-			logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created . ' (cached)', LOGGER_DEBUG);
-			$last_update = $result['last_update'];
-			return $result['feed'];
-		}
-
-		$owner = User::getOwnerDataByNick($owner_nick);
-		if (!$owner) {
-			return;
+		// Don't cache when the last item was posted less then 15 minutes ago (Cache duration)
+		if ((time() - strtotime($owner['last-item'])) < 15*60) {
+			$result = Cache::get($cachekey);
+			if (!$nocache && !is_null($result)) {
+				logger('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created . ' (cached)', LOGGER_DEBUG);
+				$last_update = $result['last_update'];
+				return $result['feed'];
+			}
 		}
 
 		if (!strlen($last_update)) {
@@ -2131,10 +2134,6 @@ class OStatus
 			AND NOT `private` AND `visible` AND `wall` AND `parent-network` IN (?, ?)",
 			$owner["uid"], $check_date, NETWORK_OSTATUS, NETWORK_DFRN];
 
-		if ($filter === 'posts') {
-			$condition[0] .= " AND `id` = `parent`";
-		}
-
 		if ($filter === 'comments') {
 			$condition[0] .= " AND `object-type` = ? ";
 			$condition[] = ACTIVITY_OBJ_COMMENT;
@@ -2147,7 +2146,13 @@ class OStatus
 		}
 
 		$params = ['order' => ['created' => true], 'limit' => $max_items];
-		$ret = Item::select([], $condition, $params);
+
+		if ($filter === 'posts') {
+			$ret = Item::selectThread([], $condition, $params);
+		} else {
+			$ret = Item::select([], $condition, $params);
+		}
+
 		$items = dba::inArray($ret);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
