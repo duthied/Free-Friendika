@@ -3617,12 +3617,9 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 function api_direct_messages_box($type, $box, $verbose)
 {
 	$a = get_app();
-	$user_info = api_get_user($a);
-
-	if (api_user() === false || $user_info === false) {
+	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
-
 	// params
 	$count = (x($_GET, 'count') ? $_GET['count'] : 20);
 	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] -1 : 0);
@@ -3643,6 +3640,10 @@ function api_direct_messages_box($type, $box, $verbose)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
+	$user_info = api_get_user($a);
+	if ($user_info === false) {
+		throw new ForbiddenException();
+	}
 	$profile_url = $user_info["url"];
 
 	// pagination

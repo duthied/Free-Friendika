@@ -41,8 +41,8 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **disable_email_validation** (Boolean) - Disables the check if a mail address is in a valid format and can be resolved via DNS.
 * **disable_url_validation** (Boolean) - Disables the DNS lookup of an URL.
 * **disable_password_exposed** (Boolean) - Disable the exposition check against the remote haveibeenpwned API on password change. Default value is false.
-* **dlogfile - location of the developer log file
-* **dlogip - restricts develop log writes to requests originating from this IP address
+* **dlogfile** - location of the developer log file
+* **dlogip** - restricts develop log writes to requests originating from this IP address
 * **frontend_worker_timeout** - Value in minutes after we think that a frontend task was killed by the webserver. Default value is 10.
 * **hsts** (Boolean) - Enables the sending of HTTP Strict Transport Security headers
 * **ignore_cache** (Boolean) - For development only. Disables the item cache.
