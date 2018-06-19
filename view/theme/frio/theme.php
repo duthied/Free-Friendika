@@ -346,7 +346,12 @@ function frio_display_item(App $a, &$arr)
 {
 	// Add subthread to the item menu
 	$subthread = [];
-	if (local_user() == $arr['item']['uid'] && $arr['item']['parent'] == $arr['item']['id'] && !$arr['item']['self']) {
+	if (
+		local_user()
+		&& local_user() == $arr['item']['uid']
+		&& $arr['item']['parent'] == $arr['item']['id']
+		&& !$arr['item']['self'])
+	{
 		$subthread = [
 			'menu'   => 'follow_thread',
 			'title'  => L10n::t('Follow Thread'),
