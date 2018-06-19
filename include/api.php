@@ -689,7 +689,7 @@ function api_get_user(App $a, $contact_id = null)
 		$usr = dba::selectFirst('user', ['default-location'], ['uid' => api_user()]);
 		$profile = dba::selectFirst('profile', ['about'], ['uid' => api_user(), 'is-default' => true]);
 	}
-	$countitms = 0;
+	$countitems = 0;
 	$countfriends = 0;
 	$countfollowers = 0;
 	$starred = 0;
@@ -739,7 +739,7 @@ function api_get_user(App $a, $contact_id = null)
 		'time_zone' => 'UTC',
 		'geo_enabled' => false,
 		'verified' => true,
-		'statuses_count' => intval($countitms),
+		'statuses_count' => intval($countitems),
 		'lang' => '',
 		'contributors_enabled' => false,
 		'is_translator' => false,
@@ -2728,13 +2728,13 @@ function api_format_items_activities(&$item, $type = "json")
 	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
 	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	while ($i = dba::fetch($ret)) {
+	while ($item = dba::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
 		// get user data and add it to the array of the activity
-		$user = api_get_user($a, $i['author-id']);
-		switch ($i['verb']) {
+		$user = api_get_user($a, $item['author-id']);
+		switch ($item['verb']) {
 			case ACTIVITY_LIKE:
 				$activities['like'][] = $user;
 				break;

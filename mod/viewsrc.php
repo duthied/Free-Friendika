@@ -27,10 +27,10 @@ function viewsrc_content(App $a)
 
 	if (DBM::is_result($item)) {
 		if (is_ajax()) {
-			echo str_replace("\n",'<br />',$item['body']);
+			echo str_replace("\n", '<br />', $item['body']);
 			killme();
 		} else {
-			$o .= str_replace("\n",'<br />',$item['body']);
+			$o .= str_replace("\n", '<br />', $item['body']);
 		}
 	}
 	return $o;
