@@ -635,9 +635,7 @@ class Worker
 				$target = $slope * ($maxqueues - 1);
 				$queues = intval(ceil($target));
 			}
-			$exponent = 3;
-			$slope = $maxqueues / pow($maxsysload, $exponent);
-			$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
+
 			$processlist = '';
 
 			if (Config::get('system', 'worker_debug')) {
