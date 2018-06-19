@@ -6,8 +6,10 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Config;
+use Friendica\Database\DBM;
 use Friendica\Util\Crypto;
 use Friendica\Util\HTTPHeaders;
+use dba;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -120,6 +122,12 @@ class HTTPSig
 			$key = $key($sig_block['keyId']);
 		}
 
+		// We don't use Activity Pub at the moment.
+//		if (!$key) {
+//			$result['signer'] = $sig_block['keyId'];
+//			$key = self::getActivitypubKey($sig_block['keyId']);
+//		}
+
 		if (!$key) {
 			return $result;
 		}
@@ -156,6 +164,43 @@ class HTTPSig
 		logger('Content_Valid: ' . $result['content_valid']);
 
 		return $result;
+	}
+
+	/**
+	 * Fetch the public key for Activity Pub contact.
+	 * 
+	 * @param string|int The identifier (contact addr or contact ID).
+	 * @return string|boolean The public key or false on failure.
+	 */
+	private static function getActivitypubKey($id)
+	{
+		if (strpos($id, 'acct:') === 0) {
+			$x = dba::selectFirst('contact', ['pubkey'], ['uid' => 0, 'addr' => str_replace('acct:', '', $id)]);
+		} else {
+			$x = dba::selectFirst('contact', ['pubkey'], ['id' => $id, 'network' => 'activitypub']);
+		}
+
+		if (DBM::is_result($x)) {
+			return $x['pubkey'];
+		}
+
+		if(function_exists('as_fetch')) {
+			$r = as_fetch($id);
+		}
+
+		if ($r) {
+			$j = json_decode($r, true);
+
+			if (array_key_exists('publicKey', $j) && array_key_exists('publicKeyPem', $j['publicKey'])) {
+				if ((array_key_exists('id', $j['publicKey']) && $j['publicKey']['id'] !== $id) && $j['id'] !== $id) {
+					return false;
+				}
+
+				return $j['publicKey']['publicKeyPem'];
+			}
+		}
+
+		return false;
 	}
 
 	/**
