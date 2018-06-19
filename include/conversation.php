@@ -110,14 +110,21 @@ function item_redir_and_replace_images($body, $images, $cid) {
 /**
  * Render actions localized
  */
-function localize_item(&$item) {
-
+function localize_item(&$item)
+{
 	$extracted = item_extract_images($item['body']);
 	if ($extracted['images']) {
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 	}
 
-	/// @TODO Separted ???
+	/*
+	heluecht 2018-06-19: from my point of view this whole code part is useless.
+	It just renders the body message of technical posts (Like, dislike, ...).
+	But: The body isn't visible at all. So we do this stuff just because we can.
+	Even if these messages were visible, this would only mean that something went wrong.
+	During the further steps of the database restructuring I would like to address this issue.
+	*/
+
 	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 	if (activity_match($item['verb'], ACTIVITY_LIKE)
 		|| activity_match($item['verb'], ACTIVITY_DISLIKE)
@@ -125,15 +132,11 @@ function localize_item(&$item) {
 		|| activity_match($item['verb'], ACTIVITY_ATTENDNO)
 		|| activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
 
-		/// @TODO may hurt performance
-		$r = q("SELECT * FROM `item`, `contact`
-			WHERE `item`.`contact-id`=`contact`.`id`
-			AND `item`.`uri`='%s'",
-			dbesc($item['parent-uri']));
-		if (!DBM::is_result($r)) {
+		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
+		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
+		if (!DBM::is_result($obj)) {
 			return;
 		}
-		$obj = $r[0];
 
 		$author  = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 		$objauthor =  '[url=' . $obj['author-link'] . ']' . $obj['author-name'] . '[/url]';
@@ -189,7 +192,8 @@ function localize_item(&$item) {
 		$links = XML::parseString($xmlhead."<links>".unxmlify($obj->link)."</links>");
 
 		$Bname = $obj->title;
-		$Blink = ""; $Bphoto = "";
+		$Blink = "";
+		$Bphoto = "";
 		foreach ($links->link as $l) {
 			$atts = $l->attributes();
 			switch ($atts['rel']) {
@@ -249,7 +253,7 @@ function localize_item(&$item) {
 
 		// now translate the verb
 		$poked_t = trim(sprintf($txt, "", ""));
-		$txt = str_replace( $poked_t, L10n::t($verb), $txt);
+		$txt = str_replace($poked_t, L10n::t($verb), $txt);
 
 		// then do the sprintf on the translation string
 
@@ -258,17 +262,11 @@ function localize_item(&$item) {
 	}
 
 	if (activity_match($item['verb'], ACTIVITY_TAG)) {
-		/// @TODO may hurt performance "joining" two tables + asterisk
-		$r = q("SELECT * FROM `item`, `contact`
-			WHERE `item`.`contact-id`=`contact`.`id`
-			AND `item`.`uri`='%s'",
-			dbesc($item['parent-uri']));
-
-		if (!DBM::is_result($r)) {
+		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
+		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
+		if (!DBM::is_result($obj)) {
 			return;
 		}
-
-		$obj = $r[0];
 
 		$author  = '[url=' . Contact::magicLinkById($item['author-id']) . ']' . $item['author-name'] . '[/url]';
 		$objauthor =  '[url=' . Contact::magicLinkById($obj['author-id']) . ']' . $obj['author-name'] . '[/url]';
@@ -299,8 +297,7 @@ function localize_item(&$item) {
 		$parsedobj = XML::parseString($xmlhead.$item['object']);
 
 		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
-		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag );
-
+		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 	}
 
 	if (activity_match($item['verb'], ACTIVITY_FAVORITE)) {
@@ -315,13 +312,9 @@ function localize_item(&$item) {
 
 		$obj = XML::parseString($xmlhead.$item['object']);
 		if (strlen($obj->id)) {
-			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc($obj->id),
-					intval($item['uid'])
-			);
-
-			if (DBM::is_result($r) && $r[0]['plink']) {
-				$target = $r[0];
+			$fields = ['author-link', 'author-name', 'plink'];
+			$target = Item::selectFirst($fields, ['uri' => $obj->id, 'uid' => $item['uid']]);
+			if (DBM::is_result($target) && $target['plink']) {
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];
 				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
@@ -1009,7 +1002,7 @@ function format_like($cnt, array $arr, $type, $id) {
 		}
 		if ($total >= MAX_LIKERS) {
 			$str = implode(', ', $arr);
-			$str .= L10n::t('and %d other people', $total - MAX_LIKERS );
+			$str .= L10n::t('and %d other people', $total - MAX_LIKERS);
 		}
 
 		$likers = $str;
