@@ -647,13 +647,13 @@ function item_post(App $a) {
 	// This field is for storing the raw conversation data
 	$datarray['protocol'] = PROTOCOL_DFRN;
 
-	$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $datarray['parent-uri']);
-	if (DBM::is_result($r)) {
+	$conversation = dba::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['parent-uri']]);
+	if (DBM::is_result($conversation)) {
 		if ($r['conversation-uri'] != '') {
-			$datarray['conversation-uri'] = $r['conversation-uri'];
+			$datarray['conversation-uri'] = $conversation['conversation-uri'];
 		}
 		if ($r['conversation-href'] != '') {
-			$datarray['conversation-href'] = $r['conversation-href'];
+			$datarray['conversation-href'] = $conversation['conversation-href'];
 		}
 	}
 

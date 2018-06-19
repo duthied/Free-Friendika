@@ -950,13 +950,13 @@ class DFRN
 		$conversation_uri = $conversation_href;
 
 		if (isset($parent_item)) {
-			$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $item['parent-uri']);
-			if (DBM::is_result($r)) {
+			$conversation = dba::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $item['parent-uri']]);
+			if (DBM::is_result($conversation)) {
 				if ($r['conversation-uri'] != '') {
-					$conversation_uri = $r['conversation-uri'];
+					$conversation_uri = $conversation['conversation-uri'];
 				}
 				if ($r['conversation-href'] != '') {
-					$conversation_href = $r['conversation-href'];
+					$conversation_href = $conversation['conversation-href'];
 				}
 			}
 		}
@@ -1537,13 +1537,11 @@ class DFRN
 		$author["name"] = $xpath->evaluate($element."/atom:name/text()", $context)->item(0)->nodeValue;
 		$author["link"] = $xpath->evaluate($element."/atom:uri/text()", $context)->item(0)->nodeValue;
 
-		$contact_old = dba::fetch_first("SELECT `id`, `uid`, `url`, `network`, `avatar-date`, `avatar`, `name-date`, `uri-date`, `addr`,
-				`name`, `nick`, `about`, `location`, `keywords`, `xmpp`, `bdyear`, `bd`, `hidden`, `contact-type`
-				FROM `contact` WHERE `uid` = ? AND `nurl` = ? AND `network` != ?",
-			$importer["importer_uid"],
-			normalise_link($author["link"]),
-			NETWORK_STATUSNET
-		);
+		$fields = ['id', 'uid', 'url', 'network', 'avatar-date', 'avatar', 'name-date', 'uri-date', 'addr',
+			'name', 'nick', 'about', 'location', 'keywords', 'xmpp', 'bdyear', 'bd', 'hidden', 'contact-type'];
+		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ?",
+			$importer["importer_uid"], normalise_link($author["link"]), NETWORK_STATUSNET];
+		$contact_old = dba::selectFirst('contact', $fields, $condition);
 
 		if (DBM::is_result($contact_old)) {
 			$author["contact-id"] = $contact_old["id"];

@@ -155,12 +155,7 @@ class Worker
 	 */
 	private static function totalEntries()
 	{
-		$s = dba::fetch_first("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` <= ? AND NOT `done`", NULL_DATE);
-		if (DBM::is_result($s)) {
-			return $s["total"];
-		} else {
-			return 0;
-		}
+		return dba::count('workerqueue', ["`executed` <= ? AND NOT `done`", NULL_DATE]);
 	}
 
 	/**
@@ -718,9 +713,7 @@ class Worker
 	 */
 	private static function activeWorkers()
 	{
-		$workers = dba::fetch_first("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'Worker.php'");
-
-		return $workers["processes"];
+		return dba::count('process', ['command' => 'Worker.php']);
 	}
 
 	/**
@@ -973,9 +966,9 @@ class Worker
 
 		self::clearProcesses();
 
-		$workers = dba::fetch_first("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'worker.php'");
+		$workers = self::activeWorkers();
 
-		if ($workers["processes"] == 0) {
+		if ($workers == 0) {
 			self::callWorker();
 		}
 	}
