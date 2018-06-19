@@ -99,11 +99,9 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$master_record = $a->user;
 
 	if ((x($_SESSION, 'submanage')) && intval($_SESSION['submanage'])) {
-		$r = dba::fetch_first("SELECT * FROM `user` WHERE `uid` = ? LIMIT 1",
-			intval($_SESSION['submanage'])
-		);
-		if (DBM::is_result($r)) {
-			$master_record = $r;
+		$user = dba::selectFirst('user', [], ['uid' => $_SESSION['submanage']]);
+		if (DBM::is_result($user)) {
+			$master_record = $user;
 		}
 	}
 
@@ -155,10 +153,10 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		logger('auth_identities refresh: ' . print_r($a->identities, true), LOGGER_DEBUG);
 	}
 
-	$r = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `self` LIMIT 1", $_SESSION['uid']);
-	if (DBM::is_result($r)) {
-		$a->contact = $r;
-		$a->cid = $r['id'];
+	$contact = dba::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => true]);
+	if (DBM::is_result($contact)) {
+		$a->contact = $contact;
+		$a->cid = $contact['id'];
 		$_SESSION['cid'] = $a->cid;
 	}
 

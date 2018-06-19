@@ -211,18 +211,11 @@ class User
 					]
 				);
 			} else {
-				$user = dba::fetch_first('SELECT `uid`, `password`, `legacy_password`
-					FROM `user`
-					WHERE (`email` = ? OR `username` = ? OR `nickname` = ?)
-					AND `blocked` = 0
-					AND `account_expired` = 0
-					AND `account_removed` = 0
-					AND `verified` = 1
-					LIMIT 1',
-					$user_info,
-					$user_info,
-					$user_info
-				);
+				$fields = ['uid', 'password', 'legacy_password'];
+				$condition = ["(`email` = ? OR `username` = ? OR `nickname` = ?)
+					AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified`",
+					$user_info, $user_info, $user_info];
+				$user = dba::selectFirst('user', $fields, $condition);
 			}
 
 			if (!DBM::is_result($user)) {

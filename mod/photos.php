@@ -172,7 +172,7 @@ function photos_post(App $a)
 	}
 
 	if (!$can_post) {
-		notice(L10n::t('Permission denied.') . EOL );
+		notice(L10n::t('Permission denied.') . EOL);
 		killme();
 	}
 
@@ -275,7 +275,7 @@ function photos_post(App $a)
 			$str_res = implode(',', $res);
 
 			// remove the associated photos
-			q("DELETE FROM `photo` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
+			q("DELETE FROM `photo` WHERE `resource-id` IN ($str_res) AND `uid` = %d",
 				intval($page_owner_uid)
 			);
 
@@ -372,7 +372,7 @@ function photos_post(App $a)
 			if (DBM::is_result($r)) {
 				$Image = new Image($r[0]['data'], $r[0]['type']);
 				if ($Image->isValid()) {
-					$rotate_deg = ( (intval($_POST['rotate']) == 1) ? 270 : 90 );
+					$rotate_deg = ((intval($_POST['rotate']) == 1) ? 270 : 90);
 					$Image->rotate($rotate_deg);
 
 					$width  = $Image->getWidth();
@@ -918,7 +918,7 @@ function photos_content(App $a)
 	require_once 'include/conversation.php';
 
 	if (!x($a->data,'user')) {
-		notice(L10n::t('No photos selected') . EOL );
+		notice(L10n::t('No photos selected') . EOL);
 		return;
 	}
 
@@ -1216,7 +1216,7 @@ function photos_content(App $a)
 			if (DBM::is_result($ph)) {
 				notice(L10n::t('Permission denied. Access to this item may be restricted.'));
 			} else {
-				notice(L10n::t('Photo not available') . EOL );
+				notice(L10n::t('Photo not available') . EOL);
 			}
 			return;
 		}
@@ -1289,15 +1289,15 @@ function photos_content(App $a)
 			];
 
 			// lock
-			$lock = ( ( ($ph[0]['uid'] == local_user()) && (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid'])
-					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])) )
+			$lock = ((($ph[0]['uid'] == local_user()) && (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid'])
+					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])))
 					? L10n::t('Private Message')
 					: Null);
 
 
 		}
 
-		if ( $cmd === 'edit') {
+		if ($cmd === 'edit') {
 			$tpl = get_markup_template('photo_edit_head.tpl');
 			$a->page['htmlhead'] .= replace_macros($tpl,[
 				'$prevlink' => $prevlink,
@@ -1332,7 +1332,8 @@ function photos_content(App $a)
 		// The difference is that we won't be displaying the conversation head item
 		// as a "post" but displaying instead the photo it is linked to
 
-		$linked_items = q("SELECT * FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
+		/// @todo Rewrite this query. To do so, $sql_extra must be changed
+		$linked_items = q("SELECT `id` FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
 			dbesc($datum)
 		);
 
@@ -1340,7 +1341,8 @@ function photos_content(App $a)
 		$link_item = [];
 
 		if (DBM::is_result($linked_items)) {
-			$link_item = $linked_items[0];
+			// This is a workaround to not being forced to rewrite the while $sql_extra handling
+			$link_item = Item::selectFirstForUser(local_user(), [], ['id' => $linked_items[0]['id']]);
 
 			$r = q("SELECT COUNT(*) AS `total`
 				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`

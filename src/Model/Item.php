@@ -296,7 +296,7 @@ class Item extends BaseObject
 			'file', 'location', 'coord', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
-			'rendered-hash', 'rendered-html', 'global', 'shadow', 'content-warning',
+			'rendered-hash', 'rendered-html', 'global', 'content-warning',
 			'id' => 'item_id', 'network'];
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
@@ -306,7 +306,7 @@ class Item extends BaseObject
 			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
-			'network', 'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
+			'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
 			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id', 'network' => 'contact-network'];
 
 		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network'];

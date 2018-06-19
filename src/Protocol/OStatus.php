@@ -1971,14 +1971,13 @@ class OStatus
 			$conversation_uri = $conversation_href;
 
 			if (isset($parent_item)) {
-				$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $parent_item);
-
-				if (DBM::is_result($r)) {
+				$conversation = dba::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $parent_item]);
+				if (DBM::is_result($conversation)) {
 					if ($r['conversation-uri'] != '') {
-						$conversation_uri = $r['conversation-uri'];
+						$conversation_uri = $conversation['conversation-uri'];
 					}
 					if ($r['conversation-href'] != '') {
-						$conversation_href = $r['conversation-href'];
+						$conversation_href = $conversation['conversation-href'];
 					}
 				}
 			}
