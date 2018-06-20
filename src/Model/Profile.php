@@ -17,7 +17,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\Verify;
+use Friendica\Model\OpenWebAuthToken;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -1056,12 +1056,12 @@ class Profile
 	{
 		$a = get_app();
 
-		// Clean old verify entries.
-		Verify::purge('owt', '3 MINUTE');
+		// Clean old OpenWebAuthToken entries.
+		OpenWebAuthToken::purge('owt', '3 MINUTE');
 
 		// Check if the token we got is the same one
 		// we have stored in the database.
-		$visitor_handle = Verify::getMeta('owt', 0, $token);
+		$visitor_handle = OpenWebAuthToken::getMeta('owt', 0, $token);
 
 		if($visitor_handle === false) {
 			return;

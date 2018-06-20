@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file src/Util/HTTPSig.php
+ * @file src/Util/HTTPSignature.php
  */
 namespace Friendica\Util;
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file src/Model/Verify.php
+ * @file src/Model/OpenWebAuthToken.php
  */
 namespace Friendica\Model;
 
@@ -12,7 +12,7 @@ use dba;
 /**
  * Methods to deal with entries of the 'openwebauth_token' table.
  */
-class Verify
+class OpenWebAuthToken
 {
 	/**
 	 * Create an entry in the 'openwebauth_token' table.

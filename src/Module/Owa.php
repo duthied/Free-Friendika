@@ -8,7 +8,7 @@ use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\Verify;
+use Friendica\Model\OpenWebAuthToken;
 use Friendica\Util\HTTPSignature;
 
 use dba;
@@ -66,7 +66,7 @@ class Owa extends BaseModule
 								$token = random_string(32);
 
 								// Store the generated token in the databe.
-								Verify::create('owt', 0, $token, $contact['addr']);
+								OpenWebAuthToken::create('owt', 0, $token, $contact['addr']);
 
 								$result = '';
 
