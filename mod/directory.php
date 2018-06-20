@@ -83,7 +83,7 @@ function directory_content(App $a)
 
 	$cnt = dba::fetch_first("SELECT COUNT(*) AS `total` FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `is-default` $publish AND NOT `user`.`blocked` $sql_extra");
+				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
 	if (DBM::is_result($cnt)) {
 		$a->set_pager_total($cnt['total']);
 	}
@@ -96,7 +96,7 @@ function directory_content(App $a)
 			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE `is-default` $publish AND `user`.`blocked` = 0 AND `user`.`account_removed` = 0 AND `contact`.`self`
+			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
 			$sql_extra $order LIMIT $limit"
 	);
 	if (DBM::is_result($r)) {
