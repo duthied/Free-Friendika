@@ -63,7 +63,7 @@ class HTTPSignature
 			}
 
 			$h = new HTTPHeaders($data['header']);
-			$headers = $h->fetcharr();
+			$headers = $h->fetch();
 			$body = $data['body'];
 		} else {
 			$headers = [];

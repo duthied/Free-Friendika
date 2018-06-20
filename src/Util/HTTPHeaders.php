@@ -19,12 +19,12 @@ class HTTPHeaders
 		if ($lines) {
 			foreach ($lines as $line) {
 				if (preg_match('/^\s+/', $line, $matches) && trim($line)) {
-					if ($this->in_progress['k']) {
+					if (!empty($this->in_progress['k'])) {
 						$this->in_progress['v'] .= ' ' . ltrim($line);
 						continue;
 					}
 				} else {
-					if ($this->in_progress['k']) {
+					if (!empty($this->in_progress['k'])) {
 						$this->parsed[] = [$this->in_progress['k'] => $this->in_progress['v']];
 						$this->in_progress = [];
 					}
@@ -34,8 +34,8 @@ class HTTPHeaders
 				}
 			}
 
-			if ($this->in_progress['k']) {
-				$this->parsed[] = [$this->in_progress['k'] => $this->in_progress['v']];
+			if (!empty($this->in_progress['k'])) {
+				$this->parsed[$this->in_progress['k']] = $this->in_progress['v'];
 				$this->in_progress = [];
 			}
 		}
@@ -44,19 +44,5 @@ class HTTPHeaders
 	function fetch()
 	{
 		return $this->parsed;
-	}
-
-	function fetcharr()
-	{
-		$ret = [];
-
-		if ($this->parsed) {
-			foreach ($this->parsed as $x) {
-				foreach ($x as $y => $z) {
-					$ret[$y] = $z;
-				}
-			}
-		}
-		return $ret;
 	}
 }
