@@ -10,12 +10,12 @@ use Friendica\Util\DateTimeFormat;
 use dba;
 
 /**
- * Methods to deal with entries of the 'verify' table.
+ * Methods to deal with entries of the 'openwebauth_token' table.
  */
 class Verify
 {
 	/**
-	 * Create an entry in the 'verify' table.
+	 * Create an entry in the 'openwebauth_token' table.
 	 * 
 	 * @param string $type   Verify type.
 	 * @param int    $uid    The user ID.
@@ -33,11 +33,11 @@ class Verify
 			"meta" => $meta,
 			"created" => DateTimeFormat::utcNow()
 		];
-		return dba::insert("verify", $fields);
+		return dba::insert("openwebauth_token", $fields);
 	}
 
 	/**
-	 * Get the "meta" field of an entry in the verify table.
+	 * Get the "meta" field of an entry in the openwebauth_token table.
 	 * 
 	 * @param string $type   Verify type.
 	 * @param int    $uid    The user ID.
@@ -49,9 +49,9 @@ class Verify
 	{
 		$condition = ["type" => $type, "uid" => $uid, "token" => $token];
 
-		$entry = dba::selectFirst("verify", ["id", "meta"], $condition);
+		$entry = dba::selectFirst("openwebauth_token", ["id", "meta"], $condition);
 		if (DBM::is_result($entry)) {
-			dba::delete("verify", ["id" => $entry["id"]]);
+			dba::delete("openwebauth_token", ["id" => $entry["id"]]);
 
 			return $entry["meta"];
 		}
@@ -67,7 +67,7 @@ class Verify
 	public static function purge($type, $interval)
 	{
 		$condition = ["`type` = ? AND `created` < ?", $type, DateTimeFormat::utcNow() . " - INTERVAL " . $interval];
-		dba::delete("verify", $condition);
+		dba::delete("openwebauth_token", $condition);
 	}
 
 }

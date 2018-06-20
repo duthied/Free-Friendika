@@ -1818,8 +1818,8 @@ class DBStructure
 						"PRIMARY" => ["uid", "iid"],
 						]
 				];
-		$database["verify"] = [
-				"comment" => "Store token to verify contacts",
+		$database["openwebauth-token"] = [
+				"comment" => "Store OpenWebAuth token to verify contacts",
 				"fields" => [
 						"id" => ["type" => "int(10)", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 						"uid" => ["type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],

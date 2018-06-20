@@ -1085,9 +1085,9 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
 
 --
--- TABLE verify
+-- TABLE openwebauth-token
 --
-CREATE TABLE IF NOT EXISTS `verify` (
+CREATE TABLE IF NOT EXISTS `openwebauth-token` (
 	`id` int(10) NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`type` varchar(32) DEFAULT '' COMMENT 'Verify type',
@@ -1095,7 +1095,7 @@ CREATE TABLE IF NOT EXISTS `verify` (
 	`meta` varchar(255) DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
 	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store token to verify contacts';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
 
 --
 -- TABLE worker-ipc
