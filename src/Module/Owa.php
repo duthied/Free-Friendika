@@ -9,7 +9,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Verify;
-use Friendica\Util\HTTPSig;
+use Friendica\Util\HTTPSignature;
 
 use dba;
 
@@ -39,7 +39,7 @@ class Owa extends BaseModule
 					continue;
 				}
 
-				$sigblock = HTTPSig::parseSigheader($_SERVER[$head]);
+				$sigblock = HTTPSignature::parseSigheader($_SERVER[$head]);
 				if ($sigblock) {
 					$keyId = $sigblock['keyId'];
 

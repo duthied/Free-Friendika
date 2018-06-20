@@ -362,7 +362,6 @@ Called when a magic-auth was successful.
 Hook data:
     'visitor' => array with the contact record of the visitor
     'url' => the query string
-    'session' => $_SESSION array
 
 Current JavaScript hooks
 -------------

@@ -147,7 +147,7 @@ if ((x($_GET,'zrl')) && $a->mode == App::MODE_NORMAL) {
 if ((x($_GET,'owt')) && $a->mode == App::MODE_NORMAL) {
 	$token = $_GET['owt'];
 	$a->query_string = Profile::stripQueryParam($a->query_string, 'owt');
-	Profile::owtInit($token);
+	Profile::openWebAuthInit($token);
 }
 
 /**

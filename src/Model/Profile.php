@@ -1052,7 +1052,7 @@ class Profile
 	 * 
 	 * @param string $token
 	 */
-	public static function owtInit($token)
+	public static function openWebAuthInit($token)
 	{
 		$a = get_app();
 
@@ -1084,19 +1084,17 @@ class Profile
 
 		$arr = [
 			'visitor' => $visitor,
-			'url' => $a->query_string,
-			'session' => $_SESSION
+			'url' => $a->query_string
 		];
 		/**
 		 * @hooks magic_auth_success
 		 *   Called when a magic-auth was successful.
 		 *   * \e array \b visitor
 		 *   * \e string \b url
-		 *   * \e array \b session
 		 */
 		Addon::callHooks('magic_auth_success', $arr);
 
-		$a->contact = $visitor;
+		$a->contact = $arr['visitor'];
 
 		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->get_hostname(), $visitor['name']));
 

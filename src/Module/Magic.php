@@ -6,7 +6,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Model\Contact;
-use Friendica\Util\HTTPSig;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 
 use dba;
@@ -76,7 +76,7 @@ class Magic extends BaseModule
 				$headers['X-Open-Web-Auth'] = random_string();
 
 				// Create a header that is signed with the local users private key.
-				$headers = HTTPSig::createSig(
+				$headers = HTTPSignature::createSig(
 							'',
 							$headers,
 							$user['prvkey'],

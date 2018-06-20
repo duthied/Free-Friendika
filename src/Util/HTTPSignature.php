@@ -19,7 +19,7 @@ use dba;
  * @see https://tools.ietf.org/html/draft-cavage-http-signatures-07
  */
 
-class HTTPSig
+class HTTPSignature
 {
 	/**
 	 * @brief RFC5843
