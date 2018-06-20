@@ -625,6 +625,11 @@ class Worker
 		if ($load) {
 			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 
+			/* Default exponent 3 causes queues to rapidly decrease as load increases.
+			 * If you have 20 max queues at idle, then you get only 5 queues at 37.1% of $maxsysload.
+			 * For some environments, this rapid decrease is not needed.
+			 * With exponent 1, you could have 20 max queues at idle and 13 at 37% of $maxsysload.
+			 */
 			$exponent = intval(Config::get('system', 'worker_load_exponent', 3));
 			$slope = pow(max(0, $maxsysload - $load) / $maxsysload, $exponent);
 			$queues = intval(ceil($slope * $maxqueues));
