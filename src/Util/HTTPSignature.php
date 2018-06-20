@@ -24,6 +24,9 @@ class HTTPSignature
 	/**
 	 * @brief RFC5843
 	 *
+	 * Disabled until Friendica's ActivityPub implementation
+	 * is ready.
+	 * 
 	 * @see https://tools.ietf.org/html/rfc5843
 	 *
 	 * @param string  $body The value to create the digest for
@@ -32,15 +35,15 @@ class HTTPSignature
 	 * 
 	 * @return string The generated digest of $body
 	 */
-	public static function generateDigest($body, $set = true)
-	{
-		$digest = base64_encode(hash('sha256', $body, true));
-
-		if($set) {
-			header('Digest: SHA-256=' . $digest);
-		}
-		return $digest;
-	}
+//	public static function generateDigest($body, $set = true)
+//	{
+//		$digest = base64_encode(hash('sha256', $body, true));
+//
+//		if($set) {
+//			header('Digest: SHA-256=' . $digest);
+//		}
+//		return $digest;
+//	}
 
 	// See draft-cavage-http-signatures-08
 	public static function verify($data, $key = '')
@@ -178,13 +181,13 @@ class HTTPSignature
 	private static function getActivitypubKey($id)
 	{
 		if (strpos($id, 'acct:') === 0) {
-			$x = dba::selectFirst('contact', ['pubkey'], ['uid' => 0, 'addr' => str_replace('acct:', '', $id)]);
+			$contact = dba::selectFirst('contact', ['pubkey'], ['uid' => 0, 'addr' => str_replace('acct:', '', $id)]);
 		} else {
-			$x = dba::selectFirst('contact', ['pubkey'], ['id' => $id, 'network' => 'activitypub']);
+			$contact = dba::selectFirst('contact', ['pubkey'], ['id' => $id, 'network' => 'activitypub']);
 		}
 
-		if (DBM::is_result($x)) {
-			return $x['pubkey'];
+		if (DBM::is_result($contact)) {
+			return $contact['pubkey'];
 		}
 
 		if(function_exists('as_fetch')) {
@@ -253,7 +256,10 @@ class HTTPSignature
 		if ($head) {
 			foreach ($head as $k => $v) {
 				if ($send_headers) {
-					header($k . ': ' . $v);
+					// This is for ActivityPub implementation.
+					// Since the Activity Pub implementation isn't
+					// ready at the moment, we comment it out.
+					// header($k . ': ' . $v);
 				} else {
 					$return_headers[] = $k . ': ' . $v;
 				}
@@ -261,7 +267,10 @@ class HTTPSignature
 		}
 
 		if ($send_headers) {
-			header($sighead);
+			// This is for ActivityPub implementation.
+			// Since the Activity Pub implementation isn't
+			// ready at the moment, we comment it out.
+			// header($sighead);
 		} else {
 			$return_headers[] = $sighead;
 		}
