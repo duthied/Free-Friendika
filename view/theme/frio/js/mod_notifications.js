@@ -7,7 +7,7 @@
 var introID = location.pathname.split("/").pop();
 
 $(document).ready(function(){
-	// Since only the DIV's inside the notification-list are marked 
+	// Since only the DIV's inside the notification-list are marked
 	// with the class "unseen", we need some js to transfer this class
 	// to the parent li list-elements.
 	if($(".notif-item").hasClass("unseen")) {

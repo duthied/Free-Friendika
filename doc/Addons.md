@@ -72,12 +72,12 @@ JavaScript addon hooks
 ---
 
 #### PHP part
-Make sure your JavaScript addon file (addon/*addon_name*/*addon_name*.js) is listed in the document response. 
+Make sure your JavaScript addon file (addon/*addon_name*/*addon_name*.js) is listed in the document response.
 
 In your addon install function, add:
 
     Addon::registerHook('template_vars', 'addon/<addon_name>/<addon_name>.php', '<addon_name>_template_vars');
-    
+
 In your addon uninstall function, add:
 
     Addon::unregisterHook('template_vars', 'addon/<addon_name>/<addon_name>.php', '<addon_name>_template_vars');
@@ -104,7 +104,7 @@ Register your addon hooks in file 'addon/*addon_name*/*addon_name*.js'.
 No arguments are provided to your JavaScript callback function. Example:
 
     function myhook_function() {
-  
+
     }
 
 Modules

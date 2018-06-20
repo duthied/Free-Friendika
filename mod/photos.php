@@ -1231,6 +1231,7 @@ function photos_content(App $a)
 		 */
 		if (!Config::get('system', 'no_count', false)) {
 			$order_field = defaults($_GET, 'order', '');
+
 			if ($order_field === 'posted') {
 				$order = 'ASC';
 			} else {
