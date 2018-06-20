@@ -299,7 +299,7 @@ class Crypto
 	}
 
 	/**
-	 * Decrypt a string with 'aes-256-cbc' cipher method.
+	 * Decrypt a string with 'aes-256-ctr' cipher method.
 	 * 
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 * 
@@ -351,18 +351,9 @@ class Crypto
 		}
 		$fn = 'encrypt' . strtoupper($alg);
 		if (method_exists(__CLASS__, $fn)) {
-			// A bit hesitant to use openssl_random_pseudo_bytes() as we know
-			// it has been historically targeted by US agencies for 'weakening'.
-			// It is still arguably better than trying to come up with an
-			// alternative cryptographically secure random generator.
-			// There is little point in using the optional second arg to flag the
-			// assurance of security since it is meaningless if the source algorithms
-			// have been compromised. Also none of this matters if RSA has been
-			// compromised by state actors and evidence is mounting that this has
-			// already happened.
 			$result = ['encrypted' => true];
-			$key = openssl_random_pseudo_bytes(256);
-			$iv  = openssl_random_pseudo_bytes(256);
+			$key = random_bytes(256);
+			$iv  = random_bytes(256);
 			$result['data'] = base64url_encode(self::$fn($data, $key, $iv), true);
 
 			// log the offending call so we can track it down
@@ -400,10 +391,10 @@ class Crypto
 			logger('aes_encapsulate: no key. data: ' . $data);
 		}
 
-		$key = openssl_random_pseudo_bytes(32);
-		$iv  = openssl_random_pseudo_bytes(16);
+		$key = random_bytes(32);
+		$iv  = random_bytes(16);
 		$result = ['encrypted' => true];
-		$result['data'] = base64url_encode(AES256CBC_encrypt($data, $key, $iv), true);
+		$result['data'] = base64url_encode(self::AES256CBC_encrypt($data, $key, $iv), true);
 
 		// log the offending call so we can track it down
 		if (!openssl_public_encrypt($key, $k, $pubkey)) {
