@@ -1029,7 +1029,7 @@ function admin_page_site_post(App $a)
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
 
-	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
+	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 10);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
 	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
@@ -1448,7 +1448,7 @@ function admin_page_site(App $a)
 
 		'$rino' 		=> ['rino', L10n::t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => L10n::t("Disabled"), 1 => L10n::t("Enabled")]],
 
-		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")],
+		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.", 5, 20, 10)],
 		'$worker_dont_fork'	=> ['worker_dont_fork', L10n::t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), L10n::t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
 		'$worker_fastlane'	=> ['worker_fastlane', L10n::t("Enable fastlane"), Config::get('system','worker_fastlane'), L10n::t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
 		'$worker_frontend'	=> ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system','frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed \x28e.g. messages being delivered\x29. On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
