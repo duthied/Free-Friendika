@@ -625,34 +625,14 @@ class Worker
 		if ($load) {
 			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 
-			if (Config::get('system', 'worker_linear_load', false)) {
-				/* The linear load calculation works fine if there is a low
-				 * number of maximum queues and a high load base level.
-				 * This can be present at shared hosters.
-				*/
-				$tinyload = 1;
-
-				if ($load > $maxsysload) {
-					$queues = 0;
-				} elseif ($load > $tinyload) {
-					//Provide $queues number between 1 (below max load) and $maxqueues - 1 (above tiny load).
-					$range = $maxsysload - $tinyload;
-					$slope = 1.00 - (($load - $tinyload) / $range);
-					$target = $slope * ($maxqueues - 1);
-					$queues = intval(ceil($target));
-				}
-			} else {
-				/* The exponentional load calculation respects the load behaviour
-				 * of Linux systems with regular hardware that normally idles
-				 * with load values near 0.
-				*/
-				$maxworkers = $queues;
-
-				// Some magical mathemathics to reduce the workers
-				$exponent = 3;
-				$slope = $maxworkers / pow($maxsysload, $exponent);
-				$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
-			}
+			/* Default exponent 3 causes queues to rapidly decrease as load increases.
+			 * If you have 20 max queues at idle, then you get only 5 queues at 37.1% of $maxsysload.
+			 * For some environments, this rapid decrease is not needed.
+			 * With exponent 1, you could have 20 max queues at idle and 13 at 37% of $maxsysload.
+			 */
+			$exponent = intval(Config::get('system', 'worker_load_exponent', 3));
+			$slope = pow(max(0, $maxsysload - $load) / $maxsysload, $exponent);
+			$queues = intval(ceil($slope * $maxqueues));
 
 			$processlist = '';
 
