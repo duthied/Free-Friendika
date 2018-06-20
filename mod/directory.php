@@ -96,7 +96,8 @@ function directory_content(App $a)
 			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE `is-default` $publish AND `user`.`blocked` = 0 AND `contact`.`self` $sql_extra $order LIMIT ".$limit
+			WHERE `is-default` $publish AND `user`.`blocked` = 0 AND `user`.`account_removed` = 0 AND `contact`.`self`
+			$sql_extra $order LIMIT $limit"
 	);
 	if (DBM::is_result($r)) {
 		if (in_array('small', $a->argv)) {
