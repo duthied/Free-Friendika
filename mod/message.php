@@ -141,6 +141,7 @@ function message_content(App $a)
 				'$cancel' => L10n::t('Cancel'),
 			]);
 		}
+
 		// Now check how the user responded to the confirmation query
 		if ($_REQUEST['canceled']) {
 			goaway($_SESSION['return_url']);
@@ -148,9 +149,10 @@ function message_content(App $a)
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
-			if (dba::delete('mail', ['id' => $a->argv[2]])) {
+			if (dba::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
 				info(L10n::t('Message deleted.') . EOL);
 			}
+
 			//goaway(System::baseUrl(true) . '/message' );
 			goaway($_SESSION['return_url']);
 		} else {

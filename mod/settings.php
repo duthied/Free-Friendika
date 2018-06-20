@@ -149,7 +149,7 @@ function settings_post(App $a)
 		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
 
 		$key = $_POST['remove'];
-		dba::delete('tokens', ['id' => $key]);
+		dba::delete('tokens', ['id' => $key, 'uid' => local_user()]);
 		goaway(System::baseUrl(true)."/settings/oauth/");
 		return;
 	}
