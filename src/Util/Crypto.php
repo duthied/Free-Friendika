@@ -394,7 +394,7 @@ class Crypto
 		$key = random_bytes(32);
 		$iv  = random_bytes(16);
 		$result = ['encrypted' => true];
-		$result['data'] = base64url_encode(self::AES256CBC_encrypt($data, $key, $iv), true);
+		$result['data'] = base64url_encode(self::encryptAES256CBC($data, $key, $iv), true);
 
 		// log the offending call so we can track it down
 		if (!openssl_public_encrypt($key, $k, $pubkey)) {

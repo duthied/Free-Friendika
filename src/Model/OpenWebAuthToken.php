@@ -10,12 +10,12 @@ use Friendica\Util\DateTimeFormat;
 use dba;
 
 /**
- * Methods to deal with entries of the 'openwebauth_token' table.
+ * Methods to deal with entries of the 'openwebauth-token' table.
  */
 class OpenWebAuthToken
 {
 	/**
-	 * Create an entry in the 'openwebauth_token' table.
+	 * Create an entry in the 'openwebauth-token' table.
 	 * 
 	 * @param string $type   Verify type.
 	 * @param int    $uid    The user ID.
@@ -33,11 +33,11 @@ class OpenWebAuthToken
 			"meta" => $meta,
 			"created" => DateTimeFormat::utcNow()
 		];
-		return dba::insert("openwebauth_token", $fields);
+		return dba::insert("openwebauth-token", $fields);
 	}
 
 	/**
-	 * Get the "meta" field of an entry in the openwebauth_token table.
+	 * Get the "meta" field of an entry in the openwebauth-token table.
 	 * 
 	 * @param string $type   Verify type.
 	 * @param int    $uid    The user ID.
@@ -49,9 +49,9 @@ class OpenWebAuthToken
 	{
 		$condition = ["type" => $type, "uid" => $uid, "token" => $token];
 
-		$entry = dba::selectFirst("openwebauth_token", ["id", "meta"], $condition);
+		$entry = dba::selectFirst("openwebauth-token", ["id", "meta"], $condition);
 		if (DBM::is_result($entry)) {
-			dba::delete("openwebauth_token", ["id" => $entry["id"]]);
+			dba::delete("openwebauth-token", ["id" => $entry["id"]]);
 
 			return $entry["meta"];
 		}
@@ -67,7 +67,7 @@ class OpenWebAuthToken
 	public static function purge($type, $interval)
 	{
 		$condition = ["`type` = ? AND `created` < ?", $type, DateTimeFormat::utcNow() . " - INTERVAL " . $interval];
-		dba::delete("openwebauth_token", $condition);
+		dba::delete("openwebauth-token", $condition);
 	}
 
 }
