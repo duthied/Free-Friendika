@@ -625,12 +625,7 @@ class Worker
 		if ($load) {
 			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 
-			if (Config::get('system', 'worker_linear_load', false)) {
-				$exponent = 1;
-			} else {
-				$exponent = 3;
-			}
-
+			$exponent = intval(Config::get('system', 'worker_load_exponent', 3));
 			$slope = pow(max(0, $maxsysload - $load) / $maxsysload, $exponent);
 			$queues = intval(ceil($slope * $maxqueues));
 
