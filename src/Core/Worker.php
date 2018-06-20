@@ -624,13 +624,18 @@ class Worker
 		$load = current_load();
 		if ($load) {
 			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
+			$tinyload = 1;
 
-			$maxworkers = $queues;
+			if ($load > $maxsysload) {
+				$queues = 0;
+			} elseif ($load > $tinyload) {
+				//Provide $queues number between 1 (below max load) and $maxqueues - 1 (above tiny load).
+				$range = $maxsysload - $tinyload;
+				$slope = 1.00 - (($load - $tinyload) / $range);
+				$target = $slope * ($maxqueues - 1);
+				$queues = intval(ceil($target));
+			}
 
-			// Some magical mathemathics to reduce the workers
-			$exponent = 3;
-			$slope = $maxworkers / pow($maxsysload, $exponent);
-			$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 			$processlist = '';
 
 			if (Config::get('system', 'worker_debug')) {
@@ -698,12 +703,12 @@ class Worker
 			}
 		}
 
-		// if there are too much worker, we down't spawn a new one.
-		if (Config::get('system', 'worker_daemon_mode', false) && ($active >= $queues)) {
+		// if there are too much worker, we don't spawn a new one.
+		if (Config::get('system', 'worker_daemon_mode', false) && ($active > $queues)) {
 			self::IPCSetJobState(false);
 		}
 
-		return $active >= $queues;
+		return $active > $queues;
 	}
 
 	/**
