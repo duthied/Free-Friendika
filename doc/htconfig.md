@@ -94,7 +94,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **throttle_limit_month** - Maximum number of posts that a user can send per month with the API.
 * **wall-to-wall_share** (Boolean) - Displays forwarded posts like "wall-to-wall" posts.
 * **worker_cooldown** - Cooldown time after each worker function call. Default value is 0 seconds.
-* **worker_load_exponent** (Integer) - Default 3, which allows only 25% of the maximum worker queues when server load reaches around 37% of maximum load.  For a linear response where 25% of worker queues are allowed at 75% of maximum load, set this to 1.  Queues will always reduce to zero when the maximum load is exceeded.
+* **worker_load_exponent** (Integer) - Default 3, which allows only 25% of the maximum worker queues when server load reaches around 37% of maximum load.  For a linear response where 25% of worker queues are allowed at 75% of maximum load, set this to 1.  Setting 0 would allow maximum worker queues at all times, which is not recommended.
 * **xrd_timeout** - Timeout for fetching the XRD links. Default value is 20 seconds.
 
 ## experimental ##
