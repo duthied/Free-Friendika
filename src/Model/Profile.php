@@ -17,6 +17,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\OpenWebAuthToken;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -978,25 +979,126 @@ class Profile
 		return null;
 	}
 
+	/**
+	 * Process the 'zrl' parameter and initiate the remote authentication.
+	 * 
+	 * This method checks if the visitor has a public contact entry and
+	 * redirects the visitor to his/her instance to start the magic auth (Authentication)
+	 * process.
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/channel.php
+	 * 
+	 * @param App $a Application instance.
+	 */
 	public static function zrlInit(App $a)
 	{
 		$my_url = self::getMyURL();
 		$my_url = Network::isUrlValid($my_url);
+
 		if ($my_url) {
-			// Is it a DDoS attempt?
-			// The check fetches the cached value from gprobe to reduce the load for this system
-			$urlparts = parse_url($my_url);
+			if (!local_user()) {
+				// Is it a DDoS attempt?
+				// The check fetches the cached value from gprobe to reduce the load for this system
+				$urlparts = parse_url($my_url);
 
-			$result = Cache::get('gprobe:' . $urlparts['host']);
-			if ((!is_null($result)) && (in_array($result['network'], [NETWORK_FEED, NETWORK_PHANTOM]))) {
-				logger('DDoS attempt detected for ' . $urlparts['host'] . ' by ' . $_SERVER['REMOTE_ADDR'] . '. server data: ' . print_r($_SERVER, true), LOGGER_DEBUG);
-				return;
+				$result = Cache::get('gprobe:' . $urlparts['host']);
+				if ((!is_null($result)) && (in_array($result['network'], [NETWORK_FEED, NETWORK_PHANTOM]))) {
+					logger('DDoS attempt detected for ' . $urlparts['host'] . ' by ' . $_SERVER['REMOTE_ADDR'] . '. server data: ' . print_r($_SERVER, true), LOGGER_DEBUG);
+					return;
+				}
+
+				Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
+				$arr = ['zrl' => $my_url, 'url' => $a->cmd];
+				Addon::callHooks('zrl_init', $arr);
+
+				// Try to find the public contact entry of the visitor.
+				$cid = Contact::getIdForURL($my_url);
+				if (!$cid) {
+					logger('No contact record found for ' . $my_url, LOGGER_DEBUG);
+					return;
+				}
+
+				$contact = dba::selectFirst('contact',['id', 'url'], ['id' => $cid]);
+
+				if (DBM::is_result($contact) && remote_user() && remote_user() === $contact['id']) {
+					// The visitor is already authenticated.
+					return;
+				}
+
+				logger('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);
+
+				// Try to avoid recursion - but send them home to do a proper magic auth.
+				$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
+				// The other instance needs to know where to redirect.
+				$dest = urlencode(System::baseUrl() . '/' . $query);
+
+				// We need to extract the basebath from the profile url
+				// to redirect the visitors '/magic' module.
+				// Note: We should have the basepath of a contact also in the contact table.
+				$urlarr = explode('/profile/', $contact['url']);
+				$basepath = $urlarr[0];
+
+				if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
+					goaway($basepath . '/magic' . '?f=&owa=1&dest=' . $dest);
+				}
 			}
-
-			Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
-			$arr = ['zrl' => $my_url, 'url' => $a->cmd];
-			Addon::callHooks('zrl_init', $arr);
 		}
+	}
+
+	/**
+	 * OpenWebAuth authentication.
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
+	 * 
+	 * @param string $token
+	 */
+	public static function openWebAuthInit($token)
+	{
+		$a = get_app();
+
+		// Clean old OpenWebAuthToken entries.
+		OpenWebAuthToken::purge('owt', '3 MINUTE');
+
+		// Check if the token we got is the same one
+		// we have stored in the database.
+		$visitor_handle = OpenWebAuthToken::getMeta('owt', 0, $token);
+
+		if($visitor_handle === false) {
+			return;
+		}
+
+		// Try to find the public contact entry of the visitor.
+		$cid = Contact::getIdForURL($visitor_handle);
+		if(!$cid) {
+			logger('owt: unable to finger ' . $visitor_handle, LOGGER_DEBUG);
+			return;
+		}
+
+		$visitor = dba::selectFirst('contact', [], ['id' => $cid]);
+
+		// Authenticate the visitor.
+		$_SESSION['authenticated'] = 1;
+		$_SESSION['visitor_id'] = $visitor['id'];
+		$_SESSION['visitor_handle'] = $visitor['addr'];
+		$_SESSION['visitor_home'] = $visitor['url'];
+
+		$arr = [
+			'visitor' => $visitor,
+			'url' => $a->query_string
+		];
+		/**
+		 * @hooks magic_auth_success
+		 *   Called when a magic-auth was successful.
+		 *   * \e array \b visitor
+		 *   * \e string \b url
+		 */
+		Addon::callHooks('magic_auth_success', $arr);
+
+		$a->contact = $arr['visitor'];
+
+		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->get_hostname(), $visitor['name']));
+
+		logger('OpenWebAuth: auth success from ' . $visitor['addr'], LOGGER_DEBUG);
 	}
 
 	public static function zrl($s, $force = false)
@@ -1041,5 +1143,27 @@ class Profile
 		}
 
 		return $uid;
+	}
+
+	/**
+	* Stip zrl parameter from a string.
+	* 
+	* @param string $s The input string.
+	* @return string The zrl.
+	*/
+	public static function stripZrls($s)
+	{
+		return preg_replace('/[\?&]zrl=(.*?)([\?&]|$)/is', '', $s);
+	}
+
+	/**
+	* Stip query parameter from a string.
+	* 
+	* @param string $s The input string.
+	* @return string The query parameter.
+	*/
+	public static function stripQueryParam($s, $param)
+	{
+		return preg_replace('/[\?&]' . $param . '=(.*?)(&|$)/ism', '$2', $s);
 	}
 }

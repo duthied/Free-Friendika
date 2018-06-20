@@ -357,6 +357,12 @@ Hook data:
     'item' => item array (input)
     'html' => converted item body (input/output)
 
+### 'magic_auth_success'
+Called when a magic-auth was successful.
+Hook data:
+    'visitor' => array with the contact record of the visitor
+    'url' => the query string
+
 Current JavaScript hooks
 -------------
 
@@ -557,6 +563,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks('profile_sidebar', $arr);
     Addon::callHooks('profile_tabs', $arr);
     Addon::callHooks('zrl_init', $arr);
+    Addon::callHooks('magic_auth_success', $arr);
 
 ### src/Model/Event.php
 
