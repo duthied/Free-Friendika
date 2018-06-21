@@ -427,7 +427,12 @@ class dba {
 				}
 
 				foreach ($args AS $param => $value) {
-					$stmt->bindParam($param, $args[$param]);
+					if (is_int($args[$param])) {
+						$data_type = PDO::PARAM_INT;
+					} else {
+						$data_type = PDO::PARAM_STR;
+					}
+					$stmt->bindParam($param, $args[$param], $data_type);
 				}
 
 				if (!$stmt->execute()) {
