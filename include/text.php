@@ -474,7 +474,7 @@ function perms2str($p) {
  */
 function load_view_file($s) {
 	global $lang, $a;
-	if (! isset($lang)) {
+	if (!isset($lang)) {
 		$lang = 'en';
 	}
 	$b = basename($s);
@@ -519,7 +519,7 @@ function get_intltext_template($s) {
 		$engine = "/smarty3";
 	}
 
-	if (! isset($lang)) {
+	if (!isset($lang)) {
 		$lang = 'en';
 	}
 
@@ -621,8 +621,8 @@ function logger($msg, $level = 0) {
 	$loglevel = intval(Config::get('system','loglevel'));
 
 	if (
-		! $debugging
-		|| ! $logfile
+		!$debugging
+		|| !$logfile
 		|| $level > $loglevel
 	) {
 		return;
@@ -689,7 +689,7 @@ function dlogger($msg, $level = 0) {
 	}
 
 	$logfile = Config::get('system', 'dlogfile');
-	if (! $logfile) {
+	if (!$logfile) {
 		return;
 	}
 
@@ -1253,7 +1253,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	$s = $hook_data['html'];
 	unset($hook_data);
 
-	if (! $attach) {
+	if (!$attach) {
 		// Replace the blockquotes with quotes that are used in mails.
 		$mailquote = '<blockquote type="cite" class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">';
 		$s = str_replace(['<blockquote>', '<blockquote class="spoiler">', '<blockquote class="author">'], [$mailquote, $mailquote, $mailquote], $s);
@@ -1553,7 +1553,7 @@ function generate_user_guid() {
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 			dbesc($guid)
 		);
-		if (! DBM::is_result($x)) {
+		if (!DBM::is_result($x)) {
 			$found = false;
 		}
 	} while ($found == true);
@@ -1595,7 +1595,7 @@ function base64url_decode($s) {
  *  // Uncomment if you find you need it.
  *
  *	$l = strlen($s);
- *	if (! strpos($s,'=')) {
+ *	if (!strpos($s,'=')) {
  *		$m = $l % 4;
  *		if ($m == 2)
  *			$s .= '==';
@@ -1818,7 +1818,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_new_tags = explode(",",file_tag_file_to_list($file_new,$type));
 
 		foreach ($check_new_tags as $tag) {
-			if (! stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket)) {
+			if (!stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$new_tags[] = $tag;
 			}
 		}
@@ -1830,7 +1830,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_deleted_tags = explode(",",file_tag_file_to_list($file_old,$type));
 
 		foreach ($check_deleted_tags as $tag) {
-			if (! stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket)) {
+			if (!stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$deleted_tags[] = $tag;
 			}
 		}
@@ -1859,20 +1859,17 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 	return true;
 }
 
-function file_tag_save_file($uid, $item, $file)
+function file_tag_save_file($uid, $item_id, $file)
 {
-	if (! intval($uid)) {
+	if (!intval($uid)) {
 		return false;
 	}
 
-	$r = q("SELECT `file` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($item),
-		intval($uid)
-	);
-	if (DBM::is_result($r)) {
-		if (!stristr($r[0]['file'],'[' . file_tag_encode($file) . ']')) {
-			$fields = ['file' => $r[0]['file'] . '[' . file_tag_encode($file) . ']'];
-			Item::update($fields, ['id' => $item]);
+	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
+	if (DBM::is_result($item)) {
+		if (!stristr($item['file'],'[' . file_tag_encode($file) . ']')) {
+			$fields = ['file' => $item['file'] . '[' . file_tag_encode($file) . ']'];
+			Item::update($fields, ['id' => $item_id]);
 		}
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
@@ -1883,9 +1880,9 @@ function file_tag_save_file($uid, $item, $file)
 	return true;
 }
 
-function file_tag_unsave_file($uid, $item, $file, $cat = false)
+function file_tag_unsave_file($uid, $item_id, $file, $cat = false)
 {
-	if (! intval($uid)) {
+	if (!intval($uid)) {
 		return false;
 	}
 
@@ -1897,16 +1894,13 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false)
 		$termtype = TERM_FILE;
 	}
 
-	$r = q("SELECT `file` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($item),
-		intval($uid)
-	);
-	if (! DBM::is_result($r)) {
+	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
+	if (!DBM::is_result($item)) {
 		return false;
 	}
 
-	$fields = ['file' => str_replace($pattern,'',$r[0]['file'])];
-	Item::update($fields, ['id' => $item]);
+	$fields = ['file' => str_replace($pattern,'',$item['file'])];
+	Item::update($fields, ['id' => $item_id]);
 
 	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
 		dbesc($file),
@@ -1970,6 +1964,7 @@ function is_a_date_arg($s) {
  */
 function deindent($text, $chr = "[\t ]", $count = NULL) {
 	$lines = explode("\n", $text);
+
 	if (is_null($count)) {
 		$m = [];
 		$k = 0;

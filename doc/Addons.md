@@ -72,12 +72,12 @@ JavaScript addon hooks
 ---
 
 #### PHP part
-Make sure your JavaScript addon file (addon/*addon_name*/*addon_name*.js) is listed in the document response. 
+Make sure your JavaScript addon file (addon/*addon_name*/*addon_name*.js) is listed in the document response.
 
 In your addon install function, add:
 
     Addon::registerHook('template_vars', 'addon/<addon_name>/<addon_name>.php', '<addon_name>_template_vars');
-    
+
 In your addon uninstall function, add:
 
     Addon::unregisterHook('template_vars', 'addon/<addon_name>/<addon_name>.php', '<addon_name>_template_vars');
@@ -104,7 +104,7 @@ Register your addon hooks in file 'addon/*addon_name*/*addon_name*.js'.
 No arguments are provided to your JavaScript callback function. Example:
 
     function myhook_function() {
-  
+
     }
 
 Modules
@@ -357,6 +357,12 @@ Hook data:
     'item' => item array (input)
     'html' => converted item body (input/output)
 
+### 'magic_auth_success'
+Called when a magic-auth was successful.
+Hook data:
+    'visitor' => array with the contact record of the visitor
+    'url' => the query string
+
 Current JavaScript hooks
 -------------
 
@@ -557,6 +563,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks('profile_sidebar', $arr);
     Addon::callHooks('profile_tabs', $arr);
     Addon::callHooks('zrl_init', $arr);
+    Addon::callHooks('magic_auth_success', $arr);
 
 ### src/Model/Event.php
 

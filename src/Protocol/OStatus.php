@@ -2152,7 +2152,7 @@ class OStatus
 			$ret = Item::select([], $condition, $params);
 		}
 
-		$items = dba::inArray($ret);
+		$items = Item::inArray($ret);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;

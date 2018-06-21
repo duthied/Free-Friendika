@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.08-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1268
+-- DB_UPDATE_VERSION 1269
 -- ------------------------------------------
 
 
@@ -375,7 +375,7 @@ CREATE TABLE IF NOT EXISTS `group` (
 CREATE TABLE IF NOT EXISTS `group_member` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`gid` int unsigned NOT NULL DEFAULT 0 COMMENT 'groups.id of the associated group',
-	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id  of the member assigned to the associated group',
+	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id of the member assigned to the associated group',
 	 PRIMARY KEY(`id`),
 	 INDEX `contactid` (`contact-id`),
 	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`)
@@ -1083,6 +1083,19 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
 	 PRIMARY KEY(`uid`,`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
+
+--
+-- TABLE openwebauth-token
+--
+CREATE TABLE IF NOT EXISTS `openwebauth-token` (
+	`id` int(10) NOT NULL auto_increment COMMENT 'sequential ID',
+	`uid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`type` varchar(32) DEFAULT '' COMMENT 'Verify type',
+	`token` varchar(255) DEFAULT '' COMMENT 'A generated token',
+	`meta` varchar(255) DEFAULT '' COMMENT '',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
+	 PRIMARY KEY(`id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
 
 --
 -- TABLE worker-ipc

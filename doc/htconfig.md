@@ -37,6 +37,7 @@ Example: To set the automatic database cleanup process add this line to your .ht
 * **db_loglimit_index** - Number of index rows needed to be logged for indexes on the watchlist
 * **db_loglimit_index_high** - Number of index rows to be logged anyway (for any index)
 * **db_log_index_blacklist** - Blacklist of indexes that shouldn't be watched
+* **dbclean_expire_conversation** (Integer) - When DBClean is enabled, any entry in the conversation table will be deleted after this many days.  These data are normally needed only for debugging purposes and they are safe to delete.  Default 90.
 * **diaspora_test** (Boolean) - For development only. Disables the message transfer.
 * **disable_email_validation** (Boolean) - Disables the check if a mail address is in a valid format and can be resolved via DNS.
 * **disable_url_validation** (Boolean) - Disables the DNS lookup of an URL.

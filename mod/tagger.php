@@ -175,23 +175,19 @@ EOT;
 	}
 
 	// if the original post is on this site, update it.
-
-	$r = q("SELECT `tag`,`id`,`uid` FROM `item` WHERE `origin`=1 AND `uri`='%s' LIMIT 1",
-		dbesc($item['uri'])
-	);
-
-	if (DBM::is_result($r)) {
+	$original_item = Item::selectFirst(['tag', 'id', 'uid'], ['origin' => true, 'uri' => $item['uri']]);
+	if (DBM::is_result($original_item)) {
 		$x = q("SELECT `blocktags` FROM `user` WHERE `uid`=%d LIMIT 1",
-			intval($r[0]['uid'])
+			intval($original_item['uid'])
 		);
 		$t = q("SELECT COUNT(`tid`) AS `tcount` FROM `term` WHERE `oid`=%d AND `term`='%s'",
-			intval($r[0]['id']),
+			intval($original_item['id']),
 			dbesc($term)
 		);
 
 		if (DBM::is_result($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
 			q("INSERT INTO term (`oid`, `otype`, `type`, `term`, `url`, `uid`) VALUE (%d, %d, %d, '%s', '%s', %d)",
-				intval($r[0]['id']),
+				intval($original_item['id']),
 				$term_objtype,
 				TERM_HASHTAG,
 				dbesc($term),

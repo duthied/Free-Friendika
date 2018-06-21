@@ -124,7 +124,7 @@ class Notifier {
 				return;
 			}
 
-			$items = dba::inArray($ret);
+			$items = Item::inArray($ret);
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {

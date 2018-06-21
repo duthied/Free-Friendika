@@ -1547,7 +1547,7 @@ function api_search($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$data['status'] = api_format_items(dba::inArray($statuses), $user_info);
+	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
 
 	return api_format_data("statuses", $type, $data);
 }
@@ -1614,7 +1614,7 @@ function api_statuses_home_timeline($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$items = dba::inArray($statuses);
+	$items = Item::inArray($statuses);
 
 	$ret = api_format_items($items, $user_info, false, $type);
 
@@ -1691,7 +1691,7 @@ function api_statuses_public_timeline($type)
 		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
 		$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-		$r = dba::inArray($statuses);
+		$r = Item::inArray($statuses);
 	} else {
 		$condition = ["`verb` = ? AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
 			ACTIVITY_POST, $since_id];
@@ -1708,7 +1708,7 @@ function api_statuses_public_timeline($type)
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-		$r = dba::inArray($statuses);
+		$r = Item::inArray($statuses);
 	}
 
 	$ret = api_format_items($r, $user_info, false, $type);
@@ -1767,7 +1767,7 @@ function api_statuses_networkpublic_timeline($type)
 	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -1843,7 +1843,7 @@ function api_statuses_show($type)
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	if ($conversation) {
 		$data = ['status' => $ret];
@@ -1923,7 +1923,7 @@ function api_conversation_show($type)
 		throw new BadRequestException("There is no status with id $id.");
 	}
 
-	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	return api_format_data("statuses", $type, $data);
@@ -2089,7 +2089,7 @@ function api_statuses_mentions($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -2169,7 +2169,7 @@ function api_statuses_user_timeline($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$ret = api_format_items(dba::inArray($statuses), $user_info, true, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, true, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -2311,7 +2311,7 @@ function api_favorites($type)
 
 		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-		$ret = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+		$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 	}
 
 	$data = ['status' => $ret];
@@ -2728,7 +2728,7 @@ function api_format_items_activities(&$item, $type = "json")
 	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
 	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	while ($item = dba::fetch($ret)) {
+	while ($item = Item::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
@@ -3117,7 +3117,7 @@ function api_lists_statuses($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$items = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$items = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $items];
 	switch ($type) {
@@ -4636,7 +4636,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$statuses = Item::selectForUser(api_user(), [], $condition);
 
 	// prepare output of comments
-	$commentData = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$commentData = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
