@@ -211,7 +211,8 @@ function search_content(App $a) {
 		}
 		dba::close($terms);
 
-		$items = Item::selectForUser(local_user(), [], ['id' => array_reverse($itemids)]);
+		$params = ['order' => ['id' => true]];
+		$items = Item::selectForUser(local_user(), [], ['id' => $itemids], $params);
 		$r = dba::inArray($items);
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
