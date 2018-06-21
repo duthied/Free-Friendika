@@ -1309,7 +1309,7 @@ class dba {
 							}
 
 							// To prevent to round floats we look for them
-							if (is_float($single_value)) {
+							if (round($single_value) != (float)$single_value) {
 								$is_float = true;
 							}
 
