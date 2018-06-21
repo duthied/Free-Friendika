@@ -1314,7 +1314,7 @@ class dba {
 						if ($is_int) {
 							$casted = [];
 							foreach ($value as $single_value) {
-								if ($is_int AND !$is_alpha) {
+								if (!$is_alpha) {
 									$casted[] = (int)$single_value;
 								} else {
 									$casted[] = (string)$single_value;
