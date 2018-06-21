@@ -349,7 +349,7 @@ class dba {
 	 * For all regular queries please use dba::select or dba::exists
 	 *
 	 * @param string $sql SQL statement
-	 * @return bool|object statement object
+	 * @return bool|object statement object or result object
 	 */
 	public static function p($sql) {
 		$a = get_app();
@@ -1404,8 +1404,18 @@ class dba {
 				$ret = $stmt->closeCursor();
 				break;
 			case 'mysqli':
-				$stmt->free_result();
-				$ret = $stmt->close();
+				// MySQLi offers both a mysqli_stmt and a mysqli_result class.
+				// We should be careful not to assume the object type of $stmt
+				// because dba::p() has been able to return both types.
+				if ($stmt instanceof mysqli_stmt) {
+					$stmt->free_result();
+					$ret = $stmt->close();
+				} elseif ($stmt instanceof mysqli_result) {
+					$stmt->free();
+					$ret = true;
+				} else {
+					$ret = false;
+				}
 				break;
 		}
 
