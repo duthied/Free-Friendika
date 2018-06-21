@@ -1020,7 +1020,7 @@ class Profile
 
 				$contact = dba::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
-				if (DBM::is_result($contact) && remote_user() && remote_user() === $contact['id']) {
+				if (DBM::is_result($contact) && remote_user() && remote_user() == $contact['id']) {
 					// The visitor is already authenticated.
 					return;
 				}
