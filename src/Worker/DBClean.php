@@ -323,12 +323,12 @@ class DBClean {
 			Config::set('system', 'dbclean-last-id-9', $last_id);
 		} elseif ($stage == 10) {
 			$last_id = Config::get('system', 'dbclean-last-id-10', 0);
-			$days = intval(Config::get('system', 'dbclean_expire_conversation', 7));
+			$days = intval(Config::get('system', 'dbclean_expire_conversation', 90));
 
 			logger("Deleting old conversations. Last created: ".$last_id);
 			$r = dba::p("SELECT `received`, `item-uri` FROM `conversation`
-					WHERE `received` < UTC_TIMESTAMP() - INTERVAL $days DAY
-					ORDER BY `received` LIMIT ".intval($limit));
+					WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
+					ORDER BY `received` LIMIT ?", $days, intval($limit));
 			$count = dba::num_rows($r);
 			if ($count > 0) {
 				logger("found old conversations: ".$count);
