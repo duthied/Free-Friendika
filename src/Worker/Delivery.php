@@ -64,7 +64,7 @@ class Delivery extends BaseObject
 			$itemdata = Item::select([], $condition, $params);
 
 			$items = [];
-			while ($item = dba::fetch($itemdata)) {
+			while ($item = Item::fetch($itemdata)) {
 				if ($item['id'] == $parent_id) {
 					$parent = $item;
 				}

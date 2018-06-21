@@ -175,7 +175,7 @@ EOT;
 	}
 
 	// if the original post is on this site, update it.
-	$original_item = Item::selectFirst(['tag','id','uid'], ['origin' => true, 'uri' => $item['uri']]);
+	$original_item = Item::selectFirst(['tag', 'id', 'uid'], ['origin' => true, 'uri' => $item['uri']]);
 	if (DBM::is_result($original_item)) {
 		$x = q("SELECT `blocktags` FROM `user` WHERE `uid`=%d LIMIT 1",
 			intval($original_item['uid'])

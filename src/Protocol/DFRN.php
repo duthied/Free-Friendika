@@ -246,7 +246,7 @@ class DFRN
 
 		if (!empty($ids)) {
 			$ret = Item::select(Item::DELIVER_FIELDLIST, ['id' => $ids]);
-			$items = dba::inArray($ret);
+			$items = Item::inArray($ret);
 		} else {
 			$items = [];
 		}
@@ -330,7 +330,7 @@ class DFRN
 		}
 
 		$ret = Item::select(Item::DELIVER_FIELDLIST, $condition);
-		$items = dba::inArray($ret);
+		$items = Item::inArray($ret);
 		if (!DBM::is_result($items)) {
 			killme();
 		}
@@ -938,7 +938,7 @@ class DFRN
 
 		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
-			$parent = Item::selectFirst(['guid','plink'], ['uri' => $parent_item, 'uid' => $item['uid']]);
+			$parent = Item::selectFirst(['guid', 'plink'], ['uri' => $parent_item, 'uid' => $item['uid']]);
 			$attributes = ["ref" => $parent_item, "type" => "text/html",
 						"href" => $parent['plink'],
 						"dfrn:diaspora_guid" => $parent['guid']];
