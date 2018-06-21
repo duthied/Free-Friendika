@@ -76,8 +76,9 @@ class dba {
 			}
 			try {
 				self::$db = @new PDO($connect, $user, $pass);
-				self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-				self::$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+				// Needs more testing
+				//self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+				//self::$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 				self::$connected = true;
 			} catch (PDOException $e) {
 			}
