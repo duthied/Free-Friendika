@@ -438,12 +438,10 @@ class OnePoll
 										$refs_arr[$x] = "'" . Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''],dbesc($refs_arr[$x]))) . "'";
 									}
 								}
-								$qstr = implode(',', $refs_arr);
-								$r = q("SELECT `parent-uri` FROM `item` USE INDEX (`uid_uri`) WHERE `uri` IN ($qstr) AND `uid` = %d LIMIT 1",
-									intval($importer_uid)
-								);
-								if (DBM::is_result($r)) {
-									$datarray['parent-uri'] = $r[0]['parent-uri'];  // Set the parent as the top-level item
+								$condition = ['uri' => $refs_arr, 'uid' => $importer_uid];
+								$parent = Item::selectFirst(['parent-uri'], $condition);
+								if (DBM::is_result($parent)) {
+									$datarray['parent-uri'] = $parent['parent-uri'];  // Set the parent as the top-level item
 								}
 							}
 
@@ -472,12 +470,11 @@ class OnePoll
 
 							// If it seems to be a reply but a header couldn't be found take the last message with matching subject
 							if (empty($datarray['parent-uri']) && $reply) {
-								$r = q("SELECT `parent-uri` FROM `item` WHERE `title` = \"%s\" AND `uid` = %d AND `network` = '%s' ORDER BY `created` DESC LIMIT 1",
-									dbesc(protect_sprintf($datarray['title'])),
-									intval($importer_uid),
-									dbesc(NETWORK_MAIL));
-								if (DBM::is_result($r)) {
-									$datarray['parent-uri'] = $r[0]['parent-uri'];
+								$condition = ['title' => $datarray['title'], 'uid' => importer_uid, 'network' => NETWORK_MAIL];
+								$params = ['order' => ['created' => true]];
+								$parent = Item::selectFirst(['parent-uri'], $condition, $params);
+								if (DBM::is_result($parent)) {
+									$datarray['parent-uri'] = $parent['parent-uri'];
 								}
 							}
 

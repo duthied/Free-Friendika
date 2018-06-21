@@ -938,10 +938,10 @@ class DFRN
 
 		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
-			$parent = q("SELECT `guid`,`plink` FROM `item` WHERE `uri` = '%s' AND `uid` = %d", dbesc($parent_item), intval($item['uid']));
+			$parent = Item::selectFirst(['guid','plink'], ['uri' => $parent_item, 'uid' => $item['uid']]);
 			$attributes = ["ref" => $parent_item, "type" => "text/html",
-						"href" => $parent[0]['plink'],
-						"dfrn:diaspora_guid" => $parent[0]['guid']];
+						"href" => $parent['plink'],
+						"dfrn:diaspora_guid" => $parent['guid']];
 			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
 		}
 
@@ -2161,13 +2161,8 @@ class DFRN
 
 			$is_a_remote_action = false;
 
-			$r = q(
-				"SELECT `item`.`parent-uri` FROM `item`
-				WHERE `item`.`uri` = '%s'
-				LIMIT 1",
-				dbesc($item["parent-uri"])
-			);
-			if (DBM::is_result($r)) {
+			$parent = Item::selectFirst(['parent-uri'], ['uri' => $item["parent-uri"]]);
+			if (DBM::is_result($parent)) {
 				$r = q(
 					"SELECT `item`.`forum_mode`, `item`.`wall` FROM `item`
 					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
@@ -2175,9 +2170,9 @@ class DFRN
 					AND `item`.`uid` = %d
 					$sql_extra
 					LIMIT 1",
-					dbesc($r[0]["parent-uri"]),
-					dbesc($r[0]["parent-uri"]),
-					dbesc($r[0]["parent-uri"]),
+					dbesc($parent["parent-uri"]),
+					dbesc($parent["parent-uri"]),
+					dbesc($parent["parent-uri"]),
 					intval($importer["importer_uid"])
 				);
 				if (DBM::is_result($r)) {
@@ -2318,25 +2313,15 @@ class DFRN
 				$item["gravity"] = GRAVITY_LIKE;
 				// only one like or dislike per person
 				// splitted into two queries for performance issues
-				$r = q(
-					"SELECT `id` FROM `item` WHERE `uid` = %d AND `author-id` = %d AND `verb` = '%s' AND `parent-uri` = '%s' AND NOT `deleted` LIMIT 1",
-					intval($item["uid"]),
-					intval($item["author-id"]),
-					dbesc($item["verb"]),
-					dbesc($item["parent-uri"])
-				);
-				if (DBM::is_result($r)) {
+				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"],
+					'verb' => $item["verb"], 'parent-uri' => $item["parent-uri"]];
+				if (dba::exists('item', $condition)) {
 					return false;
 				}
 
-				$r = q(
-					"SELECT `id` FROM `item` WHERE `uid` = %d AND `author-id` = %d AND `verb` = '%s' AND `thr-parent` = '%s' AND NOT `deleted` LIMIT 1",
-					intval($item["uid"]),
-					intval($item["author-id"]),
-					dbesc($item["verb"]),
-					dbesc($item["parent-uri"])
-				);
-				if (DBM::is_result($r)) {
+				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"],
+					'verb' => $item["verb"], 'thr-parent' => $item["parent-uri"]];
+				if (dba::exists('item', $condition)) {
 					return false;
 				}
 			} else {
@@ -2348,22 +2333,17 @@ class DFRN
 				$xt = XML::parseString($item["target"], false);
 
 				if ($xt->type == ACTIVITY_OBJ_NOTE) {
-					$r = q(
-						"SELECT `id`, `tag` FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($xt->id),
-						intval($importer["importer_uid"])
-					);
-
-					if (!DBM::is_result($r)) {
+					$item_tag = Item::selectFirst(['id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
+					if (!DBM::is_result($item_tag)) {
 						logger("Query failed to execute, no result returned in " . __FUNCTION__);
 						return false;
 					}
 
 					// extract tag, if not duplicate, add to parent item
 					if ($xo->content) {
-						if (!stristr($r[0]["tag"], trim($xo->content))) {
-							$tag = $r[0]["tag"] . (strlen($r[0]["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
-							Item::update(['tag' => $tag], ['id' => $r[0]["id"]]);
+						if (!stristr($item_tag["tag"], trim($xo->content))) {
+							$tag = $item_tag["tag"] . (strlen($item_tag["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
+							Item::update(['tag' => $tag], ['id' => $item_tag["id"]]);
 						}
 					}
 				}
