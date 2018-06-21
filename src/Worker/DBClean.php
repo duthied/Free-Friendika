@@ -328,7 +328,7 @@ class DBClean {
 			logger("Deleting old conversations. Last created: ".$last_id);
 			$r = dba::p("SELECT `received`, `item-uri` FROM `conversation`
 					WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
-					ORDER BY `received` LIMIT ?", $days, intval($limit));
+					ORDER BY `received` LIMIT ".intval($limit), $days);
 			$count = dba::num_rows($r);
 			if ($count > 0) {
 				logger("found old conversations: ".$count);
