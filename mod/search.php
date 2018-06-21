@@ -21,7 +21,7 @@ function search_saved_searches() {
 	$o = '';
 	$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
-	if (! Feature::isEnabled(local_user(),'savedsearch'))
+	if (!Feature::isEnabled(local_user(),'savedsearch'))
 		return $o;
 
 	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
@@ -184,7 +184,7 @@ function search_content(App $a) {
 				break;
 		}
 
-	if (! $search)
+	if (!$search)
 		return $o;
 
 	if (Config::get('system','only_tag_search'))
@@ -211,9 +211,13 @@ function search_content(App $a) {
 		}
 		dba::close($terms);
 
-		$params = ['order' => ['id' => true]];
-		$items = Item::selectForUser(local_user(), [], ['id' => $itemids], $params);
-		$r = dba::inArray($items);
+		if (!empty($itemids)) {
+			$params = ['order' => ['id' => true]];
+			$items = Item::selectForUser(local_user(), [], ['id' => $itemids], $params);
+			$r = dba::inArray($items);
+		} else {
+			$r = [];
+		}
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
 
@@ -251,4 +255,3 @@ function search_content(App $a) {
 
 	return $o;
 }
-
