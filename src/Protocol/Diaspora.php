@@ -2218,7 +2218,7 @@ class Diaspora
 
 		// Send all existing comments and likes to the requesting server
 		$comments = Item::select(['id', 'verb', 'self'], ['parent' => $item['id']]);
-		while ($comment = dba::fetch($comments)) {
+		while ($comment = Item::fetch($comments)) {
 			if ($comment['id'] == $comment['parent']) {
 				continue;
 			}
@@ -2771,7 +2771,7 @@ class Diaspora
 			return false;
 		}
 
-		while ($item = dba::fetch($r)) {
+		while ($item = Item::fetch($r)) {
 			// Fetch the parent item
 			$parent = Item::selectFirst(['author-link'], ['id' => $item["parent"]]);
 

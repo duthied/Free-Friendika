@@ -57,6 +57,40 @@ class Item extends BaseObject
 			'signed_text', 'signature', 'signer'];
 
 	/**
+	 * @brief Fetch a single item row
+	 *
+	 * @param mixed $stmt statement object
+	 * @return array current row
+	 */
+	public static function fetch($stmt)
+	{
+		$row = dba::fetch($stmt);
+
+		return $row;
+	}
+
+	/**
+	 * @brief Fills an array with data from an item query
+	 *
+	 * @param object $stmt statement object
+	 * @return array Data array
+	 */
+	public static function inArray($stmt, $do_close = true) {
+		if (is_bool($stmt)) {
+			return $stmt;
+		}
+
+		$data = [];
+		while ($row = self::fetch($stmt)) {
+			$data[] = $row;
+		}
+		if ($do_close) {
+			dba::close($stmt);
+		}
+		return $data;
+	}
+
+	/**
 	 * Retrieve a single record from the item table for a given user and returns it in an associative array
 	 *
 	 * @brief Retrieve a single record from a table
@@ -118,7 +152,7 @@ class Item extends BaseObject
 		if (is_bool($result)) {
 			return $result;
 		} else {
-			$row = dba::fetch($result);
+			$row = self::fetch($result);
 			dba::close($result);
 			return $row;
 		}
@@ -225,7 +259,7 @@ class Item extends BaseObject
 		if (is_bool($result)) {
 			return $result;
 		} else {
-			$row = dba::fetch($result);
+			$row = self::fetch($result);
 			dba::close($result);
 			return $row;
 		}

@@ -779,7 +779,7 @@ function conversation_add_children($parents, $block_authors, $order, $uid) {
 		}
 		$thread_items = Item::selectForUser(local_user(), [], $condition, $params);
 
-		$comments = dba::inArray($thread_items);
+		$comments = Item::inArray($thread_items);
 
 		if (count($comments) != 0) {
 			$items = array_merge($items, $comments);

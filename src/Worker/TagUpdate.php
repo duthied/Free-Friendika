@@ -27,7 +27,7 @@ class TagUpdate
 
 		dba::close($messages);
 
-		$messages = dba::p("SELECT `guid` FROM `item` WHERE `uid` = 0");
+		$messages = dba::select('item', ['guid'], ['uid' => 0]);
 
 		logger('fetched messages: ' . dba::num_rows($messages));
 		while ($message = dba::fetch(messages)) {
