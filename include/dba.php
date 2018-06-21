@@ -76,6 +76,8 @@ class dba {
 			}
 			try {
 				self::$db = @new PDO($connect, $user, $pass);
+				self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+				self::$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 				self::$connected = true;
 			} catch (PDOException $e) {
 			}
@@ -1298,10 +1300,16 @@ class dba {
 					if (is_array($value)) {
 						// Check if there are integer values in the parameters
 						$is_int = false;
+						$is_float = false;
 						$is_alpha = false;
 						foreach ($value as $single_value) {
 							if (is_int($single_value)) {
 								$is_int = true;
+							}
+
+							// To prevent to round floats we look for them
+							if (is_float($single_value)) {
+								$is_float = true;
 							}
 
 							// Is any non numeric value present?
@@ -1314,7 +1322,7 @@ class dba {
 						if ($is_int) {
 							$casted = [];
 							foreach ($value as $single_value) {
-								if (!$is_alpha) {
+								if (!$is_alpha && !$is_float) {
 									$casted[] = (int)$single_value;
 								} else {
 									$casted[] = (string)$single_value;
