@@ -171,7 +171,7 @@ class dba {
 	 */
 	public static function database_name() {
 		$ret = self::p("SELECT DATABASE() AS `db`");
-                $data = self::inArray($ret);
+		$data = self::inArray($ret);
 		return $data[0]['db'];
 	}
 
@@ -1296,6 +1296,33 @@ class dba {
 						$condition_string .= " AND ";
 					}
 					if (is_array($value)) {
+						// Check if there are integer values in the parameters
+						$is_int = false;
+						$is_alpha = false;
+						foreach ($value as $single_value) {
+							if (is_int($single_value)) {
+								$is_int = true;
+							}
+
+							// Is any non numeric value present?
+							if (!is_numeric($single_value)) {
+								$is_alpha = true;
+							}
+						}
+
+						// Cast them all in an unique method
+						if ($is_int) {
+							$casted = [];
+							foreach ($value as $single_value) {
+								if ($is_int AND !$is_alpha) {
+									$casted[] = (int)$single_value;
+								} else {
+									$casted[] = (string)$single_value;
+								}
+							}
+							$value = $casted;
+						}
+
 						$new_values = array_merge($new_values, array_values($value));
 						$placeholders = substr(str_repeat("?, ", count($value)), 0, -2);
 						$condition_string .= "`" . $field . "` IN (" . $placeholders . ")";
