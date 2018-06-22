@@ -1299,8 +1299,7 @@ class dba {
 						$condition_string .= " AND ";
 					}
 					if (is_array($value)) {
-						/**
-						 * Workaround for MySQL Bug #64791.
+						/* Workaround for MySQL Bug #64791.
 						 * Never mix data types inside any IN() condition.
 						 * In case of mixed types, cast all as string.
 						 * Logic needs to be consistent with dba::p() data types.
