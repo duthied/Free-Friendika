@@ -1299,37 +1299,28 @@ class dba {
 						$condition_string .= " AND ";
 					}
 					if (is_array($value)) {
-						// Check if there are integer values in the parameters
+						/* Workaround for MySQL Bug #64791.
+						 * Never mix data types inside any IN() condition.
+						 * In case of mixed types, cast all as string.
+						 * Logic needs to be consistent with dba::p() data types.
+						 */
 						$is_int = false;
-						$is_float = false;
 						$is_alpha = false;
 						foreach ($value as $single_value) {
 							if (is_int($single_value)) {
 								$is_int = true;
-							}
-
-							// To prevent to round floats we look for them
-							if (round($single_value) != (float)$single_value) {
-								$is_float = true;
-							}
-
-							// Is any non numeric value present?
-							if (!is_numeric($single_value)) {
+							} else {
 								$is_alpha = true;
 							}
 						}
-
-						// Cast them all in an unique method
-						if ($is_int) {
-							$casted = [];
-							foreach ($value as $single_value) {
-								if (!$is_alpha && !$is_float) {
-									$casted[] = (int)$single_value;
-								} else {
-									$casted[] = (string)$single_value;
+						
+						if ($is_int && $is_alpha) {
+							foreach ($value as &$ref) {
+								if (is_int($ref)) {
+									$ref = (string)$ref;
 								}
 							}
-							$value = $casted;
+							unset($ref); //Prevent accidental re-use.
 						}
 
 						$new_values = array_merge($new_values, array_values($value));
