@@ -51,10 +51,11 @@ The Linux commands to clone the repository into a directory "mywebsite" would be
     cd mywebsite
     bin/composer.phar install
 
-Make sure the folder *view/smarty3* exists and is writable by the webserver user
+Make sure the folder *view/smarty3* exists and is writable by the webserver user, in this case `www-data`
 
     mkdir view/smarty3
-    chmod 777 view/smarty3
+    chown www-data:www-data view/smarty3
+    chmod 775 view/smarty3
 
 Get the addons by going into your website folder.
 
