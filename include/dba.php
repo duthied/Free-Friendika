@@ -76,9 +76,7 @@ class dba {
 			}
 			try {
 				self::$db = @new PDO($connect, $user, $pass);
-				// Needs more testing
-				//self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-				//self::$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+				self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 				self::$connected = true;
 			} catch (PDOException $e) {
 			}
@@ -843,10 +841,25 @@ class dba {
 	 */
 	public static function lock($table) {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
-		self::e("SET autocommit=0");
+		if (self::$driver == 'pdo') {
+			self::e("SET autocommit=0");
+			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+		} else {
+			self::$db->autocommit(false);
+		}
+
 		$success = self::e("LOCK TABLES `".self::escape($table)."` WRITE");
+
+		if (self::$driver == 'pdo') {
+			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		}
+
 		if (!$success) {
-			self::e("SET autocommit=1");
+			if (self::$driver == 'pdo') {
+				self::e("SET autocommit=1");
+			} else {
+				self::$db->autocommit(true);
+			}
 		} else {
 			self::$in_transaction = true;
 		}
@@ -860,9 +873,21 @@ class dba {
 	 */
 	public static function unlock() {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
-		self::e("COMMIT");
+		self::performCommit();
+
+		if (self::$driver == 'pdo') {
+			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+		}
+
 		$success = self::e("UNLOCK TABLES");
-		self::e("SET autocommit=1");
+
+		if (self::$driver == 'pdo') {
+			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			self::e("SET autocommit=1");
+		} else {
+			self::$db->autocommit(true);
+		}
+
 		self::$in_transaction = false;
 		return $success;
 	}
@@ -873,13 +898,41 @@ class dba {
 	 * @return boolean Was the command executed successfully?
 	 */
 	public static function transaction() {
-		if (!self::e('COMMIT')) {
+		if (!self::performCommit()) {
 			return false;
 		}
-		if (!self::e('START TRANSACTION')) {
-			return false;
+
+		switch (self::$driver) {
+			case 'pdo':
+				if (self::$db->inTransaction()) {
+					break;
+				}
+				if (!self::$db->beginTransaction()) {
+					return false;
+				}
+				break;
+			case 'mysqli':
+				if (!self::$db->begin_transaction()) {
+					return false;
+				}
+				break;
 		}
+
 		self::$in_transaction = true;
+		return true;
+	}
+
+	private static function performCommit()
+	{
+		switch (self::$driver) {
+			case 'pdo':
+				if (!self::$db->inTransaction()) {
+					return true;
+				}
+				return self::$db->commit();
+			case 'mysqli':
+				return self::$db->commit();
+		}
 		return true;
 	}
 
@@ -889,7 +942,7 @@ class dba {
 	 * @return boolean Was the command executed successfully?
 	 */
 	public static function commit() {
-		if (!self::e('COMMIT')) {
+		if (!self::performCommit()) {
 			return false;
 		}
 		self::$in_transaction = false;
@@ -902,11 +955,20 @@ class dba {
 	 * @return boolean Was the command executed successfully?
 	 */
 	public static function rollback() {
-		if (!self::e('ROLLBACK')) {
-			return false;
+		switch (self::$driver) {
+			case 'pdo':
+				if (!self::$db->inTransaction()) {
+					$ret = true;
+					break;
+				}
+				$ret = self::$db->rollBack();
+				break;
+			case 'mysqli':
+				$ret = self::$db->rollback();
+				break;
 		}
 		self::$in_transaction = false;
-		return true;
+		return $ret;
 	}
 
 	/**
