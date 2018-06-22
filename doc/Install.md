@@ -54,7 +54,7 @@ Make sure the folder *view/smarty3* exists and is writable by the webserver user
 
     mkdir view/smarty3
     chown www-data:www-data view/smarty3
-	chmod 775 view/smarty3
+    chmod 775 view/smarty3
 
 Get the addons by going into your website folder.
 
