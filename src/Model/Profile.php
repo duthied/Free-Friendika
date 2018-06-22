@@ -1081,6 +1081,7 @@ class Profile
 		$_SESSION['visitor_id'] = $visitor['id'];
 		$_SESSION['visitor_handle'] = $visitor['addr'];
 		$_SESSION['visitor_home'] = $visitor['url'];
+		$_SESSION['my_url'] = $visitor['url'];
 
 		$arr = [
 			'visitor' => $visitor,
