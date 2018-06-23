@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.08-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1269
+-- DB_UPDATE_VERSION 1270
 -- ------------------------------------------
 
 
@@ -669,6 +669,19 @@ CREATE TABLE IF NOT EXISTS `oembed` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='cache for OEmbed queries';
 
 --
+-- TABLE openwebauth-token
+--
+CREATE TABLE IF NOT EXISTS `openwebauth-token` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`type` varchar(32) NOT NULL DEFAULT '' COMMENT 'Verify type',
+	`token` varchar(255) NOT NULL DEFAULT '' COMMENT 'A generated token',
+	`meta` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
+	 PRIMARY KEY(`id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
+
+--
 -- TABLE parsed_url
 --
 CREATE TABLE IF NOT EXISTS `parsed_url` (
@@ -1083,19 +1096,6 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
 	 PRIMARY KEY(`uid`,`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
-
---
--- TABLE openwebauth-token
---
-CREATE TABLE IF NOT EXISTS `openwebauth-token` (
-	`id` int(10) NOT NULL auto_increment COMMENT 'sequential ID',
-	`uid` int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`type` varchar(32) DEFAULT '' COMMENT 'Verify type',
-	`token` varchar(255) DEFAULT '' COMMENT 'A generated token',
-	`meta` varchar(255) DEFAULT '' COMMENT '',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
-	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
 
 --
 -- TABLE worker-ipc

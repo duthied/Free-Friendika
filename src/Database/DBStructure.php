@@ -1381,6 +1381,20 @@ class DBStructure
 						"created" => ["created"],
 						]
 				];
+		$database["openwebauth-token"] = [
+				"comment" => "Store OpenWebAuth token to verify contacts",
+				"fields" => [
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+						"type" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Verify type"],
+						"token" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "A generated token"],
+						"meta" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of creation"],
+					],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						]
+				];
 		$database["parsed_url"] = [
 				"comment" => "cache for 'parse_url' queries",
 				"fields" => [
@@ -1816,20 +1830,6 @@ class DBStructure
 						],
 				"indexes" => [
 						"PRIMARY" => ["uid", "iid"],
-						]
-				];
-		$database["openwebauth-token"] = [
-				"comment" => "Store OpenWebAuth token to verify contacts",
-				"fields" => [
-						"id" => ["type" => "int(10)", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-						"uid" => ["type" => "int(10) unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"type" => ["type" => "varchar(32)", "not_null", "default" => "", "comment" => "Verify type"],
-						"token" => ["type" => "varchar(255)", "not_null" => "1", "default" => "", "comment" => "A generated token"],
-						"meta" => ["type" => "varchar(255)", "not_null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of creation"],
-					],
-				"indexes" => [
-						"PRIMARY" => ["id"],
 						]
 				];
 		$database["worker-ipc"] = [
