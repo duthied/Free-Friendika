@@ -1343,42 +1343,14 @@ function photos_content(App $a)
 
 		if (DBM::is_result($linked_items)) {
 			// This is a workaround to not being forced to rewrite the while $sql_extra handling
-			$link_item = Item::selectFirstForUser(local_user(), [], ['id' => $linked_items[0]['id']]);
+			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
 
-			$r = q("SELECT COUNT(*) AS `total`
-				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `item`.`uid` = %d
-				$sql_extra ",
-				dbesc($link_item['uri']),
-				dbesc($link_item['uri']),
-				intval($link_item['uid'])
+			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
+			$a->set_pager_total(dba::count('item', $condition));
 
-			);
-
-			if (DBM::is_result($r)) {
-				$a->set_pager_total($r[0]['total']);
-			}
-
-
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`,
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`network`,
-				`contact`.`rel`, `contact`.`thumb`, `contact`.`self`,
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0 and `item`.`moderated` = 0
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `item`.`uid` = %d
-				$sql_extra
-				ORDER BY `parent` DESC, `id` ASC LIMIT %d ,%d ",
-				dbesc($link_item['uri']),
-				dbesc($link_item['uri']),
-				intval($link_item['uid']),
-				intval($a->pager['start']),
-				intval($a->pager['itemspage'])
-
-			);
+			$params = ['order' => ['id'], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+			$result = Item::selectForUser($link_item['uid'], [], $condition, $params);
+			$items = Item::inArray($result);
 
 			if (local_user() && (local_user() == $link_item['uid'])) {
 				Item::update(['unseen' => false], ['parent' => $link_item['parent']]);
@@ -1465,7 +1437,7 @@ function photos_content(App $a)
 				]);
 			}
 
-			if (!DBM::is_result($r)) {
+			if (!DBM::is_result($items)) {
 				if (($can_post || can_write_wall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl, [
 						'$return_path' => '',
@@ -1493,8 +1465,8 @@ function photos_content(App $a)
 			];
 
 			// display comments
-			if (DBM::is_result($r)) {
-				foreach ($r as $item) {
+			if (DBM::is_result($items)) {
+				foreach ($items as $item) {
 					builtin_activity_puller($item, $conv_responses);
 				}
 
@@ -1525,7 +1497,7 @@ function photos_content(App $a)
 					]);
 				}
 
-				foreach ($r as $item) {
+				foreach ($items as $item) {
 					$comment = '';
 					$template = $tpl;
 					$sparkle = '';
@@ -1534,19 +1506,12 @@ function photos_content(App $a)
 						continue;
 					}
 
-					$profile_url = Contact::MagicLinkById($item['cid']);
+					$profile_url = Contact::MagicLinkById($item['author-id']);
 					if (strpos($profile_url, 'redir/') === 0) {
 						$sparkle = ' sparkle';
 					} else {
 						$sparkle = '';
 					}
-
-					$diff_author = (($item['url'] !== $item['author-link']) ? true : false);
-
-					$profile_name   = ((strlen($item['author-name'])   && $diff_author) ? $item['author-name']   : $item['name']);
-					$profile_avatar = ((strlen($item['author-avatar']) && $diff_author) ? $item['author-avatar'] : $item['thumb']);
-
-					$profile_link = $profile_url;
 
 					$dropping = (($item['contact-id'] == $contact_id) || ($item['uid'] == local_user()));
 					$drop = [
@@ -1556,15 +1521,14 @@ function photos_content(App $a)
 						'delete' => L10n::t('Delete'),
 					];
 
-					$name_e = $profile_name;
 					$title_e = $item['title'];
 					$body_e = BBCode::convert($item['body']);
 
 					$comments .= replace_macros($template,[
 						'$id' => $item['item_id'],
-						'$profile_url' => $profile_link,
-						'$name' => $name_e,
-						'$thumb' => $profile_avatar,
+						'$profile_url' => $profile_url,
+						'$name' => $item['author-name'],
+						'$thumb' => $item['author-avatar'],
 						'$sparkle' => $sparkle,
 						'$title' => $title_e,
 						'$body' => $body_e,
