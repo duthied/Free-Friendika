@@ -115,7 +115,8 @@ class Term
 				$users = q("SELECT `uid` FROM `contact` WHERE self AND (`url` = '%s' OR `nurl` = '%s')", $link, $link);
 				foreach ($users AS $user) {
 					if ($user['uid'] == $message['uid']) {
-						Item::update(['mention' => true], ['id' => $itemid]);
+						/// @todo This function is called frim Item::update - so we mustn't call that function here
+						dba::update('item', ['mention' => true], ['id' => $itemid]);
 						dba::update('thread', ['mention' => true], ['iid' => $message['parent']]);
 					}
 				}
