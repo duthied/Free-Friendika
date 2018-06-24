@@ -56,6 +56,10 @@ class Item extends BaseObject
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'signature', 'signer'];
 
+	const CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
+			'coord', 'app', 'rendered-hash', 'rendered-html',
+			'object-type', 'object', 'target-type', 'target'];
+
 	/**
 	 * @brief Fetch a single item row
 	 *
@@ -65,6 +69,14 @@ class Item extends BaseObject
 	public static function fetch($stmt)
 	{
 		$row = dba::fetch($stmt);
+
+		// Fetch data from the item-content table whenever there is content there
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (isset($row[$field]) && !empty($row['item-content-' . $field])) {
+				$row[$field] = $row['item-content-' . $field];
+				unset($row['item-content-' . $field]);
+			}
+		}
 
 		// We prefer the data from the user's contact over the public one
 		if (!empty($row['author-link']) && !empty($row['contact-link']) &&
@@ -449,6 +461,10 @@ class Item extends BaseObject
 			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
 		}
 
+		if (strpos($sql_commands, "`item-content`.") !== false) {
+			$joins .= " LEFT JOIN `item-content` ON `item-content`.`uri` = `item`.`uri`";
+		}
+
 		if ((strpos($sql_commands, "`parent-item`.") !== false) || (strpos($sql_commands, "`parent-author`.") !== false)) {
 			$joins .= " STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`";
 		}
@@ -474,10 +490,13 @@ class Item extends BaseObject
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
+					if (in_array($select, self::CONTENT_FIELDLIST)) {
+						$selection[] = "`item-content`.`".$select."` AS `item-content-" . $select . "`";
+					}
 					if (is_int($field)) {
-						$selection[] = "`" . $table . "`.`".$select."`";
+						$selection[] = "`" . $table . "`.`" . $select . "`";
 					} else {
-						$selection[] = "`" . $table . "`.`" . $field . "` AS `".$select ."`";
+						$selection[] = "`" . $table . "`.`" . $field . "` AS `" . $select . "`";
 					}
 				}
 			}
@@ -536,7 +555,7 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri'], $condition);
 
 		$success = dba::update('item', $fields, $condition);
 
@@ -549,6 +568,7 @@ class Item extends BaseObject
 		$rows = dba::affected_rows();
 
 		while ($item = dba::fetch($items)) {
+			self::updateContent($fields, ['uri' => $item['uri']]);
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
@@ -1260,6 +1280,7 @@ class Item extends BaseObject
 		logger('' . print_r($item,true), LOGGER_DATA);
 
 		dba::transaction();
+		self::insertContent($item);
 		$ret = dba::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
@@ -1405,6 +1426,54 @@ class Item extends BaseObject
 		}
 
 		return $current_post;
+	}
+
+	/**
+	 * @brief Insert a new item content entry
+	 *
+	 * @param array $item The item fields that are to be inserted
+	 */
+	private static function insertContent(&$item)
+	{
+		logger('Insert content for URI '.$item['uri']);
+
+		$fields = ['uri' => $item['uri'], 'title' => $item['title'],
+			'content-warning' => $item['content-warning'],
+			'body' => $item['body'], 'location' => $item['location'],
+			'coord' => $item['coord'], 'app' => $item['app'],
+			'rendered-hash' => $item['rendered-hash'],
+			'rendered-html' => $item['rendered-html'],
+			'object-type' => $item['object-type'],
+			'object' => $item['object'], 'target-type' => $item['target-type'],
+			'target' => $item['target'], 'plink' => $item['plink'],
+			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
+
+		dba::insert('item-content', $fields, true);
+	}
+
+	/**
+	 * @brief Update existing item content entries
+	 *
+	 * @param array $item The item fields that are to be changed
+	 * @param array $condition The condition for finding the item content entries
+	 */
+	private static function updateContent($item, $condition)
+	{
+		// We have to select only the fields from the "item-content" table
+		$fields = [];
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (isset($item[$field])) {
+				$fields[$field] = $item[$field];
+			}
+		}
+
+		if (empty($fields)) {
+			return;
+		}
+
+		logger('Update content for URI '.$condition['uri']);
+
+		dba::update('item-content', $fields, $condition, true);
 	}
 
 	/**
