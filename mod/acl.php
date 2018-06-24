@@ -260,7 +260,7 @@ function acl_content(App $a)
 		$params = ['order' => ['author-name' => true]];
 		$authors = Item::selectForUser(local_user(), ['author-link'], $condition, $params);
 		$item_authors = [];
-		while ($author = dba::fetch($authors)) {
+		while ($author = Item::fetch($authors)) {
 			$item_authors[$author['author-link']] = $author['author-link'];
 		}
 		dba::close($authors);

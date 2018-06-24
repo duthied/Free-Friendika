@@ -339,7 +339,7 @@ function profile_content(App $a, $update = 0)
 
 		$condition = ['uid' => $a->profile['profile_uid'], 'parent' => $parents_arr];
 		$result = Item::selectForUser($a->profile['profile_uid'], [], $condition);
-		$items = conv_sort(dba::inArray($result), 'created');
+		$items = conv_sort(Item::inArray($result), 'created');
 	} else {
 		$items = [];
 	}

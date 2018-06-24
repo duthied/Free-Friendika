@@ -21,7 +21,7 @@ function starred_init(App $a) {
 		killme();
 	}
 
-	$item = Item::selectForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $message_id]);
+	$item = Item::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $message_id]);
 	if (!DBM::is_result($item)) {
 		killme();
 	}

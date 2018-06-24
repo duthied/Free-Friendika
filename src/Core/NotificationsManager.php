@@ -410,7 +410,7 @@ class NotificationsManager extends BaseObject
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
-			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
+			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
 		}
 
 		$arr = [
@@ -495,7 +495,7 @@ class NotificationsManager extends BaseObject
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
-			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
+			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
 		}
 
 		$arr = [
@@ -535,7 +535,7 @@ class NotificationsManager extends BaseObject
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
-			$notifs = $this->formatNotifs(dba::inArray($items), $ident);
+			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
 		}
 
 		$arr = [

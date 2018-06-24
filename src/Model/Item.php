@@ -34,15 +34,15 @@ require_once 'include/text.php';
 class Item extends BaseObject
 {
 	// Field list that is used to display the items
-	const DISPLAY_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid',
+	const DISPLAY_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach',
 			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
-			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
+			'author-id', 'author-link', 'author-name', 'author-avatar',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar',
 			'contact-id', 'contact-link', 'contact-name', 'contact-avatar',
-			'network', 'url', 'name', 'writable', 'self', 'cid', 'alias',
+			'writable', 'self', 'cid', 'alias',
 			'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
 			'event-summary', 'event-desc', 'event-location', 'event-type',
 			'event-nofinish', 'event-adjust', 'event-ignore', 'event-id'];
@@ -65,6 +65,33 @@ class Item extends BaseObject
 	public static function fetch($stmt)
 	{
 		$row = dba::fetch($stmt);
+
+		// We prefer the data from the user's contact over the public one
+		if (!empty($row['author-link']) && !empty($row['contact-link']) &&
+			($row['author-link'] == $row['contact-link'])) {
+			if (isset($row['author-avatar']) && !empty($row['contact-avatar'])) {
+				$row['author-avatar'] = $row['contact-avatar'];
+			}
+			if (isset($row['author-name']) && !empty($row['contact-name'])) {
+				$row['author-name'] = $row['contact-name'];
+			}
+		}
+
+		if (!empty($row['owner-link']) && !empty($row['contact-link']) &&
+			($row['owner-link'] == $row['contact-link'])) {
+			if (isset($row['owner-avatar']) && !empty($row['contact-avatar'])) {
+				$row['owner-avatar'] = $row['contact-avatar'];
+			}
+			if (isset($row['owner-name']) && !empty($row['contact-name'])) {
+				$row['owner-name'] = $row['contact-name'];
+			}
+		}
+
+		// We can always comment on posts from these networks
+		if (isset($row['writable']) && !empty($row['network']) &&
+			in_array($row['network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
+			$row['writable'] = true;
+		}
 
 		return $row;
 	}
@@ -334,14 +361,14 @@ class Item extends BaseObject
 			'id' => 'item_id', 'network'];
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
-			'thumb' => 'author-avatar', 'nick' => 'author-nick', 'network' => 'author-network'];
+			'thumb' => 'author-avatar', 'nick' => 'author-nick'];
 
 		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name',
-			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
+			'thumb' => 'owner-avatar', 'nick' => 'owner-nick'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
-			'url', 'name', 'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
-			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id', 'network' => 'contact-network'];
+			'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
+			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
 
 		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network'];
 
@@ -1126,8 +1153,9 @@ class Item extends BaseObject
 				$user = dba::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
 				if (DBM::is_result($user)) {
 					$self = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
-					logger("'myself' is ".$self." for parent ".$parent_id." checking against ".$item['author-link']." and ".$item['owner-link'], LOGGER_DEBUG);
-					if ((normalise_link($item['author-link']) == $self) || (normalise_link($item['owner-link']) == $self)) {
+					$self_id = Contact::getIdForURL($self, 0, true);
+					logger("'myself' is ".$self_id." for parent ".$parent_id." checking against ".$item['author-id']." and ".$item['owner-id'], LOGGER_DEBUG);
+					if (($item['author-id'] == $self_id) || ($item['owner-id'] == $self_id)) {
 						dba::update('thread', ['mention' => true], ['iid' => $parent_id]);
 						logger("tagged thread ".$parent_id." as mention for user ".$self, LOGGER_DEBUG);
 					}

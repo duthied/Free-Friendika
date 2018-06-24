@@ -73,7 +73,7 @@ function notes_content(App $a, $update = false)
 	if (DBM::is_result($r)) {
 		$parents_arr = [];
 
-		while ($rr = dba::fetch($r)) {
+		while ($rr = Item::fetch($r)) {
 			$parents_arr[] = $rr['item_id'];
 		}
 		dba::close($r);
@@ -81,7 +81,7 @@ function notes_content(App $a, $update = false)
 		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
 		$result = Item::selectForUser(local_user(), [], $condition);
 		if (DBM::is_result($result)) {
-			$items = conv_sort(dba::inArray($result), 'commented');
+			$items = conv_sort(Item::inArray($result), 'commented');
 			$o .= conversation($a, $items, 'notes', $update);
 		}
 	}
