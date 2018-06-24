@@ -54,7 +54,7 @@ Der Linux-Code, mit dem man die Dateien direkt in ein Verzeichnis wie "meinewebs
 Stelle sicher, dass der Ordner *view/smarty3* existiert and von dem Webserver-Benutzer beschreibbar ist
 
     mkdir view/smarty3
-    chmod 777 view/smarty3
+    chmod 775 view/smarty3
 
 Falls Addons installiert werden sollen: Gehe in den Friendica-Ordner 
 
