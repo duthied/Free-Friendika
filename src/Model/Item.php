@@ -72,7 +72,7 @@ class Item extends BaseObject
 
 		// Fetch data from the item-content table whenever there is content there
 		foreach (self::CONTENT_FIELDLIST as $field) {
-			if (isset($row[$field]) && !empty($row['item-content-' . $field])) {
+			if (!empty($row['item-content-' . $field])) {
 				$row[$field] = $row['item-content-' . $field];
 				unset($row['item-content-' . $field]);
 			}
@@ -557,18 +557,29 @@ class Item extends BaseObject
 		// And we have to execute this query before the update to ensure to fetch the same data.
 		$items = dba::select('item', ['id', 'origin', 'uri'], $condition);
 
-		$success = dba::update('item', $fields, $condition);
-
-		if (!$success) {
-			dba::close($items);
-			dba::rollback();
-			return false;
+		$content_fields = [];
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (isset($fields[$field])) {
+				$content_fields[$field] = $fields[$field];
+				unset($fields[$field]);
+			}
 		}
 
+		if (!empty($fields)) {
+			$success = dba::update('item', $fields, $condition);
+
+			if (!$success) {
+				dba::close($items);
+				dba::rollback();
+				return false;
+			}
+		}
+
+		// When there is no content for the "old" item table, this will count the fetched items
 		$rows = dba::affected_rows();
 
 		while ($item = dba::fetch($items)) {
-			self::updateContent($fields, ['uri' => $item['uri']]);
+			self::updateContent($content_fields, ['uri' => $item['uri']]);
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
@@ -1437,16 +1448,15 @@ class Item extends BaseObject
 	{
 		logger('Insert content for URI '.$item['uri']);
 
-		$fields = ['uri' => $item['uri'], 'title' => $item['title'],
-			'content-warning' => $item['content-warning'],
-			'body' => $item['body'], 'location' => $item['location'],
-			'coord' => $item['coord'], 'app' => $item['app'],
-			'rendered-hash' => $item['rendered-hash'],
-			'rendered-html' => $item['rendered-html'],
-			'object-type' => $item['object-type'],
-			'object' => $item['object'], 'target-type' => $item['target-type'],
-			'target' => $item['target'], 'plink' => $item['plink'],
+		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
 			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
+
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (isset($item[$field])) {
+				$fields[$field] = $item[$field];
+				unset($item[$field]);
+			}
+		}
 
 		dba::insert('item-content', $fields, true);
 	}
