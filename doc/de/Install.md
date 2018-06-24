@@ -47,7 +47,7 @@ Wenn du die Möglichkeit hierzu hast, empfehlen wir dir "git" zu nutzen, um die 
 Das macht die Aktualisierung wesentlich einfacher.
 Der Linux-Code, mit dem man die Dateien direkt in ein Verzeichnis wie "meinewebseite" kopiert, ist
 
-    git clone https://github.com/friendica/friendica.git mywebsite
+    git clone https://github.com/friendica/friendica.git -b master mywebsite
     cd mywebsite
     bin/composer.phar install
 
@@ -62,7 +62,7 @@ Falls Addons installiert werden sollen: Gehe in den Friendica-Ordner
 
 Und die Addon Repository klonst:
 
-    git clone https://github.com/friendica/friendica-addons.git addon
+    git clone https://github.com/friendica/friendica-addons.git -b master addon
 
 Um das Addon-Verzeichnis aktuell zu halten, solltest du in diesem Pfad ein "git pull"-Befehl eintragen
 
@@ -70,6 +70,17 @@ Um das Addon-Verzeichnis aktuell zu halten, solltest du in diesem Pfad ein "git 
     git pull
 
 Wenn du den Verzeichnispfad auf deinen Webserver kopierst, dann stelle sicher, dass du auch die .htaccess kopierst, da "Punkt"-Dateien oft versteckt sind und normalerweise nicht direkt kopiert werden.
+
+Wenn du die Entwickler Version von Friendica verwenden möchtest kannst du auf den develop Branch im git Repository wechseln.
+Dies tust du mit den folgenden Befehlen
+
+    git checkout develop
+    bin/composer.phar install
+    cd addon
+    git checkout develop
+
+Die Entwickler Version kann nach einem fehlerhaften Commit vorübergehend Probleme haben oder gar nicht mehr funktionieren.
+Sollte dir so etwas passieren, lass es uns bitte wissen, damit der Fehler behoben werden kann.
 
 ### Erselle eine Datenbank
 
