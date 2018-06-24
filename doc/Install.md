@@ -47,7 +47,7 @@ If you are able to do so, we recommend using git to clone the source repository 
 This makes the software much easier to update.
 The Linux commands to clone the repository into a directory "mywebsite" would be
 
-    git clone https://github.com/friendica/friendica.git mywebsite
+    git clone https://github.com/friendica/friendica.git -b master mywebsite
     cd mywebsite
     bin/composer.phar install
 
@@ -63,9 +63,19 @@ Get the addons by going into your website folder.
 
 Clone the addon repository (separately):
 
-    git clone https://github.com/friendica/friendica-addons.git addon
+    git clone https://github.com/friendica/friendica-addons.git -b master addon
 
 If you copy the directory tree to your webserver, make sure that you also copy .htaccess - as "dot" files are often hidden and aren't normally copied.
+
+If you want to use the development version of Friendica you can switch to the devel branch in the repository by running
+
+    git checkout develop
+    bin/composer.phar install
+    cd addon
+    git checkout develop
+
+please be aware that the develop branch may break your Friendica node at any time.
+If you encounter a bug, please let us know.
 
 ### Create a database
 

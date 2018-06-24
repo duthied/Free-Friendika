@@ -66,7 +66,7 @@ OR
 
 2b. Clone the friendica/friendica GitHub repository and import dependencies
 
-	git clone https://github.com/friendica/friendica [web server folder]
+	git clone https://github.com/friendica/friendica -b master [web server folder]
 	cd [web server folder]
 	php bin/composer.phar install
 
@@ -83,10 +83,21 @@ Get the addons by going into your website folder.
 
 Clone the addon repository (separately):
 
-    git clone https://github.com/friendica/friendica-addons.git addon
+    git clone https://github.com/friendica/friendica-addons.git -b master addon
 
 If you copy the directory tree to your webserver, make sure that you also 
 copy .htaccess - as "dot" files are often hidden and aren't normally copied.
+
+If you want to use the development version of Friendica you can switch to
+the devel branch in the repository by running
+
+    git checkout develop
+    bin/composer.phar install
+    cd addon
+    git checkout develop
+
+please be aware that the develop branch may break your Friendica node at any
+time. If you encounter a bug, please let us know.
 
 3. Create an empty database and note the access details (hostname, username,
 password, database name).
