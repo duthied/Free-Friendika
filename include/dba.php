@@ -29,21 +29,20 @@ class dba {
 	private static $db_user = '';
 	private static $db_pass = '';
 	private static $db_name = '';
+	private static $db_charset = '';
 
-	public static function connect($serveraddr, $user, $pass, $db) {
+	public static function connect($serveraddr, $user, $pass, $db, $charset = null)
+	{
 		if (!is_null(self::$db) && self::connected()) {
 			return true;
 		}
-
-		$a = get_app();
-
-		$stamp1 = microtime(true);
 
 		// We are storing these values for being able to perform a reconnect
 		self::$db_serveraddr = $serveraddr;
 		self::$db_user = $user;
 		self::$db_pass = $pass;
 		self::$db_name = $db;
+		self::$db_charset = $charset;
 
 		$serveraddr = trim($serveraddr);
 
@@ -58,6 +57,7 @@ class dba {
 		$user = trim($user);
 		$pass = trim($pass);
 		$db = trim($db);
+		$charset = trim($charset);
 
 		if (!(strlen($server) && strlen($user))) {
 			return false;
@@ -71,9 +71,10 @@ class dba {
 				$connect .= ";port=".$port;
 			}
 
-			if (isset($a->config["system"]["db_charset"])) {
-				$connect .= ";charset=".$a->config["system"]["db_charset"];
+			if ($charset) {
+				$connect .= ";charset=".$charset;
 			}
+
 			try {
 				self::$db = @new PDO($connect, $user, $pass);
 				self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -88,8 +89,8 @@ class dba {
 			if (!mysqli_connect_errno()) {
 				self::$connected = true;
 
-				if (isset($a->config["system"]["db_charset"])) {
-					self::$db->set_charset($a->config["system"]["db_charset"]);
+				if ($charset) {
+					self::$db->set_charset($charset);
 				}
 			}
 		}
@@ -99,7 +100,6 @@ class dba {
 			self::$driver = null;
 			self::$db = null;
 		}
-		$a->save_timestamp($stamp1, "network");
 
 		return self::$connected;
 	}
@@ -130,7 +130,7 @@ class dba {
 	public static function reconnect() {
 		self::disconnect();
 
-		$ret = self::connect(self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name);
+		$ret = self::connect(self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
 		return $ret;
 	}
 
@@ -1377,7 +1377,7 @@ class dba {
 								$is_alpha = true;
 							}
 						}
-						
+
 						if ($is_int && $is_alpha) {
 							foreach ($value as &$ref) {
 								if (is_int($ref)) {
