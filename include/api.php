@@ -2078,7 +2078,7 @@ function api_statuses_mentions($type)
 	$start = ($page - 1) * $count;
 
 	$condition = ["`uid` = ? AND `verb` = ? AND `item`.`id` > ? AND `author-id` != ?
-		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = ? AND `mention` AND NOT `ignored`)",
+		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `thread`.`uid` = ? AND `thread`.`mention` AND NOT `thread`.`ignored`)",
 		api_user(), ACTIVITY_POST, $since_id, $user_info['pid'], api_user()];
 
 	if ($max_id > 0) {

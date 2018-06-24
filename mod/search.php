@@ -214,7 +214,7 @@ function search_content(App $a) {
 		if (!empty($itemids)) {
 			$params = ['order' => ['id' => true]];
 			$items = Item::selectForUser(local_user(), [], ['id' => $itemids], $params);
-			$r = dba::inArray($items);
+			$r = Item::inArray($items);
 		} else {
 			$r = [];
 		}
@@ -227,7 +227,7 @@ function search_content(App $a) {
 		$params = ['order' => ['id' => true],
 			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
 		$items = Item::selectForUser(local_user(), [], $condition, $params);
-		$r = dba::inArray($items);
+		$r = Item::inArray($items);
 	}
 
 	if (!DBM::is_result($r)) {

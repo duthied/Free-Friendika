@@ -198,16 +198,8 @@ class Post extends BaseObject
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? L10n::t("save to folder") : false);
 
-		if ($item['network'] == NETWORK_FEED) {
-			$item['author-avatar'] = $item['contact-avatar'];
-			$item['author-name'] = $item['contact-name'];
-			$item['owner-avatar'] = $item['contact-avatar'];
-			$item['owner-name'] = $item['contact-name'];
-		}
-
-		$diff_author = !link_compare($item['url'], $item['author-link']);
-		$profile_name = htmlentities(((strlen($item['author-name'])) && $diff_author) ? $item['author-name'] : $item['name']);
-		if ($item['author-link'] && (!$item['author-name'])) {
+		$profile_name = htmlentities($item['author-name']);
+		if (!empty($item['author-link']) && empty($item['author-name'])) {
 			$profile_name = $item['author-link'];
 		}
 

@@ -562,15 +562,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					continue;
 				}
 
-				if ($item['network'] == NETWORK_FEED) {
-					$item['author-avatar'] = $item['contact-avatar'];
-					$item['author-name'] = $item['contact-name'];
-					$item['owner-avatar'] = $item['contact-avatar'];
-					$item['owner-name'] = $item['contact-name'];
-				}
-
-				$profile_name = (strlen($item['author-name']) ? $item['author-name'] : $item['name']);
-				if ($item['author-link'] && !$item['author-name']) {
+				$profile_name = $item['author-name'];
+				if (!empty($item['author-link']) && empty($item['author-name'])) {
 					$profile_name = $item['author-link'];
 				}
 

@@ -347,7 +347,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		Item::update(['unseen' => false], $condition);
 	}
 
-	$items = conv_sort(dba::inArray($items_obj), "`commented`");
+	$items = conv_sort(Item::inArray($items_obj), "`commented`");
 
 	if (!$update) {
 		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";

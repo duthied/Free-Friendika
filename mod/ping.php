@@ -135,7 +135,7 @@ function ping_init(App $a)
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBM::is_result($items)) {
-			$items_unseen = dba::inArray($items);
+			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
 			Addon::callHooks('network_ping', $arr);
 
