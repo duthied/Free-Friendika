@@ -1075,11 +1075,12 @@ class Item extends BaseObject
 			return 0;
 		}
 
-		//unset($item['author-link']);
+		// These fields aren't stored anymore in the item table, they are fetched upon request
+		unset($item['author-link']);
 		unset($item['author-name']);
 		unset($item['author-avatar']);
 
-		//unset($item['owner-link']);
+		unset($item['owner-link']);
 		unset($item['owner-name']);
 		unset($item['owner-avatar']);
 
