@@ -72,10 +72,10 @@ class Item extends BaseObject
 
 		// Fetch data from the item-content table whenever there is content there
 		foreach (self::CONTENT_FIELDLIST as $field) {
-			if (!empty($row['item-content-' . $field])) {
-				$row[$field] = $row['item-content-' . $field];
-				unset($row['item-content-' . $field]);
+			if (is_null($row[$field]) && !is_null($row['item-' . $field])) {
+				$row[$field] = $row['item-' . $field];
 			}
+			unset($row['item-' . $field]);
 		}
 
 		// We prefer the data from the user's contact over the public one
@@ -363,14 +363,14 @@ class Item extends BaseObject
 
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
-			'created', 'edited', 'commented', 'received', 'changed',
-			'title', 'body', 'app', 'verb', 'object-type', 'object', 'target-type', 'target',
+			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
-			'file', 'location', 'coord', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
-			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
-			'rendered-hash', 'rendered-html', 'global', 'content-warning',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network'];
+
+		$fields['item-content'] = self::CONTENT_FIELDLIST;
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
 			'thumb' => 'author-avatar', 'nick' => 'author-nick'];
@@ -462,7 +462,7 @@ class Item extends BaseObject
 		}
 
 		if (strpos($sql_commands, "`item-content`.") !== false) {
-			$joins .= " LEFT JOIN `item-content` ON `item-content`.`uri` = `item`.`uri`";
+			$joins .= " LEFT JOIN `item-content` ON `item-content`.`id` = `item`.`icid`";
 		}
 
 		if ((strpos($sql_commands, "`parent-item`.") !== false) || (strpos($sql_commands, "`parent-author`.") !== false)) {
@@ -491,7 +491,7 @@ class Item extends BaseObject
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
 					if (in_array($select, self::CONTENT_FIELDLIST)) {
-						$selection[] = "`item-content`.`".$select."` AS `item-content-" . $select . "`";
+						$selection[] = "`item`.`".$select."` AS `item-" . $select . "`";
 					}
 					if (is_int($field)) {
 						$selection[] = "`" . $table . "`.`" . $select . "`";
@@ -579,7 +579,7 @@ class Item extends BaseObject
 		$rows = dba::affected_rows();
 
 		while ($item = dba::fetch($items)) {
-			self::updateContent($content_fields, ['uri' => $item['uri']]);
+			self::updateContent($content_fields, ['id' => $item['icid']]);
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
@@ -1446,10 +1446,10 @@ class Item extends BaseObject
 	 */
 	private static function insertContent(&$item)
 	{
-		logger('Insert content for URI '.$item['uri']);
-
 		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
 			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
+
+		unset($item['plink']);
 
 		foreach (self::CONTENT_FIELDLIST as $field) {
 			if (isset($item[$field])) {
@@ -1458,7 +1458,20 @@ class Item extends BaseObject
 			}
 		}
 
-		dba::insert('item-content', $fields, true);
+		// Do we already have this content?
+		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $item['uri']]);
+		if (DBM::is_result($item_content)) {
+			$item['icid'] = $item_content['id'];
+			logger('Assigned content for URI '.$item['uri'].' ('.$item['icid'].')');
+			return;
+		}
+
+		dba::insert('item-content', $fields);
+
+		$item['icid'] = dba::lastInsertId();
+
+		logger('Insert content for URI '.$item['uri'].' ('.$item['icid'].')');
+
 	}
 
 	/**
@@ -1481,7 +1494,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		logger('Update content for URI '.$condition['uri']);
+		logger('Update content for id '.$condition['id']);
 
 		dba::update('item-content', $fields, $condition, true);
 	}

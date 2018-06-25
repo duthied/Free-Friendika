@@ -1181,6 +1181,7 @@ class DBStructure
 						"author-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name of the author of this item"],
 						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the profile page of the author of this item"],
 						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the avatar picture of the author of this item"],
+						"icid" => ["type" => "int unsigned", "relation" => ["item-content" => "id"], "comment" => "Id of the item-content table entry that contains the whole item content"],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
 						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => "item body content"],
@@ -1247,8 +1248,6 @@ class DBStructure
 						"deleted_changed" => ["deleted","changed"],
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],
-						"uid_authorlink" => ["uid","author-link(190)"],
-						"uid_ownerlink" => ["uid","owner-link(190)"],
 						]
 				];
 		$database["item-content"] = [
