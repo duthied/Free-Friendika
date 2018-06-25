@@ -1248,6 +1248,7 @@ class DBStructure
 						"deleted_changed" => ["deleted","changed"],
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],
+						"icid" => ["icid"],
 						]
 				];
 		$database["item-content"] = [

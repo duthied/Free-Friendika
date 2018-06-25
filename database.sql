@@ -541,7 +541,8 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `contactid_verb` (`contact-id`,`verb`),
 	 INDEX `deleted_changed` (`deleted`,`changed`),
 	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
-	 INDEX `uid_eventid` (`uid`,`event-id`)
+	 INDEX `uid_eventid` (`uid`,`event-id`),
+	 INDEX `icid` (`icid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
