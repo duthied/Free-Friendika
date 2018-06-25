@@ -56,9 +56,23 @@ class Item extends BaseObject
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'signature', 'signer'];
 
+	// Field list for "item-content" table that is mixed with the item table
 	const CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
 			'coord', 'app', 'rendered-hash', 'rendered-html',
 			'object-type', 'object', 'target-type', 'target'];
+
+	// All fields in the item table
+	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
+			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid',
+			'created', 'edited', 'commented', 'received', 'changed', 'verb',
+			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
+			'title', 'content-warning', 'body', 'location', 'coord', 'app',
+			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
+			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
 
 	/**
 	 * @brief Fetch a single item row
@@ -1523,18 +1537,9 @@ class Item extends BaseObject
 		$condition = ['id' => $itemid, 'uid' => 0,
 			'network' => [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""],
 			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
-		$item = dba::selectFirst('item', [], ['id' => $itemid]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBM::is_result($item)) {
 			return;
-		}
-
-		$fields = self::CONTENT_FIELDLIST;
-		$fields[] = 'author-link';
-		$fields[] = 'owner-link';
-
-		$content = self::selectFirst($fields, ['id' => $itemid]);
-		if (DBM::is_result($content)) {
-			$item = array_merge($item, $content);
 		}
 
 		unset($item['id']);
@@ -1658,16 +1663,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		$item = dba::selectFirst('item', [], ['id' => $itemid]);
-
-		$fields = self::CONTENT_FIELDLIST;
-		$fields[] = 'author-link';
-		$fields[] = 'owner-link';
-
-		$content = self::selectFirst($fields, ['id' => $itemid]);
-		if (DBM::is_result($content)) {
-			$item = array_merge($item, $content);
-		}
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 
 		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
 			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
