@@ -51,7 +51,7 @@ if (!$a->mode == App::MODE_INSTALL) {
 	}
 
 	/**
-	 * Load configs from db. Overwrite configs from .htconfig.php
+	 * Load configs from db. Overwrite configs from config/local.ini.php
 	 */
 
 	Config::load();

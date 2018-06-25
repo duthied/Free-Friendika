@@ -245,7 +245,7 @@ function install_content(App $a) {
 
 function manual_config(App $a) {
 	$data = htmlentities($a->data['txt'],ENT_COMPAT, 'UTF-8');
-	$o = L10n::t('The database configuration file ".htconfig.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');
+	$o = L10n::t('The database configuration file "config/local.ini.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');
 	$o .= "<textarea rows=\"24\" cols=\"80\" >$data</textarea>";
 	return $o;
 }
