@@ -555,7 +555,7 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin', 'uri'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri', 'plink'], $condition);
 
 		$content_fields = [];
 		foreach (self::CONTENT_FIELDLIST as $field) {
@@ -579,7 +579,10 @@ class Item extends BaseObject
 		$rows = dba::affected_rows();
 
 		while ($item = dba::fetch($items)) {
-			self::updateContent($content_fields, ['id' => $item['icid']]);
+			if (!empty($item['plink'])) {
+				$content_fields['plink'] =  $item['plink'];
+			}
+			self::updateContent($content_fields, ['uri' => $item['uri']]);
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
@@ -1033,6 +1036,7 @@ class Item extends BaseObject
 
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
+			logger('No body, no title.');
 			return 0;
 		}
 
@@ -1460,19 +1464,15 @@ class Item extends BaseObject
 		}
 
 		// Do we already have this content?
+		if (!dba::exists('item-content', ['uri' => $item['uri']])) {
+			dba::insert('item-content', $fields, true);
+		}
+
 		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $item['uri']]);
 		if (DBM::is_result($item_content)) {
 			$item['icid'] = $item_content['id'];
-			logger('Assigned content for URI '.$item['uri'].' ('.$item['icid'].')');
-			return;
+			logger('Insert content for URI '.$item['uri'].' ('.$item['icid'].')');
 		}
-
-		dba::insert('item-content', $fields);
-
-		$item['icid'] = dba::lastInsertId();
-
-		logger('Insert content for URI '.$item['uri'].' ('.$item['icid'].')');
-
 	}
 
 	/**
@@ -1495,7 +1495,12 @@ class Item extends BaseObject
 			return;
 		}
 
-		logger('Update content for id '.$condition['id']);
+		if (!empty($item['plink'])) {
+			$fields['plink'] = $item['plink'];
+			$fields['uri-plink-hash'] = hash('sha1', $item['plink']).hash('sha1', $condition['uri']);
+		}
+
+		logger('Update content for URI '.$condition['uri']);
 
 		dba::update('item-content', $fields, $condition, true);
 	}
@@ -1521,6 +1526,15 @@ class Item extends BaseObject
 		$item = dba::selectFirst('item', [], ['id' => $itemid]);
 		if (!DBM::is_result($item)) {
 			return;
+		}
+
+		$fields = self::CONTENT_FIELDLIST;
+		$fields[] = 'author-link';
+		$fields[] = 'owner-link';
+
+		$content = self::selectFirst($fields, ['id' => $itemid]);
+		if (DBM::is_result($content)) {
+			$item = array_merge($item, $content);
 		}
 
 		unset($item['id']);
@@ -1646,6 +1660,15 @@ class Item extends BaseObject
 
 		$item = dba::selectFirst('item', [], ['id' => $itemid]);
 
+		$fields = self::CONTENT_FIELDLIST;
+		$fields[] = 'author-link';
+		$fields[] = 'owner-link';
+
+		$content = self::selectFirst($fields, ['id' => $itemid]);
+		if (DBM::is_result($content)) {
+			$item = array_merge($item, $content);
+		}
+
 		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
 			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
 
@@ -1659,9 +1682,9 @@ class Item extends BaseObject
 				unset($item['origin']);
 				unset($item['starred']);
 				if ($item['uri'] == $item['parent-uri']) {
-					$item['contact-id'] = Contact::getIdForURL($item['owner-link']);
+					$item['contact-id'] = $item['owner-id'];
 				} else {
-					$item['contact-id'] = Contact::getIdForURL($item['author-link']);
+					$item['contact-id'] = $item['author-id'];
 				}
 
 				if (in_array($item['type'], ["net-comment", "wall-comment"])) {
