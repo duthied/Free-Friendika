@@ -1705,7 +1705,7 @@ class Item extends BaseObject
 	 */
 	public static function addShadowPost($itemid)
 	{
-		$item = dba::selectFirst('item', [], ['id' => $itemid]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBM::is_result($item)) {
 			return;
 		}
