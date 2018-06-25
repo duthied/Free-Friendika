@@ -1528,8 +1528,6 @@ class Item extends BaseObject
 		unset($item['wall']);
 		unset($item['origin']);
 		unset($item['starred']);
-		unset($item['rendered-hash']);
-		unset($item['rendered-html']);
 
 		$users = [];
 
@@ -1659,8 +1657,6 @@ class Item extends BaseObject
 				unset($item['mention']);
 				unset($item['origin']);
 				unset($item['starred']);
-				unset($item['rendered-hash']);
-				unset($item['rendered-html']);
 				if ($item['uri'] == $item['parent-uri']) {
 					$item['contact-id'] = Contact::getIdForURL($item['owner-link']);
 				} else {
@@ -1727,8 +1723,6 @@ class Item extends BaseObject
 		unset($item['mention']);
 		unset($item['origin']);
 		unset($item['starred']);
-		unset($item['rendered-hash']);
-		unset($item['rendered-html']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
@@ -2696,9 +2690,9 @@ EOT;
 
 	private static function updateThread($itemid, $setmention = false)
 	{
-		$fields = ['uid', 'guid', 'title', 'body', 'created', 'edited', 'commented', 'received', 'changed',
+		$fields = ['uid', 'guid', 'created', 'edited', 'commented', 'received', 'changed',
 			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
-			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id', 'rendered-html', 'rendered-hash'];
+			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
 		$item = dba::selectFirst('item', $fields, $condition);
@@ -2715,7 +2709,7 @@ EOT;
 		$fields = [];
 
 		foreach ($item as $field => $data) {
-			if (!in_array($field, ["guid", "title", "body", "rendered-html", "rendered-hash"])) {
+			if (!in_array($field, ["guid"])) {
 				$fields[$field] = $data;
 			}
 		}
@@ -2723,19 +2717,6 @@ EOT;
 		$result = dba::update('thread', $fields, ['iid' => $itemid]);
 
 		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result, LOGGER_DEBUG);
-
-		// Updating a shadow item entry
-		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);
-
-		if (!DBM::is_result($items)) {
-			return;
-		}
-
-		$fields = ['title' => $item['title'], 'body' => $item['body'],
-			'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
-		$result = dba::update('item', $fields, ['id' => $items['id']]);
-
-		logger("Updating public shadow for post ".$items["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 	}
 
 	private static function deleteThread($itemid, $itemuri = "")
