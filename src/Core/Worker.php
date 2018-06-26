@@ -10,7 +10,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Lock;
 use Friendica\Util\Network;
 use dba;
 
@@ -108,16 +107,16 @@ class Worker
 				}
 
 				// If possible we will fetch new jobs for this worker
-				if (!$refetched && Lock::set('worker_process', 0)) {
+				if (!$refetched && Lock::acquireLock('worker_process', 0)) {
 					$stamp = (float)microtime(true);
 					$refetched = self::findWorkerProcesses($passing_slow);
 					self::$db_duration += (microtime(true) - $stamp);
-					Lock::remove('worker_process');
+					Lock::releaseLock('worker_process');
 				}
 			}
 
 			// To avoid the quitting of multiple workers only one worker at a time will execute the check
-			if (Lock::set('worker', 0)) {
+			if (Lock::acquireLock('worker', 0)) {
 				$stamp = (float)microtime(true);
 				// Count active workers and compare them with a maximum value that depends on the load
 				if (self::tooMuchWorkers()) {
@@ -130,7 +129,7 @@ class Worker
 					logger('Memory limit reached, quitting.', LOGGER_DEBUG);
 					return;
 				}
-				Lock::remove('worker');
+				Lock::releaseLock('worker');
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
@@ -883,7 +882,7 @@ class Worker
 		dba::close($r);
 
 		$stamp = (float)microtime(true);
-		if (!Lock::set('worker_process')) {
+		if (!Lock::acquireLock('worker_process')) {
 			return false;
 		}
 		self::$lock_duration = (microtime(true) - $stamp);
@@ -892,7 +891,7 @@ class Worker
 		$found = self::findWorkerProcesses($passing_slow);
 		self::$db_duration += (microtime(true) - $stamp);
 
-		Lock::remove('worker_process');
+		Lock::releaseLock('worker_process');
 
 		if ($found) {
 			$r = dba::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
@@ -1097,13 +1096,13 @@ class Worker
 		}
 
 		// If there is a lock then we don't have to check for too much worker
-		if (!Lock::set('worker', 0)) {
+		if (!Lock::acquireLock('worker', 0)) {
 			return true;
 		}
 
 		// If there are already enough workers running, don't fork another one
 		$quit = self::tooMuchWorkers();
-		Lock::remove('worker');
+		Lock::releaseLock('worker');
 
 		if ($quit) {
 			return true;
