@@ -1154,7 +1154,7 @@ class DBStructure
 						]
 				];
 		$database["item"] = [
-				"comment" => "All posts",
+				"comment" => "Structure for all posts",
 				"fields" => [
 						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => ["thread" => "iid"]],
 						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this item"],
@@ -1181,6 +1181,7 @@ class DBStructure
 						"author-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name of the author of this item"],
 						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the profile page of the author of this item"],
 						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the avatar picture of the author of this item"],
+						"icid" => ["type" => "int unsigned", "relation" => ["item-content" => "id"], "comment" => "Id of the item-content table entry that contains the whole item content"],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
 						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => "item body content"],
@@ -1247,8 +1248,33 @@ class DBStructure
 						"deleted_changed" => ["deleted","changed"],
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],
-						"uid_authorlink" => ["uid","author-link(190)"],
-						"uid_ownerlink" => ["uid","owner-link(190)"],
+						"icid" => ["icid"],
+						]
+				];
+		$database["item-content"] = [
+				"comment" => "Content for all posts",
+				"fields" => [
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => ["thread" => "iid"]],
+						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"uri-plink-hash" => ["type" => "char(80)", "not null" => "1", "default" => "", "comment" => "SHA-1 hash from uri and plink"],
+						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
+						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"body" => ["type" => "mediumtext", "comment" => "item body content"],
+						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
+						"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
+						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "application which generated this item"],
+						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+						"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
+						"object-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams object type"],
+						"object" => ["type" => "text", "comment" => "JSON encoded object structure unless it is an implied object (normal post)"],
+						"target-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams target type if applicable (URI)"],
+						"target" => ["type" => "text", "comment" => "JSON encoded target structure if used"],
+						"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "permalink or URL to a displayable copy of the message at its source"],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uri-plink-hash" => ["UNIQUE", "uri-plink-hash"],
+						"uri" => ["uri(191)"],
 						]
 				];
 		$database["locks"] = [

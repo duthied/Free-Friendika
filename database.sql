@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.08-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1270
+-- DB_UPDATE_VERSION 1271
 -- ------------------------------------------
 
 
@@ -477,6 +477,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`author-name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name of the author of this item',
 	`author-link` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link to the profile page of the author of this item',
 	`author-avatar` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link to the avatar picture of the author of this item',
+	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT 'item title',
 	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT 'item body content',
@@ -541,9 +542,33 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `deleted_changed` (`deleted`,`changed`),
 	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
 	 INDEX `uid_eventid` (`uid`,`event-id`),
-	 INDEX `uid_authorlink` (`uid`,`author-link`(190)),
-	 INDEX `uid_ownerlink` (`uid`,`owner-link`(190))
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='All posts';
+	 INDEX `icid` (`icid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
+
+--
+-- TABLE item-content
+--
+CREATE TABLE IF NOT EXISTS `item-content` (
+	`id` int unsigned NOT NULL auto_increment,
+	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-plink-hash` char(80) NOT NULL DEFAULT '' COMMENT 'SHA-1 hash from uri and plink',
+	`title` varchar(255) NOT NULL DEFAULT '' COMMENT 'item title',
+	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`body` mediumtext COMMENT 'item body content',
+	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
+	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
+	`app` varchar(255) NOT NULL DEFAULT '' COMMENT 'application which generated this item',
+	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`rendered-html` mediumtext COMMENT 'item.body converted to html',
+	`object-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams object type',
+	`object` text COMMENT 'JSON encoded object structure unless it is an implied object (normal post)',
+	`target-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams target type if applicable (URI)',
+	`target` text COMMENT 'JSON encoded target structure if used',
+	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri-plink-hash` (`uri-plink-hash`),
+	 INDEX `uri` (`uri`(191))
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
 -- TABLE locks

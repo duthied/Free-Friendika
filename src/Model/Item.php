@@ -56,6 +56,24 @@ class Item extends BaseObject
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'signature', 'signer'];
 
+	// Field list for "item-content" table that is mixed with the item table
+	const CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
+			'coord', 'app', 'rendered-hash', 'rendered-html',
+			'object-type', 'object', 'target-type', 'target'];
+
+	// All fields in the item table
+	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
+			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid',
+			'created', 'edited', 'commented', 'received', 'changed', 'verb',
+			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
+			'title', 'content-warning', 'body', 'location', 'coord', 'app',
+			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
+			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
+
 	/**
 	 * @brief Fetch a single item row
 	 *
@@ -65,6 +83,14 @@ class Item extends BaseObject
 	public static function fetch($stmt)
 	{
 		$row = dba::fetch($stmt);
+
+		// Fetch data from the item-content table whenever there is content there
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (is_null($row[$field]) && !is_null($row['item-' . $field])) {
+				$row[$field] = $row['item-' . $field];
+			}
+			unset($row['item-' . $field]);
+		}
 
 		// We prefer the data from the user's contact over the public one
 		if (!empty($row['author-link']) && !empty($row['contact-link']) &&
@@ -351,14 +377,14 @@ class Item extends BaseObject
 
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
-			'created', 'edited', 'commented', 'received', 'changed',
-			'title', 'body', 'app', 'verb', 'object-type', 'object', 'target-type', 'target',
+			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
-			'file', 'location', 'coord', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
-			'unseen', 'deleted', 'origin', 'forum_mode', 'mention',
-			'rendered-hash', 'rendered-html', 'global', 'content-warning',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network'];
+
+		$fields['item-content'] = self::CONTENT_FIELDLIST;
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
 			'thumb' => 'author-avatar', 'nick' => 'author-nick'];
@@ -449,6 +475,10 @@ class Item extends BaseObject
 			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
 		}
 
+		if (strpos($sql_commands, "`item-content`.") !== false) {
+			$joins .= " LEFT JOIN `item-content` ON `item-content`.`id` = `item`.`icid`";
+		}
+
 		if ((strpos($sql_commands, "`parent-item`.") !== false) || (strpos($sql_commands, "`parent-author`.") !== false)) {
 			$joins .= " STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`";
 		}
@@ -474,10 +504,13 @@ class Item extends BaseObject
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
+					if (in_array($select, self::CONTENT_FIELDLIST)) {
+						$selection[] = "`item`.`".$select."` AS `item-" . $select . "`";
+					}
 					if (is_int($field)) {
-						$selection[] = "`" . $table . "`.`".$select."`";
+						$selection[] = "`" . $table . "`.`" . $select . "`";
 					} else {
-						$selection[] = "`" . $table . "`.`" . $field . "` AS `".$select ."`";
+						$selection[] = "`" . $table . "`.`" . $field . "` AS `" . $select . "`";
 					}
 				}
 			}
@@ -536,19 +569,34 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri', 'plink'], $condition);
 
-		$success = dba::update('item', $fields, $condition);
-
-		if (!$success) {
-			dba::close($items);
-			dba::rollback();
-			return false;
+		$content_fields = [];
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (isset($fields[$field])) {
+				$content_fields[$field] = $fields[$field];
+				unset($fields[$field]);
+			}
 		}
 
+		if (!empty($fields)) {
+			$success = dba::update('item', $fields, $condition);
+
+			if (!$success) {
+				dba::close($items);
+				dba::rollback();
+				return false;
+			}
+		}
+
+		// When there is no content for the "old" item table, this will count the fetched items
 		$rows = dba::affected_rows();
 
 		while ($item = dba::fetch($items)) {
+			if (!empty($item['plink'])) {
+				$content_fields['plink'] =  $item['plink'];
+			}
+			self::updateContent($content_fields, ['uri' => $item['uri']]);
 			Term::insertFromTagFieldByItemId($item['id']);
 			Term::insertFromFileFieldByItemId($item['id']);
 			self::updateThread($item['id']);
@@ -1002,6 +1050,7 @@ class Item extends BaseObject
 
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
+			logger('No body, no title.');
 			return 0;
 		}
 
@@ -1044,11 +1093,12 @@ class Item extends BaseObject
 			return 0;
 		}
 
-		//unset($item['author-link']);
+		// These fields aren't stored anymore in the item table, they are fetched upon request
+		unset($item['author-link']);
 		unset($item['author-name']);
 		unset($item['author-avatar']);
 
-		//unset($item['owner-link']);
+		unset($item['owner-link']);
 		unset($item['owner-name']);
 		unset($item['owner-avatar']);
 
@@ -1260,6 +1310,7 @@ class Item extends BaseObject
 		logger('' . print_r($item,true), LOGGER_DATA);
 
 		dba::transaction();
+		self::insertContent($item);
 		$ret = dba::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
@@ -1408,6 +1459,67 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Insert a new item content entry
+	 *
+	 * @param array $item The item fields that are to be inserted
+	 */
+	private static function insertContent(&$item)
+	{
+		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
+			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
+
+		unset($item['plink']);
+
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (isset($item[$field])) {
+				$fields[$field] = $item[$field];
+				unset($item[$field]);
+			}
+		}
+
+		// Do we already have this content?
+		if (!dba::exists('item-content', ['uri' => $item['uri']])) {
+			dba::insert('item-content', $fields, true);
+		}
+
+		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $item['uri']]);
+		if (DBM::is_result($item_content)) {
+			$item['icid'] = $item_content['id'];
+			logger('Insert content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+		}
+	}
+
+	/**
+	 * @brief Update existing item content entries
+	 *
+	 * @param array $item The item fields that are to be changed
+	 * @param array $condition The condition for finding the item content entries
+	 */
+	private static function updateContent($item, $condition)
+	{
+		// We have to select only the fields from the "item-content" table
+		$fields = [];
+		foreach (self::CONTENT_FIELDLIST as $field) {
+			if (isset($item[$field])) {
+				$fields[$field] = $item[$field];
+			}
+		}
+
+		if (empty($fields)) {
+			return;
+		}
+
+		if (!empty($item['plink'])) {
+			$fields['plink'] = $item['plink'];
+			$fields['uri-plink-hash'] = hash('sha1', $item['plink']) . hash('sha1', $condition['uri']);
+		}
+
+		logger('Update content for URI ' . $condition['uri']);
+
+		dba::update('item-content', $fields, $condition, true);
+	}
+
+	/**
 	 * @brief Distributes public items to the receivers
 	 *
 	 * @param integer $itemid      Item ID that should be added
@@ -1425,7 +1537,7 @@ class Item extends BaseObject
 		$condition = ['id' => $itemid, 'uid' => 0,
 			'network' => [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""],
 			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
-		$item = dba::selectFirst('item', [], ['id' => $itemid]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBM::is_result($item)) {
 			return;
 		}
@@ -1436,8 +1548,6 @@ class Item extends BaseObject
 		unset($item['wall']);
 		unset($item['origin']);
 		unset($item['starred']);
-		unset($item['rendered-hash']);
-		unset($item['rendered-html']);
 
 		$users = [];
 
@@ -1553,7 +1663,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		$item = dba::selectFirst('item', [], ['id' => $itemid]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 
 		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
 			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
@@ -1567,12 +1677,10 @@ class Item extends BaseObject
 				unset($item['mention']);
 				unset($item['origin']);
 				unset($item['starred']);
-				unset($item['rendered-hash']);
-				unset($item['rendered-html']);
 				if ($item['uri'] == $item['parent-uri']) {
-					$item['contact-id'] = Contact::getIdForURL($item['owner-link']);
+					$item['contact-id'] = $item['owner-id'];
 				} else {
-					$item['contact-id'] = Contact::getIdForURL($item['author-link']);
+					$item['contact-id'] = $item['author-id'];
 				}
 
 				if (in_array($item['type'], ["net-comment", "wall-comment"])) {
@@ -1597,7 +1705,7 @@ class Item extends BaseObject
 	 */
 	public static function addShadowPost($itemid)
 	{
-		$item = dba::selectFirst('item', [], ['id' => $itemid]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBM::is_result($item)) {
 			return;
 		}
@@ -1635,8 +1743,6 @@ class Item extends BaseObject
 		unset($item['mention']);
 		unset($item['origin']);
 		unset($item['starred']);
-		unset($item['rendered-hash']);
-		unset($item['rendered-html']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
@@ -2604,9 +2710,9 @@ EOT;
 
 	private static function updateThread($itemid, $setmention = false)
 	{
-		$fields = ['uid', 'guid', 'title', 'body', 'created', 'edited', 'commented', 'received', 'changed',
+		$fields = ['uid', 'guid', 'created', 'edited', 'commented', 'received', 'changed',
 			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
-			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id', 'rendered-html', 'rendered-hash'];
+			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
 		$item = dba::selectFirst('item', $fields, $condition);
@@ -2623,7 +2729,7 @@ EOT;
 		$fields = [];
 
 		foreach ($item as $field => $data) {
-			if (!in_array($field, ["guid", "title", "body", "rendered-html", "rendered-hash"])) {
+			if (!in_array($field, ["guid"])) {
 				$fields[$field] = $data;
 			}
 		}
@@ -2631,19 +2737,6 @@ EOT;
 		$result = dba::update('thread', $fields, ['iid' => $itemid]);
 
 		logger("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result, LOGGER_DEBUG);
-
-		// Updating a shadow item entry
-		$items = dba::selectFirst('item', ['id'], ['guid' => $item['guid'], 'uid' => 0]);
-
-		if (!DBM::is_result($items)) {
-			return;
-		}
-
-		$fields = ['title' => $item['title'], 'body' => $item['body'],
-			'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
-		$result = dba::update('item', $fields, ['id' => $items['id']]);
-
-		logger("Updating public shadow for post ".$items["id"]." - guid ".$item["guid"]." Result: ".print_r($result, true), LOGGER_DEBUG);
 	}
 
 	private static function deleteThread($itemid, $itemuri = "")
