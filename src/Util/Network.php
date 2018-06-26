@@ -492,7 +492,10 @@ class Network
 
 		$h = substr($addr, strpos($addr, '@') + 1);
 
-		if (($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+		if (($h) && (dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+			return true;
+		}
+		if (($h) && dns_get_record($h, DNS_CNAME + DNS_MX)) {
 			return true;
 		}
 		return false;

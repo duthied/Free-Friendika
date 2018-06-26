@@ -93,9 +93,9 @@ function item_post(App $a) {
 
 	if ($thr_parent || $thr_parent_uri) {
 		if ($thr_parent) {
-			$parent_item = dba::selectFirst('item', [], ['id' => $thr_parent]);
+			$parent_item = Item::selectFirst([], ['id' => $thr_parent]);
 		} elseif ($thr_parent_uri) {
-			$parent_item = dba::selectFirst('item', [], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
+			$parent_item = Item::selectFirst([], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
 		}
 
 		// if this isn't the real parent of the conversation, find it
