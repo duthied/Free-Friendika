@@ -1316,7 +1316,7 @@ class Contact extends BaseObject
 
 		if (($ret['network'] === NETWORK_DFRN) && !DBM::is_result($r)) {
 			if ($interactive) {
-				if (strlen($a->path)) {
+				if (strlen($a->urlpath)) {
 					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
 				} else {
 					$myaddr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname());

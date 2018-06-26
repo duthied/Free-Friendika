@@ -551,7 +551,7 @@ class App
 			$this->hostname = Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+		return $scheme . '://' . $this->hostname . (!empty($this->urlpath) ? '/' . $this->urlpath : '' );
 	}
 
 	/**
@@ -579,7 +579,7 @@ class App
 				$hostname .= ':' . $parsed['port'];
 			}
 			if (x($parsed, 'path')) {
-				$this->path = trim($parsed['path'], '\\/');
+				$this->urlpath = trim($parsed['path'], '\\/');
 			}
 
 			if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
@@ -607,7 +607,7 @@ class App
 
 	public function get_path()
 	{
-		return $this->path;
+		return $this->urlpath;
 	}
 
 	public function set_pager_total($n)

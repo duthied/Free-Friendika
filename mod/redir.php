@@ -56,7 +56,7 @@ function redir_init(App $a) {
 		}
 
 		if (remote_user()) {
-			$host = substr(System::baseUrl() . ($a->path ? '/' . $a->path : ''), strpos(System::baseUrl(), '://') + 3);
+			$host = substr(System::baseUrl() . ($a->urlpath ? '/' . $a->urlpath : ''), strpos(System::baseUrl(), '://') + 3);
 			$remotehost = substr($contact['addr'], strpos($contact['addr'], '@') + 1);
 
 			// On a local instance we have to check if the local user has already authenticated

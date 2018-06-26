@@ -80,7 +80,7 @@ class Magic extends BaseModule
 					'',
 					$headers,
 					$user['prvkey'],
-					'acct:' . $user['nickname'] . '@' . $a->get_hostname() . ($a->path ? '/' . $a->path : ''),
+					'acct:' . $user['nickname'] . '@' . $a->get_hostname() . ($a->urlpath ? '/' . $a->urlpath : ''),
 					false,
 					true,
 					'sha512'
