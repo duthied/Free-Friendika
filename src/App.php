@@ -4,7 +4,6 @@
  */
 namespace Friendica;
 
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
@@ -17,6 +16,7 @@ use Detection\MobileDetect;
 use Exception;
 
 require_once 'boot.php';
+require_once 'include/dba.php';
 require_once 'include/text.php';
 
 /**
@@ -40,9 +40,10 @@ class App
 
 	public $module_loaded = false;
 	public $module_class = null;
-	public $query_string;
-	public $config;
-	public $page;
+	public $query_string = '';
+	public $config = [];
+	public $page = [];
+	public $pager = [];
 	public $page_offset;
 	public $profile;
 	public $profile_uid;
@@ -54,16 +55,15 @@ class App
 	public $content;
 	public $data = [];
 	public $error = false;
-	public $cmd;
+	public $cmd = '';
 	public $argv;
 	public $argc;
 	public $module;
 	public $mode = App::MODE_NORMAL;
-	public $pager;
 	public $strings;
 	public $basepath;
-	public $path;
-	public $hooks;
+	public $urlpath;
+	public $hooks = [];
 	public $timezone;
 	public $interactive = true;
 	public $addons;
@@ -127,7 +127,6 @@ class App
 	private $curl_code;
 	private $curl_content_type;
 	private $curl_headers;
-	private static $a;
 
 	/**
 	 * @brief App constructor.
@@ -136,21 +135,21 @@ class App
 	 */
 	public function __construct($basepath)
 	{
-		global $default_timezone;
-
 		if (!static::directory_usable($basepath, false)) {
 			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
 		}
 
 		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
 
-		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
-			include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
-		}
+		$this->determineUrlPath();
 
-		$this->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
+		$this->loadConfigFiles();
 
-		date_default_timezone_set($this->timezone);
+		$this->loadDatabase();
+
+		$this->determineMode();
+
+		$this->loadDefaultTimezone();
 
 		$this->performance['start'] = microtime(true);
 		$this->performance['database'] = 0;
@@ -173,8 +172,6 @@ class App
 		$this->callstack['rendering'] = [];
 		$this->callstack['parser'] = [];
 
-		$this->config = [];
-
 		$this->page = [
 			'aside' => '',
 			'bottom' => '',
@@ -188,10 +185,6 @@ class App
 			'template' => '',
 			'title' => ''
 		];
-
-		$this->pager = [];
-
-		$this->query_string = '';
 
 		$this->process_id = System::processID('log');
 
@@ -218,16 +211,6 @@ class App
 			if (x($_SERVER, 'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
 			}
-			/*
-			 * Figure out if we are running at the top of a domain
-			 * or in a sub-directory and adjust accordingly
-			 */
-
-			/// @TODO This kind of escaping breaks syntax-highlightning on CoolEdit (Midnight Commander)
-			$path = trim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-			if (isset($path) && strlen($path) && ($path != $this->path)) {
-				$this->path = $path;
-			}
 		}
 
 		set_include_path(
@@ -238,19 +221,16 @@ class App
 
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 9) === 'pagename=') {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
-
-			// removing trailing / - maybe a nginx problem
-			$this->query_string = ltrim($this->query_string, '/');
 		} elseif ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === 'q=') {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 2);
-
-			// removing trailing / - maybe a nginx problem
-			$this->query_string = ltrim($this->query_string, '/');
 		}
 
-		if (x($_GET, 'pagename')) {
+		// removing trailing / - maybe a nginx problem
+		$this->query_string = ltrim($this->query_string, '/');
+
+		if (!empty($_GET['pagename'])) {
 			$this->cmd = trim($_GET['pagename'], '/\\');
-		} elseif (x($_GET, 'q')) {
+		} elseif (!empty($_GET['q'])) {
 			$this->cmd = trim($_GET['q'], '/\\');
 		}
 
@@ -311,16 +291,174 @@ class App
 
 		// Register template engines
 		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
+	}
 
-		/**
-		 * Load the configuration file which contains our DB credentials.
-		 * Ignore errors. If the file doesn't exist or is empty, we are running in
-		 * installation mode.	 *
+	private function loadConfigFiles()
+	{
+		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'defaults.ini.php');
+
+		// Legacy .htconfig.php support
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
+			$a = $this;
+			include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
+		}
+
+		// Legacy .htconfig.php support
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+			$a = $this;
+
+			include $this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php';
+			unset($db_host, $db_user, $db_pass, $db_data);
+
+			if (isset($default_timezone)) {
+				$this->setConfigValue('system', 'default_timezone', $default_timezone);
+				unset($default_timezone);
+			}
+
+			if (isset($pidfile)) {
+				$this->setConfigValue('system', 'pidfile', $pidfile);
+				unset($pidfile);
+			}
+		}
+
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php');
+		}
+	}
+
+	public function loadConfigFile($filepath)
+	{
+		if (!file_exists($filepath)) {
+			throw new Exception('Error parsing non-existent config file ' . $filepath);
+		}
+
+		$contents = include($filepath);
+
+		$config = parse_ini_string($contents, true, INI_SCANNER_TYPED);
+
+		if ($config === false) {
+			throw new Exception('Error parsing config file ' . $filepath);
+		}
+
+		foreach($config as $category => $values) {
+			foreach($values as $key => $value) {
+				$this->setConfigValue($category, $key, $value);
+			}
+		}
+	}
+
+	private function loadAddonConfig()
+	{
+		// Loads addons default config
+		Core\Addon::callHooks('load_config');
+
+		// Load the local config file again in case there are overwritten addon config
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php');
+		}
+	}
+
+	private function loadDefaultTimezone()
+	{
+		if ($this->getConfigValue('system', 'default_timezone')) {
+			$this->timezone = $this->getConfigValue('system', 'default_timezone');
+		} else {
+			global $default_timezone;
+			$this->timezone = !empty($default_timezone) ? $default_timezone : 'UTC';
+		}
+
+		if ($this->timezone) {
+			date_default_timezone_set($this->timezone);
+		}
+	}
+
+	/**
+	 * Figure out if we are running at the top of a domain
+	 * or in a sub-directory and adjust accordingly
+	 */
+	private function determineUrlPath()
+	{
+		$this->urlpath = $this->getConfigValue('system', 'urlpath');
+
+		/* SCRIPT_URL gives /path/to/friendica/module/parameter
+		 * QUERY_STRING gives pagename=module/parameter
+		 *
+		 * To get /path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
 		 */
-		$this->mode = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? App::MODE_NORMAL : App::MODE_INSTALL);
+		if (!empty($_SERVER['SCRIPT_URL']) && !empty($_SERVER['QUERY_STRING'])) {
+			$path = trim(dirname($_SERVER['SCRIPT_URL'], substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
 
+			if ($path && $path != $this->urlpath) {
+				$this->urlpath = $path;
+			}
+		}
+	}
 
-		self::$a = $this;
+	private function determineMode()
+	{
+		$this->mode = App::MODE_INSTALL;
+
+		// Missing DB connection
+		if (!\dba::connected()) {
+			return;
+		}
+
+		// Working DB connection, missing tables
+		if (\dba::fetch_first("SHOW TABLES LIKE 'config'") === false) {
+			return;
+		}
+
+		// Maintenance mode check
+		if (Config::get('system', 'maintenance')) {
+			$this->mode = App::MODE_MAINTENANCE;
+		} else {
+			$this->mode = App::MODE_NORMAL;
+		}
+	}
+
+	public function loadDatabase()
+	{
+		if (\dba::connected()) {
+			return;
+		}
+
+		$db_host = $this->getConfigValue('database', 'hostname');
+		$db_user = $this->getConfigValue('database', 'username');
+		$db_pass = $this->getConfigValue('database', 'password');
+		$db_data = $this->getConfigValue('database', 'database');
+		$charset = $this->getConfigValue('database', 'charset');
+
+		// Use environment variables for mysql if they are set beforehand
+		if (!empty(getenv('MYSQL_HOST'))
+			&& !empty(getenv('MYSQL_PORT'))
+			&& (!empty(getenv('MYSQL_USERNAME')) || !empty(getenv('MYSQL_USER')))
+			&& !empty(getenv('MYSQL_PASSWORD'))
+			&& !empty(getenv('MYSQL_DATABASE')))
+		{
+			$db_host = getenv('MYSQL_HOST') . ':' . getenv('MYSQL_PORT');
+
+			if (!empty(getenv('MYSQL_USERNAME'))) {
+				$db_user = getenv('MYSQL_USERNAME');
+			} elseif (!empty(getenv('MYSQL_USER'))) {
+				$db_user = getenv('MYSQL_USER');
+			}
+
+			$db_pass = getenv('MYSQL_PASSWORD');
+			$db_data = getenv('MYSQL_DATABASE');
+		}elseif (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+			$a = new \stdClass();
+			include $this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php';
+			$charset = isset($a->config["system"]["db_charset"]) ? $a->config["system"]["db_charset"] : $charset;
+
+			unset($a);
+		}
+
+		$stamp1 = microtime(true);
+
+		\dba::connect($db_host, $db_user, $db_pass, $db_data, $charset);
+		unset($db_host, $db_user, $db_pass, $db_data, $charset);
+
+		$this->save_timestamp($stamp1, "network");
 	}
 
 	/**
@@ -1105,21 +1243,6 @@ class App
 		}
 
 		return $sender_email;
-	}
-
-	/**
-	 * @note Checks, if the App is in the Maintenance-Mode
-	 *
-	 * @return boolean
-	 */
-	public function checkMaintenanceMode()
-	{
-		if (Config::get('system', 'maintenance')) {
-			$this->mode = App::MODE_MAINTENANCE;
-			return true;
-		}
-
-		return false;
 	}
 
 	/**

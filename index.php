@@ -76,8 +76,6 @@ if (!$a->mode == App::MODE_INSTALL) {
 	Session::init();
 	Addon::loadHooks();
 	Addon::callHooks('init_1');
-
-	$a->checkMaintenanceMode();
 }
 
 $lang = L10n::getBrowserLanguage();
