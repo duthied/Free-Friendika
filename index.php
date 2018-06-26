@@ -41,10 +41,7 @@ if (!$a->mode == App::MODE_INSTALL) {
 require_once "include/dba.php";
 
 if (!$a->mode == App::MODE_INSTALL) {
-	$result = dba::connect($db_host, $db_user, $db_pass, $db_data);
-	unset($db_host, $db_user, $db_pass, $db_data);
-
-	if (!$result) {
+	if (!dba::connected()) {
 		System::unavailable();
 	}
 

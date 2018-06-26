@@ -92,12 +92,8 @@ HELP;
 			throw new CommandArgsException('Too many arguments');
 		}
 
-		require_once '.htconfig.php';
-		$result = dba::connect($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-
-		if (!$result) {
-			throw new \RuntimeException('Unable to connect to database');
+		if ($a->mode === \Friendica\App::MODE_INSTALL) {
+			$this->out('Database isn\'t ready or populated yet, showing file config only');
 		}
 
 		if (count($this->args) == 3) {

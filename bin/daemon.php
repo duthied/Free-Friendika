@@ -28,8 +28,9 @@ require_once "include/dba.php";
 
 $a = new App(dirname(__DIR__));
 
-require_once ".htconfig.php";
-dba::connect($db_host, $db_user, $db_pass, $db_data);
+if ($a->mode === App::MODE_INSTALL) {
+	die("Friendica isn't properly installed yet.\n");
+}
 
 Config::load();
 
@@ -125,10 +126,8 @@ if (!$foreground) {
 	file_put_contents($pidfile, $pid);
 
 	// We lose the database connection upon forking
-	dba::connect($db_host, $db_user, $db_pass, $db_data);
+	$a->loadDatabase();
 }
-
-unset($db_host, $db_user, $db_pass, $db_data);
 
 Config::set('system', 'worker_daemon_mode', true);
 
