@@ -34,10 +34,13 @@ if ($a->mode === App::MODE_INSTALL) {
 
 Config::load();
 
-if (!isset($pidfile)) {
-	die('Please specify a pid file in the variable $pidfile in the .htconfig.php. For example:'."\n".
-		'$pidfile = "/path/to/daemon.pid";'."\n");
+if (empty(Config::get('system', 'pidfile'))) {
+	die('Please set system.pidfile in config/local.ini.php. For example:'."\n".
+		'[system]'."\n".
+		'pidfile = /path/to/daemon.pid'."\n");
 }
+
+$pidfile = Config::get('system', 'pidfile');
 
 if (in_array("start", $_SERVER["argv"])) {
 	$mode = "start";
