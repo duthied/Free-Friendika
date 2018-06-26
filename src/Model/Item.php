@@ -1485,7 +1485,7 @@ class Item extends BaseObject
 		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $item['uri']]);
 		if (DBM::is_result($item_content)) {
 			$item['icid'] = $item_content['id'];
-			logger('Insert content for URI '.$item['uri'].' ('.$item['icid'].')');
+			logger('Insert content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
 		}
 	}
 
@@ -1511,10 +1511,10 @@ class Item extends BaseObject
 
 		if (!empty($item['plink'])) {
 			$fields['plink'] = $item['plink'];
-			$fields['uri-plink-hash'] = hash('sha1', $item['plink']).hash('sha1', $condition['uri']);
+			$fields['uri-plink-hash'] = hash('sha1', $item['plink']) . hash('sha1', $condition['uri']);
 		}
 
-		logger('Update content for URI '.$condition['uri']);
+		logger('Update content for URI ' . $condition['uri']);
 
 		dba::update('item-content', $fields, $condition, true);
 	}
