@@ -29,11 +29,6 @@ $a = new App(__DIR__);
 // The value is set to "true" by default in boot.php
 $a->backend = false;
 
-// Only load config if found, don't suppress errors
-if (!$a->mode == App::MODE_INSTALL) {
-	include ".htconfig.php";
-}
-
 /**
  * Try to open the database;
  */
