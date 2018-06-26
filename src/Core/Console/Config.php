@@ -67,7 +67,7 @@ Description
 		Sets the value of the provided key in the category
 
 Notes:
-	Setting config entries which are manually set in .htconfig.php may result in
+	Setting config entries which are manually set in config/local.ini.php may result in
 	conflict between database settings and the manual startup settings.
 
 Options
@@ -97,23 +97,26 @@ HELP;
 		}
 
 		if (count($this->args) == 3) {
-			Core\Config::set($this->getArgument(0), $this->getArgument(1), $this->getArgument(2));
-			$this->out("config[{$this->getArgument(0)}][{$this->getArgument(1)}] = " . Core\Config::get($this->getArgument(0),
-					$this->getArgument(1)));
+			$result = Core\Config::set($this->getArgument(0), $this->getArgument(1), $this->getArgument(2));
+			if ($result) {
+				$this->out("{$this->getArgument(0)}.{$this->getArgument(1)} = " .
+					Core\Config::get($this->getArgument(0), $this->getArgument(1)));
+			} else {
+				$this->out("Unable to set {$this->getArgument(0)}.{$this->getArgument(1)}");
+			}
 		}
 
 		if (count($this->args) == 2) {
-			$this->out("config[{$this->getArgument(0)}][{$this->getArgument(1)}] = " . Core\Config::get($this->getArgument(0),
-					$this->getArgument(1)));
+			$this->out("{$this->getArgument(0)}.{$this->getArgument(1)} = " .
+				Core\Config::get($this->getArgument(0), $this->getArgument(1)));
 		}
 
 		if (count($this->args) == 1) {
 			Core\Config::load($this->getArgument(0));
 
-			$a = get_app();
 			if (!is_null($a->config[$this->getArgument(0)])) {
 				foreach ($a->config[$this->getArgument(0)] as $k => $x) {
-					$this->out("config[{$this->getArgument(0)}][{$k}] = " . $x);
+					$this->out("{$this->getArgument(0)}.{$k} = " . $x);
 				}
 			} else {
 				$this->out('Config section ' . $this->getArgument(0) . ' returned nothing');
@@ -121,13 +124,29 @@ HELP;
 		}
 
 		if (count($this->args) == 0) {
-			$configs = dba::select('config');
-			foreach ($configs as $config) {
-				$this->out("config[{$config['cat']}][{$config['k']}] = " . $config['v']);
+			Core\Config::load();
+
+			if (Core\Config::get('system', 'config_adapter') != 'preload' && $a->mode !== \Friendica\App::MODE_INSTALL) {
+				$this->out('Warning: The JIT (Just In Time) Config adapter doesn\'t support loading the entire configuration, showing file config only');
+			}
+
+			foreach ($a->config as $cat => $section) {
+				if (is_array($section)) {
+					foreach ($section as $key => $value) {
+						if (is_array($value)) {
+							foreach ($value as $k => $v) {
+								$this->out("{$cat}.{$key}[{$k}] = " . $v);
+							}
+						} else {
+							$this->out("{$cat}.{$key} = " . $value);
+						}
+					}
+				} else {
+					$this->out("config.{$cat} = " . $section);
+				}
 			}
 		}
 
 		return 0;
 	}
-
 }
