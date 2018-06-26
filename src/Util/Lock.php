@@ -94,9 +94,4 @@ class Lock
 	{
 		self::getDriver()->releaseAll();
 	}
-
-	public static function isLocked($key)
-	{
-
-	}
 }
