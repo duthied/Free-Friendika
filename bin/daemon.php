@@ -8,7 +8,6 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 
@@ -28,7 +27,6 @@ require_once "boot.php";
 require_once "include/dba.php";
 
 $a = new App(dirname(__DIR__));
-BaseObject::setApp($a);
 
 require_once ".htconfig.php";
 dba::connect($db_host, $db_user, $db_pass, $db_data);

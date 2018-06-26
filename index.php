@@ -9,7 +9,6 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\Nav;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
@@ -25,7 +24,6 @@ use Friendica\Module\Login;
 require_once 'boot.php';
 
 $a = new App(__DIR__);
-BaseObject::setApp($a);
 
 // We assume that the index.php is called by a frontend process
 // The value is set to "true" by default in boot.php

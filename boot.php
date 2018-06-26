@@ -508,14 +508,7 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
  */
 function get_app()
 {
-	global $a;
-
-	if (empty($a)) {
-		$a = new App(dirname(__DIR__));
-		BaseObject::setApp($a);
-	}
-
-	return $a;
+	return BaseObject::getApp();
 }
 
 /**

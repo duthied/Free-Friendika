@@ -139,6 +139,8 @@ class App
 			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
 		}
 
+		BaseObject::setApp($this);
+
 		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
 
 		$this->determineUrlPath();
