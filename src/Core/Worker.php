@@ -11,6 +11,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Lock;
 use dba;
 
 require_once 'include/dba.php';

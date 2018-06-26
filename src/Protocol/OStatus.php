@@ -19,6 +19,7 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Lock;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 use dba;

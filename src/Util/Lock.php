@@ -10,7 +10,7 @@ namespace Friendica\Util;
  */
 
 use Friendica\Core\Config;
-use Friendica\Core\Lock;
+use Friendica\Util\Lock;
 
 require_once 'include/dba.php';
 
@@ -93,5 +93,10 @@ class Lock
 	public static function releaseAll()
 	{
 		self::getDriver()->releaseAll();
+	}
+
+	public static function isLocked($key)
+	{
+
 	}
 }

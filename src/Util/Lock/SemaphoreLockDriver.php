@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Lock;
+namespace Friendica\Util\Lock;
 
 class SemaphoreLockDriver implements ILockDriver
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Lock;
+namespace Friendica\Util\Lock;
 
 /**
  * Lock Driver Interface
@@ -35,4 +35,7 @@ interface ILockDriver
 	 * @return void
 	 */
 	public function releaseAll();
+
+
+	public function isLocked();
 }
