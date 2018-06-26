@@ -35,7 +35,4 @@ interface ILockDriver
 	 * @return void
 	 */
 	public function releaseAll();
-
-
-	public function isLocked();
 }
