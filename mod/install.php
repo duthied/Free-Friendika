@@ -67,12 +67,11 @@ function install_post(App $a) {
 			$timezone = notags(trim($_POST['timezone']));
 			$language = notags(trim($_POST['language']));
 			$adminmail = notags(trim($_POST['adminmail']));
-			$rino = 1;
 
 			// connect to db
 			dba::connect($dbhost, $dbuser, $dbpass, $dbdata);
 
-			Install::install($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail, $rino);
+			Install::install($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail);
 
 			return;
 		break;
@@ -140,9 +139,7 @@ function install_content(App $a) {
 	switch ($install_wizard_pass) {
 		case 1: { // System check
 
-			if (x($_POST, 'phpath')) {
-				$phpath = notags(trim($_POST['phpath']));
-			}
+			$phpath = defaults($_POST, 'phpath', 'php');
 
 			list($checks, $checkspassed) = Install::check($phpath);
 

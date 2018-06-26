@@ -54,7 +54,7 @@ class Install extends BaseObject
 
 		$checkspassed = array_reduce($checks,
 			function ($v, $c) {
-				if ($c['require']) {
+				if (!empty($c['require'])) {
 					$v = $v && $c['status'];
 				}
 				return $v;
@@ -80,7 +80,7 @@ class Install extends BaseObject
 	 * @param string 	$adminmail 	Mail-Adress of the administrator
 	 * @param int 		$rino		Rino-enabled (1 = true, 0 = false)
 	 */
-	public static function install($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail, $rino = 1)
+	public static function install($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail)
 	{
 		$tpl = get_markup_template('local.ini.tpl');
 		$txt = replace_macros($tpl,[
@@ -93,7 +93,6 @@ class Install extends BaseObject
 			'$urlpath' => $urlpath,
 			'$phpath' => $phpath,
 			'$adminmail' => $adminmail,
-			'$rino' => $rino
 		]);
 
 		$result = file_put_contents('config/local.ini.php', $txt);
@@ -376,7 +375,7 @@ class Install extends BaseObject
 				$error_msg = [];
 				$error_msg['head'] = L10n::t('Error message from Curl when fetching');
 				$error_msg['url'] = $test['redirect_url'];
-				$error_msg['msg'] = $test['error'];
+				$error_msg['msg'] = defaults($test, 'error', '');
 			}
 			self::addCheck($checks, L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
 		} else {
