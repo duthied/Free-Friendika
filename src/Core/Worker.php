@@ -10,8 +10,8 @@ use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 use Friendica\Util\Lock;
+use Friendica\Util\Network;
 use dba;
 
 require_once 'include/dba.php';

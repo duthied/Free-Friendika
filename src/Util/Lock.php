@@ -1,11 +1,11 @@
 <?php
 /**
- * @file src/Core/Lock.php
+ * @file src/Util/Lock.php
  */
 namespace Friendica\Util;
 
 /**
- * @file src/Core/Lock.php
+ * @file src/Util/Lock.php
  * @brief Functions for preventing parallel execution of functions
  */
 
