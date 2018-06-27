@@ -435,7 +435,6 @@ class OnePoll
 								$refs_arr = explode(' ', $raw_refs);
 								if (count($refs_arr)) {
 									for ($x = 0; $x < count($refs_arr); $x ++) {
-//										$refs_arr[$x] = "'" . Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''],dbesc($refs_arr[$x]))) . "'";
 										$refs_arr[$x] = Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''], $refs_arr[$x]));
 									}
 								}
