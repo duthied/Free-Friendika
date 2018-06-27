@@ -442,10 +442,7 @@ class OnePoll
 								$condition = ['uri' => $refs_arr, 'uid' => $importer_uid];
 								$parent = Item::selectFirst(['parent-uri'], $condition);
 								if (DBM::is_result($parent)) {
-									logger('Parent found with matching uri. ' . json_encode($refs_arr), LOGGER_DEBUG);
 									$datarray['parent-uri'] = $parent['parent-uri'];  // Set the parent as the top-level item
-								} else {
-									logger('No parent found with matching uri. ' . json_encode($refs_arr), LOGGER_DEBUG);
 								}
 							}
 
@@ -478,10 +475,7 @@ class OnePoll
 								$params = ['order' => ['created' => true]];
 								$parent = Item::selectFirst(['parent-uri'], $condition, $params);
 								if (DBM::is_result($parent)) {
-									logger('Parent found with matching title. ' . $datarray['title'], LOGGER_DEBUG);
 									$datarray['parent-uri'] = $parent['parent-uri'];
-								} else {
-									logger('No parent found with matching title. ' . $datarray['title'], LOGGER_DEBUG);
 								}
 							}
 
