@@ -86,7 +86,7 @@ class Item extends BaseObject
 
 		// Fetch data from the item-content table whenever there is content there
 		foreach (self::CONTENT_FIELDLIST as $field) {
-			if (is_null($row[$field]) && !is_null($row['item-' . $field])) {
+			if (empty($row[$field]) && !empty($row['item-' . $field])) {
 				$row[$field] = $row['item-' . $field];
 			}
 			unset($row['item-' . $field]);
@@ -403,7 +403,7 @@ class Item extends BaseObject
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
-			'id' => 'item_id', 'network'];
+			'id' => 'item_id', 'network', 'icid'];
 
 		$fields['item-content'] = self::CONTENT_FIELDLIST;
 
