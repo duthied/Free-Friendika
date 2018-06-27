@@ -1270,6 +1270,7 @@ class DBStructure
 						"target-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams target type if applicable (URI)"],
 						"target" => ["type" => "text", "comment" => "JSON encoded target structure if used"],
 						"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "permalink or URL to a displayable copy of the message at its source"],
+						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams verb"],
 						],
 				"indexes" => [
 						"PRIMARY" => ["id"],

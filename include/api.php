@@ -1626,7 +1626,7 @@ function api_statuses_home_timeline($type)
 	}
 
 	if (!empty($idarray)) {
-		$unseen = dba::exists('item', ['unseen' => true, 'id' => $idarray]);
+		$unseen = Item::exists(['unseen' => true, 'id' => $idarray]);
 		if ($unseen) {
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
