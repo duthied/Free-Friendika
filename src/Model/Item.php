@@ -953,17 +953,20 @@ class Item extends BaseObject
 			$item['parent-uri'] = $item['thr-parent'];
 		}
 
-		if (x($item, 'gravity')) {
+		$item['type'] = defaults($item, 'type', 'remote');
+
+		if (isset($item['gravity'])) {
 			$item['gravity'] = intval($item['gravity']);
 		} elseif ($item['parent-uri'] === $item['uri']) {
-			$item['gravity'] = 0;
-		} elseif (activity_match($item['verb'],ACTIVITY_POST)) {
-			$item['gravity'] = 6;
+			$item['gravity'] = GRAVITY_PARENT;
+		} elseif (activity_match($item['verb'], ACTIVITY_POST)) {
+			$item['gravity'] = GRAVITY_COMMENT;
+		} elseif ($item['type'] == 'activity') {
+			$item['gravity'] = GRAVITY_ACTIVITY;
 		} else {
-			$item['gravity'] = 6;   // extensible catchall
+			$item['gravity'] = GRAVITY_UNKNOWN;   // Should not happen
+			logger('Unknown gravity for verb: ' . $item['verb'] . ' - type: ' . $item['type'], LOGGER_DEBUG);
 		}
-
-		$item['type'] = defaults($item, 'type', 'remote');
 
 		$uid = intval($item['uid']);
 
@@ -1219,7 +1222,7 @@ class Item extends BaseObject
 					logger('$force_parent=true, reply converted to top-level post.');
 					$parent_id = 0;
 					$item['parent-uri'] = $item['uri'];
-					$item['gravity'] = 0;
+					$item['gravity'] = GRAVITY_PARENT;
 				} else {
 					logger('item parent '.$item['parent-uri'].' for '.$item['uid'].' was not found - ignoring item');
 					return 0;
@@ -2644,7 +2647,7 @@ EOT;
 			'type'          => 'activity',
 			'wall'          => $item['wall'],
 			'origin'        => 1,
-			'gravity'       => GRAVITY_LIKE,
+			'gravity'       => GRAVITY_ACTIVITY,
 			'parent'        => $item['id'],
 			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],

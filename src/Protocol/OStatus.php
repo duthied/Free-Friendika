@@ -451,7 +451,7 @@ class OStatus
 
 				$item["verb"] = ACTIVITY_LIKE;
 				$item["parent-uri"] = $orig_uri;
-				$item["gravity"] = GRAVITY_LIKE;
+				$item["gravity"] = GRAVITY_ACTIVITY;
 			}
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes

@@ -567,7 +567,7 @@ function item_post(App $a) {
 		$network = NETWORK_DFRN;
 	}
 
-	$gravity = ($parent ? 6 : 0);
+	$gravity = ($parent ? GRAVITY_COMMENT : GRAVITY_PARENT);
 
 	// even if the post arrived via API we are considering that it
 	// originated on this site by default for determining relayability.

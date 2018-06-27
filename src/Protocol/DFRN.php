@@ -2310,7 +2310,7 @@ class DFRN
 			) {
 				$is_like = true;
 				$item["type"] = "activity";
-				$item["gravity"] = GRAVITY_LIKE;
+				$item["gravity"] = GRAVITY_ACTIVITY;
 				// only one like or dislike per person
 				// splitted into two queries for performance issues
 				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"],

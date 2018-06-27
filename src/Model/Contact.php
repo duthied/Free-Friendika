@@ -1064,8 +1064,8 @@ class Contact extends BaseObject
 
 		$contact = ($r[0]["contact-type"] == ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
-		$condition = ["`$contact` = ? AND `verb` = ? AND " . $sql,
-			$author_id, ACTIVITY_POST, local_user()];
+		$condition = ["`$contact` = ? AND `gravity` IN (?, ?) AND " . $sql,
+			$author_id, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
 		$params = ['order' => ['created' => true],
 			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
 		$r = Item::selectForUser(local_user(), [], $condition, $params);

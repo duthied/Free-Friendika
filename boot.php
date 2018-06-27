@@ -451,8 +451,9 @@ define('ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question');
  * @{
  */
 define('GRAVITY_PARENT',       0);
-define('GRAVITY_LIKE',         3);
+define('GRAVITY_ACTIVITY',     3);
 define('GRAVITY_COMMENT',      6);
+define('GRAVITY_UNKNOWN',      9);
 /* @}*/
 
 /**
