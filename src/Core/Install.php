@@ -42,7 +42,7 @@ class Install extends BaseObject
 
 		self::checkImagick($checks);
 
-		self::checkHtConfig($checks);
+		self::checkLocalIni($checks);
 
 		self::checkSmarty3($checks);
 
@@ -308,7 +308,7 @@ class Install extends BaseObject
 	 *
 	 * @param array $checks The list of all checks (by-ref parameter!)
 	 */
-	public static function checkHtConfig(&$checks)
+	public static function checkLocalIni(&$checks)
 	{
 		$status = true;
 		$help = "";

@@ -121,7 +121,7 @@ HELP;
 
 		Install::checkFunctions($checks);
 		Install::checkImagick($checks);
-		Install::checkHtConfig($checks);
+		Install::checkLocalIni($checks);
 		Install::checkSmarty3($checks);
 		Install::checkKeys($checks);
 
