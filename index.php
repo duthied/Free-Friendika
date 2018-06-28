@@ -36,10 +36,6 @@ $a->backend = false;
 require_once "include/dba.php";
 
 if (!$a->mode == App::MODE_INSTALL) {
-	if (!dba::connected()) {
-		System::unavailable();
-	}
-
 	/**
 	 * Load configs from db. Overwrite configs from config/local.ini.php
 	 */

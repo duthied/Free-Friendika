@@ -151,6 +151,12 @@ class App
 
 		$this->determineMode();
 
+		if ($this->mode === self::MODE_NORMAL) {
+			Core\Addon::loadHooks();
+
+			$this->loadAddonConfig();
+		}
+
 		$this->loadDefaultTimezone();
 
 		$this->performance['start'] = microtime(true);
@@ -295,6 +301,12 @@ class App
 		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
 	}
 
+	/**
+	 * Load the configuration files
+	 *
+	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
+	 * expected local.ini.php
+	 */
 	private function loadConfigFiles()
 	{
 		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'defaults.ini.php');
@@ -328,6 +340,23 @@ class App
 		}
 	}
 
+	/**
+	 * Tries to load the specified configuration file into the App->config array.
+	 * Overwrites previously set values.
+	 *
+	 * The config format is INI and the template for configuration files is the following:
+	 *
+	 * <?php return <<<INI
+	 *
+	 * [section]
+	 * key = value
+	 *
+	 * INI;
+	 * // Keep this line
+	 *
+	 * @param type $filepath
+	 * @throws Exception
+	 */
 	public function loadConfigFile($filepath)
 	{
 		if (!file_exists($filepath)) {
@@ -349,6 +378,12 @@ class App
 		}
 	}
 
+	/**
+	 * Loads addons configuration files
+	 *
+	 * First loads all activated addons default configuration throught the load_config hook, then load the local.ini.php
+	 * again to overwrite potential local addon configuration.
+	 */
 	private function loadAddonConfig()
 	{
 		// Loads addons default config
@@ -360,6 +395,13 @@ class App
 		}
 	}
 
+	/**
+	 * Loads the default timezone
+	 *
+	 * Include support for legacy $default_timezone
+	 *
+	 * @global string $default_timezone
+	 */
 	private function loadDefaultTimezone()
 	{
 		if ($this->getConfigValue('system', 'default_timezone')) {
@@ -375,8 +417,7 @@ class App
 	}
 
 	/**
-	 * Figure out if we are running at the top of a domain
-	 * or in a sub-directory and adjust accordingly
+	 * Figure out if we are running at the top of a domain or in a sub-directory and adjust accordingly
 	 */
 	private function determineUrlPath()
 	{
@@ -396,16 +437,31 @@ class App
 		}
 	}
 
+	/**
+	 * Sets the App mode
+	 *
+	 * - App::MODE_INSTALL    : Either the database connection can't be established or the config table doesn't exist
+	 * - App::MODE_MAINTENANCE: The maintenance mode has been set
+	 * - App::MODE_NORMAL     : Normal run with all features enabled
+	 *
+	 * @return type
+	 */
 	private function determineMode()
 	{
 		$this->mode = App::MODE_INSTALL;
 
-		// Missing DB connection
-		if (!\dba::connected()) {
+		// Missing local config files: MODE_INSTALL
+		if (!file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')
+			&& !file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
 			return;
 		}
 
-		// Working DB connection, missing tables
+		// Missing DB connection: ERROR
+		if (!\dba::connected()) {
+			System::unavailable();
+		}
+
+		// Working DB connection, missing tables: MODE_INSTALL
 		if (\dba::fetch_first("SHOW TABLES LIKE 'config'") === false) {
 			return;
 		}
