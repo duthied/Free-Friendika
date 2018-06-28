@@ -4,6 +4,7 @@
 ; Please don't edit this file as its content may change in the upcoming versions.
 
 [jabber]
+
 ; debug (Boolean)
 ; Enable debug level for the jabber account synchronisation.
 debug = false
@@ -13,6 +14,7 @@ debug = false
 lockpath =
 
 [database]
+
 ; host (String)
 ; Hostname or IP address of the database server.
 ; Can contain the port number with the syntax "hostname:port".
@@ -64,6 +66,16 @@ register_text = ''
 sitename = "Friendica Social Network"
 
 [system]
+
+; account_abandon_days (Integer)
+; Will not waste system resources polling external sites for abandonded accounts.
+; Enter 0 for no time limit.
+account_abandon_days = 0
+
+; addon (Comma-separated list)
+; Manual list of addons which are enabled on this system.
+addon =
+
 ; allowed_link_protocols (Array)
 ; Allowed protocols in links URLs, add at your own risk. http is always allowed.
 allowed_link_protocols[] = ftp
@@ -189,7 +201,8 @@ invitation_only = false
 jpeg_quality = 100
 
 ; language (String)
-; Default system language. Two-letters ISO 639-1 code.
+; Admin-created user default language.
+; Two-letters ISO 639-1 code.
 language = en
 
 ; like_no_comment (Boolean)

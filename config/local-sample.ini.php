@@ -11,10 +11,10 @@
 ; Then set the following for your MySQL installation
 
 [database]
-host = localhost
-user = mysqlusername
-pass = mysqlpassword
-data = mysqldatabasename
+hostname = localhost
+username = mysqlusername
+password = mysqlpassword
+database = mysqldatabasename
 charset = utf8mb4
 
 
