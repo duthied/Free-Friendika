@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Util\Lock;
+namespace Friendica\Core\Lock;
 
 /**
  * Lock Driver Interface
@@ -18,16 +18,16 @@ interface ILockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock($key, $timeout = 120);
+	public function acquireLock(string $key, int $timeout = 120);
 
 	/**
 	 * @brief Releases a lock if it was set by us
 	 *
-	 * @param string $key Name of the lock
+	 * @param string $key The Name of the lock
 	 *
-	 * @return mixed
+	 * @return void
 	 */
-	public function releaseLock($key);
+	public function releaseLock(string $key);
 
 	/**
 	 * @brief Releases all lock that were set by us

@@ -7,10 +7,10 @@ namespace Friendica\Core;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Core\Lock;
 use Friendica\Database\DBM;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Lock;
 use Friendica\Util\Network;
 use dba;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Util\Lock;
+namespace Friendica\Core\Lock;
 
 use dba;
 use Friendica\Database\DBM;
@@ -8,7 +8,7 @@ use Friendica\Database\DBM;
 /**
  * Locking driver that stores the locks in the database
  */
-class DatabaseLockDriver implements ILockDriver
+class DatabaseLockDriver extends AbstractLockDriver
 {
 	/**
 	 * @brief Sets a lock for a given name
@@ -18,7 +18,7 @@ class DatabaseLockDriver implements ILockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock($key, $timeout = 120)
+	public function acquireLock(string $key, int $timeout = 120)
 	{
 		$got_lock = false;
 		$start = time();
@@ -42,7 +42,7 @@ class DatabaseLockDriver implements ILockDriver
 					dba::update('locks', ['locked' => true, 'pid' => getmypid()], ['name' => $key]);
 					$got_lock = true;
 				}
-			} elseif (!DBM::is_result($lock)) {
+			} else {
 				dba::insert('locks', ['name' => $key, 'locked' => true, 'pid' => getmypid()]);
 				$got_lock = true;
 			}
@@ -54,6 +54,8 @@ class DatabaseLockDriver implements ILockDriver
 			}
 		} while (!$got_lock && ((time() - $start) < $timeout));
 
+		$this->markAcquire($key);
+
 		return $got_lock;
 	}
 
@@ -64,9 +66,11 @@ class DatabaseLockDriver implements ILockDriver
 	 *
 	 * @return mixed
 	 */
-	public function releaseLock($key)
+	public function releaseLock(string $key)
 	{
-		dba::update('locks', ['locked' => false, 'pid' => 0], ['name' => $key, 'pid' => getmypid()]);
+		dba::delete('locks', ['locked' => false, 'pid' => 0], ['name' => $key, 'pid' => getmypid()]);
+
+		$this->releaseLock($key);
 
 		return;
 	}
@@ -78,6 +82,8 @@ class DatabaseLockDriver implements ILockDriver
 	 */
 	public function releaseAll()
 	{
-		dba::update('locks', ['locked' => false, 'pid' => 0], ['pid' => getmypid()]);
+		dba::delete('locks', ['locked' => false, 'pid' => 0], ['pid' => getmypid()]);
+
+		$this->acquiredLocks = [];
 	}
 }

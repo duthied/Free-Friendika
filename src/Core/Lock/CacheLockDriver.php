@@ -1,12 +1,26 @@
 <?php
 
-namespace Friendica\Util\Lock;
+namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache;
-use dba;
+use Friendica\Core\Cache\ICacheDriver;
 
-class MemcacheLockDriver implements ILockDriver
+class CacheLockDriver extends AbstractLockDriver
 {
+	/**
+	 * @var \Friendica\Core\Cache\ICacheDriver;
+	 */
+	private $cache;
+
+	/**
+	 * CacheLockDriver constructor.
+	 *
+	 * @param ICacheDriver $cache The CacheDriver for this type of lock
+	 */
+	public function __construct(ICacheDriver $cache)
+	{
+		$this->cache = $cache;
+	}
+
 	/**
 	 *
 	 * @brief Sets a lock for a given name
@@ -16,7 +30,7 @@ class MemcacheLockDriver implements ILockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock($key, $timeout = 120)
+	public function acquireLock(string $key, int $timeout = 120)
 	{
 		$got_lock = false;
 		$start = time();
@@ -24,9 +38,7 @@ class MemcacheLockDriver implements ILockDriver
 		$cachekey = get_app()->get_hostname() . ";lock:" . $key;
 
 		do {
-			// We only lock to be sure that nothing happens at exactly the same time
-			dba::lock('locks');
-			$lock = Cache::get($cachekey);
+			$lock = $this->cache->get($cachekey);
 
 			if (!is_bool($lock)) {
 				$pid = (int)$lock;
@@ -38,16 +50,16 @@ class MemcacheLockDriver implements ILockDriver
 				}
 			}
 			if (is_bool($lock)) {
-				Cache::set($cachekey, getmypid(), 300);
+				$this->cache->set($cachekey, getmypid(), 300);
 				$got_lock = true;
 			}
-
-			dba::unlock();
 
 			if (!$got_lock && ($timeout > 0)) {
 				usleep(rand(10000, 200000));
 			}
 		} while (!$got_lock && ((time() - $start) < $timeout));
+
+		$this->markAcquire($key);
 
 		return $got_lock;
 	}
@@ -59,28 +71,19 @@ class MemcacheLockDriver implements ILockDriver
 	 *
 	 * @return mixed
 	 */
-	public function releaseLock($key)
+	public function releaseLock(string $key)
 	{
 		$cachekey = get_app()->get_hostname() . ";lock:" . $key;
-		$lock = Cache::get($cachekey);
+		$lock = $this->cache->get($cachekey);
 
 		if (!is_bool($lock)) {
 			if ((int)$lock == getmypid()) {
-				Cache::delete($cachekey);
+				$this->cache->delete($cachekey);
 			}
 		}
 
-		return;
-	}
+		$this->markRelease($key);
 
-	/**
-	 * @brief Removes all lock that were set by us
-	 *
-	 * @return void
-	 */
-	public function releaseAll()
-	{
-		// We cannot delete all cache entries, but this doesn't matter with memcache
 		return;
 	}
 }
