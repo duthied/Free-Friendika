@@ -1,7 +1,197 @@
-Config values that can only be set in .htconfig.php
-===================================================
+Friendica Configuration
+=======================
 
 * [Home](help)
+
+Friendica's configuration is done in two places: in INI configuration files and in the `config` database table.
+Database config values overwrite the same file config values.
+
+# File configuration
+
+The configuration format for file configuration is an INI string returned from a PHP file.
+This prevents your webserver from displaying your private configuration it interprets the configuration files and displays nothing.
+
+A typical configuration file looks like this:
+
+```php
+<?php return <<<INI
+
+; Comment line
+
+[section1]
+key = value
+empty_key =
+
+[section2]
+array[] = value0
+array[] = value1
+array[] = value2
+
+INI;
+// Keep this line
+```
+
+## Configuration location
+
+All the configuration keys Friendica uses are listed with their default value if any in `config/defaults.ini.php`.
+Addons can define their own default configuration values in `addon/[addon]/config/[addon].ini.php` which are loaded when the addon is activated.
+
+### Migrating from .htconfig.php to config/local.ini.php
+
+The legacy `.htconfig.php` configuration file is still supported, but is deprecated and will be removed in a subsequent Friendica release.
+
+The migration is pretty straightforward, just copy `config/local-sample.ini.php` to `config/local.ini.php`, add your configuration values to it according to the following conversion chart, then rename your `.htconfig.php` to check your node is working as expected before deleting it.
+
+<style>
+table.config {
+    margin: 1em 0;
+    background-color: #f9f9f9;
+    border: 1px solid #aaa;
+    border-collapse: collapse;
+    color: #000;
+    width: 100%;
+}
+
+table.config > tr > th,
+table.config > tr > td,
+table.config > * > tr > th,
+table.config > * > tr > td {
+    border: 1px solid #aaa;
+    padding: 0.2em 0.4em
+}
+
+table.config > tr > th,
+table.config > * > tr > th {
+    background-color: #f2f2f2;
+    text-align: center;
+    width: 50%
+}
+</style>
+
+<table class="config">
+	<thead>
+		<tr>
+			<th>.htconfig.php</th>
+			<th>config/local.ini.php</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><pre>
+$db_host = 'localhost';
+$db_user = 'mysqlusername';
+$db_pass = 'mysqlpassword';
+$db_data = 'mysqldatabasename';
+$a->config["system"]["db_charset"] = 'utf8mb4';
+</pre></td>
+			<td><pre>
+[database]
+hostname = localhost
+username = mysqlusername
+password = mysqlpassword
+database = mysqldatabasename
+charset = utf8mb4
+</pre></td>
+		</tr>
+
+		<tr>
+			<td><pre>
+$a->config["section"]["key"] = "value";
+</pre></td>
+			<td><pre>
+[section]
+key = value
+</pre></td>
+		</tr>
+
+		<tr>
+			<td><pre>
+$a->config["section"]["key"] = array(
+	"value1",
+	"value2",
+	"value3"
+);
+</pre></td>
+			<td><pre>
+[section]
+key[] = value1
+key[] = value2
+key[] = value3
+</pre></td>
+		</tr>
+
+		<tr>
+			<td><pre>
+$a->config["key"] = "value";
+</pre></td>
+			<td><pre>
+[config]
+key = value
+</pre></td>
+		</tr>
+
+		<tr>
+			<td><pre>
+$a->path = "value";
+</pre></td>
+			<td><pre>
+[system]
+urlpath = value
+</pre></td>
+		</tr>
+
+		<tr>
+			<td><pre>
+$default_timezone = "value";
+</pre></td>
+			<td><pre>
+[system]
+default_timezone = value
+</pre></td>
+		</tr>
+
+		<tr>
+			<td><pre>
+$pidfile = "value";
+</pre></td>
+			<td><pre>
+[system]
+pidfile = value
+</pre></td>
+		</tr>
+
+		<tr>
+			<td><pre>
+$lang = "value";
+</pre></td>
+			<td><pre>
+No equivalent (yet)
+</pre></td>
+		</tr>
+
+	</tbody>
+</table>
+
+
+## Database Settings
+
+The configuration variables database.hostname, database.username, database.password, database.database and database.charset are holding your credentials for the database connection.
+If you need to specify a port to access the database, you can do so by appending ":portnumber" to the database.hostname variable.
+
+    [database]
+    hostname = your.mysqlhost.com:123456
+
+If all of the following environment variables are set, Friendica will use them instead of the previously configured variables for the db:
+
+    MYSQL_HOST
+    MYSQL_PORT
+    MYSQL_USERNAME
+    MYSQL_PASSWORD
+    MYSQL_DATABASE
+
+
+
+# Config values that can only be set in config/local.ini.php
 
 There are some config values that haven't found their way into the administration page.
 This has several reasons.
@@ -13,9 +203,10 @@ Or it is for testing purposes only.
 Especially don't do that with undocumented values.
 
 The header of the section describes the category, the value is the parameter.
-Example: To set the automatic database cleanup process add this line to your .htconfig.php:
+Example: To set the automatic database cleanup process add this line to your config/local.ini.php:
 
-    $a->config['system']['always_show_preview'] = true;
+    [system]
+    always_show_preview = true
 
 ## jabber ##
 * **debug** (Boolean) - Enable debug level for the jabber account synchronisation.
@@ -111,28 +302,16 @@ Example: To set the automatic database cleanup process add this line to your .ht
 
 Enabling the admin panel for an account, and thus making the account holder admin of the node, is done by setting the variable
 
-    $a->config['admin_email'] = "someone@example.com";
+    [config]
+    admin_email = someone@example.com
 
-Where you have to match the email address used for the account with the one you enter to the .htconfig file.
-If more then one account should be able to access the admin panel, seperate the email addresses with a comma.
+Where you have to match the email address used for the account with the one you enter to the config/local.ini.php file.
+If more then one account should be able to access the admin panel, separate the email addresses with a comma.
 
-    $a->config['admin_email'] = "someone@example.com,someonelese@example.com";
+    [config]
+    admin_email = someone@example.com,someoneelse@example.com
 
 If you want to have a more personalized closing line for the notification emails you can set a variable for the admin_name.
 
-    $a->config['admin_name'] = "Marvin";
-
-## Database Settings
-
-The configuration variables db_host, db_user, db_pass and db_data are holding your credentials for the database connection.
-If you need to specify a port to access the database, you can do so by appending ":portnumber" to the db_host variable.
-
-    $db_host = 'your.mysqlhost.com:123456';
-
-If all of the following environment variables are set, Friendica will use them instead of the previously configured variables for the db:
-
-    MYSQL_HOST
-    MYSQL_PORT
-    MYSQL_USERNAME
-    MYSQL_PASSWORD
-    MYSQL_DATABASE
+    [config]
+    admin_name = Marvin
