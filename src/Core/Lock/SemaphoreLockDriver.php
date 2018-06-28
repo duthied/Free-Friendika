@@ -18,7 +18,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 *
 	 * @return integer the semaphore key
 	 */
-	private static function semaphoreKey(string $key): int
+	private static function semaphoreKey(string $key)
 	{
 		$temp = get_temppath();
 

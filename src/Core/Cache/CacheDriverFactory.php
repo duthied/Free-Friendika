@@ -20,7 +20,7 @@ class CacheDriverFactory
 	 * @return ICacheDriver  The instance of the CacheDriver
 	 * @throws \Exception    The exception if something went wrong during the CacheDriver creation
 	 */
-	public static function create(string $driver) : ICacheDriver {
+	public static function create(string $driver) {
 
 		switch ($driver) {
 			case 'memcache':

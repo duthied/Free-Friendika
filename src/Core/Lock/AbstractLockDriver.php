@@ -22,7 +22,7 @@ abstract class AbstractLockDriver implements ILockDriver
 	 * @param string key The Name of the lock
 	 * @return bool      Returns true if the lock is set
 	 */
-	protected function hasAcquiredLock(string $key): bool {
+	protected function hasAcquiredLock(string $key) {
 		return isset($this->acquireLock[$key]);
 	}
 
