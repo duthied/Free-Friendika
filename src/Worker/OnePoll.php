@@ -389,7 +389,7 @@ class OnePoll
 							// Have we seen it before?
 							$fields = ['deleted', 'id'];
 							$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
-							$item = dba::selectFirst('item', $fields, $condition);
+							$item = Item::selectFirst($fields, $condition);
 							if (DBM::is_result($item)) {
 								logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
@@ -435,7 +435,7 @@ class OnePoll
 								$refs_arr = explode(' ', $raw_refs);
 								if (count($refs_arr)) {
 									for ($x = 0; $x < count($refs_arr); $x ++) {
-										$refs_arr[$x] = "'" . Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''],dbesc($refs_arr[$x]))) . "'";
+										$refs_arr[$x] = Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''], $refs_arr[$x]));
 									}
 								}
 								$condition = ['uri' => $refs_arr, 'uid' => $importer_uid];

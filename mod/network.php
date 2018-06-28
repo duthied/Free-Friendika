@@ -756,7 +756,7 @@ function networkThreadedView(App $a, $update, $parent)
 			// Load all unseen items
 			$sql_extra4 = "`item`.`unseen`";
 			if (Config::get("system", "like_no_comment")) {
-				$sql_extra4 .= " AND `item`.`verb` = '".ACTIVITY_POST."'";
+				$sql_extra4 .= " AND `item`.`gravity` IN (" . GRAVITY_PARENT . "," . GRAVITY_COMMENT . ")";
 			}
 			if ($order === 'post') {
 				// Only show toplevel posts when updating posts in this order mode
