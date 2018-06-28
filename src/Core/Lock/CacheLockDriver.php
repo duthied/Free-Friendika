@@ -30,7 +30,7 @@ class CacheLockDriver extends AbstractLockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock(string $key, int $timeout = 120)
+	public function acquireLock($key, $timeout = 120)
 	{
 		$got_lock = false;
 		$start = time();
@@ -71,7 +71,7 @@ class CacheLockDriver extends AbstractLockDriver
 	 *
 	 * @return mixed
 	 */
-	public function releaseLock(string $key)
+	public function releaseLock($key)
 	{
 		$cachekey = get_app()->get_hostname() . ";lock:" . $key;
 		$lock = $this->cache->get($cachekey);

@@ -18,7 +18,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock(string $key, int $timeout = 120)
+	public function acquireLock($key, $timeout = 120)
 	{
 		$got_lock = false;
 		$start = time();
@@ -66,7 +66,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	 *
 	 * @return mixed
 	 */
-	public function releaseLock(string $key)
+	public function releaseLock($key)
 	{
 		dba::delete('locks', ['locked' => false, 'pid' => 0], ['name' => $key, 'pid' => getmypid()]);
 

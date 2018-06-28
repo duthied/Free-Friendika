@@ -18,7 +18,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 *
 	 * @return integer the semaphore key
 	 */
-	private static function semaphoreKey(string $key)
+	private static function semaphoreKey($key)
 	{
 		$temp = get_temppath();
 
@@ -40,7 +40,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock(string $key, int $timeout = 120)
+	public function acquireLock($key, $timeout = 120)
 	{
 		$this->acquiredLocks[$key] = sem_get(self::semaphoreKey($key));
 		if ($this->acquiredLocks[$key]) {
@@ -55,7 +55,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 *
 	 * @return mixed
 	 */
-	public function releaseLock(string $key)
+	public function releaseLock($key)
 	{
 		if (empty($this->acquiredLocks[$key])) {
 			return false;
