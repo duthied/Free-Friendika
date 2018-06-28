@@ -121,7 +121,7 @@ EOT;
 	$arr['contact-id'] = $contact['id'];
 	$arr['type'] = 'activity';
 	$arr['wall'] = $item['wall'];
-	$arr['gravity'] = GRAVITY_ACTIVITY;
+	$arr['gravity'] = GRAVITY_COMMENT;
 	$arr['parent'] = $item['id'];
 	$arr['parent-uri'] = $item['uri'];
 	$arr['owner-name'] = $item['author-name'];
