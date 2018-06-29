@@ -750,8 +750,12 @@ class Item extends BaseObject
 		self::deleteTagsFromItem($item);
 
 		// Set the item to "deleted"
-		dba::update('item', ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
-				['id' => $item['id']]);
+		// This erasing of item content is superfluous for items with a matching item-content.
+		// But for the next time we will still have old content in the item table.
+		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow(),
+			'body' => '', 'title' => '', 'content-warning' => '', 'rendered-hash' => '', 'rendered-html' => '',
+			'object' => '', 'target' => ''];
+		dba::update('item', $item_fields, ['id' => $item['id']]);
 
 		Term::insertFromTagFieldByItemId($item['id']);
 		Term::insertFromFileFieldByItemId($item['id']);
