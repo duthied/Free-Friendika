@@ -750,8 +750,12 @@ class Item extends BaseObject
 		self::deleteTagsFromItem($item);
 
 		// Set the item to "deleted"
-		dba::update('item', ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
-				['id' => $item['id']]);
+		// This erasing of item content is superfluous for items with a matching item-content.
+		// But for the next time we will still have old content in the item table.
+		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow(),
+			'body' => '', 'title' => '', 'content-warning' => '', 'rendered-hash' => '', 'rendered-html' => '',
+			'object' => '', 'target' => '', 'tag' => '', 'postopts' => '', 'attach' => '', 'file' => ''];
+		dba::update('item', $item_fields, ['id' => $item['id']]);
 
 		Term::insertFromTagFieldByItemId($item['id']);
 		Term::insertFromFileFieldByItemId($item['id']);
@@ -1333,8 +1337,10 @@ class Item extends BaseObject
 
 		logger('' . print_r($item,true), LOGGER_DATA);
 
-		dba::transaction();
+		// We are doing this outside of the transaction to avoid timing problems
 		self::insertContent($item);
+
+		dba::transaction();
 		$ret = dba::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
@@ -1516,7 +1522,8 @@ class Item extends BaseObject
 		} else {
 			// By setting the ICID value through the worker we should avoid timing problems.
 			// When the locking works, this shouldn't be needed. But better be prepared.
-			Worker::add(PRIORITY_HIGH, 'SetItemContentID', $uri);
+			Worker::add(PRIORITY_HIGH, 'SetItemContentID', $item['uri']);
+			logger('Could not insert content for URI ' . $item['uri'] . ' - trying asynchronously');
 		}
 		if ($locked) {
 			Lock::remove('item_insert_content');
@@ -1533,7 +1540,7 @@ class Item extends BaseObject
 		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $uri]);
 		if (DBM::is_result($item_content)) {
 			dba::update('item', ['icid' => $item_content['id']], ['icid' => 0, 'uri' => $uri]);
-			logger('Asynchronously fetched content id for URI ' . $uri . ' (' . $item_content['id'] . ')');
+			logger('Asynchronously set item content id for URI ' . $uri . ' (' . $item_content['id'] . ') - Affected: '. (int)dba::affected_rows());
 		} else {
 			logger('No item-content found for URI ' . $uri);
 		}
