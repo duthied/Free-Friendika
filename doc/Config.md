@@ -1,5 +1,5 @@
-Friendica Configuration
-=======================
+Config values that can only be set in config/local.ini.php
+==========================================================
 
 * [Home](help)
 
