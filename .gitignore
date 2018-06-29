@@ -2,13 +2,11 @@ favicon.*
 .htconfig.php
 .htpreconfig.php
 \#*
-include/jquery-1.4.2.min.js
 *.log
 *.out
 *.version*
-favicon.*
 home.html
-addon
+
 *~
 robots.txt
 
@@ -16,9 +14,9 @@ robots.txt
 /config/local.ini.php
 
 #ignore documentation, it should be newly built
-doc/html
+/doc/html
 
-#ignore reports, should be generted with every build
+#ignore reports, should be generated with every build
 report/
 
 #ignore config files from eclipse, we don't want IDE files in our repository
@@ -64,5 +62,6 @@ venv/
 #ignore config files from JetBrains
 /.idea
 
-#ignore addons/ directory
-addons/
+#ignore addons directory
+/addons
+/addon
