@@ -4,7 +4,7 @@ Installing Connectors (Twitter/GNU Social)
 * [Home](help)
 
 
-Friendica uses addons to provide connectivity to some networks, such as Twitter or App.net.
+Friendica uses addons to provide connectivity to some networks, such as Twitter.
 
 There is also a addon to post through to an existing account on a GNU Social service.
 You only need this to post to an already existing GNU Social account, but not to communicate with GNU Social members in general.
