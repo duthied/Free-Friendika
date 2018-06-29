@@ -3,16 +3,6 @@
 ; This file declares the default values for all the config values of Friendica.
 ; Please don't edit this file as its content may change in the upcoming versions.
 
-[jabber]
-
-; debug (Boolean)
-; Enable debug level for the jabber account synchronisation.
-debug = false
-
-; lockpath (Path)
-; Must be writable by the ejabberd process. if set then it will prevent the running of multiple processes.
-lockpath =
-
 [database]
 
 ; host (String)
@@ -38,7 +28,7 @@ charset = utf8mb4
 
 [config]
 
-; admin_email (String)
+; admin_email (Comma-separated list)
 ; In order to perform system administration via the admin panel, this must precisely match the email address of the person logged in.
 admin_email =
 
@@ -444,14 +434,26 @@ directory = https://dir.friendi.social
 xrd_timeout = 20
 
 [experimental]
+
 ; exp_themes (Boolean)
 ; Show experimental themes in user settings.
 exp_themes = false
 
 [theme]
+
 ; hide_eventlist (Boolean)
 ; Don't show the birthdays and events on the profile and network page
 hide_eventlist = false
+
+[jabber]
+
+; debug (Boolean)
+; Enable debug level for the jabber account synchronisation.
+debug = false
+
+; lockpath (Path)
+; Must be writable by the ejabberd process. if set then it will prevent the running of multiple processes.
+lockpath =
 
 INI;
 // Keep this line
