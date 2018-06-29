@@ -24,6 +24,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
+use Friendica\Util\Lock;
 use dba;
 use Text_LanguageDetect;
 
@@ -59,7 +60,7 @@ class Item extends BaseObject
 	// Field list for "item-content" table that is mixed with the item table
 	const CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
 			'coord', 'app', 'rendered-hash', 'rendered-html', 'verb',
-			'object-type', 'object', 'target-type', 'target'];
+			'object-type', 'object', 'target-type', 'target', 'plink'];
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
@@ -399,7 +400,7 @@ class Item extends BaseObject
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'postopts',
-			'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'resource-id', 'event-id', 'tag', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
@@ -1404,7 +1405,7 @@ class Item extends BaseObject
 
 		// update the commented timestamp on the parent
 		// Only update "commented" if it is really a comment
-		if (($item['verb'] == ACTIVITY_POST) || !Config::get("system", "like_no_comment")) {
+		if (($item['gravity'] != GRAVITY_ACTIVITY) || !Config::get("system", "like_no_comment")) {
 			dba::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
 			dba::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
@@ -1491,8 +1492,6 @@ class Item extends BaseObject
 		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
 			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
 
-		unset($item['plink']);
-
 		foreach (self::CONTENT_FIELDLIST as $field) {
 			if (isset($item[$field])) {
 				$fields[$field] = $item[$field];
@@ -1500,15 +1499,43 @@ class Item extends BaseObject
 			}
 		}
 
-		// Do we already have this content?
-		if (!dba::exists('item-content', ['uri' => $item['uri']])) {
-			dba::insert('item-content', $fields, true);
+		// To avoid timing problems, we are using locks.
+		$locked = Lock::set('item_insert_content');
+		if (!$locked) {
+			logger("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}
 
+		// Do we already have this content?
 		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $item['uri']]);
 		if (DBM::is_result($item_content)) {
 			$item['icid'] = $item_content['id'];
-			logger('Insert content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+			logger('Fetched content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+		} elseif (dba::insert('item-content', $fields)) {
+			$item['icid'] = dba::lastInsertId();
+			logger('Inserted content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+		} else {
+			// By setting the ICID value through the worker we should avoid timing problems.
+			// When the locking works, this shouldn't be needed. But better be prepared.
+			Worker::add(PRIORITY_HIGH, 'SetItemContentID', $uri);
+		}
+		if ($locked) {
+			Lock::remove('item_insert_content');
+		}
+	}
+
+	/**
+	 * @brief Set the item content id for a given URI
+	 *
+	 * @param string $uri The item URI
+	 */
+	public static function setICIDforURI($uri)
+	{
+		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $uri]);
+		if (DBM::is_result($item_content)) {
+			dba::update('item', ['icid' => $item_content['id']], ['icid' => 0, 'uri' => $uri]);
+			logger('Asynchronously fetched content id for URI ' . $uri . ' (' . $item_content['id'] . ')');
+		} else {
+			logger('No item-content found for URI ' . $uri);
 		}
 	}
 
@@ -1533,8 +1560,10 @@ class Item extends BaseObject
 		}
 
 		if (!empty($item['plink'])) {
-			$fields['plink'] = $item['plink'];
 			$fields['uri-plink-hash'] = hash('sha1', $item['plink']) . hash('sha1', $condition['uri']);
+		} else {
+			// Ensure that we don't delete the plink
+			unset($fields['plink']);
 		}
 
 		logger('Update content for URI ' . $condition['uri']);
