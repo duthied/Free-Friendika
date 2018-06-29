@@ -85,7 +85,7 @@ Clone the addon repository (separately):
 
     git clone https://github.com/friendica/friendica-addons.git -b master addon
 
-If you copy the directory tree to your webserver, make sure that you also 
+If you copy the directory tree to your webserver, make sure that you also
 copy .htaccess - as "dot" files are often hidden and aren't normally copied.
 
 If you want to use the development version of Friendica you can switch to
@@ -106,7 +106,7 @@ password, database name).
     - Please check the additional notes if running on MySQ 5.7.17 or newer
 
 4. If you know in advance that it will be impossible for the web server to
-write or create files in the /config/ subfolder, create an empty file called
+write or create files in the config/ subfolder, create an empty file called
 local.ini.php and make it writable by the web server.
 
 5. Visit your website with a web browser and follow the instructions. Please
@@ -282,13 +282,13 @@ due to permissions issues:
 For Linux:
 
 % touch config/local.ini.php
-% chmod 777 config/local.ini.php
+% chmod 664 config/local.ini.php
 
 Retry the installation. As soon as the database has been created,
 
 ******* this is important *********
 
-% chmod 755 config/local.ini.php
+% chmod 644 config/local.ini.php
 
 #####################################################################
 - Some configurations with "suhosin" security are configured without
