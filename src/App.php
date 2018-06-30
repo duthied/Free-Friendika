@@ -143,13 +143,14 @@ class App
 
 		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
 
-		$this->determineUrlPath();
-
+		// The order of the following calls is important to ensure proper initialization
 		$this->loadConfigFiles();
 
 		$this->loadDatabase();
 
 		$this->determineMode();
+
+		$this->determineUrlPath();
 
 		if ($this->mode === self::MODE_NORMAL) {
 			Core\Addon::loadHooks();
