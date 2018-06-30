@@ -15,6 +15,26 @@ require_once 'include/dba.php';
 
 class Term
 {
+	public static function tagTextFromItemId($itemid)
+	{
+		$tag_text = '';
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]];
+		$tags = dba::select('term', [], $condition);
+		while ($tag = dba::fetch($tags)) {
+			if ($tag_text != '') {
+				$tag_text .= ',';
+			}
+
+			if ($tag['type'] == 1) {
+				$tag_text .= '#';
+			} else {
+				$tag_text .= '@';
+			}
+			$tag_text .= '[url=' . $tag['url'] . ']' . $tag['term'] . '[/url]';
+		}
+		return $tag_text;
+	}
+
 	public static function insertFromTagFieldByItemId($itemid)
 	{
 		$profile_base = System::baseUrl();
@@ -57,14 +77,14 @@ class Term
 		$pattern = '/\W\#([^\[].*?)[\s\'".,:;\?!\[\]\/]/ism';
 		if (preg_match_all($pattern, $data, $matches)) {
 			foreach ($matches[1] as $match) {
-				$tags['#' . strtolower($match)] = '';
+				$tags['#' . $match] = '';
 			}
 		}
 
 		$pattern = '/\W([\#@])\[url\=(.*?)\](.*?)\[\/url\]/ism';
 		if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
-				$tags[$match[1] . strtolower(trim($match[3], ',.:;[]/\"?!'))] = $match[2];
+				$tags[$match[1] . trim($match[3], ',.:;[]/\"?!')] = $match[2];
 			}
 		}
 
@@ -193,7 +213,7 @@ class Term
 
 		while ($tag = dba::fetch($taglist)) {
 			if ($tag["url"] == "") {
-				$tag["url"] = $searchpath . strtolower($tag["term"]);
+				$tag["url"] = $searchpath . $tag["term"];
 			}
 
 			$orig_tag = $tag["url"];

@@ -117,6 +117,11 @@ class Item extends BaseObject
 			}
 		}
 
+		// Build the tag string out of the term entries
+		if (isset($row['id']) && isset($row['tag'])) {
+			$row['tag'] = Term::tagTextFromItemId($row['id']);
+		}
+
 		// We can always comment on posts from these networks
 		if (isset($row['writable']) && !empty($row['network']) &&
 			in_array($row['network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
@@ -525,6 +530,11 @@ class Item extends BaseObject
 	 */
 	private static function constructSelectFields($fields, $selected)
 	{
+		// To be able to fetch the tags we need the item id
+		if (in_array('tag', $selected) && !in_array('id', $selected)) {
+			$selected[] = 'id';
+		}
+
 		$selection = [];
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
@@ -622,8 +632,15 @@ class Item extends BaseObject
 				$content_fields['plink'] =  $item['plink'];
 			}
 			self::updateContent($content_fields, ['uri' => $item['uri']]);
-			Term::insertFromTagFieldByItemId($item['id']);
-			Term::insertFromFileFieldByItemId($item['id']);
+
+			if (array_key_exists('tag', $fields)) {
+				Term::insertFromTagFieldByItemId($item['id']);
+			}
+
+			if (array_key_exists('file', $fields)) {
+				Term::insertFromFileFieldByItemId($item['id']);
+			}
+
 			self::updateThread($item['id']);
 
 			// We only need to notfiy others when it is an original entry from us.
@@ -1471,8 +1488,13 @@ class Item extends BaseObject
 		 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
-		Term::insertFromTagFieldByItemId($current_post);
-		Term::insertFromFileFieldByItemId($current_post);
+		if (array_key_exists('tag', $item)) {
+			Term::insertFromTagFieldByItemId($current_post);
+		}
+
+		if (array_key_exists('file', $item)) {
+			Term::insertFromFileFieldByItemId($current_post);
+		}
 
 		if ($item['parent-uri'] === $item['uri']) {
 			self::addShadow($current_post);
