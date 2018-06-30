@@ -987,7 +987,6 @@ CREATE TABLE IF NOT EXISTS `term` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`aid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`tid`),
 	 INDEX `oid_otype_type_term` (`oid`,`otype`,`type`,`term`(32)),

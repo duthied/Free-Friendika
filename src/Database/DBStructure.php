@@ -1716,7 +1716,6 @@ class DBStructure
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"aid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						],
 				"indexes" => [
