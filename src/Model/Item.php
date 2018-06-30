@@ -37,7 +37,7 @@ class Item extends BaseObject
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach',
+			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach', 'language',
 			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
 			'author-id', 'author-link', 'author-name', 'author-avatar',
@@ -58,9 +58,12 @@ class Item extends BaseObject
 			'signed_text', 'signature', 'signer'];
 
 	// Field list for "item-content" table that is mixed with the item table
-	const CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
+	const MIXED_CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
 			'coord', 'app', 'rendered-hash', 'rendered-html', 'verb',
 			'object-type', 'object', 'target-type', 'target', 'plink'];
+
+	// Field list for "item-content" table that is not present in the "item" table
+	const CONTENT_FIELDLIST = ['language'];
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
@@ -86,7 +89,7 @@ class Item extends BaseObject
 		$row = dba::fetch($stmt);
 
 		// Fetch data from the item-content table whenever there is content there
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
 			if (empty($row[$field]) && !empty($row['item-' . $field])) {
 				$row[$field] = $row['item-' . $field];
 			}
@@ -406,7 +409,7 @@ class Item extends BaseObject
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid'];
 
-		$fields['item-content'] = self::CONTENT_FIELDLIST;
+		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
 			'thumb' => 'author-avatar', 'nick' => 'author-nick'];
@@ -526,7 +529,7 @@ class Item extends BaseObject
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
-					if (in_array($select, self::CONTENT_FIELDLIST)) {
+					if (in_array($select, self::MIXED_CONTENT_FIELDLIST)) {
 						$selection[] = "`item`.`".$select."` AS `item-" . $select . "`";
 					}
 					if (is_int($field)) {
@@ -594,7 +597,7 @@ class Item extends BaseObject
 		$items = dba::select('item', ['id', 'origin', 'uri', 'plink'], $condition);
 
 		$content_fields = [];
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($fields[$field])) {
 				$content_fields[$field] = $fields[$field];
 				unset($fields[$field]);
@@ -1032,7 +1035,7 @@ class Item extends BaseObject
 			}
 		}
 
-		self::addLanguageInPostopts($item);
+		self::addLanguageToItemArray($item);
 
 		$item['wall']          = intval(defaults($item, 'wall', 0));
 		$item['extid']         = trim(defaults($item, 'extid', ''));
@@ -1498,7 +1501,7 @@ class Item extends BaseObject
 		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
 			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
 
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($item[$field])) {
 				$fields[$field] = $item[$field];
 				unset($item[$field]);
@@ -1556,7 +1559,7 @@ class Item extends BaseObject
 	{
 		// We have to select only the fields from the "item-content" table
 		$fields = [];
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($item[$field])) {
 				$fields[$field] = $item[$field];
 			}
@@ -1822,39 +1825,19 @@ class Item extends BaseObject
 	}
 
 	 /**
-	 * Adds a "lang" specification in a "postopts" element of given $arr,
-	 * if possible and not already present.
+	 * Adds a language specification in a "language" element of given $arr.
 	 * Expects "body" element to exist in $arr.
 	 */
-	private static function addLanguageInPostopts(&$item)
+	private static function addLanguageToItemArray(&$item)
 	{
-		$postopts = "";
-
-		if (!empty($item['postopts'])) {
-			if (strstr($item['postopts'], 'lang=')) {
-				// do not override
-				return;
-			}
-			$postopts = $item['postopts'];
-		}
-
 		$naked_body = Text\BBCode::toPlaintext($item['body'], false);
 
-		$languages = (new Text_LanguageDetect())->detect($naked_body, 3);
+		$ld = new Text_LanguageDetect();
+		$ld->setNameMode(2);
+		$languages = $ld->detect($naked_body, 3);
 
-		if (sizeof($languages) > 0) {
-			if ($postopts != '') {
-				$postopts .= '&'; // arbitrary separator, to be reviewed
-			}
-
-			$postopts .= 'lang=';
-			$sep = "";
-
-			foreach ($languages as $language => $score) {
-				$postopts .= $sep . $language . ";" . $score;
-				$sep = ':';
-			}
-			$item['postopts'] = $postopts;
+		if (is_array($languages)) {
+			$item['language'] = json_encode($languages);
 		}
 	}
 
