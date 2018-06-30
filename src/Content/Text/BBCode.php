@@ -1380,6 +1380,13 @@ class BBCode extends BaseObject
 			}, $text
 		);
 
+		$text = preg_replace_callback(
+			"&\[url=/people\?q\=(.*)\](.*)\[\/url\]&Usi",
+			function ($match) {
+				return "[url=" . System::baseUrl() . "/search?search=%40" . $match[1] . "]" . $match[2] . "[/url]";
+			}, $text
+		);
+
 		// Server independent link to posts and comments
 		// See issue: https://github.com/diaspora/diaspora_federation/issues/75
 		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
