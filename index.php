@@ -42,7 +42,7 @@ if (!$a->mode == App::MODE_INSTALL) {
 
 	Config::load();
 
-	if ($a->max_processes_reached() || $a->maxload_reached()) {
+if ($a->isMaxProcessesReached() || $a->isMaxLoadReached()) {
 		header($_SERVER["SERVER_PROTOCOL"] . ' 503 Service Temporarily Unavailable');
 		header('Retry-After: 120');
 		header('Refresh: 120; url=' . System::baseUrl() . "/" . $a->query_string);

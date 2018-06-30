@@ -972,7 +972,7 @@ class App
 	 *
 	 * @return bool Is the limit reached?
 	 */
-	public function max_processes_reached()
+	public function isMaxProcessesReached()
 	{
 		// Deactivated, needs more investigating if this check really makes sense
 		return false;
@@ -1052,7 +1052,7 @@ class App
 	 *
 	 * @return bool Is the load reached?
 	 */
-	public function maxload_reached()
+	public function isMaxLoadReached()
 	{
 		if ($this->is_backend()) {
 			$process = 'backend';
