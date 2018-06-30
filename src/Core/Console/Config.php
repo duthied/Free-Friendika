@@ -92,7 +92,7 @@ HELP;
 			throw new CommandArgsException('Too many arguments');
 		}
 
-		if ($a->mode === \Friendica\App::MODE_INSTALL) {
+		if (!($a->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE)) {
 			$this->out('Database isn\'t ready or populated yet, showing file config only');
 		}
 
@@ -126,7 +126,7 @@ HELP;
 		if (count($this->args) == 0) {
 			Core\Config::load();
 
-			if (Core\Config::get('system', 'config_adapter') != 'preload' && $a->mode !== \Friendica\App::MODE_INSTALL) {
+			if (Core\Config::get('system', 'config_adapter') != 'preload' && $a->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE) {
 				$this->out('Warning: The JIT (Just In Time) Config adapter doesn\'t support loading the entire configuration, showing file config only');
 			}
 

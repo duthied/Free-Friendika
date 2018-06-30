@@ -28,7 +28,7 @@ require_once "include/dba.php";
 
 $a = new App(dirname(__DIR__));
 
-if ($a->mode === App::MODE_INSTALL) {
+if ($a->isInstallMode()) {
 	die("Friendica isn't properly installed yet.\n");
 }
 

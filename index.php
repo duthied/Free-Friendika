@@ -35,20 +35,20 @@ $a->backend = false;
 
 require_once "include/dba.php";
 
-if (!$a->mode == App::MODE_INSTALL) {
-	/**
-	 * Load configs from db. Overwrite configs from config/local.ini.php
-	 */
+// Missing DB connection: ERROR
+if ($a->mode & App::MODE_LOCALCONFIGPRESENT && !($a->mode & App::MODE_DBAVAILABLE)) {
+	System::httpExit(500, ['title' => 'Error 500 - Internal Server Error', 'description' => 'Apologies but the website is unavailable at the moment.']);
+}
 
-	Config::load();
-
+// Max Load Average reached: ERROR
 if ($a->isMaxProcessesReached() || $a->isMaxLoadReached()) {
-		header($_SERVER["SERVER_PROTOCOL"] . ' 503 Service Temporarily Unavailable');
-		header('Retry-After: 120');
-		header('Refresh: 120; url=' . System::baseUrl() . "/" . $a->query_string);
-		die("System is currently unavailable. Please try again later");
-	}
+	header('Retry-After: 120');
+	header('Refresh: 120; url=' . System::baseUrl() . "/" . $a->query_string);
 
+	System::httpExit(503, ['title' => 'Error 503 - Service Temporarily Unavailable', 'description' => 'System is currently overloaded. Please try again later.']);
+}
+
+if ($a->isInstallMode()) {
 	if (Config::get('system', 'force_ssl') && ($a->get_scheme() == "http")
 		&& (intval(Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL)
 		&& (substr(System::baseUrl(), 0, 8) == "https://")
@@ -167,9 +167,9 @@ $_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 
 // in install mode, any url loads install module
 // but we need "view" module for stylesheet
-if ($a->mode == App::MODE_INSTALL && $a->module!="view") {
+if ($a->isInstallMode() && $a->module!="view") {
 	$a->module = 'install';
-} elseif ($a->mode == App::MODE_MAINTENANCE && $a->module!="view") {
+} elseif (!($a->mode & App::MODE_MAINTENANCEDISABLED) && $a->module != "view") {
 	$a->module = 'maintenance';
 } else {
 	check_url($a);

@@ -608,17 +608,9 @@ function logger($msg, $level = 0) {
 	$a = get_app();
 	global $LOGGER_LEVELS;
 
-	// turn off logger in install mode
-	if (
-		$a->mode == App::MODE_INSTALL
-		|| !dba::$connected
-	) {
-		return;
-	}
-
-	$debugging = Config::get('system','debugging');
-	$logfile   = Config::get('system','logfile');
-	$loglevel = intval(Config::get('system','loglevel'));
+	$debugging = Config::get('system', 'debugging');
+	$logfile   = Config::get('system', 'logfile');
+	$loglevel = intval(Config::get('system', 'loglevel'));
 
 	if (
 		!$debugging
@@ -687,14 +679,6 @@ function logger($msg, $level = 0) {
 function dlogger($msg, $level = 0) {
 	$a = get_app();
 
-	// turn off logger in install mode
-	if (
-		$a->mode == App::MODE_INSTALL
-		|| !dba::$connected
-	) {
-		return;
-	}
-
 	$logfile = Config::get('system', 'dlogfile');
 	if (!$logfile) {
 		return;
@@ -716,7 +700,7 @@ function dlogger($msg, $level = 0) {
 	$process_id = session_id();
 
 	if ($process_id == '') {
-		$process_id = get_app()->process_id;
+		$process_id = $a->process_id;
 	}
 
 	$callers = debug_backtrace();

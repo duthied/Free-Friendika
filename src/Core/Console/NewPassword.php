@@ -58,7 +58,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->mode == \Friendica\App::MODE_INSTALL) {
+		if ($a->isInstallMode()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 

@@ -29,7 +29,7 @@ class PConfig extends BaseObject
 	public static function init($uid)
 	{
 		// Database isn't ready or populated yet
-		if (self::getApp()->mode === \Friendica\App::MODE_INSTALL) {
+		if (!(self::getApp()->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE)) {
 			return;
 		}
 
@@ -54,7 +54,7 @@ class PConfig extends BaseObject
 	public static function load($uid, $family)
 	{
 		// Database isn't ready or populated yet
-		if (self::getApp()->mode === \Friendica\App::MODE_INSTALL) {
+		if (!(self::getApp()->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE)) {
 			return;
 		}
 
@@ -83,7 +83,7 @@ class PConfig extends BaseObject
 	public static function get($uid, $family, $key, $default_value = null, $refresh = false)
 	{
 		// Database isn't ready or populated yet
-		if (self::getApp()->mode === \Friendica\App::MODE_INSTALL) {
+		if (!(self::getApp()->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE)) {
 			return;
 		}
 
@@ -112,7 +112,7 @@ class PConfig extends BaseObject
 	public static function set($uid, $family, $key, $value)
 	{
 		// Database isn't ready or populated yet
-		if (self::getApp()->mode === \Friendica\App::MODE_INSTALL) {
+		if (!(self::getApp()->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE)) {
 			return false;
 		}
 
@@ -138,7 +138,7 @@ class PConfig extends BaseObject
 	public static function delete($uid, $family, $key)
 	{
 		// Database isn't ready or populated yet
-		if (self::getApp()->mode === \Friendica\App::MODE_INSTALL) {
+		if (!(self::getApp()->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE)) {
 			return false;
 		}
 
