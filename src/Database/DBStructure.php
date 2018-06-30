@@ -1262,6 +1262,7 @@ class DBStructure
 						"body" => ["type" => "mediumtext", "comment" => "item body content"],
 						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
 						"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
+						"language" => ["type" => "text", "comment" => "Language information about this post"],
 						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "application which generated this item"],
 						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
 						"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
