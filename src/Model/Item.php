@@ -118,7 +118,7 @@ class Item extends BaseObject
 		}
 
 		// Build the tag string out of the term entries
-		if (isset($row['id']) && isset($row['tag'])) {
+		if (isset($row['id']) && array_key_exists('tag', $row)) {
 			$row['tag'] = Term::tagTextFromItemId($row['id']);
 		}
 
@@ -614,6 +614,13 @@ class Item extends BaseObject
 			}
 		}
 
+		if (array_key_exists('tag', $fields)) {
+			$tags = $fields['tag'];
+			unset($fields['tag']);
+		} else {
+			$tags = '';
+		}
+
 		if (!empty($fields)) {
 			$success = dba::update('item', $fields, $condition);
 
@@ -633,8 +640,8 @@ class Item extends BaseObject
 			}
 			self::updateContent($content_fields, ['uri' => $item['uri']]);
 
-			if (array_key_exists('tag', $fields)) {
-				Term::insertFromTagFieldByItemId($item['id']);
+			if (!empty($tags)) {
+				Term::insertFromTagFieldByItemId($item['id'], $tags);
 			}
 
 			if (array_key_exists('file', $fields)) {
@@ -777,7 +784,7 @@ class Item extends BaseObject
 			'object' => '', 'target' => '', 'tag' => '', 'postopts' => '', 'attach' => '', 'file' => ''];
 		dba::update('item', $item_fields, ['id' => $item['id']]);
 
-		Term::insertFromTagFieldByItemId($item['id']);
+		Term::insertFromTagFieldByItemId($item['id'], '');
 		Term::insertFromFileFieldByItemId($item['id']);
 		self::deleteThread($item['id'], $item['parent-uri']);
 
@@ -1357,6 +1364,13 @@ class Item extends BaseObject
 
 		logger('' . print_r($item,true), LOGGER_DATA);
 
+		if (array_key_exists('tag', $item)) {
+			$tags = $item['tag'];
+			unset($item['tag']);
+		} else {
+			$tags = '';
+		}
+
 		// We are doing this outside of the transaction to avoid timing problems
 		self::insertContent($item);
 
@@ -1488,8 +1502,8 @@ class Item extends BaseObject
 		 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
-		if (array_key_exists('tag', $item)) {
-			Term::insertFromTagFieldByItemId($current_post);
+		if (!empty($tags)) {
+			Term::insertFromTagFieldByItemId($current_post, $tags);
 		}
 
 		if (array_key_exists('file', $item)) {

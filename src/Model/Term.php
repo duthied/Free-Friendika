@@ -35,7 +35,7 @@ class Term
 		return $tag_text;
 	}
 
-	public static function insertFromTagFieldByItemId($itemid)
+	public static function insertFromTagFieldByItemId($itemid, $tags)
 	{
 		$profile_base = System::baseUrl();
 		$profile_data = parse_url($profile_base);
@@ -43,11 +43,13 @@ class Term
 		$profile_base_friendica = $profile_data['host'] . $profile_path . '/profile/';
 		$profile_base_diaspora = $profile_data['host'] . $profile_path . '/u/';
 
-		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'tag', 'parent'];
+		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'parent'];
 		$message = Item::selectFirst($fields, ['id' => $itemid]);
 		if (!DBM::is_result($message)) {
 			return;
 		}
+
+		$message['tag'] = $tags;
 
 		// Clean up all tags
 		dba::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]]);
