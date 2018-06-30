@@ -35,6 +35,17 @@ class Term
 		return $tag_text;
 	}
 
+	public static function fileTextFromItemId($itemid)
+	{
+		$file_text = '';
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_FILE, TERM_CATEGORY]];
+		$tags = dba::select('term', [], $condition);
+		while ($tag = dba::fetch($tags)) {
+			$file_text .= '[' . $tag['term'] . ']';
+		}
+		return $file_text;
+	}
+
 	public static function insertFromTagFieldByItemId($itemid, $tags)
 	{
 		$profile_base = System::baseUrl();
@@ -150,9 +161,9 @@ class Term
 	 * @param integer $itemid item id
 	 * @return void
 	 */
-	public static function insertFromFileFieldByItemId($itemid)
+	public static function insertFromFileFieldByItemId($itemid, $files)
 	{
-		$message = Item::selectFirst(['uid', 'deleted', 'file'], ['id' => $itemid]);
+		$message = Item::selectFirst(['uid', 'deleted'], ['id' => $itemid]);
 		if (!DBM::is_result($message)) {
 			return;
 		}
@@ -163,6 +174,8 @@ class Term
 		if ($message["deleted"]) {
 			return;
 		}
+
+		$message['file'] = $files;
 
 		if (preg_match_all("/\[(.*?)\]/ism", $message["file"], $files)) {
 			foreach ($files[1] as $file) {

@@ -122,6 +122,12 @@ class Item extends BaseObject
 			$row['tag'] = Term::tagTextFromItemId($row['id']);
 		}
 
+		/// @todo This is a preparation
+		// Build the file string out of the term entries
+		//if (isset($row['id']) && array_key_exists('file', $row)) {
+		//	$row['file'] = Term::fileTextFromItemId($row['id']);
+		//}
+
 		// We can always comment on posts from these networks
 		if (isset($row['writable']) && !empty($row['network']) &&
 			in_array($row['network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
@@ -535,6 +541,12 @@ class Item extends BaseObject
 			$selected[] = 'id';
 		}
 
+		/// @todo This is a preparation
+		// To be able to fetch the files we need the item id
+		//if (in_array('file', $selected) && !in_array('id', $selected)) {
+		//	$selected[] = 'id';
+		//}
+
 		$selection = [];
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
@@ -621,6 +633,14 @@ class Item extends BaseObject
 			$tags = '';
 		}
 
+		if (array_key_exists('file', $fields)) {
+			$files = $fields['file'];
+			/// @todo This is a preparation
+			//unset($fields['file']);
+		} else {
+			$files = '';
+		}
+
 		if (!empty($fields)) {
 			$success = dba::update('item', $fields, $condition);
 
@@ -644,8 +664,8 @@ class Item extends BaseObject
 				Term::insertFromTagFieldByItemId($item['id'], $tags);
 			}
 
-			if (array_key_exists('file', $fields)) {
-				Term::insertFromFileFieldByItemId($item['id']);
+			if (!empty($files)) {
+				Term::insertFromFileFieldByItemId($item['id'], $files);
 			}
 
 			self::updateThread($item['id']);
@@ -717,7 +737,7 @@ class Item extends BaseObject
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id'];
-		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
+		$item = self::selectFirst($fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
 			logger('Item with ID ' . $item_id . " hasn't been found.", LOGGER_DEBUG);
 			return false;
@@ -728,7 +748,7 @@ class Item extends BaseObject
 			return false;
 		}
 
-		$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
+		$parent = self::selectFirst(['origin'], ['id' => $item['parent']]);
 		if (!DBM::is_result($parent)) {
 			$parent = ['origin' => false];
 		}
@@ -785,7 +805,7 @@ class Item extends BaseObject
 		dba::update('item', $item_fields, ['id' => $item['id']]);
 
 		Term::insertFromTagFieldByItemId($item['id'], '');
-		Term::insertFromFileFieldByItemId($item['id']);
+		Term::insertFromFileFieldByItemId($item['id'], '');
 		self::deleteThread($item['id'], $item['parent-uri']);
 
 		if (!self::exists(["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
@@ -808,7 +828,7 @@ class Item extends BaseObject
 		} elseif ($item['uid'] != 0) {
 
 			// When we delete just our local user copy of an item, we have to set a marker to hide it
-			$global_item = dba::selectFirst('item', ['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
+			$global_item = self::selectFirst(['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
 			if (DBM::is_result($global_item)) {
 				dba::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
 			}
@@ -832,7 +852,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		$i = dba::selectFirst('item', ['id', 'contact-id', 'tag'], ['uri' => $xt->id, 'uid' => $item['uid']]);
+		$i = self::selectFirst(['id', 'contact-id', 'tag'], ['uri' => $xt->id, 'uid' => $item['uid']]);
 		if (!DBM::is_result($i)) {
 			return;
 		}
@@ -1048,7 +1068,7 @@ class Item extends BaseObject
 			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
 				trim($item['uri']), $item['uid'],
 				NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS];
-			$existing = dba::selectFirst('item', ['id', 'network'], $condition);
+			$existing = self::selectFirst(['id', 'network'], $condition);
 			if (DBM::is_result($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
 				if ($uid != 0) {
@@ -1205,7 +1225,7 @@ class Item extends BaseObject
 				'wall', 'private', 'forum_mode', 'origin'];
 			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
 			$params = ['order' => ['id' => false]];
-			$parent = dba::selectFirst('item', $fields, $condition, $params);
+			$parent = self::selectFirst($fields, $condition, $params);
 
 			if (DBM::is_result($parent)) {
 				// is the new message multi-level threaded?
@@ -1219,7 +1239,7 @@ class Item extends BaseObject
 						'parent-uri' => $item['parent-uri'],
 						'uid' => $item['uid']];
 					$params = ['order' => ['id' => false]];
-					$toplevel_parent = dba::selectFirst('item', $fields, $condition, $params);
+					$toplevel_parent = self::selectFirst($fields, $condition, $params);
 
 					if (DBM::is_result($toplevel_parent)) {
 						$parent = $toplevel_parent;
@@ -1371,6 +1391,14 @@ class Item extends BaseObject
 			$tags = '';
 		}
 
+		if (array_key_exists('file', $item)) {
+			$files = $item['file'];
+			/// @todo This is a preparation
+			//unset($item['file']);
+		} else {
+			$files = '';
+		}
+
 		// We are doing this outside of the transaction to avoid timing problems
 		self::insertContent($item);
 
@@ -1478,7 +1506,7 @@ class Item extends BaseObject
 		 * in it.
 		 */
 		if (!$deleted && !$dontcache) {
-			$posted_item = dba::selectFirst('item', [], ['id' => $current_post]);
+			$posted_item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
 			if (DBM::is_result($posted_item)) {
 				if ($notify) {
 					Addon::callHooks('post_local_end', $posted_item);
@@ -1506,8 +1534,8 @@ class Item extends BaseObject
 			Term::insertFromTagFieldByItemId($current_post, $tags);
 		}
 
-		if (array_key_exists('file', $item)) {
-			Term::insertFromFileFieldByItemId($current_post);
+		if (!empty($files)) {
+			Term::insertFromFileFieldByItemId($current_post, $files);
 		}
 
 		if ($item['parent-uri'] === $item['uri']) {
@@ -1626,7 +1654,7 @@ class Item extends BaseObject
 	public static function distribute($itemid, $signed_text = '')
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
-		$parent = dba::selectFirst('item', ['owner-id'], $condition);
+		$parent = self::selectFirst(['owner-id'], $condition);
 		if (!DBM::is_result($parent)) {
 			return;
 		}
@@ -1659,7 +1687,7 @@ class Item extends BaseObject
 		$origin_uid = 0;
 
 		if ($item['uri'] != $item['parent-uri']) {
-			$parents = dba::select('item', ['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+			$parents = self::select(['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
 			while ($parent = dba::fetch($parents)) {
 				$users[$parent['uid']] = $parent['uid'];
 				if ($parent['origin'] && !$item['origin']) {
@@ -1740,7 +1768,7 @@ class Item extends BaseObject
 	{
 		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network'];
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
-		$item = dba::selectFirst('item', $fields, $condition);
+		$item = self::selectFirst($fields, $condition);
 
 		if (!DBM::is_result($item)) {
 			return;
@@ -2046,7 +2074,7 @@ class Item extends BaseObject
 
 	public static function getGuidById($id)
 	{
-		$item = dba::selectFirst('item', ['guid'], ['id' => $id]);
+		$item = self::selectFirst(['guid'], ['id' => $id]);
 		if (DBM::is_result($item)) {
 			return $item['guid'];
 		} else {
@@ -2110,7 +2138,7 @@ class Item extends BaseObject
 		$community_page = (($user['page-flags'] == PAGE_COMMUNITY) ? true : false);
 		$prvgroup = (($user['page-flags'] == PAGE_PRVGROUP) ? true : false);
 
-		$item = dba::selectFirst('item', [], ['id' => $item_id]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
 			return;
 		}
@@ -2596,7 +2624,7 @@ class Item extends BaseObject
 
 		logger('like: verb ' . $verb . ' item ' . $item_id);
 
-		$item = dba::selectFirst('item', [], ['`id` = ? OR `uri` = ?', $item_id, $item_id]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['`id` = ? OR `uri` = ?', $item_id, $item_id]);
 		if (!DBM::is_result($item)) {
 			logger('like: unknown item ' . $item_id);
 			return false;
@@ -2773,7 +2801,7 @@ EOT;
 			'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
 			'deleted', 'origin', 'forum_mode', 'mention', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
-		$item = dba::selectFirst('item', $fields, $condition);
+		$item = self::selectFirst($fields, $condition);
 
 		if (!DBM::is_result($item)) {
 			return;
@@ -2795,7 +2823,7 @@ EOT;
 			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
-		$item = dba::selectFirst('item', $fields, $condition);
+		$item = self::selectFirst($fields, $condition);
 		if (!DBM::is_result($item)) {
 			return;
 		}
