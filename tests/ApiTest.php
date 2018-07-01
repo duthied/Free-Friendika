@@ -3373,7 +3373,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiShareAsRetweet()
 	{
-		$item = [];
+		$item = ['body' => ''];
 		$result = api_share_as_retweet($item);
 		$this->assertFalse($result);
 	}
@@ -3413,7 +3413,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiInReplyTo()
 	{
-		$result = api_in_reply_to([]);
+		$result = api_in_reply_to(['id' => 0, 'parent' => 0, 'uri' => '', 'thr-parent' => '']);
 		$this->assertArrayHasKey('status_id', $result);
 		$this->assertArrayHasKey('user_id', $result);
 		$this->assertArrayHasKey('status_id_str', $result);
