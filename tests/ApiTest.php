@@ -481,7 +481,7 @@ class ApiTest extends DatabaseTest
 
 		$this->app->query_string = 'api_path.rss';
 		$this->assertEquals(
-			'<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL.
+			'<?xml version="1.0" encoding="UTF-8"?>'."\n".
 				'some_data',
 			api_call($this->app)
 		);
@@ -505,7 +505,7 @@ class ApiTest extends DatabaseTest
 
 		$this->app->query_string = 'api_path.atom';
 		$this->assertEquals(
-			'<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL.
+			'<?xml version="1.0" encoding="UTF-8"?>'."\n".
 				'some_data',
 			api_call($this->app)
 		);
@@ -571,14 +571,14 @@ class ApiTest extends DatabaseTest
 	public function testApiErrorWithXml()
 	{
 		$this->assertEquals(
-			'<?xml version="1.0"?>'.PHP_EOL.
+			'<?xml version="1.0"?>'."\n".
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" '.
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
-				'xmlns:georss="http://www.georss.org/georss">'.PHP_EOL.
-			'  <error>error_message</error>'.PHP_EOL.
-			'  <code>200 Friendica\Network\HTTP</code>'.PHP_EOL.
-			'  <request/>'.PHP_EOL.
-			'</status>'.PHP_EOL,
+				'xmlns:georss="http://www.georss.org/georss">'."\n".
+			'  <error>error_message</error>'."\n".
+			'  <code>200 Friendica\Network\HTTP</code>'."\n".
+			'  <request/>'."\n".
+			'</status>'."\n",
 			api_error('xml', new HTTPException('error_message'))
 		);
 	}
@@ -591,14 +591,14 @@ class ApiTest extends DatabaseTest
 	public function testApiErrorWithRss()
 	{
 		$this->assertEquals(
-			'<?xml version="1.0"?>'.PHP_EOL.
+			'<?xml version="1.0"?>'."\n".
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" '.
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
-				'xmlns:georss="http://www.georss.org/georss">'.PHP_EOL.
-			'  <error>error_message</error>'.PHP_EOL.
-			'  <code>200 Friendica\Network\HTTP</code>'.PHP_EOL.
-			'  <request/>'.PHP_EOL.
-			'</status>'.PHP_EOL,
+				'xmlns:georss="http://www.georss.org/georss">'."\n".
+			'  <error>error_message</error>'."\n".
+			'  <code>200 Friendica\Network\HTTP</code>'."\n".
+			'  <request/>'."\n".
+			'</status>'."\n",
 			api_error('rss', new HTTPException('error_message'))
 		);
 	}
@@ -611,14 +611,14 @@ class ApiTest extends DatabaseTest
 	public function testApiErrorWithAtom()
 	{
 		$this->assertEquals(
-			'<?xml version="1.0"?>'.PHP_EOL.
+			'<?xml version="1.0"?>'."\n".
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" '.
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
-				'xmlns:georss="http://www.georss.org/georss">'.PHP_EOL.
-			'  <error>error_message</error>'.PHP_EOL.
-			'  <code>200 Friendica\Network\HTTP</code>'.PHP_EOL.
-			'  <request/>'.PHP_EOL.
-			'</status>'.PHP_EOL,
+				'xmlns:georss="http://www.georss.org/georss">'."\n".
+			'  <error>error_message</error>'."\n".
+			'  <code>200 Friendica\Network\HTTP</code>'."\n".
+			'  <request/>'."\n".
+			'</status>'."\n",
 			api_error('atom', new HTTPException('error_message'))
 		);
 	}
@@ -853,7 +853,6 @@ class ApiTest extends DatabaseTest
 		$this->assertSelfUser(api_get_user($this->app, 0));
 	}
 
-
 	/**
 	 * Test the api_item_get_user() function.
 	 * @return void
@@ -957,12 +956,12 @@ class ApiTest extends DatabaseTest
 	public function testApiCreateXml()
 	{
 		$this->assertEquals(
-			'<?xml version="1.0"?>'.PHP_EOL.
+			'<?xml version="1.0"?>'."\n".
 			'<root_element xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" '.
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
-				'xmlns:georss="http://www.georss.org/georss">'.PHP_EOL.
-				'  <data>some_data</data>'.PHP_EOL.
-			'</root_element>'.PHP_EOL,
+				'xmlns:georss="http://www.georss.org/georss">'."\n".
+				'  <data>some_data</data>'."\n".
+			'</root_element>'."\n",
 			api_create_xml(['data' => ['some_data']], 'root_element')
 		);
 	}
@@ -974,10 +973,10 @@ class ApiTest extends DatabaseTest
 	public function testApiCreateXmlWithoutNamespaces()
 	{
 		$this->assertEquals(
-			'<?xml version="1.0"?>'.PHP_EOL.
-			'<ok>'.PHP_EOL.
-				'  <data>some_data</data>'.PHP_EOL.
-			'</ok>'.PHP_EOL,
+			'<?xml version="1.0"?>'."\n".
+			'<ok>'."\n".
+				'  <data>some_data</data>'."\n".
+			'</ok>'."\n",
 			api_create_xml(['data' => ['some_data']], 'ok')
 		);
 	}
@@ -999,12 +998,12 @@ class ApiTest extends DatabaseTest
 	public function testApiFormatDataWithXml()
 	{
 		$this->assertEquals(
-			'<?xml version="1.0"?>'.PHP_EOL.
+			'<?xml version="1.0"?>'."\n".
 			'<root_element xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" '.
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
-				'xmlns:georss="http://www.georss.org/georss">'.PHP_EOL.
-				'  <data>some_data</data>'.PHP_EOL.
-			'</root_element>'.PHP_EOL,
+				'xmlns:georss="http://www.georss.org/georss">'."\n".
+				'  <data>some_data</data>'."\n".
+			'</root_element>'."\n",
 			api_format_data('root_element', 'xml', ['data' => ['some_data']])
 		);
 	}
@@ -1963,7 +1962,7 @@ class ApiTest extends DatabaseTest
 			['id' => 2, 'screen_name' => 'recipient_name'],
 			['id' => 3, 'screen_name' => 'sender_name']
 		);
-		$this->assertEquals('item_title'.PHP_EOL.'item_body', $result['text']);
+		$this->assertEquals('item_title'."\n".'item_body', $result['text']);
 		$this->assertEquals(1, $result['id']);
 		$this->assertEquals(2, $result['recipient_id']);
 		$this->assertEquals(3, $result['sender_id']);
