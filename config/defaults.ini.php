@@ -359,10 +359,6 @@ profiler = false
 ; Sets the ImageMagick compression level for PNG images. Values ranges from 0 (uncompressed) to 9 (most compressed).
 png_quality = 8
 
-; proc_windows (Boolean)
-; Should be enabled if Friendica is running under Windows.
-proc_windows = false
-
 ; proxy_cache_time (Integer)
 ; Period in seconds after which the cache is cleared.
 proxy_cache_time = 86400
