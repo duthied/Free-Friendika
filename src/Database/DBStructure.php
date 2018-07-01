@@ -1242,9 +1242,6 @@ class DBStructure
 						"ownerid" => ["owner-id"],
 						"uid_uri" => ["uid", "uri(190)"],
 						"resource-id" => ["resource-id"],
-						"contactid_allowcid_allowpid_denycid_denygid" => ["contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"], //
-						"uid_type_changed" => ["uid","type","changed"],
-						"contactid_verb" => ["contact-id","verb"],
 						"deleted_changed" => ["deleted","changed"],
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],

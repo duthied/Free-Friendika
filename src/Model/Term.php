@@ -41,7 +41,11 @@ class Term
 		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_FILE, TERM_CATEGORY]];
 		$tags = dba::select('term', [], $condition);
 		while ($tag = dba::fetch($tags)) {
-			$file_text .= '[' . $tag['term'] . ']';
+			if ($tag['type'] == TERM_CATEGORY) {
+				$file_text .= '<' . $tag['term'] . '>';
+			} else {
+				$file_text .= '[' . $tag['term'] . ']';
+			}
 		}
 		return $file_text;
 	}
