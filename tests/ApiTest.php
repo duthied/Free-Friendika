@@ -29,18 +29,28 @@ class ApiTest extends DatabaseTest
 		global $a;
 		parent::setUp();
 
+		// Reusable App object
+		$this->app = new App(__DIR__.'/../');
+		$a = $this->app;
+
 		// User data that the test database is populated with
 		$this->selfUser = [
 			'id' => 42,
 			'name' => 'Self contact',
 			'nick' => 'selfcontact',
-			'nurl' => 'http://localhost/profile/selfcontact'
+			'nurl' => \Friendica\Core\System::baseUrl() . '/profile/selfcontact'
+		];
+		$this->friendUser = [
+			'id' => 44,
+			'name' => 'Friend contact',
+			'nick' => 'friendcontact',
+			'nurl' => \Friendica\Core\System::baseUrl() . '/profile/friendcontact'
 		];
 		$this->otherUser = [
 			'id' => 43,
 			'name' => 'othercontact',
 			'nick' => 'othercontact',
-			'nurl' => 'http://localhost/profile/othercontact'
+			'nurl' => \Friendica\Core\System::baseUrl() . '/profile/othercontact'
 		];
 
 		// User ID that we know is not in the database
@@ -52,10 +62,6 @@ class ApiTest extends DatabaseTest
 			'authenticated' => true,
 			'uid' => $this->selfUser['id']
 		];
-
-		// Reusable App object
-		$this->app = new App(__DIR__.'/../');
-		$a = $this->app;
 
 		// Default config
 		Config::set('config', 'hostname', 'localhost');
@@ -1835,6 +1841,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFavoritesCreateDestroy()
 	{
+		$this->app->argv = ['api', '1.1', 'favorites', 'create'];
+		$this->app->argc = count($this->app->argv);
 		api_favorites_create_destroy('json');
 	}
 
@@ -1845,9 +1853,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFavoritesCreateDestroyWithInvalidId()
 	{
-		// This triggers a very specific condition ($action_argv_id + 2)
-		$this->app->argv[1] = '1.1';
-		$this->app->argc = 5;
+		$this->app->argv = ['api', '1.1', 'favorites', 'create', '12.json'];
+		$this->app->argc = count($this->app->argv);
 		api_favorites_create_destroy('json');
 	}
 
@@ -1858,8 +1865,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFavoritesCreateDestroyWithInvalidAction()
 	{
-		$this->app->argv[1] = '1.1';
-		$this->app->argc = 10;
+		$this->app->argv = ['api', '1.1', 'favorites', 'change.json'];
+		$this->app->argc = count($this->app->argv);
 		$_REQUEST['id'] = 1;
 		api_favorites_create_destroy('json');
 	}
@@ -1870,9 +1877,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateAction()
 	{
-		$this->app->argv[1] = '1.1';
-		$this->app->argv[3] = 'create';
-		$this->app->argc = 10;
+		$this->app->argv = ['api', '1.1', 'favorites', 'create.json'];
+		$this->app->argc = count($this->app->argv);
 		$_REQUEST['id'] = 3;
 		$result = api_favorites_create_destroy('json');
 		$this->assertStatus($result['status']);
@@ -1884,9 +1890,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFavoritesCreateDestroyWithCreateActionAndRss()
 	{
-		$this->app->argv[1] = '1.1';
-		$this->app->argv[3] = 'create';
-		$this->app->argc = 10;
+		$this->app->argv = ['api', '1.1', 'favorites', 'create.rss'];
+		$this->app->argc = count($this->app->argv);
 		$_REQUEST['id'] = 3;
 		$result = api_favorites_create_destroy('rss');
 		$this->assertXml($result, 'status');
@@ -1898,9 +1903,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFavoritesCreateDestroyWithDestroyAction()
 	{
-		$this->app->argv[1] = '1.1';
-		$this->app->argv[3] = 'destroy';
-		$this->app->argc = 10;
+		$this->app->argv = ['api', '1.1', 'favorites', 'destroy.json'];
+		$this->app->argc = count($this->app->argv);
 		$_REQUEST['id'] = 3;
 		$result = api_favorites_create_destroy('json');
 		$this->assertStatus($result['status']);
@@ -1913,6 +1917,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFavoritesCreateDestroyWithoutAuthenticatedUser()
 	{
+		$this->app->argv = ['api', '1.1', 'favorites', 'create.json'];
+		$this->app->argc = count($this->app->argv);
 		$_SESSION['authenticated'] = false;
 		api_favorites_create_destroy('json');
 	}
@@ -2016,8 +2022,8 @@ class ApiTest extends DatabaseTest
 			['id' => 2, 'screen_name' => 'recipient_name'],
 			['id' => 3, 'screen_name' => 'sender_name']
 		);
-		$this->assertNull($result['sender']);
-		$this->assertNull($result['recipient']);
+		$this->assertTrue(!isset($result['sender']));
+		$this->assertTrue(!isset($result['recipient']));
 	}
 
 	/**
@@ -2053,7 +2059,8 @@ class ApiTest extends DatabaseTest
 				'repellat officia illum quos impedit quam iste esse unde qui '.
 				'suscipit aut facilis ut inventore omnis exercitationem quo magnam '.
 				'consequatur maxime aut illum soluta quaerat natus unde aspernatur '.
-				'et sed beatae nihil ullam temporibus corporis ratione blanditiis'
+				'et sed beatae nihil ullam temporibus corporis ratione blanditiis',
+				'plink' => 'item_plink'
 			]
 		);
 		$this->assertStringStartsWith('item_title', $result['text']);
@@ -2110,7 +2117,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetAttachmentsWithImage()
 	{
-		$body = '[img]img_url[/img]';
+		$body = '[img]http://via.placeholder.com/1x1.png[/img]';
 		$this->assertInternalType('array', api_get_attachments($body));
 	}
 
@@ -2121,7 +2128,7 @@ class ApiTest extends DatabaseTest
 	public function testApiGetAttachmentsWithImageAndAndStatus()
 	{
 		$_SERVER['HTTP_USER_AGENT'] = 'AndStatus';
-		$body = '[img]img_url[/img]';
+		$body = '[img]http://via.placeholder.com/1x1.png[/img]';
 		$this->assertInternalType('array', api_get_attachments($body));
 	}
 
@@ -2157,7 +2164,7 @@ class ApiTest extends DatabaseTest
 	public function testApiFormatItemsEmbededImages()
 	{
 		$this->assertEquals(
-			'text http://localhost/display/item_guid',
+			'text ' . \Friendica\Core\System::baseUrl() . '/display/item_guid',
 			api_format_items_embeded_images(['guid' => 'item_guid'], 'text data:image/foo')
 		);
 	}
@@ -2198,7 +2205,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFormatItemsActivities()
 	{
-		$item = [];
+		$item = ['uid' => 0, 'uri' => ''];
 		$result = api_format_items_activities($item);
 		$this->assertArrayHasKey('like', $result);
 		$this->assertArrayHasKey('dislike', $result);
@@ -2213,7 +2220,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFormatItemsActivitiesWithXml()
 	{
-		$item = [];
+		$item = ['uid' => 0, 'uri' => ''];
 		$result = api_format_items_activities($item, 'xml');
 		$this->assertArrayHasKey('friendica:like', $result);
 		$this->assertArrayHasKey('friendica:dislike', $result);
@@ -2327,10 +2334,14 @@ class ApiTest extends DatabaseTest
 			[
 				'item_network' => 'item_network',
 				'source' => 'web',
-				'coord' => '5 7'
+				'coord' => '5 7',
+				'body' => '',
+				'verb' => '',
+				'author-id' => 42,
+				'plink' => '',
 			]
 		];
-		$result = api_format_items($items, [], true);
+		$result = api_format_items($items, ['id' => 0], true);
 		foreach ($result as $status) {
 			$this->assertStatus($status);
 		}
@@ -2344,10 +2355,14 @@ class ApiTest extends DatabaseTest
 	{
 		$items = [
 			[
-				'coord' => '5 7'
+				'coord' => '5 7',
+				'body' => '',
+				'verb' => '',
+				'author-id' => 42,
+				'plink' => '',
 			]
 		];
-		$result = api_format_items($items, [], true, 'xml');
+		$result = api_format_items($items, ['id' => 0], true, 'xml');
 		foreach ($result as $status) {
 			$this->assertStatus($status);
 		}
@@ -2391,7 +2406,6 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiHelpTestWithXml()
 	{
-		$this->markTestIncomplete('Triggers this error: "key() expects parameter 1 to be array, string given"');
 		$result = api_help_test('xml');
 		$this->assertXml($result, 'ok');
 	}
@@ -2617,7 +2631,7 @@ class ApiTest extends DatabaseTest
 		$result = api_statusnet_config('json');
 		$this->assertEquals('localhost', $result['config']['site']['server']);
 		$this->assertEquals('default', $result['config']['site']['theme']);
-		$this->assertEquals('http://localhost/images/friendica-64.png', $result['config']['site']['logo']);
+		$this->assertEquals(\Friendica\Core\System::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
 		$this->assertTrue($result['config']['site']['fancy']);
 		$this->assertEquals('en', $result['config']['site']['language']);
 		$this->assertEquals('UTC', $result['config']['site']['timezone']);
@@ -2727,7 +2741,7 @@ class ApiTest extends DatabaseTest
 	public function testApiDirectMessagesNewWithScreenName()
 	{
 		$_POST['text'] = 'message_text';
-		$_POST['screen_name'] = $this->otherUser['nick'];
+		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result = api_direct_messages_new('json');
 		$this->assertEquals(1, $result['direct_message']['id']);
 		$this->assertContains('message_text', $result['direct_message']['text']);
@@ -2742,7 +2756,7 @@ class ApiTest extends DatabaseTest
 	public function testApiDirectMessagesNewWithTitle()
 	{
 		$_POST['text'] = 'message_text';
-		$_POST['screen_name'] = $this->otherUser['nick'];
+		$_POST['screen_name'] = $this->friendUser['nick'];
 		$_REQUEST['title'] = 'message_title';
 		$result = api_direct_messages_new('json');
 		$this->assertEquals(1, $result['direct_message']['id']);
@@ -2759,7 +2773,7 @@ class ApiTest extends DatabaseTest
 	public function testApiDirectMessagesNewWithRss()
 	{
 		$_POST['text'] = 'message_text';
-		$_POST['screen_name'] = $this->otherUser['nick'];
+		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result = api_direct_messages_new('rss');
 		$this->assertXml($result, 'direct-messages');
 	}
@@ -3564,7 +3578,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFriendicaNotificationWithArgumentCount()
 	{
-		$this->app->argc = 3;
+		$this->app->argv = ['api', 'friendica', 'notification'];
+		$this->app->argc = count($this->app->argv);
 		$result = api_friendica_notification('json');
 		$this->assertEquals(['note' => false], $result);
 	}
@@ -3575,8 +3590,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFriendicaNotificationWithXmlResult()
 	{
-		$this->markTestIncomplete('Fails with "Invalid argument supplied for foreach()".');
-		$this->app->argc = 3;
+		$this->app->argv = ['api', 'friendica', 'notification'];
+		$this->app->argc = count($this->app->argv);
 		$result = api_friendica_notification('xml');
 		$this->assertXml($result, 'notes');
 	}
