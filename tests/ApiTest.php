@@ -629,7 +629,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiRssExtra()
 	{
-		$user_info = ['url' => 'user_url'];
+		$user_info = ['url' => 'user_url', 'language' => 'en'];
 		$result = api_rss_extra($this->app, [], $user_info);
 		$this->assertEquals($user_info, $result['$user']);
 		$this->assertEquals($user_info['url'], $result['$rss']['alternate']);
@@ -1073,6 +1073,7 @@ class ApiTest extends DatabaseTest
 				'width' => 666,
 				'height' => 666,
 				'tmp_name' => $this->getTempImage(),
+				'name' => 'spacer.png',
 				'type' => 'image/png'
 			]
 		];

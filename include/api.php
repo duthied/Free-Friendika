@@ -90,11 +90,15 @@ function api_source()
 	}
 
 	// Support for known clients that doesn't send a source name
-	if (strpos($_SERVER['HTTP_USER_AGENT'], "Twidere") !== false) {
-		return "Twidere";
+	if (!empty($_SERVER['HTTP_USER_AGENT'])) {
+		if(strpos($_SERVER['HTTP_USER_AGENT'], "Twidere") !== false) {
+			return "Twidere";
+		}
+
+		logger("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
 	}
 
-	logger("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
+	logger("Empty user-agent", LOGGER_DEBUG);
 
 	return "api";
 }
@@ -193,8 +197,8 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	$user = $_SERVER['PHP_AUTH_USER'];
-	$password = $_SERVER['PHP_AUTH_PW'];
+	$user = defaults($_SERVER, 'PHP_AUTH_USER', '');
+	$password = defaults($_SERVER, 'PHP_AUTH_PW', '');
 
 	// allow "user@server" login (but ignore 'server' part)
 	$at = strstr($user, "@", true);
@@ -258,7 +262,7 @@ function api_check_method($method)
 	if ($method == "*") {
 		return true;
 	}
-	return (strpos($method, $_SERVER['REQUEST_METHOD']) !== false);
+	return (stripos($method, defaults($_SERVER, 'REQUEST_METHOD', 'GET')) !== false);
 }
 
 /**
@@ -298,7 +302,7 @@ function api_call(App $a)
 				//unset($_SERVER['PHP_AUTH_USER']);
 
 				/// @TODO should be "true ==[=] $info['auth']", if you miss only one = character, you assign a variable (only with ==). Let's make all this even.
-				if ($info['auth'] === true && api_user() === false) {
+				if (!empty($info['auth']) && api_user() === false) {
 					api_login($a);
 				}
 
@@ -659,7 +663,7 @@ function api_get_user(App $a, $contact_id = null)
 				'geo_enabled' => false,
 				'verified' => false,
 				'statuses_count' => 0,
-				'lang' => '',
+				'language' => '',
 				'contributors_enabled' => false,
 				'is_translator' => false,
 				'is_translation_enabled' => false,
@@ -740,7 +744,7 @@ function api_get_user(App $a, $contact_id = null)
 		'geo_enabled' => false,
 		'verified' => true,
 		'statuses_count' => intval($countitems),
-		'lang' => '',
+		'language' => '',
 		'contributors_enabled' => false,
 		'is_translator' => false,
 		'is_translation_enabled' => false,
@@ -773,13 +777,13 @@ function api_get_user(App $a, $contact_id = null)
 				$link_color = PConfig::get($ret['uid'], 'frio', 'link_color');
 				$bgcolor = PConfig::get($ret['uid'], 'frio', 'background_color');
 			}
-			if (!$nav_bg) {
+			if (empty($nav_bg)) {
 				$nav_bg = "#708fa0";
 			}
-			if (!$link_color) {
+			if (empty($link_color)) {
 				$link_color = "#6fdbe8";
 			}
-			if (!$bgcolor) {
+			if (empty($bgcolor)) {
 				$bgcolor = "#ededed";
 			}
 
@@ -801,12 +805,12 @@ function api_get_user(App $a, $contact_id = null)
  */
 function api_item_get_user(App $a, $item)
 {
-	$status_user = api_get_user($a, $item["author-id"]);
+	$status_user = api_get_user($a, defaults($item, 'author-id', null));
 
-	$status_user["protected"] = $item["private"];
+	$status_user["protected"] = defaults($item, 'private', 0);
 
-	if ($item['thr-parent'] == $item['uri']) {
-		$owner_user = api_get_user($a, $item["owner-id"]);
+	if (defaults($item, 'thr-parent', '') == defaults($item, 'uri', '')) {
+		$owner_user = api_get_user($a, defaults($item, 'author-id', null));
 	} else {
 		$owner_user = $status_user;
 	}
@@ -1308,7 +1312,7 @@ function api_status_show($type)
 			'favorited' => $lastwall['starred'] ? true : false,
 			'retweeted' => false,
 			'possibly_sensitive' => false,
-			'lang' => "",
+			'language' => "",
 			'statusnet_html' => $converted["html"],
 			'statusnet_conversation_id' => $lastwall['parent'],
 			'external_url' => System::baseUrl() . "/display/" . $lastwall['guid'],
@@ -2205,7 +2209,7 @@ function api_favorites_create_destroy($type)
 	// for versioned api.
 	/// @TODO We need a better global soluton
 	$action_argv_id = 2;
-	if ($a->argv[1] == "1.1") {
+	if (count($a->argv) > 1 && $a->argv[1] == "1.1") {
 		$action_argv_id = 3;
 	}
 
