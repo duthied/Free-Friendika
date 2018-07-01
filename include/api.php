@@ -3337,18 +3337,15 @@ function api_statusnet_config($type)
 {
 	$a = get_app();
 
-	$name = $a->config['sitename'];
-	$server = $a->get_hostname();
-	$logo = System::baseUrl() . '/images/friendica-64.png';
-	$email = $a->config['admin_email'];
-	$closed = (($a->config['register_policy'] == REGISTER_CLOSED) ? 'true' : 'false');
-	$private = ((Config::get('system', 'block_public')) ? 'true' : 'false');
-	$textlimit = (string) (($a->config['max_import_size']) ? $a->config['max_import_size'] : 200000);
-	if ($a->config['api_import_size']) {
-		$textlimit = (string) $a->config['api_import_size'];
-	}
-	$ssl = ((Config::get('system', 'have_ssl')) ? 'true' : 'false');
-	$sslserver = (($ssl === 'true') ? str_replace('http:', 'https:', System::baseUrl()) : '');
+	$name      = Config::get('config', 'sitename');
+	$server    = $a->get_hostname();
+	$logo      = System::baseUrl() . '/images/friendica-64.png';
+	$email     = Config::get('config', 'admin_email');
+	$closed    = Config::get('config', 'register_policy') == REGISTER_CLOSED ? 'true' : 'false';
+	$private   = Config::get('system', 'block_public') ? 'true' : 'false';
+	$textlimit = (string) Config::get('config', 'api_import_size', Config::get('config', 'max_import_size', 200000));
+	$ssl       = Config::get('system', 'have_ssl') ? 'true' : 'false';
+	$sslserver = Config::get('system', 'have_ssl') ? str_replace('http:', 'https:', System::baseUrl()) : '';
 
 	$config = [
 		'site' => ['name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
