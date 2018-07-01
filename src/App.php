@@ -866,7 +866,7 @@ class App
 			return;
 		}
 
-		array_unshift($args, ((x($this->config, 'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
+		array_unshift($args, $this->getConfigValue('config', 'php_path', 'php'));
 
 		for ($x = 0; $x < count($args); $x ++) {
 			$args[$x] = escapeshellarg($args[$x]);
