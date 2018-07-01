@@ -818,7 +818,7 @@ class ApiTest extends DatabaseTest
 	public function testApiGetUserWithCalledApi()
 	{
 		global $called_api;
-		$called_api = ['api_path'];
+		$called_api = ['api', 'api_path'];
 		$this->assertSelfUser(api_get_user($this->app));
 	}
 

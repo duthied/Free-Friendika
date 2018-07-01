@@ -575,6 +575,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
+	// $called_api is the API path exploded on / and is expected to have at least 2 elements
 	if (is_null($user) && ($a->argc > (count($called_api) - 1)) && (count($called_api) > 0)) {
 		$argid = count($called_api);
 		list($user, $null) = explode(".", $a->argv[$argid]);
