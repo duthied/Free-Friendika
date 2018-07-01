@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "4fcae78061a3eb72f91e4fa81e53af56",
+    "content-hash": "9e24971ae9340c5d9d4d4ca477d4ec29",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -3582,7 +3582,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">5.6",
+        "php": ">=5.6.1",
         "ext-xml": "*"
     },
     "platform-dev": []
