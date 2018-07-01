@@ -1806,20 +1806,20 @@ function api_statuses_show($type)
 	}
 
 	// params
-	$id = intval($a->argv[3]);
+	$id = intval(defaults($a->argv, 3, 0));
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_statuses_show: ' . $id);
 
-	$conversation = (x($_REQUEST, 'conversation') ? 1 : 0);
+	$conversation = !empty($_REQUEST['conversation']);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
 	$uri_item = dba::selectFirst('item', ['uri'], ['id' => $id]);
@@ -1879,24 +1879,24 @@ function api_conversation_show($type)
 	}
 
 	// params
-	$id = intval($a->argv[3]);
-	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+	$id       = intval(defaults($a->argv , 3         , 0));
+	$since_id = intval(defaults($_REQUEST, 'since_id', 0));
+	$max_id   = intval(defaults($_REQUEST, 'max_id'  , 0));
+	$count    = intval(defaults($_REQUEST, 'count'   , 20));
+	$page     = intval(defaults($_REQUEST, 'page'    , 1)) - 1;
 	if ($page < 0) {
 		$page = 0;
 	}
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
 
-	$start = $page*$count;
+	$start = $page * $count;
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_conversation_show: '.$id);
