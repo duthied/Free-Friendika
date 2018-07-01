@@ -16,6 +16,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
@@ -1959,15 +1960,15 @@ function api_statuses_repeat($type)
 	api_get_user($a);
 
 	// params
-	$id = intval($a->argv[3]);
+	$id = intval(defaults($a->argv, 3, 0));
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_statuses_repeat: '.$id);
@@ -2025,15 +2026,15 @@ function api_statuses_destroy($type)
 	api_get_user($a);
 
 	// params
-	$id = intval($a->argv[3]);
+	$id = intval(defaults($a->argv, 3, 0));
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_statuses_destroy: '.$id);
@@ -2219,10 +2220,9 @@ function api_favorites_create_destroy($type)
 	}
 	$action = str_replace("." . $type, "", $a->argv[$action_argv_id]);
 	if ($a->argc == $action_argv_id + 2) {
-		$itemid = intval($a->argv[$action_argv_id + 1]);
+		$itemid = intval(defaults($a->argv, $action_argv_id + 1, 0));
 	} else {
-		///  @TODO use x() to check if _REQUEST contains 'id'
-		$itemid = intval($_REQUEST['id']);
+		$itemid = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	$item = Item::selectFirstForUser(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
@@ -2345,25 +2345,33 @@ function api_format_messages($item, $recipient, $sender)
 {
 	// standard meta information
 	$ret = [
-			'id'                    => $item['id'],
-			'sender_id'             => $sender['id'] ,
-			'text'                  => "",
-			'recipient_id'          => $recipient['id'],
-			'created_at'            => api_date($item['created']),
-			'sender_screen_name'    => $sender['screen_name'],
-			'recipient_screen_name' => $recipient['screen_name'],
-			'sender'                => $sender,
-			'recipient'             => $recipient,
-			'title'                 => "",
-			'friendica_seen'        => $item['seen'],
-			'friendica_parent_uri'  => $item['parent-uri'],
+		'id'                    => $item['id'],
+		'sender_id'             => $sender['id'] ,
+		'text'                  => "",
+		'recipient_id'          => $recipient['id'],
+		'created_at'            => api_date(defaults($item, 'created', DateTimeFormat::utcNow())),
+		'sender_screen_name'    => $sender['screen_name'],
+		'recipient_screen_name' => $recipient['screen_name'],
+		'sender'                => $sender,
+		'recipient'             => $recipient,
+		'title'                 => "",
+		'friendica_seen'        => defaults($item, 'seen', 0),
+		'friendica_parent_uri'  => defaults($item, 'parent-uri', ''),
 	];
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
-	unset($ret["sender"]["uid"]);
-	unset($ret["sender"]["self"]);
-	unset($ret["recipient"]["uid"]);
-	unset($ret["recipient"]["self"]);
+	if (isset($ret['sender']['uid'])) {
+		unset($ret['sender']['uid']);
+	}
+	if (isset($ret['sender']['self'])) {
+		unset($ret['sender']['self']);
+	}
+	if (isset($ret['recipient']['uid'])) {
+		unset($ret['recipient']['uid']);
+	}
+	if (isset($ret['recipient']['self'])) {
+		unset($ret['recipient']['self']);
+	}
 
 	//don't send title to regular StatusNET requests to avoid confusing these apps
 	if (x($_GET, 'getText')) {
@@ -2410,8 +2418,8 @@ function api_convert_item($item)
 		$statustext = trim($statustitle."\n\n".$statusbody);
 	}
 
-	if (($item["network"] == NETWORK_FEED) && (strlen($statustext)> 1000)) {
-		$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
+	if ((defaults($item, 'network', Protocol::PHANTOM) == Protocol::FEED) && (strlen($statustext)> 1000)) {
+		$statustext = substr($statustext, 0, 1000) . "... \n" . defaults($item, 'plink', '');
 	}
 
 	$statushtml = BBCode::convert(api_clean_attachments($body), false);
@@ -2445,7 +2453,7 @@ function api_convert_item($item)
 	}
 
 	// feeds without body should contain the link
-	if (($item['network'] == NETWORK_FEED) && (strlen($item['body']) == 0)) {
+	if ((defaults($item, 'network', Protocol::PHANTOM) == Protocol::FEED) && (strlen($item['body']) == 0)) {
 		$statushtml .= BBCode::convert($item['plink']);
 	}
 
@@ -2487,7 +2495,7 @@ function api_get_attachments(&$body)
 		}
 	}
 
-	if (strstr($_SERVER['HTTP_USER_AGENT'], "AndStatus")) {
+	if (strstr(defaults($_SERVER, 'HTTP_USER_AGENT', ''), "AndStatus")) {
 		foreach ($images[0] as $orig) {
 			$body = str_replace($orig, "", $body);
 		}
@@ -3462,20 +3470,20 @@ api_register_func('api/followers/ids', 'api_followers_ids', true);
  */
 function api_direct_messages_new($type)
 {
-
 	$a = get_app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
 
-	if (!x($_POST, "text") || (!x($_POST, "screen_name") && !x($_POST, "user_id"))) {
+	if (empty($_POST["text"]) || empty($_POST["screen_name"]) && empty($_POST["user_id"])) {
 		return;
 	}
 
 	$sender = api_get_user($a);
 
-	if ($_POST['screen_name']) {
+	$recipient = null;
+	if (!empty($_POST['screen_name'])) {
 		$r = q(
 			"SELECT `id`, `nurl`, `network` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
 			intval(api_user()),
@@ -3627,17 +3635,17 @@ function api_direct_messages_box($type, $box, $verbose)
 		throw new ForbiddenException();
 	}
 	// params
-	$count = (x($_GET, 'count') ? $_GET['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] -1 : 0);
+	$count = defaults($_GET, 'count', 20);
+	$page = defaults($_REQUEST, 'page', 1) - 1;
 	if ($page < 0) {
 		$page = 0;
 	}
 
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
+	$since_id = defaults($_REQUEST, 'since_id', 0);
+	$max_id = defaults($_REQUEST, 'max_id', 0);
 
-	$user_id = (x($_REQUEST, 'user_id') ? $_REQUEST['user_id'] : "");
-	$screen_name = (x($_REQUEST, 'screen_name') ? $_REQUEST['screen_name'] : "");
+	$user_id = defaults($_REQUEST, 'user_id', '');
+	$screen_name = defaults($_REQUEST, 'screen_name', '');
 
 	//  caller user info
 	unset($_REQUEST["user_id"]);
@@ -3661,7 +3669,7 @@ function api_direct_messages_box($type, $box, $verbose)
 	if ($box=="sentbox") {
 		$sql_extra = "`mail`.`from-url`='" . dbesc($profile_url) . "'";
 	} elseif ($box == "conversation") {
-		$sql_extra = "`mail`.`parent-uri`='" . dbesc($_GET["uri"])  . "'";
+		$sql_extra = "`mail`.`parent-uri`='" . dbesc(defaults($_GET, 'uri', ''))  . "'";
 	} elseif ($box == "all") {
 		$sql_extra = "true";
 	} elseif ($box == "inbox") {
@@ -5582,8 +5590,10 @@ function api_friendica_notification($type)
 
 	if ($type == "xml") {
 		$xmlnotes = [];
-		foreach ($notes as $note) {
-			$xmlnotes[] = ["@attributes" => $note];
+		if (!empty($notes)) {
+			foreach ($notes as $note) {
+				$xmlnotes[] = ["@attributes" => $note];
+			}
 		}
 
 		$notes = $xmlnotes;
