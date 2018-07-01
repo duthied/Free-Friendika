@@ -38,19 +38,19 @@ class ApiTest extends DatabaseTest
 			'id' => 42,
 			'name' => 'Self contact',
 			'nick' => 'selfcontact',
-			'nurl' => \Friendica\Core\System::baseUrl() . '/profile/selfcontact'
+			'nurl' => 'http://localhost/profile/selfcontact'
 		];
 		$this->friendUser = [
 			'id' => 44,
 			'name' => 'Friend contact',
 			'nick' => 'friendcontact',
-			'nurl' => \Friendica\Core\System::baseUrl() . '/profile/friendcontact'
+			'nurl' => 'http://localhost/profile/friendcontact'
 		];
 		$this->otherUser = [
 			'id' => 43,
 			'name' => 'othercontact',
 			'nick' => 'othercontact',
-			'nurl' => \Friendica\Core\System::baseUrl() . '/profile/othercontact'
+			'nurl' => 'http://localhost/profile/othercontact'
 		];
 
 		// User ID that we know is not in the database
