@@ -238,7 +238,8 @@ class PostUpdate
 
 		$fields = ['id', 'title', 'content-warning', 'body', 'location', 'tag', 'file',
 			'coord', 'app', 'rendered-hash', 'rendered-html', 'verb',
-			'object-type', 'object', 'target-type', 'target', 'plink'];
+			'object-type', 'object', 'target-type', 'target', 'plink',
+			'author-id', 'owner-id'];
 
 		$condition = ["`icid` IS NULL"];
 		$params = ['limit' => 10000];
@@ -253,6 +254,19 @@ class PostUpdate
 		$rows = 0;
 
 		while ($item = Item::fetch($items)) {
+			// Clearing the author and owner data if there is an id.
+			if ($item['author-id'] > 0) {
+				$item['author-name'] = '';
+				$item['author-link'] = '';
+				$item['author-avatar'] = '';
+			}
+
+			if ($item['owner-id'] > 0) {
+				$item['owner-name'] = '';
+				$item['owner-link'] = '';
+				$item['owner-avatar'] = '';
+			}
+
 			Item::update($item, ['id' => $item['id']]);
 			++$rows;
 		}
