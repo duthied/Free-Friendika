@@ -3487,12 +3487,18 @@ function api_direct_messages_new($type)
 			dbesc($_POST['screen_name'])
 		);
 
-		// Selecting the id by priority, friendica first
-		api_best_nickname($r);
+		if (DBM::is_result($r)) {
+			// Selecting the id by priority, friendica first
+			api_best_nickname($r);
 
-		$recipient = api_get_user($a, $r[0]['nurl']);
+			$recipient = api_get_user($a, $r[0]['nurl']);
+		}
 	} else {
 		$recipient = api_get_user($a, $_POST['user_id']);
+	}
+
+	if (empty($recipient)) {
+		throw new NotFoundException('Recipient not found');
 	}
 
 	$replyto = '';
