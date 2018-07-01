@@ -1543,13 +1543,6 @@ class Diaspora
 
 		logger('Contacts are updated.');
 
-		// update items
-		// This is an extreme performance killer
-		Item::update(['owner-link' => $data["url"]], ['owner-link' => $contact["url"], 'uid' => $importer["uid"]]);
-		Item::update(['author-link' => $data["url"]], ['author-link' => $contact["url"], 'uid' => $importer["uid"]]);
-
-		logger('Items are updated.');
-
 		return true;
 	}
 

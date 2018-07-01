@@ -614,7 +614,7 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin', 'uri', 'plink'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri', 'plink', 'icid'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -656,6 +656,20 @@ class Item extends BaseObject
 				$content_fields['plink'] =  $item['plink'];
 			}
 			self::updateContent($content_fields, ['uri' => $item['uri']]);
+
+			if (empty($item['icid'])) {
+				$item_content = dba::selectFirst('item-content', [], ['uri' => $item['uri']]);
+				if (DBM::is_result($item_content)) {
+					$item_fields = ['icid' => $item_content['id']];
+					// Clear all fields in the item table that have a content in the item-content table
+					foreach ($item_content as $field => $content) {
+						if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($item_content[$field])) {
+							$item_fields[$field] = '';
+						}
+					}
+					dba::update('item', $item_fields, ['id' => $item['id']]);
+				}
+			}
 
 			if (!empty($tags)) {
 				Term::insertFromTagFieldByItemId($item['id'], $tags);
