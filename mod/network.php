@@ -360,21 +360,21 @@ function network_content(App $a, $update = 0, $parent = 0)
 	$arr = ['query' => $a->query_string];
 	Addon::callHooks('network_content_init', $arr);
 
-	$nouveau = false;
+	$flat_mode = false;
 
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
 			if ($a->argv[$x] === 'new') {
-				$nouveau = true;
+				$flat_mode = true;
 			}
 		}
 	}
 
 	if (x($_GET, 'file')) {
-		$nouveau = true;
+		$flat_mode = true;
 	}
 
-	if ($nouveau) {
+	if ($flat_mode) {
 		$o = networkFlatView($a, $update);
 	} else {
 		$o = networkThreadedView($a, $update, $parent);
@@ -393,7 +393,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 function networkFlatView(App $a, $update = 0)
 {
 	// Rawmode is used for fetching new content at the end of the page
-	$rawmode = (isset($_GET['mode']) AND ( $_GET['mode'] == 'raw'));
+	$rawmode = (isset($_GET['mode']) && ($_GET['mode'] == 'raw'));
 
 	if (isset($_GET['last_id'])) {
 		$last_id = intval($_GET['last_id']);

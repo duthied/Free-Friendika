@@ -122,11 +122,10 @@ class Item extends BaseObject
 			$row['tag'] = Term::tagTextFromItemId($row['id']);
 		}
 
-		/// @todo This is a preparation
 		// Build the file string out of the term entries
-		//if (isset($row['id']) && array_key_exists('file', $row)) {
-		//	$row['file'] = Term::fileTextFromItemId($row['id']);
-		//}
+		if (isset($row['id']) && array_key_exists('file', $row)) {
+			$row['file'] = Term::fileTextFromItemId($row['id']);
+		}
 
 		// We can always comment on posts from these networks
 		if (isset($row['writable']) && !empty($row['network']) &&
@@ -541,11 +540,10 @@ class Item extends BaseObject
 			$selected[] = 'id';
 		}
 
-		/// @todo This is a preparation
 		// To be able to fetch the files we need the item id
-		//if (in_array('file', $selected) && !in_array('id', $selected)) {
-		//	$selected[] = 'id';
-		//}
+		if (in_array('file', $selected) && !in_array('id', $selected)) {
+			$selected[] = 'id';
+		}
 
 		$selection = [];
 		foreach ($fields as $table => $table_fields) {
@@ -635,8 +633,7 @@ class Item extends BaseObject
 
 		if (array_key_exists('file', $fields)) {
 			$files = $fields['file'];
-			/// @todo This is a preparation
-			//unset($fields['file']);
+			unset($fields['file']);
 		} else {
 			$files = '';
 		}
@@ -1393,8 +1390,7 @@ class Item extends BaseObject
 
 		if (array_key_exists('file', $item)) {
 			$files = $item['file'];
-			/// @todo This is a preparation
-			//unset($item['file']);
+			unset($item['file']);
 		} else {
 			$files = '';
 		}
@@ -1766,7 +1762,7 @@ class Item extends BaseObject
 	 */
 	public static function addShadow($itemid)
 	{
-		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network'];
+		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network', 'uri'];
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
 		$item = self::selectFirst($fields, $condition);
 
@@ -1789,36 +1785,36 @@ class Item extends BaseObject
 			return;
 		}
 
+		if (self::exists(['uri' => $item['uri'], 'uid' => 0])) {
+			return;
+		}
+
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 
-		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
-			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
-
-			if (!self::exists(['uri' => $item['uri'], 'uid' => 0])) {
-				// Preparing public shadow (removing user specific data)
-				$item['uid'] = 0;
-				unset($item['id']);
-				unset($item['parent']);
-				unset($item['wall']);
-				unset($item['mention']);
-				unset($item['origin']);
-				unset($item['starred']);
-				if ($item['uri'] == $item['parent-uri']) {
-					$item['contact-id'] = $item['owner-id'];
-				} else {
-					$item['contact-id'] = $item['author-id'];
-				}
-
-				if (in_array($item['type'], ["net-comment", "wall-comment"])) {
-					$item['type'] = 'remote-comment';
-				} elseif ($item['type'] == 'wall') {
-					$item['type'] = 'remote';
-				}
-
-				$public_shadow = self::insert($item, false, false, true);
-
-				logger("Stored public shadow for thread ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
+		if (DBM::is_result($item)) {
+			// Preparing public shadow (removing user specific data)
+			$item['uid'] = 0;
+			unset($item['id']);
+			unset($item['parent']);
+			unset($item['wall']);
+			unset($item['mention']);
+			unset($item['origin']);
+			unset($item['starred']);
+			if ($item['uri'] == $item['parent-uri']) {
+				$item['contact-id'] = $item['owner-id'];
+			} else {
+				$item['contact-id'] = $item['author-id'];
 			}
+
+			if (in_array($item['type'], ["net-comment", "wall-comment"])) {
+				$item['type'] = 'remote-comment';
+			} elseif ($item['type'] == 'wall') {
+				$item['type'] = 'remote';
+			}
+
+			$public_shadow = self::insert($item, false, false, true);
+
+			logger("Stored public shadow for thread ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
 		}
 	}
 
@@ -2108,8 +2104,6 @@ class Item extends BaseObject
 			$item = dba::fetch_first("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND `item`.`wall`
 					AND `item`.`guid` = ?", $guid);
 			if (DBM::is_result($item)) {
@@ -2411,17 +2405,8 @@ class Item extends BaseObject
 
 	private static function hasPermissions($obj)
 	{
-		return (
-			(
-				x($obj, 'allow_cid')
-			) || (
-				x($obj, 'allow_gid')
-			) || (
-				x($obj, 'deny_cid')
-			) || (
-				x($obj, 'deny_gid')
-			)
-		);
+		return !empty($obj['allow_cid']) || !empty($obj['allow_gid']) ||
+			!empty($obj['deny_cid']) || !empty($obj['deny_gid']);
 	}
 
 	private static function samePermissions($obj1, $obj2)
@@ -2487,74 +2472,79 @@ class Item extends BaseObject
 			return;
 		}
 
+		$condition = ["`uid` = ? AND NOT `deleted` AND `id` = `parent` AND `gravity` = ?",
+			$uid, GRAVITY_PARENT];
+
 		/*
 		 * $expire_network_only = save your own wall posts
 		 * and just expire conversations started by others
 		 */
-		$expire_network_only = PConfig::get($uid,'expire', 'network_only');
-		$sql_extra = (intval($expire_network_only) ? " AND wall = 0 " : "");
+		$expire_network_only = PConfig::get($uid, 'expire', 'network_only', false);
+
+		if ($expire_network_only) {
+			$condition[0] .= " AND NOT `wall`";
+		}
 
 		if ($network != "") {
-			$sql_extra .= sprintf(" AND network = '%s' ", dbesc($network));
+			$condition[0] .= " AND `network` = ?";
+			$condition[] = $network;
 
 			/*
 			 * There is an index "uid_network_received" but not "uid_network_created"
 			 * This avoids the creation of another index just for one purpose.
 			 * And it doesn't really matter wether to look at "received" or "created"
 			 */
-			$range = "AND `received` < UTC_TIMESTAMP() - INTERVAL %d DAY ";
+			$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
+			$condition[] = $days;
 		} else {
-			$range = "AND `created` < UTC_TIMESTAMP() - INTERVAL %d DAY ";
+			$condition[0] .= " AND `created` < UTC_TIMESTAMP() - INTERVAL ? DAY";
+			$condition[] = $days;
 		}
 
-		$r = q("SELECT `file`, `resource-id`, `starred`, `type`, `id` FROM `item`
-			WHERE `uid` = %d $range
-			AND `id` = `parent`
-			$sql_extra
-			AND `deleted` = 0",
-			intval($uid),
-			intval($days)
-		);
+		$items = self::select(['file', 'resource-id', 'starred', 'type', 'id'], $condition);
 
-		if (!DBM::is_result($r)) {
+		if (!DBM::is_result($items)) {
 			return;
 		}
 
-		$expire_items = PConfig::get($uid, 'expire', 'items', 1);
+		$expire_items = PConfig::get($uid, 'expire', 'items', true);
 
 		// Forcing expiring of items - but not notes and marked items
 		if ($force) {
 			$expire_items = true;
 		}
 
-		$expire_notes = PConfig::get($uid, 'expire', 'notes', 1);
-		$expire_starred = PConfig::get($uid, 'expire', 'starred', 1);
-		$expire_photos = PConfig::get($uid, 'expire', 'photos', 0);
+		$expire_notes = PConfig::get($uid, 'expire', 'notes', true);
+		$expire_starred = PConfig::get($uid, 'expire', 'starred', true);
+		$expire_photos = PConfig::get($uid, 'expire', 'photos', false);
 
-		logger('User '.$uid.': expire: # items=' . count($r). "; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
+		$expired = 0;
 
-		foreach ($r as $item) {
-
+		while ($item = Item::fetch($items)) {
 			// don't expire filed items
 
-			if (strpos($item['file'],'[') !== false) {
+			if (strpos($item['file'], '[') !== false) {
 				continue;
 			}
 
 			// Only expire posts, not photos and photo comments
 
-			if ($expire_photos == 0 && strlen($item['resource-id'])) {
+			if (!$expire_photos && strlen($item['resource-id'])) {
 				continue;
-			} elseif ($expire_starred == 0 && intval($item['starred'])) {
+			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;
-			} elseif ($expire_notes == 0 && $item['type'] == 'note') {
+			} elseif (!$expire_notes && $item['type'] == 'note') {
 				continue;
-			} elseif ($expire_items == 0 && $item['type'] != 'note') {
+			} elseif (!$expire_items && $item['type'] != 'note') {
 				continue;
 			}
 
 			self::deleteById($item['id'], PRIORITY_LOW);
+
+			++$expired;
 		}
+		dba::close($items);
+		logger('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 	}
 
 	public static function firstPostDate($uid, $wall = false)

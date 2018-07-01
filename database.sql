@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.08-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1273
+-- DB_UPDATE_VERSION 1274
 -- ------------------------------------------
 
 
@@ -536,9 +536,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `ownerid` (`owner-id`),
 	 INDEX `uid_uri` (`uid`,`uri`(190)),
 	 INDEX `resource-id` (`resource-id`),
-	 INDEX `contactid_allowcid_allowpid_denycid_denygid` (`contact-id`,`allow_cid`(10),`allow_gid`(10),`deny_cid`(10),`deny_gid`(10)),
-	 INDEX `uid_type_changed` (`uid`,`type`,`changed`),
-	 INDEX `contactid_verb` (`contact-id`,`verb`),
 	 INDEX `deleted_changed` (`deleted`,`changed`),
 	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
 	 INDEX `uid_eventid` (`uid`,`event-id`),
