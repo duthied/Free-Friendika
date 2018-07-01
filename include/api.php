@@ -885,7 +885,6 @@ function api_create_xml(array $data, $root_element)
 {
 	$childname = key($data);
 	$data2 = array_pop($data);
-	$key = key($data2);
 
 	$namespaces = ["" => "http://api.twitter.com",
 				"statusnet" => "http://status.net/schema/api/1/",
@@ -898,18 +897,19 @@ function api_create_xml(array $data, $root_element)
 	}
 
 	if (is_array($data2)) {
+		$key = key($data2);
 		api_walk_recursive($data2, "api_reformat_xml");
-	}
 
-	if ($key == "0") {
-		$data4 = [];
-		$i = 1;
+		if ($key == "0") {
+			$data4 = [];
+			$i = 1;
 
-		foreach ($data2 as $item) {
-			$data4[$i++ . ":" . $childname] = $item;
+			foreach ($data2 as $item) {
+				$data4[$i++ . ":" . $childname] = $item;
+			}
+
+			$data2 = $data4;
 		}
-
-		$data2 = $data4;
 	}
 
 	$data3 = [$root_element => $data2];
