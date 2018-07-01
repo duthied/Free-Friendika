@@ -2518,7 +2518,7 @@ class Item extends BaseObject
 		$expire_starred = PConfig::get($uid, 'expire', 'starred', true);
 		$expire_photos = PConfig::get($uid, 'expire', 'photos', false);
 
-		logger('User ' . $uid . ": expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
+		$expired = 0;
 
 		while ($item = Item::fetch($items)) {
 			// don't expire filed items
@@ -2540,8 +2540,11 @@ class Item extends BaseObject
 			}
 
 			self::deleteById($item['id'], PRIORITY_LOW);
+
+			++$expired;
 		}
 		dba::close($items);
+		logger('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 	}
 
 	public static function firstPostDate($uid, $wall = false)
