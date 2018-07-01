@@ -165,6 +165,11 @@ dlogip =
 ; Value in minutes after we think that a frontend task was killed by the webserver.
 frontend_worker_timeout = 10
 
+; groupedit_image_limit (Integer)
+; Number of contacts at which the group editor should switch from display the profile pictures of the contacts to only display the names.
+; This can alternatively be set on a per account basis in the pconfig table.
+groupedit_image_limit = 400
+
 ; hsts (Boolean)
 ; Enables the sending of HTTP Strict Transport Security headers
 hsts = false
