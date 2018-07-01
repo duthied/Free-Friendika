@@ -1989,7 +1989,7 @@ class Item extends BaseObject
 			Contact::unmarkForArchival($contact);
 		}
 
-		$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
+		$update = (!$arr['private'] && ((defaults($arr, 'author-link', '') === defaults($arr, 'owner-link', '')) || ($arr["parent-uri"] === $arr["uri"])));
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && ($arr["network"] == NETWORK_DFRN) && ($arr["parent-uri"] === $arr["uri"])) {

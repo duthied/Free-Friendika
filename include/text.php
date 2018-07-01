@@ -1156,7 +1156,7 @@ function put_item_in_cache(&$item, $update = false)
 	$rendered_html = defaults($item, 'rendered-html', '');
 
 	if ($rendered_hash == ''
-		|| $item["rendered-html"] == ""
+		|| $rendered_html == ""
 		|| $rendered_hash != hash("md5", $item["body"])
 		|| Config::get("system", "ignore_cache")
 	) {
@@ -1176,7 +1176,7 @@ function put_item_in_cache(&$item, $update = false)
 			$update = true;
 		}
 
-		if ($update && ($item["id"] > 0)) {
+		if ($update && !empty($item["id"])) {
 			Item::update(['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
 					['id' => $item["id"]]);
 		}

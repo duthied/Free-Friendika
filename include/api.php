@@ -1482,7 +1482,7 @@ function api_users_lookup($type)
 {
 	$users = [];
 
-	if (x($_REQUEST['user_id'])) {
+	if (!empty($_REQUEST['user_id'])) {
 		foreach (explode(',', $_REQUEST['user_id']) as $id) {
 			if (!empty($id)) {
 				$users[] = api_get_user(get_app(), $id);

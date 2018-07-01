@@ -1110,6 +1110,7 @@ class ApiTest extends DatabaseTest
 				'width' => 666,
 				'height' => 666,
 				'tmp_name' => $this->getTempImage(),
+				'name' => 'spacer.png',
 				'type' => 'image/png'
 			]
 		];
@@ -1217,6 +1218,7 @@ class ApiTest extends DatabaseTest
 				'width' => 666,
 				'height' => 666,
 				'tmp_name' => $this->getTempImage(),
+				'name' => 'spacer.png',
 				'type' => 'image/png'
 			]
 		];

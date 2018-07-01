@@ -178,6 +178,8 @@ function item_post(App $a) {
 		return;
 	}
 
+	$categories = '';
+
 	if ($orig_post) {
 		$str_group_allow   = $orig_post['allow_gid'];
 		$str_contact_allow = $orig_post['allow_cid'];
@@ -223,13 +225,13 @@ function item_post(App $a) {
 			$str_contact_deny  = perms2str($_REQUEST['contact_deny']);
 		}
 
-		$title             = notags(trim($_REQUEST['title']));
-		$location          = notags(trim($_REQUEST['location']));
-		$coord             = notags(trim($_REQUEST['coord']));
-		$verb              = notags(trim($_REQUEST['verb']));
-		$emailcc           = notags(trim($_REQUEST['emailcc']));
-		$body              = escape_tags(trim($_REQUEST['body']));
-		$network           = notags(trim(defaults($_REQUEST, 'network', NETWORK_DFRN)));
+		$title             =      notags(trim(defaults($_REQUEST, 'title'   , '')));
+		$location          =      notags(trim(defaults($_REQUEST, 'location', '')));
+		$coord             =      notags(trim(defaults($_REQUEST, 'coord'   , '')));
+		$verb              =      notags(trim(defaults($_REQUEST, 'verb'    , '')));
+		$emailcc           =      notags(trim(defaults($_REQUEST, 'emailcc' , '')));
+		$body              = escape_tags(trim(defaults($_REQUEST, 'body'    , '')));
+		$network           =      notags(trim(defaults($_REQUEST, 'network' , NETWORK_DFRN)));
 		$guid              = get_guid(32);
 
 		$postopts = defaults($_REQUEST, 'postopts', '');
@@ -279,15 +281,15 @@ function item_post(App $a) {
 		}
 	}
 
-	if (strlen($categories)) {
+	if (!empty($categories)) {
 		// get the "fileas" tags for this post
 		$filedas = file_tag_file_to_list($categories, 'file');
 	}
 	// save old and new categories, so we can determine what needs to be deleted from pconfig
 	$categories_old = $categories;
-	$categories = file_tag_list_to_file(trim($_REQUEST['category']), 'category');
+	$categories = file_tag_list_to_file(trim(defaults($_REQUEST, 'category', '')), 'category');
 	$categories_new = $categories;
-	if (strlen($filedas)) {
+	if (!empty($filedas)) {
 		// append the fileas stuff to the new categories list
 		$categories .= file_tag_list_to_file($filedas, 'file');
 	}
