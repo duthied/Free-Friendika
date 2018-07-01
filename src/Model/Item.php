@@ -801,7 +801,9 @@ class Item extends BaseObject
 		// If item has attachments, drop them
 		foreach (explode(", ", $item['attach']) as $attach) {
 			preg_match("|attach/(\d+)|", $attach, $matches);
-			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+			if (is_array($matches) && count($matches) > 1) {
+				dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+			}
 		}
 
 		// Delete tags that had been attached to other items
