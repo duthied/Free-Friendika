@@ -81,21 +81,8 @@ abstract class DatabaseTest extends TestCase
 	 */
 	protected function getConnection()
 	{
-		if (!dba::$connected) {
-			dba::connect(getenv('MYSQL_HOST') . ':' . getenv('MYSQL_PORT'), getenv('MYSQL_USERNAME'), getenv('MYSQL_PASSWORD'), getenv('MYSQL_DATABASE'));
-
-			if (dba::$connected) {
-				$app = get_app();
-				// We need to do this in order to disable logging
-				$app->mode = \Friendica\App::MODE_INSTALL;
-
-				// Create database structure
-				DBStructure::update(false, true, true);
-
-				$app->mode = \Friendica\App::MODE_NORMAL;
-			} else {
-				$this->markTestSkipped('Could not connect to the database. Please check the MYSQL_* environment variables.');
-			}
+		if (!dba::connected()) {
+			$this->markTestSkipped('Could not connect to the database.');
 		}
 
 		return $this->createDefaultDBConnection(dba::get_db(), getenv('MYSQL_DATABASE'));
