@@ -262,14 +262,20 @@ function localize_item(&$item)
 	}
 
 	if (activity_match($item['verb'], ACTIVITY_TAG)) {
-		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
+		$fields = ['author-id', 'author-link', 'author-name', 'author-network',
+			'verb', 'object-type', 'resource-id', 'body', 'plink'];
 		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
 		if (!DBM::is_result($obj)) {
 			return;
 		}
 
-		$author  = '[url=' . Contact::magicLinkById($item['author-id']) . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . Contact::magicLinkById($obj['author-id']) . ']' . $obj['author-name'] . '[/url]';
+		$author_arr = ['uid' => 0, 'id' => $item['author-id'],
+			'network' => $item['author-network'], 'url' => $item['author-link']];
+		$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
+
+		$author_arr = ['uid' => 0, 'id' => $obj['author-id'],
+			'network' => $obj['author-network'], 'url' => $obj['author-link']];
+		$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
 			case ACTIVITY_POST:
@@ -341,7 +347,9 @@ function localize_item(&$item)
 	}
 
 	// add sparkle links to appropriate permalinks
-	$item['plink'] = Contact::magicLinkById($item['author-id'], $item['plink']);
+	$author = ['uid' => 0, 'id' => $item['author-id'],
+		'network' => $item['author-network'], 'url' => $item['author-link']];
+	$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
 }
 
 /**
@@ -569,7 +577,9 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 				$tags = \Friendica\Model\Term::populateTagsFromItem($item);
 
-				$profile_link = Contact::magicLinkbyId($item['author-id']);
+				$author = ['uid' => 0, 'id' => $item['author-id'],
+					'network' => $item['author-network'], 'url' => $item['author-link']];
+				$profile_link = Contact::magicLinkbyContact($author);
 
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
@@ -803,7 +813,9 @@ function item_photo_menu($item) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
-	$profile_link = Contact::magicLinkById($item['author-id']);
+	$author = ['uid' => 0, 'id' => $item['author-id'],
+		'network' => $item['author-network'], 'url' => $item['author-link']];
+	$profile_link = Contact::magicLinkbyContact($author);
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
@@ -908,7 +920,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 		}
 
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
-			$url = Contact::MagicLinkbyId($item['author-id']);
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$url = Contact::magicLinkbyContact($author);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
 			}
