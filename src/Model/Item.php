@@ -279,7 +279,7 @@ class Item extends BaseObject
 
 		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
 
-		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false);
+		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false, $usermode);
 
 		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
 
@@ -394,7 +394,7 @@ class Item extends BaseObject
 		$param_string = self::addTablesToFields($param_string, $threadfields);
 		$param_string = self::addTablesToFields($param_string, $fields);
 
-		$table = "`thread` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, true);
+		$table = "`thread` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, true, $usermode);
 
 		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
 
@@ -473,7 +473,7 @@ class Item extends BaseObject
 	 *
 	 * @return string The SQL joins for the "select" functions
 	 */
-	private static function constructJoins($uid, $sql_commands, $thread_mode)
+	private static function constructJoins($uid, $sql_commands, $thread_mode, $user_mode)
 	{
 		if ($thread_mode) {
 			$master_table = "`thread`";
@@ -485,14 +485,26 @@ class Item extends BaseObject
 			$joins = '';
 		}
 
-		$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
-			AND NOT `contact`.`blocked`
-			AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-			OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
-			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
-			CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+		if ($user_mode) {
+			$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
+				AND NOT `contact`.`blocked`
+				AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
+				OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
+				STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
+				STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
+				LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
+				CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+		} else {
+			if (strpos($sql_commands, "`contact`.") !== false) {
+				$joins .= "STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`";
+			}
+			if (strpos($sql_commands, "`author`.") !== false) {
+				$joins .= " STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id`";
+			}
+			if (strpos($sql_commands, "`owner`.") !== false) {
+				$joins .= " STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id`";
+			}
+		}
 
 		if (strpos($sql_commands, "`group_member`.") !== false) {
 			$joins .= " STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = $master_table.`contact-id`";
