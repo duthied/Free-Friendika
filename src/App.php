@@ -878,7 +878,7 @@ class App
 			return;
 		}
 
-		if (Config::get('system', 'proc_windows')) {
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->get_basepath());
 		} else {
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->get_basepath());
