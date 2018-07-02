@@ -181,7 +181,10 @@ class App
 
 		$this->process_id = uniqid('log', true);
 
-		startup();
+		set_time_limit(0);
+
+		// This has to be quite large to deal with embedded private photos
+		ini_set('pcre.backtrack_limit', 500000);
 
 		$this->scheme = 'http';
 
