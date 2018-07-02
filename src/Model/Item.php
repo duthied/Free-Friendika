@@ -40,8 +40,8 @@ class Item extends BaseObject
 			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach', 'language',
 			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
-			'author-id', 'author-link', 'author-name', 'author-avatar',
-			'owner-id', 'owner-link', 'owner-name', 'owner-avatar',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
+			'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
 			'contact-id', 'contact-link', 'contact-name', 'contact-avatar',
 			'writable', 'self', 'cid', 'alias',
 			'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
@@ -422,10 +422,10 @@ class Item extends BaseObject
 		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
-			'thumb' => 'author-avatar', 'nick' => 'author-nick'];
+			'thumb' => 'author-avatar', 'nick' => 'author-nick', 'network' => 'author-network'];
 
 		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name',
-			'thumb' => 'owner-avatar', 'nick' => 'owner-nick'];
+			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
 			'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',

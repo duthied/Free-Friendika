@@ -237,7 +237,9 @@ class Term
 
 			$orig_tag = $tag["url"];
 
-			$tag["url"] = Contact::magicLinkById($item['author-id'], $tag['url']);
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$tag["url"] = Contact::magicLinkByContact($author, $tag['url']);
 
 			if ($tag["type"] == TERM_HASHTAG) {
 				if ($orig_tag != $tag["url"]) {
