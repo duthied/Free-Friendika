@@ -859,7 +859,7 @@ class Post extends BaseObject
 
 						$owner = ['uid' => 0, 'id' => $this->getDataValue('owner-id'),
 							'network' => $this->getDataValue('owner-network'),
-							'url' => $this->getDataValue('ownerr-link')];
+							'url' => $this->getDataValue('owner-link')];
 						$this->owner_url = Contact::magicLinkbyContact($owner);
 					}
 				}
