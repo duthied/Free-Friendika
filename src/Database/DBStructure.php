@@ -537,26 +537,26 @@ class DBStructure
 	private static function FieldCommand($parameters, $create = true) {
 		$fieldstruct = $parameters["type"];
 
-		if (!is_null($parameters["Collation"])) {
+		if (!empty($parameters["Collation"])) {
 			$fieldstruct .= " COLLATE ".$parameters["Collation"];
 		}
 
-		if ($parameters["not null"]) {
+		if (!empty($parameters["not null"])) {
 			$fieldstruct .= " NOT NULL";
 		}
 
-		if (isset($parameters["default"])) {
+		if (!empty($parameters["default"])) {
 			if (strpos(strtolower($parameters["type"]),"int")!==false) {
 				$fieldstruct .= " DEFAULT ".$parameters["default"];
 			} else {
 				$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
 			}
 		}
-		if ($parameters["extra"] != "") {
+		if (!empty($parameters["extra"])) {
 			$fieldstruct .= " ".$parameters["extra"];
 		}
 
-		if (!is_null($parameters["comment"])) {
+		if (!empty($parameters["comment"])) {
 			$fieldstruct .= " COMMENT '".dbesc($parameters["comment"])."'";
 		}
 
