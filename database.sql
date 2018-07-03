@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.08-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1271
+-- DB_UPDATE_VERSION 1272
 -- ------------------------------------------
 
 
@@ -565,6 +565,7 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	`target-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams target type if applicable (URI)',
 	`target` text COMMENT 'JSON encoded target structure if used',
 	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
+	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams verb',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-plink-hash` (`uri-plink-hash`),
 	 INDEX `uri` (`uri`(191))

@@ -416,7 +416,7 @@ class OStatus
 			}
 
 			// Deletions come with the same uri, so we check for duplicates after processing deletions
-			if (dba::exists('item', ['uid' => $importer["uid"], 'uri' => $item["uri"]])) {
+			if (Item::exists(['uid' => $importer["uid"], 'uri' => $item["uri"]])) {
 				logger('Post with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.', LOGGER_DEBUG);
 				continue;
 			} else {
@@ -451,7 +451,7 @@ class OStatus
 
 				$item["verb"] = ACTIVITY_LIKE;
 				$item["parent-uri"] = $orig_uri;
-				$item["gravity"] = GRAVITY_LIKE;
+				$item["gravity"] = GRAVITY_ACTIVITY;
 			}
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes
@@ -489,7 +489,7 @@ class OStatus
 					}
 				} else {
 					// But we will only import complete threads
-					$valid = dba::exists('item', ['uid' => $importer["uid"], 'uri' => self::$itemlist[0]['parent-uri']]);
+					$valid = Item::exists(['uid' => $importer["uid"], 'uri' => self::$itemlist[0]['parent-uri']]);
 					if ($valid) {
 						logger("Item with uri ".self::$itemlist[0]["uri"]." belongs to parent ".self::$itemlist[0]['parent-uri']." of user ".$importer["uid"].". It will be imported.", LOGGER_DEBUG);
 					}
@@ -506,7 +506,7 @@ class OStatus
 						}
 					}
 					foreach (self::$itemlist as $item) {
-						$found = dba::exists('item', ['uid' => $importer["uid"], 'uri' => $item["uri"]]);
+						$found = Item::exists(['uid' => $importer["uid"], 'uri' => $item["uri"]]);
 						if ($found) {
 							logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already exists.", LOGGER_DEBUG);
 						} elseif ($item['contact-id'] < 0) {
@@ -537,8 +537,8 @@ class OStatus
 	 */
 	private static function deleteNotice($item)
 	{
-		$condition = ['uid' => $item['uid'], 'author-link' => $item['author-link'], 'uri' => $item['uri']];
-		if (!dba::exists('item', $condition)) {
+		$condition = ['uid' => $item['uid'], 'author-id' => $item['author-id'], 'uri' => $item['uri']];
+		if (!Item::exists($condition)) {
 			logger('Item from '.$item['author-link'].' with uri '.$item['uri'].' for user '.$item['uid']." wasn't found. We don't delete it.");
 			return;
 		}
@@ -674,7 +674,7 @@ class OStatus
 		}
 
 		if (isset($item["parent-uri"])) {
-			if (!dba::exists('item', ['uid' => $importer["uid"], 'uri' => $item['parent-uri']])) {
+			if (!Item::exists(['uid' => $importer["uid"], 'uri' => $item['parent-uri']])) {
 				if ($related != '') {
 					self::fetchRelated($related, $item["parent-uri"], $importer);
 				}

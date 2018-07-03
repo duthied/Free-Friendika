@@ -125,7 +125,7 @@ EOT;
 	$arr['type'] = 'activity';
 	$arr['wall'] = $item['wall'];
 	$arr['origin'] = 1;
-	$arr['gravity'] = GRAVITY_LIKE;
+	$arr['gravity'] = GRAVITY_ACTIVITY;
 	$arr['parent'] = $item['id'];
 	$arr['parent-uri'] = $item['uri'];
 	$arr['thr-parent'] = $item['uri'];

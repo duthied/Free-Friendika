@@ -1270,8 +1270,8 @@ function api_status_show($type)
 	}
 
 	// get last public wall message
-	$condition = ["`owner-id` = ? AND `uid` = ? AND `type` != 'activity' ".$privacy_sql,
-		$user_info['pid'], api_user()];
+	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
+		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 	$lastwall = dba::selectFirst('item', [], $condition, ['order' => ['id' => true]]);
 
 	if (DBM::is_result($lastwall)) {
@@ -1355,8 +1355,8 @@ function api_users_show($type)
 
 	$user_info = api_get_user($a);
 
-	$condition = ["`owner-id` = ? AND `uid` = ? AND `verb` = ? AND `type` != 'activity' AND NOT `private`",
-		$user_info['pid'], api_user(), ACTIVITY_POST];
+	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
+		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => false];
 	$lastwall = dba::selectFirst('item', [], $condition, ['order' => ['id' => true]]);
 
 	if (DBM::is_result($lastwall)) {
@@ -1534,10 +1534,10 @@ function api_search($type)
 
 	$start = $page * $count;
 
-	$condition = ["`verb` = ? AND `item`.`id` > ?
+	$condition = ["`gravity` IN (?, ?) AND `item`.`id` > ?
 		AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
 		AND `item`.`body` LIKE CONCAT('%',?,'%')",
-		ACTIVITY_POST, $since_id, api_user(), $_REQUEST['q']];
+		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, api_user(), $_REQUEST['q']];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `item`.`id` <= ?";
@@ -1597,7 +1597,8 @@ function api_statuses_home_timeline($type)
 
 	$start = $page * $count;
 
-	$condition = ["`uid` = ? AND `verb` = ? AND `item`.`id` > ?", api_user(), ACTIVITY_POST, $since_id];
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `item`.`id` <= ?";
@@ -1625,7 +1626,7 @@ function api_statuses_home_timeline($type)
 	}
 
 	if (!empty($idarray)) {
-		$unseen = dba::exists('item', ['unseen' => true, 'id' => $idarray]);
+		$unseen = Item::exists(['unseen' => true, 'id' => $idarray]);
 		if ($unseen) {
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
@@ -1680,8 +1681,8 @@ function api_statuses_public_timeline($type)
 	$sql_extra = '';
 
 	if ($exclude_replies && !$conversation_id) {
-		$condition = ["`verb` = ? AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
-			ACTIVITY_POST, $since_id];
+		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
+			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `thread`.`iid` <= ?";
@@ -1693,8 +1694,8 @@ function api_statuses_public_timeline($type)
 
 		$r = Item::inArray($statuses);
 	} else {
-		$condition = ["`verb` = ? AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
-			ACTIVITY_POST, $since_id];
+		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
+			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `item`.`id` <= ?";
@@ -1756,8 +1757,8 @@ function api_statuses_networkpublic_timeline($type)
 	}
 	$start = ($page - 1) * $count;
 
-	$condition = ["`uid` = 0 AND `verb` = ? AND `thread`.`iid` > ? AND NOT `private`",
-		ACTIVITY_POST, $since_id];
+	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `thread`.`iid` > ? AND NOT `private`",
+		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `thread`.`iid` <= ?";
@@ -1829,10 +1830,10 @@ function api_statuses_show($type)
 	$id = $item['id'];
 
 	if ($conversation) {
-		$condition = ['parent' => $id, 'verb' => ACTIVITY_POST];
+		$condition = ['parent' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 		$params = ['order' => ['id' => true]];
 	} else {
-		$condition = ['id' => $id, 'verb' => ACTIVITY_POST];
+		$condition = ['id' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 		$params = [];
 	}
 
@@ -1908,8 +1909,8 @@ function api_conversation_show($type)
 
 	$id = $parent['id'];
 
-	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `verb` = ? AND `item`.`id` > ?",
-		$id, api_user(), ACTIVITY_POST, $since_id];
+	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+		$id, api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `item`.`id` <= ?";
@@ -2077,9 +2078,9 @@ function api_statuses_mentions($type)
 
 	$start = ($page - 1) * $count;
 
-	$condition = ["`uid` = ? AND `verb` = ? AND `item`.`id` > ? AND `author-id` != ?
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `author-id` != ?
 		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `thread`.`uid` = ? AND `thread`.`mention` AND NOT `thread`.`ignored`)",
-		api_user(), ACTIVITY_POST, $since_id, $user_info['pid'], api_user()];
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['pid'], api_user()];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `item`.`id` <= ?";
@@ -2145,8 +2146,8 @@ function api_statuses_user_timeline($type)
 	}
 	$start = ($page - 1) * $count;
 
-	$condition = ["`uid` = ? AND `verb` = ? AND `item`.`id` > ? AND `item`.`contact-id` = ?",
-		api_user(), ACTIVITY_POST, $since_id, $user_info['cid']];
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `item`.`contact-id` = ?",
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['cid']];
 
 	if ($user_info['self'] == 1) {
 		$condition[0] .= ' AND `item`.`wall` ';
@@ -2299,8 +2300,8 @@ function api_favorites($type)
 
 		$start = $page*$count;
 
-		$condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND `starred`",
-			api_user(), ACTIVITY_POST, $since_id];
+		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
+			api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 
@@ -3099,8 +3100,8 @@ function api_lists_statuses($type)
 
 	$start = $page * $count;
 
-	$condition = ["`uid` = ? AND `verb` = ? AND `id` > ? AND `group_member`.`gid` = ?",
-		api_user(), ACTIVITY_POST, $since_id, $_REQUEST['list_id']];
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `group_member`.`gid` = ?",
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $_REQUEST['list_id']];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `item`.`id` <= ?";
@@ -4630,8 +4631,8 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$data['photo']['friendica_activities'] = api_format_items_activities($item, $type);
 
 	// retrieve comments on photo
-	$condition = ["`parent` = ? AND `uid` = ? AND (`verb` = ? OR `type`='photo')",
-		$item[0]['parent'], api_user(), ACTIVITY_POST];
+	$condition = ["`parent` = ? AND `uid` = ? AND (`gravity` IN (?, ?) OR `type`='photo')",
+		$item[0]['parent'], api_user(), GRAVITY_PARENT, GRAVITY_COMMENT];
 
 	$statuses = Item::selectForUser(api_user(), [], $condition);
 

@@ -58,7 +58,7 @@ class Item extends BaseObject
 
 	// Field list for "item-content" table that is mixed with the item table
 	const CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
-			'coord', 'app', 'rendered-hash', 'rendered-html',
+			'coord', 'app', 'rendered-hash', 'rendered-html', 'verb',
 			'object-type', 'object', 'target-type', 'target'];
 
 	// All fields in the item table
@@ -86,7 +86,7 @@ class Item extends BaseObject
 
 		// Fetch data from the item-content table whenever there is content there
 		foreach (self::CONTENT_FIELDLIST as $field) {
-			if (is_null($row[$field]) && !is_null($row['item-' . $field])) {
+			if (empty($row[$field]) && !empty($row['item-' . $field])) {
 				$row[$field] = $row['item-' . $field];
 			}
 			unset($row['item-' . $field]);
@@ -141,6 +141,27 @@ class Item extends BaseObject
 			dba::close($stmt);
 		}
 		return $data;
+	}
+
+	/**
+	 * @brief Check if item data exists
+	 *
+	 * @param array $condition array of fields for condition
+	 *
+	 * @return boolean Are there rows for that condition?
+	 */
+	public static function exists($condition) {
+		$stmt = self::select(['id'], $condition, ['limit' => 1]);
+
+		if (is_bool($stmt)) {
+			$retval = $stmt;
+		} else {
+			$retval = (dba::num_rows($stmt) > 0);
+		}
+
+		dba::close($stmt);
+
+		return $retval;
 	}
 
 	/**
@@ -377,12 +398,12 @@ class Item extends BaseObject
 
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
-			'created', 'edited', 'commented', 'received', 'changed', 'verb',
-			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'created', 'edited', 'commented', 'received', 'changed', 'postopts',
+			'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
-			'id' => 'item_id', 'network'];
+			'id' => 'item_id', 'network', 'icid'];
 
 		$fields['item-content'] = self::CONTENT_FIELDLIST;
 
@@ -728,15 +749,14 @@ class Item extends BaseObject
 		self::deleteTagsFromItem($item);
 
 		// Set the item to "deleted"
-		dba::update('item', ['deleted' => true, 'title' => '', 'body' => '',
-					'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
+		dba::update('item', ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
 				['id' => $item['id']]);
 
 		Term::insertFromTagFieldByItemId($item['id']);
 		Term::insertFromFileFieldByItemId($item['id']);
 		self::deleteThread($item['id'], $item['parent-uri']);
 
-		if (!dba::exists('item', ["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
+		if (!self::exists(["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
 			self::delete(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
@@ -953,17 +973,20 @@ class Item extends BaseObject
 			$item['parent-uri'] = $item['thr-parent'];
 		}
 
-		if (x($item, 'gravity')) {
+		$item['type'] = defaults($item, 'type', 'remote');
+
+		if (isset($item['gravity'])) {
 			$item['gravity'] = intval($item['gravity']);
 		} elseif ($item['parent-uri'] === $item['uri']) {
-			$item['gravity'] = 0;
-		} elseif (activity_match($item['verb'],ACTIVITY_POST)) {
-			$item['gravity'] = 6;
+			$item['gravity'] = GRAVITY_PARENT;
+		} elseif (activity_match($item['verb'], ACTIVITY_POST)) {
+			$item['gravity'] = GRAVITY_COMMENT;
+		} elseif ($item['type'] == 'activity') {
+			$item['gravity'] = GRAVITY_ACTIVITY;
 		} else {
-			$item['gravity'] = 6;   // extensible catchall
+			$item['gravity'] = GRAVITY_UNKNOWN;   // Should not happen
+			logger('Unknown gravity for verb: ' . $item['verb'] . ' - type: ' . $item['type'], LOGGER_DEBUG);
 		}
-
-		$item['type'] = defaults($item, 'type', 'remote');
 
 		$uid = intval($item['uid']);
 
@@ -1117,7 +1140,7 @@ class Item extends BaseObject
 		// Checking if there is already an item with the same guid
 		logger('Checking for an item for user '.$item['uid'].' on network '.$item['network'].' with the guid '.$item['guid'], LOGGER_DEBUG);
 		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
-		if (dba::exists('item', $condition)) {
+		if (self::exists($condition)) {
 			logger('found item with guid '.$item['guid'].' for user '.$item['uid'].' on network '.$item['network'], LOGGER_DEBUG);
 			return 0;
 		}
@@ -1219,7 +1242,7 @@ class Item extends BaseObject
 					logger('$force_parent=true, reply converted to top-level post.');
 					$parent_id = 0;
 					$item['parent-uri'] = $item['uri'];
-					$item['gravity'] = 0;
+					$item['gravity'] = GRAVITY_PARENT;
 				} else {
 					logger('item parent '.$item['parent-uri'].' for '.$item['uid'].' was not found - ignoring item');
 					return 0;
@@ -1231,7 +1254,7 @@ class Item extends BaseObject
 
 		$condition = ["`uri` = ? AND `network` IN (?, ?) AND `uid` = ?",
 			$item['uri'], $item['network'], NETWORK_DFRN, $item['uid']];
-		if (dba::exists('item', $condition)) {
+		if (self::exists($condition)) {
 			logger('duplicated item with the same uri found. '.print_r($item,true));
 			return 0;
 		}
@@ -1239,7 +1262,7 @@ class Item extends BaseObject
 		// On Friendica and Diaspora the GUID is unique
 		if (in_array($item['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
 			$condition = ['guid' => $item['guid'], 'uid' => $item['uid']];
-			if (dba::exists('item', $condition)) {
+			if (self::exists($condition)) {
 				logger('duplicated item with the same guid found. '.print_r($item,true));
 				return 0;
 			}
@@ -1247,7 +1270,7 @@ class Item extends BaseObject
 			// Check for an existing post with the same content. There seems to be a problem with OStatus.
 			$condition = ["`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?",
 					$item['body'], $item['network'], $item['created'], $item['contact-id'], $item['uid']];
-			if (dba::exists('item', $condition)) {
+			if (self::exists($condition)) {
 				logger('duplicated item with the same body found. '.print_r($item,true));
 				return 0;
 			}
@@ -1260,7 +1283,7 @@ class Item extends BaseObject
 			// Set the global flag on all items if this was a global item entry
 			dba::update('item', ['global' => true], ['uri' => $item["uri"]]);
 		} else {
-			$item["global"] = dba::exists('item', ['uid' => 0, 'uri' => $item["uri"]]);
+			$item["global"] = self::exists(['uid' => 0, 'uri' => $item["uri"]]);
 		}
 
 		// ACL settings
@@ -1301,7 +1324,7 @@ class Item extends BaseObject
 		 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
 		 */
 		if ($item["uid"] == 0) {
-			if (dba::exists('item', ['uri' => trim($item['uri']), 'uid' => 0])) {
+			if (self::exists(['uri' => trim($item['uri']), 'uid' => 0])) {
 				logger('Global item already stored. URI: '.$item['uri'].' on network '.$item['network'], LOGGER_DEBUG);
 				return 0;
 			}
@@ -1668,7 +1691,7 @@ class Item extends BaseObject
 		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
 			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
 
-			if (!dba::exists('item', ['uri' => $item['uri'], 'uid' => 0])) {
+			if (!self::exists(['uri' => $item['uri'], 'uid' => 0])) {
 				// Preparing public shadow (removing user specific data)
 				$item['uid'] = 0;
 				unset($item['id']);
@@ -1722,12 +1745,12 @@ class Item extends BaseObject
 		}
 
 		// Is there a shadow parent?
-		if (!dba::exists('item', ['uri' => $item['parent-uri'], 'uid' => 0])) {
+		if (!self::exists(['uri' => $item['parent-uri'], 'uid' => 0])) {
 			return;
 		}
 
 		// Is there already a shadow entry?
-		if (dba::exists('item', ['uri' => $item['uri'], 'uid' => 0])) {
+		if (self::exists(['uri' => $item['uri'], 'uid' => 0])) {
 			return;
 		}
 
@@ -1757,7 +1780,7 @@ class Item extends BaseObject
 
 		// If this was a comment to a Diaspora post we don't get our comment back.
 		// This means that we have to distribute the comment by ourselves.
-		if ($origin && dba::exists('item', ['id' => $parent, 'network' => NETWORK_DIASPORA])) {
+		if ($origin && self::exists(['id' => $parent, 'network' => NETWORK_DIASPORA])) {
 			self::distribute($public_shadow);
 		}
 	}
@@ -2567,30 +2590,32 @@ class Item extends BaseObject
 		// event participation are essentially radio toggles. If you make a subsequent choice,
 		// we need to eradicate your first choice.
 		if ($event_verb_flag) {
-			$verbs = "'" . dbesc(ACTIVITY_ATTEND) . "', '" . dbesc(ACTIVITY_ATTENDNO) . "', '" . dbesc(ACTIVITY_ATTENDMAYBE) . "'";
+			$verbs = [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
 		} else {
-			$verbs = "'".dbesc($activity)."'";
+			$verbs = $activity;
 		}
 
-		/// @todo This query is expected to be a performance eater due to the "OR" - it has to be changed totally
-		$existing_like = q("SELECT `id`, `guid`, `verb` FROM `item`
-			WHERE `verb` IN ($verbs)
-			AND `deleted` = 0
-			AND `author-id` = %d
-			AND `uid` = %d
-			AND (`parent` = '%s' OR `parent-uri` = '%s' OR `thr-parent` = '%s')
-			LIMIT 1",
-			intval($author_contact['id']),
-			intval($item['uid']),
-			dbesc($item_id), dbesc($item_id), dbesc($item['uri'])
-		);
+		$base_condition = ['verb' => $verbs, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
+			'author-id' => $author_contact['id'], 'uid' => item['uid']];
+
+		$condition = array_merge($base_condition, ['parent' => $item_id]);
+		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
+
+		if (!DBM::is_result($like_item)) {
+			$condition = array_merge($base_condition, ['parent-uri' => $item_id]);
+			$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
+		}
+
+		if (!DBM::is_result($like_item)) {
+			$condition = array_merge($base_condition, ['thr-parent' => $item_id]);
+			$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
+		}
 
 		// If it exists, mark it as deleted
-		if (DBM::is_result($existing_like)) {
-			$like_item = $existing_like[0];
-
+		if (DBM::is_result($like_item)) {
 			// Already voted, undo it
 			$fields = ['deleted' => true, 'unseen' => true, 'changed' => DateTimeFormat::utcNow()];
+			/// @todo Consider using self::update - but before doing so, check the side effects
 			dba::update('item', $fields, ['id' => $like_item['id']]);
 
 			// Clean up the Diaspora signatures for this like
@@ -2644,7 +2669,7 @@ EOT;
 			'type'          => 'activity',
 			'wall'          => $item['wall'],
 			'origin'        => 1,
-			'gravity'       => GRAVITY_LIKE,
+			'gravity'       => GRAVITY_ACTIVITY,
 			'parent'        => $item['id'],
 			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],
@@ -2754,7 +2779,7 @@ EOT;
 
 		if ($itemuri != "") {
 			$condition = ["`uri` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $itemuri, $item["uid"]];
-			if (!dba::exists('item', $condition)) {
+			if (!self::exists($condition)) {
 				dba::delete('item', ['uri' => $itemuri, 'uid' => 0]);
 				logger("deleteThread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 			}

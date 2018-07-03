@@ -41,7 +41,7 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
 define('FRIENDICA_VERSION',      '2018.08-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1271);
+define('DB_UPDATE_VERSION',      1272);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -451,8 +451,9 @@ define('ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question');
  * @{
  */
 define('GRAVITY_PARENT',       0);
-define('GRAVITY_LIKE',         3);
+define('GRAVITY_ACTIVITY',     3);
 define('GRAVITY_COMMENT',      6);
+define('GRAVITY_UNKNOWN',      9);
 /* @}*/
 
 /**

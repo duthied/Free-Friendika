@@ -640,6 +640,7 @@ function photos_post(App $a)
 					$arr['deny_gid']      = $p[0]['deny_gid'];
 					$arr['visible']       = 1;
 					$arr['verb']          = ACTIVITY_TAG;
+					$arr['gravity']       = GRAVITY_PARENT;
 					$arr['object-type']   = ACTIVITY_OBJ_PERSON;
 					$arr['target-type']   = ACTIVITY_OBJ_IMAGE;
 					$arr['tag']           = $tagged[4];

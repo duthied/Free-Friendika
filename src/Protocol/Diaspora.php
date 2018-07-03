@@ -2049,7 +2049,7 @@ class Diaspora
 
 		$datarray["type"] = "activity";
 		$datarray["verb"] = $verb;
-		$datarray["gravity"] = GRAVITY_LIKE;
+		$datarray["gravity"] = GRAVITY_ACTIVITY;
 		$datarray["parent-uri"] = $parent_item["uri"];
 
 		$datarray["object-type"] = ACTIVITY_OBJ_NOTE;

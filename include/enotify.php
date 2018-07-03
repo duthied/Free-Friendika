@@ -740,9 +740,9 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	// We need the additional check for the "local_profile" because of mixed situations on connector networks
 	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-id`, `guid`,
 			`parent-uri`, `uri`, `contact-id`, `network`
-			FROM `item` WHERE `id` = %d AND `verb` IN ('%s', '') AND `type` != 'activity' AND
+			FROM `item` WHERE `id` = %d AND `gravity` IN (%d, %d) AND
 				NOT (`author-id` IN ($contact_list)) LIMIT 1",
-		intval($itemid), dbesc(ACTIVITY_POST));
+		intval($itemid), intval(GRAVITY_PARENT), intval(GRAVITY_COMMENT));
 	if (!$item)
 		return false;
 

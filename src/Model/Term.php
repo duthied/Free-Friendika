@@ -24,7 +24,7 @@ class Term
 		$profile_base_diaspora = $profile_data['host'] . $profile_path . '/u/';
 
 		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'tag', 'parent'];
-		$message = dba::selectFirst('item', $fields, ['id' => $itemid]);
+		$message = Item::selectFirst($fields, ['id' => $itemid]);
 		if (!DBM::is_result($message)) {
 			return;
 		}
@@ -130,7 +130,7 @@ class Term
 	 */
 	public static function insertFromFileFieldByItemId($itemid)
 	{
-		$message = dba::selectFirst('item', ['uid', 'deleted', 'file'], ['id' => $itemid]);
+		$message = Item::selectFirst(['uid', 'deleted', 'file'], ['id' => $itemid]);
 		if (!DBM::is_result($message)) {
 			return;
 		}

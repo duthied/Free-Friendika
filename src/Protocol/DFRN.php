@@ -2310,18 +2310,18 @@ class DFRN
 			) {
 				$is_like = true;
 				$item["type"] = "activity";
-				$item["gravity"] = GRAVITY_LIKE;
+				$item["gravity"] = GRAVITY_ACTIVITY;
 				// only one like or dislike per person
 				// splitted into two queries for performance issues
-				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"],
+				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"], 'gravity' => GRAVITY_ACTIVITY,
 					'verb' => $item["verb"], 'parent-uri' => $item["parent-uri"]];
-				if (dba::exists('item', $condition)) {
+				if (Item::exists($condition)) {
 					return false;
 				}
 
-				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"],
+				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"], 'gravity' => GRAVITY_ACTIVITY,
 					'verb' => $item["verb"], 'thr-parent' => $item["parent-uri"]];
-				if (dba::exists('item', $condition)) {
+				if (Item::exists($condition)) {
 					return false;
 				}
 			} else {
@@ -2770,7 +2770,7 @@ class DFRN
 		// Comments can be deleted by the thread owner or comment owner
 		if (($item['id'] != $item['parent']) && ($item['contact-id'] != $importer["id"])) {
 			$condition = ['id' => $item['parent'], 'contact-id' => $importer["id"]];
-			if (!dba::exists('item', $condition)) {
+			if (!Item::exists($condition)) {
 				logger("Item with uri " . $uri . " wasn't found or mustn't be deleted by contact " . $importer["id"] . " - ignoring deletion.", LOGGER_DEBUG);
 				return;
 			}

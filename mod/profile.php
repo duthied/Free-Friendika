@@ -243,17 +243,14 @@ function profile_content(App $a, $update = 0)
 
 		$r = q("SELECT distinct(parent) AS `item_id`, `item`.`network` AS `item_network`, `item`.`created`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND
-			(`item`.`deleted` = 0 OR item.verb = '" . ACTIVITY_LIKE . "'
-			OR item.verb = '" . ACTIVITY_DISLIKE . "' OR item.verb = '" . ACTIVITY_ATTEND . "'
-			OR item.verb = '" . ACTIVITY_ATTENDNO . "' OR item.verb = '" . ACTIVITY_ATTENDMAYBE . "')
-			AND `item`.`moderated` = 0
-			AND `item`.`wall` = 1
+			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
+			WHERE `item`.`uid` = %d AND `item`.`visible` AND
+			(NOT `item`.`deleted` OR `item`.`gravity` = %d)
+			AND NOT `item`.`moderated` AND `item`.`wall`
 			$sql_extra4
 			$sql_extra
 			ORDER BY `item`.`created` DESC",
-			intval($a->profile['profile_uid'])
+			intval($a->profile['profile_uid']), intval(GRAVITY_ACTIVITY)
 		);
 
 		if (!DBM::is_result($r)) {
