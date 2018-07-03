@@ -413,7 +413,7 @@ class DBStructure
 					$field_definition = $database[$name]["fields"][$fieldname];
 
 					// Define the default collation if not given
-					if (!isset($parameters['Collation']) && !is_null($field_definition['Collation'])) {
+					if (!isset($parameters['Collation']) && !empty($field_definition['Collation'])) {
 						$parameters['Collation'] = 'utf8mb4_general_ci';
 					} else {
 						$parameters['Collation'] = null;
@@ -580,7 +580,7 @@ class DBStructure
 			}
 		}
 
-		if (!is_null($structure["indexes"])) {
+		if (!empty($structure["indexes"])) {
 			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 				$sql_index = self::createIndex($indexname, $fieldnames, "");
 				if (!is_null($sql_index)) {
@@ -589,11 +589,11 @@ class DBStructure
 			}
 		}
 
-		if (!is_null($structure["engine"])) {
+		if (!empty($structure["engine"])) {
 			$engine = " ENGINE=" . $structure["engine"];
 		}
 
-		if (!is_null($structure["comment"])) {
+		if (!empty($structure["comment"])) {
 			$comment = " COMMENT='" . dbesc($structure["comment"]) . "'";
 		}
 
