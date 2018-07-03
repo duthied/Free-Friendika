@@ -293,7 +293,7 @@ class App
 		$this->is_tablet = $mobile_detect->isTablet();
 
 		// Friendica-Client
-		$this->is_friendica_app = ($_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)');
+		$this->is_friendica_app = isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)';
 
 		// Register template engines
 		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
