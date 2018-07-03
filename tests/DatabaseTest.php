@@ -33,15 +33,13 @@ abstract class DatabaseTest extends TestCase
 		$base_config_file_path = stream_resolve_include_path($base_config_file_name);
 		$config_file_path = dirname($base_config_file_path) . DIRECTORY_SEPARATOR . $config_file_name;
 
-		$config_string = file_get_contents($base_config_file_path);
+		if (!file_exists($config_file_path)) {
+			$config_string = file_get_contents($base_config_file_path);
 
-		$config_string = str_replace('die(', '// die(', $config_string);
-		$config_string = str_replace('your.mysqlhost.com', 'localhost', $config_string);
-		$config_string = str_replace('mysqlusername'     , getenv('USER'), $config_string);
-		$config_string = str_replace('mysqlpassword'     , getenv('PASS'), $config_string);
-		$config_string = str_replace('mysqldatabasename' , getenv('DB'), $config_string);
+			$config_string = str_replace('die(', '// die(', $config_string);
 
-		file_put_contents($config_file_path, $config_string);
+			file_put_contents($config_file_path, $config_string);
+		}
 	}
 
 	/**
@@ -58,7 +56,7 @@ abstract class DatabaseTest extends TestCase
 	protected function getConnection()
 	{
 		if (!dba::$connected) {
-			dba::connect('localhost', getenv('USER'), getenv('PASS'), getenv('DB'));
+			dba::connect(getenv('MYSQL_HOST') . ':' . getenv('MYSQL_PORT'), getenv('MYSQL_USERNAME'), getenv('MYSQL_PASSWORD'), getenv('MYSQL_DATABASE'));
 
 			if (dba::$connected) {
 				$app = get_app();
