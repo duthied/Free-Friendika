@@ -21,6 +21,30 @@ abstract class DatabaseTest extends TestCase
 	use TestCaseTrait;
 
 	/**
+	 * Creates .htconfig.php for bin/worker.php execution
+	 */
+	protected function setUp()
+	{
+		parent::setUp();
+
+		$base_config_file_name = 'htconfig.php';
+		$config_file_name = '.htconfig.php';
+
+		$base_config_file_path = stream_resolve_include_path($base_config_file_name);
+		$config_file_path = dirname($base_config_file_path) . DIRECTORY_SEPARATOR . $config_file_name;
+
+		$config_string = file_get_contents($base_config_file_path);
+
+		$config_string = str_replace('die(', '// die(');
+		$config_string = str_replace('your.mysqlhost.com', 'localhost');
+		$config_string = str_replace('mysqlusername'     , getenv('USER'));
+		$config_string = str_replace('mysqlpassword'     , getenv('PASS'));
+		$config_string = str_replace('mysqldatabasename' , getenv('DB'));
+
+		file_put_contents($config_file_path, $config_string);
+	}
+
+	/**
 	 * Get database connection.
 	 *
 	 * This function is executed before each test in order to get a database connection that can be used by tests.
