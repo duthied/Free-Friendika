@@ -97,9 +97,9 @@ function api_source()
 		}
 
 		logger("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
+	} else {
+		logger("Empty user-agent", LOGGER_DEBUG);
 	}
-
-	logger("Empty user-agent", LOGGER_DEBUG);
 
 	return "api";
 }
@@ -480,7 +480,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 		'base'         => System::baseUrl(),
 		'updated'      => api_date(null),
 		'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-		'language'     => $user_info['language'],
+		'language'     => $user_info['lang'],
 		'logo'         => System::baseUrl() . "/images/friendica-32.png",
 	];
 
@@ -665,7 +665,7 @@ function api_get_user(App $a, $contact_id = null)
 				'geo_enabled' => false,
 				'verified' => false,
 				'statuses_count' => 0,
-				'language' => '',
+				'lang' => '',
 				'contributors_enabled' => false,
 				'is_translator' => false,
 				'is_translation_enabled' => false,
@@ -746,7 +746,7 @@ function api_get_user(App $a, $contact_id = null)
 		'geo_enabled' => false,
 		'verified' => true,
 		'statuses_count' => intval($countitems),
-		'language' => '',
+		'lang' => '',
 		'contributors_enabled' => false,
 		'is_translator' => false,
 		'is_translation_enabled' => false,
@@ -1305,19 +1305,19 @@ function api_status_show($type)
 			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
 			'user' => $user_info,
 			$geo => null,
-			'coordinates' => "",
-			'place' => "",
-			'contributors' => "",
+			'coordinates' => '',
+			'place' => '',
+			'contributors' => '',
 			'is_quote_status' => false,
 			'retweet_count' => 0,
 			'favorite_count' => 0,
 			'favorited' => $lastwall['starred'] ? true : false,
 			'retweeted' => false,
 			'possibly_sensitive' => false,
-			'language' => "",
+			'lang' => '',
 			'statusnet_html' => $converted["html"],
 			'statusnet_conversation_id' => $lastwall['parent'],
-			'external_url' => System::baseUrl() . "/display/" . $lastwall['guid'],
+			'external_url' => System::baseUrl() . '/display/' . $lastwall['guid'],
 		];
 
 		if (count($converted["attachments"]) > 0) {
