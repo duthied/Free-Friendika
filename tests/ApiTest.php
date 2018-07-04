@@ -2337,8 +2337,9 @@ class ApiTest extends DatabaseTest
 				'coord' => '5 7',
 				'body' => '',
 				'verb' => '',
-				'author-id' => 42,
+				'author-id' => 43,
 				'author-network' => \Friendica\Core\Protocol::DFRN,
+				'author-link' => 'http://localhost/profile/othercontact',
 				'plink' => '',
 			]
 		];
@@ -2359,8 +2360,9 @@ class ApiTest extends DatabaseTest
 				'coord' => '5 7',
 				'body' => '',
 				'verb' => '',
-				'author-id' => 42,
+				'author-id' => 43,
 				'author-network' => \Friendica\Core\Protocol::DFRN,
+				'author-link' => 'http://localhost/profile/othercontact',
 				'plink' => '',
 			]
 		];
