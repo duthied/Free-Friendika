@@ -87,12 +87,14 @@ abstract class DatabaseTest extends TestCase
 			if (dba::$connected) {
 				$app = get_app();
 				// We need to do this in order to disable logging
-				$app->module = 'install';
+				$app->mode = \Friendica\App::MODE_INSTALL;
 
 				// Create database structure
 				DBStructure::update(false, true, true);
+
+				$app->mode = \Friendica\App::MODE_NORMAL;
 			} else {
-				$this->markTestSkipped('Could not connect to the database.');
+				$this->markTestSkipped('Could not connect to the database. Please check the MYSQL_* environment variables.');
 			}
 		}
 
