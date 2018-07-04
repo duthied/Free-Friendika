@@ -2695,7 +2695,7 @@ class Item extends BaseObject
 		}
 
 		$base_condition = ['verb' => $verbs, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
-			'author-id' => $author_contact['id'], 'uid' => item['uid']];
+			'author-id' => $author_contact['id'], 'uid' => $item['uid']];
 
 		$condition = array_merge($base_condition, ['parent' => $item_id]);
 		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
