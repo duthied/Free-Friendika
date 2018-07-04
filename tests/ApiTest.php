@@ -12,6 +12,8 @@ use Friendica\Network\BadRequestException;
 use Friendica\Network\HTTPException;
 use Friendica\Render\FriendicaSmarty;
 
+require_once 'include/dba.php';
+
 /**
  * Tests for the API functions.
  *
@@ -3393,7 +3395,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetNick()
 	{
-		var_dump(dba::inArray(\dba::select('contact')));
+		var_dump(\dba::inArray(\dba::select('contact')));
 
 		$result = api_get_nick($this->otherUser['nurl']);
 		$this->assertEquals('othercontact', $result);
