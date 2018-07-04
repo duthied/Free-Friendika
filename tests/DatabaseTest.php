@@ -98,7 +98,7 @@ abstract class DatabaseTest extends TestCase
 			}
 		}
 
-		return $this->createDefaultDBConnection(dba::get_db(), getenv('DB'));
+		return $this->createDefaultDBConnection(dba::get_db(), getenv('MYSQL_DATABASE'));
 	}
 
 	/**
