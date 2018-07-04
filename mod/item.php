@@ -737,7 +737,7 @@ function item_post(App $a) {
 		goaway($return_path);
 	}
 
-	$datarray = dba::selectFirst('item', [], ['id' => $post_id]);
+	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBM::is_result($datarray)) {
 		logger("Item with id ".$post_id." couldn't be fetched.");

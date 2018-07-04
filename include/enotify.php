@@ -738,18 +738,13 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	// Only act if it is a "real" post
 	// We need the additional check for the "local_profile" because of mixed situations on connector networks
-	$item = q("SELECT `id`, `mention`, `tag`,`parent`, `title`, `body`, `author-id`, `guid`,
-			`parent-uri`, `uri`, `contact-id`, `network`
-			FROM `item` WHERE `id` = %d AND `gravity` IN (%d, %d) AND
-				NOT (`author-id` IN ($contact_list)) LIMIT 1",
-		intval($itemid), intval(GRAVITY_PARENT), intval(GRAVITY_COMMENT));
-	if (!$item)
-		return false;
-
-	if ($item[0]['network'] != NETWORK_FEED) {
-		$author = dba::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item[0]['author-id']]);
-	} else {
-		$author = dba::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item[0]['contact-id']]);
+	$fields = ['id', 'mention', 'tag', 'parent', 'title', 'body',
+		'author-link', 'author-name', 'author-avatar', 'author-id',
+		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
+	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+	$item = Item::selectFirst($fields, $condition);
+	if (!DBM::is_result($item) || in_array($item['author-id'], $contacts)) {
+		return;
 	}
 
 	// Generate the notification array
@@ -759,17 +754,17 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$params["language"] = $user["language"];
 	$params["to_name"] = $user["username"];
 	$params["to_email"] = $user["email"];
-	$params["item"] = $item[0];
-	$params["parent"] = $item[0]["parent"];
-	$params["link"] = System::baseUrl().'/display/'.urlencode($item[0]["guid"]);
+	$params["item"] = $item;
+	$params["parent"] = $item["parent"];
+	$params["link"] = System::baseUrl().'/display/'.urlencode($item["guid"]);
 	$params["otype"] = 'item';
-	$params["source_name"] = $author["name"];
-	$params["source_link"] = $author["url"];
-	$params["source_photo"] = $author["thumb"];
+	$params["source_name"] = $item["author-name"];
+	$params["source_link"] = $item["author-link"];
+	$params["source_photo"] = $item["author-avatar"];
 
-	if ($item[0]["parent-uri"] === $item[0]["uri"]) {
+	if ($item["parent-uri"] === $item["uri"]) {
 		// Send a notification for every new post?
-		$send_notification = dba::exists('contact', ['id' => $item[0]['contact-id'], 'notify_new_posts' => true]);
+		$send_notification = dba::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true]);
 
 		if (!$send_notification) {
 			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
@@ -796,11 +791,11 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$tagged = false;
 
 	foreach ($profiles AS $profile) {
-		if (strpos($item[0]["tag"], "=".$profile."]") || strpos($item[0]["body"], "=".$profile."]"))
+		if (strpos($item["tag"], "=".$profile."]") || strpos($item["body"], "=".$profile."]"))
 			$tagged = true;
 	}
 
-	if ($item[0]["mention"] || $tagged || ($defaulttype == NOTIFY_TAGSELF)) {
+	if ($item["mention"] || $tagged || ($defaulttype == NOTIFY_TAGSELF)) {
 		$params["type"] = NOTIFY_TAGSELF;
 		$params["verb"] = ACTIVITY_TAG;
 	}
@@ -810,7 +805,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 			WHERE `thread`.`iid` = %d AND NOT `thread`.`ignored` AND
 				(`thread`.`mention` OR `item`.`author-id` IN ($contact_list))
 			LIMIT 1",
-			intval($item[0]["parent"]));
+			intval($item["parent"]));
 
 	if ($parent && !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;

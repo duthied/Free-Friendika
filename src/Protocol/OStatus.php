@@ -341,7 +341,7 @@ class OStatus
 		$header["type"] = "remote";
 		$header["wall"] = 0;
 		$header["origin"] = 0;
-		$header["gravity"] = GRAVITY_PARENT;
+		$header["gravity"] = GRAVITY_COMMENT;
 
 		$first_child = $doc->firstChild->tagName;
 
@@ -683,9 +683,9 @@ class OStatus
 			}
 
 			$item["type"] = 'remote-comment';
-			$item["gravity"] = GRAVITY_COMMENT;
 		} else {
 			$item["parent-uri"] = $item["uri"];
+			$item["gravity"] = GRAVITY_PARENT;
 		}
 
 		if (($item['author-link'] != '') && !empty($item['protocol'])) {

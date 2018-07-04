@@ -2087,13 +2087,6 @@ class DFRN
 
 		logger('Contacts are updated.');
 
-		// update items
-		// This is an extreme performance killer
-		Item::update(['owner-link' => $relocate["url"]], ['owner-link' => $old["url"], 'uid' => $importer["importer_uid"]]);
-		Item::update(['author-link' => $relocate["url"]], ['author-link' => $old["url"], 'uid' => $importer["importer_uid"]]);
-
-		logger('Items are updated.');
-
 		/// @TODO
 		/// merge with current record, current contents have priority
 		/// update record, set url-updated

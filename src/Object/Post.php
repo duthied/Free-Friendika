@@ -70,8 +70,10 @@ class Post extends BaseObject
 		}
 
 		$this->writable = $this->getDataValue('writable') || $this->getDataValue('self');
-		$this->redirect_url = Contact::magicLinkById($this->getDataValue('cid'));
-
+		$author = ['uid' => 0, 'id' => $this->getDataValue('author-id'),
+			'network' => $this->getDataValue('author-network'),
+			'url' => $this->getDataValue('author-link')];
+		$this->redirect_url = Contact::magicLinkbyContact($author);
 		if (!$this->isToplevel()) {
 			$this->threaded = true;
 		}
@@ -203,7 +205,9 @@ class Post extends BaseObject
 			$profile_name = $item['author-link'];
 		}
 
-		$profile_link = Contact::magicLinkById($item['author-id']);
+		$author = ['uid' => 0, 'id' => $item['author-id'],
+			'network' => $item['author-network'], 'url' => $item['author-link']];
+		$profile_link = Contact::magicLinkbyContact($author);
 		if (strpos($profile_link, 'redir/') === 0) {
 			$sparkle = ' sparkle';
 		}
@@ -839,7 +843,7 @@ class Post extends BaseObject
 					$alias_linkmatch = (($this->getDataValue('alias')) && link_compare($this->getDataValue('alias'), $this->getDataValue('author-link')));
 					$owner_namematch = (($this->getDataValue('owner-name')) && $this->getDataValue('owner-name') == $this->getDataValue('author-name'));
 
-					if ((!$owner_linkmatch) && (!$alias_linkmatch) && (!$owner_namematch)) {
+					if (!$owner_linkmatch && !$alias_linkmatch && !$owner_namematch) {
 						// The author url doesn't match the owner (typically the contact)
 						// and also doesn't match the contact alias.
 						// The name match is a hack to catch several weird cases where URLs are
@@ -852,7 +856,11 @@ class Post extends BaseObject
 						$this->owner_photo = $this->getDataValue('owner-avatar');
 						$this->owner_name = $this->getDataValue('owner-name');
 						$this->wall_to_wall = true;
-						$this->owner_url = Contact::magicLinkById($this->getDataValue('owner-id'));
+
+						$owner = ['uid' => 0, 'id' => $this->getDataValue('owner-id'),
+							'network' => $this->getDataValue('owner-network'),
+							'url' => $this->getDataValue('owner-link')];
+						$this->owner_url = Contact::magicLinkbyContact($owner);
 					}
 				}
 			}

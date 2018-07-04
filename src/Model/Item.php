@@ -24,6 +24,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
+use Friendica\Util\Lock;
 use dba;
 use Text_LanguageDetect;
 
@@ -36,11 +37,11 @@ class Item extends BaseObject
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach',
+			'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach', 'language',
 			'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
-			'author-id', 'author-link', 'author-name', 'author-avatar',
-			'owner-id', 'owner-link', 'owner-name', 'owner-avatar',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
+			'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
 			'contact-id', 'contact-link', 'contact-name', 'contact-avatar',
 			'writable', 'self', 'cid', 'alias',
 			'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
@@ -57,9 +58,12 @@ class Item extends BaseObject
 			'signed_text', 'signature', 'signer'];
 
 	// Field list for "item-content" table that is mixed with the item table
-	const CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
+	const MIXED_CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
 			'coord', 'app', 'rendered-hash', 'rendered-html', 'verb',
-			'object-type', 'object', 'target-type', 'target'];
+			'object-type', 'object', 'target-type', 'target', 'plink'];
+
+	// Field list for "item-content" table that is not present in the "item" table
+	const CONTENT_FIELDLIST = ['language'];
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
@@ -85,7 +89,7 @@ class Item extends BaseObject
 		$row = dba::fetch($stmt);
 
 		// Fetch data from the item-content table whenever there is content there
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
 			if (empty($row[$field]) && !empty($row['item-' . $field])) {
 				$row[$field] = $row['item-' . $field];
 			}
@@ -111,6 +115,16 @@ class Item extends BaseObject
 			if (isset($row['owner-name']) && !empty($row['contact-name'])) {
 				$row['owner-name'] = $row['contact-name'];
 			}
+		}
+
+		// Build the tag string out of the term entries
+		if (isset($row['id']) && array_key_exists('tag', $row)) {
+			$row['tag'] = Term::tagTextFromItemId($row['id']);
+		}
+
+		// Build the file string out of the term entries
+		if (isset($row['id']) && array_key_exists('file', $row)) {
+			$row['file'] = Term::fileTextFromItemId($row['id']);
 		}
 
 		// We can always comment on posts from these networks
@@ -265,7 +279,7 @@ class Item extends BaseObject
 
 		$param_string = self::addTablesToFields(dba::buildParameter($params), $fields);
 
-		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false);
+		$table = "`item` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, false, $usermode);
 
 		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
 
@@ -380,7 +394,7 @@ class Item extends BaseObject
 		$param_string = self::addTablesToFields($param_string, $threadfields);
 		$param_string = self::addTablesToFields($param_string, $fields);
 
-		$table = "`thread` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, true);
+		$table = "`thread` " . self::constructJoins($uid, $select_fields . $condition_string . $param_string, true, $usermode);
 
 		$sql = "SELECT " . $select_fields . " FROM " . $table . $condition_string . $param_string;
 
@@ -399,19 +413,19 @@ class Item extends BaseObject
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'postopts',
-			'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'resource-id', 'event-id', 'tag', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid'];
 
-		$fields['item-content'] = self::CONTENT_FIELDLIST;
+		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
 		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
-			'thumb' => 'author-avatar', 'nick' => 'author-nick'];
+			'thumb' => 'author-avatar', 'nick' => 'author-nick', 'network' => 'author-network'];
 
 		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name',
-			'thumb' => 'owner-avatar', 'nick' => 'owner-nick'];
+			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
 			'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
@@ -459,7 +473,7 @@ class Item extends BaseObject
 	 *
 	 * @return string The SQL joins for the "select" functions
 	 */
-	private static function constructJoins($uid, $sql_commands, $thread_mode)
+	private static function constructJoins($uid, $sql_commands, $thread_mode, $user_mode)
 	{
 		if ($thread_mode) {
 			$master_table = "`thread`";
@@ -471,14 +485,26 @@ class Item extends BaseObject
 			$joins = '';
 		}
 
-		$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
-			AND NOT `contact`.`blocked`
-			AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-			OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
-			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
-			CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+		if ($user_mode) {
+			$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
+				AND NOT `contact`.`blocked`
+				AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
+				OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
+				STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
+				STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
+				LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
+				CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+		} else {
+			if (strpos($sql_commands, "`contact`.") !== false) {
+				$joins .= "STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`";
+			}
+			if (strpos($sql_commands, "`author`.") !== false) {
+				$joins .= " STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id`";
+			}
+			if (strpos($sql_commands, "`owner`.") !== false) {
+				$joins .= " STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id`";
+			}
+		}
 
 		if (strpos($sql_commands, "`group_member`.") !== false) {
 			$joins .= " STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = $master_table.`contact-id`";
@@ -521,11 +547,21 @@ class Item extends BaseObject
 	 */
 	private static function constructSelectFields($fields, $selected)
 	{
+		// To be able to fetch the tags we need the item id
+		if (in_array('tag', $selected) && !in_array('id', $selected)) {
+			$selected[] = 'id';
+		}
+
+		// To be able to fetch the files we need the item id
+		if (in_array('file', $selected) && !in_array('id', $selected)) {
+			$selected[] = 'id';
+		}
+
 		$selection = [];
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
-					if (in_array($select, self::CONTENT_FIELDLIST)) {
+					if (in_array($select, self::MIXED_CONTENT_FIELDLIST)) {
 						$selection[] = "`item`.`".$select."` AS `item-" . $select . "`";
 					}
 					if (is_int($field)) {
@@ -590,14 +626,28 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin', 'uri', 'plink'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri', 'plink', 'icid'], $condition);
 
 		$content_fields = [];
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($fields[$field])) {
 				$content_fields[$field] = $fields[$field];
 				unset($fields[$field]);
 			}
+		}
+
+		if (array_key_exists('tag', $fields)) {
+			$tags = $fields['tag'];
+			unset($fields['tag']);
+		} else {
+			$tags = '';
+		}
+
+		if (array_key_exists('file', $fields)) {
+			$files = $fields['file'];
+			unset($fields['file']);
+		} else {
+			$files = '';
 		}
 
 		if (!empty($fields)) {
@@ -618,8 +668,29 @@ class Item extends BaseObject
 				$content_fields['plink'] =  $item['plink'];
 			}
 			self::updateContent($content_fields, ['uri' => $item['uri']]);
-			Term::insertFromTagFieldByItemId($item['id']);
-			Term::insertFromFileFieldByItemId($item['id']);
+
+			if (empty($item['icid'])) {
+				$item_content = dba::selectFirst('item-content', [], ['uri' => $item['uri']]);
+				if (DBM::is_result($item_content)) {
+					$item_fields = ['icid' => $item_content['id']];
+					// Clear all fields in the item table that have a content in the item-content table
+					foreach ($item_content as $field => $content) {
+						if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($item_content[$field])) {
+							$item_fields[$field] = '';
+						}
+					}
+					dba::update('item', $item_fields, ['id' => $item['id']]);
+				}
+			}
+
+			if (!empty($tags)) {
+				Term::insertFromTagFieldByItemId($item['id'], $tags);
+			}
+
+			if (!empty($files)) {
+				Term::insertFromFileFieldByItemId($item['id'], $files);
+			}
+
 			self::updateThread($item['id']);
 
 			// We only need to notfiy others when it is an original entry from us.
@@ -689,7 +760,7 @@ class Item extends BaseObject
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id'];
-		$item = dba::selectFirst('item', $fields, ['id' => $item_id]);
+		$item = self::selectFirst($fields, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
 			logger('Item with ID ' . $item_id . " hasn't been found.", LOGGER_DEBUG);
 			return false;
@@ -700,7 +771,7 @@ class Item extends BaseObject
 			return false;
 		}
 
-		$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
+		$parent = self::selectFirst(['origin'], ['id' => $item['parent']]);
 		if (!DBM::is_result($parent)) {
 			$parent = ['origin' => false];
 		}
@@ -749,11 +820,15 @@ class Item extends BaseObject
 		self::deleteTagsFromItem($item);
 
 		// Set the item to "deleted"
-		dba::update('item', ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()],
-				['id' => $item['id']]);
+		// This erasing of item content is superfluous for items with a matching item-content.
+		// But for the next time we will still have old content in the item table.
+		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow(),
+			'body' => '', 'title' => '', 'content-warning' => '', 'rendered-hash' => '', 'rendered-html' => '',
+			'object' => '', 'target' => '', 'tag' => '', 'postopts' => '', 'attach' => '', 'file' => ''];
+		dba::update('item', $item_fields, ['id' => $item['id']]);
 
-		Term::insertFromTagFieldByItemId($item['id']);
-		Term::insertFromFileFieldByItemId($item['id']);
+		Term::insertFromTagFieldByItemId($item['id'], '');
+		Term::insertFromFileFieldByItemId($item['id'], '');
 		self::deleteThread($item['id'], $item['parent-uri']);
 
 		if (!self::exists(["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
@@ -776,7 +851,7 @@ class Item extends BaseObject
 		} elseif ($item['uid'] != 0) {
 
 			// When we delete just our local user copy of an item, we have to set a marker to hide it
-			$global_item = dba::selectFirst('item', ['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
+			$global_item = self::selectFirst(['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
 			if (DBM::is_result($global_item)) {
 				dba::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
 			}
@@ -800,7 +875,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		$i = dba::selectFirst('item', ['id', 'contact-id', 'tag'], ['uri' => $xt->id, 'uid' => $item['uid']]);
+		$i = self::selectFirst(['id', 'contact-id', 'tag'], ['uri' => $xt->id, 'uid' => $item['uid']]);
 		if (!DBM::is_result($i)) {
 			return;
 		}
@@ -1016,7 +1091,7 @@ class Item extends BaseObject
 			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
 				trim($item['uri']), $item['uid'],
 				NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS];
-			$existing = dba::selectFirst('item', ['id', 'network'], $condition);
+			$existing = self::selectFirst(['id', 'network'], $condition);
 			if (DBM::is_result($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
 				if ($uid != 0) {
@@ -1027,7 +1102,7 @@ class Item extends BaseObject
 			}
 		}
 
-		self::addLanguageInPostopts($item);
+		self::addLanguageToItemArray($item);
 
 		$item['wall']          = intval(defaults($item, 'wall', 0));
 		$item['extid']         = trim(defaults($item, 'extid', ''));
@@ -1173,7 +1248,7 @@ class Item extends BaseObject
 				'wall', 'private', 'forum_mode', 'origin'];
 			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
 			$params = ['order' => ['id' => false]];
-			$parent = dba::selectFirst('item', $fields, $condition, $params);
+			$parent = self::selectFirst($fields, $condition, $params);
 
 			if (DBM::is_result($parent)) {
 				// is the new message multi-level threaded?
@@ -1187,7 +1262,7 @@ class Item extends BaseObject
 						'parent-uri' => $item['parent-uri'],
 						'uid' => $item['uid']];
 					$params = ['order' => ['id' => false]];
-					$toplevel_parent = dba::selectFirst('item', $fields, $condition, $params);
+					$toplevel_parent = self::selectFirst($fields, $condition, $params);
 
 					if (DBM::is_result($toplevel_parent)) {
 						$parent = $toplevel_parent;
@@ -1332,8 +1407,24 @@ class Item extends BaseObject
 
 		logger('' . print_r($item,true), LOGGER_DATA);
 
-		dba::transaction();
+		if (array_key_exists('tag', $item)) {
+			$tags = $item['tag'];
+			unset($item['tag']);
+		} else {
+			$tags = '';
+		}
+
+		if (array_key_exists('file', $item)) {
+			$files = $item['file'];
+			unset($item['file']);
+		} else {
+			$files = '';
+		}
+
+		// We are doing this outside of the transaction to avoid timing problems
 		self::insertContent($item);
+
+		dba::transaction();
 		$ret = dba::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
@@ -1404,7 +1495,7 @@ class Item extends BaseObject
 
 		// update the commented timestamp on the parent
 		// Only update "commented" if it is really a comment
-		if (($item['verb'] == ACTIVITY_POST) || !Config::get("system", "like_no_comment")) {
+		if (($item['gravity'] != GRAVITY_ACTIVITY) || !Config::get("system", "like_no_comment")) {
 			dba::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
 			dba::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
@@ -1437,7 +1528,7 @@ class Item extends BaseObject
 		 * in it.
 		 */
 		if (!$deleted && !$dontcache) {
-			$posted_item = dba::selectFirst('item', [], ['id' => $current_post]);
+			$posted_item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
 			if (DBM::is_result($posted_item)) {
 				if ($notify) {
 					Addon::callHooks('post_local_end', $posted_item);
@@ -1461,8 +1552,13 @@ class Item extends BaseObject
 		 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
-		Term::insertFromTagFieldByItemId($current_post);
-		Term::insertFromFileFieldByItemId($current_post);
+		if (!empty($tags)) {
+			Term::insertFromTagFieldByItemId($current_post, $tags);
+		}
+
+		if (!empty($files)) {
+			Term::insertFromFileFieldByItemId($current_post, $files);
+		}
 
 		if ($item['parent-uri'] === $item['uri']) {
 			self::addShadow($current_post);
@@ -1491,24 +1587,51 @@ class Item extends BaseObject
 		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
 			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
 
-		unset($item['plink']);
-
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($item[$field])) {
 				$fields[$field] = $item[$field];
 				unset($item[$field]);
 			}
 		}
 
-		// Do we already have this content?
-		if (!dba::exists('item-content', ['uri' => $item['uri']])) {
-			dba::insert('item-content', $fields, true);
+		// To avoid timing problems, we are using locks.
+		$locked = Lock::set('item_insert_content');
+		if (!$locked) {
+			logger("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}
 
+		// Do we already have this content?
 		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $item['uri']]);
 		if (DBM::is_result($item_content)) {
 			$item['icid'] = $item_content['id'];
-			logger('Insert content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+			logger('Fetched content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+		} elseif (dba::insert('item-content', $fields)) {
+			$item['icid'] = dba::lastInsertId();
+			logger('Inserted content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+		} else {
+			// By setting the ICID value through the worker we should avoid timing problems.
+			// When the locking works, this shouldn't be needed. But better be prepared.
+			Worker::add(PRIORITY_HIGH, 'SetItemContentID', $item['uri']);
+			logger('Could not insert content for URI ' . $item['uri'] . ' - trying asynchronously');
+		}
+		if ($locked) {
+			Lock::remove('item_insert_content');
+		}
+	}
+
+	/**
+	 * @brief Set the item content id for a given URI
+	 *
+	 * @param string $uri The item URI
+	 */
+	public static function setICIDforURI($uri)
+	{
+		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $uri]);
+		if (DBM::is_result($item_content)) {
+			dba::update('item', ['icid' => $item_content['id']], ['icid' => 0, 'uri' => $uri]);
+			logger('Asynchronously set item content id for URI ' . $uri . ' (' . $item_content['id'] . ') - Affected: '. (int)dba::affected_rows());
+		} else {
+			logger('No item-content found for URI ' . $uri);
 		}
 	}
 
@@ -1522,7 +1645,7 @@ class Item extends BaseObject
 	{
 		// We have to select only the fields from the "item-content" table
 		$fields = [];
-		foreach (self::CONTENT_FIELDLIST as $field) {
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($item[$field])) {
 				$fields[$field] = $item[$field];
 			}
@@ -1533,8 +1656,10 @@ class Item extends BaseObject
 		}
 
 		if (!empty($item['plink'])) {
-			$fields['plink'] = $item['plink'];
 			$fields['uri-plink-hash'] = hash('sha1', $item['plink']) . hash('sha1', $condition['uri']);
+		} else {
+			// Ensure that we don't delete the plink
+			unset($fields['plink']);
 		}
 
 		logger('Update content for URI ' . $condition['uri']);
@@ -1551,7 +1676,7 @@ class Item extends BaseObject
 	public static function distribute($itemid, $signed_text = '')
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
-		$parent = dba::selectFirst('item', ['owner-id'], $condition);
+		$parent = self::selectFirst(['owner-id'], $condition);
 		if (!DBM::is_result($parent)) {
 			return;
 		}
@@ -1584,7 +1709,7 @@ class Item extends BaseObject
 		$origin_uid = 0;
 
 		if ($item['uri'] != $item['parent-uri']) {
-			$parents = dba::select('item', ['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+			$parents = self::select(['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
 			while ($parent = dba::fetch($parents)) {
 				$users[$parent['uid']] = $parent['uid'];
 				if ($parent['origin'] && !$item['origin']) {
@@ -1663,9 +1788,9 @@ class Item extends BaseObject
 	 */
 	public static function addShadow($itemid)
 	{
-		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network'];
+		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network', 'uri'];
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
-		$item = dba::selectFirst('item', $fields, $condition);
+		$item = self::selectFirst($fields, $condition);
 
 		if (!DBM::is_result($item)) {
 			return;
@@ -1686,36 +1811,36 @@ class Item extends BaseObject
 			return;
 		}
 
+		if (self::exists(['uri' => $item['uri'], 'uid' => 0])) {
+			return;
+		}
+
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 
-		if (DBM::is_result($item) && ($item["allow_cid"] == '') && ($item["allow_gid"] == '') &&
-			($item["deny_cid"] == '') && ($item["deny_gid"] == '')) {
-
-			if (!self::exists(['uri' => $item['uri'], 'uid' => 0])) {
-				// Preparing public shadow (removing user specific data)
-				$item['uid'] = 0;
-				unset($item['id']);
-				unset($item['parent']);
-				unset($item['wall']);
-				unset($item['mention']);
-				unset($item['origin']);
-				unset($item['starred']);
-				if ($item['uri'] == $item['parent-uri']) {
-					$item['contact-id'] = $item['owner-id'];
-				} else {
-					$item['contact-id'] = $item['author-id'];
-				}
-
-				if (in_array($item['type'], ["net-comment", "wall-comment"])) {
-					$item['type'] = 'remote-comment';
-				} elseif ($item['type'] == 'wall') {
-					$item['type'] = 'remote';
-				}
-
-				$public_shadow = self::insert($item, false, false, true);
-
-				logger("Stored public shadow for thread ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
+		if (DBM::is_result($item)) {
+			// Preparing public shadow (removing user specific data)
+			$item['uid'] = 0;
+			unset($item['id']);
+			unset($item['parent']);
+			unset($item['wall']);
+			unset($item['mention']);
+			unset($item['origin']);
+			unset($item['starred']);
+			if ($item['uri'] == $item['parent-uri']) {
+				$item['contact-id'] = $item['owner-id'];
+			} else {
+				$item['contact-id'] = $item['author-id'];
 			}
+
+			if (in_array($item['type'], ["net-comment", "wall-comment"])) {
+				$item['type'] = 'remote-comment';
+			} elseif ($item['type'] == 'wall') {
+				$item['type'] = 'remote';
+			}
+
+			$public_shadow = self::insert($item, false, false, true);
+
+			logger("Stored public shadow for thread ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
 		}
 	}
 
@@ -1786,39 +1911,19 @@ class Item extends BaseObject
 	}
 
 	 /**
-	 * Adds a "lang" specification in a "postopts" element of given $arr,
-	 * if possible and not already present.
+	 * Adds a language specification in a "language" element of given $arr.
 	 * Expects "body" element to exist in $arr.
 	 */
-	private static function addLanguageInPostopts(&$item)
+	private static function addLanguageToItemArray(&$item)
 	{
-		$postopts = "";
-
-		if (!empty($item['postopts'])) {
-			if (strstr($item['postopts'], 'lang=')) {
-				// do not override
-				return;
-			}
-			$postopts = $item['postopts'];
-		}
-
 		$naked_body = Text\BBCode::toPlaintext($item['body'], false);
 
-		$languages = (new Text_LanguageDetect())->detect($naked_body, 3);
+		$ld = new Text_LanguageDetect();
+		$ld->setNameMode(2);
+		$languages = $ld->detect($naked_body, 3);
 
-		if (sizeof($languages) > 0) {
-			if ($postopts != '') {
-				$postopts .= '&'; // arbitrary separator, to be reviewed
-			}
-
-			$postopts .= 'lang=';
-			$sep = "";
-
-			foreach ($languages as $language => $score) {
-				$postopts .= $sep . $language . ";" . $score;
-				$sep = ':';
-			}
-			$item['postopts'] = $postopts;
+		if (is_array($languages)) {
+			$item['language'] = json_encode($languages);
 		}
 	}
 
@@ -1991,7 +2096,7 @@ class Item extends BaseObject
 
 	public static function getGuidById($id)
 	{
-		$item = dba::selectFirst('item', ['guid'], ['id' => $id]);
+		$item = self::selectFirst(['guid'], ['id' => $id]);
 		if (DBM::is_result($item)) {
 			return $item['guid'];
 		} else {
@@ -2025,8 +2130,6 @@ class Item extends BaseObject
 			$item = dba::fetch_first("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND `item`.`allow_cid` = ''  AND `item`.`allow_gid` = ''
-					AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = ''
 					AND NOT `item`.`private` AND `item`.`wall`
 					AND `item`.`guid` = ?", $guid);
 			if (DBM::is_result($item)) {
@@ -2055,7 +2158,7 @@ class Item extends BaseObject
 		$community_page = (($user['page-flags'] == PAGE_COMMUNITY) ? true : false);
 		$prvgroup = (($user['page-flags'] == PAGE_PRVGROUP) ? true : false);
 
-		$item = dba::selectFirst('item', [], ['id' => $item_id]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
 		if (!DBM::is_result($item)) {
 			return;
 		}
@@ -2328,17 +2431,8 @@ class Item extends BaseObject
 
 	private static function hasPermissions($obj)
 	{
-		return (
-			(
-				x($obj, 'allow_cid')
-			) || (
-				x($obj, 'allow_gid')
-			) || (
-				x($obj, 'deny_cid')
-			) || (
-				x($obj, 'deny_gid')
-			)
-		);
+		return !empty($obj['allow_cid']) || !empty($obj['allow_gid']) ||
+			!empty($obj['deny_cid']) || !empty($obj['deny_gid']);
 	}
 
 	private static function samePermissions($obj1, $obj2)
@@ -2404,74 +2498,79 @@ class Item extends BaseObject
 			return;
 		}
 
+		$condition = ["`uid` = ? AND NOT `deleted` AND `id` = `parent` AND `gravity` = ?",
+			$uid, GRAVITY_PARENT];
+
 		/*
 		 * $expire_network_only = save your own wall posts
 		 * and just expire conversations started by others
 		 */
-		$expire_network_only = PConfig::get($uid,'expire', 'network_only');
-		$sql_extra = (intval($expire_network_only) ? " AND wall = 0 " : "");
+		$expire_network_only = PConfig::get($uid, 'expire', 'network_only', false);
+
+		if ($expire_network_only) {
+			$condition[0] .= " AND NOT `wall`";
+		}
 
 		if ($network != "") {
-			$sql_extra .= sprintf(" AND network = '%s' ", dbesc($network));
+			$condition[0] .= " AND `network` = ?";
+			$condition[] = $network;
 
 			/*
 			 * There is an index "uid_network_received" but not "uid_network_created"
 			 * This avoids the creation of another index just for one purpose.
 			 * And it doesn't really matter wether to look at "received" or "created"
 			 */
-			$range = "AND `received` < UTC_TIMESTAMP() - INTERVAL %d DAY ";
+			$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
+			$condition[] = $days;
 		} else {
-			$range = "AND `created` < UTC_TIMESTAMP() - INTERVAL %d DAY ";
+			$condition[0] .= " AND `created` < UTC_TIMESTAMP() - INTERVAL ? DAY";
+			$condition[] = $days;
 		}
 
-		$r = q("SELECT `file`, `resource-id`, `starred`, `type`, `id` FROM `item`
-			WHERE `uid` = %d $range
-			AND `id` = `parent`
-			$sql_extra
-			AND `deleted` = 0",
-			intval($uid),
-			intval($days)
-		);
+		$items = self::select(['file', 'resource-id', 'starred', 'type', 'id'], $condition);
 
-		if (!DBM::is_result($r)) {
+		if (!DBM::is_result($items)) {
 			return;
 		}
 
-		$expire_items = PConfig::get($uid, 'expire', 'items', 1);
+		$expire_items = PConfig::get($uid, 'expire', 'items', true);
 
 		// Forcing expiring of items - but not notes and marked items
 		if ($force) {
 			$expire_items = true;
 		}
 
-		$expire_notes = PConfig::get($uid, 'expire', 'notes', 1);
-		$expire_starred = PConfig::get($uid, 'expire', 'starred', 1);
-		$expire_photos = PConfig::get($uid, 'expire', 'photos', 0);
+		$expire_notes = PConfig::get($uid, 'expire', 'notes', true);
+		$expire_starred = PConfig::get($uid, 'expire', 'starred', true);
+		$expire_photos = PConfig::get($uid, 'expire', 'photos', false);
 
-		logger('User '.$uid.': expire: # items=' . count($r). "; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
+		$expired = 0;
 
-		foreach ($r as $item) {
-
+		while ($item = Item::fetch($items)) {
 			// don't expire filed items
 
-			if (strpos($item['file'],'[') !== false) {
+			if (strpos($item['file'], '[') !== false) {
 				continue;
 			}
 
 			// Only expire posts, not photos and photo comments
 
-			if ($expire_photos == 0 && strlen($item['resource-id'])) {
+			if (!$expire_photos && strlen($item['resource-id'])) {
 				continue;
-			} elseif ($expire_starred == 0 && intval($item['starred'])) {
+			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;
-			} elseif ($expire_notes == 0 && $item['type'] == 'note') {
+			} elseif (!$expire_notes && $item['type'] == 'note') {
 				continue;
-			} elseif ($expire_items == 0 && $item['type'] != 'note') {
+			} elseif (!$expire_items && $item['type'] != 'note') {
 				continue;
 			}
 
 			self::deleteById($item['id'], PRIORITY_LOW);
+
+			++$expired;
 		}
+		dba::close($items);
+		logger('User ' . $uid . ": expired $expired items; expire items: $expire_items, expire notes: $expire_notes, expire starred: $expire_starred, expire photos: $expire_photos");
 	}
 
 	public static function firstPostDate($uid, $wall = false)
@@ -2541,7 +2640,7 @@ class Item extends BaseObject
 
 		logger('like: verb ' . $verb . ' item ' . $item_id);
 
-		$item = dba::selectFirst('item', [], ['`id` = ? OR `uri` = ?', $item_id, $item_id]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['`id` = ? OR `uri` = ?', $item_id, $item_id]);
 		if (!DBM::is_result($item)) {
 			logger('like: unknown item ' . $item_id);
 			return false;
@@ -2596,7 +2695,7 @@ class Item extends BaseObject
 		}
 
 		$base_condition = ['verb' => $verbs, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
-			'author-id' => $author_contact['id'], 'uid' => item['uid']];
+			'author-id' => $author_contact['id'], 'uid' => $item['uid']];
 
 		$condition = array_merge($base_condition, ['parent' => $item_id]);
 		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
@@ -2718,7 +2817,7 @@ EOT;
 			'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
 			'deleted', 'origin', 'forum_mode', 'mention', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
-		$item = dba::selectFirst('item', $fields, $condition);
+		$item = self::selectFirst($fields, $condition);
 
 		if (!DBM::is_result($item)) {
 			return;
@@ -2740,7 +2839,7 @@ EOT;
 			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
-		$item = dba::selectFirst('item', $fields, $condition);
+		$item = self::selectFirst($fields, $condition);
 		if (!DBM::is_result($item)) {
 			return;
 		}

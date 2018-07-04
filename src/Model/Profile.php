@@ -710,7 +710,7 @@ class Profile
 			'$classtoday' => $classtoday,
 			'$count' => count($r),
 			'$event_reminders' => L10n::t('Event Reminders'),
-			'$event_title' => L10n::t('Events this week:'),
+			'$event_title' => L10n::t('Upcoming events the next 7 days:'),
 			'$events' => $r,
 		]);
 	}

@@ -1732,8 +1732,21 @@ class Contact extends BaseObject
 	 */
 	public static function magicLinkbyId($cid, $url = '')
 	{
-		$contact = dba::selectFirst('contact', ['network', 'url', 'uid'], ['id' => $cid]);
+		$contact = dba::selectFirst('contact', ['id', 'network', 'url', 'uid'], ['id' => $cid]);
 
+		return self::magicLinkbyContact($contact, $url);
+        }
+
+	/**
+	 * @brief Returns a magic link to authenticate remote visitors
+	 *
+	 * @param array $contact The contact array with "uid", "network" and "url"
+	 * @param integer $url An url that we will be redirected to after the authentication
+	 *
+	 * @return string with "redir" link
+	 */
+	public static function magicLinkbyContact($contact, $url = '')
+	{
 		if ($contact['network'] != NETWORK_DFRN) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 		}
@@ -1747,7 +1760,7 @@ class Contact extends BaseObject
 			return self::magicLink($contact['url'], $url);
 		}
 
-		$redirect = 'redir/' . $cid;
+		$redirect = 'redir/' . $contact['id'];
 
 		if ($url != '') {
 			$redirect .= '?url=' . $url;

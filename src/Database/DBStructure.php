@@ -1241,9 +1241,6 @@ class DBStructure
 						"ownerid" => ["owner-id"],
 						"uid_uri" => ["uid", "uri(190)"],
 						"resource-id" => ["resource-id"],
-						"contactid_allowcid_allowpid_denycid_denygid" => ["contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"], //
-						"uid_type_changed" => ["uid","type","changed"],
-						"contactid_verb" => ["contact-id","verb"],
 						"deleted_changed" => ["deleted","changed"],
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],
@@ -1261,6 +1258,7 @@ class DBStructure
 						"body" => ["type" => "mediumtext", "comment" => "item body content"],
 						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
 						"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
+						"language" => ["type" => "text", "comment" => "Language information about this post"],
 						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "application which generated this item"],
 						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
 						"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
@@ -1716,7 +1714,6 @@ class DBStructure
 						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
 						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"aid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 						],
 				"indexes" => [
