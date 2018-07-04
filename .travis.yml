@@ -16,3 +16,4 @@ install:
  - composer install
 before_script:
  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+ - mysql -utravis test < database.sql
