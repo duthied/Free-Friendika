@@ -3393,6 +3393,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetNick()
 	{
+		var_dump(dba::inArray(\dba::select('contact')));
+
 		$result = api_get_nick($this->otherUser['nurl']);
 		$this->assertEquals('othercontact', $result);
 	}

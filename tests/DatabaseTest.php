@@ -93,8 +93,6 @@ abstract class DatabaseTest extends TestCase
 				DBStructure::update(false, true, true);
 
 				$app->mode = \Friendica\App::MODE_NORMAL;
-
-				var_dump(dba::inArray(\dba::select('contact')));
 			} else {
 				$this->markTestSkipped('Could not connect to the database. Please check the MYSQL_* environment variables.');
 			}
