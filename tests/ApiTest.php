@@ -2338,6 +2338,7 @@ class ApiTest extends DatabaseTest
 				'body' => '',
 				'verb' => '',
 				'author-id' => 42,
+				'author-network' => \Friendica\Core\Protocol::DFRN,
 				'plink' => '',
 			]
 		];
@@ -2359,6 +2360,7 @@ class ApiTest extends DatabaseTest
 				'body' => '',
 				'verb' => '',
 				'author-id' => 42,
+				'author-network' => \Friendica\Core\Protocol::DFRN,
 				'plink' => '',
 			]
 		];
@@ -2729,7 +2731,7 @@ class ApiTest extends DatabaseTest
 	public function testApiDirectMessagesNewWithUserId()
 	{
 		$_POST['text'] = 'message_text';
-		$_POST['user_id'] = $this->friendUser['id'];
+		$_POST['user_id'] = $this->otherUser['id'];
 		$result = api_direct_messages_new('json');
 		$this->assertEquals(['direct_message' => ['error' => -1]], $result);
 	}
