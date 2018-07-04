@@ -635,7 +635,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiRssExtra()
 	{
-		$user_info = ['url' => 'user_url', 'language' => 'en'];
+		$user_info = ['url' => 'user_url', 'lang' => 'en'];
 		$result = api_rss_extra($this->app, [], $user_info);
 		$this->assertEquals($user_info, $result['$user']);
 		$this->assertEquals($user_info['url'], $result['$rss']['alternate']);
