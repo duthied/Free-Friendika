@@ -12,8 +12,6 @@ use Friendica\Network\BadRequestException;
 use Friendica\Network\HTTPException;
 use Friendica\Render\FriendicaSmarty;
 
-require_once 'include/dba.php';
-
 /**
  * Tests for the API functions.
  *
@@ -2731,7 +2729,7 @@ class ApiTest extends DatabaseTest
 	public function testApiDirectMessagesNewWithUserId()
 	{
 		$_POST['text'] = 'message_text';
-		$_POST['user_id'] = $this->otherUser['id'];
+		$_POST['user_id'] = $this->friendUser['id'];
 		$result = api_direct_messages_new('json');
 		$this->assertEquals(['direct_message' => ['error' => -1]], $result);
 	}
@@ -3395,8 +3393,6 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetNick()
 	{
-		var_dump(\dba::inArray(\dba::select('contact')));
-
 		$result = api_get_nick($this->otherUser['nurl']);
 		$this->assertEquals('othercontact', $result);
 	}
