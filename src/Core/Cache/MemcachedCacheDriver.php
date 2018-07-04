@@ -10,8 +10,11 @@ use Friendica\Core\Cache;
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class MemcachedCacheDriver extends BaseObject implements ICacheDriver
+class MemcachedCacheDriver extends BaseObject implements IMemoryCacheDriver
 {
+	use TraitCompareSet;
+	use TraitCompareDelete;
+
 	/**
 	 * @var Memcached
 	 */
@@ -46,14 +49,22 @@ class MemcachedCacheDriver extends BaseObject implements ICacheDriver
 		return $return;
 	}
 
-	public function set($key, $value, $duration = Cache::MONTH)
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		// We store with the hostname as key to avoid problems with other applications
-		return $this->memcached->set(
-			self::getApp()->get_hostname() . ':' . $key,
-			$value,
-			time() + $duration
-		);
+		if ($ttl > 0) {
+			return $this->memcached->set(
+				self::getApp()->get_hostname() . ':' . $key,
+				$value,
+				time() + $ttl
+			);
+		} else {
+			return $this->memcached->set(
+				self::getApp()->get_hostname() . ':' . $key,
+				$value
+			);
+		}
+
 	}
 
 	public function delete($key)
@@ -66,5 +77,18 @@ class MemcachedCacheDriver extends BaseObject implements ICacheDriver
 	public function clear()
 	{
 		return true;
+	}
+
+	/**
+	 * @brief Sets a value if it's not already stored
+	 *
+	 * @param string $key      The cache key
+	 * @param mixed  $value    The old value we know from the cache
+	 * @param int    $ttl      The cache lifespan, must be one of the Cache constants
+	 * @return bool
+	 */
+	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	{
+		return $this->memcached->add(self::getApp()->get_hostname() . ":" . $key, $value, $ttl);
 	}
 }

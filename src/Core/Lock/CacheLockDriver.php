@@ -2,7 +2,7 @@
 
 namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache\ICacheDriver;
+use Friendica\Core\Cache\IMemoryCacheDriver;
 
 class CacheLockDriver extends AbstractLockDriver
 {
@@ -14,9 +14,9 @@ class CacheLockDriver extends AbstractLockDriver
 	/**
 	 * CacheLockDriver constructor.
 	 *
-	 * @param ICacheDriver $cache The CacheDriver for this type of lock
+	 * @param IMemoryCacheDriver $cache The CacheDriver for this type of lock
 	 */
-	public function __construct(ICacheDriver $cache)
+	public function __construct(IMemoryCacheDriver $cache)
 	{
 		$this->cache = $cache;
 	}
@@ -35,31 +35,30 @@ class CacheLockDriver extends AbstractLockDriver
 		$got_lock = false;
 		$start = time();
 
-		$cachekey = get_app()->get_hostname() . ";lock:" . $key;
+		$cachekey = self::getCacheKey($key);
 
 		do {
 			$lock = $this->cache->get($cachekey);
-
-			if (!is_bool($lock)) {
-				$pid = (int)$lock;
-
-				// When the process id isn't used anymore, we can safely claim the lock for us.
-				// Or we do want to lock something that was already locked by us.
-				if (!posix_kill($pid, 0) || ($pid == getmypid())) {
-					$lock = false;
-				}
-			}
-			if (is_bool($lock)) {
-				$this->cache->set($cachekey, getmypid(), 300);
+			// When we do want to lock something that was already locked by us.
+			if ((int)$lock == getmypid()) {
 				$got_lock = true;
+			}
+
+			// When we do want to lock something new
+			if (is_null($lock)) {
+				// At first initialize it with "0"
+				$this->cache->add($cachekey, 0);
+				// Now the value has to be "0" because otherwise the key was used by another process meanwhile
+				if ($this->cache->compareSet($cachekey, 0, getmypid(), 300)) {
+					$got_lock = true;
+					$this->markAcquire($key);
+				}
 			}
 
 			if (!$got_lock && ($timeout > 0)) {
 				usleep(rand(10000, 200000));
 			}
 		} while (!$got_lock && ((time() - $start) < $timeout));
-
-		$this->markAcquire($key);
 
 		return $got_lock;
 	}
@@ -68,22 +67,33 @@ class CacheLockDriver extends AbstractLockDriver
 	 * @brief Removes a lock if it was set by us
 	 *
 	 * @param string $key Name of the lock
-	 *
-	 * @return mixed
 	 */
 	public function releaseLock($key)
 	{
-		$cachekey = get_app()->get_hostname() . ";lock:" . $key;
-		$lock = $this->cache->get($cachekey);
+		$cachekey = self::getCacheKey($key);
 
-		if (!is_bool($lock)) {
-			if ((int)$lock == getmypid()) {
-				$this->cache->delete($cachekey);
-			}
-		}
-
+		$this->cache->compareDelete($cachekey, getmypid());
 		$this->markRelease($key);
+	}
 
-		return;
+	/**
+	 * @brief Checks, if a key is currently locked to a process
+	 *
+	 * @param string $key The name of the lock
+	 * @return bool
+	 */
+	public function isLocked($key)
+	{
+		$cachekey = self::getCacheKey($key);
+		$lock = $this->cache->get($cachekey);
+		return isset($lock) && ($lock !== false);
+	}
+
+	/**
+	 * @param string $key	The original key
+	 * @return string		The cache key used for the cache
+	 */
+	private static function getCacheKey($key) {
+		return self::getApp()->get_hostname() . ";lock:" . $key;
 	}
 }

@@ -10,6 +10,7 @@ namespace Friendica\Core;
  */
 
 use Friendica\Core\Cache\CacheDriverFactory;
+use Friendica\Core\Cache\IMemoryCacheDriver;
 
 /**
  * @brief This class contain Functions for preventing parallel execution of functions
@@ -29,17 +30,23 @@ class Lock
 			switch ($lock_driver) {
 				case 'memcache':
 					$cache_driver = CacheDriverFactory::create('memcache');
-					self::$driver = new Lock\CacheLockDriver($cache_driver);
+					if ($cache_driver instanceof IMemoryCacheDriver) {
+						self::$driver = new Lock\CacheLockDriver($cache_driver);
+					}
 					break;
 
 				case 'memcached':
 					$cache_driver = CacheDriverFactory::create('memcached');
-					self::$driver = new Lock\CacheLockDriver($cache_driver);
+					if ($cache_driver instanceof IMemoryCacheDriver) {
+						self::$driver = new Lock\CacheLockDriver($cache_driver);
+					}
 					break;
 
 				case 'redis':
 					$cache_driver = CacheDriverFactory::create('redis');
-					self::$driver = new Lock\CacheLockDriver($cache_driver);
+					if ($cache_driver instanceof IMemoryCacheDriver) {
+						self::$driver = new Lock\CacheLockDriver($cache_driver);
+					}
 					break;
 
 				case 'database':
@@ -85,7 +92,9 @@ class Lock
 		if ($cache_driver != 'database') {
 			try {
 				$lock_driver = CacheDriverFactory::create($cache_driver);
-				self::$driver = new Lock\CacheLockDriver($lock_driver);
+				if ($lock_driver instanceof IMemoryCacheDriver) {
+					self::$driver = new Lock\CacheLockDriver($lock_driver);
+				}
 				return;
 			} catch (\Exception $exception) {
 				logger('Using Cache driver for locking failed: ' . $exception->getMessage());

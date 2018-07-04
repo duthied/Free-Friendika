@@ -4,10 +4,9 @@
  */
 namespace Friendica\Database;
 
+use dba;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
-use dba;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -1285,9 +1284,11 @@ class DBStructure
 						"name" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""],
 						"locked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process ID"],
-						],
+						"expires" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of cache expiration"],
+				],
 				"indexes" => [
 						"PRIMARY" => ["id"],
+						"name_expires" => ["name", "expires"]
 						]
 				];
 		$database["mail"] = [

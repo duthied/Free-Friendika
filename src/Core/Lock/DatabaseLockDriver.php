@@ -4,6 +4,7 @@ namespace Friendica\Core\Lock;
 
 use dba;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * Locking driver that stores the locks in the database
@@ -11,12 +12,7 @@ use Friendica\Database\DBM;
 class DatabaseLockDriver extends AbstractLockDriver
 {
 	/**
-	 * @brief Sets a lock for a given name
-	 *
-	 * @param string  $key      The Name of the lock
-	 * @param integer $timeout  Seconds until we give up
-	 *
-	 * @return boolean Was the lock successful?
+	 * (@inheritdoc)
 	 */
 	public function acquireLock($key, $timeout = 120)
 	{
@@ -25,26 +21,25 @@ class DatabaseLockDriver extends AbstractLockDriver
 
 		do {
 			dba::lock('locks');
-			$lock = dba::selectFirst('locks', ['locked', 'pid'], ['name' => $key]);
+			$lock = dba::selectFirst('locks', ['locked', 'pid'], ['`name` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
 
 			if (DBM::is_result($lock)) {
 				if ($lock['locked']) {
-					// When the process id isn't used anymore, we can safely claim the lock for us.
-					if (!posix_kill($lock['pid'], 0)) {
-						$lock['locked'] = false;
-					}
 					// We want to lock something that was already locked by us? So we got the lock.
 					if ($lock['pid'] == getmypid()) {
 						$got_lock = true;
+						$this->markAcquire($key);
 					}
 				}
 				if (!$lock['locked']) {
-					dba::update('locks', ['locked' => true, 'pid' => getmypid()], ['name' => $key]);
+					dba::update('locks', ['locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + 300seconds')], ['name' => $key]);
 					$got_lock = true;
+					$this->markAcquire($key);
 				}
 			} else {
-				dba::insert('locks', ['name' => $key, 'locked' => true, 'pid' => getmypid()]);
+				dba::insert('locks', ['name' => $key, 'locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + 300seconds')]);
 				$got_lock = true;
+				$this->markAcquire($key);
 			}
 
 			dba::unlock();
@@ -54,36 +49,42 @@ class DatabaseLockDriver extends AbstractLockDriver
 			}
 		} while (!$got_lock && ((time() - $start) < $timeout));
 
-		$this->markAcquire($key);
-
 		return $got_lock;
 	}
 
 	/**
-	 * @brief Removes a lock if it was set by us
-	 *
-	 * @param string $key Name of the lock
-	 *
-	 * @return mixed
+	 * (@inheritdoc)
 	 */
 	public function releaseLock($key)
 	{
-		dba::delete('locks', ['locked' => false, 'pid' => 0], ['name' => $key, 'pid' => getmypid()]);
+		dba::delete('locks', ['name' => $key, 'pid' => getmypid()]);
 
-		$this->releaseLock($key);
+		$this->markRelease($key);
 
 		return;
 	}
 
 	/**
-	 * @brief Removes all lock that were set by us
-	 *
-	 * @return void
+	 * (@inheritdoc)
 	 */
 	public function releaseAll()
 	{
-		dba::delete('locks', ['locked' => false, 'pid' => 0], ['pid' => getmypid()]);
+		dba::delete('locks', ['pid' => getmypid()]);
 
 		$this->acquiredLocks = [];
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function isLocked($key)
+	{
+		$lock = dba::selectFirst('locks', ['locked'], ['`name` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
+
+		if (DBM::is_result($lock)) {
+			return $lock['locked'] !== false;
+		} else {
+			return false;
+		}
 	}
 }

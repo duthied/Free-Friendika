@@ -10,6 +10,14 @@ namespace Friendica\Core\Lock;
 interface ILockDriver
 {
 	/**
+	 * @brief Checks, if a key is currently locked to a or my process
+	 *
+	 * @param string $key 		The name of the lock
+	 * @return bool
+	 */
+	public function isLocked($key);
+
+	/**
 	 *
 	 * @brief Acquires a lock for a given name
 	 *

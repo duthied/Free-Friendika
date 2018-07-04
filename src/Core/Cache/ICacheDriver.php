@@ -12,7 +12,7 @@ use Friendica\Core\Cache;
 interface ICacheDriver
 {
 	/**
-	 * Fetches cached data according to the key
+	 * @brief Fetches cached data according to the key
 	 *
 	 * @param string $key The key to the cached data
 	 *
@@ -21,28 +21,27 @@ interface ICacheDriver
 	public function get($key);
 
 	/**
-	 * Stores data in the cache identified by the key. The input $value can have multiple formats.
+	 * @brief Stores data in the cache identified by the key. The input $value can have multiple formats.
 	 *
 	 * @param string  $key      The cache key
 	 * @param mixed   $value    The value to store
-	 * @param integer $duration The cache lifespan, must be one of the Cache constants
+	 * @param integer $ttl 		 The cache lifespan, must be one of the Cache constants
 	 *
 	 * @return bool
 	 */
-	public function set($key, $value, $duration = Cache::MONTH);
-
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES);
 
 	/**
-	 * Delete a key from the cache
+	 * @brief Delete a key from the cache
 	 *
-	 * @param string $key
+	 * @param string $key      The cache key
 	 *
 	 * @return bool
 	 */
 	public function delete($key);
 
 	/**
-	 * Remove outdated data from the cache
+	 * @brief Remove outdated data from the cache
 	 *
 	 * @return bool
 	 */

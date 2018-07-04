@@ -4,6 +4,8 @@ namespace Friendica\Core\Lock;
 
 class SemaphoreLockDriver extends AbstractLockDriver
 {
+	private static $semaphore = [];
+
 	public function __construct()
 	{
 		if (!function_exists('sem_get')) {
@@ -42,10 +44,15 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 */
 	public function acquireLock($key, $timeout = 120)
 	{
-		$this->acquiredLocks[$key] = sem_get(self::semaphoreKey($key));
-		if ($this->acquiredLocks[$key]) {
-			return sem_acquire($this->acquiredLocks[$key], ($timeout == 0));
+		self::$semaphore[$key] = sem_get(self::semaphoreKey($key));
+		if (self::$semaphore[$key]) {
+			if (sem_acquire(self::$semaphore[$key], ($timeout == 0))) {
+				$this->markAcquire($key);
+				return true;
+			}
 		}
+
+		return false;
 	}
 
 	/**
@@ -57,12 +64,24 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 */
 	public function releaseLock($key)
 	{
-		if (empty($this->acquiredLocks[$key])) {
+		if (empty(self::$semaphore[$key])) {
 			return false;
 		} else {
-			$success = @sem_release($this->acquiredLocks[$key]);
-			unset($this->acquiredLocks[$key]);
+			$success = @sem_release(self::$semaphore[$key]);
+			unset(self::$semaphore[$key]);
+			$this->markRelease($key);
 			return $success;
 		}
+	}
+
+	/**
+	 * @brief Checks, if a key is currently locked to a process
+	 *
+	 * @param string $key The name of the lock
+	 * @return bool
+	 */
+	public function isLocked($key)
+	{
+		return @sem_get(self::$semaphore[$key]) !== false;
 	}
 }

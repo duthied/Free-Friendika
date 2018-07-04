@@ -33,11 +33,11 @@ class DatabaseCacheDriver implements ICacheDriver
 		return null;
 	}
 
-	public function set($key, $value, $duration = Cache::MONTH)
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$fields = [
 			'v'       => serialize($value),
-			'expires' => DateTimeFormat::utc('now + ' . $duration . ' seconds'),
+			'expires' => DateTimeFormat::utc('now + ' . $ttl . ' seconds'),
 			'updated' => DateTimeFormat::utcNow()
 		];
 
