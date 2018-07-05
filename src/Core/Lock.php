@@ -29,21 +29,9 @@ class Lock
 		try {
 			switch ($lock_driver) {
 				case 'memcache':
-					$cache_driver = CacheDriverFactory::create('memcache');
-					if ($cache_driver instanceof IMemoryCacheDriver) {
-						self::$driver = new Lock\CacheLockDriver($cache_driver);
-					}
-					break;
-
 				case 'memcached':
-					$cache_driver = CacheDriverFactory::create('memcached');
-					if ($cache_driver instanceof IMemoryCacheDriver) {
-						self::$driver = new Lock\CacheLockDriver($cache_driver);
-					}
-					break;
-
 				case 'redis':
-					$cache_driver = CacheDriverFactory::create('redis');
+					$cache_driver = CacheDriverFactory::create($lock_driver);
 					if ($cache_driver instanceof IMemoryCacheDriver) {
 						self::$driver = new Lock\CacheLockDriver($cache_driver);
 					}
@@ -129,7 +117,7 @@ class Lock
 	 */
 	public static function acquireLock($key, $timeout = 120)
 	{
-		return self::getDriver()->acquireLock($key, $timeout);
+		return self::getDriver()->acquire($key, $timeout);
 	}
 
 	/**
@@ -140,7 +128,7 @@ class Lock
 	 */
 	public static function releaseLock($key)
 	{
-		return self::getDriver()->releaseLock($key);
+		return self::getDriver()->release($key);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\src\Core\Lock;
+namespace Friendica\Test\Core\Lock;
 
 
 use Friendica\Core\Lock\SemaphoreLockDriver;

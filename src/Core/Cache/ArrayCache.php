@@ -6,7 +6,7 @@ namespace Friendica\Core\Cache;
 use Friendica\Core\Cache;
 
 /**
- * @brief Implementation of the IMemoryCacheDriver mainly for testing purpose
+ * Implementation of the IMemoryCacheDriver mainly for testing purpose
  *
  * Class ArrayCache
  *

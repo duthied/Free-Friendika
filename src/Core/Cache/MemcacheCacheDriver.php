@@ -90,6 +90,9 @@ class MemcacheCacheDriver extends BaseObject implements IMemoryCacheDriver
 		return $this->memcache->delete($key);
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function clear()
 	{
 		return $this->memcache->flush();

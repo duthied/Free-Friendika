@@ -4,7 +4,7 @@ namespace Friendica\Core\Cache;
 use Friendica\Core\Cache;
 
 /**
- * @brief This interface defines methods for Memory-Caches only
+ * This interface defines methods for Memory-Caches only
  *
  * Interface IMemoryCacheDriver
  *
@@ -13,7 +13,7 @@ use Friendica\Core\Cache;
 interface IMemoryCacheDriver extends ICacheDriver
 {
 	/**
-	 * @brief Sets a value if it's not already stored
+	 * Sets a value if it's not already stored
 	 *
 	 * @param string $key      The cache key
 	 * @param mixed  $value    The old value we know from the cache
@@ -23,7 +23,7 @@ interface IMemoryCacheDriver extends ICacheDriver
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES);
 
 	/**
-	 * @brief Compares if the old value is set and sets the new value
+	 * Compares if the old value is set and sets the new value
 	 *
 	 * @param string $key         The cache key
 	 * @param mixed  $oldValue    The old value we know from the cache
@@ -35,7 +35,7 @@ interface IMemoryCacheDriver extends ICacheDriver
 	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES);
 
 	/**
-	 * @brief Compares if the old value is set and removes it
+	 * Compares if the old value is set and removes it
 	 *
 	 * @param string $key          The cache key
 	 * @param mixed  $value        The old value we know and want to delete

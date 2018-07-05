@@ -22,15 +22,9 @@ class CacheLockDriver extends AbstractLockDriver
 	}
 
 	/**
-	 *
-	 * @brief Sets a lock for a given name
-	 *
-	 * @param string $key The Name of the lock
-	 * @param integer $timeout Seconds until we give up
-	 *
-	 * @return boolean Was the lock successful?
+	 * (@inheritdoc)
 	 */
-	public function acquireLock($key, $timeout = 120)
+	public function acquire($key, $timeout = 120)
 	{
 		$got_lock = false;
 		$start = time();
@@ -64,11 +58,9 @@ class CacheLockDriver extends AbstractLockDriver
 	}
 
 	/**
-	 * @brief Removes a lock if it was set by us
-	 *
-	 * @param string $key Name of the lock
+	 * (@inheritdoc)
 	 */
-	public function releaseLock($key)
+	public function release($key)
 	{
 		$cachekey = self::getCacheKey($key);
 
@@ -77,10 +69,7 @@ class CacheLockDriver extends AbstractLockDriver
 	}
 
 	/**
-	 * @brief Checks, if a key is currently locked to a process
-	 *
-	 * @param string $key The name of the lock
-	 * @return bool
+	 * (@inheritdoc)
 	 */
 	public function isLocked($key)
 	{

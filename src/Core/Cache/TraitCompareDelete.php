@@ -7,7 +7,7 @@ use Friendica\Core\Cache;
 /**
  * Trait TraitCompareSetDelete
  *
- * @brief This Trait is to compensate non native "exclusive" sets/deletes in caches
+ * This Trait is to compensate non native "exclusive" sets/deletes in caches
  *
  * @package Friendica\Core\Cache
  */
@@ -22,7 +22,7 @@ trait TraitCompareDelete
 	abstract public function add($key, $value, $ttl = Cache::FIVE_MINUTES);
 
 	/**
-	 * @brief NonNative - Compares if the old value is set and removes it
+	 * NonNative - Compares if the old value is set and removes it
 	 *
 	 * @param string $key          The cache key
 	 * @param mixed  $value        The old value we know and want to delete

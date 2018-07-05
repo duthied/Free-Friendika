@@ -9,12 +9,12 @@ use Friendica\Core\Config;
  *
  * @package Friendica\Core\Cache
  *
- * @brief A basic class to generate a CacheDriver
+ * A basic class to generate a CacheDriver
  */
 class CacheDriverFactory
 {
 	/**
-	 * @brief This method creates a CacheDriver for the given cache driver name
+	 * This method creates a CacheDriver for the given cache driver name
 	 *
 	 * @param string $driver The name of the cache driver
 	 * @return ICacheDriver  The instance of the CacheDriver

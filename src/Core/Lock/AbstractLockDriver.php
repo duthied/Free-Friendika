@@ -8,7 +8,7 @@ use Friendica\BaseObject;
  *
  * @package Friendica\Core\Lock
  *
- * @brief Basic class for Locking with common functions (local acquired locks, releaseAll, ..)
+ * Basic class for Locking with common functions (local acquired locks, releaseAll, ..)
  */
 abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 {
@@ -18,7 +18,7 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	protected $acquiredLocks = [];
 
 	/**
-	 * @brief Check if we've locally acquired a lock
+	 * Check if we've locally acquired a lock
 	 *
 	 * @param string key The Name of the lock
 	 * @return bool      Returns true if the lock is set
@@ -28,7 +28,7 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	}
 
 	/**
-	 * @brief Mark a locally acquired lock
+	 * Mark a locally acquired lock
 	 *
 	 * @param string $key The Name of the lock
 	 */
@@ -37,7 +37,7 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	}
 
 	/**
-	 * @brief Mark a release of a locally acquired lock
+	 * Mark a release of a locally acquired lock
 	 *
 	 * @param string $key The Name of the lock
 	 */
@@ -46,13 +46,13 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	}
 
 	/**
-	 * @brief Releases all lock that were set by us
+	 * Releases all lock that were set by us
 	 *
 	 * @return void
 	 */
 	public function releaseAll() {
 		foreach ($this->acquiredLocks as $acquiredLock => $hasLock) {
-			$this->releaseLock($acquiredLock);
+			$this->release($acquiredLock);
 		}
 	}
 }
