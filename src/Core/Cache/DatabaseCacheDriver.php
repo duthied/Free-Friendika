@@ -12,7 +12,7 @@ use Friendica\Util\DateTimeFormat;
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class DatabaseCacheDriver implements ICacheDriver
+class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 {
 	public function get($key)
 	{

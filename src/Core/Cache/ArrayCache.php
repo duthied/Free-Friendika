@@ -12,7 +12,7 @@ use Friendica\Core\Cache;
  *
  * @package Friendica\Core\Cache
  */
-class ArrayCache implements IMemoryCacheDriver
+class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 {
 	use TraitCompareDelete;
 
