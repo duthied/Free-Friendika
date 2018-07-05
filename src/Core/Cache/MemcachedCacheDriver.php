@@ -9,7 +9,7 @@ use Friendica\Core\Cache;
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class MemcachedCacheDriver extends AbstractCacheDriver
+class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;

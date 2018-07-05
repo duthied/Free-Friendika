@@ -11,7 +11,7 @@ use Friendica\BaseObject;
  *
  * @package Friendica\Core\Cache
  */
-abstract class AbstractCacheDriver extends BaseObject implements IMemoryCacheDriver
+abstract class AbstractCacheDriver extends BaseObject
 {
 	/**
 	 * @param string $key	The original key

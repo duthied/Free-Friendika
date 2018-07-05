@@ -10,7 +10,7 @@ use Friendica\Core\Cache;
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  * @author Roland Haeder <roland@mxchange.org>
  */
-class RedisCacheDriver extends AbstractCacheDriver
+class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 {
 	/**
 	 * @var \Redis
