@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.08-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1274
+-- DB_UPDATE_VERSION 1275
 -- ------------------------------------------
 
 
@@ -478,6 +478,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`author-link` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link to the profile page of the author of this item',
 	`author-avatar` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link to the avatar picture of the author of this item',
 	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
+	`iaid` int unsigned COMMENT 'Id of the item-activity table entry that contains the activity data',
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT 'item title',
 	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT 'item body content',
@@ -541,6 +542,19 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `icid` (`icid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
+
+--
+-- TABLE item-activity
+--
+CREATE TABLE IF NOT EXISTS `item-activity` (
+	`id` int unsigned NOT NULL auto_increment,
+	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-hash` char(80) NOT NULL DEFAULT '' COMMENT 'SHA-1 and RIPEMD-160 hash from uri',
+	`activity` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri-hash` (`uri-hash`),
+	 INDEX `uri` (`uri`(191))
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activities for items';
 
 --
 -- TABLE item-content
