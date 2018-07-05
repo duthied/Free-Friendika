@@ -1,7 +1,5 @@
 <?php
-/**
- * @file src/Util/Lock.php
- */
+
 namespace Friendica\Core;
 
 /**
@@ -115,20 +113,20 @@ class Lock
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public static function acquireLock($key, $timeout = 120)
+	public static function acquire($key, $timeout = 120)
 	{
-		return self::getDriver()->acquire($key, $timeout);
+		return self::getDriver()->acquireLock($key, $timeout);
 	}
 
 	/**
 	 * @brief Releases a lock if it was set by us
 	 *
 	 * @param string $key Name of the lock
-	 * @return mixed
+	 * @return void
 	 */
-	public static function releaseLock($key)
+	public static function release($key)
 	{
-		return self::getDriver()->release($key);
+		self::getDriver()->releaseLock($key);
 	}
 
 	/**

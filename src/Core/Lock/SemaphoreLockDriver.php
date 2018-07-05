@@ -20,7 +20,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	{
 		$temp = get_temppath();
 
-		$file = $temp.'/'.$key.'.sem';
+		$file = $temp . '/' . $key . '.sem';
 
 		if (!file_exists($file)) {
 			file_put_contents($file, $key);
@@ -33,7 +33,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 *
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120)
+	public function acquireLock($key, $timeout = 120)
 	{
 		self::$semaphore[$key] = sem_get(self::semaphoreKey($key));
 		if (self::$semaphore[$key]) {
@@ -49,7 +49,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function release($key)
+	public function releaseLock($key)
 	{
 		if (empty(self::$semaphore[$key])) {
 			return false;
@@ -66,6 +66,6 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	 */
 	public function isLocked($key)
 	{
-		return @sem_get(self::$semaphore[$key]) !== false;
+		return isset(self::$semaphore[$key]);
 	}
 }

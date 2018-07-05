@@ -26,7 +26,7 @@ interface ILockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquire($key, $timeout = 120);
+	public function acquireLock($key, $timeout = 120);
 
 	/**
 	 * Releases a lock if it was set by us
@@ -35,7 +35,7 @@ interface ILockDriver
 	 *
 	 * @return void
 	 */
-	public function release($key);
+	public function releaseLock($key);
 
 	/**
 	 * Releases all lock that were set by us

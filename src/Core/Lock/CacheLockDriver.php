@@ -24,7 +24,7 @@ class CacheLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120)
+	public function acquireLock($key, $timeout = 120)
 	{
 		$got_lock = false;
 		$start = time();
@@ -60,7 +60,7 @@ class CacheLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function release($key)
+	public function releaseLock($key)
 	{
 		$cachekey = self::getCacheKey($key);
 

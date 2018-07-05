@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\Core\Lock;
+namespace Friendica\Test\src\Core\Lock;
 
 use dba;
 use Friendica\Core\Lock\DatabaseLockDriver;

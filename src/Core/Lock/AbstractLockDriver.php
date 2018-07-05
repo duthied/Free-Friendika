@@ -52,7 +52,7 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	 */
 	public function releaseAll() {
 		foreach ($this->acquiredLocks as $acquiredLock => $hasLock) {
-			$this->release($acquiredLock);
+			$this->releaseLock($acquiredLock);
 		}
 	}
 }

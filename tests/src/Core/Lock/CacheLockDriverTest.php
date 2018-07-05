@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\Core\Lock;
+namespace Friendica\Test\src\Core\Lock;
 
 
 use Friendica\Core\Cache\ArrayCache;

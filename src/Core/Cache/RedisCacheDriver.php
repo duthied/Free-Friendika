@@ -14,7 +14,7 @@ use Friendica\Core\Cache;
 class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
 {
 	/**
-	 * @var Redis
+	 * @var \Redis
 	 */
 	private $redis;
 

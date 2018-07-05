@@ -16,7 +16,7 @@ class MemcachedCacheDriver extends BaseObject implements IMemoryCacheDriver
 	use TraitCompareDelete;
 
 	/**
-	 * @var Memcached
+	 * @var \Memcached
 	 */
 	private $memcached;
 

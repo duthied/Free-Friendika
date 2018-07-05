@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\Core\Lock;
+namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\App;
 use Friendica\Core\Config;
@@ -34,43 +34,43 @@ abstract class LockTest extends TestCase
 	}
 
 	public function testLock() {
-		$this->instance->acquire('foo', 1);
+		$this->instance->acquireLock('foo', 1);
 		$this->assertTrue($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
 	}
 
 	public function testDoubleLock() {
-		$this->instance->acquire('foo', 1);
+		$this->instance->acquireLock('foo', 1);
 		$this->assertTrue($this->instance->isLocked('foo'));
 		// We already locked it
-		$this->assertTrue($this->instance->acquire('foo', 1));
+		$this->assertTrue($this->instance->acquireLock('foo', 1));
 	}
 
 	public function testReleaseLock() {
-		$this->instance->acquire('foo', 1);
+		$this->instance->acquireLock('foo', 1);
 		$this->assertTrue($this->instance->isLocked('foo'));
-		$this->instance->release('foo');
+		$this->instance->releaseLock('foo');
 		$this->assertFalse($this->instance->isLocked('foo'));
 	}
 
 	public function testReleaseAll() {
-		$this->instance->acquire('foo', 1);
-		$this->instance->acquire('bar', 1);
-		$this->instance->acquire('#/$%§', 1);
+		$this->instance->acquireLock('foo', 1);
+		$this->instance->acquireLock('bar', 1);
+		$this->instance->acquireLock('nice', 1);
 
 		$this->instance->releaseAll();
 
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
-		$this->assertFalse($this->instance->isLocked('#/$%§'));
+		$this->assertFalse($this->instance->isLocked('nice'));
 	}
 
 	public function testReleaseAfterUnlock() {
-		$this->instance->acquire('foo', 1);
-		$this->instance->acquire('bar', 1);
-		$this->instance->acquire('#/$%§', 1);
+		$this->instance->acquireLock('foo', 1);
+		$this->instance->acquireLock('bar', 1);
+		$this->instance->acquireLock('nice', 1);
 
-		$this->instance->release('foo');
+		$this->instance->releaseLock('foo');
 
 		$this->instance->releaseAll();
 

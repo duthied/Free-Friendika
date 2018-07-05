@@ -14,7 +14,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120)
+	public function acquireLock($key, $timeout = 120)
 	{
 		$got_lock = false;
 		$start = time();
@@ -55,7 +55,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function release($key)
+	public function releaseLock($key)
 	{
 		dba::delete('locks', ['name' => $key, 'pid' => getmypid()]);
 
