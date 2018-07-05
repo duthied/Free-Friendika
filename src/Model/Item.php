@@ -766,6 +766,10 @@ class Item extends BaseObject
 						dba::update('item', $item_fields, ['id' => $item['id']]);
 					}
 				}
+			} else {
+				if (empty($item['iaid'])) {
+					// To-Do
+				}
 			}
 
 			if (!empty($tags)) {

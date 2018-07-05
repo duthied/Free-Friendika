@@ -26,10 +26,13 @@ class Expire {
 		if ($param == 'delete') {
 			logger('Delete expired items', LOGGER_DEBUG);
 			// physically remove anything that has been deleted for more than two months
-			$r = dba::p("SELECT `id`, `icid` FROM `item` WHERE `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY");
+			$r = dba::p("SELECT `id`, `iaid`, `icid` FROM `item` WHERE `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY");
 			while ($row = dba::fetch($r)) {
 				dba::delete('item', ['id' => $row['id']]);
-				if (!dba::exists('item', ['icid' => $row['icid']])) {
+				if (!empty($row['iaid']) && !dba::exists('item', ['iaid' => $row['iaid']])) {
+					dba::delete('item-content', ['id' => $row['icid']]);
+				}
+				if (!empty($row['icid']) && !dba::exists('item', ['icid' => $row['icid']])) {
 					dba::delete('item-content', ['id' => $row['icid']]);
 				}
 			}
