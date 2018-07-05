@@ -748,9 +748,22 @@ class Item extends BaseObject
 
 		while ($item = dba::fetch($items)) {
 			if (!empty($item['plink'])) {
-				$content_fields['plink'] =  $item['plink'];
+				$content_fields['plink'] = $item['plink'];
 			}
-			if (!self::updateActivity($content_fields, ['uri' => $item['uri']])) {
+			if (self::updateActivity($content_fields, ['uri' => $item['uri']])) {
+				if (empty($item['iaid'])) {
+					$item_activity = dba::selectFirst('item-activity', ['id'], ['uri' => $item['uri']]);
+					if (DBM::is_result($item_activity)) {
+						$item_fields = ['iaid' => $item_activity['id'], 'icid' => 0,
+							'verb' => '', 'object' => '', 'body' => 'activity'];
+						dba::update('item', $item_fields, ['id' => $item['id']]);
+
+						if (!empty($item['icid']) && !dba::exists('item', ['icid' => $item['icid']])) {
+							dba::delete('item-content', ['id' => $item['icid']]);
+						}
+					}
+				}
+			} else {
 				self::updateContent($content_fields, ['uri' => $item['uri']]);
 
 				if (empty($item['icid'])) {
@@ -765,10 +778,6 @@ class Item extends BaseObject
 						}
 						dba::update('item', $item_fields, ['id' => $item['id']]);
 					}
-				}
-			} else {
-				if (empty($item['iaid'])) {
-					// To-Do
 				}
 			}
 
