@@ -2,7 +2,6 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\BaseObject;
 use Friendica\Core\Cache;
 
 /**
@@ -10,7 +9,7 @@ use Friendica\Core\Cache;
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class MemcacheCacheDriver extends BaseObject implements IMemoryCacheDriver
+class MemcacheCacheDriver extends AbstractCacheDriver
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -39,9 +38,10 @@ class MemcacheCacheDriver extends BaseObject implements IMemoryCacheDriver
 	public function get($key)
 	{
 		$return = null;
+		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
-		$cached = $this->memcache->get(self::getApp()->get_hostname() . ':' . $key);
+		$cached = $this->memcache->get($cachekey);
 
 		// @see http://php.net/manual/en/memcache.get.php#84275
 		if (is_bool($cached) || is_double($cached) || is_long($cached)) {
@@ -65,17 +65,19 @@ class MemcacheCacheDriver extends BaseObject implements IMemoryCacheDriver
 	 */
 	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
+		$cachekey = $this->getCacheKey($key);
+
 		// We store with the hostname as key to avoid problems with other applications
 		if ($ttl > 0) {
 			return $this->memcache->set(
-				self::getApp()->get_hostname() . ":" . $key,
+				$cachekey,
 				serialize($value),
 				MEMCACHE_COMPRESSED,
 				time() + $ttl
 			);
 		} else {
 			return $this->memcache->set(
-				self::getApp()->get_hostname() . ":" . $key,
+				$cachekey,
 				serialize($value),
 				MEMCACHE_COMPRESSED
 			);
@@ -87,7 +89,8 @@ class MemcacheCacheDriver extends BaseObject implements IMemoryCacheDriver
 	 */
 	public function delete($key)
 	{
-		return $this->memcache->delete($key);
+		$cachekey = $this->getCacheKey($key);
+		return $this->memcache->delete($cachekey);
 	}
 
 	/**
@@ -103,6 +106,7 @@ class MemcacheCacheDriver extends BaseObject implements IMemoryCacheDriver
 	 */
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
-		return $this->memcache->add(self::getApp()->get_hostname() . ":" . $key, $value, $ttl);
+		$cachekey = $this->getCacheKey($key);
+		return $this->memcache->add($cachekey, $value, $ttl);
 	}
 }

@@ -2,7 +2,6 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\BaseObject;
 use Friendica\Core\Cache;
 
 /**
@@ -11,7 +10,7 @@ use Friendica\Core\Cache;
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  * @author Roland Haeder <roland@mxchange.org>
  */
-class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
+class RedisCacheDriver extends AbstractCacheDriver
 {
 	/**
 	 * @var \Redis
@@ -34,9 +33,10 @@ class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
 	public function get($key)
 	{
 		$return = null;
+		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
-		$cached = $this->redis->get(self::getApp()->get_hostname() . ':' . $key);
+		$cached = $this->redis->get($cachekey);
 
 		// @see http://php.net/manual/en/redis.get.php#84275
 		if (is_bool($cached) || is_double($cached) || is_long($cached)) {
@@ -57,16 +57,18 @@ class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
 
 	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
+		$cachekey = $this->getCacheKey($key);
+
 		// We store with the hostname as key to avoid problems with other applications
 		if ($ttl > 0) {
 			return $this->redis->setex(
-				self::getApp()->get_hostname() . ":" . $key,
+				$cachekey,
 				time() + $ttl,
 				serialize($value)
 			);
 		} else {
 			return $this->redis->set(
-				self::getApp()->get_hostname() . ":" . $key,
+				$cachekey,
 				serialize($value)
 			);
 		}
@@ -88,11 +90,13 @@ class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
 	 */
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
+		$cachekey = $this->getCacheKey($key);
+
 		if (!is_int($value)) {
 			$value = serialize($value);
 		}
 
-		return $this->redis->setnx(self::getApp()->get_hostname() . ":" . $key, $value);
+		return $this->redis->setnx($cachekey, $value);
 	}
 
 	/**
@@ -100,20 +104,22 @@ class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
 	 */
 	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES)
 	{
+		$cachekey = $this->getCacheKey($key);
+
 		if (!is_int($newValue)) {
 			$newValue = serialize($newValue);
 		}
 
-		$this->redis->watch(self::getApp()->get_hostname() . ":" . $key);
+		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
-		if ($this->get($key) === $oldValue) {
+		if ($this->get($cachekey) === $oldValue) {
 			if ($ttl > 0) {
 				$result = $this->redis->multi()
-					->setex(self::getApp()->get_hostname() . ":" . $ttl, $key, $newValue)
+					->setex($cachekey, $ttl, $newValue)
 					->exec();
 			} else {
 				$result = $this->redis->multi()
-					->set(self::getApp()->get_hostname() . ":" . $key, $newValue)
+					->set($cachekey, $newValue)
 					->exec();
 			}
 			return $result !== false;
@@ -126,11 +132,13 @@ class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
 	 */
 	public function compareDelete($key, $value)
 	{
-		$this->redis->watch(self::getApp()->get_hostname() . ":" . $key);
+		$cachekey = $this->getCacheKey($key);
+
+		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
 		if ($this->get($key) === $value) {
 			$result = $this->redis->multi()
-				->del(self::getApp()->get_hostname() . ":" . $key)
+				->del($cachekey)
 				->exec();
 			return $result !== false;
 		}

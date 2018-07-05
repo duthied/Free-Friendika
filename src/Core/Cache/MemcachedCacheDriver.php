@@ -2,7 +2,6 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\BaseObject;
 use Friendica\Core\Cache;
 
 /**
@@ -10,7 +9,7 @@ use Friendica\Core\Cache;
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class MemcachedCacheDriver extends BaseObject implements IMemoryCacheDriver
+class MemcachedCacheDriver extends AbstractCacheDriver
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -38,9 +37,10 @@ class MemcachedCacheDriver extends BaseObject implements IMemoryCacheDriver
 	public function get($key)
 	{
 		$return = null;
+		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
-		$value = $this->memcached->get(self::getApp()->get_hostname() . ':' . $key);
+		$value = $this->memcached->get($cachekey);
 
 		if ($this->memcached->getResultCode() === \Memcached::RES_SUCCESS) {
 			$return = $value;
@@ -51,16 +51,18 @@ class MemcachedCacheDriver extends BaseObject implements IMemoryCacheDriver
 
 	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
+		$cachekey = $this->getCacheKey($key);
+
 		// We store with the hostname as key to avoid problems with other applications
 		if ($ttl > 0) {
 			return $this->memcached->set(
-				self::getApp()->get_hostname() . ':' . $key,
+				$cachekey,
 				$value,
 				time() + $ttl
 			);
 		} else {
 			return $this->memcached->set(
-				self::getApp()->get_hostname() . ':' . $key,
+				$cachekey,
 				$value
 			);
 		}
@@ -69,9 +71,8 @@ class MemcachedCacheDriver extends BaseObject implements IMemoryCacheDriver
 
 	public function delete($key)
 	{
-		$return = $this->memcached->delete(self::getApp()->get_hostname() . ':' . $key);
-
-		return $return;
+		$cachekey = $this->getCacheKey($key);
+		return $this->memcached->delete($cachekey);
 	}
 
 	public function clear()
@@ -89,6 +90,7 @@ class MemcachedCacheDriver extends BaseObject implements IMemoryCacheDriver
 	 */
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
-		return $this->memcached->add(self::getApp()->get_hostname() . ":" . $key, $value, $ttl);
+		$cachekey = $this->getCacheKey($key);
+		return $this->memcached->add($cachekey, $value, $ttl);
 	}
 }

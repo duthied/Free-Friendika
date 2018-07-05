@@ -29,7 +29,7 @@ class CacheLockDriver extends AbstractLockDriver
 		$got_lock = false;
 		$start = time();
 
-		$cachekey = self::getCacheKey($key);
+		$cachekey = self::getLockKey($key);
 
 		do {
 			$lock = $this->cache->get($cachekey);
@@ -62,7 +62,7 @@ class CacheLockDriver extends AbstractLockDriver
 	 */
 	public function releaseLock($key)
 	{
-		$cachekey = self::getCacheKey($key);
+		$cachekey = self::getLockKey($key);
 
 		$this->cache->compareDelete($cachekey, getmypid());
 		$this->markRelease($key);
@@ -73,7 +73,7 @@ class CacheLockDriver extends AbstractLockDriver
 	 */
 	public function isLocked($key)
 	{
-		$cachekey = self::getCacheKey($key);
+		$cachekey = self::getLockKey($key);
 		$lock = $this->cache->get($cachekey);
 		return isset($lock) && ($lock !== false);
 	}
@@ -82,7 +82,7 @@ class CacheLockDriver extends AbstractLockDriver
 	 * @param string $key	The original key
 	 * @return string		The cache key used for the cache
 	 */
-	private static function getCacheKey($key) {
-		return self::getApp()->get_hostname() . ";lock:" . $key;
+	private static function getLockKey($key) {
+		return "lock:" . $key;
 	}
 }
