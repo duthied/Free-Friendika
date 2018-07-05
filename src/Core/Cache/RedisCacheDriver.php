@@ -11,10 +11,10 @@ use Friendica\Core\Cache;
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  * @author Roland Haeder <roland@mxchange.org>
  */
-class RedisCacheDriver extends BaseObject implements ICacheDriver
+class RedisCacheDriver extends BaseObject implements IMemoryCacheDriver
 {
 	/**
-	 * @var Redis
+	 * @var \Redis
 	 */
 	private $redis;
 
@@ -55,14 +55,21 @@ class RedisCacheDriver extends BaseObject implements ICacheDriver
 		return $return;
 	}
 
-	public function set($key, $value, $duration = Cache::MONTH)
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		// We store with the hostname as key to avoid problems with other applications
-		return $this->redis->set(
-			self::getApp()->get_hostname() . ":" . $key,
-			serialize($value),
-			time() + $duration
-		);
+		if ($ttl > 0) {
+			return $this->redis->setex(
+				self::getApp()->get_hostname() . ":" . $key,
+				time() + $ttl,
+				serialize($value)
+			);
+		} else {
+			return $this->redis->set(
+				self::getApp()->get_hostname() . ":" . $key,
+				serialize($value)
+			);
+		}
 	}
 
 	public function delete($key)
@@ -73,5 +80,61 @@ class RedisCacheDriver extends BaseObject implements ICacheDriver
 	public function clear()
 	{
 		return true;
+	}
+
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	{
+		if (!is_int($value)) {
+			$value = serialize($value);
+		}
+
+		return $this->redis->setnx(self::getApp()->get_hostname() . ":" . $key, $value);
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES)
+	{
+		if (!is_int($newValue)) {
+			$newValue = serialize($newValue);
+		}
+
+		$this->redis->watch(self::getApp()->get_hostname() . ":" . $key);
+		// If the old value isn't what we expected, somebody else changed the key meanwhile
+		if ($this->get($key) === $oldValue) {
+			if ($ttl > 0) {
+				$result = $this->redis->multi()
+					->setex(self::getApp()->get_hostname() . ":" . $ttl, $key, $newValue)
+					->exec();
+			} else {
+				$result = $this->redis->multi()
+					->set(self::getApp()->get_hostname() . ":" . $key, $newValue)
+					->exec();
+			}
+			return $result !== false;
+		}
+		$this->redis->unwatch();
+		return false;
+	}
+	/**
+	 * (@inheritdoc)
+	 */
+	public function compareDelete($key, $value)
+	{
+		$this->redis->watch(self::getApp()->get_hostname() . ":" . $key);
+		// If the old value isn't what we expected, somebody else changed the key meanwhile
+		if ($this->get($key) === $value) {
+			$result = $this->redis->multi()
+				->del(self::getApp()->get_hostname() . ":" . $key)
+				->exec();
+			return $result !== false;
+		}
+		$this->redis->unwatch();
+		return false;
 	}
 }

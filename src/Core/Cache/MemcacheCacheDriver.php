@@ -10,10 +10,13 @@ use Friendica\Core\Cache;
  *
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class MemcacheCacheDriver extends BaseObject implements ICacheDriver
+class MemcacheCacheDriver extends BaseObject implements IMemoryCacheDriver
 {
+	use TraitCompareSet;
+	use TraitCompareDelete;
+
 	/**
-	 * @var Memcache
+	 * @var \Memcache
 	 */
 	private $memcache;
 
@@ -30,6 +33,9 @@ class MemcacheCacheDriver extends BaseObject implements ICacheDriver
 		}
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		$return = null;
@@ -54,24 +60,49 @@ class MemcacheCacheDriver extends BaseObject implements ICacheDriver
 		return $return;
 	}
 
-	public function set($key, $value, $duration = Cache::MONTH)
+	/**
+	 * (@inheritdoc)
+	 */
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		// We store with the hostname as key to avoid problems with other applications
-		return $this->memcache->set(
-			self::getApp()->get_hostname() . ":" . $key,
-			serialize($value),
-			MEMCACHE_COMPRESSED,
-			time() + $duration
-		);
+		if ($ttl > 0) {
+			return $this->memcache->set(
+				self::getApp()->get_hostname() . ":" . $key,
+				serialize($value),
+				MEMCACHE_COMPRESSED,
+				time() + $ttl
+			);
+		} else {
+			return $this->memcache->set(
+				self::getApp()->get_hostname() . ":" . $key,
+				serialize($value),
+				MEMCACHE_COMPRESSED
+			);
+		}
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function delete($key)
 	{
 		return $this->memcache->delete($key);
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function clear()
 	{
-		return true;
+		return $this->memcache->flush();
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	{
+		return $this->memcache->add(self::getApp()->get_hostname() . ":" . $key, $value, $ttl);
 	}
 }
