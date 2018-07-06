@@ -109,6 +109,7 @@ class Probe
 		$redirects = 0;
 
 		logger("Probing for ".$host, LOGGER_DEBUG);
+		$xrd = null;
 
 		$ret = Network::curl($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($ret['success']) {
@@ -1510,6 +1511,7 @@ class Probe
 			return false;
 		}
 		$feed = $ret['body'];
+		$dummy1 = $dummy2 = $dummy3 = null;
 		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
 
 		if (!$feed_data) {

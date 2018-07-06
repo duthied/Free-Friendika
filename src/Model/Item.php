@@ -809,7 +809,9 @@ class Item extends BaseObject
 		// If item has attachments, drop them
 		foreach (explode(", ", $item['attach']) as $attach) {
 			preg_match("|attach/(\d+)|", $attach, $matches);
-			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+			if (is_array($matches) && count($matches) > 1) {
+				dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+			}
 		}
 
 		// Delete tags that had been attached to other items
@@ -1997,7 +1999,7 @@ class Item extends BaseObject
 			Contact::unmarkForArchival($contact);
 		}
 
-		$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
+		$update = (!$arr['private'] && ((defaults($arr, 'author-link', '') === defaults($arr, 'owner-link', '')) || ($arr["parent-uri"] === $arr["uri"])));
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && ($arr["network"] == NETWORK_DFRN) && ($arr["parent-uri"] === $arr["uri"])) {
