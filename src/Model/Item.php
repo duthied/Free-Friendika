@@ -86,7 +86,7 @@ class Item extends BaseObject
 	 * @param string $activity activity string
 	 * @return integer Activity index
 	 */
-	public static function activityToIndex($activity)
+	private static function activityToIndex($activity)
 	{
 		$index = array_search($activity, self::ACTIVITIES);
 
@@ -103,7 +103,7 @@ class Item extends BaseObject
 	 * @param integer $index activity index
 	 * @return string Activity string
 	 */
-	public static function indexToActivity($index)
+	private static function indexToActivity($index)
 	{
 		if (!isset(self::ACTIVITIES[$index])) {
 			return '';
@@ -754,8 +754,10 @@ class Item extends BaseObject
 				if (empty($item['iaid'])) {
 					$item_activity = dba::selectFirst('item-activity', ['id'], ['uri' => $item['uri']]);
 					if (DBM::is_result($item_activity)) {
-						$item_fields = ['iaid' => $item_activity['id'], 'icid' => 0,
-							'verb' => '', 'object' => '', 'body' => 'activity'];
+						$item_fields = ['iaid' => $item_activity['id'], 'icid' => null];
+						foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
+							$item_fields[$field] = '';
+						}
 						dba::update('item', $item_fields, ['id' => $item['id']]);
 
 						if (!empty($item['icid']) && !dba::exists('item', ['icid' => $item['icid']])) {
@@ -1795,14 +1797,14 @@ class Item extends BaseObject
 		if (empty($item['verb'])) {
 			return false;
 		}
-
 		$activity_index = self::activityToIndex($item['verb']);
 
-		if (!$activity_index) {
+		if ($activity_index < 0) {
 			return false;
 		}
 
-		$fields = ['activity' => $activity_index];
+		$fields = ['activity' => $activity_index,
+			'uri-hash' => hash('sha1', $condition['uri']) . hash('ripemd160', $condition['uri'])];
 
 		logger('Update activity for URI ' . $condition['uri']);
 
