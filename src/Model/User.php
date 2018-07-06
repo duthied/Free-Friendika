@@ -323,6 +323,7 @@ class User
 		}
 		// check if the nickname is in the list of blocked nicknames
 		$forbidden = explode(',', $forbidden_nicknames);
+		$forbidden = array_map('trim', $forbidden);
 		if (in_array(strtolower($nickname), $forbidden)) {
 			return true;
 		}
