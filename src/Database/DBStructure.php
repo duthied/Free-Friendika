@@ -1247,6 +1247,7 @@ class DBStructure
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],
 						"icid" => ["icid"],
+						"iaid" => ["iaid"],
 						]
 				];
 		$database["item-activity"] = [

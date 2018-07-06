@@ -540,7 +540,8 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `deleted_changed` (`deleted`,`changed`),
 	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
 	 INDEX `uid_eventid` (`uid`,`event-id`),
-	 INDEX `icid` (`icid`)
+	 INDEX `icid` (`icid`),
+	 INDEX `iaid` (`iaid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
