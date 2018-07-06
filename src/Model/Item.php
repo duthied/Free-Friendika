@@ -1832,7 +1832,9 @@ class Item extends BaseObject
 		}
 
 		if (empty($fields)) {
-			return;
+			// when there are no fields at all, just use the condition
+			// This is to ensure that we always store content.
+			$fields = $condition;
 		}
 
 		if (!empty($item['plink'])) {
