@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__.'/../boot.php';
 require_once __DIR__.'/../include/api.php';
 
+new App(dirname(__DIR__));
+
 // Backward compatibility
 if (!class_exists(TestCase::class)) {
 	class_alias(PHPUnit_Framework_TestCase::class, TestCase::class);
