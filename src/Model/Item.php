@@ -752,7 +752,9 @@ class Item extends BaseObject
 			if (!empty($item['plink'])) {
 				$content_fields['plink'] = $item['plink'];
 			}
-			if (self::updateActivity($content_fields, ['uri' => $item['uri']])) {
+			if ((self::activityToIndex($item['verb']) >= 0) || !empty($item['iaid'])) {
+				self::updateActivity($content_fields, ['uri' => $item['uri']]);
+
 				if (empty($item['iaid'])) {
 					$item_activity = dba::selectFirst('item-activity', ['id'], ['uri' => $item['uri']]);
 					if (DBM::is_result($item_activity)) {

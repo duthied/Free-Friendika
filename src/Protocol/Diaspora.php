@@ -2709,10 +2709,11 @@ class Diaspora
 
 		// When we receive a public retraction, we delete every item that we find.
 		if ($importer['uid'] == 0) {
-			$condition = ["`guid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid];
+			$condition = ['guid' => $target_guid, 'deleted' => false];
 		} else {
-			$condition = ["`guid` = ? AND `uid` = ? AND NOT `file` LIKE '%%[%%' AND NOT `deleted`", $target_guid, $importer['uid']];
+			$condition = ['guid' => $target_guid, 'deleted' => false, 'uid' => $importer['uid']];
 		}
+
 		$r = Item::select($fields, $condition);
 		if (!DBM::is_result($r)) {
 			logger("Target guid ".$target_guid." was not found on this system for user ".$importer['uid'].".");
