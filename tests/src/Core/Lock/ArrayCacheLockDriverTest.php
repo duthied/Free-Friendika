@@ -6,7 +6,7 @@ namespace Friendica\Test\src\Core\Lock;
 use Friendica\Core\Cache\ArrayCache;
 use Friendica\Core\Lock\CacheLockDriver;
 
-class CacheLockDriverTest extends LockTest
+class ArrayCacheLockDriverTest extends LockTest
 {
 	/**
 	 * @var \Friendica\Core\Cache\IMemoryCacheDriver

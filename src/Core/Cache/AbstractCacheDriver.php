@@ -18,6 +18,7 @@ abstract class AbstractCacheDriver extends BaseObject
 	 * @return string		The cache key used for the cache
 	 */
 	protected function getCacheKey($key) {
+		// We fetch with the hostname as key to avoid problems with other applications
 		return self::getApp()->get_hostname() . ":" . $key;
 	}
 }
