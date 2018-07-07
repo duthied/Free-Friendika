@@ -505,7 +505,7 @@ class App
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty(getenv('MYSQL_HOST'))
 			&& (!empty(getenv('MYSQL_USERNAME')) || !empty(getenv('MYSQL_USER')))
-			&& !getenv('MYSQL_PASSWORD') === false
+			&& getenv('MYSQL_PASSWORD') !== false
 			&& !empty(getenv('MYSQL_DATABASE')))
 		{
 			$db_host = getenv('MYSQL_HOST');
