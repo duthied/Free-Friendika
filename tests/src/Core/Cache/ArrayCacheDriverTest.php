@@ -5,7 +5,7 @@ namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\ArrayCache;
 
-class ArrayCacheDriverTest extends CacheTest
+class ArrayCacheDriverTest extends MemoryCacheTest
 {
 	/**
 	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
@@ -20,7 +20,7 @@ class ArrayCacheDriverTest extends CacheTest
 
 	public function tearDown()
 	{
-		$this->cache->clear();
+		$this->cache->clear(false);
 		parent::tearDown();
 	}
 

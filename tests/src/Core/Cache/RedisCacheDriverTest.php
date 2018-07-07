@@ -6,7 +6,7 @@ namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\CacheDriverFactory;
 
-class RedisCacheDriverTest extends CacheTest
+class RedisCacheDriverTest extends MemoryCacheTest
 {
 	/**
 	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
@@ -32,7 +32,7 @@ class RedisCacheDriverTest extends CacheTest
 	public function tearDown()
 	{
 		if (class_exists('Redis')) {
-			$this->cache->clear();
+			$this->cache->clear(false);
 		}
 		parent::tearDown();
 	}

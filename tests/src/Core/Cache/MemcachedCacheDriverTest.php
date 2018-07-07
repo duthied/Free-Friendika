@@ -6,7 +6,7 @@ namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\CacheDriverFactory;
 
-class MemcachedCacheDriverTest extends CacheTest
+class MemcachedCacheDriverTest extends MemoryCacheTest
 {
 	/**
 	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
@@ -32,7 +32,7 @@ class MemcachedCacheDriverTest extends CacheTest
 	public function tearDown()
 	{
 		if (class_exists('Memcached')) {
-			$this->cache->clear();
+			$this->cache->clear(false);
 		}
 		parent::tearDown();
 	}

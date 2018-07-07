@@ -19,7 +19,7 @@ class DatabaseCacheDriverTest extends CacheTest
 
 	public function tearDown()
 	{
-		$this->cache->clear();
+		$this->cache->clear(false);
 		parent::tearDown();
 	}
 }
