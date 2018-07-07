@@ -752,7 +752,7 @@ class Item extends BaseObject
 			if (!empty($item['plink'])) {
 				$content_fields['plink'] = $item['plink'];
 			}
-			if ((self::activityToIndex($item['verb']) >= 0) || !empty($item['iaid'])) {
+			if (!empty($item['iaid']) || (!empty($content_fields['verb']) && (self::activityToIndex($content_fields['verb']) >= 0))) {
 				self::updateActivity($content_fields, ['uri' => $item['uri']]);
 
 				if (empty($item['iaid'])) {
@@ -767,6 +767,12 @@ class Item extends BaseObject
 						if (!empty($item['icid']) && !dba::exists('item', ['icid' => $item['icid']])) {
 							dba::delete('item-content', ['id' => $item['icid']]);
 						}
+					}
+				} elseif (!empty($item['icid'])) {
+					dba::update('item', ['icid' => null], ['id' => $item['id']]);
+
+					if (!dba::exists('item', ['icid' => $item['icid']])) {
+						dba::delete('item-content', ['id' => $item['icid']]);
 					}
 				}
 			} else {
