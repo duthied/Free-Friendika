@@ -32,6 +32,14 @@ charset = utf8mb4
 ; In order to perform system administration via the admin panel, this must precisely match the email address of the person logged in.
 admin_email =
 
+; admin_nickname (String)
+; Nickname of the main admin user, used if there are more than one admin user defined in config.admin_email
+admin_nickname =
+
+; info (String)
+; Plaintext description of this node, used in the /friendica module
+info =
+
 ; max_import_size (Integer)
 ; Maximum body size of DFRN and Mail messages in characters. 0 is unlimited.
 max_import_size = 200000
@@ -449,6 +457,9 @@ directory = https://dir.friendi.social
 ; xrd_timeout (Integer)
 ; Timeout in seconds for fetching the XRD links.
 xrd_timeout = 20
+
+; Used in the admin settings to lock certain features
+[featurelock]
 
 [experimental]
 
