@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-30 17:33+0200\n"
-"PO-Revision-Date: 2018-07-06 02:27+0000\n"
+"PO-Revision-Date: 2018-07-06 22:09+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -91,7 +91,7 @@ msgstr "Vítejte "
 
 #: include/security.php:82
 msgid "Please upload a profile photo."
-msgstr "Prosím nahrejte profilovou fotografii"
+msgstr "Prosím nahrajte profilovou fotografii"
 
 #: include/security.php:84
 msgid "Welcome back "
@@ -183,7 +183,7 @@ msgstr "%1$s se možná účastní %3$s %2$s"
 #: include/conversation.php:211
 #, php-format
 msgid "%1$s is now friends with %2$s"
-msgstr "%1$s je nyní přítel s %2$s"
+msgstr "%1$s je nyní přítel s uživatelem %2$s"
 
 #: include/conversation.php:252
 #, php-format
@@ -193,7 +193,7 @@ msgstr "%1$s šťouchnul %2$s"
 #: include/conversation.php:300 mod/tagger.php:108
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr "%1$s označil %3$s %2$s s %4$s"
+msgstr "%1$s označil/a %3$s uživatele %2$s jako %4$s"
 
 #: include/conversation.php:322
 msgid "post/item"
@@ -202,7 +202,7 @@ msgstr "příspěvek/položka"
 #: include/conversation.php:323
 #, php-format
 msgid "%1$s marked %2$s's %3$s as favorite"
-msgstr "uživatel %1$s označil %3$s %2$s jako oblíbené"
+msgstr "%1$s označil/a %3$s uživatele %2$s jako oblíbené"
 
 #: include/conversation.php:504 mod/profiles.php:355 mod/photos.php:1464
 msgid "Likes"
@@ -530,11 +530,11 @@ msgstr "Náhled"
 
 #: include/conversation.php:1153
 msgid "Post to Groups"
-msgstr "Zveřejnit na Groups"
+msgstr "Zveřejnit ve skupinách"
 
 #: include/conversation.php:1154
 msgid "Post to Contacts"
-msgstr "Zveřejnit na Groups"
+msgstr "Zveřejnit v kontaktech"
 
 #: include/conversation.php:1155
 msgid "Private post"
@@ -939,7 +939,7 @@ msgstr "Sledovat"
 
 #: include/text.php:985 mod/search.php:156 src/Content/Nav.php:142
 msgid "Search"
-msgstr "Vyhledávání"
+msgstr "Hledat"
 
 #: include/text.php:988 src/Content/Nav.php:58
 msgid "@name, !forum, #tags, content"
@@ -3491,11 +3491,11 @@ msgstr "Nastavení doplňků"
 
 #: mod/settings.php:767 mod/admin.php:2463 mod/admin.php:2464
 msgid "Off"
-msgstr "Vypnuto"
+msgstr "Vyp"
 
 #: mod/settings.php:767 mod/admin.php:2463 mod/admin.php:2464
 msgid "On"
-msgstr "Zapnuto"
+msgstr "Zap"
 
 #: mod/settings.php:774
 msgid "Additional Features"
@@ -3524,11 +3524,11 @@ msgstr "GNU Social (OStatus)"
 
 #: mod/settings.php:829
 msgid "Email access is disabled on this site."
-msgstr "Přístup k elektronické poště je na tomto serveru zakázán."
+msgstr "Přístup k e-mailu je na tomto serveru zakázán."
 
 #: mod/settings.php:839
 msgid "General Social Media Settings"
-msgstr "General Social Media nastavení"
+msgstr "Obecná nastavení sociálních sítí"
 
 #: mod/settings.php:840
 msgid "Disable Content Warning"
@@ -3833,7 +3833,7 @@ msgstr "Účet pro běžný osobní profil, který vyžaduje manuální potvrzen
 
 #: mod/settings.php:1062 mod/admin.php:1760
 msgid "Soapbox Page"
-msgstr "Stránka \"Soapbox\""
+msgstr "Propagační stránka"
 
 #: mod/settings.php:1063
 msgid ""
@@ -3851,7 +3851,7 @@ msgstr "Automaticky potvrzuje všechny žádosti o přidání kontaktu."
 
 #: mod/settings.php:1070 mod/admin.php:1762
 msgid "Automatic Friend Page"
-msgstr "Automatická stránka přítele"
+msgstr "Stránka s automatickými přátely"
 
 #: mod/settings.php:1071
 msgid ""
@@ -3945,7 +3945,7 @@ msgstr "Povolit, abychom vás navrhovali jako přátelé pro nové členy?"
 #: mod/settings.php:1123
 msgid ""
 "If you like, Friendica may suggest new members to add you as a contact."
-msgstr "Pokud budete chtít, Friendica může nabízet novým členům, abi si Vás přidali jako kontakt."
+msgstr "Pokud budete chtít, může Friendica nabízet novým členům, aby si Vás přidali jako kontakt."
 
 #: mod/settings.php:1127
 msgid "Permit unknown people to send you private mail?"
@@ -4078,7 +4078,7 @@ msgstr "Maximální počet žádostí o přátelství za den:"
 
 #: mod/settings.php:1208 mod/settings.php:1237
 msgid "(to prevent spam abuse)"
-msgstr "(Aby se zabránilo spamu)"
+msgstr "(ay se zabránilo spamu)"
 
 #: mod/settings.php:1209
 msgid "Default Post Permissions"
@@ -4222,7 +4222,7 @@ msgstr "Zobrazit album"
 
 #: mod/videos.php:396
 msgid "Recent Videos"
-msgstr "Aktuální Videa"
+msgstr "Aktuální videa"
 
 #: mod/videos.php:398
 msgid "Upload New Videos"
@@ -4535,7 +4535,7 @@ msgstr "Smazat tuto položku"
 msgid ""
 "On this page you can delete an item from your node. If the item is a top "
 "level posting, the entire thread will be deleted."
-msgstr "Na této stránce můžete smazat pološku z Vašeho serveru. Pokud je položkou příspěvek nejvyššího stupně, bude smazáno celé vlákno."
+msgstr "Na této stránce můžete smazat položku z Vašeho serveru. Pokud je položkou příspěvek nejvyššího stupně, bude smazáno celé vlákno."
 
 #: mod/admin.php:528
 msgid ""
@@ -6339,7 +6339,7 @@ msgstr "Vrátit z archívu"
 
 #: mod/contacts.php:831
 msgid "Batch Actions"
-msgstr "Dávkové (batch) akce"
+msgstr "Souhrnné akce"
 
 #: mod/contacts.php:865 src/Model/Profile.php:894
 msgid "Profile Details"
