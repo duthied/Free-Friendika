@@ -416,6 +416,11 @@ throttle_limit_week = 0
 ; Maximum number of posts that a user can send per month with the API. 0 to disable monthly throttling.
 throttle_limit_month = 0
 
+; url (String)
+; The fully-qualified URL of this Friendica node.
+; Used by the worker in a non-HTTP execution environment.
+url =
+
 ; worker_cooldown (Integer)
 ; Cooldown period in seconds after each worker function call.
 worker_cooldown = 0

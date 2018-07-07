@@ -13,6 +13,8 @@ require_once __DIR__.'/../include/api.php';
 
 new App(dirname(__DIR__));
 
+\Friendica\Core\Config::set('system', 'url', 'http://localhost/');
+
 // Backward compatibility
 if (!class_exists(TestCase::class)) {
 	class_alias(PHPUnit_Framework_TestCase::class, TestCase::class);
