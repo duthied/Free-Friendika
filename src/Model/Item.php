@@ -2892,12 +2892,9 @@ class Item extends BaseObject
 			dba::update('item', $fields, ['id' => $like_item['id']]);
 
 			// Clean up the Diaspora signatures for this like
-			// Go ahead and do it even if Diaspora support is disabled. We still want to clean up
-			// if it had been enabled in the past
 			dba::delete('sign', ['iid' => $like_item['id']]);
 
-			$like_item_id = $like_item['id'];
-			Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item['id']);
 
 			if (!$event_verb_flag || $like_item['verb'] == $activity) {
 				return true;
