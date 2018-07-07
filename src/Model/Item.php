@@ -192,12 +192,12 @@ class Item extends BaseObject
 				$row['target'] = '';
 			}
 			// Build the tag string out of the term entries
-			if (array_key_exists('tag', $row)) {
+			if (array_key_exists('tag', $row) && empty($row['tag'])) {
 				$row['tag'] = Term::tagTextFromItemId($row['internal-iid']);
 			}
 
 			// Build the file string out of the term entries
-			if (array_key_exists('file', $row)) {
+			if (array_key_exists('file', $row) && empty($row['file'])) {
 				$row['file'] = Term::fileTextFromItemId($row['internal-iid']);
 			}
 		}
@@ -711,13 +711,24 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin', 'uri', 'plink', 'iaid', 'icid'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri', 'plink', 'iaid', 'icid', 'tag', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($fields[$field])) {
 				$content_fields[$field] = $fields[$field];
-				unset($fields[$field]);
+				if (in_array($field, self::CONTENT_FIELDLIST)) {
+					unset($fields[$field]);
+				} else {
+					$fields[$field] = null;
+				}
+			}
+		}
+
+		$author_owner_fields = ['author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link'];
+		foreach ($author_owner_fields as $field) {
+			if (isset($fields[$field])) {
+				$fields[$field] = null;
 			}
 		}
 
@@ -795,10 +806,16 @@ class Item extends BaseObject
 
 			if (!empty($tags)) {
 				Term::insertFromTagFieldByItemId($item['id'], $tags);
+				if (!empty($item['tag'])) {
+					dba::update('item', ['tag' => ''], ['id' => $item['id']]);
+				}
 			}
 
 			if (!empty($files)) {
 				Term::insertFromFileFieldByItemId($item['id'], $files);
+				if (!empty($item['file'])) {
+					dba::update('item', ['file' => ''], ['id' => $item['id']]);
+				}
 			}
 
 			self::updateThread($item['id']);
