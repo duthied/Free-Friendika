@@ -74,7 +74,8 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 
 	public function delete($key)
 	{
-		return $this->redis->delete($key);
+		$cachekey = $this->getCacheKey($key);
+		return ($this->redis->delete($cachekey) > 0);
 	}
 
 	public function clear()
