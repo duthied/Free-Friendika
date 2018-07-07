@@ -1,6 +1,7 @@
 <?php
 
 namespace Friendica\Core\Lock;
+use Friendica\Core\Cache;
 
 /**
  * Lock Driver Interface
@@ -23,10 +24,11 @@ interface ILockDriver
 	 *
 	 * @param string  $key      The Name of the lock
 	 * @param integer $timeout  Seconds until we give up
+	 * @param integer $ttl      Seconds The lock lifespan, must be one of the Cache constants
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock($key, $timeout = 120);
+	public function acquireLock($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES);
 
 	/**
 	 * Releases a lock if it was set by us

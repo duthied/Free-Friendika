@@ -42,8 +42,9 @@ interface ICacheDriver
 
 	/**
 	 * Remove outdated data from the cache
+	 * @param  boolean $outdated just remove outdated values
 	 *
 	 * @return bool
 	 */
-	public function clear();
+	public function clear($outdated = true);
 }

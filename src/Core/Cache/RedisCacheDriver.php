@@ -61,7 +61,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		if ($ttl > 0) {
 			return $this->redis->setex(
 				$cachekey,
-				time() + $ttl,
+				$ttl,
 				$cached
 			);
 		} else {
@@ -78,11 +78,14 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		return ($this->redis->delete($cachekey) > 0);
 	}
 
-	public function clear()
+	public function clear($outdated = true)
 	{
-		return $this->redis->flushAll();
+		if ($outdated) {
+			return true;
+		} else {
+			return $this->redis->flushAll();
+		}
 	}
-
 
 	/**
 	 * (@inheritdoc)
@@ -92,7 +95,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		$cachekey = $this->getCacheKey($key);
 		$cached = json_encode($value);
 
-		return $this->redis->setnx($cachekey, $value);
+		return $this->redis->setnx($cachekey, $cached);
 	}
 
 	/**

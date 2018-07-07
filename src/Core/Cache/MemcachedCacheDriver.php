@@ -58,7 +58,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 			return $this->memcached->set(
 				$cachekey,
 				$value,
-				time() + $ttl
+				$ttl
 			);
 		} else {
 			return $this->memcached->set(
@@ -75,9 +75,13 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 		return $this->memcached->delete($cachekey);
 	}
 
-	public function clear()
+	public function clear($outdated = true)
 	{
-		return $this->memcached->flush();
+		if ($outdated) {
+			return true;
+		} else {
+			return $this->memcached->flush();
+		}
 	}
 
 	/**

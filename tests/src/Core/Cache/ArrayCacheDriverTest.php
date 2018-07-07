@@ -1,12 +1,11 @@
 <?php
 
-namespace Friendica\Test\src\Core\Lock;
+namespace Friendica\Test\src\Core\Cache;
 
 
 use Friendica\Core\Cache\ArrayCache;
-use Friendica\Core\Lock\CacheLockDriver;
 
-class ArrayCacheLockDriverTest extends LockTest
+class ArrayCacheDriverTest extends CacheTest
 {
 	/**
 	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
@@ -16,7 +15,7 @@ class ArrayCacheLockDriverTest extends LockTest
 	protected function getInstance()
 	{
 		$this->cache = new ArrayCache();
-		return new CacheLockDriver($this->cache);
+		return $this->cache;
 	}
 
 	public function tearDown()
@@ -25,9 +24,9 @@ class ArrayCacheLockDriverTest extends LockTest
 		parent::tearDown();
 	}
 
-	public function testLockTTL()
+	public function testTTL()
 	{
-		// ArrayCache doesn't support TTL
+		// Array Cache doesn't support TTL
 		return true;
 	}
 }

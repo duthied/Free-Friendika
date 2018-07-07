@@ -86,4 +86,24 @@ abstract class LockTest extends DatabaseTest
 		$this->assertFalse($this->instance->isLocked('bar'));
 		$this->assertFalse($this->instance->isLocked('nice'));
 	}
+
+	function testLockTTL() {
+
+		// TODO [nupplaphil] - Because of the Datetime-Utils for the database, we have to wait a FULL second between the checks to invalidate the db-locks/cache
+		$this->instance->acquireLock('foo', 1, 1);
+		$this->instance->acquireLock('bar', 1, 3);
+
+		$this->assertTrue($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+
+		sleep(2);
+
+		$this->assertFalse($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+
+		sleep(2);
+
+		$this->assertFalse($this->instance->isLocked('foo'));
+		$this->assertFalse($this->instance->isLocked('bar'));
+	}
 }

@@ -2,6 +2,7 @@
 
 namespace Friendica\Core\Lock;
 
+use Friendica\Core\Cache;
 use Friendica\Core\Cache\IMemoryCacheDriver;
 
 class CacheLockDriver extends AbstractLockDriver
@@ -24,7 +25,7 @@ class CacheLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquireLock($key, $timeout = 120)
+	public function acquireLock($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
 	{
 		$got_lock = false;
 		$start = time();
@@ -43,7 +44,7 @@ class CacheLockDriver extends AbstractLockDriver
 				// At first initialize it with "0"
 				$this->cache->add($cachekey, 0);
 				// Now the value has to be "0" because otherwise the key was used by another process meanwhile
-				if ($this->cache->compareSet($cachekey, 0, getmypid(), 300)) {
+				if ($this->cache->compareSet($cachekey, 0, getmypid(), $ttl)) {
 					$got_lock = true;
 					$this->markAcquire($key);
 				}
