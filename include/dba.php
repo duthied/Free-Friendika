@@ -1109,7 +1109,7 @@ class dba {
 
 					// Split the SQL queries in chunks of 100 values
 					// We do the $i stuff here to make the code better readable
-					$i = $counter[$key_table][$key_condition];
+					$i = isset($counter[$key_table][$key_condition]) ? $counter[$key_table][$key_condition] : 0;
 					if (isset($compacted[$key_table][$key_condition][$i]) && count($compacted[$key_table][$key_condition][$i]) > 100) {
 						++$i;
 					}

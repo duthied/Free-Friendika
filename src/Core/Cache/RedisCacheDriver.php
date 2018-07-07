@@ -35,15 +35,12 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		$return = null;
 		$cachekey = $this->getCacheKey($key);
 
-		// We fetch with the hostname as key to avoid problems with other applications
 		$cached = $this->redis->get($cachekey);
-
-		// @see http://php.net/manual/en/redis.get.php#84275
-		if (is_bool($cached) || is_double($cached) || is_long($cached)) {
-			return $return;
+		if ($cached === false && !$this->redis->exists($cachekey)) {
+			return null;
 		}
 
-		$value = @unserialize($cached);
+		$value = json_decode($cached);
 
 		// Only return a value if the serialized value is valid.
 		// We also check if the db entry is a serialized
@@ -59,31 +56,36 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	{
 		$cachekey = $this->getCacheKey($key);
 
-		// We store with the hostname as key to avoid problems with other applications
+		$cached = json_encode($value);
+
 		if ($ttl > 0) {
 			return $this->redis->setex(
 				$cachekey,
-				time() + $ttl,
-				serialize($value)
+				$ttl,
+				$cached
 			);
 		} else {
 			return $this->redis->set(
 				$cachekey,
-				serialize($value)
+				$cached
 			);
 		}
 	}
 
 	public function delete($key)
 	{
-		return $this->redis->delete($key);
+		$cachekey = $this->getCacheKey($key);
+		return ($this->redis->delete($cachekey) > 0);
 	}
 
-	public function clear()
+	public function clear($outdated = true)
 	{
-		return true;
+		if ($outdated) {
+			return true;
+		} else {
+			return $this->redis->flushAll();
+		}
 	}
-
 
 	/**
 	 * (@inheritdoc)
@@ -91,12 +93,9 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
+		$cached = json_encode($value);
 
-		if (!is_int($value)) {
-			$value = serialize($value);
-		}
-
-		return $this->redis->setnx($cachekey, $value);
+		return $this->redis->setnx($cachekey, $cached);
 	}
 
 	/**
@@ -106,16 +105,14 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	{
 		$cachekey = $this->getCacheKey($key);
 
-		if (!is_int($newValue)) {
-			$newValue = serialize($newValue);
-		}
+		$newCached = json_encode($newValue);
 
 		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
-		if ($this->get($cachekey) === $oldValue) {
+		if ($this->get($key) === $oldValue) {
 			if ($ttl > 0) {
 				$result = $this->redis->multi()
-					->setex($cachekey, $ttl, $newValue)
+					->setex($cachekey, $ttl, $newCached)
 					->exec();
 			} else {
 				$result = $this->redis->multi()

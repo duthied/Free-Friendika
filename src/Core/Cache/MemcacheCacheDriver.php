@@ -96,9 +96,13 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	/**
 	 * (@inheritdoc)
 	 */
-	public function clear()
+	public function clear($outdated = true)
 	{
-		return $this->memcache->flush();
+		if ($outdated) {
+			return true;
+		} else {
+			return $this->memcache->flush();
+		}
 	}
 
 	/**
@@ -107,6 +111,6 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
-		return $this->memcache->add($cachekey, $value, $ttl);
+		return $this->memcache->add($cachekey, serialize($value), MEMCACHE_COMPRESSED, $ttl);
 	}
 }

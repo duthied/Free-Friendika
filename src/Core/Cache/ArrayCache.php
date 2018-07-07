@@ -51,7 +51,7 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function clear()
+	public function clear($outdated = true)
 	{
 		$this->cachedData = [];
 		return true;

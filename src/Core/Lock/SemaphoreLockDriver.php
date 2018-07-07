@@ -2,6 +2,8 @@
 
 namespace Friendica\Core\Lock;
 
+use Friendica\Core\Cache;
+
 class SemaphoreLockDriver extends AbstractLockDriver
 {
 	private static $semaphore = [];
@@ -30,10 +32,9 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	}
 
 	/**
-	 *
 	 * (@inheritdoc)
 	 */
-	public function acquireLock($key, $timeout = 120)
+	public function acquireLock($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
 	{
 		self::$semaphore[$key] = sem_get(self::semaphoreKey($key));
 		if (self::$semaphore[$key]) {

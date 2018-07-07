@@ -37,7 +37,7 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	{
 		$fields = [
 			'v'       => serialize($value),
-			'expires' => DateTimeFormat::utc('now + ' . $ttl . ' seconds'),
+			'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds'),
 			'updated' => DateTimeFormat::utcNow()
 		];
 
@@ -49,8 +49,12 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 		return dba::delete('cache', ['k' => $key]);
 	}
 
-	public function clear()
+	public function clear($outdated = true)
 	{
-		return dba::delete('cache', ['`expires` < NOW()']);
+		if ($outdated) {
+			return dba::delete('cache', ['`expires` < NOW()']);
+		} else {
+			return dba::delete('cache', ['`k` IS NOT NULL ']);
+		}
 	}
 }

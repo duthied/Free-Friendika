@@ -4,9 +4,10 @@ namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Test\DatabaseTest;
 use PHPUnit\Framework\TestCase;
 
-abstract class LockTest extends TestCase
+abstract class LockTest extends DatabaseTest
 {
 	/**
 	 * @var \Friendica\Core\Lock\ILockDriver
@@ -58,6 +59,10 @@ abstract class LockTest extends TestCase
 		$this->instance->acquireLock('bar', 1);
 		$this->instance->acquireLock('nice', 1);
 
+		$this->assertTrue($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+		$this->assertTrue($this->instance->isLocked('nice'));
+
 		$this->instance->releaseAll();
 
 		$this->assertFalse($this->instance->isLocked('foo'));
@@ -72,9 +77,33 @@ abstract class LockTest extends TestCase
 
 		$this->instance->releaseLock('foo');
 
+		$this->assertFalse($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+		$this->assertTrue($this->instance->isLocked('nice'));
+
 		$this->instance->releaseAll();
 
 		$this->assertFalse($this->instance->isLocked('bar'));
-		$this->assertFalse($this->instance->isLocked('#/$%§'));
+		$this->assertFalse($this->instance->isLocked('nice'));
+	}
+
+	function testLockTTL() {
+
+		// TODO [nupplaphil] - Because of the Datetime-Utils for the database, we have to wait a FULL second between the checks to invalidate the db-locks/cache
+		$this->instance->acquireLock('foo', 1, 1);
+		$this->instance->acquireLock('bar', 1, 3);
+
+		$this->assertTrue($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+
+		sleep(2);
+
+		$this->assertFalse($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+
+		sleep(2);
+
+		$this->assertFalse($this->instance->isLocked('foo'));
+		$this->assertFalse($this->instance->isLocked('bar'));
 	}
 }

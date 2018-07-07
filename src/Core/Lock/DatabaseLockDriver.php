@@ -3,6 +3,7 @@
 namespace Friendica\Core\Lock;
 
 use dba;
+use Friendica\Core\Cache;
 use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
@@ -14,7 +15,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquireLock($key, $timeout = 120)
+	public function acquireLock($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
 	{
 		$got_lock = false;
 		$start = time();
@@ -28,16 +29,14 @@ class DatabaseLockDriver extends AbstractLockDriver
 					// We want to lock something that was already locked by us? So we got the lock.
 					if ($lock['pid'] == getmypid()) {
 						$got_lock = true;
-						$this->markAcquire($key);
 					}
 				}
 				if (!$lock['locked']) {
-					dba::update('locks', ['locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + 300seconds')], ['name' => $key]);
+					dba::update('locks', ['locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds')], ['name' => $key]);
 					$got_lock = true;
-					$this->markAcquire($key);
 				}
 			} else {
-				dba::insert('locks', ['name' => $key, 'locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + 300seconds')]);
+				dba::insert('locks', ['name' => $key, 'locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds')]);
 				$got_lock = true;
 				$this->markAcquire($key);
 			}

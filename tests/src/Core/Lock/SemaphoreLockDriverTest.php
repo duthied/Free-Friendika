@@ -23,4 +23,10 @@ class SemaphoreLockDriverTest extends LockTest
 		$this->semaphoreLockDriver->releaseAll();
 		parent::tearDown();
 	}
+
+	function testLockTTL()
+	{
+		// Semaphore doesn't work with TTL
+		return true;
+	}
 }
