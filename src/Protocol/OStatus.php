@@ -1269,7 +1269,7 @@ class OStatus
 		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 		XML::addElement($doc, $root, "id", System::baseUrl() . "/profile/" . $owner["nick"]);
 		XML::addElement($doc, $root, "title", $title);
-		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], $a->config["sitename"]));
+		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], Config::get('config', 'sitename')));
 		XML::addElement($doc, $root, "logo", $owner["photo"]);
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 

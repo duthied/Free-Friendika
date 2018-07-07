@@ -2,11 +2,12 @@
 /**
  * @file mod/friendica.php
  */
+
 use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\System;
 use Friendica\Database\DBM;
 
 function friendica_init(App $a)
@@ -16,10 +17,10 @@ function friendica_init(App $a)
 
 		$sql_extra = '';
 		if (x($a->config, 'admin_nickname')) {
-			$sql_extra = sprintf(" AND `nickname` = '%s' ", dbesc($a->config['admin_nickname']));
+			$sql_extra = sprintf(" AND `nickname` = '%s' ", dbesc(Config::get('config', 'admin_nickname')));
 		}
-		if (isset($a->config['admin_email']) && $a->config['admin_email']!='') {
-			$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+		if (!empty(Config::get('config', 'admin_email'))) {
+			$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 
 			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", dbesc($adminlist[0]));
 			$admin = [
@@ -55,13 +56,13 @@ function friendica_init(App $a)
 		$data = [
 			'version'         => FRIENDICA_VERSION,
 			'url'             => System::baseUrl(),
-			'addons'         => $visible_addons,
+			'addons'          => $visible_addons,
 			'locked_features' => $locked_features,
-			'register_policy' =>  $register_policy[$a->config['register_policy']],
+			'register_policy' => $register_policy[Config::get('config', 'register_policy')],
 			'admin'           => $admin,
-			'site_name'       => $a->config['sitename'],
+			'site_name'       => Config::get('config', 'sitename'),
 			'platform'        => FRIENDICA_PLATFORM,
-			'info'            => ((x($a->config, 'info')) ? $a->config['info'] : ''),
+			'info'            => Config::get('config', 'info'),
 			'no_scrape_url'   => System::baseUrl().'/noscrape'
 		];
 

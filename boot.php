@@ -774,7 +774,7 @@ function run_update_function($x)
 /**
  * @brief Synchronise addons:
  *
- * $a->config['system']['addon'] contains a comma-separated list of names
+ * system.addon contains a comma-separated list of names
  * of addons which are used on this system.
  * Go through the database list of already installed addons, and if we have
  * an entry, but it isn't in the config list, call the uninstall procedure
@@ -957,17 +957,6 @@ function info($s)
 	}
 }
 
-/**
- * @brief Wrapper around config to limit the text length of an incoming message
- *
- * @return int
- */
-function get_max_import_size()
-{
-	$a = get_app();
-	return (x($a->config, 'max_import_size') ? $a->config['max_import_size'] : 0);
-}
-
 function feed_birthday($uid, $tz)
 {
 	/**
@@ -1023,14 +1012,11 @@ function is_site_admin()
 {
 	$a = get_app();
 
-	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	$admin_email = Config::get('config', 'admin_email');
 
-	//if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
-	/// @TODO This if() + 2 returns can be shrinked into one return
-	if (local_user() && x($a->user, 'email') && x($a->config, 'admin_email') && in_array($a->user['email'], $adminlist)) {
-		return true;
-	}
-	return false;
+	$adminlist = explode(',', str_replace(' ', '', $admin_email));
+
+	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
 }
 
 /**

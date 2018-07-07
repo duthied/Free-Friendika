@@ -2,6 +2,7 @@
 /**
  * @file mod/regmod.php
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -57,7 +58,7 @@ function user_allow($hash)
 
 	$res = User::sendRegisterOpenEmail(
 		$user[0]['email'],
-		$a->config['sitename'],
+		Config::get('config', 'sitename'),
 		System::baseUrl(),
 		$user[0]['username'],
 		$register[0]['password']);
@@ -100,7 +101,7 @@ function regmod_content(App $a)
 
 	if (!local_user()) {
 		info(L10n::t('Please login.') . EOL);
-		$o = '<br /><br />' . Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? 0 : 1);
+		$o = '<br /><br />' . Login::form($a->query_string, Config::get('config', 'register_policy') === REGISTER_CLOSED ? 0 : 1);
 		return $o;
 	}
 

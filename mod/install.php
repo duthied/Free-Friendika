@@ -22,7 +22,8 @@ function install_init(App $a) {
 
 	// We overwrite current theme css, because during install we could not have a working mod_rewrite
 	// so we could not have a css at all. Here we set a static css file for the install procedure pages
-	$a->config['system']['theme'] = "../install";
+
+	$a->setConfigValue('system', 'value', '../install');
 	$a->theme['stylesheet'] = System::baseUrl()."/view/install/style.css";
 
 	Install::setInstallMode();

@@ -511,9 +511,8 @@ function settings_post(App $a)
 			$err .= L10n::t('Invalid email.');
 		}
 		//  ensure new email is not the admin mail
-		//if ((x($a->config, 'admin_email')) && (strcasecmp($email, $a->config['admin_email']) == 0)) {
-		if (x($a->config, 'admin_email')) {
-			$adminlist = explode(",", str_replace(" ", "", strtolower($a->config['admin_email'])));
+		if (Config::get('config', 'admin_email')) {
+			$adminlist = explode(",", str_replace(" ", "", strtolower(Config::get('config', 'admin_email'))));
 			if (in_array(strtolower($email), $adminlist)) {
 				$err .= L10n::t('Cannot change to that email.');
 				$email = $a->user['email'];

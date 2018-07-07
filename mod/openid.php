@@ -62,7 +62,7 @@ function openid_content(App $a) {
 			// Successful OpenID login - but we can't match it to an existing account.
 			// New registration?
 
-			if ($a->config['register_policy'] == REGISTER_CLOSED) {
+			if (Config::get('config', 'register_policy') === REGISTER_CLOSED) {
 				notice(L10n::t('Account not found and OpenID registration is not permitted on this site.') . EOL);
 				goaway(System::baseUrl());
 			}

@@ -37,7 +37,7 @@ function register_post(App $a)
 		}
 	}
 
-	switch ($a->config['register_policy']) {
+	switch (Config::get('config', 'register_policy')) {
 		case REGISTER_OPEN:
 			$blocked = 0;
 			$verified = 1;
@@ -50,7 +50,7 @@ function register_post(App $a)
 
 		default:
 		case REGISTER_CLOSED:
-			if ((!x($_SESSION, 'authenticated') && (!x($_SESSION, 'administrator')))) {
+			if (empty($_SESSION['authenticated']) && empty($_SESSION['administrator'])) {
 				notice(L10n::t('Permission denied.') . EOL);
 				return;
 			}
@@ -76,7 +76,7 @@ function register_post(App $a)
 
 	$user = $result['user'];
 
-	if ($netpublish && $a->config['register_policy'] != REGISTER_APPROVE) {
+	if ($netpublish && Config::get('config', 'register_policy') !== REGISTER_APPROVE) {
 		$url = System::baseUrl() . '/profile/' . $user['nickname'];
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
@@ -85,7 +85,7 @@ function register_post(App $a)
 	$num_invites   = Config::get('system', 'number_invites');
 	$invite_id = ((x($_POST, 'invite_id')) ? notags(trim($_POST['invite_id'])) : '');
 
-	if ($a->config['register_policy'] == REGISTER_OPEN) {
+	if (Config::get('config', 'register_policy') === REGISTER_OPEN) {
 		if ($using_invites && $invite_id) {
 			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
 			PConfig::set($user['uid'], 'system', 'invites_remaining', $num_invites);
@@ -94,7 +94,7 @@ function register_post(App $a)
 		// Only send a password mail when the password wasn't manually provided
 		if (!x($_POST, 'password1') || !x($_POST, 'confirm')) {
 			$res = User::sendRegisterOpenEmail(
-					$user['email'], $a->config['sitename'], System::baseUrl(), $user['username'], $result['password']);
+					$user['email'], Config::get('config', 'sitename'), System::baseUrl(), $user['username'], $result['password']);
 
 			if ($res) {
 				info(L10n::t('Registration successful. Please check your email for further instructions.') . EOL);
@@ -111,8 +111,8 @@ function register_post(App $a)
 			info(L10n::t('Registration successful.') . EOL);
 			goaway(System::baseUrl());
 		}
-	} elseif ($a->config['register_policy'] == REGISTER_APPROVE) {
-		if (!strlen($a->config['admin_email'])) {
+	} elseif (Config::get('config', 'register_policy') === REGISTER_APPROVE) {
+		if (!strlen(Config::get('config', 'admin_email'))) {
 			notice(L10n::t('Your registration can not be processed.') . EOL);
 			goaway(System::baseUrl());
 		}
@@ -134,7 +134,7 @@ function register_post(App $a)
 		}
 
 		// send email to admins
-		$admin_mail_list = "'" . implode("','", array_map("dbesc", explode(",", str_replace(" ", "", $a->config['admin_email'])))) . "'";
+		$admin_mail_list = "'" . implode("','", array_map("dbesc", explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))))) . "'";
 		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
 			$admin_mail_list
 		);
@@ -158,7 +158,7 @@ function register_post(App $a)
 		}
 		// send notification to the user, that the registration is pending
 		User::sendRegisterPendingEmail(
-			$user['email'], $a->config['sitename'], $user['username']);
+			$user['email'], Config::get('config', 'sitename'), $user['username']);
 
 		info(L10n::t('Your registration is pending approval by the site owner.') . EOL);
 		goaway(System::baseUrl());
@@ -179,7 +179,7 @@ function register_content(App $a)
 		return;
 	}
 
-	if ((!local_user()) && ($a->config['register_policy'] == REGISTER_CLOSED)) {
+	if ((!local_user()) && (Config::get('config', 'register_policy') === REGISTER_CLOSED)) {
 		notice("Permission denied." . EOL);
 		return;
 	}
@@ -258,7 +258,7 @@ function register_content(App $a)
 	$o = replace_macros($tpl, [
 		'$oidhtml' => $oidhtml,
 		'$invitations' => Config::get('system', 'invitation_only'),
-		'$permonly'    => $a->config['register_policy'] == REGISTER_APPROVE,
+		'$permonly'    => Config::get('config', 'register_policy') === REGISTER_APPROVE,
 		'$permonlybox' => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node')],
 		'$invite_desc' => L10n::t('Membership on this site is by invitation only.'),
 		'$invite_label' => L10n::t('Your invitation code: '),

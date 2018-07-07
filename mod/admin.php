@@ -1384,8 +1384,8 @@ function admin_page_site(App $a)
 		"develop" => L10n::t("check the development version")
 	];
 
-	if ($a->config['hostname'] == "") {
-		$a->config['hostname'] = $a->get_hostname();
+	if (empty(Config::get('config', 'hostname'))) {
+		Config::set('config', 'hostname', $a->get_hostname());
 	}
 	$diaspora_able = ($a->get_path() == "");
 
@@ -1412,9 +1412,9 @@ function admin_page_site(App $a)
 		'$relocate' => L10n::t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
-		'$sitename' 		=> ['sitename', L10n::t("Site name"), $a->config['sitename'],''],
-		'$hostname' 		=> ['hostname', L10n::t("Host name"), $a->config['hostname'], ""],
-		'$sender_email'		=> ['sender_email', L10n::t("Sender Email"), $a->config['sender_email'], L10n::t("The email address your server shall use to send notification emails from."), "", "", "email"],
+		'$sitename' 		=> ['sitename', L10n::t("Site name"), Config::get('config', 'sitename'),''],
+		'$hostname' 		=> ['hostname', L10n::t("Host name"), Config::get('config', 'hostname'), ""],
+		'$sender_email'		=> ['sender_email', L10n::t("Sender Email"), Config::get('config', 'sender_email'), L10n::t("The email address your server shall use to send notification emails from."), "", "", "email"],
 		'$banner'		=> ['banner', L10n::t("Banner/Logo"), $banner, ""],
 		'$shortcut_icon'	=> ['shortcut_icon', L10n::t("Shortcut icon"), Config::get('system','shortcut_icon'),  L10n::t("Link to an icon that will be used for browsers.")],
 		'$touch_icon'		=> ['touch_icon', L10n::t("Touch icon"), Config::get('system','touch_icon'),  L10n::t("Link to an icon that will be used for tablets and mobiles.")],
@@ -1430,9 +1430,9 @@ function admin_page_site(App $a)
 		'$maximagelength'	=> ['maximagelength', L10n::t("Maximum image length"), Config::get('system','max_image_length'), L10n::t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
 		'$jpegimagequality'	=> ['jpegimagequality', L10n::t("JPEG image quality"), Config::get('system','jpeg_quality'), L10n::t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")],
 
-		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), $a->config['register_policy'], "", $register_choices],
+		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), Config::get('config', 'register_policy'), "", $register_choices],
 		'$daily_registrations'	=> ['max_daily_registrations', L10n::t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), L10n::t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
-		'$register_text'	=> ['register_text', L10n::t("Register text"), $a->config['register_text'], L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
+		'$register_text'	=> ['register_text', L10n::t("Register text"), Config::get('config', 'register_text'), L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
 		'$forbidden_nicknames' => ['forbidden_nicknames', L10n::t('Forbidden Nicknames'), Config::get('system', 'forbidden_nicknames'), L10n::t('Comma separated list of nicknames that are forbidden from registration. Preset is a list of role names according RFC 2142.')],
 		'$abandon_days'		=> ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
 		'$allowed_sites'	=> ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system','allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
@@ -1670,13 +1670,13 @@ function admin_page_users_post(App $a)
 
 			Thank you and welcome to %4$s.'));
 
-		$preamble = sprintf($preamble, $user['username'], $a->config['sitename']);
-		$body = sprintf($body, System::baseUrl(), $user['email'], $result['password'], $a->config['sitename']);
+		$preamble = sprintf($preamble, $user['username'], Config::get('config', 'sitename'));
+		$body = sprintf($body, System::baseUrl(), $user['email'], $result['password'], Config::get('config', 'sitename'));
 
 		notification([
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $user['email'],
-			'subject' => L10n::t('Registration details for %s', $a->config['sitename']),
+			'subject' => L10n::t('Registration details for %s', Config::get('config', 'sitename')),
 			'preamble' => $preamble,
 			'body' => $body]);
 	}
@@ -1801,7 +1801,7 @@ function admin_page_users(App $a)
 				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d", intval($a->pager['start']), intval($a->pager['itemspage'])
 	);
 
-	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 	$_setup_users = function ($e) use ($adminlist) {
 		$page_types = [
 			PAGE_NORMAL => L10n::t('Normal Account Page'),
@@ -1828,7 +1828,6 @@ function admin_page_users(App $a)
 		$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
 		$e['login_date'] = Temporal::getRelativeDate($e['login_date']);
 		$e['lastitem_date'] = Temporal::getRelativeDate($e['lastitem_date']);
-		//$e['is_admin'] = ($e['email'] === $a->config['admin_email']);
 		$e['is_admin'] = in_array($e['email'], $adminlist);
 		$e['is_deletable'] = (intval($e['uid']) != local_user());
 		$e['deleted'] = ($e['account_removed'] ? Temporal::getRelativeDate($e['account_expires_on']) : False);

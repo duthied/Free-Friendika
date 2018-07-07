@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file src/Content/Text/BBCode.php
  */
@@ -16,7 +15,6 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
@@ -449,7 +447,7 @@ class BBCode extends BaseObject
 	 */
 	public static function limitBodySize($body)
 	{
-		$maxlen = get_max_import_size();
+		$maxlen = Config::get('config', 'max_import_size', 0);
 
 		// If the length of the body, including the embedded images, is smaller
 		// than the maximum, then don't waste time looking for the images
