@@ -36,18 +36,19 @@ abstract class CacheTest extends DatabaseTest
 	function testSimple() {
 		$this->assertNull($this->instance->get('value1'));
 
-		$value='foobar';
+		$value = 'foobar';
 		$this->instance->set('value1', $value);
-		$received=$this->instance->get('value1');
+		$received = $this->instance->get('value1');
 		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
-		$value='ipsum lorum';
+
+		$value = 'ipsum lorum';
 		$this->instance->set('value1', $value);
-		$received=$this->instance->get('value1');
+		$received = $this->instance->get('value1');
 		$this->assertEquals($value, $received, 'Value not overwritten by second set');
 
-		$value2='foobar';
+		$value2 = 'foobar';
 		$this->instance->set('value2', $value2);
-		$received2=$this->instance->get('value2');
+		$received2 = $this->instance->get('value2');
 		$this->assertEquals($value, $received, 'Value changed while setting other variable');
 		$this->assertEquals($value2, $received2, 'Second value not equal to original');
 
@@ -58,7 +59,7 @@ abstract class CacheTest extends DatabaseTest
 	}
 
 	function testClear() {
-		$value='ipsum lorum';
+		$value = 'ipsum lorum';
 		$this->instance->set('1_value1', $value . '1');
 		$this->instance->set('1_value2', $value . '2');
 		$this->instance->set('2_value1', $value . '3');
@@ -94,9 +95,9 @@ abstract class CacheTest extends DatabaseTest
 	function testTTL() {
 		$this->assertNull($this->instance->get('value1'));
 
-		$value='foobar';
+		$value = 'foobar';
 		$this->instance->set('value1', $value, 1);
-		$received=$this->instance->get('value1');
+		$received = $this->instance->get('value1');
 		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
 
 		sleep(2);
