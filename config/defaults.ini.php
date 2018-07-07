@@ -161,6 +161,11 @@ dlogfile =
 ; restricts develop log writes to requests originating from this IP address
 dlogip =
 
+; forbidden_nicknames (Comma-separated list)
+; Prevents users from registering the specified nicknames on this node
+; Default value comprises classic role names from RFC 2142
+forbidden_nicknames = info, marketing, sales, support, abuse, noc, security, postmaster, hostmaster, usenet, news, webmaster, www, uucp, ftp, root, sysop
+
 ; frontend_worker_timeout (Integer)
 ; Value in minutes after we think that a frontend task was killed by the webserver.
 frontend_worker_timeout = 10

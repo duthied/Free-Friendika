@@ -1394,8 +1394,6 @@ function admin_page_site(App $a)
 	if ($optimize_max_tablesize <= 0) {
 		$optimize_max_tablesize = -1;
 	}
-	// Default list of forbidden names, classic role names from RFC 2142
-	$default_forbidden_nicknames = 'info, marketing, sales, support, abuse, noc, security, postmaster, hostmaster, usenet, news, webmaster, www, uucp, ftp, root, sysop';
 
 	$t = get_markup_template('admin/site.tpl');
 	return replace_macros($t, [
@@ -1435,7 +1433,7 @@ function admin_page_site(App $a)
 		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), $a->config['register_policy'], "", $register_choices],
 		'$daily_registrations'	=> ['max_daily_registrations', L10n::t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), L10n::t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
 		'$register_text'	=> ['register_text', L10n::t("Register text"), $a->config['register_text'], L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
-		'$forbidden_nicknames' => ['forbidden_nicknames', L10n::t('Forbidden Nicknames'), Config::get('system', 'forbidden_nicknames', $default_forbidden_nicknames), L10n::t('Comma separated list of nicknames that are forbidden from registration. Preset is a list of role names according RFC 2142.')],
+		'$forbidden_nicknames' => ['forbidden_nicknames', L10n::t('Forbidden Nicknames'), Config::get('system', 'forbidden_nicknames'), L10n::t('Comma separated list of nicknames that are forbidden from registration. Preset is a list of role names according RFC 2142.')],
 		'$abandon_days'		=> ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
 		'$allowed_sites'	=> ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system','allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
 		'$allowed_email'	=> ['allowed_email', L10n::t("Allowed email domains"), Config::get('system','allowed_email'), L10n::t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
