@@ -20,19 +20,19 @@ class MemcachedCacheLockDriverTest extends LockTest
 			try {
 				$this->cache = CacheDriverFactory::create('memcached');
 			} catch (\Exception $exception) {
-				print "Redis - TestCase failed: " . $exception->getMessage();
+				print "Memcached - TestCase failed: " . $exception->getMessage();
 				throw new \Exception();
 			}
 			return new CacheLockDriver($this->cache);
 		} else {
-			$this->markTestSkipped('Redis driver isn\'t available');
+			$this->markTestSkipped('Memcached driver isn\'t available');
 			return null;
 		}
 	}
 
 	public function tearDown()
 	{
-		if (class_exists('Redis')) {
+		if (class_exists('Memcached')) {
 			$this->cache->clear();
 		}
 		parent::tearDown();
