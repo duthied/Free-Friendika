@@ -497,7 +497,7 @@ class Item extends BaseObject
 			'network' => 'internal-network', 'icid' => 'internal-icid',
 			'iaid' => 'internal-iaid'];
 
-		$fields['item-activity'] = ['activity' => 'internal-activity'];
+		$fields['item-activity'] = ['activity', 'activity' => 'internal-activity'];
 
 		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
@@ -2789,27 +2789,22 @@ class Item extends BaseObject
 		switch ($verb) {
 			case 'like':
 			case 'unlike':
-				$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
 				$activity = ACTIVITY_LIKE;
 				break;
 			case 'dislike':
 			case 'undislike':
-				$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
 				$activity = ACTIVITY_DISLIKE;
 				break;
 			case 'attendyes':
 			case 'unattendyes':
-				$bodyverb = L10n::t('%1$s is attending %2$s\'s %3$s');
 				$activity = ACTIVITY_ATTEND;
 				break;
 			case 'attendno':
 			case 'unattendno':
-				$bodyverb = L10n::t('%1$s is not attending %2$s\'s %3$s');
 				$activity = ACTIVITY_ATTENDNO;
 				break;
 			case 'attendmaybe':
 			case 'unattendmaybe':
-				$bodyverb = L10n::t('%1$s may attend %2$s\'s %3$s');
 				$activity = ACTIVITY_ATTENDMAYBE;
 				break;
 			default:
@@ -2827,6 +2822,8 @@ class Item extends BaseObject
 			logger('like: unknown item ' . $item_id);
 			return false;
 		}
+
+		$item_uri = $item['uri'];
 
 		$uid = $item['uid'];
 		if (($uid == 0) && local_user()) {
@@ -2848,7 +2845,7 @@ class Item extends BaseObject
 		// Retrieve the current logged in user's public contact
 		$author_id = public_contact();
 
-		$author_contact = dba::selectFirst('contact', [], ['id' => $author_id]);
+		$author_contact = dba::selectFirst('contact', ['url'], ['id' => $author_id]);
 		if (!DBM::is_result($author_contact)) {
 			logger('like: unknown author ' . $author_id);
 			return false;
@@ -2872,25 +2869,20 @@ class Item extends BaseObject
 		// we need to eradicate your first choice.
 		if ($event_verb_flag) {
 			$verbs = [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
+
+			// Translate to the index based activity index
+			$activities = [];
+			foreach ($verbs as $verb) {
+				$activities[] = self::activityToIndex($verb);
+			}
 		} else {
-			$verbs = $activity;
+			$activities = self::activityToIndex($activity);
 		}
 
-		$base_condition = ['verb' => $verbs, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
-			'author-id' => $author_contact['id'], 'uid' => $item['uid']];
+		$condition = ['activity' => $activities, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
+			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent' => $item_uri];
 
-		$condition = array_merge($base_condition, ['parent' => $item_id]);
 		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
-
-		if (!DBM::is_result($like_item)) {
-			$condition = array_merge($base_condition, ['parent-uri' => $item_id]);
-			$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
-		}
-
-		if (!DBM::is_result($like_item)) {
-			$condition = array_merge($base_condition, ['thr-parent' => $item_id]);
-			$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
-		}
 
 		// If it exists, mark it as deleted
 		if (DBM::is_result($like_item)) {
@@ -2917,30 +2909,7 @@ class Item extends BaseObject
 			return true;
 		}
 
-		// Else or if event verb different from existing row, create a new item row
-		$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
-		if ($item['object-type'] === ACTIVITY_OBJ_EVENT) {
-			$post_type = L10n::t('event');
-		}
 		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
-		$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . '" />' . "\n") ;
-		$body = $item['body'];
-
-		$obj = <<< EOT
-
-		<object>
-			<type>$objtype</type>
-			<local>1</local>
-			<id>{$item['uri']}</id>
-			<link>$link</link>
-			<title></title>
-			<content>$body</content>
-		</object>
-EOT;
-
-		$ulink = '[url=' . $author_contact['url'] . ']' . $author_contact['name'] . '[/url]';
-		$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-		$plink = '[url=' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
 
 		$new_item = [
 			'guid'          => get_guid(32),
@@ -2955,17 +2924,10 @@ EOT;
 			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],
 			'owner-id'      => $item['owner-id'],
-			'owner-name'    => $item['owner-name'],
-			'owner-link'    => $item['owner-link'],
-			'owner-avatar'  => $item['owner-avatar'],
-			'author-id'     => $author_contact['id'],
-			'author-name'   => $author_contact['name'],
-			'author-link'   => $author_contact['url'],
-			'author-avatar' => $author_contact['thumb'],
-			'body'          => sprintf($bodyverb, $ulink, $alink, $plink),
+			'author-id'     => $author_id,
+			'body'          => $activity,
 			'verb'          => $activity,
 			'object-type'   => $objtype,
-			'object'        => $obj,
 			'allow_cid'     => $item['allow_cid'],
 			'allow_gid'     => $item['allow_gid'],
 			'deny_cid'      => $item['deny_cid'],
