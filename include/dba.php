@@ -1,7 +1,6 @@
 <?php
 
-use Friendica\App;
-use Friendica\Core\L10n;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
