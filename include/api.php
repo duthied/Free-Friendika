@@ -1272,7 +1272,7 @@ function api_status_show($type)
 	// get last public wall message
 	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
 		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
-	$lastwall = dba::selectFirst('item', [], $condition, ['order' => ['id' => true]]);
+	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
 	if (DBM::is_result($lastwall)) {
 		$in_reply_to = api_in_reply_to($lastwall);
@@ -1357,7 +1357,7 @@ function api_users_show($type)
 
 	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
 		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => false];
-	$lastwall = dba::selectFirst('item', [], $condition, ['order' => ['id' => true]]);
+	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
 	if (DBM::is_result($lastwall)) {
 		$in_reply_to = api_in_reply_to($lastwall);
@@ -1817,12 +1817,12 @@ function api_statuses_show($type)
 	$conversation = (x($_REQUEST, 'conversation') ? 1 : 0);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$uri_item = dba::selectFirst('item', ['uri'], ['id' => $id]);
+	$uri_item = Item::selectFirst(['uri'], ['id' => $id]);
 	if (!DBM::is_result($uri_item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$item = dba::selectFirst('item', ['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$item = Item::selectFirst(['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
 	if (!DBM::is_result($item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
@@ -1897,12 +1897,12 @@ function api_conversation_show($type)
 	logger('API: api_conversation_show: '.$id);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$item = dba::selectFirst('item', ['parent-uri'], ['id' => $id]);
+	$item = Item::selectFirst(['parent-uri'], ['id' => $id]);
 	if (!DBM::is_result($item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$parent = dba::selectFirst('item', ['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
 	if (!DBM::is_result($parent)) {
 		throw new BadRequestException("There is no status with this id.");
 	}

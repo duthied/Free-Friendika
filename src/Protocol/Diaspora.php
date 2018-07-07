@@ -2705,7 +2705,7 @@ class Diaspora
 		}
 
 		// Fetch items that are about to be deleted
-		$fields = ['uid', 'id', 'parent', 'parent-uri', 'author-link'];
+		$fields = ['uid', 'id', 'parent', 'parent-uri', 'author-link', 'file'];
 
 		// When we receive a public retraction, we delete every item that we find.
 		if ($importer['uid'] == 0) {
@@ -2721,6 +2721,11 @@ class Diaspora
 		}
 
 		while ($item = Item::fetch($r)) {
+			if (strstr($item['file'], '[')) {
+				logger("Target guid " . $target_guid . " for user " . $item['uid'] . " is filed. So it won't be deleted.", LOGGER_DEBUG);
+				continue;
+			}
+
 			// Fetch the parent item
 			$parent = Item::selectFirst(['author-link'], ['id' => $item["parent"]]);
 
