@@ -265,6 +265,12 @@ min_poll_interval = 1
 ; Allow pseudonyms (true) or enforce a space between firstname and lastname in Full name, as an antispam measure (false).
 no_regfullname = true
 
+; optimize_max_tablesize (Integer)
+; Maximum table size (in MB) for the automatic optimization.
+; -1 to disable automatic optimization.
+;  0 to use internal default (100MB)
+optimize_max_tablesize = -1
+
 ; session_handler (database|cache|native)
 ; Whether to use Cache to store session data or to use PHP native session storage.
 session_handler = database
