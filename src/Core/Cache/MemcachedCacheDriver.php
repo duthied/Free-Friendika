@@ -77,7 +77,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 
 	public function clear()
 	{
-		return true;
+		return $this->memcached->flush();
 	}
 
 	/**
