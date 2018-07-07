@@ -39,12 +39,24 @@ class Expire {
 			}
 			dba::close($rows);
 
-			logger('Delete expired items - done', LOGGER_DEBUG);
+			// Normally we shouldn't have orphaned data at all.
+			// If we do have some, then we have to check why.
+			logger('Deleting orphaned item activities - start', LOGGER_DEBUG);
+			$condition = ["NOT EXISTS (SELECT `iaid` FROM `item` WHERE `item`.`uri` = `item-activity`.`uri`)"];
+			dba::delete('item-activity', $condition);
+			logger('Orphaned item activities deleted: ' . dba::affected_rows(), LOGGER_DEBUG);
+
+			logger('Deleting orphaned item content - start', LOGGER_DEBUG);
+			$condition = ["NOT EXISTS (SELECT `icid` FROM `item` WHERE `item`.`uri` = `item-content`.`uri`)"];
+			dba::delete('item-content', $condition);
+			logger('Orphaned item content deleted: ' . dba::affected_rows(), LOGGER_DEBUG);
 
 			// make this optional as it could have a performance impact on large sites
 			if (intval(Config::get('system', 'optimize_items'))) {
 				dba::e("OPTIMIZE TABLE `item`");
 			}
+
+			logger('Delete expired items - done', LOGGER_DEBUG);
 			return;
 		} elseif (intval($param) > 0) {
 			$user = dba::selectFirst('user', ['uid', 'username', 'expire'], ['uid' => $param]);
