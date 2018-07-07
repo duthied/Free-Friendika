@@ -23,7 +23,7 @@ abstract class CacheTest extends DatabaseTest
 		$this->instance = $this->getInstance();
 
 		// Reusable App object
-		$this->app = new App(__DIR__.'/../');
+		$this->app = \Friendica\BaseObject::getApp();
 		$a = $this->app;
 
 		// Default config
