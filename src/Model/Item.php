@@ -107,7 +107,7 @@ class Item extends BaseObject
 	 */
 	private static function indexToActivity($index)
 	{
-		if (!isset(self::ACTIVITIES[$index])) {
+		if (!is_int($index) || !array_key_exists($index, self::ACTIVITIES)) {
 			return '';
 		}
 
