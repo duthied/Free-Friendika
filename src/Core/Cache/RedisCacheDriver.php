@@ -40,7 +40,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 			return null;
 		}
 
-		$value = json_decode($cached);
+		$value = unserialize($cached);
 
 		// Only return a value if the serialized value is valid.
 		// We also check if the db entry is a serialized
@@ -56,7 +56,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	{
 		$cachekey = $this->getCacheKey($key);
 
-		$cached = json_encode($value);
+		$cached = serialize($value);
 
 		if ($ttl > 0) {
 			return $this->redis->setex(
@@ -93,7 +93,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
-		$cached = json_encode($value);
+		$cached = serialize($value);
 
 		return $this->redis->setnx($cachekey, $cached);
 	}
@@ -105,7 +105,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	{
 		$cachekey = $this->getCacheKey($key);
 
-		$newCached = json_encode($newValue);
+		$newCached = serialize($newValue);
 
 		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
