@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Util\Network;
 use Friendica\Content\Text\HTML;
+use Friendica\Util\XML;
 
 use dba;
 use DOMDocument;
