@@ -13,6 +13,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use dba;
@@ -178,7 +179,7 @@ class Post extends BaseObject
 		if (!$origin) {
 			/// @todo This shouldn't be done as query here, but better during the data creation.
 			// it is now done here, since during the RC phase we shouldn't make to intense changes.
-			$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
+			$parent = Item::selectFirst(['origin'], ['id' => $item['parent']]);
 			if (DBM::is_result($parent)) {
 				$origin = $parent['origin'];
 			}

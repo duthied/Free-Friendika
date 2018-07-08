@@ -1181,6 +1181,7 @@ class DBStructure
 						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the profile page of the author of this item"],
 						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the avatar picture of the author of this item"],
 						"icid" => ["type" => "int unsigned", "relation" => ["item-content" => "id"], "comment" => "Id of the item-content table entry that contains the whole item content"],
+						"iaid" => ["type" => "int unsigned", "relation" => ["item-activity" => "id"], "comment" => "Id of the item-activity table entry that contains the activity data"],
 						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
 						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 						"body" => ["type" => "mediumtext", "comment" => "item body content"],
@@ -1245,6 +1246,21 @@ class DBStructure
 						"uid_wall_changed" => ["uid","wall","changed"],
 						"uid_eventid" => ["uid","event-id"],
 						"icid" => ["icid"],
+						"iaid" => ["iaid"],
+						]
+				];
+		$database["item-activity"] = [
+				"comment" => "Activities for items",
+				"fields" => [
+						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => ["thread" => "iid"]],
+						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+						"uri-hash" => ["type" => "char(80)", "not null" => "1", "default" => "", "comment" => "SHA-1 and RIPEMD-160 hash from uri"],
+						"activity" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+						],
+				"indexes" => [
+						"PRIMARY" => ["id"],
+						"uri-hash" => ["UNIQUE", "uri-hash"],
+						"uri" => ["uri(191)"],
 						]
 				];
 		$database["item-content"] = [

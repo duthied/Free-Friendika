@@ -2414,8 +2414,7 @@ class DFRN
 
 		$item["edited"] = $xpath->query("atom:updated/text()", $entry)->item(0)->nodeValue;
 
-		$current = dba::selectFirst('item',
-			['id', 'uid', 'edited', 'body'],
+		$current = Item::selectFirst(['id', 'uid', 'edited', 'body'],
 			['uri' => $item["uri"], 'uid' => $importer["importer_uid"]]
 		);
 		// Is there an existing item?
@@ -2747,10 +2746,15 @@ class DFRN
 			return false;
 		}
 
-		$condition = ["`uri` = ? AND `uid` = ? AND NOT `file` LIKE '%[%'", $uri, $importer["importer_uid"]];
-		$item = dba::selectFirst('item', ['id', 'parent', 'contact-id'], $condition);
+		$condition = ['uri' => $uri, 'uid' => $importer["importer_uid"]];
+		$item = Item::selectFirst(['id', 'parent', 'contact-id', 'file'], $condition);
 		if (!DBM::is_result($item)) {
 			logger("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.", LOGGER_DEBUG);
+			return;
+		}
+
+		if (strstr($item['file'], '[')) {
+			logger("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " is filed. So it won't be deleted.", LOGGER_DEBUG);
 			return;
 		}
 

@@ -63,7 +63,7 @@ class Item extends BaseObject
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
-			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid',
+			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
@@ -73,6 +73,42 @@ class Item extends BaseObject
 			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
 			'author-id', 'author-link', 'author-name', 'author-avatar',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
+
+	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
+	// The item-activity table only stores the index and needs this array to know the matching activity.
+	const ACTIVITIES = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
+
+	/**
+	 * @brief returns an activity index from an activity string
+	 *
+	 * @param string $activity activity string
+	 * @return integer Activity index
+	 */
+	private static function activityToIndex($activity)
+	{
+		$index = array_search($activity, self::ACTIVITIES);
+
+		if (is_bool($index)) {
+			$index = -1;
+		}
+
+		return $index;
+	}
+
+	/**
+	 * @brief returns an activity string from an activity index
+	 *
+	 * @param integer $index activity index
+	 * @return string Activity string
+	 */
+	private static function indexToActivity($index)
+	{
+		if (is_null($index) || !array_key_exists($index, self::ACTIVITIES)) {
+			return '';
+		}
+
+		return self::ACTIVITIES[$index];
+	}
 
 	/**
 	 * @brief Fetch a single item row
@@ -84,13 +120,11 @@ class Item extends BaseObject
 	{
 		$row = dba::fetch($stmt);
 
-		// Fetch data from the item-content table whenever there is content there
-		foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
-			if (empty($row[$field]) && !empty($row['item-' . $field])) {
-				$row[$field] = $row['item-' . $field];
-			}
-			unset($row['item-' . $field]);
+		if (is_bool($row)) {
+			return $row;
 		}
+
+		// ---------------------- Transform item structure data ----------------------
 
 		// We prefer the data from the user's contact over the public one
 		if (!empty($row['author-link']) && !empty($row['contact-link']) &&
@@ -113,21 +147,66 @@ class Item extends BaseObject
 			}
 		}
 
-		// Build the tag string out of the term entries
-		if (isset($row['id']) && array_key_exists('tag', $row)) {
-			$row['tag'] = Term::tagTextFromItemId($row['id']);
-		}
-
-		// Build the file string out of the term entries
-		if (isset($row['id']) && array_key_exists('file', $row)) {
-			$row['file'] = Term::fileTextFromItemId($row['id']);
-		}
-
 		// We can always comment on posts from these networks
-		if (isset($row['writable']) && !empty($row['network']) &&
-			in_array($row['network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
+		if (array_key_exists('writable', $row) &&
+			in_array($row['internal-network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) {
 			$row['writable'] = true;
 		}
+
+		// ---------------------- Transform item content data ----------------------
+
+		// Fetch data from the item-content table whenever there is content there
+		foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
+			if (empty($row[$field]) && !empty($row['internal-item-' . $field])) {
+				$row[$field] = $row['internal-item-' . $field];
+			}
+			unset($row['internal-item-' . $field]);
+		}
+
+		if (!empty($row['internal-iaid']) && array_key_exists('verb', $row)) {
+			$row['verb'] = self::indexToActivity($row['internal-activity']);
+			if (array_key_exists('title', $row)) {
+				$row['title'] = '';
+			}
+			if (array_key_exists('body', $row)) {
+				$row['body'] = $row['verb'];
+			}
+			if (array_key_exists('object', $row)) {
+				$row['object'] = '';
+			}
+			if (array_key_exists('object-type', $row)) {
+				$row['object-type'] = ACTIVITY_OBJ_NOTE;
+			}
+		} elseif (array_key_exists('verb', $row) && in_array($row['verb'], ['', ACTIVITY_POST, ACTIVITY_SHARE])) {
+			// Posts don't have an object or target - but having tags or files.
+			// We safe some performance by building tag and file strings only here.
+			// We remove object and target since they aren't used for this type.
+			if (array_key_exists('object', $row)) {
+				$row['object'] = '';
+			}
+			if (array_key_exists('target', $row)) {
+				$row['target'] = '';
+			}
+		}
+
+		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', ACTIVITY_POST, ACTIVITY_SHARE])) {
+			// Build the tag string out of the term entries
+			if (array_key_exists('tag', $row) && empty($row['tag'])) {
+				$row['tag'] = Term::tagTextFromItemId($row['internal-iid']);
+			}
+
+			// Build the file string out of the term entries
+			if (array_key_exists('file', $row) && empty($row['file'])) {
+				$row['file'] = Term::fileTextFromItemId($row['internal-iid']);
+			}
+		}
+
+		// Remove internal fields
+		unset($row['internal-activity']);
+		unset($row['internal-network']);
+		unset($row['internal-iid']);
+		unset($row['internal-iaid']);
+		unset($row['internal-icid']);
 
 		return $row;
 	}
@@ -413,7 +492,11 @@ class Item extends BaseObject
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
-			'id' => 'item_id', 'network', 'icid'];
+			'id' => 'item_id', 'network', 'icid', 'iaid', 'id' => 'internal-iid',
+			'network' => 'internal-network', 'icid' => 'internal-icid',
+			'iaid' => 'internal-iaid'];
+
+		$fields['item-activity'] = ['activity', 'activity' => 'internal-activity'];
 
 		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
@@ -518,6 +601,10 @@ class Item extends BaseObject
 			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
 		}
 
+		if (strpos($sql_commands, "`item-activity`.") !== false) {
+			$joins .= " LEFT JOIN `item-activity` ON `item-activity`.`id` = `item`.`iaid`";
+		}
+
 		if (strpos($sql_commands, "`item-content`.") !== false) {
 			$joins .= " LEFT JOIN `item-content` ON `item-content`.`id` = `item`.`icid`";
 		}
@@ -543,14 +630,15 @@ class Item extends BaseObject
 	 */
 	private static function constructSelectFields($fields, $selected)
 	{
-		// To be able to fetch the tags we need the item id
-		if (in_array('tag', $selected) && !in_array('id', $selected)) {
-			$selected[] = 'id';
+		if (!empty($selected)) {
+			$selected[] = 'internal-iid';
+			$selected[] = 'internal-iaid';
+			$selected[] = 'internal-icid';
+			$selected[] = 'internal-network';
 		}
 
-		// To be able to fetch the files we need the item id
-		if (in_array('file', $selected) && !in_array('id', $selected)) {
-			$selected[] = 'id';
+		if (in_array('verb', $selected)) {
+			$selected[] = 'internal-activity';
 		}
 
 		$selection = [];
@@ -558,7 +646,7 @@ class Item extends BaseObject
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
 					if (in_array($select, self::MIXED_CONTENT_FIELDLIST)) {
-						$selection[] = "`item`.`".$select."` AS `item-" . $select . "`";
+						$selection[] = "`item`.`".$select."` AS `internal-item-" . $select . "`";
 					}
 					if (is_int($field)) {
 						$selection[] = "`" . $table . "`.`" . $select . "`";
@@ -622,13 +710,24 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin', 'uri', 'plink', 'icid'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri', 'plink', 'iaid', 'icid', 'tag', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($fields[$field])) {
 				$content_fields[$field] = $fields[$field];
-				unset($fields[$field]);
+				if (in_array($field, self::CONTENT_FIELDLIST)) {
+					unset($fields[$field]);
+				} else {
+					$fields[$field] = null;
+				}
+			}
+		}
+
+		$author_owner_fields = ['author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link'];
+		foreach ($author_owner_fields as $field) {
+			if (isset($fields[$field])) {
+				$fields[$field] = null;
 			}
 		}
 
@@ -661,30 +760,61 @@ class Item extends BaseObject
 
 		while ($item = dba::fetch($items)) {
 			if (!empty($item['plink'])) {
-				$content_fields['plink'] =  $item['plink'];
+				$content_fields['plink'] = $item['plink'];
 			}
-			self::updateContent($content_fields, ['uri' => $item['uri']]);
+			if (!empty($item['iaid']) || (!empty($content_fields['verb']) && (self::activityToIndex($content_fields['verb']) >= 0))) {
+				self::updateActivity($content_fields, ['uri' => $item['uri']]);
 
-			if (empty($item['icid'])) {
-				$item_content = dba::selectFirst('item-content', [], ['uri' => $item['uri']]);
-				if (DBM::is_result($item_content)) {
-					$item_fields = ['icid' => $item_content['id']];
-					// Clear all fields in the item table that have a content in the item-content table
-					foreach ($item_content as $field => $content) {
-						if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($item_content[$field])) {
+				if (empty($item['iaid'])) {
+					$item_activity = dba::selectFirst('item-activity', ['id'], ['uri' => $item['uri']]);
+					if (DBM::is_result($item_activity)) {
+						$item_fields = ['iaid' => $item_activity['id'], 'icid' => null];
+						foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
 							$item_fields[$field] = '';
 						}
+						dba::update('item', $item_fields, ['id' => $item['id']]);
+
+						if (!empty($item['icid']) && !dba::exists('item', ['icid' => $item['icid']])) {
+							dba::delete('item-content', ['id' => $item['icid']]);
+						}
 					}
-					dba::update('item', $item_fields, ['id' => $item['id']]);
+				} elseif (!empty($item['icid'])) {
+					dba::update('item', ['icid' => null], ['id' => $item['id']]);
+
+					if (!dba::exists('item', ['icid' => $item['icid']])) {
+						dba::delete('item-content', ['id' => $item['icid']]);
+					}
+				}
+			} else {
+				self::updateContent($content_fields, ['uri' => $item['uri']]);
+
+				if (empty($item['icid'])) {
+					$item_content = dba::selectFirst('item-content', [], ['uri' => $item['uri']]);
+					if (DBM::is_result($item_content)) {
+						$item_fields = ['icid' => $item_content['id']];
+						// Clear all fields in the item table that have a content in the item-content table
+						foreach ($item_content as $field => $content) {
+							if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($item_content[$field])) {
+								$item_fields[$field] = '';
+							}
+						}
+						dba::update('item', $item_fields, ['id' => $item['id']]);
+					}
 				}
 			}
 
 			if (!empty($tags)) {
 				Term::insertFromTagFieldByItemId($item['id'], $tags);
+				if (!empty($item['tag'])) {
+					dba::update('item', ['tag' => ''], ['id' => $item['id']]);
+				}
 			}
 
 			if (!empty($files)) {
 				Term::insertFromFileFieldByItemId($item['id'], $files);
+				if (!empty($item['file'])) {
+					dba::update('item', ['file' => ''], ['id' => $item['id']]);
+				}
 			}
 
 			self::updateThread($item['id']);
@@ -1420,7 +1550,9 @@ class Item extends BaseObject
 		}
 
 		// We are doing this outside of the transaction to avoid timing problems
-		self::insertContent($item);
+		if (!self::insertActivity($item)) {
+			self::insertContent($item);
+		}
 
 		dba::transaction();
 		$ret = dba::insert('item', $item);
@@ -1580,6 +1712,55 @@ class Item extends BaseObject
 	 *
 	 * @param array $item The item fields that are to be inserted
 	 */
+	private static function insertActivity(&$item)
+	{
+		$activity_index = self::activityToIndex($item['verb']);
+
+		if ($activity_index < 0) {
+			return false;
+		}
+
+		$fields = ['uri' => $item['uri'], 'activity' => $activity_index,
+			'uri-hash' => hash('sha1', $item['uri']) . hash('ripemd160', $item['uri'])];
+
+		$saved_item = $item;
+
+		// We just remove everything that is content
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
+			unset($item[$field]);
+		}
+
+		// To avoid timing problems, we are using locks.
+		$locked = Lock::set('item_insert_activity');
+		if (!$locked) {
+			logger("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
+		}
+
+		// Do we already have this content?
+		$item_activity = dba::selectFirst('item-activity', ['id'], ['uri' => $item['uri']]);
+		if (DBM::is_result($item_activity)) {
+			$item['iaid'] = $item_activity['id'];
+			logger('Fetched activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
+		} elseif (dba::insert('item-activity', $fields)) {
+			$item['iaid'] = dba::lastInsertId();
+			logger('Inserted activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
+		} else {
+			// This shouldn't happen. But if it does, we simply store it in the item-content table
+			logger('Could not insert activity for URI ' . $item['uri'] . ' - should not happen');
+			$item = $saved_item;
+			return false;
+		}
+		if ($locked) {
+			Lock::remove('item_insert_activity');
+		}
+		return true;
+	}
+
+	/**
+	 * @brief Insert a new item content entry
+	 *
+	 * @param array $item The item fields that are to be inserted
+	 */
 	private static function insertContent(&$item)
 	{
 		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
@@ -1639,6 +1820,33 @@ class Item extends BaseObject
 	 * @param array $item The item fields that are to be changed
 	 * @param array $condition The condition for finding the item content entries
 	 */
+	private static function updateActivity($item, $condition)
+	{
+		if (empty($item['verb'])) {
+			return false;
+		}
+		$activity_index = self::activityToIndex($item['verb']);
+
+		if ($activity_index < 0) {
+			return false;
+		}
+
+		$fields = ['activity' => $activity_index,
+			'uri-hash' => hash('sha1', $condition['uri']) . hash('ripemd160', $condition['uri'])];
+
+		logger('Update activity for URI ' . $condition['uri']);
+
+		dba::update('item-activity', $fields, $condition, true);
+
+		return true;
+	}
+
+	/**
+	 * @brief Update existing item content entries
+	 *
+	 * @param array $item The item fields that are to be changed
+	 * @param array $condition The condition for finding the item content entries
+	 */
 	private static function updateContent($item, $condition)
 	{
 		// We have to select only the fields from the "item-content" table
@@ -1650,7 +1858,9 @@ class Item extends BaseObject
 		}
 
 		if (empty($fields)) {
-			return;
+			// when there are no fields at all, just use the condition
+			// This is to ensure that we always store content.
+			$fields = $condition;
 		}
 
 		if (!empty($item['plink'])) {
@@ -2605,27 +2815,22 @@ class Item extends BaseObject
 		switch ($verb) {
 			case 'like':
 			case 'unlike':
-				$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
 				$activity = ACTIVITY_LIKE;
 				break;
 			case 'dislike':
 			case 'undislike':
-				$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
 				$activity = ACTIVITY_DISLIKE;
 				break;
 			case 'attendyes':
 			case 'unattendyes':
-				$bodyverb = L10n::t('%1$s is attending %2$s\'s %3$s');
 				$activity = ACTIVITY_ATTEND;
 				break;
 			case 'attendno':
 			case 'unattendno':
-				$bodyverb = L10n::t('%1$s is not attending %2$s\'s %3$s');
 				$activity = ACTIVITY_ATTENDNO;
 				break;
 			case 'attendmaybe':
 			case 'unattendmaybe':
-				$bodyverb = L10n::t('%1$s may attend %2$s\'s %3$s');
 				$activity = ACTIVITY_ATTENDMAYBE;
 				break;
 			default:
@@ -2643,6 +2848,8 @@ class Item extends BaseObject
 			logger('like: unknown item ' . $item_id);
 			return false;
 		}
+
+		$item_uri = $item['uri'];
 
 		$uid = $item['uid'];
 		if (($uid == 0) && local_user()) {
@@ -2664,7 +2871,7 @@ class Item extends BaseObject
 		// Retrieve the current logged in user's public contact
 		$author_id = public_contact();
 
-		$author_contact = dba::selectFirst('contact', [], ['id' => $author_id]);
+		$author_contact = dba::selectFirst('contact', ['url'], ['id' => $author_id]);
 		if (!DBM::is_result($author_contact)) {
 			logger('like: unknown author ' . $author_id);
 			return false;
@@ -2688,25 +2895,20 @@ class Item extends BaseObject
 		// we need to eradicate your first choice.
 		if ($event_verb_flag) {
 			$verbs = [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
+
+			// Translate to the index based activity index
+			$activities = [];
+			foreach ($verbs as $verb) {
+				$activities[] = self::activityToIndex($verb);
+			}
 		} else {
-			$verbs = $activity;
+			$activities = self::activityToIndex($activity);
 		}
 
-		$base_condition = ['verb' => $verbs, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
-			'author-id' => $author_contact['id'], 'uid' => $item['uid']];
+		$condition = ['activity' => $activities, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
+			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent' => $item_uri];
 
-		$condition = array_merge($base_condition, ['parent' => $item_id]);
 		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
-
-		if (!DBM::is_result($like_item)) {
-			$condition = array_merge($base_condition, ['parent-uri' => $item_id]);
-			$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
-		}
-
-		if (!DBM::is_result($like_item)) {
-			$condition = array_merge($base_condition, ['thr-parent' => $item_id]);
-			$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
-		}
 
 		// If it exists, mark it as deleted
 		if (DBM::is_result($like_item)) {
@@ -2716,12 +2918,9 @@ class Item extends BaseObject
 			dba::update('item', $fields, ['id' => $like_item['id']]);
 
 			// Clean up the Diaspora signatures for this like
-			// Go ahead and do it even if Diaspora support is disabled. We still want to clean up
-			// if it had been enabled in the past
 			dba::delete('sign', ['iid' => $like_item['id']]);
 
-			$like_item_id = $like_item['id'];
-			Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", "like", $like_item['id']);
 
 			if (!$event_verb_flag || $like_item['verb'] == $activity) {
 				return true;
@@ -2733,30 +2932,7 @@ class Item extends BaseObject
 			return true;
 		}
 
-		// Else or if event verb different from existing row, create a new item row
-		$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
-		if ($item['object-type'] === ACTIVITY_OBJ_EVENT) {
-			$post_type = L10n::t('event');
-		}
 		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
-		$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . '" />' . "\n") ;
-		$body = $item['body'];
-
-		$obj = <<< EOT
-
-		<object>
-			<type>$objtype</type>
-			<local>1</local>
-			<id>{$item['uri']}</id>
-			<link>$link</link>
-			<title></title>
-			<content>$body</content>
-		</object>
-EOT;
-
-		$ulink = '[url=' . $author_contact['url'] . ']' . $author_contact['name'] . '[/url]';
-		$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-		$plink = '[url=' . System::baseUrl() . '/display/' . $owner_self_contact['nick'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
 
 		$new_item = [
 			'guid'          => get_guid(32),
@@ -2771,17 +2947,10 @@ EOT;
 			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],
 			'owner-id'      => $item['owner-id'],
-			'owner-name'    => $item['owner-name'],
-			'owner-link'    => $item['owner-link'],
-			'owner-avatar'  => $item['owner-avatar'],
-			'author-id'     => $author_contact['id'],
-			'author-name'   => $author_contact['name'],
-			'author-link'   => $author_contact['url'],
-			'author-avatar' => $author_contact['thumb'],
-			'body'          => sprintf($bodyverb, $ulink, $alink, $plink),
+			'author-id'     => $author_id,
+			'body'          => $activity,
 			'verb'          => $activity,
 			'object-type'   => $objtype,
-			'object'        => $obj,
 			'allow_cid'     => $item['allow_cid'],
 			'allow_gid'     => $item['allow_gid'],
 			'deny_cid'      => $item['deny_cid'],

@@ -338,7 +338,7 @@ class OStatus
 		$header = [];
 		$header["uid"] = $importer["uid"];
 		$header["network"] = NETWORK_OSTATUS;
-		$header["type"] = "remote";
+		$header["type"] = "remote-comment";
 		$header["wall"] = 0;
 		$header["origin"] = 0;
 		$header["gravity"] = GRAVITY_COMMENT;
@@ -449,9 +449,11 @@ class OStatus
 				$orig_uri = $xpath->query("activity:object/atom:id", $entry)->item(0)->nodeValue;
 				logger("Favorite ".$orig_uri." ".print_r($item, true));
 
+				$item["type"] = "activity";
 				$item["verb"] = ACTIVITY_LIKE;
 				$item["parent-uri"] = $orig_uri;
 				$item["gravity"] = GRAVITY_ACTIVITY;
+				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 			}
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes
@@ -681,11 +683,10 @@ class OStatus
 			} else {
 				logger('Reply with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.', LOGGER_DEBUG);
 			}
-
-			$item["type"] = 'remote-comment';
 		} else {
 			$item["parent-uri"] = $item["uri"];
 			$item["gravity"] = GRAVITY_PARENT;
+			$item["type"] = "remote";
 		}
 
 		if (($item['author-link'] != '') && !empty($item['protocol'])) {
