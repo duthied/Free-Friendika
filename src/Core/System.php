@@ -152,12 +152,8 @@ EOT;
 
 		if (isset($description["title"])) {
 			$tpl = get_markup_template('http_status.tpl');
-			echo replace_macros(
-				$tpl,
-				[
-					'$title' => $description["title"],
-					'$description' => $description["description"]]
-			);
+			echo replace_macros($tpl, ['$title' => $description["title"],
+				'$description' => defaults($description, 'description', '')]);
 		}
 
 		killme();

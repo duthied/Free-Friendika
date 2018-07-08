@@ -662,6 +662,11 @@ class GContact
 		$last_failure_str = '';
 		$last_contact_str = '';
 
+		if (empty($contact["network"])) {
+			logger("Empty network for contact url ".$contact["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
+			return false;
+		}
+
 		if (in_array($contact["network"], [NETWORK_PHANTOM])) {
 			logger("Invalid network for contact url ".$contact["url"]." - Called by: ".System::callstack(), LOGGER_DEBUG);
 			return false;

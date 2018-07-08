@@ -1030,10 +1030,8 @@ class Item extends BaseObject
 
 	private static function guid($item, $notify)
 	{
-		$guid =	notags(trim($item['guid']));
-
-		if (!empty($guid)) {
-			return $guid;
+		if (!empty($item['guid'])) {
+			return notags(trim($item['guid']));
 		}
 
 		if ($notify) {

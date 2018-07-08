@@ -61,7 +61,7 @@ class Delivery extends BaseObject
 
 			$condition = ['id' => [$item_id, $parent_id], 'visible' => true, 'moderated' => false];
 			$params = ['order' => ['id']];
-			$itemdata = Item::select([], $condition, $params);
+			$itemdata = Item::select(Item::ITEM_FIELDLIST, $condition, $params);
 
 			$items = [];
 			while ($item = Item::fetch($itemdata)) {
@@ -258,6 +258,10 @@ class Delivery extends BaseObject
 			if (!DBM::is_result($target_importer)) {
 				return;
 			}
+
+			$user = dba::selectFirst('user', [], ['uid' => $target_uid]);
+
+			$target_importer = array_merge($target_importer, $user);
 
 			// Set the user id. This is important if this is a public contact
 			$target_importer['importer_uid']  = $target_uid;

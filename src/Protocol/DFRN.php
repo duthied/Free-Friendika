@@ -952,10 +952,10 @@ class DFRN
 		if (isset($parent_item)) {
 			$conversation = dba::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $item['parent-uri']]);
 			if (DBM::is_result($conversation)) {
-				if ($r['conversation-uri'] != '') {
+				if ($conversation['conversation-uri'] != '') {
 					$conversation_uri = $conversation['conversation-uri'];
 				}
-				if ($r['conversation-href'] != '') {
+				if ($conversation['conversation-href'] != '') {
 					$conversation_href = $conversation['conversation-href'];
 				}
 			}

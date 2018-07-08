@@ -130,7 +130,7 @@ function ping_init(App $a)
 
 		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ?", local_user(), local_user()];
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall'];
 		$params = ['order' => ['created' => true]];
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
@@ -487,7 +487,7 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]
-				&& !(x($result, $notification["parent"]) && is_array($result[$notification["parent"]]))
+				&& !(x($result, $notification["parent"]) && !empty($result[$notification["parent"]]))
 			) {
 				// Should we condense the notifications or show them all?
 				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {

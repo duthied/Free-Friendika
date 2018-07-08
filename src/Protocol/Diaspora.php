@@ -1349,7 +1349,7 @@ class Diaspora
 		$author = "";
 
 		// Fetch the author - for the old and the new Diaspora version
-		if ($source_xml->post->status_message->diaspora_handle) {
+		if ($source_xml->post->status_message && $source_xml->post->status_message->diaspora_handle) {
 			$author = (string)$source_xml->post->status_message->diaspora_handle;
 		} elseif ($source_xml->author && ($source_xml->getName() == "status_message")) {
 			$author = (string)$source_xml->author;
@@ -2165,7 +2165,7 @@ class Diaspora
 		}
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Item::select(['id', 'verb', 'self'], ['parent' => $item['id']]);
+		$comments = Item::select(['id', 'parent', 'verb', 'self'], ['parent' => $item['id']]);
 		while ($comment = Item::fetch($comments)) {
 			if ($comment['id'] == $comment['parent']) {
 				continue;
