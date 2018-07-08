@@ -1731,7 +1731,7 @@ class Item extends BaseObject
 		}
 
 		// To avoid timing problems, we are using locks.
-		$locked = Lock::set('item_insert_activity');
+		$locked = Lock::acquire('item_insert_activity');
 		if (!$locked) {
 			logger("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}
@@ -1751,7 +1751,7 @@ class Item extends BaseObject
 			return false;
 		}
 		if ($locked) {
-			Lock::remove('item_insert_activity');
+			Lock::release('item_insert_activity');
 		}
 		return true;
 	}
