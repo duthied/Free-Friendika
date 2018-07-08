@@ -250,7 +250,7 @@ class Feed {
 			if (!$simulate) {
 				$condition = ["`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
 					$importer["uid"], $item["uri"], NETWORK_FEED, NETWORK_DFRN];
-				$previous = dba::selectFirst('item', ['id'], $condition);
+				$previous = Item::selectFirst(['id'], $condition);
 				if (DBM::is_result($previous)) {
 					logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$previous["id"], LOGGER_DEBUG);
 					continue;

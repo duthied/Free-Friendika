@@ -955,6 +955,8 @@ class dba {
 	 * @return boolean Was the command executed successfully?
 	 */
 	public static function rollback() {
+		$ret = false;
+
 		switch (self::$driver) {
 			case 'pdo':
 				if (!self::$db->inTransaction()) {

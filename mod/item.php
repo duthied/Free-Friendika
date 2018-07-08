@@ -106,7 +106,7 @@ function item_post(App $a) {
 			$thr_parent_contact = Contact::getDetailsByURL($parent_item["author-link"]);
 
 			if ($parent_item['id'] != $parent_item['parent']) {
-				$parent_item = dba::selectFirst('item', [], ['id' => $parent_item['parent']]);
+				$parent_item = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $parent_item['parent']]);
 			}
 		}
 
@@ -170,7 +170,7 @@ function item_post(App $a) {
 	$orig_post = null;
 
 	if ($post_id) {
-		$orig_post = dba::selectFirst('item', [], ['id' => $post_id]);
+		$orig_post = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 	}
 
 	$user = dba::selectFirst('user', [], ['uid' => $profile_uid]);

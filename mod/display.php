@@ -202,7 +202,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$item = dba::selectFirst('item', ['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
+		$item = Item::selectFirst(['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
 		if ($item['uid'] != 0) {
 			$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
 		} else {
