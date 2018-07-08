@@ -719,10 +719,15 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithCustomFrioSchema()
 	{
-		PConfig::set($this->selfUser['id'], 'frio', 'schema', '---');
-		PConfig::set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
-		PConfig::set($this->selfUser['id'], 'frio', 'link_color', '#123456');
-		PConfig::set($this->selfUser['id'], 'frio', 'background_color', '#123456');
+		var_dump($this->app->mode, \Friendica\App::MODE_DBCONFIGAVAILABLE, $this->app->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE);
+
+		$ret1 = PConfig::set($this->selfUser['id'], 'frio', 'schema', '---');
+		$ret2 = PConfig::set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
+		$ret3 = PConfig::set($this->selfUser['id'], 'frio', 'link_color', '#123456');
+		$ret4 = PConfig::set($this->selfUser['id'], 'frio', 'background_color', '#123456');
+
+		var_dump($ret1, $ret2, $ret3, $ret4, dba::inArray(dba::select('pconfig', [])));
+
 		$user = api_get_user($this->app);
 		$this->assertSelfUser($user);
 		$this->assertEquals('123456', $user['profile_sidebar_fill_color']);
