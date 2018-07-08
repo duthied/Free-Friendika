@@ -14,6 +14,7 @@ require_once __DIR__.'/../include/api.php';
 new App(dirname(__DIR__));
 
 \Friendica\Core\Config::set('system', 'url', 'http://localhost');
+\Friendica\Core\Config::set('system', 'hostname', 'localhost');
 \Friendica\Core\Config::set('system', 'worker_dont_fork', true);
 
 // Backward compatibility
