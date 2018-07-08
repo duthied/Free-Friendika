@@ -17,7 +17,9 @@ env:
 install:
  - composer install
 before_script:
+ - cp config/local-sample.ini.php config/local.ini.php
  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
  - mysql -utravis test < database.sql
  - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
  - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
