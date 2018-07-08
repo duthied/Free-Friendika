@@ -5,6 +5,7 @@ namespace Friendica\Test\src\Core\Cache;
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Test\DatabaseTest;
+use Friendica\Util\DateTimeFormat;
 
 abstract class CacheTest extends DatabaseTest
 {
@@ -103,5 +104,54 @@ abstract class CacheTest extends DatabaseTest
 		sleep(2);
 
 		$this->assertNull($this->instance->get('value1'));
+	}
+
+	function testDifferentTypesInCache() {
+		// String test
+		$value = "foobar";
+		$this->instance->set('stringVal', $value);
+		$received = $this->instance->get('stringVal');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+
+		// Integer test
+		$value = 1;
+		$this->instance->set('intVal', $value);
+		$received = $this->instance->get('intVal');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+
+		// Boolean test
+		$value = true;
+		$this->instance->set('boolValTrue', $value);
+		$received = $this->instance->get('boolValTrue');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+
+		$value = false;
+		$this->instance->set('boolValFalse', $value);
+		$received = $this->instance->get('boolValFalse');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+
+		// float
+		$value = 4.6634234;
+		$this->instance->set('decVal', $value);
+		$received = $this->instance->get('decVal');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+
+		// array
+		$value = array('1', '2', '3', '4', '5');
+		$this->instance->set('arrayVal', $value);
+		$received = $this->instance->get('arrayVal');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+
+		// object
+		$value = new DateTimeFormat();
+		$this->instance->set('objVal', $value);
+		$received = $this->instance->get('objVal');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+
+		// null
+		$value = null;
+		$this->instance->set('objVal', $value);
+		$received = $this->instance->get('objVal');
+		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
 	}
 }
