@@ -2746,7 +2746,7 @@ class DFRN
 		}
 
 		$condition = ['uri' => $uri, 'uid' => $importer["importer_uid"]];
-		$item = Item::selectFirst(['id', 'parent', 'contact-id', 'file'], $condition);
+		$item = Item::selectFirst(['id', 'parent', 'contact-id', 'file', 'deleted'], $condition);
 		if (!DBM::is_result($item)) {
 			logger("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.", LOGGER_DEBUG);
 			return;

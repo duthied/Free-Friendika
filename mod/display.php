@@ -356,11 +356,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$o .= conversation($a, $conversation_items, 'display', $update_uid, false, 'commented', local_user());
 
 	// Preparing the meta header
-	$description = trim(HTML::toPlaintext(BBCode::convert($items["body"], false), 0, true));
-	$title = trim(HTML::toPlaintext(BBCode::convert($items["title"], false), 0, true));
-	$author_name = $items["author-name"];
+	$description = trim(HTML::toPlaintext(BBCode::convert($items[0]["body"], false), 0, true));
+	$title = trim(HTML::toPlaintext(BBCode::convert($items[0]["title"], false), 0, true));
+	$author_name = $items[0]["author-name"];
 
-	$image = $a->remove_baseurl($items["author-thumb"]);
+	$image = $a->remove_baseurl($items[0]["author-avatar"]);
 
 	if ($title == "") {
 		$title = $author_name;
@@ -392,7 +392,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$items["plink"].'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$items[0]["plink"].'" />'."\n";
 
 	// Dublin Core
 	$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
@@ -402,7 +402,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
 	$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:url" content="'.$items["plink"].'" />'."\n";
+	$a->page['htmlhead'] .= '<meta property="og:url" content="'.$items[0]["plink"].'" />'."\n";
 	$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
 	// article:tag
