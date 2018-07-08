@@ -131,11 +131,11 @@ class Feed {
 				if ($value != "") {
 					$author["author-nick"] = $value;
 				}
-				$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()')->item(0)->nodeValue;
+				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:address/poco:formatted/text()');
 				if ($value != "") {
 					$author["author-location"] = $value;
 				}
-				$value = $xpath->evaluate('atom:author/poco:note/text()')->item(0)->nodeValue;
+				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:note/text()');
 				if ($value != "") {
 					$author["author-about"] = $value;
 				}
@@ -149,9 +149,9 @@ class Feed {
 				}
 			}
 
-			$author["edited"] = $author["created"] = $xpath->query('/atom:feed/atom:updated/text()')->item(0)->nodeValue;
+			$author["edited"] = $author["created"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:updated/text()');
 
-			$author["app"] = $xpath->evaluate('/atom:feed/atom:generator/text()')->item(0)->nodeValue;
+			$author["app"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:generator/text()');
 
 			$entries = $xpath->query('/atom:feed/atom:entry');
 		}
@@ -226,16 +226,16 @@ class Feed {
 				}
 			}
 			if ($item["plink"] == "") {
-				$item["plink"] = $xpath->evaluate('link/text()', $entry)->item(0)->nodeValue;
+				$item["plink"] = XML::getFirstNodeValue($xpath, 'link/text()', $entry);
 			}
 			if ($item["plink"] == "") {
-				$item["plink"] = $xpath->evaluate('rss:link/text()', $entry)->item(0)->nodeValue;
+				$item["plink"] = XML::getFirstNodeValue($xpath, 'rss:link/text()', $entry);
 			}
 
-			$item["uri"] = $xpath->evaluate('atom:id/text()', $entry)->item(0)->nodeValue;
+			$item["uri"] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
 			if ($item["uri"] == "") {
-				$item["uri"] = $xpath->evaluate('guid/text()', $entry)->item(0)->nodeValue;
+				$item["uri"] = XML::getFirstNodeValue($xpath, 'guid/text()', $entry);
 			}
 			if ($item["uri"] == "") {
 				$item["uri"] = $item["plink"];
@@ -257,23 +257,23 @@ class Feed {
 				}
 			}
 
-			$item["title"] = $xpath->evaluate('atom:title/text()', $entry)->item(0)->nodeValue;
+			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 
 			if ($item["title"] == "") {
-				$item["title"] = $xpath->evaluate('title/text()', $entry)->item(0)->nodeValue;
+				$item["title"] = XML::getFirstNodeValue($xpath, 'title/text()', $entry);
 			}
 			if ($item["title"] == "") {
-				$item["title"] = $xpath->evaluate('rss:title/text()', $entry)->item(0)->nodeValue;
+				$item["title"] = XML::getFirstNodeValue($xpath, 'rss:title/text()', $entry);
 			}
-			$published = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
+			$published = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
 
 			if ($published == "") {
-				$published = $xpath->query('pubDate/text()', $entry)->item(0)->nodeValue;
+				$published = XML::getFirstNodeValue($xpath, 'pubDate/text()', $entry);
 			}
 			if ($published == "") {
-				$published = $xpath->query('dc:date/text()', $entry)->item(0)->nodeValue;
+				$published = XML::getFirstNodeValue($xpath, 'dc:date/text()', $entry);
 			}
-			$updated = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
+			$updated = XML::getFirstNodeValue($xpath, 'atom:updated/text()', $entry);
 
 			if ($updated == "") {
 				$updated = $published;
@@ -284,18 +284,18 @@ class Feed {
 			if ($updated != "") {
 				$item["edited"] = $updated;
 			}
-			$creator = $xpath->query('author/text()', $entry)->item(0)->nodeValue;
+			$creator = XML::getFirstNodeValue($xpath, 'author/text()', $entry);
 
 			if ($creator == "") {
-				$creator = $xpath->query('atom:author/atom:name/text()', $entry)->item(0)->nodeValue;
+				$creator = XML::getFirstNodeValue($xpath, 'atom:author/atom:name/text()', $entry);
 			}
 			if ($creator == "") {
-				$creator = $xpath->query('dc:creator/text()', $entry)->item(0)->nodeValue;
+				$creator = XML::getFirstNodeValue($xpath, 'dc:creator/text()', $entry);
 			}
 			if ($creator != "") {
 				$item["author-name"] = $creator;
 			}
-			$creator = $xpath->query('dc:creator/text()', $entry)->item(0)->nodeValue;
+			$creator = XML::getFirstNodeValue($xpath, 'dc:creator/text()', $entry);
 
 			if ($creator != "") {
 				$item["author-name"] = $creator;
