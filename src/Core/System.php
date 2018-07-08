@@ -72,6 +72,7 @@ class System extends BaseObject
 				}
 			} elseif (!in_array($func['function'], $ignore)) {
 				$callstack[] = $func['function'];
+				$func['class'] = '';
 				$previous = $func;
 			}
 		}

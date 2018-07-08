@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-30 17:33+0200\n"
-"PO-Revision-Date: 2018-07-01 23:15+0000\n"
+"PO-Revision-Date: 2018-07-06 22:09+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -91,7 +91,7 @@ msgstr "Vítejte "
 
 #: include/security.php:82
 msgid "Please upload a profile photo."
-msgstr "Prosím nahrejte profilovou fotografii"
+msgstr "Prosím nahrajte profilovou fotografii"
 
 #: include/security.php:84
 msgid "Welcome back "
@@ -158,12 +158,12 @@ msgstr "fotka"
 #: src/Protocol/Diaspora.php:1945
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
-msgstr "%1$s se líbí %3$s %2$s"
+msgstr "Uživateli %1$s se líbí %3$s %2$s"
 
 #: include/conversation.php:170 src/Model/Item.php:2535
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
-msgstr "%1$s se nelíbí %3$s %2$s"
+msgstr "Uživateli %1$s se nelíbí %3$s %2$s"
 
 #: include/conversation.php:172
 #, php-format
@@ -183,7 +183,7 @@ msgstr "%1$s se možná účastní %3$s %2$s"
 #: include/conversation.php:211
 #, php-format
 msgid "%1$s is now friends with %2$s"
-msgstr "%1$s je nyní přítel s %2$s"
+msgstr "%1$s je nyní přítel s uživatelem %2$s"
 
 #: include/conversation.php:252
 #, php-format
@@ -193,7 +193,7 @@ msgstr "%1$s šťouchnul %2$s"
 #: include/conversation.php:300 mod/tagger.php:108
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr "%1$s označil %3$s %2$s s %4$s"
+msgstr "%1$s označil/a %3$s uživatele %2$s jako %4$s"
 
 #: include/conversation.php:322
 msgid "post/item"
@@ -202,15 +202,15 @@ msgstr "příspěvek/položka"
 #: include/conversation.php:323
 #, php-format
 msgid "%1$s marked %2$s's %3$s as favorite"
-msgstr "uživatel %1$s označil %3$s %2$s jako oblíbené"
+msgstr "%1$s označil/a %3$s uživatele %2$s jako oblíbené"
 
 #: include/conversation.php:504 mod/profiles.php:355 mod/photos.php:1464
 msgid "Likes"
-msgstr "Libí se mi"
+msgstr "Libí se"
 
 #: include/conversation.php:504 mod/profiles.php:359 mod/photos.php:1464
 msgid "Dislikes"
-msgstr "Nelibí se mi"
+msgstr "Nelibí se"
 
 #: include/conversation.php:505 include/conversation.php:1455
 #: mod/photos.php:1465
@@ -320,12 +320,12 @@ msgstr "Připojit / Následovat"
 #: include/conversation.php:969
 #, php-format
 msgid "%s likes this."
-msgstr "%s se to líbí."
+msgstr "Uživateli %s se tohle líbí."
 
 #: include/conversation.php:972
 #, php-format
 msgid "%s doesn't like this."
-msgstr "%s se to nelíbí."
+msgstr "Uživateli %s se tohle nelíbí."
 
 #: include/conversation.php:975
 #, php-format
@@ -354,22 +354,22 @@ msgstr "a dalších %d lidí"
 #: include/conversation.php:1007
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
-msgstr "<span  %1$s>%2$d lidem</span> se to líbí"
+msgstr "<span  %1$s>%2$d lidem</span> se tohle líbí"
 
 #: include/conversation.php:1008
 #, php-format
 msgid "%s like this."
-msgstr "%s se tohle líbí."
+msgstr "Uživatelům %s se tohle líbí."
 
 #: include/conversation.php:1011
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
-msgstr "<span  %1$s>%2$d lidem</span> se to nelíbí"
+msgstr "<span  %1$s>%2$d lidem</span> se tohle nelíbí"
 
 #: include/conversation.php:1012
 #, php-format
 msgid "%s don't like this."
-msgstr "%s se tohle nelíbí."
+msgstr "Uživatelům %s se tohle nelíbí."
 
 #: include/conversation.php:1015
 #, php-format
@@ -530,11 +530,11 @@ msgstr "Náhled"
 
 #: include/conversation.php:1153
 msgid "Post to Groups"
-msgstr "Zveřejnit na Groups"
+msgstr "Zveřejnit ve skupinách"
 
 #: include/conversation.php:1154
 msgid "Post to Contacts"
-msgstr "Zveřejnit na Groups"
+msgstr "Zveřejnit v kontaktech"
 
 #: include/conversation.php:1155
 msgid "Private post"
@@ -596,12 +596,12 @@ msgstr "Děkujeme, "
 #: include/enotify.php:38
 #, php-format
 msgid "%s Administrator"
-msgstr "%s administrátor"
+msgstr "Administrátor %s"
 
 #: include/enotify.php:40
 #, php-format
 msgid "%1$s, %2$s Administrator"
-msgstr "%1$s, %2$s administrátor"
+msgstr "%1$s, administrátor %2$s"
 
 #: include/enotify.php:96
 #, php-format
@@ -740,12 +740,12 @@ msgstr "[Friendica:Oznámení] Obdrženo představení"
 #: include/enotify.php:262
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
-msgstr "Obdržel/a jste představení od \"%1$s\" na %2$s"
+msgstr "Obdržel/a jste představení od uživatele \"%1$s\" na %2$s"
 
 #: include/enotify.php:263
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
-msgstr "Obdržel/a jste [url=%1$s]představení[/url] od %2$s."
+msgstr "Obdržel/a jste [url=%1$s]představení[/url] od uživatele %2$s."
 
 #: include/enotify.php:268 include/enotify.php:314
 #, php-format
@@ -782,13 +782,13 @@ msgstr "[Friendica:Oznámení] Obdržen návrh pro přátelství"
 #: include/enotify.php:305
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
-msgstr "Obdržel jste návrh pro přátelství od '%1$s' na %2$s"
+msgstr "Obdržel/a jste návrh pro přátelství od uživatele \"%1$s\" na %2$s"
 
 #: include/enotify.php:306
 #, php-format
 msgid ""
 "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
-msgstr "Obdržel jste [url=%1$s]návrh pro přátelství[/url] s %2$s from %3$s."
+msgstr "Obdržel/a jste [url=%1$s]návrh pro přátelství[/url] s uživatelem %2$s od uživatele %3$s."
 
 #: include/enotify.php:312
 msgid "Name:"
@@ -810,12 +810,12 @@ msgstr "[Friendica:Oznámení] Spojení akceptováno"
 #: include/enotify.php:326 include/enotify.php:341
 #, php-format
 msgid "'%1$s' has accepted your connection request at %2$s"
-msgstr "\"%1$s\" akceptoval váš požadavek na spojení na %2$s"
+msgstr "\"%1$s\" akceptoval/a Váš požadavek na spojení na %2$s"
 
 #: include/enotify.php:327 include/enotify.php:342
 #, php-format
 msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
-msgstr "%2$s akceptoval váš [url=%1$s]požadavek na spojení[/url]."
+msgstr "%2$s akceptoval/a Váš [url=%1$s]požadavek na spojení[/url]."
 
 #: include/enotify.php:332
 msgid ""
@@ -860,12 +860,12 @@ msgstr "žádost o registraci"
 #: include/enotify.php:363
 #, php-format
 msgid "You've received a registration request from '%1$s' at %2$s"
-msgstr "Obdržel jste žádost o registraci od '%1$s' na %2$s"
+msgstr "Obdržel/a jste žádost o registraci od uživatele \"%1$s\" na %2$s"
 
 #: include/enotify.php:364
 #, php-format
 msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
-msgstr "Obdržel jste [url=%1$s]žádost o registraci[/url] od '%2$s'."
+msgstr "Obdržel/a jste [url=%1$s]žádost o registraci[/url] od uživatele \"%2$s\"."
 
 #: include/enotify.php:369
 #, php-format
@@ -939,7 +939,7 @@ msgstr "Sledovat"
 
 #: include/text.php:985 mod/search.php:156 src/Content/Nav.php:142
 msgid "Search"
-msgstr "Vyhledávání"
+msgstr "Hledat"
 
 #: include/text.php:988 src/Content/Nav.php:58
 msgid "@name, !forum, #tags, content"
@@ -972,7 +972,7 @@ msgstr "šťouchnout"
 
 #: include/text.php:1043
 msgid "poked"
-msgstr "šťouchnul"
+msgstr "šťouchnul/a"
 
 #: include/text.php:1044
 msgid "ping"
@@ -980,7 +980,7 @@ msgstr "cinknout"
 
 #: include/text.php:1044
 msgid "pinged"
-msgstr "cinknul"
+msgstr "cinknul/a"
 
 #: include/text.php:1045
 msgid "prod"
@@ -988,7 +988,7 @@ msgstr "dloubnout"
 
 #: include/text.php:1045
 msgid "prodded"
-msgstr "dloubnul"
+msgstr "dloubnul/a"
 
 #: include/text.php:1046
 msgid "slap"
@@ -996,15 +996,15 @@ msgstr "uhodit"
 
 #: include/text.php:1046
 msgid "slapped"
-msgstr "uhodil"
+msgstr "uhodil/a"
 
 #: include/text.php:1047
 msgid "finger"
-msgstr "osahávat"
+msgstr "osahat"
 
 #: include/text.php:1047
 msgid "fingered"
-msgstr "osahal"
+msgstr "osahal/a"
 
 #: include/text.php:1048
 msgid "rebuff"
@@ -1012,7 +1012,7 @@ msgstr "odmítnout"
 
 #: include/text.php:1048
 msgid "rebuffed"
-msgstr "odmítnul"
+msgstr "odmítnul/a"
 
 #: include/text.php:1062 mod/settings.php:935 src/Model/Event.php:379
 msgid "Monday"
@@ -1361,7 +1361,7 @@ msgid ""
 "On your <em>Settings</em> page -  change your initial password. Also make a "
 "note of your Identity Address. This looks just like an email address - and "
 "will be useful in making friends on the free social web."
-msgstr "Na Vaší stránce <em>Nastavení</em> si změňte Vaše první heslo.\nVěnujte také svou pozornost k adrese Identity. Vypadá jako emailová adresa a bude Vám užitečná pro navazování přátelství na svobodném sociálním webu."
+msgstr "Na Vaší stránce <em>Nastavení</em> si změňte Vaše první heslo. Věnujte také svou pozornost k adrese Identity. Vypadá jako emailová adresa a bude Vám užitečná pro navazování přátelství na svobodném sociálním webu."
 
 #: mod/newmember.php:22
 msgid ""
@@ -2089,7 +2089,7 @@ msgstr "Odpovězte, prosím, následující:"
 #: mod/follow.php:150 mod/dfrn_request.php:647
 #, php-format
 msgid "Does %s know you?"
-msgstr "Zná Vás uživatel %s ?"
+msgstr "Zná Vás %s ?"
 
 #: mod/follow.php:151 mod/dfrn_request.php:648
 msgid "Add a personal note:"
@@ -2607,7 +2607,7 @@ msgstr "Vaše databáze Friendica  byla nainstalována."
 msgid ""
 "You may need to import the file \"database.sql\" manually using phpmyadmin "
 "or mysql."
-msgstr "Pravděpodobně budete muset manuálně importovat soubor \"database.sql\" pomocí phpMyAdmin či MySQL."
+msgstr "Nejspíše budete muset manuálně importovat soubor \"database.sql\" pomocí phpMyAdmin či MySQL."
 
 #: mod/install.php:109 mod/install.php:155 mod/install.php:267
 msgid "Please see the file \"INSTALL.txt\"."
@@ -2639,7 +2639,7 @@ msgstr "Pro instalaci Friendica potřeujeme znát připojení k Vaší databázi
 msgid ""
 "Please contact your hosting provider or site administrator if you have "
 "questions about these settings."
-msgstr "Pokud máte otázky k následujícím nastavením, obraťte se na svého poskytovatele hostingu nebo administrátora serveru, "
+msgstr "Pokud máte otázky k následujícím nastavením, obraťte se na svého poskytovatele hostingu nebo administrátora serveru."
 
 #: mod/install.php:180
 msgid ""
@@ -3491,11 +3491,11 @@ msgstr "Nastavení doplňků"
 
 #: mod/settings.php:767 mod/admin.php:2463 mod/admin.php:2464
 msgid "Off"
-msgstr "Vypnuto"
+msgstr "Vyp"
 
 #: mod/settings.php:767 mod/admin.php:2463 mod/admin.php:2464
 msgid "On"
-msgstr "Zapnuto"
+msgstr "Zap"
 
 #: mod/settings.php:774
 msgid "Additional Features"
@@ -3524,11 +3524,11 @@ msgstr "GNU Social (OStatus)"
 
 #: mod/settings.php:829
 msgid "Email access is disabled on this site."
-msgstr "Přístup k elektronické poště je na tomto serveru zakázán."
+msgstr "Přístup k e-mailu je na tomto serveru zakázán."
 
 #: mod/settings.php:839
 msgid "General Social Media Settings"
-msgstr "General Social Media nastavení"
+msgstr "Obecná nastavení sociálních sítí"
 
 #: mod/settings.php:840
 msgid "Disable Content Warning"
@@ -3833,7 +3833,7 @@ msgstr "Účet pro běžný osobní profil, který vyžaduje manuální potvrzen
 
 #: mod/settings.php:1062 mod/admin.php:1760
 msgid "Soapbox Page"
-msgstr "Stránka \"Soapbox\""
+msgstr "Propagační stránka"
 
 #: mod/settings.php:1063
 msgid ""
@@ -3851,7 +3851,7 @@ msgstr "Automaticky potvrzuje všechny žádosti o přidání kontaktu."
 
 #: mod/settings.php:1070 mod/admin.php:1762
 msgid "Automatic Friend Page"
-msgstr "Automatická stránka přítele"
+msgstr "Stránka s automatickými přátely"
 
 #: mod/settings.php:1071
 msgid ""
@@ -3945,7 +3945,7 @@ msgstr "Povolit, abychom vás navrhovali jako přátelé pro nové členy?"
 #: mod/settings.php:1123
 msgid ""
 "If you like, Friendica may suggest new members to add you as a contact."
-msgstr "Pokud budete chtít, Friendica může nabízet novým členům, abi si Vás přidali jako kontakt."
+msgstr "Pokud budete chtít, může Friendica nabízet novým členům, aby si Vás přidali jako kontakt."
 
 #: mod/settings.php:1127
 msgid "Permit unknown people to send you private mail?"
@@ -4078,7 +4078,7 @@ msgstr "Maximální počet žádostí o přátelství za den:"
 
 #: mod/settings.php:1208 mod/settings.php:1237
 msgid "(to prevent spam abuse)"
-msgstr "(Aby se zabránilo spamu)"
+msgstr "(ay se zabránilo spamu)"
 
 #: mod/settings.php:1209
 msgid "Default Post Permissions"
@@ -4150,7 +4150,7 @@ msgstr "Jste označen v příspěvku"
 
 #: mod/settings.php:1249
 msgid "You are poked/prodded/etc. in a post"
-msgstr "Byl jste šťouchnut(a)/dloubnut(a)/apod. v příspěvku"
+msgstr "Byl/a jste šťouchnut(a)/dloubnut(a)/apod. v příspěvku"
 
 #: mod/settings.php:1251
 msgid "Activate desktop notifications"
@@ -4222,7 +4222,7 @@ msgstr "Zobrazit album"
 
 #: mod/videos.php:396
 msgid "Recent Videos"
-msgstr "Aktuální Videa"
+msgstr "Aktuální videa"
 
 #: mod/videos.php:398
 msgid "Upload New Videos"
@@ -4319,7 +4319,7 @@ msgstr "vyzkoušet webfinger"
 
 #: mod/admin.php:223 src/Content/Nav.php:218
 msgid "Admin"
-msgstr "Administrace"
+msgstr "Administrátor"
 
 #: mod/admin.php:224
 msgid "Addon Features"
@@ -4535,7 +4535,7 @@ msgstr "Smazat tuto položku"
 msgid ""
 "On this page you can delete an item from your node. If the item is a top "
 "level posting, the entire thread will be deleted."
-msgstr "Na této stránce můžete smazat pološku z Vašeho serveru. Pokud je položkou příspěvek nejvyššího stupně, bude smazáno celé vlákno."
+msgstr "Na této stránce můžete smazat položku z Vašeho serveru. Pokud je položkou příspěvek nejvyššího stupně, bude smazáno celé vlákno."
 
 #: mod/admin.php:528
 msgid ""
@@ -5678,7 +5678,7 @@ msgid ""
 "\n"
 "\t\t\tDear %1$s,\n"
 "\t\t\t\tthe administrator of %2$s has set up an account for you."
-msgstr "\n\t\t\tVážený/á%1$s,\n\t\t\t\tadministrátor %2$s pro Vás vytvořil/a uživatelský účet."
+msgstr "\n\t\t\tVážený/á%1$s,\n\t\t\t\tadministrátor %2$s pro Vás vytvořil uživatelský účet."
 
 #: mod/admin.php:1597
 #, php-format
@@ -5809,7 +5809,7 @@ msgstr "Odmítnout"
 
 #: mod/admin.php:1835
 msgid "Site admin"
-msgstr "Site administrátor"
+msgstr "Administrátor webu"
 
 #: mod/admin.php:1836
 msgid "Account expired"
@@ -6339,7 +6339,7 @@ msgstr "Vrátit z archívu"
 
 #: mod/contacts.php:831
 msgid "Batch Actions"
-msgstr "Dávkové (batch) akce"
+msgstr "Souhrnné akce"
 
 #: mod/contacts.php:865 src/Model/Profile.php:894
 msgid "Profile Details"

@@ -4,11 +4,15 @@
  */
 namespace Friendica\Protocol;
 
+use dba;
+use DOMDocument;
+use DOMXPath;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Lock;
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
@@ -19,12 +23,8 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Lock;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
-use dba;
-use DOMDocument;
-use DOMXPath;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
@@ -515,9 +515,9 @@ class OStatus
 							logger("Item with uri ".$item["uri"]." is from a blocked contact.", LOGGER_DEBUG);
 						} else {
 							// We are having duplicated entries. Hopefully this solves it.
-							if (Lock::set('ostatus_process_item_insert')) {
+							if (Lock::acquire('ostatus_process_item_insert')) {
 								$ret = Item::insert($item);
-								Lock::remove('ostatus_process_item_insert');
+								Lock::release('ostatus_process_item_insert');
 								logger("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
 							} else {
 								$ret = Item::insert($item);

@@ -591,8 +591,10 @@ CREATE TABLE IF NOT EXISTS `locks` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`name` varchar(128) NOT NULL DEFAULT '' COMMENT '',
 	`locked` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of lock expiration',
 	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process ID',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `name_expires` (`name`,`expires`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
