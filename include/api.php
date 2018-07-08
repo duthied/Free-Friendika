@@ -773,7 +773,7 @@ function api_get_user(App $a, $contact_id = null)
 		if ($theme_info['theme'] === 'frio') {
 			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
 
-			var_dump($ret['uid'], $schema, $a->config, dba::inArray(dba::select('config', [])));
+			var_dump($ret['uid'], $schema, $a->config, dba::inArray(dba::select('pconfig', [])));
 
 			if ($schema && ($schema != '---')) {
 				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
