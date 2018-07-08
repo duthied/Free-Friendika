@@ -571,9 +571,9 @@ class BBCode extends BaseObject
 					$return = sprintf('<div class="type-%s">', $data["type"]);
 				}
 
-				if ($data["image"] != "") {
+				if (!empty($data["image"])) {
 					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
-				} elseif ($data["preview"] != "") {
+				} elseif (!empty($data["preview"])) {
 					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
 				}
 

@@ -51,7 +51,7 @@ class Item extends BaseObject
 			'attach', 'tag', 'bookmark', 'deleted', 'extid',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
-			'signed_text', 'signature', 'signer'];
+			'signed_text', 'signature', 'signer', 'network'];
 
 	// Field list for "item-content" table that is mixed with the item table
 	const MIXED_CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
@@ -1030,10 +1030,8 @@ class Item extends BaseObject
 
 	private static function guid($item, $notify)
 	{
-		$guid =	notags(trim($item['guid']));
-
-		if (!empty($guid)) {
-			return $guid;
+		if (!empty($item['guid'])) {
+			return notags(trim($item['guid']));
 		}
 
 		if ($notify) {

@@ -55,9 +55,9 @@ class OStatus
 	private static function fetchAuthor($xpath, $context, $importer, &$contact, $onlyfetch)
 	{
 		$author = [];
-		$author["author-link"] = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
-		$author["author-name"] = $xpath->evaluate('atom:author/atom:name/text()', $context)->item(0)->nodeValue;
-		$addr = $xpath->evaluate('atom:author/atom:email/text()', $context)->item(0)->nodeValue;
+		$author["author-link"] = XML::getFirstNodeValue($xpath, 'atom:author/atom:uri/text()', $context);
+		$author["author-name"] = XML::getFirstNodeValue($xpath, 'atom:author/atom:name/text()', $context);
+		$addr = XML::getFirstNodeValue($xpath, 'atom:author/atom:email/text()', $context);
 
 		$aliaslink = $author["author-link"];
 
@@ -126,7 +126,7 @@ class OStatus
 			$author["author-avatar"] = Probe::fixAvatar(current($avatarlist), $author["author-link"]);
 		}
 
-		$displayname = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
+		$displayname = XML::getFirstNodeValue($xpath, 'atom:author/poco:displayName/text()', $context);
 		if ($displayname != "") {
 			$author["author-name"] = $displayname;
 		}
@@ -155,27 +155,27 @@ class OStatus
 			$contact['url'] = $author["author-link"];
 			$contact['nurl'] = normalise_link($contact['url']);
 
-			$value = $xpath->evaluate('atom:author/atom:uri/text()', $context)->item(0)->nodeValue;
+			$value = XML::getFirstNodeValue($xpath, 'atom:author/atom:uri/text()', $context);
 			if ($value != "") {
 				$contact["alias"] = $value;
 			}
 
-			$value = $xpath->evaluate('atom:author/poco:displayName/text()', $context)->item(0)->nodeValue;
+			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:displayName/text()', $context);
 			if ($value != "") {
 				$contact["name"] = $value;
 			}
 
-			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $context)->item(0)->nodeValue;
+			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:preferredUsername/text()', $context);
 			if ($value != "") {
 				$contact["nick"] = $value;
 			}
 
-			$value = $xpath->evaluate('atom:author/poco:note/text()', $context)->item(0)->nodeValue;
+			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:note/text()', $context);
 			if ($value != "") {
 				$contact["about"] = HTML::toBBCode($value);
 			}
 
-			$value = $xpath->evaluate('atom:author/poco:address/poco:formatted/text()', $context)->item(0)->nodeValue;
+			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:address/poco:formatted/text()', $context);
 			if ($value != "") {
 				$contact["location"] = $value;
 			}
@@ -390,7 +390,7 @@ class OStatus
 				$author = self::fetchAuthor($xpath, $entry, $importer, $contact, $stored);
 			}
 
-			$value = $xpath->evaluate('atom:author/poco:preferredUsername/text()', $entry)->item(0)->nodeValue;
+			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:preferredUsername/text()', $context);
 			if ($value != "") {
 				$nickname = $value;
 			} else {
@@ -399,9 +399,9 @@ class OStatus
 
 			$item = array_merge($header, $author);
 
-			$item["uri"] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+			$item["uri"] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
-			$item["verb"] = $xpath->query('activity:verb/text()', $entry)->item(0)->nodeValue;
+			$item["verb"] = XML::getFirstNodeValue($xpath, 'activity:verb/text()', $entry);
 
 			// Delete a message
 			if (in_array($item["verb"], ['qvitter-delete-notice', ACTIVITY_DELETE, 'delete'])) {
@@ -561,19 +561,18 @@ class OStatus
 	 */
 	private static function processPost($xpath, $entry, &$item, $importer)
 	{
-		$item["body"] = HTML::toBBCode($xpath->query('atom:content/text()', $entry)->item(0)->nodeValue);
-		$item["object-type"] = $xpath->query('activity:object-type/text()', $entry)->item(0)->nodeValue;
+		$item["body"] = HTML::toBBCode(XML::getFirstNodeValue($xpath, 'atom:content/text()', $entry));
+		$item["object-type"] = XML::getFirstNodeValue($xpath, 'activity:object-type/text()', $entry);
 		if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
-			$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
-			$item["body"] = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
+			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
+			$item["body"] = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry);
 		} elseif ($item["object-type"] == ACTIVITY_OBJ_QUESTION) {
-			$item["title"] = $xpath->query('atom:title/text()', $entry)->item(0)->nodeValue;
+			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 		}
 
-		$item["created"] = $xpath->query('atom:published/text()', $entry)->item(0)->nodeValue;
-		$item["edited"] = $xpath->query('atom:updated/text()', $entry)->item(0)->nodeValue;
-		$conversation = $xpath->query('ostatus:conversation/text()', $entry)->item(0)->nodeValue;
-		$item['conversation-uri'] = $conversation;
+		$item["created"] = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
+		$item["edited"] = XML::getFirstNodeValue($xpath, 'atom:updated/text()', $entry);
+		$item['conversation-uri'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
 
 		$conv = $xpath->query('ostatus:conversation', $entry);
 		if (is_object($conv->item(0))) {
@@ -661,7 +660,7 @@ class OStatus
 
 		// Mastodon Content Warning
 		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
-			$clear_text = $xpath->query('atom:summary/text()', $entry)->item(0)->nodeValue;
+			$clear_text = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry);
 			if (!empty($clear_text)) {
 				$item['content-warning'] = HTML::toBBCode($clear_text);
 			}
@@ -787,7 +786,7 @@ class OStatus
 
 			$conv_data['protocol'] = PROTOCOL_SPLITTED_CONV;
 			$conv_data['network'] = NETWORK_OSTATUS;
-			$conv_data['uri'] = $xpath->query('atom:id/text()', $entry)->item(0)->nodeValue;
+			$conv_data['uri'] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
 			$inreplyto = $xpath->query('thr:in-reply-to', $entry);
 			if (is_object($inreplyto->item(0))) {
@@ -798,8 +797,7 @@ class OStatus
 				}
 			}
 
-			$conv = $xpath->query('ostatus:conversation/text()', $entry)->item(0)->nodeValue;
-			$conv_data['conversation-uri'] = $conv;
+			$conv_data['conversation-uri'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
 
 			$conv = $xpath->query('ostatus:conversation', $entry);
 			if (is_object($conv->item(0))) {
@@ -1003,7 +1001,7 @@ class OStatus
 
 		$link_data = [];
 
-		$orig_uri = $xpath->query('atom:id/text()', $activityobjects)->item(0)->nodeValue;
+		$orig_uri = XML::getFirstNodeValue($xpath, 'atom:id/text()', $activityobjects);
 
 		$links = $xpath->query("atom:link", $activityobjects);
 		if ($links) {
@@ -1173,12 +1171,12 @@ class OStatus
 
 		$guid = "";
 		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$guid = $matches[1];
 		}
 
 		preg_match('/guid="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$guid = $matches[1];
 		}
 

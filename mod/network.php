@@ -699,9 +699,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$order_mode = 'commented';
 	}
 
-	if ($sql_order == '') {
-		$sql_order = "$sql_table.$ordering";
-	}
+	$sql_order = "$sql_table.$ordering";
 
 	if (x($_GET, 'offset')) {
 		$sql_range = sprintf(" AND $sql_order <= '%s'", dbesc($_GET['offset']));

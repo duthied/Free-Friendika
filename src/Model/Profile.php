@@ -112,7 +112,7 @@ class Profile
 			}
 		}
 
-		$pdata = self::getByNickname($nickname, $user[0]['uid'], $profile);
+		$pdata = self::getByNickname($nickname, $user['uid'], $profile);
 
 		if (empty($pdata) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);

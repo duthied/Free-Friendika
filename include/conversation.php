@@ -721,6 +721,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					continue;
 				}
 
+				/// @todo Check if this call is needed or not
+				$arr = ['item' => $item];
 				Addon::callHooks('display_item', $arr);
 
 				$item['pagedrop'] = $page_dropping;

@@ -431,4 +431,19 @@ class XML
 		}
 		return $x;
 	}
+
+	public static function getFirstNodeValue($xpath, $element, $context = null)
+	{
+		$result = $xpath->evaluate($element, $context);
+		if (!is_object($result)) {
+			return '';
+		}
+
+		$first_item = $result->item(0);
+		if (!is_object($first_item)) {
+			return '';
+		}
+
+		return $first_item->nodeValue;
+	}
 }

@@ -65,13 +65,13 @@ function display_init(App $a)
 		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => false, 'uid' => 0]);
 	}
 
-	if (!DBM::is_result($item) || $item['deleted']) {
+	if (!DBM::is_result($item)) {
 		$a->error = 404;
 		notice(L10n::t('Item not found.') . EOL);
 		return;
 	}
 
-	if (strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
+	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
 		logger('Directly serving XML for id '.$item["id"], LOGGER_DEBUG);
 		displayShowFeed($item["id"], false);
 	}
@@ -347,19 +347,20 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		Item::update(['unseen' => false], $condition);
 	}
 
-	$items = conv_sort(Item::inArray($items_obj), "`commented`");
+	$items = Item::inArray($items_obj);
+	$conversation_items = conv_sort($items, "`commented`");
 
 	if (!$update) {
 		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
 	}
-	$o .= conversation($a, $items, 'display', $update_uid, false, 'commented', local_user());
+	$o .= conversation($a, $conversation_items, 'display', $update_uid, false, 'commented', local_user());
 
 	// Preparing the meta header
-	$description = trim(HTML::toPlaintext(BBCode::convert($s[0]["body"], false), 0, true));
-	$title = trim(HTML::toPlaintext(BBCode::convert($s[0]["title"], false), 0, true));
-	$author_name = $s[0]["author-name"];
+	$description = trim(HTML::toPlaintext(BBCode::convert($items[0]["body"], false), 0, true));
+	$title = trim(HTML::toPlaintext(BBCode::convert($items[0]["title"], false), 0, true));
+	$author_name = $items[0]["author-name"];
 
-	$image = $a->remove_baseurl($s[0]["author-thumb"]);
+	$image = $a->remove_baseurl($items[0]["author-avatar"]);
 
 	if ($title == "") {
 		$title = $author_name;
@@ -391,7 +392,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$s[0]["plink"].'" />'."\n";
+	$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$items[0]["plink"].'" />'."\n";
 
 	// Dublin Core
 	$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
@@ -401,7 +402,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
 	$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:url" content="'.$s[0]["plink"].'" />'."\n";
+	$a->page['htmlhead'] .= '<meta property="og:url" content="'.$items[0]["plink"].'" />'."\n";
 	$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
 	// article:tag
