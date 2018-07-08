@@ -412,11 +412,17 @@ class App
 	public function set_baseurl($url)
 	{
 		$parsed = @parse_url($url);
+		$hostname = '';
 
 		if (x($parsed)) {
-			$this->scheme = $parsed['scheme'];
+			if (!empty($parsed['scheme'])) {
+				$this->scheme = $parsed['scheme'];
+			}
 
-			$hostname = $parsed['host'];
+			if (!empty($parsed['host'])) {
+				$hostname = $parsed['host'];
+			}
+
 			if (x($parsed, 'port')) {
 				$hostname .= ':' . $parsed['port'];
 			}
@@ -432,7 +438,7 @@ class App
 				$this->hostname = Config::get('config', 'hostname');
 			}
 
-			if (!isset($this->hostname) || ( $this->hostname == '')) {
+			if (!isset($this->hostname) || ($this->hostname == '')) {
 				$this->hostname = $hostname;
 			}
 		}

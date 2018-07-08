@@ -781,22 +781,23 @@ class Image
 			$img_str = Network::fetchUrl($url, true, $redirects, 4);
 			$filesize = strlen($img_str);
 
-			// The tests are failing with an read error. This can be caused by memory shortage
-			// See https://stackoverflow.com/questions/10175758/getimagesize-read-error
-			// So we use the alternate method instead
-			//if (function_exists("getimagesizefromstring")) {
-			//	$data = getimagesizefromstring($img_str);
-			//} else {
-				$tempfile = tempnam(get_temppath(), "cache");
+			try {
+				if (function_exists("getimagesizefromstring")) {
+					$data = getimagesizefromstring($img_str);
+				} else {
+					$tempfile = tempnam(get_temppath(), "cache");
 
-				$a = get_app();
-				$stamp1 = microtime(true);
-				file_put_contents($tempfile, $img_str);
-				$a->save_timestamp($stamp1, "file");
+					$a = get_app();
+					$stamp1 = microtime(true);
+					file_put_contents($tempfile, $img_str);
+					$a->save_timestamp($stamp1, "file");
 
-				$data = getimagesize($tempfile);
-				unlink($tempfile);
-			//}
+					$data = getimagesize($tempfile);
+					unlink($tempfile);
+				}
+			} catch (Exception $e) {
+				return false;
+			}
 
 			if ($data) {
 				$data["size"] = $filesize;
