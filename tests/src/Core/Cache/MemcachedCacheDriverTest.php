@@ -19,8 +19,7 @@ class MemcachedCacheDriverTest extends MemoryCacheTest
 			try {
 				$this->cache = CacheDriverFactory::create('memcached');
 			} catch (\Exception $exception) {
-				print "Memcached - TestCase failed: " . $exception->getMessage();
-				throw new \Exception();
+				throw new \Exception("Memcached - TestCase failed: " . $exception->getMessage(), $exception->getCode(), $exception);
 			}
 			return $this->cache;
 		} else {
