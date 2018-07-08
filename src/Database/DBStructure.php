@@ -4,10 +4,9 @@
  */
 namespace Friendica\Database;
 
+use dba;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
-use dba;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -413,7 +412,7 @@ class DBStructure
 					$field_definition = $database[$name]["fields"][$fieldname];
 
 					// Define the default collation if not given
-					if (!isset($parameters['Collation']) && !is_null($field_definition['Collation'])) {
+					if (!isset($parameters['Collation']) && !empty($field_definition['Collation'])) {
 						$parameters['Collation'] = 'utf8mb4_general_ci';
 					} else {
 						$parameters['Collation'] = null;
@@ -537,26 +536,26 @@ class DBStructure
 	private static function FieldCommand($parameters, $create = true) {
 		$fieldstruct = $parameters["type"];
 
-		if (!is_null($parameters["Collation"])) {
+		if (!empty($parameters["Collation"])) {
 			$fieldstruct .= " COLLATE ".$parameters["Collation"];
 		}
 
-		if ($parameters["not null"]) {
+		if (!empty($parameters["not null"])) {
 			$fieldstruct .= " NOT NULL";
 		}
 
-		if (isset($parameters["default"])) {
+		if (!empty($parameters["default"])) {
 			if (strpos(strtolower($parameters["type"]),"int")!==false) {
 				$fieldstruct .= " DEFAULT ".$parameters["default"];
 			} else {
 				$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
 			}
 		}
-		if ($parameters["extra"] != "") {
+		if (!empty($parameters["extra"])) {
 			$fieldstruct .= " ".$parameters["extra"];
 		}
 
-		if (!is_null($parameters["comment"])) {
+		if (!empty($parameters["comment"])) {
 			$fieldstruct .= " COMMENT '".dbesc($parameters["comment"])."'";
 		}
 
@@ -580,7 +579,7 @@ class DBStructure
 			}
 		}
 
-		if (!is_null($structure["indexes"])) {
+		if (!empty($structure["indexes"])) {
 			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 				$sql_index = self::createIndex($indexname, $fieldnames, "");
 				if (!is_null($sql_index)) {
@@ -589,11 +588,11 @@ class DBStructure
 			}
 		}
 
-		if (!is_null($structure["engine"])) {
+		if (!empty($structure["engine"])) {
 			$engine = " ENGINE=" . $structure["engine"];
 		}
 
-		if (!is_null($structure["comment"])) {
+		if (!empty($structure["comment"])) {
 			$comment = " COMMENT='" . dbesc($structure["comment"]) . "'";
 		}
 
@@ -1299,9 +1298,11 @@ class DBStructure
 						"name" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""],
 						"locked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 						"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process ID"],
-						],
+						"expires" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of cache expiration"],
+				],
 				"indexes" => [
 						"PRIMARY" => ["id"],
+						"name_expires" => ["name", "expires"]
 						]
 				];
 		$database["mail"] = [

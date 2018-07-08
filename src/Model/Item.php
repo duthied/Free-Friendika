@@ -6,26 +6,22 @@
 
 namespace Friendica\Model;
 
+use dba;
 use Friendica\BaseObject;
 use Friendica\Content\Text;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Lock;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\Conversation;
-use Friendica\Model\Group;
-use Friendica\Model\Term;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
-use Friendica\Util\Lock;
-use dba;
 use Text_LanguageDetect;
 
 require_once 'boot.php';
@@ -940,7 +936,9 @@ class Item extends BaseObject
 		// If item has attachments, drop them
 		foreach (explode(", ", $item['attach']) as $attach) {
 			preg_match("|attach/(\d+)|", $attach, $matches);
-			dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+			if (is_array($matches) && count($matches) > 1) {
+				dba::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+			}
 		}
 
 		// Delete tags that had been attached to other items
@@ -1773,7 +1771,7 @@ class Item extends BaseObject
 		}
 
 		// To avoid timing problems, we are using locks.
-		$locked = Lock::set('item_insert_content');
+		$locked = Lock::acquire('item_insert_content');
 		if (!$locked) {
 			logger("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}
@@ -1793,7 +1791,7 @@ class Item extends BaseObject
 			logger('Could not insert content for URI ' . $item['uri'] . ' - trying asynchronously');
 		}
 		if ($locked) {
-			Lock::remove('item_insert_content');
+			Lock::release('item_insert_content');
 		}
 	}
 
@@ -2208,7 +2206,7 @@ class Item extends BaseObject
 			Contact::unmarkForArchival($contact);
 		}
 
-		$update = (!$arr['private'] && (($arr["author-link"] === $arr["owner-link"]) || ($arr["parent-uri"] === $arr["uri"])));
+		$update = (!$arr['private'] && ((defaults($arr, 'author-link', '') === defaults($arr, 'owner-link', '')) || ($arr["parent-uri"] === $arr["uri"])));
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && ($arr["network"] == NETWORK_DFRN) && ($arr["parent-uri"] === $arr["uri"])) {

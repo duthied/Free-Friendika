@@ -181,7 +181,10 @@ class App
 
 		$this->process_id = uniqid('log', true);
 
-		startup();
+		set_time_limit(0);
+
+		// This has to be quite large to deal with embedded private photos
+		ini_set('pcre.backtrack_limit', 500000);
 
 		$this->scheme = 'http';
 
@@ -290,7 +293,7 @@ class App
 		$this->is_tablet = $mobile_detect->isTablet();
 
 		// Friendica-Client
-		$this->is_friendica_app = ($_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)');
+		$this->is_friendica_app = isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)';
 
 		// Register template engines
 		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
@@ -863,7 +866,7 @@ class App
 			return;
 		}
 
-		array_unshift($args, ((x($this->config, 'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
+		array_unshift($args, $this->getConfigValue('config', 'php_path', 'php'));
 
 		for ($x = 0; $x < count($args); $x ++) {
 			$args[$x] = escapeshellarg($args[$x]);
@@ -875,7 +878,7 @@ class App
 			return;
 		}
 
-		if (Config::get('system', 'proc_windows')) {
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->get_basepath());
 		} else {
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->get_basepath());
