@@ -181,7 +181,7 @@ class Item extends BaseObject
 			if (array_key_exists('object-type', $row)) {
 				$row['object-type'] = ACTIVITY_OBJ_NOTE;
 			}
-		} elseif (in_array($row['verb'], ['', ACTIVITY_POST, ACTIVITY_SHARE])) {
+		} elseif (array_key_exists('verb', $row) && in_array($row['verb'], ['', ACTIVITY_POST, ACTIVITY_SHARE])) {
 			// Posts don't have an object or target - but having tags or files.
 			// We safe some performance by building tag and file strings only here.
 			// We remove object and target since they aren't used for this type.
@@ -191,15 +191,16 @@ class Item extends BaseObject
 			if (array_key_exists('target', $row)) {
 				$row['target'] = '';
 			}
-			// Build the tag string out of the term entries
-			if (array_key_exists('tag', $row) && empty($row['tag'])) {
-				$row['tag'] = Term::tagTextFromItemId($row['internal-iid']);
-			}
+		}
 
-			// Build the file string out of the term entries
-			if (array_key_exists('file', $row) && empty($row['file'])) {
-				$row['file'] = Term::fileTextFromItemId($row['internal-iid']);
-			}
+		// Build the tag string out of the term entries
+		if (array_key_exists('tag', $row) && empty($row['tag'])) {
+			$row['tag'] = Term::tagTextFromItemId($row['internal-iid']);
+		}
+
+		// Build the file string out of the term entries
+		if (array_key_exists('file', $row) && empty($row['file'])) {
+			$row['file'] = Term::fileTextFromItemId($row['internal-iid']);
 		}
 
 		// Remove internal fields
