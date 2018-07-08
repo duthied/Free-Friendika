@@ -1,6 +1,9 @@
 <?php
 
-use Friendica\Core\Config;
+// Do not use Core\Config in this class at risk of infinite loop.
+// Please use App->getConfigVariable() instead.
+//use Friendica\Core\Config;
+
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
@@ -383,7 +386,7 @@ class dba {
 
 		$orig_sql = $sql;
 
-		if (Config::get('system', 'db_callstack')) {
+		if ($a->getConfigValue('system', 'db_callstack')) {
 			$sql = "/*".System::callstack()." */ ".$sql;
 		}
 
@@ -544,15 +547,15 @@ class dba {
 
 		$a->save_timestamp($stamp1, 'database');
 
-		if (Config::get('system', 'db_log')) {
+		if ($a->getConfigValue('system', 'db_log')) {
 			$stamp2 = microtime(true);
 			$duration = (float)($stamp2 - $stamp1);
 
-			if (($duration > Config::get('system', 'db_loglimit'))) {
+			if (($duration > $a->getConfigValue('system', 'db_loglimit'))) {
 				$duration = round($duration, 3);
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-				@file_put_contents(Config::get('system', 'db_log'), DateTimeFormat::utcNow()."\t".$duration."\t".
+				@file_put_contents($a->getConfigValue('system', 'db_log'), DateTimeFormat::utcNow()."\t".$duration."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
 						substr(self::replaceParameters($sql, $args), 0, 2000)."\n", FILE_APPEND);
