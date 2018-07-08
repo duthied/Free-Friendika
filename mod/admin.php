@@ -1465,7 +1465,8 @@ function admin_page_site(App $a)
 		'$relay_server_tags' 	=> ['relay_server_tags', L10n::t("Server tags"), Config::get('system','relay_server_tags'), L10n::t("Comma separated list of tags for the 'tags' subscription.")],
 		'$relay_user_tags' 	=> ['relay_user_tags', L10n::t("Allow user tags"), Config::get('system', 'relay_user_tags', true), L10n::t("If enabled, the tags from the saved searches will used for the 'tags' subscription in addition to the 'relay_server_tags'.")],
 
-		'$form_security_token'	=> get_form_security_token("admin_site")
+		'$form_security_token'	=> get_form_security_token("admin_site"),
+		'$relocate_button'      => L10n::t('Start Relocation'),
 	]);
 }
 
