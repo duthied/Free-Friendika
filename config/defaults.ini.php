@@ -76,11 +76,11 @@ addon =
 
 ; allowed_link_protocols (Array)
 ; Allowed protocols in links URLs, add at your own risk. http is always allowed.
-allowed_link_protocols[] = ftp
-allowed_link_protocols[] = ftps
-allowed_link_protocols[] = mailto
-allowed_link_protocols[] = cid
-allowed_link_protocols[] = gopher
+allowed_link_protocols[0] = ftp
+allowed_link_protocols[1] = ftps
+allowed_link_protocols[2] = mailto
+allowed_link_protocols[3] = cid
+allowed_link_protocols[4] = gopher
 
 ; always_show_preview (Boolean)
 ; Only show small preview picures.
@@ -297,7 +297,7 @@ memcache_port = 11211
 
 ; memcached_hosts (Array)
 ; Array of Memcached servers info "host, port(, weight)".
-memcached_hosts[] = 127.0.0.1, 11211
+memcached_hosts[0] = 127.0.0.1,11211
 
 ; redis_host (String)
 ; Host name of the redis daemon.
