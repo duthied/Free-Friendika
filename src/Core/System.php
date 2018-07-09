@@ -186,7 +186,7 @@ EOT;
 	{
 		if (is_bool($prefix) && !$prefix) {
 			$prefix = '';
-		} elseif (!isset($prefix)) {
+		} elseif (!empty($prefix)) {
 			$prefix = hash('crc32', self::getApp()->get_hostname());
 		}
 
