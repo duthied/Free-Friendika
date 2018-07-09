@@ -9,6 +9,7 @@ class SystemTest extends TestCase
 {
 	private function assertGuid($guid, $length)
 	{
+		print $guid;
 		$this->assertRegExp("/^[a-z0-9]{" . $length . "}?$/", $guid);
 	}
 
@@ -18,8 +19,13 @@ class SystemTest extends TestCase
 		$this->assertGuid($guid, 16);
 	}
 
-	function testGuidWithSize() {
-		$guid = System::createGUID(20);
-		$this->assertGuid($guid, 20);
+	function testGuidWithSize32() {
+		$guid = System::createGUID(32);
+		$this->assertGuid($guid, 32);
+	}
+
+	function testGuidWithSize64() {
+		$guid = System::createGUID(64);
+		$this->assertGuid($guid, 64);
 	}
 }
