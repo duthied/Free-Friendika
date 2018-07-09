@@ -2,6 +2,8 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
+use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Test\DatabaseTest;
 use Friendica\Util\DateTimeFormat;
 
@@ -16,8 +18,20 @@ abstract class CacheTest extends DatabaseTest
 
 	protected function setUp()
 	{
+		global $a;
 		parent::setUp();
 		$this->instance = $this->getInstance();
+
+		// Reusable App object
+		$this->app = new App(__DIR__.'/../');
+		$a = $this->app;
+
+		// Default config
+		Config::set('config', 'hostname', 'localhost');
+		Config::set('system', 'throttle_limit_day', 100);
+		Config::set('system', 'throttle_limit_week', 100);
+		Config::set('system', 'throttle_limit_month', 100);
+		Config::set('system', 'theme', 'system_theme');
 	}
 
 	function testSimple() {

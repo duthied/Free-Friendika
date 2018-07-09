@@ -5,6 +5,7 @@
 
 namespace Friendica\Test;
 
+use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Network\BadRequestException;
@@ -25,7 +26,12 @@ class ApiTest extends DatabaseTest
 	 */
 	protected function setUp()
 	{
+		global $a;
 		parent::setUp();
+
+		// Reusable App object
+		$this->app = new App(__DIR__.'/../');
+		$a = $this->app;
 
 		// User data that the test database is populated with
 		$this->selfUser = [
@@ -56,6 +62,13 @@ class ApiTest extends DatabaseTest
 			'authenticated' => true,
 			'uid' => $this->selfUser['id']
 		];
+
+		// Default config
+		Config::set('config', 'hostname', 'localhost');
+		Config::set('system', 'throttle_limit_day', 100);
+		Config::set('system', 'throttle_limit_week', 100);
+		Config::set('system', 'throttle_limit_month', 100);
+		Config::set('system', 'theme', 'system_theme');
 	}
 
 	/**

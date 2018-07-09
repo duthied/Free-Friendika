@@ -6,8 +6,6 @@
 namespace Friendica\Test;
 
 use dba;
-use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Database\DBStructure;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
@@ -19,34 +17,8 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class DatabaseTest extends TestCase
 {
-	/**
-	 * @var \Friendica\App
-	 */
-	protected $app;
 
 	use TestCaseTrait;
-
-	/**
-	 * Creates basic instances for testing with databases
-	 *
-	 * @throws \Exception
-	 */
-	protected function setUp()
-	{
-		global $a;
-		parent::setUp();
-
-		// Reusable App object
-		$this->app = new App(__DIR__.'/../');
-		$a = $this->app;
-
-		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
-	}
 
 	/**
 	 * Renames an eventually existing .htconfig.php to .htconfig.php.tmp
