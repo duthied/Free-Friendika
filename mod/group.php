@@ -85,6 +85,10 @@ function group_content(App $a) {
 	}
 
 	// Switch to text mode interface if we have more than 'n' contacts or group members
+	
+	if ($a->argc == 1) {
+		goaway(System::baseUrl() . '/contacts');
+	}
 
 	$switchtotext = PConfig::get(local_user(), 'system', 'groupedit_image_limit');
 	if (is_null($switchtotext)) {
