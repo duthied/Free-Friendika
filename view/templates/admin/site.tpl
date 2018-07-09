@@ -169,7 +169,7 @@
 	<h3>{{$relocate}}</h3>
 	{{include file="field_input.tpl" field=$relocate_url}}
 	<input type="hidden" name="page_site" value="{{$submit|escape:'html'}}">
-	<div class="submit"><input type="submit" name="relocate" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="relocate" value="{{$relocate_button|escape:'html'}}" /></div>
 	</form>
 
 </div>
