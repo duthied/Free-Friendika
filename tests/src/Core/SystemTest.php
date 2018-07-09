@@ -7,10 +7,11 @@ use PHPUnit\Framework\TestCase;
 
 class SystemTest extends TestCase
 {
-	private function assertGuid($guid, $length)
+	private function assertGuid($guid, $length, $prefix = '')
 	{
 		print $guid;
-		$this->assertRegExp("/^[a-z0-9]{" . $length . "}?$/", $guid);
+		$length -= strlen($prefix);
+		$this->assertRegExp("/^" . $prefix . "[a-z0-9]{" . $length . "}?$/", $guid);
 	}
 
 	function testGuidWithoutParameter()
@@ -27,5 +28,10 @@ class SystemTest extends TestCase
 	function testGuidWithSize64() {
 		$guid = System::createGUID(64);
 		$this->assertGuid($guid, 64);
+	}
+
+	function testGuidWithPrefix() {
+		$guid = System::createGUID(23, 'test');
+		$this->assertGuid($guid, 23, 'test');
 	}
 }
