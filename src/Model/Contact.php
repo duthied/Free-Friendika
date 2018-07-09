@@ -696,49 +696,20 @@ class Contact extends BaseObject
 	 *
 	 * @return array
 	 */
-	public static function getUngroupedList($uid, $start = 0, $count = 0)
+	public static function getUngroupedList($uid)
 	{
-		if (!$count) {
-			$r = q(
-				"SELECT COUNT(*) AS `total`
-				 FROM `contact`
-				 WHERE `uid` = %d
-				 AND NOT `self`
-				 AND NOT `blocked`
-				 AND NOT `pending`
-				 AND `id` NOT IN (
-					SELECT DISTINCT(`contact-id`)
-					FROM `group_member`
-					WHERE `uid` = %d
-				)",
-				intval($uid),
-				intval($uid)
-			);
-
-			return $r;
-		}
-
-		$r = q(
-			"SELECT *
-			FROM `contact`
-			WHERE `uid` = %d
-			AND NOT `self`
-			AND NOT `blocked`
-			AND NOT `pending`
-			AND `id` NOT IN (
-				SELECT DISTINCT(`contact-id`)
-				FROM `group_member`
-				INNER JOIN `group` ON `group`.`id` = `group_member`.`gid`
-				WHERE `group`.`uid` = %d
-			)
-			LIMIT %d, %d",
-			intval($uid),
-			intval($uid),
-			intval($start),
-			intval($count)
-		);
-
-		return $r;
+		return q("SELECT *
+			   FROM `contact`
+			   WHERE `uid` = %d
+			   AND NOT `self`
+			   AND NOT `blocked`
+			   AND NOT `pending`
+			   AND `id` NOT IN (
+			   	SELECT DISTINCT(`contact-id`)
+			   	FROM `group_member`
+			   	INNER JOIN `group` ON `group`.`id` = `group_member`.`gid`
+			   	WHERE `group`.`uid` = %d
+			   )", intval($uid), intval($uid));
 	}
 
 	/**
