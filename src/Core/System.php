@@ -175,9 +175,36 @@ EOT;
 		killme();
 	}
 
+	/**
+	 * Generates a GUID with the given parameters
+	 *
+	 * @param int          $size     The size of the GUID (default is 16)
+	 * @param bool|string  $prefix   A given prefix (default is empty)
+	 * @return string a generated GUID
+	 */
+	public static function createGUID($size = 16, $prefix = '')
+	{
+		if (is_bool($prefix) && !$prefix) {
+			$prefix = '';
+		} elseif (empty($prefix)) {
+			$prefix = hash('crc32', self::getApp()->get_hostname());
+		}
+
+		while (strlen($prefix) < ($size - 13)) {
+			$prefix .= mt_rand();
+		}
+
+		if ($size >= 24) {
+			$prefix = substr($prefix, 0, $size - 22);
+			return str_replace('.', '', uniqid($prefix, true));
+		} else {
+			$prefix = substr($prefix, 0, max($size - 13, 0));
+			return uniqid($prefix);
+		}
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
-	function get_guid($size = 16, $prefix = "")
 	function killme()
 	function goaway($s)
 	function local_user()

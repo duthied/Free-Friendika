@@ -4534,7 +4534,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 	$owner_record = q("SELECT * FROM `contact` WHERE `uid`= %d AND `self` LIMIT 1", intval(api_user()));
 
 	$arr = [];
-	$arr['guid']          = get_guid(32);
+	$arr['guid']          = System::createGUID(32);
 	$arr['uid']           = intval(api_user());
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;

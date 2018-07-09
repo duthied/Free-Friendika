@@ -835,28 +835,6 @@ function check_addons(App $a)
 	return;
 }
 
-function get_guid($size = 16, $prefix = '')
-{
-	if (is_bool($prefix) && !$prefix) {
-		$prefix = '';
-	} elseif ($prefix == '') {
-		$a = get_app();
-		$prefix = hash('crc32', $a->get_hostname());
-	}
-
-	while (strlen($prefix) < ($size - 13)) {
-		$prefix .= mt_rand();
-	}
-
-	if ($size >= 24) {
-		$prefix = substr($prefix, 0, $size - 22);
-		return str_replace('.', '', uniqid($prefix, true));
-	} else {
-		$prefix = substr($prefix, 0, max($size - 13, 0));
-		return uniqid($prefix);
-	}
-}
-
 /**
  * @brief Used to end the current process, after saving session state.
  * @deprecated
