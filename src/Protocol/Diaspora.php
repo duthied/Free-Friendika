@@ -3220,7 +3220,7 @@ class Diaspora
 		$author = self::myHandle($owner);
 
 		$message = ["author" => $author,
-				"guid" => get_guid(32),
+				"guid" => System::createGUID(32),
 				"parent_type" => "Post",
 				"parent_guid" => $item["guid"]];
 

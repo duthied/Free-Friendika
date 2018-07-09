@@ -232,7 +232,7 @@ function item_post(App $a) {
 		$emailcc           =      notags(trim(defaults($_REQUEST, 'emailcc' , '')));
 		$body              = escape_tags(trim(defaults($_REQUEST, 'body'    , '')));
 		$network           =      notags(trim(defaults($_REQUEST, 'network' , NETWORK_DFRN)));
-		$guid              = get_guid(32);
+		$guid              =      System::createGUID(32);
 
 		$postopts = defaults($_REQUEST, 'postopts', '');
 

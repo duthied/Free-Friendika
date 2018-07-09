@@ -1549,7 +1549,7 @@ function return_bytes($size_str) {
 function generate_user_guid() {
 	$found = true;
 	do {
-		$guid = get_guid(32);
+		$guid = System::createGUID(32);
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 			dbesc($guid)
 		);
