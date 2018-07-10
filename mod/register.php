@@ -21,8 +21,6 @@ function register_post(App $a)
 {
 	check_form_security_token_redirectOnErr('/register', 'register');
 
-	global $lang;
-
 	$verified = 0;
 	$blocked  = 1;
 
@@ -123,7 +121,7 @@ function register_post(App $a)
 			dbesc(DateTimeFormat::utcNow()),
 			intval($user['uid']),
 			dbesc($result['password']),
-			dbesc($lang),
+			dbesc(Config::get('system', 'language')),
 			dbesc($_POST['permonlybox'])
 		);
 

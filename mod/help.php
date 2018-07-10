@@ -6,13 +6,13 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\Markdown;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 
 function load_doc_file($s)
 {
-	global $lang;
-	if (!isset($lang)) $lang = 'en';
+	$lang = Config::get('system', 'language');
 	$b = basename($s);
 	$d = dirname($s);
 	if (file_exists("$d/$lang/$b")) {
@@ -29,8 +29,6 @@ function load_doc_file($s)
 function help_content(App $a)
 {
 	Nav::setSelected('help');
-
-	global $lang;
 
 	$text = '';
 

@@ -209,7 +209,7 @@ invitation_only = false
 jpeg_quality = 100
 
 ; language (String)
-; Admin-created user default language.
+; System default languague, inluding admin-created user default language.
 ; Two-letters ISO 639-1 code.
 language = en
 
