@@ -4,6 +4,9 @@ namespace Friendica\Core\Cache;
 
 use Friendica\Core\Cache;
 
+use Exception;
+use Memcache;
+
 /**
  * Memcache Cache Driver
  *
@@ -15,20 +18,20 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	use TraitCompareDelete;
 
 	/**
-	 * @var \Memcache
+	 * @var Memcache
 	 */
 	private $memcache;
 
 	public function __construct($memcache_host, $memcache_port)
 	{
 		if (!class_exists('Memcache', false)) {
-			throw new \Exception('Memcache class isn\'t available');
+			throw new Exception('Memcache class isn\'t available');
 		}
 
-		$this->memcache = new \Memcache();
+		$this->memcache = new Memcache();
 
 		if (!$this->memcache->connect($memcache_host, $memcache_port)) {
-			throw new \Exception('Expected Memcache server at ' . $memcache_host . ':' . $memcache_port . ' isn\'t available');
+			throw new Exception('Expected Memcache server at ' . $memcache_host . ':' . $memcache_port . ' isn\'t available');
 		}
 	}
 
