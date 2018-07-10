@@ -726,21 +726,21 @@ class Item extends BaseObject
 
 		$author_owner_fields = ['author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link'];
 		foreach ($author_owner_fields as $field) {
-			if (isset($fields[$field])) {
+			if (array_key_exists($field, $fields)) {
 				$fields[$field] = null;
 			}
 		}
 
 		if (array_key_exists('tag', $fields)) {
 			$tags = $fields['tag'];
-			unset($fields['tag']);
+			$fields['tag'] = null;
 		} else {
 			$tags = '';
 		}
 
 		if (array_key_exists('file', $fields)) {
 			$files = $fields['file'];
-			unset($fields['file']);
+			$fields['file'] = null;
 		} else {
 			$files = '';
 		}
@@ -1329,12 +1329,7 @@ class Item extends BaseObject
 		if ($item['network'] == NETWORK_PHANTOM) {
 			logger('Missing network. Called by: '.System::callstack(), LOGGER_DEBUG);
 
-			$contact = Contact::getDetailsByURL($item['author-link'], $item['uid']);
-			if (!empty($contact['network'])) {
-				$item['network'] = $contact["network"];
-			} else {
-				$item['network'] = NETWORK_DFRN;
-			}
+			$item['network'] = NETWORK_DFRN;
 			logger("Set network to " . $item["network"] . " for " . $item["uri"], LOGGER_DEBUG);
 		}
 
@@ -1505,7 +1500,11 @@ class Item extends BaseObject
 		put_item_in_cache($item);
 
 		if ($notify) {
+			$item['edit'] = false;
+			$item['parent'] = $parent_id;
 			Addon::callHooks('post_local', $item);
+			unset($item['edit']);
+			unset($item['parent']);
 		} else {
 			Addon::callHooks('post_remote', $item);
 		}
@@ -1896,6 +1895,8 @@ class Item extends BaseObject
 			return;
 		}
 
+		$origin = $item['origin'];
+
 		unset($item['id']);
 		unset($item['parent']);
 		unset($item['mention']);
@@ -1918,7 +1919,7 @@ class Item extends BaseObject
 			$parents = self::select(['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
 			while ($parent = dba::fetch($parents)) {
 				$users[$parent['uid']] = $parent['uid'];
-				if ($parent['origin'] && !$item['origin']) {
+				if ($parent['origin'] && !$origin) {
 					$origin_uid = $parent['uid'];
 				}
 			}
@@ -2449,7 +2450,7 @@ class Item extends BaseObject
 		}
 
 		// Prevent the forwarding of posts that are forwarded
-		if ($datarray["extid"] == NETWORK_DFRN) {
+		if (!empty($datarray["extid"]) && ($datarray["extid"] == NETWORK_DFRN)) {
 			logger('Already forwarded', LOGGER_DEBUG);
 			return false;
 		}
@@ -2940,6 +2941,7 @@ class Item extends BaseObject
 			'type'          => 'activity',
 			'wall'          => $item['wall'],
 			'origin'        => 1,
+			'network'       => NETWORK_DFRN,
 			'gravity'       => GRAVITY_ACTIVITY,
 			'parent'        => $item['id'],
 			'parent-uri'    => $item['uri'],

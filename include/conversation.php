@@ -349,7 +349,10 @@ function localize_item(&$item)
 	// add sparkle links to appropriate permalinks
 	$author = ['uid' => 0, 'id' => $item['author-id'],
 		'network' => $item['author-network'], 'url' => $item['author-link']];
-	$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
+
+	if (!empty($item['plink'])) {
+		$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
+	}
 }
 
 /**
@@ -482,7 +485,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 		$profile_owner = $a->profile['uid'];
 		if (!$update) {
 			$live_update_div = '<div id="live-display"></div>' . "\r\n"
-				. "<script> var profile_uid = " . $_SESSION['uid'] . ";"
+				. "<script> var profile_uid = " . defaults($_SESSION, 'uid', 0) . ";"
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
@@ -631,8 +634,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 				$tmp_item = [
 					'template' => $tpl,
-					'id' => (($preview) ? 'P0' : $item['item_id']),
-					'guid' => (($preview) ? 'Q0' : $item['guid']),
+					'id' => ($preview ? 'P0' : $item['id']),
+					'guid' => ($preview ? 'Q0' : $item['guid']),
 					'network' => $item['network'],
 					'network_name' => ContactSelector::networkToName($item['network'], $profile_link),
 					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
@@ -679,7 +682,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				$arr = ['item' => $item, 'output' => $tmp_item];
 				Addon::callHooks('display_item', $arr);
 
-				$threads[$threadsid]['id'] = $item['item_id'];
+				$threads[$threadsid]['id'] = $item['id'];
 				$threads[$threadsid]['network'] = $item['network'];
 				$threads[$threadsid]['items'] = [$arr['output']];
 

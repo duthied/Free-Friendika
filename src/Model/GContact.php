@@ -787,11 +787,11 @@ class GContact
 
 		// Bugfix: We had an error in the storing of keywords which lead to the "0"
 		// This value is still transmitted via poco.
-		if ($contact["keywords"] == "0") {
+		if (!empty($contact["keywords"]) && ($contact["keywords"] == "0")) {
 			unset($contact["keywords"]);
 		}
 
-		if ($public_contact[0]["keywords"] == "0") {
+		if (!empty($public_contact[0]["keywords"]) && ($public_contact[0]["keywords"] == "0")) {
 			$public_contact[0]["keywords"] = "";
 		}
 
@@ -996,7 +996,7 @@ class GContact
 
 		$statistics = json_decode($result["body"]);
 
-		if (is_object($statistics->config)) {
+		if (!empty($statistics->config)) {
 			if ($statistics->config->instance_with_ssl) {
 				$server = "https://";
 			} else {
@@ -1006,8 +1006,7 @@ class GContact
 			$server .= $statistics->config->instance_address;
 
 			$hostname = $statistics->config->instance_address;
-		} else {
-			/// @TODO is_object() above means here no object, still $statistics is being used as object
+		} elseif (!empty($statistics)) {
 			if ($statistics->instance_with_ssl) {
 				$server = "https://";
 			} else {
@@ -1019,7 +1018,7 @@ class GContact
 			$hostname = $statistics->instance_address;
 		}
 
-		if (is_object($statistics->users)) {
+		if (!empty($statistics->users)) {
 			foreach ($statistics->users as $nick => $user) {
 				$profile_url = $server."/".$user->nickname;
 
@@ -1027,9 +1026,13 @@ class GContact
 						"name" => $user->fullname,
 						"addr" => $user->nickname."@".$hostname,
 						"nick" => $user->nickname,
-						"about" => $user->bio,
 						"network" => NETWORK_OSTATUS,
 						"photo" => System::baseUrl()."/images/person-175.jpg"];
+
+				if (isset($user->bio)) {
+					$contact["about"] = $user->bio;
+				}
+
 				self::getId($contact);
 			}
 		}

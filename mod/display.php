@@ -140,29 +140,29 @@ function display_fetchauthor($a, $item)
 	if (!$skip) {
 		$author = "";
 		preg_match("/author='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 		}
 		preg_match('/author="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 		}
 		$profile = "";
 		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$profiledata["url"] = $matches[1];
 		}
 		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$profiledata["url"] = $matches[1];
 		}
 		$avatar = "";
 		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$profiledata["photo"] = $matches[1];
 		}
 		preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-		if ($matches[1] != "") {
+		if (!empty($matches[1])) {
 			$profiledata["photo"] = $matches[1];
 		}
 		$profiledata["nickname"] = $profiledata["name"];
@@ -212,6 +212,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$item_parent_uri = $item['parent-uri'];
 	} else {
 		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
+		$item_parent = $item_id;
 
 		if ($a->argc == 2) {
 			$item_parent = 0;

@@ -101,7 +101,7 @@ class Network
 		$a = get_app();
 
 		$parts = parse_url($url);
-		$path_parts = explode('/', $parts['path']);
+		$path_parts = explode('/', defaults($parts, 'path', ''));
 		foreach ($path_parts as $part) {
 		        if (strlen($part) <> mb_strlen($part)) {
 				$parts2[] = rawurlencode($part);
@@ -250,7 +250,7 @@ class Network
 
 			$newurl = $curl_info['redirect_url'];
 
-			if (($new_location_info['path'] == '') && ($new_location_info['host'] != '')) {
+			if (empty($new_location_info['path']) && !empty($new_location_info['host'])) {
 				$newurl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
 			}
 
@@ -890,8 +890,8 @@ class Network
 		$i = 0;
 		$path = "";
 		do {
-			$path1 = $pathparts1[$i];
-			$path2 = $pathparts2[$i];
+			$path1 = defaults($pathparts1, $i, '');
+			$path2 = defaults($pathparts2, $i, '');
 
 			if ($path1 == $path2) {
 				$path .= $path1."/";
