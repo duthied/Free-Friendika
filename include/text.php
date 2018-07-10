@@ -519,7 +519,6 @@ $LOGGER_LEVELS = [];
  * LOGGER_DATA
  * LOGGER_ALL
  *
- * @global App $a
  * @global array $LOGGER_LEVELS
  * @param string $msg
  * @param int $level
@@ -590,12 +589,10 @@ function logger($msg, $level = 0) {
  * LOGGER_DATA
  * LOGGER_ALL
  *
- * @global App $a
  * @global array $LOGGER_LEVELS
  * @param string $msg
  * @param int $level
  */
-
 function dlogger($msg, $level = 0) {
 	$a = get_app();
 

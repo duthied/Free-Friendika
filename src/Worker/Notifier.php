@@ -48,9 +48,11 @@ require_once 'include/items.php';
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  */
 
-class Notifier {
-	public static function execute($cmd, $item_id) {
-		global $a;
+class Notifier
+{
+	public static function execute($cmd, $item_id)
+	{
+		$a = \Friendica\BaseObject::getApp();
 
 		logger('notifier: invoked: '.$cmd.': '.$item_id, LOGGER_DEBUG);
 

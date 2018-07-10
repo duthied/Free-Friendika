@@ -15,9 +15,11 @@ use dba;
 
 require_once 'include/dba.php';
 
-class Expire {
-	public static function execute($param = '', $hook_name = '') {
-		global $a;
+class Expire
+{
+	public static function execute($param = '', $hook_name = '')
+	{
+		$a = \Friendica\BaseObject::getApp();
 
 		require_once 'include/items.php';
 

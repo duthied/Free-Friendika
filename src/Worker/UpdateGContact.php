@@ -15,8 +15,6 @@ class UpdateGContact
 {
 	public static function execute($contact_id)
 	{
-		global $a;
-
 		logger('update_gcontact: start');
 
 		if (empty($contact_id)) {

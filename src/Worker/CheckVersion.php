@@ -16,10 +16,10 @@ use Friendica\Util\Network;
  * Checking the upstream version is optional (opt-in) and can be done to either
  * the master or the develop branch in the repository.
  */
-class CheckVersion {
-	public static function execute() {
-		global $a;
-
+class CheckVersion
+{
+	public static function execute()
+	{
 		logger('checkversion: start');
 
 		$checkurl = Config::get('system', 'check_new_version_url', 'none');

@@ -13,9 +13,11 @@ use dba;
 
 require_once 'include/dba.php';
 
-Class Cron {
-	public static function execute($parameter = '', $generation = 0) {
-		global $a;
+class Cron
+{
+	public static function execute($parameter = '', $generation = 0)
+	{
+		$a = \Friendica\BaseObject::getApp();
 
 		// Poll contacts with specific parameters
 		if (!empty($parameter)) {

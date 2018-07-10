@@ -944,8 +944,6 @@ function admin_page_site_post(App $a)
 
 		function update_table($table_name, $fields, $old_url, $new_url)
 		{
-			global $a;
-
 			$dbold = dbesc($old_url);
 			$dbnew = dbesc($new_url);
 
