@@ -564,15 +564,16 @@ class GContact
 
 		if (strlen(Config::get('system', 'directory'))) {
 			$x = Network::fetchUrl(get_server()."/pubsites");
-			if ($x) {
+			if (!empty($x)) {
 				$j = json_decode($x);
-				if ($j->entries) {
+				if (!empty($j->entries)) {
 					foreach ($j->entries as $entry) {
 						PortableContact::checkServer($entry->url);
 
 						$url = $entry->url . '/poco';
-						if (! in_array($url, $done)) {
-							PortableContact::loadWorker(0, 0, 0, $entry->url . '/poco');
+						if (!in_array($url, $done)) {
+							PortableContact::loadWorker(0, 0, 0, $url);
+							$done[] = $url;
 						}
 					}
 				}
