@@ -161,13 +161,12 @@ function install_content(App $a) {
 
 		case 2: { // Database config
 
-			$dbhost = ((x($_POST, 'dbhost')) ? notags(trim($_POST['dbhost'])) : 'localhost');
-			$dbuser = notags(trim($_POST['dbuser']));
-			$dbpass = notags(trim($_POST['dbpass']));
-			$dbdata = notags(trim($_POST['dbdata']));
-			$phpath = notags(trim($_POST['phpath']));
-
-			$adminmail = notags(trim($_POST['adminmail']));
+			$dbhost    = notags(trim(defaults($_POST, 'dbhost'   , 'localhost')));
+			$dbuser    = notags(trim(defaults($_POST, 'dbuser'   , ''         )));
+			$dbpass    = notags(trim(defaults($_POST, 'dbpass'   , ''         )));
+			$dbdata    = notags(trim(defaults($_POST, 'dbdata'   , ''         )));
+			$phpath    = notags(trim(defaults($_POST, 'phpath'   , ''         )));
+			$adminmail = notags(trim(defaults($_POST, 'adminmail', ''         )));
 
 			$tpl = get_markup_template('install_db.tpl');
 			$o .= replace_macros($tpl, [
@@ -185,8 +184,6 @@ function install_content(App $a) {
 				'$dbdata' => ['dbdata', L10n::t('Database Name'), $dbdata, '', 'required'],
 				'$adminmail' => ['adminmail', L10n::t('Site administrator email address'), $adminmail, L10n::t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'],
 
-
-
 				'$lbl_10' => L10n::t('Please select a default timezone for your website'),
 
 				'$baseurl' => System::baseUrl(),
@@ -194,7 +191,6 @@ function install_content(App $a) {
 				'$phpath' => $phpath,
 
 				'$submit' => L10n::t('Submit'),
-
 			]);
 			return $o;
 		}; break;
