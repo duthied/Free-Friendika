@@ -1,5 +1,8 @@
 <?php return <<<INI
 
+; If you're unsure about what any of the config keys below do, please check the config/defaults.ini.php for detailed
+; documentation of their data type and behavior.
+
 [database]
 hostname = {{$dbhost}}
 username = {{$dbuser}}
@@ -33,11 +36,11 @@ language = {{$language}}
 allowed_themes = vier,quattro,duepuntozero,smoothly,frio
 theme = vier
 
-allowed_link_protocols[] = ftp
-allowed_link_protocols[] = ftps
-allowed_link_protocols[] = mailto
-allowed_link_protocols[] = cid
-allowed_link_protocols[] = gopher
+allowed_link_protocols[0] = ftp
+allowed_link_protocols[1] = ftps
+allowed_link_protocols[2] = mailto
+allowed_link_protocols[3] = cid
+allowed_link_protocols[4] = gopher
 
 maximagesize = 800000
 
