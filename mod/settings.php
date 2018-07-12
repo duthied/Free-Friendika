@@ -26,14 +26,12 @@ use Friendica\Util\Temporal;
 function get_theme_config_file($theme)
 {
 	$a = get_app();
-	if (!empty($a->theme_info['extends'])) {
-		$base_theme = $a->theme_info['extends'];
-	}
+	$base_theme = defaults($a->theme_info, 'extends');
 
 	if (file_exists("view/theme/$theme/config.php")) {
 		return "view/theme/$theme/config.php";
 	}
-	if (!empty($base_theme) && file_exists("view/theme/$base_theme/config.php")) {
+	if ($base_theme && file_exists("view/theme/$base_theme/config.php")) {
 		return "view/theme/$base_theme/config.php";
 	}
 	return null;
