@@ -403,9 +403,9 @@ class App
 		// Loads addons default config
 		Core\Addon::callHooks('load_config');
 
-		// Load the local config file again in case there are overwritten addon config
-		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
-			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php');
+		// Load the local addon config file to overwritten default addon config values
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php')) {
+			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php');
 		}
 	}
 
