@@ -442,8 +442,14 @@ class App
 		 *
 		 * To get /path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
 		 */
-		if (!empty($_SERVER['SCRIPT_URL']) && !empty($_SERVER['QUERY_STRING'])) {
-			$path = trim(dirname($_SERVER['SCRIPT_URL'], substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
+		if (!empty($_SERVER['SCRIPT_URL'])) {
+			// Module
+			if (!empty($_SERVER['QUERY_STRING'])) {
+				$path = trim(dirname($_SERVER['SCRIPT_URL'], substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
+			} else {
+				// Root page
+				$path = trim($_SERVER['SCRIPT_URL'], '/');
+			}
 
 			if ($path && $path != $this->urlpath) {
 				$this->urlpath = $path;
