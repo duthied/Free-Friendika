@@ -99,7 +99,7 @@ HELP;
 		if (count($this->args) == 3) {
 			$result = Core\Config::set($this->getArgument(0), $this->getArgument(1), $this->getArgument(2));
 			if ($result) {
-				$this->out("{$this->getArgument(0)}.{$this->getArgument(1)} = " .
+				$this->out("{$this->getArgument(0)}.{$this->getArgument(1)} <= " .
 					Core\Config::get($this->getArgument(0), $this->getArgument(1)));
 			} else {
 				$this->out("Unable to set {$this->getArgument(0)}.{$this->getArgument(1)}");
@@ -107,7 +107,7 @@ HELP;
 		}
 
 		if (count($this->args) == 2) {
-			$this->out("{$this->getArgument(0)}.{$this->getArgument(1)} = " .
+			$this->out("{$this->getArgument(0)}.{$this->getArgument(1)} => " .
 				Core\Config::get($this->getArgument(0), $this->getArgument(1)));
 		}
 
@@ -116,7 +116,7 @@ HELP;
 
 			if (!is_null($a->config[$this->getArgument(0)])) {
 				foreach ($a->config[$this->getArgument(0)] as $k => $x) {
-					$this->out("{$this->getArgument(0)}.{$k} = " . $x);
+					$this->out("{$this->getArgument(0)}.{$k} => " . $x);
 				}
 			} else {
 				$this->out('Config section ' . $this->getArgument(0) . ' returned nothing');
@@ -135,14 +135,14 @@ HELP;
 					foreach ($section as $key => $value) {
 						if (is_array($value)) {
 							foreach ($value as $k => $v) {
-								$this->out("{$cat}.{$key}[{$k}] = " . $v);
+								$this->out("{$cat}.{$key}[{$k}] => " . $v);
 							}
 						} else {
-							$this->out("{$cat}.{$key} = " . $value);
+							$this->out("{$cat}.{$key} => " . $value);
 						}
 					}
 				} else {
-					$this->out("config.{$cat} = " . $section);
+					$this->out("config.{$cat} => " . $section);
 				}
 			}
 		}
