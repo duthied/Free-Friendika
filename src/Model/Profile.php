@@ -24,6 +24,8 @@ use Friendica\Util\Network;
 use Friendica\Util\Temporal;
 use dba;
 
+use InvalidArgumentException;
+
 require_once 'include/dba.php';
 require_once 'mod/proxy.php';
 
@@ -89,7 +91,7 @@ class Profile
 	 * @param array   $profiledata  array
 	 * @param boolean $show_connect Show connect link
 	 */
-	public static function load(App $a, $nickname, $profile = 0, $profiledata = [], $show_connect = true)
+	public static function load(App $a, $nickname, $profile = 0, array $profiledata = [], $show_connect = true)
 	{
 		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
@@ -100,11 +102,8 @@ class Profile
 			return;
 		}
 
-		if (empty($a->page['aside'])) {
-			$a->page['aside'] = '';
-		}
-
-		if ($profiledata) {
+		if (count($profiledata) > 0) {
+			// Add profile data to sidebar
 			$a->page['aside'] .= self::sidebar($profiledata, true, $show_connect);
 
 			if (!DBM::is_result($user)) {
