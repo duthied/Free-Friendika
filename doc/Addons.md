@@ -357,6 +357,13 @@ Hook data:
     'item' => item array (input)
     'html' => converted item body (input/output)
 
+### 'put_item_in_cache'
+Called after prepare_text in put_item_in_cache().
+Hook data:
+    'item' => item array (input)
+	'rendered-html' => final item body HTML (input/output)
+	'rendered-hash' => original item body hash (input/output)
+
 ### 'magic_auth_success'
 Called when a magic-auth was successful.
 Hook data:
@@ -386,7 +393,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks($a->module.'_mod_content', $arr);
     Addon::callHooks($a->module.'_mod_aftercontent', $arr);
     Addon::callHooks('page_end', $a->page['content']);
-    
+
 ### include/api.php
 
     Addon::callHooks('logged_in', $a->user);
@@ -394,12 +401,12 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks('logged_in', $a->user);
 
 ### include/enotify.php
-    
+
     Addon::callHooks('enotify', $h);
     Addon::callHooks('enotify_store', $datarray);
     Addon::callHooks('enotify_mail', $datarray);
     Addon::callHooks('check_item_notification', $notification_data);
-    
+
 ### include/conversation.php
 
     Addon::callHooks('conversation_start', $cb);
@@ -417,6 +424,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
 
     Addon::callHooks('contact_block_end', $arr);
     Addon::callHooks('poke_verbs', $arr);
+    Addon::callHooks('put_item_in_cache', $hook_data);
     Addon::callHooks('prepare_body_init', $item);
     Addon::callHooks('prepare_body_content_filter', $hook_data);
     Addon::callHooks('prepare_body', $hook_data);
@@ -458,7 +466,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
 ### mod/friendica.php
 
     Addon::callHooks('about_hook', $o);
-    
+
 ### mod/subthread.php
 
     Addon::callHooks('post_local_end', $arr);
@@ -531,7 +539,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks('post_local', $datarray);
     Addon::callHooks('post_local_end', $datarray);
 
-### mod/editpost.php    
+### mod/editpost.php
 
     Addon::callHooks('jot_tool', $jotplugins);
 
@@ -600,11 +608,11 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks('sexpref_selector', $select);
     Addon::callHooks('marital_selector', $select);
 
-### src/Content/OEmbed.php    
+### src/Content/OEmbed.php
 
     Addon::callHooks('oembed_fetch_url', $embedurl, $j);
 
-### src/Content/Nav.php    
+### src/Content/Nav.php
 
     Addon::callHooks('page_header', $a->page['nav']);
     Addon::callHooks('nav_info', $nav);
@@ -617,7 +625,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
 
     Addon::callHooks('notifier_end', $target_item);
 
-### src/Worker/Queue.php    
+### src/Worker/Queue.php
 
     Addon::callHooks('queue_predeliver', $r);
     Addon::callHooks('queue_deliver', $params);
@@ -627,7 +635,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
     Addon::callHooks('authenticate', $addon_auth);
     Addon::callHooks('login_hook', $o);
 
-### src/Module/Logout.php    
+### src/Module/Logout.php
 
     Addon::callHooks("logging_out");
 
