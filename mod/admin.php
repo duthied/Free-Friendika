@@ -848,7 +848,7 @@ function admin_page_summary(App $a)
 	// Legacy config file warning
 	if (file_exists('.htconfig.php')) {
 		$showwarning = true;
-		$warningtext[] = L10n::t('Friencia\'s configuration now is stored in config/local.ini.php, please copy config/local-sample.ini.php and move your config from <code>.htconfig.php</code>.');
+		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.ini.php, please copy config/local-sample.ini.php and move your config from <code>.htconfig.php</code>.');
 	}
 
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
