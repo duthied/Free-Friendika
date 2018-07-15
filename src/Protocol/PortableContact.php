@@ -19,6 +19,7 @@ use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\XML;
 use dba;
 use DOMDocument;
 use DOMXPath;
@@ -916,7 +917,7 @@ class PortableContact
 			return false;
 		}
 
-		$server["site_name"] = $xpath->evaluate("//head/title/text()")->item(0)->nodeValue;
+		$server["site_name"] = XML::getFirstNodeValue($xpath, '//head/title/text()');
 		return $server;
 	}
 
@@ -1003,7 +1004,7 @@ class PortableContact
 		// Quit if there is a timeout.
 		// But we want to make sure to only quit if we are mostly sure that this server url fits.
 		if (DBM::is_result($gserver) && ($orig_server_url == $server_url) &&
-			($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+			(!$serverret["success"] && ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT))) {
 			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
 			dba::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
 			return false;
@@ -1018,7 +1019,7 @@ class PortableContact
 			$serverret = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 			// Quit if there is a timeout
-			if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			if (!$serverret["success"] && ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 				logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
 				dba::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
 				return false;
@@ -1230,8 +1231,14 @@ class PortableContact
 						$site_name = $data->site->name;
 
 						$data->site->closed = self::toBoolean($data->site->closed);
-						$data->site->private = self::toBoolean($data->site->private);
-						$data->site->inviteonly = self::toBoolean($data->site->inviteonly);
+
+						if (!empty($data->site->private)) {
+							$data->site->private = self::toBoolean($data->site->private);
+						}
+
+						if (!empty($data->site->inviteonly)) {
+							$data->site->inviteonly = self::toBoolean($data->site->inviteonly);
+						}
 
 						if (!$data->site->closed && !$data->site->private and $data->site->inviteonly) {
 							$register_policy = REGISTER_APPROVE;
@@ -1325,7 +1332,9 @@ class PortableContact
 						$noscrape = $data->no_scrape_url;
 					}
 					$version = $data->version;
-					$site_name = $data->site_name;
+					if (!empty($data->site_name)) {
+						$site_name = $data->site_name;
+					}
 					$info = $data->info;
 					$register_policy = constant($data->register_policy);
 					$platform = $data->platform;
@@ -1714,7 +1723,9 @@ class PortableContact
 			$contact_type = -1;
 			$generation = $default_generation;
 
-			$name = $entry->displayName;
+			if (!empty($entry->displayName)) {
+				$name = $entry->displayName;
+			}
 
 			if (isset($entry->urls)) {
 				foreach ($entry->urls as $url) {

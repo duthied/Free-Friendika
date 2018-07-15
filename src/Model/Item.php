@@ -78,6 +78,17 @@ class Item extends BaseObject
 	// The item-activity table only stores the index and needs this array to know the matching activity.
 	const ACTIVITIES = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
 
+	private static $legacy_mode = null;
+
+	public static function isLegacyMode()
+	{
+		if (is_null(self::$legacy_mode)) {
+			self::$legacy_mode = (Config::get("system", "post_update_version") < 1276);
+		}
+
+		return self::$legacy_mode;
+	}
+
 	/**
 	 * @brief returns an activity index from an activity string
 	 *
@@ -156,11 +167,13 @@ class Item extends BaseObject
 		// ---------------------- Transform item content data ----------------------
 
 		// Fetch data from the item-content table whenever there is content there
-		foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
-			if (empty($row[$field]) && !empty($row['internal-item-' . $field])) {
-				$row[$field] = $row['internal-item-' . $field];
+		if (self::isLegacyMode()) {
+			foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
+				if (empty($row[$field]) && !empty($row['internal-item-' . $field])) {
+					$row[$field] = $row['internal-item-' . $field];
+				}
+				unset($row['internal-item-' . $field]);
 			}
-			unset($row['internal-item-' . $field]);
 		}
 
 		if (!empty($row['internal-iaid']) && array_key_exists('verb', $row)) {
@@ -568,20 +581,20 @@ class Item extends BaseObject
 			$joins .= sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`
 				AND NOT `contact`.`blocked`
 				AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-				OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
+				OR `contact`.`self` OR `item`.`gravity` != %d OR `contact`.`uid` = 0)
 				STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id` AND NOT `author`.`blocked`
 				STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id` AND NOT `owner`.`blocked`
 				LEFT JOIN `user-item` ON `user-item`.`iid` = $master_table_key AND `user-item`.`uid` = %d",
-				CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid));
+				CONTACT_IS_SHARING, CONTACT_IS_FRIEND, GRAVITY_PARENT, intval($uid));
 		} else {
 			if (strpos($sql_commands, "`contact`.") !== false) {
-				$joins .= "STRAIGHT_JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`";
+				$joins .= "LEFT JOIN `contact` ON `contact`.`id` = $master_table.`contact-id`";
 			}
 			if (strpos($sql_commands, "`author`.") !== false) {
-				$joins .= " STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id`";
+				$joins .= " LEFT JOIN `contact` AS `author` ON `author`.`id` = $master_table.`author-id`";
 			}
 			if (strpos($sql_commands, "`owner`.") !== false) {
-				$joins .= " STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id`";
+				$joins .= " LEFT JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id`";
 			}
 		}
 
@@ -645,7 +658,7 @@ class Item extends BaseObject
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
-					if (in_array($select, self::MIXED_CONTENT_FIELDLIST)) {
+					if (self::isLegacyMode() && in_array($select, self::MIXED_CONTENT_FIELDLIST)) {
 						$selection[] = "`item`.`".$select."` AS `internal-item-" . $select . "`";
 					}
 					if (is_int($field)) {
@@ -686,6 +699,19 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Generate a server unique item hash for linking between the item tables
+	 *
+	 * @param string $uri     Item URI
+	 * @param date   $created Item creation date
+	 *
+	 * @return string the item hash
+	 */
+	private static function itemHash($uri, $created)
+	{
+		return round(strtotime($created) / 100) . hash('ripemd128', $uri);
+	}
+
+	/**
 	 * @brief Update existing item entries
 	 *
 	 * @param array $fields The fields that are to be changed
@@ -710,13 +736,13 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = dba::select('item', ['id', 'origin', 'uri', 'plink', 'iaid', 'icid', 'tag', 'file'], $condition);
+		$items = dba::select('item', ['id', 'origin', 'uri', 'created', 'uri-hash', 'iaid', 'icid', 'tag', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($fields[$field])) {
 				$content_fields[$field] = $fields[$field];
-				if (in_array($field, self::CONTENT_FIELDLIST)) {
+				if (in_array($field, self::CONTENT_FIELDLIST) || !self::isLegacyMode()) {
 					unset($fields[$field]);
 				} else {
 					$fields[$field] = null;
@@ -759,18 +785,41 @@ class Item extends BaseObject
 		$rows = dba::affected_rows();
 
 		while ($item = dba::fetch($items)) {
-			if (!empty($item['plink'])) {
-				$content_fields['plink'] = $item['plink'];
+			// This part here can safely be removed when the legacy fields in the item had been removed
+			if (empty($item['uri-hash']) && !empty($item['uri']) && !empty($item['created'])) {
+
+				// Fetch the uri-hash from an existing item entry if there is one
+				$item_condition = ["`uri` = ? AND `uri-hash` != ''", $item['uri']];
+				$existing = dba::selectfirst('item', ['uri-hash'], $item_condition);
+				if (DBM::is_result($existing)) {
+					$item['uri-hash'] = $existing['uri-hash'];
+				} else {
+					$item['uri-hash'] = self::itemHash($item['uri'], $item['created']);
+				}
+
+				dba::update('item', ['uri-hash' => $item['uri-hash']], ['id' => $item['id']]);
+				dba::update('item-activity', ['uri-hash' => $item['uri-hash']], ["`uri` = ? AND `uri-hash` = ''", $item['uri']]);
+				dba::update('item-content', ['uri-plink-hash' => $item['uri-hash']], ["`uri` = ? AND `uri-plink-hash` = ''", $item['uri']]);
 			}
+
 			if (!empty($item['iaid']) || (!empty($content_fields['verb']) && (self::activityToIndex($content_fields['verb']) >= 0))) {
-				self::updateActivity($content_fields, ['uri' => $item['uri']]);
+				if (!empty($item['iaid'])) {
+					$update_condition = ['id' => $item['iaid']];
+				} else {
+					$update_condition = ['uri-hash' => $item['uri-hash']];
+				}
+				self::updateActivity($content_fields, $update_condition);
 
 				if (empty($item['iaid'])) {
-					$item_activity = dba::selectFirst('item-activity', ['id'], ['uri' => $item['uri']]);
+					$item_activity = dba::selectFirst('item-activity', ['id'], ['uri-hash' => $item['uri-hash']]);
 					if (DBM::is_result($item_activity)) {
 						$item_fields = ['iaid' => $item_activity['id'], 'icid' => null];
 						foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
-							$item_fields[$field] = '';
+							if (self::isLegacyMode()) {
+								$item_fields[$field] = null;
+							} else {
+								unset($item_fields[$field]);
+							}
 						}
 						dba::update('item', $item_fields, ['id' => $item['id']]);
 
@@ -786,16 +835,25 @@ class Item extends BaseObject
 					}
 				}
 			} else {
-				self::updateContent($content_fields, ['uri' => $item['uri']]);
+				if (!empty($item['icid'])) {
+					$update_condition = ['id' => $item['icid']];
+				} else {
+					$update_condition = ['uri-plink-hash' => $item['uri-hash']];
+				}
+				self::updateContent($content_fields, $update_condition);
 
 				if (empty($item['icid'])) {
-					$item_content = dba::selectFirst('item-content', [], ['uri' => $item['uri']]);
+					$item_content = dba::selectFirst('item-content', [], ['uri-plink-hash' => $item['uri-hash']]);
 					if (DBM::is_result($item_content)) {
 						$item_fields = ['icid' => $item_content['id']];
 						// Clear all fields in the item table that have a content in the item-content table
 						foreach ($item_content as $field => $content) {
 							if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($item_content[$field])) {
-								$item_fields[$field] = '';
+								if (self::isLegacyMode()) {
+									$item_fields[$field] = null;
+								} else {
+									unset($item_fields[$field]);
+								}
 							}
 						}
 						dba::update('item', $item_fields, ['id' => $item['id']]);
@@ -1228,6 +1286,13 @@ class Item extends BaseObject
 			}
 		}
 
+		// Ensure to always have the same creation date.
+		$existing = dba::selectfirst('item', ['created', 'uri-hash'], ['uri' => $item['uri']]);
+		if (DBM::is_result($existing)) {
+			$item['created'] = $existing['created'];
+			$item['uri-hash'] = $existing['uri-hash'];
+		}
+
 		self::addLanguageToItemArray($item);
 
 		$item['wall']          = intval(defaults($item, 'wall', 0));
@@ -1272,6 +1337,9 @@ class Item extends BaseObject
 		$item['inform']        = trim(defaults($item, 'inform', ''));
 		$item['file']          = trim(defaults($item, 'file', ''));
 
+		// Unique identifier to be linked against item-activities and item-content
+		$item['uri-hash']      = defaults($item, 'uri-hash', self::itemHash($item['uri'], $item['created']));
+
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
 			logger('No body, no title.');
@@ -1286,10 +1354,6 @@ class Item extends BaseObject
 		// We haven't invented time travel by now.
 		if ($item['edited'] > DateTimeFormat::utcNow()) {
 			$item['edited'] = DateTimeFormat::utcNow();
-		}
-
-		if (($item['author-link'] == "") && ($item['owner-link'] == "")) {
-			logger("Both author-link and owner-link are empty. Called by: " . System::callstack(), LOGGER_DEBUG);
 		}
 
 		$item['plink'] = defaults($item, 'plink', System::baseUrl() . '/display/' . urlencode($item['guid']));
@@ -1718,9 +1782,7 @@ class Item extends BaseObject
 		}
 
 		$fields = ['uri' => $item['uri'], 'activity' => $activity_index,
-			'uri-hash' => hash('sha1', $item['uri']) . hash('ripemd160', $item['uri'])];
-
-		$saved_item = $item;
+			'uri-hash' => $item['uri-hash']];
 
 		// We just remove everything that is content
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -1734,7 +1796,7 @@ class Item extends BaseObject
 		}
 
 		// Do we already have this content?
-		$item_activity = dba::selectFirst('item-activity', ['id'], ['uri' => $item['uri']]);
+		$item_activity = dba::selectFirst('item-activity', ['id'], ['uri-hash' => $item['uri-hash']]);
 		if (DBM::is_result($item_activity)) {
 			$item['iaid'] = $item_activity['id'];
 			logger('Fetched activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
@@ -1742,9 +1804,8 @@ class Item extends BaseObject
 			$item['iaid'] = dba::lastInsertId();
 			logger('Inserted activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
 		} else {
-			// This shouldn't happen. But if it does, we simply store it in the item-content table
+			// This shouldn't happen.
 			logger('Could not insert activity for URI ' . $item['uri'] . ' - should not happen');
-			$item = $saved_item;
 			return false;
 		}
 		if ($locked) {
@@ -1760,8 +1821,7 @@ class Item extends BaseObject
 	 */
 	private static function insertContent(&$item)
 	{
-		$fields = ['uri' => $item['uri'], 'plink' => $item['plink'],
-			'uri-plink-hash' => hash('sha1', $item['plink']).hash('sha1', $item['uri'])];
+		$fields = ['uri' => $item['uri'], 'uri-plink-hash' => $item['uri-hash']];
 
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($item[$field])) {
@@ -1777,7 +1837,7 @@ class Item extends BaseObject
 		}
 
 		// Do we already have this content?
-		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $item['uri']]);
+		$item_content = dba::selectFirst('item-content', ['id'], ['uri-plink-hash' => $item['uri-hash']]);
 		if (DBM::is_result($item_content)) {
 			$item['icid'] = $item_content['id'];
 			logger('Fetched content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
@@ -1785,29 +1845,11 @@ class Item extends BaseObject
 			$item['icid'] = dba::lastInsertId();
 			logger('Inserted content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
 		} else {
-			// By setting the ICID value through the worker we should avoid timing problems.
-			// When the locking works, this shouldn't be needed. But better be prepared.
-			Worker::add(PRIORITY_HIGH, 'SetItemContentID', $item['uri']);
-			logger('Could not insert content for URI ' . $item['uri'] . ' - trying asynchronously');
+			// This shouldn't happen.
+			logger('Could not insert content for URI ' . $item['uri'] . ' - should not happen');
 		}
 		if ($locked) {
 			Lock::release('item_insert_content');
-		}
-	}
-
-	/**
-	 * @brief Set the item content id for a given URI
-	 *
-	 * @param string $uri The item URI
-	 */
-	public static function setICIDforURI($uri)
-	{
-		$item_content = dba::selectFirst('item-content', ['id'], ['uri' => $uri]);
-		if (DBM::is_result($item_content)) {
-			dba::update('item', ['icid' => $item_content['id']], ['icid' => 0, 'uri' => $uri]);
-			logger('Asynchronously set item content id for URI ' . $uri . ' (' . $item_content['id'] . ') - Affected: '. (int)dba::affected_rows());
-		} else {
-			logger('No item-content found for URI ' . $uri);
 		}
 	}
 
@@ -1828,10 +1870,9 @@ class Item extends BaseObject
 			return false;
 		}
 
-		$fields = ['activity' => $activity_index,
-			'uri-hash' => hash('sha1', $condition['uri']) . hash('ripemd160', $condition['uri'])];
+		$fields = ['activity' => $activity_index];
 
-		logger('Update activity for URI ' . $condition['uri']);
+		logger('Update activity for ' . json_encode($condition));
 
 		dba::update('item-activity', $fields, $condition, true);
 
@@ -1860,14 +1901,7 @@ class Item extends BaseObject
 			$fields = $condition;
 		}
 
-		if (!empty($item['plink'])) {
-			$fields['uri-plink-hash'] = hash('sha1', $item['plink']) . hash('sha1', $condition['uri']);
-		} else {
-			// Ensure that we don't delete the plink
-			unset($fields['plink']);
-		}
-
-		logger('Update content for URI ' . $condition['uri']);
+		logger('Update content for ' . json_encode($condition));
 
 		dba::update('item-content', $fields, $condition, true);
 	}

@@ -41,7 +41,7 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
 define('FRIENDICA_VERSION',      '2018.08-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1276);
+define('DB_UPDATE_VERSION',      1277);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -929,6 +929,10 @@ function remote_user()
  */
 function notice($s)
 {
+	if (empty($_SESSION)) {
+		return;
+	}
+
 	$a = get_app();
 	if (!x($_SESSION, 'sysmsg')) {
 		$_SESSION['sysmsg'] = [];
