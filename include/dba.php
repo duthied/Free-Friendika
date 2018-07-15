@@ -186,7 +186,7 @@ class dba {
 	private static function logIndex($query) {
 		$a = get_app();
 
-		if (empty(Config::get('system', 'db_log_index'))) {
+		if (!$a->getConfigVariable('system', 'db_log_index')) {
 			return;
 		}
 
@@ -205,18 +205,18 @@ class dba {
 			return;
 		}
 
-		$watchlist = explode(',', Config::get('system', 'db_log_index_watch'));
-		$blacklist = explode(',', Config::get('system', 'db_log_index_blacklist'));
+		$watchlist = explode(',', $a->getConfigVariable('system', 'db_log_index_watch'));
+		$blacklist = explode(',', $a->getConfigVariable('system', 'db_log_index_blacklist'));
 
 		while ($row = dba::fetch($r)) {
-			if ((intval(Config::get('system', 'db_loglimit_index')) > 0)) {
+			if ((intval($a->getConfigVariable('system', 'db_loglimit_index')) > 0)) {
 				$log = (in_array($row['key'], $watchlist) &&
-					($row['rows'] >= intval(Config::get('system', 'db_loglimit_index'))));
+					($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index'))));
 			} else {
 				$log = false;
 			}
 
-			if ((intval(Config::get('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval(Config::get('system', 'db_loglimit_index_high')))) {
+			if ((intval($a->getConfigVariable('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index_high')))) {
 				$log = true;
 			}
 
@@ -226,7 +226,7 @@ class dba {
 
 			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-				@file_put_contents(Config::get('system', 'db_log_index'), DateTimeFormat::utcNow()."\t".
+				@file_put_contents($a->getConfigVariable('system', 'db_log_index'), DateTimeFormat::utcNow()."\t".
 						$row['key']."\t".$row['rows']."\t".$row['Extra']."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
