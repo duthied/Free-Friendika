@@ -58,7 +58,7 @@ function friendica_init(App $a)
 			'url'             => System::baseUrl(),
 			'addons'          => $visible_addons,
 			'locked_features' => $locked_features,
-			'register_policy' => $register_policy[Config::get('config', 'register_policy')],
+			'register_policy' => $register_policy[intval(Config::get('config', 'register_policy'))],
 			'admin'           => $admin,
 			'site_name'       => Config::get('config', 'sitename'),
 			'platform'        => FRIENDICA_PLATFORM,

@@ -47,7 +47,7 @@ function home_content(App $a) {
 		}
 	}
 
-	$login = Login::form($a->query_string, Config::get('config', 'register_policy') === REGISTER_CLOSED ? 0 : 1);
+	$login = Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 0 : 1);
 
 	$content = '';
 	Addon::callHooks("home_content",$content);

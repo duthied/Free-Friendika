@@ -74,7 +74,7 @@ function register_post(App $a)
 
 	$user = $result['user'];
 
-	if ($netpublish && Config::get('config', 'register_policy') !== REGISTER_APPROVE) {
+	if ($netpublish && intval(Config::get('config', 'register_policy')) !== REGISTER_APPROVE) {
 		$url = System::baseUrl() . '/profile/' . $user['nickname'];
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
@@ -83,7 +83,7 @@ function register_post(App $a)
 	$num_invites   = Config::get('system', 'number_invites');
 	$invite_id = ((x($_POST, 'invite_id')) ? notags(trim($_POST['invite_id'])) : '');
 
-	if (Config::get('config', 'register_policy') === REGISTER_OPEN) {
+	if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN) {
 		if ($using_invites && $invite_id) {
 			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
 			PConfig::set($user['uid'], 'system', 'invites_remaining', $num_invites);
@@ -109,7 +109,7 @@ function register_post(App $a)
 			info(L10n::t('Registration successful.') . EOL);
 			goaway(System::baseUrl());
 		}
-	} elseif (Config::get('config', 'register_policy') === REGISTER_APPROVE) {
+	} elseif (intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE) {
 		if (!strlen(Config::get('config', 'admin_email'))) {
 			notice(L10n::t('Your registration can not be processed.') . EOL);
 			goaway(System::baseUrl());
@@ -177,7 +177,7 @@ function register_content(App $a)
 		return;
 	}
 
-	if ((!local_user()) && (Config::get('config', 'register_policy') === REGISTER_CLOSED)) {
+	if ((!local_user()) && (intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED)) {
 		notice("Permission denied." . EOL);
 		return;
 	}
@@ -256,7 +256,7 @@ function register_content(App $a)
 	$o = replace_macros($tpl, [
 		'$oidhtml' => $oidhtml,
 		'$invitations' => Config::get('system', 'invitation_only'),
-		'$permonly'    => Config::get('config', 'register_policy') === REGISTER_APPROVE,
+		'$permonly'    => intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE,
 		'$permonlybox' => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node')],
 		'$invite_desc' => L10n::t('Membership on this site is by invitation only.'),
 		'$invite_label' => L10n::t('Your invitation code: '),

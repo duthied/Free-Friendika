@@ -201,7 +201,7 @@ function ping_init(App $a)
 		);
 		$mail_count = count($mails);
 
-		if (Config::get('config', 'register_policy') === REGISTER_APPROVE && is_site_admin()) {
+		if (intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE && is_site_admin()) {
 			$regs = q(
 				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`

@@ -99,7 +99,7 @@ function regmod_content(App $a)
 {
 	if (!local_user()) {
 		info(L10n::t('Please login.') . EOL);
-		$o = '<br /><br />' . Login::form($a->query_string, Config::get('config', 'register_policy') === REGISTER_CLOSED ? 0 : 1);
+		$o = '<br /><br />' . Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 0 : 1);
 		return $o;
 	}
 

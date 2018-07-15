@@ -43,7 +43,7 @@ class Login extends BaseModule
 			goaway(self::getApp()->get_baseurl());
 		}
 
-		return self::form(self::getApp()->get_baseurl(), Config::get('config', 'register_policy') !== REGISTER_CLOSED);
+		return self::form(self::getApp()->get_baseurl(), intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED);
 	}
 
 	public static function post()

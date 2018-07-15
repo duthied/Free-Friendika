@@ -42,7 +42,7 @@ function uimport_post(App $a)
 
 function uimport_content(App $a) {
 
-	if ((!local_user()) && (Config::get('config', 'register_policy') === REGISTER_CLOSED)) {
+	if ((!local_user()) && (intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED)) {
 		notice("Permission denied." . EOL);
 		return;
 	}
