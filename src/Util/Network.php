@@ -18,12 +18,13 @@ use DomXPath;
 class Network
 {
 	/**
-	 * @brief Curl wrapper
+	 * Curl wrapper
 	 *
 	 * If binary flag is true, return binary results.
 	 * Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
 	 * to preserve cookies from one request to the next.
 	 *
+	 * @brief Curl wrapper
 	 * @param string  $url            URL to fetch
 	 * @param boolean $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
@@ -42,11 +43,12 @@ class Network
 	}
 
 	/**
-	 * @brief Curl wrapper with array of return values.
+	 * Curl wrapper with array of return values.
 	 *
 	 * Inner workings and parameters are the same as @ref fetchUrl but returns an array with
 	 * all the information collected during the fetch.
 	 *
+	 * @brief Curl wrapper with array of return values.
 	 * @param string  $url            URL to fetch
 	 * @param boolean $binary         default false
 	 *                                TRUE if asked to return binary results (file download)

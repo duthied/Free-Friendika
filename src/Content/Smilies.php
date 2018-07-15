@@ -167,7 +167,7 @@ class Smilies
 	}
 
 	/**
-	 * @brief Replaces text emoticons with graphical images
+	 * Replaces text emoticons with graphical images
 	 *
 	 * It is expected that this function will be called using HTML text.
 	 * We will escape text between HTML pre and code blocks from being
@@ -177,53 +177,61 @@ class Smilies
 	 * function from being executed by the prepare_text() routine when preparing
 	 * bbcode source for HTML display
 	 *
+	 * @brief Replaces text emoticons with graphical images
 	 * @param string  $s         Text that should be replaced
-	 * @param boolean $sample    optional, default false
 	 * @param boolean $no_images Only replace emoticons without images
 	 *
-	 * @return string HML Output of the Smilie
+	 * @return string HTML Output of the Smilie
 	 */
-	public static function replace($s, $sample = false, $no_images = false)
+	public static function replace($s, $no_images = false)
+	{
+		$smilies = self::getList();
+
+		$s = self::replaceFromArray($s, $smilies, $no_images);
+
+		return $s;
+	}
+
+	/**
+	 * Replaces emoji shortcodes in a string from a structured array of searches and replaces.
+	 *
+	 * Depends on system.no_smilies config value, skips <pre> and <code> tags.
+	 *
+	 * @param string $text      An HTML string
+	 * @param array  $smilies   An string replacement array with the following structure: ['texts' => [], 'icons' => []]
+	 * @param bool   $no_images Only replace shortcodes without image replacement (e.g. Unicode characters)
+	 * @return string
+	 */
+	public static function replaceFromArray($text, array $smilies, $no_images = false)
 	{
 		if (intval(Config::get('system', 'no_smilies'))
 			|| (local_user() && intval(PConfig::get(local_user(), 'system', 'no_smilies')))
 		) {
-			return $s;
+			return $text;
 		}
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::encode', $s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $s);
-
-		$params = self::getList();
+		$text = preg_replace_callback('/<pre>(.*?)<\/pre>/ism'  , 'self::encode', $text);
+		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $text);
 
 		if ($no_images) {
 			$cleaned = ['texts' => [], 'icons' => []];
-			$icons = $params['icons'];
+			$icons = $smilies['icons'];
 			foreach ($icons as $key => $icon) {
 				if (!strstr($icon, '<img ')) {
-					$cleaned['texts'][] = $params['texts'][$key];
-					$cleaned['icons'][] = $params['icons'][$key];
+					$cleaned['texts'][] = $smilies['texts'][$key];
+					$cleaned['icons'][] = $smilies['icons'][$key];
 				}
 			}
-			$params = $cleaned;
+			$smilies = $cleaned;
 		}
 
-		$params['string'] = $s;
+		$text = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $text);
+		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
-		if ($sample) {
-			$s = '<div class="smiley-sample">';
-			for ($x = 0; $x < count($params['texts']); $x ++) {
-				$s .= '<dl><dt>' . $params['texts'][$x] . '</dt><dd>' . $params['icons'][$x] . '</dd></dl>';
-			}
-		} else {
-			$params['string'] = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $params['string']);
-			$s = self::strOrigReplace($params['texts'], $params['icons'], $params['string']);
-		}
+		$text = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::decode', $text);
+		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::decode', $text);
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::decode', $s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::decode', $s);
-
-		return $s;
+		return $text;
 	}
 
 	/**

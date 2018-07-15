@@ -992,13 +992,13 @@ class Profile
 
 	/**
 	 * Process the 'zrl' parameter and initiate the remote authentication.
-	 * 
+	 *
 	 * This method checks if the visitor has a public contact entry and
 	 * redirects the visitor to his/her instance to start the magic auth (Authentication)
 	 * process.
-	 * 
+	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/channel.php
-	 * 
+	 *
 	 * @param App $a Application instance.
 	 */
 	public static function zrlInit(App $a)
@@ -1060,7 +1060,7 @@ class Profile
 	 * OpenWebAuth authentication.
 	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
-	 * 
+	 *
 	 * @param string $token
 	 */
 	public static function openWebAuthInit($token)
@@ -1159,7 +1159,7 @@ class Profile
 
 	/**
 	* Stip zrl parameter from a string.
-	* 
+	*
 	* @param string $s The input string.
 	* @return string The zrl.
 	*/
@@ -1170,7 +1170,7 @@ class Profile
 
 	/**
 	* Stip query parameter from a string.
-	* 
+	*
 	* @param string $s The input string.
 	* @return string The query parameter.
 	*/

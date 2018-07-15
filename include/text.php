@@ -1173,6 +1173,12 @@ function put_item_in_cache(&$item, $update = false)
 		$item["rendered-html"] = prepare_text($item["body"]);
 		$item["rendered-hash"] = hash("md5", $item["body"]);
 
+		$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
+		Addon::callHooks('put_item_in_cache', $hook_data);
+		$item['rendered-html'] = $hook_data['rendered-html'];
+		$item['rendered-hash'] = $hook_data['rendered-hash'];
+		unset($hook_data);
+
 		// Force an update if the generated values differ from the existing ones
 		if ($rendered_hash != $item["rendered-hash"]) {
 			$update = true;
