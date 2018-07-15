@@ -385,8 +385,8 @@ class App
 			throw new Exception('Error parsing config file ' . $filepath);
 		}
 
-		foreach($config as $category => $values) {
-			foreach($values as $key => $value) {
+		foreach ($config as $category => $values) {
+			foreach ($values as $key => $value) {
 				$this->setConfigValue($category, $key, $value);
 			}
 		}
