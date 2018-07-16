@@ -59,10 +59,10 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBM::is_result($item)) {
-			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => false, 'uid' => 0]);
+			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
 		}
 	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => false, 'uid' => 0]);
+		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => [0, 2], 'uid' => 0]);
 	}
 
 	if (!DBM::is_result($item)) {
@@ -229,7 +229,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 
 			if ($item_parent == 0) {
-				$condition = ['private' => false, 'guid' => $a->argv[1], 'uid' => 0];
+				$condition = ['private' => [0, 2], 'guid' => $a->argv[1], 'uid' => 0];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBM::is_result($item)) {
 					$item_id = $item["id"];
@@ -247,7 +247,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = dba::exists('item', ['id' => $item_id, 'private' => false]);
+	$is_public = dba::exists('item', ['id' => $item_id, 'private' => [0, 2]]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
 		$alternate = System::baseUrl().'/display/feed-item/'.$item_id.'.atom';

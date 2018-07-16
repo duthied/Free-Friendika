@@ -204,6 +204,10 @@ function can_write_wall($owner)
 		return true;
 	}
 
+	if (local_user() && ($owner == 0)) {
+		return true;
+	}
+
 	if (remote_user()) {
 		// use remembered decision and avoid a DB lookup for each and every display item
 		// DO NOT use this function if there are going to be multiple owners
@@ -339,7 +343,7 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 			 AND `item`.allow_gid = ''
 			 AND `item`.deny_cid  = ''
 			 AND `item`.deny_gid  = ''
-			 AND `item`.private = 0
+			 AND `item`.private != 1
 	";
 
 	// Profile owner - everything is visible
