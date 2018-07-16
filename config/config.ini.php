@@ -1,7 +1,11 @@
 <?php return <<<INI
 
-; This file declares the default values for all the config values of Friendica.
-; Please don't edit this file as its content may change in the upcoming versions.
+; CONFIG.INI.PHP
+
+; This file declares the default values for the base config of Friendica.
+; These configuration values aren't accessible from the admin settings page and custom values must be set in config/loca.ini.php
+
+; Please don't edit this file directly as its content may change in the upcoming versions.
 
 [database]
 
@@ -33,46 +37,18 @@ charset = utf8mb4
 admin_email =
 
 ; admin_nickname (String)
-; Nickname of the main admin user, used if there are more than one admin user defined in config.admin_email
+; Nickname of the main admin user, used if there are more than one admin user defined in config.admin_email.
 admin_nickname =
-
-; info (String)
-; Plaintext description of this node, used in the /friendica module
-info =
 
 ; max_import_size (Integer)
 ; Maximum body size of DFRN and Mail messages in characters. 0 is unlimited.
 max_import_size = 200000
 
 ; php_path (String)
-; Location of PHP command line processor
+; Location of PHP command line processor.
 php_path = php
 
-; register_policy (Constant)
-; Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
-; Be certain to create your own personal account before setting REGISTER_CLOSED.
-; REGISTER_APPROVE requires you set system.admin_email to the email address of an already registered person who can authorise
-; and/or approve/deny the request.
-register_policy = REGISTER_CLOSED
-
-; register_text (String)
-; Will be displayed prominently on the registration page.
-register_text = ''
-
-; sitename (String)
-; Displayed server name
-sitename = "Friendica Social Network"
-
 [system]
-
-; account_abandon_days (Integer)
-; Will not waste system resources polling external sites for abandonded accounts.
-; Enter 0 for no time limit.
-account_abandon_days = 0
-
-; addon (Comma-separated list)
-; Manual list of addons which are enabled on this system.
-addon =
 
 ; allowed_link_protocols (Array)
 ; Allowed protocols in links URLs, add at your own risk. http is always allowed.
@@ -98,6 +74,10 @@ auth_cookie_lifetime = 7
 ; Deny public access to the local user directory.
 block_local_dir = false
 
+; cache_driver (database|memcache|memcached|redis)
+; Whether to use Memcache or Memcached or Redis to store temporary cache.
+cache_driver = database
+
 ; config_adapter (jit|preload)
 ; Allow to switch the configuration adapter to improve performances at the cost of memory consumption.
 config_adapter = jit
@@ -106,22 +86,30 @@ config_adapter = jit
 ; Maximum number of bytes that should be fetched. Default is 0, which mean "no limit".
 curl_range_bytes = 0
 
+; crawl_permit_period (Integer)
+; Period in seconds between allowed searches when the number of free searches is reached and "permit_crawling" is activated.
+crawl_permit_period = 60
+
 ; db_log (Path)
-; Name of a logfile to log slow database queries
+; Name of a logfile to log slow database queries.
 db_log =
 
-; db_loglimit (Integer)
-; If a database call lasts longer than this value in seconds it is logged.
-; Inactive if system.db_log is empty
-db_loglimit = 10
-
 ; db_log_index (Path)
-; Name of a logfile to log queries with bad indexes
+; Name of a logfile to log queries with bad indexes.
 db_log_index =
 
 ; db_log_index_watch (Comma-separated list)
-; Watchlist of indexes to watch
+; Watchlist of indexes to watch.
 db_log_index_watch =
+
+; db_log_index_blacklist (Comma-separated list)
+; Blacklist of indexes that shouldn't be watched.
+db_log_index_blacklist =
+
+; db_loglimit (Integer)
+; If a database call lasts longer than this value in seconds it is logged.
+; Inactive if system.db_log is empty.
+db_loglimit = 10
 
 ; db_loglimit_index (Integer)
 ; Number of index rows needed to be logged for indexes on the watchlist. 0 to disable.
@@ -131,19 +119,10 @@ db_loglimit_index = 0
 ; Number of index rows to be logged anyway (for any index). 0 to disable.
 db_loglimit_index_high = 0
 
-; db_log_index_blacklist (Comma-separated list)
-; Blacklist of indexes that shouldn't be watched
-db_log_index_blacklist =
-
 ; dbclean_expire_conversation (Integer)
 ; When DBClean is enabled, any entry in the conversation table will be deleted after this many days.
 ; These data are normally needed only for debugging purposes and they are safe to delete.
 dbclean_expire_conversation = 90
-
-; default_timezone (String)
-; Choose a default timezone. See https://secure.php.net/manual/en/timezones.php
-; It only applies to timestamps for anonymous viewers.
-default_timezone = UTC
 
 ; diaspora_test (Boolean)
 ; For development only. Disables the message transfer.
@@ -162,17 +141,16 @@ disable_url_validation = false
 disable_password_exposed = false
 
 ; dlogfile (Path)
-; location of the developer log file
+; location of the developer log file.
 dlogfile =
 
 ; dlogip (String)
-; restricts develop log writes to requests originating from this IP address
+; restricts develop log writes to requests originating from this IP address.
 dlogip =
 
-; forbidden_nicknames (Comma-separated list)
-; Prevents users from registering the specified nicknames on this node
-; Default value comprises classic role names from RFC 2142
-forbidden_nicknames = info, marketing, sales, support, abuse, noc, security, postmaster, hostmaster, usenet, news, webmaster, www, uucp, ftp, root, sysop
+; free_crawls (Integer)
+; Number of "free" searches when system.permit_crawling is activated.
+free_crawls = 10
 
 ; frontend_worker_timeout (Integer)
 ; Value in minutes after we think that a frontend task was killed by the webserver.
@@ -184,7 +162,7 @@ frontend_worker_timeout = 10
 groupedit_image_limit = 400
 
 ; hsts (Boolean)
-; Enables the sending of HTTP Strict Transport Security headers
+; Enables the sending of HTTP Strict Transport Security headers.
 hsts = false
 
 ; ignore_cache (Boolean)
@@ -204,15 +182,6 @@ ipv4_resolve = false
 ; If set true registration is only possible after a current member of the node has send an invitation.
 invitation_only = false
 
-; jpeg_quality (Integer)
-; Sets the ImageMagick quality level for JPEG images. Values ranges from 50 (awful) to 100 (near perfect).
-jpeg_quality = 100
-
-; language (String)
-; System default languague, inluding admin-created user default language.
-; Two-letters ISO 639-1 code.
-language = en
-
 ; like_no_comment (Boolean)
 ; Don't update the "commented" value of an item when it is liked.
 like_no_comment = false
@@ -229,6 +198,10 @@ local_search = false
 ; If activated, all hashtags will point to the local server.
 local_tags = false
 
+; max_batch_queue (Integer)
+; Maximum number of batched queue items for a single contact before subsequent messages are discarded.
+max_batch_queue = 1000
+
 ; max_connections (Integer)
 ; The maximum number of database connections which can be in use before the worker process is deferred to its next interval.
 ; When the system can't detect the maximum numbers of connection then this value can be used. Use 0 for auto-detection.
@@ -241,10 +214,6 @@ max_connections_level = 75
 ; max_contact_queue (Integer)
 ; Maximum number of queue items for a single contact before subsequent messages are discarded.
 max_contact_queue = 500
-
-; max_batch_queue (Integer)
-; Maximum number of batched queue items for a single contact before subsequent messages are discarded.
-max_batch_queue = 1000
 
 ; max_image_length (Integer)
 ; An alternate way of limiting picture upload sizes.
@@ -265,28 +234,6 @@ max_processes_frontend = 20
 ; Maximum size in bytes of an uploaded photo.
 maximagesize = 800000
 
-; min_poll_interval (Integer)
-; minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
-min_poll_interval = 1
-
-; no_regfullname (Boolean)
-; Allow pseudonyms (true) or enforce a space between firstname and lastname in Full name, as an antispam measure (false).
-no_regfullname = true
-
-; optimize_max_tablesize (Integer)
-; Maximum table size (in MB) for the automatic optimization.
-; -1 to disable automatic optimization.
-;  0 to use internal default (100MB)
-optimize_max_tablesize = -1
-
-; session_handler (database|cache|native)
-; Whether to use Cache to store session data or to use PHP native session storage.
-session_handler = database
-
-; cache_driver (database|memcache|memcached|redis)
-; Whether to use Memcache or Memcached or Redis to store temporary cache.
-cache_driver = database
-
 ; memcache_host (String)
 ; Host name of the memcache daemon.
 memcache_host = 127.0.0.1
@@ -299,16 +246,12 @@ memcache_port = 11211
 ; Array of Memcached servers info "host, port(, weight)".
 memcached_hosts[0] = 127.0.0.1,11211
 
-; redis_host (String)
-; Host name of the redis daemon.
-redis_host = 127.0.0.1
-
-; redis_port (String)
-; Port number of the redis daemon.
-redis_port = 6379
+; min_poll_interval (Integer)
+; minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
+min_poll_interval = 1
 
 ; no_count (Boolean)
-; Don't do count calculations (currently only when showing albums)
+; Don't do count calculations (currently only when showing albums).
 no_count = false
 
 ; no_oembed (Boolean)
@@ -327,15 +270,6 @@ no_view_full_size = false
 ; Triggers an SQL command to optimize the item table before expiring items.
 optimize_items = false
 
-; pidfile (Path)
-; Daemon pid file path. For example: pidfile = /path/to/daemon.pid
-pidfile =
-
-; urlpath (String)
-; If you are using a subdirectory of your domain you will need to put the relative path (from the root of your domain) here.
-; For instance if your URL is 'http://example.com/directory/subdirectory', set urlpath to 'directory/subdirectory'.
-urlpath =
-
 ; paranoia (Boolean)
 ; Log out users if their IP address changed.
 paranoia = false
@@ -344,46 +278,24 @@ paranoia = false
 ; Restricts the search for not logged in users to one search per minute.
 permit_crawling = false
 
-; free_crawls (Integer)
-; Number of "free" searches when "permit_crawling" is activated.
-free_crawls = 10
-
-; crawl_permit_period (Integer)
-; Period in seconds between allowed searches when the number of free searches is reached and "permit_crawling" is activated.
-crawl_permit_period = 60
-
-; queue_no_dead_check (Boolean)
-; Ignore if the target contact or server seems to be dead during queue delivery.
-queue_no_dead_check = false
-
-; rino_encrypt (Integer)
-; Server-to-server private message encryption (RINO).
-; Encryption will only be provided if this setting is set to a non zero value on both servers.
-; Set to 0 to disable, 2 to enable, 1 is deprecated but wont need mcrypt.
-rino_encrypt = 2
-
-; worker_debug (Boolean)
-; If enabled, it prints out the number of running processes split by priority.
-worker_debug = false
-
-; worker_fetch_limit (Integer)
-; Number of worker tasks that are fetched in a single query.
-worker_fetch_limit = 1
-
-; profiler (Boolean)
-; Enable internal timings to help optimize code. Needed for "rendertime" addon.
-profiler = false
+; pidfile (Path)
+; Daemon pid file path. For example: pidfile = /path/to/daemon.pid
+pidfile =
 
 ; png_quality (Integer)
 ; Sets the ImageMagick compression level for PNG images. Values ranges from 0 (uncompressed) to 9 (most compressed).
 png_quality = 8
+
+; profiler (Boolean)
+; Enable internal timings to help optimize code. Needed for "rendertime" addon.
+profiler = false
 
 ; proxy_cache_time (Integer)
 ; Period in seconds after which the cache is cleared.
 proxy_cache_time = 86400
 
 ; pushpoll_frequency (Integer)
-; Frequency of contact poll for subhub contact using the DFRM or OStatus network
+; Frequency of contact poll for subhub contact using the DFRM or OStatus network.
 ; Available values:
 ; - 5 = every month
 ; - 4 = every week
@@ -392,6 +304,22 @@ proxy_cache_time = 86400
 ; - 1 = every hour
 ; - 0 = every minute
 pushpoll_frequency = 3
+
+; queue_no_dead_check (Boolean)
+; Ignore if the target contact or server seems to be dead during queue delivery.
+queue_no_dead_check = false
+
+; redis_host (String)
+; Host name of the redis daemon.
+redis_host = 127.0.0.1
+
+; redis_port (String)
+; Port number of the redis daemon.
+redis_port = 6379
+
+; session_handler (database|cache|native)
+; Whether to use Cache to store session data or to use PHP native session storage.
+session_handler = database
 
 ; remove_multiplicated_lines (Boolean)
 ; If enabled, multiple linefeeds in items are stripped to a single one.
@@ -403,6 +331,10 @@ remove_multiplicated_lines = false
 ; Set to false if your non-sendmail agent is incompatible, or to restore old behavior of using the host address.
 sendmail_params = true
 
+; show_global_community_hint (Boolean)
+; When the global community page is enabled, use this option to display a hint above the stream, that this is a collection of all public top-level postings that arrive on your node.
+show_global_community_hint = false
+
 ; show_unsupported_addons (Boolean)
 ; Show all addons including the unsupported ones.
 show_unsupported_addons = false
@@ -410,18 +342,6 @@ show_unsupported_addons = false
 ; show_unsupported_themes (Boolean)
 ; Show all themes including the unsupported ones.
 show_unsupported_themes = false
-
-; show_global_community_hint (Boolean)
-; When the global community page is enabled, use this option to display a hint above the stream, that this is a collection of all public top-level postings that arrive on your node.
-show_global_community_hint = false
-
-; allowed themes (Comma-separated list)
-; Themes users can change to in their settings
-allowed_themes = 'quattro,vier,duepuntozero,smoothly'
-
-; theme (String)
-; System theme name
-theme = vier
 
 ; throttle_limit_day (Integer)
 ; Maximum number of posts that a user can send per day with the API. 0 to disable daily throttling.
@@ -435,14 +355,22 @@ throttle_limit_week = 0
 ; Maximum number of posts that a user can send per month with the API. 0 to disable monthly throttling.
 throttle_limit_month = 0
 
-; url (String)
-; The fully-qualified URL of this Friendica node.
-; Used by the worker in a non-HTTP execution environment.
-url =
+; urlpath (String)
+; If you are using a subdirectory of your domain you will need to put the relative path (from the root of your domain) here.
+; For instance if your URL is 'http://example.com/directory/subdirectory', set urlpath to 'directory/subdirectory'.
+urlpath =
 
 ; worker_cooldown (Integer)
 ; Cooldown period in seconds after each worker function call.
 worker_cooldown = 0
+
+; worker_debug (Boolean)
+; If enabled, it prints out the number of running processes split by priority.
+worker_debug = false
+
+; worker_fetch_limit (Integer)
+; Number of worker tasks that are fetched in a single query.
+worker_fetch_limit = 1
 
 ; worker_load_exponent (Integer)
 ; Default 3, which allows only 25% of the maximum worker queues when server load reaches around 37% of maximum load.
@@ -450,16 +378,9 @@ worker_cooldown = 0
 ; Setting 0 would allow maximum worker queues at all times, which is not recommended.
 worker_load_exponent = 3
 
-; directory (String)
-; URL of the global directory
-directory = https://dir.friendi.social
-
 ; xrd_timeout (Integer)
 ; Timeout in seconds for fetching the XRD links.
 xrd_timeout = 20
-
-; Used in the admin settings to lock certain features
-[featurelock]
 
 [experimental]
 
@@ -470,7 +391,7 @@ exp_themes = false
 [theme]
 
 ; hide_eventlist (Boolean)
-; Don't show the birthdays and events on the profile and network page
+; Don't show the birthdays and events on the profile and network page.
 hide_eventlist = false
 
 [jabber]

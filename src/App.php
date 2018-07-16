@@ -323,7 +323,8 @@ class App
 	 */
 	private function loadConfigFiles()
 	{
-		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'defaults.ini.php');
+		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.ini.php');
+		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'settings.ini.php');
 
 		// Legacy .htconfig.php support
 		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
