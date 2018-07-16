@@ -1556,6 +1556,7 @@ class DFRN
 				logger("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml, LOGGER_DEBUG);
 			}
 
+			$author["contact-unknown"] = true;
 			$author["contact-id"] = $importer["id"];
 			$author["network"] = $importer["network"];
 			$onlyfetch = true;
@@ -2431,6 +2432,8 @@ class DFRN
 		// Fetch the owner
 		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", true);
 
+		$owner_unknown = (isset($owner["contact-unknown"]) && $owner["contact-unknown"]);
+
 		$item["owner-link"] = $owner["link"];
 		$item["owner-id"] = Contact::getIdForURL($owner["link"], 0);
 
@@ -2621,6 +2624,11 @@ class DFRN
 			$item["type"] = "remote-comment";
 			$item["wall"] = 1;
 		} elseif ($entrytype == DFRN::TOP_LEVEL) {
+			if ($owner_unknown) {
+				logger("Item won't be stored because user " . $importer["importer_uid"] . " doesn't follow " . $item["owner-link"] . ".", LOGGER_DEBUG);
+				return;
+			}
+
 			if (!isset($item["object-type"])) {
 				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 			}
