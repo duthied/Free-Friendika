@@ -2624,17 +2624,12 @@ class DFRN
 			$item["type"] = "remote-comment";
 			$item["wall"] = 1;
 		} elseif ($entrytype == DFRN::TOP_LEVEL) {
-			if ($owner_unknown) {
-				logger("Item won't be stored because user " . $importer["importer_uid"] . " doesn't follow " . $item["owner-link"] . ".", LOGGER_DEBUG);
-				return;
-			}
-
 			if (!isset($item["object-type"])) {
 				$item["object-type"] = ACTIVITY_OBJ_NOTE;
 			}
 
 			// Is it an event?
-			if ($item["object-type"] == ACTIVITY_OBJ_EVENT) {
+			if (($item["object-type"] == ACTIVITY_OBJ_EVENT) && !$owner_unknown) {
 				logger("Item ".$item["uri"]." seems to contain an event.", LOGGER_DEBUG);
 				$ev = Event::fromBBCode($item["body"]);
 				if ((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
@@ -2666,6 +2661,13 @@ class DFRN
 			logger("Exiting because 'processVerbs' told us so", LOGGER_DEBUG);
 			return;
 		}
+
+		// This check is done here to be able to receive connection requests in "processVerbs"
+		if (($entrytype == DFRN::TOP_LEVEL) && $owner_unknown) {
+			logger("Item won't be stored because user " . $importer["importer_uid"] . " doesn't follow " . $item["owner-link"] . ".", LOGGER_DEBUG);
+			return;
+		}
+
 
 		// Update content if 'updated' changes
 		if (DBM::is_result($current)) {
