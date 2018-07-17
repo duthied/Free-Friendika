@@ -337,6 +337,15 @@ class App
 			$a = $this;
 
 			include $this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php';
+
+			$this->setConfigValue('database', 'hostname', $db_host);
+			$this->setConfigValue('database', 'username', $db_user);
+			$this->setConfigValue('database', 'password', $db_pass);
+			$this->setConfigValue('database', 'database', $db_data);
+			if (isset($a->config['system']['db_charset'])) {
+				$this->setConfigValue('database', 'charset', $a->config['system']['db_charset']);
+			}
+
 			unset($db_host, $db_user, $db_pass, $db_data);
 
 			if (isset($default_timezone)) {
@@ -526,12 +535,6 @@ class App
 			}
 			$db_pass = (string) getenv('MYSQL_PASSWORD');
 			$db_data = getenv('MYSQL_DATABASE');
-		} elseif (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
-			$a = new \stdClass();
-			include $this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php';
-			$charset = isset($a->config["system"]["db_charset"]) ? $a->config["system"]["db_charset"] : $charset;
-
-			unset($a);
 		}
 
 		$stamp1 = microtime(true);
@@ -539,7 +542,7 @@ class App
 		\dba::connect($db_host, $db_user, $db_pass, $db_data, $charset);
 		unset($db_host, $db_user, $db_pass, $db_data, $charset);
 
-		$this->save_timestamp($stamp1, "network");
+		$this->save_timestamp($stamp1, 'network');
 	}
 
 	/**
