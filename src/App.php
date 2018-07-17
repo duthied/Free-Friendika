@@ -357,6 +357,11 @@ class App
 				$this->setConfigValue('system', 'pidfile', $pidfile);
 				unset($pidfile);
 			}
+
+			if (isset($lang)) {
+				$this->setConfigValue('system', 'language', $lang);
+				unset($lang);
+			}
 		}
 
 		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
