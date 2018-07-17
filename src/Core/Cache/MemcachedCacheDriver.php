@@ -41,7 +41,9 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 		$this->memcached = new Memcached();
 
 		array_walk($memcached_hosts, function (&$value) {
-			$value = array_map('trim', explode(',', $value));
+			if (is_string($value)) {
+				$value = array_map('trim', explode(',', $value));
+			}
 		});
 
 		$this->memcached->addServers($memcached_hosts);
