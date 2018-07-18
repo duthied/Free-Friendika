@@ -21,8 +21,9 @@ require_once 'include/dba.php';
 
 class OnePoll
 {
-	public static function execute($contact_id = 0, $command = '') {
-		global $a;
+	public static function execute($contact_id = 0, $command = '')
+	{
+		$a = \Friendica\BaseObject::getApp();
 
 		require_once 'include/items.php';
 
@@ -634,7 +635,8 @@ class OnePoll
 		return;
 	}
 
-	private static function RemoveReply($subject) {
+	private static function RemoveReply($subject)
+	{
 		while (in_array(strtolower(substr($subject, 0, 3)), ["re:", "aw:"])) {
 			$subject = trim(substr($subject, 4));
 		}
@@ -648,7 +650,8 @@ class OnePoll
 	 * @param array $contact The personal contact entry
 	 * @param array $fields The fields that are updated
 	 */
-	private static function updateContact($contact, $fields) {
+	private static function updateContact($contact, $fields)
+	{
 		dba::update('contact', $fields, ['id' => $contact['id']]);
 		dba::update('contact', $fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
 	}

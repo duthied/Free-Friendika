@@ -53,7 +53,7 @@ class DBStructure
 		$a = get_app();
 
 		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email']))))."'";
+		$admin_mail_list = "'".implode("','", array_map('dbesc', explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
 		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
 			$admin_mail_list
 		);

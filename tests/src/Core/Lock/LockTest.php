@@ -2,10 +2,8 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Test\DatabaseTest;
-use PHPUnit\Framework\TestCase;
 
 abstract class LockTest extends DatabaseTest
 {
@@ -18,13 +16,11 @@ abstract class LockTest extends DatabaseTest
 
 	protected function setUp()
 	{
-		global $a;
 		parent::setUp();
 		$this->instance = $this->getInstance();
 
 		// Reusable App object
-		$this->app = new App(__DIR__.'/../');
-		$a = $this->app;
+		$this->app = \Friendica\BaseObject::getApp();
 
 		// Default config
 		Config::set('config', 'hostname', 'localhost');

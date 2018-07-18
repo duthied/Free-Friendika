@@ -15,7 +15,8 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use dba;
 
-class DiscoverPoCo {
+class DiscoverPoCo
+{
 	/// @todo Clean up this mess of a parameter hell and split it in several classes
 	public static function execute($command = '', $param1 = '', $param2 = '', $param3 = '', $param4 = '')
 	{
@@ -275,8 +276,6 @@ class DiscoverPoCo {
 		// Currently disabled, since the service isn't available anymore.
 		// It is not removed since I hope that there will be a successor.
 		return false;
-
-		$a = get_app();
 
 		$url = "http://gstools.org/api/users_search/".urlencode($search);
 

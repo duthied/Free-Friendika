@@ -39,7 +39,7 @@ function lostpass_post(App $a)
 		info(L10n::t('Password reset request issued. Check your email.') . EOL);
 	}
 
-	$sitename = $a->config['sitename'];
+	$sitename = Config::get('config', 'sitename');
 	$resetlink = System::baseUrl() . '/lostpass/' . $pwdreset_token;
 
 	$preamble = deindent(L10n::t('
@@ -145,7 +145,7 @@ function lostpass_generate_password($user)
 
 		info("Your password has been reset." . EOL);
 
-		$sitename = $a->config['sitename'];
+		$sitename = Config::get('config', 'sitename');
 		$preamble = deindent(L10n::t('
 			Dear %1$s,
 				Your password has been changed as requested. Please retain this

@@ -25,8 +25,6 @@ class Queue
 {
 	public static function execute($queue_id = 0)
 	{
-		global $a;
-
 		$cachekey_deadguy = 'queue_run:deadguy:';
 		$cachekey_server = 'queue_run:server:';
 

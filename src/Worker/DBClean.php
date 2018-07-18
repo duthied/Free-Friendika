@@ -60,8 +60,6 @@ class DBClean {
 	 * 10:	Old conversations.
 	 */
 	private static function removeOrphans($stage) {
-		global $db;
-
 		$count = 0;
 
 		// We split the deletion in many small tasks

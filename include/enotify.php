@@ -33,11 +33,11 @@ function notification($params)
 	$product = FRIENDICA_PLATFORM;
 	$siteurl = System::baseUrl(true);
 	$thanks = L10n::t('Thank You,');
-	$sitename = $a->config['sitename'];
-	if (empty($a->config['admin_name'])) {
-		$site_admin = L10n::t('%s Administrator', $sitename);
+	$sitename = Config::get('config', 'sitename');
+	if (Config::get('config', 'admin_name')) {
+		$site_admin = L10n::t('%1$s, %2$s Administrator', Config::get('config', 'admin_name'), $sitename);
 	} else {
-		$site_admin = L10n::t('%1$s, %2$s Administrator', $a->config['admin_name'], $sitename);
+		$site_admin = L10n::t('%s Administrator', $sitename);
 	}
 
 	$sender_name = $sitename;

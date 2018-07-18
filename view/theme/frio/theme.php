@@ -268,7 +268,7 @@ function frio_remote_nav($a, &$nav)
 		$nav['messages'] = [$server_url . '/message', L10n::t('Messages'), '', L10n::t('Private mail')];
 		$nav['settings'] = [$server_url . '/settings', L10n::t('Settings'), '', L10n::t('Account settings')];
 		$nav['contacts'] = [$server_url . '/contacts', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
-		$nav['sitename'] = $a->config['sitename'];
+		$nav['sitename'] = Config::get('config', 'sitename');
 	}
 }
 

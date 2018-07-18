@@ -772,6 +772,7 @@ function api_get_user(App $a, $contact_id = null)
 		$theme_info = dba::selectFirst('user', ['theme'], ['uid' => $ret['uid']]);
 		if ($theme_info['theme'] === 'frio') {
 			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
+
 			if ($schema && ($schema != '---')) {
 				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
 					$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
@@ -3344,7 +3345,7 @@ function api_statusnet_config($type)
 	$server    = $a->get_hostname();
 	$logo      = System::baseUrl() . '/images/friendica-64.png';
 	$email     = Config::get('config', 'admin_email');
-	$closed    = Config::get('config', 'register_policy') == REGISTER_CLOSED ? 'true' : 'false';
+	$closed    = intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 'true' : 'false';
 	$private   = Config::get('system', 'block_public') ? 'true' : 'false';
 	$textlimit = (string) Config::get('config', 'api_import_size', Config::get('config', 'max_import_size', 200000));
 	$ssl       = Config::get('system', 'have_ssl') ? 'true' : 'false';

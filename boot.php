@@ -64,15 +64,13 @@ define('EOL',                    "<br />\r\n");
  * @brief Image storage quality.
  *
  * Lower numbers save space at cost of image detail.
- * For ease of upgrade, please do not change here. Change jpeg quality with
- * $a->config['system']['jpeg_quality'] = n;
- * in .htconfig.php, where n is netween 1 and 100, and with very poor results
- * below about 50
+ * For ease of upgrade, please do not change here. Set [system] jpegquality = n in config/local.ini.php,
+ * where n is between 1 and 100, and with very poor results below about 50
  */
 define('JPEG_QUALITY',            100);
 
 /**
- * $a->config['system']['png_quality'] from 0 (uncompressed) to 9
+ * [system] png_quality = n where is between 0 (uncompressed) to 9
  */
 define('PNG_QUALITY',             8);
 
@@ -83,9 +81,10 @@ define('PNG_QUALITY',             8);
  * this length (on the longest side, the other side will be scaled appropriately).
  * Modify this value using
  *
- *    $a->config['system']['max_image_length'] = n;
+ * [system]
+ * max_image_length = n;
  *
- * in .htconfig.php
+ * in config/local.ini.php
  *
  * If you don't want to set a maximum length, set to -1. The default value is
  * defined by 'MAX_IMAGE_LENGTH' below.
@@ -509,14 +508,7 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
  */
 function get_app()
 {
-	global $a;
-
-	if (empty($a)) {
-		$a = new App(dirname(__DIR__));
-		BaseObject::setApp($a);
-	}
-
-	return $a;
+	return BaseObject::getApp();
 }
 
 /**
@@ -782,7 +774,7 @@ function run_update_function($x)
 /**
  * @brief Synchronise addons:
  *
- * $a->config['system']['addon'] contains a comma-separated list of names
+ * system.addon contains a comma-separated list of names
  * of addons which are used on this system.
  * Go through the database list of already installed addons, and if we have
  * an entry, but it isn't in the config list, call the uninstall procedure
@@ -965,17 +957,6 @@ function info($s)
 	}
 }
 
-/**
- * @brief Wrapper around config to limit the text length of an incoming message
- *
- * @return int
- */
-function get_max_import_size()
-{
-	$a = get_app();
-	return (x($a->config, 'max_import_size') ? $a->config['max_import_size'] : 0);
-}
-
 function feed_birthday($uid, $tz)
 {
 	/**
@@ -1031,14 +1012,11 @@ function is_site_admin()
 {
 	$a = get_app();
 
-	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	$admin_email = Config::get('config', 'admin_email');
 
-	//if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
-	/// @TODO This if() + 2 returns can be shrinked into one return
-	if (local_user() && x($a->user, 'email') && x($a->config, 'admin_email') && in_array($a->user['email'], $adminlist)) {
-		return true;
-	}
-	return false;
+	$adminlist = explode(',', str_replace(' ', '', $admin_email));
+
+	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
 }
 
 /**

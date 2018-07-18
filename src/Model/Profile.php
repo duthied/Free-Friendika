@@ -138,7 +138,7 @@ class Profile
 		$a->profile['mobile-theme'] = PConfig::get($a->profile['profile_uid'], 'system', 'mobile_theme');
 		$a->profile['network'] = NETWORK_DFRN;
 
-		$a->page['title'] = $a->profile['name'] . ' @ ' . $a->config['sitename'];
+		$a->page['title'] = $a->profile['name'] . ' @ ' . Config::get('config', 'sitename');
 
 		if (!$profiledata && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
 			$_SESSION['theme'] = $a->profile['theme'];

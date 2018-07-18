@@ -19,8 +19,7 @@ class RedisCacheDriverTest extends MemoryCacheTest
 			try {
 				$this->cache = CacheDriverFactory::create('redis');
 			} catch (\Exception $exception) {
-				print "Redis - TestCase failed: " . $exception->getMessage();
-				throw new \Exception();
+				throw new \Exception("Redis - TestCase failed: " . $exception->getMessage(), $exception->getCode(), $exception);
 			}
 			return $this->cache;
 		} else {

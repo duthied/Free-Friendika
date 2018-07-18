@@ -2,7 +2,6 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Test\DatabaseTest;
 use Friendica\Util\DateTimeFormat;
@@ -18,13 +17,11 @@ abstract class CacheTest extends DatabaseTest
 
 	protected function setUp()
 	{
-		global $a;
 		parent::setUp();
 		$this->instance = $this->getInstance();
 
 		// Reusable App object
-		$this->app = new App(__DIR__.'/../');
-		$a = $this->app;
+		$this->app = \Friendica\BaseObject::getApp();
 
 		// Default config
 		Config::set('config', 'hostname', 'localhost');

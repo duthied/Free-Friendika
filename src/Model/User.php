@@ -454,8 +454,8 @@ class User
 
 		// Disallow somebody creating an account using openid that uses the admin email address,
 		// since openid bypasses email verification. We'll allow it if there is not yet an admin account.
-		if (x($a->config, 'admin_email') && strlen($openid_url)) {
-			$adminlist = explode(',', str_replace(' ', '', strtolower($a->config['admin_email'])));
+		if (Config::get('config', 'admin_email') && strlen($openid_url)) {
+			$adminlist = explode(',', str_replace(' ', '', strtolower(Config::get('config', 'admin_email'))));
 			if (in_array(strtolower($email), $adminlist)) {
 				throw new Exception(L10n::t('Cannot use that email.'));
 			}

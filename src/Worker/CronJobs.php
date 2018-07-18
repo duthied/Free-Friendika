@@ -24,7 +24,7 @@ class CronJobs
 {
 	public static function execute($command = '')
 	{
-		global $a;
+		$a = \Friendica\BaseObject::getApp();
 
 		// No parameter set? So return
 		if ($command == '') {

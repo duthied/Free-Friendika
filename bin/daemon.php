@@ -8,7 +8,6 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 
@@ -28,17 +27,20 @@ require_once "boot.php";
 require_once "include/dba.php";
 
 $a = new App(dirname(__DIR__));
-BaseObject::setApp($a);
 
-require_once ".htconfig.php";
-dba::connect($db_host, $db_user, $db_pass, $db_data);
+if ($a->isInstallMode()) {
+	die("Friendica isn't properly installed yet.\n");
+}
 
 Config::load();
 
-if (!isset($pidfile)) {
-	die('Please specify a pid file in the variable $pidfile in the .htconfig.php. For example:'."\n".
-		'$pidfile = "/path/to/daemon.pid";'."\n");
+if (empty(Config::get('system', 'pidfile'))) {
+	die('Please set system.pidfile in config/local.ini.php. For example:'."\n".
+		'[system]'."\n".
+		'pidfile = /path/to/daemon.pid'."\n");
 }
+
+$pidfile = Config::get('system', 'pidfile');
 
 if (in_array("start", $_SERVER["argv"])) {
 	$mode = "start";
@@ -127,10 +129,8 @@ if (!$foreground) {
 	file_put_contents($pidfile, $pid);
 
 	// We lose the database connection upon forking
-	dba::connect($db_host, $db_user, $db_pass, $db_data);
+	$a->loadDatabase();
 }
-
-unset($db_host, $db_user, $db_pass, $db_data);
 
 Config::set('system', 'worker_daemon_mode', true);
 

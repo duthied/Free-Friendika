@@ -5,12 +5,11 @@
 
 namespace Friendica\Test;
 
-use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
-use Friendica\Network\BadRequestException;
+use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Network\HTTPException;
-use Friendica\Render\FriendicaSmarty;
 
 /**
  * Tests for the API functions.
@@ -26,12 +25,10 @@ class ApiTest extends DatabaseTest
 	 */
 	protected function setUp()
 	{
-		global $a;
 		parent::setUp();
 
 		// Reusable App object
-		$this->app = new App(__DIR__.'/../');
-		$a = $this->app;
+		$this->app = \Friendica\BaseObject::getApp();
 
 		// User data that the test database is populated with
 		$this->selfUser = [
@@ -719,10 +716,10 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithCustomFrioSchema()
 	{
-		PConfig::set($this->selfUser['id'], 'frio', 'schema', '---');
-		PConfig::set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
-		PConfig::set($this->selfUser['id'], 'frio', 'link_color', '#123456');
-		PConfig::set($this->selfUser['id'], 'frio', 'background_color', '#123456');
+		$ret1 = PConfig::set($this->selfUser['id'], 'frio', 'schema', '---');
+		$ret2 = PConfig::set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
+		$ret3 = PConfig::set($this->selfUser['id'], 'frio', 'link_color', '#123456');
+		$ret4 = PConfig::set($this->selfUser['id'], 'frio', 'background_color', '#123456');
 		$user = api_get_user($this->app);
 		$this->assertSelfUser($user);
 		$this->assertEquals('123456', $user['profile_sidebar_fill_color']);
@@ -2164,7 +2161,7 @@ class ApiTest extends DatabaseTest
 	public function testApiFormatItemsEmbededImages()
 	{
 		$this->assertEquals(
-			'text ' . \Friendica\Core\System::baseUrl() . '/display/item_guid',
+			'text ' . System::baseUrl() . '/display/item_guid',
 			api_format_items_embeded_images(['guid' => 'item_guid'], 'text data:image/foo')
 		);
 	}
@@ -2338,7 +2335,7 @@ class ApiTest extends DatabaseTest
 				'body' => '',
 				'verb' => '',
 				'author-id' => 43,
-				'author-network' => \Friendica\Core\Protocol::DFRN,
+				'author-network' => Protocol::DFRN,
 				'author-link' => 'http://localhost/profile/othercontact',
 				'plink' => '',
 			]
@@ -2361,7 +2358,7 @@ class ApiTest extends DatabaseTest
 				'body' => '',
 				'verb' => '',
 				'author-id' => 43,
-				'author-network' => \Friendica\Core\Protocol::DFRN,
+				'author-network' => Protocol::DFRN,
 				'author-link' => 'http://localhost/profile/othercontact',
 				'plink' => '',
 			]
@@ -2635,7 +2632,7 @@ class ApiTest extends DatabaseTest
 		$result = api_statusnet_config('json');
 		$this->assertEquals('localhost', $result['config']['site']['server']);
 		$this->assertEquals('default', $result['config']['site']['theme']);
-		$this->assertEquals(\Friendica\Core\System::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
+		$this->assertEquals(System::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
 		$this->assertTrue($result['config']['site']['fancy']);
 		$this->assertEquals('en', $result['config']['site']['language']);
 		$this->assertEquals('UTC', $result['config']['site']['timezone']);

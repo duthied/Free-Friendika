@@ -56,11 +56,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		require_once '.htconfig.php';
-		$result = \dba::connect($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-
-		if (!$result) {
+		if (!\dba::connected()) {
 			throw new \RuntimeException('Unable to connect to database');
 		}
 

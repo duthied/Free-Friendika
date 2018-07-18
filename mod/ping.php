@@ -9,6 +9,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -200,7 +201,7 @@ function ping_init(App $a)
 		);
 		$mail_count = count($mails);
 
-		if ($a->config['register_policy'] == REGISTER_APPROVE && is_site_admin()) {
+		if (intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE && is_site_admin()) {
 			$regs = q(
 				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`

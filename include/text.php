@@ -463,86 +463,6 @@ function perms2str($p) {
 }
 
 /**
- * @deprecated
- * wrapper to load a view template, checking for alternate
- * languages before falling back to the default
- *
- * @global string $lang
- * @global App $a
- * @param string $s view name
- * @return string
- */
-function load_view_file($s) {
-	global $lang, $a;
-	if (!isset($lang)) {
-		$lang = 'en';
-	}
-	$b = basename($s);
-	$d = dirname($s);
-	if (file_exists("$d/$lang/$b")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("$d/$lang/$b");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	}
-
-	$theme = $a->getCurrentTheme();
-
-	if (file_exists("$d/theme/$theme/$b")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("$d/theme/$theme/$b");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	}
-
-	$stamp1 = microtime(true);
-	$content = file_get_contents($s);
-	$a->save_timestamp($stamp1, "file");
-	return $content;
-}
-
-
-/**
- * load a view template, checking for alternate
- * languages before falling back to the default
- *
- * @global string $lang
- * @param string $s view path
- * @return string
- */
-function get_intltext_template($s) {
-	global $lang;
-
-	$a = get_app();
-	$engine = '';
-	if ($a->theme['template_engine'] === 'smarty3') {
-		$engine = "/smarty3";
-	}
-
-	if (!isset($lang)) {
-		$lang = 'en';
-	}
-
-	if (file_exists("view/lang/$lang$engine/$s")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("view/lang/$lang$engine/$s");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	} elseif (file_exists("view/lang/en$engine/$s")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("view/lang/en$engine/$s");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	} else {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("view$engine/$s");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	}
-}
-
-
-/**
  * load template $s
  *
  * @param string $s
@@ -599,7 +519,6 @@ $LOGGER_LEVELS = [];
  * LOGGER_DATA
  * LOGGER_ALL
  *
- * @global App $a
  * @global array $LOGGER_LEVELS
  * @param string $msg
  * @param int $level
@@ -608,17 +527,9 @@ function logger($msg, $level = 0) {
 	$a = get_app();
 	global $LOGGER_LEVELS;
 
-	// turn off logger in install mode
-	if (
-		$a->mode == App::MODE_INSTALL
-		|| !dba::$connected
-	) {
-		return;
-	}
-
-	$debugging = Config::get('system','debugging');
-	$logfile   = Config::get('system','logfile');
-	$loglevel = intval(Config::get('system','loglevel'));
+	$debugging = Config::get('system', 'debugging');
+	$logfile   = Config::get('system', 'logfile');
+	$loglevel = intval(Config::get('system', 'loglevel'));
 
 	if (
 		!$debugging
@@ -678,22 +589,12 @@ function logger($msg, $level = 0) {
  * LOGGER_DATA
  * LOGGER_ALL
  *
- * @global App $a
  * @global array $LOGGER_LEVELS
  * @param string $msg
  * @param int $level
  */
-
 function dlogger($msg, $level = 0) {
 	$a = get_app();
-
-	// turn off logger in install mode
-	if (
-		$a->mode == App::MODE_INSTALL
-		|| !dba::$connected
-	) {
-		return;
-	}
 
 	$logfile = Config::get('system', 'dlogfile');
 	if (!$logfile) {
@@ -716,7 +617,7 @@ function dlogger($msg, $level = 0) {
 	$process_id = session_id();
 
 	if ($process_id == '') {
-		$process_id = get_app()->process_id;
+		$process_id = $a->process_id;
 	}
 
 	$callers = debug_backtrace();

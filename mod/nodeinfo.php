@@ -61,9 +61,9 @@ function nodeinfo_init(App $a) {
 
 	$nodeinfo['usage'] = [];
 
-	$nodeinfo['openRegistrations'] = ($a->config['register_policy'] != 0);
+	$nodeinfo['openRegistrations'] = intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED;
 
-	$nodeinfo['metadata'] = ['nodeName' => $a->config['sitename']];
+	$nodeinfo['metadata'] = ['nodeName' => Config::get('config', 'sitename')];
 
 	if (Config::get('system', 'nodeinfo')) {
 

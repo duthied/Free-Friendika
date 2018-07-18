@@ -611,7 +611,7 @@ function dfrn_request_content(App $a)
 		} elseif (x($_GET, 'address') && ($_GET['address'] != "")) {
 			$myaddr = $_GET['address'];
 		} elseif (local_user()) {
-			if (strlen($a->path)) {
+			if (strlen($a->urlpath)) {
 				$myaddr = System::baseUrl() . '/profile/' . $a->user['nickname'];
 			} else {
 				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);

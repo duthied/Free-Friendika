@@ -15,7 +15,8 @@ use dba;
 
 require_once 'include/items.php';
 
-class PubSubPublish {
+class PubSubPublish
+{
 	public static function execute($pubsubpublish_id = 0)
 	{
 		if ($pubsubpublish_id == 0) {
@@ -25,8 +26,9 @@ class PubSubPublish {
 		self::publish($pubsubpublish_id);
 	}
 
-	private static function publish($id) {
-		global $a;
+	private static function publish($id)
+	{
+		$a = \Friendica\BaseObject::getApp();
 
 		$subscriber = dba::selectFirst('push_subscriber', [], ['id' => $id]);
 		if (!DBM::is_result($subscriber)) {

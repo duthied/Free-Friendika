@@ -66,11 +66,17 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 			$this->in_db[$cat][$k] = true;
 			return $value;
 		} elseif (isset($a->config[$cat][$k])) {
-			// Assign the value (mostly) from the .htconfig.php to the cache
+			// Assign the value (mostly) from config/local.ini.php file to the cache
 			$this->cache[$cat][$k] = $a->config[$cat][$k];
 			$this->in_db[$cat][$k] = false;
 
 			return $a->config[$cat][$k];
+		} elseif (isset($a->config[$k])) {
+			// Assign the value (mostly) from config/local.ini.php file to the cache
+			$this->cache[$k] = $a->config[$k];
+			$this->in_db[$k] = false;
+
+			return $a->config[$k];
 		}
 
 		$this->cache[$cat][$k] = '!<unset>!';

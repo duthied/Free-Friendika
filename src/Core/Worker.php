@@ -41,7 +41,7 @@ class Worker
 		self::$up_start = microtime(true);
 
 		// At first check the maximum load. We shouldn't continue with a high load
-		if ($a->maxload_reached()) {
+		if ($a->isMaxLoadReached()) {
 			logger('Pre check: maximum load reached, quitting.', LOGGER_DEBUG);
 			return;
 		}
@@ -75,7 +75,7 @@ class Worker
 		}
 
 		// Possibly there are too much database processes that block the system
-		if ($a->max_processes_reached()) {
+		if ($a->isMaxProcessesReached()) {
 			logger('Pre check: maximum processes reached, quitting.', LOGGER_DEBUG);
 			return;
 		}
@@ -203,7 +203,7 @@ class Worker
 		}
 
 		// Constantly check the number of parallel database processes
-		if ($a->max_processes_reached()) {
+		if ($a->isMaxProcessesReached()) {
 			logger("Max processes reached for process ".$mypid, LOGGER_DEBUG);
 			return false;
 		}

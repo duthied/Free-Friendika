@@ -1,7 +1,9 @@
 <?php
 
-use Friendica\App;
-use Friendica\Core\L10n;
+// Do not use Core\Config in this class at risk of infinite loop.
+// Please use App->getConfigVariable() instead.
+//use Friendica\Core\Config;
+
 use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Database\DBStructure;
@@ -29,21 +31,20 @@ class dba {
 	private static $db_user = '';
 	private static $db_pass = '';
 	private static $db_name = '';
+	private static $db_charset = '';
 
-	public static function connect($serveraddr, $user, $pass, $db) {
+	public static function connect($serveraddr, $user, $pass, $db, $charset = null)
+	{
 		if (!is_null(self::$db) && self::connected()) {
 			return true;
 		}
-
-		$a = get_app();
-
-		$stamp1 = microtime(true);
 
 		// We are storing these values for being able to perform a reconnect
 		self::$db_serveraddr = $serveraddr;
 		self::$db_user = $user;
 		self::$db_pass = $pass;
 		self::$db_name = $db;
+		self::$db_charset = $charset;
 
 		$serveraddr = trim($serveraddr);
 
@@ -58,6 +59,7 @@ class dba {
 		$user = trim($user);
 		$pass = trim($pass);
 		$db = trim($db);
+		$charset = trim($charset);
 
 		if (!(strlen($server) && strlen($user))) {
 			return false;
@@ -71,9 +73,10 @@ class dba {
 				$connect .= ";port=".$port;
 			}
 
-			if (isset($a->config["system"]["db_charset"])) {
-				$connect .= ";charset=".$a->config["system"]["db_charset"];
+			if ($charset) {
+				$connect .= ";charset=".$charset;
 			}
+
 			try {
 				self::$db = @new PDO($connect, $user, $pass);
 				self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -88,8 +91,8 @@ class dba {
 			if (!mysqli_connect_errno()) {
 				self::$connected = true;
 
-				if (isset($a->config["system"]["db_charset"])) {
-					self::$db->set_charset($a->config["system"]["db_charset"]);
+				if ($charset) {
+					self::$db->set_charset($charset);
 				}
 			}
 		}
@@ -99,7 +102,6 @@ class dba {
 			self::$driver = null;
 			self::$db = null;
 		}
-		$a->save_timestamp($stamp1, "network");
 
 		return self::$connected;
 	}
@@ -130,7 +132,7 @@ class dba {
 	public static function reconnect() {
 		self::disconnect();
 
-		$ret = self::connect(self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name);
+		$ret = self::connect(self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
 		return $ret;
 	}
 
@@ -184,7 +186,7 @@ class dba {
 	private static function logIndex($query) {
 		$a = get_app();
 
-		if (empty($a->config["system"]["db_log_index"])) {
+		if (!$a->getConfigVariable('system', 'db_log_index')) {
 			return;
 		}
 
@@ -203,18 +205,18 @@ class dba {
 			return;
 		}
 
-		$watchlist = explode(',', $a->config["system"]["db_log_index_watch"]);
-		$blacklist = explode(',', $a->config["system"]["db_log_index_blacklist"]);
+		$watchlist = explode(',', $a->getConfigVariable('system', 'db_log_index_watch'));
+		$blacklist = explode(',', $a->getConfigVariable('system', 'db_log_index_blacklist'));
 
 		while ($row = dba::fetch($r)) {
-			if ((intval($a->config["system"]["db_loglimit_index"]) > 0)) {
+			if ((intval($a->getConfigVariable('system', 'db_loglimit_index')) > 0)) {
 				$log = (in_array($row['key'], $watchlist) &&
-					($row['rows'] >= intval($a->config["system"]["db_loglimit_index"])));
+					($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index'))));
 			} else {
 				$log = false;
 			}
 
-			if ((intval($a->config["system"]["db_loglimit_index_high"]) > 0) && ($row['rows'] >= intval($a->config["system"]["db_loglimit_index_high"]))) {
+			if ((intval($a->getConfigVariable('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index_high')))) {
 				$log = true;
 			}
 
@@ -224,7 +226,7 @@ class dba {
 
 			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-				@file_put_contents($a->config["system"]["db_log_index"], DateTimeFormat::utcNow()."\t".
+				@file_put_contents($a->getConfigVariable('system', 'db_log_index'), DateTimeFormat::utcNow()."\t".
 						$row['key']."\t".$row['rows']."\t".$row['Extra']."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
@@ -384,7 +386,7 @@ class dba {
 
 		$orig_sql = $sql;
 
-		if (x($a->config,'system') && x($a->config['system'], 'db_callstack')) {
+		if ($a->getConfigValue('system', 'db_callstack')) {
 			$sql = "/*".System::callstack()." */ ".$sql;
 		}
 
@@ -545,16 +547,15 @@ class dba {
 
 		$a->save_timestamp($stamp1, 'database');
 
-		if (x($a->config,'system') && x($a->config['system'], 'db_log')) {
-
+		if ($a->getConfigValue('system', 'db_log')) {
 			$stamp2 = microtime(true);
 			$duration = (float)($stamp2 - $stamp1);
 
-			if (($duration > $a->config["system"]["db_loglimit"])) {
+			if (($duration > $a->getConfigValue('system', 'db_loglimit'))) {
 				$duration = round($duration, 3);
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-				@file_put_contents($a->config["system"]["db_log"], DateTimeFormat::utcNow()."\t".$duration."\t".
+				@file_put_contents($a->getConfigValue('system', 'db_log'), DateTimeFormat::utcNow()."\t".$duration."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
 						substr(self::replaceParameters($sql, $args), 0, 2000)."\n", FILE_APPEND);
@@ -1377,7 +1378,7 @@ class dba {
 								$is_alpha = true;
 							}
 						}
-						
+
 						if ($is_int && $is_alpha) {
 							foreach ($value as &$ref) {
 								if (is_int($ref)) {
