@@ -98,7 +98,6 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 		if ($result) {
 			$this->in_db[$uid][$cat][$k] = true;
-			return $value;
 		}
 
 		return $result;

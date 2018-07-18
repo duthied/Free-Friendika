@@ -106,7 +106,6 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 
 		if ($result) {
 			$this->in_db[$cat][$k] = true;
-			return $value;
 		}
 
 		return $result;

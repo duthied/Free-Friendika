@@ -93,7 +93,7 @@ class PConfig extends BaseObject
 	 * @param string $key    The configuration key to set
 	 * @param string $value  The value to store
 	 *
-	 * @return mixed Stored $value or false
+	 * @return bool Operation success
 	 */
 	public static function set($uid, $family, $key, $value)
 	{
