@@ -559,9 +559,8 @@ class Network
 	 */
 	public static function isUrlBlocked($url)
 	{
-		$h = @parse_url($url);
-
-		if (! $h) {
+		$host = @parse_url($url, PHP_URL_HOST);
+		if (! $host) {
 			return true;
 		}
 
@@ -570,10 +569,8 @@ class Network
 			return false;
 		}
 
-		$host = strtolower($h['host']);
-
 		foreach ($domain_blocklist as $domain_block) {
-			if (strtolower($domain_block['domain']) == $host) {
+			if (strcasecmp($domain_block['domain'], $host) === 0) {
 				return true;
 			}
 		}
