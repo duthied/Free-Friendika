@@ -110,7 +110,7 @@ class Config extends BaseObject
 	 * @param string $key    The configuration key to set
 	 * @param mixed  $value  The value to store
 	 *
-	 * @return mixed Stored $value or false if the database update failed
+	 * @return bool Operation success
 	 */
 	public static function set($family, $key, $value)
 	{
