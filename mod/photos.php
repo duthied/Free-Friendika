@@ -459,7 +459,7 @@ function photos_post(App $a)
 			$arr['uid']           = $page_owner_uid;
 			$arr['uri']           = $uri;
 			$arr['parent-uri']    = $uri;
-			$arr['type']          = 'photo';
+			$arr['post-type']     = Item::PT_IMAGE;
 			$arr['wall']          = 1;
 			$arr['resource-id']   = $p[0]['resource-id'];
 			$arr['contact-id']    = $owner_record['id'];
@@ -626,7 +626,6 @@ function photos_post(App $a)
 					$arr['uid']           = $page_owner_uid;
 					$arr['uri']           = $uri;
 					$arr['parent-uri']    = $uri;
-					$arr['type']          = 'activity';
 					$arr['wall']          = 1;
 					$arr['contact-id']    = $owner_record['id'];
 					$arr['owner-name']    = $owner_record['name'];
@@ -1446,7 +1445,6 @@ function photos_content(App $a)
 					$comments .= replace_macros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_url,
-						'$type' => 'wall-comment',
 						'$id' => $link_item['id'],
 						'$parent' => $link_item['id'],
 						'$profile_uid' =>  $owner_uid,
@@ -1485,7 +1483,6 @@ function photos_content(App $a)
 					$comments .= replace_macros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_url,
-						'$type' => 'wall-comment',
 						'$id' => $link_item['id'],
 						'$parent' => $link_item['id'],
 						'$profile_uid' =>  $owner_uid,
@@ -1546,7 +1543,6 @@ function photos_content(App $a)
 						$comments .= replace_macros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_url,
-							'$type' => 'wall-comment',
 							'$id' => $item['item_id'],
 							'$parent' => $item['parent'],
 							'$profile_uid' =>  $owner_uid,

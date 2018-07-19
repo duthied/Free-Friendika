@@ -17,6 +17,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBM;
+use Friendica\Model\PermissionSet;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -30,6 +31,17 @@ require_once 'include/text.php';
 
 class Item extends BaseObject
 {
+	// Posting types, inspired by https://www.w3.org/TR/activitystreams-vocabulary/#object-types
+	const PT_ARTICLE = 0;
+	const PT_NOTE = 1;
+	const PT_PAGE = 2;
+	const PT_IMAGE = 16;
+	const PT_AUDIO = 17;
+	const PT_VIDEO = 18;
+	const PT_DOCUMENT = 19;
+	const PT_EVENT = 32;
+	const PT_PERSONAL_NOTE = 128;
+
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network',
 			'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
@@ -48,7 +60,7 @@ class Item extends BaseObject
 	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid',
 			'created', 'edited', 'verb', 'object-type', 'object', 'target',
 			'private', 'title', 'body', 'location', 'coord', 'app',
-			'attach', 'tag', 'bookmark', 'deleted', 'extid',
+			'attach', 'tag', 'deleted', 'extid', 'post-type',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'signature', 'signer', 'network'];
@@ -63,10 +75,10 @@ class Item extends BaseObject
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
-			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid',
+			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
-			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
@@ -464,7 +476,7 @@ class Item extends BaseObject
 
 		$threadfields = ['thread' => ['iid', 'uid', 'contact-id', 'owner-id', 'author-id',
 			'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private',
-			'pubmail', 'moderated', 'visible', 'starred', 'ignored', 'bookmark',
+			'pubmail', 'moderated', 'visible', 'starred', 'ignored', 'post-type',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'network']];
 
 		$select_fields = self::constructSelectFields($fields, $selected);
@@ -501,8 +513,8 @@ class Item extends BaseObject
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'postopts',
-			'resource-id', 'event-id', 'tag', 'attach', 'inform',
-			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'resource-id', 'event-id', 'tag', 'attach', 'inform', 'post-type',
+			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'psid',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid', 'iaid', 'id' => 'internal-iid',
@@ -750,8 +762,8 @@ class Item extends BaseObject
 			}
 		}
 
-		$author_owner_fields = ['author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link'];
-		foreach ($author_owner_fields as $field) {
+		$clear_fields = ['bookmark', 'type', 'author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link'];
+		foreach ($clear_fields as $field) {
 			if (array_key_exists($field, $fields)) {
 				$fields[$field] = null;
 			}
@@ -1179,7 +1191,6 @@ class Item extends BaseObject
 		// If it is a posting where users should get notifications, then define it as wall posting
 		if ($notify) {
 			$item['wall'] = 1;
-			$item['type'] = 'wall';
 			$item['origin'] = 1;
 			$item['network'] = NETWORK_DFRN;
 			$item['protocol'] = PROTOCOL_DFRN;
@@ -1232,19 +1243,15 @@ class Item extends BaseObject
 			$item['parent-uri'] = $item['thr-parent'];
 		}
 
-		$item['type'] = defaults($item, 'type', 'remote');
-
 		if (isset($item['gravity'])) {
 			$item['gravity'] = intval($item['gravity']);
 		} elseif ($item['parent-uri'] === $item['uri']) {
 			$item['gravity'] = GRAVITY_PARENT;
 		} elseif (activity_match($item['verb'], ACTIVITY_POST)) {
 			$item['gravity'] = GRAVITY_COMMENT;
-		} elseif ($item['type'] == 'activity') {
-			$item['gravity'] = GRAVITY_ACTIVITY;
 		} else {
 			$item['gravity'] = GRAVITY_UNKNOWN;   // Should not happen
-			logger('Unknown gravity for verb: ' . $item['verb'] . ' - type: ' . $item['type'], LOGGER_DEBUG);
+			logger('Unknown gravity for verb: ' . $item['verb'], LOGGER_DEBUG);
 		}
 
 		$uid = intval($item['uid']);
@@ -1314,6 +1321,7 @@ class Item extends BaseObject
 		$item['visible']       = ((x($item, 'visible') !== false) ? intval($item['visible'])         : 1);
 		$item['deleted']       = 0;
 		$item['parent-uri']    = trim(defaults($item, 'parent-uri', $item['uri']));
+		$item['post-type']     = defaults($item, 'post-type', self::PT_ARTICLE);
 		$item['verb']          = trim(defaults($item, 'verb', ''));
 		$item['object-type']   = trim(defaults($item, 'object-type', ''));
 		$item['object']        = trim(defaults($item, 'object', ''));
@@ -1325,7 +1333,6 @@ class Item extends BaseObject
 		$item['deny_cid']      = trim(defaults($item, 'deny_cid', ''));
 		$item['deny_gid']      = trim(defaults($item, 'deny_gid', ''));
 		$item['private']       = intval(defaults($item, 'private', 0));
-		$item['bookmark']      = intval(defaults($item, 'bookmark', 0));
 		$item['body']          = trim(defaults($item, 'body', ''));
 		$item['tag']           = trim(defaults($item, 'tag', ''));
 		$item['attach']        = trim(defaults($item, 'attach', ''));
@@ -1609,6 +1616,10 @@ class Item extends BaseObject
 		} else {
 			$files = '';
 		}
+
+		// Creates the permission set
+		// Currently we only store the data but don't using it
+		$item['psid'] = PermissionSet::fetchIDForPost($item);
 
 		// We are doing this outside of the transaction to avoid timing problems
 		if (!self::insertActivity($item)) {
@@ -1993,12 +2004,6 @@ class Item extends BaseObject
 			$item['contact-id'] = $self['id'];
 		}
 
-		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
-			$item['type'] = 'remote-comment';
-		} elseif ($item['type'] == 'wall') {
-			$item['type'] = 'remote';
-		}
-
 		/// @todo Handling of "event-id"
 
 		$notify = false;
@@ -2073,12 +2078,6 @@ class Item extends BaseObject
 				$item['contact-id'] = $item['author-id'];
 			}
 
-			if (in_array($item['type'], ["net-comment", "wall-comment"])) {
-				$item['type'] = 'remote-comment';
-			} elseif ($item['type'] == 'wall') {
-				$item['type'] = 'remote';
-			}
-
 			$public_shadow = self::insert($item, false, false, true);
 
 			logger("Stored public shadow for thread ".$itemid." under id ".$public_shadow, LOGGER_DEBUG);
@@ -2133,12 +2132,6 @@ class Item extends BaseObject
 		unset($item['origin']);
 		unset($item['starred']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
-
-		if (in_array($item['type'], ["net-comment", "wall-comment"])) {
-			$item['type'] = 'remote-comment';
-		} elseif ($item['type'] == 'wall') {
-			$item['type'] = 'remote';
-		}
 
 		$public_shadow = self::insert($item, false, false, true);
 
@@ -2972,7 +2965,6 @@ class Item extends BaseObject
 			'uri'           => self::newURI($item['uid']),
 			'uid'           => $item['uid'],
 			'contact-id'    => $item_contact_id,
-			'type'          => 'activity',
 			'wall'          => $item['wall'],
 			'origin'        => 1,
 			'network'       => NETWORK_DFRN,
@@ -3015,7 +3007,7 @@ class Item extends BaseObject
 	private static function addThread($itemid, $onlyshadow = false)
 	{
 		$fields = ['uid', 'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private', 'pubmail',
-			'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
+			'moderated', 'visible', 'starred', 'contact-id', 'post-type',
 			'deleted', 'origin', 'forum_mode', 'mention', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 		$item = self::selectFirst($fields, $condition);
@@ -3035,8 +3027,8 @@ class Item extends BaseObject
 
 	private static function updateThread($itemid, $setmention = false)
 	{
-		$fields = ['uid', 'guid', 'created', 'edited', 'commented', 'received', 'changed',
-			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark', 'contact-id',
+		$fields = ['uid', 'guid', 'created', 'edited', 'commented', 'received', 'changed', 'post-type',
+			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'contact-id',
 			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id'];
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
