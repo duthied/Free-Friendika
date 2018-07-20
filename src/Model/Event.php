@@ -5,15 +5,14 @@
 
 namespace Friendica\Model;
 
-use dba;
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 

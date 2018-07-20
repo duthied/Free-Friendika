@@ -5,9 +5,9 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Config;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
-use dba;
 
 require_once 'include/dba.php';
 

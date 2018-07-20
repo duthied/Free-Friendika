@@ -5,15 +5,12 @@
  */
 namespace Friendica\Util;
 
+use DOMDocument;
+use DOMXPath;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Addon;
+use Friendica\Database\dba;
 use Friendica\Object\Image;
-use Friendica\Util\Network;
-use Friendica\Util\XML;
-
-use dba;
-use DOMXPath;
-use DOMDocument;
 
 require_once 'include/dba.php';
 

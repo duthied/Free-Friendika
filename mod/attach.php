@@ -2,8 +2,10 @@
 /**
  * @file mod/attach.php
  */
+
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 
 require_once 'include/dba.php';

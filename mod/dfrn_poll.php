@@ -3,10 +3,12 @@
 /**
  * @file mod/dfrn_poll.php
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;

@@ -4,7 +4,6 @@
  */
 namespace Friendica\Protocol;
 
-use dba;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Content\Text\BBCode;
@@ -14,6 +13,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;

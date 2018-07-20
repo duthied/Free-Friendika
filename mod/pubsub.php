@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Protocol\OStatus;
 

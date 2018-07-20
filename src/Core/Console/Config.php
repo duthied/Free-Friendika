@@ -9,8 +9,9 @@
 namespace Friendica\Core\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
-use dba;
+use Friendica\App;
 use Friendica\Core;
+use RuntimeException;
 
 require_once 'include/dba.php';
 require_once 'include/text.php';
@@ -92,7 +93,7 @@ HELP;
 			throw new CommandArgsException('Too many arguments');
 		}
 
-		if (!($a->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE)) {
+		if (!($a->mode & App::MODE_DBCONFIGAVAILABLE)) {
 			$this->out('Database isn\'t ready or populated yet, showing file config only');
 		}
 
@@ -102,7 +103,7 @@ HELP;
 			$value = $this->getArgument(2);
 
 			if (is_array(Core\Config::get($cat, $key))) {
-				throw new \RuntimeException("$cat.$key is an array and can't be set using this command.");
+				throw new RuntimeException("$cat.$key is an array and can't be set using this command.");
 			}
 
 			$result = Core\Config::set($cat, $key, $value);
@@ -151,7 +152,7 @@ HELP;
 		if (count($this->args) == 0) {
 			Core\Config::load();
 
-			if (Core\Config::get('system', 'config_adapter') == 'jit' && $a->mode & \Friendica\App::MODE_DBCONFIGAVAILABLE) {
+			if (Core\Config::get('system', 'config_adapter') == 'jit' && $a->mode & App::MODE_DBCONFIGAVAILABLE) {
 				$this->out('Warning: The JIT (Just In Time) Config adapter doesn\'t support loading the entire configuration, showing file config only');
 			}
 

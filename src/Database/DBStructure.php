@@ -4,7 +4,8 @@
  */
 namespace Friendica\Database;
 
-use dba;
+use Exception;
+use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 
@@ -629,7 +630,7 @@ class DBStructure
 	private static function createIndex($indexname, $fieldnames, $method = "ADD") {
 		$method = strtoupper(trim($method));
 		if ($method!="" && $method!="ADD") {
-			throw new \Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
+			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
 		}
 
 		if ($fieldnames[0] == "UNIQUE") {
@@ -1941,7 +1942,7 @@ class DBStructure
 						]
 				];
 
-		\Friendica\Core\Addon::callHooks('dbstructure_definition', $database);
+		Addon::callHooks('dbstructure_definition', $database);
 
 		return $database;
 	}

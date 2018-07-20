@@ -6,16 +6,14 @@
  */
 namespace Friendica\Protocol;
 
-use Friendica\Database\DBM;
-use Friendica\Core\System;
-use Friendica\Model\Item;
-use Friendica\Util\Network;
-use Friendica\Content\Text\HTML;
-use Friendica\Util\XML;
-
-use dba;
 use DOMDocument;
 use DOMXPath;
+use Friendica\Content\Text\HTML;
+use Friendica\Core\System;
+use Friendica\Database\DBM;
+use Friendica\Model\Item;
+use Friendica\Util\Network;
+use Friendica\Util\XML;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';

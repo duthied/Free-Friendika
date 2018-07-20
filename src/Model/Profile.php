@@ -15,16 +15,12 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\OpenWebAuthToken;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
-use dba;
-
-use InvalidArgumentException;
 
 require_once 'include/dba.php';
 require_once 'mod/proxy.php';

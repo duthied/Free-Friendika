@@ -5,9 +5,9 @@
  */
 namespace Friendica\Model;
 
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
-use dba;
 
 /**
  * Methods to deal with entries of the 'openwebauth-token' table.
@@ -16,12 +16,12 @@ class OpenWebAuthToken
 {
 	/**
 	 * Create an entry in the 'openwebauth-token' table.
-	 * 
+	 *
 	 * @param string $type   Verify type.
 	 * @param int    $uid    The user ID.
 	 * @param string $token
 	 * @param string $meta
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function create($type, $uid, $token, $meta)
@@ -38,11 +38,11 @@ class OpenWebAuthToken
 
 	/**
 	 * Get the "meta" field of an entry in the openwebauth-token table.
-	 * 
+	 *
 	 * @param string $type   Verify type.
 	 * @param int    $uid    The user ID.
 	 * @param string $token
-	 * 
+	 *
 	 * @return string|boolean The meta enry or false if not found.
 	 */
 	public static function getMeta($type, $uid, $token)
@@ -60,7 +60,7 @@ class OpenWebAuthToken
 
 	/**
 	 * Purge entries of a verify-type older than interval.
-	 * 
+	 *
 	 * @param string $type     Verify type.
 	 * @param string $interval SQL compatible time interval
 	 */

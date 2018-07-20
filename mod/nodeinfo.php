@@ -7,8 +7,9 @@
 
 use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Util\Network;
 require_once 'include/dba.php';
 

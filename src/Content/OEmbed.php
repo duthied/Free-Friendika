@@ -5,21 +5,21 @@
  */
 namespace Friendica\Content;
 
-use Friendica\Core\Addon;
-use Friendica\Core\Cache;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
-use Friendica\Core\System;
-use Friendica\Database\DBM;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
-use Friendica\Util\ParseUrl;
-use dba;
 use DOMDocument;
 use DOMNode;
 use DOMText;
 use DOMXPath;
 use Exception;
+use Friendica\Core\Addon;
+use Friendica\Core\Cache;
+use Friendica\Core\Config;
+use Friendica\Core\L10n;
+use Friendica\Core\System;
+use Friendica\Database\dba;
+use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
+use Friendica\Util\ParseUrl;
 use stdClass;
 
 require_once 'include/dba.php';

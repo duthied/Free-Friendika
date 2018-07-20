@@ -4,12 +4,13 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
-use dba;
 
 require_once 'include/dba.php';
 
@@ -17,7 +18,7 @@ class Cron
 {
 	public static function execute($parameter = '', $generation = 0)
 	{
-		$a = \Friendica\BaseObject::getApp();
+		$a = BaseObject::getApp();
 
 		// Poll contacts with specific parameters
 		if (!empty($parameter)) {

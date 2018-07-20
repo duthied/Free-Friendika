@@ -6,18 +6,16 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\Config;
+use Exception;
+use Friendica\Core\Console\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use dba;
-use Exception;
 
 require_once 'include/dba.php';
 

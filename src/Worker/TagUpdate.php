@@ -2,7 +2,7 @@
 
 namespace Friendica\Worker;
 
-use dba;
+use Friendica\Database\dba;
 
 class TagUpdate
 {

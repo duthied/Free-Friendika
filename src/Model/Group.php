@@ -6,8 +6,8 @@ namespace Friendica\Model;
 
 use Friendica\BaseObject;
 use Friendica\Core\L10n;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use dba;
 
 require_once 'boot.php';
 require_once 'include/dba.php';

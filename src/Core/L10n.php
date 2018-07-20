@@ -4,8 +4,8 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Config;
-use dba;
+use Friendica\BaseObject;
+use Friendica\Database\dba;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -14,7 +14,7 @@ require_once 'include/dba.php';
  * Provide Languange, Translation, and Localisation functions to the application
  * Localisation can be referred to by the numeronym L10N (as in: "L", followed by ten more letters, and then "N").
  */
-class L10n extends \Friendica\BaseObject
+class L10n extends BaseObject
 {
 	/**
 	 * @brief get the prefered language from the HTTP_ACCEPT_LANGUAGE header

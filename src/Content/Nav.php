@@ -10,9 +10,9 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
-use dba;
 
 require_once 'boot.php';
 require_once 'dba.php';

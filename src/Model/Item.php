@@ -6,18 +6,16 @@
 
 namespace Friendica\Model;
 
-use dba;
 use Friendica\BaseObject;
-use Friendica\Content\Text;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Model\PermissionSet;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -2219,7 +2217,7 @@ class Item extends BaseObject
 	 */
 	private static function addLanguageToItemArray(&$item)
 	{
-		$naked_body = Text\BBCode::toPlaintext($item['body'], false);
+		$naked_body = BBCode::toPlaintext($item['body'], false);
 
 		$ld = new Text_LanguageDetect();
 		$ld->setNameMode(2);

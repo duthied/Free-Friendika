@@ -6,9 +6,8 @@ namespace Friendica\Content;
 
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Protocol\Diaspora;
-use dba;
 
 /**
  * @brief ContactSelector class

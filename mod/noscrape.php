@@ -2,8 +2,10 @@
 /**
  * @file mod/noscrape.php
  */
+
 use Friendica\App;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 

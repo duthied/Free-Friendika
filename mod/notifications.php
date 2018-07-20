@@ -3,12 +3,14 @@
  * @file mod/notifications.php
  * @brief The notifications module
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 
 function notifications_post(App $a)

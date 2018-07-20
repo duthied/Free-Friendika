@@ -5,9 +5,8 @@
 namespace Friendica\Model;
 
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Model\Item;
-use dba;
 
 require_once 'boot.php';
 require_once 'include/conversation.php';

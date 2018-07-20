@@ -5,13 +5,12 @@
  */
 namespace Friendica\Content;
 
-use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Model\Contact;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use dba;
+use Friendica\Model\Contact;
 
 require_once 'include/dba.php';
 

@@ -6,7 +6,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\System;
-use dba;
+use Friendica\Database\dba;
 
 require_once 'include/dba.php';
 require_once 'include/text.php';

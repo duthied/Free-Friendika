@@ -4,21 +4,21 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\User;
 use Friendica\Model\PushSubscriber;
+use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
-use Friendica\Worker\Delivery;
-use dba;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
@@ -52,7 +52,7 @@ class Notifier
 {
 	public static function execute($cmd, $item_id)
 	{
-		$a = \Friendica\BaseObject::getApp();
+		$a = BaseObject::getApp();
 
 		logger('notifier: invoked: '.$cmd.': '.$item_id, LOGGER_DEBUG);
 

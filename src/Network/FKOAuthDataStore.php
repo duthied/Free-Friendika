@@ -10,8 +10,8 @@
 namespace Friendica\Network;
 
 use Friendica\Core\Config;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use dba;
 use OAuthConsumer;
 use OAuthDataStore;
 use OAuthToken;

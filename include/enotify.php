@@ -8,10 +8,11 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
+use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
-use Friendica\Model\Item;
 
 /**
  * @brief Creates a notification entry and possibly sends a mail
@@ -679,7 +680,7 @@ function check_user_notification($itemid) {
  *
  * @param int $itemid ID of the item for which the check should be done
  * @param int $uid User ID
- * @param str $defaulttype (Optional) Forces a notification with this type.
+ * @param string $defaulttype (Optional) Forces a notification with this type.
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$notification_data = ["uid" => $uid, "profiles" => []];

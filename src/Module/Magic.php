@@ -5,11 +5,10 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Database\dba;
 use Friendica\Model\Contact;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
-
-use dba;
 
 /**
  * Magic Auth (remote authentication) module.
