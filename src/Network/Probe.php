@@ -22,6 +22,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use DomXPath;
 
 require_once 'include/dba.php';
 

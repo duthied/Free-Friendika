@@ -34,7 +34,6 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 use SimpleXMLElement;
-use stdClass;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
@@ -1495,7 +1494,7 @@ class Diaspora
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveAccountMigration(array $importer, stdClass $data)
+	private static function receiveAccountMigration(array $importer, $data)
 	{
 		$old_handle = notags(unxmlify($data->author));
 		$new_handle = notags(unxmlify($data->profile->author));
@@ -1650,7 +1649,7 @@ class Diaspora
 	 *
 	 * @return int The message id of the generated comment or "false" if there was an error
 	 */
-	private static function receiveComment(array $importer, $sender, stdClass $data, $xml)
+	private static function receiveComment(array $importer, $sender, $data, $xml)
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
@@ -1767,7 +1766,7 @@ class Diaspora
 	 *
 	 * @return bool "true" if it was successful
 	 */
-	private static function receiveConversationMessage(array $importer, array $contact, stdClass $data, $msg, $mesg, $conversation)
+	private static function receiveConversationMessage(array $importer, array $contact, $data, $msg, $mesg, $conversation)
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
@@ -1860,7 +1859,7 @@ class Diaspora
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveConversation(array $importer, $msg, stdClass $data)
+	private static function receiveConversation(array $importer, $msg, $data)
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
@@ -1934,7 +1933,7 @@ class Diaspora
 	 *
 	 * @return int The message id of the generated like or "false" if there was an error
 	 */
-	private static function receiveLike(array $importer, $sender, stdClass $data)
+	private static function receiveLike(array $importer, $sender, $data)
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
@@ -2046,7 +2045,7 @@ class Diaspora
 	 *
 	 * @return bool Success?
 	 */
-	private static function receiveMessage(array $importer, stdClass $data)
+	private static function receiveMessage(array $importer, $data)
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
@@ -2130,7 +2129,7 @@ class Diaspora
 	 *
 	 * @return bool always true
 	 */
-	private static function receiveParticipation(array $importer, stdClass $data)
+	private static function receiveParticipation(array $importer, $data)
 	{
 		$author = strtolower(notags(unxmlify($data->author)));
 		$parent_guid = notags(unxmlify($data->parent_guid));
@@ -2194,7 +2193,7 @@ class Diaspora
 	 *
 	 * @return bool always true
 	 */
-	private static function receivePhoto(array $importer, stdClass $data)
+	private static function receivePhoto(array $importer, $data)
 	{
 		// There doesn't seem to be a reason for this function,
 		// since the photo data is transmitted in the status message as well
@@ -2209,7 +2208,7 @@ class Diaspora
 	 *
 	 * @return bool always true
 	 */
-	private static function receivePollParticipation(array $importer, stdClass $data)
+	private static function receivePollParticipation(array $importer, $data)
 	{
 		// We don't support polls by now
 		return true;
@@ -2223,7 +2222,7 @@ class Diaspora
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveProfile(array $importer, stdClass $data)
+	private static function receiveProfile(array $importer, $data)
 	{
 		$author = strtolower(notags(unxmlify($data->author)));
 
@@ -2337,7 +2336,7 @@ class Diaspora
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveContactRequest(array $importer, stdClass $data)
+	private static function receiveContactRequest(array $importer, $data)
 	{
 		$author = unxmlify($data->author);
 		$recipient = unxmlify($data->recipient);
@@ -2599,7 +2598,7 @@ class Diaspora
 	 *
 	 * @return int the message id
 	 */
-	private static function receiveReshare(array $importer, stdClass $data, $xml)
+	private static function receiveReshare(array $importer, $data, $xml)
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));
@@ -2691,7 +2690,7 @@ class Diaspora
 	 *
 	 * @return bool success
 	 */
-	private static function itemRetraction(array $importer, array $contact, stdClass $data)
+	private static function itemRetraction(array $importer, array $contact, $data)
 	{
 		$author = notags(unxmlify($data->author));
 		$target_guid = notags(unxmlify($data->target_guid));
@@ -2755,7 +2754,7 @@ class Diaspora
 	 *
 	 * @return bool Success
 	 */
-	private static function receiveRetraction(array $importer, $sender, stdClass $data)
+	private static function receiveRetraction(array $importer, $sender, $data)
 	{
 		$target_type = notags(unxmlify($data->target_type));
 
@@ -2796,7 +2795,7 @@ class Diaspora
 	 *
 	 * @return int The message id of the newly created item
 	 */
-	private static function receiveStatusMessage(array $importer, stdClass $data, $xml)
+	private static function receiveStatusMessage(array $importer, $data, $xml)
 	{
 		$author = notags(unxmlify($data->author));
 		$guid = notags(unxmlify($data->guid));

@@ -25,7 +25,7 @@ function receive_post(App $a)
 
 	if (($a->argc == 2) && ($a->argv[1] === 'public')) {
 		$public = true;
-		$importer = false;
+		$importer = [];
 	} else {
 		$public = false;
 
