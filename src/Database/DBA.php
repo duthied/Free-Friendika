@@ -8,6 +8,9 @@ namespace Friendica\Database;
 
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
+use PDO;
+use PDOException;
+use PDOStatement;
 
 /**
  * @class MySQL database class
