@@ -3,8 +3,10 @@
 namespace Friendica\Core\Console;
 
 use Friendica\Core\Protocol;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Network\Probe;
+use RuntimeException;
 
 require_once 'include/text.php';
 
@@ -65,7 +67,7 @@ HELP;
 		}
 
 		if ($a->isInstallMode()) {
-			throw new \RuntimeException('Database isn\'t ready or populated yet');
+			throw new RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		/**
@@ -75,16 +77,16 @@ HELP;
 		 * */
 		$net = Probe::uri($this->getArgument(0));
 		if (in_array($net['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			throw new \RuntimeException('This account seems not to exist.');
+			throw new RuntimeException('This account seems not to exist.');
 		}
 
 		$nurl = normalise_link($net['url']);
-		$contact = \dba::selectFirst("contact", ["id"], ["nurl" => $nurl, "uid" => 0]);
+		$contact = dba::selectFirst("contact", ["id"], ["nurl" => $nurl, "uid" => 0]);
 		if (DBM::is_result($contact)) {
-			\dba::update("contact", ["hidden" => true], ["id" => $contact["id"]]);
+			dba::update("contact", ["hidden" => true], ["id" => $contact["id"]]);
 			$this->out('NOTICE: The account should be silenced from the global community page');
 		} else {
-			throw new \RuntimeException('NOTICE: Could not find any entry for this URL (' . $nurl . ')');
+			throw new RuntimeException('NOTICE: Could not find any entry for this URL (' . $nurl . ')');
 		}
 
 		return 0;

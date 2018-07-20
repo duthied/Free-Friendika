@@ -4,16 +4,14 @@
  */
 namespace Friendica;
 
+use Detection\MobileDetect;
+use Exception;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use dba;
-
-use Detection\MobileDetect;
-
-use Exception;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -492,13 +490,13 @@ class App
 
 		$this->mode |= App::MODE_LOCALCONFIGPRESENT;
 
-		if (!\dba::connected()) {
+		if (!dba::connected()) {
 			return;
 		}
 
 		$this->mode |= App::MODE_DBAVAILABLE;
 
-		if (\dba::fetch_first("SHOW TABLES LIKE 'config'") === false) {
+		if (dba::fetch_first("SHOW TABLES LIKE 'config'") === false) {
 			return;
 		}
 
@@ -513,7 +511,7 @@ class App
 
 	public function loadDatabase()
 	{
-		if (\dba::connected()) {
+		if (dba::connected()) {
 			return;
 		}
 
@@ -544,7 +542,7 @@ class App
 
 		$stamp1 = microtime(true);
 
-		\dba::connect($db_host, $db_user, $db_pass, $db_data, $charset);
+		dba::connect($db_host, $db_user, $db_pass, $db_data, $charset);
 		unset($db_host, $db_user, $db_pass, $db_data, $charset);
 
 		$this->save_timestamp($stamp1, 'network');

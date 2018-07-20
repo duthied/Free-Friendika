@@ -3,9 +3,10 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Util\Network;
 use Friendica\Model\PushSubscriber;
+use Friendica\Util\Network;
 
 function post_var($name) {
 	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';

@@ -4,7 +4,7 @@
  */
 namespace Friendica\Core;
 
-use dba;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;

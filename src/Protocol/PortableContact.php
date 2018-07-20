@@ -9,21 +9,20 @@
 
 namespace Friendica\Protocol;
 
+use DOMDocument;
+use DOMXPath;
+use Exception;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Protocol\Diaspora;
 use Friendica\Util\XML;
-use dba;
-use DOMDocument;
-use DOMXPath;
-use Exception;
 
 require_once 'include/dba.php';
 

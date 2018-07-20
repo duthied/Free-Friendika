@@ -12,10 +12,12 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Model\Item;
+use Friendica\Model\Profile;
+use Friendica\Model\Term;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
@@ -578,7 +580,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					$profile_name = $item['author-link'];
 				}
 
-				$tags = \Friendica\Model\Term::populateTagsFromItem($item);
+				$tags = Term::populateTagsFromItem($item);
 
 				$author = ['uid' => 0, 'id' => $item['author-id'],
 					'network' => $item['author-network'], 'url' => $item['author-link']];

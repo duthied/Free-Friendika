@@ -5,13 +5,13 @@
 
 namespace Friendica\Worker;
 
-use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
+use Friendica\Model\PushSubscriber;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
-use Friendica\Model\PushSubscriber;
-use dba;
 
 require_once 'include/items.php';
 
@@ -28,7 +28,7 @@ class PubSubPublish
 
 	private static function publish($id)
 	{
-		$a = \Friendica\BaseObject::getApp();
+		$a = BaseObject::getApp();
 
 		$subscriber = dba::selectFirst('push_subscriber', [], ['id' => $id]);
 		if (!DBM::is_result($subscriber)) {

@@ -4,11 +4,9 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Config;
+use Friendica\App;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Core\Worker;
-
-use dba;
 
 require_once 'include/dba.php';
 
@@ -228,12 +226,12 @@ class Addon
 	/**
 	 * @brief Calls a single hook.
 	 *
-	 * @param \Friendica\App $a
+	 * @param App $a
 	 * @param string         $name of the hook to call
 	 * @param array          $hook Hook data
 	 * @param string|array   &$data to transmit to the callback handler
 	 */
-	public static function callSingleHook(\Friendica\App $a, $name, $hook, &$data = null)
+	public static function callSingleHook(App $a, $name, $hook, &$data = null)
 	{
 		// Don't run a theme's hook if the user isn't using the theme
 		if (strpos($hook[0], 'view/theme/') !== false && strpos($hook[0], 'view/theme/' . $a->getCurrentTheme()) === false) {

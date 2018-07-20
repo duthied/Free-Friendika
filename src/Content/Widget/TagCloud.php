@@ -6,9 +6,9 @@
 
 namespace Friendica\Content\Widget;
 
-use dba;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 
 require_once 'include/dba.php';

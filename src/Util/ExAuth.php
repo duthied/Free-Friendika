@@ -36,10 +36,9 @@ namespace Friendica\Util;
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
-use Friendica\Util\Network;
-use dba;
 
 require_once 'include/dba.php';
 

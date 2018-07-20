@@ -5,8 +5,8 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use dba;
 
 require_once 'include/dba.php';
 

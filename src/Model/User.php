@@ -6,22 +6,19 @@
 namespace Friendica\Model;
 
 use DivineOmega\PasswordExposed\PasswordStatus;
+use Exception;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\Group;
-use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use dba;
-use Exception;
 use LightOpenID;
 use function password_exposed;
 

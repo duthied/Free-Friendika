@@ -6,27 +6,13 @@
 
 namespace Friendica\Core;
 
-use dba;
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Network;
-use const CONTACT_IS_FRIEND;
-use const NETWORK_DFRN;
-use const NETWORK_DIASPORA;
-use const NETWORK_FACEBOOK;
-use const NETWORK_MAIL;
-use const NETWORK_OSTATUS;
-use const PHP_EOL;
-use function dbesc;
-use function defaults;
-use function get_markup_template;
-use function get_server;
-use function local_user;
-use function remote_user;
-use function replace_macros;
 
 /**
  * Handle ACL management and display

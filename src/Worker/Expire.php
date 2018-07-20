@@ -6,12 +6,13 @@
 
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Item;
-use dba;
 
 require_once 'include/dba.php';
 
@@ -19,7 +20,7 @@ class Expire
 {
 	public static function execute($param = '', $hook_name = '')
 	{
-		$a = \Friendica\BaseObject::getApp();
+		$a = BaseObject::getApp();
 
 		require_once 'include/items.php';
 

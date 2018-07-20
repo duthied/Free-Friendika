@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Protocol\Diaspora;
 

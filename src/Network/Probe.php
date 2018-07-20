@@ -9,21 +9,19 @@ namespace Friendica\Network;
  * @brief Functions for probing URL
  */
 
-use Friendica\App;
-use Friendica\Core\System;
+use DOMDocument;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
-use Friendica\Util\DateTimeFormat;
-use dba;
-use DOMXPath;
-use DOMDocument;
 
 require_once 'include/dba.php';
 

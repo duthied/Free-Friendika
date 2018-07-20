@@ -9,17 +9,12 @@ namespace Friendica\Core;
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
-use Friendica\Core\System;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
-use dba;
 
 require_once 'include/dba.php';
 

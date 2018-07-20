@@ -3,7 +3,9 @@
 namespace Friendica\Core\Console;
 
 use Friendica\Core;
+use Friendica\Database\dba;
 use Friendica\Database\DBStructure;
+use RuntimeException;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -56,8 +58,8 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if (!\dba::connected()) {
-			throw new \RuntimeException('Unable to connect to database');
+		if (!dba::connected()) {
+			throw new RuntimeException('Unable to connect to database');
 		}
 
 		Core\Config::load();

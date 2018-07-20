@@ -5,11 +5,9 @@
 namespace Friendica\Database;
 
 use Friendica\Core\Config;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\PermissionSet;
-use dba;
 
 require_once 'include/dba.php';
 

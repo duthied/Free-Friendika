@@ -8,7 +8,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
-use dba;
+use Friendica\Database\dba;
 
 require_once 'include/dba.php';
 

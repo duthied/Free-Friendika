@@ -6,6 +6,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Util\DateTimeFormat;
 
 function worker_init()

@@ -2,8 +2,10 @@
 
 namespace Friendica\Core\Console;
 
+use Friendica\App;
 use Friendica\Core\L10n;
-use dba;
+use Friendica\Database\dba;
+use RuntimeException;
 
 /**
  * @brief tool to archive a contact on the server
@@ -55,19 +57,19 @@ HELP;
 		}
 
 		if ($a->mode === App::MODE_INSTALL) {
-			throw new \RuntimeException('Friendica isn\'t properly installed yet.');
+			throw new RuntimeException('Friendica isn\'t properly installed yet.');
 		}
 
 		$nurl = normalise_link($this->getArgument(0));
 		if (!dba::exists('contact', ['nurl' => $nurl, 'archive' => false])) {
-			throw new \RuntimeException(L10n::t('Could not find any unarchived contact entry for this URL (%s)', $nurl));
+			throw new RuntimeException(L10n::t('Could not find any unarchived contact entry for this URL (%s)', $nurl));
 		}
 		if (dba::update('contact', ['archive' => true], ['nurl' => $nurl])) {
 			$condition = ["`cid` IN (SELECT `id` FROM `contact` WHERE `archive`)"];
 			dba::delete('queue', $condition);
 			$this->out(L10n::t('The contact entries have been archived'));
 		} else {
-			throw new \RuntimeException('The contact archival failed.');
+			throw new RuntimeException('The contact archival failed.');
 		}
 
 		return 0;

@@ -7,12 +7,13 @@
  * Author: Rabuzarus <https://github.com/rabuzarus>
  * License: GNU AFFERO GENERAL PUBLIC LICENSE (Version 3)
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
 
 function hovercard_init(App $a)
 {

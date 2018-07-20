@@ -5,8 +5,7 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
-use dba;
+use Friendica\Database\dba;
 
 require_once 'include/dba.php';
 

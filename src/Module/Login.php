@@ -4,16 +4,16 @@
  */
 namespace Friendica\Module;
 
+use Exception;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use dba;
-use Exception;
 use LightOpenID;
 
 require_once 'boot.php';

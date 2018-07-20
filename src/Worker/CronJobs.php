@@ -5,8 +5,10 @@
 namespace Friendica\Worker;
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
@@ -15,7 +17,6 @@ use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
-use dba;
 
 require_once 'include/dba.php';
 require_once 'mod/nodeinfo.php';
@@ -24,7 +25,7 @@ class CronJobs
 {
 	public static function execute($command = '')
 	{
-		$a = \Friendica\BaseObject::getApp();
+		$a = BaseObject::getApp();
 
 		// No parameter set? So return
 		if ($command == '') {

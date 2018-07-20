@@ -2,8 +2,8 @@
 
 namespace Friendica\Core\Lock;
 
-use dba;
 use Friendica\Core\Cache;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 

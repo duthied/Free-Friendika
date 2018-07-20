@@ -3,11 +3,11 @@
 namespace Friendica\Core\Console;
 
 use Asika\SimpleConsole\Console;
-use dba;
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Install;
 use Friendica\Core\Theme;
+use Friendica\Database\dba;
 use RuntimeException;
 
 require_once 'mod/install.php';

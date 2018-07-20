@@ -5,14 +5,9 @@
 namespace Friendica\Core;
 
 use Friendica\App;
-use Friendica\Core\L10n;
-use Friendica\Core\System;
-use Friendica\Core\PConfig;
-use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\dba;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
-use dba;
 
 require_once "include/dba.php";
 

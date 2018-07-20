@@ -17,6 +17,7 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;

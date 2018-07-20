@@ -8,6 +8,8 @@
  */
 namespace Friendica\Protocol;
 
+use DOMDocument;
+use DOMXPath;
 use Friendica\App;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Text\BBCode;
@@ -16,7 +18,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
@@ -26,15 +28,10 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Object\Image;
-use Friendica\Protocol\OStatus;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
-use Friendica\Protocol\Diaspora;
-use dba;
-use DOMDocument;
-use DOMXPath;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 

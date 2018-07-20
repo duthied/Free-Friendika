@@ -2,9 +2,11 @@
 /**
  * @file mod/xrd.php
  */
+
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Protocol\Salmon;
 

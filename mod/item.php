@@ -17,11 +17,13 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -812,7 +814,7 @@ function item_post(App $a) {
 					'replyTo' => $a->user['email'],
 					'messageSubject' => $subject,
 					'htmlVersion' => $message,
-					'textVersion' => Friendica\Content\Text\HTML::toPlaintext($html.$disclaimer)
+					'textVersion' => HTML::toPlaintext($html.$disclaimer)
 				];
 				Emailer::send($params);
 			}

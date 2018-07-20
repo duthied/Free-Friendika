@@ -2,12 +2,8 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use dba;
 use Friendica\Core\Lock\DatabaseLockDriver;
-use Friendica\Database\DBStructure;
-use PHPUnit\DbUnit\DataSet\YamlDataSet;
-use PHPUnit\DbUnit\TestCaseTrait;
-use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
+use Friendica\Database\dba;
 
 class DatabaseLockDriverTest extends LockTest
 {

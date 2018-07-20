@@ -4,7 +4,6 @@
  */
 namespace Friendica\Database;
 
-use dba;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/dba.php';

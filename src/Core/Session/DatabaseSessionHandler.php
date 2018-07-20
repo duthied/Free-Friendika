@@ -4,9 +4,9 @@ namespace Friendica\Core\Session;
 
 use Friendica\BaseObject;
 use Friendica\Core\Session;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
 use SessionHandlerInterface;
-use dba;
 
 require_once 'boot.php';
 require_once 'include/dba.php';

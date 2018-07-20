@@ -6,6 +6,7 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Database\dba;
 use Friendica\Model\Contact;
 use Friendica\Protocol\Feed;
 use Friendica\Util\Network;

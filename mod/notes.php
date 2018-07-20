@@ -2,12 +2,14 @@
 /**
  * @file mod/notes.php
  */
+
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\L10n;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use Friendica\Model\Profile;
 use Friendica\Model\Item;
+use Friendica\Model\Profile;
 
 function notes_init(App $a)
 {

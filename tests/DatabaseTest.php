@@ -5,12 +5,11 @@
 
 namespace Friendica\Test;
 
-use dba;
-use Friendica\Database\DBStructure;
-use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
+use Friendica\Database\dba;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit\Framework\TestCase;
+use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 
 /**
  * Abstract class used by tests that need a database.

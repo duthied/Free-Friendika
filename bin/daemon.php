@@ -10,6 +10,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Database\dba;
 
 // Ensure that daemon.php is executed from the base path of the installation
 if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {

@@ -2,12 +2,12 @@
 
 namespace Friendica\Core\Console;
 
-use Friendica\Core\L10n;
-use Friendica\Model\Contact;
-use Friendica\Model\User;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
+use Friendica\Database\dba;
 use Friendica\Database\DBM;
-use dba;
+use Friendica\Model\User;
+use RuntimeException;
 
 /**
  * @brief tool to set a new password for a user
@@ -59,14 +59,14 @@ HELP;
 		}
 
 		if ($a->isInstallMode()) {
-			throw new \RuntimeException('Database isn\'t ready or populated yet');
+			throw new RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		$nick = $this->getArgument(0);
 
 		$user = dba::selectFirst('user', ['uid'], ['nickname' => $nick]);
 		if (!DBM::is_result($user)) {
-			throw new \RuntimeException(L10n::t('User not found'));
+			throw new RuntimeException(L10n::t('User not found'));
 		}
 
 		$password = $this->getArgument(1);
@@ -76,15 +76,15 @@ HELP;
 		}
 
 		if (!$password) {
-			throw new \RuntimeException(L10n::t('Password can\'t be empty'));
+			throw new RuntimeException(L10n::t('Password can\'t be empty'));
 		}
 
 		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($password)) {
-			throw new \RuntimeException(L10n::t('The new password has been exposed in a public data dump, please choose another.'));
+			throw new RuntimeException(L10n::t('The new password has been exposed in a public data dump, please choose another.'));
 		}
 
 		if (!User::updatePassword($user['uid'], $password)) {
-			throw new \RuntimeException(L10n::t('Password update failed. Please try again.'));
+			throw new RuntimeException(L10n::t('Password update failed. Please try again.'));
 		}
 
 		$this->out(L10n::t('Password changed.'));
