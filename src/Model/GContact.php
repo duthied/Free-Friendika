@@ -7,7 +7,7 @@
 namespace Friendica\Model;
 
 use Exception;
-use Friendica\Core\Console\Config;
+use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\dba;
