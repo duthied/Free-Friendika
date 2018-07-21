@@ -251,11 +251,15 @@ class DBA
 	}
 
 	public static function escape($str) {
-		switch (self::$driver) {
-			case 'pdo':
-				return substr(@self::$connection->quote($str, PDO::PARAM_STR), 1, -1);
-			case 'mysqli':
-				return @self::$connection->real_escape_string($str);
+		if (self::$connected) {
+			switch (self::$driver) {
+				case 'pdo':
+					return substr(@self::$connection->quote($str, PDO::PARAM_STR), 1, -1);
+				case 'mysqli':
+					return @self::$connection->real_escape_string($str);
+			}
+		} else {
+			return str_replace("'", "\\'", $str);
 		}
 	}
 
