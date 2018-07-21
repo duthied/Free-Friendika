@@ -1604,7 +1604,7 @@ class DBA
 	 * @param boolean $add_quotation add quotation marks for string values
 	 * @return void
 	 */
-	private static function esc_array_callback(&$value, $key, $add_quotation)
+	private static function escapeArrayCallback(&$value, $key, $add_quotation)
 	{
 		if (!$add_quotation) {
 			if (is_bool($value)) {
@@ -1631,8 +1631,8 @@ class DBA
 	 * @param boolean $add_quotation add quotation marks for string values
 	 * @return void
 	 */
-	public static function esc_array(&$arr, $add_quotation = false)
+	public static function escapeArray(&$arr, $add_quotation = false)
 	{
-		array_walk($arr, 'self::esc_array_callback', $add_quotation);
+		array_walk($arr, 'self::escapeArrayCallback', $add_quotation);
 	}
 }
