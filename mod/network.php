@@ -604,8 +604,8 @@ function networkThreadedView(App $a, $update, $parent)
 		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
 	}
 
-	$sql_nets = (($nets) ? sprintf(" AND $sql_table.`network` = '%s' ", dbesc($nets)) : '');
-	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", dbesc($nets)) : '');
+	$sql_nets = (($nets) ? sprintf(" AND $sql_table.`network` = '%s' ", DBA::escape($nets)) : '');
+	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", DBA::escape($nets)) : '');
 
 	if ($gid) {
 		$group = DBA::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
@@ -680,11 +680,11 @@ function networkThreadedView(App $a, $update, $parent)
 
 	if ($datequery) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created <= '%s' ",
-				dbesc(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
+				DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 	}
 	if ($datequery2) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created >= '%s' ",
-				dbesc(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
+				DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 	}
 
 	if ($conv) {
@@ -703,7 +703,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$sql_order = "$sql_table.$ordering";
 
 	if (x($_GET, 'offset')) {
-		$sql_range = sprintf(" AND $sql_order <= '%s'", dbesc($_GET['offset']));
+		$sql_range = sprintf(" AND $sql_order <= '%s'", DBA::escape($_GET['offset']));
 	} else {
 		$sql_range = '';
 	}
@@ -716,7 +716,7 @@ function networkThreadedView(App $a, $update, $parent)
 		case 'received':
 			if ($last_received != '') {
 				$last_date = $last_received;
-				$sql_range .= sprintf(" AND $sql_table.`received` < '%s'", dbesc($last_received));
+				$sql_range .= sprintf(" AND $sql_table.`received` < '%s'", DBA::escape($last_received));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
@@ -724,7 +724,7 @@ function networkThreadedView(App $a, $update, $parent)
 		case 'commented':
 			if ($last_commented != '') {
 				$last_date = $last_commented;
-				$sql_range .= sprintf(" AND $sql_table.`commented` < '%s'", dbesc($last_commented));
+				$sql_range .= sprintf(" AND $sql_table.`commented` < '%s'", DBA::escape($last_commented));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
@@ -732,14 +732,14 @@ function networkThreadedView(App $a, $update, $parent)
 		case 'created':
 			if ($last_created != '') {
 				$last_date = $last_created;
-				$sql_range .= sprintf(" AND $sql_table.`created` < '%s'", dbesc($last_created));
+				$sql_range .= sprintf(" AND $sql_table.`created` < '%s'", DBA::escape($last_created));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
 		case 'id':
 			if (($last_id > 0) && ($sql_table == '`thread`')) {
-				$sql_range .= sprintf(" AND $sql_table.`iid` < '%s'", dbesc($last_id));
+				$sql_range .= sprintf(" AND $sql_table.`iid` < '%s'", DBA::escape($last_id));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
@@ -902,7 +902,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$condition = ['unseen' => true, 'uid' => local_user()];
 		networkSetSeen($condition);
 	} elseif ($parents_str) {
-		$condition = ["`uid` = ? AND `unseen` AND `parent` IN (" . dbesc($parents_str) . ")", local_user()];
+		$condition = ["`uid` = ? AND `unseen` AND `parent` IN (" . DBA::escape($parents_str) . ")", local_user()];
 		networkSetSeen($condition);
 	}
 

@@ -112,12 +112,12 @@ class GContact
 				intval($uid),
 				intval($gcid),
 				intval($zcid),
-				dbesc(DateTimeFormat::utcNow())
+				DBA::escape(DateTimeFormat::utcNow())
 			);
 		} else {
 			q(
 				"UPDATE `glink` SET `updated` = '%s' WHERE `cid` = %d AND `uid` = %d AND `gcid` = %d AND `zcid` = %d",
-				dbesc(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
 				intval($cid),
 				intval($uid),
 				intval($gcid),
@@ -176,8 +176,8 @@ class GContact
 		if (!isset($gcontact['network'])) {
 			$r = q(
 				"SELECT `network` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s' AND `network` != '' AND `network` != '%s' LIMIT 1",
-				dbesc(normalise_link($gcontact['url'])),
-				dbesc(NETWORK_STATUSNET)
+				DBA::escape(normalise_link($gcontact['url'])),
+				DBA::escape(NETWORK_STATUSNET)
 			);
 			if (DBA::isResult($r)) {
 				$gcontact['network'] = $r[0]["network"];
@@ -186,9 +186,9 @@ class GContact
 			if (($gcontact['network'] == "") || ($gcontact['network'] == NETWORK_OSTATUS)) {
 				$r = q(
 					"SELECT `network`, `url` FROM `contact` WHERE `uid` = 0 AND `alias` IN ('%s', '%s') AND `network` != '' AND `network` != '%s' LIMIT 1",
-					dbesc($gcontact['url']),
-					dbesc(normalise_link($gcontact['url'])),
-					dbesc(NETWORK_STATUSNET)
+					DBA::escape($gcontact['url']),
+					DBA::escape(normalise_link($gcontact['url'])),
+					DBA::escape(NETWORK_STATUSNET)
 				);
 				if (DBA::isResult($r)) {
 					$gcontact['network'] = $r[0]["network"];
@@ -201,7 +201,7 @@ class GContact
 
 		$x = q(
 			"SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-			dbesc(normalise_link($gcontact['url']))
+			DBA::escape(normalise_link($gcontact['url']))
 		);
 
 		if (DBA::isResult($x)) {
@@ -489,7 +489,7 @@ class GContact
 			intval($uid),
 			intval($uid),
 			intval($uid),
-			dbesc(NULL_DATE),
+			DBA::escape(NULL_DATE),
 			$sql_network,
 			intval($start),
 			intval($limit)
@@ -518,7 +518,7 @@ class GContact
 			intval($uid),
 			intval($uid),
 			intval($uid),
-			dbesc(NULL_DATE),
+			DBA::escape(NULL_DATE),
 			$sql_network,
 			intval($start),
 			intval($limit)
@@ -580,8 +580,8 @@ class GContact
 		// Query your contacts from Friendica and Redmatrix/Hubzilla for their contacts
 		$r = q(
 			"SELECT DISTINCT(`poco`) AS `poco` FROM `contact` WHERE `network` IN ('%s', '%s')",
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA)
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_DIASPORA)
 		);
 
 		if (DBA::isResult($r)) {
@@ -690,7 +690,7 @@ class GContact
 		DBA::lock('gcontact');
 		$r = q(
 			"SELECT `id`, `last_contact`, `last_failure`, `network` FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-			dbesc(normalise_link($contact["url"]))
+			DBA::escape(normalise_link($contact["url"]))
 		);
 
 		if (DBA::isResult($r)) {
@@ -708,24 +708,24 @@ class GContact
 			q(
 				"INSERT INTO `gcontact` (`name`, `nick`, `addr` , `network`, `url`, `nurl`, `photo`, `created`, `updated`, `location`, `about`, `hide`, `generation`)
 				VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)",
-				dbesc($contact["name"]),
-				dbesc($contact["nick"]),
-				dbesc($contact["addr"]),
-				dbesc($contact["network"]),
-				dbesc($contact["url"]),
-				dbesc(normalise_link($contact["url"])),
-				dbesc($contact["photo"]),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc($contact["location"]),
-				dbesc($contact["about"]),
+				DBA::escape($contact["name"]),
+				DBA::escape($contact["nick"]),
+				DBA::escape($contact["addr"]),
+				DBA::escape($contact["network"]),
+				DBA::escape($contact["url"]),
+				DBA::escape(normalise_link($contact["url"])),
+				DBA::escape($contact["photo"]),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape($contact["location"]),
+				DBA::escape($contact["about"]),
 				intval($contact["hide"]),
 				intval($contact["generation"])
 			);
 
 			$r = q(
 				"SELECT `id`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 2",
-				dbesc(normalise_link($contact["url"]))
+				DBA::escape(normalise_link($contact["url"]))
 			);
 
 			if (DBA::isResult($r)) {
@@ -1048,8 +1048,8 @@ class GContact
 
 		$r = q(
 			"SELECT `nurl`, `url` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `network` = '%s' AND `last_poco_query` < '%s' ORDER BY RAND() LIMIT 5",
-			dbesc(NETWORK_OSTATUS),
-			dbesc($last_update)
+			DBA::escape(NETWORK_OSTATUS),
+			DBA::escape($last_update)
 		);
 
 		if (!DBA::isResult($r)) {
@@ -1058,7 +1058,7 @@ class GContact
 
 		foreach ($r as $server) {
 			self::fetchGsUsers($server["url"]);
-			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", dbesc(DateTimeFormat::utcNow()), dbesc($server["nurl"]));
+			q("UPDATE `gserver` SET `last_poco_query` = '%s' WHERE `nurl` = '%s'", DBA::escape(DateTimeFormat::utcNow()), DBA::escape($server["nurl"]));
 		}
 	}
 
@@ -1072,7 +1072,7 @@ class GContact
 					AND `last_contact` >= `last_failure`
 					AND `updated` > UTC_TIMESTAMP - INTERVAL 1 MONTH
 				ORDER BY rand() LIMIT 1",
-			dbesc(NETWORK_DFRN)
+			DBA::escape(NETWORK_DFRN)
 		);
 
 		if (DBA::isResult($r)) {

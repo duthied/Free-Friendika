@@ -66,7 +66,7 @@ class NotificationsManager extends BaseObject
 		$filter_str = [];
 		$filter_sql = "";
 		foreach ($filter as $column => $value) {
-			$filter_str[] = sprintf("`%s` = '%s'", $column, dbesc($value));
+			$filter_str[] = sprintf("`%s` = '%s'", $column, DBA::escape($value));
 		}
 		if (count($filter_str) > 0) {
 			$filter_sql = "AND " . implode(" AND ", $filter_str);
@@ -134,9 +134,9 @@ class NotificationsManager extends BaseObject
 		return q(
 			"UPDATE `notify` SET `seen` = %d WHERE (`link` = '%s' OR (`parent` != 0 AND `parent` = %d AND `otype` = '%s')) AND `uid` = %d",
 			intval($seen),
-			dbesc($note['link']),
+			DBA::escape($note['link']),
 			intval($note['parent']),
-			dbesc($note['otype']),
+			DBA::escape($note['otype']),
 			intval(local_user())
 		);
 	}

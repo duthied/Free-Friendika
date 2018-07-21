@@ -1573,7 +1573,7 @@ class OStatus
 	{
 		$r = q(
 			"SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
-			dbesc(normalise_link($url)),
+			DBA::escape(normalise_link($url)),
 			intval($owner["uid"])
 		);
 		if (DBA::isResult($r)) {
@@ -1584,7 +1584,7 @@ class OStatus
 		if (!DBA::isResult($r)) {
 			$r = q(
 				"SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
-				dbesc(normalise_link($url))
+				DBA::escape(normalise_link($url))
 			);
 			if (DBA::isResult($r)) {
 				$contact = $r[0];
@@ -1790,7 +1790,7 @@ class OStatus
 		$r = q(
 			"SELECT `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
 			intval($owner['uid']),
-			dbesc(normalise_link($contact["url"]))
+			DBA::escape(normalise_link($contact["url"]))
 		);
 
 		if (DBA::isResult($r)) {

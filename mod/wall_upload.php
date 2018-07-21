@@ -30,7 +30,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 				INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
 				WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0
 				AND `contact`.`self` = 1 LIMIT 1",
-				dbesc($nick)
+				DBA::escape($nick)
 			);
 
 			if (!DBA::isResult($r)) {
@@ -46,7 +46,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 				INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
 				WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0
 				AND `contact`.`self` = 1 LIMIT 1",
-				dbesc($user_info['screen_name'])
+				DBA::escape($user_info['screen_name'])
 			);
 		}
 	} else {

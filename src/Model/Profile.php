@@ -346,7 +346,7 @@ class Profile
 				$r = q(
 					"SELECT `url` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
 					intval($profile['uid']),
-					dbesc(normalise_link(self::getMyURL())),
+					DBA::escape(normalise_link(self::getMyURL())),
 					intval(CONTACT_IS_FRIEND)
 				);
 			}
@@ -463,9 +463,9 @@ class Profile
 						AND NOT `hidden` AND NOT `archive`
 						AND `network` IN ('%s', '%s', '%s', '')",
 					intval($profile['uid']),
-					dbesc(NETWORK_DFRN),
-					dbesc(NETWORK_DIASPORA),
-					dbesc(NETWORK_OSTATUS)
+					DBA::escape(NETWORK_DFRN),
+					DBA::escape(NETWORK_DIASPORA),
+					DBA::escape(NETWORK_OSTATUS)
 				);
 				if (DBA::isResult($r)) {
 					$contacts = intval($r[0]['total']);

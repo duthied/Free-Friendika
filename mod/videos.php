@@ -8,15 +8,12 @@ use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Model\Term;
 use Friendica\Protocol\DFRN;
-use Friendica\Util\DateTimeFormat;
 
 require_once 'include/items.php';
 require_once 'include/security.php';
@@ -37,7 +34,7 @@ function videos_init(App $a) {
 	if($a->argc > 1) {
 		$nick = $a->argv[1];
 		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-			dbesc($nick)
+			DBA::escape($nick)
 		);
 
 		if(! count($user))
@@ -155,16 +152,16 @@ function videos_post(App $a) {
 
 		$r = q("SELECT `id`  FROM `attach` WHERE `uid` = %d AND `id` = '%s' LIMIT 1",
 			intval(local_user()),
-			dbesc($video_id)
+			DBA::escape($video_id)
 		);
 
 		if (DBA::isResult($r)) {
 			q("DELETE FROM `attach` WHERE `uid` = %d AND `id` = '%s'",
 				intval(local_user()),
-				dbesc($video_id)
+				DBA::escape($video_id)
 			);
 			$i = q("SELECT `id` FROM `item` WHERE `attach` like '%%attach/%s%%' AND `uid` = %d LIMIT 1",
-				dbesc($video_id),
+				DBA::escape($video_id),
 				intval(local_user())
 			);
 

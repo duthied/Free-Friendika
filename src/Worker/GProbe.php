@@ -20,7 +20,7 @@ class GProbe {
 
 		$r = q(
 			"SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
-			dbesc(normalise_link($url))
+			DBA::escape(normalise_link($url))
 		);
 
 		logger("gprobe start for ".normalise_link($url), LOGGER_DEBUG);
@@ -49,7 +49,7 @@ class GProbe {
 
 			$r = q(
 				"SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
-				dbesc(normalise_link($url))
+				DBA::escape(normalise_link($url))
 			);
 		}
 		if (DBA::isResult($r)) {

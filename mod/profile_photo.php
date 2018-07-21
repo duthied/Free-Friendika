@@ -69,8 +69,8 @@ function profile_photo_post(App $a)
 		$srcW = $_POST['xfinal'] - $srcX;
 		$srcH = $_POST['yfinal'] - $srcY;
 
-		$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = %d LIMIT 1", dbesc($image_id),
-			dbesc(local_user()), intval($scale));
+		$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = %d LIMIT 1", DBA::escape($image_id),
+			DBA::escape(local_user()), intval($scale));
 
 		$url = System::baseUrl() . '/profile/' . $a->user['nickname'];
 		if (DBA::isResult($r)) {
@@ -109,12 +109,12 @@ function profile_photo_post(App $a)
 
 				if ($is_default_profile) {
 					$r = q("UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
-						dbesc($base_image['resource-id']), intval(local_user())
+						DBA::escape($base_image['resource-id']), intval(local_user())
 					);
 				} else {
 					$r = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
-						dbesc(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
+						DBA::escape(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
+						DBA::escape(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
 						intval($_REQUEST['profile']), intval(local_user())
 					);
 				}
@@ -191,7 +191,7 @@ function profile_photo_content(App $a)
 		$resource_id = $a->argv[2];
 		//die(":".local_user());
 		$r = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' ORDER BY `scale` ASC", intval(local_user()),
-			dbesc($resource_id)
+			DBA::escape($resource_id)
 		);
 
 		if (!DBA::isResult($r)) {
@@ -212,7 +212,7 @@ function profile_photo_content(App $a)
 			$r = q("UPDATE `photo` SET `profile`=0 WHERE `profile`=1 AND `uid`=%d", intval(local_user()));
 
 			$r = q("UPDATE `photo` SET `profile`=1 WHERE `uid` = %d AND `resource-id` = '%s'", intval(local_user()),
-				dbesc($resource_id)
+				DBA::escape($resource_id)
 			);
 
 			Contact::updateSelfFromUserID(local_user(), true);

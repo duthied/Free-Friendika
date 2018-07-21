@@ -38,7 +38,7 @@ class CheckVersion
 		logger("Checking VERSION from: ".$checked_url, LOGGER_DEBUG);
 
 		// fetch the VERSION file
-		$gitversion = dbesc(trim(Network::fetchUrl($checked_url)));
+		$gitversion = DBA::escape(trim(Network::fetchUrl($checked_url)));
 		logger("Upstream VERSION is: ".$gitversion, LOGGER_DEBUG);
 
 		Config::set('system', 'git_friendica_version', $gitversion);

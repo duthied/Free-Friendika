@@ -60,7 +60,7 @@ function directory_content(App $a)
 	}
 
 	if ($search) {
-		$search = dbesc($search);
+		$search = DBA::escape($search);
 
 		$sql_extra = " AND ((`profile`.`name` LIKE '%$search%') OR
 				(`user`.`nickname` LIKE '%$search%') OR

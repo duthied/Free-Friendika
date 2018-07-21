@@ -239,8 +239,8 @@ class Photo
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
 					intval($uid),
-					dbesc('Contact Photos'),
-					dbesc(L10n::t('Contact Photos'))
+					DBA::escape('Contact Photos'),
+					DBA::escape(L10n::t('Contact Photos'))
 				);
 			} else {
 				// This query doesn't do the count and is much faster
@@ -248,8 +248,8 @@ class Photo
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
 					intval($uid),
-					dbesc('Contact Photos'),
-					dbesc(L10n::t('Contact Photos'))
+					DBA::escape('Contact Photos'),
+					DBA::escape(L10n::t('Contact Photos'))
 				);
 			}
 			Cache::set($key, $albums, CACHE_DAY);

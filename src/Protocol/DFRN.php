@@ -129,7 +129,7 @@ class DFRN
 			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
 			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
 			WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
-			dbesc($owner_nick)
+			DBA::escape($owner_nick)
 		);
 
 		if (! DBA::isResult($r)) {
@@ -147,15 +147,15 @@ class DFRN
 			$sql_extra = '';
 			switch ($direction) {
 				case (-1):
-					$sql_extra = sprintf(" AND `issued-id` = '%s' ", dbesc($dfrn_id));
+					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
 					$my_id = $dfrn_id;
 					break;
 				case 0:
-					$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+					$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 					$my_id = '1:' . $dfrn_id;
 					break;
 				case 1:
-					$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+					$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 					$my_id = '0:' . $dfrn_id;
 					break;
 				default:
@@ -196,8 +196,8 @@ class DFRN
 			",
 				intval($contact['id']),
 				intval($contact['id']),
-				dbesc($gs),
-				dbesc($gs)
+				DBA::escape($gs),
+				DBA::escape($gs)
 			);
 		}
 
@@ -214,7 +214,7 @@ class DFRN
 		if (isset($category)) {
 			$sql_post_table = sprintf(
 				"INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				dbesc(protect_sprintf($category)),
+				DBA::escape(protect_sprintf($category)),
 				intval(TERM_OBJ_POST),
 				intval(TERM_CATEGORY),
 				intval($owner_id)
@@ -236,8 +236,8 @@ class DFRN
 			$sql_extra
 			ORDER BY `item`.`parent` ".$sort.", `item`.`created` ASC LIMIT 0, 300",
 			intval($owner_id),
-			dbesc($check_date),
-			dbesc($sort)
+			DBA::escape($check_date),
+			DBA::escape($sort)
 		);
 
 		$ids = [];
@@ -1073,7 +1073,7 @@ class DFRN
 			$r = q(
 				"SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
 				intval($owner["uid"]),
-				dbesc(normalise_link($mention))
+				DBA::escape(normalise_link($mention))
 			);
 
 			if (DBA::isResult($r) && ($r[0]["forum"] || $r[0]["prv"])) {
@@ -1498,8 +1498,8 @@ class DFRN
 			"SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
 			intval($contact['uid']),
 			intval($contact['id']),
-			dbesc(DateTimeFormat::utc($birthday)),
-			dbesc('birthday')
+			DBA::escape(DateTimeFormat::utc($birthday)),
+			DBA::escape('birthday')
 		);
 
 		if (DBA::isResult($r)) {
@@ -1516,13 +1516,13 @@ class DFRN
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
 			intval($contact['uid']),
 			intval($contact['id']),
-			dbesc(DateTimeFormat::utcNow()),
-			dbesc(DateTimeFormat::utcNow()),
-			dbesc(DateTimeFormat::utc($birthday)),
-			dbesc(DateTimeFormat::utc($birthday . ' + 1 day ')),
-			dbesc($bdtext),
-			dbesc($bdtext2),
-			dbesc('birthday')
+			DBA::escape(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utc($birthday)),
+			DBA::escape(DateTimeFormat::utc($birthday . ' + 1 day ')),
+			DBA::escape($bdtext),
+			DBA::escape($bdtext2),
+			DBA::escape('birthday')
 		);
 	}
 
@@ -1744,11 +1744,11 @@ class DFRN
 					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
 					`xmpp` = '%s', `name-date`  = '%s', `uri-date` = '%s'
 					WHERE `id` = %d AND `network` = '%s'",
-					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]),	dbesc($contact["location"]),
-					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
-					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["xmpp"]),
-					dbesc(DateTimeFormat::utc($contact["name-date"])), dbesc(DateTimeFormat::utc($contact["uri-date"])),
-					intval($contact["id"]),	dbesc($contact["network"])
+					DBA::escape($contact["name"]), DBA::escape($contact["nick"]), DBA::escape($contact["about"]),	DBA::escape($contact["location"]),
+					DBA::escape($contact["addr"]), DBA::escape($contact["keywords"]), DBA::escape($contact["bdyear"]),
+					DBA::escape($contact["bd"]), intval($contact["hidden"]), DBA::escape($contact["xmpp"]),
+					DBA::escape(DateTimeFormat::utc($contact["name-date"])), DBA::escape(DateTimeFormat::utc($contact["uri-date"])),
+					intval($contact["id"]),	DBA::escape($contact["network"])
 				);
 			}
 
@@ -1914,8 +1914,8 @@ class DFRN
 
 		$r = q(
 			"SELECT `id` FROM `contact` WHERE `name` = '%s' AND `nurl` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($suggest["name"]),
-			dbesc(normalise_link($suggest["url"])),
+			DBA::escape($suggest["name"]),
+			DBA::escape(normalise_link($suggest["url"])),
 			intval($suggest["uid"])
 		);
 
@@ -1935,9 +1935,9 @@ class DFRN
 		$fid = 0;
 		$r = q(
 			"SELECT `id` FROM `fcontact` WHERE `url` = '%s' AND `name` = '%s' AND `request` = '%s' LIMIT 1",
-			dbesc($suggest["url"]),
-			dbesc($suggest["name"]),
-			dbesc($suggest["request"])
+			DBA::escape($suggest["url"]),
+			DBA::escape($suggest["name"]),
+			DBA::escape($suggest["request"])
 		);
 		if (DBA::isResult($r)) {
 			$fid = $r[0]["id"];
@@ -1963,17 +1963,17 @@ class DFRN
 		if (!$fid) {
 			$r = q(
 				"INSERT INTO `fcontact` (`name`,`url`,`photo`,`request`) VALUES ('%s', '%s', '%s', '%s')",
-				dbesc($suggest["name"]),
-				dbesc($suggest["url"]),
-				dbesc($suggest["photo"]),
-				dbesc($suggest["request"])
+				DBA::escape($suggest["name"]),
+				DBA::escape($suggest["url"]),
+				DBA::escape($suggest["photo"]),
+				DBA::escape($suggest["request"])
 			);
 		}
 		$r = q(
 			"SELECT `id` FROM `fcontact` WHERE `url` = '%s' AND `name` = '%s' AND `request` = '%s' LIMIT 1",
-			dbesc($suggest["url"]),
-			dbesc($suggest["name"]),
-			dbesc($suggest["request"])
+			DBA::escape($suggest["url"]),
+			DBA::escape($suggest["name"]),
+			DBA::escape($suggest["request"])
 		);
 
 		/*
@@ -1995,9 +1995,9 @@ class DFRN
 			intval($suggest["uid"]),
 			intval($fid),
 			intval($suggest["cid"]),
-			dbesc($suggest["body"]),
-			dbesc($hash),
-			dbesc(DateTimeFormat::utcNow()),
+			DBA::escape($suggest["body"]),
+			DBA::escape($hash),
+			DBA::escape(DateTimeFormat::utcNow()),
 			intval(0)
 		);
 
@@ -2172,9 +2172,9 @@ class DFRN
 					AND `item`.`uid` = %d
 					$sql_extra
 					LIMIT 1",
-					dbesc($parent["parent-uri"]),
-					dbesc($parent["parent-uri"]),
-					dbesc($parent["parent-uri"]),
+					DBA::escape($parent["parent-uri"]),
+					DBA::escape($parent["parent-uri"]),
+					DBA::escape($parent["parent-uri"]),
 					intval($importer["importer_uid"])
 				);
 				if (DBA::isResult($r)) {
@@ -2645,7 +2645,7 @@ class DFRN
 
 					$r = q(
 						"SELECT `id` FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($item["uri"]),
+						DBA::escape($item["uri"]),
 						intval($importer["importer_uid"])
 					);
 					if (DBA::isResult($r)) {
@@ -2952,10 +2952,10 @@ class DFRN
 			/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
 			$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
 					AND `nick` = '%s' AND NOT `self` AND (`url` LIKE '%%%s%%' OR `nurl` LIKE '%%%s%%') AND NOT `blocked` AND NOT `pending` LIMIT 1",
-				dbesc($contact_nick),
-				dbesc($a->user['nickname']),
-				dbesc($baseurl),
-				dbesc($nurl)
+				DBA::escape($contact_nick),
+				DBA::escape($a->user['nickname']),
+				DBA::escape($baseurl),
+				DBA::escape($nurl)
 			);
 			if ((! DBA::isResult($r)) || $r[0]['id'] == remote_user()) {
 				return;
@@ -2963,10 +2963,10 @@ class DFRN
 
 			$r = q("SELECT * FROM contact WHERE nick = '%s'
 					AND network = '%s' AND uid = %d  AND url LIKE '%%%s%%' LIMIT 1",
-				dbesc($contact_nick),
-				dbesc(NETWORK_DFRN),
+				DBA::escape($contact_nick),
+				DBA::escape(NETWORK_DFRN),
 				intval(local_user()),
-				dbesc($baseurl)
+				DBA::escape($baseurl)
 			);
 			if (! DBA::isResult($r)) {
 				return;

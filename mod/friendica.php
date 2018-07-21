@@ -17,12 +17,12 @@ function friendica_init(App $a)
 
 		$sql_extra = '';
 		if (x($a->config, 'admin_nickname')) {
-			$sql_extra = sprintf(" AND `nickname` = '%s' ", dbesc(Config::get('config', 'admin_nickname')));
+			$sql_extra = sprintf(" AND `nickname` = '%s' ", DBA::escape(Config::get('config', 'admin_nickname')));
 		}
 		if (!empty(Config::get('config', 'admin_email'))) {
 			$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 
-			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", dbesc($adminlist[0]));
+			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", DBA::escape($adminlist[0]));
 			$admin = [
 				'name' => $r[0]['username'],
 				'profile'=> System::baseUrl() . '/profile/' . $r[0]['nickname'],

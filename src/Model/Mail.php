@@ -58,8 +58,8 @@ class Mail
 			$reply = true;
 			$r = q("SELECT `convid` FROM `mail` WHERE `uid` = %d AND (`uri` = '%s' OR `parent-uri` = '%s') LIMIT 1",
 				intval(local_user()),
-				dbesc($replyto),
-				dbesc($replyto)
+				DBA::escape($replyto),
+				DBA::escape($replyto)
 			);
 			if (DBA::isResult($r)) {
 				$convid = $r[0]['convid'];

@@ -815,7 +815,7 @@ function admin_page_workerqueue(App $a)
 function admin_page_summary(App $a)
 {
 	// are there MyISAM tables in the DB? If so, trigger a warning message
-	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(DBA::databaseName()));
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", DBA::escape(DBA::databaseName()));
 	$showwarning = false;
 	$warningtext = [];
 	if (DBA::isResult($r)) {
@@ -948,8 +948,8 @@ function admin_page_site_post(App $a)
 
 		function update_table($table_name, $fields, $old_url, $new_url)
 		{
-			$dbold = dbesc($old_url);
-			$dbnew = dbesc($new_url);
+			$dbold = DBA::escape($old_url);
+			$dbnew = DBA::escape($new_url);
 
 			$upd = [];
 			foreach ($fields as $f) {

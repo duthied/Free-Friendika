@@ -24,7 +24,7 @@ function lockview_content(App $a) {
 		killme();
 
 	$r = q("SELECT * FROM `%s` WHERE `id` = %d LIMIT 1",
-		dbesc($type),
+		DBA::escape($type),
 		intval($item_id)
 	);
 	if (! DBA::isResult($r)) {
@@ -57,7 +57,7 @@ function lockview_content(App $a) {
 
 	if(count($allowed_groups)) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
-			dbesc(implode(', ', $allowed_groups))
+			DBA::escape(implode(', ', $allowed_groups))
 		);
 		if (DBA::isResult($r))
 			foreach($r as $rr)
@@ -65,7 +65,7 @@ function lockview_content(App $a) {
 	}
 	if(count($allowed_users)) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
-			dbesc(implode(', ',$allowed_users))
+			DBA::escape(implode(', ',$allowed_users))
 		);
 		if (DBA::isResult($r))
 			foreach($r as $rr)
@@ -75,7 +75,7 @@ function lockview_content(App $a) {
 
 	if(count($deny_groups)) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
-			dbesc(implode(', ', $deny_groups))
+			DBA::escape(implode(', ', $deny_groups))
 		);
 		if (DBA::isResult($r))
 			foreach($r as $rr)
@@ -83,7 +83,7 @@ function lockview_content(App $a) {
 	}
 	if(count($deny_users)) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
-			dbesc(implode(', ',$deny_users))
+			DBA::escape(implode(', ',$deny_users))
 		);
 		if (DBA::isResult($r))
 			foreach($r as $rr)

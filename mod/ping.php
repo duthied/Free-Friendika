@@ -197,7 +197,7 @@ function ping_init(App $a)
 			"SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
 			intval(local_user()),
-			dbesc($myurl)
+			DBA::escape($myurl)
 		);
 		$mail_count = count($mails);
 
@@ -221,8 +221,8 @@ function ping_init(App $a)
 				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(DateTimeFormat::utc('now + 7 days')),
-				dbesc(DateTimeFormat::utcNow())
+				DBA::escape(DateTimeFormat::utc('now + 7 days')),
+				DBA::escape(DateTimeFormat::utcNow())
 			);
 			if (DBA::isResult($ev)) {
 				Cache::set($cachekey, $ev, CACHE_HOUR);
@@ -481,8 +481,8 @@ function ping_get_notifications($uid)
 
 				q(
 					"UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",
-					dbesc($notification["name"]),
-					dbesc($notification["message"]),
+					DBA::escape($notification["name"]),
+					DBA::escape($notification["message"]),
 					intval($notification["id"])
 				);
 			}

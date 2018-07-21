@@ -60,14 +60,14 @@ function manage_post(App $a) {
 		// Check if the target user is one of our children
 		$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `parent-uid` = %d LIMIT 1",
 			intval($identity),
-			dbesc($orig_record['uid'])
+			DBA::escape($orig_record['uid'])
 		);
 
 		// Check if the target user is one of our siblings
 		if (!DBA::isResult($r) && ($orig_record['parent-uid'] != 0)) {
 			$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `parent-uid` = %d LIMIT 1",
 				intval($identity),
-				dbesc($orig_record['parent-uid'])
+				DBA::escape($orig_record['parent-uid'])
 			);
 		}
 
@@ -143,7 +143,7 @@ function manage_content(App $a) {
 	//getting additinal information for each identity
 	foreach ($identities as $key=>$id) {
 		$thumb = q("SELECT `thumb` FROM `contact` WHERE `uid` = '%s' AND `self` = 1",
-			dbesc($id['uid'])
+			DBA::escape($id['uid'])
 		);
 
 		$identities[$key]['thumb'] = $thumb[0]['thumb'];

@@ -65,7 +65,7 @@ function search_init(App $a) {
 		if (x($_GET,'save') && $search) {
 			$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 				intval(local_user()),
-				dbesc($search)
+				DBA::escape($search)
 			);
 			if (!DBA::isResult($r)) {
 				DBA::insert('search', ['uid' => local_user(), 'term' => $search]);

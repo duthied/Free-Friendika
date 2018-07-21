@@ -110,14 +110,14 @@ function delegate_content(App $a)
 		AND SUBSTRING_INDEX(`nurl`, '/', 3) = '%s'
 		AND `uid` = %d
 		AND `network` = '%s' ",
-		dbesc(normalise_link(System::baseUrl())),
+		DBA::escape(normalise_link(System::baseUrl())),
 		intval(local_user()),
-		dbesc(NETWORK_DFRN)
+		DBA::escape(NETWORK_DFRN)
 	);
 	if (DBA::isResult($r)) {
 		$nicknames = [];
 		foreach ($r as $rr) {
-			$nicknames[] = "'" . dbesc(basename($rr['nurl'])) . "'";
+			$nicknames[] = "'" . DBA::escape(basename($rr['nurl'])) . "'";
 		}
 
 		$nicks = implode(',', $nicknames);

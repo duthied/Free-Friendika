@@ -239,7 +239,7 @@ function frio_remote_nav($a, &$nav)
 	} elseif (Profile::getMyURL()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
-			dbesc($webbie));
+			DBA::escape($webbie));
 		$nav['remote'] = L10n::t('Visitor');
 	} else {
 		$r = false;
@@ -299,12 +299,12 @@ function frio_acl_lookup(App $a, &$results)
 
 	$sql_extra = '';
 	if ($results['search']) {
-		$search_txt = dbesc(protect_sprintf(preg_quote($results['search'])));
-		$sql_extra .= " AND (`attag` LIKE '%%" . dbesc($search_txt) . "%%' OR `name` LIKE '%%" . dbesc($search_txt) . "%%' OR `nick` LIKE '%%" . dbesc($search_txt) . "%%') ";
+		$search_txt = DBA::escape(protect_sprintf(preg_quote($results['search'])));
+		$sql_extra .= " AND (`attag` LIKE '%%" . $search_txt . "%%' OR `name` LIKE '%%" . $search_txt . "%%' OR `nick` LIKE '%%" . $search_txt . "%%') ";
 	}
 
 	if ($nets) {
-		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+		$sql_extra .= sprintf(" AND network = '%s' ", DBA::escape($nets));
 	}
 
 	$total = 0;

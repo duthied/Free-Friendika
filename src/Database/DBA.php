@@ -1614,7 +1614,7 @@ class DBA
 			if (is_bool($value)) {
 				$value = ($value ? '1' : '0');
 			} else {
-				$value = dbesc($value);
+				$value = self::escape($value);
 			}
 			return;
 		}
@@ -1624,7 +1624,7 @@ class DBA
 		} elseif (is_float($value) || is_integer($value)) {
 			$value = (string) $value;
 		} else {
-			$value = "'" . dbesc($value) . "'";
+			$value = "'" . self::escape($value) . "'";
 		}
 	}
 

@@ -10,7 +10,7 @@ function modexp_init(App $a) {
 
 	$nick = $a->argv[1];
 	$r = q("SELECT `spubkey` FROM `user` WHERE `nickname` = '%s' LIMIT 1",
-			dbesc($nick)
+			DBA::escape($nick)
 	);
 
 	if (! DBA::isResult($r)) {

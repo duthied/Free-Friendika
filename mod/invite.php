@@ -61,8 +61,8 @@ function invite_post(App $a)
 			$nmessage = str_replace('$invite_code', $code, $message);
 
 			$r = q("INSERT INTO `register` (`hash`,`created`) VALUES ('%s', '%s') ",
-				dbesc($code),
-				dbesc(DateTimeFormat::utcNow())
+				DBA::escape($code),
+				DBA::escape(DateTimeFormat::utcNow())
 			);
 
 			if (! is_site_admin()) {

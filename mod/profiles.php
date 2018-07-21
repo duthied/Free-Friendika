@@ -78,15 +78,15 @@ function profiles_init(App $a) {
 		$r2 = q("INSERT INTO `profile` (`uid` , `profile-name` , `name`, `photo`, `thumb`)
 			VALUES ( %d, '%s', '%s', '%s', '%s' )",
 			intval(local_user()),
-			dbesc($name),
-			dbesc($r1[0]['name']),
-			dbesc($r1[0]['photo']),
-			dbesc($r1[0]['thumb'])
+			DBA::escape($name),
+			DBA::escape($r1[0]['name']),
+			DBA::escape($r1[0]['photo']),
+			DBA::escape($r1[0]['thumb'])
 		);
 
 		$r3 = q("SELECT `id` FROM `profile` WHERE `uid` = %d AND `profile-name` = '%s' LIMIT 1",
 			intval(local_user()),
-			dbesc($name)
+			DBA::escape($name)
 		);
 
 		info(L10n::t('New profile created.') . EOL);
@@ -120,13 +120,13 @@ function profiles_init(App $a) {
 		$r1[0]['is-default'] = 0;
 		$r1[0]['publish'] = 0;
 		$r1[0]['net-publish'] = 0;
-		$r1[0]['profile-name'] = dbesc($name);
+		$r1[0]['profile-name'] = DBA::escape($name);
 
 		DBA::insert('profile', $r1[0]);
 
 		$r3 = q("SELECT `id` FROM `profile` WHERE `uid` = %d AND `profile-name` = '%s' LIMIT 1",
 			intval(local_user()),
-			dbesc($name)
+			DBA::escape($name)
 		);
 		info(L10n::t('New profile created.') . EOL);
 		if ((DBA::isResult($r3)) && (count($r3) == 1)) {
@@ -283,12 +283,12 @@ function profiles_post(App $a) {
 					$newname = $lookup;
 
 					$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-						dbesc($newname),
+						DBA::escape($newname),
 						intval(local_user())
 					);
 					if (! DBA::isResult($r)) {
 						$r = q("SELECT * FROM `contact` WHERE `nick` = '%s' AND `uid` = %d LIMIT 1",
-							dbesc($lookup),
+							DBA::escape($lookup),
 							intval(local_user())
 						);
 					}
@@ -440,39 +440,39 @@ function profiles_post(App $a) {
 			`education` = '%s',
 			`hide-friends` = %d
 			WHERE `id` = %d AND `uid` = %d",
-			dbesc($profile_name),
-			dbesc($name),
-			dbesc($pdesc),
-			dbesc($gender),
-			dbesc($dob),
-			dbesc($address),
-			dbesc($locality),
-			dbesc($region),
-			dbesc($postal_code),
-			dbesc($country_name),
-			dbesc($marital),
-			dbesc($with),
-			dbesc($howlong),
-			dbesc($sexual),
-			dbesc($xmpp),
-			dbesc($homepage),
-			dbesc($hometown),
-			dbesc($politic),
-			dbesc($religion),
-			dbesc($pub_keywords),
-			dbesc($prv_keywords),
-			dbesc($likes),
-			dbesc($dislikes),
-			dbesc($about),
-			dbesc($interest),
-			dbesc($contact),
-			dbesc($music),
-			dbesc($book),
-			dbesc($tv),
-			dbesc($film),
-			dbesc($romance),
-			dbesc($work),
-			dbesc($education),
+			DBA::escape($profile_name),
+			DBA::escape($name),
+			DBA::escape($pdesc),
+			DBA::escape($gender),
+			DBA::escape($dob),
+			DBA::escape($address),
+			DBA::escape($locality),
+			DBA::escape($region),
+			DBA::escape($postal_code),
+			DBA::escape($country_name),
+			DBA::escape($marital),
+			DBA::escape($with),
+			DBA::escape($howlong),
+			DBA::escape($sexual),
+			DBA::escape($xmpp),
+			DBA::escape($homepage),
+			DBA::escape($hometown),
+			DBA::escape($politic),
+			DBA::escape($religion),
+			DBA::escape($pub_keywords),
+			DBA::escape($prv_keywords),
+			DBA::escape($likes),
+			DBA::escape($dislikes),
+			DBA::escape($about),
+			DBA::escape($interest),
+			DBA::escape($contact),
+			DBA::escape($music),
+			DBA::escape($book),
+			DBA::escape($tv),
+			DBA::escape($film),
+			DBA::escape($romance),
+			DBA::escape($work),
+			DBA::escape($education),
 			intval($hide_friends),
 			intval($a->argv[1]),
 			intval(local_user())
@@ -486,7 +486,7 @@ function profiles_post(App $a) {
 		if ($is_default) {
 			if ($namechanged) {
 				$r = q("UPDATE `user` set `username` = '%s' where `uid` = %d",
-					dbesc($name),
+					DBA::escape($name),
 					intval(local_user())
 				);
 			}

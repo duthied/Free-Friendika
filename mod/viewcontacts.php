@@ -22,7 +22,7 @@ function viewcontacts_init(App $a)
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
 		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-			dbesc($nick)
+			DBA::escape($nick)
 		);
 
 		if (! DBA::isResult($r)) {
@@ -63,9 +63,9 @@ function viewcontacts_content(App $a)
 			AND NOT `hidden` AND NOT `archive`
 			AND `network` IN ('%s', '%s', '%s')",
 		intval($a->profile['uid']),
-		dbesc(NETWORK_DFRN),
-		dbesc(NETWORK_DIASPORA),
-		dbesc(NETWORK_OSTATUS)
+		DBA::escape(NETWORK_DFRN),
+		DBA::escape(NETWORK_DIASPORA),
+		DBA::escape(NETWORK_OSTATUS)
 	);
 	if (DBA::isResult($r)) {
 		$a->set_pager_total($r[0]['total']);
@@ -77,9 +77,9 @@ function viewcontacts_content(App $a)
 			AND `network` IN ('%s', '%s', '%s')
 		ORDER BY `name` ASC LIMIT %d, %d",
 		intval($a->profile['uid']),
-		dbesc(NETWORK_DFRN),
-		dbesc(NETWORK_DIASPORA),
-		dbesc(NETWORK_OSTATUS),
+		DBA::escape(NETWORK_DFRN),
+		DBA::escape(NETWORK_DIASPORA),
+		DBA::escape(NETWORK_OSTATUS),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);

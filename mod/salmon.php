@@ -25,7 +25,7 @@ function salmon_post(App $a, $xml = '') {
 	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
 
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
-		dbesc($nick)
+		DBA::escape($nick)
 	);
 	if (! DBA::isResult($r)) {
 		System::httpExit(500);
@@ -145,11 +145,11 @@ function salmon_post(App $a, $xml = '') {
 	$r = q("SELECT * FROM `contact` WHERE `network` IN ('%s', '%s')
 						AND (`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s')
 						AND `uid` = %d LIMIT 1",
-		dbesc(NETWORK_OSTATUS),
-		dbesc(NETWORK_DFRN),
-		dbesc(normalise_link($author_link)),
-		dbesc($author_link),
-		dbesc(normalise_link($author_link)),
+		DBA::escape(NETWORK_OSTATUS),
+		DBA::escape(NETWORK_DFRN),
+		DBA::escape(normalise_link($author_link)),
+		DBA::escape($author_link),
+		DBA::escape(normalise_link($author_link)),
 		intval($importer['uid'])
 	);
 	if (! DBA::isResult($r)) {
@@ -159,9 +159,9 @@ function salmon_post(App $a, $xml = '') {
 			if($result['success']) {
 				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
 					AND `uid` = %d LIMIT 1",
-					dbesc(NETWORK_OSTATUS),
-					dbesc($author_link),
-					dbesc($author_link),
+					DBA::escape(NETWORK_OSTATUS),
+					DBA::escape($author_link),
+					DBA::escape($author_link),
 					intval($importer['uid'])
 				);
 			}

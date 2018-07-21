@@ -45,7 +45,7 @@ function photos_init(App $a) {
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
 		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-			dbesc($nick)
+			DBA::escape($nick)
 		);
 
 		if (!DBA::isResult($user)) {
@@ -198,7 +198,7 @@ function photos_post(App $a)
 		}
 
 		$r = q("SELECT `album` FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
-			dbesc($album),
+			DBA::escape($album),
 			intval($page_owner_uid)
 		);
 		if (!DBA::isResult($r)) {
@@ -216,8 +216,8 @@ function photos_post(App $a)
 		$newalbum = notags(trim($_POST['albumname']));
 		if ($newalbum != $album) {
 			q("UPDATE `photo` SET `album` = '%s' WHERE `album` = '%s' AND `uid` = %d",
-				dbesc($newalbum),
-				dbesc($album),
+				DBA::escape($newalbum),
+				DBA::escape($album),
 				intval($page_owner_uid)
 			);
 			// Update the photo albums cache
@@ -262,17 +262,17 @@ function photos_post(App $a)
 				$r = q("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `album` = '%s'",
 					intval($visitor),
 					intval($page_owner_uid),
-					dbesc($album)
+					DBA::escape($album)
 				);
 			} else {
 				$r = q("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
 					intval(local_user()),
-					dbesc($album)
+					DBA::escape($album)
 				);
 			}
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
-					$res[] = "'" . dbesc($rr['rid']) . "'" ;
+					$res[] = "'" . DBA::escape($rr['rid']) . "'" ;
 				}
 			} else {
 				goaway($_SESSION['photo_return']);
@@ -327,19 +327,19 @@ function photos_post(App $a)
 			$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `resource-id` = '%s' LIMIT 1",
 				intval($visitor),
 				intval($page_owner_uid),
-				dbesc($a->argv[2])
+				DBA::escape($a->argv[2])
 			);
 		} else {
 			$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' LIMIT 1",
 				intval(local_user()),
-				dbesc($a->argv[2])
+				DBA::escape($a->argv[2])
 			);
 		}
 
 		if (DBA::isResult($r)) {
 			q("DELETE FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
 				intval($page_owner_uid),
-				dbesc($r[0]['resource-id'])
+				DBA::escape($r[0]['resource-id'])
 			);
 
 			Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
@@ -374,7 +374,7 @@ function photos_post(App $a)
 			logger('rotate');
 
 			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 0 LIMIT 1",
-				dbesc($resource_id),
+				DBA::escape($resource_id),
 				intval($page_owner_uid)
 			);
 
@@ -389,10 +389,10 @@ function photos_post(App $a)
 					$height = $image->getHeight();
 
 					$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 0",
-						dbesc($image->asString()),
+						DBA::escape($image->asString()),
 						intval($height),
 						intval($width),
-						dbesc($resource_id),
+						DBA::escape($resource_id),
 						intval($page_owner_uid)
 					);
 
@@ -402,10 +402,10 @@ function photos_post(App $a)
 						$height = $image->getHeight();
 
 						$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 1",
-							dbesc($image->asString()),
+							DBA::escape($image->asString()),
 							intval($height),
 							intval($width),
-							dbesc($resource_id),
+							DBA::escape($resource_id),
 							intval($page_owner_uid)
 						);
 					}
@@ -416,10 +416,10 @@ function photos_post(App $a)
 						$height = $image->getHeight();
 
 						$x = q("UPDATE `photo` SET `data` = '%s', `height` = %d, `width` = %d WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 2",
-							dbesc($image->asString()),
+							DBA::escape($image->asString()),
 							intval($height),
 							intval($width),
-							dbesc($resource_id),
+							DBA::escape($resource_id),
 							intval($page_owner_uid)
 						);
 					}
@@ -428,19 +428,19 @@ function photos_post(App $a)
 		}
 
 		$p = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d ORDER BY `scale` DESC",
-			dbesc($resource_id),
+			DBA::escape($resource_id),
 			intval($page_owner_uid)
 		);
 		if (DBA::isResult($p)) {
 			$ext = $phototypes[$p[0]['type']];
 			$r = q("UPDATE `photo` SET `desc` = '%s', `album` = '%s', `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s' WHERE `resource-id` = '%s' AND `uid` = %d",
-				dbesc($desc),
-				dbesc($albname),
-				dbesc($str_contact_allow),
-				dbesc($str_group_allow),
-				dbesc($str_contact_deny),
-				dbesc($str_group_deny),
-				dbesc($resource_id),
+				DBA::escape($desc),
+				DBA::escape($albname),
+				DBA::escape($str_contact_allow),
+				DBA::escape($str_group_allow),
+				DBA::escape($str_contact_deny),
+				DBA::escape($str_group_deny),
+				DBA::escape($resource_id),
 				intval($page_owner_uid)
 			);
 
@@ -554,15 +554,15 @@ function photos_post(App $a)
 
 								//select someone from this user's contacts by name
 								$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-										dbesc($newname),
+										DBA::escape($newname),
 										intval($page_owner_uid)
 								);
 
 								if (!DBA::isResult($r)) {
 									//select someone by attag or nick and the name passed in
 									$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-											dbesc($name),
-											dbesc($name),
+											DBA::escape($name),
+											DBA::escape($name),
 											intval($page_owner_uid)
 									);
 								}
@@ -707,7 +707,7 @@ function photos_post(App $a)
 	 */
 
 	$r = q("SELECT * FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `created` > UTC_TIMESTAMP() - INTERVAL 3 HOUR ",
-		dbesc($album),
+		DBA::escape($album),
 		intval($page_owner_uid)
 	);
 
@@ -1111,7 +1111,7 @@ function photos_content(App $a)
 		$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` = '%s'
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
 			intval($owner_uid),
-			dbesc($album)
+			DBA::escape($album)
 		);
 		if (DBA::isResult($r)) {
 			$a->set_pager_total(count($r));
@@ -1132,7 +1132,7 @@ function photos_content(App $a)
 			FROM `photo` WHERE `uid` = %d AND `album` = '%s'
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` $order LIMIT %d , %d",
 			intval($owner_uid),
-			dbesc($album),
+			DBA::escape($album),
 			intval($a->pager['start']),
 			intval($a->pager['itemspage'])
 		);
@@ -1216,14 +1216,14 @@ function photos_content(App $a)
 		$ph = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
 			$sql_extra ORDER BY `scale` ASC ",
 			intval($owner_uid),
-			dbesc($datum)
+			DBA::escape($datum)
 		);
 
 		if (!DBA::isResult($ph)) {
 			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
 				LIMIT 1",
 				intval($owner_uid),
-				dbesc($datum)
+				DBA::escape($datum)
 			);
 			if (DBA::isResult($ph)) {
 				notice(L10n::t('Permission denied. Access to this item may be restricted.'));
@@ -1252,7 +1252,7 @@ function photos_content(App $a)
 
 			$prvnxt = q("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0
 				$sql_extra ORDER BY `created` $order ",
-				dbesc($ph[0]['album']),
+				DBA::escape($ph[0]['album']),
 				intval($owner_uid)
 			);
 
@@ -1347,7 +1347,7 @@ function photos_content(App $a)
 
 		/// @todo Rewrite this query. To do so, $sql_extra must be changed
 		$linked_items = q("SELECT `id` FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
-			dbesc($datum)
+			DBA::escape($datum)
 		);
 
 		$map = null;
@@ -1615,8 +1615,8 @@ function photos_content(App $a)
 	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id`",
 		intval($a->data['user']['uid']),
-		dbesc('Contact Photos'),
-		dbesc(L10n::t('Contact Photos'))
+		DBA::escape('Contact Photos'),
+		DBA::escape(L10n::t('Contact Photos'))
 	);
 
 	if (DBA::isResult($r)) {
@@ -1630,8 +1630,8 @@ function photos_content(App $a)
 		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
-		dbesc('Contact Photos'),
-		dbesc(L10n::t('Contact Photos')),
+		DBA::escape('Contact Photos'),
+		DBA::escape(L10n::t('Contact Photos')),
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);

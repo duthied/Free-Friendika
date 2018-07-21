@@ -15,7 +15,7 @@ function msearch_post(App $a) {
 		killme();
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 AND `user`.`hidewall` = 0 AND MATCH `pub_keywords` AGAINST ('%s') ",
-		dbesc($search)
+		DBA::escape($search)
 	);
 
 	if (DBA::isResult($r))
@@ -24,7 +24,7 @@ function msearch_post(App $a) {
 	$results = [];
 
 	$r = q("SELECT `pub_keywords`, `username`, `nickname`, `user`.`uid` FROM `user` LEFT JOIN `profile` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 AND `user`.`hidewall` = 0 AND MATCH `pub_keywords` AGAINST ('%s') LIMIT %d , %d ",
-		dbesc($search),
+		DBA::escape($search),
 		intval($startrec),
 		intval($perpage)
 	);

@@ -26,7 +26,7 @@ function wallmessage_post(App $a) {
 	}
 
 	$r = q("select * from user where nickname = '%s' limit 1",
-		dbesc($recipient)
+		DBA::escape($recipient)
 	);
 
 	if (! DBA::isResult($r)) {
@@ -88,7 +88,7 @@ function wallmessage_content(App $a) {
 	}
 
 	$r = q("select * from user where nickname = '%s' limit 1",
-		dbesc($recipient)
+		DBA::escape($recipient)
 	);
 
 	if (! DBA::isResult($r)) {

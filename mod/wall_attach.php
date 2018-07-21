@@ -18,7 +18,7 @@ function wall_attach_post(App $a) {
 	if($a->argc > 1) {
 		$nick = $a->argv[1];
 		$r = q("SELECT `user`.*, `contact`.`id` FROM `user` LEFT JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
-			dbesc($nick)
+			DBA::escape($nick)
 		);
 		if (! DBA::isResult($r)) {
 			if ($r_json) {
@@ -145,8 +145,8 @@ function wall_attach_post(App $a) {
 
 	$r = q("SELECT `id` FROM `attach` WHERE `uid` = %d AND `created` = '%s' AND `hash` = '%s' LIMIT 1",
 		intval($page_owner_uid),
-		dbesc($created),
-		dbesc($hash)
+		DBA::escape($created),
+		DBA::escape($hash)
 	);
 
 	if (! DBA::isResult($r)) {

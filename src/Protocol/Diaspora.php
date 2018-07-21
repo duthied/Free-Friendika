@@ -1016,8 +1016,8 @@ class Diaspora
 
 		$r = q(
 			"SELECT `url` FROM `fcontact` WHERE `url` != '' AND `network` = '%s' AND `guid` = '%s'",
-			dbesc(NETWORK_DIASPORA),
-			dbesc($fcontact_guid)
+			DBA::escape(NETWORK_DIASPORA),
+			DBA::escape($fcontact_guid)
 		);
 
 		if (DBA::isResult($r)) {
@@ -1787,7 +1787,7 @@ class Diaspora
 
 		$r = q(
 			"SELECT `id` FROM `mail` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($msg_guid),
+			DBA::escape($msg_guid),
 			intval($importer["uid"])
 		);
 		if (DBA::isResult($r)) {
@@ -1799,19 +1799,19 @@ class Diaspora
 			"INSERT INTO `mail` (`uid`, `guid`, `convid`, `from-name`,`from-photo`,`from-url`,`contact-id`,`title`,`body`,`seen`,`reply`,`uri`,`parent-uri`,`created`)
 			VALUES (%d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, '%s','%s','%s')",
 			intval($importer["uid"]),
-			dbesc($msg_guid),
+			DBA::escape($msg_guid),
 			intval($conversation["id"]),
-			dbesc($person["name"]),
-			dbesc($person["photo"]),
-			dbesc($person["url"]),
+			DBA::escape($person["name"]),
+			DBA::escape($person["photo"]),
+			DBA::escape($person["url"]),
 			intval($contact["id"]),
-			dbesc($subject),
-			dbesc($body),
+			DBA::escape($subject),
+			DBA::escape($body),
 			0,
 			0,
-			dbesc($message_uri),
-			dbesc($author.":".$guid),
-			dbesc($msg_created_at)
+			DBA::escape($message_uri),
+			DBA::escape($author.":".$guid),
+			DBA::escape($msg_created_at)
 		);
 
 		DBA::unlock();
@@ -1870,7 +1870,7 @@ class Diaspora
 		$c = q(
 			"SELECT * FROM `conv` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 			intval($importer["uid"]),
-			dbesc($guid)
+			DBA::escape($guid)
 		);
 		if ($c)
 			$conversation = $c[0];
@@ -1879,18 +1879,18 @@ class Diaspora
 				"INSERT INTO `conv` (`uid`, `guid`, `creator`, `created`, `updated`, `subject`, `recips`)
 				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s')",
 				intval($importer["uid"]),
-				dbesc($guid),
-				dbesc($author),
-				dbesc($created_at),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc($subject),
-				dbesc($participants)
+				DBA::escape($guid),
+				DBA::escape($author),
+				DBA::escape($created_at),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape($subject),
+				DBA::escape($participants)
 			);
 			if ($r) {
 				$c = q(
 					"SELECT * FROM `conv` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 					intval($importer["uid"]),
-					dbesc($guid)
+					DBA::escape($guid)
 				);
 			}
 
@@ -2049,7 +2049,7 @@ class Diaspora
 		$c = q(
 			"SELECT * FROM `conv` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
 			intval($importer["uid"]),
-			dbesc($conversation_guid)
+			DBA::escape($conversation_guid)
 		);
 		if ($c) {
 			$conversation = $c[0];
@@ -2074,7 +2074,7 @@ class Diaspora
 
 		$r = q(
 			"SELECT `id` FROM `mail` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($guid),
+			DBA::escape($guid),
 			intval($importer["uid"])
 		);
 		if (DBA::isResult($r)) {
@@ -2086,19 +2086,19 @@ class Diaspora
 			"INSERT INTO `mail` (`uid`, `guid`, `convid`, `from-name`,`from-photo`,`from-url`,`contact-id`,`title`,`body`,`seen`,`reply`,`uri`,`parent-uri`,`created`)
 				VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, '%s','%s','%s')",
 			intval($importer["uid"]),
-			dbesc($guid),
+			DBA::escape($guid),
 			intval($conversation["id"]),
-			dbesc($person["name"]),
-			dbesc($person["photo"]),
-			dbesc($person["url"]),
+			DBA::escape($person["name"]),
+			DBA::escape($person["photo"]),
+			DBA::escape($person["url"]),
 			intval($contact["id"]),
-			dbesc($conversation["subject"]),
-			dbesc($body),
+			DBA::escape($conversation["subject"]),
+			DBA::escape($body),
 			0,
 			1,
-			dbesc($message_uri),
-			dbesc($author.":".$conversation["guid"]),
-			dbesc($created_at)
+			DBA::escape($message_uri),
+			DBA::escape($author.":".$conversation["guid"]),
+			DBA::escape($created_at)
 		);
 
 		DBA::unlock();
@@ -2401,18 +2401,18 @@ class Diaspora
 			"INSERT INTO `contact` (`uid`, `network`,`addr`,`created`,`url`,`nurl`,`batch`,`name`,`nick`,`photo`,`pubkey`,`notify`,`poll`,`blocked`,`priority`)
 			VALUES (%d, '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s',%d,%d)",
 			intval($importer["uid"]),
-			dbesc($ret["network"]),
-			dbesc($ret["addr"]),
+			DBA::escape($ret["network"]),
+			DBA::escape($ret["addr"]),
 			DateTimeFormat::utcNow(),
-			dbesc($ret["url"]),
-			dbesc(normalise_link($ret["url"])),
-			dbesc($batch),
-			dbesc($ret["name"]),
-			dbesc($ret["nick"]),
-			dbesc($ret["photo"]),
-			dbesc($ret["pubkey"]),
-			dbesc($ret["notify"]),
-			dbesc($ret["poll"]),
+			DBA::escape($ret["url"]),
+			DBA::escape(normalise_link($ret["url"])),
+			DBA::escape($batch),
+			DBA::escape($ret["name"]),
+			DBA::escape($ret["nick"]),
+			DBA::escape($ret["photo"]),
+			DBA::escape($ret["pubkey"]),
+			DBA::escape($ret["notify"]),
+			DBA::escape($ret["poll"]),
 			1,
 			2
 		);
@@ -2444,9 +2444,9 @@ class Diaspora
 				intval($contact_record["id"]),
 				0,
 				0,
-				dbesc(L10n::t("Sharing notification from Diaspora network")),
-				dbesc($hash),
-				dbesc(DateTimeFormat::utcNow())
+				DBA::escape(L10n::t("Sharing notification from Diaspora network")),
+				DBA::escape($hash),
+				DBA::escape(DateTimeFormat::utcNow())
 			);
 		} else {
 			// automatic friend approval
@@ -2477,8 +2477,8 @@ class Diaspora
 				WHERE `id` = %d
 				",
 				intval($new_relation),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
 				intval($contact_record["id"])
 			);
 
@@ -4129,7 +4129,7 @@ class Diaspora
 			$recips = q(
 				"SELECT `id`,`name`,`network`,`pubkey`,`notify` FROM `contact` WHERE `network` = '%s'
 				AND `uid` = %d AND `rel` != %d",
-				dbesc(NETWORK_DIASPORA),
+				DBA::escape(NETWORK_DIASPORA),
 				intval($uid),
 				intval(CONTACT_IS_SHARING)
 			);

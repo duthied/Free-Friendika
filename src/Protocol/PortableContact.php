@@ -281,7 +281,7 @@ class PortableContact
 
 		$r = q(
 			"SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
-			dbesc(normalise_link($server_url))
+			DBA::escape(normalise_link($server_url))
 		);
 
 		if (DBA::isResult($r)) {
@@ -306,7 +306,7 @@ class PortableContact
 	{
 		$gcontacts = q(
 			"SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
-			dbesc(normalise_link($profile))
+			DBA::escape(normalise_link($profile))
 		);
 
 		if (!DBA::isResult($gcontacts)) {
@@ -353,7 +353,7 @@ class PortableContact
 		if (in_array($gcontacts[0]["network"], ["", NETWORK_FEED])) {
 			$server = q(
 				"SELECT `network` FROM `gserver` WHERE `nurl` = '%s' AND `network` != ''",
-				dbesc(normalise_link($server_url))
+				DBA::escape(normalise_link($server_url))
 			);
 
 			if ($server) {
@@ -366,7 +366,7 @@ class PortableContact
 		// noscrape is really fast so we don't cache the call.
 		if (($server_url != "") && ($gcontacts[0]["nick"] != "")) {
 			//  Use noscrape if possible
-			$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", dbesc(normalise_link($server_url)));
+			$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", DBA::escape(normalise_link($server_url)));
 
 			if ($server) {
 				$noscraperet = Network::curl($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
@@ -1477,9 +1477,9 @@ class PortableContact
 			WHERE `network` IN ('%s', '%s', '%s') AND `last_contact` > `last_failure`
 			ORDER BY `last_contact`
 			LIMIT 1000",
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_DIASPORA),
+			DBA::escape(NETWORK_OSTATUS)
 		);
 
 		if (!DBA::isResult($r)) {
@@ -1509,7 +1509,7 @@ class PortableContact
 		foreach ($serverlist as $server) {
 			$server_url = str_replace("/index.php", "", $server->url);
 
-			$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
+			$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", DBA::escape(normalise_link($server_url)));
 			if (!DBA::isResult($r)) {
 				logger("Call server check for server ".$server_url, LOGGER_DEBUG);
 				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $server_url);
@@ -1654,7 +1654,7 @@ class PortableContact
 		}
 		$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 
-		$r = q("SELECT `id`, `url`, `nurl`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
+		$r = q("SELECT `id`, `url`, `nurl`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", DBA::escape($last_update));
 		if (DBA::isResult($r)) {
 			foreach ($r as $server) {
 				if (!self::checkServer($server["url"], $server["network"])) {

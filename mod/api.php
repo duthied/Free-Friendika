@@ -20,7 +20,7 @@ function oauth_get_client($request)
 	$r = q("SELECT `clients`.*
 			FROM `clients`, `tokens`
 			WHERE `clients`.`client_id`=`tokens`.`client_id`
-			AND `tokens`.`id`='%s' AND `tokens`.`scope`='request'", dbesc($token));
+			AND `tokens`.`id`='%s' AND `tokens`.`scope`='request'", DBA::escape($token));
 
 	if (!DBA::isResult($r)) {
 		return null;

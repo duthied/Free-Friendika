@@ -47,7 +47,7 @@ function profperm_content(App $a) {
 	if(($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
 		$r = q("SELECT `id` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `self` = 0
 			AND `network` = '%s' AND `id` = %d AND `uid` = %d LIMIT 1",
-			dbesc(NETWORK_DFRN),
+			DBA::escape(NETWORK_DFRN),
 			intval($a->argv[2]),
 			intval(local_user())
 		);
@@ -144,7 +144,7 @@ function profperm_content(App $a) {
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 and `pending` = 0 and `self` = 0
 			AND `network` = '%s' ORDER BY `name` ASC",
 			intval(local_user()),
-			dbesc(NETWORK_DFRN)
+			DBA::escape(NETWORK_DFRN)
 		);
 
 		if (DBA::isResult($r)) {
