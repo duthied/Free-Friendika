@@ -112,6 +112,13 @@ class Cron
 			Config::set('system', 'last_cron_hourly', time());
 		}
 
+		// Ensure to have a .htaccess file.
+		// this is a precaution for systems that update automatically
+		$basepath = $a->get_basepath();
+		if (!file_exists($basepath . '/.htaccess')) {
+			copy($basepath . '/.htaccess-dist', $basepath . '/.htaccess');
+		}
+
 		// Poll contacts
 		self::pollContacts($parameter, $generation);
 
