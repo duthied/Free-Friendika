@@ -11,6 +11,7 @@ use Friendica\Util\DateTimeFormat;
 use PDO;
 use PDOException;
 use PDOStatement;
+use mysqli;
 
 /**
  * @class MySQL database class
