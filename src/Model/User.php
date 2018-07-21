@@ -38,7 +38,7 @@ class User
 	 * @return boolean|array
 	 */
 	public static function getOwnerDataById($uid) {
-		$r = DBA::fetch_first("SELECT
+		$r = DBA::fetchFirst("SELECT
 			`contact`.*,
 			`user`.`prvkey` AS `uprvkey`,
 			`user`.`timezone`,

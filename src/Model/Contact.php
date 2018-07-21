@@ -72,7 +72,7 @@ class Contact extends BaseObject
 	{
 		$return = 0;
 		if (intval($gid)) {
-			$contacts = DBA::fetch_first('SELECT COUNT(*) AS `count`
+			$contacts = DBA::fetchFirst('SELECT COUNT(*) AS `count`
 				FROM `contact`
 				INNER JOIN `group_member`
 					ON `contact`.`id` = `group_member`.`contact-id`

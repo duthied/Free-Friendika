@@ -2427,7 +2427,7 @@ class Item extends BaseObject
 
 		// Does the given user have this item?
 		if ($uid) {
-			$item = DBA::fetch_first("SELECT `item`.`id`, `user`.`nickname` FROM `item`
+			$item = DBA::fetchFirst("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`guid` = ? AND `item`.`uid` = ?", $guid, $uid);
@@ -2439,7 +2439,7 @@ class Item extends BaseObject
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			$item = DBA::fetch_first("SELECT `item`.`id`, `user`.`nickname` FROM `item`
+			$item = DBA::fetchFirst("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND NOT `item`.`private` AND `item`.`wall`

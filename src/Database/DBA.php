@@ -683,7 +683,7 @@ class DBA
 	 * @param string $sql SQL statement
 	 * @return array first row of query
 	 */
-	public static function fetch_first($sql) {
+	public static function fetchFirst($sql) {
 		$params = self::getParam(func_get_args());
 
 		$stmt = self::p($sql, $params);
@@ -1344,7 +1344,7 @@ class DBA
 
 		$sql = "SELECT COUNT(*) AS `count` FROM `".$table."`".$condition_string;
 
-		$row = self::fetch_first($sql, $condition);
+		$row = self::fetchFirst($sql, $condition);
 
 		return $row['count'];
 	}

@@ -210,7 +210,7 @@ class Profile
 		$profile = null;
 
 		if ($profile_id) {
-			$profile = DBA::fetch_first(
+			$profile = DBA::fetchFirst(
 				"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
 					`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 					`profile`.`uid` AS `profile_uid`, `profile`.*,
@@ -224,7 +224,7 @@ class Profile
 			);
 		}
 		if (!DBM::is_result($profile)) {
-			$profile = DBA::fetch_first(
+			$profile = DBA::fetchFirst(
 				"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
 					`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
 					`profile`.`uid` AS `profile_uid`, `profile`.*,

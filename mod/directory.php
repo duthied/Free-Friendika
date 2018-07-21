@@ -83,7 +83,7 @@ function directory_content(App $a)
 	$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 " );
 
 
-	$cnt = DBA::fetch_first("SELECT COUNT(*) AS `total` FROM `profile`
+	$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
 	if (DBM::is_result($cnt)) {

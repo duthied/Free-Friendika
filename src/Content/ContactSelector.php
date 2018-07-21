@@ -102,7 +102,7 @@ class ContactSelector
 		$networkname = str_replace($search, $replace, $s);
 
 		if ((in_array($s, [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) && ($profile != "")) {
-			$r = DBA::fetch_first("SELECT `gserver`.`platform` FROM `gcontact`
+			$r = DBA::fetchFirst("SELECT `gserver`.`platform` FROM `gcontact`
 					INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
 					WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
 

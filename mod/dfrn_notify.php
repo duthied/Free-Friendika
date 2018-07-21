@@ -213,7 +213,7 @@ function dfrn_dispatch_public($postdata)
 	}
 
 	// We now have some contact, so we fetch it
-	$importer = DBA::fetch_first("SELECT *, `name` as `senderName`
+	$importer = DBA::fetchFirst("SELECT *, `name` as `senderName`
 					FROM `contact`
 					WHERE NOT `blocked` AND `id` = ? LIMIT 1",
 					$contact['id']);
@@ -252,7 +252,7 @@ function dfrn_dispatch_private($user, $postdata)
 	}
 
 	// We now have some contact, so we fetch it
-	$importer = DBA::fetch_first("SELECT *, `name` as `senderName`
+	$importer = DBA::fetchFirst("SELECT *, `name` as `senderName`
 					FROM `contact`
 					WHERE NOT `blocked` AND `id` = ? LIMIT 1",
 					$cid);
