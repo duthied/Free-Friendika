@@ -164,7 +164,7 @@ class DBA
 	 *
 	 * @return string
 	 */
-	public static function server_info() {
+	public static function serverInfo() {
 		if (self::$server_info == '') {
 			switch (self::$driver) {
 				case 'pdo':
@@ -289,7 +289,7 @@ class DBA
 	 * @return string The input SQL string modified if necessary.
 	 */
 	public static function anyValueFallback($sql) {
-		$server_info = self::server_info();
+		$server_info = self::serverInfo();
 		if (version_compare($server_info, '5.7.5', '<') ||
 			(stripos($server_info, 'MariaDB') !== false)) {
 			$sql = str_ireplace('ANY_VALUE(', 'MIN(', $sql);

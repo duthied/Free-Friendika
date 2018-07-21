@@ -236,8 +236,8 @@ class DBStructure
 		}
 
 		// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
-		if ((version_compare(DBA::server_info(), '5.7.4') >= 0) &&
-			!(strpos(DBA::server_info(), 'MariaDB') !== false)) {
+		if ((version_compare(DBA::serverInfo(), '5.7.4') >= 0) &&
+			!(strpos(DBA::serverInfo(), 'MariaDB') !== false)) {
 			$ignore = '';
 		} else {
 			$ignore = ' IGNORE';
