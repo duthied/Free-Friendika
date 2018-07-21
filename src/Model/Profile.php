@@ -557,7 +557,7 @@ class Profile
 				DateTimeFormat::utcNow()
 			);
 			if (DBM::is_result($s)) {
-				$r = DBA::inArray($s);
+				$r = DBA::toArray($s);
 				Cache::set($cachekey, $r, CACHE_HOUR);
 			}
 		}

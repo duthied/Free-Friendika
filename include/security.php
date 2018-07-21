@@ -116,7 +116,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['parent-uid' => $master_record['uid'], 'account_removed' => false]);
 		if (DBM::is_result($r)) {
-			$a->identities = array_merge($a->identities, DBA::inArray($r));
+			$a->identities = array_merge($a->identities, DBA::toArray($r));
 		}
 	} else {
 		// Just ensure that the array is always defined
@@ -126,14 +126,14 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['uid' => $master_record['parent-uid'], 'account_removed' => false]);
 		if (DBM::is_result($r)) {
-			$a->identities = DBA::inArray($r);
+			$a->identities = DBA::toArray($r);
 		}
 
 		// Then add all siblings
 		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['parent-uid' => $master_record['parent-uid'], 'account_removed' => false]);
 		if (DBM::is_result($r)) {
-			$a->identities = array_merge($a->identities, DBA::inArray($r));
+			$a->identities = array_merge($a->identities, DBA::toArray($r));
 		}
 	}
 
@@ -144,7 +144,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		$master_record['uid']
 	);
 	if (DBM::is_result($r)) {
-		$a->identities = array_merge($a->identities, DBA::inArray($r));
+		$a->identities = array_merge($a->identities, DBA::toArray($r));
 	}
 
 	if ($login_initial) {

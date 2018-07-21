@@ -408,7 +408,7 @@ class Notifier
 				$condition['network'] = $networks;
 			}
 			$contacts = DBA::select('contact', ['id', 'url', 'network'], $condition);
-			$r = DBA::inArray($contacts);
+			$r = DBA::toArray($contacts);
 		}
 
 		// delivery loop
@@ -458,7 +458,7 @@ class Notifier
 
 			$condition = ['network' => NETWORK_DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [CONTACT_IS_FOLLOWER, CONTACT_IS_FRIEND]];
-			$r2 = DBA::inArray(DBA::select('contact', ['id', 'name', 'network'], $condition));
+			$r2 = DBA::toArray(DBA::select('contact', ['id', 'name', 'network'], $condition));
 
 			$r = array_merge($r2, $r1);
 

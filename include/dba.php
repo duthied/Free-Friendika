@@ -41,7 +41,7 @@ function q($sql) {
 
 	$columns = DBA::columnCount($ret);
 
-	$data = DBA::inArray($ret);
+	$data = DBA::toArray($ret);
 
 	if ((count($data) == 0) && ($columns == 0)) {
 		return true;

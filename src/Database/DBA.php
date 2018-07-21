@@ -185,7 +185,7 @@ class DBA
 	 */
 	public static function databaseName() {
 		$ret = self::p("SELECT DATABASE() AS `db`");
-		$data = self::inArray($ret);
+		$data = self::toArray($ret);
 		return $data[0]['db'];
 	}
 
@@ -266,7 +266,7 @@ class DBA
 			case 'pdo':
 				$r = self::p("SELECT 1");
 				if (DBM::is_result($r)) {
-					$row = self::inArray($r);
+					$row = self::toArray($r);
 					$connected = ($row[0]['1'] == '1');
 				}
 				break;
@@ -1462,7 +1462,7 @@ class DBA
 	 * @param object $stmt statement object
 	 * @return array Data array
 	 */
-	public static function inArray($stmt, $do_close = true) {
+	public static function toArray($stmt, $do_close = true) {
 		if (is_bool($stmt)) {
 			return $stmt;
 		}

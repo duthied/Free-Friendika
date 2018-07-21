@@ -114,7 +114,7 @@ class Group extends BaseObject
 			local_user()
 		);
 
-		return DBA::inArray($stmt);
+		return DBA::toArray($stmt);
 	}
 
 	/**

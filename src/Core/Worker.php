@@ -874,7 +874,7 @@ class Worker
 		$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
 		if (DBM::is_result($r)) {
 			self::$db_duration += (microtime(true) - $stamp);
-			return DBA::inArray($r);
+			return DBA::toArray($r);
 		}
 		DBA::close($r);
 
@@ -892,7 +892,7 @@ class Worker
 
 		if ($found) {
 			$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
-			return DBA::inArray($r);
+			return DBA::toArray($r);
 		}
 		return false;
 	}

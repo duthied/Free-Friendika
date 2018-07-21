@@ -106,7 +106,7 @@ class ACL extends BaseObject
 			ORDER BY `name` ASC ", intval(local_user())
 		);
 
-		$contacts = DBA::inArray($stmt);
+		$contacts = DBA::toArray($stmt);
 
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
@@ -171,7 +171,7 @@ class ACL extends BaseObject
 			ORDER BY `name` ASC ", intval(local_user())
 		);
 
-		$contacts = DBA::inArray($stmt);
+		$contacts = DBA::toArray($stmt);
 
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
