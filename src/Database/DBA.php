@@ -288,7 +288,7 @@ class DBA
 	 * @param string $sql An SQL string without the values
 	 * @return string The input SQL string modified if necessary.
 	 */
-	public static function any_value_fallback($sql) {
+	public static function anyValueFallback($sql) {
 		$server_info = self::server_info();
 		if (version_compare($server_info, '5.7.5', '<') ||
 			(stripos($server_info, 'MariaDB') !== false)) {
@@ -397,7 +397,7 @@ class DBA
 		}
 
 		$sql = self::clean_query($sql);
-		$sql = self::any_value_fallback($sql);
+		$sql = self::anyValueFallback($sql);
 
 		$orig_sql = $sql;
 

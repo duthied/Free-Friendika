@@ -460,7 +460,7 @@ class DBStructure
 						if ($ignore != "") {
 							echo "SET session old_alter_table=0;\n";
 						} else {
-							echo "INSERT INTO `".$temp_name."` SELECT ".DBA::any_value_fallback($field_list)." FROM `".$name."`".$group_by.";\n";
+							echo "INSERT INTO `".$temp_name."` SELECT ".DBA::anyValueFallback($field_list)." FROM `".$name."`".$group_by.";\n";
 							echo "DROP TABLE `".$name."`;\n";
 							echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
 						}

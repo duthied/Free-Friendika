@@ -29,7 +29,7 @@ function q($sql) {
 	}
 
 	$sql = DBA::clean_query($sql);
-	$sql = DBA::any_value_fallback($sql);
+	$sql = DBA::anyValueFallback($sql);
 
 	$stmt = @vsprintf($sql, $args);
 
