@@ -322,8 +322,8 @@ class DBStructure
 							$parameters['comment'] = "";
 						}
 
-						$current_field_definition = DBA::clean_query(implode(",", $field_definition));
-						$new_field_definition = DBA::clean_query(implode(",", $parameters));
+						$current_field_definition = DBA::cleanQuery(implode(",", $field_definition));
+						$new_field_definition = DBA::cleanQuery(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {

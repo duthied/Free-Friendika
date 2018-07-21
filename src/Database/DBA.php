@@ -306,7 +306,7 @@ class DBA
 	 * @param string $sql An SQL string without the values
 	 * @return string The input SQL string modified if necessary.
 	 */
-	public static function clean_query($sql) {
+	public static function cleanQuery($sql) {
 		$search = ["\t", "\n", "\r", "  "];
 		$replace = [' ', ' ', ' ', ' '];
 		do {
@@ -396,7 +396,7 @@ class DBA
 			logger('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), LOGGER_DEBUG);
 		}
 
-		$sql = self::clean_query($sql);
+		$sql = self::cleanQuery($sql);
 		$sql = self::anyValueFallback($sql);
 
 		$orig_sql = $sql;

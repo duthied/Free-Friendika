@@ -28,7 +28,7 @@ function q($sql) {
 		return false;
 	}
 
-	$sql = DBA::clean_query($sql);
+	$sql = DBA::cleanQuery($sql);
 	$sql = DBA::anyValueFallback($sql);
 
 	$stmt = @vsprintf($sql, $args);
