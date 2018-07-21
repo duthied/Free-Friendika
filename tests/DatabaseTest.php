@@ -36,7 +36,7 @@ abstract class DatabaseTest extends TestCase
 			$this->markTestSkipped('Could not connect to the database.');
 		}
 
-		return $this->createDefaultDBConnection(DBA::get_db(), getenv('MYSQL_DATABASE'));
+		return $this->createDefaultDBConnection(DBA::getConnection(), getenv('MYSQL_DATABASE'));
 	}
 
 	/**

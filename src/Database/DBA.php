@@ -23,7 +23,7 @@ class DBA
 	public static $connected = false;
 
 	private static $server_info = '';
-	private static $db;
+	private static $connection;
 	private static $driver;
 	private static $error = false;
 	private static $errorno = 0;
@@ -39,7 +39,7 @@ class DBA
 
 	public static function connect($serveraddr, $user, $pass, $db, $charset = null)
 	{
-		if (!is_null(self::$db) && self::connected()) {
+		if (!is_null(self::$connection) && self::connected()) {
 			return true;
 		}
 
@@ -83,8 +83,8 @@ class DBA
 			}
 
 			try {
-				self::$db = @new PDO($connect, $user, $pass);
-				self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+				self::$connection = @new PDO($connect, $user, $pass);
+				self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 				self::$connected = true;
 			} catch (PDOException $e) {
 			}
@@ -94,16 +94,16 @@ class DBA
 			self::$driver = 'mysqli';
 
 			if ($port > 0) {
-				self::$db = @new mysqli($server, $user, $pass, $db, $port);
+				self::$connection = @new mysqli($server, $user, $pass, $db, $port);
 			} else {
-				self::$db = @new mysqli($server, $user, $pass, $db);
+				self::$connection = @new mysqli($server, $user, $pass, $db);
 			}
 
 			if (!mysqli_connect_errno()) {
 				self::$connected = true;
 
 				if ($charset) {
-					self::$db->set_charset($charset);
+					self::$connection->set_charset($charset);
 				}
 			}
 		}
@@ -111,7 +111,7 @@ class DBA
 		// No suitable SQL driver was found.
 		if (!self::$connected) {
 			self::$driver = null;
-			self::$db = null;
+			self::$connection = null;
 		}
 
 		return self::$connected;
@@ -122,17 +122,17 @@ class DBA
 	 */
 	public static function disconnect()
 	{
-		if (is_null(self::$db)) {
+		if (is_null(self::$connection)) {
 			return;
 		}
 
 		switch (self::$driver) {
 			case 'pdo':
-				self::$db = null;
+				self::$connection = null;
 				break;
 			case 'mysqli':
-				self::$db->close();
-				self::$db = null;
+				self::$connection->close();
+				self::$connection = null;
 				break;
 		}
 	}
@@ -151,9 +151,9 @@ class DBA
 	 * Return the database object.
 	 * @return PDO|mysqli
 	 */
-	public static function get_db()
+	public static function getConnection()
 	{
-		return self::$db;
+		return self::$connection;
 	}
 
 	/**
@@ -168,10 +168,10 @@ class DBA
 		if (self::$server_info == '') {
 			switch (self::$driver) {
 				case 'pdo':
-					self::$server_info = self::$db->getAttribute(PDO::ATTR_SERVER_VERSION);
+					self::$server_info = self::$connection->getAttribute(PDO::ATTR_SERVER_VERSION);
 					break;
 				case 'mysqli':
-					self::$server_info = self::$db->server_info;
+					self::$server_info = self::$connection->server_info;
 					break;
 			}
 		}
@@ -249,16 +249,16 @@ class DBA
 	public static function escape($str) {
 		switch (self::$driver) {
 			case 'pdo':
-				return substr(@self::$db->quote($str, PDO::PARAM_STR), 1, -1);
+				return substr(@self::$connection->quote($str, PDO::PARAM_STR), 1, -1);
 			case 'mysqli':
-				return @self::$db->real_escape_string($str);
+				return @self::$connection->real_escape_string($str);
 		}
 	}
 
 	public static function connected() {
 		$connected = false;
 
-		if (is_null(self::$db)) {
+		if (is_null(self::$connection)) {
 			return false;
 		}
 
@@ -271,7 +271,7 @@ class DBA
 				}
 				break;
 			case 'mysqli':
-				$connected = self::$db->ping();
+				$connected = self::$connection->ping();
 				break;
 		}
 		return $connected;
@@ -425,8 +425,8 @@ class DBA
 			case 'pdo':
 				// If there are no arguments we use "query"
 				if (count($args) == 0) {
-					if (!$retval = self::$db->query($sql)) {
-						$errorInfo = self::$db->errorInfo();
+					if (!$retval = self::$connection->query($sql)) {
+						$errorInfo = self::$connection->errorInfo();
 						self::$error = $errorInfo[2];
 						self::$errorno = $errorInfo[1];
 						$retval = false;
@@ -436,8 +436,8 @@ class DBA
 					break;
 				}
 
-				if (!$stmt = self::$db->prepare($sql)) {
-					$errorInfo = self::$db->errorInfo();
+				if (!$stmt = self::$connection->prepare($sql)) {
+					$errorInfo = self::$connection->errorInfo();
 					self::$error = $errorInfo[2];
 					self::$errorno = $errorInfo[1];
 					$retval = false;
@@ -471,22 +471,22 @@ class DBA
 
 				// The fallback routine is called as well when there are no arguments
 				if (!$can_be_prepared || (count($args) == 0)) {
-					$retval = self::$db->query(self::replaceParameters($sql, $args));
-					if (self::$db->errno) {
-						self::$error = self::$db->error;
-						self::$errorno = self::$db->errno;
+					$retval = self::$connection->query(self::replaceParameters($sql, $args));
+					if (self::$connection->errno) {
+						self::$error = self::$connection->error;
+						self::$errorno = self::$connection->errno;
 						$retval = false;
 					} else {
 						if (isset($retval->num_rows)) {
 							self::$affected_rows = $retval->num_rows;
 						} else {
-							self::$affected_rows = self::$db->affected_rows;
+							self::$affected_rows = self::$connection->affected_rows;
 						}
 					}
 					break;
 				}
 
-				$stmt = self::$db->stmt_init();
+				$stmt = self::$connection->stmt_init();
 
 				if (!$stmt->prepare($sql)) {
 					self::$error = $stmt->error;
@@ -516,8 +516,8 @@ class DBA
 				}
 
 				if (!$stmt->execute()) {
-					self::$error = self::$db->error;
-					self::$errorno = self::$db->errno;
+					self::$error = self::$connection->error;
+					self::$errorno = self::$connection->errno;
 					$retval = false;
 				} else {
 					$stmt->store_result();
@@ -841,10 +841,10 @@ class DBA
 	public static function lastInsertId() {
 		switch (self::$driver) {
 			case 'pdo':
-				$id = self::$db->lastInsertId();
+				$id = self::$connection->lastInsertId();
 				break;
 			case 'mysqli':
-				$id = self::$db->insert_id;
+				$id = self::$connection->insert_id;
 				break;
 		}
 		return $id;
@@ -863,22 +863,22 @@ class DBA
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		if (self::$driver == 'pdo') {
 			self::e("SET autocommit=0");
-			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+			self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 		} else {
-			self::$db->autocommit(false);
+			self::$connection->autocommit(false);
 		}
 
 		$success = self::e("LOCK TABLES `".self::escape($table)."` WRITE");
 
 		if (self::$driver == 'pdo') {
-			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		}
 
 		if (!$success) {
 			if (self::$driver == 'pdo') {
 				self::e("SET autocommit=1");
 			} else {
-				self::$db->autocommit(true);
+				self::$connection->autocommit(true);
 			}
 		} else {
 			self::$in_transaction = true;
@@ -896,16 +896,16 @@ class DBA
 		self::performCommit();
 
 		if (self::$driver == 'pdo') {
-			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+			self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 		}
 
 		$success = self::e("UNLOCK TABLES");
 
 		if (self::$driver == 'pdo') {
-			self::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 			self::e("SET autocommit=1");
 		} else {
-			self::$db->autocommit(true);
+			self::$connection->autocommit(true);
 		}
 
 		self::$in_transaction = false;
@@ -924,15 +924,15 @@ class DBA
 
 		switch (self::$driver) {
 			case 'pdo':
-				if (self::$db->inTransaction()) {
+				if (self::$connection->inTransaction()) {
 					break;
 				}
-				if (!self::$db->beginTransaction()) {
+				if (!self::$connection->beginTransaction()) {
 					return false;
 				}
 				break;
 			case 'mysqli':
-				if (!self::$db->begin_transaction()) {
+				if (!self::$connection->begin_transaction()) {
 					return false;
 				}
 				break;
@@ -946,12 +946,12 @@ class DBA
 	{
 		switch (self::$driver) {
 			case 'pdo':
-				if (!self::$db->inTransaction()) {
+				if (!self::$connection->inTransaction()) {
 					return true;
 				}
-				return self::$db->commit();
+				return self::$connection->commit();
 			case 'mysqli':
-				return self::$db->commit();
+				return self::$connection->commit();
 		}
 		return true;
 	}
@@ -979,14 +979,14 @@ class DBA
 
 		switch (self::$driver) {
 			case 'pdo':
-				if (!self::$db->inTransaction()) {
+				if (!self::$connection->inTransaction()) {
 					$ret = true;
 					break;
 				}
-				$ret = self::$db->rollBack();
+				$ret = self::$connection->rollBack();
 				break;
 			case 'mysqli':
-				$ret = self::$db->rollback();
+				$ret = self::$connection->rollback();
 				break;
 		}
 		self::$in_transaction = false;
