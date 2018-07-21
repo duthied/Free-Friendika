@@ -809,7 +809,7 @@ class Item extends BaseObject
 		}
 
 		// When there is no content for the "old" item table, this will count the fetched items
-		$rows = DBA::affected_rows();
+		$rows = DBA::affectedRows();
 
 		while ($item = DBA::fetch($items)) {
 

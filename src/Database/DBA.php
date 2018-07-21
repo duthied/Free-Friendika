@@ -704,7 +704,7 @@ class DBA
 	 *
 	 * @return int Number of rows
 	 */
-	public static function affected_rows() {
+	public static function affectedRows() {
 		return self::$affected_rows;
 	}
 
