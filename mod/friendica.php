@@ -34,7 +34,7 @@ function friendica_init(App $a)
 		$visible_addons = [];
 		if (is_array($a->addons) && count($a->addons)) {
 			$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
 					$visible_addons[] = $rr['name'];
 				}
@@ -93,7 +93,7 @@ function friendica_content(App $a)
 	$visible_addons = [];
 	if (is_array($a->addons) && count($a->addons)) {
 		$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
 				$visible_addons[] = $rr['name'];
 			}

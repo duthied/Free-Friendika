@@ -79,7 +79,7 @@ class Addon
 		$addons = Config::get('system', 'addon');
 		if (strlen($addons)) {
 			$r = DBA::select('addon', [], ['installed' => 1]);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$installed = DBA::toArray($r);
 			} else {
 				$installed = [];

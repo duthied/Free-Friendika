@@ -266,11 +266,11 @@ class Event extends BaseObject
 		if ($event['id']) {
 			// has the event actually changed?
 			$existing_event = DBA::selectFirst('event', ['edited'], ['id' => $event['id'], 'uid' => $event['uid']]);
-			if (!DBA::is_result($existing_event) || ($existing_event['edited'] === $event['edited'])) {
+			if (!DBA::isResult($existing_event) || ($existing_event['edited'] === $event['edited'])) {
 
 				$item = Item::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
 
-				return DBA::is_result($item) ? $item['id'] : 0;
+				return DBA::isResult($item) ? $item['id'] : 0;
 			}
 
 			$updated_fields = [
@@ -288,7 +288,7 @@ class Event extends BaseObject
 			DBA::update('event', $updated_fields, ['id' => $event['id'], 'uid' => $event['uid']]);
 
 			$item = Item::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
-			if (DBA::is_result($item)) {
+			if (DBA::isResult($item)) {
 				$object = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($event['uri']) . '</id>';
 				$object .= '<content>' . xmlify(self::getBBCode($event)) . '</content>';
 				$object .= '</object>' . "\n";
@@ -469,7 +469,7 @@ class Event extends BaseObject
 			intval($event_id)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$return = self::removeDuplicates($r);
 		}
 
@@ -518,7 +518,7 @@ class Event extends BaseObject
 				dbesc($event_params["adjust_finish"])
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$return = self::removeDuplicates($r);
 		}
 
@@ -539,7 +539,7 @@ class Event extends BaseObject
 		$fmt = L10n::t('l, F j');
 		foreach ($event_result as $event) {
 			$item = Item::selectFirst(['plink', 'author-name', 'author-avatar', 'author-link'], ['id' => $event['itemid']]);
-			if (DBA::is_result($item)) {
+			if (DBA::isResult($item)) {
 				$event = array_merge($event, $item);
 			}
 
@@ -737,7 +737,7 @@ class Event extends BaseObject
 		}
 
 		$events = DBA::select('event', $fields, $conditions);
-		if (DBA::is_result($events)) {
+		if (DBA::isResult($events)) {
 			$return = DBA::toArray($events);
 		}
 
@@ -761,7 +761,7 @@ class Event extends BaseObject
 		$process = false;
 
 		$user = DBA::selectFirst('user', ['timezone'], ['uid' => $uid]);
-		if (DBA::is_result($user)) {
+		if (DBA::isResult($user)) {
 			$timezone = $user['timezone'];
 		}
 

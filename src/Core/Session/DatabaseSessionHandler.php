@@ -30,7 +30,7 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 		}
 
 		$session = DBA::selectFirst('session', ['data'], ['sid' => $session_id]);
-		if (DBA::is_result($session)) {
+		if (DBA::isResult($session)) {
 			Session::$exists = true;
 			return $session['data'];
 		}

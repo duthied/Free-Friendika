@@ -113,7 +113,7 @@ function install_content(App $a) {
 
 	if (DBA::$connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
-		if (DBA::is_result($r) && $r[0]['total']) {
+		if (DBA::isResult($r) && $r[0]['total']) {
 			$tpl = get_markup_template('install.tpl');
 			return replace_macros($tpl, [
 				'$title' => $install_title,

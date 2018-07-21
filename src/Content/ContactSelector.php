@@ -28,7 +28,7 @@ class ContactSelector
 		$s = DBA::select('profile', ['id', 'profile-name', 'is-default'], ['uid' => $_SESSION['uid']]);
 		$r = DBA::toArray($s);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
 				$selected = (($rr['id'] == $current || ($current == 0 && $rr['is-default'] == 1)) ? " selected=\"selected\" " : "");
 				$o .= "<option value=\"{$rr['id']}\" $selected >{$rr['profile-name']}</option>\r\n";
@@ -105,7 +105,7 @@ class ContactSelector
 					INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
 					WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$networkname = $r['platform'];
 			}
 		}

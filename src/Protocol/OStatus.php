@@ -80,7 +80,7 @@ class OStatus
 			$contact = DBA::selectFirst('contact', [], $condition);
 		}
 
-		if (!DBA::is_result($contact) && $author["author-link"] != '') {
+		if (!DBA::isResult($contact) && $author["author-link"] != '') {
 			if ($aliaslink == "") {
 				$aliaslink = $author["author-link"];
 			}
@@ -91,14 +91,14 @@ class OStatus
 			$contact = DBA::selectFirst('contact', [], $condition);
 		}
 
-		if (!DBA::is_result($contact) && ($addr != '')) {
+		if (!DBA::isResult($contact) && ($addr != '')) {
 			$condition = ["`uid` = ? AND `addr` = ? AND `network` != ? AND `rel` IN (?, ?)",
 					$importer["uid"], $addr, NETWORK_STATUSNET,
 					CONTACT_IS_SHARING, CONTACT_IS_FRIEND];
 			$contact = DBA::selectFirst('contact', [], $condition);
 		}
 
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			if ($contact['blocked']) {
 				$contact['id'] = -1;
 			}
@@ -135,7 +135,7 @@ class OStatus
 		$author["owner-id"] = $author["author-id"];
 
 		// Only update the contacts if it is an OStatus contact
-		if (DBA::is_result($contact) && ($contact['id'] > 0) && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
+		if (DBA::isResult($contact) && ($contact['id'] > 0) && !$onlyfetch && ($contact["network"] == NETWORK_OSTATUS)) {
 
 			// Update contact data
 			$current = $contact;
@@ -896,7 +896,7 @@ class OStatus
 	{
 		$condition = ['`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON];
 		$conversation = DBA::selectFirst('conversation', ['source', 'protocol'], $condition);
-		if (DBA::is_result($conversation)) {
+		if (DBA::isResult($conversation)) {
 			$stored = true;
 			$xml = $conversation['source'];
 			if (self::process($xml, $importer, $contact, $hub, $stored, false)) {
@@ -976,7 +976,7 @@ class OStatus
 		if ($xml == '') {
 			$condition = ['item-uri' => $related_uri, 'protocol' => PROTOCOL_SPLITTED_CONV];
 			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-			if (DBA::is_result($conversation)) {
+			if (DBA::isResult($conversation)) {
 				$stored = true;
 				logger('Got cached XML from conversation for URI '.$related_uri, LOGGER_DEBUG);
 				$xml = $conversation['source'];
@@ -1452,7 +1452,7 @@ class OStatus
 			}
 		}
 
-		if (DBA::is_result($profile) && !$show_profile) {
+		if (DBA::isResult($profile) && !$show_profile) {
 			if (trim($profile["homepage"]) != "") {
 				$urls = $doc->createElement("poco:urls");
 				XML::addElement($doc, $urls, "poco:type", "homepage");
@@ -1576,24 +1576,24 @@ class OStatus
 			dbesc(normalise_link($url)),
 			intval($owner["uid"])
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$contact = $r[0];
 			$contact["uid"] = -1;
 		}
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			$r = q(
 				"SELECT * FROM `gcontact` WHERE `nurl` = '%s' LIMIT 1",
 				dbesc(normalise_link($url))
 			);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$contact = $r[0];
 				$contact["uid"] = -1;
 				$contact["success_update"] = $contact["updated"];
 			}
 		}
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			$contact = owner;
 		}
 
@@ -1635,7 +1635,7 @@ class OStatus
 		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => false,
 			'network' => [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]];
 		$repeated_item = Item::selectFirst([], $condition);
-		if (!DBA::is_result($repeated_item)) {
+		if (!DBA::isResult($repeated_item)) {
 			return false;
 		}
 
@@ -1793,7 +1793,7 @@ class OStatus
 			dbesc(normalise_link($contact["url"]))
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$connect_id = $r[0]['id'];
 		} else {
 			$connect_id = 0;
@@ -1962,7 +1962,7 @@ class OStatus
 
 			$thrparent = Item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $parent_item]);
 
-			if (DBA::is_result($thrparent)) {
+			if (DBA::isResult($thrparent)) {
 				$mentioned[$thrparent["author-link"]] = $thrparent["author-link"];
 				$mentioned[$thrparent["owner-link"]] = $thrparent["owner-link"];
 				$parent_plink = $thrparent["plink"];
@@ -1989,7 +1989,7 @@ class OStatus
 
 			if (isset($parent_item)) {
 				$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $parent_item]);
-				if (DBA::is_result($conversation)) {
+				if (DBA::isResult($conversation)) {
 					if ($conversation['conversation-uri'] != '') {
 						$conversation_uri = $conversation['conversation-uri'];
 					}

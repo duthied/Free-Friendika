@@ -183,7 +183,7 @@ class HTTPSignature
 			$contact = DBA::selectFirst('contact', ['pubkey'], ['id' => $id, 'network' => 'activitypub']);
 		}
 
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			return $contact['pubkey'];
 		}
 

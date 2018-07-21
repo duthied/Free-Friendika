@@ -23,7 +23,7 @@ function user_allow($hash)
 	);
 
 
-	if (!DBA::is_result($register)) {
+	if (!DBA::isResult($register)) {
 		return false;
 	}
 
@@ -31,7 +31,7 @@ function user_allow($hash)
 		intval($register[0]['uid'])
 	);
 
-	if (!DBA::is_result($user)) {
+	if (!DBA::isResult($user)) {
 		killme();
 	}
 
@@ -47,7 +47,7 @@ function user_allow($hash)
 	$r = q("SELECT * FROM `profile` WHERE `uid` = %d AND `is-default` = 1",
 		intval($user[0]['uid'])
 	);
-	if (DBA::is_result($r) && $r[0]['net-publish']) {
+	if (DBA::isResult($r) && $r[0]['net-publish']) {
 		$url = System::baseUrl() . '/profile/' . $user[0]['nickname'];
 		if ($url && strlen(Config::get('system', 'directory'))) {
 			Worker::add(PRIORITY_LOW, "Directory", $url);
@@ -80,7 +80,7 @@ function user_deny($hash)
 		dbesc($hash)
 	);
 
-	if (!DBA::is_result($register)) {
+	if (!DBA::isResult($register)) {
 		return false;
 	}
 

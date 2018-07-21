@@ -34,7 +34,7 @@ function receive_post(App $a)
 		$guid = $a->argv[2];
 
 		$importer = DBA::selectFirst('user', [], ['guid' => $guid, 'account_expired' => false, 'account_removed' => false]);
-		if (!DBA::is_result($importer)) {
+		if (!DBA::isResult($importer)) {
 			System::httpExit(500);
 		}
 	}

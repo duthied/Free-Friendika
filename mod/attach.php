@@ -22,7 +22,7 @@ function attach_init(App $a)
 	// Check for existence, which will also provide us the owner uid
 
 	$r = DBA::selectFirst('attach', [], ['id' => $item_id]);
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		notice(L10n::t('Item was not found.'). EOL);
 		return;
 	}
@@ -35,7 +35,7 @@ function attach_init(App $a)
 		dbesc($item_id)
 	);
 
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}

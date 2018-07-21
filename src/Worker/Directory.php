@@ -48,7 +48,7 @@ class Directory
 				WHERE `contact`.`self` AND `profile`.`net-publish` AND `profile`.`is-default` AND
 					NOT `user`.`account_expired` AND `user`.`verified`");
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r AS $user) {
 				Worker::add(PRIORITY_LOW, 'Directory', $user['url']);
 			}

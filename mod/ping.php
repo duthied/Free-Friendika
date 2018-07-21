@@ -135,7 +135,7 @@ function ping_init(App $a)
 		$params = ['order' => ['created' => true]];
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBA::is_result($items)) {
+		if (DBA::isResult($items)) {
 			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
 			Addon::callHooks('network_ping', $arr);
@@ -153,7 +153,7 @@ function ping_init(App $a)
 			if (intval(Feature::isEnabled(local_user(), 'groups'))) {
 				// Find out how unseen network posts are spread across groups
 				$group_counts = Group::countUnseen();
-				if (DBA::is_result($group_counts)) {
+				if (DBA::isResult($group_counts)) {
 					foreach ($group_counts as $group_count) {
 						if ($group_count['count'] > 0) {
 							$groups_unseen[] = $group_count;
@@ -164,7 +164,7 @@ function ping_init(App $a)
 
 			if (intval(Feature::isEnabled(local_user(), 'forumlist_widget'))) {
 				$forum_counts = ForumManager::countUnseenItems();
-				if (DBA::is_result($forum_counts)) {
+				if (DBA::isResult($forum_counts)) {
 					foreach ($forum_counts as $forum_count) {
 						if ($forum_count['count'] > 0) {
 							$forums_unseen[] = $forum_count;
@@ -208,7 +208,7 @@ function ping_init(App $a)
 				WHERE `contact`.`self` = 1"
 			);
 
-			if (DBA::is_result($regs)) {
+			if (DBA::isResult($regs)) {
 				$register_count = count($regs);
 			}
 		}
@@ -224,12 +224,12 @@ function ping_init(App $a)
 				dbesc(DateTimeFormat::utc('now + 7 days')),
 				dbesc(DateTimeFormat::utcNow())
 			);
-			if (DBA::is_result($ev)) {
+			if (DBA::isResult($ev)) {
 				Cache::set($cachekey, $ev, CACHE_HOUR);
 			}
 		}
 
-		if (DBA::is_result($ev)) {
+		if (DBA::isResult($ev)) {
 			$all_events = count($ev);
 
 			if ($all_events) {
@@ -267,7 +267,7 @@ function ping_init(App $a)
 		$data['birthdays']        = $birthdays;
 		$data['birthdays-today']  = $birthdays_today;
 
-		if (DBA::is_result($notifs)) {
+		if (DBA::isResult($notifs)) {
 			foreach ($notifs as $notif) {
 				if ($notif['seen'] == 0) {
 					$sysnotify_count ++;
@@ -276,7 +276,7 @@ function ping_init(App $a)
 		}
 
 		// merge all notification types in one array
-		if (DBA::is_result($intros)) {
+		if (DBA::isResult($intros)) {
 			foreach ($intros as $intro) {
 				$notif = [
 					'id'      => 0,
@@ -292,7 +292,7 @@ function ping_init(App $a)
 			}
 		}
 
-		if (DBA::is_result($mails)) {
+		if (DBA::isResult($mails)) {
 			foreach ($mails as $mail) {
 				$notif = [
 					'id'      => 0,
@@ -308,7 +308,7 @@ function ping_init(App $a)
 			}
 		}
 
-		if (DBA::is_result($regs)) {
+		if (DBA::isResult($regs)) {
 			foreach ($regs as $reg) {
 				$notif = [
 					'id'      => 0,
@@ -345,7 +345,7 @@ function ping_init(App $a)
 		};
 		usort($notifs, $sort_function);
 
-		if (DBA::is_result($notifs)) {
+		if (DBA::isResult($notifs)) {
 			// Are the nofications called from the regular process or via the friendica app?
 			$regularnotifications = (intval($_GET['uid']) && intval($_GET['_']));
 

@@ -882,7 +882,7 @@ class Image
 			intval($uid)
 		);
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
 			return([]);
 		}

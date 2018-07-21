@@ -69,7 +69,7 @@ function suggest_content(App $a) {
 
 	$r = GContact::suggestionQuery(local_user());
 
-	if (! DBA::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		$o .= L10n::t('No suggestions available. If this is a new site, please try again in 24 hours.');
 		return $o;
 	}

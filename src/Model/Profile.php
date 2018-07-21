@@ -90,7 +90,7 @@ class Profile
 	{
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
-		if (!DBA::is_result($user) && empty($profiledata)) {
+		if (!DBA::isResult($user) && empty($profiledata)) {
 			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice(L10n::t('Requested account is not available.') . EOL);
 			$a->error = 404;
@@ -101,7 +101,7 @@ class Profile
 			// Add profile data to sidebar
 			$a->page['aside'] .= self::sidebar($profiledata, true, $show_connect);
 
-			if (!DBA::is_result($user)) {
+			if (!DBA::isResult($user)) {
 				return;
 			}
 		}
@@ -198,7 +198,7 @@ class Profile
 			foreach ($_SESSION['remote'] as $visitor) {
 				if ($visitor['uid'] == $uid) {
 					$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => $visitor['cid']]);
-					if (DBA::is_result($contact)) {
+					if (DBA::isResult($contact)) {
 						$profile_id = $contact['profile-id'];
 					}
 					break;
@@ -222,7 +222,7 @@ class Profile
 				intval($profile_id)
 			);
 		}
-		if (!DBA::is_result($profile)) {
+		if (!DBA::isResult($profile)) {
 			$profile = DBA::fetchFirst(
 				"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
 					`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
@@ -374,7 +374,7 @@ class Profile
 				'entries' => [],
 			];
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
 					$profile['menu']['entries'][] = [
 						'photo' => $rr['thumb'],
@@ -452,7 +452,7 @@ class Profile
 					"SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 					intval($a->profile['uid'])
 				);
-				if (DBA::is_result($r)) {
+				if (DBA::isResult($r)) {
 					$updated = date('c', strtotime($r[0]['updated']));
 				}
 
@@ -467,7 +467,7 @@ class Profile
 					dbesc(NETWORK_DIASPORA),
 					dbesc(NETWORK_OSTATUS)
 				);
-				if (DBA::is_result($r)) {
+				if (DBA::isResult($r)) {
 					$contacts = intval($r[0]['total']);
 				}
 			}
@@ -555,7 +555,7 @@ class Profile
 				DateTimeFormat::utc('now + 6 days'),
 				DateTimeFormat::utcNow()
 			);
-			if (DBA::is_result($s)) {
+			if (DBA::isResult($s)) {
 				$r = DBA::toArray($s);
 				Cache::set($cachekey, $r, CACHE_HOUR);
 			}
@@ -563,7 +563,7 @@ class Profile
 
 		$total = 0;
 		$classtoday = '';
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$now = strtotime('now');
 			$cids = [];
 
@@ -657,7 +657,7 @@ class Profile
 
 		$r = [];
 
-		if (DBA::is_result($s)) {
+		if (DBA::isResult($s)) {
 			$istoday = false;
 
 			while ($rr = DBA::fetch($s)) {
@@ -1026,7 +1026,7 @@ class Profile
 
 				$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
-				if (DBA::is_result($contact) && remote_user() && remote_user() == $contact['id']) {
+				if (DBA::isResult($contact) && remote_user() && remote_user() == $contact['id']) {
 					// The visitor is already authenticated.
 					return;
 				}

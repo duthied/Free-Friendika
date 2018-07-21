@@ -39,14 +39,14 @@ function common_content(App $a)
 	if ($cmd === 'loc' && $cid) {
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => $uid]);
 
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			$a->page['aside'] = "";
 			Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 		}
 	} else {
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo'], ['self' => true, 'uid' => $uid]);
 
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), [
 				'$name' => htmlentities($contact['name']),
 				'$photo' => $contact['photo'],
@@ -60,17 +60,17 @@ function common_content(App $a)
 		}
 	}
 
-	if (!DBA::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		return;
 	}
 
 	if (!$cid && Profile::getMyURL()) {
 		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $uid]);
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
 		} else {
 			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
-			if (DBA::is_result($gcontact)) {
+			if (DBA::isResult($gcontact)) {
 				$zcid = $gcontact['id'];
 			}
 		}
@@ -99,7 +99,7 @@ function common_content(App $a)
 		$r = GContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
 	}
 
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		return $o;
 	}
 

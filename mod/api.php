@@ -22,7 +22,7 @@ function oauth_get_client($request)
 			WHERE `clients`.`client_id`=`tokens`.`client_id`
 			AND `tokens`.`id`='%s' AND `tokens`.`scope`='request'", dbesc($token));
 
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		return null;
 	}
 

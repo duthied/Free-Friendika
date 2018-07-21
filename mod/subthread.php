@@ -25,7 +25,7 @@ function subthread_content(App $a) {
 	$condition = ["`parent` = ? OR `parent-uri` = ? AND `parent` = `id`", $item_id, $item_id];
 	$item = Item::selectFirst([], $condition);
 
-	if (empty($item_id) || !DBA::is_result($item)) {
+	if (empty($item_id) || !DBA::isResult($item)) {
 		logger('subthread: no item ' . $item_id);
 		return;
 	}
@@ -44,7 +44,7 @@ function subthread_content(App $a) {
 			intval($item['contact-id']),
 			intval($item['uid'])
 		);
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return;
 		}
 		if (!$r[0]['self']) {
@@ -60,7 +60,7 @@ function subthread_content(App $a) {
 		intval($owner_uid)
 	);
 
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$owner = $r[0];
 	}
 
@@ -84,7 +84,7 @@ function subthread_content(App $a) {
 			intval($owner_uid)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$contact = $r[0];
 		}
 	}

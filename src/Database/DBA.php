@@ -216,7 +216,7 @@ class DBA
 		}
 
 		$r = self::p("EXPLAIN ".$query);
-		if (!self::is_result($r)) {
+		if (!self::isResult($r)) {
 			return;
 		}
 
@@ -269,7 +269,7 @@ class DBA
 		switch (self::$driver) {
 			case 'pdo':
 				$r = self::p("SELECT 1");
-				if (self::is_result($r)) {
+				if (self::isResult($r)) {
 					$row = self::toArray($r);
 					$connected = ($row[0]['1'] == '1');
 				}
@@ -1582,7 +1582,7 @@ class DBA
 	 *
 	 * @return boolean Whether $array is a filled array or an object with rows
 	 */
-	public static function is_result($array)
+	public static function isResult($array)
 	{
 		// It could be a return value from an update statement
 		if (is_bool($array)) {

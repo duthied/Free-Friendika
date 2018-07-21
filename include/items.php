@@ -265,7 +265,7 @@ function consume_feed($xml, $importer, $contact, &$hub, $datedir = 0, $pass = 0)
 			WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
 			dbesc($contact["id"]), dbesc($importer["uid"])
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			logger("Now import the DFRN feed");
 			DFRN::import($xml, $r[0], true);
 			return;
@@ -289,7 +289,7 @@ function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
 	 * through the direct Diaspora protocol. If we try and use
 	 * the feed, we'll get duplicates. So don't.
 	 */
-	if ((!DBA::is_result($r)) || $contact['network'] === NETWORK_DIASPORA) {
+	if ((!DBA::isResult($r)) || $contact['network'] === NETWORK_DIASPORA) {
 		return;
 	}
 
@@ -340,7 +340,7 @@ function drop_item($id) {
 	$fields = ['id', 'uid', 'contact-id', 'deleted'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
-	if (!DBA::is_result($item)) {
+	if (!DBA::isResult($item)) {
 		notice(L10n::t('Item not found.') . EOL);
 		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
 	}
@@ -461,7 +461,7 @@ function posted_date_widget($url, $uid, $wall) {
 
 	$ret = list_post_dates($uid, $wall);
 
-	if (!DBA::is_result($ret)) {
+	if (!DBA::isResult($ret)) {
 		return $o;
 	}
 

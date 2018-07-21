@@ -29,7 +29,7 @@ function search_saved_searches() {
 		intval(local_user())
 	);
 
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$saved = [];
 		foreach ($r as $rr) {
 			$saved[] = [
@@ -67,7 +67,7 @@ function search_init(App $a) {
 				intval(local_user()),
 				dbesc($search)
 			);
-			if (!DBA::is_result($r)) {
+			if (!DBA::isResult($r)) {
 				DBA::insert('search', ['uid' => local_user(), 'term' => $search]);
 			}
 		}
@@ -236,7 +236,7 @@ function search_content(App $a) {
 		$r = Item::inArray($items);
 	}
 
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		info(L10n::t('No results.') . EOL);
 		return $o;
 	}

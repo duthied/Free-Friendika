@@ -65,7 +65,7 @@ class Notifier
 		if ($cmd == Delivery::MAIL) {
 			$normal_mode = false;
 			$message = DBA::selectFirst('mail', ['uid', 'contact-id'], ['id' => $item_id]);
-			if (!DBA::is_result($message)) {
+			if (!DBA::isResult($message)) {
 				return;
 			}
 			$uid = $message['uid'];
@@ -73,7 +73,7 @@ class Notifier
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$normal_mode = false;
 			$suggest = DBA::selectFirst('fsuggest', ['uid', 'cid'], ['id' => $item_id]);
-			if (!DBA::is_result($suggest)) {
+			if (!DBA::isResult($suggest)) {
 				return;
 			}
 			$uid = $suggest['uid'];
@@ -109,7 +109,7 @@ class Notifier
 			$condition = ['id' => $item_id, 'visible' => true, 'moderated' => false];
 			$target_item = Item::selectFirst([], $condition);
 
-			if (!DBA::is_result($target_item) || !intval($target_item['parent'])) {
+			if (!DBA::isResult($target_item) || !intval($target_item['parent'])) {
 				return;
 			}
 
@@ -121,7 +121,7 @@ class Notifier
 			$params = ['order' => ['id']];
 			$ret = Item::select([], $condition, $params);
 
-			if (!DBA::is_result($ret)) {
+			if (!DBA::isResult($ret)) {
 				return;
 			}
 
@@ -223,7 +223,7 @@ class Notifier
 				$fields = ['forum', 'prv'];
 				$condition = ['id' => $target_item['contact-id']];
 				$contact = DBA::selectFirst('contact', $fields, $condition);
-				if (!DBA::is_result($contact)) {
+				if (!DBA::isResult($contact)) {
 					// Should never happen
 					return false;
 				}
@@ -260,7 +260,7 @@ class Notifier
 							intval($uid),
 							dbesc(NETWORK_DFRN)
 						);
-						if (DBA::is_result($r)) {
+						if (DBA::isResult($r)) {
 							foreach ($r as $rr) {
 								$recipients_followup[] = $rr['id'];
 							}
@@ -343,14 +343,14 @@ class Notifier
 
 				// Send a salmon to the parent author
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['author-id']]);
-				if (DBA::is_result($probed_contact) && !empty($probed_contact["notify"])) {
+				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
 					logger('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}
 
 				// Send a salmon to the parent owner
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['owner-id']]);
-				if (DBA::is_result($probed_contact) && !empty($probed_contact["notify"])) {
+				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
 					logger('Notify parent owner '.$probed_contact["url"].': '.$probed_contact["notify"]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}
@@ -387,7 +387,7 @@ class Notifier
 					intval($uid),
 					dbesc(NETWORK_MAIL)
 				);
-				if (DBA::is_result($r)) {
+				if (DBA::isResult($r)) {
 					foreach ($r as $rr) {
 						$recipients[] = $rr['id'];
 					}
@@ -411,7 +411,7 @@ class Notifier
 		}
 
 		// delivery loop
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r as $contact) {
 				logger("Deliver ".$item_id." to ".$contact['url']." via network ".$contact['network'], LOGGER_DEBUG);
 
@@ -461,7 +461,7 @@ class Notifier
 
 			$r = array_merge($r2, $r1);
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				logger('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
 
 				foreach ($r as $rr) {

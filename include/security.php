@@ -100,7 +100,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 
 	if ((x($_SESSION, 'submanage')) && intval($_SESSION['submanage'])) {
 		$user = DBA::selectFirst('user', [], ['uid' => $_SESSION['submanage']]);
-		if (DBA::is_result($user)) {
+		if (DBA::isResult($user)) {
 			$master_record = $user;
 		}
 	}
@@ -114,7 +114,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		// Then add all the children
 		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['parent-uid' => $master_record['uid'], 'account_removed' => false]);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$a->identities = array_merge($a->identities, DBA::toArray($r));
 		}
 	} else {
@@ -124,14 +124,14 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		// First entry is our parent
 		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['uid' => $master_record['parent-uid'], 'account_removed' => false]);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$a->identities = DBA::toArray($r);
 		}
 
 		// Then add all siblings
 		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['parent-uid' => $master_record['parent-uid'], 'account_removed' => false]);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$a->identities = array_merge($a->identities, DBA::toArray($r));
 		}
 	}
@@ -142,7 +142,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
 		$master_record['uid']
 	);
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$a->identities = array_merge($a->identities, DBA::toArray($r));
 	}
 
@@ -154,7 +154,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	}
 
 	$contact = DBA::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => true]);
-	if (DBA::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		$a->contact = $contact;
 		$a->cid = $contact['id'];
 		$_SESSION['cid'] = $a->cid;
@@ -246,7 +246,7 @@ function can_write_wall($owner)
 				intval(PAGE_COMMUNITY)
 			);
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$verified = 2;
 				return true;
 			} else {
@@ -301,7 +301,7 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 				intval($remote_user),
 				intval($owner_id)
 			);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$remote_verified = true;
 				$groups = Group::getIdsByContactId($remote_user);
 			}
@@ -364,7 +364,7 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 				intval($remote_user),
 				intval($owner_id)
 			);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$remote_verified = true;
 				$groups = Group::getIdsByContactId($remote_user);
 			}

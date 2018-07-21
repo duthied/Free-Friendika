@@ -24,7 +24,7 @@ function lostpass_post(App $a)
 
 	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
 	$user = DBA::selectFirst('user', ['uid', 'username', 'email'], $condition);
-	if (!DBA::is_result($user)) {
+	if (!DBA::isResult($user)) {
 		notice(L10n::t('No valid account found.') . EOL);
 		goaway(System::baseUrl());
 	}
@@ -86,7 +86,7 @@ function lostpass_content(App $a)
 		$pwdreset_token = $a->argv[1];
 
 		$user = DBA::selectFirst('user', ['uid', 'username', 'email', 'pwdreset_time'], ['pwdreset' => $pwdreset_token]);
-		if (!DBA::is_result($user)) {
+		if (!DBA::isResult($user)) {
 			notice(L10n::t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
 
 			return lostpass_form();
@@ -131,7 +131,7 @@ function lostpass_generate_password($user)
 
 	$new_password = User::generateNewPassword();
 	$result = User::updatePassword($user['uid'], $new_password);
-	if (DBA::is_result($result)) {
+	if (DBA::isResult($result)) {
 		$tpl = get_markup_template('pwdreset.tpl');
 		$o .= replace_macros($tpl, [
 			'$lbl1'    => L10n::t('Password Reset'),

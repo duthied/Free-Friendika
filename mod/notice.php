@@ -13,7 +13,7 @@ function notice_init(App $a)
 {
 	$id = $a->argv[1];
 	$r = q("SELECT `user`.`nickname` FROM `user` LEFT JOIN `item` ON `item`.`uid` = `user`.`uid` WHERE `item`.`id` = %d", intval($id));
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$nick = $r[0]['nickname'];
 		$url = System::baseUrl() . "/display/$nick/$id";
 		goaway($url);

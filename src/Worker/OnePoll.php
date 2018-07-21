@@ -47,7 +47,7 @@ class OnePoll
 		$d = DateTimeFormat::utcNow();
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
-		if (!DBA::is_result($contact)) {
+		if (!DBA::isResult($contact)) {
 			logger('Contact not found or cannot be used.');
 			return;
 		}
@@ -60,7 +60,7 @@ class OnePoll
 				WHERE `cid` = %d AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 				intval($contact['id'])
 			);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				if (!$r[0]['total']) {
 					PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
 				}
@@ -145,7 +145,7 @@ class OnePoll
 			intval($importer_uid)
 		);
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger('No self contact for user '.$importer_uid);
 
 			// set the last-update so we don't keep polling
@@ -348,7 +348,7 @@ class OnePoll
 
 			$condition = ["`server` != '' AND `uid` = ?", $importer_uid];
 			$mailconf = DBA::selectFirst('mailacct', [], $condition);
-			if (DBA::is_result($user) && DBA::is_result($mailconf)) {
+			if (DBA::isResult($user) && DBA::isResult($mailconf)) {
 				$mailbox = Email::constructMailboxName($mailconf);
 				$password = '';
 				openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $user['prvkey']);
@@ -391,7 +391,7 @@ class OnePoll
 							$fields = ['deleted', 'id'];
 							$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
 							$item = Item::selectFirst($fields, $condition);
-							if (DBA::is_result($item)) {
+							if (DBA::isResult($item)) {
 								logger("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
 
 								// Only delete when mails aren't automatically moved or deleted
@@ -441,7 +441,7 @@ class OnePoll
 								}
 								$condition = ['uri' => $refs_arr, 'uid' => $importer_uid];
 								$parent = Item::selectFirst(['parent-uri'], $condition);
-								if (DBA::is_result($parent)) {
+								if (DBA::isResult($parent)) {
 									$datarray['parent-uri'] = $parent['parent-uri'];  // Set the parent as the top-level item
 								}
 							}
@@ -474,7 +474,7 @@ class OnePoll
 								$condition = ['title' => $datarray['title'], 'uid' => importer_uid, 'network' => NETWORK_MAIL];
 								$params = ['order' => ['created' => true]];
 								$parent = Item::selectFirst(['parent-uri'], $condition, $params);
-								if (DBA::is_result($parent)) {
+								if (DBA::isResult($parent)) {
 									$datarray['parent-uri'] = $parent['parent-uri'];
 								}
 							}

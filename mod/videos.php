@@ -158,7 +158,7 @@ function videos_post(App $a) {
 			dbesc($video_id)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			q("DELETE FROM `attach` WHERE `uid` = %d AND `id` = '%s'",
 				intval(local_user()),
 				dbesc($video_id)
@@ -168,7 +168,7 @@ function videos_post(App $a) {
 				intval(local_user())
 			);
 
-			if (DBA::is_result($i)) {
+			if (DBA::isResult($i)) {
 				Item::deleteForUser(['id' => $i[0]['id']], local_user());
 			}
 		}
@@ -262,7 +262,7 @@ function videos_content(App $a) {
 					intval($contact_id),
 					intval($owner_uid)
 				);
-				if (DBA::is_result($r)) {
+				if (DBA::isResult($r)) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
@@ -291,7 +291,7 @@ function videos_content(App $a) {
 				intval($contact_id),
 				intval($owner_uid)
 			);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$contact = $r[0];
 				$remote_contact = true;
 			}
@@ -351,7 +351,7 @@ function videos_content(App $a) {
 		$sql_extra GROUP BY hash",
 		intval($a->data['user']['uid'])
 	);
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$a->set_pager_total(count($r));
 		$a->set_pager_itemspage(20);
 	}
@@ -369,7 +369,7 @@ function videos_content(App $a) {
 
 
 	$videos = [];
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
 			$alt_e = $rr['filename'];
 			$name_e = $rr['album'];

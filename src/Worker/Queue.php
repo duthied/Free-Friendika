@@ -39,7 +39,7 @@ class Queue
 
 			Addon::callHooks('queue_predeliver', $r);
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				foreach ($r as $q_item) {
 					logger('Call queue for id ' . $q_item['id']);
 					Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "Queue", (int) $q_item['id']);
@@ -52,12 +52,12 @@ class Queue
 
 		// delivering
 		$q_item = DBA::selectFirst('queue', [], ['id' => $queue_id]);
-		if (!DBA::is_result($q_item)) {
+		if (!DBA::isResult($q_item)) {
 			return;
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $q_item['cid']]);
-		if (!DBA::is_result($contact)) {
+		if (!DBA::isResult($contact)) {
 			QueueModel::removeItem($q_item['id']);
 			return;
 		}
@@ -97,7 +97,7 @@ class Queue
 		}
 
 		$user = DBA::selectFirst('user', [], ['uid' => $contact['uid']]);
-		if (!DBA::is_result($user)) {
+		if (!DBA::isResult($user)) {
 			QueueModel::removeItem($q_item['id']);
 			return;
 		}

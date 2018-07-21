@@ -30,7 +30,7 @@ class PubSubPublish
 		$a = BaseObject::getApp();
 
 		$subscriber = DBA::selectFirst('push_subscriber', [], ['id' => $id]);
-		if (!DBA::is_result($subscriber)) {
+		if (!DBA::isResult($subscriber)) {
 			return;
 		}
 

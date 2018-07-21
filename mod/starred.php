@@ -22,7 +22,7 @@ function starred_init(App $a) {
 	}
 
 	$item = Item::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $message_id]);
-	if (!DBA::is_result($item)) {
+	if (!DBA::isResult($item)) {
 		killme();
 	}
 

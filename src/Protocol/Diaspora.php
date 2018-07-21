@@ -70,7 +70,7 @@ class Diaspora
 		if (Config::get("system", "relay_directly", false)) {
 			// We distribute our stuff based on the parent to ensure that the thread will be complete
 			$parent = Item::selectFirst(['parent'], ['id' => $item_id]);
-			if (!DBA::is_result($parent)) {
+			if (!DBA::isResult($parent)) {
 				return;
 			}
 
@@ -147,7 +147,7 @@ class Diaspora
 			'contact-type' => ACCOUNT_TYPE_RELAY];
 		$contact = DBA::selectFirst('contact', $fields, $condition);
 
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			if ($contact['archive'] || $contact['blocked']) {
 				return false;
 			}
@@ -156,7 +156,7 @@ class Diaspora
 			self::setRelayContact($server_url);
 
 			$contact = DBA::selectFirst('contact', $fields, $condition);
-			if (DBA::is_result($contact)) {
+			if (DBA::isResult($contact)) {
 				return $contact;
 			}
 		}
@@ -899,7 +899,7 @@ class Diaspora
 		$update = false;
 
 		$person = DBA::selectFirst('fcontact', [], ['network' => NETWORK_DIASPORA, 'addr' => $handle]);
-		if (DBA::is_result($person)) {
+		if (DBA::isResult($person)) {
 			logger("In cache " . print_r($person, true), LOGGER_DEBUG);
 
 			// update record occasionally so it doesn't get stale
@@ -913,7 +913,7 @@ class Diaspora
 			}
 		}
 
-		if (!DBA::is_result($person) || $update) {
+		if (!DBA::isResult($person) || $update) {
 			logger("create or refresh", LOGGER_DEBUG);
 			$r = Probe::uri($handle, NETWORK_DIASPORA);
 
@@ -924,7 +924,7 @@ class Diaspora
 
 				// Fetch the updated or added contact
 				$person = DBA::selectFirst('fcontact', [], ['network' => NETWORK_DIASPORA, 'addr' => $handle]);
-				if (!DBA::is_result($person)) {
+				if (!DBA::isResult($person)) {
 					$person = $r;
 				}
 			}
@@ -973,7 +973,7 @@ class Diaspora
 				intval($pcontact_id)
 			);
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				return strtolower($r[0]["addr"]);
 			}
 		}
@@ -983,7 +983,7 @@ class Diaspora
 			intval($contact_id)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$contact = $r[0];
 
 			logger("contact 'self' = ".$contact['self']." 'url' = ".$contact['url'], LOGGER_DEBUG);
@@ -1020,7 +1020,7 @@ class Diaspora
 			dbesc($fcontact_guid)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return $r[0]['url'];
 		}
 
@@ -1052,7 +1052,7 @@ class Diaspora
 		}
 
 		$contact = dba::selectFirst('contact', [], ['id' => $cid]);
-		if (!DBA::is_result($contact)) {
+		if (!DBA::isResult($contact)) {
 			// This here shouldn't happen at all
 			logger("Haven't found a contact for user " . $uid . " and handle " . $handle, LOGGER_DEBUG);
 			return false;
@@ -1153,7 +1153,7 @@ class Diaspora
 	private static function messageExists($uid, $guid)
 	{
 		$item = Item::selectFirst(['id'], ['uid' => $uid, 'guid' => $guid]);
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			logger("message ".$guid." already exists for user ".$uid);
 			return $item["id"];
 		}
@@ -1373,7 +1373,7 @@ class Diaspora
 		$condition = ['uid' => $uid, 'guid' => $guid];
 		$item = Item::selectFirst($fields, $condition);
 
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			$result = self::storeByGuid($guid, $contact["url"], $uid);
 
 			if (!$result) {
@@ -1388,7 +1388,7 @@ class Diaspora
 			}
 		}
 
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			logger("parent item not found: parent: ".$guid." - user: ".$uid);
 			return false;
 		} else {
@@ -1412,7 +1412,7 @@ class Diaspora
 	{
 		$condition = ['nurl' => normalise_link($person["url"]), 'uid' => $uid];
 		$contact = DBA::selectFirst('contact', ['id', 'network'], $condition);
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			$cid = $contact["id"];
 			$network = $contact["network"];
 		} else {
@@ -1568,7 +1568,7 @@ class Diaspora
 	private static function getUriFromGuid($author, $guid, $onlyfound = false)
 	{
 		$item = Item::selectFirst(['uri'], ['guid' => $guid]);
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
 			$contact = Contact::getDetailsByAddr($author, 0);
@@ -1598,7 +1598,7 @@ class Diaspora
 	private static function getGuidFromUri($uri, $uid)
 	{
 		$item = Item::selectFirst(['guid'], ['uri' => $uri, 'uid' => $uid]);
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			return $item["guid"];
 		} else {
 			return false;
@@ -1615,10 +1615,10 @@ class Diaspora
 	private static function importerForGuid($guid)
 	{
 		$item = Item::selectFirst(['uid'], ['origin' => true, 'guid' => $guid]);
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			logger("Found user ".$item['uid']." as owner of item ".$guid, LOGGER_DEBUG);
 			$contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $item['uid']]);
-			if (DBA::is_result($contact)) {
+			if (DBA::isResult($contact)) {
 				return $contact;
 			}
 		}
@@ -1790,7 +1790,7 @@ class Diaspora
 			dbesc($msg_guid),
 			intval($importer["uid"])
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -2077,7 +2077,7 @@ class Diaspora
 			dbesc($guid),
 			intval($importer["uid"])
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -2133,7 +2133,7 @@ class Diaspora
 		}
 
 		$item = Item::selectFirst(['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			logger('Item not found, no origin or private: '.$parent_guid);
 			return false;
 		}
@@ -2517,7 +2517,7 @@ class Diaspora
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 		$item = Item::selectFirst($fields, $condition);
 
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			logger("reshared message ".$guid." already exists on system.");
 
 			// Maybe it is already a reshared item?
@@ -2539,7 +2539,7 @@ class Diaspora
 			}
 		}
 
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			if (empty($orig_author)) {
 				logger('Empty author for guid ' . $guid . '. Quitting.');
 				return false;
@@ -2561,7 +2561,7 @@ class Diaspora
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 				$item = Item::selectFirst($fields, $condition);
 
-				if (DBA::is_result($item)) {
+				if (DBA::isResult($item)) {
 					// If it is a reshared post from another network then reformat to avoid display problems with two share elements
 					if (self::isReshare($item["body"], false)) {
 						$item["body"] = Markdown::toBBCode(BBCode::toMarkdown($item["body"]));
@@ -2703,7 +2703,7 @@ class Diaspora
 		}
 
 		$r = Item::select($fields, $condition);
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger("Target guid ".$target_guid." was not found on this system for user ".$importer['uid'].".");
 			return false;
 		}
@@ -3356,7 +3356,7 @@ class Diaspora
 		if (($guid != "") && $complete) {
 			$condition = ['guid' => $guid, 'network' => [NETWORK_DFRN, NETWORK_DIASPORA]];
 			$item = Item::selectFirst(['contact-id'], $condition);
-			if (DBA::is_result($item)) {
+			if (DBA::isResult($item)) {
 				$ret= [];
 				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
 				$ret["root_guid"] = $guid;
@@ -3409,7 +3409,7 @@ class Diaspora
 	private static function buildEvent($event_id)
 	{
 		$r = q("SELECT `guid`, `uid`, `start`, `finish`, `nofinish`, `summary`, `desc`, `location`, `adjust` FROM `event` WHERE `id` = %d", intval($event_id));
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return [];
 		}
 
@@ -3418,14 +3418,14 @@ class Diaspora
 		$eventdata = [];
 
 		$r = q("SELECT `timezone` FROM `user` WHERE `uid` = %d", intval($event['uid']));
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return [];
 		}
 
 		$user = $r[0];
 
 		$r = q("SELECT `addr`, `nick` FROM `contact` WHERE `uid` = %d AND `self`", intval($event['uid']));
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return [];
 		}
 
@@ -3623,7 +3623,7 @@ class Diaspora
 	private static function constructLike(array $item, array $owner)
 	{
 		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
-		if (!DBA::is_result($parent)) {
+		if (!DBA::isResult($parent)) {
 			return false;
 		}
 
@@ -3654,7 +3654,7 @@ class Diaspora
 	private static function constructAttend(array $item, array $owner)
 	{
 		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
-		if (!DBA::is_result($parent)) {
+		if (!DBA::isResult($parent)) {
 			return false;
 		}
 
@@ -3698,7 +3698,7 @@ class Diaspora
 		}
 
 		$parent = Item::selectFirst(['guid'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
-		if (!DBA::is_result($parent)) {
+		if (!DBA::isResult($parent)) {
 			return false;
 		}
 
@@ -3924,7 +3924,7 @@ class Diaspora
 			intval($item["uid"])
 		);
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger("conversation not found.");
 			return;
 		}
@@ -4164,14 +4164,14 @@ class Diaspora
 		}
 
 		$r = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($contact['uid']));
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 
 		$contact["uprvkey"] = $r[0]['prvkey'];
 
 		$item = Item::selectFirst([], ['id' => $post_id]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			return false;
 		}
 

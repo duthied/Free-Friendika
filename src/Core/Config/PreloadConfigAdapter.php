@@ -43,7 +43,7 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 	{
 		if ($refresh) {
 			$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
-			if (DBA::is_result($config)) {
+			if (DBA::isResult($config)) {
 				self::getApp()->setConfigValue($cat, $k, $config['v']);
 			}
 		}

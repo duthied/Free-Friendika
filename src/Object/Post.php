@@ -179,7 +179,7 @@ class Post extends BaseObject
 			/// @todo This shouldn't be done as query here, but better during the data creation.
 			// it is now done here, since during the RC phase we shouldn't make to intense changes.
 			$parent = Item::selectFirst(['origin'], ['id' => $item['parent']]);
-			if (DBA::is_result($parent)) {
+			if (DBA::isResult($parent)) {
 				$origin = $parent['origin'];
 			}
 		}
@@ -264,7 +264,7 @@ class Post extends BaseObject
 				];
 
 				$thread = DBA::selectFirst('thread', ['ignored'], ['uid' => $item['uid'], 'iid' => $item['id']]);
-				if (DBA::is_result($thread)) {
+				if (DBA::isResult($thread)) {
 					$ignore = [
 						'do'        => L10n::t("ignore thread"),
 						'undo'      => L10n::t("unignore thread"),

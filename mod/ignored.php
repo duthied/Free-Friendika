@@ -22,7 +22,7 @@ function ignored_init(App $a) {
 		intval(local_user()),
 		intval($message_id)
 	);
-	if (! DBA::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		killme();
 	}
 

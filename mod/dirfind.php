@@ -112,7 +112,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 			$search2 = "%".$search."%";
 
-			/// @TODO These 2 SELECTs are not checked on validity with DBA::is_result()
+			/// @TODO These 2 SELECTs are not checked on validity with DBA::isResult()
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
 					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s') AND
 						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
@@ -203,7 +203,7 @@ function dirfind_content(App $a, $prefix = "") {
 					$connlnk = "";
 					$conntxt = "";
 					$contact = DBA::selectFirst('contact', [], ['id' => $jj->cid]);
-					if (DBA::is_result($contact)) {
+					if (DBA::isResult($contact)) {
 						$photo_menu = Contact::photoMenu($contact);
 						$details = _contact_detail_for_template($contact);
 						$alt_text = $details['alt_text'];

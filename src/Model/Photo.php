@@ -41,7 +41,7 @@ class Photo
 	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '')
 	{
 		$photo = DBA::selectFirst('photo', ['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
-		if (DBA::is_result($photo)) {
+		if (DBA::isResult($photo)) {
 			$guid = $photo['guid'];
 		} else {
 			$guid = System::createGUID();
@@ -72,7 +72,7 @@ class Photo
 			'desc' => $desc
 		];
 
-		if (DBA::is_result($existing_photo)) {
+		if (DBA::isResult($existing_photo)) {
 			$r = DBA::update('photo', $fields, ['id' => $existing_photo['id']]);
 		} else {
 			$r = DBA::insert('photo', $fields);

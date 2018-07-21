@@ -346,7 +346,7 @@ function events_content(App $a) {
 
 		$links = [];
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
@@ -359,7 +359,7 @@ function events_content(App $a) {
 		$events = [];
 
 		// transform the event in a usable array
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			$events = Event::prepareListForTemplate($r);
 		}
@@ -417,7 +417,7 @@ function events_content(App $a) {
 			intval($event_id),
 			intval(local_user())
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$orig_event = $r[0];
 		}
 	}
@@ -545,7 +545,7 @@ function events_content(App $a) {
 		$ev = Event::getListById(local_user(), $event_id);
 
 		// Delete only real events (no birthdays)
-		if (DBA::is_result($ev) && $ev[0]['type'] == 'event') {
+		if (DBA::isResult($ev) && $ev[0]['type'] == 'event') {
 			$del = Item::deleteForUser(['id' => $ev[0]['itemid']], local_user());
 		}
 

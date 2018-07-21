@@ -194,7 +194,7 @@ class Cron
 			dbesc(NETWORK_MAIL)
 		);
 
-		if (!DBA::is_result($contacts)) {
+		if (!DBA::isResult($contacts)) {
 			return;
 		}
 

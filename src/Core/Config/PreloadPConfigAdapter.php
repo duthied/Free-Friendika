@@ -51,7 +51,7 @@ class PreloadPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 		if ($refresh) {
 			$config = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
-			if (DBA::is_result($config)) {
+			if (DBA::isResult($config)) {
 				self::getApp()->setPConfigValue($uid, $cat, $k, $config['v']);
 			} else {
 				self::getApp()->deletePConfigValue($uid, $cat, $k);

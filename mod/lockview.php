@@ -27,7 +27,7 @@ function lockview_content(App $a) {
 		dbesc($type),
 		intval($item_id)
 	);
-	if (! DBA::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		killme();
 	}
 	$item = $r[0];
@@ -59,7 +59,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $allowed_groups))
 		);
-		if (DBA::is_result($r))
+		if (DBA::isResult($r))
 			foreach($r as $rr)
 				$l[] = '<b>' . $rr['name'] . '</b>';
 	}
@@ -67,7 +67,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$allowed_users))
 		);
-		if (DBA::is_result($r))
+		if (DBA::isResult($r))
 			foreach($r as $rr)
 				$l[] = $rr['name'];
 
@@ -77,7 +77,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			dbesc(implode(', ', $deny_groups))
 		);
-		if (DBA::is_result($r))
+		if (DBA::isResult($r))
 			foreach($r as $rr)
 				$l[] = '<b><strike>' . $rr['name'] . '</strike></b>';
 	}
@@ -85,7 +85,7 @@ function lockview_content(App $a) {
 		$r = q("SELECT `name` FROM `contact` WHERE `id` IN ( %s )",
 			dbesc(implode(', ',$deny_users))
 		);
-		if (DBA::is_result($r))
+		if (DBA::isResult($r))
 			foreach($r as $rr)
 				$l[] = '<strike>' . $rr['name'] . '</strike>';
 

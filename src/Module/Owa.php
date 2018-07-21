@@ -51,7 +51,7 @@ class Owa extends BaseModule
 
 						$contact = DBA::selectFirst('contact', $fields, $condition);
 
-						if (DBA::is_result($contact)) {
+						if (DBA::isResult($contact)) {
 							// Try to verify the signed header with the public key of the contact record
 							// we have found.
 							$verified = HTTPSignature::verify('', $contact['pubkey']);

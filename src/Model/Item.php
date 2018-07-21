@@ -818,7 +818,7 @@ class Item extends BaseObject
 				// Fetch the uri-hash from an existing item entry if there is one
 				$item_condition = ["`uri` = ? AND `uri-hash` != ''", $item['uri']];
 				$existing = DBA::selectfirst('item', ['uri-hash'], $item_condition);
-				if (DBA::is_result($existing)) {
+				if (DBA::isResult($existing)) {
 					$item['uri-hash'] = $existing['uri-hash'];
 				} else {
 					$item['uri-hash'] = self::itemHash($item['uri'], $item['created']);
@@ -839,7 +839,7 @@ class Item extends BaseObject
 
 				if (empty($item['iaid'])) {
 					$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-hash' => $item['uri-hash']]);
-					if (DBA::is_result($item_activity)) {
+					if (DBA::isResult($item_activity)) {
 						$item_fields = ['iaid' => $item_activity['id'], 'icid' => null];
 						foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
 							if (self::isLegacyMode()) {
@@ -871,7 +871,7 @@ class Item extends BaseObject
 
 				if (empty($item['icid'])) {
 					$item_content = DBA::selectFirst('item-content', [], ['uri-plink-hash' => $item['uri-hash']]);
-					if (DBA::is_result($item_content)) {
+					if (DBA::isResult($item_content)) {
 						$item_fields = ['icid' => $item_content['id']];
 						// Clear all fields in the item table that have a content in the item-content table
 						foreach ($item_content as $field => $content) {
@@ -974,7 +974,7 @@ class Item extends BaseObject
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id'];
 		$item = self::selectFirst($fields, ['id' => $item_id]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			logger('Item with ID ' . $item_id . " hasn't been found.", LOGGER_DEBUG);
 			return false;
 		}
@@ -985,7 +985,7 @@ class Item extends BaseObject
 		}
 
 		$parent = self::selectFirst(['origin'], ['id' => $item['parent']]);
-		if (!DBA::is_result($parent)) {
+		if (!DBA::isResult($parent)) {
 			$parent = ['origin' => false];
 		}
 
@@ -1069,7 +1069,7 @@ class Item extends BaseObject
 
 			// When we delete just our local user copy of an item, we have to set a marker to hide it
 			$global_item = self::selectFirst(['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
-			if (DBA::is_result($global_item)) {
+			if (DBA::isResult($global_item)) {
 				DBA::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
 			}
 		}
@@ -1093,7 +1093,7 @@ class Item extends BaseObject
 		}
 
 		$i = self::selectFirst(['id', 'contact-id', 'tag'], ['uri' => $xt->id, 'uid' => $item['uid']]);
-		if (!DBA::is_result($i)) {
+		if (!DBA::isResult($i)) {
 			return;
 		}
 
@@ -1194,7 +1194,7 @@ class Item extends BaseObject
 		// Still missing? Then use the "self" contact of the current user
 		if ($contact_id == 0) {
 			$self = DBA::selectFirst('contact', ['id'], ['self' => true, 'uid' => $item['uid']]);
-			if (DBA::is_result($self)) {
+			if (DBA::isResult($self)) {
 				$contact_id = $self["id"];
 			}
 		}
@@ -1290,7 +1290,7 @@ class Item extends BaseObject
 		$expire_interval = Config::get('system', 'dbclean-expire-days', 0);
 
 		$user = DBA::selectFirst('user', ['expire'], ['uid' => $uid]);
-		if (DBA::is_result($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
+		if (DBA::isResult($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
 			$expire_interval = $user['expire'];
 		}
 
@@ -1313,7 +1313,7 @@ class Item extends BaseObject
 				trim($item['uri']), $item['uid'],
 				NETWORK_DIASPORA, NETWORK_DFRN, NETWORK_OSTATUS];
 			$existing = self::selectFirst(['id', 'network'], $condition);
-			if (DBA::is_result($existing)) {
+			if (DBA::isResult($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
 				if ($uid != 0) {
 					logger("Item with uri ".$item['uri']." already existed for user ".$uid." with id ".$existing["id"]." target network ".$existing["network"]." - new network: ".$item['network']);
@@ -1325,7 +1325,7 @@ class Item extends BaseObject
 
 		// Ensure to always have the same creation date.
 		$existing = DBA::selectfirst('item', ['created', 'uri-hash'], ['uri' => $item['uri']]);
-		if (DBA::is_result($existing)) {
+		if (DBA::isResult($existing)) {
 			$item['created'] = $existing['created'];
 			$item['uri-hash'] = $existing['uri-hash'];
 		}
@@ -1472,7 +1472,7 @@ class Item extends BaseObject
 			$params = ['order' => ['id' => false]];
 			$parent = self::selectFirst($fields, $condition, $params);
 
-			if (DBA::is_result($parent)) {
+			if (DBA::isResult($parent)) {
 				// is the new message multi-level threaded?
 				// even though we don't support it now, preserve the info
 				// and re-attach to the conversation parent.
@@ -1486,7 +1486,7 @@ class Item extends BaseObject
 					$params = ['order' => ['id' => false]];
 					$toplevel_parent = self::selectFirst($fields, $condition, $params);
 
-					if (DBA::is_result($toplevel_parent)) {
+					if (DBA::isResult($toplevel_parent)) {
 						$parent = $toplevel_parent;
 					}
 				}
@@ -1521,7 +1521,7 @@ class Item extends BaseObject
 				// If its a post from myself then tag the thread as "mention"
 				logger("Checking if parent ".$parent_id." has to be tagged as mention for user ".$item['uid'], LOGGER_DEBUG);
 				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
-				if (DBA::is_result($user)) {
+				if (DBA::isResult($user)) {
 					$self = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
 					$self_id = Contact::getIdForURL($self, 0, true);
 					logger("'myself' is ".$self_id." for parent ".$parent_id." checking against ".$item['author-id']." and ".$item['owner-id'], LOGGER_DEBUG);
@@ -1666,7 +1666,7 @@ class Item extends BaseObject
 		$ret = DBA::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
-		if (DBA::is_result($ret)) {
+		if (DBA::isResult($ret)) {
 			$current_post = DBA::lastInsertId();
 		} else {
 			// This can happen - for example - if there are locking timeouts.
@@ -1771,7 +1771,7 @@ class Item extends BaseObject
 		 */
 		if (!$deleted && !$dontcache) {
 			$posted_item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
-			if (DBA::is_result($posted_item)) {
+			if (DBA::isResult($posted_item)) {
 				if ($notify) {
 					Addon::callHooks('post_local_end', $posted_item);
 				} else {
@@ -1881,7 +1881,7 @@ class Item extends BaseObject
 
 		// Do we already have this content?
 		$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-hash' => $item['uri-hash']]);
-		if (DBA::is_result($item_activity)) {
+		if (DBA::isResult($item_activity)) {
 			$item['iaid'] = $item_activity['id'];
 			logger('Fetched activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
 		} elseif (DBA::insert('item-activity', $fields)) {
@@ -1922,7 +1922,7 @@ class Item extends BaseObject
 
 		// Do we already have this content?
 		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-plink-hash' => $item['uri-hash']]);
-		if (DBA::is_result($item_content)) {
+		if (DBA::isResult($item_content)) {
 			$item['icid'] = $item_content['id'];
 			logger('Fetched content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
 		} elseif (DBA::insert('item-content', $fields)) {
@@ -2000,7 +2000,7 @@ class Item extends BaseObject
 	{
 		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
 		$parent = self::selectFirst(['owner-id'], $condition);
-		if (!DBA::is_result($parent)) {
+		if (!DBA::isResult($parent)) {
 			return;
 		}
 
@@ -2009,7 +2009,7 @@ class Item extends BaseObject
 			'network' => [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""],
 			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			return;
 		}
 
@@ -2071,7 +2071,7 @@ class Item extends BaseObject
 
 		if (empty($item['contact-id'])) {
 			$self = DBA::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
-			if (!DBA::is_result($self)) {
+			if (!DBA::isResult($self)) {
 				return;
 			}
 			$item['contact-id'] = $self['id'];
@@ -2082,7 +2082,7 @@ class Item extends BaseObject
 		$notify = false;
 		if ($item['uri'] == $item['parent-uri']) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $item['contact-id'], 'self' => false]);
-			if (DBA::is_result($contact)) {
+			if (DBA::isResult($contact)) {
 				$notify = self::isRemoteSelf($contact, $item);
 			}
 		}
@@ -2111,7 +2111,7 @@ class Item extends BaseObject
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
 		$item = self::selectFirst($fields, $condition);
 
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			return;
 		}
 
@@ -2136,7 +2136,7 @@ class Item extends BaseObject
 
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			// Preparing public shadow (removing user specific data)
 			$item['uid'] = 0;
 			unset($item['id']);
@@ -2169,7 +2169,7 @@ class Item extends BaseObject
 	public static function addShadowPost($itemid)
 	{
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			return;
 		}
 
@@ -2302,13 +2302,13 @@ class Item extends BaseObject
 	{
 		// Unarchive the author
 		$contact = DBA::selectFirst('contact', [], ['id' => $arr["author-id"]]);
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			Contact::unmarkForArchival($contact);
 		}
 
 		// Unarchive the contact if it's not our own contact
 		$contact = DBA::selectFirst('contact', [], ['id' => $arr["contact-id"], 'self' => false]);
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			Contact::unmarkForArchival($contact);
 		}
 
@@ -2408,7 +2408,7 @@ class Item extends BaseObject
 	public static function getGuidById($id)
 	{
 		$item = self::selectFirst(['guid'], ['id' => $id]);
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			return $item['guid'];
 		} else {
 			return '';
@@ -2430,7 +2430,7 @@ class Item extends BaseObject
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND `item`.`guid` = ? AND `item`.`uid` = ?", $guid, $uid);
-			if (DBA::is_result($item)) {
+			if (DBA::isResult($item)) {
 				$id = $item["id"];
 				$nick = $item["nickname"];
 			}
@@ -2443,7 +2443,7 @@ class Item extends BaseObject
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 					AND NOT `item`.`private` AND `item`.`wall`
 					AND `item`.`guid` = ?", $guid);
-			if (DBA::is_result($item)) {
+			if (DBA::isResult($item)) {
 				$id = $item["id"];
 				$nick = $item["nickname"];
 			}
@@ -2462,7 +2462,7 @@ class Item extends BaseObject
 		$mention = false;
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
-		if (!DBA::is_result($user)) {
+		if (!DBA::isResult($user)) {
 			return;
 		}
 
@@ -2470,7 +2470,7 @@ class Item extends BaseObject
 		$prvgroup = (($user['page-flags'] == PAGE_PRVGROUP) ? true : false);
 
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			return;
 		}
 
@@ -2523,7 +2523,7 @@ class Item extends BaseObject
 
 		// now change this copy of the post to a forum head message and deliver to all the tgroup members
 		$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'], ['uid' => $uid, 'self' => true]);
-		if (!DBA::is_result($self)) {
+		if (!DBA::isResult($self)) {
 			return;
 		}
 
@@ -2581,7 +2581,7 @@ class Item extends BaseObject
 		if ($contact['remote_self'] == 2) {
 			$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'],
 					['uid' => $contact['uid'], 'self' => true]);
-			if (DBA::is_result($self)) {
+			if (DBA::isResult($self)) {
 				$datarray['contact-id'] = $self["id"];
 
 				$datarray['owner-name'] = $self["name"];
@@ -2675,7 +2675,7 @@ class Item extends BaseObject
 					$i = substr($i, 0, $x);
 					$fields = ['data', 'type', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 					$photo = DBA::selectFirst('photo', $fields, ['resource-id' => $i, 'scale' => $res, 'uid' => $uid]);
-					if (DBA::is_result($photo)) {
+					if (DBA::isResult($photo)) {
 						/*
 						 * Check to see if we should replace this photo link with an embedded image
 						 * 1. No need to do so if the photo is public
@@ -2840,7 +2840,7 @@ class Item extends BaseObject
 
 		$items = self::select(['file', 'resource-id', 'starred', 'type', 'id'], $condition);
 
-		if (!DBA::is_result($items)) {
+		if (!DBA::isResult($items)) {
 			return;
 		}
 
@@ -2889,7 +2889,7 @@ class Item extends BaseObject
 		$condition = ['uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
 		$params = ['order' => ['created' => false]];
 		$thread = DBA::selectFirst('thread', ['created'], $condition, $params);
-		if (DBA::is_result($thread)) {
+		if (DBA::isResult($thread)) {
 			return substr(DateTimeFormat::local($thread['created']), 0, 10);
 		}
 		return false;
@@ -2947,7 +2947,7 @@ class Item extends BaseObject
 		logger('like: verb ' . $verb . ' item ' . $item_id);
 
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['`id` = ? OR `uri` = ?', $item_id, $item_id]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			logger('like: unknown item ' . $item_id);
 			return false;
 		}
@@ -2966,7 +2966,7 @@ class Item extends BaseObject
 
 		// Retrieves the local post owner
 		$owner_self_contact = DBA::selectFirst('contact', [], ['uid' => $uid, 'self' => true]);
-		if (!DBA::is_result($owner_self_contact)) {
+		if (!DBA::isResult($owner_self_contact)) {
 			logger('like: unknown owner ' . $uid);
 			return false;
 		}
@@ -2975,7 +2975,7 @@ class Item extends BaseObject
 		$author_id = public_contact();
 
 		$author_contact = DBA::selectFirst('contact', ['url'], ['id' => $author_id]);
-		if (!DBA::is_result($author_contact)) {
+		if (!DBA::isResult($author_contact)) {
 			logger('like: unknown author ' . $author_id);
 			return false;
 		}
@@ -2987,7 +2987,7 @@ class Item extends BaseObject
 		} else {
 			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid, true);
 			$item_contact = DBA::selectFirst('contact', [], ['id' => $item_contact_id]);
-			if (!DBA::is_result($item_contact)) {
+			if (!DBA::isResult($item_contact)) {
 				logger('like: unknown item contact ' . $item_contact_id);
 				return false;
 			}
@@ -3014,7 +3014,7 @@ class Item extends BaseObject
 		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
 
 		// If it exists, mark it as deleted
-		if (DBA::is_result($like_item)) {
+		if (DBA::isResult($like_item)) {
 			// Already voted, undo it
 			$fields = ['deleted' => true, 'unseen' => true, 'changed' => DateTimeFormat::utcNow()];
 			/// @todo Consider using self::update - but before doing so, check the side effects
@@ -3089,7 +3089,7 @@ class Item extends BaseObject
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 		$item = self::selectFirst($fields, $condition);
 
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			return;
 		}
 
@@ -3110,7 +3110,7 @@ class Item extends BaseObject
 		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
 		$item = self::selectFirst($fields, $condition);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			return;
 		}
 
@@ -3136,7 +3136,7 @@ class Item extends BaseObject
 	private static function deleteThread($itemid, $itemuri = "")
 	{
 		$item = DBA::selectFirst('thread', ['uid'], ['iid' => $itemid]);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			logger('No thread found for id '.$itemid, LOGGER_DEBUG);
 			return;
 		}

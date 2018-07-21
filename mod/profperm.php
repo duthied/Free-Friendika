@@ -51,7 +51,7 @@ function profperm_content(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if (DBA::is_result($r))
+		if (DBA::isResult($r))
 			$change = intval($a->argv[2]);
 	}
 
@@ -61,7 +61,7 @@ function profperm_content(App $a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if (! DBA::is_result($r)) {
+		if (! DBA::isResult($r)) {
 			notice(L10n::t('Invalid profile identifier.') . EOL );
 			return;
 		}
@@ -73,7 +73,7 @@ function profperm_content(App $a) {
 		);
 
 		$ingroup = [];
-		if (DBA::is_result($r))
+		if (DBA::isResult($r))
 			foreach($r as $member)
 				$ingroup[] = $member['id'];
 
@@ -103,7 +103,7 @@ function profperm_content(App $a) {
 			$members = $r;
 
 			$ingroup = [];
-			if (DBA::is_result($r))
+			if (DBA::isResult($r))
 				foreach($r as $member)
 					$ingroup[] = $member['id'];
 		}
@@ -147,7 +147,7 @@ function profperm_content(App $a) {
 			dbesc(NETWORK_DFRN)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
 			foreach($r as $member) {
 				if(! in_array($member['id'],$ingroup)) {

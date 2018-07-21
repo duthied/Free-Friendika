@@ -61,7 +61,7 @@ class Mail
 				dbesc($replyto),
 				dbesc($replyto)
 			);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$convid = $r[0]['convid'];
 			}
 		}

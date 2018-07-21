@@ -56,7 +56,7 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 		}
 
 		$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
-		if (DBA::is_result($config)) {
+		if (DBA::isResult($config)) {
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 

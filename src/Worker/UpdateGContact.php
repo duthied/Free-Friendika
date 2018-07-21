@@ -24,7 +24,7 @@ class UpdateGContact
 
 		$r = q("SELECT * FROM `gcontact` WHERE `id` = %d", intval($contact_id));
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return;
 		}
 

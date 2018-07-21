@@ -25,7 +25,7 @@ function poco_init(App $a) {
 	}
 	if (empty($user)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
-		if (!DBA::is_result($c)) {
+		if (!DBA::isResult($c)) {
 			System::httpExit(401);
 		}
 		$system_mode = true;
@@ -67,7 +67,7 @@ function poco_init(App $a) {
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
 			dbesc($user)
 		);
-		if (! DBA::is_result($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
+		if (! DBA::isResult($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
 			System::httpExit(404);
 		}
 
@@ -107,7 +107,7 @@ function poco_init(App $a) {
 			dbesc(NETWORK_STATUSNET)
 		);
 	}
-	if (DBA::is_result($contacts)) {
+	if (DBA::isResult($contacts)) {
 		$totalResults = intval($contacts[0]['total']);
 	} else {
 		$totalResults = 0;
@@ -203,7 +203,7 @@ function poco_init(App $a) {
 	}
 
 	if (is_array($contacts)) {
-		if (DBA::is_result($contacts)) {
+		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
 				if (!isset($contact['updated'])) {
 					$contact['updated'] = '';

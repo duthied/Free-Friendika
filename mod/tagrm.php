@@ -24,7 +24,7 @@ function tagrm_post(App $a)
 	$item_id = (x($_POST,'item') ? intval($_POST['item'])               : 0);
 
 	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
-	if (!DBA::is_result($item)) {
+	if (!DBA::isResult($item)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
@@ -64,7 +64,7 @@ function tagrm_content(App $a)
 	}
 
 	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
-	if (!DBA::is_result($item)) {
+	if (!DBA::isResult($item)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 

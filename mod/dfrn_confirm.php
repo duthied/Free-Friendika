@@ -67,7 +67,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		}
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
-		if (!DBA::is_result($user)) {
+		if (!DBA::isResult($user)) {
 			notice(L10n::t('Profile not found.') . EOL);
 			return;
 		}
@@ -121,7 +121,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			intval($cid),
 			intval($uid)
 		);
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger('Contact not found in DB.');
 			notice(L10n::t('Contact not found.') . EOL);
 			notice(L10n::t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL);
@@ -280,7 +280,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 			if (($status == 0) && $intro_id) {
 				$intro = DBA::selectFirst('intro', ['note'], ['id' => $intro_id]);
-				if (DBA::is_result($intro)) {
+				if (DBA::isResult($intro)) {
 					DBA::update('contact', ['reason' => $intro['note']], ['id' => $contact_id]);
 				}
 
@@ -385,14 +385,14 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			);
 		}
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			notice(L10n::t('Unable to set contact photo.') . EOL);
 		}
 
 		// reload contact info
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		if ((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
-			if (DBA::is_result($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
+			if (DBA::isResult($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
 				$ret = Diaspora::sendShare($user, $contact);
 				logger('share returns: ' . $ret);
 			}
@@ -443,7 +443,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		// Find our user's account
 		$user = DBA::selectFirst('user', [], ['nickname' => $node]);
-		if (!DBA::is_result($user)) {
+		if (!DBA::isResult($user)) {
 			$message = L10n::t('No user record found for \'%s\' ', $node);
 			System::xmlExit(3, $message); // failure
 			// NOTREACHED
@@ -471,7 +471,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['url' => $decrypted_source_url, 'uid' => $local_uid]);
-		if (!DBA::is_result($contact)) {
+		if (!DBA::isResult($contact)) {
 			if (strstr($decrypted_source_url, 'http:')) {
 				$newurl = str_replace('http:', 'https:', $decrypted_source_url);
 			} else {
@@ -479,7 +479,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			}
 
 			$contact = DBA::selectFirst('contact', [], ['url' => $newurl, 'uid' => $local_uid]);
-			if (!DBA::is_result($contact)) {
+			if (!DBA::isResult($contact)) {
 				// this is either a bogus confirmation (?) or we deleted the original introduction.
 				$message = L10n::t('Contact record was not found for you on our site.');
 				System::xmlExit(3, $message);
@@ -521,7 +521,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			dbesc($dfrn_pubkey),
 			intval($dfrn_record)
 		);
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			$message = L10n::t('Unable to set your contact credentials on our system.');
 			System::xmlExit(3, $message);
 		}
@@ -537,7 +537,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		// We're good but now we have to scrape the profile photo and send notifications.
 		$contact = DBA::selectFirst('contact', ['photo'], ['id' => $dfrn_record]);
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			$photo = $contact['photo'];
 		} else {
 			$photo = System::baseUrl() . '/images/person-175.jpg';
@@ -576,7 +576,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			dbesc(NETWORK_DFRN),
 			intval($dfrn_record)
 		);
-		if (!DBA::is_result($r)) {	// indicates schema is messed up or total db failure
+		if (!DBA::isResult($r)) {	// indicates schema is messed up or total db failure
 			$message = L10n::t('Unable to update your contact profile details on our system');
 			System::xmlExit(3, $message);
 		}
@@ -594,7 +594,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			LIMIT 1",
 			intval($dfrn_record)
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$combined = $r[0];
 
 			if ($combined['notify-flags'] & NOTIFY_CONFIRM) {

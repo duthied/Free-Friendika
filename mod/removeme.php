@@ -39,7 +39,7 @@ function removeme_post(App $a)
 	$admin_mails = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 	foreach ($admin_mails as $mail) {
 		$admin = DBA::selectFirst('user', ['uid', 'language', 'email'], ['email' => $mail]);
-		if (!DBA::is_result($admin)) {
+		if (!DBA::isResult($admin)) {
 			continue;
 		}
 		notification([

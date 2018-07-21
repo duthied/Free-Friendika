@@ -42,7 +42,7 @@ function profile_photo_post(App $a)
 				intval(local_user())
 			);
 
-			if (DBA::is_result($r) && (!intval($r[0]['is-default']))) {
+			if (DBA::isResult($r) && (!intval($r[0]['is-default']))) {
 				$is_default_profile = 0;
 			}
 		}
@@ -73,7 +73,7 @@ function profile_photo_post(App $a)
 			dbesc(local_user()), intval($scale));
 
 		$url = System::baseUrl() . '/profile/' . $a->user['nickname'];
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$base_image = $r[0];
 
 			$Image = new Image($base_image['data'], $base_image['type']);
@@ -194,7 +194,7 @@ function profile_photo_content(App $a)
 			dbesc($resource_id)
 		);
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			notice(L10n::t('Permission denied.') . EOL);
 			return;
 		}

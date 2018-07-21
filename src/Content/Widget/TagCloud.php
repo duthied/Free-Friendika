@@ -98,7 +98,7 @@ class TagCloud
 			$type,
 			TERM_OBJ_POST
 		);
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return [];
 		}
 

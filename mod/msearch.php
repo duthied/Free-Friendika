@@ -18,7 +18,7 @@ function msearch_post(App $a) {
 		dbesc($search)
 	);
 
-	if (DBA::is_result($r))
+	if (DBA::isResult($r))
 		$total = $r[0]['total'];
 
 	$results = [];
@@ -29,7 +29,7 @@ function msearch_post(App $a) {
 		intval($perpage)
 	);
 
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		foreach($r as $rr)
 			$results[] = [
 				'name' => $rr['name'],

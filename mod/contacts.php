@@ -44,7 +44,7 @@ function contacts_init(App $a)
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
 	}
 
-	if (DBA::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		if ($contact['self']) {
 			if (($a->argc == 3) && intval($a->argv[1]) && ($a->argv[2] == "posts")) {
 				goaway('profile/' . $contact['nick']);
@@ -224,14 +224,14 @@ function contacts_post(App $a)
 		intval($contact_id),
 		intval(local_user())
 	);
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		info(L10n::t('Contact updated.') . EOL);
 	} else {
 		notice(L10n::t('Failed to update contact record.') . EOL);
 	}
 
 	$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
-	if (DBA::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		$a->data['contact'] = $contact;
 	}
 
@@ -243,7 +243,7 @@ function contacts_post(App $a)
 function _contact_update($contact_id)
 {
 	$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
-	if (!DBA::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		return;
 	}
 
@@ -264,7 +264,7 @@ function _contact_update($contact_id)
 function _contact_update_profile($contact_id)
 {
 	$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
-	if (!DBA::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		return;
 	}
 
@@ -335,7 +335,7 @@ function _contact_block($contact_id, $orig_record)
 		intval($contact_id),
 		intval(local_user())
 	);
-	return DBA::is_result($r);
+	return DBA::isResult($r);
 }
 
 function _contact_ignore($contact_id, $orig_record)
@@ -346,7 +346,7 @@ function _contact_ignore($contact_id, $orig_record)
 		intval($contact_id),
 		intval(local_user())
 	);
-	return DBA::is_result($r);
+	return DBA::isResult($r);
 }
 
 function _contact_archive($contact_id, $orig_record)
@@ -357,7 +357,7 @@ function _contact_archive($contact_id, $orig_record)
 		intval($contact_id),
 		intval(local_user())
 	);
-	return DBA::is_result($r);
+	return DBA::isResult($r);
 }
 
 function _contact_drop($orig_record)
@@ -368,7 +368,7 @@ function _contact_drop($orig_record)
 		WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
 		intval($a->user['uid'])
 	);
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		return;
 	}
 
@@ -396,7 +396,7 @@ function contacts_content(App $a)
 		$cmd = $a->argv[2];
 
 		$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'self' => false]);
-		if (!DBA::is_result($orig_record)) {
+		if (!DBA::isResult($orig_record)) {
 			notice(L10n::t('Could not access contact record.') . EOL);
 			goaway('contacts');
 			return; // NOTREACHED
@@ -787,7 +787,7 @@ function contacts_content(App $a)
 		WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
 		intval($_SESSION['uid'])
 	);
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$a->set_pager_total($r[0]['total']);
 		$total = $r[0]['total'];
 	}
@@ -801,7 +801,7 @@ function contacts_content(App $a)
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
 			$contacts[] = _contact_detail_for_template($rr);
 		}
@@ -910,7 +910,7 @@ function contact_posts($a, $contact_id)
 	$o = contacts_tab($a, $contact_id, 1);
 
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id]);
-	if (DBA::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		$a->page['aside'] = "";
 		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 		$o .= Contact::getPostsFromUrl($contact["url"]);

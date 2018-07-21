@@ -64,7 +64,7 @@ function pubsubhubbub_init(App $a) {
 		// fetch user from database given the nickname
 		$condition = ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false];
 		$owner = DBA::selectFirst('user', ['uid', 'hidewall'], $condition);
-		if (!DBA::is_result($owner)) {
+		if (!DBA::isResult($owner)) {
 			logger('Local account not found: ' . $nick . ' - topic: ' . $hub_topic . ' - callback: ' . $hub_callback);
 			System::httpExit(404);
 		}
@@ -79,7 +79,7 @@ function pubsubhubbub_init(App $a) {
 		$condition = ['uid' => $owner['uid'], 'blocked' => false,
 			'pending' => false, 'self' => true];
 		$contact = DBA::selectFirst('contact', ['poll'], $condition);
-		if (!DBA::is_result($contact)) {
+		if (!DBA::isResult($contact)) {
 			logger('Self contact for user ' . $owner['uid'] . ' not found.');
 			System::httpExit(404);
 		}

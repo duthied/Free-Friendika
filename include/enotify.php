@@ -53,7 +53,7 @@ function notification($params)
 			['uid' => $params['uid']]);
 
 		// There is no need to create notifications for forum accounts
-		if (!DBA::is_result($user) || in_array($user["page-flags"], [PAGE_COMMUNITY, PAGE_PRVGROUP])) {
+		if (!DBA::isResult($user) || in_array($user["page-flags"], [PAGE_COMMUNITY, PAGE_PRVGROUP])) {
 			return;
 		}
 	}
@@ -107,7 +107,7 @@ function notification($params)
 
 	if ($params['type'] == NOTIFY_COMMENT) {
 		$thread = DBA::selectFirst('thread', ['ignored'], ['iid' => $parent_id]);
-		if (DBA::is_result($thread) && $thread["ignored"]) {
+		if (DBA::isResult($thread) && $thread["ignored"]) {
 			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
 			return;
 		}
@@ -155,7 +155,7 @@ function notification($params)
 		}
 
 		// "your post"
-		if (DBA::is_result($item) && $item['owner-id'] == $item['author-id'] && $item['wall']) {
+		if (DBA::isResult($item) && $item['owner-id'] == $item['author-id'] && $item['wall']) {
 			$dest_str = L10n::t('%1$s commented on [url=%2$s]your %3$s[/url]',
 				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 				$itemlink,
@@ -437,7 +437,7 @@ function notification($params)
 			$hash = random_string();
 			$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
 				dbesc($hash));
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$dups = true;
 			}
 		} while ($dups == true);
@@ -689,12 +689,12 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	$fields = ['notify-flags', 'language', 'username', 'email', 'nickname'];
 	$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
-	if (!DBA::is_result($user)) {
+	if (!DBA::isResult($user)) {
 		return false;
 	}
 
 	$owner = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
-	if (!DBA::is_result($owner)) {
+	if (!DBA::isResult($owner)) {
 		return false;
 	}
 
@@ -745,7 +745,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 	$item = Item::selectFirst($fields, $condition);
-	if (!DBA::is_result($item) || in_array($item['author-id'], $contacts)) {
+	if (!DBA::isResult($item) || in_array($item['author-id'], $contacts)) {
 		return;
 	}
 
@@ -772,7 +772,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
 				intval(TERM_OBJ_POST), intval($itemid), intval(TERM_MENTION), intval($uid));
 
-			if (DBA::is_result($tags)) {
+			if (DBA::isResult($tags)) {
 				foreach ($tags AS $tag) {
 					$condition = ['nurl' => normalise_link($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true];
 					$r = DBA::exists('contact', $condition);

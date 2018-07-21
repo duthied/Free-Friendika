@@ -81,7 +81,7 @@ HELP;
 
 		$nurl = normalise_link($net['url']);
 		$contact = DBA::selectFirst("contact", ["id"], ["nurl" => $nurl, "uid" => 0]);
-		if (DBA::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			DBA::update("contact", ["hidden" => true], ["id" => $contact["id"]]);
 			$this->out('NOTICE: The account should be silenced from the global community page');
 		} else {

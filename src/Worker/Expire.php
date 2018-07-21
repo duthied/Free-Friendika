@@ -67,7 +67,7 @@ class Expire
 			return;
 		} elseif (intval($param) > 0) {
 			$user = DBA::selectFirst('user', ['uid', 'username', 'expire'], ['uid' => $param]);
-			if (DBA::is_result($user)) {
+			if (DBA::isResult($user)) {
 				logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - interval: '.$user['expire'], LOGGER_DEBUG);
 				Item::expire($user['uid'], $user['expire']);
 				logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - done ', LOGGER_DEBUG);

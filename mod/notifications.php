@@ -27,7 +27,7 @@ function notifications_post(App $a)
 	if ($request_id) {
 		$intro = DBA::selectFirst('intro', ['id', 'contact-id', 'fid'], ['id' => $request_id, 'uid' => local_user()]);
 
-		if (DBA::is_result($intro)) {
+		if (DBA::isResult($intro)) {
 			$intro_id = $intro['id'];
 			$contact_id = $intro['contact-id'];
 		} else {

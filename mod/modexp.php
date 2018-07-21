@@ -13,7 +13,7 @@ function modexp_init(App $a) {
 			dbesc($nick)
 	);
 
-	if (! DBA::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		killme();
 	}
 

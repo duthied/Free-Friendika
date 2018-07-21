@@ -146,7 +146,7 @@ class PostUpdate
 					(`thread`.`uid` IN (SELECT `uid` from `user`) OR `thread`.`uid` = 0)");
 
 			logger("Updated threads", LOGGER_DEBUG);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				Config::set("system", "post_update_version", 1198);
 				logger("Done", LOGGER_DEBUG);
 				return true;
@@ -207,7 +207,7 @@ class PostUpdate
 			FROM `user`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`");
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		foreach ($r as $user) {

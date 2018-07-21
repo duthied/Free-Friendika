@@ -52,7 +52,7 @@ function group_post(App $a) {
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if (! DBA::is_result($r)) {
+		if (! DBA::isResult($r)) {
 			notice(L10n::t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 			return; // NOTREACHED
@@ -147,7 +147,7 @@ function group_content(App $a) {
 
 			$result = null;
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$result = Group::removeByName(local_user(), $r[0]['name']);
 			}
 
@@ -168,7 +168,7 @@ function group_content(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$change = intval($a->argv[2]);
 		}
 	}
@@ -181,7 +181,7 @@ function group_content(App $a) {
 			intval(local_user())
 		);
 
-		if (! DBA::is_result($r)) {
+		if (! DBA::isResult($r)) {
 			notice(L10n::t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 		}
@@ -276,7 +276,7 @@ function group_content(App $a) {
 		$context['$desc'] = L10n::t('Click on a contact to add or remove.');
 	}
 
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		// Format the data of the contacts who aren't in the contact group
 		foreach ($r as $member) {
 			if (! in_array($member['id'], $preselected)) {

@@ -116,7 +116,7 @@ function update_1191() {
 	);
 
 	// convert old forumlist addon entries in new config entries
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
 			$uid = $rr['uid'];
 			$family = $rr['cat'];

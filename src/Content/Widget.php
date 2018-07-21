@@ -276,11 +276,11 @@ class Widget
 			if (Profile::getMyURL()) {
 				$contact = DBA::selectFirst('contact', ['id'],
 						['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $profile_uid]);
-				if (DBA::is_result($contact)) {
+				if (DBA::isResult($contact)) {
 					$cid = $contact['id'];
 				} else {
 					$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
-					if (DBA::is_result($gcontact)) {
+					if (DBA::isResult($gcontact)) {
 						$zcid = $gcontact['id'];
 					}
 				}

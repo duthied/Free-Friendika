@@ -100,7 +100,7 @@ function dfrn_poll_init(App $a)
 			dbesc($a->argv[1])
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$s = Network::fetchUrl($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
 			logger("dfrn_poll: old profile returns " . $s, LOGGER_DATA);
@@ -146,7 +146,7 @@ function dfrn_poll_init(App $a)
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if (!DBA::is_result($r)) {
+			if (!DBA::isResult($r)) {
 				System::xmlExit(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -159,7 +159,7 @@ function dfrn_poll_init(App $a)
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if (!DBA::is_result($c)) {
+			if (!DBA::isResult($c)) {
 				System::xmlExit(3, 'No profile');
 			}
 
@@ -210,7 +210,7 @@ function dfrn_poll_init(App $a)
 			DBA::delete('profile_check', ["`expire` < ?", time()]);
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
 				dbesc($dfrn_id));
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				System::xmlExit(1);
 				return; // NOTREACHED
 			}
@@ -238,7 +238,7 @@ function dfrn_poll_post(App $a)
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
 				dbesc($sec)
 			);
-			if (!DBA::is_result($r)) {
+			if (!DBA::isResult($r)) {
 				System::xmlExit(3, 'No ticket');
 				// NOTREACHED
 			}
@@ -251,7 +251,7 @@ function dfrn_poll_post(App $a)
 			$c = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 				intval($r[0]['cid'])
 			);
-			if (!DBA::is_result($c)) {
+			if (!DBA::isResult($c)) {
 				System::xmlExit(3, 'No profile');
 			}
 
@@ -300,7 +300,7 @@ function dfrn_poll_post(App $a)
 		dbesc($challenge)
 	);
 
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		killme();
 	}
 
@@ -329,7 +329,7 @@ function dfrn_poll_post(App $a)
 	}
 
 	$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1");
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		killme();
 	}
 
@@ -345,7 +345,7 @@ function dfrn_poll_post(App $a)
 		$reputation = 0;
 		$text = '';
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$reputation = $r[0]['rating'];
 			$text = $r[0]['reason'];
 
@@ -457,7 +457,7 @@ function dfrn_poll_content(App $a)
 			AND `user`.`nickname` = '%s' $sql_extra LIMIT 1",
 			dbesc($nickname)
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$challenge = '';
 			$encrypted_id = '';
 			$id_str = $my_id . '.' . mt_rand(1000, 9999);
@@ -498,7 +498,7 @@ function dfrn_poll_content(App $a)
 				]);
 			}
 
-			$profile = ((DBA::is_result($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
+			$profile = ((DBA::isResult($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);
 
 			switch ($destination_url) {
 				case 'profile':

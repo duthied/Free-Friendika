@@ -132,7 +132,7 @@ class DFRN
 			dbesc($owner_nick)
 		);
 
-		if (! DBA::is_result($r)) {
+		if (! DBA::isResult($r)) {
 			logger(sprintf('No contact found for nickname=%d', $owner_nick), LOGGER_WARNING);
 			killme();
 		}
@@ -168,7 +168,7 @@ class DFRN
 				intval($owner_id)
 			);
 
-			if (! DBA::is_result($r)) {
+			if (! DBA::isResult($r)) {
 				logger(sprintf('No contact found for uid=%d', $owner_id), LOGGER_WARNING);
 				killme();
 			}
@@ -277,7 +277,7 @@ class DFRN
 		/// @TODO This hook can't work anymore
 		//	Addon::callHooks('atom_feed', $atom);
 
-		if (!DBA::is_result($items) || $onlyheader) {
+		if (!DBA::isResult($items) || $onlyheader) {
 			$atom = trim($doc->saveXML());
 
 			Addon::callHooks('atom_feed_end', $atom);
@@ -332,7 +332,7 @@ class DFRN
 
 		$ret = Item::select(Item::DELIVER_FIELDLIST, $condition);
 		$items = Item::inArray($ret);
-		if (!DBA::is_result($items)) {
+		if (!DBA::isResult($items)) {
 			killme();
 		}
 
@@ -598,7 +598,7 @@ class DFRN
 				WHERE (`hidewall` OR NOT `net-publish`) AND `user`.`uid` = %d",
 			intval($owner['uid'])
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$hidewall = true;
 		} else {
 			$hidewall = false;
@@ -657,7 +657,7 @@ class DFRN
 				WHERE `profile`.`is-default` AND NOT `user`.`hidewall` AND `user`.`uid` = %d",
 			intval($owner['uid'])
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$profile = $r[0];
 
 			XML::addElement($doc, $author, "poco:displayName", $profile["name"]);
@@ -952,7 +952,7 @@ class DFRN
 
 		if (isset($parent_item)) {
 			$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $item['parent-uri']]);
-			if (DBA::is_result($conversation)) {
+			if (DBA::isResult($conversation)) {
 				if ($conversation['conversation-uri'] != '') {
 					$conversation_uri = $conversation['conversation-uri'];
 				}
@@ -1076,7 +1076,7 @@ class DFRN
 				dbesc(normalise_link($mention))
 			);
 
-			if (DBA::is_result($r) && ($r[0]["forum"] || $r[0]["prv"])) {
+			if (DBA::isResult($r) && ($r[0]["forum"] || $r[0]["prv"])) {
 				XML::addElement(
 					$doc,
 					$entry,
@@ -1502,7 +1502,7 @@ class DFRN
 			dbesc('birthday')
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return;
 		}
 
@@ -1551,7 +1551,7 @@ class DFRN
 			$importer["importer_uid"], normalise_link($author["link"]), NETWORK_STATUSNET];
 		$contact_old = DBA::selectFirst('contact', $fields, $condition);
 
-		if (DBA::is_result($contact_old)) {
+		if (DBA::isResult($contact_old)) {
 			$author["contact-id"] = $contact_old["id"];
 			$author["network"] = $contact_old["network"];
 		} else {
@@ -1594,7 +1594,7 @@ class DFRN
 			$author["avatar"] = current($avatarlist);
 		}
 
-		if (DBA::is_result($contact_old) && !$onlyfetch) {
+		if (DBA::isResult($contact_old) && !$onlyfetch) {
 			logger("Check if contact details for contact " . $contact_old["id"] . " (" . $contact_old["nick"] . ") have to be updated.", LOGGER_DEBUG);
 
 			$poco = ["url" => $contact_old["url"]];
@@ -1926,7 +1926,7 @@ class DFRN
 		 *
 		 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
 		 */
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return false;
 		}
 
@@ -1939,7 +1939,7 @@ class DFRN
 			dbesc($suggest["name"]),
 			dbesc($suggest["request"])
 		);
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$fid = $r[0]["id"];
 
 			// OK, we do. Do we already have an introduction for this person ?
@@ -1956,7 +1956,7 @@ class DFRN
 			 *
 			 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
 			 */
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				return false;
 			}
 		}
@@ -1980,7 +1980,7 @@ class DFRN
 		 * If no record in fcontact is found, below INSERT statement will not
 		 * link an introduction to it.
 		 */
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			// Database record did not get created. Quietly give up.
 			killme();
 		}
@@ -2066,7 +2066,7 @@ class DFRN
 			intval($importer["importer_uid"])
 		);
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger("Query failed to execute, no result returned in " . __FUNCTION__);
 			return false;
 		}
@@ -2164,7 +2164,7 @@ class DFRN
 			$is_a_remote_action = false;
 
 			$parent = Item::selectFirst(['parent-uri'], ['uri' => $item["parent-uri"]]);
-			if (DBA::is_result($parent)) {
+			if (DBA::isResult($parent)) {
 				$r = q(
 					"SELECT `item`.`forum_mode`, `item`.`wall` FROM `item`
 					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
@@ -2177,7 +2177,7 @@ class DFRN
 					dbesc($parent["parent-uri"]),
 					intval($importer["importer_uid"])
 				);
-				if (DBA::is_result($r)) {
+				if (DBA::isResult($r)) {
 					$is_a_remote_action = true;
 				}
 			}
@@ -2336,7 +2336,7 @@ class DFRN
 				if ($xt->type == ACTIVITY_OBJ_NOTE) {
 					$item_tag = Item::selectFirst(['id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
 
-					if (!DBA::is_result($item_tag)) {
+					if (!DBA::isResult($item_tag)) {
 						logger("Query failed to execute, no result returned in " . __FUNCTION__);
 						return false;
 					}
@@ -2427,7 +2427,7 @@ class DFRN
 			['uri' => $item["uri"], 'uid' => $importer["importer_uid"]]
 		);
 		// Is there an existing item?
-		if (DBA::is_result($current) && !self::isEditedTimestampNewer($current, $item)) {
+		if (DBA::isResult($current) && !self::isEditedTimestampNewer($current, $item)) {
 			logger("Item ".$item["uri"]." (".$item['edited'].") already existed.", LOGGER_DEBUG);
 			return;
 		}
@@ -2648,7 +2648,7 @@ class DFRN
 						dbesc($item["uri"]),
 						intval($importer["importer_uid"])
 					);
-					if (DBA::is_result($r)) {
+					if (DBA::isResult($r)) {
 						$ev["id"] = $r[0]["id"];
 					}
 
@@ -2672,7 +2672,7 @@ class DFRN
 
 
 		// Update content if 'updated' changes
-		if (DBA::is_result($current)) {
+		if (DBA::isResult($current)) {
 			if (self::updateContent($current, $item, $importer, $entrytype)) {
 				logger("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
 			} else {
@@ -2764,7 +2764,7 @@ class DFRN
 
 		$condition = ['uri' => $uri, 'uid' => $importer["importer_uid"]];
 		$item = Item::selectFirst(['id', 'parent', 'contact-id', 'file', 'deleted'], $condition);
-		if (!DBA::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			logger("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.", LOGGER_DEBUG);
 			return;
 		}
@@ -2957,7 +2957,7 @@ class DFRN
 				dbesc($baseurl),
 				dbesc($nurl)
 			);
-			if ((! DBA::is_result($r)) || $r[0]['id'] == remote_user()) {
+			if ((! DBA::isResult($r)) || $r[0]['id'] == remote_user()) {
 				return;
 			}
 
@@ -2968,7 +2968,7 @@ class DFRN
 				intval(local_user()),
 				dbesc($baseurl)
 			);
-			if (! DBA::is_result($r)) {
+			if (! DBA::isResult($r)) {
 				return;
 			}
 
@@ -3035,7 +3035,7 @@ class DFRN
 		$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
 			intval($uid)
 		);
-		if (!DBA::is_result($u)) {
+		if (!DBA::isResult($u)) {
 			return false;
 		}
 

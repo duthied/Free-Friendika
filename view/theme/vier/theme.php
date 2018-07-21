@@ -147,7 +147,7 @@ function vier_community_info()
 		$r = GContact::suggestionQuery(local_user(), 0, 9);
 
 		$tpl = get_markup_template('ch_directory_item.tpl');
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$aside['$comunity_profiles_title'] = L10n::t('Community Profiles');
 			$aside['$comunity_profiles_items'] = [];
 
@@ -177,7 +177,7 @@ function vier_community_info()
 			9
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$aside['$lastusers_title'] = L10n::t('Last users');
 			$aside['$lastusers_items'] = [];
 
@@ -383,7 +383,7 @@ function vier_community_info()
 
 		$tpl = get_markup_template('ch_connectors.tpl');
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$con_services = [];
 			$con_services['title'] = ["", L10n::t('Connect Services'), "", ""];
 			$aside['$con_services'] = $con_services;

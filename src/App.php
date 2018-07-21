@@ -1396,7 +1396,7 @@ class App
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			$user = DBA::selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
-			if (DBA::is_result($user) && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
+			if (DBA::isResult($user) && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
 				$page_theme = $user['theme'];
 			}
 		}

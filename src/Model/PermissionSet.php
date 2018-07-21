@@ -30,7 +30,7 @@ class PermissionSet extends BaseObject
 
 		$set = DBA::selectFirst('permissionset', ['id'], $condition);
 
-		if (!DBA::is_result($set)) {
+		if (!DBA::isResult($set)) {
 			DBA::insert('permissionset', $condition, true);
 
 			$set = DBA::selectFirst('permissionset', ['id'], $condition);

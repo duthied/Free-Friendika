@@ -27,10 +27,10 @@ function fetch_init(App $a)
 		'event-id', 'resource-id', 'author-link', 'owner-link', 'attach'];
 	$condition = ['wall' => true, 'private' => false, 'guid' => $guid, 'network' => [NETWORK_DFRN, NETWORK_DIASPORA]];
 	$item = Item::selectFirst($fields, $condition);
-	if (!DBA::is_result($item)) {
+	if (!DBA::isResult($item)) {
 		$condition = ['guid' => $guid, 'network' => [NETWORK_DFRN, NETWORK_DIASPORA]];
 		$item = Item::selectFirst(['author-link'], $condition);
-		if (DBA::is_result($item)) {
+		if (DBA::isResult($item)) {
 			$parts = parse_url($item["author-link"]);
 			$host = $parts["scheme"]."://".$parts["host"];
 

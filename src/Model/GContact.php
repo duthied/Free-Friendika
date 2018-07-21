@@ -105,7 +105,7 @@ class GContact
 			intval($zcid)
 		);
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			q(
 				"INSERT INTO `glink` (`cid`, `uid`, `gcid`, `zcid`, `updated`) VALUES (%d, %d, %d, %d, '%s') ",
 				intval($cid),
@@ -179,7 +179,7 @@ class GContact
 				dbesc(normalise_link($gcontact['url'])),
 				dbesc(NETWORK_STATUSNET)
 			);
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$gcontact['network'] = $r[0]["network"];
 			}
 
@@ -190,7 +190,7 @@ class GContact
 					dbesc(normalise_link($gcontact['url'])),
 					dbesc(NETWORK_STATUSNET)
 				);
-				if (DBA::is_result($r)) {
+				if (DBA::isResult($r)) {
 					$gcontact['network'] = $r[0]["network"];
 				}
 			}
@@ -204,7 +204,7 @@ class GContact
 			dbesc(normalise_link($gcontact['url']))
 		);
 
-		if (DBA::is_result($x)) {
+		if (DBA::isResult($x)) {
 			if (!isset($gcontact['network']) && ($x[0]["network"] != NETWORK_STATUSNET)) {
 				$gcontact['network'] = $x[0]["network"];
 			}
@@ -289,7 +289,7 @@ class GContact
 		);
 
 		// logger("countCommonFriends: $uid $cid {$r[0]['total']}");
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return $r[0]['total'];
 		}
 		return 0;
@@ -311,7 +311,7 @@ class GContact
 			intval($uid)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return $r[0]['total'];
 		}
 
@@ -352,7 +352,7 @@ class GContact
 			intval($limit)
 		);
 
-		/// @TODO Check all calling-findings of this function if they properly use DBA::is_result()
+		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
 		return $r;
 	}
 
@@ -384,7 +384,7 @@ class GContact
 			intval($limit)
 		);
 
-		/// @TODO Check all calling-findings of this function if they properly use DBA::is_result()
+		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
 		return $r;
 	}
 
@@ -404,7 +404,7 @@ class GContact
 			intval($uid)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return $r[0]['total'];
 		}
 
@@ -435,7 +435,7 @@ class GContact
 			intval($limit)
 		);
 
-		/// @TODO Check all calling-findings of this function if they properly use DBA::is_result()
+		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
 		return $r;
 	}
 
@@ -495,7 +495,7 @@ class GContact
 			intval($limit)
 		);
 
-		if (DBA::is_result($r) && count($r) >= ($limit -1)) {
+		if (DBA::isResult($r) && count($r) >= ($limit -1)) {
 			/*
 			* Uncommented because the result of the queries are to big to store it in the cache.
 			* We need to decide if we want to change the db column type or if we want to delete it.
@@ -584,7 +584,7 @@ class GContact
 			dbesc(NETWORK_DIASPORA)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
 				$base = substr($rr['poco'], 0, strrpos($rr['poco'], '/'));
 				if (! in_array($base, $done)) {
@@ -693,7 +693,7 @@ class GContact
 			dbesc(normalise_link($contact["url"]))
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$gcontact_id = $r[0]["id"];
 
 			// Update every 90 days
@@ -728,7 +728,7 @@ class GContact
 				dbesc(normalise_link($contact["url"]))
 			);
 
-			if (DBA::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$gcontact_id = $r[0]["id"];
 
 				$doprobing = in_array($r[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, ""]);
@@ -877,7 +877,7 @@ class GContact
 			/// @todo Check if we really should do this.
 			// The quality of the gcontact table is mostly lower than the public contact
 			$public_contact = DBA::selectFirst('contact', ['id'], ['nurl' => normalise_link($contact["url"]), 'uid' => 0]);
-			if (DBA::is_result($public_contact)) {
+			if (DBA::isResult($public_contact)) {
 				logger("Update public contact ".$public_contact["id"], LOGGER_DEBUG);
 
 				Contact::updateAvatar($contact["photo"], 0, $public_contact["id"]);
@@ -1052,7 +1052,7 @@ class GContact
 			dbesc($last_update)
 		);
 
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return;
 		}
 
@@ -1075,7 +1075,7 @@ class GContact
 			dbesc(NETWORK_DFRN)
 		);
 
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return dirname($r[0]['url']);
 		}
 

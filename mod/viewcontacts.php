@@ -25,7 +25,7 @@ function viewcontacts_init(App $a)
 			dbesc($nick)
 		);
 
-		if (! DBA::is_result($r)) {
+		if (! DBA::isResult($r)) {
 			return;
 		}
 
@@ -67,7 +67,7 @@ function viewcontacts_content(App $a)
 		dbesc(NETWORK_DIASPORA),
 		dbesc(NETWORK_OSTATUS)
 	);
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$a->set_pager_total($r[0]['total']);
 	}
 
@@ -83,7 +83,7 @@ function viewcontacts_content(App $a)
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
-	if (!DBA::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		info(L10n::t('No contacts.').EOL);
 		return $o;
 	}

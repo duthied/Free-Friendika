@@ -92,7 +92,7 @@ class CronJobs
 	private static function updatePhotoAlbums()
 	{
 		$r = q("SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`");
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return;
 		}
 
@@ -230,7 +230,7 @@ class CronJobs
 		$r = q("SELECT `id`, `url` FROM `contact`
 			WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
 				ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return;
 		}
 
@@ -265,7 +265,7 @@ class CronJobs
 		// Sometimes there seem to be issues where the "self" contact vanishes.
 		// We haven't found the origin of the problem by now.
 		$r = q("SELECT `uid` FROM `user` WHERE NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)");
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r AS $user) {
 				logger('Create missing self contact for user ' . $user['uid']);
 				Contact::createSelfFromUserId($user['uid']);
@@ -281,7 +281,7 @@ class CronJobs
 
 		// Update the global contacts for local users
 		$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
-		if (DBA::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r AS $user) {
 				GContact::updateForUser($user["uid"]);
 			}

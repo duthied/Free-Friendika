@@ -58,7 +58,7 @@ class Term
 
 		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'parent'];
 		$message = Item::selectFirst($fields, ['id' => $itemid]);
-		if (!DBA::is_result($message)) {
+		if (!DBA::isResult($message)) {
 			return;
 		}
 
@@ -166,7 +166,7 @@ class Term
 	public static function insertFromFileFieldByItemId($itemid, $files)
 	{
 		$message = Item::selectFirst(['uid', 'deleted'], ['id' => $itemid]);
-		if (!DBA::is_result($message)) {
+		if (!DBA::isResult($message)) {
 			return;
 		}
 

@@ -55,7 +55,7 @@ class User
 			LIMIT 1",
 			$uid
 		);
-		if (!DBA::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		return $r;
@@ -70,7 +70,7 @@ class User
 	public static function getOwnerDataByNick($nick)
 	{
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (!DBA::is_result($user)) {
+		if (!DBA::isResult($user)) {
 			return false;
 		}
 		return self::getOwnerDataById($user['uid']);
@@ -98,7 +98,7 @@ class User
 
 		$user = DBA::selectFirst('user', ['def_gid'], ['uid' => $uid]);
 
-		if (DBA::is_result($user)) {
+		if (DBA::isResult($user)) {
 			$default_group = $user["def_gid"];
 		}
 
@@ -214,7 +214,7 @@ class User
 				$user = DBA::selectFirst('user', $fields, $condition);
 			}
 
-			if (!DBA::is_result($user)) {
+			if (!DBA::isResult($user)) {
 				throw new Exception(L10n::t('User not found'));
 			}
 		}

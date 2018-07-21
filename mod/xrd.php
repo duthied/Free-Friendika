@@ -39,7 +39,7 @@ function xrd_init(App $a)
 	}
 
 	$user = DBA::selectFirst('user', [], ['nickname' => $name]);
-	if (!DBA::is_result($user)) {
+	if (!DBA::isResult($user)) {
 		killme();
 	}
 

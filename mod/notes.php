@@ -69,7 +69,7 @@ function notes_content(App $a, $update = false)
 
 	$count = 0;
 
-	if (DBA::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$count = count($r);
 		$parents_arr = [];
 
@@ -81,7 +81,7 @@ function notes_content(App $a, $update = false)
 		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
 		$result = Item::selectForUser(local_user(), [], $condition);
 
-		if (DBA::is_result($result)) {
+		if (DBA::isResult($result)) {
 			$items = conv_sort(Item::inArray($result), 'commented');
 			$o .= conversation($a, $items, 'notes', $update);
 		}

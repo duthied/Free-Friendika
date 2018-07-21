@@ -64,7 +64,7 @@ function notify_content(App $a)
 	$not_tpl = get_markup_template('notify.tpl');
 
 	$r = $nm->getAll(['seen'=>0]);
-	if (DBA::is_result($r) > 0) {
+	if (DBA::isResult($r) > 0) {
 		foreach ($r as $it) {
 			$notif_content .= replace_macros($not_tpl, [
 				'$item_link' => System::baseUrl(true).'/notify/view/'. $it['id'],

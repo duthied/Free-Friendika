@@ -24,7 +24,7 @@ function redir_init(App $a) {
 	if (!empty($cid)) {
 		$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name', 'network', 'poll', 'issued-id', 'dfrn-id', 'duplex'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, local_user()]]);
-		if (!DBA::is_result($contact)) {
+		if (!DBA::isResult($contact)) {
 			notice(L10n::t('Contact not found.'));
 			goaway(System::baseUrl());
 		}
@@ -43,7 +43,7 @@ function redir_init(App $a) {
 			// between the puplic contact we have found and the local user.
 			$contact = DBA::selectFirst('contact', $fields, ['nurl' => $contact['nurl'], 'uid' => local_user()]);
 
-			if (DBA::is_result($contact)) {
+			if (DBA::isResult($contact)) {
 				$cid = $contact['id'];
 			}
 

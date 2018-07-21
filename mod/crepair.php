@@ -27,7 +27,7 @@ function crepair_init(App $a)
 		$a->page['aside'] = '';
 	}
 
-	if (DBA::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		$a->data['contact'] = $contact;
 		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	}
@@ -46,7 +46,7 @@ function crepair_post(App $a)
 		$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBA::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		return;
 	}
 
@@ -107,7 +107,7 @@ function crepair_content(App $a)
 		$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBA::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		notice(L10n::t('Contact not found.') . EOL);
 		return;
 	}
