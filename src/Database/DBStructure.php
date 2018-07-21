@@ -8,6 +8,7 @@ use Exception;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -207,7 +208,7 @@ class DBStructure
 	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null) {
 		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DBM::date().' '.date('e')));
+			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DateTimeFormat::utcNow().' '.date('e')));
 		}
 
 		$errors = '';
@@ -469,7 +470,7 @@ class DBStructure
 
 				if ($action) {
 					if (!$install) {
-						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
+						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DateTimeFormat::utcNow().' '.date('e'), $name));
 					}
 
 					// Ensure index conversion to unique removes duplicates

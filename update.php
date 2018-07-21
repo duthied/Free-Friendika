@@ -10,6 +10,7 @@ use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 
 require_once 'include/dba.php';
 
@@ -191,7 +192,7 @@ WHERE `hook` LIKE 'plugin_%'");
 
 function update_1260() {
 	Config::set('system', 'maintenance', 1);
-	Config::set('system', 'maintenance_reason', L10n::t('%s: Updating author-id and owner-id in item and thread table. ', DBM::date().' '.date('e')));
+	Config::set('system', 'maintenance_reason', L10n::t('%s: Updating author-id and owner-id in item and thread table. ', DateTimeFormat::utcNow().' '.date('e')));
 
 	$items = DBA::p("SELECT `id`, `owner-link`, `owner-name`, `owner-avatar`, `network` FROM `item`
 		WHERE `owner-id` = 0 AND `owner-link` != ''");
@@ -237,7 +238,7 @@ function update_1261() {
 
 function update_1278() {
 	Config::set('system', 'maintenance', 1);
-	Config::set('system', 'maintenance_reason', L10n::t('%s: Updating post-type.', DBM::date().' '.date('e')));
+	Config::set('system', 'maintenance_reason', L10n::t('%s: Updating post-type.', DateTimeFormat::utcNow().' '.date('e')));
 
 	Item::update(['post-type' => Item::PT_PAGE], ['bookmark' => true]);
 	Item::update(['post-type' => Item::PT_PERSONAL_NOTE], ['type' => 'note']);

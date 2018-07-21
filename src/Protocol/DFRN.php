@@ -1748,7 +1748,7 @@ class DFRN
 					dbesc($contact["name"]), dbesc($contact["nick"]), dbesc($contact["about"]),	dbesc($contact["location"]),
 					dbesc($contact["addr"]), dbesc($contact["keywords"]), dbesc($contact["bdyear"]),
 					dbesc($contact["bd"]), intval($contact["hidden"]), dbesc($contact["xmpp"]),
-					dbesc(DBM::date($contact["name-date"])), dbesc(DBM::date($contact["uri-date"])),
+					dbesc(DateTimeFormat::utc($contact["name-date"])), dbesc(DateTimeFormat::utc($contact["uri-date"])),
 					intval($contact["id"]),	dbesc($contact["network"])
 				);
 			}

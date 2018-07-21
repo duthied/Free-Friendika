@@ -815,7 +815,7 @@ class GContact
 		self::fixAlternateContactAddress($contact);
 
 		if (!isset($contact["updated"])) {
-			$contact["updated"] = DBM::date();
+			$contact["updated"] = DateTimeFormat::utcNow();
 		}
 
 		if ($contact["network"] == NETWORK_TWITTER) {
@@ -858,7 +858,7 @@ class GContact
 			logger("Update gcontact for ".$contact["url"], LOGGER_DEBUG);
 			$condition = ['`nurl` = ? AND (`generation` = 0 OR `generation` >= ?)',
 					normalise_link($contact["url"]), $contact["generation"]];
-			$contact["updated"] = DBM::date($contact["updated"]);
+			$contact["updated"] = DateTimeFormat::utc($contact["updated"]);
 
 			$updated = ['photo' => $contact['photo'], 'name' => $contact['name'],
 					'nick' => $contact['nick'], 'addr' => $contact['addr'],

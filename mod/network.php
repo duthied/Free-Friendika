@@ -480,9 +480,9 @@ function networkThreadedView(App $a, $update, $parent)
 	$rawmode = (isset($_GET['mode']) AND ( $_GET['mode'] == 'raw'));
 
 	if (isset($_GET['last_received']) && isset($_GET['last_commented']) && isset($_GET['last_created']) && isset($_GET['last_id'])) {
-		$last_received = DBM::date($_GET['last_received']);
-		$last_commented = DBM::date($_GET['last_commented']);
-		$last_created = DBM::date($_GET['last_created']);
+		$last_received = DateTimeFormat::utc($_GET['last_received']);
+		$last_commented = DateTimeFormat::utc($_GET['last_commented']);
+		$last_created = DateTimeFormat::utc($_GET['last_created']);
 		$last_id = intval($_GET['last_id']);
 	} else {
 		$last_received = '';

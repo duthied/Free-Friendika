@@ -411,7 +411,7 @@ class Probe
 					}
 				}
 
-				$fields['updated'] = DBM::date();
+				$fields['updated'] = DateTimeFormat::utcNow();
 
 				$condition = ['nurl' => normalise_link($data["url"])];
 

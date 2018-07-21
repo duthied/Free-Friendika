@@ -6,6 +6,7 @@ namespace Friendica\Model;
 
 use Friendica\Database\DBA;
 use Friendica\Database\DBM;
+use Friendica\Util\DateTimeFormat;
 
 require_once "include/dba.php";
 
@@ -27,7 +28,7 @@ class Conversation
 	 */
 	public static function insert($arr) {
 		if (in_array(defaults($arr, 'network', NETWORK_PHANTOM), [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]) && !empty($arr['uri'])) {
-			$conversation = ['item-uri' => $arr['uri'], 'received' => DBM::date()];
+			$conversation = ['item-uri' => $arr['uri'], 'received' => DateTimeFormat::utcNow()];
 
 			if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
 				$conversation['reply-to-uri'] = $arr['parent-uri'];
