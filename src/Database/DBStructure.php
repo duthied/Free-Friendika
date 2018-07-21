@@ -26,7 +26,7 @@ class DBStructure
 	 */
 	public static function convertToInnoDB() {
 		$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
-			dbesc(DBA::database_name()));
+			dbesc(DBA::databaseName()));
 
 		if (!DBM::is_result($r)) {
 			echo L10n::t('There are no tables on MyISAM.')."\n";

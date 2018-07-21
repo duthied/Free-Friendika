@@ -183,7 +183,7 @@ class DBA
 	 *
 	 * @return string
 	 */
-	public static function database_name() {
+	public static function databaseName() {
 		$ret = self::p("SELECT DATABASE() AS `db`");
 		$data = self::inArray($ret);
 		return $data[0]['db'];

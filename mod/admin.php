@@ -816,7 +816,7 @@ function admin_page_workerqueue(App $a)
 function admin_page_summary(App $a)
 {
 	// are there MyISAM tables in the DB? If so, trigger a warning message
-	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(DBA::database_name()));
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(DBA::databaseName()));
 	$showwarning = false;
 	$warningtext = [];
 	if (DBM::is_result($r)) {
