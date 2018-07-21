@@ -272,7 +272,7 @@ class Item extends BaseObject
 		if (is_bool($stmt)) {
 			$retval = $stmt;
 		} else {
-			$retval = (DBA::num_rows($stmt) > 0);
+			$retval = (DBA::numRows($stmt) > 0);
 		}
 
 		DBA::close($stmt);

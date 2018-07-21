@@ -498,7 +498,7 @@ class Worker
 		// The processlist only shows entries of the current user
 		if ($max != 0) {
 			$r = DBA::p('SHOW PROCESSLIST');
-			$used = DBA::num_rows($r);
+			$used = DBA::numRows($r);
 			DBA::close($r);
 
 			logger("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);

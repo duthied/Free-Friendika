@@ -666,7 +666,7 @@ class DBA
 		if (is_bool($stmt)) {
 			$retval = $stmt;
 		} else {
-			$retval = (self::num_rows($stmt) > 0);
+			$retval = (self::numRows($stmt) > 0);
 		}
 
 		self::close($stmt);
@@ -732,7 +732,7 @@ class DBA
 	 * @param PDOStatement|mysqli_result|mysqli_stmt Statement object
 	 * @return int Number of rows
 	 */
-	public static function num_rows($stmt) {
+	public static function numRows($stmt) {
 		if (!is_object($stmt)) {
 			return 0;
 		}
