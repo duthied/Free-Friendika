@@ -11,7 +11,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Network\Probe;
@@ -113,7 +112,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 			$search2 = "%".$search."%";
 
-			/// @TODO These 2 SELECTs are not checked on validity with DBM::is_result()
+			/// @TODO These 2 SELECTs are not checked on validity with DBA::is_result()
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
 					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s') AND
 						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
@@ -204,7 +203,7 @@ function dirfind_content(App $a, $prefix = "") {
 					$connlnk = "";
 					$conntxt = "";
 					$contact = DBA::selectFirst('contact', [], ['id' => $jj->cid]);
-					if (DBM::is_result($contact)) {
+					if (DBA::is_result($contact)) {
 						$photo_menu = Contact::photoMenu($contact);
 						$details = _contact_detail_for_template($contact);
 						$alt_text = $details['alt_text'];

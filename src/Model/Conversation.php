@@ -5,7 +5,6 @@
 namespace Friendica\Model;
 
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
 require_once "include/dba.php";
@@ -55,7 +54,7 @@ class Conversation
 
 			$fields = ['item-uri', 'reply-to-uri', 'conversation-uri', 'conversation-href', 'protocol', 'source'];
 			$old_conv = DBA::selectFirst('conversation', $fields, ['item-uri' => $conversation['item-uri']]);
-			if (DBM::is_result($old_conv)) {
+			if (DBA::is_result($old_conv)) {
 				// Don't update when only the source has changed.
 				// Only do this when there had been no source before.
 				if ($old_conv['source'] != '') {

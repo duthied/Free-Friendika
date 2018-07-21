@@ -3,7 +3,6 @@ namespace Friendica\Core\Config;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'include/dba.php';
 
@@ -57,7 +56,7 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 		}
 
 		$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
-		if (DBM::is_result($config)) {
+		if (DBA::is_result($config)) {
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 

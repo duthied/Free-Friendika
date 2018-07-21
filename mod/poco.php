@@ -9,7 +9,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 
@@ -25,7 +25,7 @@ function poco_init(App $a) {
 	}
 	if (empty($user)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
-		if (!DBM::is_result($c)) {
+		if (!DBA::is_result($c)) {
 			System::httpExit(401);
 		}
 		$system_mode = true;
@@ -67,7 +67,7 @@ function poco_init(App $a) {
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
 			dbesc($user)
 		);
-		if (! DBM::is_result($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
+		if (! DBA::is_result($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
 			System::httpExit(404);
 		}
 
@@ -107,7 +107,7 @@ function poco_init(App $a) {
 			dbesc(NETWORK_STATUSNET)
 		);
 	}
-	if (DBM::is_result($contacts)) {
+	if (DBA::is_result($contacts)) {
 		$totalResults = intval($contacts[0]['total']);
 	} else {
 		$totalResults = 0;
@@ -203,7 +203,7 @@ function poco_init(App $a) {
 	}
 
 	if (is_array($contacts)) {
-		if (DBM::is_result($contacts)) {
+		if (DBA::is_result($contacts)) {
 			foreach ($contacts as $contact) {
 				if (!isset($contact['updated'])) {
 					$contact['updated'] = '';

@@ -18,7 +18,6 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 
@@ -96,7 +95,7 @@ if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
 	// we haven't loaded user data yet, but we need user language
 	$user = DBA::selectFirst('user', ['language'], ['uid' => $_SESSION['uid']]);
 	$_SESSION['language'] = $lang;
-	if (DBM::is_result($user)) {
+	if (DBA::is_result($user)) {
 		$_SESSION['language'] = $user['language'];
 	}
 }

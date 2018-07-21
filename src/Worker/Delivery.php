@@ -9,7 +9,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Queue;
@@ -40,14 +39,14 @@ class Delivery extends BaseObject
 
 		if ($cmd == self::MAIL) {
 			$target_item = DBA::selectFirst('mail', [], ['id' => $item_id]);
-			if (!DBM::is_result($target_item)) {
+			if (!DBA::is_result($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
 			$items = [];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $item_id]);
-			if (!DBM::is_result($target_item)) {
+			if (!DBA::is_result($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
@@ -55,7 +54,7 @@ class Delivery extends BaseObject
 			$uid = $item_id;
 		} else {
 			$item = Item::selectFirst(['parent'], ['id' => $item_id]);
-			if (!DBM::is_result($item) || empty($item['parent'])) {
+			if (!DBA::is_result($item) || empty($item['parent'])) {
 				return;
 			}
 			$parent_id = intval($item['parent']);
@@ -133,7 +132,7 @@ class Delivery extends BaseObject
 		}
 
 		$owner = User::getOwnerDataById($uid);
-		if (!DBM::is_result($owner)) {
+		if (!DBA::is_result($owner)) {
 			return;
 		}
 
@@ -141,7 +140,7 @@ class Delivery extends BaseObject
 		$contact = DBA::selectFirst('contact', [],
 			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
-		if (!DBM::is_result($contact)) {
+		if (!DBA::is_result($contact)) {
 			return;
 		}
 
@@ -238,7 +237,7 @@ class Delivery extends BaseObject
 		if (link_compare($basepath, System::baseUrl())) {
 			$condition = ['nurl' => normalise_link($contact['url']), 'self' => true];
 			$target_self = DBA::selectFirst('contact', ['uid'], $condition);
-			if (!DBM::is_result($target_self)) {
+			if (!DBA::is_result($target_self)) {
 				return;
 			}
 			$target_uid = $target_self['uid'];
@@ -260,7 +259,7 @@ class Delivery extends BaseObject
 							$cid);
 
 			// This should never fail
-			if (!DBM::is_result($target_importer)) {
+			if (!DBA::is_result($target_importer)) {
 				return;
 			}
 
@@ -405,7 +404,7 @@ class Delivery extends BaseObject
 		}
 
 		$local_user = DBA::selectFirst('user', [], ['uid' => $owner['uid']]);
-		if (!DBM::is_result($local_user)) {
+		if (!DBA::is_result($local_user)) {
 			return;
 		}
 
@@ -413,7 +412,7 @@ class Delivery extends BaseObject
 
 		$reply_to = '';
 		$mailacct = DBA::selectFirst('mailacct', ['reply_to'], ['uid' => $owner['uid']]);
-		if (DBM::is_result($mailacct) && !empty($mailacct['reply_to'])) {
+		if (DBA::is_result($mailacct) && !empty($mailacct['reply_to'])) {
 			$reply_to = $mailacct['reply_to'];
 		}
 
@@ -446,12 +445,12 @@ class Delivery extends BaseObject
 			if (empty($target_item['title'])) {
 				$condition = ['uri' => $target_item['parent-uri'], 'uid' => $owner['uid']];
 				$title = Item::selectFirst(['title'], $condition);
-				if (DBM::is_result($title) && ($title['title'] != '')) {
+				if (DBA::is_result($title) && ($title['title'] != '')) {
 					$subject = $title['title'];
 				} else {
 					$condition = ['parent-uri' => $target_item['parent-uri'], 'uid' => $owner['uid']];
 					$title = Item::selectFirst(['title'], $condition);
-					if (DBM::is_result($title) && ($title['title'] != '')) {
+					if (DBA::is_result($title) && ($title['title'] != '')) {
 						$subject = $title['title'];
 					}
 				}

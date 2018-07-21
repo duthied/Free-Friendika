@@ -11,7 +11,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Item;
 
 require_once 'include/security.php';
@@ -30,7 +29,7 @@ function search_saved_searches() {
 		intval(local_user())
 	);
 
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		$saved = [];
 		foreach ($r as $rr) {
 			$saved[] = [
@@ -68,7 +67,7 @@ function search_init(App $a) {
 				intval(local_user()),
 				dbesc($search)
 			);
-			if (!DBM::is_result($r)) {
+			if (!DBA::is_result($r)) {
 				DBA::insert('search', ['uid' => local_user(), 'term' => $search]);
 			}
 		}
@@ -237,7 +236,7 @@ function search_content(App $a) {
 		$r = Item::inArray($items);
 	}
 
-	if (!DBM::is_result($r)) {
+	if (!DBA::is_result($r)) {
 		info(L10n::t('No results.') . EOL);
 		return $o;
 	}

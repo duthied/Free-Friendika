@@ -7,7 +7,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\OpenWebAuthToken;
 use Friendica\Util\HTTPSignature;
@@ -52,7 +51,7 @@ class Owa extends BaseModule
 
 						$contact = DBA::selectFirst('contact', $fields, $condition);
 
-						if (DBM::is_result($contact)) {
+						if (DBA::is_result($contact)) {
 							// Try to verify the signed header with the public key of the contact record
 							// we have found.
 							$verified = HTTPSignature::verify('', $contact['pubkey']);

@@ -8,7 +8,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
 
@@ -21,7 +20,7 @@ function wall_attach_post(App $a) {
 		$r = q("SELECT `user`.*, `contact`.`id` FROM `user` LEFT JOIN `contact` on `user`.`uid` = `contact`.`uid`  WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0 and `contact`.`self` = 1 LIMIT 1",
 			dbesc($nick)
 		);
-		if (! DBM::is_result($r)) {
+		if (! DBA::is_result($r)) {
 			if ($r_json) {
 				echo json_encode(['error'=>L10n::t('Invalid request.')]);
 				killme();
@@ -64,7 +63,7 @@ function wall_attach_post(App $a) {
 					intval($contact_id),
 					intval($page_owner_uid)
 				);
-				if (DBM::is_result($r)) {
+				if (DBA::is_result($r)) {
 					$can_post = true;
 					$visitor = $contact_id;
 				}
@@ -150,7 +149,7 @@ function wall_attach_post(App $a) {
 		dbesc($hash)
 	);
 
-	if (! DBM::is_result($r)) {
+	if (! DBA::is_result($r)) {
 		$msg = L10n::t('File upload failed.');
 		if ($r_json) {
 			echo json_encode(['error'=>$msg]);

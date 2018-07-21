@@ -5,7 +5,7 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 
@@ -29,7 +29,7 @@ function wallmessage_post(App $a) {
 		dbesc($recipient)
 	);
 
-	if (! DBM::is_result($r)) {
+	if (! DBA::is_result($r)) {
 		logger('wallmessage: no recipient');
 		return;
 	}
@@ -91,7 +91,7 @@ function wallmessage_content(App $a) {
 		dbesc($recipient)
 	);
 
-	if (! DBM::is_result($r)) {
+	if (! DBA::is_result($r)) {
 		notice(L10n::t('No recipient.') . EOL);
 		logger('wallmessage: no recipient');
 		return;

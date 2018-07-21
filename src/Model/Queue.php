@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/dba.php';
@@ -20,7 +19,7 @@ class Queue
 	{
 		logger('queue: requeue item ' . $id);
 		$queue = DBA::selectFirst('queue', ['retrial'], ['id' => $id]);
-		if (!DBM::is_result($queue)) {
+		if (!DBA::is_result($queue)) {
 			return;
 		}
 
@@ -61,7 +60,7 @@ class Queue
 			intval($cid)
 		);
 
-		$was_delayed = DBM::is_result($r);
+		$was_delayed = DBA::is_result($r);
 
 		// We set "term-date" to a current date if the communication has problems.
 		// If the communication works again we reset this value.
@@ -69,7 +68,7 @@ class Queue
 			$r = q("SELECT `term-date` FROM `contact` WHERE `id` = %d AND `term-date` <= '1000-01-01' LIMIT 1",
 				intval($cid)
 			);
-			$was_delayed = !DBM::is_result($r);
+			$was_delayed = !DBA::is_result($r);
 		}
 
 		return $was_delayed;
@@ -99,7 +98,7 @@ class Queue
 			intval($cid)
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			if ($batch &&  ($r[0]['total'] > $batch_queue)) {
 				logger('too many queued items for batch server ' . $cid . ' - discarding message');
 				return;

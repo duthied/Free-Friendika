@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'include/dba.php';
 
@@ -31,7 +30,7 @@ class PermissionSet extends BaseObject
 
 		$set = DBA::selectFirst('permissionset', ['id'], $condition);
 
-		if (!DBM::is_result($set)) {
+		if (!DBA::is_result($set)) {
 			DBA::insert('permissionset', $condition, true);
 
 			$set = DBA::selectFirst('permissionset', ['id'], $condition);

@@ -11,7 +11,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 
 require_once 'boot.php';
@@ -107,7 +106,7 @@ class Nav
 			// user info
 			$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
 			$userinfo = [
-				'icon' => (DBM::is_result($contact) ? $a->remove_baseurl($contact['micro']) : 'images/person-48.jpg'),
+				'icon' => (DBA::is_result($contact) ? $a->remove_baseurl($contact['micro']) : 'images/person-48.jpg'),
 				'name' => $a->user['username'],
 			];
 		} else {

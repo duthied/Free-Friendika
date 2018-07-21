@@ -9,7 +9,6 @@ namespace Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'include/dba.php';
 require_once 'include/security.php';
@@ -99,7 +98,7 @@ class TagCloud
 			$type,
 			TERM_OBJ_POST
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			return [];
 		}
 

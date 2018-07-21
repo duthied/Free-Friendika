@@ -7,7 +7,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
 require_once 'include/security.php';
@@ -34,7 +34,7 @@ function tagger_content(App $a) {
 
 	$item = Item::selectFirst([], ['id' => $item_id]);
 
-	if (!$item_id || !DBM::is_result($item)) {
+	if (!$item_id || !DBA::is_result($item)) {
 		logger('tagger: no item ' . $item_id);
 		return;
 	}
@@ -46,7 +46,7 @@ function tagger_content(App $a) {
 	$r = q("select `nickname`,`blocktags` from user where uid = %d limit 1",
 		intval($owner_uid)
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		$owner_nick = $r[0]['nickname'];
 		$blocktags = $r[0]['blocktags'];
 	}
@@ -58,7 +58,7 @@ function tagger_content(App $a) {
 	$r = q("select * from contact where self = 1 and uid = %d limit 1",
 		intval(local_user())
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 			$contact = $r[0];
 	} else {
 		logger('tagger: no contact_id');
@@ -175,7 +175,7 @@ EOT;
 
 	// if the original post is on this site, update it.
 	$original_item = Item::selectFirst(['tag', 'id', 'uid'], ['origin' => true, 'uri' => $item['uri']]);
-	if (DBM::is_result($original_item)) {
+	if (DBA::is_result($original_item)) {
 		$x = q("SELECT `blocktags` FROM `user` WHERE `uid`=%d LIMIT 1",
 			intval($original_item['uid'])
 		);
@@ -184,7 +184,7 @@ EOT;
 			dbesc($term)
 		);
 
-		if (DBM::is_result($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
+		if (DBA::is_result($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
 			q("INSERT INTO term (`oid`, `otype`, `type`, `term`, `url`, `uid`) VALUE (%d, %d, %d, '%s', '%s', %d)",
 				intval($original_item['id']),
 				$term_objtype,

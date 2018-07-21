@@ -12,7 +12,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
@@ -180,7 +179,7 @@ class Post extends BaseObject
 			/// @todo This shouldn't be done as query here, but better during the data creation.
 			// it is now done here, since during the RC phase we shouldn't make to intense changes.
 			$parent = Item::selectFirst(['origin'], ['id' => $item['parent']]);
-			if (DBM::is_result($parent)) {
+			if (DBA::is_result($parent)) {
 				$origin = $parent['origin'];
 			}
 		}
@@ -265,7 +264,7 @@ class Post extends BaseObject
 				];
 
 				$thread = DBA::selectFirst('thread', ['ignored'], ['uid' => $item['uid'], 'iid' => $item['id']]);
-				if (DBM::is_result($thread)) {
+				if (DBA::is_result($thread)) {
 					$ignore = [
 						'do'        => L10n::t("ignore thread"),
 						'undo'      => L10n::t("unignore thread"),

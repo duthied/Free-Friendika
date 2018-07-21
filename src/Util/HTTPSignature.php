@@ -7,7 +7,6 @@ namespace Friendica\Util;
 
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -184,7 +183,7 @@ class HTTPSignature
 			$contact = DBA::selectFirst('contact', ['pubkey'], ['id' => $id, 'network' => 'activitypub']);
 		}
 
-		if (DBM::is_result($contact)) {
+		if (DBA::is_result($contact)) {
 			return $contact['pubkey'];
 		}
 

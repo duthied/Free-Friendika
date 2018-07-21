@@ -9,7 +9,7 @@ use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 
 function follow_post(App $a)
 {
@@ -104,7 +104,7 @@ function follow_content(App $a)
 		$ret['url'] = $ret['addr'];
 	}
 
-	if (($ret['network'] === NETWORK_DFRN) && !DBM::is_result($r)) {
+	if (($ret['network'] === NETWORK_DFRN) && !DBA::is_result($r)) {
 		$request = $ret['request'];
 		$tpl = get_markup_template('dfrn_request.tpl');
 	} else {

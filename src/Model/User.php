@@ -14,7 +14,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -56,7 +55,7 @@ class User
 			LIMIT 1",
 			$uid
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			return false;
 		}
 		return $r;
@@ -71,7 +70,7 @@ class User
 	public static function getOwnerDataByNick($nick)
 	{
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (!DBM::is_result($user)) {
+		if (!DBA::is_result($user)) {
 			return false;
 		}
 		return self::getOwnerDataById($user['uid']);
@@ -99,7 +98,7 @@ class User
 
 		$user = DBA::selectFirst('user', ['def_gid'], ['uid' => $uid]);
 
-		if (DBM::is_result($user)) {
+		if (DBA::is_result($user)) {
 			$default_group = $user["def_gid"];
 		}
 
@@ -215,7 +214,7 @@ class User
 				$user = DBA::selectFirst('user', $fields, $condition);
 			}
 
-			if (!DBM::is_result($user)) {
+			if (!DBA::is_result($user)) {
 				throw new Exception(L10n::t('User not found'));
 			}
 		}

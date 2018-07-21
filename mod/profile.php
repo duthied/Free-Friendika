@@ -13,7 +13,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
@@ -31,7 +30,7 @@ function profile_init(App $a)
 		$which = htmlspecialchars($a->argv[1]);
 	} else {
 		$r = q("SELECT `nickname` FROM `user` WHERE `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 ORDER BY RAND() LIMIT 1");
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			goaway(System::baseUrl() . '/profile/' . $r[0]['nickname']);
 		} else {
 			logger('profile error: mod_profile ' . $a->query_string, LOGGER_DEBUG);
@@ -155,7 +154,7 @@ function profile_content(App $a, $update = 0)
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			$contact = $r[0];
 			$remote_contact = true;
 		}
@@ -250,7 +249,7 @@ function profile_content(App $a, $update = 0)
 			intval($a->profile['profile_uid']), intval(GRAVITY_ACTIVITY)
 		);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			return '';
 		}
 	} else {
@@ -281,7 +280,7 @@ function profile_content(App $a, $update = 0)
 			intval(PAGE_PRVGROUP)
 		);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
 		} else {
 			$sql_extra3 = "";
@@ -328,7 +327,7 @@ function profile_content(App $a, $update = 0)
 	// search for new items (update routine)
 	$_SESSION['last_updated'][$last_updated_key] = time();
 
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		foreach ($r as $rr) {
 			$parents_arr[] = $rr['item_id'];
 		}

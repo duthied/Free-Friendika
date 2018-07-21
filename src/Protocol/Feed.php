@@ -10,7 +10,7 @@ use DOMDocument;
 use DOMXPath;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
@@ -246,7 +246,7 @@ class Feed {
 				$condition = ["`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
 					$importer["uid"], $item["uri"], NETWORK_FEED, NETWORK_DFRN];
 				$previous = Item::selectFirst(['id'], $condition);
-				if (DBM::is_result($previous)) {
+				if (DBA::is_result($previous)) {
 					logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$previous["id"], LOGGER_DEBUG);
 					continue;
 				}

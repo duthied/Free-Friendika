@@ -9,7 +9,6 @@ use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 
@@ -70,7 +69,7 @@ function suggest_content(App $a) {
 
 	$r = GContact::suggestionQuery(local_user());
 
-	if (! DBM::is_result($r)) {
+	if (! DBA::is_result($r)) {
 		$o .= L10n::t('No suggestions available. If this is a new site, please try again in 24 hours.');
 		return $o;
 	}

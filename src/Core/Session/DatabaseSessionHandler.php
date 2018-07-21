@@ -5,7 +5,6 @@ namespace Friendica\Core\Session;
 use Friendica\BaseObject;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use SessionHandlerInterface;
 
 require_once 'boot.php';
@@ -31,7 +30,7 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 		}
 
 		$session = DBA::selectFirst('session', ['data'], ['sid' => $session_id]);
-		if (DBM::is_result($session)) {
+		if (DBA::is_result($session)) {
 			Session::$exists = true;
 			return $session['data'];
 		}

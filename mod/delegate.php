@@ -7,7 +7,6 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\User;
 
 require_once 'mod/settings.php';
@@ -35,7 +34,7 @@ function delegate_post(App $a)
 
 	if ($parent_uid != 0) {
 		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $parent_uid]);
-		if (!DBM::is_result($user)) {
+		if (!DBA::is_result($user)) {
 			notice(L10n::t('Parent user not found.') . EOL);
 			return;
 		}
@@ -66,7 +65,7 @@ function delegate_content(App $a)
 		$user_id = $a->argv[2];
 
 		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $user_id]);
-		if (DBM::is_result($user)) {
+		if (DBA::is_result($user)) {
 			$condition = [
 				'uid' => local_user(),
 				'nurl' => normalise_link(System::baseUrl() . '/profile/' . $user['nickname'])
@@ -93,7 +92,7 @@ function delegate_content(App $a)
 	$r = q("SELECT * FROM `user` WHERE `uid` IN (SELECT `uid` FROM `manage` WHERE `mid` = %d)",
 		intval(local_user())
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		$delegates = $r;
 	}
 
@@ -115,7 +114,7 @@ function delegate_content(App $a)
 		intval(local_user()),
 		dbesc(NETWORK_DFRN)
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		$nicknames = [];
 		foreach ($r as $rr) {
 			$nicknames[] = "'" . dbesc(basename($rr['nurl'])) . "'";
@@ -125,7 +124,7 @@ function delegate_content(App $a)
 
 		// get user records for all potential page delegates who are not already delegates or managers
 		$r = q("SELECT `uid`, `username`, `nickname` FROM `user` WHERE `nickname` IN ($nicks)");
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			foreach ($r as $rr) {
 				if (!in_array($rr['uid'], $uids)) {
 					$potentials[] = $rr;
@@ -140,7 +139,7 @@ function delegate_content(App $a)
 
 	$parent_user = null;
 
-	if (DBM::is_result($user)) {
+	if (DBA::is_result($user)) {
 		if (!DBA::exists('user', ['parent-uid' => local_user()])) {
 			$parent_uid = $user['parent-uid'];
 			$parents = [0 => L10n::t('No parent user')];

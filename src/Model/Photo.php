@@ -11,7 +11,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -42,7 +41,7 @@ class Photo
 	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '')
 	{
 		$photo = DBA::selectFirst('photo', ['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
-		if (DBM::is_result($photo)) {
+		if (DBA::is_result($photo)) {
 			$guid = $photo['guid'];
 		} else {
 			$guid = System::createGUID();
@@ -73,7 +72,7 @@ class Photo
 			'desc' => $desc
 		];
 
-		if (DBM::is_result($existing_photo)) {
+		if (DBA::is_result($existing_photo)) {
 			$r = DBA::update('photo', $fields, ['id' => $existing_photo['id']]);
 		} else {
 			$r = DBA::insert('photo', $fields);

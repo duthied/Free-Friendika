@@ -8,7 +8,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\User;
 
 require_once 'include/enotify.php';
@@ -40,7 +39,7 @@ function removeme_post(App $a)
 	$admin_mails = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 	foreach ($admin_mails as $mail) {
 		$admin = DBA::selectFirst('user', ['uid', 'language', 'email'], ['email' => $mail]);
-		if (!DBM::is_result($admin)) {
+		if (!DBA::is_result($admin)) {
 			continue;
 		}
 		notification([

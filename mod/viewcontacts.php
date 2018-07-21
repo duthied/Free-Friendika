@@ -7,7 +7,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
@@ -25,7 +25,7 @@ function viewcontacts_init(App $a)
 			dbesc($nick)
 		);
 
-		if (! DBM::is_result($r)) {
+		if (! DBA::is_result($r)) {
 			return;
 		}
 
@@ -67,7 +67,7 @@ function viewcontacts_content(App $a)
 		dbesc(NETWORK_DIASPORA),
 		dbesc(NETWORK_OSTATUS)
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		$a->set_pager_total($r[0]['total']);
 	}
 
@@ -83,7 +83,7 @@ function viewcontacts_content(App $a)
 		intval($a->pager['start']),
 		intval($a->pager['itemspage'])
 	);
-	if (!DBM::is_result($r)) {
+	if (!DBA::is_result($r)) {
 		info(L10n::t('No contacts.').EOL);
 		return $o;
 	}

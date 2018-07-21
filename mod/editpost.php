@@ -9,7 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\Item;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 
 function editpost_content(App $a) {
 
@@ -30,7 +30,7 @@ function editpost_content(App $a) {
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'type', 'body', 'title', 'file'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
-	if (!DBM::is_result($item)) {
+	if (!DBA::is_result($item)) {
 		notice(L10n::t('Item not found') . EOL);
 		return;
 	}
@@ -78,7 +78,7 @@ function editpost_content(App $a) {
 		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
 			intval(local_user())
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			$mail_enabled = true;
 			if (intval($r[0]['pubmail'])) {
 				$pubmail_enabled = true;

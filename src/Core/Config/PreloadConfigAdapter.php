@@ -5,7 +5,6 @@ namespace Friendica\Core\Config;
 use Exception;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'include/dba.php';
 
@@ -44,7 +43,7 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 	{
 		if ($refresh) {
 			$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
-			if (DBM::is_result($config)) {
+			if (DBA::is_result($config)) {
 				self::getApp()->setConfigValue($cat, $k, $config['v']);
 			}
 		}

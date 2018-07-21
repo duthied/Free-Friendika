@@ -6,7 +6,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -117,7 +116,7 @@ function update_1191() {
 	);
 
 	// convert old forumlist addon entries in new config entries
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		foreach ($r as $rr) {
 			$uid = $rr['uid'];
 			$family = $rr['cat'];

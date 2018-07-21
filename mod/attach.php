@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'include/dba.php';
 require_once 'include/security.php';
@@ -23,7 +22,7 @@ function attach_init(App $a)
 	// Check for existence, which will also provide us the owner uid
 
 	$r = DBA::selectFirst('attach', [], ['id' => $item_id]);
-	if (!DBM::is_result($r)) {
+	if (!DBA::is_result($r)) {
 		notice(L10n::t('Item was not found.'). EOL);
 		return;
 	}
@@ -36,7 +35,7 @@ function attach_init(App $a)
 		dbesc($item_id)
 	);
 
-	if (!DBM::is_result($r)) {
+	if (!DBA::is_result($r)) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}

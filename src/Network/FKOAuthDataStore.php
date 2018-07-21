@@ -11,7 +11,6 @@ namespace Friendica\Network;
 
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use OAuthConsumer;
 use OAuthDataStore;
 use OAuthToken;
@@ -45,7 +44,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$s = DBA::select('clients', ['client_id', 'pw', 'redirect_uri'], ['client_id' => $consumer_key]);
 		$r = DBA::toArray($s);
 
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			return new OAuthConsumer($r[0]['client_id'], $r[0]['pw'], $r[0]['redirect_uri']);
 		}
 
@@ -65,7 +64,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$s = DBA::select('tokens', ['id', 'secret', 'scope', 'expires', 'uid'], ['client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token]);
 		$r = DBA::toArray($s);
 
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			$ot = new OAuthToken($r[0]['id'], $r[0]['secret']);
 			$ot->scope = $r[0]['scope'];
 			$ot->expires = $r[0]['expires'];
@@ -86,7 +85,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	public function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
 		$token = DBA::selectFirst('tokens', ['id', 'secret'], ['client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp]);
-		if (DBM::is_result($token)) {
+		if (DBA::is_result($token)) {
 			return new OAuthToken($token['id'], $token['secret']);
 		}
 

@@ -216,7 +216,7 @@ class DBA
 		}
 
 		$r = self::p("EXPLAIN ".$query);
-		if (!DBM::is_result($r)) {
+		if (!self::is_result($r)) {
 			return;
 		}
 
@@ -269,7 +269,7 @@ class DBA
 		switch (self::$driver) {
 			case 'pdo':
 				$r = self::p("SELECT 1");
-				if (DBM::is_result($r)) {
+				if (self::is_result($r)) {
 					$row = self::toArray($r);
 					$connected = ($row[0]['1'] == '1');
 				}

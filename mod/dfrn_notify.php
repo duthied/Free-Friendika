@@ -10,7 +10,6 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
@@ -28,7 +27,7 @@ function dfrn_notify_post(App $a) {
 			$nick = defaults($a->argv, 1, '');
 
 			$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
-			if (!DBM::is_result($user)) {
+			if (!DBA::is_result($user)) {
 				System::httpExit(500);
 			}
 			dfrn_dispatch_private($user, $postdata);
@@ -108,7 +107,7 @@ function dfrn_notify_post(App $a) {
 		dbesc($a->argv[1])
 	);
 
-	if (!DBM::is_result($r)) {
+	if (!DBA::is_result($r)) {
 		logger('contact not found for dfrn_id ' . $dfrn_id);
 		System::xmlExit(3, 'Contact not found');
 		//NOTREACHED
@@ -221,7 +220,7 @@ function dfrn_dispatch_public($postdata)
 	$importer['importer_uid']  = 0;
 
 	// This should never fail
-	if (!DBM::is_result($importer)) {
+	if (!DBA::is_result($importer)) {
 		logger('Contact not found for address ' . $msg['author']);
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
@@ -258,7 +257,7 @@ function dfrn_dispatch_private($user, $postdata)
 					$cid);
 
 	// This should never fail
-	if (!DBM::is_result($importer)) {
+	if (!DBA::is_result($importer)) {
 		logger('Contact not found for address ' . $msg['author']);
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
@@ -335,7 +334,7 @@ function dfrn_notify_content(App $a) {
 				dbesc($a->argv[1])
 		);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			logger('No user data found for ' . $a->argv[1] . ' - SQL: ' . $sql_extra);
 			killme();
 		}

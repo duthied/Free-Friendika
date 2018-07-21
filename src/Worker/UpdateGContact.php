@@ -6,7 +6,7 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
@@ -24,7 +24,7 @@ class UpdateGContact
 
 		$r = q("SELECT * FROM `gcontact` WHERE `id` = %d", intval($contact_id));
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			return;
 		}
 

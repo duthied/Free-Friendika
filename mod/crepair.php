@@ -7,7 +7,6 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
@@ -28,7 +27,7 @@ function crepair_init(App $a)
 		$a->page['aside'] = '';
 	}
 
-	if (DBM::is_result($contact)) {
+	if (DBA::is_result($contact)) {
 		$a->data['contact'] = $contact;
 		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	}
@@ -47,7 +46,7 @@ function crepair_post(App $a)
 		$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBM::is_result($contact)) {
+	if (!DBA::is_result($contact)) {
 		return;
 	}
 
@@ -108,7 +107,7 @@ function crepair_content(App $a)
 		$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBM::is_result($contact)) {
+	if (!DBA::is_result($contact)) {
 		notice(L10n::t('Contact not found.') . EOL);
 		return;
 	}

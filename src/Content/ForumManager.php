@@ -9,7 +9,6 @@ use Friendica\Content\Feature;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 
 require_once 'include/dba.php';
@@ -99,7 +98,7 @@ class ForumManager
 		$total = count($contacts);
 		$visible_forums = 10;
 
-		if (DBM::is_result($contacts)) {
+		if (DBA::is_result($contacts)) {
 			$id = 0;
 
 			foreach ($contacts as $contact) {

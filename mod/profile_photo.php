@@ -8,7 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
@@ -42,7 +42,7 @@ function profile_photo_post(App $a)
 				intval(local_user())
 			);
 
-			if (DBM::is_result($r) && (!intval($r[0]['is-default']))) {
+			if (DBA::is_result($r) && (!intval($r[0]['is-default']))) {
 				$is_default_profile = 0;
 			}
 		}
@@ -73,8 +73,7 @@ function profile_photo_post(App $a)
 			dbesc(local_user()), intval($scale));
 
 		$url = System::baseUrl() . '/profile/' . $a->user['nickname'];
-		if (DBM::is_result($r)) {
-
+		if (DBA::is_result($r)) {
 			$base_image = $r[0];
 
 			$Image = new Image($base_image['data'], $base_image['type']);
@@ -195,7 +194,7 @@ function profile_photo_content(App $a)
 			dbesc($resource_id)
 		);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			notice(L10n::t('Permission denied.') . EOL);
 			return;
 		}

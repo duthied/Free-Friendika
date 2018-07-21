@@ -10,7 +10,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 function community_init(App $a)
 {
@@ -138,7 +137,7 @@ function community_content(App $a, $update = 0)
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage'], $content);
 
-	if (!DBM::is_result($r)) {
+	if (!DBA::is_result($r)) {
 		info(L10n::t('No results.') . EOL);
 		return $o;
 	}

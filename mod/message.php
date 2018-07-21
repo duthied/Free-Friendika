@@ -11,7 +11,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
 use Friendica\Util\DateTimeFormat;
@@ -176,7 +175,7 @@ function message_content(App $a)
 				intval($a->argv[2]),
 				intval(local_user())
 			);
-			if (DBM::is_result($r)) {
+			if (DBA::is_result($r)) {
 				$parent = $r[0]['parent-uri'];
 				$convid = $r[0]['convid'];
 
@@ -215,21 +214,21 @@ function message_content(App $a)
 				intval(local_user()),
 				intval($a->argv[2])
 			);
-			if (!DBM::is_result($r)) {
+			if (!DBA::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(normalise_link(base64_decode($a->argv[2])))
 				);
 			}
 
-			if (!DBM::is_result($r)) {
+			if (!DBA::is_result($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 					intval(local_user()),
 					dbesc(base64_decode($a->argv[2]))
 				);
 			}
 
-			if (DBM::is_result($r)) {
+			if (DBA::is_result($r)) {
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];
 				$preid = $r[0]['id'];
@@ -280,13 +279,13 @@ function message_content(App $a)
 			intval(local_user())
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			$a->set_pager_total($r[0]['total']);
 		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			info(L10n::t('No messages.') . EOL);
 			return $o;
 		}
@@ -308,7 +307,7 @@ function message_content(App $a)
 			intval(local_user()),
 			intval($a->argv[1])
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			$contact_id = $r[0]['contact-id'];
 			$convid = $r[0]['convid'];
 
@@ -327,7 +326,7 @@ function message_content(App $a)
 		} else {
 			$messages = false;
 		}
-		if (!DBM::is_result($messages)) {
+		if (!DBA::is_result($messages)) {
 			notice(L10n::t('Message not available.') . EOL);
 			return $o;
 		}

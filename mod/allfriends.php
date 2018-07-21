@@ -8,7 +8,6 @@ use Friendica\Content\ContactSelector;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
@@ -37,7 +36,7 @@ function allfriends_content(App $a)
 
 	$contact = DBA::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => local_user()]);
 
-	if (!DBM::is_result($contact)) {
+	if (!DBA::is_result($contact)) {
 		return;
 	}
 
@@ -49,7 +48,7 @@ function allfriends_content(App $a)
 	$a->set_pager_total($total);
 
 	$r = GContact::allFriends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
-	if (!DBM::is_result($r)) {
+	if (!DBA::is_result($r)) {
 		$o .= L10n::t('No friends to display.');
 		return $o;
 	}

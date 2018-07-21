@@ -14,7 +14,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
@@ -49,7 +48,7 @@ function photos_init(App $a) {
 			dbesc($nick)
 		);
 
-		if (!DBM::is_result($user)) {
+		if (!DBA::is_result($user)) {
 			return;
 		}
 
@@ -170,7 +169,7 @@ function photos_post(App $a)
 				intval($page_owner_uid)
 			);
 
-			if (DBM::is_result($r)) {
+			if (DBA::is_result($r)) {
 				$can_post = true;
 				$visitor = $contact_id;
 			}
@@ -202,7 +201,7 @@ function photos_post(App $a)
 			dbesc($album),
 			intval($page_owner_uid)
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			notice(L10n::t('Album not found.') . EOL);
 			goaway($_SESSION['photo_return']);
 			return; // NOTREACHED
@@ -271,7 +270,7 @@ function photos_post(App $a)
 					dbesc($album)
 				);
 			}
-			if (DBM::is_result($r)) {
+			if (DBA::is_result($r)) {
 				foreach ($r as $rr) {
 					$res[] = "'" . dbesc($rr['rid']) . "'" ;
 				}
@@ -337,7 +336,7 @@ function photos_post(App $a)
 			);
 		}
 
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			q("DELETE FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
 				intval($page_owner_uid),
 				dbesc($r[0]['resource-id'])
@@ -379,7 +378,7 @@ function photos_post(App $a)
 				intval($page_owner_uid)
 			);
 
-			if (DBM::is_result($r)) {
+			if (DBA::is_result($r)) {
 				$image = new Image($r[0]['data'], $r[0]['type']);
 
 				if ($image->isValid()) {
@@ -432,7 +431,7 @@ function photos_post(App $a)
 			dbesc($resource_id),
 			intval($page_owner_uid)
 		);
-		if (DBM::is_result($p)) {
+		if (DBA::is_result($p)) {
 			$ext = $phototypes[$p[0]['type']];
 			$r = q("UPDATE `photo` SET `desc` = '%s', `album` = '%s', `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s' WHERE `resource-id` = '%s' AND `uid` = %d",
 				dbesc($desc),
@@ -496,7 +495,7 @@ function photos_post(App $a)
 		if ($item_id) {
 			$item = Item::selectFirst(['tag', 'inform'], ['id' => $item_id, 'uid' => $page_owner_uid]);
 		}
-		if (DBM::is_result($item)) {
+		if (DBA::is_result($item)) {
 			$old_tag    = $item['tag'];
 			$old_inform = $item['inform'];
 		}
@@ -559,7 +558,7 @@ function photos_post(App $a)
 										intval($page_owner_uid)
 								);
 
-								if (!DBM::is_result($r)) {
+								if (!DBA::is_result($r)) {
 									//select someone by attag or nick and the name passed in
 									$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
 											dbesc($name),
@@ -569,7 +568,7 @@ function photos_post(App $a)
 								}
 							}
 
-							if (DBM::is_result($r)) {
+							if (DBA::is_result($r)) {
 								$newname = $r[0]['name'];
 								$profile = $r[0]['url'];
 								$notify = 'cid:' . $r[0]['id'];
@@ -712,7 +711,7 @@ function photos_post(App $a)
 		intval($page_owner_uid)
 	);
 
-	if (!DBM::is_result($r) || ($album == L10n::t('Profile Photos'))) {
+	if (!DBA::is_result($r) || ($album == L10n::t('Profile Photos'))) {
 		$visible = 1;
 	} else {
 		$visible = 0;
@@ -985,7 +984,7 @@ function photos_content(App $a)
 					intval($contact_id),
 					intval($owner_uid)
 				);
-				if (DBM::is_result($r)) {
+				if (DBA::is_result($r)) {
 					$can_post = true;
 					$contact = $r[0];
 					$remote_contact = true;
@@ -1014,7 +1013,7 @@ function photos_content(App $a)
 				intval($contact_id),
 				intval($owner_uid)
 			);
-			if (DBM::is_result($r)) {
+			if (DBA::is_result($r)) {
 				$contact = $r[0];
 				$remote_contact = true;
 			}
@@ -1114,7 +1113,7 @@ function photos_content(App $a)
 			intval($owner_uid),
 			dbesc($album)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			$a->set_pager_total(count($r));
 			$a->set_pager_itemspage(20);
 		}
@@ -1170,7 +1169,7 @@ function photos_content(App $a)
 
 		$photos = [];
 
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			// "Twist" is only used for the duepunto theme with style "slackr"
 			$twist = false;
 			foreach ($r as $rr) {
@@ -1220,13 +1219,13 @@ function photos_content(App $a)
 			dbesc($datum)
 		);
 
-		if (!DBM::is_result($ph)) {
+		if (!DBA::is_result($ph)) {
 			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
 				LIMIT 1",
 				intval($owner_uid),
 				dbesc($datum)
 			);
-			if (DBM::is_result($ph)) {
+			if (DBA::is_result($ph)) {
 				notice(L10n::t('Permission denied. Access to this item may be restricted.'));
 			} else {
 				notice(L10n::t('Photo not available') . EOL);
@@ -1257,7 +1256,7 @@ function photos_content(App $a)
 				intval($owner_uid)
 			);
 
-			if (DBM::is_result($prvnxt)) {
+			if (DBA::is_result($prvnxt)) {
 				foreach ($prvnxt as $z => $entry) {
 					if ($entry['resource-id'] == $ph[0]['resource-id']) {
 						$prv = $z - 1;
@@ -1354,7 +1353,7 @@ function photos_content(App $a)
 		$map = null;
 		$link_item = [];
 
-		if (DBM::is_result($linked_items)) {
+		if (DBA::is_result($linked_items)) {
 			// This is a workaround to not being forced to rewrite the while $sql_extra handling
 			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
 
@@ -1450,7 +1449,7 @@ function photos_content(App $a)
 				]);
 			}
 
-			if (!DBM::is_result($items)) {
+			if (!DBA::is_result($items)) {
 				if (($can_post || can_write_wall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl, [
 						'$return_path' => '',
@@ -1477,7 +1476,7 @@ function photos_content(App $a)
 			];
 
 			// display comments
-			if (DBM::is_result($items)) {
+			if (DBA::is_result($items)) {
 				foreach ($items as $item) {
 					builtin_activity_puller($item, $conv_responses);
 				}
@@ -1620,7 +1619,7 @@ function photos_content(App $a)
 		dbesc(L10n::t('Contact Photos'))
 	);
 
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		$a->set_pager_total(count($r));
 		$a->set_pager_itemspage(20);
 	}
@@ -1638,7 +1637,7 @@ function photos_content(App $a)
 	);
 
 	$photos = [];
-	if (DBM::is_result($r)) {
+	if (DBA::is_result($r)) {
 		// "Twist" is only used for the duepunto theme with style "slackr"
 		$twist = false;
 		foreach ($r as $rr) {

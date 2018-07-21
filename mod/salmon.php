@@ -5,7 +5,7 @@
 use Friendica\App;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
@@ -27,7 +27,7 @@ function salmon_post(App $a, $xml = '') {
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 		dbesc($nick)
 	);
-	if (! DBM::is_result($r)) {
+	if (! DBA::is_result($r)) {
 		System::httpExit(500);
 	}
 
@@ -152,7 +152,7 @@ function salmon_post(App $a, $xml = '') {
 		dbesc(normalise_link($author_link)),
 		intval($importer['uid'])
 	);
-	if (! DBM::is_result($r)) {
+	if (! DBA::is_result($r)) {
 		logger('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
 		if(PConfig::get($importer['uid'],'system','ostatus_autofriend')) {
 			$result = Contact::createFromProbe($importer['uid'], $author_link);
@@ -171,8 +171,8 @@ function salmon_post(App $a, $xml = '') {
 	// Have we ignored the person?
 	// If so we can not accept this post.
 
-	//if((DBM::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
-	if (DBM::is_result($r) && $r[0]['blocked']) {
+	//if((DBA::is_result($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == CONTACT_IS_FOLLOWER) || ($r[0]['blocked']))) {
+	if (DBA::is_result($r) && $r[0]['blocked']) {
 		logger('Ignoring this author.');
 		System::httpExit(202);
 		// NOTREACHED
@@ -181,7 +181,7 @@ function salmon_post(App $a, $xml = '') {
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	$contact_rec = ((DBM::is_result($r)) ? $r[0] : null);
+	$contact_rec = ((DBA::is_result($r)) ? $r[0] : null);
 
 	OStatus::import($data, $importer, $contact_rec, $hub);
 

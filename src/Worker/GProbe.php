@@ -6,7 +6,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Cache;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
@@ -25,7 +25,7 @@ class GProbe {
 
 		logger("gprobe start for ".normalise_link($url), LOGGER_DEBUG);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::is_result($r)) {
 			// Is it a DDoS attempt?
 			$urlparts = parse_url($url);
 
@@ -52,7 +52,7 @@ class GProbe {
 				dbesc(normalise_link($url))
 			);
 		}
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			// Check for accessibility and do a poco discovery
 			if (PortableContact::lastUpdated($r[0]['url'], true) && ($r[0]["network"] == NETWORK_DFRN)) {
 				PortableContact::loadWorker(0, 0, $r[0]['id'], str_replace('/profile/', '/poco/', $r[0]['url']));

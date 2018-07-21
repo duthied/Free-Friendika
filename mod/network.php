@@ -16,7 +16,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
@@ -557,7 +556,7 @@ function networkThreadedView(App $a, $update, $parent)
 			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
 			$condition = ["`id` = ? AND (`forum` OR `prv`)", $cid];
 			$contact = DBA::selectFirst('contact', ['addr', 'nick'], $condition);
-			if (DBM::is_result($contact)) {
+			if (DBA::is_result($contact)) {
 				if ($contact['addr'] != '') {
 					$content = '!' . $contact['addr'];
 				} else {
@@ -610,7 +609,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 	if ($gid) {
 		$group = DBA::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
-		if (!DBM::is_result($group)) {
+		if (!DBA::is_result($group)) {
 			if ($update) {
 				killme();
 			}
@@ -626,7 +625,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 			$contact_str = implode(',', $contacts);
 			$self = DBA::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
-			if (DBM::is_result($self)) {
+			if (DBA::is_result($self)) {
 				$contact_str_self = $self['id'];
 			}
 
@@ -646,7 +645,7 @@ function networkThreadedView(App $a, $update, $parent)
 			'forum', 'prv', 'contact-type', 'addr', 'thumb', 'location'];
 		$condition = ["`id` = ? AND (NOT `blocked` OR `pending`)", $cid];
 		$contact = DBA::selectFirst('contact', $fields, $condition);
-		if (DBM::is_result($contact)) {
+		if (DBA::is_result($contact)) {
 			$sql_extra = " AND " . $sql_table . ".`contact-id` = " . intval($cid);
 
 			$entries[0] = [
@@ -806,7 +805,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 	// Only show it when unfiltered (no groups, no networks, ...)
 	if (in_array($nets, ['', NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]) && (strlen($sql_extra . $sql_extra2 . $sql_extra3) == 0)) {
-		if (DBM::is_result($r)) {
+		if (DBA::is_result($r)) {
 			$top_limit = current($r)['order_date'];
 			$bottom_limit = end($r)['order_date'];
 			if (empty($_SESSION['network_last_top_limit']) || ($_SESSION['network_last_top_limit'] < $top_limit)) {
@@ -875,7 +874,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$items = $r;
 
-	if (DBM::is_result($items)) {
+	if (DBA::is_result($items)) {
 		$parents_arr = [];
 
 		foreach ($items as $item) {

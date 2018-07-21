@@ -9,7 +9,6 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\Queue as QueueModel;
 use Friendica\Model\User;
@@ -40,7 +39,7 @@ class Queue
 
 			Addon::callHooks('queue_predeliver', $r);
 
-			if (DBM::is_result($r)) {
+			if (DBA::is_result($r)) {
 				foreach ($r as $q_item) {
 					logger('Call queue for id ' . $q_item['id']);
 					Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "Queue", (int) $q_item['id']);
@@ -53,12 +52,12 @@ class Queue
 
 		// delivering
 		$q_item = DBA::selectFirst('queue', [], ['id' => $queue_id]);
-		if (!DBM::is_result($q_item)) {
+		if (!DBA::is_result($q_item)) {
 			return;
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $q_item['cid']]);
-		if (!DBM::is_result($contact)) {
+		if (!DBA::is_result($contact)) {
 			QueueModel::removeItem($q_item['id']);
 			return;
 		}
@@ -98,7 +97,7 @@ class Queue
 		}
 
 		$user = DBA::selectFirst('user', [], ['uid' => $contact['uid']]);
-		if (!DBM::is_result($user)) {
+		if (!DBA::is_result($user)) {
 			QueueModel::removeItem($q_item['id']);
 			return;
 		}
