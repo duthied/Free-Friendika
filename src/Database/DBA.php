@@ -8,10 +8,10 @@ namespace Friendica\Database;
 
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
+use mysqli;
 use PDO;
 use PDOException;
 use PDOStatement;
-use mysqli;
 
 /**
  * @class MySQL database class
@@ -50,6 +50,7 @@ class DBA
 		self::$db_name = $db;
 		self::$db_charset = $charset;
 
+		$port = 0;
 		$serveraddr = trim($serveraddr);
 
 		$serverdata = explode(':', $serveraddr);
@@ -73,7 +74,7 @@ class DBA
 			self::$driver = 'pdo';
 			$connect = "mysql:host=".$server.";dbname=".$db;
 
-			if (isset($port)) {
+			if ($port > 0) {
 				$connect .= ";port=".$port;
 			}
 
@@ -89,9 +90,15 @@ class DBA
 			}
 		}
 
-		if (!self::$connected && class_exists('mysqli')) {
+		if (!self::$connected && class_exists('\mysqli')) {
 			self::$driver = 'mysqli';
-			self::$db = @new mysqli($server, $user, $pass, $db, $port);
+
+			if ($port > 0) {
+				self::$db = @new mysqli($server, $user, $pass, $db, $port);
+			} else {
+				self::$db = @new mysqli($server, $user, $pass, $db);
+			}
+
 			if (!mysqli_connect_errno()) {
 				self::$connected = true;
 
