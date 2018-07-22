@@ -348,15 +348,16 @@ function photos_post(App $a)
 	}
 
 	if ($a->argc > 2 && (x($_POST, 'desc') !== false || x($_POST, 'newtag') !== false || x($_POST, 'albname') !== false)) {
-		$desc        = x($_POST, 'desc')      ? notags(trim($_POST['desc']))      : '';
-		$rawtags     = x($_POST, 'newtag')    ? notags(trim($_POST['newtag']))    : '';
-		$item_id     = x($_POST, 'item_id')   ? intval($_POST['item_id'])         : 0;
-		$albname     = x($_POST, 'albname')   ? notags(trim($_POST['albname']))   : '';
-		$origaname   = x($_POST, 'origaname') ? notags(trim($_POST['origaname'])) : '';
-		$str_group_allow   = perms2str($_POST['group_allow']);
-		$str_contact_allow = perms2str($_POST['contact_allow']);
-		$str_group_deny    = perms2str($_POST['group_deny']);
-		$str_contact_deny  = perms2str($_POST['contact_deny']);
+		$desc        = !empty($_POST['desc'])      ? notags(trim($_POST['desc']))      : '';
+		$rawtags     = !empty($_POST['newtag'])    ? notags(trim($_POST['newtag']))    : '';
+		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])         : 0;
+		$albname     = !empty($_POST['albname'])   ? notags(trim($_POST['albname']))   : '';
+		$origaname   = !empty($_POST['origaname']) ? notags(trim($_POST['origaname'])) : '';
+
+		$str_group_allow   = !empty($_POST['group_allow'])   ? perms2str($_POST['group_allow'])   : '';
+		$str_contact_allow = !empty($_POST['contact_allow']) ? perms2str($_POST['contact_allow']) : '';
+		$str_group_deny    = !empty($_POST['group_deny'])    ? perms2str($_POST['group_deny'])    : '';
+		$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
 
 		$resource_id = $a->argv[2];
 
@@ -703,13 +704,14 @@ function photos_post(App $a)
 		dbesc($album),
 		intval($page_owner_uid)
 	);
+
 	if (!DBM::is_result($r) || ($album == L10n::t('Profile Photos'))) {
 		$visible = 1;
 	} else {
 		$visible = 0;
 	}
 
-	if (x($_REQUEST, 'not_visible') && $_REQUEST['not_visible'] !== 'false') {
+	if (!empty($_REQUEST['not_visible']) && $_REQUEST['not_visible'] !== 'false') {
 		$visible = 0;
 	}
 
@@ -920,7 +922,7 @@ function photos_content(App $a)
 	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
-	if (!x($a->data,'user')) {
+	if (empty($a->data['user'])) {
 		notice(L10n::t('No photos selected') . EOL);
 		return;
 	}
@@ -1609,6 +1611,7 @@ function photos_content(App $a)
 		dbesc('Contact Photos'),
 		dbesc(L10n::t('Contact Photos'))
 	);
+
 	if (DBM::is_result($r)) {
 		$a->set_pager_total(count($r));
 		$a->set_pager_itemspage(20);
