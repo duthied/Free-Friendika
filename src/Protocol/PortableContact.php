@@ -1681,25 +1681,25 @@ class PortableContact
 		}
 
 		foreach ($data->entry as $entry) {
-			$username = "";
+			$username = '';
 			if (isset($entry->urls)) {
 				foreach ($entry->urls as $url) {
 					if ($url->type == 'profile') {
 						$profile_url = $url->value;
-						$urlparts = parse_url($profile_url);
-						$username = end(explode("/", $urlparts["path"]));
+						$path_array = explode('/', parse_url($profile_url, PHP_URL_PATH));
+						$username = end($path_array);
 					}
 				}
 			}
-			if ($username != "") {
-				logger("Fetch contacts for the user ".$username." from the server ".$server["nurl"], LOGGER_DEBUG);
+			if ($username != '') {
+				logger('Fetch contacts for the user ' . $username . ' from the server ' . $server['nurl'], LOGGER_DEBUG);
 
 				// Fetch all contacts from a given user from the other server
-				$url = $server["poco"]."/".$username."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
+				$url = $server['poco'] . '/' . $username . '/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation';
 
 				$retdata = Network::curl($url);
-				if ($retdata["success"]) {
-					self::discoverServer(json_decode($retdata["body"]), 3);
+				if ($retdata['success']) {
+					self::discoverServer(json_decode($retdata['body']), 3);
 				}
 			}
 		}
