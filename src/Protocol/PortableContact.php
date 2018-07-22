@@ -1647,27 +1647,33 @@ class PortableContact
 
 		$no_of_queries = 5;
 
-		$requery_days = intval(Config::get("system", "poco_requery_days"));
+		$requery_days = intval(Config::get('system', 'poco_requery_days'));
 
 		if ($requery_days == 0) {
 			$requery_days = 7;
 		}
-		$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
+		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
 
-		$r = q("SELECT `id`, `url`, `nurl`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", DBA::escape($last_update));
-		if (DBA::isResult($r)) {
-			foreach ($r as $server) {
-				if (!self::checkServer($server["url"], $server["network"])) {
+		$gservers = q("SELECT `id`, `url`, `nurl`, `network`
+			FROM `gserver`
+			WHERE `last_contact` >= `last_failure`
+			AND `poco` != ''
+			AND `last_poco_query` < '%s'
+			ORDER BY RAND()", DBA::escape($last_update)
+		);
+		if (DBA::isResult($gservers)) {
+			foreach ($gservers as $gserver) {
+				if (!self::checkServer($gserver['url'], $gserver['network'])) {
 					// The server is not reachable? Okay, then we will try it later
 					$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-					DBA::update('gserver', $fields, ['nurl' => $server["nurl"]]);
+					DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
 					continue;
 				}
 
-				logger('Update directory from server '.$server['url'].' with ID '.$server['id'], LOGGER_DEBUG);
-				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server_directory", (int)$server['id']);
+				logger('Update directory from server ' . $gserver['url'] . ' with ID ' . $gserver['id'], LOGGER_DEBUG);
+				Worker::add(PRIORITY_LOW, 'DiscoverPoCo', 'update_server_directory', (int) $gserver['id']);
 
-				if (!$complete && (--$no_of_queries == 0)) {
+				if (!$complete && ( --$no_of_queries == 0)) {
 					break;
 				}
 			}
