@@ -2227,6 +2227,9 @@ class Item extends BaseObject
 	 */
 	private static function addLanguageToItemArray(&$item)
 	{
+		// @TODO Find out why body can be empty here
+		$item['body'] = defaults($item, 'body', '');
+
 		$naked_body = BBCode::toPlaintext($item['body'], false);
 
 		$ld = new Text_LanguageDetect();
