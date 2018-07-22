@@ -782,6 +782,11 @@ class Image
 
 		if (is_null($data) || !$data || !is_array($data)) {
 			$img_str = Network::fetchUrl($url, true, $redirects, 4);
+
+			if (!$img_str) {
+				return false;
+			}
+
 			$filesize = strlen($img_str);
 
 			try {
