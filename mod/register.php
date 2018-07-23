@@ -11,6 +11,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Module\Tos;
 use Friendica\Util\DateTimeFormat;
