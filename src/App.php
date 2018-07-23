@@ -1116,19 +1116,32 @@ class App
 		return false;
 	}
 
-	public function proc_run($args)
+	/**
+	 * Executes a child process with 'proc_open'
+	 *
+	 * @param string $command The command to execute
+	 * @param array  $args    Arguments to pass to the command ( [ 'key' => value, 'key2' => value2, ... ]
+	 */
+	public function proc_run($command, $args)
 	{
 		if (!function_exists('proc_open')) {
 			return;
 		}
 
-		array_unshift($args, $this->getConfigValue('config', 'php_path', 'php'));
+		$cmdline = $this->getConfigValue('config', 'php_path', 'php') . $command;
 
-		for ($x = 0; $x < count($args); $x ++) {
-			$args[$x] = escapeshellarg($args[$x]);
+		foreach ($args as $key => $value) {
+			if (!is_null($value) && is_bool($value) && !$value) {
+				continue;
+			}
+
+			$cmdline .= ' --' . $key;
+			if (!is_null($value) && !is_bool($value)) {
+				$cmdline .= ' ' . $value;
+			}
 		}
 
-		$cmdline = implode(' ', $args);
+		$cmdline = escapeshellarg($cmdline);
 
 		if ($this->min_memory_reached()) {
 			return;
