@@ -84,7 +84,7 @@ function dfrn_request_post(App $a)
 				// Lookup the contact based on their URL (which is the only unique thing we have at the moment)
 				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND NOT `self` LIMIT 1",
 					intval(local_user()),
-					dbesc(normalise_link($dfrn_url))
+					DBA::escape(normalise_link($dfrn_url))
 				);
 
 				if (DBA::isResult($r)) {
@@ -137,8 +137,8 @@ function dfrn_request_post(App $a)
 						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
 						intval(local_user()),
 						DateTimeFormat::utcNow(),
-						dbesc($dfrn_url),
-						dbesc(normalise_link($dfrn_url)),
+						DBA::escape($dfrn_url),
+						DBA::escape(normalise_link($dfrn_url)),
 						$parms['addr'],
 						$parms['fn'],
 						$parms['nick'],
@@ -149,7 +149,7 @@ function dfrn_request_post(App $a)
 						$parms['dfrn-notify'],
 						$parms['dfrn-poll'],
 						$parms['dfrn-poco'],
-						dbesc(NETWORK_DFRN),
+						DBA::escape(NETWORK_DFRN),
 						intval($aes_allow),
 						intval($hidden),
 						intval($blocked),
@@ -163,7 +163,7 @@ function dfrn_request_post(App $a)
 
 				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
 					intval(local_user()),
-					dbesc($dfrn_url),
+					DBA::escape($dfrn_url),
 					$parms['key'] // this was already escaped
 				);
 				if (DBA::isResult($r)) {
@@ -239,7 +239,7 @@ function dfrn_request_post(App $a)
 		// Block friend request spam
 		if ($maxreq) {
 			$r = q("SELECT * FROM `intro` WHERE `datetime` > '%s' AND `uid` = %d",
-				dbesc(DateTimeFormat::utc('now - 24 hours')),
+				DBA::escape(DateTimeFormat::utc('now - 24 hours')),
 				intval($uid)
 			);
 			if (DBA::isResult($r) && count($r) > $maxreq) {
@@ -302,7 +302,7 @@ function dfrn_request_post(App $a)
 		if ($network === NETWORK_DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
 				intval($uid),
-				dbesc($url)
+				DBA::escape($url)
 			);
 
 			if (DBA::isResult($ret)) {
@@ -324,7 +324,7 @@ function dfrn_request_post(App $a)
 				// There is a contact record but no issued-id, so this
 				// is a reciprocal introduction from a known contact
 				$r = q("UPDATE `contact` SET `issued-id` = '%s' WHERE `id` = %d",
-					dbesc($issued_id),
+					DBA::escape($issued_id),
 					intval($contact_record['id'])
 				);
 			} else {
@@ -376,9 +376,9 @@ function dfrn_request_post(App $a)
 					`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `blocked`, `pending` )
 					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
 					intval($uid),
-					dbesc(DateTimeFormat::utcNow()),
+					DBA::escape(DateTimeFormat::utcNow()),
 					$parms['url'],
-					dbesc(normalise_link($url)),
+					DBA::escape(normalise_link($url)),
 					$parms['addr'],
 					$parms['fn'],
 					$parms['nick'],
@@ -390,7 +390,7 @@ function dfrn_request_post(App $a)
 					$parms['dfrn-notify'],
 					$parms['dfrn-poll'],
 					$parms['dfrn-poco'],
-					dbesc(NETWORK_DFRN),
+					DBA::escape(NETWORK_DFRN),
 					intval($blocked),
 					intval($pending)
 				);
@@ -422,9 +422,9 @@ function dfrn_request_post(App $a)
 					intval($uid),
 					intval($contact_record['id']),
 					((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
-					dbesc(notags(trim($_POST['dfrn-request-message']))),
-					dbesc($hash),
-					dbesc(DateTimeFormat::utcNow())
+					DBA::escape(notags(trim($_POST['dfrn-request-message']))),
+					DBA::escape($hash),
+					DBA::escape(DateTimeFormat::utcNow())
 				);
 			}
 
@@ -534,7 +534,7 @@ function dfrn_request_content(App $a)
 		// We could just unblock it, but first we have to jump through a few hoops to
 		// send an email, or even to find out if we need to send an email.
 		$intro = q("SELECT * FROM `intro` WHERE `hash` = '%s' LIMIT 1",
-			dbesc($_GET['confirm_key'])
+			DBA::escape($_GET['confirm_key'])
 		);
 
 		if (DBA::isResult($intro)) {
@@ -586,7 +586,7 @@ function dfrn_request_content(App $a)
 				// in dfrn_confirm_post()
 
 				$r = q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s'",
-					dbesc($_GET['confirm_key'])
+					DBA::escape($_GET['confirm_key'])
 				);
 			}
 		}

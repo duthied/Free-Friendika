@@ -12,14 +12,13 @@
 use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
-use Friendica\Core\L10n;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
 
 require_once "mod/proxy.php";
 
@@ -278,7 +277,7 @@ function vier_community_info()
 					$query .= ",";
 				}
 
-				$query .= "'".dbesc(normalise_link(trim($helper)))."'";
+				$query .= "'".DBA::escape(normalise_link(trim($helper)))."'";
 			}
 
 			$r = q("SELECT `url`, `name` FROM `gcontact` WHERE `nurl` IN (%s)", $query);

@@ -27,7 +27,7 @@ class DBStructure
 	 */
 	public static function convertToInnoDB() {
 		$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
-			dbesc(DBA::databaseName()));
+			DBA::escape(DBA::databaseName()));
 
 		if (!DBA::isResult($r)) {
 			echo L10n::t('There are no tables on MyISAM.')."\n";
@@ -35,7 +35,7 @@ class DBStructure
 		}
 
 		foreach ($r AS $table) {
-			$sql = sprintf("ALTER TABLE `%s` engine=InnoDB;", dbesc($table['TABLE_NAME']));
+			$sql = sprintf("ALTER TABLE `%s` engine=InnoDB;", DBA::escape($table['TABLE_NAME']));
 			echo $sql."\n";
 
 			$result = DBA::e($sql);
@@ -55,7 +55,7 @@ class DBStructure
 		$a = get_app();
 
 		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map('dbesc', explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
+		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
 		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
 			$admin_mail_list
 		);
@@ -369,7 +369,7 @@ class DBStructure
 
 				if (isset($database[$name]["table_status"]["Comment"])) {
 					if ($database[$name]["table_status"]["Comment"] != $structure['comment']) {
-						$sql2 = "COMMENT = '".dbesc($structure['comment'])."'";
+						$sql2 = "COMMENT = '".DBA::escape($structure['comment'])."'";
 
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
@@ -381,7 +381,7 @@ class DBStructure
 
 				if (isset($database[$name]["table_status"]["Engine"]) && isset($structure['engine'])) {
 					if ($database[$name]["table_status"]["Engine"] != $structure['engine']) {
-						$sql2 = "ENGINE = '".dbesc($structure['engine'])."'";
+						$sql2 = "ENGINE = '".DBA::escape($structure['engine'])."'";
 
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
@@ -558,7 +558,7 @@ class DBStructure
 		}
 
 		if (isset($parameters["comment"])) {
-			$fieldstruct .= " COMMENT '".dbesc($parameters["comment"])."'";
+			$fieldstruct .= " COMMENT '".DBA::escape($parameters["comment"])."'";
 		}
 
 		/*if (($parameters["primary"] != "") && $create)
@@ -575,7 +575,7 @@ class DBStructure
 		$sql_rows = [];
 		$primary_keys = [];
 		foreach ($structure["fields"] AS $fieldname => $field) {
-			$sql_rows[] = "`".dbesc($fieldname)."` ".self::FieldCommand($field);
+			$sql_rows[] = "`".DBA::escape($fieldname)."` ".self::FieldCommand($field);
 			if (x($field,'primary') && $field['primary']!='') {
 				$primary_keys[] = $fieldname;
 			}
@@ -595,12 +595,12 @@ class DBStructure
 		}
 
 		if (isset($structure["comment"])) {
-			$comment = " COMMENT='" . dbesc($structure["comment"]) . "'";
+			$comment = " COMMENT='" . DBA::escape($structure["comment"]) . "'";
 		}
 
 		$sql = implode(",\n\t", $sql_rows);
 
-		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql.
+		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", DBA::escape($name)).$sql.
 				"\n)" . $engine . " DEFAULT COLLATE utf8mb4_general_ci" . $comment;
 		if ($verbose) {
 			echo $sql.";\n";
@@ -614,17 +614,17 @@ class DBStructure
 	}
 
 	private static function addTableField($fieldname, $parameters) {
-		$sql = sprintf("ADD `%s` %s", dbesc($fieldname), self::FieldCommand($parameters));
+		$sql = sprintf("ADD `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters));
 		return($sql);
 	}
 
 	private static function modifyTableField($fieldname, $parameters) {
-		$sql = sprintf("MODIFY `%s` %s", dbesc($fieldname), self::FieldCommand($parameters, false));
+		$sql = sprintf("MODIFY `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters, false));
 		return($sql);
 	}
 
 	private static function dropIndex($indexname) {
-		$sql = sprintf("DROP INDEX `%s`", dbesc($indexname));
+		$sql = sprintf("DROP INDEX `%s`", DBA::escape($indexname));
 		return($sql);
 	}
 
@@ -646,9 +646,9 @@ class DBStructure
 			}
 
 			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
-				$names .= "`".dbesc($matches[1])."`(".intval($matches[2]).")";
+				$names .= "`".DBA::escape($matches[1])."`(".intval($matches[2]).")";
 			} else {
-				$names .= "`".dbesc($fieldname)."`";
+				$names .= "`".DBA::escape($fieldname)."`";
 			}
 		}
 
@@ -657,7 +657,7 @@ class DBStructure
 		}
 
 
-		$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
+		$sql = sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexname), $names);
 		return($sql);
 	}
 
@@ -675,9 +675,9 @@ class DBStructure
 			}
 
 			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
-				$names .= "`".dbesc($matches[1])."`";
+				$names .= "`".DBA::escape($matches[1])."`";
 			} else {
-				$names .= "`".dbesc($fieldname)."`";
+				$names .= "`".DBA::escape($fieldname)."`";
 			}
 		}
 

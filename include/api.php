@@ -525,7 +525,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact URL
 	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
-		$user = dbesc(normalise_link($contact_id));
+		$user = DBA::escape(normalise_link($contact_id));
 		$url = $user;
 		$extra_query = "AND `contact`.`nurl` = '%s' ";
 		if (api_user() !== false) {
@@ -535,7 +535,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact id with uid = 0
 	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
-		$user = dbesc(api_unique_id_to_nurl(intval($contact_id)));
+		$user = DBA::escape(api_unique_id_to_nurl(intval($contact_id)));
 
 		if ($user == "") {
 			throw new BadRequestException("User ID ".$contact_id." not found.");
@@ -549,7 +549,7 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	if (is_null($user) && x($_GET, 'user_id')) {
-		$user = dbesc(api_unique_id_to_nurl($_GET['user_id']));
+		$user = DBA::escape(api_unique_id_to_nurl($_GET['user_id']));
 
 		if ($user == "") {
 			throw new BadRequestException("User ID ".$_GET['user_id']." not found.");
@@ -562,7 +562,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 	if (is_null($user) && x($_GET, 'screen_name')) {
-		$user = dbesc($_GET['screen_name']);
+		$user = DBA::escape($_GET['screen_name']);
 		$extra_query = "AND `contact`.`nick` = '%s' ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
@@ -570,7 +570,7 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	if (is_null($user) && x($_GET, 'profileurl')) {
-		$user = dbesc(normalise_link($_GET['profileurl']));
+		$user = DBA::escape(normalise_link($_GET['profileurl']));
 		$extra_query = "AND `contact`.`nurl` = '%s' ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
@@ -584,7 +584,7 @@ function api_get_user(App $a, $contact_id = null)
 			list($user, $null) = explode(".", $a->argv[$argid]);
 		}
 		if (is_numeric($user)) {
-			$user = dbesc(api_unique_id_to_nurl(intval($user)));
+			$user = DBA::escape(api_unique_id_to_nurl(intval($user)));
 
 			if ($user != "") {
 				$url = $user;
@@ -594,7 +594,7 @@ function api_get_user(App $a, $contact_id = null)
 				}
 			}
 		} else {
-			$user = dbesc($user);
+			$user = DBA::escape($user);
 			$extra_query = "AND `contact`.`nick` = '%s' ";
 			if (api_user() !== false) {
 				$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
@@ -634,7 +634,7 @@ function api_get_user(App $a, $contact_id = null)
 		$r = [];
 
 		if ($url != "") {
-			$r = q("SELECT * FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s' LIMIT 1", dbesc(normalise_link($url)));
+			$r = q("SELECT * FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s' LIMIT 1", DBA::escape(normalise_link($url)));
 		}
 
 		if (DBA::isResult($r)) {
@@ -1437,10 +1437,10 @@ function api_users_search($type)
 	$userlist = [];
 
 	if (x($_GET, 'q')) {
-		$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", dbesc($_GET["q"]));
+		$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", DBA::escape($_GET["q"]));
 
 		if (!DBA::isResult($r)) {
-			$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", dbesc($_GET["q"]));
+			$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", DBA::escape($_GET["q"]));
 		}
 
 		if (DBA::isResult($r)) {
@@ -3482,7 +3482,7 @@ function api_direct_messages_new($type)
 		$r = q(
 			"SELECT `id`, `nurl`, `network` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
 			intval(api_user()),
-			dbesc($_POST['screen_name'])
+			DBA::escape($_POST['screen_name'])
 		);
 
 		if (DBA::isResult($r)) {
@@ -3579,7 +3579,7 @@ function api_direct_messages_destroy($type)
 	}
 
 	// add parent-uri to sql command if specified by calling app
-	$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . dbesc($parenturi) . "'" : "");
+	$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . DBA::escape($parenturi) . "'" : "");
 
 	// get data of the specified message id
 	$r = q(
@@ -3668,13 +3668,13 @@ function api_direct_messages_box($type, $box, $verbose)
 
 	// filters
 	if ($box=="sentbox") {
-		$sql_extra = "`mail`.`from-url`='" . dbesc($profile_url) . "'";
+		$sql_extra = "`mail`.`from-url`='" . DBA::escape($profile_url) . "'";
 	} elseif ($box == "conversation") {
-		$sql_extra = "`mail`.`parent-uri`='" . dbesc(defaults($_GET, 'uri', ''))  . "'";
+		$sql_extra = "`mail`.`parent-uri`='" . DBA::escape(defaults($_GET, 'uri', ''))  . "'";
 	} elseif ($box == "all") {
 		$sql_extra = "true";
 	} elseif ($box == "inbox") {
-		$sql_extra = "`mail`.`from-url`!='" . dbesc($profile_url) . "'";
+		$sql_extra = "`mail`.`from-url`!='" . DBA::escape($profile_url) . "'";
 	}
 
 	if ($max_id > 0) {
@@ -3684,7 +3684,7 @@ function api_direct_messages_box($type, $box, $verbose)
 	if ($user_id != "") {
 		$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
 	} elseif ($screen_name !="") {
-		$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
+		$sql_extra .= " AND `contact`.`nick` = '" . DBA::escape($screen_name). "'";
 	}
 
 	$r = q(
@@ -3847,7 +3847,7 @@ function api_fr_photoalbum_delete($type)
 	$r = q(
 		"SELECT DISTINCT `resource-id` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
 		intval(api_user()),
-		dbesc($album)
+		DBA::escape($album)
 	);
 	if (!DBA::isResult($r)) {
 		throw new BadRequestException("album not available");
@@ -4008,8 +4008,8 @@ function api_fr_photo_create_update($type)
 		$r = q(
 			"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
 			intval(api_user()),
-			dbesc($photo_id),
-			dbesc($album)
+			DBA::escape($photo_id),
+			DBA::escape($album)
 		);
 		if (!DBA::isResult($r)) {
 			throw new BadRequestException("photo not available");
@@ -4078,8 +4078,8 @@ function api_fr_photo_create_update($type)
 				$sql_extra,
 				DateTimeFormat::utcNow(),   // update edited timestamp
 				intval(api_user()),
-				dbesc($photo_id),
-				dbesc($album)
+				DBA::escape($photo_id),
+				DBA::escape($album)
 			);
 		} else {
 			$nothingtodo = true;
@@ -4132,7 +4132,7 @@ function api_fr_photo_delete($type)
 	$r = q(
 		"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
 		intval(api_user()),
-		dbesc($photo_id)
+		DBA::escape($photo_id)
 	);
 	if (!DBA::isResult($r)) {
 		throw new BadRequestException("photo not available");
@@ -4596,7 +4596,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 			FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY `resource-id`",
 		$data_sql,
 		intval(local_user()),
-		dbesc($photo_id),
+		DBA::escape($photo_id),
 		$scale_sql
 	);
 
@@ -4850,7 +4850,7 @@ function api_get_nick($profile)
 
 	$r = q(
 		"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-		dbesc(normalise_link($profile))
+		DBA::escape(normalise_link($profile))
 	);
 
 	if (DBA::isResult($r)) {
@@ -4860,7 +4860,7 @@ function api_get_nick($profile)
 	if (!$nick == "") {
 		$r = q(
 			"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-			dbesc(normalise_link($profile))
+			DBA::escape(normalise_link($profile))
 		);
 
 		if (DBA::isResult($r)) {
@@ -5205,7 +5205,7 @@ function api_friendica_group_delete($type)
 		"SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d AND `name` = '%s'",
 		intval($uid),
 		intval($gid),
-		dbesc($name)
+		DBA::escape($name)
 	);
 	// error message if specified gid is not in database
 	if (!DBA::isResult($rname)) {
@@ -5290,7 +5290,7 @@ function group_create($name, $uid, $users = [])
 	$rname = q(
 		"SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 0",
 		intval($uid),
-		dbesc($name)
+		DBA::escape($name)
 	);
 	// error message if specified group name already exists
 	if (DBA::isResult($rname)) {
@@ -5301,7 +5301,7 @@ function group_create($name, $uid, $users = [])
 	$rname = q(
 		"SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 1",
 		intval($uid),
-		dbesc($name)
+		DBA::escape($name)
 	);
 	// error message if specified group name already exists
 	if (DBA::isResult($rname)) {
@@ -5728,7 +5728,7 @@ function api_friendica_direct_messages_search($type, $box = "")
 	$r = q(
 		"SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND `body` LIKE '%s' ORDER BY `mail`.`id` DESC",
 		intval($uid),
-		dbesc('%'.$searchstring.'%')
+		DBA::escape('%'.$searchstring.'%')
 	);
 
 	$profile_url = $user_info["url"];

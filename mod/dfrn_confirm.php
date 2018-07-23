@@ -117,7 +117,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			AND `uid` = %d
 			AND `duplex` = 0
 			LIMIT 1",
-			dbesc($dfrn_id),
+			DBA::escape($dfrn_id),
 			intval($cid),
 			intval($uid)
 		);
@@ -157,7 +157,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 			// Save the private key. Send them the public key.
 			q("UPDATE `contact` SET `prvkey` = '%s' WHERE `id` = %d AND `uid` = %d",
-				dbesc($private_key),
+				DBA::escape($private_key),
 				intval($contact_id),
 				intval($uid)
 			);
@@ -261,7 +261,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					// birthday paradox - generate new dfrn-id and fall through.
 					$new_dfrn_id = random_string();
 					q("UPDATE contact SET `issued-id` = '%s' WHERE `id` = %d AND `uid` = %d",
-						dbesc($new_dfrn_id),
+						DBA::escape($new_dfrn_id),
 						intval($contact_id),
 						intval($uid)
 					);
@@ -324,11 +324,11 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`network` = '%s' WHERE `id` = %d
 			",
 				intval($new_relation),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
 				intval($duplex),
 				intval($hidden),
-				dbesc(NETWORK_DFRN),
+				DBA::escape(NETWORK_DFRN),
 				intval($contact_id)
 			);
 		} else {
@@ -372,12 +372,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`rel` = %d
 				WHERE `id` = %d
 			",
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc($addr),
-				dbesc($notify),
-				dbesc($poll),
-				dbesc($network),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape($addr),
+				DBA::escape($notify),
+				DBA::escape($poll),
+				DBA::escape($network),
 				intval($writable),
 				intval($hidden),
 				intval($new_relation),
@@ -517,8 +517,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		}
 
 		$r = q("UPDATE `contact` SET `dfrn-id` = '%s', `pubkey` = '%s' WHERE `id` = %d",
-			dbesc($decrypted_dfrn_id),
-			dbesc($dfrn_pubkey),
+			DBA::escape($decrypted_dfrn_id),
+			DBA::escape($dfrn_pubkey),
 			intval($dfrn_record)
 		);
 		if (!DBA::isResult($r)) {
@@ -568,12 +568,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			`network` = '%s' WHERE `id` = %d
 		",
 			intval($new_relation),
-			dbesc(DateTimeFormat::utcNow()),
-			dbesc(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utcNow()),
 			intval($duplex),
 			intval($forum),
 			intval($prv),
-			dbesc(NETWORK_DFRN),
+			DBA::escape(NETWORK_DFRN),
 			intval($dfrn_record)
 		);
 		if (!DBA::isResult($r)) {	// indicates schema is messed up or total db failure

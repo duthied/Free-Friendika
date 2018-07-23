@@ -216,11 +216,11 @@ function contacts_post(App $a)
 		`ffi_keyword_blacklist` = '%s' WHERE `id` = %d AND `uid` = %d",
 		intval($profile_id),
 		intval($priority),
-		dbesc($info),
+		DBA::escape($info),
 		intval($hidden),
 		intval($notify),
 		intval($fetch_further_information),
-		dbesc($ffi_keyword_blacklist),
+		DBA::escape($ffi_keyword_blacklist),
 		intval($contact_id),
 		intval(local_user())
 	);
@@ -308,7 +308,7 @@ function _contact_update_profile($contact_id)
 			$query .= ", ";
 		}
 
-		$query .= "`" . $key . "` = '" . dbesc($value) . "'";
+		$query .= "`" . $key . "` = '" . DBA::escape($value) . "'";
 	}
 
 	if ($query == "") {
@@ -773,12 +773,12 @@ function contacts_content(App $a)
 	if ($search) {
 		$searching = true;
 		$search_hdr = $search;
-		$search_txt = dbesc(protect_sprintf(preg_quote($search)));
+		$search_txt = DBA::escape(protect_sprintf(preg_quote($search)));
 		$sql_extra .= " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') ";
 	}
 
 	if ($nets) {
-		$sql_extra .= sprintf(" AND network = '%s' ", dbesc($nets));
+		$sql_extra .= sprintf(" AND network = '%s' ", DBA::escape($nets));
 	}
 
 	$sql_extra2 = ((($sort_type > 0) && ($sort_type <= CONTACT_IS_FRIEND)) ? sprintf(" AND `rel` = %d ", intval($sort_type)) : '');

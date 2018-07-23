@@ -2,14 +2,6 @@
 
 use Friendica\Database\DBA;
 
-function dbesc($str) {
-	if (DBA::$connected) {
-		return(DBA::escape($str));
-	} else {
-		return(str_replace("'","\\'",$str));
-	}
-}
-
 /**
  * @brief execute SQL query with printf style args - deprecated
  *
@@ -48,8 +40,4 @@ function q($sql) {
 	}
 
 	return $data;
-}
-
-function dba_timer() {
-	return microtime(true);
 }

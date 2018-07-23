@@ -19,7 +19,7 @@ function user_allow($hash)
 	$a = get_app();
 
 	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1",
-		dbesc($hash)
+		DBA::escape($hash)
 	);
 
 
@@ -36,7 +36,7 @@ function user_allow($hash)
 	}
 
 	$r = q("DELETE FROM `register` WHERE `hash` = '%s'",
-		dbesc($register[0]['hash'])
+		DBA::escape($register[0]['hash'])
 	);
 
 
@@ -77,7 +77,7 @@ function user_allow($hash)
 function user_deny($hash)
 {
 	$register = q("SELECT * FROM `register` WHERE `hash` = '%s' LIMIT 1",
-		dbesc($hash)
+		DBA::escape($hash)
 	);
 
 	if (!DBA::isResult($register)) {

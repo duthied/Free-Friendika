@@ -85,7 +85,7 @@ function register_post(App $a)
 
 	if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN) {
 		if ($using_invites && $invite_id) {
-			q("delete * from register where hash = '%s' limit 1", dbesc($invite_id));
+			q("delete * from register where hash = '%s' limit 1", DBA::escape($invite_id));
 			PConfig::set($user['uid'], 'system', 'invites_remaining', $num_invites);
 		}
 
@@ -117,22 +117,22 @@ function register_post(App $a)
 
 		$hash = random_string();
 		$r = q("INSERT INTO `register` ( `hash`, `created`, `uid`, `password`, `language`, `note` ) VALUES ( '%s', '%s', %d, '%s', '%s', '%s' ) ",
-			dbesc($hash),
-			dbesc(DateTimeFormat::utcNow()),
+			DBA::escape($hash),
+			DBA::escape(DateTimeFormat::utcNow()),
 			intval($user['uid']),
-			dbesc($result['password']),
-			dbesc(Config::get('system', 'language')),
-			dbesc($_POST['permonlybox'])
+			DBA::escape($result['password']),
+			DBA::escape(Config::get('system', 'language')),
+			DBA::escape($_POST['permonlybox'])
 		);
 
 		// invite system
 		if ($using_invites && $invite_id) {
-			q("DELETE * FROM `register` WHERE `hash` = '%s' LIMIT 1", dbesc($invite_id));
+			q("DELETE * FROM `register` WHERE `hash` = '%s' LIMIT 1", DBA::escape($invite_id));
 			PConfig::set($user['uid'], 'system', 'invites_remaining', $num_invites);
 		}
 
 		// send email to admins
-		$admin_mail_list = "'" . implode("','", array_map("dbesc", explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))))) . "'";
+		$admin_mail_list = "'" . implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))))) . "'";
 		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
 			$admin_mail_list
 		);

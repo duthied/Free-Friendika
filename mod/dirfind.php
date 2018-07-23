@@ -118,9 +118,9 @@ function dirfind_content(App $a, $prefix = "") {
 						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
 						(`url` LIKE '%s' OR `name` LIKE '%s' OR `location` LIKE '%s' OR
 						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql",
-					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)));
+					DBA::escape(NETWORK_DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)));
 
 			$results = q("SELECT `nurl`
 					FROM `gcontact`
@@ -130,9 +130,9 @@ function dirfind_content(App $a, $prefix = "") {
 						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql
 						GROUP BY `nurl`
 						ORDER BY `updated` DESC LIMIT %d, %d",
-					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					DBA::escape(NETWORK_DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
 					intval($startrec), intval($perpage));
 			$j = new stdClass();
 			$j->total = $count[0]["total"];

@@ -536,7 +536,7 @@ class Contact extends BaseObject
 		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
 			FROM `contact` WHERE `addr` = '%s' AND `uid` = %d",
-			dbesc($addr),
+			DBA::escape($addr),
 			intval($uid)
 		);
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
@@ -544,7 +544,7 @@ class Contact extends BaseObject
 			$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 				FROM `contact` WHERE `addr` = '%s' AND `uid` = 0",
-				dbesc($addr)
+				DBA::escape($addr)
 			);
 		}
 
@@ -553,7 +553,7 @@ class Contact extends BaseObject
 			$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
 				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
 				FROM `gcontact` WHERE `addr` = '%s'",
-				dbesc($addr)
+				DBA::escape($addr)
 			);
 		}
 
@@ -1014,7 +1014,7 @@ class Contact extends BaseObject
 		// This speeds up the query a lot
 		$r = q("SELECT `network`, `id` AS `author-id`, `contact-type` FROM `contact`
 			WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0",
-			dbesc(normalise_link($contact_url))
+			DBA::escape(normalise_link($contact_url))
 		);
 
 		if (!DBA::isResult($r)) {
@@ -1297,16 +1297,16 @@ class Contact extends BaseObject
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` IN ('%s', '%s') AND `network` = '%s' AND NOT `pending` LIMIT 1",
 			intval($uid),
-			dbesc($ret['poll']),
-			dbesc(normalise_link($ret['poll'])),
-			dbesc($ret['network'])
+			DBA::escape($ret['poll']),
+			DBA::escape(normalise_link($ret['poll'])),
+			DBA::escape($ret['network'])
 		);
 
 		if (!DBA::isResult($r)) {
 			$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `network` = '%s' AND NOT `pending` LIMIT 1",
 				intval($uid),
-				dbesc(normalise_link($url)),
-				dbesc($ret['network'])
+				DBA::escape(normalise_link($url)),
+				DBA::escape($ret['network'])
 			);
 		}
 
@@ -1517,13 +1517,13 @@ class Contact extends BaseObject
 				`blocked`, `readonly`, `pending`, `writable`)
 				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
 				intval($importer['uid']),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc($url),
-				dbesc(normalise_link($url)),
-				dbesc($name),
-				dbesc($nick),
-				dbesc($photo),
-				dbesc(NETWORK_OSTATUS),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape($url),
+				DBA::escape(normalise_link($url)),
+				DBA::escape($name),
+				DBA::escape($nick),
+				DBA::escape($photo),
+				DBA::escape(NETWORK_OSTATUS),
 				intval(CONTACT_IS_FOLLOWER)
 			);
 
@@ -1574,7 +1574,7 @@ class Contact extends BaseObject
 			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [PAGE_SOAPBOX, PAGE_FREELOVE, PAGE_COMMUNITY])) {
 				q("UPDATE `contact` SET `pending` = 0 WHERE `uid` = %d AND `url` = '%s' AND `pending` LIMIT 1",
 						intval($importer['uid']),
-						dbesc($url)
+						DBA::escape($url)
 				);
 			}
 		}
@@ -1625,7 +1625,7 @@ class Contact extends BaseObject
 
 				// Check for duplicates
 				$s = q("SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
-					intval($rr['uid']), intval($rr['id']), dbesc(DateTimeFormat::utc($nextbd)), dbesc('birthday'));
+					intval($rr['uid']), intval($rr['id']), DBA::escape(DateTimeFormat::utc($nextbd)), DBA::escape('birthday'));
 
 				if (DBA::isResult($s)) {
 					continue;
@@ -1636,15 +1636,15 @@ class Contact extends BaseObject
 
 				q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ", intval($rr['uid']), intval($rr['id']),
-					dbesc(DateTimeFormat::utcNow()), dbesc(DateTimeFormat::utcNow()), dbesc(DateTimeFormat::utc($nextbd)),
-					dbesc(DateTimeFormat::utc($nextbd . ' + 1 day ')), dbesc($bdtext), dbesc($bdtext2), dbesc('birthday'),
+					DBA::escape(DateTimeFormat::utcNow()), DBA::escape(DateTimeFormat::utcNow()), DBA::escape(DateTimeFormat::utc($nextbd)),
+					DBA::escape(DateTimeFormat::utc($nextbd . ' + 1 day ')), DBA::escape($bdtext), DBA::escape($bdtext2), DBA::escape('birthday'),
 					intval(0)
 				);
 
 
 				// update bdyear
-				q("UPDATE `contact` SET `bdyear` = '%s', `bd` = '%s' WHERE `uid` = %d AND `id` = %d", dbesc(substr($nextbd, 0, 4)),
-					dbesc($nextbd), intval($rr['uid']), intval($rr['id'])
+				q("UPDATE `contact` SET `bdyear` = '%s', `bd` = '%s' WHERE `uid` = %d AND `id` = %d", DBA::escape(substr($nextbd, 0, 4)),
+					DBA::escape($nextbd), intval($rr['uid']), intval($rr['id'])
 				);
 			}
 		}
@@ -1661,7 +1661,7 @@ class Contact extends BaseObject
 			return;
 		}
 
-		$str = dbesc(implode(',', $contact_ids));
+		$str = DBA::escape(implode(',', $contact_ids));
 
 		$stmt = DBA::p("SELECT `id` FROM `contact` WHERE `id` IN ( " . $str . ") AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0");
 

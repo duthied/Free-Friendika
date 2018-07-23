@@ -35,7 +35,7 @@ class UserImport
 	 */
 	private static function checkCols($table, &$arr)
 	{
-		$query = sprintf("SHOW COLUMNS IN `%s`", dbesc($table));
+		$query = sprintf("SHOW COLUMNS IN `%s`", DBA::escape($table));
 		logger("uimport: $query", LOGGER_DEBUG);
 		$r = q($query);
 		$tcols = [];
@@ -64,8 +64,8 @@ class UserImport
 		}
 
 		self::checkCols($table, $arr);
-		$cols = implode("`,`", array_map('dbesc', array_keys($arr)));
-		$vals = implode("','", array_map('dbesc', array_values($arr)));
+		$cols = implode("`,`", array_map(['Friendica\Database\DBA', 'escape'], array_keys($arr)));
+		$vals = implode("','", array_map(['Friendica\Database\DBA', 'escape'], array_values($arr)));
 		$query = "INSERT INTO `$table` (`$cols`) VALUES ('$vals')";
 		logger("uimport: $query", LOGGER_TRACE);
 

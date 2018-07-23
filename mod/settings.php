@@ -175,23 +175,23 @@ function settings_post(App $a)
 							icon='%s',
 							uid=%d
 						WHERE client_id='%s'",
-					dbesc($key),
-					dbesc($secret),
-					dbesc($name),
-					dbesc($redirect),
-					dbesc($icon),
+					DBA::escape($key),
+					DBA::escape($secret),
+					DBA::escape($name),
+					DBA::escape($redirect),
+					DBA::escape($icon),
 					local_user(),
-					dbesc($key)
+					DBA::escape($key)
 				);
 			} else {
 				q("INSERT INTO clients
 							(client_id, pw, name, redirect_uri, icon, uid)
 						VALUES ('%s', '%s', '%s', '%s', '%s',%d)",
-					dbesc($key),
-					dbesc($secret),
-					dbesc($name),
-					dbesc($redirect),
-					dbesc($icon),
+					DBA::escape($key),
+					DBA::escape($secret),
+					DBA::escape($name),
+					DBA::escape($redirect),
+					DBA::escape($icon),
 					local_user()
 				);
 			}
@@ -250,13 +250,13 @@ function settings_post(App $a)
 				$r = q("UPDATE `mailacct` SET `server` = '%s', `port` = %d, `ssltype` = '%s', `user` = '%s',
 					`action` = %d, `movetofolder` = '%s',
 					`mailbox` = 'INBOX', `reply_to` = '%s', `pubmail` = %d WHERE `uid` = %d",
-					dbesc($mail_server),
+					DBA::escape($mail_server),
 					intval($mail_port),
-					dbesc($mail_ssl),
-					dbesc($mail_user),
+					DBA::escape($mail_ssl),
+					DBA::escape($mail_user),
 					intval($mail_action),
-					dbesc($mail_movetofolder),
-					dbesc($mail_replyto),
+					DBA::escape($mail_movetofolder),
+					DBA::escape($mail_replyto),
 					intval($mail_pubmail),
 					intval(local_user())
 				);
@@ -356,7 +356,7 @@ function settings_post(App $a)
 		Theme::install($theme);
 
 		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
-				dbesc($theme),
+				DBA::escape($theme),
 				intval(local_user())
 		);
 
@@ -579,29 +579,29 @@ function settings_post(App $a)
 				`def_gid` = %d, `blockwall` = %d, `hidewall` = %d, `blocktags` = %d,
 				`unkmail` = %d, `cntunkmail` = %d, `language` = '%s'
 			WHERE `uid` = %d",
-			dbesc($username),
-			dbesc($email),
-			dbesc($openid),
-			dbesc($timezone),
-			dbesc($str_contact_allow),
-			dbesc($str_group_allow),
-			dbesc($str_contact_deny),
-			dbesc($str_group_deny),
+			DBA::escape($username),
+			DBA::escape($email),
+			DBA::escape($openid),
+			DBA::escape($timezone),
+			DBA::escape($str_contact_allow),
+			DBA::escape($str_group_allow),
+			DBA::escape($str_contact_deny),
+			DBA::escape($str_group_deny),
 			intval($notify),
 			intval($page_flags),
 			intval($account_type),
-			dbesc($defloc),
+			DBA::escape($defloc),
 			intval($allow_location),
 			intval($maxreq),
 			intval($expire),
-			dbesc($openidserver),
+			DBA::escape($openidserver),
 			intval($def_gid),
 			intval($blockwall),
 			intval($hidewall),
 			intval($blocktags),
 			intval($unkmail),
 			intval($cntunkmail),
-			dbesc($language),
+			DBA::escape($language),
 			intval(local_user())
 	);
 	if (DBA::isResult($r)) {
@@ -618,7 +618,7 @@ function settings_post(App $a)
 		`hide-friends` = %d
 		WHERE `is-default` = 1 AND `uid` = %d",
 		intval($publish),
-		dbesc($username),
+		DBA::escape($username),
 		intval($net_publish),
 		intval($hide_friends),
 		intval(local_user())
@@ -678,7 +678,7 @@ function settings_content(App $a)
 
 		if (($a->argc > 3) && ($a->argv[2] === 'edit')) {
 			$r = q("SELECT * FROM clients WHERE client_id='%s' AND uid=%d",
-					dbesc($a->argv[3]),
+					DBA::escape($a->argv[3]),
 					local_user());
 
 			if (!DBA::isResult($r)) {

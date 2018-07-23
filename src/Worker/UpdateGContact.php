@@ -40,7 +40,7 @@ class UpdateGContact
 			}
 
 			q("UPDATE `gcontact` SET `last_failure` = '%s' WHERE `id` = %d",
-				dbesc(DateTimeFormat::utcNow()), intval($contact_id));
+				DBA::escape(DateTimeFormat::utcNow()), intval($contact_id));
 			return;
 		}
 
@@ -63,26 +63,26 @@ class UpdateGContact
 
 		q("UPDATE `gcontact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `photo` = '%s'
 					WHERE `id` = %d",
-					dbesc($data["name"]),
-					dbesc($data["nick"]),
-					dbesc($data["addr"]),
-					dbesc($data["photo"]),
+					DBA::escape($data["name"]),
+					DBA::escape($data["nick"]),
+					DBA::escape($data["addr"]),
+					DBA::escape($data["photo"]),
 			intval($contact_id)
 		);
 
 		q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `addr` = '%s', `photo` = '%s'
 					WHERE `uid` = 0 AND `addr` = '' AND `nurl` = '%s'",
-					dbesc($data["name"]),
-					dbesc($data["nick"]),
-					dbesc($data["addr"]),
-					dbesc($data["photo"]),
-					dbesc(normalise_link($data["url"]))
+					DBA::escape($data["name"]),
+					DBA::escape($data["nick"]),
+					DBA::escape($data["addr"]),
+					DBA::escape($data["photo"]),
+					DBA::escape(normalise_link($data["url"]))
 		);
 
 		q("UPDATE `contact` SET `addr` = '%s'
 					WHERE `uid` != 0 AND `addr` = '' AND `nurl` = '%s'",
-					dbesc($data["addr"]),
-					dbesc(normalise_link($data["url"]))
+					DBA::escape($data["addr"]),
+					DBA::escape(normalise_link($data["url"]))
 		);
 	}
 }

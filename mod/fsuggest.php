@@ -48,21 +48,21 @@ function fsuggest_post(App $a)
 				VALUES ( %d, %d, '%s','%s','%s','%s','%s','%s')",
 				intval(local_user()),
 				intval($contact_id),
-				dbesc($r[0]['name']),
-				dbesc($r[0]['url']),
-				dbesc($r[0]['request']),
-				dbesc($r[0]['photo']),
-				dbesc($hash),
-				dbesc(DateTimeFormat::utcNow())
+				DBA::escape($r[0]['name']),
+				DBA::escape($r[0]['url']),
+				DBA::escape($r[0]['request']),
+				DBA::escape($r[0]['photo']),
+				DBA::escape($hash),
+				DBA::escape(DateTimeFormat::utcNow())
 			);
 			$r = q("SELECT `id` FROM `fsuggest` WHERE `note` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($hash),
+				DBA::escape($hash),
 				intval(local_user())
 			);
 			if (DBA::isResult($r)) {
 				$fsuggest_id = $r[0]['id'];
 				q("UPDATE `fsuggest` SET `note` = '%s' WHERE `id` = %d AND `uid` = %d",
-					dbesc($note),
+					DBA::escape($note),
 					intval($fsuggest_id),
 					intval(local_user())
 				);

@@ -9,7 +9,6 @@ use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
-use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Photo;
@@ -211,7 +210,7 @@ class CronJobs
 
 				// So optimize it
 				logger("Optimize Table " . $table["Name"], LOGGER_DEBUG);
-				q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
+				q("OPTIMIZE TABLE `%s`", DBA::escape($table["Name"]));
 			}
 		}
 
@@ -229,7 +228,7 @@ class CronJobs
 
 		$r = q("SELECT `id`, `url` FROM `contact`
 			WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
-				ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
+				ORDER BY RAND() LIMIT 50", DBA::escape(NETWORK_DIASPORA));
 		if (!DBA::isResult($r)) {
 			return;
 		}
@@ -251,7 +250,7 @@ class CronJobs
 
 			logger("Repair contact " . $contact["id"] . " " . $contact["url"], LOGGER_DEBUG);
 			q("UPDATE `contact` SET `batch` = '%s', `notify` = '%s', `poll` = '%s', pubkey = '%s' WHERE `id` = %d",
-				dbesc($data["batch"]), dbesc($data["notify"]), dbesc($data["poll"]), dbesc($data["pubkey"]),
+				DBA::escape($data["batch"]), DBA::escape($data["notify"]), DBA::escape($data["poll"]), DBA::escape($data["pubkey"]),
 				intval($contact["id"]));
 		}
 	}

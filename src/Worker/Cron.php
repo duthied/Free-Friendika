@@ -187,11 +187,11 @@ class Cron
 					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_FEED),
-			dbesc(NETWORK_MAIL)
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_OSTATUS),
+			DBA::escape(NETWORK_DIASPORA),
+			DBA::escape(NETWORK_FEED),
+			DBA::escape(NETWORK_MAIL)
 		);
 
 		if (!DBA::isResult($contacts)) {

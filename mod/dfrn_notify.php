@@ -74,13 +74,13 @@ function dfrn_notify_post(App $a) {
 	$sql_extra = '';
 	switch ($direction) {
 		case (-1):
-			$sql_extra = sprintf(" AND ( `issued-id` = '%s' OR `dfrn-id` = '%s' ) ", dbesc($dfrn_id), dbesc($dfrn_id));
+			$sql_extra = sprintf(" AND ( `issued-id` = '%s' OR `dfrn-id` = '%s' ) ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
 			break;
 		case 0:
-			$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+			$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 			break;
 		case 1:
-			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 			break;
 		default:
 			System::xmlExit(3, 'Invalid direction');
@@ -104,7 +104,7 @@ function dfrn_notify_post(App $a) {
 			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 				AND `user`.`nickname` = '%s' AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
-		dbesc($a->argv[1])
+		DBA::escape($a->argv[1])
 	);
 
 	if (!DBA::isResult($r)) {
@@ -312,15 +312,15 @@ function dfrn_notify_content(App $a) {
 		$sql_extra = '';
 		switch($direction) {
 			case (-1):
-				$sql_extra = sprintf(" AND (`issued-id` = '%s' OR `dfrn-id` = '%s') ", dbesc($dfrn_id), dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND (`issued-id` = '%s' OR `dfrn-id` = '%s') ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
 				$my_id = $dfrn_id;
 				break;
 			case 0:
-				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 				$my_id = '1:' . $dfrn_id;
 				break;
 			case 1:
-				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
@@ -331,7 +331,7 @@ function dfrn_notify_content(App $a) {
 		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`page-flags` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
 				WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `user`.`nickname` = '%s'
 				AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
-				dbesc($a->argv[1])
+				DBA::escape($a->argv[1])
 		);
 
 		if (!DBA::isResult($r)) {

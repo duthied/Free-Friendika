@@ -217,14 +217,14 @@ function message_content(App $a)
 			if (!DBA::isResult($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 					intval(local_user()),
-					dbesc(normalise_link(base64_decode($a->argv[2])))
+					DBA::escape(normalise_link(base64_decode($a->argv[2])))
 				);
 			}
 
 			if (!DBA::isResult($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 					intval(local_user()),
-					dbesc(base64_decode($a->argv[2]))
+					DBA::escape(base64_decode($a->argv[2]))
 				);
 			}
 
@@ -311,10 +311,10 @@ function message_content(App $a)
 			$contact_id = $r[0]['contact-id'];
 			$convid = $r[0]['convid'];
 
-			$sql_extra = sprintf(" and `mail`.`parent-uri` = '%s' ", dbesc($r[0]['parent-uri']));
+			$sql_extra = sprintf(" and `mail`.`parent-uri` = '%s' ", DBA::escape($r[0]['parent-uri']));
 			if ($convid)
 				$sql_extra = sprintf(" and ( `mail`.`parent-uri` = '%s' OR `mail`.`convid` = '%d' ) ",
-					dbesc($r[0]['parent-uri']),
+					DBA::escape($r[0]['parent-uri']),
 					intval($convid)
 				);
 
@@ -332,7 +332,7 @@ function message_content(App $a)
 		}
 
 		$r = q("UPDATE `mail` SET `seen` = 1 WHERE `parent-uri` = '%s' AND `uid` = %d",
-			dbesc($r[0]['parent-uri']),
+			DBA::escape($r[0]['parent-uri']),
 			intval(local_user())
 		);
 

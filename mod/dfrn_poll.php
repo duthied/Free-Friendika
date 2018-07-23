@@ -56,7 +56,7 @@ function dfrn_poll_init(App $a)
 		$user = '';
 		if ($a->argc > 1) {
 			$r = q("SELECT `hidewall`,`nickname` FROM `user` WHERE `user`.`nickname` = '%s' LIMIT 1",
-				dbesc($a->argv[1])
+				DBA::escape($a->argv[1])
 			);
 			if (!$r) {
 				System::httpExit(404);
@@ -77,15 +77,15 @@ function dfrn_poll_init(App $a)
 		$sql_extra = '';
 		switch ($direction) {
 			case -1:
-				$sql_extra = sprintf(" AND ( `dfrn-id` = '%s' OR `issued-id` = '%s' ) ", dbesc($dfrn_id), dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND ( `dfrn-id` = '%s' OR `issued-id` = '%s' ) ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
 				$my_id = $dfrn_id;
 				break;
 			case 0:
-				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 				$my_id = '1:' . $dfrn_id;
 				break;
 			case 1:
-				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
@@ -97,7 +97,7 @@ function dfrn_poll_init(App $a)
 			FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `user`.`nickname` = '%s' $sql_extra LIMIT 1",
-			dbesc($a->argv[1])
+			DBA::escape($a->argv[1])
 		);
 
 		if (DBA::isResult($r)) {
@@ -129,8 +129,8 @@ function dfrn_poll_init(App $a)
 					$session_id = session_id();
 					$expire = time() + 86400;
 					q("UPDATE `session` SET `expire` = '%s' WHERE `sid` = '%s'",
-						dbesc($expire),
-						dbesc($session_id)
+						DBA::escape($expire),
+						DBA::escape($session_id)
 					);
 				}
 			}
@@ -144,7 +144,7 @@ function dfrn_poll_init(App $a)
 		if ((strlen($challenge)) && (strlen($sec))) {
 			DBA::delete('profile_check', ["`expire` < ?", time()]);
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
-				dbesc($sec)
+				DBA::escape($sec)
 			);
 			if (!DBA::isResult($r)) {
 				System::xmlExit(3, 'No ticket');
@@ -209,7 +209,7 @@ function dfrn_poll_init(App $a)
 
 			DBA::delete('profile_check', ["`expire` < ?", time()]);
 			$r = q("SELECT * FROM `profile_check` WHERE `dfrn_id` = '%s' ORDER BY `expire` DESC",
-				dbesc($dfrn_id));
+				DBA::escape($dfrn_id));
 			if (DBA::isResult($r)) {
 				System::xmlExit(1);
 				return; // NOTREACHED
@@ -236,7 +236,7 @@ function dfrn_poll_post(App $a)
 
 			DBA::delete('profile_check', ["`expire` < ?", time()]);
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
-				dbesc($sec)
+				DBA::escape($sec)
 			);
 			if (!DBA::isResult($r)) {
 				System::xmlExit(3, 'No ticket');
@@ -296,8 +296,8 @@ function dfrn_poll_post(App $a)
 	}
 
 	$r = q("SELECT * FROM `challenge` WHERE `dfrn-id` = '%s' AND `challenge` = '%s' LIMIT 1",
-		dbesc($dfrn_id),
-		dbesc($challenge)
+		DBA::escape($dfrn_id),
+		DBA::escape($challenge)
 	);
 
 	if (!DBA::isResult($r)) {
@@ -312,15 +312,15 @@ function dfrn_poll_post(App $a)
 	$sql_extra = '';
 	switch ($direction) {
 		case -1:
-			$sql_extra = sprintf(" AND `issued-id` = '%s' ", dbesc($dfrn_id));
+			$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
 			$my_id = $dfrn_id;
 			break;
 		case 0:
-			$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+			$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 			$my_id = '1:' . $dfrn_id;
 			break;
 		case 1:
-			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 			$my_id = '0:' . $dfrn_id;
 			break;
 		default:
@@ -339,7 +339,7 @@ function dfrn_poll_post(App $a)
 
 	if ($type === 'reputation' && strlen($url)) {
 		$r = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($url),
+			DBA::escape($url),
 			intval($owner_uid)
 		);
 		$reputation = 0;
@@ -417,11 +417,11 @@ function dfrn_poll_content(App $a)
 		if ($type !== 'profile') {
 			$r = q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` , `type`, `last_update` )
 				VALUES( '%s', '%s', '%s', '%s', '%s' ) ",
-				dbesc($hash),
-				dbesc($dfrn_id),
+				DBA::escape($hash),
+				DBA::escape($dfrn_id),
 				intval(time() + 60 ),
-				dbesc($type),
-				dbesc($last_update)
+				DBA::escape($type),
+				DBA::escape($last_update)
 			);
 		}
 
@@ -429,19 +429,19 @@ function dfrn_poll_content(App $a)
 		switch ($direction) {
 			case -1:
 				if ($type === 'profile') {
-					$sql_extra = sprintf(" AND ( `dfrn-id` = '%s' OR `issued-id` = '%s' ) ", dbesc($dfrn_id), dbesc($dfrn_id));
+					$sql_extra = sprintf(" AND ( `dfrn-id` = '%s' OR `issued-id` = '%s' ) ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
 				} else {
-					$sql_extra = sprintf(" AND `issued-id` = '%s' ", dbesc($dfrn_id));
+					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
 				}
 
 				$my_id = $dfrn_id;
 				break;
 			case 0:
-				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 				$my_id = '1:' . $dfrn_id;
 				break;
 			case 1:
-				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
@@ -455,7 +455,7 @@ function dfrn_poll_content(App $a)
 			FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
 			AND `user`.`nickname` = '%s' $sql_extra LIMIT 1",
-			dbesc($nickname)
+			DBA::escape($nickname)
 		);
 		if (DBA::isResult($r)) {
 			$challenge = '';
@@ -546,8 +546,8 @@ function dfrn_poll_content(App $a)
 					$session_id = session_id();
 					$expire = time() + 86400;
 					q("UPDATE `session` SET `expire` = '%s' WHERE `sid` = '%s'",
-						dbesc($expire),
-						dbesc($session_id)
+						DBA::escape($expire),
+						DBA::escape($session_id)
 					);
 				}
 

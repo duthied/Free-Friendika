@@ -263,7 +263,7 @@ function consume_feed($xml, $importer, $contact, &$hub, $datedir = 0, $pass = 0)
 			FROM `contact`
 			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 			WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
-			dbesc($contact["id"]), dbesc($importer["uid"])
+			DBA::escape($contact["id"]), DBA::escape($importer["uid"])
 		);
 		if (DBA::isResult($r)) {
 			logger("Now import the DFRN feed");

@@ -85,7 +85,7 @@ class ACL extends BaseObject
 		if (!empty($x['networks'])) {
 			/// @TODO rewrite to foreach()
 			array_walk($x['networks'], function (&$value) {
-				$value = "'" . dbesc($value) . "'";
+				$value = "'" . DBA::escape($value) . "'";
 			});
 			$str_nets = implode(',', $x['networks']);
 			$sql_extra .= " AND `network` IN ( $str_nets ) ";

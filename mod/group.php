@@ -61,7 +61,7 @@ function group_post(App $a) {
 		$groupname = notags(trim($_POST['groupname']));
 		if ((strlen($groupname))  && ($groupname != $group['name'])) {
 			$r = q("UPDATE `group` SET `name` = '%s' WHERE `uid` = %d AND `id` = %d",
-				dbesc($groupname),
+				DBA::escape($groupname),
 				intval(local_user()),
 				intval($group['id'])
 			);

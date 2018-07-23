@@ -251,11 +251,15 @@ class DBA
 	}
 
 	public static function escape($str) {
-		switch (self::$driver) {
-			case 'pdo':
-				return substr(@self::$connection->quote($str, PDO::PARAM_STR), 1, -1);
-			case 'mysqli':
-				return @self::$connection->real_escape_string($str);
+		if (self::$connected) {
+			switch (self::$driver) {
+				case 'pdo':
+					return substr(@self::$connection->quote($str, PDO::PARAM_STR), 1, -1);
+				case 'mysqli':
+					return @self::$connection->real_escape_string($str);
+			}
+		} else {
+			return str_replace("'", "\\'", $str);
 		}
 	}
 
@@ -1610,7 +1614,7 @@ class DBA
 			if (is_bool($value)) {
 				$value = ($value ? '1' : '0');
 			} else {
-				$value = dbesc($value);
+				$value = self::escape($value);
 			}
 			return;
 		}
@@ -1620,7 +1624,7 @@ class DBA
 		} elseif (is_float($value) || is_integer($value)) {
 			$value = (string) $value;
 		} else {
-			$value = "'" . dbesc($value) . "'";
+			$value = "'" . self::escape($value) . "'";
 		}
 	}
 

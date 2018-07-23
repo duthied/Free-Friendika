@@ -32,7 +32,7 @@ function attach_init(App $a)
 	// Now we'll see if we can access the attachment
 
 	$r = q("SELECT * FROM `attach` WHERE `id` = '%d' $sql_extra LIMIT 1",
-		dbesc($item_id)
+		DBA::escape($item_id)
 	);
 
 	if (!DBA::isResult($r)) {

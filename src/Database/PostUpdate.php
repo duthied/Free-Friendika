@@ -76,7 +76,7 @@ class PostUpdate
 
 		$r = q($query1.$query2.$query3."  ORDER BY `item`.`id` LIMIT 1",
 			intval($start_id), intval($end_id),
-			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+			DBA::escape(NETWORK_DFRN), DBA::escape(NETWORK_DIASPORA), DBA::escape(NETWORK_OSTATUS));
 		if (!$r) {
 			Config::set("system", "post_update_version", 1194);
 			logger("Update is done", LOGGER_DEBUG);
@@ -90,7 +90,7 @@ class PostUpdate
 
 		$r = q($query1.$query2.$query3."  ORDER BY `item`.`id` LIMIT 1000,1",
 			intval($start_id), intval($end_id),
-			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+			DBA::escape(NETWORK_DFRN), DBA::escape(NETWORK_DIASPORA), DBA::escape(NETWORK_OSTATUS));
 		if ($r) {
 			$pos_id = $r[0]["id"];
 		} else {
@@ -100,7 +100,7 @@ class PostUpdate
 
 		q("UPDATE `item` ".$query2." SET `item`.`global` = 1 ".$query3,
 			intval($start_id), intval($pos_id),
-			dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA), dbesc(NETWORK_OSTATUS));
+			DBA::escape(NETWORK_DFRN), DBA::escape(NETWORK_DIASPORA), DBA::escape(NETWORK_OSTATUS));
 
 		logger("Done", LOGGER_DEBUG);
 	}

@@ -510,12 +510,12 @@ class Event extends BaseObject
 				$sql_extra ",
 				intval($owner_uid),
 				intval($event_params["ignore"]),
-				dbesc($event_params["start"]),
-				dbesc($event_params["start"]),
-				dbesc($event_params["finish"]),
-				dbesc($event_params["adjust_start"]),
-				dbesc($event_params["adjust_start"]),
-				dbesc($event_params["adjust_finish"])
+				DBA::escape($event_params["start"]),
+				DBA::escape($event_params["start"]),
+				DBA::escape($event_params["finish"]),
+				DBA::escape($event_params["adjust_start"]),
+				DBA::escape($event_params["adjust_start"]),
+				DBA::escape($event_params["adjust_finish"])
 		);
 
 		if (DBA::isResult($r)) {

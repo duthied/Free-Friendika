@@ -159,7 +159,7 @@ EOT;
 
 	$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
 		intval($item['id']),
-		dbesc($term)
+		DBA::escape($term)
 	);
 
 	if (!$blocktags && $t[0]['tcount'] == 0) {
@@ -167,8 +167,8 @@ EOT;
 		   intval($item['id']),
 		   $term_objtype,
 		   TERM_HASHTAG,
-		   dbesc($term),
-		   dbesc(System::baseUrl() . '/search?tag=' . $term),
+		   DBA::escape($term),
+		   DBA::escape(System::baseUrl() . '/search?tag=' . $term),
 		   intval($owner_uid)
 		);
 	}
@@ -181,7 +181,7 @@ EOT;
 		);
 		$t = q("SELECT COUNT(`tid`) AS `tcount` FROM `term` WHERE `oid`=%d AND `term`='%s'",
 			intval($original_item['id']),
-			dbesc($term)
+			DBA::escape($term)
 		);
 
 		if (DBA::isResult($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
@@ -189,8 +189,8 @@ EOT;
 				intval($original_item['id']),
 				$term_objtype,
 				TERM_HASHTAG,
-				dbesc($term),
-				dbesc(System::baseUrl() . '/search?tag=' . $term),
+				DBA::escape($term),
+				DBA::escape(System::baseUrl() . '/search?tag=' . $term),
 				intval($owner_uid)
 			);
 		}

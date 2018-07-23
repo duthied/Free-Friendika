@@ -65,7 +65,7 @@ function poco_init(App $a) {
 	if (! $system_mode && ! $global) {
 		$users = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
-			dbesc($user)
+			DBA::escape($user)
 		);
 		if (! DBA::isResult($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
 			System::httpExit(404);
@@ -88,10 +88,10 @@ function poco_init(App $a) {
 	}
 	if ($global) {
 		$contacts = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure` AND NOT `hide` AND `network` IN ('%s', '%s', '%s')",
-			dbesc($update_limit),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
+			DBA::escape($update_limit),
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_DIASPORA),
+			DBA::escape(NETWORK_OSTATUS)
 		);
 	} elseif ($system_mode) {
 		$contacts = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1
@@ -101,10 +101,10 @@ function poco_init(App $a) {
 			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra",
 			intval($user['uid']),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_STATUSNET)
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_DIASPORA),
+			DBA::escape(NETWORK_OSTATUS),
+			DBA::escape(NETWORK_STATUSNET)
 		);
 	}
 	if (DBA::isResult($contacts)) {
@@ -123,10 +123,10 @@ function poco_init(App $a) {
 		logger("Start global query", LOGGER_DEBUG);
 		$contacts = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND NOT `hide` AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
 			ORDER BY `updated` DESC LIMIT %d, %d",
-			dbesc($update_limit),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS),
+			DBA::escape($update_limit),
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_DIASPORA),
+			DBA::escape(NETWORK_OSTATUS),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
@@ -148,10 +148,10 @@ function poco_init(App $a) {
 			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_STATUSNET),
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_DIASPORA),
+			DBA::escape(NETWORK_OSTATUS),
+			DBA::escape(NETWORK_STATUSNET),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);

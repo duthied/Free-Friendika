@@ -322,9 +322,9 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 				  )
 				",
 				intval($remote_user),
-				dbesc($gs),
+				DBA::escape($gs),
 				intval($remote_user),
-				dbesc($gs)
+				DBA::escape($gs)
 			);
 		}
 	}
@@ -385,9 +385,9 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 				  AND ( `item`.allow_cid REGEXP '<%d>' OR `item`.allow_gid REGEXP '%s' OR ( `item`.allow_cid = '' AND `item`.allow_gid = '')))))
 				",
 				intval($remote_user),
-				dbesc($gs),
+				DBA::escape($gs),
 				intval($remote_user),
-				dbesc($gs)
+				DBA::escape($gs)
 			);
 		}
 	}

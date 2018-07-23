@@ -26,7 +26,7 @@ function repair_ostatus_content(App $a) {
         $r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE
                 `uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)",
                 intval($uid),
-                dbesc(NETWORK_OSTATUS),
+                DBA::escape(NETWORK_OSTATUS),
                 intval(CONTACT_IS_FRIEND),
                 intval(CONTACT_IS_SHARING));
 
@@ -40,7 +40,7 @@ function repair_ostatus_content(App $a) {
 		ORDER BY `url`
 		LIMIT %d, 1",
                 intval($uid),
-                dbesc(NETWORK_OSTATUS),
+                DBA::escape(NETWORK_OSTATUS),
                 intval(CONTACT_IS_FRIEND),
                 intval(CONTACT_IS_SHARING), $counter++);
 

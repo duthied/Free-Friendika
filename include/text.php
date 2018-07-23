@@ -755,9 +755,9 @@ function contact_block() {
 				AND NOT `pending` AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s')",
 			intval($a->profile['uid']),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_DIASPORA)
+			DBA::escape(NETWORK_DFRN),
+			DBA::escape(NETWORK_OSTATUS),
+			DBA::escape(NETWORK_DIASPORA)
 	);
 	if (DBA::isResult($r)) {
 		$total = intval($r[0]['total']);
@@ -773,9 +773,9 @@ function contact_block() {
 					AND `network` IN ('%s', '%s', '%s')
 				ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
-				dbesc(NETWORK_DFRN),
-				dbesc(NETWORK_OSTATUS),
-				dbesc(NETWORK_DIASPORA),
+				DBA::escape(NETWORK_DFRN),
+				DBA::escape(NETWORK_OSTATUS),
+				DBA::escape(NETWORK_DIASPORA),
 				intval($shown)
 		);
 		if (DBA::isResult($r)) {
@@ -784,7 +784,7 @@ function contact_block() {
 				$contacts[] = $contact["id"];
 			}
 			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
-				dbesc(implode(",", $contacts)));
+				DBA::escape(implode(",", $contacts)));
 
 			if (DBA::isResult($r)) {
 				$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
@@ -1467,7 +1467,7 @@ function generate_user_guid() {
 	do {
 		$guid = System::createGUID(32);
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
-			dbesc($guid)
+			DBA::escape($guid)
 		);
 		if (!DBA::isResult($x)) {
 			$found = false;
@@ -1659,7 +1659,7 @@ function file_tag_file_query($table,$s,$type = 'file') {
 	} else {
 		$str = preg_quote('<' . str_replace('%', '%%', file_tag_encode($s)) . '>');
 	}
-	return " AND " . (($table) ? dbesc($table) . '.' : '') . "file regexp '" . dbesc($str) . "' ";
+	return " AND " . (($table) ? DBA::escape($table) . '.' : '') . "file regexp '" . DBA::escape($str) . "' ";
 }
 
 // ex. given music,video return <music><video> or [music][video]
@@ -1753,7 +1753,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 
 		foreach ($deleted_tags as $key => $tag) {
 			$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-				dbesc($tag),
+				DBA::escape($tag),
 				intval(TERM_OBJ_POST),
 				intval($termtype),
 				intval($uid));
@@ -1819,7 +1819,7 @@ function file_tag_unsave_file($uid, $item_id, $file, $cat = false)
 	Item::update($fields, ['id' => $item_id]);
 
 	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-		dbesc($file),
+		DBA::escape($file),
 		intval(TERM_OBJ_POST),
 		intval($termtype),
 		intval($uid)

@@ -238,7 +238,7 @@ class Notifier
 				// local followup to remote post
 				$followup = true;
 				$public_message = false; // not public
-				$conversant_str = dbesc($parent['contact-id']);
+				$conversant_str = DBA::escape($parent['contact-id']);
 				$recipients = [$parent['contact-id']];
 				$recipients_followup  = [$parent['contact-id']];
 
@@ -258,7 +258,7 @@ class Notifier
 						// Currently it is work at progress
 						$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `network` = '%s' AND NOT `blocked` AND NOT `pending` AND NOT `archive`",
 							intval($uid),
-							dbesc(NETWORK_DFRN)
+							DBA::escape(NETWORK_DFRN)
 						);
 						if (DBA::isResult($r)) {
 							foreach ($r as $rr) {
@@ -331,7 +331,7 @@ class Notifier
 				$deny = array_unique(array_merge($deny_people,$deny_groups));
 				$recipients = array_diff($recipients,$deny);
 
-				$conversant_str = dbesc(implode(', ',$conversants));
+				$conversant_str = DBA::escape(implode(', ',$conversants));
 			}
 
 			// If the thread parent is OStatus then do some magic to distribute the messages.
@@ -385,7 +385,7 @@ class Notifier
 				&& intval($target_item['pubmail'])) {
 				$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `network` = '%s'",
 					intval($uid),
-					dbesc(NETWORK_MAIL)
+					DBA::escape(NETWORK_MAIL)
 				);
 				if (DBA::isResult($r)) {
 					foreach ($r as $rr) {
@@ -440,7 +440,7 @@ class Notifier
 				$r1 = q("SELECT `batch`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`name`) AS `name`, ANY_VALUE(`network`) AS `network`
 					FROM `contact` WHERE `network` = '%s' AND `batch` != ''
 					AND `uid` = %d AND `rel` != %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` GROUP BY `batch`",
-					dbesc(NETWORK_DIASPORA),
+					DBA::escape(NETWORK_DIASPORA),
 					intval($owner['uid']),
 					intval(CONTACT_IS_SHARING)
 				);

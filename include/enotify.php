@@ -118,7 +118,7 @@ function notification($params)
 			intval(NOTIFY_TAGSELF),
 			intval(NOTIFY_COMMENT),
 			intval(NOTIFY_SHARE),
-			dbesc($params['link']),
+			DBA::escape($params['link']),
 			intval($params['uid'])
 		);
 		if ($p && count($p)) {
@@ -436,7 +436,7 @@ function notification($params)
 			$dups = false;
 			$hash = random_string();
 			$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' LIMIT 1",
-				dbesc($hash));
+				DBA::escape($hash));
 			if (DBA::isResult($r)) {
 				$dups = true;
 			}
@@ -469,23 +469,23 @@ function notification($params)
 		// create notification entry in DB
 		q("INSERT INTO `notify` (`hash`, `name`, `url`, `photo`, `date`, `uid`, `link`, `iid`, `parent`, `type`, `verb`, `otype`, `name_cache`)
 			values('%s', '%s', '%s', '%s', '%s', %d, '%s', %d, %d, %d, '%s', '%s', '%s')",
-			dbesc($datarray['hash']),
-			dbesc($datarray['name']),
-			dbesc($datarray['url']),
-			dbesc($datarray['photo']),
-			dbesc($datarray['date']),
+			DBA::escape($datarray['hash']),
+			DBA::escape($datarray['name']),
+			DBA::escape($datarray['url']),
+			DBA::escape($datarray['photo']),
+			DBA::escape($datarray['date']),
 			intval($datarray['uid']),
-			dbesc($datarray['link']),
+			DBA::escape($datarray['link']),
 			intval($datarray['iid']),
 			intval($datarray['parent']),
 			intval($datarray['type']),
-			dbesc($datarray['verb']),
-			dbesc($datarray['otype']),
-			dbesc($datarray["name_cache"])
+			DBA::escape($datarray['verb']),
+			DBA::escape($datarray['otype']),
+			DBA::escape($datarray["name_cache"])
 		);
 
 		$r = q("SELECT `id` FROM `notify` WHERE `hash` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($hash),
+			DBA::escape($hash),
 			intval($params['uid'])
 		);
 		if ($r) {
@@ -500,7 +500,7 @@ function notification($params)
 		$p = q("SELECT `id` FROM `notify` WHERE `type` IN (%d, %d) AND `link` = '%s' AND `uid` = %d ORDER BY `id`",
 			intval(NOTIFY_TAGSELF),
 			intval(NOTIFY_COMMENT),
-			dbesc($params['link']),
+			DBA::escape($params['link']),
 			intval($params['uid'])
 		);
 		if ($p && (count($p) > 1)) {
@@ -519,8 +519,8 @@ function notification($params)
 		$msg = replace_macros($epreamble, ['$itemlink' => $itemlink]);
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
 		q("UPDATE `notify` SET `msg` = '%s', `msg_cache` = '%s' WHERE `id` = %d AND `uid` = %d",
-			dbesc($msg),
-			dbesc($msg_cache),
+			DBA::escape($msg),
+			DBA::escape($msg_cache),
 			intval($notify_id),
 			intval($params['uid'])
 		);
