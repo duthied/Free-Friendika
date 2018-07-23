@@ -9,7 +9,6 @@ namespace Friendica\Core;
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Network;
@@ -113,7 +112,7 @@ class ACL extends BaseObject
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
 		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
 
-		if (DBM::is_result($contacts)) {
+		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
 				if (in_array($contact['id'], $preselected)) {
 					$selected = ' selected="selected" ';
@@ -180,7 +179,7 @@ class ACL extends BaseObject
 
 		$receiverlist = [];
 
-		if (DBM::is_result($contacts)) {
+		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
 				if (in_array($contact['id'], $preselected)) {
 					$selected = ' selected="selected"';
@@ -274,7 +273,7 @@ class ACL extends BaseObject
 
 			if (!$imap_disabled) {
 				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
-				if (DBM::is_result($mailacct)) {
+				if (DBA::isResult($mailacct)) {
 					$mail_enabled = true;
 					$pubmail_enabled = !empty($mailacct['pubmail']);
 				}

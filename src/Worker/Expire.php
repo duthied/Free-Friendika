@@ -11,7 +11,6 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Item;
 
 require_once 'include/dba.php';
@@ -68,7 +67,7 @@ class Expire
 			return;
 		} elseif (intval($param) > 0) {
 			$user = DBA::selectFirst('user', ['uid', 'username', 'expire'], ['uid' => $param]);
-			if (DBM::is_result($user)) {
+			if (DBA::isResult($user)) {
 				logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - interval: '.$user['expire'], LOGGER_DEBUG);
 				Item::expire($user['uid'], $user['expire']);
 				logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - done ', LOGGER_DEBUG);

@@ -7,7 +7,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 
 function openid_content(App $a) {
 
@@ -44,7 +44,7 @@ function openid_content(App $a) {
 				dbesc($authid), dbesc(normalise_openid($authid))
 			);
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 
 				// successful OpenID login
 

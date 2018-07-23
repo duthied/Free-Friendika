@@ -9,7 +9,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 
@@ -62,7 +61,7 @@ class Mail
 				dbesc($replyto),
 				dbesc($replyto)
 			);
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$convid = $r[0]['convid'];
 			}
 		}

@@ -10,7 +10,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Photo;
 use Friendica\Util\Network;
 use Exception;
@@ -882,7 +882,7 @@ class Image
 			intval($uid)
 		);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
 			return([]);
 		}

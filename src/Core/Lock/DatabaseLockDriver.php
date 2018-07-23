@@ -4,7 +4,6 @@ namespace Friendica\Core\Lock;
 
 use Friendica\Core\Cache;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -24,7 +23,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 			DBA::lock('locks');
 			$lock = DBA::selectFirst('locks', ['locked', 'pid'], ['`name` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
 
-			if (DBM::is_result($lock)) {
+			if (DBA::isResult($lock)) {
 				if ($lock['locked']) {
 					// We want to lock something that was already locked by us? So we got the lock.
 					if ($lock['pid'] == getmypid()) {
@@ -80,7 +79,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	{
 		$lock = DBA::selectFirst('locks', ['locked'], ['`name` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
 
-		if (DBM::is_result($lock)) {
+		if (DBA::isResult($lock)) {
 			return $lock['locked'] !== false;
 		} else {
 			return false;

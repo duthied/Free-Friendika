@@ -7,7 +7,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Util\Network;
@@ -41,7 +41,7 @@ function match_content(App $a)
 		"SELECT `pub_keywords`, `prv_keywords` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
 	);
-	if (! DBM::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		return;
 	}
 	if (! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {

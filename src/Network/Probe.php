@@ -14,7 +14,6 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
@@ -411,7 +410,7 @@ class Probe
 					}
 				}
 
-				$fields['updated'] = DBM::date();
+				$fields['updated'] = DateTimeFormat::utcNow();
 
 				$condition = ['nurl' => normalise_link($data["url"])];
 
@@ -1598,7 +1597,7 @@ class Probe
 
 		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1", intval($uid));
 
-		if (DBM::is_result($x) && DBM::is_result($r)) {
+		if (DBA::isResult($x) && DBA::isResult($r)) {
 			$mailbox = Email::constructMailboxName($r[0]);
 			$password = '';
 			openssl_private_decrypt(hex2bin($r[0]['pass']), $password, $x[0]['prvkey']);

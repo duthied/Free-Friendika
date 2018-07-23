@@ -15,7 +15,6 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
@@ -240,7 +239,7 @@ function settings_post(App $a)
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if (!DBM::is_result($r)) {
+				if (!DBA::isResult($r)) {
 					DBA::insert('mailacct', ['uid' => local_user()]);
 				}
 				if (strlen($mail_pass)) {
@@ -265,7 +264,7 @@ function settings_post(App $a)
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
-				if (DBM::is_result($r)) {
+				if (DBA::isResult($r)) {
 					$eacct = $r[0];
 					$mb = Email::constructMailboxName($eacct);
 
@@ -404,7 +403,7 @@ function settings_post(App $a)
 
 		if (!$err) {
 			$result = User::updatePassword(local_user(), $newpass);
-			if (DBM::is_result($result)) {
+			if (DBA::isResult($result)) {
 				info(L10n::t('Password changed.') . EOL);
 			} else {
 				notice(L10n::t('Password update failed. Please try again.') . EOL);
@@ -605,7 +604,7 @@ function settings_post(App $a)
 			dbesc($language),
 			intval(local_user())
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		info(L10n::t('Settings updated.') . EOL);
 	}
 
@@ -682,7 +681,7 @@ function settings_content(App $a)
 					dbesc($a->argv[3]),
 					local_user());
 
-			if (!DBM::is_result($r)) {
+			if (!DBA::isResult($r)) {
 				notice(L10n::t("You can't edit this application."));
 				return;
 			}
@@ -711,7 +710,7 @@ function settings_content(App $a)
 			return;
 		}
 
-		/// @TODO validate result with DBM::is_result()
+		/// @TODO validate result with DBA::isResult()
 		$r = q("SELECT clients.*, tokens.id as oauth_token, (clients.uid=%d) AS my
 				FROM clients
 				LEFT JOIN tokens ON clients.client_id=tokens.client_id
@@ -740,7 +739,7 @@ function settings_content(App $a)
 		$settings_addons = "";
 
 		$r = q("SELECT * FROM `hook` WHERE `hook` = 'addon_settings' ");
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			$settings_addons = L10n::t('No Addon settings configured');
 		}
 
@@ -813,15 +812,15 @@ function settings_content(App $a)
 			$r = null;
 		}
 
-		$mail_server       = ((DBM::is_result($r)) ? $r[0]['server'] : '');
-		$mail_port         = ((DBM::is_result($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
-		$mail_ssl          = ((DBM::is_result($r)) ? $r[0]['ssltype'] : '');
-		$mail_user         = ((DBM::is_result($r)) ? $r[0]['user'] : '');
-		$mail_replyto      = ((DBM::is_result($r)) ? $r[0]['reply_to'] : '');
-		$mail_pubmail      = ((DBM::is_result($r)) ? $r[0]['pubmail'] : 0);
-		$mail_action       = ((DBM::is_result($r)) ? $r[0]['action'] : 0);
-		$mail_movetofolder = ((DBM::is_result($r)) ? $r[0]['movetofolder'] : '');
-		$mail_chk          = ((DBM::is_result($r)) ? $r[0]['last_check'] : NULL_DATE);
+		$mail_server       = ((DBA::isResult($r)) ? $r[0]['server'] : '');
+		$mail_port         = ((DBA::isResult($r) && intval($r[0]['port'])) ? intval($r[0]['port']) : '');
+		$mail_ssl          = ((DBA::isResult($r)) ? $r[0]['ssltype'] : '');
+		$mail_user         = ((DBA::isResult($r)) ? $r[0]['user'] : '');
+		$mail_replyto      = ((DBA::isResult($r)) ? $r[0]['reply_to'] : '');
+		$mail_pubmail      = ((DBA::isResult($r)) ? $r[0]['pubmail'] : 0);
+		$mail_action       = ((DBA::isResult($r)) ? $r[0]['action'] : 0);
+		$mail_movetofolder = ((DBA::isResult($r)) ? $r[0]['movetofolder'] : '');
+		$mail_chk          = ((DBA::isResult($r)) ? $r[0]['last_check'] : NULL_DATE);
 
 
 		$tpl = get_markup_template('settings/connectors.tpl');
@@ -990,7 +989,7 @@ function settings_content(App $a)
 	 */
 
 	$profile = DBA::selectFirst('profile', [], ['is-default' => true, 'uid' => local_user()]);
-	if (!DBM::is_result($profile)) {
+	if (!DBA::isResult($profile)) {
 		notice(L10n::t('Unable to find your profile. Please contact your admin.') . EOL);
 		return;
 	}

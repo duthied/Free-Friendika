@@ -10,7 +10,6 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -185,7 +184,7 @@ class Login extends BaseModule
 						'verified'        => true,
 					]
 				);
-				if (DBM::is_result($user)) {
+				if (DBA::isResult($user)) {
 					if ($data->hash != cookie_hash($user)) {
 						logger("Hash for user " . $data->uid . " doesn't fit.");
 						nuke_session();
@@ -215,7 +214,7 @@ class Login extends BaseModule
 				$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
 					intval($_SESSION['visitor_id'])
 				);
-				if (DBM::is_result($r)) {
+				if (DBA::isResult($r)) {
 					self::getApp()->contact = $r[0];
 				}
 			}
@@ -240,7 +239,7 @@ class Login extends BaseModule
 						'verified'        => true,
 					]
 				);
-				if (!DBM::is_result($user)) {
+				if (!DBA::isResult($user)) {
 					nuke_session();
 					goaway(self::getApp()->get_baseurl());
 				}

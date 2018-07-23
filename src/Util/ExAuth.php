@@ -37,7 +37,6 @@ namespace Friendica\Util;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\User;
 
 require_once 'include/dba.php';
@@ -226,7 +225,7 @@ class ExAuth
 			$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
 
 			$aUser = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'], ['nickname' => $sUser]);
-			if (DBM::is_result($aUser)) {
+			if (DBA::isResult($aUser)) {
 				$uid = $aUser['uid'];
 				$success = User::authenticate($aUser, $aCommand[3]);
 				$Error = $success === false;

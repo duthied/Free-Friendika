@@ -12,7 +12,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
@@ -53,20 +52,20 @@ function display_init(App $a)
 		// Does the local user have this item?
 		if (local_user()) {
 			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'uid' => local_user()]);
-			if (DBM::is_result($item)) {
+			if (DBA::isResult($item)) {
 				$nick = $a->user["nickname"];
 			}
 		}
 
 		// Is it an item with uid=0?
-		if (!DBM::is_result($item)) {
+		if (!DBA::isResult($item)) {
 			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
 		}
 	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
 		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => [0, 2], 'uid' => 0]);
 	}
 
-	if (!DBM::is_result($item)) {
+	if (!DBA::isResult($item)) {
 		$a->error = 404;
 		notice(L10n::t('Item not found.') . EOL);
 		return;
@@ -92,7 +91,7 @@ function display_init(App $a)
 				WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
 				$nickname
 			);
-			if (DBM::is_result($profile)) {
+			if (DBA::isResult($profile)) {
 				$profiledata = $profile;
 			}
 			$profiledata["network"] = NETWORK_DFRN;
@@ -222,7 +221,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			if (local_user()) {
 				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
-				if (DBM::is_result($item)) {
+				if (DBA::isResult($item)) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
@@ -232,7 +231,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			if ($item_parent == 0) {
 				$condition = ['private' => [0, 2], 'guid' => $a->argv[1], 'uid' => 0];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
-				if (DBM::is_result($item)) {
+				if (DBA::isResult($item)) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
@@ -281,7 +280,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	if ($contact_id) {
 		$groups = Group::getIdsByContactId($contact_id);
 		$remote_contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $a->profile['uid']]);
-		if (DBM::is_result($remote_contact)) {
+		if (DBA::isResult($remote_contact)) {
 			$contact = $remote_contact;
 			$is_remote_contact = true;
 		}
@@ -295,7 +294,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $a->profile['uid']]);
-	if (DBM::is_result($page_contact)) {
+	if (DBA::isResult($page_contact)) {
 		$a->page_contact = $page_contact;
 	}
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
@@ -339,7 +338,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$params = ['order' => ['uid', 'parent' => true, 'gravity', 'id']];
 	$items_obj = Item::selectForUser(local_user(), [], $condition, $params);
 
-	if (!DBM::is_result($items_obj)) {
+	if (!DBA::isResult($items_obj)) {
 		notice(L10n::t('Item not found.') . EOL);
 		return $o;
 	}

@@ -12,7 +12,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
@@ -277,11 +276,11 @@ class Widget
 			if (Profile::getMyURL()) {
 				$contact = DBA::selectFirst('contact', ['id'],
 						['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $profile_uid]);
-				if (DBM::is_result($contact)) {
+				if (DBA::isResult($contact)) {
 					$cid = $contact['id'];
 				} else {
 					$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
-					if (DBM::is_result($gcontact)) {
+					if (DBA::isResult($gcontact)) {
 						$zcid = $gcontact['id'];
 					}
 				}

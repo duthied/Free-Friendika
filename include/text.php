@@ -13,11 +13,10 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
 use Friendica\Render\FriendicaSmarty;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
@@ -760,7 +759,7 @@ function contact_block() {
 			dbesc(NETWORK_OSTATUS),
 			dbesc(NETWORK_DIASPORA)
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$total = intval($r[0]['total']);
 	}
 	if (!$total) {
@@ -779,7 +778,7 @@ function contact_block() {
 				dbesc(NETWORK_DIASPORA),
 				intval($shown)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$contacts = [];
 			foreach ($r AS $contact) {
 				$contacts[] = $contact["id"];
@@ -787,7 +786,7 @@ function contact_block() {
 			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
 				dbesc(implode(",", $contacts)));
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
 				$micropro = [];
 				foreach ($r as $rr) {
@@ -1470,7 +1469,7 @@ function generate_user_guid() {
 		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
 			dbesc($guid)
 		);
-		if (!DBM::is_result($x)) {
+		if (!DBA::isResult($x)) {
 			$found = false;
 		}
 	} while ($found == true);
@@ -1759,7 +1758,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 				intval($termtype),
 				intval($uid));
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				unset($deleted_tags[$key]);
 			} else {
 				$filetags_updated = str_replace($lbracket . file_tag_encode($tag) . $rbracket,'',$filetags_updated);
@@ -1783,7 +1782,7 @@ function file_tag_save_file($uid, $item_id, $file)
 	}
 
 	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
-	if (DBM::is_result($item)) {
+	if (DBA::isResult($item)) {
 		if (!stristr($item['file'],'[' . file_tag_encode($file) . ']')) {
 			$fields = ['file' => $item['file'] . '[' . file_tag_encode($file) . ']'];
 			Item::update($fields, ['id' => $item_id]);
@@ -1812,7 +1811,7 @@ function file_tag_unsave_file($uid, $item_id, $file, $cat = false)
 	}
 
 	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
-	if (!DBM::is_result($item)) {
+	if (!DBA::isResult($item)) {
 		return false;
 	}
 
@@ -1825,7 +1824,7 @@ function file_tag_unsave_file($uid, $item_id, $file, $cat = false)
 		intval($termtype),
 		intval($uid)
 	);
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 	}

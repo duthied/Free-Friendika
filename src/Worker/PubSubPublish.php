@@ -8,7 +8,6 @@ namespace Friendica\Worker;
 use Friendica\BaseObject;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\PushSubscriber;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
@@ -31,7 +30,7 @@ class PubSubPublish
 		$a = BaseObject::getApp();
 
 		$subscriber = DBA::selectFirst('push_subscriber', [], ['id' => $id]);
-		if (!DBM::is_result($subscriber)) {
+		if (!DBA::isResult($subscriber)) {
 			return;
 		}
 

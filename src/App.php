@@ -11,7 +11,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -1032,7 +1031,7 @@ class App
 			}
 		}
 
-		$processlist = DBM::processlist();
+		$processlist = DBA::processlist();
 		if ($processlist['list'] != '') {
 			logger('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], LOGGER_DEBUG);
 
@@ -1397,7 +1396,7 @@ class App
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			$user = DBA::selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
-			if (DBM::is_result($user) && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
+			if (DBA::isResult($user) && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
 				$page_theme = $user['theme'];
 			}
 		}

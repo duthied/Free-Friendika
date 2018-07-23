@@ -1,7 +1,7 @@
 <?php
 
 use Friendica\App;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 
 function modexp_init(App $a) {
 
@@ -13,7 +13,7 @@ function modexp_init(App $a) {
 			dbesc($nick)
 	);
 
-	if (! DBM::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		killme();
 	}
 

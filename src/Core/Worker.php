@@ -5,7 +5,6 @@
 namespace Friendica\Core;
 
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -163,7 +162,7 @@ class Worker
 	{
 		$condition = ["`executed` <= ? AND NOT `done`", NULL_DATE];
 		$workerqueue = DBA::selectFirst('workerqueue', ['priority'], $condition, ['order' => ['priority']]);
-		if (DBM::is_result($workerqueue)) {
+		if (DBA::isResult($workerqueue)) {
 			return $workerqueue["priority"];
 		} else {
 			return 0;
@@ -478,7 +477,7 @@ class Worker
 		if ($max == 0) {
 			// the maximum number of possible user connections can be a system variable
 			$r = DBA::fetchFirst("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$max = $r["Value"];
 			}
 			// Or it can be granted. This overrides the system variable
@@ -514,7 +513,7 @@ class Worker
 		// We will now check for the system values.
 		// This limit could be reached although the user limits are fine.
 		$r = DBA::fetchFirst("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		$max = intval($r["Value"]);
@@ -522,7 +521,7 @@ class Worker
 			return false;
 		}
 		$r = DBA::fetchFirst("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		$used = intval($r["Value"]);
@@ -735,7 +734,7 @@ class Worker
 		);
 
 		// No active processes at all? Fine
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		$priorities = [];
@@ -872,7 +871,7 @@ class Worker
 
 		// There can already be jobs for us in the queue.
 		$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			self::$db_duration += (microtime(true) - $stamp);
 			return DBA::toArray($r);
 		}
@@ -1164,7 +1163,7 @@ class Worker
 		$row = DBA::selectFirst('worker-ipc', ['jobs'], ['key' => 1]);
 
 		// When we don't have a row, no job is running
-		if (!DBM::is_result($row)) {
+		if (!DBA::isResult($row)) {
 			return false;
 		}
 

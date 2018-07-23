@@ -3,7 +3,6 @@ namespace Friendica\Core\Config;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'include/dba.php';
 
@@ -23,7 +22,7 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 		$a = self::getApp();
 
 		$pconfigs = DBA::select('pconfig', ['v', 'k'], ['cat' => $cat, 'uid' => $uid]);
-		if (DBM::is_result($pconfigs)) {
+		if (DBA::isResult($pconfigs)) {
 			while ($pconfig = DBA::fetch($pconfigs)) {
 				$k = $pconfig['k'];
 
@@ -59,7 +58,7 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 		}
 
 		$pconfig = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
-		if (DBM::is_result($pconfig)) {
+		if (DBA::isResult($pconfig)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
 
 			self::getApp()->setPConfigValue($uid, $cat, $k, $val);

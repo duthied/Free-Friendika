@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'boot.php';
 require_once 'include/conversation.php';
@@ -59,7 +58,7 @@ class Term
 
 		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'parent'];
 		$message = Item::selectFirst($fields, ['id' => $itemid]);
-		if (!DBM::is_result($message)) {
+		if (!DBA::isResult($message)) {
 			return;
 		}
 
@@ -167,7 +166,7 @@ class Term
 	public static function insertFromFileFieldByItemId($itemid, $files)
 	{
 		$message = Item::selectFirst(['uid', 'deleted'], ['id' => $itemid]);
-		if (!DBM::is_result($message)) {
+		if (!DBA::isResult($message)) {
 			return;
 		}
 

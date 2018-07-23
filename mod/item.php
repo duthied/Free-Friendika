@@ -24,7 +24,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Protocol\Diaspora;
@@ -102,7 +101,7 @@ function item_post(App $a) {
 		}
 
 		// if this isn't the real parent of the conversation, find it
-		if (DBM::is_result($parent_item)) {
+		if (DBA::isResult($parent_item)) {
 
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
 			$thr_parent_uri = $parent_item['uri'];
@@ -113,7 +112,7 @@ function item_post(App $a) {
 			}
 		}
 
-		if (!DBM::is_result($parent_item)) {
+		if (!DBA::isResult($parent_item)) {
 			notice(L10n::t('Unable to locate original post.') . EOL);
 			if (x($_REQUEST, 'return')) {
 				goaway($return_path);
@@ -176,7 +175,7 @@ function item_post(App $a) {
 
 	$user = DBA::selectFirst('user', [], ['uid' => $profile_uid]);
 
-	if (!DBM::is_result($user) && !$parent) {
+	if (!DBA::isResult($user) && !$parent) {
 		return;
 	}
 
@@ -320,7 +319,7 @@ function item_post(App $a) {
 		}
 	}
 
-	if (DBM::is_result($author)) {
+	if (DBA::isResult($author)) {
 		$contact_id = $author['id'];
 	}
 
@@ -537,7 +536,7 @@ function item_post(App $a) {
 		foreach ($match[2] as $mtch) {
 			$fields = ['id', 'filename', 'filesize', 'filetype'];
 			$attachment = DBA::selectFirst('attach', $fields, ['id' => $mtch]);
-			if (DBM::is_result($attachment)) {
+			if (DBA::isResult($attachment)) {
 				if (strlen($attachments)) {
 					$attachments .= ',';
 				}
@@ -637,7 +636,7 @@ function item_post(App $a) {
 	$datarray['protocol'] = PROTOCOL_DFRN;
 
 	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['parent-uri']]);
-	if (DBM::is_result($conversation)) {
+	if (DBA::isResult($conversation)) {
 		if ($conversation['conversation-uri'] != '') {
 			$datarray['conversation-uri'] = $conversation['conversation-uri'];
 		}
@@ -733,7 +732,7 @@ function item_post(App $a) {
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
-	if (!DBM::is_result($datarray)) {
+	if (!DBA::isResult($datarray)) {
 		logger("Item with id ".$post_id." couldn't be fetched.");
 		goaway($return_path);
 	}
@@ -964,26 +963,26 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			}
 
 			// select someone by nick or attag in the current network
-			if (!DBM::is_result($contact) && ($network != "")) {
+			if (!DBA::isResult($contact) && ($network != "")) {
 				$condition = ["(`nick` = ? OR `attag` = ?) AND `network` = ? AND `uid` = ?",
 						$name, $name, $network, $profile_uid];
 				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
 
 			//select someone by name in the current network
-			if (!DBM::is_result($contact) && ($network != "")) {
+			if (!DBA::isResult($contact) && ($network != "")) {
 				$condition = ['name' => $name, 'network' => $network, 'uid' => $profile_uid];
 				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
 
 			// select someone by nick or attag in any network
-			if (!DBM::is_result($contact)) {
+			if (!DBA::isResult($contact)) {
 				$condition = ["(`nick` = ? OR `attag` = ?) AND `uid` = ?", $name, $name, $profile_uid];
 				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
 
 			// select someone by name in any network
-			if (!DBM::is_result($contact)) {
+			if (!DBA::isResult($contact)) {
 				$condition = ['name' => $name, 'uid' => $profile_uid];
 				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}

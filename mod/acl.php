@@ -7,7 +7,6 @@ use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 
@@ -210,7 +209,7 @@ function acl_content(App $a)
 		exit;
 	}
 
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$forums = [];
 		foreach ($r as $g) {
 			$entry = [
@@ -243,7 +242,7 @@ function acl_content(App $a)
 	if ($conv_id) {
 		// In multi threaded posts the conv_id is not the parent of the whole thread
 		$parent_item = Item::selectFirst(['parent'], ['id' => $conv_id]);
-		if (DBM::is_result($parent_item)) {
+		if (DBA::isResult($parent_item)) {
 			$conv_id = $parent_item['parent'];
 		}
 

@@ -29,7 +29,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
@@ -803,7 +803,7 @@ function run_update_function($x, $prefix)
 function check_addons(App $a)
 {
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$installed = $r;
 	} else {
 		$installed = [];
@@ -1002,7 +1002,7 @@ function feed_birthday($uid, $tz)
 		intval($uid)
 	);
 
-	if (DBM::is_result($p)) {
+	if (DBA::isResult($p)) {
 		$tmp_dob = substr($p[0]['dob'], 5);
 		if (intval($tmp_dob)) {
 			$y = DateTimeFormat::timezoneNow($tz, 'Y');

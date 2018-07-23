@@ -13,7 +13,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
@@ -136,7 +135,7 @@ function localize_item(&$item)
 
 		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
 		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
-		if (!DBM::is_result($obj)) {
+		if (!DBA::isResult($obj)) {
 			return;
 		}
 
@@ -267,7 +266,7 @@ function localize_item(&$item)
 		$fields = ['author-id', 'author-link', 'author-name', 'author-network',
 			'verb', 'object-type', 'resource-id', 'body', 'plink'];
 		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
-		if (!DBM::is_result($obj)) {
+		if (!DBA::isResult($obj)) {
 			return;
 		}
 
@@ -322,7 +321,7 @@ function localize_item(&$item)
 		if (strlen($obj->id)) {
 			$fields = ['author-link', 'author-name', 'plink'];
 			$target = Item::selectFirst($fields, ['uri' => $obj->id, 'uid' => $item['uid']]);
-			if (DBM::is_result($target) && $target['plink']) {
+			if (DBA::isResult($target) && $target['plink']) {
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];
 				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
@@ -830,7 +829,7 @@ function item_photo_menu($item) {
 	$rel = 0;
 	$condition = ['uid' => local_user(), 'nurl' => normalise_link($item['author-link'])];
 	$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
-	if (DBM::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		$cid = $contact['id'];
 		$network = $contact['network'];
 		$rel = $contact['rel'];

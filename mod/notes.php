@@ -7,7 +7,6 @@ use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 
@@ -70,7 +69,7 @@ function notes_content(App $a, $update = false)
 
 	$count = 0;
 
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$count = count($r);
 		$parents_arr = [];
 
@@ -82,7 +81,7 @@ function notes_content(App $a, $update = false)
 		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
 		$result = Item::selectForUser(local_user(), [], $condition);
 
-		if (DBM::is_result($result)) {
+		if (DBA::isResult($result)) {
 			$items = conv_sort(Item::inArray($result), 'commented');
 			$o .= conversation($a, $items, 'notes', $update);
 		}

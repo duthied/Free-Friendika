@@ -4,7 +4,6 @@ namespace Friendica\Core\Cache;
 
 use Friendica\Core\Cache;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -18,7 +17,7 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	{
 		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
 
-		if (DBM::is_result($cache)) {
+		if (DBA::isResult($cache)) {
 			$cached = $cache['v'];
 			$value = @unserialize($cached);
 

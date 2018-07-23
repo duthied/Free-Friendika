@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/dba.php';
@@ -74,7 +73,7 @@ class PushSubscriber
 		if ($subscribe) {
 			// if we are just updating an old subscription, keep the
 			// old values for last_update but reset the push
-			if (DBM::is_result($subscriber)) {
+			if (DBA::isResult($subscriber)) {
 				$last_update = $subscriber['last_update'];
 				$push_flag = min($subscriber['push'], 1);
 			} else {
@@ -104,7 +103,7 @@ class PushSubscriber
 	public static function delay($id)
 	{
 		$subscriber = DBA::selectFirst('push_subscriber', ['push', 'callback_url', 'renewed', 'nickname'], ['id' => $id]);
-		if (!DBM::is_result($subscriber)) {
+		if (!DBA::isResult($subscriber)) {
 			return;
 		}
 
@@ -142,7 +141,7 @@ class PushSubscriber
 	public static function reset($id, $last_update)
 	{
 		$subscriber = DBA::selectFirst('push_subscriber', ['callback_url', 'nickname'], ['id' => $id]);
-		if (!DBM::is_result($subscriber)) {
+		if (!DBA::isResult($subscriber)) {
 			return;
 		}
 

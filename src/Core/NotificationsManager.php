@@ -9,7 +9,7 @@ namespace Friendica\Core;
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
@@ -96,7 +96,7 @@ class NotificationsManager extends BaseObject
 			intval(local_user())
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return $this->_set_extra($r);
 		}
 
@@ -116,7 +116,7 @@ class NotificationsManager extends BaseObject
 			intval($id),
 			intval(local_user())
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return $this->_set_extra($r)[0];
 		}
 		return null;
@@ -224,7 +224,7 @@ class NotificationsManager extends BaseObject
 		$notif = [];
 		$arr = [];
 
-		if (DBM::is_result($notifs)) {
+		if (DBA::isResult($notifs)) {
 			foreach ($notifs as $it) {
 				// Because we use different db tables for the notification query
 				// we have sometimes $it['unseen'] and sometimes $it['seen].
@@ -405,7 +405,7 @@ class NotificationsManager extends BaseObject
 
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBM::is_result($items)) {
+		if (DBA::isResult($items)) {
 			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
 		}
 
@@ -447,7 +447,7 @@ class NotificationsManager extends BaseObject
 			intval($limit)
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$notifs = $this->formatNotifs($r, $ident);
 		}
 
@@ -492,7 +492,7 @@ class NotificationsManager extends BaseObject
 
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBM::is_result($items)) {
+		if (DBA::isResult($items)) {
 			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
 		}
 
@@ -532,7 +532,7 @@ class NotificationsManager extends BaseObject
 		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBM::is_result($items)) {
+		if (DBA::isResult($items)) {
 			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
 		}
 
@@ -584,7 +584,7 @@ class NotificationsManager extends BaseObject
 			intval($start),
 			intval($limit)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$notifs = $this->formatIntros($r);
 		}
 

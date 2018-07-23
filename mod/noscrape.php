@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Profile;
 
 function noscrape_init(App $a)
@@ -55,7 +54,7 @@ function noscrape_init(App $a)
 		/// @todo What should this value tell us?
 		$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 			intval($a->profile['uid']));
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$json_info["updated"] =  date("c", strtotime($r[0]['updated']));
 		}
 
@@ -66,7 +65,7 @@ function noscrape_init(App $a)
 			dbesc(NETWORK_DIASPORA),
 			dbesc(NETWORK_OSTATUS)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$json_info["contacts"] = intval($r[0]['total']);
 		}
 	}
@@ -75,13 +74,13 @@ function noscrape_init(App $a)
 	$last_active = 0;
 	$condition = ['uid' => $a->profile['uid'], 'self' => true];
 	$contact = DBA::selectFirst('contact', ['last-item'], $condition);
-	if (DBM::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		$last_active = strtotime($contact['last-item']);
 	}
 
 	$condition = ['uid' => $a->profile['uid']];
 	$user = DBA::selectFirst('user', ['login_date'], $condition);
-	if (DBM::is_result($user)) {
+	if (DBA::isResult($user)) {
 		if ($last_active < strtotime($user['login_date'])) {
 			$last_active = strtotime($user['login_date']);
 		}

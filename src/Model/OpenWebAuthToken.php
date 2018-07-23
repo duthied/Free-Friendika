@@ -6,7 +6,6 @@
 namespace Friendica\Model;
 
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -50,7 +49,7 @@ class OpenWebAuthToken
 		$condition = ["type" => $type, "uid" => $uid, "token" => $token];
 
 		$entry = DBA::selectFirst("openwebauth-token", ["id", "meta"], $condition);
-		if (DBM::is_result($entry)) {
+		if (DBA::isResult($entry)) {
 			DBA::delete("openwebauth-token", ["id" => $entry["id"]]);
 
 			return $entry["meta"];

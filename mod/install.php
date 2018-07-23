@@ -8,7 +8,6 @@ use Friendica\Core\Install;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\Temporal;
 
 $install_wizard_pass = 1;
@@ -114,7 +113,7 @@ function install_content(App $a) {
 
 	if (DBA::$connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
-		if (DBM::is_result($r) && $r[0]['total']) {
+		if (DBA::isResult($r) && $r[0]['total']) {
 			$tpl = get_markup_template('install.tpl');
 			return replace_macros($tpl, [
 				'$title' => $install_title,

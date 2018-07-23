@@ -10,7 +10,6 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
@@ -86,7 +85,7 @@ function directory_content(App $a)
 	$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
-	if (DBM::is_result($cnt)) {
+	if (DBA::isResult($cnt)) {
 		$a->set_pager_total($cnt['total']);
 	}
 
@@ -101,7 +100,7 @@ function directory_content(App $a)
 			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
 			$sql_extra $order LIMIT $limit"
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		if (in_array('small', $a->argv)) {
 			$photo = 'thumb';
 		} else {

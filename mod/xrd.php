@@ -7,7 +7,6 @@ use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Protocol\Salmon;
 
 function xrd_init(App $a)
@@ -40,7 +39,7 @@ function xrd_init(App $a)
 	}
 
 	$user = DBA::selectFirst('user', [], ['nickname' => $name]);
-	if (!DBM::is_result($user)) {
+	if (!DBA::isResult($user)) {
 		killme();
 	}
 

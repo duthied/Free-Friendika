@@ -9,7 +9,6 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Util\DateTimeFormat;
 
 require_once 'include/dba.php';
@@ -195,7 +194,7 @@ class Cron
 			dbesc(NETWORK_MAIL)
 		);
 
-		if (!DBM::is_result($contacts)) {
+		if (!DBA::isResult($contacts)) {
 			return;
 		}
 

@@ -8,7 +8,6 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
@@ -151,7 +150,7 @@ function proxy_init(App $a) {
 	$photo = null;
 	if (!$direct_cache && ($cachefile == '')) {
 		$photo = DBA::selectFirst('photo', ['data', 'desc'], ['resource-id' => $urlhash]);
-		if (DBM::is_result($photo)) {
+		if (DBA::isResult($photo)) {
 			$img_str = $photo['data'];
 			$mime = $photo['desc'];
 			if ($mime == '') {
@@ -160,7 +159,7 @@ function proxy_init(App $a) {
 		}
 	}
 
-	if (!DBM::is_result($photo)) {
+	if (!DBA::isResult($photo)) {
 		// It shouldn't happen but it does - spaces in URL
 		$_REQUEST['url'] = str_replace(' ', '+', $_REQUEST['url']);
 		$redirects = 0;

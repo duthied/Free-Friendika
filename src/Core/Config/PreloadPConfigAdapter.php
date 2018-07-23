@@ -5,7 +5,6 @@ namespace Friendica\Core\Config;
 use Exception;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 require_once 'include/dba.php';
 
@@ -52,7 +51,7 @@ class PreloadPConfigAdapter extends BaseObject implements IPConfigAdapter
 
 		if ($refresh) {
 			$config = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
-			if (DBM::is_result($config)) {
+			if (DBA::isResult($config)) {
 				self::getApp()->setPConfigValue($uid, $cat, $k, $config['v']);
 			} else {
 				self::getApp()->deletePConfigValue($uid, $cat, $k);

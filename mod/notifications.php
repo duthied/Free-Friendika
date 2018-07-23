@@ -11,7 +11,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Database\DBM;
 
 function notifications_post(App $a)
 {
@@ -28,7 +27,7 @@ function notifications_post(App $a)
 	if ($request_id) {
 		$intro = DBA::selectFirst('intro', ['id', 'contact-id', 'fid'], ['id' => $request_id, 'uid' => local_user()]);
 
-		if (DBM::is_result($intro)) {
+		if (DBA::isResult($intro)) {
 			$intro_id = $intro['id'];
 			$contact_id = $intro['contact-id'];
 		} else {
