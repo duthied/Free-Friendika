@@ -845,7 +845,7 @@ function networkThreadedView(App $a, $update, $parent)
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG,
 			$top_limit, $bottom_limit);
 
-		$data = DBA::inArray($items);
+		$data = DBA::toArray($items);
 
 		if (count($data) > 0) {
 			$tag_top_limit = current($data)['order_date'];

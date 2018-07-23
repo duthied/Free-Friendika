@@ -27,7 +27,7 @@ class ContactSelector
 		$o .= "<select id=\"contact-profile-selector\" class=\"form-control\" $disabled name=\"profile-assign\" >\r\n";
 
 		$s = DBA::select('profile', ['id', 'profile-name', 'is-default'], ['uid' => $_SESSION['uid']]);
-		$r = DBA::inArray($s);
+		$r = DBA::toArray($s);
 
 		if (DBM::is_result($r)) {
 			foreach ($r as $rr) {
@@ -102,7 +102,7 @@ class ContactSelector
 		$networkname = str_replace($search, $replace, $s);
 
 		if ((in_array($s, [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS])) && ($profile != "")) {
-			$r = DBA::fetch_first("SELECT `gserver`.`platform` FROM `gcontact`
+			$r = DBA::fetchFirst("SELECT `gserver`.`platform` FROM `gcontact`
 					INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
 					WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
 

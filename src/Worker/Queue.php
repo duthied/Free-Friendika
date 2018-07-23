@@ -36,7 +36,7 @@ class Queue
 			// Handling the pubsubhubbub requests
 			PushSubscriber::requeue();
 
-			$r = DBA::inArray(DBA::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
+			$r = DBA::toArray(DBA::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
 
 			Addon::callHooks('queue_predeliver', $r);
 

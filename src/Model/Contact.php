@@ -55,7 +55,7 @@ class Contact extends BaseObject
 				local_user()
 			);
 			if (DBM::is_result($stmt)) {
-				$return = DBA::inArray($stmt);
+				$return = DBA::toArray($stmt);
 			}
 		}
 
@@ -72,7 +72,7 @@ class Contact extends BaseObject
 	{
 		$return = 0;
 		if (intval($gid)) {
-			$contacts = DBA::fetch_first('SELECT COUNT(*) AS `count`
+			$contacts = DBA::fetchFirst('SELECT COUNT(*) AS `count`
 				FROM `contact`
 				INNER JOIN `group_member`
 					ON `contact`.`id` = `group_member`.`contact-id`
@@ -401,14 +401,14 @@ class Contact extends BaseObject
 		$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
 		FROM `contact` WHERE `nurl` = ? AND `uid` = ?", normalise_link($url), $uid);
-		$r = DBA::inArray($s);
+		$r = DBA::toArray($s);
 
 		// Fetch contact data from the contact table for the given user, checking with the alias
 		if (!DBM::is_result($r)) {
 			$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
 			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ?", normalise_link($url), $url, $ssl_url, $uid);
-			$r = DBA::inArray($s);
+			$r = DBA::toArray($s);
 		}
 
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
@@ -416,7 +416,7 @@ class Contact extends BaseObject
 			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `nurl` = ? AND `uid` = 0", normalise_link($url));
-			$r = DBA::inArray($s);
+			$r = DBA::toArray($s);
 		}
 
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically) - checked with the alias
@@ -424,7 +424,7 @@ class Contact extends BaseObject
 			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
 			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = 0", normalise_link($url), $url, $ssl_url);
-			$r = DBA::inArray($s);
+			$r = DBA::toArray($s);
 		}
 
 		// Fetch the data from the gcontact table
@@ -432,7 +432,7 @@ class Contact extends BaseObject
 			$s = DBA::p("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
 			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, 0 AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
 			FROM `gcontact` WHERE `nurl` = ?", normalise_link($url));
-			$r = DBA::inArray($s);
+			$r = DBA::toArray($s);
 		}
 
 		if (DBM::is_result($r)) {
@@ -866,7 +866,7 @@ class Contact extends BaseObject
 			);
 
 			$s = DBA::select('contact', ['id'], ['nurl' => normalise_link($data["url"]), 'uid' => $uid], ['order' => ['id'], 'limit' => 2]);
-			$contacts = DBA::inArray($s);
+			$contacts = DBA::toArray($s);
 			if (!DBM::is_result($contacts)) {
 				return 0;
 			}

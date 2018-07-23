@@ -254,7 +254,7 @@ class Delivery extends BaseObject
 			}
 
 			// We now have some contact, so we fetch it
-			$target_importer = DBA::fetch_first("SELECT *, `name` as `senderName`
+			$target_importer = DBA::fetchFirst("SELECT *, `name` as `senderName`
 							FROM `contact`
 							WHERE NOT `blocked` AND `id` = ? LIMIT 1",
 							$cid);

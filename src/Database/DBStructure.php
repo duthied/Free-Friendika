@@ -26,7 +26,7 @@ class DBStructure
 	 */
 	public static function convertToInnoDB() {
 		$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
-			dbesc(DBA::database_name()));
+			dbesc(DBA::databaseName()));
 
 		if (!DBM::is_result($r)) {
 			echo L10n::t('There are no tables on MyISAM.')."\n";
@@ -236,8 +236,8 @@ class DBStructure
 		}
 
 		// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
-		if ((version_compare(DBA::server_info(), '5.7.4') >= 0) &&
-			!(strpos(DBA::server_info(), 'MariaDB') !== false)) {
+		if ((version_compare(DBA::serverInfo(), '5.7.4') >= 0) &&
+			!(strpos(DBA::serverInfo(), 'MariaDB') !== false)) {
 			$ignore = '';
 		} else {
 			$ignore = ' IGNORE';
@@ -322,8 +322,8 @@ class DBStructure
 							$parameters['comment'] = "";
 						}
 
-						$current_field_definition = DBA::clean_query(implode(",", $field_definition));
-						$new_field_definition = DBA::clean_query(implode(",", $parameters));
+						$current_field_definition = DBA::cleanQuery(implode(",", $field_definition));
+						$new_field_definition = DBA::cleanQuery(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {
@@ -460,7 +460,7 @@ class DBStructure
 						if ($ignore != "") {
 							echo "SET session old_alter_table=0;\n";
 						} else {
-							echo "INSERT INTO `".$temp_name."` SELECT ".DBA::any_value_fallback($field_list)." FROM `".$name."`".$group_by.";\n";
+							echo "INSERT INTO `".$temp_name."` SELECT ".DBA::anyValueFallback($field_list)." FROM `".$name."`".$group_by.";\n";
 							echo "DROP TABLE `".$name."`;\n";
 							echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
 						}
@@ -706,7 +706,7 @@ class DBStructure
 		if (is_bool($stmt)) {
 			$retval = $stmt;
 		} else {
-			$retval = (DBA::num_rows($stmt) > 0);
+			$retval = (DBA::numRows($stmt) > 0);
 		}
 
 		DBA::close($stmt);
@@ -741,7 +741,7 @@ class DBStructure
 			if (is_bool($stmt)) {
 				$retval = $stmt;
 			} else {
-				$retval = (DBA::num_rows($stmt) > 0);
+				$retval = (DBA::numRows($stmt) > 0);
 			}
 
 			DBA::close($stmt);

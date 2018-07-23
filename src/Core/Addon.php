@@ -81,7 +81,7 @@ class Addon
 		if (strlen($addons)) {
 			$r = DBA::select('addon', [], ['installed' => 1]);
 			if (DBM::is_result($r)) {
-				$installed = DBA::inArray($r);
+				$installed = DBA::toArray($r);
 			} else {
 				$installed = [];
 			}

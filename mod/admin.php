@@ -479,7 +479,7 @@ function admin_page_contactblock(App $a)
 
 	$statement = DBA::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
 
-	$contacts = DBA::inArray($statement);
+	$contacts = DBA::toArray($statement);
 
 	$t = get_markup_template('admin/contactblock.tpl');
 	$o = replace_macros($t, [
@@ -782,7 +782,7 @@ function admin_page_workerqueue(App $a)
 {
 	// get jobs from the workerqueue table
 	$statement = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], ['done' => 0], ['order'=> ['priority']]);
-	$r = DBA::inArray($statement);
+	$r = DBA::toArray($statement);
 
 	for($i = 0; $i < count($r); $i++) {
 		$r[$i]['parameter'] = implode(json_decode($r[$i]['parameter']), ': ');
@@ -816,7 +816,7 @@ function admin_page_workerqueue(App $a)
 function admin_page_summary(App $a)
 {
 	// are there MyISAM tables in the DB? If so, trigger a warning message
-	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(DBA::database_name()));
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(DBA::databaseName()));
 	$showwarning = false;
 	$warningtext = [];
 	if (DBM::is_result($r)) {

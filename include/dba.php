@@ -28,8 +28,8 @@ function q($sql) {
 		return false;
 	}
 
-	$sql = DBA::clean_query($sql);
-	$sql = DBA::any_value_fallback($sql);
+	$sql = DBA::cleanQuery($sql);
+	$sql = DBA::anyValueFallback($sql);
 
 	$stmt = @vsprintf($sql, $args);
 
@@ -41,7 +41,7 @@ function q($sql) {
 
 	$columns = DBA::columnCount($ret);
 
-	$data = DBA::inArray($ret);
+	$data = DBA::toArray($ret);
 
 	if ((count($data) == 0) && ($columns == 0)) {
 		return true;

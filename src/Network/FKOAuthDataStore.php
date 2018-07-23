@@ -43,7 +43,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		logger(__function__ . ":" . $consumer_key);
 
 		$s = DBA::select('clients', ['client_id', 'pw', 'redirect_uri'], ['client_id' => $consumer_key]);
-		$r = DBA::inArray($s);
+		$r = DBA::toArray($s);
 
 		if (DBM::is_result($r)) {
 			return new OAuthConsumer($r[0]['client_id'], $r[0]['pw'], $r[0]['redirect_uri']);
@@ -63,7 +63,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		logger(__function__ . ":" . $consumer . ", " . $token_type . ", " . $token);
 
 		$s = DBA::select('tokens', ['id', 'secret', 'scope', 'expires', 'uid'], ['client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token]);
-		$r = DBA::inArray($s);
+		$r = DBA::toArray($s);
 
 		if (DBM::is_result($r)) {
 			$ot = new OAuthToken($r[0]['id'], $r[0]['secret']);

@@ -739,7 +739,7 @@ class Event extends BaseObject
 
 		$events = DBA::select('event', $fields, $conditions);
 		if (DBM::is_result($events)) {
-			$return = DBA::inArray($events);
+			$return = DBA::toArray($events);
 		}
 
 		return $return;

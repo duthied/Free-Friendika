@@ -496,7 +496,7 @@ class App
 
 		$this->mode |= App::MODE_DBAVAILABLE;
 
-		if (DBA::fetch_first("SHOW TABLES LIKE 'config'") === false) {
+		if (DBA::fetchFirst("SHOW TABLES LIKE 'config'") === false) {
 			return;
 		}
 

@@ -198,14 +198,14 @@ function community_getitems($start, $itemspage, $content)
 			AND NOT `thread`.`private` AND `thread`.`wall` AND `thread`.`origin`
 			ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage)
 		);
-		return DBA::inArray($r);
+		return DBA::toArray($r);
 	} elseif ($content == 'global') {
 		$r = DBA::p("SELECT `uri` FROM `thread`
 				INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
 				INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 				WHERE `thread`.`uid` = 0 AND NOT `author`.`hidden` AND NOT `author`.`blocked`
 				ORDER BY `thread`.`commented` DESC LIMIT " . intval($start) . ", " . intval($itemspage));
-		return DBA::inArray($r);
+		return DBA::toArray($r);
 	}
 
 	// Should never happen

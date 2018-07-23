@@ -477,7 +477,7 @@ class Worker
 
 		if ($max == 0) {
 			// the maximum number of possible user connections can be a system variable
-			$r = DBA::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
+			$r = DBA::fetchFirst("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
 			if (DBM::is_result($r)) {
 				$max = $r["Value"];
 			}
@@ -498,7 +498,7 @@ class Worker
 		// The processlist only shows entries of the current user
 		if ($max != 0) {
 			$r = DBA::p('SHOW PROCESSLIST');
-			$used = DBA::num_rows($r);
+			$used = DBA::numRows($r);
 			DBA::close($r);
 
 			logger("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);
@@ -513,7 +513,7 @@ class Worker
 
 		// We will now check for the system values.
 		// This limit could be reached although the user limits are fine.
-		$r = DBA::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
+		$r = DBA::fetchFirst("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
 		if (!DBM::is_result($r)) {
 			return false;
 		}
@@ -521,7 +521,7 @@ class Worker
 		if ($max == 0) {
 			return false;
 		}
-		$r = DBA::fetch_first("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
+		$r = DBA::fetchFirst("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
 		if (!DBM::is_result($r)) {
 			return false;
 		}
@@ -874,7 +874,7 @@ class Worker
 		$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
 		if (DBM::is_result($r)) {
 			self::$db_duration += (microtime(true) - $stamp);
-			return DBA::inArray($r);
+			return DBA::toArray($r);
 		}
 		DBA::close($r);
 
@@ -892,7 +892,7 @@ class Worker
 
 		if ($found) {
 			$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
-			return DBA::inArray($r);
+			return DBA::toArray($r);
 		}
 		return false;
 	}

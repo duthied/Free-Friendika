@@ -52,12 +52,12 @@ class Expire
 			logger('Deleting orphaned item activities - start', LOGGER_DEBUG);
 			$condition = ["NOT EXISTS (SELECT `iaid` FROM `item` WHERE `item`.`iaid` = `item-activity`.`id`)"];
 			DBA::delete('item-activity', $condition);
-			logger('Orphaned item activities deleted: ' . DBA::affected_rows(), LOGGER_DEBUG);
+			logger('Orphaned item activities deleted: ' . DBA::affectedRows(), LOGGER_DEBUG);
 
 			logger('Deleting orphaned item content - start', LOGGER_DEBUG);
 			$condition = ["NOT EXISTS (SELECT `icid` FROM `item` WHERE `item`.`icid` = `item-content`.`id`)"];
 			DBA::delete('item-content', $condition);
-			logger('Orphaned item content deleted: ' . DBA::affected_rows(), LOGGER_DEBUG);
+			logger('Orphaned item content deleted: ' . DBA::affectedRows(), LOGGER_DEBUG);
 
 			// make this optional as it could have a performance impact on large sites
 			if (intval(Config::get('system', 'optimize_items'))) {
