@@ -2,9 +2,11 @@
 /**
  * @file mod/repair_ostatus.php
  */
+
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 
 function repair_ostatus_content(App $a) {

@@ -11,6 +11,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
 

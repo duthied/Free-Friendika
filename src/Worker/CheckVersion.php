@@ -8,6 +8,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Config;
+use Friendica\Database\DBA;
 use Friendica\Util\Network;
 
 /**
