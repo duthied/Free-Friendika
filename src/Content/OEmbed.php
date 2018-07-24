@@ -112,6 +112,7 @@ class OEmbed
 			}
 
 			$oembed->parseJSON($json_string);
+
 			if (!empty($oembed->type) && $oembed->type != 'error') {
 				DBA::insert('oembed', [
 					'url' => normalise_link($embedurl),
@@ -119,9 +120,12 @@ class OEmbed
 					'content' => $json_string,
 					'created' => DateTimeFormat::utcNow()
 				], true);
+				$cache_ttl = CACHE_DAY;
+			} else {
+				$cache_ttl = CACHE_FIVE_MINUTES;
 			}
 
-			Cache::set($cache_key, $json_string, CACHE_DAY);
+			Cache::set($cache_key, $json_string, $cache_ttl);
 		}
 
 		if ($oembed->type == 'error') {
