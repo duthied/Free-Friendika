@@ -1330,8 +1330,6 @@ class Item extends BaseObject
 			$item['uri-hash'] = $existing['uri-hash'];
 		}
 
-		self::addLanguageToItemArray($item);
-
 		$item['wall']          = intval(defaults($item, 'wall', 0));
 		$item['extid']         = trim(defaults($item, 'extid', ''));
 		$item['author-name']   = trim(defaults($item, 'author-name', ''));
@@ -1382,6 +1380,8 @@ class Item extends BaseObject
 			logger('No body, no title.');
 			return 0;
 		}
+
+		self::addLanguageToItemArray($item);
 
 		// Items cannot be stored before they happen ...
 		if ($item['created'] > DateTimeFormat::utcNow()) {
