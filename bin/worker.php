@@ -11,8 +11,8 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 
 // Get options
-$shortopts = 'sc';
-$longopts = ['spawn', 'cron'];
+$shortopts = 'sn';
+$longopts = ['spawn', 'no_cron'];
 $options = getopt($shortopts, $longopts);
 
 // Ensure that worker.php is executed from the base path of the installation
@@ -52,7 +52,7 @@ if ($spawn) {
 	killme();
 }
 
-$run_cron = array_key_exists('c', $options) || array_key_exists('cron', $options);
+$run_cron = !array_key_exists('n', $options) && !array_key_exists('no_cron', $options);
 
 Worker::processQueue($run_cron);
 
