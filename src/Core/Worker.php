@@ -1011,7 +1011,7 @@ class Worker
 	{
 		$command = 'bin/worker.php';
 
-		$args = [ 'cron' => $do_cron ];
+		$args = ['no_cron' => !$do_cron];
 
 		get_app()->proc_run($command, $args);
 
