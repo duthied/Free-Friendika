@@ -11,9 +11,8 @@ use Friendica\Core\Config;
 use Friendica\Core\Worker;
 
 // Get options
-$shortopts  = '';
-$shortopts .= 'sc';
-$longopts = [ 'spawn', 'cron' ];
+$shortopts = 'sc';
+$longopts = ['spawn', 'cron'];
 $options = getopt($shortopts, $longopts);
 
 // Ensure that worker.php is executed from the base path of the installation

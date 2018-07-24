@@ -13,9 +13,8 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 
 // Get options
-$shortopts  = '';
-$shortopts .= 'f';
-$longopts = [ 'foreground' ];
+$shortopts = 'f';
+$longopts = ['foreground'];
 $options = getopt($shortopts, $longopts);
 
 // Ensure that daemon.php is executed from the base path of the installation

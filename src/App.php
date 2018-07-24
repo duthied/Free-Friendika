@@ -1127,7 +1127,7 @@ class App
 			return;
 		}
 
-		$cmdline = $this->getConfigValue('config', 'php_path', 'php') . ' ' . $command;
+		$cmdline = $this->getConfigValue('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
 
 		foreach ($args as $key => $value) {
 			if (!is_null($value) && is_bool($value) && !$value) {
@@ -1139,8 +1139,6 @@ class App
 				$cmdline .= ' ' . $value;
 			}
 		}
-
-		$cmdline = escapeshellarg($cmdline);
 
 		if ($this->min_memory_reached()) {
 			return;
