@@ -25,6 +25,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\PermissionSet;
 use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
@@ -123,7 +124,7 @@ class DFRN
 
 		// default permissions - anonymous user
 
-		$sql_extra = " AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' AND `item`.`deny_gid`  = '' ";
+		$sql_extra = " AND NOT `item`.`private` ";
 
 		$r = q(
 			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
@@ -175,30 +176,14 @@ class DFRN
 
 			$contact = $r[0];
 			include_once 'include/security.php';
-			$groups = Group::getIdsByContactId($contact['id']);
 
-			if (count($groups)) {
-				for ($x = 0; $x < count($groups); $x ++) {
-					$groups[$x] = '<' . intval($groups[$x]) . '>' ;
-				}
+			$set = PermissionSet::get($owner_id, $contact['id']);
 
-				$gs = implode('|', $groups);
+			if (!empty($set)) {
+				$sql_extra = " AND `item`.`psid` IN (" . implode(',', $set) .")";
 			} else {
-				$gs = '<<>>' ; // Impossible to match
+				$sql_extra = " AND NOT `item`.`private`";
 			}
-
-			$sql_extra = sprintf(
-				"
-				AND ( `allow_cid` = '' OR     `allow_cid` REGEXP '<%d>' )
-				AND ( `deny_cid`  = '' OR NOT `deny_cid`  REGEXP '<%d>' )
-				AND ( `allow_gid` = '' OR     `allow_gid` REGEXP '%s' )
-				AND ( `deny_gid`  = '' OR NOT `deny_gid`  REGEXP '%s')
-			",
-				intval($contact['id']),
-				intval($contact['id']),
-				DBA::escape($gs),
-				DBA::escape($gs)
-			);
 		}
 
 		if ($public_feed) {
@@ -911,7 +896,7 @@ class DFRN
 			$entry->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
 		}
 
-		if ($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid']) {
+		if ($item['private']) {
 			$body = Item::fixPrivatePhotos($item['body'], $owner['uid'], $item, $cid);
 		} else {
 			$body = $item['body'];
@@ -1005,8 +990,8 @@ class DFRN
 			XML::addElement($doc, $entry, "georss:point", $item['coord']);
 		}
 
-		if (($item['private']) || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {
-			XML::addElement($doc, $entry, "dfrn:private", (($item['private']) ? $item['private'] : 1));
+		if ($item['private']) {
+			XML::addElement($doc, $entry, "dfrn:private", ($item['private'] ? $item['private'] : 1));
 		}
 
 		if ($item['extid']) {

@@ -70,8 +70,6 @@ class PostUpdate
 				AND `item`.`visible` AND NOT `item`.`private`
 				AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 				AND `item`.`network` IN ('%s', '%s', '%s', '')
-				AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
-				AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
 				AND NOT `item`.`global`";
 
 		$r = q($query1.$query2.$query3."  ORDER BY `item`.`id` LIMIT 1",
@@ -264,7 +262,8 @@ class PostUpdate
 				$item['owner-id'] = Contact::getIdForURL($item["owner-link"], 0, false, $default);
 			}
 
-			if (empty($item['psid'])) {
+			if (!is_null($item['allow_cid']) && !is_null($item['allow_gid'])
+				&& !is_null($item['deny_cid']) && !is_null($item['deny_gid'])) {
 				$item['psid'] = PermissionSet::fetchIDForPost($item);
 			}
 
