@@ -238,7 +238,7 @@ class PostUpdate
 		$fields = array_merge(Item::MIXED_CONTENT_FIELDLIST, ['network', 'author-id', 'owner-id', 'tag', 'file',
 			'author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link', 'id',
 			'uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'psid', 'post-type', 'bookmark', 'type',
-			'inform']);
+			'inform', 'postopts', 'icid']);
 
 		$start_id = $id;
 		$rows = 0;
@@ -265,6 +265,11 @@ class PostUpdate
 			if (!is_null($item['allow_cid']) && !is_null($item['allow_gid'])
 				&& !is_null($item['deny_cid']) && !is_null($item['deny_gid'])) {
 				$item['psid'] = PermissionSet::fetchIDForPost($item);
+			} else {
+				$item['allow_cid'] = null;
+				$item['allow_gid'] = null;
+				$item['deny_cid'] = null;
+				$item['deny_gid'] = null;
 			}
 
 			if ($item['post-type'] == 0) {
@@ -277,6 +282,13 @@ class PostUpdate
 				}
 			}
 
+			self::createLanguage($item);
+
+			if (!empty($item['icid']) && !empty($item['language'])) {
+				DBA::update('item-content', ['language' => $item['language']], ['id' => $item['icid']]);
+			}
+			unset($item['language']);
+
 			Item::update($item, ['id' => $id]);
 
 			++$rows;
@@ -288,11 +300,67 @@ class PostUpdate
 		logger("Processed rows: " . $rows . " - last processed item:  " . $id, LOGGER_DEBUG);
 
 		if ($start_id == $id) {
+			// Set all deprecated fields to "null" if they contain an empty string
+			$nullfields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'postopts', 'inform', 'type',
+				'bookmark', 'file', 'location', 'coord', 'tag', 'plink', 'title', 'content-warning',
+				'body', 'app', 'verb', 'object-type', 'object', 'target-type', 'target',
+				'author-name', 'author-link', 'author-avatar', 'owner-name', 'owner-link', 'owner-avatar',
+				'rendered-hash', 'rendered-html'];
+			foreach ($nullfields as $field) {
+				$fields = [$field => null];
+				$condition = [$field => ''];
+				logger("Setting '" . $field . "' to null if empty.", LOGGER_DEBUG);
+				// Important: This has to be a "DBA::update", not a "Item::update"
+				DBA::update('item', $fields, $condition);
+			}
+
 			Config::set("system", "post_update_version", 1279);
 			logger("Done", LOGGER_DEBUG);
 			return true;
 		}
 
 		return false;
+	}
+
+	private static function createLanguage(&$item)
+	{
+		if (empty($item['postopts'])) {
+			return;
+		}
+
+		$opts = explode(',', $item['postopts']);
+
+		$postopts = [];
+
+		foreach ($opts as $opt) {
+			if (strstr($opt, 'lang=')) {
+				$language = substr($opt, 5);
+			} else {
+				$postopts[] = $opt;
+			}
+		}
+
+		if (empty($language)) {
+			return;
+		}
+
+		if (!empty($postopts)) {
+			$item['postopts'] = implode(',', $postopts);
+		} else {
+			$item['postopts'] = null;
+		}
+
+		$lang_pairs = explode(':', $language);
+
+		$lang_arr = [];
+
+		foreach ($lang_pairs as $pair) {
+			$lang_pair_arr = explode(';', $pair);
+			if (count($lang_pair_arr) == 2) {
+				$lang_arr[$lang_pair_arr[0]] = $lang_pair_arr[1];
+			}
+		}
+
+		$item['language'] = json_encode($lang_arr);
 	}
 }

@@ -41,7 +41,6 @@ class PermissionSet extends BaseObject
 			$set = DBA::selectFirst('permissionset', ['id'], $condition);
 		}
 
-
 		$postarray['allow_cid'] = null;
 		$postarray['allow_gid'] = null;
 		$postarray['deny_cid'] = null;
