@@ -46,7 +46,7 @@ function cal_init(App $a)
 
 		// if it's a json request abort here becaus we don't
 		// need the widget data
-		if ($a->argv[2] === 'json') {
+		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 			return;
 		}
 
@@ -194,7 +194,7 @@ function cal_content(App $a)
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
 
-		if ($a->argv[2] === 'json') {
+		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 			if (x($_GET, 'start')) {
 				$start = $_GET['start'];
 			}
@@ -242,7 +242,7 @@ function cal_content(App $a)
 		// transform the event in a usable array
 		$events = Event::prepareListForTemplate($r);
 
-		if ($a->argv[2] === 'json') {
+		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 			echo json_encode($events);
 			killme();
 		}
