@@ -152,7 +152,7 @@ class OEmbed
 				$oembed->description = $data['text'];
 			}
 
-			if (is_array($data['images'])) {
+			if (!empty($data['images'])) {
 				$oembed->thumbnail_url = $data['images'][0]['src'];
 				$oembed->thumbnail_width = $data['images'][0]['width'];
 				$oembed->thumbnail_height = $data['images'][0]['height'];

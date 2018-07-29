@@ -116,6 +116,10 @@ class Profile
 			return;
 		}
 
+		if (empty($pdata)) {
+			$pdata = ['uid' => 0, 'profile_uid' => 0, 'is-default' => false,'name' => $nickname];
+		}
+
 		// fetch user tags if this isn't the default profile
 
 		if (!$pdata['is-default']) {
