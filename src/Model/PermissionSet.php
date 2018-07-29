@@ -102,7 +102,6 @@ class PermissionSet extends BaseObject
 			$set[] = $permission['id'];
 		}
 		DBA::close($ret);
-		logger('Blubb: '.$uid.' - '.$contact_id.': '.implode(', ', $set));
 
 		return $set;
 	}
