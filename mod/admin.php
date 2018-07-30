@@ -1881,6 +1881,7 @@ function admin_page_users(App $a)
 		'$deny' => L10n::t('Deny'),
 		'$delete' => L10n::t('Delete'),
 		'$block' => L10n::t('Block'),
+		'$blocked' => L10n::t('User blocked'),
 		'$unblock' => L10n::t('Unblock'),
 		'$siteadmin' => L10n::t('Site admin'),
 		'$accountexpired' => L10n::t('Account expired'),

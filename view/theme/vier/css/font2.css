@@ -335,6 +335,7 @@ li.icon.icon-large:before {
 .icon.drop:before                 { content: "\f014"; }
 .icon.drophide:before             { content: "\f014"; }
 .icon.copy:before                 { content: "\f0c5"; }
+.icon.block:before                { content: "\f05e"; }
 
 .small-pencil:before, .savedsearchdrop:before { 
   font-family: FontAwesome;
