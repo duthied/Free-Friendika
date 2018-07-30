@@ -152,6 +152,8 @@
 	{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 	{{include file="field_checkbox.tpl" field=$worker_frontend}}
 
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+
 	<h3>{{$relay_title}}</h3>
 	{{include file="field_checkbox.tpl" field=$relay_subscribe}}
 	{{include file="field_input.tpl" field=$relay_server}}
