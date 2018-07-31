@@ -20,8 +20,8 @@ use Friendica\Model\Item;
 use Friendica\Render\FriendicaSmarty;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
+use Friendica\Util\Proxy as ProxyUtils;
 
-require_once "mod/proxy.php";
 require_once "include/conversation.php";
 
 /**
@@ -858,7 +858,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		'$click' => defaults($contact, 'click', ''),
 		'$class' => $class,
 		'$url' => $url,
-		'$photo' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
+		'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
 		'$name' => $contact['name'],
 		'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
 		'$parkle' => $sparkle,

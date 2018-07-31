@@ -10,6 +10,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/dba.php';
 require_once 'mod/contacts.php';
@@ -120,7 +121,7 @@ function common_content(App $a)
 			'url'          => $rr['url'],
 			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
 			'name'         => $contact_details['name'],
-			'thumb'        => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
 			'img_hover'    => htmlentities($contact_details['name']),
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],

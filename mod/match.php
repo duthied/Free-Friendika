@@ -11,9 +11,9 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/text.php';
-require_once 'mod/proxy.php';
 
 /**
  * @brief Controller for /match.
@@ -100,7 +100,7 @@ function match_content(App $a)
 						'tags'          => $contact_details['keywords'],
 						'about'         => $contact_details['about'],
 						'account_type'  => Contact::getAccountType($contact_details),
-						'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
+						'thumb' => ProxyUtils::proxifyUrl($jj->photo, false, ProxyUtils::SIZE_THUMB),
 						'inttxt' => ' ' . L10n::t('is interested in:'),
 						'conntxt' => L10n::t('Connect'),
 						'connlnk' => $connlnk,

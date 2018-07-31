@@ -19,9 +19,9 @@ use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/dba.php';
-require_once 'mod/proxy.php';
 
 /**
  * Handles all OEmbed content fetching and replacement
@@ -191,13 +191,16 @@ class OEmbed
 					$ret = $oembed->html;
 				}
 				break;
+
 			case "photo":
-				$ret .= '<img width="' . $oembed->width . '" src="' . proxy_url($oembed->url) . '">';
+				$ret .= '<img width="' . $oembed->width . '" src="' . ProxyUtils::proxifyUrl($oembed->url) . '">';
 				break;
+
 			case "link":
 				break;
+
 			case "rich":
-				$ret .= proxy_parse_html($oembed->html);
+				$ret .= ProxyUtils::proxifyHtml($oembed->html);
 				break;
 		}
 

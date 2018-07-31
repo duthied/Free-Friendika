@@ -14,6 +14,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
 
 require_once 'include/conversation.php';
@@ -388,7 +389,7 @@ function message_content(App $a)
 				'from_url' => $from_url,
 				'from_addr' => $contact['addr'],
 				'sparkle' => $sparkle,
-				'from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
+				'from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
 				'subject' => $subject_e,
 				'body' => $body_e,
 				'delete' => L10n::t('Delete message'),
@@ -489,7 +490,7 @@ function render_messages(array $msg, $t)
 			'$from_url' => Contact::magicLink($rr['url']),
 			'$from_addr' => $contact['addr'],
 			'$sparkle' => ' sparkle',
-			'$from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
+			'$from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
 			'$subject' => $subject_e,
 			'$delete' => L10n::t('Delete conversation'),
 			'$body' => $body_e,

@@ -19,9 +19,9 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
-require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
 
 /**
@@ -356,9 +356,9 @@ function ping_init(App $a)
 
 				$contact = Contact::getDetailsByURL($notif['url']);
 				if (isset($contact['micro'])) {
-					$notif['photo'] = proxy_url($contact['micro'], false, PROXY_SIZE_MICRO);
+					$notif['photo'] = ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO);
 				} else {
-					$notif['photo'] = proxy_url($notif['photo'], false, PROXY_SIZE_MICRO);
+					$notif['photo'] = ProxyUtils::proxifyUrl($notif['photo'], false, ProxyUtils::SIZE_MICRO);
 				}
 
 				$local_time = DateTimeFormat::local($notif['date']);

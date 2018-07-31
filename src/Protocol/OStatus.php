@@ -23,6 +23,7 @@ use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
 require_once 'include/dba.php';
@@ -30,7 +31,6 @@ require_once 'include/items.php';
 require_once 'mod/share.php';
 require_once 'include/enotify.php';
 require_once 'include/api.php';
-require_once 'mod/proxy.php';
 
 /**
  * @brief This class contain functions for the OStatus protocol
@@ -1214,7 +1214,7 @@ class OStatus
 			}
 
 			// Is it a remote picture? Then make a smaller preview here
-			$preview = proxy_url($preview, false, PROXY_SIZE_SMALL);
+			$preview = ProxyUtils::proxifyUrl($preview, false, ProxyUtils::SIZE_SMALL);
 
 			// Is it a local picture? Then make it smaller here
 			$preview = str_replace(["-0.jpg", "-0.png"], ["-2.jpg", "-2.png"], $preview);

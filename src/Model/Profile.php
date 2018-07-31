@@ -20,10 +20,10 @@ use Friendica\Model\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
 
 require_once 'include/dba.php';
-require_once 'mod/proxy.php';
 
 class Profile
 {
@@ -495,7 +495,7 @@ class Profile
 		}
 
 		if (isset($p['photo'])) {
-			$p['photo'] = proxy_url($p['photo'], false, PROXY_SIZE_SMALL);
+			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
 		}
 
 		$p['url'] = Contact::magicLink(defaults($p, 'url', $profile_url));
