@@ -150,7 +150,11 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 {
 	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
 
-	$text = add_page_info_data($data, $no_photos);
+	$text = '';
+
+	if (is_array($data)) {
+		$text = add_page_info_data($data, $no_photos);
+	}
 
 	return $text;
 }
