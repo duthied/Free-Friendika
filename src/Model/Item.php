@@ -2855,7 +2855,7 @@ class Item extends BaseObject
 			$condition[] = $days;
 		}
 
-		$items = self::select(['file', 'resource-id', 'starred', 'type', 'id'], $condition);
+		$items = self::select(['file', 'resource-id', 'starred', 'type', 'id', 'post-type'], $condition);
 
 		if (!DBA::isResult($items)) {
 			return;
@@ -2887,9 +2887,9 @@ class Item extends BaseObject
 				continue;
 			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;
-			} elseif (!$expire_notes && $item['type'] == 'note') {
+			} elseif (!$expire_notes && (($item['type'] == 'note') || ($item['post-type'] == Item::PT_PERSONAL_NOTE))) {
 				continue;
-			} elseif (!$expire_items && $item['type'] != 'note') {
+			} elseif (!$expire_items && ($item['type'] != 'note') && ($item['post-type'] != Item::PT_PERSONAL_NOTE)) {
 				continue;
 			}
 
