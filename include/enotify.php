@@ -27,6 +27,11 @@ function notification($params)
 {
 	$a = get_app();
 
+	// Temporary logging for finding the origin
+	if (!isset($params['language']) || !isset($params['uid'])) {
+		logger('Missing parameters.' . System::callstack());
+	}
+
 	// from here on everything is in the recipients language
 	L10n::pushLang($params['language']);
 
@@ -57,8 +62,10 @@ function notification($params)
 		if (!DBA::isResult($user) || in_array($user["page-flags"], [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP])) {
 			return;
 		}
+		$nickname = $user["nickname"];
+	} else {
+		$nickname = '';
 	}
-	$nickname = $user["nickname"];
 
 	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
 	// the database, and an email is sent if applicable.
@@ -92,6 +99,8 @@ function notification($params)
 	} else {
 		$parent_id = 0;
 	}
+
+	$epreamble = '';
 
 	if ($params['type'] == NOTIFY_MAIL) {
 		$itemlink = $siteurl.'/message/'.$params['item']['id'];
@@ -529,7 +538,7 @@ function notification($params)
 	}
 
 	// send email notification if notification preferences permit
-	if ((intval($params['notify_flags']) & intval($params['type']))
+	if ((!empty($params['notify_flags']) & intval($params['type']))
 		|| $params['type'] == NOTIFY_SYSTEM
 		|| $params['type'] == SYSTEM_EMAIL) {
 
@@ -577,11 +586,11 @@ function notification($params)
 		$datarray['siteurl'] = $siteurl;
 		$datarray['type'] = $params['type'];
 		$datarray['parent'] = $parent_id;
-		$datarray['source_name'] = $params['source_name'];
-		$datarray['source_link'] = $params['source_link'];
-		$datarray['source_photo'] = $params['source_photo'];
+		$datarray['source_name'] = defaults($params, 'source_name', '');
+		$datarray['source_link'] = defaults($params, 'source_link', '');
+		$datarray['source_photo'] = defaults($params, 'source_photo', '');
 		$datarray['uid'] = $params['uid'];
-		$datarray['username'] = $params['to_name'];
+		$datarray['username'] = defaults($params, 'to_name', '');
 		$datarray['hsitelink'] = $hsitelink;
 		$datarray['tsitelink'] = $tsitelink;
 		$datarray['hitemlink'] = '<a href="'.$itemlink.'">'.$itemlink.'</a>';

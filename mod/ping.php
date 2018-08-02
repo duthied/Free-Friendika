@@ -108,7 +108,7 @@ function ping_init(App $a)
 
 	if (local_user()) {
 		// Different login session than the page that is calling us.
-		if (intval($_GET['uid']) && intval($_GET['uid']) != local_user()) {
+		if (!empty($_GET['uid']) && intval($_GET['uid']) != local_user()) {
 			$data = ['result' => ['invalid' => 1]];
 
 			if ($format == 'json') {
@@ -347,7 +347,7 @@ function ping_init(App $a)
 
 		if (DBA::isResult($notifs)) {
 			// Are the nofications called from the regular process or via the friendica app?
-			$regularnotifications = (intval($_GET['uid']) && intval($_GET['_']));
+			$regularnotifications = (!empty($_GET['uid']) && !empty($_GET['_']));
 
 			foreach ($notifs as $notif) {
 				if ($a->is_friendica_app() || !$regularnotifications) {
