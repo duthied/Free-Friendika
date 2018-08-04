@@ -1042,6 +1042,14 @@ class OStatus
 
 		$item["object-type"] = XML::getFirstNodeValue($xpath, 'activity:object-type/text()', $activityobject);
 
+		// Mastodon Content Warning
+		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $activityobject)) {
+			$clear_text = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $activityobject);
+			if (!empty($clear_text)) {
+				$item['content-warning'] = HTML::toBBCode($clear_text);
+			}
+		}
+
 		$inreplyto = $xpath->query('thr:in-reply-to', $activityobject);
 		if (is_object($inreplyto->item(0))) {
 			foreach ($inreplyto->item(0)->attributes as $attributes) {
