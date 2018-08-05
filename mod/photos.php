@@ -1260,6 +1260,8 @@ function photos_content(App $a)
 			);
 
 			if (DBA::isResult($prvnxt)) {
+				$prv = null;
+				$nxt = null;
 				foreach ($prvnxt as $z => $entry) {
 					if ($entry['resource-id'] == $ph[0]['resource-id']) {
 						$prv = $z - 1;
@@ -1274,8 +1276,12 @@ function photos_content(App $a)
 					}
 				}
 				$edit_suffix = ((($cmd === 'edit') && $can_post) ? '/edit' : '');
-				$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . ($order_field === 'posted' ? '?f=&order=posted' : '');
-				$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . ($order_field === 'posted' ? '?f=&order=posted' : '');
+				if (!is_null($prv)) {
+					$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . ($order_field === 'posted' ? '?f=&order=posted' : '');
+				}
+				if (!is_null($nxt)) {
+					$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . ($order_field === 'posted' ? '?f=&order=posted' : '');
+				}
  			}
 		}
 
