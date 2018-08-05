@@ -21,6 +21,7 @@ class Conversation
 	const PARCEL_SALMON             = 3;
 	const PARCEL_FEED               = 4; // Deprecated
 	const PARCEL_SPLIT_CONVERSATION = 6;
+	const PARCEL_TWITTER            = 7;
 
 	/**
 	 * @brief Store the conversation data
