@@ -1240,7 +1240,7 @@ class Item extends BaseObject
 			$item['wall'] = 1;
 			$item['origin'] = 1;
 			$item['network'] = NETWORK_DFRN;
-			$item['protocol'] = PROTOCOL_DFRN;
+			$item['protocol'] = Conversation::PARCEL_DFRN;
 
 			if (is_int($notify)) {
 				$priority = $notify;

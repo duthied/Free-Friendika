@@ -2,6 +2,7 @@
 /**
  * @file src/Model/Conversation
  */
+
 namespace Friendica\Model;
 
 use Friendica\Database\DBA;
@@ -11,13 +12,17 @@ require_once "include/dba.php";
 
 class Conversation
 {
-	const PROTOCOL_UNKNOWN         = 0;
-	const PROTOCOL_DFRN            = 1;
-	const PROTOCOL_DIASPORA        = 2;
-	const PROTOCOL_OSTATUS_SALMON  = 3;
-	const PROTOCOL_OSTATUS_FEED    = 4; // Deprecated
-	const PROTOCOL_GS_CONVERSATION = 5; // Deprecated
-	const PROTOCOL_SPLITTED_CONV   = 6;
+	/*
+	 * These constants represent the parcel format used to transport a conversation independently of the message protocol.
+	 * It currently is stored in the "protocol" field for legacy reasons.
+	 */
+	const PARCEL_UNKNOWN            = 0;
+	const PARCEL_DFRN               = 1;
+	const PARCEL_DIASPORA           = 2;
+	const PARCEL_SALMON             = 3;
+	const PARCEL_FEED               = 4; // Deprecated
+	const PARCEL_SPLIT_CONVERSATION = 6;
+	const PARCEL_TWITTER            = 67;
 
 	/**
 	 * @brief Store the conversation data
@@ -25,8 +30,10 @@ class Conversation
 	 * @param array $arr Item array with conversation data
 	 * @return array Item array with removed conversation data
 	 */
-	public static function insert($arr) {
-		if (in_array(defaults($arr, 'network', NETWORK_PHANTOM), [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]) && !empty($arr['uri'])) {
+	public static function insert(array $arr)
+	{
+		if (in_array(defaults($arr, 'network', NETWORK_PHANTOM),
+				[NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS, NETWORK_TWITTER]) && !empty($arr['uri'])) {
 			$conversation = ['item-uri' => $arr['uri'], 'received' => DateTimeFormat::utcNow()];
 
 			if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
@@ -66,11 +73,13 @@ class Conversation
 					unset($conversation['source']);
 				}
 				if (!DBA::update('conversation', $conversation, ['item-uri' => $conversation['item-uri']], $old_conv)) {
-					logger('Conversation: update for '.$conversation['item-uri'].' from '.$old_conv['protocol'].' to '.$conversation['protocol'].' failed', LOGGER_DEBUG);
+					logger('Conversation: update for ' . $conversation['item-uri'] . ' from ' . $old_conv['protocol'] . ' to ' . $conversation['protocol'] . ' failed',
+						LOGGER_DEBUG);
 				}
 			} else {
 				if (!DBA::insert('conversation', $conversation, true)) {
-					logger('Conversation: insert for '.$conversation['item-uri'].' (protocol '.$conversation['protocol'].') failed', LOGGER_DEBUG);
+					logger('Conversation: insert for ' . $conversation['item-uri'] . ' (protocol ' . $conversation['protocol'] . ') failed',
+						LOGGER_DEBUG);
 				}
 			}
 		}

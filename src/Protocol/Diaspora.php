@@ -20,6 +20,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
@@ -1706,7 +1707,7 @@ class Diaspora
 
 		$datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
 
-		$datarray["protocol"] = PROTOCOL_DIASPORA;
+		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
 
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
@@ -1968,7 +1969,7 @@ class Diaspora
 
 		$datarray = [];
 
-		$datarray["protocol"] = PROTOCOL_DIASPORA;
+		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $author_contact["cid"];
@@ -2630,7 +2631,7 @@ class Diaspora
 		$datarray["verb"] = ACTIVITY_POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
-		$datarray["protocol"] = PROTOCOL_DIASPORA;
+		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
 
 		$prefix = share_header(
@@ -2858,7 +2859,7 @@ class Diaspora
 		$datarray["verb"] = ACTIVITY_POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
-		$datarray["protocol"] = PROTOCOL_DIASPORA;
+		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
 
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);
