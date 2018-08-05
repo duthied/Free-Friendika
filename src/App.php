@@ -1399,16 +1399,12 @@ class App
 			}
 		}
 
-		if (!empty($_SESSION)) {
-			$user_theme = defaults($_SESSION, 'theme', $system_theme);
-		} else {
-			$user_theme = $system_theme;
-		}
+		$user_theme = Core\Session::get('theme', $system_theme);
 
 		// Specific mobile theme override
-		if (($this->is_mobile || $this->is_tablet) && defaults($_SESSION, 'show-mobile', true)) {
+		if (($this->is_mobile || $this->is_tablet) && Core\Session::get('show-mobile', true)) {
 			$system_mobile_theme = Config::get('system', 'mobile-theme');
-			$user_mobile_theme = defaults($_SESSION, 'mobile-theme', $system_mobile_theme);
+			$user_mobile_theme = Core\Session::get('mobile-theme', $system_mobile_theme);
 
 			// --- means same mobile theme as desktop
 			if (!empty($user_mobile_theme) && $user_mobile_theme !== '---') {
