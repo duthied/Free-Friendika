@@ -336,9 +336,11 @@ class Profile
 			$subscribe_feed = false;
 		}
 
+		$wallmessage = false;
+		$wallmessage_link = false;
+
 		if (remote_user() || (self::getMyURL() && x($profile, 'unkmail') && ($profile['uid'] != local_user()))) {
 			$wallmessage = L10n::t('Message');
-			$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 
 			if (remote_user()) {
 				$r = q(
@@ -359,10 +361,9 @@ class Profile
 				$remote_url = $r[0]['url'];
 				$message_path = preg_replace('=(.*)/profile/(.*)=ism', '$1/message/new/', $remote_url);
 				$wallmessage_link = $message_path . base64_encode($profile['addr']);
+			} else if (!empty($profile['nickname'])) {
+				$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 			}
-		} else {
-			$wallmessage = false;
-			$wallmessage_link = false;
 		}
 
 		// show edit profile to yourself
