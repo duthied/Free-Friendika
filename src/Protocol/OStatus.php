@@ -370,7 +370,7 @@ class OStatus
 			$doc2->formatOutput = true;
 			$xml2 = $doc2->saveXML();
 
-			$header["protocol"] = PROTOCOL_OSTATUS_SALMON;
+			$header["protocol"] = Conversation::PARCEL_SALMON;
 			$header["source"] = $xml2;
 		} elseif (!$initialize) {
 			return false;
@@ -798,7 +798,7 @@ class OStatus
 
 			$conv_data = [];
 
-			$conv_data['protocol'] = PROTOCOL_SPLITTED_CONV;
+			$conv_data['protocol'] = Conversation::PARCEL_SPLIT_CONVERSATION;
 			$conv_data['network'] = NETWORK_OSTATUS;
 			$conv_data['uri'] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
@@ -839,7 +839,7 @@ class OStatus
 
 			$conv_data['source'] = $doc2->saveXML();
 
-			$condition = ['item-uri' => $conv_data['uri'],'protocol' => PROTOCOL_OSTATUS_FEED];
+			$condition = ['item-uri' => $conv_data['uri'],'protocol' => Conversation::PARCEL_FEED];
 			if (DBA::exists('conversation', $condition)) {
 				logger('Delete deprecated entry for URI '.$conv_data['uri'], LOGGER_DEBUG);
 				DBA::delete('conversation', ['item-uri' => $conv_data['uri']]);
@@ -863,7 +863,7 @@ class OStatus
 	 */
 	private static function fetchSelf($self, array &$item)
 	{
-		$condition = ['`item-uri` = ? AND `protocol` IN (?, ?)', $self, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON];
+		$condition = ['`item-uri` = ? AND `protocol` IN (?, ?)', $self, Conversation::PARCEL_DFRN, Conversation::PARCEL_SALMON];
 		if (DBA::exists('conversation', $condition)) {
 			logger('Conversation '.$item['uri'].' is already stored.', LOGGER_DEBUG);
 			return;
@@ -882,7 +882,7 @@ class OStatus
 		$doc->formatOutput = true;
 		$xml = $doc->saveXML();
 
-		$item["protocol"] = PROTOCOL_OSTATUS_SALMON;
+		$item["protocol"] = Conversation::PARCEL_SALMON;
 		$item["source"] = $xml;
 
 		logger('Conversation '.$item['uri'].' is now fetched.', LOGGER_DEBUG);
@@ -898,7 +898,7 @@ class OStatus
 	 */
 	private static function fetchRelated($related, $related_uri, $importer)
 	{
-		$condition = ['`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, PROTOCOL_DFRN, PROTOCOL_OSTATUS_SALMON];
+		$condition = ['`item-uri` = ? AND `protocol` IN (?, ?)', $related_uri, Conversation::PARCEL_DFRN, Conversation::PARCEL_SALMON];
 		$conversation = DBA::selectFirst('conversation', ['source', 'protocol'], $condition);
 		if (DBA::isResult($conversation)) {
 			$stored = true;
@@ -907,7 +907,7 @@ class OStatus
 				logger('Got valid cached XML for URI '.$related_uri, LOGGER_DEBUG);
 				return;
 			}
-			if ($conversation['protocol'] == PROTOCOL_OSTATUS_SALMON) {
+			if ($conversation['protocol'] == Conversation::PARCEL_SALMON) {
 				logger('Delete invalid cached XML for URI '.$related_uri, LOGGER_DEBUG);
 				DBA::delete('conversation', ['item-uri' => $related_uri]);
 			}
@@ -978,7 +978,7 @@ class OStatus
 
 		// Finally we take the data that we fetched from "ostatus:conversation"
 		if ($xml == '') {
-			$condition = ['item-uri' => $related_uri, 'protocol' => PROTOCOL_SPLITTED_CONV];
+			$condition = ['item-uri' => $related_uri, 'protocol' => Conversation::PARCEL_SPLIT_CONVERSATION];
 			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
 			if (DBA::isResult($conversation)) {
 				$stored = true;

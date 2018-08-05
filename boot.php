@@ -180,25 +180,6 @@ define('CP_USERS_AND_GLOBAL',       2);
  */
 
 /**
- * @name Protocols
- * @deprecated since version 3.6
- * @see Conversation
- *
- * Different protocols that we are storing
- * @{
- */
-define('PROTOCOL_UNKNOWN'        , Conversation::PROTOCOL_UNKNOWN);
-define('PROTOCOL_DFRN'           , Conversation::PROTOCOL_DFRN);
-define('PROTOCOL_DIASPORA'       , Conversation::PROTOCOL_DIASPORA);
-define('PROTOCOL_OSTATUS_SALMON' , Conversation::PROTOCOL_OSTATUS_SALMON);
-define('PROTOCOL_OSTATUS_FEED'   , Conversation::PROTOCOL_OSTATUS_FEED);    // Deprecated
-define('PROTOCOL_GS_CONVERSATION', Conversation::PROTOCOL_GS_CONVERSATION); // Deprecated
-define('PROTOCOL_SPLITTED_CONV'  , Conversation::PROTOCOL_SPLITTED_CONV);
-/**
- * @}
- */
-
-/**
  * @name Network constants
  * @deprecated since version 3.6
  * @see Protocol

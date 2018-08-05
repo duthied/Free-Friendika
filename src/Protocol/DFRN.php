@@ -20,12 +20,12 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\GContact;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
 use Friendica\Model\PermissionSet;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
@@ -2401,7 +2401,7 @@ class DFRN
 
 		$item = $header;
 
-		$item["protocol"] = PROTOCOL_DFRN;
+		$item["protocol"] = Conversation::PARCEL_DFRN;
 
 		$item["source"] = $xml;
 

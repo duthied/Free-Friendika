@@ -25,6 +25,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
@@ -643,7 +644,7 @@ function item_post(App $a) {
 	$datarray['api_source'] = $api_source;
 
 	// This field is for storing the raw conversation data
-	$datarray['protocol'] = PROTOCOL_DFRN;
+	$datarray['protocol'] = Conversation::PARCEL_DFRN;
 
 	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['parent-uri']]);
 	if (DBA::isResult($conversation)) {
