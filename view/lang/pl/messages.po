@@ -39,7 +39,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-07-19 06:28+0200\n"
-"PO-Revision-Date: 2018-07-31 17:58+0000\n"
+"PO-Revision-Date: 2018-08-05 16:29+0000\n"
 "Last-Translator: Waldemar Stoczkowski <waldemar.stoczkowski@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -125,14 +125,14 @@ msgstr "Nie lubię tego"
 #: mod/photos.php:1468
 msgid "Attending"
 msgid_plural "Attending"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Uczestniczę"
+msgstr[1] "Uczestniczy"
+msgstr[2] "Uczestniczą"
+msgstr[3] "Uczestniczą"
 
 #: include/conversation.php:516 mod/photos.php:1468
 msgid "Not attending"
-msgstr "Nie uczestniczyłem"
+msgstr "Nie uczestniczę"
 
 #: include/conversation.php:516 mod/photos.php:1468
 msgid "Might attend"
@@ -393,7 +393,7 @@ msgstr "Wstaw link do audio"
 
 #: include/conversation.php:1140 mod/editpost.php:106
 msgid "audio link"
-msgstr "Link do nagrania audio"
+msgstr "link do audio"
 
 #: include/conversation.php:1141 mod/editpost.php:107
 msgid "Set your location"
@@ -474,34 +474,34 @@ msgstr "Pokaż wszystkie"
 #: include/conversation.php:1468
 msgid "Like"
 msgid_plural "Likes"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Ostatnie polubienie"
+msgstr[1] "Ostatnie polubienia"
+msgstr[2] "Ostatnich polubienień"
+msgstr[3] "Ostatnie polubienia"
 
 #: include/conversation.php:1471
 msgid "Dislike"
 msgid_plural "Dislikes"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Nie lubię"
+msgstr[1] "Nie lubią"
+msgstr[2] "Nie lubią"
+msgstr[3] "Nie lubi"
 
 #: include/conversation.php:1477
 msgid "Not Attending"
 msgid_plural "Not Attending"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Nie uczestniczę"
+msgstr[1] "Nie uczestniczy"
+msgstr[2] "Nie uczestniczą"
+msgstr[3] "Nie uczestniczą"
 
 #: include/conversation.php:1480 src/Content/ContactSelector.php:125
 msgid "Undecided"
 msgid_plural "Undecided"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Niezdecydowany"
+msgstr[1] "Niezdecydowani"
+msgstr[2] "Niezdecydowani"
+msgstr[3] "Niezdecydowani"
 
 #: include/items.php:344 mod/notice.php:22 mod/viewsrc.php:22
 #: mod/admin.php:281 mod/admin.php:1938 mod/admin.php:2186 mod/display.php:70
@@ -561,20 +561,20 @@ msgstr "Pokaż więcej"
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Dzienny limit opublikowanych %d posta. Post został odrzucony."
+msgstr[1] "Dzienny limit opublikowanych %d postów. Post został odrzucony."
+msgstr[2] "Dzienny limit opublikowanych %d postów. Post został odrzucony."
+msgstr[3] "Dzienny limit opublikowanych %d postów. Post został odrzucony."
 
 #: include/api.php:1155
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
 "Weekly posting limit of %d posts reached. The post was rejected."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Tygodniowy limit wysyłania %d posta. Post został odrzucony."
+msgstr[1] "Tygodniowy limit wysyłania %d postów. Post został odrzucony."
+msgstr[2] "Tygodniowy limit wysyłania %d postów. Post został odrzucony."
+msgstr[3] "Tygodniowy limit wysyłania %d postów. Post został odrzucony."
 
 #: include/api.php:1169
 #, php-format
@@ -1558,7 +1558,7 @@ msgstr "Potwierdź"
 
 #: mod/localtime.php:19 src/Model/Event.php:36 src/Model/Event.php:817
 msgid "l F d, Y \\@ g:i A"
-msgstr ""
+msgstr "l F d, Y \\@ g:i A"
 
 #: mod/localtime.php:33
 msgid "Time Conversion"
@@ -2840,10 +2840,10 @@ msgstr "Sieć:"
 #, php-format
 msgid "%d contact edited."
 msgid_plural "%d contacts edited."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%d edytuj kontakty."
+msgstr[1] "%d edytuj kontakty."
+msgstr[2] "%dedytuj kontakty. "
+msgstr[3] "%dedytuj kontakty. "
 
 #: mod/contacts.php:184 mod/contacts.php:400
 msgid "Could not access contact record."
@@ -3420,10 +3420,10 @@ msgid ""
 msgid_plural ""
 "Warning: This group contains %s members from a network that doesn't allow "
 "non public messages."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Ostrzeżenie: Ta grupa zawiera %s członka z sieci, która nie dopuszcza wiadomości niepublicznych."
+msgstr[1] "Ostrzeżenie: Ta grupa zawiera %s członków z sieci, która nie dopuszcza wiadomości niepublicznych."
+msgstr[2] "Ostrzeżenie: Ta grupa zawiera %s członków z sieci, która nie dopuszcza wiadomości niepublicznych."
+msgstr[3] "Ostrzeżenie: Ta grupa zawiera %s członków z sieci, która nie dopuszcza wiadomości niepublicznych."
 
 #: mod/network.php:547
 msgid "Messages in this group won't be send to these receivers."
@@ -4132,10 +4132,10 @@ msgstr "Nie można znaleźć żadnego kontaktu dla tego adresu URL (%s)"
 #, php-format
 msgid "%s contact unblocked"
 msgid_plural "%s contacts unblocked"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%s kontakt odblokowany"
+msgstr[1] "%s kontakty odblokowane"
+msgstr[2] "%s kontaktów odblokowanych"
+msgstr[3] "%s kontaktów odblokowanych"
 
 #: mod/admin.php:487
 msgid "Remote Contact Blocklist"
@@ -4179,10 +4179,10 @@ msgstr "Zdjęcie"
 #, php-format
 msgid "%s total blocked contact"
 msgid_plural "%s total blocked contacts"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%s całkowicie zablokowany kontakt "
+msgstr[1] "%s całkowicie zablokowany kontakt"
+msgstr[2] "%s całkowicie zablokowane kontakty "
+msgstr[3] "%s całkowicie zablokowane kontakty"
 
 #: mod/admin.php:508
 msgid "URL of the remote contact to block."
@@ -5435,10 +5435,10 @@ msgstr "Szczegóły rejestracji dla %s"
 #, php-format
 msgid "%s user blocked/unblocked"
 msgid_plural "%s users blocked/unblocked"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%s użytkownik zablokowany/odblokowany"
+msgstr[1] "%s użytkowników zablokowanych/odblokowanych"
+msgstr[2] "%sużytkowników zablokowanych/odblokowanych "
+msgstr[3] "%sużytkowników zablokowanych/odblokowanych "
 
 #: mod/admin.php:1698
 #, php-format
@@ -8778,10 +8778,10 @@ msgstr "Kategorie"
 #, php-format
 msgid "%d contact in common"
 msgid_plural "%d contacts in common"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%dwspólny kontakt "
+msgstr[1] "%dwspólny kontakt"
+msgstr[2] "%dwspólne kontakty "
+msgstr[3] "%dwspólnych kontaktów"
 
 #: src/Content/Nav.php:53
 msgid "Nothing new here"
@@ -9157,7 +9157,7 @@ msgstr "g A I F d"
 
 #: src/Model/Profile.php:549
 msgid "F d"
-msgstr ""
+msgstr "F d"
 
 #: src/Model/Profile.php:602 src/Model/Profile.php:699
 msgid "[today]"
