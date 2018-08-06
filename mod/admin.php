@@ -746,21 +746,25 @@ function admin_page_federation(App $a)
 function admin_page_queue(App $a)
 {
 	// get content from the queue table
-	// PLEASE REVIEW (not 100% sure about my code)
+	/*
+	//todo: convert q() to DBA::Select()
 	$statement = DBA::Select('`queue` AS `q`, `contact` AS `c`',
 		[ '`c`.`name`', '`c`.`nurl`', '`q`.`id`', '`q`.`network`', "CONVERT_TZ(`q`.`created`, 'UTC' " . Config::get('system', 'default_timezone') . ') as created', "CONVERT_TZ(`q`.`last`, 'UTC', " . Config::get('system', 'default_timezone') . "') as last" ],
 		'`c`.`id`' => '`q`.`cid`',
 		['order'=> ['`q`.`cid`, `q`.`created`']]
 	);
 	$r = DBA::toArray($statement);
-
-	/*
-	// Leaving this one here for the code review as well as backup
+	*/
+	
 	$r = q("SELECT `c`.`name`, `c`.`nurl`, `q`.`id`, `q`.`network`, `q`.`created`, `q`.`last`
 			FROM `queue` AS `q`, `contact` AS `c`
 			WHERE `c`.`id` = `q`.`cid`
 			ORDER BY `q`.`cid`, `q`.`created`;");
-	*/
+
+	foreach ($r as $key => $rr) {
+		$r[$key]['created'] = DateTimeFormat::local($rr['created']);
+		$r[$key]['last'] = DateTimeFormat::local($rr['last']);
+	}
 	$t = get_markup_template('admin/queue.tpl');
 	return replace_macros($t, [
 		'$title' => L10n::t('Administration'),
@@ -791,12 +795,13 @@ function admin_page_queue(App $a)
 function admin_page_workerqueue(App $a)
 {
 	// get jobs from the workerqueue table
-	$statement = DBA::select('workerqueue', ['id', 'parameter', "CONVERT_TZ(created', 'UTC', " . Config::get('system', 'default_timezone') . "') as created", 'priority'], ['done' => 0], ['order'=> ['priority']]);
+	$statement = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], ['done' => 0], ['order'=> ['priority']]);
 	$r = DBA::toArray($statement);
 
 	foreach ($r as $key => $rr) {
 		// fix GH-5469. ref: src/Core/Worker.php:217
 		$r[$key]['parameter'] = Arrays::recursiveImplode(json_decode($rr['parameter'], true), ': ');
+		$r[$key]['created'] = DateTimeFormat::local($rr['created']);
 	}
 
 	$t = get_markup_template('admin/workerqueue.tpl');
