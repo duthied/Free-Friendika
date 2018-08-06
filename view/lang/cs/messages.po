@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-07-19 06:28+0200\n"
-"PO-Revision-Date: 2018-07-31 17:48+0000\n"
+"PO-Revision-Date: 2018-08-04 05:45+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -66,7 +66,7 @@ msgstr "%1$s se možná účastní %3$s uživatele %2$s"
 #: include/conversation.php:211
 #, php-format
 msgid "%1$s is now friends with %2$s"
-msgstr "%1$s je nyní přítel s uživatelem %2$s"
+msgstr "%1$s se nyní přátelí s uživatelem %2$s"
 
 #: include/conversation.php:252
 #, php-format
@@ -160,7 +160,7 @@ msgstr "Smazat vybrané položky"
 
 #: include/conversation.php:855 view/theme/frio/theme.php:357
 msgid "Follow Thread"
-msgstr "Následovat vlákno"
+msgstr "Sledovat vlákno"
 
 #: include/conversation.php:856 src/Model/Contact.php:662
 msgid "View Status"
@@ -1040,36 +1040,36 @@ msgstr "neděle"
 
 #: include/text.php:974 src/Model/Event.php:399
 msgid "January"
-msgstr "ledna"
+msgstr "leden"
 
 #: include/text.php:974 src/Model/Event.php:400
 msgid "February"
-msgstr "února"
+msgstr "únor"
 
 #: include/text.php:974 src/Model/Event.php:401
 msgid "March"
-msgstr "března"
+msgstr "březen"
 
 #: include/text.php:974 src/Model/Event.php:402
 msgid "April"
-msgstr "dubna"
+msgstr "duben"
 
 #: include/text.php:974 include/text.php:991 src/Model/Event.php:390
 #: src/Model/Event.php:403
 msgid "May"
-msgstr "května"
+msgstr "květen"
 
 #: include/text.php:974 src/Model/Event.php:404
 msgid "June"
-msgstr "června"
+msgstr "červen"
 
 #: include/text.php:974 src/Model/Event.php:405
 msgid "July"
-msgstr "července"
+msgstr "červenec"
 
 #: include/text.php:974 src/Model/Event.php:406
 msgid "August"
-msgstr "srpna"
+msgstr "srpen"
 
 #: include/text.php:974 src/Model/Event.php:407
 msgid "September"
@@ -1077,83 +1077,83 @@ msgstr "září"
 
 #: include/text.php:974 src/Model/Event.php:408
 msgid "October"
-msgstr "října"
+msgstr "říjen"
 
 #: include/text.php:974 src/Model/Event.php:409
 msgid "November"
-msgstr "listopadu"
+msgstr "listopad"
 
 #: include/text.php:974 src/Model/Event.php:410
 msgid "December"
-msgstr "prosince"
+msgstr "prosinec"
 
 #: include/text.php:988 src/Model/Event.php:371
 msgid "Mon"
-msgstr "Pon"
+msgstr "pon"
 
 #: include/text.php:988 src/Model/Event.php:372
 msgid "Tue"
-msgstr "Úte"
+msgstr "úte"
 
 #: include/text.php:988 src/Model/Event.php:373
 msgid "Wed"
-msgstr "Stř"
+msgstr "stř"
 
 #: include/text.php:988 src/Model/Event.php:374
 msgid "Thu"
-msgstr "Čtv"
+msgstr "čtv"
 
 #: include/text.php:988 src/Model/Event.php:375
 msgid "Fri"
-msgstr "Pát"
+msgstr "pát"
 
 #: include/text.php:988 src/Model/Event.php:376
 msgid "Sat"
-msgstr "Sob"
+msgstr "sob"
 
 #: include/text.php:988 src/Model/Event.php:370
 msgid "Sun"
-msgstr "Ned"
+msgstr "ned"
 
 #: include/text.php:991 src/Model/Event.php:386
 msgid "Jan"
-msgstr "Led"
+msgstr "led"
 
 #: include/text.php:991 src/Model/Event.php:387
 msgid "Feb"
-msgstr "Úno"
+msgstr "úno"
 
 #: include/text.php:991 src/Model/Event.php:388
 msgid "Mar"
-msgstr "Bře"
+msgstr "bře"
 
 #: include/text.php:991 src/Model/Event.php:389
 msgid "Apr"
-msgstr "Dub"
+msgstr "dub"
 
 #: include/text.php:991 src/Model/Event.php:392
 msgid "Jul"
-msgstr "Čvc"
+msgstr "čvc"
 
 #: include/text.php:991 src/Model/Event.php:393
 msgid "Aug"
-msgstr "Srp"
+msgstr "srp"
 
 #: include/text.php:991
 msgid "Sep"
-msgstr "Zář"
+msgstr "zář"
 
 #: include/text.php:991 src/Model/Event.php:395
 msgid "Oct"
-msgstr "Říj"
+msgstr "říj"
 
 #: include/text.php:991 src/Model/Event.php:396
 msgid "Nov"
-msgstr "Lis"
+msgstr "lis"
 
 #: include/text.php:991 src/Model/Event.php:397
 msgid "Dec"
-msgstr "Pro"
+msgstr "pro"
 
 #: include/text.php:1137
 #, php-format
@@ -1234,7 +1234,7 @@ msgstr "Ne"
 
 #: mod/apps.php:14 index.php:259
 msgid "You must be logged in to use addons. "
-msgstr "Musíte být přihlášeni pro použití rozšíření."
+msgstr "Pro použití doplňků musíte být přihlášen/a."
 
 #: mod/apps.php:19
 msgid "Applications"
@@ -2079,7 +2079,7 @@ msgstr "URL adresa účtu"
 
 #: mod/crepair.php:162
 msgid "Friend Request URL"
-msgstr "Žádost o přátelství URL"
+msgstr "URL žádosti o přátelství"
 
 #: mod/crepair.php:163
 msgid "Friend Confirm URL"
@@ -2106,7 +2106,7 @@ msgstr "Profil nenalezen."
 msgid ""
 "This may occasionally happen if contact was requested by both persons and it"
 " has already been approved."
-msgstr "To se může občas stát pokud kontakt byl zažádán oběma osobami a již byl schválen."
+msgstr "To se může občas stát, pokud byl kontakt zažádán oběma osobami a již byl schválen."
 
 #: mod/dfrn_confirm.php:240
 msgid "Response from remote site was not understood."
@@ -2721,7 +2721,7 @@ msgstr "Navštivte profil uživatele %s [%s]"
 
 #: mod/viewsrc.php:13 mod/community.php:34
 msgid "Access denied."
-msgstr "Přístup odmítnut"
+msgstr "Přístup odmítnut."
 
 #: mod/community.php:51
 msgid "Community option not available."
@@ -6318,7 +6318,7 @@ msgid ""
 "\t\t\tinformation for your records (or change your password immediately to\n"
 "\t\t\tsomething that you will remember).\n"
 "\t\t"
-msgstr "\n\t\t\tVážený/á %1$s,\n\t\t\t\tVaše heslo se před nedávnem změnilo, jak jste požádal/a. Prosím uchovejte\n\t\t\ttyto informace pro vaše záznamy (nebo si ihned změňte heslo na něco,\n\t\t\tco si zapamatujete).\n\t\t"
+msgstr "\n\t\t\tVážený/á %1$s,\n\t\t\t\tVaše heslo bylo změněno, jak jste požádal/a. Prosím uchovejte\n\t\t\ttyto informace pro vaše záznamy (nebo si ihned změňte heslo na něco,\n\t\t\tco si zapamatujete).\n\t\t"
 
 #: mod/lostpass.php:155
 #, php-format
@@ -6332,7 +6332,7 @@ msgid ""
 "\n"
 "\t\t\tYou may change that password from your account settings page after logging in.\n"
 "\t\t"
-msgstr "\n\t\t\tZde jsou vaše přihlašovací detaily:\n\n\t\t\tAdresa stránky:\t\t%1$s\n\t\t\tPřihlašovací jméno:\t%2$s\n\t\t\tHeslo:\t\t\t%3$s\n\n\t\t\tSvé heslo si po přihlášení můžete změnit na stránce nastavení Vašeho účtu\n\t\t"
+msgstr "\n\t\t\tZde jsou vaše přihlašovací detaily:\n\n\t\t\tAdresa stránky:\t\t%1$s\n\t\t\tPřihlašovací jméno:\t%2$s\n\t\t\tHeslo:\t\t\t%3$s\n\n\t\t\tToto heslo si po přihlášení můžete změnit na stránce nastavení Vašeho účtu.\n\t\t"
 
 #: mod/lostpass.php:169
 #, php-format
@@ -6370,7 +6370,7 @@ msgstr "{0} požaduje registraci"
 
 #: mod/profile.php:37 src/Model/Profile.php:118
 msgid "Requested profile is not available."
-msgstr "Požadovaný profil není k dispozici."
+msgstr "Požadovaný profil není dostupný."
 
 #: mod/profile.php:78 mod/profile.php:81 src/Protocol/OStatus.php:1263
 #, php-format
@@ -8075,7 +8075,7 @@ msgstr "%s by se mohl/a zúčastnit události %s"
 #: src/Core/NotificationsManager.php:357
 #, php-format
 msgid "%s is now friends with %s"
-msgstr "%s se nyní přátelí s %s"
+msgstr "%s se nyní přátelí s uživatelem %s"
 
 #: src/Core/NotificationsManager.php:620
 msgid "Friend Suggestion"
@@ -8342,7 +8342,7 @@ msgstr "Gay"
 
 #: src/Content/ContactSelector.php:147
 msgid "Lesbian"
-msgstr "Lesbička"
+msgstr "Lesba"
 
 #: src/Content/ContactSelector.php:147
 msgid "No Preference"
@@ -8362,7 +8362,7 @@ msgstr "Abstinent"
 
 #: src/Content/ContactSelector.php:147
 msgid "Virgin"
-msgstr "panic/panna"
+msgstr "Panic/panna"
 
 #: src/Content/ContactSelector.php:147
 msgid "Deviant"
@@ -8948,11 +8948,11 @@ msgstr "celodenní"
 
 #: src/Model/Event.php:391
 msgid "Jun"
-msgstr "Čvn"
+msgstr "čvn"
 
 #: src/Model/Event.php:394
 msgid "Sept"
-msgstr "Září"
+msgstr "září"
 
 #: src/Model/Event.php:417
 msgid "No events to display"
