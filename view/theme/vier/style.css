@@ -862,7 +862,7 @@ ul.menu-popup {
 	transition:all 0.2s ease-in-out;
 	/* display: none; */
 	position: absolute;
-	width: 11em;
+	width: 13em;
 	background: #ffffff;
 	color: #2d2d2d;
 	margin: 0px;
