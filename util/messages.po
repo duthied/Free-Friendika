@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-06 15:02+0200\n"
+"POT-Creation-Date: 2018-08-07 09:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1800,7 +1800,7 @@ msgid "Save Settings"
 msgstr ""
 
 #: mod/admin.php:362 mod/admin.php:380 mod/dfrn_request.php:344
-#: mod/friendica.php:129 src/Model/Contact.php:1338
+#: mod/friendica.php:130 src/Model/Contact.php:1338
 msgid "Blocked domain"
 msgstr ""
 
@@ -1808,7 +1808,7 @@ msgstr ""
 msgid "The blocked domain"
 msgstr ""
 
-#: mod/admin.php:363 mod/admin.php:381 mod/friendica.php:129
+#: mod/admin.php:363 mod/admin.php:381 mod/friendica.php:130
 msgid "Reason for the block"
 msgstr ""
 
@@ -4707,50 +4707,6 @@ msgstr ""
 msgid "The network type couldn't be detected. Contact can't be added."
 msgstr ""
 
-#: mod/friendica.php:78
-msgid "This is Friendica, version"
-msgstr ""
-
-#: mod/friendica.php:79
-msgid "running at web location"
-msgstr ""
-
-#: mod/friendica.php:83
-msgid ""
-"Please visit <a href=\"https://friendi.ca\">Friendi.ca</a> to learn more "
-"about the Friendica project."
-msgstr ""
-
-#: mod/friendica.php:87
-msgid "Bug reports and issues: please visit"
-msgstr ""
-
-#: mod/friendica.php:87
-msgid "the bugtracker at github"
-msgstr ""
-
-#: mod/friendica.php:90
-msgid ""
-"Suggestions, praise, etc. - please email \"info\" at \"friendi - dot - ca"
-msgstr ""
-
-#: mod/friendica.php:104
-msgid "Installed addons/apps:"
-msgstr ""
-
-#: mod/friendica.php:118
-msgid "No installed addons/apps"
-msgstr ""
-
-#: mod/friendica.php:123
-#, php-format
-msgid "Read about the <a href=\"%1$s/tos\">Terms of Service</a> of this node."
-msgstr ""
-
-#: mod/friendica.php:128
-msgid "On this server the following remote servers are blocked."
-msgstr ""
-
 #: mod/fsuggest.php:72
 msgid "Friend suggestion sent."
 msgstr ""
@@ -7406,6 +7362,49 @@ msgid ""
 "your site allow private mail from unknown senders."
 msgstr ""
 
+#: mod/friendica.php:78
+#, php-format
+msgid ""
+"This is Friendica, version %s that is running at the web location %s. The "
+"database version is %s, the post update version is %s."
+msgstr ""
+
+#: mod/friendica.php:84
+msgid ""
+"Please visit <a href=\"https://friendi.ca\">Friendi.ca</a> to learn more "
+"about the Friendica project."
+msgstr ""
+
+#: mod/friendica.php:88
+msgid "Bug reports and issues: please visit"
+msgstr ""
+
+#: mod/friendica.php:88
+msgid "the bugtracker at github"
+msgstr ""
+
+#: mod/friendica.php:91
+msgid ""
+"Suggestions, praise, etc. - please email \"info\" at \"friendi - dot - ca"
+msgstr ""
+
+#: mod/friendica.php:105
+msgid "Installed addons/apps:"
+msgstr ""
+
+#: mod/friendica.php:119
+msgid "No installed addons/apps"
+msgstr ""
+
+#: mod/friendica.php:124
+#, php-format
+msgid "Read about the <a href=\"%1$s/tos\">Terms of Service</a> of this node."
+msgstr ""
+
+#: mod/friendica.php:129
+msgid "On this server the following remote servers are blocked."
+msgstr ""
+
 #: view/theme/duepuntozero/config.php:54 src/Model/User.php:541
 msgid "default"
 msgstr ""
@@ -9070,133 +9069,6 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Profile.php:96
-msgid "Requested account is not available."
-msgstr ""
-
-#: src/Model/Profile.php:164 src/Model/Profile.php:397
-#: src/Model/Profile.php:855
-msgid "Edit profile"
-msgstr ""
-
-#: src/Model/Profile.php:334
-msgid "Atom feed"
-msgstr ""
-
-#: src/Model/Profile.php:370
-msgid "Manage/edit profiles"
-msgstr ""
-
-#: src/Model/Profile.php:548 src/Model/Profile.php:637
-msgid "g A l F d"
-msgstr ""
-
-#: src/Model/Profile.php:549
-msgid "F d"
-msgstr ""
-
-#: src/Model/Profile.php:602 src/Model/Profile.php:699
-msgid "[today]"
-msgstr ""
-
-#: src/Model/Profile.php:613
-msgid "Birthday Reminders"
-msgstr ""
-
-#: src/Model/Profile.php:614
-msgid "Birthdays this week:"
-msgstr ""
-
-#: src/Model/Profile.php:686
-msgid "[No description]"
-msgstr ""
-
-#: src/Model/Profile.php:713
-msgid "Event Reminders"
-msgstr ""
-
-#: src/Model/Profile.php:714
-msgid "Upcoming events the next 7 days:"
-msgstr ""
-
-#: src/Model/Profile.php:737
-msgid "Member since:"
-msgstr ""
-
-#: src/Model/Profile.php:745
-msgid "j F, Y"
-msgstr ""
-
-#: src/Model/Profile.php:746
-msgid "j F"
-msgstr ""
-
-#: src/Model/Profile.php:761
-msgid "Age:"
-msgstr ""
-
-#: src/Model/Profile.php:774
-#, php-format
-msgid "for %1$d %2$s"
-msgstr ""
-
-#: src/Model/Profile.php:798
-msgid "Religion:"
-msgstr ""
-
-#: src/Model/Profile.php:806
-msgid "Hobbies/Interests:"
-msgstr ""
-
-#: src/Model/Profile.php:818
-msgid "Contact information and Social Networks:"
-msgstr ""
-
-#: src/Model/Profile.php:822
-msgid "Musical interests:"
-msgstr ""
-
-#: src/Model/Profile.php:826
-msgid "Books, literature:"
-msgstr ""
-
-#: src/Model/Profile.php:830
-msgid "Television:"
-msgstr ""
-
-#: src/Model/Profile.php:834
-msgid "Film/dance/culture/entertainment:"
-msgstr ""
-
-#: src/Model/Profile.php:838
-msgid "Love/Romance:"
-msgstr ""
-
-#: src/Model/Profile.php:842
-msgid "Work/employment:"
-msgstr ""
-
-#: src/Model/Profile.php:846
-msgid "School/education:"
-msgstr ""
-
-#: src/Model/Profile.php:851
-msgid "Forums:"
-msgstr ""
-
-#: src/Model/Profile.php:945
-msgid "Only You Can See This"
-msgstr ""
-
-#: src/Model/Profile.php:953 src/Model/Profile.php:956
-msgid "Tips for New Members"
-msgstr ""
-
-#: src/Model/Profile.php:1111
-#, php-format
-msgid "OpenWebAuth: %1$s welcomes %2$s"
-msgstr ""
-
 #: src/Model/User.php:165
 msgid "Login failed"
 msgstr ""
@@ -9349,6 +9221,133 @@ msgid ""
 "removeme\n"
 "\n"
 "\t\t\tThank you and welcome to %2$s."
+msgstr ""
+
+#: src/Model/Profile.php:96
+msgid "Requested account is not available."
+msgstr ""
+
+#: src/Model/Profile.php:164 src/Model/Profile.php:397
+#: src/Model/Profile.php:855
+msgid "Edit profile"
+msgstr ""
+
+#: src/Model/Profile.php:334
+msgid "Atom feed"
+msgstr ""
+
+#: src/Model/Profile.php:370
+msgid "Manage/edit profiles"
+msgstr ""
+
+#: src/Model/Profile.php:548 src/Model/Profile.php:637
+msgid "g A l F d"
+msgstr ""
+
+#: src/Model/Profile.php:549
+msgid "F d"
+msgstr ""
+
+#: src/Model/Profile.php:602 src/Model/Profile.php:699
+msgid "[today]"
+msgstr ""
+
+#: src/Model/Profile.php:613
+msgid "Birthday Reminders"
+msgstr ""
+
+#: src/Model/Profile.php:614
+msgid "Birthdays this week:"
+msgstr ""
+
+#: src/Model/Profile.php:686
+msgid "[No description]"
+msgstr ""
+
+#: src/Model/Profile.php:713
+msgid "Event Reminders"
+msgstr ""
+
+#: src/Model/Profile.php:714
+msgid "Upcoming events the next 7 days:"
+msgstr ""
+
+#: src/Model/Profile.php:737
+msgid "Member since:"
+msgstr ""
+
+#: src/Model/Profile.php:745
+msgid "j F, Y"
+msgstr ""
+
+#: src/Model/Profile.php:746
+msgid "j F"
+msgstr ""
+
+#: src/Model/Profile.php:761
+msgid "Age:"
+msgstr ""
+
+#: src/Model/Profile.php:774
+#, php-format
+msgid "for %1$d %2$s"
+msgstr ""
+
+#: src/Model/Profile.php:798
+msgid "Religion:"
+msgstr ""
+
+#: src/Model/Profile.php:806
+msgid "Hobbies/Interests:"
+msgstr ""
+
+#: src/Model/Profile.php:818
+msgid "Contact information and Social Networks:"
+msgstr ""
+
+#: src/Model/Profile.php:822
+msgid "Musical interests:"
+msgstr ""
+
+#: src/Model/Profile.php:826
+msgid "Books, literature:"
+msgstr ""
+
+#: src/Model/Profile.php:830
+msgid "Television:"
+msgstr ""
+
+#: src/Model/Profile.php:834
+msgid "Film/dance/culture/entertainment:"
+msgstr ""
+
+#: src/Model/Profile.php:838
+msgid "Love/Romance:"
+msgstr ""
+
+#: src/Model/Profile.php:842
+msgid "Work/employment:"
+msgstr ""
+
+#: src/Model/Profile.php:846
+msgid "School/education:"
+msgstr ""
+
+#: src/Model/Profile.php:851
+msgid "Forums:"
+msgstr ""
+
+#: src/Model/Profile.php:945
+msgid "Only You Can See This"
+msgstr ""
+
+#: src/Model/Profile.php:953 src/Model/Profile.php:956
+msgid "Tips for New Members"
+msgstr ""
+
+#: src/Model/Profile.php:1115
+#, php-format
+msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr ""
 
 #: src/Protocol/Diaspora.php:2449
@@ -9603,10 +9602,6 @@ msgstr ""
 msgid "Update %s failed. See error logs."
 msgstr ""
 
-#: index.php:460
-msgid "toggle mobile"
-msgstr ""
-
 #: update.php:194
 #, php-format
 msgid "%s: Updating author-id and owner-id in item and thread table. "
@@ -9615,4 +9610,8 @@ msgstr ""
 #: update.php:240
 #, php-format
 msgid "%s: Updating post-type."
+msgstr ""
+
+#: index.php:460
+msgid "toggle mobile"
 msgstr ""
