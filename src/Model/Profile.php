@@ -1050,7 +1050,11 @@ class Profile
 				$basepath = $urlarr[0];
 
 				if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
-					goaway($basepath . '/magic' . '?f=&owa=1&dest=' . $dest);
+					$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
+					$serverret = Network::curl($magic_path);
+					if (!empty($serverret['success'])) {
+						goaway($magic_path);
+					}
 				}
 			}
 		}

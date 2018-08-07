@@ -107,7 +107,7 @@ if (x($_SESSION, 'language') && ($_SESSION['language'] !== $lang)) {
 	L10n::loadTranslationTable($lang);
 }
 
-if ((x($_GET,'zrl')) && $a->mode == App::MODE_NORMAL) {
+if (!empty($_GET['zrl']) && $a->mode == App::MODE_NORMAL) {
 	$a->query_string = Profile::stripZrls($a->query_string);
 	if (!local_user()) {
 		// Only continue when the given profile link seems valid
