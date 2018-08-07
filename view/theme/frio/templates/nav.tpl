@@ -40,15 +40,15 @@
 				<ul class="nav navbar-nav navbar-left" role="menubar">
 					<li id="nav-communication" class="nav-segment" role="presentation">
 						{{if $nav.network}}
-						<a role="menuitem" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
+						<a accesskey="n"role="menuitem" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.home}}
-						<a role="menuitem" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
+						<a accesskey="p" role="menuitem" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
 						{{/if}}
 
 						{{if $nav.community}}
-						<a role="menuitem" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye" aria-hidden="true"></i></a>
+						<a accesskey="c" role="menuitem" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye" aria-hidden="true"></i></a>
 						{{/if}}
 					</li>
 
@@ -58,7 +58,7 @@
 						{{/if}}
 
 						{{if $nav.events}}
-						<a role="menuitem" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
+						<a accesskey="e" role="menuitem" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
 						{{/if}}
 
 						{{if $nav.contacts}}
@@ -109,7 +109,7 @@
 							<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
 								<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
 								<div class="form-group form-group-search">
-									<input id="nav-search-input-field" class="form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
+									<input accesskey="s" id="nav-search-input-field" class="form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
 									<button class="btn btn-default btn-sm form-button-search" type="submit">{{$nav.search.1}}</button>
 								</div>
 							</form>
@@ -119,7 +119,7 @@
 					{{* The user dropdown menu *}}
 					{{if $nav.userinfo}}
 					<li id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
-						<button id="main-menu" class="btn-link dropdown-toggle nav-avatar" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-user-menu">
+						<button accesskey="u" id="main-menu" class="btn-link dropdown-toggle nav-avatar" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-user-menu">
 							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
 								<strong>{{$nav.userinfo.name}}</strong><br>
 								{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
@@ -165,7 +165,7 @@
 							<li role="presentation"><a role="menuitem" id="nav-settings-link" class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> {{$nav.settings.1}}</a></li>
 							{{/if}}
 							{{if $nav.admin}}
-							<li role="presentation"><a role="menuitem" id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i> {{$nav.admin.1}}</a></li>
+							<li role="presentation"><a accesskey="a" role="menuitem" id="nav-admin-link" class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" ><i class="fa fa-user-secret fa-fw" aria-hidden="true"></i> {{$nav.admin.1}}</a></li>
 							{{/if}}
 							{{if $nav.tos}}
 							<li role="presentation" class="divider"></li>
