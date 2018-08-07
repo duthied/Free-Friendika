@@ -746,10 +746,18 @@ function admin_page_federation(App $a)
 function admin_page_queue(App $a)
 {
 	// get content from the queue table
-	$r = q("SELECT `c`.`name`, `c`.`nurl`, `q`.`id`, `q`.`network`, `q`.`created`, `q`.`last`
-			FROM `queue` AS `q`, `contact` AS `c`
-			WHERE `c`.`id` = `q`.`cid`
-			ORDER BY `q`.`cid`, `q`.`created`;");
+	$entries = DBA::p("SELECT `contact`.`name`, `contact`.`nurl`,
+                `queue`.`id`, `queue`.`network`, `queue`.`created`, `queue`.`last`
+                FROM `queue` INNER JOIN `contact` ON `contact`.`id` = `queue`.`cid`
+                ORDER BY `queue`.`cid`, `queue`.`created`");
+
+	$r = [];
+	while ($entry = DBA::fetch($entries)) {
+		$entry['created'] = DateTimeFormat::local($entry['created']);
+		$entry['last'] = DateTimeFormat::local($entry['last']);
+		$r[] = $entry;
+	}
+	DBA::close($entries);
 
 	$t = get_markup_template('admin/queue.tpl');
 	return replace_macros($t, [
@@ -781,13 +789,16 @@ function admin_page_queue(App $a)
 function admin_page_workerqueue(App $a)
 {
 	// get jobs from the workerqueue table
-	$statement = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], ['done' => 0], ['order'=> ['priority']]);
-	$r = DBA::toArray($statement);
+	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], ['done' => 0], ['order'=> ['priority']]);
 
-	foreach ($r as $key => $rr) {
+	$r = [];
+	while ($entry = DBA::fetch($entries)) {
 		// fix GH-5469. ref: src/Core/Worker.php:217
-		$r[$key]['parameter'] = Arrays::recursiveImplode(json_decode($rr['parameter'], true), ': ');
+		$entry['parameter'] = Arrays::recursiveImplode(json_decode($entry['parameter'], true), ': ');
+		$entry['created'] = DateTimeFormat::local($entry['created']);
+		$r[] = $entry;
 	}
+	DBA::close($entries);
 
 	$t = get_markup_template('admin/workerqueue.tpl');
 	return replace_macros($t, [
