@@ -180,16 +180,8 @@ class Proxy
 	{
 		$query = parse_url($url, PHP_URL_QUERY);
 		$query = html_entity_decode($query);
-		$query_list = explode('&', $query);
 
-		$arr = [];
-
-		foreach ($query_list as $key_value) {
-			$key_value_list = explode('=', $key_value);
-			$arr[$key_value_list[0]] = $key_value_list[1];
-		}
-
-		unset($url, $query_list, $url);
+		parse_str($query, $arr);
 
 		return $arr;
 	}
