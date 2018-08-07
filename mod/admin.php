@@ -790,7 +790,6 @@ function admin_page_workerqueue(App $a)
 {
 	// get jobs from the workerqueue table
 	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], ['done' => 0], ['order'=> ['priority']]);
-	$r = DBA::toArray($statement);
 
 	$r = [];
 	while ($entry = DBA::fetch($entries)) {
@@ -799,6 +798,7 @@ function admin_page_workerqueue(App $a)
 		$entry['created'] = DateTimeFormat::local($entry['created']);
 		$r[] = $entry;
 	}
+	DBA::close($entries);
 
 	$t = get_markup_template('admin/workerqueue.tpl');
 	return replace_macros($t, [
