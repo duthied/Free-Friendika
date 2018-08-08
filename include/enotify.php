@@ -117,7 +117,7 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
-		$thread = DBA::selectFirst('thread', ['ignored'], ['iid' => $parent_id]);
+		$thread = Item::selectFirstThreadForUser($params['uid'] ,['ignored'], ['iid' => $parent_id]);
 		if (DBA::isResult($thread) && $thread["ignored"]) {
 			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
 			return;
@@ -814,13 +814,10 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	}
 
 	// Is it a post that the user had started or where he interacted?
-	$parent = q("SELECT `thread`.`iid` FROM `thread` INNER JOIN `item` ON `item`.`parent` = `thread`.`iid`
-			WHERE `thread`.`iid` = %d AND NOT `thread`.`ignored` AND
-				(`thread`.`mention` OR `item`.`author-id` IN ($contact_list))
-			LIMIT 1",
-			intval($item["parent"]));
+	$fields = ['ignored', 'mention', 'author-id'];
+	$thread = Item::selectFirstThreadForUser($params['uid'], $fields, ['iid' => $item["parent"]]);
 
-	if ($parent && !isset($params["type"])) {
+	if (($thread['mention'] || in_array($thread['author-id'], $contacts)) && !$thread['ignored'] && !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;
 		$params["verb"] = ACTIVITY_POST;
 	}
