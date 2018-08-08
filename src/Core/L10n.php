@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Core\System;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -193,7 +194,13 @@ class L10n extends BaseObject
 				} else {
 					$i = self::stringPluralSelectDefault($count);
 				}
-				$s = $t[$i];
+
+				// for some languages there is only a single array item
+				if (!isset($t[$i])) {
+					$s = $t[0];
+				} else {
+					$s = $t[$i];
+				}
 			} else {
 				$s = $t;
 			}
