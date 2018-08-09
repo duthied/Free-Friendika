@@ -12,6 +12,10 @@ require_once "mod/network.php";
 
 function update_network_content(App $a)
 {
+	if (empty($_GET['p']) || empty($_GET['item'])) {
+		killme();
+	}
+
 	$profile_uid = intval($_GET['p']);
 	$parent = intval($_GET['item']);
 
