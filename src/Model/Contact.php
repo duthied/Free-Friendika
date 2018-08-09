@@ -849,7 +849,24 @@ class Contact extends BaseObject
 			return 0;
 		}
 
-		$data = Probe::uri($url, "", $uid);
+		// When we don't want to update, we look if some of our users already know this contact
+		if ($no_update) {
+			$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+				'photo', 'keywords', 'location', 'about', 'network',
+				'priority', 'batch', 'request', 'confirm', 'poco'];
+			$data = DBA::selectFirst('contact', $fields, ['nurl' => normalise_link($url)]);
+
+			if (DBA::isResult($data)) {
+				// For security reasons we don't fetch key data from our users
+				$data["pubkey"] = '';
+			}
+		} else {
+			$data = [];
+		}
+
+		if (empty($data)) {
+			$data = Probe::uri($url, "", $uid);
+		}
 
 		// Last try in gcontact for unsupported networks
 		if (!in_array($data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_PUMPIO, NETWORK_MAIL, NETWORK_FEED])) {
