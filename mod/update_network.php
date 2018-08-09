@@ -12,7 +12,7 @@ require_once "mod/network.php";
 
 function update_network_content(App $a)
 {
-	if (empty($_GET['p']) || empty($_GET['item'])) {
+	if (!isset($_GET['p']) || !isset($_GET['item'])) {
 		killme();
 	}
 
