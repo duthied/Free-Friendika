@@ -79,7 +79,8 @@ class Widget
 	 */
 	public static function unavailableNetworks()
 	{
-		$networks = array();
+		// Always hide content from these networks
+		$networks = ['face', 'apdn'];
 
 		if (!Addon::isEnabled("statusnet")) {
 			$networks[] = NETWORK_STATUSNET;
