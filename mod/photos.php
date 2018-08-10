@@ -903,7 +903,7 @@ function photos_post(App $a)
 		Worker::add(PRIORITY_HIGH, "Notifier", 'wall-new', $item_id);
 	}
 
-	Addon::callHooks('photo_post_end', intval($item_id));
+	Addon::callHooks('photo_post_end', $item_id);
 
 	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
 	// if they do not wish to be redirected
@@ -1053,7 +1053,7 @@ function photos_content(App $a)
 		$albumselect = '';
 
 		$albumselect .= '<option value="" ' . (!$selname ? ' selected="selected" ' : '') . '>&lt;current year&gt;</option>';
-		if (count($a->data['albums'])) {
+		if (!empty($a->data['albums'])) {
 			foreach ($a->data['albums'] as $album) {
 				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === L10n::t('Contact Photos'))) {
 					continue;

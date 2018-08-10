@@ -93,7 +93,7 @@ function register_post(App $a)
 		// Only send a password mail when the password wasn't manually provided
 		if (!x($_POST, 'password1') || !x($_POST, 'confirm')) {
 			$res = User::sendRegisterOpenEmail(
-					$user['email'], Config::get('config', 'sitename'), System::baseUrl(), $user['username'], $result['password']);
+					$user['email'], Config::get('config', 'sitename'), System::baseUrl(), $user['username'], $result['password'], $user);
 
 			if ($res) {
 				info(L10n::t('Registration successful. Please check your email for further instructions.') . EOL);

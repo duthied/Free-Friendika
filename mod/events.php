@@ -21,7 +21,7 @@ use Friendica\Util\Temporal;
 require_once 'include/items.php';
 
 function events_init(App $a) {
-	if (! local_user()) {
+	if (!local_user()) {
 		return;
 	}
 
@@ -35,8 +35,6 @@ function events_init(App $a) {
 		$a->page['aside'] = '';
 	}
 
-	$a->data['user'] = $_SESSION['user'];
-
 	$cal_widget = CalendarExport::getHTML();
 
 	$a->page['aside'] .= $cal_widget;
@@ -48,12 +46,12 @@ function events_post(App $a) {
 
 	logger('post: ' . print_r($_REQUEST, true), LOGGER_DATA);
 
-	if (! local_user()) {
+	if (!local_user()) {
 		return;
 	}
 
-	$event_id = ((x($_POST, 'event_id')) ? intval($_POST['event_id']) : 0);
-	$cid = ((x($_POST, 'cid')) ? intval($_POST['cid']) : 0);
+	$event_id = (x($_POST, 'event_id') ? intval($_POST['event_id']) : 0);
+	$cid = (x($_POST, 'cid') ? intval($_POST['cid']) : 0);
 	$uid = local_user();
 
 	$start_text  = escape_tags($_REQUEST['start_text']);
@@ -78,12 +76,12 @@ function events_post(App $a) {
 
 	if ($adjust) {
 		$start = DateTimeFormat::convert($start, 'UTC', date_default_timezone_get());
-		if (! $nofinish) {
+		if (!$nofinish) {
 			$finish = DateTimeFormat::convert($finish, 'UTC', date_default_timezone_get());
 		}
 	} else {
 		$start = DateTimeFormat::utc($start);
-		if (! $nofinish) {
+		if (!$nofinish) {
 			$finish = DateTimeFormat::utc($finish);
 		}
 	}
@@ -110,7 +108,7 @@ function events_post(App $a) {
 		goaway($onerror_url);
 	}
 
-	if ((! $summary) || ($start === NULL_DATE)) {
+	if (!$summary || ($start === NULL_DATE)) {
 		notice(L10n::t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo L10n::t('Event title and start time are required.');
@@ -119,7 +117,7 @@ function events_post(App $a) {
 		goaway($onerror_url);
 	}
 
-	$share = ((intval($_POST['share'])) ? intval($_POST['share']) : 0);
+	$share = (intval($_POST['share']) ? intval($_POST['share']) : 0);
 
 	$c = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval(local_user())
@@ -182,7 +180,7 @@ function events_post(App $a) {
 
 	$item_id = Event::store($datarray);
 
-	if (! $cid) {
+	if (!$cid) {
 		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
 	}
 
@@ -191,7 +189,7 @@ function events_post(App $a) {
 
 function events_content(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -246,7 +244,7 @@ function events_content(App $a) {
 	$mode = 'view';
 	$y = 0;
 	$m = 0;
-	$ignored = ((x($_REQUEST, 'ignored')) ? intval($_REQUEST['ignored']) : 0);
+	$ignored = (x($_REQUEST, 'ignored') ? intval($_REQUEST['ignored']) : 0);
 
 	if ($a->argc > 1) {
 		if ($a->argc > 2 && $a->argv[1] == 'event') {
@@ -277,10 +275,10 @@ function events_content(App $a) {
 
 		$thisyear  = DateTimeFormat::localNow('Y');
 		$thismonth = DateTimeFormat::localNow('m');
-		if (! $y) {
+		if (!$y) {
 			$y = intval($thisyear);
 		}
-		if (! $m) {
+		if (!$m) {
 			$m = intval($thismonth);
 		}
 
@@ -351,7 +349,7 @@ function events_content(App $a) {
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
-				if (! x($links,$j)) {
+				if (!x($links,$j)) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}
@@ -425,7 +423,10 @@ function events_content(App $a) {
 
 	// Passed parameters overrides anything found in the DB
 	if (in_array($mode, ['edit', 'new', 'copy'])) {
-		if (!x($orig_event)) {$orig_event = [];}
+		if (empty($orig_event)) {
+			$orig_event = [];
+		}
+
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
 		if (x($_REQUEST, 'nofinish'))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
 		if (x($_REQUEST, 'adjust'))      {$orig_event['adjust']      = $_REQUEST['adjust'];}
@@ -439,50 +440,50 @@ function events_content(App $a) {
 		$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
 		$a_checked = ((x($orig_event) && $orig_event['adjust'])   ? ' checked="checked" ' : '');
 
-		$t_orig = ((x($orig_event)) ? $orig_event['summary']  : '');
-		$d_orig = ((x($orig_event)) ? $orig_event['desc']     : '');
-		$l_orig = ((x($orig_event)) ? $orig_event['location'] : '');
-		$eid    = ((x($orig_event)) ? $orig_event['id']       : 0);
-		$cid    = ((x($orig_event)) ? $orig_event['cid']      : 0);
-		$uri    = ((x($orig_event)) ? $orig_event['uri']      : '');
+		$t_orig = (x($orig_event) ? $orig_event['summary']  : '');
+		$d_orig = (x($orig_event) ? $orig_event['desc']     : '');
+		$l_orig = (x($orig_event) ? $orig_event['location'] : '');
+		$eid    = (x($orig_event) ? $orig_event['id']       : 0);
+		$cid    = (x($orig_event) ? $orig_event['cid']      : 0);
+		$uri    = (x($orig_event) ? $orig_event['uri']      : '');
 
 		$sh_disabled = '';
 		$sh_checked  = '';
 
 		if (x($orig_event)) {
-			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ');
+			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && !$orig_event['allow_gid'] && !$orig_event['deny_cid'] && !$orig_event['deny_gid']) ? '' : ' checked="checked" ');
 		}
 
 		if ($cid || $mode === 'edit') {
 			$sh_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = ((x($orig_event)) ? $orig_event['start']  : 'now');
-		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
+		$sdt = (x($orig_event) ? $orig_event['start']  : 'now');
+		$fdt = (x($orig_event) ? $orig_event['finish'] : 'now');
 
 		$tz = date_default_timezone_get();
 		if (x($orig_event)) {
-			$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
+			$tz = ($orig_event['adjust'] ? date_default_timezone_get() : 'UTC');
 		}
 
 		$syear  = DateTimeFormat::convert($sdt, $tz, 'UTC', 'Y');
 		$smonth = DateTimeFormat::convert($sdt, $tz, 'UTC', 'm');
 		$sday   = DateTimeFormat::convert($sdt, $tz, 'UTC', 'd');
 
-		$shour   = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'H') : '00');
-		$sminute = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'i') : '00');
+		$shour   = (x($orig_event) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'H') : '00');
+		$sminute = (x($orig_event) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'i') : '00');
 
 		$fyear  = DateTimeFormat::convert($fdt, $tz, 'UTC', 'Y');
 		$fmonth = DateTimeFormat::convert($fdt, $tz, 'UTC', 'm');
 		$fday   = DateTimeFormat::convert($fdt, $tz, 'UTC', 'd');
 
-		$fhour   = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : '00');
-		$fminute = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00');
+		$fhour   = (x($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : '00');
+		$fminute = (x($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00');
 
 		$perms = ACL::getDefaultUserPermissions($orig_event);
 
 		if ($mode === 'new' || $mode === 'copy') {
-			$acl = (($cid) ? '' : ACL::getFullSelectorHTML(((x($orig_event)) ? $orig_event : $a->user)));
+			$acl = ($cid ? '' : ACL::getFullSelectorHTML(x($orig_event) ? $orig_event : $a->user));
 		}
 
 		// If we copy an old event, we need to remove the ID and URI
