@@ -397,6 +397,29 @@ function visible_activity($item) {
 	return true;
 }
 
+function conv_get_blocklist()
+{
+	if (!local_user()) {
+		return [];
+	}
+
+	$str_blocked = PConfig::get(local_user(), 'system', 'blocked');
+	if (empty($str_blocked)) {
+		return [];
+	}
+
+	$blocklist = [];
+
+	foreach (explode(',', $str_blocked) as $entry) {
+		$cid = Contact::getIdForURL(trim($entry), 0, true);
+		if (!empty($cid)) {
+			$blocklist[] = $cid;
+		}
+	}
+
+	return $blocklist;
+}
+
 /**
  * "Render" a conversation or list of items for HTML display.
  * There are two major forms of display:
@@ -409,25 +432,12 @@ function visible_activity($item) {
  */
 function conversation(App $a, array $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0) {
 
-	$ssl_state = ((local_user()) ? true : false);
+	$ssl_state = (local_user() ? true : false);
 
 	$profile_owner = 0;
 	$live_update_div = '';
 
-	$arr_blocked = null;
-
-	if (local_user()) {
-		$str_blocked = PConfig::get(local_user(), 'system', 'blocked');
-
-		if ($str_blocked) {
-			$arr_blocked = explode(',', $str_blocked);
-
-			for ($x = 0; $x < count($arr_blocked); $x ++) {
-				$arr_blocked[$x] = trim($arr_blocked[$x]);
-			}
-		}
-
-	}
+	$blocklist = conv_get_blocklist();
 
 	$previewing = (($preview) ? ' preview ' : '');
 
@@ -554,19 +564,9 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					continue;
 				}
 
-				if ($arr_blocked) {
-					$blocked = false;
-					foreach ($arr_blocked as $b) {
-						if ($b && link_compare($item['author-link'], $b)) {
-							$blocked = true;
-							break;
-						}
-					}
-					if ($blocked) {
-						continue;
-					}
+				if (in_array($item['author-id'], $blocklist)) {
+					continue;
 				}
-
 
 				$threadsid++;
 
@@ -705,17 +705,8 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 			 * But for now, this array respects the old style, just in case
 			 */
 			foreach ($items as $item) {
-				if ($arr_blocked) {
-					$blocked = false;
-					foreach ($arr_blocked as $b) {
-						if ($b && link_compare($item['author-link'], $b)) {
-							$blocked = true;
-							break;
-						}
-					}
-					if ($blocked) {
-						continue;
-					}
+				if (in_array($item['author-id'], $blocklist)) {
+					continue;
 				}
 
 				// Can we put this after the visibility check?
@@ -1342,10 +1333,16 @@ function conv_sort(array $item_list, $order)
 		return $parents;
 	}
 
+	$blocklist = conv_get_blocklist();
+
 	$item_array = [];
 
 	// Dedupes the item list on the uri to prevent infinite loops
 	foreach ($item_list as $item) {
+		if (in_array($item['author-id'], $blocklist)) {
+			continue;
+		}
+
 		$item_array[$item['uri']] = $item;
 	}
 
