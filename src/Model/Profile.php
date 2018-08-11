@@ -339,6 +339,8 @@ class Profile
 		$wallmessage = false;
 		$wallmessage_link = false;
 
+		// See issue https://github.com/friendica/friendica/issues/3838
+		// Either we remove the message link for remote users or we enable creating messages from remote users
 		if (remote_user() || (self::getMyURL() && x($profile, 'unkmail') && ($profile['uid'] != local_user()))) {
 			$wallmessage = L10n::t('Message');
 
