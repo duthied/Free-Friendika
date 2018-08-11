@@ -24,20 +24,22 @@ class PostUpdate
 	public static function update()
 	{
 		if (!self::update1194()) {
-			return;
+			return false;
 		}
 		if (!self::update1198()) {
-			return;
+			return false;
 		}
 		if (!self::update1206()) {
-			return;
+			return false;
 		}
 		if (!self::update1279()) {
-			return;
+			return false;
 		}
 		if (!self::update1281()) {
-			return;
+			return false;
 		}
+
+		return true;
 	}
 
 	/**
