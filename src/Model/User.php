@@ -659,7 +659,7 @@ class User
 	 * @param string $password
 	 * @return NULL|boolean from notification() and email() inherited
 	 */
-	public static function sendRegisterOpenEmail($email, $sitename, $siteurl, $username, $password)
+	public static function sendRegisterOpenEmail($email, $sitename, $siteurl, $username, $password, $user)
 	{
 		$preamble = deindent(L10n::t('
 			Dear %1$s,
@@ -697,6 +697,8 @@ class User
 		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
 
 		return notification([
+			'uid' => $user['uid'],
+			'language' => $user['language'],
 			'type' => SYSTEM_EMAIL,
 			'to_email' => $email,
 			'subject'=> L10n::t('Registration details for %s', $sitename),

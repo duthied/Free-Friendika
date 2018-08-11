@@ -61,7 +61,8 @@ function user_allow($hash)
 		Config::get('config', 'sitename'),
 		System::baseUrl(),
 		$user[0]['username'],
-		$register[0]['password']);
+		$register[0]['password'],
+		$user[0]);
 
 	L10n::popLang();
 

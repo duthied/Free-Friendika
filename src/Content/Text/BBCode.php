@@ -86,7 +86,7 @@ class BBCode extends BaseObject
 					$post["url"] = $matches[1];
 					$post["title"] = $matches[2];
 				}
-				if (!empty($post["url"] == "") && (in_array($post["type"], ["link", "video"]))
+				if (!empty($post["url"]) && (in_array($post["type"], ["link", "video"]))
 					&& preg_match("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
 					$post["url"] = $matches[1];
 				}
