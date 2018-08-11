@@ -1106,7 +1106,7 @@ aside .vcard .tool .action{
     transition: all 0.25s ease-in-out;
 }
 aside .vcard .tool a {
-color: rgba(255,255,255,.85);
+    color: rgba(255,255,255,.85);
 }
 aside .vcard #profile-photo-wrapper:hover .tool .action {
     opacity: 1;
@@ -1244,14 +1244,22 @@ div#sidebar-group-list {
     transition: all 0.1s ease-in-out;
 }
 .faded-icon:hover {
+    color: #555;
     opacity: 1;
 }
 .icon-padding {
     margin-left: 20px;
 }
 
-aside #group-sidebar .sidebar-group-li .group-edit-tool:hover,
-aside #saved-search-list .saved-search-li .savedsearchdrop:hover {
+aside #group-sidebar .sidebar-group-li:hover .group-edit-tool.faded-icon,
+aside #saved-search-list .saved-search-li:hover .savedsearchdrop.faded-icon,
+aside .widget:hover .widget-action.faded-icon {
+    opacity: 0.8;
+    transition: all 0.25s ease-in-out;
+}
+aside #group-sidebar .sidebar-group-li .group-edit-tool.faded-icon:hover,
+aside #saved-search-list .saved-search-li .savedsearchdrop.faded-icon:hover,
+aside .widget .widget-action.faded-icon:hover {
     opacity: 1;
 }
 aside #group-sidebar li .group-checkbox {
@@ -2183,6 +2191,13 @@ ul.dropdown-menu li:hover {
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
     -moz-box-shadow: 0 0 3px #dadada;
+}
+#content:hover .page-action.faded-icon {
+    opacity: 0.8;
+    transition: all 0.25s ease-in-out;
+}
+#content .page-action.faded-icon:hover {
+    opacity: 1;
 }
 
 .section-title-wrapper {
