@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-08-07 09:58+0200\n"
-"PO-Revision-Date: 2018-08-10 04:16+0000\n"
+"PO-Revision-Date: 2018-08-11 12:21+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -2125,7 +2125,7 @@ msgstr "Vaše databáze stále běží s tabulkami MyISAM. Měl/a byste změnit 
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
-msgstr "Je dostupná ke stažení nová verze Friendica. Vaše aktuální verze je %1$s, upstreamová verze je%2$s"
+msgstr "Je dostupná ke stažení nová verze Friendica. Vaše aktuální verze je %1$s, upstreamová verze je %2$s"
 
 #: mod/admin.php:842
 msgid ""
@@ -2281,7 +2281,7 @@ msgstr "Otevřená"
 
 #: mod/admin.php:1380
 msgid "No SSL policy, links will track page SSL state"
-msgstr "Žádná SSL politika, odkazy budou následovat stránky SSL stav"
+msgstr "Žádná SSL politika, odkazy budou následovat SSL stav stránky"
 
 #: mod/admin.php:1381
 msgid "Force all links to use SSL"
@@ -4234,11 +4234,11 @@ msgstr "URL adresa pro potvrzení přátelství"
 
 #: mod/crepair.php:165
 msgid "Notification Endpoint URL"
-msgstr "Notifikační URL adresa"
+msgstr "URL adresa koncového bodu oznámení"
 
 #: mod/crepair.php:166
 msgid "Poll/Feed URL"
-msgstr "Poll/Feed URL adresa"
+msgstr "URL adresa poll/feed"
 
 #: mod/crepair.php:167
 msgid "New photo from this URL"
@@ -5065,16 +5065,16 @@ msgstr "Vaše zpráva:"
 msgid ""
 "You are cordially invited to join me and other close friends on Friendica - "
 "and help us to create a better social web."
-msgstr "Jste srdečně pozván/a se připojit ke mně a k mým blízkým přátelům na Friendica - a pomoci nám vytvořit lepší sociální web."
+msgstr "Jsi srdečně pozván/a se připojit ke mně a k mým blízkým přátelům na Friendica - a pomoci nám vytvořit lepší sociální web."
 
 #: mod/invite.php:152
 msgid "You will need to supply this invitation code: $invite_code"
-msgstr "Budete muset zadat kód této pozvánky: $invite_code"
+msgstr "Budeš muset zadat tento pozvánkový kód: $invite_code"
 
 #: mod/invite.php:152
 msgid ""
 "Once you have registered, please connect with me via my profile page at:"
-msgstr "Jakmile se zaregistrujete, prosím spojte se se mnou přes mou profilovu stránku na:"
+msgstr "Jakmile se zaregistruješ, prosím spoj se se mnou přes mou profilovu stránku na:"
 
 #: mod/invite.php:154
 msgid ""
@@ -5100,7 +5100,7 @@ msgstr "Fotografie na zdi"
 msgid ""
 "This message was sent to you by %s, a member of the Friendica social "
 "network."
-msgstr "Tato zpráva vám byla zaslána od %s, člena sociální sítě Friendica."
+msgstr "Tuto zprávu Vám poslal/a %s, člen sociální sítě Friendica."
 
 #: mod/item.php:810
 #, php-format
@@ -5116,7 +5116,7 @@ msgstr "Pokud nechcete dostávat tyto zprávy, kontaktujte prosím odesilatele o
 #: mod/item.php:815
 #, php-format
 msgid "%s posted an update."
-msgstr "%s poslal aktualizaci."
+msgstr "%s poslal/a aktualizaci."
 
 #: mod/lockview.php:42 mod/lockview.php:50
 msgid "Remote privacy information not available."
@@ -5553,21 +5553,21 @@ msgstr "Má Vaše spojení být obousměrné, nebo ne?"
 msgid ""
 "Accepting %s as a friend allows %s to subscribe to your posts, and you will "
 "also receive updates from them in your news feed."
-msgstr "Přijetí %s jako přítele dovolí %s odebírat Vaše příspěvky a Vy budete také přijímat aktualizace od nich ve Vašem kanále."
+msgstr "Přijetí uživatele %s jako přítele dovolí uživateli %s odebírat Vaše příspěvky a Vy budete také přijímat aktualizace od něj ve Vašem kanále."
 
 #: mod/notifications.php:201
 #, php-format
 msgid ""
 "Accepting %s as a subscriber allows them to subscribe to your posts, but you"
 " will not receive updates from them in your news feed."
-msgstr "Přijetí %s jako odběratele jim dovolí odebírat Vaše příspěvky, ale nebudete od nich přijímat aktualizace ve Vašem kanále."
+msgstr "Přijetí uživatele %s jako odběratele mu dovolí odebírat Vaše příspěvky, ale nebudete od něj přijímat aktualizace ve Vašem kanále."
 
 #: mod/notifications.php:206
 #, php-format
 msgid ""
 "Accepting %s as a sharer allows them to subscribe to your posts, but you "
 "will not receive updates from them in your news feed."
-msgstr "Přijetí %s jako sdílejícího jim dovolí odebírat Vaše příspěvky, ale nebudete od nich přijímat aktualizace ve Vašem kanále."
+msgstr "Přijetí uživatele %s jako sdílejícího mu dovolí odebírat Vaše příspěvky, ale nebudete od něj přijímat aktualizace ve Vašem kanále."
 
 #: mod/notifications.php:217
 msgid "Friend"
@@ -5840,7 +5840,7 @@ msgstr "{0} chce být Vaším přítelem"
 
 #: mod/ping.php:305
 msgid "{0} sent you a message"
-msgstr "{0} vám poslal zprávu"
+msgstr "{0} vám poslal/a zprávu"
 
 #: mod/ping.php:321
 msgid "{0} requested registration"
@@ -6291,7 +6291,7 @@ msgstr "Registrace úspěšná. Zkontrolujte prosím svůj e-mail pro další in
 msgid ""
 "Failed to send email message. Here your accout details:<br> login: %s<br> "
 "password: %s<br><br>You can change your password after login."
-msgstr "Nepovedlo se odeslat emailovou zprávu. Zde jsou detaily Vašeho účtu:<br> přihlášení: %s<br> heslo: %s<br><br>Své heslo si můžete změnit po přihlášení."
+msgstr "Nepovedlo se odeslat emailovou zprávu. Zde jsou detaily Vašeho účtu:<br> přihlašovací jméno: %s<br> heslo: %s<br><br>Své heslo si můžete změnit po přihlášení."
 
 #: mod/register.php:110
 msgid "Registration successful."
@@ -7260,7 +7260,7 @@ msgstr "Přemístit"
 msgid ""
 "If you have moved this profile from another server, and some of your "
 "contacts don't receive your updates, try pushing this button."
-msgstr "Pokud jste přemístil tento profil z jiného serveru a nějaký z vašich kontaktů nedostává Vaše aktualizace, zkuste stisknout toto tlačítko."
+msgstr "Pokud jste přemístil/a tento profil z jiného serveru a nějaký z vašich kontaktů nedostává Vaše aktualizace, zkuste stisknout toto tlačítko."
 
 #: mod/settings.php:1273
 msgid "Resend relocate message to contacts"
@@ -7410,7 +7410,7 @@ msgstr "Pokud si přejete, aby uživatel %s mohl odpovědět, ověřte si zda-li
 msgid ""
 "This is Friendica, version %s that is running at the web location %s. The "
 "database version is %s, the post update version is %s."
-msgstr "Tohle je Friendica, verze %s, běžící na vebové adrese %s. Verze databáze je %s, verze post update je %s."
+msgstr "Tohle je Friendica, verze %s, běžící na webové adrese %s. Verze databáze je %s, verze post update je %s."
 
 #: mod/friendica.php:84
 msgid ""
@@ -8400,11 +8400,11 @@ msgstr "Ukázat návštěvníkům veřejná komunitní fóra na stránce pokroč
 
 #: src/Content/Feature.php:128
 msgid "Tag Cloud"
-msgstr "Tag cloud"
+msgstr "Štítkový oblak"
 
 #: src/Content/Feature.php:128
 msgid "Provide a personal tag cloud on your profile page"
-msgstr "Poskytnout na Vaší profilové stránce osobní \"tag cloud\""
+msgstr "Poskytne na Vaší profilové stránce osobní \"štítkový oblak\""
 
 #: src/Content/Feature.php:129
 msgid "Display Membership Date"
