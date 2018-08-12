@@ -314,15 +314,10 @@ class Contact extends BaseObject
 			return;
 		}
 
-		$archive = PConfig::get($contact['uid'], 'system', 'archive_removed_contacts');
-		if ($archive) {
-			DBA::update('contact', ['archive' => true, 'network' => 'none', 'writable' => false], ['id' => $id]);
-			return;
-		}
+		// Archive the contact
+		DBA::update('contact', ['archive' => true, 'network' => Protocol::PHANTOM], ['id' => $id]);
 
-		DBA::delete('contact', ['id' => $id]);
-
-		// Delete the rest in the background
+		// Delete it in the background
 		Worker::add(PRIORITY_LOW, 'RemoveContact', $id);
 	}
 
