@@ -745,8 +745,6 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 		$contacts[] = $contact['id'];
 	}
 
-	$contact_list = implode(',', $contacts);
-
 	DBA::close($ret);
 
 	// Only act if it is a "real" post
@@ -813,17 +811,26 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 		$params["verb"] = ACTIVITY_TAG;
 	}
 
-	// Is it a post that the user had started or where he interacted?
-	$fields = ['ignored', 'mention', 'author-id'];
+	// Is it a post that the user had started?
+	$fields = ['ignored', 'mention'];
 	$thread = Item::selectFirstThreadForUser($params['uid'], $fields, ['iid' => $item["parent"]]);
 
-	if (($thread['mention'] || in_array($thread['author-id'], $contacts)) && !$thread['ignored'] && !isset($params["type"])) {
+	if ($thread['mention'] && !$thread['ignored'] && !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;
 		$params["verb"] = ACTIVITY_POST;
 	}
 
-	if (isset($params["type"]))
+	// And now we check for participation of one of our contacts in the thread
+	$condition = ['parent' => $item["parent"], 'author-id' => $contacts];
+
+	if (!$thread['ignored'] && !isset($params["type"]) && Item::exists($condition)) {
+		$params["type"] = NOTIFY_COMMENT;
+		$params["verb"] = ACTIVITY_POST;
+	}
+
+	if (isset($params["type"])) {
 		notification($params);
+	}
 }
 
 /**
