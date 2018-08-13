@@ -1472,7 +1472,7 @@ class PortableContact
 			$tags = [];
 			foreach ($data['tags'] as $tag) {
 				$tag = mb_strtolower($tag);
-				if (count($tag) < 100) {
+				if (strlen($tag) < 100) {
 					$tags[$tag] = $tag;
 				}
 			}
