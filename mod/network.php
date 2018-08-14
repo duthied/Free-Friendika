@@ -496,6 +496,8 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$gid = 0;
 
+	$default_permissions = [];
+
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
 			if (is_a_date_arg($a->argv[$x])) {
@@ -507,7 +509,7 @@ function networkThreadedView(App $a, $update, $parent)
 				}
 			} elseif (intval($a->argv[$x])) {
 				$gid = intval($a->argv[$x]);
-				$def_acl = ['allow_gid' => '<' . $gid . '>'];
+				$default_permissions = ['allow_gid' => '<' . $gid . '>'];
 			}
 		}
 	}
@@ -522,7 +524,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$nets  =        defaults($_GET, 'nets' , '');
 
 	if ($cid) {
-		$def_acl = ['allow_cid' => '<' . intval($cid) . '>'];
+		$default_permissions = ['allow_cid' => '<' . intval($cid) . '>'];
 	}
 
 	if ($nets) {
@@ -533,7 +535,7 @@ function networkThreadedView(App $a, $update, $parent)
 			$str .= '<' . $rr['id'] . '>';
 		}
 		if (strlen($str)) {
-			$def_acl = ['allow_cid' => $str];
+			$default_permissions = ['allow_cid' => $str];
 		}
 	}
 
@@ -576,7 +578,7 @@ function networkThreadedView(App $a, $update, $parent)
 			((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) ||
 			(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
 			'default_perms' => ACL::getDefaultUserPermissions($a->user),
-			'acl' => ACL::getFullSelectorHTML((($gid || $cid || $nets) ? $def_acl : $a->user), true),
+			'acl' => ACL::getFullSelectorHTML($a->user, true, $default_permissions),
 			'bang' => (($gid || $cid || $nets) ? '!' : ''),
 			'visitor' => 'block',
 			'profile_uid' => local_user(),

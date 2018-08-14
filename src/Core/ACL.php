@@ -251,18 +251,17 @@ class ACL extends BaseObject
 	/**
 	 * Return the full jot ACL selector HTML
 	 *
-	 * @param array $user
+	 * @param array $user                User array
+	 * @param array $default_permissions Static defaults permission array: ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']
 	 * @param bool  $show_jotnets
 	 * @return string
 	 */
-	public static function getFullSelectorHTML(array $user = null, $show_jotnets = false)
+	public static function getFullSelectorHTML(array $user, $show_jotnets = false, array $default_permissions = [])
 	{
-
-		if (empty($user['uid'])) {
-			return '';
+		// Defaults user permissions
+		if (empty($default_permissions)) {
+			$default_permissions = self::getDefaultUserPermissions($user);
 		}
-
-		$perms = self::getDefaultUserPermissions($user);
 
 		$jotnets = '';
 		if ($show_jotnets) {
@@ -279,7 +278,7 @@ class ACL extends BaseObject
 				}
 			}
 
-			if (empty($user['hidewall'])) {
+			if (empty($default_permissions['hidewall'])) {
 				if ($mail_enabled) {
 					$selected = $pubmail_enabled ? ' checked="checked"' : '';
 					$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . L10n::t("Post to Email") . '</div>';
@@ -297,10 +296,10 @@ class ACL extends BaseObject
 			'$showall' => L10n::t('Visible to everybody'),
 			'$show' => L10n::t('show'),
 			'$hide' => L10n::t('don\'t show'),
-			'$allowcid' => json_encode($perms['allow_cid']),
-			'$allowgid' => json_encode($perms['allow_gid']),
-			'$denycid' => json_encode($perms['deny_cid']),
-			'$denygid' => json_encode($perms['deny_gid']),
+			'$allowcid' => json_encode($default_permissions['allow_cid']),
+			'$allowgid' => json_encode($default_permissions['allow_gid']),
+			'$denycid' => json_encode($default_permissions['deny_cid']),
+			'$denygid' => json_encode($default_permissions['deny_gid']),
 			'$networks' => $show_jotnets,
 			'$emailcc' => L10n::t('CC: email addresses'),
 			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
