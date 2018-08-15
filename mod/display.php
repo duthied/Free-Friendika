@@ -247,7 +247,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = DBA::exists('item', ['id' => $item_id, 'private' => [0, 2]]);
+	$is_public = Item::exists(['id' => $item_id, 'private' => [0, 2]]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
 		$alternate = System::baseUrl().'/display/feed-item/'.$item_id.'.atom';
@@ -324,7 +324,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if (local_user() && (local_user() == $a->profile['uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
-		$unseen = DBA::exists('item', $condition);
+		$unseen = Item::exists($condition);
 	} else {
 		$unseen = false;
 	}

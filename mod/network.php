@@ -318,7 +318,7 @@ function networkSetSeen($condition)
 		return;
 	}
 
-	$unseen = DBA::exists('item', $condition);
+	$unseen = Item::exists($condition);
 
 	if ($unseen) {
 		$r = Item::update(['unseen' => false], $condition);
