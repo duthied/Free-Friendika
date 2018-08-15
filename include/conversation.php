@@ -841,7 +841,7 @@ function item_photo_menu($item) {
 	if ($cid && !$item['self']) {
 		$poke_link = 'poke/?f=&c=' . $cid;
 		$contact_url = 'contacts/' . $cid;
-		$posts_link = 'network?cid=' . $cid;
+		$posts_link = 'contacts/' . $cid . '/posts';
 
 		if (in_array($network, [Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;

@@ -710,7 +710,7 @@ class Contact extends BaseObject
 
 		$contact_url = System::baseUrl() . '/contacts/' . $contact['id'];
 
-		$posts_link = System::baseUrl() . '/network?cid=' . $contact['id'];
+		$posts_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/posts';
 
 		if (!$contact['self']) {
 			$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
