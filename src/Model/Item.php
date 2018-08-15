@@ -80,7 +80,7 @@ class Item extends BaseObject
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
-			'created', 'edited', 'commented', 'received', 'changed', 'verb',
+			'uri-hash', 'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
@@ -524,7 +524,7 @@ class Item extends BaseObject
 
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
-			'created', 'edited', 'commented', 'received', 'changed', 'psid',
+			'created', 'edited', 'commented', 'received', 'changed', 'psid', 'uri-hash',
 			'resource-id', 'event-id', 'tag', 'attach', 'post-type', 'file',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
@@ -950,8 +950,8 @@ class Item extends BaseObject
 	 */
 	public static function delete($condition, $priority = PRIORITY_HIGH)
 	{
-		$items = DBA::select('item', ['id'], $condition);
-		while ($item = DBA::fetch($items)) {
+		$items = self::select(['id'], $condition);
+		while ($item = self::fetch($items)) {
 			self::deleteById($item['id'], $priority);
 		}
 		DBA::close($items);
@@ -969,8 +969,8 @@ class Item extends BaseObject
 			return;
 		}
 
-		$items = DBA::select('item', ['id', 'uid'], $condition);
-		while ($item = DBA::fetch($items)) {
+		$items = self::select(['id', 'uid'], $condition);
+		while ($item = self::fetch($items)) {
 			// "Deleting" global items just means hiding them
 			if ($item['uid'] == 0) {
 				DBA::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
@@ -1073,15 +1073,15 @@ class Item extends BaseObject
 
 		DBA::delete('item-delivery-data', ['iid' => $item['id']]);
 
-		if (!empty($item['iaid']) && !DBA::exists('item', ['iaid' => $item['iaid'], 'deleted' => false])) {
+		if (!empty($item['iaid']) && !self::exists(['iaid' => $item['iaid'], 'deleted' => false])) {
 			DBA::delete('item-activity', ['id' => $item['iaid']], ['cascade' => false]);
 		}
-		if (!empty($item['icid']) && !DBA::exists('item', ['icid' => $item['icid'], 'deleted' => false])) {
+		if (!empty($item['icid']) && !self::exists(['icid' => $item['icid'], 'deleted' => false])) {
 			DBA::delete('item-content', ['id' => $item['icid']], ['cascade' => false]);
 		}
 		// When the permission set will be used in photo and events as well,
 		// this query here needs to be extended.
-		if (!empty($item['psid']) && !DBA::exists('item', ['psid' => $item['psid'], 'deleted' => false])) {
+		if (!empty($item['psid']) && !self::exists(['psid' => $item['psid'], 'deleted' => false])) {
 			DBA::delete('permissionset', ['id' => $item['psid']], ['cascade' => false]);
 		}
 
@@ -1360,7 +1360,7 @@ class Item extends BaseObject
 		}
 
 		// Ensure to always have the same creation date.
-		$existing = DBA::selectfirst('item', ['created', 'uri-hash'], ['uri' => $item['uri']]);
+		$existing = self::selectfirst(['created', 'uri-hash'], ['uri' => $item['uri']]);
 		if (DBA::isResult($existing)) {
 			$item['created'] = $existing['created'];
 			$item['uri-hash'] = $existing['uri-hash'];
@@ -1617,7 +1617,7 @@ class Item extends BaseObject
 			$item["global"] = true;
 
 			// Set the global flag on all items if this was a global item entry
-			DBA::update('item', ['global' => true], ['uri' => $item["uri"]]);
+			self::update(['global' => true], ['uri' => $item["uri"]]);
 		} else {
 			$item["global"] = self::exists(['uid' => 0, 'uri' => $item["uri"]]);
 		}
@@ -1768,7 +1768,7 @@ class Item extends BaseObject
 		}
 
 		// Set parent id
-		DBA::update('item', ['parent' => $parent_id], ['id' => $current_post]);
+		self::update(['parent' => $parent_id], ['id' => $current_post]);
 
 		$item['id'] = $current_post;
 		$item['parent'] = $parent_id;
@@ -1776,9 +1776,9 @@ class Item extends BaseObject
 		// update the commented timestamp on the parent
 		// Only update "commented" if it is really a comment
 		if (($item['gravity'] != GRAVITY_ACTIVITY) || !Config::get("system", "like_no_comment")) {
-			DBA::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			self::update(['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
-			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			self::update(['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
 		if ($dsprsig) {
@@ -2076,7 +2076,7 @@ class Item extends BaseObject
 
 		if ($item['uri'] != $item['parent-uri']) {
 			$parents = self::select(['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
-			while ($parent = DBA::fetch($parents)) {
+			while ($parent = self::fetch($parents)) {
 				$users[$parent['uid']] = $parent['uid'];
 				if ($parent['origin'] && !$origin) {
 					$origin_uid = $parent['uid'];
@@ -2467,6 +2467,7 @@ class Item extends BaseObject
 
 		// Does the given user have this item?
 		if ($uid) {
+			/// @todo This query has to be abstracted for the "uri-id" changes
 			$item = DBA::fetchFirst("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -2479,6 +2480,7 @@ class Item extends BaseObject
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
+			/// @todo This query has to be abstracted for the "uri-id" changes
 			$item = DBA::fetchFirst("SELECT `item`.`id`, `user`.`nickname` FROM `item`
 				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
 				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
@@ -2579,7 +2581,7 @@ class Item extends BaseObject
 		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
 			'owner-id' => $owner_id, 'owner-link' => $self['url'], 'private' => $private, 'allow_cid' => $user['allow_cid'],
 			'allow_gid' => $user['allow_gid'], 'deny_cid' => $user['deny_cid'], 'deny_gid' => $user['deny_gid']];
-		DBA::update('item', $fields, ['id' => $item_id]);
+		self::update($fields, ['id' => $item_id]);
 
 		self::updateThread($item_id);
 

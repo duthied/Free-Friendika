@@ -152,7 +152,7 @@ function item_post(App $a) {
 
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
-		if (DBA::exists('item', ['uri' => $message_id, 'uid' => $profile_uid])) {
+		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
 			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
 			return;
 		}
