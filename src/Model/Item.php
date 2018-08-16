@@ -2576,11 +2576,12 @@ class Item extends BaseObject
 
 		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? 1 : 0;
 
+		$psid = PermissionSet::fetchIDForPost($user);
+
 		$forum_mode = ($prvgroup ? 2 : 1);
 
 		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
-			'owner-id' => $owner_id, 'owner-link' => $self['url'], 'private' => $private, 'allow_cid' => $user['allow_cid'],
-			'allow_gid' => $user['allow_gid'], 'deny_cid' => $user['deny_cid'], 'deny_gid' => $user['deny_gid']];
+			'owner-id' => $owner_id, 'private' => $private, 'psid' => $psid];
 		self::update($fields, ['id' => $item_id]);
 
 		self::updateThread($item_id);
