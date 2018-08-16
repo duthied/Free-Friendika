@@ -5635,7 +5635,7 @@ function api_friendica_notification_seen($type)
 	if ($note['otype']=='item') {
 		// would be really better with an ItemsManager and $im->getByID() :-P
 		$item = Item::selectFirstForUser(api_user(), [], ['id' => $note['iid'], 'uid' => api_user()]);
-		if (DBA::isResult($$item)) {
+		if (DBA::isResult($item)) {
 			// we found the item, return it to the user
 			$ret = api_format_items([$item], $user_info, false, $type);
 			$data = ['status' => $ret];
