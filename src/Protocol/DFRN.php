@@ -1580,6 +1580,16 @@ class DFRN
 			$author["avatar"] = current($avatarlist);
 		}
 
+		if (empty($author['avatar']) && !empty($author['link'])) {
+			$cid = Contact::getIdForURL($author['link'], 0);
+			if (!empty($cid)) {
+				$contact = DBA::selectFirst('contact', ['avatar'], ['id' => $cid]);
+				if (DBA::isResult($contact)) {
+					$author['avatar'] = $contact['avatar'];
+				}
+			}
+		}
+
 		if (DBA::isResult($contact_old) && !$onlyfetch) {
 			logger("Check if contact details for contact " . $contact_old["id"] . " (" . $contact_old["nick"] . ") have to be updated.", LOGGER_DEBUG);
 

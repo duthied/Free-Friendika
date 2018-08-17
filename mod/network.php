@@ -449,7 +449,7 @@ function networkFlatView(App $a, $update = 0)
 		while ($term = DBA::fetch($result)) {
 			$posts[] = $term['oid'];
 		}
-		DBA::close($terms);
+		DBA::close($result);
 
 		$condition = ['uid' => local_user(), 'id' => $posts];
 	} else {

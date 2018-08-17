@@ -5812,7 +5812,7 @@ function api_friendica_profile_show($type)
 		$nurls = q(
 			"SELECT `id`, `nurl` FROM `contact` WHERE `uid`= %d AND `profile-id` = %d",
 			intval(api_user()),
-			intval($rr['profile_id'])
+			intval($rr['id'])
 		);
 
 		foreach ($nurls as $nurl) {

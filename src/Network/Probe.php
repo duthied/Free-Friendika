@@ -988,7 +988,9 @@ class Probe
 
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
-				if (normalise_link($alias) != normalise_link($data["url"]) && ! strstr($alias, "@")) {
+				if (empty($data["url"]) && !strstr($alias, "@")) {
+					$data["url"] = $alias;
+				} elseif (!strstr($alias, "@") && normalise_link($alias) != normalise_link($data["url"])) {
 					$data["alias"] = $alias;
 				} elseif (substr($alias, 0, 5) == 'acct:') {
 					$data["addr"] = substr($alias, 5);

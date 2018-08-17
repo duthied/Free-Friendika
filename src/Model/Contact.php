@@ -364,6 +364,11 @@ class Contact extends BaseObject
 	 */
 	public static function markForArchival(array $contact)
 	{
+
+		if (!isset($contact['url'])) {
+			logger('Empty contact. ' . System::callstack(10), LOGGER_DEBUG);
+		}
+
 		// Contact already archived or "self" contact? => nothing to do
 		if ($contact['archive'] || $contact['self']) {
 			return;
