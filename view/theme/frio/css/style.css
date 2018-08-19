@@ -958,6 +958,10 @@ nav.navbar a, nav.navbar .btn-link {
     color: #fff!important;
     background-color: $menu_background_hover_color !important;
 }
+#photo-edit-link-wrap {
+    color: #555;
+    margin-bottom: 15px;
+}
 .nav-pills.preferences .dropdown .dropdown-toggle,
 .nav-pills.preferences > li > .btn {
     color: #bebebe;
