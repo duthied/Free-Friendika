@@ -1056,13 +1056,10 @@ class DFRN
 		}
 
 		foreach ($mentioned as $mention) {
-			$r = q(
-				"SELECT `forum`, `prv` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s'",
-				intval($owner["uid"]),
-				DBA::escape(normalise_link($mention))
-			);
+			$condition = ['uid' => $owner["uid"], 'nurl' => normalise_link($mention)];
+			$contact = DBA::selectFirst('contact', ['forum', 'prv'], $condition);
 
-			if (DBA::isResult($r) && ($r[0]["forum"] || $r[0]["prv"])) {
+			if (DBA::isResult($contact) && ($contact["forum"] || $contact["prv"])) {
 				XML::addElement(
 					$doc,
 					$entry,
@@ -1232,14 +1229,11 @@ class DFRN
 		$final_dfrn_id = '';
 
 		if ($perm) {
-			if ((($perm == 'rw') && (! intval($contact['writable'])))
-				|| (($perm == 'r') && (intval($contact['writable'])))
+			if ((($perm == 'rw') && !intval($contact['writable']))
+				|| (($perm == 'r') && intval($contact['writable']))
 			) {
-				q(
-					"update contact set writable = %d where id = %d",
-					intval(($perm == 'rw') ? 1 : 0),
-					intval($contact['id'])
-				);
+				DBA::update('contact', ['writable' => ($perm == 'rw')], ['id' => $contact['id']]);
+
 				$contact['writable'] = (string) 1 - intval($contact['writable']);
 			}
 		}
@@ -1480,15 +1474,9 @@ class DFRN
 	private static function birthdayEvent($contact, $birthday)
 	{
 		// Check for duplicates
-		$r = q(
-			"SELECT `id` FROM `event` WHERE `uid` = %d AND `cid` = %d AND `start` = '%s' AND `type` = '%s' LIMIT 1",
-			intval($contact['uid']),
-			intval($contact['id']),
-			DBA::escape(DateTimeFormat::utc($birthday)),
-			DBA::escape('birthday')
-		);
-
-		if (DBA::isResult($r)) {
+		$condition = ['uid' => $contact['uid'], 'cid' => $contact['id'],
+			'start' => DateTimeFormat::utc($birthday), 'type' => 'birthday'];
+		if (DBA::exists('event', $condition)) {
 			return;
 		}
 
@@ -1910,13 +1898,6 @@ class DFRN
 
 		// Does our member already have a friend matching this description?
 
-		$r = q(
-			"SELECT `id` FROM `contact` WHERE `name` = '%s' AND `nurl` = '%s' AND `uid` = %d LIMIT 1",
-			DBA::escape($suggest["name"]),
-			DBA::escape(normalise_link($suggest["url"])),
-			intval($suggest["uid"])
-		);
-
 		/*
 		 * The valid result means the friend we're about to send a friend
 		 * suggestion already has them in their contact, which means no further
@@ -1924,37 +1905,29 @@ class DFRN
 		 *
 		 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
 		 */
-		if (DBA::isResult($r)) {
+		$condition = ['name' => $suggest["name"], 'nurl' => normalise_link($suggest["url"]),
+			'uid' => $suggest["uid"]];
+		if (DBA::exists('contact', $condition)) {
 			return false;
 		}
 
 		// Do we already have an fcontact record for this person?
 
 		$fid = 0;
-		$r = q(
-			"SELECT `id` FROM `fcontact` WHERE `url` = '%s' AND `name` = '%s' AND `request` = '%s' LIMIT 1",
-			DBA::escape($suggest["url"]),
-			DBA::escape($suggest["name"]),
-			DBA::escape($suggest["request"])
-		);
-		if (DBA::isResult($r)) {
-			$fid = $r[0]["id"];
+		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
+		$fcontact = DBA::selectFirst('fcontact', ['id'], $condition);
+		if (DBA::isResult($fcontact)) {
+			$fid = $fcontact["id"];
 
-			// OK, we do. Do we already have an introduction for this person ?
-			$r = q(
-				"SELECT `id` FROM `intro` WHERE `uid` = %d AND `fid` = %d LIMIT 1",
-				intval($suggest["uid"]),
-				intval($fid)
-			);
-
-			/*
-			 * The valid result means the friend we're about to send a friend
-			 * suggestion already has them in their contact, which means no further
-			 * action is required.
-			 *
-			 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
-			 */
-			if (DBA::isResult($r)) {
+			// OK, we do. Do we already have an introduction for this person?
+			if (DBA::exists('intro', ['uid' => $suggest["uid"], 'fid' => $fid])) {
+				/*
+				 * The valid result means the friend we're about to send a friend
+				 * suggestion already has them in their contact, which means no further
+				 * action is required.
+				 *
+				 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
+				 */
 				return false;
 			}
 		}
@@ -1967,18 +1940,15 @@ class DFRN
 				DBA::escape($suggest["request"])
 			);
 		}
-		$r = q(
-			"SELECT `id` FROM `fcontact` WHERE `url` = '%s' AND `name` = '%s' AND `request` = '%s' LIMIT 1",
-			DBA::escape($suggest["url"]),
-			DBA::escape($suggest["name"]),
-			DBA::escape($suggest["request"])
-		);
+
+		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
+		$fcontact = DBA::selectFirst('fcontact', ['id'], $condition);
 
 		/*
 		 * If no record in fcontact is found, below INSERT statement will not
 		 * link an introduction to it.
 		 */
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($fcontact)) {
 			// Database record did not get created. Quietly give up.
 			killme();
 		}
@@ -2646,13 +2616,10 @@ class DFRN
 					$ev["guid"]    = $item["guid"];
 					$ev["plink"]   = $item["plink"];
 
-					$r = q(
-						"SELECT `id` FROM `event` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-						DBA::escape($item["uri"]),
-						intval($importer["importer_uid"])
-					);
-					if (DBA::isResult($r)) {
-						$ev["id"] = $r[0]["id"];
+					$condition = ['uri' => $item["uri"], 'uid' => $importer["importer_uid"]];
+					$event = DBA::selectFirst('event', ['id'], $condition);
+					if (DBA::isResult($event)) {
+						$ev["id"] = $event["id"];
 					}
 
 					$event_id = Event::store($ev);
@@ -3035,23 +3002,21 @@ class DFRN
 			return false;
 		}
 
-		$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($uid)
-		);
-		if (!DBA::isResult($u)) {
+		$user = DBA::selectFirst('user', ['page-flags', 'nickname'], ['uid' => $uid]);
+		if (!DBA::isResult($user)) {
 			return false;
 		}
 
-		$community_page = ($u[0]['page-flags'] == Contact::PAGE_COMMUNITY);
-		$prvgroup = ($u[0]['page-flags'] == Contact::PAGE_PRVGROUP);
+		$community_page = ($user['page-flags'] == Contact::PAGE_COMMUNITY);
+		$prvgroup = ($user['page-flags'] == Contact::PAGE_PRVGROUP);
 
-		$link = normalise_link(System::baseUrl() . '/profile/' . $u[0]['nickname']);
+		$link = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
 
 		/*
 		 * Diaspora uses their own hardwired link URL in @-tags
 		 * instead of the one we supply with webfinger
 		 */
-		$dlink = normalise_link(System::baseUrl() . '/u/' . $u[0]['nickname']);
+		$dlink = normalise_link(System::baseUrl() . '/u/' . $user['nickname']);
 
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {

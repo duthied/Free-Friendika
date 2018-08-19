@@ -970,13 +970,10 @@ class Diaspora
 		logger("contact id is ".$contact_id." - pcontact id is ".$pcontact_id, LOGGER_DEBUG);
 
 		if ($pcontact_id != 0) {
-			$r = q(
-				"SELECT `addr` FROM `contact` WHERE `id` = %d AND `addr` != ''",
-				intval($pcontact_id)
-			);
+			$contact = DBA::selectFirst('contact', ['addr'], ['id' => $pcontact_id]);
 
-			if (DBA::isResult($r)) {
-				return strtolower($r[0]["addr"]);
+			if (DBA::isResult($contact) && !empty($contact["addr"])) {
+				return strtolower($contact["addr"]);
 			}
 		}
 
@@ -1788,12 +1785,7 @@ class Diaspora
 
 		DBA::lock('mail');
 
-		$r = q(
-			"SELECT `id` FROM `mail` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
-			DBA::escape($msg_guid),
-			intval($importer["uid"])
-		);
-		if (DBA::isResult($r)) {
+		if (DBA::exists('mail', ['guid' => $msg_guid, 'uid' => $importer["uid"]])) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -1868,16 +1860,8 @@ class Diaspora
 			return false;
 		}
 
-		$conversation = null;
-
-		$c = q(
-			"SELECT * FROM `conv` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($importer["uid"]),
-			DBA::escape($guid)
-		);
-		if ($c)
-			$conversation = $c[0];
-		else {
+		$conversation = DBA::selectFirst('conv', [], ['uid' => $importer["uid"], 'guid' => $guid]);
+		if (!DBA::isResult($conversation)) {
 			$r = q(
 				"INSERT INTO `conv` (`uid`, `guid`, `creator`, `created`, `updated`, `subject`, `recips`)
 				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s')",
@@ -1890,15 +1874,7 @@ class Diaspora
 				DBA::escape($participants)
 			);
 			if ($r) {
-				$c = q(
-					"SELECT * FROM `conv` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-					intval($importer["uid"]),
-					DBA::escape($guid)
-				);
-			}
-
-			if ($c) {
-				$conversation = $c[0];
+				$conversation = DBA::selectFirst('conv', [], ['uid' => $importer["uid"], 'guid' => $guid]);
 			}
 		}
 		if (!$conversation) {
@@ -2049,14 +2025,10 @@ class Diaspora
 
 		$conversation = null;
 
-		$c = q(
-			"SELECT * FROM `conv` WHERE `uid` = %d AND `guid` = '%s' LIMIT 1",
-			intval($importer["uid"]),
-			DBA::escape($conversation_guid)
-		);
-		if ($c) {
-			$conversation = $c[0];
-		} else {
+		$condition = ['uid' => $importer["uid"], 'guid' => $conversation_guid];
+		$conversation = DBA::selectFirst('conv', [], $condition);
+
+		if (!DBA::isResult($conversation)) {
 			logger("conversation not available.");
 			return false;
 		}
@@ -2075,12 +2047,7 @@ class Diaspora
 
 		DBA::lock('mail');
 
-		$r = q(
-			"SELECT `id` FROM `mail` WHERE `guid` = '%s' AND `uid` = %d LIMIT 1",
-			DBA::escape($guid),
-			intval($importer["uid"])
-		);
-		if (DBA::isResult($r)) {
+		if (DBA::exists('mail', ['guid' => $guid, 'uid' => $importer["uid"]])) {
 			logger("duplicate message already delivered.", LOGGER_DEBUG);
 			return false;
 		}
@@ -2363,10 +2330,10 @@ class Diaspora
 				// If we are now friends, we are sending a share message.
 				// Normally we needn't to do so, but the first message could have been vanished.
 				if (in_array($contact["rel"], [Contact::FRIEND])) {
-					$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
-					if ($u) {
+					$user = DBA::selectFirst('user', [], ['uid' => $importer["uid"]]);
+					if (DBA::isResult($user)) {
 						logger("Sending share message to author ".$author." - Contact: ".$contact["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
-						$ret = self::sendShare($u[0], $contact);
+						$ret = self::sendShare($user, $contact);
 					}
 				}
 				return true;
@@ -2485,10 +2452,10 @@ class Diaspora
 				intval($contact_record["id"])
 			);
 
-			$u = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval($importer["uid"]));
-			if ($u) {
+			$user = DBA::selectFirst('user', [], ['uid' => $importer["uid"]]);
+			if (DBA::isResult($user)) {
 				logger("Sending share message (Relation: ".$new_relation.") to author ".$author." - Contact: ".$contact_record["id"]." - User: ".$importer["uid"], LOGGER_DEBUG);
-				$ret = self::sendShare($u[0], $contact_record);
+				$ret = self::sendShare($user, $contact_record);
 
 				// Send the profile data, maybe it weren't transmitted before
 				self::sendProfile($importer["uid"], [$contact_record]);
@@ -3830,18 +3797,12 @@ class Diaspora
 		logger("Got relayable data ".$type." for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 
 		// fetch the original signature
-
-		$r = q(
-			"SELECT `signed_text`, `signature`, `signer` FROM `sign` WHERE `iid` = %d LIMIT 1",
-			intval($item["id"])
-		);
-
-		if (!$r) {
+		$fields = ['signed_text', 'signature', 'signer'];
+		$signature = DBA::selectFirst('sign', $fields, ['iid' => $item["id"]]);
+		if (!DBA::isResult($signature)) {
 			logger("Couldn't fetch signatur for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 			return false;
 		}
-
-		$signature = $r[0];
 
 		// Old way - is used by the internal Friendica functions
 		/// @todo Change all signatur storing functions to the new format
@@ -3923,17 +3884,11 @@ class Diaspora
 	{
 		$myaddr = self::myHandle($owner);
 
-		$r = q(
-			"SELECT * FROM `conv` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($item["convid"]),
-			intval($item["uid"])
-		);
-
-		if (!DBA::isResult($r)) {
+		$cnv = DBA::selectFirst('conv', [], ['id' => $item["convid"], 'uid' => $item["uid"]]);
+		if (!DBA::isResult($cnv)) {
 			logger("conversation not found.");
 			return;
 		}
-		$cnv = $r[0];
 
 		$conv = [
 			"author" => $cnv["creator"],
@@ -4168,12 +4123,12 @@ class Diaspora
 			return false;
 		}
 
-		$r = q("SELECT `prvkey` FROM `user` WHERE `uid` = %d LIMIT 1", intval($contact['uid']));
-		if (!DBA::isResult($r)) {
+		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $contact["uid"]]);
+		if (!DBA::isResult($user)) {
 			return false;
 		}
 
-		$contact["uprvkey"] = $r[0]['prvkey'];
+		$contact["uprvkey"] = $user['prvkey'];
 
 		$item = Item::selectFirst([], ['id' => $post_id]);
 		if (!DBA::isResult($item)) {

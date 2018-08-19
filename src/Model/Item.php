@@ -111,7 +111,7 @@ class Item extends BaseObject
 	 * @param string $activity activity string
 	 * @return integer Activity index
 	 */
-	private static function activityToIndex($activity)
+	public static function activityToIndex($activity)
 	{
 		$index = array_search($activity, self::ACTIVITIES);
 
@@ -2456,6 +2456,12 @@ class Item extends BaseObject
 		}
 	}
 
+	/**
+	 * This function is only used for the old Friendica app on Android that doesn't like paths with guid
+	 * @param string $guid item guid
+	 * @param int    $uid  user id
+	 * @return array with id and nick of the item with the given guid
+	 */
 	public static function getIdAndNickByGuid($guid, $uid = 0)
 	{
 		$nick = "";
@@ -2467,28 +2473,28 @@ class Item extends BaseObject
 
 		// Does the given user have this item?
 		if ($uid) {
-			/// @todo This query has to be abstracted for the "uri-id" changes
-			$item = DBA::fetchFirst("SELECT `item`.`id`, `user`.`nickname` FROM `item`
-				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND `item`.`guid` = ? AND `item`.`uid` = ?", $guid, $uid);
+			$item = self::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
 			if (DBA::isResult($item)) {
-				$id = $item["id"];
-				$nick = $item["nickname"];
+				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
+				if (!DBA::isResult($user)) {
+					return;
+				}
+				$id = $item['id'];
+				$nick = $user['nickname'];
 			}
 		}
 
 		// Or is it anywhere on the server?
 		if ($nick == "") {
-			/// @todo This query has to be abstracted for the "uri-id" changes
-			$item = DBA::fetchFirst("SELECT `item`.`id`, `user`.`nickname` FROM `item`
-				INNER JOIN `user` ON `user`.`uid` = `item`.`uid`
-				WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
-					AND NOT `item`.`private` AND `item`.`wall`
-					AND `item`.`guid` = ?", $guid);
+			$condition = ["`guid` = ? AND `uid` != 0", $guid];
+			$item = self::selectFirst(['id', 'uid'], $condition);
 			if (DBA::isResult($item)) {
-				$id = $item["id"];
-				$nick = $item["nickname"];
+				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
+				if (!DBA::isResult($user)) {
+					return;
+				}
+				$id = $item['id'];
+				$nick = $user['nickname'];
 			}
 		}
 		return ["nick" => $nick, "id" => $id];
@@ -3177,8 +3183,7 @@ class Item extends BaseObject
 			return;
 		}
 
-		// Using dba::delete at this time could delete the associated item entries
-		$result = DBA::e("DELETE FROM `thread` WHERE `iid` = ?", $itemid);
+		$result = DBA::delete('thread', ['iid' => $itemid], ['cascade' => false]);
 
 		logger("deleteThread: Deleted thread for item ".$itemid." - ".print_r($result, true), LOGGER_DEBUG);
 
