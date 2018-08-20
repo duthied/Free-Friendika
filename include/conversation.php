@@ -471,6 +471,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				. "'; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
 	} elseif ($mode === 'profile') {
+		$items = conversation_add_children($items, false, $order, $uid);
 		$profile_owner = $a->profile['profile_uid'];
 
 		if (!$update) {
