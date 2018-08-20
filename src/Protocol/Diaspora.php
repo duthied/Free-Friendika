@@ -1821,10 +1821,10 @@ class Diaspora
 			"to_name" => $importer["username"],
 			"to_email" => $importer["email"],
 			"uid" =>$importer["uid"],
-			"item" => ["subject" => $subject, "body" => $body],
+			"item" => ["id" => $conversation["id"], "title" => $subject, "subject" => $subject, "body" => $body],
 			"source_name" => $person["name"],
 			"source_link" => $person["url"],
-			"source_photo" => $person["thumb"],
+			"source_photo" => $person["photo"],
 			"verb" => ACTIVITY_POST,
 			"otype" => "mail"]
 		);
