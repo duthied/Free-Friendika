@@ -65,26 +65,13 @@ function notes_content(App $a, $update = false)
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-	$r = Item::selectForUser(local_user(), ['id'], $condition, $params);
+	$r = Item::selectThreadForUser(local_user(), ['uri'], $condition, $params);
 
 	$count = 0;
 
 	if (DBA::isResult($r)) {
 		$count = count($r);
-		$parents_arr = [];
-
-		while ($rr = Item::fetch($r)) {
-			$parents_arr[] = $rr['id'];
-		}
-		DBA::close($r);
-
-		$condition = ['uid' => local_user(), 'parent' => $parents_arr];
-		$result = Item::selectForUser(local_user(), [], $condition);
-
-		if (DBA::isResult($result)) {
-			$items = conv_sort(Item::inArray($result), 'commented');
-			$o .= conversation($a, $items, 'notes', $update);
-		}
+		$o .= conversation($a, DBA::toArray($r), 'notes', $update);
 	}
 
 	$o .= alt_pager($a, $count);
