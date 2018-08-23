@@ -1050,7 +1050,7 @@ class Diaspora
 			return false;
 		}
 
-		$contact = dba::selectFirst('contact', [], ['id' => $cid]);
+		$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
 			// This here shouldn't happen at all
 			logger("Haven't found a contact for user " . $uid . " and handle " . $handle, LOGGER_DEBUG);
@@ -1079,7 +1079,7 @@ class Diaspora
 		// It is deactivated by now, due to side effects. See issue https://github.com/friendica/friendica/pull/4033
 		// It is not removed by now. Possibly the code is needed?
 		//if (!$is_comment && $contact["rel"] == Contact::FOLLOWER && in_array($importer["page-flags"], array(Contact::PAGE_FREELOVE))) {
-		//	dba::update(
+		//	DBA::update(
 		//		'contact',
 		//		array('rel' => Contact::FRIEND, 'writable' => true),
 		//		array('id' => $contact["id"], 'uid' => $contact["uid"])
@@ -1821,10 +1821,10 @@ class Diaspora
 			"to_name" => $importer["username"],
 			"to_email" => $importer["email"],
 			"uid" =>$importer["uid"],
-			"item" => ["subject" => $subject, "body" => $body],
+			"item" => ["id" => $conversation["id"], "title" => $subject, "subject" => $subject, "body" => $body],
 			"source_name" => $person["name"],
 			"source_link" => $person["url"],
-			"source_photo" => $person["thumb"],
+			"source_photo" => $person["photo"],
 			"verb" => ACTIVITY_POST,
 			"otype" => "mail"]
 		);
@@ -3075,7 +3075,7 @@ class Diaspora
 		logger("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
 		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
-			if (!$no_queue && ($contact['contact-type'] != Contact::ACCOUNT_TYPE_RELAY)) {
+			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::ACCOUNT_TYPE_RELAY)) {
 				logger("queue message");
 				// queue message for redelivery
 				Queue::add($contact["id"], Protocol::DIASPORA, $envelope, $public_batch, $guid);

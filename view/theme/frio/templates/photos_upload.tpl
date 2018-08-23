@@ -5,49 +5,68 @@
 	<div id="photos-usage-message">{{$usage}}</div>
 
 	<form action="photos/{{$nickname}}" enctype="multipart/form-data" method="post" name="photos-upload-form" id="photos-upload-form">
-		<div id="photos-upload-new-wrapper" >
-			<div id="photos-upload-newalbum-div">
-				<label id="photos-upload-newalbum-text" for="photos-upload-newalbum" >{{$newalbum}}</label>
-			</div>
-			<input class="form-control" id="photos-upload-newalbum" type="text" name="newalbum" />
-		</div>
-		<div id="photos-upload-new-end"></div>
+		<div id="photos-upload-div" class="form-group">
+			<label id="photos-upload-text" for="photos-upload-newalbum" >{{$newalbum}}</label>
 
-		<div id="photos-upload-exist-wrapper">
-			<div id="photos-upload-existing-album-div">
-				<label id="photos-upload-existing-album-text" for="photos-upload-album-select">{{$existalbumtext}}</label>
-			</div>
-			<select class="form-control" id="photos-upload-album-select" name="album" size="4">
-				{{$albumselect}}
-			</select>
+			<input id="photos-upload-album-select" class="form-control" placeholder="{{$existalbumtext}}" list="dl-photo-upload" type="text" name="album" size="4">
+			<datalist id="dl-photo-upload">{{$albumselect}}</datalist>
 		</div>
-		<div id="photos-upload-exist-end"></div>
+		<div id="photos-upload-end" class="clearfix"></div>
 
-		<div id="photos-upload-noshare-div" class="photos-upload-noshare-div pull-left" >
+		<div id="photos-upload-noshare-div" class="photos-upload-noshare-div checkbox pull-left" >
 			<input id="photos-upload-noshare" type="checkbox" name="not_visible" value="1" checked/>
 			<label id="photos-upload-noshare-text" for="photos-upload-noshare" >{{$nosharetext}}</label>
 		</div>
 
-		<div id="photos-upload-perms" class="photos-upload-perms pull-right" >
-			<a href="#photos-upload-permissions-wrapper" id="photos-upload-perms-menu" class="button popupbox" />
-				<span id="jot-perms-icon" class="icon {{$lockstate}}" ></span>{{$permissions}}
-			</a>
-		</div>
-		<div id="photos-upload-perms-end" class="clear"></div>
+		{{if $alt_uploader}}
+			<div id="photos-upload-perms" class="pull-right">
+				<button class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">
+					<i id="jot-perms-icon" class="fa {{$lockstate}}"></i> {{$permissions}}
+				</button>
+			</div>
+			<div class="clearfix"></div>
 
-		<div style="display: none;">
-			<div id="photos-upload-permissions-wrapper">
-				{{$aclselect}}
+			<div id="photos-upload-spacer"></div>
+
+			{{$alt_uploader}}
+		{{/if}}
+
+
+		{{if $default_upload_submit}}
+			<div class="clearfix"></div>
+
+			<div id="photos-upload-spacer"></div>
+
+			<div class="photos-upload-wrapper">
+				<div id="photos-upload-perms" class="btn-group pull-right">
+					<button class="btn btn-default" data-toggle="modal" data-target="#aclModal" onclick="return false;">
+						<i id="jot-perms-icon" class="fa {{$lockstate}}"></i> 
+					</button>
+
+					{{$default_upload_submit}}
+				</div>
+				{{$default_upload_box}}
+			</div>
+			<div class="clearfix"></div>
+		{{/if}}
+
+		<div class="photos-upload-end" class="clearfix"></div>
+
+		{{* The modal for advanced-expire *}}
+		<div id="aclModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header" class="modal-header">
+						<button id="modal-close" type="button" class="close" data-dismiss="modal" aria-hidden="true">
+							&times;
+						</button>
+						<h4 id="modal-title" class="modal-title">{{$permissions}}</h4>
+					</div>
+					<div id="photos-upload-permissions-wrapper" class="modal-body">
+						{{$aclselect}}
+					</div>
+				</div>
 			</div>
 		</div>
-
-		<div id="photos-upload-spacer"></div>
-
-		{{$alt_uploader}}
-
-		{{$default_upload_box}}
-		{{$default_upload_submit}}
-
-		<div class="photos-upload-end" ></div>
 	</form>
 </div>

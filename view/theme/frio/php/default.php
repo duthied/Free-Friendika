@@ -44,7 +44,7 @@ if (!isset($minimal)) {
 			$uid = Profile::getThemeUid();
 		}
 		$scheme = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
-		if (($scheme) && ($scheme != '---')) {
+		if ($scheme && ($scheme != '---')) {
 			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 				require_once $schemefile;
@@ -52,7 +52,7 @@ if (!isset($minimal)) {
 		} else {
 			$nav_bg = PConfig::get($uid, 'frio', 'nav_bg');
 		}
-		if (!$nav_bg) {
+		if (empty($nav_bg)) {
 			$nav_bg = "#708fa0";
 		}
 		echo '
