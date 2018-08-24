@@ -1376,7 +1376,7 @@ function photos_content(App $a)
 			$a->set_pager_total(DBA::count('item', $condition));
 
 			$params = ['order' => ['id'], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-			$result = Item::selectForUser($link_item['uid'], [], $condition, $params);
+			$result = Item::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params);
 			$items = Item::inArray($result);
 
 			if (local_user() && (local_user() == $link_item['uid'])) {
@@ -1551,7 +1551,7 @@ function photos_content(App $a)
 					$body_e = BBCode::convert($item['body']);
 
 					$comments .= replace_macros($template,[
-						'$id' => $item['item_id'],
+						'$id' => $item['id'],
 						'$profile_url' => $profile_url,
 						'$name' => $item['author-name'],
 						'$thumb' => $item['author-avatar'],

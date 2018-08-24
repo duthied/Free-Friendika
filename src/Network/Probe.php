@@ -934,11 +934,12 @@ class Probe
 
 		$prof_data = [];
 
-		// The "addr" is not always part of the fetched data
-		if (!empty($data["addr"])) {
-			$prof_data["addr"] = $data["addr"];
+		if (empty($data["addr"])) {
+			$probe_data = self::uri($profile_link);
+			$data["addr"] = $probe_data["addr"];
 		}
 
+		$prof_data["addr"]         = $data["addr"];
 		$prof_data["nick"]         = $data["nick"];
 		$prof_data["dfrn-request"] = $data["request"];
 		$prof_data["dfrn-confirm"] = $data["confirm"];
