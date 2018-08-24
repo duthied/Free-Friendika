@@ -91,6 +91,7 @@ class DBA
 				self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 				self::$connected = true;
 			} catch (PDOException $e) {
+				/// @TODO At least log exception, don't ignore it!
 			}
 		}
 
@@ -255,6 +256,7 @@ class DBA
 			switch (self::$driver) {
 				case 'pdo':
 					return substr(@self::$connection->quote($str, PDO::PARAM_STR), 1, -1);
+
 				case 'mysqli':
 					return @self::$connection->real_escape_string($str);
 			}
@@ -932,13 +934,11 @@ class DBA
 
 		switch (self::$driver) {
 			case 'pdo':
-				if (self::$connection->inTransaction()) {
-					break;
-				}
-				if (!self::$connection->beginTransaction()) {
+				if (!self::$connection->inTransaction() && !self::$connection->beginTransaction()) {
 					return false;
 				}
 				break;
+
 			case 'mysqli':
 				if (!self::$connection->begin_transaction()) {
 					return false;
@@ -957,10 +957,13 @@ class DBA
 				if (!self::$connection->inTransaction()) {
 					return true;
 				}
+
 				return self::$connection->commit();
+
 			case 'mysqli':
 				return self::$connection->commit();
 		}
+
 		return true;
 	}
 
@@ -993,6 +996,7 @@ class DBA
 				}
 				$ret = self::$connection->rollBack();
 				break;
+
 			case 'mysqli':
 				$ret = self::$connection->rollback();
 				break;
