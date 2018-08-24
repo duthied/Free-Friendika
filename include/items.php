@@ -29,6 +29,10 @@ function add_page_info_data(array $data, $no_photos = false)
 {
 	Addon::callHooks('page_info_data', $data);
 
+	if (empty($data['type'])) {
+		return '';
+	}
+
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
 	if (($data["type"] == "rich") && is_string($data["title"]) &&
