@@ -3453,4 +3453,12 @@ section .profile-match-wrapper {
 		top: 24px;
 		left: 24px;
 	}
+
+	/*
+		Prevent automatic zoom on input focus on iOS
+		see https://stackoverflow.com/a/16255670
+	*/
+	.form-control {
+		font-size: 16px;
+	}
 }
