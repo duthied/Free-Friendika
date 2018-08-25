@@ -95,6 +95,210 @@ class Contact extends BaseObject
 	 */
 
 	/**
+	 * @brief Returns the contact id for the user and the public contact id for a given contact id
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return array with public and user's contact id
+	 */
+	private static function getPublicAndUserContacID($cid, $uid)
+	{
+		if (empty($uid) || empty($cid)) {
+			return [];
+		}
+
+		$contact = DBA::selectFirst('contact', ['id', 'uid', 'url'], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
+			return [];
+		}
+
+		// We quit when the user id don't match the user id of the provided contact
+		if (($contact['uid'] != $uid) && ($contact['uid'] != 0)) {
+			return [];
+		}
+
+		if ($contact['uid'] != 0) {
+			$pcid = Contact::getIdForURL($contact['url'], 0, true, ['url' => $contact['url']]);
+			if (empty($pcid)) {
+				return [];
+			}
+			$ucid = $contact['id'];
+		} else {
+			$pcid = $contact['id'];
+			$ucid = Contact::getIdForURL($contact['url'], $uid, true);
+		}
+
+		return ['public' => $pcid, 'user' => $ucid];
+	}
+
+	/**
+	 * @brief Block contact id for user id
+	 *
+	 * @param int     $cid     Either public contact id or user's contact id
+	 * @param int     $uid     User ID
+	 * @param boolean $blocked Is the contact blocked or unblocked?
+	 */
+	public static function setBlockedForUser($cid, $uid, $blocked)
+	{
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		if ($cdata['user'] != 0) {
+			DBA::update('contact', ['blocked' => $blocked], ['id' => $cdata['user'], 'pending' => false]);
+		}
+
+		DBA::update('user-contact', ['blocked' => $blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
+	}
+
+	/**
+	 * @brief Returns "block" state for contact id and user id
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return boolean is the contact id blocked for the given user?
+	 */
+	public static function isBlockedByUser($cid, $uid)
+	{
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		$public_blocked = false;
+
+		if (!empty($cdata['public'])) {
+			$public_contact = DBA::selectFirst('user-contact', ['blocked'], ['cid' => $cdata['public'], 'uid' => $uid]);
+			if (DBA::isResult($public_contact)) {
+				$public_blocked = $public_contact['blocked'];
+			}
+		}
+
+		$user_blocked = $public_blocked;
+
+		if (!empty($cdata['user'])) {
+			$user_contact = DBA::selectFirst('contact', ['blocked'], ['id' => $cdata['user'], 'pending' => false]);
+			if (DBA::isResult($user_contact)) {
+				$user_blocked = $user_contact['blocked'];
+			}
+		}
+
+		if ($user_blocked != $public_blocked) {
+			DBA::update('user-contact', ['blocked' => $user_blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
+		}
+
+		return $user_blocked;
+	}
+
+	/**
+	 * @brief Ignore contact id for user id
+	 *
+	 * @param int     $cid     Either public contact id or user's contact id
+	 * @param int     $uid     User ID
+	 * @param boolean $ignored Is the contact ignored or unignored?
+	 */
+	public static function setIgnoredForUser($cid, $uid, $ignored)
+	{
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		if ($cdata['user'] != 0) {
+			DBA::update('contact', ['readonly' => $ignored], ['id' => $cdata['user'], 'pending' => false]);
+		}
+
+		DBA::update('user-contact', ['ignored' => $ignored], ['cid' => $cdata['public'], 'uid' => $uid], true);
+	}
+
+	/**
+	 * @brief Returns "ignore" state for contact id and user id
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return boolean is the contact id ignored for the given user?
+	 */
+	public static function isIgnoredByUser($cid, $uid)
+	{
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		$public_ignored = false;
+
+		if (!empty($cdata['public'])) {
+			$public_contact = DBA::selectFirst('user-contact', ['ignored'], ['cid' => $cdata['public'], 'uid' => $uid]);
+			if (DBA::isResult($public_contact)) {
+				$public_ignored = $public_contact['ignored'];
+			}
+		}
+
+		$user_ignored = $public_ignored;
+
+		if (!empty($cdata['user'])) {
+			$user_contact = DBA::selectFirst('contact', ['readonly'], ['id' => $cdata['user'], 'pending' => false]);
+			if (DBA::isResult($user_contact)) {
+				$user_ignored = $user_contact['readonly'];
+			}
+		}
+
+		if ($user_ignored != $public_ignored) {
+			DBA::update('user-contact', ['ignored' => $user_ignored], ['cid' => $cdata['public'], 'uid' => $uid], true);
+		}
+
+		return $user_ignored;
+	}
+
+	/**
+	 * @brief Set "collapsed" for contact id and user id
+	 *
+	 * @param int     $cid       Either public contact id or user's contact id
+	 * @param int     $uid       User ID
+	 * @param boolean $collapsed are the contact's posts collapsed or uncollapsed?
+	 */
+	public static function setCollapsedForUser($cid, $uid, $collapsed)
+	{
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		DBA::update('user-contact', ['collapsed' => $collapsed], ['cid' => $cdata['public'], 'uid' => $uid], true);
+	}
+
+	/**
+	 * @brief Returns "collapsed" state for contact id and user id
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return boolean is the contact id blocked for the given user?
+	 */
+	public static function isCollapsedByUser($cid, $uid)
+	{
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		$collapsed = false;
+
+		if (!empty($cdata['public'])) {
+			$public_contact = DBA::selectFirst('user-contact', ['collapsed'], ['cid' => $cdata['public'], 'uid' => $uid]);
+			if (DBA::isResult($public_contact)) {
+				$collapsed = $public_contact['collapsed'];
+			}
+		}
+
+		return $collapsed;
+	}
+
+	/**
 	 * @brief Returns a list of contacts belonging in a group
 	 *
 	 * @param int $gid
@@ -679,15 +883,6 @@ class Contact extends BaseObject
 			$contact_own = DBA::selectFirst('contact', [], ['nurl' => $contact['nurl'], 'network' => $contact['network'], 'uid' => $uid]);
 			if (DBA::isResult($contact_own)) {
 				return self::photoMenu($contact_own, $uid);
-			} else {
-				$profile_link = self::magicLink($contact['url']);
-				$connlnk = 'follow/?url=' . $contact['url'];
-				$menu = [
-					'profile' => [L10n::t('View Profile'), $profile_link, true],
-					'follow' => [L10n::t('Connect/Follow'), $connlnk, true]
-				];
-
-				return $menu;
 			}
 		}
 
@@ -719,7 +914,7 @@ class Contact extends BaseObject
 
 		$contact_url = System::baseUrl() . '/contacts/' . $contact['id'];
 
-		$posts_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/posts';
+		$posts_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/conversations';
 
 		if (!$contact['self']) {
 			$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
@@ -729,16 +924,26 @@ class Contact extends BaseObject
 		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
-		$menu = [
-			'status'  => [L10n::t("View Status")  , $status_link      , true],
-			'profile' => [L10n::t("View Profile") , $profile_link     , true],
-			'photos'  => [L10n::t("View Photos")  , $photos_link      , true],
-			'network' => [L10n::t("Network Posts"), $posts_link       , false],
-			'edit'    => [L10n::t("View Contact") , $contact_url      , false],
-			'drop'    => [L10n::t("Drop Contact") , $contact_drop_link, false],
-			'pm'      => [L10n::t("Send PM")      , $pm_url           , false],
-			'poke'    => [L10n::t("Poke")         , $poke_link        , false],
-		];
+		if (empty($contact['uid'])) {
+			$connlnk = 'follow/?url=' . $contact['url'];
+			$menu = [
+				'profile' => [L10n::t('View Profile'),   $profile_link, true],
+				'network' => [L10n::t('Network Posts'),  $posts_link,   false],
+				'edit'    => [L10n::t('View Contact'),   $contact_url,  false],
+				'follow'  => [L10n::t('Connect/Follow'), $connlnk,      true],
+			];
+		} else {
+			$menu = [
+				'status'  => [L10n::t('View Status'),   $status_link,       true],
+				'profile' => [L10n::t('View Profile'),  $profile_link,      true],
+				'photos'  => [L10n::t('View Photos'),   $photos_link,       true],
+				'network' => [L10n::t('Network Posts'), $posts_link,        false],
+				'edit'    => [L10n::t('View Contact'),  $contact_url,       false],
+				'drop'    => [L10n::t('Drop Contact'),  $contact_drop_link, false],
+				'pm'      => [L10n::t('Send PM'),       $pm_url,            false],
+				'poke'    => [L10n::t('Poke'),          $poke_link,         false],
+			];
+		}
 
 		$args = ['contact' => $contact, 'menu' => &$menu];
 
@@ -1096,7 +1301,7 @@ class Contact extends BaseObject
 	 *
 	 * @return string posts in HTML
 	 */
-	public static function getPostsFromUrl($contact_url)
+	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0)
 	{
 		$a = self::getApp();
 
@@ -1123,17 +1328,34 @@ class Contact extends BaseObject
 
 		$contact = ($r[0]["contact-type"] == self::ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
-		$condition = ["`$contact` = ? AND `gravity` IN (?, ?) AND " . $sql,
-			$author_id, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
+		if ($thread_mode) {
+			$condition = ["`$contact` = ? AND `gravity` = ? AND " . $sql,
+				$author_id, GRAVITY_PARENT, local_user()];
+		} else {
+			$condition = ["`$contact` = ? AND `gravity` IN (?, ?) AND " . $sql,
+				$author_id, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
+		}
+
 		$params = ['order' => ['created' => true],
 			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
-		$r = Item::selectForUser(local_user(), [], $condition, $params);
 
-		$items = Item::inArray($r);
+		if ($thread_mode) {
+			$r = Item::selectThreadForUser(local_user(), ['uri'], $condition, $params);
 
-		$o = conversation($a, $items, 'contact-posts', false);
+			$items = Item::inArray($r);
 
-		$o .= alt_pager($a, count($items));
+			$o = conversation($a, $items, 'contacts', $update);
+		} else {
+			$r = Item::selectForUser(local_user(), [], $condition, $params);
+
+			$items = Item::inArray($r);
+
+			$o = conversation($a, $items, 'contact-posts', false);
+		}
+
+		if (!$update) {
+			$o .= alt_pager($a, count($items));
+		}
 
 		return $o;
 	}
