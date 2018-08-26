@@ -145,6 +145,23 @@ Example:
 
 *Note*: Do **not** rename the .htaccess-dist file as it is tracked by GIT and renaming will cause a dirty working directory.
 
+### Verify the "host-meta" page is working
+
+Friendica should respond automatically to important addresses under the /.well-known/ rewrite path.
+One critical URL would look like, for example, https://example.com/.well-known/host-meta
+It must be visible to the public and must respond with an XML file that is automatically customized to your site.
+
+If that URL is not working, it is possible that some other software is using the /.well-known/ path.
+Other symptoms may include an error message in the Admin settings that says "host-meta is not reachable on your system.
+This is a severe configuration issue that prevents server to server communication."
+Another common error related to host-meta is the "Invalid profile URL."
+
+Check for a .well-known directory that did not come with Friendica.
+The preferred configuration is to remove the directory, however this is not always possible.
+If there is any /.well-known/.htaccess file, it could interfere with this Friendica core requirement.
+You should remove any RewriteRules from that file, or remove that whole file if appropriate.
+It may be necessary to chmod the /.well-known/.htaccess file if you were not given write permissions by default.
+
 ### Set up the worker
 
 Set up a cron job or scheduled task to run the worker once every 5-10 minutes in order to perform background processing.
