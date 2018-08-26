@@ -345,8 +345,20 @@ class NotificationsManager extends BaseObject
 
 					case ACTIVITY_FRIEND:
 						if (!isset($it['object'])) {
-							logger('Incomplete data: ' . json_encode($it) . ' - ' . System::callstack(20), LOGGER_DEBUG);
+							$notif = [
+								'label' => 'friend',
+								'link' => $default_item_link,
+								'image' => $default_item_image,
+								'url' => $default_item_url,
+								'text' => $default_item_text,
+								'when' => $default_item_when,
+								'ago' => $default_item_ago,
+								'seen' => $it['seen']
+							];
+							break;
 						}
+						/// @todo Check if this part here is used at all
+						logger('Complete data: ' . json_encode($it) . ' - ' . System::callstack(20), LOGGER_DEBUG);
 
 						$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 						$obj = XML::parseString($xmlhead . $it['object']);
@@ -645,6 +657,10 @@ class NotificationsManager extends BaseObject
 			} else {
 				$it = $this->getMissingIntroData($it);
 
+				if (empty($it['url'])) {
+					continue;
+				}
+
 				// Don't show these data until you are connected. Diaspora is doing the same.
 				if ($it['gnetwork'] === Protocol::DIASPORA) {
 					$it['glocation'] = "";
@@ -693,22 +709,22 @@ class NotificationsManager extends BaseObject
 	{
 		// If the network and the addr isn't available from the gcontact
 		// table entry, take the one of the contact table entry
-		if ($arr['gnetwork'] == "") {
+		if (empty($arr['gnetwork']) && !empty($arr['network'])) {
 			$arr['gnetwork'] = $arr['network'];
 		}
-		if ($arr['gaddr'] == "") {
+		if (empty($arr['gaddr']) && !empty($arr['addr'])) {
 			$arr['gaddr'] = $arr['addr'];
 		}
 
 		// If the network and addr is still not available
 		// get the missing data data from other sources
-		if ($arr['gnetwork'] == "" || $arr['gaddr'] == "") {
+		if (empty($arr['gnetwork']) || empty($arr['gaddr'])) {
 			$ret = Contact::getDetailsByURL($arr['url']);
 
-			if ($arr['gnetwork'] == "" && $ret['network'] != "") {
+			if (empty($arr['gnetwork']) && !empty($ret['network'])) {
 				$arr['gnetwork'] = $ret['network'];
 			}
-			if ($arr['gaddr'] == "" && $ret['addr'] != "") {
+			if (empty($arr['gaddr']) && !empty($ret['addr'])) {
 				$arr['gaddr'] = $ret['addr'];
 			}
 		}
