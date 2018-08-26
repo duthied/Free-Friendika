@@ -84,12 +84,12 @@ function group_content(App $a) {
 		return;
 	}
 
-	// Switch to text mode interface if we have more than 'n' contacts or group members
-
+	// With no group number provided we jump to the unassigned contacts as a starting point
 	if ($a->argc == 1) {
-		goaway(System::baseUrl() . '/contacts');
+		goaway('group/none');
 	}
 
+	// Switch to text mode interface if we have more than 'n' contacts or group members
 	$switchtotext = PConfig::get(local_user(), 'system', 'groupedit_image_limit');
 	if (is_null($switchtotext)) {
 		$switchtotext = Config::get('system', 'groupedit_image_limit', 400);
