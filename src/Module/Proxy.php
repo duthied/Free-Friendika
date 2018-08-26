@@ -45,7 +45,7 @@ class Proxy extends BaseModule
 		 *
 		 * Question: Do we really need these three methods?
 		 */
-		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 			header('HTTP/1.1 304 Not Modified');
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
 			header('Etag: ' . $_SERVER['HTTP_IF_NONE_MATCH']);

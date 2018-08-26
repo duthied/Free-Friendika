@@ -1604,7 +1604,8 @@ class Probe
 		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $uid]);
 
 		$condition = ["`uid` = ? AND `server` != ''", $uid];
-		$mailacct = DBA::selectFirst('mailacct', ['pass', 'user'], $condition);
+		$fields = ['pass', 'user', 'server', 'port', 'ssltype', 'mailbox'];
+		$mailacct = DBA::selectFirst('mailacct', $fields, $condition);
 
 		if (!DBA::isResult($user) || !DBA::isResult($mailacct)) {
 			return false;
