@@ -934,9 +934,10 @@ class Probe
 
 		$prof_data = [];
 
-		if (empty($data["addr"])) {
+		if (empty($data["addr"]) || empty($data["nick"])) {
 			$probe_data = self::uri($profile_link);
-			$data["addr"] = $probe_data["addr"];
+			$data["addr"] = defaults($data, "addr", $probe_data["addr"]);
+			$data["nick"] = defaults($data, "nick", $probe_data["nick"]);
 		}
 
 		$prof_data["addr"]         = $data["addr"];
