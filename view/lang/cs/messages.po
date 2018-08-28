@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-08-25 15:34+0000\n"
-"PO-Revision-Date: 2018-08-26 15:02+0000\n"
+"PO-Revision-Date: 2018-08-28 14:24+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -72,27 +72,27 @@ msgstr "výchozí"
 
 #: view/theme/duepuntozero/config.php:55
 msgid "greenzero"
-msgstr "zelená nula"
+msgstr "greenzero"
 
 #: view/theme/duepuntozero/config.php:56
 msgid "purplezero"
-msgstr "fialová nula"
+msgstr "purplezero"
 
 #: view/theme/duepuntozero/config.php:57
 msgid "easterbunny"
-msgstr "velikonoční zajíček"
+msgstr "easterbunny"
 
 #: view/theme/duepuntozero/config.php:58
 msgid "darkzero"
-msgstr "tmavá nula"
+msgstr "darkzero"
 
 #: view/theme/duepuntozero/config.php:59
 msgid "comix"
-msgstr "komiksová"
+msgstr "comix"
 
 #: view/theme/duepuntozero/config.php:60
 msgid "slackr"
-msgstr "flákač"
+msgstr "slackr"
 
 #: view/theme/duepuntozero/config.php:71 view/theme/quattro/config.php:73
 #: view/theme/vier/config.php:119 view/theme/frio/config.php:118
@@ -146,7 +146,7 @@ msgstr "Seznam fór s pomocníky, oddělených čárkami"
 
 #: view/theme/vier/config.php:115 src/Core/ACL.php:298
 msgid "don't show"
-msgstr "nikdy nezobrazit"
+msgstr "nezobrazit"
 
 #: view/theme/vier/config.php:115 src/Core/ACL.php:297
 msgid "show"
@@ -193,7 +193,7 @@ msgstr "Zadejte jméno nebo zájmy"
 #: mod/allfriends.php:76 mod/contacts.php:604 mod/contacts.php:610
 #: mod/follow.php:143 src/Model/Contact.php:933 src/Content/Widget.php:61
 msgid "Connect/Follow"
-msgstr "Spojit/Sledovat"
+msgstr "Spojit/sledovat"
 
 #: view/theme/vier/theme.php:200 src/Content/Widget.php:62
 msgid "Examples: Robert Morgenstein, Fishing"
@@ -245,7 +245,7 @@ msgstr "zobrazit více"
 
 #: view/theme/vier/theme.php:289
 msgid "Quick Start"
-msgstr "Rychlý start"
+msgstr "Rychlý začátek"
 
 #: view/theme/vier/theme.php:295 mod/help.php:56 src/Content/Nav.php:134
 msgid "Help"
@@ -551,7 +551,7 @@ msgstr "%1$s šťouchnul/a uživatele %2$s"
 #: include/conversation.php:309 mod/tagger.php:108
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr "%1$s označil/a %3$s uživatele %2$s jako %4$s"
+msgstr "%1$s označil/a %3$s uživatele %2$s štítkem %4$s"
 
 #: include/conversation.php:331
 msgid "post/item"
@@ -1093,7 +1093,7 @@ msgstr "[Friendica:Oznámení] %s označil/a Váš příspěvek"
 #: include/enotify.php:270
 #, php-format
 msgid "%1$s tagged your post at %2$s"
-msgstr "%1$s označil/a Váš příspěvek na%2$s"
+msgstr "%1$s označil/a Váš příspěvek na %2$s"
 
 #: include/enotify.php:271
 #, php-format
@@ -3818,7 +3818,7 @@ msgstr "Pro více informací o projektu Friendica, prosím, navštivte stránku 
 
 #: mod/friendica.php:88
 msgid "Bug reports and issues: please visit"
-msgstr "Pro hlášení chyb a námětů na změny navštivte"
+msgstr "Pro hlášení chyb a námětů na změny prosím navštivte"
 
 #: mod/friendica.php:88
 msgid "the bugtracker at github"
@@ -4721,23 +4721,23 @@ msgstr "Normální účet"
 
 #: mod/admin.php:883
 msgid "Automatic Follower Account"
-msgstr "Automatický účet sledovatele"
+msgstr "Účet s automatickými sledovateli"
 
 #: mod/admin.php:884
 msgid "Public Forum Account"
-msgstr "Veřejný účet na fóru"
+msgstr "Účet veřejného fóra"
 
 #: mod/admin.php:885
 msgid "Automatic Friend Account"
-msgstr "Účet s automatickým schvalováním přátel"
+msgstr "Účet s automatickými přáteli"
 
 #: mod/admin.php:886
 msgid "Blog Account"
-msgstr "Účet Blogu"
+msgstr "Blogovací účet"
 
 #: mod/admin.php:887
 msgid "Private Forum Account"
-msgstr "Soukromá účet na fóru"
+msgstr "Účet soukromého fóra"
 
 #: mod/admin.php:909
 msgid "Message queues"
@@ -4822,7 +4822,7 @@ msgstr "Jeden rok"
 
 #: mod/admin.php:1368
 msgid "Multi user instance"
-msgstr "Více uživatelská instance"
+msgstr "Víceuživatelská instance"
 
 #: mod/admin.php:1394
 msgid "Closed"
