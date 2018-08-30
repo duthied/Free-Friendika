@@ -39,20 +39,18 @@ function unfollow_post()
 		// NOTREACHED
 	}
 
-	if ($contact['network'] == Protocol::STATUSNET) {
+	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
 		goaway($return_url);
 		// NOTREACHED
 	}
 
-	if (in_array($contact['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN])) {
-		$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
-			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
-			intval($uid)
-		);
-		if (DBA::isResult($r)) {
-			Contact::terminateFriendship($r[0], $contact);
-		}
+	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
+		WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
+		intval($uid)
+	);
+	if (DBA::isResult($r)) {
+		Contact::terminateFriendship($r[0], $contact);
 	}
 
 	// Sharing-only contacts get deleted as there no relationship any more
@@ -92,7 +90,7 @@ function unfollow_content(App $a)
 		// NOTREACHED
 	}
 
-	if ($contact['network'] == Protocol::STATUSNET) {
+	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
 		goaway('contacts/' . $contact['id']);
 		// NOTREACHED
