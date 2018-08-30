@@ -351,7 +351,7 @@ class OStatus
 		$header["origin"] = 0;
 		$header["gravity"] = GRAVITY_COMMENT;
 
-		if (!is_object($doc->firstChild)) {
+		if (!is_object($doc->firstChild) || empty($doc->firstChild->tagName)) {
 			return false;
 		}
 
