@@ -11,21 +11,22 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
-function unfollow_post(App $a)
+function unfollow_post()
 {
+	$return_url = $_SESSION['return_url'];
+
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
-		goaway($_SESSION['return_url']);
+		notice(L10n::t('Permission denied.'));
+		goaway($return_url);
 		// NOTREACHED
 	}
 
 	if ($_REQUEST['cancel']) {
-		goaway($_SESSION['return_url']);
+		goaway($return_url);
 	}
 
 	$uid = local_user();
-	$url = notags(trim($_REQUEST['url']));
-	$return_url = $_SESSION['return_url'];
+	$url = notags(trim(defaults($_REQUEST, 'url', '')));
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
 		$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
@@ -70,16 +71,14 @@ function unfollow_post(App $a)
 
 function unfollow_content(App $a)
 {
-	if (! local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+	if (!local_user()) {
+		notice(L10n::t('Permission denied.'));
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
-
-	$submit = L10n::t('Submit Request');
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 		local_user(), Contact::SHARING, Contact::FRIEND, normalise_link($url),
@@ -99,58 +98,56 @@ function unfollow_content(App $a)
 		// NOTREACHED
 	}
 
-	$request = System::baseUrl()."/unfollow";
+	$request = System::baseUrl() . '/unfollow';
 	$tpl = get_markup_template('auto_request.tpl');
 
-	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($uid));
+	$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 
-	if (!$r) {
-		notice(L10n::t('Permission denied.') . EOL);
+	if (!DBA::isResult($self)) {
+		notice(L10n::t('Permission denied.'));
 		goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
-	$myaddr = $r[0]["url"];
-
 	// Makes the connection request for friendica contacts easier
-	$_SESSION["fastlane"] = $contact["url"];
+	$_SESSION['fastlane'] = $contact['url'];
 
-	$header = L10n::t("Disconnect/Unfollow");
+	$header = L10n::t('Disconnect/Unfollow');
 
-	$o  = replace_macros($tpl, [
-			'$header' => htmlentities($header),
-			'$desc' => "",
-			'$pls_answer' => "",
-			'$does_know_you' => "",
-			'$add_note' => "",
-			'$page_desc' => "",
-			'$friendica' => "",
-			'$statusnet' => "",
-			'$diaspora' => "",
-			'$diasnote' => "",
-			'$your_address' => L10n::t('Your Identity Address:'),
-			'$invite_desc' => "",
-			'$emailnet' => "",
-			'$submit' => $submit,
-			'$cancel' => L10n::t('Cancel'),
-			'$nickname' => "",
-			'$name' => $contact["name"],
-			'$url' => $contact["url"],
-			'$zrl' => Contact::magicLink($contact["url"]),
-			'$url_label' => L10n::t("Profile URL"),
-			'$myaddr' => $myaddr,
-			'$request' => $request,
-			'$keywords' => "",
-			'$keywords_label' => ""
+	$o = replace_macros($tpl, [
+		'$header'        => htmlentities($header),
+		'$desc'          => '',
+		'$pls_answer'    => '',
+		'$does_know_you' => '',
+		'$add_note'      => '',
+		'$page_desc'     => '',
+		'$friendica'     => '',
+		'$statusnet'     => '',
+		'$diaspora'      => '',
+		'$diasnote'      => '',
+		'$your_address'  => L10n::t('Your Identity Address:'),
+		'$invite_desc'   => '',
+		'$emailnet'      => '',
+		'$submit'        => L10n::t('Submit Request'),
+		'$cancel'        => L10n::t('Cancel'),
+		'$nickname'      => '',
+		'$name'          => $contact['name'],
+		'$url'           => $contact['url'],
+		'$zrl'           => Contact::magicLink($contact['url']),
+		'$url_label'     => L10n::t('Profile URL'),
+		'$myaddr'        => $self['url'],
+		'$request'       => $request,
+		'$keywords'      => '',
+		'$keywords_label'=> ''
 	]);
 
-	$a->page['aside'] = "";
-	Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+	$a->page['aside'] = '';
+	Profile::load($a, '', 0, Contact::getDetailsByURL($contact['url']));
 
 	$o .= replace_macros(get_markup_template('section_title.tpl'), ['$title' => L10n::t('Status Messages and Posts')]);
 
 	// Show last public posts
-	$o .= Contact::getPostsFromUrl($contact["url"]);
+	$o .= Contact::getPostsFromUrl($contact['url']);
 
 	return $o;
 }
