@@ -28,13 +28,20 @@ function unfollow_post(App $a)
 	$return_url = $_SESSION['return_url'];
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
-			$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
-			normalise_link($url), $url, Protocol::STATUSNET];
+		$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
+		normalise_link($url), $url];
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		notice(L10n::t("Contact wasn't found or can't be unfollowed."));
+		notice(L10n::t("You aren't following this contact."));
 		goaway($return_url);
+		// NOTREACHED
+	}
+
+	if ($contact['network'] == Protocol::STATUSNET) {
+		notice(L10n::t('Unfollowing is currently not supported by your network.'));
+		goaway($return_url);
+		// NOTREACHED
 	}
 
 	if (in_array($contact['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN])) {
@@ -74,21 +81,21 @@ function unfollow_content(App $a)
 
 	$submit = L10n::t('Submit Request');
 
-	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?",
-			local_user(), Contact::SHARING, Contact::FRIEND, normalise_link($url),
-			normalise_link($url), $url, Protocol::STATUSNET];
+	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
+		local_user(), Contact::SHARING, Contact::FRIEND, normalise_link($url),
+		normalise_link($url), $url];
 
 	$contact = DBA::selectFirst('contact', ['url', 'network', 'addr', 'name'], $condition);
 
 	if (!DBA::isResult($contact)) {
-		notice(L10n::t("You aren't a friend of this contact.").EOL);
-		$submit = "";
+		notice(L10n::t("You aren't following this contact."));
+		goaway('contacts');
 		// NOTREACHED
 	}
 
-	if (!in_array($contact['network'], [Protocol::DIASPORA, Protocol::OSTATUS, Protocol::DFRN])) {
-		notice(L10n::t("Unfollowing is currently not supported by your network.").EOL);
-		$submit = "";
+	if ($contact['network'] == Protocol::STATUSNET) {
+		notice(L10n::t('Unfollowing is currently not supported by your network.'));
+		goaway('contacts/' . $contact['id']);
 		// NOTREACHED
 	}
 
