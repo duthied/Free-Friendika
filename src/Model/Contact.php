@@ -1076,6 +1076,11 @@ class Contact extends BaseObject
 
 		if (empty($data)) {
 			$data = Probe::uri($url, "", $uid);
+
+			// Ensure that there is a gserver entry
+			if (!empty($data['baseurl']) && ($data['network'] != Protocol::PHANTOM)) {
+				PortableContact::checkServer($data['baseurl']);
+			}
 		}
 
 		// Last try in gcontact for unsupported networks
