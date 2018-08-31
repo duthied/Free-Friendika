@@ -133,6 +133,10 @@ class Proxy extends BaseModule
 			$direct_cache = false;
 		}
 
+		if (empty($_REQUEST['url'])) {
+			System::httpExit(400, ["title" => L10n::t('Bad Request.')]);
+		}
+
 		if (!$direct_cache) {
 			$urlhash = 'pic:' . sha1($_REQUEST['url']);
 

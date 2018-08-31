@@ -122,10 +122,11 @@ function contacts_init(App $a)
 
 function contacts_batch_actions(App $a)
 {
-	$contacts_id = $_POST['contact_batch'];
-	if (!is_array($contacts_id)) {
+	if (empty($_POST['contact_batch']) || !is_array($_POST['contact_batch'])) {
 		return;
 	}
+
+	$contacts_id = $_POST['contact_batch'];
 
 	$orig_records = q("SELECT * FROM `contact` WHERE `id` IN (%s) AND `uid` = %d AND `self` = 0",
 		implode(",", $contacts_id),

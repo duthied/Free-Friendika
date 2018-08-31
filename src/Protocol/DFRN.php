@@ -2407,8 +2407,11 @@ class DFRN
 						break;
 					case "enclosure":
 						$enclosure = $href;
-						if (strlen($item["attach"])) {
+
+						if (!empty($item["attach"])) {
 							$item["attach"] .= ",";
+						} else {
+							$item["attach"] = "";
 						}
 
 						$item["attach"] .= '[attach]href="' . $href . '" length="' . $length . '" type="' . $type . '" title="' . $title . '"[/attach]';
