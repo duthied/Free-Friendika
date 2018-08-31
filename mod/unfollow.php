@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 
 function unfollow_post()
 {
@@ -45,12 +46,9 @@ function unfollow_post()
 		// NOTREACHED
 	}
 
-	$r = q("SELECT `contact`.*, `user`.* FROM `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid`
-		WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
-		intval($uid)
-	);
-	if (DBA::isResult($r)) {
-		Contact::terminateFriendship($r[0], $contact);
+	$owner = User::getOwnerDataById($uid);
+	if ($owner) {
+		Contact::terminateFriendship($owner, $contact);
 	}
 
 	// Sharing-only contacts get deleted as there no relationship any more
