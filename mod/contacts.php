@@ -596,17 +596,12 @@ function contacts_content(App $a, $update = 0)
 		/// @todo Only show the following link with DFRN when the remote version supports it
 		$follow = '';
 		$follow_text = '';
-		if (in_array($contact['network'], [Protocol::DIASPORA, Protocol::OSTATUS, Protocol::DFRN])) {
-			if (in_array($contact['rel'], [Contact::FRIEND, Contact::SHARING])) {
+		if (in_array($contact['rel'], [Contact::FRIEND, Contact::SHARING])) {
+			if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 				$follow = System::baseUrl(true) . "/unfollow?url=" . urlencode($contact["url"]);
 				$follow_text = L10n::t("Disconnect/Unfollow");
-			} else {
-				$follow = System::baseUrl(true) . "/follow?url=" . urlencode($contact["url"]);
-				$follow_text = L10n::t("Connect/Follow");
 			}
-		}
-
-		if ($contact['uid'] == 0) {
+		} else {
 			$follow = System::baseUrl(true) . "/follow?url=" . urlencode($contact["url"]);
 			$follow_text = L10n::t("Connect/Follow");
 		}
