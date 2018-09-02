@@ -1056,10 +1056,10 @@ function api_statuses_mediap($type)
 
 	// now that we have the img url in bbcode we can add it to the status and insert the wall item.
 	$_REQUEST['body'] = $txt . "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
-	item_post($a);
+	$item_id = item_post($a);
 
-	// this should output the last post (the one we just posted).
-	return api_status_show($type);
+	// output the post that we just posted.
+	return api_status_show($type, $item_id);
 }
 
 /// @TODO move this to top of file or somewhere better!
@@ -1075,7 +1075,6 @@ api_register_func('api/statuses/mediap', 'api_statuses_mediap', true, API_METHOD
  */
 function api_statuses_update($type)
 {
-
 	$a = get_app();
 
 	if (api_user() === false) {
@@ -1129,7 +1128,7 @@ function api_statuses_update($type)
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
-			$condition = ["`uid` = ? AND `wall` AND `created` > ? AND `id` = `parent`", api_user(), $datefrom];
+			$condition = ["`uid` = ? AND `wall` AND `changed` > ? AND `gravity` = ?", api_user(), $datefrom, GRAVITY_PARENT];
 			$posts_day = DBA::count('item', $condition);
 
 			if ($posts_day > $throttle_day) {
@@ -1143,7 +1142,7 @@ function api_statuses_update($type)
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
-			$condition = ["`uid` = ? AND `wall` AND `created` > ? AND `id` = `parent`", api_user(), $datefrom];
+			$condition = ["`uid` = ? AND `wall` AND `changed` > ? AND `gravity` = ?", api_user(), $datefrom, GRAVITY_PARENT];
 			$posts_week = DBA::count('item', $condition);
 
 			if ($posts_week > $throttle_week) {
@@ -1157,7 +1156,7 @@ function api_statuses_update($type)
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
-			$condition = ["`uid` = ? AND `wall` AND `created` > ? AND `id` = `parent`", api_user(), $datefrom];
+			$condition = ["`uid` = ? AND `wall` AND `changed` > ? AND `gravity` = ?", api_user(), $datefrom, GRAVITY_PARENT];
 			$posts_month = DBA::count('item', $condition);
 
 			if ($posts_month > $throttle_month) {
@@ -1200,10 +1199,10 @@ function api_statuses_update($type)
 	}
 
 	// call out normal post function
-	item_post($a);
+	$item_id = item_post($a);
 
-	// this should output the last post (the one we just posted).
-	return api_status_show($type);
+	// output the post that we just posted.
+	return api_status_show($type, $item_id);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1260,7 +1259,7 @@ api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST)
  *
  * @return array|string
  */
-function api_status_show($type)
+function api_status_show($type, $item_id = 0)
 {
 	$a = get_app();
 
@@ -1274,9 +1273,14 @@ function api_status_show($type)
 		$privacy_sql = "";
 	}
 
-	// get last public wall message
-	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
-		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+	if (!empty($item_id)) {
+		// Get the item with the given id
+		$condition = ['id' => $item_id];
+	} else {
+		// get last public wall message
+		$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
+			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+	}
 	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
 	if (DBA::isResult($lastwall)) {
@@ -1993,14 +1997,14 @@ function api_statuses_repeat($type)
 			$_REQUEST["source"] = api_source();
 		}
 
-		item_post($a);
+		$item_id = item_post($a);
 	} else {
 		throw new ForbiddenException();
 	}
 
-	// this should output the last post (the one we just posted).
+	// output the last post tha we just posted.
 	$called_api = [];
-	return api_status_show($type);
+	return api_status_show($type, $item_id);
 }
 
 /// @TODO move to top of file or somewhere better
