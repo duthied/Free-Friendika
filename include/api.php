@@ -581,7 +581,10 @@ function api_get_user(App $a, $contact_id = null)
 	if (is_null($user) && ($a->argc > (count($called_api) - 1)) && (count($called_api) > 0)) {
 		$argid = count($called_api);
 		if (!empty($a->argv[$argid])) {
-			list($user, $null) = explode(".", $a->argv[$argid]);
+			$data = explode(".", $a->argv[$argid]);
+			if (count($data) > 1) {
+				list($user, $null) = $data;
+			}
 		}
 		if (is_numeric($user)) {
 			$user = DBA::escape(api_unique_id_to_nurl(intval($user)));
@@ -4396,7 +4399,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	if ($filetype == "") {
 		$filetype=Image::guessType($filename);
 	}
-	$imagedata = getimagesize($src);
+	$imagedata = @getimagesize($src);
 	if ($imagedata) {
 		$filetype = $imagedata['mime'];
 	}
