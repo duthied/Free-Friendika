@@ -578,9 +578,7 @@ class BBCode extends BaseObject
 					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
 				}
 
-				if (($data["type"] == "photo") && !empty($data["url"]) && !empty($data["image"])) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
-				} else {
+				if (!empty($data['title']) && !empty($data['url'])) {
 					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 				}
 
@@ -589,7 +587,8 @@ class BBCode extends BaseObject
 					$bbcode = HTML::toBBCode($data["description"]);
 					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
 				}
-				if ($data["type"] == "link") {
+
+				if (!empty($data['url'])) {
 					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 				}
 
