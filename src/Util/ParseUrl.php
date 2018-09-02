@@ -248,53 +248,59 @@ class ParseUrl
 				}
 			}
 
-			if (!empty($meta_tag['content'])) {
-				$meta_tag['content'] = trim(html_entity_decode($meta_tag['content'], ENT_QUOTES, 'UTF-8'));
+			if (empty($meta_tag['content'])) {
+				continue;
+			}
 
-				switch (strtolower($meta_tag['name'])) {
-					case 'fulltitle':
-						$siteinfo['title'] = trim($meta_tag['content']);
-						break;
-					case 'description':
-						$siteinfo['text'] = trim($meta_tag['content']);
-						break;
-					case 'thumbnail':
-						$siteinfo['image'] = $meta_tag['content'];
-						break;
-					case 'twitter:image':
-						$siteinfo['image'] = $meta_tag['content'];
-						break;
-					case 'twitter:image:src':
-						$siteinfo['image'] = $meta_tag['content'];
-						break;
-					case 'twitter:card':
-						if (($siteinfo['type'] == '') || ($meta_tag['content'] == 'photo')) {
-							$siteinfo['type'] = $meta_tag['content'];
-						}
-						break;
-					case 'twitter:description':
-						$siteinfo['text'] = trim($meta_tag['content']);
-						break;
-					case 'twitter:title':
-						$siteinfo['title'] = trim($meta_tag['content']);
-						break;
-					case 'dc.title':
-						$siteinfo['title'] = trim($meta_tag['content']);
-						break;
-					case 'dc.description':
-						$siteinfo['text'] = trim($meta_tag['content']);
-						break;
-					case 'keywords':
-						$keywords = explode(',', $meta_tag['content']);
-						break;
-					case 'news_keywords':
-						$keywords = explode(',', $meta_tag['content']);
-						break;
-				}
+			$meta_tag['content'] = trim(html_entity_decode($meta_tag['content'], ENT_QUOTES, 'UTF-8'));
+
+			switch (strtolower($meta_tag['name'])) {
+				case 'fulltitle':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'thumbnail':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:image':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:image:src':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:card':
+					// Obsolete card type
+					if ($meta_tag['content'] == 'photo') {
+						$siteinfo['type'] = 'summary_large_image';
+					} else {
+						$siteinfo['type'] = $meta_tag['content'];
+					}
+					break;
+				case 'twitter:description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:title':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'dc.title':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'dc.description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'keywords':
+					$keywords = explode(',', $meta_tag['content']);
+					break;
+				case 'news_keywords':
+					$keywords = explode(',', $meta_tag['content']);
+					break;
 			}
-			if ($siteinfo['type'] == 'summary') {
-				$siteinfo['type'] = 'link';
-			}
+		}
+
+		if ($siteinfo['type'] == 'summary' || $siteinfo['type'] == 'summary_large_image') {
+			$siteinfo['type'] = 'link';
 		}
 
 		if (isset($keywords)) {
