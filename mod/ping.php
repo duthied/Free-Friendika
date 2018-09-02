@@ -519,7 +519,7 @@ function ping_get_notifications($uid)
  * @param int   $forums_unseen Number of unseen forum items
  * @return array XML-transform ready data array
  */
-function ping_format_xml_data($data, $sysnotify, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
+function ping_format_xml_data($data, $sysnotify_count, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
 {
 	$notifications = [];
 	foreach ($notifs as $key => $notif) {

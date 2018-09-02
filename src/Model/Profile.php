@@ -492,7 +492,7 @@ class Profile
 
 		if (isset($p['address'])) {
 			$p['address'] = BBCode::convert($p['address']);
-		} else {
+		} elseif (isset($p['location'])) {
 			$p['address'] = BBCode::convert($p['location']);
 		}
 

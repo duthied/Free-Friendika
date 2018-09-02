@@ -115,7 +115,6 @@ function notifications_content(App $a)
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'home')) {
 		$notif_header = L10n::t('Home Notifications');
 		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
-
 	}
 
 
@@ -134,7 +133,7 @@ function notifications_content(App $a)
 	$notif_tpl = get_markup_template('notifications.tpl');
 
 	if (!isset($notifs['ident'])) {
-		logger('Missing data in notifs: ' . System::callstack(20), LOGGER_DEBUG);
+		logger('Missing data in notifs: ' . json_encode($a->argv), LOGGER_DEBUG);
 	}
 
 	// Process the data for template creation
