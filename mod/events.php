@@ -482,8 +482,8 @@ function events_content(App $a) {
 
 		$perms = ACL::getDefaultUserPermissions($orig_event);
 
-		if ($mode === 'new' || $mode === 'copy') {
-			$acl = ($cid ? '' : ACL::getFullSelectorHTML($a->user, false, $orig_event));
+		if (!$cid && in_array($mode, ['new', 'copy'])) {
+			$acl = ACL::getFullSelectorHTML($a->user, false, $orig_event);
 		} else {
 			$acl = '';
 		}
