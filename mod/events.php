@@ -54,11 +54,11 @@ function events_post(App $a) {
 	$cid = (x($_POST, 'cid') ? intval($_POST['cid']) : 0);
 	$uid = local_user();
 
-	$start_text  = escape_tags($_REQUEST['start_text']);
-	$finish_text = escape_tags($_REQUEST['finish_text']);
+	$start_text  = escape_tags(defaults($_REQUEST, 'start_text', ''));
+	$finish_text = escape_tags(defaults($_REQUEST, 'finish_text', ''));
 
-	$adjust   = intval($_POST['adjust']);
-	$nofinish = intval($_POST['nofinish']);
+	$adjust   = intval(defaults($_POST, 'adjust', 0));
+	$nofinish = intval(defaults($_POST, 'nofinish', 0));
 
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
@@ -91,9 +91,9 @@ function events_post(App $a) {
 	// and we'll waste a bunch of time responding to it. Time that
 	// could've been spent doing something else.
 
-	$summary  = escape_tags(trim($_POST['summary']));
-	$desc     = escape_tags(trim($_POST['desc']));
-	$location = escape_tags(trim($_POST['location']));
+	$summary  = escape_tags(trim(defaults($_POST, 'summary', '')));
+	$desc     = escape_tags(trim(defaults($_POST, 'desc', '')));
+	$location = escape_tags(trim(defaults($_POST, 'location', '')));
 	$type     = 'event';
 
 	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
@@ -117,7 +117,7 @@ function events_post(App $a) {
 		goaway($onerror_url);
 	}
 
-	$share = (intval($_POST['share']) ? intval($_POST['share']) : 0);
+	$share = intval(defaults($_POST, 'share', 0));
 
 	$c = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval(local_user())
@@ -484,6 +484,8 @@ function events_content(App $a) {
 
 		if ($mode === 'new' || $mode === 'copy') {
 			$acl = ($cid ? '' : ACL::getFullSelectorHTML($a->user, false, $orig_event));
+		} else {
+			$acl = '';
 		}
 
 		// If we copy an old event, we need to remove the ID and URI

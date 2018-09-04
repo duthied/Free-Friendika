@@ -22,7 +22,7 @@ function unfollow_post()
 		// NOTREACHED
 	}
 
-	if ($_REQUEST['cancel']) {
+	if (!empty($_REQUEST['cancel'])) {
 		goaway($return_url);
 	}
 
