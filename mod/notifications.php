@@ -87,10 +87,11 @@ function notifications_content(App $a)
 	$perpage = 20;
 	$startrec = ($page * $perpage) - $perpage;
 
+	$notif_header = L10n::t('Notifications');
+
 	// Get introductions
 	if ((($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		Nav::setSelected('introductions');
-		$notif_header = L10n::t('Notifications');
 
 		$all = (($a->argc > 2) && ($a->argv[2] == 'all'));
 
@@ -132,12 +133,8 @@ function notifications_content(App $a)
 
 	$notif_tpl = get_markup_template('notifications.tpl');
 
-	if (!isset($notifs['ident'])) {
-		logger('Missing data in notifs: ' . json_encode($a->argv), LOGGER_DEBUG);
-	}
-
 	// Process the data for template creation
-	if ($notifs['ident'] === 'introductions') {
+	if (defaults($notifs, 'ident', '') === 'introductions') {
 		$sugg = get_markup_template('suggestions.tpl');
 		$tpl = get_markup_template("intros.tpl");
 
@@ -280,7 +277,7 @@ function notifications_content(App $a)
 		}
 
 	// Normal notifications (no introductions)
-	} else {
+	} elseif (!empty($notifs['notifications'])) {
 		// The template files we need in different cases for formatting the content
 		$tpl_item_like = 'notifications_likes_item.tpl';
 		$tpl_item_dislike = 'notifications_dislikes_item.tpl';

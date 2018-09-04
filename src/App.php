@@ -1074,7 +1074,11 @@ class App
 
 		$meminfo = [];
 		foreach ($memdata as $line) {
-			list($key, $val) = explode(':', $line);
+			$data = explode(':', $line);
+			if (count($data) != 2) {
+				continue;
+			}
+			list($key, $val) = $data;
 			$meminfo[$key] = (int) trim(str_replace('kB', '', $val));
 			$meminfo[$key] = (int) ($meminfo[$key] / 1024);
 		}
