@@ -368,7 +368,7 @@ function _contact_drop($orig_record)
 		return;
 	}
 
-	Contact::terminateFriendship($r[0], $orig_record);
+	Contact::terminateFriendship($r[0], $orig_record, true);
 	Contact::remove($orig_record['id']);
 }
 

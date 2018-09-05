@@ -96,7 +96,7 @@ class Notifier
 				return;
 			}
 			foreach ($r as $contact) {
-				Contact::terminateFriendship($user, $contact);
+				Contact::terminateFriendship($user, $contact, true);
 			}
 			return;
 		} elseif ($cmd == Delivery::RELOCATION) {

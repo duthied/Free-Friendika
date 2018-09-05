@@ -322,8 +322,8 @@ function dfrn_notify_content(App $a) {
 		$encrypted_id = '';
 		$id_str       = $my_id . '.' . mt_rand(1000,9999);
 
-		$prv_key = trim($importer['prvkey']);
-		$pub_key = trim($importer['pubkey']);
+		$prv_key = trim($importer['cprvkey']);
+		$pub_key = trim($importer['cpubkey']);
 		$dplx    = intval($importer['duplex']);
 
 		if (($dplx && strlen($prv_key)) || (strlen($prv_key) && !strlen($pub_key))) {

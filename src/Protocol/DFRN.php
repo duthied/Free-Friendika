@@ -81,7 +81,8 @@ class DFRN
 				return [];
 			}
 
-			$user['importer_uid']  = $user['uid'];
+			$user['importer_uid'] = $user['uid'];
+			$user['uprvkey'] = $user['prvkey'];
 		} else {
 			$user = ['importer_uid' => 0, 'uprvkey' => '', 'timezone' => 'UTC',
 				'nickname' => '', 'sprvkey' => '', 'spubkey' => '',
@@ -1168,10 +1169,12 @@ class DFRN
 		$a = get_app();
 
 		// At first try the Diaspora transport layer
-		$ret = self::transmit($owner, $contact, $atom);
-		if ($ret >= 200) {
-			logger('Delivery via Diaspora transport layer was successful with status ' . $ret);
-			return $ret;
+		if (!$dissolve) {
+			$ret = self::transmit($owner, $contact, $atom);
+			if ($ret >= 200) {
+				logger('Delivery via Diaspora transport layer was successful with status ' . $ret);
+				return $ret;
+			}
 		}
 
 		$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
