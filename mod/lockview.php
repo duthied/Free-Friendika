@@ -24,11 +24,12 @@ function lockview_content(App $a) {
 	if (!in_array($type, ['item','photo','event']))
 		killme();
 
-	$fields = ['uid', 'private', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
+	$fields = ['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 	$condition = ['id' => $item_id];
 	if ($type != 'item') {
 		$item = DBA::selectFirst($type, $fields, $condition);
 	} else {
+		$fields[] = 'private';
 		$item = Item::selectFirst($fields, $condition);
 	}
 
