@@ -561,12 +561,12 @@ class Network
 	public static function isUrlBlocked($url)
 	{
 		$host = @parse_url($url, PHP_URL_HOST);
-		if (! $host) {
-			return true;
+		if (!$host) {
+			return false;
 		}
 
 		$domain_blocklist = Config::get('system', 'blocklist', []);
-		if (! $domain_blocklist) {
+		if (!$domain_blocklist) {
 			return false;
 		}
 

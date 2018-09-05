@@ -934,9 +934,10 @@ class Probe
 
 		$prof_data = [];
 
-		if (empty($data["addr"])) {
+		if (empty($data["addr"]) || empty($data["nick"])) {
 			$probe_data = self::uri($profile_link);
-			$data["addr"] = $probe_data["addr"];
+			$data["addr"] = defaults($data, "addr", $probe_data["addr"]);
+			$data["nick"] = defaults($data, "nick", $probe_data["nick"]);
 		}
 
 		$prof_data["addr"]         = $data["addr"];
@@ -1604,7 +1605,8 @@ class Probe
 		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $uid]);
 
 		$condition = ["`uid` = ? AND `server` != ''", $uid];
-		$mailacct = DBA::selectFirst('mailacct', ['pass', 'user'], $condition);
+		$fields = ['pass', 'user', 'server', 'port', 'ssltype', 'mailbox'];
+		$mailacct = DBA::selectFirst('mailacct', $fields, $condition);
 
 		if (!DBA::isResult($user) || !DBA::isResult($mailacct)) {
 			return false;

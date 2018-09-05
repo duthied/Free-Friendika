@@ -5,6 +5,7 @@
  */
 namespace Friendica\Content;
 
+use Friendica\Core\Protocol;
 use Friendica\Content\Feature;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -36,25 +37,29 @@ class ForumManager
 	 */
 	public static function getList($uid, $lastitem, $showhidden = true, $showprivate = false)
 	{
-		$forumlist = [];
-
-		$order = (($showhidden) ? '' : ' AND NOT `hidden` ');
-		$order .= (($lastitem) ? ' ORDER BY `last-item` DESC ' : ' ORDER BY `name` ASC ');
-		$select = '`forum` ';
-		if ($showprivate) {
-			$select = '(`forum` OR `prv`)';
+		if ($lastitem) {
+			$params = ['order' => ['last-item' => true]];
+		} else {
+			$params = ['order' => ['name']];
 		}
 
-		$contacts = DBA::p(
-			"SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb`
-			FROM `contact`
-				WHERE `network`= 'dfrn' AND $select AND `uid` = ?
-				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `success_update` > `failure_update`
-			$order ",
-			$uid
-		);
+		$condition_str = "`network` = ? AND `uid` = ? AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `success_update` > `failure_update` AND ";
 
+		if ($showprivate) {
+			$condition_str .= '(`forum` OR `prv`)';
+		} else {
+			$condition_str .= '`forum`';
+		}
+
+		if (!$showhidden) {
+			$condition_str .=  ' AND NOT `hidden`';
+		}
+
+		$forumlist = [];
+
+		$fields = ['id', 'url', 'name', 'micro', 'thumb'];
+		$condition = [$condition_str, Protocol::DFRN, $uid];
+		$contacts = DBA::select('contact', $fields, $condition, $params);
 		if (!$contacts) {
 			return($forumlist);
 		}

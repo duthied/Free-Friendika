@@ -1618,6 +1618,10 @@ class DFRN
 			}
 		}
 
+		if (empty($author['avatar'])) {
+			logger('Empty author: ' . $xml);
+		}
+
 		if (DBA::isResult($contact_old) && !$onlyfetch) {
 			logger("Check if contact details for contact " . $contact_old["id"] . " (" . $contact_old["nick"] . ") have to be updated.", LOGGER_DEBUG);
 
@@ -1747,6 +1751,10 @@ class DFRN
 			// Update check for this field has to be done differently
 			$datefields = ["name-date", "uri-date"];
 			foreach ($datefields as $field) {
+				// The date fields arrives as '2018-07-17T10:44:45Z' - the database return '2018-07-17 10:44:45'
+				// The fields have to be in the same format to be comparable, since strtotime does add timezones.
+				$contact[$field] = DateTimeFormat::utc($contact[$field]);
+
 				if (strtotime($contact[$field]) > strtotime($contact_old[$field])) {
 					logger("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", LOGGER_DEBUG);
 					$update = true;
@@ -2441,7 +2449,7 @@ class DFRN
 		}
 
 		// Fetch the owner
-		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", true);
+		$owner = self::fetchauthor($xpath, $entry, $importer, "dfrn:owner", true, $xml);
 
 		$owner_unknown = (isset($owner["contact-unknown"]) && $owner["contact-unknown"]);
 
@@ -2451,7 +2459,7 @@ class DFRN
 		$item["owner-id"] = Contact::getIdForURL($owner["link"], 0);
 
 		// fetch the author
-		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", true);
+		$author = self::fetchauthor($xpath, $entry, $importer, "atom:author", true, $xml);
 
 		$item["author-name"] = $author["name"];
 		$item["author-link"] = $author["link"];

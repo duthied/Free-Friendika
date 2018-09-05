@@ -35,24 +35,24 @@ Options
     -a                     All setup checks are required (except .htaccess)
     -f|--file <config>     prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
     -s|--savedb            Save the DB credentials to the file (if environment variables is used)
-    -h|--dbhost <host>     The host of the mysql database (env MYSQL_HOST)
-    -p|--dbport <port>     The port of the mysql database (env MYSQL_PORT)
-    -d|--dbdata <database> The name of the mysql database (env MYSQL_DATABASE)
-    -U|--dbuser <username> The username of the mysql database login (env MYSQL_USER or MYSQL_USERNAME)
-    -P|--dbpass <password> The password of the mysql database login (env MYSQL_PASSWORD)
+    -H|--dbhost <host>     The host of the mysql/mariadb database (env MYSQL_HOST)
+    -p|--dbport <port>     The port of the mysql/mariadb database (env MYSQL_PORT)
+    -d|--dbdata <database> The name of the mysql/mariadb database (env MYSQL_DATABASE)
+    -U|--dbuser <username> The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -P|--dbpass <password> The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
     -b|--phppath <path>    The path of the PHP binary (env FRIENDICA_PHP_PATH) 
     -A|--admin <mail>      The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
     -T|--tz <timezone>     The timezone of Friendica (env FRIENDICA_TZ)
     -L|--lang <language>   The language of Friendica (env FRIENDICA_LANG)
  
 Environment variables
-   MYSQL_HOST                  The host of the mysql database (mandatory if mysql and environment is used)
-   MYSQL_PORT                  The port of the mysql database
-   MYSQL_USERNAME|MYSQL_USER   The username of the mysql database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
-   MYSQL_PASSWORD              The password of the mysql database login
-   MYSQL_DATABASE              The name of the mysql database
+   MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
+   MYSQL_PORT                  The port of the mysql/mariadb database
+   MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
+   MYSQL_PASSWORD              The password of the mysql/mariadb database login
+   MYSQL_DATABASE              The name of the mysql/mariadb database
    FRIENDICA_PHP_PATH          The path of the PHP binary
-   FRIENDICA_ADMIN_MAIL        The admin email address of Friendica
+   FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
    FRIENDICA_TZ                The timezone of Friendica
    FRIENDICA_LANG              The langauge of Friendica
    
@@ -64,8 +64,7 @@ Examples
 		Installs Friendica with environment variables and saves them to the 'config/local.ini.php' file
 
 	bin/console autoinstall -h localhost -p 3365 -U user -P passwort1234 -d friendica
-		Installs Friendica with a local mysql database with credentials 
-   
+		Installs Friendica with a local mysql database with credentials
 HELP;
 	}
 
@@ -74,20 +73,19 @@ HELP;
 		// Initialise the app
 		$this->out("Initializing setup...\n");
 
+		$a = BaseObject::getApp();
+
 		// if a config file is set,
 		$config_file = $this->getOption(['f', 'file']);
 
 		if (!empty($config_file)) {
-			if ($config_file != 'config/local.ini.php') {
+			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.ini.php') {
 				// Copy config file
 				$this->out("Copying config file...\n");
-				if (!copy($config_file, 'config/local.ini.php')) {
-					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to 'config/local.ini.php' manually.\n");
+				if (!copy($a->basepath . DIRECTORY_SEPARATOR . $config_file, $a->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '$a->basepath" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.ini.php' manually.\n");
 				}
 			}
-
-			// load the app after copying the file
-			$a = BaseObject::getApp();
 
 			$db_host = $a->getConfigValue('database', 'hostname');
 			$db_user = $a->getConfigValue('database', 'username');
@@ -97,12 +95,9 @@ HELP;
 			// Creating config file
 			$this->out("Creating config file...\n");
 
-			// load the app first (for the template engine)
-			$a = BaseObject::getApp();
-
 			$save_db = $this->getOption(['s', 'savedb'], false);
 
-			$db_host = $this->getOption(['h', 'dbhost'], ($save_db) ? getenv('MYSQL_HOST') : '');
+			$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? getenv('MYSQL_HOST') : '');
 			$db_port = $this->getOption(['p', 'dbport'], ($save_db) ? getenv('MYSQL_PORT') : null);
 			$db_data = $this->getOption(['d', 'dbdata'], ($save_db) ? getenv('MYSQL_DATABASE') : '');
 			$db_user = $this->getOption(['U', 'dbuser'], ($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : '');
@@ -112,12 +107,9 @@ HELP;
 			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
 			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
 
-			// creating config file
-			$this->out("Creating config file...\n");
-
 			Install::createConfig(
 				$php_path,
-				$db_host,
+				((!empty($db_port)) ? $db_host . ':' . $db_port : $db_host),
 				$db_user,
 				$db_pass,
 				$db_data,
