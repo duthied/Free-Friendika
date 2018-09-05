@@ -46,13 +46,15 @@ function unfollow_post()
 		// NOTREACHED
 	}
 
+	$dissolve = ($contact['rel'] == Contact::SHARING);
+
 	$owner = User::getOwnerDataById($uid);
 	if ($owner) {
-		Contact::terminateFriendship($owner, $contact);
+		Contact::terminateFriendship($owner, $contact, $dissolve);
 	}
 
 	// Sharing-only contacts get deleted as there no relationship any more
-	if ($contact['rel'] == Contact::SHARING) {
+	if ($dissolve) {
 		Contact::remove($contact['id']);
 		$return_path = 'contacts';
 	} else {
