@@ -333,7 +333,7 @@ class ParseUrl
 		}
 
 		// Prevent to have a photo type without an image
-		if (empty($siteinfo['image']) && (siteinfo['type'] == 'photo')) {
+		if (empty($siteinfo['image']) && ($siteinfo['type'] == 'photo')) {
 			$siteinfo['type'] = 'link';
 		}
 
