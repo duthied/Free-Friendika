@@ -1936,6 +1936,7 @@ class Item extends BaseObject
 		} else {
 			// This shouldn't happen.
 			logger('Could not insert activity for URI ' . $item['uri'] . ' - should not happen');
+			Lock::release('item_insert_activity');
 			return false;
 		}
 		if ($locked) {
