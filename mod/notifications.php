@@ -308,17 +308,14 @@ function notifications_content(App $a)
 				'$item_seen' => $it['seen'],
 			]);
 		}
-
-		$notif_show_lnk = [
-			'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
-			'text' => ($show ? L10n::t('Show unread') : L10n::t('Show all')),
-		];
-
-		// Output if there aren't any notifications available
-		if (count($notifs['notifications']) == 0) {
-			$notif_nocontent = L10n::t('No more %s notifications.', $notifs['ident']);
-		}
+	} else {
+		$notif_nocontent = L10n::t('No more %s notifications.', $notifs['ident']);
 	}
+
+	$notif_show_lnk = [
+		'href' => ($show ? 'notifications/'.$notifs['ident'] : 'notifications/'.$notifs['ident'].'?show=all' ),
+		'text' => ($show ? L10n::t('Show unread') : L10n::t('Show all')),
+	];
 
 	$o .= replace_macros($notif_tpl, [
 		'$notif_header' => $notif_header,
