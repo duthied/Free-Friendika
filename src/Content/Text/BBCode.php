@@ -572,17 +572,17 @@ class BBCode extends BaseObject
 					$return = sprintf('<div class="type-%s">', $data["type"]);
 				}
 
-				if (!empty($data["image"])) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
-				} elseif (!empty($data["preview"])) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
-				}
-
-				// Show a picture only when the BBCode is meant for posts to connector networks
-				if (($simplehtml != 0) && ($data["type"] == "photo") && !empty($data["url"]) && !empty($data["image"])) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
-				} elseif (!empty($data['title']) && !empty($data['url'])) {
-					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
+				if (!empty($data['title']) && !empty($data['url'])) {
+					if (!empty($data["image"]) && empty($data["text"]) && ($data["type"] == "photo")) {
+						$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
+					} else {
+						if (!empty($data["image"])) {
+							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
+						} elseif (!empty($data["preview"])) {
+							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
+						}
+						$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
+					}
 				}
 
 				if (!empty($data["description"]) && $data["description"] != $data["title"]) {

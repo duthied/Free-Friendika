@@ -271,11 +271,9 @@ class ParseUrl
 					$siteinfo['image'] = $meta_tag['content'];
 					break;
 				case 'twitter:card':
-					// Convert Twitter types in our own
+					// Detect photo pages
 					if ($meta_tag['content'] == 'summary_large_image') {
 						$siteinfo['type'] = 'photo';
-					} else {
-						$siteinfo['type'] = $meta_tag['content'];
 					}
 					break;
 				case 'twitter:description':
@@ -332,6 +330,11 @@ class ParseUrl
 						break;
 				}
 			}
+		}
+
+		// Prevent to have a photo type without an image
+		if (empty($siteinfo['image']) && (siteinfo['type'] == 'photo')) {
+			$siteinfo['type'] = 'link';
 		}
 
 		if ((@$siteinfo['image'] == '') && !$no_guessing) {
