@@ -271,9 +271,9 @@ class ParseUrl
 					$siteinfo['image'] = $meta_tag['content'];
 					break;
 				case 'twitter:card':
-					// Obsolete card type
-					if ($meta_tag['content'] == 'photo') {
-						$siteinfo['type'] = 'summary_large_image';
+					// Convert Twitter types in our own
+					if ($meta_tag['content'] == 'summary_large_image') {
+						$siteinfo['type'] = 'photo';
 					} else {
 						$siteinfo['type'] = $meta_tag['content'];
 					}
@@ -297,10 +297,6 @@ class ParseUrl
 					$keywords = explode(',', $meta_tag['content']);
 					break;
 			}
-		}
-
-		if ($siteinfo['type'] == 'summary' || $siteinfo['type'] == 'summary_large_image') {
-			$siteinfo['type'] = 'link';
 		}
 
 		if (isset($keywords)) {
