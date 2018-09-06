@@ -182,7 +182,7 @@ function dfrn_notify_post(App $a) {
 
 function dfrn_dispatch_public($postdata)
 {
-	$msg = Diaspora::decodeRaw([], $postdata);
+	$msg = Diaspora::decodeRaw([], $postdata, true);
 	if (!$msg) {
 		// We have to fail silently to be able to hand it over to the salmon parser
 		return false;
