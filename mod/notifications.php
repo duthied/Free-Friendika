@@ -274,9 +274,19 @@ function notifications_content(App $a)
 		// Loop trough ever notification This creates an array with the output html for each
 		// notification and apply the correct template according to the notificationtype (label).
 		foreach ($notifs['notifications'] as $notif) {
-			// We use the notification label to get the correct template file
-			$tpl_var_name = 'tpl_item_' . $notif['label'];
-			$tpl_notif = get_markup_template($$tpl_var_name);
+			$notification_templates = [
+				'like'        => 'notifications_likes_item.tpl',
+				'dislike'     => 'notifications_dislikes_item.tpl',
+				'attend'      => 'notifications_attend_item.tpl',
+				'attendno'    => 'notifications_attend_item.tpl',
+				'attendmaybe' => 'notifications_attend_item.tpl',
+				'friend'      => 'notifications_friends_item.tpl',
+				'comment'     => 'notifications_comments_item.tpl',
+				'post'        => 'notifications_posts_item.tpl',
+				'notify'      => 'notify.tpl',
+			];
+
+			$tpl_notif = get_markup_template($notification_templates[$notif['label']]);
 
 			$notif_content[] = replace_macros($tpl_notif, [
 				'$item_label' => $notif['label'],
