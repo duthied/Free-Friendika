@@ -372,13 +372,13 @@ class App
 		}
 
 		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
-			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php');
+			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', true);
 		}
 	}
 
 	/**
 	 * Tries to load the specified configuration file into the App->config array.
-	 * Overwrites previously set values.
+	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
 	 *
 	 * The config format is INI and the template for configuration files is the following:
 	 *
@@ -391,9 +391,10 @@ class App
 	 * // Keep this line
 	 *
 	 * @param type $filepath
+	 * @param bool $overwrite Force value overwrite if the config key already exists
 	 * @throws Exception
 	 */
-	public function loadConfigFile($filepath)
+	public function loadConfigFile($filepath, $overwrite = false)
 	{
 		if (!file_exists($filepath)) {
 			throw new Exception('Error parsing non-existent config file ' . $filepath);
@@ -409,7 +410,11 @@ class App
 
 		foreach ($config as $category => $values) {
 			foreach ($values as $key => $value) {
-				$this->setConfigValue($category, $key, $value);
+				if ($overwrite) {
+					$this->setConfigValue($category, $key, $value);
+				} else {
+					$this->setDefaultConfigValue($category, $key, $value);
+				}
 			}
 		}
 	}
@@ -427,7 +432,7 @@ class App
 
 		// Load the local addon config file to overwritten default addon config values
 		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php')) {
-			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php');
+			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php', true);
 		}
 	}
 
@@ -1242,6 +1247,20 @@ class App
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Sets a default value in the config cache. Ignores already existing keys.
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Default value to set
+	 */
+	private function setDefaultConfigValue($cat, $k, $v)
+	{
+		if (!isset($this->config[$cat][$k])) {
+			$this->setConfigValue($cat, $k, $v);
+		}
 	}
 
 	/**
