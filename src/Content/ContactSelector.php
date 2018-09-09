@@ -214,15 +214,45 @@ class ContactSelector
 	public static function maritalStatus($current = "")
 	{
 		$o = '';
-		$select = ['', L10n::t('Single'), L10n::t('Lonely'), L10n::t('Available'), L10n::t('Unavailable'), L10n::t('Has crush'), L10n::t('Infatuated'), L10n::t('Dating'), L10n::t('Unfaithful'), L10n::t('Sex Addict'), L10n::t('Friends'), L10n::t('Friends/Benefits'), L10n::t('Casual'), L10n::t('Engaged'), L10n::t('Married'), L10n::t('Imaginarily married'), L10n::t('Partners'), L10n::t('Cohabiting'), L10n::t('Common law'), L10n::t('Happy'), L10n::t('Not looking'), L10n::t('Swinger'), L10n::t('Betrayed'), L10n::t('Separated'), L10n::t('Unstable'), L10n::t('Divorced'), L10n::t('Imaginarily divorced'), L10n::t('Widowed'), L10n::t('Uncertain'), L10n::t('It\'s complicated'), L10n::t('Don\'t care'), L10n::t('Ask me')];
+		$select['Single'] = L10n::t('Single');
+		$select['Lonely'] = L10n::t('Lonely');
+		$select['Available'] = L10n::t('Available');
+		$select['Unavailable'] = L10n::t('Unavailable');
+		$select['Has crush'] = L10n::t('Has crush');
+		$select['Infatuated'] = L10n::t('Infatuated');
+		$select['Dating'] = L10n::t('Dating');
+		$select['Unfaithful'] = L10n::t('Unfaithful');
+		$select['Sex Addict'] = L10n::t('Sex Addict');
+		$select['Friends'] = L10n::t('Friends');
+		$select['Friends/Benefits'] = L10n::t('Friends/Benefits');
+		$select['Casual'] = L10n::t('Casual');
+		$select['Engaged'] = L10n::t('Engaged');
+		$select['Married'] = L10n::t('Married');
+		$select['Imaginarily married'] = L10n::t('Imaginarily married');
+		$select['Partners'] = L10n::t('Partners');
+		$select['Cohabiting'] = L10n::t('Cohabiting');
+		$select['Common law'] = L10n::t('Common law');
+		$select['Happy'] = L10n::t('Happy');
+		$select['Not looking'] = L10n::t('Not looking');
+		$select['Swinger'] = L10n::t('Swinger');
+		$select['Betrayed'] = L10n::t('Betrayed');
+		$select['Separated'] = L10n::t('Separated');
+		$select['Unstable'] = L10n::t('Unstable');
+		$select['Divorced'] = L10n::t('Divorced');
+		$select['Imaginarily divorced'] = L10n::t('Imaginarily divorced');
+		$select['Widowed'] = L10n::t('Widowed');
+		$select['Uncertain'] = L10n::t('Uncertain');
+		$select['It\'s complicated'] = L10n::t('It\'s complicated');
+		$select['Don\'t care'] = L10n::t('Don\'t care');
+		$select['Ask me'] = L10n::t('Ask me');
 
 		Addon::callHooks('marital_selector', $select);
 
 		$o .= '<select name="marital" id="marital-select" size="1" >';
-		foreach ($select as $selection) {
+		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
 				$selected = (($selection == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$selection\" $selected >$selection</option>";
+				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
 		$o .= '</select>';
