@@ -181,16 +181,27 @@ class ContactSelector
 	public static function sexualPreference($current = "", $suffix = "")
 	{
 		$o = '';
-		$select = ['', L10n::t('Males'), L10n::t('Females'), L10n::t('Gay'), L10n::t('Lesbian'), L10n::t('No Preference'), L10n::t('Bisexual'), L10n::t('Autosexual'), L10n::t('Abstinent'), L10n::t('Virgin'), L10n::t('Deviant'), L10n::t('Fetish'), L10n::t('Oodles'), L10n::t('Nonsexual')];
-
+		$select['Males'] = L10n::t('Males');
+		$select['Females'] = L10n::t('Females');
+		$select['Gay'] = L10n::t('Gay');
+		$select['Lesbian'] = L10n::t('Lesbian');
+		$select['No Preference'] = L10n::t('No Preference');
+		$select['Bisexual'] = L10n::t('Bisexual');
+		$select['Autosexual'] = L10n::t('Autosexual');
+		$select['Abstinent'] = L10n::t('Abstinent');
+		$select['Virgin'] = L10n::t('Virgin');
+		$select['Deviant'] = L10n::t('Deviant');
+		$select['Fetish'] = L10n::t('Fetish');
+		$select['Oodles'] = L10n::t('Oodles');
+		$select['Nonsexual'] = L10n::t('Nonsexual');
 
 		Addon::callHooks('sexpref_selector', $select);
 
 		$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
-		foreach ($select as $selection) {
+		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
 				$selected = (($selection == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$selection\" $selected >$selection</option>";
+				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
 		$o .= '</select>';
