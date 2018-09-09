@@ -760,7 +760,7 @@ class Profile
 			}
 
 			if ($a->profile['gender']) {
-				$profile['gender'] = [L10n::t('Gender:'), $a->profile['gender']];
+				$profile['gender'] = [L10n::t('Gender:'), L10n::t($a->profile['gender'])];
 			}
 
 			if (!empty($a->profile['dob']) && $a->profile['dob'] > DBA::NULL_DATE) {
@@ -784,7 +784,7 @@ class Profile
 			}
 
 			if ($a->profile['marital']) {
-				$profile['marital'] = [L10n::t('Status:'), $a->profile['marital']];
+				$profile['marital'] = [L10n::t('Status:'), L10n::t($a->profile['marital'])];
 			}
 
 			/// @TODO Maybe use x() here, plus below?
@@ -797,7 +797,7 @@ class Profile
 			}
 
 			if ($a->profile['sexual']) {
-				$profile['sexual'] = [L10n::t('Sexual Preference:'), $a->profile['sexual']];
+				$profile['sexual'] = [L10n::t('Sexual Preference:'), L10n::t($a->profile['sexual'])];
 			}
 
 			if ($a->profile['homepage']) {
