@@ -145,15 +145,29 @@ class ContactSelector
 	public static function gender($current = "", $suffix = "")
 	{
 		$o = '';
-		$select = ['', L10n::t('Male'), L10n::t('Female'), L10n::t('Currently Male'), L10n::t('Currently Female'), L10n::t('Mostly Male'), L10n::t('Mostly Female'), L10n::t('Transgender'), L10n::t('Intersex'), L10n::t('Transsexual'), L10n::t('Hermaphrodite'), L10n::t('Neuter'), L10n::t('Non-specific'), L10n::t('Other'), L10n::t('Undecided')];
+		$select[''] = '';
+		$select['Male'] = L10n::t('Male');
+		$select['Female'] = L10n::t('Female');
+		$select['Currently Male'] = L10n::t('Currently Male');
+		$select['Currently Female'] = L10n::t('Currently Female');
+		$select['Mostly Male'] = L10n::t('Mostly Male');
+		$select['Mostly Female'] = L10n::t('Mostly Female');
+		$select['Transgender'] = L10n::t('Transgender');
+		$select['Intersex'] = L10n::t('Intersex');
+		$select['Transsexual'] = L10n::t('Transsexual');
+		$select['Hermaphrodite'] = L10n::t('Hermaphrodite');
+		$select['Neuter'] = L10n::t('Neuter');
+		$select['Non-specific'] = L10n::t('Non-specific');
+		$select['Other'] = L10n::t('Other');
+		$select['Undecided'] = L10n::t('Undecided');
 
 		Addon::callHooks('gender_selector', $select);
 
 		$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
-		foreach ($select as $selection) {
+		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
 				$selected = (($selection == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$selection\" $selected >$selection</option>";
+				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
 		$o .= '</select>';
