@@ -17,6 +17,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\ActivityPub;
 
 function display_init(App $a)
 {
@@ -43,7 +44,7 @@ function display_init(App $a)
 
 	$item = null;
 
-	$fields = ['id', 'parent', 'author-id', 'body', 'uid'];
+	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid'];
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
@@ -76,6 +77,14 @@ function display_init(App $a)
 		displayShowFeed($item["id"], false);
 	}
 
+	if (stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json')) {
+		$wall_item = Item::selectFirst(['id', 'uid'], ['guid' => $item['guid'], 'wall' => true]);
+		if ($wall_item['uid'] == 180) {
+			$data = ActivityPub::createActivityFromItem($wall_item['id']);
+			echo json_encode($data);
+			exit();
+		}
+	}
 	if ($item["id"] != $item["parent"]) {
 		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item["parent"]]);
 	}

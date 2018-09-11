@@ -92,6 +92,10 @@ function xrd_json($a, $uri, $alias, $profile_url, $r)
 			['rel' => 'http://purl.org/openwebauth/v1', 'type' => 'application/x-dfrn+json', 'href' => System::baseUrl().'/owa']
 		]
 	];
+	if ($r['uid'] == 180) {
+		$json['links'][] = ['rel' => 'self', 'type' => 'application/activity+json', 'href' => $profile_url];
+	}
+
 	echo json_encode($json);
 	killme();
 }

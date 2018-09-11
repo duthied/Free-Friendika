@@ -20,6 +20,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Protocol\ActivityPub;
 
 function profile_init(App $a)
 {
@@ -47,6 +48,15 @@ function profile_init(App $a)
 		$profile = htmlspecialchars($a->argv[1]);
 	} else {
 		DFRN::autoRedir($a, $which);
+	}
+
+	if (stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json')) {
+		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $which]);
+		if ($user['uid'] == 180) {
+			$data = ActivityPub::profile($user['uid']);
+			echo json_encode($data);
+			exit();
+		}
 	}
 
 	Profile::load($a, $which, $profile);
