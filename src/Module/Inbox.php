@@ -5,10 +5,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Util\HTTPSignature;
-use Friendica\Util\Network;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 
 /**
@@ -26,7 +23,13 @@ class Inbox extends BaseModule
 			System::httpExit(400);
 		}
 
-		$tempfile = tempnam(get_temppath(), 'activitypub');
+		if (ActivityPub::verifySignature($postdata, $_SERVER)) {
+			$filename = 'signed-activitypub';
+		} else {
+			$filename = 'failed-activitypub';
+		}
+
+		$tempfile = tempnam(get_temppath(), filename);
 		file_put_contents($tempfile, json_encode(['header' => $_SERVER, 'body' => $postdata]));
 
 		System::httpExit(200);

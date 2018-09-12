@@ -53,16 +53,11 @@ class ActivityPub
 
 		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",headers="(request-target) host date",signature="' . $signature . '"';
 		$headers[] = 'Content-Type: application/activity+json';
-//print_r($headers);
-//die($signed_data);
-//$headers = [];
-//		$headers = HTTPSignature::createSig('', $headers, $owner['uprvkey'], $owner['url'] . '#main-key', false, false, 'sha256');
 
 		Network::post($target, $content, $headers);
 		$return_code = BaseObject::getApp()->get_curl_code();
-echo $return_code."\n";
-		print_r(BaseObject::getApp()->get_curl_headers());
-		print_r($headers);
+
+		echo $return_code."\n";
 	}
 
 	/**
@@ -224,6 +219,154 @@ echo $return_code."\n";
 		}
 
 		return false;
+	}
+
+	public static function verifySignature($content, $http_headers)
+	{
+		$object = json_decode($content, true);
+
+		if (empty($object)) {
+			return false;
+		}
+
+		$actor = self::processElement($object, 'actor', 'id');
+
+		$headers = [];
+		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . $http_headers['REQUEST_URI'];
+
+		// First take every header
+		foreach ($http_headers as $k => $v) {
+			$field = str_replace('_', '-', strtolower($k));
+			$headers[$field] = $v;
+		}
+
+		// Now add every http header
+		foreach ($http_headers as $k => $v) {
+			if (strpos($k, 'HTTP_') === 0) {
+				$field = str_replace('_', '-', strtolower(substr($k, 5)));
+				$headers[$field] = $v;
+			}
+		}
+
+		$sig_block = ActivityPub::parseSigHeader($http_headers['HTTP_SIGNATURE']);
+
+		if (empty($sig_block) || empty($sig_block['headers']) || empty($sig_block['keyId'])) {
+			return false;
+		}
+
+		$signed_data = '';
+		foreach ($sig_block['headers'] as $h) {
+			if (array_key_exists($h, $headers)) {
+				$signed_data .= $h . ': ' . $headers[$h] . "\n";
+			}
+		}
+		$signed_data = rtrim($signed_data, "\n");
+
+		if (empty($signed_data)) {
+			return false;
+		}
+
+		$algorithm = null;
+
+		if ($sig_block['algorithm'] === 'rsa-sha256') {
+			$algorithm = 'sha256';
+		}
+
+		if ($sig_block['algorithm'] === 'rsa-sha512') {
+			$algorithm = 'sha512';
+		}
+
+		if (empty($algorithm)) {
+			return false;
+		}
+
+		$key = self::fetchKey($sig_block['keyId'], $actor);
+
+		if (empty($key)) {
+			return false;
+		}
+
+		if (!Crypto::rsaVerify($signed_data, $sig_block['signature'], $key, $algorithm)) {
+			return false;
+		}
+
+		// Check the digest if it was part of the signed data
+		if (in_array('digest', $sig_block['headers'])) {
+			$digest = explode('=', $headers['digest'], 2);
+			if ($digest[0] === 'SHA-256') {
+				$hashalg = 'sha256';
+			}
+			if ($digest[0] === 'SHA-512') {
+				$hashalg = 'sha512';
+			}
+
+			/// @todo addd all hashes from the rfc
+
+			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
+				return false;
+			}
+		}
+
+		// Check the content-length if it was part of the signed data
+		if (in_array('content-length', $sig_block['headers'])) {
+			if (strlen($content) != $headers['content-length']) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+	private static function fetchKey($id, $actor)
+	{
+		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
+
+		$profile = self::fetchProfile($url);
+		if (!empty($profile)) {
+			return $profile['pubkey'];
+		} elseif ($url != $actor) {
+			$profile = self::fetchProfile($actor);
+			if (!empty($profile)) {
+				return $profile['pubkey'];
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @brief
+	 *
+	 * @param string $header
+	 * @return array associate array with
+	 *   - \e string \b keyID
+	 *   - \e string \b algorithm
+	 *   - \e array  \b headers
+	 *   - \e string \b signature
+	 */
+	private static function parseSigHeader($header)
+	{
+		$ret = [];
+		$matches = [];
+
+		if (preg_match('/keyId="(.*?)"/ism',$header,$matches)) {
+			$ret['keyId'] = $matches[1];
+		}
+
+		if (preg_match('/algorithm="(.*?)"/ism',$header,$matches)) {
+			$ret['algorithm'] = $matches[1];
+		}
+
+		if (preg_match('/headers="(.*?)"/ism',$header,$matches)) {
+			$ret['headers'] = explode(' ', $matches[1]);
+		}
+
+		if (preg_match('/signature="(.*?)"/ism',$header,$matches)) {
+			$ret['signature'] = base64_decode(preg_replace('/\s+/','',$matches[1]));
+		}
+
+		return $ret;
 	}
 
 	/**
