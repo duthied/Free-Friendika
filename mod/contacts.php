@@ -47,6 +47,11 @@ function contacts_init(App $a)
 		if (!DBA::isResult($contact)) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => 0]);
 		}
+
+		// Don't display contacts that are about to be deleted
+		if (($contact['network'] == Protocol::PHANTOM)) {
+			$contact = false;
+		}
 	}
 
 	if (DBA::isResult($contact)) {
@@ -718,6 +723,8 @@ function contacts_content(App $a, $update = 0)
 	} else {
 		$sql_extra = " AND `blocked` = 0 ";
 	}
+
+	$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
 
 	$search = x($_GET, 'search') ? notags(trim($_GET['search'])) : '';
 	$nets   = x($_GET, 'nets'  ) ? notags(trim($_GET['nets']))   : '';

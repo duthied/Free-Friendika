@@ -1280,10 +1280,7 @@ class DFRN
 			}
 		}
 
-		if (($contact['duplex'] && strlen($contact['pubkey']))
-			|| ($owner['page-flags'] == Contact::PAGE_COMMUNITY && strlen($contact['pubkey']))
-			|| ($contact['rel'] == Contact::SHARING && strlen($contact['pubkey']))
-		) {
+		if (empty($contact['prvkey']) && !empty($contact['pubkey'])) {
 			openssl_public_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['pubkey']);
 			openssl_public_decrypt($challenge, $postvars['challenge'], $contact['pubkey']);
 		} else {
