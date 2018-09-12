@@ -326,7 +326,7 @@ function dfrn_notify_content(App $a) {
 		$pub_key = trim($importer['cpubkey']);
 		$dplx    = intval($importer['duplex']);
 
-		if (!empty($prv_key) && empty($pub_key)) {
+		if (($dplx && strlen($prv_key)) || (strlen($prv_key) && !strlen($pub_key))) {
 			openssl_private_encrypt($hash, $challenge, $prv_key);
 			openssl_private_encrypt($id_str, $encrypted_id, $prv_key);
 		} elseif (strlen($pub_key)) {
