@@ -49,7 +49,7 @@ function contacts_init(App $a)
 		}
 
 		// Don't display contacts that are about to be deleted
-		if (($contact['network'] == Protocol::PHANTOM)) {
+		if ($contact['network'] == Protocol::PHANTOM) {
 			$contact = false;
 		}
 	}
