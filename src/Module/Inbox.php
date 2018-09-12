@@ -29,7 +29,7 @@ class Inbox extends BaseModule
 			$filename = 'failed-activitypub';
 		}
 
-		$tempfile = tempnam(get_temppath(), filename);
+		$tempfile = tempnam(get_temppath(), $filename);
 		file_put_contents($tempfile, json_encode(['header' => $_SERVER, 'body' => $postdata]));
 
 		System::httpExit(200);
