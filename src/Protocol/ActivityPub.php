@@ -25,6 +25,9 @@ use Friendica\Content\Text\BBCode;
  *
  * https://blog.joinmastodon.org/2018/06/how-to-implement-a-basic-activitypub-server/
  * https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
+ *
+ * Digest: https://tools.ietf.org/html/rfc5843
+ * https://tools.ietf.org/html/draft-cavage-http-signatures-10#ref-15
  */
 class ActivityPub
 {
