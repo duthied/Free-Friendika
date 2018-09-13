@@ -3633,8 +3633,6 @@ function api_friendships_destroy($type)
 {
         $a = get_app();
 
-        logger("OrigUser: ".$a->user['uid'], LOGGER_DEBUG);
-        logger("ContactUser: ".$_REQUEST['user_id'], LOGGER_DEBUG);
         if (api_user() === false) {
                 throw new ForbiddenException();
         }
@@ -3643,19 +3641,19 @@ function api_friendships_destroy($type)
         $contact_id = (x($_REQUEST, 'user_id') ? $_REQUEST['user_id'] : null);
 
         if ($contact_id == null) {
-		logger("No POST user_id", LOGGER_DEBUG);
+		logger("No given user_id", LOGGER_DEBUG);
                 throw new BadRequestException("no user_id specified");
         }
 
+	// Get Contact by given id
         $contact = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d AND `self` = 0", intval($contact_id), 0);
 
 	if(!DBA::isResult($contact)) {
-		logger("No contact by _id", LOGGER_DEBUG);
+		logger("No contact by id founded", LOGGER_DEBUG);
 		throw new BadRequestException("no contact found to given ID");
 	}
 
 	$url = $contact[0]["url"];
-        logger("Contact Url: ".$contact[0]["url"], LOGGER_DEBUG);
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 			$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
@@ -3663,7 +3661,7 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		logger("No contact founded", LOGGER_DEBUG);
+		logger("Not following Contact", LOGGER_DEBUG);
 		throw new BadRequestException("Not following Contact");
 	}
 
@@ -3687,35 +3685,6 @@ function api_friendships_destroy($type)
 		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
 	}
 
-	///////////////////
-	/*
-        $contact = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d AND `self` = 0", intval($contact_id), 0);
-
-	if(!DBA::isResult($contact)) {
-		throw new BadRequestException("no contact found to given ID");
-	}
-
-        logger("Contact Url: ".$contact[0]["url"], LOGGER_DEBUG);
-
-        $contact_uid = Contact::getIdForUrl($contact[0]["url"], $a->user["uid"]);
-        if ($contact_uid == 0) {
-                logger("No UserURL founded", LOGGER_DEBUG);
-                throw new BadRequestException("No contact id found");
-        }
-        logger("User found: ".$contact_uid, LOGGER_DEBUG);
-
-        $contact_user = q("SELECT * FROM `user` WHERE uid = $contact_uid");
-        if(!DBA::isResult($contact_user)) {
-                logger("No Contact to ContactId founded", LOGGER_DEBUG);
-                throw new BadRequestException("No Profile found");
-        }
-        logger("Contact founded!", LOGGER_DEBUG);
-
-        logger("Founded User: ".$contact_user[0][nick]." + ".$contact[0]["id"]);
-
-        Contact::terminateFriendship($a->user, $contact_user[0]);
-        Contact::remove($contact_user[0]['uid']);
-	*/
 
         $answer = ['result' => 'ok', 'contact' => 'contact deleted'];
         return api_format_data("friendships-destroy", $type, ['result' => $answer]);
