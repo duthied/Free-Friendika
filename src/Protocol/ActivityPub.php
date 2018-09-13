@@ -15,6 +15,7 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Crypto;
 use Friendica\Content\Text\BBCode;
+use Friendica\Network\Probe;
 
 /**
  * @brief ActivityPub Protocol class
@@ -322,11 +323,11 @@ class ActivityPub
 	{
 		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
 
-		$profile = self::fetchProfile($url);
+		$profile = Probe::uri($url, Protocol::ACTIVITYPUB);
 		if (!empty($profile)) {
 			return $profile['pubkey'];
 		} elseif ($url != $actor) {
-			$profile = self::fetchProfile($actor);
+			$profile = Probe::uri($actor, Protocol::ACTIVITYPUB);
 			if (!empty($profile)) {
 				return $profile['pubkey'];
 			}
@@ -395,19 +396,21 @@ class ActivityPub
 		$profile['name'] = defaults($data, 'name', $profile['nick']);
 		$profile['guid'] = defaults($data, 'uuid', null);
 		$profile['url'] = $data['id'];
-		$profile['alias'] = self::processElement($data, 'url', 'href');
 
 		$parts = parse_url($profile['url']);
 		unset($parts['scheme']);
 		unset($parts['path']);
 		$profile['addr'] = $profile['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
-
+		$profile['alias'] = self::processElement($data, 'url', 'href');
 		$profile['photo'] = self::processElement($data, 'icon', 'url');
+		// $profile['community']
+		// $profile['keywords']
+		// $profile['location']
 		$profile['about'] = defaults($data, 'summary', '');
 		$profile['batch'] = self::processElement($data, 'endpoints', 'sharedInbox');
-		$profile['pubkey'] = self::processElement($data, 'publicKey', 'publicKeyPem');
 		$profile['notify'] = $data['inbox'];
 		$profile['poll'] = $data['outbox'];
+		$profile['pubkey'] = self::processElement($data, 'publicKey', 'publicKeyPem');
 
 		// Check if the address is resolvable
 		if (self::addrToUrl($profile['addr']) == $profile['url']) {
