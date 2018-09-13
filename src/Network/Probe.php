@@ -333,7 +333,7 @@ class Probe
 			$data = self::detect($uri, $network, $uid);
 		}
 
-		if (empty($data) || ($data['network'] == Protocol::PHANTOM)) {
+		if (in_array(defaults($data, 'network', ''), ['', Protocol::PHANTOM])) {
 			$ap_profile = ActivityPub::fetchProfile($uri);
 			if (!empty($ap_profile) && ($ap_profile['network'] == Protocol::ACTIVITYPUB)) {
 				$data = $ap_profile;
