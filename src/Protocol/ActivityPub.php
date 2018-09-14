@@ -37,13 +37,15 @@ class ActivityPub
 {
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
 
-	public static function transmit($content, $target, $uid)
+	public static function transmit($data, $target, $uid)
 	{
 		$owner = User::getOwnerDataById($uid);
 
 		if (!$owner) {
 			return;
 		}
+
+		$content = json_encode($data);
 
 		$host = parse_url($target, PHP_URL_HOST);
 		$path = parse_url($target, PHP_URL_PATH);
@@ -138,8 +140,6 @@ class ActivityPub
 		$data['actor'] = $item['author-link'];
 		$data['to'] = 'https://www.w3.org/ns/activitystreams#Public';
 		$data['object'] = self::createNote($item);
-//		print_r($data);
-//		print_r($item);
 		return $data;
 	}
 
@@ -150,23 +150,36 @@ class ActivityPub
 		$data['id'] = $item['plink'];
 		//$data['context'] = $data['conversation'] = $item['parent-uri'];
 		$data['actor'] = $item['author-link'];
-//		if (!$item['private']) {
-//			$data['to'] = [];
-//			$data['to'][] = '"https://pleroma.soykaf.com/users/heluecht"';
-			$data['to'] = 'https://www.w3.org/ns/activitystreams#Public';
-//			$data['cc'] = 'https://pleroma.soykaf.com/users/heluecht';
-//		}
+		$data['to'] = [];
+		if (!$item['private']) {
+			$data['to'][] = '"https://pleroma.soykaf.com/users/heluecht"';
+		}
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
 		$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
 		$data['attributedTo'] = $item['author-link'];
 		$data['name'] = BBCode::convert($item['title'], false, 7);
 		$data['content'] = BBCode::convert($item['body'], false, 7);
-		//$data['summary'] = '';
-		//$data['sensitive'] = false;
-		//$data['emoji'] = [];
-		//$data['tag'] = [];
-		//$data['attachment'] = [];
+		//$data['summary'] = ''; // Ignore by now
+		//$data['sensitive'] = false; // - Query NSFW
+		//$data['emoji'] = []; // Ignore by now
+		//$data['tag'] = []; /// @ToDo
+		//$data['attachment'] = []; // @ToDo
 		return $data;
+	}
+
+	public static function transmitActivity($activity, $target, $uid)
+	{
+		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+
+		$owner = User::getOwnerDataById($uid);
+
+		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+			'id' => 'https://pirati.ca/' . strtolower($activity) . '/' . System::createGUID(),
+			'type' => $activity,
+			'actor' => $owner['url'],
+			'object' => $profile['url']];
+
+		return self::transmit($data,  $profile['notify'], $uid);
 	}
 
 	/**
@@ -304,7 +317,7 @@ class ActivityPub
 				$hashalg = 'sha512';
 			}
 
-			/// @todo addd all hashes from the rfc
+			/// @todo add all hashes from the rfc
 
 			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
 				return false;
@@ -435,19 +448,7 @@ class ActivityPub
 			}
 		}
 
-		// Handled
-		unset($data['id']);
-		unset($data['inbox']);
-		unset($data['outbox']);
-		unset($data['preferredUsername']);
-		unset($data['name']);
-		unset($data['summary']);
-		unset($data['url']);
-		unset($data['publicKey']);
-		unset($data['endpoints']);
-		unset($data['icon']);
-		unset($data['uuid']);
-
+/*
 		// To-Do
 		unset($data['type']);
 		unset($data['manuallyApprovesFollowers']);
@@ -468,11 +469,6 @@ class ActivityPub
 		unset($data['isCat']); // Misskey
 		unset($data['kroeg:blocks']); // Kroeg
 		unset($data['updated']); // Kroeg
-
-/*		if (!empty($data)) {
-			print_r($data);
-			die();
-		}
 */
 		return $profile;
 	}
@@ -559,6 +555,7 @@ class ActivityPub
 		}
 
 		// ----------------------------------
+/*
 		// unhandled
 		unset($activity['@context']);
 		unset($activity['id']);
@@ -569,40 +566,22 @@ class ActivityPub
 		unset($activity['context_id']);
 		unset($activity['statusnetConversationId']);
 
-		$structure = $activity;
-
 		// To-Do?
 		unset($activity['context']);
 		unset($activity['location']);
 		unset($activity['signature']);
-
-		// handled
-		unset($activity['to']);
-		unset($activity['cc']);
-		unset($activity['bto']);
-		unset($activity['bcc']);
-		unset($activity['type']);
-		unset($activity['actor']);
-		unset($activity['object']);
-		unset($activity['published']);
-		unset($activity['updated']);
-		unset($activity['instrument']);
-		unset($activity['inReplyTo']);
-
-/*
-		if (!empty($activity)) {
-			echo "Activity\n";
-			print_r($activity);
-			die($url."\n");
-		}
 */
-		$activity = $structure;
-		// ----------------------------------
 
-		$item = self::fetchObject($object_url, $activity['object']);
-		if (empty($item)) {
-			logger("Object data couldn't be processed", LOGGER_DEBUG);
-			return;
+		if (!in_array($activity['type'], ['Like', 'Dislike'])) {
+			$item = self::fetchObject($object_url, $activity['object']);
+			if (empty($item)) {
+				logger("Object data couldn't be processed", LOGGER_DEBUG);
+				return;
+			}
+		} else {
+			$item['object'] = $object_url;
+			$item['receiver'] = [];
+			$item['type'] = $activity['type'];
 		}
 
 		$item = self::addActivityFields($item, $activity);
@@ -616,11 +595,8 @@ class ActivityPub
 		switch ($activity['type']) {
 			case 'Create':
 			case 'Update':
-				self::createItem($item, $body);
-				break;
-
 			case 'Announce':
-				self::announceItem($item, $body);
+				self::createItem($item, $body);
 				break;
 
 			case 'Like':
@@ -633,10 +609,6 @@ class ActivityPub
 
 			default:
 				logger('Unknown activity: ' . $activity['type'], LOGGER_DEBUG);
-/*				echo "Unknown activity: ".$activity['type']."\n";
-				print_r($item);
-				die();
-*/
 				break;
 		}
 	}
@@ -689,14 +661,6 @@ class ActivityPub
 		if (!empty($activity['instrument'])) {
 			$item['service'] = self::processElement($activity, 'instrument', 'name', 'Service');
 		}
-/*
-		// Remove all "null" fields
-		foreach ($item as $field => $content) {
-			if (is_null($content)) {
-				unset($item[$field]);
-			}
-		}
-*/
 		return $item;
 	}
 
@@ -745,10 +709,6 @@ class ActivityPub
 
 			default:
 				logger('Unknown object type: ' . $data['type'], LOGGER_DEBUG);
-/*				echo "Unknown object type: ".$data['type']."\n";
-				print_r($data);
-				die($url."\n");
-*/
 				break;
 		}
 	}
@@ -792,30 +752,7 @@ class ActivityPub
 		$item['alternate-url'] = self::processElement($object, 'url', 'href');
 		$item['receiver'] = self::getReceivers($object);
 
-		// handled
-		unset($object['id']);
-		unset($object['inReplyTo']);
-		unset($object['published']);
-		unset($object['updated']);
-		unset($object['uuid']);
-		unset($object['attributedTo']);
-		unset($object['context']);
-		unset($object['conversation']);
-		unset($object['sensitive']);
-		unset($object['name']);
-		unset($object['title']);
-		unset($object['content']);
-		unset($object['summary']);
-		unset($object['location']);
-		unset($object['attachment']);
-		unset($object['tag']);
-		unset($object['instrument']);
-		unset($object['url']);
-		unset($object['to']);
-		unset($object['cc']);
-		unset($object['bto']);
-		unset($object['bcc']);
-
+/*
 		// To-Do
 		unset($object['source']);
 
@@ -829,10 +766,9 @@ class ActivityPub
 		unset($object['replies']);
 		unset($object['icon']);
 
-		/*
+		// Also missing:
 		audience, preview, endTime, startTime, generator, image
-		*/
-
+*/
 		return $item;
 	}
 
@@ -840,6 +776,7 @@ class ActivityPub
 	{
 		$item = [];
 
+/*
 		// To-Do?
 		unset($object['emoji']);
 		unset($object['atomUri']);
@@ -856,37 +793,21 @@ class ActivityPub
 		unset($object['shares']);
 		unset($object['quoteUrl']);
 		unset($object['statusnetConversationId']);
-
-//		if (empty($object))
-			return $item;
-/*
-		echo "Unknown Note\n";
-		print_r($object);
-		print_r($item);
-		die($url."\n");
 */
-		return [];
+		return $item;
 	}
 
 	private static function processArticle($object)
 	{
 		$item = [];
 
-//		if (empty($object))
-			return $item;
-/*
-		echo "Unknown Article\n";
-		print_r($object);
-		print_r($item);
-		die($url."\n");
-*/
-		return [];
+		return $item;
 	}
 
 	private static function processVideo($object)
 	{
 		$item = [];
-
+/*
 		// To-Do?
 		unset($object['category']);
 		unset($object['licence']);
@@ -903,16 +824,8 @@ class ActivityPub
 		unset($object['dislikes']);
 		unset($object['shares']);
 		unset($object['comments']);
-
-//		if (empty($object))
-			return $item;
-/*
-		echo "Unknown Video\n";
-		print_r($object);
-		print_r($item);
-		die($url."\n");
 */
-		return [];
+		return $item;
 	}
 
 	private static function processElement($array, $element, $key, $type = null)
@@ -950,37 +863,90 @@ class ActivityPub
 		return false;
 	}
 
+	private static function convertMentions($body)
+	{
+		$URLSearchString = "^\[\]";
+		$body = preg_replace("/\[url\=([$URLSearchString]*)\]([#@!])(.*?)\[\/url\]/ism", '$2[url=$1]$3[/url]', $body);
+
+		return $body;
+	}
+
+	private static function constructTagList($tags, $sensitive)
+	{
+		if (empty($tags)) {
+			return '';
+		}
+
+		$tag_text = '';
+		foreach ($tags as $tag) {
+			if (in_array($tag['type'], ['Mention', 'Hashtag'])) {
+				if (!empty($tag_text)) {
+					$tag_text .= ',';
+				}
+
+				$tag_text .= substr($tag['name'], 0, 1) . '[url=' . $tag['href'] . ']' . substr($tag['name'], 1) . '[/url]';
+			}
+		}
+
+		/// @todo add nsfw for $sensitive
+
+		return $tag_text;
+	}
+
+	private static function constructAttachList($attachments, $item)
+	{
+		if (empty($attachments)) {
+			return $item;
+		}
+
+		foreach ($attachments as $attach) {
+			$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
+			if ($filetype == 'image') {
+				$item['body'] .= "\n[img]".$attach['url'].'[/img]';
+			} else {
+				if (!empty($item["attach"])) {
+					$item["attach"] .= ',';
+				} else {
+					$item["attach"] = '';
+				}
+				if (!isset($attach['length'])) {
+					$attach['length'] = "0";
+				}
+				$item["attach"] .= '[attach]href="'.$attach['url'].'" length="'.$attach['length'].'" type="'.$attach['mediaType'].'" title="'.defaults($attach, 'name', '').'"[/attach]';
+			}
+		}
+
+		return $item;
+	}
+
 	private static function createItem($activity, $body)
 	{
-//		print_r($activity);
+		/// @todo What to do with $activity['context']?
 
 		$item = [];
 		$item['network'] = Protocol::ACTIVITYPUB;
-		$item['wall'] = 0;
-		$item['origin'] = 0;
-//		$item['private'] = 0;
-		$item['gravity'] = GRAVITY_COMMENT;
+		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
 		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
 		$item['uri'] = $activity['uri'];
 		$item['parent-uri'] = $activity['reply-to-uri'];
-		$item['verb'] = ACTIVITY_POST; // Todo
-		$item['object-type'] = ACTIVITY_OBJ_NOTE; // Todo
+		$item['verb'] = ACTIVITY_POST;
+		$item['object-type'] = ACTIVITY_OBJ_NOTE; /// Todo?
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
 		$item['guid'] = $activity['uuid'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$item['body'] = HTML::toBBCode($activity['content']);
+		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
 		$item['location'] = $activity['location'];
-//		$item['attach'] = $activity['attachments'];
-//		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
+		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
 		$item['app'] = $activity['service'];
-		$item['plink'] = $activity['alternate-url'];
+		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
+
+		$item = self::constructAttachList($activity['attachments'], $item);
 
 		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 		$item['source'] = $body;
-//		$item[''] = $activity['context'];
 		$item['conversation-uri'] = $activity['conversation'];
 
 		foreach ($activity['receiver'] as $receiver) {
@@ -996,19 +962,19 @@ class ActivityPub
 			if (!empty($item_id) && ($item['uid'] == 0)) {
 				Item::distribute($item_id);
 			}
-//print_r($item);
 		}
-//		$item[''] = $activity['receiver'];
 	}
 
-	private static function announceItem($item)
+	private static function activityItem($data)
 	{
-//		print_r($item);
-	}
-
-	private static function activityItem($item)
-	{
-	//	print_r($item);
+		logger('Activity "' . $data['type'] . '" for ' . $data['object']);
+		$items = Item::select(['id'], ['uri' => $data['object']]);
+		while ($item = Item::fetch($items)) {
+			logger('Activity ' . $data['type'] . ' for item ' . $item['id'], LOGGER_DEBUG);
+			Item::performLike($item['id'], strtolower($data['type']));
+		}
+		DBA::close($item);
+		logger('Activity done');
 	}
 
 }
