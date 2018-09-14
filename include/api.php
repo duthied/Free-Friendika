@@ -3629,6 +3629,15 @@ function api_direct_messages_destroy($type)
 /// @TODO move to top of file or somewhere better
 api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true, API_METHOD_DELETE);
 
+/**
+ * Unfollow Contact
+ *
+ * @brief unfollow contact 
+ *
+ * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ * @return string|array
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy.html
+ */
 function api_friendships_destroy($type)
 {
 	$a = api_user();
@@ -3651,7 +3660,7 @@ function api_friendships_destroy($type)
 
 	if(!DBA::isResult($contact)) {
 		logger("No contact found for ID" . $contact_id, LOGGER_DEBUG);
-		throw new NoFoundException("no contact found to given ID");
+		throw new NotFoundException("no contact found to given ID");
 	}
 
 	$url = $contact["url"];
@@ -3663,7 +3672,7 @@ function api_friendships_destroy($type)
 
 	if (!DBA::isResult($contact)) {
 		logger("Not following Contact", LOGGER_DEBUG);
-		throw new NoFoundException("Not following Contact");
+		throw new NotFoundException("Not following Contact");
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
@@ -3679,7 +3688,7 @@ function api_friendships_destroy($type)
 	}
 	else {
 		logger("No owner found", LOGGER_DEBUG);
-		throw new NoFoundException("Error Processing Request");
+		throw new NotFoundException("Error Processing Request");
 	}
 
 	// Sharing-only contacts get deleted as there no relationship any more
