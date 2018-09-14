@@ -161,16 +161,14 @@ class ParseUrl
 					$siteinfo['type'] = $oembed_data->type;
 				}
 
-				if (($oembed_data->type == 'link') && ($siteinfo['type'] != 'photo')) {
-					if (isset($oembed_data->title)) {
-						$siteinfo['title'] = trim($oembed_data->title);
-					}
-					if (isset($oembed_data->description)) {
-						$siteinfo['text'] = trim($oembed_data->description);
-					}
-					if (isset($oembed_data->thumbnail_url)) {
-						$siteinfo['image'] = $oembed_data->thumbnail_url;
-					}
+				if (isset($oembed_data->title)) {
+					$siteinfo['title'] = trim($oembed_data->title);
+				}
+				if (isset($oembed_data->description)) {
+					$siteinfo['text'] = trim($oembed_data->description);
+				}
+				if (isset($oembed_data->thumbnail_url)) {
+					$siteinfo['image'] = $oembed_data->thumbnail_url;
 				}
 			}
 		}
@@ -337,7 +335,7 @@ class ParseUrl
 			$siteinfo['type'] = 'link';
 		}
 
-		if ((@$siteinfo['image'] == '') && !$no_guessing) {
+		if (empty($siteinfo['image']) && !$no_guessing) {
 			$list = $xpath->query('//img[@src]');
 			foreach ($list as $node) {
 				$img_tag = [];
