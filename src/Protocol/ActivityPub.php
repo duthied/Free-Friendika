@@ -10,11 +10,14 @@ use Friendica\BaseObject;
 use Friendica\Util\Network;
 use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
+use Friendica\Model\Conversation;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Crypto;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Network\Probe;
 
 /**
@@ -474,6 +477,25 @@ class ActivityPub
 		return $profile;
 	}
 
+	public static function processInbox($body, $header)
+	{
+		logger('Incoming message', LOGGER_DEBUG);
+
+		if (!self::verifySignature($body, $header)) {
+			logger('Invalid signature, message will be discarded.', LOGGER_DEBUG);
+			return;
+		}
+
+		$activity = json_decode($body, true);
+
+		if (!is_array($activity)) {
+			logger('Invalid body.', LOGGER_DEBUG);
+			return;
+		}
+
+		self::processActivity($activity, $body);
+	}
+
 	public static function fetchOutbox($url)
 	{
 		$data = self::fetchContent($url);
@@ -493,26 +515,31 @@ class ActivityPub
 		}
 
 		foreach ($items as $activity) {
-			self::processActivity($activity, $url);
+			self::processActivity($activity);
 		}
 	}
 
-	function processActivity($activity, $url)
+	function processActivity($activity, $body = '')
 	{
 		if (empty($activity['type'])) {
+			logger('Empty type', LOGGER_DEBUG);
 			return;
 		}
 
 		if (empty($activity['object'])) {
+			logger('Empty object', LOGGER_DEBUG);
 			return;
 		}
 
 		if (empty($activity['actor'])) {
+			logger('Empty actor', LOGGER_DEBUG);
 			return;
+
 		}
 
 		$actor = self::processElement($activity, 'actor', 'id');
 		if (empty($actor)) {
+			logger('Empty actor - 2', LOGGER_DEBUG);
 			return;
 		}
 
@@ -521,11 +548,13 @@ class ActivityPub
 		} elseif (!empty($activity['object']['id'])) {
 			$object_url = $activity['object']['id'];
 		} else {
+			logger('No object found', LOGGER_DEBUG);
 			return;
 		}
 
 		$receivers = self::getReceivers($activity);
 		if (empty($receivers)) {
+			logger('No receivers found', LOGGER_DEBUG);
 			return;
 		}
 
@@ -545,6 +574,7 @@ class ActivityPub
 		// To-Do?
 		unset($activity['context']);
 		unset($activity['location']);
+		unset($activity['signature']);
 
 		// handled
 		unset($activity['to']);
@@ -559,17 +589,19 @@ class ActivityPub
 		unset($activity['instrument']);
 		unset($activity['inReplyTo']);
 
+/*
 		if (!empty($activity)) {
 			echo "Activity\n";
 			print_r($activity);
 			die($url."\n");
 		}
-
+*/
 		$activity = $structure;
 		// ----------------------------------
 
-		$item = self::fetchObject($object_url, $url);
+		$item = self::fetchObject($object_url, $activity['object']);
 		if (empty($item)) {
+			logger("Object data couldn't be processed", LOGGER_DEBUG);
 			return;
 		}
 
@@ -579,28 +611,32 @@ class ActivityPub
 
 		$item['receiver'] = array_merge($item['receiver'], $receivers);
 
+		logger('Processing activity: ' . $activity['type'], LOGGER_DEBUG);
+
 		switch ($activity['type']) {
 			case 'Create':
 			case 'Update':
-				self::createItem($item);
+				self::createItem($item, $body);
 				break;
 
 			case 'Announce':
-				self::announceItem($item);
+				self::announceItem($item, $body);
 				break;
 
 			case 'Like':
 			case 'Dislike':
-				self::activityItem($item);
+				self::activityItem($item, $body);
 				break;
 
 			case 'Follow':
 				break;
 
 			default:
-				echo "Unknown activity: ".$activity['type']."\n";
+				logger('Unknown activity: ' . $activity['type'], LOGGER_DEBUG);
+/*				echo "Unknown activity: ".$activity['type']."\n";
 				print_r($item);
 				die();
+*/
 				break;
 		}
 	}
@@ -626,11 +662,11 @@ class ActivityPub
 				}
 
 				$condition = ['self' => true, 'nurl' => normalise_link($receiver)];
-				$contact = DBA::selectFirst('contact', ['id'], $condition);
+				$contact = DBA::selectFirst('contact', ['uid'], $condition);
 				if (!DBA::isResult($contact)) {
 					continue;
 				}
-				$receivers[$receiver] = $contact['id'];
+				$receivers[$receiver] = $contact['uid'];
 			}
 		}
 		return $receivers;
@@ -653,67 +689,78 @@ class ActivityPub
 		if (!empty($activity['instrument'])) {
 			$item['service'] = self::processElement($activity, 'instrument', 'name', 'Service');
 		}
-
+/*
 		// Remove all "null" fields
 		foreach ($item as $field => $content) {
 			if (is_null($content)) {
 				unset($item[$field]);
 			}
 		}
-
+*/
 		return $item;
 	}
 
-	private static function fetchObject($object_url, $url)
+	private static function fetchObject($object_url, $object = [])
 	{
 		$data = self::fetchContent($object_url);
 		if (empty($data)) {
-			return false;
+			$data = $object;
+			if (empty($data)) {
+				logger('Empty content');
+				return false;
+			} else {
+				logger('Using provided object');
+			}
 		}
 
 		if (empty($data['type'])) {
+			logger('Empty type');
 			return false;
 		} else {
 			$type = $data['type'];
+			logger('Type ' . $type);
 		}
 
 		if (in_array($type, ['Note', 'Article', 'Video'])) {
-			$common = self::processCommonData($data, $url);
+			$common = self::processCommonData($data);
 		}
 
 		switch ($type) {
 			case 'Note':
-				return array_merge($common, self::processNote($data, $url));
+				return array_merge($common, self::processNote($data));
 			case 'Article':
-				return array_merge($common, self::processArticle($data, $url));
+				return array_merge($common, self::processArticle($data));
 			case 'Video':
-				return array_merge($common, self::processVideo($data, $url));
+				return array_merge($common, self::processVideo($data));
 
 			case 'Announce':
 				if (empty($data['object'])) {
 					return false;
 				}
-				return self::fetchObject($data['object'], $url);
+				return self::fetchObject($data['object']);
 
 			case 'Person':
 			case 'Tombstone':
 				break;
 
 			default:
-				echo "Unknown object type: ".$data['type']."\n";
+				logger('Unknown object type: ' . $data['type'], LOGGER_DEBUG);
+/*				echo "Unknown object type: ".$data['type']."\n";
 				print_r($data);
 				die($url."\n");
+*/
 				break;
 		}
 	}
 
-	private static function processCommonData(&$object, $url)
+	private static function processCommonData(&$object)
 	{
 		if (empty($object['id']) || empty($object['attributedTo'])) {
 			return false;
 		}
 
 		$item = [];
+		$item['type'] = $object['type'];
 		$item['uri'] = $object['id'];
 
 		if (!empty($object['inReplyTo'])) {
@@ -789,7 +836,7 @@ class ActivityPub
 		return $item;
 	}
 
-	private static function processNote($object, $url)
+	private static function processNote($object)
 	{
 		$item = [];
 
@@ -810,33 +857,33 @@ class ActivityPub
 		unset($object['quoteUrl']);
 		unset($object['statusnetConversationId']);
 
-		if (empty($object))
+//		if (empty($object))
 			return $item;
-
+/*
 		echo "Unknown Note\n";
 		print_r($object);
 		print_r($item);
 		die($url."\n");
-
+*/
 		return [];
 	}
 
-	private static function processArticle($object, $url)
+	private static function processArticle($object)
 	{
 		$item = [];
 
-		if (empty($object))
+//		if (empty($object))
 			return $item;
-
+/*
 		echo "Unknown Article\n";
 		print_r($object);
 		print_r($item);
 		die($url."\n");
-
+*/
 		return [];
 	}
 
-	private static function processVideo($object, $url)
+	private static function processVideo($object)
 	{
 		$item = [];
 
@@ -857,14 +904,14 @@ class ActivityPub
 		unset($object['shares']);
 		unset($object['comments']);
 
-		if (empty($object))
+//		if (empty($object))
 			return $item;
-
+/*
 		echo "Unknown Video\n";
 		print_r($object);
 		print_r($item);
 		die($url."\n");
-
+*/
 		return [];
 	}
 
@@ -903,9 +950,55 @@ class ActivityPub
 		return false;
 	}
 
-	private static function createItem($item)
+	private static function createItem($activity, $body)
 	{
-//		print_r($item);
+//		print_r($activity);
+
+		$item = [];
+		$item['network'] = Protocol::ACTIVITYPUB;
+		$item['wall'] = 0;
+		$item['origin'] = 0;
+//		$item['private'] = 0;
+		$item['gravity'] = GRAVITY_COMMENT;
+		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
+		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
+		$item['uri'] = $activity['uri'];
+		$item['parent-uri'] = $activity['reply-to-uri'];
+		$item['verb'] = ACTIVITY_POST; // Todo
+		$item['object-type'] = ACTIVITY_OBJ_NOTE; // Todo
+		$item['created'] = $activity['published'];
+		$item['edited'] = $activity['updated'];
+		$item['guid'] = $activity['uuid'];
+		$item['title'] = HTML::toBBCode($activity['name']);
+		$item['content-warning'] = HTML::toBBCode($activity['summary']);
+		$item['body'] = HTML::toBBCode($activity['content']);
+		$item['location'] = $activity['location'];
+//		$item['attach'] = $activity['attachments'];
+//		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
+		$item['app'] = $activity['service'];
+		$item['plink'] = $activity['alternate-url'];
+
+		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
+		$item['source'] = $body;
+//		$item[''] = $activity['context'];
+		$item['conversation-uri'] = $activity['conversation'];
+
+		foreach ($activity['receiver'] as $receiver) {
+			$item['uid'] = $receiver;
+			$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
+
+			if (($receiver != 0) && empty($item['contact-id'])) {
+				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, true);
+			}
+
+			$item_id = Item::insert($item);
+			logger('Storing for user ' . $item['uid'] . ': ' . $item_id);
+			if (!empty($item_id) && ($item['uid'] == 0)) {
+				Item::distribute($item_id);
+			}
+//print_r($item);
+		}
+//		$item[''] = $activity['receiver'];
 	}
 
 	private static function announceItem($item)

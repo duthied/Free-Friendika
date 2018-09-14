@@ -775,7 +775,7 @@ class Contact extends BaseObject
 		}
 
 		if ((empty($profile["addr"]) || empty($profile["name"])) && (defaults($profile, "gid", 0) != 0)
-			&& in_array($profile["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])
+			&& in_array($profile["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])
 		) {
 			Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
 		}
@@ -1088,7 +1088,7 @@ class Contact extends BaseObject
 		}
 
 		// Last try in gcontact for unsupported networks
-		if (!in_array($data["network"], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::PUMPIO, Protocol::MAIL, Protocol::FEED])) {
+		if (!in_array($data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::PUMPIO, Protocol::MAIL, Protocol::FEED])) {
 			if ($uid != 0) {
 				return 0;
 			}
@@ -1327,7 +1327,7 @@ class Contact extends BaseObject
 			return '';
 		}
 
-		if (in_array($r[0]["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (in_array($r[0]["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
 			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
 		} else {
 			$sql = "`item`.`uid` = ?";

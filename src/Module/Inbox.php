@@ -32,6 +32,10 @@ class Inbox extends BaseModule
 		$tempfile = tempnam(get_temppath(), $filename);
 		file_put_contents($tempfile, json_encode(['header' => $_SERVER, 'body' => $postdata]));
 
-		System::httpExit(200);
+		logger('Incoming message stored under ' . $tempfile);
+
+		ActivityPub::processInbox($postdata, $_SERVER);
+
+		System::httpExit(202);
 	}
 }

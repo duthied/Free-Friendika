@@ -363,9 +363,9 @@ class Notifier
 				}
 
 				// It only makes sense to distribute answers to OStatus messages to Friendica and OStatus - but not Diaspora
-				$networks = [Protocol::OSTATUS, Protocol::DFRN];
+				$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DFRN];
 			} else {
-				$networks = [Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA, Protocol::MAIL];
+				$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA, Protocol::MAIL];
 			}
 		} else {
 			$public_message = false;

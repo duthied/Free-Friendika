@@ -22,6 +22,7 @@ class Conversation
 	const PARCEL_DIASPORA           = 2;
 	const PARCEL_SALMON             = 3;
 	const PARCEL_FEED               = 4; // Deprecated
+	const PARCEL_ACTIVITYPUB        = 5;
 	const PARCEL_SPLIT_CONVERSATION = 6;
 	const PARCEL_TWITTER            = 67;
 
@@ -34,7 +35,7 @@ class Conversation
 	public static function insert(array $arr)
 	{
 		if (in_array(defaults($arr, 'network', Protocol::PHANTOM),
-				[Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::TWITTER]) && !empty($arr['uri'])) {
+			[Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::TWITTER]) && !empty($arr['uri'])) {
 			$conversation = ['item-uri' => $arr['uri'], 'received' => DateTimeFormat::utcNow()];
 
 			if (isset($arr['parent-uri']) && ($arr['parent-uri'] != $arr['uri'])) {
@@ -70,7 +71,8 @@ class Conversation
 					unset($old_conv['source']);
 				}
 				// Update structure data all the time but the source only when its from a better protocol.
-				if (isset($conversation['protocol']) && isset($conversation['source']) && ($old_conv['protocol'] < $conversation['protocol']) && ($old_conv['protocol'] != 0)) {
+				if (isset($conversation['protocol']) && isset($conversation['source']) && ($old_conv['protocol'] < $conversation['protocol'])
+					&& ($old_conv['protocol'] != 0) && ($old_conv['protocol'] != self::PARCEL_ACTIVITYPUB)) {
 					unset($conversation['protocol']);
 					unset($conversation['source']);
 				}

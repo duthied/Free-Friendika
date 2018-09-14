@@ -537,7 +537,7 @@ function contacts_content(App $a, $update = 0)
 			$relation_text = '';
 		}
 
-		if (!in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
+		if (!in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
 			$relation_text = "";
 		}
 
@@ -559,7 +559,7 @@ function contacts_content(App $a, $update = 0)
 		}
 		$lblsuggest = (($contact['network'] === Protocol::DFRN) ? L10n::t('Suggest friends') : '');
 
-		$poll_enabled = in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
+		$poll_enabled = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 
 		$nettype = L10n::t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact["url"]));
 
@@ -968,7 +968,7 @@ function contact_conversations(App $a, $contact_id, $update)
 		$profiledata = Contact::getDetailsByURL($contact["url"]);
 
 		if (local_user()) {
-			if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			if (in_array($profiledata["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
 				$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
 			}
 		}
@@ -992,7 +992,7 @@ function contact_posts(App $a, $contact_id)
 		$profiledata = Contact::getDetailsByURL($contact["url"]);
 
 		if (local_user()) {
-			if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			if (in_array($profiledata["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
 				$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
 			}
 		}
@@ -1073,7 +1073,7 @@ function _contact_detail_for_template(array $rr)
  */
 function contact_actions($contact)
 {
-	$poll_enabled = in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
+	$poll_enabled = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 	$contact_actions = [];
 
 	// Provide friend suggestion only for Friendica contacts

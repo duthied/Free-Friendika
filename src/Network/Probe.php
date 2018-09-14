@@ -331,6 +331,8 @@ class Probe
 
 		if ($network != Protocol::ACTIVITYPUB) {
 			$data = self::detect($uri, $network, $uid);
+		} else {
+			$data = null;
 		}
 
 		if (in_array(defaults($data, 'network', ''), ['', Protocol::PHANTOM])) {
