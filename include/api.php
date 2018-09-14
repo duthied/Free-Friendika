@@ -3679,7 +3679,7 @@ function api_friendships_destroy($type)
 	}
 	else {
 		logger("No owner found", LOGGER_DEBUG);
-		throw new Exception("Error Processing Request");
+		throw new NoFoundException("Error Processing Request");
 	}
 
 	// Sharing-only contacts get deleted as there no relationship any more
