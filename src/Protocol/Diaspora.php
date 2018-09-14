@@ -3496,7 +3496,7 @@ class Diaspora
 
 		$myaddr = self::myHandle($owner);
 
-		$public = (($item["private"]) ? "false" : "true");
+		$public = ($item["private"] ? "false" : "true");
 
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
