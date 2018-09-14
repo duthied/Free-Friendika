@@ -3631,29 +3631,30 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 
 function api_friendships_destroy($type)
 {
-        $a = get_app();
+	$a = api_user();
 
-        if (api_user() === false) {
-                throw new ForbiddenException();
-        }
-	$uid = local_user();
-
-        $contact_id = (x($_REQUEST, 'user_id') ? $_REQUEST['user_id'] : null);
-
-        if ($contact_id == null) {
-		logger("No given user_id", LOGGER_DEBUG);
-                throw new BadRequestException("no user_id specified");
-        }
-
-	// Get Contact by given id
-        $contact = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d AND `self` = 0", intval($contact_id), 0);
-
-	if(!DBA::isResult($contact)) {
-		logger("No contact by id founded", LOGGER_DEBUG);
-		throw new BadRequestException("no contact found to given ID");
+	if ($a === false) {
+		throw new ForbiddenException();
 	}
 
-	$url = $contact[0]["url"];
+	$uid = local_user();
+
+	$contact_id = defaults($_REQUEST, 'user_id');
+
+	if ($contact_id == null) {
+		logger("No user_id specified", LOGGER_DEBUG);
+		throw new BadRequestException("no user_id specified");
+	}
+
+	// Get Contact by given id
+	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
+
+	if(!DBA::isResult($contact)) {
+		logger("No contact found for ID" . $contact_id, LOGGER_DEBUG);
+		throw new NoFoundException("no contact found to given ID");
+	}
+
+	$url = $contact["url"];
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 			$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
@@ -3662,12 +3663,12 @@ function api_friendships_destroy($type)
 
 	if (!DBA::isResult($contact)) {
 		logger("Not following Contact", LOGGER_DEBUG);
-		throw new BadRequestException("Not following Contact");
+		throw new NoFoundException("Not following Contact");
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		logger("Not supported", LOGGER_DEBUG);
-		throw new BadRequestException("Not supported");
+		throw new ExpectationFailedException("Not supported");
 	}
 
 	$dissolve = ($contact['rel'] == Contact::SHARING);
@@ -3676,23 +3677,22 @@ function api_friendships_destroy($type)
 	if ($owner) {
 		Contact::terminateFriendship($owner, $contact, $dissolve);
 	}
+	else {
+		logger("No owner found", LOGGER_DEBUG);
+		throw new Exception("Error Processing Request");
+	}
 
 	// Sharing-only contacts get deleted as there no relationship any more
 	if ($dissolve) {
 		Contact::remove($contact['id']);
-		$return_path = 'contacts';
 	} else {
 		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
 	}
 
-
-        $answer = ['result' => 'ok', 'contact' => 'contact deleted'];
-        return api_format_data("friendships-destroy", $type, ['result' => $answer]);
+	$answer = ['result' => 'ok', 'user_id' => $contact_id, 'contact' => 'contact deleted'];
+	return api_format_data("friendships-destroy", $type, ['result' => $answer]);
 }
 api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, API_METHOD_POST);
-
-
-
 
 /**
  *
