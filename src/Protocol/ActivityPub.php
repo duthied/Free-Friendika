@@ -39,11 +39,11 @@ use Friendica\Network\Probe;
  * To-do:
  *
  * Receiver:
- * - Activities: Undo, Update
+ * - Activities: Dislike, Update, Delete
  * - Object Types: Person, Tombstome
  *
  * Transmitter:
- * - Activities: Like, Dislike, Update, Undo
+ * - Activities: Like, Dislike, Update, Delete
  * - Object Tyoes: Article, Announce, Person, Tombstone
  *
  * General:
@@ -204,7 +204,7 @@ class ActivityPub
 		$owner = User::getOwnerDataById($uid);
 
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
-			'id' => 'https://pirati.ca/activity/' . System::createGUID(),
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url']];
@@ -219,7 +219,7 @@ class ActivityPub
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
-			'id' => 'https://pirati.ca/activity/' . System::createGUID(),
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
 			'object' => ['id' => $id, 'type' => 'Follow',
@@ -235,12 +235,12 @@ class ActivityPub
 		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
 
 		if (empty($id)) {
-			$id = 'https://pirati.ca/activity/' . System::createGUID();
+			$id = System::baseUrl() . '/activity/' . System::createGUID();
 		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
-			'id' => 'https://pirati.ca/activity/' . System::createGUID(),
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Undo',
 			'actor' => $owner['url'],
 			'object' => ['id' => $id, 'type' => 'Follow',
