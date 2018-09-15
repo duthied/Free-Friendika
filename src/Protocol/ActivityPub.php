@@ -136,7 +136,7 @@ class ActivityPub
 			'toot' => 'http://joinmastodon.org/ns#']]];
 
 		$data['type'] = 'Create';
-		$data['id'] = $item['plink'];
+		$data['id'] = $item['uri'];
 		$data['actor'] = $item['author-link'];
 		$data['to'] = 'https://www.w3.org/ns/activitystreams#Public';
 		$data['object'] = self::createNote($item);
@@ -147,18 +147,31 @@ class ActivityPub
 	{
 		$data = [];
 		$data['type'] = 'Note';
-		$data['id'] = $item['plink'];
-		//$data['context'] = $data['conversation'] = $item['parent-uri'];
+		$data['id'] = $item['uri'];
+
+		if ($item['uri'] != $item['thr-parent']) {
+			$data['inReplyTo'] = $item['thr-parent'];
+		}
+
+		$conversation = DBA::selectFirst('conversation', ['conversation-uri'], ['item-uri' => $item['parent-uri']]);
+		if (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
+			$conversation_uri = $conversation['conversation-uri'];
+		} else {
+			$conversation_uri = $item['parent-uri'];
+		}
+
+		$data['context'] = $data['conversation'] = $conversation_uri;
 		$data['actor'] = $item['author-link'];
 		$data['to'] = [];
 		if (!$item['private']) {
-			$data['to'][] = '"https://pleroma.soykaf.com/users/heluecht"';
+			$data['to'][] = 'https://www.w3.org/ns/activitystreams#Public';
 		}
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
 		$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
 		$data['attributedTo'] = $item['author-link'];
 		$data['name'] = BBCode::convert($item['title'], false, 7);
 		$data['content'] = BBCode::convert($item['body'], false, 7);
+		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
 		//$data['summary'] = ''; // Ignore by now
 		//$data['sensitive'] = false; // - Query NSFW
 		//$data['emoji'] = []; // Ignore by now
@@ -548,12 +561,6 @@ class ActivityPub
 			return;
 		}
 
-		$receivers = self::getReceivers($activity);
-		if (empty($receivers)) {
-			logger('No receivers found', LOGGER_DEBUG);
-			return;
-		}
-
 		// ----------------------------------
 /*
 		// unhandled
@@ -573,12 +580,19 @@ class ActivityPub
 */
 
 		if (!in_array($activity['type'], ['Like', 'Dislike'])) {
+			$receivers = self::getReceivers($activity);
+			if (empty($receivers)) {
+				logger('No receivers found', LOGGER_DEBUG);
+				return;
+			}
+
 			$item = self::fetchObject($object_url, $activity['object']);
 			if (empty($item)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return;
 			}
 		} else {
+			$receivers = [];
 			$item['object'] = $object_url;
 			$item['receiver'] = [];
 			$item['type'] = $activity['type'];
@@ -659,7 +673,7 @@ class ActivityPub
 		}
 
 		if (!empty($activity['instrument'])) {
-			$item['service'] = self::processElement($activity, 'instrument', 'name', 'Service');
+			$item['service'] = self::processElement($activity, 'instrument', 'name', 'type', 'Service');
 		}
 		return $item;
 	}
@@ -670,19 +684,28 @@ class ActivityPub
 		if (empty($data)) {
 			$data = $object;
 			if (empty($data)) {
-				logger('Empty content');
+				logger('Empty content', LOGGER_DEBUG);
 				return false;
+			} elseif (is_string($data)) {
+				logger('No object array provided.', LOGGER_DEBUG);
+				$item = Item::selectFirst([], ['uri' => $data]);
+				if (!DBA::isResult($item)) {
+					logger('Object with url ' . $data . ' was not found locally.', LOGGER_DEBUG);
+					return false;
+				}
+				logger('Using already stored item', LOGGER_DEBUG);
+				$data = self::createNote($item);
 			} else {
-				logger('Using provided object');
+				logger('Using provided object', LOGGER_DEBUG);
 			}
 		}
 
 		if (empty($data['type'])) {
-			logger('Empty type');
+			logger('Empty type', LOGGER_DEBUG);
 			return false;
 		} else {
 			$type = $data['type'];
-			logger('Type ' . $type);
+			logger('Type ' . $type, LOGGER_DEBUG);
 		}
 
 		if (in_array($type, ['Note', 'Article', 'Video'])) {
@@ -745,10 +768,11 @@ class ActivityPub
 		$item['name'] = defaults($object, 'name', $item['name']);
 		$item['summary'] = defaults($object, 'summary', null);
 		$item['content'] = defaults($object, 'content', null);
-		$item['location'] = self::processElement($object, 'location', 'name', 'Place');
+		$item['source'] = defaults($object, 'source', null);
+		$item['location'] = self::processElement($object, 'location', 'name', 'type', 'Place');
 		$item['attachments'] = defaults($object, 'attachment', null);
 		$item['tags'] = defaults($object, 'tag', null);
-		$item['service'] = self::processElement($object, 'instrument', 'name', 'Service');
+		$item['service'] = self::processElement($object, 'instrument', 'name', 'type', 'Service');
 		$item['alternate-url'] = self::processElement($object, 'url', 'href');
 		$item['receiver'] = self::getReceivers($object);
 
@@ -828,7 +852,7 @@ class ActivityPub
 		return $item;
 	}
 
-	private static function processElement($array, $element, $key, $type = null)
+	private static function processElement($array, $element, $key, $type = null, $type_value = null)
 	{
 		if (empty($array)) {
 			return false;
@@ -842,7 +866,7 @@ class ActivityPub
 			return $array[$element];
 		}
 
-		if (is_null($type)) {
+		if (is_null($type_value)) {
 			if (!empty($array[$element][$key])) {
 				return $array[$element][$key];
 			}
@@ -854,7 +878,7 @@ class ActivityPub
 			return false;
 		}
 
-		if (!empty($array[$element][$key]) && !empty($array[$element]['type']) && ($array[$element]['type'] == $type)) {
+		if (!empty($array[$element][$key]) && !empty($array[$element][$type]) && ($array[$element][$type] == $type_value)) {
 			return $array[$element][$key];
 		}
 
@@ -945,6 +969,11 @@ class ActivityPub
 
 		$item = self::constructAttachList($activity['attachments'], $item);
 
+		$source = self::processElement($activity, 'source', 'content', 'mediaType', 'text/bbcode');
+		if (!empty($source)) {
+			$item['body'] = $source;
+		}
+
 		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 		$item['source'] = $body;
 		$item['conversation-uri'] = $activity['conversation'];
@@ -974,7 +1003,7 @@ class ActivityPub
 			Item::performLike($item['id'], strtolower($data['type']));
 		}
 		DBA::close($item);
-		logger('Activity done');
+		logger('Activity done', LOGGER_DEBUG);
 	}
 
 }
