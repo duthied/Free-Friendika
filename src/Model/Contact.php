@@ -557,7 +557,11 @@ class Contact extends BaseObject
 		} elseif ($contact['network'] == Protocol::DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
 		} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
-			ActivityPub::transmitContactUndo($contact['url'], '', $user['uid']);
+			ActivityPub::transmitContactUndo($contact['url'], $user['uid']);
+
+			if ($dissolve) {
+				ActivityPub::transmitContactReject($contact['url'], $contact['hub-verify'], $user['uid']);
+			}
 		}
 	}
 

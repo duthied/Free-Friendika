@@ -230,17 +230,32 @@ class ActivityPub
 		return self::transmit($data,  $profile['notify'], $uid);
 	}
 
-	public static function transmitContactUndo($target, $id, $uid)
+	public static function transmitContactReject($target, $id, $uid)
 	{
 		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
-
-		if (empty($id)) {
-			$id = System::baseUrl() . '/activity/' . System::createGUID();
-		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'type' => 'Reject',
+			'actor' => $owner['url'],
+			'object' => ['id' => $id, 'type' => 'Follow',
+				'actor' => $profile['url'],
+				'object' => $owner['url']]];
+
+		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		return self::transmit($data,  $profile['notify'], $uid);
+	}
+
+	public static function transmitContactUndo($target, $uid)
+	{
+		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+
+		$id = System::baseUrl() . '/activity/' . System::createGUID();
+
+		$owner = User::getOwnerDataById($uid);
+		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+			'id' => $id,
 			'type' => 'Undo',
 			'actor' => $owner['url'],
 			'object' => ['id' => $id, 'type' => 'Follow',
@@ -1150,8 +1165,14 @@ class ActivityPub
 		}
 
 		$fields = ['pending' => false];
-		$condition = ['id' => $cid, 'pending' => true];
-		DBA::update('comtact', $fields, $condition);
+
+		$contact = DBA::selectFirst('contact', ['rel'], ['id' => $cid]);
+		if ($contact['rel'] == Contact::FOLLOWER) {
+			$fields['rel'] = Contact::FRIEND;
+		}
+
+		$condition = ['id' => $cid];
+		DBA::update('contact', $fields, $condition);
 		logger('Accept contact request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
 	}
 

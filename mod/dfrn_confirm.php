@@ -356,7 +356,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$new_relation = $contact['rel'];
 			$writable = $contact['writable'];
 
-			if ($network === Protocol::DIASPORA) {
+			if (in_array($network, [Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 				if ($duplex) {
 					$new_relation = Contact::FRIEND;
 				} else {
@@ -392,6 +392,10 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		}
 
 		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact['id']);
+
+		if ($network == Protocol::ACTIVITYPUB && $duplex) {
+			ActivityPub::transmitActivity('Follow', $contact['url'], $uid);
+		}
 
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
