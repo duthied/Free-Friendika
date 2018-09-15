@@ -7,6 +7,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 
 /**
  * ActivityPub Inbox
@@ -30,11 +31,21 @@ class Inbox extends BaseModule
 		}
 
 		$tempfile = tempnam(get_temppath(), $filename);
-		file_put_contents($tempfile, json_encode(['header' => $_SERVER, 'body' => $postdata]));
+		file_put_contents($tempfile, json_encode(['argv' => $a->argv, 'header' => $_SERVER, 'body' => $postdata]));
 
 		logger('Incoming message stored under ' . $tempfile);
 
-		ActivityPub::processInbox($postdata, $_SERVER);
+		if (!empty($a->argv[1])) {
+			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
+			if (!DBA::isResult($user)) {
+				System::httpExit(404);
+			}
+			$uid = $user['uid'];
+		} else {
+			$uid = 0;
+		}
+
+		ActivityPub::processInbox($postdata, $_SERVER, $uid);
 
 		System::httpExit(202);
 	}

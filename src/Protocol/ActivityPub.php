@@ -32,6 +32,20 @@ use Friendica\Network\Probe;
  *
  * Digest: https://tools.ietf.org/html/rfc5843
  * https://tools.ietf.org/html/draft-cavage-http-signatures-10#ref-15
+ *
+ * To-do:
+ *
+ * Receiver:
+ * - Activities: Follow, Accept, Update
+ * - Object Types: Person, Tombstome
+ *
+ * Transmitter:
+ * - Activities: Like, Dislike, Follow, Accept, Update
+ * - Object Tyoes: Article, Announce, Person, Tombstone
+ *
+ * General:
+ * - Message distribution
+ * - Endpoints: Outbox, Object, Follower, Following
  */
 class ActivityPub
 {
@@ -187,7 +201,7 @@ class ActivityPub
 		$owner = User::getOwnerDataById($uid);
 
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
-			'id' => 'https://pirati.ca/' . strtolower($activity) . '/' . System::createGUID(),
+			'id' => 'https://pirati.ca/activity/' . System::createGUID(),
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url']];
@@ -486,9 +500,9 @@ class ActivityPub
 		return $profile;
 	}
 
-	public static function processInbox($body, $header)
+	public static function processInbox($body, $header, $uid)
 	{
-		logger('Incoming message', LOGGER_DEBUG);
+		logger('Incoming message for user ' . $uid, LOGGER_DEBUG);
 
 		if (!self::verifySignature($body, $header)) {
 			logger('Invalid signature, message will be discarded.', LOGGER_DEBUG);
@@ -502,7 +516,7 @@ class ActivityPub
 			return;
 		}
 
-		self::processActivity($activity, $body);
+		self::processActivity($activity, $body, $uid);
 	}
 
 	public static function fetchOutbox($url)
@@ -528,7 +542,7 @@ class ActivityPub
 		}
 	}
 
-	function processActivity($activity, $body = '')
+	function processActivity($activity, $body = '', $uid = null)
 	{
 		if (empty($activity['type'])) {
 			logger('Empty type', LOGGER_DEBUG);
@@ -578,21 +592,25 @@ class ActivityPub
 		unset($activity['location']);
 		unset($activity['signature']);
 */
+		// Fetch all receivers from to, cc, bto and bcc
+		$receivers = self::getReceivers($activity);
+
+		// When it is a delivery to a personal inbox we add that user to the receivers
+		if (!empty($uid)) {
+			$owner = User::getOwnerDataById($uid);
+			$additional = [$owner['url'] => $uid];
+			$receivers = array_merge($receivers, $additional);
+		}
+
+		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
 
 		if (!in_array($activity['type'], ['Like', 'Dislike'])) {
-			$receivers = self::getReceivers($activity);
-			if (empty($receivers)) {
-				logger('No receivers found', LOGGER_DEBUG);
-				return;
-			}
-
 			$item = self::fetchObject($object_url, $activity['object']);
 			if (empty($item)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return;
 			}
 		} else {
-			$receivers = [];
 			$item['object'] = $object_url;
 			$item['receiver'] = [];
 			$item['type'] = $activity['type'];
