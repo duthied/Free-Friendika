@@ -34,7 +34,7 @@ use Friendica\Network\Probe;
  * https://tools.ietf.org/html/draft-cavage-http-signatures-10#ref-15
  *
  * Part of the code for HTTP signing is taken from the Osada project.
- * 
+ * https://framagit.org/macgirvin/osada
  *
  * To-do:
  *
@@ -49,6 +49,7 @@ use Friendica\Network\Probe;
  * General:
  * - Message distribution
  * - Endpoints: Outbox, Object, Follower, Following
+ * - General cleanup
  */
 class ActivityPub
 {
@@ -676,6 +677,19 @@ class ActivityPub
 			} elseif (in_array($activity['type'], ['Undo'])) {
 				$item['object'] = self::processElement($activity, 'object', 'object', 'type', 'Follow');
 			} else {
+				$item['uri'] = $activity['id'];
+				$item['author'] = $activity['actor'];
+				$item['updated'] = $item['published'] = $activity['published'];
+				$item['uuid'] = '';
+				$item['name'] = $activity['type'];
+				$item['summary'] = '';
+				$item['content'] = '';
+				$item['location'] = '';
+				$item['tags'] = [];
+				$item['sensitive'] = false;
+				$item['service'] = '';
+				$item['attachments'] = [];
+				$item['conversation'] = '';
 				$item['object'] = $object_url;
 			}
 			$item['id'] = $activity['id'];
