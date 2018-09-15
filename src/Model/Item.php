@@ -2329,13 +2329,7 @@ class Item extends BaseObject
 			$guid = System::createGUID(32);
 		}
 
-		$hostname = self::getApp()->get_hostname();
-
-		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
-
-		$uri = "urn:X-dfrn:" . $hostname . ':' . $user['nickname'] . ':' . $guid;
-
-		return $uri;
+		return self::getApp()->get_baseurl() . '/object/' . $guid;
 	}
 
 	/**
