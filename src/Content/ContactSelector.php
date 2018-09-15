@@ -107,6 +107,10 @@ class ContactSelector
 
 			if (DBA::isResult($r)) {
 				$networkname = $r['platform'];
+
+				if ($s == Protocol::ACTIVITYPUB) {
+					$networkname .= ' (AP)';
+				}
 			}
 		}
 
