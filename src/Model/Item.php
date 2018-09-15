@@ -2071,6 +2071,47 @@ class Item extends BaseObject
 
 		$users = [];
 
+		$owner = DBA::selectFirst('contact', ['url', 'nurl', 'alias'], ['id' => $parent['owner-id']]);
+		if (!DBA::isResult($owner)) {
+			return;
+		}
+
+		$condition = ['nurl' => $owner['nurl'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+		$contacts = DBA::select('contact', ['uid'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			if ($contact['uid'] == 0) {
+				continue;
+			}
+
+			$users[$contact['uid']] = $contact['uid'];
+		}
+		DBA::close($contacts);
+
+		$condition = ['alias' => $owner['url'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+		$contacts = DBA::select('contact', ['uid'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			if ($contact['uid'] == 0) {
+				continue;
+			}
+
+			$users[$contact['uid']] = $contact['uid'];
+		}
+		DBA::close($contacts);
+
+		if (!empty($owner['alias'])) {
+			$condition = ['url' => $owner['alias'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+			$contacts = DBA::select('contact', ['uid'], $condition);
+			while ($contact = DBA::fetch($contacts)) {
+				if ($contact['uid'] == 0) {
+					continue;
+				}
+
+				$users[$contact['uid']] = $contact['uid'];
+			}
+			DBA::close($contacts);
+		}
+/*
+
 		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
 			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
 
@@ -2080,6 +2121,32 @@ class Item extends BaseObject
 			$users[$contact['uid']] = $contact['uid'];
 		}
 
+		DBA::close($contacts);
+
+		// And the same with the alias in the user contacts
+		$condition = ["`alias` IN (SELECT `url` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
+			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
+
+		$contacts = DBA::select('contact', ['uid'], $condition);
+
+		while ($contact = DBA::fetch($contacts)) {
+			$users[$contact['uid']] = $contact['uid'];
+		}
+
+		DBA::close($contacts);
+
+		// And vice versa
+		$condition = ["`url` IN (SELECT `alias` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
+			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
+
+		$contacts = DBA::select('contact', ['uid'], $condition);
+
+		while ($contact = DBA::fetch($contacts)) {
+			$users[$contact['uid']] = $contact['uid'];
+		}
+
+		DBA::close($contacts);
+*/
 		$origin_uid = 0;
 
 		if ($item['uri'] != $item['parent-uri']) {

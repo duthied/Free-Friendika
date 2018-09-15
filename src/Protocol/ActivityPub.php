@@ -33,14 +33,17 @@ use Friendica\Network\Probe;
  * Digest: https://tools.ietf.org/html/rfc5843
  * https://tools.ietf.org/html/draft-cavage-http-signatures-10#ref-15
  *
+ * Part of the code for HTTP signing is taken from the Osada project.
+ * 
+ *
  * To-do:
  *
  * Receiver:
- * - Activities: Follow, Accept, Update
+ * - Activities: Undo, Update
  * - Object Types: Person, Tombstome
  *
  * Transmitter:
- * - Activities: Like, Dislike, Follow, Accept, Update
+ * - Activities: Like, Dislike, Update, Undo
  * - Object Tyoes: Article, Announce, Person, Tombstone
  *
  * General:
@@ -77,7 +80,7 @@ class ActivityPub
 		Network::post($target, $content, $headers);
 		$return_code = BaseObject::getApp()->get_curl_code();
 
-		echo $return_code."\n";
+		logger('Transmit to ' . $target . ' returned ' . $return_code);
 	}
 
 	/**
@@ -206,6 +209,28 @@ class ActivityPub
 			'actor' => $owner['url'],
 			'object' => $profile['url']];
 
+		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
+		return self::transmit($data,  $profile['notify'], $uid);
+	}
+
+	public static function transmitContactActivity($activity, $target, $id, $uid)
+	{
+		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+
+		if (empty($id)) {
+			$id = 'https://pirati.ca/activity/' . System::createGUID();
+		}
+
+		$owner = User::getOwnerDataById($uid);
+		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+			'id' => 'https://pirati.ca/activity/' . System::createGUID(),
+			'type' => $activity,
+			'actor' => $owner['url'],
+			'object' => ['id' => $id, 'type' => 'Follow',
+				'actor' => $owner['url'],
+				'object' => $profile['url']]];
+
+		logger('Sending ' . $activity . ' to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 		return self::transmit($data,  $profile['notify'], $uid);
 	}
 
@@ -604,14 +629,24 @@ class ActivityPub
 
 		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
 
-		if (!in_array($activity['type'], ['Like', 'Dislike'])) {
+		logger('Processing activity: ' . $activity['type'], LOGGER_DEBUG);
+
+		// Fetch the content only on activities where this matters
+		if (in_array($activity['type'], ['Create', 'Update', 'Announce'])) {
 			$item = self::fetchObject($object_url, $activity['object']);
 			if (empty($item)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return;
 			}
 		} else {
-			$item['object'] = $object_url;
+			if (in_array($activity['type'], ['Accept'])) {
+				$item['object'] = self::processElement($activity, 'object', 'actor', 'type', 'Follow');
+			} elseif (in_array($activity['type'], ['Undo'])) {
+				$item['object'] = self::processElement($activity, 'object', 'object', 'type', 'Follow');
+			} else {
+				$item['object'] = $object_url;
+			}
+			$item['id'] = $activity['id'];
 			$item['receiver'] = [];
 			$item['type'] = $activity['type'];
 		}
@@ -622,8 +657,6 @@ class ActivityPub
 
 		$item['receiver'] = array_merge($item['receiver'], $receivers);
 
-		logger('Processing activity: ' . $activity['type'], LOGGER_DEBUG);
-
 		switch ($activity['type']) {
 			case 'Create':
 			case 'Update':
@@ -632,11 +665,25 @@ class ActivityPub
 				break;
 
 			case 'Like':
+				self::likeItem($item, $body);
+				break;
+
 			case 'Dislike':
-				self::activityItem($item, $body);
+				break;
+
+			case 'Delete':
 				break;
 
 			case 'Follow':
+				self::followUser($item);
+				break;
+
+			case 'Accept':
+				self::acceptFollowUser($item);
+				break;
+
+			case 'Undo':
+				self::undoFollowUser($item);
 				break;
 
 			default:
@@ -963,17 +1010,41 @@ class ActivityPub
 
 	private static function createItem($activity, $body)
 	{
+		$item = [];
+		$item['verb'] = ACTIVITY_POST;
+		$item['parent-uri'] = $activity['reply-to-uri'];
+
+		if ($activity['reply-to-uri'] == $activity['uri']) {
+			$item['gravity'] = GRAVITY_PARENT;
+			$item['object-type'] = ACTIVITY_OBJ_NOTE;
+		} else {
+			$item['gravity'] = GRAVITY_COMMENT;
+			$item['object-type'] = ACTIVITY_OBJ_COMMENT;
+		}
+
+		self::postItem($activity, $item, $body);
+	}
+
+	private static function likeItem($activity, $body)
+	{
+		$item = [];
+		$item['verb'] = ACTIVITY_LIKE;
+		$item['parent-uri'] = $activity['object'];
+		$item['gravity'] = GRAVITY_ACTIVITY;
+		$item['object-type'] = ACTIVITY_OBJ_NOTE;
+
+		self::postItem($activity, $item, $body);
+	}
+
+	private static function postItem($activity, $item, $body)
+	{
 		/// @todo What to do with $activity['context']?
 
-		$item = [];
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
 		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
 		$item['uri'] = $activity['uri'];
-		$item['parent-uri'] = $activity['reply-to-uri'];
-		$item['verb'] = ACTIVITY_POST;
-		$item['object-type'] = ACTIVITY_OBJ_NOTE; /// Todo?
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
 		$item['guid'] = $activity['uuid'];
@@ -1012,16 +1083,82 @@ class ActivityPub
 		}
 	}
 
-	private static function activityItem($data)
+	private static function followUser($activity)
 	{
-		logger('Activity "' . $data['type'] . '" for ' . $data['object']);
-		$items = Item::select(['id'], ['uri' => $data['object']]);
-		while ($item = Item::fetch($items)) {
-			logger('Activity ' . $data['type'] . ' for item ' . $item['id'], LOGGER_DEBUG);
-			Item::performLike($item['id'], strtolower($data['type']));
+		if (empty($activity['receiver'][$activity['object']])) {
+			return;
 		}
-		DBA::close($item);
-		logger('Activity done', LOGGER_DEBUG);
+
+		$uid = $activity['receiver'][$activity['object']];
+		$owner = User::getOwnerDataById($uid);
+
+		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		if (!empty($cid)) {
+			$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
+		} else {
+			$contact = false;
+		}
+
+		$item = ['author-id' => Contact::getIdForURL($activity['owner'])];
+
+		Contact::addRelationship($owner, $contact, $item);
+
+		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		if (empty($cid)) {
+			return;
+		}
+
+		$contact = DBA::selectFirst('contact', ['network'], ['id' => $cid]);
+		if ($contact['network'] != Protocol::ACTIVITYPUB) {
+			Contact::updateFromProbe($cid, Protocol::ACTIVITYPUB);
+		}
+
+		DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
+		logger('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
 	}
 
+	private static function acceptFollowUser($activity)
+	{
+		if (empty($activity['receiver'][$activity['object']])) {
+			return;
+		}
+
+		$uid = $activity['receiver'][$activity['object']];
+		$owner = User::getOwnerDataById($uid);
+
+		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		if (empty($cid)) {
+			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			return;
+		}
+
+		$fields = ['pending' => false];
+		$condition = ['id' => $cid, 'pending' => true];
+		DBA::update('comtact', $fields, $condition);
+		logger('Accept contact request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
+	}
+
+	private static function undoFollowUser($activity)
+	{
+		if (empty($activity['receiver'][$activity['object']])) {
+			return;
+		}
+
+		$uid = $activity['receiver'][$activity['object']];
+		$owner = User::getOwnerDataById($uid);
+
+		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		if (empty($cid)) {
+			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			return;
+		}
+
+		$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
+			return;
+		}
+
+		Contact::removeFollower($owner, $contact);
+		logger('Undo following request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
+	}
 }

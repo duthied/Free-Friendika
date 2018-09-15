@@ -16,6 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
@@ -555,6 +556,8 @@ class Contact extends BaseObject
 			}
 		} elseif ($contact['network'] == Protocol::DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
+		} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
+			ActivityPub::transmitContactActivity('Undo', $contact['url'], '', $user['uid']);
 		}
 	}
 
@@ -1054,7 +1057,6 @@ class Contact extends BaseObject
 			if (!x($contact, 'avatar')) {
 				$update_contact = true;
 			}
-
 			if (!$update_contact || $no_update) {
 				return $contact_id;
 			}
@@ -1495,10 +1497,11 @@ class Contact extends BaseObject
 	}
 
 	/**
-	 * @param integer $id contact id
+	 * @param integer $id      contact id
+	 * @param string  $network Optional network we are probing for
 	 * @return boolean
 	 */
-	public static function updateFromProbe($id)
+	public static function updateFromProbe($id, $network = '')
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
@@ -1511,10 +1514,10 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		$ret = Probe::uri($contact["url"]);
+		$ret = Probe::uri($contact["url"], $network);
 
 		// If Probe::uri fails the network code will be different
-		if ($ret["network"] != $contact["network"]) {
+		if (($ret["network"] != $contact["network"]) && ($ret["network"] != $network)) {
 			return false;
 		}
 
@@ -1537,14 +1540,15 @@ class Contact extends BaseObject
 
 		DBA::update(
 			'contact', [
-				'url'    => $ret['url'],
-				'nurl'   => normalise_link($ret['url']),
-				'addr'   => $ret['addr'],
-				'alias'  => $ret['alias'],
-				'batch'  => $ret['batch'],
-				'notify' => $ret['notify'],
-				'poll'   => $ret['poll'],
-				'poco'   => $ret['poco']
+				'url'     => $ret['url'],
+				'nurl'    => normalise_link($ret['url']),
+				'network' => $ret['network'],
+				'addr'    => $ret['addr'],
+				'alias'   => $ret['alias'],
+				'batch'   => $ret['batch'],
+				'notify'  => $ret['notify'],
+				'poll'    => $ret['poll'],
+				'poco'    => $ret['poco']
 			],
 			['id' => $id]
 		);
@@ -1686,7 +1690,7 @@ class Contact extends BaseObject
 
 		$hidden = (($ret['network'] === Protocol::MAIL) ? 1 : 0);
 
-		if (in_array($ret['network'], [Protocol::MAIL, Protocol::DIASPORA])) {
+		if (in_array($ret['network'], [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 			$writeable = 1;
 		}
 
@@ -1766,6 +1770,9 @@ class Contact extends BaseObject
 			} elseif ($contact['network'] == Protocol::DIASPORA) {
 				$ret = Diaspora::sendShare($a->user, $contact);
 				logger('share returns: ' . $ret);
+			} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
+				$ret = ActivityPub::transmitActivity('Follow', $contact['url'], $uid);
+				logger('Follow returns: ' . $ret);
 			}
 		}
 
@@ -1814,7 +1821,7 @@ class Contact extends BaseObject
 		return $contact;
 	}
 
-	public static function addRelationship($importer, $contact, $datarray, $item, $sharing = false) {
+	public static function addRelationship($importer, $contact, $datarray, $item = '', $sharing = false) {
 		// Should always be set
 		if (empty($datarray['author-id'])) {
 			return;
@@ -1839,13 +1846,17 @@ class Contact extends BaseObject
 				DBA::update('contact', ['rel' => self::FRIEND, 'writable' => true],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
+
+			if ($contact['network'] == Protocol::ACTIVITYPUB) {
+				ActivityPub::transmitContactActivity('Accept', $contact['url'], $contact['hub-verify'], $importer['uid']);
+			}
+
 			// send email notification to owner?
 		} else {
 			if (DBA::exists('contact', ['nurl' => normalise_link($url), 'uid' => $importer['uid'], 'pending' => true])) {
 				logger('ignoring duplicated connection request from pending contact ' . $url);
 				return;
 			}
-
 			// create contact record
 			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
 				`blocked`, `readonly`, `pending`, `writable`)
