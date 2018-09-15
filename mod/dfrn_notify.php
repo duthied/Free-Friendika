@@ -79,13 +79,13 @@ function dfrn_notify_post(App $a) {
 	$condition = [];
 	switch ($direction) {
 		case (-1):
-			$condition = ["`issued-id` = ? OR `dfrn-id` = ?", $dfrn_id, $dfrn_id];
+			$condition = ["(`issued-id` = ? OR `dfrn-id` = ?) AND `uid` = ?", $dfrn_id, $dfrn_id, $user['uid']];
 			break;
 		case 0:
-			$condition = ['issued-id' => $dfrn_id, 'duplex' => true];
+			$condition = ['issued-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 			break;
 		case 1:
-			$condition = ['dfrn-id' => $dfrn_id, 'duplex' => true];
+			$condition = ['dfrn-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 			break;
 		default:
 			System::xmlExit(3, 'Invalid direction');
@@ -287,15 +287,15 @@ function dfrn_notify_content(App $a) {
 		$condition = [];
 		switch ($direction) {
 			case (-1):
-				$condition = ["`issued-id` = ? OR `dfrn-id` = ?", $dfrn_id, $dfrn_id];
+				$condition = ["(`issued-id` = ? OR `dfrn-id` = ?) AND `uid` = ?", $dfrn_id, $dfrn_id, $user['uid']];
 				$my_id = $dfrn_id;
 				break;
 			case 0:
-				$condition = ['issued-id' => $dfrn_id, 'duplex' => true];
+				$condition = ['issued-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 				$my_id = '1:' . $dfrn_id;
 				break;
 			case 1:
-				$condition = ['dfrn-id' => $dfrn_id, 'duplex' => true];
+				$condition = ['dfrn-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:

@@ -132,6 +132,11 @@ function notifications_content(App $a)
 
 	$notif_tpl = get_markup_template('notifications.tpl');
 
+	$notif_show_lnk = [
+		'href' => ($show ? 'notifications/' . $notifs['ident'] : 'notifications/' . $notifs['ident'] . '?show=all' ),
+		'text' => ($show ? L10n::t('Show unread') : L10n::t('Show all')),
+	];
+
 	// Process the data for template creation
 	if (defaults($notifs, 'ident', '') === 'introductions') {
 		$sugg = get_markup_template('suggestions.tpl');
@@ -302,11 +307,6 @@ function notifications_content(App $a)
 	} else {
 		$notif_nocontent = L10n::t('No more %s notifications.', $notifs['ident']);
 	}
-
-	$notif_show_lnk = [
-		'href' => ($show ? 'notifications/' . $notifs['ident'] : 'notifications/' . $notifs['ident'] . '?show=all' ),
-		'text' => ($show ? L10n::t('Show unread') : L10n::t('Show all')),
-	];
 
 	$o .= replace_macros($notif_tpl, [
 		'$notif_header'    => $notif_header,

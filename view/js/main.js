@@ -81,6 +81,11 @@ $(function() {
 			Dialog.doImageBrowser("comment", id);
 			return;
 		}
+
+		if (bbcode == "imgprv") {
+			bbcode = "img";
+		}
+
 		insertFormatting(bbcode, id);
 	});
 

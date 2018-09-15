@@ -486,21 +486,23 @@ class ParseUrl
 
 		$complete = $schemearr["scheme"]."://".$schemearr["host"];
 
-		if (@$schemearr["port"] != "") {
+		if (!empty($schemearr["port"])) {
 			$complete .= ":".$schemearr["port"];
 		}
 
-		if (strpos($urlarr["path"], "/") !== 0) {
-			$complete .= "/";
+		if (!empty($urlarr["path"])) {
+			if (strpos($urlarr["path"], "/") !== 0) {
+				$complete .= "/";
+			}
+
+			$complete .= $urlarr["path"];
 		}
 
-		$complete .= $urlarr["path"];
-
-		if (@$urlarr["query"] != "") {
+		if (!empty($urlarr["query"])) {
 			$complete .= "?".$urlarr["query"];
 		}
 
-		if (@$urlarr["fragment"] != "") {
+		if (!empty($urlarr["fragment"])) {
 			$complete .= "#".$urlarr["fragment"];
 		}
 
