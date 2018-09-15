@@ -3640,17 +3640,15 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
  */
 function api_friendships_destroy($type)
 {
-	$a = api_user();
+	$uid = api_user();
 
-	if ($a === false) {
+	if ($uid === false) {
 		throw new ForbiddenException();
 	}
 
-	$uid = local_user();
-
 	$contact_id = defaults($_REQUEST, 'user_id');
 
-	if ($contact_id == null) {
+	if (empty($contact_id)) {
 		logger("No user_id specified", LOGGER_DEBUG);
 		throw new BadRequestException("no user_id specified");
 	}
