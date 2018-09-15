@@ -213,7 +213,24 @@ class ActivityPub
 		return self::transmit($data,  $profile['notify'], $uid);
 	}
 
-	public static function transmitContactActivity($activity, $target, $id, $uid)
+	public static function transmitContactAccept($target, $id, $uid)
+	{
+		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+
+		$owner = User::getOwnerDataById($uid);
+		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+			'id' => 'https://pirati.ca/activity/' . System::createGUID(),
+			'type' => 'Accept',
+			'actor' => $owner['url'],
+			'object' => ['id' => $id, 'type' => 'Follow',
+				'actor' => $profile['url'],
+				'object' => $owner['url']]];
+
+		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		return self::transmit($data,  $profile['notify'], $uid);
+	}
+
+	public static function transmitContactUndo($target, $id, $uid)
 	{
 		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
 
@@ -224,13 +241,13 @@ class ActivityPub
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
 			'id' => 'https://pirati.ca/activity/' . System::createGUID(),
-			'type' => $activity,
+			'type' => 'Undo',
 			'actor' => $owner['url'],
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $owner['url'],
 				'object' => $profile['url']]];
 
-		logger('Sending ' . $activity . ' to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 		return self::transmit($data,  $profile['notify'], $uid);
 	}
 
@@ -1099,10 +1116,10 @@ class ActivityPub
 			$contact = false;
 		}
 
-		$item = ['author-id' => Contact::getIdForURL($activity['owner'])];
+		$item = ['author-id' => Contact::getIdForURL($activity['owner']),
+			'author-link' => $activity['owner']];
 
 		Contact::addRelationship($owner, $contact, $item);
-
 		$cid = Contact::getIdForURL($activity['owner'], $uid);
 		if (empty($cid)) {
 			return;

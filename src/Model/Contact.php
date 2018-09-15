@@ -557,7 +557,7 @@ class Contact extends BaseObject
 		} elseif ($contact['network'] == Protocol::DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
 		} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
-			ActivityPub::transmitContactActivity('Undo', $contact['url'], '', $user['uid']);
+			ActivityPub::transmitContactUndo($contact['url'], '', $user['uid']);
 		}
 	}
 
@@ -1834,7 +1834,7 @@ class Contact extends BaseObject
 			return;
 		}
 
-		$url = $pub_contact['url'];
+		$url = defaults($datarray, 'author-link', $pub_contact['url']);
 		$name = $pub_contact['name'];
 		$photo = $pub_contact['photo'];
 		$nick = $pub_contact['nick'];
@@ -1848,7 +1848,7 @@ class Contact extends BaseObject
 			}
 
 			if ($contact['network'] == Protocol::ACTIVITYPUB) {
-				ActivityPub::transmitContactActivity('Accept', $contact['url'], $contact['hub-verify'], $importer['uid']);
+				ActivityPub::transmitContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
 			}
 
 			// send email notification to owner?
