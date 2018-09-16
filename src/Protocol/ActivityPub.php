@@ -55,6 +55,12 @@ class ActivityPub
 {
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
 
+	public static function isRequest()
+	{
+		return stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json') ||
+			stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/ld+json');
+	}
+
 	public static function transmit($data, $target, $uid)
 	{
 		$owner = User::getOwnerDataById($uid);
@@ -66,19 +72,19 @@ class ActivityPub
 		$content = json_encode($data);
 
 		// Header data that is about to be signed.
-		/// @todo Add "digest"
 		$host = parse_url($target, PHP_URL_HOST);
 		$path = parse_url($target, PHP_URL_PATH);
-		$date = date('r');
+		$digest = 'SHA-256=' . base64_encode(hash('sha256', $content, true));
 		$content_length = strlen($content);
 
-		$headers = ['Host: ' . $host, 'Date: ' . $date, 'Content-Length: ' . $content_length];
+		$headers = ['Content-Length: ' . $content_length, 'Digest: ' . $digest, 'Host: ' . $host];
 
-		$signed_data = "(request-target): post " . $path . "\nhost: " . $host . "\ndate: " . $date . "\ncontent-length: " . $content_length;
+		$signed_data = "(request-target): post " . $path . "\ncontent-length: " . $content_length . "\ndigest: " . $digest . "\nhost: " . $host;
 
 		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",headers="(request-target) host date content-length",signature="' . $signature . '"';
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) content-length digest host",signature="' . $signature . '"';
+
 		$headers[] = 'Content-Type: application/activity+json';
 
 		Network::post($target, $content, $headers);
@@ -157,7 +163,7 @@ class ActivityPub
 			'toot' => 'http://joinmastodon.org/ns#']]];
 
 		$data['type'] = 'Create';
-		$data['id'] = $item['uri'];
+		$data['id'] = $item['uri'] . '/activity';
 		$data['actor'] = $item['author-link'];
 		$data['to'] = 'https://www.w3.org/ns/activitystreams#Public';
 		$data['object'] = self::createNote($item);
@@ -210,7 +216,8 @@ class ActivityPub
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => $activity,
 			'actor' => $owner['url'],
-			'object' => $profile['url']];
+			'object' => $profile['url'],
+			'to' => $profile['url']];
 
 		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
 		return self::transmit($data,  $profile['notify'], $uid);
@@ -227,7 +234,8 @@ class ActivityPub
 			'actor' => $owner['url'],
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']]];
+				'object' => $owner['url']],
+			'to' => $profile['url']];
 
 		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 		return self::transmit($data,  $profile['notify'], $uid);
@@ -244,7 +252,8 @@ class ActivityPub
 			'actor' => $owner['url'],
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']]];
+				'object' => $owner['url']],
+			'to' => $profile['url']];
 
 		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 		return self::transmit($data,  $profile['notify'], $uid);
@@ -263,7 +272,8 @@ class ActivityPub
 			'actor' => $owner['url'],
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $owner['url'],
-				'object' => $profile['url']]];
+				'object' => $profile['url']],
+			'to' => $profile['url']];
 
 		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 		return self::transmit($data,  $profile['notify'], $uid);
@@ -277,7 +287,7 @@ class ActivityPub
 	 */
 	public static function fetchContent($url)
 	{
-		$ret = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json']);
+		$ret = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
 		if (!$ret['success'] || empty($ret['body'])) {
 			return;
 		}

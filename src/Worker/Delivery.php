@@ -440,24 +440,21 @@ q	 *
 			// send comments and likes to owner to relay
 			logger('ActivityPub followup: ' . $loc);
 			$data = ActivityPub::createActivityFromItem($target_item['id']);
-			$content = json_encode($data);
-			ActivityPub::transmit($content, $contact['notify'], $owner['uid']);
+			ActivityPub::transmit($data, $contact['notify'], $owner['uid']);
 //			ActivityPub::sendFollowup($target_item, $owner, $contact, $public_message);
 			return;
 		} elseif ($target_item['uri'] !== $target_item['parent-uri']) {
 			// we are the relay - send comments, likes and relayable_retractions to our conversants
 			logger('ActivityPub relay: ' . $loc);
 			$data = ActivityPub::createActivityFromItem($target_item['id']);
-			$content = json_encode($data);
-			ActivityPub::transmit($content, $contact['notify'], $owner['uid']);
+			ActivityPub::transmit($data, $contact['notify'], $owner['uid']);
 //			ActivityPub::sendRelay($target_item, $owner, $contact, $public_message);
 			return;
 		} elseif ($top_level && !$walltowall) {
 			// currently no workable solution for sending walltowall
 			logger('ActivityPub status: ' . $loc);
 			$data = ActivityPub::createActivityFromItem($target_item['id']);
-			$content = json_encode($data);
-			ActivityPub::transmit($content, $contact['notify'], $owner['uid']);
+			ActivityPub::transmit($data, $contact['notify'], $owner['uid']);
 //			ActivityPub::sendStatus($target_item, $owner, $contact, $public_message);
 			return;
 		}

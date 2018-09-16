@@ -77,7 +77,7 @@ function display_init(App $a)
 		displayShowFeed($item["id"], false);
 	}
 
-	if (stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json')) {
+	if (ActivityPub::isRequest()) {
 		$wall_item = Item::selectFirst(['id', 'uid'], ['guid' => $item['guid'], 'wall' => true]);
 		if ($wall_item['uid'] == 180) {
 			$data = ActivityPub::createActivityFromItem($wall_item['id']);

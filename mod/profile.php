@@ -50,7 +50,7 @@ function profile_init(App $a)
 		DFRN::autoRedir($a, $which);
 	}
 
-	if (stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json')) {
+	if (ActivityPub::isRequest()) {
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $which]);
 		if ($user['uid'] == 180) {
 			$data = ActivityPub::profile($user['uid']);
