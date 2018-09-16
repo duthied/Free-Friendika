@@ -279,7 +279,6 @@ class ActivityPub
 	public static function fetchContent($url)
 	{
 		$ret = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json']);
-
 		if (!$ret['success'] || empty($ret['body'])) {
 			return;
 		}
@@ -613,6 +612,8 @@ class ActivityPub
 
 		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
 
+		$public = in_array(0, $receivers);
+
 		if (is_string($activity['object'])) {
 			$object_url = $activity['object'];
 		} elseif (!empty($activity['object']['id'])) {
@@ -647,6 +648,8 @@ class ActivityPub
 		} elseif ($activity['type'] == 'Follow') {
 			$object_data['id'] = $activity['id'];
 			$object_data['object'] = $object_url;
+		} else {
+			$object_data = [];
 		}
 
 		$object_data = self::addActivityFields($object_data, $activity);
@@ -738,6 +741,8 @@ class ActivityPub
 		$data = self::fetchContent($actor);
 		$followers = defaults($data, 'followers', '');
 
+		logger('Actor: ' . $actor . ' - Followers: ' . $followers, LOGGER_DEBUG);
+
 		$elements = ['to', 'cc', 'bto', 'bcc'];
 		foreach ($elements as $element) {
 			if (empty($activity[$element])) {
@@ -750,17 +755,23 @@ class ActivityPub
 			}
 
 			foreach ($activity[$element] as $receiver) {
-				// Mastodon puts public only in "cc" not in "to" when the post should not be listed
-				if (($receiver == self::PUBLIC) && ($element == 'to')) {
+				if ($receiver == self::PUBLIC) {
 					$receivers['uid:0'] = 0;
-				}
 
-				if (($receiver == self::PUBLIC)) {
-					$receivers['uid:-1'] = -1;
+					// This will most likely catch all OStatus connections to Mastodon
+					$condition = ['alias' => [$actor, normalise_link($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+					$contacts = DBA::select('contact', ['uid'], $condition);
+					while ($contact = DBA::fetch($contacts)) {
+						if ($contact['uid'] != 0) {
+							$receivers['uid:' . $contact['uid']] = $contact['uid'];
+						}
+					}
+					DBA::close($contacts);
 				}
 
 				if (in_array($receiver, [$followers, self::PUBLIC])) {
-					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND]];
+					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
+						'network' => Protocol::ACTIVITYPUB];
 					$contacts = DBA::select('contact', ['uid'], $condition);
 					while ($contact = DBA::fetch($contacts)) {
 						if ($contact['uid'] != 0) {
@@ -802,26 +813,27 @@ class ActivityPub
 		return $object_data;
 	}
 
-	private static function fetchObject($object_url, $object = [])
+	private static function fetchObject($object_url, $object = [], $public = true)
 	{
-		$data = self::fetchContent($object_url);
-		if (empty($data)) {
-			$data = $object;
+		if ($public) {
+			$data = self::fetchContent($object_url);
 			if (empty($data)) {
-				logger('Empty content', LOGGER_DEBUG);
-				return false;
-			} elseif (is_string($data)) {
-				logger('No object array provided.', LOGGER_DEBUG);
-				$item = Item::selectFirst([], ['uri' => $data]);
-				if (!DBA::isResult($item)) {
-					logger('Object with url ' . $data . ' was not found locally.', LOGGER_DEBUG);
-					return false;
-				}
-				logger('Using already stored item', LOGGER_DEBUG);
-				$data = self::createNote($item);
-			} else {
-				logger('Using provided object', LOGGER_DEBUG);
+				logger('Empty content for ' . $object_url . ', check if content is available locally.', LOGGER_DEBUG);
+				$data = $object_url;
 			}
+		} else {
+			logger('Using original object for url ' . $object_url, LOGGER_DEBUG);
+			$data = $object;
+		}
+
+		if (is_string($data)) {
+			$item = Item::selectFirst([], ['uri' => $data]);
+			if (!DBA::isResult($item)) {
+				logger('Object with url ' . $data . ' was not found locally.', LOGGER_DEBUG);
+				return false;
+			}
+			logger('Using already stored item for url ' . $object_url, LOGGER_DEBUG);
+			$data = self::createNote($item);
 		}
 
 		if (empty($data['type'])) {
@@ -1049,6 +1061,11 @@ class ActivityPub
 			$item['object-type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
+		if (($activity['uri'] != $activity['reply-to-uri']) && !Item::exists(['uri' => $activity['reply-to-uri']])) {
+			logger('Parent ' . $activity['reply-to-uri'] . ' not found. Try to refetch it.');
+			self::fetchMissingActivity($activity['reply-to-uri']);
+		}
+
 		self::postItem($activity, $item, $body);
 	}
 
@@ -1068,11 +1085,7 @@ class ActivityPub
 		/// @todo What to do with $activity['context']?
 
 		$item['network'] = Protocol::ACTIVITYPUB;
-		$item['private'] = !in_array(-1, $activity['receiver']);
-		if (in_array(-1, $activity['receiver'])) {
-			$item['private'] = 2;
-		}
-
+		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
 		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
 		$item['uri'] = $activity['uri'];
@@ -1099,10 +1112,6 @@ class ActivityPub
 		$item['conversation-uri'] = $activity['conversation'];
 
 		foreach ($activity['receiver'] as $receiver) {
-			if ($receiver < 0) {
-				continue;
-			}
-
 			$item['uid'] = $receiver;
 			$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
 
@@ -1115,10 +1124,32 @@ class ActivityPub
 		}
 	}
 
+	private static function fetchMissingActivity($url)
+	{
+		$object = ActivityPub::fetchContent($url);
+		if (empty($object)) {
+			logger('Activity ' . $url . ' was not fetchable, aborting.');
+			return;
+		}
+
+		$activity = [];
+		$activity['@context'] = $object['@context'];
+		unset($object['@context']);
+		$activity['id'] = $object['id'];
+		$activity['to'] = defaults($object, 'to', []);
+		$activity['cc'] = defaults($object, 'cc', []);
+		$activity['actor'] = $object['attributedTo'];
+		$activity['object'] = $object;
+		$activity['published'] = $object['published'];
+		$activity['type'] = 'Create';
+		self::processActivity($activity);
+		logger('Activity ' . $url . ' had been fetched and processed.');
+	}
+
 	private static function getUserOfObject($object)
 	{
 		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($object), 'self' => true]);
-		if (!DBA::isResult(§self)) {
+		if (!DBA::isResult($self)) {
 			return false;
 		} else {
 			return $self['uid'];
@@ -1127,7 +1158,7 @@ class ActivityPub
 
 	private static function followUser($activity)
 	{
-		$uid = self::getUserOfObject[$activity['object']];
+		$uid = self::getUserOfObject($activity['object']);
 		if (empty($uid)) {
 			return;
 		}
@@ -1161,7 +1192,7 @@ class ActivityPub
 
 	private static function acceptFollowUser($activity)
 	{
-		$uid = self::getUserOfObject[$activity['object']];
+		$uid = self::getUserOfObject($activity['object']);
 		if (empty($uid)) {
 			return;
 		}
@@ -1188,7 +1219,7 @@ class ActivityPub
 
 	private static function undoFollowUser($activity)
 	{
-		$uid = self::getUserOfObject[$activity['object']];
+		$uid = self::getUserOfObject($activity['object']);
 		if (empty($uid)) {
 			return;
 		}
