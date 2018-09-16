@@ -131,7 +131,7 @@ class HTML
 					$prefix = '[code=' . $matches[1] . ']';
 				}
 
-				$codeblocks[] = $prefix . trim($matches[2]) . '[/code]';
+				$codeblocks[] = $prefix . PHP_EOL . trim($matches[2]) . PHP_EOL . '[/code]';
 				return $return;
 			},
 			$message
