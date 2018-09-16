@@ -161,14 +161,17 @@ class ParseUrl
 					$siteinfo['type'] = $oembed_data->type;
 				}
 
-				if (isset($oembed_data->title)) {
-					$siteinfo['title'] = trim($oembed_data->title);
-				}
-				if (isset($oembed_data->description)) {
-					$siteinfo['text'] = trim($oembed_data->description);
-				}
-				if (isset($oembed_data->thumbnail_url)) {
-					$siteinfo['image'] = $oembed_data->thumbnail_url;
+				// See https://github.com/friendica/friendica/pull/5763#discussion_r217913178
+				if ($siteinfo['type'] != 'photo') {
+					if (isset($oembed_data->title)) {
+						$siteinfo['title'] = trim($oembed_data->title);
+					}
+					if (isset($oembed_data->description)) {
+						$siteinfo['text'] = trim($oembed_data->description);
+					}
+					if (isset($oembed_data->thumbnail_url)) {
+						$siteinfo['image'] = $oembed_data->thumbnail_url;
+					}
 				}
 			}
 		}
