@@ -122,7 +122,7 @@ class HTML
 		// Removing code blocks before the whitespace removal processing below
 		$codeblocks = [];
 		$message = preg_replace_callback(
-			'#<pre><code(?: class="([^"]*)")?>(.*)</code></pre>#iUs',
+			'#<pre><code(?: class="language-([^"]*)")?>(.*)</code></pre>#iUs',
 			function ($matches) use (&$codeblocks) {
 				$return = '[codeblock-' . count($codeblocks) . ']';
 

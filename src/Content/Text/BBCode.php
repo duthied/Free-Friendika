@@ -1227,6 +1227,22 @@ class BBCode extends BaseObject
 			return $return;
 		};
 
+		// Extracting multi-line code blocks before the whitespace processing
+		$codeblocks = [];
+
+		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+			function ($matches) use (&$codeblocks) {
+				$return = $matches[0];
+				if (strpos($matches[2], "\n") !== false) {
+					$return = '#codeblock-' . count($codeblocks) . '#';
+
+					$codeblocks[] =  '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+				}
+				return $return;
+			},
+			$text
+		);
+
 		// Hide all [noparse] contained bbtags by spacefying them
 		// POSSIBLE BUG --> Will the 'preg' functions crash if there's an embedded image?
 
@@ -1273,11 +1289,6 @@ class BBCode extends BaseObject
 			$text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "\n[share$1$2]$3[/share]", $text);
 		}
 
-		// Check for [code] text here, before the linefeeds are messed with.
-		// The highlighter will unescape and re-escape the content.
-		if (strpos($text, '[code=') !== false) {
-			$text = preg_replace_callback("/\[code=(.*?)\](.*?)\[\/code\]/ism", 'self::textHighlightCallback', $text);
-		}
 		// Convert new line chars to html <br /> tags
 
 		// nlbr seems to be hopelessly messed up
@@ -1771,6 +1782,18 @@ class BBCode extends BaseObject
 			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);
 		}
 
+		// Restore code blocks
+		$text = preg_replace_callback('/#codeblock-([0-9]+)#/iU',
+			function ($matches) use ($codeblocks) {
+				$return = $matches[0];
+				if (isset($codeblocks[intval($matches[1])])) {
+					$return = $codeblocks[$matches[1]];
+				}
+				return $return;
+			},
+			$text
+		);
+
 		// Clean up the HTML by loading and saving the HTML with the DOM.
 		// Bad structured html can break a whole page.
 		// For performance reasons do it only with ativated item cache or at export.
@@ -1905,23 +1928,6 @@ class BBCode extends BaseObject
 		// Converting images with size parameters to simple images. Markdown doesn't know it.
 		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
 
-		// Extracting multi-line code blocks before the whitespace processing/code highlighter in self::convert()
-		$codeblocks = [];
-
-		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
-			function ($matches) use (&$codeblocks) {
-				$return = $matches[0];
-				if (strpos($matches[2], "\n") !== false) {
-					$return = '#codeblock-' . count($codeblocks) . '#';
-
-					$prefix = '````' . $matches[1] . PHP_EOL;
-					$codeblocks[] = $prefix . trim($matches[2]) . PHP_EOL . '````';
-				}
-				return $return;
-			},
-			$text
-		);
-
 		// Convert it to HTML - don't try oembed
 		if ($for_diaspora) {
 			$text = self::convert($text, false, 3);
@@ -1974,18 +1980,6 @@ class BBCode extends BaseObject
 				$text
 			);
 		}
-
-		// Restore code blocks
-		$text = preg_replace_callback('/#codeblock-([0-9]+)#/iU',
-			function ($matches) use ($codeblocks) {
-				$return = '';
-				if (isset($codeblocks[intval($matches[1])])) {
-					$return = $codeblocks[$matches[1]];
-				}
-				return $return;
-			},
-			$text
-		);
 
 		Addon::callHooks('bb2diaspora', $text);
 

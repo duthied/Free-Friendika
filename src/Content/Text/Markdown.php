@@ -32,6 +32,7 @@ class Markdown extends BaseObject
 
 		$MarkdownParser = new MarkdownExtra();
 		$MarkdownParser->hard_wrap = $hardwrap;
+		$MarkdownParser->code_class_prefix = 'language-';
 		$html = $MarkdownParser->transform($text);
 
 		self::getApp()->save_timestamp($stamp1, "parser");
