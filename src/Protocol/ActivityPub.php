@@ -131,7 +131,7 @@ class ActivityPub
 			'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
 		$data['summary'] = $contact['about'];
 		$data['url'] = $contact['url'];
-		$data['manuallyApprovesFollowers'] = false;
+		$data['manuallyApprovesFollowers'] = false; /// @todo
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];
@@ -533,28 +533,18 @@ class ActivityPub
 			}
 		}
 
-/*
 		// To-Do
-		unset($data['type']);
-		unset($data['manuallyApprovesFollowers']);
+		// type, manuallyApprovesFollowers
 
 		// Unhandled
-		unset($data['@context']);
-		unset($data['tag']);
-		unset($data['attachment']);
-		unset($data['image']);
-		unset($data['nomadicLocations']);
-		unset($data['signature']);
-		unset($data['following']);
-		unset($data['followers']);
-		unset($data['featured']);
-		unset($data['movedTo']);
-		unset($data['liked']);
-		unset($data['sharedInbox']); // Misskey
-		unset($data['isCat']); // Misskey
-		unset($data['kroeg:blocks']); // Kroeg
-		unset($data['updated']); // Kroeg
-*/
+		// @context, tag, attachment, image, nomadicLocations, signature, following, followers, featured, movedTo, liked
+
+		// Unhandled from Misskey
+		// sharedInbox, isCat
+
+		// Unhandled from Kroeg
+		// kroeg:blocks, updated
+
 		return $profile;
 	}
 
@@ -600,7 +590,72 @@ class ActivityPub
 		}
 	}
 
-	function processActivity($activity, $body = '', $uid = null)
+	private static function prepareObjectData($activity, $uid)
+	{
+		$actor = self::processElement($activity, 'actor', 'id');
+		if (empty($actor)) {
+			logger('Empty actor', LOGGER_DEBUG);
+			return [];
+		}
+
+		// Fetch all receivers from to, cc, bto and bcc
+		$receivers = self::getReceivers($activity);
+
+		// When it is a delivery to a personal inbox we add that user to the receivers
+		if (!empty($uid)) {
+			$owner = User::getOwnerDataById($uid);
+			$additional = [$owner['url'] => $uid];
+			$receivers = array_merge($receivers, $additional);
+		}
+
+		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
+
+		if (is_string($activity['object'])) {
+			$object_url = $activity['object'];
+		} elseif (!empty($activity['object']['id'])) {
+			$object_url = $activity['object']['id'];
+		} else {
+			logger('No object found', LOGGER_DEBUG);
+			return [];
+		}
+
+		// Fetch the content only on activities where this matters
+		if (in_array($activity['type'], ['Create', 'Update', 'Announce'])) {
+			$object_data = self::fetchObject($object_url, $activity['object']);
+			if (empty($object_data)) {
+				logger("Object data couldn't be processed", LOGGER_DEBUG);
+				return [];
+			}
+		} elseif ($activity['type'] == 'Accept') {
+			$object_data = [];
+			$object_data['object_type'] = self::processElement($activity, 'object', 'type');
+			$object_data['object'] = self::processElement($activity, 'object', 'actor');
+		} elseif ($activity['type'] == 'Undo') {
+			$object_data = [];
+			$object_data['object_type'] = self::processElement($activity, 'object', 'type');
+			$object_data['object'] = self::processElement($activity, 'object', 'object');
+		} elseif (in_array($activity['type'], ['Like', 'Dislike'])) {
+			// Create a mostly empty array out of the activity data (instead of the object).
+			// This way we later don't have to check for the existence of ech individual array element.
+			$object_data = self::processCommonData($activity);
+			$object_data['name'] = $activity['type'];
+			$object_data['author'] = $activity['actor'];
+			$object_data['object'] = $object_url;
+		} elseif ($activity['type'] == 'Follow') {
+			$object_data['id'] = $activity['id'];
+			$object_data['object'] = $object_url;
+		}
+
+		$object_data = self::addActivityFields($object_data, $activity);
+
+		$object_data['type'] = $activity['type'];
+		$object_data['owner'] = $actor;
+		$object_data['receiver'] = array_merge(defaults($object_data, 'receiver', []), $receivers);
+
+		return $object_data;
+	}
+
+	private static function processActivity($activity, $body = '', $uid = null)
 	{
 		if (empty($activity['type'])) {
 			logger('Empty type', LOGGER_DEBUG);
@@ -618,118 +673,53 @@ class ActivityPub
 
 		}
 
-		$actor = self::processElement($activity, 'actor', 'id');
-		if (empty($actor)) {
-			logger('Empty actor - 2', LOGGER_DEBUG);
-			return;
-		}
-
-		if (is_string($activity['object'])) {
-			$object_url = $activity['object'];
-		} elseif (!empty($activity['object']['id'])) {
-			$object_url = $activity['object']['id'];
-		} else {
-			logger('No object found', LOGGER_DEBUG);
-			return;
-		}
-
-		// ----------------------------------
-/*
-		// unhandled
-		unset($activity['@context']);
-		unset($activity['id']);
-
 		// Non standard
-		unset($activity['title']);
-		unset($activity['atomUri']);
-		unset($activity['context_id']);
-		unset($activity['statusnetConversationId']);
+		// title, atomUri, context_id, statusnetConversationId
 
 		// To-Do?
-		unset($activity['context']);
-		unset($activity['location']);
-		unset($activity['signature']);
-*/
-		// Fetch all receivers from to, cc, bto and bcc
-		$receivers = self::getReceivers($activity);
-
-		// When it is a delivery to a personal inbox we add that user to the receivers
-		if (!empty($uid)) {
-			$owner = User::getOwnerDataById($uid);
-			$additional = [$owner['url'] => $uid];
-			$receivers = array_merge($receivers, $additional);
-		}
-
-		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
+		// context, location, signature;
 
 		logger('Processing activity: ' . $activity['type'], LOGGER_DEBUG);
 
-		// Fetch the content only on activities where this matters
-		if (in_array($activity['type'], ['Create', 'Update', 'Announce'])) {
-			$item = self::fetchObject($object_url, $activity['object']);
-			if (empty($item)) {
-				logger("Object data couldn't be processed", LOGGER_DEBUG);
-				return;
-			}
-		} else {
-			if (in_array($activity['type'], ['Accept'])) {
-				$item['object'] = self::processElement($activity, 'object', 'actor', 'type', 'Follow');
-			} elseif (in_array($activity['type'], ['Undo'])) {
-				$item['object'] = self::processElement($activity, 'object', 'object', 'type', 'Follow');
-			} else {
-				$item['uri'] = $activity['id'];
-				$item['author'] = $activity['actor'];
-				$item['updated'] = $item['published'] = $activity['published'];
-				$item['uuid'] = '';
-				$item['name'] = $activity['type'];
-				$item['summary'] = '';
-				$item['content'] = '';
-				$item['location'] = '';
-				$item['tags'] = [];
-				$item['sensitive'] = false;
-				$item['service'] = '';
-				$item['attachments'] = [];
-				$item['conversation'] = '';
-				$item['object'] = $object_url;
-			}
-			$item['id'] = $activity['id'];
-			$item['receiver'] = [];
-			$item['type'] = $activity['type'];
+		$object_data = self::prepareObjectData($activity, $uid);
+		if (empty($object_data)) {
+			logger('No object data found', LOGGER_DEBUG);
+			return;
 		}
-
-		$item = self::addActivityFields($item, $activity);
-
-		$item['owner'] = $actor;
-
-		$item['receiver'] = array_merge($item['receiver'], $receivers);
 
 		switch ($activity['type']) {
 			case 'Create':
-			case 'Update':
 			case 'Announce':
-				self::createItem($item, $body);
+				self::createItem($object_data, $body);
 				break;
 
 			case 'Like':
-				self::likeItem($item, $body);
+				self::likeItem($object_data, $body);
 				break;
 
 			case 'Dislike':
+				break;
+
+			case 'Update':
 				break;
 
 			case 'Delete':
 				break;
 
 			case 'Follow':
-				self::followUser($item);
+				self::followUser($object_data);
 				break;
 
 			case 'Accept':
-				self::acceptFollowUser($item);
+				if ($object_data['object_type'] == 'Follow') {
+					self::acceptFollowUser($object_data);
+				}
 				break;
 
 			case 'Undo':
-				self::undoFollowUser($item);
+				if ($object_data['object_type'] == 'Follow') {
+					self::undoFollowUser($object_data);
+				}
 				break;
 
 			default:
@@ -769,24 +759,24 @@ class ActivityPub
 		return $receivers;
 	}
 
-	private static function addActivityFields($item, $activity)
+	private static function addActivityFields($object_data, $activity)
 	{
-		if (!empty($activity['published']) && empty($item['published'])) {
-			$item['published'] = $activity['published'];
+		if (!empty($activity['published']) && empty($object_data['published'])) {
+			$object_data['published'] = $activity['published'];
 		}
 
-		if (!empty($activity['updated']) && empty($item['updated'])) {
-			$item['updated'] = $activity['updated'];
+		if (!empty($activity['updated']) && empty($object_data['updated'])) {
+			$object_data['updated'] = $activity['updated'];
 		}
 
-		if (!empty($activity['inReplyTo']) && empty($item['parent-uri'])) {
-			$item['parent-uri'] = self::processElement($activity, 'inReplyTo', 'id');
+		if (!empty($activity['inReplyTo']) && empty($object_data['parent-uri'])) {
+			$object_data['parent-uri'] = self::processElement($activity, 'inReplyTo', 'id');
 		}
 
 		if (!empty($activity['instrument'])) {
-			$item['service'] = self::processElement($activity, 'instrument', 'name', 'type', 'Service');
+			$object_data['service'] = self::processElement($activity, 'instrument', 'name', 'type', 'Service');
 		}
-		return $item;
+		return $object_data;
 	}
 
 	private static function fetchObject($object_url, $object = [])
@@ -849,118 +839,86 @@ class ActivityPub
 
 	private static function processCommonData(&$object)
 	{
-		if (empty($object['id']) || empty($object['attributedTo'])) {
+		if (empty($object['id'])) {
 			return false;
 		}
 
-		$item = [];
-		$item['type'] = $object['type'];
-		$item['uri'] = $object['id'];
+		$object_data = [];
+		$object_data['type'] = $object['type'];
+		$object_data['uri'] = $object['id'];
 
 		if (!empty($object['inReplyTo'])) {
-			$item['reply-to-uri'] = self::processElement($object, 'inReplyTo', 'id');
+			$object_data['reply-to-uri'] = self::processElement($object, 'inReplyTo', 'id');
 		} else {
-			$item['reply-to-uri'] = $item['uri'];
+			$object_data['reply-to-uri'] = $object_data['uri'];
 		}
 
-		$item['published'] = defaults($object, 'published', null);
-		$item['updated'] = defaults($object, 'updated', $item['published']);
+		$object_data['published'] = defaults($object, 'published', null);
+		$object_data['updated'] = defaults($object, 'updated', $object_data['published']);
 
-		if (empty($item['published']) && !empty($item['updated'])) {
-			$item['published'] = $item['updated'];
+		if (empty($object_data['published']) && !empty($object_data['updated'])) {
+			$object_data['published'] = $object_data['updated'];
 		}
 
-		$item['uuid'] = defaults($object, 'uuid', null);
-		$item['owner'] = $item['author'] = self::processElement($object, 'attributedTo', 'id');
-		$item['context'] = defaults($object, 'context', null);
-		$item['conversation'] = defaults($object, 'conversation', null);
-		$item['sensitive'] = defaults($object, 'sensitive', null);
-		$item['name'] = defaults($object, 'title', null);
-		$item['name'] = defaults($object, 'name', $item['name']);
-		$item['summary'] = defaults($object, 'summary', null);
-		$item['content'] = defaults($object, 'content', null);
-		$item['source'] = defaults($object, 'source', null);
-		$item['location'] = self::processElement($object, 'location', 'name', 'type', 'Place');
-		$item['attachments'] = defaults($object, 'attachment', null);
-		$item['tags'] = defaults($object, 'tag', null);
-		$item['service'] = self::processElement($object, 'instrument', 'name', 'type', 'Service');
-		$item['alternate-url'] = self::processElement($object, 'url', 'href');
-		$item['receiver'] = self::getReceivers($object);
-
-/*
-		// To-Do
-		unset($object['source']);
+		$object_data['uuid'] = defaults($object, 'uuid', null);
+		$object_data['owner'] = $object_data['author'] = self::processElement($object, 'attributedTo', 'id');
+		$object_data['context'] = defaults($object, 'context', null);
+		$object_data['conversation'] = defaults($object, 'conversation', null);
+		$object_data['sensitive'] = defaults($object, 'sensitive', null);
+		$object_data['name'] = defaults($object, 'title', null);
+		$object_data['name'] = defaults($object, 'name', $object_data['name']);
+		$object_data['summary'] = defaults($object, 'summary', null);
+		$object_data['content'] = defaults($object, 'content', null);
+		$object_data['source'] = defaults($object, 'source', null);
+		$object_data['location'] = self::processElement($object, 'location', 'name', 'type', 'Place');
+		$object_data['attachments'] = defaults($object, 'attachment', null);
+		$object_data['tags'] = defaults($object, 'tag', null);
+		$object_data['service'] = self::processElement($object, 'instrument', 'name', 'type', 'Service');
+		$object_data['alternate-url'] = self::processElement($object, 'url', 'href');
+		$object_data['receiver'] = self::getReceivers($object);
 
 		// Unhandled
-		unset($object['@context']);
-		unset($object['type']);
-		unset($object['actor']);
-		unset($object['signature']);
-		unset($object['mediaType']);
-		unset($object['duration']);
-		unset($object['replies']);
-		unset($object['icon']);
+		// @context, type, actor, signature, mediaType, duration, replies, icon
 
-		// Also missing:
-		audience, preview, endTime, startTime, generator, image
-*/
-		return $item;
+		// Also missing: (Defined in the standard, but currently unused)
+		// audience, preview, endTime, startTime, generator, image
+
+		return $object_data;
 	}
 
 	private static function processNote($object)
 	{
-		$item = [];
+		$object_data = [];
 
-/*
 		// To-Do?
-		unset($object['emoji']);
-		unset($object['atomUri']);
-		unset($object['inReplyToAtomUri']);
+		// emoji, atomUri, inReplyToAtomUri
 
 		// Unhandled
-		unset($object['contentMap']);
-		unset($object['announcement_count']);
-		unset($object['announcements']);
-		unset($object['context_id']);
-		unset($object['likes']);
-		unset($object['like_count']);
-		unset($object['inReplyToStatusId']);
-		unset($object['shares']);
-		unset($object['quoteUrl']);
-		unset($object['statusnetConversationId']);
-*/
-		return $item;
+		// contentMap, announcement_count, announcements, context_id, likes, like_count
+		// inReplyToStatusId, shares, quoteUrl, statusnetConversationId
+
+		return $object_data;
 	}
 
 	private static function processArticle($object)
 	{
-		$item = [];
+		$object_data = [];
 
-		return $item;
+		return $object_data;
 	}
 
 	private static function processVideo($object)
 	{
-		$item = [];
-/*
+		$object_data = [];
+
 		// To-Do?
-		unset($object['category']);
-		unset($object['licence']);
-		unset($object['language']);
-		unset($object['commentsEnabled']);
+		// category, licence, language, commentsEnabled
 
 		// Unhandled
-		unset($object['views']);
-		unset($object['waitTranscoding']);
-		unset($object['state']);
-		unset($object['support']);
-		unset($object['subtitleLanguage']);
-		unset($object['likes']);
-		unset($object['dislikes']);
-		unset($object['shares']);
-		unset($object['comments']);
-*/
-		return $item;
+		// views, waitTranscoding, state, support, subtitleLanguage
+		// likes, dislikes, shares, comments
+
+		return $object_data;
 	}
 
 	private static function processElement($array, $element, $key, $type = null, $type_value = null)
