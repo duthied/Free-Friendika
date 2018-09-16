@@ -65,17 +65,20 @@ class ActivityPub
 
 		$content = json_encode($data);
 
+		// Header data that is about to be signed.
+		/// @todo Add "digest"
 		$host = parse_url($target, PHP_URL_HOST);
 		$path = parse_url($target, PHP_URL_PATH);
 		$date = date('r');
+		$content_length = strlen($content);
 
-		$headers = ['Host: ' . $host, 'Date: ' . $date];
+		$headers = ['Host: ' . $host, 'Date: ' . $date, 'Content-Length: ' . $content_length];
 
-		$signed_data = "(request-target): post " . $path . "\nhost: " . $host . "\ndate: " . $date;
+		$signed_data = "(request-target): post " . $path . "\nhost: " . $host . "\ndate: " . $date . "\ncontent-length: " . $content_length;
 
 		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",headers="(request-target) host date",signature="' . $signature . '"';
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",headers="(request-target) host date content-length",signature="' . $signature . '"';
 		$headers[] = 'Content-Type: application/activity+json';
 
 		Network::post($target, $content, $headers);
@@ -102,7 +105,7 @@ class ActivityPub
 			return [];
 		}
 
-		$fields = ['locality', 'region', 'country-name'];
+		$fields = ['locality', 'region', 'country-name', 'page-flags'];
 		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		if (!DBA::isResult($profile)) {
 			return [];
@@ -131,7 +134,7 @@ class ActivityPub
 			'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
 		$data['summary'] = $contact['about'];
 		$data['url'] = $contact['url'];
-		$data['manuallyApprovesFollowers'] = false; /// @todo
+		$data['manuallyApprovesFollowers'] = in_array($profile['page-flags'], [Contact::PAGE_NORMAL, Contact::PAGE_PRVGROUP]);
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];
@@ -392,7 +395,7 @@ class ActivityPub
 			return false;
 		}
 
-		// Check the digest if it was part of the signed data
+		// Check the digest when it is part of the signed data
 		if (in_array('digest', $sig_block['headers'])) {
 			$digest = explode('=', $headers['digest'], 2);
 			if ($digest[0] === 'SHA-256') {
@@ -409,7 +412,7 @@ class ActivityPub
 			}
 		}
 
-		// Check the content-length if it was part of the signed data
+		// Check the content-length when it is part of the signed data
 		if (in_array('content-length', $sig_block['headers'])) {
 			if (strlen($content) != $headers['content-length']) {
 				return false;
@@ -599,7 +602,7 @@ class ActivityPub
 		}
 
 		// Fetch all receivers from to, cc, bto and bcc
-		$receivers = self::getReceivers($activity);
+		$receivers = self::getReceivers($activity, $actor);
 
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
@@ -728,9 +731,12 @@ class ActivityPub
 		}
 	}
 
-	private static function getReceivers($activity)
+	private static function getReceivers($activity, $actor)
 	{
 		$receivers = [];
+
+		$data = self::fetchContent($actor);
+		$followers = defaults($data, 'followers', '');
 
 		$elements = ['to', 'cc', 'bto', 'bcc'];
 		foreach ($elements as $element) {
@@ -744,8 +750,25 @@ class ActivityPub
 			}
 
 			foreach ($activity[$element] as $receiver) {
-				if ($receiver == self::PUBLIC) {
-					$receivers[$receiver] = 0;
+				// Mastodon puts public only in "cc" not in "to" when the post should not be listed
+				if (($receiver == self::PUBLIC) && ($element == 'to')) {
+					$receivers['uid:0'] = 0;
+				}
+
+				if (($receiver == self::PUBLIC)) {
+					$receivers['uid:-1'] = -1;
+				}
+
+				if (in_array($receiver, [$followers, self::PUBLIC])) {
+					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND]];
+					$contacts = DBA::select('contact', ['uid'], $condition);
+					while ($contact = DBA::fetch($contacts)) {
+						if ($contact['uid'] != 0) {
+							$receivers['uid:' . $contact['uid']] = $contact['uid'];
+						}
+					}
+					DBA::close($contacts);
+					continue;
 				}
 
 				$condition = ['self' => true, 'nurl' => normalise_link($receiver)];
@@ -753,7 +776,7 @@ class ActivityPub
 				if (!DBA::isResult($contact)) {
 					continue;
 				}
-				$receivers[$receiver] = $contact['uid'];
+				$receivers['cid:' . $contact['uid']] = $contact['uid'];
 			}
 		}
 		return $receivers;
@@ -875,7 +898,7 @@ class ActivityPub
 		$object_data['tags'] = defaults($object, 'tag', null);
 		$object_data['service'] = self::processElement($object, 'instrument', 'name', 'type', 'Service');
 		$object_data['alternate-url'] = self::processElement($object, 'url', 'href');
-		$object_data['receiver'] = self::getReceivers($object);
+		$object_data['receiver'] = self::getReceivers($object, $object_data['owner']);
 
 		// Unhandled
 		// @context, type, actor, signature, mediaType, duration, replies, icon
@@ -1045,7 +1068,11 @@ class ActivityPub
 		/// @todo What to do with $activity['context']?
 
 		$item['network'] = Protocol::ACTIVITYPUB;
-		$item['private'] = !in_array(0, $activity['receiver']);
+		$item['private'] = !in_array(-1, $activity['receiver']);
+		if (in_array(-1, $activity['receiver'])) {
+			$item['private'] = 2;
+		}
+
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
 		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
 		$item['uri'] = $activity['uri'];
@@ -1072,6 +1099,10 @@ class ActivityPub
 		$item['conversation-uri'] = $activity['conversation'];
 
 		foreach ($activity['receiver'] as $receiver) {
+			if ($receiver < 0) {
+				continue;
+			}
+
 			$item['uid'] = $receiver;
 			$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
 
@@ -1081,19 +1112,26 @@ class ActivityPub
 
 			$item_id = Item::insert($item);
 			logger('Storing for user ' . $item['uid'] . ': ' . $item_id);
-			if (!empty($item_id) && ($item['uid'] == 0)) {
-				Item::distribute($item_id);
-			}
+		}
+	}
+
+	private static function getUserOfObject($object)
+	{
+		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($object), 'self' => true]);
+		if (!DBA::isResult(§self)) {
+			return false;
+		} else {
+			return $self['uid'];
 		}
 	}
 
 	private static function followUser($activity)
 	{
-		if (empty($activity['receiver'][$activity['object']])) {
+		$uid = self::getUserOfObject[$activity['object']];
+		if (empty($uid)) {
 			return;
 		}
 
-		$uid = $activity['receiver'][$activity['object']];
 		$owner = User::getOwnerDataById($uid);
 
 		$cid = Contact::getIdForURL($activity['owner'], $uid);
@@ -1123,11 +1161,11 @@ class ActivityPub
 
 	private static function acceptFollowUser($activity)
 	{
-		if (empty($activity['receiver'][$activity['object']])) {
+		$uid = self::getUserOfObject[$activity['object']];
+		if (empty($uid)) {
 			return;
 		}
 
-		$uid = $activity['receiver'][$activity['object']];
 		$owner = User::getOwnerDataById($uid);
 
 		$cid = Contact::getIdForURL($activity['owner'], $uid);
@@ -1150,11 +1188,11 @@ class ActivityPub
 
 	private static function undoFollowUser($activity)
 	{
-		if (empty($activity['receiver'][$activity['object']])) {
+		$uid = self::getUserOfObject[$activity['object']];
+		if (empty($uid)) {
 			return;
 		}
 
-		$uid = $activity['receiver'][$activity['object']];
 		$owner = User::getOwnerDataById($uid);
 
 		$cid = Contact::getIdForURL($activity['owner'], $uid);

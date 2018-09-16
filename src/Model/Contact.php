@@ -1322,33 +1322,27 @@ class Contact extends BaseObject
 
 		require_once 'include/conversation.php';
 
-		// There are no posts with "uid = 0" with connector networks
-		// This speeds up the query a lot
-		$r = q("SELECT `network`, `id` AS `author-id`, `contact-type` FROM `contact`
-			WHERE `contact`.`nurl` = '%s' AND `contact`.`uid` = 0",
-			DBA::escape(normalise_link($contact_url))
-		);
+		$cid = Self::getIdForURL($contact_url);
 
-		if (!DBA::isResult($r)) {
+		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
 			return '';
 		}
 
-		if (in_array($r[0]["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
 			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
 		} else {
 			$sql = "`item`.`uid` = ?";
 		}
 
-		$author_id = intval($r[0]["author-id"]);
-
-		$contact = ($r[0]["contact-type"] == self::ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
+		$contact_field = ($contact["contact-type"] == self::ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
 		if ($thread_mode) {
-			$condition = ["`$contact` = ? AND `gravity` = ? AND " . $sql,
-				$author_id, GRAVITY_PARENT, local_user()];
+			$condition = ["`$contact_field` = ? AND `gravity` = ? AND " . $sql,
+				$cid, GRAVITY_PARENT, local_user()];
 		} else {
-			$condition = ["`$contact` = ? AND `gravity` IN (?, ?) AND " . $sql,
-				$author_id, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
+			$condition = ["`$contact_field` = ? AND `gravity` IN (?, ?) AND " . $sql,
+				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
 		}
 
 		$params = ['order' => ['created' => true],

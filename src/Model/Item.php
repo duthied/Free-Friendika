@@ -2071,6 +2071,7 @@ class Item extends BaseObject
 
 		$users = [];
 
+		/// @todo add a field "pcid" in the contact table that referrs to the public contact id.
 		$owner = DBA::selectFirst('contact', ['url', 'nurl', 'alias'], ['id' => $parent['owner-id']]);
 		if (!DBA::isResult($owner)) {
 			return;
@@ -2110,43 +2111,7 @@ class Item extends BaseObject
 			}
 			DBA::close($contacts);
 		}
-/*
 
-		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
-			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
-
-		$contacts = DBA::select('contact', ['uid'], $condition);
-
-		while ($contact = DBA::fetch($contacts)) {
-			$users[$contact['uid']] = $contact['uid'];
-		}
-
-		DBA::close($contacts);
-
-		// And the same with the alias in the user contacts
-		$condition = ["`alias` IN (SELECT `url` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
-			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
-
-		$contacts = DBA::select('contact', ['uid'], $condition);
-
-		while ($contact = DBA::fetch($contacts)) {
-			$users[$contact['uid']] = $contact['uid'];
-		}
-
-		DBA::close($contacts);
-
-		// And vice versa
-		$condition = ["`url` IN (SELECT `alias` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
-			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
-
-		$contacts = DBA::select('contact', ['uid'], $condition);
-
-		while ($contact = DBA::fetch($contacts)) {
-			$users[$contact['uid']] = $contact['uid'];
-		}
-
-		DBA::close($contacts);
-*/
 		$origin_uid = 0;
 
 		if ($item['uri'] != $item['parent-uri']) {
