@@ -3696,8 +3696,14 @@ function api_friendships_destroy($type)
 		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
 	}
 
-	$answer = ['result' => 'ok', 'user_id' => $contact_id, 'contact' => 'contact deleted'];
-	return api_format_data("friendships-destroy", $type, ['result' => $answer]);
+	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	unset($contact["uid"]);
+	unset($contact["self"]);
+
+	// Set screen_name since Twidere requests it
+	$contact["screen_name"] = $contact["nick"];
+
+	return api_format_data("friendships-destroy", $type, ['user' => $contact]);
 }
 api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, API_METHOD_POST);
 
