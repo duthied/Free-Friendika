@@ -1164,21 +1164,6 @@ class BBCode extends BaseObject
 		return $return;
 	}
 
-	private static function textHighlightCallback($match)
-	{
-		// Fallback in case the language doesn't exist
-		$return = '[code]' . $match[2] . '[/code]';
-
-		if (in_array(strtolower($match[1]),
-				['php', 'css', 'mysql', 'sql', 'abap', 'diff', 'html', 'perl', 'ruby',
-				'vbscript', 'avrc', 'dtd', 'java', 'xml', 'cpp', 'python', 'javascript', 'js', 'sh', 'bash'])
-		) {
-			$return = text_highlight($match[2], strtolower($match[1]));
-		}
-
-		return $return;
-	}
-
 	/**
 	 * @brief Converts a BBCode message to HTML message
 	 *
