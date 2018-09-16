@@ -448,7 +448,7 @@ class Notifier
 				}
 			}
 
-			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
+			$condition = ['network' => [Protocol::DFRN, Protocol::ACTIVITYPUB], 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
 			$r2 = DBA::toArray(DBA::select('contact', ['id', 'name', 'network'], $condition));

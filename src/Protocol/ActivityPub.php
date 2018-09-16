@@ -95,8 +95,7 @@ class ActivityPub
 	 */
 	public static function profile($uid)
 	{
-		$accounttype = ['Person', 'Organization', 'Service', 'Group', 'Application'];
-
+		$accounttype = ['Person', 'Organization', 'Service', 'Group', 'Application', 'page-flags'];
 		$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
 			'account_removed' => false, 'verified' => true];
 		$fields = ['guid', 'nickname', 'pubkey', 'account-type'];
@@ -105,7 +104,7 @@ class ActivityPub
 			return [];
 		}
 
-		$fields = ['locality', 'region', 'country-name', 'page-flags'];
+		$fields = ['locality', 'region', 'country-name'];
 		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		if (!DBA::isResult($profile)) {
 			return [];
@@ -119,6 +118,7 @@ class ActivityPub
 
 		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
 			['uuid' => 'http://schema.org/identifier', 'sensitive' => 'as:sensitive',
+			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 			'vcard' => 'http://www.w3.org/2006/vcard/ns#']]];
 
 		$data['id'] = $contact['url'];
@@ -130,7 +130,7 @@ class ActivityPub
 		$data['outbox'] = System::baseUrl() . '/outbox/' . $user['nickname'];
 		$data['preferredUsername'] = $user['nickname'];
 		$data['name'] = $contact['name'];
-		$data['vcard:hasAddress'] = ['@type' => 'Home', 'vcard:country-name' => $profile['country-name'],
+		$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $profile['country-name'],
 			'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
 		$data['summary'] = $contact['about'];
 		$data['url'] = $contact['url'];
@@ -183,9 +183,8 @@ class ActivityPub
 
 		$data['context'] = $data['conversation'] = $conversation_uri;
 		$data['actor'] = $item['author-link'];
-		$data['to'] = [];
 		if (!$item['private']) {
-			$data['to'][] = 'https://www.w3.org/ns/activitystreams#Public';
+			$data['to'] = 'https://www.w3.org/ns/activitystreams#Public';
 		}
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
 		$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
@@ -606,7 +605,7 @@ class ActivityPub
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
 			$owner = User::getOwnerDataById($uid);
-			$additional = [$owner['url'] => $uid];
+			$additional = ['uid:' . $uid => $uid];
 			$receivers = array_merge($receivers, $additional);
 		}
 
@@ -738,10 +737,15 @@ class ActivityPub
 	{
 		$receivers = [];
 
-		$data = self::fetchContent($actor);
-		$followers = defaults($data, 'followers', '');
+		if (!empty($actor)) {
+			$data = self::fetchContent($actor);
+			$followers = defaults($data, 'followers', '');
 
-		logger('Actor: ' . $actor . ' - Followers: ' . $followers, LOGGER_DEBUG);
+			logger('Actor: ' . $actor . ' - Followers: ' . $followers, LOGGER_DEBUG);
+		} else {
+			logger('Empty actor', LOGGER_DEBUG);
+			$followers = '';
+		}
 
 		$elements = ['to', 'cc', 'bto', 'bcc'];
 		foreach ($elements as $element) {
@@ -757,7 +761,9 @@ class ActivityPub
 			foreach ($activity[$element] as $receiver) {
 				if ($receiver == self::PUBLIC) {
 					$receivers['uid:0'] = 0;
+				}
 
+				if (($receiver == self::PUBLIC) && !empty($actor)) {
 					// This will most likely catch all OStatus connections to Mastodon
 					$condition = ['alias' => [$actor, normalise_link($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]];
 					$contacts = DBA::select('contact', ['uid'], $condition);
@@ -769,7 +775,7 @@ class ActivityPub
 					DBA::close($contacts);
 				}
 
-				if (in_array($receiver, [$followers, self::PUBLIC])) {
+				if (in_array($receiver, [$followers, self::PUBLIC]) && !empty($actor)) {
 					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
 						'network' => Protocol::ACTIVITYPUB];
 					$contacts = DBA::select('contact', ['uid'], $condition);
@@ -787,7 +793,7 @@ class ActivityPub
 				if (!DBA::isResult($contact)) {
 					continue;
 				}
-				$receivers['cid:' . $contact['uid']] = $contact['uid'];
+				$receivers['uid:' . $contact['uid']] = $contact['uid'];
 			}
 		}
 		return $receivers;
@@ -820,6 +826,7 @@ class ActivityPub
 			if (empty($data)) {
 				logger('Empty content for ' . $object_url . ', check if content is available locally.', LOGGER_DEBUG);
 				$data = $object_url;
+				$data = $object;
 			}
 		} else {
 			logger('Using original object for url ' . $object_url, LOGGER_DEBUG);
@@ -1063,7 +1070,7 @@ class ActivityPub
 
 		if (($activity['uri'] != $activity['reply-to-uri']) && !Item::exists(['uri' => $activity['reply-to-uri']])) {
 			logger('Parent ' . $activity['reply-to-uri'] . ' not found. Try to refetch it.');
-			self::fetchMissingActivity($activity['reply-to-uri']);
+			self::fetchMissingActivity($activity['reply-to-uri'], $activity);
 		}
 
 		self::postItem($activity, $item, $body);
@@ -1124,7 +1131,7 @@ class ActivityPub
 		}
 	}
 
-	private static function fetchMissingActivity($url)
+	private static function fetchMissingActivity($url, $child)
 	{
 		$object = ActivityPub::fetchContent($url);
 		if (empty($object)) {
@@ -1138,7 +1145,7 @@ class ActivityPub
 		$activity['id'] = $object['id'];
 		$activity['to'] = defaults($object, 'to', []);
 		$activity['cc'] = defaults($object, 'cc', []);
-		$activity['actor'] = $object['attributedTo'];
+		$activity['actor'] = $activity['author'];
 		$activity['object'] = $object;
 		$activity['published'] = $object['published'];
 		$activity['type'] = 'Create';
