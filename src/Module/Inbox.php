@@ -47,6 +47,6 @@ class Inbox extends BaseModule
 
 		ActivityPub::processInbox($postdata, $_SERVER, $uid);
 
-		System::httpExit(201);
+		System::httpExit(202);
 	}
 }

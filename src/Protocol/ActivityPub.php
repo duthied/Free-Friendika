@@ -32,6 +32,7 @@ use Friendica\Network\Probe;
  *
  * Digest: https://tools.ietf.org/html/rfc5843
  * https://tools.ietf.org/html/draft-cavage-http-signatures-10#ref-15
+ * https://github.com/digitalbazaar/php-json-ld
  *
  * Part of the code for HTTP signing is taken from the Osada project.
  * https://framagit.org/macgirvin/osada
@@ -155,6 +156,19 @@ class ActivityPub
 	public static function createActivityFromItem($item_id)
 	{
 		$item = Item::selectFirst([], ['id' => $item_id]);
+
+		if (!DBA::isResult($item)) {
+			return false;
+		}
+
+		$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
+		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
+		if (DBA::isResult($conversation)) {
+			$data = json_decode($conversation['source']);
+			if (!empty($data)) {
+				return $data;
+			}
+		}
 
 		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
 			['Emoji' => 'toot:Emoji', 'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
@@ -1027,6 +1041,11 @@ class ActivityPub
 			if (in_array($tag['type'], ['Mention', 'Hashtag'])) {
 				if (!empty($tag_text)) {
 					$tag_text .= ',';
+				}
+
+				if (empty($tag['href'])) {
+					//$tag['href']
+					logger('Blubb!');
 				}
 
 				$tag_text .= substr($tag['name'], 0, 1) . '[url=' . $tag['href'] . ']' . substr($tag['name'], 1) . '[/url]';

@@ -215,7 +215,7 @@
 			"reply-to-uri": {"type": "varbinary(255)", "not null": "1", "default": "", "comment": "URI to which this item is a reply"},
 			"conversation-uri": {"type": "varbinary(255)", "not null": "1", "default": "", "comment": "GNU Social conversation URI"},
 			"conversation-href": {"type": "varbinary(255)", "not null": "1", "default": "", "comment": "GNU Social conversation link"},
-			"protocol": {"type": "tinyint unsigned", "not null": "1", "default": "0", "comment": "The protocol of the item"},
+			"protocol": {"type": "tinyint unsigned", "not null": "1", "default": "255", "comment": "The protocol of the item"},
 			"source": {"type": "mediumtext", "comment": "Original source"},
 			"received": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Receiving date"}
 		},
