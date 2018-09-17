@@ -13,6 +13,7 @@ use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Crypto;
@@ -153,6 +154,111 @@ class ActivityPub
 		return $data;
 	}
 
+	public static function createPermissionBlockForItem($item)
+	{
+		$data = ['to' => [], 'cc' => []];
+
+		$terms = Term::tagArrayFromItemId($item['id']);
+
+		if (!$item['private']) {
+			$data['to'][] = self::PUBLIC;
+			$data['cc'][] = System::baseUrl() . '/followers/' . $item['author-nick'];
+
+			foreach ($terms as $term) {
+				if ($term['type'] != TERM_MENTION) {
+					continue;
+				}
+				$profile = Probe::uri($term['url'], Protocol::ACTIVITYPUB);
+				if ($profile['network'] == Protocol::ACTIVITYPUB) {
+					$data['cc'][] = $profile['url'];
+				}
+			}
+		} else {
+			$receiver_list = Item::enumeratePermissions($item);
+
+			$mentioned = [];
+
+			foreach ($terms as $term) {
+				if ($term['type'] != TERM_MENTION) {
+					continue;
+				}
+				$cid = Contact::getIdForURL($term['url'], $item['uid']);
+				if (!empty($cid) && in_array($cid, $receiver_list)) {
+					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
+					$data['to'][] = $contact['url'];
+				}
+			}
+
+			foreach ($receiver_list as $receiver) {
+				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
+				$data['cc'][] = $contact['url'];
+			}
+
+			if (empty($data['to'])) {
+				$data['to'] = $data['cc'];
+				unset($data['cc']);
+			}
+		}
+
+		return $data;
+	}
+
+	public static function fetchTargetInboxes($item)
+	{
+		$inboxes = [];
+
+		$terms = Term::tagArrayFromItemId($item['id']);
+		if (!$item['private']) {
+			$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $item['uid'], 'network' => Protocol::ACTIVITYPUB]);
+			while ($contact = DBA::fetch($contacts)) {
+				$contact = defaults($contact, 'batch', $contact['notify']);
+				$inboxes[$contact] = $contact;
+			}
+			DBA::close($contacts);
+
+			foreach ($terms as $term) {
+				if ($term['type'] != TERM_MENTION) {
+					continue;
+				}
+				$profile = Probe::uri($term['url'], Protocol::ACTIVITYPUB);
+				if ($profile['network'] == Protocol::ACTIVITYPUB) {
+					$target = defaults($profile, 'batch', $profile['notify']);
+					$inboxes[$target] = $target;
+				}
+			}
+		} else {
+			$receiver_list = Item::enumeratePermissions($item);
+
+			$mentioned = [];
+
+			foreach ($terms as $term) {
+				if ($term['type'] != TERM_MENTION) {
+					continue;
+				}
+				$cid = Contact::getIdForURL($term['url'], $item['uid']);
+				if (!empty($cid) && in_array($cid, $receiver_list)) {
+					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
+					$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
+					if ($profile['network'] == Protocol::ACTIVITYPUB) {
+						$target = defaults($profile, 'batch', $profile['notify']);
+						$inboxes[$target] = $target;
+					}
+				}
+			}
+
+			foreach ($receiver_list as $receiver) {
+				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
+				$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
+				if ($profile['network'] == Protocol::ACTIVITYPUB) {
+					$target = defaults($profile, 'batch', $profile['notify']);
+					$inboxes[$target] = $target;
+				}
+			}
+		}
+
+		return $inboxes;
+	}
+
 	public static function createActivityFromItem($item_id)
 	{
 		$item = Item::selectFirst([], ['id' => $item_id]);
@@ -177,10 +283,31 @@ class ActivityPub
 			'toot' => 'http://joinmastodon.org/ns#']]];
 
 		$data['type'] = 'Create';
-		$data['id'] = $item['uri'] . '/activity';
+		$data['id'] = $item['uri'] . '#activity';
 		$data['actor'] = $item['author-link'];
-		$data['to'] = 'https://www.w3.org/ns/activitystreams#Public';
+		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
+
 		$data['object'] = self::createNote($item);
+		return $data;
+	}
+
+	public static function createObjectFromItemID($item_id)
+	{
+		$item = Item::selectFirst([], ['id' => $item_id]);
+
+		if (!DBA::isResult($item)) {
+			return false;
+		}
+
+		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
+			['Emoji' => 'toot:Emoji', 'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
+			'conversation' => 'ostatus:conversation', 'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri',
+			'ostatus' => 'http://ostatus.org#', 'sensitive' => 'as:sensitive',
+			'toot' => 'http://joinmastodon.org/ns#']]];
+
+		$data = array_merge($data, self::createNote($item));
+
+
 		return $data;
 	}
 
@@ -203,9 +330,7 @@ class ActivityPub
 
 		$data['context'] = $data['conversation'] = $conversation_uri;
 		$data['actor'] = $item['author-link'];
-		if (!$item['private']) {
-			$data['to'] = 'https://www.w3.org/ns/activitystreams#Public';
-		}
+		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
 		$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
 		$data['attributedTo'] = $item['author-link'];

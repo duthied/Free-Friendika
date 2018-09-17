@@ -2851,7 +2851,7 @@ class Item extends BaseObject
 	}
 
 	// returns an array of contact-ids that are allowed to see this object
-	private static function enumeratePermissions($obj)
+	public static function enumeratePermissions($obj)
 	{
 		$allow_people = expand_acl($obj['allow_cid']);
 		$allow_groups = Group::expand(expand_acl($obj['allow_gid']));

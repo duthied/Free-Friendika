@@ -33,6 +33,17 @@ class Term
 		return $tag_text;
 	}
 
+	public static function tagArrayFromItemId($itemid)
+	{
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]];
+		$tags = DBA::select('term', ['type', 'term', 'url'], $condition);
+		if (!DBA::isResult($tags)) {
+			return [];
+		}
+
+		return DBA::toArray($tags);
+	}
+
 	public static function fileTextFromItemId($itemid)
 	{
 		$file_text = '';

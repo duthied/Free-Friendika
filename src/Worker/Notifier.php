@@ -16,6 +16,7 @@ use Friendica\Model\Item;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
@@ -363,9 +364,9 @@ class Notifier
 				}
 
 				// It only makes sense to distribute answers to OStatus messages to Friendica and OStatus - but not Diaspora
-				$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DFRN];
+				$networks = [Protocol::OSTATUS, Protocol::DFRN];
 			} else {
-				$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA, Protocol::MAIL];
+				$networks = [Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA, Protocol::MAIL];
 			}
 		} else {
 			$public_message = false;
@@ -413,6 +414,14 @@ class Notifier
 			}
 		}
 
+		$inboxes = ActivityPub::fetchTargetInboxes($target_item);
+		foreach ($inboxes as $inbox) {
+			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+
+			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', $cmd, $item_id, $inbox);
+		}
+
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
 		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
@@ -448,7 +457,7 @@ class Notifier
 				}
 			}
 
-			$condition = ['network' => [Protocol::DFRN, Protocol::ACTIVITYPUB], 'uid' => $owner['uid'], 'blocked' => false,
+			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
 			$r2 = DBA::toArray(DBA::select('contact', ['id', 'name', 'network'], $condition));

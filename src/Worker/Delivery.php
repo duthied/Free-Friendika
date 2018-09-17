@@ -15,7 +15,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 
@@ -165,10 +164,6 @@ class Delivery extends BaseObject
 		logger("Delivering " . $cmd . " followup=$followup - via network " . $contact['network']);
 
 		switch ($contact['network']) {
-
-			case Protocol::ACTIVITYPUB:
-				self::deliverActivityPub($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
-				break;
 
 			case Protocol::DFRN:
 				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
@@ -382,80 +377,6 @@ class Delivery extends BaseObject
 			// currently no workable solution for sending walltowall
 			logger('diaspora status: ' . $loc);
 			Diaspora::sendStatus($target_item, $owner, $contact, $public_message);
-			return;
-		}
-
-		logger('Unknown mode ' . $cmd . ' for ' . $loc);
-	}
-
-	/**
-	 * @brief Deliver content via ActivityPub
-q	 *
-	 * @param string  $cmd            Command
-	 * @param array   $contact        Contact record of the receiver
-	 * @param array   $owner          Owner record of the sender
-	 * @param array   $items          Item record of the content and the parent
-	 * @param array   $target_item    Item record of the content
-	 * @param boolean $public_message Is the content public?
-	 * @param boolean $top_level      Is it a thread starter?
-	 * @param boolean $followup       Is it an answer to a remote post?
-	 */
-	private static function deliverActivityPub($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
-	{
-		// We don't treat Forum posts as "wall-to-wall" to be able to post them via ActivityPub
-		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY);
-
-		if ($public_message) {
-			$loc = 'public batch ' . $contact['batch'];
-		} else {
-			$loc = $contact['addr'];
-		}
-
-		logger('Deliver ' . $target_item["guid"] . ' via ActivityPub to ' . $loc);
-
-//		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
-//			return;
-//		}
-		if ($cmd == self::MAIL) {
-//			ActivityPub::sendMail($target_item, $owner, $contact);
-			return;
-		}
-
-		if ($cmd == self::SUGGESTION) {
-			return;
-		}
-//		if (!$contact['pubkey'] && !$public_message) {
-//			logger('No public key, no delivery.');
-//			return;
-//		}
-		if (($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
-			// top-level retraction
-			logger('ActivityPub retract: ' . $loc);
-//			ActivityPub::sendRetraction($target_item, $owner, $contact, $public_message);
-			return;
-		} elseif ($cmd == self::RELOCATION) {
-//			ActivityPub::sendAccountMigration($owner, $contact, $owner['uid']);
-			return;
-		} elseif ($followup) {
-			// send comments and likes to owner to relay
-			logger('ActivityPub followup: ' . $loc);
-			$data = ActivityPub::createActivityFromItem($target_item['id']);
-			ActivityPub::transmit($data, $contact['notify'], $owner['uid']);
-//			ActivityPub::sendFollowup($target_item, $owner, $contact, $public_message);
-			return;
-		} elseif ($target_item['uri'] !== $target_item['parent-uri']) {
-			// we are the relay - send comments, likes and relayable_retractions to our conversants
-			logger('ActivityPub relay: ' . $loc);
-			$data = ActivityPub::createActivityFromItem($target_item['id']);
-			ActivityPub::transmit($data, $contact['notify'], $owner['uid']);
-//			ActivityPub::sendRelay($target_item, $owner, $contact, $public_message);
-			return;
-		} elseif ($top_level && !$walltowall) {
-			// currently no workable solution for sending walltowall
-			logger('ActivityPub status: ' . $loc);
-			$data = ActivityPub::createActivityFromItem($target_item['id']);
-			ActivityPub::transmit($data, $contact['notify'], $owner['uid']);
-//			ActivityPub::sendStatus($target_item, $owner, $contact, $public_message);
 			return;
 		}
 
