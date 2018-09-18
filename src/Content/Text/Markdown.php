@@ -14,7 +14,7 @@ use Friendica\Content\Text\HTML;
 /**
  * Friendica-specific usage of Markdown
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Markdown extends BaseObject
 {

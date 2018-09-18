@@ -13,7 +13,7 @@ require_once 'include/dba.php';
 /**
  * @brief Performs database updates from the command line
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class DatabaseStructure extends \Asika\SimpleConsole\Console
 {
