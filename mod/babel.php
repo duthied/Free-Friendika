@@ -10,7 +10,7 @@ function visible_whitespace($s)
 {
 	$s = str_replace(' ', '&nbsp;', $s);
 
-	return str_replace("\n", '<br />', $s);
+	return str_replace(["\r\n", "\n", "\r"], '<br />', $s);
 }
 
 function babel_content()
@@ -114,6 +114,12 @@ function babel_content()
 					'content' => visible_whitespace($bbcode)
 				];
 
+				$markdown = Text\HTML::toMarkdown($html);
+				$results[] = [
+					'title' => L10n::t('HTML::toMarkdown'),
+					'content' => visible_whitespace($markdown)
+				];
+
 				$text = Text\HTML::toPlaintext($html);
 				$results[] = [
 					'title' => L10n::t('HTML::toPlaintext'),
@@ -124,7 +130,7 @@ function babel_content()
 
 	$tpl = get_markup_template('babel.tpl');
 	$o = replace_macros($tpl, [
-		'$text'          => ['text', L10n::t('Source text'), defaults($_REQUEST, 'text', ''), ''],
+		'$text'          => ['text', L10n::t('Source text'), htmlentities(defaults($_REQUEST, 'text', '')), ''],
 		'$type_bbcode'   => ['type', L10n::t('BBCode'), 'bbcode', '', defaults($_REQUEST, 'type', 'bbcode') == 'bbcode'],
 		'$type_markdown' => ['type', L10n::t('Markdown'), 'markdown', '', defaults($_REQUEST, 'type', 'bbcode') == 'markdown'],
 		'$type_html'     => ['type', L10n::t('HTML'), 'html', '', defaults($_REQUEST, 'type', 'bbcode') == 'html'],
