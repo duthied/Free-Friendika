@@ -174,6 +174,7 @@ class ActivityPub
 				}
 			}
 		} else {
+			$data['to'][] = System::baseUrl() . '/followers/' . $item['author-nick'];
 			$receiver_list = Item::enumeratePermissions($item);
 
 			$mentioned = [];
@@ -209,7 +210,8 @@ class ActivityPub
 
 		$terms = Term::tagArrayFromItemId($item['id']);
 		if (!$item['private']) {
-			$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $item['uid'], 'network' => Protocol::ACTIVITYPUB]);
+			$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $item['uid'],
+					'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB]);
 			while ($contact = DBA::fetch($contacts)) {
 				$contact = defaults($contact, 'batch', $contact['notify']);
 				$inboxes[$contact] = $contact;
@@ -240,7 +242,8 @@ class ActivityPub
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
 					$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
 					if ($profile['network'] == Protocol::ACTIVITYPUB) {
-						$target = defaults($profile, 'batch', $profile['notify']);
+						//$target = defaults($profile, 'batch', $profile['notify']);
+						$target = $profile['notify'];
 						$inboxes[$target] = $target;
 					}
 				}
@@ -250,10 +253,20 @@ class ActivityPub
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
 				$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
 				if ($profile['network'] == Protocol::ACTIVITYPUB) {
-					$target = defaults($profile, 'batch', $profile['notify']);
+					//$target = defaults($profile, 'batch', $profile['notify']);
+					$target = $profile['notify'];
 					$inboxes[$target] = $target;
 				}
 			}
+		}
+
+		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+		if (!empty($profile['batch'])) {
+			unset($inboxes[$profile['batch']]);
+		}
+
+		if (!empty($profile['notify'])) {
+			unset($inboxes[$profile['notify']]);
 		}
 
 		return $inboxes;
@@ -285,6 +298,13 @@ class ActivityPub
 		$data['type'] = 'Create';
 		$data['id'] = $item['uri'] . '#activity';
 		$data['actor'] = $item['author-link'];
+
+		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
+
+		if ($item["created"] != $item["edited"]) {
+			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
+		}
+
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
 		$data['object'] = self::createNote($item);
@@ -311,6 +331,38 @@ class ActivityPub
 		return $data;
 	}
 
+	private static function createTagList($item)
+	{
+		$tags = [];
+
+		$receiver_list = Item::enumeratePermissions($item);
+		foreach ($receiver_list as $receiver) {
+			$contact = DBA::selectFirst('contact', ['url', 'addr'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
+			if (!empty($contact['addr'])) {
+				$mention = '@' . $contact['addr'];
+			} else {
+				$mention = '@' . $term['url'];
+			}
+			$tags[] = ['type' => 'Mention', 'href' => $contact['url'], 'name' => $mention];
+		}
+
+		$terms = Term::tagArrayFromItemId($item['id']);
+		foreach ($terms as $term) {
+			if ($term['type'] == TERM_MENTION) {
+				$contact = Contact::getDetailsByURL($term['url']);
+				if (!empty($contact['addr'])) {
+					$mention = '@' . $contact['addr'];
+				} else {
+					$mention = '@' . $term['url'];
+				}
+
+				$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
+			}
+		}
+
+		return $tags;
+	}
+
 	public static function createNote($item)
 	{
 		$data = [];
@@ -332,16 +384,20 @@ class ActivityPub
 		$data['actor'] = $item['author-link'];
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
-		$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
+
+		if ($item["created"] != $item["edited"]) {
+			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
+		}
+
 		$data['attributedTo'] = $item['author-link'];
 		$data['name'] = BBCode::convert($item['title'], false, 7);
 		$data['content'] = BBCode::convert($item['body'], false, 7);
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
-		//$data['summary'] = ''; // Ignore by now
-		//$data['sensitive'] = false; // - Query NSFW
-		//$data['emoji'] = []; // Ignore by now
-		//$data['tag'] = []; /// @ToDo
-		//$data['attachment'] = []; // @ToDo
+		$data['summary'] = ''; // Ignore by now
+		$data['sensitive'] = false; // - Query NSFW
+		$data['emoji'] = []; // Ignore by now
+		$data['tag'] = self::createTagList($item);
+		$data['attachment'] = []; // @ToDo
 		return $data;
 	}
 
