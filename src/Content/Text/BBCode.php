@@ -25,7 +25,6 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
-use League\HTMLToMarkdown\HtmlConverter;
 
 class BBCode extends BaseObject
 {
@@ -1942,8 +1941,7 @@ class BBCode extends BaseObject
 		$stamp1 = microtime(true);
 
 		// Now convert HTML to Markdown
-		$converter = new HtmlConverter();
-		$text = $converter->convert($text);
+		$text = HTML::toMarkdown($text);
 
 		// unmask the special chars back to HTML
 		$text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $text);

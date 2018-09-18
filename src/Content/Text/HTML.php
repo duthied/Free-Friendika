@@ -11,6 +11,7 @@ use DOMXPath;
 use Friendica\Core\Addon;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use League\HTMLToMarkdown\HtmlConverter;
 
 class HTML
 {
@@ -671,5 +672,20 @@ class HTML
 		$message = self::quoteLevel(trim($message), $wraplength);
 
 		return trim($message);
+	}
+
+	/**
+	 * Converts provided HTML code to Markdown. The hardwrap parameter maximizes
+	 * compatibility with Diaspora in spite of the Markdown standards.
+	 *
+	 * @param string $html
+	 * @return string
+	 */
+	public static function toMarkdown($html)
+	{
+		$converter = new HtmlConverter(['hard_break' => true]);
+		$markdown = $converter->convert($html);
+
+		return $markdown;
 	}
 }
