@@ -18,7 +18,7 @@
 		"asika/simple-console": "^1.0",
 		"divineomega/password_exposed": "^2.4",
 		"ezyang/htmlpurifier": "~4.7.0",
-		"league/html-to-markdown": "~4.4.1",
+		"league/html-to-markdown": "~4.8.0",
 		"lightopenid/lightopenid": "dev-master",
 		"michelf/php-markdown": "^1.7",
 		"mobiledetect/mobiledetectlib": "2.8.*",
