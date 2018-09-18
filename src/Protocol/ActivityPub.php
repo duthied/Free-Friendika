@@ -125,9 +125,8 @@ class ActivityPub
 		}
 
 		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['uuid' => 'http://schema.org/identifier', 'sensitive' => 'as:sensitive',
-			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
-			'vcard' => 'http://www.w3.org/2006/vcard/ns#']]];
+			['vcard' => 'http://www.w3.org/2006/vcard/ns#', 'uuid' => 'http://schema.org/identifier',
+			'sensitive' => 'as:sensitive', 'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers']]];
 
 		$data['id'] = $contact['url'];
 		$data['uuid'] = $user['guid'];
@@ -174,7 +173,7 @@ class ActivityPub
 				}
 			}
 		} else {
-			$data['to'][] = System::baseUrl() . '/followers/' . $item['author-nick'];
+			//$data['cc'][] = System::baseUrl() . '/followers/' . $item['author-nick'];
 			$receiver_list = Item::enumeratePermissions($item);
 
 			$mentioned = [];
@@ -197,7 +196,7 @@ class ActivityPub
 
 			if (empty($data['to'])) {
 				$data['to'] = $data['cc'];
-				unset($data['cc']);
+				$data['cc'] = [];
 			}
 		}
 
@@ -242,8 +241,7 @@ class ActivityPub
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
 					$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
 					if ($profile['network'] == Protocol::ACTIVITYPUB) {
-						//$target = defaults($profile, 'batch', $profile['notify']);
-						$target = $profile['notify'];
+						$target = defaults($profile, 'batch', $profile['notify']);
 						$inboxes[$target] = $target;
 					}
 				}
@@ -253,8 +251,7 @@ class ActivityPub
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
 				$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
 				if ($profile['network'] == Protocol::ACTIVITYPUB) {
-					//$target = defaults($profile, 'batch', $profile['notify']);
-					$target = $profile['notify'];
+					$target = defaults($profile, 'batch', $profile['notify']);
 					$inboxes[$target] = $target;
 				}
 			}
@@ -290,10 +287,10 @@ class ActivityPub
 		}
 
 		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['Emoji' => 'toot:Emoji', 'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
-			'conversation' => 'ostatus:conversation', 'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri',
-			'ostatus' => 'http://ostatus.org#', 'sensitive' => 'as:sensitive',
-			'toot' => 'http://joinmastodon.org/ns#']]];
+			['ostatus' => 'http://ostatus.org#', 'sensitive' => 'as:sensitive',
+			'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
+			'conversation' => 'ostatus:conversation',
+			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
 		$data['type'] = 'Create';
 		$data['id'] = $item['uri'] . '#activity';
@@ -320,10 +317,10 @@ class ActivityPub
 		}
 
 		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['Emoji' => 'toot:Emoji', 'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
-			'conversation' => 'ostatus:conversation', 'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri',
-			'ostatus' => 'http://ostatus.org#', 'sensitive' => 'as:sensitive',
-			'toot' => 'http://joinmastodon.org/ns#']]];
+			['ostatus' => 'http://ostatus.org#', 'sensitive' => 'as:sensitive',
+			'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
+			'conversation' => 'ostatus:conversation',
+			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
 		$data = array_merge($data, self::createNote($item));
 
@@ -334,17 +331,6 @@ class ActivityPub
 	private static function createTagList($item)
 	{
 		$tags = [];
-
-		$receiver_list = Item::enumeratePermissions($item);
-		foreach ($receiver_list as $receiver) {
-			$contact = DBA::selectFirst('contact', ['url', 'addr'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
-			if (!empty($contact['addr'])) {
-				$mention = '@' . $contact['addr'];
-			} else {
-				$mention = '@' . $term['url'];
-			}
-			$tags[] = ['type' => 'Mention', 'href' => $contact['url'], 'name' => $mention];
-		}
 
 		$terms = Term::tagArrayFromItemId($item['id']);
 		foreach ($terms as $term) {
@@ -395,7 +381,7 @@ class ActivityPub
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
 		$data['summary'] = ''; // Ignore by now
 		$data['sensitive'] = false; // - Query NSFW
-		$data['emoji'] = []; // Ignore by now
+		//$data['emoji'] = []; // Ignore by now
 		$data['tag'] = self::createTagList($item);
 		$data['attachment'] = []; // @ToDo
 		return $data;
