@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d62c3e3d6971ee63a862a22ff3cd3768",
+    "content-hash": "7bfbddde186f6599a2f2012bb13cbbd8",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -148,6 +148,52 @@
                 "shasum": ""
             },
             "type": "bower-asset-library"
+        },
+        {
+            "name": "digitalbazaar/json-ld",
+            "version": "0.4.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/digitalbazaar/php-json-ld.git",
+                "reference": "dc1bd23f0ee2efd27ccf636d32d2738dabcee182"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/digitalbazaar/php-json-ld/zipball/dc1bd23f0ee2efd27ccf636d32d2738dabcee182",
+                "reference": "dc1bd23f0ee2efd27ccf636d32d2738dabcee182",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "jsonld.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Digital Bazaar, Inc.",
+                    "email": "support@digitalbazaar.com"
+                }
+            ],
+            "description": "A JSON-LD Processor and API implementation in PHP.",
+            "homepage": "https://github.com/digitalbazaar/php-json-ld",
+            "keywords": [
+                "JSON-LD",
+                "Linked Data",
+                "RDF",
+                "Semantic Web",
+                "json",
+                "jsonld"
+            ],
+            "time": "2016-04-25T04:17:52+00:00"
         },
         {
             "name": "divineomega/password_exposed",
@@ -3145,7 +3191,7 @@
                 }
             ],
             "description": "Provides the functionality to compare PHP values for equality",
-            "homepage": "https://github.com/sebastianbergmann/comparator",
+            "homepage": "http://www.github.com/sebastianbergmann/comparator",
             "keywords": [
                 "comparator",
                 "compare",
@@ -3247,7 +3293,7 @@
                 }
             ],
             "description": "Provides functionality to handle HHVM/PHP environments",
-            "homepage": "https://github.com/sebastianbergmann/environment",
+            "homepage": "http://www.github.com/sebastianbergmann/environment",
             "keywords": [
                 "Xdebug",
                 "environment",
@@ -3315,7 +3361,7 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "https://github.com/sebastianbergmann/exporter",
+            "homepage": "http://www.github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
@@ -3367,7 +3413,7 @@
                 }
             ],
             "description": "Snapshotting of global state",
-            "homepage": "https://github.com/sebastianbergmann/global-state",
+            "homepage": "http://www.github.com/sebastianbergmann/global-state",
             "keywords": [
                 "global state"
             ],
@@ -3469,7 +3515,7 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "https://github.com/sebastianbergmann/recursion-context",
+            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
             "time": "2016-11-19T07:33:16+00:00"
         },
         {

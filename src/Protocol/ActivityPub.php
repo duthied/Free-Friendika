@@ -684,39 +684,63 @@ class ActivityPub
 			return false;
 		}
 
-		$profile = ['network' => Protocol::ACTIVITYPUB];
-		$profile['nick'] = $data['preferredUsername'];
-		$profile['name'] = defaults($data, 'name', $profile['nick']);
-		$profile['guid'] = defaults($data, 'uuid', null);
-		$profile['url'] = $data['id'];
+		$apcontact = [];
+		$apcontact['url'] = $data['id'];
+		$apcontact['uuid'] = defaults($data, 'uuid', null);
+		$apcontact['type'] = defaults($data, 'type', null);
+		$apcontact['following'] = defaults($data, 'following', null);
+		$apcontact['followers'] = defaults($data, 'followers', null);
+		$apcontact['inbox'] = defaults($data, 'inbox', null);
+		$apcontact['outbox'] = defaults($data, 'outbox', null);
+		$apcontact['sharedinbox'] = self::processElement($data, 'endpoints', 'sharedInbox');
+		$apcontact['nick'] = defaults($data, 'preferredUsername', null);
+		$apcontact['name'] = defaults($data, 'name', $apcontact['nick']);
+		$apcontact['about'] = defaults($data, 'summary', '');
+		$apcontact['photo'] = self::processElement($data, 'icon', 'url');
+		$apcontact['alias'] = self::processElement($data, 'url', 'href');
 
-		$parts = parse_url($profile['url']);
+		$parts = parse_url($apcontact['url']);
 		unset($parts['scheme']);
 		unset($parts['path']);
-		$profile['addr'] = $profile['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
-		$profile['alias'] = self::processElement($data, 'url', 'href');
-		$profile['photo'] = self::processElement($data, 'icon', 'url');
+		$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
+
+		$apcontact['pubkey'] = self::processElement($data, 'publicKey', 'publicKeyPem');
+
+		// Check if the address is resolvable
+		if (self::addrToUrl($apcontact['addr']) == $apcontact['url']) {
+			$parts = parse_url($apcontact['url']);
+			unset($parts['path']);
+			$apcontact['baseurl'] = Network::unparseURL($parts);
+		} else {
+			$apcontact['addr'] = null;
+		}
+
+		if ($apcontact['url'] == $apcontact['alias']) {
+			$apcontact['alias'] = null;
+		}
+
+		$apcontact['updated'] = DateTimeFormat::utcNow();
+
+		DBA::update('apcontact', $apcontact, ['url' => $url], true);
+
+		// Array that is compatible to Probe::uri
+		$profile = ['network' => Protocol::ACTIVITYPUB];
+		$profile['nick'] = $apcontact['nick'];
+		$profile['name'] = $apcontact['name'];
+		$profile['guid'] = $apcontact['uuid'];
+		$profile['url'] = $apcontact['url'];
+		$profile['addr'] = $apcontact['addr'];
+		$profile['alias'] = $apcontact['alias'];
+		$profile['photo'] = $apcontact['photo'];
 		// $profile['community']
 		// $profile['keywords']
 		// $profile['location']
-		$profile['about'] = defaults($data, 'summary', '');
-		$profile['batch'] = self::processElement($data, 'endpoints', 'sharedInbox');
-		$profile['notify'] = $data['inbox'];
-		$profile['poll'] = $data['outbox'];
-		$profile['pubkey'] = self::processElement($data, 'publicKey', 'publicKeyPem');
-
-		// Check if the address is resolvable
-		if (self::addrToUrl($profile['addr']) == $profile['url']) {
-			$parts = parse_url($profile['url']);
-			unset($parts['path']);
-			$profile['baseurl'] = Network::unparseURL($parts);
-		} else {
-			unset($profile['addr']);
-		}
-
-		if ($profile['url'] == $profile['alias']) {
-			unset($profile['alias']);
-		}
+		$profile['about'] = $apcontact['about'];
+		$profile['batch'] = $apcontact['sharedinbox'];
+		$profile['notify'] = $apcontact['inbox'];
+		$profile['poll'] = $apcontact['outbox'];
+		$profile['pubkey'] = $apcontact['pubkey'];
+		$profile['baseurl'] = $apcontact['baseurl'];
 
 		// Remove all "null" fields
 		foreach ($profile as $field => $content) {
