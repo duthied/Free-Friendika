@@ -21,10 +21,16 @@ function editpost_content(App $a)
 	}
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+	$return_url = (($a->argc > 1) ? base64_decode($a->argv[2]) : '');
 
 	if (!$post_id) {
 		notice(L10n::t('Item not found') . EOL);
 		return;
+	}
+
+	// Fallback to SESSION return_path
+	if (empty($return_url)) {
+		$return_url = $_SESSION['return_path'];
 	}
 
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
@@ -95,7 +101,7 @@ function editpost_content(App $a)
 
 	$o .= replace_macros($tpl, [
 		'$is_edit' => true,
-		'$return_path' => $_SESSION['return_url'],
+		'$return_path' => $return_url,
 		'$action' => 'item',
 		'$share' => L10n::t('Save'),
 		'$upload' => L10n::t('Upload photo'),
