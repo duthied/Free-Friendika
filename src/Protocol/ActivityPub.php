@@ -19,7 +19,8 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Crypto;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Network\Probe;
+use Friendica\Core\Cache;
+use digitalbazaar\jsonld;
 
 /**
  * @brief ActivityPub Protocol class
@@ -56,6 +57,51 @@ use Friendica\Network\Probe;
 class ActivityPub
 {
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
+
+public static function jsonld_document_loader($url)
+{
+	$recursion = 0;
+
+	$x = debug_backtrace();
+	if ($x) {
+		foreach ($x as $n) {
+			if ($n['function'] === __FUNCTION__)  {
+				$recursion ++;
+			}
+		}
+	}
+
+	if ($recursion > 5) {
+		logger('jsonld bomb detected at: ' . $url);
+		exit();
+	}
+
+	$result = Cache::get('jsonld_document_loader:' . $url);
+	if (!is_null($result)) {
+		return $result;
+	}
+
+	$data = jsonld_default_document_loader($url);
+	Cache::set('jsonld_document_loader:' . $url, $data, CACHE_DAY);
+	return $data;
+}
+
+	public static function compactJsonLD($json)
+	{
+		jsonld_set_document_loader('Friendica\Protocol\ActivityPub::jsonld_document_loader');
+
+		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams',
+			'w3sec' => 'https://w3id.org/security',
+			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
+			'uuid' => (object)['@id' => 'http://schema.org/identifier', '@type' => '@id']];
+
+		$jsonobj = json_decode(json_encode($json));
+
+		$compacted = jsonld_compact($jsonobj, $context);
+
+		return json_decode(json_encode($compacted), true);
+	}
 
 	public static function isRequest()
 	{
@@ -167,8 +213,8 @@ class ActivityPub
 				if ($term['type'] != TERM_MENTION) {
 					continue;
 				}
-				$profile = Probe::uri($term['url'], Protocol::ACTIVITYPUB);
-				if ($profile['network'] == Protocol::ACTIVITYPUB) {
+				$profile = self::fetchprofile($term['url']);
+				if (!empty($profile)) {
 					$data['cc'][] = $profile['url'];
 				}
 			}
@@ -221,9 +267,9 @@ class ActivityPub
 				if ($term['type'] != TERM_MENTION) {
 					continue;
 				}
-				$profile = Probe::uri($term['url'], Protocol::ACTIVITYPUB);
-				if ($profile['network'] == Protocol::ACTIVITYPUB) {
-					$target = defaults($profile, 'batch', $profile['notify']);
+				$profile = self::fetchprofile($term['url']);
+				if (!empty($profile)) {
+					$target = defaults($profile, 'sharedinbox', $profile['inbox']);
 					$inboxes[$target] = $target;
 				}
 			}
@@ -239,9 +285,9 @@ class ActivityPub
 				$cid = Contact::getIdForURL($term['url'], $item['uid']);
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
-					$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
-					if ($profile['network'] == Protocol::ACTIVITYPUB) {
-						$target = defaults($profile, 'batch', $profile['notify']);
+					$profile = self::fetchprofile($contact['url']);
+					if (!empty($profile['network'])) {
+						$target = defaults($profile, 'sharedinbox', $profile['inbox']);
 						$inboxes[$target] = $target;
 					}
 				}
@@ -249,21 +295,21 @@ class ActivityPub
 
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
-				$profile = Probe::uri($contact['url'], Protocol::ACTIVITYPUB);
-				if ($profile['network'] == Protocol::ACTIVITYPUB) {
-					$target = defaults($profile, 'batch', $profile['notify']);
+				$profile = self::fetchprofile($contact['url']);
+				if (!empty($profile['network'])) {
+					$target = defaults($profile, 'sharedinbox', $profile['inbox']);
 					$inboxes[$target] = $target;
 				}
 			}
 		}
 
-		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
-		if (!empty($profile['batch'])) {
-			unset($inboxes[$profile['batch']]);
+		$profile = self::fetchprofile($item['author-link']);
+		if (!empty($profile['sharedinbox'])) {
+			unset($inboxes[$profile['sharedinbox']]);
 		}
 
-		if (!empty($profile['notify'])) {
-			unset($inboxes[$profile['notify']]);
+		if (!empty($profile['inbox'])) {
+			unset($inboxes[$profile['inbox']]);
 		}
 
 		return $inboxes;
@@ -389,7 +435,7 @@ class ActivityPub
 
 	public static function transmitActivity($activity, $target, $uid)
 	{
-		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+		$profile = self::fetchprofile($target);
 
 		$owner = User::getOwnerDataById($uid);
 
@@ -401,12 +447,12 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['notify'], $uid);
+		return self::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactAccept($target, $id, $uid)
 	{
-		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+		$profile = self::fetchprofile($target);
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
@@ -419,12 +465,12 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['notify'], $uid);
+		return self::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactReject($target, $id, $uid)
 	{
-		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+		$profile = self::fetchprofile($target);
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
@@ -437,12 +483,12 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['notify'], $uid);
+		return self::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactUndo($target, $uid)
 	{
-		$profile = Probe::uri($target, Protocol::ACTIVITYPUB);
+		$profile = self::fetchprofile($target);
 
 		$id = System::baseUrl() . '/activity/' . System::createGUID();
 
@@ -457,7 +503,7 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['notify'], $uid);
+		return self::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	/**
@@ -616,11 +662,11 @@ class ActivityPub
 	{
 		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
 
-		$profile = Probe::uri($url, Protocol::ACTIVITYPUB);
+		$profile = self::fetchprofile($url);
 		if (!empty($profile)) {
 			return $profile['pubkey'];
 		} elseif ($url != $actor) {
-			$profile = Probe::uri($actor, Protocol::ACTIVITYPUB);
+			$profile = self::fetchprofile($actor);
 			if (!empty($profile)) {
 				return $profile['pubkey'];
 			}
@@ -663,14 +709,29 @@ class ActivityPub
 		return $ret;
 	}
 
-	/**
-	 * Fetches a profile from the given url
-	 *
-	 * @param string $url profile url
-	 * @return array
-	 */
-	public static function fetchProfile($url)
+	public static function fetchprofile($url, $update = false)
 	{
+		if (empty($url)) {
+			return false;
+		}
+
+		if (!$update) {
+			$apcontact = DBA::selectFirst('apcontact', [], ['url' => $url]);
+			if (DBA::isResult($apcontact)) {
+				return $apcontact;
+			}
+
+			$apcontact = DBA::selectFirst('apcontact', [], ['alias' => $url]);
+			if (DBA::isResult($apcontact)) {
+				return $apcontact;
+			}
+
+			$apcontact = DBA::selectFirst('apcontact', [], ['addr' => $url]);
+			if (DBA::isResult($apcontact)) {
+				return $apcontact;
+			}
+		}
+
 		if (empty(parse_url($url, PHP_URL_SCHEME))) {
 			$url = self::addrToUrl($url);
 			if (empty($url)) {
@@ -704,7 +765,19 @@ class ActivityPub
 		unset($parts['path']);
 		$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
 
-		$apcontact['pubkey'] = self::processElement($data, 'publicKey', 'publicKeyPem');
+		$apcontact['pubkey'] = trim(self::processElement($data, 'publicKey', 'publicKeyPem'));
+
+		// To-Do
+		// manuallyApprovesFollowers
+
+		// Unhandled
+		// @context, tag, attachment, image, nomadicLocations, signature, following, followers, featured, movedTo, liked
+
+		// Unhandled from Misskey
+		// sharedInbox, isCat
+
+		// Unhandled from Kroeg
+		// kroeg:blocks, updated
 
 		// Check if the address is resolvable
 		if (self::addrToUrl($apcontact['addr']) == $apcontact['url']) {
@@ -723,7 +796,22 @@ class ActivityPub
 
 		DBA::update('apcontact', $apcontact, ['url' => $url], true);
 
-		// Array that is compatible to Probe::uri
+		return $apcontact;
+	}
+
+	/**
+	 * Fetches a profile from the given url into an array that is compatible to Probe::uri
+	 *
+	 * @param string $url profile url
+	 * @return array
+	 */
+	public static function probeProfile($url)
+	{
+		$apcontact = self::fetchprofile($url, true);
+		if (empty($apcontact)) {
+			return false;
+		}
+
 		$profile = ['network' => Protocol::ACTIVITYPUB];
 		$profile['nick'] = $apcontact['nick'];
 		$profile['name'] = $apcontact['name'];
@@ -748,18 +836,6 @@ class ActivityPub
 				unset($profile[$field]);
 			}
 		}
-
-		// To-Do
-		// type, manuallyApprovesFollowers
-
-		// Unhandled
-		// @context, tag, attachment, image, nomadicLocations, signature, following, followers, featured, movedTo, liked
-
-		// Unhandled from Misskey
-		// sharedInbox, isCat
-
-		// Unhandled from Kroeg
-		// kroeg:blocks, updated
 
 		return $profile;
 	}
@@ -953,8 +1029,8 @@ class ActivityPub
 		$receivers = [];
 
 		if (!empty($actor)) {
-			$data = self::fetchContent($actor);
-			$followers = defaults($data, 'followers', '');
+			$profile = self::fetchprofile($actor);
+			$followers = defaults($profile, 'followers', '');
 
 			logger('Actor: ' . $actor . ' - Followers: ' . $followers, LOGGER_DEBUG);
 		} else {
@@ -1365,7 +1441,7 @@ class ActivityPub
 		$activity['id'] = $object['id'];
 		$activity['to'] = defaults($object, 'to', []);
 		$activity['cc'] = defaults($object, 'cc', []);
-		$activity['actor'] = $activity['author'];
+		$activity['actor'] = $child['author'];
 		$activity['object'] = $object;
 		$activity['published'] = $object['published'];
 		$activity['type'] = 'Create';
