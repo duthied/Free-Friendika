@@ -19,8 +19,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Crypto;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Cache;
-use digitalbazaar\jsonld;
 
 /**
  * @brief ActivityPub Protocol class
@@ -57,51 +55,6 @@ use digitalbazaar\jsonld;
 class ActivityPub
 {
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
-
-public static function jsonld_document_loader($url)
-{
-	$recursion = 0;
-
-	$x = debug_backtrace();
-	if ($x) {
-		foreach ($x as $n) {
-			if ($n['function'] === __FUNCTION__)  {
-				$recursion ++;
-			}
-		}
-	}
-
-	if ($recursion > 5) {
-		logger('jsonld bomb detected at: ' . $url);
-		exit();
-	}
-
-	$result = Cache::get('jsonld_document_loader:' . $url);
-	if (!is_null($result)) {
-		return $result;
-	}
-
-	$data = jsonld_default_document_loader($url);
-	Cache::set('jsonld_document_loader:' . $url, $data, CACHE_DAY);
-	return $data;
-}
-
-	public static function compactJsonLD($json)
-	{
-		jsonld_set_document_loader('Friendica\Protocol\ActivityPub::jsonld_document_loader');
-
-		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams',
-			'w3sec' => 'https://w3id.org/security',
-			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
-			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
-			'uuid' => (object)['@id' => 'http://schema.org/identifier', '@type' => '@id']];
-
-		$jsonobj = json_decode(json_encode($json));
-
-		$compacted = jsonld_compact($jsonobj, $context);
-
-		return json_decode(json_encode($compacted), true);
-	}
 
 	public static function isRequest()
 	{
