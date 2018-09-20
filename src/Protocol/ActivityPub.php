@@ -20,6 +20,7 @@ use Friendica\Util\Crypto;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Util\JsonLD;
+use Friendica\Util\LDSignature;
 
 /**
  * @brief ActivityPub Protocol class
@@ -273,7 +274,10 @@ class ActivityPub
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
 		$data['object'] = self::createNote($item);
-		return $data;
+
+		$owner = User::getOwnerDataById($item['uid']);
+
+		return LDSignature::sign($data, $owner);
 	}
 
 	public static function createObjectFromItemID($item_id)
@@ -369,7 +373,9 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
-		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
+
+		$signed = LDSignature::sign($data, $owner);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactAccept($target, $id, $uid)
@@ -387,7 +393,9 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
+
+		$signed = LDSignature::sign($data, $owner);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactReject($target, $id, $uid)
@@ -405,7 +413,9 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
+
+		$signed = LDSignature::sign($data, $owner);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactUndo($target, $uid)
@@ -425,7 +435,9 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
+
+		$signed = LDSignature::sign($data, $owner);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	/**
