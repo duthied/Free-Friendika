@@ -28,7 +28,7 @@ function insertFormatting(BBcode, id) {
 }
 
 function insertFormattingToPost(BBcode) {
-	textarea = document.getElementById("#profile-jot-text");
+	textarea = document.getElementById("profile-jot-text");
 	if (document.selection) {
 		textarea.focus();
 		selected = document.selection.createRange();
