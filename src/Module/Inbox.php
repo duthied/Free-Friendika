@@ -8,6 +8,7 @@ use Friendica\BaseModule;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Util\HTTPSignature;
 
 /**
  * ActivityPub Inbox
@@ -24,7 +25,7 @@ class Inbox extends BaseModule
 			System::httpExit(400);
 		}
 
-		if (ActivityPub::verifySignature($postdata, $_SERVER)) {
+		if (HTTPSignature::verifyAP($postdata, $_SERVER)) {
 			$filename = 'signed-activitypub';
 		} else {
 			$filename = 'failed-activitypub';

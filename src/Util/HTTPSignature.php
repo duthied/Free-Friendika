@@ -5,8 +5,11 @@
  */
 namespace Friendica\Util;
 
+use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
+use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -19,55 +22,35 @@ use Friendica\Database\DBA;
 class HTTPSignature
 {
 	// See draft-cavage-http-signatures-08
-	public static function verify($data, $key = '')
+	public static function verifyMagic($key)
 	{
-		$body      = $data;
 		$headers   = null;
 		$spoofable = false;
 		$result = [
 			'signer'         => '',
 			'header_signed'  => false,
-			'header_valid'   => false,
-			'content_signed' => false,
-			'content_valid'  => false
+			'header_valid'   => false
 		];
 
 		// Decide if $data arrived via controller submission or curl.
-		if (is_array($data) && $data['header']) {
-			if (!$data['success']) {
-				return $result;
-			}
+		$headers = [];
+		$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']).' '.$_SERVER['REQUEST_URI'];
 
-			$h = new HTTPHeaders($data['header']);
-			$headers = $h->fetch();
-			$body = $data['body'];
-		} else {
-			$headers = [];
-			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']).' '.$_SERVER['REQUEST_URI'];
-
-			foreach ($_SERVER as $k => $v) {
-				if (strpos($k, 'HTTP_') === 0) {
-					$field = str_replace('_', '-', strtolower(substr($k, 5)));
-					$headers[$field] = $v;
-				}
+		foreach ($_SERVER as $k => $v) {
+			if (strpos($k, 'HTTP_') === 0) {
+				$field = str_replace('_', '-', strtolower(substr($k, 5)));
+				$headers[$field] = $v;
 			}
 		}
 
 		$sig_block = null;
 
-		if (array_key_exists('signature', $headers)) {
-			$sig_block = self::parseSigheader($headers['signature']);
-		} elseif (array_key_exists('authorization', $headers)) {
-			$sig_block = self::parseSigheader($headers['authorization']);
-		}
+		$sig_block = self::parseSigheader($headers['authorization']);
 
 		if (!$sig_block) {
 			logger('no signature provided.');
 			return $result;
 		}
-
-		// Warning: This log statement includes binary data
-		// logger('sig_block: ' . print_r($sig_block,true), LOGGER_DATA);
 
 		$result['header_signed'] = true;
 
@@ -88,13 +71,7 @@ class HTTPSignature
 
 		$signed_data = rtrim($signed_data, "\n");
 
-		$algorithm = null;
-		if ($sig_block['algorithm'] === 'rsa-sha256') {
-			$algorithm = 'sha256';
-		}
-		if ($sig_block['algorithm'] === 'rsa-sha512') {
-			$algorithm = 'sha512';
-		}
+		$algorithm = 'sha512';
 
 		if ($key && function_exists($key)) {
 			$result['signer'] = $sig_block['keyId'];
@@ -119,93 +96,39 @@ class HTTPSignature
 			$result['header_valid'] = true;
 		}
 
-		if (in_array('digest', $signed_headers)) {
-			$result['content_signed'] = true;
-			$digest = explode('=', $headers['digest']);
-
-			if ($digest[0] === 'SHA-256') {
-				$hashalg = 'sha256';
-			}
-			if ($digest[0] === 'SHA-512') {
-				$hashalg = 'sha512';
-			}
-
-			// The explode operation will have stripped the '=' padding, so compare against unpadded base64.
-			if (rtrim(base64_encode(hash($hashalg, $body, true)), '=') === $digest[1]) {
-				$result['content_valid'] = true;
-			}
-		}
-
-		logger('Content_Valid: ' . $result['content_valid']);
-
 		return $result;
 	}
 
 	/**
 	 * @brief
 	 *
-	 * @param string  $request
 	 * @param array   $head
 	 * @param string  $prvkey
 	 * @param string  $keyid (optional, default 'Key')
-	 * @param boolean $send_headers (optional, default false)
-	 *   If set send a HTTP header
-	 * @param boolean $auth (optional, default false)
-	 * @param string  $alg (optional, default 'sha256')
-	 * @param string  $crypt_key (optional, default null)
-	 * @param string  $crypt_algo (optional, default 'aes256ctr')
 	 *
 	 * @return array
 	 */
-	public static function createSig($request, $head, $prvkey, $keyid = 'Key', $send_headers = false, $auth = false, $alg = 'sha256', $crypt_key = null, $crypt_algo = 'aes256ctr')
+	public static function createSig($head, $prvkey, $keyid = 'Key')
 	{
 		$return_headers = [];
 
-		if ($alg === 'sha256') {
-			$algorithm = 'rsa-sha256';
-		}
+		$alg = 'sha512';
+		$algorithm = 'rsa-sha512';
 
-		if ($alg === 'sha512') {
-			$algorithm = 'rsa-sha512';
-		}
-
-		$x = self::sign($request, $head, $prvkey, $alg);
+		$x = self::sign($head, $prvkey, $alg);
 
 		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm
 			. '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 
-		if ($crypt_key) {
-			$x = Crypto::encapsulate($headerval, $crypt_key, $crypt_algo);
-			$headerval = 'iv="' . $x['iv'] . '",key="' . $x['key'] . '",alg="' . $x['alg'] . '",data="' . $x['data'] . '"';
-		}
-
-		if ($auth) {
-			$sighead = 'Authorization: Signature ' . $headerval;
-		} else {
-			$sighead = 'Signature: ' . $headerval;
-		}
+		$sighead = 'Authorization: Signature ' . $headerval;
 
 		if ($head) {
 			foreach ($head as $k => $v) {
-				if ($send_headers) {
-					// This is for ActivityPub implementation.
-					// Since the Activity Pub implementation isn't
-					// ready at the moment, we comment it out.
-					// header($k . ': ' . $v);
-				} else {
-					$return_headers[] = $k . ': ' . $v;
-				}
+				$return_headers[] = $k . ': ' . $v;
 			}
 		}
 
-		if ($send_headers) {
-			// This is for ActivityPub implementation.
-			// Since the Activity Pub implementation isn't
-			// ready at the moment, we comment it out.
-			// header($sighead);
-		} else {
-			$return_headers[] = $sighead;
-		}
+		$return_headers[] = $sighead;
 
 		return $return_headers;
 	}
@@ -213,35 +136,27 @@ class HTTPSignature
 	/**
 	 * @brief
 	 *
-	 * @param string $request
 	 * @param array  $head
 	 * @param string $prvkey
 	 * @param string $alg (optional) default 'sha256'
 	 *
 	 * @return array
 	 */
-	private static function sign($request, $head, $prvkey, $alg = 'sha256')
+	private static function sign($head, $prvkey, $alg = 'sha256')
 	{
 		$ret = [];
 		$headers = '';
 		$fields  = '';
 
-		if ($request) {
-			$headers = '(request-target)' . ': ' . trim($request) . "\n";
-			$fields = '(request-target)';
-		}
-
-		if ($head) {
-			foreach ($head as $k => $v) {
-				$headers .= strtolower($k) . ': ' . trim($v) . "\n";
-				if ($fields) {
-					$fields .= ' ';
-				}
-				$fields .= strtolower($k);
+		foreach ($head as $k => $v) {
+			$headers .= strtolower($k) . ': ' . trim($v) . "\n";
+			if ($fields) {
+				$fields .= ' ';
 			}
-			// strip the trailing linefeed
-			$headers = rtrim($headers, "\n");
+			$fields .= strtolower($k);
 		}
+		// strip the trailing linefeed
+		$headers = rtrim($headers, "\n");
 
 		$sig = base64_encode(Crypto::rsaSign($headers, $prvkey, $alg));
 
@@ -337,5 +252,155 @@ class HTTPSignature
 		}
 
 		return '';
+	}
+
+	/**
+	 * Functions for ActivityPub
+	 */
+
+	public static function transmit($data, $target, $uid)
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		if (!$owner) {
+			return;
+		}
+
+		$content = json_encode($data);
+
+		// Header data that is about to be signed.
+		$host = parse_url($target, PHP_URL_HOST);
+		$path = parse_url($target, PHP_URL_PATH);
+		$digest = 'SHA-256=' . base64_encode(hash('sha256', $content, true));
+		$content_length = strlen($content);
+
+		$headers = ['Content-Length: ' . $content_length, 'Digest: ' . $digest, 'Host: ' . $host];
+
+		$signed_data = "(request-target): post " . $path . "\ncontent-length: " . $content_length . "\ndigest: " . $digest . "\nhost: " . $host;
+
+		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
+
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) content-length digest host",signature="' . $signature . '"';
+
+		$headers[] = 'Content-Type: application/activity+json';
+
+		Network::post($target, $content, $headers);
+		$return_code = BaseObject::getApp()->get_curl_code();
+
+		logger('Transmit to ' . $target . ' returned ' . $return_code);
+	}
+
+	public static function verifyAP($content, $http_headers)
+	{
+		$object = json_decode($content, true);
+
+		if (empty($object)) {
+			return false;
+		}
+
+		$actor = JsonLD::fetchElement($object, 'actor', 'id');
+
+		$headers = [];
+		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . $http_headers['REQUEST_URI'];
+
+		// First take every header
+		foreach ($http_headers as $k => $v) {
+			$field = str_replace('_', '-', strtolower($k));
+			$headers[$field] = $v;
+		}
+
+		// Now add every http header
+		foreach ($http_headers as $k => $v) {
+			if (strpos($k, 'HTTP_') === 0) {
+				$field = str_replace('_', '-', strtolower(substr($k, 5)));
+				$headers[$field] = $v;
+			}
+		}
+
+		$sig_block = self::parseSigHeader($http_headers['HTTP_SIGNATURE']);
+
+		if (empty($sig_block) || empty($sig_block['headers']) || empty($sig_block['keyId'])) {
+			return false;
+		}
+
+		$signed_data = '';
+		foreach ($sig_block['headers'] as $h) {
+			if (array_key_exists($h, $headers)) {
+				$signed_data .= $h . ': ' . $headers[$h] . "\n";
+			}
+		}
+		$signed_data = rtrim($signed_data, "\n");
+
+		if (empty($signed_data)) {
+			return false;
+		}
+
+		$algorithm = null;
+
+		if ($sig_block['algorithm'] === 'rsa-sha256') {
+			$algorithm = 'sha256';
+		}
+
+		if ($sig_block['algorithm'] === 'rsa-sha512') {
+			$algorithm = 'sha512';
+		}
+
+		if (empty($algorithm)) {
+			return false;
+		}
+
+		$key = self::fetchKey($sig_block['keyId'], $actor);
+
+		if (empty($key)) {
+			return false;
+		}
+
+		if (!Crypto::rsaVerify($signed_data, $sig_block['signature'], $key, $algorithm)) {
+			return false;
+		}
+
+		// Check the digest when it is part of the signed data
+		if (in_array('digest', $sig_block['headers'])) {
+			$digest = explode('=', $headers['digest'], 2);
+			if ($digest[0] === 'SHA-256') {
+				$hashalg = 'sha256';
+			}
+			if ($digest[0] === 'SHA-512') {
+				$hashalg = 'sha512';
+			}
+
+			/// @todo add all hashes from the rfc
+
+			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
+				return false;
+			}
+		}
+
+		// Check the content-length when it is part of the signed data
+		if (in_array('content-length', $sig_block['headers'])) {
+			if (strlen($content) != $headers['content-length']) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+	private static function fetchKey($id, $actor)
+	{
+		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
+
+		$profile = ActivityPub::fetchprofile($url);
+		if (!empty($profile)) {
+			return $profile['pubkey'];
+		} elseif ($url != $actor) {
+			$profile = ActivityPub::fetchprofile($actor);
+			if (!empty($profile)) {
+				return $profile['pubkey'];
+			}
+		}
+
+		return false;
 	}
 }

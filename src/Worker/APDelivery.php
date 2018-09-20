@@ -7,6 +7,7 @@ namespace Friendica\Worker;
 use Friendica\BaseObject;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Model\Item;
+use Friendica\Util\HTTPSignature;
 
 class APDelivery extends BaseObject
 {
@@ -20,7 +21,7 @@ class APDelivery extends BaseObject
 		} else {
 			$item = Item::selectFirst(['uid'], ['id' => $item_id]);
 			$data = ActivityPub::createActivityFromItem($item_id);
-			ActivityPub::transmit($data, $inbox, $item['uid']);
+			HTTPSignature::transmit($data, $inbox, $item['uid']);
 		}
 
 		return;

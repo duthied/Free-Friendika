@@ -63,38 +63,6 @@ class ActivityPub
 			stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/ld+json');
 	}
 
-	public static function transmit($data, $target, $uid)
-	{
-		$owner = User::getOwnerDataById($uid);
-
-		if (!$owner) {
-			return;
-		}
-
-		$content = json_encode($data);
-
-		// Header data that is about to be signed.
-		$host = parse_url($target, PHP_URL_HOST);
-		$path = parse_url($target, PHP_URL_PATH);
-		$digest = 'SHA-256=' . base64_encode(hash('sha256', $content, true));
-		$content_length = strlen($content);
-
-		$headers = ['Content-Length: ' . $content_length, 'Digest: ' . $digest, 'Host: ' . $host];
-
-		$signed_data = "(request-target): post " . $path . "\ncontent-length: " . $content_length . "\ndigest: " . $digest . "\nhost: " . $host;
-
-		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
-
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) content-length digest host",signature="' . $signature . '"';
-
-		$headers[] = 'Content-Type: application/activity+json';
-
-		Network::post($target, $content, $headers);
-		$return_code = BaseObject::getApp()->get_curl_code();
-
-		logger('Transmit to ' . $target . ' returned ' . $return_code);
-	}
-
 	/**
 	 * Return the ActivityPub profile of the given user
 	 *
@@ -401,7 +369,7 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['inbox'], $uid);
+		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactAccept($target, $id, $uid)
@@ -419,7 +387,7 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['inbox'], $uid);
+		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactReject($target, $id, $uid)
@@ -437,7 +405,7 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['inbox'], $uid);
+		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	public static function transmitContactUndo($target, $uid)
@@ -457,7 +425,7 @@ class ActivityPub
 			'to' => $profile['url']];
 
 		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
-		return self::transmit($data,  $profile['inbox'], $uid);
+		return HTTPSignature::transmit($data,  $profile['inbox'], $uid);
 	}
 
 	/**
@@ -513,154 +481,6 @@ class ActivityPub
 		}
 
 		return false;
-	}
-
-	public static function verifySignature($content, $http_headers)
-	{
-		$object = json_decode($content, true);
-
-		if (empty($object)) {
-			return false;
-		}
-
-		$actor = JsonLD::fetchElement($object, 'actor', 'id');
-
-		$headers = [];
-		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . $http_headers['REQUEST_URI'];
-
-		// First take every header
-		foreach ($http_headers as $k => $v) {
-			$field = str_replace('_', '-', strtolower($k));
-			$headers[$field] = $v;
-		}
-
-		// Now add every http header
-		foreach ($http_headers as $k => $v) {
-			if (strpos($k, 'HTTP_') === 0) {
-				$field = str_replace('_', '-', strtolower(substr($k, 5)));
-				$headers[$field] = $v;
-			}
-		}
-
-		$sig_block = ActivityPub::parseSigHeader($http_headers['HTTP_SIGNATURE']);
-
-		if (empty($sig_block) || empty($sig_block['headers']) || empty($sig_block['keyId'])) {
-			return false;
-		}
-
-		$signed_data = '';
-		foreach ($sig_block['headers'] as $h) {
-			if (array_key_exists($h, $headers)) {
-				$signed_data .= $h . ': ' . $headers[$h] . "\n";
-			}
-		}
-		$signed_data = rtrim($signed_data, "\n");
-
-		if (empty($signed_data)) {
-			return false;
-		}
-
-		$algorithm = null;
-
-		if ($sig_block['algorithm'] === 'rsa-sha256') {
-			$algorithm = 'sha256';
-		}
-
-		if ($sig_block['algorithm'] === 'rsa-sha512') {
-			$algorithm = 'sha512';
-		}
-
-		if (empty($algorithm)) {
-			return false;
-		}
-
-		$key = self::fetchKey($sig_block['keyId'], $actor);
-
-		if (empty($key)) {
-			return false;
-		}
-
-		if (!Crypto::rsaVerify($signed_data, $sig_block['signature'], $key, $algorithm)) {
-			return false;
-		}
-
-		// Check the digest when it is part of the signed data
-		if (in_array('digest', $sig_block['headers'])) {
-			$digest = explode('=', $headers['digest'], 2);
-			if ($digest[0] === 'SHA-256') {
-				$hashalg = 'sha256';
-			}
-			if ($digest[0] === 'SHA-512') {
-				$hashalg = 'sha512';
-			}
-
-			/// @todo add all hashes from the rfc
-
-			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
-				return false;
-			}
-		}
-
-		// Check the content-length when it is part of the signed data
-		if (in_array('content-length', $sig_block['headers'])) {
-			if (strlen($content) != $headers['content-length']) {
-				return false;
-			}
-		}
-
-		return true;
-
-	}
-
-	private static function fetchKey($id, $actor)
-	{
-		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
-
-		$profile = self::fetchprofile($url);
-		if (!empty($profile)) {
-			return $profile['pubkey'];
-		} elseif ($url != $actor) {
-			$profile = self::fetchprofile($actor);
-			if (!empty($profile)) {
-				return $profile['pubkey'];
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @brief
-	 *
-	 * @param string $header
-	 * @return array associate array with
-	 *   - \e string \b keyID
-	 *   - \e string \b algorithm
-	 *   - \e array  \b headers
-	 *   - \e string \b signature
-	 */
-	private static function parseSigHeader($header)
-	{
-		$ret = [];
-		$matches = [];
-
-		if (preg_match('/keyId="(.*?)"/ism',$header,$matches)) {
-			$ret['keyId'] = $matches[1];
-		}
-
-		if (preg_match('/algorithm="(.*?)"/ism',$header,$matches)) {
-			$ret['algorithm'] = $matches[1];
-		}
-
-		if (preg_match('/headers="(.*?)"/ism',$header,$matches)) {
-			$ret['headers'] = explode(' ', $matches[1]);
-		}
-
-		if (preg_match('/signature="(.*?)"/ism',$header,$matches)) {
-			$ret['signature'] = base64_decode(preg_replace('/\s+/','',$matches[1]));
-		}
-
-		return $ret;
 	}
 
 	public static function fetchprofile($url, $update = false)
@@ -798,7 +618,7 @@ class ActivityPub
 	{
 		logger('Incoming message for user ' . $uid, LOGGER_DEBUG);
 
-		if (!self::verifySignature($body, $header)) {
+		if (!HTTPSignature::verifyAP($body, $header)) {
 			logger('Invalid signature, message will be discarded.', LOGGER_DEBUG);
 			return;
 		}
@@ -813,7 +633,7 @@ class ActivityPub
 		self::processActivity($activity, $body, $uid);
 	}
 
-	public static function fetchOutbox($url)
+	public static function fetchOutbox($url, $uid)
 	{
 		$data = self::fetchContent($url);
 		if (empty($data)) {
@@ -825,14 +645,14 @@ class ActivityPub
 		} elseif (!empty($data['first']['orderedItems'])) {
 			$items = $data['first']['orderedItems'];
 		} elseif (!empty($data['first'])) {
-			self::fetchOutbox($data['first']);
+			self::fetchOutbox($data['first'], $uid);
 			return;
 		} else {
 			$items = [];
 		}
 
 		foreach ($items as $activity) {
-			self::processActivity($activity);
+			self::processActivity($activity, '', $uid);
 		}
 	}
 
