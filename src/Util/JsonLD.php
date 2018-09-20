@@ -65,4 +65,39 @@ class JsonLD
 
 		return json_decode(json_encode($compacted), true);
 	}
+
+	public static function fetchElement($array, $element, $key, $type = null, $type_value = null)
+	{
+		if (empty($array)) {
+			return false;
+		}
+
+		if (empty($array[$element])) {
+			return false;
+		}
+
+		if (is_string($array[$element])) {
+			return $array[$element];
+		}
+
+		if (is_null($type_value)) {
+			if (!empty($array[$element][$key])) {
+				return $array[$element][$key];
+			}
+
+			if (!empty($array[$element][0][$key])) {
+				return $array[$element][0][$key];
+			}
+
+			return false;
+		}
+
+		if (!empty($array[$element][$key]) && !empty($array[$element][$type]) && ($array[$element][$type] == $type_value)) {
+			return $array[$element][$key];
+		}
+
+		/// @todo Add array search
+
+		return false;
+	}
 }

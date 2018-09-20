@@ -19,6 +19,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Crypto;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
+use Friendica\Util\JsonLD;
 
 /**
  * @brief ActivityPub Protocol class
@@ -522,7 +523,7 @@ class ActivityPub
 			return false;
 		}
 
-		$actor = self::processElement($object, 'actor', 'id');
+		$actor = JsonLD::fetchElement($object, 'actor', 'id');
 
 		$headers = [];
 		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . $http_headers['REQUEST_URI'];
@@ -706,19 +707,19 @@ class ActivityPub
 		$apcontact['followers'] = defaults($data, 'followers', null);
 		$apcontact['inbox'] = defaults($data, 'inbox', null);
 		$apcontact['outbox'] = defaults($data, 'outbox', null);
-		$apcontact['sharedinbox'] = self::processElement($data, 'endpoints', 'sharedInbox');
+		$apcontact['sharedinbox'] = JsonLD::fetchElement($data, 'endpoints', 'sharedInbox');
 		$apcontact['nick'] = defaults($data, 'preferredUsername', null);
 		$apcontact['name'] = defaults($data, 'name', $apcontact['nick']);
 		$apcontact['about'] = defaults($data, 'summary', '');
-		$apcontact['photo'] = self::processElement($data, 'icon', 'url');
-		$apcontact['alias'] = self::processElement($data, 'url', 'href');
+		$apcontact['photo'] = JsonLD::fetchElement($data, 'icon', 'url');
+		$apcontact['alias'] = JsonLD::fetchElement($data, 'url', 'href');
 
 		$parts = parse_url($apcontact['url']);
 		unset($parts['scheme']);
 		unset($parts['path']);
 		$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
 
-		$apcontact['pubkey'] = trim(self::processElement($data, 'publicKey', 'publicKeyPem'));
+		$apcontact['pubkey'] = trim(JsonLD::fetchElement($data, 'publicKey', 'publicKeyPem'));
 
 		// To-Do
 		// manuallyApprovesFollowers
@@ -837,7 +838,7 @@ class ActivityPub
 
 	private static function prepareObjectData($activity, $uid)
 	{
-		$actor = self::processElement($activity, 'actor', 'id');
+		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
 		if (empty($actor)) {
 			logger('Empty actor', LOGGER_DEBUG);
 			return [];
@@ -875,12 +876,12 @@ class ActivityPub
 			}
 		} elseif ($activity['type'] == 'Accept') {
 			$object_data = [];
-			$object_data['object_type'] = self::processElement($activity, 'object', 'type');
-			$object_data['object'] = self::processElement($activity, 'object', 'actor');
+			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
+			$object_data['object'] = JsonLD::fetchElement($activity, 'object', 'actor');
 		} elseif ($activity['type'] == 'Undo') {
 			$object_data = [];
-			$object_data['object_type'] = self::processElement($activity, 'object', 'type');
-			$object_data['object'] = self::processElement($activity, 'object', 'object');
+			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
+			$object_data['object'] = JsonLD::fetchElement($activity, 'object', 'object');
 		} elseif (in_array($activity['type'], ['Like', 'Dislike'])) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
@@ -1054,11 +1055,11 @@ class ActivityPub
 		}
 
 		if (!empty($activity['inReplyTo']) && empty($object_data['parent-uri'])) {
-			$object_data['parent-uri'] = self::processElement($activity, 'inReplyTo', 'id');
+			$object_data['parent-uri'] = JsonLD::fetchElement($activity, 'inReplyTo', 'id');
 		}
 
 		if (!empty($activity['instrument'])) {
-			$object_data['service'] = self::processElement($activity, 'instrument', 'name', 'type', 'Service');
+			$object_data['service'] = JsonLD::fetchElement($activity, 'instrument', 'name', 'type', 'Service');
 		}
 		return $object_data;
 	}
@@ -1134,7 +1135,7 @@ class ActivityPub
 		$object_data['uri'] = $object['id'];
 
 		if (!empty($object['inReplyTo'])) {
-			$object_data['reply-to-uri'] = self::processElement($object, 'inReplyTo', 'id');
+			$object_data['reply-to-uri'] = JsonLD::fetchElement($object, 'inReplyTo', 'id');
 		} else {
 			$object_data['reply-to-uri'] = $object_data['uri'];
 		}
@@ -1147,7 +1148,7 @@ class ActivityPub
 		}
 
 		$object_data['uuid'] = defaults($object, 'uuid', null);
-		$object_data['owner'] = $object_data['author'] = self::processElement($object, 'attributedTo', 'id');
+		$object_data['owner'] = $object_data['author'] = JsonLD::fetchElement($object, 'attributedTo', 'id');
 		$object_data['context'] = defaults($object, 'context', null);
 		$object_data['conversation'] = defaults($object, 'conversation', null);
 		$object_data['sensitive'] = defaults($object, 'sensitive', null);
@@ -1156,11 +1157,11 @@ class ActivityPub
 		$object_data['summary'] = defaults($object, 'summary', null);
 		$object_data['content'] = defaults($object, 'content', null);
 		$object_data['source'] = defaults($object, 'source', null);
-		$object_data['location'] = self::processElement($object, 'location', 'name', 'type', 'Place');
+		$object_data['location'] = JsonLD::fetchElement($object, 'location', 'name', 'type', 'Place');
 		$object_data['attachments'] = defaults($object, 'attachment', null);
 		$object_data['tags'] = defaults($object, 'tag', null);
-		$object_data['service'] = self::processElement($object, 'instrument', 'name', 'type', 'Service');
-		$object_data['alternate-url'] = self::processElement($object, 'url', 'href');
+		$object_data['service'] = JsonLD::fetchElement($object, 'instrument', 'name', 'type', 'Service');
+		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'url', 'href');
 		$object_data['receiver'] = self::getReceivers($object, $object_data['owner']);
 
 		// Unhandled
@@ -1205,41 +1206,6 @@ class ActivityPub
 		// likes, dislikes, shares, comments
 
 		return $object_data;
-	}
-
-	private static function processElement($array, $element, $key, $type = null, $type_value = null)
-	{
-		if (empty($array)) {
-			return false;
-		}
-
-		if (empty($array[$element])) {
-			return false;
-		}
-
-		if (is_string($array[$element])) {
-			return $array[$element];
-		}
-
-		if (is_null($type_value)) {
-			if (!empty($array[$element][$key])) {
-				return $array[$element][$key];
-			}
-
-			if (!empty($array[$element][0][$key])) {
-				return $array[$element][0][$key];
-			}
-
-			return false;
-		}
-
-		if (!empty($array[$element][$key]) && !empty($array[$element][$type]) && ($array[$element][$type] == $type_value)) {
-			return $array[$element][$key];
-		}
-
-		/// @todo Add array search
-
-		return false;
 	}
 
 	private static function convertMentions($body)
@@ -1358,7 +1324,7 @@ class ActivityPub
 
 		$item = self::constructAttachList($activity['attachments'], $item);
 
-		$source = self::processElement($activity, 'source', 'content', 'mediaType', 'text/bbcode');
+		$source = JsonLD::fetchElement($activity, 'source', 'content', 'mediaType', 'text/bbcode');
 		if (!empty($source)) {
 			$item['body'] = $source;
 		}
