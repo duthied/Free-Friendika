@@ -18,30 +18,6 @@ use Friendica\Database\DBA;
 
 class HTTPSignature
 {
-	/**
-	 * @brief RFC5843
-	 *
-	 * Disabled until Friendica's ActivityPub implementation
-	 * is ready.
-	 *
-	 * @see https://tools.ietf.org/html/rfc5843
-	 *
-	 * @param string  $body The value to create the digest for
-	 * @param boolean $set  (optional, default true)
-	 *   If set send a Digest HTTP header
-	 *
-	 * @return string The generated digest of $body
-	 */
-//	public static function generateDigest($body, $set = true)
-//	{
-//		$digest = base64_encode(hash('sha256', $body, true));
-//
-//		if($set) {
-//			header('Digest: SHA-256=' . $digest);
-//		}
-//		return $digest;
-//	}
-
 	// See draft-cavage-http-signatures-08
 	public static function verify($data, $key = '')
 	{
@@ -127,12 +103,6 @@ class HTTPSignature
 
 		logger('Got keyID ' . $sig_block['keyId']);
 
-		// We don't use Activity Pub at the moment.
-//		if (!$key) {
-//			$result['signer'] = $sig_block['keyId'];
-//			$key = self::getActivitypubKey($sig_block['keyId']);
-//		}
-
 		if (!$key) {
 			return $result;
 		}
@@ -169,43 +139,6 @@ class HTTPSignature
 		logger('Content_Valid: ' . $result['content_valid']);
 
 		return $result;
-	}
-
-	/**
-	 * Fetch the public key for Activity Pub contact.
-	 *
-	 * @param string|int The identifier (contact addr or contact ID).
-	 * @return string|boolean The public key or false on failure.
-	 */
-	private static function getActivitypubKey($id)
-	{
-		if (strpos($id, 'acct:') === 0) {
-			$contact = DBA::selectFirst('contact', ['pubkey'], ['uid' => 0, 'addr' => str_replace('acct:', '', $id)]);
-		} else {
-			$contact = DBA::selectFirst('contact', ['pubkey'], ['id' => $id, 'network' => 'activitypub']);
-		}
-
-		if (DBA::isResult($contact)) {
-			return $contact['pubkey'];
-		}
-
-		if(function_exists('as_fetch')) {
-			$r = as_fetch($id);
-		}
-
-		if ($r) {
-			$j = json_decode($r, true);
-
-			if (array_key_exists('publicKey', $j) && array_key_exists('publicKeyPem', $j['publicKey'])) {
-				if ((array_key_exists('id', $j['publicKey']) && $j['publicKey']['id'] !== $id) && $j['id'] !== $id) {
-					return false;
-				}
-
-				return $j['publicKey']['publicKeyPem'];
-			}
-		}
-
-		return false;
 	}
 
 	/**

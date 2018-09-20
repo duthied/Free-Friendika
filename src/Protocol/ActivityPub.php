@@ -103,10 +103,10 @@ class ActivityPub
 	 */
 	public static function profile($uid)
 	{
-		$accounttype = ['Person', 'Organization', 'Service', 'Group', 'Application', 'page-flags'];
+		$accounttype = ['Person', 'Organization', 'Service', 'Group', 'Application'];
 		$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
 			'account_removed' => false, 'verified' => true];
-		$fields = ['guid', 'nickname', 'pubkey', 'account-type'];
+		$fields = ['guid', 'nickname', 'pubkey', 'account-type', 'page-flags'];
 		$user = DBA::selectFirst('user', $fields, $condition);
 		if (!DBA::isResult($user)) {
 			return [];
@@ -141,7 +141,7 @@ class ActivityPub
 			'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
 		$data['summary'] = $contact['about'];
 		$data['url'] = $contact['url'];
-		$data['manuallyApprovesFollowers'] = in_array($profile['page-flags'], [Contact::PAGE_NORMAL, Contact::PAGE_PRVGROUP]);
+		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [Contact::PAGE_NORMAL, Contact::PAGE_PRVGROUP]);
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];
