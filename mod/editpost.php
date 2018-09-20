@@ -30,7 +30,7 @@ function editpost_content(App $a)
 
 	// Fallback to SESSION return_path
 	if (empty($return_url)) {
-		$return_url = $_SESSION['return_path'];
+		$return_url = $_SESSION['return_url'];
 	}
 
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
