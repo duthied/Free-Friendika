@@ -103,19 +103,11 @@ function <addon_name>_template_vars($a, &$arr)
 Register your addon hooks in file `addon/*addon_name*/*addon_name*.js`.
 
 ```js
-Addon_registerHook(type, hookfnstr);
+document.addEventListener(name, callback);
 ```
 
-*type* is the name of the hook and corresponds to a known Friendica JavaScript hook.
-*hookfnstr* is the name of your JavaScript function to execute.
-
-No arguments are provided to your JavaScript callback function. Example:
-
-```javascript
-function myhook_function() {
-
-}
-```
+*name* is the name of the hook and corresponds to a known Friendica JavaScript hook.
+*callback* is a JavaScript function to execute.
 
 ## Modules
 
@@ -704,4 +696,4 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
 
 ### view/js/main.js
 
-    callAddonHooks("postprocess_liveupdate");
+    document.dispatchEvent(new Event('postprocess_liveupdate'));

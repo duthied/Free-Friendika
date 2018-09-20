@@ -478,14 +478,12 @@ function liveUpdate(src) {
 		$('.wall-item-body', data).imagesLoaded(function() {
 			updateConvItems(data);
 
+			document.dispatchEvent(new Event('postprocess_liveupdate'));
+
 			// Update the scroll position.
 			$(window).scrollTop($(window).scrollTop() + $("section").height() - orgHeight);
 		});
-
-		callAddonHooks("postprocess_liveupdate");
-
 	});
-
 }
 
 function imgbright(node) {
@@ -735,6 +733,8 @@ function loadScrollContent() {
 		} else {
 			$("#scroll-end").fadeIn('normal');
 		}
+
+		document.dispatchEvent(new Event('postprocess_liveupdate'));
 	});
 }
 
