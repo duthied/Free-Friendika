@@ -122,9 +122,48 @@ class ActivityPub
 		return $data;
 	}
 
+	public static function fetchPermissionBlockFromConversation($item)
+	{
+		if (empty($item['thr-parent'])) {
+			return [];
+		}
+
+		$condition = ['item-uri' => $item['thr-parent'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
+		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
+		if (!DBA::isResult($conversation)) {
+			return [];
+		}
+
+		$activity = json_decode($conversation['source'], true);
+
+		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
+		$profile = ActivityPub::fetchprofile($actor);
+
+		$permissions = [];
+
+		$elements = ['to', 'cc', 'bto', 'bcc'];
+		foreach ($elements as $element) {
+			if (empty($activity[$element])) {
+				continue;
+			}
+			if (is_string($activity[$element])) {
+				$activity[$element] = [$activity[$element]];
+			}
+			foreach ($activity[$element] as $receiver) {
+				if ($receiver == $profile['followers']) {
+					$receiver = System::baseUrl() . '/followers/' . $item['author-nick'];
+				}
+				$permissions[$element][] = $receiver;
+			}
+		}
+		return $permissions;
+	}
+
 	public static function createPermissionBlockForItem($item)
 	{
 		$data = ['to' => [], 'cc' => []];
+
+		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
 		$terms = Term::tagArrayFromItemId($item['id']);
 
@@ -146,6 +185,7 @@ class ActivityPub
 			$receiver_list = Item::enumeratePermissions($item);
 
 			$mentioned = [];
+			$contacts = [];
 
 			foreach ($terms as $term) {
 				if ($term['type'] != TERM_MENTION) {
@@ -155,12 +195,16 @@ class ActivityPub
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
 					$data['to'][] = $contact['url'];
+					$contacts[$contact['url']] = $contact['url'];
 				}
 			}
 
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
-				$data['cc'][] = $contact['url'];
+				if (empty($contacts[$contact['url']])) {
+					$data['cc'][] = $contact['url'];
+					$contacts[$contact['url']] = $contact['url'];
+				}
 			}
 
 			if (empty($data['to'])) {
@@ -213,7 +257,6 @@ class ActivityPub
 			}
 		} else {
 			$receiver_list = Item::enumeratePermissions($item);
-
 			$mentioned = [];
 
 			foreach ($terms as $term) {
@@ -224,7 +267,7 @@ class ActivityPub
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
 					$profile = self::fetchprofile($contact['url']);
-					if (!empty($profile['network'])) {
+					if (!empty($profile)) {
 						$target = defaults($profile, 'sharedinbox', $profile['inbox']);
 						$inboxes[$target] = $target;
 					}
@@ -234,7 +277,7 @@ class ActivityPub
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
 				$profile = self::fetchprofile($contact['url']);
-				if (!empty($profile['network'])) {
+				if (!empty($profile)) {
 					$target = defaults($profile, 'sharedinbox', $profile['inbox']);
 					$inboxes[$target] = $target;
 				}
@@ -276,8 +319,8 @@ class ActivityPub
 			'conversation' => 'ostatus:conversation',
 			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
-		$data['type'] = 'Create';
 		$data['id'] = $item['uri'] . '#activity';
+		$data['type'] = 'Create';
 		$data['actor'] = $item['author-link'];
 
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
@@ -339,12 +382,26 @@ class ActivityPub
 	public static function createNote($item)
 	{
 		$data = [];
-		$data['type'] = 'Note';
 		$data['id'] = $item['uri'];
+		$data['type'] = 'Note';
+		$data['summary'] = null; // Ignore by now
 
 		if ($item['uri'] != $item['thr-parent']) {
 			$data['inReplyTo'] = $item['thr-parent'];
+		} else {
+			$data['inReplyTo'] = null;
 		}
+
+		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
+
+		if ($item["created"] != $item["edited"]) {
+			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
+		}
+
+		$data['url'] = $item['uri'];
+		$data['attributedTo'] = $item['author-link'];
+		$data['actor'] = $item['author-link'];
+		$data['sensitive'] = false; // - Query NSFW
 
 		$conversation = DBA::selectFirst('conversation', ['conversation-uri'], ['item-uri' => $item['parent-uri']]);
 		if (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
@@ -353,24 +410,19 @@ class ActivityPub
 			$conversation_uri = $item['parent-uri'];
 		}
 
-		$data['context'] = $data['conversation'] = $conversation_uri;
-		$data['actor'] = $item['author-link'];
-		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
-		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
+		$data['conversation'] = $conversation_uri;
 
-		if ($item["created"] != $item["edited"]) {
-			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
+		if (!empty($item['title'])) {
+			$data['name'] = BBCode::convert($item['title'], false, 7);
 		}
 
-		$data['attributedTo'] = $item['author-link'];
-		$data['name'] = BBCode::convert($item['title'], false, 7);
 		$data['content'] = BBCode::convert($item['body'], false, 7);
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
-		$data['summary'] = ''; // Ignore by now
-		$data['sensitive'] = false; // - Query NSFW
-		//$data['emoji'] = []; // Ignore by now
-		$data['tag'] = self::createTagList($item);
 		$data['attachment'] = []; // @ToDo
+		$data['tag'] = self::createTagList($item);
+		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
+
+		//$data['emoji'] = []; // Ignore by now
 		return $data;
 	}
 
@@ -643,21 +695,45 @@ class ActivityPub
 
 	public static function processInbox($body, $header, $uid)
 	{
-		logger('Incoming message for user ' . $uid, LOGGER_DEBUG);
-
-		if (!HTTPSignature::verifyAP($body, $header)) {
-			logger('Invalid signature, message will be discarded.', LOGGER_DEBUG);
+		$http_signer = HTTPSignature::getSigner($body, $header);
+		if (empty($http_signer)) {
+			logger('Invalid HTTP signature, message will be discarded.', LOGGER_DEBUG);
 			return;
+		} else {
+			logger('HTTP signature is signed by ' . $http_signer, LOGGER_DEBUG);
 		}
 
 		$activity = json_decode($body, true);
 
-		if (!is_array($activity)) {
+		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
+		logger('Message for user ' . $uid . ' is from actor ' . $actor, LOGGER_DEBUG);
+
+		if (empty($activity)) {
 			logger('Invalid body.', LOGGER_DEBUG);
 			return;
 		}
 
-		self::processActivity($activity, $body, $uid);
+		if (LDSignature::isSigned($activity)) {
+			$ld_signer = LDSignature::getSigner($activity);
+			if (!empty($ld_signer)) {
+				logger('JSON-LD signature is signed by ' . $ld_signer, LOGGER_DEBUG);
+				$trust_source = true;
+			} elseif ($actor == $http_signer) {
+				logger('Bad JSON-LD signature, but HTTP signer fits the actor.', LOGGER_DEBUG);
+				$trust_source = true;
+			} else {
+				logger('Invalid JSON-LD signature.', LOGGER_DEBUG);
+				$trust_source = false;
+			}
+		} elseif ($actor == $http_signer) {
+			logger('Trusting post without JSON-LD signature, The actor fits the HTTP signer.', LOGGER_DEBUG);
+			$trust_source = true;
+		} else {
+			logger('No JSON-LD signature, different actor.', LOGGER_DEBUG);
+			$trust_source = false;
+		}
+
+		self::processActivity($activity, $body, $uid, $trust_source);
 	}
 
 	public static function fetchOutbox($url, $uid)
@@ -679,11 +755,11 @@ class ActivityPub
 		}
 
 		foreach ($items as $activity) {
-			self::processActivity($activity, '', $uid);
+			self::processActivity($activity, '', $uid, true);
 		}
 	}
 
-	private static function prepareObjectData($activity, $uid)
+	private static function prepareObjectData($activity, $uid, $trust_source)
 	{
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
 		if (empty($actor)) {
@@ -703,23 +779,6 @@ class ActivityPub
 
 		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
 
-		$unsigned = true;
-
-		if (LDSignature::isSigned($activity)) {
-			if (!LDSignature::isVerified($activity)) {
-				logger('Invalid signature. Quitting here.', LOGGER_DEBUG);
-				return [];
-			}
-			logger('Valid signature.', LOGGER_DEBUG);
-			$unsigned = false;
-		} elseif (!in_array(0, $receivers)) {
-			/// @todo Add some checks to only accept unsigned private posts directly from the actor
-			$unsigned = false;
-			logger('Private post without signature.', LOGGER_DEBUG);
-		} else {
-			logger('Public post without signature. Object data will be fetched.', LOGGER_DEBUG);
-		}
-
 		if (is_string($activity['object'])) {
 			$object_url = $activity['object'];
 		} elseif (!empty($activity['object']['id'])) {
@@ -731,7 +790,7 @@ class ActivityPub
 
 		// Fetch the content only on activities where this matters
 		if (in_array($activity['type'], ['Create', 'Update', 'Announce'])) {
-			$object_data = self::fetchObject($object_url, $activity['object'], $unsigned);
+			$object_data = self::fetchObject($object_url, $activity['object'], $trust_source);
 			if (empty($object_data)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return [];
@@ -767,7 +826,7 @@ class ActivityPub
 		return $object_data;
 	}
 
-	private static function processActivity($activity, $body = '', $uid = null)
+	private static function processActivity($activity, $body = '', $uid = null, $trust_source = false)
 	{
 		if (empty($activity['type'])) {
 			logger('Empty type', LOGGER_DEBUG);
@@ -793,7 +852,7 @@ class ActivityPub
 
 		logger('Processing activity: ' . $activity['type'], LOGGER_DEBUG);
 
-		$object_data = self::prepareObjectData($activity, $uid);
+		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
 		if (empty($object_data)) {
 			logger('No object data found', LOGGER_DEBUG);
 			return;
@@ -935,14 +994,15 @@ class ActivityPub
 		return $object_data;
 	}
 
-	private static function fetchObject($object_url, $object = [], $unsigned = true)
+	private static function fetchObject($object_url, $object = [], $trust_source = false)
 	{
-		if ($unsigned) {
+		if (!$trust_source || is_string($object)) {
 			$data = self::fetchContent($object_url);
 			if (empty($data)) {
 				logger('Empty content for ' . $object_url . ', check if content is available locally.', LOGGER_DEBUG);
 				$data = $object_url;
-				$data = $object;
+			} else {
+				logger('Fetched content for ' . $object_url, LOGGER_DEBUG);
 			}
 		} else {
 			logger('Using original object for url ' . $object_url, LOGGER_DEBUG);

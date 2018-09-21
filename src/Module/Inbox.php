@@ -25,14 +25,14 @@ class Inbox extends BaseModule
 			System::httpExit(400);
 		}
 
-		if (HTTPSignature::verifyAP($postdata, $_SERVER)) {
+		if (HTTPSignature::getSigner($postdata, $_SERVER)) {
 			$filename = 'signed-activitypub';
 		} else {
 			$filename = 'failed-activitypub';
 		}
 
 		$tempfile = tempnam(get_temppath(), $filename);
-		file_put_contents($tempfile, json_encode(['argv' => $a->argv, 'header' => $_SERVER, 'body' => $postdata]));
+		file_put_contents($tempfile, json_encode(['argv' => $a->argv, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
 		logger('Incoming message stored under ' . $tempfile);
 

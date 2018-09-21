@@ -266,7 +266,7 @@ class HTTPSignature
 			return;
 		}
 
-		$content = json_encode($data);
+		$content = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 		// Header data that is about to be signed.
 		$host = parse_url($target, PHP_URL_HOST);
@@ -290,7 +290,7 @@ class HTTPSignature
 		logger('Transmit to ' . $target . ' returned ' . $return_code);
 	}
 
-	public static function verifyAP($content, $http_headers)
+	public static function getSigner($content, $http_headers)
 	{
 		$object = json_decode($content, true);
 
@@ -355,7 +355,7 @@ class HTTPSignature
 			return false;
 		}
 
-		if (!Crypto::rsaVerify($signed_data, $sig_block['signature'], $key, $algorithm)) {
+		if (!Crypto::rsaVerify($signed_data, $sig_block['signature'], $key['pubkey'], $algorithm)) {
 			return false;
 		}
 
@@ -383,8 +383,7 @@ class HTTPSignature
 			}
 		}
 
-		return true;
-
+		return $key['url'];
 	}
 
 	private static function fetchKey($id, $actor)
@@ -394,12 +393,12 @@ class HTTPSignature
 		$profile = ActivityPub::fetchprofile($url);
 		if (!empty($profile)) {
 			logger('Taking key from id ' . $id, LOGGER_DEBUG);
-			return $profile['pubkey'];
+			return ['url' => $url, 'pubkey' => $profile['pubkey']];
 		} elseif ($url != $actor) {
 			$profile = ActivityPub::fetchprofile($actor);
 			if (!empty($profile)) {
 				logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
-				return $profile['pubkey'];
+				return ['url' => $actor, 'pubkey' => $profile['pubkey']];
 			}
 		}
 

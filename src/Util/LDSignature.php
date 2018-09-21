@@ -13,42 +13,40 @@ class LDSignature
 		return !empty($data['signature']);
 	}
 
-	public static function isVerified($data, $pubkey = null)
+	public static function getSigner($data)
 	{
 		if (!self::isSigned($data)) {
 			return false;
 		}
 
-		if (empty($pubkey)) {
 /*
-			$creator = $data['signature']['creator'];
-			$actor = JsonLD::fetchElement($data, 'actor', 'id');
+		$creator = $data['signature']['creator'];
+		$actor = JsonLD::fetchElement($data, 'actor', 'id');
 
-			$url = (strpos($creator, '#') ? substr($creator, 0, strpos($creator, '#')) : $creator);
+		$url = (strpos($creator, '#') ? substr($creator, 0, strpos($creator, '#')) : $creator);
 
-			$profile = ActivityPub::fetchprofile($url);
-			if (!empty($profile)) {
-				logger('Taking key from creator ' . $creator, LOGGER_DEBUG);
-			} elseif ($url != $actor) {
-				$profile = ActivityPub::fetchprofile($actor);
-				if (empty($profile)) {
-					return false;
-				}
-				logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
+		$profile = ActivityPub::fetchprofile($url);
+		if (!empty($profile)) {
+			logger('Taking key from creator ' . $creator, LOGGER_DEBUG);
+		} elseif ($url != $actor) {
+			$profile = ActivityPub::fetchprofile($actor);
+			if (empty($profile)) {
+				return false;
 			}
+			logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
+		}
 
 */
-			$actor = JsonLD::fetchElement($data, 'actor', 'id');
-			if (empty($actor)) {
-				return false;
-			}
-
-			$profile = ActivityPub::fetchprofile($actor);
-			if (empty($profile['pubkey'])) {
-				return false;
-			}
-			$pubkey = $profile['pubkey'];
+		$actor = JsonLD::fetchElement($data, 'actor', 'id');
+		if (empty($actor)) {
+			return false;
 		}
+
+		$profile = ActivityPub::fetchprofile($actor);
+		if (empty($profile['pubkey'])) {
+			return false;
+		}
+		$pubkey = $profile['pubkey'];
 
 		$ohash = self::hash(self::signable_options($data['signature']));
 		$dhash = self::hash(self::signable_data($data));
@@ -56,7 +54,11 @@ class LDSignature
 		$x = Crypto::rsaVerify($ohash . $dhash, base64_decode($data['signature']['signatureValue']), $pubkey);
 		logger('LD-verify: ' . intval($x));
 
-		return $x;
+		if (empty($x)) {
+			return false;
+		} else {
+			return $actor;
+		}
 	}
 
 	public static function sign($data, $owner)
@@ -65,7 +67,7 @@ class LDSignature
 			'type' => 'RsaSignature2017',
 			'nonce' => random_string(64),
 			'creator' => $owner['url'] . '#main-key',
-			'created' => DateTimeFormat::utcNow()
+			'created' => DateTimeFormat::utcNow(DateTimeFormat::ATOM)
 		];
 
 		$ohash = self::hash(self::signable_options($options));
@@ -78,15 +80,8 @@ class LDSignature
 
 	private static function signable_data($data)
 	{
-		$newdata = [];
-		if (!empty($data)) {
-			foreach ($data as $k => $v) {
-				if (!in_array($k, ['signature'])) {
-					$newdata[$k] = $v;
-				}
-			}
-		}
-		return $newdata;
+		unset($data['signature']);
+		return $data;
 	}
 
 
@@ -95,7 +90,7 @@ class LDSignature
 		$newopts = ['@context' => 'https://w3id.org/identity/v1'];
 		if (!empty($options)) {
 			foreach ($options as $k => $v) {
-				if (!in_array($k, ['type','id','signatureValue'])) {
+				if (!in_array($k, ['type', 'id', 'signatureValue'])) {
 					$newopts[$k] = $v;
 				}
 			}
