@@ -667,6 +667,7 @@ function preview_post() {
 			if (data.preview) {
 				$("#jot-preview-content").html(data.preview);
 				$("#jot-preview-content" + " a").click(function() {return false;});
+				document.dispatchEvent(new Event('postprocess_liveupdate'));
 			}
 		},
 		"json"
