@@ -99,6 +99,15 @@ class App
 	public $stylesheets = [];
 	public $footerScripts = [];
 
+	/**
+	 * Register a stylesheet file path to be included in the <head> tag of every page.
+	 * Inclusion is done in App->initHead().
+	 * The path can be absolute or relative to the Friendica installation base folder.
+	 *
+	 * @see App->initHead()
+	 *
+	 * @param string $path
+	 */
 	public function registerStylesheet($path)
 	{
 		$url = str_replace($this->get_basepath() . DIRECTORY_SEPARATOR, '', $path);
@@ -106,6 +115,15 @@ class App
 		$this->stylesheets[] = trim($url, '/');
 	}
 
+	/**
+	 * Register a javascript file path to be included in the <footer> tag of every page.
+	 * Inclusion is done in App->initFooter().
+	 * The path can be absolute or relative to the Friendica installation base folder.
+	 *
+	 * @see App->initFooter()
+	 *
+	 * @param string $path
+	 */
 	public function registerFooterScript($path)
 	{
 		$url = str_replace($this->get_basepath() . DIRECTORY_SEPARATOR, '', $path);
@@ -749,6 +767,16 @@ class App
 		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
 	}
 
+	/**
+	 * Initializes App->page['htmlhead'].
+	 *
+	 * Includes:
+	 * - Page title
+	 * - Favicons
+	 * - Registered stylesheets (through App->registerStylesheet())
+	 * - Infinite scroll data
+	 * - head.tpl template
+	 */
 	public function initHead()
 	{
 		$interval = ((local_user()) ? PConfig::get(local_user(), 'system', 'update_interval') : 40000);
@@ -814,6 +842,15 @@ class App
 		]) . $this->page['htmlhead'];
 	}
 
+	/**
+	 * Initializes App->page['footer'].
+	 *
+	 * Includes:
+	 * - Javascript homebase
+	 * - Mobile toggle link
+	 * - Registered footer scripts (through App->registerFooterScript())
+	 * - footer.tpl template
+	 */
 	public function initFooter()
 	{
 		// If you're just visiting, let javascript take you home
