@@ -96,6 +96,15 @@ class App
 	public $force_max_items = 0;
 	public $theme_events_in_profile = true;
 
+	public $footerScripts = [];
+
+	public function registerFooterScript($path)
+	{
+		$url = str_replace($this->get_basepath() . DIRECTORY_SEPARATOR, '', $path);
+
+		$this->footerScripts[] = $this->get_baseurl() . '/' . trim($url, '/');
+	}
+
 	/**
 	 * @brief An array for all theme-controllable parameters
 	 *
@@ -802,15 +811,45 @@ class App
 		]) . $this->page['htmlhead'];
 	}
 
-	public function init_page_end()
+	public function initFooter()
 	{
-		if (!isset($this->page['end'])) {
-			$this->page['end'] = '';
+		if (!isset($this->page['footer'])) {
+			$this->page['footer'] = '';
 		}
-		$tpl = get_markup_template('end.tpl');
-		$this->page['end'] = replace_macros($tpl, [
-			'$baseurl' => $this->get_baseurl()
-		]) . $this->page['end'];
+
+		// If you're just visiting, let javascript take you home
+		if (!empty($_SESSION['visitor_home'])) {
+			$homebase = $_SESSION['visitor_home'];
+		} elseif (local_user()) {
+			$homebase = 'profile/' . $a->user['nickname'];
+		}
+
+		if (isset($homebase)) {
+			$this->page['footer'] .= '<script>var homebase="' . $homebase . '";</script>' . "\n";
+		}
+
+		/*
+		 * Add a "toggle mobile" link if we're using a mobile device
+		 */
+		if ($this->is_mobile || $this->is_tablet) {
+			if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
+				$link = 'toggle_mobile?address=' . curPageURL();
+			} else {
+				$link = 'toggle_mobile?off=1&address=' . curPageURL();
+			}
+			$this->page['footer'] .= replace_macros(get_markup_template("toggle_mobile_footer.tpl"), [
+				'$toggle_link' => $link,
+				'$toggle_text' => Core\L10n::t('toggle mobile')
+			]);
+		}
+
+		Core\Addon::callHooks('footer', $this->page['footer']);
+
+		$tpl = get_markup_template('footer.tpl');
+		$this->page['footer'] .= replace_macros($tpl, [
+			'$baseurl' => $this->get_baseurl(),
+			'$footerScripts' => $this->footerScripts,
+		]);
 	}
 
 	public function set_curl_code($code)

@@ -153,10 +153,6 @@ if (! x($_SESSION, 'authenticated')) {
 	header('X-Account-Management-Status: none');
 }
 
-/* set up page['htmlhead'] and page['end'] for the modules to use */
-$a->page['htmlhead'] = '';
-$a->page['end'] = '';
-
 $_SESSION['sysmsg']       = defaults($_SESSION, 'sysmsg'      , []);
 $_SESSION['sysmsg_info']  = defaults($_SESSION, 'sysmsg_info' , []);
 $_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
@@ -326,10 +322,6 @@ if (file_exists($theme_info_file)) {
 
 /* initialise content region */
 
-if (! x($a->page, 'content')) {
-	$a->page['content'] = '';
-}
-
 if ($a->mode == App::MODE_NORMAL) {
 	Addon::callHooks('page_content_top', $a->page['content']);
 }
@@ -411,18 +403,7 @@ $a->init_pagehead();
  * Build the page ending -- this is stuff that goes right before
  * the closing </body> tag
  */
-$a->init_page_end();
-
-// If you're just visiting, let javascript take you home
-if (x($_SESSION, 'visitor_home')) {
-	$homebase = $_SESSION['visitor_home'];
-} elseif (local_user()) {
-	$homebase = 'profile/' . $a->user['nickname'];
-}
-
-if (isset($homebase)) {
-	$a->page['content'] .= '<script>var homebase="' . $homebase . '" ; </script>';
-}
+$a->initFooter();
 
 /*
  * now that we've been through the module content, see if the page reported
@@ -442,23 +423,6 @@ Addon::callHooks('page_end', $a->page['content']);
  */
 if ($a->module != 'install' && $a->module != 'maintenance') {
 	Nav::build($a);
-}
-
-/*
- * Add a "toggle mobile" link if we're using a mobile device
- */
-if ($a->is_mobile || $a->is_tablet) {
-	if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-		$link = 'toggle_mobile?address=' . curPageURL();
-	} else {
-		$link = 'toggle_mobile?off=1&address=' . curPageURL();
-	}
-	$a->page['footer'] = replace_macros(
-		get_markup_template("toggle_mobile_footer.tpl"),
-		[
-			'$toggle_link' => $link,
-			'$toggle_text' => L10n::t('toggle mobile')]
-	);
 }
 
 /**

@@ -286,6 +286,11 @@ No hook data.
 Called after HTML content functions have completed.
 `$b` is (string) HTML of content div.
 
+### footer
+Called after HTML content functions have completed.
+`$b` is (string) HTML of footer div/element.
+Used to load deferred Javascript files.
+
 ### avatar_lookup
 Called when looking up the avatar. `$b` is an array:
 
@@ -563,6 +568,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
 ### src/App.php
 
     Addon::callHooks('load_config');
+    Addon::callHooks('footer');
 
 ### src/Model/Item.php
 
