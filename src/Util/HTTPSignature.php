@@ -393,10 +393,12 @@ class HTTPSignature
 
 		$profile = ActivityPub::fetchprofile($url);
 		if (!empty($profile)) {
+			logger('Taking key from id ' . $id, LOGGER_DEBUG);
 			return $profile['pubkey'];
 		} elseif ($url != $actor) {
 			$profile = ActivityPub::fetchprofile($actor);
 			if (!empty($profile)) {
+				logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
 				return $profile['pubkey'];
 			}
 		}

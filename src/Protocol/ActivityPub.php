@@ -688,7 +688,22 @@ class ActivityPub
 
 		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
 
-		$public = in_array(0, $receivers);
+		$unsigned = true;
+
+		if (LDSignature::isSigned($activity)) {
+			if (!LDSignature::isVerified($activity)) {
+				logger('Invalid signature. Quitting here.', LOGGER_DEBUG);
+				return [];
+			}
+			logger('Valid signature.', LOGGER_DEBUG);
+			$unsigned = false;
+		} elseif (!in_array(0, $receivers)) {
+			/// @todo Add some checks to only accept unsigned private posts directly from the actor
+			$unsigned = false;
+			logger('Private post without signature.', LOGGER_DEBUG);
+		} else {
+			logger('Public post without signature. Object data will be fetched.', LOGGER_DEBUG);
+		}
 
 		if (is_string($activity['object'])) {
 			$object_url = $activity['object'];
@@ -701,7 +716,7 @@ class ActivityPub
 
 		// Fetch the content only on activities where this matters
 		if (in_array($activity['type'], ['Create', 'Update', 'Announce'])) {
-			$object_data = self::fetchObject($object_url, $activity['object']);
+			$object_data = self::fetchObject($object_url, $activity['object'], $unsigned);
 			if (empty($object_data)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return [];
@@ -896,9 +911,9 @@ class ActivityPub
 		return $object_data;
 	}
 
-	private static function fetchObject($object_url, $object = [], $public = true)
+	private static function fetchObject($object_url, $object = [], $unsigned = true)
 	{
-		if ($public) {
+		if ($unsigned) {
 			$data = self::fetchContent($object_url);
 			if (empty($data)) {
 				logger('Empty content for ' . $object_url . ', check if content is available locally.', LOGGER_DEBUG);

@@ -20,6 +20,24 @@ class LDSignature
 		}
 
 		if (empty($pubkey)) {
+/*
+			$creator = $data['signature']['creator'];
+			$actor = JsonLD::fetchElement($data, 'actor', 'id');
+
+			$url = (strpos($creator, '#') ? substr($creator, 0, strpos($creator, '#')) : $creator);
+
+			$profile = ActivityPub::fetchprofile($url);
+			if (!empty($profile)) {
+				logger('Taking key from creator ' . $creator, LOGGER_DEBUG);
+			} elseif ($url != $actor) {
+				$profile = ActivityPub::fetchprofile($actor);
+				if (empty($profile)) {
+					return false;
+				}
+				logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
+			}
+
+*/
 			$actor = JsonLD::fetchElement($data, 'actor', 'id');
 			if (empty($actor)) {
 				return false;
