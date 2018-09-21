@@ -112,12 +112,6 @@ function contacts_init(App $a)
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	]);
-
-	$tpl = get_markup_template("contacts-end.tpl");
-	$a->page['end'] .= replace_macros($tpl, [
-		'$baseurl' => System::baseUrl(true),
-		'$base' => $base
-	]);
 }
 
 function contacts_batch_actions(App $a)
@@ -501,9 +495,6 @@ function contacts_content(App $a, $update = 0)
 		$contact = $a->data['contact'];
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), [
-			'$baseurl' => System::baseUrl(true),
-		]);
-		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), [
 			'$baseurl' => System::baseUrl(true),
 		]);
 

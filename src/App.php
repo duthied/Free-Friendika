@@ -318,7 +318,6 @@ class App
 			'aside' => '',
 			'bottom' => '',
 			'content' => '',
-			'end' => '',
 			'footer' => '',
 			'htmlhead' => '',
 			'nav' => '',

@@ -1191,9 +1191,6 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 				$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
 					'$baseurl' => System::baseUrl(),
 				]);
-				$a->page['end'] .= replace_macros(get_markup_template('videos_end.tpl'), [
-					'$baseurl' => System::baseUrl(),
-				]);
 			}
 
 			$url_parts = explode('/', $the_url);
