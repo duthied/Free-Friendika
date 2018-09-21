@@ -96,13 +96,21 @@ class App
 	public $force_max_items = 0;
 	public $theme_events_in_profile = true;
 
+	public $stylesheets = [];
 	public $footerScripts = [];
+
+	public function registerStylesheet($path)
+	{
+		$url = str_replace($this->get_basepath() . DIRECTORY_SEPARATOR, '', $path);
+
+		$this->stylesheets[] = trim($url, '/');
+	}
 
 	public function registerFooterScript($path)
 	{
 		$url = str_replace($this->get_basepath() . DIRECTORY_SEPARATOR, '', $path);
 
-		$this->footerScripts[] = $this->get_baseurl() . '/' . trim($url, '/');
+		$this->footerScripts[] = trim($url, '/');
 	}
 
 	/**
@@ -741,7 +749,7 @@ class App
 		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
 	}
 
-	public function init_pagehead()
+	public function initHead()
 	{
 		$interval = ((local_user()) ? PConfig::get(local_user(), 'system', 'update_interval') : 40000);
 
@@ -766,9 +774,6 @@ class App
 		 * since the code added by the modules frequently depends on it
 		 * being first
 		 */
-		if (!isset($this->page['htmlhead'])) {
-			$this->page['htmlhead'] = '';
-		}
 
 		// If we're using Smarty, then doing replace_macros() will replace
 		// any unrecognized variables with a blank string. Since we delay
@@ -791,7 +796,9 @@ class App
 		}
 
 		// get data wich is needed for infinite scroll on the network page
-		$invinite_scroll = infinite_scroll_data($this->module);
+		$infinite_scroll = infinite_scroll_data($this->module);
+
+		Core\Addon::callHooks('head', $this->page['htmlhead']);
 
 		$tpl = get_markup_template('head.tpl');
 		$this->page['htmlhead'] = replace_macros($tpl, [
@@ -805,8 +812,9 @@ class App
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
 			'$stylesheet'      => $stylesheet,
-			'$infinite_scroll' => $invinite_scroll,
+			'$infinite_scroll' => $infinite_scroll,
 			'$block_public'    => intval(Config::get('system', 'block_public')),
+			'$stylesheets'     => $this->stylesheets,
 		]) . $this->page['htmlhead'];
 	}
 
@@ -845,10 +853,10 @@ class App
 		Core\Addon::callHooks('footer', $this->page['footer']);
 
 		$tpl = get_markup_template('footer.tpl');
-		$this->page['footer'] .= replace_macros($tpl, [
+		$this->page['footer'] = replace_macros($tpl, [
 			'$baseurl' => $this->get_baseurl(),
 			'$footerScripts' => $this->footerScripts,
-		]);
+		]) . $this->page['footer'];
 	}
 
 	public function set_curl_code($code)

@@ -11,6 +11,10 @@
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
+{{foreach $stylesheets as $stylesheetUrl}}
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
+{{/foreach}}
+
 <!--
 <link rel="shortcut icon" href="images/friendica-32.png" />
 <link rel="apple-touch-icon" href="images/friendica-128.png"/>

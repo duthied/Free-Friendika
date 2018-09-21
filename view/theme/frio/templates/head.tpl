@@ -33,6 +33,10 @@
 <link rel="stylesheet" href="view/theme/frio/css/hovercard.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css" type="text/css" media="screen"/>
 
+{{foreach $stylesheets as $stylesheetUrl}}
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
+{{/foreach}}
+
 <!--
 <link rel="shortcut icon" href="images/friendica-32.png" />
 <link rel="apple-touch-icon" href="images/friendica-128.png"/>

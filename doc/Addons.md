@@ -252,6 +252,11 @@ Called after conversion of bbcode to HTML.
 Called after tag conversion of HTML to bbcode (e.g. remote message posting)
 `$b` is a string converted text
 
+### head
+Called when building the `<head>` sections.
+Stylesheets should be registered using this hook.
+`$b` is an HTML string of the `<head>` tag.
+
 ### page_header
 Called after building the page navigation section.
 `$b` is a string HTML of nav region.
@@ -288,8 +293,8 @@ Called after HTML content functions have completed.
 
 ### footer
 Called after HTML content functions have completed.
+Deferred Javascript files should be registered using this hook.
 `$b` is (string) HTML of footer div/element.
-Used to load deferred Javascript files.
 
 ### avatar_lookup
 Called when looking up the avatar. `$b` is an array:
@@ -568,6 +573,7 @@ Here is a complete list of all hook callbacks with file locations (as of 01-Apr-
 ### src/App.php
 
     Addon::callHooks('load_config');
+	Addon::callHooks('head');
     Addon::callHooks('footer');
 
 ### src/Model/Item.php

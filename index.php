@@ -395,7 +395,7 @@ if ($a->module_loaded) {
  * theme choices made by the modules can take effect.
  */
 
-$a->init_pagehead();
+$a->initHead();
 
 /*
  * Build the page ending -- this is stuff that goes right before
