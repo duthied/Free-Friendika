@@ -829,6 +829,15 @@ class ActivityPub
 	{
 		$receivers = [];
 
+		// When it is an answer, we inherite the receivers from the parent
+		$replyto = JsonLD::fetchElement($activity, 'inReplyTo', 'id');
+		if (!empty($replyto)) {
+			$parents = Item::select(['uid'], ['uri' => $replyto]);
+			while ($parent = Item::fetch($parents)) {
+				$receivers['uid:' . $parent['uid']] = $parent['uid'];
+			}
+		}
+
 		if (!empty($actor)) {
 			$profile = self::fetchprofile($actor);
 			$followers = defaults($profile, 'followers', '');
@@ -1211,6 +1220,7 @@ class ActivityPub
 		$activity['object'] = $object;
 		$activity['published'] = $object['published'];
 		$activity['type'] = 'Create';
+
 		self::processActivity($activity);
 		logger('Activity ' . $url . ' had been fetched and processed.');
 	}
