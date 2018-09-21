@@ -332,6 +332,8 @@ function toggleJotNav (elm) {
 	// For some some tab panels we need to execute other js functions.
 	if (tabpanel === "jot-preview-content") {
 		preview_post();
+		// Make Share button visivle in preview
+		$('#jot-preview-share').removeClass("minimize").attr("aria-hidden" ,"false");
 	} else if (tabpanel === "jot-fbrowser-wrapper") {
 		$(function() {
 			Dialog.showJot();
