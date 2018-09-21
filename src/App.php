@@ -770,20 +770,13 @@ class App
 			$this->page['title'] = $this->config['sitename'];
 		}
 
-		/* put the head template at the beginning of page['htmlhead']
-		 * since the code added by the modules frequently depends on it
-		 * being first
-		 */
-
-		// If we're using Smarty, then doing replace_macros() will replace
-		// any unrecognized variables with a blank string. Since we delay
-		// replacing $stylesheet until later, we need to replace it now
-		// with another variable name
-		if ($this->theme['template_engine'] === 'smarty3') {
-			$stylesheet = $this->get_template_ldelim('smarty3') . '$stylesheet' . $this->get_template_rdelim('smarty3');
+		if (!empty($this->theme['stylesheet'])) {
+			$stylesheet = $this->theme['stylesheet'];
 		} else {
-			$stylesheet = '$stylesheet';
+			$stylesheet = $this->getCurrentThemeStylesheetPath();
 		}
+
+		$this->registerStylesheet($stylesheet);
 
 		$shortcut_icon = Config::get('system', 'shortcut_icon');
 		if ($shortcut_icon == '') {
@@ -801,6 +794,10 @@ class App
 		Core\Addon::callHooks('head', $this->page['htmlhead']);
 
 		$tpl = get_markup_template('head.tpl');
+		/* put the head template at the beginning of page['htmlhead']
+		 * since the code added by the modules frequently depends on it
+		 * being first
+		 */
 		$this->page['htmlhead'] = replace_macros($tpl, [
 			'$baseurl'         => $this->get_baseurl(),
 			'$local_user'      => local_user(),
@@ -811,7 +808,6 @@ class App
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
-			'$stylesheet'      => $stylesheet,
 			'$infinite_scroll' => $infinite_scroll,
 			'$block_public'    => intval(Config::get('system', 'block_public')),
 			'$stylesheets'     => $this->stylesheets,
@@ -820,10 +816,6 @@ class App
 
 	public function initFooter()
 	{
-		if (!isset($this->page['footer'])) {
-			$this->page['footer'] = '';
-		}
-
 		// If you're just visiting, let javascript take you home
 		if (!empty($_SESSION['visitor_home'])) {
 			$homebase = $_SESSION['visitor_home'];

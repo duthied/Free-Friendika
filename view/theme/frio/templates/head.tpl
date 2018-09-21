@@ -26,21 +26,14 @@
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-toggle/css/bootstrap-toggle.min.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/font/open_sans/open-sans.css" type="text/css" media="screen"/>
 
-{{* The own style.css *}}
-<link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
+{{foreach $stylesheets as $stylesheetUrl}}
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
+{{/foreach}}
 
 {{* own css files *}}
 <link rel="stylesheet" href="view/theme/frio/css/hovercard.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css" type="text/css" media="screen"/>
 
-{{foreach $stylesheets as $stylesheetUrl}}
-<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
-{{/foreach}}
-
-<!--
-<link rel="shortcut icon" href="images/friendica-32.png" />
-<link rel="apple-touch-icon" href="images/friendica-128.png"/>
--->
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}"/>
 

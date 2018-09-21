@@ -426,16 +426,6 @@ if ($a->module != 'install' && $a->module != 'maintenance') {
 /**
  * Build the page - now that we have all the components
  */
-
-if (!$a->theme['stylesheet']) {
-	$stylesheet = $a->getCurrentThemeStylesheetPath();
-} else {
-	$stylesheet = $a->theme['stylesheet'];
-}
-
-$a->page['htmlhead'] = str_replace('{{$stylesheet}}', $stylesheet, $a->page['htmlhead']);
-//$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
-
 if (isset($_GET["mode"]) && (($_GET["mode"] == "raw") || ($_GET["mode"] == "minimal"))) {
 	$doc = new DOMDocument();
 
