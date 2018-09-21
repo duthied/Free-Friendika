@@ -46,13 +46,13 @@ use Friendica\Util\LDSignature;
  * - Object Types: Person, Tombstome
  *
  * Transmitter:
- * - Activities: Like, Dislike, Update, Delete
- * - Object Tyoes: Article, Announce, Person, Tombstone
+ * - Activities: Like, Dislike, Update, Delete, Announce
+ * - Object Tyoes: Article, Person, Tombstone
  *
  * General:
- * - Message distribution
- * - Endpoints: Outbox, Object, Follower, Following
+ * - Endpoints: Outbox, Follower, Following
  * - General cleanup
+ * - Queueing unsucessful deliveries
  */
 class ActivityPub
 {
@@ -172,13 +172,28 @@ class ActivityPub
 		return $data;
 	}
 
-	public static function fetchTargetInboxes($item)
+	public static function fetchTargetInboxes($item, $uid)
 	{
 		$inboxes = [];
 
+		$parents = Item::select(['author-link', 'owner-link'], ['parent' => $item['parent']]);
+		while ($parent = Item::fetch($parents)) {
+			$profile = self::fetchprofile($parent['author-link']);
+			if (!empty($profile)) {
+				$target = defaults($profile, 'sharedinbox', $profile['inbox']);
+				$inboxes[$target] = $target;
+			}
+			$profile = self::fetchprofile($parent['owner-link']);
+			if (!empty($profile)) {
+				$target = defaults($profile, 'sharedinbox', $profile['inbox']);
+				$inboxes[$target] = $target;
+			}
+		}
+		DBA::close($parents);
+
 		$terms = Term::tagArrayFromItemId($item['id']);
 		if (!$item['private']) {
-			$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $item['uid'],
+			$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
 					'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB]);
 			while ($contact = DBA::fetch($contacts)) {
 				$contact = defaults($contact, 'batch', $contact['notify']);
@@ -205,7 +220,7 @@ class ActivityPub
 				if ($term['type'] != TERM_MENTION) {
 					continue;
 				}
-				$cid = Contact::getIdForURL($term['url'], $item['uid']);
+				$cid = Contact::getIdForURL($term['url'], $uid);
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
 					$profile = self::fetchprofile($contact['url']);

@@ -416,21 +416,13 @@ class Notifier
 
 		$inboxes = [];
 
-		if ($followup) {
-			$profile = ActivityPub::fetchprofile($parent['author-link']);
-			if (!empty($profile)) {
-				$target = defaults($profile, 'sharedinbox', $profile['inbox']);
-				$inboxes[$target] = $target;
-			}
-		} else {
-			if ($target_item['origin']) {
-				$inboxes = ActivityPub::fetchTargetInboxes($target_item);
-			}
+		if ($target_item['origin']) {
+			$inboxes = ActivityPub::fetchTargetInboxes($target_item, $uid);
+		}
 
-			if ($parent['origin']) {
-				$parent_inboxes = ActivityPub::fetchTargetInboxes($parent);
-				$inboxes = array_merge($inboxes, $parent_inboxes);
-			}
+		if ($parent['origin']) {
+			$parent_inboxes = ActivityPub::fetchTargetInboxes($parent, $uid);
+			$inboxes = array_merge($inboxes, $parent_inboxes);
 		}
 
 		foreach ($inboxes as $inbox) {
