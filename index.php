@@ -91,7 +91,7 @@ if (!$a->is_backend()) {
  * Language was set earlier, but we can over-ride it in the session.
  * We have to do it here because the session was just now opened.
  */
-if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
+if (!empty($_SESSION['authenticated']) && empty($_SESSION['language'])) {
 	$_SESSION['language'] = $lang;
 	// we haven't loaded user data yet, but we need user language
 	if (!empty($_SESSION['uid'])) {
@@ -102,7 +102,7 @@ if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
 	}
 }
 
-if (x($_SESSION, 'language') && ($_SESSION['language'] !== $lang)) {
+if (!empty($_SESSION['language']) && $_SESSION['language'] !== $lang) {
 	$lang = $_SESSION['language'];
 	L10n::loadTranslationTable($lang);
 }
@@ -125,12 +125,12 @@ if (!empty($_GET['zrl']) && $a->mode == App::MODE_NORMAL) {
 			logger("Invalid ZRL parameter " . $_GET['zrl'], LOGGER_DEBUG);
 			header('HTTP/1.1 403 Forbidden');
 			echo "<h1>403 Forbidden</h1>";
-			killme();
+			exit();
 		}
 	}
 }
 
-if ((x($_GET,'owt')) && $a->mode == App::MODE_NORMAL) {
+if (!empty($_GET['owt']) && $a->mode == App::MODE_NORMAL) {
 	$token = $_GET['owt'];
 	$a->query_string = Profile::stripQueryParam($a->query_string, 'owt');
 	Profile::openWebAuthInit($token);
@@ -149,7 +149,7 @@ if ((x($_GET,'owt')) && $a->mode == App::MODE_NORMAL) {
 
 Login::sessionAuth();
 
-if (! x($_SESSION, 'authenticated')) {
+if (empty($_SESSION['authenticated'])) {
 	header('X-Account-Management-Status: none');
 }
 
@@ -291,11 +291,11 @@ if (strlen($a->module)) {
 
 	if (! $a->module_loaded) {
 		// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
-		if ((x($_SERVER, 'QUERY_STRING')) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
+		if (!empty($_SERVER['QUERY_STRING']) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
 			killme();
 		}
 
-		if ((x($_SERVER, 'QUERY_STRING')) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
+		if (!empty($_SERVER['QUERY_STRING']) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
 			logger('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
 			goaway(System::baseUrl() . $_SERVER['REQUEST_URI']);
 		}
@@ -303,11 +303,9 @@ if (strlen($a->module)) {
 		logger('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], LOGGER_DEBUG);
 		header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . L10n::t('Not Found'));
 		$tpl = get_markup_template("404.tpl");
-		$a->page['content'] = replace_macros(
-			$tpl,
-			[
-			'$message' =>  L10n::t('Page not found.')]
-		);
+		$a->page['content'] = replace_macros($tpl, [
+			'$message' =>  L10n::t('Page not found.')
+		]);
 	}
 }
 
@@ -466,7 +464,7 @@ if (isset($_GET["mode"]) && ($_GET["mode"] == "raw")) {
 
 	echo substr($target->saveHTML(), 6, -8);
 
-	killme();
+	exit();
 }
 
 $page    = $a->page;
@@ -504,5 +502,3 @@ if (empty($template)) {
 
 /// @TODO Looks unsafe (remote-inclusion), is maybe not but Theme::getPathForFile() uses file_exists() but does not escape anything
 require_once $template;
-
-killme();
