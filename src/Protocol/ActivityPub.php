@@ -216,7 +216,7 @@ class ActivityPub
 		return $data;
 	}
 
-	private static function fetchTargetInboxesFromConversation($item)
+	private static function fetchTargetInboxesFromConversation($item, $uid)
 	{
 		if (empty($item['thr-parent'])) {
 			return [];
@@ -244,10 +244,20 @@ class ActivityPub
 				$activity[$element] = [$activity[$element]];
 			}
 			foreach ($activity[$element] as $receiver) {
-				$profile = self::fetchprofile($receiver);
-				if (!empty($profile)) {
-					$target = defaults($profile, 'sharedinbox', $profile['inbox']);
-					$inboxes[$target] = $target;
+				if ($receiver == $profile['followers']) {
+					$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
+						'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB]);
+					while ($contact = DBA::fetch($contacts)) {
+						$contact = defaults($contact, 'batch', $contact['notify']);
+						$inboxes[$contact] = $contact;
+					}
+					DBA::close($contacts);
+				} else {
+					$profile = self::fetchprofile($receiver);
+					if (!empty($profile)) {
+						$target = defaults($profile, 'sharedinbox', $profile['inbox']);
+						$inboxes[$target] = $target;
+					}
 				}
 			}
 		}
@@ -256,7 +266,7 @@ class ActivityPub
 
 	public static function fetchTargetInboxes($item, $uid)
 	{
-		$inboxes = self::fetchTargetInboxesFromConversation($item);
+		$inboxes = self::fetchTargetInboxesFromConversation($item, $uid);
 
 		$parents = Item::select(['author-link', 'owner-link'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
