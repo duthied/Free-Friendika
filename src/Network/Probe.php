@@ -335,8 +335,9 @@ class Probe
 			$data = null;
 		}
 
-		if (in_array(defaults($data, 'network', ''), ['', Protocol::PHANTOM])) {
-			$ap_profile = ActivityPub::probeProfile($uri);
+		$ap_profile = ActivityPub::probeProfile($uri);
+
+		if (!empty($ap_profile) && (defaults($data, 'network', '') != Protocol::DFRN)) {
 			if (!empty($ap_profile) && ($ap_profile['network'] == Protocol::ACTIVITYPUB)) {
 				$data = $ap_profile;
 			}

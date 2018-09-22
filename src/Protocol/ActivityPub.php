@@ -332,9 +332,9 @@ class ActivityPub
 		}
 
 		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['ostatus' => 'http://ostatus.org#', 'sensitive' => 'as:sensitive',
-			'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
-			'conversation' => 'ostatus:conversation',
+			['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
+			'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+			'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
 			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
 		$data['id'] = $item['uri'] . '#activity';
@@ -372,9 +372,9 @@ class ActivityPub
 		}
 
 		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['ostatus' => 'http://ostatus.org#', 'sensitive' => 'as:sensitive',
-			'Hashtag' => 'as:Hashtag', 'atomUri' => 'ostatus:atomUri',
-			'conversation' => 'ostatus:conversation',
+			['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
+			'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+			'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
 			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
 		$data = array_merge($data, self::CreateNote($item));
@@ -433,6 +433,7 @@ class ActivityPub
 			$data['inReplyTo'] = null;
 		}
 
+		$data['uuid'] = $item['guid'];
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
 
 		if ($item["created"] != $item["edited"]) {

@@ -79,7 +79,7 @@ function display_init(App $a)
 
 	if (ActivityPub::isRequest()) {
 		$wall_item = Item::selectFirst(['id', 'uid'], ['guid' => $item['guid'], 'wall' => true]);
-		if ($wall_item['uid'] == 180) {
+		if (DBA::isResult($wall_item)) {
 			$data = ActivityPub::createObjectFromItemID($wall_item['id']);
 			echo json_encode($data);
 			exit();

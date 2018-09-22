@@ -52,7 +52,7 @@ function profile_init(App $a)
 
 	if (ActivityPub::isRequest()) {
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $which]);
-		if ($user['uid'] == 180) {
+		if (DBM::isResult($user)) {
 			$data = ActivityPub::profile($user['uid']);
 			echo json_encode($data);
 			exit();
