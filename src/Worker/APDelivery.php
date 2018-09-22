@@ -11,7 +11,7 @@ use Friendica\Util\HTTPSignature;
 
 class APDelivery extends BaseObject
 {
-	public static function execute($cmd, $item_id, $inbox)
+	public static function execute($cmd, $item_id, $inbox, $uid)
 	{
 		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $inbox, LOGGER_DEBUG);
 
@@ -19,9 +19,8 @@ class APDelivery extends BaseObject
 		} elseif ($cmd == Delivery::SUGGESTION) {
 		} elseif ($cmd == Delivery::RELOCATION) {
 		} else {
-			$item = Item::selectFirst(['uid'], ['id' => $item_id]);
 			$data = ActivityPub::createActivityFromItem($item_id);
-			HTTPSignature::transmit($data, $inbox, $item['uid']);
+			HTTPSignature::transmit($data, $inbox, $uid);
 		}
 
 		return;

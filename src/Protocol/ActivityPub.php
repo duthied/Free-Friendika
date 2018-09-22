@@ -155,7 +155,9 @@ class ActivityPub
 				if ($receiver == $profile['followers'] && !empty($item_profile['followers'])) {
 					$receiver = $item_profile['followers'];
 				}
-				$permissions[$element][] = $receiver;
+				if ($receiver != $item['owner-link']) {
+					$permissions[$element][] = $receiver;
+				}
 			}
 		}
 		return $permissions;
@@ -171,7 +173,7 @@ class ActivityPub
 
 		$terms = Term::tagArrayFromItemId($item['id']);
 
-		$contacts = [];
+		$contacts[$item['author-link']] = $item['author-link'];
 
 		if (!$item['private']) {
 			$data['to'][] = self::PUBLIC;
@@ -213,11 +215,6 @@ class ActivityPub
 					$contacts[$contact['url']] = $contact['url'];
 				}
 			}
-
-			if (empty($data['to'])) {
-				$data['to'] = $data['cc'];
-				$data['cc'] = [];
-			}
 		}
 
 		$parents = Item::select(['author-link', 'owner-link'], ['parent' => $item['parent']]);
@@ -235,6 +232,11 @@ class ActivityPub
 			}
 		}
 		DBA::close($parents);
+
+		if (empty($data['to'])) {
+			$data['to'] = $data['cc'];
+			$data['cc'] = [];
+		}
 
 		return $data;
 	}
@@ -318,9 +320,12 @@ class ActivityPub
 			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
 		}
 
+		$data['context_id'] = $item['parent'];
+		$data['context'] = self::createConversationURLFromItem($item);
+
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
-		$data['object'] = self::createNote($item);
+		$data['object'] = self::createObjectTypeFromItem($item);
 
 		$owner = User::getOwnerDataById($item['uid']);
 
@@ -341,7 +346,7 @@ class ActivityPub
 			'conversation' => 'ostatus:conversation',
 			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
-		$data = array_merge($data, self::createNote($item));
+		$data = array_merge($data, self::createObjectTypeFromItem($item));
 
 
 		return $data;
@@ -364,15 +369,31 @@ class ActivityPub
 				$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
 			}
 		}
-
 		return $tags;
 	}
 
-	public static function createNote($item)
+	private static function createConversationURLFromItem($item)
 	{
+		$conversation = DBA::selectFirst('conversation', ['conversation-uri'], ['item-uri' => $item['parent-uri']]);
+		if (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
+			$conversation_uri = $conversation['conversation-uri'];
+		} else {
+			$conversation_uri = $item['parent-uri'];
+		}
+		return $conversation_uri;
+	}
+
+	private static function createObjectTypeFromItem($item)
+	{
+		if (!empty($item['title'])) {
+			$type = 'Article';
+		} else {
+			$type = 'Note';
+		}
+
 		$data = [];
 		$data['id'] = $item['uri'];
-		$data['type'] = 'Note';
+		$data['type'] = $type;
 		$data['summary'] = null; // Ignore by now
 
 		if ($item['uri'] != $item['thr-parent']) {
@@ -387,19 +408,12 @@ class ActivityPub
 			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
 		}
 
-		$data['url'] = $item['uri'];
+		$data['url'] = $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
 		$data['actor'] = $item['author-link'];
 		$data['sensitive'] = false; // - Query NSFW
-
-		$conversation = DBA::selectFirst('conversation', ['conversation-uri'], ['item-uri' => $item['parent-uri']]);
-		if (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
-			$conversation_uri = $conversation['conversation-uri'];
-		} else {
-			$conversation_uri = $item['parent-uri'];
-		}
-
-		$data['conversation'] = $conversation_uri;
+		$data['context_id'] = $item['parent'];
+		$data['conversation'] = $data['context'] = self::createConversationURLFromItem($item);
 
 		if (!empty($item['title'])) {
 			$data['name'] = BBCode::convert($item['title'], false, 7);
@@ -704,14 +718,17 @@ class ActivityPub
 
 		if (LDSignature::isSigned($activity)) {
 			$ld_signer = LDSignature::getSigner($activity);
-			if (!empty($ld_signer)) {
+			if (!empty($ld_signer && ($actor == $http_signer))) {
+				logger('The HTTP and the JSON-LD signature belong to ' . $ld_signer, LOGGER_DEBUG);
+				$trust_source = true;
+			} elseif (!empty($ld_signer)) {
 				logger('JSON-LD signature is signed by ' . $ld_signer, LOGGER_DEBUG);
 				$trust_source = true;
 			} elseif ($actor == $http_signer) {
 				logger('Bad JSON-LD signature, but HTTP signer fits the actor.', LOGGER_DEBUG);
 				$trust_source = true;
 			} else {
-				logger('Invalid JSON-LD signature.', LOGGER_DEBUG);
+				logger('Invalid JSON-LD signature and the HTTP signer is different.', LOGGER_DEBUG);
 				$trust_source = false;
 			}
 		} elseif ($actor == $http_signer) {
@@ -1005,7 +1022,7 @@ class ActivityPub
 				return false;
 			}
 			logger('Using already stored item for url ' . $object_url, LOGGER_DEBUG);
-			$data = self::createNote($item);
+			$data = self::createObjectTypeFromItem($item);
 		}
 
 		if (empty($data['type'])) {

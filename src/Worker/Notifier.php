@@ -429,7 +429,7 @@ class Notifier
 			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
 
 			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-					'APDelivery', $cmd, $item_id, $inbox);
+					'APDelivery', $cmd, $item_id, $inbox, $uid);
 		}
 
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
