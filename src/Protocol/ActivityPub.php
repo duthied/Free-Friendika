@@ -139,6 +139,8 @@ class ActivityPub
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
 		$profile = ActivityPub::fetchprofile($actor);
 
+		$item_profile = ActivityPub::fetchprofile($item['owner-link']);
+
 		$permissions = [];
 
 		$elements = ['to', 'cc', 'bto', 'bcc'];
@@ -150,8 +152,8 @@ class ActivityPub
 				$activity[$element] = [$activity[$element]];
 			}
 			foreach ($activity[$element] as $receiver) {
-				if ($receiver == $profile['followers']) {
-					$receiver = System::baseUrl() . '/followers/' . $item['author-nick'];
+				if ($receiver == $profile['followers'] && !empty($item_profile['followers'])) {
+					$receiver = $item_profile['followers'];
 				}
 				$permissions[$element][] = $receiver;
 			}
@@ -165,27 +167,32 @@ class ActivityPub
 
 		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
+		$actor_profile = ActivityPub::fetchprofile($item['author-link']);
+
 		$terms = Term::tagArrayFromItemId($item['id']);
+
+		$contacts = [];
 
 		if (!$item['private']) {
 			$data['to'][] = self::PUBLIC;
-			$data['cc'][] = System::baseUrl() . '/followers/' . $item['author-nick'];
+			if (!empty($actor_profile['followers'])) {
+				$data['cc'][] = $actor_profile['followers'];
+			}
 
 			foreach ($terms as $term) {
 				if ($term['type'] != TERM_MENTION) {
 					continue;
 				}
 				$profile = self::fetchprofile($term['url']);
-				if (!empty($profile)) {
+				if (!empty($profile) && empty($contacts[$profile['url']])) {
 					$data['cc'][] = $profile['url'];
+					$contacts[$profile['url']] = $profile['url'];
 				}
 			}
 		} else {
-			//$data['cc'][] = System::baseUrl() . '/followers/' . $item['author-nick'];
 			$receiver_list = Item::enumeratePermissions($item);
 
 			$mentioned = [];
-			$contacts = [];
 
 			foreach ($terms as $term) {
 				if ($term['type'] != TERM_MENTION) {
@@ -213,38 +220,43 @@ class ActivityPub
 			}
 		}
 
+		$parents = Item::select(['author-link', 'owner-link'], ['parent' => $item['parent']]);
+		while ($parent = Item::fetch($parents)) {
+			$profile = self::fetchprofile($parent['author-link']);
+			if (!empty($profile) && empty($contacts[$profile['url']])) {
+				$data['cc'][] = $profile['url'];
+				$contacts[$profile['url']] = $profile['url'];
+			}
+
+			$profile = self::fetchprofile($parent['owner-link']);
+			if (!empty($profile) && empty($contacts[$profile['url']])) {
+				$data['cc'][] = $profile['url'];
+				$contacts[$profile['url']] = $profile['url'];
+			}
+		}
+		DBA::close($parents);
+
 		return $data;
 	}
 
-	private static function fetchTargetInboxesFromConversation($item, $uid)
+	public static function fetchTargetInboxes($item, $uid)
 	{
-		if (empty($item['thr-parent'])) {
+		$permissions = self::createPermissionBlockForItem($item);
+		if (empty($permissions)) {
 			return [];
 		}
-
-		$condition = ['item-uri' => $item['thr-parent'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
-		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-		if (!DBA::isResult($conversation)) {
-			return [];
-		}
-
-		$activity = json_decode($conversation['source'], true);
-
-		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
-		$profile = ActivityPub::fetchprofile($actor);
 
 		$inboxes = [];
 
+		$item_profile = ActivityPub::fetchprofile($item['owner-link']);
+
 		$elements = ['to', 'cc', 'bto', 'bcc'];
 		foreach ($elements as $element) {
-			if (empty($activity[$element])) {
+			if (empty($permissions[$element])) {
 				continue;
 			}
-			if (is_string($activity[$element])) {
-				$activity[$element] = [$activity[$element]];
-			}
-			foreach ($activity[$element] as $receiver) {
-				if ($receiver == $profile['followers']) {
+			foreach ($permissions[$element] as $receiver) {
+				if ($receiver == $item_profile['followers']) {
 					$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
 						'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB]);
 					while ($contact = DBA::fetch($contacts)) {
@@ -261,84 +273,13 @@ class ActivityPub
 				}
 			}
 		}
-		return $inboxes;
-	}
 
-	public static function fetchTargetInboxes($item, $uid)
-	{
-		$inboxes = self::fetchTargetInboxesFromConversation($item, $uid);
-
-		$parents = Item::select(['author-link', 'owner-link'], ['parent' => $item['parent']]);
-		while ($parent = Item::fetch($parents)) {
-			$profile = self::fetchprofile($parent['author-link']);
-			if (!empty($profile)) {
-				$target = defaults($profile, 'sharedinbox', $profile['inbox']);
-				$inboxes[$target] = $target;
-			}
-			$profile = self::fetchprofile($parent['owner-link']);
-			if (!empty($profile)) {
-				$target = defaults($profile, 'sharedinbox', $profile['inbox']);
-				$inboxes[$target] = $target;
-			}
-		}
-		DBA::close($parents);
-
-		$terms = Term::tagArrayFromItemId($item['id']);
-		if (!$item['private']) {
-			$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
-					'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB]);
-			while ($contact = DBA::fetch($contacts)) {
-				$contact = defaults($contact, 'batch', $contact['notify']);
-				$inboxes[$contact] = $contact;
-			}
-			DBA::close($contacts);
-
-			foreach ($terms as $term) {
-				if ($term['type'] != TERM_MENTION) {
-					continue;
-				}
-				$profile = self::fetchprofile($term['url']);
-				if (!empty($profile)) {
-					$target = defaults($profile, 'sharedinbox', $profile['inbox']);
-					$inboxes[$target] = $target;
-				}
-			}
-		} else {
-			$receiver_list = Item::enumeratePermissions($item);
-			$mentioned = [];
-
-			foreach ($terms as $term) {
-				if ($term['type'] != TERM_MENTION) {
-					continue;
-				}
-				$cid = Contact::getIdForURL($term['url'], $uid);
-				if (!empty($cid) && in_array($cid, $receiver_list)) {
-					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
-					$profile = self::fetchprofile($contact['url']);
-					if (!empty($profile)) {
-						$target = defaults($profile, 'sharedinbox', $profile['inbox']);
-						$inboxes[$target] = $target;
-					}
-				}
-			}
-
-			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
-				$profile = self::fetchprofile($contact['url']);
-				if (!empty($profile)) {
-					$target = defaults($profile, 'sharedinbox', $profile['inbox']);
-					$inboxes[$target] = $target;
-				}
-			}
+		if (!empty($item_profile['sharedinbox'])) {
+			unset($inboxes[$item_profile['sharedinbox']]);
 		}
 
-		$profile = self::fetchprofile($item['author-link']);
-		if (!empty($profile['sharedinbox'])) {
-			unset($inboxes[$profile['sharedinbox']]);
-		}
-
-		if (!empty($profile['inbox'])) {
-			unset($inboxes[$profile['inbox']]);
+		if (!empty($item_profile['inbox'])) {
+			unset($inboxes[$item_profile['inbox']]);
 		}
 
 		return $inboxes;
