@@ -857,7 +857,7 @@ class App
 		if (!empty($_SESSION['visitor_home'])) {
 			$homebase = $_SESSION['visitor_home'];
 		} elseif (local_user()) {
-			$homebase = 'profile/' . $a->user['nickname'];
+			$homebase = 'profile/' . $this->user['nickname'];
 		}
 
 		if (isset($homebase)) {
