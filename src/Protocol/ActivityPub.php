@@ -42,12 +42,12 @@ use Friendica\Util\LDSignature;
  * To-do:
  *
  * Receiver:
- * - Activities: Dislike, Update, Delete
+ * - Activities: Update, Delete
  * - Object Types: Person, Tombstome
  *
  * Transmitter:
- * - Activities: Like, Dislike, Update, Delete, Announce
- * - Object Tyoes: Article, Person, Tombstone
+ * - Activities: Announce
+ * - Object Tyoes: Person, Tombstone
  *
  * General:
  * - Endpoints: Outbox, Follower, Following
@@ -287,6 +287,33 @@ class ActivityPub
 		return $inboxes;
 	}
 
+	public static function getTypeOfItem($item)
+	{
+		if ($item['verb'] == ACTIVITY_POST) {
+			if ($item['created'] == $item['edited']) {
+				$type = 'Create';
+			} else {
+				$type = 'Update';
+			}
+		} elseif ($item['verb'] == ACTIVITY_LIKE) {
+			$type = 'Like';
+		} elseif ($item['verb'] == ACTIVITY_DISLIKE) {
+			$type = 'Dislike';
+		} elseif ($item['verb'] == ACTIVITY_ATTEND) {
+			$type = 'Accept';
+		} elseif ($item['verb'] == ACTIVITY_ATTENDNO) {
+			$type = 'Reject';
+		} elseif ($item['verb'] == ACTIVITY_ATTENDMAYBE) {
+			$type = 'TentativeAccept';
+		}
+
+		if ($item['deleted']) {
+			$type = 'Delete';
+		}
+
+		return $type;
+	}
+
 	public static function createActivityFromItem($item_id)
 	{
 		$item = Item::selectFirst([], ['id' => $item_id]);
@@ -311,7 +338,7 @@ class ActivityPub
 			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
 		$data['id'] = $item['uri'] . '#activity';
-		$data['type'] = 'Create';
+		$data['type'] = self::getTypeOfItem($item);;
 		$data['actor'] = $item['author-link'];
 
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
@@ -325,7 +352,11 @@ class ActivityPub
 
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
-		$data['object'] = self::createObjectTypeFromItem($item);
+		if (in_array($data['type'], ['Create', 'Update', 'Announce'])) {
+			$data['object'] = self::CreateNote($item);
+		} else {
+			$data['object'] = $item['thr-parent'];
+		}
 
 		$owner = User::getOwnerDataById($item['uid']);
 
@@ -346,7 +377,7 @@ class ActivityPub
 			'conversation' => 'ostatus:conversation',
 			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
-		$data = array_merge($data, self::createObjectTypeFromItem($item));
+		$data = array_merge($data, self::CreateNote($item));
 
 
 		return $data;
@@ -383,7 +414,7 @@ class ActivityPub
 		return $conversation_uri;
 	}
 
-	private static function createObjectTypeFromItem($item)
+	private static function CreateNote($item)
 	{
 		if (!empty($item['title'])) {
 			$type = 'Article';
@@ -875,6 +906,7 @@ class ActivityPub
 				break;
 
 			case 'Dislike':
+				self::dislikeItem($object_data, $body);
 				break;
 
 			case 'Update':
@@ -1022,7 +1054,7 @@ class ActivityPub
 				return false;
 			}
 			logger('Using already stored item for url ' . $object_url, LOGGER_DEBUG);
-			$data = self::createObjectTypeFromItem($item);
+			$data = self::CreateNote($item);
 		}
 
 		if (empty($data['type'])) {
@@ -1232,6 +1264,17 @@ class ActivityPub
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_LIKE;
+		$item['parent-uri'] = $activity['object'];
+		$item['gravity'] = GRAVITY_ACTIVITY;
+		$item['object-type'] = ACTIVITY_OBJ_NOTE;
+
+		self::postItem($activity, $item, $body);
+	}
+
+	private static function dislikeItem($activity, $body)
+	{
+		$item = [];
+		$item['verb'] = ACTIVITY_DISLIKE;
 		$item['parent-uri'] = $activity['object'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
