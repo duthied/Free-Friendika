@@ -1164,12 +1164,12 @@ class DFRN
 	 * @return int Deliver status. Negative values mean an error.
 	 * @todo Add array type-hint for $owner, $contact
 	 */
-	public static function deliver($owner, $contact, $atom, $dissolve = false)
+	public static function deliver($owner, $contact, $atom, $dissolve = false, $legacy_transport = false)
 	{
 		$a = get_app();
 
 		// At first try the Diaspora transport layer
-		if (!$dissolve) {
+		if (!$dissolve && !$legacy_transport) {
 			$ret = self::transmit($owner, $contact, $atom);
 			if ($ret >= 200) {
 				logger('Delivery via Diaspora transport layer was successful with status ' . $ret);

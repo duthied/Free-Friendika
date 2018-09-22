@@ -6,15 +6,12 @@ use Friendica\Core\L10n;
 use Friendica\Core\Config;
 
 /**
- * @brief tool to block an account from the node
- *
- * With this tool, you can block an account in such a way, that no postings
- * or comments this account writes are accepted to the node.
+ * Performs database post updates
  *
  * License: AGPLv3 or later, same as Friendica
  *
- * @author Tobias Diekershoff <mrpetovan@gmail.com>
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Tobias Diekershoff <tobias.diekershoff@gmx.net>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class PostUpdate extends \Asika\SimpleConsole\Console
 {

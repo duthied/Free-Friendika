@@ -9,7 +9,7 @@ use Friendica\Util\Network;
 /**
  * Manage compatibility with federated networks
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Protocol
 {

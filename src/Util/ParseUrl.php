@@ -161,7 +161,8 @@ class ParseUrl
 					$siteinfo['type'] = $oembed_data->type;
 				}
 
-				if (($oembed_data->type == 'link') && ($siteinfo['type'] != 'photo')) {
+				// See https://github.com/friendica/friendica/pull/5763#discussion_r217913178
+				if ($siteinfo['type'] != 'photo') {
 					if (isset($oembed_data->title)) {
 						$siteinfo['title'] = trim($oembed_data->title);
 					}
@@ -337,7 +338,7 @@ class ParseUrl
 			$siteinfo['type'] = 'link';
 		}
 
-		if ((@$siteinfo['image'] == '') && !$no_guessing) {
+		if (empty($siteinfo['image']) && !$no_guessing) {
 			$list = $xpath->query('//img[@src]');
 			foreach ($list as $node) {
 				$img_tag = [];

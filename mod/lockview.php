@@ -47,7 +47,8 @@ function lockview_content(App $a)
 		killme();
 	}
 
-	if ($item['private'] == 1
+	if (isset($item['private'])
+		&& $item['private'] == 1
 		&& empty($item['allow_cid'])
 		&& empty($item['allow_gid'])
 		&& empty($item['deny_cid'])
