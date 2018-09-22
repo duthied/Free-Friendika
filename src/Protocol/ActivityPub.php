@@ -122,7 +122,7 @@ class ActivityPub
 		return $data;
 	}
 
-	public static function fetchPermissionBlockFromConversation($item)
+	private static function fetchPermissionBlockFromConversation($item)
 	{
 		if (empty($item['thr-parent'])) {
 			return [];
@@ -216,9 +216,47 @@ class ActivityPub
 		return $data;
 	}
 
+	private static function fetchTargetInboxesFromConversation($item)
+	{
+		if (empty($item['thr-parent'])) {
+			return [];
+		}
+
+		$condition = ['item-uri' => $item['thr-parent'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
+		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
+		if (!DBA::isResult($conversation)) {
+			return [];
+		}
+
+		$activity = json_decode($conversation['source'], true);
+
+		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
+		$profile = ActivityPub::fetchprofile($actor);
+
+		$inboxes = [];
+
+		$elements = ['to', 'cc', 'bto', 'bcc'];
+		foreach ($elements as $element) {
+			if (empty($activity[$element])) {
+				continue;
+			}
+			if (is_string($activity[$element])) {
+				$activity[$element] = [$activity[$element]];
+			}
+			foreach ($activity[$element] as $receiver) {
+				$profile = self::fetchprofile($receiver);
+				if (!empty($profile)) {
+					$target = defaults($profile, 'sharedinbox', $profile['inbox']);
+					$inboxes[$target] = $target;
+				}
+			}
+		}
+		return $inboxes;
+	}
+
 	public static function fetchTargetInboxes($item, $uid)
 	{
-		$inboxes = [];
+		$inboxes = self::fetchTargetInboxesFromConversation($item);
 
 		$parents = Item::select(['author-link', 'owner-link'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
