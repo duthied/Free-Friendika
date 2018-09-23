@@ -1462,15 +1462,6 @@ class Item extends BaseObject
 			return 0;
 		}
 
-		// These fields aren't stored anymore in the item table, they are fetched upon request
-		unset($item['author-link']);
-		unset($item['author-name']);
-		unset($item['author-avatar']);
-
-		unset($item['owner-link']);
-		unset($item['owner-name']);
-		unset($item['owner-avatar']);
-
 		if ($item['network'] == Protocol::PHANTOM) {
 			logger('Missing network. Called by: '.System::callstack(), LOGGER_DEBUG);
 
@@ -1707,6 +1698,15 @@ class Item extends BaseObject
 
 		unset($item['postopts']);
 		unset($item['inform']);
+
+		// These fields aren't stored anymore in the item table, they are fetched upon request
+		unset($item['author-link']);
+		unset($item['author-name']);
+		unset($item['author-avatar']);
+
+		unset($item['owner-link']);
+		unset($item['owner-name']);
+		unset($item['owner-avatar']);
 
 		DBA::transaction();
 		$ret = DBA::insert('item', $item);
