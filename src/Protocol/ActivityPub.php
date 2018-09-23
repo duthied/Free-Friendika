@@ -43,16 +43,30 @@ use Friendica\Core\Config;
  * To-do:
  *
  * Receiver:
- * - Activities: Update (Notes, Person), Delete (Person, Activities, Notes)
- * - Object Types: Person, Tombstome
+ * - Update Note
+ * - Delete Note
+ * - Delete Person
+ * - Undo Announce
+ * - Reject Follow
+ * - Undo Accept
+ * - Undo Follow
+ * - Add
+ * - Create Image
+ * - Create Video
+ * - Event
+ * - Remove
+ * - Block
+ * - Flag
  *
  * Transmitter:
- * - Activities: Announce, Update (Person)
- * - Object Tyoes: Person
+ * - Announce
+ * - Undo Announce
+ * - Update Person
+ * - Reject Follow
+ * - Event
  *
  * General:
  * - Queueing unsucessful deliveries
- * - Event support
  * - Polling the outboxes for missing content?
  */
 class ActivityPub
@@ -270,7 +284,7 @@ class ActivityPub
 			$exclude[] = $item['owner-link'];
 		}
 
-		$permissions = [];
+		$permissions['to'][] = $actor;
 
 		$elements = ['to', 'cc', 'bto', 'bcc'];
 		foreach ($elements as $element) {
@@ -280,6 +294,7 @@ class ActivityPub
 			if (is_string($activity[$element])) {
 				$activity[$element] = [$activity[$element]];
 			}
+
 			foreach ($activity[$element] as $receiver) {
 				if ($receiver == $profile['followers'] && !empty($item_profile['followers'])) {
 					$receiver = $item_profile['followers'];
@@ -346,10 +361,13 @@ class ActivityPub
 			}
 		}
 
-// It is to decide whether we should include all profiles in a thread to the list of receivers
-/*
 		$parents = Item::select(['author-link', 'owner-link', 'gravity'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
+			// Don't include data from future posts
+			if ($parent['id'] >= $item['id']) {
+				continue;
+			}
+
 			$profile = self::fetchprofile($parent['author-link'], false);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
@@ -367,7 +385,7 @@ class ActivityPub
 			}
 		}
 		DBA::close($parents);
-*/
+
 		if (empty($data['to'])) {
 			$data['to'] = $data['cc'];
 			$data['cc'] = [];
@@ -952,7 +970,7 @@ class ActivityPub
 		}
 	}
 
-	private static function prepareObjectData($activity, $uid, $trust_source)
+	private static function prepareObjectData($activity, $uid, &$trust_source)
 	{
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
 		if (empty($actor)) {
@@ -982,12 +1000,18 @@ class ActivityPub
 		}
 
 		// Fetch the content only on activities where this matters
-		if (in_array($activity['type'], ['Create', 'Update', 'Announce'])) {
+		if (in_array($activity['type'], ['Create', 'Announce'])) {
 			$object_data = self::fetchObject($object_url, $activity['object'], $trust_source);
 			if (empty($object_data)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return [];
 			}
+			// We had been able to retrieve the object data - so we can trust the source
+			$trust_source = true;
+		} elseif ($activity['type'] == 'Update') {
+			$object_data = [];
+			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
+			$object_data['object'] = $activity['object'];
 		} elseif ($activity['type'] == 'Accept') {
 			$object_data = [];
 			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
@@ -995,7 +1019,11 @@ class ActivityPub
 		} elseif ($activity['type'] == 'Undo') {
 			$object_data = [];
 			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
-			$object_data['object'] = JsonLD::fetchElement($activity, 'object', 'object');
+			if ($object_data['object_type'] == 'Follow') {
+				$object_data['object'] = JsonLD::fetchElement($activity, 'object', 'object');
+			} else {
+				$object_data['object'] = $activity['object'];
+			}
 		} elseif (in_array($activity['type'], ['Like', 'Dislike'])) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
@@ -1045,10 +1073,15 @@ class ActivityPub
 
 		logger('Processing activity: ' . $activity['type'], LOGGER_DEBUG);
 
+		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
 		if (empty($object_data)) {
 			logger('No object data found', LOGGER_DEBUG);
 			return;
+		}
+
+		if (!trust_source) {
+			logger('No trust for activity type "' . $activity['type'] . '", so we quit now.', LOGGER_DEBUG);
 		}
 
 		switch ($activity['type']) {
@@ -1066,6 +1099,9 @@ class ActivityPub
 				break;
 
 			case 'Update':
+				if (in_array($object_data['object_type'], ['Person', 'Organization', 'Service', 'Group', 'Application'])) {
+					self::updatePerson($object_data, $body);
+				}
 				break;
 
 			case 'Delete':
@@ -1084,6 +1120,8 @@ class ActivityPub
 			case 'Undo':
 				if ($object_data['object_type'] == 'Follow') {
 					self::undoFollowUser($object_data);
+				} elseif (in_array($object_data['object_type'], ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept'])) {
+					self::undoActivity($object_data);
 				}
 				break;
 
@@ -1553,6 +1591,15 @@ class ActivityPub
 		logger('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
 	}
 
+	private static function updatePerson($activity)
+	{
+		if (empty($activity['object']['id'])) {
+			return;
+		}
+
+		self::fetchprofile($activity['object']['id'], true);
+	}
+
 	private static function acceptFollowUser($activity)
 	{
 		$uid = self::getUserOfObject($activity['object']);
@@ -1578,6 +1625,26 @@ class ActivityPub
 		$condition = ['id' => $cid];
 		DBA::update('contact', $fields, $condition);
 		logger('Accept contact request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
+	}
+
+	private static function undoActivity($activity)
+	{
+		$activity_url = JsonLD::fetchElement($activity, 'object', 'id');
+		if (empty($activity_url)) {
+			return;
+		}
+
+		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
+		if (empty($actor)) {
+			return;
+		}
+
+		$author_id = Contact::getIdForURL($actor);
+		if (empty($author_id)) {
+			return;
+		}
+
+		Item::delete(['uri' => $activity_url, 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
 	}
 
 	private static function undoFollowUser($activity)
