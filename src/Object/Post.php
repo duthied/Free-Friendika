@@ -324,7 +324,7 @@ class Post extends BaseObject
 		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
-		if (!in_array($item["network"], [Protocol::DFRN, Protocol::DIASPORA]) && isset($buttons["dislike"])) {
+		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA]) && isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$isevent = false;
 			$tagger = '';

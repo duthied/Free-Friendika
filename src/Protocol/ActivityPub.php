@@ -42,11 +42,11 @@ use Friendica\Util\LDSignature;
  * To-do:
  *
  * Receiver:
- * - Activities: Update, Delete
+ * - Activities: Update, Delete (Activities/Notes)
  * - Object Types: Person, Tombstome
  *
  * Transmitter:
- * - Activities: Announce
+ * - Activities: Announce, Delete Notes
  * - Object Tyoes: Person, Tombstone
  *
  * General:
@@ -139,7 +139,12 @@ class ActivityPub
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
 		$profile = ActivityPub::fetchprofile($actor);
 
-		$item_profile = ActivityPub::fetchprofile($item['owner-link']);
+		$item_profile = ActivityPub::fetchprofile($item['author-link']);
+		$exclude[] = $item['author-link'];
+
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			$exclude[] = $item['owner-link'];
+		}
 
 		$permissions = [];
 
@@ -155,7 +160,7 @@ class ActivityPub
 				if ($receiver == $profile['followers'] && !empty($item_profile['followers'])) {
 					$receiver = $item_profile['followers'];
 				}
-				if ($receiver != $item['owner-link']) {
+				if (!in_array($receiver, $exclude)) {
 					$permissions[$element][] = $receiver;
 				}
 			}
@@ -217,12 +222,16 @@ class ActivityPub
 			}
 		}
 
-		$parents = Item::select(['author-link', 'owner-link'], ['parent' => $item['parent']]);
+		$parents = Item::select(['author-link', 'owner-link', 'gravity'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
 			$profile = self::fetchprofile($parent['author-link']);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
+			}
+
+			if ($item['gravity'] != GRAVITY_PARENT) {
+				continue;
 			}
 
 			$profile = self::fetchprofile($parent['owner-link']);
@@ -250,13 +259,18 @@ class ActivityPub
 
 		$inboxes = [];
 
-		$item_profile = ActivityPub::fetchprofile($item['owner-link']);
+		if ($item['gravity'] == GRAVITY_ACTIVITY) {
+			$item_profile = ActivityPub::fetchprofile($item['author-link']);
+		} else {
+			$item_profile = ActivityPub::fetchprofile($item['owner-link']);
+		}
 
 		$elements = ['to', 'cc', 'bto', 'bcc'];
 		foreach ($elements as $element) {
 			if (empty($permissions[$element])) {
 				continue;
 			}
+
 			foreach ($permissions[$element] as $receiver) {
 				if ($receiver == $item_profile['followers']) {
 					$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
@@ -274,14 +288,6 @@ class ActivityPub
 					}
 				}
 			}
-		}
-
-		if (!empty($item_profile['sharedinbox'])) {
-			unset($inboxes[$item_profile['sharedinbox']]);
-		}
-
-		if (!empty($item_profile['inbox'])) {
-			unset($inboxes[$item_profile['inbox']]);
 		}
 
 		return $inboxes;
@@ -305,16 +311,14 @@ class ActivityPub
 			$type = 'Reject';
 		} elseif ($item['verb'] == ACTIVITY_ATTENDMAYBE) {
 			$type = 'TentativeAccept';
-		}
-
-		if ($item['deleted']) {
-			$type = 'Delete';
+		} else {
+			$type = '';
 		}
 
 		return $type;
 	}
 
-	public static function createActivityFromItem($item_id)
+	public static function createActivityFromItem($item_id, $object_mode = false)
 	{
 		$item = Item::selectFirst([], ['id' => $item_id]);
 
@@ -331,14 +335,24 @@ class ActivityPub
 			}
 		}
 
-		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
-			'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
-			'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
-			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
+		$type = self::getTypeOfItem($item);
 
-		$data['id'] = $item['uri'] . '#activity';
-		$data['type'] = self::getTypeOfItem($item);;
+		if (!$object_mode) {
+			$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
+				['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
+				'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+				'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
+				'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
+
+			if ($item['deleted']) {
+				$type = 'Undo';
+			}
+		} else {
+			$data = [];
+		}
+
+		$data['id'] = $item['uri'] . '#' . $type;
+		$data['type'] = $type;
 		$data['actor'] = $item['author-link'];
 
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
@@ -347,20 +361,25 @@ class ActivityPub
 			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
 		}
 
-		$data['context_id'] = $item['parent'];
 		$data['context'] = self::createConversationURLFromItem($item);
 
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Announce'])) {
 			$data['object'] = self::CreateNote($item);
+		} elseif ($data['type'] == 'Undo') {
+			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
 			$data['object'] = $item['thr-parent'];
 		}
 
 		$owner = User::getOwnerDataById($item['uid']);
 
-		return LDSignature::sign($data, $owner);
+		if (!$object_mode) {
+			return LDSignature::sign($data, $owner);
+		} else {
+			return $data;
+		}
 	}
 
 	public static function createObjectFromItemID($item_id)
@@ -444,7 +463,6 @@ class ActivityPub
 		$data['attributedTo'] = $item['author-link'];
 		$data['actor'] = $item['author-link'];
 		$data['sensitive'] = false; // - Query NSFW
-		$data['context_id'] = $item['parent'];
 		$data['conversation'] = $data['context'] = self::createConversationURLFromItem($item);
 
 		if (!empty($item['title'])) {
