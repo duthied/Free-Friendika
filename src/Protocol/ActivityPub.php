@@ -857,6 +857,19 @@ class ActivityPub
 
 		DBA::update('apcontact', $apcontact, ['url' => $url], true);
 
+		// Update some data in the contact table with various ways to catch them all
+		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about']];
+		DBA::update('contact', $contact_fields, ['nurl' => normalise_link($url)]);
+
+		$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => normalise_link($url)]);
+		while ($contact = DBA::fetch($contacts)) {
+			Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
+		}
+		DBA::close($contacts);
+
+		// Update the gcontact table
+		DBA::update('gcontact', $contact_fields, ['nurl' => normalise_link($url)]);
+
 		return $apcontact;
 	}
 
@@ -1203,7 +1216,48 @@ class ActivityPub
 				$receivers['uid:' . $contact['uid']] = $contact['uid'];
 			}
 		}
+
+		self::switchContacts($receivers, $actor);
+
 		return $receivers;
+	}
+
+	private static function switchContact($cid, $uid, $url)
+	{
+		$profile = ActivityPub::probeProfile($url);
+		if (empty($profile)) {
+			return;
+		}
+
+		logger('Switch contact ' . $cid . ' (' . $profile['url'] . ') for user ' . $uid . ' from OStatus to ActivityPub');
+
+		$photo = $profile['photo'];
+		unset($profile['photo']);
+		unset($profile['baseurl']);
+
+		$profile['nurl'] = normalise_link($profile['url']);
+		DBA::update('contact', $profile, ['id' => $cid]);
+
+		Contact::updateAvatar($photo, $uid, $cid);
+	}
+
+	private static function switchContacts($receivers, $actor)
+	{
+		if (empty($actor)) {
+			return;
+		}
+
+		foreach ($receivers as $receiver) {
+			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'nurl' => normalise_link($actor)]);
+			if (DBA::isResult($contact)) {
+				self::switchContact($contact['id'], $receiver, $actor);
+			}
+
+			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'alias' => [normalise_link($actor), $actor]]);
+			if (DBA::isResult($contact)) {
+				self::switchContact($contact['id'], $receiver, $actor);
+			}
+		}
 	}
 
 	private static function addActivityFields($object_data, $activity)
