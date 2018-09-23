@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
 function hcard_init(App $a)
@@ -28,7 +29,7 @@ function hcard_init(App $a)
 
 	Profile::load($a, $which, $profile);
 
-	if ((x($a->profile, 'page-flags')) && ($a->profile['page-flags'] == PAGE_COMMUNITY)) {
+	if ((x($a->profile, 'page-flags')) && ($a->profile['page-flags'] == Contact::PAGE_COMMUNITY)) {
 		$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
 	}
 	if (x($a->profile, 'openidserver')) {
@@ -49,7 +50,7 @@ function hcard_init(App $a)
 
 	$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . (($a->profile['net-publish']) ? 'true' : 'false') . '" />' . "\r\n" ;
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which .'" />' . "\r\n" ;
-	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->get_hostname() . (($a->path) ? '/' . $a->path : ''));
+	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->get_hostname() . (($a->urlpath) ? '/' . $a->urlpath : ''));
 	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 	header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 

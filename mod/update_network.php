@@ -12,6 +12,10 @@ require_once "mod/network.php";
 
 function update_network_content(App $a)
 {
+	if (!isset($_GET['p']) || !isset($_GET['item'])) {
+		killme();
+	}
+
 	$profile_uid = intval($_GET['p']);
 	$parent = intval($_GET['item']);
 
@@ -24,10 +28,6 @@ function update_network_content(App $a)
 	} else {
 		$text = "";
 	}
-
-	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
-	$replace = "<img\${1} dst=\"\${2}\"";
-	$text = preg_replace($pattern, $replace, $text);
 
 	if (PConfig::get(local_user(), "system", "bandwidth_saver")) {
 		$replace = "<br />" . L10n::t("[Embedded content - reload page to view]") . "<br />";

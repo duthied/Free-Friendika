@@ -10,7 +10,8 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Util\Network;
 use Exception;
@@ -731,8 +732,11 @@ class Image
 			$headers=[];
 			$h = explode("\n", $a->get_curl_headers());
 			foreach ($h as $l) {
-				list($k,$v) = array_map("trim", explode(":", trim($l), 2));
-				$headers[$k] = $v;
+				$data = array_map("trim", explode(":", trim($l), 2));
+				if (count($data) > 1) {
+					list($k,$v) = $data;
+					$headers[$k] = $v;
+				}
 			}
 			if (array_key_exists('Content-Type', $headers))
 				$type = $headers['Content-Type'];
@@ -779,20 +783,29 @@ class Image
 
 		if (is_null($data) || !$data || !is_array($data)) {
 			$img_str = Network::fetchUrl($url, true, $redirects, 4);
+
+			if (!$img_str) {
+				return false;
+			}
+
 			$filesize = strlen($img_str);
 
-			if (function_exists("getimagesizefromstring")) {
-				$data = getimagesizefromstring($img_str);
-			} else {
-				$tempfile = tempnam(get_temppath(), "cache");
+			try {
+				if (function_exists("getimagesizefromstring")) {
+					$data = @getimagesizefromstring($img_str);
+				} else {
+					$tempfile = tempnam(get_temppath(), "cache");
 
-				$a = get_app();
-				$stamp1 = microtime(true);
-				file_put_contents($tempfile, $img_str);
-				$a->save_timestamp($stamp1, "file");
+					$a = get_app();
+					$stamp1 = microtime(true);
+					file_put_contents($tempfile, $img_str);
+					$a->save_timestamp($stamp1, "file");
 
-				$data = getimagesize($tempfile);
-				unlink($tempfile);
+					$data = getimagesize($tempfile);
+					unlink($tempfile);
+				}
+			} catch (Exception $e) {
+				return false;
 			}
 
 			if ($data) {
@@ -875,7 +888,7 @@ class Image
 			intval($uid)
 		);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
 			return([]);
 		}
@@ -884,7 +897,7 @@ class Image
 
 		/// @TODO
 		/// $default_cid      = $r[0]['id'];
-		/// $community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
+		/// $community_page   = (($r[0]['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
 
 		if ((strlen($imagedata) == 0) && ($url == "")) {
 			logger("No image data and no url provided", LOGGER_DEBUG);

@@ -2,6 +2,7 @@
 /**
  * @file mod/search.php
  */
+
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
@@ -9,7 +10,8 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Item;
 
 require_once 'include/security.php';
 require_once 'include/conversation.php';
@@ -20,14 +22,14 @@ function search_saved_searches() {
 	$o = '';
 	$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 
-	if (! Feature::isEnabled(local_user(),'savedsearch'))
+	if (!Feature::isEnabled(local_user(),'savedsearch'))
 		return $o;
 
 	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
 		intval(local_user())
 	);
 
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$saved = [];
 		foreach ($r as $rr) {
 			$saved[] = [
@@ -63,14 +65,19 @@ function search_init(App $a) {
 		if (x($_GET,'save') && $search) {
 			$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
 				intval(local_user()),
-				dbesc($search)
+				DBA::escape($search)
 			);
-			if (!DBM::is_result($r)) {
-				dba::insert('search', ['uid' => local_user(), 'term' => $search]);
+			if (!DBA::isResult($r)) {
+				DBA::insert('search', ['uid' => local_user(), 'term' => $search]);
 			}
 		}
 		if (x($_GET,'remove') && $search) {
-			dba::delete('search', ['uid' => local_user(), 'term' => $search]);
+			DBA::delete('search', ['uid' => local_user(), 'term' => $search]);
+		}
+
+		/// @todo Check if there is a case at all that "aside" is prefilled here
+		if (!isset($a->page['aside'])) {
+			$a->page['aside'] = '';
 		}
 
 		$a->page['aside'] .= search_saved_searches();
@@ -183,7 +190,7 @@ function search_content(App $a) {
 				break;
 		}
 
-	if (! $search)
+	if (!$search)
 		return $o;
 
 	if (Config::get('system','only_tag_search'))
@@ -197,34 +204,39 @@ function search_content(App $a) {
 	if ($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
-		$r = q("SELECT %s
-			FROM `term`
-				STRAIGHT_JOIN `item` ON `item`.`id`=`term`.`oid` %s
-			WHERE %s AND (`term`.`uid` = 0 OR (`term`.`uid` = %d AND NOT `term`.`global`))
-				AND `term`.`otype` = %d AND `term`.`type` = %d AND `term`.`term` = '%s' AND `item`.`verb` = '%s'
-				AND NOT `author`.`blocked` AND NOT `author`.`hidden`
-			ORDER BY term.created DESC LIMIT %d , %d ",
-				item_fieldlists(), item_joins(local_user()), item_condition(),
-				intval(local_user()),
-				intval(TERM_OBJ_POST), intval(TERM_HASHTAG), dbesc(protect_sprintf($search)), dbesc(ACTIVITY_POST),
-				intval($a->pager['start']), intval($a->pager['itemspage']));
+		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
+			AND `otype` = ? AND `type` = ? AND `term` = ?",
+			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $search];
+		$params = ['order' => ['created' => true],
+			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$terms = DBA::select('term', ['oid'], $condition, $params);
+
+		$itemids = [];
+		while ($term = DBA::fetch($terms)) {
+			$itemids[] = $term['oid'];
+		}
+		DBA::close($terms);
+
+		if (!empty($itemids)) {
+			$params = ['order' => ['id' => true]];
+			$items = Item::selectForUser(local_user(), [], ['id' => $itemids], $params);
+			$r = Item::inArray($items);
+		} else {
+			$r = [];
+		}
 	} else {
 		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
 
-		$sql_extra = sprintf(" AND `item`.`body` REGEXP '%s' ", dbesc(protect_sprintf(preg_quote($search))));
-
-		$r = q("SELECT %s
-			FROM `item` %s
-			WHERE %s AND (`item`.`uid` = 0 OR (`item`.`uid` = %s AND NOT `item`.`global`))
-				AND NOT `author`.`blocked` AND NOT `author`.`hidden`
-				$sql_extra
-			GROUP BY `item`.`uri`, `item`.`id` ORDER BY `item`.`id` DESC LIMIT %d , %d",
-				item_fieldlists(), item_joins(local_user()), item_condition(),
-				intval(local_user()),
-				intval($a->pager['start']), intval($a->pager['itemspage']));
+		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
+			AND `body` LIKE CONCAT('%',?,'%')",
+			local_user(), $search];
+		$params = ['order' => ['id' => true],
+			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$items = Item::selectForUser(local_user(), [], $condition, $params);
+		$r = Item::inArray($items);
 	}
 
-	if (! DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		info(L10n::t('No results.') . EOL);
 		return $o;
 	}
@@ -249,4 +261,3 @@ function search_content(App $a) {
 
 	return $o;
 }
-

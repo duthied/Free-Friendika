@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Core\ACL;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Module\Login;
@@ -21,14 +22,18 @@ function bookmarklet_content(App $a)
 {
 	if (!local_user()) {
 		$o = '<h2>' . L10n::t('Login') . '</h2>';
-		$o .= Login::form($a->query_string, $a->config['register_policy'] == REGISTER_CLOSED ? false : true);
+		$o .= Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? false : true);
 		return $o;
 	}
 
-	$referer = normalise_link($_SERVER["HTTP_REFERER"]);
+	$referer = normalise_link(defaults($_SERVER, 'HTTP_REFERER', ''));
 	$page = normalise_link(System::baseUrl() . "/bookmarklet");
 
 	if (!strstr($referer, $page)) {
+		if (empty($_REQUEST["url"])) {
+			System::httpExit(400, ["title" => L10n::t('Bad Request')]);
+		}
+
 		$content = add_page_info($_REQUEST["url"]);
 
 		$x = [
@@ -42,7 +47,7 @@ function bookmarklet_content(App $a)
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-			'title' => trim($_REQUEST["title"], "*"),
+			'title' => trim(defaults($_REQUEST, 'title', ''), "*"),
 			'content' => $content
 		];
 		$o = status_editor($a, $x, 0, false);

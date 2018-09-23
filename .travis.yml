@@ -1,10 +1,25 @@
 ---
 language: php
-## Friendica supports PHP version >= 5.6
+## Friendica supports PHP version >= 5.6.1
 php:
  - 5.6
  - 7.0
  - 7.1
  - 7.2
 
-install: composer install
+services:
+ - mysql
+ - redis-server
+ - memcached
+env:
+ - MYSQL_HOST=localhost MYSQL_PORT=3306 MYSQL_USERNAME=travis MYSQL_PASSWORD= MYSQL_DATABASE=test
+
+install:
+ - composer install
+before_script:
+ - cp config/local-sample.ini.php config/local.ini.php
+ - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+ - mysql -utravis test < database.sql
+ - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+ - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+after_success: bash <(curl -s https://codecov.io/bash)

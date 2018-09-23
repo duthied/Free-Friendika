@@ -7,32 +7,28 @@ use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
-function tagrm_post(App $a) {
-
+function tagrm_post(App $a)
+{
 	if (!local_user()) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
-	if ((x($_POST,'submit')) && ($_POST['submit'] === L10n::t('Cancel'))) {
+	if (x($_POST,'submit') && ($_POST['submit'] === L10n::t('Cancel'))) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
-	$tag =  ((x($_POST,'tag'))  ? hex2bin(notags(trim($_POST['tag']))) : '');
-	$item = ((x($_POST,'item')) ? intval($_POST['item'])               : 0 );
+	$tag =  (x($_POST,'tag')  ? hex2bin(notags(trim($_POST['tag']))) : '');
+	$item_id = (x($_POST,'item') ? intval($_POST['item'])               : 0);
 
-	$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($item),
-		intval(local_user())
-	);
-
-	if (!DBM::is_result($r)) {
+	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
+	if (!DBA::isResult($item)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
-	$arr = explode(',', $r[0]['tag']);
+	$arr = explode(',', $item['tag']);
 	for ($x = 0; $x < count($arr); $x ++) {
 		if ($arr[$x] === $tag) {
 			unset($arr[$x]);
@@ -42,7 +38,7 @@ function tagrm_post(App $a) {
 
 	$tag_str = implode(',',$arr);
 
-	Item::update(['tag' => $tag_str], ['id' => $item]);
+	Item::update(['tag' => $tag_str], ['id' => $item_id]);
 
 	info(L10n::t('Tag removed') . EOL );
 	goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
@@ -52,8 +48,8 @@ function tagrm_post(App $a) {
 
 
 
-function tagrm_content(App $a) {
-
+function tagrm_content(App $a)
+{
 	$o = '';
 
 	if (!local_user()) {
@@ -61,22 +57,18 @@ function tagrm_content(App $a) {
 		// NOTREACHED
 	}
 
-	$item = (($a->argc > 1) ? intval($a->argv[1]) : 0);
-	if (!$item) {
+	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+	if (!$item_id) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 		// NOTREACHED
 	}
 
-	$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($item),
-		intval(local_user())
-	);
-
-	if (!DBM::is_result($r)) {
+	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
+	if (!DBA::isResult($item)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
 	}
 
-	$arr = explode(',', $r[0]['tag']);
+	$arr = explode(',', $item['tag']);
 
 	if (!count($arr)) {
 		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
@@ -87,7 +79,7 @@ function tagrm_content(App $a) {
 	$o .= '<p id="tag-remove-desc">' . L10n::t('Select a tag to remove: ') . '</p>';
 
 	$o .= '<form id="tagrm" action="tagrm" method="post" >';
-	$o .= '<input type="hidden" name="item" value="' . $item . '" />';
+	$o .= '<input type="hidden" name="item" value="' . $item_id . '" />';
 	$o .= '<ul>';
 
 	foreach ($arr as $x) {
@@ -100,5 +92,4 @@ function tagrm_content(App $a) {
 	$o .= '</form>';
 
 	return $o;
-
 }

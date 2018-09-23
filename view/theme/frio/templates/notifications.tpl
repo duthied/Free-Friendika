@@ -1,3 +1,5 @@
+<script type="text/javascript" src="view/theme/frio/frameworks/jquery-color/jquery.color.js"></script>
+<script type="text/javascript" src="view/theme/frio/js/mod_notifications.js"></script>
 
 <div class="generic-page-wrapper">
 	{{include file="section_title.tpl" title=$notif_header}}
@@ -26,13 +28,3 @@
 	{{* The pager *}}
 	{{$notif_paginate}}
 </div>
-
-{{* Since only the DIV's inside the notification-list are marked with the class "unseen",
-we need some js to transfer this class to the parent li list-elements *}}
-<script type="text/javascript">
-$(document).ready(function(){
-	if( $(".notif-item").hasClass("unseen")) {
-		$(".notif-item.unseen").parent("li").addClass("unseen");
-	}
-});
-</script>

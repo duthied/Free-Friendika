@@ -6,11 +6,13 @@ use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Addon;
-use Friendica\Database\DBM;
+use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/dba.php';
-require_once 'mod/proxy.php';
 
 function acl_content(App $a)
 {
@@ -35,8 +37,8 @@ function acl_content(App $a)
 	logger("Searching for ".$search." - type ".$type." conversation ".$conv_id, LOGGER_DEBUG);
 
 	if ($search != '') {
-		$sql_extra = "AND `name` LIKE '%%" . dbesc($search) . "%%'";
-		$sql_extra2 = "AND (`attag` LIKE '%%" . dbesc($search) . "%%' OR `name` LIKE '%%" . dbesc($search) . "%%' OR `nick` LIKE '%%" . dbesc($search) . "%%')";
+		$sql_extra = "AND `name` LIKE '%%" . DBA::escape($search) . "%%'";
+		$sql_extra2 = "AND (`attag` LIKE '%%" . DBA::escape($search) . "%%' OR `name` LIKE '%%" . DBA::escape($search) . "%%' OR `nick` LIKE '%%" . DBA::escape($search) . "%%')";
 	} else {
 		/// @TODO Avoid these needless else blocks by putting variable-initialization atop of if()
 		$sql_extra = $sql_extra2 = '';
@@ -83,8 +85,8 @@ function acl_content(App $a)
 				AND `success_update` >= `failure_update`
 				AND `network` IN ('%s', '%s') $sql_extra2",
 			intval(local_user()),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA)
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA)
 		);
 		$contact_count = (int) $r[0]['c'];
 	} elseif ($type == 'a') {
@@ -142,8 +144,8 @@ function acl_content(App $a)
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_STATUSNET)
+			DBA::escape(Protocol::OSTATUS),
+			DBA::escape(Protocol::STATUSNET)
 		);
 	} elseif ($type == 'c') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
@@ -152,7 +154,7 @@ function acl_content(App $a)
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
-			dbesc(NETWORK_STATUSNET)
+			DBA::escape(Protocol::STATUSNET)
 		);
 	} elseif ($type == 'f') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
@@ -162,7 +164,7 @@ function acl_content(App $a)
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
-			dbesc(NETWORK_STATUSNET)
+			DBA::escape(Protocol::STATUSNET)
 		);
 	} elseif ($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
@@ -171,8 +173,8 @@ function acl_content(App $a)
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA)
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA)
 		);
 	} elseif ($type == 'a') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
@@ -191,7 +193,7 @@ function acl_content(App $a)
 		$contacts = [];
 		foreach ($r as $g) {
 			$contacts[] = [
-				'photo'   => proxy_url($g['photo'], false, PROXY_SIZE_MICRO),
+				'photo'   => ProxyUtils::proxifyUrl($g['photo'], false, ProxyUtils::SIZE_MICRO),
 				'name'    => $g['name'],
 				'nick'    => defaults($g, 'addr', $g['url']),
 				'network' => $g['network'],
@@ -208,12 +210,12 @@ function acl_content(App $a)
 		exit;
 	}
 
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$forums = [];
 		foreach ($r as $g) {
 			$entry = [
 				'type'    => 'c',
-				'photo'   => proxy_url($g['micro'], false, PROXY_SIZE_MICRO),
+				'photo'   => ProxyUtils::proxifyUrl($g['micro'], false, ProxyUtils::SIZE_MICRO),
 				'name'    => htmlentities($g['name']),
 				'id'      => intval($g['id']),
 				'network' => $g['network'],
@@ -240,8 +242,8 @@ function acl_content(App $a)
 
 	if ($conv_id) {
 		// In multi threaded posts the conv_id is not the parent of the whole thread
-		$parent_item = dba::selectFirst('item', ['parent'], ['id' => $conv_id]);
-		if (DBM::is_result($parent_item)) {
+		$parent_item = Item::selectFirst(['parent'], ['id' => $conv_id]);
+		if (DBA::isResult($parent_item)) {
 			$conv_id = $parent_item['parent'];
 		}
 
@@ -250,39 +252,39 @@ function acl_content(App $a)
 		 * but first get known contacts url to filter them out
 		 */
 		$known_contacts = array_map(function ($i) {
-			return dbesc($i['link']);
+			return $i['link'];
 		}, $contacts);
 
 		$unknown_contacts = [];
-		$r = q("SELECT `author-link`
-				FROM `item` WHERE `parent` = %d
-					AND (`author-name` LIKE '%%%s%%' OR `author-link` LIKE '%%%s%%')
-					AND `author-link` NOT IN ('%s')
-				GROUP BY `author-link`, `author-avatar`, `author-name`
-				ORDER BY `author-name` ASC
-				",
-			intval($conv_id),
-			dbesc($search),
-			dbesc($search),
-			implode("', '", $known_contacts)
-		);
-		if (DBM::is_result($r)) {
-			foreach ($r as $row) {
-				$contact = Contact::getDetailsByURL($row['author-link']);
 
-				if (count($contact) > 0) {
-					$unknown_contacts[] = [
-						'type'    => 'c',
-						'photo'   => proxy_url($contact['micro'], false, PROXY_SIZE_MICRO),
-						'name'    => htmlentities($contact['name']),
-						'id'      => intval($contact['cid']),
-						'network' => $contact['network'],
-						'link'    => $contact['url'],
-						'nick'    => htmlentities(defaults($contact, 'nick', $contact['addr'])),
-						'addr'    => htmlentities(defaults($contact, 'addr', $contact['url'])),
-						'forum'   => $contact['forum']
-					];
-				}
+		$condition = ["`parent` = ?", $conv_id];
+		$params = ['order' => ['author-name' => true]];
+		$authors = Item::selectForUser(local_user(), ['author-link'], $condition, $params);
+		$item_authors = [];
+		while ($author = Item::fetch($authors)) {
+			$item_authors[$author['author-link']] = $author['author-link'];
+		}
+		DBA::close($authors);
+
+		foreach ($item_authors as $author) {
+			if (in_array($author, $known_contacts)) {
+				continue;
+			}
+
+			$contact = Contact::getDetailsByURL($author);
+
+			if (count($contact) > 0) {
+				$unknown_contacts[] = [
+					'type'    => 'c',
+					'photo'   => ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO),
+					'name'    => htmlentities($contact['name']),
+					'id'      => intval($contact['cid']),
+					'network' => $contact['network'],
+					'link'    => $contact['url'],
+					'nick'    => htmlentities(defaults($contact, 'nick', $contact['addr'])),
+					'addr'    => htmlentities(defaults($contact, 'addr', $contact['url'])),
+					'forum'   => $contact['forum']
+				];
 			}
 		}
 

@@ -2,69 +2,118 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\BaseObject;
 use Friendica\Core\Cache;
+
+use Exception;
+use Memcached;
 
 /**
  * Memcached Cache Driver
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcachedCacheDriver extends BaseObject implements ICacheDriver
+class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 {
+	use TraitCompareSet;
+	use TraitCompareDelete;
+
 	/**
-	 * @var Memcached
+	 * @var \Memcached
 	 */
 	private $memcached;
 
+	/**
+	 * Due to limitations of the INI format, the expected configuration for Memcached servers is the following:
+	 * array {
+	 *   0 => "hostname, port(, weight)",
+	 *   1 => ...
+	 * }
+	 *
+	 * @param array $memcached_hosts
+	 * @throws \Exception
+	 */
 	public function __construct(array $memcached_hosts)
 	{
 		if (!class_exists('Memcached', false)) {
-			throw new \Exception('Memcached class isn\'t available');
+			throw new Exception('Memcached class isn\'t available');
 		}
 
-		$this->memcached = new \Memcached();
+		$this->memcached = new Memcached();
+
+		array_walk($memcached_hosts, function (&$value) {
+			if (is_string($value)) {
+				$value = array_map('trim', explode(',', $value));
+			}
+		});
 
 		$this->memcached->addServers($memcached_hosts);
 
 		if (count($this->memcached->getServerList()) == 0) {
-			throw new \Exception('Expected Memcached servers aren\'t available, config:' . var_export($memcached_hosts, true));
+			throw new Exception('Expected Memcached servers aren\'t available, config:' . var_export($memcached_hosts, true));
 		}
 	}
 
 	public function get($key)
 	{
 		$return = null;
+		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
-		$value = $this->memcached->get(self::getApp()->get_hostname() . ':' . $key);
+		$value = $this->memcached->get($cachekey);
 
-		if ($this->memcached->getResultCode() === \Memcached::RES_SUCCESS) {
+		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
 			$return = $value;
 		}
 
 		return $return;
 	}
 
-	public function set($key, $value, $duration = Cache::MONTH)
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
+		$cachekey = $this->getCacheKey($key);
+
 		// We store with the hostname as key to avoid problems with other applications
-		return $this->memcached->set(
-			self::getApp()->get_hostname() . ':' . $key,
-			$value,
-			time() + $duration
-		);
+		if ($ttl > 0) {
+			return $this->memcached->set(
+				$cachekey,
+				$value,
+				$ttl
+			);
+		} else {
+			return $this->memcached->set(
+				$cachekey,
+				$value
+			);
+		}
+
 	}
 
 	public function delete($key)
 	{
-		$return = $this->memcached->delete(self::getApp()->get_hostname() . ':' . $key);
-
-		return $return;
+		$cachekey = $this->getCacheKey($key);
+		return $this->memcached->delete($cachekey);
 	}
 
-	public function clear()
+	public function clear($outdated = true)
 	{
-		return true;
+		if ($outdated) {
+			return true;
+		} else {
+			return $this->memcached->flush();
+		}
+	}
+
+	/**
+	 * @brief Sets a value if it's not already stored
+	 *
+	 * @param string $key      The cache key
+	 * @param mixed  $value    The old value we know from the cache
+	 * @param int    $ttl      The cache lifespan, must be one of the Cache constants
+	 * @return bool
+	 */
+	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	{
+		$cachekey = $this->getCacheKey($key);
+		return $this->memcached->add($cachekey, $value, $ttl);
 	}
 }

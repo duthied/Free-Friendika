@@ -2,20 +2,22 @@
 /**
  * @file mod/dirfind.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
-use Friendica\Database\DBM;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'mod/contacts.php';
 
@@ -42,7 +44,9 @@ function dirfind_content(App $a, $prefix = "") {
 
 	$local = Config::get('system','poco_local_search');
 
-	$search = $prefix.notags(trim($_REQUEST['search']));
+	$search = $prefix.notags(trim(defaults($_REQUEST, 'search', '')));
+
+	$header = '';
 
 	if (strpos($search,'@') === 0) {
 		$search = substr($search,1);
@@ -50,7 +54,7 @@ function dirfind_content(App $a, $prefix = "") {
 		if ((valid_email($search) && Network::isEmailDomainValid($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
-			$discover_user = (in_array($user_data["network"], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA]));
+			$discover_user = (in_array($user_data["network"], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]));
 		}
 	}
 
@@ -81,6 +85,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 			$contact = Contact::getDetailsByURL($user_data["url"], local_user());
 			$objresult->cid = $contact["cid"];
+			$objresult->pcid = $contact["zid"];
 
 			$j->results[] = $objresult;
 
@@ -99,28 +104,28 @@ function dirfind_content(App $a, $prefix = "") {
 			$startrec = (($a->pager['page']) * $perpage) - $perpage;
 
 			if (Config::get('system','diaspora_enabled')) {
-				$diaspora = NETWORK_DIASPORA;
+				$diaspora = Protocol::DIASPORA;
 			} else {
-				$diaspora = NETWORK_DFRN;
+				$diaspora = Protocol::DFRN;
 			}
 
 			if (!Config::get('system','ostatus_disabled')) {
-				$ostatus = NETWORK_OSTATUS;
+				$ostatus = Protocol::OSTATUS;
 			} else {
-				$ostatus = NETWORK_DFRN;
+				$ostatus = Protocol::DFRN;
 			}
 
 			$search2 = "%".$search."%";
 
-			/// @TODO These 2 SELECTs are not checked on validity with DBM::is_result()
+			/// @TODO These 2 SELECTs are not checked on validity with DBA::isResult()
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
 					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s') AND
 						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
 						(`url` LIKE '%s' OR `name` LIKE '%s' OR `location` LIKE '%s' OR
 						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql",
-					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)));
+					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)));
 
 			$results = q("SELECT `nurl`
 					FROM `gcontact`
@@ -130,9 +135,9 @@ function dirfind_content(App $a, $prefix = "") {
 						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql
 						GROUP BY `nurl`
 						ORDER BY `updated` DESC LIMIT %d, %d",
-					dbesc(NETWORK_DFRN), dbesc($ostatus), dbesc($diaspora),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
-					dbesc(escape_tags($search2)), dbesc(escape_tags($search2)), dbesc(escape_tags($search2)),
+					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
+					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
 					intval($startrec), intval($perpage));
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
@@ -159,6 +164,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 				$objresult = new stdClass();
 				$objresult->cid = $result["cid"];
+				$objresult->pcid = $result["zid"];
 				$objresult->name = $result["name"];
 				$objresult->addr = $result["addr"];
 				$objresult->url = $result["url"];
@@ -186,7 +192,7 @@ function dirfind_content(App $a, $prefix = "") {
 			$a->set_pager_itemspage($j->items_page);
 		}
 
-		if (count($j->results)) {
+		if (!empty($j->results)) {
 
 			$id = 0;
 
@@ -202,8 +208,8 @@ function dirfind_content(App $a, $prefix = "") {
 				if ($jj->cid > 0) {
 					$connlnk = "";
 					$conntxt = "";
-					$contact = dba::selectFirst('contact', [], ['id' => $jj->cid]);
-					if (DBM::is_result($contact)) {
+					$contact = DBA::selectFirst('contact', [], ['id' => $jj->cid]);
+					if (DBA::isResult($contact)) {
 						$photo_menu = Contact::photoMenu($contact);
 						$details = _contact_detail_for_template($contact);
 						$alt_text = $details['alt_text'];
@@ -211,22 +217,28 @@ function dirfind_content(App $a, $prefix = "") {
 						$photo_menu = [];
 					}
 				} else {
-					$connlnk = System::baseUrl().'/follow/?url='.(($jj->connect) ? $jj->connect : $jj->url);
+					$connlnk = System::baseUrl().'/follow/?url='.(!empty($jj->connect) ? $jj->connect : $jj->url);
 					$conntxt = L10n::t('Connect');
-					$photo_menu = [
-						'profile' => [L10n::t("View Profile"), Profile::zrl($jj->url)],
-						'follow' => [L10n::t("Connect/Follow"), $connlnk]
-					];
+
+					$contact = DBA::selectFirst('contact', [], ['id' => $jj->pcid]);
+					if (DBA::isResult($contact)) {
+						$photo_menu = Contact::photoMenu($contact);
+					} else {
+						$photo_menu = [];
+					}
+
+					$photo_menu['profile'] = [L10n::t("View Profile"), Contact::magicLink($jj->url)];
+					$photo_menu['follow'] = [L10n::t("Connect/Follow"), $connlnk];
 				}
 
 				$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 
 				$entry = [
 					'alt_text' => $alt_text,
-					'url' => Profile::magicLink($jj->url),
+					'url' => Contact::magicLink($jj->url),
 					'itemurl' => $itemurl,
 					'name' => htmlentities($jj->name),
-					'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
+					'thumb' => ProxyUtils::proxifyUrl($jj->photo, false, ProxyUtils::SIZE_THUMB),
 					'img_hover' => $jj->tags,
 					'conntxt' => $conntxt,
 					'connlnk' => $connlnk,

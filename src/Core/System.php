@@ -65,13 +65,14 @@ class System extends BaseObject
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
 				// Don't show multiple calls from the "dba" class to show the essential parts of the callstack
-				if ((($previous['class'] != $func['class']) || ($func['class'] != 'dba')) && ($previous['function'] != 'q')) {
+				if ((($previous['class'] != $func['class']) || ($func['class'] != 'Friendica\Database\DBA')) && ($previous['function'] != 'q')) {
 					$classparts = explode("\\", $func['class']);
 					$callstack[] = array_pop($classparts).'::'.$func['function'];
 					$previous = $func;
 				}
 			} elseif (!in_array($func['function'], $ignore)) {
 				$callstack[] = $func['function'];
+				$func['class'] = '';
 				$previous = $func;
 			}
 		}
@@ -82,20 +83,6 @@ class System extends BaseObject
 		}
 
 		return implode(', ', $callstack2);
-	}
-
-	/**
-	 * @brief Called from db initialisation when db is dead.
-	 */
-	static public function unavailable() {
-echo <<< EOT
-<html>
-	<head><title>System Unavailable</title></head>
-	<body>Apologies but this site is unavailable at the moment. Please try again later.</body>
-</html>
-EOT;
-
-		killme();
 	}
 
 	/**
@@ -151,36 +138,74 @@ EOT;
 
 		if (isset($description["title"])) {
 			$tpl = get_markup_template('http_status.tpl');
-			echo replace_macros(
-				$tpl,
-				[
-					'$title' => $description["title"],
-					'$description' => $description["description"]]
-			);
+			echo replace_macros($tpl, ['$title' => $description["title"],
+				'$description' => defaults($description, 'description', '')]);
 		}
 
 		killme();
 	}
 
 	/**
-	 * @brief Encodes content to json
+	 * @brief Encodes content to json.
 	 *
 	 * This function encodes an array to json format
 	 * and adds an application/json HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
-	 * @param array $x The input content
+	 * @param array  $x The input content.
+	 * @param string $content_type Type of the input (Default: 'application/json').
 	 */
-	public static function jsonExit($x)
-	{
-		header("content-type: application/json");
+	public static function jsonExit($x, $content_type = 'application/json') {
+		header("Content-type: $content_type");
 		echo json_encode($x);
 		killme();
 	}
 
+	/**
+	 * Generates a GUID with the given parameters
+	 *
+	 * @param int          $size     The size of the GUID (default is 16)
+	 * @param bool|string  $prefix   A given prefix (default is empty)
+	 * @return string a generated GUID
+	 */
+	public static function createGUID($size = 16, $prefix = '')
+	{
+		if (is_bool($prefix) && !$prefix) {
+			$prefix = '';
+		} elseif (empty($prefix)) {
+			$prefix = hash('crc32', self::getApp()->get_hostname());
+		}
+
+		while (strlen($prefix) < ($size - 13)) {
+			$prefix .= mt_rand();
+		}
+
+		if ($size >= 24) {
+			$prefix = substr($prefix, 0, $size - 22);
+			return str_replace('.', '', uniqid($prefix, true));
+		} else {
+			$prefix = substr($prefix, 0, max($size - 13, 0));
+			return uniqid($prefix);
+		}
+	}
+
+	/**
+	 * Generates a process identifier for the logging
+	 *
+	 * @param string $prefix A given prefix
+	 *
+	 * @return string a generated process identifier
+	 */
+	public static function processID($prefix)
+	{
+		// We aren't calling any other function here.
+		// Doing so could easily create an endless loop
+		$trailer = $prefix . ':' . getmypid() . ':';
+		return substr($trailer . uniqid('') . mt_rand(), 0, 26);
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
-	function get_guid($size = 16, $prefix = "")
 	function killme()
 	function goaway($s)
 	function local_user()

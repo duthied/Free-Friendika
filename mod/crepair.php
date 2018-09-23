@@ -2,10 +2,12 @@
 /**
  * @file mod/crepair.php
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
+use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
@@ -19,14 +21,14 @@ function crepair_init(App $a)
 
 	$contact = null;
 	if (($a->argc == 2) && intval($a->argv[1])) {
-		$contact = dba::selectFirst('contact', [], ['uid' => local_user(), 'id' => $a->argv[1]]);
+		$contact = DBA::selectFirst('contact', [], ['uid' => local_user(), 'id' => $a->argv[1]]);
 	}
 
 	if (!x($a->page, 'aside')) {
 		$a->page['aside'] = '';
 	}
 
-	if (DBM::is_result($contact)) {
+	if (DBA::isResult($contact)) {
 		$a->data['contact'] = $contact;
 		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
 	}
@@ -42,10 +44,10 @@ function crepair_post(App $a)
 
 	$contact = null;
 	if ($cid) {
-		$contact = dba::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBM::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		return;
 	}
 
@@ -63,15 +65,15 @@ function crepair_post(App $a)
 
 	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `nurl` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
 		WHERE `id` = %d AND `uid` = %d",
-		dbesc($name),
-		dbesc($nick),
-		dbesc($url),
-		dbesc($nurl),
-		dbesc($request),
-		dbesc($confirm),
-		dbesc($notify),
-		dbesc($poll),
-		dbesc($attag),
+		DBA::escape($name),
+		DBA::escape($nick),
+		DBA::escape($url),
+		DBA::escape($nurl),
+		DBA::escape($request),
+		DBA::escape($confirm),
+		DBA::escape($notify),
+		DBA::escape($poll),
+		DBA::escape($attag),
 		intval($remote_self),
 		intval($contact['id']),
 		local_user()
@@ -101,12 +103,12 @@ function crepair_content(App $a)
 
 	$cid = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
-		$contact = null;
+	$contact = null;
 	if ($cid) {
-		$contact = dba::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'uid' => local_user()]);
 	}
 
-	if (!DBM::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		notice(L10n::t('Contact not found.') . EOL);
 		return;
 	}
@@ -121,19 +123,19 @@ function crepair_content(App $a)
 	// Disable remote self for everything except feeds.
 	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
 	// Problem is, you couldn't reply to both networks.
-	if (!in_array($contact['network'], [NETWORK_FEED, NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_TWITTER])) {
+	if (!in_array($contact['network'], [Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])) {
 		$allow_remote_self = false;
 	}
 
-	if ($contact['network'] == NETWORK_FEED) {
+	if ($contact['network'] == Protocol::FEED) {
 		$remote_self_options = ['0' => L10n::t('No mirroring'), '1' => L10n::t('Mirror as forwarded posting'), '2' => L10n::t('Mirror as my own posting')];
 	} else {
 		$remote_self_options = ['0' => L10n::t('No mirroring'), '2' => L10n::t('Mirror as my own posting')];
 	}
 
-	$update_profile = in_array($contact['network'], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]);
+	$update_profile = in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]);
 
-	$tab_str = contacts_tab($a, $contact['id'], 5);
+	$tab_str = contacts_tab($a, $contact, 5);
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o = replace_macros($tpl, [

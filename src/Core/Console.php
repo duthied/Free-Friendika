@@ -5,7 +5,7 @@ namespace Friendica\Core;
 /**
  * Description of Console
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Console extends \Asika\SimpleConsole\Console
 {
@@ -28,6 +28,7 @@ class Console extends \Asika\SimpleConsole\Console
 		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
 		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
 		'typo'                   => __NAMESPACE__ . '\Console\Typo',
+		'postupdate'             => __NAMESPACE__ . '\Console\PostUpdate',
 	];
 
 	protected function getHelp()
@@ -51,6 +52,7 @@ Commands:
 	php2po                 Generate a messages.po file from a strings.php file
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
+	postupdate             Execute pending post update scripts (can last days)
 
 Options:
 	-h|--help|-? Show help information

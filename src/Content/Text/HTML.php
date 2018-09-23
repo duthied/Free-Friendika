@@ -11,6 +11,7 @@ use DOMXPath;
 use Friendica\Core\Addon;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
+use League\HTMLToMarkdown\HtmlConverter;
 
 class HTML
 {
@@ -122,7 +123,7 @@ class HTML
 		// Removing code blocks before the whitespace removal processing below
 		$codeblocks = [];
 		$message = preg_replace_callback(
-			'#<pre><code(?: class="([^"]*)")?>(.*)</code></pre>#iUs',
+			'#<pre><code(?: class="language-([^"]*)")?>(.*)</code></pre>#iUs',
 			function ($matches) use (&$codeblocks) {
 				$return = '[codeblock-' . count($codeblocks) . ']';
 
@@ -131,7 +132,7 @@ class HTML
 					$prefix = '[code=' . $matches[1] . ']';
 				}
 
-				$codeblocks[] = $prefix . trim($matches[2]) . '[/code]';
+				$codeblocks[] = $prefix . PHP_EOL . trim($matches[2]) . PHP_EOL . '[/code]';
 				return $return;
 			},
 			$message
@@ -520,7 +521,7 @@ class HTML
 
 			// A list of some links that should be ignored
 			$list = ["/user/", "/tag/", "/group/", "/profile/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
-				"//facebook.com/profile.php?id=", "//plus.google.com/", "//twitter.com/"];
+				"//plus.google.com/", "//twitter.com/"];
 			foreach ($list as $listitem) {
 				if (strpos($treffer[1], $listitem) !== false) {
 					$ignore = true;
@@ -549,8 +550,6 @@ class HTML
 
 	public static function toPlaintext($html, $wraplength = 75, $compact = false)
 	{
-		global $lang;
-
 		$message = str_replace("\r", "", $html);
 
 		$doc = new DOMDocument();
@@ -673,5 +672,20 @@ class HTML
 		$message = self::quoteLevel(trim($message), $wraplength);
 
 		return trim($message);
+	}
+
+	/**
+	 * Converts provided HTML code to Markdown. The hardwrap parameter maximizes
+	 * compatibility with Diaspora in spite of the Markdown standards.
+	 *
+	 * @param string $html
+	 * @return string
+	 */
+	public static function toMarkdown($html)
+	{
+		$converter = new HtmlConverter(['hard_break' => true]);
+		$markdown = $converter->convert($html);
+
+		return $markdown;
 	}
 }

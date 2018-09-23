@@ -69,7 +69,7 @@ You can chose between the following modes:
 ##### Invitation based registry
 
 Additionally to the setting in the admin panel, you can devide if registrations are only possible using an invitation code or not.
-To enable invitation based registration, you have to set the `invitation_only` setting in the [.htconfig.php](/help/htconfig) file.
+To enable invitation based registration, you have to set the `invitation_only` setting in the [config/local.ini.php](/help/Config) file.
 If you want to use this method, the registration policy has to be set to either *open* or *requires approval*.
 
 #### Check Full Names
@@ -161,6 +161,14 @@ It is disabled by default, as it causes additional load on the server and may be
 
 As admin of the node you can also set this flag directly in the database.
 Before doing so, you should be sure you know what you do and have a backup of the database.
+
+#### Explicit Content
+
+If you are running a node with explicit content, you can announce this with this option.
+When checked an information flag will be set in the published information about your node.
+(Should *Publish Server Information* be enabled.)
+
+Additionally a note will be displayed on the registration page for new users.
 
 ### Advanced
 
@@ -317,7 +325,7 @@ You should set up some kind of [log rotation](https://en.wikipedia.org/wiki/Log_
 **Known Issues**: The filename ``friendica.log`` can cause problems depending on your server configuration (see [issue 2209](https://github.com/friendica/friendica/issues/2209)).
 
 By default PHP warnings and error messages are supressed.
-If you want to enable those, you have to activate them in the ``.htconfig.php`` file.
+If you want to enable those, you have to activate them in the ``config/local.ini.php`` file.
 Use the following settings to redirect PHP errors to a file.
 
 Config:
@@ -365,24 +373,27 @@ By default this will be the one account you create during the installation proce
 But you can expand the list of email addresses by any used email address you want.
 Registration of new accounts with a listed email address is not possible.
 
-    $a->config['admin_email'] = 'you@example.com, buddy@example.com';
+    [config]
+    admin_email = you@example.com, buddy@example.com
 
 ## PHP Path
 
 Some of Friendicas processes are running in the background.
 For this you need to specify the path to the PHP binary to be used.
 
-    $a->config['php_path'] = '{{$phpath}}';
+    [config]
+    php_path = {{$phpath}}
 
 ## Subdirectory configuration
 
 It is possible to install Friendica into a subdirectory of your webserver.
-We strongly discurage you from doing so, as this will break federation to other networks (e.g. Diaspora, GNU Socia, Hubzilla)
+We strongly discourage you from doing so, as this will break federation to other networks (e.g. Diaspora, GNU Socia, Hubzilla)
 Say you have a subdirectory for tests and put Friendica into a further subdirectory, the config would be:
 
-    $a->path = 'tests/friendica';
+    [system]
+    urlpath = tests/friendica
 
 ## Other exceptions
 
-Furthermore there are some experimental settings, you can read-up in the [Config values that can only be set in .htconfig.php](help/htconfig) section of the documentation.
+Furthermore there are some experimental settings, you can read-up in the [Config values that can only be set in config/local.ini.php](help/Config) section of the documentation.
 

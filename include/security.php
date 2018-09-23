@@ -8,9 +8,11 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Model\PermissionSet;
 
 /**
  * @brief Calculate the hash that is needed for the "Friendica" cookie
@@ -41,7 +43,7 @@ function new_cookie($time, $user = [])
 	if ($user) {
 		$value = json_encode(["uid" => $user["uid"],
 			"hash" => cookie_hash($user),
-			"ip" => $_SERVER['REMOTE_ADDR']]);
+			"ip" => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0')]);
 	} else {
 		$value = "";
 	}
@@ -70,7 +72,7 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$_SESSION['page_flags'] = $user_record['page-flags'];
 	$_SESSION['my_url'] = System::baseUrl() . '/profile/' . $user_record['nickname'];
 	$_SESSION['my_address'] = $user_record['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
-	$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
+	$_SESSION['addr'] = defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0');
 
 	$a->user = $user_record;
 
@@ -99,11 +101,9 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 	$master_record = $a->user;
 
 	if ((x($_SESSION, 'submanage')) && intval($_SESSION['submanage'])) {
-		$r = dba::fetch_first("SELECT * FROM `user` WHERE `uid` = ? LIMIT 1",
-			intval($_SESSION['submanage'])
-		);
-		if (DBM::is_result($r)) {
-			$master_record = $r;
+		$user = DBA::selectFirst('user', [], ['uid' => $_SESSION['submanage']]);
+		if (DBA::isResult($user)) {
+			$master_record = $user;
 		}
 	}
 
@@ -114,38 +114,38 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 				'nickname' => $master_record['nickname']]];
 
 		// Then add all the children
-		$r = dba::select('user', ['uid', 'username', 'nickname'],
+		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['parent-uid' => $master_record['uid'], 'account_removed' => false]);
-		if (DBM::is_result($r)) {
-			$a->identities = array_merge($a->identities, dba::inArray($r));
+		if (DBA::isResult($r)) {
+			$a->identities = array_merge($a->identities, DBA::toArray($r));
 		}
 	} else {
 		// Just ensure that the array is always defined
 		$a->identities = [];
 
 		// First entry is our parent
-		$r = dba::select('user', ['uid', 'username', 'nickname'],
+		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['uid' => $master_record['parent-uid'], 'account_removed' => false]);
-		if (DBM::is_result($r)) {
-			$a->identities = dba::inArray($r);
+		if (DBA::isResult($r)) {
+			$a->identities = DBA::toArray($r);
 		}
 
 		// Then add all siblings
-		$r = dba::select('user', ['uid', 'username', 'nickname'],
+		$r = DBA::select('user', ['uid', 'username', 'nickname'],
 			['parent-uid' => $master_record['parent-uid'], 'account_removed' => false]);
-		if (DBM::is_result($r)) {
-			$a->identities = array_merge($a->identities, dba::inArray($r));
+		if (DBA::isResult($r)) {
+			$a->identities = array_merge($a->identities, DBA::toArray($r));
 		}
 	}
 
-	$r = dba::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
+	$r = DBA::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
 		FROM `manage`
 		INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
 		WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
 		$master_record['uid']
 	);
-	if (DBM::is_result($r)) {
-		$a->identities = array_merge($a->identities, dba::inArray($r));
+	if (DBA::isResult($r)) {
+		$a->identities = array_merge($a->identities, DBA::toArray($r));
 	}
 
 	if ($login_initial) {
@@ -155,30 +155,32 @@ function authenticate_success($user_record, $login_initial = false, $interactive
 		logger('auth_identities refresh: ' . print_r($a->identities, true), LOGGER_DEBUG);
 	}
 
-	$r = dba::fetch_first("SELECT * FROM `contact` WHERE `uid` = ? AND `self` LIMIT 1", $_SESSION['uid']);
-	if (DBM::is_result($r)) {
-		$a->contact = $r;
-		$a->cid = $r['id'];
+	$contact = DBA::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => true]);
+	if (DBA::isResult($contact)) {
+		$a->contact = $contact;
+		$a->cid = $contact['id'];
 		$_SESSION['cid'] = $a->cid;
 	}
 
 	header('X-Account-Management-Status: active; name="' . $a->user['username'] . '"; id="' . $a->user['nickname'] . '"');
 
 	if ($login_initial || $login_refresh) {
-		dba::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $_SESSION['uid']]);
+		DBA::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $_SESSION['uid']]);
 
 		// Set the login date for all identities of the user
-		dba::update('user', ['login_date' => DateTimeFormat::utcNow()],
+		DBA::update('user', ['login_date' => DateTimeFormat::utcNow()],
 			['parent-uid' => $master_record['uid'], 'account_removed' => false]);
 	}
 
 	if ($login_initial) {
-		// If the user specified to remember the authentication, then set a cookie
-		// that expires after one week (the default is when the browser is closed).
-		// The cookie will be renewed automatically.
-		// The week ensures that sessions will expire after some inactivity.
-		if ($_SESSION['remember']) {
-			logger('Injecting cookie for remembered user ' . $_SESSION['remember_user']['nickname']);
+		/*
+		 * If the user specified to remember the authentication, then set a cookie
+		 * that expires after one week (the default is when the browser is closed).
+		 * The cookie will be renewed automatically.
+		 * The week ensures that sessions will expire after some inactivity.
+		 */
+		if (!empty($_SESSION['remember'])) {
+			logger('Injecting cookie for remembered user ' . $a->user['nickname']);
 			new_cookie(604800, $user_record);
 			unset($_SESSION['remember']);
 		}
@@ -206,6 +208,10 @@ function can_write_wall($owner)
 		return true;
 	}
 
+	if (local_user() && ($owner == 0)) {
+		return true;
+	}
+
 	if (remote_user()) {
 		// use remembered decision and avoid a DB lookup for each and every display item
 		// DO NOT use this function if there are going to be multiple owners
@@ -219,7 +225,7 @@ function can_write_wall($owner)
 		} else {
 			$cid = 0;
 
-			if (is_array($_SESSION['remote'])) {
+			if (!empty($_SESSION['remote'])) {
 				foreach ($_SESSION['remote'] as $visitor) {
 					if ($visitor['uid'] == $owner) {
 						$cid = $visitor['cid'];
@@ -237,12 +243,12 @@ function can_write_wall($owner)
 				AND `user`.`blockwall` = 0 AND `readonly` = 0  AND ( `contact`.`rel` IN ( %d , %d ) OR `user`.`page-flags` = %d ) LIMIT 1",
 				intval($owner),
 				intval($cid),
-				intval(CONTACT_IS_SHARING),
-				intval(CONTACT_IS_FRIEND),
-				intval(PAGE_COMMUNITY)
+				intval(Contact::SHARING),
+				intval(Contact::FRIEND),
+				intval(Contact::PAGE_COMMUNITY)
 			);
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$verified = 2;
 				return true;
 			} else {
@@ -254,6 +260,7 @@ function can_write_wall($owner)
 	return false;
 }
 
+/// @TODO $groups should be array
 function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 {
 	$local_user = local_user();
@@ -275,6 +282,13 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 	 */
 	if ($local_user && $local_user == $owner_id) {
 		$sql = '';
+	/**
+	 * Authenticated visitor. Unless pre-verified,
+	 * check that the contact belongs to this $owner_id
+	 * and load the groups the visitor belongs to.
+	 * If pre-verified, the caller is expected to have already
+	 * done this and passed the groups into this function.
+	 */
 	} elseif ($remote_user) {
 		/*
 		 * Authenticated visitor. Unless pre-verified,
@@ -285,11 +299,7 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 		 */
 
 		if (!$remote_verified) {
-			$r = q("SELECT id FROM contact WHERE id = %d AND uid = %d AND blocked = 0 LIMIT 1",
-				intval($remote_user),
-				intval($owner_id)
-			);
-			if (DBM::is_result($r)) {
+			if (DBA::exists('contact', ['id' => $remote_user, 'uid' => $owner_id, 'blocked' => false])) {
 				$remote_verified = true;
 				$groups = Group::getIdsByContactId($remote_user);
 			}
@@ -298,9 +308,10 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 		if ($remote_verified) {
 			$gs = '<<>>'; // should be impossible to match
 
-			if (is_array($groups) && count($groups)) {
-				foreach ($groups as $g)
+			if (is_array($groups)) {
+				foreach ($groups as $g) {
 					$gs .= '|<' . intval($g) . '>';
+				}
 			}
 
 			$sql = sprintf(
@@ -309,9 +320,9 @@ function permissions_sql($owner_id, $remote_verified = false, $groups = null)
 				  )
 				",
 				intval($remote_user),
-				dbesc($gs),
+				DBA::escape($gs),
 				intval($remote_user),
-				dbesc($gs)
+				DBA::escape($gs)
 			);
 		}
 	}
@@ -328,12 +339,7 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 	 *
 	 * default permissions - anonymous user
 	 */
-	$sql = " AND `item`.allow_cid = ''
-			 AND `item`.allow_gid = ''
-			 AND `item`.deny_cid  = ''
-			 AND `item`.deny_gid  = ''
-			 AND `item`.private = 0
-	";
+	$sql = " AND NOT `item`.`private`";
 
 	// Profile owner - everything is visible
 	if ($local_user && ($local_user == $owner_id)) {
@@ -346,37 +352,15 @@ function item_permissions_sql($owner_id, $remote_verified = false, $groups = nul
 		 * If pre-verified, the caller is expected to have already
 		 * done this and passed the groups into this function.
 		 */
-		if (!$remote_verified) {
-			$r = q("SELECT id FROM contact WHERE id = %d AND uid = %d AND blocked = 0 LIMIT 1",
-				intval($remote_user),
-				intval($owner_id)
-			);
-			if (DBM::is_result($r)) {
-				$remote_verified = true;
-				$groups = Group::getIdsByContactId($remote_user);
-			}
+		$set = PermissionSet::get($owner_id, $remote_user, $groups);
+
+		if (!empty($set)) {
+			$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
+		} else {
+			$sql_set = '';
 		}
-		if ($remote_verified) {
 
-			$gs = '<<>>'; // should be impossible to match
-
-			if (is_array($groups) && count($groups)) {
-				foreach ($groups as $g) {
-					$gs .= '|<' . intval($g) . '>';
-				}
-			}
-
-			$sql = sprintf(
-				" AND ( `item`.private = 0 OR ( `item`.private in (1,2) AND `item`.`wall` = 1
-				  AND ( NOT (`item`.deny_cid REGEXP '<%d>' OR `item`.deny_gid REGEXP '%s')
-				  AND ( `item`.allow_cid REGEXP '<%d>' OR `item`.allow_gid REGEXP '%s' OR ( `item`.allow_cid = '' AND `item`.allow_gid = '')))))
-				",
-				intval($remote_user),
-				dbesc($gs),
-				intval($remote_user),
-				dbesc($gs)
-			);
-		}
+		$sql = " AND (NOT `item`.`private`" . $sql_set . ")";
 	}
 
 	return $sql;

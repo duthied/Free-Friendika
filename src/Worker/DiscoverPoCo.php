@@ -6,16 +6,17 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use dba;
 
-class DiscoverPoCo {
+class DiscoverPoCo
+{
 	/// @todo Clean up this mess of a parameter hell and split it in several classes
 	public static function execute($command = '', $param1 = '', $param2 = '', $param3 = '', $param4 = '')
 	{
@@ -118,7 +119,7 @@ class DiscoverPoCo {
 	private static function updateServer() {
 		$r = q("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return;
 		}
 
@@ -147,8 +148,8 @@ class DiscoverPoCo {
 				WHERE `last_contact` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 					`last_failure` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 					`network` IN ('%s', '%s', '%s', '%s', '') ORDER BY rand()",
-				dbesc(NETWORK_DFRN), dbesc(NETWORK_DIASPORA),
-				dbesc(NETWORK_OSTATUS), dbesc(NETWORK_FEED));
+				DBA::escape(Protocol::DFRN), DBA::escape(Protocol::DIASPORA),
+				DBA::escape(Protocol::OSTATUS), DBA::escape(Protocol::FEED));
 
 		if (!$users) {
 			return;
@@ -159,20 +160,15 @@ class DiscoverPoCo {
 
 			$urlparts = parse_url($user["url"]);
 			if (!isset($urlparts["scheme"])) {
-				dba::update('gcontact', ['network' => NETWORK_PHANTOM],
+				DBA::update('gcontact', ['network' => Protocol::PHANTOM],
 					['nurl' => normalise_link($user["url"])]);
 				continue;
 			 }
 
-			if (in_array($urlparts["host"], ["www.facebook.com", "facebook.com", "twitter.com",
-								"identi.ca", "alpha.app.net"])) {
-				$networks = ["www.facebook.com" => NETWORK_FACEBOOK,
-						"facebook.com" => NETWORK_FACEBOOK,
-						"twitter.com" => NETWORK_TWITTER,
-						"identi.ca" => NETWORK_PUMPIO,
-						"alpha.app.net" => NETWORK_APPNET];
+			if (in_array($urlparts["host"], ["twitter.com", "identi.ca"])) {
+				$networks = ["twitter.com" => Protocol::TWITTER, "identi.ca" => Protocol::PUMPIO];
 
-				dba::update('gcontact', ['network' => $networks[$urlparts["host"]]],
+				DBA::update('gcontact', ['network' => $networks[$urlparts["host"]]],
 					['nurl' => normalise_link($user["url"])]);
 				continue;
 			}
@@ -187,7 +183,7 @@ class DiscoverPoCo {
 				$server_url = $user["server_url"];
 			}
 
-			if ((($server_url == "") && ($user["network"] == NETWORK_FEED)) || $force_update || PortableContact::checkServer($server_url, $user["network"])) {
+			if ((($server_url == "") && ($user["network"] == Protocol::FEED)) || $force_update || PortableContact::checkServer($server_url, $user["network"])) {
 				logger('Check profile '.$user["url"]);
 				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "check_profile", $user["url"]);
 
@@ -195,7 +191,7 @@ class DiscoverPoCo {
 					return;
 				}
 			} else {
-				dba::update('gcontact', ['last_failure' => DateTimeFormat::utcNow()],
+				DBA::update('gcontact', ['last_failure' => DateTimeFormat::utcNow()],
 					['nurl' => normalise_link($user["url"])]);
 			}
 
@@ -220,11 +216,11 @@ class DiscoverPoCo {
 		$x = Network::fetchUrl(get_server()."/lsearch?p=1&n=500&search=".urlencode($search));
 		$j = json_decode($x);
 
-		if (count($j->results)) {
+		if (!empty($j->results)) {
 			foreach ($j->results as $jj) {
 				// Check if the contact already exists
 				$exists = q("SELECT `id`, `last_contact`, `last_failure`, `updated` FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($jj->url));
-				if (DBM::is_result($exists)) {
+				if (DBA::isResult($exists)) {
 					logger("Profile ".$jj->url." already exists (".$search.")", LOGGER_DEBUG);
 
 					if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) &&
@@ -246,7 +242,7 @@ class DiscoverPoCo {
 				}
 
 				$data = Probe::uri($jj->url);
-				if ($data["network"] == NETWORK_DFRN) {
+				if ($data["network"] == Protocol::DFRN) {
 					logger("Profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
 					logger("Add profile ".$jj->url." to local directory (".$search.")", LOGGER_DEBUG);
 
@@ -276,8 +272,6 @@ class DiscoverPoCo {
 		// It is not removed since I hope that there will be a successor.
 		return false;
 
-		$a = get_app();
-
 		$url = "http://gstools.org/api/users_search/".urlencode($search);
 
 		$result = Network::curl($url);
@@ -295,7 +289,7 @@ class DiscoverPoCo {
 		/// @TODO find all those and convert to all lower-case which is a keyword then
 		foreach ($contacts->data AS $user) {
 			$contact = Probe::uri($user->site_address."/".$user->name);
-			if ($contact["network"] != NETWORK_PHANTOM) {
+			if ($contact["network"] != Protocol::PHANTOM) {
 				$contact["about"] = $user->description;
 				GContact::update($contact);
 			}

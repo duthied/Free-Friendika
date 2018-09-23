@@ -7,7 +7,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Protocol\Diaspora;
 
 /**
@@ -24,7 +24,7 @@ function receive_post(App $a)
 
 	if (($a->argc == 2) && ($a->argv[1] === 'public')) {
 		$public = true;
-		$importer = false;
+		$importer = [];
 	} else {
 		$public = false;
 
@@ -33,8 +33,8 @@ function receive_post(App $a)
 		}
 		$guid = $a->argv[2];
 
-		$importer = dba::selectFirst('user', [], ['guid' => $guid, 'account_expired' => false, 'account_removed' => false]);
-		if (!DBM::is_result($importer)) {
+		$importer = DBA::selectFirst('user', [], ['guid' => $guid, 'account_expired' => false, 'account_removed' => false]);
+		if (!DBA::isResult($importer)) {
 			System::httpExit(500);
 		}
 	}
@@ -43,9 +43,7 @@ function receive_post(App $a)
 
 	logger('mod-diaspora: receiving post', LOGGER_DEBUG);
 
-	$xml = urldecode($_POST['xml']);
-
-	if (!$xml) {
+	if (empty($_POST['xml'])) {
 		$postdata = file_get_contents("php://input");
 		if ($postdata == '') {
 			System::httpExit(500);
@@ -54,6 +52,8 @@ function receive_post(App $a)
 		logger('mod-diaspora: message is in the new format', LOGGER_DEBUG);
 		$msg = Diaspora::decodeRaw($importer, $postdata);
 	} else {
+		$xml = urldecode($_POST['xml']);
+
 		logger('mod-diaspora: decode message in the old format', LOGGER_DEBUG);
 		$msg = Diaspora::decode($importer, $xml);
 

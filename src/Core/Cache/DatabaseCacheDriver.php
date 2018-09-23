@@ -2,23 +2,22 @@
 
 namespace Friendica\Core\Cache;
 
-use dba;
 use Friendica\Core\Cache;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
 /**
  * Database Cache Driver
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class DatabaseCacheDriver implements ICacheDriver
+class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 {
 	public function get($key)
 	{
-		$cache = dba::selectFirst('cache', ['v'], ['`k` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
+		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
 
-		if (DBM::is_result($cache)) {
+		if (DBA::isResult($cache)) {
 			$cached = $cache['v'];
 			$value = @unserialize($cached);
 
@@ -33,24 +32,28 @@ class DatabaseCacheDriver implements ICacheDriver
 		return null;
 	}
 
-	public function set($key, $value, $duration = Cache::MONTH)
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$fields = [
 			'v'       => serialize($value),
-			'expires' => DateTimeFormat::utc('now + ' . $duration . ' seconds'),
+			'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds'),
 			'updated' => DateTimeFormat::utcNow()
 		];
 
-		return dba::update('cache', $fields, ['k' => $key], true);
+		return DBA::update('cache', $fields, ['k' => $key], true);
 	}
 
 	public function delete($key)
 	{
-		return dba::delete('cache', ['k' => $key]);
+		return DBA::delete('cache', ['k' => $key]);
 	}
 
-	public function clear()
+	public function clear($outdated = true)
 	{
-		return dba::delete('cache', ['`expires` < NOW()']);
+		if ($outdated) {
+			return DBA::delete('cache', ['`expires` < NOW()']);
+		} else {
+			return DBA::delete('cache', ['`k` IS NOT NULL ']);
+		}
 	}
 }

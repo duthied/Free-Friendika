@@ -372,11 +372,13 @@ function openClose(theID) {
 }
 
 function showHide(theID) {
-	if(document.getElementById(theID).style.display == "block") {
-		document.getElementById(theID).style.display = "none"
+	var elem = document.getElementById(theID);
+
+	if( $(elem).is(':visible') ) {
+		elem.style.display = "none";
 	}
 	else {
-		document.getElementById(theID).style.display = "block"
+		elem.style.display = "block";
 	}
 }
 
@@ -549,6 +551,10 @@ function filter_replace(item) {
 
 		this.attr('autocomplete','off');
 		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
+
+		if(autosubmit) {
+			a.on('textComplete:select', function(e,value,strategy) {submit_form(this);});
+		}
 
 		a.on('textComplete:select', function(e, value, strategy) {
 			$(".dropdown-menu.textcomplete-dropdown.media-list").show();

@@ -10,7 +10,7 @@ require_once 'include/dba.php';
 /**
  * @brief Sets maintenance mode for this node
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Maintenance extends \Asika\SimpleConsole\Console
 {
@@ -64,12 +64,8 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		require_once '.htconfig.php';
-		$result = \dba::connect($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-
-		if (!$result) {
-			throw new \RuntimeException('Unable to connect to database');
+		if ($a->isInstallMode()) {
+			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		Core\Config::load();

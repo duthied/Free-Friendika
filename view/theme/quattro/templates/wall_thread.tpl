@@ -60,7 +60,7 @@
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
-			<span class="e-content {{if !$item.title}}p-name{{/if}}">{{$item.body}}</span>
+			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body}}</span>
 		</div>
 	</div>
 	<div class="wall-item-bottom">

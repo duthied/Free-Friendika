@@ -11,12 +11,14 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
-use Friendica\Database\DBM;
+use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
+use Friendica\Model\Item;
+use Friendica\Model\Term;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
-use dba;
 
 require_once 'include/dba.php';
 require_once 'include/text.php';
@@ -71,8 +73,10 @@ class Post extends BaseObject
 		}
 
 		$this->writable = $this->getDataValue('writable') || $this->getDataValue('self');
-		$this->redirect_url = 'redir/' . $this->getDataValue('cid');
-
+		$author = ['uid' => 0, 'id' => $this->getDataValue('author-id'),
+			'network' => $this->getDataValue('author-network'),
+			'url' => $this->getDataValue('author-link')];
+		$this->redirect_url = Contact::magicLinkbyContact($author);
 		if (!$this->isToplevel()) {
 			$this->threaded = true;
 		}
@@ -81,14 +85,14 @@ class Post extends BaseObject
 		if (!empty($data['children'])) {
 			foreach ($data['children'] as $item) {
 				// Only add will be displayed
-				if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
+				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
 				} elseif (!visible_activity($item)) {
 					continue;
 				}
 
 				// You can always comment on Diaspora and OStatus items
-				if (in_array($item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA]) && (local_user() == $item['uid'])) {
+				if (in_array($item['network'], [Protocol::OSTATUS, Protocol::DIASPORA]) && (local_user() == $item['uid'])) {
 					$item['writable'] = true;
 				}
 
@@ -110,8 +114,6 @@ class Post extends BaseObject
 	 */
 	public function getTemplateData($conv_responses, $thread_level = 1)
 	{
-		require_once "mod/proxy.php";
-
 		$result = [];
 
 		$a = self::getApp();
@@ -148,6 +150,7 @@ class Post extends BaseObject
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? L10n::t('Private Message')
 			: false);
+
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
 
 		if (local_user() && link_compare($a->contact['url'], $item['author-link'])) {
@@ -177,14 +180,14 @@ class Post extends BaseObject
 		if (!$origin) {
 			/// @todo This shouldn't be done as query here, but better during the data creation.
 			// it is now done here, since during the RC phase we shouldn't make to intense changes.
-			$parent = dba::selectFirst('item', ['origin'], ['id' => $item['parent']]);
-			if (DBM::is_result($parent)) {
+			$parent = Item::selectFirst(['origin'], ['id' => $item['parent']]);
+			if (DBA::isResult($parent)) {
 				$origin = $parent['origin'];
 			}
 		}
 
 		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
-		$delete = $origin ? L10n::t('Delete') : L10n::t('Remove from your stream');
+		$delete = $origin ? L10n::t('Delete globally') : L10n::t('Remove locally');
 
 		$drop = [
 			'dropping' => $dropping,
@@ -193,36 +196,22 @@ class Post extends BaseObject
 			'delete'   => $delete,
 		];
 
-		if (!local_user()) {
+		if (!local_user() || ($item['uid'] == 0)) {
 			$drop = false;
 		}
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? L10n::t("save to folder") : false);
 
-		$diff_author = !link_compare($item['url'], $item['author-link']);
-		$profile_name = htmlentities(((strlen($item['author-name'])) && $diff_author) ? $item['author-name'] : $item['name']);
-		if ($item['author-link'] && (!$item['author-name'])) {
+		$profile_name = htmlentities($item['author-name']);
+		if (!empty($item['author-link']) && empty($item['author-name'])) {
 			$profile_name = $item['author-link'];
 		}
 
-		$sp = false;
-		$profile_link = best_link_url($item, $sp);
-		if ($profile_link === 'mailbox') {
-			$profile_link = '';
-		}
-
-		if ($sp) {
+		$author = ['uid' => 0, 'id' => $item['author-id'],
+			'network' => $item['author-network'], 'url' => $item['author-link']];
+		$profile_link = Contact::magicLinkbyContact($author);
+		if (strpos($profile_link, 'redir/') === 0) {
 			$sparkle = ' sparkle';
-		} else {
-			$profile_link = Profile::zrl($profile_link);
-		}
-
-		if (($item['network'] == NETWORK_FEED) || empty($item['author-thumb'])) {
-			$item['author-thumb'] = $item['author-avatar'];
-		}
-
-		if (($item['network'] == NETWORK_FEED) || empty($item['owner-thumb'])) {
-			$item['owner-thumb'] = $item['owner-avatar'];
 		}
 
 		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
@@ -264,6 +253,18 @@ class Post extends BaseObject
 		$tagger = '';
 
 		if ($this->isToplevel()) {
+			$thread = Item::selectFirstThreadForUser(local_user(), ['ignored'], ['iid' => $item['id']]);
+			if (DBA::isResult($thread)) {
+				$ignore = [
+					'do'        => L10n::t("ignore thread"),
+					'undo'      => L10n::t("unignore thread"),
+					'toggle'    => L10n::t("toggle ignore status"),
+					'classdo'   => $thread['ignored'] ? "hidden" : "",
+					'classundo' => $thread['ignored'] ? "" : "hidden",
+					'ignored'   => L10n::t('ignored'),
+				];
+			}
+
 			if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
 				$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
@@ -275,18 +276,6 @@ class Post extends BaseObject
 					'classundo' => $item['starred'] ? "" : "hidden",
 					'starred'   => L10n::t('starred'),
 				];
-
-				$thread = dba::selectFirst('thread', ['ignored'], ['uid' => $item['uid'], 'iid' => $item['id']]);
-				if (DBM::is_result($thread)) {
-					$ignore = [
-						'do'        => L10n::t("ignore thread"),
-						'undo'      => L10n::t("unignore thread"),
-						'toggle'    => L10n::t("toggle ignore status"),
-						'classdo'   => $thread['ignored'] ? "hidden" : "",
-						'classundo' => $thread['ignored'] ? "" : "hidden",
-						'ignored'   => L10n::t('ignored'),
-					];
-				}
 
 				if (Feature::isEnabled($conv->getProfileOwner(), 'commtag')) {
 					$tagger = [
@@ -335,27 +324,29 @@ class Post extends BaseObject
 		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
-		if (!in_array($item["item_network"], [NETWORK_DFRN, NETWORK_DIASPORA]) && isset($buttons["dislike"])) {
+		if (!in_array($item["network"], [Protocol::DFRN, Protocol::DIASPORA]) && isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$isevent = false;
 			$tagger = '';
 		}
 
-		if (($item["item_network"] == NETWORK_FEED) && isset($buttons["like"])) {
+		if (($item["network"] == Protocol::FEED) && isset($buttons["like"])) {
 			unset($buttons["like"]);
 		}
 
-		if (($item["item_network"] == NETWORK_MAIL) && isset($buttons["like"])) {
+		if (($item["network"] == Protocol::MAIL) && isset($buttons["like"])) {
 			unset($buttons["like"]);
 		}
+
+		$tags = Term::populateTagsFromItem($item);
 
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
 			'suppress_tags'   => Config::get('system', 'suppress_tags'),
-			'tags'            => $item['tags'],
-			'hashtags'        => $item['hashtags'],
-			'mentions'        => $item['mentions'],
+			'tags'            => $tags['tags'],
+			'hashtags'        => $tags['hashtags'],
+			'mentions'        => $tags['mentions'],
 			'txt_cats'        => L10n::t('Categories:'),
 			'txt_folders'     => L10n::t('Filed under:'),
 			'has_cats'        => ((count($categories)) ? 'true' : ''),
@@ -368,8 +359,8 @@ class Post extends BaseObject
 			'guid'            => urlencode($item['guid']),
 			'isevent'         => $isevent,
 			'attend'          => $attend,
-			'linktitle'       => L10n::t('View %s\'s profile @ %s', $profile_name, defaults($item, 'author-link', $item['url'])),
-			'olinktitle'      => L10n::t('View %s\'s profile @ %s', htmlentities($this->getOwnerName()), defaults($item, 'owner-link', $item['url'])),
+			'linktitle'       => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
+			'olinktitle'      => L10n::t('View %s\'s profile @ %s', htmlentities($this->getOwnerName()), $item['owner-link']),
 			'to'              => L10n::t('to'),
 			'via'             => L10n::t('via'),
 			'wall'            => L10n::t('Wall-to-Wall'),
@@ -377,7 +368,7 @@ class Post extends BaseObject
 			'profile_url'     => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name'            => $name_e,
-			'thumb'           => $a->remove_baseurl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
+			'thumb'           => $a->remove_baseurl(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
@@ -390,7 +381,7 @@ class Post extends BaseObject
 			'indent'          => $indent,
 			'shiny'           => $shiny,
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => $a->remove_baseurl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
+			'owner_photo'     => $a->remove_baseurl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
 			'plink'           => get_plink($item),
 			'edpost'          => Feature::isEnabled($conv->getProfileOwner(), 'edit_posts') ? $edpost : '',
@@ -410,8 +401,8 @@ class Post extends BaseObject
 			'wait'            => L10n::t('Please wait'),
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
-			'network'         => $item["item_network"],
-			'network_name'    => ContactSelector::networkToName($item['item_network'], $profile_link),
+			'network'         => $item["network"],
+			'network_name'    => ContactSelector::networkToName($item['network'], $profile_link),
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
@@ -499,7 +490,7 @@ class Post extends BaseObject
 		/*
 		 * Only add what will be displayed
 		 */
-		if ($item->getDataValue('network') === NETWORK_MAIL && local_user() != $item->getDataValue('uid')) {
+		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
 			return false;
 		} elseif (activity_match($item->getDataValue('verb'), ACTIVITY_LIKE) || activity_match($item->getDataValue('verb'), ACTIVITY_DISLIKE)) {
 			return false;
@@ -792,7 +783,7 @@ class Post extends BaseObject
 				'$return_path' => $a->query_string,
 				'$threaded'    => $this->isThreaded(),
 				'$jsreload'    => '',
-				'$type'        => $conv->getMode() === 'profile' ? 'wall-comment' : 'net-comment',
+				'$wall'        => ($conv->getMode() === 'profile'),
 				'$id'          => $this->getId(),
 				'$parent'      => $this->getId(),
 				'$qcomment'    => $qcomment,
@@ -847,7 +838,7 @@ class Post extends BaseObject
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.
 
-					$this->owner_url = Profile::zrl($a->page_contact['url']);
+					$this->owner_url = Contact::magicLink($a->page_contact['url']);
 					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
 					$this->wall_to_wall = true;
@@ -856,7 +847,7 @@ class Post extends BaseObject
 					$alias_linkmatch = (($this->getDataValue('alias')) && link_compare($this->getDataValue('alias'), $this->getDataValue('author-link')));
 					$owner_namematch = (($this->getDataValue('owner-name')) && $this->getDataValue('owner-name') == $this->getDataValue('author-name'));
 
-					if ((!$owner_linkmatch) && (!$alias_linkmatch) && (!$owner_namematch)) {
+					if (!$owner_linkmatch && !$alias_linkmatch && !$owner_namematch) {
 						// The author url doesn't match the owner (typically the contact)
 						// and also doesn't match the contact alias.
 						// The name match is a hack to catch several weird cases where URLs are
@@ -869,14 +860,11 @@ class Post extends BaseObject
 						$this->owner_photo = $this->getDataValue('owner-avatar');
 						$this->owner_name = $this->getDataValue('owner-name');
 						$this->wall_to_wall = true;
-						// If it is our contact, use a friendly redirect link
-						if ($this->getDataValue('network') === NETWORK_DFRN
-							&& link_compare($this->getDataValue('owner-link'), $this->getDataValue('url'))
-						) {
-							$this->owner_url = $this->getRedirectUrl();
-						} else {
-							$this->owner_url = Profile::zrl($this->getDataValue('owner-link'));
-						}
+
+						$owner = ['uid' => 0, 'id' => $this->getDataValue('owner-id'),
+							'network' => $this->getDataValue('owner-network'),
+							'url' => $this->getDataValue('owner-link')];
+						$this->owner_url = Contact::magicLinkbyContact($owner);
 					}
 				}
 			}

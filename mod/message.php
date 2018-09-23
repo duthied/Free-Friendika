@@ -10,10 +10,11 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
 
 require_once 'include/conversation.php';
@@ -108,8 +109,23 @@ function message_content(App $a)
 	$myprofile = System::baseUrl() . '/profile/' . $a->user['nickname'];
 
 	$tpl = get_markup_template('mail_head.tpl');
+	if ($a->argc > 1 && $a->argv[1] == 'new') {
+		$button = [
+			'label' => L10n::t('Discard'),
+			'url' => '/message',
+			'sel' => 'close',
+		];
+	} else {
+		$button = [
+			'label' => L10n::t('New Message'),
+			'url' => '/message/new',
+			'sel' => 'new',
+			'accesskey' => 'm',
+		];
+	}
 	$header = replace_macros($tpl, [
 		'$messages' => L10n::t('Messages'),
+		'$button' => $button,
 	]);
 
 	if (($a->argc == 3) && ($a->argv[1] === 'drop' || $a->argv[1] === 'dropconv')) {
@@ -118,7 +134,7 @@ function message_content(App $a)
 		}
 
 		// Check if we should do HTML-based delete confirmation
-		if ($_REQUEST['confirm']) {
+		if (!empty($_REQUEST['confirm'])) {
 			// <form> can't take arguments in its "action" parameter
 			// so add any arguments as hidden inputs
 			$query = explode_querystring($a->query_string);
@@ -141,16 +157,18 @@ function message_content(App $a)
 				'$cancel' => L10n::t('Cancel'),
 			]);
 		}
+
 		// Now check how the user responded to the confirmation query
-		if ($_REQUEST['canceled']) {
+		if (!empty($_REQUEST['canceled'])) {
 			goaway($_SESSION['return_url']);
 		}
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
-			if (dba::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
+			if (DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
 				info(L10n::t('Message deleted.') . EOL);
 			}
+
 			//goaway(System::baseUrl(true) . '/message' );
 			goaway($_SESSION['return_url']);
 		} else {
@@ -158,11 +176,11 @@ function message_content(App $a)
 				intval($a->argv[2]),
 				intval(local_user())
 			);
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$parent = $r[0]['parent-uri'];
 				$convid = $r[0]['convid'];
 
-				if (dba::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
+				if (DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
 					info(L10n::t('Conversation removed.') . EOL);
 				}
 			}
@@ -197,21 +215,21 @@ function message_content(App $a)
 				intval(local_user()),
 				intval($a->argv[2])
 			);
-			if (!DBM::is_result($r)) {
+			if (!DBA::isResult($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 					intval(local_user()),
-					dbesc(normalise_link(base64_decode($a->argv[2])))
+					DBA::escape(normalise_link(base64_decode($a->argv[2])))
 				);
 			}
 
-			if (!DBM::is_result($r)) {
+			if (!DBA::isResult($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
 					intval(local_user()),
-					dbesc(base64_decode($a->argv[2]))
+					DBA::escape(base64_decode($a->argv[2]))
 				);
 			}
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$prename = $r[0]['name'];
 				$preurl = $r[0]['url'];
 				$preid = $r[0]['id'];
@@ -262,13 +280,13 @@ function message_content(App $a)
 			intval(local_user())
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$a->set_pager_total($r[0]['total']);
 		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			info(L10n::t('No messages.') . EOL);
 			return $o;
 		}
@@ -290,14 +308,14 @@ function message_content(App $a)
 			intval(local_user()),
 			intval($a->argv[1])
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$contact_id = $r[0]['contact-id'];
 			$convid = $r[0]['convid'];
 
-			$sql_extra = sprintf(" and `mail`.`parent-uri` = '%s' ", dbesc($r[0]['parent-uri']));
+			$sql_extra = sprintf(" and `mail`.`parent-uri` = '%s' ", DBA::escape($r[0]['parent-uri']));
 			if ($convid)
 				$sql_extra = sprintf(" and ( `mail`.`parent-uri` = '%s' OR `mail`.`convid` = '%d' ) ",
-					dbesc($r[0]['parent-uri']),
+					DBA::escape($r[0]['parent-uri']),
 					intval($convid)
 				);
 
@@ -306,14 +324,16 @@ function message_content(App $a)
 				WHERE `mail`.`uid` = %d $sql_extra ORDER BY `mail`.`created` ASC",
 				intval(local_user())
 			);
+		} else {
+			$messages = false;
 		}
-		if (!count($messages)) {
+		if (!DBA::isResult($messages)) {
 			notice(L10n::t('Message not available.') . EOL);
 			return $o;
 		}
 
 		$r = q("UPDATE `mail` SET `seen` = 1 WHERE `parent-uri` = '%s' AND `uid` = %d",
-			dbesc($r[0]['parent-uri']),
+			DBA::escape($r[0]['parent-uri']),
 			intval(local_user())
 		);
 
@@ -341,11 +361,8 @@ function message_content(App $a)
 			if ($message['from-url'] == $myprofile) {
 				$from_url = $myprofile;
 				$sparkle = '';
-			} elseif ($message['contact-id'] != 0) {
-				$from_url = 'redir/' . $message['contact-id'];
-				$sparkle = ' sparkle';
 			} else {
-				$from_url = $message['from-url'] . "?zrl=" . urlencode($myprofile);
+				$from_url = Contact::magicLink($message['from-url']);
 				$sparkle = ' sparkle';
 			}
 
@@ -372,7 +389,7 @@ function message_content(App $a)
 				'from_url' => $from_url,
 				'from_addr' => $contact['addr'],
 				'sparkle' => $sparkle,
-				'from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
+				'from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
 				'subject' => $subject_e,
 				'body' => $body_e,
 				'delete' => L10n::t('Delete message'),
@@ -470,10 +487,10 @@ function render_messages(array $msg, $t)
 		$rslt .= replace_macros($tpl, [
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
-			'$from_url' => (($rr['network'] === NETWORK_DFRN) ? 'redir/' . $rr['contact-id'] : $rr['url']),
-			'$from_addr' => $contact['addr'],
+			'$from_url' => Contact::magicLink($rr['url']),
+			'$from_addr' => defaults($contact, 'addr', ''),
 			'$sparkle' => ' sparkle',
-			'$from_photo' => proxy_url($from_photo, false, PROXY_SIZE_THUMB),
+			'$from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
 			'$subject' => $subject_e,
 			'$delete' => L10n::t('Delete conversation'),
 			'$body' => $body_e,

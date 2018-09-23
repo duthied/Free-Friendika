@@ -4,19 +4,16 @@
  */
 namespace Friendica;
 
-use Friendica\Core\Cache;
+use Detection\MobileDetect;
+use Exception;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
-use dba;
-
-use Detection\MobileDetect;
-
-use Exception;
+use Friendica\Database\DBA;
 
 require_once 'boot.php';
+require_once 'include/dba.php';
 require_once 'include/text.php';
 
 /**
@@ -34,15 +31,27 @@ require_once 'include/text.php';
  */
 class App
 {
-	const MODE_NORMAL = 0;
-	const MODE_INSTALL = 1;
-	const MODE_MAINTENANCE = 2;
+	const MODE_LOCALCONFIGPRESENT = 1;
+	const MODE_DBAVAILABLE = 2;
+	const MODE_DBCONFIGAVAILABLE = 4;
+	const MODE_MAINTENANCEDISABLED = 8;
+
+	/**
+	 * @deprecated since version 2008.08 Use App->isInstallMode() instead to check for install mode.
+	 */
+	const MODE_INSTALL = 0;
+
+	/**
+	 * @deprecated since version 2008.08 Use the precise mode constant to check for a specific capability instead.
+	 */
+	const MODE_NORMAL = App::MODE_LOCALCONFIGPRESENT | App::MODE_DBAVAILABLE | App::MODE_DBCONFIGAVAILABLE | App::MODE_MAINTENANCEDISABLED;
 
 	public $module_loaded = false;
 	public $module_class = null;
-	public $query_string;
-	public $config;
-	public $page;
+	public $query_string = '';
+	public $config = [];
+	public $page = [];
+	public $pager = [];
 	public $page_offset;
 	public $profile;
 	public $profile_uid;
@@ -54,16 +63,15 @@ class App
 	public $content;
 	public $data = [];
 	public $error = false;
-	public $cmd;
+	public $cmd = '';
 	public $argv;
 	public $argc;
 	public $module;
-	public $mode = App::MODE_NORMAL;
-	public $pager;
+	public $mode = App::MODE_INSTALL;
 	public $strings;
 	public $basepath;
-	public $path;
-	public $hooks;
+	public $urlpath;
+	public $hooks = [];
 	public $timezone;
 	public $interactive = true;
 	public $addons;
@@ -127,30 +135,23 @@ class App
 	private $curl_code;
 	private $curl_content_type;
 	private $curl_headers;
-	private static $a;
 
 	/**
 	 * @brief App constructor.
 	 *
 	 * @param string $basepath Path to the app base folder
+	 *
+	 * @throws Exception if the Basepath is not usable
 	 */
 	public function __construct($basepath)
 	{
-		global $default_timezone;
-
 		if (!static::directory_usable($basepath, false)) {
 			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
 		}
 
+		BaseObject::setApp($this);
+
 		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
-
-		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
-			include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
-		}
-
-		$this->timezone = ((x($default_timezone)) ? $default_timezone : 'UTC');
-
-		date_default_timezone_set($this->timezone);
 
 		$this->performance['start'] = microtime(true);
 		$this->performance['database'] = 0;
@@ -173,15 +174,12 @@ class App
 		$this->callstack['rendering'] = [];
 		$this->callstack['parser'] = [];
 
-		$this->config = [];
-		$this->page = [];
-		$this->pager = [];
+		$this->reload();
 
-		$this->query_string = '';
+		set_time_limit(0);
 
-		$this->process_id = uniqid('log', true);
-
-		startup();
+		// This has to be quite large to deal with embedded private photos
+		ini_set('pcre.backtrack_limit', 500000);
 
 		$this->scheme = 'http';
 
@@ -201,16 +199,6 @@ class App
 			if (x($_SERVER, 'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
 				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
 			}
-			/*
-			 * Figure out if we are running at the top of a domain
-			 * or in a sub-directory and adjust accordingly
-			 */
-
-			/// @TODO This kind of escaping breaks syntax-highlightning on CoolEdit (Midnight Commander)
-			$path = trim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-			if (isset($path) && strlen($path) && ($path != $this->path)) {
-				$this->path = $path;
-			}
 		}
 
 		set_include_path(
@@ -221,19 +209,16 @@ class App
 
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 9) === 'pagename=') {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
-
-			// removing trailing / - maybe a nginx problem
-			$this->query_string = ltrim($this->query_string, '/');
 		} elseif ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === 'q=') {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 2);
-
-			// removing trailing / - maybe a nginx problem
-			$this->query_string = ltrim($this->query_string, '/');
 		}
 
-		if (x($_GET, 'pagename')) {
+		// removing trailing / - maybe a nginx problem
+		$this->query_string = ltrim($this->query_string, '/');
+
+		if (!empty($_GET['pagename'])) {
 			$this->cmd = trim($_GET['pagename'], '/\\');
-		} elseif (x($_GET, 'q')) {
+		} elseif (!empty($_GET['q'])) {
 			$this->cmd = trim($_GET['q'], '/\\');
 		}
 
@@ -290,20 +275,301 @@ class App
 		$this->is_tablet = $mobile_detect->isTablet();
 
 		// Friendica-Client
-		$this->is_friendica_app = ($_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)');
+		$this->is_friendica_app = isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)';
 
 		// Register template engines
 		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
+	}
 
-		/**
-		 * Load the configuration file which contains our DB credentials.
-		 * Ignore errors. If the file doesn't exist or is empty, we are running in
-		 * installation mode.	 *
+	/**
+	 * Reloads the whole app instance
+	 */
+	public function reload()
+	{
+		// The order of the following calls is important to ensure proper initialization
+		$this->loadConfigFiles();
+
+		$this->loadDatabase();
+
+		$this->determineMode();
+
+		$this->determineUrlPath();
+
+		Config::load();
+
+		if ($this->mode & self::MODE_DBAVAILABLE) {
+			Core\Addon::loadHooks();
+
+			$this->loadAddonConfig();
+		}
+
+		$this->loadDefaultTimezone();
+
+		$this->page = [
+			'aside' => '',
+			'bottom' => '',
+			'content' => '',
+			'end' => '',
+			'footer' => '',
+			'htmlhead' => '',
+			'nav' => '',
+			'page_title' => '',
+			'right_aside' => '',
+			'template' => '',
+			'title' => ''
+		];
+
+		$this->process_id = System::processID('log');
+	}
+
+	/**
+	 * Load the configuration files
+	 *
+	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
+	 * expected local.ini.php
+	 */
+	private function loadConfigFiles()
+	{
+		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.ini.php');
+		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'settings.ini.php');
+
+		// Legacy .htconfig.php support
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
+			$a = $this;
+			include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
+		}
+
+		// Legacy .htconfig.php support
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+			$a = $this;
+
+			include $this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php';
+
+			$this->setConfigValue('database', 'hostname', $db_host);
+			$this->setConfigValue('database', 'username', $db_user);
+			$this->setConfigValue('database', 'password', $db_pass);
+			$this->setConfigValue('database', 'database', $db_data);
+			if (isset($a->config['system']['db_charset'])) {
+				$this->setConfigValue('database', 'charset', $a->config['system']['db_charset']);
+			}
+
+			unset($db_host, $db_user, $db_pass, $db_data);
+
+			if (isset($default_timezone)) {
+				$this->setConfigValue('system', 'default_timezone', $default_timezone);
+				unset($default_timezone);
+			}
+
+			if (isset($pidfile)) {
+				$this->setConfigValue('system', 'pidfile', $pidfile);
+				unset($pidfile);
+			}
+
+			if (isset($lang)) {
+				$this->setConfigValue('system', 'language', $lang);
+				unset($lang);
+			}
+		}
+
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', true);
+		}
+	}
+
+	/**
+	 * Tries to load the specified configuration file into the App->config array.
+	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 *
+	 * The config format is INI and the template for configuration files is the following:
+	 *
+	 * <?php return <<<INI
+	 *
+	 * [section]
+	 * key = value
+	 *
+	 * INI;
+	 * // Keep this line
+	 *
+	 * @param type $filepath
+	 * @param bool $overwrite Force value overwrite if the config key already exists
+	 * @throws Exception
+	 */
+	public function loadConfigFile($filepath, $overwrite = false)
+	{
+		if (!file_exists($filepath)) {
+			throw new Exception('Error parsing non-existent config file ' . $filepath);
+		}
+
+		$contents = include($filepath);
+
+		$config = parse_ini_string($contents, true, INI_SCANNER_TYPED);
+
+		if ($config === false) {
+			throw new Exception('Error parsing config file ' . $filepath);
+		}
+
+		foreach ($config as $category => $values) {
+			foreach ($values as $key => $value) {
+				if ($overwrite) {
+					$this->setConfigValue($category, $key, $value);
+				} else {
+					$this->setDefaultConfigValue($category, $key, $value);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Loads addons configuration files
+	 *
+	 * First loads all activated addons default configuration throught the load_config hook, then load the local.ini.php
+	 * again to overwrite potential local addon configuration.
+	 */
+	private function loadAddonConfig()
+	{
+		// Loads addons default config
+		Core\Addon::callHooks('load_config');
+
+		// Load the local addon config file to overwritten default addon config values
+		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php')) {
+			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php', true);
+		}
+	}
+
+	/**
+	 * Loads the default timezone
+	 *
+	 * Include support for legacy $default_timezone
+	 *
+	 * @global string $default_timezone
+	 */
+	private function loadDefaultTimezone()
+	{
+		if ($this->getConfigValue('system', 'default_timezone')) {
+			$this->timezone = $this->getConfigValue('system', 'default_timezone');
+		} else {
+			global $default_timezone;
+			$this->timezone = !empty($default_timezone) ? $default_timezone : 'UTC';
+		}
+
+		if ($this->timezone) {
+			date_default_timezone_set($this->timezone);
+		}
+	}
+
+	/**
+	 * Figure out if we are running at the top of a domain or in a sub-directory and adjust accordingly
+	 */
+	private function determineUrlPath()
+	{
+		$this->urlpath = $this->getConfigValue('system', 'urlpath');
+
+		/* SCRIPT_URL gives /path/to/friendica/module/parameter
+		 * QUERY_STRING gives pagename=module/parameter
+		 *
+		 * To get /path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
 		 */
-		$this->mode = ((file_exists('.htconfig.php') && filesize('.htconfig.php')) ? App::MODE_NORMAL : App::MODE_INSTALL);
+		if (!empty($_SERVER['SCRIPT_URL'])) {
+			// Module
+			if (!empty($_SERVER['QUERY_STRING'])) {
+				$path = trim(dirname($_SERVER['SCRIPT_URL'], substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
+			} else {
+				// Root page
+				$path = trim($_SERVER['SCRIPT_URL'], '/');
+			}
 
+			if ($path && $path != $this->urlpath) {
+				$this->urlpath = $path;
+			}
+		}
+	}
 
-		self::$a = $this;
+	/**
+	 * Sets the App mode
+	 *
+	 * - App::MODE_INSTALL    : Either the database connection can't be established or the config table doesn't exist
+	 * - App::MODE_MAINTENANCE: The maintenance mode has been set
+	 * - App::MODE_NORMAL     : Normal run with all features enabled
+	 *
+	 * @return type
+	 */
+	private function determineMode()
+	{
+		$this->mode = 0;
+
+		if (!file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')
+			&& !file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+			return;
+		}
+
+		$this->mode |= App::MODE_LOCALCONFIGPRESENT;
+
+		if (!DBA::connected()) {
+			return;
+		}
+
+		$this->mode |= App::MODE_DBAVAILABLE;
+
+		if (DBA::fetchFirst("SHOW TABLES LIKE 'config'") === false) {
+			return;
+		}
+
+		$this->mode |= App::MODE_DBCONFIGAVAILABLE;
+
+		if (Config::get('system', 'maintenance')) {
+			return;
+		}
+
+		$this->mode |= App::MODE_MAINTENANCEDISABLED;
+	}
+
+	public function loadDatabase()
+	{
+		if (DBA::connected()) {
+			return;
+		}
+
+		$db_host = $this->getConfigValue('database', 'hostname');
+		$db_user = $this->getConfigValue('database', 'username');
+		$db_pass = $this->getConfigValue('database', 'password');
+		$db_data = $this->getConfigValue('database', 'database');
+		$charset = $this->getConfigValue('database', 'charset');
+
+		// Use environment variables for mysql if they are set beforehand
+		if (!empty(getenv('MYSQL_HOST'))
+			&& (!empty(getenv('MYSQL_USERNAME')) || !empty(getenv('MYSQL_USER')))
+			&& getenv('MYSQL_PASSWORD') !== false
+			&& !empty(getenv('MYSQL_DATABASE')))
+		{
+			$db_host = getenv('MYSQL_HOST');
+			if (!empty(getenv('MYSQL_PORT'))) {
+				$db_host .= ':' . getenv('MYSQL_PORT');
+			}
+			if (!empty(getenv('MYSQL_USERNAME'))) {
+				$db_user = getenv('MYSQL_USERNAME');
+			} else {
+				$db_user = getenv('MYSQL_USER');
+			}
+			$db_pass = (string) getenv('MYSQL_PASSWORD');
+			$db_data = getenv('MYSQL_DATABASE');
+		}
+
+		$stamp1 = microtime(true);
+
+		DBA::connect($db_host, $db_user, $db_pass, $db_data, $charset);
+		unset($db_host, $db_user, $db_pass, $db_data, $charset);
+
+		$this->save_timestamp($stamp1, 'network');
+	}
+
+	/**
+	 * Install mode is when the local config file is missing or the DB schema hasn't been installed yet.
+	 *
+	 * @return bool
+	 */
+	public function isInstallMode()
+	{
+		return !($this->mode & App::MODE_LOCALCONFIGPRESENT) || !($this->mode & App::MODE_DBCONFIGAVAILABLE);
 	}
 
 	/**
@@ -396,7 +662,7 @@ class App
 			$this->hostname = Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . ((isset($this->path) && strlen($this->path)) ? '/' . $this->path : '' );
+		return $scheme . '://' . $this->hostname . (!empty($this->urlpath) ? '/' . $this->urlpath : '' );
 	}
 
 	/**
@@ -409,16 +675,22 @@ class App
 	public function set_baseurl($url)
 	{
 		$parsed = @parse_url($url);
+		$hostname = '';
 
 		if (x($parsed)) {
-			$this->scheme = $parsed['scheme'];
+			if (!empty($parsed['scheme'])) {
+				$this->scheme = $parsed['scheme'];
+			}
 
-			$hostname = $parsed['host'];
+			if (!empty($parsed['host'])) {
+				$hostname = $parsed['host'];
+			}
+
 			if (x($parsed, 'port')) {
 				$hostname .= ':' . $parsed['port'];
 			}
 			if (x($parsed, 'path')) {
-				$this->path = trim($parsed['path'], '\\/');
+				$this->urlpath = trim($parsed['path'], '\\/');
 			}
 
 			if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
@@ -429,7 +701,7 @@ class App
 				$this->hostname = Config::get('config', 'hostname');
 			}
 
-			if (!isset($this->hostname) || ( $this->hostname == '')) {
+			if (!isset($this->hostname) || ($this->hostname == '')) {
 				$this->hostname = $hostname;
 			}
 		}
@@ -446,7 +718,7 @@ class App
 
 	public function get_path()
 	{
-		return $this->path;
+		return $this->urlpath;
 	}
 
 	public function set_pager_total($n)
@@ -531,6 +803,7 @@ class App
 			'$touch_icon'      => $touch_icon,
 			'$stylesheet'      => $stylesheet,
 			'$infinite_scroll' => $invinite_scroll,
+			'$block_public'    => intval(Config::get('system', 'block_public')),
 		]) . $this->page['htmlhead'];
 	}
 
@@ -751,7 +1024,7 @@ class App
 	 *
 	 * @return bool Is the limit reached?
 	 */
-	public function max_processes_reached()
+	public function isMaxProcessesReached()
 	{
 		// Deactivated, needs more investigating if this check really makes sense
 		return false;
@@ -773,7 +1046,7 @@ class App
 			}
 		}
 
-		$processlist = DBM::processlist();
+		$processlist = DBA::processlist();
 		if ($processlist['list'] != '') {
 			logger('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], LOGGER_DEBUG);
 
@@ -806,7 +1079,11 @@ class App
 
 		$meminfo = [];
 		foreach ($memdata as $line) {
-			list($key, $val) = explode(':', $line);
+			$data = explode(':', $line);
+			if (count($data) != 2) {
+				continue;
+			}
+			list($key, $val) = $data;
 			$meminfo[$key] = (int) trim(str_replace('kB', '', $val));
 			$meminfo[$key] = (int) ($meminfo[$key] / 1024);
 		}
@@ -831,7 +1108,7 @@ class App
 	 *
 	 * @return bool Is the load reached?
 	 */
-	public function maxload_reached()
+	public function isMaxLoadReached()
 	{
 		if ($this->is_backend()) {
 			$process = 'backend';
@@ -857,25 +1134,36 @@ class App
 		return false;
 	}
 
-	public function proc_run($args)
+	/**
+	 * Executes a child process with 'proc_open'
+	 *
+	 * @param string $command The command to execute
+	 * @param array  $args    Arguments to pass to the command ( [ 'key' => value, 'key2' => value2, ... ]
+	 */
+	public function proc_run($command, $args)
 	{
 		if (!function_exists('proc_open')) {
 			return;
 		}
 
-		array_unshift($args, ((x($this->config, 'php_path')) && (strlen($this->config['php_path'])) ? $this->config['php_path'] : 'php'));
+		$cmdline = $this->getConfigValue('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
 
-		for ($x = 0; $x < count($args); $x ++) {
-			$args[$x] = escapeshellarg($args[$x]);
+		foreach ($args as $key => $value) {
+			if (!is_null($value) && is_bool($value) && !$value) {
+				continue;
+			}
+
+			$cmdline .= ' --' . $key;
+			if (!is_null($value) && !is_bool($value)) {
+				$cmdline .= ' ' . $value;
+			}
 		}
-
-		$cmdline = implode(' ', $args);
 
 		if ($this->min_memory_reached()) {
 			return;
 		}
 
-		if (Config::get('system', 'proc_windows')) {
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->get_basepath());
 		} else {
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->get_basepath());
@@ -962,6 +1250,20 @@ class App
 	}
 
 	/**
+	 * Sets a default value in the config cache. Ignores already existing keys.
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Default value to set
+	 */
+	private function setDefaultConfigValue($cat, $k, $v)
+	{
+		if (!isset($this->config[$cat][$k])) {
+			$this->setConfigValue($cat, $k, $v);
+		}
+	}
+
+	/**
 	 * Sets a value in the config cache. Accepts raw output from the config table
 	 *
 	 * @param string $cat Config category
@@ -976,6 +1278,10 @@ class App
 		if ($cat === 'config') {
 			$this->config[$k] = $value;
 		} else {
+			if (!isset($this->config[$cat])) {
+				$this->config[$cat] = [];
+			}
+
 			$this->config[$cat][$k] = $value;
 		}
 	}
@@ -1034,6 +1340,14 @@ class App
 		// Only arrays are serialized in database, so we have to unserialize sparingly
 		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
 
+		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
+			$this->config[$uid] = [];
+		}
+
+		if (!isset($this->config[$uid][$cat]) || !is_array($this->config[$uid][$cat])) {
+			$this->config[$uid][$cat] = [];
+		}
+
 		$this->config[$uid][$cat][$k] = $value;
 	}
 
@@ -1072,28 +1386,13 @@ class App
 	}
 
 	/**
-	 * @note Checks, if the App is in the Maintenance-Mode
-	 *
-	 * @return boolean
-	 */
-	public function checkMaintenanceMode()
-	{
-		if (Config::get('system', 'maintenance')) {
-			$this->mode = App::MODE_MAINTENANCE;
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Returns the current theme name.
 	 *
 	 * @return string
 	 */
 	public function getCurrentTheme()
 	{
-		if ($this->mode == App::MODE_INSTALL) {
+		if ($this->isInstallMode()) {
 			return '';
 		}
 
@@ -1127,17 +1426,18 @@ class App
 		if ($this->profile_uid && ($this->profile_uid != local_user())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			$user = dba::selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
-			if (DBM::is_result($user) && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
+			$user = DBA::selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
+			if (DBA::isResult($user) && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
 				$page_theme = $user['theme'];
 			}
 		}
 
-		$user_theme = defaults($_SESSION, 'theme', $system_theme);
+		$user_theme = Core\Session::get('theme', $system_theme);
+
 		// Specific mobile theme override
-		if (($this->is_mobile || $this->is_tablet) && defaults($_SESSION, 'show-mobile', true)) {
+		if (($this->is_mobile || $this->is_tablet) && Core\Session::get('show-mobile', true)) {
 			$system_mobile_theme = Config::get('system', 'mobile-theme');
-			$user_mobile_theme = defaults($_SESSION, 'mobile-theme', $system_mobile_theme);
+			$user_mobile_theme = Core\Session::get('mobile-theme', $system_mobile_theme);
 
 			// --- means same mobile theme as desktop
 			if (!empty($user_mobile_theme) && $user_mobile_theme !== '---') {

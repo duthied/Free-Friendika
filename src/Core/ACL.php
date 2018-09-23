@@ -6,32 +6,18 @@
 
 namespace Friendica\Core;
 
-use dba;
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Database\DBM;
+use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Network;
-use const CONTACT_IS_FRIEND;
-use const NETWORK_DFRN;
-use const NETWORK_DIASPORA;
-use const NETWORK_FACEBOOK;
-use const NETWORK_MAIL;
-use const NETWORK_OSTATUS;
-use const PHP_EOL;
-use function dbesc;
-use function defaults;
-use function get_markup_template;
-use function get_server;
-use function local_user;
-use function remote_user;
-use function replace_macros;
 
 /**
  * Handle ACL management and display
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class ACL extends BaseObject
 {
@@ -61,22 +47,21 @@ class ACL extends BaseObject
 
 		switch (defaults($options, 'networks', Protocol::PHANTOM)) {
 			case 'DFRN_ONLY':
-				$networks = [NETWORK_DFRN];
+				$networks = [Protocol::DFRN];
 				break;
+
 			case 'PRIVATE':
-				if (!empty($a->user['prvnets'])) {
-					$networks = [NETWORK_DFRN, NETWORK_MAIL, NETWORK_DIASPORA];
-				} else {
-					$networks = [NETWORK_DFRN, NETWORK_FACEBOOK, NETWORK_MAIL, NETWORK_DIASPORA];
-				}
+				$networks = [Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA];
 				break;
+
 			case 'TWO_WAY':
 				if (!empty($a->user['prvnets'])) {
-					$networks = [NETWORK_DFRN, NETWORK_MAIL, NETWORK_DIASPORA];
+					$networks = [Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA];
 				} else {
-					$networks = [NETWORK_DFRN, NETWORK_FACEBOOK, NETWORK_MAIL, NETWORK_DIASPORA, NETWORK_OSTATUS];
+					$networks = [Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA, Protocol::OSTATUS];
 				}
 				break;
+
 			default: /// @TODO Maybe log this call?
 				break;
 		}
@@ -90,7 +75,7 @@ class ACL extends BaseObject
 		$sql_extra = '';
 
 		if (!empty($x['mutual'])) {
-			$sql_extra .= sprintf(" AND `rel` = %d ", intval(CONTACT_IS_FRIEND));
+			$sql_extra .= sprintf(" AND `rel` = %d ", intval(Contact::FRIEND));
 		}
 
 		if (!empty($x['exclude'])) {
@@ -100,7 +85,7 @@ class ACL extends BaseObject
 		if (!empty($x['networks'])) {
 			/// @TODO rewrite to foreach()
 			array_walk($x['networks'], function (&$value) {
-				$value = "'" . dbesc($value) . "'";
+				$value = "'" . DBA::escape($value) . "'";
 			});
 			$str_nets = implode(',', $x['networks']);
 			$sql_extra .= " AND `network` IN ( $str_nets ) ";
@@ -114,20 +99,20 @@ class ACL extends BaseObject
 			$o .= "<select name=\"{$selname}[]\" id=\"$selclass\" class=\"$selclass\" multiple=\"multiple\" size=\"" . $x['size'] . "$\" $tabindex >\r\n";
 		}
 
-		$stmt = dba::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
+		$stmt = DBA::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
 			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 			$sql_extra
 			ORDER BY `name` ASC ", intval(local_user())
 		);
 
-		$contacts = dba::inArray($stmt);
+		$contacts = DBA::toArray($stmt);
 
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
 		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
 
-		if (DBM::is_result($contacts)) {
+		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
 				if (in_array($contact['id'], $preselected)) {
 					$selected = ' selected="selected" ';
@@ -166,8 +151,8 @@ class ACL extends BaseObject
 
 		// When used for private messages, we limit correspondence to mutual DFRN/Friendica friends and the selector
 		// to one recipient. By default our selector allows multiple selects amongst all contacts.
-		$sql_extra = sprintf(" AND `rel` = %d ", intval(CONTACT_IS_FRIEND));
-		$sql_extra .= sprintf(" AND `network` IN ('%s' , '%s') ", NETWORK_DFRN, NETWORK_DIASPORA);
+		$sql_extra = sprintf(" AND `rel` = %d ", intval(Contact::FRIEND));
+		$sql_extra .= sprintf(" AND `network` IN ('%s' , '%s') ", Protocol::DFRN, Protocol::DIASPORA);
 
 		$tabindex_attr = !empty($tabindex) ? ' tabindex="' . intval($tabindex) . '"' : '';
 
@@ -179,13 +164,13 @@ class ACL extends BaseObject
 
 		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\"$tabindex_attr$hidepreselected>\r\n";
 
-		$stmt = dba::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
+		$stmt = DBA::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
 			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 			$sql_extra
 			ORDER BY `name` ASC ", intval(local_user())
 		);
 
-		$contacts = dba::inArray($stmt);
+		$contacts = DBA::toArray($stmt);
 
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
@@ -194,7 +179,7 @@ class ACL extends BaseObject
 
 		$receiverlist = [];
 
-		if (DBM::is_result($contacts)) {
+		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
 				if (in_array($contact['id'], $preselected)) {
 					$selected = ' selected="selected"';
@@ -266,13 +251,17 @@ class ACL extends BaseObject
 	/**
 	 * Return the full jot ACL selector HTML
 	 *
-	 * @param array $user
+	 * @param array $user                User array
+	 * @param array $default_permissions Static defaults permission array: ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']
 	 * @param bool  $show_jotnets
 	 * @return string
 	 */
-	public static function getFullSelectorHTML(array $user = null, $show_jotnets = false)
+	public static function getFullSelectorHTML(array $user, $show_jotnets = false, array $default_permissions = [])
 	{
-		$perms = self::getDefaultUserPermissions($user);
+		// Defaults user permissions
+		if (empty($default_permissions)) {
+			$default_permissions = self::getDefaultUserPermissions($user);
+		}
 
 		$jotnets = '';
 		if ($show_jotnets) {
@@ -282,14 +271,14 @@ class ACL extends BaseObject
 			$pubmail_enabled = false;
 
 			if (!$imap_disabled) {
-				$mailacct = dba::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
-				if (DBM::is_result($mailacct)) {
+				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
+				if (DBA::isResult($mailacct)) {
 					$mail_enabled = true;
 					$pubmail_enabled = !empty($mailacct['pubmail']);
 				}
 			}
 
-			if (empty($user['hidewall'])) {
+			if (empty($default_permissions['hidewall'])) {
 				if ($mail_enabled) {
 					$selected = $pubmail_enabled ? ' checked="checked"' : '';
 					$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . L10n::t("Post to Email") . '</div>';
@@ -307,10 +296,10 @@ class ACL extends BaseObject
 			'$showall' => L10n::t('Visible to everybody'),
 			'$show' => L10n::t('show'),
 			'$hide' => L10n::t('don\'t show'),
-			'$allowcid' => json_encode($perms['allow_cid']),
-			'$allowgid' => json_encode($perms['allow_gid']),
-			'$denycid' => json_encode($perms['deny_cid']),
-			'$denygid' => json_encode($perms['deny_gid']),
+			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', '')),
+			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', '')),
+			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', '')),
+			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', '')),
 			'$networks' => $show_jotnets,
 			'$emailcc' => L10n::t('CC: email addresses'),
 			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
@@ -335,7 +324,7 @@ class ACL extends BaseObject
 	 */
 	public static function contactAutocomplete($search, $mode)
 	{
-		if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
+		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 			return [];
 		}
 

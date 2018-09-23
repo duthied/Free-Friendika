@@ -6,10 +6,9 @@
 
 namespace Friendica\Content\Widget;
 
-use dba;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 
 require_once 'include/dba.php';
 require_once 'include/security.php';
@@ -38,7 +37,7 @@ class TagCloud
 		$o = '';
 		$r = self::tagadelic($uid, $count, $owner_id, $flags, $type);
 		if (count($r)) {
-			$contact = dba::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
+			$contact = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 			$url = System::removedBaseUrl($contact['url']);
 
 			foreach ($r as $rr) {
@@ -74,7 +73,6 @@ class TagCloud
 	 */
 	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG)
 	{
-		$item_condition = item_condition();
 		$sql_options = item_permissions_sql($uid);
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
 
@@ -89,17 +87,18 @@ class TagCloud
 		}
 
 		// Fetch tags
-		$r = dba::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
+		$r = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
 			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
 			WHERE `term`.`uid` = ? AND `term`.`type` = ?
 			AND `term`.`otype` = ?
-			AND $item_condition $sql_options
+			AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+			$sql_options
 			GROUP BY `term` ORDER BY `total` DESC $limit",
 			$uid,
 			$type,
 			TERM_OBJ_POST
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return [];
 		}
 

@@ -5,12 +5,13 @@
  */
 namespace Friendica\Content;
 
-use Friendica\App;
+use Friendica\Core\Protocol;
 use Friendica\Content\Feature;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
-use dba;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/dba.php';
 
@@ -36,30 +37,34 @@ class ForumManager
 	 */
 	public static function getList($uid, $lastitem, $showhidden = true, $showprivate = false)
 	{
-		$forumlist = [];
-
-		$order = (($showhidden) ? '' : ' AND NOT `hidden` ');
-		$order .= (($lastitem) ? ' ORDER BY `last-item` DESC ' : ' ORDER BY `name` ASC ');
-		$select = '`forum` ';
-		if ($showprivate) {
-			$select = '(`forum` OR `prv`)';
+		if ($lastitem) {
+			$params = ['order' => ['last-item' => true]];
+		} else {
+			$params = ['order' => ['name']];
 		}
 
-		$contacts = dba::p(
-			"SELECT `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`micro`, `contact`.`thumb`
-			FROM `contact`
-				WHERE `network`= 'dfrn' AND $select AND `uid` = ?
-				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `success_update` > `failure_update`
-			$order ",
-			$uid
-		);
+		$condition_str = "`network` = ? AND `uid` = ? AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `success_update` > `failure_update` AND ";
 
+		if ($showprivate) {
+			$condition_str .= '(`forum` OR `prv`)';
+		} else {
+			$condition_str .= '`forum`';
+		}
+
+		if (!$showhidden) {
+			$condition_str .=  ' AND NOT `hidden`';
+		}
+
+		$forumlist = [];
+
+		$fields = ['id', 'url', 'name', 'micro', 'thumb'];
+		$condition = [$condition_str, Protocol::DFRN, $uid];
+		$contacts = DBA::select('contact', $fields, $condition, $params);
 		if (!$contacts) {
 			return($forumlist);
 		}
 
-		while ($contact = dba::fetch($contacts)) {
+		while ($contact = DBA::fetch($contacts)) {
 			$forumlist[] = [
 				'url'	=> $contact['url'],
 				'name'	=> $contact['name'],
@@ -68,7 +73,7 @@ class ForumManager
 				'thumb' => $contact['thumb'],
 			];
 		}
-		dba::close($contacts);
+		DBA::close($contacts);
 
 		return($forumlist);
 	}
@@ -99,7 +104,7 @@ class ForumManager
 		$total = count($contacts);
 		$visible_forums = 10;
 
-		if (DBM::is_result($contacts)) {
+		if (DBA::isResult($contacts)) {
 			$id = 0;
 
 			foreach ($contacts as $contact) {
@@ -107,11 +112,11 @@ class ForumManager
 
 				$entry = [
 					'url' => 'network?f=&cid=' . $contact['id'],
-					'external_url' => 'redir/' . $contact['id'],
+					'external_url' => Contact::magicLink($contact['url']),
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
 					'selected' 	=> $selected,
-					'micro' => System::removedBaseUrl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
+					'micro' => System::removedBaseUrl(ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO)),
 					'id' => ++$id,
 				];
 				$entries[] = $entry;

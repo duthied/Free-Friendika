@@ -5,21 +5,21 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Util\Proxy as ProxyUtils;
 
 function follow_post(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.'));
-		goaway($_SESSION['return_url']);
-		// NOTREACHED
+		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
 	}
 
-	if ($_REQUEST['cancel']) {
+	if (isset($_REQUEST['cancel'])) {
 		goaway($_SESSION['return_url']);
 	}
 
@@ -65,8 +65,8 @@ function follow_content(App $a)
 	$r = q("SELECT `pending` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
 		(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
 		`network` != '%s' LIMIT 1",
-		intval(local_user()), dbesc(CONTACT_IS_FOLLOWER), dbesc(NETWORK_DFRN), dbesc(normalise_link($url)),
-		dbesc(normalise_link($url)), dbesc($url), dbesc(NETWORK_STATUSNET));
+		intval(local_user()), DBA::escape(Contact::FOLLOWER), DBA::escape(Protocol::DFRN), DBA::escape(normalise_link($url)),
+		DBA::escape(normalise_link($url)), DBA::escape($url), DBA::escape(Protocol::STATUSNET));
 
 	if ($r) {
 		if ($r[0]['pending']) {
@@ -79,32 +79,32 @@ function follow_content(App $a)
 
 	$ret = Probe::uri($url);
 
-	if (($ret['network'] == NETWORK_DIASPORA) && !Config::get('system', 'diaspora_enabled')) {
+	if (($ret['network'] == Protocol::DIASPORA) && !Config::get('system', 'diaspora_enabled')) {
 		notice(L10n::t("Diaspora support isn't enabled. Contact can't be added."));
 		$submit = '';
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
-	if (($ret['network'] == NETWORK_OSTATUS) && Config::get('system', 'ostatus_disabled')) {
+	if (($ret['network'] == Protocol::OSTATUS) && Config::get('system', 'ostatus_disabled')) {
 		notice(L10n::t("OStatus support is disabled. Contact can't be added."));
 		$submit = '';
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
-	if ($ret['network'] == NETWORK_PHANTOM) {
+	if ($ret['network'] == Protocol::PHANTOM) {
 		notice(L10n::t("The network type couldn't be detected. Contact can't be added."));
 		$submit = '';
 		//goaway($_SESSION['return_url']);
 		// NOTREACHED
 	}
 
-	if ($ret['network'] == NETWORK_MAIL) {
+	if ($ret['network'] == Protocol::MAIL) {
 		$ret['url'] = $ret['addr'];
 	}
 
-	if (($ret['network'] === NETWORK_DFRN) && !DBM::is_result($r)) {
+	if (($ret['network'] === Protocol::DFRN) && !DBA::isResult($r)) {
 		$request = $ret['request'];
 		$tpl = get_markup_template('dfrn_request.tpl');
 	} else {
@@ -135,7 +135,7 @@ function follow_content(App $a)
 		$gcontact_id = $r[0]['id'];
 	}
 
-	if ($ret['network'] === NETWORK_DIASPORA) {
+	if ($ret['network'] === Protocol::DIASPORA) {
 		$r[0]['location'] = '';
 		$r[0]['about'] = '';
 	}
@@ -144,7 +144,7 @@ function follow_content(App $a)
 
 	$o = replace_macros($tpl, [
 		'$header'        => htmlentities($header),
-		//'$photo' => proxy_url($ret['photo'], false, PROXY_SIZE_SMALL),
+		//'$photo'         => ProxyUtils::proxifyUrl($ret['photo'], false, ProxyUtils::SIZE_SMALL),
 		'$desc'          => '',
 		'$pls_answer'    => L10n::t('Please answer the following:'),
 		'$does_know_you' => ['knowyou', L10n::t('Does %s know you?', $ret['name']), false, '', [L10n::t('No'), L10n::t('Yes')]],
@@ -166,10 +166,13 @@ function follow_content(App $a)
 		'$url_label'     => L10n::t('Profile URL'),
 		'$myaddr'        => $myaddr,
 		'$request'       => $request,
-		/*'$location'      => Friendica\Content\Text\BBCode::::convert($r[0]['location']),
+		/*
+		 * @TODO commented out?
+		'$location'      => Friendica\Content\Text\BBCode::::convert($r[0]['location']),
 		'$location_label'=> L10n::t('Location:'),
 		'$about'         => Friendica\Content\Text\BBCode::::convert($r[0]['about'], false, false),
-		'$about_label'   => L10n::t('About:'),*/
+		'$about_label'   => L10n::t('About:'),
+		*/
 		'$keywords'      => $r[0]['keywords'],
 		'$keywords_label'=> L10n::t('Tags:')
 	]);

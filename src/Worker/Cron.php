@@ -4,18 +4,22 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
-use dba;
 
 require_once 'include/dba.php';
 
-Class Cron {
-	public static function execute($parameter = '', $generation = 0) {
-		global $a;
+class Cron
+{
+	public static function execute($parameter = '', $generation = 0)
+	{
+		$a = BaseObject::getApp();
 
 		// Poll contacts with specific parameters
 		if (!empty($parameter)) {
@@ -99,14 +103,21 @@ Class Cron {
 		if (Config::get('system', 'last_cron_hourly', 0) + 3600 < time()) {
 
 			// Delete all done workerqueue entries
-			dba::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
+			DBA::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
 
 			// Optimizing this table only last seconds
 			if (Config::get('system', 'optimize_workerqueue', false)) {
-				dba::e("OPTIMIZE TABLE `workerqueue`");
+				DBA::e("OPTIMIZE TABLE `workerqueue`");
 			}
 
 			Config::set('system', 'last_cron_hourly', time());
+		}
+
+		// Ensure to have a .htaccess file.
+		// this is a precaution for systems that update automatically
+		$basepath = $a->get_basepath();
+		if (!file_exists($basepath . '/.htaccess')) {
+			copy($basepath . '/.htaccess-dist', $basepath . '/.htaccess');
 		}
 
 		// Poll contacts
@@ -178,14 +189,14 @@ Class Cron {
 					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_FEED),
-			dbesc(NETWORK_MAIL)
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::OSTATUS),
+			DBA::escape(Protocol::DIASPORA),
+			DBA::escape(Protocol::FEED),
+			DBA::escape(Protocol::MAIL)
 		);
 
-		if (!DBM::is_result($contacts)) {
+		if (!DBA::isResult($contacts)) {
 			return;
 		}
 
@@ -196,11 +207,11 @@ Class Cron {
 			}
 
 			// Friendica and OStatus are checked once a day
-			if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_OSTATUS])) {
+			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
 				$contact['priority'] = 2;
 			}
 
-			if ($contact['subhub'] && in_array($contact['network'], [NETWORK_DFRN, NETWORK_OSTATUS])) {
+			if ($contact['subhub'] && in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
 				/*
 				 * We should be getting everything via a hub. But just to be sure, let's check once a day.
 				 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
@@ -212,7 +223,7 @@ Class Cron {
 			}
 
 			// Check Diaspora contacts or followers once a week
-			if (($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
+			if (($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER)) {
 				$contact['priority'] = 4;
 			}
 
@@ -267,7 +278,7 @@ Class Cron {
 				}
 			}
 
-			if (($contact['network'] == NETWORK_FEED) && ($contact['priority'] <= 3)) {
+			if (($contact['network'] == Protocol::FEED) && ($contact['priority'] <= 3)) {
 				$priority = PRIORITY_MEDIUM;
 			} elseif ($contact['archive']) {
 				$priority = PRIORITY_NEGLIGIBLE;

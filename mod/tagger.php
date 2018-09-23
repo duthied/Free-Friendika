@@ -7,7 +7,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
 require_once 'include/security.php';
@@ -15,7 +15,7 @@ require_once 'include/items.php';
 
 function tagger_content(App $a) {
 
-	if(! local_user() && ! remote_user()) {
+	if (!local_user() && !remote_user()) {
 		return;
 	}
 
@@ -23,24 +23,21 @@ function tagger_content(App $a) {
 	// no commas allowed
 	$term = str_replace([',',' '],['','_'],$term);
 
-	if(! $term)
+	if (!$term) {
 		return;
+	}
 
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
 
 	logger('tagger: tag ' . $term . ' item ' . $item_id);
 
 
-	$r = q("SELECT * FROM `item` WHERE `id` = '%s' LIMIT 1",
-		dbesc($item_id)
-	);
+	$item = Item::selectFirst([], ['id' => $item_id]);
 
-	if(! $item_id || (! DBM::is_result($r))) {
+	if (!$item_id || !DBA::isResult($item)) {
 		logger('tagger: no item ' . $item_id);
 		return;
 	}
-
-	$item = $r[0];
 
 	$owner_uid = $item['uid'];
 	$owner_nick = '';
@@ -49,25 +46,26 @@ function tagger_content(App $a) {
 	$r = q("select `nickname`,`blocktags` from user where uid = %d limit 1",
 		intval($owner_uid)
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$owner_nick = $r[0]['nickname'];
 		$blocktags = $r[0]['blocktags'];
 	}
 
-	if(local_user() != $owner_uid)
+	if (local_user() != $owner_uid) {
 		return;
+	}
 
 	$r = q("select * from contact where self = 1 and uid = %d limit 1",
 		intval(local_user())
 	);
-	if (DBM::is_result($r))
+	if (DBA::isResult($r)) {
 			$contact = $r[0];
-	else {
+	} else {
 		logger('tagger: no contact_id');
 		return;
 	}
 
-	$uri = item_new_uri($a->get_hostname(),$owner_uid);
+	$uri = Item::newURI($owner_uid);
 	$xterm = xmlify($term);
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
@@ -109,7 +107,7 @@ EOT;
 
 	$bodyverb = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s');
 
-	if (! isset($bodyverb)) {
+	if (!isset($bodyverb)) {
 		return;
 	}
 
@@ -117,11 +115,10 @@ EOT;
 
 	$arr = [];
 
-	$arr['guid'] = get_guid(32);
+	$arr['guid'] = System::createGUID(32);
 	$arr['uri'] = $uri;
 	$arr['uid'] = $owner_uid;
 	$arr['contact-id'] = $contact['id'];
-	$arr['type'] = 'activity';
 	$arr['wall'] = $item['wall'];
 	$arr['gravity'] = GRAVITY_COMMENT;
 	$arr['parent'] = $item['id'];
@@ -159,43 +156,43 @@ EOT;
 	}
 
 	$term_objtype = ($item['resource-id'] ? TERM_OBJ_PHOTO : TERM_OBJ_POST);
-        $t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
-                intval($item['id']),
-                dbesc($term)
-        );
-	if((! $blocktags) && $t[0]['tcount']==0 ) {
+
+	$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
+		intval($item['id']),
+		DBA::escape($term)
+	);
+
+	if (!$blocktags && $t[0]['tcount'] == 0) {
 		q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
 		   intval($item['id']),
 		   $term_objtype,
 		   TERM_HASHTAG,
-		   dbesc($term),
-		   dbesc(System::baseUrl() . '/search?tag=' . $term),
+		   DBA::escape($term),
+		   DBA::escape(System::baseUrl() . '/search?tag=' . $term),
 		   intval($owner_uid)
 		);
 	}
 
 	// if the original post is on this site, update it.
+	$original_item = Item::selectFirst(['tag', 'id', 'uid'], ['origin' => true, 'uri' => $item['uri']]);
+	if (DBA::isResult($original_item)) {
+		$x = q("SELECT `blocktags` FROM `user` WHERE `uid`=%d LIMIT 1",
+			intval($original_item['uid'])
+		);
+		$t = q("SELECT COUNT(`tid`) AS `tcount` FROM `term` WHERE `oid`=%d AND `term`='%s'",
+			intval($original_item['id']),
+			DBA::escape($term)
+		);
 
-	$r = q("select `tag`,`id`,`uid` from item where `origin` = 1 AND `uri` = '%s' LIMIT 1",
-		dbesc($item['uri'])
-	);
-	if (DBM::is_result($r)) {
-		$x = q("SELECT `blocktags` FROM `user` WHERE `uid` = %d limit 1",
-			intval($r[0]['uid'])
-		);
-		$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
-			intval($r[0]['id']),
-			dbesc($term)
-		);
-		if(count($x) && !$x[0]['blocktags'] && $t[0]['tcount']==0){
-			q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
-	                   intval($r[0]['id']),
-	                   $term_objtype,
-	                   TERM_HASHTAG,
-	                   dbesc($term),
-	                   dbesc(System::baseUrl() . '/search?tag=' . $term),
-	                   intval($owner_uid)
-	                );
+		if (DBA::isResult($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
+			q("INSERT INTO term (`oid`, `otype`, `type`, `term`, `url`, `uid`) VALUE (%d, %d, %d, '%s', '%s', %d)",
+				intval($original_item['id']),
+				$term_objtype,
+				TERM_HASHTAG,
+				DBA::escape($term),
+				DBA::escape(System::baseUrl() . '/search?tag=' . $term),
+				intval($owner_uid)
+			);
 		}
 	}
 

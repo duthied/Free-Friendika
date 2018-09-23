@@ -13,7 +13,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Group;
@@ -28,51 +28,53 @@ function cal_init(App $a)
 		DFRN::autoRedir($a, $a->argv[1]);
 	}
 
-	if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
-		return;
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+	}
+
+	if ($a->argc < 2) {
+		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
 	}
 
 	Nav::setSelected('events');
 
-	if ($a->argc > 1) {
-		$nick = $a->argv[1];
-		$user = dba::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
-		if (!DBM::is_result($user)) {
-			return;
-		}
-
-		$a->data['user'] = $user;
-		$a->profile_uid = $user['uid'];
-
-		// if it's a json request abort here becaus we don't
-		// need the widget data
-		if ($a->argv[2] === 'json') {
-			return;
-		}
-
-		$profile = Profile::getByNickname($nick, $a->profile_uid);
-
-		$account_type = Contact::getAccountType($profile);
-
-		$tpl = get_markup_template("vcard-widget.tpl");
-
-		$vcard_widget = replace_macros($tpl, [
-			'$name' => $profile['name'],
-			'$photo' => $profile['photo'],
-			'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
-			'$account_type' => $account_type,
-			'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
-		]);
-
-		$cal_widget = Widget\CalendarExport::getHTML();
-
-		if (!x($a->page, 'aside')) {
-			$a->page['aside'] = '';
-		}
-
-		$a->page['aside'] .= $vcard_widget;
-		$a->page['aside'] .= $cal_widget;
+	$nick = $a->argv[1];
+	$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
+	if (!DBA::isResult($user)) {
+		System::httpExit(404, ['title' => L10n::t('Page not found.')]);
 	}
+
+	$a->data['user'] = $user;
+	$a->profile_uid = $user['uid'];
+
+	// if it's a json request abort here becaus we don't
+	// need the widget data
+	if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
+		return;
+	}
+
+	$profile = Profile::getByNickname($nick, $a->profile_uid);
+
+	$account_type = Contact::getAccountType($profile);
+
+	$tpl = get_markup_template("vcard-widget.tpl");
+
+	$vcard_widget = replace_macros($tpl, [
+		'$name' => $profile['name'],
+		'$photo' => $profile['photo'],
+		'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
+		'$account_type' => $account_type,
+		'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
+	]);
+
+	$cal_widget = Widget\CalendarExport::getHTML();
+
+	if (!x($a->page, 'aside')) {
+		$a->page['aside'] = '';
+	}
+
+	$a->page['aside'] .= $vcard_widget;
+	$a->page['aside'] .= $cal_widget;
 
 	return;
 }
@@ -100,7 +102,7 @@ function cal_content(App $a)
 	$mode = 'view';
 	$y = 0;
 	$m = 0;
-	$ignored = ((x($_REQUEST, 'ignored')) ? intval($_REQUEST['ignored']) : 0);
+	$ignored = (x($_REQUEST, 'ignored') ? intval($_REQUEST['ignored']) : 0);
 
 	$format = 'ical';
 	if ($a->argc == 4 && $a->argv[2] == 'export') {
@@ -131,14 +133,14 @@ function cal_content(App $a)
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$remote_contact = true;
 		}
 	}
 
 	$is_owner = local_user() == $a->profile['profile_uid'];
 
-	if ($a->profile['hidewall'] && (!$is_owner) && (!$remote_contact)) {
+	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
 		notice(L10n::t('Access to this profile has been restricted.') . EOL);
 		return;
 	}
@@ -194,7 +196,7 @@ function cal_content(App $a)
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
 
-		if ($a->argv[2] === 'json') {
+		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 			if (x($_GET, 'start')) {
 				$start = $_GET['start'];
 			}
@@ -222,14 +224,14 @@ function cal_content(App $a)
 
 		// get events by id or by date
 		if ($event_params['event_id']) {
-			$r = Event::getListById($owner_uid, $event_params['event-id'], $sql_extra);
+			$r = Event::getListById($owner_uid, $event_params['event_id'], $sql_extra);
 		} else {
 			$r = Event::getListByDate($owner_uid, $event_params, $sql_extra);
 		}
 
 		$links = [];
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
@@ -242,7 +244,7 @@ function cal_content(App $a)
 		// transform the event in a usable array
 		$events = Event::prepareListForTemplate($r);
 
-		if ($a->argv[2] === 'json') {
+		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 			echo json_encode($events);
 			killme();
 		}
@@ -293,14 +295,14 @@ function cal_content(App $a)
 	}
 
 	if ($mode == 'export') {
-		if (!(intval($owner_uid))) {
+		if (!intval($owner_uid)) {
 			notice(L10n::t('User not found'));
 			return;
 		}
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if (((local_user() !== intval($owner_uid))) && !Feature::isEnabled($owner_uid, "export_calendar")) {
+		if ((local_user() !== intval($owner_uid)) && !Feature::isEnabled($owner_uid, "export_calendar")) {
 			notice(L10n::t('Permission denied.') . EOL);
 			goaway('cal/' . $nick);
 		}

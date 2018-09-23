@@ -4,15 +4,10 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Addon;
-use Friendica\Core\Config;
-use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Lock;
 use Friendica\Util\Network;
-use dba;
 
 require_once 'include/dba.php';
 
@@ -45,7 +40,7 @@ class Worker
 		self::$up_start = microtime(true);
 
 		// At first check the maximum load. We shouldn't continue with a high load
-		if ($a->maxload_reached()) {
+		if ($a->isMaxLoadReached()) {
 			logger('Pre check: maximum load reached, quitting.', LOGGER_DEBUG);
 			return;
 		}
@@ -54,9 +49,9 @@ class Worker
 		self::startProcess();
 
 		// Kill stale processes every 5 minutes
-		$last_cleanup = Config::get('system', 'poller_last_cleaned', 0);
+		$last_cleanup = Config::get('system', 'worker_last_cleaned', 0);
 		if (time() > ($last_cleanup + 300)) {
-			Config::set('system', 'poller_last_cleaned', time());
+			Config::set('system', 'worker_last_cleaned', time());
 			self::killStaleWorkers();
 		}
 
@@ -79,7 +74,7 @@ class Worker
 		}
 
 		// Possibly there are too much database processes that block the system
-		if ($a->max_processes_reached()) {
+		if ($a->isMaxProcessesReached()) {
 			logger('Pre check: maximum processes reached, quitting.', LOGGER_DEBUG);
 			return;
 		}
@@ -108,16 +103,16 @@ class Worker
 				}
 
 				// If possible we will fetch new jobs for this worker
-				if (!$refetched && Lock::set('poller_worker_process', 0)) {
+				if (!$refetched && Lock::acquire('worker_process', 0)) {
 					$stamp = (float)microtime(true);
 					$refetched = self::findWorkerProcesses($passing_slow);
 					self::$db_duration += (microtime(true) - $stamp);
-					Lock::remove('poller_worker_process');
+					Lock::release('worker_process');
 				}
 			}
 
 			// To avoid the quitting of multiple workers only one worker at a time will execute the check
-			if (Lock::set('poller_worker', 0)) {
+			if (Lock::acquire('worker', 0)) {
 				$stamp = (float)microtime(true);
 				// Count active workers and compare them with a maximum value that depends on the load
 				if (self::tooMuchWorkers()) {
@@ -130,7 +125,7 @@ class Worker
 					logger('Memory limit reached, quitting.', LOGGER_DEBUG);
 					return;
 				}
-				Lock::remove('poller_worker');
+				Lock::release('worker');
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
@@ -140,7 +135,12 @@ class Worker
 				return;
 			}
 		}
-		logger("Couldn't select a workerqueue entry, quitting.", LOGGER_DEBUG);
+
+		// Cleaning up. Possibly not needed, but it doesn't harm anything.
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(false);
+		}
+		logger("Couldn't select a workerqueue entry, quitting process " . getmypid() . ".", LOGGER_DEBUG);
 	}
 
 	/**
@@ -150,12 +150,7 @@ class Worker
 	 */
 	private static function totalEntries()
 	{
-		$s = dba::fetch_first("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE `executed` <= ? AND NOT `done`", NULL_DATE);
-		if (DBM::is_result($s)) {
-			return $s["total"];
-		} else {
-			return 0;
-		}
+		return DBA::count('workerqueue', ["`executed` <= ? AND NOT `done`", NULL_DATE]);
 	}
 
 	/**
@@ -166,8 +161,8 @@ class Worker
 	private static function highestPriority()
 	{
 		$condition = ["`executed` <= ? AND NOT `done`", NULL_DATE];
-		$workerqueue = dba::selectFirst('workerqueue', ['priority'], $condition, ['order' => ['priority']]);
-		if (DBM::is_result($workerqueue)) {
+		$workerqueue = DBA::selectFirst('workerqueue', ['priority'], $condition, ['order' => ['priority']]);
+		if (DBA::isResult($workerqueue)) {
 			return $workerqueue["priority"];
 		} else {
 			return 0;
@@ -184,7 +179,7 @@ class Worker
 	private static function processWithPriorityActive($priority)
 	{
 		$condition = ["`priority` <= ? AND `executed` > ? AND NOT `done`", $priority, NULL_DATE];
-		return dba::exists('workerqueue', $condition);
+		return DBA::exists('workerqueue', $condition);
 	}
 
 	/**
@@ -207,7 +202,7 @@ class Worker
 		}
 
 		// Constantly check the number of parallel database processes
-		if ($a->max_processes_reached()) {
+		if ($a->isMaxProcessesReached()) {
 			logger("Max processes reached for process ".$mypid, LOGGER_DEBUG);
 			return false;
 		}
@@ -234,7 +229,7 @@ class Worker
 
 			if ($age > 1) {
 				$stamp = (float)microtime(true);
-				dba::update('workerqueue', ['executed' => DateTimeFormat::utcNow()], ['pid' => $mypid, 'done' => false]);
+				DBA::update('workerqueue', ['executed' => DateTimeFormat::utcNow()], ['pid' => $mypid, 'done' => false]);
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
@@ -243,8 +238,8 @@ class Worker
 			self::execFunction($queue, $include, $argv, true);
 
 			$stamp = (float)microtime(true);
-			if (dba::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
-				Config::set('system', 'last_poller_execution', DateTimeFormat::utcNow());
+			if (DBA::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
+				Config::set('system', 'last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 
@@ -258,7 +253,7 @@ class Worker
 
 		if (!validate_include($include)) {
 			logger("Include file ".$argv[0]." is not valid!");
-			dba::delete('workerqueue', ['id' => $queue["id"]]);
+			DBA::delete('workerqueue', ['id' => $queue["id"]]);
 			return true;
 		}
 
@@ -277,20 +272,20 @@ class Worker
 
 			if ($age > 1) {
 				$stamp = (float)microtime(true);
-				dba::update('workerqueue', ['executed' => DateTimeFormat::utcNow()], ['pid' => $mypid, 'done' => false]);
+				DBA::update('workerqueue', ['executed' => DateTimeFormat::utcNow()], ['pid' => $mypid, 'done' => false]);
 				self::$db_duration += (microtime(true) - $stamp);
 			}
 
 			self::execFunction($queue, $funcname, $argv, false);
 
 			$stamp = (float)microtime(true);
-			if (dba::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
-				Config::set('system', 'last_poller_execution', DateTimeFormat::utcNow());
+			if (DBA::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
+				Config::set('system', 'last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 		} else {
 			logger("Function ".$funcname." does not exist");
-			dba::delete('workerqueue', ['id' => $queue["id"]]);
+			DBA::delete('workerqueue', ['id' => $queue["id"]]);
 		}
 
 		return true;
@@ -313,7 +308,7 @@ class Worker
 
 		$argc = count($argv);
 
-		$new_process_id = uniqid("wrk", true);
+		$new_process_id = System::processID("wrk");
 
 		logger("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]." - Process PID: ".$new_process_id);
 
@@ -356,7 +351,7 @@ class Worker
 		$a->process_id = $old_process_id;
 		unset($a->queue);
 
-		$duration = number_format(microtime(true) - $stamp, 3);
+		$duration = (microtime(true) - $stamp);
 
 		self::$up_start = microtime(true);
 
@@ -481,13 +476,13 @@ class Worker
 
 		if ($max == 0) {
 			// the maximum number of possible user connections can be a system variable
-			$r = dba::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
-			if (DBM::is_result($r)) {
+			$r = DBA::fetchFirst("SHOW VARIABLES WHERE `variable_name` = 'max_user_connections'");
+			if (DBA::isResult($r)) {
 				$max = $r["Value"];
 			}
 			// Or it can be granted. This overrides the system variable
-			$r = dba::p('SHOW GRANTS');
-			while ($grants = dba::fetch($r)) {
+			$r = DBA::p('SHOW GRANTS');
+			while ($grants = DBA::fetch($r)) {
 				$grant = array_pop($grants);
 				if (stristr($grant, "GRANT USAGE ON")) {
 					if (preg_match("/WITH MAX_USER_CONNECTIONS (\d*)/", $grant, $match)) {
@@ -495,15 +490,15 @@ class Worker
 					}
 				}
 			}
-			dba::close($r);
+			DBA::close($r);
 		}
 
 		// If $max is set we will use the processlist to determine the current number of connections
 		// The processlist only shows entries of the current user
 		if ($max != 0) {
-			$r = dba::p('SHOW PROCESSLIST');
-			$used = dba::num_rows($r);
-			dba::close($r);
+			$r = DBA::p('SHOW PROCESSLIST');
+			$used = DBA::numRows($r);
+			DBA::close($r);
 
 			logger("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);
 
@@ -517,16 +512,16 @@ class Worker
 
 		// We will now check for the system values.
 		// This limit could be reached although the user limits are fine.
-		$r = dba::fetch_first("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
-		if (!DBM::is_result($r)) {
+		$r = DBA::fetchFirst("SHOW VARIABLES WHERE `variable_name` = 'max_connections'");
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		$max = intval($r["Value"]);
 		if ($max == 0) {
 			return false;
 		}
-		$r = dba::fetch_first("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
-		if (!DBM::is_result($r)) {
+		$r = DBA::fetchFirst("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		$used = intval($r["Value"]);
@@ -550,16 +545,16 @@ class Worker
 	 */
 	private static function killStaleWorkers()
 	{
-		$entries = dba::select(
+		$entries = DBA::select(
 			'workerqueue',
 			['id', 'pid', 'executed', 'priority', 'parameter'],
 			['`executed` > ? AND NOT `done` AND `pid` != 0', NULL_DATE],
 			['order' => ['priority', 'created']]
 		);
 
-		while ($entry = dba::fetch($entries)) {
+		while ($entry = DBA::fetch($entries)) {
 			if (!posix_kill($entry["pid"], 0)) {
-				dba::update(
+				DBA::update(
 					'workerqueue',
 					['executed' => NULL_DATE, 'pid' => 0],
 					['id' => $entry["id"]]
@@ -581,7 +576,7 @@ class Worker
 				// How long is the process already running?
 				$duration = (time() - strtotime($entry["executed"])) / 60;
 				if ($duration > $max_duration) {
-					logger("Worker process ".$entry["pid"]." (".implode(" ", $argv).") took more than ".$max_duration." minutes. It will be killed now.");
+					logger("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") took more than ".$max_duration." minutes. It will be killed now.");
 					posix_kill($entry["pid"], SIGTERM);
 
 					// We killed the stale process.
@@ -595,13 +590,13 @@ class Worker
 					} elseif ($entry["priority"] != PRIORITY_CRITICAL) {
 						$new_priority = PRIORITY_NEGLIGIBLE;
 					}
-					dba::update(
+					DBA::update(
 						'workerqueue',
 						['executed' => NULL_DATE, 'created' => DateTimeFormat::utcNow(), 'priority' => $new_priority, 'pid' => 0],
 						['id' => $entry["id"]]
 					);
 				} else {
-					logger("Worker process ".$entry["pid"]." (".implode(" ", $argv).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", LOGGER_DEBUG);
+					logger("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", LOGGER_DEBUG);
 				}
 			}
 		}
@@ -625,12 +620,15 @@ class Worker
 		if ($load) {
 			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 
-			$maxworkers = $queues;
+			/* Default exponent 3 causes queues to rapidly decrease as load increases.
+			 * If you have 20 max queues at idle, then you get only 5 queues at 37.1% of $maxsysload.
+			 * For some environments, this rapid decrease is not needed.
+			 * With exponent 1, you could have 20 max queues at idle and 13 at 37% of $maxsysload.
+			 */
+			$exponent = intval(Config::get('system', 'worker_load_exponent', 3));
+			$slope = pow(max(0, $maxsysload - $load) / $maxsysload, $exponent);
+			$queues = intval(ceil($slope * $maxqueues));
 
-			// Some magical mathemathics to reduce the workers
-			$exponent = 3;
-			$slope = $maxworkers / pow($maxsysload, $exponent);
-			$queues = ceil($slope * pow(max(0, $maxsysload - $load), $exponent));
 			$processlist = '';
 
 			if (Config::get('system', 'worker_debug')) {
@@ -638,37 +636,37 @@ class Worker
 				$listitem = [];
 
 				// Adding all processes with no workerqueue entry
-				$processes = dba::p(
+				$processes = DBA::p(
 					"SELECT COUNT(*) AS `running` FROM `process` WHERE NOT EXISTS
 							(SELECT id FROM `workerqueue`
 							WHERE `workerqueue`.`pid` = `process`.`pid` AND NOT `done` AND `pid` != ?)",
 					getmypid()
 				);
 
-				if ($process = dba::fetch($processes)) {
+				if ($process = DBA::fetch($processes)) {
 					$listitem[0] = "0:".$process["running"];
 				}
-				dba::close($processes);
+				DBA::close($processes);
 
 				// Now adding all processes with workerqueue entries
-				$entries = dba::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` GROUP BY `priority`");
-				while ($entry = dba::fetch($entries)) {
-					$processes = dba::p("SELECT COUNT(*) AS `running` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done` WHERE `priority` = ?", $entry["priority"]);
-					if ($process = dba::fetch($processes)) {
+				$entries = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` GROUP BY `priority`");
+				while ($entry = DBA::fetch($entries)) {
+					$processes = DBA::p("SELECT COUNT(*) AS `running` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done` WHERE `priority` = ?", $entry["priority"]);
+					if ($process = DBA::fetch($processes)) {
 						$listitem[$entry["priority"]] = $entry["priority"].":".$process["running"]."/".$entry["entries"];
 					}
-					dba::close($processes);
+					DBA::close($processes);
 				}
-				dba::close($entries);
+				DBA::close($entries);
 
 				$intervals = [1, 10, 60];
 				$jobs_per_minute = [];
 				foreach ($intervals as $interval) {
-					$jobs = dba::p("SELECT COUNT(*) AS `jobs` FROM `workerqueue` WHERE `done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ".intval($interval)." MINUTE");
-					if ($job = dba::fetch($jobs)) {
+					$jobs = DBA::p("SELECT COUNT(*) AS `jobs` FROM `workerqueue` WHERE `done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ".intval($interval)." MINUTE");
+					if ($job = DBA::fetch($jobs)) {
 						$jobs_per_minute[$interval] = number_format($job['jobs'] / $interval, 0);
 					}
-					dba::close($jobs);
+					DBA::close($jobs);
 				}
 				$processlist = ' - jpm: '.implode('/', $jobs_per_minute).' ('.implode(', ', $listitem).')';
 			}
@@ -688,13 +686,22 @@ class Worker
 			logger("Load: ".$load."/".$maxsysload." - processes: ".$active."/".$entries.$processlist." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
 
 			// Are there fewer workers running as possible? Then fork a new one.
-			if (!Config::get("system", "worker_dont_fork") && ($queues > ($active + 1)) && ($entries > 1)) {
+			if (!Config::get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && ($entries > 1)) {
 				logger("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
-				self::spawnWorker();
+				if (Config::get('system', 'worker_daemon_mode', false)) {
+					self::IPCSetJobState(true);
+				} else {
+					self::spawnWorker();
+				}
 			}
 		}
 
-		return $active >= $queues;
+		// if there are too much worker, we don't spawn a new one.
+		if (Config::get('system', 'worker_daemon_mode', false) && ($active > $queues)) {
+			self::IPCSetJobState(false);
+		}
+
+		return $active > $queues;
 	}
 
 	/**
@@ -704,9 +711,7 @@ class Worker
 	 */
 	private static function activeWorkers()
 	{
-		$workers = dba::fetch_first("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'Worker.php'");
-
-		return $workers["processes"];
+		return DBA::count('process', ['command' => 'Worker.php']);
 	}
 
 	/**
@@ -722,21 +727,21 @@ class Worker
 	{
 		$highest_priority = 0;
 
-		$r = dba::p(
+		$r = DBA::p(
 			"SELECT `priority`
 				FROM `process`
 				INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done`"
 		);
 
 		// No active processes at all? Fine
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 		$priorities = [];
-		while ($line = dba::fetch($r)) {
+		while ($line = DBA::fetch($r)) {
 			$priorities[] = $line["priority"];
 		}
-		dba::close($r);
+		DBA::close($r);
 
 		// Should not happen
 		if (count($priorities) == 0) {
@@ -795,33 +800,33 @@ class Worker
 		$ids = [];
 		if (self::passingSlow($highest_priority)) {
 			// Are there waiting processes with a higher priority than the currently highest?
-			$result = dba::select(
+			$result = DBA::select(
 				'workerqueue',
 				['id'],
 				["`executed` <= ? AND `priority` < ? AND NOT `done`", NULL_DATE, $highest_priority],
 				['limit' => $limit, 'order' => ['priority', 'created']]
 			);
 
-			while ($id = dba::fetch($result)) {
+			while ($id = DBA::fetch($result)) {
 				$ids[] = $id["id"];
 			}
-			dba::close($result);
+			DBA::close($result);
 
 			$found = (count($ids) > 0);
 
 			if (!$found) {
 				// Give slower processes some processing time
-				$result = dba::select(
+				$result = DBA::select(
 					'workerqueue',
 					['id'],
 					["`executed` <= ? AND `priority` > ? AND NOT `done`", NULL_DATE, $highest_priority],
 					['limit' => $limit, 'order' => ['priority', 'created']]
 				);
 
-				while ($id = dba::fetch($result)) {
+				while ($id = DBA::fetch($result)) {
 					$ids[] = $id["id"];
 				}
-				dba::close($result);
+				DBA::close($result);
 
 				$found = (count($ids) > 0);
 				$passing_slow = $found;
@@ -830,17 +835,17 @@ class Worker
 
 		// If there is no result (or we shouldn't pass lower processes) we check without priority limit
 		if (!$found) {
-			$result = dba::select(
+			$result = DBA::select(
 				'workerqueue',
 				['id'],
 				["`executed` <= ? AND NOT `done`", NULL_DATE],
 				['limit' => $limit, 'order' => ['priority', 'created']]
 			);
 
-			while ($id = dba::fetch($result)) {
+			while ($id = DBA::fetch($result)) {
 				$ids[] = $id["id"];
 			}
-			dba::close($result);
+			DBA::close($result);
 
 			$found = (count($ids) > 0);
 		}
@@ -848,7 +853,7 @@ class Worker
 		if ($found) {
 			$condition = "`id` IN (".substr(str_repeat("?, ", count($ids)), 0, -2).") AND `pid` = 0 AND NOT `done`";
 			array_unshift($ids, $condition);
-			dba::update('workerqueue', ['executed' => DateTimeFormat::utcNow(), 'pid' => $mypid], $ids);
+			DBA::update('workerqueue', ['executed' => DateTimeFormat::utcNow(), 'pid' => $mypid], $ids);
 		}
 
 		return $found;
@@ -865,15 +870,15 @@ class Worker
 		$stamp = (float)microtime(true);
 
 		// There can already be jobs for us in the queue.
-		$r = dba::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
-		if (DBM::is_result($r)) {
+		$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
+		if (DBA::isResult($r)) {
 			self::$db_duration += (microtime(true) - $stamp);
-			return dba::inArray($r);
+			return DBA::toArray($r);
 		}
-		dba::close($r);
+		DBA::close($r);
 
 		$stamp = (float)microtime(true);
-		if (!Lock::set('poller_worker_process')) {
+		if (!Lock::acquire('worker_process')) {
 			return false;
 		}
 		self::$lock_duration = (microtime(true) - $stamp);
@@ -882,11 +887,11 @@ class Worker
 		$found = self::findWorkerProcesses($passing_slow);
 		self::$db_duration += (microtime(true) - $stamp);
 
-		Lock::remove('poller_worker_process');
+		Lock::release('worker_process');
 
 		if ($found) {
-			$r = dba::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
-			return dba::inArray($r);
+			$r = DBA::select('workerqueue', [], ['pid' => getmypid(), 'done' => false]);
+			return DBA::toArray($r);
 		}
 		return false;
 	}
@@ -899,7 +904,7 @@ class Worker
 	{
 		$mypid = getmypid();
 
-		dba::update('workerqueue', ['executed' => NULL_DATE, 'pid' => 0], ['pid' => $mypid, 'done' => false]);
+		DBA::update('workerqueue', ['executed' => NULL_DATE, 'pid' => 0], ['pid' => $mypid, 'done' => false]);
 	}
 
 	/**
@@ -959,9 +964,9 @@ class Worker
 
 		self::clearProcesses();
 
-		$workers = dba::fetch_first("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'worker.php'");
+		$workers = self::activeWorkers();
 
-		if ($workers["processes"] == 0) {
+		if ($workers == 0) {
 			self::callWorker();
 		}
 	}
@@ -977,7 +982,7 @@ class Worker
 		/// @todo We should clean up the corresponding workerqueue entries as well
 		$condition = ["`created` < ? AND `command` = 'worker.php'",
 				DateTimeFormat::utc("now - ".$timeout." minutes")];
-		dba::delete('process', $condition);
+		DBA::delete('process', $condition);
 	}
 
 	/**
@@ -1002,10 +1007,18 @@ class Worker
 	 * @brief Spawns a new worker
 	 * @return void
 	 */
-	public static function spawnWorker()
+	public static function spawnWorker($do_cron = false)
 	{
-		$args = ["bin/worker.php", "no_cron"];
-		get_app()->proc_run($args);
+		$command = 'bin/worker.php';
+
+		$args = ['no_cron' => !$do_cron];
+
+		get_app()->proc_run($command, $args);
+
+		// after spawning we have to remove the flag.
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(false);
+		}
 	}
 
 	/**
@@ -1040,7 +1053,7 @@ class Worker
 		}
 
 		$priority = PRIORITY_MEDIUM;
-		$dont_fork = Config::get("system", "worker_dont_fork");
+		$dont_fork = Config::get("system", "worker_dont_fork", false);
 		$created = DateTimeFormat::utcNow();
 
 		$run_parameter = array_shift($args);
@@ -1060,15 +1073,15 @@ class Worker
 		}
 
 		$parameters = json_encode($args);
-		$found = dba::exists('workerqueue', ['parameter' => $parameters, 'done' => false]);
+		$found = DBA::exists('workerqueue', ['parameter' => $parameters, 'done' => false]);
 
 		// Quit if there was a database error - a precaution for the update process to 3.5.3
-		if (dba::errorNo() != 0) {
+		if (DBA::errorNo() != 0) {
 			return false;
 		}
 
 		if (!$found) {
-			dba::insert('workerqueue', ['parameter' => $parameters, 'created' => $created, 'priority' => $priority]);
+			DBA::insert('workerqueue', ['parameter' => $parameters, 'created' => $created, 'priority' => $priority]);
 		}
 
 		// Should we quit and wait for the worker to be called as a cronjob?
@@ -1077,15 +1090,21 @@ class Worker
 		}
 
 		// If there is a lock then we don't have to check for too much worker
-		if (!Lock::set('poller_worker', 0)) {
+		if (!Lock::acquire('worker', 0)) {
 			return true;
 		}
 
 		// If there are already enough workers running, don't fork another one
 		$quit = self::tooMuchWorkers();
-		Lock::remove('poller_worker');
+		Lock::release('worker');
 
 		if ($quit) {
+			return true;
+		}
+
+		// We tell the daemon that a new job entry exists
+		if (Config::get('system', 'worker_daemon_mode', false)) {
+			// We don't have to set the IPC flag - this is done in "tooMuchWorkers"
 			return true;
 		}
 
@@ -1120,5 +1139,34 @@ class Worker
 	public static function endProcess()
 	{
 		return Process::deleteByPid();
+	}
+
+	/**
+	 * Set the flag if some job is waiting
+	 *
+	 * @brief Set the flag if some job is waiting
+	 * @param boolean $jobs Is there a waiting job?
+	 */
+	public static function IPCSetJobState($jobs)
+	{
+		DBA::update('worker-ipc', ['jobs' => $jobs], ['key' => 1], true);
+	}
+
+	/**
+	 * Checks if some worker job waits to be executed
+	 *
+	 * @brief Checks if some worker job waits to be executed
+	 * @return bool
+	 */
+	public static function IPCJobsExists()
+	{
+		$row = DBA::selectFirst('worker-ipc', ['jobs'], ['key' => 1]);
+
+		// When we don't have a row, no job is running
+		if (!DBA::isResult($row)) {
+			return false;
+		}
+
+		return (bool)$row['jobs'];
 	}
 }

@@ -8,10 +8,9 @@ namespace Friendica\Model;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
-use dba;
 
 require_once 'include/dba.php';
 
@@ -40,14 +39,14 @@ class Mail
 			$subject = L10n::t('[no subject]');
 		}
 
-		$me = dba::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
-		$contact = dba::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
+		$me = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
+		$contact = DBA::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
 
 		if (!(count($me) && (count($contact)))) {
 			return -2;
 		}
 
-		$guid = get_guid(32);
+		$guid = System::createGUID(32);
 		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
 
 		$convid = 0;
@@ -57,13 +56,11 @@ class Mail
 
 		if (strlen($replyto)) {
 			$reply = true;
-			$r = q("SELECT `convid` FROM `mail` WHERE `uid` = %d AND (`uri` = '%s' OR `parent-uri` = '%s') LIMIT 1",
-				intval(local_user()),
-				dbesc($replyto),
-				dbesc($replyto)
-			);
-			if (DBM::is_result($r)) {
-				$convid = $r[0]['convid'];
+			$condition = ["`uid` = ? AND (`uri` = ? OR `parent-uri` = ?)",
+				local_user(), $replyto, $replyto];
+			$mail = DBA::selectFirst('mail', ['convid'], $condition);
+			if (DBA::isResult($mail)) {
+				$convid = $mail['convid'];
 			}
 		}
 
@@ -76,7 +73,7 @@ class Mail
 			$recip_handle = (($contact['addr']) ? $contact['addr'] : $contact['nick'] . '@' . $recip_host);
 			$sender_handle = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 
-			$conv_guid = get_guid(32);
+			$conv_guid = System::createGUID(32);
 			$convuri = $recip_handle . ':' . $conv_guid;
 
 			$handles = $recip_handle . ';' . $sender_handle;
@@ -84,8 +81,8 @@ class Mail
 			$fields = ['uid' => local_user(), 'guid' => $conv_guid, 'creator' => $sender_handle,
 				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
 				'subject' => $subject, 'recips' => $handles];
-			if (dba::insert('conv', $fields)) {
-				$convid = dba::lastInsertId();
+			if (DBA::insert('conv', $fields)) {
+				$convid = DBA::lastInsertId();
 			}
 		}
 
@@ -99,7 +96,7 @@ class Mail
 		}
 
 		$post_id = null;
-		$success = dba::insert(
+		$success = DBA::insert(
 			'mail',
 			[
 				'uid' => local_user(),
@@ -121,7 +118,7 @@ class Mail
 		);
 
 		if ($success) {
-			$post_id = dba::lastInsertId();
+			$post_id = DBA::lastInsertId();
 		}
 
 		/**
@@ -145,7 +142,7 @@ class Mail
 					}
 					$image_uri = substr($image, strrpos($image, '/') + 1);
 					$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-					dba::update('photo', ['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
+					DBA::update('photo', ['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
 				}
 			}
 		}
@@ -174,7 +171,7 @@ class Mail
 			$subject = L10n::t('[no subject]');
 		}
 
-		$guid = get_guid(32);
+		$guid = System::createGUID(32);
 		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
 
 		$me = Probe::uri($replyto);
@@ -183,7 +180,7 @@ class Mail
 			return -2;
 		}
 
-		$conv_guid = get_guid(32);
+		$conv_guid = System::createGUID(32);
 
 		$recip_handle = $recipient['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 
@@ -198,8 +195,8 @@ class Mail
 		$fields = ['uid' => $recipient['uid'], 'guid' => $conv_guid, 'creator' => $sender_handle,
 			'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
 			'subject' => $subject, 'recips' => $handles];
-		if (dba::insert('conv', $fields)) {
-			$convid = dba::lastInsertId();
+		if (DBA::insert('conv', $fields)) {
+			$convid = DBA::lastInsertId();
 		}
 
 		if (!$convid) {
@@ -207,7 +204,7 @@ class Mail
 			return -4;
 		}
 
-		dba::insert(
+		DBA::insert(
 			'mail',
 			[
 				'uid' => $recipient['uid'],

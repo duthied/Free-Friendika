@@ -9,20 +9,20 @@
 
 namespace Friendica\Protocol;
 
+use DOMDocument;
+use DOMXPath;
+use Exception;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
+use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-use Friendica\Protocol\Diaspora;
-use dba;
-use DOMDocument;
-use DOMXPath;
-use Exception;
+use Friendica\Util\XML;
 
 require_once 'include/dba.php';
 
@@ -67,8 +67,8 @@ class PortableContact
 
 		if ($cid) {
 			if (!$url || !$uid) {
-				$contact = dba::selectFirst('contact', ['poco', 'uid'], ['id' => $cid]);
-				if (DBM::is_result($contact)) {
+				$contact = DBA::selectFirst('contact', ['poco', 'uid'], ['id' => $cid]);
+				if (DBA::isResult($contact)) {
 					$url = $contact['poco'];
 					$uid = $contact['uid'];
 				}
@@ -96,16 +96,16 @@ class PortableContact
 			return;
 		}
 
-		$j = json_decode($s);
+		$j = json_decode($s, true);
 
 		logger('load: json: ' . print_r($j, true), LOGGER_DATA);
 
-		if (! isset($j->entry)) {
+		if (!isset($j['entry'])) {
 			return;
 		}
 
 		$total = 0;
-		foreach ($j->entry as $entry) {
+		foreach ($j['entry'] as $entry) {
 			$total ++;
 			$profile_url = '';
 			$profile_photo = '';
@@ -120,61 +120,63 @@ class PortableContact
 			$contact_type = -1;
 			$generation = 0;
 
-			$name = $entry->displayName;
-
-			if (isset($entry->urls)) {
-				foreach ($entry->urls as $url) {
-					if ($url->type == 'profile') {
-						$profile_url = $url->value;
-						continue;
-					}
-					if ($url->type == 'webfinger') {
-						$connect_url = str_replace('acct:', '', $url->value);
-						continue;
-					}
-				}
+			if (!empty($entry['displayName'])) {
+				$name = $entry['displayName'];
 			}
-			if (isset($entry->photos)) {
-				foreach ($entry->photos as $photo) {
-					if ($photo->type == 'profile') {
-						$profile_photo = $photo->value;
+
+			if (isset($entry['urls'])) {
+				foreach ($entry['urls'] as $url) {
+					if ($url['type'] == 'profile') {
+						$profile_url = $url['value'];
+						continue;
+					}
+					if ($url['type'] == 'webfinger') {
+						$connect_url = str_replace('acct:', '', $url['value']);
 						continue;
 					}
 				}
 			}
-
-			if (isset($entry->updated)) {
-				$updated = date(DateTimeFormat::MYSQL, strtotime($entry->updated));
+			if (isset($entry['photos'])) {
+				foreach ($entry['photos'] as $photo) {
+					if ($photo['type'] == 'profile') {
+						$profile_photo = $photo['value'];
+						continue;
+					}
+				}
 			}
 
-			if (isset($entry->network)) {
-				$network = $entry->network;
+			if (isset($entry['updated'])) {
+				$updated = date(DateTimeFormat::MYSQL, strtotime($entry['updated']));
 			}
 
-			if (isset($entry->currentLocation)) {
-				$location = $entry->currentLocation;
+			if (isset($entry['network'])) {
+				$network = $entry['network'];
 			}
 
-			if (isset($entry->aboutMe)) {
-				$about = HTML::toBBCode($entry->aboutMe);
+			if (isset($entry['currentLocation'])) {
+				$location = $entry['currentLocation'];
 			}
 
-			if (isset($entry->gender)) {
-				$gender = $entry->gender;
+			if (isset($entry['aboutMe'])) {
+				$about = HTML::toBBCode($entry['aboutMe']);
 			}
 
-			if (isset($entry->generation) && ($entry->generation > 0)) {
-				$generation = ++$entry->generation;
+			if (isset($entry['gender'])) {
+				$gender = $entry['gender'];
 			}
 
-			if (isset($entry->tags)) {
-				foreach ($entry->tags as $tag) {
+			if (isset($entry['generation']) && ($entry['generation'] > 0)) {
+				$generation = ++$entry['generation'];
+			}
+
+			if (isset($entry['tags'])) {
+				foreach ($entry['tags'] as $tag) {
 					$keywords = implode(", ", $tag);
 				}
 			}
 
-			if (isset($entry->contactType) && ($entry->contactType >= 0)) {
-				$contact_type = $entry->contactType;
+			if (isset($entry['contactType']) && ($entry['contactType'] >= 0)) {
+				$contact_type = $entry['contactType'];
 			}
 
 			$gcontact = ["url" => $profile_url,
@@ -202,7 +204,7 @@ class PortableContact
 		logger("load: loaded $total entries", LOGGER_DEBUG);
 
 		$condition = ["`cid` = ? AND `uid` = ? AND `zcid` = ? AND `updated` < UTC_TIMESTAMP - INTERVAL 2 DAY", $cid, $uid, $zcid];
-		dba::delete('glink', $condition);
+		DBA::delete('glink', $condition);
 	}
 
 	public static function reachable($profile, $server = "", $network = "", $force = false)
@@ -227,7 +229,7 @@ class PortableContact
 			$friendica = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $profile);
 			if ($friendica != $profile) {
 				$server_url = $friendica;
-				$network = NETWORK_DFRN;
+				$network = Protocol::DFRN;
 			}
 		}
 
@@ -235,7 +237,7 @@ class PortableContact
 			$diaspora = preg_replace("=(https?://)(.*)/u/(.*)=ism", "$1$2", $profile);
 			if ($diaspora != $profile) {
 				$server_url = $diaspora;
-				$network = NETWORK_DIASPORA;
+				$network = Protocol::DIASPORA;
 			}
 		}
 
@@ -243,7 +245,7 @@ class PortableContact
 			$red = preg_replace("=(https?://)(.*)/channel/(.*)=ism", "$1$2", $profile);
 			if ($red != $profile) {
 				$server_url = $red;
-				$network = NETWORK_DIASPORA;
+				$network = Protocol::DIASPORA;
 			}
 		}
 
@@ -252,7 +254,7 @@ class PortableContact
 			$mastodon = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
 			if ($mastodon != $profile) {
 				$server_url = $mastodon;
-				$network = NETWORK_OSTATUS;
+				$network = Protocol::OSTATUS;
 			}
 		}
 
@@ -261,7 +263,7 @@ class PortableContact
 			$ostatus = preg_replace("=(https?://)(.*)/user/(.*)=ism", "$1$2", $profile);
 			if ($ostatus != $profile) {
 				$server_url = $ostatus;
-				$network = NETWORK_OSTATUS;
+				$network = Protocol::OSTATUS;
 			}
 		}
 
@@ -270,7 +272,7 @@ class PortableContact
 			$base = preg_replace("=(https?://)(.*?)/(.*)=ism", "$1$2", $profile);
 			if ($base != $profile) {
 				$server_url = $base;
-				$network = NETWORK_PHANTOM;
+				$network = Protocol::PHANTOM;
 			}
 		}
 
@@ -280,10 +282,10 @@ class PortableContact
 
 		$r = q(
 			"SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
-			dbesc(normalise_link($server_url))
+			DBA::escape(normalise_link($server_url))
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			return $server_url;
 		}
 
@@ -305,10 +307,10 @@ class PortableContact
 	{
 		$gcontacts = q(
 			"SELECT * FROM `gcontact` WHERE `nurl` = '%s'",
-			dbesc(normalise_link($profile))
+			DBA::escape(normalise_link($profile))
 		);
 
-		if (!DBM::is_result($gcontacts)) {
+		if (!DBA::isResult($gcontacts)) {
 			return false;
 		}
 
@@ -331,7 +333,7 @@ class PortableContact
 			$server_url = normalise_link(self::detectServer($profile));
 		}
 
-		if (!in_array($gcontacts[0]["network"], [NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_FEED, NETWORK_OSTATUS, ""])) {
+		if (!in_array($gcontacts[0]["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::FEED, Protocol::OSTATUS, ""])) {
 			logger("Profile ".$profile.": Network type ".$gcontacts[0]["network"]." can't be checked", LOGGER_DEBUG);
 			return false;
 		}
@@ -340,7 +342,7 @@ class PortableContact
 			if (!self::checkServer($server_url, $gcontacts[0]["network"], $force)) {
 				if ($force) {
 					$fields = ['last_failure' => DateTimeFormat::utcNow()];
-					dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
+					DBA::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 				}
 
 				logger("Profile ".$profile.": Server ".$server_url." wasn't reachable.", LOGGER_DEBUG);
@@ -349,10 +351,10 @@ class PortableContact
 			$contact['server_url'] = $server_url;
 		}
 
-		if (in_array($gcontacts[0]["network"], ["", NETWORK_FEED])) {
+		if (in_array($gcontacts[0]["network"], ["", Protocol::FEED])) {
 			$server = q(
 				"SELECT `network` FROM `gserver` WHERE `nurl` = '%s' AND `network` != ''",
-				dbesc(normalise_link($server_url))
+				DBA::escape(normalise_link($server_url))
 			);
 
 			if ($server) {
@@ -365,7 +367,7 @@ class PortableContact
 		// noscrape is really fast so we don't cache the call.
 		if (($server_url != "") && ($gcontacts[0]["nick"] != "")) {
 			//  Use noscrape if possible
-			$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", dbesc(normalise_link($server_url)));
+			$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", DBA::escape(normalise_link($server_url)));
 
 			if ($server) {
 				$noscraperet = Network::curl($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
@@ -419,9 +421,9 @@ class PortableContact
 
 						GContact::update($contact);
 
-						if (trim($noscrape["updated"]) != "") {
+						if (!empty($noscrape["updated"])) {
 							$fields = ['last_contact' => DateTimeFormat::utcNow()];
-							dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
+							DBA::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 							logger("Profile ".$profile." was last updated at ".$noscrape["updated"]." (noscrape)", LOGGER_DEBUG);
 
@@ -444,12 +446,12 @@ class PortableContact
 
 		// Is the profile link the alternate OStatus link notation? (http://domain.tld/user/4711)
 		// Then check the other link and delete this one
-		if (($data["network"] == NETWORK_OSTATUS) && self::alternateOStatusUrl($profile)
+		if (($data["network"] == Protocol::OSTATUS) && self::alternateOStatusUrl($profile)
 			&& (normalise_link($profile) == normalise_link($data["alias"]))
 			&& (normalise_link($profile) != normalise_link($data["url"]))
 		) {
 			// Delete the old entry
-			dba::delete('gcontact', ['nurl' => normalise_link($profile)]);
+			DBA::delete('gcontact', ['nurl' => normalise_link($profile)]);
 
 			$gcontact = array_merge($gcontacts[0], $data);
 
@@ -468,9 +470,9 @@ class PortableContact
 			return false;
 		}
 
-		if (($data["poll"] == "") || (in_array($data["network"], [NETWORK_FEED, NETWORK_PHANTOM]))) {
+		if (($data["poll"] == "") || (in_array($data["network"], [Protocol::FEED, Protocol::PHANTOM]))) {
 			$fields = ['last_failure' => DateTimeFormat::utcNow()];
-			dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
+			DBA::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 			logger("Profile ".$profile." wasn't reachable (profile)", LOGGER_DEBUG);
 			return false;
@@ -486,13 +488,14 @@ class PortableContact
 
 		if (!$feedret["success"]) {
 			$fields = ['last_failure' => DateTimeFormat::utcNow()];
-			dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
+			DBA::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 			logger("Profile ".$profile." wasn't reachable (no feed)", LOGGER_DEBUG);
 			return false;
 		}
 
 		$doc = new DOMDocument();
+		/// @TODO Avoid error supression here
 		@$doc->loadXML($feedret["body"]);
 
 		$xpath = new DOMXPath($doc);
@@ -528,11 +531,11 @@ class PortableContact
 			$fields['updated'] = $last_updated;
 		}
 
-		dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
+		DBA::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
 		if (($gcontacts[0]["generation"] == 0)) {
 			$fields = ['generation' => 9];
-			dba::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
+			DBA::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 		}
 
 		logger("Profile ".$profile." was last updated at ".$last_updated, LOGGER_DEBUG);
@@ -585,6 +588,7 @@ class PortableContact
 		return true;
 	}
 
+	/// @TODO Maybe move this out to an utilities class?
 	private static function toBoolean($val)
 	{
 		if (($val == "true") || ($val == 1)) {
@@ -599,34 +603,34 @@ class PortableContact
 	/**
 	 * @brief Detect server type (Hubzilla or Friendica) via the poco data
 	 *
-	 * @param object $data POCO data
+	 * @param array $data POCO data
 	 * @return array Server data
 	 */
-	private static function detectPocoData($data)
+	private static function detectPocoData(array $data)
 	{
 		$server = false;
 
-		if (!isset($data->entry)) {
+		if (!isset($data['entry'])) {
 			return false;
 		}
 
-		if (count($data->entry) == 0) {
+		if (count($data['entry']) == 0) {
 			return false;
 		}
 
-		if (!isset($data->entry[0]->urls)) {
+		if (!isset($data['entry'][0]['urls'])) {
 			return false;
 		}
 
-		if (count($data->entry[0]->urls) == 0) {
+		if (count($data['entry'][0]['urls']) == 0) {
 			return false;
 		}
 
-		foreach ($data->entry[0]->urls as $url) {
-			if ($url->type == 'zot') {
+		foreach ($data['entry'][0]['urls'] as $url) {
+			if ($url['type'] == 'zot') {
 				$server = [];
 				$server["platform"] = 'Hubzilla';
-				$server["network"] = NETWORK_DIASPORA;
+				$server["network"] = Protocol::DIASPORA;
 				return $server;
 			}
 		}
@@ -646,25 +650,24 @@ class PortableContact
 			return false;
 		}
 
-		$nodeinfo = json_decode($serverret['body']);
+		$nodeinfo = json_decode($serverret['body'], true);
 
-		if (!is_object($nodeinfo)) {
-			return false;
-		}
-
-		if (!is_array($nodeinfo->links)) {
+		if (!is_array($nodeinfo) || !isset($nodeinfo['links'])) {
 			return false;
 		}
 
 		$nodeinfo1_url = '';
 		$nodeinfo2_url = '';
 
-		foreach ($nodeinfo->links as $link) {
-			if ($link->rel == 'http://nodeinfo.diaspora.software/ns/schema/1.0') {
-				$nodeinfo1_url = $link->href;
+		foreach ($nodeinfo['links'] as $link) {
+			if (!is_array($link) || empty($link['rel'])) {
+				logger('Invalid nodeinfo format for ' . $server_url, LOGGER_DEBUG);
+				continue;
 			}
-			if ($link->rel == 'http://nodeinfo.diaspora.software/ns/schema/2.0') {
-				$nodeinfo2_url = $link->href;
+			if ($link['rel'] == 'http://nodeinfo.diaspora.software/ns/schema/1.0') {
+				$nodeinfo1_url = $link['href'];
+			} elseif ($link['rel'] == 'http://nodeinfo.diaspora.software/ns/schema/2.0') {
+				$nodeinfo2_url = $link['href'];
 			}
 		}
 
@@ -696,12 +699,14 @@ class PortableContact
 	private static function parseNodeinfo1($nodeinfo_url)
 	{
 		$serverret = Network::curl($nodeinfo_url);
+
 		if (!$serverret["success"]) {
 			return false;
 		}
 
-		$nodeinfo = json_decode($serverret['body']);
-		if (!is_object($nodeinfo)) {
+		$nodeinfo = json_decode($serverret['body'], true);
+
+		if (!is_array($nodeinfo)) {
 			return false;
 		}
 
@@ -709,39 +714,37 @@ class PortableContact
 
 		$server['register_policy'] = REGISTER_CLOSED;
 
-		if (is_bool($nodeinfo->openRegistrations) && $nodeinfo->openRegistrations) {
+		if (is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
 			$server['register_policy'] = REGISTER_OPEN;
 		}
 
-		if (is_object($nodeinfo->software)) {
-			if (isset($nodeinfo->software->name)) {
-				$server['platform'] = $nodeinfo->software->name;
+		if (is_array($nodeinfo['software'])) {
+			if (isset($nodeinfo['software']['name'])) {
+				$server['platform'] = $nodeinfo['software']['name'];
 			}
 
-			if (isset($nodeinfo->software->version)) {
-				$server['version'] = $nodeinfo->software->version;
+			if (isset($nodeinfo['software']['version'])) {
+				$server['version'] = $nodeinfo['software']['version'];
 				// Version numbers on Nodeinfo are presented with additional info, e.g.:
 				// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
 				$server['version'] = preg_replace("=(.+)-(.{4,})=ism", "$1", $server['version']);
 			}
 		}
 
-		if (is_object($nodeinfo->metadata)) {
-			if (isset($nodeinfo->metadata->nodeName)) {
-				$server['site_name'] = $nodeinfo->metadata->nodeName;
-			}
+		if (is_array($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
+			$server['site_name'] = $nodeinfo['metadata']['nodeName'];
 		}
 
-		if (!empty($nodeinfo->usage->users->total)) {
-			$server['registered-users'] = $nodeinfo->usage->users->total;
+		if (!empty($nodeinfo['usage']['users']['total'])) {
+			$server['registered-users'] = $nodeinfo['usage']['users']['total'];
 		}
 
 		$diaspora = false;
 		$friendica = false;
 		$gnusocial = false;
 
-		if (is_array($nodeinfo->protocols->inbound)) {
-			foreach ($nodeinfo->protocols->inbound as $inbound) {
+		if (is_array($nodeinfo['protocols']['inbound'])) {
+			foreach ($nodeinfo['protocols']['inbound'] as $inbound) {
 				if ($inbound == 'diaspora') {
 					$diaspora = true;
 				}
@@ -755,13 +758,13 @@ class PortableContact
 		}
 
 		if ($gnusocial) {
-			$server['network'] = NETWORK_OSTATUS;
+			$server['network'] = Protocol::OSTATUS;
 		}
 		if ($diaspora) {
-			$server['network'] = NETWORK_DIASPORA;
+			$server['network'] = Protocol::DIASPORA;
 		}
 		if ($friendica) {
-			$server['network'] = NETWORK_DFRN;
+			$server['network'] = Protocol::DFRN;
 		}
 
 		if (!$server) {
@@ -784,8 +787,9 @@ class PortableContact
 			return false;
 		}
 
-		$nodeinfo = json_decode($serverret['body']);
-		if (!is_object($nodeinfo)) {
+		$nodeinfo = json_decode($serverret['body'], true);
+
+		if (!is_array($nodeinfo)) {
 			return false;
 		}
 
@@ -793,62 +797,56 @@ class PortableContact
 
 		$server['register_policy'] = REGISTER_CLOSED;
 
-		if (is_bool($nodeinfo->openRegistrations) && $nodeinfo->openRegistrations) {
+		if (is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
 			$server['register_policy'] = REGISTER_OPEN;
 		}
 
-		if (is_object($nodeinfo->software)) {
-			if (isset($nodeinfo->software->name)) {
-				$server['platform'] = $nodeinfo->software->name;
+		if (is_array($nodeinfo['software'])) {
+			if (isset($nodeinfo['software']['name'])) {
+				$server['platform'] = $nodeinfo['software']['name'];
 			}
 
-			if (isset($nodeinfo->software->version)) {
-				$server['version'] = $nodeinfo->software->version;
+			if (isset($nodeinfo['software']['version'])) {
+				$server['version'] = $nodeinfo['software']['version'];
 				// Version numbers on Nodeinfo are presented with additional info, e.g.:
 				// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
 				$server['version'] = preg_replace("=(.+)-(.{4,})=ism", "$1", $server['version']);
 			}
 		}
 
-		if (is_object($nodeinfo->metadata)) {
-			if (isset($nodeinfo->metadata->nodeName)) {
-				$server['site_name'] = $nodeinfo->metadata->nodeName;
-			}
+		if (is_array($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
+			$server['site_name'] = $nodeinfo['metadata']['nodeName'];
 		}
 
-		if (!empty($nodeinfo->usage->users->total)) {
-			$server['registered-users'] = $nodeinfo->usage->users->total;
+		if (!empty($nodeinfo['usage']['users']['total'])) {
+			$server['registered-users'] = $nodeinfo['usage']['users']['total'];
 		}
 
 		$diaspora = false;
 		$friendica = false;
 		$gnusocial = false;
 
-		if (is_array($nodeinfo->protocols)) {
-			foreach ($nodeinfo->protocols as $protocol) {
+		if (!empty($nodeinfo['protocols'])) {
+			foreach ($nodeinfo['protocols'] as $protocol) {
 				if ($protocol == 'diaspora') {
 					$diaspora = true;
-				}
-				if ($protocol == 'friendica') {
+				} elseif ($protocol == 'friendica') {
 					$friendica = true;
-				}
-				if ($protocol == 'gnusocial') {
+				} elseif ($protocol == 'gnusocial') {
 					$gnusocial = true;
 				}
 			}
 		}
 
 		if ($gnusocial) {
-			$server['network'] = NETWORK_OSTATUS;
-		}
-		if ($diaspora) {
-			$server['network'] = NETWORK_DIASPORA;
-		}
-		if ($friendica) {
-			$server['network'] = NETWORK_DFRN;
+			$server['network'] = Protocol::OSTATUS;
+		} elseif ($diaspora) {
+			$server['network'] = Protocol::DIASPORA;
+		} elseif ($friendica) {
+			$server['network'] = Protocol::DFRN;
 		}
 
-		if (!$server) {
+		if (empty($server)) {
 			return false;
 		}
 
@@ -866,6 +864,7 @@ class PortableContact
 		$server = false;
 
 		$doc = new DOMDocument();
+		/// @TODO Acoid supressing error
 		@$doc->loadHTML($body);
 		$xpath = new DOMXPath($doc);
 
@@ -885,7 +884,7 @@ class PortableContact
 						$server = [];
 						$server["platform"] = $version_part[0];
 						$server["version"] = $version_part[1];
-						$server["network"] = NETWORK_DFRN;
+						$server["network"] = Protocol::DFRN;
 					}
 				}
 			}
@@ -905,7 +904,7 @@ class PortableContact
 					$server = [];
 					$server["platform"] = $attr['content'];
 					$server["version"] = "";
-					$server["network"] = NETWORK_DIASPORA;
+					$server["network"] = Protocol::DIASPORA;
 				}
 			}
 		}
@@ -914,7 +913,8 @@ class PortableContact
 			return false;
 		}
 
-		$server["site_name"] = $xpath->evaluate("//head/title/text()")->item(0)->nodeValue;
+		$server["site_name"] = XML::getFirstNodeValue($xpath, '//head/title/text()');
+
 		return $server;
 	}
 
@@ -928,12 +928,12 @@ class PortableContact
 			return false;
 		}
 
-		$gserver = dba::selectFirst('gserver', [], ['nurl' => normalise_link($server_url)]);
-		if (DBM::is_result($gserver)) {
+		$gserver = DBA::selectFirst('gserver', [], ['nurl' => normalise_link($server_url)]);
+		if (DBA::isResult($gserver)) {
 			if ($gserver["created"] <= NULL_DATE) {
 				$fields = ['created' => DateTimeFormat::utcNow()];
 				$condition = ['nurl' => normalise_link($server_url)];
-				dba::update('gserver', $fields, $condition);
+				DBA::update('gserver', $fields, $condition);
 			}
 			$poco = $gserver["poco"];
 			$noscrape = $gserver["noscrape"];
@@ -956,6 +956,7 @@ class PortableContact
 			if ($last_contact < NULL_DATE) {
 				$last_contact = NULL_DATE;
 			}
+
 			if ($last_failure < NULL_DATE) {
 				$last_failure = NULL_DATE;
 			}
@@ -987,7 +988,7 @@ class PortableContact
 		// Mastodon uses the "@" for user profiles.
 		// But this can be misunderstood.
 		if (parse_url($server_url, PHP_URL_USER) != '') {
-			dba::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
+			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
 			return false;
 		}
 
@@ -1000,36 +1001,37 @@ class PortableContact
 
 		// Quit if there is a timeout.
 		// But we want to make sure to only quit if we are mostly sure that this server url fits.
-		if (DBM::is_result($gserver) && ($orig_server_url == $server_url) &&
-			($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		if (DBA::isResult($gserver) && ($orig_server_url == $server_url) &&
+			(!empty($serverret["errno"]) && ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT))) {
 			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-			dba::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
+			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
 			return false;
 		}
 
 		// Maybe the page is unencrypted only?
 		$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
-		if (!$serverret["success"] || ($serverret["body"] == "") || (@sizeof($xmlobj) == 0) || !is_object($xmlobj)) {
+		if (!$serverret["success"] || ($serverret["body"] == "") || empty($xmlobj) || !is_object($xmlobj)) {
 			$server_url = str_replace("https://", "http://", $server_url);
 
 			// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
 			$serverret = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 			// Quit if there is a timeout
-			if ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT) {
+			if (!empty($serverret["errno"]) && ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 				logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
-				dba::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
+				DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
 				return false;
 			}
 
 			$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 		}
 
-		if (!$serverret["success"] || ($serverret["body"] == "") || (sizeof($xmlobj) == 0) || !is_object($xmlobj)) {
+		if (!$serverret["success"] || ($serverret["body"] == "") || empty($xmlobj) || !is_object($xmlobj)) {
 			// Workaround for bad configured servers (known nginx problem)
-			if (!in_array($serverret["debug"]["http_code"], ["403", "404"])) {
+			if (!empty($serverret["debug"]) && !in_array($serverret["debug"]["http_code"], ["403", "404"])) {
 				$failure = true;
 			}
+
 			$possible_failure = true;
 		}
 
@@ -1044,27 +1046,33 @@ class PortableContact
 
 		if (!$failure) {
 			// This will be too low, but better than no value at all.
-			$registered_users = dba::count('gcontact', ['server_url' => normalise_link($server_url)]);
+			$registered_users = DBA::count('gcontact', ['server_url' => normalise_link($server_url)]);
 		}
 
 		// Look for poco
 		if (!$failure) {
 			$serverret = Network::curl($server_url."/poco");
+
 			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"]);
-				if (isset($data->totalResults)) {
-					$registered_users = $data->totalResults;
-					$poco = $server_url."/poco";
+				$data = json_decode($serverret["body"], true);
+
+				if (isset($data['totalResults'])) {
+					$registered_users = $data['totalResults'];
+					$poco = $server_url . "/poco";
 					$server = self::detectPocoData($data);
-					if ($server) {
+
+					if (!empty($server)) {
 						$platform = $server['platform'];
 						$network = $server['network'];
 						$version = '';
 						$site_name = '';
 					}
 				}
-				// There are servers out there who don't return 404 on a failure
-				// We have to be sure that don't misunderstand this
+
+				/*
+				 * There are servers out there who don't return 404 on a failure
+				 * We have to be sure that don't misunderstand this
+				 */
 				if (is_null($data)) {
 					$poco = "";
 					$noscrape = "";
@@ -1081,7 +1089,8 @@ class PortableContact
 				$failure = true;
 			} else {
 				$server = self::detectServerType($serverret["body"]);
-				if ($server) {
+
+				if (!empty($server)) {
 					$platform = $server['platform'];
 					$network = $server['network'];
 					$version = $server['version'];
@@ -1089,21 +1098,23 @@ class PortableContact
 				}
 
 				$lines = explode("\n", $serverret["header"]);
+
 				if (count($lines)) {
 					foreach ($lines as $line) {
 						$line = trim($line);
+
 						if (stristr($line, 'X-Diaspora-Version:')) {
 							$platform = "Diaspora";
 							$version = trim(str_replace("X-Diaspora-Version:", "", $line));
 							$version = trim(str_replace("x-diaspora-version:", "", $version));
-							$network = NETWORK_DIASPORA;
+							$network = Protocol::DIASPORA;
 							$versionparts = explode("-", $version);
 							$version = $versionparts[0];
 						}
 
 						if (stristr($line, 'Server: Mastodon')) {
 							$platform = "Mastodon";
-							$network = NETWORK_OSTATUS;
+							$network = Protocol::OSTATUS;
 						}
 					}
 				}
@@ -1115,44 +1126,49 @@ class PortableContact
 			// Will also return data for Friendica and GNU Social - but it will be overwritten later
 			// The "not implemented" is a special treatment for really, really old Friendica versions
 			$serverret = Network::curl($server_url."/api/statusnet/version.json");
+
 			if ($serverret["success"] && ($serverret["body"] != '{"error":"not implemented"}') &&
 				($serverret["body"] != '') && (strlen($serverret["body"]) < 30)) {
 				$platform = "StatusNet";
 				// Remove junk that some GNU Social servers return
 				$version = str_replace(chr(239).chr(187).chr(191), "", $serverret["body"]);
 				$version = trim($version, '"');
-				$network = NETWORK_OSTATUS;
+				$network = Protocol::OSTATUS;
 			}
 
 			// Test for GNU Social
 			$serverret = Network::curl($server_url."/api/gnusocial/version.json");
+
 			if ($serverret["success"] && ($serverret["body"] != '{"error":"not implemented"}') &&
 				($serverret["body"] != '') && (strlen($serverret["body"]) < 30)) {
 				$platform = "GNU Social";
 				// Remove junk that some GNU Social servers return
-				$version = str_replace(chr(239).chr(187).chr(191), "", $serverret["body"]);
+				$version = str_replace(chr(239) . chr(187) . chr(191), "", $serverret["body"]);
 				$version = trim($version, '"');
-				$network = NETWORK_OSTATUS;
+				$network = Protocol::OSTATUS;
 			}
 
 			// Test for Mastodon
 			$orig_version = $version;
-			$serverret = Network::curl($server_url."/api/v1/instance");
-			if ($serverret["success"] && ($serverret["body"] != '')) {
-				$data = json_decode($serverret["body"]);
+			$serverret = Network::curl($server_url . "/api/v1/instance");
 
-				if (isset($data->version)) {
+			if ($serverret["success"] && ($serverret["body"] != '')) {
+				$data = json_decode($serverret["body"], true);
+
+				if (isset($data['version'])) {
 					$platform = "Mastodon";
-					$version = $data->version;
-					$site_name = $data->title;
-					$info = $data->description;
-					$network = NETWORK_OSTATUS;
+					$version = defaults($data, 'version', '');
+					$site_name = defaults($data, 'title', '');
+					$info = defaults($data, 'description', '');
+					$network = Protocol::OSTATUS;
 				}
-				if (!empty($data->stats->user_count)) {
-					$registered_users = $data->stats->user_count;
+
+				if (!empty($data['stats']['user_count'])) {
+					$registered_users = $data['stats']['user_count'];
 				}
 			}
-			if (strstr($orig_version.$version, 'Pleroma')) {
+
+			if (strstr($orig_version . $version, 'Pleroma')) {
 				$platform = 'Pleroma';
 				$version = trim(str_replace('Pleroma', '', $version));
 			}
@@ -1160,78 +1176,105 @@ class PortableContact
 
 		if (!$failure) {
 			// Test for Hubzilla and Red
-			$serverret = Network::curl($server_url."/siteinfo.json");
+			$serverret = Network::curl($server_url . "/siteinfo.json");
+
 			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"]);
-				if (isset($data->url)) {
-					$platform = $data->platform;
-					$version = $data->version;
-					$network = NETWORK_DIASPORA;
+				$data = json_decode($serverret["body"], true);
+
+				if (isset($data['url'])) {
+					$platform = $data['platform'];
+					$version = $data['version'];
+					$network = Protocol::DIASPORA;
 				}
-				if (!empty($data->site_name)) {
-					$site_name = $data->site_name;
+
+				if (!empty($data['site_name'])) {
+					$site_name = $data['site_name'];
 				}
-				if (!empty($data->channels_total)) {
-					$registered_users = $data->channels_total;
+
+				if (!empty($data['channels_total'])) {
+					$registered_users = $data['channels_total'];
 				}
-				switch ($data->register_policy) {
-					case "REGISTER_OPEN":
-						$register_policy = REGISTER_OPEN;
-						break;
-					case "REGISTER_APPROVE":
-						$register_policy = REGISTER_APPROVE;
-						break;
-					case "REGISTER_CLOSED":
-					default:
-						$register_policy = REGISTER_CLOSED;
-						break;
+
+				if (!empty($data['register_policy'])) {
+					switch ($data['register_policy']) {
+						case "REGISTER_OPEN":
+							$register_policy = REGISTER_OPEN;
+							break;
+
+						case "REGISTER_APPROVE":
+							$register_policy = REGISTER_APPROVE;
+							break;
+
+						case "REGISTER_CLOSED":
+						default:
+							$register_policy = REGISTER_CLOSED;
+							break;
+					}
 				}
 			} else {
 				// Test for Hubzilla, Redmatrix or Friendica
 				$serverret = Network::curl($server_url."/api/statusnet/config.json");
+
 				if ($serverret["success"]) {
-					$data = json_decode($serverret["body"]);
-					if (isset($data->site->server)) {
-						if (isset($data->site->platform)) {
-							$platform = $data->site->platform->PLATFORM_NAME;
-							$version = $data->site->platform->STD_VERSION;
-							$network = NETWORK_DIASPORA;
+					$data = json_decode($serverret["body"], true);
+
+					if (isset($data['site']['server'])) {
+						if (isset($data['site']['platform'])) {
+							$platform = $data['site']['platform']['PLATFORM_NAME'];
+							$version = $data['site']['platform']['STD_VERSION'];
+							$network = Protocol::DIASPORA;
 						}
-						if (isset($data->site->BlaBlaNet)) {
-							$platform = $data->site->BlaBlaNet->PLATFORM_NAME;
-							$version = $data->site->BlaBlaNet->STD_VERSION;
-							$network = NETWORK_DIASPORA;
+
+						if (isset($data['site']['BlaBlaNet'])) {
+							$platform = $data['site']['BlaBlaNet']['PLATFORM_NAME'];
+							$version = $data['site']['BlaBlaNet']['STD_VERSION'];
+							$network = Protocol::DIASPORA;
 						}
-						if (isset($data->site->hubzilla)) {
-							$platform = $data->site->hubzilla->PLATFORM_NAME;
-							$version = $data->site->hubzilla->RED_VERSION;
-							$network = NETWORK_DIASPORA;
+
+						if (isset($data['site']['hubzilla'])) {
+							$platform = $data['site']['hubzilla']['PLATFORM_NAME'];
+							$version = $data['site']['hubzilla']['RED_VERSION'];
+							$network = Protocol::DIASPORA;
 						}
-						if (isset($data->site->redmatrix)) {
-							if (isset($data->site->redmatrix->PLATFORM_NAME)) {
-								$platform = $data->site->redmatrix->PLATFORM_NAME;
-							} elseif (isset($data->site->redmatrix->RED_PLATFORM)) {
-								$platform = $data->site->redmatrix->RED_PLATFORM;
+
+						if (isset($data['site']['redmatrix'])) {
+							if (isset($data['site']['redmatrix']['PLATFORM_NAME'])) {
+								$platform = $data['site']['redmatrix']['PLATFORM_NAME'];
+							} elseif (isset($data['site']['redmatrix']['RED_PLATFORM'])) {
+								$platform = $data['site']['redmatrix']['RED_PLATFORM'];
 							}
 
-							$version = $data->site->redmatrix->RED_VERSION;
-							$network = NETWORK_DIASPORA;
-						}
-						if (isset($data->site->friendica)) {
-							$platform = $data->site->friendica->FRIENDICA_PLATFORM;
-							$version = $data->site->friendica->FRIENDICA_VERSION;
-							$network = NETWORK_DFRN;
+							$version = $data['site']['redmatrix']['RED_VERSION'];
+							$network = Protocol::DIASPORA;
 						}
 
-						$site_name = $data->site->name;
+						if (isset($data['site']['friendica'])) {
+							$platform = $data['site']['friendica']['FRIENDICA_PLATFORM'];
+							$version = $data['site']['friendica']['FRIENDICA_VERSION'];
+							$network = Protocol::DFRN;
+						}
 
-						$data->site->closed = self::toBoolean($data->site->closed);
-						$data->site->private = self::toBoolean($data->site->private);
-						$data->site->inviteonly = self::toBoolean($data->site->inviteonly);
+						$site_name = $data['site']['name'];
 
-						if (!$data->site->closed && !$data->site->private and $data->site->inviteonly) {
+						$private = false;
+						$inviteonly = false;
+						$closed = false;
+
+						if (!empty($data['site']['closed'])) {
+							$closed = self::toBoolean($data['site']['closed']);
+						}
+
+						if (!empty($data['site']['private'])) {
+							$private = self::toBoolean($data['site']['private']);
+						}
+
+						if (!empty($data['site']['inviteonly'])) {
+							$inviteonly = self::toBoolean($data['site']['inviteonly']);
+						}
+
+						if (!$closed && !$private and $inviteonly) {
 							$register_policy = REGISTER_APPROVE;
-						} elseif (!$data->site->closed && !$data->site->private) {
+						} elseif (!$closed && !$private) {
 							$register_policy = REGISTER_OPEN;
 						} else {
 							$register_policy = REGISTER_CLOSED;
@@ -1243,30 +1286,31 @@ class PortableContact
 
 		// Query statistics.json. Optional package for Diaspora, Friendica and Redmatrix
 		if (!$failure) {
-			$serverret = Network::curl($server_url."/statistics.json");
-			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"]);
+			$serverret = Network::curl($server_url . "/statistics.json");
 
-				if (isset($data->version)) {
-					$version = $data->version;
+			if ($serverret["success"]) {
+				$data = json_decode($serverret["body"], true);
+
+				if (isset($data['version'])) {
+					$version = $data['version'];
 					// Version numbers on statistics.json are presented with additional info, e.g.:
 					// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
 					$version = preg_replace("=(.+)-(.{4,})=ism", "$1", $version);
 				}
 
-				if (!empty($data->name)) {
-					$site_name = $data->name;
+				if (!empty($data['name'])) {
+					$site_name = $data['name'];
 				}
 
-				if (!empty($data->network)) {
-					$platform = $data->network;
+				if (!empty($data['network'])) {
+					$platform = $data['network'];
 				}
 
 				if ($platform == "Diaspora") {
-					$network = NETWORK_DIASPORA;
+					$network = Protocol::DIASPORA;
 				}
 
-				if ($data->registrations_open) {
+				if (!empty($data['registrations_open']) && $data['registrations_open']) {
 					$register_policy = REGISTER_OPEN;
 				} else {
 					$register_policy = REGISTER_CLOSED;
@@ -1277,7 +1321,8 @@ class PortableContact
 		// Query nodeinfo. Working for (at least) Diaspora and Friendica.
 		if (!$failure) {
 			$server = self::fetchNodeinfo($server_url);
-			if ($server) {
+
+			if (!empty($server)) {
 				$register_policy = $server['register_policy'];
 
 				if (isset($server['platform'])) {
@@ -1304,37 +1349,32 @@ class PortableContact
 
 		// Check for noscrape
 		// Friendica servers could be detected as OStatus servers
-		if (!$failure && in_array($network, [NETWORK_DFRN, NETWORK_OSTATUS])) {
-			$serverret = Network::curl($server_url."/friendica/json");
+		if (!$failure && in_array($network, [Protocol::DFRN, Protocol::OSTATUS])) {
+			$serverret = Network::curl($server_url . "/friendica/json");
 
 			if (!$serverret["success"]) {
-				$serverret = Network::curl($server_url."/friendika/json");
+				$serverret = Network::curl($server_url . "/friendika/json");
 			}
 
 			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"]);
+				$data = json_decode($serverret["body"], true);
 
-				if (isset($data->version)) {
-					$network = NETWORK_DFRN;
+				if (isset($data['version'])) {
+					$network = Protocol::DFRN;
 
-					$noscrape = defaults($data->no_scrape_url, '');
-					$version = $data->version;
-					$site_name = $data->site_name;
-					$info = $data->info;
-					$register_policy_str = $data->register_policy;
-					$platform = $data->platform;
-
-					switch ($register_policy_str) {
-						case "REGISTER_CLOSED":
-							$register_policy = REGISTER_CLOSED;
-							break;
-						case "REGISTER_APPROVE":
-							$register_policy = REGISTER_APPROVE;
-							break;
-						case "REGISTER_OPEN":
-							$register_policy = REGISTER_OPEN;
-							break;
+					if (!empty($data['no_scrape_url'])) {
+						$noscrape = $data['no_scrape_url'];
 					}
+
+					$version = $data['version'];
+
+					if (!empty($data['site_name'])) {
+						$site_name = $data['site_name'];
+					}
+
+					$info = $data['info'];
+					$register_policy = constant($data['register_policy']);
+					$platform = $data['platform'];
 				}
 			}
 		}
@@ -1363,7 +1403,7 @@ class PortableContact
 		}
 
 		// Check again if the server exists
-		$found = dba::exists('gserver', ['nurl' => normalise_link($server_url)]);
+		$found = DBA::exists('gserver', ['nurl' => normalise_link($server_url)]);
 
 		$version = strip_tags($version);
 		$site_name = strip_tags($site_name);
@@ -1377,14 +1417,14 @@ class PortableContact
 				'last_contact' => $last_contact, 'last_failure' => $last_failure];
 
 		if ($found) {
-			dba::update('gserver', $fields, ['nurl' => normalise_link($server_url)]);
+			DBA::update('gserver', $fields, ['nurl' => normalise_link($server_url)]);
 		} elseif (!$failure) {
 			$fields['nurl'] = normalise_link($server_url);
 			$fields['created'] = DateTimeFormat::utcNow();
-			dba::insert('gserver', $fields);
+			DBA::insert('gserver', $fields);
 		}
 
-		if (!$failure && in_array($fields['network'], [NETWORK_DFRN, NETWORK_DIASPORA])) {
+		if (!$failure && in_array($fields['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
 			self::discoverRelay($server_url);
 		}
 
@@ -1402,57 +1442,66 @@ class PortableContact
 	{
 		logger("Discover relay data for server " . $server_url, LOGGER_DEBUG);
 
-		$serverret = Network::curl($server_url."/.well-known/x-social-relay");
+		$serverret = Network::curl($server_url . "/.well-known/x-social-relay");
+
 		if (!$serverret["success"]) {
 			return;
 		}
 
-		$data = json_decode($serverret['body']);
-		if (!is_object($data)) {
+		$data = json_decode($serverret['body'], true);
+
+		if (!is_array($data)) {
 			return;
 		}
 
-		$gserver = dba::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => normalise_link($server_url)]);
-		if (!DBM::is_result($gserver)) {
+		$gserver = DBA::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => normalise_link($server_url)]);
+
+		if (!DBA::isResult($gserver)) {
 			return;
 		}
 
-		if (($gserver['relay-subscribe'] != $data->subscribe) || ($gserver['relay-scope'] != $data->scope)) {
-			$fields = ['relay-subscribe' => $data->subscribe, 'relay-scope' => $data->scope];
-			dba::update('gserver', $fields, ['id' => $gserver['id']]);
+		if (($gserver['relay-subscribe'] != $data['subscribe']) || ($gserver['relay-scope'] != $data['scope'])) {
+			$fields = ['relay-subscribe' => $data['subscribe'], 'relay-scope' => $data['scope']];
+			DBA::update('gserver', $fields, ['id' => $gserver['id']]);
 		}
 
-		dba::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
-		if ($data->scope == 'tags') {
+		DBA::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
+
+		if ($data['scope'] == 'tags') {
 			// Avoid duplicates
 			$tags = [];
-			foreach ($data->tags as $tag) {
+			foreach ($data['tags'] as $tag) {
 				$tag = mb_strtolower($tag);
-				$tags[$tag] = $tag;
+				if (strlen($tag) < 100) {
+					$tags[$tag] = $tag;
+				}
 			}
 
 			foreach ($tags as $tag) {
-				dba::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag], true);
+				DBA::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag], true);
 			}
 		}
 
 		// Create or update the relay contact
 		$fields = [];
-		if (isset($data->protocols)) {
-			if (isset($data->protocols->diaspora)) {
-				$fields['network'] = NETWORK_DIASPORA;
-				if (isset($data->protocols->diaspora->receive)) {
-					$fields['batch'] = $data->protocols->diaspora->receive;
-				} elseif (is_string($data->protocols->diaspora)) {
-					$fields['batch'] = $data->protocols->diaspora;
+		if (isset($data['protocols'])) {
+			if (isset($data['protocols']['diaspora'])) {
+				$fields['network'] = Protocol::DIASPORA;
+
+				if (isset($data['protocols']['diaspora']['receive'])) {
+					$fields['batch'] = $data['protocols']['diaspora']['receive'];
+				} elseif (is_string($data['protocols']['diaspora'])) {
+					$fields['batch'] = $data['protocols']['diaspora'];
 				}
 			}
-			if (isset($data->protocols->dfrn)) {
-				$fields['network'] = NETWORK_DFRN;
-				if (isset($data->protocols->dfrn->receive)) {
-					$fields['batch'] = $data->protocols->dfrn->receive;
-				} elseif (is_string($data->protocols->dfrn)) {
-					$fields['batch'] = $data->protocols->dfrn;
+
+			if (isset($data['protocols']['dfrn'])) {
+				$fields['network'] = Protocol::DFRN;
+
+				if (isset($data['protocols']['dfrn']['receive'])) {
+					$fields['batch'] = $data['protocols']['dfrn']['receive'];
+				} elseif (is_string($data['protocols']['dfrn'])) {
+					$fields['batch'] = $data['protocols']['dfrn'];
 				}
 			}
 		}
@@ -1470,12 +1519,12 @@ class PortableContact
 			WHERE `network` IN ('%s', '%s', '%s') AND `last_contact` > `last_failure`
 			ORDER BY `last_contact`
 			LIMIT 1000",
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA),
+			DBA::escape(Protocol::OSTATUS)
 		);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 
@@ -1489,21 +1538,24 @@ class PortableContact
 	 */
 	private static function fetchServerlist($poco)
 	{
-		$serverret = Network::curl($poco."/@server");
+		$serverret = Network::curl($poco . "/@server");
+
 		if (!$serverret["success"]) {
 			return;
 		}
-		$serverlist = json_decode($serverret['body']);
+
+		$serverlist = json_decode($serverret['body'], true);
 
 		if (!is_array($serverlist)) {
 			return;
 		}
 
 		foreach ($serverlist as $server) {
-			$server_url = str_replace("/index.php", "", $server->url);
+			$server_url = str_replace("/index.php", "", $server['url']);
 
-			$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", dbesc(normalise_link($server_url)));
-			if (!DBM::is_result($r)) {
+			$r = q("SELECT `nurl` FROM `gserver` WHERE `nurl` = '%s'", DBA::escape(normalise_link($server_url)));
+
+			if (!DBA::isResult($r)) {
 				logger("Call server check for server ".$server_url, LOGGER_DEBUG);
 				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $server_url);
 			}
@@ -1516,6 +1568,7 @@ class PortableContact
 
 		if ($last) {
 			$next = $last + (24 * 60 * 60);
+
 			if ($next > time()) {
 				return;
 			}
@@ -1524,12 +1577,12 @@ class PortableContact
 		// Discover Friendica, Hubzilla and Diaspora servers
 		$serverdata = Network::fetchUrl("http://the-federation.info/pods.json");
 
-		if ($serverdata) {
-			$servers = json_decode($serverdata);
+		if (!empty($serverdata)) {
+			$servers = json_decode($serverdata, true);
 
-			if (is_array($servers->pods)) {
-				foreach ($servers->pods as $server) {
-					Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", "https://".$server->host);
+			if (!empty($servers['pods'])) {
+				foreach ($servers['pods'] as $server) {
+					Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", "https://" . $server['host']);
 				}
 			}
 		}
@@ -1537,14 +1590,17 @@ class PortableContact
 		// Disvover Mastodon servers
 		if (!Config::get('system', 'ostatus_disabled')) {
 			$accesstoken = Config::get('system', 'instances_social_key');
+
 			if (!empty($accesstoken)) {
 				$api = 'https://instances.social/api/1.0/instances/list?count=0';
 				$header = ['Authorization: Bearer '.$accesstoken];
 				$serverdata = Network::curl($api, false, $redirects, ['headers' => $header]);
+
 				if ($serverdata['success']) {
-					$servers = json_decode($serverdata['body']);
-					foreach ($servers->instances as $server) {
-						$url = (is_null($server->https_score) ? 'http' : 'https').'://'.$server->name;
+					$servers = json_decode($serverdata['body'], true);
+
+					foreach ($servers['instances'] as $server) {
+						$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
 						Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $url);
 					}
 				}
@@ -1559,10 +1615,10 @@ class PortableContact
 
 		//	$result = Network::curl($serverdata);
 		//	if ($result["success"]) {
-		//		$servers = json_decode($result["body"]);
+		//		$servers = json_decode($result["body"], true);
 
-		//		foreach($servers->data as $server)
-		//			self::checkServer($server->instance_address);
+		//		foreach($servers['data'] as $server)
+		//			self::checkServer($server['instance_address']);
 		//	}
 		//}
 
@@ -1572,7 +1628,8 @@ class PortableContact
 	public static function discoverSingleServer($id)
 	{
 		$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `id` = %d", intval($id));
-		if (!DBM::is_result($r)) {
+
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 
@@ -1582,18 +1639,22 @@ class PortableContact
 		self::fetchServerlist($server["poco"]);
 
 		// Fetch all users from the other server
-		$url = $server["poco"]."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
+		$url = $server["poco"] . "/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
 
-		logger("Fetch all users from the server ".$server["url"], LOGGER_DEBUG);
+		logger("Fetch all users from the server " . $server["url"], LOGGER_DEBUG);
 
 		$retdata = Network::curl($url);
-		if ($retdata["success"]) {
-			$data = json_decode($retdata["body"]);
 
-			self::discoverServer($data, 2);
+		if ($retdata["success"] && !empty($retdata["body"])) {
+			$data = json_decode($retdata["body"], true);
+
+			if (!empty($data)) {
+				self::discoverServer($data, 2);
+			}
 
 			if (Config::get('system', 'poco_discovery') > 1) {
 				$timeframe = Config::get('system', 'poco_discovery_since');
+
 				if ($timeframe == 0) {
 					$timeframe = 30;
 				}
@@ -1606,19 +1667,24 @@ class PortableContact
 				$success = false;
 
 				$retdata = Network::curl($url);
-				if ($retdata["success"]) {
-					logger("Fetch all global contacts from the server ".$server["nurl"], LOGGER_DEBUG);
-					$success = self::discoverServer(json_decode($retdata["body"]));
+
+				if ($retdata["success"] && !empty($retdata["body"])) {
+					logger("Fetch all global contacts from the server " . $server["nurl"], LOGGER_DEBUG);
+					$data = json_decode($retdata["body"], true);
+
+					if (!empty($data)) {
+						$success = self::discoverServer($data);
+					}
 				}
 
 				if (!$success && (Config::get('system', 'poco_discovery') > 2)) {
-					logger("Fetch contacts from users of the server ".$server["nurl"], LOGGER_DEBUG);
+					logger("Fetch contacts from users of the server " . $server["nurl"], LOGGER_DEBUG);
 					self::discoverServerUsers($data, $server);
 				}
 			}
 
 			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-			dba::update('gserver', $fields, ['nurl' => $server["nurl"]]);
+			DBA::update('gserver', $fields, ['nurl' => $server["nurl"]]);
 
 			return true;
 		} else {
@@ -1627,7 +1693,7 @@ class PortableContact
 
 			// If we couldn't reach the server, we will try it some time later
 			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-			dba::update('gserver', $fields, ['nurl' => $server["nurl"]]);
+			DBA::update('gserver', $fields, ['nurl' => $server["nurl"]]);
 
 			return false;
 		}
@@ -1640,73 +1706,88 @@ class PortableContact
 
 		$no_of_queries = 5;
 
-		$requery_days = intval(Config::get("system", "poco_requery_days"));
+		$requery_days = intval(Config::get('system', 'poco_requery_days'));
 
 		if ($requery_days == 0) {
 			$requery_days = 7;
 		}
-		$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 
-		$r = q("SELECT `id`, `url`, `network` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `poco` != '' AND `last_poco_query` < '%s' ORDER BY RAND()", dbesc($last_update));
-		if (DBM::is_result($r)) {
-			foreach ($r as $server) {
-				if (!self::checkServer($server["url"], $server["network"])) {
+		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
+
+		$gservers = q("SELECT `id`, `url`, `nurl`, `network`
+			FROM `gserver`
+			WHERE `last_contact` >= `last_failure`
+			AND `poco` != ''
+			AND `last_poco_query` < '%s'
+			ORDER BY RAND()", DBA::escape($last_update)
+		);
+
+		if (DBA::isResult($gservers)) {
+			foreach ($gservers as $gserver) {
+				if (!self::checkServer($gserver['url'], $gserver['network'])) {
 					// The server is not reachable? Okay, then we will try it later
 					$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-					dba::update('gserver', $fields, ['nurl' => $server["nurl"]]);
+					DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
 					continue;
 				}
 
-				logger('Update directory from server '.$server['url'].' with ID '.$server['id'], LOGGER_DEBUG);
-				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server_directory", (int)$server['id']);
+				logger('Update directory from server ' . $gserver['url'] . ' with ID ' . $gserver['id'], LOGGER_DEBUG);
+				Worker::add(PRIORITY_LOW, 'DiscoverPoCo', 'update_server_directory', (int) $gserver['id']);
 
-				if (!$complete && (--$no_of_queries == 0)) {
+				if (!$complete && ( --$no_of_queries == 0)) {
 					break;
 				}
 			}
 		}
 	}
 
-	private static function discoverServerUsers($data, $server)
+	private static function discoverServerUsers(array $data, array $server)
 	{
-		if (!isset($data->entry)) {
+		if (!isset($data['entry'])) {
 			return;
 		}
 
-		foreach ($data->entry as $entry) {
-			$username = "";
-			if (isset($entry->urls)) {
-				foreach ($entry->urls as $url) {
-					if ($url->type == 'profile') {
-						$profile_url = $url->value;
-						$urlparts = parse_url($profile_url);
-						$username = end(explode("/", $urlparts["path"]));
+		foreach ($data['entry'] as $entry) {
+			$username = '';
+
+			if (isset($entry['urls'])) {
+				foreach ($entry['urls'] as $url) {
+					if ($url['type'] == 'profile') {
+						$profile_url = $url['value'];
+						$path_array = explode('/', parse_url($profile_url, PHP_URL_PATH));
+						$username = end($path_array);
 					}
 				}
 			}
-			if ($username != "") {
-				logger("Fetch contacts for the user ".$username." from the server ".$server["nurl"], LOGGER_DEBUG);
+
+			if ($username != '') {
+				logger('Fetch contacts for the user ' . $username . ' from the server ' . $server['nurl'], LOGGER_DEBUG);
 
 				// Fetch all contacts from a given user from the other server
-				$url = $server["poco"]."/".$username."/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
+				$url = $server['poco'] . '/' . $username . '/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation';
 
 				$retdata = Network::curl($url);
-				if ($retdata["success"]) {
-					self::discoverServer(json_decode($retdata["body"]), 3);
+
+				if (!empty($retdata['success'])) {
+					$data = json_decode($retdata["body"], true);
+
+					if (!empty($data)) {
+						self::discoverServer($data, 3);
+					}
 				}
 			}
 		}
 	}
 
-	private static function discoverServer($data, $default_generation = 0)
+	private static function discoverServer(array $data, $default_generation = 0)
 	{
-		if (!isset($data->entry) || !count($data->entry)) {
+		if (empty($data['entry'])) {
 			return false;
 		}
 
 		$success = false;
 
-		foreach ($data->entry as $entry) {
+		foreach ($data['entry'] as $entry) {
 			$profile_url = '';
 			$profile_photo = '';
 			$connect_url = '';
@@ -1720,60 +1801,62 @@ class PortableContact
 			$contact_type = -1;
 			$generation = $default_generation;
 
-			$name = $entry->displayName;
-
-			if (isset($entry->urls)) {
-				foreach ($entry->urls as $url) {
-					if ($url->type == 'profile') {
-						$profile_url = $url->value;
-						continue;
-					}
-					if ($url->type == 'webfinger') {
-						$connect_url = str_replace('acct:' , '', $url->value);
-						continue;
-					}
-				}
+			if (!empty($entry['displayName'])) {
+				$name = $entry['displayName'];
 			}
 
-			if (isset($entry->photos)) {
-				foreach ($entry->photos as $photo) {
-					if ($photo->type == 'profile') {
-						$profile_photo = $photo->value;
+			if (isset($entry['urls'])) {
+				foreach ($entry['urls'] as $url) {
+					if ($url['type'] == 'profile') {
+						$profile_url = $url['value'];
+						continue;
+					}
+					if ($url['type'] == 'webfinger') {
+						$connect_url = str_replace('acct:' , '', $url['value']);
 						continue;
 					}
 				}
 			}
 
-			if (isset($entry->updated)) {
-				$updated = date(DateTimeFormat::MYSQL, strtotime($entry->updated));
+			if (isset($entry['photos'])) {
+				foreach ($entry['photos'] as $photo) {
+					if ($photo['type'] == 'profile') {
+						$profile_photo = $photo['value'];
+						continue;
+					}
+				}
 			}
 
-			if (isset($entry->network)) {
-				$network = $entry->network;
+			if (isset($entry['updated'])) {
+				$updated = date(DateTimeFormat::MYSQL, strtotime($entry['updated']));
 			}
 
-			if (isset($entry->currentLocation)) {
-				$location = $entry->currentLocation;
+			if (isset($entry['network'])) {
+				$network = $entry['network'];
 			}
 
-			if (isset($entry->aboutMe)) {
-				$about = HTML::toBBCode($entry->aboutMe);
+			if (isset($entry['currentLocation'])) {
+				$location = $entry['currentLocation'];
 			}
 
-			if (isset($entry->gender)) {
-				$gender = $entry->gender;
+			if (isset($entry['aboutMe'])) {
+				$about = HTML::toBBCode($entry['aboutMe']);
 			}
 
-			if (isset($entry->generation) && ($entry->generation > 0)) {
-				$generation = ++$entry->generation;
+			if (isset($entry['gender'])) {
+				$gender = $entry['gender'];
 			}
 
-			if (isset($entry->contactType) && ($entry->contactType >= 0)) {
-				$contact_type = $entry->contactType;
+			if (isset($entry['generation']) && ($entry['generation'] > 0)) {
+				$generation = ++$entry['generation'];
 			}
 
-			if (isset($entry->tags)) {
-				foreach ($entry->tags as $tag) {
+			if (isset($entry['contactType']) && ($entry['contactType'] >= 0)) {
+				$contact_type = $entry['contactType'];
+			}
+
+			if (isset($entry['tags'])) {
+				foreach ($entry['tags'] as $tag) {
 					$keywords = implode(", ", $tag);
 				}
 			}

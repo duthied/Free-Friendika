@@ -10,19 +10,19 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 
 function group_init(App $a) {
 	if (local_user()) {
-		$a->page['aside'] = Group::sidebarWidget('contacts', 'group', 'extended', (($a->argc > 1) ? intval($a->argv[1]) : 0));
+		$a->page['aside'] = Group::sidebarWidget('contacts', 'group', 'extended', (($a->argc > 1) ? $a->argv[1] : 'everyone'));
 	}
 }
 
 function group_post(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -45,23 +45,23 @@ function group_post(App $a) {
 		return; // NOTREACHED
 	}
 
-	if (($a->argc == 2) && (intval($a->argv[1]))) {
+	if (($a->argc == 2) && intval($a->argv[1])) {
 		check_form_security_token_redirectOnErr('/group', 'group_edit');
 
 		$r = q("SELECT * FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
 		);
-		if (! DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			notice(L10n::t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 			return; // NOTREACHED
 		}
 		$group = $r[0];
 		$groupname = notags(trim($_POST['groupname']));
-		if ((strlen($groupname))  && ($groupname != $group['name'])) {
+		if (strlen($groupname) && ($groupname != $group['name'])) {
 			$r = q("UPDATE `group` SET `name` = '%s' WHERE `uid` = %d AND `id` = %d",
-				dbesc($groupname),
+				DBA::escape($groupname),
 				intval(local_user()),
 				intval($group['id'])
 			);
@@ -79,13 +79,17 @@ function group_post(App $a) {
 function group_content(App $a) {
 	$change = false;
 
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(L10n::t('Permission denied') . EOL);
 		return;
 	}
 
-	// Switch to text mode interface if we have more than 'n' contacts or group members
+	// With no group number provided we jump to the unassigned contacts as a starting point
+	if ($a->argc == 1) {
+		goaway('group/none');
+	}
 
+	// Switch to text mode interface if we have more than 'n' contacts or group members
 	$switchtotext = PConfig::get(local_user(), 'system', 'groupedit_image_limit');
 	if (is_null($switchtotext)) {
 		$switchtotext = Config::get('system', 'groupedit_image_limit', 400);
@@ -94,7 +98,8 @@ function group_content(App $a) {
 	$tpl = get_markup_template('group_edit.tpl');
 
 	$context = [
-			'$submit' => L10n::t('Save Group'),
+		'$submit' => L10n::t('Save Group'),
+		'$submit_filter' => L10n::t('Filter'),
 	];
 
 	if (($a->argc == 2) && ($a->argv[1] === 'new')) {
@@ -108,6 +113,31 @@ function group_content(App $a) {
 
 	}
 
+	$nogroup = false;
+
+	if (($a->argc == 2) && ($a->argv[1] === 'none')) {
+		require_once 'mod/contacts.php';
+
+		$id = -1;
+		$nogroup = true;
+		$group = [
+			'id' => $id,
+			'name' => L10n::t('Contacts not in any group'),
+		];
+
+		$members = [];
+		$preselected = [];
+		$entry = [];
+
+		$context = $context + [
+			'$title' => $group['name'],
+			'$gname' => ['groupname', L10n::t('Group Name: '), $group['name'], ''],
+			'$gid' => $id,
+			'$editable' => 0,
+		];
+	}
+
+
 	if (($a->argc == 3) && ($a->argv[1] === 'drop')) {
 		check_form_security_token_redirectOnErr('/group', 'group_drop', 't');
 
@@ -119,7 +149,7 @@ function group_content(App $a) {
 
 			$result = null;
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$result = Group::removeByName(local_user(), $r[0]['name']);
 			}
 
@@ -140,12 +170,12 @@ function group_content(App $a) {
 			intval($a->argv[2]),
 			intval(local_user())
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$change = intval($a->argv[2]);
 		}
 	}
 
-	if (($a->argc > 1) && (intval($a->argv[1]))) {
+	if (($a->argc > 1) && intval($a->argv[1])) {
 		require_once 'mod/contacts.php';
 
 		$r = q("SELECT * FROM `group` WHERE `id` = %d AND `uid` = %d AND `deleted` = 0 LIMIT 1",
@@ -153,7 +183,7 @@ function group_content(App $a) {
 			intval(local_user())
 		);
 
-		if (! DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			notice(L10n::t('Group not found.') . EOL);
 			goaway(System::baseUrl() . '/contacts');
 		}
@@ -195,17 +225,18 @@ function group_content(App $a) {
 
 
 		$context = $context + [
-			'$title' => L10n::t('Group Editor'),
+			'$title' => $group['name'],
 			'$gname' => ['groupname', L10n::t('Group Name: '), $group['name'], ''],
 			'$gid' => $group['id'],
 			'$drop' => $drop_txt,
 			'$form_security_token' => get_form_security_token('group_edit'),
-			'$edit_name' => L10n::t('Edit Group Name')
+			'$edit_name' => L10n::t('Edit Group Name'),
+			'$editable' => 1,
 		];
 
 	}
 
-	if (! isset($group)) {
+	if (!isset($group)) {
 		return;
 	}
 
@@ -238,23 +269,32 @@ function group_content(App $a) {
 		}
 	}
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `self` ORDER BY `name` ASC",
-		intval(local_user())
-	);
+	if ($nogroup) {
+		$r = Contact::getUngroupedList(local_user());
+	} else {
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `self` ORDER BY `name` ASC",
+			intval(local_user())
+		);
+		$context['$desc'] = L10n::t('Click on a contact to add or remove.');
+	}
 
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		// Format the data of the contacts who aren't in the contact group
 		foreach ($r as $member) {
-			if (! in_array($member['id'], $preselected)) {
+			if (!in_array($member['id'], $preselected)) {
 				$entry = _contact_detail_for_template($member);
 				$entry['label'] = 'contacts';
-				$entry['photo_menu'] = '';
-				$entry['change_member'] = [
-					'title'     => L10n::t("Add contact to group"),
-					'gid'       => $group['id'],
-					'cid'       => $member['id'],
-					'sec_token' => $sec_token
-				];
+				if (!$nogroup)
+					$entry['photo_menu'] = [];
+
+				if (!$nogroup) {
+					$entry['change_member'] = [
+						'title'     => L10n::t("Add contact to group"),
+						'gid'       => $group['id'],
+						'cid'       => $member['id'],
+						'sec_token' => $sec_token
+					];
+				}
 
 				$groupeditor['contacts'][] = $entry;
 			}
@@ -262,7 +302,6 @@ function group_content(App $a) {
 	}
 
 	$context['$groupeditor'] = $groupeditor;
-	$context['$desc'] = L10n::t('Click on a contact to add or remove.');
 
 	// If there are to many contacts we could provide an alternative view mode
 	$total = count($groupeditor['members']) + count($groupeditor['contacts']);

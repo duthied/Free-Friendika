@@ -5,8 +5,7 @@
 namespace Friendica\Model;
 
 use Friendica\Core\System;
-use Friendica\Database\DBM;
-use dba;
+use Friendica\Database\DBA;
 
 require_once 'boot.php';
 require_once 'include/conversation.php';
@@ -14,7 +13,42 @@ require_once 'include/dba.php';
 
 class Term
 {
-	public static function insertFromTagFieldByItemId($itemid)
+	public static function tagTextFromItemId($itemid)
+	{
+		$tag_text = '';
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]];
+		$tags = DBA::select('term', [], $condition);
+		while ($tag = DBA::fetch($tags)) {
+			if ($tag_text != '') {
+				$tag_text .= ',';
+			}
+
+			if ($tag['type'] == 1) {
+				$tag_text .= '#';
+			} else {
+				$tag_text .= '@';
+			}
+			$tag_text .= '[url=' . $tag['url'] . ']' . $tag['term'] . '[/url]';
+		}
+		return $tag_text;
+	}
+
+	public static function fileTextFromItemId($itemid)
+	{
+		$file_text = '';
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_FILE, TERM_CATEGORY]];
+		$tags = DBA::select('term', [], $condition);
+		while ($tag = DBA::fetch($tags)) {
+			if ($tag['type'] == TERM_CATEGORY) {
+				$file_text .= '<' . $tag['term'] . '>';
+			} else {
+				$file_text .= '[' . $tag['term'] . ']';
+			}
+		}
+		return $file_text;
+	}
+
+	public static function insertFromTagFieldByItemId($itemid, $tags)
 	{
 		$profile_base = System::baseUrl();
 		$profile_data = parse_url($profile_base);
@@ -22,14 +56,16 @@ class Term
 		$profile_base_friendica = $profile_data['host'] . $profile_path . '/profile/';
 		$profile_base_diaspora = $profile_data['host'] . $profile_path . '/u/';
 
-		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'tag', 'parent'];
-		$message = dba::selectFirst('item', $fields, ['id' => $itemid]);
-		if (!DBM::is_result($message)) {
+		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'parent'];
+		$message = Item::selectFirst($fields, ['id' => $itemid]);
+		if (!DBA::isResult($message)) {
 			return;
 		}
 
+		$message['tag'] = $tags;
+
 		// Clean up all tags
-		dba::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]]);
+		DBA::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]]);
 
 		if ($message['deleted']) {
 			return;
@@ -56,14 +92,14 @@ class Term
 		$pattern = '/\W\#([^\[].*?)[\s\'".,:;\?!\[\]\/]/ism';
 		if (preg_match_all($pattern, $data, $matches)) {
 			foreach ($matches[1] as $match) {
-				$tags['#' . strtolower($match)] = '';
+				$tags['#' . $match] = '';
 			}
 		}
 
 		$pattern = '/\W([\#@])\[url\=(.*?)\](.*?)\[\/url\]/ism';
 		if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
-				$tags[$match[1] . strtolower(trim($match[3], ',.:;[]/\"?!'))] = $match[2];
+				$tags[$match[1] . trim($match[3], ',.:;[]/\"?!')] = $match[2];
 			}
 		}
 
@@ -91,12 +127,12 @@ class Term
 
 			if ($message['uid'] == 0) {
 				$global = true;
-				dba::update('term', ['global' => true], ['otype' => TERM_OBJ_POST, 'guid' => $message['guid']]);
+				DBA::update('term', ['global' => true], ['otype' => TERM_OBJ_POST, 'guid' => $message['guid']]);
 			} else {
-				$global = dba::exists('term', ['uid' => 0, 'otype' => TERM_OBJ_POST, 'guid' => $message['guid']]);
+				$global = DBA::exists('term', ['uid' => 0, 'otype' => TERM_OBJ_POST, 'guid' => $message['guid']]);
 			}
 
-			dba::insert('term', [
+			DBA::insert('term', [
 				'uid'      => $message['uid'],
 				'oid'      => $itemid,
 				'otype'    => TERM_OBJ_POST,
@@ -114,8 +150,9 @@ class Term
 				$users = q("SELECT `uid` FROM `contact` WHERE self AND (`url` = '%s' OR `nurl` = '%s')", $link, $link);
 				foreach ($users AS $user) {
 					if ($user['uid'] == $message['uid']) {
-						dba::update('item', ['mention' => true], ['id' => $itemid]);
-						dba::update('thread', ['mention' => true], ['iid' => $message['parent']]);
+						/// @todo This function is called frim Item::update - so we mustn't call that function here
+						DBA::update('item', ['mention' => true], ['id' => $itemid]);
+						DBA::update('thread', ['mention' => true], ['iid' => $message['parent']]);
 					}
 				}
 			}
@@ -126,23 +163,25 @@ class Term
 	 * @param integer $itemid item id
 	 * @return void
 	 */
-	public static function insertFromFileFieldByItemId($itemid)
+	public static function insertFromFileFieldByItemId($itemid, $files)
 	{
-		$message = dba::selectFirst('item', ['uid', 'deleted', 'file'], ['id' => $itemid]);
-		if (!DBM::is_result($message)) {
+		$message = Item::selectFirst(['uid', 'deleted'], ['id' => $itemid]);
+		if (!DBA::isResult($message)) {
 			return;
 		}
 
 		// Clean up all tags
-		dba::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_FILE, TERM_CATEGORY]]);
+		DBA::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_FILE, TERM_CATEGORY]]);
 
 		if ($message["deleted"]) {
 			return;
 		}
 
+		$message['file'] = $files;
+
 		if (preg_match_all("/\[(.*?)\]/ism", $message["file"], $files)) {
 			foreach ($files[1] as $file) {
-				dba::insert('term', [
+				DBA::insert('term', [
 					'uid' => $message["uid"],
 					'oid' => $itemid,
 					'otype' => TERM_OBJ_POST,
@@ -154,7 +193,7 @@ class Term
 
 		if (preg_match_all("/\<(.*?)\>/ism", $message["file"], $files)) {
 			foreach ($files[1] as $file) {
-				dba::insert('term', [
+				DBA::insert('term', [
 					'uid' => $message["uid"],
 					'oid' => $itemid,
 					'otype' => TERM_OBJ_POST,
@@ -182,21 +221,23 @@ class Term
 
 		$searchpath = System::baseUrl() . "/search?tag=";
 
-		$taglist = dba::select(
+		$taglist = DBA::select(
 			'term',
 			['type', 'term', 'url'],
 			["`otype` = ? AND `oid` = ? AND `type` IN (?, ?)", TERM_OBJ_POST, $item['id'], TERM_HASHTAG, TERM_MENTION],
 			['order' => ['tid']]
 		);
 
-		while ($tag = dba::fetch($taglist)) {
+		while ($tag = DBA::fetch($taglist)) {
 			if ($tag["url"] == "") {
-				$tag["url"] = $searchpath . strtolower($tag["term"]);
+				$tag["url"] = $searchpath . $tag["term"];
 			}
 
 			$orig_tag = $tag["url"];
 
-			$tag["url"] = best_link_url($item, $sp, $tag["url"]);
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$tag["url"] = Contact::magicLinkByContact($author, $tag['url']);
 
 			if ($tag["type"] == TERM_HASHTAG) {
 				if ($orig_tag != $tag["url"]) {
@@ -212,7 +253,7 @@ class Term
 
 			$return['tags'][] = $prefix . "<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
 		}
-		dba::close($taglist);
+		DBA::close($taglist);
 
 		return $return;
 	}

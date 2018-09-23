@@ -15,9 +15,9 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
@@ -85,10 +85,10 @@ function dfrn_request_post(App $a)
 				// Lookup the contact based on their URL (which is the only unique thing we have at the moment)
 				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND NOT `self` LIMIT 1",
 					intval(local_user()),
-					dbesc(normalise_link($dfrn_url))
+					DBA::escape(normalise_link($dfrn_url))
 				);
 
-				if (DBM::is_result($r)) {
+				if (DBA::isResult($r)) {
 					if (strlen($r[0]['dfrn-id'])) {
 						// We don't need to be here. It has already happened.
 						notice(L10n::t("This introduction has already been accepted.") . EOL);
@@ -130,16 +130,16 @@ function dfrn_request_post(App $a)
 					$photo = $parms["photo"];
 
 					// Escape the entire array
-					DBM::esc_array($parms);
+					DBA::escapeArray($parms);
 
 					// Create a contact record on our site for the other person
 					$r = q("INSERT INTO `contact` ( `uid`, `created`,`url`, `nurl`, `addr`, `name`, `nick`, `photo`, `site-pubkey`,
-						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
-						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
+						`request`, `confirm`, `notify`, `poll`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
+						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
 						intval(local_user()),
 						DateTimeFormat::utcNow(),
-						dbesc($dfrn_url),
-						dbesc(normalise_link($dfrn_url)),
+						DBA::escape($dfrn_url),
+						DBA::escape(normalise_link($dfrn_url)),
 						$parms['addr'],
 						$parms['fn'],
 						$parms['nick'],
@@ -149,8 +149,7 @@ function dfrn_request_post(App $a)
 						$parms['dfrn-confirm'],
 						$parms['dfrn-notify'],
 						$parms['dfrn-poll'],
-						$parms['dfrn-poco'],
-						dbesc(NETWORK_DFRN),
+						DBA::escape(Protocol::DFRN),
 						intval($aes_allow),
 						intval($hidden),
 						intval($blocked),
@@ -164,10 +163,10 @@ function dfrn_request_post(App $a)
 
 				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
 					intval(local_user()),
-					dbesc($dfrn_url),
+					DBA::escape($dfrn_url),
 					$parms['key'] // this was already escaped
 				);
-				if (DBM::is_result($r)) {
+				if (DBA::isResult($r)) {
 					Group::addMember(User::getDefaultGroup(local_user(), $r[0]["network"]), $r[0]['id']);
 
 					if (isset($photo)) {
@@ -189,7 +188,6 @@ function dfrn_request_post(App $a)
 				}
 
 				// (ignore reply, nothing we can do it failed)
-				// Old: goaway(Profile::zrl($dfrn_url));
 				goaway($forwardurl);
 				return; // NOTREACHED
 			}
@@ -241,10 +239,10 @@ function dfrn_request_post(App $a)
 		// Block friend request spam
 		if ($maxreq) {
 			$r = q("SELECT * FROM `intro` WHERE `datetime` > '%s' AND `uid` = %d",
-				dbesc(DateTimeFormat::utc('now - 24 hours')),
+				DBA::escape(DateTimeFormat::utc('now - 24 hours')),
 				intval($uid)
 			);
-			if (DBM::is_result($r) && count($r) > $maxreq) {
+			if (DBA::isResult($r) && count($r) > $maxreq) {
 				notice(L10n::t('%s has received too many connection requests today.', $a->profile['name']) . EOL);
 				notice(L10n::t('Spam protection measures have been invoked.') . EOL);
 				notice(L10n::t('Friends are advised to please try again in 24 hours.') . EOL);
@@ -260,12 +258,12 @@ function dfrn_request_post(App $a)
 			WHERE `intro`.`blocked` = 1 AND `contact`.`self` = 0
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 30 MINUTE "
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
 				if (!$rr['rel']) {
-					dba::delete('contact', ['id' => $rr['cid'], 'self' => false]);
+					DBA::delete('contact', ['id' => $rr['cid'], 'self' => false]);
 				}
-				dba::delete('intro', ['id' => $rr['iid']]);
+				DBA::delete('intro', ['id' => $rr['iid']]);
 			}
 		}
 
@@ -290,28 +288,28 @@ function dfrn_request_post(App $a)
 			// Every time we detect the remote subscription we define this as OStatus.
 			// We do this even if it is not OStatus.
 			// we only need to pass this through another section of the code.
-			if ($network != NETWORK_DIASPORA) {
-				$network = NETWORK_OSTATUS;
+			if ($network != Protocol::DIASPORA) {
+				$network = Protocol::OSTATUS;
 			}
 
 			$url = substr($url, 5);
 		} else {
-			$network = NETWORK_DFRN;
+			$network = Protocol::DFRN;
 		}
 
 		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
 
-		if ($network === NETWORK_DFRN) {
+		if ($network === Protocol::DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
 				intval($uid),
-				dbesc($url)
+				DBA::escape($url)
 			);
 
-			if (DBM::is_result($ret)) {
+			if (DBA::isResult($ret)) {
 				if (strlen($ret[0]['issued-id'])) {
 					notice(L10n::t('You have already introduced yourself here.') . EOL);
 					return;
-				} elseif ($ret[0]['rel'] == CONTACT_IS_FRIEND) {
+				} elseif ($ret[0]['rel'] == Contact::FRIEND) {
 					notice(L10n::t('Apparently you are already friends with %s.', $a->profile['name']) . EOL);
 					return;
 				} else {
@@ -326,7 +324,7 @@ function dfrn_request_post(App $a)
 				// There is a contact record but no issued-id, so this
 				// is a reciprocal introduction from a known contact
 				$r = q("UPDATE `contact` SET `issued-id` = '%s' WHERE `id` = %d",
-					dbesc($issued_id),
+					DBA::escape($issued_id),
 					intval($contact_record['id'])
 				);
 			} else {
@@ -373,14 +371,14 @@ function dfrn_request_post(App $a)
 				$parms['issued-id'] = $issued_id;
 				$photo = $parms["photo"];
 
-				DBM::esc_array($parms);
+				DBA::escapeArray($parms);
 				$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `name`, `nick`, `issued-id`, `photo`, `site-pubkey`,
-					`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `blocked`, `pending` )
-					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
+					`request`, `confirm`, `notify`, `poll`, `network`, `blocked`, `pending` )
+					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
 					intval($uid),
-					dbesc(DateTimeFormat::utcNow()),
+					DBA::escape(DateTimeFormat::utcNow()),
 					$parms['url'],
-					dbesc(normalise_link($url)),
+					DBA::escape(normalise_link($url)),
 					$parms['addr'],
 					$parms['fn'],
 					$parms['nick'],
@@ -391,8 +389,7 @@ function dfrn_request_post(App $a)
 					$parms['dfrn-confirm'],
 					$parms['dfrn-notify'],
 					$parms['dfrn-poll'],
-					$parms['dfrn-poco'],
-					dbesc(NETWORK_DFRN),
+					DBA::escape(Protocol::DFRN),
 					intval($blocked),
 					intval($pending)
 				);
@@ -405,7 +402,7 @@ function dfrn_request_post(App $a)
 						$parms['url'],
 						$parms['issued-id']
 					);
-					if (DBM::is_result($r)) {
+					if (DBA::isResult($r)) {
 						$contact_record = $r[0];
 						Contact::updateAvatar($photo, $uid, $contact_record["id"], true);
 					}
@@ -424,9 +421,9 @@ function dfrn_request_post(App $a)
 					intval($uid),
 					intval($contact_record['id']),
 					((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
-					dbesc(notags(trim($_POST['dfrn-request-message']))),
-					dbesc($hash),
-					dbesc(DateTimeFormat::utcNow())
+					DBA::escape(notags(trim(defaults($_POST, 'dfrn-request-message', '')))),
+					DBA::escape($hash),
+					DBA::escape(DateTimeFormat::utcNow())
 				);
 			}
 
@@ -445,15 +442,15 @@ function dfrn_request_post(App $a)
 				. (($aes_allow) ? "&aes_allow=1" : "")
 			);
 			// NOTREACHED
-			// END $network === NETWORK_DFRN
-		} elseif (($network != NETWORK_PHANTOM) && ($url != "")) {
+			// END $network === Protocol::DFRN
+		} elseif (($network != Protocol::PHANTOM) && ($url != "")) {
 
 			/* Substitute our user's feed URL into $url template
 			 * Send the subscriber home to subscribe
 			 */
 			// Diaspora needs the uri in the format user@domain.tld
 			// Diaspora will support the remote subscription in a future version
-			if ($network == NETWORK_DIASPORA) {
+			if ($network == Protocol::DIASPORA) {
 				$uri = $nickname . '@' . $a->get_hostname();
 
 				if ($a->get_path()) {
@@ -468,7 +465,7 @@ function dfrn_request_post(App $a)
 			$url = str_replace('{uri}', $uri, $url);
 			goaway($url);
 			// NOTREACHED
-			// END $network != NETWORK_PHANTOM
+			// END $network != Protocol::PHANTOM
 		} else {
 			notice(L10n::t("Remote subscription can't be done for your network. Please subscribe directly on your system.") . EOL);
 			return;
@@ -536,10 +533,10 @@ function dfrn_request_content(App $a)
 		// We could just unblock it, but first we have to jump through a few hoops to
 		// send an email, or even to find out if we need to send an email.
 		$intro = q("SELECT * FROM `intro` WHERE `hash` = '%s' LIMIT 1",
-			dbesc($_GET['confirm_key'])
+			DBA::escape($_GET['confirm_key'])
 		);
 
-		if (DBM::is_result($intro)) {
+		if (DBA::isResult($intro)) {
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `contact`.`id` = %d LIMIT 1",
 				intval($intro[0]['contact-id'])
@@ -547,8 +544,8 @@ function dfrn_request_content(App $a)
 
 			$auto_confirm = false;
 
-			if (DBM::is_result($r)) {
-				if ($r[0]['page-flags'] != PAGE_NORMAL && $r[0]['page-flags'] != PAGE_PRVGROUP) {
+			if (DBA::isResult($r)) {
+				if ($r[0]['page-flags'] != Contact::PAGE_NORMAL && $r[0]['page-flags'] != Contact::PAGE_PRVGROUP) {
 					$auto_confirm = true;
 				}
 
@@ -576,7 +573,7 @@ function dfrn_request_content(App $a)
 						'node'     => $r[0]['nickname'],
 						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
-						'duplex'   => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
+						'duplex'   => (($r[0]['page-flags'] == Contact::PAGE_FREELOVE) ? 1 : 0),
 					];
 					dfrn_confirm_post($a, $handsfree);
 				}
@@ -588,7 +585,7 @@ function dfrn_request_content(App $a)
 				// in dfrn_confirm_post()
 
 				$r = q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s'",
-					dbesc($_GET['confirm_key'])
+					DBA::escape($_GET['confirm_key'])
 				);
 			}
 		}
@@ -612,7 +609,7 @@ function dfrn_request_content(App $a)
 		} elseif (x($_GET, 'address') && ($_GET['address'] != "")) {
 			$myaddr = $_GET['address'];
 		} elseif (local_user()) {
-			if (strlen($a->path)) {
+			if (strlen($a->urlpath)) {
 				$myaddr = System::baseUrl() . '/profile/' . $a->user['nickname'];
 			} else {
 				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
@@ -628,7 +625,7 @@ function dfrn_request_content(App $a)
 		 * because nobody is going to read the comments and
 		 * it doesn't matter if they know you or not.
 		 */
-		if ($a->profile['page-flags'] == PAGE_NORMAL) {
+		if ($a->profile['page-flags'] == Contact::PAGE_NORMAL) {
 			$tpl = get_markup_template('dfrn_request.tpl');
 		} else {
 			$tpl = get_markup_template('auto_request.tpl');

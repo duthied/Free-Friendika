@@ -14,15 +14,17 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Module\Tos;
+use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Util\Network;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -65,7 +67,7 @@ function admin_post(App $a)
 			case 'addons':
 				if ($a->argc > 2 &&
 					is_file("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php")) {
-					@include_once("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php");
+					include_once "addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php";
 					if (function_exists($a->argv[2] . '_addon_admin_post')) {
 						$func = $a->argv[2] . '_addon_admin_post';
 						$func($a);
@@ -189,7 +191,8 @@ function admin_content(App $a)
 			'tos'          => ["admin/tos/"         , L10n::t("Terms of Service")     , "tos"] ]],
 		'database' => [ L10n::t('Database'), [
 			'dbsync'       => ["admin/dbsync/"      , L10n::t('DB updates')           , "dbsync"],
-			'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"], ]],
+			'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"],
+			'workerqueue'  => ["admin/workerqueue/" , L10n::t('Inspect worker Queue') , "workerqueue"] ]],
 		'tools' => [ L10n::t('Tools'), [
 			'contactblock' => ["admin/contactblock/", L10n::t('Contact Blocklist')    , "contactblock"],
 			'blocklist'    => ["admin/blocklist/"   , L10n::t('Server Blocklist')     , "blocklist"],
@@ -257,6 +260,9 @@ function admin_content(App $a)
 				break;
 			case 'queue':
 				$o = admin_page_queue($a);
+				break;
+			case 'workerqueue':
+				$o = admin_page_workerqueue($a);
 				break;
 			case 'federation':
 				$o = admin_page_federation($a);
@@ -467,14 +473,14 @@ function admin_page_contactblock(App $a)
 {
 	$condition = ['uid' => 0, 'blocked' => true];
 
-	$total = dba::count('contact', $condition);
+	$total = DBA::count('contact', $condition);
 
 	$a->set_pager_total($total);
 	$a->set_pager_itemspage(30);
 
-	$statement = dba::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
+	$statement = DBA::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
 
-	$contacts = dba::inArray($statement);
+	$contacts = DBA::toArray($statement);
 
 	$t = get_markup_template('admin/contactblock.tpl');
 	$o = replace_macros($t, [
@@ -729,7 +735,7 @@ function admin_page_federation(App $a)
  * @brief Admin Inspect Queue Page
  *
  * Generates a page for the admin to have a look into the current queue of
- * postings that are not deliverabke. Shown are the name and url of the
+ * postings that are not deliverable. Shown are the name and url of the
  * recipient, the delivery network and the dates when the posting was generated
  * and the last time tried to deliver the posting.
  *
@@ -741,10 +747,18 @@ function admin_page_federation(App $a)
 function admin_page_queue(App $a)
 {
 	// get content from the queue table
-	$r = q("SELECT `c`.`name`, `c`.`nurl`, `q`.`id`, `q`.`network`, `q`.`created`, `q`.`last`
-			FROM `queue` AS `q`, `contact` AS `c`
-			WHERE `c`.`id` = `q`.`cid`
-			ORDER BY `q`.`cid`, `q`.`created`;");
+	$entries = DBA::p("SELECT `contact`.`name`, `contact`.`nurl`,
+                `queue`.`id`, `queue`.`network`, `queue`.`created`, `queue`.`last`
+                FROM `queue` INNER JOIN `contact` ON `contact`.`id` = `queue`.`cid`
+                ORDER BY `queue`.`cid`, `queue`.`created`");
+
+	$r = [];
+	while ($entry = DBA::fetch($entries)) {
+		$entry['created'] = DateTimeFormat::local($entry['created']);
+		$entry['last'] = DateTimeFormat::local($entry['last']);
+		$r[] = $entry;
+	}
+	DBA::close($entries);
 
 	$t = get_markup_template('admin/queue.tpl');
 	return replace_macros($t, [
@@ -763,6 +777,45 @@ function admin_page_queue(App $a)
 }
 
 /**
+ * @brief Admin Inspect Worker Queue Page
+ *
+ * Generates a page for the admin to have a look into the current queue of
+ * worker jobs. Shown are the parameters for the job and its priority.
+ *
+ * The returned string holds the content of the page.
+ *
+ * @param App $a
+ * @return string
+ */
+function admin_page_workerqueue(App $a)
+{
+	// get jobs from the workerqueue table
+	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], ['done' => 0], ['order'=> ['priority']]);
+
+	$r = [];
+	while ($entry = DBA::fetch($entries)) {
+		// fix GH-5469. ref: src/Core/Worker.php:217
+		$entry['parameter'] = Arrays::recursiveImplode(json_decode($entry['parameter'], true), ': ');
+		$entry['created'] = DateTimeFormat::local($entry['created']);
+		$r[] = $entry;
+	}
+	DBA::close($entries);
+
+	$t = get_markup_template('admin/workerqueue.tpl');
+	return replace_macros($t, [
+		'$title' => L10n::t('Administration'),
+		'$page' => L10n::t('Inspect Worker Queue'),
+		'$count' => count($r),
+		'$id_header' => L10n::t('ID'),
+		'$param_header' => L10n::t('Job Parameters'),
+		'$created_header' => L10n::t('Created'),
+		'$prio_header' => L10n::t('Priority'),
+		'$info' => L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.'),
+		'$entries' => $r,
+	]);
+}
+
+/**
  * @brief Admin Summary Page
  *
  * The summary page is the "start page" of the admin panel. It gives the admin
@@ -776,10 +829,10 @@ function admin_page_queue(App $a)
 function admin_page_summary(App $a)
 {
 	// are there MyISAM tables in the DB? If so, trigger a warning message
-	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", dbesc(dba::database_name()));
+	$r = q("SELECT `engine` FROM `information_schema`.`tables` WHERE `engine` = 'myisam' AND `table_schema` = '%s' LIMIT 1", DBA::escape(DBA::databaseName()));
 	$showwarning = false;
 	$warningtext = [];
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 	}
@@ -801,13 +854,27 @@ function admin_page_summary(App $a)
 		$warningtext[] = L10n::t('The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.');
 	}
 
-	$last_worker_call = Config::get('system', 'last_poller_execution', false);
+	$last_worker_call = Config::get('system', 'last_worker_execution', false);
 	if (!$last_worker_call) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The worker was never executed. Please check your database structure!');
 	} elseif ((strtotime(DateTimeFormat::utcNow()) - strtotime($last_worker_call)) > 60 * 60) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The last worker execution was on %s UTC. This is older than one hour. Please check your crontab settings.', $last_worker_call);
+	}
+
+	// Legacy config file warning
+	if (file_exists('.htconfig.php')) {
+		$showwarning = true;
+		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.ini.php, please copy config/local-sample.ini.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->get_baseurl() . '/help/Config');
+	}
+
+	// Check server vitality
+	if (!admin_page_server_vital()) {
+		$showwarning = true;
+		$well_known = $a->get_baseurl() . '/.well-known/host-meta';
+		$warningtext[] = L10n::t('<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.',
+			$well_known, $well_known, $a->get_baseurl() . '/help/Install');
 	}
 
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
@@ -903,10 +970,8 @@ function admin_page_site_post(App $a)
 
 		function update_table($table_name, $fields, $old_url, $new_url)
 		{
-			global $a;
-
-			$dbold = dbesc($old_url);
-			$dbnew = dbesc($new_url);
+			$dbold = DBA::escape($old_url);
+			$dbnew = DBA::escape($new_url);
 
 			$upd = [];
 			foreach ($fields as $f) {
@@ -916,8 +981,9 @@ function admin_page_site_post(App $a)
 			$upds = implode(", ", $upd);
 
 			$r = q("UPDATE %s SET %s;", $table_name, $upds);
-			if (!DBM::is_result($r)) {
-				notice("Failed updating '$table_name': " . dba::errorMessage());
+
+			if (!DBA::isResult($r)) {
+				notice("Failed updating '$table_name': " . DBA::errorMessage());
 				goaway('admin/site');
 			}
 		}
@@ -927,7 +993,7 @@ function admin_page_site_post(App $a)
 		update_table("term", ['url'], $old_url, $new_url);
 		update_table("contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
 		update_table("gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
-		update_table("item", ['owner-link', 'owner-avatar', 'author-link', 'author-avatar', 'body', 'plink', 'tag'], $old_url, $new_url);
+		update_table("item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);
 
 		// update profile addresses in the format "user@server.tld"
 		update_table("contact", ['addr'], $old_host, $new_host);
@@ -974,6 +1040,7 @@ function admin_page_site_post(App $a)
 
 	$allowed_sites		=	((x($_POST,'allowed_sites'))		? notags(trim($_POST['allowed_sites']))		: '');
 	$allowed_email		=	((x($_POST,'allowed_email'))		? notags(trim($_POST['allowed_email']))		: '');
+	$forbidden_nicknames	=	((x($_POST,'forbidden_nicknames'))	? strtolower(notags(trim($_POST['forbidden_nicknames'])))		: '');
 	$no_oembed_rich_content = x($_POST,'no_oembed_rich_content');
 	$allowed_oembed		=	((x($_POST,'allowed_oembed'))		? notags(trim($_POST['allowed_oembed']))		: '');
 	$block_public		=	((x($_POST,'block_public'))		? True						: False);
@@ -984,6 +1051,7 @@ function admin_page_site_post(App $a)
 	$private_addons			=	((x($_POST,'private_addons'))		? True					: False);
 	$disable_embedded		=	((x($_POST,'disable_embedded'))		? True					: False);
 	$allow_users_remote_self	=	((x($_POST,'allow_users_remote_self'))	? True					: False);
+	$explicit_content	=	((x($_POST,'explicit_content'))	? True					: False);
 
 	$no_multi_reg		=	((x($_POST,'no_multi_reg'))		? True						: False);
 	$no_openid		=	!((x($_POST,'no_openid'))		? True						: False);
@@ -1028,7 +1096,7 @@ function admin_page_site_post(App $a)
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
 	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
 
-	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 4);
+	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 10);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
 	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
 	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
@@ -1142,6 +1210,7 @@ function admin_page_site_post(App $a)
 	Config::set('config', 'register_text', $register_text);
 	Config::set('system', 'allowed_sites', $allowed_sites);
 	Config::set('system', 'allowed_email', $allowed_email);
+	Config::set('system', 'forbidden_nicknames', $forbidden_nicknames);
 	Config::set('system', 'no_oembed_rich_content', $no_oembed_rich_content);
 	Config::set('system', 'allowed_oembed', $allowed_oembed);
 	Config::set('system', 'block_public', $block_public);
@@ -1150,6 +1219,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'enotify_no_content', $enotify_no_content);
 	Config::set('system', 'disable_embedded', $disable_embedded);
 	Config::set('system', 'allow_users_remote_self', $allow_users_remote_self);
+	Config::set('system', 'explicit_content', $explicit_content);
 	Config::set('system', 'check_new_version_url', $check_new_version_url);
 
 	Config::set('system', 'block_extended_register', $no_multi_reg);
@@ -1297,15 +1367,18 @@ function admin_page_site(App $a)
 	$user_names = [];
 	$user_names['---'] = L10n::t('Multi user instance');
 	$users = q("SELECT `username`, `nickname` FROM `user`");
+
 	foreach ($users as $user) {
 		$user_names[$user['nickname']] = $user['username'];
 	}
 
 	/* Banner */
 	$banner = Config::get('system', 'banner');
+
 	if ($banner == false) {
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
+
 	$banner = htmlspecialchars($banner);
 	$info = Config::get('config', 'info');
 	$info = htmlspecialchars($info);
@@ -1335,8 +1408,8 @@ function admin_page_site(App $a)
 		"develop" => L10n::t("check the development version")
 	];
 
-	if ($a->config['hostname'] == "") {
-		$a->config['hostname'] = $a->get_hostname();
+	if (empty(Config::get('config', 'hostname'))) {
+		Config::set('config', 'hostname', $a->get_hostname());
 	}
 	$diaspora_able = ($a->get_path() == "");
 
@@ -1363,9 +1436,9 @@ function admin_page_site(App $a)
 		'$relocate' => L10n::t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
-		'$sitename' 		=> ['sitename', L10n::t("Site name"), $a->config['sitename'],''],
-		'$hostname' 		=> ['hostname', L10n::t("Host name"), $a->config['hostname'], ""],
-		'$sender_email'		=> ['sender_email', L10n::t("Sender Email"), $a->config['sender_email'], L10n::t("The email address your server shall use to send notification emails from."), "", "", "email"],
+		'$sitename' 		=> ['sitename', L10n::t("Site name"), Config::get('config', 'sitename'),''],
+		'$hostname' 		=> ['hostname', L10n::t("Host name"), Config::get('config', 'hostname'), ""],
+		'$sender_email'		=> ['sender_email', L10n::t("Sender Email"), Config::get('config', 'sender_email'), L10n::t("The email address your server shall use to send notification emails from."), "", "", "email"],
 		'$banner'		=> ['banner', L10n::t("Banner/Logo"), $banner, ""],
 		'$shortcut_icon'	=> ['shortcut_icon', L10n::t("Shortcut icon"), Config::get('system','shortcut_icon'),  L10n::t("Link to an icon that will be used for browsers.")],
 		'$touch_icon'		=> ['touch_icon', L10n::t("Touch icon"), Config::get('system','touch_icon'),  L10n::t("Link to an icon that will be used for tablets and mobiles.")],
@@ -1381,9 +1454,10 @@ function admin_page_site(App $a)
 		'$maximagelength'	=> ['maximagelength', L10n::t("Maximum image length"), Config::get('system','max_image_length'), L10n::t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
 		'$jpegimagequality'	=> ['jpegimagequality', L10n::t("JPEG image quality"), Config::get('system','jpeg_quality'), L10n::t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")],
 
-		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), $a->config['register_policy'], "", $register_choices],
+		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), Config::get('config', 'register_policy'), "", $register_choices],
 		'$daily_registrations'	=> ['max_daily_registrations', L10n::t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), L10n::t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
-		'$register_text'	=> ['register_text', L10n::t("Register text"), $a->config['register_text'], L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
+		'$register_text'	=> ['register_text', L10n::t("Register text"), Config::get('config', 'register_text'), L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
+		'$forbidden_nicknames' => ['forbidden_nicknames', L10n::t('Forbidden Nicknames'), Config::get('system', 'forbidden_nicknames'), L10n::t('Comma separated list of nicknames that are forbidden from registration. Preset is a list of role names according RFC 2142.')],
 		'$abandon_days'		=> ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
 		'$allowed_sites'	=> ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system','allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
 		'$allowed_email'	=> ['allowed_email', L10n::t("Allowed email domains"), Config::get('system','allowed_email'), L10n::t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
@@ -1396,6 +1470,7 @@ function admin_page_site(App $a)
 		'$enotify_no_content'	=> ['enotify_no_content', L10n::t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), L10n::t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")],
 		'$private_addons'	=> ['private_addons', L10n::t("Disallow public access to addons listed in the apps menu."), Config::get('config','private_addons'), L10n::t("Checking this box will restrict addons listed in the apps menu to members only.")],
 		'$disable_embedded'	=> ['disable_embedded', L10n::t("Don't embed private images in posts"), Config::get('system','disable_embedded'), L10n::t("Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.")],
+		'$explicit_content' => ['explicit_content', L10n::t('Explicit Content'), Config::get('system', 'explicit_content', False), L10n::t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
 		'$allow_users_remote_self' => ['allow_users_remote_self', L10n::t('Allow Users to set remote_self'), Config::get('system','allow_users_remote_self'), L10n::t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
 		'$no_multi_reg'		=> ['no_multi_reg', L10n::t("Block multiple registrations"),  Config::get('system','block_extended_register'), L10n::t("Disallow users to register additional accounts for use as pages.")],
 		'$no_openid'		=> ['no_openid', L10n::t("OpenID support"), !Config::get('system','no_openid'), L10n::t("OpenID support for registration and logins.")],
@@ -1444,7 +1519,7 @@ function admin_page_site(App $a)
 
 		'$rino' 		=> ['rino', L10n::t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => L10n::t("Disabled"), 1 => L10n::t("Enabled")]],
 
-		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to 2. On larger systems, values of 10 are great. Default value is 4.")],
+		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.", 5, 20, 10)],
 		'$worker_dont_fork'	=> ['worker_dont_fork', L10n::t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), L10n::t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
 		'$worker_fastlane'	=> ['worker_fastlane', L10n::t("Enable fastlane"), Config::get('system','worker_fastlane'), L10n::t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
 		'$worker_frontend'	=> ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system','frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed \x28e.g. messages being delivered\x29. On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
@@ -1456,7 +1531,8 @@ function admin_page_site(App $a)
 		'$relay_server_tags' 	=> ['relay_server_tags', L10n::t("Server tags"), Config::get('system','relay_server_tags'), L10n::t("Comma separated list of tags for the 'tags' subscription.")],
 		'$relay_user_tags' 	=> ['relay_user_tags', L10n::t("Allow user tags"), Config::get('system', 'relay_user_tags', true), L10n::t("If enabled, the tags from the saved searches will used for the 'tags' subscription in addition to the 'relay_server_tags'.")],
 
-		'$form_security_token'	=> get_form_security_token("admin_site")
+		'$form_security_token'	=> get_form_security_token("admin_site"),
+		'$relocate_button'      => L10n::t('Start Relocation'),
 	]);
 }
 
@@ -1501,9 +1577,12 @@ function admin_page_dbsync(App $a)
 
 	if ($a->argc > 2 && intval($a->argv[2])) {
 		require_once 'update.php';
+
 		$func = 'update_' . intval($a->argv[2]);
+
 		if (function_exists($func)) {
 			$retval = $func();
+
 			if ($retval === UPDATE_FAILED) {
 				$o .= L10n::t("Executing %s failed with error: %s", $func, $retval);
 			} elseif ($retval === UPDATE_SUCCESS) {
@@ -1516,12 +1595,14 @@ function admin_page_dbsync(App $a)
 			$o .= L10n::t('There was no additional update function %s that needed to be called.', $func) . "<br />";
 			Config::set('database', $func, 'success');
 		}
+
 		return $o;
 	}
 
 	$failed = [];
 	$r = q("SELECT `k`, `v` FROM `config` WHERE `cat` = 'database' ");
-	if (DBM::is_result($r)) {
+
+	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
 			$upd = intval(substr($rr['k'], 7));
 			if ($upd < 1139 || $rr['v'] === 'success') {
@@ -1530,6 +1611,7 @@ function admin_page_dbsync(App $a)
 			$failed[] = $upd;
 		}
 	}
+
 	if (!count($failed)) {
 		$o = replace_macros(get_markup_template('structure_check.tpl'), [
 			'$base' => System::baseUrl(true),
@@ -1612,15 +1694,18 @@ function admin_page_users_post(App $a)
 
 			Thank you and welcome to %4$s.'));
 
-		$preamble = sprintf($preamble, $user['username'], $a->config['sitename']);
-		$body = sprintf($body, System::baseUrl(), $user['email'], $result['password'], $a->config['sitename']);
+		$preamble = sprintf($preamble, $user['username'], Config::get('config', 'sitename'));
+		$body = sprintf($body, System::baseUrl(), $user['email'], $result['password'], Config::get('config', 'sitename'));
 
 		notification([
-			'type' => SYSTEM_EMAIL,
+			'type'     => SYSTEM_EMAIL,
+			'language' => $user['language'],
+			'to_name'  => $user['username'],
 			'to_email' => $user['email'],
-			'subject' => L10n::t('Registration details for %s', $a->config['sitename']),
+			'uid'      => $user['uid'],
+			'subject'  => L10n::t('Registration details for %s', Config::get('config', 'sitename')),
 			'preamble' => $preamble,
-			'body' => $body]);
+			'body'     => $body]);
 	}
 
 	if (x($_POST, 'page_users_block')) {
@@ -1669,8 +1754,8 @@ function admin_page_users(App $a)
 {
 	if ($a->argc > 2) {
 		$uid = $a->argv[3];
-		$user = dba::selectFirst('user', ['username', 'blocked'], ['uid' => $uid]);
-		if (!DBM::is_result($user)) {
+		$user = DBA::selectFirst('user', ['username', 'blocked'], ['uid' => $uid]);
+		if (!DBA::isResult($user)) {
 			notice('User not found' . EOL);
 			goaway('admin/users');
 			return ''; // NOTREACHED
@@ -1743,39 +1828,38 @@ function admin_page_users(App $a)
 				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d", intval($a->pager['start']), intval($a->pager['itemspage'])
 	);
 
-	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 	$_setup_users = function ($e) use ($adminlist) {
 		$page_types = [
-			PAGE_NORMAL => L10n::t('Normal Account Page'),
-			PAGE_SOAPBOX => L10n::t('Soapbox Page'),
-			PAGE_COMMUNITY => L10n::t('Public Forum'),
-			PAGE_FREELOVE => L10n::t('Automatic Friend Page'),
-			PAGE_PRVGROUP => L10n::t('Private Forum')
+			Contact::PAGE_NORMAL    => L10n::t('Normal Account Page'),
+			Contact::PAGE_SOAPBOX   => L10n::t('Soapbox Page'),
+			Contact::PAGE_COMMUNITY => L10n::t('Public Forum'),
+			Contact::PAGE_FREELOVE  => L10n::t('Automatic Friend Page'),
+			Contact::PAGE_PRVGROUP  => L10n::t('Private Forum')
 		];
 		$account_types = [
-			ACCOUNT_TYPE_PERSON => L10n::t('Personal Page'),
-			ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
-			ACCOUNT_TYPE_NEWS => L10n::t('News Page'),
-			ACCOUNT_TYPE_COMMUNITY => L10n::t('Community Forum')
+			Contact::ACCOUNT_TYPE_PERSON       => L10n::t('Personal Page'),
+			Contact::ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
+			Contact::ACCOUNT_TYPE_NEWS         => L10n::t('News Page'),
+			Contact::ACCOUNT_TYPE_COMMUNITY    => L10n::t('Community Forum')
 		];
 
-
-
-		$e['page-flags-raw'] = $e['page-flags'];
+		$e['page_flags_raw'] = $e['page-flags'];
 		$e['page-flags'] = $page_types[$e['page-flags']];
 
-		$e['account-type-raw'] = ($e['page_flags_raw']==0) ? $e['account-type'] : -1;
-		$e['account-type'] = ($e['page_flags_raw']==0) ? $account_types[$e['account-type']] : "";
+		$e['account_type_raw'] = ($e['page_flags_raw'] == 0) ? $e['account-type'] : -1;
+		$e['account-type'] = ($e['page_flags_raw'] == 0) ? $account_types[$e['account-type']] : "";
 
 		$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
 		$e['login_date'] = Temporal::getRelativeDate($e['login_date']);
 		$e['lastitem_date'] = Temporal::getRelativeDate($e['lastitem_date']);
-		//$e['is_admin'] = ($e['email'] === $a->config['admin_email']);
 		$e['is_admin'] = in_array($e['email'], $adminlist);
 		$e['is_deletable'] = (intval($e['uid']) != local_user());
 		$e['deleted'] = ($e['account_removed'] ? Temporal::getRelativeDate($e['account_expires_on']) : False);
+
 		return $e;
 	};
+
 	$users = array_map($_setup_users, $users);
 
 
@@ -1821,6 +1905,7 @@ function admin_page_users(App $a)
 		'$deny' => L10n::t('Deny'),
 		'$delete' => L10n::t('Delete'),
 		'$block' => L10n::t('Block'),
+		'$blocked' => L10n::t('User blocked'),
 		'$unblock' => L10n::t('Unblock'),
 		'$siteadmin' => L10n::t('Site admin'),
 		'$accountexpired' => L10n::t('Account expired'),
@@ -1916,12 +2001,12 @@ function admin_page_addons(App $a)
 
 		$admin_form = "";
 		if (in_array($addon, $a->addons_admin)) {
-			@require_once("addon/$addon/$addon.php");
+			require_once "addon/$addon/$addon.php";
 			$func = $addon . '_addon_admin';
 			$func($a, $admin_form);
 		}
 
-		$t = get_markup_template('admin/plugins_details.tpl');
+		$t = get_markup_template('admin/addon_details.tpl');
 
 		return replace_macros($t, [
 			'$title' => L10n::t('Administration'),
@@ -2157,6 +2242,7 @@ function admin_page_themes(App $a)
 		}
 
 		$readme = null;
+
 		if (is_file("view/theme/$theme/README.md")) {
 			$readme = Markdown::convert(file_get_contents("view/theme/$theme/README.md"), false);
 		} elseif (is_file("view/theme/$theme/README")) {
@@ -2191,7 +2277,7 @@ function admin_page_themes(App $a)
 			$screenshot = null;
 		}
 
-		$t = get_markup_template('admin/plugins_details.tpl');
+		$t = get_markup_template('admin/addon_details.tpl');
 		return replace_macros($t, [
 			'$title' => L10n::t('Administration'),
 			'$page' => L10n::t('Themes'),
@@ -2295,11 +2381,12 @@ function admin_page_logs_post(App $a)
 function admin_page_logs(App $a)
 {
 	$log_choices = [
-		LOGGER_NORMAL	=> 'Normal',
-		LOGGER_TRACE	=> 'Trace',
-		LOGGER_DEBUG	=> 'Debug',
-		LOGGER_DATA	=> 'Data',
-		LOGGER_ALL	=> 'All'
+		LOGGER_WARNING => 'Warning',
+		LOGGER_INFO    => 'Info',
+		LOGGER_TRACE   => 'Trace',
+		LOGGER_DEBUG   => 'Debug',
+		LOGGER_DATA    => 'Data',
+		LOGGER_ALL     => 'All'
 	];
 
 	if (ini_get('log_errors')) {
@@ -2323,7 +2410,7 @@ function admin_page_logs(App $a)
 		'$loglevel' => ['loglevel', L10n::t("Log level"), Config::get('system', 'loglevel'), "", $log_choices],
 		'$form_security_token' => get_form_security_token("admin_logs"),
 		'$phpheader' => L10n::t("PHP logging"),
-		'$phphint' => L10n::t("To enable logging of PHP errors and warnings you can add the following to the .htconfig.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
+		'$phphint' => L10n::t("To temporarily enable logging of PHP errors and warnings you can prepend the following to the index.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
 		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE);\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
 		'$phplogenabled' => $phplogenabled,
 	]);
@@ -2465,4 +2552,11 @@ function admin_page_features(App $a)
 
 		return $o;
 	}
+}
+
+function admin_page_server_vital()
+{
+	// Fetch the host-meta to check if this really is a vital server
+	$serverret = Network::curl(System::baseUrl() . '/.well-known/host-meta');
+	return $serverret["success"];
 }

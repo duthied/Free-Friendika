@@ -78,6 +78,7 @@
 	<h3>{{$corporate}}</h3>
 	{{include file="field_input.tpl" field=$allowed_sites}}
 	{{include file="field_input.tpl" field=$allowed_email}}
+	{{include file="field_input.tpl" field=$forbidden_nicknames}}
 	{{include file="field_checkbox.tpl" field=$no_oembed_rich_content}}
 	{{include file="field_input.tpl" field=$allowed_oembed}}
 	{{include file="field_checkbox.tpl" field=$block_public}}
@@ -104,6 +105,7 @@
 	{{include file="field_checkbox.tpl" field=$private_addons}}
 	{{include file="field_checkbox.tpl" field=$disable_embedded}}
 	{{include file="field_checkbox.tpl" field=$allow_users_remote_self}}
+	{{include file="field_checkbox.tpl" field=$explicit_content}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$advanced}}</h3>
@@ -150,6 +152,8 @@
 	{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 	{{include file="field_checkbox.tpl" field=$worker_frontend}}
 
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+
 	<h3>{{$relay_title}}</h3>
 	{{include file="field_checkbox.tpl" field=$relay_subscribe}}
 	{{include file="field_input.tpl" field=$relay_server}}
@@ -168,7 +172,7 @@
 	<h3>{{$relocate}}</h3>
 	{{include file="field_input.tpl" field=$relocate_url}}
 	<input type="hidden" name="page_site" value="{{$submit|escape:'html'}}">
-	<div class="submit"><input type="submit" name="relocate" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="relocate" value="{{$relocate_button|escape:'html'}}" /></div>
 	</form>
 
 </div>

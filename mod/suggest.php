@@ -2,17 +2,19 @@
 /**
  * @file mod/suggest.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
+use Friendica\Util\Proxy as ProxyUtils;
 
-function suggest_init(App $a) {
+function suggest_init(App $a)
+{
 	if (! local_user()) {
 		return;
 	}
@@ -45,17 +47,16 @@ function suggest_init(App $a) {
 		}
 		// Now check how the user responded to the confirmation query
 		if (!$_REQUEST['canceled']) {
-			dba::insert('gcign', ['uid' => local_user(), 'gcid' => $_GET['ignore']]);
+			DBA::insert('gcign', ['uid' => local_user(), 'gcid' => $_GET['ignore']]);
 		}
 	}
 
 }
 
-function suggest_content(App $a) {
-
-	require_once("mod/proxy.php");
-
+function suggest_content(App $a)
+{
 	$o = '';
+
 	if (! local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
@@ -69,17 +70,19 @@ function suggest_content(App $a) {
 
 	$r = GContact::suggestionQuery(local_user());
 
-	if (! DBM::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		$o .= L10n::t('No suggestions available. If this is a new site, please try again in 24 hours.');
 		return $o;
 	}
+
+	$id = 0;
 
 	foreach ($r as $rr) {
 
 		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
 		$photo_menu = [
-			'profile' => [L10n::t("View Profile"), Profile::zrl($rr["url"])],
+			'profile' => [L10n::t("View Profile"), Contact::magicLink($rr["url"])],
 			'follow' => [L10n::t("Connect/Follow"), $connlnk],
 			'hide' => [L10n::t('Ignore/Hide'), $ignlnk]
 		];
@@ -87,11 +90,11 @@ function suggest_content(App $a) {
 		$contact_details = Contact::getDetailsByURL($rr["url"], local_user(), $rr);
 
 		$entry = [
-			'url' => Profile::zrl($rr['url']),
+			'url' => Contact::magicLink($rr['url']),
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'img_hover' => $rr['url'],
 			'name' => $contact_details['name'],
-			'thumb' => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+			'thumb' => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],

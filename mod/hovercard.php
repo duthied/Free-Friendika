@@ -7,12 +7,14 @@
  * Author: Rabuzarus <https://github.com/rabuzarus>
  * License: GNU AFFERO GENERAL PUBLIC LICENSE (Version 3)
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
+use Friendica\Util\Proxy as ProxyUtils;
 
 function hovercard_init(App $a)
 {
@@ -44,19 +46,41 @@ function hovercard_content()
 	// the contact. So we strip out the contact id from the internal url and look in the contact table for
 	// the real url (nurl)
 	$cid = 0;
-	if (local_user() && strpos($profileurl, 'redir/') === 0) {
+	if (strpos($profileurl, 'redir/') === 0) {
 		$cid = intval(substr($profileurl, 6));
-		$remote_contact = dba::selectFirst('contact', ['nurl'], ['id' => $cid]);
+		$remote_contact = DBA::selectFirst('contact', ['nurl'], ['id' => $cid]);
 		$profileurl = defaults($remote_contact, 'nurl', '');
 	}
 
 	$contact = [];
 	// if it's the url containing https it should be converted to http
 	$nurl = normalise_link(GContact::cleanContactUrl($profileurl));
-	if ($nurl) {
-		// Search for contact data
+	if (!$nurl) {
+		return;
+	}
+
+	// Search for contact data
+	// Look if the local user has got the contact
+	if (local_user()) {
+		$contact = Contact::getDetailsByURL($nurl, local_user());
+	}
+
+	// If not then check the global user
+	if (!count($contact)) {
 		$contact = Contact::getDetailsByURL($nurl);
 	}
+
+	// Feeds url could have been destroyed through "cleanContactUrl", so we now use the original url
+	if (!count($contact) && local_user()) {
+		$nurl = normalise_link($profileurl);
+		$contact = Contact::getDetailsByURL($nurl, local_user());
+	}
+
+	if (!count($contact)) {
+		$nurl = normalise_link($profileurl);
+		$contact = Contact::getDetailsByURL($nurl);
+	}
+
 	if (!count($contact)) {
 		return;
 	}
@@ -64,6 +88,8 @@ function hovercard_content()
 	// Get the photo_menu - the menu if possible contact actions
 	if (local_user()) {
 		$actions = Contact::photoMenu($contact);
+	} else {
+		$actions = [];
 	}
 
 	// Move the contact data to the profile array so we can deliver it to
@@ -71,8 +97,8 @@ function hovercard_content()
 		'name'     => $contact['name'],
 		'nick'     => $contact['nick'],
 		'addr'     => defaults($contact, 'addr', $contact['url']),
-		'thumb'    => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
-		'url'      => $cid ? ('redir/' . $cid) : Profile::zrl($contact['url']),
+		'thumb'    => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+		'url'      => Contact::magicLink($contact['url']),
 		'nurl'     => $contact['nurl'], // We additionally store the nurl as identifier
 		'location' => $contact['location'],
 		'gender'   => $contact['gender'],

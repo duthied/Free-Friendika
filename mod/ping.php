@@ -9,17 +9,19 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
-require_once 'mod/proxy.php';
 require_once 'include/enotify.php';
 
 /**
@@ -106,7 +108,7 @@ function ping_init(App $a)
 
 	if (local_user()) {
 		// Different login session than the page that is calling us.
-		if (intval($_GET['uid']) && intval($_GET['uid']) != local_user()) {
+		if (!empty($_GET['uid']) && intval($_GET['uid']) != local_user()) {
 			$data = ['result' => ['invalid' => 1]];
 
 			if ($format == 'json') {
@@ -127,20 +129,14 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$items_unseen = q(
-			"SELECT `item`.`id`, `item`.`parent`, `item`.`verb`, `item`.`wall`, `item`.`author-name`,
-				`item`.`contact-id`, `item`.`author-link`, `item`.`author-avatar`, `item`.`created`, `item`.`object`,
-				`pitem`.`author-name` AS `pname`, `pitem`.`author-link` AS `plink`
-				FROM `item` INNER JOIN `item` AS `pitem` ON  `pitem`.`id` = `item`.`parent`
-				WHERE `item`.`unseen` = 1 AND `item`.`visible` = 1 AND
-				 `item`.`deleted` = 0 AND `item`.`uid` = %d AND `pitem`.`parent` != 0
-				AND `item`.`contact-id` != %d
-				ORDER BY `item`.`created` DESC",
-			intval(local_user()),
-			intval(local_user())
-		);
+		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ?", local_user(), local_user()];
+		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall'];
+		$params = ['order' => ['created' => true]];
+		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBM::is_result($items_unseen)) {
+		if (DBA::isResult($items)) {
+			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
 			Addon::callHooks('network_ping', $arr);
 
@@ -157,7 +153,7 @@ function ping_init(App $a)
 			if (intval(Feature::isEnabled(local_user(), 'groups'))) {
 				// Find out how unseen network posts are spread across groups
 				$group_counts = Group::countUnseen();
-				if (DBM::is_result($group_counts)) {
+				if (DBA::isResult($group_counts)) {
 					foreach ($group_counts as $group_count) {
 						if ($group_count['count'] > 0) {
 							$groups_unseen[] = $group_count;
@@ -168,7 +164,7 @@ function ping_init(App $a)
 
 			if (intval(Feature::isEnabled(local_user(), 'forumlist_widget'))) {
 				$forum_counts = ForumManager::countUnseenItems();
-				if (DBM::is_result($forum_counts)) {
+				if (DBA::isResult($forum_counts)) {
 					foreach ($forum_counts as $forum_count) {
 						if ($forum_count['count'] > 0) {
 							$forums_unseen[] = $forum_count;
@@ -201,18 +197,18 @@ function ping_init(App $a)
 			"SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
 			intval(local_user()),
-			dbesc($myurl)
+			DBA::escape($myurl)
 		);
 		$mail_count = count($mails);
 
-		if ($a->config['register_policy'] == REGISTER_APPROVE && is_site_admin()) {
+		if (intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE && is_site_admin()) {
 			$regs = q(
 				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`
 				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
 				WHERE `contact`.`self` = 1"
 			);
 
-			if (DBM::is_result($regs)) {
+			if (DBA::isResult($regs)) {
 				$register_count = count($regs);
 			}
 		}
@@ -225,15 +221,15 @@ function ping_init(App $a)
 				WHERE `event`.`uid` = %d AND `start` < '%s' AND `finish` > '%s' and `ignore` = 0
 				ORDER BY `start` ASC ",
 				intval(local_user()),
-				dbesc(DateTimeFormat::utc('now + 7 days')),
-				dbesc(DateTimeFormat::utcNow())
+				DBA::escape(DateTimeFormat::utc('now + 7 days')),
+				DBA::escape(DateTimeFormat::utcNow())
 			);
-			if (DBM::is_result($ev)) {
+			if (DBA::isResult($ev)) {
 				Cache::set($cachekey, $ev, CACHE_HOUR);
 			}
 		}
 
-		if (DBM::is_result($ev)) {
+		if (DBA::isResult($ev)) {
 			$all_events = count($ev);
 
 			if ($all_events) {
@@ -271,7 +267,7 @@ function ping_init(App $a)
 		$data['birthdays']        = $birthdays;
 		$data['birthdays-today']  = $birthdays_today;
 
-		if (DBM::is_result($notifs)) {
+		if (DBA::isResult($notifs)) {
 			foreach ($notifs as $notif) {
 				if ($notif['seen'] == 0) {
 					$sysnotify_count ++;
@@ -280,9 +276,10 @@ function ping_init(App $a)
 		}
 
 		// merge all notification types in one array
-		if (DBM::is_result($intros)) {
+		if (DBA::isResult($intros)) {
 			foreach ($intros as $intro) {
 				$notif = [
+					'id'      => 0,
 					'href'    => System::baseUrl() . '/notifications/intros/' . $intro['id'],
 					'name'    => $intro['name'],
 					'url'     => $intro['url'],
@@ -295,9 +292,10 @@ function ping_init(App $a)
 			}
 		}
 
-		if (DBM::is_result($mails)) {
+		if (DBA::isResult($mails)) {
 			foreach ($mails as $mail) {
 				$notif = [
+					'id'      => 0,
 					'href'    => System::baseUrl() . '/message/' . $mail['id'],
 					'name'    => $mail['from-name'],
 					'url'     => $mail['from-url'],
@@ -310,9 +308,10 @@ function ping_init(App $a)
 			}
 		}
 
-		if (DBM::is_result($regs)) {
+		if (DBA::isResult($regs)) {
 			foreach ($regs as $reg) {
 				$notif = [
+					'id'      => 0,
 					'href'    => System::baseUrl() . '/admin/users/',
 					'name'    => $reg['name'],
 					'url'     => $reg['url'],
@@ -346,9 +345,9 @@ function ping_init(App $a)
 		};
 		usort($notifs, $sort_function);
 
-		if (DBM::is_result($notifs)) {
+		if (DBA::isResult($notifs)) {
 			// Are the nofications called from the regular process or via the friendica app?
-			$regularnotifications = (intval($_GET['uid']) && intval($_GET['_']));
+			$regularnotifications = (!empty($_GET['uid']) && !empty($_GET['_']));
 
 			foreach ($notifs as $notif) {
 				if ($a->is_friendica_app() || !$regularnotifications) {
@@ -357,9 +356,9 @@ function ping_init(App $a)
 
 				$contact = Contact::getDetailsByURL($notif['url']);
 				if (isset($contact['micro'])) {
-					$notif['photo'] = proxy_url($contact['micro'], false, PROXY_SIZE_MICRO);
+					$notif['photo'] = ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO);
 				} else {
-					$notif['photo'] = proxy_url($notif['photo'], false, PROXY_SIZE_MICRO);
+					$notif['photo'] = ProxyUtils::proxifyUrl($notif['photo'], false, ProxyUtils::SIZE_MICRO);
 				}
 
 				$local_time = DateTimeFormat::local($notif['date']);
@@ -442,7 +441,7 @@ function ping_get_notifications($uid)
 
 	do {
 		$r = q(
-			"SELECT `notify`.*, `item`.`visible`, `item`.`spam`, `item`.`deleted`
+			"SELECT `notify`.*, `item`.`visible`, `item`.`deleted`
 			FROM `notify` LEFT JOIN `item` ON `item`.`id` = `notify`.`iid`
 			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
 			AND NOT (`notify`.`type` IN (%d, %d))
@@ -469,10 +468,6 @@ function ping_get_notifications($uid)
 				$notification["visible"] = true;
 			}
 
-			if (is_null($notification["spam"])) {
-				$notification["spam"] = 0;
-			}
-
 			if (is_null($notification["deleted"])) {
 				$notification["deleted"] = 0;
 			}
@@ -486,8 +481,8 @@ function ping_get_notifications($uid)
 
 				q(
 					"UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",
-					dbesc($notification["name"]),
-					dbesc($notification["message"]),
+					DBA::escape($notification["name"]),
+					DBA::escape($notification["message"]),
 					intval($notification["id"])
 				);
 			}
@@ -495,9 +490,8 @@ function ping_get_notifications($uid)
 			$notification["href"] = System::baseUrl() . "/notify/view/" . $notification["id"];
 
 			if ($notification["visible"]
-				&& !$notification["spam"]
 				&& !$notification["deleted"]
-				&& !(x($result, $notification["parent"]) && is_array($result[$notification["parent"]]))
+				&& !(x($result, $notification["parent"]) && !empty($result[$notification["parent"]]))
 			) {
 				// Should we condense the notifications or show them all?
 				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {
@@ -516,16 +510,17 @@ function ping_get_notifications($uid)
  * @brief Backward-compatible XML formatting for ping.php output
  * @deprecated
  *
- * @param array $data          The initial ping data array
- * @param int   $sysnotify     Number of unseen system notifications
- * @param array $notifs        Complete list of notification
- * @param array $sysmsgs       List of system notice messages
- * @param array $sysmsgs_info  List of system info messages
- * @param int   $groups_unseen Number of unseen group items
- * @param int   $forums_unseen Number of unseen forum items
+ * @param array $data            The initial ping data array
+ * @param int   $sysnotify_count Number of unseen system notifications
+ * @param array $notifs          Complete list of notification
+ * @param array $sysmsgs         List of system notice messages
+ * @param array $sysmsgs_info    List of system info messages
+ * @param int   $groups_unseen   Number of unseen group items
+ * @param int   $forums_unseen   Number of unseen forum items
+ *
  * @return array XML-transform ready data array
  */
-function ping_format_xml_data($data, $sysnotify, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
+function ping_format_xml_data($data, $sysnotify_count, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
 {
 	$notifications = [];
 	foreach ($notifs as $key => $notif) {

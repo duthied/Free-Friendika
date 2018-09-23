@@ -2,14 +2,16 @@
 /**
  * @file mod/allfriends.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/dba.php';
 require_once 'mod/contacts.php';
@@ -33,9 +35,9 @@ function allfriends_content(App $a)
 
 	$uid = $a->user['uid'];
 
-	$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => local_user()]);
+	$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['id' => $cid, 'uid' => local_user()]);
 
-	if (!DBM::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		return;
 	}
 
@@ -47,7 +49,7 @@ function allfriends_content(App $a)
 	$a->set_pager_total($total);
 
 	$r = GContact::allFriends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		$o .= L10n::t('No friends to display.');
 		return $o;
 	}
@@ -70,7 +72,7 @@ function allfriends_content(App $a)
 		} else {
 			$connlnk = System::baseUrl() . '/follow/?url=' . $rr['url'];
 			$photo_menu = [
-				'profile' => [L10n::t("View Profile"), Profile::zrl($rr['url'])],
+				'profile' => [L10n::t("View Profile"), Contact::magicLink($rr['url'])],
 				'follow' => [L10n::t("Connect/Follow"), $connlnk]
 			];
 		}
@@ -79,7 +81,7 @@ function allfriends_content(App $a)
 			'url'          => $rr['url'],
 			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
 			'name'         => htmlentities($contact_details['name']),
-			'thumb'        => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
 			'img_hover'    => htmlentities($contact_details['name']),
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
@@ -94,7 +96,7 @@ function allfriends_content(App $a)
 		$entries[] = $entry;
 	}
 
-	$tab_str = contacts_tab($a, $cid, 3);
+	$tab_str = contacts_tab($a, $contact, 4);
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 

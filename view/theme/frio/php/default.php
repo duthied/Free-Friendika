@@ -21,12 +21,12 @@ if (!isset($minimal)) {
 ?>
 <html>
 	<head>
-		<title><?php if (x($page, 'title')) echo $page['title'] ?></title>
-		<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
+		<title><?php if (!empty($page['title'])) echo $page['title'] ?></title>
+		<meta request="<?php echo htmlspecialchars(defaults($_REQUEST, 'pagename', '')) ?>">
 		<script  type="text/javascript">var baseurl = "<?php echo System::baseUrl(); ?>";</script>
 		<script type="text/javascript">var frio = "<?php echo 'view/theme/frio'; ?>";</script>
 <?php
-		$basepath = $a->path ? "/" . $a->path . "/" : "/";
+		$basepath = $a->urlpath ? "/" . $a->urlpath . "/" : "/";
 		$frio = "view/theme/frio";
 
 		// Because we use minimal for modals the header and the included js stuff should be only loaded
@@ -44,7 +44,7 @@ if (!isset($minimal)) {
 			$uid = Profile::getThemeUid();
 		}
 		$scheme = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
-		if (($scheme) && ($scheme != '---')) {
+		if ($scheme && ($scheme != '---')) {
 			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 				require_once $schemefile;
@@ -52,7 +52,7 @@ if (!isset($minimal)) {
 		} else {
 			$nav_bg = PConfig::get($uid, 'frio', 'nav_bg');
 		}
-		if (!$nav_bg) {
+		if (empty($nav_bg)) {
 			$nav_bg = "#708fa0";
 		}
 		echo '

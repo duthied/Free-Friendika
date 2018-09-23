@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="view/asset/jgrowl/jquery.jgrowl.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="vendor/pear/text_highlighter/sample.css" type="text/css" media="screen" />
 
 <link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
 
@@ -42,8 +41,15 @@
 <script type="text/javascript" src="view/asset/jgrowl/jquery.jgrowl.min.js"></script>
 <script type="text/javascript" src="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="view/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" ></script>
+<script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js"></script>
 <script type="text/javascript" src="view/js/acl.js" ></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js" ></script>
+<script type="text/javascript" src="view/js/addon-hooks.js" ></script>
+{{if is_array($addon_hooks)}}
+{{foreach $addon_hooks as $addon_hook}}
+<script type="text/javascript" src="addon/{{$addon_hook}}/{{$addon_hook}}.js"></script>
+{{/foreach}}
+{{/if}}
 <script type="text/javascript" src="view/js/main.js" ></script>
 <script>
 

@@ -20,13 +20,11 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
-use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
@@ -69,8 +67,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			return;
 		}
 
-		$user = dba::selectFirst('user', [], ['uid' => $uid]);
-		if (!DBM::is_result($user)) {
+		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
+		if (!DBA::isResult($user)) {
 			notice(L10n::t('Profile not found.') . EOL);
 			return;
 		}
@@ -120,11 +118,11 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			AND `uid` = %d
 			AND `duplex` = 0
 			LIMIT 1",
-			dbesc($dfrn_id),
+			DBA::escape($dfrn_id),
 			intval($cid),
 			intval($uid)
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			logger('Contact not found in DB.');
 			notice(L10n::t('Contact not found.') . EOL);
 			notice(L10n::t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL);
@@ -139,13 +137,13 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$dfrn_confirm = $contact['confirm'];
 		$aes_allow    = $contact['aes_allow'];
 
-		$network = ((strlen($contact['issued-id'])) ? NETWORK_DFRN : NETWORK_OSTATUS);
+		$network = ((strlen($contact['issued-id'])) ? Protocol::DFRN : Protocol::OSTATUS);
 
 		if ($contact['network']) {
 			$network = $contact['network'];
 		}
 
-		if ($network === NETWORK_DFRN) {
+		if ($network === Protocol::DFRN) {
 			/*
 			 * Generate a key pair for all further communications with this person.
 			 * We have a keypair for every contact, and a site key for unknown people.
@@ -160,7 +158,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 			// Save the private key. Send them the public key.
 			q("UPDATE `contact` SET `prvkey` = '%s' WHERE `id` = %d AND `uid` = %d",
-				dbesc($private_key),
+				DBA::escape($private_key),
 				intval($contact_id),
 				intval($uid)
 			);
@@ -204,11 +202,11 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				$params['duplex'] = 1;
 			}
 
-			if ($user['page-flags'] == PAGE_COMMUNITY) {
+			if ($user['page-flags'] == Contact::PAGE_COMMUNITY) {
 				$params['page'] = 1;
 			}
 
-			if ($user['page-flags'] == PAGE_PRVGROUP) {
+			if ($user['page-flags'] == Contact::PAGE_PRVGROUP) {
 				$params['page'] = 2;
 			}
 
@@ -249,6 +247,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 			if (stristr($res, "<status") === false) {
 				// wrong xml! stop here!
+				logger('Unexpected response posting to ' . $dfrn_confirm);
 				notice(L10n::t('Unexpected response from remote site: ') . EOL . htmlspecialchars($res) . EOL);
 				return;
 			}
@@ -264,7 +263,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					// birthday paradox - generate new dfrn-id and fall through.
 					$new_dfrn_id = random_string();
 					q("UPDATE contact SET `issued-id` = '%s' WHERE `id` = %d AND `uid` = %d",
-						dbesc($new_dfrn_id),
+						DBA::escape($new_dfrn_id),
 						intval($contact_id),
 						intval($uid)
 					);
@@ -282,13 +281,13 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			}
 
 			if (($status == 0) && $intro_id) {
-				$intro = dba::selectFirst('intro', ['note'], ['id' => $intro_id]);
-				if (DBM::is_result($intro)) {
-					dba::update('contact', ['reason' => $intro['note']], ['id' => $contact_id]);
+				$intro = DBA::selectFirst('intro', ['note'], ['id' => $intro_id]);
+				if (DBA::isResult($intro)) {
+					DBA::update('contact', ['reason' => $intro['note']], ['id' => $contact_id]);
 				}
 
 				// Success. Delete the notification.
-				dba::delete('intro', ['id' => $intro_id]);
+				DBA::delete('intro', ['id' => $intro_id]);
 			}
 
 			if ($status != 0) {
@@ -307,13 +306,14 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		logger('dfrn_confirm: confirm - imported photos');
 
-		if ($network === NETWORK_DFRN) {
-			$new_relation = CONTACT_IS_FOLLOWER;
-			if (($relation == CONTACT_IS_SHARING) || ($duplex)) {
-				$new_relation = CONTACT_IS_FRIEND;
+		if ($network === Protocol::DFRN) {
+			$new_relation = Contact::FOLLOWER;
+
+			if (($relation == Contact::SHARING) || ($duplex)) {
+				$new_relation = Contact::FRIEND;
 			}
 
-			if (($relation == CONTACT_IS_SHARING) && ($duplex)) {
+			if (($relation == Contact::SHARING) && ($duplex)) {
 				$duplex = 0;
 			}
 
@@ -327,16 +327,16 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`network` = '%s' WHERE `id` = %d
 			",
 				intval($new_relation),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
 				intval($duplex),
 				intval($hidden),
-				dbesc(NETWORK_DFRN),
+				DBA::escape(Protocol::DFRN),
 				intval($contact_id)
 			);
 		} else {
-			// $network !== NETWORK_DFRN
-			$network = defaults($contact, 'network', NETWORK_OSTATUS);
+			// $network !== Protocol::DFRN
+			$network = defaults($contact, 'network', Protocol::OSTATUS);
 
 			$arr = Probe::uri($contact['url']);
 
@@ -348,19 +348,19 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$new_relation = $contact['rel'];
 			$writable = $contact['writable'];
 
-			if ($network === NETWORK_DIASPORA) {
+			if ($network === Protocol::DIASPORA) {
 				if ($duplex) {
-					$new_relation = CONTACT_IS_FRIEND;
+					$new_relation = Contact::FRIEND;
 				} else {
-					$new_relation = CONTACT_IS_FOLLOWER;
+					$new_relation = Contact::FOLLOWER;
 				}
 
-				if ($new_relation != CONTACT_IS_FOLLOWER) {
+				if ($new_relation != Contact::FOLLOWER) {
 					$writable = 1;
 				}
 			}
 
-			dba::delete('intro', ['id' => $intro_id]);
+			DBA::delete('intro', ['id' => $intro_id]);
 
 			$r = q("UPDATE `contact` SET `name-date` = '%s',
 				`uri-date` = '%s',
@@ -375,12 +375,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				`rel` = %d
 				WHERE `id` = %d
 			",
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc(DateTimeFormat::utcNow()),
-				dbesc($addr),
-				dbesc($notify),
-				dbesc($poll),
-				dbesc($network),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape(DateTimeFormat::utcNow()),
+				DBA::escape($addr),
+				DBA::escape($notify),
+				DBA::escape($poll),
+				DBA::escape($network),
 				intval($writable),
 				intval($hidden),
 				intval($new_relation),
@@ -388,14 +388,14 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			);
 		}
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			notice(L10n::t('Unable to set contact photo.') . EOL);
 		}
 
 		// reload contact info
-		$contact = dba::selectFirst('contact', [], ['id' => $contact_id]);
-		if ((isset($new_relation) && $new_relation == CONTACT_IS_FRIEND)) {
-			if (DBM::is_result($contact) && ($contact['network'] === NETWORK_DIASPORA)) {
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
+		if ((isset($new_relation) && $new_relation == Contact::FRIEND)) {
+			if (DBA::isResult($contact) && ($contact['network'] === Protocol::DIASPORA)) {
 				$ret = Diaspora::sendShare($user, $contact);
 				logger('share returns: ' . $ret);
 			}
@@ -445,8 +445,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		}
 
 		// Find our user's account
-		$user = dba::selectFirst('user', [], ['nickname' => $node]);
-		if (!DBM::is_result($user)) {
+		$user = DBA::selectFirst('user', [], ['nickname' => $node]);
+		if (!DBA::isResult($user)) {
 			$message = L10n::t('No user record found for \'%s\' ', $node);
 			System::xmlExit(3, $message); // failure
 			// NOTREACHED
@@ -473,16 +473,16 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			// NOTREACHED
 		}
 
-		$contact = dba::selectFirst('contact', [], ['url' => $decrypted_source_url, 'uid' => $local_uid]);
-		if (!DBM::is_result($contact)) {
+		$contact = DBA::selectFirst('contact', [], ['url' => $decrypted_source_url, 'uid' => $local_uid]);
+		if (!DBA::isResult($contact)) {
 			if (strstr($decrypted_source_url, 'http:')) {
 				$newurl = str_replace('http:', 'https:', $decrypted_source_url);
 			} else {
 				$newurl = str_replace('https:', 'http:', $decrypted_source_url);
 			}
 
-			$contact = dba::selectFirst('contact', [], ['url' => $newurl, 'uid' => $local_uid]);
-			if (!DBM::is_result($contact)) {
+			$contact = DBA::selectFirst('contact', [], ['url' => $newurl, 'uid' => $local_uid]);
+			if (!DBA::isResult($contact)) {
 				// this is either a bogus confirmation (?) or we deleted the original introduction.
 				$message = L10n::t('Contact record was not found for you on our site.');
 				System::xmlExit(3, $message);
@@ -513,18 +513,18 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$dfrn_pubkey = $public_key;
 		}
 
-		if (dba::exists('contact', ['dfrn-id' => $decrypted_dfrn_id])) {
+		if (DBA::exists('contact', ['dfrn-id' => $decrypted_dfrn_id])) {
 			$message = L10n::t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
 			System::xmlExit(1, $message); // Birthday paradox - duplicate dfrn-id
 			// NOTREACHED
 		}
 
 		$r = q("UPDATE `contact` SET `dfrn-id` = '%s', `pubkey` = '%s' WHERE `id` = %d",
-			dbesc($decrypted_dfrn_id),
-			dbesc($dfrn_pubkey),
+			DBA::escape($decrypted_dfrn_id),
+			DBA::escape($dfrn_pubkey),
 			intval($dfrn_record)
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			$message = L10n::t('Unable to set your contact credentials on our system.');
 			System::xmlExit(3, $message);
 		}
@@ -539,8 +539,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		}
 
 		// We're good but now we have to scrape the profile photo and send notifications.
-		$contact = dba::selectFirst('contact', ['photo'], ['id' => $dfrn_record]);
-		if (DBM::is_result($contact)) {
+		$contact = DBA::selectFirst('contact', ['photo'], ['id' => $dfrn_record]);
+		if (DBA::isResult($contact)) {
 			$photo = $contact['photo'];
 		} else {
 			$photo = System::baseUrl() . '/images/person-175.jpg';
@@ -550,12 +550,13 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		logger('dfrn_confirm: request - photos imported');
 
-		$new_relation = CONTACT_IS_SHARING;
-		if (($relation == CONTACT_IS_FOLLOWER) || ($duplex)) {
-			$new_relation = CONTACT_IS_FRIEND;
+		$new_relation = Contact::SHARING;
+
+		if (($relation == Contact::FOLLOWER) || ($duplex)) {
+			$new_relation = Contact::FRIEND;
 		}
 
-		if (($relation == CONTACT_IS_FOLLOWER) && ($duplex)) {
+		if (($relation == Contact::FOLLOWER) && ($duplex)) {
 			$duplex = 0;
 		}
 
@@ -571,15 +572,15 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			`network` = '%s' WHERE `id` = %d
 		",
 			intval($new_relation),
-			dbesc(DateTimeFormat::utcNow()),
-			dbesc(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utcNow()),
 			intval($duplex),
 			intval($forum),
 			intval($prv),
-			dbesc(NETWORK_DFRN),
+			DBA::escape(Protocol::DFRN),
 			intval($dfrn_record)
 		);
-		if (!DBM::is_result($r)) {	// indicates schema is messed up or total db failure
+		if (!DBA::isResult($r)) {	// indicates schema is messed up or total db failure
 			$message = L10n::t('Unable to update your contact profile details on our system');
 			System::xmlExit(3, $message);
 		}
@@ -597,11 +598,11 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			LIMIT 1",
 			intval($dfrn_record)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$combined = $r[0];
 
 			if ($combined['notify-flags'] & NOTIFY_CONFIRM) {
-				$mutual = ($new_relation == CONTACT_IS_FRIEND);
+				$mutual = ($new_relation == Contact::FRIEND);
 				notification([
 					'type'         => NOTIFY_CONFIRM,
 					'notify_flags' => $combined['notify-flags'],

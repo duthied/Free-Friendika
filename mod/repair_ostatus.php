@@ -2,9 +2,12 @@
 /**
  * @file mod/repair_ostatus.php
  */
+
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 
 function repair_ostatus_content(App $a) {
@@ -23,28 +26,29 @@ function repair_ostatus_content(App $a) {
 
 	$counter = intval($_REQUEST['counter']);
 
-        $r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE
-                `uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)",
-                intval($uid),
-                dbesc(NETWORK_OSTATUS),
-                intval(CONTACT_IS_FRIEND),
-                intval(CONTACT_IS_SHARING));
+	$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE
+	`uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)",
+		intval($uid),
+		DBA::escape(Protocol::OSTATUS),
+		intval(Contact::FRIEND),
+		intval(Contact::SHARING));
 
-	if (!$r)
-		return($o.L10n::t("Error"));
+	if (!DBA::isResult($r)) {
+		return ($o . L10n::t("Error"));
+	}
 
 	$total = $r[0]["total"];
 
-        $r = q("SELECT `url` FROM `contact` WHERE
-                `uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)
+	$r = q("SELECT `url` FROM `contact` WHERE
+		`uid` = %d AND `network` = '%s' AND `rel` IN (%d, %d)
 		ORDER BY `url`
 		LIMIT %d, 1",
-                intval($uid),
-                dbesc(NETWORK_OSTATUS),
-                intval(CONTACT_IS_FRIEND),
-                intval(CONTACT_IS_SHARING), $counter++);
+		intval($uid),
+		DBA::escape(Protocol::OSTATUS),
+		intval(Contact::FRIEND),
+		intval(Contact::SHARING), $counter++);
 
-	if (!$r) {
+	if (!DBA::isResult($r)) {
 		$o .= L10n::t("Done");
 		return $o;
 	}

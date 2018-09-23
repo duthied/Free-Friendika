@@ -17,10 +17,10 @@ function statistics_json_init(App $a) {
 	}
 
 	$statistics = [
-		"name" => $a->config["sitename"],
+		"name" => Config::get('config', 'sitename'),
 		"network" => FRIENDICA_PLATFORM,
 		"version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION,
-		"registrations_open" => ($a->config['register_policy'] != 0),
+		"registrations_open" => intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED,
 		"total_users" => Config::get('nodeinfo', 'total_users'),
 		"active_users_halfyear" => Config::get('nodeinfo', 'active_users_halfyear'),
 		"active_users_monthly" => Config::get('nodeinfo', 'active_users_monthly'),
@@ -32,7 +32,6 @@ function statistics_json_init(App $a) {
 	$statistics["services"]["blogger"] = Addon::isEnabled("blogger");
 	$statistics["services"]["buffer"] = Addon::isEnabled("buffer");
 	$statistics["services"]["dreamwidth"] = Addon::isEnabled("dwpost");
-	$statistics["services"]["facebook"] = Addon::isEnabled("fbpost");
 	$statistics["services"]["gnusocial"] = Addon::isEnabled("statusnet");
 	$statistics["services"]["googleplus"] = Addon::isEnabled("gpluspost");
 	$statistics["services"]["libertree"] = Addon::isEnabled("libertree");
@@ -46,7 +45,6 @@ function statistics_json_init(App $a) {
 	$statistics["blogger"] = $statistics["services"]["blogger"];
 	$statistics["buffer"] = $statistics["services"]["buffer"];
 	$statistics["dreamwidth"] = $statistics["services"]["dreamwidth"];
-	$statistics["facebook"] = $statistics["services"]["facebook"];
 	$statistics["gnusocial"] = $statistics["services"]["gnusocial"];
 	$statistics["googleplus"] = $statistics["services"]["googleplus"];
 	$statistics["libertree"] = $statistics["services"]["libertree"];

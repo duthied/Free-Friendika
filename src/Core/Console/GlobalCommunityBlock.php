@@ -13,8 +13,8 @@ use Friendica\Model\Contact;
  *
  * License: AGPLv3 or later, same as Friendica
  *
- * @author Tobias Diekershoff <mrpetovan@gmail.com>
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Tobias Diekershoff <tobias.diekershoff@gmx.net>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class GlobalCommunityBlock extends \Asika\SimpleConsole\Console
 {
@@ -56,12 +56,8 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		require_once '.htconfig.php';
-		$result = \dba::connect($db_host, $db_user, $db_pass, $db_data);
-		unset($db_host, $db_user, $db_pass, $db_data);
-
-		if (!$result) {
-			throw new \RuntimeException('Unable to connect to database');
+		if ($a->isInstallMode()) {
+			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		$contact_id = Contact::getIdForURL($this->getArgument(0));

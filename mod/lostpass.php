@@ -4,9 +4,10 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
@@ -22,8 +23,8 @@ function lostpass_post(App $a)
 	}
 
 	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
-	$user = dba::selectFirst('user', ['uid', 'username', 'email'], $condition);
-	if (!DBM::is_result($user)) {
+	$user = DBA::selectFirst('user', ['uid', 'username', 'email', 'language'], $condition);
+	if (!DBA::isResult($user)) {
 		notice(L10n::t('No valid account found.') . EOL);
 		goaway(System::baseUrl());
 	}
@@ -34,12 +35,12 @@ function lostpass_post(App $a)
 		'pwdreset' => $pwdreset_token,
 		'pwdreset_time' => DateTimeFormat::utcNow()
 	];
-	$result = dba::update('user', $fields, ['uid' => $user['uid']]);
+	$result = DBA::update('user', $fields, ['uid' => $user['uid']]);
 	if ($result) {
 		info(L10n::t('Password reset request issued. Check your email.') . EOL);
 	}
 
-	$sitename = $a->config['sitename'];
+	$sitename = Config::get('config', 'sitename');
 	$resetlink = System::baseUrl() . '/lostpass/' . $pwdreset_token;
 
 	$preamble = deindent(L10n::t('
@@ -68,6 +69,8 @@ function lostpass_post(App $a)
 
 	notification([
 		'type'     => SYSTEM_EMAIL,
+		'language' => $user['language'],
+		'to_name'  => $user['username'],
 		'to_email' => $user['email'],
 		'uid'      => $user['uid'],
 		'subject'  => L10n::t('Password reset requested at %s', $sitename),
@@ -84,8 +87,8 @@ function lostpass_content(App $a)
 	if ($a->argc > 1) {
 		$pwdreset_token = $a->argv[1];
 
-		$user = dba::selectFirst('user', ['uid', 'username', 'email', 'pwdreset_time'], ['pwdreset' => $pwdreset_token]);
-		if (!DBM::is_result($user)) {
+		$user = DBA::selectFirst('user', ['uid', 'username', 'email', 'pwdreset_time', 'language'], ['pwdreset' => $pwdreset_token]);
+		if (!DBA::isResult($user)) {
 			notice(L10n::t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
 
 			return lostpass_form();
@@ -97,7 +100,7 @@ function lostpass_content(App $a)
 				'pwdreset' => null,
 				'pwdreset_time' => null
 			];
-			dba::update('user', $fields, ['uid' => $user['uid']]);
+			DBA::update('user', $fields, ['uid' => $user['uid']]);
 
 			notice(L10n::t('Request has expired, please make a new one.'));
 
@@ -130,7 +133,7 @@ function lostpass_generate_password($user)
 
 	$new_password = User::generateNewPassword();
 	$result = User::updatePassword($user['uid'], $new_password);
-	if (DBM::is_result($result)) {
+	if (DBA::isResult($result)) {
 		$tpl = get_markup_template('pwdreset.tpl');
 		$o .= replace_macros($tpl, [
 			'$lbl1'    => L10n::t('Password Reset'),
@@ -145,7 +148,7 @@ function lostpass_generate_password($user)
 
 		info("Your password has been reset." . EOL);
 
-		$sitename = $a->config['sitename'];
+		$sitename = Config::get('config', 'sitename');
 		$preamble = deindent(L10n::t('
 			Dear %1$s,
 				Your password has been changed as requested. Please retain this
@@ -164,6 +167,8 @@ function lostpass_generate_password($user)
 
 		notification([
 			'type'     => SYSTEM_EMAIL,
+			'language' => $user['language'],
+			'to_name'  => $user['username'],
 			'to_email' => $user['email'],
 			'uid'      => $user['uid'],
 			'subject'  => L10n::t('Your password has been changed at %s', $sitename),

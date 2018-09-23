@@ -5,9 +5,13 @@ This file is part of the Diaspora protocol. It is used for fetching single publi
 
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Protocol\Diaspora;
+use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Util\XML;
+use Friendica\Database\DBA;
 
 function fetch_init(App $a)
 {
@@ -20,24 +24,15 @@ function fetch_init(App $a)
 	$guid = $a->argv[2];
 
 	// Fetch the item
-	$item = q(
-		"SELECT `uid`, `title`, `body`, `guid`, `contact-id`, `private`, `created`, `app`, `location`, `coord`
-			FROM `item` WHERE `wall` AND NOT `private` AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
-		dbesc($guid),
-		NETWORK_DFRN,
-		NETWORK_DIASPORA
-	);
-	if (!$item) {
-		$r = q(
-			"SELECT `author-link`
-			FROM `item` WHERE `uid` = 0 AND `guid` = '%s' AND `network` IN ('%s', '%s') AND `id` = `parent` LIMIT 1",
-			dbesc($guid),
-			NETWORK_DFRN,
-			NETWORK_DIASPORA
-		);
-
-		if ($r) {
-			$parts = parse_url($r[0]["author-link"]);
+	$fields = ['uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'app', 'location', 'coord', 'network',
+		'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'attach'];
+	$condition = ['wall' => true, 'private' => false, 'guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+	$item = Item::selectFirst($fields, $condition);
+	if (!DBA::isResult($item)) {
+		$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+		$item = Item::selectFirst(['author-link'], $condition);
+		if (DBA::isResult($item)) {
+			$parts = parse_url($item["author-link"]);
 			$host = $parts["scheme"]."://".$parts["host"];
 
 			if (normalise_link($host) != normalise_link(System::baseUrl())) {
@@ -54,20 +49,13 @@ function fetch_init(App $a)
 	}
 
 	// Fetch some data from the author (We could combine both queries - but I think this is more readable)
-	$r = q(
-		"SELECT `user`.`prvkey`, `contact`.`addr`, `user`.`nickname`, `contact`.`nick` FROM `user`
-		INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-		WHERE `user`.`uid` = %d",
-		intval($item[0]["uid"])
-	);
-
-	if (!$r) {
+	$user = User::getOwnerDataById($item["uid"]);
+	if (!$user) {
 		header($_SERVER["SERVER_PROTOCOL"].' 404 '.L10n::t('Not Found'));
 		killme();
 	}
-	$user = $r[0];
 
-	$status = Diaspora::buildStatus($item[0], $user);
+	$status = Diaspora::buildStatus($item, $user);
 	$xml = Diaspora::buildPostXml($status["type"], $status["message"]);
 
 	// Send the envelope

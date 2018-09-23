@@ -12,17 +12,17 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
 use Friendica\Render\FriendicaSmarty;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
+use Friendica\Util\Proxy as ProxyUtils;
 
-require_once "mod/proxy.php";
 require_once "include/conversation.php";
 
 /**
@@ -152,7 +152,7 @@ function autoname($len) {
 				'nd','ng','nk','nt','rn','rp','rt'];
 
 	$noend = ['bl', 'br', 'cl','cr','dr','fl','fr','gl','gr',
-				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh'];
+				'kh', 'kl','kr','mn','pl','pr','rh','tr','qu','wh','q'];
 
 	$start = mt_rand(0,2);
 	if ($start == 0) {
@@ -178,14 +178,13 @@ function autoname($len) {
 	$word = substr($word,0,$len);
 
 	foreach ($noend as $noe) {
-		if ((strlen($word) > 2) && (substr($word, -2) == $noe)) {
-			$word = substr($word, 0, -1);
+		$noelen = strlen($noe);
+		if ((strlen($word) > $noelen) && (substr($word, -$noelen) == $noe)) {
+			$word = autoname($len);
 			break;
 		}
 	}
-	if (substr($word, -1) == 'q') {
-		$word = substr($word, 0, -1);
-	}
+
 	return $word;
 }
 
@@ -453,7 +452,7 @@ function perms2str($p) {
 	if (is_array($p)) {
 		$tmp = $p;
 	} else {
-		$tmp = explode(',',$p);
+		$tmp = explode(',', $p);
 	}
 
 	if (is_array($tmp)) {
@@ -462,113 +461,6 @@ function perms2str($p) {
 	}
 	return $ret;
 }
-
-
-/**
- * generate a guaranteed unique (for this domain) item ID for ATOM
- * safe from birthday paradox
- *
- * @param string $hostname
- * @param int $uid
- * @return string
- */
-function item_new_uri($hostname, $uid, $guid = "") {
-
-	do {
-		if ($guid == "") {
-			$hash = get_guid(32);
-		} else {
-			$hash = $guid;
-			$guid = "";
-		}
-
-		$uri = "urn:X-dfrn:" . $hostname . ':' . $uid . ':' . $hash;
-
-		$dups = dba::exists('item', ['uri' => $uri]);
-	} while ($dups == true);
-
-	return $uri;
-}
-
-/**
- * @deprecated
- * wrapper to load a view template, checking for alternate
- * languages before falling back to the default
- *
- * @global string $lang
- * @global App $a
- * @param string $s view name
- * @return string
- */
-function load_view_file($s) {
-	global $lang, $a;
-	if (! isset($lang)) {
-		$lang = 'en';
-	}
-	$b = basename($s);
-	$d = dirname($s);
-	if (file_exists("$d/$lang/$b")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("$d/$lang/$b");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	}
-
-	$theme = $a->getCurrentTheme();
-
-	if (file_exists("$d/theme/$theme/$b")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("$d/theme/$theme/$b");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	}
-
-	$stamp1 = microtime(true);
-	$content = file_get_contents($s);
-	$a->save_timestamp($stamp1, "file");
-	return $content;
-}
-
-
-/**
- * load a view template, checking for alternate
- * languages before falling back to the default
- *
- * @global string $lang
- * @param string $s view path
- * @return string
- */
-function get_intltext_template($s) {
-	global $lang;
-
-	$a = get_app();
-	$engine = '';
-	if ($a->theme['template_engine'] === 'smarty3') {
-		$engine = "/smarty3";
-	}
-
-	if (! isset($lang)) {
-		$lang = 'en';
-	}
-
-	if (file_exists("view/lang/$lang$engine/$s")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("view/lang/$lang$engine/$s");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	} elseif (file_exists("view/lang/en$engine/$s")) {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("view/lang/en$engine/$s");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	} else {
-		$stamp1 = microtime(true);
-		$content = file_get_contents("view$engine/$s");
-		$a->save_timestamp($stamp1, "file");
-		return $content;
-	}
-}
-
 
 /**
  * load template $s
@@ -621,36 +513,28 @@ $LOGGER_LEVELS = [];
  * @brief Logs the given message at the given log level
  *
  * log levels:
- * LOGGER_NORMAL (default)
+ * LOGGER_WARNING
+ * LOGGER_INFO (default)
  * LOGGER_TRACE
  * LOGGER_DEBUG
  * LOGGER_DATA
  * LOGGER_ALL
  *
- * @global App $a
  * @global array $LOGGER_LEVELS
  * @param string $msg
  * @param int $level
  */
-function logger($msg, $level = 0) {
+function logger($msg, $level = LOGGER_INFO) {
 	$a = get_app();
 	global $LOGGER_LEVELS;
 
-	// turn off logger in install mode
-	if (
-		$a->mode == App::MODE_INSTALL
-		|| !dba::$connected
-	) {
-		return;
-	}
-
-	$debugging = Config::get('system','debugging');
-	$logfile   = Config::get('system','logfile');
-	$loglevel = intval(Config::get('system','loglevel'));
+	$debugging = Config::get('system', 'debugging');
+	$logfile   = Config::get('system', 'logfile');
+	$loglevel = intval(Config::get('system', 'loglevel'));
 
 	if (
-		! $debugging
-		|| ! $logfile
+		!$debugging
+		|| !$logfile
 		|| $level > $loglevel
 	) {
 		return;
@@ -671,13 +555,20 @@ function logger($msg, $level = 0) {
 	}
 
 	$callers = debug_backtrace();
+
+	if (count($callers) > 1) {
+		$function = $callers[1]['function'];
+	} else {
+		$function = '';
+	}
+
 	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
 			DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			$process_id,
 			$LOGGER_LEVELS[$level],
 			basename($callers[0]['file']),
 			$callers[0]['line'],
-			$callers[1]['function'],
+			$function,
 			$msg
 		);
 
@@ -693,31 +584,22 @@ function logger($msg, $level = 0) {
  * personally without background noise
  *
  * log levels:
- * LOGGER_NORMAL (default)
+ * LOGGER_WARNING
+ * LOGGER_INFO (default)
  * LOGGER_TRACE
  * LOGGER_DEBUG
  * LOGGER_DATA
  * LOGGER_ALL
  *
- * @global App $a
  * @global array $LOGGER_LEVELS
  * @param string $msg
  * @param int $level
  */
-
-function dlogger($msg, $level = 0) {
+function dlogger($msg, $level = LOGGER_INFO) {
 	$a = get_app();
 
-	// turn off logger in install mode
-	if (
-		$a->mode == App::MODE_INSTALL
-		|| !dba::$connected
-	) {
-		return;
-	}
-
 	$logfile = Config::get('system', 'dlogfile');
-	if (! $logfile) {
+	if (!$logfile) {
 		return;
 	}
 
@@ -737,7 +619,7 @@ function dlogger($msg, $level = 0) {
 	$process_id = session_id();
 
 	if ($process_id == '') {
-		$process_id = get_app()->process_id;
+		$process_id = $a->process_id;
 	}
 
 	$callers = debug_backtrace();
@@ -874,11 +756,11 @@ function contact_block() {
 				AND NOT `pending` AND NOT `hidden` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s')",
 			intval($a->profile['uid']),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_DIASPORA)
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::OSTATUS),
+			DBA::escape(Protocol::DIASPORA)
 	);
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$total = intval($r[0]['total']);
 	}
 	if (!$total) {
@@ -892,20 +774,20 @@ function contact_block() {
 					AND `network` IN ('%s', '%s', '%s')
 				ORDER BY RAND() LIMIT %d",
 				intval($a->profile['uid']),
-				dbesc(NETWORK_DFRN),
-				dbesc(NETWORK_OSTATUS),
-				dbesc(NETWORK_DIASPORA),
+				DBA::escape(Protocol::DFRN),
+				DBA::escape(Protocol::OSTATUS),
+				DBA::escape(Protocol::DIASPORA),
 				intval($shown)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$contacts = [];
 			foreach ($r AS $contact) {
 				$contacts[] = $contact["id"];
 			}
 			$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
-				dbesc(implode(",", $contacts)));
+				DBA::escape(implode(",", $contacts)));
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
 				$micropro = [];
 				foreach ($r as $rr) {
@@ -962,13 +844,9 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 	$redir = false;
 
 	if ($redirect) {
-		$redirect_url = 'redir/' . $contact['id'];
-		if (local_user() && ($contact['uid'] == local_user()) && ($contact['network'] === NETWORK_DFRN)) {
-			$redir = true;
-			$url = $redirect_url;
+		$url = Contact::magicLink($contact['url']);
+		if (strpos($url, 'redir/') === 0) {
 			$sparkle = ' sparkle';
-		} else {
-			$url = Profile::zrl($url);
 		}
 	}
 
@@ -981,7 +859,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		'$click' => defaults($contact, 'click', ''),
 		'$class' => $class,
 		'$url' => $url,
-		'$photo' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
+		'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
 		'$name' => $contact['name'],
 		'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
 		'$parkle' => $sparkle,
@@ -1016,7 +894,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 			'$action_url' => $url,
 			'$search_label' => L10n::t('Search'),
 			'$save_label' => $save_label,
-			'$savedsearch' => Feature::isEnabled(local_user(),'savedsearch'),
+			'$savedsearch' => local_user() && Feature::isEnabled(local_user(),'savedsearch'),
 			'$search_hint' => L10n::t('@name, !forum, #tags, content'),
 			'$mode' => $mode
 		];
@@ -1162,7 +1040,7 @@ function redir_private_images($a, &$item)
 				continue;
 			}
 
-			if ((local_user() == $item['uid']) && ($item['private'] != 0) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
+			if ((local_user() == $item['uid']) && ($item['private'] == 1) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == Protocol::DFRN)) {
 				$img_url = 'redir?f=1&quiet=1&url=' . urlencode($mtch[1]) . '&conurl=' . urlencode($item['author-link']);
 				$item['body'] = str_replace($mtch[0], '[img]' . $img_url . '[/img]', $item['body']);
 			}
@@ -1188,7 +1066,7 @@ function put_item_in_cache(&$item, $update = false)
 	$rendered_html = defaults($item, 'rendered-html', '');
 
 	if ($rendered_hash == ''
-		|| $item["rendered-html"] == ""
+		|| $rendered_html == ""
 		|| $rendered_hash != hash("md5", $item["body"])
 		|| Config::get("system", "ignore_cache")
 	) {
@@ -1197,6 +1075,12 @@ function put_item_in_cache(&$item, $update = false)
 
 		$item["rendered-html"] = prepare_text($item["body"]);
 		$item["rendered-hash"] = hash("md5", $item["body"]);
+
+		$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
+		Addon::callHooks('put_item_in_cache', $hook_data);
+		$item['rendered-html'] = $hook_data['rendered-html'];
+		$item['rendered-hash'] = $hook_data['rendered-hash'];
+		unset($hook_data);
 
 		// Force an update if the generated values differ from the existing ones
 		if ($rendered_hash != $item["rendered-hash"]) {
@@ -1208,9 +1092,9 @@ function put_item_in_cache(&$item, $update = false)
 			$update = true;
 		}
 
-		if ($update && ($item["id"] > 0)) {
-			dba::update('item', ['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
-					['id' => $item["id"]], false);
+		if ($update && !empty($item["id"])) {
+			Item::update(['rendered-html' => $item["rendered-html"], 'rendered-hash' => $item["rendered-hash"]],
+					['id' => $item["id"]]);
 		}
 	}
 
@@ -1285,9 +1169,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	$s = $hook_data['html'];
 	unset($hook_data);
 
-	$s = apply_content_filter($s, $filter_reasons);
-
-	if (! $attach) {
+	if (!$attach) {
 		// Replace the blockquotes with quotes that are used in mails.
 		$mailquote = '<blockquote type="cite" class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">';
 		$s = str_replace(['<blockquote>', '<blockquote class="spoiler">', '<blockquote class="author">'], [$mailquote, $mailquote, $mailquote], $s);
@@ -1301,11 +1183,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 	foreach ($matches as $mtch) {
 		$mime = $mtch[3];
 
-		if ((local_user() == $item['uid']) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == NETWORK_DFRN)) {
-			$the_url = 'redir/' . $item['contact-id'] . '?f=1&url=' . $mtch[1];
-		} else {
-			$the_url = $mtch[1];
-		}
+		$the_url = Contact::magicLinkById($item['author-id'], $mtch[1]);
 
 		if (strpos($mime, 'video') !== false) {
 			if (!$vhead) {
@@ -1318,7 +1196,8 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 				]);
 			}
 
-			$id = end(explode('/', $the_url));
+			$url_parts = explode('/', $the_url);
+			$id = end($url_parts);
 			$as .= replace_macros(get_markup_template('video_top.tpl'), [
 				'$video' => [
 					'id'     => $id,
@@ -1393,6 +1272,8 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 		$ps = $a->theme_info['item_image_size'];
 		$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
 	}
+
+	$s = apply_content_filter($s, $filter_reasons);
 
 	$hook_data = ['item' => $item, 'html' => $s];
 	Addon::callHooks('prepare_body_final', $hook_data);
@@ -1578,26 +1459,6 @@ function return_bytes($size_str) {
 	}
 }
 
-
-/**
- * @return string
- */
-function generate_user_guid() {
-	$found = true;
-	do {
-		$guid = get_guid(32);
-		$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
-			dbesc($guid)
-		);
-		if (! DBM::is_result($x)) {
-			$found = false;
-		}
-	} while ($found == true);
-
-	return $guid;
-}
-
-
 /**
  * @param string $s
  * @param boolean $strip_padding
@@ -1631,7 +1492,7 @@ function base64url_decode($s) {
  *  // Uncomment if you find you need it.
  *
  *	$l = strlen($s);
- *	if (! strpos($s,'=')) {
+ *	if (!strpos($s,'=')) {
  *		$m = $l % 4;
  *		if ($m == 2)
  *			$s .= '==';
@@ -1661,10 +1522,11 @@ function bb_translate_video($s) {
 	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
 	if ($r) {
 		foreach ($matches as $mtch) {
-			if ((stristr($mtch[1],'youtube')) || (stristr($mtch[1],'youtu.be')))
-				$s = str_replace($mtch[0],'[youtube]' . $mtch[1] . '[/youtube]',$s);
-			elseif (stristr($mtch[1],'vimeo'))
-				$s = str_replace($mtch[0],'[vimeo]' . $mtch[1] . '[/vimeo]',$s);
+			if ((stristr($mtch[1], 'youtube')) || (stristr($mtch[1], 'youtu.be'))) {
+				$s = str_replace($mtch[0], '[youtube]' . $mtch[1] . '[/youtube]', $s);
+			} elseif (stristr($mtch[1], 'vimeo')) {
+				$s = str_replace($mtch[0], '[vimeo]' . $mtch[1] . '[/vimeo]', $s);
+			}
 		}
 	}
 	return $s;
@@ -1745,11 +1607,11 @@ function reltoabs($text, $base) {
  * @return string
  */
 function item_post_type($item) {
-	if (intval($item['event-id'])) {
+	if (!empty($item['event-id'])) {
 		return L10n::t('event');
-	} elseif (strlen($item['resource-id'])) {
+	} elseif (!empty($item['resource-id'])) {
 		return L10n::t('photo');
-	} elseif (strlen($item['verb']) && $item['verb'] !== ACTIVITY_POST) {
+	} elseif (!empty($item['verb']) && $item['verb'] !== ACTIVITY_POST) {
 		return L10n::t('activity');
 	} elseif ($item['id'] != $item['parent']) {
 		return L10n::t('comment');
@@ -1778,11 +1640,11 @@ function file_tag_file_query($table,$s,$type = 'file') {
 	} else {
 		$str = preg_quote('<' . str_replace('%', '%%', file_tag_encode($s)) . '>');
 	}
-	return " AND " . (($table) ? dbesc($table) . '.' : '') . "file regexp '" . dbesc($str) . "' ";
+	return " AND " . (($table) ? DBA::escape($table) . '.' : '') . "file regexp '" . DBA::escape($str) . "' ";
 }
 
 // ex. given music,video return <music><video> or [music][video]
-function file_tag_list_to_file($list,$type = 'file') {
+function file_tag_list_to_file($list, $type = 'file') {
 	$tag_list = '';
 	if (strlen($list)) {
 		$list_array = explode(",",$list);
@@ -1804,7 +1666,7 @@ function file_tag_list_to_file($list,$type = 'file') {
 }
 
 // ex. given <music><video>[friends], return music,video or friends
-function file_tag_file_to_list($file,$type = 'file') {
+function file_tag_file_to_list($file, $type = 'file') {
 	$matches = false;
 	$list = '';
 	if ($type == 'file') {
@@ -1830,8 +1692,7 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 
 	if (!intval($uid)) {
 		return false;
-	}
-	if ($file_old == $file_new) {
+	} elseif ($file_old == $file_new) {
 		return true;
 	}
 
@@ -1854,8 +1715,9 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_new_tags = explode(",",file_tag_file_to_list($file_new,$type));
 
 		foreach ($check_new_tags as $tag) {
-			if (! stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket))
+			if (!stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$new_tags[] = $tag;
+			}
 		}
 
 		$filetags_updated .= file_tag_list_to_file(implode(",",$new_tags),$type);
@@ -1865,18 +1727,19 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 		$check_deleted_tags = explode(",",file_tag_file_to_list($file_old,$type));
 
 		foreach ($check_deleted_tags as $tag) {
-			if (! stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket))
+			if (!stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket)) {
 				$deleted_tags[] = $tag;
+			}
 		}
 
 		foreach ($deleted_tags as $key => $tag) {
 			$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-				dbesc($tag),
+				DBA::escape($tag),
 				intval(TERM_OBJ_POST),
 				intval($termtype),
 				intval($uid));
 
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				unset($deleted_tags[$key]);
 			} else {
 				$filetags_updated = str_replace($lbracket . file_tag_encode($tag) . $rbracket,'',$filetags_updated);
@@ -1893,20 +1756,17 @@ function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
 	return true;
 }
 
-function file_tag_save_file($uid, $item, $file)
+function file_tag_save_file($uid, $item_id, $file)
 {
-	if (! intval($uid)) {
+	if (!intval($uid)) {
 		return false;
 	}
 
-	$r = q("SELECT `file` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($item),
-		intval($uid)
-	);
-	if (DBM::is_result($r)) {
-		if (!stristr($r[0]['file'],'[' . file_tag_encode($file) . ']')) {
-			$fields = ['file' => $r[0]['file'] . '[' . file_tag_encode($file) . ']'];
-			Item::update($fields, ['id' => $item]);
+	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
+	if (DBA::isResult($item)) {
+		if (!stristr($item['file'],'[' . file_tag_encode($file) . ']')) {
+			$fields = ['file' => $item['file'] . '[' . file_tag_encode($file) . ']'];
+			Item::update($fields, ['id' => $item_id]);
 		}
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
@@ -1917,9 +1777,9 @@ function file_tag_save_file($uid, $item, $file)
 	return true;
 }
 
-function file_tag_unsave_file($uid, $item, $file, $cat = false)
+function file_tag_unsave_file($uid, $item_id, $file, $cat = false)
 {
-	if (! intval($uid)) {
+	if (!intval($uid)) {
 		return false;
 	}
 
@@ -1931,24 +1791,21 @@ function file_tag_unsave_file($uid, $item, $file, $cat = false)
 		$termtype = TERM_FILE;
 	}
 
-	$r = q("SELECT `file` FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($item),
-		intval($uid)
-	);
-	if (! DBM::is_result($r)) {
+	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
+	if (!DBA::isResult($item)) {
 		return false;
 	}
 
-	$fields = ['file' => str_replace($pattern,'',$r[0]['file'])];
-	Item::update($fields, ['id' => $item]);
+	$fields = ['file' => str_replace($pattern,'',$item['file'])];
+	Item::update($fields, ['id' => $item_id]);
 
 	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-		dbesc($file),
+		DBA::escape($file),
 		intval(TERM_OBJ_POST),
 		intval($termtype),
 		intval($uid)
 	);
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		$saved = PConfig::get($uid, 'system', 'filetags');
 		PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 	}
@@ -1980,17 +1837,22 @@ function protect_sprintf($s) {
 	return str_replace('%', '%%', $s);
 }
 
-
+/// @TODO Rewrite this
 function is_a_date_arg($s) {
 	$i = intval($s);
+
 	if ($i > 1900) {
 		$y = date('Y');
+
 		if ($i <= $y + 1 && strpos($s, '-') == 4) {
-			$m = intval(substr($s,5));
-			if ($m > 0 && $m <= 12)
+			$m = intval(substr($s, 5));
+
+			if ($m > 0 && $m <= 12) {
 				return true;
+			}
 		}
 	}
+
 	return false;
 }
 
@@ -1999,6 +1861,7 @@ function is_a_date_arg($s) {
  */
 function deindent($text, $chr = "[\t ]", $count = NULL) {
 	$lines = explode("\n", $text);
+
 	if (is_null($count)) {
 		$m = [];
 		$k = 0;
@@ -2008,6 +1871,7 @@ function deindent($text, $chr = "[\t ]", $count = NULL) {
 		preg_match("|^" . $chr . "*|", $lines[$k], $m);
 		$count = strlen($m[0]);
 	}
+
 	for ($k = 0; $k < count($lines); $k++) {
 		$lines[$k] = preg_replace("|^" . $chr . "{" . $count . "}|", "", $lines[$k]);
 	}
@@ -2046,59 +1910,4 @@ function format_network_name($network, $url = 0) {
 
 		return $network_name;
 	}
-}
-
-/**
- * @brief Syntax based code highlighting for popular languages.
- * @param string $s Code block
- * @param string $lang Programming language
- * @return string Formated html
- */
-function text_highlight($s, $lang) {
-	if ($lang === 'js') {
-		$lang = 'javascript';
-	}
-
-	if ($lang === 'bash') {
-		$lang = 'sh';
-	}
-
-	// @TODO: Replace Text_Highlighter_Renderer_Html by scrivo/highlight.php
-
-	// Autoload the library to make constants available
-	class_exists('Text_Highlighter_Renderer_Html');
-
-	$options = [
-		'numbers' => HL_NUMBERS_LI,
-		'tabsize' => 4,
-	];
-
-	$tag_added = false;
-	$s = trim(html_entity_decode($s, ENT_COMPAT));
-	$s = str_replace('    ', "\t", $s);
-
-	/*
-	 * The highlighter library insists on an opening php tag for php code blocks. If
-	 * it isn't present, nothing is highlighted. So we're going to see if it's present.
-	 * If not, we'll add it, and then quietly remove it after we get the processed output back.
-	 */
-	if ($lang === 'php' && strpos($s, '<?php') !== 0) {
-		$s = '<?php' . "\n" . $s;
-		$tag_added = true;
-	}
-
-	$renderer = new Text_Highlighter_Renderer_Html($options);
-	$factory = new Text_Highlighter();
-	$hl = $factory->factory($lang);
-	$hl->setRenderer($renderer);
-	$o = $hl->highlight($s);
-	$o = str_replace("\n", '', $o);
-
-	if ($tag_added) {
-		$b = substr($o, 0, strpos($o, '<li>'));
-		$e = substr($o, strpos($o, '</li>'));
-		$o = $b . $e;
-	}
-
-	return '<code>' . $o . '</code>';
 }

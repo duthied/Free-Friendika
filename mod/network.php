@@ -14,14 +14,16 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/conversation.php';
 require_once 'include/items.php';
@@ -40,13 +42,13 @@ function network_init(App $a)
 	}
 
 	if (x($_GET, 'save')) {
-		$exists = dba::exists('search', ['uid' => local_user(), 'term' => $search]);
+		$exists = DBA::exists('search', ['uid' => local_user(), 'term' => $search]);
 		if (!$exists) {
-			dba::insert('search', ['uid' => local_user(), 'term' => $search]);
+			DBA::insert('search', ['uid' => local_user(), 'term' => $search]);
 		}
 	}
 	if (x($_GET, 'remove')) {
-		dba::delete('search', ['uid' => local_user(), 'term' => $search]);
+		DBA::delete('search', ['uid' => local_user(), 'term' => $search]);
 	}
 
 	$is_a_date_query = false;
@@ -103,7 +105,6 @@ function network_init(App $a)
 				'/new', //new
 				'',     //starred
 				'',     //bookmarked
-				'',     //spam
 			];
 			$tab_args = [
 				'f=&order=comment', //all
@@ -112,7 +113,6 @@ function network_init(App $a)
 				'',                 //new
 				'f=&star=1',        //starred
 				'f=&bmark=1',       //bookmarked
-				'f=&spam=1',        //spam
 			];
 
 			$k = array_search('active', $last_sel_tabs);
@@ -183,10 +183,10 @@ function saved_searches($search)
 
 	$o = '';
 
-	$terms = dba::select('search', ['id', 'term'], ['uid' => local_user()]);
+	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
 	$saved = [];
 
-	while ($rr = dba::fetch($terms)) {
+	while ($rr = DBA::fetch($terms)) {
 		$saved[] = [
 			'id'          => $rr['id'],
 			'term'        => $rr['term'],
@@ -218,9 +218,8 @@ function saved_searches($search)
  * 		'/network/new',				=> $new_active = 'active'
  * 		'/network?f=&star=1',		=> $starred_active = 'active'
  * 		'/network?f=&bmark=1',		=> $bookmarked_active = 'active'
- * 		'/network?f=&spam=1',		=> $spam_active = 'active'
  *
- * @return Array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active);
+ * @return Array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
  */
 function network_query_get_sel_tab(App $a)
 {
@@ -230,7 +229,6 @@ function network_query_get_sel_tab(App $a)
 	$bookmarked_active = '';
 	$all_active = '';
 	$conv_active = '';
-	$spam_active = '';
 	$postord_active = '';
 
 	if (($a->argc > 1 && $a->argv[1] === 'new') || ($a->argc > 2 && $a->argv[2] === 'new')) {
@@ -249,11 +247,7 @@ function network_query_get_sel_tab(App $a)
 		$conv_active = 'active';
 	}
 
-	if (x($_GET, 'spam')) {
-		$spam_active = 'active';
-	}
-
-	if (($new_active == '') && ($starred_active == '') && ($bookmarked_active == '') && ($conv_active == '') && ($spam_active == '')) {
+	if (($new_active == '') && ($starred_active == '') && ($bookmarked_active == '') && ($conv_active == '')) {
 		$no_active = 'active';
 	}
 
@@ -264,7 +258,7 @@ function network_query_get_sel_tab(App $a)
 		}
 	}
 
-	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active];
+	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active];
 }
 
 function network_query_get_sel_group(App $a)
@@ -324,7 +318,7 @@ function networkSetSeen($condition)
 		return;
 	}
 
-	$unseen = dba::exists('item', $condition);
+	$unseen = Item::exists($condition);
 
 	if ($unseen) {
 		$r = Item::update(['unseen' => false], $condition);
@@ -368,21 +362,21 @@ function network_content(App $a, $update = 0, $parent = 0)
 	$arr = ['query' => $a->query_string];
 	Addon::callHooks('network_content_init', $arr);
 
-	$nouveau = false;
+	$flat_mode = false;
 
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
 			if ($a->argv[$x] === 'new') {
-				$nouveau = true;
+				$flat_mode = true;
 			}
 		}
 	}
 
 	if (x($_GET, 'file')) {
-		$nouveau = true;
+		$flat_mode = true;
 	}
 
-	if ($nouveau) {
+	if ($flat_mode) {
 		$o = networkFlatView($a, $update);
 	} else {
 		$o = networkThreadedView($a, $update, $parent);
@@ -401,7 +395,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 function networkFlatView(App $a, $update = 0)
 {
 	// Rawmode is used for fetching new content at the end of the page
-	$rawmode = (isset($_GET['mode']) AND ( $_GET['mode'] == 'raw'));
+	$rawmode = (isset($_GET['mode']) && ($_GET['mode'] == 'raw'));
 
 	if (isset($_GET['last_id'])) {
 		$last_id = intval($_GET['last_id']);
@@ -424,9 +418,9 @@ function networkFlatView(App $a, $update = 0)
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
-			'lockstate' => (((is_array($a->user) &&
-			((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) ||
-			(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
+			'lockstate' => (is_array($a->user) &&
+			(strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) ||
+			strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
 			'default_perms' => ACL::getDefaultUserPermissions($a->user),
 			'acl' => ACL::getFullSelectorHTML($a->user, true),
 			'bang' => '',
@@ -443,28 +437,33 @@ function networkFlatView(App $a, $update = 0)
 		}
 	}
 
-	if (strlen($file)) {
-		$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-			dbesc(protect_sprintf($file)), intval(TERM_OBJ_POST), intval(TERM_FILE), intval(local_user()));
-	} else {
-		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
-	}
-
 	$pager_sql = networkPager($a, $update);
 
-	// show all items unthreaded in reverse created date order
-	$items = q("SELECT %s FROM `item` $sql_post_table %s
-		WHERE %s AND `item`.`uid` = %d
-		ORDER BY `item`.`id` DESC $pager_sql ",
-		item_fieldlists(), item_joins(local_user()), item_condition(),
-		intval(local_user())
-	);
+	if (strlen($file)) {
+		$condition = ["`term` = ? AND `otype` = ? AND `type` = ? AND `uid` = ?",
+			$file, TERM_OBJ_POST, TERM_FILE, local_user()];
+		$params = ['order' => ['tid' => true], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$result = DBA::select('term', ['oid'], $condition);
+
+		$posts = [];
+		while ($term = DBA::fetch($result)) {
+			$posts[] = $term['oid'];
+		}
+		DBA::close($result);
+
+		$condition = ['uid' => local_user(), 'id' => $posts];
+	} else {
+		$condition = ['uid' => local_user()];
+	}
+
+	$params = ['order' => ['id' => true], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+	$result = Item::selectForUser(local_user(), [], $condition, $params);
+	$items = Item::inArray($result);
 
 	$condition = ['unseen' => true, 'uid' => local_user()];
 	networkSetSeen($condition);
 
-	$mode = 'network-new';
-	$o .= networkConversation($a, $items, $mode, $update);
+	$o .= networkConversation($a, $items, 'network-new', $update);
 
 	return $o;
 }
@@ -482,9 +481,9 @@ function networkThreadedView(App $a, $update, $parent)
 	$rawmode = (isset($_GET['mode']) AND ( $_GET['mode'] == 'raw'));
 
 	if (isset($_GET['last_received']) && isset($_GET['last_commented']) && isset($_GET['last_created']) && isset($_GET['last_id'])) {
-		$last_received = DBM::date($_GET['last_received']);
-		$last_commented = DBM::date($_GET['last_commented']);
-		$last_created = DBM::date($_GET['last_created']);
+		$last_received = DateTimeFormat::utc($_GET['last_received']);
+		$last_commented = DateTimeFormat::utc($_GET['last_commented']);
+		$last_created = DateTimeFormat::utc($_GET['last_created']);
 		$last_id = intval($_GET['last_id']);
 	} else {
 		$last_received = '';
@@ -497,6 +496,8 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$gid = 0;
 
+	$default_permissions = [];
+
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
 			if (is_a_date_arg($a->argv[$x])) {
@@ -508,7 +509,7 @@ function networkThreadedView(App $a, $update, $parent)
 				}
 			} elseif (intval($a->argv[$x])) {
 				$gid = intval($a->argv[$x]);
-				$def_acl = ['allow_gid' => '<' . $gid . '>'];
+				$default_permissions = ['allow_gid' => '<' . $gid . '>'];
 			}
 		}
 	}
@@ -523,18 +524,18 @@ function networkThreadedView(App $a, $update, $parent)
 	$nets  =        defaults($_GET, 'nets' , '');
 
 	if ($cid) {
-		$def_acl = ['allow_cid' => '<' . intval($cid) . '>'];
+		$default_permissions = ['allow_cid' => '<' . intval($cid) . '>'];
 	}
 
 	if ($nets) {
-		$r = dba::select('contact', ['id'], ['uid' => local_user(), 'network' => $nets], ['self' => false]);
+		$r = DBA::select('contact', ['id'], ['uid' => local_user(), 'network' => $nets], ['self' => false]);
 
 		$str = '';
-		while ($rr = dba::fetch($r)) {
+		while ($rr = DBA::fetch($r)) {
 			$str .= '<' . $rr['id'] . '>';
 		}
 		if (strlen($str)) {
-			$def_acl = ['allow_cid' => $str];
+			$default_permissions = ['allow_cid' => $str];
 		}
 	}
 
@@ -558,8 +559,8 @@ function networkThreadedView(App $a, $update, $parent)
 		if ($cid) {
 			// If $cid belongs to a communitity forum or a privat goup,.add a mention to the status editor
 			$condition = ["`id` = ? AND (`forum` OR `prv`)", $cid];
-			$contact = dba::selectFirst('contact', ['addr', 'nick'], $condition);
-			if (DBM::is_result($contact)) {
+			$contact = DBA::selectFirst('contact', ['addr', 'nick'], $condition);
+			if (DBA::isResult($contact)) {
 				if ($contact['addr'] != '') {
 					$content = '!' . $contact['addr'];
 				} else {
@@ -573,11 +574,11 @@ function networkThreadedView(App $a, $update, $parent)
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
-			'lockstate' => ((($gid) || ($cid) || ($nets) || (is_array($a->user) &&
-			((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) ||
-			(strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid']))))) ? 'lock' : 'unlock'),
+			'lockstate' => ($gid || $cid || $nets || (is_array($a->user) &&
+			(strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) ||
+			strlen($a->user['deny_cid']) || strlen($a->user['deny_gid']))) ? 'lock' : 'unlock'),
 			'default_perms' => ACL::getDefaultUserPermissions($a->user),
-			'acl' => ACL::getFullSelectorHTML((($gid || $cid || $nets) ? $def_acl : $a->user), true),
+			'acl' => ACL::getFullSelectorHTML($a->user, true, $default_permissions),
 			'bang' => (($gid || $cid || $nets) ? '!' : ''),
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
@@ -592,13 +593,14 @@ function networkThreadedView(App $a, $update, $parent)
 	// desired.
 
 	$sql_post_table = '';
-	$sql_options = (($star) ? " AND `thread`.`starred` " : '');
-	$sql_options .= (($bmark) ? " AND `thread`.`bookmark` " : '');
+	$sql_options = ($star ? " AND `thread`.`starred` " : '');
+	$sql_options .= ($bmark ? sprintf(" AND `thread`.`post-type` = %d ", Item::PT_PAGE) : '');
 	$sql_extra = $sql_options;
 	$sql_extra2 = '';
 	$sql_extra3 = '';
 	$sql_table = '`thread`';
 	$sql_parent = '`iid`';
+	$sql_order = '';
 
 	if ($update) {
 		$sql_table = '`item`';
@@ -606,12 +608,12 @@ function networkThreadedView(App $a, $update, $parent)
 		$sql_post_table = " INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`";
 	}
 
-	$sql_nets = (($nets) ? sprintf(" AND $sql_table.`network` = '%s' ", dbesc($nets)) : '');
-	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", dbesc($nets)) : '');
+	$sql_nets = (($nets) ? sprintf(" AND $sql_table.`network` = '%s' ", DBA::escape($nets)) : '');
+	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", DBA::escape($nets)) : '');
 
 	if ($gid) {
-		$group = dba::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
-		if (!DBM::is_result($group)) {
+		$group = DBA::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
+		if (!DBA::isResult($group)) {
 			if ($update) {
 				killme();
 			}
@@ -626,8 +628,8 @@ function networkThreadedView(App $a, $update, $parent)
 			$contact_str_self = '';
 
 			$contact_str = implode(',', $contacts);
-			$self = dba::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
-			if (DBM::is_result($self)) {
+			$self = DBA::selectFirst('contact', ['id'], ['uid' => local_user(), 'self' => true]);
+			if (DBA::isResult($self)) {
 				$contact_str_self = $self['id'];
 			}
 
@@ -646,15 +648,15 @@ function networkThreadedView(App $a, $update, $parent)
 		$fields = ['id', 'name', 'network', 'writable', 'nurl',
 			'forum', 'prv', 'contact-type', 'addr', 'thumb', 'location'];
 		$condition = ["`id` = ? AND (NOT `blocked` OR `pending`)", $cid];
-		$contact = dba::selectFirst('contact', $fields, $condition);
-		if (DBM::is_result($contact)) {
+		$contact = DBA::selectFirst('contact', $fields, $condition);
+		if (DBA::isResult($contact)) {
 			$sql_extra = " AND " . $sql_table . ".`contact-id` = " . intval($cid);
 
 			$entries[0] = [
 				'id' => 'network',
 				'name' => htmlentities($contact['name']),
 				'itemurl' => defaults($contact, 'addr', $contact['nurl']),
-				'thumb' => proxy_url($contact['thumb'], false, PROXY_SIZE_THUMB),
+				'thumb' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
 				'details' => $contact['location'],
 			];
 
@@ -665,7 +667,7 @@ function networkThreadedView(App $a, $update, $parent)
 				'id' => 'network',
 			]) . $o;
 
-			if ($contact['network'] === NETWORK_OSTATUS && $contact['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
+			if ($contact['network'] === Protocol::OSTATUS && $contact['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
 				notice(L10n::t('Private messages to this person are at risk of public disclosure.') . EOL);
 			}
 		} else {
@@ -682,11 +684,11 @@ function networkThreadedView(App $a, $update, $parent)
 
 	if ($datequery) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created <= '%s' ",
-				dbesc(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
+				DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 	}
 	if ($datequery2) {
 		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created >= '%s' ",
-				dbesc(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
+				DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 	}
 
 	if ($conv) {
@@ -702,12 +704,10 @@ function networkThreadedView(App $a, $update, $parent)
 		$order_mode = 'commented';
 	}
 
-	if ($sql_order == '') {
-		$sql_order = "$sql_table.$ordering";
-	}
+	$sql_order = "$sql_table.$ordering";
 
 	if (x($_GET, 'offset')) {
-		$sql_range = sprintf(" AND $sql_order <= '%s'", dbesc($_GET['offset']));
+		$sql_range = sprintf(" AND $sql_order <= '%s'", DBA::escape($_GET['offset']));
 	} else {
 		$sql_range = '';
 	}
@@ -720,7 +720,7 @@ function networkThreadedView(App $a, $update, $parent)
 		case 'received':
 			if ($last_received != '') {
 				$last_date = $last_received;
-				$sql_range .= sprintf(" AND $sql_table.`received` < '%s'", dbesc($last_received));
+				$sql_range .= sprintf(" AND $sql_table.`received` < '%s'", DBA::escape($last_received));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
@@ -728,7 +728,7 @@ function networkThreadedView(App $a, $update, $parent)
 		case 'commented':
 			if ($last_commented != '') {
 				$last_date = $last_commented;
-				$sql_range .= sprintf(" AND $sql_table.`commented` < '%s'", dbesc($last_commented));
+				$sql_range .= sprintf(" AND $sql_table.`commented` < '%s'", DBA::escape($last_commented));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
@@ -736,14 +736,14 @@ function networkThreadedView(App $a, $update, $parent)
 		case 'created':
 			if ($last_created != '') {
 				$last_date = $last_created;
-				$sql_range .= sprintf(" AND $sql_table.`created` < '%s'", dbesc($last_created));
+				$sql_range .= sprintf(" AND $sql_table.`created` < '%s'", DBA::escape($last_created));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
 		case 'id':
 			if (($last_id > 0) && ($sql_table == '`thread`')) {
-				$sql_range .= sprintf(" AND $sql_table.`iid` < '%s'", dbesc($last_id));
+				$sql_range .= sprintf(" AND $sql_table.`iid` < '%s'", DBA::escape($last_id));
 				$a->set_pager_page(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
@@ -759,7 +759,7 @@ function networkThreadedView(App $a, $update, $parent)
 			// Load all unseen items
 			$sql_extra4 = "`item`.`unseen`";
 			if (Config::get("system", "like_no_comment")) {
-				$sql_extra4 .= " AND `item`.`verb` = '".ACTIVITY_POST."'";
+				$sql_extra4 .= " AND `item`.`gravity` IN (" . GRAVITY_PARENT . "," . GRAVITY_COMMENT . ")";
 			}
 			if ($order === 'post') {
 				// Only show toplevel posts when updating posts in this order mode
@@ -771,7 +771,7 @@ function networkThreadedView(App $a, $update, $parent)
 			FROM `item` $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-				AND (`item`.`parent-uri` != `item`.`uri`
+				AND (`item`.`gravity` != %d
 					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
 					OR `contact`.`rel` IN (%d, %d) AND NOT `contact`.`readonly`)
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
@@ -780,8 +780,9 @@ function networkThreadedView(App $a, $update, $parent)
 			AND NOT `item`.`moderated` AND $sql_extra4
 			$sql_extra3 $sql_extra $sql_range $sql_nets
 			ORDER BY `order_date` DESC LIMIT 100",
-			intval(CONTACT_IS_SHARING),
-			intval(CONTACT_IS_FRIEND),
+			intval(GRAVITY_PARENT),
+			intval(Contact::SHARING),
+			intval(Contact::FRIEND),
 			intval(local_user()),
 			intval(local_user())
 		);
@@ -791,7 +792,7 @@ function networkThreadedView(App $a, $update, $parent)
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-				AND (`item`.`parent-uri` != `item`.`uri`
+				AND (`item`.`gravity` != %d
 					OR `contact`.`uid` = `item`.`uid` AND `contact`.`self`
 					OR `contact`.`rel` IN (%d, %d) AND NOT `contact`.`readonly`)
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
@@ -800,16 +801,17 @@ function networkThreadedView(App $a, $update, $parent)
 			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
 			$sql_extra2 $sql_extra3 $sql_range $sql_extra $sql_nets
 			ORDER BY `order_date` DESC $pager_sql",
-			intval(CONTACT_IS_SHARING),
-			intval(CONTACT_IS_FRIEND),
+			intval(GRAVITY_PARENT),
+			intval(Contact::SHARING),
+			intval(Contact::FRIEND),
 			intval(local_user()),
 			intval(local_user())
 		);
 	}
 
 	// Only show it when unfiltered (no groups, no networks, ...)
-	if (in_array($nets, ['', NETWORK_DFRN, NETWORK_DIASPORA, NETWORK_OSTATUS]) && (strlen($sql_extra . $sql_extra2 . $sql_extra3) == 0)) {
-		if (DBM::is_result($r)) {
+	if (in_array($nets, ['', Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]) && (strlen($sql_extra . $sql_extra2 . $sql_extra3) == 0)) {
+		if (DBA::isResult($r)) {
 			$top_limit = current($r)['order_date'];
 			$bottom_limit = end($r)['order_date'];
 			if (empty($_SESSION['network_last_top_limit']) || ($_SESSION['network_last_top_limit'] < $top_limit)) {
@@ -838,7 +840,7 @@ function networkThreadedView(App $a, $update, $parent)
 			$top_limit = DateTimeFormat::utcNow();
 		}
 
-		$items = dba::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date` FROM `item`
+		$items = DBA::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date`, `author`.`url` AS `author-link` FROM `item`
 			STRAIGHT_JOIN (SELECT `oid` FROM `term` WHERE `term` IN
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
 			ON `item`.`id` = `term`.`oid`
@@ -848,7 +850,7 @@ function networkThreadedView(App $a, $update, $parent)
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG,
 			$top_limit, $bottom_limit);
 
-		$data = dba::inArray($items);
+		$data = DBA::toArray($items);
 
 		if (count($data) > 0) {
 			$tag_top_limit = current($data)['order_date'];
@@ -865,7 +867,7 @@ function networkThreadedView(App $a, $update, $parent)
 				// Don't show hash tag posts from blocked or ignored contacts
 				$condition = ["`nurl` = ? AND `uid` = ? AND (`blocked` OR `readonly`)",
 					normalise_link($item['author-link']), local_user()];
-				if (!dba::exists('contact', $condition)) {
+				if (!DBA::exists('contact', $condition)) {
 					$s[$item['uri']] = $item;
 				}
 			}
@@ -878,7 +880,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$items = $r;
 
-	if (DBM::is_result($items)) {
+	if (DBA::isResult($items)) {
 		$parents_arr = [];
 
 		foreach ($items as $item) {
@@ -906,7 +908,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$condition = ['unseen' => true, 'uid' => local_user()];
 		networkSetSeen($condition);
 	} elseif ($parents_str) {
-		$condition = ["`uid` = ? AND `unseen` AND `parent` IN (" . dbesc($parents_str) . ")", local_user()];
+		$condition = ["`uid` = ? AND `unseen` AND `parent` IN (" . DBA::escape($parents_str) . ")", local_user()];
 		networkSetSeen($condition);
 	}
 
@@ -928,7 +930,7 @@ function network_tabs(App $a)
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// $a->page['content'] .= '<div class="tabs-wrapper">';
-	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active) = network_query_get_sel_tab($a);
+	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
 
 	// if no tabs are selected, defaults to comments
 	if ($no_active == 'active') {
@@ -1004,7 +1006,7 @@ function network_tabs(App $a)
 	// save selected tab, but only if not in file mode
 	if (!x($_GET, 'file')) {
 		PConfig::set(local_user(), 'network.view', 'tab.selected', [
-			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active, $spam_active
+			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active
 		]);
 	}
 

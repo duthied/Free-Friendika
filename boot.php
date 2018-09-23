@@ -29,7 +29,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
@@ -39,9 +39,9 @@ require_once 'include/text.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
-define('FRIENDICA_VERSION',      '2018.05');
+define('FRIENDICA_VERSION',      '2018.08-rc');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1266);
+define('DB_UPDATE_VERSION',      1283);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -64,15 +64,13 @@ define('EOL',                    "<br />\r\n");
  * @brief Image storage quality.
  *
  * Lower numbers save space at cost of image detail.
- * For ease of upgrade, please do not change here. Change jpeg quality with
- * $a->config['system']['jpeg_quality'] = n;
- * in .htconfig.php, where n is netween 1 and 100, and with very poor results
- * below about 50
+ * For ease of upgrade, please do not change here. Set [system] jpegquality = n in config/local.ini.php,
+ * where n is between 1 and 100, and with very poor results below about 50
  */
 define('JPEG_QUALITY',            100);
 
 /**
- * $a->config['system']['png_quality'] from 0 (uncompressed) to 9
+ * [system] png_quality = n where is between 0 (uncompressed) to 9
  */
 define('PNG_QUALITY',             8);
 
@@ -83,9 +81,10 @@ define('PNG_QUALITY',             8);
  * this length (on the longest side, the other side will be scaled appropriately).
  * Modify this value using
  *
- *    $a->config['system']['max_image_length'] = n;
+ * [system]
+ * max_image_length = n;
  *
- * in .htconfig.php
+ * in config/local.ini.php
  *
  * If you don't want to set a maximum length, set to -1. The default value is
  * defined by 'MAX_IMAGE_LENGTH' below.
@@ -114,11 +113,12 @@ define('SSL_POLICY_SELFSIGN',     2);
  * log levels
  * @{
  */
-define('LOGGER_NORMAL',          0);
-define('LOGGER_TRACE',           1);
-define('LOGGER_DEBUG',           2);
-define('LOGGER_DATA',            3);
-define('LOGGER_ALL',             4);
+define('LOGGER_WARNING',         0);
+define('LOGGER_INFO',            1);
+define('LOGGER_TRACE',           2);
+define('LOGGER_DEBUG',           3);
+define('LOGGER_DATA',            4);
+define('LOGGER_ALL',             5);
 /* @}*/
 
 /**
@@ -153,19 +153,6 @@ define('REGISTER_OPEN',          2);
 */
 
 /**
- * @name Contact_is
- *
- * Relationship types
- * @{
- */
-define('CONTACT_IS_FOLLOWER', 1);
-define('CONTACT_IS_SHARING',  2);
-define('CONTACT_IS_FRIEND',   3);
-/**
- *  @}
- */
-
-/**
  * @name Update
  *
  * DB update return values
@@ -173,55 +160,6 @@ define('CONTACT_IS_FRIEND',   3);
  */
 define('UPDATE_SUCCESS', 0);
 define('UPDATE_FAILED',  1);
-/**
- * @}
- */
-
-/**
- * @name page/profile types
- *
- * PAGE_NORMAL is a typical personal profile account
- * PAGE_SOAPBOX automatically approves all friend requests as CONTACT_IS_SHARING, (readonly)
- * PAGE_COMMUNITY automatically approves all friend requests as CONTACT_IS_SHARING, but with
- *      write access to wall and comments (no email and not included in page owner's ACL lists)
- * PAGE_FREELOVE automatically approves all friend requests as full friends (CONTACT_IS_FRIEND).
- *
- * @{
- */
-define('PAGE_NORMAL',            0);
-define('PAGE_SOAPBOX',           1);
-define('PAGE_COMMUNITY',         2);
-define('PAGE_FREELOVE',          3);
-define('PAGE_BLOG',              4);
-define('PAGE_PRVGROUP',          5);
-/**
- * @}
- */
-
-/**
- * @name account types
- *
- * ACCOUNT_TYPE_PERSON - the account belongs to a person
- *	Associated page types: PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE
- *
- * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
- *	Associated page type: PAGE_SOAPBOX
- *
- * ACCOUNT_TYPE_NEWS - the account is a news reflector
- *	Associated page type: PAGE_SOAPBOX
- *
- * ACCOUNT_TYPE_COMMUNITY - the account is community forum
- *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
- *
- * ACCOUNT_TYPE_RELAY - the account is a relay
- *      This will only be assigned to contacts, not to user accounts
- * @{
- */
-define('ACCOUNT_TYPE_PERSON',      0);
-define('ACCOUNT_TYPE_ORGANISATION', 1);
-define('ACCOUNT_TYPE_NEWS',        2);
-define('ACCOUNT_TYPE_COMMUNITY',   3);
-define('ACCOUNT_TYPE_RELAY',       4);
 /**
  * @}
  */
@@ -242,83 +180,31 @@ define('CP_USERS_AND_GLOBAL',       2);
  */
 
 /**
- * @name Protocols
- * @deprecated since version 3.6
- * @see Conversation
- *
- * Different protocols that we are storing
- * @{
- */
-define('PROTOCOL_UNKNOWN'        , Conversation::PROTOCOL_UNKNOWN);
-define('PROTOCOL_DFRN'           , Conversation::PROTOCOL_DFRN);
-define('PROTOCOL_DIASPORA'       , Conversation::PROTOCOL_DIASPORA);
-define('PROTOCOL_OSTATUS_SALMON' , Conversation::PROTOCOL_OSTATUS_SALMON);
-define('PROTOCOL_OSTATUS_FEED'   , Conversation::PROTOCOL_OSTATUS_FEED);    // Deprecated
-define('PROTOCOL_GS_CONVERSATION', Conversation::PROTOCOL_GS_CONVERSATION); // Deprecated
-define('PROTOCOL_SPLITTED_CONV'  , Conversation::PROTOCOL_SPLITTED_CONV);
-/**
- * @}
- */
-
-/**
- * @name Network constants
- * @deprecated since version 3.6
- * @see Protocol
- *
- * Network and protocol family types
- * @{
- */
-define('NETWORK_DFRN'     , Protocol::DFRN);      // Friendica, Mistpark, other DFRN implementations
-define('NETWORK_ZOT'      , Protocol::ZOT);       // Zot! - Currently unsupported
-define('NETWORK_OSTATUS'  , Protocol::OSTATUS);   // GNU-social, Pleroma, Mastodon, other OStatus implementations
-define('NETWORK_FEED'     , Protocol::FEED);      // RSS/Atom feeds with no known "post/notify" protocol
-define('NETWORK_DIASPORA' , Protocol::DIASPORA);  // Diaspora
-define('NETWORK_MAIL'     , Protocol::MAIL);      // IMAP/POP
-define('NETWORK_FACEBOOK' , Protocol::FACEBOOK);  // Facebook API
-define('NETWORK_LINKEDIN' , Protocol::LINKEDIN);  // LinkedIn
-define('NETWORK_XMPP'     , Protocol::XMPP);      // XMPP - Currently unsupported
-define('NETWORK_MYSPACE'  , Protocol::MYSPACE);   // MySpace - Currently unsupported
-define('NETWORK_GPLUS'    , Protocol::GPLUS);     // Google+
-define('NETWORK_PUMPIO'   , Protocol::PUMPIO);    // pump.io
-define('NETWORK_TWITTER'  , Protocol::TWITTER);   // Twitter
-define('NETWORK_DIASPORA2', Protocol::DIASPORA2); // Diaspora connector
-define('NETWORK_STATUSNET', Protocol::STATUSNET); // Statusnet connector
-define('NETWORK_APPNET'   , Protocol::APPNET);    // app.net - Dead protocol
-define('NETWORK_NEWS'     , Protocol::NEWS);      // Network News Transfer Protocol - Currently unsupported
-define('NETWORK_ICALENDAR', Protocol::ICALENDAR); // iCalendar - Currently unsupported
-define('NETWORK_PNUT'     , Protocol::PNUT);      // pnut.io - Currently unsupported
-define('NETWORK_PHANTOM'  , Protocol::PHANTOM);   // Place holder
-/**
- * @}
- */
-
-/**
  * These numbers are used in stored permissions
  * and existing allocations MUST NEVER BE CHANGED
  * OR RE-ASSIGNED! You may only add to them.
  */
 $netgroup_ids = [
-	NETWORK_DFRN     => (-1),
-	NETWORK_ZOT      => (-2),
-	NETWORK_OSTATUS  => (-3),
-	NETWORK_FEED     => (-4),
-	NETWORK_DIASPORA => (-5),
-	NETWORK_MAIL     => (-6),
-	NETWORK_FACEBOOK => (-8),
-	NETWORK_LINKEDIN => (-9),
-	NETWORK_XMPP     => (-10),
-	NETWORK_MYSPACE  => (-11),
-	NETWORK_GPLUS    => (-12),
-	NETWORK_PUMPIO   => (-13),
-	NETWORK_TWITTER  => (-14),
-	NETWORK_DIASPORA2 => (-15),
-	NETWORK_STATUSNET => (-16),
-	NETWORK_APPNET    => (-17),
-	NETWORK_NEWS      => (-18),
-	NETWORK_ICALENDAR => (-19),
-	NETWORK_PNUT      => (-20),
+	Protocol::DFRN     => (-1),
+	Protocol::ZOT      => (-2),
+	Protocol::OSTATUS  => (-3),
+	Protocol::FEED     => (-4),
+	Protocol::DIASPORA => (-5),
+	Protocol::MAIL     => (-6),
+	Protocol::FACEBOOK => (-8),
+	Protocol::LINKEDIN => (-9),
+	Protocol::XMPP     => (-10),
+	Protocol::MYSPACE  => (-11),
+	Protocol::GPLUS    => (-12),
+	Protocol::PUMPIO   => (-13),
+	Protocol::TWITTER  => (-14),
+	Protocol::DIASPORA2 => (-15),
+	Protocol::STATUSNET => (-16),
+	Protocol::NEWS      => (-18),
+	Protocol::ICALENDAR => (-19),
+	Protocol::PNUT      => (-20),
 
-	NETWORK_PHANTOM  => (-127),
+	Protocol::PHANTOM  => (-127),
 ];
 
 /**
@@ -451,8 +337,9 @@ define('ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question');
  * @{
  */
 define('GRAVITY_PARENT',       0);
-define('GRAVITY_LIKE',         3);
+define('GRAVITY_ACTIVITY',     3);
 define('GRAVITY_COMMENT',      6);
+define('GRAVITY_UNKNOWN',      9);
 /* @}*/
 
 /**
@@ -498,36 +385,6 @@ if (!defined("SIGTERM")) {
 if (!defined('CURLE_OPERATION_TIMEDOUT')) {
 	define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
 }
-/**
- * Reverse the effect of magic_quotes_gpc if it is enabled.
- * Please disable magic_quotes_gpc so we don't have to do this.
- * See http://php.net/manual/en/security.magicquotes.disabling.php
- */
-function startup()
-{
-	error_reporting(E_ERROR | E_WARNING | E_PARSE);
-
-	set_time_limit(0);
-
-	// This has to be quite large to deal with embedded private photos
-	ini_set('pcre.backtrack_limit', 500000);
-
-	if (get_magic_quotes_gpc()) {
-		$process = [&$_GET, &$_POST, &$_COOKIE, &$_REQUEST];
-		while (list($key, $val) = each($process)) {
-			foreach ($val as $k => $v) {
-				unset($process[$key][$k]);
-				if (is_array($v)) {
-					$process[$key][stripslashes($k)] = $v;
-					$process[] = &$process[$key][stripslashes($k)];
-				} else {
-					$process[$key][stripslashes($k)] = stripslashes($v);
-				}
-			}
-		}
-		unset($process);
-	}
-}
 
 /**
  * @brief Retrieve the App structure
@@ -538,14 +395,7 @@ function startup()
  */
 function get_app()
 {
-	global $a;
-
-	if (empty($a)) {
-		$a = new App(dirname(__DIR__));
-		BaseObject::setApp($a);
-	}
-
-	return $a;
+	return BaseObject::getApp();
 }
 
 /**
@@ -706,7 +556,7 @@ function check_url(App $a)
 	// and www.example.com vs example.com.
 	// We will only change the url to an ip address if there is no existing setting
 
-	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname))) {
+	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname()))) {
 		Config::set('system', 'url', System::baseUrl());
 	}
 
@@ -740,10 +590,17 @@ function update_db()
 				return;
 			}
 
+			// run the pre_update_nnnn functions in update.php
+			for ($x = $stored + 1; $x <= $current; $x++) {
+				$r = run_update_function($x, 'pre_update');
+				if (!$r) {
+					break;
+				}
+			}
+
 			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, time());
 
-			// run update routine
-			// it update the structure in one call
+			// update the structure in one call
 			$retval = DBStructure::update(false, true);
 			if ($retval) {
 				DBStructure::updateFail(
@@ -755,9 +612,9 @@ function update_db()
 				Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
 			}
 
-			// run any left update_nnnn functions in update.php
+			// run the update_nnnn functions in update.php
 			for ($x = $stored + 1; $x <= $current; $x++) {
-				$r = run_update_function($x);
+				$r = run_update_function($x, 'update');
 				if (!$r) {
 					break;
 				}
@@ -768,9 +625,11 @@ function update_db()
 	return;
 }
 
-function run_update_function($x)
+function run_update_function($x, $prefix)
 {
-	if (function_exists('update_' . $x)) {
+	$funcname = $prefix . '_' . $x;
+
+	if (function_exists($funcname)) {
 		// There could be a lot of processes running or about to run.
 		// We want exactly one process to run the update command.
 		// So store the fact that we're taking responsibility
@@ -778,16 +637,14 @@ function run_update_function($x)
 		// If the update fails or times-out completely you may need to
 		// delete the config entry to try again.
 
-		$t = Config::get('database', 'update_' . $x);
+		$t = Config::get('database', $funcname);
 		if (!is_null($t)) {
 			return false;
 		}
-		Config::set('database', 'update_' . $x, time());
+		Config::set('database', $funcname, time());
 
 		// call the specific update
-
-		$func = 'update_' . $x;
-		$retval = $func();
+		$retval = $funcname();
 
 		if ($retval) {
 			//send the administrator an e-mail
@@ -797,13 +654,21 @@ function run_update_function($x)
 			);
 			return false;
 		} else {
-			Config::set('database', 'update_' . $x, 'success');
-			Config::set('system', 'build', $x);
+			Config::set('database', $funcname, 'success');
+
+			if ($prefix == 'update') {
+				Config::set('system', 'build', $x);
+			}
+
 			return true;
 		}
 	} else {
-		Config::set('database', 'update_' . $x, 'success');
-		Config::set('system', 'build', $x);
+		Config::set('database', $funcname, 'success');
+
+		if ($prefix == 'update') {
+			Config::set('system', 'build', $x);
+		}
+
 		return true;
 	}
 }
@@ -811,7 +676,7 @@ function run_update_function($x)
 /**
  * @brief Synchronise addons:
  *
- * $a->config['system']['addon'] contains a comma-separated list of names
+ * system.addon contains a comma-separated list of names
  * of addons which are used on this system.
  * Go through the database list of already installed addons, and if we have
  * an entry, but it isn't in the config list, call the uninstall procedure
@@ -824,7 +689,7 @@ function run_update_function($x)
 function check_addons(App $a)
 {
 	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$installed = $r;
 	} else {
 		$installed = [];
@@ -864,28 +729,6 @@ function check_addons(App $a)
 	return;
 }
 
-function get_guid($size = 16, $prefix = '')
-{
-	if (is_bool($prefix) && !$prefix) {
-		$prefix = '';
-	} elseif ($prefix == '') {
-		$a = get_app();
-		$prefix = hash('crc32', $a->get_hostname());
-	}
-
-	while (strlen($prefix) < ($size - 13)) {
-		$prefix .= mt_rand();
-	}
-
-	if ($size >= 24) {
-		$prefix = substr($prefix, 0, $size - 22);
-		return str_replace('.', '', uniqid($prefix, true));
-	} else {
-		$prefix = substr($prefix, 0, max($size - 13, 0));
-		return uniqid($prefix);
-	}
-}
-
 /**
  * @brief Used to end the current process, after saving session state.
  * @deprecated
@@ -917,7 +760,7 @@ function goaway($path)
  */
 function local_user()
 {
-	if (x($_SESSION, 'authenticated') && x($_SESSION, 'uid')) {
+	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['uid'])) {
 		return intval($_SESSION['uid']);
 	}
 	return false;
@@ -960,6 +803,11 @@ function remote_user()
 //	if (local_user()) {
 //		return false;
 //	}
+
+	if (empty($_SESSION)) {
+		return false;
+	}
+
 	if (x($_SESSION, 'authenticated') && x($_SESSION, 'visitor_id')) {
 		return intval($_SESSION['visitor_id']);
 	}
@@ -975,6 +823,10 @@ function remote_user()
  */
 function notice($s)
 {
+	if (empty($_SESSION)) {
+		return;
+	}
+
 	$a = get_app();
 	if (!x($_SESSION, 'sysmsg')) {
 		$_SESSION['sysmsg'] = [];
@@ -1007,17 +859,6 @@ function info($s)
 	}
 }
 
-/**
- * @brief Wrapper around config to limit the text length of an incoming message
- *
- * @return int
- */
-function get_max_import_size()
-{
-	$a = get_app();
-	return (x($a->config, 'max_import_size') ? $a->config['max_import_size'] : 0);
-}
-
 function feed_birthday($uid, $tz)
 {
 	/**
@@ -1042,13 +883,9 @@ function feed_birthday($uid, $tz)
 		$tz = 'UTC';
 	}
 
-	$p = q(
-		"SELECT `dob` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
-		intval($uid)
-	);
-
-	if (DBM::is_result($p)) {
-		$tmp_dob = substr($p[0]['dob'], 5);
+	$profile = DBA::selectFirst('profile', ['dob'], ['is-default' => true, 'uid' => $uid]);
+	if (DBA::isResult($profile)) {
+		$tmp_dob = substr($profile['dob'], 5);
 		if (intval($tmp_dob)) {
 			$y = DateTimeFormat::timezoneNow($tz, 'Y');
 			$bd = $y . '-' . $tmp_dob . ' 00:00';
@@ -1073,13 +910,11 @@ function is_site_admin()
 {
 	$a = get_app();
 
-	$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+	$admin_email = Config::get('config', 'admin_email');
 
-	//if(local_user() && x($a->user,'email') && x($a->config,'admin_email') && ($a->user['email'] === $a->config['admin_email']))
-	if (local_user() && x($a->user, 'email') && x($a->config, 'admin_email') && in_array($a->user['email'], $adminlist)) {
-		return true;
-	}
-	return false;
+	$adminlist = explode(',', str_replace(' ', '', $admin_email));
+
+	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
 }
 
 /**
@@ -1155,7 +990,7 @@ function explode_querystring($query)
 function curPageURL()
 {
 	$pageURL = 'http';
-	if ($_SERVER["HTTPS"] == "on") {
+	if (!empty($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on")) {
 		$pageURL .= "s";
 	}
 
@@ -1173,7 +1008,7 @@ function random_digits($digits)
 {
 	$rn = '';
 	for ($i = 0; $i < $digits; $i++) {
-		/// @TODO rand() is different to mt_rand() and maybe lesser "random"
+		/// @TODO Avoid rand/mt_rand, when it comes to cryptography, they are generating predictable (seedable) numbers.
 		$rn .= rand(0, 9);
 	}
 	return $rn;
@@ -1187,7 +1022,7 @@ function get_server()
 		$server = "https://dir.friendica.social";
 	}
 
-	return($server);
+	return $server;
 }
 
 function get_temppath()
@@ -1236,7 +1071,7 @@ function get_cachefile($file, $writemode = true)
 	$cache = get_itemcachepath();
 
 	if ((!$cache) || (!is_dir($cache))) {
-		return("");
+		return "";
 	}
 
 	$subfolder = $cache . "/" . substr($file, 0, 2);
@@ -1250,7 +1085,6 @@ function get_cachefile($file, $writemode = true)
 		}
 	}
 
-	/// @TODO no need to put braces here
 	return $cachepath;
 }
 
@@ -1357,7 +1191,6 @@ function get_spoolpath()
 	return "";
 }
 
-
 if (!function_exists('exif_imagetype')) {
 	function exif_imagetype($file)
 	{
@@ -1395,7 +1228,7 @@ function validate_include(&$file)
 	}
 
 	// Simply return flag
-	return ($valid);
+	return $valid;
 }
 
 function current_load()

@@ -4,28 +4,18 @@
  */
 namespace Friendica\Core;
 
+use DOMDocument;
+use Exception;
 use Friendica\BaseObject;
-use Friendica\App;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
-
-use Exception;
-use DOMDocument;
 
 /**
  * Contains methods for installation purpose of Friendica
  */
 class Install extends BaseObject
 {
-	/**
-	 * Sets the install-mode for further methods
-	 */
-	public static function setInstallMode()
-	{
-		self::getApp()->mode = App::MODE_INSTALL;
-	}
-
 	/**
 	 * Checks the current installation environment. There are optional and mandatory checks.
 	 *
@@ -42,7 +32,7 @@ class Install extends BaseObject
 
 		self::checkImagick($checks);
 
-		self::checkHtConfig($checks);
+		self::checkLocalIni($checks);
 
 		self::checkSmarty3($checks);
 
@@ -54,7 +44,7 @@ class Install extends BaseObject
 
 		$checkspassed = array_reduce($checks,
 			function ($v, $c) {
-				if ($c['require']) {
+				if (!empty($c['require'])) {
 					$v = $v && $c['status'];
 				}
 				return $v;
@@ -66,7 +56,7 @@ class Install extends BaseObject
 
 	/**
 	 * Executes the installation of Friendica in the given environment.
-	 * - Creates `.htconfig.php`
+	 * - Creates `config/local.ini.php`
 	 * - Installs Database Structure
 	 *
 	 * @param string 	$urlpath 	Path based on the URL of Friendica (e.g. '/friendica')
@@ -78,11 +68,10 @@ class Install extends BaseObject
 	 * @param string 	$timezone 	Timezone of the Friendica Installaton (e.g. 'Europe/Berlin')
 	 * @param string 	$language 	2-letter ISO 639-1 code (eg. 'en')
 	 * @param string 	$adminmail 	Mail-Adress of the administrator
-	 * @param int 		$rino		Rino-enabled (1 = true, 0 = false)
 	 */
-	public static function install($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail, $rino = 1)
+	public static function createConfig($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail)
 	{
-		$tpl = get_markup_template('htconfig.tpl');
+		$tpl = get_markup_template('local.ini.tpl');
 		$txt = replace_macros($tpl,[
 			'$dbhost' => $dbhost,
 			'$dbuser' => $dbuser,
@@ -93,20 +82,13 @@ class Install extends BaseObject
 			'$urlpath' => $urlpath,
 			'$phpath' => $phpath,
 			'$adminmail' => $adminmail,
-			'$rino' => $rino
 		]);
 
-		$result = file_put_contents('.htconfig.php', $txt);
-		if (! $result) {
-			self::getApp()->data['txt'] = $txt;
-		}
+		$app = self::getApp();
 
-		$errors = self::installDatabaseStructure();
-
-		if ($errors) {
-			self::getApp()->data['db_failed'] = $errors;
-		} else {
-			self::getApp()->data['db_installed'] = true;
+		$result = file_put_contents($app->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
+		if (!$result) {
+			$app->data['txt'] = $txt;
 		}
 	}
 
@@ -143,7 +125,7 @@ class Install extends BaseObject
 	 * @param string $phpath Optional. The Path to the PHP-Binary
 	 * @param array $checks The list of all checks (by-ref parameter!)
 	 */
-	public static function checkPHP(&$phpath, &$checks)
+	public static function checkPHP($phpath, &$checks)
 	{
 		$passed = $passed2 = $passed3 = false;
 		if (strlen($phpath)) {
@@ -303,27 +285,27 @@ class Install extends BaseObject
 	}
 
 	/**
-	 * ".htconfig.php" - Check
+	 * "config/local.ini.php" - Check
 	 *
-	 * Checks if it's possible to create the ".htconfig.php"
+	 * Checks if it's possible to create the "config/local.ini.php"
 	 *
 	 * @param array $checks The list of all checks (by-ref parameter!)
 	 */
-	public static function checkHtConfig(&$checks)
+	public static function checkLocalIni(&$checks)
 	{
 		$status = true;
 		$help = "";
-		if ((file_exists('.htconfig.php') && !is_writable('.htconfig.php')) ||
-			(!file_exists('.htconfig.php') && !is_writable('.'))) {
+		if ((file_exists('config/local.ini.php') && !is_writable('config/local.ini.php')) ||
+			(!file_exists('config/local.ini.php') && !is_writable('.'))) {
 
 			$status = false;
-			$help = L10n::t('The web installer needs to be able to create a file called ".htconfig.php" in the top folder of your web server and it is unable to do so.') . EOL;
+			$help = L10n::t('The web installer needs to be able to create a file called "local.ini.php" in the "config" folder of your web server and it is unable to do so.') . EOL;
 			$help .= L10n::t('This is most often a permission setting, as the web server may not be able to write files in your folder - even if you can.') . EOL;
-			$help .= L10n::t('At the end of this procedure, we will give you a text to save in a file named .htconfig.php in your Friendica top folder.') . EOL;
+			$help .= L10n::t('At the end of this procedure, we will give you a text to save in a file named local.ini.php in your Friendica "config" folder.') . EOL;
 			$help .= L10n::t('You can alternatively skip this procedure and perform a manual installation. Please see the file "INSTALL.txt" for instructions.') . EOL;
 		}
 
-		self::addCheck($checks, L10n::t('.htconfig.php is writable'), $status, false, $help);
+		self::addCheck($checks, L10n::t('config/local.ini.php is writable'), $status, false, $help);
 
 	}
 
@@ -376,7 +358,7 @@ class Install extends BaseObject
 				$error_msg = [];
 				$error_msg['head'] = L10n::t('Error message from Curl when fetching');
 				$error_msg['url'] = $test['redirect_url'];
-				$error_msg['msg'] = $test['error'];
+				$error_msg['msg'] = defaults($test, 'error', '');
 			}
 			self::addCheck($checks, L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
 		} else {

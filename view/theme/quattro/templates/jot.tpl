@@ -6,10 +6,8 @@
 		<input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" />
 		{{/if}}
 		<div id="character-counter" class="grey jothidden"></div>
-
-
-
-		<input type="hidden" name="type" value="{{$ptyp}}" />
+		<input type="hidden" name="wall" value="{{$wall}}" />
+		<input type="hidden" name="post_type" value="{{$posttype}}" />
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 		<input type="hidden" name="return" value="{{$return_path}}" />
 		<input type="hidden" name="location" id="jot-location" value="{{$defloc}}" />

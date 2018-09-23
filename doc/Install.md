@@ -27,7 +27,7 @@ Requirements
 ---
 
 * Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-* PHP 5.6+ (PHP 7 is recommended for performance)
+* PHP 5.6.1+ (PHP 7 is recommended for performance)
   * PHP *command line* access with register_argc_argv set to true in the php.ini file
   * Curl, GD, PDO, MySQLi, hash, xml, zip and OpenSSL extensions
   * The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
@@ -47,14 +47,15 @@ If you are able to do so, we recommend using git to clone the source repository 
 This makes the software much easier to update.
 The Linux commands to clone the repository into a directory "mywebsite" would be
 
-    git clone https://github.com/friendica/friendica.git mywebsite
+    git clone https://github.com/friendica/friendica.git -b master mywebsite
     cd mywebsite
     bin/composer.phar install
 
-Make sure the folder *view/smarty3* exists and is writable by the webserver user
+Make sure the folder *view/smarty3* exists and is writable by the webserver user, in this case `www-data`
 
     mkdir view/smarty3
-    chmod 777 view/smarty3
+    chown www-data:www-data view/smarty3
+    chmod 775 view/smarty3
 
 Get the addons by going into your website folder.
 
@@ -62,9 +63,19 @@ Get the addons by going into your website folder.
 
 Clone the addon repository (separately):
 
-    git clone https://github.com/friendica/friendica-addons.git addon
+    git clone https://github.com/friendica/friendica-addons.git -b master addon
 
 If you copy the directory tree to your webserver, make sure that you also copy .htaccess - as "dot" files are often hidden and aren't normally copied.
+
+If you want to use the development version of Friendica you can switch to the devel branch in the repository by running
+
+    git checkout develop
+    bin/composer.phar install
+    cd addon
+    git checkout develop
+
+please be aware that the develop branch may break your Friendica node at any time.
+If you encounter a bug, please let us know.
 
 ### Create a database
 
@@ -89,39 +100,123 @@ If you need to specify a port for the connection to the database, you can do so 
 
 *If* the manual installation fails for any reason, check the following:
 
-* Does ".htconfig.php" exist? If not, edit htconfig.php and change the system settings. Rename to .htconfig.php
-* Is the database is populated? If not, import the contents of "database.sql" with phpmyadmin or the mysql command line.
+* Does "config/local.ini.php" exist? If not, edit config/local-sample.ini.php and change the system settings.
+* Rename to `config/local.ini.php`.
+* Is the database is populated? If not, import the contents of `database.sql` with phpmyadmin or the mysql command line.
 
 At this point visit your website again, and register your personal account.
 Registration errors should all be recoverable automatically.
 If you get any *critical* failure at this point, it generally indicates the database was not installed correctly.
-You might wish to move/rename .htconfig.php to another name and empty (called 'dropping') the database tables, so that you can start fresh.
+You might wish to move/rename `config/local.ini.php` to another name and empty (called 'dropping') the database tables, so that you can start fresh.
 
 ### Option B: Run the automatic install script
 
-Open the file htconfig.php in the main Friendica directory with a text editor.
-Remove the `die('...');` line and edit the lines to suit your installation (MySQL, language, theme etc.).
-Then save the file (do not rename it). 
+You have the following options to automatically install Friendica:
+-	creating a prepared config file (f.e. `prepared.ini.php`)
+-	using environment variables (f.e. `MYSQL_HOST`)
+-	using options (f.e. `--dbhost <host>`)
 
-Navigate to the main Friendica directory and execute the following command:
-
-    bin/console autoinstall
-
-Or if you wish to include all optional checks, execute this statement instead:
-
-    bin/console autoinstall -a
-
-At this point visit your website again, and register your personal account.
-
-*If* the automatic installation fails for any reason, check the following:
-
-* Does ".htconfig.php" already exist? If yes, the automatic installation won't start
-* Are the settings inside "htconfig.php" correct? If not, edit the file again.
-* Is the empty MySQL-database created? If not, create it.
+You can combine environment variables and options, but be aware that options are prioritized over environment variables. 
 
 For more information during the installation, you can use this command line option
 
     bin/console autoinstall -v
+
+If you wish to include all optional checks, use `-a` like this statement:
+
+    bin/console autoinstall -a
+    
+*If* the automatic installation fails for any reason, check the following:
+
+*	Does `config/local.ini.php` already exist? If yes, the automatic installation won't start
+*	Are the options in the `config/local.ini.php` correct? If not, edit them directly.
+*	Is the empty MySQL-database created? If not, create it.
+
+#### B.1: Config file
+
+You can use a prepared config file like [local-sample.ini.php](config/local-sample.ini.php).
+
+Navigate to the main Friendica directory and execute the following command:
+
+    bin/console autoinstall -f <prepared.ini.php>
+    
+#### B.2: Environment variables
+
+There are two types of environment variables.
+-	those you can use in normal mode too (Currently just **database credentials**)
+-	those you can only use during installation (because Friendica will normally ignore it)
+
+You can use the options during installation too and skip some of the environment variables.
+
+**Database credentials**
+
+if you don't use the option `--savedb` during installation, the DB credentials will **not** be saved in the `config/local.ini.php`.
+
+-	`MYSQL_HOST` The host of the mysql/mariadb database
+-	`MYSQL_PORT` The port of the mysql/mariadb database
+-	`MYSQL_USERNAME` The username of the mysql database login (used for mysql)
+-	`MYSQL_USER` The username of the mysql database login (used for mariadb)
+-	`MYSQL_PASSWORD` The password of the mysql/mariadb database login
+-	`MYSQL_DATABASE` The name of the mysql/mariadb database
+
+**Friendica settings**
+
+This variables wont be used at normal Friendica runtime.
+Instead, they get saved into `config/local.ini.php`. 
+
+-	`FRIENDICA_PHP_PATH` The path of the PHP binary
+-	`FRIENDICA_ADMIN_MAIL` The admin email address of Friendica (this email will be used for admin access)
+-	`FRIENDICA_TZ` The timezone of Friendica
+-	`FRIENDICA_LANG` The langauge of Friendica
+
+Navigate to the main Friendica directory and execute the following command:
+
+    bin/console autoinstall [--savedb]
+
+#### B.3: Execution options
+
+All options will be saved in the `config/local.ini.php` and are overruling the associated environment variables.
+
+-	`-H|--dbhost <host>` The host of the mysql/mariadb database (env `MYSQL_HOST`)
+-	`-p|--dbport <port>` The port of the mysql/mariadb database (env `MYSQL_PORT`)
+-	`-U|--dbuser <username>` The username of the mysql/mariadb database login (env `MYSQL_USER` or `MYSQL_USERNAME`)
+-	`-P|--dbpass <password>` The password of the mysql/mariadb database login (env `MYSQL_PASSWORD`)
+-	`-d|--dbdata <database>` The name of the mysql/mariadb database (env `MYSQL_DATABASE`)
+-	`-b|--phppath <path>` The path of the PHP binary (env `FRIENDICA_PHP_PATH`)
+-	`-A|--admin <mail>` The admin email address of Friendica (env `FRIENDICA_ADMIN_MAIL`)
+-	`-T|--tz <timezone>` The timezone of Friendica (env `FRIENDICA_TZ`)
+-	`-L|--land <language>` The language of Friendica (env `FRIENDICA_LANG`)
+
+Navigate to the main Friendica directory and execute the following command:
+
+    bin/console autoinstall [options]
+
+### Prepare .htaccess file
+
+Copy .htaccess-dist to .htaccess (be careful under Windows) to have working mod-rewrite again. If you have installed Friendica into a sub directory, like /friendica/ set this path in RewriteBase accordingly.
+
+Example:
+
+    cp .htacces-dist .htaccess
+
+*Note*: Do **not** rename the .htaccess-dist file as it is tracked by GIT and renaming will cause a dirty working directory.
+
+### Verify the "host-meta" page is working
+
+Friendica should respond automatically to important addresses under the /.well-known/ rewrite path.
+One critical URL would look like, for example, https://example.com/.well-known/host-meta
+It must be visible to the public and must respond with an XML file that is automatically customized to your site.
+
+If that URL is not working, it is possible that some other software is using the /.well-known/ path.
+Other symptoms may include an error message in the Admin settings that says "host-meta is not reachable on your system.
+This is a severe configuration issue that prevents server to server communication."
+Another common error related to host-meta is the "Invalid profile URL."
+
+Check for a .well-known directory that did not come with Friendica.
+The preferred configuration is to remove the directory, however this is not always possible.
+If there is any /.well-known/.htaccess file, it could interfere with this Friendica core requirement.
+You should remove any RewriteRules from that file, or remove that whole file if appropriate.
+It may be necessary to chmod the /.well-known/.htaccess file if you were not given write permissions by default.
 
 ### Set up the worker
 
@@ -151,5 +246,5 @@ Bad things will happen.
 Let there be a hardware failure, a corrupted database or whatever you can think of.
 So once the installation of your Friendica node is done, you should make yourself a backup plan.
 
-The most important file is the `.htconfig.php` file in the base directory.
+The most important file is the `config/local.ini.php` file.
 As it stores all your data, you should also have a recent dump of your Friendica database at hand, should you have to recover your node.

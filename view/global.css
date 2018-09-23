@@ -207,10 +207,8 @@ blockquote.shared_content {
 }
 
 #newmember-tips {
+  margin-top: -3px;
   font-size: 1.2em;
-  float: right;
-  margin-top: -32px;
-  padding-right: 10px;
 }
 
 /* headers */
@@ -250,7 +248,6 @@ span.oembed, h4 {
 }
 
 code {
-  display: block;
   background-color: #eee;
   color: #666;
   padding: 1em;
@@ -607,4 +604,8 @@ img.invalid-src:after { vertical-align: top;}
 }
 .tag-cloud {
   word-wrap: break-word;
+}
+
+#register-explicid-content {
+  font-weight: bold;
 }

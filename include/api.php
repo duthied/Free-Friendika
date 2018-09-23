@@ -16,9 +16,10 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
@@ -39,6 +40,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
 require_once 'include/conversation.php';
@@ -46,7 +48,6 @@ require_once 'mod/share.php';
 require_once 'mod/item.php';
 require_once 'include/security.php';
 require_once 'mod/wall_upload.php';
-require_once 'mod/proxy.php';
 
 define('API_METHOD_ANY', '*');
 define('API_METHOD_GET', 'GET');
@@ -54,7 +55,7 @@ define('API_METHOD_POST', 'POST,PUT');
 define('API_METHOD_DELETE', 'POST,DELETE');
 
 $API = [];
-$called_api = null;
+$called_api = [];
 
 /**
  * It is not sufficient to use local_user() to check whether someone is allowed to use the API,
@@ -90,11 +91,15 @@ function api_source()
 	}
 
 	// Support for known clients that doesn't send a source name
-	if (strpos($_SERVER['HTTP_USER_AGENT'], "Twidere") !== false) {
-		return "Twidere";
-	}
+	if (!empty($_SERVER['HTTP_USER_AGENT'])) {
+		if(strpos($_SERVER['HTTP_USER_AGENT'], "Twidere") !== false) {
+			return "Twidere";
+		}
 
-	logger("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
+		logger("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
+	} else {
+		logger("Empty user-agent", LOGGER_DEBUG);
+	}
 
 	return "api";
 }
@@ -164,7 +169,8 @@ function api_login(App $a)
 	$oauth1 = new FKOAuth1();
 	// login with oauth
 	try {
-		list($consumer, $token) = $oauth1->verify_request(OAuthRequest::from_request());
+		$request = OAuthRequest::from_request();
+		list($consumer, $token) = $oauth1->verify_request($request);
 		if (!is_null($token)) {
 			$oauth1->loginUser($token->uid);
 			Addon::callHooks('logged_in', $a->user);
@@ -193,8 +199,8 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	$user = $_SERVER['PHP_AUTH_USER'];
-	$password = $_SERVER['PHP_AUTH_PW'];
+	$user = defaults($_SERVER, 'PHP_AUTH_USER', '');
+	$password = defaults($_SERVER, 'PHP_AUTH_PW', '');
 
 	// allow "user@server" login (but ignore 'server' part)
 	$at = strstr($user, "@", true);
@@ -224,11 +230,11 @@ function api_login(App $a)
 	} else {
 		$user_id = User::authenticate(trim($user), trim($password));
 		if ($user_id !== false) {
-			$record = dba::selectFirst('user', [], ['uid' => $user_id]);
+			$record = DBA::selectFirst('user', [], ['uid' => $user_id]);
 		}
 	}
 
-	if (!DBM::is_result($record)) {
+	if (!DBA::isResult($record)) {
 		logger('API_login failure: ' . print_r($_SERVER, true), LOGGER_DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -258,7 +264,7 @@ function api_check_method($method)
 	if ($method == "*") {
 		return true;
 	}
-	return (strpos($method, $_SERVER['REQUEST_METHOD']) !== false);
+	return (stripos($method, defaults($_SERVER, 'REQUEST_METHOD', 'GET')) !== false);
 }
 
 /**
@@ -298,7 +304,7 @@ function api_call(App $a)
 				//unset($_SERVER['PHP_AUTH_USER']);
 
 				/// @TODO should be "true ==[=] $info['auth']", if you miss only one = character, you assign a variable (only with ==). Let's make all this even.
-				if ($info['auth'] === true && api_user() === false) {
+				if (!empty($info['auth']) && api_user() === false) {
 					api_login($a);
 				}
 
@@ -475,7 +481,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 		'base'         => System::baseUrl(),
 		'updated'      => api_date(null),
 		'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-		'language'     => $user_info['language'],
+		'language'     => $user_info['lang'],
 		'logo'         => System::baseUrl() . "/images/friendica-32.png",
 	];
 
@@ -492,9 +498,9 @@ function api_rss_extra(App $a, $arr, $user_info)
  */
 function api_unique_id_to_nurl($id)
 {
-	$r = dba::selectFirst('contact', ['nurl'], ['uid' => 0, 'id' => $id]);
+	$r = DBA::selectFirst('contact', ['nurl'], ['id' => $id]);
 
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		return $r["nurl"];
 	} else {
 		return false;
@@ -519,7 +525,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact URL
 	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
-		$user = dbesc(normalise_link($contact_id));
+		$user = DBA::escape(normalise_link($contact_id));
 		$url = $user;
 		$extra_query = "AND `contact`.`nurl` = '%s' ";
 		if (api_user() !== false) {
@@ -529,10 +535,10 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact id with uid = 0
 	if (!is_null($contact_id) && (intval($contact_id) != 0)) {
-		$user = dbesc(api_unique_id_to_nurl(intval($contact_id)));
+		$user = DBA::escape(api_unique_id_to_nurl(intval($contact_id)));
 
 		if ($user == "") {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ID ".$contact_id." not found.");
 		}
 
 		$url = $user;
@@ -543,10 +549,10 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	if (is_null($user) && x($_GET, 'user_id')) {
-		$user = dbesc(api_unique_id_to_nurl($_GET['user_id']));
+		$user = DBA::escape(api_unique_id_to_nurl($_GET['user_id']));
 
 		if ($user == "") {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ID ".$_GET['user_id']." not found.");
 		}
 
 		$url = $user;
@@ -556,7 +562,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 	if (is_null($user) && x($_GET, 'screen_name')) {
-		$user = dbesc($_GET['screen_name']);
+		$user = DBA::escape($_GET['screen_name']);
 		$extra_query = "AND `contact`.`nick` = '%s' ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
@@ -564,18 +570,24 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	if (is_null($user) && x($_GET, 'profileurl')) {
-		$user = dbesc(normalise_link($_GET['profileurl']));
+		$user = DBA::escape(normalise_link($_GET['profileurl']));
 		$extra_query = "AND `contact`.`nurl` = '%s' ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
 		}
 	}
 
+	// $called_api is the API path exploded on / and is expected to have at least 2 elements
 	if (is_null($user) && ($a->argc > (count($called_api) - 1)) && (count($called_api) > 0)) {
 		$argid = count($called_api);
-		list($user, $null) = explode(".", $a->argv[$argid]);
+		if (!empty($a->argv[$argid])) {
+			$data = explode(".", $a->argv[$argid]);
+			if (count($data) > 1) {
+				list($user, $null) = $data;
+			}
+		}
 		if (is_numeric($user)) {
-			$user = dbesc(api_unique_id_to_nurl(intval($user)));
+			$user = DBA::escape(api_unique_id_to_nurl(intval($user)));
 
 			if ($user != "") {
 				$url = $user;
@@ -585,7 +597,7 @@ function api_get_user(App $a, $contact_id = null)
 				}
 			}
 		} else {
-			$user = dbesc($user);
+			$user = DBA::escape($user);
 			$extra_query = "AND `contact`.`nick` = '%s' ";
 			if (api_user() !== false) {
 				$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
@@ -621,38 +633,38 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	// if the contact wasn't found, fetch it from the contacts with uid = 0
-	if (!DBM::is_result($uinfo)) {
-		$r = [];
-
-		if ($url != "") {
-			$r = q("SELECT * FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s' LIMIT 1", dbesc(normalise_link($url)));
+	if (!DBA::isResult($uinfo)) {
+		if ($url == "") {
+			throw new BadRequestException("User not found.");
 		}
 
-		if (DBM::is_result($r)) {
-			$network_name = ContactSelector::networkToName($r[0]['network'], $r[0]['url']);
+		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => normalise_link($url)]);
+
+		if (DBA::isResult($contact)) {
+			$network_name = ContactSelector::networkToName($contact['network'], $contact['url']);
 
 			// If no nick where given, extract it from the address
-			if (($r[0]['nick'] == "") || ($r[0]['name'] == $r[0]['nick'])) {
-				$r[0]['nick'] = api_get_nick($r[0]["url"]);
+			if (($contact['nick'] == "") || ($contact['name'] == $contact['nick'])) {
+				$contact['nick'] = api_get_nick($contact["url"]);
 			}
 
 			$ret = [
-				'id' => $r[0]["id"],
-				'id_str' => (string) $r[0]["id"],
-				'name' => $r[0]["name"],
-				'screen_name' => (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']),
-				'location' => ($r[0]["location"] != "") ? $r[0]["location"] : $network_name,
-				'description' => $r[0]["about"],
-				'profile_image_url' => $r[0]["micro"],
-				'profile_image_url_https' => $r[0]["micro"],
-				'profile_image_url_profile_size' => $r[0]["thumb"],
-				'profile_image_url_large' => $r[0]["photo"],
-				'url' => $r[0]["url"],
+				'id' => $contact["id"],
+				'id_str' => (string) $contact["id"],
+				'name' => $contact["name"],
+				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
+				'location' => ($contact["location"] != "") ? $contact["location"] : $network_name,
+				'description' => $contact["about"],
+				'profile_image_url' => $contact["micro"],
+				'profile_image_url_https' => $contact["micro"],
+				'profile_image_url_profile_size' => $contact["thumb"],
+				'profile_image_url_large' => $contact["photo"],
+				'url' => $contact["url"],
 				'protected' => false,
 				'followers_count' => 0,
 				'friends_count' => 0,
 				'listed_count' => 0,
-				'created_at' => api_date($r[0]["created"]),
+				'created_at' => api_date($contact["created"]),
 				'favourites_count' => 0,
 				'utc_offset' => 0,
 				'time_zone' => 'UTC',
@@ -667,85 +679,29 @@ function api_get_user(App $a, $contact_id = null)
 				'follow_request_sent' => false,
 				'statusnet_blocking' => false,
 				'notifications' => false,
-				'statusnet_profile_url' => $r[0]["url"],
+				'statusnet_profile_url' => $contact["url"],
 				'uid' => 0,
-				'cid' => Contact::getIdForURL($r[0]["url"], api_user(), true),
+				'cid' => Contact::getIdForURL($contact["url"], api_user(), true),
+				'pid' => Contact::getIdForURL($contact["url"], 0, true),
 				'self' => 0,
-				'network' => $r[0]["network"],
+				'network' => $contact["network"],
 			];
 
 			return $ret;
 		} else {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ".$url." not found.");
 		}
 	}
 
 	if ($uinfo[0]['self']) {
 		if ($uinfo[0]['network'] == "") {
-			$uinfo[0]['network'] = NETWORK_DFRN;
+			$uinfo[0]['network'] = Protocol::DFRN;
 		}
 
-		$usr = q(
-			"SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval(api_user())
-		);
-		$profile = q(
-			"SELECT * FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
-			intval(api_user())
-		);
-
-		/// @TODO old-lost code? (twice)
-		// Counting is deactivated by now, due to performance issues
-		// count public wall messages
-		//$r = q("SELECT COUNT(*) as `count` FROM `item` WHERE `uid` = %d AND `wall`",
-		//		intval($uinfo[0]['uid'])
-		//);
-		//$countitms = $r[0]['count'];
-		$countitms = 0;
-	} else {
-		// Counting is deactivated by now, due to performance issues
-		//$r = q("SELECT count(*) as `count` FROM `item`
-		//		WHERE  `contact-id` = %d",
-		//		intval($uinfo[0]['id'])
-		//);
-		//$countitms = $r[0]['count'];
-		$countitms = 0;
+		$usr = DBA::selectFirst('user', ['default-location'], ['uid' => api_user()]);
+		$profile = DBA::selectFirst('profile', ['about'], ['uid' => api_user(), 'is-default' => true]);
 	}
-
-		/// @TODO old-lost code? (twice)
-		/*
-		// Counting is deactivated by now, due to performance issues
-		// count friends
-		$r = q("SELECT count(*) as `count` FROM `contact`
-				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND NOT `blocked` AND NOT `pending` AND `hidden`=0",
-				intval($uinfo[0]['uid']),
-				intval(CONTACT_IS_SHARING),
-				intval(CONTACT_IS_FRIEND)
-		);
-		$countfriends = $r[0]['count'];
-
-		$r = q("SELECT count(*) as `count` FROM `contact`
-				WHERE  `uid` = %d AND `rel` IN ( %d, %d )
-				AND `self`=0 AND NOT `blocked` AND NOT `pending` AND `hidden`=0",
-				intval($uinfo[0]['uid']),
-				intval(CONTACT_IS_FOLLOWER),
-				intval(CONTACT_IS_FRIEND)
-		);
-		$countfollowers = $r[0]['count'];
-
-		$r = q("SELECT count(*) as `count` FROM item where starred = 1 and uid = %d and deleted = 0",
-			intval($uinfo[0]['uid'])
-		);
-		$starred = $r[0]['count'];
-
-
-		if (! $uinfo[0]['self']) {
-			$countfriends = 0;
-			$countfollowers = 0;
-			$starred = 0;
-		}
-		*/
+	$countitems = 0;
 	$countfriends = 0;
 	$countfollowers = 0;
 	$starred = 0;
@@ -759,14 +715,14 @@ function api_get_user(App $a, $contact_id = null)
 
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
-	if (!empty($profile[0]['about'])) {
-		$description = $profile[0]['about'];
+	if (!empty($profile['about'])) {
+		$description = $profile['about'];
 	} else {
 		$description = $uinfo[0]["about"];
 	}
 
-	if (!empty($usr[0]['default-location'])) {
-		$location = $usr[0]['default-location'];
+	if (!empty($usr['default-location'])) {
+		$location = $usr['default-location'];
 	} elseif (!empty($uinfo[0]["location"])) {
 		$location = $uinfo[0]["location"];
 	} else {
@@ -795,12 +751,12 @@ function api_get_user(App $a, $contact_id = null)
 		'time_zone' => 'UTC',
 		'geo_enabled' => false,
 		'verified' => true,
-		'statuses_count' => intval($countitms),
+		'statuses_count' => intval($countitems),
 		'lang' => '',
 		'contributors_enabled' => false,
 		'is_translator' => false,
 		'is_translation_enabled' => false,
-		'following' => (($uinfo[0]['rel'] == CONTACT_IS_FOLLOWER) || ($uinfo[0]['rel'] == CONTACT_IS_FRIEND)),
+		'following' => (($uinfo[0]['rel'] == Contact::FOLLOWER) || ($uinfo[0]['rel'] == Contact::FRIEND)),
 		'follow_request_sent' => false,
 		'statusnet_blocking' => false,
 		'notifications' => false,
@@ -809,15 +765,17 @@ function api_get_user(App $a, $contact_id = null)
 		'statusnet_profile_url' => $uinfo[0]['url'],
 		'uid' => intval($uinfo[0]['uid']),
 		'cid' => intval($uinfo[0]['cid']),
+		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, true),
 		'self' => $uinfo[0]['self'],
 		'network' => $uinfo[0]['network'],
 	];
 
 	// If this is a local user and it uses Frio, we can get its color preferences.
 	if ($ret['self']) {
-		$theme_info = dba::selectFirst('user', ['theme'], ['uid' => $ret['uid']]);
+		$theme_info = DBA::selectFirst('user', ['theme'], ['uid' => $ret['uid']]);
 		if ($theme_info['theme'] === 'frio') {
 			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
+
 			if ($schema && ($schema != '---')) {
 				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
 					$schemefile = 'view/theme/frio/schema/'.$schema.'.php';
@@ -828,13 +786,13 @@ function api_get_user(App $a, $contact_id = null)
 				$link_color = PConfig::get($ret['uid'], 'frio', 'link_color');
 				$bgcolor = PConfig::get($ret['uid'], 'frio', 'background_color');
 			}
-			if (!$nav_bg) {
+			if (empty($nav_bg)) {
 				$nav_bg = "#708fa0";
 			}
-			if (!$link_color) {
+			if (empty($link_color)) {
 				$link_color = "#6fdbe8";
 			}
-			if (!$bgcolor) {
+			if (empty($bgcolor)) {
 				$bgcolor = "#ededed";
 			}
 
@@ -856,16 +814,12 @@ function api_get_user(App $a, $contact_id = null)
  */
 function api_item_get_user(App $a, $item)
 {
-	$status_user = api_get_user($a, $item["author-link"]);
+	$status_user = api_get_user($a, defaults($item, 'author-id', null));
 
-	$status_user["protected"] = (($item["allow_cid"] != "") ||
-					($item["allow_gid"] != "") ||
-					($item["deny_cid"] != "") ||
-					($item["deny_gid"] != "") ||
-					$item["private"]);
+	$status_user["protected"] = defaults($item, 'private', 0);
 
-	if ($item['thr-parent'] == $item['uri']) {
-		$owner_user = api_get_user($a, $item["owner-link"]);
+	if (defaults($item, 'thr-parent', '') == defaults($item, 'uri', '')) {
+		$owner_user = api_get_user($a, defaults($item, 'author-id', null));
 	} else {
 		$owner_user = $status_user;
 	}
@@ -935,11 +889,10 @@ function api_reformat_xml(&$item, &$key)
  *
  * @return string The XML data
  */
-function api_create_xml($data, $root_element)
+function api_create_xml(array $data, $root_element)
 {
 	$childname = key($data);
 	$data2 = array_pop($data);
-	$key = key($data2);
 
 	$namespaces = ["" => "http://api.twitter.com",
 				"statusnet" => "http://status.net/schema/api/1/",
@@ -952,18 +905,19 @@ function api_create_xml($data, $root_element)
 	}
 
 	if (is_array($data2)) {
+		$key = key($data2);
 		api_walk_recursive($data2, "api_reformat_xml");
-	}
 
-	if ($key == "0") {
-		$data4 = [];
-		$i = 1;
+		if ($key == "0") {
+			$data4 = [];
+			$i = 1;
 
-		foreach ($data2 as $item) {
-			$data4[$i++.":".$childname] = $item;
+			foreach ($data2 as $item) {
+				$data4[$i++ . ":" . $childname] = $item;
+			}
+
+			$data2 = $data4;
 		}
-
-		$data2 = $data4;
 	}
 
 	$data3 = [$root_element => $data2];
@@ -1068,7 +1022,7 @@ function requestdata($k)
 }
 
 /**
- * Waitman Gobble Mod
+ * Deprecated function to upload media.
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
@@ -1084,7 +1038,6 @@ function api_statuses_mediap($type)
 	}
 	$user_info = api_get_user($a);
 
-	$_REQUEST['type'] = 'wall';
 	$_REQUEST['profile_uid'] = api_user();
 	$_REQUEST['api_source'] = true;
 	$txt = requestdata('status');
@@ -1100,18 +1053,16 @@ function api_statuses_mediap($type)
 	}
 	$txt = HTML::toBBCode($txt);
 
-	$a->argv[1]=$user_info['screen_name']; //should be set to username?
+	$a->argv[1] = $user_info['screen_name']; //should be set to username?
 
-	// tell wall_upload function to return img info instead of echo
-	$_REQUEST['hush'] = 'yeah';
-	$bebop = wall_upload_post($a);
+	$picture = wall_upload_post($a, false);
 
 	// now that we have the img url in bbcode we can add it to the status and insert the wall item.
-	$_REQUEST['body'] = $txt . "\n\n" . $bebop;
-	item_post($a);
+	$_REQUEST['body'] = $txt . "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
+	$item_id = item_post($a);
 
-	// this should output the last post (the one we just posted).
-	return api_status_show($type);
+	// output the post that we just posted.
+	return api_status_show($type, $item_id);
 }
 
 /// @TODO move this to top of file or somewhere better!
@@ -1127,7 +1078,6 @@ api_register_func('api/statuses/mediap', 'api_statuses_mediap', true, API_METHOD
  */
 function api_statuses_update($type)
 {
-
 	$a = get_app();
 
 	if (api_user() === false) {
@@ -1175,26 +1125,14 @@ function api_statuses_update($type)
 	}
 	$_REQUEST['profile_uid'] = api_user();
 
-	if ($parent) {
-		$_REQUEST['type'] = 'net-comment';
-	} else {
+	if (!$parent) {
 		// Check for throttling (maximum posts per day, week and month)
 		$throttle_day = Config::get('system', 'throttle_limit_day');
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
-			$r = q(
-				"SELECT COUNT(*) AS `posts_day` FROM `item` WHERE `uid`=%d AND `wall`
-				AND `created` > '%s' AND `id` = `parent`",
-				intval(api_user()),
-				dbesc($datefrom)
-			);
-
-			if (DBM::is_result($r)) {
-				$posts_day = $r[0]["posts_day"];
-			} else {
-				$posts_day = 0;
-			}
+			$condition = ["`uid` = ? AND `wall` AND `created` > ?", api_user(), $datefrom];
+			$posts_day = DBA::count('thread', $condition);
 
 			if ($posts_day > $throttle_day) {
 				logger('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
@@ -1207,18 +1145,8 @@ function api_statuses_update($type)
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
-			$r = q(
-				"SELECT COUNT(*) AS `posts_week` FROM `item` WHERE `uid`=%d AND `wall`
-				AND `created` > '%s' AND `id` = `parent`",
-				intval(api_user()),
-				dbesc($datefrom)
-			);
-
-			if (DBM::is_result($r)) {
-				$posts_week = $r[0]["posts_week"];
-			} else {
-				$posts_week = 0;
-			}
+			$condition = ["`uid` = ? AND `wall` AND `created` > ?", api_user(), $datefrom];
+			$posts_week = DBA::count('thread', $condition);
 
 			if ($posts_week > $throttle_week) {
 				logger('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
@@ -1231,18 +1159,8 @@ function api_statuses_update($type)
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
-			$r = q(
-				"SELECT COUNT(*) AS `posts_month` FROM `item` WHERE `uid`=%d AND `wall`
-				AND `created` > '%s' AND `id` = `parent`",
-				intval(api_user()),
-				dbesc($datefrom)
-			);
-
-			if (DBM::is_result($r)) {
-				$posts_month = $r[0]["posts_month"];
-			} else {
-				$posts_month = 0;
-			}
+			$condition = ["`uid` = ? AND `wall` AND `created` > ?", api_user(), $datefrom];
+			$posts_month = DBA::count('thread', $condition);
 
 			if ($posts_month > $throttle_month) {
 				logger('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
@@ -1250,16 +1168,13 @@ function api_statuses_update($type)
 				throw new TooManyRequestsException(L10n::t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 			}
 		}
-
-		$_REQUEST['type'] = 'wall';
 	}
 
 	if (x($_FILES, 'media')) {
 		// upload the image if we have one
-		$_REQUEST['hush'] = 'yeah'; //tell wall_upload function to return img info instead of echo
-		$media = wall_upload_post($a);
-		if (strlen($media) > 0) {
-			$_REQUEST['body'] .= "\n\n" . $media;
+		$picture = wall_upload_post($a, false);
+		if (is_array($picture)) {
+			$_REQUEST['body'] .= "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
 		}
 	}
 
@@ -1270,7 +1185,7 @@ function api_statuses_update($type)
 			intval(requestdata('media_ids')),
 			api_user()
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$phototypes = Image::supportedTypes();
 			$ext = $phototypes[$r[0]['type']];
 			$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
@@ -1287,10 +1202,10 @@ function api_statuses_update($type)
 	}
 
 	// call out normal post function
-	item_post($a);
+	$item_id = item_post($a);
 
-	// this should output the last post (the one we just posted).
-	return api_status_show($type);
+	// output the post that we just posted.
+	return api_status_show($type, $item_id);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1347,7 +1262,7 @@ api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST)
  *
  * @return array|string
  */
-function api_status_show($type)
+function api_status_show($type, $item_id = 0)
 {
 	$a = get_app();
 
@@ -1356,31 +1271,22 @@ function api_status_show($type)
 	logger('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
 
 	if ($type == "raw") {
-		$privacy_sql = "AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''";
+		$privacy_sql = "AND NOT `private`";
 	} else {
 		$privacy_sql = "";
 	}
 
-	// get last public wall message
-	$lastwall = q(
-		"SELECT `item`.*
-			FROM `item`
-			WHERE `item`.`contact-id` = %d AND `item`.`uid` = %d
-				AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
-				AND `item`.`type` != 'activity' $privacy_sql
-			ORDER BY `item`.`id` DESC
-			LIMIT 1",
-		intval($user_info['cid']),
-		intval(api_user()),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url'])),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url']))
-	);
+	if (!empty($item_id)) {
+		// Get the item with the given id
+		$condition = ['id' => $item_id];
+	} else {
+		// get last public wall message
+		$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
+			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+	}
+	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
-	if (DBM::is_result($lastwall)) {
-		$lastwall = $lastwall[0];
-
+	if (DBA::isResult($lastwall)) {
 		$in_reply_to = api_in_reply_to($lastwall);
 
 		$converted = api_convert_item($lastwall);
@@ -1405,19 +1311,19 @@ function api_status_show($type)
 			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
 			'user' => $user_info,
 			$geo => null,
-			'coordinates' => "",
-			'place' => "",
-			'contributors' => "",
+			'coordinates' => '',
+			'place' => '',
+			'contributors' => '',
 			'is_quote_status' => false,
 			'retweet_count' => 0,
 			'favorite_count' => 0,
 			'favorited' => $lastwall['starred'] ? true : false,
 			'retweeted' => false,
 			'possibly_sensitive' => false,
-			'lang' => "",
+			'lang' => '',
 			'statusnet_html' => $converted["html"],
 			'statusnet_conversation_id' => $lastwall['parent'],
-			'external_url' => System::baseUrl() . "/display/" . $lastwall['guid'],
+			'external_url' => System::baseUrl() . '/display/' . $lastwall['guid'],
 		];
 
 		if (count($converted["attachments"]) > 0) {
@@ -1428,10 +1334,10 @@ function api_status_show($type)
 			$status_info["entities"] = $converted["entities"];
 		}
 
-		if (($lastwall['item_network'] != "") && ($status_info["source"] == 'web')) {
-			$status_info["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
-		} elseif (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $status_info["source"])) {
-			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['item_network'], $user_info['url']).')');
+		if ($status_info["source"] == 'web') {
+			$status_info["source"] = ContactSelector::networkToName($lastwall['network'], $user_info['url']);
+		} elseif (ContactSelector::networkToName($lastwall['network'], $user_info['url']) != $status_info["source"]) {
+			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['network'], $user_info['url']).')');
 		}
 
 		// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -1460,28 +1366,12 @@ function api_users_show($type)
 	$a = get_app();
 
 	$user_info = api_get_user($a);
-	$lastwall = q(
-		"SELECT `item`.*
-			FROM `item`
-			INNER JOIN `contact` ON `contact`.`id`=`item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			WHERE `item`.`uid` = %d AND `verb` = '%s' AND `item`.`contact-id` = %d
-				AND ((`item`.`author-link` IN ('%s', '%s')) OR (`item`.`owner-link` IN ('%s', '%s')))
-				AND `type`!='activity'
-				AND `item`.`allow_cid`='' AND `item`.`allow_gid`='' AND `item`.`deny_cid`='' AND `item`.`deny_gid`=''
-			ORDER BY `id` DESC
-			LIMIT 1",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($user_info['cid']),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url'])),
-		dbesc($user_info['url']),
-		dbesc(normalise_link($user_info['url']))
-	);
 
-	if (DBM::is_result($lastwall)) {
-		$lastwall = $lastwall[0];
+	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
+		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => false];
+	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
+	if (DBA::isResult($lastwall)) {
 		$in_reply_to = api_in_reply_to($lastwall);
 
 		$converted = api_convert_item($lastwall);
@@ -1519,12 +1409,12 @@ function api_users_show($type)
 			$user_info["status"]["entities"] = $converted["entities"];
 		}
 
-		if (($lastwall['item_network'] != "") && ($user_info["status"]["source"] == 'web')) {
-			$user_info["status"]["source"] = ContactSelector::networkToName($lastwall['item_network'], $user_info['url']);
+		if ($user_info["status"]["source"] == 'web') {
+			$user_info["status"]["source"] = ContactSelector::networkToName($lastwall['network'], $user_info['url']);
 		}
 
-		if (($lastwall['item_network'] != "") && (ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) != $user_info["status"]["source"])) {
-			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . ContactSelector::networkToName($lastwall['item_network'], $user_info['url']) . ')');
+		if (ContactSelector::networkToName($lastwall['network'], $user_info['url']) != $user_info["status"]["source"]) {
+			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . ContactSelector::networkToName($lastwall['network'], $user_info['url']) . ')');
 		}
 	}
 
@@ -1554,13 +1444,13 @@ function api_users_search($type)
 	$userlist = [];
 
 	if (x($_GET, 'q')) {
-		$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", dbesc($_GET["q"]));
+		$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", DBA::escape($_GET["q"]));
 
-		if (!DBM::is_result($r)) {
-			$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", dbesc($_GET["q"]));
+		if (!DBA::isResult($r)) {
+			$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", DBA::escape($_GET["q"]));
 		}
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$k = 0;
 			foreach ($r as $user) {
 				$user_info = api_get_user($a, $user["id"]);
@@ -1573,10 +1463,10 @@ function api_users_search($type)
 			}
 			$userlist = ["users" => $userlist];
 		} else {
-			throw new BadRequestException("User not found.");
+			throw new BadRequestException("User ".$_GET["q"]." not found.");
 		}
 	} else {
-		throw new BadRequestException("User not found.");
+		throw new BadRequestException("No user specified.");
 	}
 
 	return api_format_data("users", $type, $userlist);
@@ -1599,7 +1489,7 @@ function api_users_lookup($type)
 {
 	$users = [];
 
-	if (x($_REQUEST['user_id'])) {
+	if (!empty($_REQUEST['user_id'])) {
 		foreach (explode(',', $_REQUEST['user_id']) as $id) {
 			if (!empty($id)) {
 				$users[] = api_get_user(get_app(), $id);
@@ -1637,7 +1527,6 @@ function api_search($type)
 	}
 
 	$data = [];
-	$sql_extra = '';
 
 	if (!x($_REQUEST, 'q')) {
 		throw new BadRequestException("q parameter is required.");
@@ -1657,24 +1546,20 @@ function api_search($type)
 
 	$start = $page * $count;
 
+	$condition = ["`gravity` IN (?, ?) AND `item`.`id` > ?
+		AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
+		AND `item`.`body` LIKE CONCAT('%',?,'%')",
+		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, api_user(), $_REQUEST['q']];
+
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = dba::p(
-		"SELECT ".item_fieldlists()."
-		FROM `item` ".item_joins(api_user())."
-		WHERE ".item_condition()." AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
-		AND `item`.`body` LIKE CONCAT('%',?,'%')
-		$sql_extra
-		AND `item`.`id`>?
-		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count)." ",
-		api_user(),
-		$_REQUEST['q'],
-		$since_id
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$data['status'] = api_format_items(dba::inArray($r), $user_info);
+	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
 
 	return api_format_data("statuses", $type, $data);
 }
@@ -1724,47 +1609,36 @@ function api_statuses_home_timeline($type)
 
 	$start = $page * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 	if ($exclude_replies > 0) {
-		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 	if ($conversation_id > 0) {
-		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[] = $conversation_id;
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`uid` = %d AND `verb` = '%s'
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		$sql_extra
-		AND `item`.`id`>%d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$items = Item::inArray($statuses);
+
+	$ret = api_format_items($items, $user_info, false, $type);
 
 	// Set all posts from the query above to seen
 	$idarray = [];
-	foreach ($r as $item) {
+	foreach ($items as $item) {
 		$idarray[] = intval($item["id"]);
 	}
 
 	if (!empty($idarray)) {
-		$unseen = dba::exists('item', ['unseen' => true, 'id' => $idarray]);
+		$unseen = Item::exists(['unseen' => true, 'id' => $idarray]);
 		if ($unseen) {
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
@@ -1819,61 +1693,35 @@ function api_statuses_public_timeline($type)
 	$sql_extra = '';
 
 	if ($exclude_replies && !$conversation_id) {
+		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
+			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+
 		if ($max_id > 0) {
-			$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
+			$condition[0] .= " AND `thread`.`iid` <= ?";
+			$condition[] = $max_id;
 		}
 
-		$r = dba::p(
-			"SELECT " . item_fieldlists() . "
-			FROM `thread`
-			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			" . item_joins(api_user()) . "
-			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid`
-				AND NOT `user`.`hidewall`
-			AND `verb` = ?
-			AND NOT `thread`.`private`
-			AND `thread`.`wall`
-			AND `thread`.`visible`
-			AND NOT `thread`.`deleted`
-			AND NOT `thread`.`moderated`
-			AND `thread`.`iid` > ?
-			$sql_extra
-			ORDER BY `thread`.`iid` DESC
-			LIMIT " . intval($start) . ", " . intval($count),
-			ACTIVITY_POST,
-			$since_id
-		);
+		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
+		$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-		$r = dba::inArray($r);
+		$r = Item::inArray($statuses);
 	} else {
+		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
+			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+
 		if ($max_id > 0) {
-			$sql_extra = 'AND `item`.`id` <= ' . intval($max_id);
+			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[] = $max_id;
 		}
 		if ($conversation_id > 0) {
-			$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+			$condition[0] .= " AND `item`.`parent` = ?";
+			$condition[] = $conversation_id;
 		}
 
-		$r = dba::p(
-			"SELECT " . item_fieldlists() . "
-			FROM `item`
-			" . item_joins(api_user()) . "
-			STRAIGHT_JOIN `user` ON `user`.`uid` = `item`.`uid`
-				AND NOT `user`.`hidewall`
-			AND `verb` = ?
-			AND NOT `item`.`private`
-			AND `item`.`wall`
-			AND `item`.`visible`
-			AND NOT `item`.`deleted`
-			AND NOT `item`.`moderated`
-			AND `item`.`id` > ?
-			$sql_extra
-			ORDER BY `item`.`id` DESC
-			LIMIT " . intval($start) . ", " . intval($count),
-			ACTIVITY_POST,
-			$since_id
-		);
+		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-		$r = dba::inArray($r);
+		$r = Item::inArray($statuses);
 	}
 
 	$ret = api_format_items($r, $user_info, false, $type);
@@ -1921,33 +1769,18 @@ function api_statuses_networkpublic_timeline($type)
 	}
 	$start = ($page - 1) * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `thread`.`iid` > ? AND NOT `private`",
+		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+
 	if ($max_id > 0) {
-		$sql_extra = 'AND `thread`.`iid` <= ' . intval($max_id);
+		$condition[0] .= " AND `thread`.`iid` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = dba::p(
-		"SELECT " . item_fieldlists() . "
-		FROM `thread`
-		STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-		" . item_joins(api_user()) . "
-		WHERE `thread`.`uid` = 0
-		AND `verb` = ?
-		AND NOT `thread`.`private`
-		AND `thread`.`visible`
-		AND NOT `thread`.`deleted`
-		AND NOT `thread`.`moderated`
-		AND `thread`.`iid` > ?
-		$sql_extra
-		ORDER BY `thread`.`iid` DESC
-		LIMIT " . intval($start) . ", " . intval($count),
-		ACTIVITY_POST,
-		$since_id
-	);
+	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-	$r = dba::inArray($r);
-
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -1980,63 +1813,50 @@ function api_statuses_show($type)
 	}
 
 	// params
-	$id = intval($a->argv[3]);
+	$id = intval(defaults($a->argv, 3, 0));
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_statuses_show: ' . $id);
 
-	$conversation = (x($_REQUEST, 'conversation') ? 1 : 0);
-
-	$sql_extra = '';
-	if ($conversation) {
-		$sql_extra .= " AND `item`.`parent` = %d ORDER BY `id` ASC ";
-	} else {
-		$sql_extra .= " AND `item`.`id` = %d";
-	}
+	$conversation = !empty($_REQUEST['conversation']);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$uri_item = dba::selectFirst('item', ['uri'], ['id' => $id]);
-	if (!DBM::is_result($uri_item)) {
+	$uri_item = Item::selectFirst(['uri'], ['id' => $id]);
+	if (!DBA::isResult($uri_item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$item = dba::selectFirst('item', ['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
-	if (!DBM::is_result($item)) {
+	$item = Item::selectFirst(['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	if (!DBA::isResult($item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
 	$id = $item['id'];
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` IN (0, %d) AND `item`.`verb` = '%s'
-		$sql_extra",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($id)
-	);
+	if ($conversation) {
+		$condition = ['parent' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+		$params = ['order' => ['id' => true]];
+	} else {
+		$condition = ['id' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+		$params = [];
+	}
+
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	/// @TODO How about copying this to above methods which don't check $r ?
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($statuses)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	if ($conversation) {
 		$data = ['status' => $ret];
@@ -2066,73 +1886,57 @@ function api_conversation_show($type)
 	}
 
 	// params
-	$id = intval($a->argv[3]);
-	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+	$id       = intval(defaults($a->argv , 3         , 0));
+	$since_id = intval(defaults($_REQUEST, 'since_id', 0));
+	$max_id   = intval(defaults($_REQUEST, 'max_id'  , 0));
+	$count    = intval(defaults($_REQUEST, 'count'   , 20));
+	$page     = intval(defaults($_REQUEST, 'page'    , 1)) - 1;
 	if ($page < 0) {
 		$page = 0;
 	}
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
 
-	$start = $page*$count;
+	$start = $page * $count;
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_conversation_show: '.$id);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$item = dba::selectFirst('item', ['parent-uri'], ['id' => $id]);
-	if (!DBM::is_result($item)) {
+	$item = Item::selectFirst(['parent-uri'], ['id' => $id]);
+	if (!DBA::isResult($item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$parent = dba::selectFirst('item', ['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
-	if (!DBM::is_result($parent)) {
+	$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	if (!DBA::isResult($parent)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
 	$id = $parent['id'];
 
-	$sql_extra = '';
+	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+		$id, api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
-		$sql_extra = ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`parent` = %d AND `item`.`visible`
-		AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` IN (0, %d) AND `item`.`verb` = '%s'
-		AND `item`.`id`>%d $sql_extra
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d",
-		intval($id),
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	if (!DBM::is_result($r)) {
-		throw new BadRequestException("There is no status with this id.");
+	if (!DBA::isResult($statuses)) {
+		throw new BadRequestException("There is no status with id $id.");
 	}
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	return api_format_data("statuses", $type, $data);
@@ -2162,62 +1966,48 @@ function api_statuses_repeat($type)
 	api_get_user($a);
 
 	// params
-	$id = intval($a->argv[3]);
+	$id = intval(defaults($a->argv, 3, 0));
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_statuses_repeat: '.$id);
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`, `contact`.`nick` as `reply_author`,
-		`contact`.`name`, `contact`.`photo` as `reply_photo`, `contact`.`url` as `reply_url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND NOT `item`.`private` AND `item`.`allow_cid` = '' AND `item`.`allow_gid` = ''
-		AND `item`.`deny_cid` = '' AND `item`.`deny_gid` = ''
-		AND `item`.`id`=%d",
-		intval($id)
-	);
+	$fields = ['body', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+	$item = Item::selectFirst($fields, ['id' => $id, 'private' => false]);
 
-	/// @TODO other style than above functions!
-	if (DBM::is_result($r) && $r[0]['body'] != "") {
-		if (strpos($r[0]['body'], "[/share]") !== false) {
-			$pos = strpos($r[0]['body'], "[share");
-			$post = substr($r[0]['body'], $pos);
+	if (DBA::isResult($item) && $item['body'] != "") {
+		if (strpos($item['body'], "[/share]") !== false) {
+			$pos = strpos($item['body'], "[share");
+			$post = substr($item['body'], $pos);
 		} else {
-			$post = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
+			$post = share_header($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
 
-			$post .= $r[0]['body'];
+			$post .= $item['body'];
 			$post .= "[/share]";
 		}
 		$_REQUEST['body'] = $post;
 		$_REQUEST['profile_uid'] = api_user();
-		$_REQUEST['type'] = 'wall';
 		$_REQUEST['api_source'] = true;
 
 		if (!x($_REQUEST, "source")) {
 			$_REQUEST["source"] = api_source();
 		}
 
-		item_post($a);
+		$item_id = item_post($a);
 	} else {
 		throw new ForbiddenException();
 	}
 
-	// this should output the last post (the one we just posted).
-	$called_api = null;
-	return api_status_show($type);
+	// output the post that we just posted.
+	$called_api = [];
+	return api_status_show($type, $item_id);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -2241,15 +2031,15 @@ function api_statuses_destroy($type)
 	api_get_user($a);
 
 	// params
-	$id = intval($a->argv[3]);
+	$id = intval(defaults($a->argv, 3, 0));
 
 	if ($id == 0) {
-		$id = intval($_REQUEST["id"]);
+		$id = intval(defaults($_REQUEST, 'id', 0));
 	}
 
 	// Hotot workaround
 	if ($id == 0) {
-		$id = intval($a->argv[4]);
+		$id = intval(defaults($a->argv, 4, 0));
 	}
 
 	logger('API: api_statuses_destroy: '.$id);
@@ -2299,43 +2089,19 @@ function api_statuses_mentions($type)
 
 	$start = ($page - 1) * $count;
 
-	// Ugly code - should be changed
-	$myurl = System::baseUrl() . '/profile/'. $a->user['nickname'];
-	$myurl = substr($myurl, strpos($myurl, '://') + 3);
-	$myurl = str_replace('www.', '', $myurl);
-
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `author-id` != ?
+		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `thread`.`uid` = ? AND `thread`.`mention` AND NOT `thread`.`ignored`)",
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['pid'], api_user()];
 
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item` FORCE INDEX (`uid_id`)
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`uid` = %d AND `verb` = '%s'
-		AND NOT (`item`.`author-link` IN ('https://%s', 'http://%s'))
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `uid` = %d AND `mention` AND !`ignored`)
-		$sql_extra
-		AND `item`.`id`>%d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		dbesc(protect_sprintf($myurl)),
-		dbesc(protect_sprintf($myurl)),
-		intval(api_user()),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$ret = api_format_items($r, $user_info, false, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -2391,46 +2157,31 @@ function api_statuses_user_timeline($type)
 	}
 	$start = ($page - 1) * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `item`.`contact-id` = ?",
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['cid']];
+
 	if ($user_info['self'] == 1) {
-		$sql_extra .= " AND `item`.`wall` = 1 ";
+		$condition[0] .= ' AND `item`.`wall` ';
 	}
 
 	if ($exclude_replies > 0) {
-		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 
 	if ($conversation_id > 0) {
-		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[] = $conversation_id;
 	}
 
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item` FORCE INDEX (`uid_contactid_id`)
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`uid` = %d AND `verb` = '%s'
-		AND `item`.`contact-id` = %d
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		$sql_extra
-		AND `item`.`id` > %d
-		ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-		intval(api_user()),
-		dbesc(ACTIVITY_POST),
-		intval($user_info['cid']),
-		intval($since_id),
-		intval($start),
-		intval($count)
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$ret = api_format_items($r, $user_info, true, $type);
+	$ret = api_format_items(Item::inArray($statuses), $user_info, true, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -2465,7 +2216,7 @@ function api_favorites_create_destroy($type)
 	// for versioned api.
 	/// @TODO We need a better global soluton
 	$action_argv_id = 2;
-	if ($a->argv[1] == "1.1") {
+	if (count($a->argv) > 1 && $a->argv[1] == "1.1") {
 		$action_argv_id = 3;
 	}
 
@@ -2474,30 +2225,29 @@ function api_favorites_create_destroy($type)
 	}
 	$action = str_replace("." . $type, "", $a->argv[$action_argv_id]);
 	if ($a->argc == $action_argv_id + 2) {
-		$itemid = intval($a->argv[$action_argv_id + 1]);
+		$itemid = intval(defaults($a->argv, $action_argv_id + 1, 0));
 	} else {
-		///  @TODO use x() to check if _REQUEST contains 'id'
-		$itemid = intval($_REQUEST['id']);
+		$itemid = intval(defaults($_REQUEST, 'id', 0));
 	}
 
-	$item = q("SELECT * FROM `item` WHERE `id`=%d AND `uid`=%d LIMIT 1", $itemid, api_user());
+	$item = Item::selectFirstForUser(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
 
-	if (!DBM::is_result($item) || count($item) == 0) {
+	if (!DBA::isResult($item)) {
 		throw new BadRequestException("Invalid item.");
 	}
 
 	switch ($action) {
 		case "create":
-			$item[0]['starred'] = 1;
+			$item['starred'] = 1;
 			break;
 		case "destroy":
-			$item[0]['starred'] = 0;
+			$item['starred'] = 0;
 			break;
 		default:
 			throw new BadRequestException("Invalid action ".$action);
 	}
 
-	$r = Item::update(['starred' => $item[0]['starred']], ['id' => $itemid]);
+	$r = Item::update(['starred' => $item['starred']], ['id' => $itemid]);
 
 	if ($r === false) {
 		throw new InternalServerErrorException("DB error");
@@ -2505,7 +2255,7 @@ function api_favorites_create_destroy($type)
 
 
 	$user_info = api_get_user($a);
-	$rets = api_format_items($item, $user_info, false, $type);
+	$rets = api_format_items([$item], $user_info, false, $type);
 	$ret = $rets[0];
 
 	$data = ['status' => $ret];
@@ -2549,8 +2299,6 @@ function api_favorites($type)
 	if ($user_info['self'] == 0) {
 		$ret = [];
 	} else {
-		$sql_extra = "";
-
 		// params
 		$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
 		$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
@@ -2562,31 +2310,19 @@ function api_favorites($type)
 
 		$start = $page*$count;
 
+		$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `starred`",
+			api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+
+		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+
 		if ($max_id > 0) {
-			$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[] = $max_id;
 		}
 
-		$r = q(
-			"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-			`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-			`contact`.`id` AS `cid`
-			FROM `item`, `contact`
-			WHERE `item`.`uid` = %d
-			AND `item`.`visible` = 1 AND `item`.`moderated` = 0 AND `item`.`deleted` = 0
-			AND `item`.`starred` = 1
-			AND `contact`.`id` = `item`.`contact-id`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			$sql_extra
-			AND `item`.`id`>%d
-			ORDER BY `item`.`id` DESC LIMIT %d ,%d ",
-			intval(api_user()),
-			intval($since_id),
-			intval($start),
-			intval($count)
-		);
+		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-		$ret = api_format_items($r, $user_info, false, $type);
+		$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 	}
 
 	$data = ['status' => $ret];
@@ -2614,25 +2350,33 @@ function api_format_messages($item, $recipient, $sender)
 {
 	// standard meta information
 	$ret = [
-			'id'                    => $item['id'],
-			'sender_id'             => $sender['id'] ,
-			'text'                  => "",
-			'recipient_id'          => $recipient['id'],
-			'created_at'            => api_date($item['created']),
-			'sender_screen_name'    => $sender['screen_name'],
-			'recipient_screen_name' => $recipient['screen_name'],
-			'sender'                => $sender,
-			'recipient'             => $recipient,
-			'title'                 => "",
-			'friendica_seen'        => $item['seen'],
-			'friendica_parent_uri'  => $item['parent-uri'],
+		'id'                    => $item['id'],
+		'sender_id'             => $sender['id'] ,
+		'text'                  => "",
+		'recipient_id'          => $recipient['id'],
+		'created_at'            => api_date(defaults($item, 'created', DateTimeFormat::utcNow())),
+		'sender_screen_name'    => $sender['screen_name'],
+		'recipient_screen_name' => $recipient['screen_name'],
+		'sender'                => $sender,
+		'recipient'             => $recipient,
+		'title'                 => "",
+		'friendica_seen'        => defaults($item, 'seen', 0),
+		'friendica_parent_uri'  => defaults($item, 'parent-uri', ''),
 	];
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
-	unset($ret["sender"]["uid"]);
-	unset($ret["sender"]["self"]);
-	unset($ret["recipient"]["uid"]);
-	unset($ret["recipient"]["self"]);
+	if (isset($ret['sender']['uid'])) {
+		unset($ret['sender']['uid']);
+	}
+	if (isset($ret['sender']['self'])) {
+		unset($ret['sender']['self']);
+	}
+	if (isset($ret['recipient']['uid'])) {
+		unset($ret['recipient']['uid']);
+	}
+	if (isset($ret['recipient']['self'])) {
+		unset($ret['recipient']['self']);
+	}
 
 	//don't send title to regular StatusNET requests to avoid confusing these apps
 	if (x($_GET, 'getText')) {
@@ -2679,8 +2423,8 @@ function api_convert_item($item)
 		$statustext = trim($statustitle."\n\n".$statusbody);
 	}
 
-	if (($item["network"] == NETWORK_FEED) && (strlen($statustext)> 1000)) {
-		$statustext = substr($statustext, 0, 1000)."... \n".$item["plink"];
+	if ((defaults($item, 'network', Protocol::PHANTOM) == Protocol::FEED) && (strlen($statustext)> 1000)) {
+		$statustext = substr($statustext, 0, 1000) . "... \n" . defaults($item, 'plink', '');
 	}
 
 	$statushtml = BBCode::convert(api_clean_attachments($body), false);
@@ -2714,7 +2458,7 @@ function api_convert_item($item)
 	}
 
 	// feeds without body should contain the link
-	if (($item['network'] == NETWORK_FEED) && (strlen($item['body']) == 0)) {
+	if ((defaults($item, 'network', Protocol::PHANTOM) == Protocol::FEED) && (strlen($item['body']) == 0)) {
 		$statushtml .= BBCode::convert($item['plink']);
 	}
 
@@ -2732,7 +2476,7 @@ function api_convert_item($item)
  *
  * @param string $body
  *
- * @return array|false
+ * @return array
  */
 function api_get_attachments(&$body)
 {
@@ -2743,7 +2487,7 @@ function api_get_attachments(&$body)
 	$ret = preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $text, $images);
 
 	if (!$ret) {
-		return false;
+		return [];
 	}
 
 	$attachments = [];
@@ -2756,7 +2500,7 @@ function api_get_attachments(&$body)
 		}
 	}
 
-	if (strstr($_SERVER['HTTP_USER_AGENT'], "AndStatus")) {
+	if (strstr(defaults($_SERVER, 'HTTP_USER_AGENT', ''), "AndStatus")) {
 		foreach ($images[0] as $orig) {
 			$body = str_replace($orig, "", $body);
 		}
@@ -2781,7 +2525,7 @@ function api_get_entitities(&$text, $bbcode)
 		preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 
 		foreach ($images[1] as $image) {
-			$replace = proxy_url($image);
+			$replace = ProxyUtils::proxifyUrl($image);
 			$text = str_replace($image, $replace, $text);
 		}
 		return [];
@@ -2890,7 +2634,7 @@ function api_get_entitities(&$text, $bbcode)
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
 				if (!Config::get("system", "proxy_disabled")) {
-					$media_url = proxy_url($url);
+					$media_url = ProxyUtils::proxifyUrl($url);
 
 					$sizes = [];
 					$scale = Image::getScalingDimensions($image[0], $image[1], 150);
@@ -3000,20 +2744,16 @@ function api_format_items_activities(&$item, $type = "json")
 		'attendmaybe' => [],
 	];
 
-	$items = q(
-		'SELECT * FROM item
-			WHERE uid=%d AND `thr-parent`="%s" AND visible AND NOT deleted',
-		intval($item['uid']),
-		dbesc($item['uri'])
-	);
+	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
+	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	foreach ($items as $i) {
+	while ($item = Item::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
 		// get user data and add it to the array of the activity
-		$user = api_get_user($a, $i['author-link']);
-		switch ($i['verb']) {
+		$user = api_get_user($a, $item['author-id']);
+		switch ($item['verb']) {
 			case ACTIVITY_LIKE:
 				$activities['like'][] = $user;
 				break;
@@ -3033,6 +2773,8 @@ function api_format_items_activities(&$item, $type = "json")
 				break;
 		}
 	}
+
+	DBA::close($ret);
 
 	if ($type == "xml") {
 		$xml_activities = [];
@@ -3153,6 +2895,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			'favorited' => $item['starred'] ? true : false,
 			'user' =>  $status_user ,
 			'friendica_owner' => $owner_user,
+			'friendica_private' => $item['private'] == 1,
 			//'entities' => NULL,
 			'statusnet_html' => $converted["html"],
 			'statusnet_conversation_id' => $item['parent'],
@@ -3168,26 +2911,18 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			$status["entities"] = $converted["entities"];
 		}
 
-		if (($item['item_network'] != "") && ($status["source"] == 'web')) {
-			$status["source"] = ContactSelector::networkToName($item['item_network'], $user_info['url']);
-		} elseif (($item['item_network'] != "") && (ContactSelector::networkToName($item['item_network'], $user_info['url']) != $status["source"])) {
-			$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['item_network'], $user_info['url']).')');
+		if ($status["source"] == 'web') {
+			$status["source"] = ContactSelector::networkToName($item['network'], $user_info['url']);
+		} elseif (ContactSelector::networkToName($item['network'], $user_info['url']) != $status["source"]) {
+			$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $user_info['url']).')');
 		}
-
-
-		// Retweets are only valid for top postings
-		// It doesn't work reliable with the link if its a feed
-		//$IsRetweet = ($item['owner-link'] != $item['author-link']);
-		//if ($IsRetweet)
-		//	$IsRetweet = (($item['owner-name'] != $item['author-name']) || ($item['owner-avatar'] != $item['author-avatar']));
-
 
 		if ($item["id"] == $item["parent"]) {
 			$retweeted_item = api_share_as_retweet($item);
 			if ($retweeted_item !== false) {
 				$retweeted_status = $status;
 				try {
-					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-link"]);
+					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
 				} catch (BadRequestException $e) {
 					// user not found. should be found?
 					/// @todo check if the user should be always found
@@ -3320,7 +3055,7 @@ function api_lists_ownerships($type)
 	$user_info = api_get_user($a);
 	$uid = $user_info['uid'];
 
-	$groups = dba::select('group', [], ['deleted' => 0, 'uid' => $uid]);
+	$groups = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid]);
 
 	// loop through all groups
 	$lists = [];
@@ -3384,39 +3119,25 @@ function api_lists_statuses($type)
 
 	$start = $page * $count;
 
-	$sql_extra = '';
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `group_member`.`gid` = ?",
+		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $_REQUEST['list_id']];
+
 	if ($max_id > 0) {
-		$sql_extra .= ' AND `item`.`id` <= ' . intval($max_id);
+		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[] = $max_id;
 	}
 	if ($exclude_replies > 0) {
-		$sql_extra .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 	if ($conversation_id > 0) {
-		$sql_extra .= ' AND `item`.`parent` = ' . intval($conversation_id);
+		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[] = $conversation_id;
 	}
 
-	$statuses = dba::p(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`, `group_member`.`gid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
-		WHERE `item`.`uid` = ? AND `verb` = ?
-		AND `item`.`visible` AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		$sql_extra
-		AND `item`.`id`>?
-		AND `group_member`.`gid` = ?
-		ORDER BY `item`.`id` DESC LIMIT ".intval($start)." ,".intval($count),
-		api_user(),
-		ACTIVITY_POST,
-		$since_id,
-		$_REQUEST['list_id']
-	);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
-	$items = api_format_items(dba::inArray($statuses), $user_info, false, $type);
+	$items = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $items];
 	switch ($type) {
@@ -3473,9 +3194,9 @@ function api_statuses_f($qtype)
 
 	$sql_extra = '';
 	if ($qtype == 'friends') {
-		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_SHARING), intval(CONTACT_IS_FRIEND));
+		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(Contact::SHARING), intval(Contact::FRIEND));
 	} elseif ($qtype == 'followers') {
-		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(CONTACT_IS_FOLLOWER), intval(CONTACT_IS_FRIEND));
+		$sql_extra = sprintf(" AND ( `rel` = %d OR `rel` = %d ) ", intval(Contact::FOLLOWER), intval(Contact::FRIEND));
 	}
 
 	// friends and followers only for self
@@ -3622,18 +3343,15 @@ function api_statusnet_config($type)
 {
 	$a = get_app();
 
-	$name = $a->config['sitename'];
-	$server = $a->get_hostname();
-	$logo = System::baseUrl() . '/images/friendica-64.png';
-	$email = $a->config['admin_email'];
-	$closed = (($a->config['register_policy'] == REGISTER_CLOSED) ? 'true' : 'false');
-	$private = ((Config::get('system', 'block_public')) ? 'true' : 'false');
-	$textlimit = (string) (($a->config['max_import_size']) ? $a->config['max_import_size'] : 200000);
-	if ($a->config['api_import_size']) {
-		$textlimit = (string) $a->config['api_import_size'];
-	}
-	$ssl = ((Config::get('system', 'have_ssl')) ? 'true' : 'false');
-	$sslserver = (($ssl === 'true') ? str_replace('http:', 'https:', System::baseUrl()) : '');
+	$name      = Config::get('config', 'sitename');
+	$server    = $a->get_hostname();
+	$logo      = System::baseUrl() . '/images/friendica-64.png';
+	$email     = Config::get('config', 'admin_email');
+	$closed    = intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 'true' : 'false';
+	$private   = Config::get('system', 'block_public') ? 'true' : 'false';
+	$textlimit = (string) Config::get('config', 'api_import_size', Config::get('config', 'max_import_size', 200000));
+	$ssl       = Config::get('system', 'have_ssl') ? 'true' : 'false';
+	$sslserver = Config::get('system', 'have_ssl') ? str_replace('http:', 'https:', System::baseUrl()) : '';
 
 	$config = [
 		'site' => ['name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
@@ -3699,7 +3417,7 @@ function api_ff_ids($type)
 			WHERE `contact`.`uid` = %s AND NOT `contact`.`self`",
 		intval(api_user())
 	);
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		return;
 	}
 
@@ -3755,32 +3473,38 @@ api_register_func('api/followers/ids', 'api_followers_ids', true);
  */
 function api_direct_messages_new($type)
 {
-
 	$a = get_app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
 
-	if (!x($_POST, "text") || (!x($_POST, "screen_name") && !x($_POST, "user_id"))) {
+	if (empty($_POST["text"]) || empty($_POST["screen_name"]) && empty($_POST["user_id"])) {
 		return;
 	}
 
 	$sender = api_get_user($a);
 
-	if ($_POST['screen_name']) {
+	$recipient = null;
+	if (!empty($_POST['screen_name'])) {
 		$r = q(
 			"SELECT `id`, `nurl`, `network` FROM `contact` WHERE `uid`=%d AND `nick`='%s'",
 			intval(api_user()),
-			dbesc($_POST['screen_name'])
+			DBA::escape($_POST['screen_name'])
 		);
 
-		// Selecting the id by priority, friendica first
-		api_best_nickname($r);
+		if (DBA::isResult($r)) {
+			// Selecting the id by priority, friendica first
+			api_best_nickname($r);
 
-		$recipient = api_get_user($a, $r[0]['nurl']);
+			$recipient = api_get_user($a, $r[0]['nurl']);
+		}
 	} else {
 		$recipient = api_get_user($a, $_POST['user_id']);
+	}
+
+	if (empty($recipient)) {
+		throw new NotFoundException('Recipient not found');
 	}
 
 	$replyto = '';
@@ -3863,7 +3587,7 @@ function api_direct_messages_destroy($type)
 	}
 
 	// add parent-uri to sql command if specified by calling app
-	$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . dbesc($parenturi) . "'" : "");
+	$sql_extra = ($parenturi != "" ? " AND `parent-uri` = '" . DBA::escape($parenturi) . "'" : "");
 
 	// get data of the specified message id
 	$r = q(
@@ -3873,7 +3597,7 @@ function api_direct_messages_destroy($type)
 	);
 
 	// error message if specified id is not in database
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		if ($verbose == "true") {
 			$answer = ['result' => 'error', 'message' => 'message id not in database'];
 			return api_format_data("direct_messages_delete", $type, ['$result' => $answer]);
@@ -3916,24 +3640,21 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 function api_direct_messages_box($type, $box, $verbose)
 {
 	$a = get_app();
-	$user_info = api_get_user($a);
-
-	if (api_user() === false || $user_info === false) {
+	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
-
 	// params
-	$count = (x($_GET, 'count') ? $_GET['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] -1 : 0);
+	$count = defaults($_GET, 'count', 20);
+	$page = defaults($_REQUEST, 'page', 1) - 1;
 	if ($page < 0) {
 		$page = 0;
 	}
 
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
+	$since_id = defaults($_REQUEST, 'since_id', 0);
+	$max_id = defaults($_REQUEST, 'max_id', 0);
 
-	$user_id = (x($_REQUEST, 'user_id') ? $_REQUEST['user_id'] : "");
-	$screen_name = (x($_REQUEST, 'screen_name') ? $_REQUEST['screen_name'] : "");
+	$user_id = defaults($_REQUEST, 'user_id', '');
+	$screen_name = defaults($_REQUEST, 'screen_name', '');
 
 	//  caller user info
 	unset($_REQUEST["user_id"]);
@@ -3942,6 +3663,10 @@ function api_direct_messages_box($type, $box, $verbose)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
+	$user_info = api_get_user($a);
+	if ($user_info === false) {
+		throw new ForbiddenException();
+	}
 	$profile_url = $user_info["url"];
 
 	// pagination
@@ -3951,13 +3676,13 @@ function api_direct_messages_box($type, $box, $verbose)
 
 	// filters
 	if ($box=="sentbox") {
-		$sql_extra = "`mail`.`from-url`='" . dbesc($profile_url) . "'";
+		$sql_extra = "`mail`.`from-url`='" . DBA::escape($profile_url) . "'";
 	} elseif ($box == "conversation") {
-		$sql_extra = "`mail`.`parent-uri`='" . dbesc($_GET["uri"])  . "'";
+		$sql_extra = "`mail`.`parent-uri`='" . DBA::escape(defaults($_GET, 'uri', ''))  . "'";
 	} elseif ($box == "all") {
 		$sql_extra = "true";
 	} elseif ($box == "inbox") {
-		$sql_extra = "`mail`.`from-url`!='" . dbesc($profile_url) . "'";
+		$sql_extra = "`mail`.`from-url`!='" . DBA::escape($profile_url) . "'";
 	}
 
 	if ($max_id > 0) {
@@ -3967,7 +3692,7 @@ function api_direct_messages_box($type, $box, $verbose)
 	if ($user_id != "") {
 		$sql_extra .= ' AND `mail`.`contact-id` = ' . intval($user_id);
 	} elseif ($screen_name !="") {
-		$sql_extra .= " AND `contact`.`nick` = '" . dbesc($screen_name). "'";
+		$sql_extra .= " AND `contact`.`nick` = '" . DBA::escape($screen_name). "'";
 	}
 
 	$r = q(
@@ -3977,7 +3702,7 @@ function api_direct_messages_box($type, $box, $verbose)
 		intval($start),
 		intval($count)
 	);
-	if ($verbose == "true" && !DBM::is_result($r)) {
+	if ($verbose == "true" && !DBA::isResult($r)) {
 		$answer = ['result' => 'error', 'message' => 'no mails available'];
 		return api_format_data("direct_messages_all", $type, ['$result' => $answer]);
 	}
@@ -4130,29 +3855,26 @@ function api_fr_photoalbum_delete($type)
 	$r = q(
 		"SELECT DISTINCT `resource-id` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
 		intval(api_user()),
-		dbesc($album)
+		DBA::escape($album)
 	);
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		throw new BadRequestException("album not available");
 	}
 
 	// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 	// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
 	foreach ($r as $rr) {
-		$photo_item = q(
-			"SELECT `id` FROM `item` WHERE `uid` = %d AND `resource-id` = '%s' AND `type` = 'photo'",
-			intval(local_user()),
-			dbesc($rr['resource-id'])
-		);
+		$condition = ['uid' => local_user(), 'resource-id' => $rr['resource-id'], 'type' => 'photo'];
+		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
 
-		if (!DBM::is_result($photo_item)) {
+		if (!DBA::isResult($photo_item)) {
 			throw new InternalServerErrorException("problem with deleting items occured");
 		}
-		Item::deleteForUser(['id' => $photo_item[0]['id']], api_user());
+		Item::deleteForUser(['id' => $photo_item['id']], api_user());
 	}
 
 	// now let's delete all photos from the album
-	$result = dba::delete('photo', ['uid' => api_user(), 'album' => $album]);
+	$result = DBA::delete('photo', ['uid' => api_user(), 'album' => $album]);
 
 	// return success of deletion or error message
 	if ($result) {
@@ -4186,11 +3908,11 @@ function api_fr_photoalbum_update($type)
 		throw new BadRequestException("no new albumname specified");
 	}
 	// check if album is existing
-	if (!dba::exists('photo', ['uid' => api_user(), 'album' => $album])) {
+	if (!DBA::exists('photo', ['uid' => api_user(), 'album' => $album])) {
 		throw new BadRequestException("album not available");
 	}
 	// now let's update all photos to the albumname
-	$result = dba::update('photo', ['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
+	$result = DBA::update('photo', ['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
 
 	// return success of updating or error message
 	if ($result) {
@@ -4225,7 +3947,7 @@ function api_fr_photos_list($type)
 		'image/gif' => 'gif'
 	];
 	$data = ['photo'=>[]];
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
 			$photo = [];
 			$photo['id'] = $rr['resource-id'];
@@ -4294,10 +4016,10 @@ function api_fr_photo_create_update($type)
 		$r = q(
 			"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
 			intval(api_user()),
-			dbesc($photo_id),
-			dbesc($album)
+			DBA::escape($photo_id),
+			DBA::escape($album)
 		);
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			throw new BadRequestException("photo not available");
 		}
 	}
@@ -4364,8 +4086,8 @@ function api_fr_photo_create_update($type)
 				$sql_extra,
 				DateTimeFormat::utcNow(),   // update edited timestamp
 				intval(api_user()),
-				dbesc($photo_id),
-				dbesc($album)
+				DBA::escape($photo_id),
+				DBA::escape($album)
 			);
 		} else {
 			$nothingtodo = true;
@@ -4395,7 +4117,6 @@ function api_fr_photo_create_update($type)
 	throw new InternalServerErrorException("unknown error - this error on uploading or updating a photo should never happen");
 }
 
-
 /**
  * @brief delete a single photo from the database through api
  *
@@ -4419,29 +4140,26 @@ function api_fr_photo_delete($type)
 	$r = q(
 		"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
 		intval(api_user()),
-		dbesc($photo_id)
+		DBA::escape($photo_id)
 	);
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		throw new BadRequestException("photo not available");
 	}
 	// now we can perform on the deletion of the photo
-	$result = dba::delete('photo', ['uid' => api_user(), 'resource-id' => $photo_id]);
+	$result = DBA::delete('photo', ['uid' => api_user(), 'resource-id' => $photo_id]);
 
 	// return success of deletion or error message
 	if ($result) {
 		// retrieve the id of the parent element (the photo element)
-		$photo_item = q(
-			"SELECT `id` FROM `item` WHERE `uid` = %d AND `resource-id` = '%s' AND `type` = 'photo'",
-			intval(local_user()),
-			dbesc($photo_id)
-		);
+		$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
 
-		if (!DBM::is_result($photo_item)) {
+		if (!DBA::isResult($photo_item)) {
 			throw new InternalServerErrorException("problem with deleting items occured");
 		}
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		Item::deleteForUser(['id' => $photo_item[0]['id']], api_user());
+		Item::deleteForUser(['id' => $photo_item['id']], api_user());
 
 		$answer = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
 		return api_format_data("photo_delete", $type, ['$result' => $answer]);
@@ -4501,9 +4219,9 @@ function api_account_update_profile_image($type)
 
 	// check if specified profile id is valid
 	if ($profile_id != 0) {
-		$profile = dba::selectFirst('profile', ['is-default'], ['uid' => api_user(), 'id' => $profile_id]);
+		$profile = DBA::selectFirst('profile', ['is-default'], ['uid' => api_user(), 'id' => $profile_id]);
 		// error message if specified profile id is not in database
-		if (!DBM::is_result($profile)) {
+		if (!DBA::isResult($profile)) {
 			throw new BadRequestException("profile_id not available");
 		}
 		$is_default_profile = $profile['is-default'];
@@ -4534,20 +4252,20 @@ function api_account_update_profile_image($type)
 	} else {
 		throw new InternalServerErrorException('Unsupported filetype');
 	}
+
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
-		dba::update('photo', ['profile' => false], $condition);
+		DBA::update('photo', ['profile' => false], $condition);
 	} else {
 		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype,
 			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype];
-		dba::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
+		DBA::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
 	}
 
 	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
-	//$user = api_get_user(get_app());
 	$url = System::baseUrl() . '/profile/' . get_app()->user['nickname'];
 	if ($url && strlen(Config::get('system', 'directory'))) {
 		Worker::add(PRIORITY_LOW, "Directory", $url);
@@ -4587,16 +4305,16 @@ function api_account_update_profile($type)
 	$api_user = api_get_user(get_app());
 
 	if (!empty($_POST['name'])) {
-		dba::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
-		dba::update('user', ['username' => $_POST['name']], ['uid' => $local_user]);
-		dba::update('contact', ['name' => $_POST['name']], ['uid' => $local_user, 'self' => 1]);
-		dba::update('contact', ['name' => $_POST['name']], ['id' => $api_user['id']]);
+		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
+		DBA::update('user', ['username' => $_POST['name']], ['uid' => $local_user]);
+		DBA::update('contact', ['name' => $_POST['name']], ['uid' => $local_user, 'self' => 1]);
+		DBA::update('contact', ['name' => $_POST['name']], ['id' => $api_user['id']]);
 	}
 
 	if (isset($_POST['description'])) {
-		dba::update('profile', ['about' => $_POST['description']], ['uid' => $local_user]);
-		dba::update('contact', ['about' => $_POST['description']], ['uid' => $local_user, 'self' => 1]);
-		dba::update('contact', ['about' => $_POST['description']], ['id' => $api_user['id']]);
+		DBA::update('profile', ['about' => $_POST['description']], ['uid' => $local_user]);
+		DBA::update('contact', ['about' => $_POST['description']], ['uid' => $local_user, 'self' => 1]);
+		DBA::update('contact', ['about' => $_POST['description']], ['id' => $api_user['id']]);
 	}
 
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate', $local_user);
@@ -4630,12 +4348,8 @@ function check_acl_input($acl_string)
 	foreach ($cid_array as $cid) {
 		$cid = str_replace("<", "", $cid);
 		$cid = str_replace(">", "", $cid);
-		$contact = q(
-			"SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d",
-			intval($cid),
-			intval(api_user())
-		);
-		$contact_not_found |= !DBM::is_result($contact);
+		$condition = ['id' => $cid, 'uid' => api_user()];
+		$contact_not_found |= !DBA::exists('contact', $condition);
 	}
 	return $contact_not_found;
 }
@@ -4689,7 +4403,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	if ($filetype == "") {
 		$filetype=Image::guessType($filename);
 	}
-	$imagedata = getimagesize($src);
+	$imagedata = @getimagesize($src);
 	if ($imagedata) {
 		$filetype = $imagedata['mime'];
 	}
@@ -4816,24 +4530,24 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility = false)
 {
 	// get data about the api authenticated user
-	$uri = item_new_uri(get_app()->get_hostname(), intval(api_user()));
-	$owner_record = q("SELECT * FROM `contact` WHERE `uid`= %d AND `self` LIMIT 1", intval(api_user()));
+	$uri = Item::newURI(intval(api_user()));
+	$owner_record = DBA::selectFirst('contact', [], ['uid' => api_user(), 'self' => true]);
 
 	$arr = [];
-	$arr['guid']          = get_guid(32);
+	$arr['guid']          = System::createGUID(32);
 	$arr['uid']           = intval(api_user());
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;
 	$arr['type']          = 'photo';
 	$arr['wall']          = 1;
 	$arr['resource-id']   = $hash;
-	$arr['contact-id']    = $owner_record[0]['id'];
-	$arr['owner-name']    = $owner_record[0]['name'];
-	$arr['owner-link']    = $owner_record[0]['url'];
-	$arr['owner-avatar']  = $owner_record[0]['thumb'];
-	$arr['author-name']   = $owner_record[0]['name'];
-	$arr['author-link']   = $owner_record[0]['url'];
-	$arr['author-avatar'] = $owner_record[0]['thumb'];
+	$arr['contact-id']    = $owner_record['id'];
+	$arr['owner-name']    = $owner_record['name'];
+	$arr['owner-link']    = $owner_record['url'];
+	$arr['owner-avatar']  = $owner_record['thumb'];
+	$arr['author-name']   = $owner_record['name'];
+	$arr['author-link']   = $owner_record['url'];
+	$arr['author-avatar'] = $owner_record['thumb'];
 	$arr['title']         = "";
 	$arr['allow_cid']     = $allow_cid;
 	$arr['allow_gid']     = $allow_gid;
@@ -4849,7 +4563,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 			];
 
 	// adds link to the thumbnail scale photo
-	$arr['body'] = '[url=' . System::baseUrl() . '/photos/' . $owner_record[0]['nick'] . '/image/' . $hash . ']'
+	$arr['body'] = '[url=' . System::baseUrl() . '/photos/' . $owner_record['nick'] . '/image/' . $hash . ']'
 				. '[img]' . System::baseUrl() . '/photo/' . $hash . '-' . "2" . '.'. $typetoext[$filetype] . '[/img]'
 				. '[/url]';
 
@@ -4886,7 +4600,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 			FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY `resource-id`",
 		$data_sql,
 		intval(local_user()),
-		dbesc($photo_id),
+		DBA::escape($photo_id),
 		$scale_sql
 	);
 
@@ -4897,7 +4611,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	];
 
 	// prepare output data for photo
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$data = ['photo' => $r[0]];
 		$data['photo']['id'] = $data['photo']['resource-id'];
 		if ($scale !== false) {
@@ -4929,32 +4643,19 @@ function prepare_photo_data($type, $scale, $photo_id)
 	}
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
-	$item = q(
-		"SELECT * FROM `item` WHERE `uid` = %d AND `resource-id` = '%s' AND `type` = 'photo'",
-		intval(local_user()),
-		dbesc($photo_id)
-	);
-	$data['photo']['friendica_activities'] = api_format_items_activities($item[0], $type);
+	$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+	$item = Item::selectFirstForUser(local_user(), ['id'], $condition);
+
+	$data['photo']['friendica_activities'] = api_format_items_activities($item, $type);
 
 	// retrieve comments on photo
-	$r = q(
-		"SELECT `item`.*, `item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
-		`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`rel`,
-		`contact`.`network`, `contact`.`thumb`, `contact`.`dfrn-id`, `contact`.`self`,
-		`contact`.`id` AS `cid`
-		FROM `item`
-		STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` = `item`.`uid`
-			AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-		WHERE `item`.`parent` = %d AND `item`.`visible`
-		AND NOT `item`.`moderated` AND NOT `item`.`deleted`
-		AND `item`.`uid` = %d AND (`item`.`verb`='%s' OR `type`='photo')",
-		intval($item[0]['parent']),
-		intval(api_user()),
-		dbesc(ACTIVITY_POST)
-	);
+	$condition = ["`parent` = ? AND `uid` = ? AND (`gravity` IN (?, ?) OR `type`='photo')",
+		$item[0]['parent'], api_user(), GRAVITY_PARENT, GRAVITY_COMMENT];
+
+	$statuses = Item::selectForUser(api_user(), [], $condition);
 
 	// prepare output of comments
-	$commentData = api_format_items($r, $user_info, false, $type);
+	$commentData = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
@@ -5003,9 +4704,9 @@ function api_friendica_remoteauth()
 
 	// traditional DFRN
 
-	$contact = dba::selectFirst('contact', [], ['uid' => api_user(), 'nurl' => $c_url]);
+	$contact = DBA::selectFirst('contact', [], ['uid' => api_user(), 'nurl' => $c_url]);
 
-	if (!DBM::is_result($contact) || ($contact['network'] !== NETWORK_DFRN)) {
+	if (!DBA::isResult($contact) || ($contact['network'] !== Protocol::DFRN)) {
 		throw new BadRequestException("Unknown contact");
 	}
 
@@ -5026,7 +4727,7 @@ function api_friendica_remoteauth()
 
 	$fields = ['uid' => api_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id,
 		'sec' => $sec, 'expire' => time() + 45];
-	dba::insert('profile_check', $fields);
+	DBA::insert('profile_check', $fields);
 
 	logger($contact['name'] . ' ' . $sec, LOGGER_DEBUG);
 	$dest = ($url ? '&destination_url=' . $url : '');
@@ -5153,20 +4854,20 @@ function api_get_nick($profile)
 
 	$r = q(
 		"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-		dbesc(normalise_link($profile))
+		DBA::escape(normalise_link($profile))
 	);
 
-	if (DBM::is_result($r)) {
+	if (DBA::isResult($r)) {
 		$nick = $r[0]["nick"];
 	}
 
 	if (!$nick == "") {
 		$r = q(
 			"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-			dbesc(normalise_link($profile))
+			DBA::escape(normalise_link($profile))
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$nick = $r[0]["nick"];
 		}
 	}
@@ -5240,35 +4941,26 @@ function api_in_reply_to($item)
 	$in_reply_to['screen_name'] = null;
 
 	if (($item['thr-parent'] != $item['uri']) && (intval($item['parent']) != intval($item['id']))) {
-		$r = q(
-			"SELECT `id` FROM `item` WHERE `uid` = %d AND `uri` = '%s' LIMIT 1",
-			intval($item['uid']),
-			dbesc($item['thr-parent'])
-		);
-
-		if (DBM::is_result($r)) {
-			$in_reply_to['status_id'] = intval($r[0]['id']);
+		$parent = Item::selectFirst(['id'], ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
+		if (DBA::isResult($parent)) {
+			$in_reply_to['status_id'] = intval($parent['id']);
 		} else {
 			$in_reply_to['status_id'] = intval($item['parent']);
 		}
 
 		$in_reply_to['status_id_str'] = (string) intval($in_reply_to['status_id']);
 
-		$r = q(
-			"SELECT `contact`.`nick`, `contact`.`name`, `contact`.`id`, `contact`.`url` FROM item
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`author-id`
-			WHERE `item`.`id` = %d LIMIT 1",
-			intval($in_reply_to['status_id'])
-		);
+		$fields = ['author-nick', 'author-name', 'author-id', 'author-link'];
+		$parent = Item::selectFirst($fields, ['id' => $in_reply_to['status_id']]);
 
-		if (DBM::is_result($r)) {
-			if ($r[0]['nick'] == "") {
-				$r[0]['nick'] = api_get_nick($r[0]["url"]);
+		if (DBA::isResult($parent)) {
+			if ($parent['author-nick'] == "") {
+				$parent['author-nick'] = api_get_nick($parent['author-link']);
 			}
 
-			$in_reply_to['screen_name'] = (($r[0]['nick']) ? $r[0]['nick'] : $r[0]['name']);
-			$in_reply_to['user_id'] = intval($r[0]['id']);
-			$in_reply_to['user_id_str'] = (string) intval($r[0]['id']);
+			$in_reply_to['screen_name'] = (($parent['author-nick']) ? $parent['author-nick'] : $parent['author-name']);
+			$in_reply_to['user_id'] = intval($parent['author-id']);
+			$in_reply_to['user_id_str'] = (string) intval($parent['author-id']);
 		}
 
 		// There seems to be situation, where both fields are identical:
@@ -5289,27 +4981,27 @@ function api_in_reply_to($item)
 
 /**
  *
- * @param string $Text
+ * @param string $text
  *
  * @return string
  */
-function api_clean_plain_items($Text)
+function api_clean_plain_items($text)
 {
 	$include_entities = strtolower(x($_REQUEST, 'include_entities') ? $_REQUEST['include_entities'] : "false");
 
-	$Text = BBCode::cleanPictureLinks($Text);
+	$text = BBCode::cleanPictureLinks($text);
 	$URLSearchString = "^\[\]";
 
-	$Text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $Text);
+	$text = preg_replace("/([!#@])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $text);
 
 	if ($include_entities == "true") {
-		$Text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url=$1]$1[/url]', $Text);
+		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url=$1]$1[/url]', $text);
 	}
 
 	// Simplify "attachment" element
-	$Text = api_clean_attachments($Text);
+	$text = api_clean_attachments($text);
 
-	return($Text);
+	return $text;
 }
 
 /**
@@ -5438,7 +5130,7 @@ function api_friendica_group_show($type)
 			intval($gid)
 		);
 		// error message if specified gid is not in database
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			throw new BadRequestException("gid not available");
 		}
 	} else {
@@ -5508,7 +5200,7 @@ function api_friendica_group_delete($type)
 		intval($gid)
 	);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		throw new BadRequestException('gid not available');
 	}
 
@@ -5517,10 +5209,10 @@ function api_friendica_group_delete($type)
 		"SELECT * FROM `group` WHERE `uid` = %d AND `id` = %d AND `name` = '%s'",
 		intval($uid),
 		intval($gid),
-		dbesc($name)
+		DBA::escape($name)
 	);
 	// error message if specified gid is not in database
-	if (!DBM::is_result($rname)) {
+	if (!DBA::isResult($rname)) {
 		throw new BadRequestException('wrong group name');
 	}
 
@@ -5563,7 +5255,7 @@ function api_lists_destroy($type)
 	}
 
 	// get data of the specified group id
-	$group = dba::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
+	$group = DBA::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
 	// error message if specified gid is not in database
 	if (!$group) {
 		throw new BadRequestException('gid not available');
@@ -5602,10 +5294,10 @@ function group_create($name, $uid, $users = [])
 	$rname = q(
 		"SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 0",
 		intval($uid),
-		dbesc($name)
+		DBA::escape($name)
 	);
 	// error message if specified group name already exists
-	if (DBM::is_result($rname)) {
+	if (DBA::isResult($rname)) {
 		throw new BadRequestException('group name already exists');
 	}
 
@@ -5613,10 +5305,10 @@ function group_create($name, $uid, $users = [])
 	$rname = q(
 		"SELECT * FROM `group` WHERE `uid` = %d AND `name` = '%s' AND `deleted` = 1",
 		intval($uid),
-		dbesc($name)
+		DBA::escape($name)
 	);
 	// error message if specified group name already exists
-	if (DBM::is_result($rname)) {
+	if (DBA::isResult($rname)) {
 		$reactivate_group = true;
 	}
 
@@ -5817,7 +5509,7 @@ function api_lists_update($type)
 	}
 
 	// get data of the specified group id
-	$group = dba::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
+	$group = DBA::selectFirst('group', [], ['uid' => $uid, 'id' => $gid]);
 	// error message if specified gid is not in database
 	if (!$group) {
 		throw new BadRequestException('gid not available');
@@ -5903,8 +5595,10 @@ function api_friendica_notification($type)
 
 	if ($type == "xml") {
 		$xmlnotes = [];
-		foreach ($notes as $note) {
-			$xmlnotes[] = ["@attributes" => $note];
+		if (!empty($notes)) {
+			foreach ($notes as $note) {
+				$xmlnotes[] = ["@attributes" => $note];
+			}
 		}
 
 		$notes = $xmlnotes;
@@ -5944,14 +5638,10 @@ function api_friendica_notification_seen($type)
 	$nm->setSeen($note);
 	if ($note['otype']=='item') {
 		// would be really better with an ItemsManager and $im->getByID() :-P
-		$r = q(
-			"SELECT * FROM `item` WHERE `id`=%d AND `uid`=%d",
-			intval($note['iid']),
-			intval(local_user())
-		);
-		if ($r!==false) {
+		$item = Item::selectFirstForUser(api_user(), [], ['id' => $note['iid'], 'uid' => api_user()]);
+		if (DBA::isResult($item)) {
 			// we found the item, return it to the user
-			$ret = api_format_items($r, $user_info, false, $type);
+			$ret = api_format_items([$item], $user_info, false, $type);
 			$data = ['status' => $ret];
 			return api_format_data("status", $type, $data);
 		}
@@ -5989,13 +5679,13 @@ function api_friendica_direct_messages_setseen($type)
 	}
 
 	// error message if specified id is not in database
-	if (!dba::exists('mail', ['id' => $id, 'uid' => $uid])) {
+	if (!DBA::exists('mail', ['id' => $id, 'uid' => $uid])) {
 		$answer = ['result' => 'error', 'message' => 'message id not in database'];
 		return api_format_data("direct_messages_setseen", $type, ['$result' => $answer]);
 	}
 
 	// update seen indicator
-	$result = dba::update('mail', ['seen' => true], ['id' => $id]);
+	$result = DBA::update('mail', ['seen' => true], ['id' => $id]);
 
 	if ($result) {
 		// return success
@@ -6042,13 +5732,13 @@ function api_friendica_direct_messages_search($type, $box = "")
 	$r = q(
 		"SELECT `mail`.*, `contact`.`nurl` AS `contact-url` FROM `mail`,`contact` WHERE `mail`.`contact-id` = `contact`.`id` AND `mail`.`uid`=%d AND `body` LIKE '%s' ORDER BY `mail`.`id` DESC",
 		intval($uid),
-		dbesc('%'.$searchstring.'%')
+		DBA::escape('%'.$searchstring.'%')
 	);
 
 	$profile_url = $user_info["url"];
 
 	// message if nothing was found
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($r)) {
 		$success = ['success' => false, 'search_results' => 'problem with query'];
 	} elseif (count($r) == 0) {
 		$success = ['success' => false, 'search_results' => 'nothing found'];
@@ -6106,7 +5796,7 @@ function api_friendica_profile_show($type)
 		);
 
 		// error message if specified gid is not in database
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			throw new BadRequestException("profile_id not available");
 		}
 	} else {
@@ -6126,7 +5816,7 @@ function api_friendica_profile_show($type)
 		$nurls = q(
 			"SELECT `id`, `nurl` FROM `contact` WHERE `uid`= %d AND `profile-id` = %d",
 			intval(api_user()),
-			intval($rr['profile_id'])
+			intval($rr['id'])
 		);
 
 		foreach ($nurls as $nurl) {
@@ -6144,11 +5834,11 @@ function api_friendica_profile_show($type)
 	}
 
 	// return settings, authenticated user and profiles data
-	$self = q("SELECT `nurl` FROM `contact` WHERE `uid`= %d AND `self` LIMIT 1", intval(api_user()));
+	$self = DBA::selectFirst('contact', ['nurl'], ['uid' => api_user(), 'self' => true]);
 
 	$result = ['multi_profiles' => $multi_profiles ? true : false,
 					'global_dir' => $directory,
-					'friendica_owner' => api_get_user($a, $self[0]['nurl']),
+					'friendica_owner' => api_get_user($a, $self['nurl']),
 					'profiles' => $profiles];
 	return api_format_data("friendica_profiles", $type, ['$result' => $result]);
 }
@@ -6165,7 +5855,7 @@ api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', tr
  */
 function api_saved_searches_list($type)
 {
-	$terms = dba::select('search', ['id', 'term'], ['uid' => local_user()]);
+	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
 
 	$result = [];
 	while ($term = $terms->fetch()) {
@@ -6179,7 +5869,7 @@ function api_saved_searches_list($type)
 		];
 	}
 
-	dba::close($terms);
+	DBA::close($terms);
 
 	return api_format_data("terms", $type, ['terms' => $result]);
 }

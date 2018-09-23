@@ -3,10 +3,13 @@
 namespace Friendica\Core\Console;
 
 use Asika\SimpleConsole\Console;
-use dba;
 use Friendica\App;
+use Friendica\BaseObject;
+use Friendica\Core\Config;
 use Friendica\Core\Install;
 use Friendica\Core\Theme;
+use Friendica\Database\DBA;
+use RuntimeException;
 
 require_once 'mod/install.php';
 require_once 'include/dba.php';
@@ -18,19 +21,50 @@ class AutomaticInstallation extends Console
 		return <<<HELP
 Installation - Install Friendica automatically
 Synopsis
-	bin/console autoinstall [-h|--help|-?] [-v] [-a] 
-	
-Description
-    Installs Friendica with data based on the htconfig.php file
+	bin/console autoinstall [-h|--help|-?] [-v] [-a] [-f]
 
-Notes:
+Description
+    Installs Friendica with data based on the local.ini.php file or environment variables
+
+Notes
     Not checking .htaccess/URL-Rewrite during CLI installation.
 
 Options
-    -h|--help|-? Show help information
-    -v           Show more debug information.
-    -a           All setup checks are required (except .htaccess)
-    -f           prepared config file (e.g. ".htconfig.php" itself)
+    -h|--help|-?           Show help information
+    -v                     Show more debug information.
+    -a                     All setup checks are required (except .htaccess)
+    -f|--file <config>     prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
+    -s|--savedb            Save the DB credentials to the file (if environment variables is used)
+    -H|--dbhost <host>     The host of the mysql/mariadb database (env MYSQL_HOST)
+    -p|--dbport <port>     The port of the mysql/mariadb database (env MYSQL_PORT)
+    -d|--dbdata <database> The name of the mysql/mariadb database (env MYSQL_DATABASE)
+    -U|--dbuser <username> The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -P|--dbpass <password> The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
+    -b|--phppath <path>    The path of the PHP binary (env FRIENDICA_PHP_PATH) 
+    -A|--admin <mail>      The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
+    -T|--tz <timezone>     The timezone of Friendica (env FRIENDICA_TZ)
+    -L|--lang <language>   The language of Friendica (env FRIENDICA_LANG)
+ 
+Environment variables
+   MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
+   MYSQL_PORT                  The port of the mysql/mariadb database
+   MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
+   MYSQL_PASSWORD              The password of the mysql/mariadb database login
+   MYSQL_DATABASE              The name of the mysql/mariadb database
+   FRIENDICA_PHP_PATH          The path of the PHP binary
+   FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
+   FRIENDICA_TZ                The timezone of Friendica
+   FRIENDICA_LANG              The langauge of Friendica
+   
+Examples
+	bin/console autoinstall -f 'input.ini.php
+		Installs Friendica with the prepared 'input.ini.php' file
+
+	bin/console autoinstall --savedb
+		Installs Friendica with environment variables and saves them to the 'config/local.ini.php' file
+
+	bin/console autoinstall -h localhost -p 3365 -U user -P passwort1234 -d friendica
+		Installs Friendica with a local mysql database with credentials
 HELP;
 	}
 
@@ -39,18 +73,52 @@ HELP;
 		// Initialise the app
 		$this->out("Initializing setup...\n");
 
-		$a = get_app();
-		$db_host = '';
-		$db_user = '';
-		$db_pass = '';
-		$db_data = '';
+		$a = BaseObject::getApp();
 
-		$config_file = $this->getOption('f', 'htconfig.php');
+		// if a config file is set,
+		$config_file = $this->getOption(['f', 'file']);
 
-		$this->out("Using config $config_file...\n");
-		require_once $config_file;
+		if (!empty($config_file)) {
+			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.ini.php') {
+				// Copy config file
+				$this->out("Copying config file...\n");
+				if (!copy($a->basepath . DIRECTORY_SEPARATOR . $config_file, $a->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '$a->basepath" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.ini.php' manually.\n");
+				}
+			}
 
-		Install::setInstallMode();
+			$db_host = $a->getConfigValue('database', 'hostname');
+			$db_user = $a->getConfigValue('database', 'username');
+			$db_pass = $a->getConfigValue('database', 'password');
+			$db_data = $a->getConfigValue('database', 'database');
+		} else {
+			// Creating config file
+			$this->out("Creating config file...\n");
+
+			$save_db = $this->getOption(['s', 'savedb'], false);
+
+			$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? getenv('MYSQL_HOST') : '');
+			$db_port = $this->getOption(['p', 'dbport'], ($save_db) ? getenv('MYSQL_PORT') : null);
+			$db_data = $this->getOption(['d', 'dbdata'], ($save_db) ? getenv('MYSQL_DATABASE') : '');
+			$db_user = $this->getOption(['U', 'dbuser'], ($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : '');
+			$db_pass = $this->getOption(['P', 'dbpass'], ($save_db) ? getenv('MYSQL_PASSWORD') : '');
+			$php_path = $this->getOption(['b', 'phppath'], (!empty('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : '');
+			$admin_mail = $this->getOption(['A', 'admin'], (!empty('FRIENDICA_ADMIN_MAIL')) ? getenv('FRIENDICA_ADMIN_MAIL') : '');
+			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
+			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
+
+			Install::createConfig(
+				$php_path,
+				((!empty($db_port)) ? $db_host . ':' . $db_port : $db_host),
+				$db_user,
+				$db_pass,
+				$db_data,
+				$php_path,
+				$tz,
+				$lang,
+				$admin_mail
+			);
+		}
 
 		$this->out(" Complete!\n\n");
 
@@ -62,7 +130,7 @@ HELP;
 		$errorMessage = $this->extractErrors($checkResults['basic']);
 
 		if ($errorMessage !== '') {
-			throw new \RuntimeException($errorMessage);
+			throw new RuntimeException($errorMessage);
 		}
 
 		$this->out(" Complete!\n\n");
@@ -75,7 +143,7 @@ HELP;
 		$errorMessage = $this->extractErrors($checkResults['db']);
 
 		if ($errorMessage !== '') {
-			throw new \RuntimeException($errorMessage);
+			throw new RuntimeException($errorMessage);
 		}
 
 		$this->out(" Complete!\n\n");
@@ -86,26 +154,20 @@ HELP;
 		$checkResults['data'] = Install::installDatabaseStructure();
 
 		if ($checkResults['data'] !== '') {
-			throw new \RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
+			throw new RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
 		}
 
 		$this->out(" Complete!\n\n");
 
 		// Install theme
 		$this->out("Installing theme\n");
-		if (!empty($a->config['system']['theme'])) {
-			Theme::install($a->config['system']['theme']);
+		if (!empty(Config::get('system', 'theme'))) {
+			Theme::install(Config::get('system', 'theme'));
 			$this->out(" Complete\n\n");
 		} else {
-			$this->out(" Theme setting is empty. Please check the file htconfig.php\n\n");
+			$this->out(" Theme setting is empty. Please check the file 'config/local.ini.php'\n\n");
 		}
 
-		// Copy config file
-		$this->out("Saving config file...\n");
-		if ($config_file != '.htconfig.php' && !copy($config_file, '.htconfig.php')) {
-			throw new \RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '.htconfig.php' manually.\n");
-		}
-		$this->out(" Complete!\n\n");
 		$this->out("\nInstallation is finished\n");
 
 		return 0;
@@ -121,14 +183,14 @@ HELP;
 
 		Install::checkFunctions($checks);
 		Install::checkImagick($checks);
-		Install::checkHtConfig($checks);
+		Install::checkLocalIni($checks);
 		Install::checkSmarty3($checks);
 		Install::checkKeys($checks);
 
-		if (!empty($app->config['php_path'])) {
-			Install::checkPHP($app->config['php_path'], $checks);
+		if (!empty(Config::get('config', 'php_path'))) {
+			Install::checkPHP(Config::get('config', 'php_path'), $checks);
 		} else {
-			throw new \RuntimeException(" ERROR: The php_path is not set in the config. Please check the file .htconfig.php.\n");
+			throw new RuntimeException(" ERROR: The php_path is not set in the config.\n");
 		}
 
 		$this->out(" NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.\n");
@@ -153,7 +215,7 @@ HELP;
 		);
 
 
-		if (!dba::connect($db_host, $db_user, $db_pass, $db_data)) {
+		if (!DBA::connect($db_host, $db_user, $db_pass, $db_data)) {
 			$result['status'] = false;
 			$result['help'] = 'Failed, please check your MySQL settings and credentials.';
 		}

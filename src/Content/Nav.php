@@ -10,9 +10,9 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use dba;
 
 require_once 'boot.php';
 require_once 'dba.php';
@@ -105,9 +105,9 @@ class Nav
 			$nav['usermenu'][] = ['notes/', L10n::t('Personal notes'), '', L10n::t('Your personal notes')];
 
 			// user info
-			$contact = dba::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
+			$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
 			$userinfo = [
-				'icon' => (DBM::is_result($contact) ? $a->remove_baseurl($contact['micro']) : 'images/person-48.jpg'),
+				'icon' => (DBA::isResult($contact) ? $a->remove_baseurl($contact['micro']) : 'images/person-48.jpg'),
 				'name' => $a->user['username'],
 			];
 		} else {
@@ -124,7 +124,7 @@ class Nav
 			$nav['home'] = [$homelink, L10n::t('Home'), '', L10n::t('Home Page')];
 		}
 
-		if (($a->config['register_policy'] == REGISTER_OPEN) && (! local_user()) && (! remote_user())) {
+		if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN && !local_user() && !remote_user()) {
 			$nav['register'] = ['register', L10n::t('Register'), '', L10n::t('Create an account')];
 		}
 
@@ -186,7 +186,7 @@ class Nav
 			$nav['home'] = ['profile/' . $a->user['nickname'], L10n::t('Home'), '', L10n::t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
-			if ($_SESSION['page_flags'] != PAGE_COMMUNITY) {
+			if (defaults($_SESSION, 'page_flags', '') != Contact::PAGE_COMMUNITY) {
 				$nav['introductions'] = ['notifications/intros', L10n::t('Introductions'), '', L10n::t('Friend Requests')];
 				$nav['notifications'] = ['notifications',	L10n::t('Notifications'), '', L10n::t('Notifications')];
 				$nav['notifications']['all'] = ['notifications/system', L10n::t('See all notifications'), '', ''];

@@ -33,4 +33,7 @@
           template="{{$subscribe}}" />
     <Link rel="magic-public-key" 
           href="{{$modexp}}" />
+    <Link rel="http://purl.org/openwebauth/v1"
+          type="application/x-dfrn+json"
+          href="{{$openwebauth}}" />
 </XRD>

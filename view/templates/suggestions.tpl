@@ -3,7 +3,7 @@
 <div class="intro-wrapper" >
 
 <p class="intro-desc">{{$str_notifytype}} {{$notify_type}}</p>
-<div class="intro-madeby">{{$madeby}}</div>
+{{if $madeby}}<div class="intro-madeby">{{$lbl_madeby}} {{$madeby}}</div>{{/if}}
 <div class="intro-fullname" >{{$fullname}}</div>
 <a class="intro-url-link" href="{{$url}}" ><img class="intro-photo lframe" src="{{$photo}}" width="175" height="175" title="{{$fullname|escape:'html'}}" alt="{{$fullname|escape:'html'}}" /></a>
 <div class="intro-note" >{{$note}}</div>

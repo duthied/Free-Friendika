@@ -5,15 +5,14 @@
 
 namespace Friendica\Model;
 
-use dba;
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
-use Friendica\Model\Item;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 
@@ -36,19 +35,27 @@ class Event extends BaseObject
 		$bd_format = L10n::t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
 
 		$event_start = day_translate(
-			$event['adjust'] ?
+			!empty($event['adjust']) ?
 			DateTimeFormat::local($event['start'], $bd_format) : DateTimeFormat::utc($event['start'], $bd_format)
 		);
 
-		$event_end = day_translate(
-			$event['adjust'] ?
-			DateTimeFormat::local($event['finish'], $bd_format) : DateTimeFormat::utc($event['finish'], $bd_format)
-		);
+		if (!empty($event['finish'])) {
+			$event_end = day_translate(
+				!empty($event['adjust']) ?
+				DateTimeFormat::local($event['finish'], $bd_format) : DateTimeFormat::utc($event['finish'], $bd_format)
+			);
+		} else {
+			$event_end = '';
+		}
 
 		if ($simple) {
-			$o = "<h3>" . BBCode::convert($event['summary'], false, $simple) . "</h3>";
+			if (!empty($event['summary'])) {
+				$o = "<h3>" . BBCode::convert($event['summary'], false, $simple) . "</h3>";
+			}
 
-			$o .= "<div>" . BBCode::convert($event['desc'], false, $simple) . "</div>";
+			if (!empty($event['desc'])) {
+				$o .= "<div>" . BBCode::convert($event['desc'], false, $simple) . "</div>";
+			}
 
 			$o .= "<h4>" . L10n::t('Starts:') . "</h4><p>" . $event_start . "</p>";
 
@@ -56,7 +63,7 @@ class Event extends BaseObject
 				$o .= "<h4>" . L10n::t('Finishes:') . "</h4><p>" . $event_end . "</p>";
 			}
 
-			if (strlen($event['location'])) {
+			if (!empty($event['location'])) {
 				$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . BBCode::convert($event['location'], false, $simple) . "</p>";
 			}
 
@@ -68,20 +75,22 @@ class Event extends BaseObject
 		$o .= '<div class="summary event-summary">' . BBCode::convert($event['summary'], false, $simple) . '</div>' . "\r\n";
 
 		$o .= '<div class="event-start"><span class="event-label">' . L10n::t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
-			. DateTimeFormat::utc($event['start'], (($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
+			. DateTimeFormat::utc($event['start'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
 			. '" >' . $event_start
 			. '</span></div>' . "\r\n";
 
 		if (!$event['nofinish']) {
 			$o .= '<div class="event-end" ><span class="event-label">' . L10n::t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
-				. DateTimeFormat::utc($event['finish'], (($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
+				. DateTimeFormat::utc($event['finish'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
 				. '" >' . $event_end
 				. '</span></div>' . "\r\n";
 		}
 
-		$o .= '<div class="description event-description">' . BBCode::convert($event['desc'], false, $simple) . '</div>' . "\r\n";
+		if (!empty($event['desc'])) {
+			$o .= '<div class="description event-description">' . BBCode::convert($event['desc'], false, $simple) . '</div>' . "\r\n";
+		}
 
-		if (strlen($event['location'])) {
+		if (!empty($event['location'])) {
 			$o .= '<div class="event-location"><span class="event-label">' . L10n::t('Location:') . '</span>&nbsp;<span class="location">'
 				. BBCode::convert($event['location'], false, $simple)
 				. '</span></div>' . "\r\n";
@@ -214,7 +223,7 @@ class Event extends BaseObject
 			return;
 		}
 
-		dba::delete('event', ['id' => $event_id]);
+		DBA::delete('event', ['id' => $event_id]);
 		logger("Deleted event ".$event_id, LOGGER_DEBUG);
 	}
 
@@ -234,7 +243,7 @@ class Event extends BaseObject
 		$event['id']        = intval(defaults($arr, 'id'       , 0));
 		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
 		$event['cid']       = intval(defaults($arr, 'cid'      , 0));
-		$event['uri']       =        defaults($arr, 'uri'      , item_new_uri($a->get_hostname(), $event['uid']));
+		$event['uri']       =        defaults($arr, 'uri'      , Item::newURI($event['uid']));
 		$event['type']      =        defaults($arr, 'type'     , 'event');
 		$event['summary']   =        defaults($arr, 'summary'  , '');
 		$event['desc']      =        defaults($arr, 'desc'     , '');
@@ -262,17 +271,17 @@ class Event extends BaseObject
 			$conditions['self'] = true;
 		}
 
-		$contact = dba::selectFirst('contact', [], $conditions);
+		$contact = DBA::selectFirst('contact', [], $conditions);
 
 		// Existing event being modified.
 		if ($event['id']) {
 			// has the event actually changed?
-			$existing_event = dba::selectFirst('event', ['edited'], ['id' => $event['id'], 'uid' => $event['uid']]);
-			if ((! DBM::is_result($existing_event)) || ($existing_event['edited'] === $event['edited'])) {
+			$existing_event = DBA::selectFirst('event', ['edited'], ['id' => $event['id'], 'uid' => $event['uid']]);
+			if (!DBA::isResult($existing_event) || ($existing_event['edited'] === $event['edited'])) {
 
-				$item = dba::selectFirst('item', [], ['event-id' => $event['id'], 'uid' => $event['uid']]);
+				$item = Item::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
 
-				return DBM::is_result($item) ? $item['id'] : 0;
+				return DBA::isResult($item) ? $item['id'] : 0;
 			}
 
 			$updated_fields = [
@@ -287,10 +296,10 @@ class Event extends BaseObject
 				'nofinish' => $event['nofinish'],
 			];
 
-			dba::update('event', $updated_fields, ['id' => $event['id'], 'uid' => $event['uid']]);
+			DBA::update('event', $updated_fields, ['id' => $event['id'], 'uid' => $event['uid']]);
 
-			$item = dba::selectFirst('item', ['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
-			if (DBM::is_result($item)) {
+			$item = Item::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
+			if (DBA::isResult($item)) {
 				$object = '<object><type>' . xmlify(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . xmlify($event['uri']) . '</id>';
 				$object .= '<content>' . xmlify(self::getBBCode($event)) . '</content>';
 				$object .= '</object>' . "\n";
@@ -305,12 +314,12 @@ class Event extends BaseObject
 
 			Addon::callHooks('event_updated', $event['id']);
 		} else {
-			$event['guid'] = get_guid(32);
+			$event['guid']  = defaults($arr, 'guid', System::createGUID(32));
 
 			// New event. Store it.
-			dba::insert('event', $event);
+			DBA::insert('event', $event);
 
-			$event['id'] = dba::lastInsertId();
+			$event['id'] = DBA::lastInsertId();
 
 			$item_arr = [];
 
@@ -319,7 +328,8 @@ class Event extends BaseObject
 			$item_arr['uri']           = $event['uri'];
 			$item_arr['parent-uri']    = $event['uri'];
 			$item_arr['guid']          = $event['guid'];
-			$item_arr['type']          = 'activity';
+			$item_arr['plink']         = defaults($arr, 'plink', '');
+			$item_arr['post-type']     = Item::PT_EVENT;
 			$item_arr['wall']          = $event['cid'] ? 0 : 1;
 			$item_arr['contact-id']    = $contact['id'];
 			$item_arr['owner-name']    = $contact['name'];
@@ -464,15 +474,14 @@ class Event extends BaseObject
 		}
 
 		// Query for the event by event id
-		$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
-				`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
+		$r = q("SELECT `event`.*, `item`.`id` AS `itemid` FROM `event`
 			LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
 			WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
 			intval($owner_uid),
 			intval($event_id)
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$return = self::removeDuplicates($r);
 		}
 
@@ -505,8 +514,7 @@ class Event extends BaseObject
 
 		// Query for the event by date.
 		// @todo Slow query (518 seconds to run), to be optimzed
-		$r = q("SELECT `event`.*, `item`.`id` AS `itemid`,`item`.`plink`,
-					`item`.`author-name`, `item`.`author-avatar`, `item`.`author-link` FROM `event`
+		$r = q("SELECT `event`.*, `item`.`id` AS `itemid` FROM `event`
 				LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
 				WHERE `event`.`uid` = %d AND event.ignore = %d
 				AND ((`adjust` = 0 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')
@@ -514,15 +522,15 @@ class Event extends BaseObject
 				$sql_extra ",
 				intval($owner_uid),
 				intval($event_params["ignore"]),
-				dbesc($event_params["start"]),
-				dbesc($event_params["start"]),
-				dbesc($event_params["finish"]),
-				dbesc($event_params["adjust_start"]),
-				dbesc($event_params["adjust_start"]),
-				dbesc($event_params["adjust_finish"])
+				DBA::escape($event_params["start"]),
+				DBA::escape($event_params["start"]),
+				DBA::escape($event_params["finish"]),
+				DBA::escape($event_params["adjust_start"]),
+				DBA::escape($event_params["adjust_start"]),
+				DBA::escape($event_params["adjust_finish"])
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$return = self::removeDuplicates($r);
 		}
 
@@ -542,6 +550,14 @@ class Event extends BaseObject
 		$last_date = '';
 		$fmt = L10n::t('l, F j');
 		foreach ($event_result as $event) {
+			$item = Item::selectFirst(['plink', 'author-name', 'author-avatar', 'author-link'], ['id' => $event['itemid']]);
+			if (!DBA::isResult($item)) {
+				// Using default values when no item had been found
+				$item = ['plink' => '', 'author-name' => '', 'author-avatar' => '', 'author-link' => ''];
+			}
+
+			$event = array_merge($event, $item);
+
 			$start = $event['adjust'] ? DateTimeFormat::local($event['start'], 'c')  : DateTimeFormat::utc($event['start'], 'c');
 			$j     = $event['adjust'] ? DateTimeFormat::local($event['start'], 'j')  : DateTimeFormat::utc($event['start'], 'j');
 			$day   = $event['adjust'] ? DateTimeFormat::local($event['start'], $fmt) : DateTimeFormat::utc($event['start'], $fmt);
@@ -573,6 +589,12 @@ class Event extends BaseObject
 				list($title, $_trash) = explode("<br", BBCode::convert($event['desc']), 2);
 				$title = strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 			}
+
+			$author_link = $event['author-link'];
+			$plink       = $event['plink'];
+
+			$event['author-link'] = Contact::magicLink($author_link);
+			$event['plink']       = Contact::magicLink($author_link, $plink);
 
 			$html = self::getHTML($event);
 			$event['desc']     = BBCode::convert($event['desc']);
@@ -735,9 +757,9 @@ class Event extends BaseObject
 			$conditions += ['allow_cid' => '', 'allow_gid' => ''];
 		}
 
-		$events = dba::select('event', $fields, $conditions);
-		if (DBM::is_result($events)) {
-			$return = dba::inArray($events);
+		$events = DBA::select('event', $fields, $conditions);
+		if (DBA::isResult($events)) {
+			$return = DBA::toArray($events);
 		}
 
 		return $return;
@@ -759,8 +781,8 @@ class Event extends BaseObject
 	{
 		$process = false;
 
-		$user = dba::selectFirst('user', ['timezone'], ['uid' => $uid]);
-		if (DBM::is_result($user)) {
+		$user = DBA::selectFirst('user', ['timezone'], ['uid' => $uid]);
+		if (DBA::isResult($user)) {
 			$timezone = $user['timezone'];
 		}
 
@@ -803,10 +825,10 @@ class Event extends BaseObject
 	/**
 	 * @brief Format an item array with event data to HTML.
 	 *
-	 * @param arr $item Array with item and event data.
+	 * @param array $item Array with item and event data.
 	 * @return string HTML output.
 	 */
-	public static function getItemHTML($item) {
+	public static function getItemHTML(array $item) {
 		$same_date = false;
 		$finish    = false;
 
@@ -862,18 +884,18 @@ class Event extends BaseObject
 			if (substr($dtstart_title, 0, 10) === substr($dtend_title, 0, 10)) {
 				$same_date = true;
 			}
+		} else {
+			$dtend_title = '';
+			$dtend_dt = '';
+			$end_time = '';
+			$end_short = '';
 		}
 
 		// Format the event location.
 		$location = self::locationToArray($item['event-location']);
 
 		// Construct the profile link (magic-auth).
-		$sp = false;
-		$profile_link = best_link_url($item, $sp);
-
-		if (!$sp) {
-			$profile_link = Profile::zrl($profile_link);
-		}
+		$profile_link = Contact::magicLinkById($item['author-id']);
 
 		$tpl = get_markup_template('event_stream_item.tpl');
 		$return = replace_macros($tpl, [

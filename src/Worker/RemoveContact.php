@@ -5,21 +5,22 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
-use dba;
+use Friendica\Database\DBA;
+use Friendica\Core\Protocol;
 
 require_once 'include/dba.php';
 
 class RemoveContact {
 	public static function execute($id) {
 
-		// Only delete if the contact doesn't exist (anymore)
-		$r = dba::exists('contact', ['id' => $id]);
-		if ($r) {
+		// Only delete if the contact is to be deleted
+		$condition = ['network' => Protocol::PHANTOM, 'id' => $id];
+		$r = DBA::exists('contact', $condition);
+		if (!DBA::isResult($r)) {
 			return;
 		}
 
-		// Now we delete all the depending table entries
-		dba::delete('contact', ['id' => $id]);
+		// Now we delete the contact and all depending tables
+		DBA::delete('contact', ['id' => $id]);
 	}
 }

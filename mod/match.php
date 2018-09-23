@@ -2,18 +2,18 @@
 /**
  * @file mod/match.php
  */
+
 use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Profile;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'include/text.php';
-require_once 'mod/proxy.php';
 
 /**
  * @brief Controller for /match.
@@ -41,7 +41,7 @@ function match_content(App $a)
 		"SELECT `pub_keywords`, `prv_keywords` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
 		intval(local_user())
 	);
-	if (! DBM::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		return;
 	}
 	if (! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {
@@ -79,28 +79,28 @@ function match_content(App $a)
 				$match = q(
 					"SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
 					intval(local_user()),
-					dbesc($match_nurl)
+					DBA::escape($match_nurl)
 				);
 
 				if (!count($match)) {
 					$jj->photo = str_replace("http:///photo/", get_server()."/photo/", $jj->photo);
 					$connlnk = System::baseUrl() . '/follow/?url=' . $jj->url;
 					$photo_menu = [
-						'profile' => [L10n::t("View Profile"), Profile::zrl($jj->url)],
+						'profile' => [L10n::t("View Profile"), Contact::magicLink($jj->url)],
 						'follow' => [L10n::t("Connect/Follow"), $connlnk]
 					];
 
 					$contact_details = Contact::getDetailsByURL($jj->url, local_user());
 
 					$entry = [
-						'url' => Profile::zrl($jj->url),
-						'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $jj->url),
+						'url' => Contact::magicLink($jj->url),
+						'itemurl' => defaults($contact_details, 'addr', $jj->url),
 						'name' => $jj->name,
-						'details'       => $contact_details['location'],
-						'tags'          => $contact_details['keywords'],
-						'about'         => $contact_details['about'],
+						'details'       => defaults($contact_details, 'location', ''),
+						'tags'          => defaults($contact_details, 'keywords', ''),
+						'about'         => defaults($contact_details, 'about', ''),
 						'account_type'  => Contact::getAccountType($contact_details),
-						'thumb' => proxy_url($jj->photo, false, PROXY_SIZE_THUMB),
+						'thumb' => ProxyUtils::proxifyUrl($jj->photo, false, ProxyUtils::SIZE_THUMB),
 						'inttxt' => ' ' . L10n::t('is interested in:'),
 						'conntxt' => L10n::t('Connect'),
 						'connlnk' => $connlnk,

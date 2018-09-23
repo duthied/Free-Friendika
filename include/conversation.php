@@ -11,13 +11,17 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\Term;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
@@ -109,14 +113,21 @@ function item_redir_and_replace_images($body, $images, $cid) {
 /**
  * Render actions localized
  */
-function localize_item(&$item) {
-
+function localize_item(&$item)
+{
 	$extracted = item_extract_images($item['body']);
 	if ($extracted['images']) {
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 	}
 
-	/// @Separted ???
+	/*
+	heluecht 2018-06-19: from my point of view this whole code part is useless.
+	It just renders the body message of technical posts (Like, dislike, ...).
+	But: The body isn't visible at all. So we do this stuff just because we can.
+	Even if these messages were visible, this would only mean that something went wrong.
+	During the further steps of the database restructuring I would like to address this issue.
+	*/
+
 	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 	if (activity_match($item['verb'], ACTIVITY_LIKE)
 		|| activity_match($item['verb'], ACTIVITY_DISLIKE)
@@ -124,15 +135,11 @@ function localize_item(&$item) {
 		|| activity_match($item['verb'], ACTIVITY_ATTENDNO)
 		|| activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
 
-		/// @TODO may hurt performance
-		$r = q("SELECT * FROM `item`, `contact`
-			WHERE `item`.`contact-id`=`contact`.`id`
-			AND `item`.`uri`='%s'",
-			dbesc($item['parent-uri']));
-		if (!DBM::is_result($r)) {
+		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
+		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
+		if (!DBA::isResult($obj)) {
 			return;
 		}
-		$obj = $r[0];
 
 		$author  = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
 		$objauthor =  '[url=' . $obj['author-link'] . ']' . $obj['author-name'] . '[/url]';
@@ -162,22 +169,19 @@ function localize_item(&$item) {
 
 		if (activity_match($item['verb'], ACTIVITY_LIKE)) {
 			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_DISLIKE)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_DISLIKE)) {
 			$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_ATTEND)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_ATTEND)) {
 			$bodyverb = L10n::t('%1$s attends %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_ATTENDNO)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_ATTENDNO)) {
 			$bodyverb = L10n::t('%1$s doesn\'t attend %2$s\'s %3$s');
-		}
-		elseif (activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
+		} elseif (activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
 			$bodyverb = L10n::t('%1$s attends maybe %2$s\'s %3$s');
 		}
-		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 
+		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 	}
+
 	if (activity_match($item['verb'], ACTIVITY_FRIEND)) {
 
 		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
@@ -191,7 +195,8 @@ function localize_item(&$item) {
 		$links = XML::parseString($xmlhead."<links>".unxmlify($obj->link)."</links>");
 
 		$Bname = $obj->title;
-		$Blink = ""; $Bphoto = "";
+		$Blink = "";
+		$Bphoto = "";
 		foreach ($links->link as $l) {
 			$atts = $l->attributes();
 			switch ($atts['rel']) {
@@ -200,10 +205,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img]' . $Bphoto . '[/img][/url]';
 		}
 
 		$item['body'] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
@@ -224,12 +229,12 @@ function localize_item(&$item) {
 		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 
 		$obj = XML::parseString($xmlhead.$item['object']);
-		$links = XML::parseString($xmlhead."<links>".unxmlify($obj->link)."</links>");
 
 		$Bname = $obj->title;
-		$Blink = "";
+		$Blink = $obj->id;
 		$Bphoto = "";
-		foreach ($links->link as $l) {
+
+		foreach ($obj->link as $l) {
 			$atts = $l->attributes();
 			switch ($atts['rel']) {
 				case "alternate": $Blink = $atts['href'];
@@ -237,10 +242,10 @@ function localize_item(&$item) {
 			}
 		}
 
-		$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Profile::zrl($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
 		}
 
 		/*
@@ -251,7 +256,7 @@ function localize_item(&$item) {
 
 		// now translate the verb
 		$poked_t = trim(sprintf($txt, "", ""));
-		$txt = str_replace( $poked_t, L10n::t($verb), $txt);
+		$txt = str_replace($poked_t, L10n::t($verb), $txt);
 
 		// then do the sprintf on the translation string
 
@@ -260,20 +265,20 @@ function localize_item(&$item) {
 	}
 
 	if (activity_match($item['verb'], ACTIVITY_TAG)) {
-		/// @TODO may hurt performance "joining" two tables + asterisk
-		$r = q("SELECT * FROM `item`, `contact`
-			WHERE `item`.`contact-id`=`contact`.`id`
-			AND `item`.`uri`='%s'",
-			dbesc($item['parent-uri']));
-
-		if (!DBM::is_result($r)) {
+		$fields = ['author-id', 'author-link', 'author-name', 'author-network',
+			'verb', 'object-type', 'resource-id', 'body', 'plink'];
+		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
+		if (!DBA::isResult($obj)) {
 			return;
 		}
 
-		$obj = $r[0];
+		$author_arr = ['uid' => 0, 'id' => $item['author-id'],
+			'network' => $item['author-network'], 'url' => $item['author-link']];
+		$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
 
-		$author  = '[url=' . Profile::zrl($item['author-link']) . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . Profile::zrl($obj['author-link']) . ']' . $obj['author-name'] . '[/url]';
+		$author_arr = ['uid' => 0, 'id' => $obj['author-id'],
+			'network' => $obj['author-network'], 'url' => $obj['author-link']];
+		$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
 			case ACTIVITY_POST:
@@ -301,11 +306,10 @@ function localize_item(&$item) {
 		$parsedobj = XML::parseString($xmlhead.$item['object']);
 
 		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
-		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag );
-
+		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 	}
-	if (activity_match($item['verb'], ACTIVITY_FAVORITE)) {
 
+	if (activity_match($item['verb'], ACTIVITY_FAVORITE)) {
 		if ($item['object-type'] == "") {
 			return;
 		}
@@ -317,17 +321,13 @@ function localize_item(&$item) {
 
 		$obj = XML::parseString($xmlhead.$item['object']);
 		if (strlen($obj->id)) {
-			$r = q("SELECT * FROM `item` WHERE `uri` = '%s' AND `uid` = %d LIMIT 1",
-					dbesc($obj->id),
-					intval($item['uid'])
-			);
-
-			if (DBM::is_result($r) && $r[0]['plink']) {
-				$target = $r[0];
+			$fields = ['author-link', 'author-name', 'plink'];
+			$target = Item::selectFirst($fields, ['uri' => $obj->id, 'uid' => $item['uid']]);
+			if (DBA::isResult($target) && $target['plink']) {
 				$Bname = $target['author-name'];
 				$Blink = $target['author-link'];
-				$A = '[url=' . Profile::zrl($Alink) . ']' . $Aname . '[/url]';
-				$B = '[url=' . Profile::zrl($Blink) . ']' . $Bname . '[/url]';
+				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+				$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
 				$P = '[url=' . $target['plink'] . ']' . L10n::t('post/item') . '[/url]';
 				$item['body'] = L10n::t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
 			}
@@ -337,7 +337,7 @@ function localize_item(&$item) {
 	if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 		foreach ($matches as $mtch) {
 			if (!strpos($mtch[1], 'zrl=')) {
-				$item['body'] = str_replace($mtch[0], '@[url=' . Profile::zrl($mtch[1]) . ']', $item['body']);
+				$item['body'] = str_replace($mtch[0], '@[url=' . Contact::magicLink($mtch[1]) . ']', $item['body']);
 			}
 		}
 	}
@@ -350,15 +350,11 @@ function localize_item(&$item) {
 	}
 
 	// add sparkle links to appropriate permalinks
+	$author = ['uid' => 0, 'id' => $item['author-id'],
+		'network' => $item['author-network'], 'url' => $item['author-link']];
 
-	$x = stristr($item['plink'],'/display/');
-	if ($x) {
-		$sparkle = false;
-		$y = best_link_url($item, $sparkle);
-
-		if (strstr($y, '/redir/')) {
-			$item['plink'] = $y . '?f=&url=' . $item['plink'];
-		}
+	if (!empty($item['plink'])) {
+		$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
 	}
 }
 
@@ -394,102 +390,36 @@ function visible_activity($item) {
 		}
 	}
 
-	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE) {
-		if (!($item['self'] && ($item['uid'] == local_user()))) {
-			return false;
-		}
+	// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
+	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && empty($item['self']) && $item['uid'] == local_user()) {
+		return false;
 	}
 
 	return true;
 }
 
-/**
- * @brief SQL query for items
- *
- * @param int $uid user id
- */
-function item_query($uid = 0) {
-	return "SELECT " . item_fieldlists() . " FROM `item` " .
-		item_joins($uid) . " WHERE " . item_condition();
-}
+function conv_get_blocklist()
+{
+	if (!local_user()) {
+		return [];
+	}
 
-/**
- * @brief List of all data fields that are needed for displaying items
- */
-function item_fieldlists() {
+	$str_blocked = PConfig::get(local_user(), 'system', 'blocked');
+	if (empty($str_blocked)) {
+		return [];
+	}
 
-/*
-These Fields are not added below (yet). They are here to for bug search.
-`item`.`type`,
-`item`.`extid`,
-`item`.`changed`,
-`item`.`moderated`,
-`item`.`target-type`,
-`item`.`target`,
-`item`.`resource-id`,
-`item`.`tag`,
-`item`.`inform`,
-`item`.`pubmail`,
-`item`.`visible`,
-`item`.`spam`,
-`item`.`bookmark`,
-`item`.`unseen`,
-`item`.`deleted`,
-`item`.`forum_mode`,
-`item`.`mention`,
-`item`.`global`,
-`item`.`shadow`,
-*/
+	$blocklist = [];
 
-	return "`item`.`author-id`, `item`.`author-link`, `item`.`author-name`, `item`.`author-avatar`,
-		`item`.`owner-id`, `item`.`owner-link`, `item`.`owner-name`, `item`.`owner-avatar`,
-		`item`.`contact-id`, `item`.`uid`, `item`.`id`, `item`.`parent`,
-		`item`.`uri`, `item`.`thr-parent`, `item`.`parent-uri`, `item`.`content-warning`,
-		`item`.`commented`, `item`.`created`, `item`.`edited`, `item`.`received`,
-		`item`.`verb`, `item`.`object-type`, `item`.`postopts`, `item`.`plink`,
-		`item`.`guid`, `item`.`wall`, `item`.`private`, `item`.`starred`, `item`.`origin`,
-		`item`.`title`,	`item`.`body`, `item`.`file`, `item`.`event-id`,
-		`item`.`location`, `item`.`coord`, `item`.`app`, `item`.`attach`,
-		`item`.`rendered-hash`, `item`.`rendered-html`, `item`.`object`,
-		`item`.`allow_cid`, `item`.`allow_gid`, `item`.`deny_cid`, `item`.`deny_gid`,
-		`item`.`id` AS `item_id`, `item`.`network` AS `item_network`,
+	foreach (explode(',', $str_blocked) as $entry) {
+		// The 4th parameter guarantees that there always will be a public contact entry
+		$cid = Contact::getIdForURL(trim($entry), 0, true, ['url' => trim($entry)]);
+		if (!empty($cid)) {
+			$blocklist[] = $cid;
+		}
+	}
 
-		`author`.`thumb` AS `author-thumb`, `owner`.`thumb` AS `owner-thumb`,
-
-		`contact`.`network`, `contact`.`url`, `contact`.`name`, `contact`.`writable`,
-		`contact`.`self`, `contact`.`id` AS `cid`, `contact`.`alias`,
-
-		`event`.`created` AS `event-created`, `event`.`edited` AS `event-edited`,
-		`event`.`start` AS `event-start`,`event`.`finish` AS `event-finish`,
-		`event`.`summary` AS `event-summary`,`event`.`desc` AS `event-desc`,
-		`event`.`location` AS `event-location`, `event`.`type` AS `event-type`,
-		`event`.`nofinish` AS `event-nofinish`,`event`.`adjust` AS `event-adjust`,
-		`event`.`ignore` AS `event-ignore`, `event`.`id` AS `event-id`";
-}
-
-/**
- * @brief SQL join for contacts that are needed for displaying items
- *
- * @param int $uid user id
- */
-function item_joins($uid = 0) {
-	return sprintf("STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		AND NOT `contact`.`blocked`
-		AND ((NOT `contact`.`readonly` AND NOT `contact`.`pending` AND (`contact`.`rel` IN (%s, %s)))
-		OR `contact`.`self` OR (`item`.`id` != `item`.`parent`) OR `contact`.`uid` = 0)
-		INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id` AND NOT `author`.`blocked`
-		INNER JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id` AND NOT `owner`.`blocked`
-		LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
-		LEFT JOIN `event` ON `event-id` = `event`.`id`",
-		CONTACT_IS_SHARING, CONTACT_IS_FRIEND, intval($uid)
-	);
-}
-
-/**
- * @brief SQL condition for items that are needed for displaying items
- */
-function item_condition() {
-	return "`item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated` AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) ";
+	return $blocklist;
 }
 
 /**
@@ -502,26 +432,14 @@ function item_condition() {
  * that are based on unique features of the calling module.
  *
  */
-function conversation(App $a, $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0) {
-	require_once 'mod/proxy.php';
+function conversation(App $a, array $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0) {
 
-	$ssl_state = ((local_user()) ? true : false);
+	$ssl_state = (local_user() ? true : false);
 
 	$profile_owner = 0;
 	$live_update_div = '';
 
-	$arr_blocked = null;
-
-	if (local_user()) {
-		$str_blocked = PConfig::get(local_user(), 'system', 'blocked');
-		if ($str_blocked) {
-			$arr_blocked = explode(',', $str_blocked);
-			for ($x = 0; $x < count($arr_blocked); $x ++) {
-				$arr_blocked[$x] = trim($arr_blocked[$x]);
-			}
-		}
-
-	}
+	$blocklist = conv_get_blocklist();
 
 	$previewing = (($preview) ? ' preview ' : '');
 
@@ -545,7 +463,6 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				. ((x($_GET, 'bmark'))  ? '&bmark='  . $_GET['bmark']  : '')
 				. ((x($_GET, 'liked'))  ? '&liked='  . $_GET['liked']  : '')
 				. ((x($_GET, 'conv'))   ? '&conv='   . $_GET['conv']   : '')
-				. ((x($_GET, 'spam'))   ? '&spam='   . $_GET['spam']   : '')
 				. ((x($_GET, 'nets'))   ? '&nets='   . $_GET['nets']   : '')
 				. ((x($_GET, 'cmin'))   ? '&cmin='   . $_GET['cmin']   : '')
 				. ((x($_GET, 'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
@@ -554,6 +471,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				. "'; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
 	} elseif ($mode === 'profile') {
+		$items = conversation_add_children($items, false, $order, $uid);
 		$profile_owner = $a->profile['profile_uid'];
 
 		if (!$update) {
@@ -573,25 +491,39 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 			}
 		}
 	} elseif ($mode === 'notes') {
+		$items = conversation_add_children($items, false, $order, $uid);
 		$profile_owner = local_user();
+
 		if (!$update) {
 			$live_update_div = '<div id="live-notes"></div>' . "\r\n"
 				. "<script> var profile_uid = " . local_user()
 				. "; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
 	} elseif ($mode === 'display') {
+		$items = conversation_add_children($items, false, $order, $uid);
 		$profile_owner = $a->profile['uid'];
+
 		if (!$update) {
 			$live_update_div = '<div id="live-display"></div>' . "\r\n"
-				. "<script> var profile_uid = " . $_SESSION['uid'] . ";"
+				. "<script> var profile_uid = " . defaults($_SESSION, 'uid', 0) . ";"
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
 		$items = conversation_add_children($items, true, $order, $uid);
 		$profile_owner = 0;
+
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
 				. "<script> var profile_uid = -1; var netargs = '" . substr($a->cmd, 10)
+				."/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
+		}
+	} elseif ($mode === 'contacts') {
+		$items = conversation_add_children($items, true, $order, $uid);
+		$profile_owner = 0;
+
+		if (!$update) {
+			$live_update_div = '<div id="live-contacts"></div>' . "\r\n"
+				. "<script> var profile_uid = -1; var netargs = '" . substr($a->cmd, 9)
 				."/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
 		}
 	} elseif ($mode === 'search') {
@@ -620,11 +552,11 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 
 	$page_template = get_markup_template("conversation.tpl");
 
-	if ($items && count($items)) {
-		if ($mode === 'community') {
+	if (!empty($items)) {
+		if (in_array($mode, ['community', 'contacts'])) {
 			$writable = true;
 		} else {
-			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
+			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 		}
 
 		if (!local_user()) {
@@ -646,19 +578,9 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					continue;
 				}
 
-				if ($arr_blocked) {
-					$blocked = false;
-					foreach ($arr_blocked as $b) {
-						if ($b && link_compare($item['author-link'], $b)) {
-							$blocked = true;
-							break;
-						}
-					}
-					if ($blocked) {
-						continue;
-					}
+				if (in_array($item['author-id'], $blocklist)) {
+					continue;
 				}
-
 
 				$threadsid++;
 
@@ -667,45 +589,23 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				$sparkle     = '';
 
 				// prevent private email from leaking.
-				if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
+				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
 				}
 
-				$profile_name = (strlen($item['author-name']) ? $item['author-name'] : $item['name']);
-				if ($item['author-link'] && !$item['author-name']) {
+				$profile_name = $item['author-name'];
+				if (!empty($item['author-link']) && empty($item['author-name'])) {
 					$profile_name = $item['author-link'];
 				}
 
-				$tags = \Friendica\Model\Term::populateTagsFromItem($item);
+				$tags = Term::populateTagsFromItem($item);
 
-				$sp = false;
-				$profile_link = best_link_url($item, $sp);
-				if ($profile_link === 'mailbox') {
-					$profile_link = '';
-				}
+				$author = ['uid' => 0, 'id' => $item['author-id'],
+					'network' => $item['author-network'], 'url' => $item['author-link']];
+				$profile_link = Contact::magicLinkbyContact($author);
 
-				if ($sp) {
+				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
-				} else {
-					$profile_link = Profile::zrl($profile_link);
-				}
-
-				if (!x($item, 'author-thumb') || ($item['author-thumb'] == "")) {
-					$author_contact = Contact::getDetailsByURL($item['author-link'], $profile_owner);
-					if ($author_contact["thumb"]) {
-						$item['author-thumb'] = $author_contact["thumb"];
-					} else {
-						$item['author-thumb'] = $item['author-avatar'];
-					}
-				}
-
-				if (!isset($item['owner-thumb']) || ($item['owner-thumb'] == "")) {
-					$owner_contact = Contact::getDetailsByURL($item['owner-link'], $profile_owner);
-					if ($owner_contact["thumb"]) {
-						$item['owner-thumb'] = $owner_contact["thumb"];
-					} else {
-						$item['owner-thumb'] = $item['owner-avatar'];
-					}
 				}
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
@@ -752,23 +652,19 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				$location_e = $location;
 				$owner_name_e = $owner_name;
 
-				if ($item['item_network'] == "") {
-					$item['item_network'] = $item['network'];
-				}
-
 				$tmp_item = [
 					'template' => $tpl,
-					'id' => (($preview) ? 'P0' : $item['item_id']),
-					'guid' => (($preview) ? 'Q0' : $item['guid']),
-					'network' => $item['item_network'],
-					'network_name' => ContactSelector::networkToName($item['item_network'], $profile_link),
-					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, ((strlen($item['author-link'])) ? $item['author-link'] : $item['url'])),
+					'id' => ($preview ? 'P0' : $item['id']),
+					'guid' => ($preview ? 'Q0' : $item['guid']),
+					'network' => $item['network'],
+					'network_name' => ContactSelector::networkToName($item['network'], $profile_link),
+					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
 					'name' => $profile_name_e,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => System::removedBaseUrl(proxy_url($item['author-thumb'], false, PROXY_SIZE_THUMB)),
+					'thumb' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
 					'title' => $title_e,
 					'body' => $body_e,
 					'tags' => $tags_e,
@@ -787,7 +683,7 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					'indent' => '',
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
-					'owner_photo' => System::removedBaseUrl(proxy_url($item['owner-thumb'], false, PROXY_SIZE_THUMB)),
+					'owner_photo' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 					'plink' => get_plink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
@@ -806,8 +702,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 				$arr = ['item' => $item, 'output' => $tmp_item];
 				Addon::callHooks('display_item', $arr);
 
-				$threads[$threadsid]['id'] = $item['item_id'];
-				$threads[$threadsid]['network'] = $item['item_network'];
+				$threads[$threadsid]['id'] = $item['id'];
+				$threads[$threadsid]['network'] = $item['network'];
 				$threads[$threadsid]['items'] = [$arr['output']];
 
 			}
@@ -823,24 +719,15 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 			 * But for now, this array respects the old style, just in case
 			 */
 			foreach ($items as $item) {
-				if ($arr_blocked) {
-					$blocked = false;
-					foreach ($arr_blocked as $b) {
-						if ($b && link_compare($item['author-link'], $b)) {
-							$blocked = true;
-							break;
-						}
-					}
-					if ($blocked) {
-						continue;
-					}
+				if (in_array($item['author-id'], $blocklist)) {
+					continue;
 				}
 
 				// Can we put this after the visibility check?
 				builtin_activity_puller($item, $conv_responses);
 
 				// Only add what is visible
-				if ($item['network'] === NETWORK_MAIL && local_user() != $item['uid']) {
+				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
 				}
 
@@ -848,6 +735,8 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
 					continue;
 				}
 
+				/// @todo Check if this call is needed or not
+				$arr = ['item' => $item];
 				Addon::callHooks('display_item', $arr);
 
 				$item['pagedrop'] = $page_dropping;
@@ -890,26 +779,26 @@ function conversation(App $a, $items, $mode, $update, $preview = false, $order =
  *
  * @return array items with parents and comments
  */
-function conversation_add_children($parents, $block_authors, $order, $uid) {
+function conversation_add_children(array $parents, $block_authors, $order, $uid) {
 	$max_comments = Config::get('system', 'max_comments', 100);
 
+	$params = ['order' => ['uid', 'commented' => true]];
+
 	if ($max_comments > 0) {
-		$limit = ' LIMIT '.intval($max_comments + 1);
-	} else {
-		$limit = '';
+		$params['limit'] = $max_comments;
 	}
 
 	$items = [];
 
-	$block_sql = $block_authors ? "AND NOT `author`.`hidden` AND NOT `author`.`blocked`" : "";
-
 	foreach ($parents AS $parent) {
-		$thread_items = dba::p(item_query(local_user())."AND `item`.`parent-uri` = ?
-			AND `item`.`uid` IN (0, ?) $block_sql
-			ORDER BY `item`.`uid` ASC, `item`.`commented` DESC" . $limit,
-			$parent['uri'], local_user());
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) ",
+			$parent['uri'], local_user()];
+		if ($block_authors) {
+			$condition[0] .= "AND NOT `author`.`hidden`";
+		}
+		$thread_items = Item::selectForUser(local_user(), [], $condition, $params);
 
-		$comments = dba::inArray($thread_items);
+		$comments = Item::inArray($thread_items);
 
 		if (count($comments) != 0) {
 			$items = array_merge($items, $comments);
@@ -918,7 +807,7 @@ function conversation_add_children($parents, $block_authors, $order, $uid) {
 
 	foreach ($items as $index => $item) {
 		if ($item['uid'] == 0) {
-			$items[$index]['writable'] = in_array($item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
+			$items[$index]['writable'] = in_array($item['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 		}
 	}
 
@@ -926,48 +815,6 @@ function conversation_add_children($parents, $block_authors, $order, $uid) {
 
 	return $items;
 }
-
-function best_link_url($item, &$sparkle, $url = '') {
-
-	$best_url = '';
-	$sparkle  = false;
-
-	$clean_url = normalise_link($item['author-link']);
-
-	if (local_user()) {
-		$condition = [
-			'network' => NETWORK_DFRN,
-			'uid' => local_user(),
-			'nurl' => normalise_link($clean_url),
-			'pending' => false
-		];
-		$contact = dba::selectFirst('contact', ['id'], $condition);
-		if (DBM::is_result($contact)) {
-			$best_url = 'redir/' . $contact['id'];
-			$sparkle = true;
-			if ($url != '') {
-				$hostname = get_app()->get_hostname();
-				if (!strstr($url, $hostname)) {
-					$best_url .= "?url=".$url;
-				} else {
-					$best_url = $url;
-				}
-			}
-		}
-	}
-	if (!$best_url) {
-		if ($url != '') {
-			$best_url = $url;
-		} elseif (strlen($item['author-link'])) {
-			$best_url = $item['author-link'];
-		} else {
-			$best_url = $item['url'];
-		}
-	}
-
-	return $best_url;
-}
-
 
 function item_photo_menu($item) {
 	$sub_link = '';
@@ -982,18 +829,17 @@ function item_photo_menu($item) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
-	$sparkle = false;
-	$profile_link = best_link_url($item, $sparkle);
-	if ($profile_link === 'mailbox') {
-		$profile_link = '';
-	}
+	$author = ['uid' => 0, 'id' => $item['author-id'],
+		'network' => $item['author-network'], 'url' => $item['author-link']];
+	$profile_link = Contact::magicLinkbyContact($author);
+	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
 	$network = '';
 	$rel = 0;
 	$condition = ['uid' => local_user(), 'nurl' => normalise_link($item['author-link'])];
-	$contact = dba::selectFirst('contact', ['id', 'network', 'rel'], $condition);
-	if (DBM::is_result($contact)) {
+	$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
+	if (DBA::isResult($contact)) {
 		$cid = $contact['id'];
 		$network = $contact['network'];
 		$rel = $contact['rel'];
@@ -1003,8 +849,6 @@ function item_photo_menu($item) {
 		$status_link = $profile_link . '?url=status';
 		$photos_link = $profile_link . '?url=photos';
 		$profile_link = $profile_link . '?url=profile';
-	} else {
-		$profile_link = Profile::zrl($profile_link);
 	}
 
 	if ($cid && !$item['self']) {
@@ -1012,7 +856,7 @@ function item_photo_menu($item) {
 		$contact_url = 'contacts/' . $cid;
 		$posts_link = 'contacts/' . $cid . '/posts';
 
-		if (in_array($network, [NETWORK_DFRN, NETWORK_DIASPORA])) {
+		if (in_array($network, [Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;
 		}
 	}
@@ -1028,12 +872,12 @@ function item_photo_menu($item) {
 			L10n::t('Send PM') => $pm_url
 		];
 
-		if ($network == NETWORK_DFRN) {
+		if ($network == Protocol::DFRN) {
 			$menu[L10n::t("Poke")] = $poke_link;
 		}
 
-		if ((($cid == 0) || ($rel == CONTACT_IS_FOLLOWER)) &&
-			in_array($item['network'], [NETWORK_DFRN, NETWORK_OSTATUS, NETWORK_DIASPORA])) {
+		if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
+			in_array($item['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
 			$menu[L10n::t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
 		}
 	} else {
@@ -1092,17 +936,16 @@ function builtin_activity_puller($item, &$conv_responses) {
 		}
 
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
-			$url = $item['author-link'];
-			if (local_user() && (local_user() == $item['uid']) && ($item['network'] === NETWORK_DFRN) && !$item['self'] && link_compare($item['author-link'], $item['url'])) {
-				$url = 'redir/' . $item['contact-id'];
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$url = Contact::magicLinkbyContact($author);
+			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
-			} else {
-				$url = Profile::zrl($url);
 			}
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
-			if (!$item['thr-parent']) {
+			if (!x($item, 'thr-parent')) {
 				$item['thr-parent'] = $item['parent-uri'];
 			}
 
@@ -1182,7 +1025,7 @@ function format_like($cnt, array $arr, $type, $id) {
 		}
 		if ($total >= MAX_LIKERS) {
 			$str = implode(', ', $arr);
-			$str .= L10n::t('and %d other people', $total - MAX_LIKERS );
+			$str .= L10n::t('and %d other people', $total - MAX_LIKERS);
 		}
 
 		$likers = $str;
@@ -1317,7 +1160,8 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$wait'         => L10n::t('Please wait'),
 		'$permset'      => L10n::t('Permission settings'),
 		'$shortpermset' => L10n::t('permissions'),
-		'$ptyp'         => $notes_cid ? 'note' : 'wall',
+		'$wall'         => $notes_cid ? 0 : 1,
+		'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
 		'$content'      => defaults($x, 'content', ''),
 		'$post_id'      => defaults($x, 'post_id', ''),
 		'$baseurl'      => System::baseUrl(true),
@@ -1503,10 +1347,16 @@ function conv_sort(array $item_list, $order)
 		return $parents;
 	}
 
+	$blocklist = conv_get_blocklist();
+
 	$item_array = [];
 
 	// Dedupes the item list on the uri to prevent infinite loops
 	foreach ($item_list as $item) {
+		if (in_array($item['author-id'], $blocklist)) {
+			continue;
+		}
+
 		$item_array[$item['uri']] = $item;
 	}
 
@@ -1590,23 +1440,21 @@ function sort_thr_commented(array $a, array $b)
 	return strcmp($b['commented'], $a['commented']);
 }
 
-/// @TODO Add type-hint
-function render_location_dummy($item) {
-	if ($item['location'] != "") {
+function render_location_dummy(array $item) {
+	if (x($item, 'location') && !empty($item['location'])) {
 		return $item['location'];
 	}
 
-	if ($item['coord'] != "") {
+	if (x($item, 'coord') && !empty($item['coord'])) {
 		return $item['coord'];
 	}
 }
 
-/// @TODO Add type-hint
-function get_responses($conv_responses, $response_verbs, $ob, $item) {
+function get_responses(array $conv_responses, array $response_verbs, $ob, array $item) {
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
-		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], '');
+		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], 0);
 		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', []);
 		$ret[$v]['self']  = defaults($conv_responses[$v], $item['uri'] . '-self', '0');
 		if (count($ret[$v]['list']) > MAX_LIKERS) {

@@ -6,10 +6,15 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Core\L10n;
+
+// Get options
+$shortopts = 'sn';
+$longopts = ['spawn', 'no_cron'];
+$options = getopt($shortopts, $longopts);
 
 // Ensure that worker.php is executed from the base path of the installation
 if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
@@ -24,16 +29,13 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 }
 
 require_once "boot.php";
-require_once "include/dba.php";
 
 $a = new App(dirname(__DIR__));
-BaseObject::setApp($a);
-
-require_once ".htconfig.php";
-dba::connect($db_host, $db_user, $db_pass, $db_data);
-unset($db_host, $db_user, $db_pass, $db_data);
 
 Config::load();
+
+$lang = L10n::getBrowserLanguage();
+L10n::loadTranslationTable($lang);
 
 // Check the database structure and possibly fixes it
 check_db(true);
@@ -47,14 +49,14 @@ $a->set_baseurl(Config::get('system', 'url'));
 
 Addon::loadHooks();
 
-$spawn = (($_SERVER["argc"] == 2) && ($_SERVER["argv"][1] == "spawn"));
+$spawn = array_key_exists('s', $options) || array_key_exists('spawn', $options);
 
 if ($spawn) {
 	Worker::spawnWorker();
 	killme();
 }
 
-$run_cron = (($_SERVER["argc"] <= 1) || ($_SERVER["argv"][1] != "no_cron"));
+$run_cron = !array_key_exists('n', $options) && !array_key_exists('no_cron', $options);
 
 Worker::processQueue($run_cron);
 
@@ -63,4 +65,3 @@ Worker::unclaimProcess();
 Worker::endProcess();
 
 killme();
-

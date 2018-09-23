@@ -8,18 +8,24 @@ use Friendica\Core\System;
 
 /**
  * @param object $a App
- * @return mixed
+ * @return string
  */
 function smilies_content(App $a)
 {
-	if ($a->argv[1] === "json") {
-		$tmp = Smilies::getList();
+	$smilies = Smilies::getList();
+	if (!empty($a->argv[1]) && ($a->argv[1] === "json")) {
 		$results = [];
-		for ($i = 0; $i < count($tmp['texts']); $i++) {
-			$results[] = ['text' => $tmp['texts'][$i], 'icon' => $tmp['icons'][$i]];
+		for ($i = 0; $i < count($smilies['texts']); $i++) {
+			$results[] = ['text' => $smilies['texts'][$i], 'icon' => $smilies['icons'][$i]];
 		}
 		System::jsonExit($results);
 	} else {
-		return Smilies::replace('', true);
+		$s = '<div class="smiley-sample">';
+		for ($x = 0; $x < count($smilies['texts']); $x ++) {
+			$s .= '<dl><dt>' . $smilies['texts'][$x] . '</dt><dd>' . $smilies['icons'][$x] . '</dd></dl>';
+		}
+		$s .= '</div>';
+
+		return $s;
 	}
 }

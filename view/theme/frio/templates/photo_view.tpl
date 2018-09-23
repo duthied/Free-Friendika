@@ -3,17 +3,31 @@
 {{* "live-photos" is needed for js autoupdate *}}
 <div id="live-photos"></div>
 
-<div id="photo-view-{{$id}}" class="general-content-wrapper">
-	<h3><a href="{{$album.0}}">{{$album.1}}</a></h3>
-
-	<div id="photo-edit-link-wrap">
-		{{if $tools}}
-		<a id="photo-edit-link" href="{{$tools.edit.0}}">{{$tools.edit.1}}</a>
-		|
-		<a id="photo-toprofile-link" href="{{$tools.profile.0}}">{{$tools.profile.1}}</a>
-		{{/if}}
-		{{if $lock}} | <img src="images/lock_icon.gif" class="lockview" alt="{{$lock}}" onclick="lockview(event,'photo/{{$id}}');" /> {{/if}}
+<div id="photo-view-{{$id}}" class="generic-page-wrapper">
+	<div class="pull-left" id="photo-edit-link-wrap">
+		<a class="page-action faded-icon" id="photo-album-link" href="{{$album.0}}" title="{{$album.1}}" data-toggle="tooltip">
+			<i class="fa fa-folder-open"></i>&nbsp;{{$album.1}}
+		</a>
 	</div>
+	<div class="pull-right" id="photo-edit-link-wrap">
+		{{if $tools}}
+		<span class="icon-padding"> </span>
+		<a id="photo-edit-link" href="{{$tools.edit.0}}" title="{{$tools.edit.1}}" data-toggle="tooltip">
+			<i class="page-action faded-icon fa fa-pencil"></i>
+		</a>
+		<span class="icon-padding"> </span>
+		<a id="photo-toprofile-link" href="{{$tools.profile.0}}" title="{{$tools.profile.1}}" data-toggle="tooltip">
+			<i class="page-action faded-icon fa fa-user"></i>
+		</a>
+		{{/if}}
+		{{if $lock}}
+		<span class="icon-padding"> </span>
+		<a id="photo-lock-link" onclick="lockview(event,'photo/{{$id}}');" title="{{$lock}}" data-toggle="tooltip">
+			<i class="page-action faded-icon fa fa-lock"></i>
+		</a>
+		{{/if}}
+	</div>
+	<div class="clear"></div>
 
 	<div id="photo-view-wrapper">
 		<div id="photo-photo">
@@ -53,7 +67,7 @@
 		<div id="photo-like-div">
 			{{$likebuttons}}
 			{{$like}}
-			{{$dislike}}	
+			{{$dislike}}
 		</div>
 		{{/if}}
 		<hr>

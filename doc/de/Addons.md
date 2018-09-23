@@ -203,7 +203,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Addon::callHooks($a->module.'_mod_content', $arr);
     Addon::callHooks($a->module.'_mod_aftercontent', $arr);
     Addon::callHooks('page_end', $a->page['content']);
-    
+
 ### include/api.php
 
     Addon::callHooks('logged_in', $a->user);
@@ -216,7 +216,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Addon::callHooks('enotify_store', $datarray);
     Addon::callHooks('enotify_mail', $datarray);
     Addon::callHooks('check_item_notification', $notification_data);
-    
+
 ### include/conversation.php
 
     Addon::callHooks('conversation_start', $cb);
@@ -234,6 +234,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Addon::callHooks('contact_block_end', $arr);
     Addon::callHooks('poke_verbs', $arr);
+    Addon::callHooks('put_item_in_cache', $hook_data);
     Addon::callHooks('prepare_body_init', $item);
     Addon::callHooks('prepare_body_content_filter', $hook_data);
     Addon::callHooks('prepare_body', $hook_data);
@@ -275,7 +276,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 ### mod/friendica.php
 
     Addon::callHooks('about_hook', $o);
-    
+
 ### mod/subthread.php
 
     Addon::callHooks('post_local_end', $arr);
@@ -322,7 +323,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
 ### mod/contacts.php
 
-    Addon::callHooks('contact_edit_post', $_POST);    
+    Addon::callHooks('contact_edit_post', $_POST);
     Addon::callHooks('contact_edit', $arr);
 
 ### mod/tagger.php

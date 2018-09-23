@@ -4,6 +4,8 @@ Abrax
 Adam Clark
 Adam Jurkiewicz
 Adam Magness
+Aditoo
+Aditoo17
 AgnesElisa
 Albert
 Alberto Díaz Tormo
@@ -22,6 +24,7 @@ André Lohan
 Andy H3
 Andy Hee
 AndyHee
+Angristan
 Anthronaut
 Arian - Cazare Muncitori
 Athalbert
@@ -89,6 +92,7 @@ Gregory Smith
 Haakon Meland Eriksen
 Hans Meine
 hauke
+Hauke
 Hauke Altmann
 Hauke Zühl
 Herbert Thielen
@@ -96,6 +100,7 @@ hoergen
 Hubert Kościański
 Hypolite Petovan
 Ilmari
+ImgBotApp
 irhen
 Jak
 Jakob
@@ -110,7 +115,6 @@ Josef Moravek
 juanman
 julia.domagalska
 Karel
-Karel Vandecandelaere
 Karolina
 Keith Fernie
 Klaus Weidenbach
@@ -120,6 +124,7 @@ Lea1995polish
 Leberwurscht
 Leonard Lausen
 Lionel Triay
+Lorem Ipsum
 Ludovic Grossard
 maase2
 Magdalena Gazda
@@ -144,6 +149,7 @@ Michael Vogel
 Michal Šupler
 Michalina
 Mike Macgirvin
+miqrogroove
 mytbk
 Nicola Spanti
 Olaf Conradi
@@ -152,13 +158,17 @@ Olivier
 Olivier Mehani
 Olivier Migeot
 Paolo Wave
+Pascal
+Pascal Deklerck
 Pavel Morozov
-Perig Gouanvic
+PerigGouanvic
 peturisfeld
+Philipp
 Philipp Holzer
 Pierre Rudloff
 Piotr Blonkowski
 pokerazor
+R C
 Rabuzarus
 Radek
 Rafael Garau
@@ -172,6 +182,7 @@ Ricardo Pereira
 RJ Madsen
 Roland Häder
 Rui Andrada
+RyDroid
 S.Krumbholz
 Sakałoŭ Alaksiej
 Sam
@@ -187,6 +198,7 @@ Simó Albert i Beltran
 soko1
 St John Karp
 Stanislav N.
+Steffen K9
 StefOfficiel
 Sveinn í Felli
 Sven Anders
@@ -203,6 +215,7 @@ thorsten23
 Tino
 Tobias Diekershoff
 Tobias Hößl
+tomacat
 tomamplius
 tomtom84
 Tony Baldwin
@@ -213,14 +226,17 @@ Tubuntu
 Tupambae.org
 U-SOUND\mike
 ufic
+Unknown
 Vasudev Kamath
 Vasya Novikov
 vislav
+VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski
 Yasen Pramatarov
 ylms
 Zach Prezkuta
+Zane C. Bowers-Hadley
 Zered
 zotlabs
 zottel

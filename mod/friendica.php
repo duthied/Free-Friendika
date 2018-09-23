@@ -2,26 +2,27 @@
 /**
  * @file mod/friendica.php
  */
+
 use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
+use Friendica\Core\System;
+use Friendica\Database\DBA;
 
 function friendica_init(App $a)
 {
-	if ($a->argv[1] == "json") {
+	if (!empty($a->argv[1]) && ($a->argv[1] == "json")) {
 		$register_policy = ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'];
 
 		$sql_extra = '';
 		if (x($a->config, 'admin_nickname')) {
-			$sql_extra = sprintf(" AND `nickname` = '%s' ", dbesc($a->config['admin_nickname']));
+			$sql_extra = sprintf(" AND `nickname` = '%s' ", DBA::escape(Config::get('config', 'admin_nickname')));
 		}
-		if (isset($a->config['admin_email']) && $a->config['admin_email']!='') {
-			$adminlist = explode(",", str_replace(" ", "", $a->config['admin_email']));
+		if (!empty(Config::get('config', 'admin_email'))) {
+			$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 
-			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", dbesc($adminlist[0]));
+			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", DBA::escape($adminlist[0]));
 			$admin = [
 				'name' => $r[0]['username'],
 				'profile'=> System::baseUrl() . '/profile/' . $r[0]['nickname'],
@@ -33,7 +34,7 @@ function friendica_init(App $a)
 		$visible_addons = [];
 		if (is_array($a->addons) && count($a->addons)) {
 			$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
 					$visible_addons[] = $rr['name'];
 				}
@@ -42,7 +43,7 @@ function friendica_init(App $a)
 
 		Config::load('feature_lock');
 		$locked_features = [];
-		if (is_array($a->config['feature_lock']) && count($a->config['feature_lock'])) {
+		if (!empty($a->config['feature_lock']) && count($a->config['feature_lock'])) {
 			foreach ($a->config['feature_lock'] as $k => $v) {
 				if ($k === 'config_loaded') {
 					continue;
@@ -55,13 +56,13 @@ function friendica_init(App $a)
 		$data = [
 			'version'         => FRIENDICA_VERSION,
 			'url'             => System::baseUrl(),
-			'addons'         => $visible_addons,
+			'addons'          => $visible_addons,
 			'locked_features' => $locked_features,
-			'register_policy' =>  $register_policy[$a->config['register_policy']],
+			'register_policy' => $register_policy[intval(Config::get('config', 'register_policy'))],
 			'admin'           => $admin,
-			'site_name'       => $a->config['sitename'],
+			'site_name'       => Config::get('config', 'sitename'),
 			'platform'        => FRIENDICA_PLATFORM,
-			'info'            => ((x($a->config, 'info')) ? $a->config['info'] : ''),
+			'info'            => Config::get('config', 'info'),
 			'no_scrape_url'   => System::baseUrl().'/noscrape'
 		];
 
@@ -74,8 +75,9 @@ function friendica_content(App $a)
 {
 	$o = '<h1>Friendica</h1>' . PHP_EOL;
 	$o .= '<p>';
-	$o .= L10n::t('This is Friendica, version') . ' <strong>' . FRIENDICA_VERSION . '</strong> ';
-	$o .= L10n::t('running at web location') . ' ' . System::baseUrl();
+	$o .= L10n::t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
+		'<strong>' . FRIENDICA_VERSION . '</strong>', System::baseUrl(), '<strong>' . DB_UPDATE_VERSION . '</strong>',
+		'<strong>' . Config::get("system", "post_update_version") . '</strong>');
 	$o .= '</p>' . PHP_EOL;
 
 	$o .= '<p>';
@@ -92,7 +94,7 @@ function friendica_content(App $a)
 	$visible_addons = [];
 	if (is_array($a->addons) && count($a->addons)) {
 		$r = q("SELECT * FROM `addon` WHERE `hidden` = 0");
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
 				$visible_addons[] = $rr['name'];
 			}

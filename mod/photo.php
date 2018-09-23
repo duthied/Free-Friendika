@@ -4,7 +4,7 @@
  * @file mod/photo.php
  */
 use Friendica\App;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Object\Image;
 
 require_once 'include/security.php';
@@ -39,7 +39,9 @@ function photo_init(App $a)
 	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 		header('HTTP/1.1 304 Not Modified');
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
-		header('Etag: ' . $_SERVER['HTTP_IF_NONE_MATCH']);
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH'])) {
+			header('Etag: ' . $_SERVER['HTTP_IF_NONE_MATCH']);
+		}
 		header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
 		header("Cache-Control: max-age=31536000");
 		if (function_exists('header_remove')) {
@@ -81,7 +83,7 @@ function photo_init(App $a)
 			intval($resolution),
 			intval($uid)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$data = $r[0]['data'];
 			$mimetype = $r[0]['type'];
 		}
@@ -105,18 +107,18 @@ function photo_init(App $a)
 
 		// check if the photo exists and get the owner of the photo
 		$r = q("SELECT `uid` FROM `photo` WHERE `resource-id` = '%s' LIMIT 1",
-			dbesc($photo),
+			DBA::escape($photo),
 			intval($resolution)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$sql_extra = permissions_sql($r[0]['uid']);
 
 			// Now we'll see if we can access the photo
 			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `scale` <= %d $sql_extra ORDER BY scale DESC LIMIT 1",
-				dbesc($photo),
+				DBA::escape($photo),
 				intval($resolution)
 			);
-			if (DBM::is_result($r)) {
+			if (DBA::isResult($r)) {
 				$resolution = $r[0]['scale'];
 				$data = $r[0]['data'];
 				$mimetype = $r[0]['type'];

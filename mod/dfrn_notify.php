@@ -9,7 +9,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
@@ -26,8 +26,8 @@ function dfrn_notify_post(App $a) {
 		if (is_object($data)) {
 			$nick = defaults($a->argv, 1, '');
 
-			$user = dba::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
-			if (!DBM::is_result($user)) {
+			$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
+			if (!DBA::isResult($user)) {
 				System::httpExit(500);
 			}
 			dfrn_dispatch_private($user, $postdata);
@@ -62,65 +62,49 @@ function dfrn_notify_post(App $a) {
 		$dfrn_id = substr($dfrn_id, 2);
 	}
 
-	if (!dba::exists('challenge', ['dfrn-id' => $dfrn_id, 'challenge' => $challenge])) {
+	if (!DBA::exists('challenge', ['dfrn-id' => $dfrn_id, 'challenge' => $challenge])) {
 		logger('could not match challenge to dfrn_id ' . $dfrn_id . ' challenge=' . $challenge);
 		System::xmlExit(3, 'Could not match challenge');
 	}
 
-	dba::delete('challenge', ['dfrn-id' => $dfrn_id, 'challenge' => $challenge]);
+	DBA::delete('challenge', ['dfrn-id' => $dfrn_id, 'challenge' => $challenge]);
+
+	$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
+	if (!DBA::isResult($user)) {
+		logger('User not found for nickname ' . $a->argv[1]);
+		System::xmlExit(3, 'User not found');
+	}
 
 	// find the local user who owns this relationship.
-
-	$sql_extra = '';
+	$condition = [];
 	switch ($direction) {
 		case (-1):
-			$sql_extra = sprintf(" AND ( `issued-id` = '%s' OR `dfrn-id` = '%s' ) ", dbesc($dfrn_id), dbesc($dfrn_id));
+			$condition = ["(`issued-id` = ? OR `dfrn-id` = ?) AND `uid` = ?", $dfrn_id, $dfrn_id, $user['uid']];
 			break;
 		case 0:
-			$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+			$condition = ['issued-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 			break;
 		case 1:
-			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+			$condition = ['dfrn-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 			break;
 		default:
 			System::xmlExit(3, 'Invalid direction');
 			break; // NOTREACHED
 	}
 
-	/*
-	 * be careful - $importer will contain both the contact information for the contact
-	 * sending us the post, and also the user information for the person receiving it.
-	 * since they are mixed together, it is easy to get them confused.
-	 */
-
-	$r = q("SELECT	`contact`.*, `contact`.`uid` AS `importer_uid`,
-					`contact`.`pubkey` AS `cpubkey`,
-					`contact`.`prvkey` AS `cprvkey`,
-					`contact`.`thumb` AS `thumb`,
-					`contact`.`url` as `url`,
-					`contact`.`name` as `senderName`,
-					`user`.*
-			FROM `contact`
-			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
-			WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `user`.`nickname` = '%s' AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
-		dbesc($a->argv[1])
-	);
-
-	if (!DBM::is_result($r)) {
+	$contact = DBA::selectFirst('contact', ['id'], $condition);
+	if (!DBA::isResult($contact)) {
 		logger('contact not found for dfrn_id ' . $dfrn_id);
 		System::xmlExit(3, 'Contact not found');
-		//NOTREACHED
 	}
 
 	// $importer in this case contains the contact record for the remote contact joined with the user record of our user.
-
-	$importer = $r[0];
+	$importer = DFRN::getImporter($contact['id'], $user['uid']);
 
 	if ((($writable != (-1)) && ($writable != $importer['writable'])) || ($importer['forum'] != $forum) || ($importer['prv'] != $prv)) {
 		$fields = ['writable' => ($writable == (-1)) ? $importer['writable'] : $writable,
 			'forum' => $forum, 'prv' => $prv];
-		dba::update('contact', $fields, ['id' => $importer['id']]);
+		DBA::update('contact', $fields, ['id' => $importer['id']]);
 
 		if ($writable != (-1)) {
 			$importer['writable'] = $writable;
@@ -198,7 +182,7 @@ function dfrn_notify_post(App $a) {
 
 function dfrn_dispatch_public($postdata)
 {
-	$msg = Diaspora::decodeRaw([], $postdata);
+	$msg = Diaspora::decodeRaw([], $postdata, true);
 	if (!$msg) {
 		// We have to fail silently to be able to hand it over to the salmon parser
 		return false;
@@ -211,16 +195,10 @@ function dfrn_dispatch_public($postdata)
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
 
-	// We now have some contact, so we fetch it
-	$importer = dba::fetch_first("SELECT *, `name` as `senderName`
-					FROM `contact`
-					WHERE NOT `blocked` AND `id` = ? LIMIT 1",
-					$contact['id']);
-
-	$importer['importer_uid']  = 0;
+	$importer = DFRN::getImporter($contact['id']);
 
 	// This should never fail
-	if (!DBM::is_result($importer)) {
+	if (empty($importer)) {
 		logger('Contact not found for address ' . $msg['author']);
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
@@ -250,20 +228,13 @@ function dfrn_dispatch_private($user, $postdata)
 		}
 	}
 
-	// We now have some contact, so we fetch it
-	$importer = dba::fetch_first("SELECT *, `name` as `senderName`
-					FROM `contact`
-					WHERE NOT `blocked` AND `id` = ? LIMIT 1",
-					$cid);
+	$importer = DFRN::getImporter($cid, $user['uid']);
 
 	// This should never fail
-	if (!DBM::is_result($importer)) {
+	if (empty($importer)) {
 		logger('Contact not found for address ' . $msg['author']);
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
-
-	// Set the user id. This is important if this is a public contact
-	$importer['importer_uid']  = $user['uid'];
 
 	logger('Importing post from ' . $msg['author'] . ' to ' . $user['nickname'] . ' with the private envelope.', LOGGER_DEBUG);
 
@@ -299,52 +270,61 @@ function dfrn_notify_content(App $a) {
 
 		$status = 0;
 
-		dba::delete('challenge', ["`expire` < ?", time()]);
+		DBA::delete('challenge', ["`expire` < ?", time()]);
 
 		$fields = ['challenge' => $hash, 'dfrn-id' => $dfrn_id, 'expire' => time() + 90,
 			'type' => $type, 'last_update' => $last_update];
-		dba::insert('challenge', $fields);
+		DBA::insert('challenge', $fields);
 
 		logger('challenge=' . $hash, LOGGER_DATA);
 
-		$sql_extra = '';
-		switch($direction) {
+		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
+		if (!DBA::isResult($user)) {
+			logger('User not found for nickname ' . $a->argv[1]);
+			killme();
+		}
+
+		$condition = [];
+		switch ($direction) {
 			case (-1):
-				$sql_extra = sprintf(" AND (`issued-id` = '%s' OR `dfrn-id` = '%s') ", dbesc($dfrn_id), dbesc($dfrn_id));
+				$condition = ["(`issued-id` = ? OR `dfrn-id` = ?) AND `uid` = ?", $dfrn_id, $dfrn_id, $user['uid']];
 				$my_id = $dfrn_id;
 				break;
 			case 0:
-				$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$condition = ['issued-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 				$my_id = '1:' . $dfrn_id;
 				break;
 			case 1:
-				$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", dbesc($dfrn_id));
+				$condition = ['dfrn-id' => $dfrn_id, 'duplex' => true, 'uid' => $user['uid']];
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
 				$status = 1;
-				break; // NOTREACHED
+				break;
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`nickname`, `user`.`page-flags` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid`
-				WHERE `contact`.`blocked` = 0 AND `contact`.`pending` = 0 AND `user`.`nickname` = '%s'
-				AND `user`.`account_expired` = 0 AND `user`.`account_removed` = 0 $sql_extra LIMIT 1",
-				dbesc($a->argv[1])
-		);
-
-		if (!DBM::is_result($r)) {
-			$status = 1;
+		$contact = DBA::selectFirst('contact', ['id'], $condition);
+		if (!DBA::isResult($contact)) {
+			logger('contact not found for dfrn_id ' . $dfrn_id);
+			System::xmlExit(3, 'Contact not found');
 		}
 
-		logger("Remote rino version: ".$rino_remote." for ".$r[0]["url"], LOGGER_DATA);
+		// $importer in this case contains the contact record for the remote contact joined with the user record of our user.
+		$importer = DFRN::getImporter($contact['id'], $user['uid']);
+		if (empty($importer)) {
+			logger('No importer data found for user ' . $a->argv[1] . ' and contact ' . $dfrn_id);
+			killme();
+		}
+
+		logger("Remote rino version: ".$rino_remote." for ".$importer["url"], LOGGER_DATA);
 
 		$challenge    = '';
 		$encrypted_id = '';
 		$id_str       = $my_id . '.' . mt_rand(1000,9999);
 
-		$prv_key = trim($r[0]['prvkey']);
-		$pub_key = trim($r[0]['pubkey']);
-		$dplx    = intval($r[0]['duplex']);
+		$prv_key = trim($importer['cprvkey']);
+		$pub_key = trim($importer['cpubkey']);
+		$dplx    = intval($importer['duplex']);
 
 		if (($dplx && strlen($prv_key)) || (strlen($prv_key) && !strlen($pub_key))) {
 			openssl_private_encrypt($hash, $challenge, $prv_key);
@@ -372,7 +352,7 @@ function dfrn_notify_content(App $a) {
 			$rino = $rino_remote;
 		}
 
-		if (($r[0]['rel'] && ($r[0]['rel'] != CONTACT_IS_SHARING)) || ($r[0]['page-flags'] == PAGE_COMMUNITY)) {
+		if (($importer['rel'] && ($importer['rel'] != Contact::SHARING)) || ($importer['page-flags'] == Contact::PAGE_COMMUNITY)) {
 			$perm = 'rw';
 		} else {
 			$perm = 'r';

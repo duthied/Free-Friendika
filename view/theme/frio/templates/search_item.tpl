@@ -121,7 +121,6 @@
 
 			<hr />
 
-
 			{{* item content *}}
 			<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
 				{{* insert some space if it's an top-level post *}}
@@ -138,8 +137,7 @@
 
 			<!-- TODO -->
 			<div class="wall-item-bottom">
-				<div class="wall-item-links">
-				</div>
+				<div class="wall-item-links"></div>
 				<div class="wall-item-tags">
 			{{if !$item.suppress_tags}}
 				{{foreach $item.hashtags as $tag}}

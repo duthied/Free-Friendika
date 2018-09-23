@@ -15,9 +15,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-20 14:22+0200\n"
-"PO-Revision-Date: 2018-05-20 13:51+0000\n"
-"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
+"POT-Creation-Date: 2018-06-02 08:49+0200\n"
+"PO-Revision-Date: 2018-06-06 15:02+0000\n"
+"Last-Translator: Kris\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/Friendica/friendica/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -289,7 +289,7 @@ msgstr "'%1$s' voi halutessaan laajentaa suhteenne kahdenväliseksi."
 msgid "Please visit %s  if you wish to make any changes to this relationship."
 msgstr "Käy osoitteessa %s muokkaamaan tätä kaverisuhdetta."
 
-#: include/enotify.php:360 mod/removeme.php:44
+#: include/enotify.php:360 mod/removeme.php:45
 msgid "[Friendica System Notify]"
 msgstr "[Friendica Järjestelmäilmoitus]"
 
@@ -317,29 +317,6 @@ msgstr "Koko nimi:\t%1$s\\nSivusto:\t%2$s\\nKäyttäjätunnus:\t%3$s (%4$s)"
 msgid "Please visit %s to approve or reject the request."
 msgstr "Hyväksy tai hylkää pyyntö %s-sivustossa."
 
-#: include/security.php:81
-msgid "Welcome "
-msgstr "Tervetuloa"
-
-#: include/security.php:82
-msgid "Please upload a profile photo."
-msgstr "Lataa profiilikuva."
-
-#: include/security.php:84
-msgid "Welcome back "
-msgstr "Tervetuloa takaisin"
-
-#: include/security.php:440
-msgid ""
-"The form security token was not correct. This probably happened because the "
-"form has been opened for too long (>3 hours) before submitting it."
-msgstr "Lomakkeen turvallisuusavain oli väärin. Tämä voi johtua siitä, että lomake on ollut avoinna liian kauan (>3 tuntia) ennen sen lähettämistä."
-
-#: include/dba.php:59
-#, php-format
-msgid "Cannot locate DNS info for database server '%s'"
-msgstr "'%s' tietokantapalvelimen DNS-tieto ei löydy"
-
 #: include/api.php:1202
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
@@ -360,475 +337,474 @@ msgstr[1] "Viikottainen julkaisuraja (%d) on tullut täyteen. Julkaisu hylätty.
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr "Kuukausittainen julkaisuraja (%d) on tullut täyteen. Julkaisu hylätty."
 
-#: include/api.php:4522 mod/photos.php:88 mod/photos.php:194
-#: mod/photos.php:722 mod/photos.php:1149 mod/photos.php:1166
-#: mod/photos.php:1684 mod/profile_photo.php:85 mod/profile_photo.php:93
+#: include/api.php:4521 mod/profile_photo.php:85 mod/profile_photo.php:93
 #: mod/profile_photo.php:101 mod/profile_photo.php:211
-#: mod/profile_photo.php:302 mod/profile_photo.php:312 src/Model/User.php:553
-#: src/Model/User.php:561 src/Model/User.php:569
+#: mod/profile_photo.php:302 mod/profile_photo.php:312 mod/photos.php:88
+#: mod/photos.php:194 mod/photos.php:710 mod/photos.php:1137
+#: mod/photos.php:1154 mod/photos.php:1678 src/Model/User.php:555
+#: src/Model/User.php:563 src/Model/User.php:571
 msgid "Profile Photos"
 msgstr "Profiilin valokuvat"
 
-#: include/conversation.php:144 include/conversation.php:282
-#: include/text.php:1749 src/Model/Item.php:1970
+#: include/conversation.php:144 include/conversation.php:279
+#: include/text.php:1749 src/Model/Item.php:2002
 msgid "event"
 msgstr "tapahtuma"
 
 #: include/conversation.php:147 include/conversation.php:157
-#: include/conversation.php:285 include/conversation.php:294
-#: mod/subthread.php:97 mod/tagger.php:72 src/Model/Item.php:1968
+#: include/conversation.php:282 include/conversation.php:291
+#: mod/subthread.php:101 mod/tagger.php:72 src/Model/Item.php:2000
 #: src/Protocol/Diaspora.php:1957
 msgid "status"
 msgstr "tila"
 
-#: include/conversation.php:152 include/conversation.php:290
-#: include/text.php:1751 mod/subthread.php:97 mod/tagger.php:72
-#: src/Model/Item.php:1968
+#: include/conversation.php:152 include/conversation.php:287
+#: include/text.php:1751 mod/subthread.php:101 mod/tagger.php:72
+#: src/Model/Item.php:2000
 msgid "photo"
 msgstr "kuva"
 
-#: include/conversation.php:164 src/Model/Item.php:1841
+#: include/conversation.php:164 src/Model/Item.php:1873
 #: src/Protocol/Diaspora.php:1953
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
 msgstr "%1$s tykkää käyttäjän %2$s %3$s"
 
-#: include/conversation.php:167 src/Model/Item.php:1846
+#: include/conversation.php:166 src/Model/Item.php:1878
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
 msgstr ""
 
-#: include/conversation.php:170
+#: include/conversation.php:168
 #, php-format
 msgid "%1$s attends %2$s's %3$s"
 msgstr "%1$s osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
 
-#: include/conversation.php:173
+#: include/conversation.php:170
 #, php-format
 msgid "%1$s doesn't attend %2$s's %3$s"
 msgstr "%1$s ei osallistu tapahtumaan %3$s, jonka järjestää %2$s"
 
-#: include/conversation.php:176
+#: include/conversation.php:172
 #, php-format
 msgid "%1$s attends maybe %2$s's %3$s"
 msgstr "%1$s ehkä osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
 
-#: include/conversation.php:209
+#: include/conversation.php:206
 #, php-format
 msgid "%1$s is now friends with %2$s"
 msgstr "%1$s ja %2$s ovat kavereita"
 
-#: include/conversation.php:250
+#: include/conversation.php:247
 #, php-format
 msgid "%1$s poked %2$s"
 msgstr "%1$s tökkäsi %2$s"
 
-#: include/conversation.php:304 mod/tagger.php:110
+#: include/conversation.php:301 mod/tagger.php:110
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
 msgstr ""
 
-#: include/conversation.php:331
+#: include/conversation.php:328
 msgid "post/item"
 msgstr "julkaisu/kohde"
 
-#: include/conversation.php:332
+#: include/conversation.php:329
 #, php-format
 msgid "%1$s marked %2$s's %3$s as favorite"
 msgstr ""
 
-#: include/conversation.php:608 mod/photos.php:1501 mod/profiles.php:355
+#: include/conversation.php:609 mod/photos.php:1495 mod/profiles.php:355
 msgid "Likes"
 msgstr "Tykkäyksiä"
 
-#: include/conversation.php:608 mod/photos.php:1501 mod/profiles.php:359
+#: include/conversation.php:609 mod/photos.php:1495 mod/profiles.php:359
 msgid "Dislikes"
 msgstr "Inhokit"
 
-#: include/conversation.php:609 include/conversation.php:1639
-#: mod/photos.php:1502
+#: include/conversation.php:610 include/conversation.php:1638
+#: mod/photos.php:1496
 msgid "Attending"
 msgid_plural "Attending"
 msgstr[0] "Osallistuu"
 msgstr[1] "Osallistuu"
 
-#: include/conversation.php:609 mod/photos.php:1502
+#: include/conversation.php:610 mod/photos.php:1496
 msgid "Not attending"
 msgstr "Ei osallistu"
 
-#: include/conversation.php:609 mod/photos.php:1502
+#: include/conversation.php:610 mod/photos.php:1496
 msgid "Might attend"
 msgstr "Ehkä"
 
-#: include/conversation.php:721 mod/photos.php:1569 src/Object/Post.php:192
+#: include/conversation.php:722 mod/photos.php:1563 src/Object/Post.php:192
 msgid "Select"
 msgstr "Valitse"
 
-#: include/conversation.php:722 mod/photos.php:1570 mod/contacts.php:830
-#: mod/contacts.php:1035 mod/admin.php:1827 mod/settings.php:730
-#: src/Object/Post.php:187
+#: include/conversation.php:723 mod/contacts.php:830 mod/contacts.php:1035
+#: mod/admin.php:1832 mod/photos.php:1564 mod/settings.php:730
 msgid "Delete"
 msgstr "Poista"
 
-#: include/conversation.php:760 src/Object/Post.php:371
+#: include/conversation.php:761 src/Object/Post.php:371
 #: src/Object/Post.php:372
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr "Katso %s-henkilön profiilia @ %s"
 
-#: include/conversation.php:772 src/Object/Post.php:359
+#: include/conversation.php:773 src/Object/Post.php:359
 msgid "Categories:"
 msgstr "Luokat:"
 
-#: include/conversation.php:773 src/Object/Post.php:360
+#: include/conversation.php:774 src/Object/Post.php:360
 msgid "Filed under:"
 msgstr "Arkistoitu kansioon:"
 
-#: include/conversation.php:780 src/Object/Post.php:385
+#: include/conversation.php:781 src/Object/Post.php:385
 #, php-format
 msgid "%s from %s"
 msgstr "%s sovelluksesta %s"
 
-#: include/conversation.php:795
+#: include/conversation.php:796
 msgid "View in context"
 msgstr "Näytä kontekstissa"
 
-#: include/conversation.php:797 include/conversation.php:1312
-#: mod/wallmessage.php:145 mod/editpost.php:125 mod/photos.php:1473
-#: mod/message.php:245 mod/message.php:414 src/Object/Post.php:410
+#: include/conversation.php:798 include/conversation.php:1313
+#: mod/wallmessage.php:145 mod/editpost.php:125 mod/message.php:245
+#: mod/message.php:414 mod/photos.php:1467 src/Object/Post.php:410
 msgid "Please wait"
 msgstr "Odota"
 
-#: include/conversation.php:868
+#: include/conversation.php:869
 msgid "remove"
 msgstr "poista"
 
-#: include/conversation.php:872
+#: include/conversation.php:873
 msgid "Delete Selected Items"
 msgstr "Poista valitut kohteet"
 
-#: include/conversation.php:1017 view/theme/frio/theme.php:352
+#: include/conversation.php:1018 view/theme/frio/theme.php:352
 msgid "Follow Thread"
 msgstr "Seuraa ketjua"
 
-#: include/conversation.php:1018 src/Model/Contact.php:662
+#: include/conversation.php:1019 src/Model/Contact.php:662
 msgid "View Status"
 msgstr "Näytä tila"
 
-#: include/conversation.php:1019 include/conversation.php:1035
+#: include/conversation.php:1020 include/conversation.php:1036
 #: mod/allfriends.php:73 mod/suggest.php:82 mod/match.php:89
 #: mod/directory.php:159 mod/dirfind.php:217 src/Model/Contact.php:602
 #: src/Model/Contact.php:615 src/Model/Contact.php:663
 msgid "View Profile"
 msgstr "Näytä profiilia"
 
-#: include/conversation.php:1020 src/Model/Contact.php:664
+#: include/conversation.php:1021 src/Model/Contact.php:664
 msgid "View Photos"
 msgstr "Näytä kuvia"
 
-#: include/conversation.php:1021 src/Model/Contact.php:665
+#: include/conversation.php:1022 src/Model/Contact.php:665
 msgid "Network Posts"
 msgstr "Uutisvirtajulkaisut"
 
-#: include/conversation.php:1022 src/Model/Contact.php:666
+#: include/conversation.php:1023 src/Model/Contact.php:666
 msgid "View Contact"
 msgstr "Näytä kontaktia"
 
-#: include/conversation.php:1023 src/Model/Contact.php:668
+#: include/conversation.php:1024 src/Model/Contact.php:668
 msgid "Send PM"
 msgstr "Lähetä yksityisviesti"
 
-#: include/conversation.php:1027 src/Model/Contact.php:669
+#: include/conversation.php:1028 src/Model/Contact.php:669
 msgid "Poke"
 msgstr "Tökkää"
 
-#: include/conversation.php:1032 mod/allfriends.php:74 mod/suggest.php:83
+#: include/conversation.php:1033 mod/allfriends.php:74 mod/suggest.php:83
 #: mod/match.php:90 mod/contacts.php:596 mod/dirfind.php:218
 #: mod/follow.php:143 view/theme/vier/theme.php:201 src/Content/Widget.php:61
 #: src/Model/Contact.php:616
 msgid "Connect/Follow"
 msgstr "Yhdistä/Seuraa"
 
-#: include/conversation.php:1151
+#: include/conversation.php:1152
 #, php-format
 msgid "%s likes this."
 msgstr "%s tykkää tästä."
 
-#: include/conversation.php:1154
+#: include/conversation.php:1155
 #, php-format
 msgid "%s doesn't like this."
 msgstr "%s ei tykkää tästä."
 
-#: include/conversation.php:1157
+#: include/conversation.php:1158
 #, php-format
 msgid "%s attends."
 msgstr "%s osallistuu."
 
-#: include/conversation.php:1160
+#: include/conversation.php:1161
 #, php-format
 msgid "%s doesn't attend."
 msgstr "%s ei osallistu."
 
-#: include/conversation.php:1163
+#: include/conversation.php:1164
 #, php-format
 msgid "%s attends maybe."
 msgstr "%s ehkä osallistuu."
 
-#: include/conversation.php:1174
+#: include/conversation.php:1175
 msgid "and"
 msgstr "ja"
 
-#: include/conversation.php:1180
+#: include/conversation.php:1181
 #, php-format
 msgid "and %d other people"
 msgstr "ja %d muuta ihmistä"
 
-#: include/conversation.php:1189
+#: include/conversation.php:1190
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this"
 msgstr "<span  %1$s>%2$d ihmistä</span> tykkää tästä"
 
-#: include/conversation.php:1190
+#: include/conversation.php:1191
 #, php-format
 msgid "%s like this."
 msgstr "%s tykkää tästä."
 
-#: include/conversation.php:1193
+#: include/conversation.php:1194
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this"
 msgstr "<span  %1$s>%2$d ihmistä</span> ei tykkää tästä."
 
-#: include/conversation.php:1194
+#: include/conversation.php:1195
 #, php-format
 msgid "%s don't like this."
 msgstr "%s ei tykkää tästä."
 
-#: include/conversation.php:1197
+#: include/conversation.php:1198
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend"
 msgstr "<span  %1$s>%2$d ihmistä</span> osallistuu"
 
-#: include/conversation.php:1198
+#: include/conversation.php:1199
 #, php-format
 msgid "%s attend."
 msgstr "%s osallistuu."
 
-#: include/conversation.php:1201
+#: include/conversation.php:1202
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't attend"
 msgstr "<span  %1$s>%2$d ihmistä</span> ei osallistu"
 
-#: include/conversation.php:1202
+#: include/conversation.php:1203
 #, php-format
 msgid "%s don't attend."
 msgstr "%s ei osallistu."
 
-#: include/conversation.php:1205
+#: include/conversation.php:1206
 #, php-format
 msgid "<span  %1$s>%2$d people</span> attend maybe"
 msgstr "<span  %1$s>%2$d ihmistä</span> ehkä osallistuu"
 
-#: include/conversation.php:1206
+#: include/conversation.php:1207
 #, php-format
 msgid "%s attend maybe."
 msgstr "%s ehkä osallistuu."
 
-#: include/conversation.php:1236 include/conversation.php:1252
+#: include/conversation.php:1237 include/conversation.php:1253
 msgid "Visible to <strong>everybody</strong>"
 msgstr "Näkyy <strong>kaikille</strong>"
 
-#: include/conversation.php:1237 include/conversation.php:1253
+#: include/conversation.php:1238 include/conversation.php:1254
 #: mod/wallmessage.php:120 mod/wallmessage.php:127 mod/message.php:181
 #: mod/message.php:188 mod/message.php:324 mod/message.php:331
 msgid "Please enter a link URL:"
 msgstr "Lisää URL-linkki:"
 
-#: include/conversation.php:1238 include/conversation.php:1254
+#: include/conversation.php:1239 include/conversation.php:1255
 msgid "Please enter a video link/URL:"
 msgstr "Lisää video URL-linkki:"
 
-#: include/conversation.php:1239 include/conversation.php:1255
+#: include/conversation.php:1240 include/conversation.php:1256
 msgid "Please enter an audio link/URL:"
 msgstr "Lisää ääni URL-linkki:"
 
-#: include/conversation.php:1240 include/conversation.php:1256
+#: include/conversation.php:1241 include/conversation.php:1257
 msgid "Tag term:"
 msgstr "Tunniste:"
 
-#: include/conversation.php:1241 include/conversation.php:1257
+#: include/conversation.php:1242 include/conversation.php:1258
 #: mod/filer.php:34
 msgid "Save to Folder:"
 msgstr "Tallenna kansioon:"
 
-#: include/conversation.php:1242 include/conversation.php:1258
+#: include/conversation.php:1243 include/conversation.php:1259
 msgid "Where are you right now?"
 msgstr "Mikä on sijaintisi?"
 
-#: include/conversation.php:1243
+#: include/conversation.php:1244
 msgid "Delete item(s)?"
 msgstr "Poista kohde/kohteet?"
 
-#: include/conversation.php:1290
+#: include/conversation.php:1291
 msgid "New Post"
 msgstr "Uusi julkaisu"
 
-#: include/conversation.php:1293
+#: include/conversation.php:1294
 msgid "Share"
 msgstr "Jaa"
 
-#: include/conversation.php:1294 mod/wallmessage.php:143 mod/editpost.php:111
+#: include/conversation.php:1295 mod/wallmessage.php:143 mod/editpost.php:111
 #: mod/message.php:243 mod/message.php:411
 msgid "Upload photo"
 msgstr "Lähetä kuva"
 
-#: include/conversation.php:1295 mod/editpost.php:112
+#: include/conversation.php:1296 mod/editpost.php:112
 msgid "upload photo"
 msgstr "lähetä kuva"
 
-#: include/conversation.php:1296 mod/editpost.php:113
+#: include/conversation.php:1297 mod/editpost.php:113
 msgid "Attach file"
 msgstr "Liitä tiedosto"
 
-#: include/conversation.php:1297 mod/editpost.php:114
+#: include/conversation.php:1298 mod/editpost.php:114
 msgid "attach file"
 msgstr "liitä tiedosto"
 
-#: include/conversation.php:1298 mod/wallmessage.php:144 mod/editpost.php:115
+#: include/conversation.php:1299 mod/wallmessage.php:144 mod/editpost.php:115
 #: mod/message.php:244 mod/message.php:412
 msgid "Insert web link"
 msgstr "Lisää linkki"
 
-#: include/conversation.php:1299 mod/editpost.php:116
+#: include/conversation.php:1300 mod/editpost.php:116
 msgid "web link"
 msgstr "WWW-linkki"
 
-#: include/conversation.php:1300 mod/editpost.php:117
+#: include/conversation.php:1301 mod/editpost.php:117
 msgid "Insert video link"
 msgstr "Lisää videolinkki"
 
-#: include/conversation.php:1301 mod/editpost.php:118
+#: include/conversation.php:1302 mod/editpost.php:118
 msgid "video link"
 msgstr "videolinkki"
 
-#: include/conversation.php:1302 mod/editpost.php:119
+#: include/conversation.php:1303 mod/editpost.php:119
 msgid "Insert audio link"
 msgstr "Lisää äänilinkki"
 
-#: include/conversation.php:1303 mod/editpost.php:120
+#: include/conversation.php:1304 mod/editpost.php:120
 msgid "audio link"
 msgstr "äänilinkki"
 
-#: include/conversation.php:1304 mod/editpost.php:121
+#: include/conversation.php:1305 mod/editpost.php:121
 msgid "Set your location"
 msgstr "Aseta sijaintisi"
 
-#: include/conversation.php:1305 mod/editpost.php:122
+#: include/conversation.php:1306 mod/editpost.php:122
 msgid "set location"
 msgstr "aseta sijainti"
 
-#: include/conversation.php:1306 mod/editpost.php:123
+#: include/conversation.php:1307 mod/editpost.php:123
 msgid "Clear browser location"
 msgstr "Tyhjennä selaimen sijainti"
 
-#: include/conversation.php:1307 mod/editpost.php:124
+#: include/conversation.php:1308 mod/editpost.php:124
 msgid "clear location"
 msgstr "tyhjennä sijainti"
 
-#: include/conversation.php:1309 mod/editpost.php:138
+#: include/conversation.php:1310 mod/editpost.php:138
 msgid "Set title"
 msgstr "Aseta otsikko"
 
-#: include/conversation.php:1311 mod/editpost.php:140
+#: include/conversation.php:1312 mod/editpost.php:140
 msgid "Categories (comma-separated list)"
 msgstr "Luokat (pilkuilla eroteltu luettelo)"
 
-#: include/conversation.php:1313 mod/editpost.php:126
+#: include/conversation.php:1314 mod/editpost.php:126
 msgid "Permission settings"
 msgstr "Käyttöoikeusasetukset"
 
-#: include/conversation.php:1314 mod/editpost.php:155
+#: include/conversation.php:1315 mod/editpost.php:155
 msgid "permissions"
 msgstr "käyttöoikeudet"
 
-#: include/conversation.php:1322 mod/editpost.php:135
+#: include/conversation.php:1323 mod/editpost.php:135
 msgid "Public post"
 msgstr "Julkinen viesti"
 
-#: include/conversation.php:1326 mod/editpost.php:146 mod/photos.php:1492
-#: mod/photos.php:1531 mod/photos.php:1604 mod/events.php:528
+#: include/conversation.php:1327 mod/editpost.php:146 mod/events.php:529
+#: mod/photos.php:1486 mod/photos.php:1525 mod/photos.php:1598
 #: src/Object/Post.php:813
 msgid "Preview"
 msgstr "Esikatselu"
 
-#: include/conversation.php:1330 include/items.php:387 mod/fbrowser.php:103
+#: include/conversation.php:1331 include/items.php:388 mod/fbrowser.php:103
 #: mod/fbrowser.php:134 mod/suggest.php:41 mod/tagrm.php:19 mod/tagrm.php:99
-#: mod/editpost.php:149 mod/photos.php:248 mod/photos.php:324
-#: mod/videos.php:147 mod/contacts.php:475 mod/unfollow.php:117
+#: mod/editpost.php:149 mod/contacts.php:475 mod/unfollow.php:117
 #: mod/follow.php:161 mod/message.php:141 mod/dfrn_request.php:658
-#: mod/settings.php:670 mod/settings.php:696
+#: mod/photos.php:248 mod/photos.php:317 mod/settings.php:670
+#: mod/settings.php:696 mod/videos.php:147
 msgid "Cancel"
 msgstr "Peru"
 
-#: include/conversation.php:1335
+#: include/conversation.php:1336
 msgid "Post to Groups"
 msgstr "Lähetä ryhmiin"
 
-#: include/conversation.php:1336
+#: include/conversation.php:1337
 msgid "Post to Contacts"
 msgstr "Lähetä kontakteille"
 
-#: include/conversation.php:1337
+#: include/conversation.php:1338
 msgid "Private post"
 msgstr "Yksityinen julkaisu"
 
-#: include/conversation.php:1342 mod/editpost.php:153
+#: include/conversation.php:1343 mod/editpost.php:153
 #: src/Model/Profile.php:338
 msgid "Message"
 msgstr "Viesti"
 
-#: include/conversation.php:1343 mod/editpost.php:154
+#: include/conversation.php:1344 mod/editpost.php:154
 msgid "Browser"
 msgstr "Selain"
 
-#: include/conversation.php:1610
+#: include/conversation.php:1609
 msgid "View all"
 msgstr "Näytä kaikki"
 
-#: include/conversation.php:1633
+#: include/conversation.php:1632
 msgid "Like"
 msgid_plural "Likes"
 msgstr[0] "Tykkäys"
 msgstr[1] "Tykkäyksiä"
 
-#: include/conversation.php:1636
+#: include/conversation.php:1635
 msgid "Dislike"
 msgid_plural "Dislikes"
 msgstr[0] "Inhokki"
 msgstr[1] "Inhokit"
 
-#: include/conversation.php:1642
+#: include/conversation.php:1641
 msgid "Not Attending"
 msgid_plural "Not Attending"
 msgstr[0] "Ei osallistu"
 msgstr[1] "Ei osallistu"
 
-#: include/conversation.php:1645 src/Content/ContactSelector.php:125
+#: include/conversation.php:1644 src/Content/ContactSelector.php:125
 msgid "Undecided"
 msgid_plural "Undecided"
 msgstr[0] "En ole varma"
 msgstr[1] "En ole varma"
 
-#: include/items.php:342 mod/notice.php:22 mod/viewsrc.php:21
-#: mod/admin.php:277 mod/admin.php:1883 mod/admin.php:2131 mod/display.php:72
+#: include/items.php:343 mod/notice.php:22 mod/viewsrc.php:21
+#: mod/admin.php:277 mod/admin.php:1888 mod/admin.php:2136 mod/display.php:72
 #: mod/display.php:255 mod/display.php:356
 msgid "Item not found."
 msgstr "Kohdetta ei löytynyt."
 
-#: include/items.php:382
+#: include/items.php:383
 msgid "Do you really want to delete this item?"
 msgstr "Haluatko varmasti poistaa tämän kohteen?"
 
-#: include/items.php:384 mod/api.php:110 mod/suggest.php:38
+#: include/items.php:385 mod/api.php:110 mod/suggest.php:38
 #: mod/contacts.php:472 mod/follow.php:150 mod/message.php:138
 #: mod/dfrn_request.php:648 mod/profiles.php:543 mod/profiles.php:546
 #: mod/profiles.php:568 mod/register.php:238 mod/settings.php:1094
@@ -839,341 +815,360 @@ msgstr "Haluatko varmasti poistaa tämän kohteen?"
 msgid "Yes"
 msgstr "Kyllä"
 
-#: include/items.php:401 mod/allfriends.php:21 mod/api.php:35 mod/api.php:40
+#: include/items.php:402 mod/allfriends.php:21 mod/api.php:35 mod/api.php:40
 #: mod/attach.php:38 mod/common.php:26 mod/nogroup.php:28
 #: mod/repair_ostatus.php:13 mod/suggest.php:60 mod/uimport.php:28
 #: mod/manage.php:131 mod/wall_attach.php:74 mod/wall_attach.php:77
 #: mod/poke.php:150 mod/regmod.php:108 mod/viewcontacts.php:57
 #: mod/wall_upload.php:103 mod/wall_upload.php:106 mod/wallmessage.php:16
 #: mod/wallmessage.php:40 mod/wallmessage.php:79 mod/wallmessage.php:103
-#: mod/editpost.php:18 mod/fsuggest.php:80 mod/notes.php:30 mod/photos.php:174
-#: mod/photos.php:1051 mod/cal.php:304 mod/contacts.php:386
-#: mod/delegate.php:25 mod/delegate.php:43 mod/delegate.php:54
-#: mod/events.php:194 mod/ostatus_subscribe.php:16 mod/profile_photo.php:30
+#: mod/editpost.php:18 mod/fsuggest.php:80 mod/cal.php:304
+#: mod/contacts.php:386 mod/delegate.php:25 mod/delegate.php:43
+#: mod/delegate.php:54 mod/ostatus_subscribe.php:16 mod/profile_photo.php:30
 #: mod/profile_photo.php:176 mod/profile_photo.php:187
 #: mod/profile_photo.php:200 mod/unfollow.php:15 mod/unfollow.php:57
 #: mod/unfollow.php:90 mod/dirfind.php:25 mod/follow.php:17 mod/follow.php:54
-#: mod/follow.php:118 mod/invite.php:20 mod/invite.php:111 mod/network.php:32
-#: mod/crepair.php:98 mod/message.php:59 mod/message.php:104 mod/group.php:26
-#: mod/dfrn_confirm.php:68 mod/item.php:160 mod/notifications.php:73
-#: mod/profiles.php:182 mod/profiles.php:513 mod/register.php:54
-#: mod/settings.php:43 mod/settings.php:142 mod/settings.php:659 index.php:436
+#: mod/follow.php:118 mod/invite.php:20 mod/invite.php:111 mod/crepair.php:98
+#: mod/message.php:59 mod/message.php:104 mod/dfrn_confirm.php:68
+#: mod/events.php:194 mod/group.php:26 mod/item.php:160 mod/network.php:32
+#: mod/notes.php:30 mod/notifications.php:73 mod/photos.php:174
+#: mod/photos.php:1039 mod/profiles.php:182 mod/profiles.php:513
+#: mod/register.php:54 mod/settings.php:43 mod/settings.php:142
+#: mod/settings.php:659 index.php:436
 msgid "Permission denied."
 msgstr "Käyttöoikeus evätty."
 
-#: include/items.php:471 src/Content/Feature.php:96
+#: include/items.php:472 src/Content/Feature.php:96
 msgid "Archives"
 msgstr "Arkisto"
 
-#: include/items.php:477 view/theme/vier/theme.php:258
+#: include/items.php:478 view/theme/vier/theme.php:258
 #: src/Content/ForumManager.php:130 src/Content/Widget.php:317
-#: src/Object/Post.php:438 src/App.php:525
+#: src/Object/Post.php:438 src/App.php:527
 msgid "show more"
 msgstr "näytä lisää"
 
-#: include/text.php:303
+#: include/security.php:81
+msgid "Welcome "
+msgstr "Tervetuloa"
+
+#: include/security.php:82
+msgid "Please upload a profile photo."
+msgstr "Lataa profiilikuva."
+
+#: include/security.php:84
+msgid "Welcome back "
+msgstr "Tervetuloa takaisin"
+
+#: include/security.php:449
+msgid ""
+"The form security token was not correct. This probably happened because the "
+"form has been opened for too long (>3 hours) before submitting it."
+msgstr "Lomakkeen turvallisuusavain oli väärin. Tämä voi johtua siitä, että lomake on ollut avoinna liian kauan (>3 tuntia) ennen sen lähettämistä."
+
+#: include/text.php:302
 msgid "newer"
 msgstr "uudempi"
 
-#: include/text.php:304
+#: include/text.php:303
 msgid "older"
 msgstr "vanhempi"
 
-#: include/text.php:309
+#: include/text.php:308
 msgid "first"
 msgstr "ensimmäinen"
 
-#: include/text.php:310
+#: include/text.php:309
 msgid "prev"
 msgstr "edellinen"
 
-#: include/text.php:344
+#: include/text.php:343
 msgid "next"
 msgstr "seuraava"
 
-#: include/text.php:345
+#: include/text.php:344
 msgid "last"
 msgstr "viimeinen"
 
-#: include/text.php:399
+#: include/text.php:398
 msgid "Loading more entries..."
 msgstr "Merkinnät ladataan..."
 
-#: include/text.php:400
+#: include/text.php:399
 msgid "The end"
 msgstr "Loppu"
 
-#: include/text.php:885
+#: include/text.php:884
 msgid "No contacts"
 msgstr "Ei kontakteja"
 
-#: include/text.php:909
+#: include/text.php:908
 #, php-format
 msgid "%d Contact"
 msgid_plural "%d Contacts"
 msgstr[0] "%d kontakti"
 msgstr[1] "%d kontakteja"
 
-#: include/text.php:922
+#: include/text.php:921
 msgid "View Contacts"
 msgstr "Näytä kontaktit"
 
-#: include/text.php:1011 mod/filer.php:35 mod/editpost.php:110
+#: include/text.php:1010 mod/filer.php:35 mod/editpost.php:110
 #: mod/notes.php:67
 msgid "Save"
 msgstr "Tallenna"
 
-#: include/text.php:1011
+#: include/text.php:1010
 msgid "Follow"
 msgstr "Seuraa"
 
-#: include/text.php:1017 mod/search.php:155 src/Content/Nav.php:142
+#: include/text.php:1016 mod/search.php:155 src/Content/Nav.php:142
 msgid "Search"
 msgstr "Haku"
 
-#: include/text.php:1020 src/Content/Nav.php:58
+#: include/text.php:1019 src/Content/Nav.php:58
 msgid "@name, !forum, #tags, content"
 msgstr "@nimi, !foorumi, #tunnisteet, sisältö"
 
-#: include/text.php:1026 src/Content/Nav.php:145
+#: include/text.php:1025 src/Content/Nav.php:145
 msgid "Full Text"
 msgstr "Koko teksti"
 
-#: include/text.php:1027 src/Content/Widget/TagCloud.php:54
+#: include/text.php:1026 src/Content/Widget/TagCloud.php:54
 #: src/Content/Nav.php:146
 msgid "Tags"
 msgstr "Tunnisteet"
 
-#: include/text.php:1028 mod/viewcontacts.php:131 mod/contacts.php:814
+#: include/text.php:1027 mod/viewcontacts.php:131 mod/contacts.php:814
 #: mod/contacts.php:875 view/theme/frio/theme.php:270 src/Content/Nav.php:147
 #: src/Content/Nav.php:213 src/Model/Profile.php:955 src/Model/Profile.php:958
 msgid "Contacts"
 msgstr "Yhteystiedot"
 
-#: include/text.php:1031 view/theme/vier/theme.php:253
+#: include/text.php:1030 view/theme/vier/theme.php:253
 #: src/Content/ForumManager.php:125 src/Content/Nav.php:151
 msgid "Forums"
 msgstr "Foorumit"
 
-#: include/text.php:1075
+#: include/text.php:1074
 msgid "poke"
 msgstr "töki"
 
-#: include/text.php:1075
+#: include/text.php:1074
 msgid "poked"
 msgstr "tökkäsi"
 
-#: include/text.php:1076
+#: include/text.php:1075
 msgid "ping"
 msgstr "pingaa"
 
-#: include/text.php:1076
+#: include/text.php:1075
 msgid "pinged"
 msgstr "pingasi"
 
-#: include/text.php:1077
+#: include/text.php:1076
 msgid "prod"
 msgstr "töki"
 
-#: include/text.php:1077
+#: include/text.php:1076
 msgid "prodded"
 msgstr "tökkäsi"
 
-#: include/text.php:1078
+#: include/text.php:1077
 msgid "slap"
 msgstr "läimäytä"
 
-#: include/text.php:1078
+#: include/text.php:1077
 msgid "slapped"
 msgstr "läimäsi"
 
-#: include/text.php:1079
+#: include/text.php:1078
 msgid "finger"
 msgstr "näytä keskisormea"
 
-#: include/text.php:1079
+#: include/text.php:1078
 msgid "fingered"
 msgstr "näytti keskisormea"
 
-#: include/text.php:1080
+#: include/text.php:1079
 msgid "rebuff"
 msgstr "torju"
 
-#: include/text.php:1080
+#: include/text.php:1079
 msgid "rebuffed"
 msgstr "torjui"
 
-#: include/text.php:1094 mod/settings.php:935 src/Model/Event.php:379
+#: include/text.php:1093 mod/settings.php:935 src/Model/Event.php:379
 msgid "Monday"
 msgstr "Maanantai"
 
-#: include/text.php:1094 src/Model/Event.php:380
+#: include/text.php:1093 src/Model/Event.php:380
 msgid "Tuesday"
 msgstr "Tiistai"
 
-#: include/text.php:1094 src/Model/Event.php:381
+#: include/text.php:1093 src/Model/Event.php:381
 msgid "Wednesday"
 msgstr "Keskiviikko"
 
-#: include/text.php:1094 src/Model/Event.php:382
+#: include/text.php:1093 src/Model/Event.php:382
 msgid "Thursday"
 msgstr "Torstai"
 
-#: include/text.php:1094 src/Model/Event.php:383
+#: include/text.php:1093 src/Model/Event.php:383
 msgid "Friday"
 msgstr "Perjantai"
 
-#: include/text.php:1094 src/Model/Event.php:384
+#: include/text.php:1093 src/Model/Event.php:384
 msgid "Saturday"
 msgstr "Lauantai"
 
-#: include/text.php:1094 mod/settings.php:935 src/Model/Event.php:378
+#: include/text.php:1093 mod/settings.php:935 src/Model/Event.php:378
 msgid "Sunday"
 msgstr "Sunnuntai"
 
-#: include/text.php:1098 src/Model/Event.php:399
+#: include/text.php:1097 src/Model/Event.php:399
 msgid "January"
 msgstr "Tammikuu"
 
-#: include/text.php:1098 src/Model/Event.php:400
+#: include/text.php:1097 src/Model/Event.php:400
 msgid "February"
 msgstr "Helmikuu"
 
-#: include/text.php:1098 src/Model/Event.php:401
+#: include/text.php:1097 src/Model/Event.php:401
 msgid "March"
 msgstr "Maaliskuu"
 
-#: include/text.php:1098 src/Model/Event.php:402
+#: include/text.php:1097 src/Model/Event.php:402
 msgid "April"
 msgstr "Huhtikuu"
 
-#: include/text.php:1098 include/text.php:1115 src/Model/Event.php:390
+#: include/text.php:1097 include/text.php:1114 src/Model/Event.php:390
 #: src/Model/Event.php:403
 msgid "May"
 msgstr "Toukokuu"
 
-#: include/text.php:1098 src/Model/Event.php:404
+#: include/text.php:1097 src/Model/Event.php:404
 msgid "June"
 msgstr "Kesäkuu"
 
-#: include/text.php:1098 src/Model/Event.php:405
+#: include/text.php:1097 src/Model/Event.php:405
 msgid "July"
 msgstr "Heinäkuu"
 
-#: include/text.php:1098 src/Model/Event.php:406
+#: include/text.php:1097 src/Model/Event.php:406
 msgid "August"
 msgstr "Elokuu"
 
-#: include/text.php:1098 src/Model/Event.php:407
+#: include/text.php:1097 src/Model/Event.php:407
 msgid "September"
 msgstr "Syyskuu"
 
-#: include/text.php:1098 src/Model/Event.php:408
+#: include/text.php:1097 src/Model/Event.php:408
 msgid "October"
 msgstr "Lokakuu"
 
-#: include/text.php:1098 src/Model/Event.php:409
+#: include/text.php:1097 src/Model/Event.php:409
 msgid "November"
 msgstr "Marraskuu"
 
-#: include/text.php:1098 src/Model/Event.php:410
+#: include/text.php:1097 src/Model/Event.php:410
 msgid "December"
 msgstr "Joulukuu"
 
-#: include/text.php:1112 src/Model/Event.php:371
+#: include/text.php:1111 src/Model/Event.php:371
 msgid "Mon"
 msgstr "Ma"
 
-#: include/text.php:1112 src/Model/Event.php:372
+#: include/text.php:1111 src/Model/Event.php:372
 msgid "Tue"
 msgstr "Ti"
 
-#: include/text.php:1112 src/Model/Event.php:373
+#: include/text.php:1111 src/Model/Event.php:373
 msgid "Wed"
 msgstr "Ke"
 
-#: include/text.php:1112 src/Model/Event.php:374
+#: include/text.php:1111 src/Model/Event.php:374
 msgid "Thu"
 msgstr "To"
 
-#: include/text.php:1112 src/Model/Event.php:375
+#: include/text.php:1111 src/Model/Event.php:375
 msgid "Fri"
 msgstr "Pe"
 
-#: include/text.php:1112 src/Model/Event.php:376
+#: include/text.php:1111 src/Model/Event.php:376
 msgid "Sat"
 msgstr "La"
 
-#: include/text.php:1112 src/Model/Event.php:370
+#: include/text.php:1111 src/Model/Event.php:370
 msgid "Sun"
 msgstr "Su"
 
-#: include/text.php:1115 src/Model/Event.php:386
+#: include/text.php:1114 src/Model/Event.php:386
 msgid "Jan"
 msgstr "Tam."
 
-#: include/text.php:1115 src/Model/Event.php:387
+#: include/text.php:1114 src/Model/Event.php:387
 msgid "Feb"
 msgstr "Hel."
 
-#: include/text.php:1115 src/Model/Event.php:388
+#: include/text.php:1114 src/Model/Event.php:388
 msgid "Mar"
 msgstr "Maa."
 
-#: include/text.php:1115 src/Model/Event.php:389
+#: include/text.php:1114 src/Model/Event.php:389
 msgid "Apr"
 msgstr "Huh."
 
-#: include/text.php:1115 src/Model/Event.php:392
+#: include/text.php:1114 src/Model/Event.php:392
 msgid "Jul"
 msgstr "Tou."
 
-#: include/text.php:1115 src/Model/Event.php:393
+#: include/text.php:1114 src/Model/Event.php:393
 msgid "Aug"
 msgstr "Elo."
 
-#: include/text.php:1115
+#: include/text.php:1114
 msgid "Sep"
 msgstr "Syy."
 
-#: include/text.php:1115 src/Model/Event.php:395
+#: include/text.php:1114 src/Model/Event.php:395
 msgid "Oct"
 msgstr "Lok."
 
-#: include/text.php:1115 src/Model/Event.php:396
+#: include/text.php:1114 src/Model/Event.php:396
 msgid "Nov"
 msgstr "Mar."
 
-#: include/text.php:1115 src/Model/Event.php:397
+#: include/text.php:1114 src/Model/Event.php:397
 msgid "Dec"
 msgstr "Jou."
 
-#: include/text.php:1255
+#: include/text.php:1254
 #, php-format
 msgid "Content warning: %s"
 msgstr "Sisältövaroitus: %s"
 
-#: include/text.php:1325 mod/videos.php:380
+#: include/text.php:1324 mod/videos.php:380
 msgid "View Video"
 msgstr "Katso video"
 
-#: include/text.php:1342
+#: include/text.php:1341
 msgid "bytes"
 msgstr "tavua"
 
-#: include/text.php:1375 include/text.php:1386 include/text.php:1419
+#: include/text.php:1374 include/text.php:1385 include/text.php:1418
 msgid "Click to open/close"
 msgstr "Klikkaa auki/kiinni"
 
-#: include/text.php:1534
+#: include/text.php:1533
 msgid "View on separate page"
 msgstr "Katso erillisellä sivulla"
 
-#: include/text.php:1535
+#: include/text.php:1534
 msgid "view on separate page"
 msgstr "katso erillisellä sivulla"
 
-#: include/text.php:1540 include/text.php:1547 src/Model/Event.php:594
+#: include/text.php:1539 include/text.php:1546 src/Model/Event.php:594
 msgid "link to source"
 msgstr "linkki lähteeseen"
 
@@ -1191,7 +1186,7 @@ msgstr[1] "kommentoi"
 msgid "post"
 msgstr "julkaisu"
 
-#: include/text.php:1915
+#: include/text.php:1916
 msgid "Item filed"
 msgstr "Kohde arkistoitu"
 
@@ -1277,8 +1272,8 @@ msgid "Photos"
 msgstr "Kuvat"
 
 #: mod/fbrowser.php:43 mod/fbrowser.php:68 mod/photos.php:194
-#: mod/photos.php:1062 mod/photos.php:1149 mod/photos.php:1166
-#: mod/photos.php:1659 mod/photos.php:1673 src/Model/Photo.php:244
+#: mod/photos.php:1050 mod/photos.php:1137 mod/photos.php:1154
+#: mod/photos.php:1653 mod/photos.php:1667 src/Model/Photo.php:244
 #: src/Model/Photo.php:253
 msgid "Contact Photos"
 msgstr "Kontaktin valokuvat"
@@ -1348,7 +1343,7 @@ msgid ""
 " join."
 msgstr ""
 
-#: mod/newmember.php:19 mod/admin.php:1935 mod/admin.php:2204
+#: mod/newmember.php:19 mod/admin.php:1940 mod/admin.php:2210
 #: mod/settings.php:124 view/theme/frio/theme.php:269 src/Content/Nav.php:207
 msgid "Settings"
 msgstr "Asetukset"
@@ -1522,7 +1517,7 @@ msgstr "Ei laajennettu"
 
 #: mod/repair_ostatus.php:18
 msgid "Resubscribing to OStatus contacts"
-msgstr ""
+msgstr "OStatus -kontaktien uudelleentilaus"
 
 #: mod/repair_ostatus.php:34
 msgid "Error"
@@ -1553,11 +1548,6 @@ msgstr "Jätä huomiotta/piilota"
 #: mod/suggest.php:114 view/theme/vier/theme.php:204 src/Content/Widget.php:64
 msgid "Friend Suggestions"
 msgstr "Ystäväehdotukset"
-
-#: mod/update_community.php:27 mod/update_display.php:27
-#: mod/update_notes.php:40 mod/update_profile.php:39 mod/update_network.php:33
-msgid "[Embedded content - reload page to view]"
-msgstr "[Upotettu sisältö - näet sen päivittämällä sivun]"
 
 #: mod/uimport.php:55 mod/register.php:192
 msgid ""
@@ -1631,11 +1621,11 @@ msgid "Select an identity to manage: "
 msgstr "Valitse identiteetti hallitavaksi:"
 
 #: mod/manage.php:184 mod/localtime.php:56 mod/poke.php:199
-#: mod/fsuggest.php:114 mod/photos.php:1080 mod/photos.php:1160
-#: mod/photos.php:1445 mod/photos.php:1491 mod/photos.php:1530
-#: mod/photos.php:1603 mod/contacts.php:610 mod/events.php:530
-#: mod/invite.php:154 mod/crepair.php:148 mod/install.php:198
-#: mod/install.php:237 mod/message.php:246 mod/message.php:413
+#: mod/fsuggest.php:114 mod/contacts.php:610 mod/invite.php:154
+#: mod/crepair.php:148 mod/install.php:198 mod/install.php:237
+#: mod/message.php:246 mod/message.php:413 mod/events.php:531
+#: mod/photos.php:1068 mod/photos.php:1148 mod/photos.php:1439
+#: mod/photos.php:1485 mod/photos.php:1524 mod/photos.php:1597
 #: mod/profiles.php:579 view/theme/duepuntozero/config.php:71
 #: view/theme/frio/config.php:118 view/theme/quattro/config.php:73
 #: view/theme/vier/config.php:119 src/Object/Post.php:804
@@ -1671,7 +1661,7 @@ msgstr "- valitse -"
 
 #: mod/localtime.php:19 src/Model/Event.php:36 src/Model/Event.php:814
 msgid "l F d, Y \\@ g:i A"
-msgstr ""
+msgstr "l j.n.Y \\@ H:i"
 
 #: mod/localtime.php:33
 msgid "Time Conversion"
@@ -1742,10 +1732,10 @@ msgstr "Valitse mitä haluat tehdä vastaanottajalle"
 msgid "Make this post private"
 msgstr "Muuta julkaisu yksityiseksi"
 
-#: mod/probe.php:13 mod/search.php:98 mod/search.php:104
-#: mod/viewcontacts.php:45 mod/webfinger.php:16 mod/photos.php:932
-#: mod/videos.php:199 mod/directory.php:42 mod/community.php:27
-#: mod/dfrn_request.php:602 mod/display.php:203
+#: mod/probe.php:13 mod/viewcontacts.php:45 mod/webfinger.php:16
+#: mod/directory.php:42 mod/community.php:27 mod/dfrn_request.php:602
+#: mod/display.php:203 mod/photos.php:920 mod/search.php:98 mod/search.php:104
+#: mod/videos.php:199
 msgid "Public access denied."
 msgstr "Julkinen käyttö estetty."
 
@@ -1789,45 +1779,6 @@ msgstr ""
 #: mod/regmod.php:102
 msgid "Please login."
 msgstr "Ole hyvä ja kirjaudu."
-
-#: mod/search.php:37 mod/network.php:194
-msgid "Remove term"
-msgstr "Poista kohde"
-
-#: mod/search.php:46 mod/network.php:201 src/Content/Feature.php:100
-msgid "Saved Searches"
-msgstr "Tallennetut haut"
-
-#: mod/search.php:105
-msgid "Only logged in users are permitted to perform a search."
-msgstr ""
-
-#: mod/search.php:129
-msgid "Too Many Requests"
-msgstr "Liian monta pyyntöä"
-
-#: mod/search.php:130
-msgid "Only one search per minute is permitted for not logged in users."
-msgstr ""
-
-#: mod/search.php:228 mod/community.php:141
-msgid "No results."
-msgstr "Ei tuloksia."
-
-#: mod/search.php:234
-#, php-format
-msgid "Items tagged with: %s"
-msgstr "Kohteet joilla tunnisteet: %s"
-
-#: mod/search.php:236 mod/contacts.php:819
-#, php-format
-msgid "Results for: %s"
-msgstr "Tulokset haulla: %s"
-
-#: mod/subthread.php:113
-#, php-format
-msgid "%1$s is following %2$s's %3$s"
-msgstr ""
 
 #: mod/tagrm.php:47
 msgid "Tag removed"
@@ -1878,13 +1829,13 @@ msgstr "Ei kontakteja."
 msgid "Access denied."
 msgstr "Käyttö estetty."
 
-#: mod/wall_upload.php:186 mod/photos.php:763 mod/photos.php:766
-#: mod/photos.php:795 mod/profile_photo.php:153
+#: mod/wall_upload.php:186 mod/profile_photo.php:153 mod/photos.php:751
+#: mod/photos.php:754 mod/photos.php:783
 #, php-format
 msgid "Image exceeds size limit of %s"
 msgstr "Kuva ylittää kokorajoituksen %s"
 
-#: mod/wall_upload.php:200 mod/photos.php:818 mod/profile_photo.php:162
+#: mod/wall_upload.php:200 mod/profile_photo.php:162 mod/photos.php:806
 msgid "Unable to process image."
 msgstr "Kuvan käsitteleminen epäonnistui."
 
@@ -1893,7 +1844,7 @@ msgstr "Kuvan käsitteleminen epäonnistui."
 msgid "Wall Photos"
 msgstr "Seinäkuvat"
 
-#: mod/wall_upload.php:239 mod/photos.php:847 mod/profile_photo.php:307
+#: mod/wall_upload.php:239 mod/profile_photo.php:307 mod/photos.php:835
 msgid "Image upload failed."
 msgstr "Kuvan lähettäminen epäonnistui."
 
@@ -1992,241 +1943,6 @@ msgstr "Ehdota ystäviä"
 msgid "Suggest a friend for %s"
 msgstr "Ehdota ystävää ystävälle %s"
 
-#: mod/notes.php:52 src/Model/Profile.php:944
-msgid "Personal Notes"
-msgstr "Henkilökohtaiset tiedot"
-
-#: mod/photos.php:108 src/Model/Profile.php:905
-msgid "Photo Albums"
-msgstr "Valokuva-albumit"
-
-#: mod/photos.php:109 mod/photos.php:1713
-msgid "Recent Photos"
-msgstr "Viimeaikaisia kuvia"
-
-#: mod/photos.php:112 mod/photos.php:1210 mod/photos.php:1715
-msgid "Upload New Photos"
-msgstr "Lähetä uusia kuvia"
-
-#: mod/photos.php:126 mod/settings.php:51
-msgid "everybody"
-msgstr "kaikki"
-
-#: mod/photos.php:184
-msgid "Contact information unavailable"
-msgstr "Kontaktin tietoja ei saatavilla"
-
-#: mod/photos.php:204
-msgid "Album not found."
-msgstr "Albumia ei ole."
-
-#: mod/photos.php:234 mod/photos.php:245 mod/photos.php:1161
-msgid "Delete Album"
-msgstr "Poista albumi"
-
-#: mod/photos.php:243
-msgid "Do you really want to delete this photo album and all its photos?"
-msgstr "Haluatko varmasti poistaa tämän albumin ja kaikki sen kuvat?"
-
-#: mod/photos.php:310 mod/photos.php:321 mod/photos.php:1446
-msgid "Delete Photo"
-msgstr "Poista valokuva"
-
-#: mod/photos.php:319
-msgid "Do you really want to delete this photo?"
-msgstr "Haluatko varmasti poistaa kuvan?"
-
-#: mod/photos.php:667
-msgid "a photo"
-msgstr "valokuva"
-
-#: mod/photos.php:667
-#, php-format
-msgid "%1$s was tagged in %2$s by %3$s"
-msgstr "%1$s merkattiin kuvaan %2$s ystävän %3$s toimesta"
-
-#: mod/photos.php:769
-msgid "Image upload didn't complete, please try again"
-msgstr "Kuvan lataus ei onnistunut, yritä uudelleen"
-
-#: mod/photos.php:772
-msgid "Image file is missing"
-msgstr "Kuvatiedosto puuttuu"
-
-#: mod/photos.php:777
-msgid ""
-"Server can't accept new file upload at this time, please contact your "
-"administrator"
-msgstr ""
-
-#: mod/photos.php:803
-msgid "Image file is empty."
-msgstr "Kuvatiedosto on tyhjä."
-
-#: mod/photos.php:940
-msgid "No photos selected"
-msgstr "Ei valittuja kuvia"
-
-#: mod/photos.php:1036 mod/videos.php:309
-msgid "Access to this item is restricted."
-msgstr "Pääsy kohteeseen on rajoitettu."
-
-#: mod/photos.php:1090
-msgid "Upload Photos"
-msgstr "Lähetä kuvia"
-
-#: mod/photos.php:1094 mod/photos.php:1156
-msgid "New album name: "
-msgstr "Albumin uusi nimi: "
-
-#: mod/photos.php:1095
-msgid "or existing album name: "
-msgstr "tai olemassaolevan albumin nimi: "
-
-#: mod/photos.php:1096
-msgid "Do not show a status post for this upload"
-msgstr "Älä näytä tilaviestiä tälle lähetykselle"
-
-#: mod/photos.php:1098 mod/photos.php:1441 mod/events.php:533
-#: src/Core/ACL.php:318
-msgid "Permissions"
-msgstr "Käyttöoikeudet"
-
-#: mod/photos.php:1106 mod/photos.php:1449 mod/settings.php:1218
-msgid "Show to Groups"
-msgstr "Näytä ryhmille"
-
-#: mod/photos.php:1107 mod/photos.php:1450 mod/settings.php:1219
-msgid "Show to Contacts"
-msgstr "Näytä kontakteille"
-
-#: mod/photos.php:1167
-msgid "Edit Album"
-msgstr "Muokkaa albumia"
-
-#: mod/photos.php:1172
-msgid "Show Newest First"
-msgstr "Näytä uusin ensin"
-
-#: mod/photos.php:1174
-msgid "Show Oldest First"
-msgstr "Näytä vanhin ensin"
-
-#: mod/photos.php:1195 mod/photos.php:1698
-msgid "View Photo"
-msgstr "Näytä kuva"
-
-#: mod/photos.php:1236
-msgid "Permission denied. Access to this item may be restricted."
-msgstr "Estetty. Tämän kohteen käyttöä on saatettu rajoittaa."
-
-#: mod/photos.php:1238
-msgid "Photo not available"
-msgstr "Kuva ei ole saatavilla"
-
-#: mod/photos.php:1301
-msgid "View photo"
-msgstr "Näytä kuva"
-
-#: mod/photos.php:1301
-msgid "Edit photo"
-msgstr "Muokkaa kuvaa"
-
-#: mod/photos.php:1302
-msgid "Use as profile photo"
-msgstr "Käytä profiilikuvana"
-
-#: mod/photos.php:1308 src/Object/Post.php:149
-msgid "Private Message"
-msgstr "Yksityisviesti"
-
-#: mod/photos.php:1327
-msgid "View Full Size"
-msgstr "Näytä täysikokoisena"
-
-#: mod/photos.php:1414
-msgid "Tags: "
-msgstr "Merkinnät:"
-
-#: mod/photos.php:1417
-msgid "[Remove any tag]"
-msgstr "[Poista mikä tahansa merkintä]"
-
-#: mod/photos.php:1432
-msgid "New album name"
-msgstr "Uusi nimi albumille"
-
-#: mod/photos.php:1433
-msgid "Caption"
-msgstr "Kuvateksti"
-
-#: mod/photos.php:1434
-msgid "Add a Tag"
-msgstr "Lisää merkintä"
-
-#: mod/photos.php:1434
-msgid ""
-"Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
-msgstr "Esimerkki: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
-
-#: mod/photos.php:1435
-msgid "Do not rotate"
-msgstr "Älä kierrä"
-
-#: mod/photos.php:1436
-msgid "Rotate CW (right)"
-msgstr "Käännä oikealle"
-
-#: mod/photos.php:1437
-msgid "Rotate CCW (left)"
-msgstr "Käännä vasemmalle"
-
-#: mod/photos.php:1471 src/Object/Post.php:304
-msgid "I like this (toggle)"
-msgstr "Tykkään tästä (vaihda)"
-
-#: mod/photos.php:1472 src/Object/Post.php:305
-msgid "I don't like this (toggle)"
-msgstr "En tykkää tästä (vaihda)"
-
-#: mod/photos.php:1488 mod/photos.php:1527 mod/photos.php:1600
-#: mod/contacts.php:953 src/Object/Post.php:801
-msgid "This is you"
-msgstr "Tämä olet sinä"
-
-#: mod/photos.php:1490 mod/photos.php:1529 mod/photos.php:1602
-#: src/Object/Post.php:407 src/Object/Post.php:803
-msgid "Comment"
-msgstr "Kommentti"
-
-#: mod/photos.php:1634
-msgid "Map"
-msgstr "Kartta"
-
-#: mod/photos.php:1704 mod/videos.php:387
-msgid "View Album"
-msgstr "Näytä albumi"
-
-#: mod/videos.php:139
-msgid "Do you really want to delete this video?"
-msgstr "Haluatko varmasti poistaa tämän videon?"
-
-#: mod/videos.php:144
-msgid "Delete Video"
-msgstr "Poista video"
-
-#: mod/videos.php:207
-msgid "No videos selected"
-msgstr "Ei videoita valittuna"
-
-#: mod/videos.php:396
-msgid "Recent Videos"
-msgstr "Viimeisimmät videot"
-
-#: mod/videos.php:398
-msgid "Upload New Videos"
-msgstr "Lataa uusia videoita"
-
 #: mod/cal.php:142 mod/display.php:316 mod/profile.php:174
 msgid "Access to this profile has been restricted."
 msgstr "Pääsy tähän profiiliin on rajoitettu"
@@ -2245,7 +1961,7 @@ msgstr "Katso"
 msgid "Previous"
 msgstr "Edellinen"
 
-#: mod/cal.php:277 mod/events.php:395 mod/install.php:156
+#: mod/cal.php:277 mod/install.php:156 mod/events.php:395
 msgid "Next"
 msgstr "Seuraava"
 
@@ -2406,8 +2122,8 @@ msgid ""
 "are taken from the meta header in the feed item and are posted as hash tags."
 msgstr ""
 
-#: mod/contacts.php:572 mod/admin.php:1288 mod/admin.php:1450
-#: mod/admin.php:1460
+#: mod/contacts.php:572 mod/admin.php:1284 mod/admin.php:1449
+#: mod/admin.php:1459
 msgid "Disabled"
 msgstr "Pois käytöstä"
 
@@ -2483,12 +2199,12 @@ msgid "Update now"
 msgstr "Päivitä nyt"
 
 #: mod/contacts.php:637 mod/contacts.php:827 mod/contacts.php:1011
-#: mod/admin.php:489 mod/admin.php:1829
+#: mod/admin.php:489 mod/admin.php:1834
 msgid "Unblock"
 msgstr "Salli"
 
 #: mod/contacts.php:637 mod/contacts.php:827 mod/contacts.php:1011
-#: mod/admin.php:488 mod/admin.php:1828
+#: mod/admin.php:488 mod/admin.php:1833
 msgid "Block"
 msgstr "Estä"
 
@@ -2550,7 +2266,7 @@ msgstr ""
 msgid "Profile URL"
 msgstr "Profiilin URL"
 
-#: mod/contacts.php:660 mod/events.php:518 mod/directory.php:148
+#: mod/contacts.php:660 mod/directory.php:148 mod/events.php:519
 #: mod/notifications.php:246 src/Model/Event.php:60 src/Model/Event.php:85
 #: src/Model/Event.php:421 src/Model/Event.php:900 src/Model/Profile.php:413
 msgid "Location:"
@@ -2643,6 +2359,11 @@ msgstr "Näytä vain piilotetut henkilöt"
 msgid "Search your contacts"
 msgstr "Etsi henkilöitä"
 
+#: mod/contacts.php:819 mod/search.php:236
+#, php-format
+msgid "Results for: %s"
+msgstr "Tulokset haulla: %s"
+
 #: mod/contacts.php:820 mod/directory.php:209 view/theme/vier/theme.php:203
 #: src/Content/Widget.php:63
 msgid "Find"
@@ -2681,7 +2402,7 @@ msgstr "Näytä kaikki kontaktit"
 msgid "View all common friends"
 msgstr "Näytä kaikki yhteiset kaverit"
 
-#: mod/contacts.php:895 mod/events.php:532 mod/admin.php:1363
+#: mod/contacts.php:895 mod/admin.php:1362 mod/events.php:533
 #: src/Model/Profile.php:863
 msgid "Advanced"
 msgstr ""
@@ -2701,6 +2422,11 @@ msgstr "on fanisi"
 #: mod/contacts.php:938
 msgid "you are a fan of"
 msgstr "fanitat"
+
+#: mod/contacts.php:953 mod/photos.php:1482 mod/photos.php:1521
+#: mod/photos.php:1594 src/Object/Post.php:801
+msgid "This is you"
+msgstr "Tämä olet sinä"
 
 #: mod/contacts.php:1013
 msgid "Toggle Blocked status"
@@ -2745,8 +2471,8 @@ msgid ""
 "settings. Please double check whom you give this access."
 msgstr ""
 
-#: mod/delegate.php:168 mod/admin.php:311 mod/admin.php:1358
-#: mod/admin.php:1994 mod/admin.php:2247 mod/admin.php:2321 mod/admin.php:2468
+#: mod/delegate.php:168 mod/admin.php:311 mod/admin.php:1357
+#: mod/admin.php:1999 mod/admin.php:2253 mod/admin.php:2327 mod/admin.php:2474
 #: mod/settings.php:669 mod/settings.php:776 mod/settings.php:864
 #: mod/settings.php:953 mod/settings.php:1183
 msgid "Save Settings"
@@ -2782,70 +2508,6 @@ msgstr "Lisää"
 #: mod/delegate.php:179
 msgid "No entries."
 msgstr "Ei kohteita."
-
-#: mod/events.php:105 mod/events.php:107
-msgid "Event can not end before it has started."
-msgstr "Tapahtuma ei voi päättyä ennen kuin on alkanut."
-
-#: mod/events.php:114 mod/events.php:116
-msgid "Event title and start time are required."
-msgstr "Tapahtuman nimi ja alkamisaika vaaditaan."
-
-#: mod/events.php:393
-msgid "Create New Event"
-msgstr "Luo uusi tapahtuma"
-
-#: mod/events.php:506
-msgid "Event details"
-msgstr "Tapahtuman tiedot"
-
-#: mod/events.php:507
-msgid "Starting date and Title are required."
-msgstr "Aloituspvm ja otsikko vaaditaan."
-
-#: mod/events.php:508 mod/events.php:509
-msgid "Event Starts:"
-msgstr "Tapahtuma alkaa:"
-
-#: mod/events.php:508 mod/events.php:520 mod/profiles.php:607
-msgid "Required"
-msgstr "Vaaditaan"
-
-#: mod/events.php:510 mod/events.php:526
-msgid "Finish date/time is not known or not relevant"
-msgstr "Päättymispvm ja kellonaika ei ole tiedossa tai niillä ei ole merkitystä"
-
-#: mod/events.php:512 mod/events.php:513
-msgid "Event Finishes:"
-msgstr "Tapahtuma päättyy:"
-
-#: mod/events.php:514 mod/events.php:527
-msgid "Adjust for viewer timezone"
-msgstr "Ota huomioon katsojan aikavyöhyke"
-
-#: mod/events.php:516
-msgid "Description:"
-msgstr "Kuvaus:"
-
-#: mod/events.php:520 mod/events.php:522
-msgid "Title:"
-msgstr "Otsikko:"
-
-#: mod/events.php:523 mod/events.php:524
-msgid "Share this event"
-msgstr "Jaa tämä tapahtuma"
-
-#: mod/events.php:531 src/Model/Profile.php:862
-msgid "Basic"
-msgstr ""
-
-#: mod/events.php:552
-msgid "Failed to remove event"
-msgstr "Tapahtuman poisto epäonnistui"
-
-#: mod/events.php:554
-msgid "Event removed"
-msgstr "Tapahtuma poistettu"
 
 #: mod/feedtest.php:20
 msgid "You must be logged in to use this module"
@@ -3250,36 +2912,6 @@ msgstr "Markdown"
 msgid "HTML"
 msgstr "HTML"
 
-#: mod/community.php:51
-msgid "Community option not available."
-msgstr "Yhteisö vaihtoehto ei saatavilla."
-
-#: mod/community.php:68
-msgid "Not available."
-msgstr "Ei saatavilla."
-
-#: mod/community.php:81
-msgid "Local Community"
-msgstr "Paikallinen yhteisö"
-
-#: mod/community.php:84
-msgid "Posts from local users on this server"
-msgstr "Tämän palvelimen julkaisut"
-
-#: mod/community.php:92
-msgid "Global Community"
-msgstr "Maailmanlaajuinen yhteisö"
-
-#: mod/community.php:95
-msgid "Posts from users of the whole federated network"
-msgstr "Maailmanlaajuisen verkon julkaisut"
-
-#: mod/community.php:185
-msgid ""
-"This community stream shows all public posts received by this node. They may"
-" not reflect the opinions of this node’s users."
-msgstr ""
-
 #: mod/friendica.php:77
 msgid "This is Friendica, version"
 msgstr "Tämä on Friendica, versio"
@@ -3436,95 +3068,6 @@ msgid ""
 "important, please visit http://friendi.ca"
 msgstr ""
 
-#: mod/network.php:202 src/Model/Group.php:413
-msgid "add"
-msgstr "lisää"
-
-#: mod/network.php:547
-#, php-format
-msgid ""
-"Warning: This group contains %s member from a network that doesn't allow non"
-" public messages."
-msgid_plural ""
-"Warning: This group contains %s members from a network that doesn't allow "
-"non public messages."
-msgstr[0] ""
-msgstr[1] ""
-
-#: mod/network.php:550
-msgid "Messages in this group won't be send to these receivers."
-msgstr ""
-
-#: mod/network.php:618
-msgid "No such group"
-msgstr "Ryhmä ei ole olemassa"
-
-#: mod/network.php:639 mod/group.php:216
-msgid "Group is empty"
-msgstr "Ryhmä on tyhjä"
-
-#: mod/network.php:643
-#, php-format
-msgid "Group: %s"
-msgstr "Ryhmä: %s"
-
-#: mod/network.php:669
-msgid "Private messages to this person are at risk of public disclosure."
-msgstr "Yksityisviestit lähetetty tälle henkilölle saattaa näkyä muillekin."
-
-#: mod/network.php:672
-msgid "Invalid contact."
-msgstr "Virheellinen kontakti."
-
-#: mod/network.php:937
-msgid "Commented Order"
-msgstr "Järjestä viimeisimpien kommenttien mukaan"
-
-#: mod/network.php:940
-msgid "Sort by Comment Date"
-msgstr "Kommentit päivämäärän mukaan"
-
-#: mod/network.php:945
-msgid "Posted Order"
-msgstr "Järjestä julkaisupäivämäärän mukaan"
-
-#: mod/network.php:948
-msgid "Sort by Post Date"
-msgstr "Julkaisut päivämäärän mukaan"
-
-#: mod/network.php:956 mod/profiles.php:594
-#: src/Core/NotificationsManager.php:185
-msgid "Personal"
-msgstr "Henkilökohtainen"
-
-#: mod/network.php:959
-msgid "Posts that mention or involve you"
-msgstr "Julkaisut jotka liittyvät sinuun"
-
-#: mod/network.php:967
-msgid "New"
-msgstr "Uusi"
-
-#: mod/network.php:970
-msgid "Activity Stream - by date"
-msgstr ""
-
-#: mod/network.php:978
-msgid "Shared Links"
-msgstr "Jaetut linkit"
-
-#: mod/network.php:981
-msgid "Interesting Links"
-msgstr "Kiinnostavat linkit"
-
-#: mod/network.php:989
-msgid "Starred"
-msgstr "Tähtimerkitty"
-
-#: mod/network.php:992
-msgid "Favourite Posts"
-msgstr "Lempijulkaisut"
-
 #: mod/crepair.php:87
 msgid "Contact settings applied."
 msgstr "Kontaktiasetukset tallennettu."
@@ -3579,8 +3122,8 @@ msgid ""
 "entries from this contact."
 msgstr ""
 
-#: mod/crepair.php:158 mod/admin.php:494 mod/admin.php:1811 mod/admin.php:1822
-#: mod/admin.php:1835 mod/admin.php:1851 mod/settings.php:671
+#: mod/crepair.php:158 mod/admin.php:494 mod/admin.php:1816 mod/admin.php:1827
+#: mod/admin.php:1840 mod/admin.php:1856 mod/settings.php:671
 #: mod/settings.php:697
 msgid "Name"
 msgstr "Nimi"
@@ -3805,7 +3348,7 @@ msgstr "Poista viesti"
 
 #: mod/message.php:380 mod/message.php:481
 msgid "D, d M Y - g:i A"
-msgstr ""
+msgstr "D, j.n.Y - H:i"
 
 #: mod/message.php:395 mod/message.php:478
 msgid "Delete conversation"
@@ -3843,79 +3386,6 @@ msgid_plural "%d messages"
 msgstr[0] "%d viesti"
 msgstr[1] "%d viestiä"
 
-#: mod/group.php:36
-msgid "Group created."
-msgstr "Ryhmä luotu."
-
-#: mod/group.php:42
-msgid "Could not create group."
-msgstr "Ryhmää ei voitu luoda."
-
-#: mod/group.php:56 mod/group.php:157
-msgid "Group not found."
-msgstr "Ryhmää ei löytynyt."
-
-#: mod/group.php:70
-msgid "Group name changed."
-msgstr "Ryhmän nimi muutettu."
-
-#: mod/group.php:97
-msgid "Save Group"
-msgstr "Tallenna ryhmä"
-
-#: mod/group.php:102
-msgid "Create a group of contacts/friends."
-msgstr "Luo kontakti/kaveriryhmä"
-
-#: mod/group.php:103 mod/group.php:199 src/Model/Group.php:421
-msgid "Group Name: "
-msgstr "Ryhmän nimi:"
-
-#: mod/group.php:127
-msgid "Group removed."
-msgstr "Ryhmä poistettu."
-
-#: mod/group.php:129
-msgid "Unable to remove group."
-msgstr "Ryhmää ei voida poistaa."
-
-#: mod/group.php:192
-msgid "Delete Group"
-msgstr "Poista ryhmä"
-
-#: mod/group.php:198
-msgid "Group Editor"
-msgstr "Ryhmien muokkausta"
-
-#: mod/group.php:203
-msgid "Edit Group Name"
-msgstr "Muokkaa ryhmän nimeä"
-
-#: mod/group.php:213
-msgid "Members"
-msgstr "Jäsenet"
-
-#: mod/group.php:229
-msgid "Remove contact from group"
-msgstr "Poista kontakti ryhmästä"
-
-#: mod/group.php:253
-msgid "Add contact to group"
-msgstr "Lisää kontakti ryhmään"
-
-#: mod/openid.php:29
-msgid "OpenID protocol error. No ID returned."
-msgstr "OpenID -protokollavirhe. Tunnusta ei vastaanotettu."
-
-#: mod/openid.php:66
-msgid ""
-"Account not found and OpenID registration is not permitted on this site."
-msgstr "Käyttäjätiliä ei löytynyt. Rekisteröityminen OpenID:n kautta ei ole sallittua tällä sivustolla."
-
-#: mod/openid.php:116 src/Module/Login.php:86 src/Module/Login.php:135
-msgid "Login failed."
-msgstr "Kirjautuminen epäonnistui"
-
 #: mod/admin.php:107
 msgid "Theme settings updated."
 msgstr "Teeman asetukset päivitetty."
@@ -3928,7 +3398,7 @@ msgstr "Tietoja"
 msgid "Overview"
 msgstr "Yleiskatsaus"
 
-#: mod/admin.php:182 mod/admin.php:722
+#: mod/admin.php:182 mod/admin.php:717
 msgid "Federation Statistics"
 msgstr "Liiton tilastotiedot"
 
@@ -3936,19 +3406,19 @@ msgstr "Liiton tilastotiedot"
 msgid "Configuration"
 msgstr "Kokoonpano"
 
-#: mod/admin.php:184 mod/admin.php:1357
+#: mod/admin.php:184 mod/admin.php:1356
 msgid "Site"
 msgstr "Sivusto"
 
-#: mod/admin.php:185 mod/admin.php:1289 mod/admin.php:1817 mod/admin.php:1833
+#: mod/admin.php:185 mod/admin.php:1285 mod/admin.php:1822 mod/admin.php:1838
 msgid "Users"
 msgstr "Käyttäjät"
 
-#: mod/admin.php:186 mod/admin.php:1933 mod/admin.php:1993 mod/settings.php:87
+#: mod/admin.php:186 mod/admin.php:1938 mod/admin.php:1998 mod/settings.php:87
 msgid "Addons"
 msgstr "Lisäosat"
 
-#: mod/admin.php:187 mod/admin.php:2202 mod/admin.php:2246
+#: mod/admin.php:187 mod/admin.php:2208 mod/admin.php:2252
 msgid "Themes"
 msgstr "Teemat"
 
@@ -3969,7 +3439,7 @@ msgstr "Tietokanta"
 msgid "DB updates"
 msgstr "Tietokannan päivitykset"
 
-#: mod/admin.php:192 mod/admin.php:757
+#: mod/admin.php:192 mod/admin.php:752
 msgid "Inspect Queue"
 msgstr "Tarkista jono"
 
@@ -3989,11 +3459,11 @@ msgstr "Palvelimien estolista"
 msgid "Delete Item"
 msgstr "Poista kohde"
 
-#: mod/admin.php:197 mod/admin.php:198 mod/admin.php:2320
+#: mod/admin.php:197 mod/admin.php:198 mod/admin.php:2326
 msgid "Logs"
 msgstr "Lokit"
 
-#: mod/admin.php:199 mod/admin.php:2387
+#: mod/admin.php:199 mod/admin.php:2393
 msgid "View Logs"
 msgstr "Katso lokit"
 
@@ -4026,9 +3496,9 @@ msgid "User registrations waiting for confirmation"
 msgstr "Käyttäjärekisteröinnit odottavat hyväksyntää"
 
 #: mod/admin.php:303 mod/admin.php:365 mod/admin.php:482 mod/admin.php:524
-#: mod/admin.php:721 mod/admin.php:756 mod/admin.php:852 mod/admin.php:1356
-#: mod/admin.php:1816 mod/admin.php:1932 mod/admin.php:1992 mod/admin.php:2201
-#: mod/admin.php:2245 mod/admin.php:2319 mod/admin.php:2386
+#: mod/admin.php:716 mod/admin.php:751 mod/admin.php:847 mod/admin.php:1355
+#: mod/admin.php:1821 mod/admin.php:1937 mod/admin.php:1997 mod/admin.php:2207
+#: mod/admin.php:2251 mod/admin.php:2325 mod/admin.php:2392
 msgid "Administration"
 msgstr "Ylläpito"
 
@@ -4174,7 +3644,7 @@ msgstr ""
 msgid "Block Remote Contact"
 msgstr "Estä etäkontakti"
 
-#: mod/admin.php:486 mod/admin.php:1819
+#: mod/admin.php:486 mod/admin.php:1824
 msgid "select all"
 msgstr "valitse kaikki"
 
@@ -4238,67 +3708,67 @@ msgstr "GUID"
 msgid "The GUID of the item you want to delete."
 msgstr "Poistettavan kohteen GUID."
 
-#: mod/admin.php:568
+#: mod/admin.php:563
 msgid "Item marked for deletion."
 msgstr "Kohde merkitty poistettavaksi."
 
-#: mod/admin.php:639
+#: mod/admin.php:634
 msgid "unknown"
 msgstr "tuntematon"
 
-#: mod/admin.php:715
+#: mod/admin.php:710
 msgid ""
 "This page offers you some numbers to the known part of the federated social "
 "network your Friendica node is part of. These numbers are not complete but "
 "only reflect the part of the network your node is aware of."
 msgstr ""
 
-#: mod/admin.php:716
+#: mod/admin.php:711
 msgid ""
 "The <em>Auto Discovered Contact Directory</em> feature is not enabled, it "
 "will improve the data displayed here."
 msgstr ""
 
-#: mod/admin.php:728
+#: mod/admin.php:723
 #, php-format
 msgid ""
 "Currently this node is aware of %d nodes with %d registered users from the "
 "following platforms:"
 msgstr "Tällä hetkellä tämä solmu havaitsee %d muita solmuja joissa %d rekisteröityneitä käyttäjiä. Tarkemmat tiedot:"
 
-#: mod/admin.php:759
+#: mod/admin.php:754
 msgid "ID"
 msgstr ""
 
-#: mod/admin.php:760
+#: mod/admin.php:755
 msgid "Recipient Name"
 msgstr "Vastaanottajan nimi"
 
-#: mod/admin.php:761
+#: mod/admin.php:756
 msgid "Recipient Profile"
 msgstr "Vastaanottajan profiili"
 
-#: mod/admin.php:762 view/theme/frio/theme.php:266
+#: mod/admin.php:757 view/theme/frio/theme.php:266
 #: src/Core/NotificationsManager.php:178 src/Content/Nav.php:183
 msgid "Network"
 msgstr "Uutisvirta"
 
-#: mod/admin.php:763
+#: mod/admin.php:758
 msgid "Created"
 msgstr "Luotu"
 
-#: mod/admin.php:764
+#: mod/admin.php:759
 msgid "Last Tried"
 msgstr "Viimeksi yritetty"
 
-#: mod/admin.php:765
+#: mod/admin.php:760
 msgid ""
 "This page lists the content of the queue for outgoing postings. These are "
 "postings the initial delivery failed for. They will be resend later and "
 "eventually deleted if the delivery fails permanently."
 msgstr ""
 
-#: mod/admin.php:789
+#: mod/admin.php:784
 #, php-format
 msgid ""
 "Your DB still runs with MyISAM tables. You should change the engine type to "
@@ -4309,488 +3779,492 @@ msgid ""
 " an automatic conversion.<br />"
 msgstr ""
 
-#: mod/admin.php:796
+#: mod/admin.php:791
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
 msgstr ""
 
-#: mod/admin.php:806
+#: mod/admin.php:801
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
 msgstr "Tietokannan päivitys epäonnistui. Suorita komento \"php bin/console.php dbstructure update\" komentoriviltä ja lue mahdolliset virheviestit."
 
-#: mod/admin.php:812
+#: mod/admin.php:807
 msgid "The worker was never executed. Please check your database structure!"
 msgstr "Workeriä ei ole otettu käyttöön. Tarkista tietokantasi rakenne!"
 
-#: mod/admin.php:815
+#: mod/admin.php:810
 #, php-format
 msgid ""
 "The last worker execution was on %s UTC. This is older than one hour. Please"
 " check your crontab settings."
 msgstr "Viimeisin worker -käynnistys tapahtui klo %s UTC, eli yli tunti sitten. Tarkista crontab -asetukset."
 
-#: mod/admin.php:820
+#: mod/admin.php:815
 msgid "Normal Account"
 msgstr "Perustili"
 
-#: mod/admin.php:821
+#: mod/admin.php:816
 msgid "Automatic Follower Account"
 msgstr "Automaattinen seuraajatili"
 
-#: mod/admin.php:822
+#: mod/admin.php:817
 msgid "Public Forum Account"
 msgstr "Julkinen foorumitili"
 
-#: mod/admin.php:823
+#: mod/admin.php:818
 msgid "Automatic Friend Account"
 msgstr "Automaattinen kaveritili"
 
-#: mod/admin.php:824
+#: mod/admin.php:819
 msgid "Blog Account"
 msgstr "Blogitili"
 
-#: mod/admin.php:825
+#: mod/admin.php:820
 msgid "Private Forum Account"
 msgstr "Yksityinen foorumitili"
 
-#: mod/admin.php:847
+#: mod/admin.php:842
 msgid "Message queues"
 msgstr "Viestijonot"
 
-#: mod/admin.php:853
+#: mod/admin.php:848
 msgid "Summary"
 msgstr "Yhteenveto"
 
-#: mod/admin.php:855
+#: mod/admin.php:850
 msgid "Registered users"
 msgstr "Rekisteröityneet käyttäjät"
 
-#: mod/admin.php:857
+#: mod/admin.php:852
 msgid "Pending registrations"
 msgstr "Vireillä olevat rekisteröinnit"
 
-#: mod/admin.php:858
+#: mod/admin.php:853
 msgid "Version"
 msgstr "Versio"
 
-#: mod/admin.php:863
+#: mod/admin.php:858
 msgid "Active addons"
 msgstr "Käytössäolevat lisäosat"
 
-#: mod/admin.php:894
+#: mod/admin.php:889
 msgid "Can not parse base url. Must have at least <scheme>://<domain>"
 msgstr "Ei voitu jäsentää perusosoitetta. Täytyy sisältää ainakin <scheme>://<domain>"
 
-#: mod/admin.php:1224
+#: mod/admin.php:1220
 msgid "Site settings updated."
 msgstr "Sivuston asetukset päivitettiin."
 
-#: mod/admin.php:1251 mod/settings.php:897
+#: mod/admin.php:1247 mod/settings.php:897
 msgid "No special theme for mobile devices"
 msgstr "Ei mobiiliteemaa"
 
-#: mod/admin.php:1280
+#: mod/admin.php:1276
 msgid "No community page for local users"
 msgstr ""
 
-#: mod/admin.php:1281
+#: mod/admin.php:1277
 msgid "No community page"
 msgstr "Ei yhteisösivua"
 
-#: mod/admin.php:1282
+#: mod/admin.php:1278
 msgid "Public postings from users of this site"
 msgstr "Julkiset julkaisut tämän sivuston käyttäjiltä"
 
-#: mod/admin.php:1283
+#: mod/admin.php:1279
 msgid "Public postings from the federated network"
 msgstr "Julkiset julkaisut liittoutuneelta verkolta"
 
-#: mod/admin.php:1284
+#: mod/admin.php:1280
 msgid "Public postings from local users and the federated network"
 msgstr "Julkiset julkaisut tältä sivustolta ja liittoutuneelta verkolta"
 
-#: mod/admin.php:1290
+#: mod/admin.php:1286
 msgid "Users, Global Contacts"
 msgstr "Käyttäjät, maailmanlaajuiset kontaktit"
 
-#: mod/admin.php:1291
+#: mod/admin.php:1287
 msgid "Users, Global Contacts/fallback"
 msgstr ""
 
-#: mod/admin.php:1295
+#: mod/admin.php:1291
 msgid "One month"
 msgstr "Yksi kuukausi"
 
-#: mod/admin.php:1296
+#: mod/admin.php:1292
 msgid "Three months"
 msgstr "Kolme kuukautta"
 
-#: mod/admin.php:1297
+#: mod/admin.php:1293
 msgid "Half a year"
 msgstr "Puoli vuotta"
 
-#: mod/admin.php:1298
+#: mod/admin.php:1294
 msgid "One year"
 msgstr "Yksi vuosi"
 
-#: mod/admin.php:1303
+#: mod/admin.php:1299
 msgid "Multi user instance"
 msgstr "Monen käyttäjän instanssi"
 
-#: mod/admin.php:1326
+#: mod/admin.php:1325
 msgid "Closed"
 msgstr "Suljettu"
 
-#: mod/admin.php:1327
+#: mod/admin.php:1326
 msgid "Requires approval"
 msgstr "Edellyttää hyväksyntää"
 
-#: mod/admin.php:1328
+#: mod/admin.php:1327
 msgid "Open"
 msgstr "Avoin"
 
-#: mod/admin.php:1332
+#: mod/admin.php:1331
 msgid "No SSL policy, links will track page SSL state"
 msgstr ""
 
-#: mod/admin.php:1333
+#: mod/admin.php:1332
 msgid "Force all links to use SSL"
 msgstr "Pakota kaikki linkit käyttämään SSL-yhteyttä"
 
-#: mod/admin.php:1334
+#: mod/admin.php:1333
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr ""
 
-#: mod/admin.php:1338
+#: mod/admin.php:1337
 msgid "Don't check"
 msgstr "Älä tarkista"
 
-#: mod/admin.php:1339
+#: mod/admin.php:1338
 msgid "check the stable version"
 msgstr ""
 
-#: mod/admin.php:1340
+#: mod/admin.php:1339
 msgid "check the development version"
 msgstr ""
 
-#: mod/admin.php:1359
+#: mod/admin.php:1358
 msgid "Republish users to directory"
 msgstr ""
 
-#: mod/admin.php:1360 mod/register.php:267
+#: mod/admin.php:1359 mod/register.php:267
 msgid "Registration"
 msgstr "Rekisteröityminen"
 
-#: mod/admin.php:1361
+#: mod/admin.php:1360
 msgid "File upload"
 msgstr "Tiedoston lataus"
 
-#: mod/admin.php:1362
+#: mod/admin.php:1361
 msgid "Policies"
 msgstr "Käytännöt"
 
-#: mod/admin.php:1364
+#: mod/admin.php:1363
 msgid "Auto Discovered Contact Directory"
 msgstr ""
 
-#: mod/admin.php:1365
+#: mod/admin.php:1364
 msgid "Performance"
 msgstr "Suoritus"
 
-#: mod/admin.php:1366
+#: mod/admin.php:1365
 msgid "Worker"
 msgstr "Worker"
 
-#: mod/admin.php:1367
+#: mod/admin.php:1366
 msgid "Message Relay"
 msgstr "Viestirele"
 
-#: mod/admin.php:1368
+#: mod/admin.php:1367
 msgid ""
 "Relocate - WARNING: advanced function. Could make this server unreachable."
 msgstr ""
 
-#: mod/admin.php:1371
+#: mod/admin.php:1370
 msgid "Site name"
 msgstr "Sivuston nimi"
 
-#: mod/admin.php:1372
+#: mod/admin.php:1371
 msgid "Host name"
 msgstr "Palvelimen nimi"
 
-#: mod/admin.php:1373
+#: mod/admin.php:1372
 msgid "Sender Email"
 msgstr "Lähettäjän sähköposti"
 
-#: mod/admin.php:1373
+#: mod/admin.php:1372
 msgid ""
 "The email address your server shall use to send notification emails from."
 msgstr "Lähettäjän sähköpostiosoite palvelimen ilmoitussähköposteissa."
 
-#: mod/admin.php:1374
+#: mod/admin.php:1373
 msgid "Banner/Logo"
 msgstr "Banneri/logo"
 
-#: mod/admin.php:1375
+#: mod/admin.php:1374
 msgid "Shortcut icon"
 msgstr "Pikakuvake"
 
-#: mod/admin.php:1375
+#: mod/admin.php:1374
 msgid "Link to an icon that will be used for browsers."
 msgstr "Linkki kuvakkeeseen jota selaimet saa käyttää."
 
-#: mod/admin.php:1376
+#: mod/admin.php:1375
 msgid "Touch icon"
 msgstr "Kosketusnäyttökuvake"
 
-#: mod/admin.php:1376
+#: mod/admin.php:1375
 msgid "Link to an icon that will be used for tablets and mobiles."
 msgstr "Linkki kuvakkeeseen jota tabletit ja matkapuhelimet saa käyttää."
 
-#: mod/admin.php:1377
+#: mod/admin.php:1376
 msgid "Additional Info"
 msgstr "Lisätietoja"
 
-#: mod/admin.php:1377
+#: mod/admin.php:1376
 #, php-format
 msgid ""
 "For public servers: you can add additional information here that will be "
 "listed at %s/servers."
 msgstr ""
 
-#: mod/admin.php:1378
+#: mod/admin.php:1377
 msgid "System language"
 msgstr "Järjestelmän kieli"
 
-#: mod/admin.php:1379
+#: mod/admin.php:1378
 msgid "System theme"
 msgstr "Järjestelmäteema"
 
-#: mod/admin.php:1379
+#: mod/admin.php:1378
 msgid ""
 "Default system theme - may be over-ridden by user profiles - <a href='#' "
 "id='cnftheme'>change theme settings</a>"
 msgstr ""
 
-#: mod/admin.php:1380
+#: mod/admin.php:1379
 msgid "Mobile system theme"
 msgstr "Mobiili järjestelmäteema"
 
-#: mod/admin.php:1380
+#: mod/admin.php:1379
 msgid "Theme for mobile devices"
 msgstr "Mobiiliteema"
 
-#: mod/admin.php:1381
+#: mod/admin.php:1380
 msgid "SSL link policy"
 msgstr "SSL-linkkikäytäntö"
 
-#: mod/admin.php:1381
+#: mod/admin.php:1380
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr "Määrittää pakotetaanko tuotetut linkit käyttämään SSL-yhteyttä."
 
-#: mod/admin.php:1382
+#: mod/admin.php:1381
 msgid "Force SSL"
 msgstr "Pakoita SSL-yhteyden käyttöä"
 
-#: mod/admin.php:1382
+#: mod/admin.php:1381
 msgid ""
 "Force all Non-SSL requests to SSL - Attention: on some systems it could lead"
 " to endless loops."
 msgstr ""
 
-#: mod/admin.php:1383
+#: mod/admin.php:1382
 msgid "Hide help entry from navigation menu"
 msgstr ""
 
-#: mod/admin.php:1383
+#: mod/admin.php:1382
 msgid ""
 "Hides the menu entry for the Help pages from the navigation menu. You can "
 "still access it calling /help directly."
 msgstr ""
 
-#: mod/admin.php:1384
+#: mod/admin.php:1383
 msgid "Single user instance"
 msgstr "Yksittäisen käyttäjän instanssi"
 
-#: mod/admin.php:1384
+#: mod/admin.php:1383
 msgid "Make this instance multi-user or single-user for the named user"
 msgstr ""
 
-#: mod/admin.php:1385
+#: mod/admin.php:1384
 msgid "Maximum image size"
 msgstr "Suurin kuvakoko"
 
-#: mod/admin.php:1385
+#: mod/admin.php:1384
 msgid ""
 "Maximum size in bytes of uploaded images. Default is 0, which means no "
 "limits."
 msgstr "Ladattavan kuvatiedoston enimmäiskoko tavuina. Oletusarvo on 0, eli ei enimmäiskokoa."
 
-#: mod/admin.php:1386
+#: mod/admin.php:1385
 msgid "Maximum image length"
 msgstr "Suurin kuvapituus"
 
-#: mod/admin.php:1386
+#: mod/admin.php:1385
 msgid ""
 "Maximum length in pixels of the longest side of uploaded images. Default is "
 "-1, which means no limits."
 msgstr "Ladattavan kuvatiedoston enimmäispituus pikseleinä. Oletusarvo on -1, eli ei enimmäispituutta."
 
-#: mod/admin.php:1387
+#: mod/admin.php:1386
 msgid "JPEG image quality"
 msgstr "JPEG-kuvanlaatu"
 
-#: mod/admin.php:1387
+#: mod/admin.php:1386
 msgid ""
 "Uploaded JPEGS will be saved at this quality setting [0-100]. Default is "
 "100, which is full quality."
 msgstr "Ladatut JPEG-kuvat tallennetaan tällä laatuasetuksella [0-100]. Oletus on 100, eli korkein laatu."
 
-#: mod/admin.php:1389
+#: mod/admin.php:1388
 msgid "Register policy"
 msgstr "Rekisteröintipolitiikka"
 
-#: mod/admin.php:1390
+#: mod/admin.php:1389
 msgid "Maximum Daily Registrations"
 msgstr "Päivittäinen rekisteröitymisraja"
 
-#: mod/admin.php:1390
+#: mod/admin.php:1389
 msgid ""
 "If registration is permitted above, this sets the maximum number of new user"
 " registrations to accept per day.  If register is set to closed, this "
 "setting has no effect."
 msgstr "Mikäli rekisteröityminen on sallittu, tämä asettaa enimmäismäärä uusia rekisteröitymisiä päivässä. Jos reksiteröityminen ei ole sallittu, tällä asetuksella ei ole vaikutusta."
 
-#: mod/admin.php:1391
+#: mod/admin.php:1390
 msgid "Register text"
 msgstr "Rekisteröitymisteksti"
 
-#: mod/admin.php:1391
+#: mod/admin.php:1390
 msgid ""
 "Will be displayed prominently on the registration page. You can use BBCode "
 "here."
 msgstr "Näkyvästi esillä rekisteröitymissivulla. Voit käyttää BBCodeia."
 
-#: mod/admin.php:1392
+#: mod/admin.php:1391
 msgid "Accounts abandoned after x days"
 msgstr "Käyttäjätilit hylätään X päivän jälkeen"
 
-#: mod/admin.php:1392
+#: mod/admin.php:1391
 msgid ""
 "Will not waste system resources polling external sites for abandonded "
 "accounts. Enter 0 for no time limit."
 msgstr ""
 
-#: mod/admin.php:1393
+#: mod/admin.php:1392
 msgid "Allowed friend domains"
 msgstr "Sallittuja kaveri-verkkotunnuksia"
 
-#: mod/admin.php:1393
+#: mod/admin.php:1392
 msgid ""
 "Comma separated list of domains which are allowed to establish friendships "
 "with this site. Wildcards are accepted. Empty to allow any domains"
 msgstr ""
 
-#: mod/admin.php:1394
+#: mod/admin.php:1393
 msgid "Allowed email domains"
 msgstr "Sallittuja sähköposti-verkkotunnuksia"
 
-#: mod/admin.php:1394
+#: mod/admin.php:1393
 msgid ""
 "Comma separated list of domains which are allowed in email addresses for "
 "registrations to this site. Wildcards are accepted. Empty to allow any "
 "domains"
 msgstr ""
 
-#: mod/admin.php:1395
+#: mod/admin.php:1394
 msgid "No OEmbed rich content"
 msgstr ""
 
-#: mod/admin.php:1395
+#: mod/admin.php:1394
 msgid ""
 "Don't show the rich content (e.g. embedded PDF), except from the domains "
 "listed below."
 msgstr ""
 
-#: mod/admin.php:1396
+#: mod/admin.php:1395
 msgid "Allowed OEmbed domains"
 msgstr "Sallittuja OEmbed -verkkotunnuksia"
 
-#: mod/admin.php:1396
+#: mod/admin.php:1395
 msgid ""
 "Comma separated list of domains which oembed content is allowed to be "
 "displayed. Wildcards are accepted."
 msgstr ""
 
-#: mod/admin.php:1397
+#: mod/admin.php:1396
 msgid "Block public"
 msgstr "Estä vierailijat"
 
-#: mod/admin.php:1397
+#: mod/admin.php:1396
 msgid ""
 "Check to block public access to all otherwise public personal pages on this "
 "site unless you are currently logged in."
 msgstr ""
 
-#: mod/admin.php:1398
+#: mod/admin.php:1397
 msgid "Force publish"
 msgstr ""
 
-#: mod/admin.php:1398
+#: mod/admin.php:1397
 msgid ""
 "Check to force all profiles on this site to be listed in the site directory."
 msgstr ""
 
-#: mod/admin.php:1399
+#: mod/admin.php:1397
+msgid "Enabling this may violate privacy laws like the GDPR"
+msgstr ""
+
+#: mod/admin.php:1398
 msgid "Global directory URL"
 msgstr "Maailmanlaajuisen hakemiston URL-osoite"
 
-#: mod/admin.php:1399
+#: mod/admin.php:1398
 msgid ""
 "URL to the global directory. If this is not set, the global directory is "
 "completely unavailable to the application."
 msgstr ""
 
-#: mod/admin.php:1400
+#: mod/admin.php:1399
 msgid "Private posts by default for new users"
 msgstr ""
 
-#: mod/admin.php:1400
+#: mod/admin.php:1399
 msgid ""
 "Set default post permissions for all new members to the default privacy "
 "group rather than public."
 msgstr ""
 
-#: mod/admin.php:1401
+#: mod/admin.php:1400
 msgid "Don't include post content in email notifications"
 msgstr "Älä lisää julkaisun sisältö sähköposti-ilmoitukseen"
 
-#: mod/admin.php:1401
+#: mod/admin.php:1400
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
 msgstr ""
 
-#: mod/admin.php:1402
+#: mod/admin.php:1401
 msgid "Disallow public access to addons listed in the apps menu."
 msgstr ""
 
-#: mod/admin.php:1402
+#: mod/admin.php:1401
 msgid ""
 "Checking this box will restrict addons listed in the apps menu to members "
 "only."
 msgstr ""
 
-#: mod/admin.php:1403
+#: mod/admin.php:1402
 msgid "Don't embed private images in posts"
 msgstr "Älä upota yksityisiä kuvia julkaisuissa"
 
-#: mod/admin.php:1403
+#: mod/admin.php:1402
 msgid ""
 "Don't replace locally-hosted private photos in posts with an embedded copy "
 "of the image. This means that contacts who receive posts containing private "
@@ -4798,210 +4272,210 @@ msgid ""
 "while."
 msgstr ""
 
-#: mod/admin.php:1404
+#: mod/admin.php:1403
 msgid "Allow Users to set remote_self"
 msgstr ""
 
-#: mod/admin.php:1404
+#: mod/admin.php:1403
 msgid ""
 "With checking this, every user is allowed to mark every contact as a "
 "remote_self in the repair contact dialog. Setting this flag on a contact "
 "causes mirroring every posting of that contact in the users stream."
 msgstr ""
 
-#: mod/admin.php:1405
+#: mod/admin.php:1404
 msgid "Block multiple registrations"
 msgstr ""
 
-#: mod/admin.php:1405
+#: mod/admin.php:1404
 msgid "Disallow users to register additional accounts for use as pages."
 msgstr ""
 
-#: mod/admin.php:1406
+#: mod/admin.php:1405
 msgid "OpenID support"
 msgstr "OpenID-tuki"
 
-#: mod/admin.php:1406
+#: mod/admin.php:1405
 msgid "OpenID support for registration and logins."
 msgstr "OpenID-tuki rekisteröitymiseen ja kirjautumiseen"
 
-#: mod/admin.php:1407
+#: mod/admin.php:1406
 msgid "Fullname check"
 msgstr "Koko nimi tarkistus"
 
-#: mod/admin.php:1407
+#: mod/admin.php:1406
 msgid ""
 "Force users to register with a space between firstname and lastname in Full "
 "name, as an antispam measure"
 msgstr ""
 
-#: mod/admin.php:1408
+#: mod/admin.php:1407
 msgid "Community pages for visitors"
 msgstr "Yhteisösivu vieraille"
 
-#: mod/admin.php:1408
+#: mod/admin.php:1407
 msgid ""
 "Which community pages should be available for visitors. Local users always "
 "see both pages."
 msgstr ""
 
-#: mod/admin.php:1409
+#: mod/admin.php:1408
 msgid "Posts per user on community page"
 msgstr ""
 
-#: mod/admin.php:1409
+#: mod/admin.php:1408
 msgid ""
 "The maximum number of posts per user on the community page. (Not valid for "
 "'Global Community')"
 msgstr "Enimmäismäärä julkaisuja käyttäjää kohden yhteisösivulla. (Ei koske maailmanlaajuista yhteisösivua.)"
 
-#: mod/admin.php:1410
+#: mod/admin.php:1409
 msgid "Enable OStatus support"
 msgstr "Salli OStatus-tuki"
 
-#: mod/admin.php:1410
+#: mod/admin.php:1409
 msgid ""
 "Provide built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public, so privacy warnings will be "
 "occasionally displayed."
 msgstr ""
 
-#: mod/admin.php:1411
+#: mod/admin.php:1410
 msgid "Only import OStatus threads from our contacts"
 msgstr "Ainoastaan tuo OStatus -ketjuja kontakteiltamme"
 
-#: mod/admin.php:1411
+#: mod/admin.php:1410
 msgid ""
 "Normally we import every content from our OStatus contacts. With this option"
 " we only store threads that are started by a contact that is known on our "
 "system."
 msgstr ""
 
-#: mod/admin.php:1412
+#: mod/admin.php:1411
 msgid "OStatus support can only be enabled if threading is enabled."
 msgstr "OStatus-tuki voidaan ottaa käyttöön ainoastaan jos ketjuttaminen on jo otettu käyttöön."
 
-#: mod/admin.php:1414
+#: mod/admin.php:1413
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
 msgstr "Diaspora -tukea ei voitu ottaa käyttöön koska Friendica on asennettu alihakemistoon."
 
-#: mod/admin.php:1415
+#: mod/admin.php:1414
 msgid "Enable Diaspora support"
 msgstr "Salli Diaspora-tuki"
 
-#: mod/admin.php:1415
+#: mod/admin.php:1414
 msgid "Provide built-in Diaspora network compatibility."
 msgstr "Ota käyttöön Diaspora-yhteensopivuus"
 
-#: mod/admin.php:1416
+#: mod/admin.php:1415
 msgid "Only allow Friendica contacts"
 msgstr "Salli ainoastaan Friendica -kontakteja"
 
-#: mod/admin.php:1416
+#: mod/admin.php:1415
 msgid ""
 "All contacts must use Friendica protocols. All other built-in communication "
 "protocols disabled."
 msgstr "Kaikkien kontaktien on käytettävä Friendica-protokollaa. Kaikki muut protokollat poistetaan käytöstä."
 
-#: mod/admin.php:1417
+#: mod/admin.php:1416
 msgid "Verify SSL"
 msgstr "Vahvista SSL"
 
-#: mod/admin.php:1417
+#: mod/admin.php:1416
 msgid ""
 "If you wish, you can turn on strict certificate checking. This will mean you"
 " cannot connect (at all) to self-signed SSL sites."
 msgstr ""
 
-#: mod/admin.php:1418
+#: mod/admin.php:1417
 msgid "Proxy user"
 msgstr "Välityspalvelimen käyttäjä"
 
-#: mod/admin.php:1419
+#: mod/admin.php:1418
 msgid "Proxy URL"
 msgstr "Välityspalvelimen osoite"
 
-#: mod/admin.php:1420
+#: mod/admin.php:1419
 msgid "Network timeout"
 msgstr "Verkon aikakatkaisu"
 
-#: mod/admin.php:1420
+#: mod/admin.php:1419
 msgid "Value is in seconds. Set to 0 for unlimited (not recommended)."
 msgstr ""
 
-#: mod/admin.php:1421
+#: mod/admin.php:1420
 msgid "Maximum Load Average"
 msgstr "Kuorman enimmäiskeksiarvo"
 
-#: mod/admin.php:1421
+#: mod/admin.php:1420
 msgid ""
 "Maximum system load before delivery and poll processes are deferred - "
 "default 50."
 msgstr "Järjestelmäkuormitus jolloin lähetys- ja kyselyprosessit lykätään (oletusarvo 50)."
 
-#: mod/admin.php:1422
+#: mod/admin.php:1421
 msgid "Maximum Load Average (Frontend)"
 msgstr "Kuorman enimmäiskeskiarvo (Frontend)"
 
-#: mod/admin.php:1422
+#: mod/admin.php:1421
 msgid "Maximum system load before the frontend quits service - default 50."
 msgstr "Järjestelmäkuormitus jolloin Frontend poistetaan käytöstä (oletusarvo 50)."
 
-#: mod/admin.php:1423
+#: mod/admin.php:1422
 msgid "Minimal Memory"
 msgstr ""
 
-#: mod/admin.php:1423
+#: mod/admin.php:1422
 msgid ""
 "Minimal free memory in MB for the worker. Needs access to /proc/meminfo - "
 "default 0 (deactivated)."
 msgstr ""
 
-#: mod/admin.php:1424
+#: mod/admin.php:1423
 msgid "Maximum table size for optimization"
 msgstr "Taulukon enimmäiskoko optimointia varten"
 
-#: mod/admin.php:1424
+#: mod/admin.php:1423
 msgid ""
 "Maximum table size (in MB) for the automatic optimization. Enter -1 to "
 "disable it."
 msgstr ""
 
-#: mod/admin.php:1425
+#: mod/admin.php:1424
 msgid "Minimum level of fragmentation"
 msgstr ""
 
-#: mod/admin.php:1425
+#: mod/admin.php:1424
 msgid ""
 "Minimum fragmenation level to start the automatic optimization - default "
 "value is 30%."
 msgstr ""
 
-#: mod/admin.php:1427
+#: mod/admin.php:1426
 msgid "Periodical check of global contacts"
 msgstr ""
 
-#: mod/admin.php:1427
+#: mod/admin.php:1426
 msgid ""
 "If enabled, the global contacts are checked periodically for missing or "
 "outdated data and the vitality of the contacts and servers."
 msgstr ""
 
-#: mod/admin.php:1428
+#: mod/admin.php:1427
 msgid "Days between requery"
 msgstr ""
 
-#: mod/admin.php:1428
+#: mod/admin.php:1427
 msgid "Number of days after which a server is requeried for his contacts."
 msgstr ""
 
-#: mod/admin.php:1429
+#: mod/admin.php:1428
 msgid "Discover contacts from other servers"
 msgstr "Etsi kontakteja muilta palvelimilta"
 
-#: mod/admin.php:1429
+#: mod/admin.php:1428
 msgid ""
 "Periodically query other servers for contacts. You can choose between "
 "'users': the users on the remote system, 'Global Contacts': active contacts "
@@ -5011,32 +4485,32 @@ msgid ""
 "Global Contacts'."
 msgstr ""
 
-#: mod/admin.php:1430
+#: mod/admin.php:1429
 msgid "Timeframe for fetching global contacts"
 msgstr ""
 
-#: mod/admin.php:1430
+#: mod/admin.php:1429
 msgid ""
 "When the discovery is activated, this value defines the timeframe for the "
 "activity of the global contacts that are fetched from other servers."
 msgstr ""
 
-#: mod/admin.php:1431
+#: mod/admin.php:1430
 msgid "Search the local directory"
 msgstr "Paikallisluettelohaku"
 
-#: mod/admin.php:1431
+#: mod/admin.php:1430
 msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
 msgstr ""
 
-#: mod/admin.php:1433
+#: mod/admin.php:1432
 msgid "Publish server information"
 msgstr "Julkaise palvelintiedot"
 
-#: mod/admin.php:1433
+#: mod/admin.php:1432
 msgid ""
 "If enabled, general server and usage data will be published. The data "
 "contains the name and version of the server, number of users with public "
@@ -5044,50 +4518,50 @@ msgid ""
 " href='http://the-federation.info/'>the-federation.info</a> for details."
 msgstr ""
 
-#: mod/admin.php:1435
+#: mod/admin.php:1434
 msgid "Check upstream version"
 msgstr ""
 
-#: mod/admin.php:1435
+#: mod/admin.php:1434
 msgid ""
 "Enables checking for new Friendica versions at github. If there is a new "
 "version, you will be informed in the admin panel overview."
 msgstr ""
 
-#: mod/admin.php:1436
+#: mod/admin.php:1435
 msgid "Suppress Tags"
 msgstr "Piilota tunnisteet"
 
-#: mod/admin.php:1436
+#: mod/admin.php:1435
 msgid "Suppress showing a list of hashtags at the end of the posting."
 msgstr "Piilota tunnistelista julkaisun lopussa."
 
-#: mod/admin.php:1437
+#: mod/admin.php:1436
 msgid "Clean database"
 msgstr "Siivoa tietokanta"
 
-#: mod/admin.php:1437
+#: mod/admin.php:1436
 msgid ""
 "Remove old remote items, orphaned database records and old content from some"
 " other helper tables."
 msgstr ""
 
-#: mod/admin.php:1438
+#: mod/admin.php:1437
 msgid "Lifespan of remote items"
 msgstr ""
 
-#: mod/admin.php:1438
+#: mod/admin.php:1437
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "remote items will be deleted. Own items, and marked or filed items are "
 "always kept. 0 disables this behaviour."
 msgstr ""
 
-#: mod/admin.php:1439
+#: mod/admin.php:1438
 msgid "Lifespan of unclaimed items"
 msgstr ""
 
-#: mod/admin.php:1439
+#: mod/admin.php:1438
 msgid ""
 "When the database cleanup is enabled, this defines the days after which "
 "unclaimed remote items (mostly content from the relay) will be deleted. "
@@ -5095,129 +4569,129 @@ msgid ""
 "items if set to 0."
 msgstr ""
 
-#: mod/admin.php:1440
+#: mod/admin.php:1439
 msgid "Path to item cache"
 msgstr ""
 
-#: mod/admin.php:1440
+#: mod/admin.php:1439
 msgid "The item caches buffers generated bbcode and external images."
 msgstr ""
 
-#: mod/admin.php:1441
+#: mod/admin.php:1440
 msgid "Cache duration in seconds"
 msgstr "Välimuistin kesto sekunteina"
 
-#: mod/admin.php:1441
+#: mod/admin.php:1440
 msgid ""
 "How long should the cache files be hold? Default value is 86400 seconds (One"
 " day). To disable the item cache, set the value to -1."
 msgstr ""
 
-#: mod/admin.php:1442
+#: mod/admin.php:1441
 msgid "Maximum numbers of comments per post"
 msgstr "Julkaisun kommentiraja"
 
-#: mod/admin.php:1442
+#: mod/admin.php:1441
 msgid "How much comments should be shown for each post? Default value is 100."
 msgstr ""
 
-#: mod/admin.php:1443
+#: mod/admin.php:1442
 msgid "Temp path"
 msgstr "Väliaikaistiedostojen polku"
 
-#: mod/admin.php:1443
+#: mod/admin.php:1442
 msgid ""
 "If you have a restricted system where the webserver can't access the system "
 "temp path, enter another path here."
 msgstr "Mikäli verkkopalvelimesi ei voi käyttää järjestelmän väliaikaistiedostojen polkua, syötä toinen polku tähän."
 
-#: mod/admin.php:1444
+#: mod/admin.php:1443
 msgid "Base path to installation"
 msgstr "Asennuksen peruspolku"
 
-#: mod/admin.php:1444
+#: mod/admin.php:1443
 msgid ""
 "If the system cannot detect the correct path to your installation, enter the"
 " correct path here. This setting should only be set if you are using a "
 "restricted system and symbolic links to your webroot."
 msgstr ""
 
-#: mod/admin.php:1445
+#: mod/admin.php:1444
 msgid "Disable picture proxy"
 msgstr ""
 
-#: mod/admin.php:1445
+#: mod/admin.php:1444
 msgid ""
 "The picture proxy increases performance and privacy. It shouldn't be used on"
-" systems with very low bandwith."
+" systems with very low bandwidth."
 msgstr ""
 
-#: mod/admin.php:1446
+#: mod/admin.php:1445
 msgid "Only search in tags"
 msgstr "Tunnistehaku"
 
-#: mod/admin.php:1446
+#: mod/admin.php:1445
 msgid "On large systems the text search can slow down the system extremely."
 msgstr ""
 
-#: mod/admin.php:1448
+#: mod/admin.php:1447
 msgid "New base url"
 msgstr "Uusi perusosoite"
 
-#: mod/admin.php:1448
+#: mod/admin.php:1447
 msgid ""
 "Change base url for this server. Sends relocate message to all Friendica and"
 " Diaspora* contacts of all users."
 msgstr "Vaihtaa tämän palvelimen perus-URL-osoitteen. Lähettää uudelleensijoitusviestit käyttäjien kaikille kontakteille Friendicassa ja Diasporassa*."
 
-#: mod/admin.php:1450
+#: mod/admin.php:1449
 msgid "RINO Encryption"
 msgstr "RINO-salaus"
 
-#: mod/admin.php:1450
+#: mod/admin.php:1449
 msgid "Encryption layer between nodes."
 msgstr "Salauskerros solmujen välillä."
 
-#: mod/admin.php:1450
+#: mod/admin.php:1449
 msgid "Enabled"
 msgstr "Käytössä"
 
-#: mod/admin.php:1452
+#: mod/admin.php:1451
 msgid "Maximum number of parallel workers"
 msgstr "Enimmäismäärä rinnakkaisia workereitä"
 
-#: mod/admin.php:1452
+#: mod/admin.php:1451
 msgid ""
 "On shared hosters set this to 2. On larger systems, values of 10 are great. "
 "Default value is 4."
 msgstr ""
 
-#: mod/admin.php:1453
+#: mod/admin.php:1452
 msgid "Don't use 'proc_open' with the worker"
 msgstr ""
 
-#: mod/admin.php:1453
+#: mod/admin.php:1452
 msgid ""
 "Enable this if your system doesn't allow the use of 'proc_open'. This can "
 "happen on shared hosters. If this is enabled you should increase the "
 "frequency of worker calls in your crontab."
 msgstr ""
 
-#: mod/admin.php:1454
+#: mod/admin.php:1453
 msgid "Enable fastlane"
 msgstr "Käytä fastlane"
 
-#: mod/admin.php:1454
+#: mod/admin.php:1453
 msgid ""
 "When enabed, the fastlane mechanism starts an additional worker if processes"
 " with higher priority are blocked by processes of lower priority."
 msgstr ""
 
-#: mod/admin.php:1455
+#: mod/admin.php:1454
 msgid "Enable frontend worker"
 msgstr "Ota Frontend Worker käyttöön"
 
-#: mod/admin.php:1455
+#: mod/admin.php:1454
 #, php-format
 msgid ""
 "When enabled the Worker process is triggered when backend access is "
@@ -5227,132 +4701,132 @@ msgid ""
 " on your server."
 msgstr ""
 
-#: mod/admin.php:1457
+#: mod/admin.php:1456
 msgid "Subscribe to relay"
 msgstr "Relen tilaus"
 
-#: mod/admin.php:1457
+#: mod/admin.php:1456
 msgid ""
 "Enables the receiving of public posts from the relay. They will be included "
 "in the search, subscribed tags and on the global community page."
 msgstr ""
 
-#: mod/admin.php:1458
+#: mod/admin.php:1457
 msgid "Relay server"
 msgstr "Relepalvelin"
 
-#: mod/admin.php:1458
+#: mod/admin.php:1457
 msgid ""
 "Address of the relay server where public posts should be send to. For "
 "example https://relay.diasp.org"
 msgstr ""
 
-#: mod/admin.php:1459
+#: mod/admin.php:1458
 msgid "Direct relay transfer"
 msgstr "Suora releen siirto"
 
-#: mod/admin.php:1459
+#: mod/admin.php:1458
 msgid ""
 "Enables the direct transfer to other servers without using the relay servers"
 msgstr ""
 
-#: mod/admin.php:1460
+#: mod/admin.php:1459
 msgid "Relay scope"
 msgstr "Relen soveltamisala"
 
-#: mod/admin.php:1460
+#: mod/admin.php:1459
 msgid ""
 "Can be 'all' or 'tags'. 'all' means that every public post should be "
 "received. 'tags' means that only posts with selected tags should be "
 "received."
 msgstr ""
 
-#: mod/admin.php:1460
+#: mod/admin.php:1459
 msgid "all"
 msgstr "kaikki"
 
-#: mod/admin.php:1460
+#: mod/admin.php:1459
 msgid "tags"
 msgstr "tunnisteet"
 
-#: mod/admin.php:1461
+#: mod/admin.php:1460
 msgid "Server tags"
 msgstr "palvelintunnisteet"
 
-#: mod/admin.php:1461
+#: mod/admin.php:1460
 msgid "Comma separated list of tags for the 'tags' subscription."
 msgstr "Pilkulla erotettu tunnistelista tunnistetilausta varten."
 
-#: mod/admin.php:1462
+#: mod/admin.php:1461
 msgid "Allow user tags"
 msgstr "Salli käyttäjien tunnisteet"
 
-#: mod/admin.php:1462
+#: mod/admin.php:1461
 msgid ""
 "If enabled, the tags from the saved searches will used for the 'tags' "
 "subscription in addition to the 'relay_server_tags'."
 msgstr "Jos otettu käyttöön, tunnisteet tallennetuista hauista käytetään tunnistetilaukseen 'relay_server_tags'in lisäksi."
 
-#: mod/admin.php:1490
+#: mod/admin.php:1489
 msgid "Update has been marked successful"
 msgstr ""
 
-#: mod/admin.php:1497
+#: mod/admin.php:1496
 #, php-format
 msgid "Database structure update %s was successfully applied."
 msgstr "Tietokannan rakenteen %s-päivitys onnistui."
 
-#: mod/admin.php:1500
+#: mod/admin.php:1499
 #, php-format
 msgid "Executing of database structure update %s failed with error: %s"
 msgstr "Tietokannan rakennepäivitys %s epäonnistui virheviestillä %s"
 
-#: mod/admin.php:1513
+#: mod/admin.php:1515
 #, php-format
 msgid "Executing %s failed with error: %s"
 msgstr ""
 
-#: mod/admin.php:1515
+#: mod/admin.php:1517
 #, php-format
 msgid "Update %s was successfully applied."
 msgstr "%s-päivitys onnistui."
 
-#: mod/admin.php:1518
+#: mod/admin.php:1520
 #, php-format
 msgid "Update %s did not return a status. Unknown if it succeeded."
 msgstr ""
 
-#: mod/admin.php:1521
+#: mod/admin.php:1523
 #, php-format
 msgid "There was no additional update function %s that needed to be called."
 msgstr ""
 
-#: mod/admin.php:1541
+#: mod/admin.php:1546
 msgid "No failed updates."
 msgstr "Ei epäonnistuineita päivityksiä."
 
-#: mod/admin.php:1542
+#: mod/admin.php:1547
 msgid "Check database structure"
 msgstr "Tarkista tietokannan rakenne"
 
-#: mod/admin.php:1547
+#: mod/admin.php:1552
 msgid "Failed Updates"
 msgstr "Epäonnistuineita päivityksiä"
 
-#: mod/admin.php:1548
+#: mod/admin.php:1553
 msgid ""
 "This does not include updates prior to 1139, which did not return a status."
 msgstr ""
 
-#: mod/admin.php:1549
+#: mod/admin.php:1554
 msgid "Mark success (if update was manually applied)"
 msgstr ""
 
-#: mod/admin.php:1550
+#: mod/admin.php:1555
 msgid "Attempt to execute this update step automatically"
 msgstr ""
 
-#: mod/admin.php:1589
+#: mod/admin.php:1594
 #, php-format
 msgid ""
 "\n"
@@ -5360,7 +4834,7 @@ msgid ""
 "\t\t\t\tthe administrator of %2$s has set up an account for you."
 msgstr ""
 
-#: mod/admin.php:1592
+#: mod/admin.php:1597
 #, php-format
 msgid ""
 "\n"
@@ -5392,208 +4866,208 @@ msgid ""
 "\t\t\tThank you and welcome to %4$s."
 msgstr ""
 
-#: mod/admin.php:1626 src/Model/User.php:663
+#: mod/admin.php:1631 src/Model/User.php:665
 #, php-format
 msgid "Registration details for %s"
 msgstr ""
 
-#: mod/admin.php:1636
+#: mod/admin.php:1641
 #, php-format
 msgid "%s user blocked/unblocked"
 msgid_plural "%s users blocked/unblocked"
 msgstr[0] "%s käyttäjä estetty / poistettu estolistalta"
 msgstr[1] "%s käyttäjää estetty / poistettu estolistalta"
 
-#: mod/admin.php:1642
+#: mod/admin.php:1647
 #, php-format
 msgid "%s user deleted"
 msgid_plural "%s users deleted"
 msgstr[0] "%s käyttäjä poistettu"
 msgstr[1] "%s käyttäjää poistettu"
 
-#: mod/admin.php:1689
+#: mod/admin.php:1694
 #, php-format
 msgid "User '%s' deleted"
 msgstr "Käyttäjä '%s' poistettu"
 
-#: mod/admin.php:1697
+#: mod/admin.php:1702
 #, php-format
 msgid "User '%s' unblocked"
 msgstr "Käyttäjä '%s' poistettu estolistalta"
 
-#: mod/admin.php:1697
+#: mod/admin.php:1702
 #, php-format
 msgid "User '%s' blocked"
 msgstr "Käyttäjä '%s' estetty"
 
-#: mod/admin.php:1754 mod/settings.php:1058
+#: mod/admin.php:1759 mod/settings.php:1058
 msgid "Normal Account Page"
 msgstr "Tavallinen käyttäjätili"
 
-#: mod/admin.php:1755 mod/settings.php:1062
+#: mod/admin.php:1760 mod/settings.php:1062
 msgid "Soapbox Page"
 msgstr "Saarnatuoli sivu"
 
-#: mod/admin.php:1756 mod/settings.php:1066
+#: mod/admin.php:1761 mod/settings.php:1066
 msgid "Public Forum"
 msgstr "Julkinen foorumi"
 
-#: mod/admin.php:1757 mod/settings.php:1070
+#: mod/admin.php:1762 mod/settings.php:1070
 msgid "Automatic Friend Page"
 msgstr ""
 
-#: mod/admin.php:1758
+#: mod/admin.php:1763
 msgid "Private Forum"
 msgstr "Yksityisfoorumi"
 
-#: mod/admin.php:1761 mod/settings.php:1042
+#: mod/admin.php:1766 mod/settings.php:1042
 msgid "Personal Page"
 msgstr "Henkilökohtainen sivu"
 
-#: mod/admin.php:1762 mod/settings.php:1046
+#: mod/admin.php:1767 mod/settings.php:1046
 msgid "Organisation Page"
 msgstr "Järjestön sivu"
 
-#: mod/admin.php:1763 mod/settings.php:1050
+#: mod/admin.php:1768 mod/settings.php:1050
 msgid "News Page"
 msgstr "Uutissivu"
 
-#: mod/admin.php:1764 mod/settings.php:1054
+#: mod/admin.php:1769 mod/settings.php:1054
 msgid "Community Forum"
 msgstr "Yhteisöfoorumi"
 
-#: mod/admin.php:1811 mod/admin.php:1822 mod/admin.php:1835 mod/admin.php:1853
+#: mod/admin.php:1816 mod/admin.php:1827 mod/admin.php:1840 mod/admin.php:1858
 #: src/Content/ContactSelector.php:82
 msgid "Email"
 msgstr "Sähköposti"
 
-#: mod/admin.php:1811 mod/admin.php:1835
+#: mod/admin.php:1816 mod/admin.php:1840
 msgid "Register date"
 msgstr "Rekisteripäivämäärä"
 
-#: mod/admin.php:1811 mod/admin.php:1835
+#: mod/admin.php:1816 mod/admin.php:1840
 msgid "Last login"
 msgstr "Viimeisin kirjautuminen"
 
-#: mod/admin.php:1811 mod/admin.php:1835
+#: mod/admin.php:1816 mod/admin.php:1840
 msgid "Last item"
 msgstr "Viimeisin kohde"
 
-#: mod/admin.php:1811
+#: mod/admin.php:1816
 msgid "Type"
 msgstr "Tyyppi"
 
-#: mod/admin.php:1818
+#: mod/admin.php:1823
 msgid "Add User"
 msgstr "Lisää käyttäjä"
 
-#: mod/admin.php:1820
+#: mod/admin.php:1825
 msgid "User registrations waiting for confirm"
 msgstr ""
 
-#: mod/admin.php:1821
+#: mod/admin.php:1826
 msgid "User waiting for permanent deletion"
 msgstr ""
 
-#: mod/admin.php:1822
+#: mod/admin.php:1827
 msgid "Request date"
 msgstr "Pyynnön päivämäärä"
 
-#: mod/admin.php:1823
+#: mod/admin.php:1828
 msgid "No registrations."
 msgstr "Ei rekisteröintejä."
 
-#: mod/admin.php:1824
+#: mod/admin.php:1829
 msgid "Note from the user"
 msgstr ""
 
-#: mod/admin.php:1825 mod/notifications.php:178 mod/notifications.php:262
+#: mod/admin.php:1830 mod/notifications.php:178 mod/notifications.php:262
 msgid "Approve"
 msgstr "Hyväksy"
 
-#: mod/admin.php:1826
+#: mod/admin.php:1831
 msgid "Deny"
 msgstr "Kieltäydy"
 
-#: mod/admin.php:1830
+#: mod/admin.php:1835
 msgid "Site admin"
 msgstr "Sivuston ylläpito"
 
-#: mod/admin.php:1831
+#: mod/admin.php:1836
 msgid "Account expired"
 msgstr "Tili vanhentunut"
 
-#: mod/admin.php:1834
+#: mod/admin.php:1839
 msgid "New User"
 msgstr "Uusi käyttäjä"
 
-#: mod/admin.php:1835
+#: mod/admin.php:1840
 msgid "Deleted since"
 msgstr "Poistettu"
 
-#: mod/admin.php:1840
+#: mod/admin.php:1845
 msgid ""
 "Selected users will be deleted!\\n\\nEverything these users had posted on "
 "this site will be permanently deleted!\\n\\nAre you sure?"
 msgstr ""
 
-#: mod/admin.php:1841
+#: mod/admin.php:1846
 msgid ""
 "The user {0} will be deleted!\\n\\nEverything this user has posted on this "
 "site will be permanently deleted!\\n\\nAre you sure?"
 msgstr ""
 
-#: mod/admin.php:1851
+#: mod/admin.php:1856
 msgid "Name of the new user."
 msgstr "Uuden käyttäjän nimi."
 
-#: mod/admin.php:1852
+#: mod/admin.php:1857
 msgid "Nickname"
 msgstr "Lempinimi"
 
-#: mod/admin.php:1852
+#: mod/admin.php:1857
 msgid "Nickname of the new user."
 msgstr "Uuden käyttäjän lempinimi"
 
-#: mod/admin.php:1853
+#: mod/admin.php:1858
 msgid "Email address of the new user."
 msgstr "Uuden käyttäjän sähköpostiosoite."
 
-#: mod/admin.php:1895
+#: mod/admin.php:1900
 #, php-format
 msgid "Addon %s disabled."
 msgstr "Lisäosa %s poistettu käytöstä."
 
-#: mod/admin.php:1899
+#: mod/admin.php:1904
 #, php-format
 msgid "Addon %s enabled."
 msgstr "Lisäosa %s käytössä."
 
-#: mod/admin.php:1909 mod/admin.php:2158
+#: mod/admin.php:1914 mod/admin.php:2163
 msgid "Disable"
 msgstr "Poista käytöstä"
 
-#: mod/admin.php:1912 mod/admin.php:2161
+#: mod/admin.php:1917 mod/admin.php:2166
 msgid "Enable"
 msgstr "Ota käyttöön"
 
-#: mod/admin.php:1934 mod/admin.php:2203
+#: mod/admin.php:1939 mod/admin.php:2209
 msgid "Toggle"
 msgstr "Vaihda"
 
-#: mod/admin.php:1942 mod/admin.php:2212
+#: mod/admin.php:1947 mod/admin.php:2218
 msgid "Author: "
 msgstr "Tekijä"
 
-#: mod/admin.php:1943 mod/admin.php:2213
+#: mod/admin.php:1948 mod/admin.php:2219
 msgid "Maintainer: "
 msgstr "Ylläpitäjä:"
 
-#: mod/admin.php:1995
+#: mod/admin.php:2000
 msgid "Reload active addons"
 msgstr ""
 
-#: mod/admin.php:2000
+#: mod/admin.php:2005
 #, php-format
 msgid ""
 "There are currently no addons available on your node. You can find the "
@@ -5601,70 +5075,70 @@ msgid ""
 " the open addon registry at %2$s"
 msgstr ""
 
-#: mod/admin.php:2120
+#: mod/admin.php:2125
 msgid "No themes found."
 msgstr "Teemoja ei löytynyt."
 
-#: mod/admin.php:2194
+#: mod/admin.php:2200
 msgid "Screenshot"
 msgstr "Kuvakaappaus"
 
-#: mod/admin.php:2248
+#: mod/admin.php:2254
 msgid "Reload active themes"
 msgstr "Lataa aktiiviset teemat uudelleen"
 
-#: mod/admin.php:2253
+#: mod/admin.php:2259
 #, php-format
 msgid "No themes found on the system. They should be placed in %1$s"
 msgstr "Teemoja ei löytynyt järjestelmästä. Teemat tulisi laittaa kansioon %1$s"
 
-#: mod/admin.php:2254
+#: mod/admin.php:2260
 msgid "[Experimental]"
 msgstr "[Kokeellinen]"
 
-#: mod/admin.php:2255
+#: mod/admin.php:2261
 msgid "[Unsupported]"
 msgstr "[Ei tueta]"
 
-#: mod/admin.php:2279
+#: mod/admin.php:2285
 msgid "Log settings updated."
 msgstr "Lokiasetukset päivitetty."
 
-#: mod/admin.php:2311
+#: mod/admin.php:2317
 msgid "PHP log currently enabled."
 msgstr "PHP-loki käytössä"
 
-#: mod/admin.php:2313
+#: mod/admin.php:2319
 msgid "PHP log currently disabled."
 msgstr "PHP-loki pois käytöstä"
 
-#: mod/admin.php:2322
+#: mod/admin.php:2328
 msgid "Clear"
 msgstr "Tyhjennä"
 
-#: mod/admin.php:2326
+#: mod/admin.php:2332
 msgid "Enable Debugging"
 msgstr "Ota virheenkorjaustila käyttöön"
 
-#: mod/admin.php:2327
+#: mod/admin.php:2333
 msgid "Log file"
 msgstr "Lokitiedosto"
 
-#: mod/admin.php:2327
+#: mod/admin.php:2333
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
 msgstr ""
 
-#: mod/admin.php:2328
+#: mod/admin.php:2334
 msgid "Log level"
 msgstr "Lokitaso"
 
-#: mod/admin.php:2330
+#: mod/admin.php:2336
 msgid "PHP logging"
 msgstr "PHP-loki"
 
-#: mod/admin.php:2331
+#: mod/admin.php:2337
 msgid ""
 "To enable logging of PHP errors and warnings you can add the following to "
 "the .htconfig.php file of your installation. The filename set in the "
@@ -5673,36 +5147,70 @@ msgid ""
 "'display_errors' is to enable these options, set to '0' to disable them."
 msgstr ""
 
-#: mod/admin.php:2362
+#: mod/admin.php:2368
 #, php-format
 msgid ""
 "Error trying to open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see "
 "if file %1$s exist and is readable."
 msgstr ""
 
-#: mod/admin.php:2366
+#: mod/admin.php:2372
 #, php-format
 msgid ""
 "Couldn't open <strong>%1$s</strong> log file.\\r\\n<br/>Check to see if file"
 " %1$s is readable."
 msgstr ""
 
-#: mod/admin.php:2457 mod/admin.php:2458 mod/settings.php:767
+#: mod/admin.php:2463 mod/admin.php:2464 mod/settings.php:767
 msgid "Off"
 msgstr "Pois päältä"
 
-#: mod/admin.php:2457 mod/admin.php:2458 mod/settings.php:767
+#: mod/admin.php:2463 mod/admin.php:2464 mod/settings.php:767
 msgid "On"
 msgstr "Päällä"
 
-#: mod/admin.php:2458
+#: mod/admin.php:2464
 #, php-format
 msgid "Lock feature %s"
 msgstr "Lukitse ominaisuus %s"
 
-#: mod/admin.php:2466
+#: mod/admin.php:2472
 msgid "Manage Additional Features"
 msgstr "Hallitse lisäominaisuudet"
+
+#: mod/community.php:51
+msgid "Community option not available."
+msgstr "Yhteisö vaihtoehto ei saatavilla."
+
+#: mod/community.php:68
+msgid "Not available."
+msgstr "Ei saatavilla."
+
+#: mod/community.php:81
+msgid "Local Community"
+msgstr "Paikallinen yhteisö"
+
+#: mod/community.php:84
+msgid "Posts from local users on this server"
+msgstr "Tämän palvelimen julkaisut"
+
+#: mod/community.php:92
+msgid "Global Community"
+msgstr "Maailmanlaajuinen yhteisö"
+
+#: mod/community.php:95
+msgid "Posts from users of the whole federated network"
+msgstr "Maailmanlaajuisen verkon julkaisut"
+
+#: mod/community.php:141 mod/search.php:228
+msgid "No results."
+msgstr "Ei tuloksia."
+
+#: mod/community.php:185
+msgid ""
+"This community stream shows all public posts received by this node. They may"
+" not reflect the opinions of this node’s users."
+msgstr ""
 
 #: mod/dfrn_confirm.php:74 mod/profiles.php:39 mod/profiles.php:149
 #: mod/profiles.php:196 mod/profiles.php:525
@@ -5933,6 +5441,139 @@ msgid ""
 " bar."
 msgstr " - älä käytä tätä lomaketta. Kirjoita sen sijaan %s Diaspora-hakupalkkiisi."
 
+#: mod/events.php:105 mod/events.php:107
+msgid "Event can not end before it has started."
+msgstr "Tapahtuma ei voi päättyä ennen kuin on alkanut."
+
+#: mod/events.php:114 mod/events.php:116
+msgid "Event title and start time are required."
+msgstr "Tapahtuman nimi ja alkamisaika vaaditaan."
+
+#: mod/events.php:393
+msgid "Create New Event"
+msgstr "Luo uusi tapahtuma"
+
+#: mod/events.php:507
+msgid "Event details"
+msgstr "Tapahtuman tiedot"
+
+#: mod/events.php:508
+msgid "Starting date and Title are required."
+msgstr "Aloituspvm ja otsikko vaaditaan."
+
+#: mod/events.php:509 mod/events.php:510
+msgid "Event Starts:"
+msgstr "Tapahtuma alkaa:"
+
+#: mod/events.php:509 mod/events.php:521 mod/profiles.php:607
+msgid "Required"
+msgstr "Vaaditaan"
+
+#: mod/events.php:511 mod/events.php:527
+msgid "Finish date/time is not known or not relevant"
+msgstr "Päättymispvm ja kellonaika ei ole tiedossa tai niillä ei ole merkitystä"
+
+#: mod/events.php:513 mod/events.php:514
+msgid "Event Finishes:"
+msgstr "Tapahtuma päättyy:"
+
+#: mod/events.php:515 mod/events.php:528
+msgid "Adjust for viewer timezone"
+msgstr "Ota huomioon katsojan aikavyöhyke"
+
+#: mod/events.php:517
+msgid "Description:"
+msgstr "Kuvaus:"
+
+#: mod/events.php:521 mod/events.php:523
+msgid "Title:"
+msgstr "Otsikko:"
+
+#: mod/events.php:524 mod/events.php:525
+msgid "Share this event"
+msgstr "Jaa tämä tapahtuma"
+
+#: mod/events.php:532 src/Model/Profile.php:862
+msgid "Basic"
+msgstr ""
+
+#: mod/events.php:534 mod/photos.php:1086 mod/photos.php:1435
+#: src/Core/ACL.php:318
+msgid "Permissions"
+msgstr "Käyttöoikeudet"
+
+#: mod/events.php:553
+msgid "Failed to remove event"
+msgstr "Tapahtuman poisto epäonnistui"
+
+#: mod/events.php:555
+msgid "Event removed"
+msgstr "Tapahtuma poistettu"
+
+#: mod/group.php:36
+msgid "Group created."
+msgstr "Ryhmä luotu."
+
+#: mod/group.php:42
+msgid "Could not create group."
+msgstr "Ryhmää ei voitu luoda."
+
+#: mod/group.php:56 mod/group.php:157
+msgid "Group not found."
+msgstr "Ryhmää ei löytynyt."
+
+#: mod/group.php:70
+msgid "Group name changed."
+msgstr "Ryhmän nimi muutettu."
+
+#: mod/group.php:97
+msgid "Save Group"
+msgstr "Tallenna ryhmä"
+
+#: mod/group.php:102
+msgid "Create a group of contacts/friends."
+msgstr "Luo kontakti/kaveriryhmä"
+
+#: mod/group.php:103 mod/group.php:199 src/Model/Group.php:421
+msgid "Group Name: "
+msgstr "Ryhmän nimi:"
+
+#: mod/group.php:127
+msgid "Group removed."
+msgstr "Ryhmä poistettu."
+
+#: mod/group.php:129
+msgid "Unable to remove group."
+msgstr "Ryhmää ei voida poistaa."
+
+#: mod/group.php:192
+msgid "Delete Group"
+msgstr "Poista ryhmä"
+
+#: mod/group.php:198
+msgid "Group Editor"
+msgstr "Ryhmien muokkausta"
+
+#: mod/group.php:203
+msgid "Edit Group Name"
+msgstr "Muokkaa ryhmän nimeä"
+
+#: mod/group.php:213
+msgid "Members"
+msgstr "Jäsenet"
+
+#: mod/group.php:216 mod/network.php:639
+msgid "Group is empty"
+msgstr "Ryhmä on tyhjä"
+
+#: mod/group.php:229
+msgid "Remove contact from group"
+msgstr "Poista kontakti ryhmästä"
+
+#: mod/group.php:253
+msgid "Add contact to group"
+msgstr "Lisää kontakti ryhmään"
+
 #: mod/item.php:114
 msgid "Unable to locate original post."
 msgstr "Alkuperäinen julkaisu ei löydy."
@@ -5963,6 +5604,103 @@ msgstr ""
 #, php-format
 msgid "%s posted an update."
 msgstr "%s julkaisi päivityksen."
+
+#: mod/network.php:194 mod/search.php:37
+msgid "Remove term"
+msgstr "Poista kohde"
+
+#: mod/network.php:201 mod/search.php:46 src/Content/Feature.php:100
+msgid "Saved Searches"
+msgstr "Tallennetut haut"
+
+#: mod/network.php:202 src/Model/Group.php:413
+msgid "add"
+msgstr "lisää"
+
+#: mod/network.php:547
+#, php-format
+msgid ""
+"Warning: This group contains %s member from a network that doesn't allow non"
+" public messages."
+msgid_plural ""
+"Warning: This group contains %s members from a network that doesn't allow "
+"non public messages."
+msgstr[0] ""
+msgstr[1] ""
+
+#: mod/network.php:550
+msgid "Messages in this group won't be send to these receivers."
+msgstr ""
+
+#: mod/network.php:618
+msgid "No such group"
+msgstr "Ryhmä ei ole olemassa"
+
+#: mod/network.php:643
+#, php-format
+msgid "Group: %s"
+msgstr "Ryhmä: %s"
+
+#: mod/network.php:669
+msgid "Private messages to this person are at risk of public disclosure."
+msgstr "Yksityisviestit lähetetty tälle henkilölle saattaa näkyä muillekin."
+
+#: mod/network.php:672
+msgid "Invalid contact."
+msgstr "Virheellinen kontakti."
+
+#: mod/network.php:943
+msgid "Commented Order"
+msgstr "Järjestä viimeisimpien kommenttien mukaan"
+
+#: mod/network.php:946
+msgid "Sort by Comment Date"
+msgstr "Kommentit päivämäärän mukaan"
+
+#: mod/network.php:951
+msgid "Posted Order"
+msgstr "Järjestä julkaisupäivämäärän mukaan"
+
+#: mod/network.php:954
+msgid "Sort by Post Date"
+msgstr "Julkaisut päivämäärän mukaan"
+
+#: mod/network.php:962 mod/profiles.php:594
+#: src/Core/NotificationsManager.php:185
+msgid "Personal"
+msgstr "Henkilökohtainen"
+
+#: mod/network.php:965
+msgid "Posts that mention or involve you"
+msgstr "Julkaisut jotka liittyvät sinuun"
+
+#: mod/network.php:973
+msgid "New"
+msgstr "Uusi"
+
+#: mod/network.php:976
+msgid "Activity Stream - by date"
+msgstr ""
+
+#: mod/network.php:984
+msgid "Shared Links"
+msgstr "Jaetut linkit"
+
+#: mod/network.php:987
+msgid "Interesting Links"
+msgstr "Kiinnostavat linkit"
+
+#: mod/network.php:995
+msgid "Starred"
+msgstr "Tähtimerkitty"
+
+#: mod/network.php:998
+msgid "Favourite Posts"
+msgstr "Lempijulkaisut"
+
+#: mod/notes.php:52 src/Model/Profile.php:944
+msgid "Personal Notes"
+msgstr "Henkilökohtaiset tiedot"
 
 #: mod/notifications.php:37
 msgid "Invalid request identifier."
@@ -6072,21 +5810,235 @@ msgstr "Näytä kaikki"
 msgid "No more %s notifications."
 msgstr "Ei muita %s ilmoituksia."
 
+#: mod/openid.php:29
+msgid "OpenID protocol error. No ID returned."
+msgstr "OpenID -protokollavirhe. Tunnusta ei vastaanotettu."
+
+#: mod/openid.php:66
+msgid ""
+"Account not found and OpenID registration is not permitted on this site."
+msgstr "Käyttäjätiliä ei löytynyt. Rekisteröityminen OpenID:n kautta ei ole sallittua tällä sivustolla."
+
+#: mod/openid.php:116 src/Module/Login.php:86 src/Module/Login.php:135
+msgid "Login failed."
+msgstr "Kirjautuminen epäonnistui"
+
+#: mod/photos.php:108 src/Model/Profile.php:905
+msgid "Photo Albums"
+msgstr "Valokuva-albumit"
+
+#: mod/photos.php:109 mod/photos.php:1708
+msgid "Recent Photos"
+msgstr "Viimeaikaisia kuvia"
+
+#: mod/photos.php:112 mod/photos.php:1198 mod/photos.php:1710
+msgid "Upload New Photos"
+msgstr "Lähetä uusia kuvia"
+
+#: mod/photos.php:126 mod/settings.php:51
+msgid "everybody"
+msgstr "kaikki"
+
+#: mod/photos.php:184
+msgid "Contact information unavailable"
+msgstr "Kontaktin tietoja ei saatavilla"
+
+#: mod/photos.php:204
+msgid "Album not found."
+msgstr "Albumia ei ole."
+
+#: mod/photos.php:234 mod/photos.php:245 mod/photos.php:1149
+msgid "Delete Album"
+msgstr "Poista albumi"
+
+#: mod/photos.php:243
+msgid "Do you really want to delete this photo album and all its photos?"
+msgstr "Haluatko varmasti poistaa tämän albumin ja kaikki sen kuvat?"
+
+#: mod/photos.php:303 mod/photos.php:314 mod/photos.php:1440
+msgid "Delete Photo"
+msgstr "Poista valokuva"
+
+#: mod/photos.php:312
+msgid "Do you really want to delete this photo?"
+msgstr "Haluatko varmasti poistaa kuvan?"
+
+#: mod/photos.php:655
+msgid "a photo"
+msgstr "valokuva"
+
+#: mod/photos.php:655
+#, php-format
+msgid "%1$s was tagged in %2$s by %3$s"
+msgstr "%1$s merkattiin kuvaan %2$s ystävän %3$s toimesta"
+
+#: mod/photos.php:757
+msgid "Image upload didn't complete, please try again"
+msgstr "Kuvan lataus ei onnistunut, yritä uudelleen"
+
+#: mod/photos.php:760
+msgid "Image file is missing"
+msgstr "Kuvatiedosto puuttuu"
+
+#: mod/photos.php:765
+msgid ""
+"Server can't accept new file upload at this time, please contact your "
+"administrator"
+msgstr ""
+
+#: mod/photos.php:791
+msgid "Image file is empty."
+msgstr "Kuvatiedosto on tyhjä."
+
+#: mod/photos.php:928
+msgid "No photos selected"
+msgstr "Ei valittuja kuvia"
+
+#: mod/photos.php:1024 mod/videos.php:309
+msgid "Access to this item is restricted."
+msgstr "Pääsy kohteeseen on rajoitettu."
+
+#: mod/photos.php:1078
+msgid "Upload Photos"
+msgstr "Lähetä kuvia"
+
+#: mod/photos.php:1082 mod/photos.php:1144
+msgid "New album name: "
+msgstr "Albumin uusi nimi: "
+
+#: mod/photos.php:1083
+msgid "or existing album name: "
+msgstr "tai olemassaolevan albumin nimi: "
+
+#: mod/photos.php:1084
+msgid "Do not show a status post for this upload"
+msgstr "Älä näytä tilaviestiä tälle lähetykselle"
+
+#: mod/photos.php:1094 mod/photos.php:1443 mod/settings.php:1218
+msgid "Show to Groups"
+msgstr "Näytä ryhmille"
+
+#: mod/photos.php:1095 mod/photos.php:1444 mod/settings.php:1219
+msgid "Show to Contacts"
+msgstr "Näytä kontakteille"
+
+#: mod/photos.php:1155
+msgid "Edit Album"
+msgstr "Muokkaa albumia"
+
+#: mod/photos.php:1160
+msgid "Show Newest First"
+msgstr "Näytä uusin ensin"
+
+#: mod/photos.php:1162
+msgid "Show Oldest First"
+msgstr "Näytä vanhin ensin"
+
+#: mod/photos.php:1183 mod/photos.php:1693
+msgid "View Photo"
+msgstr "Näytä kuva"
+
+#: mod/photos.php:1224
+msgid "Permission denied. Access to this item may be restricted."
+msgstr "Estetty. Tämän kohteen käyttöä on saatettu rajoittaa."
+
+#: mod/photos.php:1226
+msgid "Photo not available"
+msgstr "Kuva ei ole saatavilla"
+
+#: mod/photos.php:1294
+msgid "View photo"
+msgstr "Näytä kuva"
+
+#: mod/photos.php:1294
+msgid "Edit photo"
+msgstr "Muokkaa kuvaa"
+
+#: mod/photos.php:1295
+msgid "Use as profile photo"
+msgstr "Käytä profiilikuvana"
+
+#: mod/photos.php:1301 src/Object/Post.php:149
+msgid "Private Message"
+msgstr "Yksityisviesti"
+
+#: mod/photos.php:1321
+msgid "View Full Size"
+msgstr "Näytä täysikokoisena"
+
+#: mod/photos.php:1408
+msgid "Tags: "
+msgstr "Merkinnät:"
+
+#: mod/photos.php:1411
+msgid "[Remove any tag]"
+msgstr "[Poista mikä tahansa merkintä]"
+
+#: mod/photos.php:1426
+msgid "New album name"
+msgstr "Uusi nimi albumille"
+
+#: mod/photos.php:1427
+msgid "Caption"
+msgstr "Kuvateksti"
+
+#: mod/photos.php:1428
+msgid "Add a Tag"
+msgstr "Lisää merkintä"
+
+#: mod/photos.php:1428
+msgid ""
+"Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
+msgstr "Esimerkki: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping"
+
+#: mod/photos.php:1429
+msgid "Do not rotate"
+msgstr "Älä kierrä"
+
+#: mod/photos.php:1430
+msgid "Rotate CW (right)"
+msgstr "Käännä oikealle"
+
+#: mod/photos.php:1431
+msgid "Rotate CCW (left)"
+msgstr "Käännä vasemmalle"
+
+#: mod/photos.php:1465 src/Object/Post.php:304
+msgid "I like this (toggle)"
+msgstr "Tykkään tästä (vaihda)"
+
+#: mod/photos.php:1466 src/Object/Post.php:305
+msgid "I don't like this (toggle)"
+msgstr "En tykkää tästä (vaihda)"
+
+#: mod/photos.php:1484 mod/photos.php:1523 mod/photos.php:1596
+#: src/Object/Post.php:407 src/Object/Post.php:803
+msgid "Comment"
+msgstr "Kommentti"
+
+#: mod/photos.php:1628
+msgid "Map"
+msgstr "Kartta"
+
+#: mod/photos.php:1699 mod/videos.php:387
+msgid "View Album"
+msgstr "Näytä albumi"
+
 #: mod/profile.php:37 src/Model/Profile.php:118
 msgid "Requested profile is not available."
 msgstr "Pyydettyä profiilia ei saatavilla."
 
-#: mod/profile.php:78 mod/profile.php:81 src/Protocol/OStatus.php:1251
+#: mod/profile.php:78 mod/profile.php:81 src/Protocol/OStatus.php:1250
 #, php-format
 msgid "%s's timeline"
 msgstr "%s: aikajana"
 
-#: mod/profile.php:79 src/Protocol/OStatus.php:1252
+#: mod/profile.php:79 src/Protocol/OStatus.php:1251
 #, php-format
 msgid "%s's posts"
 msgstr "%s: julkaisut"
 
-#: mod/profile.php:80 src/Protocol/OStatus.php:1253
+#: mod/profile.php:80 src/Protocol/OStatus.php:1252
 #, php-format
 msgid "%s's comments"
 msgstr "%s: kommentit"
@@ -6516,34 +6468,51 @@ msgstr "Rekisteröidy"
 msgid "Import your profile to this friendica instance"
 msgstr "Tuo profiilisi tähän Friendica -instanssiin."
 
-#: mod/removeme.php:44
+#: mod/removeme.php:45
 msgid "User deleted their account"
 msgstr "Käyttäjä poisti tilinsä"
 
-#: mod/removeme.php:45
+#: mod/removeme.php:46
 msgid ""
 "On your Friendica node an user deleted their account. Please ensure that "
 "their data is removed from the backups."
 msgstr "Friendica -solmullasi käyttäjä poisti tilinsä. Varmista että hänen tiedot poistetaan myös varmuuskopioista."
 
-#: mod/removeme.php:46
+#: mod/removeme.php:47
 #, php-format
 msgid "The user id is %d"
 msgstr "Käyttäjätunnus on %d"
 
-#: mod/removeme.php:77 mod/removeme.php:80
+#: mod/removeme.php:78 mod/removeme.php:81
 msgid "Remove My Account"
 msgstr "Poista tilini"
 
-#: mod/removeme.php:78
+#: mod/removeme.php:79
 msgid ""
 "This will completely remove your account. Once this has been done it is not "
 "recoverable."
 msgstr "Tämä poistaa käyttäjätilisi pysyvästi. Poistoa ei voi perua myöhemmin."
 
-#: mod/removeme.php:79
+#: mod/removeme.php:80
 msgid "Please enter your password for verification:"
 msgstr "Syötä salasanasi varmistusta varten:"
+
+#: mod/search.php:105
+msgid "Only logged in users are permitted to perform a search."
+msgstr ""
+
+#: mod/search.php:129
+msgid "Too Many Requests"
+msgstr "Liian monta pyyntöä"
+
+#: mod/search.php:130
+msgid "Only one search per minute is permitted for not logged in users."
+msgstr ""
+
+#: mod/search.php:234
+#, php-format
+msgid "Items tagged with: %s"
+msgstr "Kohteet joilla tunnisteet: %s"
 
 #: mod/settings.php:56
 msgid "Account"
@@ -6589,7 +6558,7 @@ msgstr "Ominaisuudet päivitetty"
 msgid "Relocate message has been send to your contacts"
 msgstr ""
 
-#: mod/settings.php:384 src/Model/User.php:339
+#: mod/settings.php:384 src/Model/User.php:340
 msgid "Passwords do not match. Password unchanged."
 msgstr "Salasanat eivät täsmää. Salasana ennallaan."
 
@@ -6930,8 +6899,8 @@ msgid ""
 msgstr ""
 
 #: mod/settings.php:969
-msgid "Bandwith Saver Mode"
-msgstr "Kaistanleveyssäästömoodi"
+msgid "Bandwidth Saver Mode"
+msgstr ""
 
 #: mod/settings.php:969
 msgid ""
@@ -7048,8 +7017,9 @@ msgstr "Julkaise oletusprofiilisi tämän sivuston paikallisluettelossa?"
 #: mod/settings.php:1094
 #, php-format
 msgid ""
-"Your profile will be published in the global friendica directories (e.g. <a "
-"href=\"%s\">%s</a>). Your profile will be visible in public."
+"Your profile will be published in this node's <a href=\"%s\">local "
+"directory</a>. Your profile details may be publicly visible depending on the"
+" system settings."
 msgstr ""
 
 #: mod/settings.php:1100
@@ -7059,9 +7029,8 @@ msgstr "Julkaise oletusprofiilisi maailmanlaajuisessa sosiaaliluettelossa?"
 #: mod/settings.php:1100
 #, php-format
 msgid ""
-"Your profile will be published in this node's <a href=\"%s\">local "
-"directory</a>. Your profile details may be publicly visible depending on the"
-" system settings."
+"Your profile will be published in the global friendica directories (e.g. <a "
+"href=\"%s\">%s</a>). Your profile will be visible in public."
 msgstr ""
 
 #: mod/settings.php:1107
@@ -7082,8 +7051,8 @@ msgstr ""
 #: mod/settings.php:1111
 msgid ""
 "Anonymous visitors will only see your profile picture, your display name and"
-" the nickname you are using on your profile page. Disables posting public "
-"messages to Diaspora and other networks."
+" the nickname you are using on your profile page. Your public posts and "
+"replies will still be accessible by other means."
 msgstr ""
 
 #: mod/settings.php:1115
@@ -7350,7 +7319,37 @@ msgstr ""
 msgid "Resend relocate message to contacts"
 msgstr ""
 
-#: view/theme/duepuntozero/config.php:54 src/Model/User.php:502
+#: mod/subthread.php:117
+#, php-format
+msgid "%1$s is following %2$s's %3$s"
+msgstr ""
+
+#: mod/update_community.php:27 mod/update_display.php:27
+#: mod/update_network.php:33 mod/update_notes.php:40 mod/update_profile.php:39
+msgid "[Embedded content - reload page to view]"
+msgstr "[Upotettu sisältö - näet sen päivittämällä sivun]"
+
+#: mod/videos.php:139
+msgid "Do you really want to delete this video?"
+msgstr "Haluatko varmasti poistaa tämän videon?"
+
+#: mod/videos.php:144
+msgid "Delete Video"
+msgstr "Poista video"
+
+#: mod/videos.php:207
+msgid "No videos selected"
+msgstr "Ei videoita valittuna"
+
+#: mod/videos.php:396
+msgid "Recent Videos"
+msgstr "Viimeisimmät videot"
+
+#: mod/videos.php:398
+msgid "Upload New Videos"
+msgstr "Lataa uusia videoita"
+
+#: view/theme/duepuntozero/config.php:54 src/Model/User.php:504
 msgid "default"
 msgstr "oletus"
 
@@ -8066,33 +8065,33 @@ msgstr "sekuntia"
 msgid "%1$d %2$s ago"
 msgstr "%1$d %2$s sitten"
 
-#: src/Content/Text/BBCode.php:416
+#: src/Content/Text/BBCode.php:426
 msgid "view full size"
 msgstr "näytä täysikokoisena"
 
-#: src/Content/Text/BBCode.php:842 src/Content/Text/BBCode.php:1611
-#: src/Content/Text/BBCode.php:1612
+#: src/Content/Text/BBCode.php:852 src/Content/Text/BBCode.php:1621
+#: src/Content/Text/BBCode.php:1622
 msgid "Image/photo"
 msgstr "Kuva/valokuva"
 
-#: src/Content/Text/BBCode.php:980
+#: src/Content/Text/BBCode.php:990
 #, php-format
 msgid "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
 
-#: src/Content/Text/BBCode.php:1538 src/Content/Text/BBCode.php:1560
+#: src/Content/Text/BBCode.php:1548 src/Content/Text/BBCode.php:1570
 msgid "$1 wrote:"
 msgstr "$1 kirjoitti:"
 
-#: src/Content/Text/BBCode.php:1620 src/Content/Text/BBCode.php:1621
+#: src/Content/Text/BBCode.php:1630 src/Content/Text/BBCode.php:1631
 msgid "Encrypted content"
 msgstr "Salattu sisältö"
 
-#: src/Content/Text/BBCode.php:1740
+#: src/Content/Text/BBCode.php:1750
 msgid "Invalid source protocol"
 msgstr "Virheellinen lähdeprotokolla"
 
-#: src/Content/Text/BBCode.php:1751
+#: src/Content/Text/BBCode.php:1761
 msgid "Invalid link protocol"
 msgstr "Virheellinen linkkiprotokolla"
 
@@ -8336,7 +8335,7 @@ msgstr "Uskoton"
 msgid "Sex Addict"
 msgstr "Sekririippuvainen"
 
-#: src/Content/ContactSelector.php:169 src/Model/User.php:519
+#: src/Content/ContactSelector.php:169 src/Model/User.php:521
 msgid "Friends"
 msgstr "Kaverit"
 
@@ -8844,6 +8843,124 @@ msgstr "%s: päivitetään %s-taulukkoa."
 msgid "[no subject]"
 msgstr "[ei aihetta]"
 
+#: src/Model/Group.php:44
+msgid ""
+"A deleted group with this name was revived. Existing item permissions "
+"<strong>may</strong> apply to this group and any future members. If this is "
+"not what you intended, please create another group with a different name."
+msgstr ""
+
+#: src/Model/Group.php:341
+msgid "Default privacy group for new contacts"
+msgstr "Oletusryhmä uusille kontakteille"
+
+#: src/Model/Group.php:374
+msgid "Everybody"
+msgstr "Kaikki"
+
+#: src/Model/Group.php:394
+msgid "edit"
+msgstr "muokkaa"
+
+#: src/Model/Group.php:418
+msgid "Edit group"
+msgstr "Muokkaa ryhmää"
+
+#: src/Model/Group.php:419
+msgid "Contacts not in any group"
+msgstr "Kontaktit ilman ryhmää"
+
+#: src/Model/Group.php:420
+msgid "Create a new group"
+msgstr "Luo uusi ryhmä"
+
+#: src/Model/Group.php:422
+msgid "Edit groups"
+msgstr "Muokkaa ryhmiä"
+
+#: src/Model/Contact.php:667
+msgid "Drop Contact"
+msgstr "Poista kontakti"
+
+#: src/Model/Contact.php:1101
+msgid "Organisation"
+msgstr "Järjestö"
+
+#: src/Model/Contact.php:1104
+msgid "News"
+msgstr "Uutiset"
+
+#: src/Model/Contact.php:1107
+msgid "Forum"
+msgstr "Keskustelupalsta"
+
+#: src/Model/Contact.php:1286
+msgid "Connect URL missing."
+msgstr "Yhteys URL-linkki puuttuu."
+
+#: src/Model/Contact.php:1295
+msgid ""
+"The contact could not be added. Please check the relevant network "
+"credentials in your Settings -> Social Networks page."
+msgstr "Kontaktia ei pystytty lisäämään. Tarkista verkkoasetukset omista asetuksistasi (Settings -> Social Networks)."
+
+#: src/Model/Contact.php:1342
+msgid ""
+"This site is not configured to allow communications with other networks."
+msgstr "Tämä sivusto ei salli yhteyksiä muiden verkkojen kanssa.."
+
+#: src/Model/Contact.php:1343 src/Model/Contact.php:1357
+msgid "No compatible communication protocols or feeds were discovered."
+msgstr "Yhteensopivia viestintäprotokolleja tai syötteitä ei löytynyt."
+
+#: src/Model/Contact.php:1355
+msgid "The profile address specified does not provide adequate information."
+msgstr "Annettu profiiliosoite ei sisällä riittävästi tietoa."
+
+#: src/Model/Contact.php:1360
+msgid "An author or name was not found."
+msgstr "Julkaisija tai nimi puuttuu."
+
+#: src/Model/Contact.php:1363
+msgid "No browser URL could be matched to this address."
+msgstr ""
+
+#: src/Model/Contact.php:1366
+msgid ""
+"Unable to match @-style Identity Address with a known protocol or email "
+"contact."
+msgstr ""
+
+#: src/Model/Contact.php:1367
+msgid "Use mailto: in front of address to force email check."
+msgstr "Käytä \"mailto:\" osoitteen edessä pakottaaksesi sähköpostin tarkastuksen."
+
+#: src/Model/Contact.php:1373
+msgid ""
+"The profile address specified belongs to a network which has been disabled "
+"on this site."
+msgstr "Profiilin osoite kuuluu verkkoon, joka on poistettu tältä sivustolta."
+
+#: src/Model/Contact.php:1378
+msgid ""
+"Limited profile. This person will be unable to receive direct/personal "
+"notifications from you."
+msgstr "Rajoitettu profiili. Tämä henkilö ei pysty/tule saamaan suoria/henkilökohtaisia ilmoituksia sinulta."
+
+#: src/Model/Contact.php:1429
+msgid "Unable to retrieve contact information."
+msgstr "Kontaktin tietoja ei voitu hakea."
+
+#: src/Model/Contact.php:1646 src/Protocol/DFRN.php:1515
+#, php-format
+msgid "%s's birthday"
+msgstr "%s: syntymäpäivä"
+
+#: src/Model/Contact.php:1647 src/Protocol/DFRN.php:1516
+#, php-format
+msgid "Happy Birthday %s"
+msgstr "Hyvää syntymäpäivää %s"
+
 #: src/Model/Event.php:53 src/Model/Event.php:70 src/Model/Event.php:419
 #: src/Model/Event.php:882
 msgid "Starts:"
@@ -8888,11 +9005,11 @@ msgstr "Poista tapahtuma"
 
 #: src/Model/Event.php:815
 msgid "D g:i A"
-msgstr "D g:i A"
+msgstr "D H:i"
 
 #: src/Model/Event.php:816
 msgid "g:i A"
-msgstr "g:i A"
+msgstr "H:i"
 
 #: src/Model/Event.php:901 src/Model/Event.php:903
 msgid "Show map"
@@ -8902,40 +9019,20 @@ msgstr "Näytä kartta"
 msgid "Hide map"
 msgstr "Piilota kartta"
 
-#: src/Model/Group.php:44
-msgid ""
-"A deleted group with this name was revived. Existing item permissions "
-"<strong>may</strong> apply to this group and any future members. If this is "
-"not what you intended, please create another group with a different name."
-msgstr ""
+#: src/Model/Item.php:1883
+#, php-format
+msgid "%1$s is attending %2$s's %3$s"
+msgstr "%1$s osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
 
-#: src/Model/Group.php:341
-msgid "Default privacy group for new contacts"
-msgstr "Oletusryhmä uusille kontakteille"
+#: src/Model/Item.php:1888
+#, php-format
+msgid "%1$s is not attending %2$s's %3$s"
+msgstr "%1$s ei osallistu tapahtumaan %3$s, jonka järjestää %2$s"
 
-#: src/Model/Group.php:374
-msgid "Everybody"
-msgstr "Kaikki"
-
-#: src/Model/Group.php:394
-msgid "edit"
-msgstr "muokkaa"
-
-#: src/Model/Group.php:418
-msgid "Edit group"
-msgstr "Muokkaa ryhmää"
-
-#: src/Model/Group.php:419
-msgid "Contacts not in any group"
-msgstr "Kontaktit ilman ryhmää"
-
-#: src/Model/Group.php:420
-msgid "Create a new group"
-msgstr "Luo uusi ryhmä"
-
-#: src/Model/Group.php:422
-msgid "Edit groups"
-msgstr "Muokkaa ryhmiä"
+#: src/Model/Item.php:1893
+#, php-format
+msgid "%1$s may attend %2$s's %3$s"
+msgstr "%1$s ehkä osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
 
 #: src/Model/Profile.php:97
 msgid "Requested account is not available."
@@ -9063,86 +9160,86 @@ msgstr "Kirjautuminen epäonnistui"
 msgid "Not enough information to authenticate"
 msgstr "Ei tarpeeksi tietoja kirjautumiseen"
 
-#: src/Model/User.php:346
+#: src/Model/User.php:347
 msgid "An invitation is required."
 msgstr "Vaaditaa kutsu."
 
-#: src/Model/User.php:350
+#: src/Model/User.php:351
 msgid "Invitation could not be verified."
 msgstr "Kutsua ei voitu vahvistaa."
 
-#: src/Model/User.php:357
+#: src/Model/User.php:358
 msgid "Invalid OpenID url"
 msgstr "Virheellinen OpenID url-osoite"
 
-#: src/Model/User.php:370 src/Module/Login.php:101
+#: src/Model/User.php:371 src/Module/Login.php:101
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr "Kohtasimme ongelman antamasi OpenID:n kanssa. Ole hyvä ja tarkista ID:n oikea kirjoitusasu."
 
-#: src/Model/User.php:370 src/Module/Login.php:101
+#: src/Model/User.php:371 src/Module/Login.php:101
 msgid "The error message was:"
 msgstr "Virheviesti oli:"
 
-#: src/Model/User.php:376
+#: src/Model/User.php:377
 msgid "Please enter the required information."
 msgstr "Syötä tarvittavat tiedot."
 
-#: src/Model/User.php:389
+#: src/Model/User.php:390
 msgid "Please use a shorter name."
 msgstr "Käytä lyhyempää nimeä."
 
-#: src/Model/User.php:392
+#: src/Model/User.php:393
 msgid "Name too short."
 msgstr "Nimi on liian lyhyt."
 
-#: src/Model/User.php:400
+#: src/Model/User.php:401
 msgid "That doesn't appear to be your full (First Last) name."
 msgstr "Tuo ei vakuta täydeltä nimeltäsi (Etunimi Sukunimi)."
 
-#: src/Model/User.php:405
+#: src/Model/User.php:406
 msgid "Your email domain is not among those allowed on this site."
 msgstr "Sähköpostiosoitteesi verkkotunnus on tämän sivuston estolistalla."
 
-#: src/Model/User.php:409
+#: src/Model/User.php:410
 msgid "Not a valid email address."
 msgstr "Virheellinen sähköpostiosoite."
 
-#: src/Model/User.php:413 src/Model/User.php:421
+#: src/Model/User.php:414 src/Model/User.php:422
 msgid "Cannot use that email."
 msgstr "Sähköpostiosoitetta ei voitu käyttää."
 
-#: src/Model/User.php:428
+#: src/Model/User.php:429
 msgid "Your nickname can only contain a-z, 0-9 and _."
 msgstr "Nimimerkki voi sisältää a-z, 0-9 ja _."
 
-#: src/Model/User.php:435 src/Model/User.php:491
+#: src/Model/User.php:436 src/Model/User.php:493
 msgid "Nickname is already registered. Please choose another."
 msgstr "Valitsemasi nimimerkki on jo käytössä. Valitse toinen nimimerkki."
 
-#: src/Model/User.php:445
+#: src/Model/User.php:446
 msgid "SERIOUS ERROR: Generation of security keys failed."
 msgstr "VAKAVA VIRHE: Salausavainten luominen epäonnistui."
 
-#: src/Model/User.php:478 src/Model/User.php:482
+#: src/Model/User.php:480 src/Model/User.php:484
 msgid "An error occurred during registration. Please try again."
 msgstr "Rekisteröityminen epäonnistui. Yritä uudelleen."
 
-#: src/Model/User.php:507
+#: src/Model/User.php:509
 msgid "An error occurred creating your default profile. Please try again."
 msgstr "Oletusprofiilin luominen epäonnistui. Yritä uudelleen."
 
-#: src/Model/User.php:514
+#: src/Model/User.php:516
 msgid "An error occurred creating your self contact. Please try again."
 msgstr "Yhteystietojesi luonti epäonnistui. Yritä uudelleen."
 
-#: src/Model/User.php:523
+#: src/Model/User.php:525
 msgid ""
 "An error occurred creating your default contact group. Please try again."
 msgstr "Oletusryhmäsi luonti epäonnistui. Yritä uudelleen."
 
-#: src/Model/User.php:597
+#: src/Model/User.php:599
 #, php-format
 msgid ""
 "\n"
@@ -9151,12 +9248,12 @@ msgid ""
 "\t\t"
 msgstr "\n\t\t\tHei %1$s,\n\t\t\t\tKiitoksia rekisteröitymisestä sivustolle %2$s. Tilisi on odottamassa ylläpidon hyväksyntää.\n\t\t"
 
-#: src/Model/User.php:607
+#: src/Model/User.php:609
 #, php-format
 msgid "Registration at %s"
 msgstr "Rekisteröityminen kohteessa %s"
 
-#: src/Model/User.php:625
+#: src/Model/User.php:627
 #, php-format
 msgid ""
 "\n"
@@ -9165,7 +9262,7 @@ msgid ""
 "\t\t"
 msgstr "\n\t\t\tHei %1$s,\n\t\t\t\tKiitoksia rekisteröinnistä sivustolle %2$s. Tilisi on luotu.\n\t\t"
 
-#: src/Model/User.php:629
+#: src/Model/User.php:631
 #, php-format
 msgid ""
 "\n"
@@ -9197,122 +9294,6 @@ msgid ""
 "\t\t\tThank you and welcome to %2$s."
 msgstr ""
 
-#: src/Model/Contact.php:667
-msgid "Drop Contact"
-msgstr "Poista kontakti"
-
-#: src/Model/Contact.php:1101
-msgid "Organisation"
-msgstr "Järjestö"
-
-#: src/Model/Contact.php:1104
-msgid "News"
-msgstr "Uutiset"
-
-#: src/Model/Contact.php:1107
-msgid "Forum"
-msgstr "Keskustelupalsta"
-
-#: src/Model/Contact.php:1286
-msgid "Connect URL missing."
-msgstr "Yhteys URL-linkki puuttuu."
-
-#: src/Model/Contact.php:1295
-msgid ""
-"The contact could not be added. Please check the relevant network "
-"credentials in your Settings -> Social Networks page."
-msgstr "Kontaktia ei pystytty lisäämään. Tarkista verkkoasetukset omista asetuksistasi (Settings -> Social Networks)."
-
-#: src/Model/Contact.php:1342
-msgid ""
-"This site is not configured to allow communications with other networks."
-msgstr "Tämä sivusto ei salli yhteyksiä muiden verkkojen kanssa.."
-
-#: src/Model/Contact.php:1343 src/Model/Contact.php:1357
-msgid "No compatible communication protocols or feeds were discovered."
-msgstr "Yhteensopivia viestintäprotokolleja tai syötteitä ei löytynyt."
-
-#: src/Model/Contact.php:1355
-msgid "The profile address specified does not provide adequate information."
-msgstr "Annettu profiiliosoite ei sisällä riittävästi tietoa."
-
-#: src/Model/Contact.php:1360
-msgid "An author or name was not found."
-msgstr "Julkaisija tai nimi puuttuu."
-
-#: src/Model/Contact.php:1363
-msgid "No browser URL could be matched to this address."
-msgstr ""
-
-#: src/Model/Contact.php:1366
-msgid ""
-"Unable to match @-style Identity Address with a known protocol or email "
-"contact."
-msgstr ""
-
-#: src/Model/Contact.php:1367
-msgid "Use mailto: in front of address to force email check."
-msgstr "Käytä \"mailto:\" osoitteen edessä pakottaaksesi sähköpostin tarkastuksen."
-
-#: src/Model/Contact.php:1373
-msgid ""
-"The profile address specified belongs to a network which has been disabled "
-"on this site."
-msgstr "Profiilin osoite kuuluu verkkoon, joka on poistettu tältä sivustolta."
-
-#: src/Model/Contact.php:1378
-msgid ""
-"Limited profile. This person will be unable to receive direct/personal "
-"notifications from you."
-msgstr "Rajoitettu profiili. Tämä henkilö ei pysty/tule saamaan suoria/henkilökohtaisia ilmoituksia sinulta."
-
-#: src/Model/Contact.php:1429
-msgid "Unable to retrieve contact information."
-msgstr "Kontaktin tietoja ei voitu hakea."
-
-#: src/Model/Contact.php:1646 src/Protocol/DFRN.php:1513
-#, php-format
-msgid "%s's birthday"
-msgstr "%s: syntymäpäivä"
-
-#: src/Model/Contact.php:1647 src/Protocol/DFRN.php:1514
-#, php-format
-msgid "Happy Birthday %s"
-msgstr "Hyvää syntymäpäivää %s"
-
-#: src/Model/Item.php:1851
-#, php-format
-msgid "%1$s is attending %2$s's %3$s"
-msgstr "%1$s osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
-
-#: src/Model/Item.php:1856
-#, php-format
-msgid "%1$s is not attending %2$s's %3$s"
-msgstr "%1$s ei osallistu tapahtumaan %3$s, jonka järjestää %2$s"
-
-#: src/Model/Item.php:1861
-#, php-format
-msgid "%1$s may attend %2$s's %3$s"
-msgstr "%1$s ehkä osallistuu tapahtumaan %3$s, jonka järjestää %2$s"
-
-#: src/Protocol/OStatus.php:1799
-#, php-format
-msgid "%s is now following %s."
-msgstr "%s seuraa %s."
-
-#: src/Protocol/OStatus.php:1800
-msgid "following"
-msgstr "seuraa"
-
-#: src/Protocol/OStatus.php:1803
-#, php-format
-msgid "%s stopped following %s."
-msgstr "%s ei enää seuraa %s."
-
-#: src/Protocol/OStatus.php:1804
-msgid "stopped following"
-msgstr "ei enää seuraa"
-
 #: src/Protocol/Diaspora.php:2521
 msgid "Sharing notification from Diaspora network"
 msgstr "Ilmoitus Diaspora -verkosta tapahtuneesta jakamisesta."
@@ -9320,6 +9301,24 @@ msgstr "Ilmoitus Diaspora -verkosta tapahtuneesta jakamisesta."
 #: src/Protocol/Diaspora.php:3609
 msgid "Attachments:"
 msgstr "Liitteitä:"
+
+#: src/Protocol/OStatus.php:1798
+#, php-format
+msgid "%s is now following %s."
+msgstr "%s seuraa %s."
+
+#: src/Protocol/OStatus.php:1799
+msgid "following"
+msgstr "seuraa"
+
+#: src/Protocol/OStatus.php:1802
+#, php-format
+msgid "%s stopped following %s."
+msgstr "%s ei enää seuraa %s."
+
+#: src/Protocol/OStatus.php:1803
+msgid "stopped following"
+msgstr "ei enää seuraa"
 
 #: src/Worker/Delivery.php:415
 msgid "(no subject)"
@@ -9405,8 +9404,12 @@ msgid "This entry was edited"
 msgstr "Tämä kohde oli muokattu"
 
 #: src/Object/Post.php:187
-msgid "Remove from your stream"
-msgstr "Poista virrastasi"
+msgid "Delete globally"
+msgstr ""
+
+#: src/Object/Post.php:187
+msgid "Remove locally"
+msgstr ""
 
 #: src/Object/Post.php:200
 msgid "save to folder"
@@ -9527,15 +9530,15 @@ msgstr "Linkki"
 msgid "Video"
 msgstr "Video"
 
-#: src/App.php:524
+#: src/App.php:526
 msgid "Delete this item?"
 msgstr "Poista tämä kohde?"
 
-#: src/App.php:526
+#: src/App.php:528
 msgid "show fewer"
 msgstr "näytä vähemmän"
 
-#: src/App.php:1114
+#: src/App.php:1117
 msgid "No system theme config value set."
 msgstr ""
 
@@ -9543,12 +9546,12 @@ msgstr ""
 msgid "toggle mobile"
 msgstr "Mobiilisivusto päälle/pois"
 
-#: update.php:193
-#, php-format
-msgid "%s: Updating author-id and owner-id in item and thread table. "
-msgstr ""
-
 #: boot.php:796
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr "%s päivitys epäonnistui, katso virhelokit."
+
+#: update.php:193
+#, php-format
+msgid "%s: Updating author-id and owner-id in item and thread table. "
+msgstr ""

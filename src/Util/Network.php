@@ -18,12 +18,13 @@ use DomXPath;
 class Network
 {
 	/**
-	 * @brief Curl wrapper
+	 * Curl wrapper
 	 *
 	 * If binary flag is true, return binary results.
 	 * Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
 	 * to preserve cookies from one request to the next.
 	 *
+	 * @brief Curl wrapper
 	 * @param string  $url            URL to fetch
 	 * @param boolean $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
@@ -42,11 +43,12 @@ class Network
 	}
 
 	/**
-	 * @brief Curl wrapper with array of return values.
+	 * Curl wrapper with array of return values.
 	 *
 	 * Inner workings and parameters are the same as @ref fetchUrl but returns an array with
 	 * all the information collected during the fetch.
 	 *
+	 * @brief Curl wrapper with array of return values.
 	 * @param string  $url            URL to fetch
 	 * @param boolean $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
@@ -101,7 +103,7 @@ class Network
 		$a = get_app();
 
 		$parts = parse_url($url);
-		$path_parts = explode('/', $parts['path']);
+		$path_parts = explode('/', defaults($parts, 'path', ''));
 		foreach ($path_parts as $part) {
 		        if (strlen($part) <> mb_strlen($part)) {
 				$parts2[] = rawurlencode($part);
@@ -218,7 +220,7 @@ class Network
 		}
 
 		if (curl_errno($ch) !== CURLE_OK) {
-			logger('error fetching ' . $url . ': ' . curl_error($ch), LOGGER_NORMAL);
+			logger('error fetching ' . $url . ': ' . curl_error($ch), LOGGER_INFO);
 		}
 
 		$ret['errno'] = curl_errno($ch);
@@ -250,7 +252,7 @@ class Network
 
 			$newurl = $curl_info['redirect_url'];
 
-			if (($new_location_info['path'] == '') && ($new_location_info['host'] != '')) {
+			if (empty($new_location_info['path']) && !empty($new_location_info['host'])) {
 				$newurl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
 			}
 
@@ -410,7 +412,7 @@ class Network
 			$matches = [];
 			$new_location_info = @parse_url($curl_info['redirect_url']);
 			$old_location_info = @parse_url($curl_info['url']);
-	
+
 			preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
 			$newurl = trim(array_pop($matches));
 
@@ -492,7 +494,11 @@ class Network
 
 		$h = substr($addr, strpos($addr, '@') + 1);
 
-		if (($h) && (dns_get_record($h, DNS_A + DNS_CNAME + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+		// Concerning the @ see here: https://stackoverflow.com/questions/36280957/dns-get-record-a-temporary-server-error-occurred
+		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+			return true;
+		}
+		if ($h && @dns_get_record($h, DNS_CNAME + DNS_MX)) {
 			return true;
 		}
 		return false;
@@ -554,21 +560,18 @@ class Network
 	 */
 	public static function isUrlBlocked($url)
 	{
-		$h = @parse_url($url);
-
-		if (! $h) {
-			return true;
-		}
-
-		$domain_blocklist = Config::get('system', 'blocklist', []);
-		if (! $domain_blocklist) {
+		$host = @parse_url($url, PHP_URL_HOST);
+		if (!$host) {
 			return false;
 		}
 
-		$host = strtolower($h['host']);
+		$domain_blocklist = Config::get('system', 'blocklist', []);
+		if (!$domain_blocklist) {
+			return false;
+		}
 
 		foreach ($domain_blocklist as $domain_block) {
-			if (strtolower($domain_block['domain']) == $host) {
+			if (strcasecmp($domain_block['domain'], $host) === 0) {
 				return true;
 			}
 		}
@@ -651,7 +654,7 @@ class Network
 	public static function stripTrackingQueryParams($url)
 	{
 		$urldata = parse_url($url);
-		if (is_string($urldata["query"])) {
+		if (!empty($urldata["query"])) {
 			$query = $urldata["query"];
 			parse_str($query, $querydata);
 
@@ -713,7 +716,7 @@ class Network
 		$url = self::stripTrackingQueryParams($url);
 
 		if ($depth > 10) {
-			return($url);
+			return $url;
 		}
 
 		$url = trim($url, "'");
@@ -736,16 +739,14 @@ class Network
 		$a->save_timestamp($stamp1, "network");
 
 		if ($http_code == 0) {
-			return($url);
+			return $url;
 		}
 
-		if ((($curl_info['http_code'] == "301") || ($curl_info['http_code'] == "302"))
-			&& (($curl_info['redirect_url'] != "") || ($curl_info['location'] != ""))
-		) {
-			if ($curl_info['redirect_url'] != "") {
-				return(self::finalUrl($curl_info['redirect_url'], ++$depth, $fetchbody));
-			} else {
-				return(self::finalUrl($curl_info['location'], ++$depth, $fetchbody));
+		if (in_array($http_code, ['301', '302'])) {
+			if (!empty($curl_info['redirect_url'])) {
+				return self::finalUrl($curl_info['redirect_url'], ++$depth, $fetchbody);
+			} elseif (!empty($curl_info['location'])) {
+				return self::finalUrl($curl_info['location'], ++$depth, $fetchbody);
 			}
 		}
 
@@ -756,12 +757,12 @@ class Network
 
 		// if the file is too large then exit
 		if ($curl_info["download_content_length"] > 1000000) {
-			return($url);
+			return $url;
 		}
 
 		// if it isn't a HTML file then exit
-		if (($curl_info["content_type"] != "") && !strstr(strtolower($curl_info["content_type"]), "html")) {
-			return($url);
+		if (!empty($curl_info["content_type"]) && !strstr(strtolower($curl_info["content_type"]), "html")) {
+			return $url;
 		}
 
 		$stamp1 = microtime(true);
@@ -780,7 +781,7 @@ class Network
 		$a->save_timestamp($stamp1, "network");
 
 		if (trim($body) == "") {
-			return($url);
+			return $url;
 		}
 
 		// Check for redirect in meta elements
@@ -803,7 +804,7 @@ class Network
 				$pathinfo = explode(";", $path);
 				foreach ($pathinfo as $value) {
 					if (substr(strtolower($value), 0, 4) == "url=") {
-						return(self::finalUrl(substr($value, 4), ++$depth));
+						return self::finalUrl(substr($value, 4), ++$depth);
 					}
 				}
 			}
@@ -835,12 +836,33 @@ class Network
 			return "";
 		}
 
+		if (empty($parts1["scheme"])) {
+			$parts1["scheme"] = '';
+		}
+		if (empty($parts2["scheme"])) {
+			$parts2["scheme"] = '';
+		}
+
 		if ($parts1["scheme"] != $parts2["scheme"]) {
 			return "";
 		}
 
+		if (empty($parts1["host"])) {
+			$parts1["host"] = '';
+		}
+		if (empty($parts2["host"])) {
+			$parts2["host"] = '';
+		}
+
 		if ($parts1["host"] != $parts2["host"]) {
 			return "";
+		}
+
+		if (empty($parts1["port"])) {
+			$parts1["port"] = '';
+		}
+		if (empty($parts2["port"])) {
+			$parts2["port"] = '';
 		}
 
 		if ($parts1["port"] != $parts2["port"]) {
@@ -853,14 +875,21 @@ class Network
 			$match .= ":".$parts1["port"];
 		}
 
+		if (empty($parts1["path"])) {
+			$parts1["path"] = '';
+		}
+		if (empty($parts2["path"])) {
+			$parts2["path"] = '';
+		}
+
 		$pathparts1 = explode("/", $parts1["path"]);
 		$pathparts2 = explode("/", $parts2["path"]);
 
 		$i = 0;
 		$path = "";
 		do {
-			$path1 = $pathparts1[$i];
-			$path2 = $pathparts2[$i];
+			$path1 = defaults($pathparts1, $i, '');
+			$path2 = defaults($pathparts2, $i, '');
 
 			if ($path1 == $path2) {
 				$path .= $path1."/";

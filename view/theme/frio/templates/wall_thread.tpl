@@ -248,7 +248,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
 			{{* insert some space if it's an top-level post *}}
 			{{if $item.thread_level==1}}
-			<div style="height:10px;">&nbsp;</div> <!-- use padding/margin instead-->
+			<div class="wall-spacer">&nbsp;</div> <!-- use padding/margin instead-->
 			{{/if}}
 
 			{{if $item.title}}
@@ -260,8 +260,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 		<!-- TODO -->
 		<div class="wall-item-bottom">
-			<div class="wall-item-links">
-			</div>
+			<div class="wall-item-links"></div>
 			<div class="wall-item-tags">
 		{{if !$item.suppress_tags}}
 			{{foreach $item.hashtags as $tag}}
