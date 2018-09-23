@@ -29,6 +29,19 @@ require_once 'include/dba.php';
 class Profile
 {
 	/**
+	 * @brief Returns default profile for a given user id
+	 *
+	 * @param integer User ID
+	 *
+	 * @return array Profile data
+	 */
+	public static function getProfileForUser($uid)
+	{
+		$profile = DBA::selectFirst('profile', [], ['uid' => $uid, 'is-default' => true]);
+		return $profile;
+	}
+
+	/**
 	 * @brief Returns a formatted location string from the given profile array
 	 *
 	 * @param array $profile Profile array (Generated from the "profile" table)

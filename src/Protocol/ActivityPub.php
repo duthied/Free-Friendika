@@ -13,6 +13,7 @@ use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
@@ -21,6 +22,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
+use Friendica\Core\Config;
 
 /**
  * @brief ActivityPub Protocol class
@@ -35,29 +37,155 @@ use Friendica\Util\LDSignature;
  * Digest: https://tools.ietf.org/html/rfc5843
  * https://tools.ietf.org/html/draft-cavage-http-signatures-10#ref-15
  *
+ * Mastodon implementation of supported activities:
+ * https://github.com/tootsuite/mastodon/blob/master/app/lib/activitypub/activity.rb#L26
+ *
  * To-do:
  *
  * Receiver:
- * - Activities: Update, Delete (Activities/Notes)
+ * - Activities: Update (Notes, Person), Delete (Person, Activities, Notes)
  * - Object Types: Person, Tombstome
  *
  * Transmitter:
- * - Activities: Announce
+ * - Activities: Announce, Update (Person)
  * - Object Tyoes: Person
  *
  * General:
- * - Endpoints: Outbox, Follower, Following
- * - General cleanup
  * - Queueing unsucessful deliveries
+ * - Event support
+ * - Polling the outboxes for missing content?
  */
 class ActivityPub
 {
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
+	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
+		['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
+		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+		'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
+		'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']];
 
 	public static function isRequest()
 	{
 		return stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json') ||
 			stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/ld+json');
+	}
+
+	public static function getFollowers($owner, $page = null)
+	{
+		$condition = ['rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
+			'self' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
+		$count = DBA::count('contact', $condition);
+
+		$data = ['@context' => self::CONTEXT];
+		$data['id'] = System::baseUrl() . '/followers/' . $owner['nickname'];
+		$data['type'] = 'OrderedCollection';
+		$data['totalItems'] = $count;
+
+		// When we hide our friends we will only show the pure number but don't allow more.
+		$profile = Profile::getProfileForUser($owner['uid']);
+		if (!empty($profile['hide-friends'])) {
+			return $data;
+		}
+
+		if (empty($page)) {
+			$data['first'] = System::baseUrl() . '/followers/' . $owner['nickname'] . '?page=1';
+		} else {
+			$list = [];
+
+			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
+			while ($contact = DBA::fetch($contacts)) {
+				$list[] = $contact['url'];
+			}
+
+			if (!empty($list)) {
+				$data['next'] = System::baseUrl() . '/followers/' . $owner['nickname'] . '?page=' . ($page + 1);
+			}
+
+			$data['partOf'] = System::baseUrl() . '/followers/' . $owner['nickname'];
+
+			$data['orderedItems'] = $list;
+		}
+
+		return $data;
+	}
+
+	public static function getFollowing($owner, $page = null)
+	{
+		$condition = ['rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
+			'self' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
+		$count = DBA::count('contact', $condition);
+
+		$data = ['@context' => self::CONTEXT];
+		$data['id'] = System::baseUrl() . '/following/' . $owner['nickname'];
+		$data['type'] = 'OrderedCollection';
+		$data['totalItems'] = $count;
+
+		// When we hide our friends we will only show the pure number but don't allow more.
+		$profile = Profile::getProfileForUser($owner['uid']);
+		if (!empty($profile['hide-friends'])) {
+			return $data;
+		}
+
+		if (empty($page)) {
+			$data['first'] = System::baseUrl() . '/following/' . $owner['nickname'] . '?page=1';
+		} else {
+			$list = [];
+
+			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
+			while ($contact = DBA::fetch($contacts)) {
+				$list[] = $contact['url'];
+			}
+
+			if (!empty($list)) {
+				$data['next'] = System::baseUrl() . '/following/' . $owner['nickname'] . '?page=' . ($page + 1);
+			}
+
+			$data['partOf'] = System::baseUrl() . '/following/' . $owner['nickname'];
+
+			$data['orderedItems'] = $list;
+		}
+
+		return $data;
+	}
+
+	public static function getOutbox($owner, $page = null)
+	{
+		$public_contact = Contact::getIdForURL($owner['url'], 0, true);
+
+		$condition = ['uid' => $owner['uid'], 'contact-id' => $owner['id'], 'author-id' => $public_contact,
+			'wall' => true, 'private' => false, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'deleted' => false, 'visible' => true];
+		$count = DBA::count('item', $condition);
+
+		$data = ['@context' => self::CONTEXT];
+		$data['id'] = System::baseUrl() . '/outbox/' . $owner['nickname'];
+		$data['type'] = 'OrderedCollection';
+		$data['totalItems'] = $count;
+
+		if (empty($page)) {
+			$data['first'] = System::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=1';
+		} else {
+			$list = [];
+
+			$condition['parent-network'] = Protocol::NATIVE_SUPPORT;
+
+			$items = Item::select(['id'], $condition, ['limit' => [($page - 1) * 20, 20], 'order' => ['created' => true]]);
+			while ($item = Item::fetch($items)) {
+				$object = self::createObjectFromItemID($item['id']);
+				unset($object['@context']);
+				$list[] = $object;
+			}
+
+			if (!empty($list)) {
+				$data['next'] = System::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=' . ($page + 1);
+			}
+
+			$data['partOf'] = System::baseUrl() . '/outbox/' . $owner['nickname'];
+
+			$data['orderedItems'] = $list;
+		}
+
+		return $data;
 	}
 
 	/**
@@ -186,7 +314,7 @@ class ActivityPub
 				if ($term['type'] != TERM_MENTION) {
 					continue;
 				}
-				$profile = self::fetchprofile($term['url']);
+				$profile = self::fetchprofile($term['url'], false);
 				if (!empty($profile) && empty($contacts[$profile['url']])) {
 					$data['cc'][] = $profile['url'];
 					$contacts[$profile['url']] = $profile['url'];
@@ -218,9 +346,11 @@ class ActivityPub
 			}
 		}
 
+// It is to decide whether we should include all profiles in a thread to the list of receivers
+/*
 		$parents = Item::select(['author-link', 'owner-link', 'gravity'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
-			$profile = self::fetchprofile($parent['author-link']);
+			$profile = self::fetchprofile($parent['author-link'], false);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
@@ -230,14 +360,14 @@ class ActivityPub
 				continue;
 			}
 
-			$profile = self::fetchprofile($parent['owner-link']);
+			$profile = self::fetchprofile($parent['owner-link'], false);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
 			}
 		}
 		DBA::close($parents);
-
+*/
 		if (empty($data['to'])) {
 			$data['to'] = $data['cc'];
 			$data['cc'] = [];
@@ -334,11 +464,7 @@ class ActivityPub
 		$type = self::getTypeOfItem($item);
 
 		if (!$object_mode) {
-			$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-				['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
-				'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
-				'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
-				'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
+			$data = ['@context' => self::CONTEXT];
 
 			if ($item['deleted'] && ($item['gravity'] == GRAVITY_ACTIVITY)) {
 				$type = 'Undo';
@@ -388,14 +514,8 @@ class ActivityPub
 			return false;
 		}
 
-		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
-			'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
-			'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
-			'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
-
+		$data = ['@context' => self::CONTEXT];
 		$data = array_merge($data, self::CreateNote($item));
-
 
 		return $data;
 	}
@@ -579,7 +699,6 @@ class ActivityPub
 		if (!$ret['success'] || empty($ret['body'])) {
 			return;
 		}
-
 		return json_decode($ret['body'], true);
 	}
 
@@ -622,13 +741,20 @@ class ActivityPub
 		return false;
 	}
 
-	public static function fetchprofile($url, $update = false)
+	/**
+	 * Fetches a profile form a given url
+	 *
+	 * @param string  $url    profile url
+	 * @param boolean $update true = always update, false = never update, null = update when not found
+	 * @return array profile array
+	 */
+	public static function fetchprofile($url, $update = null)
 	{
 		if (empty($url)) {
 			return false;
 		}
 
-		if (!$update) {
+		if (empty($update)) {
 			$apcontact = DBA::selectFirst('apcontact', [], ['url' => $url]);
 			if (DBA::isResult($apcontact)) {
 				return $apcontact;
@@ -642,6 +768,10 @@ class ActivityPub
 			$apcontact = DBA::selectFirst('apcontact', [], ['addr' => $url]);
 			if (DBA::isResult($apcontact)) {
 				return $apcontact;
+			}
+
+			if (!is_null($update)) {
+				return false;
 			}
 		}
 
@@ -1354,6 +1484,10 @@ class ActivityPub
 
 	private static function fetchMissingActivity($url, $child)
 	{
+		if (Config::get('system', 'ostatus_full_threads')) {
+			return;
+		}
+
 		$object = ActivityPub::fetchContent($url);
 		if (empty($object)) {
 			logger('Activity ' . $url . ' was not fetchable, aborting.');
