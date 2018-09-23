@@ -16,6 +16,9 @@ use Friendica\Protocol\ActivityPub;
  *
  * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/Zotlabs/Web/HTTPSig.php
  *
+ * Other parts of the code for HTTP signing are taken from the Osada project.
+ * https://framagit.org/macgirvin/osada
+ *
  * @see https://tools.ietf.org/html/draft-cavage-http-signatures-07
  */
 

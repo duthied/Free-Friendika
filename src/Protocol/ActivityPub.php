@@ -34,10 +34,6 @@ use Friendica\Util\LDSignature;
  *
  * Digest: https://tools.ietf.org/html/rfc5843
  * https://tools.ietf.org/html/draft-cavage-http-signatures-10#ref-15
- * https://github.com/digitalbazaar/php-json-ld
- *
- * Part of the code for HTTP signing is taken from the Osada project.
- * https://framagit.org/macgirvin/osada
  *
  * To-do:
  *
@@ -46,8 +42,8 @@ use Friendica\Util\LDSignature;
  * - Object Types: Person, Tombstome
  *
  * Transmitter:
- * - Activities: Announce, Delete Notes
- * - Object Tyoes: Person, Tombstone
+ * - Activities: Announce
+ * - Object Tyoes: Person
  *
  * General:
  * - Endpoints: Outbox, Follower, Following
@@ -344,8 +340,10 @@ class ActivityPub
 				'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
 				'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']]];
 
-			if ($item['deleted']) {
+			if ($item['deleted'] && ($item['gravity'] == GRAVITY_ACTIVITY)) {
 				$type = 'Undo';
+			} elseif ($item['deleted']) {
+				$type = 'Delete';
 			}
 		} else {
 			$data = [];
@@ -365,7 +363,7 @@ class ActivityPub
 
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
-		if (in_array($data['type'], ['Create', 'Update', 'Announce'])) {
+		if (in_array($data['type'], ['Create', 'Update', 'Announce', 'Delete'])) {
 			$data['object'] = self::CreateNote($item);
 		} elseif ($data['type'] == 'Undo') {
 			$data['object'] = self::createActivityFromItem($item_id, true);
@@ -441,9 +439,18 @@ class ActivityPub
 			$type = 'Note';
 		}
 
+		if ($item['deleted']) {
+			$type = 'Tombstone';
+		}
+
 		$data = [];
 		$data['id'] = $item['uri'];
 		$data['type'] = $type;
+
+		if ($item['deleted']) {
+			return $data;
+		}
+
 		$data['summary'] = null; // Ignore by now
 
 		if ($item['uri'] != $item['thr-parent']) {

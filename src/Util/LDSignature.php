@@ -6,6 +6,11 @@ use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Protocol\ActivityPub;
 
+/**
+ * @brief Implements JSON-LD signatures
+ *
+ * Ported from Osada: https://framagit.org/macgirvin/osada
+ */
 class LDSignature
 {
 	public static function isSigned($data)
