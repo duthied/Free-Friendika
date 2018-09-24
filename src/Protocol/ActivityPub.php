@@ -363,7 +363,7 @@ class ActivityPub
 			}
 		}
 
-		$parents = Item::select(['author-link', 'owner-link', 'gravity'], ['parent' => $item['parent']]);
+		$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
 			// Don't include data from future posts
 			if ($parent['id'] >= $item['id']) {
@@ -1535,6 +1535,11 @@ class ActivityPub
 	private static function postItem($activity, $item, $body)
 	{
 		/// @todo What to do with $activity['context']?
+		if (empty($activity['author']))
+			logger('Empty author');
+
+		if (empty($activity['owner']))
+			logger('Empty owner');
 
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['private'] = !in_array(0, $activity['receiver']);
