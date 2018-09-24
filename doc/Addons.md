@@ -67,47 +67,61 @@ $b can be called anything you like.
 This is information specific to the hook currently being processed, and generally contains information that is being immediately processed or acted on that you can use, display, or alter.
 Remember to declare it with `&` if you wish to alter it.
 
-## JavaScript addon hooks
+## Global stylesheets
 
-### PHP part
-
-Make sure your JavaScript addon file (addon/*addon_name*/*addon_name*.js) is listed in the document response.
-
-In your addon install function, add:
+If your addon requires adding a stylesheet on all pages of Friendica, add the following hook:
 
 ```php
-Addon::registerHook('template_vars', __FILE__, '<addon_name>_template_vars');
-```
-
-In your addon uninstall function, add:
-
-```php
-Addon::unregisterHook('template_vars', __FILE__, '<addon_name>_template_vars');
-```
-
-Then, add your addon name to the *addon_hooks* template variable array:
-
-```php
-function <addon_name>_template_vars($a, &$arr)
+function <addon>_install()
 {
-	if (!array_key_exists('addon_hooks', $arr['vars']))
-	{
-		$arr['vars']['addon_hooks'] = array();
-	}
-	$arr['vars']['addon_hooks'][] = "<addon_name>";
+	Addon::registerHook('head', __FILE__, '<addon>_head');
+	...
+}
+
+
+function <addon>_head(App $a)
+{
+	$a->registerStylesheet(__DIR__ . '/relative/path/to/addon/stylesheet.css');
 }
 ```
 
-### JavaScript part
+## JavaScript
 
-Register your addon hooks in file `addon/*addon_name*/*addon_name*.js`.
+### Global scripts
+
+If your addon requires adding a script on all pages of Friendica, add the following hook:
+
+
+```php
+function <addon>_install()
+{
+	Addon::registerHook('footer', __FILE__, '<addon>_footer');
+	...
+}
+
+function <addon>_footer(App $a)
+{
+	$a->registerFooterScript(__DIR__ . '/relative/path/to/addon/script.js');
+}
+```
+
+### JavaScript hooks
+
+The main Friendica script provides hooks via events dispatched on the `document` property.
+In your Javascript file included as described above, add your event listener like this:
 
 ```js
 document.addEventListener(name, callback);
 ```
 
-*name* is the name of the hook and corresponds to a known Friendica JavaScript hook.
-*callback* is a JavaScript function to execute.
+- *name* is the name of the hook and corresponds to a known Friendica JavaScript hook.
+- *callback* is a JavaScript function to execute.
+
+#### Current JavaScript hooks
+
+##### postprocess_liveupdate
+Called at the end of the live update process (XmlHttpRequest) and on a post preview.
+No additional data is provided.
 
 ## Modules
 
@@ -391,14 +405,9 @@ Hook data:
     visitor => array with the contact record of the visitor
     url => the query string
 
-## Current JavaScript hooks
-
-### postprocess_liveupdate
-Called at the end of the live update process (XmlHttpRequest)
-
 ## Complete list of hook callbacks
 
-Here is a complete list of all hook callbacks with file locations (as of 01-Apr-2018). Please see the source for details of any hooks not documented above.
+Here is a complete list of all hook callbacks with file locations (as of 24-Sep-2018). Please see the source for details of any hooks not documented above.
 
 ### index.php
 
