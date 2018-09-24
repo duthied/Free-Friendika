@@ -85,6 +85,8 @@ function <addon>_head(App $a)
 }
 ```
 
+`__DIR__` is the folder path of your addon.
+
 ## JavaScript
 
 ### Global scripts
@@ -105,6 +107,8 @@ function <addon>_footer(App $a)
 }
 ```
 
+`__DIR__` is the folder path of your addon.
+
 ### JavaScript hooks
 
 The main Friendica script provides hooks via events dispatched on the `document` property.
@@ -115,7 +119,9 @@ document.addEventListener(name, callback);
 ```
 
 - *name* is the name of the hook and corresponds to a known Friendica JavaScript hook.
-- *callback* is a JavaScript function to execute.
+- *callback* is a JavaScript anonymous function to execute.
+
+More info about Javascript event listeners: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
 
 #### Current JavaScript hooks
 
@@ -582,7 +588,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/App.php
 
     Addon::callHooks('load_config');
-	Addon::callHooks('head');
+    Addon::callHooks('head');
     Addon::callHooks('footer');
 
 ### src/Model/Item.php
