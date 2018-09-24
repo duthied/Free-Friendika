@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-08-25 15:34+0000\n"
-"PO-Revision-Date: 2018-09-17 14:51+0000\n"
+"PO-Revision-Date: 2018-09-22 16:53+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -214,7 +214,7 @@ msgstr "Podobné zájmy"
 
 #: view/theme/vier/theme.php:204 src/Content/Widget.php:66
 msgid "Random Profile"
-msgstr "Náhodný Profil"
+msgstr "Náhodný profil"
 
 #: view/theme/vier/theme.php:205 src/Content/Widget.php:67
 msgid "Invite Friends"
@@ -1786,7 +1786,7 @@ msgstr "Databáze se již používá."
 
 #: mod/install.php:163
 msgid "System check"
-msgstr "Testování systému"
+msgstr "Zkouška systému"
 
 #: mod/install.php:167 mod/cal.php:279 mod/events.php:394
 msgid "Next"
@@ -1794,7 +1794,7 @@ msgstr "Dále"
 
 #: mod/install.php:168
 msgid "Check again"
-msgstr "Otestovat znovu"
+msgstr "Vyskoušet znovu"
 
 #: mod/install.php:187
 msgid "Database connection"
@@ -1804,7 +1804,7 @@ msgstr "Databázové spojení"
 msgid ""
 "In order to install Friendica we need to know how to connect to your "
 "database."
-msgstr "Pro instalaci Friendica potřeujeme znát připojení k Vaší databázi."
+msgstr "Pro instalaci Friendica potřebujeme znát připojení k Vaší databázi."
 
 #: mod/install.php:189
 msgid ""
@@ -1840,13 +1840,13 @@ msgstr "Jméno databáze"
 
 #: mod/install.php:198 mod/install.php:235
 msgid "Site administrator email address"
-msgstr "Emailová adresa administrátora webu"
+msgstr "E-mailová adresa administrátora webu"
 
 #: mod/install.php:198 mod/install.php:235
 msgid ""
 "Your account email address must match this in order to use the web admin "
 "panel."
-msgstr "Vaše emailová adresa účtu se musí s touto shodovat, aby bylo možné využívat administrační panel ve webovém rozhraní."
+msgstr "Vaše e-mailová adresa účtu se musí s touto shodovat, aby bylo možné využívat administrační panel ve webovém rozhraní."
 
 #: mod/install.php:200 mod/install.php:238
 msgid "Please select a default timezone for your website"
@@ -2109,7 +2109,7 @@ msgstr "Profily"
 
 #: mod/settings.php:72 mod/admin.php:190
 msgid "Additional features"
-msgstr "Další funkčnosti"
+msgstr "Dodatečné vlastnosti"
 
 #: mod/settings.php:80
 msgid "Display"
@@ -2157,7 +2157,7 @@ msgstr "Nastavení e-mailu aktualizována."
 
 #: mod/settings.php:306
 msgid "Features updated"
-msgstr "Funkce aktualizovány"
+msgstr "Vlastnosti aktualizovány"
 
 #: mod/settings.php:379
 msgid "Relocate message has been send to your contacts"
@@ -2230,7 +2230,7 @@ msgstr "Přidat aplikaci"
 #: mod/admin.php:317 mod/admin.php:1426 mod/admin.php:2074 mod/admin.php:2328
 #: mod/admin.php:2403 mod/admin.php:2550
 msgid "Save Settings"
-msgstr "Uložit Nastavení"
+msgstr "Uložit nastavení"
 
 #: mod/settings.php:678 mod/settings.php:704
 msgid "Consumer Key"
@@ -2290,7 +2290,7 @@ msgstr "Zap"
 
 #: mod/settings.php:780
 msgid "Additional Features"
-msgstr "Další funkce"
+msgstr "Dodatečné vlastnosti"
 
 #: mod/settings.php:803 src/Content/ContactSelector.php:82
 msgid "Diaspora"
@@ -3511,19 +3511,19 @@ msgstr "Ignorovat"
 
 #: mod/notifications.php:93 src/Content/Nav.php:191
 msgid "Notifications"
-msgstr "Upozornění"
+msgstr "Oznámení"
 
 #: mod/notifications.php:101
 msgid "Network Notifications"
-msgstr "Upozornění Sítě"
+msgstr "Síťová oznámení"
 
 #: mod/notifications.php:106 mod/notify.php:81
 msgid "System Notifications"
-msgstr "Systémová upozornění"
+msgstr "Systémová oznámení"
 
 #: mod/notifications.php:111
 msgid "Personal Notifications"
-msgstr "Osobní upozornění"
+msgstr "Osobní oznámení"
 
 #: mod/notifications.php:116
 msgid "Home Notifications"
@@ -4328,7 +4328,7 @@ msgstr "Smazat položku"
 
 #: mod/admin.php:200 mod/admin.php:201 mod/admin.php:2402
 msgid "Logs"
-msgstr "Logy"
+msgstr "Záznamy"
 
 #: mod/admin.php:202 mod/admin.php:2469
 msgid "View Logs"
@@ -4336,7 +4336,7 @@ msgstr "Zobrazit záznamy"
 
 #: mod/admin.php:204
 msgid "Diagnostics"
-msgstr "Diagnostica"
+msgstr "Diagnostika"
 
 #: mod/admin.php:205
 msgid "PHP Info"
@@ -5237,7 +5237,7 @@ msgstr "Podpora OpenID pro registraci a přihlašování."
 
 #: mod/admin.php:1477
 msgid "Fullname check"
-msgstr "kontrola úplného jména"
+msgstr "Kontrola úplného jména"
 
 #: mod/admin.php:1477
 msgid ""
@@ -5299,7 +5299,7 @@ msgstr "Podpora pro Diasporu nemůže být zapnuta, protože Friendica byla nain
 
 #: mod/admin.php:1485
 msgid "Enable Diaspora support"
-msgstr "Povolit podporu Diaspora"
+msgstr "Zapnout podporu pro Diaspora"
 
 #: mod/admin.php:1485
 msgid "Provide built-in Diaspora network compatibility."
@@ -5773,7 +5773,7 @@ msgid ""
 "\n"
 "\t\t\tDear %1$s,\n"
 "\t\t\t\tthe administrator of %2$s has set up an account for you."
-msgstr "\n\t\t\tVážený/á%1$s,\n\t\t\t\tadministrátor %2$s pro Vás vytvořil uživatelský účet."
+msgstr "\n\t\t\tVážený/á %1$s,\n\t\t\t\tadministrátor %2$s pro Vás vytvořil uživatelský účet."
 
 #: mod/admin.php:1669
 #, php-format
@@ -6015,7 +6015,7 @@ msgstr "[Nepodporováno]"
 
 #: mod/admin.php:2360
 msgid "Log settings updated."
-msgstr "Nastavení protokolu aktualizováno."
+msgstr "Nastavení záznamů aktualizována."
 
 #: mod/admin.php:2393
 msgid "PHP log currently enabled."
@@ -6183,7 +6183,7 @@ msgstr "Vzdálený odběr nemůže být na Vaší síti proveden. Prosím, přih
 
 #: mod/dfrn_request.php:486
 msgid "Please login to confirm introduction."
-msgstr "Pro ptvrzení představení se prosím přihlaste."
+msgstr "Pro potvrzení představení se prosím přihlaste."
 
 #: mod/dfrn_request.php:494
 msgid ""
@@ -7847,13 +7847,13 @@ msgstr "Pokud nemáte na Vašem serveru nainstalovanou verzi PHP pro příkazov�
 
 #: src/Core/Install.php:143
 msgid "PHP executable path"
-msgstr "Cesta k \"PHP executable\""
+msgstr "Cesta ke spustitelnému souboru PHP"
 
 #: src/Core/Install.php:143
 msgid ""
 "Enter full path to php executable. You can leave this blank to continue the "
 "installation."
-msgstr "Zadejte plnou cestu k spustitelnému souboru php. Tento údaj můžete ponechat nevyplněný a pokračovat v instalaci."
+msgstr "Zadejte plnou cestu ke spustitelnému souboru PHP. Tento údaj můžete ponechat nevyplněný a pokračovat v instalaci."
 
 #: src/Core/Install.php:148
 msgid "Command line PHP"
