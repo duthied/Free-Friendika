@@ -68,6 +68,8 @@ use Friendica\Core\Config;
  * General:
  * - Queueing unsucessful deliveries
  * - Polling the outboxes for missing content?
+ * - Checking signature fails
+ * - Possibly using the LD-JSON parser
  */
 class ActivityPub
 {
@@ -1093,7 +1095,7 @@ class ActivityPub
 			return;
 		}
 
-		if (!trust_source) {
+		if (!$trust_source) {
 			logger('No trust for activity type "' . $activity['type'] . '", so we quit now.', LOGGER_DEBUG);
 		}
 
