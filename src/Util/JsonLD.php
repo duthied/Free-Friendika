@@ -40,25 +40,10 @@ class JsonLD
 		return $data;
 	}
 
-	private static function objectify($element)
-	{
-	        if (is_array($element)) {
-	                $keys = array_keys($element);
-	                if (is_int(array_pop($keys))) {
-	                        return array_map('objectify', $element);
-	                } else {
-	                        return (object)array_map('objectify', $element);
-	                }
-	        } else {
-	                return $element;
-	        }
-	}
-
 	public static function normalize($json)
 	{
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
-//		$jsonobj = array_map('Friendica\Util\JsonLD::objectify', $json);
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
 		return jsonld_normalize($jsonobj, array('algorithm' => 'URDNA2015', 'format' => 'application/nquads'));

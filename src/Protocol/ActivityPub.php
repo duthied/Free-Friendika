@@ -566,7 +566,7 @@ class ActivityPub
 		if (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
 			$conversation_uri = $conversation['conversation-uri'];
 		} else {
-			$conversation_uri = $item['parent-uri'];
+			$conversation_uri = str_replace('/object/', '/context/', $item['parent-uri']);
 		}
 		return $conversation_uri;
 	}
@@ -938,6 +938,9 @@ class ActivityPub
 
 		if (LDSignature::isSigned($activity)) {
 			$ld_signer = LDSignature::getSigner($activity);
+			if (empty($ld_signer)) {
+				logger('Invalid JSON-LD signature from ' . $actor, LOGGER_DEBUG);
+			}
 			if (!empty($ld_signer && ($actor == $http_signer))) {
 				logger('The HTTP and the JSON-LD signature belong to ' . $ld_signer, LOGGER_DEBUG);
 				$trust_source = true;
@@ -1005,52 +1008,33 @@ class ActivityPub
 
 		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
 
-		if (is_string($activity['object'])) {
-			$object_url = $activity['object'];
-		} elseif (!empty($activity['object']['id'])) {
-			$object_url = $activity['object']['id'];
-		} else {
+		$object_id = JsonLD::fetchElement($activity, 'object', 'id');
+		if (empty($object_id)) {
 			logger('No object found', LOGGER_DEBUG);
 			return [];
 		}
 
 		// Fetch the content only on activities where this matters
 		if (in_array($activity['type'], ['Create', 'Announce'])) {
-			$object_data = self::fetchObject($object_url, $activity['object'], $trust_source);
+			$object_data = self::fetchObject($object_id, $activity['object'], $trust_source);
 			if (empty($object_data)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return [];
 			}
 			// We had been able to retrieve the object data - so we can trust the source
 			$trust_source = true;
-		} elseif ($activity['type'] == 'Update') {
-			$object_data = [];
-			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
-			$object_data['object'] = $activity['object'];
-		} elseif ($activity['type'] == 'Accept') {
-			$object_data = [];
-			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
-			$object_data['object'] = JsonLD::fetchElement($activity, 'object', 'actor');
-		} elseif ($activity['type'] == 'Undo') {
-			$object_data = [];
-			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
-			if ($object_data['object_type'] == 'Follow') {
-				$object_data['object'] = JsonLD::fetchElement($activity, 'object', 'object');
-			} else {
-				$object_data['object'] = $activity['object'];
-			}
 		} elseif (in_array($activity['type'], ['Like', 'Dislike'])) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
-			$object_data = self::processCommonData($activity);
+			$object_data = self::ProcessObject($activity);
 			$object_data['name'] = $activity['type'];
 			$object_data['author'] = $activity['actor'];
-			$object_data['object'] = $object_url;
-		} elseif ($activity['type'] == 'Follow') {
-			$object_data['id'] = $activity['id'];
-			$object_data['object'] = $object_url;
+			$object_data['object'] = $object_id;
 		} else {
 			$object_data = [];
+			$object_data['id'] = $activity['id'];
+			$object_data['object'] = $activity['object'];
+			$object_data['object_type'] = JsonLD::fetchElement($activity, 'object', 'type');
 		}
 
 		$object_data = self::addActivityFields($object_data, $activity);
@@ -1058,6 +1042,8 @@ class ActivityPub
 		$object_data['type'] = $activity['type'];
 		$object_data['owner'] = $actor;
 		$object_data['receiver'] = array_merge(defaults($object_data, 'receiver', []), $receivers);
+
+		logger('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], LOGGER_DEBUG);
 
 		return $object_data;
 	}
@@ -1079,14 +1065,6 @@ class ActivityPub
 			return;
 
 		}
-
-		// Non standard
-		// title, atomUri, context_id, statusnetConversationId
-
-		// To-Do?
-		// context, location, signature;
-
-		logger('Processing activity: ' . $activity['type'], LOGGER_DEBUG);
 
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
@@ -1282,18 +1260,18 @@ class ActivityPub
 		return $object_data;
 	}
 
-	private static function fetchObject($object_url, $object = [], $trust_source = false)
+	private static function fetchObject($object_id, $object = [], $trust_source = false)
 	{
 		if (!$trust_source || is_string($object)) {
-			$data = self::fetchContent($object_url);
+			$data = self::fetchContent($object_id);
 			if (empty($data)) {
-				logger('Empty content for ' . $object_url . ', check if content is available locally.', LOGGER_DEBUG);
-				$data = $object_url;
+				logger('Empty content for ' . $object_id . ', check if content is available locally.', LOGGER_DEBUG);
+				$data = $object_id;
 			} else {
-				logger('Fetched content for ' . $object_url, LOGGER_DEBUG);
+				logger('Fetched content for ' . $object_id, LOGGER_DEBUG);
 			}
 		} else {
-			logger('Using original object for url ' . $object_url, LOGGER_DEBUG);
+			logger('Using original object for url ' . $object_id, LOGGER_DEBUG);
 			$data = $object;
 		}
 
@@ -1303,29 +1281,20 @@ class ActivityPub
 				logger('Object with url ' . $data . ' was not found locally.', LOGGER_DEBUG);
 				return false;
 			}
-			logger('Using already stored item for url ' . $object_url, LOGGER_DEBUG);
+			logger('Using already stored item for url ' . $object_id, LOGGER_DEBUG);
 			$data = self::CreateNote($item);
 		}
 
 		if (empty($data['type'])) {
 			logger('Empty type', LOGGER_DEBUG);
 			return false;
-		} else {
-			$type = $data['type'];
-			logger('Type ' . $type, LOGGER_DEBUG);
 		}
 
-		if (in_array($type, ['Note', 'Article', 'Video'])) {
-			$common = self::processCommonData($data);
-		}
-
-		switch ($type) {
+		switch ($data['type']) {
 			case 'Note':
-				return array_merge($common, self::processNote($data));
 			case 'Article':
-				return array_merge($common, self::processArticle($data));
 			case 'Video':
-				return array_merge($common, self::processVideo($data));
+				return self::ProcessObject($data);
 
 			case 'Announce':
 				if (empty($data['object'])) {
@@ -1343,20 +1312,20 @@ class ActivityPub
 		}
 	}
 
-	private static function processCommonData(&$object)
+	private static function ProcessObject(&$object)
 	{
 		if (empty($object['id'])) {
 			return false;
 		}
 
 		$object_data = [];
-		$object_data['type'] = $object['type'];
-		$object_data['uri'] = $object['id'];
+		$object_data['object_type'] = $object['type'];
+		$object_data['id'] = $object['id'];
 
 		if (!empty($object['inReplyTo'])) {
 			$object_data['reply-to-uri'] = JsonLD::fetchElement($object, 'inReplyTo', 'id');
 		} else {
-			$object_data['reply-to-uri'] = $object_data['uri'];
+			$object_data['reply-to-uri'] = $object_data['id'];
 		}
 
 		$object_data['published'] = defaults($object, 'published', null);
@@ -1366,8 +1335,13 @@ class ActivityPub
 			$object_data['published'] = $object_data['updated'];
 		}
 
+		$actor = JsonLD::fetchElement($object, 'attributedTo', 'id');
+		if (empty($actor)) {
+			$actor = defaults($object, 'actor', null);
+		}
+
 		$object_data['uuid'] = defaults($object, 'uuid', null);
-		$object_data['owner'] = $object_data['author'] = JsonLD::fetchElement($object, 'attributedTo', 'id');
+		$object_data['owner'] = $object_data['author'] = $actor;
 		$object_data['context'] = defaults($object, 'context', null);
 		$object_data['conversation'] = defaults($object, 'conversation', null);
 		$object_data['sensitive'] = defaults($object, 'sensitive', null);
@@ -1383,18 +1357,15 @@ class ActivityPub
 		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'url', 'href');
 		$object_data['receiver'] = self::getReceivers($object, $object_data['owner']);
 
+		// Common object data:
+
 		// Unhandled
 		// @context, type, actor, signature, mediaType, duration, replies, icon
 
 		// Also missing: (Defined in the standard, but currently unused)
 		// audience, preview, endTime, startTime, generator, image
 
-		return $object_data;
-	}
-
-	private static function processNote($object)
-	{
-		$object_data = [];
+		// Data in Notes:
 
 		// To-Do?
 		// emoji, atomUri, inReplyToAtomUri
@@ -1403,19 +1374,7 @@ class ActivityPub
 		// contentMap, announcement_count, announcements, context_id, likes, like_count
 		// inReplyToStatusId, shares, quoteUrl, statusnetConversationId
 
-		return $object_data;
-	}
-
-	private static function processArticle($object)
-	{
-		$object_data = [];
-
-		return $object_data;
-	}
-
-	private static function processVideo($object)
-	{
-		$object_data = [];
+		// Data in video:
 
 		// To-Do?
 		// category, licence, language, commentsEnabled
@@ -1423,6 +1382,7 @@ class ActivityPub
 		// Unhandled
 		// views, waitTranscoding, state, support, subtitleLanguage
 		// likes, dislikes, shares, comments
+
 
 		return $object_data;
 	}
@@ -1446,11 +1406,6 @@ class ActivityPub
 			if (in_array($tag['type'], ['Mention', 'Hashtag'])) {
 				if (!empty($tag_text)) {
 					$tag_text .= ',';
-				}
-
-				if (empty($tag['href'])) {
-					//$tag['href']
-					logger('Blubb!');
 				}
 
 				$tag_text .= substr($tag['name'], 0, 1) . '[url=' . $tag['href'] . ']' . substr($tag['name'], 1) . '[/url]';
@@ -1494,7 +1449,7 @@ class ActivityPub
 		$item['verb'] = ACTIVITY_POST;
 		$item['parent-uri'] = $activity['reply-to-uri'];
 
-		if ($activity['reply-to-uri'] == $activity['uri']) {
+		if ($activity['reply-to-uri'] == $activity['id']) {
 			$item['gravity'] = GRAVITY_PARENT;
 			$item['object-type'] = ACTIVITY_OBJ_NOTE;
 		} else {
@@ -1502,7 +1457,7 @@ class ActivityPub
 			$item['object-type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
-		if (($activity['uri'] != $activity['reply-to-uri']) && !Item::exists(['uri' => $activity['reply-to-uri']])) {
+		if (($activity['id'] != $activity['reply-to-uri']) && !Item::exists(['uri' => $activity['reply-to-uri']])) {
 			logger('Parent ' . $activity['reply-to-uri'] . ' not found. Try to refetch it.');
 			self::fetchMissingActivity($activity['reply-to-uri'], $activity);
 		}
@@ -1545,7 +1500,7 @@ class ActivityPub
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
 		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
-		$item['uri'] = $activity['uri'];
+		$item['uri'] = $activity['id'];
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
 		$item['guid'] = $activity['uuid'];
@@ -1620,7 +1575,8 @@ class ActivityPub
 
 	private static function followUser($activity)
 	{
-		$uid = self::getUserOfObject($activity['object']);
+		$actor = JsonLD::fetchElement($activity, 'object', 'id');
+		$uid = self::getUserOfObject($actor);
 		if (empty($uid)) {
 			return;
 		}
@@ -1663,7 +1619,8 @@ class ActivityPub
 
 	private static function acceptFollowUser($activity)
 	{
-		$uid = self::getUserOfObject($activity['object']);
+		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
+		$uid = self::getUserOfObject($actor);
 		if (empty($uid)) {
 			return;
 		}
@@ -1710,7 +1667,8 @@ class ActivityPub
 
 	private static function undoFollowUser($activity)
 	{
-		$uid = self::getUserOfObject($activity['object']);
+		$object = JsonLD::fetchElement($activity, 'object', 'object');
+		$uid = self::getUserOfObject($object);
 		if (empty($uid)) {
 			return;
 		}

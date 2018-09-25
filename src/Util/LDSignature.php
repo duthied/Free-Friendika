@@ -82,25 +82,21 @@ class LDSignature
 		return array_merge($data, ['signature' => $options]);
 	}
 
-
 	private static function signable_data($data)
 	{
 		unset($data['signature']);
 		return $data;
 	}
 
-
 	private static function signable_options($options)
 	{
 		$newopts = ['@context' => 'https://w3id.org/identity/v1'];
-		if (!empty($options)) {
-			foreach ($options as $k => $v) {
-				if (!in_array($k, ['type', 'id', 'signatureValue'])) {
-					$newopts[$k] = $v;
-				}
-			}
-		}
-		return $newopts;
+
+		unset($options['type']);
+		unset($options['id']);
+		unset($options['signatureValue']);
+
+		return array_merge($newopts, $options);
 	}
 
 	private static function hash($obj)
