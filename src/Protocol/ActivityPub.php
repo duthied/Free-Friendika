@@ -66,6 +66,8 @@ use Friendica\Core\Config;
  * - Event
  *
  * General:
+ * - Attachments
+ * - nsfw (sensitive)
  * - Queueing unsucessful deliveries
  * - Polling the outboxes for missing content?
  * - Possibly using the LD-JSON parser
@@ -465,7 +467,7 @@ class ActivityPub
 
 	public static function createActivityFromItem($item_id, $object_mode = false)
 	{
-		$item = Item::selectFirst([], ['id' => $item_id]);
+		$item = Item::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
 
 		if (!DBA::isResult($item)) {
 			return false;
@@ -504,7 +506,7 @@ class ActivityPub
 			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
 		}
 
-		$data['context'] = self::createConversationURLFromItem($item);
+		$data['context'] = self::fetchContextURLForItem($item);
 
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
@@ -527,7 +529,7 @@ class ActivityPub
 
 	public static function createObjectFromItemID($item_id)
 	{
-		$item = Item::selectFirst([], ['id' => $item_id]);
+		$item = Item::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
 
 		if (!DBA::isResult($item)) {
 			return false;
@@ -559,15 +561,30 @@ class ActivityPub
 		return $tags;
 	}
 
-	private static function createConversationURLFromItem($item)
+	private static function fetchConversationURLForItem($item)
 	{
-		$conversation = DBA::selectFirst('conversation', ['conversation-uri'], ['item-uri' => $item['parent-uri']]);
+		$conversation = DBA::selectFirst('conversation', ['conversation-href', 'conversation-uri'], ['item-uri' => $item['parent-uri']]);
 		if (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
 			$conversation_uri = $conversation['conversation-uri'];
+		} elseif (DBA::isResult($conversation) && !empty($conversation['conversation-href'])) {
+			$conversation_uri = $conversation['conversation-href'];
 		} else {
 			$conversation_uri = str_replace('/object/', '/context/', $item['parent-uri']);
 		}
 		return $conversation_uri;
+	}
+
+	private static function fetchContextURLForItem($item)
+	{
+		$conversation = DBA::selectFirst('conversation', ['conversation-href', 'conversation-uri'], ['item-uri' => $item['parent-uri']]);
+		if (DBA::isResult($conversation) && !empty($conversation['conversation-href'])) {
+			$context_uri = $conversation['conversation-href'];
+		} elseif (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
+			$context_uri = $conversation['conversation-uri'];
+		} else {
+			$context_uri = str_replace('/object/', '/context/', $item['parent-uri']);
+		}
+		return $context_uri;
 	}
 
 	private static function CreateNote($item)
@@ -609,7 +626,8 @@ class ActivityPub
 		$data['attributedTo'] = $item['author-link'];
 		$data['actor'] = $item['author-link'];
 		$data['sensitive'] = false; // - Query NSFW
-		$data['conversation'] = $data['context'] = self::createConversationURLFromItem($item);
+		$data['conversation'] = self::fetchConversationURLForItem($item);
+		$data['context'] = self::fetchContextURLForItem($item);
 
 		if (!empty($item['title'])) {
 			$data['name'] = BBCode::convert($item['title'], false, 7);
@@ -621,7 +639,6 @@ class ActivityPub
 		$data['tag'] = self::createTagList($item);
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
-		//$data['emoji'] = []; // Ignore by now
 		return $data;
 	}
 
@@ -1524,6 +1541,7 @@ class ActivityPub
 
 		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 		$item['source'] = $body;
+		$item['conversation-href'] = $activity['context'];
 		$item['conversation-uri'] = $activity['conversation'];
 
 		foreach ($activity['receiver'] as $receiver) {

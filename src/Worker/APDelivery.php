@@ -20,7 +20,9 @@ class APDelivery extends BaseObject
 		} elseif ($cmd == Delivery::RELOCATION) {
 		} else {
 			$data = ActivityPub::createActivityFromItem($item_id);
-			HTTPSignature::transmit($data, $inbox, $uid);
+			if (!empty($data)) {
+				HTTPSignature::transmit($data, $inbox, $uid);
+			}
 		}
 
 		return;
