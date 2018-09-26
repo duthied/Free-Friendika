@@ -23,13 +23,15 @@ class Cache extends \Friendica\BaseObject
 	/**
 	 * @var Cache\ICacheDriver
 	 */
-	private static $driver = null;
+	private static $driver       = null;
+	public  static $driver_class = null;
+	public  static $driver_name  = null;
 
 	public static function init()
 	{
-		$driver_name = Config::get('system', 'cache_driver', 'database');
-
-		self::$driver = CacheDriverFactory::create($driver_name);
+		self::$driver_name  = Config::get('system', 'cache_driver', 'database');
+		self::$driver       = CacheDriverFactory::create(self::$driver_name);
+		self::$driver_class = get_class(self::$driver);
 	}
 
 	/**
