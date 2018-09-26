@@ -105,7 +105,7 @@ class APContact extends BaseObject
 
 		$apcontact = [];
 		$apcontact['url'] = $data['id'];
-		$apcontact['uuid'] = defaults($data, 'uuid', null);
+		$apcontact['uuid'] = defaults($data, 'diaspora:guid', null);
 		$apcontact['type'] = defaults($data, 'type', null);
 		$apcontact['following'] = defaults($data, 'following', null);
 		$apcontact['followers'] = defaults($data, 'followers', null);

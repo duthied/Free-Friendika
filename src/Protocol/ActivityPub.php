@@ -739,7 +739,7 @@ class ActivityPub
 		$profile = ['network' => Protocol::ACTIVITYPUB];
 		$profile['nick'] = $apcontact['nick'];
 		$profile['name'] = $apcontact['name'];
-		$profile['guid'] = $apcontact['diaspora:guid'];
+		$profile['guid'] = $apcontact['uuid'];
 		$profile['url'] = $apcontact['url'];
 		$profile['addr'] = $apcontact['addr'];
 		$profile['alias'] = $apcontact['alias'];
