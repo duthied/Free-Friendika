@@ -46,7 +46,7 @@ class Mail
 			return -2;
 		}
 
-		$guid = System::createGUID(32);
+		$guid = System::UUID();
 		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
 
 		$convid = 0;
@@ -73,7 +73,7 @@ class Mail
 			$recip_handle = (($contact['addr']) ? $contact['addr'] : $contact['nick'] . '@' . $recip_host);
 			$sender_handle = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 
-			$conv_guid = System::createGUID(32);
+			$conv_guid = System::UUID();
 			$convuri = $recip_handle . ':' . $conv_guid;
 
 			$handles = $recip_handle . ';' . $sender_handle;
@@ -171,7 +171,7 @@ class Mail
 			$subject = L10n::t('[no subject]');
 		}
 
-		$guid = System::createGUID(32);
+		$guid = System::UUID();
 		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
 
 		$me = Probe::uri($replyto);
@@ -180,7 +180,7 @@ class Mail
 			return -2;
 		}
 
-		$conv_guid = System::createGUID(32);
+		$conv_guid = System::UUID();
 
 		$recip_handle = $recipient['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 

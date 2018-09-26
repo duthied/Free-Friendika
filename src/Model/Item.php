@@ -1205,7 +1205,7 @@ class Item extends BaseObject
 		} elseif (!empty($item['uri'])) {
 			$guid = self::guidFromUri($item['uri'], $prefix_host);
 		} else {
-			$guid = System::createGUID(32, hash('crc32', $prefix_host));
+			$guid = System::UUID(hash('crc32', $prefix_host));
 		}
 
 		return $guid;
@@ -2359,7 +2359,7 @@ class Item extends BaseObject
 	public static function newURI($uid, $guid = "")
 	{
 		if ($guid == "") {
-			$guid = System::createGUID(32);
+			$guid = System::UUID();
 		}
 
 		return self::getApp()->get_baseurl() . '/object/' . $guid;
@@ -2686,7 +2686,7 @@ class Item extends BaseObject
 			}
 
 			if ($contact['network'] != Protocol::FEED) {
-				$datarray["guid"] = System::createGUID(32);
+				$datarray["guid"] = System::UUID();
 				unset($datarray["plink"]);
 				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
 				$datarray["parent-uri"] = $datarray["uri"];
@@ -3115,7 +3115,7 @@ class Item extends BaseObject
 		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
 
 		$new_item = [
-			'guid'          => System::createGUID(32),
+			'guid'          => System::UUID(),
 			'uri'           => self::newURI($item['uid']),
 			'uid'           => $item['uid'],
 			'contact-id'    => $item_contact_id,

@@ -78,9 +78,10 @@ class ActivityPub
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
 	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
 		['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
-		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
-		'atomUri' => 'ostatus:atomUri', 'conversation' => 'ostatus:conversation',
-		'inReplyToAtomUri' => 'ostatus:inReplyToAtomUri']];
+		'vcard' => 'http://www.w3.org/2006/vcard/ns#',
+		'diaspora' => 'https://diasporafoundation.org#',
+		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
+		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
 
 	public static function isRequest()
 	{
@@ -235,12 +236,9 @@ class ActivityPub
 			return [];
 		}
 
-		$data = ['@context' => ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-			['vcard' => 'http://www.w3.org/2006/vcard/ns#', 'uuid' => 'http://schema.org/identifier',
-			'sensitive' => 'as:sensitive', 'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers']]];
-
+		$data = ['@context' => self::CONTEXT];
 		$data['id'] = $contact['url'];
-		$data['uuid'] = $user['guid'];
+		$data['diaspora:guid'] = $user['guid'];
 		$data['type'] = $accounttype[$user['account-type']];
 		$data['following'] = System::baseUrl() . '/following/' . $user['nickname'];
 		$data['followers'] = System::baseUrl() . '/followers/' . $user['nickname'];
@@ -562,19 +560,6 @@ class ActivityPub
 		return $tags;
 	}
 
-	private static function fetchConversationURLForItem($item)
-	{
-		$conversation = DBA::selectFirst('conversation', ['conversation-href', 'conversation-uri'], ['item-uri' => $item['parent-uri']]);
-		if (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
-			$conversation_uri = $conversation['conversation-uri'];
-		} elseif (DBA::isResult($conversation) && !empty($conversation['conversation-href'])) {
-			$conversation_uri = $conversation['conversation-href'];
-		} else {
-			$conversation_uri = str_replace('/object/', '/context/', $item['parent-uri']);
-		}
-		return $conversation_uri;
-	}
-
 	private static function fetchContextURLForItem($item)
 	{
 		$conversation = DBA::selectFirst('conversation', ['conversation-href', 'conversation-uri'], ['item-uri' => $item['parent-uri']]);
@@ -616,7 +601,7 @@ class ActivityPub
 			$data['inReplyTo'] = null;
 		}
 
-		$data['uuid'] = $item['guid'];
+		$data['diaspora:guid'] = $item['guid'];
 		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
 
 		if ($item["created"] != $item["edited"]) {
@@ -627,7 +612,6 @@ class ActivityPub
 		$data['attributedTo'] = $item['author-link'];
 		$data['actor'] = $item['author-link'];
 		$data['sensitive'] = false; // - Query NSFW
-		$data['conversation'] = self::fetchConversationURLForItem($item);
 		$data['context'] = self::fetchContextURLForItem($item);
 
 		if (!empty($item['title'])) {
@@ -755,7 +739,7 @@ class ActivityPub
 		$profile = ['network' => Protocol::ACTIVITYPUB];
 		$profile['nick'] = $apcontact['nick'];
 		$profile['name'] = $apcontact['name'];
-		$profile['guid'] = $apcontact['uuid'];
+		$profile['guid'] = $apcontact['diaspora:guid'];
 		$profile['url'] = $apcontact['url'];
 		$profile['addr'] = $apcontact['addr'];
 		$profile['alias'] = $apcontact['alias'];
@@ -1232,9 +1216,6 @@ class ActivityPub
 
 		// Data in Notes:
 
-		// To-Do?
-		// emoji, atomUri, inReplyToAtomUri
-
 		// Unhandled
 		// contentMap, announcement_count, announcements, context_id, likes, like_count
 		// inReplyToStatusId, shares, quoteUrl, statusnetConversationId
@@ -1368,7 +1349,7 @@ class ActivityPub
 		$item['uri'] = $activity['id'];
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
-		$item['guid'] = $activity['uuid'];
+		$item['guid'] = $activity['diaspora:guid'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
 		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
