@@ -68,7 +68,6 @@ use Friendica\Core\Config;
  * General:
  * - Queueing unsucessful deliveries
  * - Polling the outboxes for missing content?
- * - Checking signature fails
  * - Possibly using the LD-JSON parser
  */
 class ActivityPub
@@ -849,6 +848,7 @@ class ActivityPub
 			$apcontact['baseurl'] = Network::unparseURL($parts);
 		} else {
 			$apcontact['addr'] = null;
+			$apcontact['baseurl'] = null;
 		}
 
 		if ($apcontact['url'] == $apcontact['alias']) {
@@ -871,6 +871,8 @@ class ActivityPub
 
 		// Update the gcontact table
 		DBA::update('gcontact', $contact_fields, ['nurl' => normalise_link($url)]);
+
+		logger('Updated profile for ' . $url, LOGGER_DEBUG);
 
 		return $apcontact;
 	}
@@ -1030,6 +1032,7 @@ class ActivityPub
 			$object_data['name'] = $activity['type'];
 			$object_data['author'] = $activity['actor'];
 			$object_data['object'] = $object_id;
+			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
 		} else {
 			$object_data = [];
 			$object_data['id'] = $activity['id'];
@@ -1323,9 +1326,9 @@ class ActivityPub
 		$object_data['id'] = $object['id'];
 
 		if (!empty($object['inReplyTo'])) {
-			$object_data['reply-to-uri'] = JsonLD::fetchElement($object, 'inReplyTo', 'id');
+			$object_data['reply-to-id'] = JsonLD::fetchElement($object, 'inReplyTo', 'id');
 		} else {
-			$object_data['reply-to-uri'] = $object_data['id'];
+			$object_data['reply-to-id'] = $object_data['id'];
 		}
 
 		$object_data['published'] = defaults($object, 'published', null);
@@ -1447,9 +1450,9 @@ class ActivityPub
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_POST;
-		$item['parent-uri'] = $activity['reply-to-uri'];
+		$item['parent-uri'] = $activity['reply-to-id'];
 
-		if ($activity['reply-to-uri'] == $activity['id']) {
+		if ($activity['reply-to-id'] == $activity['id']) {
 			$item['gravity'] = GRAVITY_PARENT;
 			$item['object-type'] = ACTIVITY_OBJ_NOTE;
 		} else {
@@ -1457,9 +1460,9 @@ class ActivityPub
 			$item['object-type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
-		if (($activity['id'] != $activity['reply-to-uri']) && !Item::exists(['uri' => $activity['reply-to-uri']])) {
-			logger('Parent ' . $activity['reply-to-uri'] . ' not found. Try to refetch it.');
-			self::fetchMissingActivity($activity['reply-to-uri'], $activity);
+		if (($activity['id'] != $activity['reply-to-id']) && !Item::exists(['uri' => $activity['reply-to-id']])) {
+			logger('Parent ' . $activity['reply-to-id'] . ' not found. Try to refetch it.');
+			self::fetchMissingActivity($activity['reply-to-id'], $activity);
 		}
 
 		self::postItem($activity, $item, $body);
@@ -1490,11 +1493,11 @@ class ActivityPub
 	private static function postItem($activity, $item, $body)
 	{
 		/// @todo What to do with $activity['context']?
-		if (empty($activity['author']))
-			logger('Empty author');
 
-		if (empty($activity['owner']))
-			logger('Empty owner');
+		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['parent-uri']])) {
+			logger('Parent ' . $item['parent-uri'] . ' not found, message will be discarded.', LOGGER_DEBUG);
+			return;
+		}
 
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['private'] = !in_array(0, $activity['receiver']);
@@ -1614,6 +1617,7 @@ class ActivityPub
 			return;
 		}
 
+		logger('Updating profile for ' . $activity['object']['id'], LOGGER_DEBUG);
 		self::fetchprofile($activity['object']['id'], true);
 	}
 
