@@ -16,6 +16,16 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
+	public function getAllKeys()
+	{
+		$stmt = DBA::select('cache', ['k'], ['`expires` >= ?', DateTimeFormat::utcNow()]);
+
+		return DBA::toArray($stmt);
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);

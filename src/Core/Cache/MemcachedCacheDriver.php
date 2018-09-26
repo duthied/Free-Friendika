@@ -56,6 +56,14 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	/**
 	 * (@inheritdoc)
 	 */
+	public function getAllKeys()
+	{
+		return $this->memcached->getAllKeys();
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		$return = null;

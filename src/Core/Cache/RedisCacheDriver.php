@@ -41,6 +41,14 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
+	public function getAllKeys()
+	{
+		return null;
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		$return = null;
