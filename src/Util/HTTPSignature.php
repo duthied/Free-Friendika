@@ -26,6 +26,13 @@ use Friendica\Protocol\ActivityPub;
 class HTTPSignature
 {
 	// See draft-cavage-http-signatures-08
+	/**
+	 * @brief Verifies a magic request
+	 *
+	 * @param $key
+	 *
+	 * @return array with verification data
+	 */
 	public static function verifyMagic($key)
 	{
 		$headers   = null;
@@ -262,6 +269,13 @@ class HTTPSignature
 	 * Functions for ActivityPub
 	 */
 
+	/**
+	 * @brief Transmit given data to a target for a user
+	 *
+	 * @param $data
+	 * @param $target
+	 * @param $uid
+	 */
 	public static function transmit($data, $target, $uid)
 	{
 		$owner = User::getOwnerDataById($uid);
@@ -294,6 +308,14 @@ class HTTPSignature
 		logger('Transmit to ' . $target . ' returned ' . $return_code);
 	}
 
+	/**
+	 * @brief Gets a signer from a given HTTP request
+	 *
+	 * @param $content
+	 * @param $http_headers
+	 *
+	 * @return signer string
+	 */
 	public static function getSigner($content, $http_headers)
 	{
 		$object = json_decode($content, true);
@@ -390,6 +412,14 @@ class HTTPSignature
 		return $key['url'];
 	}
 
+	/**
+	 * @brief fetches a key for a given id and actor
+	 *
+	 * @param $id
+	 * @param $actor
+	 *
+	 * @return array with actor url and public key
+	 */
 	private static function fetchKey($id, $actor)
 	{
 		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);

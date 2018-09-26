@@ -12,6 +12,13 @@ use digitalbazaar\jsonld as DBJsonLD;
  */
 class JsonLD
 {
+	/**
+	 * @brief Loader for LD-JSON validation
+	 *
+	 * @param $url
+	 *
+	 * @return the loaded data
+	 */
 	public static function documentLoader($url)
 	{
 		$recursion = 0;
@@ -40,6 +47,13 @@ class JsonLD
 		return $data;
 	}
 
+	/**
+	 * @brief Normalises a given JSON array
+	 *
+	 * @param array $json
+	 *
+	 * @return normalized JSON string
+	 */
 	public static function normalize($json)
 	{
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
@@ -49,6 +63,13 @@ class JsonLD
 		return jsonld_normalize($jsonobj, array('algorithm' => 'URDNA2015', 'format' => 'application/nquads'));
 	}
 
+	/**
+	 * @brief Compacts a given JSON array
+	 *
+	 * @param array $json
+	 *
+	 * @return comacted JSON array
+	 */
 	public static function compact($json)
 	{
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
@@ -66,6 +87,17 @@ class JsonLD
 		return json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
 	}
 
+	/**
+	 * @brief Fetches an element from a JSON array
+	 *
+	 * @param $array
+	 * @param $element
+	 * @param $key
+	 * @param $type
+	 * @param $type_value
+	 *
+	 * @return fetched element
+	 */
 	public static function fetchElement($array, $element, $key, $type = null, $type_value = null)
 	{
 		if (empty($array)) {
