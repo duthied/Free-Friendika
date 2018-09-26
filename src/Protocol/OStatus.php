@@ -2004,8 +2004,7 @@ class OStatus
 		}
 
 		if (intval($item["parent"]) > 0) {
-			$conversation_href = System::baseUrl()."/display/".$owner["nick"]."/".$item["parent"];
-			$conversation_uri = $conversation_href;
+			$conversation_href = $conversation_uri = str_replace('/object/', '/context/', $item['parent-uri']);
 
 			if (isset($parent_item)) {
 				$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $parent_item]);
