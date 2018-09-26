@@ -107,12 +107,12 @@ class Cache extends \Friendica\BaseObject
 	/**
 	 * @brief Remove outdated data from the cache
 	 *
-	 * @param integer $max_level The maximum cache level that is to be cleared
+	 * @param boolean $outdated just remove outdated values
 	 *
 	 * @return void
 	 */
-	public static function clear()
+	public static function clear($outdated = true)
 	{
-		return self::getDriver()->clear();
+		return self::getDriver()->clear($outdated);
 	}
 }
