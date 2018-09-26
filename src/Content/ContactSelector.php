@@ -219,6 +219,7 @@ class ContactSelector
 	public static function maritalStatus($current = "")
 	{
 		$o = '';
+		$select = [
 			'EMPTY' => '',
 			'Single' => L10n::t('Single'),
 			'Lonely' => L10n::t('Lonely'),
