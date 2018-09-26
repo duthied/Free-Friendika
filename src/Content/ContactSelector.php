@@ -145,21 +145,23 @@ class ContactSelector
 	public static function gender($current = "", $suffix = "")
 	{
 		$o = '';
-		$select[''] = '';
-		$select['Male'] = L10n::t('Male');
-		$select['Female'] = L10n::t('Female');
-		$select['Currently Male'] = L10n::t('Currently Male');
-		$select['Currently Female'] = L10n::t('Currently Female');
-		$select['Mostly Male'] = L10n::t('Mostly Male');
-		$select['Mostly Female'] = L10n::t('Mostly Female');
-		$select['Transgender'] = L10n::t('Transgender');
-		$select['Intersex'] = L10n::t('Intersex');
-		$select['Transsexual'] = L10n::t('Transsexual');
-		$select['Hermaphrodite'] = L10n::t('Hermaphrodite');
-		$select['Neuter'] = L10n::t('Neuter');
-		$select['Non-specific'] = L10n::t('Non-specific');
-		$select['Other'] = L10n::t('Other');
-		$select['Undecided'] = L10n::t('Undecided');
+		$select = [
+			'EMPTY'            => '',
+			'Male'             => L10n::t('Male'),
+			'Female'           => L10n::t('Female'),
+			'Currently Male'   => L10n::t('Currently Male'),
+			'Currently Female' => L10n::t('Currently Female'),
+			'Mostly Male'      => L10n::t('Mostly Male'),
+			'Mostly Female'    => L10n::t('Mostly Female'),
+			'Transgender'      => L10n::t('Transgender'),
+			'Intersex'         => L10n::t('Intersex'),
+			'Transsexual'      => L10n::t('Transsexual'),
+			'Hermaphrodite'    => L10n::t('Hermaphrodite'),
+			'Neuter'           => L10n::t('Neuter'),
+			'Non-specific'     => L10n::t('Non-specific'),
+			'Other'            => L10n::t('Other'),
+			'Undecided'        => L10n::t('Undecided'),
+		];
 
 		Addon::callHooks('gender_selector', $select);
 
@@ -181,19 +183,22 @@ class ContactSelector
 	public static function sexualPreference($current = "", $suffix = "")
 	{
 		$o = '';
-		$select['Males'] = L10n::t('Males');
-		$select['Females'] = L10n::t('Females');
-		$select['Gay'] = L10n::t('Gay');
-		$select['Lesbian'] = L10n::t('Lesbian');
-		$select['No Preference'] = L10n::t('No Preference');
-		$select['Bisexual'] = L10n::t('Bisexual');
-		$select['Autosexual'] = L10n::t('Autosexual');
-		$select['Abstinent'] = L10n::t('Abstinent');
-		$select['Virgin'] = L10n::t('Virgin');
-		$select['Deviant'] = L10n::t('Deviant');
-		$select['Fetish'] = L10n::t('Fetish');
-		$select['Oodles'] = L10n::t('Oodles');
-		$select['Nonsexual'] = L10n::t('Nonsexual');
+		$select = [
+			'EMPTY'         => '',
+			'Males'         => L10n::t('Males'),
+			'Females'       => L10n::t('Females'),
+			'Gay'           => L10n::t('Gay'),
+			'Lesbian'       => L10n::t('Lesbian'),
+			'No Preference' => L10n::t('No Preference'),
+			'Bisexual'      => L10n::t('Bisexual'),
+			'Autosexual'    => L10n::t('Autosexual'),
+			'Abstinent'     => L10n::t('Abstinent'),
+			'Virgin'        => L10n::t('Virgin'),
+			'Deviant'       => L10n::t('Deviant'),
+			'Fetish'        => L10n::t('Fetish'),
+			'Oodles'        => L10n::t('Oodles'),
+			'Nonsexual'     => L10n::t('Nonsexual'),
+		];
 
 		Addon::callHooks('sexpref_selector', $select);
 
@@ -214,37 +219,39 @@ class ContactSelector
 	public static function maritalStatus($current = "")
 	{
 		$o = '';
-		$select['Single'] = L10n::t('Single');
-		$select['Lonely'] = L10n::t('Lonely');
-		$select['Available'] = L10n::t('Available');
-		$select['Unavailable'] = L10n::t('Unavailable');
-		$select['Has crush'] = L10n::t('Has crush');
-		$select['Infatuated'] = L10n::t('Infatuated');
-		$select['Dating'] = L10n::t('Dating');
-		$select['Unfaithful'] = L10n::t('Unfaithful');
-		$select['Sex Addict'] = L10n::t('Sex Addict');
-		$select['Friends'] = L10n::t('Friends');
-		$select['Friends/Benefits'] = L10n::t('Friends/Benefits');
-		$select['Casual'] = L10n::t('Casual');
-		$select['Engaged'] = L10n::t('Engaged');
-		$select['Married'] = L10n::t('Married');
-		$select['Imaginarily married'] = L10n::t('Imaginarily married');
-		$select['Partners'] = L10n::t('Partners');
-		$select['Cohabiting'] = L10n::t('Cohabiting');
-		$select['Common law'] = L10n::t('Common law');
-		$select['Happy'] = L10n::t('Happy');
-		$select['Not looking'] = L10n::t('Not looking');
-		$select['Swinger'] = L10n::t('Swinger');
-		$select['Betrayed'] = L10n::t('Betrayed');
-		$select['Separated'] = L10n::t('Separated');
-		$select['Unstable'] = L10n::t('Unstable');
-		$select['Divorced'] = L10n::t('Divorced');
-		$select['Imaginarily divorced'] = L10n::t('Imaginarily divorced');
-		$select['Widowed'] = L10n::t('Widowed');
-		$select['Uncertain'] = L10n::t('Uncertain');
-		$select['It\'s complicated'] = L10n::t('It\'s complicated');
-		$select['Don\'t care'] = L10n::t('Don\'t care');
-		$select['Ask me'] = L10n::t('Ask me');
+			'EMPTY' => '',
+			'Single' => L10n::t('Single'),
+			'Lonely' => L10n::t('Lonely'),
+			'Available' => L10n::t('Available'),
+			'Unavailable' => L10n::t('Unavailable'),
+			'Has crush' => L10n::t('Has crush'),
+			'Infatuated' => L10n::t('Infatuated'),
+			'Dating' => L10n::t('Dating'),
+			'Unfaithful' => L10n::t('Unfaithful'),
+			'Sex Addict' => L10n::t('Sex Addict'),
+			'Friends' => L10n::t('Friends'),
+			'Friends/Benefits' => L10n::t('Friends/Benefits'),
+			'Casual' => L10n::t('Casual'),
+			'Engaged' => L10n::t('Engaged'),
+			'Married' => L10n::t('Married'),
+			'Imaginarily married' => L10n::t('Imaginarily married'),
+			'Partners' => L10n::t('Partners'),
+			'Cohabiting' => L10n::t('Cohabiting'),
+			'Common law' => L10n::t('Common law'),
+			'Happy' => L10n::t('Happy'),
+			'Not looking' => L10n::t('Not looking'),
+			'Swinger' => L10n::t('Swinger'),
+			'Betrayed' => L10n::t('Betrayed'),
+			'Separated' => L10n::t('Separated'),
+			'Unstable' => L10n::t('Unstable'),
+			'Divorced' => L10n::t('Divorced'),
+			'Imaginarily divorced' => L10n::t('Imaginarily divorced'),
+			'Widowed' => L10n::t('Widowed'),
+			'Uncertain' => L10n::t('Uncertain'),
+			'It\'s complicated' => L10n::t('It\'s complicated'),
+			'Don\'t care' => L10n::t('Don\'t care'),
+			'Ask me' => L10n::t('Ask me'),
+		];
 
 		Addon::callHooks('marital_selector', $select);
 
