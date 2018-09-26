@@ -83,12 +83,25 @@ class ActivityPub
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
 
+	/**
+	 * @brief Checks if the web request is done for the AP protocol
+	 *
+	 * @return is it AP?
+	 */
 	public static function isRequest()
 	{
 		return stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json') ||
 			stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/ld+json');
 	}
 
+	/**
+	 * @brief collects the lost of followers of the given owner
+	 *
+	 * @param array $owner Owner array
+	 * @param integer $page Page number
+	 *
+	 * @return array of owners
+	 */
 	public static function getFollowers($owner, $page = null)
 	{
 		$condition = ['rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
@@ -128,6 +141,14 @@ class ActivityPub
 		return $data;
 	}
 
+	/**
+	 * @brief Create list of following contacts
+	 *
+	 * @param array $owner Owner array
+	 * @param integer $page Page numbe
+	 *
+	 * @return array of following contacts
+	 */
 	public static function getFollowing($owner, $page = null)
 	{
 		$condition = ['rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
@@ -167,6 +188,14 @@ class ActivityPub
 		return $data;
 	}
 
+	/**
+	 * @brief Public posts for the given owner
+	 *
+	 * @param array $owner Owner array
+	 * @param integer $page Page numbe
+	 *
+	 * @return array of posts
+	 */
 	public static function getOutbox($owner, $page = null)
 	{
 		$public_contact = Contact::getIdForURL($owner['url'], 0, true);
@@ -211,7 +240,7 @@ class ActivityPub
 	 * Return the ActivityPub profile of the given user
 	 *
 	 * @param integer $uid User ID
-	 * @return array
+	 * @return profile array
 	 */
 	public static function profile($uid)
 	{
@@ -262,6 +291,13 @@ class ActivityPub
 		return $data;
 	}
 
+	/**
+	 * @brief Returns an array with permissions of a given item array
+	 *
+	 * @param array $item
+	 *
+	 * @return array with permissions
+	 */
 	private static function fetchPermissionBlockFromConversation($item)
 	{
 		if (empty($item['thr-parent'])) {
@@ -309,6 +345,13 @@ class ActivityPub
 		return $permissions;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item
+	 *
+	 * @return 
+	 */
 	public static function createPermissionBlockForItem($item)
 	{
 		$data = ['to' => [], 'cc' => []];
@@ -396,6 +439,14 @@ class ActivityPub
 		return $data;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item
+	 * @param $uid
+	 *
+	 * @return 
+	 */
 	public static function fetchTargetInboxes($item, $uid)
 	{
 		$permissions = self::createPermissionBlockForItem($item);
@@ -439,6 +490,13 @@ class ActivityPub
 		return $inboxes;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item
+	 *
+	 * @return 
+	 */
 	public static function getTypeOfItem($item)
 	{
 		if ($item['verb'] == ACTIVITY_POST) {
@@ -464,6 +522,14 @@ class ActivityPub
 		return $type;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $item_id
+	 * @param $object_mode
+	 *
+	 * @return 
+	 */
 	public static function createActivityFromItem($item_id, $object_mode = false)
 	{
 		$item = Item::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
@@ -526,6 +592,13 @@ class ActivityPub
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $item_id
+	 *
+	 * @return 
+	 */
 	public static function createObjectFromItemID($item_id)
 	{
 		$item = Item::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
@@ -540,6 +613,13 @@ class ActivityPub
 		return $data;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item
+	 *
+	 * @return 
+	 */
 	private static function createTagList($item)
 	{
 		$tags = [];
@@ -560,6 +640,13 @@ class ActivityPub
 		return $tags;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item
+	 *
+	 * @return 
+	 */
 	private static function fetchContextURLForItem($item)
 	{
 		$conversation = DBA::selectFirst('conversation', ['conversation-href', 'conversation-uri'], ['item-uri' => $item['parent-uri']]);
@@ -573,6 +660,13 @@ class ActivityPub
 		return $context_uri;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $item
+	 *
+	 * @return 
+	 */
 	private static function CreateNote($item)
 	{
 		if (!empty($item['title'])) {
@@ -627,6 +721,15 @@ class ActivityPub
 		return $data;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param $target
+	 * @param $uid
+	 *
+	 * @return 
+	 */
 	public static function transmitActivity($activity, $target, $uid)
 	{
 		$profile = APContact::getProfileByURL($target);
@@ -646,6 +749,15 @@ class ActivityPub
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $target
+	 * @param $id
+	 * @param $uid
+	 *
+	 * @return 
+	 */
 	public static function transmitContactAccept($target, $id, $uid)
 	{
 		$profile = APContact::getProfileByURL($target);
@@ -666,6 +778,15 @@ class ActivityPub
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $target
+	 * @param $id
+	 * @param $uid
+	 *
+	 * @return 
+	 */
 	public static function transmitContactReject($target, $id, $uid)
 	{
 		$profile = APContact::getProfileByURL($target);
@@ -686,6 +807,14 @@ class ActivityPub
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $target
+	 * @param $uid
+	 *
+	 * @return 
+	 */
 	public static function transmitContactUndo($target, $uid)
 	{
 		$profile = APContact::getProfileByURL($target);
@@ -764,6 +893,13 @@ class ActivityPub
 		return $profile;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $body
+	 * @param $header
+	 * @param $uid
+	 */
 	public static function processInbox($body, $header, $uid)
 	{
 		$http_signer = HTTPSignature::getSigner($body, $header);
@@ -813,6 +949,12 @@ class ActivityPub
 		self::processActivity($activity, $body, $uid, $trust_source);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $url
+	 * @param $uid
+	 */
 	public static function fetchOutbox($url, $uid)
 	{
 		$data = self::fetchContent($url);
@@ -836,6 +978,15 @@ class ActivityPub
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param $uid
+	 * @param $trust_source
+	 *
+	 * @return 
+	 */
 	private static function prepareObjectData($activity, $uid, &$trust_source)
 	{
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
@@ -897,6 +1048,14 @@ class ActivityPub
 		return $object_data;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param $body
+	 * @param $uid
+	 * @param $trust_source
+	 */
 	private static function processActivity($activity, $body = '', $uid = null, $trust_source = false)
 	{
 		if (empty($activity['type'])) {
@@ -973,6 +1132,14 @@ class ActivityPub
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param $actor
+	 *
+	 * @return 
+	 */
 	private static function getReceivers($activity, $actor)
 	{
 		$receivers = [];
@@ -1051,6 +1218,13 @@ class ActivityPub
 		return $receivers;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $cid
+	 * @param $uid
+	 * @param $url
+	 */
 	private static function switchContact($cid, $uid, $url)
 	{
 		$profile = ActivityPub::probeProfile($url);
@@ -1070,6 +1244,12 @@ class ActivityPub
 		Contact::updateAvatar($photo, $uid, $cid);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $receivers
+	 * @param $actor
+	 */
 	private static function switchContacts($receivers, $actor)
 	{
 		if (empty($actor)) {
@@ -1089,6 +1269,14 @@ class ActivityPub
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $object_data
+	 * @param array $activity
+	 *
+	 * @return 
+	 */
 	private static function addActivityFields($object_data, $activity)
 	{
 		if (!empty($activity['published']) && empty($object_data['published'])) {
@@ -1109,6 +1297,15 @@ class ActivityPub
 		return $object_data;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $object_id
+	 * @param $object
+	 * @param $trust_source
+	 *
+	 * @return 
+	 */
 	private static function fetchObject($object_id, $object = [], $trust_source = false)
 	{
 		if (!$trust_source || is_string($object)) {
@@ -1161,6 +1358,13 @@ class ActivityPub
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $object
+	 *
+	 * @return 
+	 */
 	private static function ProcessObject(&$object)
 	{
 		if (empty($object['id'])) {
@@ -1229,10 +1433,16 @@ class ActivityPub
 		// views, waitTranscoding, state, support, subtitleLanguage
 		// likes, dislikes, shares, comments
 
-
 		return $object_data;
 	}
 
+	/**
+	 * @brief Converts mentions from Pleroma into the Friendica format
+	 *
+	 * @param string $body
+	 *
+	 * @return converted body
+	 */
 	private static function convertMentions($body)
 	{
 		$URLSearchString = "^\[\]";
@@ -1241,6 +1451,14 @@ class ActivityPub
 		return $body;
 	}
 
+	/**
+	 * @brief Constructs a string with tags for a given tag array
+	 *
+	 * @param array $tags
+	 * @param boolean $sensitive
+	 *
+	 * @return string with tags
+	 */
 	private static function constructTagList($tags, $sensitive)
 	{
 		if (empty($tags)) {
@@ -1263,6 +1481,14 @@ class ActivityPub
 		return $tag_text;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $attachments
+	 * @param array $item
+	 *
+	 * @return item array
+	 */
 	private static function constructAttachList($attachments, $item)
 	{
 		if (empty($attachments)) {
@@ -1289,6 +1515,12 @@ class ActivityPub
 		return $item;
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param $body
+	 */
 	private static function createItem($activity, $body)
 	{
 		$item = [];
@@ -1311,6 +1543,12 @@ class ActivityPub
 		self::postItem($activity, $item, $body);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param $body
+	 */
 	private static function likeItem($activity, $body)
 	{
 		$item = [];
@@ -1322,6 +1560,12 @@ class ActivityPub
 		self::postItem($activity, $item, $body);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param $body
+	 */
 	private static function dislikeItem($activity, $body)
 	{
 		$item = [];
@@ -1333,6 +1577,13 @@ class ActivityPub
 		self::postItem($activity, $item, $body);
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param array $activity
+	 * @param array $item
+	 * @param $body
+	 */
 	private static function postItem($activity, $item, $body)
 	{
 		/// @todo What to do with $activity['context']?
@@ -1383,6 +1634,12 @@ class ActivityPub
 		}
 	}
 
+	/**
+	 * @brief 
+	 *
+	 * @param $url
+	 * @param $child
+	 */
 	private static function fetchMissingActivity($url, $child)
 	{
 		if (Config::get('system', 'ostatus_full_threads')) {
@@ -1410,9 +1667,16 @@ class ActivityPub
 		logger('Activity ' . $url . ' had been fetched and processed.');
 	}
 
-	private static function getUserOfObject($object)
+	/**
+	 * @brief Returns the user id of a given profile url
+	 *
+	 * @param string $profile
+	 *
+	 * @return integer user id
+	 */
+	private static function getUserOfProfile($profile)
 	{
-		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($object), 'self' => true]);
+		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($profile), 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return false;
 		} else {
@@ -1420,10 +1684,15 @@ class ActivityPub
 		}
 	}
 
+	/**
+	 * @brief perform a "follow" request
+	 *
+	 * @param array $activity
+	 */
 	private static function followUser($activity)
 	{
 		$actor = JsonLD::fetchElement($activity, 'object', 'id');
-		$uid = self::getUserOfObject($actor);
+		$uid = self::getUserOfProfile($actor);
 		if (empty($uid)) {
 			return;
 		}
@@ -1455,6 +1724,11 @@ class ActivityPub
 		logger('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
 	}
 
+	/**
+	 * @brief Update the given profile
+	 *
+	 * @param array $activity
+	 */
 	private static function updatePerson($activity)
 	{
 		if (empty($activity['object']['id'])) {
@@ -1465,10 +1739,15 @@ class ActivityPub
 		APContact::getProfileByURL($activity['object']['id'], true);
 	}
 
+	/**
+	 * @brief Accept a follow request
+	 *
+	 * @param array $activity
+	 */
 	private static function acceptFollowUser($activity)
 	{
 		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
-		$uid = self::getUserOfObject($actor);
+		$uid = self::getUserOfProfile($actor);
 		if (empty($uid)) {
 			return;
 		}
@@ -1493,6 +1772,11 @@ class ActivityPub
 		logger('Accept contact request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
 	}
 
+	/**
+	 * @brief Undo activity like "like" or "dislike"
+	 *
+	 * @param array $activity
+	 */
 	private static function undoActivity($activity)
 	{
 		$activity_url = JsonLD::fetchElement($activity, 'object', 'id');
@@ -1513,10 +1797,15 @@ class ActivityPub
 		Item::delete(['uri' => $activity_url, 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
 	}
 
+	/**
+	 * @brief Activity to remove a follower
+	 *
+	 * @param array $activity
+	 */
 	private static function undoFollowUser($activity)
 	{
 		$object = JsonLD::fetchElement($activity, 'object', 'object');
-		$uid = self::getUserOfObject($object);
+		$uid = self::getUserOfProfile($object);
 		if (empty($uid)) {
 			return;
 		}
