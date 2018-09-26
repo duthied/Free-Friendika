@@ -9,6 +9,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
+use Friendica\Model\APContact;
 use Friendica\Protocol\ActivityPub;
 
 /**
@@ -393,12 +394,12 @@ class HTTPSignature
 	{
 		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
 
-		$profile = ActivityPub::fetchprofile($url);
+		$profile = APContact::getProfileByURL($url);
 		if (!empty($profile)) {
 			logger('Taking key from id ' . $id, LOGGER_DEBUG);
 			return ['url' => $url, 'pubkey' => $profile['pubkey']];
 		} elseif ($url != $actor) {
-			$profile = ActivityPub::fetchprofile($actor);
+			$profile = APContact::getProfileByURL($actor);
 			if (!empty($profile)) {
 				logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
 				return ['url' => $actor, 'pubkey' => $profile['pubkey']];

@@ -5,6 +5,7 @@ namespace Friendica\Util;
 use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Model\APContact;
 
 /**
  * @brief Implements JSON-LD signatures
@@ -24,30 +25,12 @@ class LDSignature
 			return false;
 		}
 
-/*
-		$creator = $data['signature']['creator'];
-		$actor = JsonLD::fetchElement($data, 'actor', 'id');
-
-		$url = (strpos($creator, '#') ? substr($creator, 0, strpos($creator, '#')) : $creator);
-
-		$profile = ActivityPub::fetchprofile($url);
-		if (!empty($profile)) {
-			logger('Taking key from creator ' . $creator, LOGGER_DEBUG);
-		} elseif ($url != $actor) {
-			$profile = ActivityPub::fetchprofile($actor);
-			if (empty($profile)) {
-				return false;
-			}
-			logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
-		}
-
-*/
 		$actor = JsonLD::fetchElement($data, 'actor', 'id');
 		if (empty($actor)) {
 			return false;
 		}
 
-		$profile = ActivityPub::fetchprofile($actor);
+		$profile = APContact::getProfileByURL($actor);
 		if (empty($profile['pubkey'])) {
 			return false;
 		}

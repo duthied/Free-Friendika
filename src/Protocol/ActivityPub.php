@@ -12,6 +12,7 @@ use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
 use Friendica\Model\Contact;
+use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\Term;
@@ -278,9 +279,9 @@ class ActivityPub
 		$activity = json_decode($conversation['source'], true);
 
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
-		$profile = ActivityPub::fetchprofile($actor);
+		$profile = APContact::getProfileByURL($actor);
 
-		$item_profile = ActivityPub::fetchprofile($item['author-link']);
+		$item_profile = APContact::getProfileByURL($item['author-link']);
 		$exclude[] = $item['author-link'];
 
 		if ($item['gravity'] == GRAVITY_PARENT) {
@@ -316,7 +317,7 @@ class ActivityPub
 
 		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
-		$actor_profile = ActivityPub::fetchprofile($item['author-link']);
+		$actor_profile = APContact::getProfileByURL($item['author-link']);
 
 		$terms = Term::tagArrayFromItemId($item['id']);
 
@@ -332,7 +333,7 @@ class ActivityPub
 				if ($term['type'] != TERM_MENTION) {
 					continue;
 				}
-				$profile = self::fetchprofile($term['url'], false);
+				$profile = APContact::getProfileByURL($term['url'], false);
 				if (!empty($profile) && empty($contacts[$profile['url']])) {
 					$data['cc'][] = $profile['url'];
 					$contacts[$profile['url']] = $profile['url'];
@@ -371,7 +372,7 @@ class ActivityPub
 				continue;
 			}
 
-			$profile = self::fetchprofile($parent['author-link'], false);
+			$profile = APContact::getProfileByURL($parent['author-link'], false);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
@@ -381,7 +382,7 @@ class ActivityPub
 				continue;
 			}
 
-			$profile = self::fetchprofile($parent['owner-link'], false);
+			$profile = APContact::getProfileByURL($parent['owner-link'], false);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
@@ -407,9 +408,9 @@ class ActivityPub
 		$inboxes = [];
 
 		if ($item['gravity'] == GRAVITY_ACTIVITY) {
-			$item_profile = ActivityPub::fetchprofile($item['author-link']);
+			$item_profile = APContact::getProfileByURL($item['author-link']);
 		} else {
-			$item_profile = ActivityPub::fetchprofile($item['owner-link']);
+			$item_profile = APContact::getProfileByURL($item['owner-link']);
 		}
 
 		$elements = ['to', 'cc', 'bto', 'bcc'];
@@ -428,7 +429,7 @@ class ActivityPub
 					}
 					DBA::close($contacts);
 				} else {
-					$profile = self::fetchprofile($receiver);
+					$profile = APContact::getProfileByURL($receiver);
 					if (!empty($profile)) {
 						$target = defaults($profile, 'sharedinbox', $profile['inbox']);
 						$inboxes[$target] = $target;
@@ -644,7 +645,7 @@ class ActivityPub
 
 	public static function transmitActivity($activity, $target, $uid)
 	{
-		$profile = self::fetchprofile($target);
+		$profile = APContact::getProfileByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
 
@@ -663,7 +664,7 @@ class ActivityPub
 
 	public static function transmitContactAccept($target, $id, $uid)
 	{
-		$profile = self::fetchprofile($target);
+		$profile = APContact::getProfileByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
@@ -683,7 +684,7 @@ class ActivityPub
 
 	public static function transmitContactReject($target, $id, $uid)
 	{
-		$profile = self::fetchprofile($target);
+		$profile = APContact::getProfileByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
@@ -703,7 +704,7 @@ class ActivityPub
 
 	public static function transmitContactUndo($target, $uid)
 	{
-		$profile = self::fetchprofile($target);
+		$profile = APContact::getProfileByURL($target);
 
 		$id = System::baseUrl() . '/activity/' . System::createGUID();
 
@@ -739,162 +740,6 @@ class ActivityPub
 	}
 
 	/**
-	 * Resolves the profile url from the address by using webfinger
-	 *
-	 * @param string $addr profile address (user@domain.tld)
-	 * @return string url
-	 */
-	private static function addrToUrl($addr)
-	{
-		$addr_parts = explode('@', $addr);
-		if (count($addr_parts) != 2) {
-			return false;
-		}
-
-		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
-
-		$ret = Network::curl($webfinger, false, $redirects, ['accept_content' => 'application/jrd+json,application/json']);
-		if (!$ret['success'] || empty($ret['body'])) {
-			return false;
-		}
-
-		$data = json_decode($ret['body'], true);
-
-		if (empty($data['links'])) {
-			return false;
-		}
-
-		foreach ($data['links'] as $link) {
-			if (empty($link['href']) || empty($link['rel']) || empty($link['type'])) {
-				continue;
-			}
-
-			if (($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
-				return $link['href'];
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Fetches a profile form a given url
-	 *
-	 * @param string  $url    profile url
-	 * @param boolean $update true = always update, false = never update, null = update when not found
-	 * @return array profile array
-	 */
-	public static function fetchprofile($url, $update = null)
-	{
-		if (empty($url)) {
-			return false;
-		}
-
-		if (empty($update)) {
-			$apcontact = DBA::selectFirst('apcontact', [], ['url' => $url]);
-			if (DBA::isResult($apcontact)) {
-				return $apcontact;
-			}
-
-			$apcontact = DBA::selectFirst('apcontact', [], ['alias' => $url]);
-			if (DBA::isResult($apcontact)) {
-				return $apcontact;
-			}
-
-			$apcontact = DBA::selectFirst('apcontact', [], ['addr' => $url]);
-			if (DBA::isResult($apcontact)) {
-				return $apcontact;
-			}
-
-			if (!is_null($update)) {
-				return false;
-			}
-		}
-
-		if (empty(parse_url($url, PHP_URL_SCHEME))) {
-			$url = self::addrToUrl($url);
-			if (empty($url)) {
-				return false;
-			}
-		}
-
-		$data = self::fetchContent($url);
-
-		if (empty($data) || empty($data['id']) || empty($data['inbox'])) {
-			return false;
-		}
-
-		$apcontact = [];
-		$apcontact['url'] = $data['id'];
-		$apcontact['uuid'] = defaults($data, 'uuid', null);
-		$apcontact['type'] = defaults($data, 'type', null);
-		$apcontact['following'] = defaults($data, 'following', null);
-		$apcontact['followers'] = defaults($data, 'followers', null);
-		$apcontact['inbox'] = defaults($data, 'inbox', null);
-		$apcontact['outbox'] = defaults($data, 'outbox', null);
-		$apcontact['sharedinbox'] = JsonLD::fetchElement($data, 'endpoints', 'sharedInbox');
-		$apcontact['nick'] = defaults($data, 'preferredUsername', null);
-		$apcontact['name'] = defaults($data, 'name', $apcontact['nick']);
-		$apcontact['about'] = defaults($data, 'summary', '');
-		$apcontact['photo'] = JsonLD::fetchElement($data, 'icon', 'url');
-		$apcontact['alias'] = JsonLD::fetchElement($data, 'url', 'href');
-
-		$parts = parse_url($apcontact['url']);
-		unset($parts['scheme']);
-		unset($parts['path']);
-		$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
-
-		$apcontact['pubkey'] = trim(JsonLD::fetchElement($data, 'publicKey', 'publicKeyPem'));
-
-		// To-Do
-		// manuallyApprovesFollowers
-
-		// Unhandled
-		// @context, tag, attachment, image, nomadicLocations, signature, following, followers, featured, movedTo, liked
-
-		// Unhandled from Misskey
-		// sharedInbox, isCat
-
-		// Unhandled from Kroeg
-		// kroeg:blocks, updated
-
-		// Check if the address is resolvable
-		if (self::addrToUrl($apcontact['addr']) == $apcontact['url']) {
-			$parts = parse_url($apcontact['url']);
-			unset($parts['path']);
-			$apcontact['baseurl'] = Network::unparseURL($parts);
-		} else {
-			$apcontact['addr'] = null;
-			$apcontact['baseurl'] = null;
-		}
-
-		if ($apcontact['url'] == $apcontact['alias']) {
-			$apcontact['alias'] = null;
-		}
-
-		$apcontact['updated'] = DateTimeFormat::utcNow();
-
-		DBA::update('apcontact', $apcontact, ['url' => $url], true);
-
-		// Update some data in the contact table with various ways to catch them all
-		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about']];
-		DBA::update('contact', $contact_fields, ['nurl' => normalise_link($url)]);
-
-		$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => normalise_link($url)]);
-		while ($contact = DBA::fetch($contacts)) {
-			Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
-		}
-		DBA::close($contacts);
-
-		// Update the gcontact table
-		DBA::update('gcontact', $contact_fields, ['nurl' => normalise_link($url)]);
-
-		logger('Updated profile for ' . $url, LOGGER_DEBUG);
-
-		return $apcontact;
-	}
-
-	/**
 	 * Fetches a profile from the given url into an array that is compatible to Probe::uri
 	 *
 	 * @param string $url profile url
@@ -902,7 +747,7 @@ class ActivityPub
 	 */
 	public static function probeProfile($url)
 	{
-		$apcontact = self::fetchprofile($url, true);
+		$apcontact = APContact::getProfileByURL($url, true);
 		if (empty($apcontact)) {
 			return false;
 		}
@@ -1158,7 +1003,7 @@ class ActivityPub
 		}
 
 		if (!empty($actor)) {
-			$profile = self::fetchprofile($actor);
+			$profile = APContact::getProfileByURL($actor);
 			$followers = defaults($profile, 'followers', '');
 
 			logger('Actor: ' . $actor . ' - Followers: ' . $followers, LOGGER_DEBUG);
@@ -1636,7 +1481,7 @@ class ActivityPub
 		}
 
 		logger('Updating profile for ' . $activity['object']['id'], LOGGER_DEBUG);
-		self::fetchprofile($activity['object']['id'], true);
+		APContact::getProfileByURL($activity['object']['id'], true);
 	}
 
 	private static function acceptFollowUser($activity)
