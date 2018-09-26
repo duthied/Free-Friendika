@@ -22,6 +22,11 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	 */
 	private $memcache;
 
+	/**
+	 * @param string $memcache_host
+	 * @param int    $memcache_port
+	 * @throws Exception
+	 */
 	public function __construct($memcache_host, $memcache_port)
 	{
 		if (!class_exists('Memcache', false)) {
