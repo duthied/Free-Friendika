@@ -6,6 +6,7 @@ namespace Friendica\Util;
 
 use Friendica\Core\Cache;
 use digitalbazaar\jsonld as DBJsonLD;
+use Exception;
 
 /**
  * @brief This class contain methods to work with JsonLD data
@@ -60,7 +61,14 @@ class JsonLD
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-		return jsonld_normalize($jsonobj, array('algorithm' => 'URDNA2015', 'format' => 'application/nquads'));
+		try {
+			$normalized = jsonld_normalize($jsonobj, array('algorithm' => 'URDNA2015', 'format' => 'application/nquads'));
+		}
+		catch (Exception $e) {
+			logger('normalise error:' . print_r($e, true), LOGGER_DEBUG);
+		}
+
+		return $normalized;
 	}
 
 	/**

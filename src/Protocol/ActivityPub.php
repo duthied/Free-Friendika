@@ -77,8 +77,7 @@ class ActivityPub
 {
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
 	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
-		['ostatus' => 'http://ostatus.org#', 'uuid' => 'http://schema.org/identifier',
-		'vcard' => 'http://www.w3.org/2006/vcard/ns#',
+		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
 		'diaspora' => 'https://diasporafoundation.org#',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
@@ -346,11 +345,11 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates an array of permissions from an item thread
 	 *
 	 * @param array $item
 	 *
-	 * @return 
+	 * @return permission array
 	 */
 	public static function createPermissionBlockForItem($item)
 	{
@@ -445,7 +444,7 @@ class ActivityPub
 	 * @param array $item
 	 * @param $uid
 	 *
-	 * @return 
+	 * @return array with inboxes
 	 */
 	public static function fetchTargetInboxes($item, $uid)
 	{
@@ -1393,7 +1392,7 @@ class ActivityPub
 			$actor = defaults($object, 'actor', null);
 		}
 
-		$object_data['uuid'] = defaults($object, 'uuid', null);
+		$object_data['diaspora:guid'] = defaults($object, 'diaspora:guid', null);
 		$object_data['owner'] = $object_data['author'] = $actor;
 		$object_data['context'] = defaults($object, 'context', null);
 		$object_data['conversation'] = defaults($object, 'conversation', null);
