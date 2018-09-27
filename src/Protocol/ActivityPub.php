@@ -1021,7 +1021,7 @@ class ActivityPub
 		} elseif (in_array($activity['type'], ['Like', 'Dislike'])) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
-			$object_data = self::ProcessObject($activity);
+			$object_data = self::processObject($activity);
 			$object_data['name'] = $activity['type'];
 			$object_data['author'] = $activity['actor'];
 			$object_data['object'] = $object_id;
@@ -1336,7 +1336,7 @@ class ActivityPub
 			case 'Note':
 			case 'Article':
 			case 'Video':
-				return self::ProcessObject($data);
+				return self::processObject($data);
 
 			case 'Announce':
 				if (empty($data['object'])) {
@@ -1361,7 +1361,7 @@ class ActivityPub
 	 *
 	 * @return 
 	 */
-	private static function ProcessObject(&$object)
+	private static function processObject(&$object)
 	{
 		if (empty($object['id'])) {
 			return false;
