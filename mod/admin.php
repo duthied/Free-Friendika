@@ -908,7 +908,15 @@ function admin_page_summary(App $a)
 
 	$queues = ['label' => L10n::t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue];
 
-	$php_settings = [L10n::t('PHP Values'), ['upload_max_filesize' => ini_get('upload_max_filesize'), 'post_max_size' => ini_get('post_max_size'), 'memory_limit' => ini_get('memory_limit')]];
+
+	$r = q("SHOW variables LIKE 'max_allowed_packet'");
+	$max_allowed_packet = (($r) ? $r[0]['Value'] : 0);
+
+	$server_settings = ['label' => L10n::t('Server Settings'), 
+				'php' => ['upload_max_filesize' => ini_get('upload_max_filesize'), 
+						  'post_max_size' => ini_get('post_max_size'), 
+						  'memory_limit' => ini_get('memory_limit')], 
+				'mysql' => ['max_allowed_packet' => $max_allowed_packet]];
 
 	$t = get_markup_template('admin/summary.tpl');
 	return replace_macros($t, [
@@ -924,7 +932,7 @@ function admin_page_summary(App $a)
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' => Config::get('system', 'build'),
 		'$addons' => [L10n::t('Active addons'), $a->addons],
-		'$php' => $php_settings,
+		'$serversettings' => $server_settings,
 		'$showwarning' => $showwarning,
 		'$warningtext' => $warningtext
 	]);
