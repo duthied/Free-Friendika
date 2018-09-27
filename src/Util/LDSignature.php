@@ -36,8 +36,8 @@ class LDSignature
 		}
 		$pubkey = $profile['pubkey'];
 
-		$ohash = self::hash(self::signable_options($data['signature']));
-		$dhash = self::hash(self::signable_data($data));
+		$ohash = self::hash(self::signableOptions($data['signature']));
+		$dhash = self::hash(self::signableData($data));
 
 		$x = Crypto::rsaVerify($ohash . $dhash, base64_decode($data['signature']['signatureValue']), $pubkey);
 		logger('LD-verify: ' . intval($x));
@@ -58,20 +58,20 @@ class LDSignature
 			'created' => DateTimeFormat::utcNow(DateTimeFormat::ATOM)
 		];
 
-		$ohash = self::hash(self::signable_options($options));
-		$dhash = self::hash(self::signable_data($data));
+		$ohash = self::hash(self::signableOptions($options));
+		$dhash = self::hash(self::signableData($data));
 		$options['signatureValue'] = base64_encode(Crypto::rsaSign($ohash . $dhash, $owner['uprvkey']));
 
 		return array_merge($data, ['signature' => $options]);
 	}
 
-	private static function signable_data($data)
+	private static function signableData($data)
 	{
 		unset($data['signature']);
 		return $data;
 	}
 
-	private static function signable_options($options)
+	private static function signableOptions($options)
 	{
 		$newopts = ['@context' => 'https://w3id.org/identity/v1'];
 
