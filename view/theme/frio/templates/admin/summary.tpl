@@ -64,13 +64,13 @@
 			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 admin-summary-label-name text-muted">{{$php.0}}</div>
 			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 admin-summary-entry">
 				<table class="table">
-	                <thead><tr><td>Configuration</td><td>Value</td></tr></thead>
-	                <tbody>
-	                {{foreach $php.1 as $k => $p}}
-		                <tr><td>{{$k}}</td><td>{{$p}}</td></tr>
-	                {{/foreach}}
-	                </tbody>
-                </table>
+				<thead><tr><td>Configuration</td><td>Value</td></tr></thead>
+				<tbody>
+					{{foreach $php.1 as $k => $p}}
+						<tr><td>{{$k}}</td><td>{{$p}}</td></tr>
+					{{/foreach}}
+				</tbody>
+				</table>
 			</div>
 		</div>
 
