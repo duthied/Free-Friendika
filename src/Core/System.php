@@ -167,7 +167,7 @@ class System extends BaseObject
 	 * @param bool|string  $prefix   A given prefix (default is empty)
 	 * @return string a generated UUID
 	 */
-	public static function UUID($prefix = '')
+	public static function createUUID($prefix = '')
 	{
 		$guid = System::createGUID(32, $prefix);
 		return substr($guid, 0, 8). '-' . substr($guid, 8, 4) . '-' . substr($guid, 12, 4) . '-' . substr($guid, 16, 4) . '-' . substr($guid, 20, 12);

@@ -495,7 +495,7 @@ class User
 		$spubkey = $sres['pubkey'];
 
 		$insert_result = DBA::insert('user', [
-			'guid'     => System::UUID(),
+			'guid'     => System::createUUID(),
 			'username' => $username,
 			'password' => $new_password_encoded,
 			'email'    => $email,

@@ -240,7 +240,7 @@ function item_post(App $a) {
 		$emailcc           =      notags(trim(defaults($_REQUEST, 'emailcc' , '')));
 		$body              = escape_tags(trim(defaults($_REQUEST, 'body'    , '')));
 		$network           =      notags(trim(defaults($_REQUEST, 'network' , Protocol::DFRN)));
-		$guid              =      System::UUID();
+		$guid              =      System::createUUID();
 
 		$postopts = defaults($_REQUEST, 'postopts', '');
 

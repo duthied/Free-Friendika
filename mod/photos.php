@@ -472,7 +472,7 @@ function photos_post(App $a)
 			$uri = Item::newURI($page_owner_uid);
 
 			$arr = [];
-			$arr['guid']          = System::UUID();
+			$arr['guid']          = System::createUUID();
 			$arr['uid']           = $page_owner_uid;
 			$arr['uri']           = $uri;
 			$arr['parent-uri']    = $uri;
@@ -651,7 +651,7 @@ function photos_post(App $a)
 					$uri = Item::newURI($page_owner_uid);
 
 					$arr = [];
-					$arr['guid']          = System::UUID();
+					$arr['guid']          = System::createUUID();
 					$arr['uid']           = $page_owner_uid;
 					$arr['uri']           = $uri;
 					$arr['parent-uri']    = $uri;
@@ -889,7 +889,7 @@ function photos_post(App $a)
 		$arr['coord'] = $lat . ' ' . $lon;
 	}
 
-	$arr['guid']          = System::UUID();
+	$arr['guid']          = System::createUUID();
 	$arr['uid']           = $page_owner_uid;
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;
