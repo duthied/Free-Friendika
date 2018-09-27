@@ -470,7 +470,8 @@ class ActivityPub
 			foreach ($permissions[$element] as $receiver) {
 				if ($receiver == $item_profile['followers']) {
 					$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
-						'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB]);
+						'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB,
+						'archive' => false, 'pending' => false]);
 					while ($contact = DBA::fetch($contacts)) {
 						$contact = defaults($contact, 'batch', $contact['notify']);
 						$inboxes[$contact] = $contact;
@@ -1177,7 +1178,8 @@ class ActivityPub
 
 				if (($receiver == self::PUBLIC) && !empty($actor)) {
 					// This will most likely catch all OStatus connections to Mastodon
-					$condition = ['alias' => [$actor, normalise_link($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+					$condition = ['alias' => [$actor, normalise_link($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]
+						, 'archive' => false, 'pending' => false];
 					$contacts = DBA::select('contact', ['uid'], $condition);
 					while ($contact = DBA::fetch($contacts)) {
 						if ($contact['uid'] != 0) {
@@ -1189,7 +1191,7 @@ class ActivityPub
 
 				if (in_array($receiver, [$followers, self::PUBLIC]) && !empty($actor)) {
 					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
-						'network' => Protocol::ACTIVITYPUB];
+						'network' => Protocol::ACTIVITYPUB, 'archive' => false, 'pending' => false];
 					$contacts = DBA::select('contact', ['uid'], $condition);
 					while ($contact = DBA::fetch($contacts)) {
 						if ($contact['uid'] != 0) {
