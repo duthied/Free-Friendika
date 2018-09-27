@@ -439,10 +439,10 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Fetches an array of inboxes for the given item and user
 	 *
 	 * @param array $item
-	 * @param $uid
+	 * @param integer $uid User ID
 	 *
 	 * @return array with inboxes
 	 */
@@ -490,11 +490,11 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Returns the activity type of a given item
 	 *
 	 * @param array $item
 	 *
-	 * @return 
+	 * @return activity type
 	 */
 	public static function getTypeOfItem($item)
 	{
@@ -522,12 +522,12 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates an activity array for a given item id
 	 *
-	 * @param $item_id
-	 * @param $object_mode
+	 * @param integer $item_id
+	 * @param boolean $object_mode Is the activity item is used inside another object?
 	 *
-	 * @return 
+	 * @return array of activity
 	 */
 	public static function createActivityFromItem($item_id, $object_mode = false)
 	{
@@ -592,11 +592,11 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates an object array for a given item id
 	 *
-	 * @param $item_id
+	 * @param integer $item_id
 	 *
-	 * @return 
+	 * @return object array
 	 */
 	public static function createObjectFromItemID($item_id)
 	{
@@ -613,11 +613,11 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Returns a tag array for a given item array
 	 *
 	 * @param array $item
 	 *
-	 * @return 
+	 * @return array of tags
 	 */
 	private static function createTagList($item)
 	{
@@ -640,11 +640,11 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Fetches the "context" value for a givem item array from the "conversation" table
 	 *
 	 * @param array $item
 	 *
-	 * @return 
+	 * @return string with context url
 	 */
 	private static function fetchContextURLForItem($item)
 	{
@@ -660,11 +660,11 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Creates a note/article object array
 	 *
 	 * @param array $item
 	 *
-	 * @return 
+	 * @return object array
 	 */
 	private static function CreateNote($item)
 	{
@@ -721,13 +721,11 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * @brief Transmits a given activity to a target
 	 *
 	 * @param array $activity
-	 * @param $target
-	 * @param $uid
-	 *
-	 * @return 
+	 * @param string $target Target profile
+	 * @param integer $uid User ID
 	 */
 	public static function transmitActivity($activity, $target, $uid)
 	{
@@ -745,17 +743,15 @@ class ActivityPub
 		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	/**
-	 * @brief 
+	 * @brief Transmit a message that the contact request had been accepted
 	 *
-	 * @param $target
+	 * @param string $target Target profile
 	 * @param $id
-	 * @param $uid
-	 *
-	 * @return 
+	 * @param integer $uid User ID
 	 */
 	public static function transmitContactAccept($target, $id, $uid)
 	{
@@ -774,17 +770,15 @@ class ActivityPub
 		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	/**
 	 * @brief 
 	 *
-	 * @param $target
+	 * @param string $target Target profile
 	 * @param $id
-	 * @param $uid
-	 *
-	 * @return 
+	 * @param integer $uid User ID
 	 */
 	public static function transmitContactReject($target, $id, $uid)
 	{
@@ -803,16 +797,14 @@ class ActivityPub
 		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	/**
 	 * @brief 
 	 *
-	 * @param $target
-	 * @param $uid
-	 *
-	 * @return 
+	 * @param string $target Target profile
+	 * @param integer $uid User ID
 	 */
 	public static function transmitContactUndo($target, $uid)
 	{
@@ -833,7 +825,7 @@ class ActivityPub
 		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
-		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	/**
@@ -897,7 +889,7 @@ class ActivityPub
 	 *
 	 * @param $body
 	 * @param $header
-	 * @param $uid
+	 * @param integer $uid User ID
 	 */
 	public static function processInbox($body, $header, $uid)
 	{
@@ -952,7 +944,7 @@ class ActivityPub
 	 * @brief 
 	 *
 	 * @param $url
-	 * @param $uid
+	 * @param integer $uid User ID
 	 */
 	public static function fetchOutbox($url, $uid)
 	{
@@ -981,7 +973,7 @@ class ActivityPub
 	 * @brief 
 	 *
 	 * @param array $activity
-	 * @param $uid
+	 * @param integer $uid User ID
 	 * @param $trust_source
 	 *
 	 * @return 
@@ -1052,7 +1044,7 @@ class ActivityPub
 	 *
 	 * @param array $activity
 	 * @param $body
-	 * @param $uid
+	 * @param integer $uid User ID
 	 * @param $trust_source
 	 */
 	private static function processActivity($activity, $body = '', $uid = null, $trust_source = false)
@@ -1221,7 +1213,7 @@ class ActivityPub
 	 * @brief 
 	 *
 	 * @param $cid
-	 * @param $uid
+	 * @param integer $uid User ID
 	 * @param $url
 	 */
 	private static function switchContact($cid, $uid, $url)
