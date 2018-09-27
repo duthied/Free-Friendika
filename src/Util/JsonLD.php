@@ -5,7 +5,6 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Cache;
-use digitalbazaar\jsonld as DBJsonLD;
 use Exception;
 
 /**
