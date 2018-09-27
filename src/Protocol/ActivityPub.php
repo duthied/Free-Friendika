@@ -78,7 +78,7 @@ class ActivityPub
 	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
 	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
 		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
-		'diaspora' => 'https://diasporafoundation.org#',
+		'diaspora' => 'https://diasporafoundation.org/ns/',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
 
@@ -575,7 +575,7 @@ class ActivityPub
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Announce', 'Delete'])) {
-			$data['object'] = self::CreateNote($item);
+			$data['object'] = self::createNote($item);
 		} elseif ($data['type'] == 'Undo') {
 			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
@@ -607,7 +607,7 @@ class ActivityPub
 		}
 
 		$data = ['@context' => self::CONTEXT];
-		$data = array_merge($data, self::CreateNote($item));
+		$data = array_merge($data, self::createNote($item));
 
 		return $data;
 	}
@@ -666,7 +666,7 @@ class ActivityPub
 	 *
 	 * @return object array
 	 */
-	private static function CreateNote($item)
+	private static function createNote($item)
 	{
 		if (!empty($item['title'])) {
 			$type = 'Article';
@@ -713,6 +713,11 @@ class ActivityPub
 
 		$data['content'] = BBCode::convert($item['body'], false, 7);
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
+
+		if (!empty($item['signed_text']) && ($item['uri'] != $item['thr-parent'])) {
+			$data['diaspora:comment'] = $item['signed_text'];
+		}
+
 		$data['attachment'] = []; // @ToDo
 		$data['tag'] = self::createTagList($item);
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
@@ -1319,7 +1324,7 @@ class ActivityPub
 				return false;
 			}
 			logger('Using already stored item for url ' . $object_id, LOGGER_DEBUG);
-			$data = self::CreateNote($item);
+			$data = self::createNote($item);
 		}
 
 		if (empty($data['type'])) {
