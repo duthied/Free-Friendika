@@ -265,7 +265,7 @@ class HTTPSignature
 		return '';
 	}
 
-	/**
+	/*
 	 * Functions for ActivityPub
 	 */
 
