@@ -1666,23 +1666,6 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief Returns the user id of a given profile url
-	 *
-	 * @param string $profile
-	 *
-	 * @return integer user id
-	 */
-	private static function getUserOfProfile($profile)
-	{
-		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($profile), 'self' => true]);
-		if (!DBA::isResult($self)) {
-			return false;
-		} else {
-			return $self['uid'];
-		}
-	}
-
-	/**
 	 * @brief perform a "follow" request
 	 *
 	 * @param array $activity
@@ -1690,7 +1673,7 @@ class ActivityPub
 	private static function followUser($activity)
 	{
 		$actor = JsonLD::fetchElement($activity, 'object', 'id');
-		$uid = self::getUserOfProfile($actor);
+		$uid = User::getIdForURL($actor);
 		if (empty($uid)) {
 			return;
 		}
@@ -1745,7 +1728,7 @@ class ActivityPub
 	private static function acceptFollowUser($activity)
 	{
 		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
-		$uid = self::getUserOfProfile($actor);
+		$uid = User::getIdForURL($actor);
 		if (empty($uid)) {
 			return;
 		}
@@ -1803,7 +1786,7 @@ class ActivityPub
 	private static function undoFollowUser($activity)
 	{
 		$object = JsonLD::fetchElement($activity, 'object', 'object');
-		$uid = self::getUserOfProfile($object);
+		$uid = User::getIdForURL($object);
 		if (empty($uid)) {
 			return;
 		}
