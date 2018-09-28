@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "36f76191086a7f81370b51d0ff8cea1d",
+    "content-hash": "ece71ff50417ed5fcc1a439ea554925c",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -150,52 +150,6 @@
             "type": "bower-asset-library"
         },
         {
-            "name": "digitalbazaar/json-ld",
-            "version": "0.4.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/digitalbazaar/php-json-ld.git",
-                "reference": "dc1bd23f0ee2efd27ccf636d32d2738dabcee182"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/digitalbazaar/php-json-ld/zipball/dc1bd23f0ee2efd27ccf636d32d2738dabcee182",
-                "reference": "dc1bd23f0ee2efd27ccf636d32d2738dabcee182",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "jsonld.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Digital Bazaar, Inc.",
-                    "email": "support@digitalbazaar.com"
-                }
-            ],
-            "description": "A JSON-LD Processor and API implementation in PHP.",
-            "homepage": "https://github.com/digitalbazaar/php-json-ld",
-            "keywords": [
-                "JSON-LD",
-                "Linked Data",
-                "RDF",
-                "Semantic Web",
-                "json",
-                "jsonld"
-            ],
-            "time": "2016-04-25T04:17:52+00:00"
-        },
-        {
             "name": "divineomega/password_exposed",
             "version": "v2.5.1",
             "source": {
@@ -286,6 +240,50 @@
                 "html"
             ],
             "time": "2015-08-05T01:03:42+00:00"
+        },
+        {
+            "name": "friendica/json-ld",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.friendi.ca/friendica/php-json-ld",
+                "reference": "a9ac64daf01cfd97e80c36a5104247d37c0ae5ef"
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "jsonld.php"
+                ]
+            },
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Digital Bazaar, Inc.",
+                    "email": "support@digitalbazaar.com",
+                    "url": "http://digitalbazaar.com/"
+                },
+                {
+                    "name": "Friendica Team",
+                    "url": "https://friendi.ca/"
+                }
+            ],
+            "description": "A JSON-LD Processor and API implementation in PHP.",
+            "homepage": "https://git.friendi.ca/friendica/php-json-ld",
+            "keywords": [
+                "JSON",
+                "JSON-LD",
+                "Linked Data",
+                "RDF",
+                "Semantic Web",
+                "jsonld"
+            ],
+            "time": "2018-09-28T00:01:12+00:00"
         },
         {
             "name": "fxp/composer-asset-plugin",
@@ -2046,6 +2044,52 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "digitalbazaar/json-ld",
+            "version": "0.4.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/digitalbazaar/php-json-ld.git",
+                "reference": "dc1bd23f0ee2efd27ccf636d32d2738dabcee182"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/digitalbazaar/php-json-ld/zipball/dc1bd23f0ee2efd27ccf636d32d2738dabcee182",
+                "reference": "dc1bd23f0ee2efd27ccf636d32d2738dabcee182",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "jsonld.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Digital Bazaar, Inc.",
+                    "email": "support@digitalbazaar.com"
+                }
+            ],
+            "description": "A JSON-LD Processor and API implementation in PHP.",
+            "homepage": "https://github.com/digitalbazaar/php-json-ld",
+            "keywords": [
+                "JSON-LD",
+                "Linked Data",
+                "RDF",
+                "Semantic Web",
+                "json",
+                "jsonld"
+            ],
+            "time": "2016-04-25T04:17:52+00:00"
+        },
         {
             "name": "doctrine/instantiator",
             "version": "1.0.5",
