@@ -75,7 +75,7 @@ use Friendica\Core\Config;
  */
 class ActivityPub
 {
-	const PUBLIC = 'https://www.w3.org/ns/activitystreams#Public';
+	const PUBLIC_COLLECTION = 'https://www.w3.org/ns/activitystreams#Public';
 	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
 		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
 		'diaspora' => 'https://diasporafoundation.org/ns/',
@@ -364,7 +364,7 @@ class ActivityPub
 		$contacts[$item['author-link']] = $item['author-link'];
 
 		if (!$item['private']) {
-			$data['to'][] = self::PUBLIC;
+			$data['to'][] = self::PUBLIC_COLLECTION;
 			if (!empty($actor_profile['followers'])) {
 				$data['cc'][] = $actor_profile['followers'];
 			}
@@ -1172,11 +1172,11 @@ class ActivityPub
 			}
 
 			foreach ($activity[$element] as $receiver) {
-				if ($receiver == self::PUBLIC) {
+				if ($receiver == self::PUBLIC_COLLECTION) {
 					$receivers['uid:0'] = 0;
 				}
 
-				if (($receiver == self::PUBLIC) && !empty($actor)) {
+				if (($receiver == self::PUBLIC_COLLECTION) && !empty($actor)) {
 					// This will most likely catch all OStatus connections to Mastodon
 					$condition = ['alias' => [$actor, normalise_link($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]
 						, 'archive' => false, 'pending' => false];
@@ -1189,7 +1189,7 @@ class ActivityPub
 					DBA::close($contacts);
 				}
 
-				if (in_array($receiver, [$followers, self::PUBLIC]) && !empty($actor)) {
+				if (in_array($receiver, [$followers, self::PUBLIC_COLLECTION]) && !empty($actor)) {
 					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
 						'network' => Protocol::ACTIVITYPUB, 'archive' => false, 'pending' => false];
 					$contacts = DBA::select('contact', ['uid'], $condition);
