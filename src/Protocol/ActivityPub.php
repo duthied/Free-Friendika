@@ -834,8 +834,9 @@ class ActivityPub
 	{
 		$ret = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
 		if (!$ret['success'] || empty($ret['body'])) {
-			return;
+			return false;
 		}
+
 		return json_decode($ret['body'], true);
 	}
 

@@ -55,6 +55,7 @@ function profile_init(App $a)
 		if (DBA::isResult($user)) {
 			$data = ActivityPub::profile($user['uid']);
 			echo json_encode($data);
+			header('Content-Type: application/activity+json');
 			exit();
 		}
 	}
