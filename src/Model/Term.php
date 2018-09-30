@@ -33,9 +33,9 @@ class Term
 		return $tag_text;
 	}
 
-	public static function tagArrayFromItemId($itemid)
+	public static function tagArrayFromItemId($itemid, $type = [TERM_HASHTAG, TERM_MENTION])
 	{
-		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]];
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => $type];
 		$tags = DBA::select('term', ['type', 'term', 'url'], $condition);
 		if (!DBA::isResult($tags)) {
 			return [];

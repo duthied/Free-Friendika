@@ -1081,9 +1081,8 @@ class Item extends BaseObject
 
 		DBA::delete('item-delivery-data', ['iid' => $item['id']]);
 
-		//if (!empty($item['iaid']) && !self::exists(['iaid' => $item['iaid'], 'deleted' => false])) {
-		//	DBA::delete('item-activity', ['id' => $item['iaid']], ['cascade' => false]);
-		//}
+		// We don't delete the item-activity here, since we need some of the data for ActivityPub
+
 		if (!empty($item['icid']) && !self::exists(['icid' => $item['icid'], 'deleted' => false])) {
 			DBA::delete('item-content', ['id' => $item['icid']], ['cascade' => false]);
 		}

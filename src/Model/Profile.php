@@ -35,7 +35,7 @@ class Profile
 	 *
 	 * @return array Profile data
 	 */
-	public static function getProfileForUser($uid)
+	public static function getByUID($uid)
 	{
 		$profile = DBA::selectFirst('profile', [], ['uid' => $uid, 'is-default' => true]);
 		return $profile;

@@ -113,7 +113,7 @@ class ActivityPub
 		$data['totalItems'] = $count;
 
 		// When we hide our friends we will only show the pure number but don't allow more.
-		$profile = Profile::getProfileForUser($owner['uid']);
+		$profile = Profile::getByUID($owner['uid']);
 		if (!empty($profile['hide-friends'])) {
 			return $data;
 		}
@@ -160,7 +160,7 @@ class ActivityPub
 		$data['totalItems'] = $count;
 
 		// When we hide our friends we will only show the pure number but don't allow more.
-		$profile = Profile::getProfileForUser($owner['uid']);
+		$profile = Profile::getByUID($owner['uid']);
 		if (!empty($profile['hide-friends'])) {
 			return $data;
 		}
@@ -323,8 +323,7 @@ class ActivityPub
 
 		$permissions['to'][] = $actor;
 
-		$elements = ['to', 'cc', 'bto', 'bcc'];
-		foreach ($elements as $element) {
+		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
 			if (empty($activity[$element])) {
 				continue;
 			}
@@ -359,7 +358,7 @@ class ActivityPub
 
 		$actor_profile = APContact::getProfileByURL($item['author-link']);
 
-		$terms = Term::tagArrayFromItemId($item['id']);
+		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
 
 		$contacts[$item['author-link']] = $item['author-link'];
 
@@ -461,8 +460,7 @@ class ActivityPub
 			$item_profile = APContact::getProfileByURL($item['owner-link']);
 		}
 
-		$elements = ['to', 'cc', 'bto', 'bcc'];
-		foreach ($elements as $element) {
+		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
 			if (empty($permissions[$element])) {
 				continue;
 			}
@@ -624,7 +622,7 @@ class ActivityPub
 	{
 		$tags = [];
 
-		$terms = Term::tagArrayFromItemId($item['id']);
+		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
 		foreach ($terms as $term) {
 			if ($term['type'] == TERM_MENTION) {
 				$contact = Contact::getDetailsByURL($term['url']);
@@ -1160,13 +1158,12 @@ class ActivityPub
 			$followers = '';
 		}
 
-		$elements = ['to', 'cc', 'bto', 'bcc'];
-		foreach ($elements as $element) {
+		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
 			if (empty($activity[$element])) {
 				continue;
 			}
 
-			// The receiver can be an arror or a string
+			// The receiver can be an array or a string
 			if (is_string($activity[$element])) {
 				$activity[$element] = [$activity[$element]];
 			}
