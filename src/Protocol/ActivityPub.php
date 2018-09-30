@@ -369,9 +369,6 @@ class ActivityPub
 			}
 
 			foreach ($terms as $term) {
-				if ($term['type'] != TERM_MENTION) {
-					continue;
-				}
 				$profile = APContact::getProfileByURL($term['url'], false);
 				if (!empty($profile) && empty($contacts[$profile['url']])) {
 					$data['cc'][] = $profile['url'];
@@ -384,9 +381,6 @@ class ActivityPub
 			$mentioned = [];
 
 			foreach ($terms as $term) {
-				if ($term['type'] != TERM_MENTION) {
-					continue;
-				}
 				$cid = Contact::getIdForURL($term['url'], $item['uid']);
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
@@ -624,16 +618,14 @@ class ActivityPub
 
 		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
 		foreach ($terms as $term) {
-			if ($term['type'] == TERM_MENTION) {
-				$contact = Contact::getDetailsByURL($term['url']);
-				if (!empty($contact['addr'])) {
-					$mention = '@' . $contact['addr'];
-				} else {
-					$mention = '@' . $term['url'];
-				}
-
-				$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
+			$contact = Contact::getDetailsByURL($term['url']);
+			if (!empty($contact['addr'])) {
+				$mention = '@' . $contact['addr'];
+			} else {
+				$mention = '@' . $term['url'];
 			}
+
+			$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
 		}
 		return $tags;
 	}
