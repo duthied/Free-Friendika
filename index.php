@@ -215,10 +215,6 @@ if (strlen($a->module)) {
 	 * First see if we have an addon which is masquerading as a module.
 	 */
 
-	if ($a->module == 'object') {
-		$a->module = 'display';
-	}
-
 	// Compatibility with the Android Diaspora client
 	if ($a->module == 'stream') {
 		goaway('network?f=&order=post');

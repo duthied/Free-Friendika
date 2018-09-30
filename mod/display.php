@@ -78,13 +78,9 @@ function display_init(App $a)
 	}
 
 	if (ActivityPub::isRequest()) {
-		$wall_item = Item::selectFirst(['id', 'uid'], ['guid' => $item['guid'], 'wall' => true]);
-		if (DBA::isResult($wall_item)) {
-			$data = ActivityPub::createObjectFromItemID($wall_item['id']);
-			echo json_encode($data);
-			exit();
-		}
+		goaway(str_replace('display/', 'object/', $a->query_string));
 	}
+
 	if ($item["id"] != $item["parent"]) {
 		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item["parent"]]);
 	}
