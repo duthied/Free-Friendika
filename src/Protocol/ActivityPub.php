@@ -45,7 +45,7 @@ use Friendica\Core\Config;
  *
  * Receiver:
  * - Update (Image, Video, Article, Note)
- + - Event
+ * - Event
  * - Undo Announce
  *
  * Check what this is meant to do:
