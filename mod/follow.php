@@ -20,7 +20,7 @@ function follow_post(App $a)
 	}
 
 	if (isset($_REQUEST['cancel'])) {
-		goaway($_SESSION['return_url']);
+		goaway('contacts');
 	}
 
 	$uid = local_user();
