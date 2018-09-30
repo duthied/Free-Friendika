@@ -25,7 +25,7 @@ function follow_post(App $a)
 
 	$uid = local_user();
 	$url = notags(trim($_REQUEST['url']));
-	$return_url = $_SESSION['return_url'];
+	$return_url = 'contacts';
 
 	// Makes the connection request for friendica contacts easier
 	// This is just a precaution if maybe this page is called somewhere directly via POST
@@ -39,7 +39,7 @@ function follow_post(App $a)
 		}
 		goaway($return_url);
 	} elseif ($result['cid']) {
-		goaway(System::baseUrl() . '/contacts/' . $result['cid']);
+		goaway('contacts/' . $result['cid']);
 	}
 
 	info(L10n::t('The contact could not be added.'));
@@ -50,9 +50,11 @@ function follow_post(App $a)
 
 function follow_content(App $a)
 {
+	$return_url = 'contacts';
+
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
-		goaway($_SESSION['return_url']);
+		goaway($return_url);
 		// NOTREACHED
 	}
 
@@ -116,7 +118,7 @@ function follow_content(App $a)
 
 	if (!$r) {
 		notice(L10n::t('Permission denied.'));
-		goaway($_SESSION['return_url']);
+		goaway($return_url);
 		// NOTREACHED
 	}
 

@@ -14,7 +14,7 @@ use Friendica\Model\User;
 
 function unfollow_post()
 {
-	$return_url = $_SESSION['return_url'];
+	$return_url = 'contacts';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
@@ -42,7 +42,7 @@ function unfollow_post()
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		goaway($return_url);
+		goaway($return_url.'/'.$contact['id']);
 		// NOTREACHED
 	}
 
@@ -69,9 +69,11 @@ function unfollow_post()
 
 function unfollow_content(App $a)
 {
+	$return_url = 'contacts';
+
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
-		goaway($_SESSION['return_url']);
+		goaway($return_url);
 		// NOTREACHED
 	}
 
@@ -86,7 +88,7 @@ function unfollow_content(App $a)
 
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t("You aren't following this contact."));
-		goaway('contacts');
+		goaway($return_url);
 		// NOTREACHED
 	}
 
@@ -103,7 +105,7 @@ function unfollow_content(App $a)
 
 	if (!DBA::isResult($self)) {
 		notice(L10n::t('Permission denied.'));
-		goaway($_SESSION['return_url']);
+		goaway($return_url);
 		// NOTREACHED
 	}
 
