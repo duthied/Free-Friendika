@@ -14,7 +14,7 @@ use Friendica\Model\User;
  */
 class Outbox extends BaseModule
 {
-	public static function init()
+	public static function rawContent()
 	{
 		$a = self::getApp();
 

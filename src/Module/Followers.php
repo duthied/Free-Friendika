@@ -14,7 +14,7 @@ use Friendica\Model\User;
  */
 class Followers extends BaseModule
 {
-	public static function init()
+	public static function rawContent()
 	{
 		$a = self::getApp();
 

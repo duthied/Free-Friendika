@@ -342,13 +342,19 @@ if ($a->module_loaded) {
 	$a->page['page_title'] = $a->module;
 	$placeholder = '';
 
+	Addon::callHooks($a->module . '_mod_init', $placeholder);
+
 	if ($a->module_class) {
-		Addon::callHooks($a->module . '_mod_init', $placeholder);
 		call_user_func([$a->module_class, 'init']);
 	} else if (function_exists($a->module . '_init')) {
-		Addon::callHooks($a->module . '_mod_init', $placeholder);
 		$func = $a->module . '_init';
 		$func($a);
+	}
+
+	// "rawContent" is especially meant for technical endpoints.
+	// This endpoint doesn't need any theme initialization or other comparable stuff.
+	if (!$a->error && $a->module_class) {
+		call_user_func([$a->module_class, 'rawContent']);
 	}
 
 	if (function_exists(str_replace('-', '_', $a->getCurrentTheme()) . '_init')) {

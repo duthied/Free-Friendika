@@ -15,7 +15,7 @@ use Friendica\Util\HTTPSignature;
  */
 class Inbox extends BaseModule
 {
-	public static function init()
+	public static function rawContent()
 	{
 		$a = self::getApp();
 

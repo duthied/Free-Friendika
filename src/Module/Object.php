@@ -15,7 +15,7 @@ use Friendica\Database\DBA;
  */
 class Object extends BaseModule
 {
-	public static function init()
+	public static function rawContent()
 	{
 		$a = self::getApp();
 
