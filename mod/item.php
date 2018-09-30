@@ -159,7 +159,7 @@ function item_post(App $a) {
 	}
 
 	// Allow commenting if it is an answer to a public post
-	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 
 	// Now check that valid personal details have been provided
 	if (!can_write_wall($profile_uid) && !$allow_comment) {
