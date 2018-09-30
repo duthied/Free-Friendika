@@ -44,27 +44,25 @@ use Friendica\Core\Config;
  * To-do:
  *
  * Receiver:
- * - Update Note
- * - Delete Note
- * - Delete Person
+ * - Update (Image, Video, Article, Note)
+ + - Event
  * - Undo Announce
- * - Reject Follow
- * - Undo Accept
- * - Undo Follow
+ *
+ * Check what this is meant to do:
  * - Add
- * - Create Image
- * - Create Video
- * - Event
- * - Remove
  * - Block
  * - Flag
+ * - Remove
+ * - Undo Block
+ * - Undo Accept (Problem: This could invert a contact accept or an event accept)
  *
  * Transmitter:
+ * - Delete (Application, Group, Organization, Person, Service)
+ * - Event
+ *
+ * Complicated:
  * - Announce
  * - Undo Announce
- * - Update Person
- * - Reject Follow
- * - Event
  *
  * General:
  * - Attachments
@@ -81,7 +79,9 @@ class ActivityPub
 		'diaspora' => 'https://diasporafoundation.org/ns/',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
-
+	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application'];
+	const CONTENT_TYPES = ['Note', 'Article', 'Video', 'Image'];
+	const ACTIVITY_TYPES = ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept'];
 	/**
 	 * @brief Checks if the web request is done for the AP protocol
 	 *
@@ -243,7 +243,6 @@ class ActivityPub
 	 */
 	public static function profile($uid)
 	{
-		$accounttype = ['Person', 'Organization', 'Service', 'Group', 'Application'];
 		$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
 			'account_removed' => false, 'verified' => true];
 		$fields = ['guid', 'nickname', 'pubkey', 'account-type', 'page-flags'];
@@ -267,7 +266,7 @@ class ActivityPub
 		$data = ['@context' => self::CONTEXT];
 		$data['id'] = $contact['url'];
 		$data['diaspora:guid'] = $user['guid'];
-		$data['type'] = $accounttype[$user['account-type']];
+		$data['type'] = self::ACCOUNT_TYPES[$user['account-type']];
 		$data['following'] = System::baseUrl() . '/following/' . $user['nickname'];
 		$data['followers'] = System::baseUrl() . '/followers/' . $user['nickname'];
 		$data['inbox'] = System::baseUrl() . '/inbox/' . $user['nickname'];
@@ -432,6 +431,29 @@ class ActivityPub
 	}
 
 	/**
+	 * @brief Fetches a list of inboxes of followers of a given user
+	 *
+	 * @param integer $uid User ID
+	 *
+	 * @return array of follower inboxes
+	 */
+	private static function fetchTargetInboxesforUser($uid)
+	{
+		$inboxes = [];
+
+		$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
+			'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB,
+			'archive' => false, 'pending' => false]);
+		while ($contact = DBA::fetch($contacts)) {
+			$contact = defaults($contact, 'batch', $contact['notify']);
+			$inboxes[$contact] = $contact;
+		}
+		DBA::close($contacts);
+
+		return $inboxes;
+	}
+
+	/**
 	 * @brief Fetches an array of inboxes for the given item and user
 	 *
 	 * @param array $item
@@ -461,14 +483,7 @@ class ActivityPub
 
 			foreach ($permissions[$element] as $receiver) {
 				if ($receiver == $item_profile['followers']) {
-					$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
-						'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB,
-						'archive' => false, 'pending' => false]);
-					while ($contact = DBA::fetch($contacts)) {
-						$contact = defaults($contact, 'batch', $contact['notify']);
-						$inboxes[$contact] = $contact;
-					}
-					DBA::close($contacts);
+					$inboxes = self::fetchTargetInboxesforUser($uid);
 				} else {
 					$profile = APContact::getByURL($receiver);
 					if (!empty($profile)) {
@@ -716,6 +731,36 @@ class ActivityPub
 		return $data;
 	}
 
+	/**
+	 * @brief Transmits a profile change to the followers
+	 *
+	 * @param integer $uid User ID
+	 */
+	public static function transmitProfileUpdate($uid)
+	{
+		$owner = User::getOwnerDataById($uid);
+		$profile = APContact::getByURL($owner['url']);
+
+		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'type' => 'Update',
+			'actor' => $owner['url'],
+			'object' => self::profile($uid),
+			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'to' => [$profile['followers']],
+			'cc' => []];
+
+		logger('Sending profile update to followers for user ' . $uid, LOGGER_DEBUG);
+
+		$signed = LDSignature::sign($data, $owner);
+
+		$inboxes = self::fetchTargetInboxesforUser($uid);
+
+		foreach ($inboxes as $inbox) {
+			logger('Deliver profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+			HTTPSignature::transmit($signed, $inbox, $uid);
+		}
+	}
 	/**
 	 * @brief Transmits a given activity to a target
 	 *
@@ -1088,12 +1133,19 @@ class ActivityPub
 				break;
 
 			case 'Update':
-				if (in_array($object_data['object_type'], ['Person', 'Organization', 'Service', 'Group', 'Application'])) {
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					/// @todo
+				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					self::updatePerson($object_data, $body);
 				}
 				break;
 
 			case 'Delete':
+				if ($object_data['object_type'] == 'Tombstone') {
+					self::deleteItem($object_data, $body);
+				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					self::deletePerson($object_data, $body);
+				}
 				break;
 
 			case 'Follow':
@@ -1106,10 +1158,16 @@ class ActivityPub
 				}
 				break;
 
+			case 'Reject':
+				if ($object_data['object_type'] == 'Follow') {
+					self::rejectFollowUser($object_data);
+				}
+				break;
+
 			case 'Undo':
 				if ($object_data['object_type'] == 'Follow') {
 					self::undoFollowUser($object_data);
-				} elseif (in_array($object_data['object_type'], ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept'])) {
+				} elseif (in_array($object_data['object_type'], self::ACTIVITY_TYPES)) {
 					self::undoActivity($object_data);
 				}
 				break;
@@ -1324,26 +1382,18 @@ class ActivityPub
 			return false;
 		}
 
-		switch ($data['type']) {
-			case 'Note':
-			case 'Article':
-			case 'Video':
-				return self::processObject($data);
-
-			case 'Announce':
-				if (empty($data['object'])) {
-					return false;
-				}
-				return self::fetchObject($data['object']);
-
-			case 'Person':
-			case 'Tombstone':
-				break;
-
-			default:
-				logger('Unknown object type: ' . $data['type'], LOGGER_DEBUG);
-				break;
+		if (in_array($data['type'], self::CONTENT_TYPES)) {
+			return self::processObject($data);
 		}
+
+		if ($data['type'] == 'Announce') {
+			if (empty($data['object'])) {
+				return false;
+			}
+			return self::fetchObject($data['object']);
+		}
+
+		logger('Unhandled object type: ' . $data['type'], LOGGER_DEBUG);
 	}
 
 	/**
@@ -1549,6 +1599,20 @@ class ActivityPub
 	}
 
 	/**
+	 * @brief Delete items
+	 *
+	 * @param array $activity
+	 * @param $body
+	 */
+	private static function deleteItem($activity)
+	{
+		$owner = Contact::getIdForURL($activity['owner']);
+		$object = JsonLD::fetchElement($activity, 'object', 'id');
+		logger('Deleting item ' . $object . ' from ' . $owner, LOGGER_DEBUG);
+		Item::delete(['uri' => $object, 'owner-id' => $owner]);
+	}
+
+	/**
 	 * @brief 
 	 *
 	 * @param array $activity
@@ -1711,6 +1775,32 @@ class ActivityPub
 	}
 
 	/**
+	 * @brief Delete the given profile
+	 *
+	 * @param array $activity
+	 */
+	private static function deletePerson($activity)
+	{
+		if (empty($activity['object']['id']) || empty($activity['object']['actor'])) {
+			logger('Empty object id or actor.', LOGGER_DEBUG);
+			return;
+		}
+
+		if ($activity['object']['id'] != $activity['object']['actor']) {
+			logger('Object id does not match actor.', LOGGER_DEBUG);
+			return;
+		}
+
+		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($activity['object']['id'])]);
+		while ($contact = DBA::fetch($contacts)) {
+			Contact::remove($contact["id"]);
+		}
+		DBA::close($contacts);
+
+		logger('Deleted contact ' . $activity['object']['id'], LOGGER_DEBUG);
+	}
+
+	/**
 	 * @brief Accept a follow request
 	 *
 	 * @param array $activity
@@ -1741,6 +1831,35 @@ class ActivityPub
 		$condition = ['id' => $cid];
 		DBA::update('contact', $fields, $condition);
 		logger('Accept contact request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
+	}
+
+	/**
+	 * @brief Reject a follow request
+	 *
+	 * @param array $activity
+	 */
+	private static function rejectFollowUser($activity)
+	{
+		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
+		$uid = User::getIdForURL($actor);
+		if (empty($uid)) {
+			return;
+		}
+
+		$owner = User::getOwnerDataById($uid);
+
+		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		if (empty($cid)) {
+			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			return;
+		}
+
+		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING, 'pending' => true])) {
+			Contact::remove($cid);
+			logger('Rejected contact request from contact ' . $cid . ' for user ' . $uid . ' - contact had been removed.', LOGGER_DEBUG);
+		} else {
+			logger('Rejected contact request from contact ' . $cid . ' for user ' . $uid . '.', LOGGER_DEBUG);
+		}
 	}
 
 	/**
