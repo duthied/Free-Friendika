@@ -353,7 +353,7 @@ if ($a->module_loaded) {
 
 	// "rawContent" is especially meant for technical endpoints.
 	// This endpoint doesn't need any theme initialization or other comparable stuff.
-	if (!$a->error && $a->module_class && method_exists($a->module_class, 'rawContent')) {
+	if (!$a->error && $a->module_class) {
 		call_user_func([$a->module_class, 'rawContent']);
 	}
 
