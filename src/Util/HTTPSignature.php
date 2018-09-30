@@ -424,12 +424,12 @@ class HTTPSignature
 	{
 		$url = (strpos($id, '#') ? substr($id, 0, strpos($id, '#')) : $id);
 
-		$profile = APContact::getProfileByURL($url);
+		$profile = APContact::getByURL($url);
 		if (!empty($profile)) {
 			logger('Taking key from id ' . $id, LOGGER_DEBUG);
 			return ['url' => $url, 'pubkey' => $profile['pubkey']];
 		} elseif ($url != $actor) {
-			$profile = APContact::getProfileByURL($actor);
+			$profile = APContact::getByURL($actor);
 			if (!empty($profile)) {
 				logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
 				return ['url' => $actor, 'pubkey' => $profile['pubkey']];

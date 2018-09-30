@@ -30,7 +30,7 @@ class LDSignature
 			return false;
 		}
 
-		$profile = APContact::getProfileByURL($actor);
+		$profile = APContact::getByURL($actor);
 		if (empty($profile['pubkey'])) {
 			return false;
 		}

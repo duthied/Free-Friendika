@@ -312,9 +312,9 @@ class ActivityPub
 		$activity = json_decode($conversation['source'], true);
 
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
-		$profile = APContact::getProfileByURL($actor);
+		$profile = APContact::getByURL($actor);
 
-		$item_profile = APContact::getProfileByURL($item['author-link']);
+		$item_profile = APContact::getByURL($item['author-link']);
 		$exclude[] = $item['author-link'];
 
 		if ($item['gravity'] == GRAVITY_PARENT) {
@@ -356,7 +356,7 @@ class ActivityPub
 
 		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
-		$actor_profile = APContact::getProfileByURL($item['author-link']);
+		$actor_profile = APContact::getByURL($item['author-link']);
 
 		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
 
@@ -369,7 +369,7 @@ class ActivityPub
 			}
 
 			foreach ($terms as $term) {
-				$profile = APContact::getProfileByURL($term['url'], false);
+				$profile = APContact::getByURL($term['url'], false);
 				if (!empty($profile) && empty($contacts[$profile['url']])) {
 					$data['cc'][] = $profile['url'];
 					$contacts[$profile['url']] = $profile['url'];
@@ -405,7 +405,7 @@ class ActivityPub
 				continue;
 			}
 
-			$profile = APContact::getProfileByURL($parent['author-link'], false);
+			$profile = APContact::getByURL($parent['author-link'], false);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
@@ -415,7 +415,7 @@ class ActivityPub
 				continue;
 			}
 
-			$profile = APContact::getProfileByURL($parent['owner-link'], false);
+			$profile = APContact::getByURL($parent['owner-link'], false);
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
@@ -449,9 +449,9 @@ class ActivityPub
 		$inboxes = [];
 
 		if ($item['gravity'] == GRAVITY_ACTIVITY) {
-			$item_profile = APContact::getProfileByURL($item['author-link']);
+			$item_profile = APContact::getByURL($item['author-link']);
 		} else {
-			$item_profile = APContact::getProfileByURL($item['owner-link']);
+			$item_profile = APContact::getByURL($item['owner-link']);
 		}
 
 		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
@@ -470,7 +470,7 @@ class ActivityPub
 					}
 					DBA::close($contacts);
 				} else {
-					$profile = APContact::getProfileByURL($receiver);
+					$profile = APContact::getByURL($receiver);
 					if (!empty($profile)) {
 						$target = defaults($profile, 'sharedinbox', $profile['inbox']);
 						$inboxes[$target] = $target;
@@ -725,7 +725,7 @@ class ActivityPub
 	 */
 	public static function transmitActivity($activity, $target, $uid)
 	{
-		$profile = APContact::getProfileByURL($target);
+		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
 
@@ -751,7 +751,7 @@ class ActivityPub
 	 */
 	public static function transmitContactAccept($target, $id, $uid)
 	{
-		$profile = APContact::getProfileByURL($target);
+		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
@@ -778,7 +778,7 @@ class ActivityPub
 	 */
 	public static function transmitContactReject($target, $id, $uid)
 	{
-		$profile = APContact::getProfileByURL($target);
+		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
@@ -804,7 +804,7 @@ class ActivityPub
 	 */
 	public static function transmitContactUndo($target, $uid)
 	{
-		$profile = APContact::getProfileByURL($target);
+		$profile = APContact::getByURL($target);
 
 		$id = System::baseUrl() . '/activity/' . System::createGUID();
 
@@ -847,7 +847,7 @@ class ActivityPub
 	 */
 	public static function probeProfile($url)
 	{
-		$apcontact = APContact::getProfileByURL($url, true);
+		$apcontact = APContact::getByURL($url, true);
 		if (empty($apcontact)) {
 			return false;
 		}
@@ -1141,7 +1141,7 @@ class ActivityPub
 		}
 
 		if (!empty($actor)) {
-			$profile = APContact::getProfileByURL($actor);
+			$profile = APContact::getByURL($actor);
 			$followers = defaults($profile, 'followers', '');
 
 			logger('Actor: ' . $actor . ' - Followers: ' . $followers, LOGGER_DEBUG);
@@ -1706,7 +1706,7 @@ class ActivityPub
 		}
 
 		logger('Updating profile for ' . $activity['object']['id'], LOGGER_DEBUG);
-		APContact::getProfileByURL($activity['object']['id'], true);
+		APContact::getByURL($activity['object']['id'], true);
 	}
 
 	/**

@@ -63,7 +63,7 @@ class APContact extends BaseObject
 	 * @param boolean $update true = always update, false = never update, null = update when not found
 	 * @return array profile array
 	 */
-	public static function getProfileByURL($url, $update = null)
+	public static function getByURL($url, $update = null)
 	{
 		if (empty($url)) {
 			return false;
