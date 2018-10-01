@@ -343,20 +343,11 @@ function item_post(App $a) {
 
 	$tags = get_tags($body);
 
-	// Add a tag if the parent contact is from OStatus (This will notify them during delivery)
-	if ($parent) {
-		if ($thr_parent_contact['network'] == Protocol::OSTATUS) {
-			$contact = '@[url=' . $thr_parent_contact['url'] . ']' . $thr_parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $thr_parent_contact['url'] . ']')) {
-				$tags[] = $contact;
-			}
-		}
-
-		if ($parent_contact['network'] == Protocol::OSTATUS) {
-			$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $parent_contact['url'] . ']')) {
-				$tags[] = $contact;
-			}
+	// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
+	if ($parent && in_array($thr_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
+		$contact = '@[url=' . $thr_parent_contact['url'] . ']' . $thr_parent_contact['nick'] . '[/url]';
+		if (!stripos(implode($tags), '[url=' . $thr_parent_contact['url'] . ']')) {
+			$tags[] = $contact;
 		}
 	}
 
@@ -1026,8 +1017,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			$alias   = $contact["alias"];
 			$newname = $contact["nick"];
 
-			if (($newname == "") || (($contact["network"] != Protocol::OSTATUS) && ($contact["network"] != Protocol::TWITTER)
-				&& ($contact["network"] != Protocol::STATUSNET))) {
+			if (($newname == "") || !in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::TWITTER, Protocol::STATUSNET])) {
 				$newname = $contact["name"];
 			}
 		}
