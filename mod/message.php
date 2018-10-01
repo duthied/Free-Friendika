@@ -46,12 +46,6 @@ function message_init(App $a)
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	]);
-
-	$end_tpl = get_markup_template('message-end.tpl');
-	$a->page['end'] .= replace_macros($end_tpl, [
-		'$baseurl' => System::baseUrl(true),
-		'$base' => $base
-	]);
 }
 
 function message_post(App $a)
@@ -199,13 +193,6 @@ function message_content(App $a)
 			'$linkurl' => L10n::t('Please enter a link URL:')
 		]);
 
-		$tpl = get_markup_template('msg-end.tpl');
-		$a->page['end'] .= replace_macros($tpl, [
-			'$baseurl' => System::baseUrl(true),
-			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
-		]);
-
 		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : [];
 
 		$prename = $preurl = $preid = '';
@@ -339,13 +326,6 @@ function message_content(App $a)
 
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, [
-			'$baseurl' => System::baseUrl(true),
-			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
-		]);
-
-		$tpl = get_markup_template('msg-end.tpl');
-		$a->page['end'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')

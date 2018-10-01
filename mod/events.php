@@ -231,11 +231,6 @@ function events_content(App $a)
 		'$i18n' => $i18n,
 	]);
 
-	$etpl = get_markup_template('event_end.tpl');
-	$a->page['end'] .= replace_macros($etpl, [
-		'$baseurl' => System::baseUrl(),
-	]);
-
 	$o = '';
 	$tabs = '';
 	// tabs

@@ -57,15 +57,6 @@ function editpost_content(App $a)
 		'$nickname' => $a->user['nickname']
 	]);
 
-	$tpl = get_markup_template('jot-end.tpl');
-	$a->page['end'] .= replace_macros($tpl, [
-		'$baseurl' => System::baseUrl(),
-		'$ispublic' => '&nbsp;', // L10n::t('Visible to <strong>everybody</strong>'),
-		'$geotag' => $geotag,
-		'$nickname' => $a->user['nickname']
-	]);
-
-
 	$tpl = get_markup_template("jot.tpl");
 
 	if (strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {

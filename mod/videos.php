@@ -105,12 +105,6 @@ function videos_init(App $a)
 		$a->page['htmlhead'] .= replace_macros($tpl,[
 			'$baseurl' => System::baseUrl(),
 		]);
-
-		$tpl = get_markup_template("videos_end.tpl");
-		$a->page['end'] .= replace_macros($tpl,[
-			'$baseurl' => System::baseUrl(),
-		]);
-
 	}
 
 	return;
