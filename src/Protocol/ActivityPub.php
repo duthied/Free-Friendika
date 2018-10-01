@@ -57,7 +57,6 @@ use Friendica\Core\Config;
  * - Undo Accept (Problem: This could invert a contact accept or an event accept)
  *
  * Transmitter:
- * - Delete (Application, Group, Organization, Person, Service)
  * - Event
  *
  * Complicated:
@@ -441,9 +440,13 @@ class ActivityPub
 	{
 		$inboxes = [];
 
-		$contacts = DBA::select('contact', ['notify', 'batch'], ['uid' => $uid,
-			'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB,
-			'archive' => false, 'pending' => false]);
+		$condition = ['uid' => $uid, 'network' => Protocol::ACTIVITYPUB, 'archive' => false, 'pending' => false];
+
+		if (!empty($uid)) {
+			$condition['rel'] = [Contact::FOLLOWER, Contact::FRIEND];
+		}
+
+		$contacts = DBA::select('contact', ['notify', 'batch'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			$contact = defaults($contact, 'batch', $contact['notify']);
 			$inboxes[$contact] = $contact;
@@ -729,6 +732,32 @@ class ActivityPub
 		$data = array_merge($data, ActivityPub::createPermissionBlockForItem($item));
 
 		return $data;
+	}
+
+	/**
+	 * @brief Transmits a profile deletion to a given inbox
+	 *
+	 * @param integer $uid User ID
+	 * @param string $inbox Target inbox
+	 */
+	public static function transmitProfileDeletion($uid, $inbox)
+	{
+		$owner = User::getOwnerDataById($uid);
+		$profile = APContact::getByURL($owner['url']);
+
+		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'type' => 'Delete',
+			'actor' => $owner['url'],
+			'object' => self::profile($uid),
+			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'to' => [self::PUBLIC_COLLECTION],
+			'cc' => []];
+
+		$signed = LDSignature::sign($data, $owner);
+
+		logger('Deliver profile deletion for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+		HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
 	/**

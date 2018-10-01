@@ -99,6 +99,14 @@ class Notifier
 			foreach ($r as $contact) {
 				Contact::terminateFriendship($user, $contact, true);
 			}
+
+			$inboxes = ActivityPub::fetchTargetInboxesforUser(0);
+			foreach ($inboxes as $inbox) {
+				logger('Account removal for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', Delivery::REMOVAL, '', $inbox, $uid);
+			}
+
 			return;
 		} elseif ($cmd == Delivery::RELOCATION) {
 			$normal_mode = false;
