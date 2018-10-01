@@ -2732,7 +2732,7 @@ function api_contactlink_to_array($txt)
  * 			likes => int count,
  * 			dislikes => int count
  */
-function api_format_items_activities(&$item, $type = "json")
+function api_format_items_activities($item, $type = "json")
 {
 	$a = get_app();
 
@@ -2747,13 +2747,13 @@ function api_format_items_activities(&$item, $type = "json")
 	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
 	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	while ($item = Item::fetch($ret)) {
+	while ($parent_item = Item::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
 		// get user data and add it to the array of the activity
-		$user = api_get_user($a, $item['author-id']);
-		switch ($item['verb']) {
+		$user = api_get_user($a, $parent_item['author-id']);
+		switch ($parent_item['verb']) {
 			case ACTIVITY_LIKE:
 				$activities['like'][] = $user;
 				break;
