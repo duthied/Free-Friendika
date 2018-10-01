@@ -437,7 +437,7 @@ class ActivityPub
 	 *
 	 * @return array of follower inboxes
 	 */
-	private static function fetchTargetInboxesforUser($uid)
+	public static function fetchTargetInboxesforUser($uid)
 	{
 		$inboxes = [];
 
@@ -732,11 +732,12 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief Transmits a profile change to the followers
+	 * @brief Transmits a profile change to a given inbox
 	 *
 	 * @param integer $uid User ID
+	 * @param string $inbox Target inbox
 	 */
-	public static function transmitProfileUpdate($uid)
+	public static function transmitProfileUpdate($uid, $inbox)
 	{
 		$owner = User::getOwnerDataById($uid);
 		$profile = APContact::getByURL($owner['url']);
@@ -750,17 +751,12 @@ class ActivityPub
 			'to' => [$profile['followers']],
 			'cc' => []];
 
-		logger('Sending profile update to followers for user ' . $uid, LOGGER_DEBUG);
-
 		$signed = LDSignature::sign($data, $owner);
 
-		$inboxes = self::fetchTargetInboxesforUser($uid);
-
-		foreach ($inboxes as $inbox) {
-			logger('Deliver profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
-			HTTPSignature::transmit($signed, $inbox, $uid);
-		}
+		logger('Deliver profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+		HTTPSignature::transmit($signed, $inbox, $uid);
 	}
+
 	/**
 	 * @brief Transmits a given activity to a target
 	 *
@@ -1403,7 +1399,7 @@ class ActivityPub
 	 *
 	 * @return 
 	 */
-	private static function processObject(&$object)
+	private static function processObject($object)
 	{
 		if (empty($object['id'])) {
 			return false;

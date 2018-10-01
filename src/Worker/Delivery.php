@@ -22,13 +22,14 @@ require_once 'include/items.php';
 
 class Delivery extends BaseObject
 {
-	const MAIL =       'mail';
-	const SUGGESTION = 'suggest';
-	const RELOCATION = 'relocate';
-	const DELETION =   'drop';
-	const POST =       'wall-new';
-	const COMMENT =    'comment-new';
-	const REMOVAL =    'removeme';
+	const MAIL          = 'mail';
+	const SUGGESTION    = 'suggest';
+	const RELOCATION    = 'relocate';
+	const DELETION      = 'drop';
+	const POST          = 'wall-new';
+	const COMMENT       = 'comment-new';
+	const REMOVAL       = 'removeme';
+	const PROFILEUPDATE = 'profileupdate';
 
 	public static function execute($cmd, $item_id, $contact_id)
 	{

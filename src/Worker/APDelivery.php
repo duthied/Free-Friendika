@@ -18,6 +18,8 @@ class APDelivery extends BaseObject
 		if ($cmd == Delivery::MAIL) {
 		} elseif ($cmd == Delivery::SUGGESTION) {
 		} elseif ($cmd == Delivery::RELOCATION) {
+		} elseif ($cmd == Delivery::PROFILEUPDATE) {
+			ActivityPub::transmitProfileUpdate($uid, $inbox);
 		} else {
 			$data = ActivityPub::createActivityFromItem($item_id);
 			if (!empty($data)) {
