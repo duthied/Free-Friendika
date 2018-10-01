@@ -819,7 +819,7 @@ function api_item_get_user(App $a, $item)
 	$status_user["protected"] = defaults($item, 'private', 0);
 
 	if (defaults($item, 'thr-parent', '') == defaults($item, 'uri', '')) {
-		$owner_user = api_get_user($a, defaults($item, 'author-id', null));
+		$owner_user = api_get_user($a, defaults($item, 'owner-id', null));
 	} else {
 		$owner_user = $status_user;
 	}
@@ -2351,7 +2351,7 @@ function api_format_messages($item, $recipient, $sender)
 	// standard meta information
 	$ret = [
 		'id'                    => $item['id'],
-		'sender_id'             => $sender['id'] ,
+		'sender_id'             => $sender['id'],
 		'text'                  => "",
 		'recipient_id'          => $recipient['id'],
 		'created_at'            => api_date(defaults($item, 'created', DateTimeFormat::utcNow())),
@@ -2893,7 +2893,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
 			$geo => null,
 			'favorited' => $item['starred'] ? true : false,
-			'user' =>  $status_user ,
+			'user' =>  $status_user,
 			'friendica_owner' => $owner_user,
 			'friendica_private' => $item['private'] == 1,
 			//'entities' => NULL,
@@ -3401,7 +3401,7 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  */
 function api_ff_ids($type)
 {
-	if (! api_user()) {
+	if (!api_user()) {
 		throw new ForbiddenException();
 	}
 
@@ -4505,7 +4505,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	// create Photo instance with the data of the image
 	$imagedata = @file_get_contents($src);
 	$Image = new Image($imagedata, $filetype);
-	if (! $Image->isValid()) {
+	if (!$Image->isValid()) {
 		throw new InternalServerErrorException("unable to process image data");
 	}
 
@@ -4515,7 +4515,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 	// check max length of images on server
 	$max_length = Config::get('system', 'max_image_length');
-	if (! $max_length) {
+	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
 	if ($max_length > 0) {
@@ -4533,13 +4533,13 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		logger("photo upload: starting new photo upload", LOGGER_DEBUG);
 
 		$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-		if (! $r) {
+		if (!$r) {
 			logger("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: image upload with scale 1 (640x640) failed");
 			}
 		}
@@ -4547,7 +4547,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: image upload with scale 2 (320x320) failed");
 			}
 		}
@@ -4559,7 +4559,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 175 || $height > 175) {
 			$Image->scaleDown(175);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: profile image upload with scale 4 (175x175) failed");
 			}
 		}
@@ -4567,7 +4567,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 80 || $height > 80) {
 			$Image->scaleDown(80);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
 		}
@@ -4575,7 +4575,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 48 || $height > 48) {
 			$Image->scaleDown(48);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: profile image upload with scale 6 (48x48) failed");
 			}
 		}
