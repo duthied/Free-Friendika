@@ -168,7 +168,7 @@ class ContactSelector
 		$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
 		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($selection == $current) ? ' selected="selected" ' : '');
+				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
 				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
@@ -205,7 +205,7 @@ class ContactSelector
 		$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
 		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($selection == $current) ? ' selected="selected" ' : '');
+				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
 				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
@@ -259,7 +259,7 @@ class ContactSelector
 		$o .= '<select name="marital" id="marital-select" size="1" >';
 		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($selection == $current) ? ' selected="selected" ' : '');
+				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
 				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
