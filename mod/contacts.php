@@ -162,11 +162,7 @@ function contacts_batch_actions(App $a)
 		info(L10n::tt("%d contact edited.", "%d contacts edited.", $count_actions));
 	}
 
-	if (x($_SESSION, 'return_url')) {
-		goaway('' . $_SESSION['return_url']);
-	} else {
-		goaway('contacts');
-	}
+	goaway('contacts');
 }
 
 function contacts_post(App $a)
@@ -470,20 +466,13 @@ function contacts_content(App $a, $update = 0)
 			}
 			// Now check how the user responded to the confirmation query
 			if (x($_REQUEST, 'canceled')) {
-				if (x($_SESSION, 'return_url')) {
-					goaway('' . $_SESSION['return_url']);
-				} else {
-					goaway('contacts');
-				}
+				goaway('contacts');
 			}
 
 			_contact_drop($orig_record);
 			info(L10n::t('Contact has been removed.') . EOL);
-			if (x($_SESSION, 'return_url')) {
-				goaway('' . $_SESSION['return_url']);
-			} else {
-				goaway('contacts');
-			}
+			
+			goaway('contacts');
 			return; // NOTREACHED
 		}
 		if ($cmd === 'posts') {

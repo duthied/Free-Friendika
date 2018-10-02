@@ -154,17 +154,28 @@ function message_content(App $a)
 
 		// Now check how the user responded to the confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			goaway($_SESSION['return_url']);
+			goaway('/message');
 		}
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
+			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
+			if(!DBA::isResult($message)){
+				info(L10n::t('Conversation not found.') . EOL);
+				goaway('/message');
+			}
+
 			if (DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
 				info(L10n::t('Message deleted.') . EOL);
 			}
 
-			//goaway(System::baseUrl(true) . '/message' );
-			goaway($_SESSION['return_url']);
+			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => local_user()]);
+			if(!DBA::isResult($conversation)){
+				info(L10n::t('Conversation removed.') . EOL);
+				goaway('/message');
+			}
+
+			goaway('/message/' . $conversation['id'] );
 		} else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),
@@ -178,8 +189,7 @@ function message_content(App $a)
 					info(L10n::t('Conversation removed.') . EOL);
 				}
 			}
-			//goaway(System::baseUrl(true) . '/message' );
-			goaway($_SESSION['return_url']);
+			goaway('/message' );
 		}
 	}
 
