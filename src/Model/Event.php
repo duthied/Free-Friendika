@@ -314,7 +314,7 @@ class Event extends BaseObject
 
 			Addon::callHooks('event_updated', $event['id']);
 		} else {
-			$event['guid']  = defaults($arr, 'guid', System::createGUID(32));
+			$event['guid']  = defaults($arr, 'guid', System::createUUID());
 
 			// New event. Store it.
 			DBA::insert('event', $event);

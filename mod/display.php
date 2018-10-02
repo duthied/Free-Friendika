@@ -17,6 +17,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
+use Friendica\Protocol\ActivityPub;
 
 function display_init(App $a)
 {
@@ -43,7 +44,7 @@ function display_init(App $a)
 
 	$item = null;
 
-	$fields = ['id', 'parent', 'author-id', 'body', 'uid'];
+	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid'];
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
@@ -74,6 +75,10 @@ function display_init(App $a)
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
 		logger('Directly serving XML for id '.$item["id"], LOGGER_DEBUG);
 		displayShowFeed($item["id"], false);
+	}
+
+	if (ActivityPub::isRequest()) {
+		goaway(str_replace('display/', 'object/', $a->query_string));
 	}
 
 	if ($item["id"] != $item["parent"]) {

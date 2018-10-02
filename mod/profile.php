@@ -20,6 +20,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Protocol\ActivityPub;
 
 function profile_init(App $a)
 {
@@ -47,6 +48,16 @@ function profile_init(App $a)
 		$profile = htmlspecialchars($a->argv[1]);
 	} else {
 		DFRN::autoRedir($a, $which);
+	}
+
+	if (ActivityPub::isRequest()) {
+		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $which]);
+		if (DBA::isResult($user)) {
+			$data = ActivityPub::profile($user['uid']);
+			echo json_encode($data);
+			header('Content-Type: application/activity+json');
+			exit();
+		}
 	}
 
 	Profile::load($a, $which, $profile);

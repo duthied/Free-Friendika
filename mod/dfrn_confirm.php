@@ -28,6 +28,7 @@ use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -335,10 +336,17 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				intval($contact_id)
 			);
 		} else {
+			if ($network == Protocol::ACTIVITYPUB) {
+				ActivityPub::transmitContactAccept($contact['url'], $contact['hub-verify'], $uid);
+				$pending = true;
+			} else {
+				$pending = false;
+			}
+
 			// $network !== Protocol::DFRN
 			$network = defaults($contact, 'network', Protocol::OSTATUS);
 
-			$arr = Probe::uri($contact['url']);
+			$arr = Probe::uri($contact['url'], $network);
 
 			$notify  = defaults($contact, 'notify' , $arr['notify']);
 			$poll    = defaults($contact, 'poll'   , $arr['poll']);
@@ -348,7 +356,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$new_relation = $contact['rel'];
 			$writable = $contact['writable'];
 
-			if ($network === Protocol::DIASPORA) {
+			if (in_array($network, [Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 				if ($duplex) {
 					$new_relation = Contact::FRIEND;
 				} else {
@@ -362,30 +370,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 			DBA::delete('intro', ['id' => $intro_id]);
 
-			$r = q("UPDATE `contact` SET `name-date` = '%s',
-				`uri-date` = '%s',
-				`addr` = '%s',
-				`notify` = '%s',
-				`poll` = '%s',
-				`blocked` = 0,
-				`pending` = 0,
-				`network` = '%s',
-				`writable` = %d,
-				`hidden` = %d,
-				`rel` = %d
-				WHERE `id` = %d
-			",
-				DBA::escape(DateTimeFormat::utcNow()),
-				DBA::escape(DateTimeFormat::utcNow()),
-				DBA::escape($addr),
-				DBA::escape($notify),
-				DBA::escape($poll),
-				DBA::escape($network),
-				intval($writable),
-				intval($hidden),
-				intval($new_relation),
-				intval($contact_id)
-			);
+			$fields = ['name-date' => DateTimeFormat::utcNow(),
+				'uri-date' => DateTimeFormat::utcNow(), 'addr' => $addr,
+				'notify' => $notify, 'poll' => $poll, 'blocked' => false,
+				'pending' => $pending, 'network' => $network,
+				'writable' => $writable, 'hidden' => $hidden, 'rel' => $new_relation];
+			DBA::update('contact', $fields, ['id' => $contact_id]);
 		}
 
 		if (!DBA::isResult($r)) {
@@ -402,6 +392,10 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		}
 
 		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact['id']);
+
+		if ($network == Protocol::ACTIVITYPUB && $duplex) {
+			ActivityPub::transmitActivity('Follow', $contact['url'], $uid);
+		}
 
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.

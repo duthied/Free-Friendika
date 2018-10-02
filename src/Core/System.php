@@ -162,6 +162,18 @@ class System extends BaseObject
 	}
 
 	/**
+	 * Generates a random string in the UUID format
+	 *
+	 * @param bool|string  $prefix   A given prefix (default is empty)
+	 * @return string a generated UUID
+	 */
+	public static function createUUID($prefix = '')
+	{
+		$guid = System::createGUID(32, $prefix);
+		return substr($guid, 0, 8). '-' . substr($guid, 8, 4) . '-' . substr($guid, 12, 4) . '-' . substr($guid, 16, 4) . '-' . substr($guid, 20, 12);
+	}
+
+	/**
 	 * Generates a GUID with the given parameters
 	 *
 	 * @param int          $size     The size of the GUID (default is 16)

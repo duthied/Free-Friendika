@@ -142,10 +142,7 @@ class Widget
 
 		$nets = array();
 		while ($rr = DBA::fetch($r)) {
-			/// @TODO If 'network' is not there, this triggers an E_NOTICE
-			if ($rr['network']) {
-				$nets[] = array('ref' => $rr['network'], 'name' => ContactSelector::networkToName($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
-			}
+			$nets[] = array('ref' => $rr['network'], 'name' => ContactSelector::networkToName($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
 		}
 		DBA::close($r);
 

@@ -16,6 +16,7 @@ use Friendica\Model\Item;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
@@ -98,6 +99,14 @@ class Notifier
 			foreach ($r as $contact) {
 				Contact::terminateFriendship($user, $contact, true);
 			}
+
+			$inboxes = ActivityPub::fetchTargetInboxesforUser(0);
+			foreach ($inboxes as $inbox) {
+				logger('Account removal for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', Delivery::REMOVAL, '', $inbox, $uid);
+			}
+
 			return;
 		} elseif ($cmd == Delivery::RELOCATION) {
 			$normal_mode = false;
@@ -411,6 +420,24 @@ class Notifier
 				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 						'Delivery', $cmd, $item_id, (int)$contact['id']);
 			}
+		}
+
+		$inboxes = [];
+
+		if ($target_item['origin']) {
+			$inboxes = ActivityPub::fetchTargetInboxes($target_item, $uid);
+		}
+
+		if ($parent['origin']) {
+			$parent_inboxes = ActivityPub::fetchTargetInboxes($parent, $uid);
+			$inboxes = array_merge($inboxes, $parent_inboxes);
+		}
+
+		foreach ($inboxes as $inbox) {
+			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+
+			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', $cmd, $item_id, $inbox, $uid);
 		}
 
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts

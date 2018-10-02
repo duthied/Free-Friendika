@@ -54,7 +54,7 @@ function dirfind_content(App $a, $prefix = "") {
 		if ((valid_email($search) && Network::isEmailDomainValid($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
-			$discover_user = (in_array($user_data["network"], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]));
+			$discover_user = (in_array($user_data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]));
 		}
 	}
 

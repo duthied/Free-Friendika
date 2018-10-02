@@ -4612,7 +4612,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 	$owner_record = DBA::selectFirst('contact', [], ['uid' => api_user(), 'self' => true]);
 
 	$arr = [];
-	$arr['guid']          = System::createGUID(32);
+	$arr['guid']          = System::createUUID();
 	$arr['uid']           = intval(api_user());
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;

@@ -80,6 +80,7 @@ function xrd_json($a, $uri, $alias, $profile_url, $r)
 			['rel' => NAMESPACE_DFRN, 'href' => $profile_url],
 			['rel' => NAMESPACE_FEED, 'type' => 'application/atom+xml', 'href' => System::baseUrl().'/dfrn_poll/'.$r['nickname']],
 			['rel' => 'http://webfinger.net/rel/profile-page', 'type' => 'text/html', 'href' => $profile_url],
+			['rel' => 'self', 'type' => 'application/activity+json', 'href' => $profile_url],
 			['rel' => 'http://microformats.org/profile/hcard', 'type' => 'text/html', 'href' => System::baseUrl().'/hcard/'.$r['nickname']],
 			['rel' => NAMESPACE_POCO, 'href' => System::baseUrl().'/poco/'.$r['nickname']],
 			['rel' => 'http://webfinger.net/rel/avatar', 'type' => 'image/jpeg', 'href' => System::baseUrl().'/photo/profile/'.$r['uid'].'.jpg'],
@@ -92,6 +93,7 @@ function xrd_json($a, $uri, $alias, $profile_url, $r)
 			['rel' => 'http://purl.org/openwebauth/v1', 'type' => 'application/x-dfrn+json', 'href' => System::baseUrl().'/owa']
 		]
 	];
+
 	echo json_encode($json);
 	killme();
 }

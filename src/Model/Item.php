@@ -176,7 +176,7 @@ class Item extends BaseObject
 
 		// We can always comment on posts from these networks
 		if (array_key_exists('writable', $row) &&
-			in_array($row['internal-network'], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			in_array($row['internal-network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
 			$row['writable'] = true;
 		}
 
@@ -1081,9 +1081,8 @@ class Item extends BaseObject
 
 		DBA::delete('item-delivery-data', ['iid' => $item['id']]);
 
-		if (!empty($item['iaid']) && !self::exists(['iaid' => $item['iaid'], 'deleted' => false])) {
-			DBA::delete('item-activity', ['id' => $item['iaid']], ['cascade' => false]);
-		}
+		// We don't delete the item-activity here, since we need some of the data for ActivityPub
+
 		if (!empty($item['icid']) && !self::exists(['icid' => $item['icid'], 'deleted' => false])) {
 			DBA::delete('item-content', ['id' => $item['icid']], ['cascade' => false]);
 		}
@@ -1205,7 +1204,7 @@ class Item extends BaseObject
 		} elseif (!empty($item['uri'])) {
 			$guid = self::guidFromUri($item['uri'], $prefix_host);
 		} else {
-			$guid = System::createGUID(32, hash('crc32', $prefix_host));
+			$guid = System::createUUID(hash('crc32', $prefix_host));
 		}
 
 		return $guid;
@@ -1352,7 +1351,7 @@ class Item extends BaseObject
 		 * We have to check several networks since Friendica posts could be repeated
 		 * via OStatus (maybe Diasporsa as well)
 		 */
-		if (in_array($item['network'], [Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS, ""])) {
+		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS, ""])) {
 			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
 				trim($item['uri']), $item['uid'],
 				Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
@@ -2054,7 +2053,7 @@ class Item extends BaseObject
 
 		// Only distribute public items from native networks
 		$condition = ['id' => $itemid, 'uid' => 0,
-			'network' => [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""],
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""],
 			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
@@ -2072,13 +2071,45 @@ class Item extends BaseObject
 
 		$users = [];
 
-		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
-			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
+		/// @todo add a field "pcid" in the contact table that referrs to the public contact id.
+		$owner = DBA::selectFirst('contact', ['url', 'nurl', 'alias'], ['id' => $parent['owner-id']]);
+		if (!DBA::isResult($owner)) {
+			return;
+		}
 
+		$condition = ['nurl' => $owner['nurl'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
 		$contacts = DBA::select('contact', ['uid'], $condition);
-
 		while ($contact = DBA::fetch($contacts)) {
+			if ($contact['uid'] == 0) {
+				continue;
+			}
+
 			$users[$contact['uid']] = $contact['uid'];
+		}
+		DBA::close($contacts);
+
+		$condition = ['alias' => $owner['url'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+		$contacts = DBA::select('contact', ['uid'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			if ($contact['uid'] == 0) {
+				continue;
+			}
+
+			$users[$contact['uid']] = $contact['uid'];
+		}
+		DBA::close($contacts);
+
+		if (!empty($owner['alias'])) {
+			$condition = ['url' => $owner['alias'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+			$contacts = DBA::select('contact', ['uid'], $condition);
+			while ($contact = DBA::fetch($contacts)) {
+				if ($contact['uid'] == 0) {
+					continue;
+				}
+
+				$users[$contact['uid']] = $contact['uid'];
+			}
+			DBA::close($contacts);
 		}
 
 		$origin_uid = 0;
@@ -2176,7 +2207,7 @@ class Item extends BaseObject
 		}
 
 		// is it an entry from a connector? Only add an entry for natively connected networks
-		if (!in_array($item["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
 			return;
 		}
 
@@ -2327,16 +2358,10 @@ class Item extends BaseObject
 	public static function newURI($uid, $guid = "")
 	{
 		if ($guid == "") {
-			$guid = System::createGUID(32);
+			$guid = System::createUUID();
 		}
 
-		$hostname = self::getApp()->get_hostname();
-
-		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
-
-		$uri = "urn:X-dfrn:" . $hostname . ':' . $user['nickname'] . ':' . $guid;
-
-		return $uri;
+		return self::getApp()->get_baseurl() . '/object/' . $guid;
 	}
 
 	/**
@@ -2660,7 +2685,7 @@ class Item extends BaseObject
 			}
 
 			if ($contact['network'] != Protocol::FEED) {
-				$datarray["guid"] = System::createGUID(32);
+				$datarray["guid"] = System::createUUID();
 				unset($datarray["plink"]);
 				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
 				$datarray["parent-uri"] = $datarray["uri"];
@@ -2826,7 +2851,7 @@ class Item extends BaseObject
 	}
 
 	// returns an array of contact-ids that are allowed to see this object
-	private static function enumeratePermissions($obj)
+	public static function enumeratePermissions($obj)
 	{
 		$allow_people = expand_acl($obj['allow_cid']);
 		$allow_groups = Group::expand(expand_acl($obj['allow_gid']));
@@ -3089,7 +3114,7 @@ class Item extends BaseObject
 		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
 
 		$new_item = [
-			'guid'          => System::createGUID(32),
+			'guid'          => System::createUUID(),
 			'uri'           => self::newURI($item['uid']),
 			'uid'           => $item['uid'],
 			'contact-id'    => $item_contact_id,

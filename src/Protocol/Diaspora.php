@@ -1592,17 +1592,13 @@ class Diaspora
 		if (DBA::isResult($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
-			$contact = Contact::getDetailsByAddr($author, 0);
-			if (!empty($contact['network'])) {
-				$prefix = 'urn:X-' . $contact['network'] . ':';
-			} else {
-				// This fallback should happen most unlikely
-				$prefix = 'urn:X-dspr:';
-			}
+			$person = self::personByHandle($author);
 
-			$author_parts = explode('@', $author);
+			$parts = parse_url($person['url']);
+			unset($parts['path']);
+			$host_url = Network::unparseURL($parts);
 
-			return $prefix . $author_parts[1] . ':' . $author_parts[0] . ':'. $guid;
+			return $host_url . '/object/' . $guid;
 		}
 
 		return "";
@@ -3204,7 +3200,7 @@ class Diaspora
 		$author = self::myHandle($owner);
 
 		$message = ["author" => $author,
-				"guid" => System::createGUID(32),
+				"guid" => System::createUUID(),
 				"parent_type" => "Post",
 				"parent_guid" => $item["guid"]];
 

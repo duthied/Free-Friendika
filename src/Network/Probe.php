@@ -19,6 +19,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -328,7 +329,17 @@ class Probe
 			$uid = local_user();
 		}
 
-		$data = self::detect($uri, $network, $uid);
+		if ($network != Protocol::ACTIVITYPUB) {
+			$data = self::detect($uri, $network, $uid);
+		} else {
+			$data = null;
+		}
+
+		$ap_profile = ActivityPub::probeProfile($uri);
+
+		if (!empty($ap_profile) && (defaults($data, 'network', '') != Protocol::DFRN)) {
+			$data = $ap_profile;
+		}
 
 		if (!isset($data["url"])) {
 			$data["url"] = $uri;

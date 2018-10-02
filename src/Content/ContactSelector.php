@@ -75,21 +75,22 @@ class ContactSelector
 	public static function networkToName($s, $profile = "")
 	{
 		$nets = [
-			Protocol::DFRN      => L10n::t('Friendica'),
-			Protocol::OSTATUS   => L10n::t('OStatus'),
-			Protocol::FEED      => L10n::t('RSS/Atom'),
-			Protocol::MAIL      => L10n::t('Email'),
-			Protocol::DIASPORA  => L10n::t('Diaspora'),
-			Protocol::ZOT       => L10n::t('Zot!'),
-			Protocol::LINKEDIN  => L10n::t('LinkedIn'),
-			Protocol::XMPP      => L10n::t('XMPP/IM'),
-			Protocol::MYSPACE   => L10n::t('MySpace'),
-			Protocol::GPLUS     => L10n::t('Google+'),
-			Protocol::PUMPIO    => L10n::t('pump.io'),
-			Protocol::TWITTER   => L10n::t('Twitter'),
-			Protocol::DIASPORA2 => L10n::t('Diaspora Connector'),
-			Protocol::STATUSNET => L10n::t('GNU Social Connector'),
-			Protocol::PNUT      => L10n::t('pnut'),
+			Protocol::DFRN      =>   L10n::t('Friendica'),
+			Protocol::OSTATUS   =>   L10n::t('OStatus'),
+			Protocol::FEED      =>   L10n::t('RSS/Atom'),
+			Protocol::MAIL      =>   L10n::t('Email'),
+			Protocol::DIASPORA  =>   L10n::t('Diaspora'),
+			Protocol::ZOT       =>   L10n::t('Zot!'),
+			Protocol::LINKEDIN  =>   L10n::t('LinkedIn'),
+			Protocol::XMPP      =>   L10n::t('XMPP/IM'),
+			Protocol::MYSPACE   =>   L10n::t('MySpace'),
+			Protocol::GPLUS     =>   L10n::t('Google+'),
+			Protocol::PUMPIO    =>   L10n::t('pump.io'),
+			Protocol::TWITTER   =>   L10n::t('Twitter'),
+			Protocol::DIASPORA2 =>   L10n::t('Diaspora Connector'),
+			Protocol::STATUSNET =>   L10n::t('GNU Social Connector'),
+			Protocol::ACTIVITYPUB => L10n::t('ActivityPub'),
+			Protocol::PNUT      =>   L10n::t('pnut'),
 		];
 
 		Addon::callHooks('network_to_name', $nets);
@@ -99,13 +100,17 @@ class ContactSelector
 
 		$networkname = str_replace($search, $replace, $s);
 
-		if ((in_array($s, [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
+		if ((in_array($s, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
 			$r = DBA::fetchFirst("SELECT `gserver`.`platform` FROM `gcontact`
 					INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
 					WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
 
 			if (DBA::isResult($r)) {
 				$networkname = $r['platform'];
+
+				if ($s == Protocol::ACTIVITYPUB) {
+					$networkname .= ' (AP)';
+				}
 			}
 		}
 
