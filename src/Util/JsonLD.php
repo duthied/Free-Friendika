@@ -64,6 +64,7 @@ class JsonLD
 			$normalized = jsonld_normalize($jsonobj, array('algorithm' => 'URDNA2015', 'format' => 'application/nquads'));
 		}
 		catch (Exception $e) {
+			$normalized = false;
 			logger('normalise error:' . print_r($e, true), LOGGER_DEBUG);
 		}
 
