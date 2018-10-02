@@ -1598,7 +1598,7 @@ class Diaspora
 			unset($parts['path']);
 			$host_url = Network::unparseURL($parts);
 
-			return $host_url . '/object/' . $guid;
+			return $host_url . '/objects/' . $guid;
 		}
 
 		return "";

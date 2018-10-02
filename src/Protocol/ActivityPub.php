@@ -663,7 +663,7 @@ class ActivityPub
 		} elseif (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
 			$context_uri = $conversation['conversation-uri'];
 		} else {
-			$context_uri = str_replace('/object/', '/context/', $item['parent-uri']);
+			$context_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
 		}
 		return $context_uri;
 	}
