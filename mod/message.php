@@ -165,9 +165,9 @@ function message_content(App $a)
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
-			$r = DBA::SelectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
+			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
 			if(!DBA::isResult($r)){
-				info(L10n::t('Conversation not founded.') . EOL);
+				info(L10n::t('Conversation not found.') . EOL);
 				goaway('/message');
 			}
 
@@ -175,13 +175,13 @@ function message_content(App $a)
 				info(L10n::t('Message deleted.') . EOL);
 			}
 
-			$rr = DBA::SelectFirst('mail', ['id'], ['convid' => $r['convid'], 'uid' => local_user()]);
-			if(!DBA::isResult($rr)){
+			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => local_user()]);
+			if(!DBA::isResult($conversation)){
 				info(L10n::t('Conversation removed.') . EOL);
 				goaway('/message');
 			}
 
-			goaway('/message/'.$rr['id'] );
+			goaway('/message/' . $conversation'id'] );
 		} else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),

@@ -18,12 +18,8 @@ function unfollow_post()
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
-		goaway($return_url);
+		goaway('/login');
 		// NOTREACHED
-	}
-
-	if (!empty($_REQUEST['cancel'])) {
-		goaway($return_url);
 	}
 
 	$uid = local_user();
@@ -40,9 +36,13 @@ function unfollow_post()
 		// NOTREACHED
 	}
 
+	if (!empty($_REQUEST['cancel'])) {
+		goaway($return_url . '/' . $contact['id']);
+	}
+
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		goaway($return_url.'/'.$contact['id']);
+		goaway($return_url . '/' . $contact['id']);
 		// NOTREACHED
 	}
 
@@ -73,7 +73,7 @@ function unfollow_content(App $a)
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
-		goaway($return_url);
+		goaway('/login');
 		// NOTREACHED
 	}
 
