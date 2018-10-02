@@ -181,7 +181,7 @@ function message_content(App $a)
 				goaway('/message');
 			}
 
-			goaway('/message/' . $conversation'id'] );
+			goaway('/message/' . $conversation['id'] );
 		} else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),
