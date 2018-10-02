@@ -166,7 +166,7 @@ function message_content(App $a)
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
 			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
-			if(!DBA::isResult($r)){
+			if(!DBA::isResult($message)){
 				info(L10n::t('Conversation not found.') . EOL);
 				goaway('/message');
 			}
