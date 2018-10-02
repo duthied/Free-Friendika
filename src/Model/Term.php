@@ -110,6 +110,18 @@ class Term
 		$pattern = '/\W([\#@])\[url\=(.*?)\](.*?)\[\/url\]/ism';
 		if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
+
+				if ($match[1] == '@') {
+					$contact = Contact::getDetailsByURL($match[2], 0);
+					if (!empty($contact['addr'])) {
+						$match[3] = $contact['addr'];
+					}
+
+					if (!empty($contact['url'])) {
+						$match[2] = $contact['url'];
+					}
+				}
+
 				$tags[$match[1] . trim($match[3], ',.:;[]/\"?!')] = $match[2];
 			}
 		}
@@ -136,10 +148,6 @@ class Term
 					$term = $contact['name'];
 				} else {
 					$term = substr($tag, 1);
-				}
-
-				if (!empty($contact['url'])) {
-					$link = $contact['url'];
 				}
 			} else { // This shouldn't happen
 				$type = TERM_HASHTAG;
