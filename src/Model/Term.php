@@ -130,10 +130,24 @@ class Term
 				$term = substr($tag, 1);
 			} elseif (substr(trim($tag), 0, 1) == '@') {
 				$type = TERM_MENTION;
-				$term = substr($tag, 1);
+
+				$contact = Contact::getDetailsByURL($link, 0);
+				if (!empty($contact['name'])) {
+					$term = $contact['name'];
+				} else {
+					$term = substr($tag, 1);
+				}
+
+				if (!empty($contact['url'])) {
+					$link = $contact['url'];
+				}
 			} else { // This shouldn't happen
 				$type = TERM_HASHTAG;
 				$term = $tag;
+			}
+
+			if (DBA::exists('term', ['uid' => $message['uid'], 'otype' => TERM_OBJ_POST, 'oid' => $itemid, 'url' => $link])) {
+				continue;
 			}
 
 			if ($message['uid'] == 0) {
