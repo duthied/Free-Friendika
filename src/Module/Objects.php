@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Module/Object.php
+ * @file src/Module/Objects.php
  */
 namespace Friendica\Module;
 
@@ -11,9 +11,9 @@ use Friendica\Model\Item;
 use Friendica\Database\DBA;
 
 /**
- * ActivityPub Object
+ * ActivityPub Objects
  */
-class Object extends BaseModule
+class Objects extends BaseModule
 {
 	public static function rawContent()
 	{
