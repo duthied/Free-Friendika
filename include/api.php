@@ -4827,8 +4827,18 @@ function api_share_as_retweet(&$item)
 {
 	$body = trim($item["body"]);
 
-	if (Diaspora::isReshare($body, false)===false) {
-		return false;
+	if (Diaspora::isReshare($body, false) === false) {
+		if ($item['author-id'] == $item['owner-id']) {
+			return false;
+		} else {
+			// Reshares from OStatus, ActivityPub and Twitter
+			$reshared_item = $item;
+			$reshared_item['owner-id'] = $reshared_item['author-id'];
+			$reshared_item['owner-link'] = $reshared_item['author-link'];
+			$reshared_item['owner-name'] = $reshared_item['author-name'];
+			$reshared_item['owner-avatar'] = $reshared_item['author-avatar'];
+			return $reshared_item;
+		}
 	}
 
 	/// @TODO "$1" should maybe mean '$1' ?
