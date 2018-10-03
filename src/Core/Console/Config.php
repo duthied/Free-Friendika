@@ -1,20 +1,11 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Friendica\Core\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
 use Friendica\Core;
 use RuntimeException;
-
-require_once 'include/dba.php';
-require_once 'include/text.php';
 
 /**
  * @brief tool to access the system config from the CLI
@@ -80,7 +71,7 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = get_app();
+		$a = \Friendica\BaseObject::getApp();
 
 		if ($this->getOption('v')) {
 			$this->out('Executable: ' . $this->executable);

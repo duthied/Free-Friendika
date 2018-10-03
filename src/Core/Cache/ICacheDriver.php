@@ -12,6 +12,13 @@ use Friendica\Core\Cache;
 interface ICacheDriver
 {
 	/**
+	 * Lists all cache keys
+	 *
+	 * @return array|null Null if it isn't supported by the cache driver
+	 */
+	public function getAllKeys();
+
+	/**
 	 * Fetches cached data according to the key
 	 *
 	 * @param string $key The key to the cached data

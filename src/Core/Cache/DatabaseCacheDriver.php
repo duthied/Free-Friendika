@@ -13,6 +13,19 @@ use Friendica\Util\DateTimeFormat;
  */
 class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 {
+	/**
+	 * (@inheritdoc)
+	 */
+	public function getAllKeys()
+	{
+		$stmt = DBA::select('cache', ['k'], ['`expires` >= ?', DateTimeFormat::utcNow()]);
+
+		return DBA::toArray($stmt);
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
@@ -32,6 +45,9 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 		return null;
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$fields = [
@@ -43,11 +59,17 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 		return DBA::update('cache', $fields, ['k' => $key], true);
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function delete($key)
 	{
 		return DBA::delete('cache', ['k' => $key]);
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function clear($outdated = true)
 	{
 		if ($outdated) {

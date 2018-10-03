@@ -22,6 +22,11 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	 */
 	private $memcache;
 
+	/**
+	 * @param string $memcache_host
+	 * @param int    $memcache_port
+	 * @throws Exception
+	 */
 	public function __construct($memcache_host, $memcache_port)
 	{
 		if (!class_exists('Memcache', false)) {
@@ -33,6 +38,28 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 		if (!$this->memcache->connect($memcache_host, $memcache_port)) {
 			throw new Exception('Expected Memcache server at ' . $memcache_host . ':' . $memcache_port . ' isn\'t available');
 		}
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function getAllKeys()
+	{
+		$list = [];
+		$allSlabs = $this->memcache->getExtendedStats('slabs');
+		foreach ($allSlabs as $slabs) {
+			foreach (array_keys($slabs) as $slabId) {
+				$cachedump = $this->memcache->getExtendedStats('cachedump', (int)$slabId);
+				foreach ($cachedump as $keys => $arrVal) {
+					if (!is_array($arrVal)) {
+						continue;
+					}
+					$list = array_merge($list, array_keys($arrVal));
+				}
+			}
+		}
+
+		return $list;
 	}
 
 	/**
