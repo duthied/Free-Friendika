@@ -187,7 +187,7 @@ class Transmitter
 	 * @param integer $uid User ID
 	 * @return profile array
 	 */
-	public static function profile($uid)
+	public static function getProfile($uid)
 	{
 		$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
 			'account_removed' => false, 'verified' => true];
@@ -722,7 +722,7 @@ class Transmitter
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Update',
 			'actor' => $owner['url'],
-			'object' => self::profile($uid),
+			'object' => self::getProfile($uid),
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			'to' => [$profile['followers']],
 			'cc' => []];
