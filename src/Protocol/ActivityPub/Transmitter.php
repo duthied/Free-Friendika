@@ -283,7 +283,7 @@ class Transmitter
 	 *
 	 * @return permission array
 	 */
-	public static function createPermissionBlockForItem($item)
+	private static function createPermissionBlockForItem($item)
 	{
 		$data = ['to' => [], 'cc' => []];
 
@@ -684,7 +684,7 @@ class Transmitter
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Delete',
 			'actor' => $owner['url'],
-			'object' => self::profile($uid),
+			'object' => $owner['url'],
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];

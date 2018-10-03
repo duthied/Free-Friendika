@@ -32,7 +32,7 @@ class Objects extends BaseModule
 			System::httpExit(404);
 		}
 
-		$data = ActivityPub::createObjectFromItemID($item['id']);
+		$data = ActivityPub\Transmitter::createObjectFromItemID($item['id']);
 
 		header('Content-Type: application/activity+json');
 		echo json_encode($data);

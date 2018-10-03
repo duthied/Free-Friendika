@@ -116,7 +116,7 @@ class Processor
 	 * @param array $activity
 	 * @param $body
 	 */
-	private static function createItem($activity, $body)
+	public static function createItem($activity, $body)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_POST;
@@ -144,7 +144,7 @@ class Processor
 	 * @param array $activity
 	 * @param $body
 	 */
-	private static function likeItem($activity, $body)
+	public static function likeItem($activity, $body)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_LIKE;
@@ -161,7 +161,7 @@ class Processor
 	 * @param array $activity
 	 * @param $body
 	 */
-	private static function deleteItem($activity)
+	public static function deleteItem($activity)
 	{
 		$owner = Contact::getIdForURL($activity['owner']);
 		$object = JsonLD::fetchElement($activity, 'object', 'id');
@@ -175,7 +175,7 @@ class Processor
 	 * @param array $activity
 	 * @param $body
 	 */
-	private static function dislikeItem($activity, $body)
+	public static function dislikeItem($activity, $body)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_DISLIKE;
@@ -272,7 +272,7 @@ class Processor
 		$activity['published'] = $object['published'];
 		$activity['type'] = 'Create';
 
-		ActivityPub::processActivity($activity);
+		ActivityPub\Receiver::processActivity($activity);
 		logger('Activity ' . $url . ' had been fetched and processed.');
 	}
 
@@ -281,7 +281,7 @@ class Processor
 	 *
 	 * @param array $activity
 	 */
-	private static function followUser($activity)
+	public static function followUser($activity)
 	{
 		$actor = JsonLD::fetchElement($activity, 'object', 'id');
 		$uid = User::getIdForURL($actor);
@@ -321,7 +321,7 @@ class Processor
 	 *
 	 * @param array $activity
 	 */
-	private static function updatePerson($activity)
+	public static function updatePerson($activity)
 	{
 		if (empty($activity['object']['id'])) {
 			return;
@@ -336,7 +336,7 @@ class Processor
 	 *
 	 * @param array $activity
 	 */
-	private static function deletePerson($activity)
+	public static function deletePerson($activity)
 	{
 		if (empty($activity['object']['id']) || empty($activity['object']['actor'])) {
 			logger('Empty object id or actor.', LOGGER_DEBUG);
@@ -362,7 +362,7 @@ class Processor
 	 *
 	 * @param array $activity
 	 */
-	private static function acceptFollowUser($activity)
+	public static function acceptFollowUser($activity)
 	{
 		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
 		$uid = User::getIdForURL($actor);
@@ -395,7 +395,7 @@ class Processor
 	 *
 	 * @param array $activity
 	 */
-	private static function rejectFollowUser($activity)
+	public static function rejectFollowUser($activity)
 	{
 		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
 		$uid = User::getIdForURL($actor);
@@ -424,7 +424,7 @@ class Processor
 	 *
 	 * @param array $activity
 	 */
-	private static function undoActivity($activity)
+	public static function undoActivity($activity)
 	{
 		$activity_url = JsonLD::fetchElement($activity, 'object', 'id');
 		if (empty($activity_url)) {
@@ -449,7 +449,7 @@ class Processor
 	 *
 	 * @param array $activity
 	 */
-	private static function undoFollowUser($activity)
+	public static function undoFollowUser($activity)
 	{
 		$object = JsonLD::fetchElement($activity, 'object', 'object');
 		$uid = User::getIdForURL($object);

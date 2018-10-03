@@ -557,10 +557,10 @@ class Contact extends BaseObject
 		} elseif ($contact['network'] == Protocol::DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
 		} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
-			ActivityPub::transmitContactUndo($contact['url'], $user['uid']);
+			ActivityPub\Transmitter::transmitContactUndo($contact['url'], $user['uid']);
 
 			if ($dissolve) {
-				ActivityPub::transmitContactReject($contact['url'], $contact['hub-verify'], $user['uid']);
+				ActivityPub\Transmitter::transmitContactReject($contact['url'], $contact['hub-verify'], $user['uid']);
 			}
 		}
 	}
@@ -1769,7 +1769,7 @@ class Contact extends BaseObject
 				$ret = Diaspora::sendShare($a->user, $contact);
 				logger('share returns: ' . $ret);
 			} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
-				$ret = ActivityPub::transmitActivity('Follow', $contact['url'], $uid);
+				$ret = ActivityPub\Transmitter::transmitActivity('Follow', $contact['url'], $uid);
 				logger('Follow returns: ' . $ret);
 			}
 		}
@@ -1846,7 +1846,7 @@ class Contact extends BaseObject
 			}
 
 			if ($contact['network'] == Protocol::ACTIVITYPUB) {
-				ActivityPub::transmitContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
+				ActivityPub\Transmitter::transmitContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
 			}
 
 			// send email notification to owner?
