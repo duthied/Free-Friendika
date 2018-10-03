@@ -43,6 +43,7 @@ use Friendica\Core\Config;
  *
  * To-do:
  * - Polling the outboxes for missing content?
+ * - "about" needs HTML2BBCode parser
  */
 class ActivityPub
 {

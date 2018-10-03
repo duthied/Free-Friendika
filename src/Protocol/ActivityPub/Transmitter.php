@@ -21,6 +21,8 @@ use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Model\Profile;
+use Friendica\Core\Config;
+use Friendica\Object\Image;
 
 /**
  * @brief ActivityPub Transmitter Protocol class
@@ -33,7 +35,6 @@ use Friendica\Model\Profile;
  * - Undo Announce
  *
  * General:
- * - Attachments
  * - nsfw (sensitive)
  * - Queueing unsucessful deliveries
  */
@@ -596,6 +597,74 @@ class Transmitter
 	}
 
 	/**
+	 * @brief Adds attachment data to the JSON document
+	 *
+	 * @param array $item Data of the item that is to be posted
+	 * @return attachment array
+	 */
+
+	private static function createAttachmentList($item)
+	{
+		$attachments = [];
+
+		$siteinfo = BBCode::getAttachedData($item['body']);
+
+		switch ($siteinfo['type']) {
+			case 'photo':
+				if (!empty($siteinfo['image'])) {
+					$imgdata = Image::getInfoFromURL($siteinfo['image']);
+					if ($imgdata) {
+						$attachments[] = ['type' => 'Document',
+								'mediaType' => $imgdata['mime'],
+								'url' => $siteinfo['image'],
+								'name' => null];
+					}
+				}
+				break;
+			case 'video':
+				$attachments[] = ['type' => 'Document',
+						'mediaType' => 'text/html; charset=UTF-8',
+						'url' => $siteinfo['url'],
+						'name' => defaults($siteinfo, 'title', $siteinfo['url'])];
+				break;
+			default:
+				break;
+		}
+
+		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo['type'] != 'photo') && isset($siteinfo['image'])) {
+			$imgdata = Image::getInfoFromURL($siteinfo['image']);
+			if ($imgdata) {
+				$attachments[] = ['type' => 'Document',
+						'mediaType' => $imgdata['mime'],
+						'url' => $siteinfo['image'],
+						'name' => null];
+			}
+		}
+
+		$arr = explode('[/attach],', $item['attach']);
+		if (count($arr)) {
+			foreach ($arr as $r) {
+				$matches = false;
+				$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|', $r, $matches);
+				if ($cnt) {
+					$attributes = ['type' => 'Document',
+							'mediaType' => $matches[3],
+							'url' => $matches[1],
+							'name' => null];
+
+					if (trim($matches[4]) != '') {
+						$attributes['name'] = trim($matches[4]);
+					}
+
+					$attachments[] = $attributes;
+				}
+			}
+		}
+
+		return $attachments;
+	}
+
+	/**
 	 * @brief Fetches the "context" value for a givem item array from the "conversation" table
 	 *
 	 * @param array $item
@@ -674,7 +743,7 @@ class Transmitter
 			$data['diaspora:comment'] = $item['signed_text'];
 		}
 
-		$data['attachment'] = []; // @ToDo
+		$data['attachment'] = self::createAttachmentList($item);
 		$data['tag'] = self::createTagList($item);
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
