@@ -140,7 +140,7 @@ class Login extends BaseModule
 			}
 		} catch (Exception $e) {
 			logger('authenticate: failed login attempt: ' . notags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
-			info('Login failed: ' . $e->getMessage() . EOL);
+			info('Login failed. Please check your credentials.' . EOL);
 			goaway();
 		}
 
