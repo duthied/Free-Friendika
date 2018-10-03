@@ -29,7 +29,7 @@ class Outbox extends BaseModule
 
 		$page = defaults($_REQUEST, 'page', null);
 
-		$outbox = ActivityPub::getOutbox($owner, $page);
+		$outbox = ActivityPub\Transmitter::getOutbox($owner, $page);
 
 		header('Content-Type: application/activity+json');
 		echo json_encode($outbox);
