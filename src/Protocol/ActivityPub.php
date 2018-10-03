@@ -42,33 +42,7 @@ use Friendica\Core\Config;
  * https://github.com/tootsuite/mastodon/blob/master/app/lib/activitypub/activity.rb#L26
  *
  * To-do:
- *
- * Receiver:
- * - Update (Image, Video, Article, Note)
- * - Event
- * - Undo Announce
- *
- * Check what this is meant to do:
- * - Add
- * - Block
- * - Flag
- * - Remove
- * - Undo Block
- * - Undo Accept (Problem: This could invert a contact accept or an event accept)
- *
- * Transmitter:
- * - Event
- *
- * Complicated:
- * - Announce
- * - Undo Announce
- *
- * General:
- * - Attachments
- * - nsfw (sensitive)
- * - Queueing unsucessful deliveries
  * - Polling the outboxes for missing content?
- * - Possibly using the LD-JSON parser
  */
 class ActivityPub
 {

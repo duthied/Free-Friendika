@@ -24,6 +24,18 @@ use Friendica\Model\Profile;
 
 /**
  * @brief ActivityPub Transmitter Protocol class
+ *
+ * To-Do:
+ * - Event
+ *
+ * Complicated:
+ * - Announce
+ * - Undo Announce
+ *
+ * General:
+ * - Attachments
+ * - nsfw (sensitive)
+ * - Queueing unsucessful deliveries
  */
 class Transmitter
 {

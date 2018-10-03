@@ -27,7 +27,23 @@ use Friendica\Core\Config;
 use Friendica\Protocol\ActivityPub;
 
 /**
- * @brief ActivityPub Protocol class
+ * @brief ActivityPub Receiver Protocol class
+ *
+ * To-Do:
+ * - Update (Image, Video, Article, Note)
+ * - Event
+ * - Undo Announce
+ *
+ * Check what this is meant to do:
+ * - Add
+ * - Block
+ * - Flag
+ * - Remove
+ * - Undo Block
+ * - Undo Accept (Problem: This could invert a contact accept or an event accept)
+ *
+ * General:
+ * - Possibly using the LD-JSON parser
  */
 class Receiver
 {
