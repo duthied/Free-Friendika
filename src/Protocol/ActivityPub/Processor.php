@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Protocol/ActivityPub.php
+ * @file src/Protocol/ActivityPub/Processor.php
  */
 namespace Friendica\Protocol\ActivityPub;
 
@@ -93,7 +93,7 @@ class Processor
 		foreach ($attachments as $attach) {
 			$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
 			if ($filetype == 'image') {
-				$item['body'] .= "\n[img]".$attach['url'].'[/img]';
+				$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
 			} else {
 				if (!empty($item["attach"])) {
 					$item["attach"] .= ',';

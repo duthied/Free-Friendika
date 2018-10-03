@@ -687,7 +687,7 @@ class Transmitter
 	 * @param integer $uid User ID
 	 * @param string $inbox Target inbox
 	 */
-	public static function transmitProfileDeletion($uid, $inbox)
+	public static function sendProfileDeletion($uid, $inbox)
 	{
 		$owner = User::getOwnerDataById($uid);
 		$profile = APContact::getByURL($owner['url']);
@@ -713,7 +713,7 @@ class Transmitter
 	 * @param integer $uid User ID
 	 * @param string $inbox Target inbox
 	 */
-	public static function transmitProfileUpdate($uid, $inbox)
+	public static function sendProfileUpdate($uid, $inbox)
 	{
 		$owner = User::getOwnerDataById($uid);
 		$profile = APContact::getByURL($owner['url']);
@@ -740,7 +740,7 @@ class Transmitter
 	 * @param string $target Target profile
 	 * @param integer $uid User ID
 	 */
-	public static function transmitActivity($activity, $target, $uid)
+	public static function sendActivity($activity, $target, $uid)
 	{
 		$profile = APContact::getByURL($target);
 
@@ -766,7 +766,7 @@ class Transmitter
 	 * @param $id
 	 * @param integer $uid User ID
 	 */
-	public static function transmitContactAccept($target, $id, $uid)
+	public static function sendContactAccept($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
 
@@ -793,7 +793,7 @@ class Transmitter
 	 * @param $id
 	 * @param integer $uid User ID
 	 */
-	public static function transmitContactReject($target, $id, $uid)
+	public static function sendContactReject($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
 
@@ -819,7 +819,7 @@ class Transmitter
 	 * @param string $target Target profile
 	 * @param integer $uid User ID
 	 */
-	public static function transmitContactUndo($target, $uid)
+	public static function sendContactUndo($target, $uid)
 	{
 		$profile = APContact::getByURL($target);
 

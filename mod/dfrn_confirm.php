@@ -337,7 +337,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			);
 		} else {
 			if ($network == Protocol::ACTIVITYPUB) {
-				ActivityPub\Transmitter::transmitContactAccept($contact['url'], $contact['hub-verify'], $uid);
+				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $uid);
 				$pending = true;
 			} else {
 				$pending = false;
@@ -394,7 +394,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact['id']);
 
 		if ($network == Protocol::ACTIVITYPUB && $duplex) {
-			ActivityPub\Transmitter::transmitActivity('Follow', $contact['url'], $uid);
+			ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid);
 		}
 
 		// Let's send our user to the contact editor in case they want to

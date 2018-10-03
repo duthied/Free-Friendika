@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Protocol/ActivityPub.php
+ * @file src/Protocol/ActivityPub/Receiver.php
  */
 namespace Friendica\Protocol\ActivityPub;
 

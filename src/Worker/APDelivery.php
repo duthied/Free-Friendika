@@ -19,9 +19,9 @@ class APDelivery extends BaseObject
 		} elseif ($cmd == Delivery::SUGGESTION) {
 		} elseif ($cmd == Delivery::RELOCATION) {
 		} elseif ($cmd == Delivery::REMOVAL) {
-			ActivityPub\Transmitter::transmitProfileDeletion($uid, $inbox);
+			ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
 		} elseif ($cmd == Delivery::PROFILEUPDATE) {
-			ActivityPub\Transmitter::transmitProfileUpdate($uid, $inbox);
+			ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
 		} else {
 			$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
 			if (!empty($data)) {
