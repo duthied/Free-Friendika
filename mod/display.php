@@ -78,7 +78,7 @@ function display_init(App $a)
 	}
 
 	if (ActivityPub::isRequest()) {
-		goaway(str_replace('display/', 'object/', $a->query_string));
+		goaway(str_replace('display/', 'objects/', $a->query_string));
 	}
 
 	if ($item["id"] != $item["parent"]) {

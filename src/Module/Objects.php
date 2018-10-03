@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Module/Object.php
+ * @file src/Module/Objects.php
  */
 namespace Friendica\Module;
 
@@ -11,9 +11,9 @@ use Friendica\Model\Item;
 use Friendica\Database\DBA;
 
 /**
- * ActivityPub Object
+ * ActivityPub Objects
  */
-class Object extends BaseModule
+class Objects extends BaseModule
 {
 	public static function rawContent()
 	{
@@ -24,7 +24,7 @@ class Object extends BaseModule
 		}
 
 		if (!ActivityPub::isRequest()) {
-			goaway(str_replace('object/', 'display/', $a->query_string));
+			goaway(str_replace('objects/', 'display/', $a->query_string));
 		}
 
 		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'wall' => true, 'private' => false]);

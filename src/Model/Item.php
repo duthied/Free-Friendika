@@ -2361,7 +2361,7 @@ class Item extends BaseObject
 			$guid = System::createUUID();
 		}
 
-		return self::getApp()->get_baseurl() . '/object/' . $guid;
+		return self::getApp()->get_baseurl() . '/objects/' . $guid;
 	}
 
 	/**
