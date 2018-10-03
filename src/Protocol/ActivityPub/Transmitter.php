@@ -35,6 +35,8 @@ use Friendica\Protocol\ActivityPub;
  *
  * General:
  * - Queueing unsucessful deliveries
+ * - Type "note": Remove inline images and add them as attachments
+ * - Type "article": Leave imaged embedded and don't add them as attachments
  */
 class Transmitter
 {
