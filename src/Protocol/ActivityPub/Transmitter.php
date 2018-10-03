@@ -35,7 +35,6 @@ use Friendica\Object\Image;
  * - Undo Announce
  *
  * General:
- * - nsfw (sensitive)
  * - Queueing unsucessful deliveries
  */
 class Transmitter
@@ -582,16 +581,20 @@ class Transmitter
 	{
 		$tags = [];
 
-		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
+		$terms = Term::tagArrayFromItemId($item['id']);
 		foreach ($terms as $term) {
-			$contact = Contact::getDetailsByURL($term['url']);
-			if (!empty($contact['addr'])) {
-				$mention = '@' . $contact['addr'];
-			} else {
-				$mention = '@' . $term['url'];
-			}
+			if ($term['type'] == TERM_HASHTAG) {
+				$tags[] = ['type' => 'Hashtag', 'href' => $term['url'], 'name' => '#' . $term['term']];
+			} elseif ($term['type'] == TERM_MENTION) {
+				$contact = Contact::getDetailsByURL($term['url']);
+				if (!empty($contact['addr'])) {
+					$mention = '@' . $contact['addr'];
+				} else {
+					$mention = '@' . $term['url'];
+				}
 
-			$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
+				$tags[] = ['type' => 'Mention', 'href' => $term['url'], 'name' => $mention];
+			}
 		}
 		return $tags;
 	}
@@ -684,6 +687,12 @@ class Transmitter
 		return $context_uri;
 	}
 
+	private static function fetchSensitive($item_id)
+	{
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $item_id, 'type' => TERM_HASHTAG, 'term' => 'nsfw'];
+		return DBA::exists('term', $condition);
+	}
+
 	/**
 	 * @brief Creates a note/article object array
 	 *
@@ -729,7 +738,7 @@ class Transmitter
 		$data['url'] = $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
 		$data['actor'] = $item['author-link'];
-		$data['sensitive'] = false; // - Query NSFW
+		$data['sensitive'] = self::fetchSensitive($item['id']);
 		$data['context'] = self::fetchContextURLForItem($item);
 
 		if (!empty($item['title'])) {
