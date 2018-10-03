@@ -47,10 +47,10 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	{
 		$list = [];
 		$allSlabs = $this->memcache->getExtendedStats('slabs');
-		foreach($allSlabs as $slabs) {
-			foreach(array_keys($slabs) as $slabId) {
+		foreach ($allSlabs as $slabs) {
+			foreach (array_keys($slabs) as $slabId) {
 				$cachedump = $this->memcache->getExtendedStats('cachedump', (int)$slabId);
-				foreach($cachedump as $keys => $arrVal) {
+				foreach ($cachedump as $keys => $arrVal) {
 					if (!is_array($arrVal)) {
 						continue;
 					}
