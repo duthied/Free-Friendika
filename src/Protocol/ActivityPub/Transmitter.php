@@ -6,7 +6,6 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
 use Friendica\Core\System;
-use Friendica\BaseObject;
 use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
@@ -19,10 +18,10 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Content\Text\BBCode;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Model\Profile;
 use Friendica\Core\Config;
 use Friendica\Object\Image;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * @brief ActivityPub Transmitter Protocol class

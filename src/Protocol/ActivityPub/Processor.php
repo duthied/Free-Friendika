@@ -5,24 +5,14 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
-use Friendica\Core\System;
-use Friendica\BaseObject;
-use Friendica\Util\Network;
-use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
-use Friendica\Model\Term;
 use Friendica\Model\User;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Crypto;
-use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Util\JsonLD;
-use Friendica\Util\LDSignature;
 use Friendica\Core\Config;
 use Friendica\Protocol\ActivityPub;
 
