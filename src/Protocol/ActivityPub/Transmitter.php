@@ -442,7 +442,7 @@ class Transmitter
 	 *
 	 * @return activity type
 	 */
-	public static function getTypeOfItem($item)
+	private static function getTypeOfItem($item)
 	{
 		if ($item['verb'] == ACTIVITY_POST) {
 			if ($item['created'] == $item['edited']) {
