@@ -12,6 +12,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Network;
 use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Content\Text\HTML;
 
 require_once 'boot.php';
 
@@ -114,7 +115,7 @@ class APContact extends BaseObject
 		$apcontact['sharedinbox'] = JsonLD::fetchElement($data, 'endpoints', 'sharedInbox');
 		$apcontact['nick'] = defaults($data, 'preferredUsername', null);
 		$apcontact['name'] = defaults($data, 'name', $apcontact['nick']);
-		$apcontact['about'] = defaults($data, 'summary', '');
+		$apcontact['about'] = HTML::toBBCode(defaults($data, 'summary', ''));
 		$apcontact['photo'] = JsonLD::fetchElement($data, 'icon', 'url');
 		$apcontact['alias'] = JsonLD::fetchElement($data, 'url', 'href');
 

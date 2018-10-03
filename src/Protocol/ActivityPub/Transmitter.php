@@ -700,7 +700,7 @@ class Transmitter
 	 *
 	 * @return object array
 	 */
-	private static function createNote($item)
+	public static function createNote($item)
 	{
 		if (!empty($item['title'])) {
 			$type = 'Article';
