@@ -19,11 +19,11 @@ class APDelivery extends BaseObject
 		} elseif ($cmd == Delivery::SUGGESTION) {
 		} elseif ($cmd == Delivery::RELOCATION) {
 		} elseif ($cmd == Delivery::REMOVAL) {
-			ActivityPub::transmitProfileDeletion($uid, $inbox);
+			ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
 		} elseif ($cmd == Delivery::PROFILEUPDATE) {
-			ActivityPub::transmitProfileUpdate($uid, $inbox);
+			ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
 		} else {
-			$data = ActivityPub::createActivityFromItem($item_id);
+			$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
 			if (!empty($data)) {
 				HTTPSignature::transmit($data, $inbox, $uid);
 			}

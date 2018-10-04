@@ -100,7 +100,7 @@ class Notifier
 				Contact::terminateFriendship($user, $contact, true);
 			}
 
-			$inboxes = ActivityPub::fetchTargetInboxesforUser(0);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
 			foreach ($inboxes as $inbox) {
 				logger('Account removal for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
 				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
@@ -425,11 +425,11 @@ class Notifier
 		$inboxes = [];
 
 		if ($target_item['origin']) {
-			$inboxes = ActivityPub::fetchTargetInboxes($target_item, $uid);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
 		}
 
 		if ($parent['origin']) {
-			$parent_inboxes = ActivityPub::fetchTargetInboxes($parent, $uid);
+			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
 			$inboxes = array_merge($inboxes, $parent_inboxes);
 		}
 

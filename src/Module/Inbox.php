@@ -48,7 +48,7 @@ class Inbox extends BaseModule
 			$uid = 0;
 		}
 
-		ActivityPub::processInbox($postdata, $_SERVER, $uid);
+		ActivityPub\Receiver::processInbox($postdata, $_SERVER, $uid);
 
 		System::httpExit(202);
 	}

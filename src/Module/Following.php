@@ -29,7 +29,7 @@ class Following extends BaseModule
 
 		$page = defaults($_REQUEST, 'page', null);
 
-		$Following = ActivityPub::getFollowing($owner, $page);
+		$Following = ActivityPub\Transmitter::getFollowing($owner, $page);
 
 		header('Content-Type: application/activity+json');
 		echo json_encode($Following);

@@ -29,7 +29,7 @@ class Followers extends BaseModule
 
 		$page = defaults($_REQUEST, 'page', null);
 
-		$followers = ActivityPub::getFollowers($owner, $page);
+		$followers = ActivityPub\Transmitter::getFollowers($owner, $page);
 
 		header('Content-Type: application/activity+json');
 		echo json_encode($followers);

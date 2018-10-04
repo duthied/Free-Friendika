@@ -19,7 +19,7 @@ class ProfileUpdate {
 
 		$a = BaseObject::getApp();
 
-		$inboxes = ActivityPub::fetchTargetInboxesforUser($uid);
+		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser($uid);
 
 		foreach ($inboxes as $inbox) {
 			logger('Profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
