@@ -676,7 +676,7 @@ class Transmitter
 		return $context_uri;
 	}
 
-	private static function fetchSensitive($item_id)
+	private static function isSensitive($item_id)
 	{
 		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $item_id, 'type' => TERM_HASHTAG, 'term' => 'nsfw'];
 		return DBA::exists('term', $condition);
@@ -727,7 +727,7 @@ class Transmitter
 		$data['url'] = $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
 		$data['actor'] = $item['author-link'];
-		$data['sensitive'] = self::fetchSensitive($item['id']);
+		$data['sensitive'] = self::isSensitive($item['id']);
 		$data['context'] = self::fetchContextURLForItem($item);
 
 		if (!empty($item['title'])) {
