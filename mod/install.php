@@ -125,8 +125,8 @@ function install_content(App $a) {
 	if (DBA::$connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
 		if (DBA::isResult($r) && $r[0]['total']) {
-                $install_wizard_pass = 2;
-                $wizard_status = L10n::t('Database already in use.');
+			$install_wizard_pass = 2;
+			$wizard_status = L10n::t('Database already in use.');
 		}
 	}
 
