@@ -24,6 +24,9 @@ use Friendica\Model\APContact;
  * Mastodon implementation of supported activities:
  * https://github.com/tootsuite/mastodon/blob/master/app/lib/activitypub/activity.rb#L26
  *
+ * Funkwhale:
+ * http://docs-funkwhale-funkwhale-549-music-federation-documentation.preview.funkwhale.audio/federation/index.html
+ *
  * To-do:
  * - Polling the outboxes for missing content?
  */
