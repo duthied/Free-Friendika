@@ -548,6 +548,8 @@ class Transmitter
 		} else {
 			return $data;
 		}
+
+		/// @todo Create "conversation" entry
 	}
 
 	/**
@@ -669,7 +671,7 @@ class Transmitter
 		} elseif (DBA::isResult($conversation) && !empty($conversation['conversation-uri'])) {
 			$context_uri = $conversation['conversation-uri'];
 		} else {
-			$context_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
+			$context_uri = $item['parent-uri'] . '#context';
 		}
 		return $context_uri;
 	}
