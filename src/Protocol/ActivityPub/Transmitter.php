@@ -186,7 +186,7 @@ class Transmitter
 	 * Return the ActivityPub profile of the given user
 	 *
 	 * @param integer $uid User ID
-	 * @return profile array
+	 * @return array with profile data
 	 */
 	public static function getProfile($uid)
 	{
@@ -294,7 +294,7 @@ class Transmitter
 	 *
 	 * @param array $item
 	 *
-	 * @return permission array
+	 * @return array with permission data
 	 */
 	private static function createPermissionBlockForItem($item)
 	{
@@ -453,7 +453,7 @@ class Transmitter
 	 *
 	 * @param array $item
 	 *
-	 * @return activity type
+	 * @return string with activity type
 	 */
 	private static function getTypeOfItem($item)
 	{
@@ -557,7 +557,7 @@ class Transmitter
 	 *
 	 * @param integer $item_id
 	 *
-	 * @return object array
+	 * @return array with the object data
 	 */
 	public static function createObjectFromItemID($item_id)
 	{
@@ -607,7 +607,7 @@ class Transmitter
 	 *
 	 * @param array $item Data of the item that is to be posted
 	 * @param text $type Object type
-	 * @return attachment array
+	 * @return array with attachment data
 	 */
 
 	private static function createAttachmentList($item, $type)
@@ -687,7 +687,7 @@ class Transmitter
 	 *
 	 * @param array $item
 	 *
-	 * @return object array
+	 * @return array with the object data
 	 */
 	public static function createNote($item)
 	{
