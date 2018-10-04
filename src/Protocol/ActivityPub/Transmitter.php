@@ -604,46 +604,13 @@ class Transmitter
 	 * @brief Adds attachment data to the JSON document
 	 *
 	 * @param array $item Data of the item that is to be posted
+	 * @param text $type Object type
 	 * @return attachment array
 	 */
 
-	private static function createAttachmentList($item)
+	private static function createAttachmentList($item, $type)
 	{
 		$attachments = [];
-
-		$siteinfo = BBCode::getAttachedData($item['body']);
-
-		switch ($siteinfo['type']) {
-			case 'photo':
-				if (!empty($siteinfo['image'])) {
-					$imgdata = Image::getInfoFromURL($siteinfo['image']);
-					if ($imgdata) {
-						$attachments[] = ['type' => 'Document',
-								'mediaType' => $imgdata['mime'],
-								'url' => $siteinfo['image'],
-								'name' => null];
-					}
-				}
-				break;
-			case 'video':
-				$attachments[] = ['type' => 'Document',
-						'mediaType' => 'text/html; charset=UTF-8',
-						'url' => $siteinfo['url'],
-						'name' => defaults($siteinfo, 'title', $siteinfo['url'])];
-				break;
-			default:
-				break;
-		}
-
-		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo['type'] != 'photo') && isset($siteinfo['image'])) {
-			$imgdata = Image::getInfoFromURL($siteinfo['image']);
-			if ($imgdata) {
-				$attachments[] = ['type' => 'Document',
-						'mediaType' => $imgdata['mime'],
-						'url' => $siteinfo['image'],
-						'name' => null];
-			}
-		}
 
 		$arr = explode('[/attach],', $item['attach']);
 		if (count($arr)) {
@@ -663,6 +630,25 @@ class Transmitter
 					$attachments[] = $attributes;
 				}
 			}
+		}
+
+		if ($type != 'Note') {
+			return $attachments;
+		}
+
+		/// @todo Replace this with a function that takes all pictures from the post
+		$siteinfo = BBCode::getAttachedData($item['body']);
+
+		if (!empty($siteinfo['image']) &&
+			(($siteinfo['type'] == 'photo') ||
+			!Config::get('system', 'ostatus_not_attach_preview'))) {
+				$imgdata = Image::getInfoFromURL($siteinfo['image']);
+				if ($imgdata) {
+					$attachments[] = ['type' => 'Document',
+							'mediaType' => $imgdata['mime'],
+							'url' => $siteinfo['image'],
+							'name' => null];
+				}
 		}
 
 		return $attachments;
@@ -753,7 +739,7 @@ class Transmitter
 			$data['diaspora:comment'] = $item['signed_text'];
 		}
 
-		$data['attachment'] = self::createAttachmentList($item);
+		$data['attachment'] = self::createAttachmentList($item, $type);
 		$data['tag'] = self::createTagList($item);
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
