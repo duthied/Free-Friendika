@@ -380,6 +380,8 @@ class Receiver
 		DBA::update('contact', $profile, ['id' => $cid]);
 
 		Contact::updateAvatar($photo, $uid, $cid);
+
+		/// @todo Send a new follow request to be sure that the connection still exists
 	}
 
 	/**
