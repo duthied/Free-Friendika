@@ -47,7 +47,7 @@
 							{{if $poll_interval}}
 								<form id="contact-edit-poll-form" action="/contacts/{{$contact_id}}" method="post"> 
 									<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}}
-									<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+									<input class="btn btn-primary" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
 								</form>
 							{{/if}}
 							</li>
