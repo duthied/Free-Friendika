@@ -125,13 +125,8 @@ function install_content(App $a) {
 	if (DBA::$connected) {
 		$r = q("SELECT COUNT(*) as `total` FROM `user`");
 		if (DBA::isResult($r) && $r[0]['total']) {
-			$tpl = get_markup_template('install.tpl');
-			return replace_macros($tpl, [
-				'$title' => $install_title,
-				'$pass' => '',
-				'$status' => L10n::t('Database already in use.'),
-				'$text' => '',
-			]);
+			$install_wizard_pass = 2;
+			$wizard_status = L10n::t('Database already in use.');
 		}
 	}
 
