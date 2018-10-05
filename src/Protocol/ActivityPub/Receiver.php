@@ -382,7 +382,7 @@ class Receiver
 		Contact::updateAvatar($photo, $uid, $cid);
 
 		// Send a new follow request to be sure that the connection still exists
-		if (DBA::exists('contact', ['id' => $cid, 'rel' => [Contact::SHARING, Contact::FRIEND]])) {
+		if (($uid != 0) && DBA::exists('contact', ['id' => $cid, 'rel' => [Contact::SHARING, Contact::FRIEND]])) {
 			ActivityPub\Transmitter::sendActivity('Follow', $profile['url'], $uid);
 			logger('Send a new follow request to ' . $profile['url'] . ' for user ' . $uid, LOGGER_DEBUG);
 		}
