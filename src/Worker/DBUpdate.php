@@ -6,17 +6,16 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Config;
+use Friendica\Core\Update;
 
 class DBUpdate
 {
 	public static function execute()
 	{
-		$a = \Friendica\BaseObject::getApp();
-
 		// We are deleting the latest dbupdate entry.
 		// This is done to avoid endless loops because the update was interupted.
 		Config::delete('database', 'dbupdate_'.DB_UPDATE_VERSION);
 
-		update_db($a);
+		Update::run();
 	}
 }

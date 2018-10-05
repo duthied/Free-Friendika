@@ -28,9 +28,9 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Util\DateTimeFormat;
@@ -454,7 +454,7 @@ function check_db($via_worker)
 	if ($build < DB_UPDATE_VERSION) {
 		// When we cannot execute the database update via the worker, we will do it directly
 		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
-			update_db();
+			Update::run();
 		}
 	}
 }

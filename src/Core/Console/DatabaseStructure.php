@@ -3,6 +3,7 @@
 namespace Friendica\Core\Console;
 
 use Friendica\Core;
+use Friendica\Core\Update;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use RuntimeException;
@@ -80,7 +81,7 @@ HELP;
 
 				// run the pre_update_nnnn functions in update.php
 				for ($x = $stored; $x < $current; $x ++) {
-					$r = run_update_function($x, 'pre_update');
+					$r = Update::runUpdateFunction($x, 'pre_update');
 					if (!$r) {
 						break;
 					}
@@ -90,7 +91,7 @@ HELP;
 
 				// run the update_nnnn functions in update.php
 				for ($x = $stored; $x < $current; $x ++) {
-					$r = run_update_function($x, 'update');
+					$r = Update::runUpdateFunction($x, 'update');
 					if (!$r) {
 						break;
 					}
