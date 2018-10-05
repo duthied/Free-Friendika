@@ -357,11 +357,11 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * @brief Switches existing contacts to ActivityPub
 	 *
-	 * @param $cid
+	 * @param integer $cid Contact ID
 	 * @param integer $uid User ID
-	 * @param $url
+	 * @param string $url Profile URL
 	 */
 	private static function switchContact($cid, $uid, $url)
 	{
@@ -370,7 +370,7 @@ class Receiver
 			return;
 		}
 
-		logger('Switch contact ' . $cid . ' (' . $profile['url'] . ') for user ' . $uid . ' from OStatus to ActivityPub');
+		logger('Switch contact ' . $cid . ' (' . $profile['url'] . ') for user ' . $uid . ' to ActivityPub');
 
 		$photo = $profile['photo'];
 		unset($profile['photo']);
@@ -381,7 +381,11 @@ class Receiver
 
 		Contact::updateAvatar($photo, $uid, $cid);
 
-		/// @todo Send a new follow request to be sure that the connection still exists
+		// Send a new follow request to be sure that the connection still exists
+		if (DBA::exists('contact', ['id' => $cid, 'rel' => [Contact::SHARING, Contact::FRIEND]])) {
+			ActivityPub\Transmitter::sendActivity('Follow', $profile['url'], $uid);
+			logger('Send a new follow request to ' . $profile['url'] . ' for user ' . $uid, LOGGER_DEBUG);
+		}
 	}
 
 	/**
