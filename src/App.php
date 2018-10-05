@@ -6,6 +6,7 @@ namespace Friendica;
 
 use Detection\MobileDetect;
 use Exception;
+use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
@@ -31,21 +32,6 @@ require_once 'include/text.php';
  */
 class App
 {
-	const MODE_LOCALCONFIGPRESENT = 1;
-	const MODE_DBAVAILABLE = 2;
-	const MODE_DBCONFIGAVAILABLE = 4;
-	const MODE_MAINTENANCEDISABLED = 8;
-
-	/**
-	 * @deprecated since version 2008.08 Use App->isInstallMode() instead to check for install mode.
-	 */
-	const MODE_INSTALL = 0;
-
-	/**
-	 * @deprecated since version 2008.08 Use the precise mode constant to check for a specific capability instead.
-	 */
-	const MODE_NORMAL = App::MODE_LOCALCONFIGPRESENT | App::MODE_DBAVAILABLE | App::MODE_DBCONFIGAVAILABLE | App::MODE_MAINTENANCEDISABLED;
-
 	public $module_loaded = false;
 	public $module_class = null;
 	public $query_string = '';
@@ -67,7 +53,6 @@ class App
 	public $argv;
 	public $argc;
 	public $module;
-	public $mode = App::MODE_INSTALL;
 	public $strings;
 	public $basepath;
 	public $urlpath;
@@ -326,13 +311,13 @@ class App
 
 		$this->loadDatabase();
 
-		$this->determineMode();
+		App\Mode::determine($this->basepath);
 
 		$this->determineUrlPath();
 
 		Config::load();
 
-		if ($this->mode & self::MODE_DBAVAILABLE) {
+		if (App\Mode::has(App\Mode::DBAVAILABLE)) {
 			Core\Addon::loadHooks();
 
 			$this->loadAddonConfig();
@@ -518,45 +503,6 @@ class App
 		}
 	}
 
-	/**
-	 * Sets the App mode
-	 *
-	 * - App::MODE_INSTALL    : Either the database connection can't be established or the config table doesn't exist
-	 * - App::MODE_MAINTENANCE: The maintenance mode has been set
-	 * - App::MODE_NORMAL     : Normal run with all features enabled
-	 *
-	 * @return type
-	 */
-	private function determineMode()
-	{
-		$this->mode = 0;
-
-		if (!file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')
-			&& !file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
-			return;
-		}
-
-		$this->mode |= App::MODE_LOCALCONFIGPRESENT;
-
-		if (!DBA::connected()) {
-			return;
-		}
-
-		$this->mode |= App::MODE_DBAVAILABLE;
-
-		if (DBA::fetchFirst("SHOW TABLES LIKE 'config'") === false) {
-			return;
-		}
-
-		$this->mode |= App::MODE_DBCONFIGAVAILABLE;
-
-		if (Config::get('system', 'maintenance')) {
-			return;
-		}
-
-		$this->mode |= App::MODE_MAINTENANCEDISABLED;
-	}
-
 	public function loadDatabase()
 	{
 		if (DBA::connected()) {
@@ -594,16 +540,6 @@ class App
 		unset($db_host, $db_user, $db_pass, $db_data, $charset);
 
 		$this->save_timestamp($stamp1, 'network');
-	}
-
-	/**
-	 * Install mode is when the local config file is missing or the DB schema hasn't been installed yet.
-	 *
-	 * @return bool
-	 */
-	public function isInstallMode()
-	{
-		return !($this->mode & App::MODE_LOCALCONFIGPRESENT) || !($this->mode & App::MODE_DBCONFIGAVAILABLE);
 	}
 
 	/**
@@ -1467,7 +1403,7 @@ class App
 	 */
 	public function getCurrentTheme()
 	{
-		if ($this->isInstallMode()) {
+		if (App\Mode::isInstall()) {
 			return '';
 		}
 
