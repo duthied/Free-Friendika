@@ -172,7 +172,7 @@ if ($a->isInstallMode() && $a->module!="view") {
 } else {
 	check_url($a);
 	check_db(false);
-	check_addons($a);
+	Addon::check();
 }
 
 Nav::setSelected('nothing');
