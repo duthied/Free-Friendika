@@ -402,7 +402,7 @@ class Post extends BaseObject
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
 			'network'         => $item["network"],
-			'network_name'    => ContactSelector::networkToName($item['network'], $profile_link),
+			'network_name'    => ContactSelector::networkToName($item['network'], $item['author-link']),
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
