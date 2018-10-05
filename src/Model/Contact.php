@@ -1917,6 +1917,12 @@ class Contact extends BaseObject
 			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [self::PAGE_SOAPBOX, self::PAGE_FREELOVE, self::PAGE_COMMUNITY])) {
 				$condition = ['uid' => $importer['uid'], 'url' => $url, 'pending' => true];
 				DBA::update('contact', ['pending' => false], $condition);
+
+				$contact = DBA::selectFirst('contact', ['url', 'network', 'hub-verify'], ['id' => $contact_record['id']]);
+
+				if ($contact['network'] == Protocol::ACTIVITYPUB) {
+					ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
+				}
 			}
 		}
 	}

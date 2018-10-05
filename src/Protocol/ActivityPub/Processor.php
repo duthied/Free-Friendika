@@ -283,7 +283,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['owner'], $uid);
 		if (!empty($cid)) {
-			$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
+			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
 			$contact = false;
 		}
