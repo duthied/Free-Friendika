@@ -31,9 +31,9 @@ class Addon extends BaseObject
 	{
 		$a = self::getApp();
 
-		$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
+		$r = DBA::select('addon', [], ['installed' => 1]);
 		if (DBA::isResult($r)) {
-			$installed = $r;
+			$installed = DBA::toArray($r);
 		} else {
 			$installed = [];
 		}
