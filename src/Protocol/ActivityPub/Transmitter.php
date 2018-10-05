@@ -27,16 +27,16 @@ use Friendica\Protocol\ActivityPub;
  * @brief ActivityPub Transmitter Protocol class
  *
  * To-Do:
+ *
+ * Missing object types:
  * - Event
  *
- * Complicated:
+ * Complicated object types:
  * - Announce
  * - Undo Announce
  *
  * General:
  * - Queueing unsucessful deliveries
- * - Type "note": Remove inline images and add them as attachments
- * - Type "article": Leave imaged embedded and don't add them as attachments
  */
 class Transmitter
 {
@@ -521,15 +521,9 @@ class Transmitter
 
 		$data['id'] = $item['uri'] . '#' . $type;
 		$data['type'] = $type;
-		$data['actor'] = $item['author-link'];
+		$data['actor'] = $item['owner-link'];
 
-		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
-
-		if ($item["created"] != $item["edited"]) {
-			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
-		}
-
-		$data['context'] = self::fetchContextURLForItem($item);
+		$data['published'] = DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM);
 
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
@@ -607,9 +601,9 @@ class Transmitter
 	 *
 	 * @param array $item Data of the item that is to be posted
 	 * @param text $type Object type
+	 *
 	 * @return array with attachment data
 	 */
-
 	private static function createAttachmentList($item, $type)
 	{
 		$attachments = [];
@@ -638,22 +632,41 @@ class Transmitter
 			return $attachments;
 		}
 
-		/// @todo Replace this with a function that takes all pictures from the post
-		$siteinfo = BBCode::getAttachedData($item['body']);
+		// Simplify image codes
+		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $item['body']);
 
-		if (!empty($siteinfo['image']) &&
-			(($siteinfo['type'] == 'photo') ||
-			!Config::get('system', 'ostatus_not_attach_preview'))) {
-				$imgdata = Image::getInfoFromURL($siteinfo['image']);
+		// Grab all pictures and create attachments out of them
+		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures)) {
+			foreach ($pictures[1] as $picture) {
+				$imgdata = Image::getInfoFromURL($picture);
 				if ($imgdata) {
 					$attachments[] = ['type' => 'Document',
-							'mediaType' => $imgdata['mime'],
-							'url' => $siteinfo['image'],
-							'name' => null];
+						'mediaType' => $imgdata['mime'],
+						'url' => $picture,
+						'name' => null];
 				}
+			}
 		}
 
 		return $attachments;
+	}
+
+	/**
+	 * @brief Remove image elements and replaces them with links to the image
+	 *
+	 * @param string $body
+	 *
+	 * @return string with replaced elements
+	 */
+	private static function removePictures($body)
+	{
+		// Simplify image codes
+		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+
+		$body = preg_replace("/\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]/Usi", '[url]$1[/url]', $body);
+		$body = preg_replace("/\[img\]([^\[\]]*)\[\/img\]/Usi", '[url]$1[/url]', $body);
+
+		return $body;
 	}
 
 	/**
@@ -676,6 +689,13 @@ class Transmitter
 		return $context_uri;
 	}
 
+	/**
+	 * @brief Returns if the post contains sensitive content ("nsfw")
+	 *
+	 * @param integer $item_id
+	 *
+	 * @return boolean
+	 */
 	private static function isSensitive($item_id)
 	{
 		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $item_id, 'type' => TERM_HASHTAG, 'term' => 'nsfw'];
@@ -718,10 +738,10 @@ class Transmitter
 		}
 
 		$data['diaspora:guid'] = $item['guid'];
-		$data['published'] = DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM);
+		$data['published'] = DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM);
 
-		if ($item["created"] != $item["edited"]) {
-			$data['updated'] = DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM);
+		if ($item['created'] != $item['edited']) {
+			$data['updated'] = DateTimeFormat::utc($item['edited'] . '+00:00', DateTimeFormat::ATOM);
 		}
 
 		$data['url'] = $item['plink'];
@@ -734,7 +754,13 @@ class Transmitter
 			$data['name'] = BBCode::convert($item['title'], false, 7);
 		}
 
-		$data['content'] = BBCode::convert($item['body'], false, 7);
+		$body = $item['body'];
+
+		if ($type == 'Note') {
+			$body = self::removePictures($body);
+		}
+
+		$data['content'] = BBCode::convert($body, false, 7);
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
 
 		if (!empty($item['signed_text']) && ($item['uri'] != $item['thr-parent'])) {
@@ -770,7 +796,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		logger('Deliver profile deletion for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+		logger('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
 		HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -796,7 +822,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		logger('Deliver profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+		logger('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
 		HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -854,7 +880,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief 
+	 * @brief Reject a contact request or terminates the contact relation
 	 *
 	 * @param string $target Target profile
 	 * @param $id
@@ -881,7 +907,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief 
+	 * @brief Transmits a message that we don't want to follow this contact anymore
 	 *
 	 * @param string $target Target profile
 	 * @param integer $uid User ID
