@@ -30,20 +30,21 @@ Notes
     Not checking .htaccess/URL-Rewrite during CLI installation.
 
 Options
-    -h|--help|-?           Show help information
-    -v                     Show more debug information.
-    -a                     All setup checks are required (except .htaccess)
-    -f|--file <config>     prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
-    -s|--savedb            Save the DB credentials to the file (if environment variables is used)
-    -H|--dbhost <host>     The host of the mysql/mariadb database (env MYSQL_HOST)
-    -p|--dbport <port>     The port of the mysql/mariadb database (env MYSQL_PORT)
-    -d|--dbdata <database> The name of the mysql/mariadb database (env MYSQL_DATABASE)
-    -U|--dbuser <username> The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
-    -P|--dbpass <password> The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -b|--phppath <path>    The path of the PHP binary (env FRIENDICA_PHP_PATH) 
-    -A|--admin <mail>      The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
-    -T|--tz <timezone>     The timezone of Friendica (env FRIENDICA_TZ)
-    -L|--lang <language>   The language of Friendica (env FRIENDICA_LANG)
+    -h|--help|-?            Show help information
+    -v                      Show more debug information.
+    -a                      All setup checks are required (except .htaccess)
+    -f|--file <config>      prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
+    -s|--savedb             Save the DB credentials to the file (if environment variables is used)
+    -H|--dbhost <host>      The host of the mysql/mariadb database (env MYSQL_HOST)
+    -p|--dbport <port>      The port of the mysql/mariadb database (env MYSQL_PORT)
+    -d|--dbdata <database>  The name of the mysql/mariadb database (env MYSQL_DATABASE)
+    -U|--dbuser <username>  The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -P|--dbpass <password>  The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
+    -u|--urlpath <url_path> The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
+    -b|--phppath <php_path> The path of the PHP binary (env FRIENDICA_PHP_PATH) 
+    -A|--admin <mail>       The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
+    -T|--tz <timezone>      The timezone of Friendica (env FRIENDICA_TZ)
+    -L|--lang <language>    The language of Friendica (env FRIENDICA_LANG)
  
 Environment variables
    MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
@@ -51,6 +52,7 @@ Environment variables
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
+   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica')
    FRIENDICA_PHP_PATH          The path of the PHP binary
    FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
    FRIENDICA_TZ                The timezone of Friendica
@@ -102,13 +104,14 @@ HELP;
 			$db_data = $this->getOption(['d', 'dbdata'], ($save_db) ? getenv('MYSQL_DATABASE') : '');
 			$db_user = $this->getOption(['U', 'dbuser'], ($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : '');
 			$db_pass = $this->getOption(['P', 'dbpass'], ($save_db) ? getenv('MYSQL_PASSWORD') : '');
+			$url_path = $this->getOption(['u', 'urlpath'], (!empty('FRIENDICA_URL_PATH')) ? getenv('FRIENDICA_URL_PATH') : null);
 			$php_path = $this->getOption(['b', 'phppath'], (!empty('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : '');
 			$admin_mail = $this->getOption(['A', 'admin'], (!empty('FRIENDICA_ADMIN_MAIL')) ? getenv('FRIENDICA_ADMIN_MAIL') : '');
 			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
 			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
 
 			Install::createConfig(
-				$php_path,
+				$url_path,
 				((!empty($db_port)) ? $db_host . ':' . $db_port : $db_host),
 				$db_user,
 				$db_pass,
