@@ -22,6 +22,7 @@ use Friendica\Model\Profile;
 use Friendica\Core\Config;
 use Friendica\Object\Image;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Core\Cache;
 
 /**
  * @brief ActivityPub Transmitter Protocol class
@@ -478,6 +479,27 @@ class Transmitter
 		}
 
 		return $type;
+	}
+
+	/**
+	 * @brief Creates the activity or fetches it from the cache
+	 *
+	 * @param integer $item_id
+	 *
+	 * @return array with the activity
+	 */
+	public static function createCachedActivityFromItem($item_id)
+	{
+		$cachekey = "APDelivery:createActivity:".$item_id;
+		$data = Cache::get($cachekey);
+		if (!is_null($data)) {
+			return $data;
+		}
+
+		$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
+
+		Cache::set($cachekey, $data, CACHE_QUARTER_HOUR);
+		return $data;
 	}
 
 	/**

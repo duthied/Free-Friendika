@@ -11,6 +11,14 @@ use Friendica\Util\HTTPSignature;
 
 class APDelivery extends BaseObject
 {
+	/**
+	 * @brief Delivers ActivityPub messages
+	 *
+	 * @param string $cmd
+	 * @param integer $item_id
+	 * @param string $inbox
+	 * @param integer $uid
+	 */
 	public static function execute($cmd, $item_id, $inbox, $uid)
 	{
 		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $inbox, LOGGER_DEBUG);
@@ -23,12 +31,10 @@ class APDelivery extends BaseObject
 		} elseif ($cmd == Delivery::PROFILEUPDATE) {
 			ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
 		} else {
-			$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
+			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
 				HTTPSignature::transmit($data, $inbox, $uid);
 			}
 		}
-
-		return;
 	}
 }
