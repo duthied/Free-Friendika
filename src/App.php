@@ -6,7 +6,6 @@ namespace Friendica;
 
 use Detection\MobileDetect;
 use Exception;
-use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
