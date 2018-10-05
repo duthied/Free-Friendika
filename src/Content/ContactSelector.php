@@ -7,7 +7,9 @@ namespace Friendica\Content;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Util\Network;
 
 /**
  * @brief ContactSelector class
@@ -68,11 +70,11 @@ class ContactSelector
 	}
 
 	/**
-	 * @param string $s       network
+	 * @param string $network network
 	 * @param string $profile optional, default empty
 	 * @return string
 	 */
-	public static function networkToName($s, $profile = "")
+	public static function networkToName($network, $profile = "")
 	{
 		$nets = [
 			Protocol::DFRN      =>   L10n::t('Friendica'),
@@ -98,18 +100,36 @@ class ContactSelector
 		$search  = array_keys($nets);
 		$replace = array_values($nets);
 
-		$networkname = str_replace($search, $replace, $s);
+		$networkname = str_replace($search, $replace, $network);
 
-		if ((in_array($s, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
-			$r = DBA::fetchFirst("SELECT `gserver`.`platform` FROM `gcontact`
-					INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
-					WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
+		if ((in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
+			// Create the server url out of the profile url
+			$parts = parse_url($profile);
+			unset($parts['path']);
+			$server_url = [normalise_link(Network::unparseURL($parts))];
 
-			if (DBA::isResult($r)) {
-				$networkname = $r['platform'];
+			// Fetch the server url
+			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => normalise_link($profile)]);
+			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
+				$server_url[] = normalise_link($gcontact['server_url']);
+			}
 
-				if ($s == Protocol::ACTIVITYPUB) {
-					$networkname .= ' (AP)';
+			// Now query the GServer for the platform name
+			$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['nurl' => $server_url]);
+
+			if (DBA::isResult($gserver)) {
+				if (!empty($gserver['platform'])) {
+					$platform = $gserver['platform'];
+				} elseif (!empty($gserver['network']) && ($gserver['network'] != Protocol::ACTIVITYPUB)) {
+					$platform = self::networkToName($gserver['network']);
+				}
+
+				if (!empty($platform)) {
+					$networkname = $platform;
+
+					if ($network == Protocol::ACTIVITYPUB) {
+						$networkname .= ' (AP)';
+					}
 				}
 			}
 		}
