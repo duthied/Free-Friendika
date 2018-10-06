@@ -433,6 +433,9 @@ class Notifier
 			$inboxes = array_merge($inboxes, $parent_inboxes);
 		}
 
+		// Fill the item cache
+		ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
+
 		foreach ($inboxes as $inbox) {
 			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
 
