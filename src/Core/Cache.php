@@ -51,20 +51,15 @@ class Cache extends \Friendica\BaseObject
 	/**
 	 * @brief Returns all the cache keys sorted alphabetically
 	 *
+	 * @param string $prefix Prefix of the keys (optional)
+	 *
 	 * @return array|null Null if the driver doesn't support this feature
 	 */
-	public static function getAllKeys()
+	public static function getAllKeys($prefix = null)
 	{
 		$time = microtime(true);
 
-		$return = self::getDriver()->getAllKeys();
-
-		// Keys are prefixed with the node hostname, let's remove it
-		array_walk($return, function (&$value) {
-			$value = preg_replace('/^' . self::getApp()->get_hostname() . ':/', '', $value);
-		});
-
-		sort($return);
+		$return = self::getDriver()->getAllKeys($prefix);
 
 		self::getApp()->save_timestamp($time, 'cache');
 

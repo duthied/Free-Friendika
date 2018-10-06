@@ -105,7 +105,7 @@ HELP;
 	private function executeList()
 	{
 		$prefix = $this->getArgument(1);
-		$keys = Core\Cache::getAllKeys();
+		$keys = Core\Cache::getAllKeys($prefix);
 
 		if (empty($prefix)) {
 			$this->out('Listing all cache keys:');

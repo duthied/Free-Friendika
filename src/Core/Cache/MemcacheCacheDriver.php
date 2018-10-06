@@ -43,7 +43,7 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	/**
 	 * (@inheritdoc)
 	 */
-	public function getAllKeys()
+	public function getAllKeys($prefix = null)
 	{
 		$list = [];
 		$allSlabs = $this->memcache->getExtendedStats('slabs');
@@ -59,7 +59,9 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 			}
 		}
 
-		return $list;
+		$list = $this->getOriginalKeys($list);
+
+		return $this->filterPrefix($list, $prefix);
 	}
 
 	/**

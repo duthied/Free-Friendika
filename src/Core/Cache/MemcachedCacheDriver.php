@@ -5,6 +5,7 @@ namespace Friendica\Core\Cache;
 use Friendica\Core\Cache;
 
 use Exception;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Memcached;
 
 /**
@@ -40,6 +41,9 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 
 		$this->memcached = new Memcached();
 
+
+		$this->memcached->setOption(Memcached::OPT_BINARY_PROTOCOL, false);
+
 		array_walk($memcached_hosts, function (&$value) {
 			if (is_string($value)) {
 				$value = array_map('trim', explode(',', $value));
@@ -56,9 +60,15 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	/**
 	 * (@inheritdoc)
 	 */
-	public function getAllKeys()
+	public function getAllKeys($prefix = null)
 	{
-		return $this->memcached->getAllKeys();
+		// Doesn't work because of https://github.com/php-memcached-dev/php-memcached/issues/367
+		// returns everytime an empty array
+		throw new InternalServerErrorException('getAllKeys for Memcached not supported yet');
+
+		$list = $this->getOriginalKeys($this->memcached->getAllKeys());
+
+		return $this->filterPrefix($list, $prefix);
 	}
 
 	/**
