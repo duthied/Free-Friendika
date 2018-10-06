@@ -2349,6 +2349,12 @@ class DFRN
 				if (Item::exists($condition)) {
 					return false;
 				}
+
+				// The owner of an activity must be the author
+				$item["owner-name"] = $item["author-name"];
+				$item["owner-link"] = $item["author-link"];
+				$item["owner-avatar"] = $item["author-avatar"];
+				$item["owner-id"] = $item["author-id"];
 			} else {
 				$is_like = false;
 			}
