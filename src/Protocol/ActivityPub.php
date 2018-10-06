@@ -42,7 +42,7 @@ class ActivityPub
 	const CONTENT_TYPES = ['Note', 'Article', 'Video', 'Image'];
 	const ACTIVITY_TYPES = ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept'];
 	/**
-	 * @brief Checks if the web request is done for the AP protocol
+	 * Checks if the web request is done for the AP protocol
 	 *
 	 * @return is it AP?
 	 */
@@ -110,9 +110,9 @@ class ActivityPub
 	}
 
 	/**
-	 * @brief 
+	 * Fetches activities from the outbox of a given profile and processes it
 	 *
-	 * @param $url
+	 * @param string $url
 	 * @param integer $uid User ID
 	 */
 	public static function fetchOutbox($url, $uid)

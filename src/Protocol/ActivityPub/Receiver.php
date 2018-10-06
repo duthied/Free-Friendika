@@ -37,7 +37,7 @@ use Friendica\Protocol\ActivityPub;
 class Receiver
 {
 	/**
-	 * @brief Checks if the web request is done for the AP protocol
+	 * Checks if the web request is done for the AP protocol
 	 *
 	 * @return is it AP?
 	 */
@@ -48,7 +48,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param $body
 	 * @param $header
@@ -104,7 +104,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param array $activity
 	 * @param integer $uid User ID
@@ -174,7 +174,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param array $activity
 	 * @param $body
@@ -271,7 +271,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param array $activity
 	 * @param $actor
@@ -357,7 +357,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief Switches existing contacts to ActivityPub
+	 * Switches existing contacts to ActivityPub
 	 *
 	 * @param integer $cid Contact ID
 	 * @param integer $uid User ID
@@ -389,7 +389,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param $receivers
 	 * @param $actor
@@ -414,7 +414,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param $object_data
 	 * @param array $activity
@@ -442,7 +442,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param $object_id
 	 * @param $object
@@ -495,7 +495,7 @@ class Receiver
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param $object
 	 *

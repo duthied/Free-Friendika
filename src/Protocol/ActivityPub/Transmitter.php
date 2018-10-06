@@ -42,7 +42,7 @@ use Friendica\Core\Cache;
 class Transmitter
 {
 	/**
-	 * @brief collects the lost of followers of the given owner
+	 * collects the lost of followers of the given owner
 	 *
 	 * @param array $owner Owner array
 	 * @param integer $page Page number
@@ -89,7 +89,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Create list of following contacts
+	 * Create list of following contacts
 	 *
 	 * @param array $owner Owner array
 	 * @param integer $page Page numbe
@@ -136,7 +136,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Public posts for the given owner
+	 * Public posts for the given owner
 	 *
 	 * @param array $owner Owner array
 	 * @param integer $page Page numbe
@@ -238,7 +238,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Returns an array with permissions of a given item array
+	 * Returns an array with permissions of a given item array
 	 *
 	 * @param array $item
 	 *
@@ -291,7 +291,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Creates an array of permissions from an item thread
+	 * Creates an array of permissions from an item thread
 	 *
 	 * @param array $item
 	 *
@@ -379,7 +379,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Fetches a list of inboxes of followers of a given user
+	 * Fetches a list of inboxes of followers of a given user
 	 *
 	 * @param integer $uid User ID
 	 *
@@ -406,7 +406,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Fetches an array of inboxes for the given item and user
+	 * Fetches an array of inboxes for the given item and user
 	 *
 	 * @param array $item
 	 * @param integer $uid User ID
@@ -450,7 +450,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Returns the activity type of a given item
+	 * Returns the activity type of a given item
 	 *
 	 * @param array $item
 	 *
@@ -482,7 +482,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Creates the activity or fetches it from the cache
+	 * Creates the activity or fetches it from the cache
 	 *
 	 * @param integer $item_id
 	 *
@@ -503,7 +503,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Creates an activity array for a given item id
+	 * Creates an activity array for a given item id
 	 *
 	 * @param integer $item_id
 	 * @param boolean $object_mode Is the activity item is used inside another object?
@@ -569,7 +569,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Creates an object array for a given item id
+	 * Creates an object array for a given item id
 	 *
 	 * @param integer $item_id
 	 *
@@ -590,7 +590,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Returns a tag array for a given item array
+	 * Returns a tag array for a given item array
 	 *
 	 * @param array $item
 	 *
@@ -619,7 +619,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Adds attachment data to the JSON document
+	 * Adds attachment data to the JSON document
 	 *
 	 * @param array $item Data of the item that is to be posted
 	 * @param text $type Object type
@@ -674,7 +674,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Remove image elements and replaces them with links to the image
+	 * Remove image elements and replaces them with links to the image
 	 *
 	 * @param string $body
 	 *
@@ -692,7 +692,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Fetches the "context" value for a givem item array from the "conversation" table
+	 * Fetches the "context" value for a givem item array from the "conversation" table
 	 *
 	 * @param array $item
 	 *
@@ -712,7 +712,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Returns if the post contains sensitive content ("nsfw")
+	 * Returns if the post contains sensitive content ("nsfw")
 	 *
 	 * @param integer $item_id
 	 *
@@ -725,7 +725,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Creates a note/article object array
+	 * Creates a note/article object array
 	 *
 	 * @param array $item
 	 *
@@ -797,7 +797,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Transmits a profile deletion to a given inbox
+	 * Transmits a profile deletion to a given inbox
 	 *
 	 * @param integer $uid User ID
 	 * @param string $inbox Target inbox
@@ -823,7 +823,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Transmits a profile change to a given inbox
+	 * Transmits a profile change to a given inbox
 	 *
 	 * @param integer $uid User ID
 	 * @param string $inbox Target inbox
@@ -849,7 +849,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Transmits a given activity to a target
+	 * Transmits a given activity to a target
 	 *
 	 * @param array $activity
 	 * @param string $target Target profile
@@ -875,7 +875,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Transmit a message that the contact request had been accepted
+	 * Transmit a message that the contact request had been accepted
 	 *
 	 * @param string $target Target profile
 	 * @param $id
@@ -902,7 +902,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Reject a contact request or terminates the contact relation
+	 * Reject a contact request or terminates the contact relation
 	 *
 	 * @param string $target Target profile
 	 * @param $id
@@ -929,7 +929,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Transmits a message that we don't want to follow this contact anymore
+	 * Transmits a message that we don't want to follow this contact anymore
 	 *
 	 * @param string $target Target profile
 	 * @param integer $uid User ID
