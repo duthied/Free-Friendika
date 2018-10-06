@@ -50,7 +50,7 @@ HELP;
 			return 0;
 		}
 
-		if ($a->isInstallMode()) {
+		if (App\Mode::isInstall()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 

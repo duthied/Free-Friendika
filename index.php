@@ -165,9 +165,9 @@ $_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 
 // in install mode, any url loads install module
 // but we need "view" module for stylesheet
-if ($a->isInstallMode() && $a->module!="view") {
+if (App\Mode::isInstall() && $a->module != 'view') {
 	$a->module = 'install';
-} elseif (!App\Mode::has(App\Mode::MAINTENANCEDISABLED) && $a->module != "view") {
+} elseif (!App\Mode::has(App\Mode::MAINTENANCEDISABLED) && $a->module != 'view') {
 	$a->module = 'maintenance';
 } else {
 	check_url($a);
