@@ -3111,7 +3111,7 @@ class Item extends BaseObject
 			return true;
 		}
 
-		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
+		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE;
 
 		$new_item = [
 			'guid'          => System::createUUID(),
@@ -3125,7 +3125,7 @@ class Item extends BaseObject
 			'parent'        => $item['id'],
 			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],
-			'owner-id'      => $item['owner-id'],
+			'owner-id'      => $author_id,
 			'author-id'     => $author_id,
 			'body'          => $activity,
 			'verb'          => $activity,

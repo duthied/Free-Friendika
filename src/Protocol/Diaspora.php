@@ -1969,11 +1969,8 @@ class Diaspora
 		$datarray["contact-id"] = $author_contact["cid"];
 		$datarray["network"]  = $author_contact["network"];
 
-		$datarray["author-link"] = $person["url"];
-		$datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
-
-		$datarray["owner-link"] = $contact["url"];
-		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
+		$datarray["owner-link"] = $datarray["author-link"] = $person["url"];
+		$datarray["owner-id"] = $datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
