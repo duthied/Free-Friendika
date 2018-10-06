@@ -20,6 +20,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
+use Friendica\Model\Conversation;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
@@ -514,11 +515,22 @@ class Notifier
 
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
+			logger('Origin item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', LOGGER_DEBUG);
+		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
+			logger('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', LOGGER_DEBUG);
+			return;
+		} else {
+			logger('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', LOGGER_DEBUG);
 		}
 
 		if ($parent['origin']) {
 			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
 			$inboxes = array_merge($inboxes, $parent_inboxes);
+		}
+
+		if (empty($inboxes)) {
+			logger('No inboxes found for item ' . $item_id . ' with URL ' . $target_item['uri'] . '. It will not be distributed.', LOGGER_DEBUG);
+			return;
 		}
 
 		// Fill the item cache
