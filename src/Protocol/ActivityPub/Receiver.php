@@ -208,6 +208,7 @@ class Receiver
 
 		if (!$trust_source) {
 			logger('No trust for activity type "' . $activity['type'] . '", so we quit now.', LOGGER_DEBUG);
+			return;
 		}
 
 		switch ($activity['type']) {
