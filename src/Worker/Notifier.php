@@ -176,6 +176,8 @@ class Notifier
 		if (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::RELOCATION])) {
 			$parent = $items[0];
 
+			self::activityPubDelivery($a, $cmd, $item_id, $uid, $target_item, $parent);
+
 			$fields = ['network', 'author-id', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
 			$thr_parent = Item::selectFirst($fields, $condition);
@@ -422,27 +424,6 @@ class Notifier
 			}
 		}
 
-		$inboxes = [];
-
-		if ($target_item['origin']) {
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
-		}
-
-		if ($parent['origin']) {
-			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
-			$inboxes = array_merge($inboxes, $parent_inboxes);
-		}
-
-		// Fill the item cache
-		ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
-
-		foreach ($inboxes as $inbox) {
-			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
-
-			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-					'APDelivery', $cmd, $item_id, $inbox, $uid);
-		}
-
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
 		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
@@ -525,6 +506,30 @@ class Notifier
 		Addon::callHooks('notifier_end',$target_item);
 
 		return;
+	}
+
+	private static function activityPubDelivery($a, $cmd, $item_id, $uid, $target_item, $parent)
+	{
+		$inboxes = [];
+
+		if ($target_item['origin']) {
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
+		}
+
+		if ($parent['origin']) {
+			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
+			$inboxes = array_merge($inboxes, $parent_inboxes);
+		}
+
+		// Fill the item cache
+		ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
+
+		foreach ($inboxes as $inbox) {
+			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+
+			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', $cmd, $item_id, $inbox, $uid);
+		}
 	}
 
 	private static function isForumPost($item, $owner) {
