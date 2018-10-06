@@ -490,7 +490,7 @@ class Transmitter
 	 */
 	public static function createCachedActivityFromItem($item_id)
 	{
-		$cachekey = "APDelivery:createActivity:".$item_id;
+		$cachekey = 'APDelivery:createActivity:' . $item_id;
 		$data = Cache::get($cachekey);
 		if (!is_null($data)) {
 			return $data;
