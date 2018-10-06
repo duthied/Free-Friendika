@@ -36,7 +36,7 @@ $a->backend = false;
 require_once "include/dba.php";
 
 // Missing DB connection: ERROR
-if ($a->mode & App::MODE_LOCALCONFIGPRESENT && !($a->mode & App::MODE_DBAVAILABLE)) {
+if (App\Mode::has(App\Mode::LOCALCONFIGPRESENT) && !App\Mode::has(App\Mode::DBAVAILABLE)) {
 	System::httpExit(500, ['title' => 'Error 500 - Internal Server Error', 'description' => 'Apologies but the website is unavailable at the moment.']);
 }
 
@@ -48,7 +48,7 @@ if ($a->isMaxProcessesReached() || $a->isMaxLoadReached()) {
 	System::httpExit(503, ['title' => 'Error 503 - Service Temporarily Unavailable', 'description' => 'System is currently overloaded. Please try again later.']);
 }
 
-if (!$a->isInstallMode()) {
+if (!App\Mode::isInstall()) {
 	if (Config::get('system', 'force_ssl') && ($a->get_scheme() == "http")
 		&& (intval(Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL)
 		&& (substr(System::baseUrl(), 0, 8) == "https://")
@@ -107,7 +107,7 @@ if (!empty($_SESSION['language']) && $_SESSION['language'] !== $lang) {
 	L10n::loadTranslationTable($lang);
 }
 
-if (!empty($_GET['zrl']) && $a->mode == App::MODE_NORMAL) {
+if (!empty($_GET['zrl']) && App\Mode::isNormal()) {
 	$a->query_string = Profile::stripZrls($a->query_string);
 	if (!local_user()) {
 		// Only continue when the given profile link seems valid
@@ -130,7 +130,7 @@ if (!empty($_GET['zrl']) && $a->mode == App::MODE_NORMAL) {
 	}
 }
 
-if (!empty($_GET['owt']) && $a->mode == App::MODE_NORMAL) {
+if (!empty($_GET['owt']) && App\Mode::isNormal()) {
 	$token = $_GET['owt'];
 	$a->query_string = Profile::stripQueryParam($a->query_string, 'owt');
 	Profile::openWebAuthInit($token);
@@ -167,7 +167,7 @@ $_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 // but we need "view" module for stylesheet
 if ($a->isInstallMode() && $a->module!="view") {
 	$a->module = 'install';
-} elseif (!($a->mode & App::MODE_MAINTENANCEDISABLED) && $a->module != "view") {
+} elseif (!App\Mode::has(App\Mode::MAINTENANCEDISABLED) && $a->module != "view") {
 	$a->module = 'maintenance';
 } else {
 	check_url($a);
@@ -320,7 +320,7 @@ if (file_exists($theme_info_file)) {
 
 /* initialise content region */
 
-if ($a->mode == App::MODE_NORMAL) {
+if (App\Mode::isNormal()) {
 	Addon::callHooks('page_content_top', $a->page['content']);
 }
 

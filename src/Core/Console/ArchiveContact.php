@@ -56,7 +56,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->mode === App::MODE_INSTALL) {
+		if (App\Mode::isInstall()) {
 			throw new RuntimeException('Friendica isn\'t properly installed yet.');
 		}
 
