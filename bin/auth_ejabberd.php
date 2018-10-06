@@ -54,7 +54,7 @@ require_once "include/dba.php";
 
 $a = new App(dirname(__DIR__));
 
-if (App\Mode::isNormal()) {
+if ($a->getMode()->isNormal()) {
 	$oAuth = new ExAuth();
 	$oAuth->readStdin();
 }
