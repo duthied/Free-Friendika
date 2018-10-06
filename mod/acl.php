@@ -83,8 +83,9 @@ function acl_content(App $a)
 				WHERE `uid` = %d AND NOT `self`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `success_update` >= `failure_update`
-				AND `network` IN ('%s', '%s') $sql_extra2",
+				AND `network` IN ('%s', '%s', '%s') $sql_extra2",
 			intval(local_user()),
+			DBA::escape(Protocol::ACTIVITYPUB),
 			DBA::escape(Protocol::DFRN),
 			DBA::escape(Protocol::DIASPORA)
 		);
@@ -169,10 +170,11 @@ function acl_content(App $a)
 	} elseif ($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s')
+				AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s', '%s')
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
+			DBA::escape(Protocol::ACTIVITYPUB),
 			DBA::escape(Protocol::DFRN),
 			DBA::escape(Protocol::DIASPORA)
 		);

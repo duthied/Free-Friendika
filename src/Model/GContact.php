@@ -61,11 +61,11 @@ class GContact
 		$search .= "%";
 
 		$results = DBA::p("SELECT `nurl` FROM `gcontact`
-			WHERE NOT `hide` AND `network` IN (?, ?, ?) AND
+			WHERE NOT `hide` AND `network` IN (?, ?, ?, ?) AND
 				((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
 				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
 				GROUP BY `nurl` ORDER BY `nurl` DESC LIMIT 1000",
-			Protocol::DFRN, $ostatus, $diaspora, $search, $search, $search
+			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, $search, $search, $search
 		);
 
 		$gcontacts = [];
@@ -138,7 +138,7 @@ class GContact
 		}
 
 		// Assure that there are no parameter fragments in the profile url
-		if (in_array($gcontact['network'], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (in_array($gcontact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
 			$gcontact['url'] = self::cleanContactUrl($gcontact['url']);
 		}
 
@@ -214,7 +214,7 @@ class GContact
 			throw new Exception('No name and photo for URL '.$gcontact['url']);
 		}
 
-		if (!in_array($gcontact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
+		if (!in_array($gcontact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
 			throw new Exception('No federated network ('.$gcontact['network'].') detected for URL '.$gcontact['url']);
 		}
 
@@ -651,7 +651,7 @@ class GContact
 		self::fixAlternateContactAddress($contact);
 
 		// Remove unwanted parts from the contact url (e.g. "?zrl=...")
-		if (in_array($contact["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+		if (in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
 			$contact["url"] = self::cleanContactUrl($contact["url"]);
 		}
 

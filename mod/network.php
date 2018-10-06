@@ -810,7 +810,7 @@ function networkThreadedView(App $a, $update, $parent)
 	}
 
 	// Only show it when unfiltered (no groups, no networks, ...)
-	if (in_array($nets, ['', Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]) && (strlen($sql_extra . $sql_extra2 . $sql_extra3) == 0)) {
+	if (in_array($nets, ['', Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]) && (strlen($sql_extra . $sql_extra2 . $sql_extra3) == 0)) {
 		if (DBA::isResult($r)) {
 			$top_limit = current($r)['order_date'];
 			$bottom_limit = end($r)['order_date'];

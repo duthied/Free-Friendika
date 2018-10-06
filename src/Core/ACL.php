@@ -51,14 +51,14 @@ class ACL extends BaseObject
 				break;
 
 			case 'PRIVATE':
-				$networks = [Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA];
+				$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA];
 				break;
 
 			case 'TWO_WAY':
 				if (!empty($a->user['prvnets'])) {
-					$networks = [Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA];
+					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA];
 				} else {
-					$networks = [Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA, Protocol::OSTATUS];
+					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA, Protocol::OSTATUS];
 				}
 				break;
 
