@@ -17,12 +17,12 @@ use Friendica\Core\Config;
 use Friendica\Protocol\ActivityPub;
 
 /**
- * @brief ActivityPub Protocol class
+ * ActivityPub Protocol class
  */
 class Processor
 {
 	/**
-	 * @brief Converts mentions from Pleroma into the Friendica format
+	 * Converts mentions from Pleroma into the Friendica format
 	 *
 	 * @param string $body
 	 *
@@ -37,7 +37,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Constructs a string with tags for a given tag array
+	 * Constructs a string with tags for a given tag array
 	 *
 	 * @param array $tags
 	 * @param boolean $sensitive
@@ -67,7 +67,7 @@ class Processor
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param $attachments
 	 * @param array $item
@@ -101,7 +101,7 @@ class Processor
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param array $activity
 	 * @param $body
@@ -129,7 +129,7 @@ class Processor
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param array $activity
 	 * @param $body
@@ -146,7 +146,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Delete items
+	 * Delete items
 	 *
 	 * @param array $activity
 	 * @param $body
@@ -160,7 +160,7 @@ class Processor
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param array $activity
 	 * @param $body
@@ -177,7 +177,7 @@ class Processor
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param array $activity
 	 * @param array $item
@@ -234,7 +234,7 @@ class Processor
 	}
 
 	/**
-	 * @brief 
+	 * 
 	 *
 	 * @param $url
 	 * @param $child
@@ -267,7 +267,7 @@ class Processor
 	}
 
 	/**
-	 * @brief perform a "follow" request
+	 * perform a "follow" request
 	 *
 	 * @param array $activity
 	 */
@@ -307,7 +307,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Update the given profile
+	 * Update the given profile
 	 *
 	 * @param array $activity
 	 */
@@ -322,7 +322,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Delete the given profile
+	 * Delete the given profile
 	 *
 	 * @param array $activity
 	 */
@@ -348,7 +348,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Accept a follow request
+	 * Accept a follow request
 	 *
 	 * @param array $activity
 	 */
@@ -381,7 +381,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Reject a follow request
+	 * Reject a follow request
 	 *
 	 * @param array $activity
 	 */
@@ -410,7 +410,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Undo activity like "like" or "dislike"
+	 * Undo activity like "like" or "dislike"
 	 *
 	 * @param array $activity
 	 */
@@ -435,7 +435,7 @@ class Processor
 	}
 
 	/**
-	 * @brief Activity to remove a follower
+	 * Activity to remove a follower
 	 *
 	 * @param array $activity
 	 */
