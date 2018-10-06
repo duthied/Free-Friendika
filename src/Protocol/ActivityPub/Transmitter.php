@@ -773,7 +773,7 @@ class Transmitter
 		$data['context'] = self::fetchContextURLForItem($item);
 
 		if (!empty($item['title'])) {
-			$data['name'] = BBCode::convert($item['title'], false, 7);
+			$data['name'] = BBCode::toPlaintext($item['title'], false);
 		}
 
 		$body = $item['body'];
