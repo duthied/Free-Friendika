@@ -87,10 +87,6 @@ class Mode
 	 */
 	public function has($mode)
 	{
-		echo "mode: " . $this->mode . " with " . $mode;
-
-		echo "value: " . ($this->mode & $mode);
-
 		return ($this->mode & $mode) > 0;
 	}
 

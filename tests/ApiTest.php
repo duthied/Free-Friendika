@@ -24,12 +24,11 @@ class ApiTest extends DatabaseTest
 	/**
 	 * Create variables used by tests.
 	 */
-	protected function setUp()
+	public function setUp()
 	{
 		parent::setUp();
 
-		// Reusable App object
-		$this->app = BaseObject::getApp();
+		require_once __DIR__.'/../include/api.php';
 
 		// User data that the test database is populated with
 		$this->selfUser = [
