@@ -432,6 +432,10 @@ class Receiver
 			$object_data['updated'] = $activity['updated'];
 		}
 
+		if (!empty($activity['diaspora:guid']) && empty($object_data['diaspora:guid'])) {
+			$object_data['diaspora:guid'] = $activity['diaspora:guid'];
+		}
+
 		if (!empty($activity['inReplyTo']) && empty($object_data['parent-uri'])) {
 			$object_data['parent-uri'] = JsonLD::fetchElement($activity, 'inReplyTo', 'id');
 		}

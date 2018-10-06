@@ -554,6 +554,7 @@ class Transmitter
 		} elseif ($data['type'] == 'Undo') {
 			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
+			$data['diaspora:guid'] = $item['guid'];
 			$data['object'] = $item['thr-parent'];
 		}
 
