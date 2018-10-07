@@ -29,6 +29,10 @@ use Friendica\Core\Cache;
  *
  * To-Do:
  *
+ * Missing object fields:
+ * - service (App)
+ * - location
+ *
  * Missing object types:
  * - Event
  *

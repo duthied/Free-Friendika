@@ -52,7 +52,7 @@ class Processor
 
 		$tag_text = '';
 		foreach ($tags as $tag) {
-			if (in_array($tag['type'], ['Mention', 'Hashtag'])) {
+			if (in_array(defaults($tag, 'type', ''), ['Mention', 'Hashtag'])) {
 				if (!empty($tag_text)) {
 					$tag_text .= ',';
 				}
@@ -67,9 +67,9 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Add attachment data to the item array
 	 *
-	 * @param $attachments
+	 * @param array $attachments
 	 * @param array $item
 	 *
 	 * @return item array
@@ -101,10 +101,10 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Prepares data for a message
 	 *
-	 * @param array $activity
-	 * @param $body
+	 * @param array  $activity Activity array
+	 * @param string $body     original source
 	 */
 	public static function createItem($activity, $body)
 	{
@@ -129,16 +129,16 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Prepare the item array for a "like"
 	 *
-	 * @param array $activity
-	 * @param $body
+	 * @param array  $activity Activity array
+	 * @param string $body     original source
 	 */
 	public static function likeItem($activity, $body)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_LIKE;
-		$item['parent-uri'] = $activity['object'];
+		$item['parent-uri'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -149,27 +149,26 @@ class Processor
 	 * Delete items
 	 *
 	 * @param array $activity
-	 * @param $body
 	 */
 	public static function deleteItem($activity)
 	{
-		$owner = Contact::getIdForURL($activity['owner']);
-		$object = JsonLD::fetchElement($activity, 'object', 'id');
-		logger('Deleting item ' . $object . ' from ' . $owner, LOGGER_DEBUG);
-		Item::delete(['uri' => $object, 'owner-id' => $owner]);
+		$owner = Contact::getIdForURL($activity['actor']);
+
+		logger('Deleting item ' . $activity['object_id'] . ' from ' . $owner, LOGGER_DEBUG);
+		Item::delete(['uri' => $activity['object_id'], 'owner-id' => $owner]);
 	}
 
 	/**
-	 * 
+	 * Prepare the item array for a "dislike"
 	 *
-	 * @param array $activity
-	 * @param $body
+	 * @param array  $activity Activity array
+	 * @param string $body     original source
 	 */
 	public static function dislikeItem($activity, $body)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_DISLIKE;
-		$item['parent-uri'] = $activity['object'];
+		$item['parent-uri'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -177,11 +176,11 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Creates an item post
 	 *
-	 * @param array $activity
-	 * @param array $item
-	 * @param $body
+	 * @param array  $activity Activity data
+	 * @param array  $item     item array
+	 * @param string $body     original source
 	 */
 	private static function postItem($activity, $item, $body)
 	{
@@ -195,7 +194,7 @@ class Processor
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
-		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
+		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 		$item['uri'] = $activity['id'];
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
@@ -210,9 +209,8 @@ class Processor
 
 		$item = self::constructAttachList($activity['attachments'], $item);
 
-		$source = JsonLD::fetchElement($activity, 'source', 'content', 'mediaType', 'text/bbcode');
-		if (!empty($source)) {
-			$item['body'] = $source;
+		if (!empty($activity['source'])) {
+			$item['body'] = $activity['source'];
 		}
 
 		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
@@ -234,7 +232,7 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Fetches missing posts
 	 *
 	 * @param $url
 	 * @param $child
@@ -262,7 +260,8 @@ class Processor
 		$activity['published'] = $object['published'];
 		$activity['type'] = 'Create';
 
-		ActivityPub\Receiver::processActivity($activity);
+		$ldactivity = JsonLD::compact($activity);
+		ActivityPub\Receiver::processActivity($ldactivity);
 		logger('Activity ' . $url . ' had been fetched and processed.');
 	}
 
@@ -273,26 +272,25 @@ class Processor
 	 */
 	public static function followUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'id');
-		$uid = User::getIdForURL($actor);
+		$uid = User::getIdForURL($activity['object_id']);
 		if (empty($uid)) {
 			return;
 		}
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
 			$contact = false;
 		}
 
-		$item = ['author-id' => Contact::getIdForURL($activity['owner']),
-			'author-link' => $activity['owner']];
+		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
+			'author-link' => $activity['actor']];
 
 		Contact::addRelationship($owner, $contact, $item);
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;
 		}
@@ -313,12 +311,12 @@ class Processor
 	 */
 	public static function updatePerson($activity)
 	{
-		if (empty($activity['object']['id'])) {
+		if (empty($activity['object_id'])) {
 			return;
 		}
 
-		logger('Updating profile for ' . $activity['object']['id'], LOGGER_DEBUG);
-		APContact::getByURL($activity['object']['id'], true);
+		logger('Updating profile for ' . $activity['object_id'], LOGGER_DEBUG);
+		APContact::getByURL($activity['object_id'], true);
 	}
 
 	/**
@@ -328,23 +326,23 @@ class Processor
 	 */
 	public static function deletePerson($activity)
 	{
-		if (empty($activity['object']['id']) || empty($activity['object']['actor'])) {
+		if (empty($activity['object_id']) || empty($activity['actor'])) {
 			logger('Empty object id or actor.', LOGGER_DEBUG);
 			return;
 		}
 
-		if ($activity['object']['id'] != $activity['object']['actor']) {
+		if ($activity['object_id'] != $activity['actor']) {
 			logger('Object id does not match actor.', LOGGER_DEBUG);
 			return;
 		}
 
-		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($activity['object']['id'])]);
+		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($activity['object_id'])]);
 		while ($contact = DBA::fetch($contacts)) {
-			Contact::remove($contact["id"]);
+			Contact::remove($contact['id']);
 		}
 		DBA::close($contacts);
 
-		logger('Deleted contact ' . $activity['object']['id'], LOGGER_DEBUG);
+		logger('Deleted contact ' . $activity['object_id'], LOGGER_DEBUG);
 	}
 
 	/**
@@ -354,17 +352,16 @@ class Processor
 	 */
 	public static function acceptFollowUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
-		$uid = User::getIdForURL($actor);
+		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
 			return;
 		}
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			logger('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
 			return;
 		}
 
@@ -387,17 +384,16 @@ class Processor
 	 */
 	public static function rejectFollowUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
-		$uid = User::getIdForURL($actor);
+		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
 			return;
 		}
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			logger('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
 			return;
 		}
 
@@ -416,22 +412,20 @@ class Processor
 	 */
 	public static function undoActivity($activity)
 	{
-		$activity_url = JsonLD::fetchElement($activity, 'object', 'id');
-		if (empty($activity_url)) {
+		if (empty($activity['object_id'])) {
 			return;
 		}
 
-		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
-		if (empty($actor)) {
+		if (empty($activity['object_actor'])) {
 			return;
 		}
 
-		$author_id = Contact::getIdForURL($actor);
+		$author_id = Contact::getIdForURL($activity['object_actor']);
 		if (empty($author_id)) {
 			return;
 		}
 
-		Item::delete(['uri' => $activity_url, 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
+		Item::delete(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
 	}
 
 	/**
@@ -441,17 +435,16 @@ class Processor
 	 */
 	public static function undoFollowUser($activity)
 	{
-		$object = JsonLD::fetchElement($activity, 'object', 'object');
-		$uid = User::getIdForURL($object);
+		$uid = User::getIdForURL($activity['object_object']);
 		if (empty($uid)) {
 			return;
 		}
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			logger('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
 			return;
 		}
 
