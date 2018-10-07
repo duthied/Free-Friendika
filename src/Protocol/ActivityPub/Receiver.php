@@ -108,7 +108,7 @@ class Receiver
 			$trust_source = false;
 		}
 
-		self::processActivity($activity, $ldactivity, $body, $uid, $trust_source);
+		self::processActivity($ldactivity, $body, $uid, $trust_source);
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Receiver
 	 *
 	 * @return 
 	 */
-	private static function prepareObjectData($activity, $ldactivity, $uid, &$trust_source)
+	private static function prepareObjectData($ldactivity, $uid, &$trust_source)
 	{
 		$actor = JsonLD::fetchElement($ldactivity, 'as:actor');
 		if (empty($actor)) {
@@ -150,6 +150,9 @@ class Receiver
 
 		// Fetch the content only on activities where this matters
 		if (in_array($type, ['as:Create', 'as:Announce'])) {
+			if ($type == 'as:Announce') {
+				$trust_source = false;
+			}
 			$object_data = self::fetchObject($object_id, $ldactivity['as:object'], $trust_source);
 			if (empty($object_data)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
@@ -172,7 +175,7 @@ class Receiver
 			$object_data['object_type'] = JsonLD::fetchElement($ldactivity, 'as:object', '@type');
 		}
 
-		$object_data = self::addActivityFields($object_data, $activity);
+		$object_data = self::addActivityFields($object_data, $ldactivity);
 
 		$object_data['type'] = $type;
 		$object_data['owner'] = $actor;
@@ -184,19 +187,15 @@ class Receiver
 	}
 
 	/**
-	 * 
+	 * Processes the activity object
 	 *
-	 * @param array $activity
-	 * @param $body
-	 * @param integer $uid User ID
-	 * @param $trust_source
+	 * @param array   $activity     Array with activity data
+	 * @param string  $body
+	 * @param integer $uid          User ID
+	 * @param boolean $trust_source Do we trust the source?
 	 */
-	public static function processActivity($activity, $ldactivity = '', $body = '', $uid = null, $trust_source = false)
+	public static function processActivity($ldactivity, $body = '', $uid = null, $trust_source = false)
 	{
-		if (empty($ldactivity)) {
-			$ldactivity = JsonLD::compact($activity);
-		}
-
 		$type = JsonLD::fetchElement($ldactivity, '@type');
 		if (!$type) {
 			logger('Empty type', LOGGER_DEBUG);
@@ -215,7 +214,7 @@ class Receiver
 		}
 
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
-		$object_data = self::prepareObjectData($activity, $ldactivity, $uid, $trust_source);
+		$object_data = self::prepareObjectData($ldactivity, $uid, $trust_source);
 		if (empty($object_data)) {
 			logger('No object data found', LOGGER_DEBUG);
 			return;
@@ -436,19 +435,19 @@ class Receiver
 	private static function addActivityFields($object_data, $activity)
 	{
 		if (!empty($activity['published']) && empty($object_data['published'])) {
-			$object_data['published'] = $activity['published'];
+			$object_data['published'] = JsonLD::fetchElement($activity, 'published', '@value');
 		}
 
 		if (!empty($activity['updated']) && empty($object_data['updated'])) {
-			$object_data['updated'] = $activity['updated'];
+			$object_data['updated'] = JsonLD::fetchElement($activity, 'updated', '@value');
 		}
 
 		if (!empty($activity['diaspora:guid']) && empty($object_data['diaspora:guid'])) {
-			$object_data['diaspora:guid'] = $activity['diaspora:guid'];
+			$object_data['diaspora:guid'] = JsonLD::fetchElement($activity, 'diaspora:guid');
 		}
 
 		if (!empty($activity['inReplyTo']) && empty($object_data['parent-uri'])) {
-			$object_data['parent-uri'] = JsonLD::fetchElement($activity, 'inReplyTo', 'id');
+			$object_data['parent-uri'] = JsonLD::fetchElement($activity, 'inReplyTo');
 		}
 
 		if (!empty($activity['instrument'])) {
@@ -458,17 +457,20 @@ class Receiver
 	}
 
 	/**
-	 * 
+	 * Fetches the object data from external ressources if needed
 	 *
-	 * @param $object_id
-	 * @param $object
-	 * @param $trust_source
+	 * @param string  $object_id    Object ID of the the provided object
+	 * @param array   $object       The provided object array
+	 * @param boolean $trust_source Do we trust the provided object?
 	 *
-	 * @return array with object data
+	 * @return array with trusted and valid object data
 	 */
 	private static function fetchObject($object_id, $object = [], $trust_source = false)
 	{
-		if (!$trust_source || empty($object)) {
+		// By fetching the type we check if the object is complete.
+		$type = JsonLD::fetchElement($object, '@type');
+
+		if (!$trust_source || empty($type)) {
 			$data = ActivityPub::fetchContent($object_id);
 			if (!empty($data)) {
 				$object = JsonLD::compact($data);
@@ -522,6 +524,10 @@ class Receiver
 	{
 		$taglist = [];
 
+		if (empty($tags)) {
+			return [];
+		}
+
 		foreach ($tags as $tag) {
 			if (empty($tag)) {
 				continue;
@@ -544,6 +550,10 @@ class Receiver
 	private static function processAttachments($attachments)
 	{
 		$attachlist = [];
+
+		if (empty($attachments)) {
+			return [];
+		}
 
 		foreach ($attachments as $attachment) {
 			if (empty($attachment)) {

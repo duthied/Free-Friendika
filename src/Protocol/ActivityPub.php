@@ -134,7 +134,8 @@ class ActivityPub
 		}
 
 		foreach ($items as $activity) {
-			ActivityPub\Receiver::processActivity($activity, '', $uid, true);
+			$ldactivity = JsonLD::compact($activity);
+			ActivityPub\Receiver::processActivity($ldactivity, '', $uid, true);
 		}
 	}
 }

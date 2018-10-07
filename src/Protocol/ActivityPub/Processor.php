@@ -262,7 +262,7 @@ class Processor
 		$activity['type'] = 'Create';
 
 		$ldactivity = JsonLD::compact($activity);
-		ActivityPub\Receiver::processActivity($activity, $ldactivity);
+		ActivityPub\Receiver::processActivity($ldactivity);
 		logger('Activity ' . $url . ' had been fetched and processed.');
 	}
 
