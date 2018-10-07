@@ -47,7 +47,8 @@ class Update
 						Lock::release('dbupdate');
 						return;
 					} else {
-						Config::set('database', 'last_successful_update', time());
+						Config::set('database', 'last_successful_update', $current);
+						Config::set('database', 'last_successful_update_time', time());
 					}
 
 					// run the update_nnnn functions in update.php

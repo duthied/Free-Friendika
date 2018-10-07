@@ -1595,7 +1595,8 @@ function admin_page_dbsync(App $a)
 		$retval = DBStructure::update(false, true);
 		if ($retval === '') {
 			$o .= L10n::t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
-			Config::set('database', 'last_successful_update', time());
+			Config::set('database', 'last_successful_update', DB_UPDATE_VERSION);
+			Config::set('database', 'last_successful_update_time', time());
 		} else {
 			$o .= L10n::t("Executing of database structure update %s failed with error: %s", DB_UPDATE_VERSION, $retval) . "<br />";
 		}
