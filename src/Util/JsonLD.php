@@ -82,10 +82,13 @@ class JsonLD
 	{
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
-		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams',
-			'w3sec' => 'https://w3id.org/security',
-			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
+			'w3id' => 'https://w3id.org/security#',
 			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
+			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+			'diaspora' => (object)['@id' => 'https://diasporafoundation.org/ns/', '@type' => '@id'],
+			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
+			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
 			'uuid' => (object)['@id' => 'http://schema.org/identifier', '@type' => '@id']];
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -93,6 +96,45 @@ class JsonLD
 		$compacted = jsonld_compact($jsonobj, $context);
 
 		return json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
+	}
+
+	/**
+	 * @brief Fetches an element array from a JSON array
+	 *
+	 * @param $array
+	 * @param $element
+	 * @param $key
+	 *
+	 * @return fetched element array
+	 */
+	public static function fetchElementArray($array, $element, $key = '@id')
+	{
+		if (empty($array)) {
+			return null;
+		}
+
+		if (!isset($array[$element])) {
+			return null;
+		}
+
+		// If it isn't an array yet, make it to one
+		if (!is_int(key($array[$element]))) {
+			$array[$element] = [$array[$element]];
+		}
+
+		$elements = [];
+
+		foreach ($array[$element] as $entry) {
+			if (!is_array($entry)) {
+				$elements[] = $entry;
+			} elseif (!empty($entry[$key])) {
+				$elements[] = $entry[$key];
+			} else {
+				$elements[] = $entry;
+			}
+		}
+
+		return $elements;
 	}
 
 	/**
@@ -106,38 +148,40 @@ class JsonLD
 	 *
 	 * @return fetched element
 	 */
-	public static function fetchElement($array, $element, $key, $type = null, $type_value = null)
+	public static function fetchElement($array, $element, $key = '@id', $type = null, $type_value = null)
 	{
 		if (empty($array)) {
-			return false;
+			return null;
 		}
 
-		if (empty($array[$element])) {
-			return false;
+		if (!isset($array[$element])) {
+			return null;
 		}
 
-		if (is_string($array[$element])) {
+		if (!is_array($array[$element])) {
 			return $array[$element];
 		}
 
-		if (is_null($type_value)) {
-			if (!empty($array[$element][$key])) {
-				return $array[$element][$key];
+		if (is_null($type) || is_null($type_value)) {
+			$element_array = self::fetchElementArray($array, $element, $key);
+			if (is_null($element_array)) {
+				return null;
 			}
 
-			if (!empty($array[$element][0][$key])) {
-				return $array[$element][0][$key];
+			return array_shift($element_array);
+		}
+
+		$element_array = self::fetchElementArray($array, $element);
+		if (is_null($element_array)) {
+			return null;
+		}
+
+		foreach ($element_array as $entry) {
+			if (isset($entry[$key]) && isset($entry[$type]) && ($entry[$type] == $type_value)) {
+				return $entry[$key];
 			}
-
-			return false;
 		}
 
-		if (!empty($array[$element][$key]) && !empty($array[$element][$type]) && ($array[$element][$type] == $type_value)) {
-			return $array[$element][$key];
-		}
-
-		/// @todo Add array search
-
-		return false;
+		return null;
 	}
 }

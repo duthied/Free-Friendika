@@ -52,7 +52,7 @@ class Processor
 
 		$tag_text = '';
 		foreach ($tags as $tag) {
-			if (in_array($tag['type'], ['Mention', 'Hashtag'])) {
+			if (in_array(defaults($tag, 'type', ''), ['Mention', 'Hashtag'])) {
 				if (!empty($tag_text)) {
 					$tag_text .= ',';
 				}
@@ -210,9 +210,8 @@ class Processor
 
 		$item = self::constructAttachList($activity['attachments'], $item);
 
-		$source = JsonLD::fetchElement($activity, 'source', 'content', 'mediaType', 'text/bbcode');
-		if (!empty($source)) {
-			$item['body'] = $source;
+		if (!empty($activity['source'])) {
+			$item['body'] = $activity['source'];
 		}
 
 		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
