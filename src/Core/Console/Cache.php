@@ -116,6 +116,7 @@ HELP;
 		$count = 0;
 		foreach ($keys as $key) {
 			$this->out($key);
+			$count++;
 		}
 
 		$this->out($count . ' keys found');

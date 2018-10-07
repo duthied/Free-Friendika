@@ -53,7 +53,7 @@ class Cache extends \Friendica\BaseObject
 	 *
 	 * @param string $prefix Prefix of the keys (optional)
 	 *
-	 * @return array|null Null if the driver doesn't support this feature
+	 * @return array Empty if the driver doesn't support this feature
 	 */
 	public static function getAllKeys($prefix = null)
 	{

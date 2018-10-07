@@ -16,7 +16,7 @@ interface ICacheDriver
 	 *
 	 * @param string prefix optional a prefix to search
 	 *
-	 * @return array|null Null if it isn't supported by the cache driver
+	 * @return array Empty if it isn't supported by the cache driver
 	 */
 	public function getAllKeys($prefix = null);
 

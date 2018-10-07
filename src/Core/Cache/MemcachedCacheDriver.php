@@ -65,7 +65,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 			return $this->filterArrayKeysByPrefix($keys, $prefix);
 		} else {
 			logger('Memcached \'getAllKeys\' failed with ' . $this->memcached->getResultMessage(), LOGGER_ALL);
-			return null;
+			return [];
 		}
 	}
 

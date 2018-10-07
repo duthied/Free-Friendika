@@ -21,18 +21,18 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 		if (empty($prefix)) {
 			$where = ['`expires` >= ?', DateTimeFormat::utcNow()];
 		} else {
-			$where = ['`expires` >= ? AND k LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
+			$where = ['`expires` >= ? AND `k` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
 		}
 
 		$stmt = DBA::select('cache', ['k'], $where);
 
-		$list = [];
+		$keys = [];
 		while ($key = DBA::fetch($stmt)) {
-			array_push($list, $key['k']);
+			array_push($keys, $key['k']);
 		}
 		DBA::close($stmt);
 
-		return $list;
+		return $keys;
 	}
 
 	/**
