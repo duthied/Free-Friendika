@@ -88,7 +88,6 @@ class JsonLD
 			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
 			'diaspora' => (object)['@id' => 'https://diasporafoundation.org/ns/', '@type' => '@id'],
 			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
-			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
 			'uuid' => (object)['@id' => 'http://schema.org/identifier', '@type' => '@id']];
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
