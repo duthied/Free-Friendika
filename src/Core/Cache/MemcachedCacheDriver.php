@@ -41,9 +41,6 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 
 		$this->memcached = new Memcached();
 
-
-		$this->memcached->setOption(Memcached::OPT_BINARY_PROTOCOL, false);
-
 		array_walk($memcached_hosts, function (&$value) {
 			if (is_string($value)) {
 				$value = array_map('trim', explode(',', $value));
@@ -68,7 +65,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 			return $this->filterArrayKeysByPrefix($keys, $prefix);
 		} else {
 			logger('Memcached \'getAllKeys\' failed with ' . $this->memcached->getResultMessage(), LOGGER_ALL);
-			return [];
+			return null;
 		}
 	}
 
@@ -77,17 +74,19 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	 */
 	public function get($key)
 	{
+		$return = null;
 		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
 		$value = $this->memcached->get($cachekey);
 
 		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
-			return $value;
+			$return = $value;
 		} else {
 			logger('Memcached \'get\' failed with ' . $this->memcached->getResultMessage(), LOGGER_ALL);
-			return [];
 		}
+
+		return $return;
 	}
 
 	/**
