@@ -44,21 +44,22 @@ abstract class AbstractCacheDriver extends BaseObject
 	}
 
 	/**
-	 * Filters a list for a given prefix
+	 * Filters the keys of an array with a given prefix
+	 * Returns the filtered keys as an new array
 	 *
-	 * @param array $list the list
-	 * @param string|null $prefix the prefix
+	 * @param array $array The array, which should get filtered
+	 * @param string|null $prefix The prefix (if null, all keys will get returned)
 	 *
-	 * @return array the filtered list
+	 * @return array The filtered array with just the keys
 	 */
-	protected function filterPrefix($list, $prefix = null)
+	protected function filterArrayKeysByPrefix($array, $prefix = null)
 	{
 		if (empty($prefix)) {
-			return array_keys($list);
+			return array_keys($array);
 		} else {
 			$result = [];
 
-			foreach (array_keys($list) as $key) {
+			foreach (array_keys($array) as $key) {
 				if (strpos($key, $prefix) === 0) {
 					array_push($result, $key);
 				}

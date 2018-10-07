@@ -115,10 +115,7 @@ HELP;
 
 		$count = 0;
 		foreach ($keys as $key) {
-			if (empty($prefix) || strpos($key, $prefix) === 0) {
-				$this->out($key);
-				$count++;
-			}
+			$this->out($key);
 		}
 
 		$this->out($count . ' keys found');

@@ -62,13 +62,14 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		// Doesn't work because of https://github.com/php-memcached-dev/php-memcached/issues/367
-		// returns everytime an empty array
-		throw new InternalServerErrorException('getAllKeys for Memcached not supported yet');
+		$keys = $this->getOriginalKeys($this->memcached->getAllKeys());
 
-		$list = $this->getOriginalKeys($this->memcached->getAllKeys());
-
-		return $this->filterPrefix($list, $prefix);
+		if ($this->memcached->getResultCode() == Memcached::RES_SUCCESS) {
+			return $this->filterArrayKeysByPrefix($keys, $prefix);
+		} else {
+			logger('Memcached \'getAllKeys\' failed with ' . $this->memcached->getResultMessage(), LOGGER_ALL);
+			return [];
+		}
 	}
 
 	/**
@@ -76,17 +77,17 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	 */
 	public function get($key)
 	{
-		$return = null;
 		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
 		$value = $this->memcached->get($cachekey);
 
 		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
-			$return = $value;
+			return $value;
+		} else {
+			logger('Memcached \'get\' failed with ' . $this->memcached->getResultMessage(), LOGGER_ALL);
+			return [];
 		}
-
-		return $return;
 	}
 
 	/**
@@ -109,7 +110,6 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 				$value
 			);
 		}
-
 	}
 
 	/**
