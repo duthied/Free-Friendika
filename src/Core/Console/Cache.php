@@ -105,7 +105,7 @@ HELP;
 	private function executeList()
 	{
 		$prefix = $this->getArgument(1);
-		$keys = Core\Cache::getAllKeys();
+		$keys = Core\Cache::getAllKeys($prefix);
 
 		if (empty($prefix)) {
 			$this->out('Listing all cache keys:');
@@ -115,10 +115,8 @@ HELP;
 
 		$count = 0;
 		foreach ($keys as $key) {
-			if (empty($prefix) || strpos($key, $prefix) === 0) {
-				$this->out($key);
-				$count++;
-			}
+			$this->out($key);
+			$count++;
 		}
 
 		$this->out($count . ' keys found');

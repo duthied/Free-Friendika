@@ -14,9 +14,11 @@ interface ICacheDriver
 	/**
 	 * Lists all cache keys
 	 *
-	 * @return array|null Null if it isn't supported by the cache driver
+	 * @param string prefix optional a prefix to search
+	 *
+	 * @return array Empty if it isn't supported by the cache driver
 	 */
-	public function getAllKeys();
+	public function getAllKeys($prefix = null);
 
 	/**
 	 * Fetches cached data according to the key

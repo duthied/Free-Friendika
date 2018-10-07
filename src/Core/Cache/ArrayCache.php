@@ -22,9 +22,9 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function getAllKeys()
+	public function getAllKeys($prefix = null)
 	{
-		return array_keys($this->cachedData);
+		return $this->filterArrayKeysByPrefix($this->cachedData, $prefix);
 	}
 
 	/**
