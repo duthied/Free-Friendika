@@ -30,9 +30,6 @@ use Friendica\Protocol\ActivityPub;
  * - Remove
  * - Undo Block
  * - Undo Accept (Problem: This could invert a contact accept or an event accept)
- *
- * General:
- * - Possibly using the LD-JSON parser
  */
 class Receiver
 {
@@ -112,6 +109,44 @@ class Receiver
 	}
 
 	/**
+	 * Fetches the object type for a given object id
+	 *
+	 * @param array  $activity
+	 * @param string $object_id Object ID of the the provided object
+	 *
+	 * @return string with object type
+	 */
+	private static function fetchObjectType($activity, $object_id)
+	{
+
+		$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
+		if (!empty($object_type)) {
+			return $object_type;
+		}
+
+		if (Item::exists(['uri' => $object_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]])) {
+			// We just assume "note" since it doesn't make a difference for the further processing
+			return 'as:Note';
+		}
+
+		$profile = APContact::getByURL($object_id);
+		if (!empty($profile['type'])) {
+			return 'as:' . $profile['type'];
+		}
+
+		$data = ActivityPub::fetchContent($object_id);
+		if (!empty($data)) {
+			$object = JsonLD::compact($data);
+			$type = JsonLD::fetchElement($object, '@type');
+			if (!empty($type)) {
+				return $type;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Prepare the object array
 	 *
 	 * @param array $activity
@@ -148,6 +183,8 @@ class Receiver
 			return [];
 		}
 
+		$object_type = self::fetchObjectType($activity, $object_id);
+
 		// Fetch the content only on activities where this matters
 		if (in_array($type, ['as:Create', 'as:Announce'])) {
 			if ($type == 'as:Announce') {
@@ -178,6 +215,10 @@ class Receiver
 		}
 
 		$object_data = self::addActivityFields($object_data, $activity);
+
+		if (empty($object_data['object_type'])) {
+			$object_data['object_type'] = $object_type;
+		}
 
 		$object_data['type'] = $type;
 		$object_data['actor'] = $actor;
