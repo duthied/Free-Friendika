@@ -22,6 +22,7 @@ use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Core\ACL;
+use Friendica\Module\Login;
 
 function contacts_init(App $a)
 {
@@ -375,7 +376,7 @@ function contacts_content(App $a, $update = 0)
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		return;
+		return Login::form();
 	}
 
 	if ($a->argc == 3) {
