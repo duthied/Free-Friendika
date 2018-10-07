@@ -178,7 +178,7 @@ class Receiver
 		$object_data = self::addActivityFields($object_data, $ldactivity);
 
 		$object_data['type'] = $type;
-		$object_data['owner'] = $actor;
+		$object_data['actor'] = $actor;
 		$object_data['receiver'] = array_merge(defaults($object_data, 'receiver', []), $receivers);
 
 		logger('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], LOGGER_DEBUG);
@@ -609,7 +609,7 @@ class Receiver
 
 		$object_data['diaspora:guid'] = JsonLD::fetchElement($object, 'diaspora:guid');
 		$object_data['diaspora:comment'] = JsonLD::fetchElement($object, 'diaspora:comment');
-		$object_data['owner'] = $object_data['author'] = $actor;
+		$object_data['actor'] = $object_data['author'] = $actor;
 		$object_data['context'] = JsonLD::fetchElement($object, 'as:context');
 		$object_data['conversation'] = JsonLD::fetchElement($object, 'ostatus:conversation');
 		$object_data['sensitive'] = JsonLD::fetchElement($object, 'as:sensitive');
@@ -633,7 +633,7 @@ class Receiver
 			}
 		}
 
-		$object_data['receiver'] = self::getReceivers($object, $object_data['owner']);
+		$object_data['receiver'] = self::getReceivers($object, $object_data['actor']);
 
 		// Common object data:
 

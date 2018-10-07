@@ -153,7 +153,7 @@ class Processor
 	 */
 	public static function deleteItem($activity)
 	{
-		$owner = Contact::getIdForURL($activity['owner']);
+		$owner = Contact::getIdForURL($activity['actor']);
 		$object = JsonLD::fetchElement($activity, 'object');
 		logger('Deleting item ' . $object . ' from ' . $owner, LOGGER_DEBUG);
 		Item::delete(['uri' => $object, 'owner-id' => $owner]);
@@ -195,7 +195,7 @@ class Processor
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
-		$item['owner-id'] = Contact::getIdForURL($activity['owner'], 0, true);
+		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 		$item['uri'] = $activity['id'];
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
@@ -281,18 +281,18 @@ class Processor
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
 			$contact = false;
 		}
 
-		$item = ['author-id' => Contact::getIdForURL($activity['owner']),
-			'author-link' => $activity['owner']];
+		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
+			'author-link' => $activity['actor']];
 
 		Contact::addRelationship($owner, $contact, $item);
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;
 		}
@@ -366,9 +366,9 @@ class Processor
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			logger('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
 			return;
 		}
 
@@ -399,9 +399,9 @@ class Processor
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			logger('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
 			return;
 		}
 
@@ -453,9 +453,9 @@ class Processor
 
 		$owner = User::getOwnerDataById($uid);
 
-		$cid = Contact::getIdForURL($activity['owner'], $uid);
+		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			logger('No contact found for ' . $activity['owner'], LOGGER_DEBUG);
+			logger('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
 			return;
 		}
 
