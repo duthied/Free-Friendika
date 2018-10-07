@@ -272,7 +272,7 @@ class Processor
 	 */
 	public static function followUser($activity)
 	{
-		$uid = User::getIdForURL($activity['object_actor']);
+		$uid = User::getIdForURL($activity['object_id']);
 		if (empty($uid)) {
 			return;
 		}
@@ -326,12 +326,12 @@ class Processor
 	 */
 	public static function deletePerson($activity)
 	{
-		if (empty($activity['object_id']) || empty($activity['object_actor'])) {
+		if (empty($activity['object_id']) || empty($activity['actor'])) {
 			logger('Empty object id or actor.', LOGGER_DEBUG);
 			return;
 		}
 
-		if ($activity['object_id'] != $activity['object_actor']) {
+		if ($activity['object_id'] != $activity['actor']) {
 			logger('Object id does not match actor.', LOGGER_DEBUG);
 			return;
 		}

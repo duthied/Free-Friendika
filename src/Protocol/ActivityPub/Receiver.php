@@ -166,7 +166,7 @@ class Receiver
 			$object_data = self::processObject($activity);
 			$object_data['name'] = $type;
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor');
-			$object_data['object'] = $object_id;
+			$object_data['object_id'] = $object_id;
 			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
 		} else {
 			$object_data = [];

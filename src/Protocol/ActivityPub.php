@@ -39,8 +39,6 @@ class ActivityPub
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application'];
-	const CONTENT_TYPES = ['Note', 'Article', 'Video', 'Image'];
-	const ACTIVITY_TYPES = ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept'];
 	/**
 	 * Checks if the web request is done for the AP protocol
 	 *
