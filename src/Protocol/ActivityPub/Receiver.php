@@ -150,7 +150,7 @@ class Receiver
 
 		// Fetch the content only on activities where this matters
 		if (in_array($type, ['as:Create', 'as:Announce'])) {
-			$object_data = self::fetchObject($object_id, $activity['object'], $ldactivity['as:object'], $trust_source);
+			$object_data = self::fetchObject($object_id, $ldactivity['as:object'], $trust_source);
 			if (empty($object_data)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return [];
@@ -168,13 +168,13 @@ class Receiver
 		} else {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($ldactivity, '@id');
-			$object_data['object'] = $activity['object'];
+			$object_data['object'] = $ldactivity['as:object'];
 			$object_data['object_type'] = JsonLD::fetchElement($ldactivity, 'as:object', '@type');
 		}
 
 		$object_data = self::addActivityFields($object_data, $activity);
 
-		$object_data['type'] = $activity['type'];
+		$object_data['type'] = $type;
 		$object_data['owner'] = $actor;
 		$object_data['receiver'] = array_merge(defaults($object_data, 'receiver', []), $receivers);
 
@@ -466,50 +466,49 @@ class Receiver
 	 *
 	 * @return array with object data
 	 */
-	private static function fetchObject($object_id, $object = [], $ldobject = [], $trust_source = false)
+	private static function fetchObject($object_id, $object = [], $trust_source = false)
 	{
-		if (!$trust_source || is_string($object)) {
+		if (!$trust_source || empty($object)) {
 			$data = ActivityPub::fetchContent($object_id);
-			if (empty($data)) {
-				logger('Empty content for ' . $object_id . ', check if content is available locally.', LOGGER_DEBUG);
-				$data = $object_id;
-			} else {
-				$ldobject = JsonLD::compact($data);
+			if (!empty($data)) {
+				$object = JsonLD::compact($data);
 				logger('Fetched content for ' . $object_id, LOGGER_DEBUG);
+			} else {
+				logger('Empty content for ' . $object_id . ', check if content is available locally.', LOGGER_DEBUG);
+
+				$item = Item::selectFirst([], ['uri' => $object_id]);
+				if (!DBA::isResult($item)) {
+					logger('Object with url ' . $object_id . ' was not found locally.', LOGGER_DEBUG);
+					return false;
+				}
+				logger('Using already stored item for url ' . $object_id, LOGGER_DEBUG);
+				$data = ActivityPub\Transmitter::createNote($item);
+				$object = JsonLD::compact($data);
 			}
 		} else {
 			logger('Using original object for url ' . $object_id, LOGGER_DEBUG);
-			$data = $object;
 		}
 
-		if (is_string($data)) {
-			$item = Item::selectFirst([], ['uri' => $data]);
-			if (!DBA::isResult($item)) {
-				logger('Object with url ' . $data . ' was not found locally.', LOGGER_DEBUG);
-				return false;
-			}
-			logger('Using already stored item for url ' . $object_id, LOGGER_DEBUG);
-			$data = ActivityPub\Transmitter::createNote($item);
-			$ldobject = JsonLD::compact($data);
-		}
+		$type = JsonLD::fetchElement($object, '@type');
 
-		if (empty($data['type'])) {
+		if (empty($type)) {
 			logger('Empty type', LOGGER_DEBUG);
 			return false;
 		}
 
-		if (in_array($data['type'], ActivityPub::CONTENT_TYPES)) {
-			return self::processObject($ldobject);
+		if (in_array($type, self::CONTENT_TYPES)) {
+			return self::processObject($object);
 		}
 
-		if ($data['type'] == 'Announce') {
-			if (empty($data['object'])) {
+		if ($type == 'as:Announce') {
+			$object_id = JsonLD::fetchElement($object, 'object');
+			if (empty($object_id)) {
 				return false;
 			}
-			return self::fetchObject($data['object']);
+			return self::fetchObject($object_id);
 		}
 
-		logger('Unhandled object type: ' . $data['type'], LOGGER_DEBUG);
+		logger('Unhandled object type: ' . $type, LOGGER_DEBUG);
 	}
 
 	/**
@@ -522,7 +521,12 @@ class Receiver
 	private static function processTags($tags)
 	{
 		$taglist = [];
+
 		foreach ($tags as $tag) {
+			if (empty($tag)) {
+				continue;
+			}
+
 			$taglist[] = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type')),
 				'href' => JsonLD::fetchElement($tag, 'as:href'),
 				'name' => JsonLD::fetchElement($tag, 'as:name')];
@@ -540,7 +544,12 @@ class Receiver
 	private static function processAttachments($attachments)
 	{
 		$attachlist = [];
+
 		foreach ($attachments as $attachment) {
+			if (empty($attachment)) {
+				continue;
+			}
+
 			$attachlist[] = ['type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
 				'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType'),
 				'name' => JsonLD::fetchElement($attachment, 'as:name'),

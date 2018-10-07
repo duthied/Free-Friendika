@@ -138,7 +138,7 @@ class Processor
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_LIKE;
-		$item['parent-uri'] = $activity['object'];
+		$item['parent-uri'] = JsonLD::fetchElement($activity, 'object');
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -154,7 +154,7 @@ class Processor
 	public static function deleteItem($activity)
 	{
 		$owner = Contact::getIdForURL($activity['owner']);
-		$object = JsonLD::fetchElement($activity, 'object', 'id');
+		$object = JsonLD::fetchElement($activity, 'object');
 		logger('Deleting item ' . $object . ' from ' . $owner, LOGGER_DEBUG);
 		Item::delete(['uri' => $object, 'owner-id' => $owner]);
 	}
@@ -169,7 +169,7 @@ class Processor
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_DISLIKE;
-		$item['parent-uri'] = $activity['object'];
+		$item['parent-uri'] = JsonLD::fetchElement($activity, 'object');
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -261,7 +261,8 @@ class Processor
 		$activity['published'] = $object['published'];
 		$activity['type'] = 'Create';
 
-		ActivityPub\Receiver::processActivity($activity);
+		$ldactivity = JsonLD::compact($activity);
+		ActivityPub\Receiver::processActivity($activity, $ldactivity);
 		logger('Activity ' . $url . ' had been fetched and processed.');
 	}
 
@@ -272,7 +273,7 @@ class Processor
 	 */
 	public static function followUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'id');
+		$actor = JsonLD::fetchElement($activity, 'object');
 		$uid = User::getIdForURL($actor);
 		if (empty($uid)) {
 			return;
@@ -312,12 +313,13 @@ class Processor
 	 */
 	public static function updatePerson($activity)
 	{
-		if (empty($activity['object']['id'])) {
+		$actor = JsonLD::fetchElement($activity, 'object');
+		if ($actor) {
 			return;
 		}
 
-		logger('Updating profile for ' . $activity['object']['id'], LOGGER_DEBUG);
-		APContact::getByURL($activity['object']['id'], true);
+		logger('Updating profile for ' . $actor, LOGGER_DEBUG);
+		APContact::getByURL($actor, true);
 	}
 
 	/**
@@ -327,23 +329,26 @@ class Processor
 	 */
 	public static function deletePerson($activity)
 	{
-		if (empty($activity['object']['id']) || empty($activity['object']['actor'])) {
+		$id = JsonLD::fetchElement($activity, 'object');
+		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
+
+		if (empty($id) || empty($actor)) {
 			logger('Empty object id or actor.', LOGGER_DEBUG);
 			return;
 		}
 
-		if ($activity['object']['id'] != $activity['object']['actor']) {
+		if ($id != $actor) {
 			logger('Object id does not match actor.', LOGGER_DEBUG);
 			return;
 		}
 
-		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($activity['object']['id'])]);
+		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($id)]);
 		while ($contact = DBA::fetch($contacts)) {
-			Contact::remove($contact["id"]);
+			Contact::remove($contact['id']);
 		}
 		DBA::close($contacts);
 
-		logger('Deleted contact ' . $activity['object']['id'], LOGGER_DEBUG);
+		logger('Deleted contact ' . $id, LOGGER_DEBUG);
 	}
 
 	/**
@@ -353,7 +358,7 @@ class Processor
 	 */
 	public static function acceptFollowUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
+		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
 		$uid = User::getIdForURL($actor);
 		if (empty($uid)) {
 			return;
@@ -386,7 +391,7 @@ class Processor
 	 */
 	public static function rejectFollowUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
+		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
 		$uid = User::getIdForURL($actor);
 		if (empty($uid)) {
 			return;
@@ -415,12 +420,12 @@ class Processor
 	 */
 	public static function undoActivity($activity)
 	{
-		$activity_url = JsonLD::fetchElement($activity, 'object', 'id');
+		$activity_url = JsonLD::fetchElement($activity, 'object');
 		if (empty($activity_url)) {
 			return;
 		}
 
-		$actor = JsonLD::fetchElement($activity, 'object', 'actor');
+		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
 		if (empty($actor)) {
 			return;
 		}
@@ -440,7 +445,7 @@ class Processor
 	 */
 	public static function undoFollowUser($activity)
 	{
-		$object = JsonLD::fetchElement($activity, 'object', 'object');
+		$object = JsonLD::fetchElement($activity, 'object', 'as:object');
 		$uid = User::getIdForURL($object);
 		if (empty($uid)) {
 			return;
