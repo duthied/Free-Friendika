@@ -20,9 +20,19 @@ class Mode
 	/***
 	 * @var int the mode of this Application
 	 *
-	 * Default is 0 (= not set)
 	 */
-	private static $mode = 0;
+	private $mode;
+
+	/**
+	 * @var string the basepath of the application
+	 */
+	private $basepath;
+
+	public function __construct($basepath = '')
+	{
+		$this->basepath = $basepath;
+		$this->mode = 0;
+	}
 
 	/**
 	 * Sets the App mode
@@ -34,34 +44,38 @@ class Mode
 	 * @param string $basepath the Basepath of the Application
 	 *
 	 */
-	public static function determine($basepath)
+	public function determine($basepath = null)
 	{
-		self::$mode = 0;
+		if (!empty($basepath)) {
+			$this->basepath = $basepath;
+		}
 
-		if (!file_exists($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')
-			&& !file_exists($basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+		$this->mode = 0;
+
+		if (!file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')
+			&& !file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
 			return;
 		}
 
-		self::$mode |= Mode::LOCALCONFIGPRESENT;
+		$this->mode |= Mode::LOCALCONFIGPRESENT;
 
 		if (!DBA::connected()) {
 			return;
 		}
 
-		self::$mode |= Mode::DBAVAILABLE;
+		$this->mode |= Mode::DBAVAILABLE;
 
 		if (DBA::fetchFirst("SHOW TABLES LIKE 'config'") === false) {
 			return;
 		}
 
-		self::$mode |= Mode::DBCONFIGAVAILABLE;
+		$this->mode |= Mode::DBCONFIGAVAILABLE;
 
 		if (Config::get('system', 'maintenance')) {
 			return;
 		}
 
-		self::$mode |= Mode::MAINTENANCEDISABLED;
+		$this->mode |= Mode::MAINTENANCEDISABLED;
 	}
 
 	/**
@@ -71,9 +85,9 @@ class Mode
 	 *
 	 * @return bool returns true, if the mode is set
 	 */
-	public static function has($mode)
+	public function has($mode)
 	{
-		return self::$mode & $mode;
+		return ($this->mode & $mode) > 0;
 	}
 
 
@@ -82,10 +96,10 @@ class Mode
 	 *
 	 * @return bool
 	 */
-	public static function isInstall()
+	public function isInstall()
 	{
-		return !self::has(Mode::LOCALCONFIGPRESENT) ||
-			!self::has(MODE::DBCONFIGAVAILABLE);
+		return !$this->has(Mode::LOCALCONFIGPRESENT) ||
+			!$this->has(MODE::DBCONFIGAVAILABLE);
 	}
 
 	/**
@@ -93,11 +107,11 @@ class Mode
 	 *
 	 * @return bool
 	 */
-	public static function isNormal()
+	public function isNormal()
 	{
-		return self::has(Mode::LOCALCONFIGPRESENT) &&
-			self::has(Mode::DBAVAILABLE) &&
-			self::has(Mode::DBCONFIGAVAILABLE) &&
-			self::has(Mode::MAINTENANCEDISABLED);
+		return $this->has(Mode::LOCALCONFIGPRESENT) &&
+			$this->has(Mode::DBAVAILABLE) &&
+			$this->has(Mode::DBCONFIGAVAILABLE) &&
+			$this->has(Mode::MAINTENANCEDISABLED);
 	}
 }

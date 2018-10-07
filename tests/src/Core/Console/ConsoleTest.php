@@ -6,12 +6,15 @@ use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Test\Util\Intercept;
+use Friendica\Test\Util\VFSTrait;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
 abstract class ConsoleTest extends TestCase
 {
+	use VFSTrait;
+
 	/**
 	 * @var MultiUseConsole Extension of the basic Friendica Console for testing purpose
 	 */
@@ -20,11 +23,6 @@ abstract class ConsoleTest extends TestCase
 	 * @var App The Friendica App
 	 */
 	protected $app;
-
-	/**
-	 * @var vfsStreamDirectory The Stream Directory
-	 */
-	protected $root;
 
 	protected $stdout;
 
@@ -39,6 +37,11 @@ abstract class ConsoleTest extends TestCase
 		}
 
 		$this->setUpVfsDir();
+
+		// fake console.php for setting an executable
+		vfsStream::newFile('console.php')
+			->at($this->root->getChild('bin'))
+			->setContent('<? php');
 
 		// Reusable App object
 		$this->app = new App($this->root->url());
@@ -66,42 +69,5 @@ abstract class ConsoleTest extends TestCase
 	 */
 	protected function getExecutablePath() {
 		return $this->root->getChild('bin' . DIRECTORY_SEPARATOR . 'console.php')->url();
-	}
-
-	private function setUpVfsDir() {
-		// the used directories inside the App class
-		$structure = [
-			'config' => [],
-			'bin' => []
-		];
-
-		// create a virtual directory and copy all needed files and folders to it
-		$this->root = vfsStream::setup('friendica', null, $structure);
-
-		$this->setConfigFile('config.ini.php');
-		$this->setConfigFile('settings.ini.php');
-		$this->setConfigFile('local.ini.php');
-		$this->setConfigFile('dbstructure.json');
-
-		// fake console.php for setting an executable
-		vfsStream::newFile('console.php')
-			->at($this->root->getChild('bin'))
-			->setContent('<? php');
-	}
-
-	private function setConfigFile($filename)
-	{
-		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			$filename;
-
-		if (file_exists($file)) {
-			vfsStream::newFile($filename)
-				->at($this->root->getChild('config'))
-				->setContent(file_get_contents($file));
-		}
 	}
 }

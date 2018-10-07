@@ -65,7 +65,7 @@ HELP;
 			$this->out('Options: ' . var_export($this->options, true));
 		}
 
-		if (!App\Mode::has(App\Mode::DBCONFIGAVAILABLE)) {
+		if ($a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
 			$this->out('Database isn\'t ready or populated yet, database cache won\'t be available');
 		}
 

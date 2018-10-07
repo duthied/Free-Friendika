@@ -65,7 +65,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if (App\Mode::isInstall()) {
+		if ($a->getMode()->isInstall()) {
 			throw new RuntimeException('Database isn\'t ready or populated yet');
 		}
 

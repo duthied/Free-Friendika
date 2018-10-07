@@ -11,6 +11,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -82,6 +83,11 @@ class App
 
 	public $stylesheets = [];
 	public $footerScripts = [];
+
+	/**
+	 * @var App\Mode The Mode of the Application
+	 */
+	private $mode;
 
 	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
@@ -193,6 +199,8 @@ class App
 		$this->callstack['rendering'] = [];
 		$this->callstack['parser'] = [];
 
+		$this->mode = new App\Mode($basepath);
+
 		$this->reload();
 
 		set_time_limit(0);
@@ -301,6 +309,22 @@ class App
 	}
 
 	/**
+	 * Returns the Mode of the Application
+	 *
+	 * @return App\Mode The Application Mode
+	 *
+	 * @throws InternalServerErrorException when the mode isn't created
+	 */
+	public function getMode()
+	{
+		if (empty($this->mode)) {
+			throw new InternalServerErrorException('Mode of the Application is not defined');
+		}
+
+		return $this->mode;
+	}
+
+	/**
 	 * Reloads the whole app instance
 	 */
 	public function reload()
@@ -310,13 +334,13 @@ class App
 
 		$this->loadDatabase();
 
-		App\Mode::determine($this->basepath);
+		$this->getMode()->determine($this->basepath);
 
 		$this->determineUrlPath();
 
 		Config::load();
 
-		if (App\Mode::has(App\Mode::DBAVAILABLE)) {
+		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
 			Core\Addon::loadHooks();
 
 			$this->loadAddonConfig();
@@ -1402,7 +1426,7 @@ class App
 	 */
 	public function getCurrentTheme()
 	{
-		if (App\Mode::isInstall()) {
+		if ($this->getMode()->isInstall()) {
 			return '';
 		}
 
