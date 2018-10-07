@@ -112,26 +112,26 @@ class Receiver
 	}
 
 	/**
-	 * 
+	 * Prepare the object array
 	 *
 	 * @param array $activity
 	 * @param integer $uid User ID
 	 * @param $trust_source
 	 *
-	 * @return 
+	 * @return array with object data
 	 */
-	private static function prepareObjectData($ldactivity, $uid, &$trust_source)
+	private static function prepareObjectData($activity, $uid, &$trust_source)
 	{
-		$actor = JsonLD::fetchElement($ldactivity, 'as:actor');
+		$actor = JsonLD::fetchElement($activity, 'as:actor');
 		if (empty($actor)) {
 			logger('Empty actor', LOGGER_DEBUG);
 			return [];
 		}
 
-		$type = JsonLD::fetchElement($ldactivity, '@type');
+		$type = JsonLD::fetchElement($activity, '@type');
 
 		// Fetch all receivers from to, cc, bto and bcc
-		$receivers = self::getReceivers($ldactivity, $actor);
+		$receivers = self::getReceivers($activity, $actor);
 
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
@@ -142,7 +142,7 @@ class Receiver
 
 		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
 
-		$object_id = JsonLD::fetchElement($ldactivity, 'as:object');
+		$object_id = JsonLD::fetchElement($activity, 'as:object');
 		if (empty($object_id)) {
 			logger('No object found', LOGGER_DEBUG);
 			return [];
@@ -153,7 +153,7 @@ class Receiver
 			if ($type == 'as:Announce') {
 				$trust_source = false;
 			}
-			$object_data = self::fetchObject($object_id, $ldactivity['as:object'], $trust_source);
+			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source);
 			if (empty($object_data)) {
 				logger("Object data couldn't be processed", LOGGER_DEBUG);
 				return [];
@@ -163,19 +163,21 @@ class Receiver
 		} elseif (in_array($type, ['as:Like', 'as:Dislike'])) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
-			$object_data = self::processObject($ldactivity);
+			$object_data = self::processObject($activity);
 			$object_data['name'] = $type;
-			$object_data['author'] = JsonLD::fetchElement($ldactivity, 'as:actor');
+			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor');
 			$object_data['object'] = $object_id;
 			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
 		} else {
 			$object_data = [];
-			$object_data['id'] = JsonLD::fetchElement($ldactivity, '@id');
-			$object_data['object'] = $ldactivity['as:object'];
-			$object_data['object_type'] = JsonLD::fetchElement($ldactivity, 'as:object', '@type');
+			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
+			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object');
+			$object_data['object_actor'] = JsonLD::fetchElement($activity['as:object'], 'as:actor');
+			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
+			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 		}
 
-		$object_data = self::addActivityFields($object_data, $ldactivity);
+		$object_data = self::addActivityFields($object_data, $activity);
 
 		$object_data['type'] = $type;
 		$object_data['actor'] = $actor;
@@ -194,27 +196,27 @@ class Receiver
 	 * @param integer $uid          User ID
 	 * @param boolean $trust_source Do we trust the source?
 	 */
-	public static function processActivity($ldactivity, $body = '', $uid = null, $trust_source = false)
+	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false)
 	{
-		$type = JsonLD::fetchElement($ldactivity, '@type');
+		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
 			logger('Empty type', LOGGER_DEBUG);
 			return;
 		}
 
-		if (!JsonLD::fetchElement($ldactivity, 'as:object')) {
+		if (!JsonLD::fetchElement($activity, 'as:object')) {
 			logger('Empty object', LOGGER_DEBUG);
 			return;
 		}
 
-		if (!JsonLD::fetchElement($ldactivity, 'as:actor')) {
+		if (!JsonLD::fetchElement($activity, 'as:actor')) {
 			logger('Empty actor', LOGGER_DEBUG);
 			return;
 
 		}
 
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
-		$object_data = self::prepareObjectData($ldactivity, $uid, $trust_source);
+		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
 		if (empty($object_data)) {
 			logger('No object data found', LOGGER_DEBUG);
 			return;

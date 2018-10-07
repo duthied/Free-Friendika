@@ -67,9 +67,9 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Add attachment data to the item array
 	 *
-	 * @param $attachments
+	 * @param array $attachments
 	 * @param array $item
 	 *
 	 * @return item array
@@ -101,10 +101,10 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Prepares data for a message
 	 *
-	 * @param array $activity
-	 * @param $body
+	 * @param array  $activity Activity array
+	 * @param string $body     original source
 	 */
 	public static function createItem($activity, $body)
 	{
@@ -129,16 +129,16 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Prepare the item array for a "like"
 	 *
-	 * @param array $activity
-	 * @param $body
+	 * @param array  $activity Activity array
+	 * @param string $body     original source
 	 */
 	public static function likeItem($activity, $body)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_LIKE;
-		$item['parent-uri'] = JsonLD::fetchElement($activity, 'object');
+		$item['parent-uri'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -149,27 +149,26 @@ class Processor
 	 * Delete items
 	 *
 	 * @param array $activity
-	 * @param $body
 	 */
 	public static function deleteItem($activity)
 	{
 		$owner = Contact::getIdForURL($activity['actor']);
-		$object = JsonLD::fetchElement($activity, 'object');
-		logger('Deleting item ' . $object . ' from ' . $owner, LOGGER_DEBUG);
-		Item::delete(['uri' => $object, 'owner-id' => $owner]);
+
+		logger('Deleting item ' . $activity['object_id'] . ' from ' . $owner, LOGGER_DEBUG);
+		Item::delete(['uri' => $activity['object_id'], 'owner-id' => $owner]);
 	}
 
 	/**
-	 * 
+	 * Prepare the item array for a "dislike"
 	 *
-	 * @param array $activity
-	 * @param $body
+	 * @param array  $activity Activity array
+	 * @param string $body     original source
 	 */
 	public static function dislikeItem($activity, $body)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_DISLIKE;
-		$item['parent-uri'] = JsonLD::fetchElement($activity, 'object');
+		$item['parent-uri'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -177,11 +176,11 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Creates an item post
 	 *
-	 * @param array $activity
-	 * @param array $item
-	 * @param $body
+	 * @param array  $activity Activity data
+	 * @param array  $item     item array
+	 * @param string $body     original source
 	 */
 	private static function postItem($activity, $item, $body)
 	{
@@ -233,7 +232,7 @@ class Processor
 	}
 
 	/**
-	 * 
+	 * Fetches missing posts
 	 *
 	 * @param $url
 	 * @param $child
@@ -273,8 +272,7 @@ class Processor
 	 */
 	public static function followUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object');
-		$uid = User::getIdForURL($actor);
+		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
 			return;
 		}
@@ -313,13 +311,12 @@ class Processor
 	 */
 	public static function updatePerson($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object');
-		if ($actor) {
+		if (empty($activity['object_id'])) {
 			return;
 		}
 
-		logger('Updating profile for ' . $actor, LOGGER_DEBUG);
-		APContact::getByURL($actor, true);
+		logger('Updating profile for ' . $activity['object_id'], LOGGER_DEBUG);
+		APContact::getByURL($activity['object_id'], true);
 	}
 
 	/**
@@ -329,26 +326,23 @@ class Processor
 	 */
 	public static function deletePerson($activity)
 	{
-		$id = JsonLD::fetchElement($activity, 'object');
-		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
-
-		if (empty($id) || empty($actor)) {
+		if (empty($activity['object_id']) || empty($activity['object_actor'])) {
 			logger('Empty object id or actor.', LOGGER_DEBUG);
 			return;
 		}
 
-		if ($id != $actor) {
+		if ($activity['object_id'] != $activity['object_actor']) {
 			logger('Object id does not match actor.', LOGGER_DEBUG);
 			return;
 		}
 
-		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($id)]);
+		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($activity['object_id'])]);
 		while ($contact = DBA::fetch($contacts)) {
 			Contact::remove($contact['id']);
 		}
 		DBA::close($contacts);
 
-		logger('Deleted contact ' . $id, LOGGER_DEBUG);
+		logger('Deleted contact ' . $activity['object_id'], LOGGER_DEBUG);
 	}
 
 	/**
@@ -358,8 +352,7 @@ class Processor
 	 */
 	public static function acceptFollowUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
-		$uid = User::getIdForURL($actor);
+		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
 			return;
 		}
@@ -391,8 +384,7 @@ class Processor
 	 */
 	public static function rejectFollowUser($activity)
 	{
-		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
-		$uid = User::getIdForURL($actor);
+		$uid = User::getIdForURL($activity['object_actor']);
 		if (empty($uid)) {
 			return;
 		}
@@ -420,22 +412,20 @@ class Processor
 	 */
 	public static function undoActivity($activity)
 	{
-		$activity_url = JsonLD::fetchElement($activity, 'object');
-		if (empty($activity_url)) {
+		if (empty($activity['object_id'])) {
 			return;
 		}
 
-		$actor = JsonLD::fetchElement($activity, 'object', 'as:actor');
-		if (empty($actor)) {
+		if (empty($activity['object_actor'])) {
 			return;
 		}
 
-		$author_id = Contact::getIdForURL($actor);
+		$author_id = Contact::getIdForURL($activity['object_actor']);
 		if (empty($author_id)) {
 			return;
 		}
 
-		Item::delete(['uri' => $activity_url, 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
+		Item::delete(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
 	}
 
 	/**
@@ -445,8 +435,7 @@ class Processor
 	 */
 	public static function undoFollowUser($activity)
 	{
-		$object = JsonLD::fetchElement($activity, 'object', 'as:object');
-		$uid = User::getIdForURL($object);
+		$uid = User::getIdForURL($activity['object_object']);
 		if (empty($uid)) {
 			return;
 		}
