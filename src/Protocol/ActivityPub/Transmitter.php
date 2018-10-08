@@ -209,10 +209,15 @@ class Transmitter
 			return [];
 		}
 
-		$fields = ['name', 'url', 'location', 'about', 'avatar'];
+		$fields = ['name', 'url', 'location', 'about', 'avatar', 'photo'];
 		$contact = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($contact)) {
 			return [];
+		}
+
+		// On old installations and never changed contacts this might not be filled
+		if (empty($contact['avatar'])) {
+			$contact['avatar'] = $contact['photo'];
 		}
 
 		$data = ['@context' => ActivityPub::CONTEXT];
