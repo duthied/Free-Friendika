@@ -219,7 +219,7 @@ CONF;
 		$this->assertConfig('config', 'admin_email', 'admin@friendica.local');
 		$this->assertConfig('system', 'default_timezone', 'Europe/Berlin');
 		$this->assertConfig('system', 'language', 'de');
-		$this->assertConfig('system', 'url_path', '/friendica');
+		$this->assertConfig('system', 'urlpath', '/friendica');
 	}
 
 	/**
@@ -265,14 +265,18 @@ CONF;
 		$this->assertConfig('config', 'admin_email', 'admin@friendica.local');
 		$this->assertConfig('system', 'default_timezone', 'Europe/Berlin');
 		$this->assertConfig('system', 'language', 'de');
-		$this->assertConfig('system', 'url_path', '/friendica');
+		$this->assertConfig('system', 'urlpath', '/friendica');
 	}
 
+	/**
+	 * @runTestsInSeparateProcesses
+	 */
 	public function testNoDatabaseConnection()
 	{
-		$this->assertTrue(putenv('MYSQL_USERNAME='));
-		$this->assertTrue(putenv('MYSQL_PASSWORD='));
-		$this->assertTrue(putenv('MYSQL_DATABASE='));
+		$dbaMock = \Mockery::mock('alias:Friendica\Database\DBA');
+		$dbaMock
+			->shouldReceive('connected')
+			->andReturn(false);
 
 		$txt = $this->execute(['autoinstall']);
 
@@ -304,7 +308,7 @@ Options
     -d|--dbdata <database>  The name of the mysql/mariadb database (env MYSQL_DATABASE)
     -U|--dbuser <username>  The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
     -P|--dbpass <password>  The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -b|--urlpath <url_path> The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
+    -u|--urlpath <url_path> The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
     -b|--phppath <php_path> The path of the PHP binary (env FRIENDICA_PHP_PATH) 
     -A|--admin <mail>       The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
     -T|--tz <timezone>      The timezone of Friendica (env FRIENDICA_TZ)

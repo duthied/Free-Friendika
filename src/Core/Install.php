@@ -6,52 +6,90 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\BaseObject;
-use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
 
 /**
  * Contains methods for installation purpose of Friendica
  */
-class Install extends BaseObject
+class Install
 {
+	/**
+	 * @var array the check outcomes
+	 */
+	private $checks;
+
+	/**
+	 * Returns all checks made
+	 *
+	 * @return array the checks
+	 */
+	public function getChecks()
+	{
+		return $this->checks;
+	}
+
+	/**
+	 * Resets all checks
+	 */
+	public function resetChecks()
+	{
+		$this->checks = [];
+	}
+
+	/**
+	 * Install constructor.
+	 *
+	 */
+	public function __construct()
+	{
+		$this->checks = [];
+	}
+
 	/**
 	 * Checks the current installation environment. There are optional and mandatory checks.
 	 *
-	 * @param string $phpath Optional path to the PHP binary (Default is 'php')
+	 * @param string $basepath    The basepath of Friendica
+	 * @param string $baseurl     The baseurl of Friendica
+	 * @param string $phpath      Optional path to the PHP binary
 	 *
-	 * @return array First element is a list of all checks and their results,
-	 *               the second element is a list of passed checks
+	 * @return bool if the check succeed
 	 */
-	public static function check($phpath = 'php')
+	public function checkAll($basepath, $baseurl, $phpath = null)
 	{
-		$checks = [];
+		$returnVal = true;
 
-		self::checkFunctions($checks);
+		if (isset($phpath)) {
+			if (!$this->checkPHP($phpath)) {
+				$returnVal = false;
+			}
+		}
 
-		self::checkImagick($checks);
+		if (!$this->checkFunctions()) {
+			$returnVal = false;
+		}
 
-		self::checkLocalIni($checks);
+		if (!$this->checkImagick()) {
+			$returnVal = false;
+		}
 
-		self::checkSmarty3($checks);
+		if (!$this->checkLocalIni()) {
+			$returnVal = false;
+		}
 
-		self::checkKeys($checks);
+		if (!$this->checkSmarty3()) {
+			$returnVal = false;
+		}
 
-		self::checkPHP($phpath, $checks);
+		if (!$this->checkKeys()) {
+			$returnVal = false;
+		}
 
-		self::checkHtAccess($checks);
+		if (!$this->checkHtAccess($basepath, $baseurl)) {
+			$returnVal = false;
+		}
 
-		$checkspassed = array_reduce($checks,
-			function ($v, $c) {
-				if (!empty($c['require'])) {
-					$v = $v && $c['status'];
-				}
-				return $v;
-			},
-			true);
-
-		return array($checks, $checkspassed);
+		return $returnVal;
 	}
 
 	/**
@@ -64,15 +102,19 @@ class Install extends BaseObject
 	 * @param string 	$dbuser 	Username of the Database connection credentials
 	 * @param string 	$dbpass 	Password of the Database connection credentials
 	 * @param string 	$dbdata 	Name of the Database
-	 * @param string 	$phpath 	Path to the PHP-Binary (e.g. 'php' or '/usr/bin/php')
 	 * @param string 	$timezone 	Timezone of the Friendica Installaton (e.g. 'Europe/Berlin')
 	 * @param string 	$language 	2-letter ISO 639-1 code (eg. 'en')
 	 * @param string 	$adminmail 	Mail-Adress of the administrator
+	 * @param string 	$basepath   The basepath of Friendica
+	 * @param string 	$phpath 	Path to the PHP-Binary (optional, if not set e.g. 'php' or '/usr/bin/php')
+	 *
+	 * @return bool|string true if the config was created, the text if something went wrong
 	 */
-	public static function createConfig($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail)
+	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
 	{
 		$tpl = get_markup_template('local.ini.tpl');
 		$txt = replace_macros($tpl,[
+			'$phpath' => $phppath,
 			'$dbhost' => $dbhost,
 			'$dbuser' => $dbuser,
 			'$dbpass' => $dbpass,
@@ -80,37 +122,36 @@ class Install extends BaseObject
 			'$timezone' => $timezone,
 			'$language' => $language,
 			'$urlpath' => $urlpath,
-			'$phpath' => $phpath,
 			'$adminmail' => $adminmail,
 		]);
 
-		$app = self::getApp();
+		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
 
-		$result = file_put_contents($app->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
 		if (!$result) {
-			$app->data['txt'] = $txt;
+			return $txt;
+		} else {
+			return true;
 		}
 	}
 
 	/**
 	 * Adds new checks to the array $checks
 	 *
-	 * @param array $checks The list of all checks (by-ref parameter!)
 	 * @param string $title The title of the current check
 	 * @param bool $status 1 = check passed, 0 = check not passed
 	 * @param bool $required 1 = check is mandatory, 0 = check is optional
 	 * @param string $help A help-string for the current check
 	 * @param string $error_msg Optional. A error message, if the current check failed
 	 */
-	private static function addCheck(&$checks, $title, $status, $required, $help, $error_msg = "")
+	private function addCheck($title, $status, $required, $help, $error_msg = "")
 	{
-		$checks[] = [
+		array_push($this->checks, [
 			'title' => $title,
 			'status' => $status,
 			'required' => $required,
 			'help' => $help,
 			'error_msg' => $error_msg,
-		];
+		]);
 	}
 
 	/**
@@ -122,18 +163,21 @@ class Install extends BaseObject
 	 * - Checks if it is the CLI version
 	 * - Checks if "register_argc_argv" is enabled
  	 *
-	 * @param string $phpath Optional. The Path to the PHP-Binary
-	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @param string $phppath Optional. The Path to the PHP-Binary
+	 * @param bool   $required Optional. If set to true, the PHP-Binary has to exist (Default false)
+	 *
+	 * @return bool false if something required failed
 	 */
-	public static function checkPHP($phpath, &$checks)
+	public function checkPHP($phppath = null, $required = false)
 	{
 		$passed = $passed2 = $passed3 = false;
-		if (strlen($phpath)) {
-			$passed = file_exists($phpath);
+		if (isset($phppath)) {
+			$passed = file_exists($phppath);
 		} else {
-			$phpath = trim(shell_exec('which php'));
-			$passed = strlen($phpath);
+			$phppath = trim(shell_exec('which php'));
+			$passed = strlen($phppath);
 		}
+
 		$help = "";
 		if (!$passed) {
 			$help .= L10n::t('Could not find a command line version of PHP in the web server PATH.') . EOL;
@@ -141,15 +185,15 @@ class Install extends BaseObject
 			$help .= EOL . EOL;
 			$tpl = get_markup_template('field_input.tpl');
 			$help .= replace_macros($tpl, [
-				'$field' => ['phpath', L10n::t('PHP executable path'), $phpath, L10n::t('Enter full path to php executable. You can leave this blank to continue the installation.')],
+				'$field' => ['phpath', L10n::t('PHP executable path'), $phppath, L10n::t('Enter full path to php executable. You can leave this blank to continue the installation.')],
 			]);
-			$phpath = "";
+			$phppath = "";
 		}
 
-		self::addCheck($checks, L10n::t('Command line PHP').($passed?" (<tt>$phpath</tt>)":""), $passed, false, $help);
+		self::addCheck(L10n::t('Command line PHP') . ($passed ? " (<tt>$phppath</tt>)" : ""), $passed, false, $help);
 
 		if ($passed) {
-			$cmd = "$phpath -v";
+			$cmd = "$phppath -v";
 			$result = trim(shell_exec($cmd));
 			$passed2 = (strpos($result, "(cli)") !== false);
 			list($result) = explode("\n", $result);
@@ -158,21 +202,30 @@ class Install extends BaseObject
 				$help .= L10n::t("PHP executable is not the php cli binary \x28could be cgi-fgci version\x29") . EOL;
 				$help .= L10n::t('Found PHP version: ') . "<tt>$result</tt>";
 			}
-			self::addCheck($checks, L10n::t('PHP cli binary'), $passed2, true, $help);
+			self::addCheck(L10n::t('PHP cli binary'), $passed2, true, $help);
+		} else {
+			// return if it was required
+			return $required;
 		}
 
 		if ($passed2) {
 			$str = autoname(8);
-			$cmd = "$phpath testargs.php $str";
+			$cmd = "$phppath testargs.php $str";
 			$result = trim(shell_exec($cmd));
 			$passed3 = $result == $str;
 			$help = "";
 			if (!$passed3) {
 				$help .= L10n::t('The command line version of PHP on your system does not have "register_argc_argv" enabled.') . EOL;
 				$help .= L10n::t('This is required for message delivery to work.');
+			} else {
+				$this->phppath = $phppath;
 			}
-			self::addCheck($checks, L10n::t('PHP register_argc_argv'), $passed3, true, $help);
+
+			self::addCheck(L10n::t('PHP register_argc_argv'), $passed3, true, $help);
 		}
+
+		// passed2 & passed3 are required if first check passed
+		return $passed2 && $passed3;
 	}
 
 	/**
@@ -182,12 +235,13 @@ class Install extends BaseObject
 	 *
 	 * - Checks, if the command "openssl_pkey_new" is available
 	 *
-	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @return bool false if something required failed
 	 */
-	public static function checkKeys(&$checks)
+	public function checkKeys()
 	{
 		$help = '';
 		$res = false;
+		$status = true;
 
 		if (function_exists('openssl_pkey_new')) {
 			$res = openssl_pkey_new([
@@ -201,8 +255,34 @@ class Install extends BaseObject
 		if (!$res) {
 			$help .= L10n::t('Error: the "openssl_pkey_new" function on this system is not able to generate encryption keys') . EOL;
 			$help .= L10n::t('If running under Windows, please see "http://www.php.net/manual/en/openssl.installation.php".');
+			$status = false;
 		}
-		self::addCheck($checks, L10n::t('Generate encryption keys'), $res, true, $help);
+		$this->addCheck(L10n::t('Generate encryption keys'), $res, true, $help);
+
+		return $status;
+	}
+
+	/**
+	 * PHP basic function check
+	 *
+	 * @param string $name The name of the function
+	 * @param string $title The (localized) title of the function
+	 * @param string $help The (localized) help of the function
+	 * @param boolean $required If true, this check is required
+	 *
+	 * @return bool false, if the check failed
+	 */
+	private function checkFunction($name, $title, $help, $required)
+	{
+		$currHelp = '';
+		$status = true;
+		if (!function_exists($name)) {
+			$currHelp = $help;
+			$status = false;
+		}
+		$this->addCheck($title, $status, $required, $currHelp);
+
+		return $status || (!$status && !$required);
 	}
 
 	/**
@@ -218,70 +298,93 @@ class Install extends BaseObject
 	 * - iconv
 	 * - POSIX
 	 *
-	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @return bool false if something required failed
 	 */
-	public static function checkFunctions(&$checks)
+	public function checkFunctions()
 	{
-		$ck_funcs = [];
-		self::addCheck($ck_funcs, L10n::t('libCurl PHP module'), true, true, "");
-		self::addCheck($ck_funcs, L10n::t('GD graphics PHP module'), true, true, "");
-		self::addCheck($ck_funcs, L10n::t('OpenSSL PHP module'), true, true, "");
-		self::addCheck($ck_funcs, L10n::t('PDO or MySQLi PHP module'), true, true, "");
-		self::addCheck($ck_funcs, L10n::t('mb_string PHP module'), true, true, "");
-		self::addCheck($ck_funcs, L10n::t('XML PHP module'), true, true, "");
-		self::addCheck($ck_funcs, L10n::t('iconv PHP module'), true, true, "");
-		self::addCheck($ck_funcs, L10n::t('POSIX PHP module'), true, true, "");
+		$returnVal = true;
 
+		$help = '';
+		$status = true;
 		if (function_exists('apache_get_modules')) {
-			if (! in_array('mod_rewrite',apache_get_modules())) {
-				self::addCheck($ck_funcs, L10n::t('Apache mod_rewrite module'), false, true, L10n::t('Error: Apache webserver mod-rewrite module is required but not installed.'));
-			} else {
-				self::addCheck($ck_funcs, L10n::t('Apache mod_rewrite module'), true, true, "");
+			if (!in_array('mod_rewrite', apache_get_modules())) {
+				$help = L10n::t('Error: Apache webserver mod-rewrite module is required but not installed.');
+				$status = false;
+				$returnVal = false;
 			}
 		}
+		$this->addCheck(L10n::t('Apache mod_rewrite module'), $status, true, $help);
 
-		if (!function_exists('curl_init')) {
-			$ck_funcs[0]['status'] = false;
-			$ck_funcs[0]['help'] = L10n::t('Error: libCURL PHP module required but not installed.');
-		}
-		if (!function_exists('imagecreatefromjpeg')) {
-			$ck_funcs[1]['status'] = false;
-			$ck_funcs[1]['help'] = L10n::t('Error: GD graphics PHP module with JPEG support required but not installed.');
-		}
-		if (!function_exists('openssl_public_encrypt')) {
-			$ck_funcs[2]['status'] = false;
-			$ck_funcs[2]['help'] = L10n::t('Error: openssl PHP module required but not installed.');
-		}
+		$help = '';
+		$status = true;
 		if (!function_exists('mysqli_connect') && !class_exists('pdo')) {
-			$ck_funcs[3]['status'] = false;
-			$ck_funcs[3]['help'] = L10n::t('Error: PDO or MySQLi PHP module required but not installed.');
+			$status = false;
+			$help = L10n::t('Error: PDO or MySQLi PHP module required but not installed.');
+			$returnVal = false;
+		} else {
+			if (!function_exists('mysqli_connect') && class_exists('pdo') && !in_array('mysql', \PDO::getAvailableDrivers())) {
+				$status = false;
+				$help = L10n::t('Error: The MySQL driver for PDO is not installed.');
+				$returnVal = false;
+			}
 		}
-		if (!function_exists('mysqli_connect') && class_exists('pdo') && !in_array('mysql', \PDO::getAvailableDrivers())) {
-			$ck_funcs[3]['status'] = false;
-			$ck_funcs[3]['help'] = L10n::t('Error: The MySQL driver for PDO is not installed.');
-		}
-		if (!function_exists('mb_strlen')) {
-			$ck_funcs[4]['status'] = false;
-			$ck_funcs[4]['help'] = L10n::t('Error: mb_string PHP module required but not installed.');
-		}
-		if (!function_exists('iconv_strlen')) {
-			$ck_funcs[6]['status'] = false;
-			$ck_funcs[6]['help'] = L10n::t('Error: iconv PHP module required but not installed.');
-		}
-		if (!function_exists('posix_kill')) {
-			$ck_funcs[7]['status'] = false;
-			$ck_funcs[7]['help'] = L10n::t('Error: POSIX PHP module required but not installed.');
-		}
-
-		$checks = array_merge($checks, $ck_funcs);
+		$this->addCheck(L10n::t('PDO or MySQLi PHP module'), $status, true, $help);
 
 		// check for XML DOM Documents being able to be generated
+		$help = '';
+		$status = true;
 		try {
 			$xml = new DOMDocument();
 		} catch (Exception $e) {
-			$ck_funcs[5]['status'] = false;
-			$ck_funcs[5]['help'] = L10n::t('Error, XML PHP module required but not installed.');
+			$help = L10n::t('Error, XML PHP module required but not installed.');
+			$status = false;
+			$returnVal = false;
 		}
+		$this->addCheck(L10n::t('XML PHP module'), $status, true, $help);
+
+		$status = $this->checkFunction('curl_init',
+			L10n::t('libCurl PHP module'),
+			L10n::t('Error: libCURL PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('imagecreatefromjpeg',
+			L10n::t('GD graphics PHP module'),
+			L10n::t('Error: GD graphics PHP module with JPEG support required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('openssl_public_encrypt',
+			L10n::t('OpenSSL PHP module'),
+			L10n::t('Error: openssl PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('mb_strlen',
+			L10n::t('mb_string PHP module'),
+			L10n::t('Error: mb_string PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('iconv_strlen',
+			L10n::t('iconv PHP module'),
+			L10n::t('Error: iconv PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('posix_kill',
+			L10n::t('POSIX PHP module'),
+			L10n::t('Error: POSIX PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		return $returnVal;
 	}
 
 	/**
@@ -289,9 +392,9 @@ class Install extends BaseObject
 	 *
 	 * Checks if it's possible to create the "config/local.ini.php"
 	 *
-	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @return bool false if something required failed
 	 */
-	public static function checkLocalIni(&$checks)
+	public function checkLocalIni()
 	{
 		$status = true;
 		$help = "";
@@ -305,8 +408,10 @@ class Install extends BaseObject
 			$help .= L10n::t('You can alternatively skip this procedure and perform a manual installation. Please see the file "INSTALL.txt" for instructions.') . EOL;
 		}
 
-		self::addCheck($checks, L10n::t('config/local.ini.php is writable'), $status, false, $help);
+		self::addCheck(L10n::t('config/local.ini.php is writable'), $status, false, $help);
 
+		// Local INI File is not required
+		return true;
 	}
 
 	/**
@@ -314,9 +419,9 @@ class Install extends BaseObject
 	 *
 	 * Checks, if the directory of Smarty3 is writable
 	 *
-	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @return bool false if something required failed
 	 */
-	public static function checkSmarty3(&$checks)
+	public function checkSmarty3()
 	{
 		$status = true;
 		$help = "";
@@ -329,7 +434,9 @@ class Install extends BaseObject
 			$help .= L10n::t("Note: as a security measure, you should give the web server write access to view/smarty3/ only--not the template files \x28.tpl\x29 that it contains.") . EOL;
 		}
 
-		self::addCheck($checks, L10n::t('view/smarty3 is writable'), $status, true, $help);
+		$this->addCheck(L10n::t('view/smarty3 is writable'), $status, true, $help);
+
+		return $status;
 	}
 
 	/**
@@ -337,17 +444,19 @@ class Install extends BaseObject
 	 *
 	 * Checks, if "url_rewrite" is enabled in the ".htaccess" file
 	 *
-	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @param string $basepath   The basepath of the app
+	 * @param string $baseurl    The baseurl of the app
+	 * @return bool false if something required failed
 	 */
-	public static function checkHtAccess(&$checks)
+	public function checkHtAccess($basepath, $baseurl)
 	{
 		$status = true;
 		$help = "";
 		$error_msg = "";
 		if (function_exists('curl_init')) {
-			$fetchResult = Network::fetchUrlFull(System::baseUrl() . "/install/testrewrite");
+			$fetchResult = Network::fetchUrlFull($basepath . "/install/testrewrite");
 
-			$url = normalise_link(System::baseUrl() . "/install/testrewrite");
+			$url = normalise_link($baseurl . "/install/testrewrite");
 			if ($fetchResult->getBody() != "ok") {
 				$fetchResult = Network::fetchUrlFull($url);
 			}
@@ -360,11 +469,14 @@ class Install extends BaseObject
 				$error_msg['url'] = $fetchResult->getRedirectUrl();
 				$error_msg['msg'] = $fetchResult->getError();
 			}
-			self::addCheck($checks, L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
+
+			$this->addCheck(L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
 		} else {
 			// cannot check modrewrite if libcurl is not installed
 			/// @TODO Maybe issue warning here?
 		}
+
+		return $status;
 	}
 
 	/**
@@ -372,9 +484,9 @@ class Install extends BaseObject
 	 *
 	 * Checks, if the imagick module is available
 	 *
-	 * @param array $checks The list of all checks (by-ref parameter!)
+	 * @return bool false if something required failed
 	 */
-	public static function checkImagick(&$checks)
+	public function checkImagick()
 	{
 		$imagick = false;
 		$gif = false;
@@ -386,25 +498,16 @@ class Install extends BaseObject
 				$gif = true;
 			}
 		}
-		if ($imagick == false) {
-			self::addCheck($checks, L10n::t('ImageMagick PHP extension is not installed'), $imagick, false, "");
+		if (!$imagick) {
+			$this->addCheck(L10n::t('ImageMagick PHP extension is not installed'), $imagick, false, "");
 		} else {
-			self::addCheck($checks, L10n::t('ImageMagick PHP extension is installed'), $imagick, false, "");
+			$this->addCheck(L10n::t('ImageMagick PHP extension is installed'), $imagick, false, "");
 			if ($imagick) {
-				self::addCheck($checks, L10n::t('ImageMagick supports GIF'), $gif, false, "");
+				$this->addCheck(L10n::t('ImageMagick supports GIF'), $gif, false, "");
 			}
 		}
-	}
 
-	/**
-	 * Installs the Database structure
-	 *
-	 * @return string A possible error
-	 */
-	public static function installDatabaseStructure()
-	{
-		$errors = DBStructure::update(false, true, true);
-
-		return $errors;
+		// Imagick is not required
+		return true;
 	}
 }

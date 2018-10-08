@@ -3,15 +3,14 @@
 namespace Friendica\Core\Console;
 
 use Asika\SimpleConsole\Console;
-use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Install;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use RuntimeException;
 
-require_once 'mod/install.php';
 require_once 'include/dba.php';
 
 class AutomaticInstallation extends Console
@@ -77,6 +76,8 @@ HELP;
 
 		$a = BaseObject::getApp();
 
+		$install = new Install();
+
 		// if a config file is set,
 		$config_file = $this->getOption(['f', 'file']);
 
@@ -105,21 +106,22 @@ HELP;
 			$db_user = $this->getOption(['U', 'dbuser'], ($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : '');
 			$db_pass = $this->getOption(['P', 'dbpass'], ($save_db) ? getenv('MYSQL_PASSWORD') : '');
 			$url_path = $this->getOption(['u', 'urlpath'], (!empty('FRIENDICA_URL_PATH')) ? getenv('FRIENDICA_URL_PATH') : null);
-			$php_path = $this->getOption(['b', 'phppath'], (!empty('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : '');
+			$php_path = $this->getOption(['b', 'phppath'], (!empty('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : null);
 			$admin_mail = $this->getOption(['A', 'admin'], (!empty('FRIENDICA_ADMIN_MAIL')) ? getenv('FRIENDICA_ADMIN_MAIL') : '');
 			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
 			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
 
-			Install::createConfig(
+			$install->createConfig(
+				$php_path,
 				$url_path,
 				((!empty($db_port)) ? $db_host . ':' . $db_port : $db_host),
 				$db_user,
 				$db_pass,
 				$db_data,
-				$php_path,
 				$tz,
 				$lang,
-				$admin_mail
+				$admin_mail,
+				$a->getBasePath()
 			);
 		}
 
@@ -129,7 +131,10 @@ HELP;
 		$this->out("Checking basic setup...\n");
 
 		$checkResults = [];
-		$checkResults['basic'] = $this->runBasicChecks($a);
+
+		$this->runBasicChecks($install);
+
+		$checkResults['basic'] = $install->getChecks();
 		$errorMessage = $this->extractErrors($checkResults['basic']);
 
 		if ($errorMessage !== '') {
@@ -154,7 +159,7 @@ HELP;
 		// Install database
 		$this->out("Inserting data into database...\n");
 
-		$checkResults['data'] = Install::installDatabaseStructure();
+		$checkResults['data'] = DBStructure::update(false, true, true);
 
 		if ($checkResults['data'] !== '') {
 			throw new RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
@@ -177,28 +182,26 @@ HELP;
 	}
 
 	/**
-	 * @param App $app
-	 * @return array
+	 * @param Install $install the Installer instance
 	 */
-	private function runBasicChecks($app)
+	private function runBasicChecks($install)
 	{
-		$checks = [];
-
-		Install::checkFunctions($checks);
-		Install::checkImagick($checks);
-		Install::checkLocalIni($checks);
-		Install::checkSmarty3($checks);
-		Install::checkKeys($checks);
+		$install->resetChecks();
+		$install->checkFunctions();
+		$install->checkImagick();
+		$install->checkLocalIni();
+		$install->checkSmarty3();
+		$install->checkKeys();
 
 		if (!empty(Config::get('config', 'php_path'))) {
-			Install::checkPHP(Config::get('config', 'php_path'), $checks);
+			if (!$install->checkPHP(Config::get('config', 'php_path'), true)) {
+				throw new RuntimeException(" ERROR: The php_path is not valid in the config.\n");
+			}
 		} else {
 			throw new RuntimeException(" ERROR: The php_path is not set in the config.\n");
 		}
 
 		$this->out(" NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.\n");
-
-		return $checks;
 	}
 
 	/**
@@ -206,6 +209,7 @@ HELP;
 	 * @param $db_user
 	 * @param $db_pass
 	 * @param $db_data
+	 *
 	 * @return array
 	 */
 	private function runDatabaseCheck($db_host, $db_user, $db_pass, $db_data)

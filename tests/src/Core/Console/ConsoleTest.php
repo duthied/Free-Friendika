@@ -50,7 +50,6 @@ abstract class ConsoleTest extends TestCase
 	}
 
 	public function execute($args) {
-		DBA::disconnect();
 		$this->app->reload();
 
 		array_unshift($args, $this->getExecutablePath());
