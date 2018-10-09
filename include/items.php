@@ -349,7 +349,7 @@ function drop_item($id)
 
 	// locate item to be deleted
 
-	$fields = ['id', 'uid', 'contact-id', 'deleted'];
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
@@ -401,7 +401,7 @@ function drop_item($id)
 		}
 		// Now check how the user responded to the confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			goaway('/item/drop/' . $id);
+			goaway('/display/' . $item['guid']);
 		}
 
 		// delete the item
@@ -411,7 +411,7 @@ function drop_item($id)
 		//NOTREACHED
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
-		goaway('/item/drop/' . $id);
+		goaway('/display/' . $item['guid']);
 		//NOTREACHED
 	}
 }
