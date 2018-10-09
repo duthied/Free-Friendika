@@ -332,11 +332,11 @@
         },
         {
             "name": "friendica/json-ld",
-            "version": "1.0.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://git.friendi.ca/friendica/php-json-ld",
-                "reference": "a9ac64daf01cfd97e80c36a5104247d37c0ae5ef"
+                "reference": "ca3916d10d2ad9073b3b1eae383978dbe828e1e1"
             },
             "require": {
                 "ext-json": "*",
@@ -355,11 +355,11 @@
                 {
                     "name": "Digital Bazaar, Inc.",
                     "email": "support@digitalbazaar.com",
-                    "url": "http://digitalbazaar.com/"
+                    "homepage": "http://digitalbazaar.com/"
                 },
                 {
                     "name": "Friendica Team",
-                    "url": "https://friendi.ca/"
+                    "homepage": "https://friendi.ca/"
                 }
             ],
             "description": "A JSON-LD Processor and API implementation in PHP.",
@@ -372,7 +372,7 @@
                 "Semantic Web",
                 "jsonld"
             ],
-            "time": "2018-09-28T00:01:12+00:00"
+            "time": "2018-10-08T20:41:00+00:00"
         },
         {
             "name": "fxp/composer-asset-plugin",
