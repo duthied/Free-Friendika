@@ -19,6 +19,8 @@ use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
  */
 abstract class DatabaseTest extends TestCase
 {
+	use TestCaseTrait;
+
 	/**
 	 * @var App The Friendica App
 	 */
