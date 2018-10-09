@@ -25,9 +25,7 @@ function filerm_content(App $a) {
 		file_tag_unsave_file(local_user(),$item_id,$term, $category);
 	}
 
-	if (x($_SESSION,'return_url')) {
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
-	}
+	goaway('/network');
 
 	killme();
 }
