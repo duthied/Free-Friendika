@@ -407,7 +407,7 @@ function drop_item($id)
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		goaway('/item/drop/' . $id);
+		goaway('/network');
 		//NOTREACHED
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
