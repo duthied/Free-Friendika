@@ -67,8 +67,8 @@ function match_content(App $a)
 		$j = json_decode($x);
 
 		if ($j->total) {
-			$a->set_pager_total($j->total);
-			$a->set_pager_itemspage($j->items_page);
+			$a->setPagerTotal($j->total);
+			$a->setPagerItemsPage($j->items_page);
 		}
 
 		if (count($j->results)) {

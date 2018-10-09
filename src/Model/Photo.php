@@ -146,7 +146,7 @@ class Photo
 
 			// Remove the cached photo
 			$a = get_app();
-			$basepath = $a->get_basepath();
+			$basepath = $a->getBasePath();
 
 			if (is_dir($basepath . "/photo")) {
 				$filename = $basepath . '/photo/' . $hash . '-4.' . $Image->getExt();

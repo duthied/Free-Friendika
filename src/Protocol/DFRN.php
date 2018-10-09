@@ -1220,7 +1220,7 @@ class DFRN
 
 		$xml = $ret['body'];
 
-		$curl_stat = $a->get_curl_code();
+		$curl_stat = Network::getCurl()->getCode();
 		if (empty($curl_stat)) {
 			Contact::markForArchival($contact);
 			return -3; // timed out
@@ -1372,13 +1372,13 @@ class DFRN
 
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 
-		$curl_stat = $a->get_curl_code();
+		$curl_stat = Network::getCurl()->getCode();
 		if (empty($curl_stat) || empty($xml)) {
 			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && stristr($a->get_curl_headers(), 'retry-after')) {
+		if (($curl_stat == 503) && stristr(Network::getCurl()->getHeaders(), 'retry-after')) {
 			Contact::markForArchival($contact);
 			return -10;
 		}
@@ -1469,14 +1469,14 @@ class DFRN
 
 		$xml = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
 
-		$curl_stat = $a->get_curl_code();
+		$curl_stat = Network::getCurl()->getCode();
 		if (empty($curl_stat) || empty($xml)) {
 			logger('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
 			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
+		if (($curl_stat == 503) && (stristr(Network::getCurl()->getHeaders(), 'retry-after'))) {
 			Contact::markForArchival($contact);
 			return -10;
 		}
@@ -2496,7 +2496,7 @@ class DFRN
 
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
-			$base_url = get_app()->get_baseurl();
+			$base_url = get_app()->getBaseURL();
 			$item['body'] = reltoabs($item['body'], $base_url);
 
 			$item['body'] = html2bb_video($item['body']);

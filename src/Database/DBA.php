@@ -570,7 +570,7 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		$a->save_timestamp($stamp1, 'database');
+		$a->saveTimestamp($stamp1, 'database');
 
 		if ($a->getConfigValue('system', 'db_log')) {
 			$stamp2 = microtime(true);
@@ -641,7 +641,7 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		$a->save_timestamp($stamp, "database_write");
+		$a->saveTimestamp($stamp, "database_write");
 
 		return $retval;
 	}
@@ -809,7 +809,7 @@ class DBA
 				}
 		}
 
-		$a->save_timestamp($stamp1, 'database');
+		$a->saveTimestamp($stamp1, 'database');
 
 		return $columns;
 	}
@@ -1547,7 +1547,7 @@ class DBA
 				break;
 		}
 
-		$a->save_timestamp($stamp1, 'database');
+		$a->saveTimestamp($stamp1, 'database');
 
 		return $ret;
 	}

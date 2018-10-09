@@ -318,7 +318,7 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 
 	Network::post($url, $params);
 
-	logger('subscribe_to_hub: returns: ' . $a->get_curl_code(), LOGGER_DEBUG);
+	logger('subscribe_to_hub: returns: ' . Network::getCurl()->getCode(), LOGGER_DEBUG);
 
 	return;
 

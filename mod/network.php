@@ -302,7 +302,7 @@ function networkPager($a, $update)
 		$itemspage_network = $a->force_max_items;
 	}
 
-	$a->set_pager_itemspage($itemspage_network);
+	$a->setPagerItemsPage($itemspage_network);
 
 	return sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 }
@@ -721,7 +721,7 @@ function networkThreadedView(App $a, $update, $parent)
 			if ($last_received != '') {
 				$last_date = $last_received;
 				$sql_range .= sprintf(" AND $sql_table.`received` < '%s'", DBA::escape($last_received));
-				$a->set_pager_page(1);
+				$a->setPagerPage(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
@@ -729,7 +729,7 @@ function networkThreadedView(App $a, $update, $parent)
 			if ($last_commented != '') {
 				$last_date = $last_commented;
 				$sql_range .= sprintf(" AND $sql_table.`commented` < '%s'", DBA::escape($last_commented));
-				$a->set_pager_page(1);
+				$a->setPagerPage(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
@@ -737,14 +737,14 @@ function networkThreadedView(App $a, $update, $parent)
 			if ($last_created != '') {
 				$last_date = $last_created;
 				$sql_range .= sprintf(" AND $sql_table.`created` < '%s'", DBA::escape($last_created));
-				$a->set_pager_page(1);
+				$a->setPagerPage(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;
 		case 'id':
 			if (($last_id > 0) && ($sql_table == '`thread`')) {
 				$sql_range .= sprintf(" AND $sql_table.`iid` < '%s'", DBA::escape($last_id));
-				$a->set_pager_page(1);
+				$a->setPagerPage(1);
 				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 			}
 			break;

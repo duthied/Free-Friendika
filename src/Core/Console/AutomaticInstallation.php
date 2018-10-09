@@ -84,8 +84,8 @@ HELP;
 			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.ini.php') {
 				// Copy config file
 				$this->out("Copying config file...\n");
-				if (!copy($a->basepath . DIRECTORY_SEPARATOR . $config_file, $a->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
-					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '$a->basepath" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.ini.php' manually.\n");
+				if (!copy($a->getBasePath() . DIRECTORY_SEPARATOR . $config_file, $a->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $a->getBasePath() . "'"  . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.ini.php' manually.\n");
 				}
 			}
 

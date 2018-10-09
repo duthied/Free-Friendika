@@ -547,7 +547,7 @@ function settings_post(App $a)
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
 		if (Network::isUrlValid($openid)) {
 			logger('updating openidserver');
-			$open_id_obj = new LightOpenID($a->get_hostname());
+			$open_id_obj = new LightOpenID($a->getHostName());
 			$open_id_obj->identity = $openid;
 			$openidserver = $open_id_obj->discover($open_id_obj->identity);
 		} else {
@@ -1136,8 +1136,8 @@ function settings_content(App $a)
 	$tpl_addr = get_markup_template('settings/nick_set.tpl');
 
 	$prof_addr = replace_macros($tpl_addr,[
-		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->get_hostname() . $a->get_path(), System::baseUrl() . '/profile/' . $nickname),
-		'$basepath' => $a->get_hostname()
+		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLpath(), System::baseUrl() . '/profile/' . $nickname),
+		'$basepath' => $a->getHostName()
 	]);
 
 	$stpl = get_markup_template('settings/settings.tpl');

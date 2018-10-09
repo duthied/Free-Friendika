@@ -74,7 +74,7 @@ class Probe
 	 */
 	private static function ownHost($host)
 	{
-		$own_host = get_app()->get_hostname();
+		$own_host = get_app()->getHostName();
 
 		$parts = parse_url($host);
 

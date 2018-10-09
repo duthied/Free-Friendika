@@ -75,9 +75,8 @@ class ApiTest extends DatabaseTest
 	{
 		parent::tearDown();
 
-		$app = get_app();
-		$app->argc = 1;
-		$app->argv = ['home'];
+		$this->app->argc = 1;
+		$this->app->argv = ['home'];
 	}
 
 	/**

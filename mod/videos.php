@@ -341,8 +341,8 @@ function videos_content(App $a)
 	);
 
 	if (DBA::isResult($r)) {
-		$a->set_pager_total(count($r));
-		$a->set_pager_itemspage(20);
+		$a->setPagerTotal(count($r));
+		$a->setPagerItemsPage(20);
 	}
 
 	$r = q("SELECT hash, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`created`) AS `created`,

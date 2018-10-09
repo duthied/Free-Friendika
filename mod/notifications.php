@@ -120,7 +120,7 @@ function notifications_content(App $a)
 	}
 
 	// Set the pager
-	$a->set_pager_itemspage($perpage);
+	$a->setPagerItemsPage($perpage);
 
 	// Add additional informations (needed for json output)
 	$notifs['items_page'] = $a->pager['itemspage'];

@@ -42,7 +42,7 @@ function replace_macros($s, $r) {
 	// pass $baseurl to all templates
 	$r['$baseurl'] = System::baseUrl();
 
-	$t = $a->template_engine();
+	$t = $a->getTemplateEngine();
 	try {
 		$output = $t->replaceMacros($s, $r);
 	} catch (Exception $e) {
@@ -50,7 +50,7 @@ function replace_macros($s, $r) {
 		killme();
 	}
 
-	$a->save_timestamp($stamp1, "rendering");
+	$a->saveTimestamp($stamp1, "rendering");
 
 	return $output;
 }
@@ -473,7 +473,7 @@ function get_markup_template($s, $root = '') {
 	$stamp1 = microtime(true);
 
 	$a = get_app();
-	$t = $a->template_engine();
+	$t = $a->getTemplateEngine();
 	try {
 		$template = $t->getTemplateFile($s, $root);
 	} catch (Exception $e) {
@@ -481,7 +481,7 @@ function get_markup_template($s, $root = '') {
 		killme();
 	}
 
-	$a->save_timestamp($stamp1, "file");
+	$a->saveTimestamp($stamp1, "file");
 
 	return $template;
 }
@@ -574,7 +574,7 @@ function logger($msg, $level = LOGGER_INFO) {
 
 	$stamp1 = microtime(true);
 	@file_put_contents($logfile, $logline, FILE_APPEND);
-	$a->save_timestamp($stamp1, "file");
+	$a->saveTimestamp($stamp1, "file");
 }
 
 /**
@@ -634,7 +634,7 @@ function dlogger($msg, $level = LOGGER_INFO) {
 
 	$stamp1 = microtime(true);
 	@file_put_contents($logfile, $logline, FILE_APPEND);
-	$a->save_timestamp($stamp1, "file");
+	$a->saveTimestamp($stamp1, "file");
 }
 
 
@@ -1414,7 +1414,7 @@ function get_plink($item) {
 			];
 
 		if (x($item, 'plink')) {
-			$ret["href"] = $a->remove_baseurl($item['plink']);
+			$ret["href"] = $a->removeBaseURL($item['plink']);
 			$ret["title"] = L10n::t('link to source');
 		}
 

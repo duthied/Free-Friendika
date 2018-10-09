@@ -1632,10 +1632,10 @@ class Contact extends BaseObject
 
 		if (($ret['network'] === Protocol::DFRN) && !DBA::isResult($contact)) {
 			if ($interactive) {
-				if (strlen($a->urlpath)) {
+				if (strlen($a->getURLpath())) {
 					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
 				} else {
-					$myaddr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname());
+					$myaddr = bin2hex($a->user['nickname'] . '@' . $a->getHostName());
 				}
 
 				goaway($ret['request'] . "&addr=$myaddr");

@@ -5,6 +5,7 @@
 
 namespace Friendica\Test;
 
+use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
@@ -18,7 +19,12 @@ use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
  */
 abstract class DatabaseTest extends TestCase
 {
-	public function setUp()
+	/**
+	 * @var App The Friendica App
+	 */
+	protected $app;
+
+	protected function setUp()
 	{
 		// Reusable App object
 		$this->app = BaseObject::getApp();

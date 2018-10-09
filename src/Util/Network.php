@@ -9,6 +9,8 @@ use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Network\Curl;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\XML;
@@ -17,6 +19,25 @@ use DomXPath;
 
 class Network
 {
+	/**
+	 * @var Curl The latest Curl output
+	 */
+	private static $curl;
+
+	/**
+	 * Returns the latest Curl output
+	 *
+	 * @return Curl The latest Curl output
+	 */
+	public static function getCurl()
+	{
+		if (empty(self::$curl)) {
+			self::$curl = new Curl();
+		}
+
+		return self::$curl;
+	}
+
 	/**
 	 * Curl wrapper
 	 *
@@ -35,7 +56,7 @@ class Network
 	 *
 	 * @return string The fetched content
 	 */
-	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
+	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
 	{
 		$ret = self::fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
 
@@ -59,7 +80,7 @@ class Network
 	 *
 	 * @return array With all relevant information, 'body' contains the actual fetched content.
 	 */
-	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
+	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
 	{
 		return self::curl(
 			$url,
@@ -145,7 +166,7 @@ class Network
 		}
 
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		$range = intval(Config::get('system', 'curl_range_bytes', 0));
 
@@ -203,8 +224,6 @@ class Network
 			@curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 		}
 
-		$a->set_curl_code(0);
-
 		// don't let curl abort the entire application
 		// if it throws any errors.
 
@@ -242,9 +261,7 @@ class Network
 			$base = substr($base, strlen($chunk));
 		}
 
-		$a->set_curl_code($http_code);
-		$a->set_curl_content_type($curl_info['content_type']);
-		$a->set_curl_headers($header);
+		self::$curl = new Curl($http_code, (isset($curl_info['content_type']) ? $curl_info['content_type'] : ''), $header);
 
 		if ($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
 			$new_location_info = @parse_url($curl_info['redirect_url']);
@@ -277,8 +294,10 @@ class Network
 			}
 		}
 
-		$a->set_curl_code($http_code);
-		$a->set_curl_content_type($curl_info['content_type']);
+		self::$curl->setCode($http_code);
+		if (isset($curl_info['content_type'])) {
+			self::$curl->setContentType($curl_info['content_type']);
+		}
 
 		$rc = intval($http_code);
 		$ret['return_code'] = $rc;
@@ -301,7 +320,7 @@ class Network
 
 		@curl_close($ch);
 
-		$a->save_timestamp($stamp1, 'network');
+		$a->saveTimestamp($stamp1, 'network');
 
 		return($ret);
 	}
@@ -339,7 +358,7 @@ class Network
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		if (Config::get('system', 'ipv4_resolve', false)) {
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -384,7 +403,7 @@ class Network
 			}
 		}
 
-		$a->set_curl_code(0);
+		self::getCurl()->setCode(0);
 
 		// don't let curl abort the entire application
 		// if it throws any errors.
@@ -427,15 +446,15 @@ class Network
 			}
 		}
 
-		$a->set_curl_code($http_code);
+		self::getCurl()->setCode($http_code);
 
 		$body = substr($s, strlen($header));
 
-		$a->set_curl_headers($header);
+		self::getCurl()->setHeaders($header);
 
 		curl_close($ch);
 
-		$a->save_timestamp($stamp1, 'network');
+		$a->saveTimestamp($stamp1, 'network');
 
 		logger('post_url: end ' . $url, LOGGER_DATA);
 
@@ -729,14 +748,14 @@ class Network
 		curl_setopt($ch, CURLOPT_NOBODY, 1);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 		$http_code = $curl_info['http_code'];
 		curl_close($ch);
 
-		$a->save_timestamp($stamp1, "network");
+		$a->saveTimestamp($stamp1, "network");
 
 		if ($http_code == 0) {
 			return $url;
@@ -773,12 +792,12 @@ class Network
 		curl_setopt($ch, CURLOPT_NOBODY, 0);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		$body = curl_exec($ch);
 		curl_close($ch);
 
-		$a->save_timestamp($stamp1, "network");
+		$a->saveTimestamp($stamp1, "network");
 
 		if (trim($body) == "") {
 			return $url;

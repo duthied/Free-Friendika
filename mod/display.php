@@ -365,7 +365,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$title = trim(HTML::toPlaintext(BBCode::convert($item["title"], false), 0, true));
 	$author_name = $item["author-name"];
 
-	$image = $a->remove_baseurl($item["author-avatar"]);
+	$image = $a->removeBaseURL($item["author-avatar"]);
 
 	if ($title == "") {
 		$title = $author_name;

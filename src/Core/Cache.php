@@ -61,7 +61,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->getAllKeys($prefix);
 
-		self::getApp()->save_timestamp($time, 'cache');
+		self::getApp()->saveTimestamp($time, 'cache');
 
 		return $return;
 	}
@@ -79,7 +79,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->get($key);
 
-		self::getApp()->save_timestamp($time, 'cache');
+		self::getApp()->saveTimestamp($time, 'cache');
 
 		return $return;
 	}
@@ -101,7 +101,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->set($key, $value, $duration);
 
-		self::getApp()->save_timestamp($time, 'cache_write');
+		self::getApp()->saveTimestamp($time, 'cache_write');
 
 		return $return;
 	}
@@ -119,7 +119,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->delete($key);
 
-		self::getApp()->save_timestamp($time, 'cache_write');
+		self::getApp()->saveTimestamp($time, 'cache_write');
 
 		return $return;
 	}

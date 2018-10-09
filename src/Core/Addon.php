@@ -197,7 +197,7 @@ class Addon extends BaseObject
 	 */
 	public static function registerHook($hook, $file, $function, $priority = 0)
 	{
-		$file = str_replace(self::getApp()->get_basepath() . DIRECTORY_SEPARATOR, '', $file);
+		$file = str_replace(self::getApp()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
 		$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
 		$exists = DBA::exists('hook', $condition);
@@ -220,7 +220,7 @@ class Addon extends BaseObject
 	 */
 	public static function unregisterHook($hook, $file, $function)
 	{
-		$relative_file = str_replace(self::getApp()->get_basepath() . DIRECTORY_SEPARATOR, '', $file);
+		$relative_file = str_replace(self::getApp()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
 		// This here is only needed for fixing a problem that existed on the develop branch
 		$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
@@ -368,7 +368,7 @@ class Addon extends BaseObject
 
 		$stamp1 = microtime(true);
 		$f = file_get_contents("addon/$addon/$addon.php");
-		$a->save_timestamp($stamp1, "file");
+		$a->saveTimestamp($stamp1, "file");
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 

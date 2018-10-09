@@ -842,7 +842,7 @@ class DBStructure
 	public static function definition() {
 		$a = \Friendica\BaseObject::getApp();
 
-		$filename = $a->get_basepath() . '/config/dbstructure.json';
+		$filename = $a->getBasePath() . '/config/dbstructure.json';
 
 		if (!is_readable($filename)) {
 			throw new Exception('Missing database structure config file config/dbstructure.json');

@@ -350,7 +350,7 @@ function ping_init(App $a)
 			$regularnotifications = (!empty($_GET['uid']) && !empty($_GET['_']));
 
 			foreach ($notifs as $notif) {
-				if ($a->is_friendica_app() || !$regularnotifications) {
+				if ($a->isFriendicaApp() || !$regularnotifications) {
 					$notif['message'] = str_replace("{0}", $notif['name'], $notif['message']);
 				}
 

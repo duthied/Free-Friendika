@@ -27,7 +27,7 @@ function notify_init(App $a)
 			$nm->setSeen($note);
 
 			// The friendica client has problems with the GUID. this is some workaround
-			if ($a->is_friendica_app()) {
+			if ($a->isFriendicaApp()) {
 				require_once("include/items.php");
 				$urldata = parse_url($note['link']);
 				$guid = basename($urldata["path"]);

@@ -47,7 +47,7 @@ class Magic extends BaseModule
 		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
 		// Redirect if the contact is already authenticated on this site.
-		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->get_baseurl())) !== false) {
+		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->getBaseURL())) !== false) {
 			if ($test) {
 				$ret['success'] = true;
 				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;
@@ -78,7 +78,7 @@ class Magic extends BaseModule
 				$headers = HTTPSignature::createSig(
 					$headers,
 					$user['prvkey'],
-					'acct:' . $user['nickname'] . '@' . $a->get_hostname() . ($a->urlpath ? '/' . $a->urlpath : '')
+					'acct:' . $user['nickname'] . '@' . $a->getHostName() . ($a->getURLpath() ? '/' . $a->getURLpath() : '')
 				);
 
 				// Try to get an authentication token from the other instance.

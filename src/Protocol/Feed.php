@@ -430,7 +430,7 @@ class Feed {
 				// Distributed items should have a well formatted URI.
 				// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
 				if ($notify) {
-					$item['guid'] = Item::guidFromUri($orig_plink, $a->get_hostname());
+					$item['guid'] = Item::guidFromUri($orig_plink, $a->getHostName());
 					unset($item['uri']);
 					unset($item['parent-uri']);
 

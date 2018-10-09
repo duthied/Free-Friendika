@@ -162,7 +162,7 @@ class Profile
 		* load/reload current theme info
 		*/
 
-		$a->set_template_engine(); // reset the template engine to the default in case the user's theme doesn't specify one
+		$a->setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
 		$theme_info_file = 'view/theme/' . $a->getCurrentTheme() . '/theme.php';
 		if (file_exists($theme_info_file)) {
@@ -1116,7 +1116,7 @@ class Profile
 
 		$a->contact = $arr['visitor'];
 
-		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->get_hostname(), $visitor['name']));
+		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->getHostName(), $visitor['name']));
 
 		logger('OpenWebAuth: auth success from ' . $visitor['addr'], LOGGER_DEBUG);
 	}

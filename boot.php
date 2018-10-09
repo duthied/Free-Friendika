@@ -556,7 +556,7 @@ function check_url(App $a)
 	// and www.example.com vs example.com.
 	// We will only change the url to an ip address if there is no existing setting
 
-	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname()))) {
+	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->getHostName()))) {
 		Config::set('system', 'url', System::baseUrl());
 	}
 
@@ -975,27 +975,27 @@ function get_temppath()
 
 	$temppath = Config::get("system", "temppath");
 
-	if (($temppath != "") && App::directory_usable($temppath)) {
+	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
-		return App::realpath($temppath);
+		return App::getRealPath($temppath);
 	}
 
 	// We don't have a working preconfigured temp path, so we take the system path.
 	$temppath = sys_get_temp_dir();
 
 	// Check if it is usable
-	if (($temppath != "") && App::directory_usable($temppath)) {
+	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
 		// Always store the real path, not the path through symlinks
-		$temppath = App::realpath($temppath);
+		$temppath = App::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
-		$new_temppath = $temppath . "/" . $a->get_hostname();
+		$new_temppath = $temppath . "/" . $a->getHostName();
 		if (!is_dir($new_temppath)) {
 			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 			mkdir($new_temppath);
 		}
 
-		if (App::directory_usable($new_temppath)) {
+		if (App::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "temppath", $new_temppath);
 			return $new_temppath;
@@ -1077,8 +1077,8 @@ function get_itemcachepath()
 	}
 
 	$itemcache = Config::get('system', 'itemcache');
-	if (($itemcache != "") && App::directory_usable($itemcache)) {
-		return App::realpath($itemcache);
+	if (($itemcache != "") && App::isDirectoryUsable($itemcache)) {
+		return App::getRealPath($itemcache);
 	}
 
 	$temppath = get_temppath();
@@ -1089,7 +1089,7 @@ function get_itemcachepath()
 			mkdir($itemcache);
 		}
 
-		if (App::directory_usable($itemcache)) {
+		if (App::isDirectoryUsable($itemcache)) {
 			Config::set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
@@ -1105,7 +1105,7 @@ function get_itemcachepath()
 function get_spoolpath()
 {
 	$spoolpath = Config::get('system', 'spoolpath');
-	if (($spoolpath != "") && App::directory_usable($spoolpath)) {
+	if (($spoolpath != "") && App::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -1120,7 +1120,7 @@ function get_spoolpath()
 			mkdir($spoolpath);
 		}
 
-		if (App::directory_usable($spoolpath)) {
+		if (App::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "spoolpath", $spoolpath);
 			return $spoolpath;

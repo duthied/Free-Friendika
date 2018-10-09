@@ -23,11 +23,9 @@ use Friendica\Module\Login;
 
 require_once 'boot.php';
 
-$a = new App(__DIR__);
-
 // We assume that the index.php is called by a frontend process
 // The value is set to "true" by default in boot.php
-$a->backend = false;
+$a = new App(__DIR__, false);
 
 /**
  * Try to open the database;
@@ -49,7 +47,7 @@ if ($a->isMaxProcessesReached() || $a->isMaxLoadReached()) {
 }
 
 if (!$a->getMode()->isInstall()) {
-	if (Config::get('system', 'force_ssl') && ($a->get_scheme() == "http")
+	if (Config::get('system', 'force_ssl') && ($a->getScheme() == "http")
 		&& (intval(Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL)
 		&& (substr(System::baseUrl(), 0, 8) == "https://")
 		&& ($_SERVER['REQUEST_METHOD'] == 'GET')) {
@@ -78,10 +76,10 @@ L10n::loadTranslationTable($lang);
  */
 
 // Exclude the backend processes from the session management
-if (!$a->is_backend()) {
+if (!$a->isBackend()) {
 	$stamp1 = microtime(true);
 	session_start();
-	$a->save_timestamp($stamp1, "parser");
+	$a->saveTimestamp($stamp1, "parser");
 } else {
 	$_SESSION = [];
 	Worker::executeIfIdle();
