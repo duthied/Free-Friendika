@@ -18,6 +18,9 @@ use Friendica\Protocol\ActivityPub;
 
 /**
  * ActivityPub Protocol class
+ *
+ * To-Do:
+ * - Store Diaspora signature
  */
 class Processor
 {
@@ -194,7 +197,14 @@ class Processor
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
-		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
+
+		if (empty($activity['thread-completion'])) {
+			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
+		} else {
+			logger('Ignoring actor because of thread completion.', LOGGER_DEBUG);
+			$item['owner-id'] = $item['author-id'];
+		}
+
 		$item['uri'] = $activity['id'];
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
@@ -261,6 +271,9 @@ class Processor
 		$activity['type'] = 'Create';
 
 		$ldactivity = JsonLD::compact($activity);
+
+		$ldactivity['thread-completion'] = true;
+
 		ActivityPub\Receiver::processActivity($ldactivity);
 		logger('Activity ' . $url . ' had been fetched and processed.');
 	}

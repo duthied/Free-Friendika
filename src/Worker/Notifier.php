@@ -103,9 +103,9 @@ class Notifier
 
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
 			foreach ($inboxes as $inbox) {
-				logger('Account removal for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+				logger('Account removal for user ' . $item_id . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
 				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-					'APDelivery', Delivery::REMOVAL, '', $inbox, $uid);
+					'APDelivery', Delivery::REMOVAL, '', $inbox, $item_id);
 			}
 
 			return;

@@ -268,6 +268,11 @@ class Receiver
 			return;
 		}
 
+		// Internal flag for thread completion. See Processor.php
+		if (!empty($activity['thread-completion'])) {
+			$object_data['thread-completion'] = $activity['thread-completion'];
+		}
+
 		switch ($type) {
 			case 'as:Create':
 			case 'as:Announce':
