@@ -1525,7 +1525,6 @@ section #jotOpen {
 }
 .panel .panel-body .wall-item-content {
     color: #555;
-    word-break: break-all;
 }
 .tread-wrapper .media {
     overflow: visible;

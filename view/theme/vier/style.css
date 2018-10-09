@@ -1467,7 +1467,7 @@ section.minimal {
 	/* font-size: 14px; */
 	max-width: 660px;
 	word-wrap: break-word;
-	word-break: break-all;
+	word-break: break-word;
 	/* line-height: 1.36; */
 	padding-bottom: 6px;
 }
