@@ -1065,7 +1065,7 @@ class App
 		];
 
 		// Check if current module is in backend or backend flag is set
-		$this->isBackend = (in_array($this->module, $backends) || $this->isBackend);
+		$this->isBackend = (in_array($this->module, $backends) || $backend || $this->isBackend);
 	}
 
 	/**
