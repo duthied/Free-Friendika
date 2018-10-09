@@ -631,7 +631,7 @@ class NotificationsManager extends BaseObject
 			// We have to distinguish between these two because they use different data.
 			// Contact suggestions
 			if ($it['fid']) {
-				$return_addr = bin2hex(self::getApp()->user['nickname'] . '@' . self::getApp()->getHostName() . ((self::getApp()->getURLpath()) ? '/' . self::getApp()->getURLpath() : ''));
+				$return_addr = bin2hex(self::getApp()->user['nickname'] . '@' . self::getApp()->getHostName() . ((self::getApp()->getURLPath()) ? '/' . self::getApp()->getURLPath() : ''));
 
 				$intro = [
 					'label' => 'friend_suggestion',

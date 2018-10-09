@@ -1124,7 +1124,7 @@ function admin_page_site_post(App $a)
 		Worker::add(PRIORITY_LOW, 'Directory');
 	}
 
-	if ($a->getURLpath() != "") {
+	if ($a->getURLPath() != "") {
 		$diaspora_enabled = false;
 	}
 	if ($ssl_policy != intval(Config::get('system', 'ssl_policy'))) {
@@ -1421,7 +1421,7 @@ function admin_page_site(App $a)
 	if (empty(Config::get('config', 'hostname'))) {
 		Config::set('config', 'hostname', $a->getHostName());
 	}
-	$diaspora_able = ($a->getURLpath() == "");
+	$diaspora_able = ($a->getURLPath() == "");
 
 	$optimize_max_tablesize = Config::get('system', 'optimize_max_tablesize', -1);
 

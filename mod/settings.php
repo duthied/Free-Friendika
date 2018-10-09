@@ -1136,7 +1136,7 @@ function settings_content(App $a)
 	$tpl_addr = get_markup_template('settings/nick_set.tpl');
 
 	$prof_addr = replace_macros($tpl_addr,[
-		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLpath(), System::baseUrl() . '/profile/' . $nickname),
+		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLPath(), System::baseUrl() . '/profile/' . $nickname),
 		'$basepath' => $a->getHostName()
 	]);
 

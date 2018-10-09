@@ -673,7 +673,7 @@ class App
 			$this->hostname = Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . (!empty($this->getURLpath()) ? '/' . $this->getURLpath() : '' );
+		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
 	}
 
 	/**
@@ -727,7 +727,7 @@ class App
 		return $this->hostname;
 	}
 
-	public function getURLpath()
+	public function getURLPath()
 	{
 		return $this->urlpath;
 	}
@@ -873,20 +873,20 @@ class App
 	/**
 	 * @brief Removes the base url from an url. This avoids some mixed content problems.
 	 *
-	 * @param string $orig_url
+	 * @param string $origURL
 	 *
 	 * @return string The cleaned url
 	 */
-	public function removeBaseURL($orig_url)
+	public function removeBaseURL($origURL)
 	{
 		// Remove the hostname from the url if it is an internal link
-		$nurl = normalise_link($orig_url);
+		$nurl = normalise_link($origURL);
 		$base = normalise_link($this->getBaseURL());
 		$url = str_replace($base . '/', '', $nurl);
 
 		// if it is an external link return the orignal value
-		if ($url == normalise_link($orig_url)) {
-			return $orig_url;
+		if ($url == normalise_link($origURL)) {
+			return $origURL;
 		} else {
 			return $url;
 		}
