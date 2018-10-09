@@ -187,7 +187,7 @@ function events_post(App $a)
 		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
 	}
 
-	goaway($_SESSION['return_url']);
+	goaway('/events');
 }
 
 function events_content(App $a)
