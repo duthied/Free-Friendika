@@ -778,7 +778,6 @@ class Transmitter
 
 		$data['url'] = $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
-		$data['actor'] = $item['author-link'];
 		$data['sensitive'] = self::isSensitive($item['id']);
 		$data['context'] = self::fetchContextURLForItem($item);
 

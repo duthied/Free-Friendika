@@ -196,12 +196,15 @@ class Processor
 
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['private'] = !in_array(0, $activity['receiver']);
+		$item['author-link'] = $activity['author'];
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
 
 		if (empty($activity['thread-completion'])) {
+			$item['owner-link'] = $activity['actor'];
 			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 		} else {
 			logger('Ignoring actor because of thread completion.', LOGGER_DEBUG);
+			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		}
 
