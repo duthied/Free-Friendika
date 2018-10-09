@@ -297,6 +297,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
+			self::switchContact($cid);
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
 			$contact = false;
@@ -309,11 +310,6 @@ class Processor
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;
-		}
-
-		$contact = DBA::selectFirst('contact', ['network'], ['id' => $cid]);
-		if ($contact['network'] != Protocol::ACTIVITYPUB) {
-			Contact::updateFromProbe($cid, Protocol::ACTIVITYPUB);
 		}
 
 		DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
@@ -381,6 +377,8 @@ class Processor
 			return;
 		}
 
+		self::switchContact($cid);
+
 		$fields = ['pending' => false];
 
 		$contact = DBA::selectFirst('contact', ['rel'], ['id' => $cid]);
@@ -412,6 +410,8 @@ class Processor
 			logger('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
 			return;
 		}
+
+		self::switchContact($cid);
 
 		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING, 'pending' => true])) {
 			Contact::remove($cid);
@@ -464,6 +464,8 @@ class Processor
 			return;
 		}
 
+		self::switchContact($cid);
+
 		$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
 			return;
@@ -471,5 +473,21 @@ class Processor
 
 		Contact::removeFollower($owner, $contact);
 		logger('Undo following request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
+	}
+
+	/**
+	 * Switches a contact to AP if needed
+	 *
+	 * @param integer $cid Contact ID
+	 */
+	private static function switchContact($cid)
+	{
+		$contact = DBA::selectFirst('contact', ['network'], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
+		if (!DBA::isResult($contact) || ($contact['network'] == Protocol::ACTIVITYPUB)) {
+			return;
+		}
+
+		logger('Change existing contact ' . $cid . ' from ' . $contact['network'] . ' to ActivityPub.');
+		Contact::updateFromProbe($cid, Protocol::ACTIVITYPUB);
 	}
 }
