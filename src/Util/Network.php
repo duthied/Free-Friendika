@@ -7,7 +7,7 @@ namespace Friendica\Util;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
 use Friendica\Core\Config;
-use Friendica\Network\Curl;
+use Friendica\Network\CurlResult;
 use DOMDocument;
 use DomXPath;
 
@@ -53,7 +53,7 @@ class Network
 	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
 	 * @param string  $cookiejar      Path to cookie jar file
 	 *
-	 * @return Curl With all relevant information, 'body' contains the actual fetched content.
+	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
 	 */
 	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
 	{
@@ -83,7 +83,7 @@ class Network
 	 *                           'nobody' => only return the header
 	 *                           'cookiejar' => path to cookie jar file
 	 *
-	 * @return Curl
+	 * @return CurlResult
 	 */
 	public static function curl($url, $binary = false, &$redirects = 0, $opts = [])
 	{
@@ -107,13 +107,13 @@ class Network
 
 		if (self::isUrlBlocked($url)) {
 			logger('domain of ' . $url . ' is blocked', LOGGER_DATA);
-			return Curl::createErrorCurl($url);
+			return CurlResult::createErrorCurl($url);
 		}
 
 		$ch = @curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
-			return Curl::createErrorCurl($url);
+			return CurlResult::createErrorCurl($url);
 		}
 
 		@curl_setopt($ch, CURLOPT_HEADER, true);
@@ -208,7 +208,7 @@ class Network
 			$curl_info = @curl_getinfo($ch);
 		}
 
-		$curlResponse = new Curl($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
+		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
 
 		if ($curlResponse->isRedirectUrl()) {
 			$redirects++;
@@ -233,7 +233,7 @@ class Network
 	 * @param integer $redirects Recursion counter for internal use - default = 0
 	 * @param integer $timeout   The timeout in seconds, default system config value or 60 seconds
 	 *
-	 * @return Curl The content
+	 * @return CurlResult The content
 	 */
 	public static function post($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	{
@@ -241,14 +241,14 @@ class Network
 
 		if (self::isUrlBlocked($url)) {
 			logger('post_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
-			return Curl::createErrorCurl($url);
+			return CurlResult::createErrorCurl($url);
 		}
 
 		$a = get_app();
 		$ch = curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
-			return Curl::createErrorCurl($url);
+			return CurlResult::createErrorCurl($url);
 		}
 
 		logger('post_url: start ' . $url, LOGGER_DATA);
@@ -310,7 +310,7 @@ class Network
 		$base = $s;
 		$curl_info = curl_getinfo($ch);
 
-		$curlResponse = new Curl($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
+		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
 
 		if ($curlResponse->isRedirectUrl()) {
 			$redirects++;

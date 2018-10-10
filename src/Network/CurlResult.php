@@ -8,7 +8,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
 /**
  * A content class for Curl call results
  */
-class Curl
+class CurlResult
 {
 	/**
 	 * @var int HTTP return code or 0 if timeout or failure
@@ -75,15 +75,11 @@ class Curl
 	 *
 	 * @param string $url optional URL
 	 *
-	 * @return Curl a CURL with error response
+	 * @return CurlResult a CURL with error response
 	 */
 	public static function createErrorCurl($url = '')
 	{
-		return new Curl(
-			$url,
-			'',
-			[ 'http_code' => 0 ]
-			);
+		return new CurlResult($url,'', [ 'http_code' => 0 ]);
 	}
 
 	/**
