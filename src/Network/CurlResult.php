@@ -79,7 +79,7 @@ class CurlResult
 	 */
 	public static function createErrorCurl($url = '')
 	{
-		return new CurlResult($url,'', [ 'http_code' => 0 ]);
+		return new CurlResult($url, '', ['http_code' => 0]);
 	}
 
 	/**
