@@ -86,13 +86,14 @@ class PortableContact
 
 		logger('load: ' . $url, LOGGER_DEBUG);
 
-		$s = Network::fetchUrl($url);
+		$fetchresult = Network::fetchUrlFull($url);
+		$s = $fetchresult->getBody();
 
 		logger('load: returns ' . $s, LOGGER_DATA);
 
-		logger('load: return code: ' . Network::getCurl()->getCode(), LOGGER_DEBUG);
+		logger('load: return code: ' . $fetchresult->getReturnCode(), LOGGER_DEBUG);
 
-		if ((Network::getCurl()->getCode() > 299) || (! $s)) {
+		if (($fetchresult->getReturnCode() > 299) || (! $s)) {
 			return;
 		}
 

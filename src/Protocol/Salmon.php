@@ -193,7 +193,7 @@ class Salmon
 			return -1;
 		}
 
-		if (($return_code == 503) && (stristr(Network::getCurl()->getHeaders(), 'retry-after'))) {
+		if (($return_code == 503) && (stristr($postResult->getHeader(), 'retry-after'))) {
 			return -1;
 		}
 

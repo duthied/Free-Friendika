@@ -188,7 +188,8 @@ class Proxy extends BaseModule
 			// It shouldn't happen but it does - spaces in URL
 			$_REQUEST['url'] = str_replace(' ', '+', $_REQUEST['url']);
 			$redirects = 0;
-			$img_str = Network::fetchUrl($_REQUEST['url'], true, $redirects, 10);
+			$fetchResult = Network::fetchUrlFull($_REQUEST['url'], true, $redirects, 10);
+			$img_str = $fetchResult->getBody();
 
 			$tempfile = tempnam(get_temppath(), 'cache');
 			file_put_contents($tempfile, $img_str);
@@ -196,7 +197,7 @@ class Proxy extends BaseModule
 			unlink($tempfile);
 
 			// If there is an error then return a blank image
-			if ((substr(Network::getCurl()->getCode(), 0, 1) == '4') || (!$img_str)) {
+			if ((substr($fetchResult->getReturnCode(), 0, 1) == '4') || (!$img_str)) {
 				$img_str = file_get_contents('images/blank.png');
 				$mime = 'image/png';
 				$cachefile = ''; // Clear the cachefile so that the dummy isn't stored

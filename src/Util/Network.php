@@ -208,10 +208,6 @@ class Network
 			$curl_info = @curl_getinfo($ch);
 		}
 
-		if (curl_errno($ch) !== CURLE_OK) {
-			logger('error fetching ' . $url . ': ' . curl_error($ch), LOGGER_INFO);
-		}
-
 		$curlResponse = new Curl($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
 
 		if ($curlResponse->isRedirectUrl()) {

@@ -3089,7 +3089,7 @@ class Diaspora
 
 		logger("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
-		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeaders(), "retry-after")))) {
+		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
 			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::ACCOUNT_TYPE_RELAY)) {
 				logger("queue message");
 				// queue message for redelivery

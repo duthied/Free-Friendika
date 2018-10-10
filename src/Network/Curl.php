@@ -61,12 +61,12 @@ class Curl
 	private $isTimeout;
 
 	/**
-	 * @var int optional error numer
+	 * @var int the error number or 0 (zero) if no error
 	 */
 	private $errorNumber;
 
 	/**
-	 * @var string optional error message
+	 * @var string the error message or '' (the empty string) if no
 	 */
 	private $error;
 
@@ -82,7 +82,7 @@ class Curl
 		return new Curl(
 			$url,
 			'',
-			['http_code' => 0]
+			[ 'http_code' => 0 ]
 			);
 	}
 
@@ -98,7 +98,7 @@ class Curl
 	 */
 	public function __construct($url, $result, $info, $errorNumber = 0, $error = '')
 	{
-		if (empty($info['http_code'])) {
+		if (!array_key_exists('http_code', $info)) {
 			throw new InternalServerErrorException('CURL response doesn\'t contains a response HTTP code');
 		}
 
@@ -135,10 +135,10 @@ class Curl
 
 	private function checkSuccess()
 	{
-		$this->isSuccess = ((($this->returnCode >= 200 && $this->returnCode <= 299) || !empty($this->errorNumber)) ? true : false);
+		$this->isSuccess = ($this->returnCode >= 200 && $this->returnCode <= 299) || $this->errorNumber == 0;
 
 		if (!$this->isSuccess) {
-			logger('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, LOGGER_DEBUG);
+			logger('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, LOGGER_INFO);
 			logger('debug: ' . print_r($this->info, true), LOGGER_DATA);
 		}
 
@@ -151,15 +151,15 @@ class Curl
 
 	private function checkRedirect()
 	{
-		if (empty($this->info['url'])) {
+		if (!array_key_exists('url', $this->info)) {
 			$this->redirectUrl = '';
 		} else {
 			$this->redirectUrl = $this->info['url'];
 		}
 
 		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
-			$new_location_info = (empty($this->info['redirect_url']) ? '' : @parse_url($this->info['redirect_url']));
-			$old_location_info = (empty($this->info['url'] ? '' : @parse_url($this->info['url']));
+			$new_location_info = (!array_key_exists('redirect_url', $this->info) ? '' : @parse_url($this->info['redirect_url']));
+			$old_location_info = (!array_key_exists('url', $this->info) ? '' : @parse_url($this->info['url']));
 
 			$this->redirectUrl = $new_location_info;
 
