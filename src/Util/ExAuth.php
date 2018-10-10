@@ -179,17 +179,17 @@ class ExAuth
 
 		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/noscrape/' . $user;
 
-		$data = Network::curl($url);
+		$curlResult = Network::curl($url);
 
-		if (!is_array($data)) {
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		if ($data['return_code'] != '200') {
+		if ($curlResult->getReturnCode() != 200) {
 			return false;
 		}
 
-		$json = @json_decode($data['body']);
+		$json = @json_decode($curlResult->getBody());
 		if (!is_object($json)) {
 			return false;
 		}

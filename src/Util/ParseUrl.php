@@ -135,23 +135,23 @@ class ParseUrl
 		$siteinfo['url'] = $url;
 		$siteinfo['type'] = 'link';
 
-		$data = Network::curl($url);
-		if (!$data['success']) {
+		$curlResult = Network::curl($url);
+		if (!$curlResult->isSuccess()) {
 			return $siteinfo;
 		}
 
 		// If the file is too large then exit
-		if ($data['info']['download_content_length'] > 1000000) {
+		if ($curlResult->getInfo()['download_content_length'] > 1000000) {
 			return $siteinfo;
 		}
 
 		// If it isn't a HTML file then exit
-		if (($data['info']['content_type'] != '') && !strstr(strtolower($data['info']['content_type']), 'html')) {
+		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
 			return $siteinfo;
 		}
 
-		$header = $data['header'];
-		$body = $data['body'];
+		$header = $curlResult->getHeader();
+		$body = $curlResult->getBody();
 
 		if ($do_oembed) {
 			$oembed_data = OEmbed::fetchURL($url);

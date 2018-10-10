@@ -1056,7 +1056,7 @@ class Profile
 				if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
 					$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
 					$serverret = Network::curl($magic_path);
-					if (!empty($serverret['success'])) {
+					if ($serverret->isSuccess()) {
 						goaway($magic_path);
 					}
 				}

@@ -58,12 +58,12 @@ class ActivityPub
 	 */
 	public static function fetchContent($url)
 	{
-		$ret = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
-		if (!$ret['success'] || empty($ret['body'])) {
+		$curlResult = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
 
-		return json_decode($ret['body'], true);
+		return json_decode($curlResult->getBody(), true);
 	}
 
 	/**

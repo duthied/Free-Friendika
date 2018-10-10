@@ -720,17 +720,18 @@ class Image
 	 *
 	 * @param string  $filename Image filename
 	 * @param boolean $fromcurl Check Content-Type header from curl request
+	 * @param string $header passed headers to take into account
 	 *
 	 * @return object
 	 */
-	public static function guessType($filename, $fromcurl = false)
+	public static function guessType($filename, $fromcurl = false, $header = '')
 	{
 		logger('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), LOGGER_DEBUG);
 		$type = null;
 		if ($fromcurl) {
 			$a = get_app();
 			$headers=[];
-			$h = explode("\n", Network::getCurl()->getHeaders());
+			$h = explode("\n", $header);
 			foreach ($h as $l) {
 				$data = array_map("trim", explode(":", trim($l), 2));
 				if (count($data) > 1) {

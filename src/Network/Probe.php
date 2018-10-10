@@ -112,20 +112,20 @@ class Probe
 		logger("Probing for ".$host, LOGGER_DEBUG);
 		$xrd = null;
 
-		$ret = Network::curl($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
-		if ($ret['success']) {
-			$xml = $ret['body'];
+		$curlResult = Network::curl($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		if ($curlResult->isSuccess()) {
+			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
 			$host_url = 'https://'.$host;
 		}
 
 		if (!is_object($xrd)) {
-			$ret = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
-			if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
-				logger("Probing timeout for ".$url, LOGGER_DEBUG);
+			$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			if ($curlResult->isTimeout()) {
+				logger("Probing timeout for " . $url, LOGGER_DEBUG);
 				return false;
 			}
-			$xml = $ret['body'];
+			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
 			$host_url = 'http://'.$host;
 		}
@@ -742,11 +742,11 @@ class Probe
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
 		$redirects = 0;
 
-		$ret = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
-		if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
+		if ($curlResult->isTimeout()) {
 			return false;
 		}
-		$data = $ret['body'];
+		$data = $curlResult->getBody();
 
 		$webfinger = json_decode($data, true);
 		if (is_array($webfinger)) {
@@ -809,11 +809,11 @@ class Probe
 	 */
 	private static function pollNoscrape($noscrape_url, $data)
 	{
-		$ret = Network::curl($noscrape_url);
-		if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		$curlResult = Network::curl($noscrape_url);
+		if ($curlResult->isTimeout()) {
 			return false;
 		}
-		$content = $ret['body'];
+		$content = $curlResult->getBody();
 		if (!$content) {
 			logger("Empty body for ".$noscrape_url, LOGGER_DEBUG);
 			return false;
@@ -1054,11 +1054,11 @@ class Probe
 	 */
 	private static function pollHcard($hcard_url, $data, $dfrn = false)
 	{
-		$ret = Network::curl($hcard_url);
-		if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		$curlResult = Network::curl($hcard_url);
+		if ($curlResult->isTimeout()) {
 			return false;
 		}
-		$content = $ret['body'];
+		$content = $curlResult->getBody();
 		if (!$content) {
 			return false;
 		}
@@ -1301,11 +1301,11 @@ class Probe
 							$pubkey = substr($pubkey, 5);
 						}
 					} elseif (normalise_link($pubkey) == 'http://') {
-						$ret = Network::curl($pubkey);
-						if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+						$curlResult = Network::curl($pubkey);
+						if ($curlResult->isTimeout()) {
 							return false;
 						}
-						$pubkey = $ret['body'];
+						$pubkey = $curlResult['body'];
 					}
 
 					$key = explode(".", $pubkey);
@@ -1333,11 +1333,11 @@ class Probe
 		}
 
 		// Fetch all additional data from the feed
-		$ret = Network::curl($data["poll"]);
-		if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		$curlResult = Network::curl($data["poll"]);
+		if (!empty($curlResult["errno"]) && ($curlResult['errno'] == CURLE_OPERATION_TIMEDOUT)) {
 			return false;
 		}
-		$feed = $ret['body'];
+		$feed = $curlResult['body'];
 		$dummy1 = null;
 		$dummy2 = null;
 		$dummy2 = null;
@@ -1543,11 +1543,11 @@ class Probe
 	 */
 	private static function feed($url, $probe = true)
 	{
-		$ret = Network::curl($url);
-		if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		$curlResult = Network::curl($url);
+		if ($curlResult->isTimeout()) {
 			return false;
 		}
-		$feed = $ret['body'];
+		$feed = $curlResult->getBody();
 		$dummy1 = $dummy2 = $dummy3 = null;
 		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
 

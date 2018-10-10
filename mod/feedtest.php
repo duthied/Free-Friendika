@@ -32,8 +32,7 @@ function feedtest_content(App $a)
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 
-		$ret = Network::curl($contact['poll']);
-		$xml = $ret['body'];
+		$xml = Network::fetchUrl($contact['poll']);
 
 		$dummy = null;
 		$import_result = Feed::import($xml, $importer, $contact, $dummy, true);

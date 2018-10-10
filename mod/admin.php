@@ -2567,6 +2567,5 @@ function admin_page_features(App $a)
 function admin_page_server_vital()
 {
 	// Fetch the host-meta to check if this really is a vital server
-	$serverret = Network::curl(System::baseUrl() . '/.well-known/host-meta');
-	return $serverret["success"];
+	return Network::curl(System::baseUrl() . '/.well-known/host-meta')->isSuccess();
 }

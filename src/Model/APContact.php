@@ -33,12 +33,12 @@ class APContact extends BaseObject
 
 		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 
-		$ret = Network::curl($webfinger, false, $redirects, ['accept_content' => 'application/jrd+json,application/json']);
-		if (!$ret['success'] || empty($ret['body'])) {
+		$curlResult = Network::curl($webfinger, false, $redirects, ['accept_content' => 'application/jrd+json,application/json']);
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
 
-		$data = json_decode($ret['body'], true);
+		$data = json_decode($curlResult->getBody(), true);
 
 		if (empty($data['links'])) {
 			return false;

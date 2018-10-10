@@ -345,20 +345,20 @@ class Install extends BaseObject
 		$help = "";
 		$error_msg = "";
 		if (function_exists('curl_init')) {
-			$test = Network::fetchUrlFull(System::baseUrl() . "/install/testrewrite");
+			$fetchResult = Network::fetchUrlFull(System::baseUrl() . "/install/testrewrite");
 
 			$url = normalise_link(System::baseUrl() . "/install/testrewrite");
-			if ($test['body'] != "ok") {
-				$test = Network::fetchUrlFull($url);
+			if ($fetchResult->getBody() != "ok") {
+				$fetchResult = Network::fetchUrlFull($url);
 			}
 
-			if ($test['body'] != "ok") {
+			if ($fetchResult->getBody() != "ok") {
 				$status = false;
 				$help = L10n::t('Url rewrite in .htaccess is not working. Check your server configuration.');
 				$error_msg = [];
 				$error_msg['head'] = L10n::t('Error message from Curl when fetching');
-				$error_msg['url'] = $test['redirect_url'];
-				$error_msg['msg'] = defaults($test, 'error', '');
+				$error_msg['url'] = $fetchResult->getRedirectUrl();
+				$error_msg['msg'] = $fetchResult->getError();
 			}
 			self::addCheck($checks, L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
 		} else {

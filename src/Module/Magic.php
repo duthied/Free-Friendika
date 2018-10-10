@@ -82,10 +82,10 @@ class Magic extends BaseModule
 				);
 
 				// Try to get an authentication token from the other instance.
-				$x = Network::curl($basepath . '/owa', false, $redirects, ['headers' => $headers]);
+				$curlResult = Network::curl($basepath . '/owa', false, $redirects, ['headers' => $headers]);
 
-				if ($x['success']) {
-					$j = json_decode($x['body'], true);
+				if ($curlResult->isSuccess()) {
+					$j = json_decode($curlResult->getBody(), true);
 
 					if ($j['success']) {
 						$token = '';

@@ -957,12 +957,12 @@ class GContact
 
 		$url = $server."/main/statistics";
 
-		$result = Network::curl($url);
-		if (!$result["success"]) {
+		$curlResult = Network::curl($url);
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		$statistics = json_decode($result["body"]);
+		$statistics = json_decode($curlResult->getBody());
 
 		if (!empty($statistics->config)) {
 			if ($statistics->config->instance_with_ssl) {
