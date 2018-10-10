@@ -128,7 +128,7 @@ class JsonLD
 				$elements[] = $entry;
 			} elseif (!empty($entry[$key])) {
 				$elements[] = $entry[$key];
-			} else {
+			} elseif (!empty($entry) || !is_array($entry)) {
 				$elements[] = $entry;
 			}
 		}
