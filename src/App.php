@@ -86,7 +86,7 @@ class App
 	private $mode;
 
 	/**
-	 * @var string The App basepath
+	 * @var string The App base path
 	 */
 	private $basePath;
 
