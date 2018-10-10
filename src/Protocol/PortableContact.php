@@ -290,8 +290,8 @@ class PortableContact
 		}
 
 		// Fetch the host-meta to check if this really is a server
-		$serverret = Network::curl($server_url."/.well-known/host-meta");
-		if (!$serverret["success"]) {
+		$curlResult = Network::curl($server_url."/.well-known/host-meta");
+		if (!$curlResult->isSuccess()) {
 			return "";
 		}
 
@@ -370,10 +370,10 @@ class PortableContact
 			$server = q("SELECT `noscrape`, `network` FROM `gserver` WHERE `nurl` = '%s' AND `noscrape` != ''", DBA::escape(normalise_link($server_url)));
 
 			if ($server) {
-				$noscraperet = Network::curl($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
+				$curlResult = Network::curl($server[0]["noscrape"]."/".$gcontacts[0]["nick"]);
 
-				if ($noscraperet["success"] && ($noscraperet["body"] != "")) {
-					$noscrape = json_decode($noscraperet["body"], true);
+				if ($curlResult->isSuccess() && ($curlResult->getBody() != "")) {
+					$noscrape = json_decode($curlResult->getBody(), true);
 
 					if (is_array($noscrape)) {
 						$contact["network"] = $server[0]["network"];
@@ -484,9 +484,9 @@ class PortableContact
 
 		GContact::update($contact);
 
-		$feedret = Network::curl($data["poll"]);
+		$curlResult = Network::curl($data["poll"]);
 
-		if (!$feedret["success"]) {
+		if (!$curlResult->isSuccess()) {
 			$fields = ['last_failure' => DateTimeFormat::utcNow()];
 			DBA::update('gcontact', $fields, ['nurl' => normalise_link($profile)]);
 
@@ -496,7 +496,7 @@ class PortableContact
 
 		$doc = new DOMDocument();
 		/// @TODO Avoid error supression here
-		@$doc->loadXML($feedret["body"]);
+		@$doc->loadXML($curlResult->getBody());
 
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('atom', "http://www.w3.org/2005/Atom");
@@ -645,12 +645,12 @@ class PortableContact
 	 */
 	private static function fetchNodeinfo($server_url)
 	{
-		$serverret = Network::curl($server_url."/.well-known/nodeinfo");
-		if (!$serverret["success"]) {
+		$curlResult = Network::curl($server_url."/.well-known/nodeinfo");
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		$nodeinfo = json_decode($serverret['body'], true);
+		$nodeinfo = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($nodeinfo) || !isset($nodeinfo['links'])) {
 			return false;
@@ -698,13 +698,13 @@ class PortableContact
 	 */
 	private static function parseNodeinfo1($nodeinfo_url)
 	{
-		$serverret = Network::curl($nodeinfo_url);
+		$curlResult = Network::curl($nodeinfo_url);
 
-		if (!$serverret["success"]) {
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		$nodeinfo = json_decode($serverret['body'], true);
+		$nodeinfo = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($nodeinfo)) {
 			return false;
@@ -782,12 +782,12 @@ class PortableContact
 	 */
 	private static function parseNodeinfo2($nodeinfo_url)
 	{
-		$serverret = Network::curl($nodeinfo_url);
-		if (!$serverret["success"]) {
+		$curlResult = Network::curl($nodeinfo_url);
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		$nodeinfo = json_decode($serverret['body'], true);
+		$nodeinfo = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($nodeinfo)) {
 			return false;
@@ -997,38 +997,38 @@ class PortableContact
 		$server_url = str_replace("http://", "https://", $server_url);
 
 		// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-		$serverret = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
+		$curlResult = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 		// Quit if there is a timeout.
 		// But we want to make sure to only quit if we are mostly sure that this server url fits.
 		if (DBA::isResult($gserver) && ($orig_server_url == $server_url) &&
-			(!empty($serverret["errno"]) && ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT))) {
+			($curlResult->isTimeout())) {
 			logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
 			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
 			return false;
 		}
 
 		// Maybe the page is unencrypted only?
-		$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
-		if (!$serverret["success"] || ($serverret["body"] == "") || empty($xmlobj) || !is_object($xmlobj)) {
+		$xmlobj = @simplexml_load_string($curlResult->getBody(), 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
+		if (!$curlResult->isSuccess() || ($curlResult->getBody() == "") || empty($xmlobj) || !is_object($xmlobj)) {
 			$server_url = str_replace("https://", "http://", $server_url);
 
 			// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-			$serverret = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
+			$curlResult = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
 
 			// Quit if there is a timeout
-			if (!empty($serverret["errno"]) && ($serverret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
-				logger("Connection to server ".$server_url." timed out.", LOGGER_DEBUG);
+			if ($curlResult->isTimeout()) {
+				logger("Connection to server " . $server_url . " timed out.", LOGGER_DEBUG);
 				DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => normalise_link($server_url)]);
 				return false;
 			}
 
-			$xmlobj = @simplexml_load_string($serverret["body"], 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
+			$xmlobj = @simplexml_load_string($curlResult->getBody(), 'SimpleXMLElement', 0, "http://docs.oasis-open.org/ns/xri/xrd-1.0");
 		}
 
-		if (!$serverret["success"] || ($serverret["body"] == "") || empty($xmlobj) || !is_object($xmlobj)) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBody() == "") || empty($xmlobj) || !is_object($xmlobj)) {
 			// Workaround for bad configured servers (known nginx problem)
-			if (!empty($serverret["debug"]) && !in_array($serverret["debug"]["http_code"], ["403", "404"])) {
+			if (!empty($curlResult->getInfo()) && !in_array($curlResult->getInfo()["http_code"], ["403", "404"])) {
 				$failure = true;
 			}
 
@@ -1051,10 +1051,10 @@ class PortableContact
 
 		// Look for poco
 		if (!$failure) {
-			$serverret = Network::curl($server_url."/poco");
+			$curlResult = Network::curl($server_url."/poco");
 
-			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"], true);
+			if ($curlResult->isSuccess()) {
+				$data = json_decode($curlResult->getBody(), true);
 
 				if (isset($data['totalResults'])) {
 					$registered_users = $data['totalResults'];
@@ -1083,12 +1083,12 @@ class PortableContact
 
 		if (!$failure) {
 			// Test for Diaspora, Hubzilla, Mastodon or older Friendica servers
-			$serverret = Network::curl($server_url);
+			$curlResult = Network::curl($server_url);
 
-			if (!$serverret["success"] || ($serverret["body"] == "")) {
+			if (!$curlResult->isSuccess() || ($curlResult->getBody() == "")) {
 				$failure = true;
 			} else {
-				$server = self::detectServerType($serverret["body"]);
+				$server = self::detectServerType($curlResult->getBody());
 
 				if (!empty($server)) {
 					$platform = $server['platform'];
@@ -1097,7 +1097,7 @@ class PortableContact
 					$site_name = $server['site_name'];
 				}
 
-				$lines = explode("\n", $serverret["header"]);
+				$lines = explode("\n", $curlResult->getHeader());
 
 				if (count($lines)) {
 					foreach ($lines as $line) {
@@ -1125,35 +1125,35 @@ class PortableContact
 			// Test for Statusnet
 			// Will also return data for Friendica and GNU Social - but it will be overwritten later
 			// The "not implemented" is a special treatment for really, really old Friendica versions
-			$serverret = Network::curl($server_url."/api/statusnet/version.json");
+			$curlResult = Network::curl($server_url."/api/statusnet/version.json");
 
-			if ($serverret["success"] && ($serverret["body"] != '{"error":"not implemented"}') &&
-				($serverret["body"] != '') && (strlen($serverret["body"]) < 30)) {
+			if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
+				($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
 				$platform = "StatusNet";
 				// Remove junk that some GNU Social servers return
-				$version = str_replace(chr(239).chr(187).chr(191), "", $serverret["body"]);
+				$version = str_replace(chr(239).chr(187).chr(191), "", $curlResult->getBody());
 				$version = trim($version, '"');
 				$network = Protocol::OSTATUS;
 			}
 
 			// Test for GNU Social
-			$serverret = Network::curl($server_url."/api/gnusocial/version.json");
+			$curlResult = Network::curl($server_url."/api/gnusocial/version.json");
 
-			if ($serverret["success"] && ($serverret["body"] != '{"error":"not implemented"}') &&
-				($serverret["body"] != '') && (strlen($serverret["body"]) < 30)) {
+			if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
+				($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
 				$platform = "GNU Social";
 				// Remove junk that some GNU Social servers return
-				$version = str_replace(chr(239) . chr(187) . chr(191), "", $serverret["body"]);
+				$version = str_replace(chr(239) . chr(187) . chr(191), "", $curlResult->getBody());
 				$version = trim($version, '"');
 				$network = Protocol::OSTATUS;
 			}
 
 			// Test for Mastodon
 			$orig_version = $version;
-			$serverret = Network::curl($server_url . "/api/v1/instance");
+			$curlResult = Network::curl($server_url . "/api/v1/instance");
 
-			if ($serverret["success"] && ($serverret["body"] != '')) {
-				$data = json_decode($serverret["body"], true);
+			if ($curlResult->isSuccess() && ($curlResult->getBody() != '')) {
+				$data = json_decode($curlResult->getBody(), true);
 
 				if (isset($data['version'])) {
 					$platform = "Mastodon";
@@ -1176,10 +1176,10 @@ class PortableContact
 
 		if (!$failure) {
 			// Test for Hubzilla and Red
-			$serverret = Network::curl($server_url . "/siteinfo.json");
+			$curlResult = Network::curl($server_url . "/siteinfo.json");
 
-			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"], true);
+			if ($curlResult->isSuccess()) {
+				$data = json_decode($curlResult->getBody(), true);
 
 				if (isset($data['url'])) {
 					$platform = $data['platform'];
@@ -1213,10 +1213,10 @@ class PortableContact
 				}
 			} else {
 				// Test for Hubzilla, Redmatrix or Friendica
-				$serverret = Network::curl($server_url."/api/statusnet/config.json");
+				$curlResult = Network::curl($server_url."/api/statusnet/config.json");
 
-				if ($serverret["success"]) {
-					$data = json_decode($serverret["body"], true);
+				if ($curlResult->isSuccess()) {
+					$data = json_decode($curlResult->getBody(), true);
 
 					if (isset($data['site']['server'])) {
 						if (isset($data['site']['platform'])) {
@@ -1286,10 +1286,10 @@ class PortableContact
 
 		// Query statistics.json. Optional package for Diaspora, Friendica and Redmatrix
 		if (!$failure) {
-			$serverret = Network::curl($server_url . "/statistics.json");
+			$curlResult = Network::curl($server_url . "/statistics.json");
 
-			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"], true);
+			if ($curlResult->isSuccess()) {
+				$data = json_decode($curlResult->getBody(), true);
 
 				if (isset($data['version'])) {
 					$version = $data['version'];
@@ -1350,14 +1350,14 @@ class PortableContact
 		// Check for noscrape
 		// Friendica servers could be detected as OStatus servers
 		if (!$failure && in_array($network, [Protocol::DFRN, Protocol::OSTATUS])) {
-			$serverret = Network::curl($server_url . "/friendica/json");
+			$curlResult = Network::curl($server_url . "/friendica/json");
 
-			if (!$serverret["success"]) {
-				$serverret = Network::curl($server_url . "/friendika/json");
+			if (!$curlResult->isSuccess()) {
+				$curlResult = Network::curl($server_url . "/friendika/json");
 			}
 
-			if ($serverret["success"]) {
-				$data = json_decode($serverret["body"], true);
+			if ($curlResult->isSuccess()) {
+				$data = json_decode($curlResult->getBody(), true);
 
 				if (isset($data['version'])) {
 					$network = Protocol::DFRN;
@@ -1442,13 +1442,13 @@ class PortableContact
 	{
 		logger("Discover relay data for server " . $server_url, LOGGER_DEBUG);
 
-		$serverret = Network::curl($server_url . "/.well-known/x-social-relay");
+		$curlResult = Network::curl($server_url . "/.well-known/x-social-relay");
 
-		if (!$serverret["success"]) {
+		if (!$curlResult->isSuccess()) {
 			return;
 		}
 
-		$data = json_decode($serverret['body'], true);
+		$data = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($data)) {
 			return;
@@ -1538,13 +1538,13 @@ class PortableContact
 	 */
 	private static function fetchServerlist($poco)
 	{
-		$serverret = Network::curl($poco . "/@server");
+		$curlResult = Network::curl($poco . "/@server");
 
-		if (!$serverret["success"]) {
+		if (!$curlResult->isSuccess()) {
 			return;
 		}
 
-		$serverlist = json_decode($serverret['body'], true);
+		$serverlist = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($serverlist)) {
 			return;
@@ -1575,10 +1575,10 @@ class PortableContact
 		}
 
 		// Discover Friendica, Hubzilla and Diaspora servers
-		$serverdata = Network::fetchUrl("http://the-federation.info/pods.json");
+		$curlResult = Network::fetchUrl("http://the-federation.info/pods.json");
 
-		if (!empty($serverdata)) {
-			$servers = json_decode($serverdata, true);
+		if (!empty($curlResult)) {
+			$servers = json_decode($curlResult, true);
 
 			if (!empty($servers['pods'])) {
 				foreach ($servers['pods'] as $server) {
@@ -1594,10 +1594,10 @@ class PortableContact
 			if (!empty($accesstoken)) {
 				$api = 'https://instances.social/api/1.0/instances/list?count=0';
 				$header = ['Authorization: Bearer '.$accesstoken];
-				$serverdata = Network::curl($api, false, $redirects, ['headers' => $header]);
+				$curlResult = Network::curl($api, false, $redirects, ['headers' => $header]);
 
-				if ($serverdata['success']) {
-					$servers = json_decode($serverdata['body'], true);
+				if ($curlResult->isSuccess()) {
+					$servers = json_decode($curlResult->getBody(), true);
 
 					foreach ($servers['instances'] as $server) {
 						$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
@@ -1613,9 +1613,9 @@ class PortableContact
 		//if (!Config::get('system','ostatus_disabled')) {
 		//	$serverdata = "http://gstools.org/api/get_open_instances/";
 
-		//	$result = Network::curl($serverdata);
-		//	if ($result["success"]) {
-		//		$servers = json_decode($result["body"], true);
+		//	$curlResult = Network::curl($serverdata);
+		//	if ($curlResult->isSuccess()) {
+		//		$servers = json_decode($result->getBody(), true);
 
 		//		foreach($servers['data'] as $server)
 		//			self::checkServer($server['instance_address']);
@@ -1643,10 +1643,10 @@ class PortableContact
 
 		logger("Fetch all users from the server " . $server["url"], LOGGER_DEBUG);
 
-		$retdata = Network::curl($url);
+		$curlResult = Network::curl($url);
 
-		if ($retdata["success"] && !empty($retdata["body"])) {
-			$data = json_decode($retdata["body"], true);
+		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
+			$data = json_decode($curlResult->getBody(), true);
 
 			if (!empty($data)) {
 				self::discoverServer($data, 2);
@@ -1666,11 +1666,11 @@ class PortableContact
 
 				$success = false;
 
-				$retdata = Network::curl($url);
+				$curlResult = Network::curl($url);
 
-				if ($retdata["success"] && !empty($retdata["body"])) {
+				if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
 					logger("Fetch all global contacts from the server " . $server["nurl"], LOGGER_DEBUG);
-					$data = json_decode($retdata["body"], true);
+					$data = json_decode($curlResult->getBody(), true);
 
 					if (!empty($data)) {
 						$success = self::discoverServer($data);
@@ -1766,10 +1766,10 @@ class PortableContact
 				// Fetch all contacts from a given user from the other server
 				$url = $server['poco'] . '/' . $username . '/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation';
 
-				$retdata = Network::curl($url);
+				$curlResult = Network::curl($url);
 
-				if (!empty($retdata['success'])) {
-					$data = json_decode($retdata["body"], true);
+				if ($curlResult->isSuccess()) {
+					$data = json_decode($curlResult["body"], true);
 
 					if (!empty($data)) {
 						self::discoverServer($data, 3);

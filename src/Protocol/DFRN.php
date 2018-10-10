@@ -1170,10 +1170,10 @@ class DFRN
 
 		// At first try the Diaspora transport layer
 		if (!$dissolve && !$legacy_transport) {
-			$ret = self::transmit($owner, $contact, $atom);
-			if ($ret >= 200) {
-				logger('Delivery via Diaspora transport layer was successful with status ' . $ret);
-				return $ret;
+			$curlResult = self::transmit($owner, $contact, $atom);
+			if ($curlResult >= 200) {
+				logger('Delivery via Diaspora transport layer was successful with status ' . $curlResult);
+				return $curlResult;
 			}
 		}
 
@@ -1211,16 +1211,16 @@ class DFRN
 
 		logger('dfrn_deliver: ' . $url);
 
-		$ret = Network::curl($url);
+		$curlResult = Network::curl($url);
 
-		if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		if ($curlResult->isTimeout()) {
 			Contact::markForArchival($contact);
 			return -2; // timed out
 		}
 
-		$xml = $ret['body'];
+		$xml = $curlResult->getBody();
 
-		$curl_stat = Network::getCurl()->getCode();
+		$curl_stat = $curlResult->getReturnCode();
 		if (empty($curl_stat)) {
 			Contact::markForArchival($contact);
 			return -3; // timed out
@@ -1368,17 +1368,19 @@ class DFRN
 
 		logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars, true), LOGGER_DATA);
 
-		$xml = Network::post($contact['notify'], $postvars);
+		$postResult = Network::post($contact['notify'], $postvars);
+
+		$xml = $postResult->getBody();
 
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 
-		$curl_stat = Network::getCurl()->getCode();
+		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
 			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && stristr(Network::getCurl()->getHeaders(), 'retry-after')) {
+		if (($curl_stat == 503) && stristr($postResult->getHeader(), 'retry-after')) {
 			Contact::markForArchival($contact);
 			return -10;
 		}

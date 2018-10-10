@@ -60,12 +60,12 @@ function parse_url_content(App $a)
 	// the URL with the corresponding BBCode media tag
 	$redirects = 0;
 	// Fetch the header of the URL
-	$result = Network::curl($url, false, $redirects, ['novalidate' => true, 'nobody' => true]);
+	$curlResponse = Network::curl($url, false, $redirects, ['novalidate' => true, 'nobody' => true]);
 
-	if ($result['success']) {
+	if ($curlResponse->isSuccess()) {
 		// Convert the header fields into an array
 		$hdrs = [];
-		$h = explode("\n", $result['header']);
+		$h = explode("\n", $curlResponse->getHeader());
 		foreach ($h as $l) {
 			$header = array_map('trim', explode(':', trim($l), 2));
 			if (count($header) == 2) {
