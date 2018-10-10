@@ -4,16 +4,10 @@
  */
 namespace Friendica\Util;
 
-use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\Curl;
-use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Network\Probe;
-use Friendica\Object\Image;
-use Friendica\Util\XML;
 use DOMDocument;
 use DomXPath;
 

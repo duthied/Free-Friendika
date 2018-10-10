@@ -88,12 +88,12 @@ class App
 	/**
 	 * @var string The App basepath
 	 */
-	private $basepath;
+	private $basePath;
 
 	/**
 	 * @var string The App URL path
 	 */
-	private $urlpath;
+	private $urlPath;
 
 	/**
 	 * @var bool true, if the call is from the Friendica APP, otherwise false
@@ -182,20 +182,20 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string $basepath Path to the app base folder
+	 * @param string $basePath Path to the app base folder
 	 * @param bool $backend true, if the call is from backend, otherwise set to true (Default true)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basepath, $backend = true)
+	public function __construct($basePath, $backend = true)
 	{
-		if (!static::isDirectoryUsable($basepath, false)) {
-			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
+		if (!static::isDirectoryUsable($basePath, false)) {
+			throw new Exception('Basepath ' . $basePath . ' isn\'t usable.');
 		}
 
 		BaseObject::setApp($this);
 
-		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
+		$this->basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
 		$this->checkBackend($backend);
 		$this->checkFriendicaApp();
 
@@ -220,7 +220,7 @@ class App
 		$this->callstack['rendering'] = [];
 		$this->callstack['parser'] = [];
 
-		$this->mode = new App\Mode($basepath);
+		$this->mode = new App\Mode($basePath);
 
 		$this->reload();
 
@@ -450,7 +450,7 @@ class App
 	 * INI;
 	 * // Keep this line
 	 *
-	 * @param type $filepath
+	 * @param string $filepath
 	 * @param bool $overwrite Force value overwrite if the config key already exists
 	 * @throws Exception
 	 */
@@ -522,7 +522,7 @@ class App
 	 */
 	private function determineURLPath()
 	{
-		$this->urlpath = $this->getConfigValue('system', 'urlpath');
+		$this->urlPath = $this->getConfigValue('system', 'urlpath');
 
 		/* SCRIPT_URL gives /path/to/friendica/module/parameter
 		 * QUERY_STRING gives pagename=module/parameter
@@ -538,8 +538,8 @@ class App
 				$path = trim($_SERVER['SCRIPT_URL'], '/');
 			}
 
-			if ($path && $path != $this->urlpath) {
-				$this->urlpath = $path;
+			if ($path && $path != $this->urlPath) {
+				$this->urlPath = $path;
 			}
 		}
 	}
@@ -593,7 +593,7 @@ class App
 	 */
 	public function getBasePath()
 	{
-		$basepath = $this->basepath;
+		$basepath = $this->basePath;
 
 		if (!$basepath) {
 			$basepath = Config::get('system', 'basepath');
@@ -701,7 +701,7 @@ class App
 				$hostname .= ':' . $parsed['port'];
 			}
 			if (x($parsed, 'path')) {
-				$this->urlpath = trim($parsed['path'], '\\/');
+				$this->urlPath = trim($parsed['path'], '\\/');
 			}
 
 			if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
@@ -729,7 +729,7 @@ class App
 
 	public function getURLPath()
 	{
-		return $this->urlpath;
+		return $this->urlPath;
 	}
 
 	public function setPagerTotal($n)
@@ -942,24 +942,51 @@ class App
 	/**
 	 * @brief Returns the active template engine.
 	 *
-	 * @return string
+	 * @return string the active template engine
 	 */
 	public function getActiveTemplateEngine()
 	{
 		return $this->theme['template_engine'];
 	}
 
+	/**
+	 * sets the active template engine
+	 *
+	 * @param string $engine the template engine (default is Smarty3)
+	 */
 	public function setActiveTemplateEngine($engine = 'smarty3')
 	{
 		$this->theme['template_engine'] = $engine;
 	}
 
-	public function getTemplateLdelim($engine = 'smarty3')
+	/**
+	 * Gets the right delimiter for a template engine
+	 *
+	 * Currently:
+	 * Internal = ''
+	 * Smarty3 = '{{'
+	 *
+	 * @param string $engine The template engine (default is Smarty3)
+	 *
+	 * @return string the right delimiter
+	 */
+	public function getTemplateLeftDelimiter($engine = 'smarty3')
 	{
 		return $this->ldelim[$engine];
 	}
 
-	public function getTemplateRdelim($engine = 'smarty3')
+	/**
+	 * Gets the left delimiter for a template engine
+	 *
+	 * Currently:
+	 * Internal = ''
+	 * Smarty3 = '}}'
+	 *
+	 * @param string $engine The template engine (default is Smarty3)
+	 *
+	 * @return string the left delimiter
+	 */
+	public function getTemplateRightDelimiter($engine = 'smarty3')
 	{
 		return $this->rdelim[$engine];
 	}
@@ -1039,6 +1066,8 @@ class App
 	 *
 	 * This isn't a perfect solution. But we need this check very early.
 	 * So we cannot wait until the modules are loaded.
+	 *
+	 * @param string $backend true, if the backend flag was set during App initialization
 	 *
 	 */
 	private function checkBackend($backend) {
