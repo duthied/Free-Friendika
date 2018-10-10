@@ -316,9 +316,9 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 		DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 	}
 
-	Network::post($url, $params);
+	$postResult = Network::post($url, $params);
 
-	logger('subscribe_to_hub: returns: ' . Network::getCurl()->getCode(), LOGGER_DEBUG);
+	logger('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), LOGGER_DEBUG);
 
 	return;
 

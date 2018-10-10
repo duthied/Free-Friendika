@@ -133,13 +133,12 @@ class Salmon
 		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 		// slap them
-		Network::post($url, $salmon, [
+		$postResult = Network::post($url, $salmon, [
 			'Content-type: application/magic-envelope+xml',
 			'Content-length: ' . strlen($salmon)
 		]);
 
-		$a = get_app();
-		$return_code = Network::getCurl()->getCode();
+		$return_code = $postResult->getReturnCode();
 
 		// check for success, e.g. 2xx
 
@@ -159,11 +158,11 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			Network::post($url, $salmon, [
+			$postResult = Network::post($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)
 			]);
-			$return_code = Network::getCurl()->getCode();
+			$return_code = $postResult->getReturnCode();
 		}
 
 		if ($return_code > 299) {
@@ -182,10 +181,10 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			Network::post($url, $salmon, [
+			$postResult = Network::post($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)]);
-			$return_code = Network::getCurl()->getCode();
+			$return_code = $postResult->getReturnCode();
 		}
 
 		logger('slapper for '.$url.' returned ' . $return_code);

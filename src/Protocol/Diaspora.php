@@ -3079,8 +3079,8 @@ class Diaspora
 			if (!intval(Config::get("system", "diaspora_test"))) {
 				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
-				$return_code = Network::getCurl()->getCode();
+				$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+				$return_code = $postResult->getReturnCode();
 			} else {
 				logger("test_mode");
 				return 200;
@@ -3089,7 +3089,7 @@ class Diaspora
 
 		logger("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
-		if (!$return_code || (($return_code == 503) && (stristr(Network::getCurl()->getHeaders(), "retry-after")))) {
+		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeaders(), "retry-after")))) {
 			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::ACCOUNT_TYPE_RELAY)) {
 				logger("queue message");
 				// queue message for redelivery

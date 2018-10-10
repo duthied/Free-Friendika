@@ -302,10 +302,9 @@ class HTTPSignature
 
 		$headers[] = 'Content-Type: application/activity+json';
 
-		Network::post($target, $content, $headers);
-		$return_code = Network::getCurl()->getCode();
+		$postResult = Network::post($target, $content, $headers);
 
-		logger('Transmit to ' . $target . ' returned ' . $return_code);
+		logger('Transmit to ' . $target . ' returned ' . $postResult->getReturnCode());
 	}
 
 	/**

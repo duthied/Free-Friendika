@@ -1469,16 +1469,17 @@ class DFRN
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
-		$xml = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$postResult = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$xml = $postResult->getBody();
 
-		$curl_stat = Network::getCurl()->getCode();
+		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
 			logger('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
 			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && (stristr(Network::getCurl()->getHeaders(), 'retry-after'))) {
+		if (($curl_stat == 503) && (stristr($postResult->getHeader(), 'retry-after'))) {
 			Contact::markForArchival($contact);
 			return -10;
 		}
