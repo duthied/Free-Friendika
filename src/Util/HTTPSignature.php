@@ -303,7 +303,7 @@ class HTTPSignature
 		$headers[] = 'Content-Type: application/activity+json';
 
 		Network::post($target, $content, $headers);
-		$return_code = BaseObject::getApp()->getCurlCode();
+		$return_code = Network::getCurl()->getCode();
 
 		logger('Transmit to ' . $target . ' returned ' . $return_code);
 	}
