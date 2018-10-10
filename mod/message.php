@@ -279,7 +279,7 @@ function message_content(App $a)
 		);
 
 		if (DBA::isResult($r)) {
-			$a->set_pager_total($r[0]['total']);
+			$a->setPagerTotal($r[0]['total']);
 		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);

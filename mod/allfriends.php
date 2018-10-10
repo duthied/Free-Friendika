@@ -46,7 +46,7 @@ function allfriends_content(App $a)
 
 	$total = GContact::countAllFriends(local_user(), $cid);
 
-	$a->set_pager_total($total);
+	$a->setPagerTotal($total);
 
 	$r = GContact::allFriends(local_user(), $cid, $a->pager['start'], $a->pager['itemspage']);
 	if (!DBA::isResult($r)) {

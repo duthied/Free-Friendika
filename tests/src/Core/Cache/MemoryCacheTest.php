@@ -11,7 +11,7 @@ abstract class MemoryCacheTest extends CacheTest
 	 */
 	protected $instance;
 
-	function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 		if (!($this->instance instanceof IMemoryCacheDriver)) {

@@ -3344,7 +3344,7 @@ function api_statusnet_config($type)
 	$a = get_app();
 
 	$name      = Config::get('config', 'sitename');
-	$server    = $a->get_hostname();
+	$server    = $a->getHostName();
 	$logo      = System::baseUrl() . '/images/friendica-64.png';
 	$email     = Config::get('config', 'admin_email');
 	$closed    = intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 'true' : 'false';

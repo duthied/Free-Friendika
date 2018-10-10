@@ -71,7 +71,7 @@ class Proxy extends BaseModule
 		$thumb = false;
 		$size = 1024;
 		$sizetype = '';
-		$basepath = $a->get_basepath();
+		$basepath = $a->getBasePath();
 
 		// If the cache path isn't there, try to create it
 		if (!is_dir($basepath . '/proxy') && is_writable($basepath)) {
@@ -196,7 +196,7 @@ class Proxy extends BaseModule
 			unlink($tempfile);
 
 			// If there is an error then return a blank image
-			if ((substr($a->get_curl_code(), 0, 1) == '4') || (!$img_str)) {
+			if ((substr(Network::getCurl()->getCode(), 0, 1) == '4') || (!$img_str)) {
 				$img_str = file_get_contents('images/blank.png');
 				$mime = 'image/png';
 				$cachefile = ''; // Clear the cachefile so that the dummy isn't stored

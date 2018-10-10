@@ -38,8 +38,8 @@ function home_content(App $a) {
 	$customhome = false;
 	$defaultheader = '<h1>' . (Config::get('config', 'sitename') ? L10n::t('Welcome to %s', Config::get('config', 'sitename')) : '') . '</h1>';
 
-	$homefilepath = $a->basepath . "/home.html";
-	$cssfilepath = $a->basepath . "/home.css";
+	$homefilepath = $a->getBasePath() . "/home.html";
+	$cssfilepath = $a->getBasePath() . "/home.css";
 	if (file_exists($homefilepath)) {
 		$customhome = $homefilepath;
 		if (file_exists($cssfilepath)) {

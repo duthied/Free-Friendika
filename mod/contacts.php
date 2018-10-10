@@ -793,7 +793,7 @@ function contacts_content(App $a, $update = 0)
 		intval($_SESSION['uid'])
 	);
 	if (DBA::isResult($r)) {
-		$a->set_pager_total($r[0]['total']);
+		$a->setPagerTotal($r[0]['total']);
 		$total = $r[0]['total'];
 	}
 

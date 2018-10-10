@@ -1830,7 +1830,7 @@ class OStatus
 		}
 
 		$item["uri"] = $item['parent-uri'] = $item['thr-parent']
-				= 'tag:'.get_app()->get_hostname().
+				= 'tag:'.get_app()->getHostName().
 				','.date('Y-m-d').':'.$action.':'.$owner['uid'].
 				':person:'.$connect_id.':'.$item['created'];
 

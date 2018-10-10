@@ -61,7 +61,7 @@ function notification($params)
 	}
 
 	$sender_name = $sitename;
-	$hostname = $a->get_hostname();
+	$hostname = $a->getHostName();
 	if (strpos($hostname, ':')) {
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}

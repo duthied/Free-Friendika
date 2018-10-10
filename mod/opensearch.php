@@ -11,7 +11,7 @@ function opensearch_content(App $a) {
 
 	$o = replace_macros($tpl, [
 		'$baseurl' => System::baseUrl(),
-		'$nodename' => $a->get_hostname(),
+		'$nodename' => $a->getHostName(),
 	]);
 
 	echo $o;

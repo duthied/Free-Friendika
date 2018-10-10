@@ -86,7 +86,7 @@ class Install extends BaseObject
 
 		$app = self::getApp();
 
-		$result = file_put_contents($app->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
+		$result = file_put_contents($app->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
 		if (!$result) {
 			$app->data['txt'] = $txt;
 		}

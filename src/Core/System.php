@@ -27,7 +27,7 @@ class System extends BaseObject
 	 */
 	public static function baseUrl($ssl = false)
 	{
-		return self::getApp()->get_baseurl($ssl);
+		return self::getApp()->getBaseURL($ssl);
 	}
 
 	/**
@@ -39,7 +39,7 @@ class System extends BaseObject
 	 */
 	public static function removedBaseUrl($orig_url)
 	{
-		return self::getApp()->remove_baseurl($orig_url);
+		return self::getApp()->removeBaseURL($orig_url);
 	}
 
 	/**
@@ -185,7 +185,7 @@ class System extends BaseObject
 		if (is_bool($prefix) && !$prefix) {
 			$prefix = '';
 		} elseif (empty($prefix)) {
-			$prefix = hash('crc32', self::getApp()->get_hostname());
+			$prefix = hash('crc32', self::getApp()->getHostName());
 		}
 
 		while (strlen($prefix) < ($size - 13)) {

@@ -39,7 +39,7 @@ class Login extends BaseModule
 		}
 
 		if (local_user()) {
-			goaway(self::getApp()->get_baseurl());
+			goaway(self::getApp()->getBaseURL());
 		}
 
 		return self::form($_SESSION['return_url'], intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED);
@@ -86,18 +86,18 @@ class Login extends BaseModule
 		// if it's an email address or doesn't resolve to a URL, fail.
 		if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
 			notice(L10n::t('Login failed.') . EOL);
-			goaway(self::getApp()->get_baseurl());
+			goaway(self::getApp()->getBaseURL());
 			// NOTREACHED
 		}
 
 		// Otherwise it's probably an openid.
 		try {
 			$a = get_app();
-			$openid = new LightOpenID($a->get_hostname());
+			$openid = new LightOpenID($a->getHostName());
 			$openid->identity = $openid_url;
 			$_SESSION['openid'] = $openid_url;
 			$_SESSION['remember'] = $remember;
-			$openid->returnUrl = self::getApp()->get_baseurl(true) . '/openid';
+			$openid->returnUrl = self::getApp()->getBaseURL(true) . '/openid';
 			goaway($openid->authUrl());
 		} catch (Exception $e) {
 			notice(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . L10n::t('The error message was:') . ' ' . $e->getMessage());
@@ -191,7 +191,7 @@ class Login extends BaseModule
 					if ($data->hash != cookie_hash($user)) {
 						logger("Hash for user " . $data->uid . " doesn't fit.");
 						nuke_session();
-						goaway(self::getApp()->get_baseurl());
+						goaway(self::getApp()->getBaseURL());
 					}
 
 					// Renew the cookie
@@ -228,7 +228,7 @@ class Login extends BaseModule
 					logger('Session address changed. Paranoid setting in effect, blocking session. ' .
 						$_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
 					nuke_session();
-					goaway(self::getApp()->get_baseurl());
+					goaway(self::getApp()->getBaseURL());
 				}
 
 				$user = DBA::selectFirst('user', [],
@@ -242,7 +242,7 @@ class Login extends BaseModule
 				);
 				if (!DBA::isResult($user)) {
 					nuke_session();
-					goaway(self::getApp()->get_baseurl());
+					goaway(self::getApp()->getBaseURL());
 				}
 
 				// Make sure to refresh the last login time for the user if the user
@@ -297,7 +297,7 @@ class Login extends BaseModule
 			$a->page['htmlhead'] .= replace_macros(
 				get_markup_template('login_head.tpl'),
 				[
-					'$baseurl' => $a->get_baseurl(true)
+					'$baseurl' => $a->getBaseURL(true)
 				]
 			);
 
@@ -308,7 +308,7 @@ class Login extends BaseModule
 		$o .= replace_macros(
 			$tpl,
 			[
-				'$dest_url'     => self::getApp()->get_baseurl(true) . '/login',
+				'$dest_url'     => self::getApp()->getBaseURL(true) . '/login',
 				'$logout'       => L10n::t('Logout'),
 				'$login'        => L10n::t('Login'),
 

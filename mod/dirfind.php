@@ -188,8 +188,8 @@ function dirfind_content(App $a, $prefix = "") {
 		}
 
 		if ($j->total) {
-			$a->set_pager_total($j->total);
-			$a->set_pager_itemspage($j->items_page);
+			$a->setPagerTotal($j->total);
+			$a->setPagerItemsPage($j->items_page);
 		}
 
 		if (!empty($j->results)) {

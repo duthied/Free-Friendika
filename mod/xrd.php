@@ -55,9 +55,9 @@ function xrd_init(App $a)
 
 	$alias = str_replace('/profile/', '/~', $profile_url);
 
-	$addr = 'acct:'.$user['nickname'].'@'.$a->get_hostname();
-	if ($a->get_path()) {
-		$addr .= '/'.$a->get_path();
+	$addr = 'acct:'.$user['nickname'].'@'.$a->getHostName();
+	if ($a->getURLPath()) {
+		$addr .= '/'.$a->getURLPath();
 	}
 
 	if ($mode == 'xml') {

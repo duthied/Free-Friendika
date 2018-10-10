@@ -54,8 +54,6 @@ class App
 	public $argc;
 	public $module;
 	public $strings;
-	public $basepath;
-	public $urlpath;
 	public $hooks = [];
 	public $timezone;
 	public $interactive = true;
@@ -65,11 +63,9 @@ class App
 	public $identities;
 	public $is_mobile = false;
 	public $is_tablet = false;
-	public $is_friendica_app;
 	public $performance = [];
 	public $callstack = [];
 	public $theme_info = [];
-	public $backend = true;
 	public $nav_sel;
 	public $category;
 	// Allow themes to control internal parameters
@@ -90,6 +86,31 @@ class App
 	private $mode;
 
 	/**
+	 * @var string The App base path
+	 */
+	private $basePath;
+
+	/**
+	 * @var string The App URL path
+	 */
+	private $urlPath;
+
+	/**
+	 * @var bool true, if the call is from the Friendica APP, otherwise false
+	 */
+	private $isFriendicaApp;
+
+	/**
+	 * @var bool true, if the call is from an backend node (f.e. worker)
+	 */
+	private $isBackend;
+
+	/**
+	 * @var string The name of the current theme
+	 */
+	private $currentTheme;
+
+	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -100,7 +121,7 @@ class App
 	 */
 	public function registerStylesheet($path)
 	{
-		$url = str_replace($this->get_basepath() . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->stylesheets[] = trim($url, '/');
 	}
@@ -116,7 +137,7 @@ class App
 	 */
 	public function registerFooterScript($path)
 	{
-		$url = str_replace($this->get_basepath() . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->footerScripts[] = trim($url, '/');
 	}
@@ -157,26 +178,26 @@ class App
 	];
 	private $scheme;
 	private $hostname;
-	private $curl_code;
-	private $curl_content_type;
-	private $curl_headers;
 
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string $basepath Path to the app base folder
+	 * @param string $basePath Path to the app base folder
+	 * @param bool $backend true, if the call is from backend, otherwise set to true (Default true)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basepath)
+	public function __construct($basePath, $backend = true)
 	{
-		if (!static::directory_usable($basepath, false)) {
-			throw new Exception('Basepath ' . $basepath . ' isn\'t usable.');
+		if (!static::isDirectoryUsable($basePath, false)) {
+			throw new Exception('Basepath ' . $basePath . ' isn\'t usable.');
 		}
 
 		BaseObject::setApp($this);
 
-		$this->basepath = rtrim($basepath, DIRECTORY_SEPARATOR);
+		$this->basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
+		$this->checkBackend($backend);
+		$this->checkFriendicaApp();
 
 		$this->performance['start'] = microtime(true);
 		$this->performance['database'] = 0;
@@ -199,7 +220,7 @@ class App
 		$this->callstack['rendering'] = [];
 		$this->callstack['parser'] = [];
 
-		$this->mode = new App\Mode($basepath);
+		$this->mode = new App\Mode($basePath);
 
 		$this->reload();
 
@@ -230,9 +251,9 @@ class App
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
-			. $this->basepath . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
-			. $this->basepath . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
-			. $this->basepath);
+			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
+			. $this->getBasePath(). DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
+			. $this->getBasePath());
 
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 9) === 'pagename=') {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
@@ -301,11 +322,8 @@ class App
 		$this->is_mobile = $mobile_detect->isMobile();
 		$this->is_tablet = $mobile_detect->isTablet();
 
-		// Friendica-Client
-		$this->is_friendica_app = isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)';
-
 		// Register template engines
-		$this->register_template_engine('Friendica\Render\FriendicaSmartyEngine');
+		$this->registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
 	}
 
 	/**
@@ -334,9 +352,9 @@ class App
 
 		$this->loadDatabase();
 
-		$this->getMode()->determine($this->basepath);
+		$this->getMode()->determine($this->getBasePath());
 
-		$this->determineUrlPath();
+		$this->determineURLPath();
 
 		Config::load();
 
@@ -372,20 +390,20 @@ class App
 	 */
 	private function loadConfigFiles()
 	{
-		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.ini.php');
-		$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'settings.ini.php');
+		$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.ini.php');
+		$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'settings.ini.php');
 
 		// Legacy .htconfig.php support
-		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
+		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
 			$a = $this;
-			include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
+			include $this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php';
 		}
 
 		// Legacy .htconfig.php support
-		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . '.htconfig.php')) {
 			$a = $this;
 
-			include $this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php';
+			include $this->getBasePath() . DIRECTORY_SEPARATOR . '.htconfig.php';
 
 			$this->setConfigValue('database', 'hostname', $db_host);
 			$this->setConfigValue('database', 'username', $db_user);
@@ -413,8 +431,8 @@ class App
 			}
 		}
 
-		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
-			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', true);
+		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+			$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', true);
 		}
 	}
 
@@ -432,7 +450,7 @@ class App
 	 * INI;
 	 * // Keep this line
 	 *
-	 * @param type $filepath
+	 * @param string $filepath
 	 * @param bool $overwrite Force value overwrite if the config key already exists
 	 * @throws Exception
 	 */
@@ -473,8 +491,8 @@ class App
 		Core\Addon::callHooks('load_config');
 
 		// Load the local addon config file to overwritten default addon config values
-		if (file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php')) {
-			$this->loadConfigFile($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php', true);
+		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php')) {
+			$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php', true);
 		}
 	}
 
@@ -502,9 +520,9 @@ class App
 	/**
 	 * Figure out if we are running at the top of a domain or in a sub-directory and adjust accordingly
 	 */
-	private function determineUrlPath()
+	private function determineURLPath()
 	{
-		$this->urlpath = $this->getConfigValue('system', 'urlpath');
+		$this->urlPath = $this->getConfigValue('system', 'urlpath');
 
 		/* SCRIPT_URL gives /path/to/friendica/module/parameter
 		 * QUERY_STRING gives pagename=module/parameter
@@ -520,8 +538,8 @@ class App
 				$path = trim($_SERVER['SCRIPT_URL'], '/');
 			}
 
-			if ($path && $path != $this->urlpath) {
-				$this->urlpath = $path;
+			if ($path && $path != $this->urlPath) {
+				$this->urlPath = $path;
 			}
 		}
 	}
@@ -562,7 +580,7 @@ class App
 		DBA::connect($db_host, $db_user, $db_pass, $db_data, $charset);
 		unset($db_host, $db_user, $db_pass, $db_data, $charset);
 
-		$this->save_timestamp($stamp1, 'network');
+		$this->saveTimestamp($stamp1, 'network');
 	}
 
 	/**
@@ -573,9 +591,9 @@ class App
 	 *
 	 * @return string
 	 */
-	public function get_basepath()
+	public function getBasePath()
 	{
-		$basepath = $this->basepath;
+		$basepath = $this->basePath;
 
 		if (!$basepath) {
 			$basepath = Config::get('system', 'basepath');
@@ -589,7 +607,7 @@ class App
 			$basepath = $_SERVER['PWD'];
 		}
 
-		return self::realpath($basepath);
+		return self::getRealPath($basepath);
 	}
 
 	/**
@@ -602,7 +620,7 @@ class App
 	 * @param string $path The path that is about to be normalized
 	 * @return string normalized path - when possible
 	 */
-	public static function realpath($path)
+	public static function getRealPath($path)
 	{
 		$normalized = realpath($path);
 
@@ -613,7 +631,7 @@ class App
 		}
 	}
 
-	public function get_scheme()
+	public function getScheme()
 	{
 		return $this->scheme;
 	}
@@ -632,7 +650,7 @@ class App
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
 	 * @return string Friendica server base URL
 	 */
-	public function get_baseurl($ssl = false)
+	public function getBaseURL($ssl = false)
 	{
 		$scheme = $this->scheme;
 
@@ -655,7 +673,7 @@ class App
 			$this->hostname = Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . (!empty($this->urlpath) ? '/' . $this->urlpath : '' );
+		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
 	}
 
 	/**
@@ -665,7 +683,7 @@ class App
 	 *
 	 * @param string $url
 	 */
-	public function set_baseurl($url)
+	public function setBaseURL($url)
 	{
 		$parsed = @parse_url($url);
 		$hostname = '';
@@ -683,11 +701,11 @@ class App
 				$hostname .= ':' . $parsed['port'];
 			}
 			if (x($parsed, 'path')) {
-				$this->urlpath = trim($parsed['path'], '\\/');
+				$this->urlPath = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
-				include $this->basepath . DIRECTORY_SEPARATOR . '.htpreconfig.php';
+			if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
+				include $this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php';
 			}
 
 			if (Config::get('config', 'hostname') != '') {
@@ -700,7 +718,7 @@ class App
 		}
 	}
 
-	public function get_hostname()
+	public function getHostName()
 	{
 		if (Config::get('config', 'hostname') != '') {
 			$this->hostname = Config::get('config', 'hostname');
@@ -709,23 +727,23 @@ class App
 		return $this->hostname;
 	}
 
-	public function get_path()
+	public function getURLPath()
 	{
-		return $this->urlpath;
+		return $this->urlPath;
 	}
 
-	public function set_pager_total($n)
+	public function setPagerTotal($n)
 	{
 		$this->pager['total'] = intval($n);
 	}
 
-	public function set_pager_itemspage($n)
+	public function setPagerItemsPage($n)
 	{
 		$this->pager['itemspage'] = ((intval($n) > 0) ? intval($n) : 0);
 		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
 	}
 
-	public function set_pager_page($n)
+	public function setPagerPage($n)
 	{
 		$this->pager['page'] = $n;
 		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
@@ -791,7 +809,7 @@ class App
 		 * being first
 		 */
 		$this->page['htmlhead'] = replace_macros($tpl, [
-			'$baseurl'         => $this->get_baseurl(),
+			'$baseurl'         => $this->getBaseURL(),
 			'$local_user'      => local_user(),
 			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem'         => L10n::t('Delete this item?'),
@@ -847,58 +865,28 @@ class App
 
 		$tpl = get_markup_template('footer.tpl');
 		$this->page['footer'] = replace_macros($tpl, [
-			'$baseurl' => $this->get_baseurl(),
+			'$baseurl' => $this->getBaseURL(),
 			'$footerScripts' => $this->footerScripts,
 		]) . $this->page['footer'];
-	}
-
-	public function set_curl_code($code)
-	{
-		$this->curl_code = $code;
-	}
-
-	public function get_curl_code()
-	{
-		return $this->curl_code;
-	}
-
-	public function set_curl_content_type($content_type)
-	{
-		$this->curl_content_type = $content_type;
-	}
-
-	public function get_curl_content_type()
-	{
-		return $this->curl_content_type;
-	}
-
-	public function set_curl_headers($headers)
-	{
-		$this->curl_headers = $headers;
-	}
-
-	public function get_curl_headers()
-	{
-		return $this->curl_headers;
 	}
 
 	/**
 	 * @brief Removes the base url from an url. This avoids some mixed content problems.
 	 *
-	 * @param string $orig_url
+	 * @param string $origURL
 	 *
 	 * @return string The cleaned url
 	 */
-	public function remove_baseurl($orig_url)
+	public function removeBaseURL($origURL)
 	{
 		// Remove the hostname from the url if it is an internal link
-		$nurl = normalise_link($orig_url);
-		$base = normalise_link($this->get_baseurl());
+		$nurl = normalise_link($origURL);
+		$base = normalise_link($this->getBaseURL());
 		$url = str_replace($base . '/', '', $nurl);
 
 		// if it is an external link return the orignal value
-		if ($url == normalise_link($orig_url)) {
-			return $orig_url;
+		if ($url == normalise_link($origURL)) {
+			return $origURL;
 		} else {
 			return $url;
 		}
@@ -909,7 +897,7 @@ class App
 	 *
 	 * @param string $class
 	 */
-	private function register_template_engine($class)
+	private function registerTemplateEngine($class)
 	{
 		$v = get_class_vars($class);
 		if (x($v, 'name')) {
@@ -929,7 +917,7 @@ class App
 	 *
 	 * @return object Template Engine instance
 	 */
-	public function template_engine()
+	public function getTemplateEngine()
 	{
 		$template_engine = 'smarty3';
 		if (x($this->theme, 'template_engine')) {
@@ -954,35 +942,69 @@ class App
 	/**
 	 * @brief Returns the active template engine.
 	 *
-	 * @return string
+	 * @return string the active template engine
 	 */
-	public function get_template_engine()
+	public function getActiveTemplateEngine()
 	{
 		return $this->theme['template_engine'];
 	}
 
-	public function set_template_engine($engine = 'smarty3')
+	/**
+	 * sets the active template engine
+	 *
+	 * @param string $engine the template engine (default is Smarty3)
+	 */
+	public function setActiveTemplateEngine($engine = 'smarty3')
 	{
 		$this->theme['template_engine'] = $engine;
 	}
 
-	public function get_template_ldelim($engine = 'smarty3')
+	/**
+	 * Gets the right delimiter for a template engine
+	 *
+	 * Currently:
+	 * Internal = ''
+	 * Smarty3 = '{{'
+	 *
+	 * @param string $engine The template engine (default is Smarty3)
+	 *
+	 * @return string the right delimiter
+	 */
+	public function getTemplateLeftDelimiter($engine = 'smarty3')
 	{
 		return $this->ldelim[$engine];
 	}
 
-	public function get_template_rdelim($engine = 'smarty3')
+	/**
+	 * Gets the left delimiter for a template engine
+	 *
+	 * Currently:
+	 * Internal = ''
+	 * Smarty3 = '}}'
+	 *
+	 * @param string $engine The template engine (default is Smarty3)
+	 *
+	 * @return string the left delimiter
+	 */
+	public function getTemplateRightDelimiter($engine = 'smarty3')
 	{
 		return $this->rdelim[$engine];
 	}
 
-	public function save_timestamp($stamp, $value)
+	/**
+	 * Saves a timestamp for a value - f.e. a call
+	 * Necessary for profiling Friendica
+	 *
+	 * @param int $timestamp the Timestamp
+	 * @param string $value A value to profile
+	 */
+	public function saveTimestamp($timestamp, $value)
 	{
 		if (!isset($this->config['system']['profiler']) || !$this->config['system']['profiler']) {
 			return;
 		}
 
-		$duration = (float) (microtime(true) - $stamp);
+		$duration = (float) (microtime(true) - $timestamp);
 
 		if (!isset($this->performance[$value])) {
 			// Prevent ugly E_NOTICE
@@ -1002,19 +1024,41 @@ class App
 		$this->callstack[$value][$callstack] += (float) $duration;
 	}
 
-	public function get_useragent()
+	/**
+	 * Returns the current UserAgent as a String
+	 *
+	 * @return string the UserAgent as a String
+	 */
+	public function getUserAgent()
 	{
 		return
 			FRIENDICA_PLATFORM . " '" .
 			FRIENDICA_CODENAME . "' " .
 			FRIENDICA_VERSION . '-' .
 			DB_UPDATE_VERSION . '; ' .
-			$this->get_baseurl();
+			$this->getBaseURL();
 	}
 
-	public function is_friendica_app()
+	/**
+	 * Checks, if the call is from the Friendica App
+	 *
+	 * Reason:
+	 * The friendica client has problems with the GUID in the notify. this is some workaround
+	 */
+	private function checkFriendicaApp()
 	{
-		return $this->is_friendica_app;
+		// Friendica-Client
+		$this->isFriendicaApp = isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)';
+	}
+
+	/**
+	 * 	Is the call via the Friendica app? (not a "normale" call)
+	 *
+	 * @return bool true if it's from the Friendica app
+	 */
+	public function isFriendicaApp()
+	{
+		return $this->isFriendicaApp;
 	}
 
 	/**
@@ -1023,10 +1067,10 @@ class App
 	 * This isn't a perfect solution. But we need this check very early.
 	 * So we cannot wait until the modules are loaded.
 	 *
-	 * @return bool Is it a known backend?
+	 * @param string $backend true, if the backend flag was set during App initialization
+	 *
 	 */
-	public function is_backend()
-	{
+	private function checkBackend($backend) {
 		static $backends = [
 			'_well_known',
 			'api',
@@ -1050,7 +1094,17 @@ class App
 		];
 
 		// Check if current module is in backend or backend flag is set
-		return (in_array($this->module, $backends) || $this->backend);
+		$this->isBackend = (in_array($this->module, $backends) || $backend || $this->isBackend);
+	}
+
+	/**
+	 * Returns true, if the call is from a backend node (f.e. from a worker)
+	 *
+	 * @return bool Is it a known backend?
+	 */
+	public function isBackend()
+	{
+		return $this->isBackend;
 	}
 
 	/**
@@ -1098,7 +1152,7 @@ class App
 	 *
 	 * @return bool Is the memory limit reached?
 	 */
-	public function min_memory_reached()
+	public function isMinMemoryReached()
 	{
 		$min_memory = Config::get('system', 'min_memory', 0);
 		if ($min_memory == 0) {
@@ -1144,7 +1198,7 @@ class App
 	 */
 	public function isMaxLoadReached()
 	{
-		if ($this->is_backend()) {
+		if ($this->isBackend()) {
 			$process = 'backend';
 			$maxsysload = intval(Config::get('system', 'maxloadavg'));
 			if ($maxsysload < 1) {
@@ -1193,14 +1247,14 @@ class App
 			}
 		}
 
-		if ($this->min_memory_reached()) {
+		if ($this->isMinMemoryReached()) {
 			return;
 		}
 
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->get_basepath());
+			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->getBasePath());
 		} else {
-			$resource = proc_open($cmdline . ' &', [], $foo, $this->get_basepath());
+			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
 		}
 		if (!is_resource($resource)) {
 			logger('We got no resource for command ' . $cmdline, LOGGER_DEBUG);
@@ -1216,7 +1270,7 @@ class App
 	 *
 	 * @return string system username
 	 */
-	private static function systemuser()
+	private static function getSystemUser()
 	{
 		if (!function_exists('posix_getpwuid') || !function_exists('posix_geteuid')) {
 			return '';
@@ -1231,7 +1285,7 @@ class App
 	 *
 	 * @return boolean the directory is usable
 	 */
-	public static function directory_usable($directory, $check_writable = true)
+	public static function isDirectoryUsable($directory, $check_writable = true)
 	{
 		if ($directory == '') {
 			logger('Directory is empty. This shouldn\'t happen.', LOGGER_DEBUG);
@@ -1239,22 +1293,22 @@ class App
 		}
 
 		if (!file_exists($directory)) {
-			logger('Path "' . $directory . '" does not exist for user ' . self::systemuser(), LOGGER_DEBUG);
+			logger('Path "' . $directory . '" does not exist for user ' . self::getSystemUser(), LOGGER_DEBUG);
 			return false;
 		}
 
 		if (is_file($directory)) {
-			logger('Path "' . $directory . '" is a file for user ' . self::systemuser(), LOGGER_DEBUG);
+			logger('Path "' . $directory . '" is a file for user ' . self::getSystemUser(), LOGGER_DEBUG);
 			return false;
 		}
 
 		if (!is_dir($directory)) {
-			logger('Path "' . $directory . '" is not a directory for user ' . self::systemuser(), LOGGER_DEBUG);
+			logger('Path "' . $directory . '" is not a directory for user ' . self::getSystemUser(), LOGGER_DEBUG);
 			return false;
 		}
 
 		if ($check_writable && !is_writable($directory)) {
-			logger('Path "' . $directory . '" is not writable for user ' . self::systemuser(), LOGGER_DEBUG);
+			logger('Path "' . $directory . '" is not writable for user ' . self::getSystemUser(), LOGGER_DEBUG);
 			return false;
 		}
 
@@ -1265,6 +1319,8 @@ class App
 	 * @param string $cat     Config category
 	 * @param string $k       Config key
 	 * @param mixed  $default Default value if it isn't set
+	 *
+	 * @return string Returns the value of the Config entry
 	 */
 	public function getConfigValue($cat, $k, $default = null)
 	{
@@ -1347,6 +1403,8 @@ class App
 	 * @param string $cat     Config category
 	 * @param string $k       Config key
 	 * @param mixed  $default Default value if key isn't set
+	 *
+	 * @return string The value of the config entry
 	 */
 	public function getPConfigValue($uid, $cat, $k, $default = null)
 	{
@@ -1408,7 +1466,7 @@ class App
 	{
 		$sender_email = Config::get('config', 'sender_email');
 		if (empty($sender_email)) {
-			$hostname = $this->get_hostname();
+			$hostname = $this->getHostName();
 			if (strpos($hostname, ':')) {
 				$hostname = substr($hostname, 0, strpos($hostname, ':'));
 			}
@@ -1422,7 +1480,7 @@ class App
 	/**
 	 * Returns the current theme name.
 	 *
-	 * @return string
+	 * @return string the name of the current theme
 	 */
 	public function getCurrentTheme()
 	{
@@ -1435,7 +1493,7 @@ class App
 		/// https://github.com/friendica/friendica/issues/5092)
 		$this->computeCurrentTheme();
 
-		return $this->current_theme;
+		return $this->currentTheme;
 	}
 
 	/**
@@ -1451,7 +1509,7 @@ class App
 		}
 
 		// Sane default
-		$this->current_theme = $system_theme;
+		$this->currentTheme = $system_theme;
 
 		$allowed_themes = explode(',', Config::get('system', 'allowed_themes', $system_theme));
 
@@ -1490,7 +1548,7 @@ class App
 			&& (file_exists('view/theme/' . $theme_name . '/style.css')
 			|| file_exists('view/theme/' . $theme_name . '/style.php'))
 		) {
-			$this->current_theme = $theme_name;
+			$this->currentTheme = $theme_name;
 		}
 	}
 

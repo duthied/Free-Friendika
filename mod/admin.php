@@ -475,8 +475,8 @@ function admin_page_contactblock(App $a)
 
 	$total = DBA::count('contact', $condition);
 
-	$a->set_pager_total($total);
-	$a->set_pager_itemspage(30);
+	$a->setPagerTotal($total);
+	$a->setPagerItemsPage(30);
 
 	$statement = DBA::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
 
@@ -866,15 +866,15 @@ function admin_page_summary(App $a)
 	// Legacy config file warning
 	if (file_exists('.htconfig.php')) {
 		$showwarning = true;
-		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.ini.php, please copy config/local-sample.ini.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->get_baseurl() . '/help/Config');
+		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.ini.php, please copy config/local-sample.ini.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
 	}
 
 	// Check server vitality
 	if (!admin_page_server_vital()) {
 		$showwarning = true;
-		$well_known = $a->get_baseurl() . '/.well-known/host-meta';
+		$well_known = $a->getBaseURL() . '/.well-known/host-meta';
 		$warningtext[] = L10n::t('<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.',
-			$well_known, $well_known, $a->get_baseurl() . '/help/Install');
+			$well_known, $well_known, $a->getBaseURL() . '/help/Install');
 	}
 
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
@@ -1012,7 +1012,7 @@ function admin_page_site_post(App $a)
 		// update config
 		Config::set('system', 'hostname', parse_url($new_url,  PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
-		$a->set_baseurl($new_url);
+		$a->setBaseURL($new_url);
 
 		// send relocate
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
@@ -1124,7 +1124,7 @@ function admin_page_site_post(App $a)
 		Worker::add(PRIORITY_LOW, 'Directory');
 	}
 
-	if ($a->get_path() != "") {
+	if ($a->getURLPath() != "") {
 		$diaspora_enabled = false;
 	}
 	if ($ssl_policy != intval(Config::get('system', 'ssl_policy'))) {
@@ -1261,7 +1261,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
 	if ($itemcache != '') {
-		$itemcache = App::realpath($itemcache);
+		$itemcache = App::getRealPath($itemcache);
 	}
 
 	Config::set('system', 'itemcache', $itemcache);
@@ -1269,13 +1269,13 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'max_comments', $max_comments);
 
 	if ($temppath != '') {
-		$temppath = App::realpath($temppath);
+		$temppath = App::getRealPath($temppath);
 	}
 
 	Config::set('system', 'temppath', $temppath);
 
 	if ($basepath != '') {
-		$basepath = App::realpath($basepath);
+		$basepath = App::getRealPath($basepath);
 	}
 
 	Config::set('system', 'basepath', $basepath);
@@ -1419,9 +1419,9 @@ function admin_page_site(App $a)
 	];
 
 	if (empty(Config::get('config', 'hostname'))) {
-		Config::set('config', 'hostname', $a->get_hostname());
+		Config::set('config', 'hostname', $a->getHostName());
 	}
-	$diaspora_able = ($a->get_path() == "");
+	$diaspora_able = ($a->getURLPath() == "");
 
 	$optimize_max_tablesize = Config::get('system', 'optimize_max_tablesize', -1);
 
@@ -1801,8 +1801,8 @@ function admin_page_users(App $a)
 	/* get users */
 	$total = q("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
 	if (count($total)) {
-		$a->set_pager_total($total[0]['total']);
-		$a->set_pager_itemspage(100);
+		$a->setPagerTotal($total[0]['total']);
+		$a->setPagerItemsPage(100);
 	}
 
 	/* ordering */

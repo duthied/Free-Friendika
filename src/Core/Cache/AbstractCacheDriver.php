@@ -20,7 +20,7 @@ abstract class AbstractCacheDriver extends BaseObject
 	protected function getCacheKey($key)
 	{
 		// We fetch with the hostname as key to avoid problems with other applications
-		return self::getApp()->get_hostname() . ":" . $key;
+		return self::getApp()->getHostName() . ":" . $key;
 	}
 
 	/**
@@ -34,7 +34,7 @@ abstract class AbstractCacheDriver extends BaseObject
 		} else {
 			// Keys are prefixed with the node hostname, let's remove it
 			array_walk($keys, function (&$value) {
-				$value = preg_replace('/^' . self::getApp()->get_hostname() . ':/', '', $value);
+				$value = preg_replace('/^' . self::getApp()->getHostName() . ':/', '', $value);
 			});
 
 			sort($keys);

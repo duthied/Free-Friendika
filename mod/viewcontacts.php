@@ -71,7 +71,7 @@ function viewcontacts_content(App $a)
 		DBA::escape(Protocol::OSTATUS)
 	);
 	if (DBA::isResult($r)) {
-		$a->set_pager_total($r[0]['total']);
+		$a->setPagerTotal($r[0]['total']);
 	}
 
 	$r = q("SELECT * FROM `contact`

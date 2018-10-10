@@ -153,7 +153,7 @@ function community_content(App $a, $update = 0)
 		$itemspage_network = $a->force_max_items;
 	}
 
-	$a->set_pager_itemspage($itemspage_network);
+	$a->setPagerItemsPage($itemspage_network);
 
 	$r = community_getitems($a->pager['start'], $a->pager['itemspage'], $content, $accounttype);
 

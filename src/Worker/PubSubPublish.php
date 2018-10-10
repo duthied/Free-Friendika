@@ -57,7 +57,7 @@ class PubSubPublish
 		logger('POST ' . print_r($headers, true) . "\n" . $params, LOGGER_DATA);
 
 		Network::post($subscriber['callback_url'], $params, $headers);
-		$ret = $a->get_curl_code();
+		$ret = Network::getCurl()->getCode();
 
 		$condition = ['id' => $subscriber['id']];
 

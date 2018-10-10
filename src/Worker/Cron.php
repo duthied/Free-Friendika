@@ -115,7 +115,7 @@ class Cron
 
 		// Ensure to have a .htaccess file.
 		// this is a precaution for systems that update automatically
-		$basepath = $a->get_basepath();
+		$basepath = $a->getBasePath();
 		if (!file_exists($basepath . '/.htaccess')) {
 			copy($basepath . '/.htaccess-dist', $basepath . '/.htaccess');
 		}

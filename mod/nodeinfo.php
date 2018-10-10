@@ -215,7 +215,7 @@ function nodeinfo_cron() {
 	logger('local_comments: ' . $local_comments, LOGGER_DEBUG);
 
 	// Now trying to register
-	$url = 'http://the-federation.info/register/'.$a->get_hostname();
+	$url = 'http://the-federation.info/register/'.$a->getHostName();
 	logger('registering url: '.$url, LOGGER_DEBUG);
 	$ret = Network::fetchUrl($url);
 	logger('registering answer: '.$ret, LOGGER_DEBUG);

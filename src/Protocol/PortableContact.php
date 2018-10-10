@@ -90,9 +90,9 @@ class PortableContact
 
 		logger('load: returns ' . $s, LOGGER_DATA);
 
-		logger('load: return code: ' . $a->get_curl_code(), LOGGER_DEBUG);
+		logger('load: return code: ' . Network::getCurl()->getCode(), LOGGER_DEBUG);
 
-		if (($a->get_curl_code() > 299) || (! $s)) {
+		if ((Network::getCurl()->getCode() > 299) || (! $s)) {
 			return;
 		}
 

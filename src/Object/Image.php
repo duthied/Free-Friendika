@@ -655,7 +655,7 @@ class Image
 
 		$stamp1 = microtime(true);
 		file_put_contents($path, $string);
-		$a->save_timestamp($stamp1, "file");
+		$a->saveTimestamp($stamp1, "file");
 	}
 
 	/**
@@ -730,7 +730,7 @@ class Image
 		if ($fromcurl) {
 			$a = get_app();
 			$headers=[];
-			$h = explode("\n", $a->get_curl_headers());
+			$h = explode("\n", Network::getCurl()->getHeaders());
 			foreach ($h as $l) {
 				$data = array_map("trim", explode(":", trim($l), 2));
 				if (count($data) > 1) {
@@ -799,7 +799,7 @@ class Image
 					$a = get_app();
 					$stamp1 = microtime(true);
 					file_put_contents($tempfile, $img_str);
-					$a->save_timestamp($stamp1, "file");
+					$a->saveTimestamp($stamp1, "file");
 
 					$data = getimagesize($tempfile);
 					unlink($tempfile);
@@ -907,7 +907,7 @@ class Image
 
 			$stamp1 = microtime(true);
 			$imagedata = @file_get_contents($url);
-			$a->save_timestamp($stamp1, "file");
+			$a->saveTimestamp($stamp1, "file");
 		}
 
 		$maximagesize = Config::get('system', 'maximagesize');
@@ -921,7 +921,7 @@ class Image
 
 		$stamp1 = microtime(true);
 		file_put_contents($tempfile, $imagedata);
-		$a->save_timestamp($stamp1, "file");
+		$a->saveTimestamp($stamp1, "file");
 
 		$data = getimagesize($tempfile);
 

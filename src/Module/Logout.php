@@ -26,6 +26,6 @@ class Logout extends BaseModule
 		Addon::callHooks("logging_out");
 		nuke_session();
 		info(L10n::t('Logged out.') . EOL);
-		goaway(self::getApp()->get_baseurl());
+		goaway(self::getApp()->getBaseURL());
 	}
 }

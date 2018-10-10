@@ -196,7 +196,7 @@ class OnePoll
 
 			$handshake_xml = $ret['body'];
 
-			$html_code = $a->get_curl_code();
+			$html_code = Network::getCurl()->getCode();
 
 			logger('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, LOGGER_DATA);
 
@@ -507,7 +507,7 @@ class OnePoll
 								}
 							}
 
-							$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->get_hostname());
+							$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->getHostName());
 
 							$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
 

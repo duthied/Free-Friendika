@@ -139,7 +139,7 @@ class Salmon
 		]);
 
 		$a = get_app();
-		$return_code = $a->get_curl_code();
+		$return_code = Network::getCurl()->getCode();
 
 		// check for success, e.g. 2xx
 
@@ -163,7 +163,7 @@ class Salmon
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)
 			]);
-			$return_code = $a->get_curl_code();
+			$return_code = Network::getCurl()->getCode();
 		}
 
 		if ($return_code > 299) {
@@ -185,7 +185,7 @@ class Salmon
 			Network::post($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)]);
-			$return_code = $a->get_curl_code();
+			$return_code = Network::getCurl()->getCode();
 		}
 
 		logger('slapper for '.$url.' returned ' . $return_code);
@@ -194,7 +194,7 @@ class Salmon
 			return -1;
 		}
 
-		if (($return_code == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
+		if (($return_code == 503) && (stristr(Network::getCurl()->getHeaders(), 'retry-after'))) {
 			return -1;
 		}
 
