@@ -119,7 +119,7 @@ class CurlResult
 
 		$header = '';
 		$base = $result;
-		while (preg_match('/^HTTP\/[1-2].+? [1-5][0-9][0-9]/', $base)) {
+		while (preg_match('/^HTTP\/.+? \d+/', $base)) {
 			$chunk = substr($base, 0, strpos($base, "\r\n\r\n") + 4);
 			$header .= $chunk;
 			$base = substr($base, strlen($chunk));
@@ -177,7 +177,7 @@ class CurlResult
 				$this->redirectUrl .= '?' . $old_location_query;
 			}
 
-			$this->isRedirectUrl = filter_var($this->redirectUrl, FILTER_VALIDATE_URL);
+			$this->isRedirectUrl = filter_var($this->redirectUrl, FILTER_VALIDATE_URL) !== false;
 		} else {
 			$this->isRedirectUrl = false;
 		}
