@@ -11,9 +11,9 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Module\Contacts;
 
 require_once 'include/dba.php';
-require_once 'mod/contacts.php';
 
 function common_content(App $a)
 {
@@ -137,7 +137,7 @@ function common_content(App $a)
 	$title = '';
 	$tab_str = '';
 	if ($cmd === 'loc' && $cid && local_user() == $uid) {
-		$tab_str = contacts_tab($a, $contact, 4);
+		$tab_str = Contacts::contacts_tab($a, $contact, 4);
 	} else {
 		$title = L10n::t('Common Friends');
 	}

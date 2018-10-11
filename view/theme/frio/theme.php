@@ -17,6 +17,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
+use Friendica\Module\Contacts;
 
 $frio = 'view/theme/frio';
 
@@ -297,8 +298,6 @@ function frio_remote_nav($a, &$nav)
  */
 function frio_acl_lookup(App $a, &$results)
 {
-	require_once 'mod/contacts.php';
-
 	$nets = x($_GET, 'nets') ? notags(trim($_GET['nets'])) : '';
 
 	// we introduce a new search type, r should do the same query like it's
@@ -334,7 +333,7 @@ function frio_acl_lookup(App $a, &$results)
 
 	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
-			$contacts[] = _contact_detail_for_template($rr);
+			$contacts[] = Contacts::_contact_detail_for_template($rr);
 		}
 	}
 

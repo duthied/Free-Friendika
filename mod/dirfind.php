@@ -18,8 +18,7 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
-
-require_once 'mod/contacts.php';
+use Friendica\Module\Contacts;
 
 function dirfind_init(App $a) {
 
@@ -211,7 +210,7 @@ function dirfind_content(App $a, $prefix = "") {
 					$contact = DBA::selectFirst('contact', [], ['id' => $jj->cid]);
 					if (DBA::isResult($contact)) {
 						$photo_menu = Contact::photoMenu($contact);
-						$details = _contact_detail_for_template($contact);
+						$details = Contacts::_contact_detail_for_template($contact);
 						$alt_text = $details['alt_text'];
 					} else {
 						$photo_menu = [];

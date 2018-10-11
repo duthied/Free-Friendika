@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Module\Contacts;
 
 function group_init(App $a) {
 	if (local_user()) {
@@ -116,8 +117,6 @@ function group_content(App $a) {
 	$nogroup = false;
 
 	if (($a->argc == 2) && ($a->argv[1] === 'none')) {
-		require_once 'mod/contacts.php';
-
 		$id = -1;
 		$nogroup = true;
 		$group = [
@@ -176,8 +175,6 @@ function group_content(App $a) {
 	}
 
 	if (($a->argc > 1) && intval($a->argv[1])) {
-		require_once 'mod/contacts.php';
-
 		$r = q("SELECT * FROM `group` WHERE `id` = %d AND `uid` = %d AND `deleted` = 0 LIMIT 1",
 			intval($a->argv[1]),
 			intval(local_user())
@@ -253,7 +250,7 @@ function group_content(App $a) {
 	// Format the data of the group members
 	foreach ($members as $member) {
 		if ($member['url']) {
-			$entry = _contact_detail_for_template($member);
+			$entry = Contacts::_contact_detail_for_template($member);
 			$entry['label'] = 'members';
 			$entry['photo_menu'] = '';
 			$entry['change_member'] = [
@@ -282,7 +279,7 @@ function group_content(App $a) {
 		// Format the data of the contacts who aren't in the contact group
 		foreach ($r as $member) {
 			if (!in_array($member['id'], $preselected)) {
-				$entry = _contact_detail_for_template($member);
+				$entry = Contacts::_contact_detail_for_template($member);
 				$entry['label'] = 'contacts';
 				if (!$nogroup)
 					$entry['photo_menu'] = [];
