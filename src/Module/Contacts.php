@@ -25,9 +25,9 @@ use Friendica\Core\ACL;
 use Friendica\Module\Login;
 
 /**
- * 
+ *  Manages and show Contacts and their content
  *
- * 
+ *  @brief manages contacts
  */
 class Contacts extends BaseModule 
 {
@@ -184,7 +184,7 @@ class Contacts extends BaseModule
 		}
 
 		if ($a->argv[1] === "batch") {
-			contacts_batch_actions($a);
+			self::contacts_batch_actions($a);
 			return;
 		}
 
@@ -805,7 +805,7 @@ class Contacts extends BaseModule
 			intval($_SESSION['uid'])
 		);
 		if (DBA::isResult($r)) {
-			$a->set_pager_total($r[0]['total']);
+			$a->setPagerTotal($r[0]['total']);
 			$total = $r[0]['total'];
 		}
 
@@ -980,7 +980,7 @@ class Contacts extends BaseModule
 		return $o;
 	}
 
-	public static function contact_posts($a, $contact_id)
+	private static function contact_posts($a, $contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id]);
 
@@ -1133,6 +1133,5 @@ class Contacts extends BaseModule
 
 		return $contact_actions;
 	}
-
 
 }
