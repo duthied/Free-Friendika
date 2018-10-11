@@ -107,9 +107,8 @@ class Processor
 	 * Prepares data for a message
 	 *
 	 * @param array  $activity Activity array
-	 * @param string $body     original source
 	 */
-	public static function createItem($activity, $body)
+	public static function createItem($activity)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_POST;
@@ -128,16 +127,15 @@ class Processor
 			self::fetchMissingActivity($activity['reply-to-id'], $activity);
 		}
 
-		self::postItem($activity, $item, $body);
+		self::postItem($activity, $item);
 	}
 
 	/**
 	 * Prepare the item array for a "like"
 	 *
 	 * @param array  $activity Activity array
-	 * @param string $body     original source
 	 */
-	public static function likeItem($activity, $body)
+	public static function likeItem($activity)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_LIKE;
@@ -145,7 +143,7 @@ class Processor
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
-		self::postItem($activity, $item, $body);
+		self::postItem($activity, $item);
 	}
 
 	/**
@@ -165,9 +163,8 @@ class Processor
 	 * Prepare the item array for a "dislike"
 	 *
 	 * @param array  $activity Activity array
-	 * @param string $body     original source
 	 */
-	public static function dislikeItem($activity, $body)
+	public static function dislikeItem($activity)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_DISLIKE;
@@ -175,7 +172,7 @@ class Processor
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
-		self::postItem($activity, $item, $body);
+		self::postItem($activity, $item);
 	}
 
 	/**
@@ -183,9 +180,8 @@ class Processor
 	 *
 	 * @param array  $activity Activity data
 	 * @param array  $item     item array
-	 * @param string $body     original source
 	 */
-	private static function postItem($activity, $item, $body)
+	private static function postItem($activity, $item)
 	{
 		/// @todo What to do with $activity['context']?
 
@@ -225,11 +221,6 @@ class Processor
 		if (!empty($activity['source'])) {
 			$item['body'] = $activity['source'];
 		}
-
-		$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
-		$item['source'] = $body;
-		$item['conversation-href'] = $activity['context'];
-		$item['conversation-uri'] = $activity['conversation'];
 
 		foreach ($activity['receiver'] as $receiver) {
 			$item['uid'] = $receiver;
