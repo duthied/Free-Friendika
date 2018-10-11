@@ -14,6 +14,8 @@ use Friendica\Model\User;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Model\Conversation;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * @brief ActivityPub Receiver Protocol class
@@ -230,6 +232,32 @@ class Receiver
 	}
 
 	/**
+	 * Store the unprocessed data into the conversation table
+	 * This has to be done outside the regular function,
+	 * since we store everything - not only item posts.
+	 *
+	 * @param array  $activity Array with activity data
+	 * @param string $body     The raw message
+	 */
+	private static function storeConversation($activity, $body)
+	{
+		if (empty($body) || empty($activity['id'])) {
+			return;
+		}
+
+		$conversation = [
+			'protocol' => Conversation::PARCEL_ACTIVITYPUB,
+			'item-uri' => $activity['id'],
+			'reply-to-uri' => defaults($activity, 'reply-to-id', ''),
+			'conversation-href' => defaults($activity, 'context', ''),
+			'conversation-uri' => defaults($activity, 'conversation', ''),
+			'source' => $body,
+			'received' => DateTimeFormat::utcNow()];
+
+		DBA::insert('conversation', $conversation, true);
+	}
+
+	/**
 	 * Processes the activity object
 	 *
 	 * @param array   $activity     Array with activity data
@@ -268,6 +296,8 @@ class Receiver
 			return;
 		}
 
+		self::storeConversation($object_data, $body);
+
 		// Internal flag for thread completion. See Processor.php
 		if (!empty($activity['thread-completion'])) {
 			$object_data['thread-completion'] = $activity['thread-completion'];
@@ -276,15 +306,15 @@ class Receiver
 		switch ($type) {
 			case 'as:Create':
 			case 'as:Announce':
-				ActivityPub\Processor::createItem($object_data, $body);
+				ActivityPub\Processor::createItem($object_data);
 				break;
 
 			case 'as:Like':
-				ActivityPub\Processor::likeItem($object_data, $body);
+				ActivityPub\Processor::likeItem($object_data);
 				break;
 
 			case 'as:Dislike':
-				ActivityPub\Processor::dislikeItem($object_data, $body);
+				ActivityPub\Processor::dislikeItem($object_data);
 				break;
 
 			case 'as:Update':
