@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta content='width=device-width, initial-scale=1' name='viewport'>
+<link href='/favicon.ico' rel='icon' type='image/x-icon'>
+<link href='/apple-touch-icon.png' rel='apple-touch-icon' sizes='180x180'>
+<link color='#2B90D9' href='/mask-icon.svg' rel='mask-icon'>
+<link href='/manifest.json' rel='manifest'>
+<meta content='/browserconfig.xml' name='msapplication-config'>
+<meta content='#282c37' name='theme-color'>
+<meta content='yes' name='apple-mobile-web-app-capable'>
+<title>mastodonten.de - Mastodonten.de</title>
+<link rel="stylesheet" media="all" href="/packs/common-66639ea10b9b1e8d7a8f.css" />
+<link rel="stylesheet" media="all" href="/packs/default-46f44143aecc20b96d31.css" />
+<script src="/packs/common-0400b2a12246408ec6f5.js" crossorigin="anonymous"></script>
+<script src="/packs/locale_en-f0ba7181de296154606a.js" crossorigin="anonymous"></script>
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="HQ9kz/o0J27gmkvJZ6UOtA2zU0odC/cPF5KNFxG+3LA2lYWr8jfACHwgy4iuEOFF6L+9aTINg01xsJqMrmjNIA==" />
+<link href='https://mastodonten.de/about' rel='canonical'>
+<script id='initial-state' type='application/json'>{"meta":{"streaming_api_base_url":"wss://mastodonten.de","access_token":null,"locale":"en","domain":"mastodonten.de","admin":null,"search_enabled":true,"version":"2.5.1","invites_enabled":true},"compose":{},"accounts":{},"media_attachments":{"accept_content_types":[".jpg",".jpeg",".png",".gif",".webm",".mp4",".m4v",".mov","image/jpeg","image/png","image/gif","video/webm","video/mp4","video/quicktime"]},"settings":{"known_fediverse":false},"push_subscription":null}</script>
+<script src="/packs/about-c5f040b1e03e645e51f7.js" crossorigin="anonymous"></script>
+<meta content="Mastodon hosted on mastodonten.de" property="og:site_name" />
+<meta content="https://mastodonten.de/about" property="og:url" />
+<meta content="website" property="og:type" />
+<meta content="Mastodonten.de" property="og:title" />
+<meta content="mastodonten.de ist eine Mastodon Instanz offen für alle netten Leute (über 16). 
+Geht gut miteinander um  (und lest die Regeln wenn ihr euch nicht sicher seid, was das heißt). Wer möchte, kann auch gerne etwas spenden, um den Betrieb von mastodonten.de zu unterstützen.
+
+
+
+mastodonten.de is a Mastodon instance open to nice people (over 16).
+Be excellent to each other (and read the rules if you&#39;re not sure what that means). Who would like, can donate something, in order to support the operation of mastodonten.de.
+" property="og:description" />
+<meta content="https://mastodonten.de/system/site_uploads/files/000/000/001/original/mastodon2.png?1519556342" property="og:image" />
+<meta content="734" property="og:image:width" />
+<meta content="628" property="og:image:height" />
+<meta content="summary_large_image" property="twitter:card" />
+
+
+</head>
+<body class='with-modals theme-default no-reduce-motion'>
+<div class='landing-page alternative'>
+<div class='container'>
+<div class='grid'>
+<div class='column-0'>
+<div class='brand'>
+<a href="https://mastodonten.de/"><img alt="Mastodon" src="/packs/logo_full-96e7a97fe469f75a23a74852b2478fa3.svg" />
+</a></div>
+</div>
+<div class='column-1'>
+<div class='landing-page__forms'>
+<div class='brand'>
+<a href="https://mastodonten.de/"><img alt="Mastodon" src="/packs/logo_full-96e7a97fe469f75a23a74852b2478fa3.svg" />
+</a></div>
+<a class="button button-primary" href="https://joinmastodon.org">Sign up on another server</a>
+<div class='closed-registrations-message'>
+Ich habe die öffentliche Registrierung geschlossen, nachdem sich etwas über 1000 Nutzer bei mastodonten.de angemeldet hatten. Mastodonten.de ist ein Freizeit-Projekt. Würde es weiter wachsen, wäre es in der Freizeit, ohne Beeinträchtigungen meiner Familie, wegen des höheren Administrations- und Moderationsaufwands nicht mehr zu stemmen. Daher dieser Schritt. Jeder, der Nutzer von mastodonten.de kennt, kann sich aber von diesen einladen lassen. Ansonsten gibt es auch viele andere nette Instanzen. 
+<br>
+<br>
+
+I closed the public registration after a little over 1000 users had registered at mastodonten.de. Mastodonten.de is a leisure project. If it would grow further, it would be no more to stemmed in the spare time, without impairments of my family, because of the higher administration and moderation expenditure. Hence this step. Everybody who knows users of mastodonten.de can be invited by them. Otherwise there are also many other nice instances.
+</div>
+<div class='separator-or'>
+<span>or</span>
+</div>
+<a class="button button-alternative-2 webapp-btn" href="/auth/sign_in">Log in</a>
+
+</div>
+</div>
+<div class='column-2'>
+<div class='landing-page__hero'>
+<img alt="Mastodonten.de" src="/system/site_uploads/files/000/000/001/original/mastodon2.png?1519556342" />
+</div>
+<div class='landing-page__information'>
+<div class='landing-page__short-description'>
+<div class='row'>
+<div class='landing-page__logo'>
+<img alt="Mastodon" src="/packs/logo_transparent-6900bab180aa3a46c34425e5367a218f.svg" />
+</div>
+<h1>
+Mastodonten.de
+<small>Mastodon hosted on <span>mastodonten.de</span></small>
+</h1>
+</div>
+<p>mastodonten.de ist eine Mastodon Instanz offen für alle netten Leute (über 16). 
+Geht gut miteinander um  (und lest die <a href="https://mastodonten.de/about/more">Regeln</a> wenn ihr euch nicht sicher seid, was das heißt). Wer möchte, <a href="https://liberapay.com/~32819/donate">kann auch gerne etwas spenden</a>, um den Betrieb von mastodonten.de zu unterstützen.
+
+<br>
+<br>
+mastodonten.de is a Mastodon instance open to nice people (over 16).
+Be excellent to each other (and read the <a href="https://mastodonten.de/about/more">rules</a> if you're not sure what that means). Who would like, <a href="https://liberapay.com/~32819/donate">can donate something</a>, in order to support the operation of mastodonten.de.
+</p>
+</div>
+</div>
+<div class='landing-page__call-to-action' dir='ltr'>
+<div class='row'>
+<div class='row__information-board'>
+<div class='information-board__section'>
+<span>Home to</span>
+<strong>1,034</strong>
+<span>users</span>
+</div>
+<div class='information-board__section'>
+<span>Who authored</span>
+<strong>82,821</strong>
+<span>statuses</span>
+</div>
+</div>
+<div class='row__mascot'>
+<div class='landing-page__mascot'>
+<img src="/packs/elephant_ui_plane-e3f2d57c12c376e189c274cbe81af8dd.svg" />
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class='column-3'>
+<div data-props='{&quot;locale&quot;:&quot;en&quot;}' id='mastodon-timeline'></div>
+</div>
+<div class='column-4 landing-page__information'>
+<div class='landing-page__features'>
+<div class='features-list'>
+<div>
+<h3>What is Mastodon?</h3>
+<p>Mastodon is a social network based on open web protocols and free, open-source software. It is decentralized like e-mail.</p>
+</div>
+<div class='contact'>
+<h3>Administered by:</h3>
+<div class="account"><div class="account__wrapper"><a class="account__display-name" href="https://mastodonten.de/@scroom"><div class="account__avatar-wrapper"><div class="account__avatar" style="background-image: url(/system/accounts/avatars/000/000/001/original/19512f6a26309e89.png?1515225388)"></div></div><span class="display-name"><bdi><strong class="display-name__html emojify">Alexander Kallenbach</strong></bdi><span class="display-name__account">@scroom</span></span></a><a class="button button-alternative" href="/about/more">Learn more</a></div></div>
+</div>
+</div>
+<div class='features-list'>
+<div class='features-list__row'>
+<div class='text'>
+<h6>Built for real conversation</h6>
+With 500 characters at your disposal and support for granular content and media warnings, you can express yourself the way you want to.
+</div>
+<div class='visual'>
+<i class="fa fa-fw fa-comments"></i>
+</div>
+</div>
+<div class='features-list__row'>
+<div class='text'>
+<h6>You’re a person, not a product</h6>
+Mastodon is not a commercial network. No advertising, no data mining, no walled gardens. There is no central authority.
+</div>
+<div class='visual'>
+<i class="fa fa-fw fa-users"></i>
+</div>
+</div>
+<div class='features-list__row'>
+<div class='text'>
+<h6>Always within reach</h6>
+Multiple apps for iOS, Android, and other platforms thanks to a developer-friendly API ecosystem allow you to keep up with your friends anywhere.
+</div>
+<div class='visual'>
+<i class="fa fa-fw fa-mobile"></i>
+</div>
+</div>
+<div class='features-list__row'>
+<div class='text'>
+<h6>A more humane approach</h6>
+Learning from failures of other networks, Mastodon aims to make ethical design choices to combat the misuse of social media.
+</div>
+<div class='visual'>
+<i class="fa fa-fw fa-leaf"></i>
+</div>
+</div>
+</div>
+
+<div class='landing-page__features__action'>
+<a class="button button-alternative" href="https://joinmastodon.org/">Learn more</a>
+</div>
+</div>
+<div class='landing-page__footer'>
+<p>
+<a href="https://github.com/tootsuite/mastodon">Source code</a>
+ (2.5.1)
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id='modal-container'></div>
+
+</body>
+</html>
