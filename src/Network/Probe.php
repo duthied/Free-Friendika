@@ -1334,10 +1334,10 @@ class Probe
 
 		// Fetch all additional data from the feed
 		$curlResult = Network::curl($data["poll"]);
-		if (!empty($curlResult["errno"]) && ($curlResult['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		if ($curlResult->isTimeout()) {
 			return false;
 		}
-		$feed = $curlResult['body'];
+		$feed = $curlResult->getBody();
 		$dummy1 = null;
 		$dummy2 = null;
 		$dummy2 = null;
