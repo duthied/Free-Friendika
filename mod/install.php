@@ -42,7 +42,6 @@ function install_post(App $a) {
 			return;
 			break; // just in case return don't return :)
 		case 3:
-			$urlpath = $a->get_path();
 			$dbhost = notags(trim($_POST['dbhost']));
 			$dbuser = notags(trim($_POST['dbuser']));
 			$dbpass = notags(trim($_POST['dbpass']));
@@ -57,7 +56,7 @@ function install_post(App $a) {
 			return;
 			break;
 		case 4:
-			$urlpath = $a->get_path();
+			$urlpath = $a->getURLPath();
 			$dbhost = notags(trim($_POST['dbhost']));
 			$dbuser = notags(trim($_POST['dbuser']));
 			$dbpass = notags(trim($_POST['dbpass']));
@@ -96,8 +95,6 @@ function install_content(App $a) {
 	$o = '';
 	$wizard_status = "";
 	$install_title = L10n::t('Friendica Communications Server - Setup');
-
-
 
 	if (x($a->data, 'db_conn_failed')) {
 		$install_wizard_pass = 2;
