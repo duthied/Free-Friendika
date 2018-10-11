@@ -379,7 +379,7 @@ class Contacts extends BaseModule
 		Contact::remove($orig_record['id']);
 	}
 
-	public static function contacts_content($update = 0)
+	public static function content($update = 0)
 	{
 		$a = self::getApp();
 		$sort_type = 0;
