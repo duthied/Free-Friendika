@@ -522,20 +522,29 @@ class App
 	 */
 	private function determineURLPath()
 	{
+		/* Relative script path to the web server root
+		 * Not all of those $_SERVER properties can be present, so we do by inverse priority order
+		 */
+		$relative_script_path = '';
+		$relative_script_path = defaults($_SERVER, 'REDIRECT_URL'       , $relative_script_path);
+		$relative_script_path = defaults($_SERVER, 'REDIRECT_URI'       , $relative_script_path);
+		$relative_script_path = defaults($_SERVER, 'REDIRECT_SCRIPT_URL', $relative_script_path);
+		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
+
 		$this->urlPath = $this->getConfigValue('system', 'urlpath');
 
-		/* SCRIPT_URL gives /path/to/friendica/module/parameter
+		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
 		 * QUERY_STRING gives pagename=module/parameter
 		 *
-		 * To get /path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
+		 * To get /relative/path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
 		 */
-		if (!empty($_SERVER['SCRIPT_URL'])) {
+		if (!empty($relative_script_path)) {
 			// Module
 			if (!empty($_SERVER['QUERY_STRING'])) {
-				$path = trim(dirname($_SERVER['SCRIPT_URL'], substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
+				$path = trim(dirname($relative_script_path, substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
 			} else {
 				// Root page
-				$path = trim($_SERVER['SCRIPT_URL'], '/');
+				$path = trim($relative_script_path, '/');
 			}
 
 			if ($path && $path != $this->urlPath) {
