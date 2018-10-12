@@ -1289,17 +1289,16 @@ class Item extends BaseObject
 		 */
 
 		$dsprsig = null;
-		if (x($item, 'dsprsig')) {
+		if (isset($item['dsprsig'])) {
 			$encoded_signature = $item['dsprsig'];
 			$dsprsig = json_decode(base64_decode($item['dsprsig']));
 			unset($item['dsprsig']);
 		}
 
-		if (!empty($item['diaspora_signed_text'])) {
+		$diaspora_signed_text = '';
+		if (isset($item['diaspora_signed_text'])) {
 			$diaspora_signed_text = $item['diaspora_signed_text'];
 			unset($item['diaspora_signed_text']);
-		} else {
-			$diaspora_signed_text = '';
 		}
 
 		// Converting the plink
@@ -1488,6 +1487,7 @@ class Item extends BaseObject
 		$deny_gid  = '';
 
 		if ($item['parent-uri'] === $item['uri']) {
+			$diaspora_signed_text = '';
 			$parent_id = 0;
 			$parent_deleted = 0;
 			$allow_cid = $item['allow_cid'];
@@ -1534,6 +1534,10 @@ class Item extends BaseObject
 				$item['wall']    = $parent['wall'];
 				$notify_type    = 'comment-new';
 
+				if (!$parent['origin']) {
+					$diaspora_signed_text = '';
+				}
+
 				/*
 				 * If the parent is private, force privacy for the entire conversation
 				 * This differs from the above settings as it subtly allows comments from
@@ -1574,6 +1578,7 @@ class Item extends BaseObject
 					$parent_id = 0;
 					$item['parent-uri'] = $item['uri'];
 					$item['gravity'] = GRAVITY_PARENT;
+					$diaspora_signed_text = '';
 				} else {
 					logger('item parent '.$item['parent-uri'].' for '.$item['uid'].' was not found - ignoring item');
 					return 0;
