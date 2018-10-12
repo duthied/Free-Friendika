@@ -215,7 +215,6 @@ class Processor
 		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
 		$item['app'] = $activity['service'];
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
-		$item['diaspora_signed_text'] = defaults($activity, 'diaspora:comment', '');
 
 		$item = self::constructAttachList($activity['attachments'], $item);
 
