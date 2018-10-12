@@ -1292,15 +1292,15 @@ class Item extends BaseObject
 		if (x($item, 'dsprsig')) {
 			$encoded_signature = $item['dsprsig'];
 			$dsprsig = json_decode(base64_decode($item['dsprsig']));
-			unset($item['dsprsig']);
 		}
+		unset($item['dsprsig']);
 
 		if (!empty($item['diaspora_signed_text'])) {
 			$diaspora_signed_text = $item['diaspora_signed_text'];
-			unset($item['diaspora_signed_text']);
 		} else {
 			$diaspora_signed_text = '';
 		}
+		unset($item['diaspora_signed_text']);
 
 		// Converting the plink
 		/// @TODO Check if this is really still needed
