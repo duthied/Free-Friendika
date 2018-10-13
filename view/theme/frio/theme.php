@@ -16,8 +16,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Profile;
-use Friendica\Module\Contacts;
+use Friendica\Model;
+use Friendica\Module\Contact;
 
 $frio = 'view/theme/frio';
 
@@ -209,7 +209,7 @@ function frio_contact_photo_menu(App $a, &$args)
 function frio_remote_nav($a, &$nav)
 {
 	// get the homelink from $_XSESSION
-	$homelink = Profile::getMyURL();
+	$homelink = Model\Profile::getMyURL();
 	if (!$homelink) {
 		$homelink = defaults($_SESSION, 'visitor_home', '');
 	}
@@ -247,7 +247,7 @@ function frio_remote_nav($a, &$nav)
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
 		$nav['remote'] = L10n::t('Guest');
-	} elseif (Profile::getMyURL()) {
+	} elseif (Model\Profile::getMyURL()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			DBA::escape($webbie));
@@ -333,7 +333,7 @@ function frio_acl_lookup(App $a, &$results)
 
 	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
-			$contacts[] = Contacts::getContactTemplateVars($rr);
+			$contacts[] = Model\Contact::getContactTemplateVars($rr);
 		}
 	}
 

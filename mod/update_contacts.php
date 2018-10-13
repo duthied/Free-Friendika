@@ -14,7 +14,7 @@ function update_contacts_content(App $a)
 	echo "<section>";
 
 	if ($_GET["force"] == 1) {
-		$text = Contacts::content($a, true);
+		$text = Contact::content($a, true);
 	} else {
 		$text = '';
 	}
