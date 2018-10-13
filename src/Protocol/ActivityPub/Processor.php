@@ -212,8 +212,13 @@ class Processor
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
 		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
 		$item['location'] = $activity['location'];
+
+		if (!empty($item['latitude']) && !empty($item['longitude'])) {
+			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
+		}
+
 		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
-		$item['app'] = $activity['service'];
+		$item['app'] = $activity['generator'];
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
 		$item['diaspora_signed_text'] = defaults($activity, 'diaspora:comment', '');
 
