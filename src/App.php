@@ -327,7 +327,7 @@ class App
 		$this->is_mobile = $mobile_detect->isMobile();
 		$this->is_tablet = $mobile_detect->isTablet();
 
-		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH')) == 'xmlhttprequest';
+		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
 
 		// Register template engines
 		$this->registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
