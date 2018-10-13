@@ -13,7 +13,7 @@ function xrd_init(App $a)
 {
 	if ($a->argv[0] == 'xrd') {
 		if (empty($_GET['uri'])) {
-			killme();
+			System::httpExit(404);
 		}
 
 		$uri = urldecode(notags(trim($_GET['uri'])));
@@ -24,7 +24,7 @@ function xrd_init(App $a)
 		}
 	} else {
 		if (empty($_GET['resource'])) {
-			killme();
+			System::httpExit(404);
 		}
 
 		$uri = urldecode(notags(trim($_GET['resource'])));
@@ -48,7 +48,7 @@ function xrd_init(App $a)
 
 	$user = DBA::selectFirst('user', [], ['nickname' => $name]);
 	if (!DBA::isResult($user)) {
-		killme();
+		System::httpExit(404);
 	}
 
 	$profile_url = System::baseUrl().'/profile/'.$user['nickname'];
