@@ -2536,7 +2536,7 @@ function admin_page_features_post(App $a)
  */
 function admin_page_features(App $a)
 {
-	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
+	if (($a->argc > 1) && ($a->getArgumentValue(1) === 'features')) {
 		$arr = [];
 		$features = Feature::get(false);
 
