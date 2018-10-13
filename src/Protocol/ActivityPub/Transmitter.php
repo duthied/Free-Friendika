@@ -24,6 +24,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Core\Cache;
+use Friendica\Util\Map;
 
 require_once 'include/api.php';
 
@@ -31,10 +32,6 @@ require_once 'include/api.php';
  * @brief ActivityPub Transmitter Protocol class
  *
  * To-Do:
- *
- * Missing object fields:
- * - service (App)
- * - location
  *
  * Missing object types:
  * - Event
@@ -601,6 +598,40 @@ class Transmitter
 	}
 
 	/**
+	 * Creates a location entry for a given item array
+	 *
+	 * @param array $item
+	 *
+	 * @return array with location array
+	 */
+	private static function createLocation($item)
+	{
+		$location = ['type' => 'Place'];
+
+		if (!empty($item['location'])) {
+			$location['name'] = $item['location'];
+		}
+
+		$coord = [];
+
+		if (empty($item['coord'])) {
+			$coord = Map::getCoordinates($item['location']);
+		} else {
+			$coords = explode(' ', $item['coord']);
+			if (count($coords) == 2) {
+				$coord = ['lat' => $coords[0], 'lon' => $coords[1]];
+			}
+		}
+
+		if (!empty($coord['lat']) && !empty($coord['lon'])) {
+			$location['latitude'] = $coord['lat'];
+			$location['longitude'] = $coord['lon'];
+		}
+
+		return $location;
+	}
+
+	/**
 	 * Returns a tag array for a given item array
 	 *
 	 * @param array $item
@@ -801,6 +832,15 @@ class Transmitter
 
 		$data['attachment'] = self::createAttachmentList($item, $type);
 		$data['tag'] = self::createTagList($item);
+
+		if (!empty($item['coord']) || !empty($item['location'])) {
+			$data['location'] = self::createLocation($item);
+		}
+
+		if (!empty($item['app'])) {
+			$data['generator'] = ['type' => 'Application', 'name' => $item['app']];
+		}
+
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
 		return $data;

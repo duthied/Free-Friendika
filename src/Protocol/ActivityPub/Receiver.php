@@ -25,6 +25,10 @@ use Friendica\Util\DateTimeFormat;
  * - Event
  * - Undo Announce
  *
+ * Missing object fields:
+ * - Location
+ * - Generator
+ *
  * Check what this is meant to do:
  * - Add
  * - Block
