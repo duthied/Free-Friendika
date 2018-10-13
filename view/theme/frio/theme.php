@@ -333,7 +333,7 @@ function frio_acl_lookup(App $a, &$results)
 
 	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
-			$contacts[] = Contacts::_contact_detail_for_template($rr);
+			$contacts[] = Contacts::getContactTemplateVars($rr);
 		}
 	}
 

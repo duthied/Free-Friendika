@@ -8,9 +8,8 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Model\Profile;
-use Friendica\Module\Contacts;
+use Friendica\Model;
+use Friendica\Module\Contact;
 
 require_once 'mod/contacts.php';
 
@@ -83,7 +82,7 @@ function crepair_post(App $a)
 	if ($photo) {
 		logger('mod-crepair: updating photo from ' . $photo);
 
-		Contact::updateAvatar($photo, local_user(), $contact['id']);
+		Model\Contact::updateAvatar($photo, local_user(), $contact['id']);
 	}
 
 	if ($r) {
@@ -136,7 +135,7 @@ function crepair_content(App $a)
 
 	$update_profile = in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]);
 
-	$tab_str = Contacts::contacts_tab($a, $contact, 5);
+	$tab_str = Contact::getTabsHTML($a, $contact, 5);
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o = replace_macros($tpl, [

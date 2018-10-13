@@ -7,11 +7,10 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Model\GContact;
-use Friendica\Model\Profile;
+use Friendica\Model;
+use Friendica\Module\Contact;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Module\Contacts;
+
 
 require_once 'include/dba.php';
 
@@ -42,7 +41,7 @@ function common_content(App $a)
 
 		if (DBA::isResult($contact)) {
 			$a->page['aside'] = "";
-			Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+			Model\Profile::load($a, "", 0,Model\Contact::getDetailsByURL($contact["url"]));
 		}
 	} else {
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['self' => true, 'uid' => $uid]);
@@ -65,12 +64,12 @@ function common_content(App $a)
 		return;
 	}
 
-	if (!$cid && Profile::getMyURL()) {
-		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $uid]);
+	if (!$cid &&Model\Profile::getMyURL()) {
+		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => normalise_link(Model\Profile::getMyURL()), 'uid' => $uid]);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
 		} else {
-			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
+			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Model\Profile::getMyURL())]);
 			if (DBA::isResult($gcontact)) {
 				$zcid = $gcontact['id'];
 			}
@@ -82,9 +81,9 @@ function common_content(App $a)
 	}
 
 	if ($cid) {
-		$t = GContact::countCommonFriends($uid, $cid);
+		$t =Model\GContact::countCommonFriends($uid, $cid);
 	} else {
-		$t = GContact::countCommonFriendsZcid($uid, $zcid);
+		$t =Model\GContact::countCommonFriendsZcid($uid, $zcid);
 	}
 
 	if ($t > 0) {
@@ -95,9 +94,9 @@ function common_content(App $a)
 	}
 
 	if ($cid) {
-		$r = GContact::commonFriends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
+		$r =Model\GContact::commonFriends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
 	} else {
-		$r = GContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
+		$r =Model\GContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
 	}
 
 	if (!DBA::isResult($r)) {
@@ -109,13 +108,13 @@ function common_content(App $a)
 	$entries = [];
 	foreach ($r as $rr) {
 		//get further details of the contact
-		$contact_details = Contact::getDetailsByURL($rr['url'], $uid);
+		$contact_details =Model\Contact::getDetailsByURL($rr['url'], $uid);
 
 		// $rr['id'] is needed to use contact_photo_menu()
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants
 		$rr['id'] = $rr['cid'];
 
-		$photo_menu = Contact::photoMenu($rr);
+		$photo_menu =Model\Contact::photoMenu($rr);
 
 		$entry = [
 			'url'          => $rr['url'],
@@ -126,7 +125,7 @@ function common_content(App $a)
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
-			'account_type' => Contact::getAccountType($contact_details),
+			'account_type' =>Model\Contact::getAccountType($contact_details),
 			'network'      => ContactSelector::networkToName($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'id'           => ++$id,
@@ -137,7 +136,7 @@ function common_content(App $a)
 	$title = '';
 	$tab_str = '';
 	if ($cmd === 'loc' && $cid && local_user() == $uid) {
-		$tab_str = Contacts::contacts_tab($a, $contact, 4);
+		$tab_str = Contact::getTabsHTML($a, $contact, 4);
 	} else {
 		$title = L10n::t('Common Friends');
 	}

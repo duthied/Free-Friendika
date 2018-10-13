@@ -29,7 +29,7 @@ use Friendica\Module\Login;
  *
  *  @brief manages contacts
  */
-class Contacts extends BaseModule 
+class Contact extends BaseModule 
 {
 	public static function init()
 	{
@@ -129,7 +129,7 @@ class Contacts extends BaseModule
 		]);
 	}
 
-	private static function contacts_batch_actions(App $a)
+	private static function batchActions(App $a)
 	{
 		if (empty($_POST['contact_batch']) || !is_array($_POST['contact_batch'])) {
 			return;
@@ -146,25 +146,25 @@ class Contacts extends BaseModule
 		foreach ($orig_records as $orig_record) {
 			$contact_id = $orig_record['id'];
 			if (x($_POST, 'contacts_batch_update')) {
-				self::_contact_update($contact_id);
+				self::updateContactFromPoll($contact_id);
 				$count_actions++;
 			}
 			if (x($_POST, 'contacts_batch_block')) {
-				self::_contact_block($contact_id);
+				self::blockContact($contact_id);
 				$count_actions++;
 			}
 			if (x($_POST, 'contacts_batch_ignore')) {
-				self::_contact_ignore($contact_id);
+				self::ignoreContact($contact_id);
 				$count_actions++;
 			}
 			if (x($_POST, 'contacts_batch_archive')) {
-				$r = self::_contact_archive($contact_id, $orig_record);
+				$r = self::archiveContact($contact_id, $orig_record);
 				if ($r) {
 					$count_actions++;
 				}
 			}
 			if (x($_POST, 'contacts_batch_drop')) {
-				self::_contact_drop($orig_record);
+				self::dropContact($orig_record);
 				$count_actions++;
 			}
 		}
@@ -184,7 +184,7 @@ class Contacts extends BaseModule
 		}
 
 		if ($a->argv[1] === "batch") {
-			self::contacts_batch_actions($a);
+			self::batchActions($a);
 			return;
 		}
 
@@ -253,7 +253,7 @@ class Contacts extends BaseModule
 
 	/* contact actions */
 
-	private static function _contact_update($contact_id)
+	private static function updateContactFromPoll($contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
@@ -274,7 +274,7 @@ class Contacts extends BaseModule
 		}
 	}
 
-	private static function _contact_update_profile($contact_id)
+	private static function updateContactFromProbe($contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
@@ -340,19 +340,19 @@ class Contacts extends BaseModule
 		GContact::updateFromProbe($data["url"]);
 	}
 
-	private static function _contact_block($contact_id)
+	private static function blockContact($contact_id)
 	{
 		$blocked = !Contact::isBlockedByUser($contact_id, local_user());
 		Contact::setBlockedForUser($contact_id, local_user(), $blocked);
 	}
 
-	private static function _contact_ignore($contact_id)
+	private static function ignoreContact($contact_id)
 	{
 		$ignored = !Contact::isIgnoredByUser($contact_id, local_user());
 		Contact::setIgnoredForUser($contact_id, local_user(), $ignored);
 	}
 
-	private static function _contact_archive($contact_id, $orig_record)
+	private static function archiveContact($contact_id, $orig_record)
 	{
 		$archived = (($orig_record['archive']) ? 0 : 1);
 		$r = q("UPDATE `contact` SET `archive` = %d WHERE `id` = %d AND `uid` = %d",
@@ -363,7 +363,7 @@ class Contacts extends BaseModule
 		return DBA::isResult($r);
 	}
 
-	private static function _contact_drop($orig_record)
+	private static function dropContact($orig_record)
 	{
 		$a = get_app();
 
@@ -407,19 +407,19 @@ class Contacts extends BaseModule
 			}
 
 			if ($cmd === 'update' && ($orig_record['uid'] != 0)) {
-				self::_contact_update($contact_id);
+				self::updateContactFromPoll($contact_id);
 				goaway('contacts/' . $contact_id);
 				// NOTREACHED
 			}
 
 			if ($cmd === 'updateprofile' && ($orig_record['uid'] != 0)) {
-				self::_contact_update_profile($contact_id);
+				self::updateContactFromProbe($contact_id);
 				goaway('crepair/' . $contact_id);
 				// NOTREACHED
 			}
 
 			if ($cmd === 'block') {
-				self::_contact_block($contact_id);
+				self::blockContact($contact_id);
 
 				$blocked = Contact::isBlockedByUser($contact_id, local_user());
 				info(($blocked ? L10n::t('Contact has been blocked') : L10n::t('Contact has been unblocked')) . EOL);
@@ -429,7 +429,7 @@ class Contacts extends BaseModule
 			}
 
 			if ($cmd === 'ignore') {
-				self::_contact_ignore($contact_id);
+				self::ignoreContact($contact_id);
 
 				$ignored = Contact::isIgnoredByUser($contact_id, local_user());
 				info(($ignored ? L10n::t('Contact has been ignored') : L10n::t('Contact has been unignored')) . EOL);
@@ -439,7 +439,7 @@ class Contacts extends BaseModule
 			}
 
 			if ($cmd === 'archive' && ($orig_record['uid'] != 0)) {
-				$r = self::_contact_archive($contact_id, $orig_record);
+				$r = self::archiveContact($contact_id, $orig_record);
 				if ($r) {
 					$archived = (($orig_record['archive']) ? 0 : 1);
 					info((($archived) ? L10n::t('Contact has been archived') : L10n::t('Contact has been unarchived')) . EOL);
@@ -467,7 +467,7 @@ class Contacts extends BaseModule
 
 					return replace_macros(get_markup_template('contact_drop_confirm.tpl'), [
 						'$header' => L10n::t('Drop contact'),
-						'$contact' => self::_contact_detail_for_template($orig_record),
+						'$contact' => self::getContactTemplateVars($orig_record),
 						'$method' => 'get',
 						'$message' => L10n::t('Do you really want to delete this contact?'),
 						'$extra_inputs' => $inputs,
@@ -482,17 +482,17 @@ class Contacts extends BaseModule
 					goaway('contacts');
 				}
 
-				self::_contact_drop($orig_record);
+				self::dropContact($orig_record);
 				info(L10n::t('Contact has been removed.') . EOL);
 
 				goaway('contacts');
 				return; // NOTREACHED
 			}
 			if ($cmd === 'posts') {
-				return self::contact_posts($a, $contact_id);
+				return self::getPostsHTML($a, $contact_id);
 			}
 			if ($cmd === 'conversations') {
-				return self::contact_conversations($a, $contact_id, $update);
+				return self::getConversationsHMTL($a, $contact_id, $update);
 			}
 		}
 
@@ -562,7 +562,7 @@ class Contacts extends BaseModule
 			$nettype = L10n::t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact["url"]));
 
 			// tabs
-			$tab_str = self::contacts_tab($a, $contact, 3);
+			$tab_str = self::getTabsHTML($a, $contact, 3);
 
 			$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < DateTimeFormat::utcNow()) ? L10n::t('Communications lost with this contact!') : '');
 
@@ -605,7 +605,7 @@ class Contacts extends BaseModule
 			}
 
 			// Load contactact related actions like hide, suggest, delete and others
-			$contact_actions = self::contact_actions($contact);
+			$contact_actions = self::getContactActions($contact);
 
 			if ($contact['uid'] != 0) {
 				$lbl_vis1 = L10n::t('Profile Visibility');
@@ -822,7 +822,7 @@ class Contacts extends BaseModule
 			foreach ($r as $rr) {
 				$rr['blocked'] = Contact::isBlockedByUser($rr['id'], local_user());
 				$rr['readonly'] = Contact::isIgnoredByUser($rr['id'], local_user());
-				$contacts[] = self::_contact_detail_for_template($rr);
+				$contacts[] = self::getContactTemplateVars($rr);
 			}
 		}
 
@@ -865,7 +865,7 @@ class Contacts extends BaseModule
 	 *
 	 * @return string
 	 */
-	public static function contacts_tab($a, $contact, $active_tab)
+	public static function getTabsHTML($a, $contact, $active_tab)
 	{
 		// tabs
 		$tabs = [
@@ -934,7 +934,7 @@ class Contacts extends BaseModule
 		return $tab_str;
 	}
 
-	private static function contact_conversations($a, $contact_id, $update)
+	private static function getConversationsHMTL($a, $contact_id, $update)
 	{
 		$o = '';
 
@@ -959,7 +959,7 @@ class Contacts extends BaseModule
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id]);
 
 		if (!$update) {
-			$o .= self::contacts_tab($a, $contact, 1);
+			$o .= self::getTabsHTML($a, $contact, 1);
 		}
 
 		if (DBA::isResult($contact)) {
@@ -980,11 +980,11 @@ class Contacts extends BaseModule
 		return $o;
 	}
 
-	private static function contact_posts($a, $contact_id)
+	private static function getPostsHTML($a, $contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id]);
 
-		$o = self::contacts_tab($a, $contact, 2);
+		$o = self::getTabsHTML($a, $contact, 2);
 
 		if (DBA::isResult($contact)) {
 			$a->page['aside'] = "";
@@ -1004,7 +1004,7 @@ class Contacts extends BaseModule
 		return $o;
 	}
 
-	public static function _contact_detail_for_template(array $rr)
+	public static function getContactTemplateVars(array $rr)
 	{
 		$dir_icon = '';
 		$alt_text = '';
@@ -1071,7 +1071,7 @@ class Contacts extends BaseModule
 	 * @param array $contact Data about the Contact
 	 * @return array with contact related actions
 	 */
-	private static function contact_actions($contact)
+	private static function getContactActions($contact)
 	{
 		$poll_enabled = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 		$contact_actions = [];
@@ -1133,5 +1133,4 @@ class Contacts extends BaseModule
 
 		return $contact_actions;
 	}
-
 }
