@@ -77,7 +77,7 @@ function admin_post(App $a)
 				break;
 			case 'themes':
 				if ($a->argc < 2) {
-					if (is_ajax()) {
+					if ($a->isAjax()) {
 						return;
 					}
 					goaway('admin/');
@@ -107,7 +107,7 @@ function admin_post(App $a)
 				}
 
 				info(L10n::t('Theme settings updated.'));
-				if (is_ajax()) {
+				if ($a->isAjax()) {
 					return;
 				}
 				$return_path = 'admin/themes/' . $theme;
@@ -286,7 +286,7 @@ function admin_content(App $a)
 		$o = admin_page_summary($a);
 	}
 
-	if (is_ajax()) {
+	if ($a->isAjax()) {
 		echo $o;
 		killme();
 		return '';
@@ -2536,7 +2536,7 @@ function admin_page_features_post(App $a)
  */
 function admin_page_features(App $a)
 {
-	if ((argc() > 1) && (argv(1) === 'features')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
 		$arr = [];
 		$features = Feature::get(false);
 

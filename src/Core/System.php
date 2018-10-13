@@ -216,6 +216,26 @@ class System extends BaseObject
 		return substr($trailer . uniqid('') . mt_rand(), 0, 26);
 	}
 
+	/**
+	 * Returns the current Load of the System
+	 *
+	 * @return integer
+	 */
+	public static function currentLoad()
+	{
+		if (!function_exists('sys_getloadavg')) {
+			return false;
+		}
+
+		$load_arr = sys_getloadavg();
+
+		if (!is_array($load_arr)) {
+			return false;
+		}
+
+		return max($load_arr[0], $load_arr[1]);
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
 	function killme()
@@ -232,6 +252,5 @@ class System extends BaseObject
 	function get_cachefile($file, $writemode = true)
 	function get_itemcachepath()
 	function get_spoolpath()
-	function current_load()
 	*/
 }

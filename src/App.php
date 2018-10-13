@@ -111,6 +111,11 @@ class App
 	private $currentTheme;
 
 	/**
+	 * @var bool check if request was an AJAX (xmlhttprequest) request
+	 */
+	private $isAjax;
+
+	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -321,6 +326,8 @@ class App
 		$mobile_detect = new MobileDetect();
 		$this->is_mobile = $mobile_detect->isMobile();
 		$this->is_tablet = $mobile_detect->isTablet();
+
+		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH')) == 'xmlhttprequest';
 
 		// Register template engines
 		$this->registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
@@ -1221,7 +1228,7 @@ class App
 			}
 		}
 
-		$load = current_load();
+		$load = System::currentLoad();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
 				logger('system: load ' . $load . ' for ' . $process . ' tasks (' . $maxsysload . ') too high.');
@@ -1571,5 +1578,33 @@ class App
 	public function getCurrentThemeStylesheetPath()
 	{
 		return Core\Theme::getStylesheetPath($this->getCurrentTheme());
+	}
+
+	/**
+	 * Check if request was an AJAX (xmlhttprequest) request.
+	 *
+	 * @return boolean true if it was an AJAX request
+	 */
+	public function isAjax()
+	{
+		return $this->isAjax;
+	}
+
+	/**
+	 * Returns the value of a argv key
+	 * TODO there are a lot of $a->argv usages in combination with defaults() which can be replaced with this method
+	 *
+	 * @param int $position the position of the argument
+	 * @param mixed $default the default value if not found
+	 *
+	 * @return mixed returns the value of the argument
+	 */
+	public function getArgumentValue($position, $default = '')
+	{
+		if (array_key_exists($position, $this->argv)) {
+			return $this->argv[$position];
+		}
+
+		return $default;
 	}
 }

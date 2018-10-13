@@ -618,7 +618,7 @@ class Worker
 		$active = self::activeWorkers();
 
 		// Decrease the number of workers at higher load
-		$load = current_load();
+		$load = System::currentLoad();
 		if ($load) {
 			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 

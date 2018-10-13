@@ -476,44 +476,6 @@ function defaults() {
 }
 
 /**
- * @brief Returns the baseurl.
- *
- * @see System::baseUrl()
- *
- * @return string
- * @TODO Function is deprecated and only used in some addons
- */
-function z_root()
-{
-	return System::baseUrl();
-}
-
-/**
- * @brief Return absolut URL for given $path.
- *
- * @param string $path given path
- *
- * @return string
- */
-function absurl($path)
-{
-	if (strpos($path, '/') === 0) {
-		return z_path() . $path;
-	}
-	return $path;
-}
-
-/**
- * @brief Function to check if request was an AJAX (xmlhttprequest) request.
- *
- * @return boolean
- */
-function is_ajax()
-{
-	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
-}
-
-/**
  * @brief Function to check if request was an AJAX (xmlhttprequest) request.
  *
  * @param boolean $via_worker boolean Is the check run via the worker?
@@ -1173,46 +1135,6 @@ function validate_include(&$file)
 
 	// Simply return flag
 	return $valid;
-}
-
-function current_load()
-{
-	if (!function_exists('sys_getloadavg')) {
-		return false;
-	}
-
-	$load_arr = sys_getloadavg();
-
-	if (!is_array($load_arr)) {
-		return false;
-	}
-
-	return max($load_arr[0], $load_arr[1]);
-}
-
-/**
- * @brief get c-style args
- *
- * @return int
- */
-function argc()
-{
-	return get_app()->argc;
-}
-
-/**
- * @brief Returns the value of a argv key
- *
- * @param int $x argv key
- * @return string Value of the argv key
- */
-function argv($x)
-{
-	if (array_key_exists($x, get_app()->argv)) {
-		return get_app()->argv[$x];
-	}
-
-	return '';
 }
 
 /**

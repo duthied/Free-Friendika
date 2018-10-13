@@ -876,13 +876,13 @@ function item_content(App $a)
 	$o = '';
 
 	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
-		if (is_ajax()) {
+		if ($a->isAjax()) {
 			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
 			$o = drop_item($a->argv[2]);
 		}
 
-		if (is_ajax()) {
+		if ($a->isAjax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
 			echo json_encode([intval($a->argv[2]), intval($o)]);
 			killme();
