@@ -26,7 +26,7 @@ function viewsrc_content(App $a)
 	$item = Item::selectFirst(['body'], ['uid' => local_user(), 'id' => $item_id]);
 
 	if (DBA::isResult($item)) {
-		if (is_ajax()) {
+		if ($a->isAjax()) {
 			echo str_replace("\n", '<br />', $item['body']);
 			killme();
 		} else {
