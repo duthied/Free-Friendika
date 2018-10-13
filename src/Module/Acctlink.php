@@ -8,7 +8,7 @@ use Friendica\Network\Probe;
 /**
  * Redirects to another URL based on the parameter 'addr'
  */
-class AcctLink extends BaseModule
+class Acctlink extends BaseModule
 {
 	public static function content()
 	{
@@ -19,7 +19,7 @@ class AcctLink extends BaseModule
 
 			if ($url) {
 				goaway($url);
-				killme();
+				exit();
 			}
 		}
 	}
