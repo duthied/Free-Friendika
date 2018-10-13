@@ -11,8 +11,6 @@ use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module\Contact;
 
-require_once 'mod/contacts.php';
-
 function crepair_init(App $a)
 {
 	if (!local_user()) {

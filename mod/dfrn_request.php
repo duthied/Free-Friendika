@@ -173,9 +173,9 @@ function dfrn_request_post(App $a)
 						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
 					}
 
-					$forwardurl = System::baseUrl() . "/contacts/" . $r[0]['id'];
+					$forwardurl = System::baseUrl() . "/contact/" . $r[0]['id'];
 				} else {
-					$forwardurl = System::baseUrl() . "/contacts";
+					$forwardurl = System::baseUrl() . "/contact";
 				}
 
 				// Allow the blocked remote notification to complete

@@ -400,7 +400,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
 		if ($handsfree === null) {
-			goaway(System::baseUrl() . '/contacts/' . intval($contact_id));
+			goaway(System::baseUrl() . '/contact/' . intval($contact_id));
 		} else {
 			return;
 		}
@@ -604,7 +604,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					'to_name'      => $combined['username'],
 					'to_email'     => $combined['email'],
 					'uid'          => $combined['uid'],
-					'link'         => System::baseUrl() . '/contacts/' . $dfrn_record,
+					'link'         => System::baseUrl() . '/contact/' . $dfrn_record,
 					'source_name'  => ((strlen(stripslashes($combined['name']))) ? stripslashes($combined['name']) : L10n::t('[Name Withheld]')),
 					'source_link'  => $combined['url'],
 					'source_photo' => $combined['photo'],

@@ -923,12 +923,12 @@ class Contact extends BaseObject
 			$poke_link = System::baseUrl() . '/poke/?f=&c=' . $contact['id'];
 		}
 
-		$contact_url = System::baseUrl() . '/contacts/' . $contact['id'];
+		$contact_url = System::baseUrl() . '/contact/' . $contact['id'];
 
-		$posts_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/conversations';
+		$posts_link = System::baseUrl() . '/contact/' . $contact['id'] . '/conversations';
 
 		if (!$contact['self']) {
-			$contact_drop_link = System::baseUrl() . '/contacts/' . $contact['id'] . '/drop?confirm=1';
+			$contact_drop_link = System::baseUrl() . '/contact/' . $contact['id'] . '/drop?confirm=1';
 		}
 
 		/**

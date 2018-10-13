@@ -54,7 +54,7 @@ function group_post(App $a) {
 		);
 		if (!DBA::isResult($r)) {
 			notice(L10n::t('Group not found.') . EOL);
-			goaway(System::baseUrl() . '/contacts');
+			goaway(System::baseUrl() . '/contact');
 			return; // NOTREACHED
 		}
 		$group = $r[0];
@@ -181,7 +181,7 @@ function group_content(App $a) {
 
 		if (!DBA::isResult($r)) {
 			notice(L10n::t('Group not found.') . EOL);
-			goaway(System::baseUrl() . '/contacts');
+			goaway(System::baseUrl() . '/contact');
 		}
 
 		$group = $r[0];

@@ -15,7 +15,7 @@
 
 	<div id="contact-update-profile-wrapper">
 	{{if $update_profile}}
-		<span id="contact-update-profile-now" class="button"><a href="contacts/{{$contact_id}}/updateprofile" >{{$udprofilenow}}</a></span>
+		<span id="contact-update-profile-now" class="button"><a href="contact/{{$contact_id}}/updateprofile" >{{$udprofilenow}}</a></span>
 	{{/if}}
 	</div>
 
