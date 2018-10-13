@@ -329,7 +329,7 @@ class Transmitter
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
 				if (!empty($profile) && empty($contacts[$profile['url']])) {
-					$data['cc'][] = $profile['url'];
+					$data['to'][] = $profile['url'];
 					$contacts[$profile['url']] = $profile['url'];
 				}
 			}
@@ -380,11 +380,6 @@ class Transmitter
 			}
 		}
 		DBA::close($parents);
-
-		if (empty($data['to'])) {
-			$data['to'] = $data['cc'];
-			$data['cc'] = [];
-		}
 
 		return $data;
 	}
