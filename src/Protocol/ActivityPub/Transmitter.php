@@ -4,6 +4,7 @@
  */
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Core\System;
 use Friendica\Util\HTTPSignature;
@@ -552,6 +553,8 @@ class Transmitter
 
 		$data['published'] = DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM);
 
+		$data['instrument'] = ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()];
+
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
@@ -883,7 +886,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $suggestion['url'],
 			'content' => $suggestion['note'],
-			'published' => DateTimeFormat::utc($suggestion['created'] . '+00:00', DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
 
@@ -910,6 +913,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $owner['url'],
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
 
@@ -936,6 +940,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => self::getProfile($uid),
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => [$profile['followers']],
 			'cc' => []];
 
@@ -963,6 +968,7 @@ class Transmitter
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url'],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
@@ -990,6 +996,7 @@ class Transmitter
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
@@ -1017,6 +1024,7 @@ class Transmitter
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
@@ -1045,6 +1053,7 @@ class Transmitter
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $owner['url'],
 				'object' => $profile['url']],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
