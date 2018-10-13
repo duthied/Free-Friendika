@@ -22,7 +22,10 @@ use Friendica\Model\Profile;
 use Friendica\Core\Config;
 use Friendica\Object\Image;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Core\Cache;
+
+require_once 'include/api.php';
 
 /**
  * @brief ActivityPub Transmitter Protocol class
@@ -37,7 +40,6 @@ use Friendica\Core\Cache;
  * - Event
  *
  * Complicated object types:
- * - Announce
  * - Undo Announce
  *
  * General:
@@ -467,7 +469,9 @@ class Transmitter
 	 */
 	private static function getTypeOfItem($item)
 	{
-		if ($item['verb'] == ACTIVITY_POST) {
+		if (!empty(Diaspora::isReshare($item['body'], false))) {
+			$type = 'Announce';
+		} elseif ($item['verb'] == ACTIVITY_POST) {
 			if ($item['created'] == $item['edited']) {
 				$type = 'Create';
 			} else {
@@ -558,8 +562,10 @@ class Transmitter
 
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
-		if (in_array($data['type'], ['Create', 'Update', 'Announce', 'Delete'])) {
+		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
+		} elseif ($data['type'] == 'Announce') {
+			$data['object'] = self::createAnnounce($item);
 		} elseif ($data['type'] == 'Undo') {
 			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
@@ -803,6 +809,23 @@ class Transmitter
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
 		return $data;
+	}
+
+	/**
+	 * Creates an announce object entry
+	 *
+	 * @param array $item
+	 *
+	 * @return string with announced object url
+	 */
+	public static function createAnnounce($item)
+	{
+		$announce = api_share_as_retweet($item);
+		if (empty($announce['plink'])) {
+			return self::createNote($item);
+		}
+
+		return $announce['plink'];
 	}
 
 	/**
