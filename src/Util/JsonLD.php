@@ -92,7 +92,14 @@ class JsonLD
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-		$compacted = jsonld_compact($jsonobj, $context);
+
+		try {
+			$compacted = jsonld_compact($jsonobj, $context);
+		}
+		catch (Exception $e) {
+			$compacted = false;
+			logger('compacting error:' . print_r($e, true), LOGGER_DEBUG);
+		}
 
 		return json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
 	}
