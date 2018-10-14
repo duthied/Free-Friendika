@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
+use Friendica\Core\Update;
 
 // Get options
 $shortopts = 'sn';
@@ -30,7 +31,7 @@ require_once "boot.php";
 $a = new App(dirname(__DIR__));
 
 // Check the database structure and possibly fixes it
-check_db(true);
+Update::check(true);
 
 // Quit when in maintenance
 if (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED)) {
