@@ -13,6 +13,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Protocol\Email;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -54,6 +55,17 @@ class OnePoll
 		}
 
 		$importer_uid = $contact['uid'];
+
+		// Possibly switch the remote contact to AP
+		if ($contact['network'] === Protocol::OSTATUS) {
+			ActivityPub\Receiver::switchContact($contact['id'], $importer_uid, $contact['url']);
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
+		}
+
+		// We currently don't do anything with AP here
+		if ($contact['network'] === Protocol::ACTIVITYPUB) {
+			return;
+		}
 
 		// load current friends if possible.
 		if (($contact['poco'] != "") && ($contact['success_update'] > $contact['failure_update'])) {

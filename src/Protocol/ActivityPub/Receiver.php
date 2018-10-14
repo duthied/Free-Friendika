@@ -452,7 +452,7 @@ class Receiver
 	 * @param integer $uid User ID
 	 * @param string $url Profile URL
 	 */
-	private static function switchContact($cid, $uid, $url)
+	public static function switchContact($cid, $uid, $url)
 	{
 		$profile = ActivityPub::probeProfile($url);
 		if (empty($profile)) {

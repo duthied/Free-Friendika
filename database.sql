@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.12-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1284
+-- DB_UPDATE_VERSION 1285
 -- ------------------------------------------
 
 
@@ -189,6 +189,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`archive` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`pending` boolean NOT NULL DEFAULT '1' COMMENT '',
+	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'Contact has been deleted',
 	`rating` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`reason` text COMMENT '',
 	`closeness` tinyint unsigned NOT NULL DEFAULT 99 COMMENT '',

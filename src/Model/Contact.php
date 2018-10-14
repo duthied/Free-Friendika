@@ -521,7 +521,7 @@ class Contact extends BaseObject
 		}
 
 		// Archive the contact
-		DBA::update('contact', ['archive' => true, 'network' => Protocol::PHANTOM], ['id' => $id]);
+		DBA::update('contact', ['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
 
 		// Delete it in the background
 		Worker::add(PRIORITY_LOW, 'RemoveContact', $id);
@@ -825,7 +825,7 @@ class Contact extends BaseObject
 		// Fetch contact data from the contact table for the given user
 		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
-			FROM `contact` WHERE `addr` = '%s' AND `uid` = %d",
+			FROM `contact` WHERE `addr` = '%s' AND `uid` = %d AND NOT `deleted`",
 			DBA::escape($addr),
 			intval($uid)
 		);
@@ -833,7 +833,7 @@ class Contact extends BaseObject
 		if (!DBA::isResult($r)) {
 			$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
 				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
-				FROM `contact` WHERE `addr` = '%s' AND `uid` = 0",
+				FROM `contact` WHERE `addr` = '%s' AND `uid` = 0 AND NOT `deleted`",
 				DBA::escape($addr)
 			);
 		}
@@ -1036,18 +1036,18 @@ class Contact extends BaseObject
 
 		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
 		// We first try the nurl (http://server.tld/nick), most common case
-		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['nurl' => normalise_link($url), 'uid' => $uid]);
+		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['nurl' => normalise_link($url), 'uid' => $uid, 'deleted' => false]);
 
 		// Then the addr (nick@server.tld)
 		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['addr' => $url, 'uid' => $uid]);
+			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
 		}
 
 		// Then the alias (which could be anything)
 		if (!DBA::isResult($contact)) {
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
-			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ?', $url, normalise_link($url), $ssl_url, $uid];
+			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, normalise_link($url), $ssl_url, $uid];
 			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], $condition);
 		}
 
@@ -1515,7 +1515,7 @@ class Contact extends BaseObject
 		$ret = Probe::uri($contact["url"], $network);
 
 		// If Probe::uri fails the network code will be different
-		if (($ret["network"] != $contact["network"]) && ($ret["network"] != $network)) {
+		if (($ret["network"] != $contact["network"]) && !in_array($ret["network"], [Protocol::ACTIVITYPUB, $network])) {
 			return false;
 		}
 
