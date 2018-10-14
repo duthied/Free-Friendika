@@ -32,6 +32,17 @@ require_once 'include/text.php';
 class User
 {
 	/**
+	 * Returns true if a user record exists with the provided id
+	 *
+	 * @param  integer $uid
+	 * @return boolean
+	 */
+	public static function exists($uid)
+	{
+		return DBA::exists('user', ['uid' => $uid]);
+	}
+
+	/**
 	 * @brief Returns the user id of a given profile url
 	 *
 	 * @param string $profile
