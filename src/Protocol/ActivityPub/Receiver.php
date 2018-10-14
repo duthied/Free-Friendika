@@ -698,10 +698,10 @@ class Receiver
 
 		// Special treatment for Hubzilla links
 		if (is_array($object_data['alternate-url'])) {
-			if (!empty($object['as:url'])) {
+			$object_data['alternate-url'] = JsonLD::fetchElement($object_data['alternate-url'], 'as:href');
+
+			if (!is_string($object_data['alternate-url'])) {
 				$object_data['alternate-url'] = JsonLD::fetchElement($object['as:url'], 'as:href');
-			} else {
-				$object_data['alternate-url'] = null;
 			}
 		}
 
