@@ -17,7 +17,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model;
-use Friendica\Module\Contact;
+use Friendica\Module;
 
 $frio = 'view/theme/frio';
 
@@ -333,7 +333,7 @@ function frio_acl_lookup(App $a, &$results)
 
 	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
-			$contacts[] = Model\Contact::getContactTemplateVars($rr);
+			$contacts[] = Module\Contact::getContactTemplateVars($rr);
 		}
 	}
 

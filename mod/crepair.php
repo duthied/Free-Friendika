@@ -9,7 +9,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model;
-use Friendica\Module\Contact;
+use Friendica\Module;
 
 function crepair_init(App $a)
 {
@@ -28,7 +28,7 @@ function crepair_init(App $a)
 
 	if (DBA::isResult($contact)) {
 		$a->data['contact'] = $contact;
-		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+		Profile::load($a, "", 0, Module\Contact::getDetailsByURL($contact["url"]));
 	}
 }
 
@@ -133,7 +133,7 @@ function crepair_content(App $a)
 
 	$update_profile = in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]);
 
-	$tab_str = Contact::getTabsHTML($a, $contact, 5);
+	$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o = replace_macros($tpl, [

@@ -12,7 +12,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model;
-use Friendica\Module\Contact;
+use Friendica\Module;
 
 function group_init(App $a) {
 	if (local_user()) {
@@ -249,7 +249,7 @@ function group_content(App $a) {
 	// Format the data of the group members
 	foreach ($members as $member) {
 		if ($member['url']) {
-			$entry = Contact::getContactTemplateVars($member);
+			$entry = Module\Contact::getContactTemplateVars($member);
 			$entry['label'] = 'members';
 			$entry['photo_menu'] = '';
 			$entry['change_member'] = [
@@ -278,7 +278,7 @@ function group_content(App $a) {
 		// Format the data of the contacts who aren't in the contact group
 		foreach ($r as $member) {
 			if (!in_array($member['id'], $preselected)) {
-				$entry = Contact::getContactTemplateVars($member);
+				$entry = Module\Contact::getContactTemplateVars($member);
 				$entry['label'] = 'contacts';
 				if (!$nogroup)
 					$entry['photo_menu'] = [];

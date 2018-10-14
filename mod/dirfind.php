@@ -13,7 +13,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model;
-use Friendica\Module\Contact;
+use Friendica\Module;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
@@ -209,8 +209,8 @@ function dirfind_content(App $a, $prefix = "") {
 					$conntxt = "";
 					$contact = DBA::selectFirst('contact', [], ['id' => $jj->cid]);
 					if (DBA::isResult($contact)) {
-						$photo_menu =Model\Contact::photoMenu($contact);
-						$details = Contact::getContactTemplateVars($contact);
+						$photo_menu = Model\Contact::photoMenu($contact);
+						$details = Module\Contact::getContactTemplateVars($contact);
 						$alt_text = $details['alt_text'];
 					} else {
 						$photo_menu = [];
@@ -226,7 +226,7 @@ function dirfind_content(App $a, $prefix = "") {
 						$photo_menu = [];
 					}
 
-					$photo_menu['profile'] = [L10n::t("View Profile"), Contact::magicLink($jj->url)];
+					$photo_menu['profile'] = [L10n::t("View Profile"), Module\Contact::magicLink($jj->url)];
 					$photo_menu['follow'] = [L10n::t("Connect/Follow"), $connlnk];
 				}
 

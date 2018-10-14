@@ -8,8 +8,8 @@ use Friendica\Content\ContactSelector;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model;\
-use Friendica\Module\Contact;
+use Friendica\Model;
+use Friendica\Module;
 use Friendica\Util\Proxy as ProxyUtils;
 
 
@@ -95,7 +95,7 @@ function allfriends_content(App $a)
 		$entries[] = $entry;
 	}
 
-	$tab_str = Contact::getTabsHTML($a, $contact, 4);
+	$tab_str = Module\Contact::getTabsHTML($a, $contact, 4);
 
 	$tpl = get_markup_template('viewcontact_template.tpl');
 

@@ -190,7 +190,7 @@ class Contact extends BaseModule
 
 		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
 			notice(L10n::t('Could not access contact record.') . EOL);
-			goaway('contacts');
+			goaway('contact');
 			return; // NOTREACHED
 		}
 
@@ -370,7 +370,7 @@ class Contact extends BaseModule
 		$a = self::getApp();
 		$sort_type = 0;
 		$o = '';
-		Nav::setSelected('contacts');
+		Nav::setSelected('contact');
 
 		if (!local_user()) {
 			notice(L10n::t('Permission denied.') . EOL);
@@ -388,13 +388,13 @@ class Contact extends BaseModule
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false]);
 			if (!DBA::isResult($orig_record)) {
 				notice(L10n::t('Could not access contact record.') . EOL);
-				goaway('contacts');
+				goaway('contact');
 				return; // NOTREACHED
 			}
 
 			if ($cmd === 'update' && ($orig_record['uid'] != 0)) {
 				self::updateContactFromPoll($contact_id);
-				goaway('contacts/' . $contact_id);
+				goaway('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -410,7 +410,7 @@ class Contact extends BaseModule
 				$blocked = Model\Contact::isBlockedByUser($contact_id, local_user());
 				info(($blocked ? L10n::t('Contact has been blocked') : L10n::t('Contact has been unblocked')) . EOL);
 
-				goaway('contacts/' . $contact_id);
+				goaway('contact/' . $contact_id);
 				return; // NOTREACHED
 			}
 
@@ -420,7 +420,7 @@ class Contact extends BaseModule
 				$ignored = Model\Contact::isIgnoredByUser($contact_id, local_user());
 				info(($ignored ? L10n::t('Contact has been ignored') : L10n::t('Contact has been unignored')) . EOL);
 
-				goaway('contacts/' . $contact_id);
+				goaway('contact/' . $contact_id);
 				return; // NOTREACHED
 			}
 
@@ -431,7 +431,7 @@ class Contact extends BaseModule
 					info((($archived) ? L10n::t('Contact has been archived') : L10n::t('Contact has been unarchived')) . EOL);
 				}
 
-				goaway('contacts/' . $contact_id);
+				goaway('contact/' . $contact_id);
 				return; // NOTREACHED
 			}
 
@@ -465,13 +465,13 @@ class Contact extends BaseModule
 				}
 				// Now check how the user responded to the confirmation query
 				if (defaults($_REQUEST, 'canceled')) {
-					goaway('contacts');
+					goaway('contact');
 				}
 
 				self::dropContact($orig_record);
 				info(L10n::t('Contact has been removed.') . EOL);
 
-				goaway('contacts');
+				goaway('contact');
 				return; // NOTREACHED
 			}
 			if ($cmd === 'posts') {
