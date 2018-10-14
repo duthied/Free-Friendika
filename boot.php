@@ -44,13 +44,6 @@ define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
- * @brief Constants for the database update check
- */
-const DB_UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
-const DB_UPDATE_SUCCESSFUL = 1;  // Database check was successful
-const DB_UPDATE_FAILED = 2;      // Database check failed
-
-/**
  * @brief Constant with a HTML line break.
  *
  * Contains a HTML line break (br) element and a real carriage return with line
@@ -118,18 +111,6 @@ define('REGISTER_OPEN',          2);
 /**
  * @}
 */
-
-/**
- * @name Update
- *
- * DB update return values
- * @{
- */
-define('UPDATE_SUCCESS', 0);
-define('UPDATE_FAILED',  1);
-/**
- * @}
- */
 
 /**
  * @name CP

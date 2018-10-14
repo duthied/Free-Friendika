@@ -16,6 +16,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
+use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -864,10 +865,10 @@ function admin_page_summary(App $a)
 		}
 	}
 
-	if (Config::get('system', 'dbupdate', DB_UPDATE_NOT_CHECKED) == DB_UPDATE_NOT_CHECKED) {
+	if (Config::get('system', 'dbupdate', DBStructure::UPDATE_NOT_CHECKED) == DBStructure::UPDATE_NOT_CHECKED) {
 		DBStructure::update(false, true);
 	}
-	if (Config::get('system', 'dbupdate') == DB_UPDATE_FAILED) {
+	if (Config::get('system', 'dbupdate') == DBStructure::UPDATE_FAILED) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.');
 	}
@@ -1613,9 +1614,9 @@ function admin_page_dbsync(App $a)
 		if (function_exists($func)) {
 			$retval = $func();
 
-			if ($retval === UPDATE_FAILED) {
+			if ($retval === Update::FAILED) {
 				$o .= L10n::t("Executing %s failed with error: %s", $func, $retval);
-			} elseif ($retval === UPDATE_SUCCESS) {
+			} elseif ($retval === Update::SUCCESS) {
 				$o .= L10n::t('Update %s was successfully applied.', $func);
 				Config::set('database', $func, 'success');
 			} else {

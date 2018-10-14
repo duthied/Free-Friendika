@@ -23,6 +23,10 @@ require_once 'include/text.php';
  */
 class DBStructure
 {
+	const UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
+	const UPDATE_SUCCESSFUL  = 1; // Database check was successful
+	const UPDATE_FAILED      = 2; // Database check failed
+
 	/**
 	 * Database structure definition loaded from config/dbstructure.php
 	 *
@@ -535,9 +539,9 @@ class DBStructure
 			Config::set('system', 'maintenance_reason', '');
 
 			if ($errors) {
-				Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
+				Config::set('system', 'dbupdate', self::UPDATE_FAILED);
 			} else {
-				Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+				Config::set('system', 'dbupdate', self::UPDATE_SUCCESSFUL);
 			}
 		}
 

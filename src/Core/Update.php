@@ -6,6 +6,9 @@ use Friendica\Database\DBStructure;
 
 class Update
 {
+	const SUCCESS = 0;
+	const FAILED  = 1;
+
 	/**
 	 * Automatic database updates
 	 */

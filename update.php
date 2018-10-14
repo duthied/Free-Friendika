@@ -4,6 +4,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -65,7 +66,7 @@ function update_1179() {
 	// Update the central item storage with uid=0
 	Worker::add(PRIORITY_LOW, "threadupdate");
 
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1181() {
@@ -73,7 +74,7 @@ function update_1181() {
 	// Fill the new fields in the term table.
 	Worker::add(PRIORITY_LOW, "TagUpdate");
 
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1189() {
@@ -84,7 +85,7 @@ function update_1189() {
 		Config::delete('system','directory_submit_url');
 	}
 
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1191() {
@@ -144,7 +145,7 @@ function update_1191() {
 
 	Config::set('system', 'maintenance', 0);
 
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1203() {
@@ -165,19 +166,19 @@ function update_1244() {
 	// Logged in users are forcibly logged out
 	DBA::delete('session', ['1 = 1']);
 
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1245() {
 	$rino = Config::get('system', 'rino_encrypt');
 
 	if (!$rino) {
-		return UPDATE_SUCCESS;
+		return Update::SUCCESS;
 	}
 
 	Config::set('system', 'rino_encrypt', 1);
 
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1247() {
@@ -226,13 +227,13 @@ function update_1260() {
 		SET `thread`.`author-id` = `item`.`author-id` WHERE `thread`.`author-id` = 0");
 
 	Config::set('system', 'maintenance', 0);
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1261() {
 	// This fixes the results of an issue in the develop branch of 2018-05.
 	DBA::update('contact', ['blocked' => false, 'pending' => false], ['uid' => 0, 'blocked' => true, 'pending' => true]);
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1278() {
@@ -244,7 +245,7 @@ function update_1278() {
 
 	Config::set('system', 'maintenance', 0);
 
-	return UPDATE_SUCCESS;
+	return Update::SUCCESS;
 }
 
 function update_1288() {
