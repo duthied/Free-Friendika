@@ -294,10 +294,16 @@ class Temporal
 			return L10n::t('never');
 		}
 
+		$isfuture = false;
 		$etime = time() - $abs;
 
-		if ($etime < 1) {
+		if ($etime < 1 && $etime >= 0) {
 			return L10n::t('less than a second ago');
+		}
+
+		if ($etime < 0){
+			$etime = -$etime;
+			$isfuture = true;
 		}
 
 		$a = [12 * 30 * 24 * 60 * 60 => [L10n::t('year'), L10n::t('years')],
@@ -315,7 +321,12 @@ class Temporal
 				$r = round($d);
 				// translators - e.g. 22 hours ago, 1 minute ago
 				if (!$format) {
-					$format = L10n::t('%1$d %2$s ago');
+					if($isfuture){
+						$format = L10n::t('in %1$d %2$s');
+					}
+					else {
+						$format = L10n::t('%1$d %2$s ago');
+					}
 				}
 
 				return sprintf($format, $r, (($r == 1) ? $str[0] : $str[1]));
