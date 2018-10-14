@@ -151,8 +151,8 @@ class Transmitter
 	{
 		$public_contact = Contact::getIdForURL($owner['url'], 0, true);
 
-		$condition = ['uid' => $owner['uid'], 'contact-id' => $owner['id'], 'author-id' => $public_contact,
-			'wall' => true, 'private' => false, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
+		$condition = ['uid' => 0, 'contact-id' => $public_contact, 'author-id' => $public_contact,
+			'private' => false, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
 			'deleted' => false, 'visible' => true];
 		$count = DBA::count('item', $condition);
 
@@ -329,6 +329,10 @@ class Transmitter
 				if (!empty($profile) && empty($contacts[$profile['url']])) {
 					$data['to'][] = $profile['url'];
 					$contacts[$profile['url']] = $profile['url'];
+
+					if (($key = array_search($profile['url'], $data['cc'])) !== false) {
+						unset($data['cc'][$key]);
+					}
 				}
 			}
 		} else {
@@ -342,6 +346,10 @@ class Transmitter
 					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
 					$data['to'][] = $contact['url'];
 					$contacts[$contact['url']] = $contact['url'];
+
+					if (($key = array_search($profile['url'], $data['cc'])) !== false) {
+						unset($data['cc'][$key]);
+					}
 				}
 			}
 
@@ -354,7 +362,7 @@ class Transmitter
 			}
 		}
 
-		$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity'], ['parent' => $item['parent']]);
+		$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
 			// Don't include data from future posts
 			if ($parent['id'] >= $item['id']) {
@@ -362,6 +370,15 @@ class Transmitter
 			}
 
 			$profile = APContact::getByURL($parent['author-link'], false);
+			if (!empty($profile) && ($parent['uri'] == $item['thr-parent'])) {
+				$data['to'][] = $profile['url'];
+				$contacts[$profile['url']] = $profile['url'];
+
+				if (($key = array_search($profile['url'], $data['cc'])) !== false) {
+					unset($data['cc'][$key]);
+				}
+			}
+
 			if (!empty($profile) && empty($contacts[$profile['url']])) {
 				$data['cc'][] = $profile['url'];
 				$contacts[$profile['url']] = $profile['url'];
@@ -379,7 +396,15 @@ class Transmitter
 		}
 		DBA::close($parents);
 
-		return $data;
+		if (($key = array_search($item['author-link'], $data['to'])) !== false) {
+			unset($data['to'][$key]);
+		}
+
+		if (($key = array_search($item['author-link'], $data['cc'])) !== false) {
+			unset($data['cc'][$key]);
+		}
+
+		return ['to' => array_values(array_unique($data['to'])), 'cc' => array_values(array_unique($data['cc']))];
 	}
 
 	/**
