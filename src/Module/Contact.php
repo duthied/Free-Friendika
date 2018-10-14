@@ -281,45 +281,34 @@ class Contact extends BaseModule
 			return;
 		}
 
-		$updatefields = ["name", "nick", "url", "addr", "batch", "notify", "poll", "request", "confirm",
-			"poco", "network", "alias"];
-		$update = [];
+		$updatefields = ['name', 'nick', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'network', 'alias'];
+		$fields = [];
 
-		if ($data["network"] == Protocol::OSTATUS) {
-			$result = Model\Contact::createFromProbe($uid, $data["url"], false);
+		if ($data['network'] == Protocol::OSTATUS) {
+			$result = Model\Contact::createFromProbe($uid, $data['url'], false);
 
 			if ($result['success']) {
-				$update["subhub"] = true;
+				$fields['subhub'] = true;
 			}
 		}
 
 		foreach ($updatefields AS $field) {
-			if (isset($data[$field]) && ($data[$field] != "")) {
-				$update[$field] = $data[$field];
+			if (!empty($data[$field])) {
+				$fields[$field] = $data[$field];
 			}
 		}
 
-		$update["nurl"] = normalise_link($data["url"]);
+		$fields['nurl'] = normalise_link($data['url']);
 
-		$query = "";
-
-		if (isset($data["priority"]) && ($data["priority"] != 0)) {
-			$query = "'priority' => '" . intval($data["priority"]) . "'";
+		if (!empty($data['priority'])) {
+			$fields['priority'] = intval($data['priority']);
 		}
 
-		foreach ($update AS $key => $value) {
-			if ($query != "") {
-				$query .= ", ";
-			}
-
-			$query .= "'" . $key . "' => '" . DBA::escape($value) . "'";
-		}
-
-		if ($query == "") {
+		if (empty($fields)) {
 			return;
 		}
 
-		$r = DBA::update('contact', $query, ['id' => $contact_id, 'uid' => local_user()]);
+		$r = DBA::update('contact', $fields, ['id' => $contact_id, 'uid' => local_user()]);
 
 		// Update the entry in the contact table
 		Model\Contact::updateAvatar($data['photo'], local_user(), $contact_id, true);
