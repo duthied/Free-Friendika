@@ -5,8 +5,7 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
-
-require_once 'mod/contacts.php';
+use Friendica\Module\Contacts;
 
 function update_contacts_content(App $a)
 {
@@ -15,7 +14,7 @@ function update_contacts_content(App $a)
 	echo "<section>";
 
 	if ($_GET["force"] == 1) {
-		$text = contacts_content($a, true);
+		$text = Contact::content($a, true);
 	} else {
 		$text = '';
 	}

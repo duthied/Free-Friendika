@@ -210,7 +210,7 @@ class Nav
 				$nav['profiles'] = ['profiles', L10n::t('Profiles'), '', L10n::t('Manage/Edit Profiles')];
 			}
 
-			$nav['contacts'] = ['contacts', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
+			$nav['contacts'] = ['contact', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
 		}
 
 		// Show the link to the admin configuration page if user is admin

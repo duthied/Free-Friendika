@@ -14,7 +14,7 @@
 
 {{$tabs}}
 
-<form action="{{$baseurl}}/contacts/batch/" method="POST">
+<form action="{{$baseurl}}/contact/batch/" method="POST">
 {{foreach $contacts as $contact}}
 	{{include file="contact_template.tpl"}}
 {{/foreach}}
