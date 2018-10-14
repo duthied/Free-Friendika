@@ -33,11 +33,11 @@ require_once 'include/items.php';
 /**
  * @brief Process send data from the admin panels subpages
  *
- * This function acts as relais for processing the data send from the subpages
+ * This function acts as relay for processing the data send from the subpages
  * of the admin panel. Depending on the 1st parameter of the url (argv[1])
  * specialized functions are called to process the data from the subpages.
  *
- * The function itself does not return anything, but the subsequencely function
+ * The function itself does not return anything, but the subsequently function
  * return the HTML for the pages of the admin panel.
  *
  * @param App $a

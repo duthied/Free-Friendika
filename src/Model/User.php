@@ -644,7 +644,7 @@ class User
 	}
 
 	/**
-	 * @brief Sends pending registration confiŕmation email
+	 * @brief Sends pending registration confirmation email
 	 *
 	 * @param string $email
 	 * @param string $sitename
