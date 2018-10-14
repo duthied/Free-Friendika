@@ -114,6 +114,17 @@ function babel_content()
 					'content' => visible_whitespace($bbcode)
 				];
 
+				$html2 = Text\BBCode::convert($bbcode);
+				$results[] = [
+					'title' => L10n::t('HTML::toBBCode => BBCode::convert'),
+					'content' => $html2
+				];
+
+				$results[] = [
+					'title' => L10n::t('HTML::toBBCode => BBCode::convert (raw HTML)'),
+					'content' => htmlspecialchars($html2)
+				];
+
 				$markdown = Text\HTML::toMarkdown($html);
 				$results[] = [
 					'title' => L10n::t('HTML::toMarkdown'),
