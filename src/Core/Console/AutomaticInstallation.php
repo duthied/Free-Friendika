@@ -184,7 +184,7 @@ HELP;
 	/**
 	 * @param Install $install the Installer instance
 	 */
-	private function runBasicChecks($install)
+	private function runBasicChecks(Install $install)
 	{
 		$install->resetChecks();
 		$install->checkFunctions();

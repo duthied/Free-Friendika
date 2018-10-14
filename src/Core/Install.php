@@ -190,7 +190,7 @@ class Install
 			$phppath = "";
 		}
 
-		self::addCheck(L10n::t('Command line PHP') . ($passed ? " (<tt>$phppath</tt>)" : ""), $passed, false, $help);
+		$this->addCheck(L10n::t('Command line PHP') . ($passed ? " (<tt>$phppath</tt>)" : ""), $passed, false, $help);
 
 		if ($passed) {
 			$cmd = "$phppath -v";
@@ -202,7 +202,7 @@ class Install
 				$help .= L10n::t("PHP executable is not the php cli binary \x28could be cgi-fgci version\x29") . EOL;
 				$help .= L10n::t('Found PHP version: ') . "<tt>$result</tt>";
 			}
-			self::addCheck(L10n::t('PHP cli binary'), $passed2, true, $help);
+			$this->addCheck(L10n::t('PHP cli binary'), $passed2, true, $help);
 		} else {
 			// return if it was required
 			return $required;
@@ -221,7 +221,7 @@ class Install
 				$this->phppath = $phppath;
 			}
 
-			self::addCheck(L10n::t('PHP register_argc_argv'), $passed3, true, $help);
+			$this->addCheck(L10n::t('PHP register_argc_argv'), $passed3, true, $help);
 		}
 
 		// passed2 & passed3 are required if first check passed
@@ -408,7 +408,7 @@ class Install
 			$help .= L10n::t('You can alternatively skip this procedure and perform a manual installation. Please see the file "INSTALL.txt" for instructions.') . EOL;
 		}
 
-		self::addCheck(L10n::t('config/local.ini.php is writable'), $status, false, $help);
+		$this->addCheck(L10n::t('config/local.ini.php is writable'), $status, false, $help);
 
 		// Local INI File is not required
 		return true;
