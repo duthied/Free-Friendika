@@ -211,6 +211,11 @@ class Processor
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
 		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
+
+		if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
+			$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
+		}
+
 		$item['location'] = $activity['location'];
 
 		if (!empty($item['latitude']) && !empty($item['longitude'])) {
