@@ -16,6 +16,7 @@ use Friendica\Model\Mail;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
+use Friendica\Module\Login;
 
 require_once 'include/conversation.php';
 
@@ -43,12 +44,6 @@ function message_init(App $a)
 
 	$head_tpl = get_markup_template('message-head.tpl');
 	$a->page['htmlhead'] .= replace_macros($head_tpl, [
-		'$baseurl' => System::baseUrl(true),
-		'$base' => $base
-	]);
-
-	$end_tpl = get_markup_template('message-end.tpl');
-	$a->page['end'] .= replace_macros($end_tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	]);
@@ -103,7 +98,7 @@ function message_content(App $a)
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		return;
+		return Login::form();
 	}
 
 	$myprofile = System::baseUrl() . '/profile/' . $a->user['nickname'];
@@ -160,17 +155,28 @@ function message_content(App $a)
 
 		// Now check how the user responded to the confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			goaway($_SESSION['return_url']);
+			goaway('/message');
 		}
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
+			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
+			if(!DBA::isResult($message)){
+				info(L10n::t('Conversation not found.') . EOL);
+				goaway('/message');
+			}
+
 			if (DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
 				info(L10n::t('Message deleted.') . EOL);
 			}
 
-			//goaway(System::baseUrl(true) . '/message' );
-			goaway($_SESSION['return_url']);
+			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => local_user()]);
+			if(!DBA::isResult($conversation)){
+				info(L10n::t('Conversation removed.') . EOL);
+				goaway('/message');
+			}
+
+			goaway('/message/' . $conversation['id'] );
 		} else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),
@@ -184,8 +190,7 @@ function message_content(App $a)
 					info(L10n::t('Conversation removed.') . EOL);
 				}
 			}
-			//goaway(System::baseUrl(true) . '/message' );
-			goaway($_SESSION['return_url']);
+			goaway('/message' );
 		}
 	}
 
@@ -194,13 +199,6 @@ function message_content(App $a)
 
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, [
-			'$baseurl' => System::baseUrl(true),
-			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
-		]);
-
-		$tpl = get_markup_template('msg-end.tpl');
-		$a->page['end'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')
@@ -281,7 +279,7 @@ function message_content(App $a)
 		);
 
 		if (DBA::isResult($r)) {
-			$a->set_pager_total($r[0]['total']);
+			$a->setPagerTotal($r[0]['total']);
 		}
 
 		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
@@ -339,13 +337,6 @@ function message_content(App $a)
 
 		$tpl = get_markup_template('msg-header.tpl');
 		$a->page['htmlhead'] .= replace_macros($tpl, [
-			'$baseurl' => System::baseUrl(true),
-			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
-		]);
-
-		$tpl = get_markup_template('msg-end.tpl');
-		$a->page['end'] .= replace_macros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')

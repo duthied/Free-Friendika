@@ -472,7 +472,7 @@ function photos_post(App $a)
 			$uri = Item::newURI($page_owner_uid);
 
 			$arr = [];
-			$arr['guid']          = System::createGUID(32);
+			$arr['guid']          = System::createUUID();
 			$arr['uid']           = $page_owner_uid;
 			$arr['uri']           = $uri;
 			$arr['parent-uri']    = $uri;
@@ -651,7 +651,7 @@ function photos_post(App $a)
 					$uri = Item::newURI($page_owner_uid);
 
 					$arr = [];
-					$arr['guid']          = System::createGUID(32);
+					$arr['guid']          = System::createUUID();
 					$arr['uid']           = $page_owner_uid;
 					$arr['uri']           = $uri;
 					$arr['parent-uri']    = $uri;
@@ -889,7 +889,7 @@ function photos_post(App $a)
 		$arr['coord'] = $lat . ' ' . $lon;
 	}
 
-	$arr['guid']          = System::createGUID(32);
+	$arr['guid']          = System::createUUID();
 	$arr['uid']           = $page_owner_uid;
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;
@@ -1143,8 +1143,8 @@ function photos_content(App $a)
 			DBA::escape($album)
 		);
 		if (DBA::isResult($r)) {
-			$a->set_pager_total(count($r));
-			$a->set_pager_itemspage(20);
+			$a->setPagerTotal(count($r));
+			$a->setPagerItemsPage(20);
 		}
 
 		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
@@ -1393,7 +1393,7 @@ function photos_content(App $a)
 			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
 
 			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
-			$a->set_pager_total(DBA::count('item', $condition));
+			$a->setPagerTotal(DBA::count('item', $condition));
 
 			$params = ['order' => ['id'], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
 			$result = Item::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params);
@@ -1655,8 +1655,8 @@ function photos_content(App $a)
 	);
 
 	if (DBA::isResult($r)) {
-		$a->set_pager_total(count($r));
-		$a->set_pager_itemspage(20);
+		$a->setPagerTotal(count($r));
+		$a->setPagerItemsPage(20);
 	}
 
 	$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,

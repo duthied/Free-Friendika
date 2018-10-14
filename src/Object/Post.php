@@ -324,7 +324,7 @@ class Post extends BaseObject
 		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
-		if (!in_array($item["network"], [Protocol::DFRN, Protocol::DIASPORA]) && isset($buttons["dislike"])) {
+		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA]) && isset($buttons["dislike"])) {
 			unset($buttons["dislike"]);
 			$isevent = false;
 			$tagger = '';
@@ -368,7 +368,7 @@ class Post extends BaseObject
 			'profile_url'     => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name'            => $name_e,
-			'thumb'           => $a->remove_baseurl(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
+			'thumb'           => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
@@ -381,7 +381,7 @@ class Post extends BaseObject
 			'indent'          => $indent,
 			'shiny'           => $shiny,
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => $a->remove_baseurl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
+			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
 			'plink'           => get_plink($item),
 			'edpost'          => Feature::isEnabled($conv->getProfileOwner(), 'edit_posts') ? $edpost : '',
@@ -402,7 +402,7 @@ class Post extends BaseObject
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
 			'network'         => $item["network"],
-			'network_name'    => ContactSelector::networkToName($item['network'], $profile_link),
+			'network_name'    => ContactSelector::networkToName($item['network'], $item['author-link']),
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
@@ -788,9 +788,9 @@ class Post extends BaseObject
 				'$parent'      => $this->getId(),
 				'$qcomment'    => $qcomment,
 				'$profile_uid' => $uid,
-				'$mylink'      => $a->remove_baseurl($a->contact['url']),
+				'$mylink'      => $a->removeBaseURL($a->contact['url']),
 				'$mytitle'     => L10n::t('This is you'),
-				'$myphoto'     => $a->remove_baseurl($a->contact['thumb']),
+				'$myphoto'     => $a->removeBaseURL($a->contact['thumb']),
 				'$comment'     => L10n::t('Comment'),
 				'$submit'      => L10n::t('Submit'),
 				'$edbold'      => L10n::t('Bold'),

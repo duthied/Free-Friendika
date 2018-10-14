@@ -7,7 +7,9 @@ namespace Friendica\Content;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Util\Network;
 
 /**
  * @brief ContactSelector class
@@ -68,28 +70,29 @@ class ContactSelector
 	}
 
 	/**
-	 * @param string $s       network
+	 * @param string $network network
 	 * @param string $profile optional, default empty
 	 * @return string
 	 */
-	public static function networkToName($s, $profile = "")
+	public static function networkToName($network, $profile = "")
 	{
 		$nets = [
-			Protocol::DFRN      => L10n::t('Friendica'),
-			Protocol::OSTATUS   => L10n::t('OStatus'),
-			Protocol::FEED      => L10n::t('RSS/Atom'),
-			Protocol::MAIL      => L10n::t('Email'),
-			Protocol::DIASPORA  => L10n::t('Diaspora'),
-			Protocol::ZOT       => L10n::t('Zot!'),
-			Protocol::LINKEDIN  => L10n::t('LinkedIn'),
-			Protocol::XMPP      => L10n::t('XMPP/IM'),
-			Protocol::MYSPACE   => L10n::t('MySpace'),
-			Protocol::GPLUS     => L10n::t('Google+'),
-			Protocol::PUMPIO    => L10n::t('pump.io'),
-			Protocol::TWITTER   => L10n::t('Twitter'),
-			Protocol::DIASPORA2 => L10n::t('Diaspora Connector'),
-			Protocol::STATUSNET => L10n::t('GNU Social Connector'),
-			Protocol::PNUT      => L10n::t('pnut'),
+			Protocol::DFRN      =>   L10n::t('Friendica'),
+			Protocol::OSTATUS   =>   L10n::t('OStatus'),
+			Protocol::FEED      =>   L10n::t('RSS/Atom'),
+			Protocol::MAIL      =>   L10n::t('Email'),
+			Protocol::DIASPORA  =>   L10n::t('Diaspora'),
+			Protocol::ZOT       =>   L10n::t('Zot!'),
+			Protocol::LINKEDIN  =>   L10n::t('LinkedIn'),
+			Protocol::XMPP      =>   L10n::t('XMPP/IM'),
+			Protocol::MYSPACE   =>   L10n::t('MySpace'),
+			Protocol::GPLUS     =>   L10n::t('Google+'),
+			Protocol::PUMPIO    =>   L10n::t('pump.io'),
+			Protocol::TWITTER   =>   L10n::t('Twitter'),
+			Protocol::DIASPORA2 =>   L10n::t('Diaspora Connector'),
+			Protocol::STATUSNET =>   L10n::t('GNU Social Connector'),
+			Protocol::ACTIVITYPUB => L10n::t('ActivityPub'),
+			Protocol::PNUT      =>   L10n::t('pnut'),
 		];
 
 		Addon::callHooks('network_to_name', $nets);
@@ -97,15 +100,37 @@ class ContactSelector
 		$search  = array_keys($nets);
 		$replace = array_values($nets);
 
-		$networkname = str_replace($search, $replace, $s);
+		$networkname = str_replace($search, $replace, $network);
 
-		if ((in_array($s, [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
-			$r = DBA::fetchFirst("SELECT `gserver`.`platform` FROM `gcontact`
-					INNER JOIN `gserver` ON `gserver`.`nurl` = `gcontact`.`server_url`
-					WHERE `gcontact`.`nurl` = ? AND `platform` != ''", normalise_link($profile));
+		if ((in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
+			// Create the server url out of the profile url
+			$parts = parse_url($profile);
+			unset($parts['path']);
+			$server_url = [normalise_link(Network::unparseURL($parts))];
 
-			if (DBA::isResult($r)) {
-				$networkname = $r['platform'];
+			// Fetch the server url
+			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => normalise_link($profile)]);
+			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
+				$server_url[] = normalise_link($gcontact['server_url']);
+			}
+
+			// Now query the GServer for the platform name
+			$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['nurl' => $server_url]);
+
+			if (DBA::isResult($gserver)) {
+				if (!empty($gserver['platform'])) {
+					$platform = $gserver['platform'];
+				} elseif (!empty($gserver['network']) && ($gserver['network'] != Protocol::ACTIVITYPUB)) {
+					$platform = self::networkToName($gserver['network']);
+				}
+
+				if (!empty($platform)) {
+					$networkname = $platform;
+
+					if ($network == Protocol::ACTIVITYPUB) {
+						$networkname .= ' (AP)';
+					}
+				}
 			}
 		}
 

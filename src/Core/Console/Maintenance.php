@@ -47,7 +47,7 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = get_app();
+		$a = \Friendica\BaseObject::getApp();
 
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
@@ -64,7 +64,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->isInstallMode()) {
+		if ($a->getMode()->isInstall()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 

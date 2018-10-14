@@ -316,9 +316,9 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 		DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 	}
 
-	Network::post($url, $params);
+	$postResult = Network::post($url, $params);
 
-	logger('subscribe_to_hub: returns: ' . $a->get_curl_code(), LOGGER_DEBUG);
+	logger('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), LOGGER_DEBUG);
 
 	return;
 
@@ -349,12 +349,12 @@ function drop_item($id)
 
 	// locate item to be deleted
 
-	$fields = ['id', 'uid', 'contact-id', 'deleted'];
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
 		notice(L10n::t('Item not found.') . EOL);
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		goaway('/network');
 	}
 
 	if ($item['deleted']) {
@@ -401,17 +401,17 @@ function drop_item($id)
 		}
 		// Now check how the user responded to the confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+			goaway('/display/' . $item['guid']);
 		}
 
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		goaway('/network');
 		//NOTREACHED
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		goaway('/display/' . $item['guid']);
 		//NOTREACHED
 	}
 }

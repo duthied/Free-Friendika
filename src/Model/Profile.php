@@ -29,6 +29,19 @@ require_once 'include/dba.php';
 class Profile
 {
 	/**
+	 * @brief Returns default profile for a given user id
+	 *
+	 * @param integer User ID
+	 *
+	 * @return array Profile data
+	 */
+	public static function getByUID($uid)
+	{
+		$profile = DBA::selectFirst('profile', [], ['uid' => $uid, 'is-default' => true]);
+		return $profile;
+	}
+
+	/**
 	 * @brief Returns a formatted location string from the given profile array
 	 *
 	 * @param array $profile Profile array (Generated from the "profile" table)
@@ -149,7 +162,7 @@ class Profile
 		* load/reload current theme info
 		*/
 
-		$a->set_template_engine(); // reset the template engine to the default in case the user's theme doesn't specify one
+		$a->setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
 		$theme_info_file = 'view/theme/' . $a->getCurrentTheme() . '/theme.php';
 		if (file_exists($theme_info_file)) {
@@ -1043,7 +1056,7 @@ class Profile
 				if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
 					$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
 					$serverret = Network::curl($magic_path);
-					if (!empty($serverret['success'])) {
+					if ($serverret->isSuccess()) {
 						goaway($magic_path);
 					}
 				}
@@ -1103,7 +1116,7 @@ class Profile
 
 		$a->contact = $arr['visitor'];
 
-		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->get_hostname(), $visitor['name']));
+		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->getHostName(), $visitor['name']));
 
 		logger('OpenWebAuth: auth success from ' . $visitor['addr'], LOGGER_DEBUG);
 	}

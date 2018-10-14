@@ -33,6 +33,17 @@ class Term
 		return $tag_text;
 	}
 
+	public static function tagArrayFromItemId($itemid, $type = [TERM_HASHTAG, TERM_MENTION])
+	{
+		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => $type];
+		$tags = DBA::select('term', ['type', 'term', 'url'], $condition);
+		if (!DBA::isResult($tags)) {
+			return [];
+		}
+
+		return DBA::toArray($tags);
+	}
+
 	public static function fileTextFromItemId($itemid)
 	{
 		$file_text = '';
@@ -99,6 +110,18 @@ class Term
 		$pattern = '/\W([\#@])\[url\=(.*?)\](.*?)\[\/url\]/ism';
 		if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
+
+				if ($match[1] == '@') {
+					$contact = Contact::getDetailsByURL($match[2], 0);
+					if (!empty($contact['addr'])) {
+						$match[3] = $contact['addr'];
+					}
+
+					if (!empty($contact['url'])) {
+						$match[2] = $contact['url'];
+					}
+				}
+
 				$tags[$match[1] . trim($match[3], ',.:;[]/\"?!')] = $match[2];
 			}
 		}
@@ -119,10 +142,20 @@ class Term
 				$term = substr($tag, 1);
 			} elseif (substr(trim($tag), 0, 1) == '@') {
 				$type = TERM_MENTION;
-				$term = substr($tag, 1);
+
+				$contact = Contact::getDetailsByURL($link, 0);
+				if (!empty($contact['name'])) {
+					$term = $contact['name'];
+				} else {
+					$term = substr($tag, 1);
+				}
 			} else { // This shouldn't happen
 				$type = TERM_HASHTAG;
 				$term = $tag;
+			}
+
+			if (DBA::exists('term', ['uid' => $message['uid'], 'otype' => TERM_OBJ_POST, 'oid' => $itemid, 'url' => $link])) {
+				continue;
 			}
 
 			if ($message['uid'] == 0) {

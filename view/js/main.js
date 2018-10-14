@@ -485,14 +485,12 @@ function liveUpdate(src) {
 		$('.wall-item-body', data).imagesLoaded(function() {
 			updateConvItems(data);
 
+			document.dispatchEvent(new Event('postprocess_liveupdate'));
+
 			// Update the scroll position.
 			$(window).scrollTop($(window).scrollTop() + $("section").height() - orgHeight);
 		});
-
-		callAddonHooks("postprocess_liveupdate");
-
 	});
-
 }
 
 function imgbright(node) {
@@ -676,6 +674,7 @@ function preview_post() {
 			if (data.preview) {
 				$("#jot-preview-content").html(data.preview);
 				$("#jot-preview-content" + " a").click(function() {return false;});
+				document.dispatchEvent(new Event('postprocess_liveupdate'));
 			}
 		},
 		"json"
@@ -742,6 +741,8 @@ function loadScrollContent() {
 		} else {
 			$("#scroll-end").fadeIn('normal');
 		}
+
+		document.dispatchEvent(new Event('postprocess_liveupdate'));
 	});
 }
 

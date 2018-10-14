@@ -20,6 +20,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Protocol\ActivityPub;
 
 function profile_init(App $a)
 {
@@ -47,6 +48,16 @@ function profile_init(App $a)
 		$profile = htmlspecialchars($a->argv[1]);
 	} else {
 		DFRN::autoRedir($a, $which);
+	}
+
+	if (ActivityPub::isRequest()) {
+		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $which]);
+		if (DBA::isResult($user)) {
+			$data = ActivityPub\Transmitter::getProfile($user['uid']);
+			echo json_encode($data);
+			header('Content-Type: application/activity+json');
+			exit();
+		}
 	}
 
 	Profile::load($a, $which, $profile);
@@ -80,7 +91,7 @@ function profile_init(App $a)
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
-	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->get_hostname() . ($a->urlpath ? '/' . $a->urlpath : ''));
+	$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->getHostName() . ($a->getURLPath() ? '/' . $a->getURLPath() : ''));
 	$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 	header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
@@ -296,7 +307,7 @@ function profile_content(App $a, $update = 0)
 			$itemspage_network = $a->force_max_items;
 		}
 
-		$a->set_pager_itemspage($itemspage_network);
+		$a->setPagerItemsPage($itemspage_network);
 
 		$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
 

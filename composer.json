@@ -18,6 +18,7 @@
 		"asika/simple-console": "^1.0",
 		"divineomega/password_exposed": "^2.4",
 		"ezyang/htmlpurifier": "~4.7.0",
+		"friendica/json-ld": "^1.0",
 		"league/html-to-markdown": "~4.8.0",
 		"lightopenid/lightopenid": "dev-master",
 		"michelf/php-markdown": "^1.7",
@@ -42,7 +43,7 @@
 	"repositories": [
 		{
 			"type": "vcs",
-			"url": "https://github.com/pear/Text_Highlighter"
+			"url": "https://git.friendi.ca/friendica/php-json-ld"
 		}
 	],
 	"autoload": {
@@ -74,7 +75,8 @@
 		"phpunit/dbunit": "^2.0",
 		"phpdocumentor/reflection-docblock": "^3.0.2",
 		"phpunit/php-token-stream": "^1.4.2",
-		"mikey179/vfsStream": "^1.6"
+		"mikey179/vfsStream": "^1.6",
+		"mockery/mockery": "^1.2"
 	},
 	"scripts": {
 		"test": "phpunit"

@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
+use Friendica\Core\Cache\MemcachedCacheDriver;
 use Friendica\Core\Config;
 use Friendica\Test\DatabaseTest;
 use Friendica\Util\DateTimeFormat;
@@ -12,6 +13,12 @@ abstract class CacheTest extends DatabaseTest
 	 * @var \Friendica\Core\Cache\ICacheDriver
 	 */
 	protected $instance;
+
+	/**
+	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 */
+	protected $cache;
+
 
 	abstract protected function getInstance();
 
@@ -29,6 +36,8 @@ abstract class CacheTest extends DatabaseTest
 		Config::set('system', 'throttle_limit_week', 100);
 		Config::set('system', 'throttle_limit_month', 100);
 		Config::set('system', 'theme', 'system_theme');
+
+		$this->instance->clear(false);
 	}
 
 	/**
@@ -176,5 +185,28 @@ abstract class CacheTest extends DatabaseTest
 		$this->instance->set('objVal', $value);
 		$received = $this->instance->get('objVal');
 		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+	}
+
+	/**
+	 * @small
+	 */
+	public function testGetAllKeys() {
+		if ($this->cache instanceof MemcachedCacheDriver) {
+			$this->markTestSkipped('Memcached doesn\'t support getAllKeys anymore');
+		}
+
+		$this->assertTrue($this->instance->set('value1', 'test'));
+		$this->assertTrue($this->instance->set('value2', 'test'));
+		$this->assertTrue($this->instance->set('test_value3', 'test'));
+
+		$list = $this->instance->getAllKeys();
+
+		$this->assertContains('value1', $list);
+		$this->assertContains('value2', $list);
+		$this->assertContains('test_value3', $list);
+
+		$list = $this->instance->getAllKeys('test');
+
+		$this->assertContains('test_value3', $list);
 	}
 }

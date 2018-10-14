@@ -21,7 +21,16 @@ abstract class BaseModule extends BaseObject
 	 */
 	public static function init()
 	{
+	}
 
+	/**
+	 * @brief Module GET method to display raw content from technical endpoints
+	 *
+	 * Extend this method if the module is supposed to return communication data,
+	 * e.g. from protocol implementations.
+	 */
+	public static function rawContent()
+	{
 	}
 
 	/**

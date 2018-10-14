@@ -502,7 +502,7 @@ function dfrn_poll_content(App $a)
 					'dfrn_version' => DFRN_PROTOCOL_VERSION,
 					'challenge' => $challenge,
 					'sec' => $sec
-				]);
+				])->getBody();
 			}
 
 			$profile = ((DBA::isResult($r) && $r[0]['nickname']) ? $r[0]['nickname'] : $nickname);

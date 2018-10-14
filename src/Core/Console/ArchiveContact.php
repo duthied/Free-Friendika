@@ -39,7 +39,7 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = get_app();
+		$a = \Friendica\BaseObject::getApp();
 
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
@@ -56,7 +56,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->mode === App::MODE_INSTALL) {
+		if ($a->getMode()->isInstall()) {
 			throw new RuntimeException('Friendica isn\'t properly installed yet.');
 		}
 

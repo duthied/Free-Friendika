@@ -23,11 +23,9 @@ use Friendica\Module\Login;
 
 require_once 'boot.php';
 
-$a = new App(__DIR__);
-
 // We assume that the index.php is called by a frontend process
 // The value is set to "true" by default in boot.php
-$a->backend = false;
+$a = new App(__DIR__, false);
 
 /**
  * Try to open the database;
@@ -36,7 +34,7 @@ $a->backend = false;
 require_once "include/dba.php";
 
 // Missing DB connection: ERROR
-if ($a->mode & App::MODE_LOCALCONFIGPRESENT && !($a->mode & App::MODE_DBAVAILABLE)) {
+if ($a->getMode()->has(App\Mode::LOCALCONFIGPRESENT) && !$a->getMode()->has(App\Mode::DBAVAILABLE)) {
 	System::httpExit(500, ['title' => 'Error 500 - Internal Server Error', 'description' => 'Apologies but the website is unavailable at the moment.']);
 }
 
@@ -48,8 +46,12 @@ if ($a->isMaxProcessesReached() || $a->isMaxLoadReached()) {
 	System::httpExit(503, ['title' => 'Error 503 - Service Temporarily Unavailable', 'description' => 'System is currently overloaded. Please try again later.']);
 }
 
-if (!$a->isInstallMode()) {
-	if (Config::get('system', 'force_ssl') && ($a->get_scheme() == "http")
+if (strstr($a->query_string, '.well-known/host-meta') && ($a->query_string != '.well-known/host-meta')) {
+	System::httpExit(404);
+}
+
+if (!$a->getMode()->isInstall()) {
+	if (Config::get('system', 'force_ssl') && ($a->getScheme() == "http")
 		&& (intval(Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL)
 		&& (substr(System::baseUrl(), 0, 8) == "https://")
 		&& ($_SERVER['REQUEST_METHOD'] == 'GET')) {
@@ -78,10 +80,10 @@ L10n::loadTranslationTable($lang);
  */
 
 // Exclude the backend processes from the session management
-if (!$a->is_backend()) {
+if (!$a->isBackend()) {
 	$stamp1 = microtime(true);
 	session_start();
-	$a->save_timestamp($stamp1, "parser");
+	$a->saveTimestamp($stamp1, "parser");
 } else {
 	$_SESSION = [];
 	Worker::executeIfIdle();
@@ -91,7 +93,7 @@ if (!$a->is_backend()) {
  * Language was set earlier, but we can over-ride it in the session.
  * We have to do it here because the session was just now opened.
  */
-if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
+if (!empty($_SESSION['authenticated']) && empty($_SESSION['language'])) {
 	$_SESSION['language'] = $lang;
 	// we haven't loaded user data yet, but we need user language
 	if (!empty($_SESSION['uid'])) {
@@ -102,12 +104,12 @@ if (x($_SESSION, 'authenticated') && !x($_SESSION, 'language')) {
 	}
 }
 
-if (x($_SESSION, 'language') && ($_SESSION['language'] !== $lang)) {
+if (!empty($_SESSION['language']) && $_SESSION['language'] !== $lang) {
 	$lang = $_SESSION['language'];
 	L10n::loadTranslationTable($lang);
 }
 
-if (!empty($_GET['zrl']) && $a->mode == App::MODE_NORMAL) {
+if (!empty($_GET['zrl']) && $a->getMode()->isNormal()) {
 	$a->query_string = Profile::stripZrls($a->query_string);
 	if (!local_user()) {
 		// Only continue when the given profile link seems valid
@@ -125,12 +127,12 @@ if (!empty($_GET['zrl']) && $a->mode == App::MODE_NORMAL) {
 			logger("Invalid ZRL parameter " . $_GET['zrl'], LOGGER_DEBUG);
 			header('HTTP/1.1 403 Forbidden');
 			echo "<h1>403 Forbidden</h1>";
-			killme();
+			exit();
 		}
 	}
 }
 
-if ((x($_GET,'owt')) && $a->mode == App::MODE_NORMAL) {
+if (!empty($_GET['owt']) && $a->getMode()->isNormal()) {
 	$token = $_GET['owt'];
 	$a->query_string = Profile::stripQueryParam($a->query_string, 'owt');
 	Profile::openWebAuthInit($token);
@@ -149,13 +151,9 @@ if ((x($_GET,'owt')) && $a->mode == App::MODE_NORMAL) {
 
 Login::sessionAuth();
 
-if (! x($_SESSION, 'authenticated')) {
+if (empty($_SESSION['authenticated'])) {
 	header('X-Account-Management-Status: none');
 }
-
-/* set up page['htmlhead'] and page['end'] for the modules to use */
-$a->page['htmlhead'] = '';
-$a->page['end'] = '';
 
 $_SESSION['sysmsg']       = defaults($_SESSION, 'sysmsg'      , []);
 $_SESSION['sysmsg_info']  = defaults($_SESSION, 'sysmsg_info' , []);
@@ -169,14 +167,14 @@ $_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
 
 // in install mode, any url loads install module
 // but we need "view" module for stylesheet
-if ($a->isInstallMode() && $a->module!="view") {
+if ($a->getMode()->isInstall() && $a->module != 'view') {
 	$a->module = 'install';
-} elseif (!($a->mode & App::MODE_MAINTENANCEDISABLED) && $a->module != "view") {
+} elseif (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $a->module != 'view') {
 	$a->module = 'maintenance';
 } else {
 	check_url($a);
 	check_db(false);
-	check_addons($a);
+	Addon::check();
 }
 
 Nav::setSelected('nothing');
@@ -295,11 +293,11 @@ if (strlen($a->module)) {
 
 	if (! $a->module_loaded) {
 		// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
-		if ((x($_SERVER, 'QUERY_STRING')) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
+		if (!empty($_SERVER['QUERY_STRING']) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
 			killme();
 		}
 
-		if ((x($_SERVER, 'QUERY_STRING')) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
+		if (!empty($_SERVER['QUERY_STRING']) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
 			logger('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
 			goaway(System::baseUrl() . $_SERVER['REQUEST_URI']);
 		}
@@ -307,11 +305,9 @@ if (strlen($a->module)) {
 		logger('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], LOGGER_DEBUG);
 		header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . L10n::t('Not Found'));
 		$tpl = get_markup_template("404.tpl");
-		$a->page['content'] = replace_macros(
-			$tpl,
-			[
-			'$message' =>  L10n::t('Page not found.')]
-		);
+		$a->page['content'] = replace_macros($tpl, [
+			'$message' =>  L10n::t('Page not found.')
+		]);
 	}
 }
 
@@ -326,11 +322,7 @@ if (file_exists($theme_info_file)) {
 
 /* initialise content region */
 
-if (! x($a->page, 'content')) {
-	$a->page['content'] = '';
-}
-
-if ($a->mode == App::MODE_NORMAL) {
+if ($a->getMode()->isNormal()) {
 	Addon::callHooks('page_content_top', $a->page['content']);
 }
 
@@ -342,13 +334,19 @@ if ($a->module_loaded) {
 	$a->page['page_title'] = $a->module;
 	$placeholder = '';
 
+	Addon::callHooks($a->module . '_mod_init', $placeholder);
+
 	if ($a->module_class) {
-		Addon::callHooks($a->module . '_mod_init', $placeholder);
 		call_user_func([$a->module_class, 'init']);
 	} else if (function_exists($a->module . '_init')) {
-		Addon::callHooks($a->module . '_mod_init', $placeholder);
 		$func = $a->module . '_init';
 		$func($a);
+	}
+
+	// "rawContent" is especially meant for technical endpoints.
+	// This endpoint doesn't need any theme initialization or other comparable stuff.
+	if (!$a->error && $a->module_class) {
+		call_user_func([$a->module_class, 'rawContent']);
 	}
 
 	if (function_exists(str_replace('-', '_', $a->getCurrentTheme()) . '_init')) {
@@ -405,24 +403,13 @@ if ($a->module_loaded) {
  * theme choices made by the modules can take effect.
  */
 
-$a->init_pagehead();
+$a->initHead();
 
 /*
  * Build the page ending -- this is stuff that goes right before
  * the closing </body> tag
  */
-$a->init_page_end();
-
-// If you're just visiting, let javascript take you home
-if (x($_SESSION, 'visitor_home')) {
-	$homebase = $_SESSION['visitor_home'];
-} elseif (local_user()) {
-	$homebase = 'profile/' . $a->user['nickname'];
-}
-
-if (isset($homebase)) {
-	$a->page['content'] .= '<script>var homebase="' . $homebase . '" ; </script>';
-}
+$a->initFooter();
 
 /*
  * now that we've been through the module content, see if the page reported
@@ -444,36 +431,9 @@ if ($a->module != 'install' && $a->module != 'maintenance') {
 	Nav::build($a);
 }
 
-/*
- * Add a "toggle mobile" link if we're using a mobile device
- */
-if ($a->is_mobile || $a->is_tablet) {
-	if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-		$link = 'toggle_mobile?address=' . curPageURL();
-	} else {
-		$link = 'toggle_mobile?off=1&address=' . curPageURL();
-	}
-	$a->page['footer'] = replace_macros(
-		get_markup_template("toggle_mobile_footer.tpl"),
-		[
-			'$toggle_link' => $link,
-			'$toggle_text' => L10n::t('toggle mobile')]
-	);
-}
-
 /**
  * Build the page - now that we have all the components
  */
-
-if (!$a->theme['stylesheet']) {
-	$stylesheet = $a->getCurrentThemeStylesheetPath();
-} else {
-	$stylesheet = $a->theme['stylesheet'];
-}
-
-$a->page['htmlhead'] = str_replace('{{$stylesheet}}', $stylesheet, $a->page['htmlhead']);
-//$a->page['htmlhead'] = replace_macros($a->page['htmlhead'], array('$stylesheet' => $stylesheet));
-
 if (isset($_GET["mode"]) && (($_GET["mode"] == "raw") || ($_GET["mode"] == "minimal"))) {
 	$doc = new DOMDocument();
 
@@ -502,7 +462,7 @@ if (isset($_GET["mode"]) && ($_GET["mode"] == "raw")) {
 
 	echo substr($target->saveHTML(), 6, -8);
 
-	killme();
+	exit();
 }
 
 $page    = $a->page;
@@ -540,5 +500,3 @@ if (empty($template)) {
 
 /// @TODO Looks unsafe (remote-inclusion), is maybe not but Theme::getPathForFile() uses file_exists() but does not escape anything
 require_once $template;
-
-killme();

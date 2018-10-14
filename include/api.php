@@ -819,7 +819,7 @@ function api_item_get_user(App $a, $item)
 	$status_user["protected"] = defaults($item, 'private', 0);
 
 	if (defaults($item, 'thr-parent', '') == defaults($item, 'uri', '')) {
-		$owner_user = api_get_user($a, defaults($item, 'author-id', null));
+		$owner_user = api_get_user($a, defaults($item, 'owner-id', null));
 	} else {
 		$owner_user = $status_user;
 	}
@@ -2351,7 +2351,7 @@ function api_format_messages($item, $recipient, $sender)
 	// standard meta information
 	$ret = [
 		'id'                    => $item['id'],
-		'sender_id'             => $sender['id'] ,
+		'sender_id'             => $sender['id'],
 		'text'                  => "",
 		'recipient_id'          => $recipient['id'],
 		'created_at'            => api_date(defaults($item, 'created', DateTimeFormat::utcNow())),
@@ -2732,7 +2732,7 @@ function api_contactlink_to_array($txt)
  * 			likes => int count,
  * 			dislikes => int count
  */
-function api_format_items_activities(&$item, $type = "json")
+function api_format_items_activities($item, $type = "json")
 {
 	$a = get_app();
 
@@ -2747,13 +2747,13 @@ function api_format_items_activities(&$item, $type = "json")
 	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
 	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	while ($item = Item::fetch($ret)) {
+	while ($parent_item = Item::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
 		// get user data and add it to the array of the activity
-		$user = api_get_user($a, $item['author-id']);
-		switch ($item['verb']) {
+		$user = api_get_user($a, $parent_item['author-id']);
+		switch ($parent_item['verb']) {
 			case ACTIVITY_LIKE:
 				$activities['like'][] = $user;
 				break;
@@ -2893,7 +2893,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
 			$geo => null,
 			'favorited' => $item['starred'] ? true : false,
-			'user' =>  $status_user ,
+			'user' =>  $status_user,
 			'friendica_owner' => $owner_user,
 			'friendica_private' => $item['private'] == 1,
 			//'entities' => NULL,
@@ -3344,7 +3344,7 @@ function api_statusnet_config($type)
 	$a = get_app();
 
 	$name      = Config::get('config', 'sitename');
-	$server    = $a->get_hostname();
+	$server    = $a->getHostName();
 	$logo      = System::baseUrl() . '/images/friendica-64.png';
 	$email     = Config::get('config', 'admin_email');
 	$closed    = intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 'true' : 'false';
@@ -3401,7 +3401,7 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  */
 function api_ff_ids($type)
 {
-	if (! api_user()) {
+	if (!api_user()) {
 		throw new ForbiddenException();
 	}
 
@@ -3628,6 +3628,84 @@ function api_direct_messages_destroy($type)
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', true, API_METHOD_DELETE);
+
+/**
+ * Unfollow Contact
+ *
+ * @brief unfollow contact 
+ *
+ * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ * @return string|array
+ * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy.html
+ */
+function api_friendships_destroy($type)
+{
+	$uid = api_user();
+
+	if ($uid === false) {
+		throw new ForbiddenException();
+	}
+
+	$contact_id = defaults($_REQUEST, 'user_id');
+
+	if (empty($contact_id)) {
+		logger("No user_id specified", LOGGER_DEBUG);
+		throw new BadRequestException("no user_id specified");
+	}
+
+	// Get Contact by given id
+	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
+
+	if(!DBA::isResult($contact)) {
+		logger("No contact found for ID" . $contact_id, LOGGER_DEBUG);
+		throw new NotFoundException("no contact found to given ID");
+	}
+
+	$url = $contact["url"];
+
+	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
+			$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
+			normalise_link($url), $url];
+	$contact = DBA::selectFirst('contact', [], $condition);
+
+	if (!DBA::isResult($contact)) {
+		logger("Not following Contact", LOGGER_DEBUG);
+		throw new NotFoundException("Not following Contact");
+	}
+
+	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+		logger("Not supported", LOGGER_DEBUG);
+		throw new ExpectationFailedException("Not supported");
+	}
+
+	$dissolve = ($contact['rel'] == Contact::SHARING);
+
+	$owner = User::getOwnerDataById($uid);
+	if ($owner) {
+		Contact::terminateFriendship($owner, $contact, $dissolve);
+	}
+	else {
+		logger("No owner found", LOGGER_DEBUG);
+		throw new NotFoundException("Error Processing Request");
+	}
+
+	// Sharing-only contacts get deleted as there no relationship any more
+	if ($dissolve) {
+		Contact::remove($contact['id']);
+	} else {
+		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
+	}
+
+	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	unset($contact["uid"]);
+	unset($contact["self"]);
+
+	// Set screen_name since Twidere requests it
+	$contact["screen_name"] = $contact["nick"];
+
+	return api_format_data("friendships-destroy", $type, ['user' => $contact]);
+}
+api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, API_METHOD_POST);
 
 /**
  *
@@ -4427,7 +4505,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	// create Photo instance with the data of the image
 	$imagedata = @file_get_contents($src);
 	$Image = new Image($imagedata, $filetype);
-	if (! $Image->isValid()) {
+	if (!$Image->isValid()) {
 		throw new InternalServerErrorException("unable to process image data");
 	}
 
@@ -4437,7 +4515,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 	// check max length of images on server
 	$max_length = Config::get('system', 'max_image_length');
-	if (! $max_length) {
+	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
 	if ($max_length > 0) {
@@ -4455,13 +4533,13 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		logger("photo upload: starting new photo upload", LOGGER_DEBUG);
 
 		$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-		if (! $r) {
+		if (!$r) {
 			logger("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: image upload with scale 1 (640x640) failed");
 			}
 		}
@@ -4469,7 +4547,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: image upload with scale 2 (320x320) failed");
 			}
 		}
@@ -4481,7 +4559,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 175 || $height > 175) {
 			$Image->scaleDown(175);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: profile image upload with scale 4 (175x175) failed");
 			}
 		}
@@ -4489,7 +4567,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 80 || $height > 80) {
 			$Image->scaleDown(80);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
 		}
@@ -4497,7 +4575,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		if ($width > 48 || $height > 48) {
 			$Image->scaleDown(48);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
-			if (! $r) {
+			if (!$r) {
 				logger("photo upload: profile image upload with scale 6 (48x48) failed");
 			}
 		}
@@ -4534,7 +4612,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 	$owner_record = DBA::selectFirst('contact', [], ['uid' => api_user(), 'self' => true]);
 
 	$arr = [];
-	$arr['guid']          = System::createGUID(32);
+	$arr['guid']          = System::createUUID();
 	$arr['uid']           = intval(api_user());
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;
@@ -4749,77 +4827,86 @@ function api_share_as_retweet(&$item)
 {
 	$body = trim($item["body"]);
 
-	if (Diaspora::isReshare($body, false)===false) {
-		return false;
+	if (Diaspora::isReshare($body, false) === false) {
+		if ($item['author-id'] == $item['owner-id']) {
+			return false;
+		} else {
+			// Reshares from OStatus, ActivityPub and Twitter
+			$reshared_item = $item;
+			$reshared_item['owner-id'] = $reshared_item['author-id'];
+			$reshared_item['owner-link'] = $reshared_item['author-link'];
+			$reshared_item['owner-name'] = $reshared_item['author-name'];
+			$reshared_item['owner-avatar'] = $reshared_item['author-avatar'];
+			return $reshared_item;
+		}
 	}
 
 	/// @TODO "$1" should maybe mean '$1' ?
 	$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
 	/*
-		* Skip if there is no shared message in there
-		* we already checked this in diaspora::isReshare()
-		* but better one more than one less...
-		*/
-	if ($body == $attributes) {
+	 * Skip if there is no shared message in there
+	 * we already checked this in diaspora::isReshare()
+	 * but better one more than one less...
+	 */
+	if (($body == $attributes) || empty($attributes)) {
 		return false;
 	}
-
 
 	// build the fake reshared item
 	$reshared_item = $item;
 
 	$author = "";
 	preg_match("/author='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$author = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
 	}
 
 	preg_match('/author="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$author = $matches[1];
 	}
 
 	$profile = "";
 	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$profile = $matches[1];
 	}
 
 	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$profile = $matches[1];
 	}
 
 	$avatar = "";
 	preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$avatar = $matches[1];
 	}
 
 	preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$avatar = $matches[1];
 	}
 
 	$link = "";
 	preg_match("/link='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$link = $matches[1];
 	}
 
 	preg_match('/link="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$link = $matches[1];
 	}
 
 	$posted = "";
 	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$posted = $matches[1];
 	}
 
 	preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-	if ($matches[1] != "") {
+	if (!empty($matches[1])) {
 		$posted = $matches[1];
 	}
 

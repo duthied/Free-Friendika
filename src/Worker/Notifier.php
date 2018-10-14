@@ -16,9 +16,11 @@ use Friendica\Model\Item;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
+use Friendica\Model\Conversation;
 
 require_once 'include/dba.php';
 require_once 'include/items.php';
@@ -98,6 +100,14 @@ class Notifier
 			foreach ($r as $contact) {
 				Contact::terminateFriendship($user, $contact, true);
 			}
+
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
+			foreach ($inboxes as $inbox) {
+				logger('Account removal for user ' . $item_id . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', Delivery::REMOVAL, '', $inbox, $item_id);
+			}
+
 			return;
 		} elseif ($cmd == Delivery::RELOCATION) {
 			$normal_mode = false;
@@ -167,6 +177,8 @@ class Notifier
 		if (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::RELOCATION])) {
 			$parent = $items[0];
 
+			self::activityPubDelivery($a, $cmd, $item_id, $uid, $target_item, $parent);
+
 			$fields = ['network', 'author-id', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
 			$thr_parent = Item::selectFirst($fields, $condition);
@@ -182,7 +194,7 @@ class Notifier
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			$localhost = str_replace('www.','',$a->get_hostname());
+			$localhost = str_replace('www.','',$a->getHostName());
 			if (strpos($localhost,':')) {
 				$localhost = substr($localhost,0,strpos($localhost,':'));
 			}
@@ -495,6 +507,41 @@ class Notifier
 		Addon::callHooks('notifier_end',$target_item);
 
 		return;
+	}
+
+	private static function activityPubDelivery($a, $cmd, $item_id, $uid, $target_item, $parent)
+	{
+		$inboxes = [];
+
+		if ($target_item['origin']) {
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
+			logger('Origin item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', LOGGER_DEBUG);
+		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
+			logger('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', LOGGER_DEBUG);
+			return;
+		} else {
+			logger('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', LOGGER_DEBUG);
+		}
+
+		if ($parent['origin']) {
+			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
+			$inboxes = array_merge($inboxes, $parent_inboxes);
+		}
+
+		if (empty($inboxes)) {
+			logger('No inboxes found for item ' . $item_id . ' with URL ' . $target_item['uri'] . '. It will not be distributed.', LOGGER_DEBUG);
+			return;
+		}
+
+		// Fill the item cache
+		ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
+
+		foreach ($inboxes as $inbox) {
+			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+
+			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', $cmd, $item_id, $inbox, $uid);
+		}
 	}
 
 	private static function isForumPost($item, $owner) {

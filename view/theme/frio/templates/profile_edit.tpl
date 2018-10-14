@@ -169,7 +169,7 @@
 					<div class="section-content-tools-wrapper">
 						<div id="profile-edit-marital-wrapper" class="form-group field select" >
 								<label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital}}</label>
-								{{$marital}}
+								{{$marital.selector}}
 						</div>
 						<div class="clear"></div>
 
@@ -179,7 +179,7 @@
 
 						<div id="profile-edit-sexual-wrapper" class="form-group field select" >
 							<label id="profile-edit-sexual-label" for="sexual-select" >{{$lbl_sexual}}</label>
-							{{$sexual}}
+							{{$sexual.selector}}
 						</div>
 						<div class="clear"></div>
 
@@ -318,10 +318,10 @@
 		<input type="hidden" name="religion" id="profile-edit-religion" value="{{$religion.2}}" />
 		<input type="hidden" id="likes-jot-text" name="likes" value="{{$likes.2}}" />
 		<input type="hidden" id="dislikes-jot-text" name="dislikes" value="{{$dislikes.2}}" />
-		<input type="hidden" name="marital" id="profile-edit-marital" value="{{$marital.2}}" />
+		<input type="hidden" name="marital" id="profile-edit-marital" value="{{$marital.value}}" />
 		<input type="hidden" name="with" id="profile-edit-with" value="{{$with.2}}" />
 		<input type="hidden" name="howlong" id="profile-edit-howlong" value="{{$howlong.2}}" />
-		<input type="hidden" name="sexual" id="profile-edit-sexual" value="{{$sexual.2}}" />
+		<input type="hidden" name="sexual" id="profile-edit-sexual" value="{{$sexual.value}}" />
 		<input type="hidden" id="romance-jot-text" name="romance" value="{{$romance.2}}" />
 		<input type="hidden" id="work-jot-text" name="work" value="{{$work.2}}" />
 		<input type="hidden" id="education-jot-text" name="education" value="{{$education.2}}" />

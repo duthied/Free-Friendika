@@ -108,7 +108,7 @@ EOT;
 
 	$arr = [];
 
-	$arr['guid'] = System::createGUID(32);
+	$arr['guid'] = System::createUUID();
 	$arr['uri'] = $uri;
 	$arr['uid'] = $owner_uid;
 	$arr['contact-id'] = $contact['id'];

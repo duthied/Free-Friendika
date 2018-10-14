@@ -88,7 +88,7 @@ function common_content(App $a)
 	}
 
 	if ($t > 0) {
-		$a->set_pager_total($t);
+		$a->setPagerTotal($t);
 	} else {
 		notice(L10n::t('No contacts in common.') . EOL);
 		return $o;

@@ -17,6 +17,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Module\Login;
 
 require_once 'include/items.php';
 
@@ -186,14 +187,14 @@ function events_post(App $a)
 		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
 	}
 
-	goaway($_SESSION['return_url']);
+	goaway('/events');
 }
 
 function events_content(App $a)
 {
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		return;
+		return Login::form();
 	}
 
 	if ($a->argc == 1) {
@@ -229,11 +230,6 @@ function events_content(App $a)
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
-	]);
-
-	$etpl = get_markup_template('event_end.tpl');
-	$a->page['end'] .= replace_macros($etpl, [
-		'$baseurl' => System::baseUrl(),
 	]);
 
 	$o = '';

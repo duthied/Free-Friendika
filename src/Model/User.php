@@ -32,6 +32,23 @@ require_once 'include/text.php';
 class User
 {
 	/**
+	 * @brief Returns the user id of a given profile url
+	 *
+	 * @param string $profile
+	 *
+	 * @return integer user id
+	 */
+	public static function getIdForURL($url)
+	{
+		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($url), 'self' => true]);
+		if (!DBA::isResult($self)) {
+			return false;
+		} else {
+			return $self['uid'];
+		}
+	}
+
+	/**
 	 * @brief Get owner data by user id
 	 *
 	 * @param int $uid
@@ -397,7 +414,7 @@ class User
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
 
-				$openid = new LightOpenID($a->get_hostname());
+				$openid = new LightOpenID($a->getHostName());
 				$openid->identity = $openid_url;
 				$openid->returnUrl = System::baseUrl() . '/openid';
 				$openid->required = ['namePerson/friendly', 'contact/email', 'namePerson'];
@@ -495,7 +512,7 @@ class User
 		$spubkey = $sres['pubkey'];
 
 		$insert_result = DBA::insert('user', [
-			'guid'     => System::createGUID(32),
+			'guid'     => System::createUUID(),
 			'username' => $username,
 			'password' => $new_password_encoded,
 			'email'    => $email,

@@ -24,12 +24,11 @@ class ApiTest extends DatabaseTest
 	/**
 	 * Create variables used by tests.
 	 */
-	protected function setUp()
+	public function setUp()
 	{
 		parent::setUp();
 
-		// Reusable App object
-		$this->app = BaseObject::getApp();
+		require_once __DIR__.'/../include/api.php';
 
 		// User data that the test database is populated with
 		$this->selfUser = [
@@ -76,9 +75,8 @@ class ApiTest extends DatabaseTest
 	{
 		parent::tearDown();
 
-		$app = get_app();
-		$app->argc = 1;
-		$app->argv = ['home'];
+		$this->app->argc = 1;
+		$this->app->argv = ['home'];
 	}
 
 	/**
@@ -3388,7 +3386,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiShareAsRetweet()
 	{
-		$item = ['body' => ''];
+		$item = ['body' => '', 'author-id' => 1, 'owner-id' => 1];
 		$result = api_share_as_retweet($item);
 		$this->assertFalse($result);
 	}

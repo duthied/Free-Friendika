@@ -1,20 +1,11 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Friendica\Core\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
 use Friendica\Core;
 use RuntimeException;
-
-require_once 'include/dba.php';
-require_once 'include/text.php';
 
 /**
  * @brief tool to access the system config from the CLI
@@ -80,7 +71,7 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = get_app();
+		$a = \Friendica\BaseObject::getApp();
 
 		if ($this->getOption('v')) {
 			$this->out('Executable: ' . $this->executable);
@@ -93,7 +84,7 @@ HELP;
 			throw new CommandArgsException('Too many arguments');
 		}
 
-		if (!($a->mode & App::MODE_DBCONFIGAVAILABLE)) {
+		if (!$a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
 			$this->out('Database isn\'t ready or populated yet, showing file config only');
 		}
 
@@ -152,7 +143,7 @@ HELP;
 		if (count($this->args) == 0) {
 			Core\Config::load();
 
-			if (Core\Config::get('system', 'config_adapter') == 'jit' && $a->mode & App::MODE_DBCONFIGAVAILABLE) {
+			if (Core\Config::get('system', 'config_adapter') == 'jit' && $a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
 				$this->out('Warning: The JIT (Just In Time) Config adapter doesn\'t support loading the entire configuration, showing file config only');
 			}
 

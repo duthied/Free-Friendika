@@ -157,14 +157,14 @@ class CronJobs
 		clear_cache();
 
 		// clear cache for photos
-		clear_cache($a->get_basepath(), $a->get_basepath() . "/photo");
+		clear_cache($a->getBasePath(), $a->getBasePath() . "/photo");
 
 		// clear smarty cache
-		clear_cache($a->get_basepath() . "/view/smarty3/compiled", $a->get_basepath() . "/view/smarty3/compiled");
+		clear_cache($a->getBasePath() . "/view/smarty3/compiled", $a->getBasePath() . "/view/smarty3/compiled");
 
 		// clear cache for image proxy
 		if (!Config::get("system", "proxy_disabled")) {
-			clear_cache($a->get_basepath(), $a->get_basepath() . "/proxy");
+			clear_cache($a->getBasePath(), $a->getBasePath() . "/proxy");
 
 			$cachetime = Config::get('system', 'proxy_cache_time');
 

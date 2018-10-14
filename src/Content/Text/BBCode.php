@@ -1060,11 +1060,11 @@ class BBCode extends BaseObject
 			$ch = @curl_init($match[1]);
 			@curl_setopt($ch, CURLOPT_NOBODY, true);
 			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->save_timestamp($stamp1, "network");
+			$a->saveTimestamp($stamp1, "network");
 
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
 				$text = "[url=" . $match[1] . "]" . $match[1] . "[/url]";
@@ -1119,11 +1119,11 @@ class BBCode extends BaseObject
 			$ch = @curl_init($match[1]);
 			@curl_setopt($ch, CURLOPT_NOBODY, true);
 			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->save_timestamp($stamp1, "network");
+			$a->saveTimestamp($stamp1, "network");
 
 			// if its a link to a picture then embed this picture
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
@@ -1264,9 +1264,6 @@ class BBCode extends BaseObject
 		// remove some newlines before the general conversion
 		$text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "[share$1]$2[/share]", $text);
 		$text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism", "[quote$1]$2[/quote]", $text);
-
-		$text = preg_replace("/\n\[code\]/ism", "[code]", $text);
-		$text = preg_replace("/\[\/code\]\n/ism", "[/code]", $text);
 
 		// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 		if (!$try_oembed) {
@@ -1717,18 +1714,6 @@ class BBCode extends BaseObject
 			$text = Smilies::replace($text, false, true);
 		}
 
-		// Replace inline code blocks
-		$text = preg_replace_callback("|(?!<br[^>]*>)<code>([^<]*)</code>(?!<br[^>]*>)|ism",
-			function ($match) use ($simple_html) {
-				$return = '<key>' . $match[1] . '</key>';
-				// Use <code> for Diaspora inline code blocks
-				if ($simple_html === 3) {
-					$return = '<code>' . $match[1] . '</code>';
-				}
-				return $return;
-			}
-		, $text);
-
 		// Unhide all [noparse] contained bbtags unspacefying them
 		// and triming the [noparse] tag.
 
@@ -1946,7 +1931,7 @@ class BBCode extends BaseObject
 		// unmask the special chars back to HTML
 		$text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $text);
 
-		$a->save_timestamp($stamp1, "parser");
+		$a->saveTimestamp($stamp1, "parser");
 
 		// Libertree has a problem with escaped hashtags.
 		$text = str_replace(['\#'], ['#'], $text);

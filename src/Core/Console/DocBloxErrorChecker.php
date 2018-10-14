@@ -60,7 +60,7 @@ HELP;
 		}
 
 		//return from util folder to frindica base dir
-		$dir = get_app()->get_basepath();
+		$dir = get_app()->getBasePath();
 
 		//stack for dirs to search
 		$dirstack = [];

@@ -33,7 +33,7 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = get_app();
+		$a = \Friendica\BaseObject::getApp();
 
 		if ($this->getOption($this->helpOptions)) {
 			$this->out($this->getHelp());
@@ -50,7 +50,7 @@ HELP;
 			return 0;
 		}
 
-		if ($a->isInstallMode()) {
+		if ($a->getMode()->isInstall()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 

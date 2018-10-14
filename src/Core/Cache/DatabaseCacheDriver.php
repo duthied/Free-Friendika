@@ -13,6 +13,31 @@ use Friendica\Util\DateTimeFormat;
  */
 class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 {
+	/**
+	 * (@inheritdoc)
+	 */
+	public function getAllKeys($prefix = null)
+	{
+		if (empty($prefix)) {
+			$where = ['`expires` >= ?', DateTimeFormat::utcNow()];
+		} else {
+			$where = ['`expires` >= ? AND `k` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
+		}
+
+		$stmt = DBA::select('cache', ['k'], $where);
+
+		$keys = [];
+		while ($key = DBA::fetch($stmt)) {
+			array_push($keys, $key['k']);
+		}
+		DBA::close($stmt);
+
+		return $keys;
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
@@ -32,6 +57,9 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 		return null;
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$fields = [
@@ -43,11 +71,17 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 		return DBA::update('cache', $fields, ['k' => $key], true);
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function delete($key)
 	{
 		return DBA::delete('cache', ['k' => $key]);
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function clear($outdated = true)
 	{
 		if ($outdated) {

@@ -28,7 +28,7 @@ function frio_init(App $a)
 	$a->theme_events_in_profile = false;
 	$a->videowidth = 622;
 
-	$a->set_template_engine('smarty3');
+	$a->setActiveTemplateEngine('smarty3');
 
 	$baseurl = System::baseUrl();
 
@@ -241,7 +241,7 @@ function frio_remote_nav($a, &$nav)
 		// user info
 		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self`", intval($a->user['uid']));
 
-		$r[0]['photo'] = (DBA::isResult($r) ? $a->remove_baseurl($r[0]['micro']) : 'images/person-48.jpg');
+		$r[0]['photo'] = (DBA::isResult($r) ? $a->removeBaseURL($r[0]['micro']) : 'images/person-48.jpg');
 		$r[0]['name'] = $a->user['username'];
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));

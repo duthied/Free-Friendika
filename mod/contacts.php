@@ -22,6 +22,7 @@ use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Core\ACL;
+use Friendica\Module\Login;
 
 function contacts_init(App $a)
 {
@@ -117,12 +118,6 @@ function contacts_init(App $a)
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	]);
-
-	$tpl = get_markup_template("contacts-end.tpl");
-	$a->page['end'] .= replace_macros($tpl, [
-		'$baseurl' => System::baseUrl(true),
-		'$base' => $base
-	]);
 }
 
 function contacts_batch_actions(App $a)
@@ -168,11 +163,7 @@ function contacts_batch_actions(App $a)
 		info(L10n::tt("%d contact edited.", "%d contacts edited.", $count_actions));
 	}
 
-	if (x($_SESSION, 'return_url')) {
-		goaway('' . $_SESSION['return_url']);
-	} else {
-		goaway('contacts');
-	}
+	goaway('contacts');
 }
 
 function contacts_post(App $a)
@@ -385,7 +376,7 @@ function contacts_content(App $a, $update = 0)
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		return;
+		return Login::form();
 	}
 
 	if ($a->argc == 3) {
@@ -476,20 +467,13 @@ function contacts_content(App $a, $update = 0)
 			}
 			// Now check how the user responded to the confirmation query
 			if (x($_REQUEST, 'canceled')) {
-				if (x($_SESSION, 'return_url')) {
-					goaway('' . $_SESSION['return_url']);
-				} else {
-					goaway('contacts');
-				}
+				goaway('contacts');
 			}
 
 			_contact_drop($orig_record);
 			info(L10n::t('Contact has been removed.') . EOL);
-			if (x($_SESSION, 'return_url')) {
-				goaway('' . $_SESSION['return_url']);
-			} else {
-				goaway('contacts');
-			}
+
+			goaway('contacts');
 			return; // NOTREACHED
 		}
 		if ($cmd === 'posts') {
@@ -507,9 +491,6 @@ function contacts_content(App $a, $update = 0)
 		$contact = $a->data['contact'];
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), [
-			'$baseurl' => System::baseUrl(true),
-		]);
-		$a->page['end'] .= replace_macros(get_markup_template('contact_end.tpl'), [
 			'$baseurl' => System::baseUrl(true),
 		]);
 
@@ -542,7 +523,7 @@ function contacts_content(App $a, $update = 0)
 			$relation_text = '';
 		}
 
-		if (!in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
+		if (!in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
 			$relation_text = "";
 		}
 
@@ -655,15 +636,15 @@ function contacts_content(App $a, $update = 0)
 			'$follow_text' => $follow_text,
 			'$profile_select' => $profile_select,
 			'$contact_id' => $contact['id'],
-			'$block_text' => (($contact['blocked']) ? L10n::t('Unblock') : L10n::t('Block') ),
-			'$ignore_text' => (($contact['readonly']) ? L10n::t('Unignore') : L10n::t('Ignore') ),
-			'$insecure' => (($contact['network'] !== Protocol::DFRN && $contact['network'] !== Protocol::MAIL && $contact['network'] !== Protocol::DIASPORA) ? $insecure : ''),
+			'$block_text' => ($contact['blocked'] ? L10n::t('Unblock') : L10n::t('Block')),
+			'$ignore_text' => ($contact['readonly'] ? L10n::t('Unignore') : L10n::t('Ignore')),
+			'$insecure' => (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA]) ? '' : $insecure),
 			'$info' => $contact['info'],
 			'$cinfo' => ['info', '', $contact['info'], ''],
-			'$blocked' => (($contact['blocked']) ? L10n::t('Currently blocked') : ''),
-			'$ignored' => (($contact['readonly']) ? L10n::t('Currently ignored') : ''),
-			'$archived' => (($contact['archive']) ? L10n::t('Currently archived') : ''),
-			'$pending' => (($contact['pending']) ? L10n::t('Awaiting connection acknowledge') : ''),
+			'$blocked' => ($contact['blocked'] ? L10n::t('Currently blocked') : ''),
+			'$ignored' => ($contact['readonly'] ? L10n::t('Currently ignored') : ''),
+			'$archived' => ($contact['archive'] ? L10n::t('Currently archived') : ''),
+			'$pending' => ($contact['pending'] ? L10n::t('Awaiting connection acknowledge') : ''),
 			'$hidden' => ['hidden', L10n::t('Hide this contact from others'), ($contact['hidden'] == 1), L10n::t('Replies/likes to your public posts <strong>may</strong> still be visible')],
 			'$notify' => ['notify', L10n::t('Notification for new posts'), ($contact['notify_new_posts'] == 1), L10n::t('Send a notification of every new post of this contact')],
 			'$fetch_further_information' => $fetch_further_information,
@@ -812,7 +793,7 @@ function contacts_content(App $a, $update = 0)
 		intval($_SESSION['uid'])
 	);
 	if (DBA::isResult($r)) {
-		$a->set_pager_total($r[0]['total']);
+		$a->setPagerTotal($r[0]['total']);
 		$total = $r[0]['total'];
 	}
 
@@ -975,7 +956,7 @@ function contact_conversations(App $a, $contact_id, $update)
 		$profiledata = Contact::getDetailsByURL($contact["url"]);
 
 		if (local_user()) {
-			if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			if (in_array($profiledata["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
 				$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
 			}
 		}
@@ -999,7 +980,7 @@ function contact_posts(App $a, $contact_id)
 		$profiledata = Contact::getDetailsByURL($contact["url"]);
 
 		if (local_user()) {
-			if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			if (in_array($profiledata["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
 				$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
 			}
 		}
@@ -1080,7 +1061,7 @@ function _contact_detail_for_template(array $rr)
  */
 function contact_actions($contact)
 {
-	$poll_enabled = in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
+	$poll_enabled = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 	$contact_actions = [];
 
 	// Provide friend suggestion only for Friendica contacts
@@ -1105,7 +1086,7 @@ function contact_actions($contact)
 	}
 
 	$contact_actions['block'] = [
-		'label' => (intval($contact['blocked']) ? L10n::t('Unblock') : L10n::t('Block') ),
+		'label' => (intval($contact['blocked']) ? L10n::t('Unblock') : L10n::t('Block')),
 		'url'   => 'contacts/' . $contact['id'] . '/block',
 		'title' => L10n::t('Toggle Blocked status'),
 		'sel'   => (intval($contact['blocked']) ? 'active' : ''),
@@ -1113,7 +1094,7 @@ function contact_actions($contact)
 	];
 
 	$contact_actions['ignore'] = [
-		'label' => (intval($contact['readonly']) ? L10n::t('Unignore') : L10n::t('Ignore') ),
+		'label' => (intval($contact['readonly']) ? L10n::t('Unignore') : L10n::t('Ignore')),
 		'url'   => 'contacts/' . $contact['id'] . '/ignore',
 		'title' => L10n::t('Toggle Ignored status'),
 		'sel'   => (intval($contact['readonly']) ? 'active' : ''),
@@ -1122,7 +1103,7 @@ function contact_actions($contact)
 
 	if ($contact['uid'] != 0) {
 		$contact_actions['archive'] = [
-			'label' => (intval($contact['archive']) ? L10n::t('Unarchive') : L10n::t('Archive') ),
+			'label' => (intval($contact['archive']) ? L10n::t('Unarchive') : L10n::t('Archive')),
 			'url'   => 'contacts/' . $contact['id'] . '/archive',
 			'title' => L10n::t('Toggle Archive status'),
 			'sel'   => (intval($contact['archive']) ? 'active' : ''),

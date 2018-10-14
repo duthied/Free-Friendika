@@ -4,14 +4,10 @@
  */
 namespace Friendica\Util;
 
-use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Config;
-use Friendica\Network\Probe;
-use Friendica\Object\Image;
-use Friendica\Util\XML;
+use Friendica\Network\CurlResult;
 use DOMDocument;
 use DomXPath;
 
@@ -35,11 +31,11 @@ class Network
 	 *
 	 * @return string The fetched content
 	 */
-	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
+	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
 	{
 		$ret = self::fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
 
-		return $ret['body'];
+		return $ret->getBody();
 	}
 
 	/**
@@ -57,9 +53,9 @@ class Network
 	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
 	 * @param string  $cookiejar      Path to cookie jar file
 	 *
-	 * @return array With all relevant information, 'body' contains the actual fetched content.
+	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
 	 */
-	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = 0)
+	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
 	{
 		return self::curl(
 			$url,
@@ -87,12 +83,7 @@ class Network
 	 *                           'nobody' => only return the header
 	 *                           'cookiejar' => path to cookie jar file
 	 *
-	 * @return array an assoziative array with:
-	 *    int 'return_code' => HTTP return code or 0 if timeout or failure
-	 *    boolean 'success' => boolean true (if HTTP 2xx result) or false
-	 *    string 'redirect_url' => in case of redirect, content was finally retrieved from this URL
-	 *    string 'header' => HTTP headers
-	 *    string 'body' => fetched content
+	 * @return CurlResult
 	 */
 	public static function curl($url, $binary = false, &$redirects = 0, $opts = [])
 	{
@@ -105,24 +96,24 @@ class Network
 		$parts = parse_url($url);
 		$path_parts = explode('/', defaults($parts, 'path', ''));
 		foreach ($path_parts as $part) {
-		        if (strlen($part) <> mb_strlen($part)) {
+			if (strlen($part) <> mb_strlen($part)) {
 				$parts2[] = rawurlencode($part);
-		        } else {
-		                $parts2[] = $part;
-		        }
+			} else {
+				$parts2[] = $part;
+			}
 		}
-		$parts['path'] =  implode('/', $parts2);
+		$parts['path'] = implode('/', $parts2);
 		$url = self::unparseURL($parts);
 
 		if (self::isUrlBlocked($url)) {
 			logger('domain of ' . $url . ' is blocked', LOGGER_DATA);
-			return $ret;
+			return CurlResult::createErrorCurl($url);
 		}
 
 		$ch = @curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
-			return $ret;
+			return CurlResult::createErrorCurl($url);
 		}
 
 		@curl_setopt($ch, CURLOPT_HEADER, true);
@@ -145,7 +136,7 @@ class Network
 		}
 
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		$range = intval(Config::get('system', 'curl_range_bytes', 0));
 
@@ -203,8 +194,6 @@ class Network
 			@curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 		}
 
-		$a->set_curl_code(0);
-
 		// don't let curl abort the entire application
 		// if it throws any errors.
 
@@ -219,91 +208,20 @@ class Network
 			$curl_info = @curl_getinfo($ch);
 		}
 
-		if (curl_errno($ch) !== CURLE_OK) {
-			logger('error fetching ' . $url . ': ' . curl_error($ch), LOGGER_INFO);
-		}
+		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
 
-		$ret['errno'] = curl_errno($ch);
-
-		$base = $s;
-		$ret['info'] = $curl_info;
-
-		$http_code = $curl_info['http_code'];
-
-		logger($url . ': ' . $http_code . " " . $s, LOGGER_DATA);
-		$header = '';
-
-		// Pull out multiple headers, e.g. proxy and continuation headers
-		// allow for HTTP/2.x without fixing code
-
-		while (preg_match('/^HTTP\/[1-2].+? [1-5][0-9][0-9]/', $base)) {
-			$chunk = substr($base, 0, strpos($base, "\r\n\r\n") + 4);
-			$header .= $chunk;
-			$base = substr($base, strlen($chunk));
-		}
-
-		$a->set_curl_code($http_code);
-		$a->set_curl_content_type($curl_info['content_type']);
-		$a->set_curl_headers($header);
-
-		if ($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
-			$new_location_info = @parse_url($curl_info['redirect_url']);
-			$old_location_info = @parse_url($curl_info['url']);
-
-			$newurl = $curl_info['redirect_url'];
-
-			if (empty($new_location_info['path']) && !empty($new_location_info['host'])) {
-				$newurl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
-			}
-
-			$matches = [];
-
-			if (preg_match('/(Location:|URI:)(.*?)\n/i', $header, $matches)) {
-				$newurl = trim(array_pop($matches));
-			}
-			if (strpos($newurl, '/') === 0) {
-				$newurl = $old_location_info["scheme"]."://".$old_location_info["host"].$newurl;
-			}
-			$old_location_query = @parse_url($url, PHP_URL_QUERY);
-
-			if ($old_location_query != '') {
-				$newurl .= '?' . $old_location_query;
-			}
-
-			if (filter_var($newurl, FILTER_VALIDATE_URL)) {
-				$redirects++;
-				@curl_close($ch);
-				return self::curl($newurl, $binary, $redirects, $opts);
-			}
-		}
-
-		$a->set_curl_code($http_code);
-		$a->set_curl_content_type($curl_info['content_type']);
-
-		$rc = intval($http_code);
-		$ret['return_code'] = $rc;
-		$ret['success'] = (($rc >= 200 && $rc <= 299) ? true : false);
-		$ret['redirect_url'] = $url;
-
-		if (!$ret['success']) {
-			$ret['error'] = curl_error($ch);
-			$ret['debug'] = $curl_info;
-			logger('error: '.$url.': '.$ret['return_code'].' - '.$ret['error'], LOGGER_DEBUG);
-			logger('debug: '.print_r($curl_info, true), LOGGER_DATA);
-		}
-
-		$ret['body'] = substr($s, strlen($header));
-		$ret['header'] = $header;
-
-		if (x($opts, 'debug')) {
-			$ret['debug'] = $curl_info;
+		if ($curlResponse->isRedirectUrl()) {
+			$redirects++;
+			logger('curl: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
+			@curl_close($ch);
+			return self::curl($curlResponse->getRedirectUrl(), $binary, $redirects, $opts);
 		}
 
 		@curl_close($ch);
 
-		$a->save_timestamp($stamp1, 'network');
+		$a->saveTimestamp($stamp1, 'network');
 
-		return($ret);
+		return $curlResponse;
 	}
 
 	/**
@@ -315,7 +233,7 @@ class Network
 	 * @param integer $redirects Recursion counter for internal use - default = 0
 	 * @param integer $timeout   The timeout in seconds, default system config value or 60 seconds
 	 *
-	 * @return string The content
+	 * @return CurlResult The content
 	 */
 	public static function post($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	{
@@ -323,14 +241,14 @@ class Network
 
 		if (self::isUrlBlocked($url)) {
 			logger('post_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
-			return false;
+			return CurlResult::createErrorCurl($url);
 		}
 
 		$a = get_app();
 		$ch = curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
-			return false;
+			return CurlResult::createErrorCurl($url);
 		}
 
 		logger('post_url: start ' . $url, LOGGER_DATA);
@@ -339,7 +257,7 @@ class Network
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		if (Config::get('system', 'ipv4_resolve', false)) {
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -384,8 +302,6 @@ class Network
 			}
 		}
 
-		$a->set_curl_code(0);
-
 		// don't let curl abort the entire application
 		// if it throws any errors.
 
@@ -393,53 +309,23 @@ class Network
 
 		$base = $s;
 		$curl_info = curl_getinfo($ch);
-		$http_code = $curl_info['http_code'];
 
-		logger('post_url: result ' . $http_code . ' - ' . $url, LOGGER_DATA);
+		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
 
-		$header = '';
-
-		// Pull out multiple headers, e.g. proxy and continuation headers
-		// allow for HTTP/2.x without fixing code
-
-		while (preg_match('/^HTTP\/[1-2].+? [1-5][0-9][0-9]/', $base)) {
-			$chunk = substr($base, 0, strpos($base, "\r\n\r\n") + 4);
-			$header .= $chunk;
-			$base = substr($base, strlen($chunk));
+		if ($curlResponse->isRedirectUrl()) {
+			$redirects++;
+			logger('post_url: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
+			curl_close($ch);
+			return self::post($curlResponse->getRedirectUrl(), $params, $headers, $redirects, $timeout);
 		}
-
-		if ($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307) {
-			$matches = [];
-			$new_location_info = @parse_url($curl_info['redirect_url']);
-			$old_location_info = @parse_url($curl_info['url']);
-
-			preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
-			$newurl = trim(array_pop($matches));
-
-			if (strpos($newurl, '/') === 0) {
-				$newurl = $old_location_info["scheme"] . "://" . $old_location_info["host"] . $newurl;
-			}
-
-			if (filter_var($newurl, FILTER_VALIDATE_URL)) {
-				$redirects++;
-				logger('post_url: redirect ' . $url . ' to ' . $newurl);
-				return self::post($newurl, $params, $headers, $redirects, $timeout);
-			}
-		}
-
-		$a->set_curl_code($http_code);
-
-		$body = substr($s, strlen($header));
-
-		$a->set_curl_headers($header);
 
 		curl_close($ch);
 
-		$a->save_timestamp($stamp1, 'network');
+		$a->saveTimestamp($stamp1, 'network');
 
 		logger('post_url: end ' . $url, LOGGER_DATA);
 
-		return $body;
+		return $curlResponse;
 	}
 
 	/**
@@ -729,14 +615,14 @@ class Network
 		curl_setopt($ch, CURLOPT_NOBODY, 1);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 		$http_code = $curl_info['http_code'];
 		curl_close($ch);
 
-		$a->save_timestamp($stamp1, "network");
+		$a->saveTimestamp($stamp1, "network");
 
 		if ($http_code == 0) {
 			return $url;
@@ -773,12 +659,12 @@ class Network
 		curl_setopt($ch, CURLOPT_NOBODY, 0);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
 		$body = curl_exec($ch);
 		curl_close($ch);
 
-		$a->save_timestamp($stamp1, "network");
+		$a->saveTimestamp($stamp1, "network");
 
 		if (trim($body) == "") {
 			return $url;

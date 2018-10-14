@@ -5,6 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
 require_once 'include/dba.php';
@@ -12,8 +13,65 @@ require_once 'include/dba.php';
 /**
  * Some functions to handle addons
  */
-class Addon
+class Addon extends BaseObject
 {
+	/**
+	 * @brief Synchronise addons:
+	 *
+	 * system.addon contains a comma-separated list of names
+	 * of addons which are used on this system.
+	 * Go through the database list of already installed addons, and if we have
+	 * an entry, but it isn't in the config list, call the uninstall procedure
+	 * and mark it uninstalled in the database (for now we'll remove it).
+	 * Then go through the config list and if we have a addon that isn't installed,
+	 * call the install procedure and add it to the database.
+	 *
+	 */
+	public static function check()
+	{
+		$a = self::getApp();
+
+		$r = DBA::select('addon', [], ['installed' => 1]);
+		if (DBA::isResult($r)) {
+			$installed = DBA::toArray($r);
+		} else {
+			$installed = [];
+		}
+
+		$addons = Config::get('system', 'addon');
+		$addons_arr = [];
+
+		if ($addons) {
+			$addons_arr = explode(',', str_replace(' ', '', $addons));
+		}
+
+		$a->addons = $addons_arr;
+
+		$installed_arr = [];
+
+		if (count($installed)) {
+			foreach ($installed as $i) {
+				if (!in_array($i['name'], $addons_arr)) {
+					self::uninstall($i['name']);
+				} else {
+					$installed_arr[] = $i['name'];
+				}
+			}
+		}
+
+		if (count($addons_arr)) {
+			foreach ($addons_arr as $p) {
+				if (!in_array($p, $installed_arr)) {
+					self::install($p);
+				}
+			}
+		}
+
+		self::loadHooks();
+
+		return;
+	}
+
 	/**
 	 * @brief uninstalls an addon.
 	 *
@@ -139,7 +197,7 @@ class Addon
 	 */
 	public static function registerHook($hook, $file, $function, $priority = 0)
 	{
-		$file = str_replace(get_app()->get_basepath() . DIRECTORY_SEPARATOR, '', $file);
+		$file = str_replace(self::getApp()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
 		$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
 		$exists = DBA::exists('hook', $condition);
@@ -162,7 +220,7 @@ class Addon
 	 */
 	public static function unregisterHook($hook, $file, $function)
 	{
-		$relative_file = str_replace(get_app()->get_basepath() . DIRECTORY_SEPARATOR, '', $file);
+		$relative_file = str_replace(self::getApp()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
 		// This here is only needed for fixing a problem that existed on the develop branch
 		$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
@@ -178,7 +236,7 @@ class Addon
 	 */
 	public static function loadHooks()
 	{
-		$a = get_app();
+		$a = self::getApp();
 		$a->hooks = [];
 		$r = DBA::select('hook', ['hook', 'file', 'function'], [], ['order' => ['priority' => 'desc', 'file']]);
 
@@ -201,7 +259,7 @@ class Addon
 	 */
 	public static function forkHooks($priority, $name, $data = null)
 	{
-		$a = get_app();
+		$a = self::getApp();
 
 		if (is_array($a->hooks) && array_key_exists($name, $a->hooks)) {
 			foreach ($a->hooks[$name] as $hook) {
@@ -221,7 +279,7 @@ class Addon
 	 */
 	public static function callHooks($name, &$data = null)
 	{
-		$a = get_app();
+		$a = self::getApp();
 
 		if (is_array($a->hooks) && array_key_exists($name, $a->hooks)) {
 			foreach ($a->hooks[$name] as $hook) {
@@ -262,7 +320,7 @@ class Addon
 	 */
 	public static function isApp($name)
 	{
-		$a = get_app();
+		$a = self::getApp();
 
 		if (is_array($a->hooks) && (array_key_exists('app_menu', $a->hooks))) {
 			foreach ($a->hooks['app_menu'] as $hook) {
@@ -293,7 +351,7 @@ class Addon
 	 */
 	public static function getInfo($addon)
 	{
-		$a = get_app();
+		$a = self::getApp();
 
 		$info = [
 			'name' => $addon,
@@ -310,7 +368,7 @@ class Addon
 
 		$stamp1 = microtime(true);
 		$f = file_get_contents("addon/$addon/$addon.php");
-		$a->save_timestamp($stamp1, "file");
+		$a->saveTimestamp($stamp1, "file");
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 

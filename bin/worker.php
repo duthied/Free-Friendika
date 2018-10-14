@@ -45,7 +45,7 @@ if (Config::get('system', 'maintenance', false, true)) {
 	return;
 }
 
-$a->set_baseurl(Config::get('system', 'url'));
+$a->setBaseURL(Config::get('system', 'url'));
 
 Addon::loadHooks();
 

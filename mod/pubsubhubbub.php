@@ -104,8 +104,9 @@ function pubsubhubbub_init(App $a) {
 		// we don't actually enforce the lease time because GNU
 		// Social/StatusNet doesn't honour it (yet)
 
-		$body = Network::fetchUrl($hub_callback . "?" . $params);
-		$ret = $a->get_curl_code();
+		$fetchResult = Network::fetchUrlFull($hub_callback . "?" . $params);
+		$body = $fetchResult->getBody();
+		$ret = $fetchResult->getReturnCode();
 
 		// give up if the HTTP return code wasn't a success (2xx)
 		if ($ret < 200 || $ret > 299) {

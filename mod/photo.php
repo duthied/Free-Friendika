@@ -192,7 +192,7 @@ function photo_init(App $a)
 	// If the photo is public and there is an existing photo directory store the photo there
 	if ($public and $file != '') {
 		// If the photo path isn't there, try to create it
-		$basepath = $a->get_basepath();
+		$basepath = $a->getBasePath();
 		if (!is_dir($basepath . "/photo")) {
 			if (is_writable($basepath)) {
 				mkdir($basepath . "/photo");

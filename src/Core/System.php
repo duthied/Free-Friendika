@@ -27,7 +27,7 @@ class System extends BaseObject
 	 */
 	public static function baseUrl($ssl = false)
 	{
-		return self::getApp()->get_baseurl($ssl);
+		return self::getApp()->getBaseURL($ssl);
 	}
 
 	/**
@@ -39,7 +39,7 @@ class System extends BaseObject
 	 */
 	public static function removedBaseUrl($orig_url)
 	{
-		return self::getApp()->remove_baseurl($orig_url);
+		return self::getApp()->removeBaseURL($orig_url);
 	}
 
 	/**
@@ -162,6 +162,18 @@ class System extends BaseObject
 	}
 
 	/**
+	 * Generates a random string in the UUID format
+	 *
+	 * @param bool|string  $prefix   A given prefix (default is empty)
+	 * @return string a generated UUID
+	 */
+	public static function createUUID($prefix = '')
+	{
+		$guid = System::createGUID(32, $prefix);
+		return substr($guid, 0, 8). '-' . substr($guid, 8, 4) . '-' . substr($guid, 12, 4) . '-' . substr($guid, 16, 4) . '-' . substr($guid, 20, 12);
+	}
+
+	/**
 	 * Generates a GUID with the given parameters
 	 *
 	 * @param int          $size     The size of the GUID (default is 16)
@@ -173,7 +185,7 @@ class System extends BaseObject
 		if (is_bool($prefix) && !$prefix) {
 			$prefix = '';
 		} elseif (empty($prefix)) {
-			$prefix = hash('crc32', self::getApp()->get_hostname());
+			$prefix = hash('crc32', self::getApp()->getHostName());
 		}
 
 		while (strlen($prefix) < ($size - 13)) {
@@ -204,6 +216,26 @@ class System extends BaseObject
 		return substr($trailer . uniqid('') . mt_rand(), 0, 26);
 	}
 
+	/**
+	 * Returns the current Load of the System
+	 *
+	 * @return integer
+	 */
+	public static function currentLoad()
+	{
+		if (!function_exists('sys_getloadavg')) {
+			return false;
+		}
+
+		$load_arr = sys_getloadavg();
+
+		if (!is_array($load_arr)) {
+			return false;
+		}
+
+		return max($load_arr[0], $load_arr[1]);
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
 	function killme()
@@ -220,6 +252,5 @@ class System extends BaseObject
 	function get_cachefile($file, $writemode = true)
 	function get_itemcachepath()
 	function get_spoolpath()
-	function current_load()
 	*/
 }

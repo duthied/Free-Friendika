@@ -62,7 +62,7 @@ class Worker
 		}
 
 		// Do we have too few memory?
-		if ($a->min_memory_reached()) {
+		if ($a->isMinMemoryReached()) {
 			logger('Pre check: Memory limit reached, quitting.', LOGGER_DEBUG);
 			return;
 		}
@@ -122,7 +122,7 @@ class Worker
 				}
 
 				// Check free memory
-				if ($a->min_memory_reached()) {
+				if ($a->isMinMemoryReached()) {
 					logger('Memory limit reached, quitting.', LOGGER_DEBUG);
 					Lock::release('worker');
 					return;
@@ -618,7 +618,7 @@ class Worker
 		$active = self::activeWorkers();
 
 		// Decrease the number of workers at higher load
-		$load = current_load();
+		$load = System::currentLoad();
 		if ($load) {
 			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
 

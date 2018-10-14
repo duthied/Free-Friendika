@@ -1592,17 +1592,13 @@ class Diaspora
 		if (DBA::isResult($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
-			$contact = Contact::getDetailsByAddr($author, 0);
-			if (!empty($contact['network'])) {
-				$prefix = 'urn:X-' . $contact['network'] . ':';
-			} else {
-				// This fallback should happen most unlikely
-				$prefix = 'urn:X-dspr:';
-			}
+			$person = self::personByHandle($author);
 
-			$author_parts = explode('@', $author);
+			$parts = parse_url($person['url']);
+			unset($parts['path']);
+			$host_url = Network::unparseURL($parts);
 
-			return $prefix . $author_parts[1] . ':' . $author_parts[0] . ':'. $guid;
+			return $host_url . '/objects/' . $guid;
 		}
 
 		return "";
@@ -1973,11 +1969,8 @@ class Diaspora
 		$datarray["contact-id"] = $author_contact["cid"];
 		$datarray["network"]  = $author_contact["network"];
 
-		$datarray["author-link"] = $person["url"];
-		$datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
-
-		$datarray["owner-link"] = $contact["url"];
-		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
+		$datarray["owner-link"] = $datarray["author-link"] = $person["url"];
+		$datarray["owner-id"] = $datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
@@ -3086,8 +3079,8 @@ class Diaspora
 			if (!intval(Config::get("system", "diaspora_test"))) {
 				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
-				$return_code = $a->get_curl_code();
+				$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+				$return_code = $postResult->getReturnCode();
 			} else {
 				logger("test_mode");
 				return 200;
@@ -3096,7 +3089,7 @@ class Diaspora
 
 		logger("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
-		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
+		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
 			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::ACCOUNT_TYPE_RELAY)) {
 				logger("queue message");
 				// queue message for redelivery
@@ -3204,7 +3197,7 @@ class Diaspora
 		$author = self::myHandle($owner);
 
 		$message = ["author" => $author,
-				"guid" => System::createGUID(32),
+				"guid" => System::createUUID(),
 				"parent_type" => "Post",
 				"parent_guid" => $item["guid"]];
 

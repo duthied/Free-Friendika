@@ -176,7 +176,7 @@ class Item extends BaseObject
 
 		// We can always comment on posts from these networks
 		if (array_key_exists('writable', $row) &&
-			in_array($row['internal-network'], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			in_array($row['internal-network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
 			$row['writable'] = true;
 		}
 
@@ -1081,9 +1081,8 @@ class Item extends BaseObject
 
 		DBA::delete('item-delivery-data', ['iid' => $item['id']]);
 
-		if (!empty($item['iaid']) && !self::exists(['iaid' => $item['iaid'], 'deleted' => false])) {
-			DBA::delete('item-activity', ['id' => $item['iaid']], ['cascade' => false]);
-		}
+		// We don't delete the item-activity here, since we need some of the data for ActivityPub
+
 		if (!empty($item['icid']) && !self::exists(['icid' => $item['icid'], 'deleted' => false])) {
 			DBA::delete('item-content', ['id' => $item['icid']], ['cascade' => false]);
 		}
@@ -1167,7 +1166,7 @@ class Item extends BaseObject
 		if ($notify) {
 			// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
 			// We add the hash of our own host because our host is the original creator of the post.
-			$prefix_host = get_app()->get_hostname();
+			$prefix_host = get_app()->getHostName();
 		} else {
 			$prefix_host = '';
 
@@ -1205,7 +1204,7 @@ class Item extends BaseObject
 		} elseif (!empty($item['uri'])) {
 			$guid = self::guidFromUri($item['uri'], $prefix_host);
 		} else {
-			$guid = System::createGUID(32, hash('crc32', $prefix_host));
+			$guid = System::createUUID(hash('crc32', $prefix_host));
 		}
 
 		return $guid;
@@ -1290,17 +1289,16 @@ class Item extends BaseObject
 		 */
 
 		$dsprsig = null;
-		if (x($item, 'dsprsig')) {
+		if (isset($item['dsprsig'])) {
 			$encoded_signature = $item['dsprsig'];
 			$dsprsig = json_decode(base64_decode($item['dsprsig']));
 			unset($item['dsprsig']);
 		}
 
-		if (!empty($item['diaspora_signed_text'])) {
+		$diaspora_signed_text = '';
+		if (isset($item['diaspora_signed_text'])) {
 			$diaspora_signed_text = $item['diaspora_signed_text'];
 			unset($item['diaspora_signed_text']);
-		} else {
-			$diaspora_signed_text = '';
 		}
 
 		// Converting the plink
@@ -1352,7 +1350,7 @@ class Item extends BaseObject
 		 * We have to check several networks since Friendica posts could be repeated
 		 * via OStatus (maybe Diasporsa as well)
 		 */
-		if (in_array($item['network'], [Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS, ""])) {
+		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS, ""])) {
 			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
 				trim($item['uri']), $item['uid'],
 				Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
@@ -1489,6 +1487,7 @@ class Item extends BaseObject
 		$deny_gid  = '';
 
 		if ($item['parent-uri'] === $item['uri']) {
+			$diaspora_signed_text = '';
 			$parent_id = 0;
 			$parent_deleted = 0;
 			$allow_cid = $item['allow_cid'];
@@ -1535,6 +1534,10 @@ class Item extends BaseObject
 				$item['wall']    = $parent['wall'];
 				$notify_type    = 'comment-new';
 
+				if (!$parent['origin']) {
+					$diaspora_signed_text = '';
+				}
+
 				/*
 				 * If the parent is private, force privacy for the entire conversation
 				 * This differs from the above settings as it subtly allows comments from
@@ -1575,6 +1578,7 @@ class Item extends BaseObject
 					$parent_id = 0;
 					$item['parent-uri'] = $item['uri'];
 					$item['gravity'] = GRAVITY_PARENT;
+					$diaspora_signed_text = '';
 				} else {
 					logger('item parent '.$item['parent-uri'].' for '.$item['uid'].' was not found - ignoring item');
 					return 0;
@@ -2054,7 +2058,7 @@ class Item extends BaseObject
 
 		// Only distribute public items from native networks
 		$condition = ['id' => $itemid, 'uid' => 0,
-			'network' => [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""],
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""],
 			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
@@ -2072,13 +2076,45 @@ class Item extends BaseObject
 
 		$users = [];
 
-		$condition = ["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `id` = ?) AND `uid` != 0 AND NOT `blocked` AND `rel` IN (?, ?)",
-			$parent['owner-id'], Contact::SHARING,  Contact::FRIEND];
+		/// @todo add a field "pcid" in the contact table that referrs to the public contact id.
+		$owner = DBA::selectFirst('contact', ['url', 'nurl', 'alias'], ['id' => $parent['owner-id']]);
+		if (!DBA::isResult($owner)) {
+			return;
+		}
 
+		$condition = ['nurl' => $owner['nurl'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
 		$contacts = DBA::select('contact', ['uid'], $condition);
-
 		while ($contact = DBA::fetch($contacts)) {
+			if ($contact['uid'] == 0) {
+				continue;
+			}
+
 			$users[$contact['uid']] = $contact['uid'];
+		}
+		DBA::close($contacts);
+
+		$condition = ['alias' => $owner['url'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+		$contacts = DBA::select('contact', ['uid'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			if ($contact['uid'] == 0) {
+				continue;
+			}
+
+			$users[$contact['uid']] = $contact['uid'];
+		}
+		DBA::close($contacts);
+
+		if (!empty($owner['alias'])) {
+			$condition = ['url' => $owner['alias'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+			$contacts = DBA::select('contact', ['uid'], $condition);
+			while ($contact = DBA::fetch($contacts)) {
+				if ($contact['uid'] == 0) {
+					continue;
+				}
+
+				$users[$contact['uid']] = $contact['uid'];
+			}
+			DBA::close($contacts);
 		}
 
 		$origin_uid = 0;
@@ -2176,7 +2212,7 @@ class Item extends BaseObject
 		}
 
 		// is it an entry from a connector? Only add an entry for natively connected networks
-		if (!in_array($item["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
 			return;
 		}
 
@@ -2327,16 +2363,10 @@ class Item extends BaseObject
 	public static function newURI($uid, $guid = "")
 	{
 		if ($guid == "") {
-			$guid = System::createGUID(32);
+			$guid = System::createUUID();
 		}
 
-		$hostname = self::getApp()->get_hostname();
-
-		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
-
-		$uri = "urn:X-dfrn:" . $hostname . ':' . $user['nickname'] . ':' . $guid;
-
-		return $uri;
+		return self::getApp()->getBaseURL() . '/objects/' . $guid;
 	}
 
 	/**
@@ -2619,7 +2649,7 @@ class Item extends BaseObject
 		}
 
 		// Prevent to forward already forwarded posts
-		if ($datarray["app"] == $a->get_hostname()) {
+		if ($datarray["app"] == $a->getHostName()) {
 			logger('Already forwarded (second test)', LOGGER_DEBUG);
 			return false;
 		}
@@ -2660,7 +2690,7 @@ class Item extends BaseObject
 			}
 
 			if ($contact['network'] != Protocol::FEED) {
-				$datarray["guid"] = System::createGUID(32);
+				$datarray["guid"] = System::createUUID();
 				unset($datarray["plink"]);
 				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
 				$datarray["parent-uri"] = $datarray["uri"];
@@ -2826,7 +2856,7 @@ class Item extends BaseObject
 	}
 
 	// returns an array of contact-ids that are allowed to see this object
-	private static function enumeratePermissions($obj)
+	public static function enumeratePermissions($obj)
 	{
 		$allow_people = expand_acl($obj['allow_cid']);
 		$allow_groups = Group::expand(expand_acl($obj['allow_gid']));
@@ -3086,10 +3116,10 @@ class Item extends BaseObject
 			return true;
 		}
 
-		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE ;
+		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE;
 
 		$new_item = [
-			'guid'          => System::createGUID(32),
+			'guid'          => System::createUUID(),
 			'uri'           => self::newURI($item['uid']),
 			'uid'           => $item['uid'],
 			'contact-id'    => $item_contact_id,
@@ -3100,7 +3130,7 @@ class Item extends BaseObject
 			'parent'        => $item['id'],
 			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],
-			'owner-id'      => $item['owner-id'],
+			'owner-id'      => $author_id,
 			'author-id'     => $author_id,
 			'body'          => $activity,
 			'verb'          => $activity,

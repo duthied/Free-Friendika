@@ -13,6 +13,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Protocol\Email;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -54,6 +55,17 @@ class OnePoll
 		}
 
 		$importer_uid = $contact['uid'];
+
+		// Possibly switch the remote contact to AP
+		if ($contact['network'] === Protocol::OSTATUS) {
+			ActivityPub\Receiver::switchContact($contact['id'], $importer_uid, $contact['url']);
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
+		}
+
+		// We currently don't do anything with AP here
+		if ($contact['network'] === Protocol::ACTIVITYPUB) {
+			return;
+		}
 
 		// load current friends if possible.
 		if (($contact['poco'] != "") && ($contact['success_update'] > $contact['failure_update'])) {
@@ -185,18 +197,17 @@ class OnePoll
 				. '&type=data&last_update=' . $last_update
 				. '&perm=' . $perm ;
 
-			$ret = Network::curl($url);
+			$curlResult = Network::curl($url);
 
-			if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+			if (!$curlResult->isSuccess() && ($curlResult->getErrorNumber() == CURLE_OPERATION_TIMEDOUT)) {
 				// set the last-update so we don't keep polling
 				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 				Contact::markForArchival($contact);
 				return;
 			}
 
-			$handshake_xml = $ret['body'];
-
-			$html_code = $a->get_curl_code();
+			$handshake_xml = $curlResult->getBody();
+			$html_code = $curlResult->getReturnCode();
 
 			logger('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, LOGGER_DATA);
 
@@ -288,7 +299,7 @@ class OnePoll
 			$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
 			$postvars['perm'] = 'rw';
 
-			$xml = Network::post($contact['poll'], $postvars);
+			$xml = Network::post($contact['poll'], $postvars)->getBody();
 
 		} elseif (($contact['network'] === Protocol::OSTATUS)
 			|| ($contact['network'] === Protocol::DIASPORA)
@@ -319,17 +330,17 @@ class OnePoll
 			}
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-			$ret = Network::curl($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
+			$curlResult = Network::curl($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
 			unlink($cookiejar);
 
-			if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+			if (!$curlResult->isTimeout()) {
 				// set the last-update so we don't keep polling
 				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 				Contact::markForArchival($contact);
 				return;
 			}
 
-			$xml = $ret['body'];
+			$xml = $curlResult->getBody();
 
 		} elseif ($contact['network'] === Protocol::MAIL) {
 			logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
@@ -507,7 +518,7 @@ class OnePoll
 								}
 							}
 
-							$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->get_hostname());
+							$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->getHostName());
 
 							$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
 
