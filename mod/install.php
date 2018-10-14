@@ -8,6 +8,7 @@ use Friendica\Core\Install;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Util\Temporal;
 
 $install_wizard_pass = 1;
@@ -69,14 +70,16 @@ function install_post(App $a) {
 			// connect to db
 			DBA::connect($dbhost, $dbuser, $dbpass, $dbdata);
 
-			$errors = Install::createConfig($urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $phpath, $timezone, $language, $adminmail);
+			$install = new Install();
 
-			if ($errors) {
-				$a->data['db_failed'] = $errors;
+			$errors = $install->createConfig($phpath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $a->getBasePath());
+
+			if ($errors !== true) {
+				$a->data['data'] = $errors;
 				return;
 			}
 
-			$errors = Install::installDatabaseStructure();
+			$errors = DBStructure::update(false, true, true);
 
 			if ($errors) {
 				$a->data['db_failed'] = $errors;
@@ -145,19 +148,21 @@ function install_content(App $a) {
 
 			$phpath = defaults($_POST, 'phpath', 'php');
 
-			list($checks, $checkspassed) = Install::check($phpath);
+			$install = new Install($phpath);
+
+			$status = $install->checkAll($a->getBasePath(), $a->getBaseURL());
 
 			$tpl = get_markup_template('install_checks.tpl');
 			$o .= replace_macros($tpl, [
 				'$title' => $install_title,
 				'$pass' => L10n::t('System check'),
-				'$checks' => $checks,
-				'$passed' => $checkspassed,
+				'$checks' => $install->getChecks(),
+				'$passed' => $status,
 				'$see_install' => L10n::t('Please see the file "INSTALL.txt".'),
 				'$next' => L10n::t('Next'),
 				'$reload' => L10n::t('Check again'),
 				'$phpath' => $phpath,
-				'$baseurl' => System::baseUrl(),
+				'$baseurl' => $a->getBaseURL(),
 			]);
 			return $o;
 		}; break;
@@ -189,7 +194,7 @@ function install_content(App $a) {
 
 				'$lbl_10' => L10n::t('Please select a default timezone for your website'),
 
-				'$baseurl' => System::baseUrl(),
+				'$baseurl' => $a->getBaseURL(),
 
 				'$phpath' => $phpath,
 
@@ -227,9 +232,7 @@ function install_content(App $a) {
 
 				'$timezone' => Temporal::getTimezoneField('timezone', L10n::t('Please select a default timezone for your website'), $timezone, ''),
 				'$language' => ['language', L10n::t('System Language:'), 'en', L10n::t('Set the default language for your Friendica installation interface and to send emails.'), $lang_choices],
-				'$baseurl' => System::baseUrl(),
-
-
+				'$baseurl' => $a->getBaseURL(),
 
 				'$submit' => L10n::t('Submit'),
 
