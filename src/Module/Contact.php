@@ -140,25 +140,25 @@ class Contact extends BaseModule
 		$count_actions = 0;
 		foreach ($orig_records as $orig_record) {
 			$contact_id = $orig_record['id'];
-			if (defaults($_POST, 'contacts_batch_update')) {
+			if (defaults($_POST, 'contacts_batch_update', '')) {
 				self::updateContactFromPoll($contact_id);
 				$count_actions++;
 			}
-			if (defaults($_POST, 'contacts_batch_block')) {
+			if (defaults($_POST, 'contacts_batch_block', '')) {
 				self::blockContact($contact_id);
 				$count_actions++;
 			}
-			if (defaults($_POST, 'contacts_batch_ignore')) {
+			if (defaults($_POST, 'contacts_batch_ignore', '')) {
 				self::ignoreContact($contact_id);
 				$count_actions++;
 			}
-			if (defaults($_POST, 'contacts_batch_archive')) {
+			if (defaults($_POST, 'contacts_batch_archive', '')) {
 				$r = self::archiveContact($contact_id, $orig_record);
 				if ($r) {
 					$count_actions++;
 				}
 			}
-			if (defaults($_POST, 'contacts_batch_drop')) {
+			if (defaults($_POST, 'contacts_batch_drop', '')) {
 				self::dropContact($orig_record);
 				$count_actions++;
 			}
