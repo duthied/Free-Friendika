@@ -134,7 +134,7 @@ class Contact extends BaseModule
 
 		$contacts_id = $_POST['contact_batch'];
 
-		$stmt = DBA::select('contact', ['id'], ['id' => $contacts_id, 'id' => local_user(), 'self' => false]);
+		$stmt = DBA::select('contact', ['id'], ['id' => $contacts_id, 'uid' => local_user(), 'self' => false]);
 		$orig_records = DBA::toArray($stmt);
 		
 		$count_actions = 0;

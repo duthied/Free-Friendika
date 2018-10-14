@@ -226,7 +226,7 @@ function dirfind_content(App $a, $prefix = "") {
 						$photo_menu = [];
 					}
 
-					$photo_menu['profile'] = [L10n::t("View Profile"), Module\Contact::magicLink($jj->url)];
+					$photo_menu['profile'] = [L10n::t("View Profile"), Model\Contact::magicLink($jj->url)];
 					$photo_menu['follow'] = [L10n::t("Connect/Follow"), $connlnk];
 				}
 

@@ -28,7 +28,7 @@ function crepair_init(App $a)
 
 	if (DBA::isResult($contact)) {
 		$a->data['contact'] = $contact;
-		Profile::load($a, "", 0, Module\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 	}
 }
 
