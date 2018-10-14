@@ -72,21 +72,21 @@ class Contact extends BaseModule
 
 			$a->data['contact'] = $contact;
 
-			if (($a->data['contact']['network'] != "") && ($a->data['contact']['network'] != Protocol::DFRN)) {
-				$networkname = format_network_name($a->data['contact']['network'], $a->data['contact']['url']);
+			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
+				$networkname = format_network_name($contact['network'], $contact['url']);
 			} else {
 				$networkname = '';
 			}
 
 			/// @TODO Add nice spaces
-			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), [
-				'$name' => htmlentities($a->data['contact']['name']),
-				'$photo' => $a->data['contact']['photo'],
-				'$url' => Model\Contact::MagicLink($a->data['contact']['url']),
+			$vcard_widget = replace_macros(get_markup_template('vcard-widget.tpl'), [
+				'$name'         => htmlentities($contact['name']),
+				'$photo'        => $contact['photo'],
+				'$url'          => Model\Contact::MagicLink($contact['url']),
 				'$addr'         => defaults($contact, 'addr', ''),
 				'$network_name' => $networkname,
-				'$network' => L10n::t('Network:'),
-				'$account_type' => Model\Contact::getAccountType($a->data['contact'])
+				'$network'      => L10n::t('Network:'),
+				'$account_type' => Model\Contact::getAccountType($contact)
 			]);
 
 			$findpeople_widget = '';
