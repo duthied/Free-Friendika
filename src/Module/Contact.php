@@ -83,7 +83,7 @@ class Contact extends BaseModule
 				'$name' => htmlentities($a->data['contact']['name']),
 				'$photo' => $a->data['contact']['photo'],
 				'$url' => Model\Contact::MagicLink($a->data['contact']['url']),
-				'$addr' => (($a->data['contact']['addr'] != "") ? ($a->data['contact']['addr']) : ""),
+				'$addr'         => defaults($contact, 'addr', ''),
 				'$network_name' => $networkname,
 				'$network' => L10n::t('Network:'),
 				'$account_type' => Model\Contact::getAccountType($a->data['contact'])
@@ -140,25 +140,24 @@ class Contact extends BaseModule
 		$count_actions = 0;
 		foreach ($orig_records as $orig_record) {
 			$contact_id = $orig_record['id'];
-			if (defaults($_POST, 'contacts_batch_update', '')) {
+			if (!empty($_POST['contacts_batch_update'])) {
 				self::updateContactFromPoll($contact_id);
 				$count_actions++;
 			}
-			if (defaults($_POST, 'contacts_batch_block', '')) {
+			if (!empty($_POST['contacts_batch_block'])) {
 				self::blockContact($contact_id);
 				$count_actions++;
 			}
-			if (defaults($_POST, 'contacts_batch_ignore', '')) {
+			if (!empty($_POST['contacts_batch_ignore'])) {
 				self::ignoreContact($contact_id);
 				$count_actions++;
 			}
-			if (defaults($_POST, 'contacts_batch_archive', '')) {
-				$r = self::archiveContact($contact_id, $orig_record);
-				if ($r) {
-					$count_actions++;
-				}
+			if (!empty($_POST['contacts_batch_archive'])
+				&& self::archiveContact($contact_id, $orig_record)
+			) {
+				$count_actions++;
 			}
-			if (defaults($_POST, 'contacts_batch_drop', '')) {
+			if (!empty($_POST['contacts_batch_drop'])) {
 				self::dropContact($orig_record);
 				$count_actions++;
 			}
@@ -204,9 +203,9 @@ class Contact extends BaseModule
 			}
 		}
 
-		$hidden = defaults($_POST['hidden']);
+		$hidden = !empty($_POST['hidden']);
 
-		$notify = defaults($_POST['notify']);
+		$notify = !empty($_POST['notify']);
 
 		$fetch_further_information = intval(defaults($_POST, 'fetch_further_information', 0));
 
@@ -437,8 +436,8 @@ class Contact extends BaseModule
 
 			if ($cmd === 'drop' && ($orig_record['uid'] != 0)) {
 				// Check if we should do HTML-based delete confirmation
-				if (defaults($_REQUEST, 'confirm')) {
-					// <form> can't take arguments in its "action" parameter
+				if (!empty($_REQUEST['confirm'])) {
+					// <form> can't take arguments in its 'action' parameter
 					// so add any arguments as hidden inputs
 					$query = explode_querystring($a->query_string);
 					$inputs = [];
@@ -464,7 +463,7 @@ class Contact extends BaseModule
 					]);
 				}
 				// Now check how the user responded to the confirmation query
-				if (defaults($_REQUEST, 'canceled')) {
+				if (!empty($_REQUEST['canceled'])) {
 					goaway('contact');
 				}
 
@@ -484,7 +483,7 @@ class Contact extends BaseModule
 
 		$_SESSION['return_url'] = $a->query_string;
 
-		if ((defaults($a->data, 'contact')) && (is_array($a->data['contact']))) {
+		if (!empty($a->data['contact']) && is_array($a->data['contact'])) {
 			$contact_id = $a->data['contact']['id'];
 			$contact = $a->data['contact'];
 
@@ -705,8 +704,8 @@ class Contact extends BaseModule
 
 		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
 
-		$search = defaults($_GET, 'search') ? notags(trim($_GET['search'])) : '';
-		$nets   = defaults($_GET, 'nets'  ) ? notags(trim($_GET['nets']))   : '';
+		$search = notags(trim(defaults($_GET, 'search', '')));
+		$nets   = notags(trim(defaults($_GET, 'nets'  , '')));
 
 		$tabs = [
 			[
@@ -1043,7 +1042,7 @@ class Contact extends BaseModule
 			'username' => htmlentities($rr['name']),
 			'account_type' => Model\Contact::getAccountType($rr),
 			'sparkle' => $sparkle,
-			'itemurl' => (($rr['addr'] != "") ? $rr['addr'] : $rr['url']),
+			'itemurl'   => defaults($rr, 'addr', $rr['url']),
 			'url' => $url,
 			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
 			'nick' => htmlentities($rr['nick']),
