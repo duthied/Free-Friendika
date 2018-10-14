@@ -4,6 +4,7 @@
  */
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Core\System;
 use Friendica\Util\HTTPSignature;
@@ -22,22 +23,21 @@ use Friendica\Model\Profile;
 use Friendica\Core\Config;
 use Friendica\Object\Image;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Diaspora;
 use Friendica\Core\Cache;
+use Friendica\Util\Map;
+
+require_once 'include/api.php';
 
 /**
  * @brief ActivityPub Transmitter Protocol class
  *
  * To-Do:
  *
- * Missing object fields:
- * - service (App)
- * - location
- *
  * Missing object types:
  * - Event
  *
  * Complicated object types:
- * - Announce
  * - Undo Announce
  *
  * General:
@@ -327,7 +327,7 @@ class Transmitter
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
 				if (!empty($profile) && empty($contacts[$profile['url']])) {
-					$data['cc'][] = $profile['url'];
+					$data['to'][] = $profile['url'];
 					$contacts[$profile['url']] = $profile['url'];
 				}
 			}
@@ -378,11 +378,6 @@ class Transmitter
 			}
 		}
 		DBA::close($parents);
-
-		if (empty($data['to'])) {
-			$data['to'] = $data['cc'];
-			$data['cc'] = [];
-		}
 
 		return $data;
 	}
@@ -467,7 +462,9 @@ class Transmitter
 	 */
 	private static function getTypeOfItem($item)
 	{
-		if ($item['verb'] == ACTIVITY_POST) {
+		if (!empty(Diaspora::isReshare($item['body'], false))) {
+			$type = 'Announce';
+		} elseif ($item['verb'] == ACTIVITY_POST) {
 			if ($item['created'] == $item['edited']) {
 				$type = 'Create';
 			} else {
@@ -556,10 +553,14 @@ class Transmitter
 
 		$data['published'] = DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM);
 
+		$data['instrument'] = ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()];
+
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
-		if (in_array($data['type'], ['Create', 'Update', 'Announce', 'Delete'])) {
+		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
+		} elseif ($data['type'] == 'Announce') {
+			$data['object'] = self::createAnnounce($item);
 		} elseif ($data['type'] == 'Undo') {
 			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
@@ -597,6 +598,40 @@ class Transmitter
 		$data = array_merge($data, self::createNote($item));
 
 		return $data;
+	}
+
+	/**
+	 * Creates a location entry for a given item array
+	 *
+	 * @param array $item
+	 *
+	 * @return array with location array
+	 */
+	private static function createLocation($item)
+	{
+		$location = ['type' => 'Place'];
+
+		if (!empty($item['location'])) {
+			$location['name'] = $item['location'];
+		}
+
+		$coord = [];
+
+		if (empty($item['coord'])) {
+			$coord = Map::getCoordinates($item['location']);
+		} else {
+			$coords = explode(' ', $item['coord']);
+			if (count($coords) == 2) {
+				$coord = ['lat' => $coords[0], 'lon' => $coords[1]];
+			}
+		}
+
+		if (!empty($coord['lat']) && !empty($coord['lon'])) {
+			$location['latitude'] = $coord['lat'];
+			$location['longitude'] = $coord['lon'];
+		}
+
+		return $location;
 	}
 
 	/**
@@ -800,9 +835,35 @@ class Transmitter
 
 		$data['attachment'] = self::createAttachmentList($item, $type);
 		$data['tag'] = self::createTagList($item);
+
+		if (!empty($item['coord']) || !empty($item['location'])) {
+			$data['location'] = self::createLocation($item);
+		}
+
+		if (!empty($item['app'])) {
+			$data['generator'] = ['type' => 'Application', 'name' => $item['app']];
+		}
+
 		$data = array_merge($data, self::createPermissionBlockForItem($item));
 
 		return $data;
+	}
+
+	/**
+	 * Creates an announce object entry
+	 *
+	 * @param array $item
+	 *
+	 * @return string with announced object url
+	 */
+	public static function createAnnounce($item)
+	{
+		$announce = api_share_as_retweet($item);
+		if (empty($announce['plink'])) {
+			return self::createNote($item);
+		}
+
+		return $announce['plink'];
 	}
 
 	/**
@@ -825,7 +886,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $suggestion['url'],
 			'content' => $suggestion['note'],
-			'published' => DateTimeFormat::utc($suggestion['created'] . '+00:00', DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
 
@@ -852,6 +913,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $owner['url'],
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
 
@@ -878,6 +940,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => self::getProfile($uid),
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => [$profile['followers']],
 			'cc' => []];
 
@@ -905,6 +968,7 @@ class Transmitter
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url'],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
@@ -932,6 +996,7 @@ class Transmitter
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
@@ -959,6 +1024,7 @@ class Transmitter
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $profile['url'],
 				'object' => $owner['url']],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
@@ -987,6 +1053,7 @@ class Transmitter
 			'object' => ['id' => $id, 'type' => 'Follow',
 				'actor' => $owner['url'],
 				'object' => $profile['url']],
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
 		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);

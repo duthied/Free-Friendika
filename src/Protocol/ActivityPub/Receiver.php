@@ -513,24 +513,15 @@ class Receiver
 	private static function addActivityFields($object_data, $activity)
 	{
 		if (!empty($activity['published']) && empty($object_data['published'])) {
-			$object_data['published'] = JsonLD::fetchElement($activity, 'published', '@value');
-		}
-
-		if (!empty($activity['updated']) && empty($object_data['updated'])) {
-			$object_data['updated'] = JsonLD::fetchElement($activity, 'updated', '@value');
+			$object_data['published'] = JsonLD::fetchElement($activity, 'as:published', '@value');
 		}
 
 		if (!empty($activity['diaspora:guid']) && empty($object_data['diaspora:guid'])) {
 			$object_data['diaspora:guid'] = JsonLD::fetchElement($activity, 'diaspora:guid');
 		}
 
-		if (!empty($activity['inReplyTo']) && empty($object_data['parent-uri'])) {
-			$object_data['parent-uri'] = JsonLD::fetchElement($activity, 'inReplyTo');
-		}
+		$object_data['service'] = JsonLD::fetchElement($activity, 'as:instrument', 'as:name', '@type', 'as:Service');
 
-		if (!empty($activity['instrument'])) {
-			$object_data['service'] = JsonLD::fetchElement($activity, 'instrument', 'name', 'type', 'Service');
-		}
 		return $object_data;
 	}
 
@@ -696,10 +687,13 @@ class Receiver
 		$object_data['content'] = JsonLD::fetchElement($object, 'as:content');
 		$object_data['source'] = JsonLD::fetchElement($object, 'as:source', 'as:content', 'as:mediaType', 'text/bbcode');
 		$object_data['location'] = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
+		$object_data['latitude'] = JsonLD::fetchElement($object, 'as:location', 'as:latitude', '@type', 'as:Place');
+		$object_data['latitude'] = JsonLD::fetchElement($object_data, 'latitude', '@value');
+		$object_data['longitude'] = JsonLD::fetchElement($object, 'as:location', 'as:longitude', '@type', 'as:Place');
+		$object_data['longitude'] = JsonLD::fetchElement($object_data, 'longitude', '@value');
 		$object_data['attachments'] = self::processAttachments(JsonLD::fetchElementArray($object, 'as:attachment'));
 		$object_data['tags'] = self::processTags(JsonLD::fetchElementArray($object, 'as:tag'));
-//		$object_data['service'] = JsonLD::fetchElement($object, 'instrument', 'name', 'type', 'Service'); // todo
-		$object_data['service'] = null;
+		$object_data['generator'] = JsonLD::fetchElement($object, 'as:generator', 'as:name', '@type', 'as:Application');
 		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'as:url');
 
 		// Special treatment for Hubzilla links
@@ -719,7 +713,7 @@ class Receiver
 		// @context, type, actor, signature, mediaType, duration, replies, icon
 
 		// Also missing: (Defined in the standard, but currently unused)
-		// audience, preview, endTime, startTime, generator, image
+		// audience, preview, endTime, startTime, image
 
 		// Data in Notes:
 
