@@ -94,7 +94,7 @@ class Contact extends BaseModule
 			$networks_widget = '';
 		} else {
 			$vcard_widget = '';
-			$networks_widget = Widget::networks('contacts', $nets);
+			$networks_widget = Widget::networks('contact', $nets);
 			if (isset($_GET['add'])) {
 				$follow_widget = Widget::follow($_GET['add']);
 			} else {
@@ -105,7 +105,7 @@ class Contact extends BaseModule
 		}
 
 		if ($contact['uid'] != 0) {
-			$groups_widget = Model\Group::sidebarWidget('contacts', 'group', 'full', 'everyone', $contact_id);
+			$groups_widget = Model\Group::sidebarWidget('contact', 'group', 'full', 'everyone', $contact_id);
 		} else {
 			$groups_widget = null;
 		}
