@@ -12,10 +12,10 @@ class Acctlink extends BaseModule
 {
 	public static function content()
 	{
-		$addr = defaults($_REQUEST, 'addr', false);
+		$addr = defaults($_GET, 'addr', false);
 
 		if ($addr) {
-			$url = defaults(Probe::uri($addr), 'url', false);
+			$url = defaults(Probe::uri(trim($addr)), 'url', false);
 
 			if ($url) {
 				goaway($url);
