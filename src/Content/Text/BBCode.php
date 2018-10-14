@@ -1265,9 +1265,6 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "[share$1]$2[/share]", $text);
 		$text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism", "[quote$1]$2[/quote]", $text);
 
-		$text = preg_replace("/\n\[code\]/ism", "[code]", $text);
-		$text = preg_replace("/\[\/code\]\n/ism", "[/code]", $text);
-
 		// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 		if (!$try_oembed) {
 			$text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "\n[share$1$2]$3[/share]", $text);
@@ -1716,18 +1713,6 @@ class BBCode extends BaseObject
 		if ($simple_html) {
 			$text = Smilies::replace($text, false, true);
 		}
-
-		// Replace inline code blocks
-		$text = preg_replace_callback("|(?!<br[^>]*>)<code>([^<]*)</code>(?!<br[^>]*>)|ism",
-			function ($match) use ($simple_html) {
-				$return = '<key>' . $match[1] . '</key>';
-				// Use <code> for Diaspora inline code blocks
-				if ($simple_html === 3) {
-					$return = '<code>' . $match[1] . '</code>';
-				}
-				return $return;
-			}
-		, $text);
 
 		// Unhide all [noparse] contained bbtags unspacefying them
 		// and triming the [noparse] tag.
