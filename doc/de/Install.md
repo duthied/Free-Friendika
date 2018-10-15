@@ -40,6 +40,14 @@ Requirements
 Installation
 ---
 
+### Alternative Wege um Friendica zu Installieren
+
+Diese Anleitung wird dir Schritt-für-Schritt zeigen wie du Friendica auf deinem Server installieren kannst.
+Falls du an automatischen Möglichkeiten interesse hast, wirf doch einen Blick auf
+
+* das [Docker image für Friendica](https://github.com/friendica/docker) oder
+* die [Installation von Friendica auf YunoHost](https://github.com/YunoHost-Apps/friendica_ynh).
+
 ### Friendica
 
 Entpacke die Friendica-Daten in das Quellverzeichnis (root) des Dokumentenbereichs deines Webservers.

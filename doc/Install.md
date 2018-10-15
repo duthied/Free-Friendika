@@ -40,6 +40,14 @@ Requirements
 Installation procedure
 ---
 
+### Alternative Installation Methods
+
+This guide will walk you through the manual installation process of Friendica.
+If this is nothing for you, you might be interested in
+
+* the [Friendica Docker image](https://github.com/friendica/docker) or
+* how [install Friendica with YunoHost](https://github.com/YunoHost-Apps/friendica_ynh).
+
 ### Get Friendica
 
 Unpack the Friendica files into the root of your web server document area.
