@@ -16,7 +16,7 @@ use Friendica\Module;
 
 function group_init(App $a) {
 	if (local_user()) {
-		$a->page['aside'] = Group::sidebarWidget('contacts', 'group', 'extended', (($a->argc > 1) ? $a->argv[1] : 'everyone'));
+		$a->page['aside'] = Model\Group::sidebarWidget('contacts', 'group', 'extended', (($a->argc > 1) ? $a->argv[1] : 'everyone'));
 	}
 }
 
@@ -31,10 +31,10 @@ function group_post(App $a) {
 		check_form_security_token_redirectOnErr('/group/new', 'group_edit');
 
 		$name = notags(trim($_POST['groupname']));
-		$r = Group::create(local_user(), $name);
+		$r = Model\Group::create(local_user(), $name);
 		if ($r) {
 			info(L10n::t('Group created.') . EOL);
-			$r = Group::getIdByName(local_user(), $name);
+			$r = Model\Group::getIdByName(local_user(), $name);
 			if ($r) {
 				goaway(System::baseUrl() . '/group/' . $r);
 			}
@@ -71,7 +71,7 @@ function group_post(App $a) {
 			}
 		}
 
-		$a->page['aside'] = Group::sidebarWidget();
+		$a->page['aside'] = Model\Group::sidebarWidget();
 	}
 	return;
 }
@@ -148,7 +148,7 @@ function group_content(App $a) {
 			$result = null;
 
 			if (DBA::isResult($r)) {
-				$result = Group::removeByName(local_user(), $r[0]['name']);
+				$result = Model\Group::removeByName(local_user(), $r[0]['name']);
 			}
 
 			if ($result) {
@@ -198,9 +198,9 @@ function group_content(App $a) {
 
 		if ($change) {
 			if (in_array($change, $preselected)) {
-				Group::removeMember($group['id'], $change);
+				Model\Group::removeMember($group['id'], $change);
 			} else {
-				Group::addMember($group['id'], $change);
+				Model\Group::addMember($group['id'], $change);
 			}
 
 			$members = Model\Contact::getByGroupId($group['id']);
@@ -261,7 +261,7 @@ function group_content(App $a) {
 
 			$groupeditor['members'][] = $entry;
 		} else {
-			Group::removeMember($group['id'], $member['id']);
+			Model\Group::removeMember($group['id'], $member['id']);
 		}
 	}
 
