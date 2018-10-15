@@ -91,12 +91,10 @@ function register_post(App $a)
 		// Only send a password mail when the password wasn't manually provided
 		if (!x($_POST, 'password1') || !x($_POST, 'confirm')) {
 			$res = Model\User::sendRegisterOpenEmail(
-				$user['email'],
+				$user,
 				Config::get('config', 'sitename'),
 				$a->getBaseUrl(),
-				$user['username'],
-				$result['password'],
-				$user
+				$result['password']
 			);
 
 			if ($res) {
@@ -153,12 +151,9 @@ function register_post(App $a)
 		}
 		// send notification to the user, that the registration is pending
 		Model\User::sendRegisterPendingEmail(
-			$user['uid'],
-			$user['email'],
+			$user,
 			Config::get('config', 'sitename'),
-			$user['username'],
 			$a->getBaseURL(),
-			$user['nickname'],
 			$result['password']
 		);
 

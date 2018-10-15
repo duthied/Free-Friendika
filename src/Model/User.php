@@ -43,9 +43,18 @@ class User
 	}
 
 	/**
-	 * @brief Returns the user id of a given profile url
+	 * @param  integer       $uid
+	 * @return array|boolean User record if it exists, false otherwise
+	 */
+	public static function getById($uid)
+	{
+		return DBA::selectFirst('user', [], ['uid' => $uid]);
+	}
+
+	/**
+	 * @brief Returns the user id of a given profile URL
 	 *
-	 * @param string $profile
+	 * @param string $url
 	 *
 	 * @return integer user id
 	 */
@@ -657,13 +666,13 @@ class User
 	/**
 	 * @brief Sends pending registration confirmation email
 	 *
-	 * @param string $email
+	 * @param array  $user     User record array
 	 * @param string $sitename
-	 * @param string $username
+	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
 	 */
-	public static function sendRegisterPendingEmail($uid, $email, $sitename, $username, $siteurl, $nickname, $password)
+	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
 		$body = deindent(L10n::t('
 			Dear %1$s,
@@ -675,13 +684,13 @@ class User
 			Login Name:		%4$s
 			Password:		%5$s
 		',
-			$body, $username, $sitename, $siteurl, $nickname, $password
+			$body, $user['username'], $sitename, $siteurl, $user['nickname'], $password
 		));
 
 		return notification([
 			'type'     => SYSTEM_EMAIL,
-			'uid'      => $uid,
-			'to_email' => $email,
+			'uid'      => $user['uid'],
+			'to_email' => $user['email'],
 			'subject'  => L10n::t('Registration at %s', $sitename),
 			'body'     => $body
 		]);
@@ -692,20 +701,19 @@ class User
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *
-	 * @param string $email
+	 * @param array  $user     User record array
 	 * @param string $sitename
 	 * @param string $siteurl
-	 * @param string $username
-	 * @param string $password
+	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
 	 */
-	public static function sendRegisterOpenEmail($email, $sitename, $siteurl, $username, $password, $user)
+	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
 	{
 		$preamble = deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
 		',
-			$preamble, $username, $sitename
+			$preamble, $user['username'], $sitename
 		));
 		$body = deindent(L10n::t('
 			The login details are as follows:
@@ -734,14 +742,14 @@ class User
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
 			Thank you and welcome to %2$s.',
-			$body, $email, $sitename, $siteurl, $username, $password
+			$body, $user['email'], $sitename, $siteurl, $user['username'], $password
 		));
 
 		return notification([
 			'uid'      => $user['uid'],
 			'language' => $user['language'],
 			'type'     => SYSTEM_EMAIL,
-			'to_email' => $email,
+			'to_email' => $user['email'],
 			'subject'  => L10n::t('Registration details for %s', $sitename),
 			'preamble' => $preamble,
 			'body'     => $body
