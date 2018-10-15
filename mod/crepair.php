@@ -8,10 +8,8 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Model\Profile;
-
-require_once 'mod/contacts.php';
+use Friendica\Model;
+use Friendica\Module;
 
 function crepair_init(App $a)
 {
@@ -30,7 +28,7 @@ function crepair_init(App $a)
 
 	if (DBA::isResult($contact)) {
 		$a->data['contact'] = $contact;
-		Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 	}
 }
 
@@ -82,7 +80,7 @@ function crepair_post(App $a)
 	if ($photo) {
 		logger('mod-crepair: updating photo from ' . $photo);
 
-		Contact::updateAvatar($photo, local_user(), $contact['id']);
+		Model\Contact::updateAvatar($photo, local_user(), $contact['id']);
 	}
 
 	if ($r) {
@@ -135,7 +133,7 @@ function crepair_content(App $a)
 
 	$update_profile = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]);
 
-	$tab_str = contacts_tab($a, $contact, 5);
+	$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
 
 	$tpl = get_markup_template('crepair.tpl');
 	$o = replace_macros($tpl, [

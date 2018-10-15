@@ -1298,14 +1298,16 @@
 			"created": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Creation date"},
 			"pid": {"type": "int unsigned", "not null": "1", "default": "0", "comment": "Process id of the worker"},
 			"executed": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Execution date"},
+			"next_try": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Next retrial date"},
+			"retrial": {"type": "tinyint", "not null": "1", "default": "0", "comment": "Retrial counter"},
 			"done": {"type": "boolean", "not null": "1", "default": "0", "comment": "Marked 1 when the task was done - will be deleted later"}
 		},
 		"indexes": {
 			"PRIMARY": ["id"],
 			"pid": ["pid"],
 			"parameter": ["parameter(64)"],
-			"priority_created": ["priority", "created"],
-			"done_executed": ["done", "executed"]
+			"priority_created_next_try": ["priority", "created", "next_try"],
+			"done_executed_next_try": ["done", "executed", "next_try"]
 		}
 	}
 }

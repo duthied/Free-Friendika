@@ -16,7 +16,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Profile;
+use Friendica\Model;
+use Friendica\Module;
 
 $frio = 'view/theme/frio';
 
@@ -208,7 +209,7 @@ function frio_contact_photo_menu(App $a, &$args)
 function frio_remote_nav($a, &$nav)
 {
 	// get the homelink from $_XSESSION
-	$homelink = Profile::getMyURL();
+	$homelink = Model\Profile::getMyURL();
 	if (!$homelink) {
 		$homelink = defaults($_SESSION, 'visitor_home', '');
 	}
@@ -246,7 +247,7 @@ function frio_remote_nav($a, &$nav)
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
 		$nav['remote'] = L10n::t('Guest');
-	} elseif (Profile::getMyURL()) {
+	} elseif (Model\Profile::getMyURL()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			DBA::escape($webbie));
@@ -277,7 +278,7 @@ function frio_remote_nav($a, &$nav)
 		$nav['events'] = [$server_url . '/events', L10n::t('Events'), '', L10n::t('Events and Calendar')];
 		$nav['messages'] = [$server_url . '/message', L10n::t('Messages'), '', L10n::t('Private mail')];
 		$nav['settings'] = [$server_url . '/settings', L10n::t('Settings'), '', L10n::t('Account settings')];
-		$nav['contacts'] = [$server_url . '/contacts', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
+		$nav['contacts'] = [$server_url . '/contact', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
 		$nav['sitename'] = Config::get('config', 'sitename');
 	}
 }
@@ -286,7 +287,7 @@ function frio_remote_nav($a, &$nav)
  * @brief: Search for contacts
  *
  * This function search for a users contacts. The code is copied from contact search
- * in /mod/contacts.php. With this function the contacts will permitted to acl_lookup()
+ * in /src/Module/Contact.php. With this function the contacts will permitted to acl_lookup()
  * and can grabbed as json. For this we use the type="r". This is usful to to let js
  * grab the contact data.
  * We use this to give the data to textcomplete and have a filter function at the
@@ -297,12 +298,10 @@ function frio_remote_nav($a, &$nav)
  */
 function frio_acl_lookup(App $a, &$results)
 {
-	require_once 'mod/contacts.php';
-
 	$nets = x($_GET, 'nets') ? notags(trim($_GET['nets'])) : '';
 
 	// we introduce a new search type, r should do the same query like it's
-	// done in /mod/contacts for connections
+	// done in /src/Module/Contact.php for connections
 	if ($results['type'] !== 'r') {
 		return;
 	}
@@ -334,7 +333,7 @@ function frio_acl_lookup(App $a, &$results)
 
 	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
-			$contacts[] = _contact_detail_for_template($rr);
+			$contacts[] = Module\Contact::getContactTemplateVars($rr);
 		}
 	}
 

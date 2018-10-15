@@ -36,13 +36,13 @@ function newmember_content(App $a)
 		$o .= '<li>' . '<a target="newmember" href="settings/connectors">' . L10n::t('Importing Emails') . '</a><br />' . L10n::t('Enter your email access information on your Connector Settings page if you wish to import and interact with friends or mailing lists from your email INBOX') . '</li>' . EOL;
 	}
 
-	$o .= '<li>' . '<a target="newmember" href="contacts">' . L10n::t('Go to Your Contacts Page') . '</a><br />' . L10n::t('Your Contacts page is your gateway to managing friendships and connecting with friends on other networks. Typically you enter their address or site URL in the <em>Add New Contact</em> dialog.') . '</li>' . EOL;
+	$o .= '<li>' . '<a target="newmember" href="contact">' . L10n::t('Go to Your Contacts Page') . '</a><br />' . L10n::t('Your Contacts page is your gateway to managing friendships and connecting with friends on other networks. Typically you enter their address or site URL in the <em>Add New Contact</em> dialog.') . '</li>' . EOL;
 	$o .= '<li>' . '<a target="newmember" href="directory">' . L10n::t("Go to Your Site's Directory") . '</a><br />' . L10n::t('The Directory page lets you find other people in this network or other federated sites. Look for a <em>Connect</em> or <em>Follow</em> link on their profile page. Provide your own Identity Address if requested.') . '</li>' . EOL;
-	$o .= '<li>' . '<a target="newmember" href="contacts">' . L10n::t('Finding New People') . '</a><br />' . L10n::t("On the side panel of the Contacts page are several tools to find new friends. We can match people by interest, look up people by name or interest, and provide suggestions based on network relationships. On a brand new site, friend suggestions will usually begin to be populated within 24 hours.") . '</li>' . EOL;
+	$o .= '<li>' . '<a target="newmember" href="contact">' . L10n::t('Finding New People') . '</a><br />' . L10n::t("On the side panel of the Contacts page are several tools to find new friends. We can match people by interest, look up people by name or interest, and provide suggestions based on network relationships. On a brand new site, friend suggestions will usually begin to be populated within 24 hours.") . '</li>' . EOL;
 	$o .= '</ul>';
 	$o .= '<h4>' . L10n::t('Groups') . '</h4>';
 	$o .= '<ul>';
-	$o .= '<li>' . '<a target="newmember" href="contacts">' . L10n::t('Group Your Contacts') . '</a><br />' . L10n::t('Once you have made some friends, organize them into private conversation groups from the sidebar of your Contacts page and then you can interact with each group privately on your Network page.') . '</li>' . EOL;
+	$o .= '<li>' . '<a target="newmember" href="contact">' . L10n::t('Group Your Contacts') . '</a><br />' . L10n::t('Once you have made some friends, organize them into private conversation groups from the sidebar of your Contacts page and then you can interact with each group privately on your Network page.') . '</li>' . EOL;
 
 	if (Config::get('system', 'newuser_private')) {
 		$o .= '<li>' . '<a target="newmember" href="help/Groups-and-Privacy">' . L10n::t("Why Aren't My Posts Public?") . '</a><br />' . L10n::t("Friendica respects your privacy. By default, your posts will only show up to people you've added as friends. For more information, see the help section from the link above.") . '</li>' . EOL;
