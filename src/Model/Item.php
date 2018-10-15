@@ -231,6 +231,10 @@ class Item extends BaseObject
 			}
 		}
 
+		if (array_key_exists('signed_text', $row) && array_key_exists('interaction', $row) && !is_null($row['interaction'])) {
+			$row['signed_text'] = $row['interaction'];
+		}
+
 		if (array_key_exists('ignored', $row) && array_key_exists('internal-user-ignored', $row) && !is_null($row['internal-user-ignored'])) {
 			$row['ignored'] = $row['internal-user-ignored'];
 		}
@@ -242,6 +246,7 @@ class Item extends BaseObject
 		unset($row['internal-iaid']);
 		unset($row['internal-icid']);
 		unset($row['internal-user-ignored']);
+		unset($row['interaction']);
 
 		return $row;
 	}
@@ -567,6 +572,8 @@ class Item extends BaseObject
 
 		$fields['sign'] = ['signed_text', 'signature', 'signer'];
 
+		$fields['diaspora-interaction'] = ['interaction'];
+
 		return $fields;
 	}
 
@@ -653,6 +660,10 @@ class Item extends BaseObject
 			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
 		}
 
+		if (strpos($sql_commands, "`diaspora-interaction`.") !== false) {
+			$joins .= " LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`";
+		}
+
 		if (strpos($sql_commands, "`item-activity`.") !== false) {
 			$joins .= " LEFT JOIN `item-activity` ON `item-activity`.`id` = `item`.`iaid`";
 		}
@@ -703,6 +714,10 @@ class Item extends BaseObject
 
 		if (in_array('ignored', $selected)) {
 			$selected[] = 'internal-user-ignored';
+		}
+
+		if (in_array('signed_text', $selected)) {
+			$selected[] = 'interaction';
 		}
 
 		$selection = [];
@@ -1487,7 +1502,6 @@ class Item extends BaseObject
 		$deny_gid  = '';
 
 		if ($item['parent-uri'] === $item['uri']) {
-			$diaspora_signed_text = '';
 			$parent_id = 0;
 			$parent_deleted = 0;
 			$allow_cid = $item['allow_cid'];
@@ -1534,10 +1548,6 @@ class Item extends BaseObject
 				$item['wall']    = $parent['wall'];
 				$notify_type    = 'comment-new';
 
-				if (!$parent['origin']) {
-					$diaspora_signed_text = '';
-				}
-
 				/*
 				 * If the parent is private, force privacy for the entire conversation
 				 * This differs from the above settings as it subtly allows comments from
@@ -1578,7 +1588,6 @@ class Item extends BaseObject
 					$parent_id = 0;
 					$item['parent-uri'] = $item['uri'];
 					$item['gravity'] = GRAVITY_PARENT;
-					$diaspora_signed_text = '';
 				} else {
 					logger('item parent '.$item['parent-uri'].' for '.$item['uid'].' was not found - ignoring item');
 					return 0;
@@ -1803,14 +1812,17 @@ class Item extends BaseObject
 				logger("Repaired double encoded signature from handle ".$dsprsig->signer, LOGGER_DEBUG);
 			}
 
-			DBA::insert('sign', ['iid' => $current_post, 'signed_text' => $dsprsig->signed_text,
-						'signature' => $dsprsig->signature, 'signer' => $dsprsig->signer]);
+			if (!empty($dsprsig->signed_text) && empty($dsprsig->signature) && empty($dsprsig->signer)) {
+				DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $dsprsig->signed_text], true);
+			} else {
+				// The other fields are used by very old Friendica servers, so we currently store them differently
+				DBA::insert('sign', ['iid' => $current_post, 'signed_text' => $dsprsig->signed_text,
+					'signature' => $dsprsig->signature, 'signer' => $dsprsig->signer]);
+			}
 		}
 
 		if (!empty($diaspora_signed_text)) {
-			// Formerly we stored the signed text, the signature and the author in different fields.
-			// We now store the raw data so that we are more flexible.
-			DBA::insert('sign', ['iid' => $current_post, 'signed_text' => $diaspora_signed_text]);
+			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $diaspora_signed_text], true);
 		}
 
 		$deleted = self::tagDeliver($item['uid'], $current_post);

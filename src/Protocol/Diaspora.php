@@ -3749,13 +3749,13 @@ class Diaspora
 	 *
 	 * @return string The message
 	 */
-	private static function messageFromSignature(array $item, array $signature)
+	private static function messageFromSignature(array $item)
 	{
 		// Split the signed text
-		$signed_parts = explode(";", $signature['signed_text']);
+		$signed_parts = explode(";", $item['signed_text']);
 
 		if ($item["deleted"]) {
-			$message = ["author" => $signature['signer'],
+			$message = ["author" => $item['signer'],
 					"target_guid" => $signed_parts[0],
 					"target_type" => $signed_parts[1]];
 		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
@@ -3764,7 +3764,7 @@ class Diaspora
 					"parent_guid" => $signed_parts[3],
 					"parent_type" => $signed_parts[2],
 					"positive" => $signed_parts[0],
-					"author_signature" => $signature['signature'],
+					"author_signature" => $item['signature'],
 					"parent_author_signature" => ""];
 		} else {
 			// Remove the comment guid
@@ -3783,7 +3783,7 @@ class Diaspora
 					"guid" => $guid,
 					"parent_guid" => $parent_guid,
 					"text" => implode(";", $signed_parts),
-					"author_signature" => $signature['signature'],
+					"author_signature" => $item['signature'],
 					"parent_author_signature" => ""];
 		}
 		return $message;
@@ -3811,20 +3811,12 @@ class Diaspora
 
 		logger("Got relayable data ".$type." for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 
-		// fetch the original signature
-		$fields = ['signed_text', 'signature', 'signer'];
-		$signature = DBA::selectFirst('sign', $fields, ['iid' => $item["id"]]);
-		if (!DBA::isResult($signature)) {
-			logger("Couldn't fetch signatur for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
-			return false;
-		}
-
 		// Old way - is used by the internal Friendica functions
 		/// @todo Change all signatur storing functions to the new format
-		if ($signature['signed_text'] && $signature['signature'] && $signature['signer']) {
-			$message = self::messageFromSignature($item, $signature);
+		if ($item['signed_text'] && $item['signature'] && $item['signer']) {
+			$message = self::messageFromSignature($item);
 		} else {// New way
-			$msg = json_decode($signature['signed_text'], true);
+			$msg = json_decode($item['signed_text'], true);
 
 			$message = [];
 			if (is_array($msg)) {
@@ -3841,7 +3833,7 @@ class Diaspora
 					$message[$field] = $data;
 				}
 			} else {
-				logger("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$signature['signed_text'], LOGGER_DEBUG);
+				logger("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$item['signed_text'], LOGGER_DEBUG);
 			}
 		}
 

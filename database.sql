@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.12-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1285
+-- DB_UPDATE_VERSION 1287
 -- ------------------------------------------
 
 
@@ -246,6 +246,15 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 	 INDEX `conversation-uri` (`conversation-uri`),
 	 INDEX `received` (`received`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Raw data and structure information for messages';
+
+--
+-- TABLE diaspora-interaction
+--
+CREATE TABLE IF NOT EXISTS `diaspora-interaction` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`interaction` mediumtext COMMENT 'The Diaspora interaction',
+	 PRIMARY KEY(`uri-id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Signed Diaspora Interaction';
 
 --
 -- TABLE event
@@ -1242,12 +1251,14 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
 	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',
 	`executed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Execution date',
+	`next_try` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Next retrial date',
+	`retrial` tinyint NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
 	`done` boolean NOT NULL DEFAULT '0' COMMENT 'Marked 1 when the task was done - will be deleted later',
 	 PRIMARY KEY(`id`),
 	 INDEX `pid` (`pid`),
 	 INDEX `parameter` (`parameter`(64)),
-	 INDEX `priority_created` (`priority`,`created`),
-	 INDEX `done_executed` (`done`,`executed`)
+	 INDEX `priority_created_next_try` (`priority`,`created`,`next_try`),
+	 INDEX `done_executed_next_try` (`done`,`executed`,`next_try`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
 
 

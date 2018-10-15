@@ -254,6 +254,16 @@
 			"received": ["received"]
 		}
 	},
+	"diaspora-interaction": {
+		"comment": "Signed Diaspora Interaction",
+		"fields": {
+			"uri-id": {"type": "int unsigned", "not null": "1", "primary": "1", "relation": {"item-uri": "id"}, "comment": "Id of the item-uri table entry that contains the item uri"},
+			"interaction": {"type": "mediumtext", "comment": "The Diaspora interaction"}
+		},
+		"indexes": {
+			"PRIMARY": ["uri-id"]
+		}
+	},
 	"event": {
 		"comment": "Events",
 		"fields": {
