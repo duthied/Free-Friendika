@@ -5,7 +5,7 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
-use Friendica\Module\Contacts;
+use Friendica\Module\Contact;
 
 function update_contacts_content(App $a)
 {
