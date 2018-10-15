@@ -8,6 +8,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\BaseObject;
 
 require_once 'include/dba.php';
 
@@ -152,7 +153,8 @@ class Worker
 	 */
 	private static function totalEntries()
 	{
-		return DBA::count('workerqueue', ["`executed` <= ? AND NOT `done`", NULL_DATE]);
+		return DBA::count('workerqueue', ["`executed` <= ? AND NOT `done` AND `next_try` < ?",
+			NULL_DATE, DateTimeFormat::utcNow()]);
 	}
 
 	/**
@@ -162,7 +164,7 @@ class Worker
 	 */
 	private static function highestPriority()
 	{
-		$condition = ["`executed` <= ? AND NOT `done`", NULL_DATE];
+		$condition = ["`executed` <= ? AND NOT `done` AND `next_try` < ?", NULL_DATE, DateTimeFormat::utcNow()];
 		$workerqueue = DBA::selectFirst('workerqueue', ['priority'], $condition, ['order' => ['priority']]);
 		if (DBA::isResult($workerqueue)) {
 			return $workerqueue["priority"];
@@ -180,7 +182,8 @@ class Worker
 	 */
 	private static function processWithPriorityActive($priority)
 	{
-		$condition = ["`priority` <= ? AND `executed` > ? AND NOT `done`", $priority, NULL_DATE];
+		$condition = ["`priority` <= ? AND `executed` > ? AND NOT `done` AND `next_try` < ?",
+			$priority, NULL_DATE, DateTimeFormat::utcNow()];
 		return DBA::exists('workerqueue', $condition);
 	}
 
@@ -240,7 +243,7 @@ class Worker
 			self::execFunction($queue, $include, $argv, true);
 
 			$stamp = (float)microtime(true);
-			if (DBA::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
+			if (DBA::update('workerqueue', ['done' => true], ['id' => $queue['id']])) {
 				Config::set('system', 'last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
@@ -805,7 +808,8 @@ class Worker
 			$result = DBA::select(
 				'workerqueue',
 				['id'],
-				["`executed` <= ? AND `priority` < ? AND NOT `done`", NULL_DATE, $highest_priority],
+				["`executed` <= ? AND `priority` < ? AND NOT `done` AND `next_try` < ?",
+				NULL_DATE, $highest_priority, DateTimeFormat::utcNow()],
 				['limit' => $limit, 'order' => ['priority', 'created']]
 			);
 
@@ -821,7 +825,8 @@ class Worker
 				$result = DBA::select(
 					'workerqueue',
 					['id'],
-					["`executed` <= ? AND `priority` > ? AND NOT `done`", NULL_DATE, $highest_priority],
+					["`executed` <= ? AND `priority` > ? AND NOT `done` AND `next_try` < ?",
+					NULL_DATE, $highest_priority, DateTimeFormat::utcNow()],
 					['limit' => $limit, 'order' => ['priority', 'created']]
 				);
 
@@ -840,7 +845,8 @@ class Worker
 			$result = DBA::select(
 				'workerqueue',
 				['id'],
-				["`executed` <= ? AND NOT `done`", NULL_DATE],
+				["`executed` <= ? AND NOT `done` AND `next_try` < ?",
+				NULL_DATE, DateTimeFormat::utcNow()],
 				['limit' => $limit, 'order' => ['priority', 'created']]
 			);
 
@@ -1114,6 +1120,35 @@ class Worker
 		self::spawnWorker();
 
 		return true;
+	}
+
+	/**
+	 * Defers the current worker entry
+	 */
+	public static function defer()
+	{
+		if (empty(BaseObject::getApp()->queue)) {
+			return;
+		}
+
+		$queue = BaseObject::getApp()->queue;
+
+		$retrial = $queue['retrial'];
+		$id = $queue['id'];
+
+		if ($retrial > 14) {
+			logger('Id ' . $id . ' had been tried 14 times, it will be deleted now.', LOGGER_DEBUG);
+			DBA::delete('workerqueue', ['id' => $id]);
+		}
+
+		// Calculate the delay until the next trial
+		$delay = (($retrial + 3) ** 4) + (rand(1, 30) * ($retrial + 1));
+		$next = DateTimeFormat::utc('now + ' . $delay . ' seconds');
+
+		logger('Defer execution ' . $retrial . ' of id ' . $id . ' to ' . $next, LOGGER_DEBUG);
+
+		$fields = ['retrial' => $retrial + 1, 'next_try' => $next, 'executed' => NULL_DATE, 'pid' => 0];
+		DBA::update('workerqueue', $fields, ['id' => $id]);
 	}
 
 	/**
