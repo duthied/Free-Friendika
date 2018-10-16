@@ -380,7 +380,7 @@ class Item extends BaseObject
 			$usermode = true;
 		}
 
-		$fields = self::fieldlist($selected, $usermode);
+		$fields = self::fieldlist($usermode);
 
 		$select_fields = self::constructSelectFields($fields, $selected);
 
@@ -487,7 +487,7 @@ class Item extends BaseObject
 			$usermode = true;
 		}
 
-		$fields = self::fieldlist($selected, $usermode);
+		$fields = self::fieldlist($usermode);
 
 		$fields['thread'] = ['mention', 'ignored', 'iid'];
 
@@ -523,7 +523,7 @@ class Item extends BaseObject
 	 *
 	 * @return array field list
 	 */
-	private static function fieldlist($selected, $usermode)
+	private static function fieldlist($usermode)
 	{
 		$fields = [];
 
