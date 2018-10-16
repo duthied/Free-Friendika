@@ -1010,56 +1010,59 @@ class Profile
 		$my_url = self::getMyURL();
 		$my_url = Network::isUrlValid($my_url);
 
-		if ($my_url) {
-			if (!local_user()) {
-				// Is it a DDoS attempt?
-				// The check fetches the cached value from gprobe to reduce the load for this system
-				$urlparts = parse_url($my_url);
+		if (empty($my_url) || local_user()) {
+			return;
+		}
 
-				$result = Cache::get('gprobe:' . $urlparts['host']);
-				if ((!is_null($result)) && (in_array($result['network'], [Protocol::FEED, Protocol::PHANTOM]))) {
-					logger('DDoS attempt detected for ' . $urlparts['host'] . ' by ' . $_SERVER['REMOTE_ADDR'] . '. server data: ' . print_r($_SERVER, true), LOGGER_DEBUG);
-					return;
-				}
+		$arr = ['zrl' => $my_url, 'url' => $a->cmd];
+		Addon::callHooks('zrl_init', $arr);
 
-				Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
-				$arr = ['zrl' => $my_url, 'url' => $a->cmd];
-				Addon::callHooks('zrl_init', $arr);
+		// Try to find the public contact entry of the visitor.
+		$cid = Contact::getIdForURL($my_url);
+		if (!$cid) {
+			logger('No contact record found for ' . $my_url, LOGGER_DEBUG);
+			return;
+		}
 
-				// Try to find the public contact entry of the visitor.
-				$cid = Contact::getIdForURL($my_url);
-				if (!$cid) {
-					logger('No contact record found for ' . $my_url, LOGGER_DEBUG);
-					return;
-				}
+		$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
-				$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
+		if (DBA::isResult($contact) && remote_user() && remote_user() == $contact['id']) {
+			logger('The visitor ' . $my_url . ' is already authenticated', LOGGER_DEBUG);
+			return;
+		}
 
-				if (DBA::isResult($contact) && remote_user() && remote_user() == $contact['id']) {
-					// The visitor is already authenticated.
-					return;
-				}
+		// Avoid endless loops
+		$cachekey = 'zrlInit:' . $my_url;
+		if (Cache::get($cachekey)) {
+			logger('URL ' . $my_url . ' already tried to authenticate.', LOGGER_DEBUG);
+			return;
+		} else {
+			Cache::set($cachekey, true, CACHE_MINUTE);
+		}
 
-				logger('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);
+		logger('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);
 
-				// Try to avoid recursion - but send them home to do a proper magic auth.
-				$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
-				// The other instance needs to know where to redirect.
-				$dest = urlencode(System::baseUrl() . '/' . $query);
+		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
 
-				// We need to extract the basebath from the profile url
-				// to redirect the visitors '/magic' module.
-				// Note: We should have the basepath of a contact also in the contact table.
-				$urlarr = explode('/profile/', $contact['url']);
-				$basepath = $urlarr[0];
+		// Try to avoid recursion - but send them home to do a proper magic auth.
+		$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
+		// The other instance needs to know where to redirect.
+		$dest = urlencode(System::baseUrl() . '/' . $query);
 
-				if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
-					$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
-					$serverret = Network::curl($magic_path);
-					if ($serverret->isSuccess()) {
-						goaway($magic_path);
-					}
-				}
+		// We need to extract the basebath from the profile url
+		// to redirect the visitors '/magic' module.
+		// Note: We should have the basepath of a contact also in the contact table.
+		$urlarr = explode('/profile/', $contact['url']);
+		$basepath = $urlarr[0];
+
+		if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
+			$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
+
+			// We have to check if the remote server does understand /magic without invoking something
+			$serverret = Network::curl($basepath . '/magic');
+			if ($serverret->isSuccess()) {
+				logger('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, LOGGER_DEBUG);
+				goaway($magic_path);
 			}
 		}
 	}
