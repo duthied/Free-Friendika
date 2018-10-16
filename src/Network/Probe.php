@@ -953,13 +953,13 @@ class Probe
 
 		$prof_data["addr"]         = $data["addr"];
 		$prof_data["nick"]         = $data["nick"];
-		$prof_data["dfrn-request"] = $data["request"];
-		$prof_data["dfrn-confirm"] = $data["confirm"];
-		$prof_data["dfrn-notify"]  = $data["notify"];
-		$prof_data["dfrn-poll"]    = $data["poll"];
-		$prof_data["photo"]        = $data["photo"];
-		$prof_data["fn"]           = $data["name"];
-		$prof_data["key"]          = $data["pubkey"];
+		$prof_data["dfrn-request"] = defaults($data, 'request', null);
+		$prof_data["dfrn-confirm"] = defaults($data, 'confirm', null);
+		$prof_data["dfrn-notify"]  = defaults($data, 'notify' , null);
+		$prof_data["dfrn-poll"]    = defaults($data, 'poll'   , null);
+		$prof_data["photo"]        = defaults($data, 'photo'  , null);
+		$prof_data["fn"]           = defaults($data, 'name'   , null);
+		$prof_data["key"]          = defaults($data, 'pubkey' , null);
 
 		logger("Result for profile ".$profile_link.": ".print_r($prof_data, true), LOGGER_DEBUG);
 
