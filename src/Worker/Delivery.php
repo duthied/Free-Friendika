@@ -39,13 +39,13 @@ class Delivery extends BaseObject
 		$followup = false;
 		$public_message = false;
 
+		$items = [];
 		if ($cmd == self::MAIL) {
 			$target_item = DBA::selectFirst('mail', [], ['id' => $item_id]);
 			if (!DBA::isResult($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
-			$items = [];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $item_id]);
 			if (!DBA::isResult($target_item)) {
@@ -65,7 +65,6 @@ class Delivery extends BaseObject
 			$params = ['order' => ['id']];
 			$itemdata = Item::select([], $condition, $params);
 
-			$items = [];
 			while ($item = Item::fetch($itemdata)) {
 				if ($item['id'] == $parent_id) {
 					$parent = $item;
