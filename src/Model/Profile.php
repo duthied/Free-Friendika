@@ -1014,15 +1014,6 @@ class Profile
 			return;
 		}
 
-		// Avoid endless loops
-		$cachekey = 'zrlInit:' . $my_url;
-		if (Cache::get($cachekey)) {
-			logger('URL ' . $my_url . ' already tried to authenticate.', LOGGER_DEBUG);
-			return;
-		} else {
-			Cache::set($cachekey, true, CACHE_MINUTE);
-		}
-
 		$arr = ['zrl' => $my_url, 'url' => $a->cmd];
 		Addon::callHooks('zrl_init', $arr);
 
@@ -1033,8 +1024,6 @@ class Profile
 			return;
 		}
 
-		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
-
 		$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
 		if (DBA::isResult($contact) && remote_user() && remote_user() == $contact['id']) {
@@ -1042,7 +1031,18 @@ class Profile
 			return;
 		}
 
+		// Avoid endless loops
+		$cachekey = 'zrlInit:' . $my_url;
+		if (Cache::get($cachekey)) {
+			logger('URL ' . $my_url . ' already tried to authenticate.', LOGGER_DEBUG);
+			return;
+		} else {
+			Cache::set($cachekey, true, CACHE_MINUTE);
+		}
+
 		logger('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);
+
+		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
 
 		// Try to avoid recursion - but send them home to do a proper magic auth.
 		$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
