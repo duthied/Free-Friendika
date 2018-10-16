@@ -949,6 +949,7 @@ class Diaspora
 				$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 				if (!DBA::isResult($person)) {
 					$person = $r;
+					$person['id'] = 0;
 				}
 			}
 		}
