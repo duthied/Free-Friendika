@@ -42,9 +42,9 @@ function notification($params)
 	}
 
 	$params['notify_flags'] = defaults($params, 'notify_flags', $user['notify-flags']);
-	$params['language'] = defaults($params, 'language', $user['language']);
-	$params['to_name'] = defaults($params, 'to_name', $user['username']);
-	$params['to_email'] = defaults($params, 'to_email', $user['email']);
+	$params['language']     = defaults($params, 'language'    , $user['language']);
+	$params['to_name']      = defaults($params, 'to_name'     , $user['username']);
+	$params['to_email']     = defaults($params, 'to_email'    , $user['email']);
 
 	// from here on everything is in the recipients language
 	L10n::pushLang($params['language']);

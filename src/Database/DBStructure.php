@@ -83,10 +83,11 @@ class DBStructure
 			$body = sprintf($body, $error_message);
 
 			notification([
-				'type' => SYSTEM_EMAIL,
+				'uid'      => $admin['uid'],
+				'type'     => SYSTEM_EMAIL,
 				'to_email' => $admin['email'],
 				'preamble' => $preamble,
-				'body' => $body,
+				'body'     => $body,
 				'language' => $lang]
 			);
 		}
