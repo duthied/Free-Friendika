@@ -38,7 +38,7 @@
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
+					<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" ondragenter="return commentlinkdrop(event, {{$id}});" ondragover="return commentlinkdrop(event, {{$id}});" ondrop="commentlinkdropper(event);" onclick="commentGetLink({{$id}});">
 						<i class="fa fa-link"></i>
 					</button>
 				</li>

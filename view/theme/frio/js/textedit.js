@@ -2,6 +2,55 @@
  * @brief The file contains functions for text editing and commenting
  */
 
+function initComment(callback) {
+    if (typeof callback != "undefined") {
+        callback();
+    }
+}
+
+function commentGetLink(id) {
+    reply = prompt("Please enter a link URL:");
+    if(reply && reply.length) {
+        reply = bin2hex(reply);
+        $.get('parse_url?isComment=1&binurl=' + reply, function(data) {
+            addcommenttext(data, id);
+        });
+    }
+}
+
+function addcommenttext(data, id) {
+    // get the textfield
+    var textfield = document.getElementById("comment-edit-text-" + id);
+    // check if the textfield does have the default-value
+    commentOpenUI(textfield, id);
+    // save already existent content
+    var currentText = $("#comment-edit-text-" + id).val();
+    //insert the data as new value
+    textfield.value = currentText + data;
+    autosize.update($("#comment-edit-text-" + id));
+}
+
+function commentlinkdrop(event, id) {
+    var reply = event.dataTransfer.getData("text/uri-list");
+    event.target.textContent = reply;
+    event.preventDefault();
+    if(reply && reply.length) {
+        reply = bin2hex(reply);
+        $.get('parse_url?isComment=1&binurl=' + reply, function(data) {
+            if (!editor) $("comment-edit-text-" + id).val("");
+            initComment(function(){
+                addcommenttext(data, id);
+            });
+        });
+    }
+}
+
+function commentlinkdropper(event) {
+    var linkFound = event.dataTransfer.types.contains("text/uri-list");
+    if(linkFound)
+        event.preventDefault();
+}
+
 
 function insertFormatting(BBcode, id) {
 	var tmpStr = $("#comment-edit-text-" + id).val();
