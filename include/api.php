@@ -242,7 +242,7 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	Authentication::authenticate_success($record);
+	Authentication::success($record);
 
 	$_SESSION["allow_api"] = true;
 

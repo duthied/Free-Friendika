@@ -154,7 +154,7 @@ class Login extends BaseModule
 		// if we haven't failed up this point, log them in.
 		$_SESSION['remember'] = $remember;
 		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-		Authentication::authenticate_success($record, true, true);
+		Authentication::success($record, true, true);
 
 		if (x($_SESSION, 'return_url')) {
 			$return_url = $_SESSION['return_url'];
@@ -202,7 +202,7 @@ class Login extends BaseModule
 
 					// Do the authentification if not done by now
 					if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
-						Authentication::authenticate_success($user);
+						Authentication::success($user);
 
 						if (Config::get('system', 'paranoia')) {
 							$_SESSION['addr'] = $data->ip;
@@ -255,7 +255,7 @@ class Login extends BaseModule
 					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 					$login_refresh = true;
 				}
-				Authentication::authenticate_success($user, false, false, $login_refresh);
+				Authentication::success($user, false, false, $login_refresh);
 			}
 		}
 	}

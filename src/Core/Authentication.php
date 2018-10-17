@@ -65,7 +65,7 @@ class Authentication extends BaseObject
 	 * @param type $interactive
 	 * @param type $login_refresh
 	 */
-	public static function authenticate_success($user_record, $login_initial = false, $interactive = false, $login_refresh = false)
+	public static function success($user_record, $login_initial = false, $interactive = false, $login_refresh = false)
 	{
 		$a = self::getApp();
 
