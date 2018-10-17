@@ -32,9 +32,29 @@ require_once 'include/text.php';
 class User
 {
 	/**
-	 * @brief Returns the user id of a given profile url
+	 * Returns true if a user record exists with the provided id
 	 *
-	 * @param string $profile
+	 * @param  integer $uid
+	 * @return boolean
+	 */
+	public static function exists($uid)
+	{
+		return DBA::exists('user', ['uid' => $uid]);
+	}
+
+	/**
+	 * @param  integer       $uid
+	 * @return array|boolean User record if it exists, false otherwise
+	 */
+	public static function getById($uid)
+	{
+		return DBA::selectFirst('user', [], ['uid' => $uid]);
+	}
+
+	/**
+	 * @brief Returns the user id of a given profile URL
+	 *
+	 * @param string $url
 	 *
 	 * @return integer user id
 	 */
@@ -401,7 +421,7 @@ class User
 				throw new Exception(L10n::t('An invitation is required.'));
 			}
 
-			if (!DBA::exists('register', ['hash' => $invite_id])) {
+			if (!Register::existsByHash($invite_id)) {
 				throw new Exception(L10n::t('Invitation could not be verified.'));
 			}
 		}
@@ -644,27 +664,36 @@ class User
 	}
 
 	/**
-	 * @brief Sends pending registration confiŕmation email
+	 * @brief Sends pending registration confirmation email
 	 *
-	 * @param string $email
+	 * @param array  $user     User record array
 	 * @param string $sitename
-	 * @param string $username
+	 * @param string $siteurl
+	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
 	 */
-	public static function sendRegisterPendingEmail($email, $sitename, $username)
+	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
 		$body = deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account is pending for approval by the administrator.
-		'));
 
-		$body = sprintf($body, $username, $sitename);
+			Your login details are as follows:
+
+			Site Location:	%3$s
+			Login Name:		%4$s
+			Password:		%5$s
+		',
+			$body, $user['username'], $sitename, $siteurl, $user['nickname'], $password
+		));
 
 		return notification([
-			'type' => SYSTEM_EMAIL,
-			'to_email' => $email,
-			'subject'=> L10n::t('Registration at %s', $sitename),
-			'body' => $body]);
+			'type'     => SYSTEM_EMAIL,
+			'uid'      => $user['uid'],
+			'to_email' => $user['email'],
+			'subject'  => L10n::t('Registration at %s', $sitename),
+			'body'     => $body
+		]);
 	}
 
 	/**
@@ -672,19 +701,20 @@ class User
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *
-	 * @param string $email
+	 * @param array  $user     User record array
 	 * @param string $sitename
 	 * @param string $siteurl
-	 * @param string $username
-	 * @param string $password
+	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
 	 */
-	public static function sendRegisterOpenEmail($email, $sitename, $siteurl, $username, $password, $user)
+	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
 	{
 		$preamble = deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
-		'));
+		',
+			$preamble, $user['username'], $sitename
+		));
 		$body = deindent(L10n::t('
 			The login details are as follows:
 
@@ -711,19 +741,19 @@ class User
 
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
-			Thank you and welcome to %2$s.'));
-
-		$preamble = sprintf($preamble, $username, $sitename);
-		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
+			Thank you and welcome to %2$s.',
+			$body, $user['email'], $sitename, $siteurl, $user['username'], $password
+		));
 
 		return notification([
-			'uid' => $user['uid'],
+			'uid'      => $user['uid'],
 			'language' => $user['language'],
-			'type' => SYSTEM_EMAIL,
-			'to_email' => $email,
-			'subject'=> L10n::t('Registration details for %s', $sitename),
-			'preamble'=> $preamble,
-			'body' => $body]);
+			'type'     => SYSTEM_EMAIL,
+			'to_email' => $user['email'],
+			'subject'  => L10n::t('Registration details for %s', $sitename),
+			'preamble' => $preamble,
+			'body'     => $body
+		]);
 	}
 
 	/**
@@ -760,7 +790,7 @@ class User
 		if ($uid == local_user()) {
 			unset($_SESSION['authenticated']);
 			unset($_SESSION['uid']);
-			goaway(System::baseUrl());
+			goaway();;
 		}
 	}
 }

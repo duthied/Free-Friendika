@@ -6,7 +6,7 @@
 
 
 	<div id="contact-edit-nav-wrapper" >
-		<form action="contacts/{{$contact_id}}" method="post" >
+		<form action="contact/{{$contact_id}}" method="post" >
 			<div id="contact-edit-links">
 				<div id="contact-edit-status-wrapper">
 					<span id="contact-edit-contact-status">{{$contact_status}}</span>

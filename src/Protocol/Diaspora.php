@@ -949,6 +949,7 @@ class Diaspora
 				$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 				if (!DBA::isResult($person)) {
 					$person = $r;
+					$person['id'] = 0;
 				}
 			}
 		}
@@ -3429,12 +3430,9 @@ class Diaspora
 		/// @todo - establish "all day" events in Friendica
 		$eventdata["all_day"] = "false";
 
-		if (!$event['adjust']) {
+		$eventdata['timezone'] = 'UTC';
+		if (!$event['adjust'] && $user['timezone']) {
 			$eventdata['timezone'] = $user['timezone'];
-
-			if ($eventdata['timezone'] == "") {
-				$eventdata['timezone'] = 'UTC';
-			}
 		}
 
 		if ($event['start']) {

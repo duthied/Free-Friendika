@@ -853,8 +853,8 @@ function item_photo_menu($item) {
 
 	if ($cid && !$item['self']) {
 		$poke_link = 'poke/?f=&c=' . $cid;
-		$contact_url = 'contacts/' . $cid;
-		$posts_link = 'contacts/' . $cid . '/posts';
+		$contact_url = 'contact/' . $cid;
+		$posts_link = 'contact/' . $cid . '/posts';
 
 		if (in_array($network, [Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;

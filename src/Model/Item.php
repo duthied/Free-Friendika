@@ -380,7 +380,7 @@ class Item extends BaseObject
 			$usermode = true;
 		}
 
-		$fields = self::fieldlist($selected, $usermode);
+		$fields = self::fieldlist($usermode);
 
 		$select_fields = self::constructSelectFields($fields, $selected);
 
@@ -487,7 +487,7 @@ class Item extends BaseObject
 			$usermode = true;
 		}
 
-		$fields = self::fieldlist($selected, $usermode);
+		$fields = self::fieldlist($usermode);
 
 		$fields['thread'] = ['mention', 'ignored', 'iid'];
 
@@ -523,7 +523,7 @@ class Item extends BaseObject
 	 *
 	 * @return array field list
 	 */
-	private static function fieldlist($selected, $usermode)
+	private static function fieldlist($usermode)
 	{
 		$fields = [];
 
@@ -665,11 +665,11 @@ class Item extends BaseObject
 		}
 
 		if (strpos($sql_commands, "`item-activity`.") !== false) {
-			$joins .= " LEFT JOIN `item-activity` ON `item-activity`.`id` = `item`.`iaid`";
+			$joins .= " LEFT JOIN `item-activity` ON `item-activity`.`uri-id` = `item`.`uri-id`";
 		}
 
 		if (strpos($sql_commands, "`item-content`.") !== false) {
-			$joins .= " LEFT JOIN `item-content` ON `item-content`.`id` = `item`.`icid`";
+			$joins .= " LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`";
 		}
 
 		if (strpos($sql_commands, "`item-delivery-data`.") !== false) {

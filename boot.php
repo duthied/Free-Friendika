@@ -41,7 +41,7 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
 define('FRIENDICA_VERSION',      '2018.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1287);
+define('DB_UPDATE_VERSION',      1288);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -647,7 +647,7 @@ function killme()
 /**
  * @brief Redirect to another URL and terminate this process.
  */
-function goaway($path)
+function goaway($path = '')
 {
 	if (strstr(normalise_link($path), 'http://')) {
 		$url = $path;
