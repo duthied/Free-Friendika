@@ -9,6 +9,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
+use Friendica\Util\Security;
 
 require_once 'mod/settings.php';
 
@@ -28,7 +29,7 @@ function delegate_post(App $a)
 		return;
 	}
 
-	check_form_security_token_redirectOnErr('/delegate', 'delegate');
+	Security::check_form_security_token_redirectOnErr('/delegate', 'delegate');
 
 	$parent_uid = defaults($_POST, 'parent_user', 0);
 	$parent_password = defaults($_POST, 'parent_password', '');
@@ -162,7 +163,7 @@ function delegate_content(App $a)
 	}
 
 	$o = replace_macros(get_markup_template('delegate.tpl'), [
-		'$form_security_token' => get_form_security_token('delegate'),
+		'$form_security_token' => Security::get_form_security_token('delegate'),
 		'$parent_header' => L10n::t('Parent User'),
 		'$parent_user' => $parent_user,
 		'$parent_password' => $parent_password,

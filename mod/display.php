@@ -18,6 +18,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\Security;
 
 function display_init(App $a)
 {
@@ -200,7 +201,6 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		return;
 	}
 
-	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
 	$o = '';
@@ -325,7 +325,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$o .= status_editor($a, $x, 0, true);
 	}
 
-	$sql_extra = item_permissions_sql($a->profile['uid'], $is_remote_contact, $groups);
+	$sql_extra = Security::item_permissions_sql($a->profile['uid'], $is_remote_contact, $groups);
 
 	if (local_user() && (local_user() == $a->profile['uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];

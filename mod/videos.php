@@ -14,9 +14,9 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\Security;
 
 require_once 'include/items.php';
-require_once 'include/security.php';
 
 function videos_init(App $a)
 {
@@ -302,7 +302,7 @@ function videos_content(App $a)
 		return;
 	}
 
-	$sql_extra = permissions_sql($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::permissions_sql($owner_uid, $remote_contact, $groups);
 
 	$o = "";
 

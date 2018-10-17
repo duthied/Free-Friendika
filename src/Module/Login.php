@@ -7,6 +7,7 @@ namespace Friendica\Module;
 use Exception;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
+use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
@@ -16,7 +17,6 @@ use Friendica\Util\Network;
 use LightOpenID;
 
 require_once 'boot.php';
-require_once 'include/security.php';
 require_once 'include/text.php';
 
 /**
@@ -148,13 +148,13 @@ class Login extends BaseModule
 		}
 
 		if (!$remember) {
-			new_cookie(0); // 0 means delete on browser exit
+			Authentication::new_cookie(0); // 0 means delete on browser exit
 		}
 
 		// if we haven't failed up this point, log them in.
 		$_SESSION['remember'] = $remember;
 		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-		authenticate_success($record, true, true);
+		Authentication::authenticate_success($record, true, true);
 
 		if (x($_SESSION, 'return_url')) {
 			$return_url = $_SESSION['return_url'];
@@ -188,9 +188,9 @@ class Login extends BaseModule
 					]
 				);
 				if (DBA::isResult($user)) {
-					if ($data->hash != cookie_hash($user)) {
+					if ($data->hash != Authentication::cookie_hash($user)) {
 						logger("Hash for user " . $data->uid . " doesn't fit.");
-						nuke_session();
+						Authentication::nuke_session();
 						goaway(self::getApp()->getBaseURL());
 					}
 
@@ -198,11 +198,11 @@ class Login extends BaseModule
 					// Expires after 7 days by default,
 					// can be set via system.auth_cookie_lifetime
 					$authcookiedays = Config::get('system', 'auth_cookie_lifetime', 7);
-					new_cookie($authcookiedays * 24 * 60 * 60, $user);
+					Authentication::new_cookie($authcookiedays * 24 * 60 * 60, $user);
 
 					// Do the authentification if not done by now
 					if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
-						authenticate_success($user);
+						Authentication::authenticate_success($user);
 
 						if (Config::get('system', 'paranoia')) {
 							$_SESSION['addr'] = $data->ip;
@@ -227,7 +227,7 @@ class Login extends BaseModule
 				if ($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
 					logger('Session address changed. Paranoid setting in effect, blocking session. ' .
 						$_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
-					nuke_session();
+					Authentication::nuke_session();
 					goaway(self::getApp()->getBaseURL());
 				}
 
@@ -241,7 +241,7 @@ class Login extends BaseModule
 					]
 				);
 				if (!DBA::isResult($user)) {
-					nuke_session();
+					Authentication::nuke_session();
 					goaway(self::getApp()->getBaseURL());
 				}
 
@@ -255,7 +255,7 @@ class Login extends BaseModule
 					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 					$login_refresh = true;
 				}
-				authenticate_success($user, false, false, $login_refresh);
+				Authentication::authenticate_success($user, false, false, $login_refresh);
 			}
 		}
 	}

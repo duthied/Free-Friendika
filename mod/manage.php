@@ -3,6 +3,7 @@
  * @file mod/manage.php
  */
 use Friendica\App;
+use Friendica\Core\Authentication;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -109,8 +110,7 @@ function manage_post(App $a) {
 		unset($_SESSION['sysmsg_info']);
 	}
 
-	require_once('include/security.php');
-	authenticate_success($r[0], true, true);
+	Authentication::authenticate_success($r[0], true, true);
 
 	if ($limited_id) {
 		$_SESSION['submanage'] = $original_id;

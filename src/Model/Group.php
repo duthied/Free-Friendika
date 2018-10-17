@@ -7,6 +7,7 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
+use Friendica\Util\Security;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -409,7 +410,7 @@ class Group extends BaseObject
 			'$createtext' => L10n::t('Create a new group'),
 			'$creategroup' => L10n::t('Group Name: '),
 			'$editgroupstext' => L10n::t('Edit groups'),
-			'$form_security_token' => get_form_security_token('group_edit'),
+			'$form_security_token' => Security::get_form_security_token('group_edit'),
 		]);
 
 

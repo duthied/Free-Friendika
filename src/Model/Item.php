@@ -3060,7 +3060,7 @@ class Item extends BaseObject
 			$uid = local_user();
 		}
 
-		if (!can_write_wall($uid)) {
+		if (!Security::can_write_wall($uid)) {
 			logger('like: unable to write on wall ' . $uid);
 			return false;
 		}

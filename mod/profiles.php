@@ -20,6 +20,7 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Utill\Security;
 use Friendica\Module\Login;
 
 function profiles_init(App $a) {
@@ -41,7 +42,7 @@ function profiles_init(App $a) {
 			return; // NOTREACHED
 		}
 
-		check_form_security_token_redirectOnErr('/profiles', 'profile_drop', 't');
+		Security::check_form_security_token_redirectOnErr('/profiles', 'profile_drop', 't');
 
 		// move every contact using this profile as their default to the user default
 
@@ -64,7 +65,7 @@ function profiles_init(App $a) {
 
 	if (($a->argc > 1) && ($a->argv[1] === 'new')) {
 
-		check_form_security_token_redirectOnErr('/profiles', 'profile_new', 't');
+		Security::check_form_security_token_redirectOnErr('/profiles', 'profile_new', 't');
 
 		$r0 = q("SELECT `id` FROM `profile` WHERE `uid` = %d",
 			intval(local_user()));
@@ -100,7 +101,7 @@ function profiles_init(App $a) {
 
 	if (($a->argc > 2) && ($a->argv[1] === 'clone')) {
 
-		check_form_security_token_redirectOnErr('/profiles', 'profile_clone', 't');
+		Security::check_form_security_token_redirectOnErr('/profiles', 'profile_clone', 't');
 
 		$r0 = q("SELECT `id` FROM `profile` WHERE `uid` = %d",
 			intval(local_user()));
@@ -195,7 +196,7 @@ function profiles_post(App $a) {
 			return;
 		}
 
-		check_form_security_token_redirectOnErr('/profiles', 'profile_edit');
+		Security::check_form_security_token_redirectOnErr('/profiles', 'profile_edit');
 
 		$is_default = (($orig[0]['is-default']) ? 1 : 0);
 
@@ -565,10 +566,10 @@ function profiles_content(App $a) {
 			],
 
 			'$multi_profiles'		=> Feature::isEnabled(local_user(), 'multi_profiles'),
-			'$form_security_token'		=> get_form_security_token("profile_edit"),
-			'$form_security_token_photo'	=> get_form_security_token("profile_photo"),
-			'$profile_clone_link'		=> ((Feature::isEnabled(local_user(), 'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone") : ""),
-			'$profile_drop_link'		=> 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
+			'$form_security_token'		=> Security::get_form_security_token("profile_edit"),
+			'$form_security_token_photo'	=> Security::get_form_security_token("profile_photo"),
+			'$profile_clone_link'		=> ((Feature::isEnabled(local_user(), 'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . Security::get_form_security_token("profile_clone") : ""),
+			'$profile_drop_link'		=> 'profiles/drop/' . $r[0]['id'] . '?t=' . Security::get_form_security_token("profile_drop"),
 
 			'$profile_action' => L10n::t('Profile Actions'),
 			'$banner'	=> L10n::t('Edit Profile Details'),
@@ -681,7 +682,7 @@ function profiles_content(App $a) {
 				'$header'      => L10n::t('Edit/Manage Profiles'),
 				'$chg_photo'   => L10n::t('Change profile photo'),
 				'$cr_new'      => L10n::t('Create New Profile'),
-				'$cr_new_link' => 'profiles/new?t=' . get_form_security_token("profile_new"),
+				'$cr_new_link' => 'profiles/new?t=' . Security::get_form_security_token("profile_new"),
 				'$profiles'    => $profiles
 			]);
 		}

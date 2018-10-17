@@ -15,12 +15,13 @@ use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Module\Tos;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Security;
 
 require_once 'include/enotify.php';
 
 function register_post(App $a)
 {
-	check_form_security_token_redirectOnErr('/register', 'register');
+	Security::check_form_security_token_redirectOnErr('/register', 'register');
 
 	$verified = 0;
 	$blocked  = 1;
@@ -291,7 +292,7 @@ function register_content(App $a)
 		'$showprivstatement' => Config::get('system', 'tosprivstatement'),
 		'$privstatement' => $tos->privacy_complete,
 		'$baseurl'   => System::baseurl(),
-		'$form_security_token' => get_form_security_token("register"),
+		'$form_security_token' => Security::get_form_security_token("register"),
 		'$explicit_content' => Config::get('system', 'explicit_content', false),
 		'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content')
 	]);

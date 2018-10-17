@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module;
+use Friendica\Util\Security;
 
 function group_init(App $a) {
 	if (local_user()) {
@@ -28,7 +29,7 @@ function group_post(App $a) {
 	}
 
 	if (($a->argc == 2) && ($a->argv[1] === 'new')) {
-		check_form_security_token_redirectOnErr('/group/new', 'group_edit');
+		Security::check_form_security_token_redirectOnErr('/group/new', 'group_edit');
 
 		$name = notags(trim($_POST['groupname']));
 		$r = Model\Group::create(local_user(), $name);
@@ -46,7 +47,7 @@ function group_post(App $a) {
 	}
 
 	if (($a->argc == 2) && intval($a->argv[1])) {
-		check_form_security_token_redirectOnErr('/group', 'group_edit');
+		Security::check_form_security_token_redirectOnErr('/group', 'group_edit');
 
 		$r = q("SELECT * FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($a->argv[1]),
@@ -107,7 +108,7 @@ function group_content(App $a) {
 			'$title' => L10n::t('Create a group of contacts/friends.'),
 			'$gname' => ['groupname', L10n::t('Group Name: '), '', ''],
 			'$gid' => 'new',
-			'$form_security_token' => get_form_security_token("group_edit"),
+			'$form_security_token' => Security::get_form_security_token("group_edit"),
 		]);
 
 
@@ -137,7 +138,7 @@ function group_content(App $a) {
 
 
 	if (($a->argc == 3) && ($a->argv[1] === 'drop')) {
-		check_form_security_token_redirectOnErr('/group', 'group_drop', 't');
+		Security::check_form_security_token_redirectOnErr('/group', 'group_drop', 't');
 
 		if (intval($a->argv[2])) {
 			$r = q("SELECT `name` FROM `group` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -162,7 +163,7 @@ function group_content(App $a) {
 	}
 
 	if (($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
-		check_form_security_token_ForbiddenOnErr('group_member_change', 't');
+		Security::check_form_security_token_ForbiddenOnErr('group_member_change', 't');
 
 		$r = q("SELECT `id` FROM `contact` WHERE `id` = %d AND `uid` = %d and `self` = 0 and `blocked` = 0 AND `pending` = 0 LIMIT 1",
 			intval($a->argv[2]),
@@ -216,7 +217,7 @@ function group_content(App $a) {
 		$drop_txt = replace_macros($drop_tpl, [
 			'$id' => $group['id'],
 			'$delete' => L10n::t('Delete Group'),
-			'$form_security_token' => get_form_security_token("group_drop"),
+			'$form_security_token' => Security::get_form_security_token("group_drop"),
 		]);
 
 
@@ -225,7 +226,7 @@ function group_content(App $a) {
 			'$gname' => ['groupname', L10n::t('Group Name: '), $group['name'], ''],
 			'$gid' => $group['id'],
 			'$drop' => $drop_txt,
-			'$form_security_token' => get_form_security_token('group_edit'),
+			'$form_security_token' => Security::get_form_security_token('group_edit'),
 			'$edit_name' => L10n::t('Edit Group Name'),
 			'$editable' => 1,
 		];
@@ -244,7 +245,7 @@ function group_content(App $a) {
 		'contacts' => [],
 	];
 
-	$sec_token = addslashes(get_form_security_token('group_member_change'));
+	$sec_token = addslashes(Security::get_form_security_token('group_member_change'));
 
 	// Format the data of the group members
 	foreach ($members as $member) {

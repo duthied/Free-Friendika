@@ -12,6 +12,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
+use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
@@ -46,7 +47,6 @@ use Friendica\Util\XML;
 require_once 'include/conversation.php';
 require_once 'mod/share.php';
 require_once 'mod/item.php';
-require_once 'include/security.php';
 require_once 'mod/wall_upload.php';
 
 define('API_METHOD_ANY', '*');
@@ -242,7 +242,7 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	authenticate_success($record);
+	Authentication::authenticate_success($record);
 
 	$_SESSION["allow_api"] = true;
 

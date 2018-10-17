@@ -6,9 +6,9 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
+use Friendica\Util\Security;
 
 require_once 'include/dba.php';
-require_once 'include/security.php';
 
 function attach_init(App $a)
 {
@@ -27,7 +27,7 @@ function attach_init(App $a)
 		return;
 	}
 
-	$sql_extra = permissions_sql($r['uid']);
+	$sql_extra = Security::permissions_sql($r['uid']);
 
 	// Now we'll see if we can access the attachment
 
