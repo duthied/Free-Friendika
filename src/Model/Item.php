@@ -24,6 +24,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
+use Friendica\Util\Security;
 use Text_LanguageDetect;
 
 require_once 'boot.php';
@@ -3060,7 +3061,7 @@ class Item extends BaseObject
 			$uid = local_user();
 		}
 
-		if (!Security::can_write_wall($uid)) {
+		if (!Security::canWriteToUserWall($uid)) {
 			logger('like: unable to write on wall ' . $uid);
 			return false;
 		}
