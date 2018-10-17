@@ -26,7 +26,6 @@ use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\Network;
-use Friendica\Util\Security;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';

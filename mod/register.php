@@ -16,7 +16,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Module\Tos;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Security;
 
 require_once 'include/enotify.php';
 
