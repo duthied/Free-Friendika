@@ -1015,11 +1015,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 			$profile = $contact["url"];
 			$alias   = $contact["alias"];
-			$newname = $contact["nick"];
-
-			if (($newname == "") || !in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::TWITTER, Protocol::STATUSNET])) {
-				$newname = $contact["name"];
-			}
+			$newname = defaults($contact, "name", $contact["nick"]);
 		}
 
 		//if there is an url for this persons profile
