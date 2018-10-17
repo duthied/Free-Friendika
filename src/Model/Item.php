@@ -665,11 +665,11 @@ class Item extends BaseObject
 		}
 
 		if (strpos($sql_commands, "`item-activity`.") !== false) {
-			$joins .= " LEFT JOIN `item-activity` ON `item-activity`.`id` = `item`.`iaid`";
+			$joins .= " LEFT JOIN `item-activity` ON `item-activity`.`uri-id` = `item`.`uri-id`";
 		}
 
 		if (strpos($sql_commands, "`item-content`.") !== false) {
-			$joins .= " LEFT JOIN `item-content` ON `item-content`.`id` = `item`.`icid`";
+			$joins .= " LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`";
 		}
 
 		if (strpos($sql_commands, "`item-delivery-data`.") !== false) {
