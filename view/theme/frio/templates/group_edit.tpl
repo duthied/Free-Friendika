@@ -26,7 +26,8 @@
 		<div id="group-edit-wrapper">
 
 			<form action="group/{{$gid}}" id="group-edit-form" method="post">
-
+                                <input type="hidden" name="form_security_token" value="{{$form_security_token}}">
+                                
 				<div class="pull-left">
 				{{include file="field_input.tpl" field=$gname label=false}}
 				</div>
