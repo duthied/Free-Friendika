@@ -13,7 +13,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
-require_once 'include/security.php';
 require_once 'include/conversation.php';
 require_once 'mod/dirfind.php';
 

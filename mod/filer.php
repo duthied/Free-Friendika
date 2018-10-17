@@ -6,7 +6,6 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 
-require_once 'include/security.php';
 require_once 'include/items.php';
 
 function filer_content(App $a)

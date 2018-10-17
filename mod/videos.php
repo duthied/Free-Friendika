@@ -193,7 +193,6 @@ function videos_content(App $a)
 		return;
 	}
 
-	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
 	if (empty($a->data['user'])) {

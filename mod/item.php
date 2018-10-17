@@ -43,8 +43,6 @@ function item_post(App $a) {
 		return 0;
 	}
 
-	require_once 'include/security.php';
-
 	$uid = local_user();
 
 	if (!empty($_REQUEST['dropitems'])) {
@@ -871,8 +869,6 @@ function item_content(App $a)
 	if (!local_user() && !remote_user()) {
 		return;
 	}
-
-	require_once 'include/security.php';
 
 	$o = '';
 

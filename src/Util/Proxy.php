@@ -7,8 +7,6 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\System;
 
-require_once 'include/security.php';
-
 /**
  * @brief Proxy utilities class
  */
