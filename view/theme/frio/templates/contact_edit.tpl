@@ -9,7 +9,7 @@
 
 
 		<div id="contact-edit-content-wrapper">
-			<form action="contacts/{{$contact_id}}" method="post" >
+			<form action="contact/{{$contact_id}}" method="post" >
 
 				{{* This is the Action menu where contact related actions like 'ignore', 'hide' can be performed *}}
 				<ul id="contact-edit-actions" class="nav nav-pills preferences">
