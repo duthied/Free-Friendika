@@ -620,7 +620,8 @@
 		"indexes": {
 			"PRIMARY": ["id"],
 			"uri-hash": ["UNIQUE", "uri-hash"],
-			"uri": ["uri(191)"]
+			"uri": ["uri(191)"],
+			"uri-id": ["uri-id"]
 		}
 	},
 	"item-content": {
@@ -649,7 +650,8 @@
 		"indexes": {
 			"PRIMARY": ["id"],
 			"uri-plink-hash": ["UNIQUE", "uri-plink-hash"],
-			"uri": ["uri(191)"]
+			"uri": ["uri(191)"],
+			"uri-id": ["uri-id"]
 		}
 	},
 	"item-delivery-data": {

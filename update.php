@@ -246,3 +246,12 @@ function update_1278() {
 
 	return UPDATE_SUCCESS;
 }
+
+function update_1288() {
+	// Updates missing `uri-id` values
+
+	DBA::e("UPDATE `item-activity` INNER JOIN `item` ON `item`.`iaid` = `item-activity`.`id` SET `item-activity`.`uri-id` = `item`.`uri-id` WHERE `item-activity`.`uri-id` IS NULL OR `item-activity`.`uri-id` = 0");
+	DBA::e("UPDATE `item-content` INNER JOIN `item` ON `item`.`icid` = `item-content`.`id` SET `item-content`.`uri-id` = `item`.`uri-id` WHERE `item-content`.`uri-id` IS NULL OR `item-content`.`uri-id` = 0");
+
+	return UPDATE_SUCCESS;
+}
