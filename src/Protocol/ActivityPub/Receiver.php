@@ -461,7 +461,7 @@ class Receiver
 
 		logger('Switch contact ' . $cid . ' (' . $profile['url'] . ') for user ' . $uid . ' to ActivityPub');
 
-		$photo = $profile['photo'];
+		$photo = defaults($profile, 'photo', null);
 		unset($profile['photo']);
 		unset($profile['baseurl']);
 
@@ -478,7 +478,7 @@ class Receiver
 	}
 
 	/**
-	 * 
+	 *
 	 *
 	 * @param $receivers
 	 * @param $actor
@@ -503,12 +503,12 @@ class Receiver
 	}
 
 	/**
-	 * 
+	 *
 	 *
 	 * @param $object_data
 	 * @param array $activity
 	 *
-	 * @return 
+	 * @return
 	 */
 	private static function addActivityFields($object_data, $activity)
 	{

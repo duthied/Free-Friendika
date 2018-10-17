@@ -73,6 +73,7 @@ function parse_url_content(App $a)
 				$hdrs[$k] = $v;
 			}
 		}
+		$type = null;
 		if (array_key_exists('Content-Type', $hdrs)) {
 			$type = $hdrs['Content-Type'];
 		}
