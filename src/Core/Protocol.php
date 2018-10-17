@@ -108,6 +108,13 @@ class Protocol
 			}
 		}
 
+		// Mastodon, Pleroma
+		if (preg_match('=https?://(.+?)/users/(.+)=ism', $profile_url, $matches)
+			|| preg_match('=https?://(.+?)/@(.+)=ism', $profile_url, $matches)
+		) {
+			return self::ACTIVITYPUB;
+		}
+
 		// pumpio (http://host.name/user)
 		if (preg_match('=https?://([\.\w]+)/([\.\w]+)$=ism', $profile_url, $matches)) {
 			return self::PUMPIO;
