@@ -861,13 +861,14 @@ class BBCode extends BaseObject
 	/**
 	 * This function converts a [share] block to text according to a provided callback function whose signature is:
 	 *
-	 * function(array $attributes, array $author_contact, string $content): string
+	 * function(array $attributes, array $author_contact, string $content, boolean $is_quote_share): string
 	 *
 	 * Where:
 	 * - $attributes is an array of attributes of the [share] block itself. Missing keys will be completed by the contact
 	 * data lookup
 	 * - $author_contact is a contact record array
 	 * - $content is the inner content of the [share] block
+	 * - $is_quote_share indicates whether there's any content before the [share] block
 	 * - Return value is the string that should replace the [share] block in the provided text
 	 *
 	 * This function is intended to be used by addon connector to format a share block like the target network is expecting it.
@@ -879,9 +880,9 @@ class BBCode extends BaseObject
 	public static function convertShare($text, callable $callback)
 	{
 		$return = preg_replace_callback(
-			"/\[share(.*?)\](.*?)\[\/share\]/ism",
+			"/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
 			function ($match) use ($callback) {
-				$attribute_string = $match[1];
+				$attribute_string = $match[2];
 
 				$attributes = [];
 				foreach(['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
@@ -905,7 +906,7 @@ class BBCode extends BaseObject
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
 				}
 
-				return $callback($attributes, $author_contact, $match[2]);
+				return $callback($attributes, $author_contact, $match[3], trim($match[1]) != '');
 			},
 			$text
 		);
@@ -922,27 +923,28 @@ class BBCode extends BaseObject
 	 * @param array   $attributes     [share] block attribute values
 	 * @param array   $author_contact Contact row of the shared author
 	 * @param string  $content        Inner content of the [share] block
+	 * @param boolean $is_quote_share Whether there is content before the [share] block
 	 * @param integer $simplehtml     Mysterious integer value depending on the target network/formatting style
 	 * @return string
 	 */
-	private static function convertShareCallback(array $attributes, array $author_contact, $content, $simplehtml)
+	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
 	{
 		$mention = Protocol::formatMention($attributes['profile'], $attributes['author']);
 
 		switch ($simplehtml) {
 			case 1:
-				$text = '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' <a href="' . $attributes['profile'] . '">' . $mention . '</a>: </p>' . "\n" . '«' . $content . '»';
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' <a href="' . $attributes['profile'] . '">' . $mention . '</a>: </p>' . "\n" . '«' . $content . '»';
 				break;
 			case 2:
-				$text = '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 3: // Diaspora
 				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . $mention . ':</b></p>' . "\n";
 
 				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0) {
-					$text = '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
+					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
-					$text = $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
+					$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
 
 					if ($attributes['link'] != '') {
 						$text .= '<p><a href="' . $attributes['link'] . '">[l]</a></p>' . "\n";
@@ -955,17 +957,17 @@ class BBCode extends BaseObject
 				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $attributes['link'], $mention, $attributes['posted']);
 				$headline .= ':</b></p>' . "\n";
 
-				$text = $headline . '<blockquote class="shared_content">' . trim($content) . '</blockquote>' . "\n";
+				$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote class="shared_content">' . trim($content) . '</blockquote>' . "\n";
 
 				break;
 			case 5:
-				$text = '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 7: // statusnet/GNU Social
-				$text = '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
 				break;
 			case 9: // Google+
-				$text = '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n";
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n";
 				$text .= '<p>' . $content . '</p>' . "\n";
 
 				if ($attributes['link'] != '') {
@@ -976,13 +978,15 @@ class BBCode extends BaseObject
 				// Transforms quoted tweets in rich attachments to avoid nested tweets
 				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
 					try {
-						$text = OEmbed::getHTML($attributes['link']);
+						$text = ($is_quote_share? '<br />' : '') . OEmbed::getHTML($attributes['link']);
 					} catch (Exception $e) {
-						$text = sprintf('[bookmark=%s]%s[/bookmark]', $attributes['link'], $content);
+						$text = ($is_quote_share? '<br />' : '') . sprintf('[bookmark=%s]%s[/bookmark]', $attributes['link'], $content);
 					}
 				} else {
+					$text = ($is_quote_share? "\n" : '');
+
 					$tpl = get_markup_template('shared_content.tpl');
-					$text = replace_macros($tpl, [
+					$text .= replace_macros($tpl, [
 						'$profile' => $attributes['profile'],
 						'$avatar'  => $attributes['avatar'],
 						'$author'  => $attributes['author'],
@@ -1572,8 +1576,8 @@ class BBCode extends BaseObject
 		// Shared content
 		$text = self::convertShare(
 			$text,
-			function (array $attributes, array $author_contact, string $content) use ($simple_html) {
-				return self::convertShareCallback($attributes, $author_contact, $content, $simple_html);
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
 			}
 		);
 
