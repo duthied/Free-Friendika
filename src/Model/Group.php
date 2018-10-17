@@ -4,6 +4,7 @@
  */
 namespace Friendica\Model;
 
+use Friendica\BaseModule;
 use Friendica\BaseObject;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
@@ -410,7 +411,7 @@ class Group extends BaseObject
 			'$createtext' => L10n::t('Create a new group'),
 			'$creategroup' => L10n::t('Group Name: '),
 			'$editgroupstext' => L10n::t('Edit groups'),
-			'$form_security_token' => Security::get_form_security_token('group_edit'),
+			'$form_security_token' => BaseModule::getFormSecurityToken('group_edit'),
 		]);
 
 

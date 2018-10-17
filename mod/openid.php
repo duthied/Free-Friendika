@@ -51,7 +51,7 @@ function openid_content(App $a) {
 
 				unset($_SESSION['openid']);
 
-				Authentication::success($r[0],true,true);
+				Authentication::setAuthenticatedSessionForUser($r[0],true,true);
 
 				// just in case there was no return url set
 				// and we fell through

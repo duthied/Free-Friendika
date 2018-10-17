@@ -1052,7 +1052,7 @@ function photos_content(App $a)
 		return;
 	}
 
-	$sql_extra = Security::permissions_sql($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
 
 	$o = "";
 
@@ -1472,7 +1472,7 @@ function photos_content(App $a)
 			$tpl = get_markup_template('photo_item.tpl');
 			$return_url = $a->cmd;
 
-			if ($can_post || Security::can_write_wall($owner_uid)) {
+			if ($can_post || Security::canWriteToUserWall($owner_uid)) {
 				$like_tpl = get_markup_template('like_noshare.tpl');
 				$likebuttons = replace_macros($like_tpl, [
 					'$id' => $link_item['id'],
@@ -1484,7 +1484,7 @@ function photos_content(App $a)
 			}
 
 			if (!DBA::isResult($items)) {
-				if (($can_post || Security::can_write_wall($owner_uid))) {
+				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1523,7 +1523,7 @@ function photos_content(App $a)
 					$dislike = format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike', $link_item['id']);
 				}
 
-				if (($can_post || Security::can_write_wall($owner_uid))) {
+				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1583,7 +1583,7 @@ function photos_content(App $a)
 						'$comment' => $comment
 					]);
 
-					if (($can_post || Security::can_write_wall($owner_uid))) {
+					if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 						$comments .= replace_macros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_url,

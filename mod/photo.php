@@ -110,7 +110,7 @@ function photo_init(App $a)
 			intval($resolution)
 		);
 		if (DBA::isResult($r)) {
-			$sql_extra = Security::permissions_sql($r[0]['uid']);
+			$sql_extra = Security::getPermissionsSQLByUserId($r[0]['uid']);
 
 			// Now we'll see if we can access the photo
 			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `scale` <= %d $sql_extra ORDER BY scale DESC LIMIT 1",

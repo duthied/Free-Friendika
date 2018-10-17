@@ -17,6 +17,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
@@ -142,7 +143,7 @@ function cal_content(App $a)
 	}
 
 	// get the permissions
-	$sql_perms = Security::item_permissions_sql($owner_uid, $remote_contact, $groups);
+	$sql_perms = Item::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
 	// we only want to have the events of the profile owner
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 

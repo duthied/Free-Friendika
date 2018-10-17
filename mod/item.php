@@ -161,7 +161,7 @@ function item_post(App $a) {
 	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 
 	// Now check that valid personal details have been provided
-	if (!Security::can_write_wall($profile_uid) && !$allow_comment) {
+	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
 		notice(L10n::t('Permission denied.') . EOL) ;
 
 		if (!empty($_REQUEST['return'])) {

@@ -325,7 +325,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$o .= status_editor($a, $x, 0, true);
 	}
 
-	$sql_extra = Security::item_permissions_sql($a->profile['uid'], $is_remote_contact, $groups);
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid'], $is_remote_contact, $groups);
 
 	if (local_user() && (local_user() == $a->profile['uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];

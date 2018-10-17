@@ -25,7 +25,7 @@ class Authentication extends BaseObject
 	 *
 	 * @return string Hashed data
 	 */
-	public static function cookie_hash($user)
+	public static function getCookieHashForUser($user)
 	{
 		return(hash("sha256", Config::get("system", "site_prvkey") .
 				$user["prvkey"] .
@@ -38,7 +38,7 @@ class Authentication extends BaseObject
 	 * @param int $time
 	 * @param array $user Record from "user" table
 	 */
-	public static  function new_cookie($time, $user = [])
+	public static  function setCookie($time, $user = [])
 	{
 		if ($time != 0) {
 			$time = $time + time();
@@ -46,7 +46,7 @@ class Authentication extends BaseObject
 
 		if ($user) {
 			$value = json_encode(["uid" => $user["uid"],
-				"hash" => self::cookie_hash($user),
+				"hash" => self::getCookieHashForUser($user),
 				"ip" => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0')]);
 		} else {
 			$value = "";
@@ -65,7 +65,7 @@ class Authentication extends BaseObject
 	 * @param type $interactive
 	 * @param type $login_refresh
 	 */
-	public static function success($user_record, $login_initial = false, $interactive = false, $login_refresh = false)
+	public static function setAuthenticatedSessionForUser($user_record, $login_initial = false, $interactive = false, $login_refresh = false)
 	{
 		$a = self::getApp();
 
@@ -185,7 +185,7 @@ class Authentication extends BaseObject
 			 */
 			if (!empty($_SESSION['remember'])) {
 				logger('Injecting cookie for remembered user ' . $a->user['nickname']);
-				self::new_cookie(604800, $user_record);
+				self::setCookie(604800, $user_record);
 				unset($_SESSION['remember']);
 			}
 		}
@@ -202,12 +202,11 @@ class Authentication extends BaseObject
 	/**
 	 * @brief Kills the "Friendica" cookie and all session data
 	 */
-	public static function nuke_session()
+	public static function deleteSession()
 	{
-		self::new_cookie(-3600); // make sure cookie is deleted on browser close, as a security measure
+		self::setCookie(-3600); // make sure cookie is deleted on browser close, as a security measure
 		session_unset();
 		session_destroy();
 	}
 }
 
-?>

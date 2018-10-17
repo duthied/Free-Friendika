@@ -62,11 +62,11 @@ class Thread extends BaseObject
 				break;
 			case 'profile':
 				$this->profile_owner = $a->profile['profile_uid'];
-				$this->writable = Security::can_write_wall($this->profile_owner);
+				$this->writable = Security::canWriteToUserWall($this->profile_owner);
 				break;
 			case 'display':
 				$this->profile_owner = $a->profile['uid'];
-				$this->writable = Security::can_write_wall($this->profile_owner) || $writable;
+				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
 				break;
 			case 'community':
 				$this->profile_owner = 0;

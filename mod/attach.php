@@ -27,7 +27,7 @@ function attach_init(App $a)
 		return;
 	}
 
-	$sql_extra = Security::permissions_sql($r['uid']);
+	$sql_extra = Security::getPermissionsSQLByUserId($r['uid']);
 
 	// Now we'll see if we can access the attachment
 

@@ -110,7 +110,7 @@ function manage_post(App $a) {
 		unset($_SESSION['sysmsg_info']);
 	}
 
-	Authentication::success($r[0], true, true);
+	Authentication::setAuthenticatedSessionForUser($r[0], true, true);
 
 	if ($limited_id) {
 		$_SESSION['submanage'] = $original_id;

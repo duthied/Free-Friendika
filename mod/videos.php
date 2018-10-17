@@ -301,7 +301,7 @@ function videos_content(App $a)
 		return;
 	}
 
-	$sql_extra = Security::permissions_sql($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
 
 	$o = "";
 

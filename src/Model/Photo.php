@@ -227,7 +227,7 @@ class Photo
 	 */
 	public static function getAlbums($uid, $update = false)
 	{
-		$sql_extra = Security::permissions_sql($uid);
+		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		$albums = Cache::get($key);

@@ -148,13 +148,13 @@ class Login extends BaseModule
 		}
 
 		if (!$remember) {
-			Authentication::new_cookie(0); // 0 means delete on browser exit
+			Authentication::setCookie(0); // 0 means delete on browser exit
 		}
 
 		// if we haven't failed up this point, log them in.
 		$_SESSION['remember'] = $remember;
 		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-		Authentication::success($record, true, true);
+		Authentication::setAuthenticatedSessionForUser($record, true, true);
 
 		if (x($_SESSION, 'return_url')) {
 			$return_url = $_SESSION['return_url'];
@@ -188,9 +188,9 @@ class Login extends BaseModule
 					]
 				);
 				if (DBA::isResult($user)) {
-					if ($data->hash != Authentication::cookie_hash($user)) {
+					if ($data->hash != Authentication::getCookieHashForUser($user)) {
 						logger("Hash for user " . $data->uid . " doesn't fit.");
-						Authentication::nuke_session();
+						Authentication::deleteSession();
 						goaway(self::getApp()->getBaseURL());
 					}
 
@@ -198,11 +198,11 @@ class Login extends BaseModule
 					// Expires after 7 days by default,
 					// can be set via system.auth_cookie_lifetime
 					$authcookiedays = Config::get('system', 'auth_cookie_lifetime', 7);
-					Authentication::new_cookie($authcookiedays * 24 * 60 * 60, $user);
+					Authentication::setCookie($authcookiedays * 24 * 60 * 60, $user);
 
 					// Do the authentification if not done by now
 					if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
-						Authentication::success($user);
+						Authentication::setAuthenticatedSessionForUser($user);
 
 						if (Config::get('system', 'paranoia')) {
 							$_SESSION['addr'] = $data->ip;
@@ -227,7 +227,7 @@ class Login extends BaseModule
 				if ($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
 					logger('Session address changed. Paranoid setting in effect, blocking session. ' .
 						$_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
-					Authentication::nuke_session();
+					Authentication::deleteSession();
 					goaway(self::getApp()->getBaseURL());
 				}
 
@@ -241,7 +241,7 @@ class Login extends BaseModule
 					]
 				);
 				if (!DBA::isResult($user)) {
-					Authentication::nuke_session();
+					Authentication::deleteSession();
 					goaway(self::getApp()->getBaseURL());
 				}
 
@@ -255,7 +255,7 @@ class Login extends BaseModule
 					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 					$login_refresh = true;
 				}
-				Authentication::success($user, false, false, $login_refresh);
+				Authentication::setAuthenticatedSessionForUser($user, false, false, $login_refresh);
 			}
 		}
 	}
