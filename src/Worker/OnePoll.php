@@ -148,6 +148,10 @@ class OnePoll
 			}
 		}
 
+		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
+			return;
+		}
+
 		if ($importer_uid == 0) {
 			logger('Ignore public contacts');
 
@@ -345,7 +349,7 @@ class OnePoll
 		} elseif ($contact['network'] === Protocol::MAIL) {
 			logger("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
 
-			$mail_disabled = ((function_exists('imap_open') && (! Config::get('system', 'imap_disabled'))) ? 0 : 1);
+			$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
 			if ($mail_disabled) {
 				// set the last-update so we don't keep polling
 				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
@@ -541,7 +545,7 @@ class OnePoll
 							if ($datarray['parent-uri'] === $datarray['uri']) {
 								$datarray['private'] = 1;
 							}
-							if (($contact['network'] === Protocol::MAIL) && (!PConfig::get($importer_uid, 'system', 'allow_public_email_replies'))) {
+							if (($contact['network'] === Protocol::MAIL) && !PConfig::get($importer_uid, 'system', 'allow_public_email_replies')) {
 								$datarray['private'] = 1;
 								$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 							}
