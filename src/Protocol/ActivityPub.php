@@ -63,7 +63,13 @@ class ActivityPub
 			return false;
 		}
 
-		return json_decode($curlResult->getBody(), true);
+		$content = json_decode($curlResult->getBody(), true);
+
+		if (empty($content) || !is_array($content)) {
+			return false;
+		}
+
+		return $content;
 	}
 
 	/**
