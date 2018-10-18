@@ -1138,7 +1138,7 @@ class Contact extends BaseObject
 			}
 		}
 
-		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url)) {
+		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url) && !$no_update) {
 			$contact_id = self::getIdForURL($data["alias"], $uid, true);
 		}
 
