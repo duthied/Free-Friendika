@@ -140,6 +140,10 @@ disable_url_validation = false
 ; Disable the exposition check against the remote haveibeenpwned API on password change.
 disable_password_exposed = false
 
+; disable_polling (Boolean)
+; Disable the polling of DFRN and OStatus contacts through onepoll.php.
+disable_polling = false
+
 ; dlogfile (Path)
 ; location of the developer log file.
 dlogfile =

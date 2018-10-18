@@ -859,187 +859,140 @@ class BBCode extends BaseObject
 	}
 
 	/**
-	 * Processes [share] tags
+	 * This function converts a [share] block to text according to a provided callback function whose signature is:
+	 *
+	 * function(array $attributes, array $author_contact, string $content, boolean $is_quote_share): string
+	 *
+	 * Where:
+	 * - $attributes is an array of attributes of the [share] block itself. Missing keys will be completed by the contact
+	 * data lookup
+	 * - $author_contact is a contact record array
+	 * - $content is the inner content of the [share] block
+	 * - $is_quote_share indicates whether there's any content before the [share] block
+	 * - Return value is the string that should replace the [share] block in the provided text
+	 *
+	 * This function is intended to be used by addon connector to format a share block like the target network is expecting it.
+	 *
+	 * @param  string   $text     A BBCode string
+	 * @param  callable $callback
+	 * @return string The BBCode string with all [share] blocks replaced
+	 */
+	public static function convertShare($text, callable $callback)
+	{
+		$return = preg_replace_callback(
+			"/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
+			function ($match) use ($callback) {
+				$attribute_string = $match[2];
+
+				$attributes = [];
+				foreach(['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
+					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
+					$attributes[$field] = html_entity_decode(defaults($matches, 2, ''), ENT_QUOTES, 'UTF-8');
+				}
+
+				// We only call this so that a previously unknown contact can be added.
+				// This is important for the function "Model\Contact::getDetailsByURL()".
+				// This function then can fetch an entry from the contact table.
+				Contact::getIdForURL($attributes['profile'], 0, true);
+
+				$author_contact = Contact::getDetailsByURL($attributes['profile']);
+				$author_contact['addr'] = defaults($author_contact, 'addr' , Protocol::getAddrFromProfileUrl($attributes['profile']));
+
+				$attributes['author']   = defaults($author_contact, 'name' , $attributes['author']);
+				$attributes['avatar']   = defaults($author_contact, 'micro', $attributes['avatar']);
+				$attributes['profile']  = defaults($author_contact, 'url'  , $attributes['profile']);
+
+				if ($attributes['avatar']) {
+					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
+				}
+
+				return $callback($attributes, $author_contact, $match[3], trim($match[1]) != '');
+			},
+			$text
+		);
+
+		return $return;
+	}
+
+	/**
+	 * Default [share] tag conversion callback
 	 *
 	 * Note: Can produce a [bookmark] tag in the output
 	 *
-	 * @brief Processes [share] tags
-	 * @param array    $share      preg_match_callback result array
-	 * @param bool|int $simplehtml
+	 * @see BBCode::convertShare()
+	 * @param array   $attributes     [share] block attribute values
+	 * @param array   $author_contact Contact row of the shared author
+	 * @param string  $content        Inner content of the [share] block
+	 * @param boolean $is_quote_share Whether there is content before the [share] block
+	 * @param integer $simplehtml     Mysterious integer value depending on the target network/formatting style
 	 * @return string
 	 */
-	private static function convertShare($share, $simplehtml)
+	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
 	{
-		$attributes = $share[2];
-
-		$author = "";
-		preg_match("/author='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$author = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
-		}
-
-		preg_match('/author="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$author = $matches[1];
-		}
-
-		$profile = "";
-		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$profile = $matches[1];
-		}
-
-		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$profile = $matches[1];
-		}
-
-		$avatar = "";
-		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$avatar = $matches[1];
-		}
-
-		preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$avatar = $matches[1];
-		}
-
-		$link = "";
-		preg_match("/link='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$link = $matches[1];
-		}
-
-		preg_match('/link="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$link = $matches[1];
-		}
-
-		$posted = "";
-
-		preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$posted = $matches[1];
-		}
-
-		preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$posted = $matches[1];
-		}
-
-		// We only call this so that a previously unknown contact can be added.
-		// This is important for the function "Model\Contact::getDetailsByURL()".
-		// This function then can fetch an entry from the contact table.
-		Contact::getIdForURL($profile, 0, true);
-
-		$data = Contact::getDetailsByURL($profile);
-
-		if (x($data, "name") && x($data, "addr")) {
-			$userid_compact = $data["name"] . " (" . $data["addr"] . ")";
-		} else {
-			$userid_compact = Protocol::getAddrFromProfileUrl($profile, $author);
-		}
-
-		if (x($data, "addr")) {
-			$userid = $data["addr"];
-		} else {
-			$userid = Protocol::formatMention($profile, $author);
-		}
-
-		if (x($data, "name")) {
-			$author = $data["name"];
-		}
-
-		if (x($data, "micro")) {
-			$avatar = $data["micro"];
-		}
-
-		$preshare = trim($share[1]);
-		if ($preshare != "") {
-			$preshare .= "<br />";
-		}
+		$mention = Protocol::formatMention($attributes['profile'], $attributes['author']);
 
 		switch ($simplehtml) {
 			case 1:
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' <a href="' . $profile . '">' . $userid . "</a>: <br />»" . $share[3] . "«";
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' <a href="' . $attributes['profile'] . '">' . $mention . '</a>: </p>' . "\n" . '«' . $content . '»';
 				break;
 			case 2:
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 3: // Diaspora
-				$headline = '<b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . $userid . ':</b><br />';
+				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . $mention . ':</b></p>' . "\n";
 
-				$text = trim($share[1]);
-
-				if ($text != "") {
-					$text .= "<hr />";
-				}
-
-				if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
-					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
+				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0) {
+					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
-					$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
+					$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
 
-					if ($link != "") {
-						$text .= '<br /><a href="' . $link . '">[l]</a>';
+					if ($attributes['link'] != '') {
+						$text .= '<p><a href="' . $attributes['link'] . '">[l]</a></p>' . "\n";
 					}
 				}
 
 				break;
 			case 4:
-				$headline = '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $link, $userid, $posted);
-				$headline .= ":</b><br />";
+				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8');
+				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $attributes['link'], $mention, $attributes['posted']);
+				$headline .= ':</b></p>' . "\n";
 
-				$text = trim($share[1]);
-
-				if ($text != "") {
-					$text .= "<hr />";
-				}
-
-				$text .= $headline . '<blockquote class="shared_content">' . trim($share[3]) . "</blockquote><br />";
+				$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote class="shared_content">' . trim($content) . '</blockquote>' . "\n";
 
 				break;
 			case 5:
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 7: // statusnet/GNU Social
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . " @" . $userid_compact . ": " . $share[3];
-				break;
-			case 8: // twitter
-				$text = $preshare . "RT @" . $userid_compact . ": " . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
 				break;
 			case 9: // Google+
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n";
+				$text .= '<p>' . $content . '</p>' . "\n";
 
-				if ($link != "") {
-					$text .= "<br /><br />" . $link;
+				if ($attributes['link'] != '') {
+					$text .= '<p>' . $attributes['link'] . '</p>';
 				}
 				break;
 			default:
 				// Transforms quoted tweets in rich attachments to avoid nested tweets
-				if (stripos(normalise_link($link), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($link)) {
+				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
 					try {
-						$oembed = OEmbed::getHTML($link, $preshare);
+						$text = ($is_quote_share? '<br />' : '') . OEmbed::getHTML($attributes['link']);
 					} catch (Exception $e) {
-						$oembed = sprintf('[bookmark=%s]%s[/bookmark]', $link, $preshare);
+						$text = ($is_quote_share? '<br />' : '') . sprintf('[bookmark=%s]%s[/bookmark]', $attributes['link'], $content);
 					}
-
-					$text = $preshare . $oembed;
 				} else {
-					$text = trim($share[1]) . "\n";
-
-					$avatar = ProxyUtils::proxifyUrl($avatar, false, ProxyUtils::SIZE_THUMB);
+					$text = ($is_quote_share? "\n" : '');
 
 					$tpl = get_markup_template('shared_content.tpl');
 					$text .= replace_macros($tpl, [
-						'$profile' => $profile,
-						'$avatar' => $avatar,
-						'$author' => $author,
-						'$link' => $link,
-						'$posted' => $posted,
-						'$content' => trim($share[3])
+						'$profile' => $attributes['profile'],
+						'$avatar'  => $attributes['avatar'],
+						'$author'  => $attributes['author'],
+						'$link'    => $attributes['link'],
+						'$posted'  => $attributes['posted'],
+						'$content' => trim($content)
 					]);
 				}
 				break;
@@ -1621,10 +1574,12 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 
 		// Shared content
-		$text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
-			function ($match) use ($simple_html) {
-				return self::convertShare($match, $simple_html);
-			}, $text);
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
 
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
 		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);

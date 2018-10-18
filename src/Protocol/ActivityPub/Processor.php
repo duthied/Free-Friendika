@@ -272,7 +272,7 @@ class Processor
 		$activity['cc'] = defaults($object, 'cc', []);
 		$activity['actor'] = $child['author'];
 		$activity['object'] = $object;
-		$activity['published'] = $object['published'];
+		$activity['published'] = defaults($object, 'published', $child['published']);
 		$activity['type'] = 'Create';
 
 		$ldactivity = JsonLD::compact($activity);
