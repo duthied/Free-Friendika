@@ -1021,10 +1021,11 @@ class Contact extends BaseObject
 	 * @param integer $uid       The user id for the contact (0 = public contact)
 	 * @param boolean $no_update Don't update the contact
 	 * @param array   $default   Default value for creating the contact when every else fails
+	 * @param boolean $in_loop   Internally used variable to prevent an endless loop
 	 *
 	 * @return integer Contact ID
 	 */
-	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [])
+	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [], $in_loop = false)
 	{
 		logger("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), LOGGER_DEBUG);
 
@@ -1138,8 +1139,8 @@ class Contact extends BaseObject
 			}
 		}
 
-		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url)) {
-			$contact_id = self::getIdForURL($data["alias"], $uid, true);
+		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url) && !$in_loop) {
+			$contact_id = self::getIdForURL($data["alias"], $uid, true, $default, true);
 		}
 
 		$url = $data["url"];
