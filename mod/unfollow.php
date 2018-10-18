@@ -59,7 +59,7 @@ function unfollow_post()
 		$return_path = 'contacts';
 	} else {
 		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
-		$return_path = 'contacts/' . $contact['id'];
+		$return_path = 'contact/' . $contact['id'];
 	}
 
 	info(L10n::t('Contact unfollowed'));
@@ -94,7 +94,7 @@ function unfollow_content(App $a)
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		goaway('contacts/' . $contact['id']);
+		goaway('contact/' . $contact['id']);
 		// NOTREACHED
 	}
 
