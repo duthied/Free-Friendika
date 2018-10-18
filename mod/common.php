@@ -48,9 +48,9 @@ function common_content(App $a)
 
 		if (DBA::isResult($contact)) {
 			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), [
-				'$name' => htmlentities($contact['name']),
+				'$name'  => htmlentities($contact['name']),
 				'$photo' => $contact['photo'],
-				'url' => 'contacts/' . $cid
+				'url'    => 'contact/' . $cid
 			]);
 
 			if (!x($a->page, 'aside')) {
