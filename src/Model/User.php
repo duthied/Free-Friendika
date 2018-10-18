@@ -684,7 +684,7 @@ class User
 			Login Name:		%4$s
 			Password:		%5$s
 		',
-			$body, $user['username'], $sitename, $siteurl, $user['nickname'], $password
+			$user['username'], $sitename, $siteurl, $user['nickname'], $password
 		));
 
 		return notification([
@@ -742,7 +742,7 @@ class User
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
 			Thank you and welcome to %2$s.',
-			$body, $user['email'], $sitename, $siteurl, $user['username'], $password
+			$user['email'], $sitename, $siteurl, $user['username'], $password
 		));
 
 		return notification([
