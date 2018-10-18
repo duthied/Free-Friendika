@@ -355,7 +355,7 @@ class Transmitter
 
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
-				if (empty($contacts[$contact['url']])) {
+				if (DBA::isResult($contact) && empty($contacts[$contact['url']])) {
 					$data['cc'][] = $contact['url'];
 					$contacts[$contact['url']] = $contact['url'];
 				}
