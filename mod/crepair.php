@@ -114,7 +114,7 @@ function crepair_content(App $a)
 	$warning = L10n::t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
 	$info = L10n::t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
 
-	$returnaddr = "contacts/$cid";
+	$returnaddr = "contact/$cid";
 
 	$allow_remote_self = Config::get('system', 'allow_users_remote_self');
 

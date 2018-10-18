@@ -39,7 +39,7 @@ function follow_post(App $a)
 		}
 		goaway($return_url);
 	} elseif ($result['cid']) {
-		goaway('contacts/' . $result['cid']);
+		goaway('contact/' . $result['cid']);
 	}
 
 	info(L10n::t('The contact could not be added.'));
