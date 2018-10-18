@@ -906,7 +906,7 @@ class BBCode extends BaseObject
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
 				}
 
-				return $callback($attributes, $author_contact, $match[3], trim($match[1]) != '');
+				return $match[1] . $callback($attributes, $author_contact, $match[3], trim($match[1]) != '');
 			},
 			$text
 		);
