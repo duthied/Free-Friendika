@@ -25,7 +25,6 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
-use League\HTMLToMarkdown\HtmlConverter;
 
 class BBCode extends BaseObject
 {
@@ -348,7 +347,7 @@ class BBCode extends BaseObject
 	 */
 	public static function toPlaintext($text, $keep_urls = true)
 	{
-		$naked_text = preg_replace('/\[(.+?)\]/','', $text);
+		$naked_text = preg_replace('/\[(.+?)\]\s*/','', $text);
 		if (!$keep_urls) {
 			$naked_text = preg_replace('#https?\://[^\s<]+[^\s\.\)]#i', '', $naked_text);
 		}
@@ -572,16 +571,17 @@ class BBCode extends BaseObject
 					$return = sprintf('<div class="type-%s">', $data["type"]);
 				}
 
-				if (!empty($data["image"])) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
-				} elseif (!empty($data["preview"])) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
-				}
-
-				if (($data["type"] == "photo") && !empty($data["url"]) && !empty($data["image"])) {
-					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
-				} else {
-					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
+				if (!empty($data['title']) && !empty($data['url'])) {
+					if (!empty($data["image"]) && empty($data["text"]) && ($data["type"] == "photo")) {
+						$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
+					} else {
+						if (!empty($data["image"])) {
+							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
+						} elseif (!empty($data["preview"])) {
+							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
+						}
+						$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
+					}
 				}
 
 				if (!empty($data["description"]) && $data["description"] != $data["title"]) {
@@ -589,7 +589,8 @@ class BBCode extends BaseObject
 					$bbcode = HTML::toBBCode($data["description"]);
 					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
 				}
-				if ($data["type"] == "link") {
+
+				if (!empty($data['url'])) {
 					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 				}
 
@@ -858,187 +859,140 @@ class BBCode extends BaseObject
 	}
 
 	/**
-	 * Processes [share] tags
+	 * This function converts a [share] block to text according to a provided callback function whose signature is:
+	 *
+	 * function(array $attributes, array $author_contact, string $content, boolean $is_quote_share): string
+	 *
+	 * Where:
+	 * - $attributes is an array of attributes of the [share] block itself. Missing keys will be completed by the contact
+	 * data lookup
+	 * - $author_contact is a contact record array
+	 * - $content is the inner content of the [share] block
+	 * - $is_quote_share indicates whether there's any content before the [share] block
+	 * - Return value is the string that should replace the [share] block in the provided text
+	 *
+	 * This function is intended to be used by addon connector to format a share block like the target network is expecting it.
+	 *
+	 * @param  string   $text     A BBCode string
+	 * @param  callable $callback
+	 * @return string The BBCode string with all [share] blocks replaced
+	 */
+	public static function convertShare($text, callable $callback)
+	{
+		$return = preg_replace_callback(
+			"/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
+			function ($match) use ($callback) {
+				$attribute_string = $match[2];
+
+				$attributes = [];
+				foreach(['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
+					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
+					$attributes[$field] = html_entity_decode(defaults($matches, 2, ''), ENT_QUOTES, 'UTF-8');
+				}
+
+				// We only call this so that a previously unknown contact can be added.
+				// This is important for the function "Model\Contact::getDetailsByURL()".
+				// This function then can fetch an entry from the contact table.
+				Contact::getIdForURL($attributes['profile'], 0, true);
+
+				$author_contact = Contact::getDetailsByURL($attributes['profile']);
+				$author_contact['addr'] = defaults($author_contact, 'addr' , Protocol::getAddrFromProfileUrl($attributes['profile']));
+
+				$attributes['author']   = defaults($author_contact, 'name' , $attributes['author']);
+				$attributes['avatar']   = defaults($author_contact, 'micro', $attributes['avatar']);
+				$attributes['profile']  = defaults($author_contact, 'url'  , $attributes['profile']);
+
+				if ($attributes['avatar']) {
+					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
+				}
+
+				return $match[1] . $callback($attributes, $author_contact, $match[3], trim($match[1]) != '');
+			},
+			$text
+		);
+
+		return $return;
+	}
+
+	/**
+	 * Default [share] tag conversion callback
 	 *
 	 * Note: Can produce a [bookmark] tag in the output
 	 *
-	 * @brief Processes [share] tags
-	 * @param array    $share      preg_match_callback result array
-	 * @param bool|int $simplehtml
+	 * @see BBCode::convertShare()
+	 * @param array   $attributes     [share] block attribute values
+	 * @param array   $author_contact Contact row of the shared author
+	 * @param string  $content        Inner content of the [share] block
+	 * @param boolean $is_quote_share Whether there is content before the [share] block
+	 * @param integer $simplehtml     Mysterious integer value depending on the target network/formatting style
 	 * @return string
 	 */
-	private static function convertShare($share, $simplehtml)
+	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
 	{
-		$attributes = $share[2];
-
-		$author = "";
-		preg_match("/author='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$author = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
-		}
-
-		preg_match('/author="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$author = $matches[1];
-		}
-
-		$profile = "";
-		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$profile = $matches[1];
-		}
-
-		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$profile = $matches[1];
-		}
-
-		$avatar = "";
-		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$avatar = $matches[1];
-		}
-
-		preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$avatar = $matches[1];
-		}
-
-		$link = "";
-		preg_match("/link='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$link = $matches[1];
-		}
-
-		preg_match('/link="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$link = $matches[1];
-		}
-
-		$posted = "";
-
-		preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
-			$posted = $matches[1];
-		}
-
-		preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
-			$posted = $matches[1];
-		}
-
-		// We only call this so that a previously unknown contact can be added.
-		// This is important for the function "Model\Contact::getDetailsByURL()".
-		// This function then can fetch an entry from the contact table.
-		Contact::getIdForURL($profile, 0, true);
-
-		$data = Contact::getDetailsByURL($profile);
-
-		if (x($data, "name") && x($data, "addr")) {
-			$userid_compact = $data["name"] . " (" . $data["addr"] . ")";
-		} else {
-			$userid_compact = Protocol::getAddrFromProfileUrl($profile, $author);
-		}
-
-		if (x($data, "addr")) {
-			$userid = $data["addr"];
-		} else {
-			$userid = Protocol::formatMention($profile, $author);
-		}
-
-		if (x($data, "name")) {
-			$author = $data["name"];
-		}
-
-		if (x($data, "micro")) {
-			$avatar = $data["micro"];
-		}
-
-		$preshare = trim($share[1]);
-		if ($preshare != "") {
-			$preshare .= "<br />";
-		}
+		$mention = Protocol::formatMention($attributes['profile'], $attributes['author']);
 
 		switch ($simplehtml) {
 			case 1:
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' <a href="' . $profile . '">' . $userid . "</a>: <br />»" . $share[3] . "«";
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' <a href="' . $attributes['profile'] . '">' . $mention . '</a>: </p>' . "\n" . '«' . $content . '»';
 				break;
 			case 2:
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 3: // Diaspora
-				$headline = '<b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . $userid . ':</b><br />';
+				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . $mention . ':</b></p>' . "\n";
 
-				$text = trim($share[1]);
-
-				if ($text != "") {
-					$text .= "<hr />";
-				}
-
-				if (stripos(normalise_link($link), 'http://twitter.com/') === 0) {
-					$text .= '<br /><a href="' . $link . '">' . $link . '</a>';
+				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0) {
+					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
-					$text .= $headline . '<blockquote>' . trim($share[3]) . "</blockquote><br />";
+					$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
 
-					if ($link != "") {
-						$text .= '<br /><a href="' . $link . '">[l]</a>';
+					if ($attributes['link'] != '') {
+						$text .= '<p><a href="' . $attributes['link'] . '">[l]</a></p>' . "\n";
 					}
 				}
 
 				break;
 			case 4:
-				$headline = '<br /><b>' . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8');
-				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $link, $userid, $posted);
-				$headline .= ":</b><br />";
+				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8');
+				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $attributes['link'], $mention, $attributes['posted']);
+				$headline .= ':</b></p>' . "\n";
 
-				$text = trim($share[1]);
-
-				if ($text != "") {
-					$text .= "<hr />";
-				}
-
-				$text .= $headline . '<blockquote class="shared_content">' . trim($share[3]) . "</blockquote><br />";
+				$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote class="shared_content">' . trim($content) . '</blockquote>' . "\n";
 
 				break;
 			case 5:
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 7: // statusnet/GNU Social
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . " @" . $userid_compact . ": " . $share[3];
-				break;
-			case 8: // twitter
-				$text = $preshare . "RT @" . $userid_compact . ": " . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
 				break;
 			case 9: // Google+
-				$text = $preshare . html_entity_decode("&#x2672; ", ENT_QUOTES, 'UTF-8') . ' ' . $userid_compact . ": <br />" . $share[3];
+				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n";
+				$text .= '<p>' . $content . '</p>' . "\n";
 
-				if ($link != "") {
-					$text .= "<br /><br />" . $link;
+				if ($attributes['link'] != '') {
+					$text .= '<p>' . $attributes['link'] . '</p>';
 				}
 				break;
 			default:
 				// Transforms quoted tweets in rich attachments to avoid nested tweets
-				if (stripos(normalise_link($link), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($link)) {
+				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
 					try {
-						$oembed = OEmbed::getHTML($link, $preshare);
+						$text = ($is_quote_share? '<br />' : '') . OEmbed::getHTML($attributes['link']);
 					} catch (Exception $e) {
-						$oembed = sprintf('[bookmark=%s]%s[/bookmark]', $link, $preshare);
+						$text = ($is_quote_share? '<br />' : '') . sprintf('[bookmark=%s]%s[/bookmark]', $attributes['link'], $content);
 					}
-
-					$text = $preshare . $oembed;
 				} else {
-					$text = trim($share[1]) . "\n";
-
-					$avatar = ProxyUtils::proxifyUrl($avatar, false, ProxyUtils::SIZE_THUMB);
+					$text = ($is_quote_share? "\n" : '');
 
 					$tpl = get_markup_template('shared_content.tpl');
 					$text .= replace_macros($tpl, [
-						'$profile' => $profile,
-						'$avatar' => $avatar,
-						'$author' => $author,
-						'$link' => $link,
-						'$posted' => $posted,
-						'$content' => trim($share[3])
+						'$profile' => $attributes['profile'],
+						'$avatar'  => $attributes['avatar'],
+						'$author'  => $attributes['author'],
+						'$link'    => $attributes['link'],
+						'$posted'  => $attributes['posted'],
+						'$content' => trim($content)
 					]);
 				}
 				break;
@@ -1059,11 +1013,11 @@ class BBCode extends BaseObject
 			$ch = @curl_init($match[1]);
 			@curl_setopt($ch, CURLOPT_NOBODY, true);
 			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->save_timestamp($stamp1, "network");
+			$a->saveTimestamp($stamp1, "network");
 
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
 				$text = "[url=" . $match[1] . "]" . $match[1] . "[/url]";
@@ -1118,11 +1072,11 @@ class BBCode extends BaseObject
 			$ch = @curl_init($match[1]);
 			@curl_setopt($ch, CURLOPT_NOBODY, true);
 			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->get_useragent());
+			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->save_timestamp($stamp1, "network");
+			$a->saveTimestamp($stamp1, "network");
 
 			// if its a link to a picture then embed this picture
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
@@ -1159,21 +1113,6 @@ class BBCode extends BaseObject
 	public static function cleanPictureLinks($text)
 	{
 		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
-		return $return;
-	}
-
-	private static function textHighlightCallback($match)
-	{
-		// Fallback in case the language doesn't exist
-		$return = '[code]' . $match[2] . '[/code]';
-
-		if (in_array(strtolower($match[1]),
-				['php', 'css', 'mysql', 'sql', 'abap', 'diff', 'html', 'perl', 'ruby',
-				'vbscript', 'avrc', 'dtd', 'java', 'xml', 'cpp', 'python', 'javascript', 'js', 'sh', 'bash'])
-		) {
-			$return = text_highlight($match[2], strtolower($match[1]));
-		}
-
 		return $return;
 	}
 
@@ -1225,6 +1164,22 @@ class BBCode extends BaseObject
 			return $return;
 		};
 
+		// Extracting multi-line code blocks before the whitespace processing
+		$codeblocks = [];
+
+		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+			function ($matches) use (&$codeblocks) {
+				$return = $matches[0];
+				if (strpos($matches[2], "\n") !== false) {
+					$return = '#codeblock-' . count($codeblocks) . '#';
+
+					$codeblocks[] =  '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+				}
+				return $return;
+			},
+			$text
+		);
+
 		// Hide all [noparse] contained bbtags by spacefying them
 		// POSSIBLE BUG --> Will the 'preg' functions crash if there's an embedded image?
 
@@ -1263,19 +1218,11 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\s?\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "[share$1]$2[/share]", $text);
 		$text = preg_replace("/\s?\[quote(.*?)\]\s?(.*?)\s?\[\/quote\]\s?/ism", "[quote$1]$2[/quote]", $text);
 
-		$text = preg_replace("/\n\[code\]/ism", "[code]", $text);
-		$text = preg_replace("/\[\/code\]\n/ism", "[/code]", $text);
-
 		// when the content is meant exporting to other systems then remove the avatar picture since this doesn't really look good on these systems
 		if (!$try_oembed) {
 			$text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "\n[share$1$2]$3[/share]", $text);
 		}
 
-		// Check for [code] text here, before the linefeeds are messed with.
-		// The highlighter will unescape and re-escape the content.
-		if (strpos($text, '[code=') !== false) {
-			$text = preg_replace_callback("/\[code=(.*?)\](.*?)\[\/code\]/ism", 'self::textHighlightCallback', $text);
-		}
 		// Convert new line chars to html <br /> tags
 
 		// nlbr seems to be hopelessly messed up
@@ -1627,10 +1574,12 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 
 		// Shared content
-		$text = preg_replace_callback("/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
-			function ($match) use ($simple_html) {
-				return self::convertShare($match, $simple_html);
-			}, $text);
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
 
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
 		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
@@ -1720,18 +1669,6 @@ class BBCode extends BaseObject
 			$text = Smilies::replace($text, false, true);
 		}
 
-		// Replace inline code blocks
-		$text = preg_replace_callback("|(?!<br[^>]*>)<code>([^<]*)</code>(?!<br[^>]*>)|ism",
-			function ($match) use ($simple_html) {
-				$return = '<key>' . $match[1] . '</key>';
-				// Use <code> for Diaspora inline code blocks
-				if ($simple_html === 3) {
-					$return = '<code>' . $match[1] . '</code>';
-				}
-				return $return;
-			}
-		, $text);
-
 		// Unhide all [noparse] contained bbtags unspacefying them
 		// and triming the [noparse] tag.
 
@@ -1768,6 +1705,18 @@ class BBCode extends BaseObject
 		if ($saved_image) {
 			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);
 		}
+
+		// Restore code blocks
+		$text = preg_replace_callback('/#codeblock-([0-9]+)#/iU',
+			function ($matches) use ($codeblocks) {
+				$return = $matches[0];
+				if (isset($codeblocks[intval($matches[1])])) {
+					$return = $codeblocks[$matches[1]];
+				}
+				return $return;
+			},
+			$text
+		);
 
 		// Clean up the HTML by loading and saving the HTML with the DOM.
 		// Bad structured html can break a whole page.
@@ -1903,23 +1852,6 @@ class BBCode extends BaseObject
 		// Converting images with size parameters to simple images. Markdown doesn't know it.
 		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
 
-		// Extracting multi-line code blocks before the whitespace processing/code highlighter in self::convert()
-		$codeblocks = [];
-
-		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
-			function ($matches) use (&$codeblocks) {
-				$return = $matches[0];
-				if (strpos($matches[2], "\n") !== false) {
-					$return = '#codeblock-' . count($codeblocks) . '#';
-
-					$prefix = '````' . $matches[1] . PHP_EOL;
-					$codeblocks[] = $prefix . trim($matches[2]) . PHP_EOL . '````';
-				}
-				return $return;
-			},
-			$text
-		);
-
 		// Convert it to HTML - don't try oembed
 		if ($for_diaspora) {
 			$text = self::convert($text, false, 3);
@@ -1949,13 +1881,12 @@ class BBCode extends BaseObject
 		$stamp1 = microtime(true);
 
 		// Now convert HTML to Markdown
-		$converter = new HtmlConverter();
-		$text = $converter->convert($text);
+		$text = HTML::toMarkdown($text);
 
 		// unmask the special chars back to HTML
 		$text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $text);
 
-		$a->save_timestamp($stamp1, "parser");
+		$a->saveTimestamp($stamp1, "parser");
 
 		// Libertree has a problem with escaped hashtags.
 		$text = str_replace(['\#'], ['#'], $text);
@@ -1972,18 +1903,6 @@ class BBCode extends BaseObject
 				$text
 			);
 		}
-
-		// Restore code blocks
-		$text = preg_replace_callback('/#codeblock-([0-9]+)#/iU',
-			function ($matches) use ($codeblocks) {
-				$return = '';
-				if (isset($codeblocks[intval($matches[1])])) {
-					$return = $codeblocks[$matches[1]];
-				}
-				return $return;
-			},
-			$text
-		);
 
 		Addon::callHooks('bb2diaspora', $text);
 

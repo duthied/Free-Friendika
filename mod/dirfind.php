@@ -12,14 +12,13 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Model\GContact;
+use Friendica\Model;
+use Friendica\Module;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 
-require_once 'mod/contacts.php';
 
 function dirfind_init(App $a) {
 
@@ -44,7 +43,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 	$local = Config::get('system','poco_local_search');
 
-	$search = $prefix.notags(trim($_REQUEST['search']));
+	$search = $prefix.notags(trim(defaults($_REQUEST, 'search', '')));
 
 	$header = '';
 
@@ -54,7 +53,7 @@ function dirfind_content(App $a, $prefix = "") {
 		if ((valid_email($search) && Network::isEmailDomainValid($search)) ||
 			(substr(normalise_link($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
-			$discover_user = (in_array($user_data["network"], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]));
+			$discover_user = (in_array($user_data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]));
 		}
 	}
 
@@ -83,7 +82,7 @@ function dirfind_content(App $a, $prefix = "") {
 			$objresult->tags = "";
 			$objresult->network = $user_data["network"];
 
-			$contact = Contact::getDetailsByURL($user_data["url"], local_user());
+			$contact = Model\Contact::getDetailsByURL($user_data["url"], local_user());
 			$objresult->cid = $contact["cid"];
 			$objresult->pcid = $contact["zid"];
 
@@ -91,7 +90,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 			// Add the contact to the global contacts if it isn't already in our system
 			if (($contact["cid"] == 0) && ($contact["zid"] == 0) && ($contact["gid"] == 0)) {
-				GContact::update($user_data);
+				Model\GContact::update($user_data);
 			}
 		} elseif ($local) {
 
@@ -156,7 +155,7 @@ function dirfind_content(App $a, $prefix = "") {
 					continue;
 				}
 
-				$result = Contact::getDetailsByURL($result["nurl"], local_user());
+				$result = Model\Contact::getDetailsByURL($result["nurl"], local_user());
 
 				if ($result["name"] == "") {
 					$result["name"] = end(explode("/", $urlparts["path"]));
@@ -188,8 +187,8 @@ function dirfind_content(App $a, $prefix = "") {
 		}
 
 		if ($j->total) {
-			$a->set_pager_total($j->total);
-			$a->set_pager_itemspage($j->items_page);
+			$a->setPagerTotal($j->total);
+			$a->setPagerItemsPage($j->items_page);
 		}
 
 		if (!empty($j->results)) {
@@ -200,7 +199,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 				$alt_text = "";
 
-				$contact_details = Contact::getDetailsByURL($jj->url, local_user());
+				$contact_details = Model\Contact::getDetailsByURL($jj->url, local_user());
 
 				$itemurl = (($contact_details["addr"] != "") ? $contact_details["addr"] : $jj->url);
 
@@ -210,8 +209,8 @@ function dirfind_content(App $a, $prefix = "") {
 					$conntxt = "";
 					$contact = DBA::selectFirst('contact', [], ['id' => $jj->cid]);
 					if (DBA::isResult($contact)) {
-						$photo_menu = Contact::photoMenu($contact);
-						$details = _contact_detail_for_template($contact);
+						$photo_menu = Model\Contact::photoMenu($contact);
+						$details = Module\Contact::getContactTemplateVars($contact);
 						$alt_text = $details['alt_text'];
 					} else {
 						$photo_menu = [];
@@ -222,12 +221,12 @@ function dirfind_content(App $a, $prefix = "") {
 
 					$contact = DBA::selectFirst('contact', [], ['id' => $jj->pcid]);
 					if (DBA::isResult($contact)) {
-						$photo_menu = Contact::photoMenu($contact);
+						$photo_menu = Model\Contact::photoMenu($contact);
 					} else {
 						$photo_menu = [];
 					}
 
-					$photo_menu['profile'] = [L10n::t("View Profile"), Contact::magicLink($jj->url)];
+					$photo_menu['profile'] = [L10n::t("View Profile"), Model\Contact::magicLink($jj->url)];
 					$photo_menu['follow'] = [L10n::t("Connect/Follow"), $connlnk];
 				}
 
@@ -235,7 +234,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 				$entry = [
 					'alt_text' => $alt_text,
-					'url' => Contact::magicLink($jj->url),
+					'url' => Model\Contact::magicLink($jj->url),
 					'itemurl' => $itemurl,
 					'name' => htmlentities($jj->name),
 					'thumb' => ProxyUtils::proxifyUrl($jj->photo, false, ProxyUtils::SIZE_THUMB),
@@ -246,7 +245,7 @@ function dirfind_content(App $a, $prefix = "") {
 					'details'       => $contact_details['location'],
 					'tags'          => $contact_details['keywords'],
 					'about'         => $contact_details['about'],
-					'account_type'  => Contact::getAccountType($contact_details),
+					'account_type'  => Model\Contact::getAccountType($contact_details),
 					'network' => ContactSelector::networkToName($jj->network, $jj->url),
 					'id' => ++$id,
 				];

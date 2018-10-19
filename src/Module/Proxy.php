@@ -8,6 +8,7 @@ namespace Friendica\Module;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Photo;
@@ -70,7 +71,7 @@ class Proxy extends BaseModule
 		$thumb = false;
 		$size = 1024;
 		$sizetype = '';
-		$basepath = $a->get_basepath();
+		$basepath = $a->getBasePath();
 
 		// If the cache path isn't there, try to create it
 		if (!is_dir($basepath . '/proxy') && is_writable($basepath)) {
@@ -133,6 +134,10 @@ class Proxy extends BaseModule
 			$direct_cache = false;
 		}
 
+		if (empty($_REQUEST['url'])) {
+			System::httpExit(400, ["title" => L10n::t('Bad Request.')]);
+		}
+
 		if (!$direct_cache) {
 			$urlhash = 'pic:' . sha1($_REQUEST['url']);
 
@@ -183,7 +188,8 @@ class Proxy extends BaseModule
 			// It shouldn't happen but it does - spaces in URL
 			$_REQUEST['url'] = str_replace(' ', '+', $_REQUEST['url']);
 			$redirects = 0;
-			$img_str = Network::fetchUrl($_REQUEST['url'], true, $redirects, 10);
+			$fetchResult = Network::fetchUrlFull($_REQUEST['url'], true, $redirects, 10);
+			$img_str = $fetchResult->getBody();
 
 			$tempfile = tempnam(get_temppath(), 'cache');
 			file_put_contents($tempfile, $img_str);
@@ -191,7 +197,7 @@ class Proxy extends BaseModule
 			unlink($tempfile);
 
 			// If there is an error then return a blank image
-			if ((substr($a->get_curl_code(), 0, 1) == '4') || (!$img_str)) {
+			if ((substr($fetchResult->getReturnCode(), 0, 1) == '4') || (!$img_str)) {
 				$img_str = file_get_contents('images/blank.png');
 				$mime = 'image/png';
 				$cachefile = ''; // Clear the cachefile so that the dummy isn't stored

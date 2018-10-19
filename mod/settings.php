@@ -22,6 +22,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\Email;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
+use Friendica\Module\Login;
 
 function get_theme_config_file($theme)
 {
@@ -546,7 +547,7 @@ function settings_post(App $a)
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
 		if (Network::isUrlValid($openid)) {
 			logger('updating openidserver');
-			$open_id_obj = new LightOpenID($a->get_hostname());
+			$open_id_obj = new LightOpenID($a->getHostName());
 			$open_id_obj->identity = $openid;
 			$openidserver = $open_id_obj->discover($open_id_obj->identity);
 		} else {
@@ -658,7 +659,7 @@ function settings_content(App $a)
 
 	if (!local_user()) {
 		//notice(L10n::t('Permission denied.') . EOL);
-		return;
+		return Login::form();
 	}
 
 	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
@@ -982,11 +983,6 @@ function settings_content(App $a)
 			'$theme_config' => $theme_config,
 		]);
 
-		$tpl = get_markup_template('settings/display_end.tpl');
-		$a->page['end'] .= replace_macros($tpl, [
-			'$theme'	=> ['theme', L10n::t('Display Theme:'), $theme_selected, '', $themes]
-		]);
-
 		return $o;
 	}
 
@@ -1140,8 +1136,8 @@ function settings_content(App $a)
 	$tpl_addr = get_markup_template('settings/nick_set.tpl');
 
 	$prof_addr = replace_macros($tpl_addr,[
-		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->get_hostname() . $a->get_path(), System::baseUrl() . '/profile/' . $nickname),
-		'$basepath' => $a->get_hostname()
+		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLPath(), System::baseUrl() . '/profile/' . $nickname),
+		'$basepath' => $a->getHostName()
 	]);
 
 	$stpl = get_markup_template('settings/settings.tpl');

@@ -61,7 +61,7 @@ function notes_content(App $a, $update = false)
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
 		'wall' => false, 'contact-id'=> $a->contact['id']];
 
-	$a->set_pager_itemspage(40);
+	$a->setPagerItemsPage(40);
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$a->pager['start'], $a->pager['itemspage']]];
@@ -70,8 +70,11 @@ function notes_content(App $a, $update = false)
 	$count = 0;
 
 	if (DBA::isResult($r)) {
-		$count = count($r);
-		$o .= conversation($a, DBA::toArray($r), 'notes', $update);
+		$notes = DBA::toArray($r);
+
+		$count = count($notes);
+
+		$o .= conversation($a, $notes, 'notes', $update);
 	}
 
 	$o .= alt_pager($a, $count);

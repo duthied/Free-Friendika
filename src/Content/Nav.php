@@ -107,7 +107,7 @@ class Nav
 			// user info
 			$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
 			$userinfo = [
-				'icon' => (DBA::isResult($contact) ? $a->remove_baseurl($contact['micro']) : 'images/person-48.jpg'),
+				'icon' => (DBA::isResult($contact) ? $a->removeBaseURL($contact['micro']) : 'images/person-48.jpg'),
 				'name' => $a->user['username'],
 			];
 		} else {
@@ -210,7 +210,7 @@ class Nav
 				$nav['profiles'] = ['profiles', L10n::t('Profiles'), '', L10n::t('Manage/Edit Profiles')];
 			}
 
-			$nav['contacts'] = ['contacts', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
+			$nav['contacts'] = ['contact', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
 		}
 
 		// Show the link to the admin configuration page if user is admin

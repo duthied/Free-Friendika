@@ -14,7 +14,7 @@ function repair_ostatus_content(App $a) {
 
 	if (! local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		goaway($_SESSION['return_url']);
+		goaway('/ostatus_repair');
 		// NOTREACHED
 	}
 

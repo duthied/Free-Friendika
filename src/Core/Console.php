@@ -5,7 +5,7 @@ namespace Friendica\Core;
 /**
  * Description of Console
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Console extends \Asika\SimpleConsole\Console
 {
@@ -14,6 +14,7 @@ class Console extends \Asika\SimpleConsole\Console
 	protected $customHelpOptions = ['h', 'help', '?'];
 
 	protected $subConsoles = [
+		'cache'                  => __NAMESPACE__ . '\Console\Cache',
 		'config'                 => __NAMESPACE__ . '\Console\Config',
 		'createdoxygen'          => __NAMESPACE__ . '\Console\CreateDoxygen',
 		'docbloxerrorchecker'    => __NAMESPACE__ . '\Console\DocBloxErrorChecker',
@@ -37,6 +38,7 @@ class Console extends \Asika\SimpleConsole\Console
 Usage: bin/console [--version] [-h|--help|-?] <command> [<args>] [-v]
 
 Commands:
+	cache                  Manage node cache
 	config                 Edit site config
 	createdoxygen          Generate Doxygen headers
 	dbstructure            Do database updates

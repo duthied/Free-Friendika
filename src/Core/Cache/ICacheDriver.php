@@ -7,10 +7,19 @@ use Friendica\Core\Cache;
 /**
  * Cache Driver Interface
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 interface ICacheDriver
 {
+	/**
+	 * Lists all cache keys
+	 *
+	 * @param string prefix optional a prefix to search
+	 *
+	 * @return array Empty if it isn't supported by the cache driver
+	 */
+	public function getAllKeys($prefix = null);
+
 	/**
 	 * Fetches cached data according to the key
 	 *

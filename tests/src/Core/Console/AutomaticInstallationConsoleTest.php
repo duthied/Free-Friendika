@@ -205,6 +205,7 @@ CONF;
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
 		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
 		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
+		$this->assertTrue(putenv('FRIENDICA_URL_PATH=/friendica'));
 
 		$txt = $this->execute(['autoinstall']);
 
@@ -218,6 +219,7 @@ CONF;
 		$this->assertConfig('config', 'admin_email', 'admin@friendica.local');
 		$this->assertConfig('system', 'default_timezone', 'Europe/Berlin');
 		$this->assertConfig('system', 'language', 'de');
+		$this->assertConfig('system', 'urlpath', '/friendica');
 	}
 
 	/**
@@ -248,6 +250,9 @@ CONF;
 		array_push($args, '--lang');
 		array_push($args, 'de');
 
+		array_push($args, '--urlpath');
+		array_push($args, '/friendica');
+
 		$txt = $this->execute($args);
 
 		$this->assertFinished($txt, true);
@@ -260,13 +265,18 @@ CONF;
 		$this->assertConfig('config', 'admin_email', 'admin@friendica.local');
 		$this->assertConfig('system', 'default_timezone', 'Europe/Berlin');
 		$this->assertConfig('system', 'language', 'de');
+		$this->assertConfig('system', 'urlpath', '/friendica');
 	}
 
+	/**
+	 * @runTestsInSeparateProcesses
+	 */
 	public function testNoDatabaseConnection()
 	{
-		$this->assertTrue(putenv('MYSQL_USERNAME='));
-		$this->assertTrue(putenv('MYSQL_PASSWORD='));
-		$this->assertTrue(putenv('MYSQL_DATABASE='));
+		$dbaMock = \Mockery::mock('alias:Friendica\Database\DBA');
+		$dbaMock
+			->shouldReceive('connected')
+			->andReturn(false);
 
 		$txt = $this->execute(['autoinstall']);
 
@@ -288,20 +298,21 @@ Notes
     Not checking .htaccess/URL-Rewrite during CLI installation.
 
 Options
-    -h|--help|-?           Show help information
-    -v                     Show more debug information.
-    -a                     All setup checks are required (except .htaccess)
-    -f|--file <config>     prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
-    -s|--savedb            Save the DB credentials to the file (if environment variables is used)
-    -H|--dbhost <host>     The host of the mysql/mariadb database (env MYSQL_HOST)
-    -p|--dbport <port>     The port of the mysql/mariadb database (env MYSQL_PORT)
-    -d|--dbdata <database> The name of the mysql/mariadb database (env MYSQL_DATABASE)
-    -U|--dbuser <username> The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
-    -P|--dbpass <password> The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -b|--phppath <path>    The path of the PHP binary (env FRIENDICA_PHP_PATH) 
-    -A|--admin <mail>      The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
-    -T|--tz <timezone>     The timezone of Friendica (env FRIENDICA_TZ)
-    -L|--lang <language>   The language of Friendica (env FRIENDICA_LANG)
+    -h|--help|-?            Show help information
+    -v                      Show more debug information.
+    -a                      All setup checks are required (except .htaccess)
+    -f|--file <config>      prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
+    -s|--savedb             Save the DB credentials to the file (if environment variables is used)
+    -H|--dbhost <host>      The host of the mysql/mariadb database (env MYSQL_HOST)
+    -p|--dbport <port>      The port of the mysql/mariadb database (env MYSQL_PORT)
+    -d|--dbdata <database>  The name of the mysql/mariadb database (env MYSQL_DATABASE)
+    -U|--dbuser <username>  The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -P|--dbpass <password>  The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
+    -u|--urlpath <url_path> The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
+    -b|--phppath <php_path> The path of the PHP binary (env FRIENDICA_PHP_PATH) 
+    -A|--admin <mail>       The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
+    -T|--tz <timezone>      The timezone of Friendica (env FRIENDICA_TZ)
+    -L|--lang <language>    The language of Friendica (env FRIENDICA_LANG)
  
 Environment variables
    MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
@@ -309,6 +320,7 @@ Environment variables
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
+   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica')
    FRIENDICA_PHP_PATH          The path of the PHP binary
    FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
    FRIENDICA_TZ                The timezone of Friendica

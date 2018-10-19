@@ -202,11 +202,7 @@ function ping_init(App $a)
 		$mail_count = count($mails);
 
 		if (intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE && is_site_admin()) {
-			$regs = q(
-				"SELECT `contact`.`name`, `contact`.`url`, `contact`.`micro`, `register`.`created`
-				FROM `contact` RIGHT JOIN `register` ON `register`.`uid` = `contact`.`uid`
-				WHERE `contact`.`self` = 1"
-			);
+			$regs = Friendica\Model\Register::getPending();
 
 			if (DBA::isResult($regs)) {
 				$register_count = count($regs);
@@ -350,7 +346,7 @@ function ping_init(App $a)
 			$regularnotifications = (!empty($_GET['uid']) && !empty($_GET['_']));
 
 			foreach ($notifs as $notif) {
-				if ($a->is_friendica_app() || !$regularnotifications) {
+				if ($a->isFriendicaApp() || !$regularnotifications) {
 					$notif['message'] = str_replace("{0}", $notif['name'], $notif['message']);
 				}
 
@@ -510,16 +506,17 @@ function ping_get_notifications($uid)
  * @brief Backward-compatible XML formatting for ping.php output
  * @deprecated
  *
- * @param array $data          The initial ping data array
- * @param int   $sysnotify     Number of unseen system notifications
- * @param array $notifs        Complete list of notification
- * @param array $sysmsgs       List of system notice messages
- * @param array $sysmsgs_info  List of system info messages
- * @param int   $groups_unseen Number of unseen group items
- * @param int   $forums_unseen Number of unseen forum items
+ * @param array $data            The initial ping data array
+ * @param int   $sysnotify_count Number of unseen system notifications
+ * @param array $notifs          Complete list of notification
+ * @param array $sysmsgs         List of system notice messages
+ * @param array $sysmsgs_info    List of system info messages
+ * @param int   $groups_unseen   Number of unseen group items
+ * @param int   $forums_unseen   Number of unseen forum items
+ *
  * @return array XML-transform ready data array
  */
-function ping_format_xml_data($data, $sysnotify, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
+function ping_format_xml_data($data, $sysnotify_count, $notifs, $sysmsgs, $sysmsgs_info, $groups_unseen, $forums_unseen)
 {
 	$notifications = [];
 	foreach ($notifs as $key => $notif) {

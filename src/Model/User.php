@@ -32,6 +32,43 @@ require_once 'include/text.php';
 class User
 {
 	/**
+	 * Returns true if a user record exists with the provided id
+	 *
+	 * @param  integer $uid
+	 * @return boolean
+	 */
+	public static function exists($uid)
+	{
+		return DBA::exists('user', ['uid' => $uid]);
+	}
+
+	/**
+	 * @param  integer       $uid
+	 * @return array|boolean User record if it exists, false otherwise
+	 */
+	public static function getById($uid)
+	{
+		return DBA::selectFirst('user', [], ['uid' => $uid]);
+	}
+
+	/**
+	 * @brief Returns the user id of a given profile URL
+	 *
+	 * @param string $url
+	 *
+	 * @return integer user id
+	 */
+	public static function getIdForURL($url)
+	{
+		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($url), 'self' => true]);
+		if (!DBA::isResult($self)) {
+			return false;
+		} else {
+			return $self['uid'];
+		}
+	}
+
+	/**
 	 * @brief Get owner data by user id
 	 *
 	 * @param int $uid
@@ -384,7 +421,7 @@ class User
 				throw new Exception(L10n::t('An invitation is required.'));
 			}
 
-			if (!DBA::exists('register', ['hash' => $invite_id])) {
+			if (!Register::existsByHash($invite_id)) {
 				throw new Exception(L10n::t('Invitation could not be verified.'));
 			}
 		}
@@ -397,7 +434,7 @@ class User
 				$_SESSION['register'] = 1;
 				$_SESSION['openid'] = $openid_url;
 
-				$openid = new LightOpenID($a->get_hostname());
+				$openid = new LightOpenID($a->getHostName());
 				$openid->identity = $openid_url;
 				$openid->returnUrl = System::baseUrl() . '/openid';
 				$openid->required = ['namePerson/friendly', 'contact/email', 'namePerson'];
@@ -495,7 +532,7 @@ class User
 		$spubkey = $sres['pubkey'];
 
 		$insert_result = DBA::insert('user', [
-			'guid'     => System::createGUID(32),
+			'guid'     => System::createUUID(),
 			'username' => $username,
 			'password' => $new_password_encoded,
 			'email'    => $email,
@@ -627,27 +664,36 @@ class User
 	}
 
 	/**
-	 * @brief Sends pending registration confiŕmation email
+	 * @brief Sends pending registration confirmation email
 	 *
-	 * @param string $email
+	 * @param array  $user     User record array
 	 * @param string $sitename
-	 * @param string $username
+	 * @param string $siteurl
+	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
 	 */
-	public static function sendRegisterPendingEmail($email, $sitename, $username)
+	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
 		$body = deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account is pending for approval by the administrator.
-		'));
 
-		$body = sprintf($body, $username, $sitename);
+			Your login details are as follows:
+
+			Site Location:	%3$s
+			Login Name:		%4$s
+			Password:		%5$s
+		',
+			$body, $user['username'], $sitename, $siteurl, $user['nickname'], $password
+		));
 
 		return notification([
-			'type' => SYSTEM_EMAIL,
-			'to_email' => $email,
-			'subject'=> L10n::t('Registration at %s', $sitename),
-			'body' => $body]);
+			'type'     => SYSTEM_EMAIL,
+			'uid'      => $user['uid'],
+			'to_email' => $user['email'],
+			'subject'  => L10n::t('Registration at %s', $sitename),
+			'body'     => $body
+		]);
 	}
 
 	/**
@@ -655,19 +701,20 @@ class User
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *
-	 * @param string $email
+	 * @param array  $user     User record array
 	 * @param string $sitename
 	 * @param string $siteurl
-	 * @param string $username
-	 * @param string $password
+	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
 	 */
-	public static function sendRegisterOpenEmail($email, $sitename, $siteurl, $username, $password, $user)
+	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
 	{
 		$preamble = deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
-		'));
+		',
+			$preamble, $user['username'], $sitename
+		));
 		$body = deindent(L10n::t('
 			The login details are as follows:
 
@@ -694,19 +741,19 @@ class User
 
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
-			Thank you and welcome to %2$s.'));
-
-		$preamble = sprintf($preamble, $username, $sitename);
-		$body = sprintf($body, $email, $sitename, $siteurl, $username, $password);
+			Thank you and welcome to %2$s.',
+			$body, $user['email'], $sitename, $siteurl, $user['username'], $password
+		));
 
 		return notification([
-			'uid' => $user['uid'],
+			'uid'      => $user['uid'],
 			'language' => $user['language'],
-			'type' => SYSTEM_EMAIL,
-			'to_email' => $email,
-			'subject'=> L10n::t('Registration details for %s', $sitename),
-			'preamble'=> $preamble,
-			'body' => $body]);
+			'type'     => SYSTEM_EMAIL,
+			'to_email' => $user['email'],
+			'subject'  => L10n::t('Registration details for %s', $sitename),
+			'preamble' => $preamble,
+			'body'     => $body
+		]);
 	}
 
 	/**
@@ -730,7 +777,7 @@ class User
 		DBA::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc($t . " + 7 day")], ['uid' => $uid]);
+		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc(DateTimeFormat::utcNow() . " + 7 day")], ['uid' => $uid]);
 		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
 
 		// Send an update to the directory
@@ -743,7 +790,7 @@ class User
 		if ($uid == local_user()) {
 			unset($_SESSION['authenticated']);
 			unset($_SESSION['uid']);
-			goaway(System::baseUrl());
+			goaway();;
 		}
 	}
 }

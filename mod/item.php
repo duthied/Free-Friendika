@@ -39,7 +39,7 @@ require_once 'include/items.php';
 
 function item_post(App $a) {
 	if (!local_user() && !remote_user()) {
-		return;
+		return 0;
 	}
 
 	require_once 'include/security.php';
@@ -154,12 +154,12 @@ function item_post(App $a) {
 	if (($message_id != '') && ($profile_uid != 0)) {
 		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
 			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
-			return;
+			return 0;
 		}
 	}
 
 	// Allow commenting if it is an answer to a public post
-	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 
 	// Now check that valid personal details have been provided
 	if (!can_write_wall($profile_uid) && !$allow_comment) {
@@ -183,7 +183,7 @@ function item_post(App $a) {
 	$user = DBA::selectFirst('user', [], ['uid' => $profile_uid]);
 
 	if (!DBA::isResult($user) && !$parent) {
-		return;
+		return 0;
 	}
 
 	$categories = '';
@@ -240,7 +240,7 @@ function item_post(App $a) {
 		$emailcc           =      notags(trim(defaults($_REQUEST, 'emailcc' , '')));
 		$body              = escape_tags(trim(defaults($_REQUEST, 'body'    , '')));
 		$network           =      notags(trim(defaults($_REQUEST, 'network' , Protocol::DFRN)));
-		$guid              =      System::createGUID(32);
+		$guid              =      System::createUUID();
 
 		$postopts = defaults($_REQUEST, 'postopts', '');
 
@@ -343,20 +343,11 @@ function item_post(App $a) {
 
 	$tags = get_tags($body);
 
-	// Add a tag if the parent contact is from OStatus (This will notify them during delivery)
-	if ($parent) {
-		if ($thr_parent_contact['network'] == Protocol::OSTATUS) {
-			$contact = '@[url=' . $thr_parent_contact['url'] . ']' . $thr_parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $thr_parent_contact['url'] . ']')) {
-				$tags[] = $contact;
-			}
-		}
-
-		if ($parent_contact['network'] == Protocol::OSTATUS) {
-			$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $parent_contact['url'] . ']')) {
-				$tags[] = $contact;
-			}
+	// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
+	if ($parent && in_array($thr_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
+		$contact = '@[url=' . $thr_parent_contact['url'] . ']' . $thr_parent_contact['nick'] . '[/url]';
+		if (!stripos(implode($tags), '[url=' . $thr_parent_contact['url'] . ']')) {
+			$tags[] = $contact;
 		}
 	}
 
@@ -843,6 +834,10 @@ function item_post(App $a) {
 
 	logger('post_complete');
 
+	if ($api_source) {
+		return $post_id;
+	}
+
 	item_post_return(System::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }
@@ -881,13 +876,13 @@ function item_content(App $a)
 	$o = '';
 
 	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
-		if (is_ajax()) {
+		if ($a->isAjax()) {
 			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
 			$o = drop_item($a->argv[2]);
 		}
 
-		if (is_ajax()) {
+		if ($a->isAjax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
 			echo json_encode([intval($a->argv[2]), intval($o)]);
 			killme();
@@ -1020,12 +1015,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 			$profile = $contact["url"];
 			$alias   = $contact["alias"];
-			$newname = $contact["nick"];
-
-			if (($newname == "") || (($contact["network"] != Protocol::OSTATUS) && ($contact["network"] != Protocol::TWITTER)
-				&& ($contact["network"] != Protocol::STATUSNET))) {
-				$newname = $contact["name"];
-			}
+			$newname = defaults($contact, "name", $contact["nick"]);
 		}
 
 		//if there is an url for this persons profile

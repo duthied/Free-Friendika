@@ -36,12 +36,12 @@ function help_content(App $a)
 		$path = '';
 		// looping through the argv keys bigger than 0 to build
 		// a path relative to /help
-		for ($x = 1; $x < argc(); $x ++) {
+		for ($x = 1; $x < $a->argc; $x ++) {
 			if (strlen($path)) {
 				$path .= '/';
 			}
 
-			$path .= argv($x);
+			$path .= $a->getArgumentValue($x);
 		}
 		$title = basename($path);
 		$filename = $path;

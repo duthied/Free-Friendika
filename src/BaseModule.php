@@ -9,7 +9,7 @@ namespace Friendica;
  * The filename of the module in src/Module needs to match the class name
  * exactly to make the module available.
  *
- * @author Hypolite Petovan mrpetovan@gmail.com
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 abstract class BaseModule extends BaseObject
 {
@@ -21,7 +21,16 @@ abstract class BaseModule extends BaseObject
 	 */
 	public static function init()
 	{
+	}
 
+	/**
+	 * @brief Module GET method to display raw content from technical endpoints
+	 *
+	 * Extend this method if the module is supposed to return communication data,
+	 * e.g. from protocol implementations.
+	 */
+	public static function rawContent()
+	{
 	}
 
 	/**

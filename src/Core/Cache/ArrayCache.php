@@ -22,6 +22,14 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
+	public function getAllKeys($prefix = null)
+	{
+		return $this->filterArrayKeysByPrefix($this->cachedData, $prefix);
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		if (isset($this->cachedData[$key])) {
@@ -53,6 +61,11 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	 */
 	public function clear($outdated = true)
 	{
+		// Array doesn't support TTL so just don't delete something
+		if ($outdated) {
+			return true;
+		}
+
 		$this->cachedData = [];
 		return true;
 	}

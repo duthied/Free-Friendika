@@ -274,12 +274,12 @@ class DiscoverPoCo
 
 		$url = "http://gstools.org/api/users_search/".urlencode($search);
 
-		$result = Network::curl($url);
-		if (!$result["success"]) {
+		$curlResult = Network::curl($url);
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		$contacts = json_decode($result["body"]);
+		$contacts = json_decode($curlResult->getBody());
 
 		if ($contacts->status == 'ERROR') {
 			return false;

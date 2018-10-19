@@ -10,7 +10,7 @@ use Memcache;
 /**
  * Memcache Cache Driver
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 {
@@ -22,6 +22,11 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	 */
 	private $memcache;
 
+	/**
+	 * @param string $memcache_host
+	 * @param int    $memcache_port
+	 * @throws Exception
+	 */
 	public function __construct($memcache_host, $memcache_port)
 	{
 		if (!class_exists('Memcache', false)) {
@@ -33,6 +38,30 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 		if (!$this->memcache->connect($memcache_host, $memcache_port)) {
 			throw new Exception('Expected Memcache server at ' . $memcache_host . ':' . $memcache_port . ' isn\'t available');
 		}
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function getAllKeys($prefix = null)
+	{
+		$keys = [];
+		$allSlabs = $this->memcache->getExtendedStats('slabs');
+		foreach ($allSlabs as $slabs) {
+			foreach (array_keys($slabs) as $slabId) {
+				$cachedump = $this->memcache->getExtendedStats('cachedump', (int)$slabId);
+				foreach ($cachedump as $key => $arrVal) {
+					if (!is_array($arrVal)) {
+						continue;
+					}
+					$keys = array_merge($keys, array_keys($arrVal));
+				}
+			}
+		}
+
+		$keys = $this->getOriginalKeys($keys);
+
+		return $this->filterArrayKeysByPrefix($keys, $prefix);
 	}
 
 	/**

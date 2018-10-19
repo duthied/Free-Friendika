@@ -91,7 +91,7 @@ class Proxy
 		$url = html_entity_decode($url, ENT_NOQUOTES, 'utf-8');
 
 		// Creating a sub directory to reduce the amount of files in the cache directory
-		$basepath = $a->get_basepath() . '/proxy';
+		$basepath = $a->getBasePath() . '/proxy';
 
 		$shortpath = hash('md5', $url);
 		$longpath = substr($shortpath, 0, 2);

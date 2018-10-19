@@ -18,13 +18,14 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Module\Tos;
 use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Temporal;
 use Friendica\Util\Network;
+use Friendica\Util\Temporal;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -33,11 +34,11 @@ require_once 'include/items.php';
 /**
  * @brief Process send data from the admin panels subpages
  *
- * This function acts as relais for processing the data send from the subpages
+ * This function acts as relay for processing the data send from the subpages
  * of the admin panel. Depending on the 1st parameter of the url (argv[1])
  * specialized functions are called to process the data from the subpages.
  *
- * The function itself does not return anything, but the subsequencely function
+ * The function itself does not return anything, but the subsequently function
  * return the HTML for the pages of the admin panel.
  *
  * @param App $a
@@ -77,7 +78,7 @@ function admin_post(App $a)
 				break;
 			case 'themes':
 				if ($a->argc < 2) {
-					if (is_ajax()) {
+					if ($a->isAjax()) {
 						return;
 					}
 					goaway('admin/');
@@ -107,7 +108,7 @@ function admin_post(App $a)
 				}
 
 				info(L10n::t('Theme settings updated.'));
-				if (is_ajax()) {
+				if ($a->isAjax()) {
 					return;
 				}
 				$return_path = 'admin/themes/' . $theme;
@@ -286,7 +287,7 @@ function admin_content(App $a)
 		$o = admin_page_summary($a);
 	}
 
-	if (is_ajax()) {
+	if ($a->isAjax()) {
 		echo $o;
 		killme();
 		return '';
@@ -475,8 +476,8 @@ function admin_page_contactblock(App $a)
 
 	$total = DBA::count('contact', $condition);
 
-	$a->set_pager_total($total);
-	$a->set_pager_itemspage(30);
+	$a->setPagerTotal($total);
+	$a->setPagerItemsPage(30);
 
 	$statement = DBA::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
 
@@ -866,15 +867,15 @@ function admin_page_summary(App $a)
 	// Legacy config file warning
 	if (file_exists('.htconfig.php')) {
 		$showwarning = true;
-		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.ini.php, please copy config/local-sample.ini.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->get_baseurl() . '/help/Config');
+		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.ini.php, please copy config/local-sample.ini.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
 	}
 
 	// Check server vitality
 	if (!admin_page_server_vital()) {
 		$showwarning = true;
-		$well_known = $a->get_baseurl() . '/.well-known/host-meta';
+		$well_known = $a->getBaseURL() . '/.well-known/host-meta';
 		$warningtext[] = L10n::t('<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.',
-			$well_known, $well_known, $a->get_baseurl() . '/help/Install');
+			$well_known, $well_known, $a->getBaseURL() . '/help/Install');
 	}
 
 	$r = q("SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` GROUP BY `page-flags`");
@@ -895,8 +896,7 @@ function admin_page_summary(App $a)
 
 	logger('accounts: ' . print_r($accounts, true), LOGGER_DATA);
 
-	$r = q("SELECT COUNT(`id`) AS `count` FROM `register`");
-	$pending = $r[0]['count'];
+	$pending = Register::getPendingCount();
 
 	$r = q("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
 	$queue = (($r) ? $r[0]['total'] : 0);
@@ -908,6 +908,15 @@ function admin_page_summary(App $a)
 
 	$queues = ['label' => L10n::t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue];
 
+
+	$r = q("SHOW variables LIKE 'max_allowed_packet'");
+	$max_allowed_packet = (($r) ? $r[0]['Value'] : 0);
+
+	$server_settings = ['label' => L10n::t('Server Settings'),
+				'php' => ['upload_max_filesize' => ini_get('upload_max_filesize'),
+						  'post_max_size' => ini_get('post_max_size'),
+						  'memory_limit' => ini_get('memory_limit')],
+				'mysql' => ['max_allowed_packet' => $max_allowed_packet]];
 
 	$t = get_markup_template('admin/summary.tpl');
 	return replace_macros($t, [
@@ -923,6 +932,7 @@ function admin_page_summary(App $a)
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' => Config::get('system', 'build'),
 		'$addons' => [L10n::t('Active addons'), $a->addons],
+		'$serversettings' => $server_settings,
 		'$showwarning' => $showwarning,
 		'$warningtext' => $warningtext
 	]);
@@ -1002,7 +1012,7 @@ function admin_page_site_post(App $a)
 		// update config
 		Config::set('system', 'hostname', parse_url($new_url,  PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
-		$a->set_baseurl($new_url);
+		$a->setBaseURL($new_url);
 
 		// send relocate
 		$users = q("SELECT `uid` FROM `user` WHERE `account_removed` = 0 AND `account_expired` = 0");
@@ -1114,7 +1124,7 @@ function admin_page_site_post(App $a)
 		Worker::add(PRIORITY_LOW, 'Directory');
 	}
 
-	if ($a->get_path() != "") {
+	if ($a->getURLPath() != "") {
 		$diaspora_enabled = false;
 	}
 	if ($ssl_policy != intval(Config::get('system', 'ssl_policy'))) {
@@ -1251,7 +1261,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
 	if ($itemcache != '') {
-		$itemcache = App::realpath($itemcache);
+		$itemcache = App::getRealPath($itemcache);
 	}
 
 	Config::set('system', 'itemcache', $itemcache);
@@ -1259,13 +1269,13 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'max_comments', $max_comments);
 
 	if ($temppath != '') {
-		$temppath = App::realpath($temppath);
+		$temppath = App::getRealPath($temppath);
 	}
 
 	Config::set('system', 'temppath', $temppath);
 
 	if ($basepath != '') {
-		$basepath = App::realpath($basepath);
+		$basepath = App::getRealPath($basepath);
 	}
 
 	Config::set('system', 'basepath', $basepath);
@@ -1409,9 +1419,9 @@ function admin_page_site(App $a)
 	];
 
 	if (empty(Config::get('config', 'hostname'))) {
-		Config::set('config', 'hostname', $a->get_hostname());
+		Config::set('config', 'hostname', $a->getHostName());
 	}
-	$diaspora_able = ($a->get_path() == "");
+	$diaspora_able = ($a->getURLPath() == "");
 
 	$optimize_max_tablesize = Config::get('system', 'optimize_max_tablesize', -1);
 
@@ -1478,7 +1488,7 @@ function admin_page_site(App $a)
 		'$community_page_style' => ['community_page_style', L10n::t("Community pages for visitors"), Config::get('system','community_page_style'), L10n::t("Which community pages should be available for visitors. Local users always see both pages."), $community_page_style_choices],
 		'$max_author_posts_community_page' => ['max_author_posts_community_page', L10n::t("Posts per user on community page"), Config::get('system','max_author_posts_community_page'), L10n::t("The maximum number of posts per user on the community page. \x28Not valid for 'Global Community'\x29")],
 		'$ostatus_disabled' 	=> ['ostatus_disabled', L10n::t("Enable OStatus support"), !Config::get('system','ostatus_disabled'), L10n::t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")],
-		'$ostatus_full_threads'	=> ['ostatus_full_threads', L10n::t("Only import OStatus threads from our contacts"), Config::get('system','ostatus_full_threads'), L10n::t("Normally we import every content from our OStatus contacts. With this option we only store threads that are started by a contact that is known on our system.")],
+		'$ostatus_full_threads'	=> ['ostatus_full_threads', L10n::t("Only import OStatus/ActivityPub threads from our contacts"), Config::get('system','ostatus_full_threads'), L10n::t("Normally we import every content from our OStatus and ActivityPub contacts. With this option we only store threads that are started by a contact that is known on our system.")],
 		'$ostatus_not_able'	=> L10n::t("OStatus support can only be enabled if threading is enabled."),
 		'$diaspora_able'	=> $diaspora_able,
 		'$diaspora_not_able'	=> L10n::t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
@@ -1782,17 +1792,13 @@ function admin_page_users(App $a)
 	}
 
 	/* get pending */
-	$pending = q("SELECT `register`.*, `contact`.`name`, `user`.`email`
-				 FROM `register`
-				 INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
-				 INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;");
-
+	$pending = Register::getPending();
 
 	/* get users */
 	$total = q("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
 	if (count($total)) {
-		$a->set_pager_total($total[0]['total']);
-		$a->set_pager_itemspage(100);
+		$a->setPagerTotal($total[0]['total']);
+		$a->setPagerItemsPage(100);
 	}
 
 	/* ordering */
@@ -1912,7 +1918,7 @@ function admin_page_users(App $a)
 
 		'$h_users' => L10n::t('Users'),
 		'$h_newuser' => L10n::t('New User'),
-		'$th_deleted' => [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Deleted since')],
+		'$th_deleted' => [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Delete in')],
 		'$th_users' => $th_users,
 		'$order_users' => $order,
 		'$order_direction_users' => $order_direction,
@@ -2526,7 +2532,7 @@ function admin_page_features_post(App $a)
  */
 function admin_page_features(App $a)
 {
-	if ((argc() > 1) && (argv(1) === 'features')) {
+	if (($a->argc > 1) && ($a->getArgumentValue(1) === 'features')) {
 		$arr = [];
 		$features = Feature::get(false);
 
@@ -2557,6 +2563,5 @@ function admin_page_features(App $a)
 function admin_page_server_vital()
 {
 	// Fetch the host-meta to check if this really is a vital server
-	$serverret = Network::curl(System::baseUrl() . '/.well-known/host-meta');
-	return $serverret["success"];
+	return Network::curl(System::baseUrl() . '/.well-known/host-meta')->isSuccess();
 }

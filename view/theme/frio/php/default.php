@@ -26,7 +26,7 @@ if (!isset($minimal)) {
 		<script  type="text/javascript">var baseurl = "<?php echo System::baseUrl(); ?>";</script>
 		<script type="text/javascript">var frio = "<?php echo 'view/theme/frio'; ?>";</script>
 <?php
-		$basepath = $a->urlpath ? "/" . $a->urlpath . "/" : "/";
+		$basepath = $a->getURLPath() ? "/" . $a->getURLPath() . "/" : "/";
 		$frio = "view/theme/frio";
 
 		// Because we use minimal for modals the header and the included js stuff should be only loaded
@@ -138,27 +138,7 @@ if (!isset($minimal)) {
 		</main>
 
 		<footer>
-			<?php if (x($page, 'footer')) echo $page['footer']; ?>
-			<!-- Modal  -->
-			<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-				<div class="modal-dialog modal-full-screen">
-					<div class="modal-content">
-						<div id="modal-header" class="modal-header">
-							<button id="modal-cloase" type="button" class="close" data-dismiss="modal" aria-hidden="true">
-								&times;
-							</button>
-							<h4 id="modal-title" class="modal-title"></h4>
-						</div>
-						<div id="modal-body" class="modal-body">
-							<!-- /# content goes here -->
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Dummy div to append other div's when needed (e.g. used for js function editpost() -->
-			<div id="cache-container"></div>
-
+			<?php echo defaults($page, 'footer', ''); ?>
 		</footer>
 <?php } ?> <!-- End of condition if $minimal else the rest -->
 	</body>

@@ -271,9 +271,14 @@ class Feed {
 			}
 			$updated = XML::getFirstNodeValue($xpath, 'atom:updated/text()', $entry);
 
-			if (empty($updated)) {
+			if (empty($updated) && !empty($published)) {
 				$updated = $published;
 			}
+
+			if (empty($published) && !empty($updated)) {
+				$published = $updated;
+			}
+
 			if ($published != "") {
 				$item["created"] = $published;
 			}
@@ -425,7 +430,7 @@ class Feed {
 				// Distributed items should have a well formatted URI.
 				// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
 				if ($notify) {
-					$item['guid'] = Item::guidFromUri($orig_plink, $a->get_hostname());
+					$item['guid'] = Item::guidFromUri($orig_plink, $a->getHostName());
 					unset($item['uri']);
 					unset($item['parent-uri']);
 

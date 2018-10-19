@@ -25,7 +25,7 @@ function vier_init(App $a)
 {
 	$a->theme_events_in_profile = false;
 
-	$a->set_template_engine('smarty3');
+	$a->setActiveTemplateEngine('smarty3');
 
 	if (!empty($a->argv[0]) && $a->argv[0] . defaults($a->argv, 1, '') === "profile".$a->user['nickname'] || $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
@@ -184,7 +184,7 @@ function vier_community_info()
 				$entry = replace_macros($tpl, [
 					'$id' => $rr['id'],
 					'$profile_link' => $profile_link,
-					'$photo' => $a->remove_baseurl($rr['thumb']),
+					'$photo' => $a->removeBaseURL($rr['thumb']),
 					'$alt_text' => $rr['name']]);
 				$aside['$lastusers_items'][] = $entry;
 			}

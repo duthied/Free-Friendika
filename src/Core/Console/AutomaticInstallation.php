@@ -3,15 +3,14 @@
 namespace Friendica\Core\Console;
 
 use Asika\SimpleConsole\Console;
-use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Install;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use RuntimeException;
 
-require_once 'mod/install.php';
 require_once 'include/dba.php';
 
 class AutomaticInstallation extends Console
@@ -30,20 +29,21 @@ Notes
     Not checking .htaccess/URL-Rewrite during CLI installation.
 
 Options
-    -h|--help|-?           Show help information
-    -v                     Show more debug information.
-    -a                     All setup checks are required (except .htaccess)
-    -f|--file <config>     prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
-    -s|--savedb            Save the DB credentials to the file (if environment variables is used)
-    -H|--dbhost <host>     The host of the mysql/mariadb database (env MYSQL_HOST)
-    -p|--dbport <port>     The port of the mysql/mariadb database (env MYSQL_PORT)
-    -d|--dbdata <database> The name of the mysql/mariadb database (env MYSQL_DATABASE)
-    -U|--dbuser <username> The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
-    -P|--dbpass <password> The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -b|--phppath <path>    The path of the PHP binary (env FRIENDICA_PHP_PATH) 
-    -A|--admin <mail>      The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
-    -T|--tz <timezone>     The timezone of Friendica (env FRIENDICA_TZ)
-    -L|--lang <language>   The language of Friendica (env FRIENDICA_LANG)
+    -h|--help|-?            Show help information
+    -v                      Show more debug information.
+    -a                      All setup checks are required (except .htaccess)
+    -f|--file <config>      prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
+    -s|--savedb             Save the DB credentials to the file (if environment variables is used)
+    -H|--dbhost <host>      The host of the mysql/mariadb database (env MYSQL_HOST)
+    -p|--dbport <port>      The port of the mysql/mariadb database (env MYSQL_PORT)
+    -d|--dbdata <database>  The name of the mysql/mariadb database (env MYSQL_DATABASE)
+    -U|--dbuser <username>  The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -P|--dbpass <password>  The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
+    -u|--urlpath <url_path> The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
+    -b|--phppath <php_path> The path of the PHP binary (env FRIENDICA_PHP_PATH) 
+    -A|--admin <mail>       The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
+    -T|--tz <timezone>      The timezone of Friendica (env FRIENDICA_TZ)
+    -L|--lang <language>    The language of Friendica (env FRIENDICA_LANG)
  
 Environment variables
    MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
@@ -51,6 +51,7 @@ Environment variables
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
+   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica')
    FRIENDICA_PHP_PATH          The path of the PHP binary
    FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
    FRIENDICA_TZ                The timezone of Friendica
@@ -75,6 +76,8 @@ HELP;
 
 		$a = BaseObject::getApp();
 
+		$install = new Install();
+
 		// if a config file is set,
 		$config_file = $this->getOption(['f', 'file']);
 
@@ -82,8 +85,8 @@ HELP;
 			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.ini.php') {
 				// Copy config file
 				$this->out("Copying config file...\n");
-				if (!copy($a->basepath . DIRECTORY_SEPARATOR . $config_file, $a->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
-					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '$a->basepath" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.ini.php' manually.\n");
+				if (!copy($a->getBasePath() . DIRECTORY_SEPARATOR . $config_file, $a->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $a->getBasePath() . "'"  . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.ini.php' manually.\n");
 				}
 			}
 
@@ -102,21 +105,23 @@ HELP;
 			$db_data = $this->getOption(['d', 'dbdata'], ($save_db) ? getenv('MYSQL_DATABASE') : '');
 			$db_user = $this->getOption(['U', 'dbuser'], ($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : '');
 			$db_pass = $this->getOption(['P', 'dbpass'], ($save_db) ? getenv('MYSQL_PASSWORD') : '');
-			$php_path = $this->getOption(['b', 'phppath'], (!empty('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : '');
+			$url_path = $this->getOption(['u', 'urlpath'], (!empty('FRIENDICA_URL_PATH')) ? getenv('FRIENDICA_URL_PATH') : null);
+			$php_path = $this->getOption(['b', 'phppath'], (!empty('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : null);
 			$admin_mail = $this->getOption(['A', 'admin'], (!empty('FRIENDICA_ADMIN_MAIL')) ? getenv('FRIENDICA_ADMIN_MAIL') : '');
 			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
 			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
 
-			Install::createConfig(
+			$install->createConfig(
 				$php_path,
+				$url_path,
 				((!empty($db_port)) ? $db_host . ':' . $db_port : $db_host),
 				$db_user,
 				$db_pass,
 				$db_data,
-				$php_path,
 				$tz,
 				$lang,
-				$admin_mail
+				$admin_mail,
+				$a->getBasePath()
 			);
 		}
 
@@ -126,7 +131,10 @@ HELP;
 		$this->out("Checking basic setup...\n");
 
 		$checkResults = [];
-		$checkResults['basic'] = $this->runBasicChecks($a);
+
+		$this->runBasicChecks($install);
+
+		$checkResults['basic'] = $install->getChecks();
 		$errorMessage = $this->extractErrors($checkResults['basic']);
 
 		if ($errorMessage !== '') {
@@ -151,7 +159,7 @@ HELP;
 		// Install database
 		$this->out("Inserting data into database...\n");
 
-		$checkResults['data'] = Install::installDatabaseStructure();
+		$checkResults['data'] = DBStructure::update(false, true, true);
 
 		if ($checkResults['data'] !== '') {
 			throw new RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
@@ -174,28 +182,26 @@ HELP;
 	}
 
 	/**
-	 * @param App $app
-	 * @return array
+	 * @param Install $install the Installer instance
 	 */
-	private function runBasicChecks($app)
+	private function runBasicChecks(Install $install)
 	{
-		$checks = [];
-
-		Install::checkFunctions($checks);
-		Install::checkImagick($checks);
-		Install::checkLocalIni($checks);
-		Install::checkSmarty3($checks);
-		Install::checkKeys($checks);
+		$install->resetChecks();
+		$install->checkFunctions();
+		$install->checkImagick();
+		$install->checkLocalIni();
+		$install->checkSmarty3();
+		$install->checkKeys();
 
 		if (!empty(Config::get('config', 'php_path'))) {
-			Install::checkPHP(Config::get('config', 'php_path'), $checks);
+			if (!$install->checkPHP(Config::get('config', 'php_path'), true)) {
+				throw new RuntimeException(" ERROR: The php_path is not valid in the config.\n");
+			}
 		} else {
 			throw new RuntimeException(" ERROR: The php_path is not set in the config.\n");
 		}
 
 		$this->out(" NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.\n");
-
-		return $checks;
 	}
 
 	/**
@@ -203,6 +209,7 @@ HELP;
 	 * @param $db_user
 	 * @param $db_pass
 	 * @param $db_data
+	 *
 	 * @return array
 	 */
 	private function runDatabaseCheck($db_host, $db_user, $db_pass, $db_data)

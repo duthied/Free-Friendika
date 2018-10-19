@@ -81,7 +81,8 @@ class DFRN
 				return [];
 			}
 
-			$user['importer_uid']  = $user['uid'];
+			$user['importer_uid'] = $user['uid'];
+			$user['uprvkey'] = $user['prvkey'];
 		} else {
 			$user = ['importer_uid' => 0, 'uprvkey' => '', 'timezone' => 'UTC',
 				'nickname' => '', 'sprvkey' => '', 'spubkey' => '',
@@ -1163,15 +1164,17 @@ class DFRN
 	 * @return int Deliver status. Negative values mean an error.
 	 * @todo Add array type-hint for $owner, $contact
 	 */
-	public static function deliver($owner, $contact, $atom, $dissolve = false)
+	public static function deliver($owner, $contact, $atom, $dissolve = false, $legacy_transport = false)
 	{
 		$a = get_app();
 
 		// At first try the Diaspora transport layer
-		$ret = self::transmit($owner, $contact, $atom);
-		if ($ret >= 200) {
-			logger('Delivery via Diaspora transport layer was successful with status ' . $ret);
-			return $ret;
+		if (!$dissolve && !$legacy_transport) {
+			$curlResult = self::transmit($owner, $contact, $atom);
+			if ($curlResult >= 200) {
+				logger('Delivery via Diaspora transport layer was successful with status ' . $curlResult);
+				return $curlResult;
+			}
 		}
 
 		$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
@@ -1208,16 +1211,16 @@ class DFRN
 
 		logger('dfrn_deliver: ' . $url);
 
-		$ret = Network::curl($url);
+		$curlResult = Network::curl($url);
 
-		if (!empty($ret["errno"]) && ($ret['errno'] == CURLE_OPERATION_TIMEDOUT)) {
+		if ($curlResult->isTimeout()) {
 			Contact::markForArchival($contact);
 			return -2; // timed out
 		}
 
-		$xml = $ret['body'];
+		$xml = $curlResult->getBody();
 
-		$curl_stat = $a->get_curl_code();
+		$curl_stat = $curlResult->getReturnCode();
 		if (empty($curl_stat)) {
 			Contact::markForArchival($contact);
 			return -3; // timed out
@@ -1365,17 +1368,19 @@ class DFRN
 
 		logger('dfrn_deliver: ' . "SENDING: " . print_r($postvars, true), LOGGER_DATA);
 
-		$xml = Network::post($contact['notify'], $postvars);
+		$postResult = Network::post($contact['notify'], $postvars);
+
+		$xml = $postResult->getBody();
 
 		logger('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
 
-		$curl_stat = $a->get_curl_code();
+		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
 			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && stristr($a->get_curl_headers(), 'retry-after')) {
+		if (($curl_stat == 503) && stristr($postResult->getHeader(), 'retry-after')) {
 			Contact::markForArchival($contact);
 			return -10;
 		}
@@ -1464,16 +1469,17 @@ class DFRN
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
-		$xml = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$postResult = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$xml = $postResult->getBody();
 
-		$curl_stat = $a->get_curl_code();
+		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
 			logger('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
 			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && (stristr($a->get_curl_headers(), 'retry-after'))) {
+		if (($curl_stat == 503) && (stristr($postResult->getHeader(), 'retry-after'))) {
 			Contact::markForArchival($contact);
 			return -10;
 		}
@@ -2252,6 +2258,11 @@ class DFRN
 			if ($Blink && link_compare($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
 				$author = DBA::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
+				$item['id'] = $posted_id;
+
+				$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => $importer["importer_uid"]]);
+				$item["parent"] = $parent['id'];
+
 				// send a notification
 				notification(
 					[
@@ -2341,6 +2352,12 @@ class DFRN
 				if (Item::exists($condition)) {
 					return false;
 				}
+
+				// The owner of an activity must be the author
+				$item["owner-name"] = $item["author-name"];
+				$item["owner-link"] = $item["author-link"];
+				$item["owner-avatar"] = $item["author-avatar"];
+				$item["owner-id"] = $item["author-id"];
 			} else {
 				$is_like = false;
 			}
@@ -2402,8 +2419,11 @@ class DFRN
 						break;
 					case "enclosure":
 						$enclosure = $href;
-						if (strlen($item["attach"])) {
+
+						if (!empty($item["attach"])) {
 							$item["attach"] .= ",";
+						} else {
+							$item["attach"] = "";
 						}
 
 						$item["attach"] .= '[attach]href="' . $href . '" length="' . $length . '" type="' . $type . '" title="' . $title . '"[/attach]';
@@ -2479,7 +2499,7 @@ class DFRN
 
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
-			$base_url = get_app()->get_baseurl();
+			$base_url = get_app()->getBaseURL();
 			$item['body'] = reltoabs($item['body'], $base_url);
 
 			$item['body'] = html2bb_video($item['body']);

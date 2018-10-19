@@ -14,7 +14,7 @@ require_once 'include/security.php';
 /**
  * Logout module
  *
- * @author Hypolite Petovan mrpetovan@gmail.com
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Logout extends BaseModule
 {
@@ -26,6 +26,6 @@ class Logout extends BaseModule
 		Addon::callHooks("logging_out");
 		nuke_session();
 		info(L10n::t('Logged out.') . EOL);
-		goaway(self::getApp()->get_baseurl());
+		goaway(self::getApp()->getBaseURL());
 	}
 }

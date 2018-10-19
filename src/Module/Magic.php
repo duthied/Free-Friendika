@@ -47,7 +47,7 @@ class Magic extends BaseModule
 		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
 		// Redirect if the contact is already authenticated on this site.
-		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->get_baseurl())) !== false) {
+		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->getBaseURL())) !== false) {
 			if ($test) {
 				$ret['success'] = true;
 				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;
@@ -76,20 +76,16 @@ class Magic extends BaseModule
 
 				// Create a header that is signed with the local users private key.
 				$headers = HTTPSignature::createSig(
-					'',
 					$headers,
 					$user['prvkey'],
-					'acct:' . $user['nickname'] . '@' . $a->get_hostname() . ($a->urlpath ? '/' . $a->urlpath : ''),
-					false,
-					true,
-					'sha512'
+					'acct:' . $user['nickname'] . '@' . $a->getHostName() . ($a->getURLPath() ? '/' . $a->getURLPath() : '')
 				);
 
 				// Try to get an authentication token from the other instance.
-				$x = Network::curl($basepath . '/owa', false, $redirects, ['headers' => $headers]);
+				$curlResult = Network::curl($basepath . '/owa', false, $redirects, ['headers' => $headers]);
 
-				if ($x['success']) {
-					$j = json_decode($x['body'], true);
+				if ($curlResult->isSuccess()) {
+					$j = json_decode($curlResult->getBody(), true);
 
 					if ($j['success']) {
 						$token = '';

@@ -349,7 +349,7 @@ class Group extends BaseObject
 	 * @param int $cid
 	 * @return string
 	 */
-	public static function sidebarWidget($every = 'contacts', $each = 'group', $editmode = 'standard', $group_id = '', $cid = 0)
+	public static function sidebarWidget($every = 'contact', $each = 'group', $editmode = 'standard', $group_id = '', $cid = 0)
 	{
 		$o = '';
 
@@ -404,7 +404,7 @@ class Group extends BaseObject
 			'newgroup' => $editmode == 'extended' || $editmode == 'full' ? 1 : '',
 			'grouppage' => 'group/',
 			'$edittext' => L10n::t('Edit group'),
-			'$ungrouped' => $every === 'contacts' ? L10n::t('Contacts not in any group') : '',
+			'$ungrouped' => $every === 'contact' ? L10n::t('Contacts not in any group') : '',
 			'$ungrouped_selected' => (($group_id === 'none') ? 'group-selected' : ''),
 			'$createtext' => L10n::t('Create a new group'),
 			'$creategroup' => L10n::t('Group Name: '),

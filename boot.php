@@ -39,9 +39,9 @@ require_once 'include/text.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
-define('FRIENDICA_VERSION',      '2018.08-rc');
+define('FRIENDICA_VERSION',      '2018.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1283);
+define('DB_UPDATE_VERSION',      1288);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -476,44 +476,6 @@ function defaults() {
 }
 
 /**
- * @brief Returns the baseurl.
- *
- * @see System::baseUrl()
- *
- * @return string
- * @TODO Function is deprecated and only used in some addons
- */
-function z_root()
-{
-	return System::baseUrl();
-}
-
-/**
- * @brief Return absolut URL for given $path.
- *
- * @param string $path given path
- *
- * @return string
- */
-function absurl($path)
-{
-	if (strpos($path, '/') === 0) {
-		return z_path() . $path;
-	}
-	return $path;
-}
-
-/**
- * @brief Function to check if request was an AJAX (xmlhttprequest) request.
- *
- * @return boolean
- */
-function is_ajax()
-{
-	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
-}
-
-/**
  * @brief Function to check if request was an AJAX (xmlhttprequest) request.
  *
  * @param boolean $via_worker boolean Is the check run via the worker?
@@ -556,7 +518,7 @@ function check_url(App $a)
 	// and www.example.com vs example.com.
 	// We will only change the url to an ip address if there is no existing setting
 
-	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->get_hostname()))) {
+	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->getHostName()))) {
 		Config::set('system', 'url', System::baseUrl());
 	}
 
@@ -674,62 +636,6 @@ function run_update_function($x, $prefix)
 }
 
 /**
- * @brief Synchronise addons:
- *
- * system.addon contains a comma-separated list of names
- * of addons which are used on this system.
- * Go through the database list of already installed addons, and if we have
- * an entry, but it isn't in the config list, call the uninstall procedure
- * and mark it uninstalled in the database (for now we'll remove it).
- * Then go through the config list and if we have a addon that isn't installed,
- * call the install procedure and add it to the database.
- *
- * @param object $a App
- */
-function check_addons(App $a)
-{
-	$r = q("SELECT * FROM `addon` WHERE `installed` = 1");
-	if (DBA::isResult($r)) {
-		$installed = $r;
-	} else {
-		$installed = [];
-	}
-
-	$addons = Config::get('system', 'addon');
-	$addons_arr = [];
-
-	if ($addons) {
-		$addons_arr = explode(',', str_replace(' ', '', $addons));
-	}
-
-	$a->addons = $addons_arr;
-
-	$installed_arr = [];
-
-	if (count($installed)) {
-		foreach ($installed as $i) {
-			if (!in_array($i['name'], $addons_arr)) {
-				Addon::uninstall($i['name']);
-			} else {
-				$installed_arr[] = $i['name'];
-			}
-		}
-	}
-
-	if (count($addons_arr)) {
-		foreach ($addons_arr as $p) {
-			if (!in_array($p, $installed_arr)) {
-				Addon::install($p);
-			}
-		}
-	}
-
-	Addon::loadHooks();
-
-	return;
-}
-
-/**
  * @brief Used to end the current process, after saving session state.
  * @deprecated
  */
@@ -741,7 +647,7 @@ function killme()
 /**
  * @brief Redirect to another URL and terminate this process.
  */
-function goaway($path)
+function goaway($path = '')
 {
 	if (strstr(normalise_link($path), 'http://')) {
 		$url = $path;
@@ -1031,27 +937,27 @@ function get_temppath()
 
 	$temppath = Config::get("system", "temppath");
 
-	if (($temppath != "") && App::directory_usable($temppath)) {
+	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
-		return App::realpath($temppath);
+		return App::getRealPath($temppath);
 	}
 
 	// We don't have a working preconfigured temp path, so we take the system path.
 	$temppath = sys_get_temp_dir();
 
 	// Check if it is usable
-	if (($temppath != "") && App::directory_usable($temppath)) {
+	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
 		// Always store the real path, not the path through symlinks
-		$temppath = App::realpath($temppath);
+		$temppath = App::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
-		$new_temppath = $temppath . "/" . $a->get_hostname();
+		$new_temppath = $temppath . "/" . $a->getHostName();
 		if (!is_dir($new_temppath)) {
 			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 			mkdir($new_temppath);
 		}
 
-		if (App::directory_usable($new_temppath)) {
+		if (App::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "temppath", $new_temppath);
 			return $new_temppath;
@@ -1133,8 +1039,8 @@ function get_itemcachepath()
 	}
 
 	$itemcache = Config::get('system', 'itemcache');
-	if (($itemcache != "") && App::directory_usable($itemcache)) {
-		return App::realpath($itemcache);
+	if (($itemcache != "") && App::isDirectoryUsable($itemcache)) {
+		return App::getRealPath($itemcache);
 	}
 
 	$temppath = get_temppath();
@@ -1145,7 +1051,7 @@ function get_itemcachepath()
 			mkdir($itemcache);
 		}
 
-		if (App::directory_usable($itemcache)) {
+		if (App::isDirectoryUsable($itemcache)) {
 			Config::set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
@@ -1161,7 +1067,7 @@ function get_itemcachepath()
 function get_spoolpath()
 {
 	$spoolpath = Config::get('system', 'spoolpath');
-	if (($spoolpath != "") && App::directory_usable($spoolpath)) {
+	if (($spoolpath != "") && App::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -1176,7 +1082,7 @@ function get_spoolpath()
 			mkdir($spoolpath);
 		}
 
-		if (App::directory_usable($spoolpath)) {
+		if (App::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "spoolpath", $spoolpath);
 			return $spoolpath;
@@ -1229,46 +1135,6 @@ function validate_include(&$file)
 
 	// Simply return flag
 	return $valid;
-}
-
-function current_load()
-{
-	if (!function_exists('sys_getloadavg')) {
-		return false;
-	}
-
-	$load_arr = sys_getloadavg();
-
-	if (!is_array($load_arr)) {
-		return false;
-	}
-
-	return max($load_arr[0], $load_arr[1]);
-}
-
-/**
- * @brief get c-style args
- *
- * @return int
- */
-function argc()
-{
-	return get_app()->argc;
-}
-
-/**
- * @brief Returns the value of a argv key
- *
- * @param int $x argv key
- * @return string Value of the argv key
- */
-function argv($x)
-{
-	if (array_key_exists($x, get_app()->argv)) {
-		return get_app()->argv[$x];
-	}
-
-	return '';
 }
 
 /**

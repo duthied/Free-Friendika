@@ -15,6 +15,34 @@
 			"name": ["UNIQUE", "name"]
 		}
 	},
+	"apcontact": {
+		"comment": "ActivityPub compatible contacts - used in the ActivityPub implementation",
+		"fields": {
+			"url": {"type": "varbinary(255)", "not null": "1", "primary": "1", "comment": "URL of the contact"},
+			"uuid": {"type": "varchar(255)", "comment": ""},
+			"type": {"type": "varchar(20)", "not null": "1", "comment": ""},
+			"following": {"type": "varchar(255)", "comment": ""},
+			"followers": {"type": "varchar(255)", "comment": ""},
+			"inbox": {"type": "varchar(255)", "not null": "1", "comment": ""},
+			"outbox": {"type": "varchar(255)", "comment": ""},
+			"sharedinbox": {"type": "varchar(255)", "comment": ""},
+			"nick": {"type": "varchar(255)", "not null": "1", "default": "", "comment": ""},
+			"name": {"type": "varchar(255)", "comment": ""},
+			"about": {"type": "text", "comment": ""},
+			"photo": {"type": "varchar(255)", "comment": ""},
+			"addr": {"type": "varchar(255)", "comment": ""},
+			"alias": {"type": "varchar(255)", "comment": ""},
+			"pubkey": {"type": "text", "comment": ""},
+			"baseurl": {"type": "varchar(255)", "comment": "baseurl of the ap contact"},
+			"updated": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": ""}
+
+		},
+		"indexes": {
+			"PRIMARY": ["url"],
+			"addr": ["addr(32)"],
+			"url": ["followers(190)"]
+		}
+	},
 	"attach": {
 		"comment": "file attachments",
 		"fields": {
@@ -164,6 +192,7 @@
 			"hidden": {"type": "boolean", "not null": "1", "default": "0", "comment": ""},
 			"archive": {"type": "boolean", "not null": "1", "default": "0", "comment": ""},
 			"pending": {"type": "boolean", "not null": "1", "default": "1", "comment": ""},
+			"deleted": {"type": "boolean", "not null": "1", "default": "0", "comment": "Contact has been deleted"},
 			"rating": {"type": "tinyint", "not null": "1", "default": "0", "comment": ""},
 			"reason": {"type": "text", "comment": ""},
 			"closeness": {"type": "tinyint unsigned", "not null": "1", "default": "99", "comment": ""},
@@ -215,7 +244,7 @@
 			"reply-to-uri": {"type": "varbinary(255)", "not null": "1", "default": "", "comment": "URI to which this item is a reply"},
 			"conversation-uri": {"type": "varbinary(255)", "not null": "1", "default": "", "comment": "GNU Social conversation URI"},
 			"conversation-href": {"type": "varbinary(255)", "not null": "1", "default": "", "comment": "GNU Social conversation link"},
-			"protocol": {"type": "tinyint unsigned", "not null": "1", "default": "0", "comment": "The protocol of the item"},
+			"protocol": {"type": "tinyint unsigned", "not null": "1", "default": "255", "comment": "The protocol of the item"},
 			"source": {"type": "mediumtext", "comment": "Original source"},
 			"received": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Receiving date"}
 		},
@@ -223,6 +252,16 @@
 			"PRIMARY": ["item-uri"],
 			"conversation-uri": ["conversation-uri"],
 			"received": ["received"]
+		}
+	},
+	"diaspora-interaction": {
+		"comment": "Signed Diaspora Interaction",
+		"fields": {
+			"uri-id": {"type": "int unsigned", "not null": "1", "primary": "1", "relation": {"item-uri": "id"}, "comment": "Id of the item-uri table entry that contains the item uri"},
+			"interaction": {"type": "mediumtext", "comment": "The Diaspora interaction"}
+		},
+		"indexes": {
+			"PRIMARY": ["uri-id"]
 		}
 	},
 	"event": {
@@ -581,7 +620,8 @@
 		"indexes": {
 			"PRIMARY": ["id"],
 			"uri-hash": ["UNIQUE", "uri-hash"],
-			"uri": ["uri(191)"]
+			"uri": ["uri(191)"],
+			"uri-id": ["uri-id"]
 		}
 	},
 	"item-content": {
@@ -610,7 +650,8 @@
 		"indexes": {
 			"PRIMARY": ["id"],
 			"uri-plink-hash": ["UNIQUE", "uri-plink-hash"],
-			"uri": ["uri(191)"]
+			"uri": ["uri(191)"],
+			"uri-id": ["uri-id"]
 		}
 	},
 	"item-delivery-data": {
@@ -1269,14 +1310,16 @@
 			"created": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Creation date"},
 			"pid": {"type": "int unsigned", "not null": "1", "default": "0", "comment": "Process id of the worker"},
 			"executed": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Execution date"},
+			"next_try": {"type": "datetime", "not null": "1", "default": "0001-01-01 00:00:00", "comment": "Next retrial date"},
+			"retrial": {"type": "tinyint", "not null": "1", "default": "0", "comment": "Retrial counter"},
 			"done": {"type": "boolean", "not null": "1", "default": "0", "comment": "Marked 1 when the task was done - will be deleted later"}
 		},
 		"indexes": {
 			"PRIMARY": ["id"],
 			"pid": ["pid"],
 			"parameter": ["parameter(64)"],
-			"priority_created": ["priority", "created"],
-			"done_executed": ["done", "executed"]
+			"priority_created_next_try": ["priority", "created", "next_try"],
+			"done_executed_next_try": ["done", "executed", "next_try"]
 		}
 	}
 }

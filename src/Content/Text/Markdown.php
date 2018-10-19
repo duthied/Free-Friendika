@@ -14,7 +14,7 @@ use Friendica\Content\Text\HTML;
 /**
  * Friendica-specific usage of Markdown
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Markdown extends BaseObject
 {
@@ -32,9 +32,10 @@ class Markdown extends BaseObject
 
 		$MarkdownParser = new MarkdownExtra();
 		$MarkdownParser->hard_wrap = $hardwrap;
+		$MarkdownParser->code_class_prefix = 'language-';
 		$html = $MarkdownParser->transform($text);
 
-		self::getApp()->save_timestamp($stamp1, "parser");
+		self::getApp()->saveTimestamp($stamp1, "parser");
 
 		return $html;
 	}

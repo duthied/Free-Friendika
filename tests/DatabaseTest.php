@@ -5,6 +5,9 @@
 
 namespace Friendica\Test;
 
+use Friendica\App;
+use Friendica\BaseObject;
+use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
@@ -16,8 +19,22 @@ use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
  */
 abstract class DatabaseTest extends TestCase
 {
-
 	use TestCaseTrait;
+
+	/**
+	 * @var App The Friendica App
+	 */
+	protected $app;
+
+	protected function setUp()
+	{
+		// Reusable App object
+		$this->app = BaseObject::getApp();
+
+		Config::set('system', 'url', 'http://localhost');
+		Config::set('system', 'hostname', 'localhost');
+		Config::set('system', 'worker_dont_fork', true);
+	}
 
 	/**
 	 * Get database connection.

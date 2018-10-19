@@ -15,7 +15,7 @@ function ostatus_subscribe_content(App $a) {
 
 	if (! local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		goaway($_SESSION['return_url']);
+		goaway('/ostatus_subscribe');
 		// NOTREACHED
 	}
 
@@ -44,14 +44,14 @@ function ostatus_subscribe_content(App $a) {
 		$api = $contact["baseurl"]."/api/";
 
 		// Fetching friends
-		$data = Network::curl($api."statuses/friends.json?screen_name=".$contact["nick"]);
+		$curlResult = Network::curl($api."statuses/friends.json?screen_name=".$contact["nick"]);
 
-		if (!$data["success"]) {
+		if (!$curlResult->isSuccess()) {
 			PConfig::delete($uid, "ostatus", "legacy_contact");
 			return $o.L10n::t("Couldn't fetch friends for contact.");
 		}
 
-		PConfig::set($uid, "ostatus", "legacy_friends", $data["body"]);
+		PConfig::set($uid, "ostatus", "legacy_friends", $curlResult->getBody());
 	}
 
 	$friends = json_decode(PConfig::get($uid, "ostatus", "legacy_friends"));
@@ -72,8 +72,8 @@ function ostatus_subscribe_content(App $a) {
 
 	$o .= "<p>".$counter."/".$total.": ".$url;
 
-	$data = Probe::uri($url);
-	if ($data["network"] == Protocol::OSTATUS) {
+	$curlResult = Probe::uri($url);
+	if ($curlResult["network"] == Protocol::OSTATUS) {
 		$result = Contact::createFromProbe($uid, $url, true, Protocol::OSTATUS);
 		if ($result["success"]) {
 			$o .= " - ".L10n::t("success");

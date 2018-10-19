@@ -59,16 +59,16 @@ function match_content(App $a)
 		}
 
 		if (strlen(Config::get('system', 'directory'))) {
-			$x = Network::post(get_server().'/msearch', $params);
+			$x = Network::post(get_server().'/msearch', $params)->getBody();
 		} else {
-			$x = Network::post(System::baseUrl() . '/msearch', $params);
+			$x = Network::post(System::baseUrl() . '/msearch', $params)->getBody();
 		}
 
 		$j = json_decode($x);
 
 		if ($j->total) {
-			$a->set_pager_total($j->total);
-			$a->set_pager_itemspage($j->items_page);
+			$a->setPagerTotal($j->total);
+			$a->setPagerItemsPage($j->items_page);
 		}
 
 		if (count($j->results)) {

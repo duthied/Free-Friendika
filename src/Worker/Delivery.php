@@ -22,13 +22,14 @@ require_once 'include/items.php';
 
 class Delivery extends BaseObject
 {
-	const MAIL =       'mail';
-	const SUGGESTION = 'suggest';
-	const RELOCATION = 'relocate';
-	const DELETION =   'drop';
-	const POST =       'wall-new';
-	const COMMENT =    'comment-new';
-	const REMOVAL =    'removeme';
+	const MAIL          = 'mail';
+	const SUGGESTION    = 'suggest';
+	const RELOCATION    = 'relocate';
+	const DELETION      = 'drop';
+	const POST          = 'wall-new';
+	const COMMENT       = 'comment-new';
+	const REMOVAL       = 'removeme';
+	const PROFILEUPDATE = 'profileupdate';
 
 	public static function execute($cmd, $item_id, $contact_id)
 	{
@@ -38,13 +39,13 @@ class Delivery extends BaseObject
 		$followup = false;
 		$public_message = false;
 
+		$items = [];
 		if ($cmd == self::MAIL) {
 			$target_item = DBA::selectFirst('mail', [], ['id' => $item_id]);
 			if (!DBA::isResult($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
-			$items = [];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $item_id]);
 			if (!DBA::isResult($target_item)) {
@@ -64,7 +65,6 @@ class Delivery extends BaseObject
 			$params = ['order' => ['id']];
 			$itemdata = Item::select([], $condition, $params);
 
-			$items = [];
 			while ($item = Item::fetch($itemdata)) {
 				if ($item['id'] == $parent_id) {
 					$parent = $item;
@@ -111,7 +111,7 @@ class Delivery extends BaseObject
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			$localhost = self::getApp()->get_hostname();
+			$localhost = self::getApp()->getHostName();
 			if (strpos($localhost, ':')) {
 				$localhost = substr($localhost, 0, strpos($localhost, ':'));
 			}
@@ -292,8 +292,10 @@ class Delivery extends BaseObject
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				return;
 			}
-		} else {
+		} elseif ($cmd != self::RELOCATION) {
 			$deliver_status = DFRN::deliver($owner, $contact, $atom);
+		} else {
+			$deliver_status = DFRN::deliver($owner, $contact, $atom, false, true);
 		}
 
 		logger('Delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
@@ -432,7 +434,7 @@ class Delivery extends BaseObject
 				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8').' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
-			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . self::getApp()->get_hostname() . '>' . "\n";
+			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . self::getApp()->getHostName() . '>' . "\n";
 		}
 
 		$headers .= 'Message-Id: <' . Email::iri2msgid($target_item['uri']) . '>' . "\n";

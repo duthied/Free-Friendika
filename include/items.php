@@ -72,7 +72,8 @@ function add_page_info_data(array $data, $no_photos = false)
 		$text .= " title='".$data["title"]."'";
 	}
 
-	if (!empty($data["images"])) {
+	// Only embedd a picture link when it seems to be a valid picture ("width" is set)
+	if (!empty($data["images"]) && !empty($data["images"][0]["width"])) {
 		$preview = str_replace(["[", "]"], ["&#91;", "&#93;"], htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
 		// if the preview picture is larger than 500 pixels then show it in a larger mode
 		// But only, if the picture isn't higher than large (To prevent huge posts)
@@ -315,9 +316,9 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 		DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 	}
 
-	Network::post($url, $params);
+	$postResult = Network::post($url, $params);
 
-	logger('subscribe_to_hub: returns: ' . $a->get_curl_code(), LOGGER_DEBUG);
+	logger('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), LOGGER_DEBUG);
 
 	return;
 
@@ -348,12 +349,12 @@ function drop_item($id)
 
 	// locate item to be deleted
 
-	$fields = ['id', 'uid', 'contact-id', 'deleted'];
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
 		notice(L10n::t('Item not found.') . EOL);
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		goaway('/network');
 	}
 
 	if ($item['deleted']) {
@@ -400,17 +401,17 @@ function drop_item($id)
 		}
 		// Now check how the user responded to the confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+			goaway('/display/' . $item['guid']);
 		}
 
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		goaway('/network');
 		//NOTREACHED
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		goaway('/display/' . $item['guid']);
 		//NOTREACHED
 	}
 }

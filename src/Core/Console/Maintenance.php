@@ -10,7 +10,7 @@ require_once 'include/dba.php';
 /**
  * @brief Sets maintenance mode for this node
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Maintenance extends \Asika\SimpleConsole\Console
 {
@@ -47,7 +47,7 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = get_app();
+		$a = \Friendica\BaseObject::getApp();
 
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
@@ -64,7 +64,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->isInstallMode()) {
+		if ($a->getMode()->isInstall()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 

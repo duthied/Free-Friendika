@@ -40,6 +40,14 @@ Requirements
 Installation procedure
 ---
 
+### Alternative Installation Methods
+
+This guide will walk you through the manual installation process of Friendica.
+If this is nothing for you, you might be interested in
+
+* the [Friendica Docker image](https://github.com/friendica/docker) or
+* how [install Friendica with YunoHost](https://github.com/YunoHost-Apps/friendica_ynh).
+
 ### Get Friendica
 
 Unpack the Friendica files into the root of your web server document area.
@@ -164,6 +172,7 @@ if you don't use the option `--savedb` during installation, the DB credentials w
 This variables wont be used at normal Friendica runtime.
 Instead, they get saved into `config/local.ini.php`. 
 
+-	`FRIENDICA_URL_PATH` The URL path of Friendica (f.e. '/friendica')
 -	`FRIENDICA_PHP_PATH` The path of the PHP binary
 -	`FRIENDICA_ADMIN_MAIL` The admin email address of Friendica (this email will be used for admin access)
 -	`FRIENDICA_TZ` The timezone of Friendica
@@ -182,7 +191,8 @@ All options will be saved in the `config/local.ini.php` and are overruling the a
 -	`-U|--dbuser <username>` The username of the mysql/mariadb database login (env `MYSQL_USER` or `MYSQL_USERNAME`)
 -	`-P|--dbpass <password>` The password of the mysql/mariadb database login (env `MYSQL_PASSWORD`)
 -	`-d|--dbdata <database>` The name of the mysql/mariadb database (env `MYSQL_DATABASE`)
--	`-b|--phppath <path>` The path of the PHP binary (env `FRIENDICA_PHP_PATH`)
+-	`-u|--urlpath <url_path>` The URL path of Friendica - f.e. '/friendica' (env `FRIENDICA_URL_PATH`)
+-	`-b|--phppath <php_path>` The path of the PHP binary (env `FRIENDICA_PHP_PATH`)
 -	`-A|--admin <mail>` The admin email address of Friendica (env `FRIENDICA_ADMIN_MAIL`)
 -	`-T|--tz <timezone>` The timezone of Friendica (env `FRIENDICA_TZ`)
 -	`-L|--land <language>` The language of Friendica (env `FRIENDICA_LANG`)

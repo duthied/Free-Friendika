@@ -74,6 +74,16 @@ class OStatus
 		$author["contact-id"] = $contact["id"];
 
 		$contact = null;
+
+/*
+		This here would be better, but we would get problems with contacts from the statusnet addon
+		This is kept here as a reminder for the future
+
+		$cid = Contact::getIdForURL($author["author-link"], $importer["uid"]);
+		if ($cid) {
+			$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
+		}
+*/
 		if ($aliaslink != '') {
 			$condition = ["`uid` = ? AND `alias` = ? AND `network` != ? AND `rel` IN (?, ?)",
 					$importer["uid"], $aliaslink, Protocol::STATUSNET,
@@ -219,7 +229,7 @@ class OStatus
 			$gcid = GContact::update($contact);
 
 			GContact::link($gcid, $contact["uid"], $contact["id"]);
-		} else {
+		} elseif ($contact["network"] != Protocol::DFRN) {
 			$contact = null;
 		}
 
@@ -312,7 +322,7 @@ class OStatus
 			self::$conv_list = [];
 		}
 
-		logger("Import OStatus message", LOGGER_DEBUG);
+		logger('Import OStatus message for user ' . $importer['uid'], LOGGER_DEBUG);
 
 		if ($xml == "") {
 			return false;
@@ -351,7 +361,7 @@ class OStatus
 		$header["origin"] = 0;
 		$header["gravity"] = GRAVITY_COMMENT;
 
-		if (!is_object($doc->firstChild)) {
+		if (!is_object($doc->firstChild) || empty($doc->firstChild->tagName)) {
 			return false;
 		}
 
@@ -726,21 +736,21 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$conversation_data = Network::curl($conversation, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = Network::curl($conversation, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
 
-		if (!$conversation_data['success']) {
+		if (!$curlResult->isSuccess()) {
 			return;
 		}
 
 		$xml = '';
 
-		if (stristr($conversation_data['header'], 'Content-Type: application/atom+xml')) {
-			$xml = $conversation_data['body'];
+		if (stristr($curlResult->getHeader(), 'Content-Type: application/atom+xml')) {
+			$xml = $curlResult->getBody();
 		}
 
 		if ($xml == '') {
 			$doc = new DOMDocument();
-			if (!@$doc->loadHTML($conversation_data['body'])) {
+			if (!@$doc->loadHTML($curlResult->getBody())) {
 				return;
 			}
 			$xpath = new DOMXPath($doc);
@@ -757,8 +767,8 @@ class OStatus
 				if ($file != '') {
 					$conversation_atom = Network::curl($attribute['href']);
 
-					if ($conversation_atom['success']) {
-						$xml = $conversation_atom['body'];
+					if ($conversation_atom->isSuccess()) {
+						$xml = $conversation_atom->getBody();
 					}
 				}
 			}
@@ -870,15 +880,15 @@ class OStatus
 			return;
 		}
 
-		$self_data = Network::curl($self);
+		$curlResult = Network::curl($self);
 
-		if (!$self_data['success']) {
+		if (!$curlResult->isSuccess()) {
 			return;
 		}
 
 		// We reformat the XML to make it better readable
 		$doc = new DOMDocument();
-		$doc->loadXML($self_data['body']);
+		$doc->loadXML($curlResult->getBody());
 		$doc->preserveWhiteSpace = false;
 		$doc->formatOutput = true;
 		$xml = $doc->saveXML();
@@ -915,22 +925,22 @@ class OStatus
 		}
 
 		$stored = false;
-		$related_data = Network::curl($related, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = Network::curl($related, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
 
-		if (!$related_data['success']) {
+		if (!$curlResult->isSuccess()) {
 			return;
 		}
 
 		$xml = '';
 
-		if (stristr($related_data['header'], 'Content-Type: application/atom+xml')) {
-			logger('Directly fetched XML for URI '.$related_uri, LOGGER_DEBUG);
-			$xml = $related_data['body'];
+		if (stristr($curlResult->getHeader(), 'Content-Type: application/atom+xml')) {
+			logger('Directly fetched XML for URI ' . $related_uri, LOGGER_DEBUG);
+			$xml = $curlResult->getBody();
 		}
 
 		if ($xml == '') {
 			$doc = new DOMDocument();
-			if (!@$doc->loadHTML($related_data['body'])) {
+			if (!@$doc->loadHTML($curlResult->getBody())) {
 				return;
 			}
 			$xpath = new DOMXPath($doc);
@@ -946,11 +956,11 @@ class OStatus
 					}
 				}
 				if ($atom_file != '') {
-					$related_atom = Network::curl($atom_file);
+					$curlResult = Network::curl($atom_file);
 
-					if ($related_atom['success']) {
-						logger('Fetched XML for URI '.$related_uri, LOGGER_DEBUG);
-						$xml = $related_atom['body'];
+					if ($curlResult->isSuccess()) {
+						logger('Fetched XML for URI ' . $related_uri, LOGGER_DEBUG);
+						$xml = $curlResult->getBody();
 					}
 				}
 			}
@@ -958,22 +968,22 @@ class OStatus
 
 		// Workaround for older GNU Social servers
 		if (($xml == '') && strstr($related, '/notice/')) {
-			$related_atom = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related).'.atom');
+			$curlResult = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related).'.atom');
 
-			if ($related_atom['success']) {
-				logger('GNU Social workaround to fetch XML for URI '.$related_uri, LOGGER_DEBUG);
-				$xml = $related_atom['body'];
+			if ($curlResult->isSuccess()) {
+				logger('GNU Social workaround to fetch XML for URI ' . $related_uri, LOGGER_DEBUG);
+				$xml = $curlResult->getBody();
 			}
 		}
 
 		// Even more worse workaround for GNU Social ;-)
 		if ($xml == '') {
 			$related_guess = OStatus::convertHref($related_uri);
-			$related_atom = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
+			$curlResult = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
 
-			if ($related_atom['success']) {
-				logger('GNU Social workaround 2 to fetch XML for URI '.$related_uri, LOGGER_DEBUG);
-				$xml = $related_atom['body'];
+			if ($curlResult->isSuccess()) {
+				logger('GNU Social workaround 2 to fetch XML for URI ' . $related_uri, LOGGER_DEBUG);
+				$xml = $curlResult->getBody();
 			}
 		}
 
@@ -1820,7 +1830,7 @@ class OStatus
 		}
 
 		$item["uri"] = $item['parent-uri'] = $item['thr-parent']
-				= 'tag:'.get_app()->get_hostname().
+				= 'tag:'.get_app()->getHostName().
 				','.date('Y-m-d').':'.$action.':'.$owner['uid'].
 				':person:'.$connect_id.':'.$item['created'];
 
@@ -1994,8 +2004,7 @@ class OStatus
 		}
 
 		if (intval($item["parent"]) > 0) {
-			$conversation_href = System::baseUrl()."/display/".$owner["nick"]."/".$item["parent"];
-			$conversation_uri = $conversation_href;
+			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
 
 			if (isset($parent_item)) {
 				$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $parent_item]);

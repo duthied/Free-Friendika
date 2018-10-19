@@ -9,7 +9,7 @@ use Smarty;
 /**
  * Friendica extension of the Smarty3 template engine
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class FriendicaSmarty extends Smarty
 {
@@ -38,8 +38,8 @@ class FriendicaSmarty extends Smarty
 		$this->setConfigDir('view/smarty3/config/');
 		$this->setCacheDir('view/smarty3/cache/');
 
-		$this->left_delimiter = $a->get_template_ldelim('smarty3');
-		$this->right_delimiter = $a->get_template_rdelim('smarty3');
+		$this->left_delimiter = $a->getTemplateLeftDelimiter('smarty3');
+		$this->right_delimiter = $a->getTemplateRightDelimiter('smarty3');
 
 		// Don't report errors so verbosely
 		$this->error_reporting = E_ALL & ~E_NOTICE;

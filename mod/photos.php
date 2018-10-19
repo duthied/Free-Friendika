@@ -212,7 +212,7 @@ function photos_post(App $a)
 		}
 
 		// Check if the user has responded to a delete confirmation query
-		if ($_REQUEST['canceled']) {
+		if (!empty($_REQUEST['canceled'])) {
 			goaway($_SESSION['photo_return']);
 		}
 
@@ -472,7 +472,7 @@ function photos_post(App $a)
 			$uri = Item::newURI($page_owner_uid);
 
 			$arr = [];
-			$arr['guid']          = System::createGUID(32);
+			$arr['guid']          = System::createUUID();
 			$arr['uid']           = $page_owner_uid;
 			$arr['uri']           = $uri;
 			$arr['parent-uri']    = $uri;
@@ -651,7 +651,7 @@ function photos_post(App $a)
 					$uri = Item::newURI($page_owner_uid);
 
 					$arr = [];
-					$arr['guid']          = System::createGUID(32);
+					$arr['guid']          = System::createUUID();
 					$arr['uid']           = $page_owner_uid;
 					$arr['uri']           = $uri;
 					$arr['parent-uri']    = $uri;
@@ -762,12 +762,14 @@ function photos_post(App $a)
 		$filesize = $ret['filesize'];
 		$type     = $ret['type'];
 		$error    = UPLOAD_ERR_OK;
-	} else {
+	} elseif (!empty($_FILES['userfile'])) {
 		$src      = $_FILES['userfile']['tmp_name'];
 		$filename = basename($_FILES['userfile']['name']);
 		$filesize = intval($_FILES['userfile']['size']);
 		$type     = $_FILES['userfile']['type'];
 		$error    = $_FILES['userfile']['error'];
+	} else {
+		$error    = UPLOAD_ERR_NO_FILE;
 	}
 
 	if ($error !== UPLOAD_ERR_OK) {
@@ -887,7 +889,7 @@ function photos_post(App $a)
 		$arr['coord'] = $lat . ' ' . $lon;
 	}
 
-	$arr['guid']          = System::createGUID(32);
+	$arr['guid']          = System::createUUID();
 	$arr['uid']           = $page_owner_uid;
 	$arr['uri']           = $uri;
 	$arr['parent-uri']    = $uri;
@@ -1141,8 +1143,8 @@ function photos_content(App $a)
 			DBA::escape($album)
 		);
 		if (DBA::isResult($r)) {
-			$a->set_pager_total(count($r));
-			$a->set_pager_itemspage(20);
+			$a->setPagerTotal(count($r));
+			$a->setPagerItemsPage(20);
 		}
 
 		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
@@ -1391,7 +1393,7 @@ function photos_content(App $a)
 			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
 
 			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
-			$a->set_pager_total(DBA::count('item', $condition));
+			$a->setPagerTotal(DBA::count('item', $condition));
 
 			$params = ['order' => ['id'], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
 			$result = Item::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params);
@@ -1633,7 +1635,7 @@ function photos_content(App $a)
 			'$paginate' => $paginate,
 		]);
 
-		$a->page['htmlhead'] .= "\n" . '<meta name="twitter:card" content="photo" />' . "\n";
+		$a->page['htmlhead'] .= "\n" . '<meta name="twitter:card" content="summary_large_image" />' . "\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:title" content="' . $photo["album"] . '" />' . "\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:image" content="' . $photo["href"] . '" />' . "\n";
 		$a->page['htmlhead'] .= '<meta name="twitter:image:width" content="' . $photo["width"] . '" />' . "\n";
@@ -1653,8 +1655,8 @@ function photos_content(App $a)
 	);
 
 	if (DBA::isResult($r)) {
-		$a->set_pager_total(count($r));
-		$a->set_pager_itemspage(20);
+		$a->setPagerTotal(count($r));
+		$a->setPagerItemsPage(20);
 	}
 
 	$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,

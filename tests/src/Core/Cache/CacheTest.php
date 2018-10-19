@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
+use Friendica\Core\Cache\MemcachedCacheDriver;
 use Friendica\Core\Config;
 use Friendica\Test\DatabaseTest;
 use Friendica\Util\DateTimeFormat;
@@ -12,6 +13,12 @@ abstract class CacheTest extends DatabaseTest
 	 * @var \Friendica\Core\Cache\ICacheDriver
 	 */
 	protected $instance;
+
+	/**
+	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 */
+	protected $cache;
+
 
 	abstract protected function getInstance();
 
@@ -29,6 +36,8 @@ abstract class CacheTest extends DatabaseTest
 		Config::set('system', 'throttle_limit_week', 100);
 		Config::set('system', 'throttle_limit_month', 100);
 		Config::set('system', 'theme', 'system_theme');
+
+		$this->instance->clear(false);
 	}
 
 	/**
@@ -81,18 +90,32 @@ abstract class CacheTest extends DatabaseTest
 			'3_value1' => $this->instance->get('3_value1'),
 		]);
 
-		$this->assertTrue($this->instance->clear(false));
+		$this->assertTrue($this->instance->clear());
 
 		$this->assertEquals([
-			'1_value1' => null,
-			'1_value2' => null,
-			'2_value1' => null,
-			'3_value1' => null,
+			'1_value1' => 'ipsum lorum1',
+			'1_value2' => 'ipsum lorum2',
+			'2_value1' => 'ipsum lorum3',
+			'3_value1' => 'ipsum lorum4',
 		], [
 			'1_value1' => $this->instance->get('1_value1'),
 			'1_value2' => $this->instance->get('1_value2'),
 			'2_value1' => $this->instance->get('2_value1'),
 			'3_value1' => $this->instance->get('3_value1'),
+		]);
+
+		$this->assertTrue($this->instance->clear(false));
+
+		$this->assertEquals([
+			'1_value1' => null,
+			'1_value2' => null,
+			'2_value3' => null,
+			'3_value4' => null,
+		], [
+			'1_value1' => $this->instance->get('1_value1'),
+			'1_value2' => $this->instance->get('1_value2'),
+			'2_value3' => $this->instance->get('2_value3'),
+			'3_value4' => $this->instance->get('3_value4'),
 		]);
 	}
 
@@ -162,5 +185,28 @@ abstract class CacheTest extends DatabaseTest
 		$this->instance->set('objVal', $value);
 		$received = $this->instance->get('objVal');
 		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+	}
+
+	/**
+	 * @small
+	 */
+	public function testGetAllKeys() {
+		if ($this->cache instanceof MemcachedCacheDriver) {
+			$this->markTestSkipped('Memcached doesn\'t support getAllKeys anymore');
+		}
+
+		$this->assertTrue($this->instance->set('value1', 'test'));
+		$this->assertTrue($this->instance->set('value2', 'test'));
+		$this->assertTrue($this->instance->set('test_value3', 'test'));
+
+		$list = $this->instance->getAllKeys();
+
+		$this->assertContains('value1', $list);
+		$this->assertContains('value2', $list);
+		$this->assertContains('test_value3', $list);
+
+		$list = $this->instance->getAllKeys('test');
+
+		$this->assertContains('test_value3', $list);
 	}
 }

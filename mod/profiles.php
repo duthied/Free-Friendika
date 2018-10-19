@@ -20,6 +20,7 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
+use Friendica\Module\Login;
 
 function profiles_init(App $a) {
 
@@ -509,7 +510,7 @@ function profiles_content(App $a) {
 
 	if (! local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		return;
+		return Login::form();
 	}
 
 	$o = '';
@@ -525,9 +526,6 @@ function profiles_content(App $a) {
 		}
 
 		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), [
-			'$baseurl' => System::baseUrl(true),
-		]);
-		$a->page['end'] .= replace_macros(get_markup_template('profed_end.tpl'), [
 			'$baseurl' => System::baseUrl(true),
 		]);
 
@@ -618,10 +616,10 @@ function profiles_content(App $a) {
 			'$country_name' => ['country_name', L10n::t('Country:'), $r[0]['country-name']],
 			'$age' => ((intval($r[0]['dob'])) ? '(' . L10n::t('Age: ') . Temporal::getAgeByTimezone($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
 			'$gender' => ContactSelector::gender($r[0]['gender']),
-			'$marital' => ContactSelector::maritalStatus($r[0]['marital']),
+			'$marital' => ['selector' => ContactSelector::maritalStatus($r[0]['marital']), 'value' => $r[0]['marital']],
 			'$with' => ['with', L10n::t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), L10n::t('Examples: cathy123, Cathy Williams, cathy@example.com')],
 			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : DateTimeFormat::local($r[0]['howlong']))],
-			'$sexual' => ContactSelector::sexualPreference($r[0]['sexual']),
+			'$sexual' => ['selector' => ContactSelector::sexualPreference($r[0]['sexual']), 'value' => $r[0]['sexual']],
 			'$about' => ['about', L10n::t('Tell us about yourself...'), $r[0]['about']],
 			'$xmpp' => ['xmpp', L10n::t("XMPP \x28Jabber\x29 address:"), $r[0]['xmpp'], L10n::t("The XMPP address will be propagated to your contacts so that they can follow you.")],
 			'$homepage' => ['homepage', L10n::t('Homepage URL:'), $r[0]['homepage']],
@@ -669,7 +667,7 @@ function profiles_content(App $a) {
 			$profiles = '';
 			foreach ($r as $rr) {
 				$profiles .= replace_macros($tpl, [
-					'$photo'        => $a->remove_baseurl($rr['thumb']),
+					'$photo'        => $a->removeBaseURL($rr['thumb']),
 					'$id'           => $rr['id'],
 					'$alt'          => L10n::t('Profile Image'),
 					'$profile_name' => $rr['profile-name'],

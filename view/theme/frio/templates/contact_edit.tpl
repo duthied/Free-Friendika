@@ -9,7 +9,7 @@
 
 
 		<div id="contact-edit-content-wrapper">
-			<form action="contacts/{{$contact_id}}" method="post" >
+			<form action="contact/{{$contact_id}}" method="post" >
 
 				{{* This is the Action menu where contact related actions like 'ignore', 'hide' can be performed *}}
 				<ul id="contact-edit-actions" class="nav nav-pills preferences">
@@ -45,7 +45,10 @@
 						{{if $poll_enabled}}
 							<li><div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
 							{{if $poll_interval}}
-								<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}}
+								<form id="contact-edit-poll-form" action="/contact/{{$contact_id}}" method="post"> 
+									<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}}
+									<input class="btn btn-primary" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+								</form>
 							{{/if}}
 							</li>
 						{{/if}}

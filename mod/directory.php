@@ -16,7 +16,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 
 function directory_init(App $a)
 {
-	$a->set_pager_itemspage(60);
+	$a->setPagerItemsPage(60);
 
 	if (local_user()) {
 		$a->page['aside'] .= Widget::findPeople();
@@ -87,7 +87,7 @@ function directory_content(App $a)
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
 	if (DBA::isResult($cnt)) {
-		$a->set_pager_total($cnt['total']);
+		$a->setPagerTotal($cnt['total']);
 	}
 
 	$order = " ORDER BY `name` ASC ";

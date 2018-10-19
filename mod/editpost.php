@@ -28,7 +28,7 @@ function editpost_content(App $a)
 	}
 
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-		'type', 'body', 'title', 'file', 'wall', 'post-type'];
+		'type', 'body', 'title', 'file', 'wall', 'post-type', 'guid'];
 
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 
@@ -50,15 +50,6 @@ function editpost_content(App $a)
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
 	]);
-
-	$tpl = get_markup_template('jot-end.tpl');
-	$a->page['end'] .= replace_macros($tpl, [
-		'$baseurl' => System::baseUrl(),
-		'$ispublic' => '&nbsp;', // L10n::t('Visible to <strong>everybody</strong>'),
-		'$geotag' => $geotag,
-		'$nickname' => $a->user['nickname']
-	]);
-
 
 	$tpl = get_markup_template("jot.tpl");
 
@@ -95,7 +86,7 @@ function editpost_content(App $a)
 
 	$o .= replace_macros($tpl, [
 		'$is_edit' => true,
-		'$return_path' => $_SESSION['return_url'],
+		'$return_path' => '/display/' . $item['guid'],
 		'$action' => 'item',
 		'$share' => L10n::t('Save'),
 		'$upload' => L10n::t('Upload photo'),

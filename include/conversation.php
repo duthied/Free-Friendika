@@ -229,12 +229,12 @@ function localize_item(&$item)
 		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 
 		$obj = XML::parseString($xmlhead.$item['object']);
-		$links = XML::parseString($xmlhead."<links>".unxmlify($obj->link)."</links>");
 
 		$Bname = $obj->title;
-		$Blink = "";
+		$Blink = $obj->id;
 		$Bphoto = "";
-		foreach ($links->link as $l) {
+
+		foreach ($obj->link as $l) {
 			$atts = $l->attributes();
 			switch ($atts['rel']) {
 				case "alternate": $Blink = $atts['href'];
@@ -556,7 +556,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		if (in_array($mode, ['community', 'contacts'])) {
 			$writable = true;
 		} else {
-			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 		}
 
 		if (!local_user()) {
@@ -657,7 +657,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'id' => ($preview ? 'P0' : $item['id']),
 					'guid' => ($preview ? 'Q0' : $item['guid']),
 					'network' => $item['network'],
-					'network_name' => ContactSelector::networkToName($item['network'], $profile_link),
+					'network_name' => ContactSelector::networkToName($item['network'], $item['author-link']),
 					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
@@ -807,7 +807,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	foreach ($items as $index => $item) {
 		if ($item['uid'] == 0) {
-			$items[$index]['writable'] = in_array($item['network'], [Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+			$items[$index]['writable'] = in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 		}
 	}
 
@@ -853,8 +853,8 @@ function item_photo_menu($item) {
 
 	if ($cid && !$item['self']) {
 		$poke_link = 'poke/?f=&c=' . $cid;
-		$contact_url = 'contacts/' . $cid;
-		$posts_link = 'contacts/' . $cid . '/posts';
+		$contact_url = 'contact/' . $cid;
+		$posts_link = 'contact/' . $cid . '/posts';
 
 		if (in_array($network, [Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;
@@ -877,7 +877,7 @@ function item_photo_menu($item) {
 		}
 
 		if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
-			in_array($item['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
+			in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
 			$menu[L10n::t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
 		}
 	} else {
@@ -1089,21 +1089,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$fileas'    => L10n::t('Save to Folder:'),
 		'$whereareu' => L10n::t('Where are you right now?'),
 		'$delitems'  => L10n::t("Delete item\x28s\x29?")
-	]);
-
-	$tpl = get_markup_template('jot-end.tpl');
-	$a->page['end'] .= replace_macros($tpl, [
-		'$newpost'   => 'true',
-		'$baseurl'   => System::baseUrl(true),
-		'$geotag'    => $geotag,
-		'$nickname'  => $x['nickname'],
-		'$ispublic'  => L10n::t('Visible to <strong>everybody</strong>'),
-		'$linkurl'   => L10n::t('Please enter a link URL:'),
-		'$vidurl'    => L10n::t("Please enter a video link/URL:"),
-		'$audurl'    => L10n::t("Please enter an audio link/URL:"),
-		'$term'      => L10n::t('Tag term:'),
-		'$fileas'    => L10n::t('Save to Folder:'),
-		'$whereareu' => L10n::t('Where are you right now?')
 	]);
 
 	$jotplugins = '';
@@ -1454,7 +1439,7 @@ function get_responses(array $conv_responses, array $response_verbs, $ob, array 
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
-		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], '');
+		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], 0);
 		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', []);
 		$ret[$v]['self']  = defaults($conv_responses[$v], $item['uri'] . '-self', '0');
 		if (count($ret[$v]['list']) > MAX_LIKERS) {

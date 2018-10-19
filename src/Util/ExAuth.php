@@ -141,7 +141,7 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($a->get_hostname() == $aCommand[2]) {
+		if ($a->getHostName() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal user check for ' . $sUser . '@' . $aCommand[2]);
 			$found = DBA::exists('user', ['nickname' => $sUser]);
 		} else {
@@ -179,17 +179,17 @@ class ExAuth
 
 		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/noscrape/' . $user;
 
-		$data = Network::curl($url);
+		$curlResult = Network::curl($url);
 
-		if (!is_array($data)) {
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		if ($data['return_code'] != '200') {
+		if ($curlResult->getReturnCode() != 200) {
 			return false;
 		}
 
-		$json = @json_decode($data['body']);
+		$json = @json_decode($curlResult->getBody());
 		if (!is_object($json)) {
 			return false;
 		}
@@ -221,7 +221,7 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($a->get_hostname() == $aCommand[2]) {
+		if ($a->getHostName() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
 
 			$aUser = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'], ['nickname' => $sUser]);

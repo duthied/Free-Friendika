@@ -42,9 +42,9 @@ function notification($params)
 	}
 
 	$params['notify_flags'] = defaults($params, 'notify_flags', $user['notify-flags']);
-	$params['language'] = defaults($params, 'language', $user['language']);
-	$params['to_name'] = defaults($params, 'to_name', $user['username']);
-	$params['to_email'] = defaults($params, 'to_email', $user['email']);
+	$params['language']     = defaults($params, 'language'    , $user['language']);
+	$params['to_name']      = defaults($params, 'to_name'     , $user['username']);
+	$params['to_email']     = defaults($params, 'to_email'    , $user['email']);
 
 	// from here on everything is in the recipients language
 	L10n::pushLang($params['language']);
@@ -61,7 +61,7 @@ function notification($params)
 	}
 
 	$sender_name = $sitename;
-	$hostname = $a->get_hostname();
+	$hostname = $a->getHostName();
 	if (strpos($hostname, ':')) {
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}
@@ -84,7 +84,7 @@ function notification($params)
 	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
 	// the database, and an email is sent if applicable.
 	// default, if not specified: true
-	$show_in_notification_page = ((x($params, 'show_in_notification_page'))	? $params['show_in_notification_page']:true);
+	$show_in_notification_page = isset($params['show_in_notification_page']) ? $params['show_in_notification_page'] : true;
 
 	$additional_mail_header = "";
 	$additional_mail_header .= "Precedence: list\n";

@@ -365,15 +365,16 @@ class Diaspora
 	/**
 	 * @brief: Decodes incoming Diaspora message in the new format
 	 *
-	 * @param array  $importer Array of the importer user
-	 * @param string $raw      raw post message
+	 * @param array   $importer Array of the importer user
+	 * @param string  $raw      raw post message
+	 * @param boolean $no_exit  Don't do an http exit on error
 	 *
 	 * @return array
 	 * 'message' -> decoded Diaspora XML message
 	 * 'author' -> author diaspora handle
 	 * 'key' -> author public key (converted to pkcs#8)
 	 */
-	public static function decodeRaw(array $importer, $raw)
+	public static function decodeRaw(array $importer, $raw, $no_exit = false)
 	{
 		$data = json_decode($raw);
 
@@ -388,7 +389,11 @@ class Diaspora
 
 			if (!is_object($j_outer_key_bundle)) {
 				logger('Outer Salmon did not verify. Discarding.');
-				System::httpExit(400);
+				if ($no_exit) {
+					return false;
+				} else {
+					System::httpExit(400);
+				}
 			}
 
 			$outer_iv = base64_decode($j_outer_key_bundle->iv);
@@ -403,7 +408,11 @@ class Diaspora
 
 		if (!is_object($basedom)) {
 			logger('Received data does not seem to be an XML. Discarding. '.$xml);
-			System::httpExit(400);
+			if ($no_exit) {
+				return false;
+			} else {
+				System::httpExit(400);
+			}
 		}
 
 		$base = $basedom->children(NAMESPACE_SALMON_ME);
@@ -425,19 +434,31 @@ class Diaspora
 		$author_addr = base64_decode($key_id);
 		if ($author_addr == '') {
 			logger('No author could be decoded. Discarding. Message: ' . $xml);
-			System::httpExit(400);
+			if ($no_exit) {
+				return false;
+			} else {
+				System::httpExit(400);
+			}
 		}
 
 		$key = self::key($author_addr);
 		if ($key == '') {
 			logger("Couldn't get a key for handle " . $author_addr . ". Discarding.");
-			System::httpExit(400);
+			if ($no_exit) {
+				return false;
+			} else {
+				System::httpExit(400);
+			}
 		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 		if (!$verify) {
 			logger('Message did not verify. Discarding.');
-			System::httpExit(400);
+			if ($no_exit) {
+				return false;
+			} else {
+				System::httpExit(400);
+			}
 		}
 
 		return ['message' => (string)base64url_decode($base->data),
@@ -928,6 +949,7 @@ class Diaspora
 				$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 				if (!DBA::isResult($person)) {
 					$person = $r;
+					$person['id'] = 0;
 				}
 			}
 		}
@@ -1571,17 +1593,13 @@ class Diaspora
 		if (DBA::isResult($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
-			$contact = Contact::getDetailsByAddr($author, 0);
-			if (!empty($contact['network'])) {
-				$prefix = 'urn:X-' . $contact['network'] . ':';
-			} else {
-				// This fallback should happen most unlikely
-				$prefix = 'urn:X-dspr:';
-			}
+			$person = self::personByHandle($author);
 
-			$author_parts = explode('@', $author);
+			$parts = parse_url($person['url']);
+			unset($parts['path']);
+			$host_url = Network::unparseURL($parts);
 
-			return $prefix . $author_parts[1] . ':' . $author_parts[0] . ':'. $guid;
+			return $host_url . '/objects/' . $guid;
 		}
 
 		return "";
@@ -1952,11 +1970,8 @@ class Diaspora
 		$datarray["contact-id"] = $author_contact["cid"];
 		$datarray["network"]  = $author_contact["network"];
 
-		$datarray["author-link"] = $person["url"];
-		$datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
-
-		$datarray["owner-link"] = $contact["url"];
-		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
+		$datarray["owner-link"] = $datarray["author-link"] = $person["url"];
+		$datarray["owner-id"] = $datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
@@ -3065,8 +3080,8 @@ class Diaspora
 			if (!intval(Config::get("system", "diaspora_test"))) {
 				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
-				$return_code = $a->get_curl_code();
+				$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+				$return_code = $postResult->getReturnCode();
 			} else {
 				logger("test_mode");
 				return 200;
@@ -3075,7 +3090,7 @@ class Diaspora
 
 		logger("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
-		if (!$return_code || (($return_code == 503) && (stristr($a->get_curl_headers(), "retry-after")))) {
+		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
 			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::ACCOUNT_TYPE_RELAY)) {
 				logger("queue message");
 				// queue message for redelivery
@@ -3183,7 +3198,7 @@ class Diaspora
 		$author = self::myHandle($owner);
 
 		$message = ["author" => $author,
-				"guid" => System::createGUID(32),
+				"guid" => System::createUUID(),
 				"parent_type" => "Post",
 				"parent_guid" => $item["guid"]];
 
@@ -3415,12 +3430,9 @@ class Diaspora
 		/// @todo - establish "all day" events in Friendica
 		$eventdata["all_day"] = "false";
 
-		if (!$event['adjust']) {
+		$eventdata['timezone'] = 'UTC';
+		if (!$event['adjust'] && $user['timezone']) {
 			$eventdata['timezone'] = $user['timezone'];
-
-			if ($eventdata['timezone'] == "") {
-				$eventdata['timezone'] = 'UTC';
-			}
 		}
 
 		if ($event['start']) {
@@ -3475,7 +3487,7 @@ class Diaspora
 
 		$myaddr = self::myHandle($owner);
 
-		$public = (($item["private"]) ? "false" : "true");
+		$public = ($item["private"] ? "false" : "true");
 
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
@@ -3735,13 +3747,13 @@ class Diaspora
 	 *
 	 * @return string The message
 	 */
-	private static function messageFromSignature(array $item, array $signature)
+	private static function messageFromSignature(array $item)
 	{
 		// Split the signed text
-		$signed_parts = explode(";", $signature['signed_text']);
+		$signed_parts = explode(";", $item['signed_text']);
 
 		if ($item["deleted"]) {
-			$message = ["author" => $signature['signer'],
+			$message = ["author" => $item['signer'],
 					"target_guid" => $signed_parts[0],
 					"target_type" => $signed_parts[1]];
 		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
@@ -3750,7 +3762,7 @@ class Diaspora
 					"parent_guid" => $signed_parts[3],
 					"parent_type" => $signed_parts[2],
 					"positive" => $signed_parts[0],
-					"author_signature" => $signature['signature'],
+					"author_signature" => $item['signature'],
 					"parent_author_signature" => ""];
 		} else {
 			// Remove the comment guid
@@ -3769,7 +3781,7 @@ class Diaspora
 					"guid" => $guid,
 					"parent_guid" => $parent_guid,
 					"text" => implode(";", $signed_parts),
-					"author_signature" => $signature['signature'],
+					"author_signature" => $item['signature'],
 					"parent_author_signature" => ""];
 		}
 		return $message;
@@ -3797,20 +3809,12 @@ class Diaspora
 
 		logger("Got relayable data ".$type." for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
 
-		// fetch the original signature
-		$fields = ['signed_text', 'signature', 'signer'];
-		$signature = DBA::selectFirst('sign', $fields, ['iid' => $item["id"]]);
-		if (!DBA::isResult($signature)) {
-			logger("Couldn't fetch signatur for item ".$item["guid"]." (".$item["id"].")", LOGGER_DEBUG);
-			return false;
-		}
-
 		// Old way - is used by the internal Friendica functions
 		/// @todo Change all signatur storing functions to the new format
-		if ($signature['signed_text'] && $signature['signature'] && $signature['signer']) {
-			$message = self::messageFromSignature($item, $signature);
+		if ($item['signed_text'] && $item['signature'] && $item['signer']) {
+			$message = self::messageFromSignature($item);
 		} else {// New way
-			$msg = json_decode($signature['signed_text'], true);
+			$msg = json_decode($item['signed_text'], true);
 
 			$message = [];
 			if (is_array($msg)) {
@@ -3827,7 +3831,7 @@ class Diaspora
 					$message[$field] = $data;
 				}
 			} else {
-				logger("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$signature['signed_text'], LOGGER_DEBUG);
+				logger("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$item['signed_text'], LOGGER_DEBUG);
 			}
 		}
 

@@ -10,7 +10,7 @@ use Redis;
 /**
  * Redis Cache Driver. This driver is based on Memcache driver
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  * @author Roland Haeder <roland@mxchange.org>
  */
 class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
@@ -20,6 +20,11 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	 */
 	private $redis;
 
+	/**
+	 * @param string $redis_host
+	 * @param int    $redis_port
+	 * @throws Exception
+	 */
 	public function __construct($redis_host, $redis_port)
 	{
 		if (!class_exists('Redis', false)) {
@@ -33,6 +38,25 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		}
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
+	public function getAllKeys($prefix = null)
+	{
+		if (empty($prefix)) {
+			$search = '*';
+		} else {
+			$search = $prefix . '*';
+		}
+
+		$list = $this->redis->keys($this->getCacheKey($search));
+
+		return $this->getOriginalKeys($list);
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
 	public function get($key)
 	{
 		$return = null;
@@ -55,6 +79,9 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		return $return;
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
@@ -75,12 +102,18 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		}
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function delete($key)
 	{
 		$cachekey = $this->getCacheKey($key);
 		return ($this->redis->delete($cachekey) > 0);
 	}
 
+	/**
+	 * (@inheritdoc)
+	 */
 	public function clear($outdated = true)
 	{
 		if ($outdated) {
@@ -127,6 +160,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 		$this->redis->unwatch();
 		return false;
 	}
+
 	/**
 	 * (@inheritdoc)
 	 */

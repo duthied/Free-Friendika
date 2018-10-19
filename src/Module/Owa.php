@@ -54,7 +54,7 @@ class Owa extends BaseModule
 						if (DBA::isResult($contact)) {
 							// Try to verify the signed header with the public key of the contact record
 							// we have found.
-							$verified = HTTPSignature::verify('', $contact['pubkey']);
+							$verified = HTTPSignature::verifyMagic($contact['pubkey']);
 
 							if ($verified && $verified['header_signed'] && $verified['header_valid']) {
 								logger('OWA header: ' . print_r($verified, true), LOGGER_DATA);
