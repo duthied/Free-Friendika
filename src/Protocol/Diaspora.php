@@ -1200,7 +1200,7 @@ class Diaspora
 		);
 
 		preg_replace_callback(
-			"&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
+			"&\[url=/?posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) use ($item) {
 				self::fetchGuidSub($match, $item);
 			},

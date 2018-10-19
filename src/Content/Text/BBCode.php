@@ -1319,7 +1319,7 @@ class BBCode extends BaseObject
 
 		// Handle Diaspora posts
 		$text = preg_replace_callback(
-			"&\[url=/posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
+			"&\[url=/?posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) {
 				return "[url=" . System::baseUrl() . "/display/" . $match[1] . "]" . $match[2] . "[/url]";
 			}, $text
