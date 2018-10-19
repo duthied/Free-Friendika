@@ -26,6 +26,11 @@ class Conversation
 	const PARCEL_TWITTER            = 67;
 	const PARCEL_UNKNOWN            = 255;
 
+	public static function getByItemUri($item_uri)
+	{
+		return DBA::selectFirst('conversation', [], ['item-uri' => $item_uri]);
+	}
+
 	/**
 	 * @brief Store the conversation data
 	 *
