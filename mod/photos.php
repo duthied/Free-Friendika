@@ -26,9 +26,9 @@ use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Temporal;
+use Friendica\Util\Security;
 
 require_once 'include/items.php';
-require_once 'include/security.php';
 
 function photos_init(App $a) {
 
@@ -948,7 +948,6 @@ function photos_content(App $a)
 		return;
 	}
 
-	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
 	if (empty($a->data['user'])) {
@@ -1053,7 +1052,7 @@ function photos_content(App $a)
 		return;
 	}
 
-	$sql_extra = permissions_sql($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
 
 	$o = "";
 
@@ -1473,7 +1472,7 @@ function photos_content(App $a)
 			$tpl = get_markup_template('photo_item.tpl');
 			$return_url = $a->cmd;
 
-			if ($can_post || can_write_wall($owner_uid)) {
+			if ($can_post || Security::canWriteToUserWall($owner_uid)) {
 				$like_tpl = get_markup_template('like_noshare.tpl');
 				$likebuttons = replace_macros($like_tpl, [
 					'$id' => $link_item['id'],
@@ -1485,7 +1484,7 @@ function photos_content(App $a)
 			}
 
 			if (!DBA::isResult($items)) {
-				if (($can_post || can_write_wall($owner_uid))) {
+				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1524,7 +1523,7 @@ function photos_content(App $a)
 					$dislike = format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike', $link_item['id']);
 				}
 
-				if (($can_post || can_write_wall($owner_uid))) {
+				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_url,
@@ -1584,7 +1583,7 @@ function photos_content(App $a)
 						'$comment' => $comment
 					]);
 
-					if (($can_post || can_write_wall($owner_uid))) {
+					if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 						$comments .= replace_macros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_url,

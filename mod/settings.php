@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\ACL;
@@ -22,6 +23,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\Email;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
+use Friendica\Util\Security;
 use Friendica\Module\Login;
 
 function get_theme_config_file($theme)
@@ -154,7 +156,7 @@ function settings_post(App $a)
 	$old_page_flags = $a->user['page-flags'];
 
 	if (($a->argc > 1) && ($a->argv[1] === 'oauth') && x($_POST, 'remove')) {
-		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
+		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
 		$key = $_POST['remove'];
 		DBA::delete('tokens', ['id' => $key, 'uid' => local_user()]);
@@ -163,7 +165,7 @@ function settings_post(App $a)
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && x($_POST, 'submit')) {
-		check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
+		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
 		$name     = defaults($_POST, 'name'    , '');
 		$key      = defaults($_POST, 'key'     , '');
@@ -209,14 +211,14 @@ function settings_post(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
-		check_form_security_token_redirectOnErr('/settings/addon', 'settings_addon');
+		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
 
 		Addon::callHooks('addon_settings_post', $_POST);
 		return;
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
-		check_form_security_token_redirectOnErr('/settings/connectors', 'settings_connectors');
+		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
 
 		if (x($_POST, 'general-submit')) {
 			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
@@ -298,7 +300,7 @@ function settings_post(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'features')) {
-		check_form_security_token_redirectOnErr('/settings/features', 'settings_features');
+		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/features', 'settings_features');
 		foreach ($_POST as $k => $v) {
 			if (strpos($k, 'feature_') === 0) {
 				PConfig::set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
@@ -309,7 +311,7 @@ function settings_post(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
-		check_form_security_token_redirectOnErr('/settings/display', 'settings_display');
+		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
 
 		$theme             = x($_POST, 'theme')             ? notags(trim($_POST['theme']))        : $a->user['theme'];
 		$mobile_theme      = x($_POST, 'mobile_theme')      ? notags(trim($_POST['mobile_theme'])) : '';
@@ -373,7 +375,7 @@ function settings_post(App $a)
 		return; // NOTREACHED
 	}
 
-	check_form_security_token_redirectOnErr('/settings', 'settings');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/settings', 'settings');
 
 	if (x($_POST,'resend_relocate')) {
 		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
@@ -671,7 +673,7 @@ function settings_content(App $a)
 		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
 			$tpl = get_markup_template('settings/oauth_edit.tpl');
 			$o .= replace_macros($tpl, [
-				'$form_security_token' => get_form_security_token("settings_oauth"),
+				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
 				'$submit'	=> L10n::t('Save Settings'),
 				'$cancel'	=> L10n::t('Cancel'),
@@ -697,7 +699,7 @@ function settings_content(App $a)
 
 			$tpl = get_markup_template('settings/oauth_edit.tpl');
 			$o .= replace_macros($tpl, [
-				'$form_security_token' => get_form_security_token("settings_oauth"),
+				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
 				'$submit'	=> L10n::t('Update'),
 				'$cancel'	=> L10n::t('Cancel'),
@@ -711,7 +713,7 @@ function settings_content(App $a)
 		}
 
 		if (($a->argc > 3) && ($a->argv[2] === 'delete')) {
-			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth', 't');
+			BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth', 't');
 
 			DBA::delete('clients', ['client_id' => $a->argv[3], 'uid' => local_user()]);
 			goaway(System::baseUrl(true)."/settings/oauth/");
@@ -729,7 +731,7 @@ function settings_content(App $a)
 
 		$tpl = get_markup_template('settings/oauth.tpl');
 		$o .= replace_macros($tpl, [
-			'$form_security_token' => get_form_security_token("settings_oauth"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 			'$baseurl'	=> System::baseUrl(true),
 			'$title'	=> L10n::t('Connected Apps'),
 			'$add'		=> L10n::t('Add application'),
@@ -756,7 +758,7 @@ function settings_content(App $a)
 
 		$tpl = get_markup_template('settings/addons.tpl');
 		$o .= replace_macros($tpl, [
-			'$form_security_token' => get_form_security_token("settings_addon"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("settings_addon"),
 			'$title'	=> L10n::t('Addon Settings'),
 			'$settings_addons' => $settings_addons
 		]);
@@ -777,7 +779,7 @@ function settings_content(App $a)
 
 		$tpl = get_markup_template('settings/features.tpl');
 		$o .= replace_macros($tpl, [
-			'$form_security_token' => get_form_security_token("settings_features"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("settings_features"),
 			'$title'               => L10n::t('Additional Features'),
 			'$features'            => $arr,
 			'$submit'              => L10n::t('Save Settings'),
@@ -836,7 +838,7 @@ function settings_content(App $a)
 		$mail_disabled_message = (($mail_disabled) ? L10n::t('Email access is disabled on this site.') : '');
 
 		$o .= replace_macros($tpl, [
-			'$form_security_token' => get_form_security_token("settings_connectors"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("settings_connectors"),
 
 			'$title'	=> L10n::t('Social Networks'),
 
@@ -956,7 +958,7 @@ function settings_content(App $a)
 		$tpl = get_markup_template('settings/display.tpl');
 		$o = replace_macros($tpl, [
 			'$ptitle' 	=> L10n::t('Display Settings'),
-			'$form_security_token' => get_form_security_token("settings_display"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("settings_display"),
 			'$submit' 	=> L10n::t('Save Settings'),
 			'$baseurl' => System::baseUrl(true),
 			'$uid' => local_user(),
@@ -1185,7 +1187,7 @@ function settings_content(App $a)
 		'$submit' 	=> L10n::t('Save Settings'),
 		'$baseurl' => System::baseUrl(true),
 		'$uid' => local_user(),
-		'$form_security_token' => get_form_security_token("settings"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("settings"),
 		'$nickname_block' => $prof_addr,
 
 		'$h_pass' 	=> L10n::t('Password Settings'),

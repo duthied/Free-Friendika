@@ -20,6 +20,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Security;
 use Friendica\Protocol\ActivityPub;
 
 function profile_init(App $a)
@@ -130,7 +131,6 @@ function profile_content(App $a, $update = 0)
 		return Login::form();
 	}
 
-	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 	require_once 'include/items.php';
 
@@ -210,7 +210,7 @@ function profile_content(App $a, $update = 0)
 		$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (!empty($category) ? xmlify($category) : ''));
 		$a->page['aside'] .= Widget::tagCloud();
 
-		if (can_write_wall($a->profile['profile_uid'])) {
+		if (Security::canWriteToUserWall($a->profile['profile_uid'])) {
 			$x = [
 				'is_owner' => $is_owner,
 				'allow_location' => ($is_owner || $commvisitor) && $a->profile['allow_location'],
@@ -234,7 +234,7 @@ function profile_content(App $a, $update = 0)
 
 
 	// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-	$sql_extra = item_permissions_sql($a->profile['profile_uid'], $remote_contact, $groups);
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups);
 	$sql_extra2 = '';
 
 	if ($update) {

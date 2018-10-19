@@ -10,7 +10,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
-require_once 'include/security.php';
 require_once 'include/items.php';
 
 function tagger_content(App $a) {

@@ -24,6 +24,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
+use Friendica\Util\Security;
 use Text_LanguageDetect;
 
 require_once 'boot.php';
@@ -3007,7 +3008,7 @@ class Item extends BaseObject
 			$uid = local_user();
 		}
 
-		if (!can_write_wall($uid)) {
+		if (!Security::canWriteToUserWall($uid)) {
 			logger('like: unable to write on wall ' . $uid);
 			return false;
 		}
@@ -3192,5 +3193,42 @@ class Item extends BaseObject
 				logger("deleteThread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 			}
 		}
+	}
+
+	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null)
+	{
+		$local_user = local_user();
+		$remote_user = remote_user();
+
+		/*
+		 * Construct permissions
+		 *
+		 * default permissions - anonymous user
+		 */
+		$sql = " AND NOT `item`.`private`";
+
+		// Profile owner - everything is visible
+		if ($local_user && ($local_user == $owner_id)) {
+			$sql = '';
+		} elseif ($remote_user) {
+			/*
+			 * Authenticated visitor. Unless pre-verified,
+			 * check that the contact belongs to this $owner_id
+			 * and load the groups the visitor belongs to.
+			 * If pre-verified, the caller is expected to have already
+			 * done this and passed the groups into this function.
+			 */
+			$set = PermissionSet::get($owner_id, $remote_user, $groups);
+
+			if (!empty($set)) {
+				$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
+			} else {
+				$sql_set = '';
+			}
+
+			$sql = " AND (NOT `item`.`private`" . $sql_set . ")";
+		}
+
+		return $sql;
 	}
 }

@@ -7,6 +7,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
@@ -14,6 +15,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Security;
 
 function invite_post(App $a)
 {
@@ -22,7 +24,7 @@ function invite_post(App $a)
 		return;
 	}
 
-	check_form_security_token_redirectOnErr('/', 'send_invite');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/', 'send_invite');
 
 	$max_invites = intval(Config::get('system', 'max_invites'));
 	if (! $max_invites) {
@@ -139,7 +141,7 @@ function invite_content(App $a) {
 	}
 
 	$o = replace_macros($tpl, [
-		'$form_security_token' => get_form_security_token("send_invite"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("send_invite"),
 		'$title'               => L10n::t('Send invitations'),
 		'$recipients'          => ['recipients', L10n::t('Enter email addresses, one per line:')],
 		'$message'             => ['message', L10n::t('Your message:'),L10n::t('You are cordially invited to join me and other close friends on Friendica - and help us to create a better social web.') . "\r\n" . "\r\n"

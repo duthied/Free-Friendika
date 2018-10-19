@@ -14,9 +14,9 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\Security;
 
 require_once 'include/items.php';
-require_once 'include/security.php';
 
 function videos_init(App $a)
 {
@@ -60,7 +60,7 @@ function videos_init(App $a)
 		]);
 
 		/// @TODO Old-lost code?
-		/*$sql_extra = permissions_sql($a->data['user']['uid']);
+		/*$sql_extra = Security::getPermissionsSQLByUserId($a->data['user']['uid']);
 
 		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra order by created desc",
 			intval($a->data['user']['uid'])
@@ -193,7 +193,6 @@ function videos_content(App $a)
 		return;
 	}
 
-	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
 	if (empty($a->data['user'])) {
@@ -302,7 +301,7 @@ function videos_content(App $a)
 		return;
 	}
 
-	$sql_extra = permissions_sql($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
 
 	$o = "";
 

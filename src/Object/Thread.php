@@ -7,6 +7,7 @@ namespace Friendica\Object;
 use Friendica\BaseObject;
 use Friendica\Core\Protocol;
 use Friendica\Object\Post;
+use Friendica\Util\Security;
 
 require_once 'boot.php';
 require_once 'include/text.php';
@@ -61,11 +62,11 @@ class Thread extends BaseObject
 				break;
 			case 'profile':
 				$this->profile_owner = $a->profile['profile_uid'];
-				$this->writable = can_write_wall($this->profile_owner);
+				$this->writable = Security::canWriteToUserWall($this->profile_owner);
 				break;
 			case 'display':
 				$this->profile_owner = $a->profile['uid'];
-				$this->writable = can_write_wall($this->profile_owner) || $writable;
+				$this->writable = Security::canWriteToUserWall($this->profile_owner) || $writable;
 				break;
 			case 'community':
 				$this->profile_owner = 0;

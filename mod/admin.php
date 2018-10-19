@@ -6,6 +6,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
@@ -314,7 +315,7 @@ function admin_page_tos(App $a)
 		'$preview' => L10n::t('Privacy Statement Preview'),
 		'$privtext' => $tos->privacy_complete,
 		'$tostext' => ['tostext', L10n::t('The Terms of Service'), Config::get('system', 'tostext'), L10n::t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
-		'$form_security_token' => get_form_security_token("admin_tos"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_tos"),
 		'$submit' => L10n::t('Save Settings'),
 	]);
 }
@@ -325,7 +326,7 @@ function admin_page_tos(App $a)
  */
 function admin_page_tos_post(App $a)
 {
-	check_form_security_token_redirectOnErr('/admin/tos', 'admin_tos');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/tos', 'admin_tos');
 
 	if (!x($_POST, "page_tos")) {
 		return;
@@ -385,7 +386,7 @@ function admin_page_blocklist(App $a)
 		'$entries' => $blocklistform,
 		'$baseurl' => System::baseUrl(true),
 		'$confirm_delete' => L10n::t('Delete entry from blocklist?'),
-		'$form_security_token' => get_form_security_token("admin_blocklist")
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_blocklist")
 	]);
 }
 
@@ -400,7 +401,7 @@ function admin_page_blocklist_post(App $a)
 		return;
 	}
 
-	check_form_security_token_redirectOnErr('/admin/blocklist', 'admin_blocklist');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/blocklist', 'admin_blocklist');
 
 	if (x($_POST['page_blocklist_save'])) {
 		//  Add new item to blocklist
@@ -443,7 +444,7 @@ function admin_page_contactblock_post(App $a)
 	$contact_url = x($_POST, 'contact_url') ? $_POST['contact_url'] : '';
 	$contacts    = x($_POST, 'contacts')    ? $_POST['contacts']    : [];
 
-	check_form_security_token_redirectOnErr('/admin/contactblock', 'admin_contactblock');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/contactblock', 'admin_contactblock');
 
 	if (x($_POST, 'page_contactblock_block')) {
 		$contact_id = Contact::getIdForURL($contact_url);
@@ -500,7 +501,7 @@ function admin_page_contactblock(App $a)
 		'$h_newblock'  => L10n::t('Block New Remote Contact'),
 		'$th_contacts' => [L10n::t('Photo'), L10n::t('Name'), L10n::t('Address'), L10n::t('Profile URL')],
 
-		'$form_security_token' => get_form_security_token("admin_contactblock"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_contactblock"),
 
 		// values //
 		'$baseurl'    => System::baseUrl(true),
@@ -535,7 +536,7 @@ function admin_page_deleteitem(App $a)
 		'$intro2' => L10n::t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
 		'$deleteitemguid' => ['deleteitemguid', L10n::t("GUID"), '', L10n::t("The GUID of the item you want to delete."), 'required', 'autofocus'],
 		'$baseurl' => System::baseUrl(),
-		'$form_security_token' => get_form_security_token("admin_deleteitem")
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_deleteitem")
 	]);
 }
 
@@ -553,7 +554,7 @@ function admin_page_deleteitem_post(App $a)
 		return;
 	}
 
-	check_form_security_token_redirectOnErr('/admin/deleteitem/', 'admin_deleteitem');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/deleteitem/', 'admin_deleteitem');
 
 	if (x($_POST['page_deleteitem_submit'])) {
 		$guid = trim(notags($_POST['deleteitemguid']));
@@ -945,7 +946,7 @@ function admin_page_summary(App $a)
  */
 function admin_page_site_post(App $a)
 {
-	check_form_security_token_redirectOnErr('/admin/site', 'admin_site');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/site', 'admin_site');
 
 	if (!empty($_POST['republish_directory'])) {
 		Worker::add(PRIORITY_LOW, 'Directory');
@@ -1541,7 +1542,7 @@ function admin_page_site(App $a)
 		'$relay_server_tags' 	=> ['relay_server_tags', L10n::t("Server tags"), Config::get('system','relay_server_tags'), L10n::t("Comma separated list of tags for the 'tags' subscription.")],
 		'$relay_user_tags' 	=> ['relay_user_tags', L10n::t("Allow user tags"), Config::get('system', 'relay_user_tags', true), L10n::t("If enabled, the tags from the saved searches will used for the 'tags' subscription in addition to the 'relay_server_tags'.")],
 
-		'$form_security_token'	=> get_form_security_token("admin_site"),
+		'$form_security_token'	=> BaseModule::getFormSecurityToken("admin_site"),
 		'$relocate_button'      => L10n::t('Start Relocation'),
 	]);
 }
@@ -1656,7 +1657,7 @@ function admin_page_users_post(App $a)
 	$nu_email    = defaults($_POST, 'new_user_email'   , '');
 	$nu_language = Config::get('system', 'language');
 
-	check_form_security_token_redirectOnErr('/admin/users', 'admin_users');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users');
 
 	if (!($nu_name === "") && !($nu_email === "") && !($nu_nickname === "")) {
 		try {
@@ -1772,14 +1773,14 @@ function admin_page_users(App $a)
 		}
 		switch ($a->argv[2]) {
 			case "delete":
-				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
+				BaseModule::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
 				// delete user
 				User::remove($uid);
 
 				notice(L10n::t("User '%s' deleted", $user['username']) . EOL);
 				break;
 			case "block":
-				check_form_security_token_redirectOnErr('/admin/users', 'admin_users', 't');
+				BaseModule::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
 				q("UPDATE `user` SET `blocked` = %d WHERE `uid` = %s",
 					intval(1 - $user['blocked']),
 					intval($uid)
@@ -1926,7 +1927,7 @@ function admin_page_users(App $a)
 		'$confirm_delete_multi' => L10n::t('Selected users will be deleted!\n\nEverything these users had posted on this site will be permanently deleted!\n\nAre you sure?'),
 		'$confirm_delete' => L10n::t('The user {0} will be deleted!\n\nEverything this user has posted on this site will be permanently deleted!\n\nAre you sure?'),
 
-		'$form_security_token' => get_form_security_token("admin_users"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_users"),
 
 		// values //
 		'$baseurl' => System::baseUrl(true),
@@ -1971,7 +1972,7 @@ function admin_page_addons(App $a)
 		}
 
 		if (x($_GET, "a") && $_GET['a'] == "t") {
-			check_form_security_token_redirectOnErr('/admin/addons', 'admin_themes', 't');
+			BaseModule::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_themes', 't');
 
 			// Toggle addon status
 			$idx = array_search($addon, $a->addons);
@@ -2033,7 +2034,7 @@ function admin_page_addons(App $a)
 			'$screenshot' => '',
 			'$readme' => $readme,
 
-			'$form_security_token' => get_form_security_token("admin_themes"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
 		]);
 	}
 
@@ -2041,7 +2042,7 @@ function admin_page_addons(App $a)
 	 * List addons
 	 */
 	if (x($_GET, "a") && $_GET['a'] == "r") {
-		check_form_security_token_redirectOnErr(System::baseUrl() . '/admin/addons', 'admin_themes', 't');
+		BaseModule::checkFormSecurityTokenRedirectOnError(System::baseUrl() . '/admin/addons', 'admin_themes', 't');
 		Addon::reload();
 		info("Addons reloaded");
 		goaway(System::baseUrl() . '/admin/addons');
@@ -2084,7 +2085,7 @@ function admin_page_addons(App $a)
 		'$addons' => $addons,
 		'$pcount' => count($addons),
 		'$noplugshint' => L10n::t('There are currently no addons available on your node. You can find the official addon repository at %1$s and might find other interesting addons in the open addon registry at %2$s', 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
-		'$form_security_token' => get_form_security_token("admin_themes"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
 	]);
 }
 
@@ -2219,7 +2220,7 @@ function admin_page_themes(App $a)
 		}
 
 		if (x($_GET, "a") && $_GET['a'] == "t") {
-			check_form_security_token_redirectOnErr('/admin/themes', 'admin_themes', 't');
+			BaseModule::checkFormSecurityTokenRedirectOnError('/admin/themes', 'admin_themes', 't');
 
 			// Toggle theme status
 
@@ -2301,13 +2302,13 @@ function admin_page_themes(App $a)
 			'$screenshot' => $screenshot,
 			'$readme' => $readme,
 
-			'$form_security_token' => get_form_security_token("admin_themes"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
 		]);
 	}
 
 	// reload active themes
 	if (x($_GET, "a") && $_GET['a'] == "r") {
-		check_form_security_token_redirectOnErr(System::baseUrl() . '/admin/themes', 'admin_themes', 't');
+		BaseModule::checkFormSecurityTokenRedirectOnError(System::baseUrl() . '/admin/themes', 'admin_themes', 't');
 		foreach ($themes as $th) {
 			if ($th['allowed']) {
 				Theme::uninstall($th['name']);
@@ -2340,7 +2341,7 @@ function admin_page_themes(App $a)
 		'$noplugshint'         => L10n::t('No themes found on the system. They should be placed in %1$s', '<code>/view/themes</code>'),
 		'$experimental'        => L10n::t('[Experimental]'),
 		'$unsupported'         => L10n::t('[Unsupported]'),
-		'$form_security_token' => get_form_security_token("admin_themes"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
 	]);
 }
 
@@ -2352,7 +2353,7 @@ function admin_page_themes(App $a)
 function admin_page_logs_post(App $a)
 {
 	if (x($_POST, "page_logs")) {
-		check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
+		BaseModule::checkFormSecurityTokenRedirectOnError('/admin/logs', 'admin_logs');
 
 		$logfile   = ((x($_POST,'logfile'))   ? notags(trim($_POST['logfile']))  : '');
 		$debugging = ((x($_POST,'debugging')) ? true                             : false);
@@ -2414,7 +2415,7 @@ function admin_page_logs(App $a)
 		'$debugging' => ['debugging', L10n::t("Enable Debugging"), Config::get('system', 'debugging'), ""],
 		'$logfile' => ['logfile', L10n::t("Log file"), Config::get('system', 'logfile'), L10n::t("Must be writable by web server. Relative to your Friendica top-level directory.")],
 		'$loglevel' => ['loglevel', L10n::t("Log level"), Config::get('system', 'loglevel'), "", $log_choices],
-		'$form_security_token' => get_form_security_token("admin_logs"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("admin_logs"),
 		'$phpheader' => L10n::t("PHP logging"),
 		'$phphint' => L10n::t("To temporarily enable logging of PHP errors and warnings you can prepend the following to the index.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
 		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE);\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
@@ -2485,7 +2486,7 @@ function admin_page_viewlogs(App $a)
  */
 function admin_page_features_post(App $a)
 {
-	check_form_security_token_redirectOnErr('/admin/features', 'admin_manage_features');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
 
 	logger('postvars: ' . print_r($_POST, true), LOGGER_DATA);
 
@@ -2550,7 +2551,7 @@ function admin_page_features(App $a)
 
 		$tpl = get_markup_template('admin/settings_features.tpl');
 		$o = replace_macros($tpl, [
-			'$form_security_token' => get_form_security_token("admin_manage_features"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("admin_manage_features"),
 			'$title' => L10n::t('Manage Additional Features'),
 			'$features' => $arr,
 			'$submit' => L10n::t('Save Settings'),

@@ -14,6 +14,7 @@ use Friendica\Database\DBA;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Security;
 
 require_once 'include/dba.php';
 
@@ -226,7 +227,7 @@ class Photo
 	 */
 	public static function getAlbums($uid, $update = false)
 	{
-		$sql_extra = permissions_sql($uid);
+		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		$albums = Cache::get($key);

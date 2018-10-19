@@ -17,8 +17,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 
-require_once 'include/security.php';
-
 /**
  * @brief Module Proxy
  */

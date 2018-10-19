@@ -91,7 +91,6 @@ function community_content(App $a, $update = 0)
 		}
 	}
 
-	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
 	if (!$update) {
