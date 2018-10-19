@@ -226,10 +226,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Addon::callHooks('item_photo_menu', $args);
     Addon::callHooks('jot_tool', $jotplugins);
 
-### include/security.php
-
-    Addon::callHooks('logged_in', $a->user);
-
 ### include/text.php
 
     Addon::callHooks('contact_block_end', $arr);
@@ -425,6 +421,10 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Addon::callHooks('page_header', $a->page['nav']);
     Addon::callHooks('nav_info', $nav);
+
+### src/Core/Authentication.php
+
+    Addon::callHooks('logged_in', $a->user);
 
 ### src/Worker/Directory.php
 
