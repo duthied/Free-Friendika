@@ -6,8 +6,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 
-require_once('include/security.php');
-require_once('include/items.php');
+require_once 'include/items.php';
 
 function hub_return($valid, $body)
 {
