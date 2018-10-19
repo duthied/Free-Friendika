@@ -1782,10 +1782,10 @@ code > .hl-main {
     background-color: rgba(0,0,0,0);
 }
 .oembed.video .embed_video.active {
-	margin: 1em 0;
+    margin: 1em 0;
 }
 .oembed.video .embed_video.active iframe {
-	width: 100% !important;
+    width: 100% !important;
 }
 .wall-item-tags,
 .itemedited {
