@@ -216,7 +216,6 @@ class DFRN
 			}
 
 			$contact = $r[0];
-			include_once 'include/security.php';
 
 			$set = PermissionSet::get($owner_id, $contact['id']);
 
