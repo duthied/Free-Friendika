@@ -188,7 +188,7 @@ function profile_photo_content(App $a)
 	$imagecrop = [];
 
 	if (isset($a->argv[1]) && $a->argv[1] == 'use' && $a->argc >= 3) {
-		// check_form_security_token_redirectOnErr('/profile_photo', 'profile_photo');
+		// BaseModule::checkFormSecurityTokenRedirectOnError('/profile_photo', 'profile_photo');
 
 		$resource_id = $a->argv[2];
 		//die(":".local_user());

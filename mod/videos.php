@@ -60,7 +60,7 @@ function videos_init(App $a)
 		]);
 
 		/// @TODO Old-lost code?
-		/*$sql_extra = permissions_sql($a->data['user']['uid']);
+		/*$sql_extra = Security::getPermissionsSQLByUserId($a->data['user']['uid']);
 
 		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra order by created desc",
 			intval($a->data['user']['uid'])
