@@ -749,7 +749,7 @@ class Transmitter
 	 * @param array $match Matching values for the callback
 	 * @return string Replaced mention
 	 */
-	private static function MentionCallback($match)
+	private static function mentionCallback($match)
 	{
 		if (empty($match[1])) {
 			return;
@@ -872,7 +872,7 @@ class Transmitter
 		}
 
 		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-		$body = preg_replace_callback($regexp, ['self', 'MentionCallback'], $body);
+		$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
 		$data['content'] = BBCode::convert($body, false, 7);
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
