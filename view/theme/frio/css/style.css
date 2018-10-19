@@ -1489,6 +1489,9 @@ section #jotOpen {
 .fbrowser.image .photo-album-image-wrapper {
     box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.2);
 }
+.fbrowser.image .photo-album-image-wrapper .caption {
+    pointer-events: none;
+}
 .fbrowser .profile-rotator-wrapper {
     min-height: 200px;
 }
