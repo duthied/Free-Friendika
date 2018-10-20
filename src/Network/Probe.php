@@ -381,7 +381,7 @@ class Probe
 
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			Cache::set("Probe::uri:".$network.":".$uri, $data, CACHE_DAY);
+			Cache::set("Probe::uri:".$network.":".$uri, $data, Cache::DAY);
 
 			/// @todo temporary fix - we need a real contact update function that updates only changing fields
 			/// The biggest problem is the avatar picture that could have a reduced image size.

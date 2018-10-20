@@ -258,7 +258,7 @@ class DiscoverPoCo
 				}
 			}
 		}
-		Cache::set("dirsearch:".$search, time(), CACHE_DAY);
+		Cache::set("dirsearch:".$search, time(), Cache::DAY);
 	}
 
 	/**

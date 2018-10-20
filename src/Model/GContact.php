@@ -468,7 +468,7 @@ class GContact
 			* Uncommented because the result of the queries are to big to store it in the cache.
 			* We need to decide if we want to change the db column type or if we want to delete it.
 			*/
-			//Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $r, CACHE_FIVE_MINUTES);
+			//Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $r, Cache::FIVE_MINUTES);
 
 			return $r;
 		}
@@ -509,7 +509,7 @@ class GContact
 		* Uncommented because the result of the queries are to big to store it in the cache.
 		* We need to decide if we want to change the db column type or if we want to delete it.
 		*/
-		//Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $list, CACHE_FIVE_MINUTES);
+		//Cache::set("suggestion_query:".$uid.":".$start.":".$limit, $list, Cache::FIVE_MINUTES);
 		return $list;
 	}
 

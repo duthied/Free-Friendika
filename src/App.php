@@ -1607,4 +1607,23 @@ class App
 
 		return $default;
 	}
+
+	/**
+	 * Sets the base url for use in cmdline programs which don't have
+	 * $_SERVER variables
+	 */
+	public function checkURL()
+	{
+		$url = Config::get('system', 'url');
+
+		// if the url isn't set or the stored url is radically different
+		// than the currently visited url, store the current value accordingly.
+		// "Radically different" ignores common variations such as http vs https
+		// and www.example.com vs example.com.
+		// We will only change the url to an ip address if there is no existing setting
+
+		if (empty($url) || (!link_compare($url, $this->getBaseURL())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $this->getHostName()))) {
+			Config::set('system', 'url', $this->getBaseURL());
+		}
+	}
 }
