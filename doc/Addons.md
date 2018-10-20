@@ -450,10 +450,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Addon::callHooks('item_photo_menu', $args);
     Addon::callHooks('jot_tool', $jotplugins);
 
-### include/security.php
-
-    Addon::callHooks('logged_in', $a->user);
-
 ### include/text.php
 
     Addon::callHooks('contact_block_end', $arr);
@@ -692,6 +688,11 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Addon::callHooks($a->module.'_pre_'.$selname, $arr);
     Addon::callHooks($a->module.'_post_'.$selname, $o);
     Addon::callHooks('jot_networks', $jotnets);
+
+### src/Core/Authentication.php
+
+    Addon::callHooks('logged_in', $a->user);
+
 
 ### src/Core/Worker.php
 
