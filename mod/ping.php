@@ -221,7 +221,7 @@ function ping_init(App $a)
 				DBA::escape(DateTimeFormat::utcNow())
 			);
 			if (DBA::isResult($ev)) {
-				Cache::set($cachekey, $ev, CACHE_HOUR);
+				Cache::set($cachekey, $ev, Cache::HOUR);
 			}
 		}
 

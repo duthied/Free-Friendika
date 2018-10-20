@@ -577,7 +577,7 @@ class Profile
 			);
 			if (DBA::isResult($s)) {
 				$r = DBA::toArray($s);
-				Cache::set($cachekey, $r, CACHE_HOUR);
+				Cache::set($cachekey, $r, Cache::HOUR);
 			}
 		}
 
@@ -1037,7 +1037,7 @@ class Profile
 			logger('URL ' . $my_url . ' already tried to authenticate.', LOGGER_DEBUG);
 			return;
 		} else {
-			Cache::set($cachekey, true, CACHE_MINUTE);
+			Cache::set($cachekey, true, Cache::MINUTE);
 		}
 
 		logger('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);

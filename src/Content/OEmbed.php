@@ -120,9 +120,9 @@ class OEmbed
 					'content' => $json_string,
 					'created' => DateTimeFormat::utcNow()
 				], true);
-				$cache_ttl = CACHE_DAY;
+				$cache_ttl = Cache::DAY;
 			} else {
-				$cache_ttl = CACHE_FIVE_MINUTES;
+				$cache_ttl = Cache::FIVE_MINUTES;
 			}
 
 			Cache::set($cache_key, $json_string, $cache_ttl);
