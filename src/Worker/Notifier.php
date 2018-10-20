@@ -512,6 +512,7 @@ class Notifier
 	private static function activityPubDelivery($a, $cmd, $item_id, $uid, $target_item, $parent)
 	{
 		$inboxes = [];
+		$personal = false;
 
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
@@ -520,11 +521,14 @@ class Notifier
 			logger('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', LOGGER_DEBUG);
 			return;
 		} else {
+			// Remote items are transmitted via the personal inboxes.
+			// Doing so ensures that the dedicated receiver will get the message.
+			$personal = true;
 			logger('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', LOGGER_DEBUG);
 		}
 
 		if ($parent['origin']) {
-			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid);
+			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, $personal);
 			$inboxes = array_merge($inboxes, $parent_inboxes);
 		}
 
