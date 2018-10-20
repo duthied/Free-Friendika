@@ -90,6 +90,7 @@ class DBStructure
 				'body'     => $body,
 				'language' => $lang]
 			);
+			L10n::popLang();
 		}
 
 		//try the logger
