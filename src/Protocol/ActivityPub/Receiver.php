@@ -419,8 +419,9 @@ class Receiver
 				}
 
 				if (in_array($receiver, [$followers, self::PUBLIC_COLLECTION]) && !empty($actor)) {
+					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
-						'network' => Protocol::ACTIVITYPUB, 'archive' => false, 'pending' => false];
+						'network' => $networks, 'archive' => false, 'pending' => false];
 					$contacts = DBA::select('contact', ['uid'], $condition);
 					while ($contact = DBA::fetch($contacts)) {
 						if ($contact['uid'] != 0) {

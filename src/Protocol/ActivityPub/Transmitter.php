@@ -308,6 +308,12 @@ class Transmitter
 	 */
 	private static function createPermissionBlockForItem($item)
 	{
+		// Will be activated in a later step
+		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+
+		// For now only send to these contacts:
+		$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
+
 		$data = ['to' => [], 'cc' => []];
 
 		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
@@ -315,8 +321,6 @@ class Transmitter
 		$actor_profile = APContact::getByURL($item['author-link']);
 
 		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
-
-		$contacts[$item['author-link']] = $item['author-link'];
 
 		if (!$item['private']) {
 			$data['to'][] = ActivityPub::PUBLIC_COLLECTION;
@@ -326,13 +330,8 @@ class Transmitter
 
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
-				if (!empty($profile) && empty($contacts[$profile['url']])) {
+				if (!empty($profile)) {
 					$data['to'][] = $profile['url'];
-					$contacts[$profile['url']] = $profile['url'];
-
-					if (($key = array_search($profile['url'], $data['cc'])) !== false) {
-						unset($data['cc'][$key]);
-					}
 				}
 			}
 		} else {
@@ -343,21 +342,17 @@ class Transmitter
 			foreach ($terms as $term) {
 				$cid = Contact::getIdForURL($term['url'], $item['uid']);
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
-					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => Protocol::ACTIVITYPUB]);
-					$data['to'][] = $contact['url'];
-					$contacts[$contact['url']] = $contact['url'];
-
-					if (($key = array_search($profile['url'], $data['cc'])) !== false) {
-						unset($data['cc'][$key]);
+					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => $networks]);
+					if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
+						$data['to'][] = $profile['url'];
 					}
 				}
 			}
 
 			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => Protocol::ACTIVITYPUB]);
-				if (DBA::isResult($contact) && empty($contacts[$contact['url']])) {
-					$data['cc'][] = $contact['url'];
-					$contacts[$contact['url']] = $contact['url'];
+				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => $networks]);
+				if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
+					$data['cc'][] = $profile['url'];
 				}
 			}
 		}
@@ -370,18 +365,12 @@ class Transmitter
 			}
 
 			$profile = APContact::getByURL($parent['author-link'], false);
-			if (!empty($profile) && ($parent['uri'] == $item['thr-parent'])) {
-				$data['to'][] = $profile['url'];
-				$contacts[$profile['url']] = $profile['url'];
-
-				if (($key = array_search($profile['url'], $data['cc'])) !== false) {
-					unset($data['cc'][$key]);
+			if (!empty($profile)) {
+				if ($parent['uri'] == $item['thr-parent']) {
+					$data['to'][] = $profile['url'];
+				} else {
+					$data['cc'][] = $profile['url'];
 				}
-			}
-
-			if (!empty($profile) && empty($contacts[$profile['url']])) {
-				$data['cc'][] = $profile['url'];
-				$contacts[$profile['url']] = $profile['url'];
 			}
 
 			if ($item['gravity'] != GRAVITY_PARENT) {
@@ -389,12 +378,14 @@ class Transmitter
 			}
 
 			$profile = APContact::getByURL($parent['owner-link'], false);
-			if (!empty($profile) && empty($contacts[$profile['url']])) {
+			if (!empty($profile)) {
 				$data['cc'][] = $profile['url'];
-				$contacts[$profile['url']] = $profile['url'];
 			}
 		}
 		DBA::close($parents);
+
+		$data['to'] = array_unique($data['to']);
+		$data['cc'] = array_unique($data['cc']);
 
 		if (($key = array_search($item['author-link'], $data['to'])) !== false) {
 			unset($data['to'][$key]);
@@ -404,30 +395,50 @@ class Transmitter
 			unset($data['cc'][$key]);
 		}
 
-		return ['to' => array_values(array_unique($data['to'])), 'cc' => array_values(array_unique($data['cc']))];
+		foreach ($data['to'] as $to) {
+			if (($key = array_search($to, $data['cc'])) !== false) {
+				unset($data['cc'][$key]);
+			}
+		}
+
+		return ['to' => array_values($data['to']), 'cc' => array_values($data['cc'])];
 	}
 
 	/**
 	 * Fetches a list of inboxes of followers of a given user
 	 *
 	 * @param integer $uid User ID
+	 * @param boolean $personal fetch personal inboxes
 	 *
 	 * @return array of follower inboxes
 	 */
-	public static function fetchTargetInboxesforUser($uid)
+	public static function fetchTargetInboxesforUser($uid, $personal = false)
 	{
 		$inboxes = [];
 
-		$condition = ['uid' => $uid, 'network' => Protocol::ACTIVITYPUB, 'archive' => false, 'pending' => false];
+		// Will be activated in a later step
+		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+
+		// For now only send to these contacts:
+		$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
+
+		$condition = ['uid' => $uid, 'network' => $networks, 'archive' => false, 'pending' => false];
 
 		if (!empty($uid)) {
 			$condition['rel'] = [Contact::FOLLOWER, Contact::FRIEND];
 		}
 
-		$contacts = DBA::select('contact', ['notify', 'batch'], $condition);
+		$contacts = DBA::select('contact', ['url'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			$contact = defaults($contact, 'batch', $contact['notify']);
-			$inboxes[$contact] = $contact;
+			$profile = APContact::getByURL($contact['url'], false);
+			if (!empty($profile)) {
+				if (empty($profile['sharedinbox']) || $personal) {
+					$target = $profile['inbox'];
+				} else {
+					$target = $profile['sharedinbox'];
+				}
+				$inboxes[$target] = $target;
+			}
 		}
 		DBA::close($contacts);
 
@@ -439,10 +450,11 @@ class Transmitter
 	 *
 	 * @param array $item
 	 * @param integer $uid User ID
+	 * @param boolean $personal fetch personal inboxes
 	 *
 	 * @return array with inboxes
 	 */
-	public static function fetchTargetInboxes($item, $uid)
+	public static function fetchTargetInboxes($item, $uid, $personal = false)
 	{
 		$permissions = self::createPermissionBlockForItem($item);
 		if (empty($permissions)) {
@@ -452,9 +464,9 @@ class Transmitter
 		$inboxes = [];
 
 		if ($item['gravity'] == GRAVITY_ACTIVITY) {
-			$item_profile = APContact::getByURL($item['author-link']);
+			$item_profile = APContact::getByURL($item['author-link'], false);
 		} else {
-			$item_profile = APContact::getByURL($item['owner-link']);
+			$item_profile = APContact::getByURL($item['owner-link'], false);
 		}
 
 		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
@@ -464,11 +476,15 @@ class Transmitter
 
 			foreach ($permissions[$element] as $receiver) {
 				if ($receiver == $item_profile['followers']) {
-					$inboxes = self::fetchTargetInboxesforUser($uid);
+					$inboxes = self::fetchTargetInboxesforUser($uid, $personal);
 				} else {
-					$profile = APContact::getByURL($receiver);
+					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
-						$target = defaults($profile, 'sharedinbox', $profile['inbox']);
+						if (empty($profile['sharedinbox']) || $personal) {
+							$target = $profile['inbox'];
+						} else {
+							$target = $profile['sharedinbox'];
+						}
 						$inboxes[$target] = $target;
 					}
 				}
