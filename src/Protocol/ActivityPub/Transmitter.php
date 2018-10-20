@@ -545,7 +545,7 @@ class Transmitter
 
 		$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
 
-		Cache::set($cachekey, $data, CACHE_QUARTER_HOUR);
+		Cache::set($cachekey, $data, Cache::QUARTER_HOUR);
 		return $data;
 	}
 

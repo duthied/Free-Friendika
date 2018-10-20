@@ -172,7 +172,7 @@ if ($a->getMode()->isInstall() && $a->module != 'view') {
 } elseif (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $a->module != 'view') {
 	$a->module = 'maintenance';
 } else {
-	check_url($a);
+	$a->checkURL();
 	check_db(false);
 	Addon::check();
 }

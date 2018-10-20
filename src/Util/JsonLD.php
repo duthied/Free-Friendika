@@ -43,7 +43,7 @@ class JsonLD
 		}
 
 		$data = jsonld_default_document_loader($url);
-		Cache::set('documentLoader:' . $url, $data, CACHE_DAY);
+		Cache::set('documentLoader:' . $url, $data, Cache::DAY);
 		return $data;
 	}
 

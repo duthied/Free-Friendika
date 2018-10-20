@@ -136,9 +136,9 @@ function search_content(App $a) {
 							"description" => L10n::t("Only one search per minute is permitted for not logged in users.")]);
 				killme();
 			}
-			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => $resultdata->accesses + 1]), CACHE_HOUR);
+			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => $resultdata->accesses + 1]), Cache::HOUR);
 		} else
-			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => 1]), CACHE_HOUR);
+			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => 1]), Cache::HOUR);
 	}
 
 	Nav::setSelected('search');

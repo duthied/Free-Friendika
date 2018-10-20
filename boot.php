@@ -122,24 +122,6 @@ define('LOGGER_ALL',             5);
 /* @}*/
 
 /**
- * @name Cache
- * @deprecated since version 3.6
- * @see Cache
- *
- * Cache levels
- * @{
- */
-define('CACHE_MONTH',            Cache::MONTH);
-define('CACHE_WEEK',             Cache::WEEK);
-define('CACHE_DAY',              Cache::DAY);
-define('CACHE_HOUR',             Cache::HOUR);
-define('CACHE_HALF_HOUR',        Cache::HALF_HOUR);
-define('CACHE_QUARTER_HOUR',     Cache::QUARTER_HOUR);
-define('CACHE_FIVE_MINUTES',     Cache::FIVE_MINUTES);
-define('CACHE_MINUTE',           Cache::MINUTE);
-/* @}*/
-
-/**
  * @name Register
  *
  * Registration policies
@@ -211,11 +193,6 @@ $netgroup_ids = [
  * Maximum number of "people who like (or don't like) this"  that we will list by name
  */
 define('MAX_LIKERS',    75);
-
-/**
- * Communication timeout
- */
-define('ZCURL_TIMEOUT', (-1));
 
 /**
  * @name Notify
@@ -500,29 +477,6 @@ function check_db($via_worker)
 			update_db();
 		}
 	}
-}
-
-/**
- * Sets the base url for use in cmdline programs which don't have
- * $_SERVER variables
- *
- * @param object $a App
- */
-function check_url(App $a)
-{
-	$url = Config::get('system', 'url');
-
-	// if the url isn't set or the stored url is radically different
-	// than the currently visited url, store the current value accordingly.
-	// "Radically different" ignores common variations such as http vs https
-	// and www.example.com vs example.com.
-	// We will only change the url to an ip address if there is no existing setting
-
-	if (empty($url) || (!link_compare($url, System::baseUrl())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $a->getHostName()))) {
-		Config::set('system', 'url', System::baseUrl());
-	}
-
-	return;
 }
 
 /**
