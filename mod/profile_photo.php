@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -13,6 +14,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Object\Image;
+use Friendica\Util\Security;
 
 function profile_photo_init(App $a)
 {
@@ -30,7 +32,7 @@ function profile_photo_post(App $a)
 		return;
 	}
 
-	check_form_security_token_redirectOnErr('/profile_photo', 'profile_photo');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/profile_photo', 'profile_photo');
 
 	if (!empty($_POST['cropfinal']) && $_POST['cropfinal'] == 1) {
 
@@ -186,7 +188,7 @@ function profile_photo_content(App $a)
 	$imagecrop = [];
 
 	if (isset($a->argv[1]) && $a->argv[1] == 'use' && $a->argc >= 3) {
-		// check_form_security_token_redirectOnErr('/profile_photo', 'profile_photo');
+		// BaseModule::checkFormSecurityTokenRedirectOnError('/profile_photo', 'profile_photo');
 
 		$resource_id = $a->argv[2];
 		//die(":".local_user());
@@ -246,7 +248,7 @@ function profile_photo_content(App $a)
 			'$title' => L10n::t('Upload Profile Photo'),
 			'$submit' => L10n::t('Upload'),
 			'$profiles' => $profiles,
-			'$form_security_token' => get_form_security_token("profile_photo"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("profile_photo"),
 			'$select' => sprintf('%s %s', L10n::t('or'),
 				($newuser) ? '<a href="' . System::baseUrl() . '">' . L10n::t('skip this step') . '</a>' : '<a href="' . System::baseUrl() . '/photos/' . $a->user['nickname'] . '">' . L10n::t('select a photo from your photo albums') . '</a>')
 		]);
@@ -263,7 +265,7 @@ function profile_photo_content(App $a)
 			'$image_url' => System::baseUrl() . '/photo/' . $filename,
 			'$title'     => L10n::t('Crop Image'),
 			'$desc'      => L10n::t('Please adjust the image cropping for optimum viewing.'),
-			'$form_security_token' => get_form_security_token("profile_photo"),
+			'$form_security_token' => BaseModule::getFormSecurityToken("profile_photo"),
 			'$done'      => L10n::t('Done Editing')
 		]);
 		return $o;

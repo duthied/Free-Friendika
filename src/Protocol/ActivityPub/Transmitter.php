@@ -743,6 +743,26 @@ class Transmitter
 		return $attachments;
 	}
 
+        /**
+	 * @brief Callback function to replace a Friendica style mention in a mention that is used on AP
+	 *
+	 * @param array $match Matching values for the callback
+	 * @return string Replaced mention
+	 */
+	private static function mentionCallback($match)
+	{
+		if (empty($match[1])) {
+			return;
+		}
+
+		$data = Contact::getDetailsByURL($match[1]);
+		if (empty($data) || empty($data['nick'])) {
+			return;
+		}
+
+		return '@[url=' . $data['url'] . ']' . $data['nick'] . '[/url]';
+	}
+
 	/**
 	 * Remove image elements and replaces them with links to the image
 	 *
@@ -850,6 +870,9 @@ class Transmitter
 		if ($type == 'Note') {
 			$body = self::removePictures($body);
 		}
+
+		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+		$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
 		$data['content'] = BBCode::convert($body, false, 7);
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];

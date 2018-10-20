@@ -8,8 +8,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Util\Security;
 
-require_once 'include/security.php';
 require_once 'include/items.php';
 
 function subthread_content(App $a) {
@@ -32,7 +32,7 @@ function subthread_content(App $a) {
 
 	$owner_uid = $item['uid'];
 
-	if (!can_write_wall($owner_uid)) {
+	if (!Security::canWriteToUserWall($owner_uid)) {
 		return;
 	}
 

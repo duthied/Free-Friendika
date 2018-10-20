@@ -11,6 +11,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Item;
 
 function community_init(App $a)
 {
@@ -90,7 +91,6 @@ function community_content(App $a, $update = 0)
 		}
 	}
 
-	require_once 'include/security.php';
 	require_once 'include/conversation.php';
 
 	if (!$update) {
@@ -227,19 +227,12 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 		return DBA::toArray($r);
 	} elseif ($content == 'global') {
 		if (!is_null($accounttype)) {
-			$sql_accounttype = " AND `owner`.`contact-type` = ?";
-			$values = [$accounttype, $start, $itemspage];
+			$condition = ["`uid` = ? AND `owner`.`contact-type` = ?", 0, $accounttype];
 		} else {
-			$sql_accounttype = "";
-			$values = [$start, $itemspage];
+			$condition = ['uid' => 0];
 		}
 
-		$r = DBA::p("SELECT `uri` FROM `thread`
-				INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-				INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
-				INNER JOIN `contact` AS `owner` ON `owner`.`id`=`item`.`owner-id`
-				WHERE `thread`.`uid` = 0 AND NOT `author`.`hidden` AND NOT `author`.`blocked` $sql_accounttype
-				ORDER BY `thread`.`commented` DESC LIMIT ?, ?", $values);
+		$r = Item::selectThreadForUser(0, ['uri'], $condition, ['order' => ['commented' => true], 'limit' => [$start, $itemspage]]);
 		return DBA::toArray($r);
 	}
 

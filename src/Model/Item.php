@@ -24,6 +24,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\XML;
+use Friendica\Util\Security;
 use Text_LanguageDetect;
 
 require_once 'boot.php';
@@ -80,7 +81,7 @@ class Item extends BaseObject
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
-			'uri-hash', 'created', 'edited', 'commented', 'received', 'changed', 'verb',
+			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
@@ -529,7 +530,7 @@ class Item extends BaseObject
 
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
-			'created', 'edited', 'commented', 'received', 'changed', 'psid', 'uri-hash',
+			'created', 'edited', 'commented', 'received', 'changed', 'psid',
 			'resource-id', 'event-id', 'tag', 'attach', 'post-type', 'file',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
@@ -766,19 +767,6 @@ class Item extends BaseObject
 	}
 
 	/**
-	 * @brief Generate a server unique item hash for linking between the item tables
-	 *
-	 * @param string $uri     Item URI
-	 * @param date   $created Item creation date
-	 *
-	 * @return string the item hash
-	 */
-	private static function itemHash($uri, $created)
-	{
-		return round(strtotime($created) / 100) . hash('ripemd128', $uri);
-	}
-
-	/**
 	 * @brief Update existing item entries
 	 *
 	 * @param array $fields The fields that are to be changed
@@ -803,7 +791,7 @@ class Item extends BaseObject
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = DBA::select('item', ['id', 'origin', 'uri', 'created', 'uri-hash', 'iaid', 'icid', 'tag', 'file'], $condition);
+		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'iaid', 'icid', 'tag', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -858,34 +846,11 @@ class Item extends BaseObject
 		$rows = DBA::affectedRows();
 
 		while ($item = DBA::fetch($items)) {
-
-			// This part here can safely be removed when the legacy fields in the item had been removed
-			if (empty($item['uri-hash']) && !empty($item['uri']) && !empty($item['created'])) {
-
-				// Fetch the uri-hash from an existing item entry if there is one
-				$item_condition = ["`uri` = ? AND `uri-hash` != ''", $item['uri']];
-				$existing = DBA::selectfirst('item', ['uri-hash'], $item_condition);
-				if (DBA::isResult($existing)) {
-					$item['uri-hash'] = $existing['uri-hash'];
-				} else {
-					$item['uri-hash'] = self::itemHash($item['uri'], $item['created']);
-				}
-
-				DBA::update('item', ['uri-hash' => $item['uri-hash']], ['id' => $item['id']]);
-				DBA::update('item-activity', ['uri-hash' => $item['uri-hash']], ["`uri` = ? AND `uri-hash` = ''", $item['uri']]);
-				DBA::update('item-content', ['uri-plink-hash' => $item['uri-hash']], ["`uri` = ? AND `uri-plink-hash` = ''", $item['uri']]);
-			}
-
 			if (!empty($item['iaid']) || (!empty($content_fields['verb']) && (self::activityToIndex($content_fields['verb']) >= 0))) {
-				if (!empty($item['iaid'])) {
-					$update_condition = ['id' => $item['iaid']];
-				} else {
-					$update_condition = ['uri-hash' => $item['uri-hash']];
-				}
-				self::updateActivity($content_fields, $update_condition);
+				self::updateActivity($content_fields, ['uri-id' => $item['uri-id']]);
 
 				if (empty($item['iaid'])) {
-					$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-hash' => $item['uri-hash']]);
+					$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-id' => $item['uri-id']]);
 					if (DBA::isResult($item_activity)) {
 						$item_fields = ['iaid' => $item_activity['id'], 'icid' => null];
 						foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
@@ -909,15 +874,10 @@ class Item extends BaseObject
 					}
 				}
 			} else {
-				if (!empty($item['icid'])) {
-					$update_condition = ['id' => $item['icid']];
-				} else {
-					$update_condition = ['uri-plink-hash' => $item['uri-hash']];
-				}
-				self::updateContent($content_fields, $update_condition);
+				self::updateContent($content_fields, ['uri-id' => $item['uri-id']]);
 
 				if (empty($item['icid'])) {
-					$item_content = DBA::selectFirst('item-content', [], ['uri-plink-hash' => $item['uri-hash']]);
+					$item_content = DBA::selectFirst('item-content', [], ['uri-id' => $item['uri-id']]);
 					if (DBA::isResult($item_content)) {
 						$item_fields = ['icid' => $item_content['id']];
 						// Clear all fields in the item table that have a content in the item-content table
@@ -1380,13 +1340,6 @@ class Item extends BaseObject
 			}
 		}
 
-		// Ensure to always have the same creation date.
-		$existing = self::selectfirst(['created', 'uri-hash'], ['uri' => $item['uri']]);
-		if (DBA::isResult($existing)) {
-			$item['created'] = $existing['created'];
-			$item['uri-hash'] = $existing['uri-hash'];
-		}
-
 		$item['wall']          = intval(defaults($item, 'wall', 0));
 		$item['extid']         = trim(defaults($item, 'extid', ''));
 		$item['author-name']   = trim(defaults($item, 'author-name', ''));
@@ -1428,9 +1381,6 @@ class Item extends BaseObject
 		$item['event-id']      = intval(defaults($item, 'event-id', 0));
 		$item['inform']        = trim(defaults($item, 'inform', ''));
 		$item['file']          = trim(defaults($item, 'file', ''));
-
-		// Unique identifier to be linked against item-activities and item-content
-		$item['uri-hash']      = defaults($item, 'uri-hash', self::itemHash($item['uri'], $item['created']));
 
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
@@ -1927,8 +1877,7 @@ class Item extends BaseObject
 			return false;
 		}
 
-		$fields = ['uri' => $item['uri'], 'activity' => $activity_index,
-			'uri-hash' => $item['uri-hash'], 'uri-id' => $item['uri-id']];
+		$fields = ['activity' => $activity_index, 'uri-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
 
 		// We just remove everything that is content
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -1942,7 +1891,7 @@ class Item extends BaseObject
 		}
 
 		// Do we already have this content?
-		$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-hash' => $item['uri-hash']]);
+		$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-id' => $item['uri-id']]);
 		if (DBA::isResult($item_activity)) {
 			$item['iaid'] = $item_activity['id'];
 			logger('Fetched activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
@@ -1968,8 +1917,7 @@ class Item extends BaseObject
 	 */
 	private static function insertContent(&$item)
 	{
-		$fields = ['uri' => $item['uri'], 'uri-plink-hash' => $item['uri-hash'],
-			'uri-id' => $item['uri-id']];
+		$fields = ['uri-plink-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
 
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($item[$field])) {
@@ -1985,7 +1933,7 @@ class Item extends BaseObject
 		}
 
 		// Do we already have this content?
-		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-plink-hash' => $item['uri-hash']]);
+		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
 		if (DBA::isResult($item_content)) {
 			$item['icid'] = $item_content['id'];
 			logger('Fetched content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
@@ -3060,7 +3008,7 @@ class Item extends BaseObject
 			$uid = local_user();
 		}
 
-		if (!can_write_wall($uid)) {
+		if (!Security::canWriteToUserWall($uid)) {
 			logger('like: unable to write on wall ' . $uid);
 			return false;
 		}
@@ -3245,5 +3193,42 @@ class Item extends BaseObject
 				logger("deleteThread: Deleted shadow for item ".$itemuri, LOGGER_DEBUG);
 			}
 		}
+	}
+
+	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null)
+	{
+		$local_user = local_user();
+		$remote_user = remote_user();
+
+		/*
+		 * Construct permissions
+		 *
+		 * default permissions - anonymous user
+		 */
+		$sql = " AND NOT `item`.`private`";
+
+		// Profile owner - everything is visible
+		if ($local_user && ($local_user == $owner_id)) {
+			$sql = '';
+		} elseif ($remote_user) {
+			/*
+			 * Authenticated visitor. Unless pre-verified,
+			 * check that the contact belongs to this $owner_id
+			 * and load the groups the visitor belongs to.
+			 * If pre-verified, the caller is expected to have already
+			 * done this and passed the groups into this function.
+			 */
+			$set = PermissionSet::get($owner_id, $remote_user, $groups);
+
+			if (!empty($set)) {
+				$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
+			} else {
+				$sql_set = '';
+			}
+
+			$sql = " AND (NOT `item`.`private`" . $sql_set . ")";
+		}
+
+		return $sql;
 	}
 }

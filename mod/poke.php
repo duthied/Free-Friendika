@@ -21,7 +21,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
-require_once 'include/security.php';
 require_once 'include/items.php';
 
 function poke_init(App $a)

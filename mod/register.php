@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
@@ -18,7 +19,7 @@ require_once 'include/enotify.php';
 
 function register_post(App $a)
 {
-	check_form_security_token_redirectOnErr('/register', 'register');
+	BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');
 
 	$verified = 0;
 	$blocked  = 1;
@@ -289,7 +290,7 @@ function register_content(App $a)
 		'$showprivstatement' => Config::get('system', 'tosprivstatement'),
 		'$privstatement' => $tos->privacy_complete,
 		'$baseurl'   => System::baseurl(),
-		'$form_security_token' => get_form_security_token("register"),
+		'$form_security_token' => BaseModule::getFormSecurityToken("register"),
 		'$explicit_content' => Config::get('system', 'explicit_content', false),
 		'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content')
 	]);

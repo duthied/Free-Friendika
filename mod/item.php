@@ -32,6 +32,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
+use Friendica\Util\Security;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -41,8 +42,6 @@ function item_post(App $a) {
 	if (!local_user() && !remote_user()) {
 		return 0;
 	}
-
-	require_once 'include/security.php';
 
 	$uid = local_user();
 
@@ -162,7 +161,7 @@ function item_post(App $a) {
 	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
 
 	// Now check that valid personal details have been provided
-	if (!can_write_wall($profile_uid) && !$allow_comment) {
+	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
 		notice(L10n::t('Permission denied.') . EOL) ;
 
 		if (!empty($_REQUEST['return'])) {
@@ -870,8 +869,6 @@ function item_content(App $a)
 	if (!local_user() && !remote_user()) {
 		return;
 	}
-
-	require_once 'include/security.php';
 
 	$o = '';
 

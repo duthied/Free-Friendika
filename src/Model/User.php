@@ -5,7 +5,7 @@
  */
 namespace Friendica\Model;
 
-use DivineOmega\PasswordExposed\PasswordStatus;
+use DivineOmega\PasswordExposed;
 use Exception;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
@@ -20,7 +20,6 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use LightOpenID;
-use function password_exposed;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -280,7 +279,14 @@ class User
 	 */
 	public static function isPasswordExposed($password)
 	{
-		return password_exposed($password) === PasswordStatus::EXPOSED;
+		$cache = new \DivineOmega\DOFileCachePSR6\CacheItemPool();
+		$cache->changeConfig([
+			'cacheDirectory' => get_temppath() . '/password-exposed-cache/',
+		]);
+
+		$PasswordExposedCHecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
+
+		return $PasswordExposedCHecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
 	}
 
 	/**
@@ -684,7 +690,7 @@ class User
 			Login Name:		%4$s
 			Password:		%5$s
 		',
-			$body, $user['username'], $sitename, $siteurl, $user['nickname'], $password
+			$user['username'], $sitename, $siteurl, $user['nickname'], $password
 		));
 
 		return notification([
@@ -742,7 +748,7 @@ class User
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
 			Thank you and welcome to %2$s.',
-			$body, $user['email'], $sitename, $siteurl, $user['username'], $password
+			$user['email'], $sitename, $siteurl, $user['username'], $password
 		));
 
 		return notification([

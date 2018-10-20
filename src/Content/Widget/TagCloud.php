@@ -9,9 +9,10 @@ namespace Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Item;
+use Friendica\Util\Security;
 
 require_once 'include/dba.php';
-require_once 'include/security.php';
 
 /**
  * TagCloud widget
@@ -73,7 +74,7 @@ class TagCloud
 	 */
 	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG)
 	{
-		$sql_options = item_permissions_sql($uid);
+		$sql_options = Item::getPermissionsSQLByUserId($uid);
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
 
 		if ($flags) {

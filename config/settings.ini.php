@@ -92,6 +92,10 @@ optimize_max_tablesize = -1
 ; Set to 0 to disable, 2 to enable, 1 is deprecated but wont need mcrypt.
 rino_encrypt = 2
 
+; temppath (String)
+; Custom temporary file directory
+temppath =
+
 ; theme (String)
 ; System theme name.
 theme = vier
