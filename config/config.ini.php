@@ -121,8 +121,13 @@ db_loglimit_index_high = 0
 
 ; dbclean_expire_conversation (Integer)
 ; When DBClean is enabled, any entry in the conversation table will be deleted after this many days.
-; These data are normally needed only for debugging purposes and they are safe to delete.
+: This data is used for ActivityPub, so it shouldn't be lower than the average duration of a discussion.
 dbclean_expire_conversation = 90
+
+; dbclean-expire-limit (Integer)
+; This defines the number of items that are to be deleted in a single call.
+; Reduce this value when you are getting memory issues.
+dbclean-expire-limit = 1000
 
 ; diaspora_test (Boolean)
 ; For development only. Disables the message transfer.

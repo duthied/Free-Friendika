@@ -63,7 +63,7 @@ class DBClean {
 		$count = 0;
 
 		// We split the deletion in many small tasks
-		$limit = 1000;
+		$limit = Config::get('system', 'dbclean-expire-limit', 1000);
 
 		// Get the expire days for step 8 and 9
 		$days = Config::get('system', 'dbclean-expire-days', 0);
@@ -275,7 +275,7 @@ class DBClean {
 	                                                                OR (`item`.`file` != '') OR (`item`.`event-id` != '')
 	                                                                OR (`item`.`attach` != '') OR `item`.`wall` OR `item`.`origin`)
 	                                                                AND `item`.`parent` = `thread`.`iid`)
-	                                ORDER BY `thread`.`iid` LIMIT 1000", $days, $last_id);
+	                                ORDER BY `thread`.`iid` LIMIT ?", $days, $last_id, $limit);
 			$count = DBA::numRows($r);
 			if ($count > 0) {
 				logger("found expired threads: ".$count);
