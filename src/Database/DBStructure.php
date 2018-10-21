@@ -77,10 +77,9 @@ class DBStructure
 				The friendica developers released update %s recently,
 				but when I tried to install it, something went terribly wrong.
 				This needs to be fixed soon and I can't do it alone. Please contact a
-				friendica developer if you can not help me on your own. My database might be invalid."));
-			$body = L10n::t("The error message is\n[pre]%s[/pre]");
-			$preamble = sprintf($preamble, $update_id);
-			$body = sprintf($body, $error_message);
+				friendica developer if you can not help me on your own. My database might be invalid.",
+				$update_id));
+			$body = L10n::t("The error message is\n[pre]%s[/pre]", $error_message);
 
 			notification([
 				'uid'      => $admin['uid'],
@@ -90,6 +89,7 @@ class DBStructure
 				'body'     => $body,
 				'language' => $lang]
 			);
+			L10n::popLang();
 		}
 
 		//try the logger
