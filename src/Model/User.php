@@ -466,19 +466,30 @@ class User
 		// collapse multiple spaces in name
 		$username = preg_replace('/ +/', ' ', $username);
 
-		if (mb_strlen($username) > 48) {
-			throw new Exception(L10n::t('Please use a shorter name.'));
+		$username_min_length = max(1, min(64, intval(Config::get('system', 'username_min_length', 3))));
+		$username_max_length = max(1, min(64, intval(Config::get('system', 'username_max_length', 48))));
+
+		if ($username_min_length > $username_max_length) {
+			logger(L10n::t('system.username_min_length (%s) and system.username_max_length (%s) are excluding each other, swapping values.', $username_min_length, $username_max_length), LOGGER_WARNING);
+			$tmp = $username_min_length;
+			$username_min_length = $username_max_length;
+			$username_max_length = $tmp;
 		}
-		if (mb_strlen($username) < 3) {
-			throw new Exception(L10n::t('Name too short.'));
+
+		if (mb_strlen($username) < $username_min_length) {
+			throw new Exception(L10n::tt('Username should be at least %s character.', 'Username should be at least %s characters.', $username_min_length));
+		}
+
+		if (mb_strlen($username) > $username_max_length) {
+			throw new Exception(L10n::tt('Username should be at most %s character.', 'Username should be at most %s characters.', $username_max_length));
 		}
 
 		// So now we are just looking for a space in the full name.
 		$loose_reg = Config::get('system', 'no_regfullname');
 		if (!$loose_reg) {
 			$username = mb_convert_case($username, MB_CASE_TITLE, 'UTF-8');
-			if (!strpos($username, ' ')) {
-				throw new Exception(L10n::t("That doesn't appear to be your full \x28First Last\x29 name."));
+			if (strpos($username, ' ') === false) {
+				throw new Exception(L10n::t("That doesn't appear to be your full (First Last) name."));
 			}
 		}
 
