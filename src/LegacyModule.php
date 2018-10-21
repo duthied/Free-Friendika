@@ -25,7 +25,7 @@ class LegacyModule extends BaseModule
 	 */
 	public static function setModuleFile($file_path)
 	{
-		if (!file_exists($file_path)) {
+		if (!is_readable($file_path)) {
 			throw new Exception(Core\L10n::t('Legacy module file not found: %s', $file_path));
 		}
 
