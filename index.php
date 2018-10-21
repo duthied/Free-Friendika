@@ -260,6 +260,8 @@ if (strlen($a->module)) {
 		} else {
 			include_once "addon/{$a->module}/{$a->module}.php";
 			if (function_exists($a->module . '_module')) {
+				Friendica\LegacyModule::setModuleFile("addon/{$a->module}/{$a->module}.php");
+				$a->module_class = 'Friendica\\LegacyModule';
 				$a->module_loaded = true;
 			}
 		}
@@ -273,10 +275,11 @@ if (strlen($a->module)) {
 
 	/**
 	 * If not, next look for a 'standard' program module in the 'mod' directory
+	 * We emulate a Module class through the LegacyModule class
 	 */
-
 	if (! $a->module_loaded && file_exists("mod/{$a->module}.php")) {
-		include_once "mod/{$a->module}.php";
+		Friendica\LegacyModule::setModuleFile("mod/{$a->module}.php");
+		$a->module_class = 'Friendica\\LegacyModule';
 		$a->module_loaded = true;
 	}
 
@@ -336,16 +339,11 @@ if ($a->module_loaded) {
 
 	Addon::callHooks($a->module . '_mod_init', $placeholder);
 
-	if ($a->module_class) {
-		call_user_func([$a->module_class, 'init']);
-	} else if (function_exists($a->module . '_init')) {
-		$func = $a->module . '_init';
-		$func($a);
-	}
+	call_user_func([$a->module_class, 'init']);
 
 	// "rawContent" is especially meant for technical endpoints.
 	// This endpoint doesn't need any theme initialization or other comparable stuff.
-	if (!$a->error && $a->module_class) {
+	if (!$a->error) {
 		call_user_func([$a->module_class, 'rawContent']);
 	}
 
@@ -356,34 +354,19 @@ if ($a->module_loaded) {
 
 	if (! $a->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
 		Addon::callHooks($a->module . '_mod_post', $_POST);
-		if ($a->module_class) {
-			call_user_func([$a->module_class, 'post']);
-		} else if (function_exists($a->module . '_post')) {
-			$func = $a->module . '_post';
-			$func($a);
-		}
+		call_user_func([$a->module_class, 'post']);
 	}
 
 	if (! $a->error) {
 		Addon::callHooks($a->module . '_mod_afterpost', $placeholder);
-		if ($a->module_class) {
-			call_user_func([$a->module_class, 'afterpost']);
-		} else if (function_exists($a->module . '_afterpost')) {
-			$func = $a->module . '_afterpost';
-			$func($a);
-		}
+		call_user_func([$a->module_class, 'afterpost']);
 	}
 
 	if (! $a->error) {
 		$arr = ['content' => $a->page['content']];
 		Addon::callHooks($a->module . '_mod_content', $arr);
 		$a->page['content'] = $arr['content'];
-		if ($a->module_class) {
-			$arr = ['content' => call_user_func([$a->module_class, 'content'])];
-		} else if (function_exists($a->module . '_content')) {
-			$func = $a->module . '_content';
-			$arr = ['content' => $func($a)];
-		}
+		$arr = ['content' => call_user_func([$a->module_class, 'content'])];
 		Addon::callHooks($a->module . '_mod_aftercontent', $arr);
 		$a->page['content'] .= $arr['content'];
 	}
