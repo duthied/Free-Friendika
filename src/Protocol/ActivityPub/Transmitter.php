@@ -476,7 +476,7 @@ class Transmitter
 
 			foreach ($permissions[$element] as $receiver) {
 				if ($receiver == $item_profile['followers']) {
-					$inboxes = self::fetchTargetInboxesforUser($uid, $personal);
+					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
