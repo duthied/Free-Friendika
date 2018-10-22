@@ -41,7 +41,6 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
 define('FRIENDICA_VERSION',      '2018.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('DB_UPDATE_VERSION',      1289);
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
@@ -344,11 +343,6 @@ define('SR_SCOPE_NONE', '');
 define('SR_SCOPE_ALL',  'all');
 define('SR_SCOPE_TAGS', 'tags');
 /* @}*/
-
-/**
- * Lowest possible date time value
- */
-define('NULL_DATE', '0001-01-01 00:00:00');
 
 // Normally this constant is defined - but not if "pcntl" isn't installed
 if (!defined("SIGTERM")) {

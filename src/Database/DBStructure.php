@@ -5,8 +5,8 @@
 namespace Friendica\Database;
 
 use Exception;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Util\DateTimeFormat;
 
@@ -22,6 +22,13 @@ require_once 'include/text.php';
  */
 class DBStructure
 {
+	/**
+	 * Database structure definition loaded from config/dbstructure.php
+	 *
+	 * @var array
+	 */
+	private static $definition = [];
+
 	/*
 	 * Converts all tables from MyISAM to InnoDB
 	 */
@@ -166,7 +173,7 @@ class DBStructure
 	}
 
 	public static function printStructure() {
-		$database = self::definition();
+		$database = self::definition(false);
 
 		echo "-- ------------------------------------------\n";
 		echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
@@ -822,43 +829,40 @@ class DBStructure
 	}
 
 	/**
-	 * Loads the database structure definition from the /config/dbstructure.json file
+	 * Loads the database structure definition from the config/dbstructure.php file.
+	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
-	 * Expected format:
-	 * "table_name": {
-	 *   "comment": "meaningful table comment",
-	 *   "fields": {
-	 *     "field_name1": {"type": "int unsigned", "not null": "1", "extra": "auto_increment", "primary": "1", "comment": "meaningful field comment"},
-	 *     "field_name2": {"type": "varchar(50)", "not null": "1", "default": "", "comment": "meaningful field comment"},
-	 *   },
-	 *   "indexes": {
-	 *     "PRIMARY": ["field_name1"],
-	 *     "name": ["UNIQUE", "field_name2"]
-	 *   }
-	 * }
-	 *
+	 * @see config/dbstructure.php
+	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function definition() {
-		$a = \Friendica\BaseObject::getApp();
+	public static function definition($with_addons_structure = true)
+	{
+		if (!self::$definition) {
+			$a = \Friendica\BaseObject::getApp();
 
-		$filename = $a->getBasePath() . '/config/dbstructure.json';
+			$filename = $a->getBasePath() . '/config/dbstructure.php';
 
-		if (!is_readable($filename)) {
-			throw new Exception('Missing database structure config file config/dbstructure.json');
+			if (!is_readable($filename)) {
+				throw new Exception('Missing database structure config file config/dbstructure.php');
+			}
+
+			$definition = require $filename;
+
+			if (!$definition) {
+				throw new Exception('Corrupted database structure config file config/dbstructure.php');
+			}
+
+			self::$definition = $definition;
+		} else {
+			$definition = self::$definition;
 		}
 
-		$json = file_get_contents($filename);
-
-		$database = json_decode($json, true);
-
-		if (!$database) {
-			throw new Exception('Corrupted database structure config file config/dbstructure.json');
+		if ($with_addons_structure) {
+			Hook::callAll('dbstructure_definition', $definition);
 		}
 
-		Addon::callHooks('dbstructure_definition', $database);
-
-		return $database;
+		return $definition;
 	}
 }
