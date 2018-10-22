@@ -1639,7 +1639,7 @@ class Contact extends BaseObject
 					$myaddr = bin2hex($a->user['nickname'] . '@' . $a->getHostName());
 				}
 
-				goaway($ret['request'] . "&addr=$myaddr");
+				$a->internalRedirect($ret['request'] . "&addr=$myaddr");
 
 				// NOTREACHED
 			}
@@ -2024,8 +2024,10 @@ class Contact extends BaseObject
 	/**
 	 * @brief Returns a magic link to authenticate remote visitors
 	 *
+	 * @todo check if the return is either a fully qualified URL or a relative path to Friendica basedir
+	 *
 	 * @param string $contact_url The address of the target contact profile
-	 * @param integer $url An url that we will be redirected to after the authentication
+	 * @param string $url An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
 	 */
@@ -2058,7 +2060,7 @@ class Contact extends BaseObject
 	 * @brief Returns a magic link to authenticate remote visitors
 	 *
 	 * @param array $contact The contact array with "uid", "network" and "url"
-	 * @param integer $url An url that we will be redirected to after the authentication
+	 * @param string $url An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
 	 */

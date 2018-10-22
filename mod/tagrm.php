@@ -13,11 +13,11 @@ use Friendica\Model\Item;
 function tagrm_post(App $a)
 {
 	if (!local_user()) {
-		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	if (x($_POST,'submit') && ($_POST['submit'] === L10n::t('Cancel'))) {
-		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	$tag =  (x($_POST,'tag')  ? hex2bin(notags(trim($_POST['tag']))) : '');
@@ -25,7 +25,7 @@ function tagrm_post(App $a)
 
 	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
-		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	$arr = explode(',', $item['tag']);
@@ -41,7 +41,7 @@ function tagrm_post(App $a)
 	Item::update(['tag' => $tag_str], ['id' => $item_id]);
 
 	info(L10n::t('Tag removed') . EOL );
-	goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+	$a->internalRedirect($_SESSION['photo_return']);
 
 	// NOTREACHED
 }
@@ -53,25 +53,25 @@ function tagrm_content(App $a)
 	$o = '';
 
 	if (!local_user()) {
-		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 		// NOTREACHED
 	}
 
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 	if (!$item_id) {
-		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 		// NOTREACHED
 	}
 
 	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
-		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	$arr = explode(',', $item['tag']);
 
 	if (!count($arr)) {
-		goaway(System::baseUrl() . '/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	$o .= '<h3>' . L10n::t('Remove Item Tag') . '</h3>';

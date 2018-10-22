@@ -12,13 +12,13 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 
-function unfollow_post()
+function unfollow_post(App $a)
 {
-	$return_url = 'contacts';
+	$return_path = 'contacts';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
-		goaway('/login');
+		$a->internalRedirect('login');
 		// NOTREACHED
 	}
 
@@ -32,17 +32,17 @@ function unfollow_post()
 
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t("You aren't following this contact."));
-		goaway($return_url);
+		$a->internalRedirect($return_path);
 		// NOTREACHED
 	}
 
 	if (!empty($_REQUEST['cancel'])) {
-		goaway($return_url . '/' . $contact['id']);
+		$a->internalRedirect($return_path . '/' . $contact['id']);
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		goaway($return_url . '/' . $contact['id']);
+		$a->internalRedirect($return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
 
@@ -63,17 +63,17 @@ function unfollow_post()
 	}
 
 	info(L10n::t('Contact unfollowed'));
-	goaway($return_path);
+	$a->internalRedirect($return_path);
 	// NOTREACHED
 }
 
 function unfollow_content(App $a)
 {
-	$return_url = 'contacts';
+	$return_path = 'contacts';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
-		goaway('/login');
+		$a->internalRedirect('login');
 		// NOTREACHED
 	}
 
@@ -88,13 +88,13 @@ function unfollow_content(App $a)
 
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t("You aren't following this contact."));
-		goaway($return_url);
+		$a->internalRedirect($return_path);
 		// NOTREACHED
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		goaway('contact/' . $contact['id']);
+		$a->internalRedirect('contact/' . $contact['id']);
 		// NOTREACHED
 	}
 
@@ -105,7 +105,7 @@ function unfollow_content(App $a)
 
 	if (!DBA::isResult($self)) {
 		notice(L10n::t('Permission denied.'));
-		goaway($return_url);
+		$a->internalRedirect($return_path);
 		// NOTREACHED
 	}
 

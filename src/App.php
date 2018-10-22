@@ -1747,35 +1747,35 @@ class App
 		if (strlen($this->module)) {
 			// Compatibility with the Android Diaspora client
 			if ($this->module == 'stream') {
-				goaway('network?f=&order=post');
+				$this->internalRedirect('network?f=&order=post');
 			}
 
 			if ($this->module == 'conversations') {
-				goaway('message');
+				$this->internalRedirect('message');
 			}
 
 			if ($this->module == 'commented') {
-				goaway('network?f=&order=comment');
+				$this->internalRedirect('network?f=&order=comment');
 			}
 
 			if ($this->module == 'liked') {
-				goaway('network?f=&order=comment');
+				$this->internalRedirect('network?f=&order=comment');
 			}
 
 			if ($this->module == 'activity') {
-				goaway('network/?f=&conv=1');
+				$this->internalRedirect('network/?f=&conv=1');
 			}
 
 			if (($this->module == 'status_messages') && ($this->cmd == 'status_messages/new')) {
-				goaway('bookmarklet');
+				$this->internalRedirect('bookmarklet');
 			}
 
 			if (($this->module == 'user') && ($this->cmd == 'user/edit')) {
-				goaway('settings');
+				$this->internalRedirect('settings');
 			}
 
 			if (($this->module == 'tag_followings') && ($this->cmd == 'tag_followings/manage')) {
-				goaway('search');
+				$this->internalRedirect('search');
 			}
 
 			// Compatibility with the Firefox App
@@ -1830,7 +1830,7 @@ class App
 
 				if (!empty($_SERVER['QUERY_STRING']) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
 					logger('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
-					goaway($this->getBaseURL() . $_SERVER['REQUEST_URI']);
+					$this->internalRedirect($_SERVER['REQUEST_URI']);
 				}
 
 				logger('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], LOGGER_DEBUG);
@@ -1998,5 +1998,24 @@ class App
 
 		/// @TODO Looks unsafe (remote-inclusion), is maybe not but Core\Theme::getPathForFile() uses file_exists() but does not escape anything
 		require_once $template;
+	}
+
+	/**
+	 * Redirects to another module relative to the current Friendica base.
+	 * If you want to redirect to a external URL, use System::externalRedirectTo()
+	 *
+	 * @param string $toUrl The destination URL (Default is empty, which is the default page of the Friendica node)
+	 * @param bool $ssl if true, base URL will try to get called with https:// (works just for relative paths)
+	 *
+	 * @throws InternalServerErrorException In Case the given URL is not relative to the Friendica node
+	 */
+	public function internalRedirect($toUrl = '', $ssl = false)
+	{
+		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
+			throw new InternalServerErrorException('URL is not a relative path, please use System::externalRedirectTo');
+		}
+
+		$redirectTo = $this->getBaseURL($ssl) . '/' . ltrim($toUrl, '/');
+		System::externalRedirect($redirectTo);
 	}
 }

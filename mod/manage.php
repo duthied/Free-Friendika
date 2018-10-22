@@ -99,7 +99,7 @@ function manage_post(App $a) {
 	unset($_SESSION['theme']);
 	unset($_SESSION['mobile-theme']);
 	unset($_SESSION['page_flags']);
-	unset($_SESSION['return_url']);
+	unset($_SESSION['return_path']);
 	if (x($_SESSION, 'submanage')) {
 		unset($_SESSION['submanage']);
 	}
@@ -119,7 +119,7 @@ function manage_post(App $a) {
 	$ret = [];
 	Addon::callHooks('home_init',$ret);
 
-	goaway( System::baseUrl() . "/profile/" . $a->user['nickname'] );
+	$a->internalRedirect('profile/' . $a->user['nickname'] );
 	// NOTREACHED
 }
 

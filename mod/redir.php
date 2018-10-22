@@ -27,7 +27,7 @@ function redir_init(App $a) {
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, local_user()]]);
 		if (!DBA::isResult($contact)) {
 			notice(L10n::t('Contact not found.'));
-			goaway(System::baseUrl());
+			$a->internalRedirect();
 		}
 
 		$contact_url = $contact['url'];
@@ -36,7 +36,7 @@ function redir_init(App $a) {
 			|| (!local_user() && !remote_user()) // Visitors (not logged in or not remotes) can't authenticate.
 			|| (!empty($a->contact['id']) && $a->contact['id'] == $cid)) // Local user is already authenticated.
 		{
-			goaway($url != '' ? $url : $contact_url);
+			System::externalRedirect(defaults($url, $contact_url));
 		}
 
 		if ($contact['uid'] == 0 && local_user()) {
@@ -50,14 +50,14 @@ function redir_init(App $a) {
 
 			if (!empty($a->contact['id']) && $a->contact['id'] == $cid) {
 				// Local user is already authenticated.
-				$target_url = $url != '' ? $url : $contact_url;
+				$target_url = defaults($url, $contact_url);
 				logger($contact['name'] . " is already authenticated. Redirecting to " . $target_url, LOGGER_DEBUG);
-				goaway($target_url);
+				System::externalRedirect($target_url);
 			}
 		}
 
 		if (remote_user()) {
-			$host = substr(System::baseUrl() . ($a->getURLPath() ? '/' . $a->getURLPath() : ''), strpos(System::baseUrl(), '://') + 3);
+			$host = substr($a->getBaseURL() . ($a->getURLPath() ? '/' . $a->getURLPath() : ''), strpos($a->getBaseURL(), '://') + 3);
 			$remotehost = substr($contact['addr'], strpos($contact['addr'], '@') + 1);
 
 			// On a local instance we have to check if the local user has already authenticated
@@ -71,9 +71,9 @@ function redir_init(App $a) {
 				foreach ($_SESSION['remote'] as $v) {
 					if ($v['uid'] == $_SESSION['visitor_visiting'] && $v['cid'] == $_SESSION['visitor_id']) {
 						// Remote user is already authenticated.
-						$target_url = $url != '' ? $url : $contact_url;
+						$target_url = defaults($url, $contact_url);
 						logger($contact['name'] . " is already authenticated. Redirecting to " . $target_url, LOGGER_DEBUG);
-						goaway($target_url);
+						System::externalRedirect($target_url);
 					}
 				}
 			}
@@ -102,11 +102,11 @@ function redir_init(App $a) {
 
 			$dest = (!empty($url) ? '&destination_url=' . $url : '');
 
-			goaway($contact['poll'] . '?dfrn_id=' . $dfrn_id
+			System::externalRedirect($contact['poll'] . '?dfrn_id=' . $dfrn_id
 				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest . $quiet);
 		}
 
-		$url = $url != '' ? $url : $contact_url;
+		$url = defaults($url, $contact_url);
 	}
 
 	// If we don't have a connected contact, redirect with
@@ -121,9 +121,9 @@ function redir_init(App $a) {
 		}
 
 		logger('redirecting to ' . $url, LOGGER_DEBUG);
-		goaway($url);
+		System::externalRedirect($url);
 	}
 
 	notice(L10n::t('Contact not found.'));
-	goaway(System::baseUrl());
+	$a->internalRedirect();
 }
