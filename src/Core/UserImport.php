@@ -180,7 +180,7 @@ class UserImport
 			}
 			if ($contact['uid'] == $olduid && $contact['self'] == '0') {
 				// set contacts 'avatar-date' to NULL_DATE to let worker to update urls
-				$contact["avatar-date"] = NULL_DATE;
+				$contact["avatar-date"] = DBA::NULL_DATETIME;
 
 				switch ($contact['network']) {
 					case Protocol::DFRN:
@@ -272,6 +272,6 @@ class UserImport
 		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
 
 		info(L10n::t("Done. You can now login with your username and password"));
-		goaway(System::baseUrl() . "/login");
+		$a->internalRedirect('login');
 	}
 }

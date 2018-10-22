@@ -49,7 +49,7 @@ class Tos extends BaseModule
 	public static function init()
 	{
 		if (strlen(Config::get('system','singleuser'))) {
-			goaway(System::baseUrl()."/profile/" . Config::get('system','singleuser'));
+			self::getApp()->internalRedirect('profile/' . Config::get('system','singleuser'));
 		}
 	}
 	/**

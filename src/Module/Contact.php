@@ -8,6 +8,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
+use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
@@ -15,11 +16,10 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model;
+use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Core\ACL;
-use Friendica\Module\Login;
 
 /**
  *  Manages and show Contacts and their content
@@ -66,9 +66,9 @@ class Contact extends BaseModule
 		if (DBA::isResult($contact)) {
 			if ($contact['self']) {
 				if (($a->argc == 3) && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])) {
-					goaway('profile/' . $contact['nick']);
+					$a->internalRedirect('profile/' . $contact['nick']);
 				} else {
-					goaway('profile/' . $contact['nick'] . '?tab=profile');
+					$a->internalRedirect('profile/' . $contact['nick'] . '?tab=profile');
 				}
 			}
 
@@ -168,7 +168,7 @@ class Contact extends BaseModule
 			info(L10n::tt('%d contact edited.', '%d contacts edited.', $count_actions));
 		}
 
-		goaway('contact');
+		$a->internalRedirect('contact');
 	}
 
 	public static function post()
@@ -191,7 +191,7 @@ class Contact extends BaseModule
 
 		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
 			notice(L10n::t('Could not access contact record.') . EOL);
-			goaway('contact');
+			$a->internalRedirect('contact');
 			return; // NOTREACHED
 		}
 
@@ -374,19 +374,19 @@ class Contact extends BaseModule
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false]);
 			if (!DBA::isResult($orig_record)) {
 				notice(L10n::t('Could not access contact record.') . EOL);
-				goaway('contact');
+				$a->internalRedirect('contact');
 				return; // NOTREACHED
 			}
 
 			if ($cmd === 'update' && ($orig_record['uid'] != 0)) {
 				self::updateContactFromPoll($contact_id);
-				goaway('contact/' . $contact_id);
+				$a->internalRedirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
 			if ($cmd === 'updateprofile' && ($orig_record['uid'] != 0)) {
 				self::updateContactFromProbe($contact_id);
-				goaway('crepair/' . $contact_id);
+				$a->internalRedirect('crepair/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -396,7 +396,7 @@ class Contact extends BaseModule
 				$blocked = Model\Contact::isBlockedByUser($contact_id, local_user());
 				info(($blocked ? L10n::t('Contact has been blocked') : L10n::t('Contact has been unblocked')) . EOL);
 
-				goaway('contact/' . $contact_id);
+				$a->internalRedirect('contact/' . $contact_id);
 				return; // NOTREACHED
 			}
 
@@ -406,7 +406,7 @@ class Contact extends BaseModule
 				$ignored = Model\Contact::isIgnoredByUser($contact_id, local_user());
 				info(($ignored ? L10n::t('Contact has been ignored') : L10n::t('Contact has been unignored')) . EOL);
 
-				goaway('contact/' . $contact_id);
+				$a->internalRedirect('contact/' . $contact_id);
 				return; // NOTREACHED
 			}
 
@@ -417,7 +417,7 @@ class Contact extends BaseModule
 					info((($archived) ? L10n::t('Contact has been archived') : L10n::t('Contact has been unarchived')) . EOL);
 				}
 
-				goaway('contact/' . $contact_id);
+				$a->internalRedirect('contact/' . $contact_id);
 				return; // NOTREACHED
 			}
 
@@ -451,13 +451,13 @@ class Contact extends BaseModule
 				}
 				// Now check how the user responded to the confirmation query
 				if (!empty($_REQUEST['canceled'])) {
-					goaway('contact');
+					$a->internalRedirect('contact');
 				}
 
 				self::dropContact($orig_record);
 				info(L10n::t('Contact has been removed.') . EOL);
 
-				goaway('contact');
+				$a->internalRedirect('contact');
 				return; // NOTREACHED
 			}
 			if ($cmd === 'posts') {
@@ -468,7 +468,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		$_SESSION['return_url'] = $a->query_string;
+		$_SESSION['return_path'] = $a->query_string;
 
 		if (!empty($a->data['contact']) && is_array($a->data['contact'])) {
 			$contact_id = $a->data['contact']['id'];
@@ -522,9 +522,9 @@ class Contact extends BaseModule
 
 			$insecure = L10n::t('Private communications are not available for this contact.');
 
-			$last_update = (($contact['last-update'] <= NULL_DATE) ? L10n::t('Never') : DateTimeFormat::local($contact['last-update'], 'D, j M Y, g:i A'));
+			$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME) ? L10n::t('Never') : DateTimeFormat::local($contact['last-update'], 'D, j M Y, g:i A'));
 
-			if ($contact['last-update'] > NULL_DATE) {
+			if ($contact['last-update'] > DBA::NULL_DATETIME) {
 				$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? L10n::t('(Update was successful)') : L10n::t('(Update was not successful)'));
 			}
 			$lblsuggest = (($contact['network'] === Protocol::DFRN) ? L10n::t('Suggest friends') : '');
@@ -536,7 +536,7 @@ class Contact extends BaseModule
 			// tabs
 			$tab_str = self::getTabsHTML($a, $contact, 3);
 
-			$lost_contact = (($contact['archive'] && $contact['term-date'] > NULL_DATE && $contact['term-date'] < DateTimeFormat::utcNow()) ? L10n::t('Communications lost with this contact!') : '');
+			$lost_contact = (($contact['archive'] && $contact['term-date'] > DBA::NULL_DATETIME && $contact['term-date'] < DateTimeFormat::utcNow()) ? L10n::t('Communications lost with this contact!') : '');
 
 			$fetch_further_information = null;
 			if ($contact['network'] == Protocol::FEED) {

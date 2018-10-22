@@ -18,10 +18,10 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
-use Friendica\Module\Login;
 
 function profiles_init(App $a) {
 
@@ -38,7 +38,7 @@ function profiles_init(App $a) {
 		);
 		if (! DBA::isResult($r)) {
 			notice(L10n::t('Profile not found.') . EOL);
-			goaway('profiles');
+			$a->internalRedirect('profiles');
 			return; // NOTREACHED
 		}
 
@@ -59,7 +59,7 @@ function profiles_init(App $a) {
 			info(L10n::t('Profile deleted.').EOL);
 		}
 
-		goaway('profiles');
+		$a->internalRedirect('profiles');
 		return; // NOTREACHED
 	}
 
@@ -93,10 +93,10 @@ function profiles_init(App $a) {
 
 		info(L10n::t('New profile created.') . EOL);
 		if (DBA::isResult($r3) && count($r3) == 1) {
-			goaway('profiles/' . $r3[0]['id']);
+			$a->internalRedirect('profiles/' . $r3[0]['id']);
 		}
 
-		goaway('profiles');
+		$a->internalRedirect('profiles');
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'clone')) {
@@ -132,10 +132,10 @@ function profiles_init(App $a) {
 		);
 		info(L10n::t('New profile created.') . EOL);
 		if ((DBA::isResult($r3)) && (count($r3) == 1)) {
-			goaway('profiles/'.$r3[0]['id']);
+			$a->internalRedirect('profiles/'.$r3[0]['id']);
 		}
 
-		goaway('profiles');
+		$a->internalRedirect('profiles');
 
 		return; // NOTREACHED
 	}
@@ -252,7 +252,7 @@ function profiles_post(App $a) {
 		$with = ((x($_POST,'with')) ? notags(trim($_POST['with'])) : '');
 
 		if (! strlen($howlong)) {
-			$howlong = NULL_DATE;
+			$howlong = DBA::NULL_DATETIME;
 		} else {
 			$howlong = DateTimeFormat::convert($howlong, 'UTC', date_default_timezone_get());
 		}
@@ -619,7 +619,7 @@ function profiles_content(App $a) {
 			'$gender' => ContactSelector::gender($r[0]['gender']),
 			'$marital' => ['selector' => ContactSelector::maritalStatus($r[0]['marital']), 'value' => $r[0]['marital']],
 			'$with' => ['with', L10n::t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), L10n::t('Examples: cathy123, Cathy Williams, cathy@example.com')],
-			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= NULL_DATE ? '' : DateTimeFormat::local($r[0]['howlong']))],
+			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= DBA::NULL_DATETIME ? '' : DateTimeFormat::local($r[0]['howlong']))],
 			'$sexual' => ['selector' => ContactSelector::sexualPreference($r[0]['sexual']), 'value' => $r[0]['sexual']],
 			'$about' => ['about', L10n::t('Tell us about yourself...'), $r[0]['about']],
 			'$xmpp' => ['xmpp', L10n::t("XMPP \x28Jabber\x29 address:"), $r[0]['xmpp'], L10n::t("The XMPP address will be propagated to your contacts so that they can follow you.")],
@@ -654,7 +654,7 @@ function profiles_content(App $a) {
 			);
 			if (DBA::isResult($r)) {
 				//Go to the default profile.
-				goaway('profiles/' . $r[0]['id']);
+				$a->internalRedirect('profiles/' . $r[0]['id']);
 			}
 		}
 

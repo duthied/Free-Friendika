@@ -82,7 +82,7 @@ function admin_post(App $a)
 					if ($a->isAjax()) {
 						return;
 					}
-					goaway('admin/');
+					$a->internalRedirect('admin/');
 					return;
 				}
 
@@ -135,7 +135,7 @@ function admin_post(App $a)
 		}
 	}
 
-	goaway($return_path);
+	$a->internalRedirect($return_path);
 	return; // NOTREACHED
 }
 
@@ -214,11 +214,12 @@ function admin_content(App $a)
 
 	$r = q("SELECT `name` FROM `addon` WHERE `plugin_admin` = 1 ORDER BY `name`");
 	$aside_tools['addons_admin'] = [];
+	$addons_admin = [];
 	foreach ($r as $h) {
 		$addon = $h['name'];
 		$aside_tools['addons_admin'][] = ["admin/addons/" . $addon, $addon, "addon"];
 		// temp addons with admin
-		$a->addons_admin[] = $addon;
+		$addons_admin[] = $addon;
 	}
 
 	$t = get_markup_template('admin/aside.tpl');
@@ -243,7 +244,7 @@ function admin_content(App $a)
 				$o = admin_page_users($a);
 				break;
 			case 'addons':
-				$o = admin_page_addons($a);
+				$o = admin_page_addons($a, $addons_admin);
 				break;
 			case 'themes':
 				$o = admin_page_themes($a);
@@ -340,7 +341,7 @@ function admin_page_tos_post(App $a)
 	Config::set('system', 'tosprivstatement', $displayprivstatement);
 	Config::set('system', 'tostext', $tostext);
 
-	goaway('admin/tos');
+	$a->internalRedirect('admin/tos');
 
 	return; // NOTREACHED
 }
@@ -429,7 +430,7 @@ function admin_page_blocklist_post(App $a)
 		Config::set('system', 'blocklist', $blocklist);
 		info(L10n::t('Site blocklist updated.') . EOL);
 	}
-	goaway('admin/blocklist');
+	$a->internalRedirect('admin/blocklist');
 
 	return; // NOTREACHED
 }
@@ -461,7 +462,7 @@ function admin_page_contactblock_post(App $a)
 		}
 		notice(L10n::tt("%s contact unblocked", "%s contacts unblocked", count($contacts)));
 	}
-	goaway('admin/contactblock');
+	$a->internalRedirect('admin/contactblock');
 	return; // NOTREACHED
 }
 
@@ -569,7 +570,7 @@ function admin_page_deleteitem_post(App $a)
 	}
 
 	info(L10n::t('Item marked for deletion.') . EOL);
-	goaway('admin/deleteitem');
+	$a->internalRedirect('admin/deleteitem');
 	return; // NOTREACHED
 }
 
@@ -932,7 +933,7 @@ function admin_page_summary(App $a)
 		'$platform' => FRIENDICA_PLATFORM,
 		'$codename' => FRIENDICA_CODENAME,
 		'$build' => Config::get('system', 'build'),
-		'$addons' => [L10n::t('Active addons'), $a->addons],
+		'$addons' => [L10n::t('Active addons'), Addon::getEnabledList()],
 		'$serversettings' => $server_settings,
 		'$showwarning' => $showwarning,
 		'$warningtext' => $warningtext
@@ -965,7 +966,7 @@ function admin_page_site_post(App $a)
 		$parsed = @parse_url($new_url);
 		if (!is_array($parsed) || !x($parsed, 'host') || !x($parsed, 'scheme')) {
 			notice(L10n::t("Can not parse base url. Must have at least <scheme>://<domain>"));
-			goaway('admin/site');
+			$a->internalRedirect('admin/site');
 		}
 
 		/* steps:
@@ -973,13 +974,13 @@ function admin_page_site_post(App $a)
 		 * send relocate for every local user
 		 * */
 
-		$old_url = System::baseUrl(true);
+		$old_url = $a->getBaseURL(true);
 
 		// Generate host names for relocation the addresses in the format user@address.tld
 		$new_host = str_replace("http://", "@", normalise_link($new_url));
 		$old_host = str_replace("http://", "@", normalise_link($old_url));
 
-		function update_table($table_name, $fields, $old_url, $new_url)
+		function update_table(App $a, $table_name, $fields, $old_url, $new_url)
 		{
 			$dbold = DBA::escape($old_url);
 			$dbnew = DBA::escape($new_url);
@@ -995,20 +996,20 @@ function admin_page_site_post(App $a)
 
 			if (!DBA::isResult($r)) {
 				notice("Failed updating '$table_name': " . DBA::errorMessage());
-				goaway('admin/site');
+				$a->internalRedirect('admin/site');
 			}
 		}
 		// update tables
 		// update profile links in the format "http://server.tld"
-		update_table("profile", ['photo', 'thumb'], $old_url, $new_url);
-		update_table("term", ['url'], $old_url, $new_url);
-		update_table("contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
-		update_table("gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
-		update_table("item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);
+		update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
+		update_table($a, "term", ['url'], $old_url, $new_url);
+		update_table($a, "contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
+		update_table($a, "gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
+		update_table($a, "item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);
 
 		// update profile addresses in the format "user@server.tld"
-		update_table("contact", ['addr'], $old_host, $new_host);
-		update_table("gcontact", ['connect', 'addr'], $old_host, $new_host);
+		update_table($a, "contact", ['addr'], $old_host, $new_host);
+		update_table($a, "gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
 		Config::set('system', 'hostname', parse_url($new_url,  PHP_URL_HOST));
@@ -1024,7 +1025,7 @@ function admin_page_site_post(App $a)
 
 		info("Relocation started. Could take a while to complete.");
 
-		goaway('admin/site');
+		$a->internalRedirect('admin/site');
 	}
 	// end relocate
 
@@ -1298,7 +1299,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'rino_encrypt', $rino);
 
 	info(L10n::t('Site settings updated.') . EOL);
-	goaway('admin/site');
+	$a->internalRedirect('admin/site');
 	return; // NOTREACHED
 }
 
@@ -1570,7 +1571,7 @@ function admin_page_dbsync(App $a)
 			Config::set('system', 'build', intval($curr) + 1);
 		}
 		info(L10n::t('Update has been marked successful') . EOL);
-		goaway('admin/dbsync');
+		$a->internalRedirect('admin/dbsync');
 	}
 
 	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
@@ -1745,7 +1746,7 @@ function admin_page_users_post(App $a)
 			user_deny($hash);
 		}
 	}
-	goaway('admin/users');
+	$a->internalRedirect('admin/users');
 	return; // NOTREACHED
 }
 
@@ -1768,7 +1769,7 @@ function admin_page_users(App $a)
 		$user = DBA::selectFirst('user', ['username', 'blocked'], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			notice('User not found' . EOL);
-			goaway('admin/users');
+			$a->internalRedirect('admin/users');
 			return ''; // NOTREACHED
 		}
 		switch ($a->argv[2]) {
@@ -1788,7 +1789,7 @@ function admin_page_users(App $a)
 				notice(sprintf(($user['blocked'] ? L10n::t("User '%s' unblocked") : L10n::t("User '%s' blocked")), $user['username']) . EOL);
 				break;
 		}
-		goaway('admin/users');
+		$a->internalRedirect('admin/users');
 		return ''; // NOTREACHED
 	}
 
@@ -1956,10 +1957,11 @@ function admin_page_users(App $a)
  *
  * The returned string returned hulds the HTML code of the page.
  *
- * @param App $a
+ * @param App   $a
+ * @param array $addons_admin A list of admin addon names
  * @return string
  */
-function admin_page_addons(App $a)
+function admin_page_addons(App $a, array $addons_admin)
 {
 	/*
 	 * Single addon
@@ -1971,27 +1973,25 @@ function admin_page_addons(App $a)
 			return '';
 		}
 
-		if (x($_GET, "a") && $_GET['a'] == "t") {
+		if (defaults($_GET, 'a', '') == "t") {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_themes', 't');
 
 			// Toggle addon status
-			$idx = array_search($addon, $a->addons);
-			if ($idx !== false) {
-				unset($a->addons[$idx]);
+			if (Addon::isEnabled($addon)) {
 				Addon::uninstall($addon);
 				info(L10n::t("Addon %s disabled.", $addon));
 			} else {
-				$a->addons[] = $addon;
 				Addon::install($addon);
 				info(L10n::t("Addon %s enabled.", $addon));
 			}
-			Config::set("system", "addon", implode(", ", $a->addons));
-			goaway('admin/addons');
+
+			Addon::saveEnabledList();
+			$a->internalRedirect('admin/addons');
 			return ''; // NOTREACHED
 		}
 
 		// display addon details
-		if (in_array($addon, $a->addons)) {
+		if (Addon::isEnabled($addon)) {
 			$status = "on";
 			$action = L10n::t("Disable");
 		} else {
@@ -2007,7 +2007,7 @@ function admin_page_addons(App $a)
 		}
 
 		$admin_form = "";
-		if (in_array($addon, $a->addons_admin)) {
+		if (in_array($addon, $addons_admin)) {
 			require_once "addon/$addon/$addon.php";
 			$func = $addon . '_addon_admin';
 			$func($a, $admin_form);
@@ -2020,7 +2020,7 @@ function admin_page_addons(App $a)
 			'$page' => L10n::t('Addons'),
 			'$toggle' => L10n::t('Toggle'),
 			'$settings' => L10n::t('Settings'),
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => $a->getBaseURL(true),
 
 			'$addon' => $addon,
 			'$status' => $status,
@@ -2042,10 +2042,10 @@ function admin_page_addons(App $a)
 	 * List addons
 	 */
 	if (x($_GET, "a") && $_GET['a'] == "r") {
-		BaseModule::checkFormSecurityTokenRedirectOnError(System::baseUrl() . '/admin/addons', 'admin_themes', 't');
+		BaseModule::checkFormSecurityTokenRedirectOnError($a->getBaseURL() . '/admin/addons', 'admin_themes', 't');
 		Addon::reload();
 		info("Addons reloaded");
-		goaway(System::baseUrl() . '/admin/addons');
+		$a->internalRedirect('admin/addons');
 	}
 
 	$addons = [];
@@ -2058,7 +2058,7 @@ function admin_page_addons(App $a)
 				$show_addon = true;
 
 				// If the addon is unsupported, then only show it, when it is enabled
-				if ((strtolower($info["status"]) == "unsupported") && !in_array($id, $a->addons)) {
+				if ((strtolower($info["status"]) == "unsupported") && !Addon::isEnabled($id)) {
 					$show_addon = false;
 				}
 
@@ -2068,7 +2068,7 @@ function admin_page_addons(App $a)
 				}
 
 				if ($show_addon) {
-					$addons[] = [$id, (in_array($id, $a->addons) ? "on" : "off"), $info];
+					$addons[] = [$id, (Addon::isEnabled($id) ? "on" : "off"), $info];
 				}
 			}
 		}
@@ -2235,7 +2235,7 @@ function admin_page_themes(App $a)
 			}
 
 			Config::set('system', 'allowed_themes', $s);
-			goaway('admin/themes');
+			$a->internalRedirect('admin/themes');
 			return ''; // NOTREACHED
 		}
 
@@ -2316,7 +2316,7 @@ function admin_page_themes(App $a)
 			}
 		}
 		info("Themes reloaded");
-		goaway(System::baseUrl() . '/admin/themes');
+		$a->internalRedirect('admin/themes');
 	}
 
 	/*
@@ -2365,7 +2365,7 @@ function admin_page_logs_post(App $a)
 	}
 
 	info(L10n::t("Log settings updated."));
-	goaway('admin/logs');
+	$a->internalRedirect('admin/logs');
 	return; // NOTREACHED
 }
 
@@ -2513,7 +2513,7 @@ function admin_page_features_post(App $a)
 		}
 	}
 
-	goaway('admin/features');
+	$a->internalRedirect('admin/features');
 	return; // NOTREACHED
 }
 

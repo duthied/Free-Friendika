@@ -209,7 +209,13 @@ class Post extends BaseObject
 
 		$author = ['uid' => 0, 'id' => $item['author-id'],
 			'network' => $item['author-network'], 'url' => $item['author-link']];
-		$profile_link = Contact::magicLinkbyContact($author);
+
+		if (local_user() || remote_user()) {
+			$profile_link = Contact::magicLinkbyContact($author);
+		} else {
+			$profile_link = $item['author-link'];
+		}
+
 		if (strpos($profile_link, 'redir/') === 0) {
 			$sparkle = ' sparkle';
 		}
@@ -765,7 +771,7 @@ class Post extends BaseObject
 			 * Hmmm, code depending on the presence of a particular addon?
 			 * This should be better if done by a hook
 			 */
-			if (in_array('qcomment', $a->addons)) {
+			if (Addon::isEnabled('qcomment')) {
 				$qc = ((local_user()) ? PConfig::get(local_user(), 'qcomment', 'words') : null);
 				$qcomment = (($qc) ? explode("\n", $qc) : null);
 			}

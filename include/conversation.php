@@ -353,7 +353,8 @@ function localize_item(&$item)
 	$author = ['uid' => 0, 'id' => $item['author-id'],
 		'network' => $item['author-network'], 'url' => $item['author-link']];
 
-	if (!empty($item['plink'])) {
+	// Only create a redirection to a magic link when logged in
+	if (!empty($item['plink']) && (local_user() || remote_user())) {
 		$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
 	}
 }
@@ -533,7 +534,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 	$page_dropping = ((local_user() && local_user() == $profile_owner) ? true : false);
 
 	if (!$update) {
-		$_SESSION['return_url'] = $a->query_string;
+		$_SESSION['return_path'] = $a->query_string;
 	}
 
 	$cb = ['items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview];

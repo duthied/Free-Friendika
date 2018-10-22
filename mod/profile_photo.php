@@ -74,7 +74,7 @@ function profile_photo_post(App $a)
 		$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = %d LIMIT 1", DBA::escape($image_id),
 			DBA::escape(local_user()), intval($scale));
 
-		$url = System::baseUrl() . '/profile/' . $a->user['nickname'];
+		$path = 'profile/' . $a->user['nickname'];
 		if (DBA::isResult($r)) {
 			$base_image = $r[0];
 
@@ -125,8 +125,8 @@ function profile_photo_post(App $a)
 
 				info(L10n::t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
 				// Update global directory in background
-				if ($url && strlen(Config::get('system', 'directory'))) {
-					Worker::add(PRIORITY_LOW, "Directory", $url);
+				if ($path && strlen(Config::get('system', 'directory'))) {
+					Worker::add(PRIORITY_LOW, "Directory", $a->getBaseURL() . '/' . $path);
 				}
 
 				Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
@@ -135,7 +135,7 @@ function profile_photo_post(App $a)
 			}
 		}
 
-		goaway($url);
+		$a->internalRedirect($path);
 		return; // NOTREACHED
 	}
 
@@ -168,7 +168,7 @@ function profile_photo_post(App $a)
 	@unlink($src);
 
 	$imagecrop = profile_photo_crop_ui_head($a, $ph);
-	goaway(System::baseUrl() . '/profile_photo/use/' . $imagecrop['hash']);
+	$a->internalRedirect('profile_photo/use/' . $imagecrop['hash']);
 }
 
 function profile_photo_content(App $a)
@@ -225,7 +225,7 @@ function profile_photo_content(App $a)
 				Worker::add(PRIORITY_LOW, "Directory", $url);
 			}
 
-			goaway(System::baseUrl() . '/profile/' . $a->user['nickname']);
+			$a->internalRedirect('profile/' . $a->user['nickname']);
 			return; // NOTREACHED
 		}
 		$ph = new Image($r[0]['data'], $r[0]['type']);

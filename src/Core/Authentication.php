@@ -5,17 +5,17 @@
 
 namespace Friendica\Core;
 
-use Friendica\Core\Addon;
 use Friendica\BaseObject;
+use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Database\DBA;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBA;
+use Friendica\Util\DateTimeFormat;
 
 /**
 * Handle Authentification, Session and Cookies
-*/    
+*/
 class Authentication extends BaseObject
 {
 	/**
@@ -81,8 +81,8 @@ class Authentication extends BaseObject
 		$a->user = $user_record;
 
 		if ($interactive) {
-			if ($a->user['login_date'] <= NULL_DATE) {
-				$_SESSION['return_url'] = 'profile_photo/new';
+			if ($a->user['login_date'] <= DBA::NULL_DATETIME) {
+				$_SESSION['return_path'] = 'profile_photo/new';
 				$a->module = 'profile_photo';
 				info(L10n::t("Welcome ") . $a->user['username'] . EOL);
 				info(L10n::t('Please upload a profile photo.') . EOL);
@@ -193,8 +193,8 @@ class Authentication extends BaseObject
 		if ($login_initial) {
 			Addon::callHooks('logged_in', $a->user);
 
-			if (($a->module !== 'home') && isset($_SESSION['return_url'])) {
-				goaway($a->getbaseUrl() . '/' . $_SESSION['return_url']);
+			if (($a->module !== 'home') && isset($_SESSION['return_path'])) {
+				$a->internalRedirect($_SESSION['return_path']);
 			}
 		}
 	}

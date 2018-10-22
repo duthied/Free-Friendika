@@ -20,11 +20,10 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
+use Friendica\Module\Login;
 use Friendica\Protocol\Email;
 use Friendica\Util\Network;
 use Friendica\Util\Temporal;
-use Friendica\Util\Security;
-use Friendica\Module\Login;
 
 function get_theme_config_file($theme)
 {
@@ -160,7 +159,7 @@ function settings_post(App $a)
 
 		$key = $_POST['remove'];
 		DBA::delete('tokens', ['id' => $key, 'uid' => local_user()]);
-		goaway(System::baseUrl(true)."/settings/oauth/");
+		$a->internalRedirect('settings/oauth/', true);
 		return;
 	}
 
@@ -206,7 +205,7 @@ function settings_post(App $a)
 				);
 			}
 		}
-		goaway(System::baseUrl(true)."/settings/oauth/");
+		$a->internalRedirect('settings/oauth/', true);
 		return;
 	}
 
@@ -371,7 +370,7 @@ function settings_post(App $a)
 		);
 
 		Addon::callHooks('display_settings_post', $_POST);
-		goaway('settings/display');
+		$a->internalRedirect('settings/display');
 		return; // NOTREACHED
 	}
 
@@ -380,7 +379,7 @@ function settings_post(App $a)
 	if (x($_POST,'resend_relocate')) {
 		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
 		info(L10n::t("Relocate message has been send to your contacts"));
-		goaway('settings');
+		$a->internalRedirect('settings');
 	}
 
 	Addon::callHooks('settings_post', $_POST);
@@ -649,7 +648,7 @@ function settings_post(App $a)
 	// Update the global contact for the user
 	GContact::updateForUser(local_user());
 
-	goaway('settings');
+	$a->internalRedirect('settings');
 	return; // NOTREACHED
 }
 
@@ -716,7 +715,7 @@ function settings_content(App $a)
 			BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth', 't');
 
 			DBA::delete('clients', ['client_id' => $a->argv[3], 'uid' => local_user()]);
-			goaway(System::baseUrl(true)."/settings/oauth/");
+			$a->internalRedirect('settings/oauth/', true);
 			return;
 		}
 
@@ -732,7 +731,7 @@ function settings_content(App $a)
 		$tpl = get_markup_template('settings/oauth.tpl');
 		$o .= replace_macros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
-			'$baseurl'	=> System::baseUrl(true),
+			'$baseurl'	=> $a->getBaseURL(true),
 			'$title'	=> L10n::t('Connected Apps'),
 			'$add'		=> L10n::t('Add application'),
 			'$edit'		=> L10n::t('Edit'),
@@ -795,7 +794,7 @@ function settings_content(App $a)
 		$legacy_contact            = PConfig::get(local_user(), 'ostatus', 'legacy_contact');
 
 		if (x($legacy_contact)) {
-			/// @todo Isn't it supposed to be a goaway() call?
+			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
 			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}
 
@@ -830,7 +829,7 @@ function settings_content(App $a)
 		$mail_pubmail      = ((DBA::isResult($r)) ? $r[0]['pubmail'] : 0);
 		$mail_action       = ((DBA::isResult($r)) ? $r[0]['action'] : 0);
 		$mail_movetofolder = ((DBA::isResult($r)) ? $r[0]['movetofolder'] : '');
-		$mail_chk          = ((DBA::isResult($r)) ? $r[0]['last_check'] : NULL_DATE);
+		$mail_chk          = ((DBA::isResult($r)) ? $r[0]['last_check'] : DBA::NULL_DATETIME);
 
 
 		$tpl = get_markup_template('settings/connectors.tpl');

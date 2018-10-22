@@ -11,6 +11,7 @@ use DateTimeZone;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Database\DBA;
 
 require_once 'boot.php';
 require_once 'include/text.php';
@@ -217,13 +218,13 @@ class Temporal
 		// First day of the week (0 = Sunday)
 		$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
 
-		$lang = substr(L10n::getBrowserLanguage(), 0, 2);
+		$lang = substr(L10n::getCurrentLang(), 0, 2);
 
 		// Check if the detected language is supported by the picker
 		if (!in_array($lang,
 				["ar", "ro", "id", "bg", "fa", "ru", "uk", "en", "el", "de", "nl", "tr", "fr", "es", "th", "pl", "pt", "ch", "se", "kr",
 				"it", "da", "no", "ja", "vi", "sl", "cs", "hu"])) {
-			$lang = Config::get('system', 'language', 'en');
+			$lang = 'en';
 		}
 
 		$o = '';
@@ -290,7 +291,7 @@ class Temporal
 
 		$abs = strtotime($localtime);
 
-		if (is_null($posted_date) || $posted_date <= NULL_DATE || $abs === false) {
+		if (is_null($posted_date) || $posted_date <= DBA::NULL_DATETIME || $abs === false) {
 			return L10n::t('never');
 		}
 

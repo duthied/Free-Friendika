@@ -37,10 +37,10 @@ function notify_init(App $a)
 				}
 			}
 
-			goaway($note['link']);
+			System::externalRedirect($note['link']);
 		}
 
-		goaway(System::baseUrl(true));
+		$a->internalRedirect();
 	}
 
 	if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all') {

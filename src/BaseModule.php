@@ -60,7 +60,8 @@ abstract class BaseModule extends BaseObject
 	 */
 	public static function post()
 	{
-		// goaway('module');
+		// $a = self::getApp();
+		// $a->internalRedirect('module');
 	}
 
 	/**
@@ -138,7 +139,7 @@ abstract class BaseModule extends BaseObject
 			logger('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
 			logger('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
 			notice(self::getFormSecurityStandardErrorMessage());
-			goaway(System::baseUrl() . $err_redirect);
+			$a->internalRedirect($err_redirect);
 		}
 	}
 

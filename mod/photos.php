@@ -196,7 +196,7 @@ function photos_post(App $a)
 		$album = hex2bin($a->argv[3]);
 
 		if ($album === L10n::t('Profile Photos') || $album === 'Contact Photos' || $album === L10n::t('Contact Photos')) {
-			goaway($_SESSION['photo_return']);
+			$a->internalRedirect($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
 
@@ -207,13 +207,13 @@ function photos_post(App $a)
 
 		if (!DBA::isResult($r)) {
 			notice(L10n::t('Album not found.') . EOL);
-			goaway($_SESSION['photo_return']);
+			$a->internalRedirect($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
 
 		// Check if the user has responded to a delete confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			goaway($_SESSION['photo_return']);
+			$a->internalRedirect($_SESSION['photo_return']);
 		}
 
 		// RENAME photo album
@@ -227,8 +227,7 @@ function photos_post(App $a)
 			// Update the photo albums cache
 			Photo::clearAlbumCache($page_owner_uid);
 
-			$newurl = System::baseUrl() . '/photos/' . $a->user['nickname'] . '/album/' . bin2hex($newalbum);
-			goaway($newurl);
+			$a->internalRedirect('photos/' . $a->user['nickname'] . '/album/' . bin2hex($newalbum));
 			return; // NOTREACHED
 		}
 
@@ -281,7 +280,7 @@ function photos_post(App $a)
 					$res[] = "'" . DBA::escape($rr['rid']) . "'" ;
 				}
 			} else {
-				goaway($_SESSION['photo_return']);
+				$a->internalRedirect($_SESSION['photo_return']);
 				return; // NOTREACHED
 			}
 
@@ -299,14 +298,14 @@ function photos_post(App $a)
 			Photo::clearAlbumCache($page_owner_uid);
 		}
 
-		goaway('photos/' . $a->data['user']['nickname']);
+		$a->internalRedirect('photos/' . $a->data['user']['nickname']);
 		return; // NOTREACHED
 	}
 
 
 	// Check if the user has responded to a delete confirmation query for a single photo
 	if ($a->argc > 2 && !empty($_REQUEST['canceled'])) {
-		goaway($_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	if ($a->argc > 2 && defaults($_POST, 'delete', '') === L10n::t('Delete Photo')) {
@@ -356,7 +355,7 @@ function photos_post(App $a)
 			Photo::clearAlbumCache($page_owner_uid);
 		}
 
-		goaway('photos/' . $a->data['user']['nickname']);
+		$a->internalRedirect('photos/' . $a->data['user']['nickname']);
 		return; // NOTREACHED
 	}
 
@@ -697,7 +696,7 @@ function photos_post(App $a)
 				}
 			}
 		}
-		goaway($_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 		return; // NOTREACHED
 	}
 
@@ -928,7 +927,7 @@ function photos_post(App $a)
 	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
 	// if they do not wish to be redirected
 
-	goaway($_SESSION['photo_return']);
+	$a->internalRedirect($_SESSION['photo_return']);
 	// NOTREACHED
 }
 
@@ -1470,7 +1469,7 @@ function photos_content(App $a)
 		if (count($linked_items)) {
 			$cmnt_tpl = get_markup_template('comment_item.tpl');
 			$tpl = get_markup_template('photo_item.tpl');
-			$return_url = $a->cmd;
+			$return_path = $a->cmd;
 
 			if ($can_post || Security::canWriteToUserWall($owner_uid)) {
 				$like_tpl = get_markup_template('like_noshare.tpl');
@@ -1487,7 +1486,7 @@ function photos_content(App $a)
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl, [
 						'$return_path' => '',
-						'$jsreload' => $return_url,
+						'$jsreload' => $return_path,
 						'$id' => $link_item['id'],
 						'$parent' => $link_item['id'],
 						'$profile_uid' =>  $owner_uid,
@@ -1526,7 +1525,7 @@ function photos_content(App $a)
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 					$comments .= replace_macros($cmnt_tpl,[
 						'$return_path' => '',
-						'$jsreload' => $return_url,
+						'$jsreload' => $return_path,
 						'$id' => $link_item['id'],
 						'$parent' => $link_item['id'],
 						'$profile_uid' =>  $owner_uid,
@@ -1586,7 +1585,7 @@ function photos_content(App $a)
 					if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 						$comments .= replace_macros($cmnt_tpl, [
 							'$return_path' => '',
-							'$jsreload' => $return_url,
+							'$jsreload' => $return_path,
 							'$id' => $item['item_id'],
 							'$parent' => $item['parent'],
 							'$profile_uid' =>  $owner_uid,

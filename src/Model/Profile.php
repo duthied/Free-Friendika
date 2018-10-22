@@ -774,7 +774,7 @@ class Profile
 				$profile['marital']['with'] = $a->profile['with'];
 			}
 
-			if (strlen($a->profile['howlong']) && $a->profile['howlong'] >= NULL_DATE) {
+			if (strlen($a->profile['howlong']) && $a->profile['howlong'] >= DBA::NULL_DATETIME) {
 				$profile['howlong'] = Temporal::getRelativeDate($a->profile['howlong'], L10n::t('for %1$d %2$s'));
 			}
 
@@ -1047,7 +1047,7 @@ class Profile
 		// Try to avoid recursion - but send them home to do a proper magic auth.
 		$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
 		// The other instance needs to know where to redirect.
-		$dest = urlencode(System::baseUrl() . '/' . $query);
+		$dest = urlencode($a->getBaseURL() . '/' . $query);
 
 		// We need to extract the basebath from the profile url
 		// to redirect the visitors '/magic' module.
@@ -1055,14 +1055,14 @@ class Profile
 		$urlarr = explode('/profile/', $contact['url']);
 		$basepath = $urlarr[0];
 
-		if ($basepath != System::baseUrl() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
+		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
 			$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
 
 			// We have to check if the remote server does understand /magic without invoking something
 			$serverret = Network::curl($basepath . '/magic');
 			if ($serverret->isSuccess()) {
 				logger('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, LOGGER_DEBUG);
-				goaway($magic_path);
+				System::externalRedirect($magic_path);
 			}
 		}
 	}
