@@ -29,8 +29,6 @@ function tagrm_post(App $a)
 	$item_id = defaults($_POST,'item', 0);
 	update_tags($item_id, $tags);
 
-	info(L10n::t('Tag(s) removed') . EOL );
-
 	$a->internalRedirect($_SESSION['photo_return']);
 
 	// NOTREACHED
@@ -43,12 +41,12 @@ function tagrm_post(App $a)
  */
 function update_tags($item_id, $tags){
 	if (empty($item_id) || empty($tags)){
-		$a->internalRedirect($_SESSION['photo_return']);
+		return;
 	}
 
 	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
-		$a->internalRedirect($_SESSION['photo_return']);
+		return;
 	}
 
 	$old_tags = explode(',', $item['tag']);
@@ -63,12 +61,7 @@ function update_tags($item_id, $tags){
 	}
 
 	$tag_str = implode(',',$old_tags);
-	if(!empty($tag_str)) {
-		Item::update(['tag' => $tag_str], ['id' => $item_id]);
-	}
-	else {
-		Term::deleteByItemId($item_id);
-	}
+	Term::insertFromTagFieldByItemId($item_id, $tag_str);
 
 	info(L10n::t('Tag(s) removed') . EOL );
 }
