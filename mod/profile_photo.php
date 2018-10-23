@@ -80,13 +80,13 @@ function profile_photo_post(App $a)
 
 			$Image = new Image($base_image['data'], $base_image['type']);
 			if ($Image->isValid()) {
-				$Image->crop(175, $srcX, $srcY, $srcW, $srcH);
+				$Image->crop(300, $srcX, $srcY, $srcW, $srcH);
 
 				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'], $base_image['filename'],
 						L10n::t('Profile Photos'), 4, $is_default_profile);
 
 				if ($r === false) {
-					notice(L10n::t('Image size reduction [%s] failed.', "175") . EOL);
+					notice(L10n::t('Image size reduction [%s] failed.', "300") . EOL);
 				}
 
 				$Image->scaleDown(80);
