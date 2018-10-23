@@ -82,7 +82,7 @@ function tagrm_content(App $a)
 
 	if ($a->argc == 3){
 		update_tags($a->argv[1], [hex2bin(notags(trim($a->argv[2])))]);
-		goaway('/' . $_SESSION['photo_return']);
+		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
