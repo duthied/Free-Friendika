@@ -1774,7 +1774,7 @@ class App
 			$privateapps = Core\Config::get('config', 'private_addons', false);
 			if (Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
-				if ((!local_user()) && Core\Addon::isApp($this->module) && $privateapps) {
+				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
 					info(Core\L10n::t("You must be logged in to use addons. "));
 				} else {
 					include_once "addon/{$this->module}/{$this->module}.php";
