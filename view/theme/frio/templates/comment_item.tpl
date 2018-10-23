@@ -43,12 +43,6 @@
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" aria-label="{{$edvideo}}" title="{{$edvideo}}" onclick="insertFormatting('video',{{$id}});">
-						<i class="fa fa-video-camera"></i>
-					</button>
-				</li>
-
-				<li>
 					<button type="button" class="btn-link icon underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
 						<i class="fa fa-underline"></i>
 					</button>

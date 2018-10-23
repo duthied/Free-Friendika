@@ -2,12 +2,6 @@
  * @brief The file contains functions for text editing and commenting
  */
 
-function initComment(callback) {
-    if (typeof callback != "undefined") {
-        callback();
-    }
-}
-
 function commentGetLink(id) {
     reply = prompt("Please enter a link URL:");
     if(reply && reply.length) {
@@ -37,10 +31,7 @@ function commentlinkdrop(event, id) {
     if(reply && reply.length) {
         reply = bin2hex(reply);
         $.get('parse_url?isComment=1&binurl=' + reply, function(data) {
-            if (!editor) $("comment-edit-text-" + id).val("");
-            initComment(function(){
-                addcommenttext(data, id);
-            });
+			addcommenttext(data, id);
         });
     }
 }
