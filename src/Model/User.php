@@ -642,7 +642,7 @@ class User
 
 			$Image = new Image($img_str, $type);
 			if ($Image->isValid()) {
-				$Image->scaleToSquare(175);
+				$Image->scaleToSquare(300);
 
 				$hash = Photo::newResource();
 

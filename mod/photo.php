@@ -51,7 +51,7 @@ function photo_init(App $a)
 		exit;
 	}
 
-	$default = 'images/person-175.jpg';
+	$default = 'images/person-300.jpg';
 	$public = true;
 
 	if (isset($type)) {
@@ -137,7 +137,7 @@ function photo_init(App $a)
 		if (isset($resolution)) {
 			switch ($resolution) {
 				case 4:
-					$data = file_get_contents('images/person-175.jpg');
+					$data = file_get_contents('images/person-300.jpg');
 					$mimetype = 'image/jpeg';
 					break;
 				case 5:

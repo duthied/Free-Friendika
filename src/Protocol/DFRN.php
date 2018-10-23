@@ -646,7 +646,7 @@ class DFRN
 		XML::addElement($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
 
 		$attributes = ["rel" => "photo", "type" => "image/jpeg",
-					"media:width" => 175, "media:height" => 175, "href" => $owner['photo']];
+					"media:width" => 300, "media:height" => 300, "href" => $owner['photo']];
 
 		if (!$public || !$hidewall) {
 			$attributes["dfrn:updated"] = $picdate;
