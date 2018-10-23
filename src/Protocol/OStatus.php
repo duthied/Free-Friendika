@@ -1450,8 +1450,8 @@ class OStatus
 		$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg", // To-Do?
-				"media:width" => 175,
-				"media:height" => 175,
+				"media:width" => 300,
+				"media:height" => 300,
 				"href" => $owner["photo"]];
 		XML::addElement($doc, $author, "link", "", $attributes);
 
@@ -1769,8 +1769,8 @@ class OStatus
 		$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg", // To-Do?
-				"media:width" => 175,
-				"media:height" => 175,
+				"media:width" => 300,
+				"media:height" => 300,
 				"href" => $contact["photo"]];
 		XML::addElement($doc, $object, "link", "", $attributes);
 

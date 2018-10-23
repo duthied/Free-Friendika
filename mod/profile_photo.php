@@ -288,7 +288,7 @@ function profile_photo_crop_ui_head(App $a, Image $image)
 	$height = $image->getHeight();
 
 	if ($width < 175 || $height < 175) {
-		$image->scaleUp(200);
+		$image->scaleUp(300);
 		$width = $image->getWidth();
 		$height = $image->getHeight();
 	}

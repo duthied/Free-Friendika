@@ -516,7 +516,7 @@ class Network
 
 	public static function lookupAvatarByEmail($email)
 	{
-		$avatar['size'] = 175;
+		$avatar['size'] = 300;
 		$avatar['email'] = $email;
 		$avatar['url'] = '';
 		$avatar['success'] = false;
@@ -524,7 +524,7 @@ class Network
 		Addon::callHooks('avatar_lookup', $avatar);
 
 		if (! $avatar['success']) {
-			$avatar['url'] = System::baseUrl() . '/images/person-175.jpg';
+			$avatar['url'] = System::baseUrl() . '/images/person-300.jpg';
 		}
 
 		logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);

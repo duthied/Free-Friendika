@@ -115,7 +115,7 @@ class Photo
 		$type = Image::guessType($image_url, true);
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {
-			$Image->scaleToSquare(175);
+			$Image->scaleToSquare(300);
 
 			$r = self::store($Image, $uid, $cid, $hash, $filename, 'Contact Photos', 4);
 
@@ -172,7 +172,7 @@ class Photo
 		}
 
 		if ($photo_failure) {
-			$image_url = System::baseUrl() . '/images/person-175.jpg';
+			$image_url = System::baseUrl() . '/images/person-300.jpg';
 			$thumb = System::baseUrl() . '/images/person-80.jpg';
 			$micro = System::baseUrl() . '/images/person-48.jpg';
 		}
