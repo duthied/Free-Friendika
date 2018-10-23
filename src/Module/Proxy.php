@@ -103,7 +103,7 @@ class Proxy extends BaseModule
 				$sizetype = ':thumb';
 				$url = substr($url, 0, -6);
 			} elseif (substr($url, -6) == ':small') {
-				$size = 175;
+				$size = 300;
 				$url = substr($url, 0, -6);
 				$sizetype = ':small';
 			} elseif (substr($url, -7) == ':medium') {

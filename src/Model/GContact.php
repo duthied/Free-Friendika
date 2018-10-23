@@ -995,7 +995,7 @@ class GContact
 						"addr" => $user->nickname."@".$hostname,
 						"nick" => $user->nickname,
 						"network" => Protocol::OSTATUS,
-						"photo" => System::baseUrl()."/images/person-175.jpg"];
+						"photo" => System::baseUrl()."/images/person-300.jpg"];
 
 				if (isset($user->bio)) {
 					$contact["about"] = $user->bio;

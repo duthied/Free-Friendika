@@ -4556,11 +4556,11 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		// upload profile image (scales 4, 5, 6)
 		logger("photo upload: starting new profile image upload", LOGGER_DEBUG);
 
-		if ($width > 175 || $height > 175) {
-			$Image->scaleDown(175);
+		if ($width > 300 || $height > 300) {
+			$Image->scaleDown(300);
 			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
-				logger("photo upload: profile image upload with scale 4 (175x175) failed");
+				logger("photo upload: profile image upload with scale 4 (300x300) failed");
 			}
 		}
 

@@ -537,7 +537,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		if (DBA::isResult($contact)) {
 			$photo = $contact['photo'];
 		} else {
-			$photo = System::baseUrl() . '/images/person-175.jpg';
+			$photo = System::baseUrl() . '/images/person-300.jpg';
 		}
 
 		Contact::updateAvatar($photo, $local_uid, $dfrn_record);

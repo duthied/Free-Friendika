@@ -465,7 +465,7 @@ class Contact extends BaseObject
 			$fields['micro'] = $prefix . '6' . $suffix;
 		} else {
 			// We hadn't found a photo entry, so we use the default avatar
-			$fields['photo'] = System::baseUrl() . '/images/person-175.jpg';
+			$fields['photo'] = System::baseUrl() . '/images/person-300.jpg';
 			$fields['thumb'] = System::baseUrl() . '/images/person-80.jpg';
 			$fields['micro'] = System::baseUrl() . '/images/person-48.jpg';
 		}
