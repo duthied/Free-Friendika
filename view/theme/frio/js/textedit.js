@@ -28,7 +28,7 @@ function commentlinkdrop(event, id) {
     var reply = event.dataTransfer.getData("text/uri-list");
     event.target.textContent = reply;
     event.preventDefault();
-    if(reply && reply.length) {
+    if (reply && reply.length) {
         reply = bin2hex(reply);
         $.get('parse_url?isComment=1&binurl=' + reply, function(data) {
 			addcommenttext(data, id);
@@ -38,8 +38,9 @@ function commentlinkdrop(event, id) {
 
 function commentlinkdropper(event) {
     var linkFound = event.dataTransfer.types.contains("text/uri-list");
-    if(linkFound)
+    if (linkFound) {
         event.preventDefault();
+    }
 }
 
 
