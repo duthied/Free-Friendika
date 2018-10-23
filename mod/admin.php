@@ -181,32 +181,33 @@ function admin_content(App $a)
 	// array(url, name, extra css classes)
 	// not part of $aside to make the template more adjustable
 	$aside_sub = [
-		'information' => [ L10n::t('Information'), [
-			"overview" => ["admin/", L10n::t("Overview"), "overview" ],
-			'federation'   => ["admin/federation/"  , L10n::t('Federation Statistics'), "federation"] ]],
-		'configuration' => [ L10n::t('Configuration'), [
-			'site'         => ["admin/site/"        , L10n::t("Site")                 , "site"],
-			'users'        => ["admin/users/"       , L10n::t("Users")                , "users"],
-			'addons'       => ["admin/addons/"      , L10n::t("Addons")               , "addons"],
-			'themes'       => ["admin/themes/"      , L10n::t("Themes")               , "themes"],
-			'features'     => ["admin/features/"    , L10n::t("Additional features")  , "features"],
-			'tos'          => ["admin/tos/"         , L10n::t("Terms of Service")     , "tos"] ]],
-		'database' => [ L10n::t('Database'), [
-			'dbsync'       => ["admin/dbsync/"      , L10n::t('DB updates')           , "dbsync"],
-			'queue'        => ["admin/queue/"       , L10n::t('Inspect Queue')        , "queue"],
-			'workerqueue'  => ["admin/workerqueue/" , L10n::t('Inspect worker Queue') , "workerqueue"] ]],
-		'tools' => [ L10n::t('Tools'), [
-			'contactblock' => ["admin/contactblock/", L10n::t('Contact Blocklist')    , "contactblock"],
-			'blocklist'    => ["admin/blocklist/"   , L10n::t('Server Blocklist')     , "blocklist"],
-			'deleteitem'   => ["admin/deleteitem/"  , L10n::t('Delete Item')          , 'deleteitem'], ]],
-		"logs" => [ L10n::t("Logs"), [
-			"logsconfig" => ["admin/logs/", L10n::t("Logs"), "logs"],
-			"logsview" => ["admin/viewlogs/", L10n::t("View Logs"), 'viewlogs']
+		'information' => [L10n::t('Information'), [
+			'overview' => ['admin/', L10n::t('Overview'), 'overview'],
+			'federation'   => ['admin/federation/'  , L10n::t('Federation Statistics'), 'federation']]],
+		'configuration' => [L10n::t('Configuration'), [
+			'site'         => ['admin/site/'        , L10n::t('Site')                    , 'site'],
+			'users'        => ['admin/users/'       , L10n::t('Users')                   , 'users'],
+			'addons'       => ['admin/addons/'      , L10n::t('Addons')                  , 'addons'],
+			'themes'       => ['admin/themes/'      , L10n::t('Themes')                  , 'themes'],
+			'features'     => ['admin/features/'    , L10n::t('Additional features')     , 'features'],
+			'tos'          => ['admin/tos/'         , L10n::t('Terms of Service')        , 'tos']]],
+		'database' => [L10n::t('Database'), [
+			'dbsync'       => ['admin/dbsync/'      , L10n::t('DB updates')              , 'dbsync'],
+			'queue'        => ['admin/queue/'       , L10n::t('Inspect Queue')           , 'queue'],
+			'deferred'     => ['admin/deferred/'    , L10n::t('Inspect Deferred Workers'), 'deferred'],
+			'workerqueue'  => ['admin/workerqueue/' , L10n::t('Inspect worker Queue')    , 'workerqueue']]],
+		'tools' => [L10n::t('Tools'), [
+			'contactblock' => ['admin/contactblock/', L10n::t('Contact Blocklist')       , 'contactblock'],
+			'blocklist'    => ['admin/blocklist/'   , L10n::t('Server Blocklist')        , 'blocklist'],
+			'deleteitem'   => ['admin/deleteitem/'  , L10n::t('Delete Item')             , 'deleteitem'],]],
+		'logs' => [L10n::t('Logs'), [
+			'logsconfig' => ['admin/logs/', L10n::t('Logs'), 'logs'],
+			'logsview' => ['admin/viewlogs/', L10n::t('View Logs'), 'viewlogs']
 		]],
-		"diagnostics" => [ L10n::t("Diagnostics"), [
-			"phpinfo" => ['phpinfo/', L10n::t('PHP Info'), 'phpinfo'],
-			"probe" => ['probe/', L10n::t('probe address'), 'probe'],
-			"webfinger" =>['webfinger/', L10n::t('check webfinger'), 'webfinger']
+		'diagnostics' => [L10n::t('Diagnostics'), [
+			'phpinfo' => ['phpinfo/', L10n::t('PHP Info'), 'phpinfo'],
+			'probe' => ['probe/', L10n::t('probe address'), 'probe'],
+			'webfinger' =>['webfinger/', L10n::t('check webfinger'), 'webfinger']
 		]]
 	];
 
@@ -264,8 +265,11 @@ function admin_content(App $a)
 			case 'queue':
 				$o = admin_page_queue($a);
 				break;
+			case 'deferred':
+				$o = admin_page_workerqueue($a, true);
+				break;
 			case 'workerqueue':
-				$o = admin_page_workerqueue($a);
+				$o = admin_page_workerqueue($a, false);
 				break;
 			case 'federation':
 				$o = admin_page_federation($a);
@@ -790,10 +794,20 @@ function admin_page_queue(App $a)
  * @param App $a
  * @return string
  */
-function admin_page_workerqueue(App $a)
+function admin_page_workerqueue(App $a, $deferred)
 {
 	// get jobs from the workerqueue table
-	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], ['done' => 0], ['order'=> ['priority']]);
+	if ($deferred) {
+		$condition = ["NOT `done` AND `next_try` > ?", DateTimeFormat::utcNow()];
+		$sub_title = L10n::t('Inspect Deferred Worker Queue');
+		$info = L10n::t("This page lists the deferred worker jobs. This are jobs that couldn't be executed at the first time.");
+	} else {
+		$condition = ["NOT `done` AND `next_try` < ?", DateTimeFormat::utcNow()];
+		$sub_title = L10n::t('Inspect Worker Queue');
+		$info = L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.');
+	}
+
+	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], $condition, ['order'=> ['priority']]);
 
 	$r = [];
 	while ($entry = DBA::fetch($entries)) {
@@ -807,13 +821,13 @@ function admin_page_workerqueue(App $a)
 	$t = get_markup_template('admin/workerqueue.tpl');
 	return replace_macros($t, [
 		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('Inspect Worker Queue'),
+		'$page' => $sub_title,
 		'$count' => count($r),
 		'$id_header' => L10n::t('ID'),
 		'$param_header' => L10n::t('Job Parameters'),
 		'$created_header' => L10n::t('Created'),
 		'$prio_header' => L10n::t('Priority'),
-		'$info' => L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.'),
+		'$info' => $info,
 		'$entries' => $r,
 	]);
 }
@@ -900,15 +914,17 @@ function admin_page_summary(App $a)
 
 	$pending = Register::getPendingCount();
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `queue` WHERE 1");
-	$queue = (($r) ? $r[0]['total'] : 0);
+	$queue = DBA::count('queue', []);
 
-	$r = q("SELECT COUNT(*) AS `total` FROM `workerqueue` WHERE NOT `done`");
-	$workerqueue = (($r) ? $r[0]['total'] : 0);
+	$deferred = DBA::count('workerqueue', ["`executed` <= ? AND NOT `done` AND `next_try` > ?",
+		DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
+
+	$workerqueue = DBA::count('workerqueue', ["`executed` <= ? AND NOT `done` AND `next_try` < ?",
+		DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
 
 	// We can do better, but this is a quick queue status
 
-	$queues = ['label' => L10n::t('Message queues'), 'queue' => $queue, 'workerq' => $workerqueue];
+	$queues = ['label' => L10n::t('Message queues'), 'queue' => $queue, 'deferred' => $deferred, 'workerq' => $workerqueue];
 
 
 	$r = q("SHOW variables LIKE 'max_allowed_packet'");

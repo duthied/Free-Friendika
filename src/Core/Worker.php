@@ -147,6 +147,17 @@ class Worker
 	}
 
 	/**
+	 * @brief Returns the number of deferred entries in the worker queue
+	 *
+	 * @return integer Number of deferred entries in the worker queue
+	 */
+	private static function deferredEntries()
+	{
+		return DBA::count('workerqueue', ["`executed` <= ? AND NOT `done` AND `next_try` > ?",
+			DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
+	}
+
+	/**
 	 * @brief Returns the number of non executed entries in the worker queue
 	 *
 	 * @return integer Number of non executed entries in the worker queue
@@ -679,6 +690,7 @@ class Worker
 			}
 
 			$entries = self::totalEntries();
+			$deferred = self::deferredEntries();
 
 			if (Config::get("system", "worker_fastlane", false) && ($queues > 0) && ($entries > 0) && ($active >= $queues)) {
 				$top_priority = self::highestPriority();
@@ -690,7 +702,7 @@ class Worker
 				}
 			}
 
-			logger("Load: ".$load."/".$maxsysload." - processes: ".$active."/".$entries.$processlist." - maximum: ".$queues."/".$maxqueues, LOGGER_DEBUG);
+			logger("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . $entries . $processlist . " - maximum: " . $queues . "/" . $maxqueues, LOGGER_DEBUG);
 
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!Config::get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && ($entries > 1)) {
@@ -797,13 +809,14 @@ class Worker
 		$queue_length = Config::get('system', 'worker_fetch_limit', 1);
 		$lower_job_limit = $worker_queues * $queue_length * 2;
 		$jobs = self::totalEntries();
+		$deferred = self::deferredEntries();
 
 		// Now do some magic
 		$exponent = 2;
 		$slope = $queue_length / pow($lower_job_limit, $exponent);
 		$limit = min($queue_length, ceil($slope * pow($jobs, $exponent)));
 
-		logger('Total: '.$jobs.' - Maximum: '.$queue_length.' - jobs per queue: '.$limit, LOGGER_DEBUG);
+		logger('Deferred: ' . $deferred . ' - Total: ' . $jobs . ' - Maximum: ' . $queue_length . ' - jobs per queue: ' . $limit, LOGGER_DEBUG);
 		$ids = [];
 		if (self::passingSlow($highest_priority)) {
 			// Are there waiting processes with a higher priority than the currently highest?
