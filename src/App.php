@@ -2000,7 +2000,7 @@ class App
 	public function internalRedirect($toUrl = '', $ssl = false)
 	{
 		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
-			throw new InternalServerErrorException('URL is not a relative path, please use System::externalRedirectTo');
+			throw new InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
 		}
 
 		$redirectTo = $this->getBaseURL($ssl) . '/' . ltrim($toUrl, '/');
