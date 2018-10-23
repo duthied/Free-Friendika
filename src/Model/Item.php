@@ -896,14 +896,9 @@ class Item extends BaseObject
 			}
 
 			if (!is_null($tags)) {
-				if ($tags) {
-					Term::insertFromTagFieldByItemId($item['id'], $tags);
-					if (!empty($item['tag'])) {
-						DBA::update('item', ['tag' => ''], ['id' => $item['id']]);
-					}
-				}
-				else {
-					Term::deleteAllTags($item['id']);
+				Term::insertFromTagFieldByItemId($item['id'], $tags);
+				if (!empty($item['tag'])) {
+					DBA::update('item', ['tag' => ''], ['id' => $item['id']]);
 				}
 			}
 

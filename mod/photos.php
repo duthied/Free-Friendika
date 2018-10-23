@@ -1418,9 +1418,8 @@ function photos_content(App $a)
 			$arr = explode(',', $link_item['tag']);
 			// parse tags and add links
 			$tag_arr = [];
-			foreach ($arr as $t) {
-				array_push($tag_arr, ['name' => BBCode::convert($t),
-					'removeurl' => '/tagrm/'.$link_item['id'] . '/' . bin2hex($t)]);
+			foreach ($arr as $tag) {
+				array_push($tag_arr, ['name' => BBCode::convert($tag), 'removeurl' => '/tagrm/'.$link_item['id'] . '/' . bin2hex($tag)]);
 			}
 			$tags = ['title' => L10n::t('Tags: '), 'tags' => $tag_arr];
 			if ($cmd === 'edit') {

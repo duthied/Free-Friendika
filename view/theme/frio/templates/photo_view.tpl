@@ -55,7 +55,7 @@
 			{{foreach $tags.tags as $t}}
 			<span class="category label btn-success sm">
 				<span class="p-category">{{$t.name}}</span>
-				{{if $t.removeurl}} (<a href="{{$t.removeurl}}">x</a>) {{/if}}
+				{{if $t.removeurl}} <a href="{{$t.removeurl}}">(X)</a> {{/if}}
 			</span>
 			{{/foreach}}
 		</div>

@@ -9,6 +9,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Model\Term;
 
 function tagrm_post(App $a)
 {
@@ -21,10 +22,8 @@ function tagrm_post(App $a)
 	}
 
 	$tags = [];
-	if (defaults($_POST, 'tag', '')){
-		foreach ($_POST['tag'] as $t){
-			array_push($tags, hex2bin(notags(trim($t))));
-		}
+	foreach (defaults($_POST, 'tag', []) as $tag) {
+		array_push($tags, hex2bin(notags(trim($tag))));
 	}
 
 	$item_id = defaults($_POST,'item', 0);
@@ -52,23 +51,24 @@ function update_tags($item_id, $tags){
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
-	$arr = explode(',', $item['tag']);
+	$old_tags = explode(',', $item['tag']);
 
-	foreach ($tags as $t) {
-		foreach ($arr as $i => $x) {
-			if (strcmp($x, $t) == 0) {
-				unset($arr[$i]);
+	foreach ($tags as $new_tag) {
+		foreach ($old_tags as $count => $old_tag) {
+			if (strcmp($old_tag, $new_tag) == 0) {
+				unset($old_tags[$count]);
 				break;
 			}
 		}
 	}
 
-	$tag_str = implode(',',$arr);
-	if(empty($tag_str)){
-		$tag_str = '';
+	$tag_str = implode(',',$old_tags);
+	if(!empty($tag_str)) {
+		Item::update(['tag' => $tag_str], ['id' => $item_id]);
 	}
-
-	Item::update(['tag' => $tag_str], ['id' => $item_id]);
+	else {
+		Term::deleteByItemId($item_id);
+	}
 
 	info(L10n::t('Tag(s) removed') . EOL );
 }
