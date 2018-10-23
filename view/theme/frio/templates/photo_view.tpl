@@ -52,12 +52,12 @@
 		{{* Tags and mentions *}}
 		{{if $tags}}
 		<div id="photo-tags">{{$tags.title}}
-		{{foreach $tags.tags as $t}}
-		<span class="category label btn-success sm">
-			<span class="p-category">{{$t.name}}</span>
-			{{if $t.removeurl}} (<a href="{{$t.removeurl}}">x</a>) {{/if}}
-		</span>
-		{{/foreach}}
+			{{foreach $tags.tags as $t}}
+			<span class="category label btn-success sm">
+				<span class="p-category">{{$t.name}}</span>
+				{{if $t.removeurl}} (<a href="{{$t.removeurl}}">x</a>) {{/if}}
+			</span>
+			{{/foreach}}
 		</div>
 		{{/if}}
 

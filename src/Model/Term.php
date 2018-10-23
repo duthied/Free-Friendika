@@ -291,8 +291,9 @@ class Term
 		return $return;
 	}
 
-	/*
-	 * Deletes all Tags from an item
+	/**
+	 * Delete all tags from an item
+	 * @param int itemid - choose from which item the tags will be removed
 	 */
 	public static function deleteAllTags($itemid)
 	{
