@@ -71,9 +71,6 @@ function update_tags($item_id, $tags){
 	Item::update(['tag' => $tag_str], ['id' => $item_id]);
 
 	info(L10n::t('Tag(s) removed') . EOL );
-	$a->internalRedirect($_SESSION['photo_return']);
-
-	// NOTREACHED
 }
 
 function tagrm_content(App $a)
