@@ -20,8 +20,27 @@ function tagrm_post(App $a)
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
-	$tag =  (x($_POST,'tag')  ? hex2bin(notags(trim($_POST['tag']))) : '');
-	$item_id = (x($_POST,'item') ? intval($_POST['item'])               : 0);
+	$tags = [];
+	if (defaults($_POST, 'tag', '')){
+		foreach ($_POST['tag'] as $t){
+			array_push($tags, hex2bin(notags(trim($t))));
+		}
+	}
+
+	$item_id = defaults($_POST,'item', 0);
+	update_tags($item_id, $tags);
+
+	info(L10n::t('Tag(s) removed') . EOL );
+
+	$a->internalRedirect($_SESSION['photo_return']);
+
+	// NOTREACHED
+}
+
+function update_tags($item_id, $tags){
+	if (empty($item_id) || empty($tags)){
+		$a->internalRedirect($_SESSION['photo_return']);
+	}
 
 	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
@@ -29,24 +48,28 @@ function tagrm_post(App $a)
 	}
 
 	$arr = explode(',', $item['tag']);
-	for ($x = 0; $x < count($arr); $x ++) {
-		if ($arr[$x] === $tag) {
-			unset($arr[$x]);
-			break;
+
+	foreach ($tags as $t) {
+		foreach ($arr as $i => $x) {
+			if (strcmp($x, $t) == 0) {
+				unset($arr[$i]);
+				break;
+			}
 		}
 	}
 
 	$tag_str = implode(',',$arr);
+	if(empty($tag_str)){
+		$tag_str = '';
+	}
 
 	Item::update(['tag' => $tag_str], ['id' => $item_id]);
 
-	info(L10n::t('Tag removed') . EOL );
+	info(L10n::t('Tag(s) removed') . EOL );
 	$a->internalRedirect($_SESSION['photo_return']);
 
 	// NOTREACHED
 }
-
-
 
 function tagrm_content(App $a)
 {
@@ -55,6 +78,11 @@ function tagrm_content(App $a)
 	if (!local_user()) {
 		$a->internalRedirect($_SESSION['photo_return']);
 		// NOTREACHED
+	}
+
+	if ($a->argc == 3){
+		update_tags($a->argv[1], [hex2bin(notags(trim($a->argv[2])))]);
+		goaway('/' . $_SESSION['photo_return']);
 	}
 
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
@@ -70,7 +98,8 @@ function tagrm_content(App $a)
 
 	$arr = explode(',', $item['tag']);
 
-	if (!count($arr)) {
+
+	if (empty($item['tag'])) {
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
@@ -83,7 +112,7 @@ function tagrm_content(App $a)
 	$o .= '<ul>';
 
 	foreach ($arr as $x) {
-		$o .= '<li><input type="checkbox" name="tag" value="' . bin2hex($x) . '" >' . BBCode::convert($x) . '</input></li>';
+		$o .= '<li><input type="checkbox" name="tag[]" value="' . bin2hex($x) . '" >' . BBCode::convert($x) . '</input></li>';
 	}
 
 	$o .= '</ul>';
