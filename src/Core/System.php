@@ -247,7 +247,7 @@ class System extends BaseObject
 	public static function externalRedirect($url)
 	{
 		if (!filter_var($url, FILTER_VALIDATE_URL)) {
-			throw new InternalServerErrorException('URL is not a fully qualified URL, please use App->internalRedirect() instead');
+			throw new InternalServerErrorException("'$url' is not a fully qualified URL, please use App->internalRedirect() instead");
 		}
 
 		header("Location: $url");

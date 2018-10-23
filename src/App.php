@@ -1772,7 +1772,7 @@ class App
 			}
 
 			$privateapps = Core\Config::get('config', 'private_addons', false);
-			if (is_array($this->addons) && in_array($this->module, $this->addons) && file_exists("addon/{$this->module}/{$this->module}.php")) {
+			if (Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				if ((!local_user()) && Core\Addon::isApp($this->module) && $privateapps) {
 					info(Core\L10n::t("You must be logged in to use addons. "));
@@ -2000,7 +2000,7 @@ class App
 	public function internalRedirect($toUrl = '', $ssl = false)
 	{
 		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
-			throw new InternalServerErrorException('URL is not a relative path, please use System::externalRedirectTo');
+			throw new InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
 		}
 
 		$redirectTo = $this->getBaseURL($ssl) . '/' . ltrim($toUrl, '/');
