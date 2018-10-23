@@ -51,6 +51,24 @@ class InstallTest extends TestCase
 	}
 
 	/**
+	 * Replaces class_exist results with given mocks
+	 *
+	 * @param array $classes a list from class names and their results
+	 */
+	private function setClasses($classes)
+	{
+		global $phpMock;
+		$phpMock['class_exists'] = function($class) use ($classes) {
+			foreach ($classes as $name => $value) {
+				if ($class == $name) {
+					return $value;
+				}
+			}
+			return '__phpunit_continue__';
+		};
+	}
+
+	/**
 	 * @small
 	 */
 	public function testCheckKeys()
@@ -248,10 +266,13 @@ class InstallTest extends TestCase
 			->shouldReceive('supportedTypes')
 			->andReturn(['image/gif' => 'gif']);
 
+		$this->setClasses(['Imagick' => true]);
+
 		$install = new Install();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
 		$this->assertTrue($install->checkImagick());
+
 		$this->assertCheckExist(1,
 			L10n::t('ImageMagick supports GIF'),
 			'',
@@ -270,12 +291,30 @@ class InstallTest extends TestCase
 			->shouldReceive('supportedTypes')
 			->andReturn([]);
 
+		$this->setClasses(['Imagick' => true]);
+
 		$install = new Install();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
 		$this->assertTrue($install->checkImagick());
 		$this->assertCheckExist(1,
 			L10n::t('ImageMagick supports GIF'),
+			'',
+			false,
+			false,
+			$install->getChecks());
+	}
+
+	public function testImagickNotInstalled()
+	{
+		$this->setClasses(['Imagick' => false]);
+
+		$install = new Install();
+
+		// even there is no supported type, Imagick should return true (because it is not required)
+		$this->assertTrue($install->checkImagick());
+		$this->assertCheckExist(0,
+			L10n::t('ImageMagick PHP extension is not installed'),
 			'',
 			false,
 			false,
@@ -300,4 +339,16 @@ function function_exists($function_name)
 		}
 	}
 	return call_user_func_array('\function_exists', func_get_args());
+}
+
+function class_exists($class_name)
+{
+	global $phpMock;
+	if (isset($phpMock['class_exists'])) {
+		$result = call_user_func_array($phpMock['class_exists'], func_get_args());
+		if ($result !== '__phpunit_continue__') {
+			return $result;
+		}
+	}
+	return call_user_func_array('\class_exists', func_get_args());
 }

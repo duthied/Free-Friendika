@@ -97,6 +97,7 @@ class Install
 	 * - Creates `config/local.ini.php`
 	 * - Installs Database Structure
 	 *
+	 * @param string 	$phppath 	Path to the PHP-Binary (optional, if not set e.g. 'php' or '/usr/bin/php')
 	 * @param string 	$urlpath 	Path based on the URL of Friendica (e.g. '/friendica')
 	 * @param string 	$dbhost 	Hostname/IP of the Friendica Database
 	 * @param string 	$dbuser 	Username of the Database connection credentials
@@ -106,7 +107,6 @@ class Install
 	 * @param string 	$language 	2-letter ISO 639-1 code (eg. 'en')
 	 * @param string 	$adminmail 	Mail-Adress of the administrator
 	 * @param string 	$basepath   The basepath of Friendica
-	 * @param string 	$phpath 	Path to the PHP-Binary (optional, if not set e.g. 'php' or '/usr/bin/php')
 	 *
 	 * @return bool|string true if the config was created, the text if something went wrong
 	 */
