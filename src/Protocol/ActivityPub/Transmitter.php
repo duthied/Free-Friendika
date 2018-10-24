@@ -300,10 +300,11 @@ class Transmitter
 	 * Creates an array of permissions from an item thread
 	 *
 	 * @param array $item
+	 * @param boolean $blindcopy
 	 *
 	 * @return array with permission data
 	 */
-	private static function createPermissionBlockForItem($item)
+	private static function createPermissionBlockForItem($item, $blindcopy)
 	{
 		// Will be activated in a later step
 		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
@@ -311,7 +312,7 @@ class Transmitter
 		// For now only send to these contacts:
 		$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 
-		$data = ['to' => [], 'cc' => []];
+		$data = ['to' => [], 'cc' => [], 'bcc' => []];
 
 		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
@@ -349,6 +350,8 @@ class Transmitter
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => $networks]);
 				if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
+					// BCC is currently deactivated, due to Pleroma and Mastodon not reacting like expected
+					// $data['bcc'][] = $profile['url'];
 					$data['cc'][] = $profile['url'];
 				}
 			}
@@ -383,6 +386,7 @@ class Transmitter
 
 		$data['to'] = array_unique($data['to']);
 		$data['cc'] = array_unique($data['cc']);
+		$data['bcc'] = array_unique($data['bcc']);
 
 		if (($key = array_search($item['author-link'], $data['to'])) !== false) {
 			unset($data['to'][$key]);
@@ -392,13 +396,33 @@ class Transmitter
 			unset($data['cc'][$key]);
 		}
 
+		if (($key = array_search($item['author-link'], $data['bcc'])) !== false) {
+			unset($data['bcc'][$key]);
+		}
+
 		foreach ($data['to'] as $to) {
 			if (($key = array_search($to, $data['cc'])) !== false) {
 				unset($data['cc'][$key]);
 			}
+
+			if (($key = array_search($to, $data['bcc'])) !== false) {
+				unset($data['bcc'][$key]);
+			}
 		}
 
-		return ['to' => array_values($data['to']), 'cc' => array_values($data['cc'])];
+		foreach ($data['cc'] as $cc) {
+			if (($key = array_search($cc, $data['bcc'])) !== false) {
+				unset($data['bcc'][$key]);
+			}
+		}
+
+		$receivers = ['to' => array_values($data['to']), 'cc' => array_values($data['cc']), 'bcc' => array_values($data['bcc'])];
+
+		if (!$blindcopy) {
+			unset($receivers['bcc']);
+		}
+
+		return $receivers;
 	}
 
 	/**
@@ -453,7 +477,7 @@ class Transmitter
 	 */
 	public static function fetchTargetInboxes($item, $uid, $personal = false)
 	{
-		$permissions = self::createPermissionBlockForItem($item);
+		$permissions = self::createPermissionBlockForItem($item, true);
 		if (empty($permissions)) {
 			return [];
 		}
@@ -471,13 +495,15 @@ class Transmitter
 				continue;
 			}
 
+			$blindcopy = in_array($element, ['bto', 'bcc']);
+
 			foreach ($permissions[$element] as $receiver) {
 				if ($receiver == $item_profile['followers']) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
-						if (empty($profile['sharedinbox']) || $personal) {
+						if (empty($profile['sharedinbox']) || $personal || $blindcopy) {
 							$target = $profile['inbox'];
 						} else {
 							$target = $profile['sharedinbox'];
@@ -593,7 +619,7 @@ class Transmitter
 
 		$data['instrument'] = ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()];
 
-		$data = array_merge($data, self::createPermissionBlockForItem($item));
+		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
@@ -905,7 +931,7 @@ class Transmitter
 			$data['generator'] = ['type' => 'Application', 'name' => $item['app']];
 		}
 
-		$data = array_merge($data, self::createPermissionBlockForItem($item));
+		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		return $data;
 	}
