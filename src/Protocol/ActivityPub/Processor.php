@@ -17,10 +17,7 @@ use Friendica\Core\Config;
 use Friendica\Protocol\ActivityPub;
 
 /**
- * ActivityPub Protocol class
- *
- * To-Do:
- * - Store Diaspora signature
+ * ActivityPub Processor Protocol class
  */
 class Processor
 {

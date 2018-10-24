@@ -39,9 +39,6 @@ require_once 'include/api.php';
  *
  * Complicated object types:
  * - Undo Announce
- *
- * General:
- * - Queueing unsucessful deliveries
  */
 class Transmitter
 {
