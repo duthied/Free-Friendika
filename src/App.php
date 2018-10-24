@@ -2006,4 +2006,20 @@ class App
 		$redirectTo = $this->getBaseURL($ssl) . '/' . ltrim($toUrl, '/');
 		Core\System::externalRedirect($redirectTo);
 	}
+
+	/**
+	 * Automatically redirects to relative or absolute URL
+	 * Should only be used if it isn't clear if the URL is either internal or external
+	 *
+	 * @param string $toUrl The target URL
+	 *
+	 */
+	public function redirect($toUrl)
+	{
+		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
+			Core\System::externalRedirect($toUrl);
+		} else {
+			$this->internalRedirect($toUrl);
+		}
+	}
 }
