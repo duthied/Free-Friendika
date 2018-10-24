@@ -43,11 +43,7 @@ class Magic extends BaseModule
 		if (!$cid) {
 			logger('No contact record found: ' . print_r($_REQUEST, true), LOGGER_DEBUG);
 			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
-			if (filter_var($dest, FILTER_VALIDATE_URL)) {
-				System::externalRedirect($dest);
-			} else {
-				$a->internalRedirect($dest);
-			}
+			$a->redirect($dest);
 		}
 		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
@@ -117,10 +113,6 @@ class Magic extends BaseModule
 		}
 
 		// @TODO Finding a more elegant possibility to redirect to either internal or external URL
-		if (filter_var($dest, FILTER_VALIDATE_URL)) {
-			System::externalRedirect($dest);
-		} else {
-			$a->internalRedirect($dest);
-		}
+		$a->redirect($dest);
 	}
 }
