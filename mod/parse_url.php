@@ -92,10 +92,6 @@ function parse_url_content(App $a)
 		}
 	}
 
-	if (!empty($_GET['isComment'])) {
-		echo $br . '[url]' . $url . '[/url]';
-		exit();
-	}
 
 	$template = '[bookmark=%s]%s[/bookmark]%s';
 
@@ -127,6 +123,12 @@ function parse_url_content(App $a)
 	$siteinfo = ParseUrl::getSiteinfo($url);
 
 	unset($siteinfo['keywords']);
+
+	// Bypass attachment if parse url for a comment
+	if (!empty($_GET['noAttachment'])) {
+		echo $br . '[url=' . $url . ']' . $siteinfo['title'] . '[/url]';
+		exit();
+	}
 
 	// Format it as BBCode attachment
 	$info = add_page_info_data($siteinfo);

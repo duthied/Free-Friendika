@@ -2,17 +2,17 @@
  * @brief The file contains functions for text editing and commenting
  */
 
-function commentGetLink(id) {
-    reply = prompt("Please enter a link URL:");
+function commentGetLink(id,prompttext) {
+    reply = prompt(prompttext);
     if(reply && reply.length) {
-        reply = bin2hex(reply);
-        $.get('parse_url?isComment=1&binurl=' + reply, function(data) {
-            addcommenttext(data, id);
-        });
-    }
+		reply = bin2hex(reply);
+		$.get('parse_url?noAttachment=1&binurl=' + reply, function(data) {
+			addCommentText(data, id);
+		});
+	}
 }
 
-function addcommenttext(data, id) {
+function addCommentText(data, id) {
     // get the textfield
     var textfield = document.getElementById("comment-edit-text-" + id);
     // check if the textfield does have the default-value
@@ -24,19 +24,19 @@ function addcommenttext(data, id) {
     autosize.update($("#comment-edit-text-" + id));
 }
 
-function commentlinkdrop(event, id) {
+function commentLinkDrop(event, id) {
     var reply = event.dataTransfer.getData("text/uri-list");
     event.target.textContent = reply;
     event.preventDefault();
     if (reply && reply.length) {
         reply = bin2hex(reply);
-        $.get('parse_url?isComment=1&binurl=' + reply, function(data) {
-			addcommenttext(data, id);
+        $.get('parse_url?noAttachment=1&binurl=' + reply, function(data) {
+			addCommentText(data, id);
         });
     }
 }
 
-function commentlinkdropper(event) {
+function commentLinkDropper(event) {
     var linkFound = event.dataTransfer.types.contains("text/uri-list");
     if (linkFound) {
         event.preventDefault();

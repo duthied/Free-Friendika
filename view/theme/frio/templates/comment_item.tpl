@@ -38,8 +38,13 @@
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" ondragenter="return commentlinkdrop(event, {{$id}});" ondragover="return commentlinkdrop(event, {{$id}});" ondrop="commentlinkdropper(event);" onclick="commentGetLink({{$id}});">
+					<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
 						<i class="fa fa-link"></i>
+					</button>
+				</li>
+				<li>
+					<button type="button" class="btn-link icon" style="cursor: pointer;" aria-label="{{$edattach}}" title="{{$edattach}}" ondragenter="return commentLinkDrop(event, {{$id}});" ondragover="return commentLinkDrop(event, {{$id}});" ondrop="commentLinkDropper(event);" onclick="commentGetLink({{$id}}, '{{$prompttext}}');">
+						<i class="fa fa-paperclip"></i>
 					</button>
 				</li>
 				<li>

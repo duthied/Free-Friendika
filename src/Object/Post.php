@@ -157,7 +157,7 @@ class Post extends BaseObject
 			if ($item["event-id"] != 0) {
 				$edpost = ["events/event/" . $item['event-id'], L10n::t("Edit")];
 			} else {
-				$edpost = ["editpost/" . $item['id'] . "/" . base64_encode($a->cmd), L10n::t("Edit")];
+				$edpost = ["editpost/" . $item['id'], L10n::t("Edit")];
 			}
 			$dropping = in_array($item['uid'], [0, local_user()]);
 		} else {
@@ -209,7 +209,13 @@ class Post extends BaseObject
 
 		$author = ['uid' => 0, 'id' => $item['author-id'],
 			'network' => $item['author-network'], 'url' => $item['author-link']];
-		$profile_link = Contact::magicLinkbyContact($author);
+
+		if (local_user() || remote_user()) {
+			$profile_link = Contact::magicLinkbyContact($author);
+		} else {
+			$profile_link = $item['author-link'];
+		}
+
 		if (strpos($profile_link, 'redir/') === 0) {
 			$sparkle = ' sparkle';
 		}
@@ -765,7 +771,7 @@ class Post extends BaseObject
 			 * Hmmm, code depending on the presence of a particular addon?
 			 * This should be better if done by a hook
 			 */
-			if (in_array('qcomment', $a->addons)) {
+			if (Addon::isEnabled('qcomment')) {
 				$qc = ((local_user()) ? PConfig::get(local_user(), 'qcomment', 'words') : null);
 				$qcomment = (($qc) ? explode("\n", $qc) : null);
 			}
@@ -799,7 +805,9 @@ class Post extends BaseObject
 				'$edquote'     => L10n::t('Quote'),
 				'$edcode'      => L10n::t('Code'),
 				'$edimg'       => L10n::t('Image'),
-				'$edurl'       => L10n::t('Link or Media'),
+				'$edurl'       => L10n::t('Link'),
+				'$edattach'    => L10n::t('Link or Media'),
+				'$prompttext'  => L10n::t('Please enter a image/video/audio/webpage URL:'),
 				'$preview'     => ((Feature::isEnabled($conv->getProfileOwner(), 'preview')) ? L10n::t('Preview') : ''),
 				'$indent'      => $indent,
 				'$sourceapp'   => L10n::t($a->sourcename),

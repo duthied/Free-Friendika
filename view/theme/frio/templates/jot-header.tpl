@@ -127,14 +127,20 @@
 	}
 
 	function jotGetLink() {
+		var currentText = $("#profile-jot-text").val();
+		var noAttachment = '';
 		reply = prompt("{{$linkurl}}");
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').show();
-			$.get('parse_url?binurl=' + reply, function(data) {
+			if (currentText.includes("[attachment") && currentText.includes("[/attachment]")) {
+				noAttachment = '&noAttachment=1';
+			}
+			$.get('parse_url?binurl=' + reply + noAttachment, function(data) {
 				addeditortext(data);
 				$('#profile-rotator').hide();
 			});
+			autosize.update($("#profile-jot-text"));
 		}
 	}
 
@@ -182,18 +188,23 @@
 
 	function linkdrop(event) {
 		var reply = event.dataTransfer.getData("text/uri-list");
+		var noAttachment = '';
 		event.target.textContent = reply;
 		event.preventDefault();
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').show();
-			$.get('parse_url?binurl=' + reply, function(data) {
+			if (currentText.includes("[attachment") && currentText.includes("[/attachment]")) {
+				noAttachment = '&noAttachment=1';
+			}
+			$.get('parse_url?binurl=' + reply + noAttachment, function(data) {
 				if (!editor) $("#profile-jot-text").val("");
 				initEditor(function(){
 					addeditortext(data);
 					$('#profile-rotator').hide();
 				});
 			});
+			autosize.update($("#profile-jot-text"));
 		}
 	}
 
@@ -261,6 +272,7 @@
 		var currentText = $("#profile-jot-text").val();
 		//insert the data as new value
 		textfield.value = currentText + data;
+		autosize.update($("#profile-jot-text"));
 	}
 
 	{{$geotag}}
