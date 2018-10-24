@@ -2016,8 +2016,7 @@ class App
 	 */
 	public function redirect($toUrl)
 	{
-		if (filter_var($toUrl, FILTER_VALIDATE_URL))
-		{
+		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
 			Core\System::externalRedirect($toUrl);
 		} else {
 			$this->internalRedirect($toUrl);

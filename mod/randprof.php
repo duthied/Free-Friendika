@@ -14,7 +14,6 @@ function randprof_init(App $a)
 
 	if ($x) {
 		$link = Contact::magicLink($x);
-		// @TODO making the return of magicLink save to use either externalRedirect or internalRedirect
 		$a->redirect($link);
 	}
 
