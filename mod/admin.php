@@ -483,7 +483,7 @@ function admin_page_contactblock(App $a)
 
 	$total = DBA::count('contact', $condition);
 
-	$pager = new Pager($a->query_string, $total, 30);
+	$pager = new Pager($a->query_string, 30);
 
 	$statement = DBA::select('contact', [], $condition, ['limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
 
@@ -513,7 +513,7 @@ function admin_page_contactblock(App $a)
 
 		'$contacts'   => $contacts,
 		'$total_contacts' => L10n::tt('%s total blocked contact', '%s total blocked contacts', $total),
-		'$paginate'   => $pager->renderFull(),
+		'$paginate'   => $pager->renderFull($total),
 		'$contacturl' => ['contact_url', L10n::t("Profile URL"), '', L10n::t("URL of the remote contact to block.")],
 	]);
 	return $o;
@@ -1812,7 +1812,7 @@ function admin_page_users(App $a)
 	/* get pending */
 	$pending = Register::getPending();
 
-	$pager = new Pager($a->query_string, DBA::count('user'), 100);
+	$pager = new Pager($a->query_string, 100);
 
 	/* ordering */
 	$valid_orders = [
@@ -1951,7 +1951,7 @@ function admin_page_users(App $a)
 		'$newusernickname' => ['new_user_nickname', L10n::t("Nickname"), '', L10n::t("Nickname of the new user.")],
 		'$newuseremail' => ['new_user_email', L10n::t("Email"), '', L10n::t("Email address of the new user."), '', '', 'email'],
 	]);
-	$o .= $pager->renderFull();
+	$o .= $pager->renderFull(DBA::count('user'));
 	return $o;
 }
 

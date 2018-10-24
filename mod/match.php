@@ -54,6 +54,8 @@ function match_content(App $a)
 	$tags = trim($r[0]['pub_keywords'] . ' ' . $r[0]['prv_keywords']);
 
 	if ($tags) {
+		$pager = new Pager($a->query_string, $j->items_page);
+
 		$params['s'] = $tags;
 		if ($pager->getPage() != 1) {
 			$params['p'] = $pager->getPage();
@@ -68,8 +70,6 @@ function match_content(App $a)
 		$j = json_decode($x);
 
 		if (count($j->results)) {
-			$pager = new Pager($a->query_string, $j->total, $j->items_page);
-
 			$id = 0;
 
 			foreach ($j->results as $jj) {
@@ -112,13 +112,11 @@ function match_content(App $a)
 
 			$tpl = get_markup_template('viewcontact_template.tpl');
 
-			$o .= replace_macros(
-				$tpl,
-				[
-				'$title' => L10n::t('Profile Match'),
+			$o .= replace_macros($tpl, [
+				'$title'    => L10n::t('Profile Match'),
 				'$contacts' => $entries,
-				'$paginate' => $pager->renderFull()]
-			);
+				'$paginate' => $pager->renderFull($j->total)
+			]);
 		} else {
 			info(L10n::t('No matches') . EOL);
 		}

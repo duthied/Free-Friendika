@@ -89,7 +89,7 @@ function directory_content(App $a)
 	if (DBA::isResult($cnt)) {
 		$total = $cnt['total'];
 	}
-	$pager = new Pager($a->query_string, $total, 60);
+	$pager = new Pager($a->query_string, 60);
 
 	$order = " ORDER BY `name` ASC ";
 
@@ -213,7 +213,7 @@ function directory_content(App $a)
 			'$findterm'  => (strlen($search) ? $search : ""),
 			'$title'     => L10n::t('Site Directory'),
 			'$submit'    => L10n::t('Find'),
-			'$paginate'  => $pager->renderFull(),
+			'$paginate'  => $pager->renderFull($total),
 		]);
 	} else {
 		info(L10n::t("No entries \x28some entries may be hidden\x29.") . EOL);

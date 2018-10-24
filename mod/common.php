@@ -82,44 +82,44 @@ function common_content(App $a)
 	}
 
 	if ($cid) {
-		$t = Model\GContact::countCommonFriends($uid, $cid);
+		$total = Model\GContact::countCommonFriends($uid, $cid);
 	} else {
-		$t = Model\GContact::countCommonFriendsZcid($uid, $zcid);
+		$total = Model\GContact::countCommonFriendsZcid($uid, $zcid);
 	}
 
-	if ($t > 0) {
-		$pager = new Pager($a->query_string, $t);
-	} else {
+	if ($total < 1) {
 		notice(L10n::t('No contacts in common.') . EOL);
 		return $o;
 	}
 
+	$pager = new Pager($a->query_string);
+
 	if ($cid) {
-		$r = Model\GContact::commonFriends($uid, $cid, $pager->getStart(), $pager->getItemsPerPage());
+		$common_friends = Model\GContact::commonFriends($uid, $cid, $pager->getStart(), $pager->getItemsPerPage());
 	} else {
-		$r = Model\GContact::commonFriendsZcid($uid, $zcid, $pager->getStart(), $pager->getItemsPerPage());
+		$common_friends = Model\GContact::commonFriendsZcid($uid, $zcid, $pager->getStart(), $pager->getItemsPerPage());
 	}
 
-	if (!DBA::isResult($r)) {
+	if (!DBA::isResult($common_friends)) {
 		return $o;
 	}
 
 	$id = 0;
 
 	$entries = [];
-	foreach ($r as $rr) {
+	foreach ($common_friends as $common_friend) {
 		//get further details of the contact
-		$contact_details = Model\Contact::getDetailsByURL($rr['url'], $uid);
+		$contact_details = Model\Contact::getDetailsByURL($common_friend['url'], $uid);
 
 		// $rr['id'] is needed to use contact_photo_menu()
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants
-		$rr['id'] = $rr['cid'];
+		$common_friend['id'] = $common_friend['cid'];
 
-		$photo_menu = Model\Contact::photoMenu($rr);
+		$photo_menu = Model\Contact::photoMenu($common_friend);
 
 		$entry = [
-			'url'          => $rr['url'],
-			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
+			'url'          => $common_friend['url'],
+			'itemurl'      => defaults($contact_details, 'addr', $common_friend['url']),
 			'name'         => $contact_details['name'],
 			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
 			'img_hover'    => htmlentities($contact_details['name']),
@@ -148,7 +148,7 @@ function common_content(App $a)
 		'$title'    => $title,
 		'$tab_str'  => $tab_str,
 		'$contacts' => $entries,
-		'$paginate' => $pager->renderFull(),
+		'$paginate' => $pager->renderFull($total),
 	]);
 
 	return $o;

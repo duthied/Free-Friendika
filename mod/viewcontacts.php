@@ -76,7 +76,7 @@ function viewcontacts_content(App $a)
 	if (DBA::isResult($r)) {
 		$total = $r[0]['total'];
 	}
-	$pager = new Pager($a->query_string, $total);
+	$pager = new Pager($a->query_string);
 
 	$r = q("SELECT * FROM `contact`
 		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
@@ -128,7 +128,7 @@ function viewcontacts_content(App $a)
 	$o .= replace_macros($tpl, [
 		'$title' => L10n::t('Contacts'),
 		'$contacts' => $contacts,
-		'$paginate' => $pager->renderFull(),
+		'$paginate' => $pager->renderFull($total),
 	]);
 
 	return $o;

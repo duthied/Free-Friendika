@@ -781,7 +781,7 @@ class Contact extends BaseModule
 		if (DBA::isResult($r)) {
 			$total = $r[0]['total'];
 		}
-		$pager = new Pager($a->query_string, $total);
+		$pager = new Pager($a->query_string);
 
 		$sql_extra3 = Widget::unavailableNetworks();
 
@@ -822,7 +822,7 @@ class Contact extends BaseModule
 				'contacts_batch_drop'    => L10n::t('Delete'),
 			],
 			'$h_batch_actions' => L10n::t('Batch Actions'),
-			'$paginate'   => $pager->renderFull(),
+			'$paginate'   => $pager->renderFull($total),
 		]);
 
 		return $o;

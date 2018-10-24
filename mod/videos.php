@@ -343,7 +343,8 @@ function videos_content(App $a)
 	if (DBA::isResult($r)) {
 		$total = count($r);
 	}
-	$pager = new Pager($a->query_string, $total, 20);
+
+	$pager = new Pager($a->query_string, 20);
 
 	$r = q("SELECT hash, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`created`) AS `created`,
 		ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`filetype`) as `filetype`
@@ -389,7 +390,7 @@ function videos_content(App $a)
 		'$delete_url' => (($can_post) ? System::baseUrl() . '/videos/' . $a->data['user']['nickname'] : false)
 	]);
 
-	$o .= $pager->renderFull();
+	$o .= $pager->renderFull($total);
 
 	return $o;
 }

@@ -283,7 +283,7 @@ function message_content(App $a)
 			$total = $r[0]['total'];
 		}
 
-		$pager = new Pager($a->query_string, $total);
+		$pager = new Pager($a->query_string);
 
 		$r = get_messages(local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
@@ -294,7 +294,7 @@ function message_content(App $a)
 
 		$o .= render_messages($r, 'mail_list.tpl');
 
-		$o .= $pager->renderFull();
+		$o .= $pager->renderFull($total);
 
 		return $o;
 	}

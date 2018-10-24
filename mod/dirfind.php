@@ -188,7 +188,7 @@ function dirfind_content(App $a, $prefix = "") {
 		}
 
 		if (!empty($j->results)) {
-			$pager = new Pager($a->query_string, $j->total, $j->items_page);
+			$pager = new Pager($a->query_string, $j->items_page);
 
 			$id = 0;
 
@@ -254,7 +254,7 @@ function dirfind_content(App $a, $prefix = "") {
 			$o .= replace_macros($tpl,[
 				'title' => $header,
 				'$contacts' => $entries,
-				'$paginate' => $pager->renderFull(),
+				'$paginate' => $pager->renderFull($j->total),
 			]);
 
 		} else {

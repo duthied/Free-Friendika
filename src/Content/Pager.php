@@ -19,10 +19,6 @@ class Pager
 	 * @var integer
 	 */
 	private $itemsPerPage = 50;
-	/**
-	 * @var integer
-	 */
-	private $itemCount = 0;
 
 	/**
 	 * @var string
@@ -35,14 +31,12 @@ class Pager
 	 * Guesses the page number from the GET parameter 'page'.
 	 *
 	 * @param string  $queryString  The query string of the current page
-	 * @param integer $itemCount    The total item count (for the full mode) or null (for the minimal mode)
 	 * @param integer $itemsPerPage An optional number of items per page to override the default value
 	 */
-	public function __construct($queryString, $itemCount = null, $itemsPerPage = 50)
+	public function __construct($queryString, $itemsPerPage = 50)
 	{
 		$this->setQueryString($queryString);
 		$this->setItemsPerPage($itemsPerPage);
-		$this->setItemCount(defaults($itemCount, $this->getItemsPerPage()));
 		$this->setPage(defaults($_GET, 'page', 1));
 	}
 
@@ -80,7 +74,7 @@ class Pager
 	 * Returns the base query string.
 	 *
 	 * Warning: this isn't the same value as passed to the constructor.
-	 * See setQueryString for the inventory of transformations
+	 * See setQueryString() for the inventory of transformations
 	 *
 	 * @see setBaseQuery()
 	 * @return string
@@ -108,16 +102,6 @@ class Pager
 	public function setPage($page)
 	{
 		$this->page = max(1, intval($page));
-	}
-
-	/**
-	 * Sets the item count, 0 minimum.
-	 *
-	 * @param integer $itemCount
-	 */
-	public function setItemCount($itemCount)
-	{
-		$this->itemCount = max(0, intval($itemCount));
 	}
 
 	/**
@@ -172,7 +156,7 @@ class Pager
 	 */
 	public function renderMinimal($itemCount)
 	{
-		$this->setItemCount($itemCount);
+		$displayedItemCount = max(0, intval($itemCount));
 
 		$data = [
 			'class' => 'pager',
@@ -184,7 +168,7 @@ class Pager
 			'next'  => [
 				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
 				'text'  => L10n::t('older'),
-				'class' =>  'next' . ($this->itemCount <= 0 ? ' disabled' : '')
+				'class' =>  'next' . ($displayedItemCount <= 0 ? ' disabled' : '')
 			]
 		];
 
@@ -209,14 +193,17 @@ class Pager
 	 *
 	 * $html = $pager->renderFull();
 	 *
+	 * @param integer $itemCount The total number of items including those note displayed on the page
 	 * @return string HTML string of the pager
 	 */
-	public function renderFull()
+	public function renderFull($itemCount)
 	{
+		$totalItemCount = max(0, intval($itemCount));
+
 		$data = [];
 
 		$data['class'] = 'pagination';
-		if ($this->itemCount > $this->getItemsPerPage()) {
+		if ($totalItemCount > $this->getItemsPerPage()) {
 			$data['first'] = [
 				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=1'),
 				'text'  => L10n::t('first'),
@@ -228,7 +215,7 @@ class Pager
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
 
-			$numpages = $this->itemCount / $this->getItemsPerPage();
+			$numpages = $totalItemCount / $this->getItemsPerPage();
 
 			$numstart = 1;
 			$numstop = $numpages;
@@ -257,7 +244,7 @@ class Pager
 				}
 			}
 
-			if (($this->itemCount % $this->getItemsPerPage()) != 0) {
+			if (($totalItemCount % $this->getItemsPerPage()) != 0) {
 				if ($i == $this->getPage()) {
 					$pages[$i] = [
 						'url'   => '#',

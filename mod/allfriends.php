@@ -46,7 +46,7 @@ function allfriends_content(App $a)
 
 	$total = Model\GContact::countAllFriends(local_user(), $cid);
 
-	$pager = new Pager($a->query_string, $total);
+	$pager = new Pager($a->query_string);
 
 	$r = Model\GContact::allFriends(local_user(), $cid, $pager->getStart(), $pager->getItemsPerPage());
 	if (!DBA::isResult($r)) {
@@ -104,7 +104,7 @@ function allfriends_content(App $a)
 		//'$title' => L10n::t('Friends of %s', htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
-		'$paginate' => $pager->renderFull(),
+		'$paginate' => $pager->renderFull($total),
 	]);
 
 	return $o;
