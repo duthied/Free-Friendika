@@ -2008,7 +2008,7 @@ class App
 	}
 
 	/**
-	 * Redirects to another URL in case
+	 * Automatically redirects to relative or absolute URL
 	 * Should only be used if it isn't clear if the URL is either internal or external
 	 *
 	 * @param string $toUrl The target URL
