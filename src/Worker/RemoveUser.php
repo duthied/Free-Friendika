@@ -20,6 +20,13 @@ class RemoveUser {
 		}
 
 		// Now we delete all user items
-		Item::delete(['uid' => $uid], PRIORITY_LOW);
+		$condition = ['uid' => $uid, 'deleted' => false];
+		do {
+			$items = Item::select(['id'], $condition, ['limit' => 100]);
+			while ($item = Item::fetch($items)) {
+				Item::deleteById($item['id'], PRIORITY_LOW);
+			}
+			DBA::close($items);
+		} while (Item::exists($condition));
 	}
 }
