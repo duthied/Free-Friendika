@@ -8,7 +8,6 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 
@@ -2019,7 +2018,7 @@ class App
 	{
 		if (filter_var($toUrl, FILTER_VALIDATE_URL))
 		{
-			System::externalRedirect($toUrl);
+			Core\System::externalRedirect($toUrl);
 		} else {
 			$this->internalRedirect($toUrl);
 		}
