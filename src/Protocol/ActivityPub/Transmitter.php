@@ -350,7 +350,9 @@ class Transmitter
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => $networks]);
 				if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
-					$data['bcc'][] = $profile['url'];
+					// BCC is currently deactivated, due to Pleroma and Mastodon not reacting like expected
+					// $data['bcc'][] = $profile['url'];
+					$data['cc'][] = $profile['url'];
 				}
 			}
 		}
