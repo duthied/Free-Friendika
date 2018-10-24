@@ -121,7 +121,7 @@ function notifications_content(App $a)
 	}
 
 	// Set the pager
-	$pager = new Pager($a->query_string, null, $perpage);
+	$pager = new Pager($a->query_string, $perpage);
 
 	// Add additional informations (needed for json output)
 	$notifs['items_page'] = $pager->getItemsPerPage();

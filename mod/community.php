@@ -154,7 +154,7 @@ function community_content(App $a, $update = 0)
 		$itemspage_network = $a->force_max_items;
 	}
 
-	$pager = new Pager($a->query_string, null, $itemspage_network);
+	$pager = new Pager($a->query_string, $itemspage_network);
 
 	$r = community_getitems($pager->getStart(), $pager->getItemsPerPage(), $content, $accounttype);
 
