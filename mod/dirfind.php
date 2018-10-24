@@ -67,6 +67,7 @@ function dirfind_content(App $a, $prefix = "") {
 	$o = '';
 
 	if ($search) {
+		$pager = new Pager($a->query_string);
 
 		if ($discover_user) {
 			$j = new stdClass();
@@ -94,14 +95,13 @@ function dirfind_content(App $a, $prefix = "") {
 				Model\GContact::update($user_data);
 			}
 		} elseif ($local) {
-
-			if ($community)
+			if ($community) {
 				$extra_sql = " AND `community`";
-			else
+			} else {
 				$extra_sql = "";
+			}
 
-			$perpage = 80;
-			$startrec = (($pager->getPage()) * $perpage) - $perpage;
+			$pager->setItemsPerPage(80);
 
 			if (Config::get('system','diaspora_enabled')) {
 				$diaspora = Protocol::DIASPORA;
@@ -138,10 +138,10 @@ function dirfind_content(App $a, $prefix = "") {
 					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
 					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
 					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
-					intval($startrec), intval($perpage));
+					$pager->getStart(), $pager->getItemsPerPage());
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
-			$j->items_page = $perpage;
+			$j->items_page = $pager->getItemsPerPage();
 			$j->page = $pager->getPage();
 			foreach ($results AS $result) {
 				if (PortableContact::alternateOStatusUrl($result["nurl"])) {
@@ -178,18 +178,18 @@ function dirfind_content(App $a, $prefix = "") {
 			// Add found profiles from the global directory to the local directory
 			Worker::add(PRIORITY_LOW, 'DiscoverPoCo', "dirsearch", urlencode($search));
 		} else {
-
 			$p = (($pager->getPage() != 1) ? '&p=' . $pager->getPage() : '');
 
-			if(strlen(Config::get('system','directory')))
-				$x = Network::fetchUrl(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
+			if (strlen(Config::get('system','directory'))) {
+				$x = Network::fetchUrl(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
+			}
 
 			$j = json_decode($x);
+
+			$pager->setItemsPerPage($j->items_page);
 		}
 
 		if (!empty($j->results)) {
-			$pager = new Pager($a->query_string, $j->items_page);
-
 			$id = 0;
 
 			foreach ($j->results as $jj) {
@@ -250,13 +250,11 @@ function dirfind_content(App $a, $prefix = "") {
 			}
 
 			$tpl = get_markup_template('viewcontact_template.tpl');
-
 			$o .= replace_macros($tpl,[
 				'title' => $header,
 				'$contacts' => $entries,
 				'$paginate' => $pager->renderFull($j->total),
 			]);
-
 		} else {
 			info(L10n::t('No matches') . EOL);
 		}

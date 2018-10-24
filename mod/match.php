@@ -54,7 +54,7 @@ function match_content(App $a)
 	$tags = trim($r[0]['pub_keywords'] . ' ' . $r[0]['prv_keywords']);
 
 	if ($tags) {
-		$pager = new Pager($a->query_string, $j->items_page);
+		$pager = new Pager($a->query_string);
 
 		$params['s'] = $tags;
 		if ($pager->getPage() != 1) {
@@ -70,6 +70,8 @@ function match_content(App $a)
 		$j = json_decode($x);
 
 		if (count($j->results)) {
+			$pager->setItemsPerPage($j->items_page);
+
 			$id = 0;
 
 			foreach ($j->results as $jj) {
