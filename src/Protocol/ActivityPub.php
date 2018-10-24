@@ -29,6 +29,11 @@ use Friendica\Model\APContact;
  *
  * To-do:
  * - Polling the outboxes for missing content?
+ *
+ * Missing parts from DFRN:
+ * - Public Forum
+ * - Private Forum
+ * - Relocation
  */
 class ActivityPub
 {

@@ -300,10 +300,11 @@ class Transmitter
 	 * Creates an array of permissions from an item thread
 	 *
 	 * @param array $item
+	 * @param boolean $blindcopy
 	 *
 	 * @return array with permission data
 	 */
-	private static function createPermissionBlockForItem($item)
+	private static function createPermissionBlockForItem($item, $blindcopy)
 	{
 		// Will be activated in a later step
 		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
@@ -398,6 +399,9 @@ class Transmitter
 			}
 		}
 
+		if (!$blindcopy) {
+		}
+
 		return ['to' => array_values($data['to']), 'cc' => array_values($data['cc'])];
 	}
 
@@ -453,7 +457,7 @@ class Transmitter
 	 */
 	public static function fetchTargetInboxes($item, $uid, $personal = false)
 	{
-		$permissions = self::createPermissionBlockForItem($item);
+		$permissions = self::createPermissionBlockForItem($item, true);
 		if (empty($permissions)) {
 			return [];
 		}
@@ -471,13 +475,15 @@ class Transmitter
 				continue;
 			}
 
+			$blindcopy = in_array($element, ['bto', 'bcc']);
+
 			foreach ($permissions[$element] as $receiver) {
 				if ($receiver == $item_profile['followers']) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
-						if (empty($profile['sharedinbox']) || $personal) {
+						if (empty($profile['sharedinbox']) || $personal || $blindcopy) {
 							$target = $profile['inbox'];
 						} else {
 							$target = $profile['sharedinbox'];
@@ -593,7 +599,7 @@ class Transmitter
 
 		$data['instrument'] = ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()];
 
-		$data = array_merge($data, self::createPermissionBlockForItem($item));
+		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
@@ -905,7 +911,7 @@ class Transmitter
 			$data['generator'] = ['type' => 'Application', 'name' => $item['app']];
 		}
 
-		$data = array_merge($data, self::createPermissionBlockForItem($item));
+		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		return $data;
 	}
