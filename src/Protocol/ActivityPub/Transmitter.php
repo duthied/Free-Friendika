@@ -312,7 +312,7 @@ class Transmitter
 		// For now only send to these contacts:
 		$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 
-		$data = ['to' => [], 'cc' => []];
+		$data = ['to' => [], 'cc' => [], 'bcc' => []];
 
 		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
@@ -350,7 +350,7 @@ class Transmitter
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => $networks]);
 				if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
-					$data['cc'][] = $profile['url'];
+					$data['bcc'][] = $profile['url'];
 				}
 			}
 		}
@@ -384,6 +384,7 @@ class Transmitter
 
 		$data['to'] = array_unique($data['to']);
 		$data['cc'] = array_unique($data['cc']);
+		$data['bcc'] = array_unique($data['bcc']);
 
 		if (($key = array_search($item['author-link'], $data['to'])) !== false) {
 			unset($data['to'][$key]);
@@ -393,16 +394,33 @@ class Transmitter
 			unset($data['cc'][$key]);
 		}
 
+		if (($key = array_search($item['author-link'], $data['bcc'])) !== false) {
+			unset($data['bcc'][$key]);
+		}
+
 		foreach ($data['to'] as $to) {
 			if (($key = array_search($to, $data['cc'])) !== false) {
 				unset($data['cc'][$key]);
 			}
+
+			if (($key = array_search($to, $data['bcc'])) !== false) {
+				unset($data['bcc'][$key]);
+			}
 		}
+
+		foreach ($data['cc'] as $cc) {
+			if (($key = array_search($cc, $data['bcc'])) !== false) {
+				unset($data['bcc'][$key]);
+			}
+		}
+
+		$receivers = ['to' => array_values($data['to']), 'cc' => array_values($data['cc']), 'bcc' => array_values($data['bcc'])];
 
 		if (!$blindcopy) {
+			unset($receivers['bcc']);
 		}
 
-		return ['to' => array_values($data['to']), 'cc' => array_values($data['cc'])];
+		return $receivers;
 	}
 
 	/**
