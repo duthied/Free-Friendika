@@ -24,7 +24,7 @@ function openClose(theID) {
 }
 
 function openMenu(theID) {
-	var el = document.getElementById(theID)
+	var el = document.getElementById(theID);
 
 	if (el) {
 		el.style.display = "block";

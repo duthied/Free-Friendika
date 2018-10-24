@@ -43,11 +43,10 @@
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" aria-label="{{$edvideo}}" title="{{$edvideo}}" onclick="insertFormatting('video',{{$id}});">
-						<i class="fa fa-video-camera"></i>
+					<button type="button" class="btn-link icon" style="cursor: pointer;" aria-label="{{$edattach}}" title="{{$edattach}}" ondragenter="return commentLinkDrop(event, {{$id}});" ondragover="return commentLinkDrop(event, {{$id}});" ondrop="commentLinkDropper(event);" onclick="commentGetLink({{$id}}, '{{$prompttext}}');">
+						<i class="fa fa-paperclip"></i>
 					</button>
 				</li>
-
 				<li>
 					<button type="button" class="btn-link icon underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
 						<i class="fa fa-underline"></i>
