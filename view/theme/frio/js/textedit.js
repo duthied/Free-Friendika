@@ -2,9 +2,9 @@
  * @brief The file contains functions for text editing and commenting
  */
 
-function commentGetLink(id,prompttext) {
-    reply = prompt(prompttext);
-    if(reply && reply.length) {
+function commentGetLink(id, prompttext) {
+	reply = prompt(prompttext);
+	if(reply && reply.length) {
 		reply = bin2hex(reply);
 		$.get('parse_url?noAttachment=1&binurl=' + reply, function(data) {
 			addCommentText(data, id);

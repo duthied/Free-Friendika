@@ -180,13 +180,13 @@
 		$("#jot-popup").show();
 	}
 
-	function linkdropper(event) {
+	function linkDropper(event) {
 		var linkFound = event.dataTransfer.types.contains("text/uri-list");
 		if(linkFound)
 			event.preventDefault();
 	}
 
-	function linkdrop(event) {
+	function linkDrop(event) {
 		var reply = event.dataTransfer.getData("text/uri-list");
 		var noAttachment = '';
 		event.target.textContent = reply;
