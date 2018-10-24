@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -54,8 +55,8 @@ function match_content(App $a)
 
 	if ($tags) {
 		$params['s'] = $tags;
-		if ($a->pager['page'] != 1) {
-			$params['p'] = $a->pager['page'];
+		if ($pager->getPage() != 1) {
+			$params['p'] = $pager->getPage();
 		}
 
 		if (strlen(Config::get('system', 'directory'))) {
@@ -66,12 +67,9 @@ function match_content(App $a)
 
 		$j = json_decode($x);
 
-		if ($j->total) {
-			$a->setPagerTotal($j->total);
-			$a->setPagerItemsPage($j->items_page);
-		}
-
 		if (count($j->results)) {
+			$pager = new Pager($a->query_string, $j->total, $j->items_page);
+
 			$id = 0;
 
 			foreach ($j->results as $jj) {
@@ -119,7 +117,7 @@ function match_content(App $a)
 				[
 				'$title' => L10n::t('Profile Match'),
 				'$contacts' => $entries,
-				'$paginate' => paginate($a)]
+				'$paginate' => $pager->renderFull()]
 			);
 		} else {
 			info(L10n::t('No matches') . EOL);

@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -60,10 +61,10 @@ function notes_content(App $a, $update = false)
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
 		'wall' => false, 'contact-id'=> $a->contact['id']];
 
-	$a->setPagerItemsPage(40);
+	$pager = new Pager($a->query_string, null, 40);
 
 	$params = ['order' => ['created' => true],
-		'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 	$r = Item::selectThreadForUser(local_user(), ['uri'], $condition, $params);
 
 	$count = 0;
@@ -73,10 +74,10 @@ function notes_content(App $a, $update = false)
 
 		$count = count($notes);
 
-		$o .= conversation($a, $notes, 'notes', $update);
+		$o .= conversation($a, $notes, $pager, 'notes', $update);
 	}
 
-	$o .= alt_pager($a, $count);
+	$o .= $pager->renderMinimal($count);
 
 	return $o;
 }

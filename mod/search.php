@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -200,6 +201,8 @@ function search_content(App $a) {
 	// OR your own posts if you are a logged in member
 	// No items will be shown if the member has a blocked profile wall.
 
+	$pager = new Pager($a->query_string);
+
 	if ($tag) {
 		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
 
@@ -207,7 +210,7 @@ function search_content(App $a) {
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $search];
 		$params = ['order' => ['created' => true],
-			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 		$terms = DBA::select('term', ['oid'], $condition, $params);
 
 		$itemids = [];
@@ -230,7 +233,7 @@ function search_content(App $a) {
 			AND `body` LIKE CONCAT('%',?,'%')",
 			local_user(), $search];
 		$params = ['order' => ['id' => true],
-			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 		$items = Item::selectForUser(local_user(), [], $condition, $params);
 		$r = Item::inArray($items);
 	}
@@ -252,9 +255,9 @@ function search_content(App $a) {
 	]);
 
 	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
-	$o .= conversation($a, $r, 'search', false, false, 'commented', local_user());
+	$o .= conversation($a, $r, $pager, 'search', false, false, 'commented', local_user());
 
-	$o .= alt_pager($a,count($r));
+	$o .= $pager->renderMinimal(count($r));
 
 	logger("Done '".$search."'", LOGGER_DEBUG);
 

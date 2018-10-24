@@ -341,8 +341,7 @@ class ACL extends BaseObject
 		if (Config::get('system', 'poco_local_search')) {
 			$return = GContact::searchByName($search, $mode);
 		} else {
-			$a = self::getApp();
-			$p = $a->pager['page'] != 1 ? '&p=' . $a->pager['page'] : '';
+			$p = defaults($_GET, 'page', 1) != 1 ? '&p=' . defaults($_GET, 'page', 1) : '';
 
 			$curlResult = Network::curl(get_server() . '/lsearch?f=' . $p . '&search=' . urlencode($search));
 			if ($curlResult->isSuccess()) {

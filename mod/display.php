@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
@@ -16,9 +17,8 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Protocol\DFRN;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Util\Security;
+use Friendica\Protocol\DFRN;
 
 function display_init(App $a)
 {
@@ -358,7 +358,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
 	}
 
-	$o .= conversation($a, [$item], 'display', $update_uid, false, 'commented', local_user());
+	$o .= conversation($a, [$item], new Pager($a->query_string), 'display', $update_uid, false, 'commented', local_user());
 
 	// Preparing the meta header
 	$description = trim(HTML::toPlaintext(BBCode::convert($item["body"], false), 0, true));

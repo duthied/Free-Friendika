@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Addon;
@@ -18,10 +19,10 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
-use Friendica\Protocol\ActivityPub;
 
 function profile_init(App $a)
 {
@@ -307,9 +308,9 @@ function profile_content(App $a, $update = 0)
 			$itemspage_network = $a->force_max_items;
 		}
 
-		$a->setPagerItemsPage($itemspage_network);
+		$pager = new Pager($a->query_string, null, $itemspage_network);
 
-		$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
+		$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 
 		$items = q("SELECT `item`.`uri`
 			FROM `thread`
@@ -344,10 +345,10 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
-	$o .= conversation($a, $items, 'profile', $update, false, 'created', local_user());
+	$o .= conversation($a, $items, $pager, 'profile', $update, false, 'created', local_user());
 
 	if (!$update) {
-		$o .= alt_pager($a, count($items));
+		$o .= $pager->renderMinimal(count($items));
 	}
 
 	return $o;

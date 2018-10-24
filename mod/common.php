@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model;
@@ -87,16 +88,16 @@ function common_content(App $a)
 	}
 
 	if ($t > 0) {
-		$a->setPagerTotal($t);
+		$pager = new Pager($a->query_string, $t);
 	} else {
 		notice(L10n::t('No contacts in common.') . EOL);
 		return $o;
 	}
 
 	if ($cid) {
-		$r = Model\GContact::commonFriends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
+		$r = Model\GContact::commonFriends($uid, $cid, $pager->getStart(), $pager->getItemsPerPage());
 	} else {
-		$r = Model\GContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
+		$r = Model\GContact::commonFriendsZcid($uid, $zcid, $pager->getStart(), $pager->getItemsPerPage());
 	}
 
 	if (!DBA::isResult($r)) {
@@ -147,7 +148,7 @@ function common_content(App $a)
 		'$title'    => $title,
 		'$tab_str'  => $tab_str,
 		'$contacts' => $entries,
-		'$paginate' => paginate($a),
+		'$paginate' => $pager->renderFull(),
 	]);
 
 	return $o;

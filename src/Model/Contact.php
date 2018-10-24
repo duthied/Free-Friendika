@@ -5,6 +5,7 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Content\Pager;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -1345,25 +1346,27 @@ class Contact extends BaseObject
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
 		}
 
+		$pager = new Pager($a->query_string);
+
 		$params = ['order' => ['created' => true],
-			'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
 		if ($thread_mode) {
 			$r = Item::selectThreadForUser(local_user(), ['uri'], $condition, $params);
 
 			$items = Item::inArray($r);
 
-			$o = conversation($a, $items, 'contacts', $update);
+			$o = conversation($a, $items, $pager, 'contacts', $update);
 		} else {
 			$r = Item::selectForUser(local_user(), [], $condition, $params);
 
 			$items = Item::inArray($r);
 
-			$o = conversation($a, $items, 'contact-posts', false);
+			$o = conversation($a, $items, $pager, 'contact-posts', false);
 		}
 
 		if (!$update) {
-			$o .= alt_pager($a, count($items));
+			$o .= $pager->renderMinimal(count($items));
 		}
 
 		return $o;

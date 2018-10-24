@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
@@ -778,9 +779,9 @@ class Contact extends BaseModule
 			intval($_SESSION['uid'])
 		);
 		if (DBA::isResult($r)) {
-			$a->setPagerTotal($r[0]['total']);
 			$total = $r[0]['total'];
 		}
+		$pager = new Pager($a->query_string, $total);
 
 		$sql_extra3 = Widget::unavailableNetworks();
 
@@ -788,8 +789,8 @@ class Contact extends BaseModule
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
 			intval($_SESSION['uid']),
-			intval($a->pager['start']),
-			intval($a->pager['itemspage'])
+			$pager->getStart(),
+			$pager->getItemsPerPage()
 		);
 		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
@@ -821,7 +822,7 @@ class Contact extends BaseModule
 				'contacts_batch_drop'    => L10n::t('Delete'),
 			],
 			'$h_batch_actions' => L10n::t('Batch Actions'),
-			'$paginate'   => paginate($a),
+			'$paginate'   => $pager->renderFull(),
 		]);
 
 		return $o;

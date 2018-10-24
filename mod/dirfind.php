@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -71,7 +72,7 @@ function dirfind_content(App $a, $prefix = "") {
 			$j = new stdClass();
 			$j->total = 1;
 			$j->items_page = 1;
-			$j->page = $a->pager['page'];
+			$j->page = $pager->getPage();
 
 			$objresult = new stdClass();
 			$objresult->cid = 0;
@@ -100,7 +101,7 @@ function dirfind_content(App $a, $prefix = "") {
 				$extra_sql = "";
 
 			$perpage = 80;
-			$startrec = (($a->pager['page']) * $perpage) - $perpage;
+			$startrec = (($pager->getPage()) * $perpage) - $perpage;
 
 			if (Config::get('system','diaspora_enabled')) {
 				$diaspora = Protocol::DIASPORA;
@@ -141,7 +142,7 @@ function dirfind_content(App $a, $prefix = "") {
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
 			$j->items_page = $perpage;
-			$j->page = $a->pager['page'];
+			$j->page = $pager->getPage();
 			foreach ($results AS $result) {
 				if (PortableContact::alternateOStatusUrl($result["nurl"])) {
 					continue;
@@ -178,7 +179,7 @@ function dirfind_content(App $a, $prefix = "") {
 			Worker::add(PRIORITY_LOW, 'DiscoverPoCo', "dirsearch", urlencode($search));
 		} else {
 
-			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
+			$p = (($pager->getPage() != 1) ? '&p=' . $pager->getPage() : '');
 
 			if(strlen(Config::get('system','directory')))
 				$x = Network::fetchUrl(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
@@ -186,12 +187,8 @@ function dirfind_content(App $a, $prefix = "") {
 			$j = json_decode($x);
 		}
 
-		if ($j->total) {
-			$a->setPagerTotal($j->total);
-			$a->setPagerItemsPage($j->items_page);
-		}
-
 		if (!empty($j->results)) {
+			$pager = new Pager($a->query_string, $j->total, $j->items_page);
 
 			$id = 0;
 
@@ -252,13 +249,13 @@ function dirfind_content(App $a, $prefix = "") {
 				$entries[] = $entry;
 			}
 
-		$tpl = get_markup_template('viewcontact_template.tpl');
+			$tpl = get_markup_template('viewcontact_template.tpl');
 
-		$o .= replace_macros($tpl,[
-			'title' => $header,
-			'$contacts' => $entries,
-			'$paginate' => paginate($a),
-		]);
+			$o .= replace_macros($tpl,[
+				'title' => $header,
+				'$contacts' => $entries,
+				'$paginate' => $pager->renderFull(),
+			]);
 
 		} else {
 			info(L10n::t('No matches') . EOL);

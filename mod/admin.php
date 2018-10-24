@@ -8,6 +8,7 @@
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
+use Friendica\Content\Pager;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
@@ -482,10 +483,9 @@ function admin_page_contactblock(App $a)
 
 	$total = DBA::count('contact', $condition);
 
-	$a->setPagerTotal($total);
-	$a->setPagerItemsPage(30);
+	$pager = new Pager($a->query_string, $total, 30);
 
-	$statement = DBA::select('contact', [], $condition, ['limit' => [$a->pager['start'], $a->pager['itemspage']]]);
+	$statement = DBA::select('contact', [], $condition, ['limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
 
 	$contacts = DBA::toArray($statement);
 
@@ -513,7 +513,7 @@ function admin_page_contactblock(App $a)
 
 		'$contacts'   => $contacts,
 		'$total_contacts' => L10n::tt('%s total blocked contact', '%s total blocked contacts', $total),
-		'$paginate'   => paginate($a),
+		'$paginate'   => $pager->renderFull(),
 		'$contacturl' => ['contact_url', L10n::t("Profile URL"), '', L10n::t("URL of the remote contact to block.")],
 	]);
 	return $o;
@@ -1812,12 +1812,7 @@ function admin_page_users(App $a)
 	/* get pending */
 	$pending = Register::getPending();
 
-	/* get users */
-	$total = q("SELECT COUNT(*) AS `total` FROM `user` WHERE 1");
-	if (count($total)) {
-		$a->setPagerTotal($total[0]['total']);
-		$a->setPagerItemsPage(100);
-	}
+	$pager = new Pager($a->query_string, DBA::count('user'), 100);
 
 	/* ordering */
 	$valid_orders = [
@@ -1849,7 +1844,7 @@ function admin_page_users(App $a)
 				FROM `user`
 				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 				WHERE `user`.`verified`
-				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d", intval($a->pager['start']), intval($a->pager['itemspage'])
+				ORDER BY $sql_order $sql_order_direction LIMIT %d, %d", $pager->getStart(), $pager->getItemsPerPage()
 	);
 
 	$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
@@ -1947,7 +1942,7 @@ function admin_page_users(App $a)
 		'$form_security_token' => BaseModule::getFormSecurityToken("admin_users"),
 
 		// values //
-		'$baseurl' => System::baseUrl(true),
+		'$baseurl' => $a->getBaseURL(true),
 
 		'$pending' => $pending,
 		'deleted' => $deleted,
@@ -1956,7 +1951,7 @@ function admin_page_users(App $a)
 		'$newusernickname' => ['new_user_nickname', L10n::t("Nickname"), '', L10n::t("Nickname of the new user.")],
 		'$newuseremail' => ['new_user_email', L10n::t("Email"), '', L10n::t("Email address of the new user."), '', '', 'email'],
 	]);
-	$o .= paginate($a);
+	$o .= $pager->renderFull();
 	return $o;
 }
 

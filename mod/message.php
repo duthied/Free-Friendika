@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
@@ -13,10 +14,10 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
+use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
-use Friendica\Module\Login;
 
 require_once 'include/conversation.php';
 
@@ -273,16 +274,18 @@ function message_content(App $a)
 
 		$o .= $header;
 
+		$total = 0;
 		$r = q("SELECT count(*) AS `total`, ANY_VALUE(`created`) AS `created` FROM `mail`
 			WHERE `mail`.`uid` = %d GROUP BY `parent-uri` ORDER BY `created` DESC",
 			intval(local_user())
 		);
-
 		if (DBA::isResult($r)) {
-			$a->setPagerTotal($r[0]['total']);
+			$total = $r[0]['total'];
 		}
 
-		$r = get_messages(local_user(), $a->pager['start'], $a->pager['itemspage']);
+		$pager = new Pager($a->query_string, $total);
+
+		$r = get_messages(local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
 		if (!DBA::isResult($r)) {
 			info(L10n::t('No messages.') . EOL);
@@ -291,7 +294,7 @@ function message_content(App $a)
 
 		$o .= render_messages($r, 'mail_list.tpl');
 
-		$o .= paginate($a);
+		$o .= $pager->renderFull();
 
 		return $o;
 	}
