@@ -8,6 +8,7 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 
@@ -2005,5 +2006,22 @@ class App
 
 		$redirectTo = $this->getBaseURL($ssl) . '/' . ltrim($toUrl, '/');
 		Core\System::externalRedirect($redirectTo);
+	}
+
+	/**
+	 * Redirects to another URL in case
+	 * Should only be used if it isn't clear if the URL is either internal or external
+	 *
+	 * @param string $toUrl The target URL
+	 *
+	 */
+	public function redirect($toUrl)
+	{
+		if (filter_var($toUrl, FILTER_VALIDATE_URL))
+		{
+			System::externalRedirect($toUrl);
+		} else {
+			$this->internalRedirect($toUrl);
+		}
 	}
 }
