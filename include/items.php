@@ -345,7 +345,7 @@ function drop_items(array $items)
 	}
 }
 
-function drop_item($id)
+function drop_item($id, $return)
 {
 	$a = BaseObject::getApp();
 
@@ -409,8 +409,16 @@ function drop_item($id)
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		$a->internalRedirect('network');
-		//NOTREACHED
+		$return_url = hex2bin($return);
+		notice("RETURN: " + $return_url);
+		if (empty($return_url) || strpos($return_url, 'display') ) {
+			$a->internalRedirect('network');
+			//NOTREACHED
+		}
+		else {
+			$a->internalRedirect($return_url);
+			//NOTREACHED
+		}
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
 		$a->internalRedirect('display/' . $item['guid']);

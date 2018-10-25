@@ -881,11 +881,11 @@ function item_content(App $a)
 
 	$o = '';
 
-	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
+	if (($a->argc >= 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
 		if ($a->isAjax()) {
 			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
-			$o = drop_item($a->argv[2]);
+			$o = drop_item($a->argv[2], $a->argv[3]);
 		}
 
 		if ($a->isAjax()) {

@@ -414,6 +414,7 @@ class Post extends BaseObject
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
+			'return'          => ($a->cmd) ? bin2hex($a->cmd) : '',
 		];
 
 		$arr = ['item' => $item, 'output' => $tmp_item];
