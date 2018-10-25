@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -153,9 +154,9 @@ function community_content(App $a, $update = 0)
 		$itemspage_network = $a->force_max_items;
 	}
 
-	$a->setPagerItemsPage($itemspage_network);
+	$pager = new Pager($a->query_string, $itemspage_network);
 
-	$r = community_getitems($a->pager['start'], $a->pager['itemspage'], $content, $accounttype);
+	$r = community_getitems($pager->getStart(), $pager->getItemsPerPage(), $content, $accounttype);
 
 	if (!DBA::isResult($r)) {
 		info(L10n::t('No results.') . EOL);
@@ -179,22 +180,22 @@ function community_content(App $a, $update = 0)
 				}
 				$previousauthor = $item["author-link"];
 
-				if (($numposts < $maxpostperauthor) && (count($s) < $a->pager['itemspage'])) {
+				if (($numposts < $maxpostperauthor) && (count($s) < $pager->getItemsPerPage())) {
 					$s[] = $item;
 				}
 			}
-			if (count($s) < $a->pager['itemspage']) {
-				$r = community_getitems($a->pager['start'] + ($count * $a->pager['itemspage']), $a->pager['itemspage'], $content, $accounttype);
+			if (count($s) < $pager->getItemsPerPage()) {
+				$r = community_getitems($pager->getStart() + ($count * $pager->getItemsPerPage()), $pager->getItemsPerPage(), $content, $accounttype);
 			}
-		} while ((count($s) < $a->pager['itemspage']) && ( ++$count < 50) && (count($r) > 0));
+		} while ((count($s) < $pager->getItemsPerPage()) && ( ++$count < 50) && (count($r) > 0));
 	} else {
 		$s = $r;
 	}
 
-	$o .= conversation($a, $s, 'community', $update, false, 'commented', local_user());
+	$o .= conversation($a, $s, $pager, 'community', $update, false, 'commented', local_user());
 
 	if (!$update) {
-		$o .= alt_pager($a, count($r));
+		$o .= $pager->renderMinimal(count($r));
 	}
 
 	$t = get_markup_template("community.tpl");

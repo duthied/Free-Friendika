@@ -16,6 +16,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
@@ -33,6 +34,7 @@ use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
+use function Friendica\Core\function_exists;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -667,10 +669,10 @@ function item_post(App $a) {
 		$datarray["item_id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
 
-		$o = conversation($a,[array_merge($contact_record,$datarray)],'search', false, true);
+		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager($a->query_string), 'search', false, true);
 		logger('preview: ' . $o);
 		echo json_encode(['preview' => $o]);
-		killme();
+		exit();
 	}
 
 	Addon::callHooks('post_local',$datarray);

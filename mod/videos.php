@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
@@ -334,15 +335,16 @@ function videos_content(App $a)
 	// Default - show recent videos (no upload link for now)
 	//$o = '';
 
+	$total = 0;
 	$r = q("SELECT hash FROM `attach` WHERE `uid` = %d AND filetype LIKE '%%video%%'
 		$sql_extra GROUP BY hash",
 		intval($a->data['user']['uid'])
 	);
-
 	if (DBA::isResult($r)) {
-		$a->setPagerTotal(count($r));
-		$a->setPagerItemsPage(20);
+		$total = count($r);
 	}
+
+	$pager = new Pager($a->query_string, 20);
 
 	$r = q("SELECT hash, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`created`) AS `created`,
 		ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`filetype`) as `filetype`
@@ -350,8 +352,8 @@ function videos_content(App $a)
 		WHERE `uid` = %d AND filetype LIKE '%%video%%'
 		$sql_extra GROUP BY hash ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
+		$pager->getStart(),
+		$pager->getItemsPerPage()
 	);
 
 	$videos = [];
@@ -388,7 +390,7 @@ function videos_content(App $a)
 		'$delete_url' => (($can_post) ? System::baseUrl() . '/videos/' . $a->data['user']['nickname'] : false)
 	]);
 
-	$o .= paginate($a);
+	$o .= $pager->renderFull($total);
 
 	return $o;
 }

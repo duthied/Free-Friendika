@@ -733,7 +733,7 @@ function loadScrollContent() {
 
 	// get the raw content from the next page and insert this content
 	// right before "#conversation-end"
-	$.get('network?mode=raw' + infinite_scroll.reload_uri + '&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
+	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
 		$("#scroll-loader").hide();
 		if ($(data).length > 0) {
 			$(data).insertBefore('#conversation-end');

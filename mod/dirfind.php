@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -66,12 +67,13 @@ function dirfind_content(App $a, $prefix = "") {
 	$o = '';
 
 	if ($search) {
+		$pager = new Pager($a->query_string);
 
 		if ($discover_user) {
 			$j = new stdClass();
 			$j->total = 1;
 			$j->items_page = 1;
-			$j->page = $a->pager['page'];
+			$j->page = $pager->getPage();
 
 			$objresult = new stdClass();
 			$objresult->cid = 0;
@@ -93,14 +95,13 @@ function dirfind_content(App $a, $prefix = "") {
 				Model\GContact::update($user_data);
 			}
 		} elseif ($local) {
-
-			if ($community)
+			if ($community) {
 				$extra_sql = " AND `community`";
-			else
+			} else {
 				$extra_sql = "";
+			}
 
-			$perpage = 80;
-			$startrec = (($a->pager['page']) * $perpage) - $perpage;
+			$pager->setItemsPerPage(80);
 
 			if (Config::get('system','diaspora_enabled')) {
 				$diaspora = Protocol::DIASPORA;
@@ -137,11 +138,11 @@ function dirfind_content(App $a, $prefix = "") {
 					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
 					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
 					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
-					intval($startrec), intval($perpage));
+					$pager->getStart(), $pager->getItemsPerPage());
 			$j = new stdClass();
 			$j->total = $count[0]["total"];
-			$j->items_page = $perpage;
-			$j->page = $a->pager['page'];
+			$j->items_page = $pager->getItemsPerPage();
+			$j->page = $pager->getPage();
 			foreach ($results AS $result) {
 				if (PortableContact::alternateOStatusUrl($result["nurl"])) {
 					continue;
@@ -177,22 +178,18 @@ function dirfind_content(App $a, $prefix = "") {
 			// Add found profiles from the global directory to the local directory
 			Worker::add(PRIORITY_LOW, 'DiscoverPoCo', "dirsearch", urlencode($search));
 		} else {
+			$p = (($pager->getPage() != 1) ? '&p=' . $pager->getPage() : '');
 
-			$p = (($a->pager['page'] != 1) ? '&p=' . $a->pager['page'] : '');
-
-			if(strlen(Config::get('system','directory')))
-				$x = Network::fetchUrl(get_server().'/lsearch?f=' . $p .  '&search=' . urlencode($search));
+			if (strlen(Config::get('system','directory'))) {
+				$x = Network::fetchUrl(get_server() . '/lsearch?f=' . $p .  '&search=' . urlencode($search));
+			}
 
 			$j = json_decode($x);
-		}
 
-		if ($j->total) {
-			$a->setPagerTotal($j->total);
-			$a->setPagerItemsPage($j->items_page);
+			$pager->setItemsPerPage($j->items_page);
 		}
 
 		if (!empty($j->results)) {
-
 			$id = 0;
 
 			foreach ($j->results as $jj) {
@@ -252,14 +249,12 @@ function dirfind_content(App $a, $prefix = "") {
 				$entries[] = $entry;
 			}
 
-		$tpl = get_markup_template('viewcontact_template.tpl');
-
-		$o .= replace_macros($tpl,[
-			'title' => $header,
-			'$contacts' => $entries,
-			'$paginate' => paginate($a),
-		]);
-
+			$tpl = get_markup_template('viewcontact_template.tpl');
+			$o .= replace_macros($tpl,[
+				'title' => $header,
+				'$contacts' => $entries,
+				'$paginate' => $pager->renderFull($j->total),
+			]);
 		} else {
 			info(L10n::t('No matches') . EOL);
 		}

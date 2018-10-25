@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
@@ -16,8 +17,6 @@ use Friendica\Util\Proxy as ProxyUtils;
 
 function directory_init(App $a)
 {
-	$a->setPagerItemsPage(60);
-
 	if (local_user()) {
 		$a->page['aside'] .= Widget::findPeople();
 		$a->page['aside'] .= Widget::follow();
@@ -83,16 +82,18 @@ function directory_content(App $a)
 	$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 " );
 
 
+	$total = 0;
 	$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
 	if (DBA::isResult($cnt)) {
-		$a->setPagerTotal($cnt['total']);
+		$total = $cnt['total'];
 	}
+	$pager = new Pager($a->query_string, 60);
 
 	$order = " ORDER BY `name` ASC ";
 
-	$limit = intval($a->pager['start'])."," . intval($a->pager['itemspage']);
+	$limit = $pager->getStart()."," . $pager->getItemsPerPage();
 
 	$r = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
 			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
@@ -212,7 +213,7 @@ function directory_content(App $a)
 			'$findterm'  => (strlen($search) ? $search : ""),
 			'$title'     => L10n::t('Site Directory'),
 			'$submit'    => L10n::t('Find'),
-			'$paginate'  => paginate($a),
+			'$paginate'  => $pager->renderFull($total),
 		]);
 	} else {
 		info(L10n::t("No entries \x28some entries may be hidden\x29.") . EOL);

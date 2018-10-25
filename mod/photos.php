@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
 use Friendica\Core\Addon;
@@ -25,8 +26,8 @@ use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
-use Friendica\Util\Temporal;
 use Friendica\Util\Security;
+use Friendica\Util\Temporal;
 
 require_once 'include/items.php';
 
@@ -1135,15 +1136,17 @@ function photos_content(App $a)
 	if ($datatype === 'album') {
 		$album = hex2bin($datum);
 
+		$total = 0;
 		$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` = '%s'
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
 			intval($owner_uid),
 			DBA::escape($album)
 		);
 		if (DBA::isResult($r)) {
-			$a->setPagerTotal(count($r));
-			$a->setPagerItemsPage(20);
+			$total = count($r);
 		}
+
+		$pager = new Pager($a->query_string, 20);
 
 		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
 		$order_field = defaults($_GET, 'order', '');
@@ -1160,8 +1163,8 @@ function photos_content(App $a)
 			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` $order LIMIT %d , %d",
 			intval($owner_uid),
 			DBA::escape($album),
-			intval($a->pager['start']),
-			intval($a->pager['itemspage'])
+			$pager->getStart(),
+			$pager->getItemsPerPage()
 		);
 
 		// edit album name
@@ -1224,14 +1227,14 @@ function photos_content(App $a)
 
 		$tpl = get_markup_template('photo_album.tpl');
 		$o .= replace_macros($tpl, [
-				'$photos' => $photos,
-				'$album' => $album,
-				'$can_post' => $can_post,
-				'$upload' => [L10n::t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)],
-				'$order' => $order,
-				'$edit' => $edit,
-				'$paginate' => paginate($a),
-			]);
+			'$photos' => $photos,
+			'$album' => $album,
+			'$can_post' => $can_post,
+			'$upload' => [L10n::t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)],
+			'$order' => $order,
+			'$edit' => $edit,
+			'$paginate' => $pager->renderFull($total),
+		]);
 
 		return $o;
 
@@ -1385,15 +1388,18 @@ function photos_content(App $a)
 
 		$map = null;
 		$link_item = [];
+		$total = 0;
 
 		if (DBA::isResult($linked_items)) {
 			// This is a workaround to not being forced to rewrite the while $sql_extra handling
 			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
 
 			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
-			$a->setPagerTotal(DBA::count('item', $condition));
+			$total = DBA::count('item', $condition);
 
-			$params = ['order' => ['id'], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+			$pager = new Pager($a->query_string);
+
+			$params = ['order' => ['id'], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 			$result = Item::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params);
 			$items = Item::inArray($result);
 
@@ -1608,7 +1614,7 @@ function photos_content(App $a)
 			}
 			$responses = get_responses($conv_responses, $response_verbs, '', $link_item);
 
-			$paginate = paginate($a);
+			$paginate = $pager->renderFull($total);
 		}
 
 		$photo_tpl = get_markup_template('photo_view.tpl');
@@ -1644,18 +1650,18 @@ function photos_content(App $a)
 
 	// Default - show recent photos with upload link (if applicable)
 	//$o = '';
-
+	$total = 0;
 	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id`",
 		intval($a->data['user']['uid']),
 		DBA::escape('Contact Photos'),
 		DBA::escape(L10n::t('Contact Photos'))
 	);
-
 	if (DBA::isResult($r)) {
-		$a->setPagerTotal(count($r));
-		$a->setPagerItemsPage(20);
+		$total = count($r);
 	}
+
+	$pager = new Pager($a->query_string, 20);
 
 	$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
 		ANY_VALUE(`type`) AS `type`, ANY_VALUE(`album`) AS `album`, max(`scale`) AS `scale`,
@@ -1665,8 +1671,8 @@ function photos_content(App $a)
 		intval($a->data['user']['uid']),
 		DBA::escape('Contact Photos'),
 		DBA::escape(L10n::t('Contact Photos')),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
+		$pager->getStart(),
+		$pager->getItemsPerPage()
 	);
 
 	$photos = [];
@@ -1709,7 +1715,7 @@ function photos_content(App $a)
 		'$can_post' => $can_post,
 		'$upload' => [L10n::t('Upload New Photos'), 'photos/'.$a->data['user']['nickname'].'/upload'],
 		'$photos' => $photos,
-		'$paginate' => paginate($a),
+		'$paginate' => $pager->renderFull($total),
 	]);
 
 	return $o;

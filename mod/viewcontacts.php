@@ -2,17 +2,19 @@
 /**
  * @file mod/viewcontacts.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Core\System;
 
 function viewcontacts_init(App $a)
 {
@@ -61,6 +63,7 @@ function viewcontacts_content(App $a)
 		return $o;
 	}
 
+	$total = 0;
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
 			AND NOT `hidden` AND NOT `archive`
@@ -71,8 +74,9 @@ function viewcontacts_content(App $a)
 		DBA::escape(Protocol::OSTATUS)
 	);
 	if (DBA::isResult($r)) {
-		$a->setPagerTotal($r[0]['total']);
+		$total = $r[0]['total'];
 	}
+	$pager = new Pager($a->query_string);
 
 	$r = q("SELECT * FROM `contact`
 		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
@@ -83,8 +87,8 @@ function viewcontacts_content(App $a)
 		DBA::escape(Protocol::DFRN),
 		DBA::escape(Protocol::DIASPORA),
 		DBA::escape(Protocol::OSTATUS),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
+		$pager->getStart(),
+		$pager->getItemsPerPage()
 	);
 	if (!DBA::isResult($r)) {
 		info(L10n::t('No contacts.').EOL);
@@ -124,7 +128,7 @@ function viewcontacts_content(App $a)
 	$o .= replace_macros($tpl, [
 		'$title' => L10n::t('Contacts'),
 		'$contacts' => $contacts,
-		'$paginate' => paginate($a),
+		'$paginate' => $pager->renderFull($total),
 	]);
 
 	return $o;

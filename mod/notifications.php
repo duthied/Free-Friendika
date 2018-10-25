@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Protocol;
@@ -120,11 +121,11 @@ function notifications_content(App $a)
 	}
 
 	// Set the pager
-	$a->setPagerItemsPage($perpage);
+	$pager = new Pager($a->query_string, $perpage);
 
 	// Add additional informations (needed for json output)
-	$notifs['items_page'] = $a->pager['itemspage'];
-	$notifs['page'] = $a->pager['page'];
+	$notifs['items_page'] = $pager->getItemsPerPage();
+	$notifs['page'] = $pager->getPage();
 
 	// Json output
 	if (intval($json) === 1) {
@@ -315,7 +316,7 @@ function notifications_content(App $a)
 		'$notif_content'   => $notif_content,
 		'$notif_nocontent' => $notif_nocontent,
 		'$notif_show_lnk'  => $notif_show_lnk,
-		'$notif_paginate'  => alt_pager($a, count($notif_content))
+		'$notif_paginate'  => $pager->renderMinimal(count($notif_content))
 	]);
 
 	return $o;

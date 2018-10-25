@@ -38,16 +38,32 @@ class Hook extends BaseObject
 		$stmt = DBA::select('hook', ['hook', 'file', 'function'], [], ['order' => ['priority' => 'desc', 'file']]);
 
 		while ($hook = DBA::fetch($stmt)) {
-			if (!array_key_exists($hook['hook'], self::$hooks)) {
-				self::$hooks[$hook['hook']] = [];
-			}
-			self::$hooks[$hook['hook']][] = [$hook['file'], $hook['function']];
+			self::add($hook['hook'], $hook['file'], $hook['function']);
 		}
 		DBA::close($stmt);
 	}
 
 	/**
-	 * Registers a hook.
+	 * @brief Adds a new hook to the hooks array.
+	 *
+	 * This function is meant to be called by modules on each page load as it works after loadHooks has been called.
+	 *
+	 * @param type $hook
+	 * @param type $file
+	 * @param type $function
+	 */
+	public static function add($hook, $file, $function)
+	{
+		if (!array_key_exists($hook, self::$hooks)) {
+			self::$hooks[$hook] = [];
+		}
+		self::$hooks[$hook][] = [$file, $function];
+	}
+
+	/**
+	 * @brief Registers a hook.
+	 *
+	 * This function is meant to be called once when an addon is enabled for example as it doesn't add to the current hooks.
 	 *
 	 * @param string $hook     the name of the hook
 	 * @param string $file     the name of the file that hooks into

@@ -34,8 +34,6 @@ class App
 	public $query_string = '';
 	public $config = [];
 	public $page = [];
-	public $pager = [];
-	public $page_offset;
 	public $profile;
 	public $profile_uid;
 	public $user;
@@ -302,16 +300,6 @@ class App
 			$this->argv = ['home'];
 			$this->module = 'home';
 		}
-
-		// See if there is any page number information, and initialise pagination
-		$this->pager['page'] = !empty($_GET['page']) && intval($_GET['page']) > 0 ? intval($_GET['page']) : 1;
-		$this->pager['itemspage'] = 50;
-		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
-
-		if ($this->pager['start'] < 0) {
-			$this->pager['start'] = 0;
-		}
-		$this->pager['total'] = 0;
 
 		// Detect mobile devices
 		$mobile_detect = new MobileDetect();
@@ -732,23 +720,6 @@ class App
 		return $this->urlPath;
 	}
 
-	public function setPagerTotal($n)
-	{
-		$this->pager['total'] = intval($n);
-	}
-
-	public function setPagerItemsPage($n)
-	{
-		$this->pager['itemspage'] = ((intval($n) > 0) ? intval($n) : 0);
-		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
-	}
-
-	public function setPagerPage($n)
-	{
-		$this->pager['page'] = $n;
-		$this->pager['start'] = ($this->pager['page'] * $this->pager['itemspage']) - $this->pager['itemspage'];
-	}
-
 	/**
 	 * Initializes App->page['htmlhead'].
 	 *
@@ -798,9 +769,6 @@ class App
 			$touch_icon = 'images/friendica-128.png';
 		}
 
-		// get data wich is needed for infinite scroll on the network page
-		$infinite_scroll = infinite_scroll_data($this->module);
-
 		Core\Addon::callHooks('head', $this->page['htmlhead']);
 
 		$tpl = get_markup_template('head.tpl');
@@ -818,7 +786,6 @@ class App
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
-			'$infinite_scroll' => $infinite_scroll,
 			'$block_public'    => intval(Core\Config::get('system', 'block_public')),
 			'$stylesheets'     => $this->stylesheets,
 		]) . $this->page['htmlhead'];

@@ -8,14 +8,15 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -34,6 +35,8 @@ function network_init(App $a)
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
+
+	Hook::add('head', __FILE__, 'network_infinite_scroll_head');
 
 	$search = (x($_GET, 'search') ? escape_tags($_GET['search']) : '');
 
@@ -279,7 +282,7 @@ function network_query_get_sel_group(App $a)
  * @param integer $update Used for the automatic reloading
  * @return string SQL with the appropriate LIMIT clause
  */
-function networkPager($a, $update)
+function networkPager(App $a, Pager $pager, $update)
 {
 	if ($update) {
 		// only setup pagination on initial page view
@@ -302,9 +305,9 @@ function networkPager($a, $update)
 		$itemspage_network = $a->force_max_items;
 	}
 
-	$a->setPagerItemsPage($itemspage_network);
+	$pager->setItemsPerPage($itemspage_network);
 
-	return sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
+	return sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 }
 
 /**
@@ -328,24 +331,24 @@ function networkSetSeen($condition)
 /**
  * @brief Create the conversation HTML
  *
- * @param App $a The global App
- * @param array $items Items of the conversation
- * @param string $mode Display mode for the conversation
+ * @param App     $a      The global App
+ * @param array   $items  Items of the conversation
+ * @param string  $mode   Display mode for the conversation
  * @param integer $update Used for the automatic reloading
  * @return string HTML of the conversation
  */
-function networkConversation($a, $items, $mode, $update, $ordering = '')
+function networkConversation(App $a, $items, Pager $pager, $mode, $update, $ordering = '')
 {
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
 
-	$o = conversation($a, $items, $mode, $update, false, $ordering, local_user());
+	$o = conversation($a, $items, $pager, $mode, $update, false, $ordering, local_user());
 
 	if (!$update) {
 		if (PConfig::get(local_user(), 'system', 'infinite_scroll')) {
 			$o .= scroll_loader();
 		} else {
-			$o .= alt_pager($a, count($items));
+			$o .= $pager->renderMinimal(count($items));
 		}
 	}
 
@@ -372,7 +375,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 		}
 	}
 
-	if (x($_GET, 'file')) {
+	if (!empty($_GET['file'])) {
 		$flat_mode = true;
 	}
 
@@ -388,12 +391,14 @@ function network_content(App $a, $update = 0, $parent = 0)
 /**
  * @brief Get the network content in flat view
  *
- * @param App $a The global App
+ * @param Pager   $pager
+ * @param App     $a      The global App
  * @param integer $update Used for the automatic reloading
  * @return string HTML of the network content in flat view
  */
 function networkFlatView(App $a, $update = 0)
 {
+	global $pager;
 	// Rawmode is used for fetching new content at the end of the page
 	$rawmode = (isset($_GET['mode']) && ($_GET['mode'] == 'raw'));
 
@@ -405,7 +410,7 @@ function networkFlatView(App $a, $update = 0)
 
 	$o = '';
 
-	$file = ((x($_GET, 'file')) ? $_GET['file'] : '');
+	$file = defaults($_GET, 'file', '');
 
 	if (!$update && !$rawmode) {
 		$tabs = network_tabs($a);
@@ -437,12 +442,15 @@ function networkFlatView(App $a, $update = 0)
 		}
 	}
 
-	$pager_sql = networkPager($a, $update);
+	$pager = new Pager($a->query_string);
+
+	/// @TODO Figure out why this variable is unused
+	$pager_sql = networkPager($a, $pager, $update);
 
 	if (strlen($file)) {
 		$condition = ["`term` = ? AND `otype` = ? AND `type` = ? AND `uid` = ?",
 			$file, TERM_OBJ_POST, TERM_FILE, local_user()];
-		$params = ['order' => ['tid' => true], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+		$params = ['order' => ['tid' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 		$result = DBA::select('term', ['oid'], $condition);
 
 		$posts = [];
@@ -456,14 +464,14 @@ function networkFlatView(App $a, $update = 0)
 		$condition = ['uid' => local_user()];
 	}
 
-	$params = ['order' => ['id' => true], 'limit' => [$a->pager['start'], $a->pager['itemspage']]];
+	$params = ['order' => ['id' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 	$result = Item::selectForUser(local_user(), [], $condition, $params);
 	$items = Item::inArray($result);
 
 	$condition = ['unseen' => true, 'uid' => local_user()];
 	networkSetSeen($condition);
 
-	$o .= networkConversation($a, $items, 'network-new', $update);
+	$o .= networkConversation($a, $items, $pager, 'network-new', $update);
 
 	return $o;
 }
@@ -471,12 +479,17 @@ function networkFlatView(App $a, $update = 0)
 /**
  * @brief Get the network content in threaded view
  *
- * @param App $a The global App
- * @param integer $update Used for the automatic reloading
+ * @global Pager   $pager
+ * @param  App     $a      The global App
+ * @param  integer $update Used for the automatic reloading
+ * @param  integer $parent
  * @return string HTML of the network content in flat view
  */
 function networkThreadedView(App $a, $update, $parent)
 {
+	/// @TODO this will have to be converted to a static property of the converted Module\Network class
+	global $pager;
+
 	// Rawmode is used for fetching new content at the end of the page
 	$rawmode = (isset($_GET['mode']) AND ( $_GET['mode'] == 'raw'));
 
@@ -543,13 +556,11 @@ function networkThreadedView(App $a, $update, $parent)
 		$tabs = network_tabs($a);
 		$o .= $tabs;
 
-		if ($gid) {
-			if (($t = Contact::getOStatusCountByGroupId($gid)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
-				notice(L10n::tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
-						"Warning: This group contains %s members from a network that doesn't allow non public messages.",
-						$t) . EOL);
-				notice(L10n::t("Messages in this group won't be send to these receivers.").EOL);
-			}
+		if ($gid && ($t = Contact::getOStatusCountByGroupId($gid)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
+			notice(L10n::tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
+				"Warning: This group contains %s members from a network that doesn't allow non public messages.",
+				$t) . EOL);
+			notice(L10n::t("Messages in this group won't be send to these receivers.").EOL);
 		}
 
 		Nav::setSelected('network');
@@ -706,13 +717,15 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$sql_order = "$sql_table.$ordering";
 
-	if (x($_GET, 'offset')) {
+	if (!empty($_GET['offset'])) {
 		$sql_range = sprintf(" AND $sql_order <= '%s'", DBA::escape($_GET['offset']));
 	} else {
 		$sql_range = '';
 	}
 
-	$pager_sql = networkPager($a, $update);
+	$pager = new Pager($a->query_string);
+
+	$pager_sql = networkPager($a, $pager, $update);
 
 	$last_date = '';
 
@@ -721,31 +734,31 @@ function networkThreadedView(App $a, $update, $parent)
 			if ($last_received != '') {
 				$last_date = $last_received;
 				$sql_range .= sprintf(" AND $sql_table.`received` < '%s'", DBA::escape($last_received));
-				$a->setPagerPage(1);
-				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
+				$pager->setPage(1);
+				$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 			}
 			break;
 		case 'commented':
 			if ($last_commented != '') {
 				$last_date = $last_commented;
 				$sql_range .= sprintf(" AND $sql_table.`commented` < '%s'", DBA::escape($last_commented));
-				$a->setPagerPage(1);
-				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
+				$pager->setPage(1);
+				$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 			}
 			break;
 		case 'created':
 			if ($last_created != '') {
 				$last_date = $last_created;
 				$sql_range .= sprintf(" AND $sql_table.`created` < '%s'", DBA::escape($last_created));
-				$a->setPagerPage(1);
-				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
+				$pager->setPage(1);
+				$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 			}
 			break;
 		case 'id':
 			if (($last_id > 0) && ($sql_table == '`thread`')) {
 				$sql_range .= sprintf(" AND $sql_table.`iid` < '%s'", DBA::escape($last_id));
-				$a->setPagerPage(1);
-				$pager_sql = sprintf(" LIMIT %d, %d ", intval($a->pager['start']), intval($a->pager['itemspage']));
+				$pager->setPage(1);
+				$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 			}
 			break;
 	}
@@ -835,7 +848,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 		if ($last_date > $top_limit) {
 			$top_limit = $last_date;
-		} elseif ($a->pager['page'] == 1) {
+		} elseif ($pager->getPage() == 1) {
 			// Highest possible top limit when we are on the first page
 			$top_limit = DateTimeFormat::utcNow();
 		}
@@ -898,7 +911,12 @@ function networkThreadedView(App $a, $update, $parent)
 		$date_offset = $_GET['offset'];
 	}
 
-	$a->page_offset = $date_offset;
+	$query_string = $a->query_string;
+	if ($date_offset && !preg_match('/[?&].offset=/', $query_string)) {
+		$query_string .= '&offset=' . urlencode($date_offset);
+	}
+
+	$pager->setQueryString($query_string);
 
 	// We aren't going to try and figure out at the item, group, and page
 	// level which items you've seen and which you haven't. If you're looking
@@ -914,7 +932,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 
 	$mode = 'network';
-	$o .= networkConversation($a, $items, $mode, $update, $ordering);
+	$o .= networkConversation($a, $items, $pager, $mode, $update, $ordering);
 
 	return $o;
 }
@@ -1018,4 +1036,31 @@ function network_tabs(App $a)
 	return replace_macros($tpl, ['$tabs' => $arr['tabs']]);
 
 	// --- end item filter tabs
+}
+
+/**
+ * Network hook into the HTML head to enable infinite scroll.
+ *
+ * Since the HTML head is built after the module content has been generated, we need to retrieve the base query string
+ * of the page to make the correct asynchronous call. This is obtained through the Pager that was instantiated in
+ * networkThreadedView or networkFlatView.
+ *
+ * @global Pager  $pager
+ * @param  App    $a
+ * @param  string $htmlhead The head tag HTML string
+ */
+function network_infinite_scroll_head(App $a, &$htmlhead)
+{
+	/// @TODO this will have to be converted to a static property of the converted Module\Network class
+	global $pager;
+
+	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
+		&& defaults($_GET, 'mode', '') != 'minimal'
+	) {
+		$tpl = get_markup_template('infinite_scroll_head.tpl');
+		$htmlhead .= replace_macros($tpl, [
+			'$pageno'     => $pager->getPage(),
+			'$reload_uri' => $pager->getBaseQueryString()
+		]);
+	}
 }
