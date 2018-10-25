@@ -84,7 +84,7 @@ class Addon extends BaseObject
 			$func();
 		}
 
-		unset(self::$addons[$idx]);
+		unset(self::$addons[array_search($addon, self::$addons)]);
 	}
 
 	/**
