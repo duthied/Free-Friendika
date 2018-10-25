@@ -22,14 +22,14 @@ function tagrm_post(App $a)
 
 	$tags = [];
 	foreach (defaults($_POST, 'tag', []) as $tag) {
-		array_push($tags, hex2bin(notags(trim($tag))));
+		$tags[] = hex2bin(notags(trim($tag)));
 	}
 
 	$item_id = defaults($_POST,'item', 0);
 	update_tags($item_id, $tags);
+	info(L10n::t('Tag(s) removed') . EOL);
 
 	$a->internalRedirect($_SESSION['photo_return']);
-
 	// NOTREACHED
 }
 
@@ -51,18 +51,16 @@ function update_tags($item_id, $tags){
 	$old_tags = explode(',', $item['tag']);
 
 	foreach ($tags as $new_tag) {
-		foreach ($old_tags as $count => $old_tag) {
+		foreach ($old_tags as $index => $old_tag) {
 			if (strcmp($old_tag, $new_tag) == 0) {
-				unset($old_tags[$count]);
+				unset($old_tags[$index]);
 				break;
 			}
 		}
 	}
 
-	$tag_str = implode(',',$old_tags);
+	$tag_str = implode(',', $old_tags);
 	Term::insertFromTagFieldByItemId($item_id, $tag_str);
-
-	info(L10n::t('Tag(s) removed') . EOL);
 }
 
 function tagrm_content(App $a)
@@ -75,7 +73,7 @@ function tagrm_content(App $a)
 	}
 
 	if ($a->argc == 3) {
-		update_tags($a->argv[1], [hex2bin(notags(trim($a->argv[2])))]);
+		update_tags($a->argv[1], [notags(trim(hex2bin($a->argv[2])))]);
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 

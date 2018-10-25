@@ -1419,13 +1419,15 @@ function photos_content(App $a)
 			// parse tags and add links
 			$tag_arr = [];
 			foreach ($arr as $tag) {
-				array_push($tag_arr, ['name' => BBCode::convert($tag), 
-					'removeurl' => '/tagrm/'.$link_item['id'] . '/' . bin2hex($tag)]);
+				$tag_arr[] = [
+					'name' => BBCode::convert($tag),
+					'removeurl' => '/tagrm/'.$link_item['id'] . '/' . bin2hex($tag)
+				];
 			}
 			$tags = ['title' => L10n::t('Tags: '), 'tags' => $tag_arr];
 			if ($cmd === 'edit') {
-				$tags += ['removeanyurl' => 'tagrm/' . $link_item['id']];
-				$tags += ['removetitle' => L10n::t('[Select tags to remove]')];
+				$tags['removeanyurl'] = 'tagrm/' . $link_item['id'];
+				$tags['removetitle'] = L10n::t('[Select tags to remove]');
 			}
 		}
 
