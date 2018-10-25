@@ -406,6 +406,8 @@ class HTTPSignature
 			}
 		}
 
+		/// @todo Check if the signed date field is in an acceptable range
+
 		// Check the content-length when it is part of the signed data
 		if (in_array('content-length', $sig_block['headers'])) {
 			if (strlen($content) != $headers['content-length']) {
