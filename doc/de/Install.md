@@ -196,7 +196,7 @@ Alle Optionen werden in `config/local.ini.php` gespeichert und überschreiben et
 -	`-b|--phppath <path>` Der Pfad zur PHP-Datei (env `FRIENDICA_PHP_PATH`)
 -	`-A|--admin <mail>` Die Admin E-Mail Adresse dieses Friendica Knotens (env `FRIENDICA_ADMIN_MAIL`)
 -	`-T|--tz <timezone>` Die Zeitzone von Friendica (env `FRIENDICA_TZ`)
--	`-L|--land <language>` Die Sprache von Friendica (env `FRIENDICA_LANG`)
+-	`-L|--lang <language>` Die Sprache von Friendica (env `FRIENDICA_LANG`)
 
 Gehe in den Friendica-Hauptordner und führe den Kommandozeilen Befehl aus:
 
