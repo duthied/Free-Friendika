@@ -195,7 +195,7 @@ All options will be saved in the `config/local.ini.php` and are overruling the a
 -	`-b|--phppath <php_path>` The path of the PHP binary (env `FRIENDICA_PHP_PATH`)
 -	`-A|--admin <mail>` The admin email address of Friendica (env `FRIENDICA_ADMIN_MAIL`)
 -	`-T|--tz <timezone>` The timezone of Friendica (env `FRIENDICA_TZ`)
--	`-L|--land <language>` The language of Friendica (env `FRIENDICA_LANG`)
+-	`-L|--lang <language>` The language of Friendica (env `FRIENDICA_LANG`)
 
 Navigate to the main Friendica directory and execute the following command:
 
