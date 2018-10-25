@@ -63,7 +63,7 @@ function update_tags($item_id, $tags){
 	$tag_str = implode(',',$old_tags);
 	Term::insertFromTagFieldByItemId($item_id, $tag_str);
 
-	info(L10n::t('Tag(s) removed') . EOL );
+	info(L10n::t('Tag(s) removed') . EOL);
 }
 
 function tagrm_content(App $a)
@@ -75,7 +75,7 @@ function tagrm_content(App $a)
 		// NOTREACHED
 	}
 
-	if ($a->argc == 3){
+	if ($a->argc == 3) {
 		update_tags($a->argv[1], [hex2bin(notags(trim($a->argv[2])))]);
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
