@@ -1951,6 +1951,9 @@ class App
 		// Theme templates expect $a as an App instance
 		$a = $this;
 
+		// Used as is in view/php/default.php
+		$lang = Core\L10n::getCurrentLang();
+
 		/// @TODO Looks unsafe (remote-inclusion), is maybe not but Core\Theme::getPathForFile() uses file_exists() but does not escape anything
 		require_once $template;
 	}
