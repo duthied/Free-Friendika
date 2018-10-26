@@ -33,11 +33,6 @@ require_once 'include/api.php';
  * @brief ActivityPub Transmitter Protocol class
  *
  * To-Do:
- *
- * Missing object types:
- * - Event
- *
- * Complicated object types:
  * - Undo Announce
  */
 class Transmitter
@@ -854,6 +849,32 @@ class Transmitter
 	}
 
 	/**
+	 * Creates event data
+	 *
+	 * @param array $item
+	 *
+	 * @return array with the event data
+	 */
+	public static function createEvent($item)
+	{
+		$event = [];
+		$event['name'] = $item['event-summary'];
+		$event['content'] = BBCode::convert($item['event-desc'], false, 7);
+		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
+
+		if (!$item['event-nofinish']) {
+			$event['endTime'] = DateTimeFormat::utc($item['event-finish'] . '+00:00', DateTimeFormat::ATOM);
+		}
+
+		if (!empty($item['event-location'])) {
+			$item['location'] = $item['event-location'];
+			$event['location'] = self::createLocation($item);
+		}
+
+		return $event;
+	}
+
+	/**
 	 * Creates a note/article object array
 	 *
 	 * @param array $item
@@ -862,7 +883,9 @@ class Transmitter
 	 */
 	public static function createNote($item)
 	{
-		if (!empty($item['title'])) {
+		if ($item['event-type'] == 'event') {
+			$type = 'Event';
+		} elseif (!empty($item['title'])) {
 			$type = 'Article';
 		} else {
 			$type = 'Note';
@@ -910,10 +933,15 @@ class Transmitter
 			$body = self::removePictures($body);
 		}
 
-		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-		$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+		if ($type == 'Event') {
+			$data = array_merge($data, self::createEvent($item));
+		} else {
+			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
-		$data['content'] = BBCode::convert($body, false, 7);
+			$data['content'] = BBCode::convert($body, false, 7);
+		}
+
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
 
 		if (!empty($item['signed_text']) && ($item['uri'] != $item['thr-parent'])) {
@@ -923,7 +951,7 @@ class Transmitter
 		$data['attachment'] = self::createAttachmentList($item, $type);
 		$data['tag'] = self::createTagList($item);
 
-		if (!empty($item['coord']) || !empty($item['location'])) {
+		if (empty($data['location']) && (!empty($item['coord']) || !empty($item['location']))) {
 			$data['location'] = self::createLocation($item);
 		}
 
