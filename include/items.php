@@ -345,7 +345,7 @@ function drop_items(array $items)
 	}
 }
 
-function drop_item($id, $return)
+function drop_item($id, $return = '')
 {
 	$a = BaseObject::getApp();
 
@@ -410,8 +410,7 @@ function drop_item($id, $return)
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
 		$return_url = hex2bin($return);
-		notice("RETURN: " + $return_url);
-		if (empty($return_url) || strpos($return_url, 'display') ) {
+		if (empty($return_url) || strpos($return_url, 'display') !== false) {
 			$a->internalRedirect('network');
 			//NOTREACHED
 		}
