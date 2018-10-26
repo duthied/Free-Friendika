@@ -10,6 +10,7 @@ use Friendica\Model\Conversation;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
 use Friendica\Model\Item;
+use Friendica\Model\Event;
 use Friendica\Model\User;
 use Friendica\Content\Text\HTML;
 use Friendica\Util\JsonLD;
@@ -173,6 +174,38 @@ class Processor
 	}
 
 	/**
+	 * Create an event
+	 *
+	 * @param array  $activity Activity array
+	 */
+	public static function createEvent($activity, $item)
+	{
+		$event['summary'] = $activity['name'];
+		$event['desc'] = $activity['content'];
+		$event['start'] = $activity['start-time'];
+		$event['finish'] = $activity['end-time'];
+		$event['nofinish'] = empty($event['finish']);
+		$event['location'] = $activity['location'];
+		$event['adjust'] = true;
+		$event['cid'] = $item['contact-id'];
+		$event['uid'] = $item['uid'];
+		$event['uri'] = $item['uri'];
+		$event['edited'] = $item['edited'];
+		$event['private'] = $item['private'];
+		$event['guid'] = $item['guid'];
+		$event['plink'] = $item['plink'];
+
+		$condition = ['uri' => $item['uri'], 'uid' => $item['uid']];
+		$ev = DBA::selectFirst('event', ['id'], $condition);
+		if (DBA::isResult($ev)) {
+			$event['id'] = $ev['id'];
+		}
+
+		$event_id = Event::store($event);
+		logger('Event '.$event_id.' was stored', LOGGER_DEBUG);
+	}
+
+	/**
 	 * Creates an item post
 	 *
 	 * @param array  $activity Activity data
@@ -236,6 +269,10 @@ class Processor
 
 			if (($receiver != 0) && empty($item['contact-id'])) {
 				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, true);
+			}
+
+			if ($activity['object_type'] == 'as:Event') {
+				self::createEvent($activity, $item);
 			}
 
 			$item_id = Item::insert($item);

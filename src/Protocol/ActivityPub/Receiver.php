@@ -22,8 +22,13 @@ use Friendica\Util\DateTimeFormat;
  *
  * To-Do:
  * - Update (Image, Video, Article, Note)
- * - Event
  * - Undo Announce
+ * - Accept Event
+ * - Reject Event
+ * - TentativeAccept Even
+ * - Undo Accept Event
+ * - Undo Reject Event
+ * - Undo TentativeAccept Event
  *
  * Check what this is meant to do:
  * - Add
@@ -31,7 +36,7 @@ use Friendica\Util\DateTimeFormat;
  * - Flag
  * - Remove
  * - Undo Block
- * - Undo Accept (Problem: This could invert a contact accept or an event accept)
+ * - Undo Accept Person
  */
 class Receiver
 {
@@ -687,6 +692,8 @@ class Receiver
 		$object_data['summary'] = JsonLD::fetchElement($object, 'as:summary');
 		$object_data['content'] = JsonLD::fetchElement($object, 'as:content');
 		$object_data['source'] = JsonLD::fetchElement($object, 'as:source', 'as:content', 'as:mediaType', 'text/bbcode');
+		$object_data['start-time'] = JsonLD::fetchElement($object, 'as:startTime', '@value');
+		$object_data['end-time'] = JsonLD::fetchElement($object, 'as:endTime', '@value');
 		$object_data['location'] = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
 		$object_data['latitude'] = JsonLD::fetchElement($object, 'as:location', 'as:latitude', '@type', 'as:Place');
 		$object_data['latitude'] = JsonLD::fetchElement($object_data, 'latitude', '@value');
