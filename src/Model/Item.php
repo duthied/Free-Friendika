@@ -974,7 +974,7 @@ class Item extends BaseObject
 	 *
 	 * @return boolean success
 	 */
-	private static function deleteById($item_id, $priority = PRIORITY_HIGH)
+	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
