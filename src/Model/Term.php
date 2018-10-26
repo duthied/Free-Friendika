@@ -76,7 +76,7 @@ class Term
 		$message['tag'] = $tags;
 
 		// Clean up all tags
-		DBA::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => [TERM_HASHTAG, TERM_MENTION]]);
+		self::deleteByItemId($itemid);
 
 		if ($message['deleted']) {
 			return;
@@ -289,5 +289,21 @@ class Term
 		DBA::close($taglist);
 
 		return $return;
+	}
+
+	/**
+	 * Delete all tags from an item
+	 * @param int itemid - choose from which item the tags will be removed
+	 * @param array type - items type. default is [TERM_HASHTAG, TERM_MENTION]
+	 */
+	public static function deleteByItemId($itemid, $type = [TERM_HASHTAG, TERM_MENTION])
+	{
+		if (empty($itemid)) {
+			return;
+		}
+
+		// Clean up all tags
+		DBA::delete('term', ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => $type]);
+
 	}
 }

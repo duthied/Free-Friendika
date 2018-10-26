@@ -816,7 +816,7 @@ class Item extends BaseObject
 			$tags = $fields['tag'];
 			$fields['tag'] = null;
 		} else {
-			$tags = '';
+			$tags = null;
 		}
 
 		if (array_key_exists('file', $fields)) {
@@ -895,7 +895,7 @@ class Item extends BaseObject
 				}
 			}
 
-			if (!empty($tags)) {
+			if (!is_null($tags)) {
 				Term::insertFromTagFieldByItemId($item['id'], $tags);
 				if (!empty($item['tag'])) {
 					DBA::update('item', ['tag' => ''], ['id' => $item['id']]);
