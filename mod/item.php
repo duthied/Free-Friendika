@@ -885,7 +885,12 @@ function item_content(App $a)
 		if ($a->isAjax()) {
 			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
-			$o = drop_item($a->argv[2], $a->argv[3]);
+			if (!empty($a->argv[3])) {
+				$o = drop_item($a->argv[2], $a->argv[3]);
+			}
+			else {
+				$o = drop_item($a->argv[2]);
+			}
 		}
 
 		if ($a->isAjax()) {
