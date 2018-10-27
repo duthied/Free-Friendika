@@ -34,7 +34,6 @@ use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
-use function Friendica\Core\function_exists;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
