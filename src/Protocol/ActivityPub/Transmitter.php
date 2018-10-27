@@ -549,15 +549,19 @@ class Transmitter
 	 * Creates the activity or fetches it from the cache
 	 *
 	 * @param integer $item_id
+	 * @param boolean $force   Force new cache entry
 	 *
 	 * @return array with the activity
 	 */
-	public static function createCachedActivityFromItem($item_id)
+	public static function createCachedActivityFromItem($item_id, $force = false)
 	{
 		$cachekey = 'APDelivery:createActivity:' . $item_id;
-		$data = Cache::get($cachekey);
-		if (!is_null($data)) {
-			return $data;
+
+		if (!$force) {
+			$data = Cache::get($cachekey);
+			if (!is_null($data)) {
+				return $data;
+			}
 		}
 
 		$data = ActivityPub\Transmitter::createActivityFromItem($item_id);

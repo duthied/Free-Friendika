@@ -539,7 +539,7 @@ class Notifier
 		}
 
 		// Fill the item cache
-		ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
+		ActivityPub\Transmitter::createCachedActivityFromItem($item_id, true);
 
 		foreach ($inboxes as $inbox) {
 			logger('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);

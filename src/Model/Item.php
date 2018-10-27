@@ -1827,9 +1827,17 @@ class Item extends BaseObject
 		check_user_notification($current_post);
 
 		if ($notify) {
-			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", $notify_type, $current_post);
-		} elseif (!empty($parent) && $parent['origin']) {
-			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "Notifier", "comment-import", $current_post);
+			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, $current_post);
+		} elseif ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin'])) {
+			if ($item['gravity'] == GRAVITY_ACTIVITY) {
+				$cmd = $item['origin'] ? 'activity-new' : 'activity-import';
+			} elseif ($item['gravity'] == GRAVITY_COMMENT) {
+				$cmd = $item['origin'] ? 'comment-new' : 'comment-import';
+			} else {
+				$cmd = 'wall-new';
+			}
+
+			Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', $cmd, $current_post);
 		}
 
 		return $current_post;
@@ -3103,6 +3111,11 @@ class Item extends BaseObject
 			'unseen'        => 1,
 		];
 
+		$signed = Diaspora::createLikeSignature($item_contact, $new_item);
+		if (!empty($signed)) {
+			$new_item['diaspora_signed_text'] = $signed;
+		}
+
 		$new_item_id = self::insert($new_item);
 
 		// If the parent item isn't visible then set it to visible
@@ -3110,14 +3123,9 @@ class Item extends BaseObject
 			self::update(['visible' => true], ['id' => $item['id']]);
 		}
 
-		// Save the author information for the like in case we need to relay to Diaspora
-		Diaspora::storeLikeSignature($item_contact, $new_item_id);
-
 		$new_item['id'] = $new_item_id;
 
 		Addon::callHooks('post_local_end', $new_item);
-
-		Worker::add(PRIORITY_HIGH, "Notifier", "like", $new_item_id);
 
 		return true;
 	}

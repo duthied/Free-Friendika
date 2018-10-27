@@ -128,9 +128,6 @@ function poke_init(App $a)
 	$arr['object'] .= '</link></object>' . "\n";
 
 	$item_id = Item::insert($arr);
-	if ($item_id) {
-		Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
-	}
 
 	Addon::callHooks('post_local_end', $arr);
 
