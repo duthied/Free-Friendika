@@ -3113,7 +3113,7 @@ class Item extends BaseObject
 
 		$signed = Diaspora::createLikeSignature($item_contact, $new_item);
 		if (!empty($signed)) {
-			$new_item['diaspora_signed_text'] = $signed;
+			$new_item['diaspora_signed_text'] = json_encode($signed);
 		}
 
 		$new_item_id = self::insert($new_item);

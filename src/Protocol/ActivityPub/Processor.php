@@ -144,6 +144,8 @@ class Processor
 			self::fetchMissingActivity($activity['reply-to-id'], $activity);
 		}
 
+		$item['diaspora_signed_text'] = defaults($activity, 'diaspora:comment', '');
+
 		self::postItem($activity, $item);
 	}
 
@@ -173,6 +175,8 @@ class Processor
 		$item['parent-uri'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
+
+		$item['diaspora_signed_text'] = defaults($activity, 'diaspora:like', '');
 
 		self::postItem($activity, $item);
 	}
@@ -260,7 +264,6 @@ class Processor
 		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
 		$item['app'] = $activity['generator'];
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
-		$item['diaspora_signed_text'] = defaults($activity, 'diaspora:comment', '');
 
 		$item = self::constructAttachList($activity['attachments'], $item);
 

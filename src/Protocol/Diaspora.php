@@ -4150,23 +4150,27 @@ class Diaspora
 	}
 
 	/**
-	 * @brief Stores the signature for comments that are created on our system
+	 * @brief Creates the signature for Comments that are created on our system
 	 *
-	 * @param array  $item       The item array of the comment
-	 * @param array  $contact    The contact array of the item owner
-	 * @param string $uprvkey    The private key of the sender
-	 * @param int    $message_id The message id of the comment
+	 * @param array $contact The contact array of the comment
+	 * @param array $item Item array
 	 *
-	 * @return bool Success
+	 * @return array Signed content
 	 */
-	public static function storeCommentSignature(array $item, array $contact, $uprvkey, $message_id)
+	public static function createCommentSignature(array $contact, array $item)
 	{
-		if ($uprvkey == "") {
-			logger('No private key, so not storing comment signature', LOGGER_DEBUG);
+		// Is the contact the owner? Then fetch the private key
+		if (!$contact['self'] || ($contact['uid'] == 0)) {
+			logger("No owner post, so not storing signature", LOGGER_DEBUG);
 			return false;
 		}
 
-		$contact["uprvkey"] = $uprvkey;
+		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $contact["uid"]]);
+		if (!DBA::isResult($user)) {
+			return false;
+		}
+
+		$contact["uprvkey"] = $user['prvkey'];
 
 		$message = self::constructComment($item, $contact);
 		if ($message === false) {
@@ -4175,13 +4179,6 @@ class Diaspora
 
 		$message["author_signature"] = self::signature($contact, $message);
 
-		/*
-		 * Now store the signature more flexible to dynamically support new fields.
-		 * This will break Diaspora compatibility with Friendica versions prior to 3.5.
-		 */
-		DBA::insert('sign', ['iid' => $message_id, 'signed_text' => json_encode($message)]);
-
-		logger('Stored diaspora comment signature');
-		return true;
+		return $message;
 	}
 }

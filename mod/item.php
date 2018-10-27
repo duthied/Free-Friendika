@@ -726,6 +726,11 @@ function item_post(App $a) {
 	unset($datarray['self']);
 	unset($datarray['api_source']);
 
+	$signed = Diaspora::createCommentSignature($author, $datarray);
+	if (!empty($signed)) {
+		$datarray['diaspora_signed_text'] = json_encode($signed);
+	}
+
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
@@ -764,9 +769,6 @@ function item_post(App $a) {
 				'parent_uri'   => $parent_item['uri']
 			]);
 		}
-
-		// Store the comment signature information in case we need to relay to Diaspora
-		Diaspora::storeCommentSignature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
 	} else {
 		if (($contact_record != $author) && !count($forum_contact)) {
 			notification([
