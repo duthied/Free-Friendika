@@ -830,9 +830,6 @@ function item_post(App $a) {
 	// We don't fork a new process since this is done anyway with the following command
 	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "CreateShadowEntry", $post_id);
 
-	// Call the background process that is delivering the item to the receivers
-	Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
-
 	logger('post_complete');
 
 	if ($api_source) {

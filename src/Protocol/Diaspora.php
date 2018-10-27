@@ -4113,14 +4113,14 @@ class Diaspora
 	}
 
 	/**
-	 * @brief Stores the signature for likes that are created on our system
+	 * @brief Creates the signature for likes that are created on our system
 	 *
 	 * @param array $contact The contact array of the "like"
-	 * @param int   $post_id The post id of the "like"
+	 * @param array $item Item array
 	 *
-	 * @return bool Success
+	 * @return array Signed content
 	 */
-	public static function storeLikeSignature(array $contact, $post_id)
+	public static function createLikeSignature(array $contact, array $item)
 	{
 		// Is the contact the owner? Then fetch the private key
 		if (!$contact['self'] || ($contact['uid'] == 0)) {
@@ -4135,11 +4135,6 @@ class Diaspora
 
 		$contact["uprvkey"] = $user['prvkey'];
 
-		$item = Item::selectFirst([], ['id' => $post_id]);
-		if (!DBA::isResult($item)) {
-			return false;
-		}
-
 		if (!in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
@@ -4151,14 +4146,7 @@ class Diaspora
 
 		$message["author_signature"] = self::signature($contact, $message);
 
-		/*
-		 * Now store the signature more flexible to dynamically support new fields.
-		 * This will break Diaspora compatibility with Friendica versions prior to 3.5.
-		 */
-		DBA::insert('sign', ['iid' => $post_id, 'signed_text' => json_encode($message)]);
-
-		logger('Stored diaspora like signature');
-		return true;
+		return $message;
 	}
 
 	/**

@@ -691,9 +691,6 @@ function photos_post(App $a)
 					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$p[0]['type'].'" href="' . System::baseUrl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
 					$item_id = Item::insert($arr);
-					if ($item_id) {
-						Worker::add(PRIORITY_HIGH, "Notifier", "tag", $item_id);
-					}
 				}
 			}
 		}
@@ -918,10 +915,6 @@ function photos_post(App $a)
 	$item_id = Item::insert($arr);
 	// Update the photo albums cache
 	Photo::clearAlbumCache($page_owner_uid);
-
-	if ($visible) {
-		Worker::add(PRIORITY_HIGH, "Notifier", 'wall-new', $item_id);
-	}
 
 	Addon::callHooks('photo_post_end', $item_id);
 
