@@ -282,8 +282,7 @@ class Transmitter
 			foreach ($activity[$element] as $receiver) {
 				if ($receiver == $profile['followers'] && !empty($item_profile['followers'])) {
 					$permissions[$element][] = $item_profile['followers'];
-				}
-				if (!in_array($receiver, $exclude)) {
+				} elseif (!in_array($receiver, $exclude)) {
 					$permissions[$element][] = $receiver;
 				}
 			}
@@ -309,13 +308,13 @@ class Transmitter
 
 		$data = ['to' => [], 'cc' => [], 'bcc' => []];
 
-		$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
-
 		$actor_profile = APContact::getByURL($item['author-link']);
 
 		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
 
 		if (!$item['private']) {
+			$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
+
 			$data['to'][] = ActivityPub::PUBLIC_COLLECTION;
 			if (!empty($actor_profile['followers'])) {
 				$data['cc'][] = $actor_profile['followers'];
