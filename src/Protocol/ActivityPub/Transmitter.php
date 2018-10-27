@@ -627,6 +627,9 @@ class Transmitter
 			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
 			$data['diaspora:guid'] = $item['guid'];
+			if (!empty($item['signed_text'])) {
+				$data['diaspora:like'] = $item['signed_text'];
+			}
 			$data['object'] = $item['thr-parent'];
 		}
 

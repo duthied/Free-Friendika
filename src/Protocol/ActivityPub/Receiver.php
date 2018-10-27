@@ -705,6 +705,7 @@ class Receiver
 
 		$object_data['diaspora:guid'] = JsonLD::fetchElement($object, 'diaspora:guid');
 		$object_data['diaspora:comment'] = JsonLD::fetchElement($object, 'diaspora:comment');
+		$object_data['diaspora:like'] = JsonLD::fetchElement($object, 'diaspora:like');
 		$object_data['actor'] = $object_data['author'] = $actor;
 		$object_data['context'] = JsonLD::fetchElement($object, 'as:context');
 		$object_data['conversation'] = JsonLD::fetchElement($object, 'ostatus:conversation');
