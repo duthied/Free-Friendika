@@ -16,6 +16,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Util\JsonLD;
 use Friendica\Core\Config;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * ActivityPub Processor Protocol class
@@ -102,6 +103,24 @@ class Processor
 	}
 
 	/**
+	 * Updates a message
+	 *
+	 * @param array  $activity Activity array
+	 */
+	public static function updateItem($activity)
+	{
+		$item = [];
+		$item['changed'] = DateTimeFormat::utcNow();
+		$item['edited'] = $activity['updated'];
+		$item['title'] = HTML::toBBCode($activity['name']);
+		$item['content-warning'] = HTML::toBBCode($activity['summary']);
+		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
+		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
+
+		Item::update($item, ['uri' => $activity['id']]);
+	}
+
+	/**
 	 * Prepares data for a message
 	 *
 	 * @param array  $activity Activity array
@@ -129,22 +148,6 @@ class Processor
 	}
 
 	/**
-	 * Prepare the item array for a "like"
-	 *
-	 * @param array  $activity Activity array
-	 */
-	public static function likeItem($activity)
-	{
-		$item = [];
-		$item['verb'] = ACTIVITY_LIKE;
-		$item['parent-uri'] = $activity['object_id'];
-		$item['gravity'] = GRAVITY_ACTIVITY;
-		$item['object-type'] = ACTIVITY_OBJ_NOTE;
-
-		self::postItem($activity, $item);
-	}
-
-	/**
 	 * Delete items
 	 *
 	 * @param array $activity
@@ -158,14 +161,15 @@ class Processor
 	}
 
 	/**
-	 * Prepare the item array for a "dislike"
+	 * Prepare the item array for an activity
 	 *
 	 * @param array  $activity Activity array
+	 * @param string $verb     Activity verb
 	 */
-	public static function dislikeItem($activity)
+	public static function createActivity($activity, $verb)
 	{
 		$item = [];
-		$item['verb'] = ACTIVITY_DISLIKE;
+		$item['verb'] = $verb;
 		$item['parent-uri'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
@@ -176,7 +180,8 @@ class Processor
 	/**
 	 * Create an event
 	 *
-	 * @param array  $activity Activity array
+	 * @param array $activity Activity array
+	 * @param array $item
 	 */
 	public static function createEvent($activity, $item)
 	{

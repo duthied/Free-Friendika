@@ -21,14 +21,7 @@ use Friendica\Util\DateTimeFormat;
  * @brief ActivityPub Receiver Protocol class
  *
  * To-Do:
- * - Update (Image, Video, Article, Note)
  * - Undo Announce
- * - Accept Event
- * - Reject Event
- * - TentativeAccept Even
- * - Undo Accept Event
- * - Undo Reject Event
- * - Undo TentativeAccept Event
  *
  * Check what this is meant to do:
  * - Add
@@ -36,7 +29,6 @@ use Friendica\Util\DateTimeFormat;
  * - Flag
  * - Remove
  * - Undo Block
- * - Undo Accept Person
  */
 class Receiver
 {
@@ -125,10 +117,11 @@ class Receiver
 	 */
 	private static function fetchObjectType($activity, $object_id)
 	{
-
-		$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
-		if (!empty($object_type)) {
-			return $object_type;
+		if (!empty($activity['as:object'])) {
+			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
+			if (!empty($object_type)) {
+				return $object_type;
+			}
 		}
 
 		if (Item::exists(['uri' => $object_id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]])) {
@@ -193,7 +186,7 @@ class Receiver
 		$object_type = self::fetchObjectType($activity, $object_id);
 
 		// Fetch the content only on activities where this matters
-		if (in_array($type, ['as:Create', 'as:Announce'])) {
+		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce'])) {
 			if ($type == 'as:Announce') {
 				$trust_source = false;
 			}
@@ -219,6 +212,11 @@ class Receiver
 			$object_data['object_actor'] = JsonLD::fetchElement($activity['as:object'], 'as:actor');
 			$object_data['object_object'] = JsonLD::fetchElement($activity['as:object'], 'as:object');
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
+
+			// An Undo is done on the object of an object, so we need that type as well
+			if ($type == 'as:Undo') {
+				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object']);
+			}
 		}
 
 		$object_data = self::addActivityFields($object_data, $activity);
@@ -311,20 +309,32 @@ class Receiver
 		switch ($type) {
 			case 'as:Create':
 			case 'as:Announce':
-				ActivityPub\Processor::createItem($object_data);
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createItem($object_data);
+				}
 				break;
 
 			case 'as:Like':
-				ActivityPub\Processor::likeItem($object_data);
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, ACTIVITY_LIKE);
+				}
 				break;
 
 			case 'as:Dislike':
-				ActivityPub\Processor::dislikeItem($object_data);
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, ACTIVITY_DISLIKE);
+				}
+				break;
+
+			case 'as:TentativeAccept':
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, ACTIVITY_ATTENDMAYBE);
+				}
 				break;
 
 			case 'as:Update':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					/// @todo
+					ActivityPub\Processor::updateItem($object_data);
 				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::updatePerson($object_data, $body);
 				}
@@ -339,31 +349,42 @@ class Receiver
 				break;
 
 			case 'as:Follow':
-				ActivityPub\Processor::followUser($object_data);
+				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::followUser($object_data);
+				}
 				break;
 
 			case 'as:Accept':
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::acceptFollowUser($object_data);
+				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, ACTIVITY_ATTEND);
 				}
 				break;
 
 			case 'as:Reject':
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::rejectFollowUser($object_data);
+				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					ActivityPub\Processor::createActivity($object_data, ACTIVITY_ATTENDNO);
 				}
 				break;
 
 			case 'as:Undo':
-				if ($object_data['object_type'] == 'as:Follow') {
+				if (($object_data['object_type'] == 'as:Follow') &&
+					in_array($object_data['object_object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::undoFollowUser($object_data);
-				} elseif (in_array($object_data['object_type'], self::ACTIVITY_TYPES)) {
+				} elseif (($object_data['object_type'] == 'as:Accept') &&
+					in_array($object_data['object_object_type'], self::ACCOUNT_TYPES)) {
+					ActivityPub\Processor::rejectFollowUser($object_data);
+				} elseif (in_array($object_data['object_type'], self::ACTIVITY_TYPES) &&
+					in_array($object_data['object_object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::undoActivity($object_data);
 				}
 				break;
 
 			default:
-				logger('Unknown activity: ' . $type, LOGGER_DEBUG);
+				logger('Unknown activity: ' . $type . ' ' . $object_data['object_type'], LOGGER_DEBUG);
 				break;
 		}
 	}
