@@ -381,51 +381,6 @@ function attribute_contains($attr, $s) {
 	return (count($a) && in_array($s,$a));
 }
 
-
-/**
- * @brief Logs the given message at the given log level
- *
- * log levels:
- * LOGGER_WARNING
- * LOGGER_INFO (default)
- * LOGGER_TRACE
- * LOGGER_DEBUG
- * LOGGER_DATA
- * LOGGER_ALL
- *
- * @global array $LOGGER_LEVELS
- * @param string $msg
- * @param int $level
- */
-function logger($msg, $level = LOGGER_INFO)
-{
-	Logger::log($msg, $level);
-}
-
-/**
- * @brief An alternative logger for development.
- * Works largely as logger() but allows developers
- * to isolate particular elements they are targetting
- * personally without background noise
- *
- * log levels:
- * LOGGER_WARNING
- * LOGGER_INFO (default)
- * LOGGER_TRACE
- * LOGGER_DEBUG
- * LOGGER_DATA
- * LOGGER_ALL
- *
- * @global array $LOGGER_LEVELS
- * @param string $msg
- * @param int $level
- */
-function dlogger($msg, $level = LOGGER_INFO)
-{
-	Logger::devLog($msg, $level);
-}
-
-
 /**
  * Compare activity uri. Knows about activity namespace.
  *
@@ -1267,7 +1222,7 @@ function base64url_encode($s, $strip_padding = false) {
 function base64url_decode($s) {
 
 	if (is_array($s)) {
-		logger('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
+		Logger::log('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
 		return $s;
 	}
 
