@@ -461,7 +461,7 @@ class Install
 
 			if ($fetchResult->getReturnCode() != 204) {
 				$status = false;
-				$help = L10n::t('Url rewrite in .htaccess is not working. Check your server configuration.');
+				$help = L10n::t('Url rewrite in .htaccess is not working. Make sure you copied .htaccess-dist to .htaccess.');
 				$error_msg = [];
 				$error_msg['head'] = L10n::t('Error message from Curl when fetching');
 				$error_msg['url'] = $fetchResult->getRedirectUrl();
