@@ -5,7 +5,7 @@ namespace Friendica\Core\Console;
 use Asika\SimpleConsole\Console;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
-use Friendica\Core\Install;
+use Friendica\Core\Installer;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -76,7 +76,7 @@ HELP;
 
 		$a = BaseObject::getApp();
 
-		$install = new Install();
+		$installer = new Installer();
 
 		// if a config file is set,
 		$config_file = $this->getOption(['f', 'file']);
@@ -111,7 +111,7 @@ HELP;
 			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
 			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
 
-			$install->createConfig(
+			$installer->createConfig(
 				$php_path,
 				$url_path,
 				((!empty($db_port)) ? $db_host . ':' . $db_port : $db_host),
@@ -130,14 +130,10 @@ HELP;
 		// Check basic setup
 		$this->out("Checking basic setup...\n");
 
-		$checkResults = [];
+		$installer->resetChecks();
 
-		$this->runBasicChecks($install);
-
-		$checkResults['basic'] = $install->getChecks();
-		$errorMessage = $this->extractErrors($checkResults['basic']);
-
-		if ($errorMessage !== '') {
+		if (!$this->runBasicChecks($installer)) {
+			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
 
@@ -146,11 +142,10 @@ HELP;
 		// Check database connection
 		$this->out("Checking database...\n");
 
-		$checkResults['db'] = array();
-		$checkResults['db'][] = $this->runDatabaseCheck($db_host, $db_user, $db_pass, $db_data);
-		$errorMessage = $this->extractErrors($checkResults['db']);
+		$installer->resetChecks();
 
-		if ($errorMessage !== '') {
+		if (!$installer->checkDB($db_host, $db_user, $db_pass, $db_data)) {
+			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
 
@@ -159,10 +154,11 @@ HELP;
 		// Install database
 		$this->out("Inserting data into database...\n");
 
-		$checkResults['data'] = DBStructure::update(false, true, true);
+		$installer->resetChecks();
 
-		if ($checkResults['data'] !== '') {
-			throw new RuntimeException("ERROR: DB Database creation error. Is the DB empty?\n");
+		if (!$installer->installDatabase()) {
+			$errorMessage = $this->extractErrors($installer->getChecks());
+			throw new RuntimeException($errorMessage);
 		}
 
 		$this->out(" Complete!\n\n");
@@ -182,16 +178,30 @@ HELP;
 	}
 
 	/**
-	 * @param Install $install the Installer instance
+	 * @param Installer $install the Installer instance
+	 *
+	 * @return bool true if checks were successfully, otherwise false
 	 */
-	private function runBasicChecks(Install $install)
+	private function runBasicChecks(Installer $install)
 	{
+		$checked = true;
+
 		$install->resetChecks();
-		$install->checkFunctions();
-		$install->checkImagick();
-		$install->checkLocalIni();
-		$install->checkSmarty3();
-		$install->checkKeys();
+		if (!$install->checkFunctions())		{
+			$checked = false;
+		}
+		if (!$install->checkImagick()) {
+			$checked = false;
+		}
+		if (!$install->checkLocalIni()) {
+			$checked = false;
+		}
+		if (!$install->checkSmarty3()) {
+			$checked = false;
+		}
+		if ($install->checkKeys()) {
+			$checked = false;
+		}
 
 		if (!empty(Config::get('config', 'php_path'))) {
 			if (!$install->checkPHP(Config::get('config', 'php_path'), true)) {
@@ -202,32 +212,8 @@ HELP;
 		}
 
 		$this->out(" NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.\n");
-	}
 
-	/**
-	 * @param $db_host
-	 * @param $db_user
-	 * @param $db_pass
-	 * @param $db_data
-	 *
-	 * @return array
-	 */
-	private function runDatabaseCheck($db_host, $db_user, $db_pass, $db_data)
-	{
-		$result = array(
-			'title' => 'MySQL Connection',
-			'required' => true,
-			'status' => true,
-			'help' => '',
-		);
-
-
-		if (!DBA::connect($db_host, $db_user, $db_pass, $db_data)) {
-			$result['status'] = false;
-			$result['help'] = 'Failed, please check your MySQL settings and credentials.';
-		}
-
-		return $result;
+		return $checked;
 	}
 
 	/**

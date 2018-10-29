@@ -29,15 +29,15 @@ class Install extends BaseModule
 	 */
 	const FINISHED = 4;
 
-	// Default values for the install page
-	const DEFAULT_LANG = 'en';
-	const DEFAULT_TZ   = 'America/Los_Angeles';
-	const DEFAULT_HOST = 'localhost';
-
 	/**
 	 * @var int The current step of the wizard
 	 */
 	private static $currentWizardStep;
+
+	/**
+	 * @var Core\Installer The installer
+	 */
+	private static $installer;
 
 	public static function init()
 	{
@@ -52,9 +52,9 @@ class Install extends BaseModule
 
 		// We overwrite current theme css, because during install we may not have a working mod_rewrite
 		// so we may not have a css at all. Here we set a static css file for the install procedure pages
-		$a->setConfigValue('system', 'value', '../install');
 		$a->theme['stylesheet'] = $a->getBaseURL() . '/view/install/style.css';
 
+		self::$installer = new Core\Installer();
 		self::$currentWizardStep = defaults($_POST, 'pass', self::SYSTEM_CHECK);
 	}
 
@@ -66,56 +66,44 @@ class Install extends BaseModule
 			case self::SYSTEM_CHECK:
 			case self::DATABASE_CONFIG:
 				// Nothing to do in these steps
-				return;
+				break;
 
 			case self::SITE_SETTINGS:
-				$dbhost  = notags(trim(defaults($_POST, 'dbhost', self::DEFAULT_HOST)));
+				$dbhost  = notags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
 				$dbuser  = notags(trim(defaults($_POST, 'dbuser', '')));
 				$dbpass  = notags(trim(defaults($_POST, 'dbpass', '')));
 				$dbdata  = notags(trim(defaults($_POST, 'dbdata', '')));
 
-				require_once 'include/dba.php';
-				if (!DBA::connect($dbhost, $dbuser, $dbpass, $dbdata)) {
-					$a->data['db_conn_failed'] = true;
+				// If we cannot connect to the database, return to the previous step
+				if (!self::$installer->checkDB($dbhost, $dbuser, $dbpass, $dbdata)) {
+					self::$currentWizardStep = self::DATABASE_CONFIG;
 				}
 
-				return;
+				break;
 
 			case self::FINISHED:
 				$urlpath   = $a->getURLPath();
-				$dbhost    = notags(trim(defaults($_POST, 'dbhost', self::DEFAULT_HOST)));
+				$dbhost    = notags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
 				$dbuser    = notags(trim(defaults($_POST, 'dbuser', '')));
 				$dbpass    = notags(trim(defaults($_POST, 'dbpass', '')));
 				$dbdata    = notags(trim(defaults($_POST, 'dbdata', '')));
 				$phpath    = notags(trim(defaults($_POST, 'phpath', '')));
-				$timezone  = notags(trim(defaults($_POST, 'timezone', self::DEFAULT_TZ)));
-				$language  = notags(trim(defaults($_POST, 'language', self::DEFAULT_LANG)));
+				$timezone  = notags(trim(defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ)));
+				$language  = notags(trim(defaults($_POST, 'language', Core\Installer::DEFAULT_LANG)));
 				$adminmail = notags(trim(defaults($_POST, 'adminmail', '')));
 
-				// connect to db
-				DBA::connect($dbhost, $dbuser, $dbpass, $dbdata);
+				// If we cannot connect to the database, return to the Database config wizard
+				if (!self::$installer->checkDB($dbhost, $dbuser, $dbpass, $dbdata)) {
+					self::$currentWizardStep = self::DATABASE_CONFIG;
+				}
 
-				$install = new Core\Install();
-
-				$errors = $install->createConfig($phpath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $a->getBasePath());
-
-				if ($errors !== true) {
-					$a->data['txt'] = $errors;
+				if (!self::$installer->createConfig($phpath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $a->getBasePath())) {
 					return;
 				}
 
-				$errors = DBStructure::update(false, true, true);
+				self::$installer->installDatabase();
 
-				if ($errors) {
-					$a->data['db_failed'] = $errors;
-				} else {
-					$a->data['db_installed'] = true;
-				}
-
-				return;
-
-			default:
-				return;
+				break;
 		}
 	}
 
@@ -126,20 +114,18 @@ class Install extends BaseModule
 		$output = '';
 
 		$install_title = L10n::t('Friendica Communctions Server - Setup');
-		$wizard_status = self::checkWizardStatus($a);
 
 		switch (self::$currentWizardStep) {
 			case self::SYSTEM_CHECK:
 				$phppath = defaults($_POST, 'phpath', null);
 
-				$install = new Core\Install();
-				$status = $install->checkAll($a->getBaseURL(), $phppath);
+				$status = self::$installer->checkEnvironment($a->getBaseURL(), $phppath);
 
 				$tpl = get_markup_template('install_checks.tpl');
 				$output .= replace_macros($tpl, [
 					'$title'		=> $install_title,
 					'$pass'			=> L10n::t('System check'),
-					'$checks'		=> $install->getChecks(),
+					'$checks'		=> self::$installer->getChecks(),
 					'$passed'		=> $status,
 					'$see_install'	=> L10n::t('Please see the file "Install.txt".'),
 					'$next' 		=> L10n::t('Next'),
@@ -150,12 +136,12 @@ class Install extends BaseModule
 				break;
 
 			case self::DATABASE_CONFIG:
-				$dbhost    = notags(trim(defaults($_POST, 'dbhost'   , self::DEFAULT_HOST)));
-				$dbuser    = notags(trim(defaults($_POST, 'dbuser'   , '')));
-				$dbpass    = notags(trim(defaults($_POST, 'dbpass'   , '')));
-				$dbdata    = notags(trim(defaults($_POST, 'dbdata'   , '')));
-				$phpath    = notags(trim(defaults($_POST, 'phpath'   , '')));
-				$adminmail = notags(trim(defaults($_POST, 'adminmail', '')));
+				$dbhost    = notags(trim(defaults($_POST, 'dbhost'   , Core\Installer::DEFAULT_HOST)));
+				$dbuser    = notags(trim(defaults($_POST, 'dbuser'   , ''                          )));
+				$dbpass    = notags(trim(defaults($_POST, 'dbpass'   , ''                          )));
+				$dbdata    = notags(trim(defaults($_POST, 'dbdata'   , ''                          )));
+				$phpath    = notags(trim(defaults($_POST, 'phpath'   , ''                          )));
+				$adminmail = notags(trim(defaults($_POST, 'adminmail', ''                          )));
 
 				$tpl = get_markup_template('install_db.tpl');
 				$output .= replace_macros($tpl, [
@@ -164,7 +150,7 @@ class Install extends BaseModule
 					'$info_01' 	=> L10n::t('In order to install Friendica we need to know how to connect to your database.'),
 					'$info_02' 	=> L10n::t('Please contact your hosting provider or site administrator if you have questions about these settings.'),
 					'$info_03' 	=> L10n::t('The database you specify below should already exist. If it does not, please create it before continuing.'),
-					'$status' 	=> $wizard_status,
+					'checks' 	=> self::$installer->getChecks(),
 					'$dbhost' 	=> ['dbhost',
 									L10n::t('Database Server Name'),
 									$dbhost,
@@ -199,24 +185,25 @@ class Install extends BaseModule
 					'$submit' 	=> L10n::t('Submit')
 				]);
 				break;
+
 			case self::SITE_SETTINGS:
-				$dbhost = notags(trim(defaults($_POST, 'dbhost', self::DEFAULT_HOST)));
-				$dbuser = notags(trim(defaults($_POST, 'dbuser', ''                )));
-				$dbpass = notags(trim(defaults($_POST, 'dbpass', ''                )));
-				$dbdata = notags(trim(defaults($_POST, 'dbdata', ''                )));
-				$phpath = notags(trim(defaults($_POST, 'phpath', ''                )));
+				$dbhost = notags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
+				$dbuser = notags(trim(defaults($_POST, 'dbuser', ''                          )));
+				$dbpass = notags(trim(defaults($_POST, 'dbpass', ''                          )));
+				$dbdata = notags(trim(defaults($_POST, 'dbdata', ''                          )));
+				$phpath = notags(trim(defaults($_POST, 'phpath', ''                          )));
 
 				$adminmail = notags(trim(defaults($_POST, 'adminmail', '')));
 
-				$timezone = defaults($_POST, 'timezone', self::DEFAULT_TZ);
+				$timezone = defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ);
 				/* Installed langs */
 				$lang_choices = L10n::getAvailableLanguages();
 
 				$tpl = get_markup_template('install_settings.tpl');
 				$output .= replace_macros($tpl, [
 					'$title' 		=> $install_title,
+					'$checks' 		=> self::$installer->getChecks(),
 					'$pass' 		=> L10n::t('Site settings'),
-					'$status' 		=> $wizard_status,
 					'$dbhost' 		=> $dbhost,
 					'$dbuser' 		=> $dbuser,
 					'$dbpass' 		=> $dbpass,
@@ -225,8 +212,8 @@ class Install extends BaseModule
 					'$adminmail'	=> ['adminmail', L10n::t('Site administrator email address'), $adminmail, L10n::t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'],
 					'$timezone' 	=> Temporal::getTimezoneField('timezone', L10n::t('Please select a default timezone for your website'), $timezone, ''),
 					'$language' 	=> ['language',
-										L10n::t('System Language:'), #
-										self::DEFAULT_LANG,
+										L10n::t('System Language:'),
+										Core\Installer::DEFAULT_LANG,
 										L10n::t('Set the default language for your Friendica installation interface and to send emails.'),
 										$lang_choices],
 					'$baseurl' 		=> $a->getBaseURL(),
@@ -237,77 +224,23 @@ class Install extends BaseModule
 			case self::FINISHED:
 				$db_return_text = "";
 
-				if (defaults($a->data, 'db_installed', false)) {
+				if (count(self::$installer->getChecks()) == 0) {
 					$txt = '<p style="font-size: 130%;">';
 					$txt .= L10n::t('Your Friendica site database has been installed.') . EOL;
 					$db_return_text .= $txt;
 				}
 
-				if (defaults($a->data, 'db_failed', false)) {
-					$txt = L10n::t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
-					$txt .= L10n::t('Please see the file "INSTALL.txt".') . EOL ."<hr>";
-					$txt .= "<pre>".$a->data['db_failed'] . "</pre>". EOL;
-					$db_return_text .= $txt;
-				}
-
-				if (isset($a->data['txt']) && strlen($a->data['txt'])) {
-					$db_return_text .= self::manualConfig($a);
-				}
-
-				$tpl = get_markup_template('install.tpl');
+				$tpl = get_markup_template('install_finished.tpl');
 				$output .= replace_macros($tpl, [
-					'$title' => $install_title,
-					'$pass' => "",
-					'$text' => $db_return_text . self::whatNext($a),
+					'$title'  => $install_title,
+					'$checks' => self::$installer->getChecks(),
+					'$pass'   => L10n::t('Installation finished'),
+					'$text'   => $db_return_text . self::whatNext($a),
 				]);
 
 				break;
 		}
 
-		return $output;
-	}
-
-	/**
-	 * @param App $a The global Friendica App
-	 *
-	 * @return string The status of Wizard steps
-	 */
-	private static function checkWizardStatus($a)
-	{
-		$wizardStatus = "";
-
-		if (defaults($a->data, 'db_conn_failed', false)) {
-			self::$currentWizardStep = 2;
-			$wizardStatus = L10n::t('Could not connect to database.');
-		}
-
-		if (defaults($a->data, 'db_create_failed', false)) {
-			self::$currentWizardStep = 2;
-			$wizardStatus = L10n::t('Could not create table.');
-		}
-
-		if (DBA::connected()) {
-			if (DBA::count('user')) {
-				self::$currentWizardStep = 2;
-				$wizardStatus = L10n::t('Database already in use.');
-			}
-		}
-
-		return $wizardStatus;
-	}
-
-	/**
-	 * Creates the text for manual config
-	 *
-	 * @param App $a The global App
-	 *
-	 * @return string The manual config text
-	 */
-	private static function manualConfig($a)
-	{
-		$data = htmlentities($a->data['txt'], ENT_COMPAT,  'UTF-8');
-		$output = L10n::t('The database configuration file "config/local.ini.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');
-		$output .= "<textarea rows=\"24\" cols=\"80\" >$data</textarea>";
 		return $output;
 	}
 

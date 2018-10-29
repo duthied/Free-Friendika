@@ -6,14 +6,21 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
+use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
 
 /**
  * Contains methods for installation purpose of Friendica
  */
-class Install
+class Installer
 {
+	// Default values for the install page
+	const DEFAULT_LANG = 'en';
+	const DEFAULT_TZ   = 'America/Los_Angeles';
+	const DEFAULT_HOST = 'localhost';
+
 	/**
 	 * @var array the check outcomes
 	 */
@@ -54,7 +61,7 @@ class Install
 	 *
 	 * @return bool if the check succeed
 	 */
-	public function checkAll($baseurl, $phpath = null)
+	public function checkEnvironment($baseurl, $phpath = null)
 	{
 		$returnVal = true;
 
@@ -107,12 +114,12 @@ class Install
 	 * @param string 	$adminmail 	Mail-Adress of the administrator
 	 * @param string 	$basepath   The basepath of Friendica
 	 *
-	 * @return bool|string true if the config was created, the text if something went wrong
+	 * @return bool true if the config was created, otherwise false
 	 */
 	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
 	{
 		$tpl = get_markup_template('local.ini.tpl');
-		$txt = replace_macros($tpl,[
+		$txt = replace_macros($tpl, [
 			'$phpath' => $phppath,
 			'$dbhost' => $dbhost,
 			'$dbuser' => $dbuser,
@@ -127,10 +134,31 @@ class Install
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
 
 		if (!$result) {
-			return $txt;
-		} else {
-			return true;
+			$this->addCheck(L10n::t('The database configuration file "config/local.ini.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.'), false, false, htmlentities($txt, ENT_COMPAT, 'UTF-8'));
 		}
+
+		return $result;
+	}
+
+	/***
+	 * Installs the DB-Scheme for Friendica
+	 *
+	 * @return bool true if the installation was successful, otherwise false
+	 */
+	public function installDatabase()
+	{
+		$result = DBStructure::update(false, true, true);
+
+		if ($result) {
+			$txt = L10n::t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
+			$txt .= L10n::t('Please see the file "INSTALL.txt".');
+
+			$this->addCheck($txt, false, true, htmlentities($result, ENT_COMPAT, 'UTF-8'));
+
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -506,6 +534,36 @@ class Install
 		}
 
 		// Imagick is not required
+		return true;
+	}
+
+	/**
+	 * Checking the Database connection and if it is available for the current installation
+	 *
+	 * @param string 	$dbhost 	Hostname/IP of the Friendica Database
+	 * @param string 	$dbuser 	Username of the Database connection credentials
+	 * @param string 	$dbpass 	Password of the Database connection credentials
+	 * @param string 	$dbdata 	Name of the Database
+	 *
+	 * @return bool true if the check was successful, otherwise false
+	 */
+	public function checkDB($dbhost, $dbuser, $dbpass, $dbdata)
+	{
+		require_once 'include/dba.php';
+		if (!DBA::connect($dbhost, $dbuser, $dbpass, $dbdata)) {
+			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
+
+			return false;
+		}
+
+		if (DBA::connected()) {
+			if (DBA::count('user') > 0) {
+				$this->addCheck(L10n::t('Database already in use.'), false, true, '');
+
+				return false;
+			}
+		}
+
 		return true;
 	}
 }
