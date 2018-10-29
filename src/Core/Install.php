@@ -49,13 +49,12 @@ class Install
 	/**
 	 * Checks the current installation environment. There are optional and mandatory checks.
 	 *
-	 * @param string $basepath    The basepath of Friendica
 	 * @param string $baseurl     The baseurl of Friendica
 	 * @param string $phpath      Optional path to the PHP binary
 	 *
 	 * @return bool if the check succeed
 	 */
-	public function checkAll($basepath, $baseurl, $phpath = null)
+	public function checkAll($baseurl, $phpath = null)
 	{
 		$returnVal = true;
 
@@ -85,7 +84,7 @@ class Install
 			$returnVal = false;
 		}
 
-		if (!$this->checkHtAccess($basepath, $baseurl)) {
+		if (!$this->checkHtAccess($baseurl)) {
 			$returnVal = false;
 		}
 
@@ -444,24 +443,23 @@ class Install
 	 *
 	 * Checks, if "url_rewrite" is enabled in the ".htaccess" file
 	 *
-	 * @param string $basepath   The basepath of the app
 	 * @param string $baseurl    The baseurl of the app
 	 * @return bool false if something required failed
 	 */
-	public function checkHtAccess($basepath, $baseurl)
+	public function checkHtAccess($baseurl)
 	{
 		$status = true;
 		$help = "";
 		$error_msg = "";
 		if (function_exists('curl_init')) {
-			$fetchResult = Network::fetchUrlFull($basepath . "/install/testrewrite");
+			$fetchResult = Network::fetchUrlFull($baseurl . "/install/testrewrite");
 
 			$url = normalise_link($baseurl . "/install/testrewrite");
-			if ($fetchResult->getBody() != "ok") {
+			if ($fetchResult->getReturnCode() != 204) {
 				$fetchResult = Network::fetchUrlFull($url);
 			}
 
-			if ($fetchResult->getBody() != "ok") {
+			if ($fetchResult->getReturnCode() != 204) {
 				$status = false;
 				$help = L10n::t('Url rewrite in .htaccess is not working. Check your server configuration.');
 				$error_msg = [];

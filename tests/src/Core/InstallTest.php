@@ -185,8 +185,8 @@ class InstallTest extends TestCase
 		// Mocking the CURL Response
 		$curlResult = \Mockery::mock('Friendica\Network\CurlResult');
 		$curlResult
-			->shouldReceive('getBody')
-			->andReturn('not ok');
+			->shouldReceive('getReturnCode')
+			->andReturn('404');
 		$curlResult
 			->shouldReceive('getRedirectUrl')
 			->andReturn('');
@@ -213,7 +213,7 @@ class InstallTest extends TestCase
 
 		$install = new Install();
 
-		$this->assertFalse($install->checkHtAccess('https://test', 'https://test'));
+		$this->assertFalse($install->checkHtAccess('https://test'));
 		$this->assertSame('test Error', $install->getChecks()[0]['error_msg']['msg']);
 	}
 
@@ -225,14 +225,14 @@ class InstallTest extends TestCase
 		// Mocking the failed CURL Response
 		$curlResultF = \Mockery::mock('Friendica\Network\CurlResult');
 		$curlResultF
-			->shouldReceive('getBody')
-			->andReturn('not ok');
+			->shouldReceive('getReturnCode')
+			->andReturn('404');
 
 		// Mocking the working CURL Response
 		$curlResultW = \Mockery::mock('Friendica\Network\CurlResult');
 		$curlResultW
-			->shouldReceive('getBody')
-			->andReturn('ok');
+			->shouldReceive('getReturnCode')
+			->andReturn('204');
 
 		// Mocking the CURL Request
 		$networkMock = \Mockery::mock('alias:Friendica\Util\Network');
@@ -253,7 +253,7 @@ class InstallTest extends TestCase
 
 		$install = new Install();
 
-		$this->assertTrue($install->checkHtAccess('https://test', 'https://test'));
+		$this->assertTrue($install->checkHtAccess('https://test'));
 	}
 
 	/**
