@@ -9,6 +9,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -47,7 +48,7 @@ function events_init(App $a)
 function events_post(App $a)
 {
 
-	logger('post: ' . print_r($_REQUEST, true), LOGGER_DATA);
+	Logger::log('post: ' . print_r($_REQUEST, true), LOGGER_DATA);
 
 	if (!local_user()) {
 		return;

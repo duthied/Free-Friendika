@@ -6,6 +6,7 @@ namespace Friendica\Util;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Protocol\Email;
 
@@ -96,8 +97,8 @@ class Emailer
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
-		logger("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
-		logger("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
+		Logger::log("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
+		Logger::log("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
 		return $res;
 	}
 }

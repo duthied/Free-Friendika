@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 
 require_once 'include/items.php';
@@ -17,7 +18,7 @@ function filer_content(App $a)
 	$term = unxmlify(trim(defaults($_GET, 'term', '')));
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
-	logger('filer: tag ' . $term . ' item ' . $item_id);
+	Logger::log('filer: tag ' . $term . ' item ' . $item_id);
 
 	if ($item_id && strlen($term)) {
 		// file item

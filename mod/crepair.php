@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model;
@@ -78,7 +79,7 @@ function crepair_post(App $a)
 	);
 
 	if ($photo) {
-		logger('mod-crepair: updating photo from ' . $photo);
+		Logger::log('mod-crepair: updating photo from ' . $photo);
 
 		Model\Contact::updateAvatar($photo, local_user(), $contact['id']);
 	}

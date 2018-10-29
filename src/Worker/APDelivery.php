@@ -5,9 +5,10 @@
 namespace Friendica\Worker;
 
 use Friendica\BaseObject;
+use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Model\Item;
-use Friendica\Core\Worker;
 use Friendica\Util\HTTPSignature;
 
 class APDelivery extends BaseObject
@@ -22,7 +23,7 @@ class APDelivery extends BaseObject
 	 */
 	public static function execute($cmd, $item_id, $inbox, $uid)
 	{
-		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $inbox, LOGGER_DEBUG);
+		Logger::log('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $inbox, LOGGER_DEBUG);
 
 		$success = true;
 

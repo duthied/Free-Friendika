@@ -6,6 +6,7 @@
 namespace Friendica\Model;
 
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -87,7 +88,7 @@ class Mail
 		}
 
 		if (!$convid) {
-			logger('send message: conversation not found.');
+			Logger::log('send message: conversation not found.');
 			return -4;
 		}
 
@@ -200,7 +201,7 @@ class Mail
 		}
 
 		if (!$convid) {
-			logger('send message: conversation not found.');
+			Logger::log('send message: conversation not found.');
 			return -4;
 		}
 

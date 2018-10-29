@@ -11,6 +11,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -37,7 +38,7 @@ function profile_init(App $a)
 		if (DBA::isResult($r)) {
 			$a->internalRedirect('profile/' . $r[0]['nickname']);
 		} else {
-			logger('profile error: mod_profile ' . $a->query_string, LOGGER_DEBUG);
+			Logger::log('profile error: mod_profile ' . $a->query_string, LOGGER_DEBUG);
 			notice(L10n::t('Requested profile is not available.') . EOL);
 			$a->error = 404;
 			return;

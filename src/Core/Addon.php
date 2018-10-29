@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 
 /**
@@ -75,7 +76,7 @@ class Addon extends BaseObject
 	 */
 	public static function uninstall($addon)
 	{
-		logger("Addons: uninstalling " . $addon);
+		Logger::log("Addons: uninstalling " . $addon);
 		DBA::delete('addon', ['name' => $addon]);
 
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
@@ -100,7 +101,7 @@ class Addon extends BaseObject
 		if (!file_exists('addon/' . $addon . '/' . $addon . '.php')) {
 			return false;
 		}
-		logger("Addons: installing " . $addon);
+		Logger::log("Addons: installing " . $addon);
 		$t = @filemtime('addon/' . $addon . '/' . $addon . '.php');
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
 		if (function_exists($addon . '_install')) {
@@ -125,7 +126,7 @@ class Addon extends BaseObject
 			}
 			return true;
 		} else {
-			logger("Addons: FAILED installing " . $addon);
+			Logger::log("Addons: FAILED installing " . $addon);
 			return false;
 		}
 	}
@@ -155,7 +156,7 @@ class Addon extends BaseObject
 						$t = @filemtime($fname);
 						foreach ($installed as $i) {
 							if (($i['name'] == $addon) && ($i['timestamp'] != $t)) {
-								logger('Reloading addon: ' . $i['name']);
+								Logger::log('Reloading addon: ' . $i['name']);
 								@include_once($fname);
 
 								if (function_exists($addon . '_uninstall')) {

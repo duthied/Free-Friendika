@@ -7,6 +7,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -32,7 +33,7 @@ class Queue
 		$no_dead_check = Config::get('system', 'queue_no_dead_check', false);
 
 		if (!$queue_id) {
-			logger('filling queue jobs - start');
+			Logger::log('filling queue jobs - start');
 
 			// Handling the pubsubhubbub requests
 			PushSubscriber::requeue();
@@ -43,11 +44,11 @@ class Queue
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $q_item) {
-					logger('Call queue for id ' . $q_item['id']);
+					Logger::log('Call queue for id ' . $q_item['id']);
 					Worker::add(['priority' => PRIORITY_LOW, 'dont_fork' => true], "Queue", (int) $q_item['id']);
 				}
 			}
-			logger('filling queue jobs - end');
+			Logger::log('filling queue jobs - end');
 			return;
 		}
 
@@ -72,7 +73,7 @@ class Queue
 		$dead = Cache::get($cachekey_deadguy . $contact['notify']);
 
 		if (!is_null($dead) && $dead && !$no_dead_check) {
-			logger('queue: skipping known dead url: ' . $contact['notify']);
+			Logger::log('queue: skipping known dead url: ' . $contact['notify']);
 			QueueModel::updateTime($q_item['id']);
 			return;
 		}
@@ -84,14 +85,14 @@ class Queue
 				$vital = Cache::get($cachekey_server . $server);
 
 				if (is_null($vital)) {
-					logger("Check server " . $server . " (" . $contact["network"] . ")");
+					Logger::log("Check server " . $server . " (" . $contact["network"] . ")");
 
 					$vital = PortableContact::checkServer($server, $contact["network"], true);
 					Cache::set($cachekey_server . $server, $vital, Cache::MINUTE);
 				}
 
 				if (!is_null($vital) && !$vital) {
-					logger('queue: skipping dead server: ' . $server);
+					Logger::log('queue: skipping dead server: ' . $server);
 					QueueModel::updateTime($q_item['id']);
 					return;
 				}
@@ -112,7 +113,7 @@ class Queue
 
 		switch ($contact['network']) {
 			case Protocol::DFRN:
-				logger('queue: dfrndelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
+				Logger::log('queue: dfrndelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 				$deliver_status = DFRN::deliver($owner, $contact, $data);
 
 				if (($deliver_status >= 200) && ($deliver_status <= 299)) {
@@ -124,7 +125,7 @@ class Queue
 				break;
 
 			case Protocol::OSTATUS:
-				logger('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
+				Logger::log('queue: slapdelivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 				$deliver_status = Salmon::slapper($owner, $contact['notify'], $data);
 
 				if ($deliver_status == -1) {
@@ -136,7 +137,7 @@ class Queue
 				break;
 
 			case Protocol::DIASPORA:
-				logger('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
+				Logger::log('queue: diaspora_delivery: item ' . $q_item['id'] . ' for ' . $contact['name'] . ' <' . $contact['url'] . '>');
 				$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
 
 				if ((($deliver_status >= 200) && ($deliver_status <= 299)) ||
@@ -159,7 +160,7 @@ class Queue
 				}
 				break;
 		}
-		logger('Deliver status ' . (int)$deliver_status . ' for item ' . $q_item['id'] . ' to ' . $contact['name'] . ' <' . $contact['url'] . '>');
+		Logger::log('Deliver status ' . (int)$deliver_status . ' for item ' . $q_item['id'] . ' to ' . $contact['name'] . ' <' . $contact['url'] . '>');
 
 		return;
 	}

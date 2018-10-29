@@ -3,6 +3,7 @@
 namespace Friendica\Core\Session;
 
 use Friendica\BaseObject;
+use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use SessionHandlerInterface;
@@ -34,7 +35,7 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 			Session::$exists = true;
 			return $session['data'];
 		}
-		logger("no data for session $session_id", LOGGER_TRACE);
+		Logger::log("no data for session $session_id", LOGGER_TRACE);
 
 		return '';
 	}

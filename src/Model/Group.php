@@ -7,6 +7,7 @@ namespace Friendica\Model;
 use Friendica\BaseModule;
 use Friendica\BaseObject;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Util\Security;
 
@@ -325,7 +326,7 @@ class Group extends BaseObject
 				'selected' => $gid == $group['id'] ? 'true' : ''
 			];
 		}
-		logger('groups: ' . print_r($display_groups, true));
+		Logger::log('groups: ' . print_r($display_groups, true));
 
 		if ($label == '') {
 			$label = L10n::t('Default privacy group for new contacts');

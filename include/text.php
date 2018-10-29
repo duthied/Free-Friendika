@@ -399,7 +399,7 @@ function attribute_contains($attr, $s) {
  */
 function logger($msg, $level = LOGGER_INFO)
 {
-	Logger::logger($msg, $level);
+	Logger::log($msg, $level);
 }
 
 /**
@@ -422,7 +422,7 @@ function logger($msg, $level = LOGGER_INFO)
  */
 function dlogger($msg, $level = LOGGER_INFO)
 {
-	Logger::dlogger($msg, $level);
+	Logger::devLog($msg, $level);
 }
 
 

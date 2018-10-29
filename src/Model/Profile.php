@@ -12,6 +12,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -106,7 +107,7 @@ class Profile
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
 		if (!DBA::isResult($user) && empty($profiledata)) {
-			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
+			Logger::log('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice(L10n::t('Requested account is not available.') . EOL);
 			$a->error = 404;
 			return;
@@ -124,7 +125,7 @@ class Profile
 		$pdata = self::getByNickname($nickname, $user['uid'], $profile);
 
 		if (empty($pdata) && empty($profiledata)) {
-			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
+			Logger::log('profile error: ' . $a->query_string, LOGGER_DEBUG);
 			notice(L10n::t('Requested profile is not available.') . EOL);
 			$a->error = 404;
 			return;
@@ -1020,27 +1021,27 @@ class Profile
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($my_url);
 		if (!$cid) {
-			logger('No contact record found for ' . $my_url, LOGGER_DEBUG);
+			Logger::log('No contact record found for ' . $my_url, LOGGER_DEBUG);
 			return;
 		}
 
 		$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
 		if (DBA::isResult($contact) && remote_user() && remote_user() == $contact['id']) {
-			logger('The visitor ' . $my_url . ' is already authenticated', LOGGER_DEBUG);
+			Logger::log('The visitor ' . $my_url . ' is already authenticated', LOGGER_DEBUG);
 			return;
 		}
 
 		// Avoid endless loops
 		$cachekey = 'zrlInit:' . $my_url;
 		if (Cache::get($cachekey)) {
-			logger('URL ' . $my_url . ' already tried to authenticate.', LOGGER_DEBUG);
+			Logger::log('URL ' . $my_url . ' already tried to authenticate.', LOGGER_DEBUG);
 			return;
 		} else {
 			Cache::set($cachekey, true, Cache::MINUTE);
 		}
 
-		logger('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);
+		Logger::log('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);
 
 		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
 
@@ -1061,7 +1062,7 @@ class Profile
 			// We have to check if the remote server does understand /magic without invoking something
 			$serverret = Network::curl($basepath . '/magic');
 			if ($serverret->isSuccess()) {
-				logger('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, LOGGER_DEBUG);
+				Logger::log('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, LOGGER_DEBUG);
 				System::externalRedirect($magic_path);
 			}
 		}
@@ -1092,7 +1093,7 @@ class Profile
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($visitor_handle);
 		if(!$cid) {
-			logger('owt: unable to finger ' . $visitor_handle, LOGGER_DEBUG);
+			Logger::log('owt: unable to finger ' . $visitor_handle, LOGGER_DEBUG);
 			return;
 		}
 
@@ -1121,7 +1122,7 @@ class Profile
 
 		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->getHostName(), $visitor['name']));
 
-		logger('OpenWebAuth: auth success from ' . $visitor['addr'], LOGGER_DEBUG);
+		Logger::log('OpenWebAuth: auth success from ' . $visitor['addr'], LOGGER_DEBUG);
 	}
 
 	public static function zrl($s, $force = false)

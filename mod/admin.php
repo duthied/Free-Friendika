@@ -13,6 +13,7 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
@@ -910,7 +911,7 @@ function admin_page_summary(App $a)
 		$users+= $u['count'];
 	}
 
-	logger('accounts: ' . print_r($accounts, true), LOGGER_DATA);
+	Logger::log('accounts: ' . print_r($accounts, true), LOGGER_DATA);
 
 	$pending = Register::getPendingCount();
 
@@ -2499,7 +2500,7 @@ function admin_page_features_post(App $a)
 {
 	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
 
-	logger('postvars: ' . print_r($_POST, true), LOGGER_DATA);
+	Logger::log('postvars: ' . print_r($_POST, true), LOGGER_DATA);
 
 	$features = Feature::get(false);
 

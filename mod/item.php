@@ -22,6 +22,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -56,7 +57,7 @@ function item_post(App $a) {
 
 	Addon::callHooks('post_local_start', $_REQUEST);
 
-	logger('postvars ' . print_r($_REQUEST, true), LOGGER_DATA);
+	Logger::log('postvars ' . print_r($_REQUEST, true), LOGGER_DATA);
 
 	$api_source = defaults($_REQUEST, 'api_source', false);
 
@@ -72,7 +73,7 @@ function item_post(App $a) {
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
 		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
-			logger("item post: duplicate post", LOGGER_DEBUG);
+			Logger::log("item post: duplicate post", LOGGER_DEBUG);
 			item_post_return(System::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -130,7 +131,7 @@ function item_post(App $a) {
 	}
 
 	if ($parent) {
-		logger('mod_item: item_post parent=' . $parent);
+		Logger::log('mod_item: item_post parent=' . $parent);
 	}
 
 	$post_id     = intval(defaults($_REQUEST, 'post_id', 0));
@@ -153,7 +154,7 @@ function item_post(App $a) {
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
 		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
-			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
+			Logger::log("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
 			return 0;
 		}
 	}
@@ -669,7 +670,7 @@ function item_post(App $a) {
 		$datarray["author-network"] = Protocol::DFRN;
 
 		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager($a->query_string), 'search', false, true);
-		logger('preview: ' . $o);
+		Logger::log('preview: ' . $o);
 		echo json_encode(['preview' => $o]);
 		exit();
 	}
@@ -677,7 +678,7 @@ function item_post(App $a) {
 	Addon::callHooks('post_local',$datarray);
 
 	if (!empty($datarray['cancel'])) {
-		logger('mod_item: post cancelled by addon.');
+		Logger::log('mod_item: post cancelled by addon.');
 		if ($return_path) {
 			$a->internalRedirect($return_path);
 		}
@@ -714,7 +715,7 @@ function item_post(App $a) {
 		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
 
 		if (!empty($_REQUEST['return']) && strlen($return_path)) {
-			logger('return: ' . $return_path);
+			Logger::log('return: ' . $return_path);
 			$a->internalRedirect($return_path);
 		}
 		killme();
@@ -736,14 +737,14 @@ function item_post(App $a) {
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		logger("Item wasn't stored.");
+		Logger::log("Item wasn't stored.");
 		$a->internalRedirect($return_path);
 	}
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBA::isResult($datarray)) {
-		logger("Item with id ".$post_id." couldn't be fetched.");
+		Logger::log("Item with id ".$post_id." couldn't be fetched.");
 		$a->internalRedirect($return_path);
 	}
 
@@ -833,7 +834,7 @@ function item_post(App $a) {
 	// We don't fork a new process since this is done anyway with the following command
 	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "CreateShadowEntry", $post_id);
 
-	logger('post_complete');
+	Logger::log('post_complete');
 
 	if ($api_source) {
 		return $post_id;
@@ -861,7 +862,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
-	logger('post_json: ' . print_r($json, true), LOGGER_DEBUG);
+	Logger::log('post_json: ' . print_r($json, true), LOGGER_DEBUG);
 
 	echo json_encode($json);
 	killme();

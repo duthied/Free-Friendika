@@ -5,6 +5,7 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Addon;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\CurlResult;
@@ -106,7 +107,7 @@ class Network
 		$url = self::unparseURL($parts);
 
 		if (self::isUrlBlocked($url)) {
-			logger('domain of ' . $url . ' is blocked', LOGGER_DATA);
+			Logger::log('domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return CurlResult::createErrorCurl($url);
 		}
 
@@ -212,7 +213,7 @@ class Network
 
 		if ($curlResponse->isRedirectUrl()) {
 			$redirects++;
-			logger('curl: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
+			Logger::log('curl: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
 			@curl_close($ch);
 			return self::curl($curlResponse->getRedirectUrl(), $binary, $redirects, $opts);
 		}
@@ -240,7 +241,7 @@ class Network
 		$stamp1 = microtime(true);
 
 		if (self::isUrlBlocked($url)) {
-			logger('post_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
+			Logger::log('post_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
 			return CurlResult::createErrorCurl($url);
 		}
 
@@ -251,7 +252,7 @@ class Network
 			return CurlResult::createErrorCurl($url);
 		}
 
-		logger('post_url: start ' . $url, LOGGER_DATA);
+		Logger::log('post_url: start ' . $url, LOGGER_DATA);
 
 		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -314,7 +315,7 @@ class Network
 
 		if ($curlResponse->isRedirectUrl()) {
 			$redirects++;
-			logger('post_url: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
+			Logger::log('post_url: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
 			curl_close($ch);
 			return self::post($curlResponse->getRedirectUrl(), $params, $headers, $redirects, $timeout);
 		}
@@ -323,7 +324,7 @@ class Network
 
 		$a->saveTimestamp($stamp1, 'network');
 
-		logger('post_url: end ' . $url, LOGGER_DATA);
+		Logger::log('post_url: end ' . $url, LOGGER_DATA);
 
 		return $curlResponse;
 	}
@@ -527,7 +528,7 @@ class Network
 			$avatar['url'] = System::baseUrl() . '/images/person-300.jpg';
 		}
 
-		logger('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
+		Logger::log('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
 		return $avatar['url'];
 	}
 

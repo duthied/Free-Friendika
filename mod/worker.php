@@ -5,6 +5,7 @@
  */
 
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
@@ -33,7 +34,7 @@ function worker_init()
 
 	Worker::startProcess();
 
-	logger("Front end worker started: ".getmypid());
+	Logger::log("Front end worker started: ".getmypid());
 
 	Worker::callWorker();
 
@@ -55,7 +56,7 @@ function worker_init()
 
 	Worker::endProcess();
 
-	logger("Front end worker ended: ".getmypid());
+	Logger::log("Front end worker ended: ".getmypid());
 
 	killme();
 }

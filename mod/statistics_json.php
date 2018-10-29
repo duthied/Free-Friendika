@@ -7,6 +7,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 
 function statistics_json_init(App $a) {
@@ -56,6 +57,6 @@ function statistics_json_init(App $a) {
 
 	header("Content-Type: application/json");
 	echo json_encode($statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-	logger("statistics_init: printed " . print_r($statistics, true), LOGGER_DATA);
+	Logger::log("statistics_init: printed " . print_r($statistics, true), LOGGER_DATA);
 	killme();
 }

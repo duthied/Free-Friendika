@@ -24,7 +24,7 @@ class Logger
      * @param string $msg
      * @param int $level
      */
-    public static function logger($msg, $level = LOGGER_INFO)
+    public static function log($msg, $level = LOGGER_INFO)
     {
         $a = get_app();
         global $LOGGER_LEVELS;
@@ -81,7 +81,7 @@ class Logger
 
     /**
      * @brief An alternative logger for development.
-     * Works largely as logger() but allows developers
+     * Works largely as log() but allows developers
      * to isolate particular elements they are targetting
      * personally without background noise
      *
@@ -97,7 +97,7 @@ class Logger
      * @param string $msg
      * @param int $level
      */
-    public static function dlogger($msg, $level = LOGGER_INFO)
+    public static function devLog($msg, $level = LOGGER_INFO)
     {
         $a = get_app();
 

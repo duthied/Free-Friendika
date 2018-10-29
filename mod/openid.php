@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 
@@ -16,7 +17,7 @@ function openid_content(App $a) {
 	if($noid)
 		$a->internalRedirect();
 
-	logger('mod_openid ' . print_r($_REQUEST,true), LOGGER_DATA);
+	Logger::log('mod_openid ' . print_r($_REQUEST,true), LOGGER_DATA);
 
 	if((x($_GET,'openid_mode')) && (x($_SESSION,'openid'))) {
 
@@ -27,7 +28,7 @@ function openid_content(App $a) {
 			$authid = $_REQUEST['openid_identity'];
 
 			if(! strlen($authid)) {
-				logger(L10n::t('OpenID protocol error. No ID returned.') . EOL);
+				Logger::log(L10n::t('OpenID protocol error. No ID returned.') . EOL);
 				$a->internalRedirect();
 			}
 

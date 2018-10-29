@@ -9,6 +9,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 
@@ -97,7 +98,7 @@ if ($mode == "stop") {
 
 	unlink($pidfile);
 
-	logger("Worker daemon process $pid was killed.", LOGGER_DEBUG);
+	Logger::log("Worker daemon process $pid was killed.", LOGGER_DEBUG);
 
 	Config::set('system', 'worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
@@ -107,7 +108,7 @@ if (!empty($pid) && posix_kill($pid, 0)) {
 	die("Daemon process $pid is already running.\n");
 }
 
-logger('Starting worker daemon.', LOGGER_DEBUG);
+Logger::log('Starting worker daemon.', LOGGER_DEBUG);
 
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
@@ -155,7 +156,7 @@ $last_cron = 0;
 // Now running as a daemon.
 while (true) {
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
-		logger('Forcing cron worker call.', LOGGER_DEBUG);
+		Logger::log('Forcing cron worker call.', LOGGER_DEBUG);
 		$do_cron = true;
 	}
 
@@ -169,7 +170,7 @@ while (true) {
 		$last_cron = time();
 	}
 
-	logger("Sleeping", LOGGER_DEBUG);
+	Logger::log("Sleeping", LOGGER_DEBUG);
 	$start = time();
 	do {
 		$seconds = (time() - $start);
@@ -186,10 +187,10 @@ while (true) {
 
 	if ($timeout) {
 		$do_cron = true;
-		logger("Woke up after $wait_interval seconds.", LOGGER_DEBUG);
+		Logger::log("Woke up after $wait_interval seconds.", LOGGER_DEBUG);
 	} else {
 		$do_cron = false;
-		logger("Worker jobs are calling to be forked.", LOGGER_DEBUG);
+		Logger::log("Worker jobs are calling to be forked.", LOGGER_DEBUG);
 	}
 }
 
