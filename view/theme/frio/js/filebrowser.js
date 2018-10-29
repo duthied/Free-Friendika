@@ -176,10 +176,10 @@ var FileBrowser = {
 					},
 					onComplete: function(file,response) {
 						if (response['error'] != undefined) {
-							$(".fbrowser-content").show();
 							$(".error span").html(response['error']);
 							$(".error").removeClass('hidden');
 							$(".fbrowser .profile-rotator-wrapper").hide();
+							$(".fbrowser-content").show();
 							return;
 						}
 
@@ -210,6 +210,7 @@ var FileBrowser = {
 							$(".error span").html(response['error']);
 							$(".error").removeClass('hidden');
 							$('#profile-rotator').hide();
+							$(".fbrowser-content").show();
 							return;
 						}
 
