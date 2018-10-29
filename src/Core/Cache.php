@@ -19,6 +19,7 @@ class Cache extends \Friendica\BaseObject
 	const QUARTER_HOUR = 900;
 	const FIVE_MINUTES = 300;
 	const MINUTE       = 60;
+	const NEVER        = 0;
 
 	/**
 	 * @var Cache\ICacheDriver

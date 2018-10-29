@@ -34,7 +34,7 @@ interface ICacheDriver
 	 *
 	 * @param string  $key      The cache key
 	 * @param mixed   $value    The value to store
-	 * @param integer $ttl The cache lifespan, must be one of the Cache constants
+	 * @param integer $ttl      The cache lifespan, must be one of the Cache constants
 	 *
 	 * @return bool
 	 */

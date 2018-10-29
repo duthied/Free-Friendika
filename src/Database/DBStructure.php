@@ -57,58 +57,6 @@ class DBStructure
 		}
 	}
 
-	/*
-	 * send the email and do what is needed to do on update fails
-	 *
-	 * @param update_id		(int) number of failed update
-	 * @param error_message	(str) error message
-	 */
-	public static function updateFail($update_id, $error_message) {
-		$a = get_app();
-
-		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
-		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
-			$admin_mail_list
-		);
-
-		// No valid result?
-		if (!DBA::isResult($adminlist)) {
-			Logger::log(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), Logger::INFO);
-
-			// Don't continue
-			return;
-		}
-
-		// every admin could had different language
-		foreach ($adminlist as $admin) {
-			$lang = (($admin['language'])?$admin['language']:'en');
-			L10n::pushLang($lang);
-
-			$preamble = deindent(L10n::t("
-				The friendica developers released update %s recently,
-				but when I tried to install it, something went terribly wrong.
-				This needs to be fixed soon and I can't do it alone. Please contact a
-				friendica developer if you can not help me on your own. My database might be invalid.",
-				$update_id));
-			$body = L10n::t("The error message is\n[pre]%s[/pre]", $error_message);
-
-			notification([
-				'uid'      => $admin['uid'],
-				'type'     => SYSTEM_EMAIL,
-				'to_email' => $admin['email'],
-				'preamble' => $preamble,
-				'body'     => $body,
-				'language' => $lang]
-			);
-			L10n::popLang();
-		}
-
-		//try the logger
-		Logger::log("CRITICAL: Database structure update failed: ".$error_message);
-	}
-
-
 	private static function tableStructure($table) {
 		$structures = q("DESCRIBE `%s`", $table);
 

@@ -40,7 +40,7 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	 */
 	public function get($key)
 	{
-		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND `expires` >= ?', $key, DateTimeFormat::utcNow()]);
+		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND (`expires` >= ? OR `expires` = -1)', $key, DateTimeFormat::utcNow()]);
 
 		if (DBA::isResult($cache)) {
 			$cached = $cache['v'];
@@ -62,11 +62,19 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	 */
 	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
-		$fields = [
-			'v'       => serialize($value),
-			'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds'),
-			'updated' => DateTimeFormat::utcNow()
-		];
+		if ($ttl > 0) {
+			$fields = [
+				'v' => serialize($value),
+				'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds'),
+				'updated' => DateTimeFormat::utcNow()
+			];
+		} else {
+			$fields = [
+				'v' => serialize($value),
+				'expires' => -1,
+				'updated' => DateTimeFormat::utcNow()
+			];
+		}
 
 		return DBA::update('cache', $fields, ['k' => $key], true);
 	}
