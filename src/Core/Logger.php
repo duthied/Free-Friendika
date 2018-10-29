@@ -5,7 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\Core\Config;
-use Friendica\Util\DataTimeFormat;
+use Friendica\Util\DateTimeFormat;
 
 class Logger
 {
