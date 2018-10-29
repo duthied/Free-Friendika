@@ -185,9 +185,7 @@ class Update
 	private static function updateFailed($update_id, $error_message) {
 		//send the administrators an e-mail
 		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
-		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
-			$admin_mail_list
-		);
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['`email` IN (%s)', $admin_mail_list]);
 
 		// No valid result?
 		if (!DBA::isResult($adminlist)) {
@@ -229,9 +227,7 @@ class Update
 	{
 		//send the administrators an e-mail
 		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
-		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
-			$admin_mail_list
-		);
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['`email` IN (%s)', $admin_mail_list]);
 
 		if (DBA::isResult($adminlist)) {
 			// every admin could had different language
@@ -256,6 +252,6 @@ class Update
 		}
 
 		//try the logger
-		logger("CRITICAL: Database structure update successful.", LOGGER_TRACE);
+		logger("Database structure update successful.", LOGGER_TRACE);
 	}
 }
