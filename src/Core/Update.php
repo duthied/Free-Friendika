@@ -71,7 +71,7 @@ class Update
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
-				if (Lock::acquire('dbupdate', 120, Cache::NEVER)) {
+				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
 
 					// run the pre_update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
@@ -90,7 +90,6 @@ class Update
 								$retval
 							);
 						}
-						Lock::release('dbcheck');
 						Lock::release('dbupdate');
 						return $retval;
 					} else {
@@ -138,7 +137,7 @@ class Update
 			// If the update fails or times-out completely you may need to
 			// delete the config entry to try again.
 
-			if (Lock::acquire('dbupdate_function', 120,Cache::NEVER)) {
+			if (Lock::acquire('dbupdate_function', 120,Cache::INFINITE)) {
 
 				// call the specific update
 				$retval = $funcname();
@@ -241,7 +240,7 @@ class Update
 				L10n::pushLang($lang);
 
 				$preamble = deindent(L10n::t("
-					The friendica database was successfully update from %s to %s.",
+					The friendica database was successfully updated from %s to %s.",
 					$from_build, $to_build));
 
 				notification([
