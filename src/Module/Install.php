@@ -50,8 +50,8 @@ class Install extends BaseModule
 			Core\System::httpExit(204);
 		}
 
-		// We overwrite current theme css, because during install we clould not have a working mod_rewrite
-		// so we could not have a css at all. Here we set a static css file for the install procedure pages
+		// We overwrite current theme css, because during install we may not have a working mod_rewrite
+		// so we may not have a css at all. Here we set a static css file for the install procedure pages
 		$a->setConfigValue('system', 'value', '../install');
 		$a->theme['stylesheet'] = $a->getBaseURL() . '/view/install/style.css';
 
@@ -303,8 +303,9 @@ class Install extends BaseModule
 	 *
 	 * @return string The manual config text
 	 */
-	private static function manualConfig($a) {
-		$data = htmlentities($a->data['txt'],ENT_COMPAT, 'UTF-8');
+	private static function manualConfig($a)
+	{
+		$data = htmlentities($a->data['txt'], ENT_COMPAT,  'UTF-8');
 		$output = L10n::t('The database configuration file "config/local.ini.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');
 		$output .= "<textarea rows=\"24\" cols=\"80\" >$data</textarea>";
 		return $output;
@@ -317,14 +318,15 @@ class Install extends BaseModule
 	 *
 	 * @return string The text for the next steps
 	 */
-	private static function whatNext($a) {
+	private static function whatNext($a)
+	{
 		$baseurl = $a->getBaseUrl();
 		return
 			L10n::t('<h1>What next</h1>')
-			."<p>".L10n::t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
-			.L10n::t('Please see the file "INSTALL.txt".')
-			."</p><p>"
-			.L10n::t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
-			."</p>";
+			. "<p>".L10n::t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
+			. L10n::t('Please see the file "INSTALL.txt".')
+			. "</p><p>"
+			. L10n::t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
+			. "</p>";
 	}
 }
