@@ -13,7 +13,7 @@
 		<input id="fb-type" type="hidden" name="type" value="{{$type}}" />
 
 		<div class="error hidden">
-			<span></span> <button type="button" class="btn btn-link" class="close" aria-label="Close">X</a>
+			<span></span> <button type="button" class="btn btn-link close" aria-label="Close">X</a>
 		</div>
 
 		{{* The breadcrumb navigation *}}
