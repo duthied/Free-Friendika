@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\Core\Config;
 use Friendica\Util\DateTimeFormat;
+use ReflectionClass;
 
 /**
  * @brief Logger functions
@@ -25,9 +26,9 @@ class Logger extends BaseObject
     /**
      * @brief Get class constants, and avoid using substring.
      */
-    public function getConstants()
+    public static function getConstants()
     {
-        $reflectionClass = new ReflectionClass($this);
+        $reflectionClass = new ReflectionClass(__CLASS__);
         return $reflectionClass->getConstants();
     }
 
@@ -37,7 +38,7 @@ class Logger extends BaseObject
      * @param string $msg
      * @param int $level
      */
-    public static function log($msg, $level = INFO)
+    public static function log($msg, $level = self::INFO)
     {
         $a = self::getApp();
 
@@ -53,7 +54,7 @@ class Logger extends BaseObject
             return;
         }
 
-        if (count($levels) == 0)
+        if (count(self::$levels) == 0)
         {
             foreach (self::getConstants() as $k => $v)
             {
@@ -100,7 +101,7 @@ class Logger extends BaseObject
      * @param string $msg
      * @param int $level
      */
-    public static function devLog($msg, $level = INFO)
+    public static function devLog($msg, $level = self::INFO)
     {
         $a = self::getApp();
 
@@ -117,7 +118,7 @@ class Logger extends BaseObject
             return;
         }
 
-        if (count($levels) == 0)
+        if (count(self::$levels) == 0)
         {
             foreach (self::getConstants() as $k => $v)
             {
