@@ -15,6 +15,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -871,7 +872,7 @@ function networkThreadedView(App $a, $update, $parent)
 				$_SESSION['network_last_date'] = $tag_top_limit;
 			}
 
-			logger('Tagged items: ' . count($data) . ' - ' . $bottom_limit . ' - ' . $top_limit . ' - ' . local_user().' - '.(int)$update);
+			Logger::log('Tagged items: ' . count($data) . ' - ' . $bottom_limit . ' - ' . $top_limit . ' - ' . local_user().' - '.(int)$update);
 			$s = [];
 			foreach ($r as $item) {
 				$s[$item['uri']] = $item;

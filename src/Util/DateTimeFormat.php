@@ -6,6 +6,7 @@
 
 namespace Friendica\Util;
 
+use Friendica\Core\Logger;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -125,7 +126,7 @@ class DateTimeFormat
 		try {
 			$d = new DateTime($s, $from_obj);
 		} catch (Exception $e) {
-			logger('DateTimeFormat::convert: exception: ' . $e->getMessage());
+			Logger::log('DateTimeFormat::convert: exception: ' . $e->getMessage());
 			$d = new DateTime('now', $from_obj);
 		}
 

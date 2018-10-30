@@ -1,6 +1,7 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 
 function filerm_content(App $a) {
@@ -19,7 +20,7 @@ function filerm_content(App $a) {
 
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
-	logger('filerm: tag ' . $term . ' item ' . $item_id);
+	Logger::log('filerm: tag ' . $term . ' item ' . $item_id);
 
 	if ($item_id && strlen($term)) {
 		file_tag_unsave_file(local_user(),$item_id,$term, $category);

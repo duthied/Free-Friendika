@@ -11,6 +11,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -751,7 +752,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 			$threads = $conv->getTemplateData($conv_responses);
 			if (!$threads) {
-				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
+				Logger::log('[ERROR] conversation : Failed to get template data.', Logger::DEBUG);
 				$threads = [];
 			}
 		}

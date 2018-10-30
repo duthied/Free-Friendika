@@ -15,6 +15,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
@@ -379,7 +380,7 @@ class BBCode extends BaseObject
 		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
 		if ($c) {
 			foreach ($matches as $mtch) {
-				logger('scale_external_image: ' . $mtch[1]);
+				Logger::log('scale_external_image: ' . $mtch[1]);
 
 				$hostname = str_replace('www.', '', substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3));
 				if (stristr($mtch[1], $hostname)) {
@@ -414,7 +415,7 @@ class BBCode extends BaseObject
 							$Image->scaleDown(640);
 							$new_width = $Image->getWidth();
 							$new_height = $Image->getHeight();
-							logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
+							Logger::log('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], Logger::DEBUG);
 							$s = str_replace(
 								$mtch[0],
 								'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
@@ -423,7 +424,7 @@ class BBCode extends BaseObject
 									: ''),
 								$s
 							);
-							logger('scale_external_images: new string: ' . $s, LOGGER_DEBUG);
+							Logger::log('scale_external_images: new string: ' . $s, Logger::DEBUG);
 						}
 					}
 				}
@@ -451,7 +452,7 @@ class BBCode extends BaseObject
 		// than the maximum, then don't waste time looking for the images
 		if ($maxlen && (strlen($body) > $maxlen)) {
 
-			logger('the total body length exceeds the limit', LOGGER_DEBUG);
+			Logger::log('the total body length exceeds the limit', Logger::DEBUG);
 
 			$orig_body = $body;
 			$new_body = '';
@@ -471,7 +472,7 @@ class BBCode extends BaseObject
 
 					if (($textlen + $img_start) > $maxlen) {
 						if ($textlen < $maxlen) {
-							logger('the limit happens before an embedded image', LOGGER_DEBUG);
+							Logger::log('the limit happens before an embedded image', Logger::DEBUG);
 							$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 							$textlen = $maxlen;
 						}
@@ -485,7 +486,7 @@ class BBCode extends BaseObject
 
 					if (($textlen + $img_end) > $maxlen) {
 						if ($textlen < $maxlen) {
-							logger('the limit happens before the end of a non-embedded image', LOGGER_DEBUG);
+							Logger::log('the limit happens before the end of a non-embedded image', Logger::DEBUG);
 							$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 							$textlen = $maxlen;
 						}
@@ -508,11 +509,11 @@ class BBCode extends BaseObject
 
 			if (($textlen + strlen($orig_body)) > $maxlen) {
 				if ($textlen < $maxlen) {
-					logger('the limit happens after the end of the last image', LOGGER_DEBUG);
+					Logger::log('the limit happens after the end of the last image', Logger::DEBUG);
 					$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 				}
 			} else {
-				logger('the text size with embedded images extracted did not violate the limit', LOGGER_DEBUG);
+				Logger::log('the text size with embedded images extracted did not violate the limit', Logger::DEBUG);
 				$new_body = $new_body . $orig_body;
 			}
 

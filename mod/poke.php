@@ -16,6 +16,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -53,7 +54,7 @@ function poke_init(App $a)
 	$parent = (x($_GET,'parent') ? intval($_GET['parent']) : 0);
 
 
-	logger('poke: verb ' . $verb . ' contact ' . $contact_id, LOGGER_DEBUG);
+	Logger::log('poke: verb ' . $verb . ' contact ' . $contact_id, Logger::DEBUG);
 
 
 	$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -62,7 +63,7 @@ function poke_init(App $a)
 	);
 
 	if (!DBA::isResult($r)) {
-		logger('poke: no contact ' . $contact_id);
+		Logger::log('poke: no contact ' . $contact_id);
 		return;
 	}
 

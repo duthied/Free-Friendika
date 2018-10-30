@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -26,7 +27,7 @@ function subthread_content(App $a) {
 	$item = Item::selectFirst([], $condition);
 
 	if (empty($item_id) || !DBA::isResult($item)) {
-		logger('subthread: no item ' . $item_id);
+		Logger::log('subthread: no item ' . $item_id);
 		return;
 	}
 
@@ -62,7 +63,7 @@ function subthread_content(App $a) {
 	}
 
 	if (!$owner) {
-		logger('like: no owner');
+		Logger::log('like: no owner');
 		return;
 	}
 

@@ -3,6 +3,7 @@
 namespace Friendica;
 
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 
 /**
@@ -136,8 +137,8 @@ abstract class BaseModule extends BaseObject
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
 			$a = get_app();
-			logger('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
-			logger('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
+			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
+			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			notice(self::getFormSecurityStandardErrorMessage());
 			$a->internalRedirect($err_redirect);
 		}
@@ -147,8 +148,8 @@ abstract class BaseModule extends BaseObject
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
 			$a = get_app();
-			logger('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
-			logger('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
+			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
+			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			header('HTTP/1.1 403 Forbidden');
 			killme();
 		}

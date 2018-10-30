@@ -7,6 +7,7 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Network;
@@ -192,7 +193,7 @@ class APContact extends BaseObject
 		// Update the gcontact table
 		DBA::update('gcontact', $contact_fields, ['nurl' => normalise_link($url)]);
 
-		logger('Updated profile for ' . $url, LOGGER_DEBUG);
+		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
 
 		return $apcontact;
 	}

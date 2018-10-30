@@ -13,6 +13,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -63,7 +64,7 @@ function frio_install()
 	Addon::registerHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
 	Addon::registerHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
-	logger('installed theme frio');
+	Logger::log('installed theme frio');
 }
 
 function frio_uninstall()
@@ -75,7 +76,7 @@ function frio_uninstall()
 	Addon::unregisterHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
 	Addon::unregisterHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
-	logger('uninstalled theme frio');
+	Logger::log('uninstalled theme frio');
 }
 
 /**

@@ -10,6 +10,7 @@ use Friendica\Content\Pager;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -204,7 +205,7 @@ function search_content(App $a) {
 	$pager = new Pager($a->query_string);
 
 	if ($tag) {
-		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
+		Logger::log("Start tag search for '".$search."'", Logger::DEBUG);
 
 		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
@@ -227,7 +228,7 @@ function search_content(App $a) {
 			$r = [];
 		}
 	} else {
-		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
+		Logger::log("Start fulltext search for '".$search."'", Logger::DEBUG);
 
 		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `body` LIKE CONCAT('%',?,'%')",
@@ -254,12 +255,12 @@ function search_content(App $a) {
 		'$title' => $title
 	]);
 
-	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
+	Logger::log("Start Conversation for '".$search."'", Logger::DEBUG);
 	$o .= conversation($a, $r, $pager, 'search', false, false, 'commented', local_user());
 
 	$o .= $pager->renderMinimal(count($r));
 
-	logger("Done '".$search."'", LOGGER_DEBUG);
+	Logger::log("Done '".$search."'", Logger::DEBUG);
 
 	return $o;
 }

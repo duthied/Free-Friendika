@@ -5,6 +5,7 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
@@ -17,7 +18,7 @@ class Queue
 	 */
 	public static function updateTime($id)
 	{
-		logger('queue: requeue item ' . $id);
+		Logger::log('queue: requeue item ' . $id);
 		$queue = DBA::selectFirst('queue', ['retrial'], ['id' => $id]);
 		if (!DBA::isResult($queue)) {
 			return;
@@ -41,7 +42,7 @@ class Queue
 	 */
 	public static function removeItem($id)
 	{
-		logger('queue: remove queue item ' . $id);
+		Logger::log('queue: remove queue item ' . $id);
 		DBA::delete('queue', ['id' => $id]);
 	}
 
@@ -100,10 +101,10 @@ class Queue
 
 		if (DBA::isResult($r)) {
 			if ($batch &&  ($r[0]['total'] > $batch_queue)) {
-				logger('too many queued items for batch server ' . $cid . ' - discarding message');
+				Logger::log('too many queued items for batch server ' . $cid . ' - discarding message');
 				return;
 			} elseif ((! $batch) && ($r[0]['total'] > $max_queue)) {
-				logger('too many queued items for contact ' . $cid . ' - discarding message');
+				Logger::log('too many queued items for contact ' . $cid . ' - discarding message');
 				return;
 			}
 		}
@@ -117,6 +118,6 @@ class Queue
 			'content' => $msg,
 			'batch'   =>($batch) ? 1 : 0
 		]);
-		logger('Added item ' . $guid . ' for ' . $cid);
+		Logger::log('Added item ' . $guid . ' for ' . $cid);
 	}
 }

@@ -9,6 +9,7 @@ use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -224,7 +225,7 @@ class Event extends BaseObject
 		}
 
 		DBA::delete('event', ['id' => $event_id]);
-		logger("Deleted event ".$event_id, LOGGER_DEBUG);
+		Logger::log("Deleted event ".$event_id, Logger::DEBUG);
 	}
 
 	/**

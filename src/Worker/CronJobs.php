@@ -8,6 +8,7 @@ use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
@@ -33,7 +34,7 @@ class CronJobs
 			return;
 		}
 
-		logger("Starting cronjob " . $command, LOGGER_DEBUG);
+		Logger::log("Starting cronjob " . $command, Logger::DEBUG);
 
 		// Call possible post update functions
 		// see src/Database/PostUpdate.php for more details
@@ -82,7 +83,7 @@ class CronJobs
 			return;
 		}
 
-		logger("Xronjob " . $command . " is unknown.", LOGGER_DEBUG);
+		Logger::log("Xronjob " . $command . " is unknown.", Logger::DEBUG);
 
 		return;
 	}
@@ -211,7 +212,7 @@ class CronJobs
 				// Calculate fragmentation
 				$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
 
-				logger("Table " . $table["Name"] . " - Fragmentation level: " . round($fragmentation * 100, 2), LOGGER_DEBUG);
+				Logger::log("Table " . $table["Name"] . " - Fragmentation level: " . round($fragmentation * 100, 2), Logger::DEBUG);
 
 				// Don't optimize tables that needn't to be optimized
 				if ($fragmentation < $fragmentation_level) {
@@ -219,7 +220,7 @@ class CronJobs
 				}
 
 				// So optimize it
-				logger("Optimize Table " . $table["Name"], LOGGER_DEBUG);
+				Logger::log("Optimize Table " . $table["Name"], Logger::DEBUG);
 				q("OPTIMIZE TABLE `%s`", DBA::escape($table["Name"]));
 			}
 		}
@@ -258,7 +259,7 @@ class CronJobs
 				continue;
 			}
 
-			logger("Repair contact " . $contact["id"] . " " . $contact["url"], LOGGER_DEBUG);
+			Logger::log("Repair contact " . $contact["id"] . " " . $contact["url"], Logger::DEBUG);
 			q("UPDATE `contact` SET `batch` = '%s', `notify` = '%s', `poll` = '%s', pubkey = '%s' WHERE `id` = %d",
 				DBA::escape($data["batch"]), DBA::escape($data["notify"]), DBA::escape($data["poll"]), DBA::escape($data["pubkey"]),
 				intval($contact["id"]));
@@ -276,7 +277,7 @@ class CronJobs
 		$r = q("SELECT `uid` FROM `user` WHERE NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)");
 		if (DBA::isResult($r)) {
 			foreach ($r AS $user) {
-				logger('Create missing self contact for user ' . $user['uid']);
+				Logger::log('Create missing self contact for user ' . $user['uid']);
 				Contact::createSelfFromUserId($user['uid']);
 			}
 		}

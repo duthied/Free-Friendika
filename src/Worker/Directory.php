@@ -8,6 +8,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Util\Network;
@@ -33,7 +34,7 @@ class Directory
 
 		Addon::callHooks('globaldir_update', $arr);
 
-		logger('Updating directory: ' . $arr['url'], LOGGER_DEBUG);
+		Logger::log('Updating directory: ' . $arr['url'], Logger::DEBUG);
 		if (strlen($arr['url'])) {
 			Network::fetchUrl($dir . '?url=' . bin2hex($arr['url']));
 		}

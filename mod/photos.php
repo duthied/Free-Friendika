@@ -12,6 +12,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -141,9 +142,9 @@ function photos_init(App $a) {
 
 function photos_post(App $a)
 {
-	logger('mod-photos: photos_post: begin' , LOGGER_DEBUG);
-	logger('mod_photos: REQUEST ' . print_r($_REQUEST, true), LOGGER_DATA);
-	logger('mod_photos: FILES '   . print_r($_FILES, true), LOGGER_DATA);
+	Logger::log('mod-photos: photos_post: begin' , Logger::DEBUG);
+	Logger::log('mod_photos: REQUEST ' . print_r($_REQUEST, true), Logger::DATA);
+	Logger::log('mod_photos: FILES '   . print_r($_FILES, true), Logger::DATA);
 
 	$phototypes = Image::supportedTypes();
 
@@ -189,7 +190,7 @@ function photos_post(App $a)
 
 	if (!$owner_record) {
 		notice(L10n::t('Contact information unavailable') . EOL);
-		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
+		Logger::log('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		killme();
 	}
 
@@ -379,7 +380,7 @@ function photos_post(App $a)
 		}
 
 		if (!empty($_POST['rotate']) && (intval($_POST['rotate']) == 1 || intval($_POST['rotate']) == 2)) {
-			logger('rotate');
+			Logger::log('rotate');
 
 			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 0 LIMIT 1",
 				DBA::escape($resource_id),
@@ -706,7 +707,7 @@ function photos_post(App $a)
 	$album    = !empty($_REQUEST['album'])    ? notags(trim($_REQUEST['album']))    : '';
 	$newalbum = !empty($_REQUEST['newalbum']) ? notags(trim($_REQUEST['newalbum'])) : '';
 
-	logger('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , LOGGER_DEBUG);
+	Logger::log('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , Logger::DEBUG);
 
 	if (!strlen($album)) {
 		if (strlen($newalbum)) {
@@ -799,7 +800,7 @@ function photos_post(App $a)
 		$type = Image::guessType($filename);
 	}
 
-	logger('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
+	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
 
 	$maximagesize = Config::get('system', 'maximagesize');
 
@@ -819,14 +820,14 @@ function photos_post(App $a)
 		return;
 	}
 
-	logger('mod/photos.php: photos_post(): loading the contents of ' . $src , LOGGER_DEBUG);
+	Logger::log('mod/photos.php: photos_post(): loading the contents of ' . $src , Logger::DEBUG);
 
 	$imagedata = @file_get_contents($src);
 
 	$image = new Image($imagedata, $type);
 
 	if (!$image->isValid()) {
-		logger('mod/photos.php: photos_post(): unable to process image' , LOGGER_DEBUG);
+		Logger::log('mod/photos.php: photos_post(): unable to process image' , Logger::DEBUG);
 		notice(L10n::t('Unable to process image.') . EOL);
 		@unlink($src);
 		$foo = 0;
@@ -855,7 +856,7 @@ function photos_post(App $a)
 	$r = Photo::store($image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
-		logger('mod/photos.php: photos_post(): image store failed', LOGGER_DEBUG);
+		Logger::log('mod/photos.php: photos_post(): image store failed', Logger::DEBUG);
 		notice(L10n::t('Image upload failed.') . EOL);
 		killme();
 	}

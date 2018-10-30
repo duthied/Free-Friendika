@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 
 require_once 'boot.php';
@@ -271,7 +272,7 @@ class L10n extends BaseObject
 	public static function tt($singular, $plural, $count)
 	{
 		if (!is_numeric($count)) {
-			logger('Non numeric count called by ' . System::callstack(20));
+			Logger::log('Non numeric count called by ' . System::callstack(20));
 		}
 
 		if (!self::$lang) {

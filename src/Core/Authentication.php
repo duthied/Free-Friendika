@@ -9,6 +9,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
@@ -153,10 +154,10 @@ class Authentication extends BaseObject
 		}
 
 		if ($login_initial) {
-			logger('auth_identities: ' . print_r($a->identities, true), LOGGER_DEBUG);
+			Logger::log('auth_identities: ' . print_r($a->identities, true), Logger::DEBUG);
 		}
 		if ($login_refresh) {
-			logger('auth_identities refresh: ' . print_r($a->identities, true), LOGGER_DEBUG);
+			Logger::log('auth_identities refresh: ' . print_r($a->identities, true), Logger::DEBUG);
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => true]);
@@ -184,7 +185,7 @@ class Authentication extends BaseObject
 			 * The week ensures that sessions will expire after some inactivity.
 			 */
 			if (!empty($_SESSION['remember'])) {
-				logger('Injecting cookie for remembered user ' . $a->user['nickname']);
+				Logger::log('Injecting cookie for remembered user ' . $a->user['nickname']);
 				self::setCookie(604800, $user_record);
 				unset($_SESSION['remember']);
 			}
