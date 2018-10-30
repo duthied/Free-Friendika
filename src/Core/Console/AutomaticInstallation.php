@@ -78,6 +78,20 @@ HELP;
 
 		$installer = new Installer();
 
+		$this->out(" Complete!\n\n");
+
+		// Check Environment
+		$this->out("Checking environment...\n");
+
+		$installer->resetChecks();
+
+		if (!$this->runBasicChecks($installer)) {
+			$errorMessage = $this->extractErrors($installer->getChecks());
+			throw new RuntimeException($errorMessage);
+		}
+
+		$this->out(" Complete!\n\n");
+
 		// if a config file is set,
 		$config_file = $this->getOption(['f', 'file']);
 
@@ -111,6 +125,10 @@ HELP;
 			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
 			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
 
+			if (empty($php_path)) {
+				$php_path = $installer->getPHPPath();
+			}
+
 			$installer->createConfig(
 				$php_path,
 				$url_path,
@@ -123,18 +141,6 @@ HELP;
 				$admin_mail,
 				$a->getBasePath()
 			);
-		}
-
-		$this->out(" Complete!\n\n");
-
-		// Check basic setup
-		$this->out("Checking basic setup...\n");
-
-		$installer->resetChecks();
-
-		if (!$this->runBasicChecks($installer)) {
-			$errorMessage = $this->extractErrors($installer->getChecks());
-			throw new RuntimeException($errorMessage);
 		}
 
 		$this->out(" Complete!\n\n");
@@ -178,37 +184,38 @@ HELP;
 	}
 
 	/**
-	 * @param Installer $install the Installer instance
+	 * @param Installer $installer the Installer instance
 	 *
 	 * @return bool true if checks were successfully, otherwise false
 	 */
-	private function runBasicChecks(Installer $install)
+	private function runBasicChecks(Installer $installer)
 	{
 		$checked = true;
 
-		$install->resetChecks();
-		if (!$install->checkFunctions())		{
+		$installer->resetChecks();
+		if (!$installer->checkFunctions())		{
 			$checked = false;
 		}
-		if (!$install->checkImagick()) {
+		if (!$installer->checkImagick()) {
 			$checked = false;
 		}
-		if (!$install->checkLocalIni()) {
+		if (!$installer->checkLocalIni()) {
 			$checked = false;
 		}
-		if (!$install->checkSmarty3()) {
+		if (!$installer->checkSmarty3()) {
 			$checked = false;
 		}
-		if ($install->checkKeys()) {
+		if (!$installer->checkKeys()) {
 			$checked = false;
 		}
 
+		$php_path = null;
 		if (!empty(Config::get('config', 'php_path'))) {
-			if (!$install->checkPHP(Config::get('config', 'php_path'), true)) {
-				throw new RuntimeException(" ERROR: The php_path is not valid in the config.\n");
-			}
-		} else {
-			throw new RuntimeException(" ERROR: The php_path is not set in the config.\n");
+			$php_path = Config::get('config', 'php_path');
+		}
+
+		if (!$installer->checkPHP($php_path, true)) {
+			$checked = false;
 		}
 
 		$this->out(" NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.\n");

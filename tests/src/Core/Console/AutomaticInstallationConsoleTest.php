@@ -48,6 +48,8 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 
 
 Creating config file...
+
+ Complete!
 CFG;
 		}
 
@@ -56,20 +58,23 @@ CFG;
 
 
 Copying config file...
+
+ Complete!
 CFG;
 		}
 
 		$finished = <<<FIN
-Initializing setup...{$cfg}
+Initializing setup...
 
  Complete!
 
 
-Checking basic setup...
+Checking environment...
 
  NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.
 
  Complete!
+{$cfg}
 
 
 Checking database...

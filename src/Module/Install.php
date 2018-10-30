@@ -87,7 +87,6 @@ class Install extends BaseModule
 				$dbuser    = notags(trim(defaults($_POST, 'dbuser', '')));
 				$dbpass    = notags(trim(defaults($_POST, 'dbpass', '')));
 				$dbdata    = notags(trim(defaults($_POST, 'dbdata', '')));
-				$phpath    = notags(trim(defaults($_POST, 'phpath', '')));
 				$timezone  = notags(trim(defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ)));
 				$language  = notags(trim(defaults($_POST, 'language', Core\Installer::DEFAULT_LANG)));
 				$adminmail = notags(trim(defaults($_POST, 'adminmail', '')));
@@ -95,7 +94,10 @@ class Install extends BaseModule
 				// If we cannot connect to the database, return to the Database config wizard
 				if (!self::$installer->checkDB($dbhost, $dbuser, $dbpass, $dbdata)) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
+					return;
 				}
+
+				$phpath = self::$installer->getPHPPath();
 
 				if (!self::$installer->createConfig($phpath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $a->getBasePath())) {
 					return;

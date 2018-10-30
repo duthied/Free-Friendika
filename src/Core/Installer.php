@@ -27,6 +27,11 @@ class Installer
 	private $checks;
 
 	/**
+	 * @var string The path to the PHP binary
+	 */
+	private $phppath = null;
+
+	/**
 	 * Returns all checks made
 	 *
 	 * @return array the checks
@@ -34,6 +39,22 @@ class Installer
 	public function getChecks()
 	{
 		return $this->checks;
+	}
+
+	/**
+	 * Returns the PHP path
+	 *
+	 * @return string the PHP Path
+	 */
+	public function getPHPPath()
+	{
+		// if not set, determine the PHP path
+		if (!isset($this->phppath)) {
+			$this->checkPHP();
+			$this->resetChecks();
+		}
+
+		return $this->phppath;
 	}
 
 	/**
@@ -197,11 +218,17 @@ class Installer
 	 */
 	public function checkPHP($phppath = null, $required = false)
 	{
-		$passed = $passed2 = $passed3 = false;
-		if (isset($phppath)) {
-			$passed = file_exists($phppath);
-		} else {
-			$phppath = trim(shell_exec('which php'));
+		$passed = false;
+		$passed2 = false;
+		$passed3 = false;
+
+		if (!isset($phppath)) {
+			$phppath = 'php';
+		}
+
+		$passed = file_exists($phppath);
+		if (!$passed) {
+			$phppath = trim(shell_exec('which ' . $phppath));
 			$passed = strlen($phppath);
 		}
 
@@ -232,12 +259,12 @@ class Installer
 			$this->addCheck(L10n::t('PHP cli binary'), $passed2, true, $help);
 		} else {
 			// return if it was required
-			return $required;
+			return !$required;
 		}
 
 		if ($passed2) {
 			$str = autoname(8);
-			$cmd = "$phppath testargs.php $str";
+			$cmd = "$phppath util/testargs.php $str";
 			$result = trim(shell_exec($cmd));
 			$passed3 = $result == $str;
 			$help = "";
@@ -557,7 +584,7 @@ class Installer
 		}
 
 		if (DBA::connected()) {
-			if (DBA::count('user') > 0) {
+			if (DBStructure::existsTable('user')) {
 				$this->addCheck(L10n::t('Database already in use.'), false, true, '');
 
 				return false;
