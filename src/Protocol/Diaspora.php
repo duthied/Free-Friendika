@@ -4115,36 +4115,28 @@ class Diaspora
 	/**
 	 * @brief Creates the signature for likes that are created on our system
 	 *
-	 * @param array $contact The contact array of the "like"
-	 * @param array $item Item array
+	 * @param integer $uid  The user of that comment
+	 * @param array   $item Item array
 	 *
 	 * @return array Signed content
 	 */
-	public static function createLikeSignature(array $contact, array $item)
+	public static function createLikeSignature($uid, array $item)
 	{
-		// Is the contact the owner? Then fetch the private key
-		if (!$contact['self'] || ($contact['uid'] == 0)) {
-			logger("No owner post, so not storing signature", LOGGER_DEBUG);
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
 			return false;
 		}
-
-		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $contact["uid"]]);
-		if (!DBA::isResult($user)) {
-			return false;
-		}
-
-		$contact["uprvkey"] = $user['prvkey'];
 
 		if (!in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
 
-		$message = self::constructLike($item, $contact);
+		$message = self::constructLike($item, $owner);
 		if ($message === false) {
 			return false;
 		}
 
-		$message["author_signature"] = self::signature($contact, $message);
+		$message["author_signature"] = self::signature($owner, $message);
 
 		return $message;
 	}
@@ -4152,32 +4144,34 @@ class Diaspora
 	/**
 	 * @brief Creates the signature for Comments that are created on our system
 	 *
-	 * @param array $contact The contact array of the comment
-	 * @param array $item Item array
+	 * @param integer $uid  The user of that comment
+	 * @param array   $item Item array
 	 *
 	 * @return array Signed content
 	 */
-	public static function createCommentSignature(array $contact, array $item)
+	public static function createCommentSignature($uid, array $item)
 	{
-		// Is the contact the owner? Then fetch the private key
-		if (!$contact['self'] || ($contact['uid'] == 0)) {
-			logger("No owner post, so not storing signature", LOGGER_DEBUG);
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
 			return false;
 		}
 
-		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $contact["uid"]]);
-		if (!DBA::isResult($user)) {
-			return false;
+		// This is a workaround for the behaviour of the "insert" function, see mod/item.php
+		$item['thr-parent'] = $item['parent-uri'];
+
+		$parent = Item::selectFirst(['parent-uri'], ['uri' => $item['parent-uri']]);
+		if (!DBA::isResult($parent)) {
+			return;
 		}
 
-		$contact["uprvkey"] = $user['prvkey'];
+		$item['parent-uri'] = $parent['parent-uri'];
 
-		$message = self::constructComment($item, $contact);
+		$message = self::constructComment($item, $owner);
 		if ($message === false) {
 			return false;
 		}
 
-		$message["author_signature"] = self::signature($contact, $message);
+		$message["author_signature"] = self::signature($owner, $message);
 
 		return $message;
 	}

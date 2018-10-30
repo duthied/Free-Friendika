@@ -3111,7 +3111,7 @@ class Item extends BaseObject
 			'unseen'        => 1,
 		];
 
-		$signed = Diaspora::createLikeSignature($item_contact, $new_item);
+		$signed = Diaspora::createLikeSignature($uid, $new_item);
 		if (!empty($signed)) {
 			$new_item['diaspora_signed_text'] = json_encode($signed);
 		}
