@@ -1101,10 +1101,10 @@ class App
 
 		$processlist = DBA::processlist();
 		if ($processlist['list'] != '') {
-			Core\Logger::log('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], Logger::DEBUG);
+			Core\Logger::log('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], Core\Logger::DEBUG);
 
 			if ($processlist['amount'] > $max_processes) {
-				Core\Logger::log('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.', Logger::DEBUG);
+				Core\Logger::log('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.', Core\Logger::DEBUG);
 				return true;
 			}
 		}
@@ -1150,7 +1150,7 @@ class App
 		$reached = ($free < $min_memory);
 
 		if ($reached) {
-			Core\Logger::log('Minimal memory reached: ' . $free . '/' . $meminfo['MemTotal'] . ' - limit ' . $min_memory, Logger::DEBUG);
+			Core\Logger::log('Minimal memory reached: ' . $free . '/' . $meminfo['MemTotal'] . ' - limit ' . $min_memory, Core\Logger::DEBUG);
 		}
 
 		return $reached;
@@ -1222,7 +1222,7 @@ class App
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
 		}
 		if (!is_resource($resource)) {
-			Core\Logger::log('We got no resource for command ' . $cmdline, Logger::DEBUG);
+			Core\Logger::log('We got no resource for command ' . $cmdline, Core\Logger::DEBUG);
 			return;
 		}
 		proc_close($resource);
@@ -1253,27 +1253,27 @@ class App
 	public static function isDirectoryUsable($directory, $check_writable = true)
 	{
 		if ($directory == '') {
-			Core\Logger::log('Directory is empty. This shouldn\'t happen.', Logger::DEBUG);
+			Core\Logger::log('Directory is empty. This shouldn\'t happen.', Core\Logger::DEBUG);
 			return false;
 		}
 
 		if (!file_exists($directory)) {
-			Core\Logger::log('Path "' . $directory . '" does not exist for user ' . self::getSystemUser(), Logger::DEBUG);
+			Core\Logger::log('Path "' . $directory . '" does not exist for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
 		if (is_file($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is a file for user ' . self::getSystemUser(), Logger::DEBUG);
+			Core\Logger::log('Path "' . $directory . '" is a file for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
 		if (!is_dir($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not a directory for user ' . self::getSystemUser(), Logger::DEBUG);
+			Core\Logger::log('Path "' . $directory . '" is not a directory for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
 		if ($check_writable && !is_writable($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not writable for user ' . self::getSystemUser(), Logger::DEBUG);
+			Core\Logger::log('Path "' . $directory . '" is not writable for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
@@ -1646,7 +1646,7 @@ class App
 				} else {
 					// Someone came with an invalid parameter, maybe as a DDoS attempt
 					// We simply stop processing here
-					Core\Logger::log("Invalid ZRL parameter " . $_GET['zrl'], Logger::DEBUG);
+					Core\Logger::log("Invalid ZRL parameter " . $_GET['zrl'], Core\Logger::DEBUG);
 					Core\System::httpExit(403, ['title' => '403 Forbidden']);
 				}
 			}
@@ -1789,7 +1789,7 @@ class App
 					$this->internalRedirect($_SERVER['REQUEST_URI']);
 				}
 
-				Core\Logger::log('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], Logger::DEBUG);
+				Core\Logger::log('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], Core\Logger::DEBUG);
 
 				header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . Core\L10n::t('Not Found'));
 				$tpl = get_markup_template("404.tpl");
