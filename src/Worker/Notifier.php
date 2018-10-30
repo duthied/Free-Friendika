@@ -412,13 +412,17 @@ class Notifier
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
 			}
-			$contacts = DBA::select('contact', ['id', 'url', 'network'], $condition);
+			$contacts = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
 			$r = DBA::toArray($contacts);
 		}
 
 		// delivery loop
 		if (DBA::isResult($r)) {
 			foreach ($r as $contact) {
+				if (($contact['network'] == Protocol::DIASPORA) && $diaspora_delivery && $public_message && !empty($contact['batch'])
+					&& !in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
+					continue;
+				}
 				logger("Deliver ".$item_id." to ".$contact['url']." via network ".$contact['network'], LOGGER_DEBUG);
 
 				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
