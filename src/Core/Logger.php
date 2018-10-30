@@ -4,6 +4,7 @@
  */
 namespace Friendica\Core;
 
+use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Util\DateTimeFormat;
 use ReflectionClass;
