@@ -31,6 +31,14 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->db_data = getenv('MYSQL_DATABASE');
 		$this->db_user = getenv('MYSQL_USERNAME') . getenv('MYSQL_USER');
 		$this->db_pass = getenv('MYSQL_PASSWORD');
+
+		// Mocking 'DBStructure::existsTable()' because with CI, we cannot create an empty database
+		// therefore we temporary override the existing database
+		/// @todo Mocking the DB-Calls of ConsoleTest so we don't need this specific mock anymore
+		$existsMock = \Mockery::mock('alias:Friendica\Database\DBStructure');
+		$existsMock->shouldReceive('existsTable')
+			->with('user')
+			->andReturn(false);
 	}
 
 	private function assertConfig($family, $key, $value)
