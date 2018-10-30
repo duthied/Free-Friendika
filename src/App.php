@@ -505,6 +505,7 @@ class App
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URI'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_SCRIPT_URL', $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
+		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
 
 		$this->urlPath = $this->getConfigValue('system', 'urlpath');
 

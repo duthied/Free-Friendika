@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-class InstallTest extends TestCase
+class InstallerTest extends TestCase
 {
 	use VFSTrait;
 
@@ -74,11 +74,11 @@ class InstallTest extends TestCase
 	public function testCheckKeys()
 	{
 		$this->setFunctions(['openssl_pkey_new' => false]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertFalse($install->checkKeys());
 
 		$this->setFunctions(['openssl_pkey_new' => true]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertTrue($install->checkKeys());
 	}
 
@@ -88,7 +88,7 @@ class InstallTest extends TestCase
 	public function testCheckFunctions()
 	{
 		$this->setFunctions(['curl_init' => false]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertFalse($install->checkFunctions());
 		$this->assertCheckExist(3,
 			L10n::t('libCurl PHP module'),
@@ -98,7 +98,7 @@ class InstallTest extends TestCase
 			$install->getChecks());
 
 		$this->setFunctions(['imagecreatefromjpeg' => false]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertFalse($install->checkFunctions());
 		$this->assertCheckExist(4,
 			L10n::t('GD graphics PHP module'),
@@ -108,7 +108,7 @@ class InstallTest extends TestCase
 			$install->getChecks());
 
 		$this->setFunctions(['openssl_public_encrypt' => false]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertFalse($install->checkFunctions());
 		$this->assertCheckExist(5,
 			L10n::t('OpenSSL PHP module'),
@@ -118,7 +118,7 @@ class InstallTest extends TestCase
 			$install->getChecks());
 
 		$this->setFunctions(['mb_strlen' => false]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertFalse($install->checkFunctions());
 		$this->assertCheckExist(6,
 			L10n::t('mb_string PHP module'),
@@ -128,7 +128,7 @@ class InstallTest extends TestCase
 			$install->getChecks());
 
 		$this->setFunctions(['iconv_strlen' => false]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertFalse($install->checkFunctions());
 		$this->assertCheckExist(7,
 			L10n::t('iconv PHP module'),
@@ -138,7 +138,7 @@ class InstallTest extends TestCase
 			$install->getChecks());
 
 		$this->setFunctions(['posix_kill' => false]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertFalse($install->checkFunctions());
 		$this->assertCheckExist(8,
 			L10n::t('POSIX PHP module'),
@@ -155,7 +155,7 @@ class InstallTest extends TestCase
 			'iconv_strlen' => true,
 			'posix_kill' => true
 		]);
-		$install = new Install();
+		$install = new Installer();
 		$this->assertTrue($install->checkFunctions());
 	}
 
@@ -166,14 +166,14 @@ class InstallTest extends TestCase
 	{
 		$this->assertTrue($this->root->hasChild('config/local.ini.php'));
 
-		$install = new Install();
+		$install = new Installer();
 		$this->assertTrue($install->checkLocalIni());
 
 		$this->delConfigFile('local.ini.php');
 
 		$this->assertFalse($this->root->hasChild('config/local.ini.php'));
 
-		$install = new Install();
+		$install = new Installer();
 		$this->assertTrue($install->checkLocalIni());
 	}
 
@@ -185,8 +185,8 @@ class InstallTest extends TestCase
 		// Mocking the CURL Response
 		$curlResult = \Mockery::mock('Friendica\Network\CurlResult');
 		$curlResult
-			->shouldReceive('getBody')
-			->andReturn('not ok');
+			->shouldReceive('getReturnCode')
+			->andReturn('404');
 		$curlResult
 			->shouldReceive('getRedirectUrl')
 			->andReturn('');
@@ -211,9 +211,9 @@ class InstallTest extends TestCase
 		// needed because of "normalise_link"
 		require_once __DIR__ . '/../../../include/text.php';
 
-		$install = new Install();
+		$install = new Installer();
 
-		$this->assertFalse($install->checkHtAccess('https://test', 'https://test'));
+		$this->assertFalse($install->checkHtAccess('https://test'));
 		$this->assertSame('test Error', $install->getChecks()[0]['error_msg']['msg']);
 	}
 
@@ -225,14 +225,14 @@ class InstallTest extends TestCase
 		// Mocking the failed CURL Response
 		$curlResultF = \Mockery::mock('Friendica\Network\CurlResult');
 		$curlResultF
-			->shouldReceive('getBody')
-			->andReturn('not ok');
+			->shouldReceive('getReturnCode')
+			->andReturn('404');
 
 		// Mocking the working CURL Response
 		$curlResultW = \Mockery::mock('Friendica\Network\CurlResult');
 		$curlResultW
-			->shouldReceive('getBody')
-			->andReturn('ok');
+			->shouldReceive('getReturnCode')
+			->andReturn('204');
 
 		// Mocking the CURL Request
 		$networkMock = \Mockery::mock('alias:Friendica\Util\Network');
@@ -251,9 +251,9 @@ class InstallTest extends TestCase
 		// needed because of "normalise_link"
 		require_once __DIR__ . '/../../../include/text.php';
 
-		$install = new Install();
+		$install = new Installer();
 
-		$this->assertTrue($install->checkHtAccess('https://test', 'https://test'));
+		$this->assertTrue($install->checkHtAccess('https://test'));
 	}
 
 	/**
@@ -268,7 +268,7 @@ class InstallTest extends TestCase
 
 		$this->setClasses(['Imagick' => true]);
 
-		$install = new Install();
+		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
 		$this->assertTrue($install->checkImagick());
@@ -293,7 +293,7 @@ class InstallTest extends TestCase
 
 		$this->setClasses(['Imagick' => true]);
 
-		$install = new Install();
+		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
 		$this->assertTrue($install->checkImagick());
@@ -309,7 +309,7 @@ class InstallTest extends TestCase
 	{
 		$this->setClasses(['Imagick' => false]);
 
-		$install = new Install();
+		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
 		$this->assertTrue($install->checkImagick());

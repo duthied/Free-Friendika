@@ -4,10 +4,6 @@
 <h2>{{$pass}}</h2>
 
 
-{{if $status}}
-<h3 class="error-message">{{$status}}</h3>
-{{/if}}
-
 <form id="install-form" action="{{$baseurl}}/install" method="post">
 
 <input type="hidden" name="phpath" value="{{$phpath|escape:'html'}}" />

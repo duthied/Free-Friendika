@@ -6,18 +6,30 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
+use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
 
 /**
  * Contains methods for installation purpose of Friendica
  */
-class Install
+class Installer
 {
+	// Default values for the install page
+	const DEFAULT_LANG = 'en';
+	const DEFAULT_TZ   = 'America/Los_Angeles';
+	const DEFAULT_HOST = 'localhost';
+
 	/**
 	 * @var array the check outcomes
 	 */
 	private $checks;
+
+	/**
+	 * @var string The path to the PHP binary
+	 */
+	private $phppath = null;
 
 	/**
 	 * Returns all checks made
@@ -27,6 +39,22 @@ class Install
 	public function getChecks()
 	{
 		return $this->checks;
+	}
+
+	/**
+	 * Returns the PHP path
+	 *
+	 * @return string the PHP Path
+	 */
+	public function getPHPPath()
+	{
+		// if not set, determine the PHP path
+		if (!isset($this->phppath)) {
+			$this->checkPHP();
+			$this->resetChecks();
+		}
+
+		return $this->phppath;
 	}
 
 	/**
@@ -49,13 +77,12 @@ class Install
 	/**
 	 * Checks the current installation environment. There are optional and mandatory checks.
 	 *
-	 * @param string $basepath    The basepath of Friendica
 	 * @param string $baseurl     The baseurl of Friendica
 	 * @param string $phpath      Optional path to the PHP binary
 	 *
 	 * @return bool if the check succeed
 	 */
-	public function checkAll($basepath, $baseurl, $phpath = null)
+	public function checkEnvironment($baseurl, $phpath = null)
 	{
 		$returnVal = true;
 
@@ -85,7 +112,7 @@ class Install
 			$returnVal = false;
 		}
 
-		if (!$this->checkHtAccess($basepath, $baseurl)) {
+		if (!$this->checkHtAccess($baseurl)) {
 			$returnVal = false;
 		}
 
@@ -108,12 +135,12 @@ class Install
 	 * @param string 	$adminmail 	Mail-Adress of the administrator
 	 * @param string 	$basepath   The basepath of Friendica
 	 *
-	 * @return bool|string true if the config was created, the text if something went wrong
+	 * @return bool true if the config was created, otherwise false
 	 */
 	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
 	{
 		$tpl = get_markup_template('local.ini.tpl');
-		$txt = replace_macros($tpl,[
+		$txt = replace_macros($tpl, [
 			'$phpath' => $phppath,
 			'$dbhost' => $dbhost,
 			'$dbuser' => $dbuser,
@@ -128,10 +155,31 @@ class Install
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
 
 		if (!$result) {
-			return $txt;
-		} else {
-			return true;
+			$this->addCheck(L10n::t('The database configuration file "config/local.ini.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.'), false, false, htmlentities($txt, ENT_COMPAT, 'UTF-8'));
 		}
+
+		return $result;
+	}
+
+	/***
+	 * Installs the DB-Scheme for Friendica
+	 *
+	 * @return bool true if the installation was successful, otherwise false
+	 */
+	public function installDatabase()
+	{
+		$result = DBStructure::update(false, true, true);
+
+		if ($result) {
+			$txt = L10n::t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
+			$txt .= L10n::t('Please see the file "INSTALL.txt".');
+
+			$this->addCheck($txt, false, true, htmlentities($result, ENT_COMPAT, 'UTF-8'));
+
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -170,11 +218,17 @@ class Install
 	 */
 	public function checkPHP($phppath = null, $required = false)
 	{
-		$passed = $passed2 = $passed3 = false;
-		if (isset($phppath)) {
-			$passed = file_exists($phppath);
-		} else {
-			$phppath = trim(shell_exec('which php'));
+		$passed = false;
+		$passed2 = false;
+		$passed3 = false;
+
+		if (!isset($phppath)) {
+			$phppath = 'php';
+		}
+
+		$passed = file_exists($phppath);
+		if (!$passed) {
+			$phppath = trim(shell_exec('which ' . $phppath));
 			$passed = strlen($phppath);
 		}
 
@@ -205,12 +259,12 @@ class Install
 			$this->addCheck(L10n::t('PHP cli binary'), $passed2, true, $help);
 		} else {
 			// return if it was required
-			return $required;
+			return !$required;
 		}
 
 		if ($passed2) {
 			$str = autoname(8);
-			$cmd = "$phppath testargs.php $str";
+			$cmd = "$phppath util/testargs.php $str";
 			$result = trim(shell_exec($cmd));
 			$passed3 = $result == $str;
 			$help = "";
@@ -444,26 +498,25 @@ class Install
 	 *
 	 * Checks, if "url_rewrite" is enabled in the ".htaccess" file
 	 *
-	 * @param string $basepath   The basepath of the app
 	 * @param string $baseurl    The baseurl of the app
 	 * @return bool false if something required failed
 	 */
-	public function checkHtAccess($basepath, $baseurl)
+	public function checkHtAccess($baseurl)
 	{
 		$status = true;
 		$help = "";
 		$error_msg = "";
 		if (function_exists('curl_init')) {
-			$fetchResult = Network::fetchUrlFull($basepath . "/install/testrewrite");
+			$fetchResult = Network::fetchUrlFull($baseurl . "/install/testrewrite");
 
 			$url = normalise_link($baseurl . "/install/testrewrite");
-			if ($fetchResult->getBody() != "ok") {
+			if ($fetchResult->getReturnCode() != 204) {
 				$fetchResult = Network::fetchUrlFull($url);
 			}
 
-			if ($fetchResult->getBody() != "ok") {
+			if ($fetchResult->getReturnCode() != 204) {
 				$status = false;
-				$help = L10n::t('Url rewrite in .htaccess is not working. Check your server configuration.');
+				$help = L10n::t('Url rewrite in .htaccess is not working. Make sure you copied .htaccess-dist to .htaccess.');
 				$error_msg = [];
 				$error_msg['head'] = L10n::t('Error message from Curl when fetching');
 				$error_msg['url'] = $fetchResult->getRedirectUrl();
@@ -508,6 +561,36 @@ class Install
 		}
 
 		// Imagick is not required
+		return true;
+	}
+
+	/**
+	 * Checking the Database connection and if it is available for the current installation
+	 *
+	 * @param string 	$dbhost 	Hostname/IP of the Friendica Database
+	 * @param string 	$dbuser 	Username of the Database connection credentials
+	 * @param string 	$dbpass 	Password of the Database connection credentials
+	 * @param string 	$dbdata 	Name of the Database
+	 *
+	 * @return bool true if the check was successful, otherwise false
+	 */
+	public function checkDB($dbhost, $dbuser, $dbpass, $dbdata)
+	{
+		require_once 'include/dba.php';
+		if (!DBA::connect($dbhost, $dbuser, $dbpass, $dbdata)) {
+			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
+
+			return false;
+		}
+
+		if (DBA::connected()) {
+			if (DBStructure::existsTable('user')) {
+				$this->addCheck(L10n::t('Database already in use.'), false, true, '');
+
+				return false;
+			}
+		}
+
 		return true;
 	}
 }
