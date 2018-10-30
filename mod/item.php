@@ -29,6 +29,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
+use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
@@ -291,17 +292,21 @@ function item_post(App $a) {
 		}
 	}
 
-	if (!empty($categories)) {
+	if (!empty($categories))
+	{
 		// get the "fileas" tags for this post
-		$filedas = file_tag_file_to_list($categories, 'file');
+		$filedas = FileTag::fileToList($categories, 'file');
 	}
+
 	// save old and new categories, so we can determine what needs to be deleted from pconfig
 	$categories_old = $categories;
-	$categories = file_tag_list_to_file(trim(defaults($_REQUEST, 'category', '')), 'category');
+	$categories = FileTag::listToFile(trim(defaults($_REQUEST, 'category', '')), 'category');
 	$categories_new = $categories;
-	if (!empty($filedas)) {
+
+	if (!empty($filedas))
+	{
 		// append the fileas stuff to the new categories list
-		$categories .= file_tag_list_to_file($filedas, 'file');
+		$categories .= FileTag::listToFile($filedas, 'file');
 	}
 
 	// get contact info for poster
@@ -712,7 +717,7 @@ function item_post(App $a) {
 		Item::update($fields, ['id' => $post_id]);
 
 		// update filetags in pconfig
-		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
+		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 		if (!empty($_REQUEST['return']) && strlen($return_path)) {
 			Logger::log('return: ' . $return_path);
@@ -749,7 +754,7 @@ function item_post(App $a) {
 	}
 
 	// update filetags in pconfig
-	file_tag_update_pconfig($uid, $categories_old, $categories_new, 'category');
+	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 	// These notifications are sent if someone else is commenting other your wall
 	if ($parent) {

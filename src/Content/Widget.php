@@ -14,6 +14,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 
@@ -185,8 +186,9 @@ class Widget
 		$terms = array();
 		$cnt = preg_match_all('/\[(.*?)\]/', $saved, $matches, PREG_SET_ORDER);
 		if ($cnt) {
-			foreach ($matches as $mtch) {
-				$unescaped = xmlify(file_tag_decode($mtch[1]));
+			foreach ($matches as $mtch)
+			{
+				$unescaped = xmlify(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}
@@ -226,7 +228,7 @@ class Widget
 
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				$unescaped = xmlify(file_tag_decode($mtch[1]));
+				$unescaped = xmlify(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}
