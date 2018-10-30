@@ -193,7 +193,7 @@ class APContact extends BaseObject
 		// Update the gcontact table
 		DBA::update('gcontact', $contact_fields, ['nurl' => normalise_link($url)]);
 
-		Logger::log('Updated profile for ' . $url, LOGGER_DEBUG);
+		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
 
 		return $apcontact;
 	}

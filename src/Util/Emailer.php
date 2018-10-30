@@ -97,8 +97,8 @@ class Emailer
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
-		Logger::log("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
-		Logger::log("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
+		Logger::log("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, Logger::DEBUG);
+		Logger::log("return value " . (($res)?"true":"false"), Logger::DEBUG);
 		return $res;
 	}
 }

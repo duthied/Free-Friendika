@@ -134,7 +134,7 @@ function notification($params)
 	if ($params['type'] == NOTIFY_COMMENT) {
 		$thread = Item::selectFirstThreadForUser($params['uid'] ,['ignored'], ['iid' => $parent_id]);
 		if (DBA::isResult($thread) && $thread["ignored"]) {
-			Logger::log("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
+			Logger::log("Thread ".$parent_id." will be ignored", Logger::DEBUG);
 			L10n::popLang();
 			return;
 		}
@@ -453,7 +453,7 @@ function notification($params)
 	$itemlink  = $h['itemlink'];
 
 	if ($show_in_notification_page) {
-		Logger::log("adding notification entry", LOGGER_DEBUG);
+		Logger::log("adding notification entry", Logger::DEBUG);
 		do {
 			$dups = false;
 			$hash = random_string();
@@ -537,7 +537,7 @@ function notification($params)
 
 			// Is this the first email notification for this parent item and user?
 			if (!DBA::exists('notify-threads', ['master-parent-item' => $params['parent'], 'receiver-uid' => $params['uid']])) {
-				Logger::log("notify_id:".intval($notify_id).", parent: ".intval($params['parent'])."uid: ".intval($params['uid']), LOGGER_DEBUG);
+				Logger::log("notify_id:".intval($notify_id).", parent: ".intval($params['parent'])."uid: ".intval($params['uid']), Logger::DEBUG);
 
 				$fields = ['notify-id' => $notify_id, 'master-parent-item' => $params['parent'],
 					'receiver-uid' => $params['uid'], 'parent-item' => 0];
@@ -546,11 +546,11 @@ function notification($params)
 				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
 				$log_msg = "include/enotify: No previous notification found for this parent:\n".
 						"  parent: ${params['parent']}\n"."  uid   : ${params['uid']}\n";
-				Logger::log($log_msg, LOGGER_DEBUG);
+				Logger::log($log_msg, Logger::DEBUG);
 			} else {
 				// If not, just "follow" the thread.
 				$additional_mail_header .= "References: <${id_for_parent}>\nIn-Reply-To: <${id_for_parent}>\n";
-				Logger::log("There's already a notification for this parent.", LOGGER_DEBUG);
+				Logger::log("There's already a notification for this parent.", Logger::DEBUG);
 			}
 		}
 

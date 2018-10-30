@@ -34,7 +34,7 @@ class Delivery extends BaseObject
 
 	public static function execute($cmd, $item_id, $contact_id)
 	{
-		Logger::log('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, LOGGER_DEBUG);
+		Logger::log('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, Logger::DEBUG);
 
 		$top_level = false;
 		$followup = false;
@@ -126,7 +126,7 @@ class Delivery extends BaseObject
 			 */
 
 			if (!$top_level && ($parent['wall'] == 0) && stristr($target_item['uri'], $localhost)) {
-				Logger::log('Followup ' . $target_item["guid"], LOGGER_DEBUG);
+				Logger::log('Followup ' . $target_item["guid"], Logger::DEBUG);
 				// local followup to remote post
 				$followup = true;
 			}
@@ -241,7 +241,7 @@ class Delivery extends BaseObject
 			$atom = DFRN::entries($msgitems, $owner);
 		}
 
-		Logger::log('Notifier entry: ' . $contact["url"] . ' ' . $target_item["guid"] . ' entry: ' . $atom, LOGGER_DATA);
+		Logger::log('Notifier entry: ' . $contact["url"] . ' ' . $target_item["guid"] . ' entry: ' . $atom, Logger::DATA);
 
 		$basepath =  implode('/', array_slice(explode('/', $contact['url']), 0, 3));
 

@@ -107,7 +107,7 @@ class Network
 		$url = self::unparseURL($parts);
 
 		if (self::isUrlBlocked($url)) {
-			Logger::log('domain of ' . $url . ' is blocked', LOGGER_DATA);
+			Logger::log('domain of ' . $url . ' is blocked', Logger::DATA);
 			return CurlResult::createErrorCurl($url);
 		}
 
@@ -241,7 +241,7 @@ class Network
 		$stamp1 = microtime(true);
 
 		if (self::isUrlBlocked($url)) {
-			Logger::log('post_url: domain of ' . $url . ' is blocked', LOGGER_DATA);
+			Logger::log('post_url: domain of ' . $url . ' is blocked', Logger::DATA);
 			return CurlResult::createErrorCurl($url);
 		}
 
@@ -252,7 +252,7 @@ class Network
 			return CurlResult::createErrorCurl($url);
 		}
 
-		Logger::log('post_url: start ' . $url, LOGGER_DATA);
+		Logger::log('post_url: start ' . $url, Logger::DATA);
 
 		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -324,7 +324,7 @@ class Network
 
 		$a->saveTimestamp($stamp1, 'network');
 
-		Logger::log('post_url: end ' . $url, LOGGER_DATA);
+		Logger::log('post_url: end ' . $url, Logger::DATA);
 
 		return $curlResponse;
 	}
@@ -528,7 +528,7 @@ class Network
 			$avatar['url'] = System::baseUrl() . '/images/person-300.jpg';
 		}
 
-		Logger::log('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], LOGGER_DEBUG);
+		Logger::log('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], Logger::DEBUG);
 		return $avatar['url'];
 	}
 

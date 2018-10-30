@@ -58,7 +58,7 @@ class Notifier
 	{
 		$a = BaseObject::getApp();
 
-		Logger::log('notifier: invoked: '.$cmd.': '.$item_id, LOGGER_DEBUG);
+		Logger::log('notifier: invoked: '.$cmd.': '.$item_id, Logger::DEBUG);
 
 		$top_level = false;
 		$recipients = [];
@@ -105,7 +105,7 @@ class Notifier
 
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
 			foreach ($inboxes as $inbox) {
-				Logger::log('Account removal for user ' . $item_id . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+				Logger::log('Account removal for user ' . $item_id . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
 				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 					'APDelivery', Delivery::REMOVAL, '', $inbox, $item_id);
 			}
@@ -185,7 +185,7 @@ class Notifier
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
 			$thr_parent = Item::selectFirst($fields, $condition);
 
-			Logger::log('GUID: '.$target_item["guid"].': Parent is '.$parent['network'].'. Thread parent is '.$thr_parent['network'], LOGGER_DEBUG);
+			Logger::log('GUID: '.$target_item["guid"].': Parent is '.$parent['network'].'. Thread parent is '.$thr_parent['network'], Logger::DEBUG);
 
 			// This is IMPORTANT!!!!
 
@@ -249,7 +249,7 @@ class Notifier
 				$recipients = [$parent['contact-id']];
 				$recipients_followup  = [$parent['contact-id']];
 
-				Logger::log('notifier: followup '.$target_item["guid"].' to '.$conversant_str, LOGGER_DEBUG);
+				Logger::log('notifier: followup '.$target_item["guid"].' to '.$conversant_str, Logger::DEBUG);
 
 				//if (!$target_item['private'] && $target_item['wall'] &&
 				if (!$target_item['private'] &&
@@ -279,11 +279,11 @@ class Notifier
 					$push_notify = false;
 				}
 
-				Logger::log("Notify ".$target_item["guid"]." via PuSH: ".($push_notify?"Yes":"No"), LOGGER_DEBUG);
+				Logger::log("Notify ".$target_item["guid"]." via PuSH: ".($push_notify?"Yes":"No"), Logger::DEBUG);
 			} else {
 				$followup = false;
 
-				Logger::log('Distributing directly '.$target_item["guid"], LOGGER_DEBUG);
+				Logger::log('Distributing directly '.$target_item["guid"], Logger::DEBUG);
 
 				// don't send deletions onward for other people's stuff
 
@@ -346,7 +346,7 @@ class Notifier
 			if (($thr_parent && ($thr_parent['network'] == Protocol::OSTATUS)) || ($parent['network'] == Protocol::OSTATUS)) {
 				$diaspora_delivery = false;
 
-				Logger::log('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent['author-id']." - Owner: ".$thr_parent['owner-id'], LOGGER_DEBUG);
+				Logger::log('Some parent is OStatus for '.$target_item["guid"]." - Author: ".$thr_parent['author-id']." - Owner: ".$thr_parent['owner-id'], Logger::DEBUG);
 
 				// Send a salmon to the parent author
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['author-id']]);
@@ -365,7 +365,7 @@ class Notifier
 				// Send a salmon notification to every person we mentioned in the post
 				$arr = explode(',',$target_item['tag']);
 				foreach ($arr as $x) {
-					//Logger::log('Checking tag '.$x, LOGGER_DEBUG);
+					//Logger::log('Checking tag '.$x, Logger::DEBUG);
 					$matches = null;
 					if (preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
 							$probed_contact = Probe::uri($matches[1]);
@@ -420,7 +420,7 @@ class Notifier
 		// delivery loop
 		if (DBA::isResult($r)) {
 			foreach ($r as $contact) {
-				Logger::log("Deliver ".$item_id." to ".$contact['url']." via network ".$contact['network'], LOGGER_DEBUG);
+				Logger::log("Deliver ".$item_id." to ".$contact['url']." via network ".$contact['network'], Logger::DEBUG);
 
 				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 						'Delivery', $cmd, $item_id, (int)$contact['id']);
@@ -470,7 +470,7 @@ class Notifier
 			$r = array_merge($r2, $r1);
 
 			if (DBA::isResult($r)) {
-				Logger::log('pubdeliver '.$target_item["guid"].': '.print_r($r,true), LOGGER_DEBUG);
+				Logger::log('pubdeliver '.$target_item["guid"].': '.print_r($r,true), Logger::DEBUG);
 
 				foreach ($r as $rr) {
 					// except for Diaspora batch jobs
@@ -494,13 +494,13 @@ class Notifier
 
 		// Notify PuSH subscribers (Used for OStatus distribution of regular posts)
 		if ($push_notify) {
-			Logger::log('Activating internal PuSH for item '.$item_id, LOGGER_DEBUG);
+			Logger::log('Activating internal PuSH for item '.$item_id, Logger::DEBUG);
 
 			// Handling the pubsubhubbub requests
 			PushSubscriber::publishFeed($owner['uid'], $a->queue['priority']);
 		}
 
-		Logger::log('notifier: calling hooks for ' . $cmd . ' ' . $item_id, LOGGER_DEBUG);
+		Logger::log('notifier: calling hooks for ' . $cmd . ' ' . $item_id, Logger::DEBUG);
 
 		if ($normal_mode) {
 			Hook::fork($a->queue['priority'], 'notifier_normal', $target_item);
@@ -518,15 +518,15 @@ class Notifier
 
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
-			Logger::log('Origin item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', LOGGER_DEBUG);
+			Logger::log('Origin item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
-			Logger::log('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', LOGGER_DEBUG);
+			Logger::log('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', Logger::DEBUG);
 			return;
 		} else {
 			// Remote items are transmitted via the personal inboxes.
 			// Doing so ensures that the dedicated receiver will get the message.
 			$personal = true;
-			Logger::log('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', LOGGER_DEBUG);
+			Logger::log('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		}
 
 		if ($parent['origin']) {
@@ -535,7 +535,7 @@ class Notifier
 		}
 
 		if (empty($inboxes)) {
-			Logger::log('No inboxes found for item ' . $item_id . ' with URL ' . $target_item['uri'] . '. It will not be distributed.', LOGGER_DEBUG);
+			Logger::log('No inboxes found for item ' . $item_id . ' with URL ' . $target_item['uri'] . '. It will not be distributed.', Logger::DEBUG);
 			return;
 		}
 
@@ -543,7 +543,7 @@ class Notifier
 		ActivityPub\Transmitter::createCachedActivityFromItem($item_id, true);
 
 		foreach ($inboxes as $inbox) {
-			Logger::log('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+			Logger::log('Deliver ' . $item_id .' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
 
 			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 					'APDelivery', $cmd, $item_id, $inbox, $uid);

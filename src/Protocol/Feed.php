@@ -41,12 +41,12 @@ class Feed {
 		$a = get_app();
 
 		if (!$simulate) {
-			Logger::log("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], LOGGER_DEBUG);
+			Logger::log("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], Logger::DEBUG);
 		} else {
-			Logger::log("Test Atom/RSS feed", LOGGER_DEBUG);
+			Logger::log("Test Atom/RSS feed", Logger::DEBUG);
 		}
 		if (empty($xml)) {
-			Logger::log('XML is empty.', LOGGER_DEBUG);
+			Logger::log('XML is empty.', Logger::DEBUG);
 			return;
 		}
 
@@ -200,7 +200,7 @@ class Feed {
 		$header["contact-id"] = $contact["id"];
 
 		if (!is_object($entries)) {
-			Logger::log("There are no entries in this feed.", LOGGER_DEBUG);
+			Logger::log("There are no entries in this feed.", Logger::DEBUG);
 			return;
 		}
 
@@ -249,7 +249,7 @@ class Feed {
 					$importer["uid"], $item["uri"], Protocol::FEED, Protocol::DFRN];
 				$previous = Item::selectFirst(['id'], $condition);
 				if (DBA::isResult($previous)) {
-					Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$previous["id"], LOGGER_DEBUG);
+					Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$previous["id"], Logger::DEBUG);
 					continue;
 				}
 			}
@@ -424,7 +424,7 @@ class Feed {
 			}
 
 			if (!$simulate) {
-				Logger::log("Stored feed: ".print_r($item, true), LOGGER_DEBUG);
+				Logger::log("Stored feed: ".print_r($item, true), Logger::DEBUG);
 
 				$notify = Item::isRemoteSelf($contact, $item);
 

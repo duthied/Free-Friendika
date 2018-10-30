@@ -212,7 +212,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				$params['page'] = 2;
 			}
 
-			Logger::log('Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params, true), LOGGER_DATA);
+			Logger::log('Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params, true), Logger::DATA);
 
 			/*
 			 *
@@ -224,7 +224,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 			$res = Network::post($dfrn_confirm, $params, null, $redirects, 120)->getBody();
 
-			Logger::log(' Confirm: received data: ' . $res, LOGGER_DATA);
+			Logger::log(' Confirm: received data: ' . $res, Logger::DATA);
 
 			// Now figure out what they responded. Try to be robust if the remote site is
 			// having difficulty and throwing up errors of some kind.
@@ -430,7 +430,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		Logger::log('dfrn_confirm: requestee contacted: ' . $node);
 
-		Logger::log('dfrn_confirm: request: POST=' . print_r($_POST, true), LOGGER_DATA);
+		Logger::log('dfrn_confirm: request: POST=' . print_r($_POST, true), Logger::DATA);
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 

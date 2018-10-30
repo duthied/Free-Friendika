@@ -110,7 +110,7 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 		$data["images"][0]["src"] = $photo;
 	}
 
-	Logger::log('fetch page info for ' . $url . ' ' . print_r($data, true), LOGGER_DEBUG);
+	Logger::log('fetch page info for ' . $url . ' ' . print_r($data, true), Logger::DEBUG);
 
 	if (!$keywords && isset($data["keywords"])) {
 		unset($data["keywords"]);
@@ -168,7 +168,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false)
 {
-	Logger::log('add_page_info_to_body: fetch page info for body ' . $body, LOGGER_DEBUG);
+	Logger::log('add_page_info_to_body: fetch page info for body ' . $body, Logger::DEBUG);
 
 	$URLSearchString = "^\[\]";
 
@@ -252,7 +252,7 @@ function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0
 			// Test - remove before flight
 			//$tempfile = tempnam(get_temppath(), "ostatus2");
 			//file_put_contents($tempfile, $xml);
-			Logger::log("Consume OStatus messages ", LOGGER_DEBUG);
+			Logger::log("Consume OStatus messages ", Logger::DEBUG);
 			OStatus::import($xml, $importer, $contact, $hub);
 		}
 
@@ -261,7 +261,7 @@ function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0
 
 	if ($contact['network'] === Protocol::FEED) {
 		if ($pass < 2) {
-			Logger::log("Consume feeds", LOGGER_DEBUG);
+			Logger::log("Consume feeds", Logger::DEBUG);
 			Feed::import($xml, $importer, $contact, $hub);
 		}
 
@@ -269,7 +269,7 @@ function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0
 	}
 
 	if ($contact['network'] === Protocol::DFRN) {
-		Logger::log("Consume DFRN messages", LOGGER_DEBUG);
+		Logger::log("Consume DFRN messages", Logger::DEBUG);
 		$dfrn_importer = DFRN::getImporter($contact["id"], $importer["uid"]);
 		if (!empty($dfrn_importer)) {
 			Logger::log("Now import the DFRN feed");
@@ -319,7 +319,7 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 
 	$postResult = Network::post($url, $params);
 
-	Logger::log('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), LOGGER_DEBUG);
+	Logger::log('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), Logger::DEBUG);
 
 	return;
 

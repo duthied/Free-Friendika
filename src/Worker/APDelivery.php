@@ -23,7 +23,7 @@ class APDelivery extends BaseObject
 	 */
 	public static function execute($cmd, $item_id, $inbox, $uid)
 	{
-		Logger::log('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $inbox, LOGGER_DEBUG);
+		Logger::log('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $inbox, Logger::DEBUG);
 
 		$success = true;
 

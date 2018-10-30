@@ -122,7 +122,7 @@ function poco_init(App $a) {
 	$itemsPerPage = ((x($_GET, 'count') && intval($_GET['count'])) ? intval($_GET['count']) : $totalResults);
 
 	if ($global) {
-		Logger::log("Start global query", LOGGER_DEBUG);
+		Logger::log("Start global query", Logger::DEBUG);
 		$contacts = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND NOT `hide` AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
 			ORDER BY `updated` DESC LIMIT %d, %d",
 			DBA::escape($update_limit),
@@ -133,7 +133,7 @@ function poco_init(App $a) {
 			intval($itemsPerPage)
 		);
 	} elseif ($system_mode) {
-		Logger::log("Start system mode query", LOGGER_DEBUG);
+		Logger::log("Start system mode query", Logger::DEBUG);
 		$contacts = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`,
 				`profile`.`gender` AS `pgender`, `profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`,
 				`profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`, `user`.`account-type`
@@ -145,7 +145,7 @@ function poco_init(App $a) {
 			intval($itemsPerPage)
 		);
 	} else {
-		Logger::log("Start query for user " . $user['nickname'], LOGGER_DEBUG);
+		Logger::log("Start query for user " . $user['nickname'], Logger::DEBUG);
 		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
@@ -158,7 +158,7 @@ function poco_init(App $a) {
 			intval($itemsPerPage)
 		);
 	}
-	Logger::log("Query done", LOGGER_DEBUG);
+	Logger::log("Query done", Logger::DEBUG);
 
 	$ret = [];
 	if (x($_GET, 'sorted')) {
@@ -370,7 +370,7 @@ function poco_init(App $a) {
 	} else {
 		System::httpExit(500);
 	}
-	Logger::log("End of poco", LOGGER_DEBUG);
+	Logger::log("End of poco", Logger::DEBUG);
 
 	if ($format === 'xml') {
 		header('Content-type: text/xml');

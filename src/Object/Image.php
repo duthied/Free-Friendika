@@ -727,7 +727,7 @@ class Image
 	 */
 	public static function guessType($filename, $fromcurl = false, $header = '')
 	{
-		Logger::log('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), LOGGER_DEBUG);
+		Logger::log('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), Logger::DEBUG);
 		$type = null;
 		if ($fromcurl) {
 			$a = get_app();
@@ -765,7 +765,7 @@ class Image
 				}
 			}
 		}
-		Logger::log('Image: guessType: type='.$type, LOGGER_DEBUG);
+		Logger::log('Image: guessType: type='.$type, Logger::DEBUG);
 		return $type;
 	}
 
@@ -891,7 +891,7 @@ class Image
 		);
 
 		if (!DBA::isResult($r)) {
-			Logger::log("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
+			Logger::log("Can't detect user data for uid ".$uid, Logger::DEBUG);
 			return([]);
 		}
 
@@ -902,10 +902,10 @@ class Image
 		/// $community_page   = (($r[0]['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
 
 		if ((strlen($imagedata) == 0) && ($url == "")) {
-			Logger::log("No image data and no url provided", LOGGER_DEBUG);
+			Logger::log("No image data and no url provided", Logger::DEBUG);
 			return([]);
 		} elseif (strlen($imagedata) == 0) {
-			Logger::log("Uploading picture from ".$url, LOGGER_DEBUG);
+			Logger::log("Uploading picture from ".$url, Logger::DEBUG);
 
 			$stamp1 = microtime(true);
 			$imagedata = @file_get_contents($url);
@@ -915,7 +915,7 @@ class Image
 		$maximagesize = Config::get('system', 'maximagesize');
 
 		if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
-			Logger::log("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
+			Logger::log("Image exceeds size limit of ".$maximagesize, Logger::DEBUG);
 			return([]);
 		}
 
@@ -929,7 +929,7 @@ class Image
 
 		if (!isset($data["mime"])) {
 			unlink($tempfile);
-			Logger::log("File is no picture", LOGGER_DEBUG);
+			Logger::log("File is no picture", Logger::DEBUG);
 			return([]);
 		}
 
@@ -937,7 +937,7 @@ class Image
 
 		if (!$Image->isValid()) {
 			unlink($tempfile);
-			Logger::log("Picture is no valid picture", LOGGER_DEBUG);
+			Logger::log("Picture is no valid picture", Logger::DEBUG);
 			return([]);
 		}
 
@@ -968,7 +968,7 @@ class Image
 		$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 0, 0, $defperm);
 
 		if (!$r) {
-			Logger::log("Picture couldn't be stored", LOGGER_DEBUG);
+			Logger::log("Picture couldn't be stored", Logger::DEBUG);
 			return([]);
 		}
 

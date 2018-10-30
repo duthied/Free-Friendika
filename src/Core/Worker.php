@@ -43,7 +43,7 @@ class Worker
 
 		// At first check the maximum load. We shouldn't continue with a high load
 		if ($a->isMaxLoadReached()) {
-			Logger::log('Pre check: maximum load reached, quitting.', LOGGER_DEBUG);
+			Logger::log('Pre check: maximum load reached, quitting.', Logger::DEBUG);
 			return;
 		}
 
@@ -59,25 +59,25 @@ class Worker
 
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (self::tooMuchWorkers()) {
-			Logger::log('Pre check: Active worker limit reached, quitting.', LOGGER_DEBUG);
+			Logger::log('Pre check: Active worker limit reached, quitting.', Logger::DEBUG);
 			return;
 		}
 
 		// Do we have too few memory?
 		if ($a->isMinMemoryReached()) {
-			Logger::log('Pre check: Memory limit reached, quitting.', LOGGER_DEBUG);
+			Logger::log('Pre check: Memory limit reached, quitting.', Logger::DEBUG);
 			return;
 		}
 
 		// Possibly there are too much database connections
 		if (self::maxConnectionsReached()) {
-			Logger::log('Pre check: maximum connections reached, quitting.', LOGGER_DEBUG);
+			Logger::log('Pre check: maximum connections reached, quitting.', Logger::DEBUG);
 			return;
 		}
 
 		// Possibly there are too much database processes that block the system
 		if ($a->isMaxProcessesReached()) {
-			Logger::log('Pre check: maximum processes reached, quitting.', LOGGER_DEBUG);
+			Logger::log('Pre check: maximum processes reached, quitting.', Logger::DEBUG);
 			return;
 		}
 
@@ -100,7 +100,7 @@ class Worker
 
 				// The work will be done
 				if (!self::execute($entry)) {
-					Logger::log('Process execution failed, quitting.', LOGGER_DEBUG);
+					Logger::log('Process execution failed, quitting.', Logger::DEBUG);
 					return;
 				}
 
@@ -118,14 +118,14 @@ class Worker
 				$stamp = (float)microtime(true);
 				// Count active workers and compare them with a maximum value that depends on the load
 				if (self::tooMuchWorkers()) {
-					Logger::log('Active worker limit reached, quitting.', LOGGER_DEBUG);
+					Logger::log('Active worker limit reached, quitting.', Logger::DEBUG);
 					Lock::release('worker');
 					return;
 				}
 
 				// Check free memory
 				if ($a->isMinMemoryReached()) {
-					Logger::log('Memory limit reached, quitting.', LOGGER_DEBUG);
+					Logger::log('Memory limit reached, quitting.', Logger::DEBUG);
 					Lock::release('worker');
 					return;
 				}
@@ -135,7 +135,7 @@ class Worker
 
 			// Quit the worker once every 5 minutes
 			if (time() > ($starttime + 300)) {
-				Logger::log('Process lifetime reached, quitting.', LOGGER_DEBUG);
+				Logger::log('Process lifetime reached, quitting.', Logger::DEBUG);
 				return;
 			}
 		}
@@ -144,7 +144,7 @@ class Worker
 		if (Config::get('system', 'worker_daemon_mode', false)) {
 			self::IPCSetJobState(false);
 		}
-		Logger::log("Couldn't select a workerqueue entry, quitting process " . getmypid() . ".", LOGGER_DEBUG);
+		Logger::log("Couldn't select a workerqueue entry, quitting process " . getmypid() . ".", Logger::DEBUG);
 	}
 
 	/**
@@ -214,19 +214,19 @@ class Worker
 
 		// Quit when in maintenance
 		if (Config::get('system', 'maintenance', false, true)) {
-			Logger::log("Maintenance mode - quit process ".$mypid, LOGGER_DEBUG);
+			Logger::log("Maintenance mode - quit process ".$mypid, Logger::DEBUG);
 			return false;
 		}
 
 		// Constantly check the number of parallel database processes
 		if ($a->isMaxProcessesReached()) {
-			Logger::log("Max processes reached for process ".$mypid, LOGGER_DEBUG);
+			Logger::log("Max processes reached for process ".$mypid, Logger::DEBUG);
 			return false;
 		}
 
 		// Constantly check the number of available database connections to let the frontend be accessible at any time
 		if (self::maxConnectionsReached()) {
-			Logger::log("Max connection reached for process ".$mypid, LOGGER_DEBUG);
+			Logger::log("Max connection reached for process ".$mypid, Logger::DEBUG);
 			return false;
 		}
 
@@ -384,19 +384,19 @@ class Worker
 			' - Lock: '.number_format(self::$lock_duration, 2).
 			' - Rest: '.number_format($up_duration - self::$db_duration - self::$lock_duration, 2).
 			' - Execution: '.number_format($duration, 2),
-			LOGGER_DEBUG
+			Logger::DEBUG
 		);
 
 		self::$lock_duration = 0;
 
 		if ($duration > 3600) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 1 hour (".round($duration/60, 3).")", LOGGER_DEBUG);
+			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 1 hour (".round($duration/60, 3).")", Logger::DEBUG);
 		} elseif ($duration > 600) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 10 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 10 minutes (".round($duration/60, 3).")", Logger::DEBUG);
 		} elseif ($duration > 300) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 5 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 5 minutes (".round($duration/60, 3).")", Logger::DEBUG);
 		} elseif ($duration > 120) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", LOGGER_DEBUG);
+			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", Logger::DEBUG);
 		}
 
 		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds. Process PID: ".$new_process_id);
@@ -468,7 +468,7 @@ class Worker
 						+ $a->performance["network"] + $a->performance["file"]), 2),
 					number_format($duration, 2)
 				),
-				LOGGER_DEBUG
+				Logger::DEBUG
 			);
 		}
 
@@ -519,7 +519,7 @@ class Worker
 			$used = DBA::numRows($r);
 			DBA::close($r);
 
-			Logger::log("Connection usage (user values): ".$used."/".$max, LOGGER_DEBUG);
+			Logger::log("Connection usage (user values): ".$used."/".$max, Logger::DEBUG);
 
 			$level = ($used / $max) * 100;
 
@@ -547,7 +547,7 @@ class Worker
 		if ($used == 0) {
 			return false;
 		}
-		Logger::log("Connection usage (system values): ".$used."/".$max, LOGGER_DEBUG);
+		Logger::log("Connection usage (system values): ".$used."/".$max, Logger::DEBUG);
 
 		$level = $used / $max * 100;
 
@@ -615,7 +615,7 @@ class Worker
 						['id' => $entry["id"]]
 					);
 				} else {
-					Logger::log("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", LOGGER_DEBUG);
+					Logger::log("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", Logger::DEBUG);
 				}
 			}
 		}
@@ -698,16 +698,16 @@ class Worker
 				$high_running = self::processWithPriorityActive($top_priority);
 
 				if (!$high_running && ($top_priority > PRIORITY_UNDEFINED) && ($top_priority < PRIORITY_NEGLIGIBLE)) {
-					Logger::log("There are jobs with priority ".$top_priority." waiting but none is executed. Open a fastlane.", LOGGER_DEBUG);
+					Logger::log("There are jobs with priority ".$top_priority." waiting but none is executed. Open a fastlane.", Logger::DEBUG);
 					$queues = $active + 1;
 				}
 			}
 
-			Logger::log("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . $entries . $processlist . " - maximum: " . $queues . "/" . $maxqueues, LOGGER_DEBUG);
+			Logger::log("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . $entries . $processlist . " - maximum: " . $queues . "/" . $maxqueues, Logger::DEBUG);
 
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!Config::get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && ($entries > 1)) {
-				Logger::log("Active workers: ".$active."/".$queues." Fork a new worker.", LOGGER_DEBUG);
+				Logger::log("Active workers: ".$active."/".$queues." Fork a new worker.", Logger::DEBUG);
 				if (Config::get('system', 'worker_daemon_mode', false)) {
 					self::IPCSetJobState(true);
 				} else {
@@ -780,11 +780,11 @@ class Worker
 				++$high;
 			}
 		}
-		Logger::log("Highest priority: ".$highest_priority." Total processes: ".count($priorities)." Count high priority processes: ".$high, LOGGER_DEBUG);
+		Logger::log("Highest priority: ".$highest_priority." Total processes: ".count($priorities)." Count high priority processes: ".$high, Logger::DEBUG);
 		$passing_slow = (($high/count($priorities)) > (2/3));
 
 		if ($passing_slow) {
-			Logger::log("Passing slower processes than priority ".$highest_priority, LOGGER_DEBUG);
+			Logger::log("Passing slower processes than priority ".$highest_priority, Logger::DEBUG);
 		}
 		return $passing_slow;
 	}
@@ -817,7 +817,7 @@ class Worker
 		$slope = $queue_length / pow($lower_job_limit, $exponent);
 		$limit = min($queue_length, ceil($slope * pow($jobs, $exponent)));
 
-		Logger::log('Deferred: ' . $deferred . ' - Total: ' . $jobs . ' - Maximum: ' . $queue_length . ' - jobs per queue: ' . $limit, LOGGER_DEBUG);
+		Logger::log('Deferred: ' . $deferred . ' - Total: ' . $jobs . ' - Maximum: ' . $queue_length . ' - jobs per queue: ' . $limit, Logger::DEBUG);
 		$ids = [];
 		if (self::passingSlow($highest_priority)) {
 			// Are there waiting processes with a higher priority than the currently highest?
@@ -976,7 +976,7 @@ class Worker
 
 			self::runCron();
 
-			Logger::log('Call worker', LOGGER_DEBUG);
+			Logger::log('Call worker', Logger::DEBUG);
 			self::spawnWorker();
 			return;
 		}
@@ -1015,7 +1015,7 @@ class Worker
 	 */
 	private static function runCron()
 	{
-		Logger::log('Add cron entries', LOGGER_DEBUG);
+		Logger::log('Add cron entries', Logger::DEBUG);
 
 		// Check for spooled items
 		self::add(PRIORITY_HIGH, "SpoolPost");
@@ -1153,7 +1153,7 @@ class Worker
 		$id = $queue['id'];
 
 		if ($retrial > 14) {
-			Logger::log('Id ' . $id . ' had been tried 14 times. We stop now.', LOGGER_DEBUG);
+			Logger::log('Id ' . $id . ' had been tried 14 times. We stop now.', Logger::DEBUG);
 			return;
 		}
 
@@ -1161,7 +1161,7 @@ class Worker
 		$delay = (($retrial + 3) ** 4) + (rand(1, 30) * ($retrial + 1));
 		$next = DateTimeFormat::utc('now + ' . $delay . ' seconds');
 
-		Logger::log('Defer execution ' . $retrial . ' of id ' . $id . ' to ' . $next, LOGGER_DEBUG);
+		Logger::log('Defer execution ' . $retrial . ' of id ' . $id . ' to ' . $next, Logger::DEBUG);
 
 		$fields = ['retrial' => $retrial + 1, 'next_try' => $next, 'executed' => DBA::NULL_DATETIME, 'pid' => 0];
 		DBA::update('workerqueue', $fields, ['id' => $id]);

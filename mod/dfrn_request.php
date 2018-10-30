@@ -298,7 +298,7 @@ function dfrn_request_post(App $a)
 			$network = Protocol::DFRN;
 		}
 
-		Logger::log('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
+		Logger::log('dfrn_request: url: ' . $url . ',network=' . $network, Logger::DEBUG);
 
 		if ($network === Protocol::DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",

@@ -90,7 +90,7 @@ class DiscoverPoCo
 			} else {
 				$result .= "failed";
 			}
-			Logger::log($result, LOGGER_DEBUG);
+			Logger::log($result, Logger::DEBUG);
 		} elseif ($mode == 3) {
 			GContact::updateSuggestions();
 		} elseif (($mode == 2) && Config::get('system', 'poco_completion')) {
@@ -130,7 +130,7 @@ class DiscoverPoCo
 			if (!PortableContact::updateNeeded($server["created"], "", $server["last_failure"], $server["last_contact"])) {
 				continue;
 			}
-			Logger::log('Update server status for server '.$server["url"], LOGGER_DEBUG);
+			Logger::log('Update server status for server '.$server["url"], Logger::DEBUG);
 
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $server["url"]);
 
@@ -141,7 +141,7 @@ class DiscoverPoCo
 	}
 
 	private static function discoverUsers() {
-		Logger::log("Discover users", LOGGER_DEBUG);
+		Logger::log("Discover users", Logger::DEBUG);
 
 		$starttime = time();
 
@@ -209,7 +209,7 @@ class DiscoverPoCo
 		if (!is_null($data)) {
 			// Only search for the same item every 24 hours
 			if (time() < $data + (60 * 60 * 24)) {
-				Logger::log("Already searched for ".$search." in the last 24 hours", LOGGER_DEBUG);
+				Logger::log("Already searched for ".$search." in the last 24 hours", Logger::DEBUG);
 				return;
 			}
 		}
@@ -222,7 +222,7 @@ class DiscoverPoCo
 				// Check if the contact already exists
 				$exists = q("SELECT `id`, `last_contact`, `last_failure`, `updated` FROM `gcontact` WHERE `nurl` = '%s'", normalise_link($jj->url));
 				if (DBA::isResult($exists)) {
-					Logger::log("Profile ".$jj->url." already exists (".$search.")", LOGGER_DEBUG);
+					Logger::log("Profile ".$jj->url." already exists (".$search.")", Logger::DEBUG);
 
 					if (($exists[0]["last_contact"] < $exists[0]["last_failure"]) &&
 						($exists[0]["updated"] < $exists[0]["last_failure"])) {
@@ -236,16 +236,16 @@ class DiscoverPoCo
 				$server_url = PortableContact::detectServer($jj->url);
 				if ($server_url != '') {
 					if (!PortableContact::checkServer($server_url)) {
-						Logger::log("Friendica server ".$server_url." doesn't answer.", LOGGER_DEBUG);
+						Logger::log("Friendica server ".$server_url." doesn't answer.", Logger::DEBUG);
 						continue;
 					}
-					Logger::log("Friendica server ".$server_url." seems to be okay.", LOGGER_DEBUG);
+					Logger::log("Friendica server ".$server_url." seems to be okay.", Logger::DEBUG);
 				}
 
 				$data = Probe::uri($jj->url);
 				if ($data["network"] == Protocol::DFRN) {
-					Logger::log("Profile ".$jj->url." is reachable (".$search.")", LOGGER_DEBUG);
-					Logger::log("Add profile ".$jj->url." to local directory (".$search.")", LOGGER_DEBUG);
+					Logger::log("Profile ".$jj->url." is reachable (".$search.")", Logger::DEBUG);
+					Logger::log("Add profile ".$jj->url." to local directory (".$search.")", Logger::DEBUG);
 
 					if ($jj->tags != "") {
 						$data["keywords"] = $jj->tags;
@@ -255,7 +255,7 @@ class DiscoverPoCo
 
 					GContact::update($data);
 				} else {
-					Logger::log("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], LOGGER_DEBUG);
+					Logger::log("Profile ".$jj->url." is not responding or no Friendica contact - but network ".$data["network"], Logger::DEBUG);
 				}
 			}
 		}

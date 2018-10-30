@@ -78,7 +78,7 @@ class Thread extends BaseObject
 				$this->writable = $writable;
 				break;
 			default:
-				Logger::log('[ERROR] Conversation::setMode : Unhandled mode ('. $mode .').', LOGGER_DEBUG);
+				Logger::log('[ERROR] Conversation::setMode : Unhandled mode ('. $mode .').', Logger::DEBUG);
 				return false;
 				break;
 		}
@@ -138,12 +138,12 @@ class Thread extends BaseObject
 		$item_id = $item->getId();
 
 		if (!$item_id) {
-			Logger::log('[ERROR] Conversation::addThread : Item has no ID!!', LOGGER_DEBUG);
+			Logger::log('[ERROR] Conversation::addThread : Item has no ID!!', Logger::DEBUG);
 			return false;
 		}
 
 		if ($this->getParent($item->getId())) {
-			Logger::log('[WARN] Conversation::addThread : Thread already exists ('. $item->getId() .').', LOGGER_DEBUG);
+			Logger::log('[WARN] Conversation::addThread : Thread already exists ('. $item->getId() .').', Logger::DEBUG);
 			return false;
 		}
 
@@ -151,12 +151,12 @@ class Thread extends BaseObject
 		 * Only add will be displayed
 		 */
 		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
-			Logger::log('[WARN] Conversation::addThread : Thread is a mail ('. $item->getId() .').', LOGGER_DEBUG);
+			Logger::log('[WARN] Conversation::addThread : Thread is a mail ('. $item->getId() .').', Logger::DEBUG);
 			return false;
 		}
 
 		if ($item->getDataValue('verb') === ACTIVITY_LIKE || $item->getDataValue('verb') === ACTIVITY_DISLIKE) {
-			Logger::log('[WARN] Conversation::addThread : Thread is a (dis)like ('. $item->getId() .').', LOGGER_DEBUG);
+			Logger::log('[WARN] Conversation::addThread : Thread is a (dis)like ('. $item->getId() .').', Logger::DEBUG);
 			return false;
 		}
 
@@ -190,7 +190,7 @@ class Thread extends BaseObject
 			$item_data = $item->getTemplateData($conv_responses);
 
 			if (!$item_data) {
-				Logger::log('[ERROR] Conversation::getTemplateData : Failed to get item template data ('. $item->getId() .').', LOGGER_DEBUG);
+				Logger::log('[ERROR] Conversation::getTemplateData : Failed to get item template data ('. $item->getId() .').', Logger::DEBUG);
 				return false;
 			}
 			$result[] = $item_data;

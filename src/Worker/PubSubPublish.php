@@ -38,7 +38,7 @@ class PubSubPublish
 		/// @todo Check server status with PortableContact::checkServer()
 		// Before this can be done we need a way to safely detect the server url.
 
-		Logger::log("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update'], LOGGER_DEBUG);
+		Logger::log("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update'], Logger::DEBUG);
 
 		$last_update = $subscriber['last_update'];
 		$params = OStatus::feed($subscriber['nickname'], $last_update);
@@ -55,7 +55,7 @@ class PubSubPublish
 					$subscriber['topic']),
 				"X-Hub-Signature: sha1=" . $hmac_sig];
 
-		Logger::log('POST ' . print_r($headers, true) . "\n" . $params, LOGGER_DATA);
+		Logger::log('POST ' . print_r($headers, true) . "\n" . $params, Logger::DATA);
 
 		$postResult = Network::post($subscriber['callback_url'], $params, $headers);
 		$ret = $postResult->getReturnCode();

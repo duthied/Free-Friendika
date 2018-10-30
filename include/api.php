@@ -97,9 +97,9 @@ function api_source()
 			return "Twidere";
 		}
 
-		Logger::log("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], LOGGER_DEBUG);
+		Logger::log("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], Logger::DEBUG);
 	} else {
-		Logger::log("Empty user-agent", LOGGER_DEBUG);
+		Logger::log("Empty user-agent", Logger::DEBUG);
 	}
 
 	return "api";
@@ -195,7 +195,7 @@ function api_login(App $a)
 	}
 
 	if (!x($_SERVER, 'PHP_AUTH_USER')) {
-		Logger::log('API_login: ' . print_r($_SERVER, true), LOGGER_DEBUG);
+		Logger::log('API_login: ' . print_r($_SERVER, true), Logger::DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		throw new UnauthorizedException("This API requires login");
 	}
@@ -236,7 +236,7 @@ function api_login(App $a)
 	}
 
 	if (!DBA::isResult($record)) {
-		Logger::log('API_login failure: ' . print_r($_SERVER, true), LOGGER_DEBUG);
+		Logger::log('API_login failure: ' . print_r($_SERVER, true), Logger::DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
 		//die('This api requires login');
@@ -315,7 +315,7 @@ function api_call(App $a)
 				$stamp =  microtime(true);
 				$return = call_user_func($info['func'], $type);
 				$duration = (float) (microtime(true) - $stamp);
-				Logger::log("API call duration: " . round($duration, 2) . "\t" . $a->query_string, LOGGER_DEBUG);
+				Logger::log("API call duration: " . round($duration, 2) . "\t" . $a->query_string, Logger::DEBUG);
 
 				if (Config::get("system", "profiler")) {
 					$duration = microtime(true)-$a->performance["start"];
@@ -335,7 +335,7 @@ function api_call(App $a)
 								+ $a->performance["network"] + $a->performance["file"]), 2),
 							round($duration, 2)
 						),
-						LOGGER_DEBUG
+						Logger::DEBUG
 					);
 
 					if (Config::get("rendertime", "callstack")) {
@@ -376,7 +376,7 @@ function api_call(App $a)
 								$o .= $func . ": " . $time . "\n";
 							}
 						}
-						Logger::log($o, LOGGER_DEBUG);
+						Logger::log($o, Logger::DEBUG);
 					}
 				}
 
@@ -522,7 +522,7 @@ function api_get_user(App $a, $contact_id = null)
 	$extra_query = "";
 	$url = "";
 
-	Logger::log("api_get_user: Fetching user data for user ".$contact_id, LOGGER_DEBUG);
+	Logger::log("api_get_user: Fetching user data for user ".$contact_id, Logger::DEBUG);
 
 	// Searching for contact URL
 	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
@@ -606,7 +606,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
-	Logger::log("api_get_user: user ".$user, LOGGER_DEBUG);
+	Logger::log("api_get_user: user ".$user, Logger::DEBUG);
 
 	if (!$user) {
 		if (api_user() === false) {
@@ -1136,7 +1136,7 @@ function api_statuses_update($type)
 			$posts_day = DBA::count('thread', $condition);
 
 			if ($posts_day > $throttle_day) {
-				Logger::log('Daily posting limit reached for user '.api_user(), LOGGER_DEBUG);
+				Logger::log('Daily posting limit reached for user '.api_user(), Logger::DEBUG);
 				// die(api_error($type, L10n::t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 				throw new TooManyRequestsException(L10n::tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 			}
@@ -1150,7 +1150,7 @@ function api_statuses_update($type)
 			$posts_week = DBA::count('thread', $condition);
 
 			if ($posts_week > $throttle_week) {
-				Logger::log('Weekly posting limit reached for user '.api_user(), LOGGER_DEBUG);
+				Logger::log('Weekly posting limit reached for user '.api_user(), Logger::DEBUG);
 				// die(api_error($type, L10n::t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week)));
 				throw new TooManyRequestsException(L10n::tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
 			}
@@ -1164,7 +1164,7 @@ function api_statuses_update($type)
 			$posts_month = DBA::count('thread', $condition);
 
 			if ($posts_month > $throttle_month) {
-				Logger::log('Monthly posting limit reached for user '.api_user(), LOGGER_DEBUG);
+				Logger::log('Monthly posting limit reached for user '.api_user(), Logger::DEBUG);
 				// die(api_error($type, L10n::t("Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 				throw new TooManyRequestsException(L10n::t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 			}
@@ -1249,7 +1249,7 @@ function api_media_upload()
 					"h" => $media["height"],
 					"image_type" => $media["type"]];
 
-	Logger::log("Media uploaded: " . print_r($returndata, true), LOGGER_DEBUG);
+	Logger::log("Media uploaded: " . print_r($returndata, true), Logger::DEBUG);
 
 	return ["media" => $returndata];
 }
@@ -1269,7 +1269,7 @@ function api_status_show($type, $item_id = 0)
 
 	$user_info = api_get_user($a);
 
-	Logger::log('api_status_show: user_info: '.print_r($user_info, true), LOGGER_DEBUG);
+	Logger::log('api_status_show: user_info: '.print_r($user_info, true), Logger::DEBUG);
 
 	if ($type == "raw") {
 		$privacy_sql = "AND NOT `private`";
@@ -1345,7 +1345,7 @@ function api_status_show($type, $item_id = 0)
 		unset($status_info["user"]["uid"]);
 		unset($status_info["user"]["self"]);
 
-		Logger::log('status_info: '.print_r($status_info, true), LOGGER_DEBUG);
+		Logger::log('status_info: '.print_r($status_info, true), Logger::DEBUG);
 
 		if ($type == "raw") {
 			return $status_info;
@@ -2142,7 +2142,7 @@ function api_statuses_user_timeline($type)
 		"api_statuses_user_timeline: api_user: ". api_user() .
 			"\nuser_info: ".print_r($user_info, true) .
 			"\n_REQUEST:  ".print_r($_REQUEST, true),
-		LOGGER_DEBUG
+		Logger::DEBUG
 	);
 
 	$since_id        = x($_REQUEST, 'since_id')        ? $_REQUEST['since_id']        : 0;
@@ -3650,7 +3650,7 @@ function api_friendships_destroy($type)
 	$contact_id = defaults($_REQUEST, 'user_id');
 
 	if (empty($contact_id)) {
-		Logger::log("No user_id specified", LOGGER_DEBUG);
+		Logger::log("No user_id specified", Logger::DEBUG);
 		throw new BadRequestException("no user_id specified");
 	}
 
@@ -3658,7 +3658,7 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
 
 	if(!DBA::isResult($contact)) {
-		Logger::log("No contact found for ID" . $contact_id, LOGGER_DEBUG);
+		Logger::log("No contact found for ID" . $contact_id, Logger::DEBUG);
 		throw new NotFoundException("no contact found to given ID");
 	}
 
@@ -3670,12 +3670,12 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		Logger::log("Not following Contact", LOGGER_DEBUG);
+		Logger::log("Not following Contact", Logger::DEBUG);
 		throw new NotFoundException("Not following Contact");
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		Logger::log("Not supported", LOGGER_DEBUG);
+		Logger::log("Not supported", Logger::DEBUG);
 		throw new ExpectationFailedException("Not supported");
 	}
 
@@ -3686,7 +3686,7 @@ function api_friendships_destroy($type)
 		Contact::terminateFriendship($owner, $contact, $dissolve);
 	}
 	else {
-		Logger::log("No owner found", LOGGER_DEBUG);
+		Logger::log("No owner found", Logger::DEBUG);
 		throw new NotFoundException("Error Processing Request");
 	}
 
@@ -4489,7 +4489,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	Logger::log(
 		"File upload src: " . $src . " - filename: " . $filename .
 		" - size: " . $filesize . " - type: " . $filetype,
-		LOGGER_DEBUG
+		Logger::DEBUG
 	);
 
 	// check if there was a php upload error
@@ -4521,7 +4521,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 	if ($max_length > 0) {
 		$Image->scaleDown($max_length);
-		Logger::log("File upload: Scaling picture to new size " . $max_length, LOGGER_DEBUG);
+		Logger::log("File upload: Scaling picture to new size " . $max_length, Logger::DEBUG);
 	}
 	$width = $Image->getWidth();
 	$height = $Image->getHeight();
@@ -4531,7 +4531,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 	if ($mediatype == "photo") {
 		// upload normal image (scales 0, 1, 2)
-		Logger::log("photo upload: starting new photo upload", LOGGER_DEBUG);
+		Logger::log("photo upload: starting new photo upload", Logger::DEBUG);
 
 		$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
@@ -4552,10 +4552,10 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 				Logger::log("photo upload: image upload with scale 2 (320x320) failed");
 			}
 		}
-		Logger::log("photo upload: new photo upload ended", LOGGER_DEBUG);
+		Logger::log("photo upload: new photo upload ended", Logger::DEBUG);
 	} elseif ($mediatype == "profileimage") {
 		// upload profile image (scales 4, 5, 6)
-		Logger::log("photo upload: starting new profile image upload", LOGGER_DEBUG);
+		Logger::log("photo upload: starting new profile image upload", Logger::DEBUG);
 
 		if ($width > 300 || $height > 300) {
 			$Image->scaleDown(300);
@@ -4581,7 +4581,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 			}
 		}
 		$Image->__destruct();
-		Logger::log("photo upload: new profile image upload ended", LOGGER_DEBUG);
+		Logger::log("photo upload: new profile image upload ended", Logger::DEBUG);
 	}
 
 	if (isset($r) && $r) {
@@ -4808,7 +4808,7 @@ function api_friendica_remoteauth()
 		'sec' => $sec, 'expire' => time() + 45];
 	DBA::insert('profile_check', $fields);
 
-	Logger::log($contact['name'] . ' ' . $sec, LOGGER_DEBUG);
+	Logger::log($contact['name'] . ' ' . $sec, Logger::DEBUG);
 	$dest = ($url ? '&destination_url=' . $url : '');
 
 	System::externalRedirect(
@@ -5056,7 +5056,7 @@ function api_in_reply_to($item)
 		// https://github.com/friendica/friendica/issues/1010
 		// This is a bugfix for that.
 		if (intval($in_reply_to['status_id']) == intval($item['id'])) {
-			Logger::log('this message should never appear: id: '.$item['id'].' similar to reply-to: '.$in_reply_to['status_id'], LOGGER_DEBUG);
+			Logger::log('this message should never appear: id: '.$item['id'].' similar to reply-to: '.$in_reply_to['status_id'], Logger::DEBUG);
 			$in_reply_to['status_id'] = null;
 			$in_reply_to['user_id'] = null;
 			$in_reply_to['status_id_str'] = null;

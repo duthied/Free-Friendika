@@ -359,7 +359,7 @@ class NotificationsManager extends BaseObject
 							break;
 						}
 						/// @todo Check if this part here is used at all
-						Logger::log('Complete data: ' . json_encode($it) . ' - ' . System::callstack(20), LOGGER_DEBUG);
+						Logger::log('Complete data: ' . json_encode($it) . ' - ' . System::callstack(20), Logger::DEBUG);
 
 						$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 						$obj = XML::parseString($xmlhead . $it['object']);

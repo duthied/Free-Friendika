@@ -54,7 +54,7 @@ function poke_init(App $a)
 	$parent = (x($_GET,'parent') ? intval($_GET['parent']) : 0);
 
 
-	Logger::log('poke: verb ' . $verb . ' contact ' . $contact_id, LOGGER_DEBUG);
+	Logger::log('poke: verb ' . $verb . ' contact ' . $contact_id, Logger::DEBUG);
 
 
 	$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",

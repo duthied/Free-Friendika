@@ -84,12 +84,12 @@ class Conversation
 				}
 				if (!DBA::update('conversation', $conversation, ['item-uri' => $conversation['item-uri']], $old_conv)) {
 					Logger::log('Conversation: update for ' . $conversation['item-uri'] . ' from ' . $old_conv['protocol'] . ' to ' . $conversation['protocol'] . ' failed',
-						LOGGER_DEBUG);
+						Logger::DEBUG);
 				}
 			} else {
 				if (!DBA::insert('conversation', $conversation, true)) {
 					Logger::log('Conversation: insert for ' . $conversation['item-uri'] . ' (protocol ' . $conversation['protocol'] . ') failed',
-						LOGGER_DEBUG);
+						Logger::DEBUG);
 				}
 			}
 		}

@@ -105,7 +105,7 @@ function dfrn_poll_init(App $a)
 		if (DBA::isResult($r)) {
 			$s = Network::fetchUrl($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
-			Logger::log("dfrn_poll: old profile returns " . $s, LOGGER_DATA);
+			Logger::log("dfrn_poll: old profile returns " . $s, Logger::DATA);
 
 			if (strlen($s)) {
 				$xml = XML::parseString($s);
@@ -192,7 +192,7 @@ function dfrn_poll_init(App $a)
 			}
 
 			if ($final_dfrn_id != $orig_id) {
-				Logger::log('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
+				Logger::log('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, Logger::DEBUG);
 				// did not decode properly - cannot trust this site
 				System::xmlExit(3, 'Bad decryption');
 			}
@@ -284,7 +284,7 @@ function dfrn_poll_post(App $a)
 			}
 
 			if ($final_dfrn_id != $orig_id) {
-				Logger::log('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
+				Logger::log('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, Logger::DEBUG);
 				// did not decode properly - cannot trust this site
 				System::xmlExit(3, 'Bad decryption');
 			}
@@ -373,7 +373,7 @@ function dfrn_poll_post(App $a)
 		// NOTREACHED
 	} else {
 		// Update the writable flag if it changed
-		Logger::log('dfrn_poll: post request feed: ' . print_r($_POST, true), LOGGER_DATA);
+		Logger::log('dfrn_poll: post request feed: ' . print_r($_POST, true), Logger::DATA);
 		if ($dfrn_version >= 2.21) {
 			if ($perm === 'rw') {
 				$writable = 1;
@@ -511,12 +511,12 @@ function dfrn_poll_content(App $a)
 				])->getBody();
 			}
 
-			Logger::log("dfrn_poll: sec profile: " . $s, LOGGER_DATA);
+			Logger::log("dfrn_poll: sec profile: " . $s, Logger::DATA);
 
 			if (strlen($s) && strstr($s, '<?xml')) {
 				$xml = XML::parseString($s);
 
-				Logger::log('dfrn_poll: profile: parsed xml: ' . print_r($xml, true), LOGGER_DATA);
+				Logger::log('dfrn_poll: profile: parsed xml: ' . print_r($xml, true), Logger::DATA);
 
 				Logger::log('dfrn_poll: secure profile: challenge: ' . $xml->challenge . ' expecting ' . $hash);
 				Logger::log('dfrn_poll: secure profile: sec: ' . $xml->sec . ' expecting ' . $sec);

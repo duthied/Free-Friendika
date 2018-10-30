@@ -46,7 +46,7 @@ class PushSubscriber
 				$priority = $default_priority;
 			}
 
-			Logger::log('Publish feed to ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' with priority ' . $priority, LOGGER_DEBUG);
+			Logger::log('Publish feed to ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' with priority ' . $priority, Logger::DEBUG);
 			Worker::add($priority, 'PubSubPublish', (int)$subscriber['id']);
 		}
 
@@ -116,10 +116,10 @@ class PushSubscriber
 
 			if ($days > 60) {
 				DBA::update('push_subscriber', ['push' => -1, 'next_try' => DBA::NULL_DATETIME], ['id' => $id]);
-				Logger::log('Delivery error: Subscription ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' is marked as ended.', LOGGER_DEBUG);
+				Logger::log('Delivery error: Subscription ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' is marked as ended.', Logger::DEBUG);
 			} else {
 				DBA::update('push_subscriber', ['push' => 0, 'next_try' => DBA::NULL_DATETIME], ['id' => $id]);
-				Logger::log('Delivery error: Giving up ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' for now.', LOGGER_DEBUG);
+				Logger::log('Delivery error: Giving up ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' for now.', Logger::DEBUG);
 			}
 		} else {
 			// Calculate the delay until the next trial
@@ -129,7 +129,7 @@ class PushSubscriber
 			$retrial = $retrial + 1;
 
 			DBA::update('push_subscriber', ['push' => $retrial, 'next_try' => $next], ['id' => $id]);
-			Logger::log('Delivery error: Next try (' . $retrial . ') ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' at ' . $next, LOGGER_DEBUG);
+			Logger::log('Delivery error: Next try (' . $retrial . ') ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' at ' . $next, Logger::DEBUG);
 		}
 	}
 
@@ -149,6 +149,6 @@ class PushSubscriber
 		// set last_update to the 'created' date of the last item, and reset push=0
 		$fields = ['push' => 0, 'next_try' => DBA::NULL_DATETIME, 'last_update' => $last_update];
 		DBA::update('push_subscriber', $fields, ['id' => $id]);
-		Logger::log('Subscriber ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' is marked as vital', LOGGER_DEBUG);
+		Logger::log('Subscriber ' . $subscriber['callback_url'] . ' for ' . $subscriber['nickname'] . ' is marked as vital', Logger::DEBUG);
 	}
 }

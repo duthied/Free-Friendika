@@ -98,7 +98,7 @@ class HTTPSignature
 
 		$x = Crypto::rsaVerify($signed_data, $sig_block['signature'], $key, $algorithm);
 
-		Logger::log('verified: ' . $x, LOGGER_DEBUG);
+		Logger::log('verified: ' . $x, Logger::DEBUG);
 
 		if (!$x) {
 			return $result;
@@ -433,12 +433,12 @@ class HTTPSignature
 
 		$profile = APContact::getByURL($url);
 		if (!empty($profile)) {
-			Logger::log('Taking key from id ' . $id, LOGGER_DEBUG);
+			Logger::log('Taking key from id ' . $id, Logger::DEBUG);
 			return ['url' => $url, 'pubkey' => $profile['pubkey']];
 		} elseif ($url != $actor) {
 			$profile = APContact::getByURL($actor);
 			if (!empty($profile)) {
-				Logger::log('Taking key from actor ' . $actor, LOGGER_DEBUG);
+				Logger::log('Taking key from actor ' . $actor, Logger::DEBUG);
 				return ['url' => $actor, 'pubkey' => $profile['pubkey']];
 			}
 		}

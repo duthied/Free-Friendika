@@ -17,7 +17,7 @@ function openid_content(App $a) {
 	if($noid)
 		$a->internalRedirect();
 
-	Logger::log('mod_openid ' . print_r($_REQUEST,true), LOGGER_DATA);
+	Logger::log('mod_openid ' . print_r($_REQUEST,true), Logger::DATA);
 
 	if((x($_GET,'openid_mode')) && (x($_SESSION,'openid'))) {
 

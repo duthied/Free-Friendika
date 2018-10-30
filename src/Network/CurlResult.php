@@ -104,7 +104,7 @@ class CurlResult
 		$this->errorNumber = $errorNumber;
 		$this->error = $error;
 
-		Logger::log($url . ': ' . $this->returnCode . " " . $result, LOGGER_DATA);
+		Logger::log($url . ': ' . $this->returnCode . " " . $result, Logger::DATA);
 
 		$this->parseBodyHeader($result);
 		$this->checkSuccess();
@@ -134,8 +134,8 @@ class CurlResult
 		$this->isSuccess = ($this->returnCode >= 200 && $this->returnCode <= 299) || $this->errorNumber == 0;
 
 		if (!$this->isSuccess) {
-			Logger::log('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, LOGGER_INFO);
-			Logger::log('debug: ' . print_r($this->info, true), LOGGER_DATA);
+			Logger::log('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, Logger::INFO);
+			Logger::log('debug: ' . print_r($this->info, true), Logger::DATA);
 		}
 
 		if (!$this->isSuccess && $this->errorNumber == CURLE_OPERATION_TIMEDOUT) {

@@ -911,7 +911,7 @@ function admin_page_summary(App $a)
 		$users+= $u['count'];
 	}
 
-	Logger::log('accounts: ' . print_r($accounts, true), LOGGER_DATA);
+	Logger::log('accounts: ' . print_r($accounts, true), Logger::DATA);
 
 	$pending = Register::getPendingCount();
 
@@ -2400,12 +2400,12 @@ function admin_page_logs_post(App $a)
 function admin_page_logs(App $a)
 {
 	$log_choices = [
-		LOGGER_WARNING => 'Warning',
-		LOGGER_INFO    => 'Info',
-		LOGGER_TRACE   => 'Trace',
-		LOGGER_DEBUG   => 'Debug',
-		LOGGER_DATA    => 'Data',
-		LOGGER_ALL     => 'All'
+		Logger::WARNING => 'Warning',
+		Logger::INFO    => 'Info',
+		Logger::TRACE   => 'Trace',
+		Logger::DEBUG   => 'Debug',
+		Logger::DATA    => 'Data',
+		Logger::ALL     => 'All'
 	];
 
 	if (ini_get('log_errors')) {
@@ -2500,7 +2500,7 @@ function admin_page_features_post(App $a)
 {
 	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
 
-	Logger::log('postvars: ' . print_r($_POST, true), LOGGER_DATA);
+	Logger::log('postvars: ' . print_r($_POST, true), Logger::DATA);
 
 	$features = Feature::get(false);
 

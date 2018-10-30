@@ -413,7 +413,7 @@ class DBA
 
 		if ((substr_count($sql, '?') != count($args)) && (count($args) > 0)) {
 			// Question: Should we continue or stop the query here?
-			Logger::log('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), LOGGER_DEBUG);
+			Logger::log('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), Logger::DEBUG);
 		}
 
 		$sql = self::cleanQuery($sql);
@@ -1143,7 +1143,7 @@ class DBA
 
 				if ((count($command['conditions']) > 1) || is_int($first_key)) {
 					$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
-					Logger::log(self::replaceParameters($sql, $conditions), LOGGER_DATA);
+					Logger::log(self::replaceParameters($sql, $conditions), Logger::DATA);
 
 					if (!self::e($sql, $conditions)) {
 						if ($do_transaction) {
@@ -1173,7 +1173,7 @@ class DBA
 						$sql = "DELETE FROM `" . $table . "` WHERE `" . $field . "` IN (" .
 							substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
 
-						Logger::log(self::replaceParameters($sql, $field_values), LOGGER_DATA);
+						Logger::log(self::replaceParameters($sql, $field_values), Logger::DATA);
 
 						if (!self::e($sql, $field_values)) {
 							if ($do_transaction) {

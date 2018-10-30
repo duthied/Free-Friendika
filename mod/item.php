@@ -57,7 +57,7 @@ function item_post(App $a) {
 
 	Addon::callHooks('post_local_start', $_REQUEST);
 
-	Logger::log('postvars ' . print_r($_REQUEST, true), LOGGER_DATA);
+	Logger::log('postvars ' . print_r($_REQUEST, true), Logger::DATA);
 
 	$api_source = defaults($_REQUEST, 'api_source', false);
 
@@ -73,7 +73,7 @@ function item_post(App $a) {
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
 		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
-			Logger::log("item post: duplicate post", LOGGER_DEBUG);
+			Logger::log("item post: duplicate post", Logger::DEBUG);
 			item_post_return(System::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -154,7 +154,7 @@ function item_post(App $a) {
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
 		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
-			Logger::log("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
+			Logger::log("Message with URI ".$message_id." already exists for user ".$profile_uid, Logger::DEBUG);
 			return 0;
 		}
 	}
@@ -862,7 +862,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
-	Logger::log('post_json: ' . print_r($json, true), LOGGER_DEBUG);
+	Logger::log('post_json: ' . print_r($json, true), Logger::DEBUG);
 
 	echo json_encode($json);
 	killme();

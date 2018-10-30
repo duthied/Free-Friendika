@@ -70,7 +70,7 @@ class DBStructure
 
 		// No valid result?
 		if (!DBA::isResult($adminlist)) {
-			Logger::log(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), LOGGER_INFO);
+			Logger::log(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), Logger::INFO);
 
 			// Don't continue
 			return;
@@ -222,7 +222,7 @@ class DBStructure
 
 		$errors = '';
 
-		Logger::log('updating structure', LOGGER_DEBUG);
+		Logger::log('updating structure', Logger::DEBUG);
 
 		// Get the current structure
 		$database = [];
@@ -235,7 +235,7 @@ class DBStructure
 			foreach ($tables AS $table) {
 				$table = current($table);
 
-				Logger::log(sprintf('updating structure for table %s ...', $table), LOGGER_DEBUG);
+				Logger::log(sprintf('updating structure for table %s ...', $table), Logger::DEBUG);
 				$database[$table] = self::tableStructure($table);
 			}
 		}

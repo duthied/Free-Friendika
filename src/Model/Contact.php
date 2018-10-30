@@ -587,7 +587,7 @@ class Contact extends BaseObject
 				return;
 			}
 		} elseif (!isset($contact['url'])) {
-			Logger::log('Empty contact: ' . json_encode($contact) . ' - ' . System::callstack(20), LOGGER_DEBUG);
+			Logger::log('Empty contact: ' . json_encode($contact) . ' - ' . System::callstack(20), Logger::DEBUG);
 		}
 
 		// Contact already archived or "self" contact? => nothing to do
@@ -1028,7 +1028,7 @@ class Contact extends BaseObject
 	 */
 	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [], $in_loop = false)
 	{
-		Logger::log("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), LOGGER_DEBUG);
+		Logger::log("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), Logger::DEBUG);
 
 		$contact_id = 0;
 

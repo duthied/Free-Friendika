@@ -138,7 +138,7 @@ abstract class BaseModule extends BaseObject
 		if (!self::checkFormSecurityToken($typename, $formname)) {
 			$a = get_app();
 			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
-			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
+			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			notice(self::getFormSecurityStandardErrorMessage());
 			$a->internalRedirect($err_redirect);
 		}
@@ -149,7 +149,7 @@ abstract class BaseModule extends BaseObject
 		if (!self::checkFormSecurityToken($typename, $formname)) {
 			$a = get_app();
 			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
-			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
+			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			header('HTTP/1.1 403 Forbidden');
 			killme();
 		}

@@ -31,7 +31,7 @@ foreach (['style', $style] as $file) {
 			$modified = $stylemodified;
 		}
 	} else {
-		//TODO: use LOGGER_ERROR?
+		//TODO: use Logger::ERROR?
 		Logger::log('Error: missing file: "' . $stylecssfile .'" (userid: '. $uid .')');
 	}
 }

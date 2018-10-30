@@ -204,22 +204,22 @@ function nodeinfo_cron() {
 		Config::set('nodeinfo', 'active_users_halfyear', $active_users_halfyear);
 		Config::set('nodeinfo', 'active_users_monthly', $active_users_monthly);
 
-		Logger::log('total_users: ' . $total_users . '/' . $active_users_halfyear. '/' . $active_users_monthly, LOGGER_DEBUG);
+		Logger::log('total_users: ' . $total_users . '/' . $active_users_halfyear. '/' . $active_users_monthly, Logger::DEBUG);
 	}
 
 	$local_posts = DBA::count('thread', ["`wall` AND NOT `deleted` AND `uid` != 0"]);
 	Config::set('nodeinfo', 'local_posts', $local_posts);
-	Logger::log('local_posts: ' . $local_posts, LOGGER_DEBUG);
+	Logger::log('local_posts: ' . $local_posts, Logger::DEBUG);
 
 	$local_comments = DBA::count('item', ["`origin` AND `id` != `parent` AND NOT `deleted` AND `uid` != 0"]);
 	Config::set('nodeinfo', 'local_comments', $local_comments);
-	Logger::log('local_comments: ' . $local_comments, LOGGER_DEBUG);
+	Logger::log('local_comments: ' . $local_comments, Logger::DEBUG);
 
 	// Now trying to register
 	$url = 'http://the-federation.info/register/'.$a->getHostName();
-	Logger::log('registering url: '.$url, LOGGER_DEBUG);
+	Logger::log('registering url: '.$url, Logger::DEBUG);
 	$ret = Network::fetchUrl($url);
-	Logger::log('registering answer: '.$ret, LOGGER_DEBUG);
+	Logger::log('registering answer: '.$ret, Logger::DEBUG);
 
 	Logger::log('cron_end');
 }

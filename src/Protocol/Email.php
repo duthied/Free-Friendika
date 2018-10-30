@@ -55,21 +55,21 @@ class Email
 		if (!$search1) {
 			$search1 = [];
 		} else {
-			Logger::log("Found mails from ".$email_addr, LOGGER_DEBUG);
+			Logger::log("Found mails from ".$email_addr, Logger::DEBUG);
 		}
 
 		$search2 = @imap_search($mbox, 'TO "' . $email_addr . '"', SE_UID);
 		if (!$search2) {
 			$search2 = [];
 		} else {
-			Logger::log("Found mails to ".$email_addr, LOGGER_DEBUG);
+			Logger::log("Found mails to ".$email_addr, Logger::DEBUG);
 		}
 
 		$search3 = @imap_search($mbox, 'CC "' . $email_addr . '"', SE_UID);
 		if (!$search3) {
 			$search3 = [];
 		} else {
-			Logger::log("Found mails cc ".$email_addr, LOGGER_DEBUG);
+			Logger::log("Found mails cc ".$email_addr, Logger::DEBUG);
 		}
 
 		$res = array_unique(array_merge($search1, $search2, $search3));

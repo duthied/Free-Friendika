@@ -58,8 +58,8 @@ class Owa extends BaseModule
 							$verified = HTTPSignature::verifyMagic($contact['pubkey']);
 
 							if ($verified && $verified['header_signed'] && $verified['header_valid']) {
-								Logger::log('OWA header: ' . print_r($verified, true), LOGGER_DATA);
-								Logger::log('OWA success: ' . $contact['addr'], LOGGER_DATA);
+								Logger::log('OWA header: ' . print_r($verified, true), Logger::DATA);
+								Logger::log('OWA success: ' . $contact['addr'], Logger::DATA);
 
 								$ret['success'] = true;
 								$token = random_string(32);
@@ -76,10 +76,10 @@ class Owa extends BaseModule
 								openssl_public_encrypt($token, $result, $contact['pubkey']);
 								$ret['encrypted_token'] = base64url_encode($result);
 							} else {
-								Logger::log('OWA fail: ' . $contact['id'] . ' ' . $contact['addr'] . ' ' . $contact['url'], LOGGER_DEBUG);
+								Logger::log('OWA fail: ' . $contact['id'] . ' ' . $contact['addr'] . ' ' . $contact['url'], Logger::DEBUG);
 							}
 						} else {
-							Logger::log('Contact not found: ' . $handle, LOGGER_DEBUG);
+							Logger::log('Contact not found: ' . $handle, Logger::DEBUG);
 						}
 					}
 				}

@@ -21,7 +21,7 @@ function salmon_post(App $a, $xml = '') {
 		$xml = file_get_contents('php://input');
 	}
 
-	Logger::log('new salmon ' . $xml, LOGGER_DATA);
+	Logger::log('new salmon ' . $xml, Logger::DATA);
 
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
 	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
@@ -108,7 +108,7 @@ function salmon_post(App $a, $xml = '') {
 	$m = base64url_decode($key_info[1]);
 	$e = base64url_decode($key_info[2]);
 
-	Logger::log('key details: ' . print_r($key_info,true), LOGGER_DEBUG);
+	Logger::log('key details: ' . print_r($key_info,true), Logger::DEBUG);
 
 	$pubkey = Crypto::meToPem($m, $e);
 

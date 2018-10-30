@@ -25,7 +25,7 @@ class GProbe {
 			DBA::escape(normalise_link($url))
 		);
 
-		Logger::log("gprobe start for ".normalise_link($url), LOGGER_DEBUG);
+		Logger::log("gprobe start for ".normalise_link($url), Logger::DEBUG);
 
 		if (!DBA::isResult($r)) {
 			// Is it a DDoS attempt?
@@ -34,7 +34,7 @@ class GProbe {
 			$result = Cache::get("gprobe:".$urlparts["host"]);
 			if (!is_null($result)) {
 				if (in_array($result["network"], [Protocol::FEED, Protocol::PHANTOM])) {
-					Logger::log("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
+					Logger::log("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), Logger::DEBUG);
 					return;
 				}
 			}
@@ -61,7 +61,7 @@ class GProbe {
 			}
 		}
 
-		Logger::log("gprobe end for ".normalise_link($url), LOGGER_DEBUG);
+		Logger::log("gprobe end for ".normalise_link($url), Logger::DEBUG);
 		return;
 	}
 }

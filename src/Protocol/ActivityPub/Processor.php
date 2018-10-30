@@ -159,7 +159,7 @@ class Processor
 	{
 		$owner = Contact::getIdForURL($activity['actor']);
 
-		Logger::log('Deleting item ' . $activity['object_id'] . ' from ' . $owner, LOGGER_DEBUG);
+		Logger::log('Deleting item ' . $activity['object_id'] . ' from ' . $owner, Logger::DEBUG);
 		Item::delete(['uri' => $activity['object_id'], 'owner-id' => $owner]);
 	}
 
@@ -212,7 +212,7 @@ class Processor
 		}
 
 		$event_id = Event::store($event);
-		Logger::log('Event '.$event_id.' was stored', LOGGER_DEBUG);
+		Logger::log('Event '.$event_id.' was stored', Logger::DEBUG);
 	}
 
 	/**
@@ -226,7 +226,7 @@ class Processor
 		/// @todo What to do with $activity['context']?
 
 		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['parent-uri']])) {
-			Logger::log('Parent ' . $item['parent-uri'] . ' not found, message will be discarded.', LOGGER_DEBUG);
+			Logger::log('Parent ' . $item['parent-uri'] . ' not found, message will be discarded.', Logger::DEBUG);
 			return;
 		}
 
@@ -239,7 +239,7 @@ class Processor
 			$item['owner-link'] = $activity['actor'];
 			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 		} else {
-			Logger::log('Ignoring actor because of thread completion.', LOGGER_DEBUG);
+			Logger::log('Ignoring actor because of thread completion.', Logger::DEBUG);
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		}
@@ -375,7 +375,7 @@ class Processor
 			return;
 		}
 
-		Logger::log('Updating profile for ' . $activity['object_id'], LOGGER_DEBUG);
+		Logger::log('Updating profile for ' . $activity['object_id'], Logger::DEBUG);
 		APContact::getByURL($activity['object_id'], true);
 	}
 
@@ -387,12 +387,12 @@ class Processor
 	public static function deletePerson($activity)
 	{
 		if (empty($activity['object_id']) || empty($activity['actor'])) {
-			Logger::log('Empty object id or actor.', LOGGER_DEBUG);
+			Logger::log('Empty object id or actor.', Logger::DEBUG);
 			return;
 		}
 
 		if ($activity['object_id'] != $activity['actor']) {
-			Logger::log('Object id does not match actor.', LOGGER_DEBUG);
+			Logger::log('Object id does not match actor.', Logger::DEBUG);
 			return;
 		}
 
@@ -402,7 +402,7 @@ class Processor
 		}
 		DBA::close($contacts);
 
-		Logger::log('Deleted contact ' . $activity['object_id'], LOGGER_DEBUG);
+		Logger::log('Deleted contact ' . $activity['object_id'], Logger::DEBUG);
 	}
 
 	/**
@@ -421,7 +421,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			Logger::log('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
+			Logger::log('No contact found for ' . $activity['actor'], Logger::DEBUG);
 			return;
 		}
 
@@ -436,7 +436,7 @@ class Processor
 
 		$condition = ['id' => $cid];
 		DBA::update('contact', $fields, $condition);
-		Logger::log('Accept contact request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
+		Logger::log('Accept contact request from contact ' . $cid . ' for user ' . $uid, Logger::DEBUG);
 	}
 
 	/**
@@ -455,7 +455,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			Logger::log('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
+			Logger::log('No contact found for ' . $activity['actor'], Logger::DEBUG);
 			return;
 		}
 
@@ -463,9 +463,9 @@ class Processor
 
 		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING, 'pending' => true])) {
 			Contact::remove($cid);
-			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . ' - contact had been removed.', LOGGER_DEBUG);
+			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . ' - contact had been removed.', Logger::DEBUG);
 		} else {
-			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . '.', LOGGER_DEBUG);
+			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . '.', Logger::DEBUG);
 		}
 	}
 
@@ -508,7 +508,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			Logger::log('No contact found for ' . $activity['actor'], LOGGER_DEBUG);
+			Logger::log('No contact found for ' . $activity['actor'], Logger::DEBUG);
 			return;
 		}
 
@@ -520,7 +520,7 @@ class Processor
 		}
 
 		Contact::removeFollower($owner, $contact);
-		Logger::log('Undo following request from contact ' . $cid . ' for user ' . $uid, LOGGER_DEBUG);
+		Logger::log('Undo following request from contact ' . $cid . ' for user ' . $uid, Logger::DEBUG);
 	}
 
 	/**

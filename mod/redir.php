@@ -52,7 +52,7 @@ function redir_init(App $a) {
 			if (!empty($a->contact['id']) && $a->contact['id'] == $cid) {
 				// Local user is already authenticated.
 				$target_url = defaults($url, $contact_url);
-				Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, LOGGER_DEBUG);
+				Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
 				$a->redirect($target_url);
 			}
 		}
@@ -73,7 +73,7 @@ function redir_init(App $a) {
 					if ($v['uid'] == $_SESSION['visitor_visiting'] && $v['cid'] == $_SESSION['visitor_id']) {
 						// Remote user is already authenticated.
 						$target_url = defaults($url, $contact_url);
-						Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, LOGGER_DEBUG);
+						Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
 						$a->redirect($target_url);
 					}
 				}
@@ -99,7 +99,7 @@ function redir_init(App $a) {
 				'sec' => $sec, 'expire' => time() + 45];
 			DBA::insert('profile_check', $fields);
 
-			Logger::log('mod_redir: ' . $contact['name'] . ' ' . $sec, LOGGER_DEBUG);
+			Logger::log('mod_redir: ' . $contact['name'] . ' ' . $sec, Logger::DEBUG);
 
 			$dest = (!empty($url) ? '&destination_url=' . $url : '');
 
@@ -121,7 +121,7 @@ function redir_init(App $a) {
 			$url .= $separator . 'zrl=' . urlencode($my_profile);
 		}
 
-		Logger::log('redirecting to ' . $url, LOGGER_DEBUG);
+		Logger::log('redirecting to ' . $url, Logger::DEBUG);
 		$a->redirect($url);
 	}
 

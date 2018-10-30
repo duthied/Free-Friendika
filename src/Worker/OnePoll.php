@@ -87,7 +87,7 @@ class OnePoll
 			$updated = DateTimeFormat::utcNow();
 
 			if ($last_updated) {
-				Logger::log('Contact '.$contact['id'].' had last update on '.$last_updated, LOGGER_DEBUG);
+				Logger::log('Contact '.$contact['id'].' had last update on '.$last_updated, Logger::DEBUG);
 
 				// The last public item can be older than the last item we got
 				if ($last_updated < $contact['last-item']) {
@@ -100,7 +100,7 @@ class OnePoll
 			} else {
 				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 				Contact::markForArchival($contact);
-				Logger::log('Contact '.$contact['id'].' is marked for archival', LOGGER_DEBUG);
+				Logger::log('Contact '.$contact['id'].' is marked for archival', Logger::DEBUG);
 			}
 
 			return;
@@ -214,7 +214,7 @@ class OnePoll
 			$handshake_xml = $curlResult->getBody();
 			$html_code = $curlResult->getReturnCode();
 
-			Logger::log('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, LOGGER_DATA);
+			Logger::log('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, Logger::DATA);
 
 			if (!strlen($handshake_xml) || ($html_code >= 400) || !$html_code) {
 				Logger::log("$url appears to be dead - marking for death ");
@@ -348,7 +348,7 @@ class OnePoll
 			$xml = $curlResult->getBody();
 
 		} elseif ($contact['network'] === Protocol::MAIL) {
-			Logger::log("Mail: Fetching for ".$contact['addr'], LOGGER_DEBUG);
+			Logger::log("Mail: Fetching for ".$contact['addr'], Logger::DEBUG);
 
 			$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
 			if ($mail_disabled) {
@@ -358,7 +358,7 @@ class OnePoll
 				return;
 			}
 
-			Logger::log("Mail: Enabled", LOGGER_DEBUG);
+			Logger::log("Mail: Enabled", Logger::DEBUG);
 
 			$mbox = null;
 			$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $importer_uid]);
@@ -385,17 +385,17 @@ class OnePoll
 				$msgs = Email::poll($mbox, $contact['addr']);
 
 				if (count($msgs)) {
-					Logger::log("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], LOGGER_DEBUG);
+					Logger::log("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], Logger::DEBUG);
 
 					$metas = Email::messageMeta($mbox, implode(',', $msgs));
 
 					if (count($metas) != count($msgs)) {
-						Logger::log("for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", LOGGER_DEBUG);
+						Logger::log("for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", Logger::DEBUG);
 					} else {
 						$msgs = array_combine($msgs, $metas);
 
 						foreach ($msgs as $msg_uid => $meta) {
-							Logger::log("Mail: Parsing mail ".$msg_uid, LOGGER_DATA);
+							Logger::log("Mail: Parsing mail ".$msg_uid, Logger::DATA);
 
 							$datarray = [];
 							$datarray['verb'] = ACTIVITY_POST;
@@ -410,7 +410,7 @@ class OnePoll
 							$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
 							$item = Item::selectFirst($fields, $condition);
 							if (DBA::isResult($item)) {
-								Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],LOGGER_DEBUG);
+								Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],Logger::DEBUG);
 
 								// Only delete when mails aren't automatically moved or deleted
 								if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
@@ -421,7 +421,7 @@ class OnePoll
 
 								switch ($mailconf['action']) {
 									case 0:
-										Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", LOGGER_DEBUG);
+										Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
 										break;
 									case 1:
 										Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
@@ -555,7 +555,7 @@ class OnePoll
 
 							switch ($mailconf['action']) {
 								case 0:
-									Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", LOGGER_DEBUG);
+									Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
 									break;
 								case 1:
 									Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
@@ -585,7 +585,7 @@ class OnePoll
 		}
 
 		if ($xml) {
-			Logger::log('received xml : ' . $xml, LOGGER_DATA);
+			Logger::log('received xml : ' . $xml, Logger::DATA);
 			if (!strstr($xml, '<')) {
 				Logger::log('post_handshake: response from ' . $url . ' did not contain XML.');
 

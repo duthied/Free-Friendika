@@ -154,10 +154,10 @@ class Authentication extends BaseObject
 		}
 
 		if ($login_initial) {
-			Logger::log('auth_identities: ' . print_r($a->identities, true), LOGGER_DEBUG);
+			Logger::log('auth_identities: ' . print_r($a->identities, true), Logger::DEBUG);
 		}
 		if ($login_refresh) {
-			Logger::log('auth_identities refresh: ' . print_r($a->identities, true), LOGGER_DEBUG);
+			Logger::log('auth_identities refresh: ' . print_r($a->identities, true), Logger::DEBUG);
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => true]);

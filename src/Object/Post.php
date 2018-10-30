@@ -488,10 +488,10 @@ class Post extends BaseObject
 	{
 		$item_id = $item->getId();
 		if (!$item_id) {
-			Logger::log('[ERROR] Post::addChild : Item has no ID!!', LOGGER_DEBUG);
+			Logger::log('[ERROR] Post::addChild : Item has no ID!!', Logger::DEBUG);
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			Logger::log('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').', LOGGER_DEBUG);
+			Logger::log('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').', Logger::DEBUG);
 			return false;
 		}
 		/*
@@ -585,7 +585,7 @@ class Post extends BaseObject
 				return true;
 			}
 		}
-		Logger::log('[WARN] Item::removeChild : Item is not a child (' . $id . ').', LOGGER_DEBUG);
+		Logger::log('[WARN] Item::removeChild : Item is not a child (' . $id . ').', Logger::DEBUG);
 		return false;
 	}
 
@@ -651,7 +651,7 @@ class Post extends BaseObject
 	public function getDataValue($name)
 	{
 		if (!isset($this->data[$name])) {
-			// Logger::log('[ERROR] Item::getDataValue : Item has no value name "'. $name .'".', LOGGER_DEBUG);
+			// Logger::log('[ERROR] Item::getDataValue : Item has no value name "'. $name .'".', Logger::DEBUG);
 			return false;
 		}
 
@@ -668,7 +668,7 @@ class Post extends BaseObject
 	private function setTemplate($name)
 	{
 		if (!x($this->available_templates, $name)) {
-			Logger::log('[ERROR] Item::setTemplate : Template not available ("' . $name . '").', LOGGER_DEBUG);
+			Logger::log('[ERROR] Item::setTemplate : Template not available ("' . $name . '").', Logger::DEBUG);
 			return false;
 		}
 

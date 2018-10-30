@@ -34,7 +34,7 @@ class Directory
 
 		Addon::callHooks('globaldir_update', $arr);
 
-		Logger::log('Updating directory: ' . $arr['url'], LOGGER_DEBUG);
+		Logger::log('Updating directory: ' . $arr['url'], Logger::DEBUG);
 		if (strlen($arr['url'])) {
 			Network::fetchUrl($dir . '?url=' . bin2hex($arr['url']));
 		}

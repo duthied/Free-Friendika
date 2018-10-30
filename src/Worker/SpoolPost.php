@@ -50,7 +50,7 @@ class SpoolPost {
 
 					$result = Item::insert($arr);
 
-					Logger::log("Spool file ".$file." stored: ".$result, LOGGER_DEBUG);
+					Logger::log("Spool file ".$file." stored: ".$result, Logger::DEBUG);
 					unlink($fullfile);
 				}
 				closedir($dh);

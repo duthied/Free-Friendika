@@ -41,7 +41,7 @@ function pubsub_init(App $a)
 		$hub_verify    = notags(trim(defaults($_GET, 'hub_verify_token', '')));
 
 		Logger::log('Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
-		Logger::log('Data: ' . print_r($_GET,true), LOGGER_DATA);
+		Logger::log('Data: ' . print_r($_GET,true), Logger::DATA);
 
 		$subscribe = (($hub_mode === 'subscribe') ? 1 : 0);
 
@@ -89,7 +89,7 @@ function pubsub_post(App $a)
 	$xml = file_get_contents('php://input');
 
 	Logger::log('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  $a->cmd . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
-	Logger::log('Data: ' . $xml, LOGGER_DATA);
+	Logger::log('Data: ' . $xml, Logger::DATA);
 
 	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );

@@ -142,9 +142,9 @@ function photos_init(App $a) {
 
 function photos_post(App $a)
 {
-	Logger::log('mod-photos: photos_post: begin' , LOGGER_DEBUG);
-	Logger::log('mod_photos: REQUEST ' . print_r($_REQUEST, true), LOGGER_DATA);
-	Logger::log('mod_photos: FILES '   . print_r($_FILES, true), LOGGER_DATA);
+	Logger::log('mod-photos: photos_post: begin' , Logger::DEBUG);
+	Logger::log('mod_photos: REQUEST ' . print_r($_REQUEST, true), Logger::DATA);
+	Logger::log('mod_photos: FILES '   . print_r($_FILES, true), Logger::DATA);
 
 	$phototypes = Image::supportedTypes();
 
@@ -707,7 +707,7 @@ function photos_post(App $a)
 	$album    = !empty($_REQUEST['album'])    ? notags(trim($_REQUEST['album']))    : '';
 	$newalbum = !empty($_REQUEST['newalbum']) ? notags(trim($_REQUEST['newalbum'])) : '';
 
-	Logger::log('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , LOGGER_DEBUG);
+	Logger::log('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , Logger::DEBUG);
 
 	if (!strlen($album)) {
 		if (strlen($newalbum)) {
@@ -800,7 +800,7 @@ function photos_post(App $a)
 		$type = Image::guessType($filename);
 	}
 
-	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
+	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
 
 	$maximagesize = Config::get('system', 'maximagesize');
 
@@ -820,14 +820,14 @@ function photos_post(App $a)
 		return;
 	}
 
-	Logger::log('mod/photos.php: photos_post(): loading the contents of ' . $src , LOGGER_DEBUG);
+	Logger::log('mod/photos.php: photos_post(): loading the contents of ' . $src , Logger::DEBUG);
 
 	$imagedata = @file_get_contents($src);
 
 	$image = new Image($imagedata, $type);
 
 	if (!$image->isValid()) {
-		Logger::log('mod/photos.php: photos_post(): unable to process image' , LOGGER_DEBUG);
+		Logger::log('mod/photos.php: photos_post(): unable to process image' , Logger::DEBUG);
 		notice(L10n::t('Unable to process image.') . EOL);
 		@unlink($src);
 		$foo = 0;
@@ -856,7 +856,7 @@ function photos_post(App $a)
 	$r = Photo::store($image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
-		Logger::log('mod/photos.php: photos_post(): image store failed', LOGGER_DEBUG);
+		Logger::log('mod/photos.php: photos_post(): image store failed', Logger::DEBUG);
 		notice(L10n::t('Image upload failed.') . EOL);
 		killme();
 	}

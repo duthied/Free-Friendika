@@ -176,7 +176,7 @@ class DFRN
 		);
 
 		if (! DBA::isResult($r)) {
-			Logger::log(sprintf('No contact found for nickname=%d', $owner_nick), LOGGER_WARNING);
+			Logger::log(sprintf('No contact found for nickname=%d', $owner_nick), Logger::WARNING);
 			killme();
 		}
 
@@ -212,7 +212,7 @@ class DFRN
 			);
 
 			if (! DBA::isResult($r)) {
-				Logger::log(sprintf('No contact found for uid=%d', $owner_id), LOGGER_WARNING);
+				Logger::log(sprintf('No contact found for uid=%d', $owner_id), Logger::WARNING);
 				killme();
 			}
 
@@ -1189,7 +1189,7 @@ class DFRN
 		$rino = Config::get('system', 'rino_encrypt');
 		$rino = intval($rino);
 
-		Logger::log("Local rino version: ". $rino, LOGGER_DEBUG);
+		Logger::log("Local rino version: ". $rino, Logger::DEBUG);
 
 		$ssl_val = intval(Config::get('system', 'ssl_policy'));
 		$ssl_policy = '';
@@ -1226,7 +1226,7 @@ class DFRN
 			return -3; // timed out
 		}
 
-		Logger::log('dfrn_deliver: ' . $xml, LOGGER_DATA);
+		Logger::log('dfrn_deliver: ' . $xml, Logger::DATA);
 
 		if (empty($xml)) {
 			Contact::markForArchival($contact);
@@ -1235,7 +1235,7 @@ class DFRN
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: no valid XML returned');
-			Logger::log('dfrn_deliver: returned XML: ' . $xml, LOGGER_DATA);
+			Logger::log('dfrn_deliver: returned XML: ' . $xml, Logger::DATA);
 			Contact::markForArchival($contact);
 			return 3;
 		}
@@ -1262,7 +1262,7 @@ class DFRN
 		$rino_remote_version = intval($res->rino);
 		$page         = (($owner['page-flags'] == Contact::PAGE_COMMUNITY) ? 1 : 0);
 
-		Logger::log("Remote rino version: ".$rino_remote_version." for ".$contact["url"], LOGGER_DEBUG);
+		Logger::log("Remote rino version: ".$rino_remote_version." for ".$contact["url"], Logger::DEBUG);
 
 		if ($owner['page-flags'] == Contact::PAGE_PRVGROUP) {
 			$page = 2;
@@ -1366,13 +1366,13 @@ class DFRN
 		}
 
 
-		Logger::log('dfrn_deliver: ' . "SENDING: " . print_r($postvars, true), LOGGER_DATA);
+		Logger::log('dfrn_deliver: ' . "SENDING: " . print_r($postvars, true), Logger::DATA);
 
 		$postResult = Network::post($contact['notify'], $postvars);
 
 		$xml = $postResult->getBody();
 
-		Logger::log('dfrn_deliver: ' . "RECEIVED: " . $xml, LOGGER_DATA);
+		Logger::log('dfrn_deliver: ' . "RECEIVED: " . $xml, Logger::DATA);
 
 		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
@@ -1387,7 +1387,7 @@ class DFRN
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: phase 2: no valid XML returned');
-			Logger::log('dfrn_deliver: phase 2: returned XML: ' . $xml, LOGGER_DATA);
+			Logger::log('dfrn_deliver: phase 2: returned XML: ' . $xml, Logger::DATA);
 			Contact::markForArchival($contact);
 			return 3;
 		}
@@ -1405,7 +1405,7 @@ class DFRN
 		}
 
 		if (!empty($res->message)) {
-			Logger::log('Delivery returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+			Logger::log('Delivery returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
 		}
 
 		if (($res->status >= 200) && ($res->status <= 299)) {
@@ -1486,7 +1486,7 @@ class DFRN
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('No valid XML returned from ' . $contact['id'] . ' - ' . $dest_url);
-			Logger::log('Returned XML: ' . $xml, LOGGER_DATA);
+			Logger::log('Returned XML: ' . $xml, Logger::DATA);
 			Contact::markForArchival($contact);
 			return 3;
 		}
@@ -1499,7 +1499,7 @@ class DFRN
 		}
 
 		if (!empty($res->message)) {
-			Logger::log('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, LOGGER_DEBUG);
+			Logger::log('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
 		}
 
 		if (($res->status >= 200) && ($res->status <= 299)) {
@@ -1576,7 +1576,7 @@ class DFRN
 			$author["network"] = $contact_old["network"];
 		} else {
 			if (!$onlyfetch) {
-				Logger::log("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml, LOGGER_DEBUG);
+				Logger::log("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml, Logger::DEBUG);
 			}
 
 			$author["contact-unknown"] = true;
@@ -1629,7 +1629,7 @@ class DFRN
 		}
 
 		if (DBA::isResult($contact_old) && !$onlyfetch) {
-			Logger::log("Check if contact details for contact " . $contact_old["id"] . " (" . $contact_old["nick"] . ") have to be updated.", LOGGER_DEBUG);
+			Logger::log("Check if contact details for contact " . $contact_old["id"] . " (" . $contact_old["nick"] . ") have to be updated.", Logger::DEBUG);
 
 			$poco = ["url" => $contact_old["url"]];
 
@@ -1690,7 +1690,7 @@ class DFRN
 			// If the "hide" element is present then the profile isn't searchable.
 			$hide = intval(XML::getFirstNodeValue($xpath, $element . "/dfrn:hide/text()", $context) == "true");
 
-			Logger::log("Hidden status for contact " . $contact_old["url"] . ": " . $hide, LOGGER_DEBUG);
+			Logger::log("Hidden status for contact " . $contact_old["url"] . ": " . $hide, Logger::DEBUG);
 
 			// If the contact isn't searchable then set the contact to "hidden".
 			// Problem: This can be manually overridden by the user.
@@ -1762,20 +1762,20 @@ class DFRN
 				$contact[$field] = DateTimeFormat::utc($contact[$field]);
 
 				if (strtotime($contact[$field]) > strtotime($contact_old[$field])) {
-					Logger::log("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", LOGGER_DEBUG);
+					Logger::log("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", Logger::DEBUG);
 					$update = true;
 				}
 			}
 
 			foreach ($fields as $field => $data) {
 				if ($contact[$field] != $contact_old[$field]) {
-					Logger::log("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", LOGGER_DEBUG);
+					Logger::log("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", Logger::DEBUG);
 					$update = true;
 				}
 			}
 
 			if ($update) {
-				Logger::log("Update contact data for contact " . $contact["id"] . " (" . $contact["nick"] . ")", LOGGER_DEBUG);
+				Logger::log("Update contact data for contact " . $contact["id"] . " (" . $contact["nick"] . ")", Logger::DEBUG);
 
 				q(
 					"UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
@@ -2299,7 +2299,7 @@ class DFRN
 	 */
 	private static function processVerbs($entrytype, $importer, &$item, &$is_like)
 	{
-		Logger::log("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype, LOGGER_DEBUG);
+		Logger::log("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype, Logger::DEBUG);
 
 		if (($entrytype == DFRN::TOP_LEVEL)) {
 			// The filling of the the "contact" variable is done for legcy reasons
@@ -2464,7 +2464,7 @@ class DFRN
 		);
 		// Is there an existing item?
 		if (DBA::isResult($current) && !self::isEditedTimestampNewer($current, $item)) {
-			Logger::log("Item ".$item["uri"]." (".$item['edited'].") already existed.", LOGGER_DEBUG);
+			Logger::log("Item ".$item["uri"]." (".$item['edited'].") already existed.", Logger::DEBUG);
 			return;
 		}
 
@@ -2672,10 +2672,10 @@ class DFRN
 
 			// Is it an event?
 			if (($item["object-type"] == ACTIVITY_OBJ_EVENT) && !$owner_unknown) {
-				Logger::log("Item ".$item["uri"]." seems to contain an event.", LOGGER_DEBUG);
+				Logger::log("Item ".$item["uri"]." seems to contain an event.", Logger::DEBUG);
 				$ev = Event::fromBBCode($item["body"]);
 				if ((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
-					Logger::log("Event in item ".$item["uri"]." was found.", LOGGER_DEBUG);
+					Logger::log("Event in item ".$item["uri"]." was found.", Logger::DEBUG);
 					$ev["cid"]     = $importer["id"];
 					$ev["uid"]     = $importer["importer_uid"];
 					$ev["uri"]     = $item["uri"];
@@ -2691,20 +2691,20 @@ class DFRN
 					}
 
 					$event_id = Event::store($ev);
-					Logger::log("Event ".$event_id." was stored", LOGGER_DEBUG);
+					Logger::log("Event ".$event_id." was stored", Logger::DEBUG);
 					return;
 				}
 			}
 		}
 
 		if (!self::processVerbs($entrytype, $importer, $item, $is_like)) {
-			Logger::log("Exiting because 'processVerbs' told us so", LOGGER_DEBUG);
+			Logger::log("Exiting because 'processVerbs' told us so", Logger::DEBUG);
 			return;
 		}
 
 		// This check is done here to be able to receive connection requests in "processVerbs"
 		if (($entrytype == DFRN::TOP_LEVEL) && $owner_unknown) {
-			Logger::log("Item won't be stored because user " . $importer["importer_uid"] . " doesn't follow " . $item["owner-link"] . ".", LOGGER_DEBUG);
+			Logger::log("Item won't be stored because user " . $importer["importer_uid"] . " doesn't follow " . $item["owner-link"] . ".", Logger::DEBUG);
 			return;
 		}
 
@@ -2712,9 +2712,9 @@ class DFRN
 		// Update content if 'updated' changes
 		if (DBA::isResult($current)) {
 			if (self::updateContent($current, $item, $importer, $entrytype)) {
-				Logger::log("Item ".$item["uri"]." was updated.", LOGGER_DEBUG);
+				Logger::log("Item ".$item["uri"]." was updated.", Logger::DEBUG);
 			} else {
-				Logger::log("Item " . $item["uri"] . " already existed.", LOGGER_DEBUG);
+				Logger::log("Item " . $item["uri"] . " already existed.", Logger::DEBUG);
 			}
 			return;
 		}
@@ -2724,7 +2724,7 @@ class DFRN
 			$parent = 0;
 
 			if ($posted_id) {
-				Logger::log("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, LOGGER_DEBUG);
+				Logger::log("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, Logger::DEBUG);
 
 				if ($item['uid'] == 0) {
 					Item::distribute($posted_id);
@@ -2734,7 +2734,7 @@ class DFRN
 			}
 		} else { // $entrytype == DFRN::TOP_LEVEL
 			if (($importer["uid"] == 0) && ($importer["importer_uid"] != 0)) {
-				Logger::log("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", LOGGER_DEBUG);
+				Logger::log("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", Logger::DEBUG);
 				return;
 			}
 			if (!link_compare($item["owner-link"], $importer["url"])) {
@@ -2744,13 +2744,13 @@ class DFRN
 				 * the tgroup delivery code called from Item::insert will correct it if it's a forum,
 				 * but we're going to unconditionally correct it here so that the post will always be owned by our contact.
 				 */
-				Logger::log('Correcting item owner.', LOGGER_DEBUG);
+				Logger::log('Correcting item owner.', Logger::DEBUG);
 				$item["owner-link"] = $importer["url"];
 				$item["owner-id"] = Contact::getIdForURL($importer["url"], 0);
 			}
 
 			if (($importer["rel"] == Contact::FOLLOWER) && (!self::tgroupCheck($importer["importer_uid"], $item))) {
-				Logger::log("Contact ".$importer["id"]." is only follower and tgroup check was negative.", LOGGER_DEBUG);
+				Logger::log("Contact ".$importer["id"]." is only follower and tgroup check was negative.", Logger::DEBUG);
 				return;
 			}
 
@@ -2764,7 +2764,7 @@ class DFRN
 				$posted_id = $notify;
 			}
 
-			Logger::log("Item was stored with id ".$posted_id, LOGGER_DEBUG);
+			Logger::log("Item was stored with id ".$posted_id, Logger::DEBUG);
 
 			if ($item['uid'] == 0) {
 				Item::distribute($posted_id);
@@ -2803,18 +2803,18 @@ class DFRN
 		$condition = ['uri' => $uri, 'uid' => $importer["importer_uid"]];
 		$item = Item::selectFirst(['id', 'parent', 'contact-id', 'file', 'deleted'], $condition);
 		if (!DBA::isResult($item)) {
-			Logger::log("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.", LOGGER_DEBUG);
+			Logger::log("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.", Logger::DEBUG);
 			return;
 		}
 
 		if (strstr($item['file'], '[')) {
-			Logger::log("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " is filed. So it won't be deleted.", LOGGER_DEBUG);
+			Logger::log("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " is filed. So it won't be deleted.", Logger::DEBUG);
 			return;
 		}
 
 		// When it is a starting post it has to belong to the person that wants to delete it
 		if (($item['id'] == $item['parent']) && ($item['contact-id'] != $importer["id"])) {
-			Logger::log("Item with uri " . $uri . " don't belong to contact " . $importer["id"] . " - ignoring deletion.", LOGGER_DEBUG);
+			Logger::log("Item with uri " . $uri . " don't belong to contact " . $importer["id"] . " - ignoring deletion.", Logger::DEBUG);
 			return;
 		}
 
@@ -2822,7 +2822,7 @@ class DFRN
 		if (($item['id'] != $item['parent']) && ($item['contact-id'] != $importer["id"])) {
 			$condition = ['id' => $item['parent'], 'contact-id' => $importer["id"]];
 			if (!Item::exists($condition)) {
-				Logger::log("Item with uri " . $uri . " wasn't found or mustn't be deleted by contact " . $importer["id"] . " - ignoring deletion.", LOGGER_DEBUG);
+				Logger::log("Item with uri " . $uri . " wasn't found or mustn't be deleted by contact " . $importer["id"] . " - ignoring deletion.", Logger::DEBUG);
 				return;
 			}
 		}
@@ -2831,7 +2831,7 @@ class DFRN
 			return;
 		}
 
-		Logger::log('deleting item '.$item['id'].' uri='.$uri, LOGGER_DEBUG);
+		Logger::log('deleting item '.$item['id'].' uri='.$uri, Logger::DEBUG);
 
 		Item::delete(['id' => $item['id']]);
 	}
@@ -2885,7 +2885,7 @@ class DFRN
 			self::fetchauthor($xpath, $doc->firstChild, $importer, "dfrn:owner", false, $xml);
 		}
 
-		Logger::log("Import DFRN message for user " . $importer["importer_uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
+		Logger::log("Import DFRN message for user " . $importer["importer_uid"] . " from contact " . $importer["id"], Logger::DEBUG);
 
 		// is it a public forum? Private forums aren't exposed with this method
 		$forum = intval(XML::getFirstNodeValue($xpath, "/atom:feed/dfrn:community/text()"));
@@ -2951,7 +2951,7 @@ class DFRN
 				self::processEntry($header, $xpath, $entry, $importer, $xml);
 			}
 		}
-		Logger::log("Import done for user " . $importer["importer_uid"] . " from contact " . $importer["id"], LOGGER_DEBUG);
+		Logger::log("Import done for user " . $importer["importer_uid"] . " from contact " . $importer["id"], Logger::DEBUG);
 		return 200;
 	}
 
@@ -3036,7 +3036,7 @@ class DFRN
 
 			$url = curPageURL();
 
-			Logger::log('auto_redir: ' . $r[0]['name'] . ' ' . $sec, LOGGER_DEBUG);
+			Logger::log('auto_redir: ' . $r[0]['name'] . ' ' . $sec, Logger::DEBUG);
 			$dest = (($url) ? '&destination_url=' . $url : '');
 			System::externalRedirect($r[0]['poll'] . '?dfrn_id=' . $dfrn_id
 				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest);

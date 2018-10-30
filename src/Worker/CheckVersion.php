@@ -37,11 +37,11 @@ class CheckVersion
 				// don't check
 				return;
 		}
-		Logger::log("Checking VERSION from: ".$checked_url, LOGGER_DEBUG);
+		Logger::log("Checking VERSION from: ".$checked_url, Logger::DEBUG);
 
 		// fetch the VERSION file
 		$gitversion = DBA::escape(trim(Network::fetchUrl($checked_url)));
-		Logger::log("Upstream VERSION is: ".$gitversion, LOGGER_DEBUG);
+		Logger::log("Upstream VERSION is: ".$gitversion, Logger::DEBUG);
 
 		Config::set('system', 'git_friendica_version', $gitversion);
 

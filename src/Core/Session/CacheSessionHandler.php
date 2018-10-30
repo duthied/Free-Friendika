@@ -34,7 +34,7 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 			Session::$exists = true;
 			return $data;
 		}
-		Logger::log("no data for session $session_id", LOGGER_TRACE);
+		Logger::log("no data for session $session_id", Logger::TRACE);
 		return '';
 	}
 

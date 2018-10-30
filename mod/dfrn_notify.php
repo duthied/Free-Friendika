@@ -18,7 +18,7 @@ use Friendica\Protocol\Diaspora;
 require_once 'include/items.php';
 
 function dfrn_notify_post(App $a) {
-	Logger::log(__function__, LOGGER_TRACE);
+	Logger::log(__function__, Logger::TRACE);
 
 	$postdata = file_get_contents('php://input');
 
@@ -118,7 +118,7 @@ function dfrn_notify_post(App $a) {
 
 	$importer = Contact::updateSslPolicy($importer, $ssl_policy);
 
-	Logger::log('data: ' . $data, LOGGER_DATA);
+	Logger::log('data: ' . $data, Logger::DATA);
 
 	if ($dissolve == 1) {
 		// Relationship is dissolved permanently
@@ -140,7 +140,7 @@ function dfrn_notify_post(App $a) {
 		}
 
 		$rawkey = hex2bin(trim($key));
-		Logger::log('rino: md5 raw key: ' . md5($rawkey), LOGGER_DATA);
+		Logger::log('rino: md5 raw key: ' . md5($rawkey), Logger::DATA);
 
 		$final_key = '';
 
@@ -170,10 +170,10 @@ function dfrn_notify_post(App $a) {
 				System::xmlExit(0, "Invalid sent version '$rino_remote'");
 		}
 
-		Logger::log('rino: decrypted data: ' . $data, LOGGER_DATA);
+		Logger::log('rino: decrypted data: ' . $data, Logger::DATA);
 	}
 
-	Logger::log('Importing post from ' . $importer['addr'] . ' to ' . $importer['nickname'] . ' with the RINO ' . $rino_remote . ' encryption.', LOGGER_DEBUG);
+	Logger::log('Importing post from ' . $importer['addr'] . ' to ' . $importer['nickname'] . ' with the RINO ' . $rino_remote . ' encryption.', Logger::DEBUG);
 
 	$ret = DFRN::import($data, $importer);
 	System::xmlExit($ret, 'Processed');
@@ -204,7 +204,7 @@ function dfrn_dispatch_public($postdata)
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
 
-	Logger::log('Importing post from ' . $msg['author'] . ' with the public envelope.', LOGGER_DEBUG);
+	Logger::log('Importing post from ' . $msg['author'] . ' with the public envelope.', Logger::DEBUG);
 
 	// Now we should be able to import it
 	$ret = DFRN::import($msg['message'], $importer);
@@ -237,7 +237,7 @@ function dfrn_dispatch_private($user, $postdata)
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
 
-	Logger::log('Importing post from ' . $msg['author'] . ' to ' . $user['nickname'] . ' with the private envelope.', LOGGER_DEBUG);
+	Logger::log('Importing post from ' . $msg['author'] . ' to ' . $user['nickname'] . ' with the private envelope.', Logger::DEBUG);
 
 	// Now we should be able to import it
 	$ret = DFRN::import($msg['message'], $importer);
@@ -277,7 +277,7 @@ function dfrn_notify_content(App $a) {
 			'type' => $type, 'last_update' => $last_update];
 		DBA::insert('challenge', $fields);
 
-		Logger::log('challenge=' . $hash, LOGGER_DATA);
+		Logger::log('challenge=' . $hash, Logger::DATA);
 
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
 		if (!DBA::isResult($user)) {
@@ -317,7 +317,7 @@ function dfrn_notify_content(App $a) {
 			killme();
 		}
 
-		Logger::log("Remote rino version: ".$rino_remote." for ".$importer["url"], LOGGER_DATA);
+		Logger::log("Remote rino version: ".$rino_remote." for ".$importer["url"], Logger::DATA);
 
 		$challenge    = '';
 		$encrypted_id = '';
@@ -345,7 +345,7 @@ function dfrn_notify_content(App $a) {
 		$rino = Config::get('system', 'rino_encrypt');
 		$rino = intval($rino);
 
-		Logger::log("Local rino version: ". $rino, LOGGER_DATA);
+		Logger::log("Local rino version: ". $rino, Logger::DATA);
 
 		// if requested rino is lower than enabled local rino, lower local rino version
 		// if requested rino is higher than enabled local rino, reply with local rino

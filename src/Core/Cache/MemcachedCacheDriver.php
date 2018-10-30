@@ -65,7 +65,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 		if ($this->memcached->getResultCode() == Memcached::RES_SUCCESS) {
 			return $this->filterArrayKeysByPrefix($keys, $prefix);
 		} else {
-			Logger::log('Memcached \'getAllKeys\' failed with ' . $this->memcached->getResultMessage(), LOGGER_ALL);
+			Logger::log('Memcached \'getAllKeys\' failed with ' . $this->memcached->getResultMessage(), Logger::ALL);
 			return [];
 		}
 	}
@@ -84,7 +84,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
 			$return = $value;
 		} else {
-			Logger::log('Memcached \'get\' failed with ' . $this->memcached->getResultMessage(), LOGGER_ALL);
+			Logger::log('Memcached \'get\' failed with ' . $this->memcached->getResultMessage(), Logger::ALL);
 		}
 
 		return $return;

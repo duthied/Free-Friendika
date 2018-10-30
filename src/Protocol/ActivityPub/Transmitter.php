@@ -1016,7 +1016,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
+		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1045,7 +1045,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
+		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1074,7 +1074,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		Logger::log('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
+		Logger::log('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1099,7 +1099,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		Logger::log('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
+		Logger::log('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1127,7 +1127,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		Logger::log('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		Logger::log('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1155,7 +1155,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		Logger::log('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		Logger::log('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1184,7 +1184,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		Logger::log('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		Logger::log('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
