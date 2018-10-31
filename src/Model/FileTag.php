@@ -22,6 +22,10 @@ class FileTag
 
     /**
      * @brief URL encode &lt, &gt, left and right brackets
+     * 
+     * @param string $s String to be URL encoded.
+     * 
+     * @return string   The URL encoded string.
      */
     public static function encode($s)
     {
@@ -30,6 +34,10 @@ class FileTag
 
     /**
      * @brief URL decode &lt, &gt, left and right brackets
+     * 
+     * @param string $s The URL encoded string to be decoded
+     * 
+     * @return string   The decoded string.
      */
     public static function decode($s)
     {
@@ -38,6 +46,12 @@ class FileTag
 
     /**
      * @brief Query files for tag
+     * 
+     * @param string $table The table to be queired.
+     * @param string $s     The search term
+     * @param string $type  Optional file type.
+     * 
+     * @return string       Query string.
      */
     public static function fileQuery($table, $s, $type = 'file')
     {
@@ -54,6 +68,10 @@ class FileTag
      * @brief Get file tags from list
      * 
      * ex. given music,video return <music><video> or [music][video]
+     * @param string $list  A comma delimited list of tags.
+     * @param string $type  Optional file type.
+     * 
+     * @return string       A list of file tags.
      */
     public static function listToFile($list, $type = 'file')
     {
@@ -84,21 +102,31 @@ class FileTag
      * @brief Get list from file tags
      * 
      * ex. given <music><video>[friends], return music,video or friends
+     * @param string $file  File tags
+     * @param string $type  Optional file type.
+     * 
+     * @return string       Comma delimited list of tag names.
      */
     public static function fileToList($file, $type = 'file')
     {
         $matches = false;
         $list = '';
+
         if ($type == 'file') {
             $cnt = preg_match_all('/\[(.*?)\]/', $file, $matches, PREG_SET_ORDER);
         } else {
             $cnt = preg_match_all('/<(.*?)>/', $file, $matches, PREG_SET_ORDER);
         }
-        if ($cnt) {
-            foreach ($matches as $mtch) {
-                if (strlen($list)) {
+
+        if ($cnt)
+        {
+            foreach ($matches as $mtch)
+            {
+                if (strlen($list))
+                {
                     $list .= ',';
                 }
+
                 $list .= self::decode($mtch[1]);
             }
         }
@@ -108,12 +136,16 @@ class FileTag
 
     /**
      * @brief Update file tags in PConfig
+     * 
+     * @param int $uid          Unique Identity.
+     * @param string $file_old  Categories previously associated with an item
+     * @param string $file_new  New list of categories for an item
+     * @param string $type      Optional file type.
+     * 
+     * @return boolean          A value indicating success or failure.
      */
     public static function updatePconfig($uid, $file_old, $file_new, $type = 'file')
     {
-        // $file_old - categories previously associated with an item
-        // $file_new - new list of categories for an item
-
         if (!intval($uid)) {
             return false;
         } elseif ($file_old == $file_new) {
@@ -190,6 +222,12 @@ class FileTag
 
     /**
      * @brief Add tag to file
+     * 
+     * @param int $uid      Unique identity.
+     * @param int $item_id  Item identity.
+     * @param string $file  File tag.
+     * 
+     * @return boolean      A value indicating success or failure.
      */
     public static function saveFile($uid, $item_id, $file)
     {
@@ -222,6 +260,13 @@ class FileTag
 
     /**
      * @brief Remove tag from file
+     * 
+     * @param int $uid      Unique identity.
+     * @param int $item_id  Item identity.
+     * @param string $file  File tag.
+     * @param boolean $cat  Optional value indicating the term type (i.e. Category or File)
+     * 
+     * @return boolean      A value indicating success or failure.
      */
     public static function unsaveFile($uid, $item_id, $file, $cat = false)
     {
