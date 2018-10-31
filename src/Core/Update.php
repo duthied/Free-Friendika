@@ -69,6 +69,8 @@ class Update
 			if ($stored < $current) {
 				Config::load('database');
 
+				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
+
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
 				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
@@ -90,11 +92,13 @@ class Update
 								$retval
 							);
 						}
+						Logger::log('ERROR: Update from \'' . $stored . '\'  to \'' . $current . '\' - failed:  ' - $retval, Logger::ALL);
 						Lock::release('dbupdate');
 						return $retval;
 					} else {
 						Config::set('database', 'last_successful_update', $current);
 						Config::set('database', 'last_successful_update_time', time());
+						Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - finished', Logger::DEBUG);
 					}
 
 					// run the update_nnnn functions in update.php
@@ -105,6 +109,7 @@ class Update
 						}
 					}
 
+					Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - successful', Logger::DEBUG);
 					if ($sendMail) {
 						self::updateSuccessfull($stored, $current);
 					}
@@ -129,6 +134,8 @@ class Update
 	{
 		$funcname = $prefix . '_' . $x;
 
+		Logger::log('Update function \'' . $funcname . '\' - start', Logger::DEBUG);
+
 		if (function_exists($funcname)) {
 			// There could be a lot of processes running or about to run.
 			// We want exactly one process to run the update command.
@@ -148,6 +155,7 @@ class Update
 						$x,
 						L10n::t('Update %s failed. See error logs.', $x)
 					);
+					Logger::log('ERROR: Update function \'' . $funcname . '\' - failed: ' . $retval, Logger::ALL);
 					Lock::release('dbupdate_function');
 					return false;
 				} else {
@@ -159,6 +167,7 @@ class Update
 					}
 
 					Lock::release('dbupdate_function');
+					Logger::log('Update function \'' . $funcname . '\' - finished', Logger::DEBUG);
 					return true;
 				}
 			}
