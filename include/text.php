@@ -24,6 +24,7 @@ use Friendica\Util\Map;
 use Friendica\Util\Proxy as ProxyUtils;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
 
 require_once "include/conversation.php";
@@ -36,26 +37,21 @@ require_once "include/conversation.php";
  * @param array $r key value pairs (search => replace)
  * @return string substituted string
  */
-function replace_macros($s, $r) {
+function replace_macros($s, $r)
+{
+	return Renderer::replaceMacros($s, $r);
+}
 
-	$stamp1 = microtime(true);
-
-	$a = get_app();
-
-	// pass $baseurl to all templates
-	$r['$baseurl'] = System::baseUrl();
-
-	$t = $a->getTemplateEngine();
-	try {
-		$output = $t->replaceMacros($s, $r);
-	} catch (Exception $e) {
-		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-		killme();
-	}
-
-	$a->saveTimestamp($stamp1, "rendering");
-
-	return $output;
+/**
+ * load template $s
+ *
+ * @param string $s
+ * @param string $root
+ * @return string
+ */
+function get_markup_template($s, $root = '')
+{
+	return Renderer::getMarkupTemplate($s, $root);
 }
 
 /**
@@ -337,30 +333,6 @@ function perms2str($p) {
 		$ret = implode('', $tmp);
 	}
 	return $ret;
-}
-
-/**
- * load template $s
- *
- * @param string $s
- * @param string $root
- * @return string
- */
-function get_markup_template($s, $root = '') {
-	$stamp1 = microtime(true);
-
-	$a = get_app();
-	$t = $a->getTemplateEngine();
-	try {
-		$template = $t->getTemplateFile($s, $root);
-	} catch (Exception $e) {
-		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-		killme();
-	}
-
-	$a->saveTimestamp($stamp1, "file");
-
-	return $template;
 }
 
 /**
