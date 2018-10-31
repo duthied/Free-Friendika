@@ -1682,7 +1682,7 @@ class App
 			$this->module = 'maintenance';
 		} else {
 			$this->checkURL();
-			check_db(false);
+			Core\Update::check(false);
 			Core\Addon::loadAddons();
 			Core\Hook::loadHooks();
 		}
