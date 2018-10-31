@@ -13,7 +13,10 @@ abstract class ConsoleTest extends TestCase
 	use VFSTrait;
 	use AppMockTrait;
 
-	protected $stdout;
+	/**
+	 * @var array The default argv for a Console Instance
+	 */
+	protected $consoleArgv = [ 'consoleTest.php' ];
 
 	protected function setUp()
 	{

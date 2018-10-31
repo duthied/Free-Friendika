@@ -224,7 +224,7 @@ CONF;
 			->at($this->root)
 			->setContent($config);
 
-		$console = new AutomaticInstallation();
+		$console = new AutomaticInstallation($this->consoleArgv);
 		$console->setOption('f', 'prepared.ini.php');
 
 		$txt = $this->dumpExecute($console);
@@ -249,7 +249,7 @@ CONF;
 		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
 		$this->assertTrue(putenv('FRIENDICA_URL_PATH=/friendica'));
 
-		$console = new AutomaticInstallation();
+		$console = new AutomaticInstallation($this->consoleArgv);
 		$console->setOption('savedb', true);
 
 		$txt = $this->dumpExecute($console);
@@ -278,7 +278,7 @@ CONF;
 		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
 		$this->assertTrue(putenv('FRIENDICA_URL_PATH=/friendica'));
 
-		$console = new AutomaticInstallation();
+		$console = new AutomaticInstallation($this->consoleArgv);
 
 		$txt = $this->dumpExecute($console);
 
@@ -301,7 +301,7 @@ CONF;
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([false, true, true], null, 1);
 
-		$console = new AutomaticInstallation();
+		$console = new AutomaticInstallation($this->consoleArgv);
 
 		$console->setOption('dbhost', $this->db_host);
 		$console->setOption('dbuser', $this->db_user);
@@ -338,7 +338,7 @@ CONF;
 	{
 		$this->mockConnect(false, 1);
 
-		$console = new AutomaticInstallation();
+		$console = new AutomaticInstallation($this->consoleArgv);
 
 		$txt = $this->dumpExecute($console);
 
@@ -400,7 +400,7 @@ Examples
 
 HELP;
 
-		$console = new AutomaticInstallation();
+		$console = new AutomaticInstallation($this->consoleArgv);
 		$console->setOption('help', true);
 
 		$txt = $this->dumpExecute($console);
