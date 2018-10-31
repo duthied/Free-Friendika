@@ -91,7 +91,7 @@ function admin_post(App $a)
 
 				$theme = $a->argv[2];
 				if (is_file("view/theme/$theme/config.php")) {
-					$orig_theme = $a->theme;
+					$orig_theme = Renderer::$theme;
 					$orig_page = $a->page;
 					$orig_session_theme = $_SESSION['theme'];
 					require_once "view/theme/$theme/theme.php";
@@ -107,7 +107,7 @@ function admin_post(App $a)
 					}
 
 					$_SESSION['theme'] = $orig_session_theme;
-					$a->theme = $orig_theme;
+					Renderer::$theme = $orig_theme;
 					$a->page = $orig_page;
 				}
 
@@ -2271,7 +2271,7 @@ function admin_page_themes(App $a)
 
 		$admin_form = '';
 		if (is_file("view/theme/$theme/config.php")) {
-			$orig_theme = $a->theme;
+			$orig_theme = Renderer::$theme;
 			$orig_page = $a->page;
 			$orig_session_theme = $_SESSION['theme'];
 			require_once "view/theme/$theme/theme.php";
@@ -2288,7 +2288,7 @@ function admin_page_themes(App $a)
 			}
 
 			$_SESSION['theme'] = $orig_session_theme;
-			$a->theme = $orig_theme;
+			Renderer::$theme = $orig_theme;
 			$a->page = $orig_page;
 		}
 

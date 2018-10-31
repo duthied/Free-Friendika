@@ -164,7 +164,7 @@ class Profile
 		* load/reload current theme info
 		*/
 
-		$a->setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
+		Renderer::setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
 		$theme_info_file = 'view/theme/' . $a->getCurrentTheme() . '/theme.php';
 		if (file_exists($theme_info_file)) {

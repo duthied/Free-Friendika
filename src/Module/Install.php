@@ -53,7 +53,7 @@ class Install extends BaseModule
 
 		// We overwrite current theme css, because during install we may not have a working mod_rewrite
 		// so we may not have a css at all. Here we set a static css file for the install procedure pages
-		$a->theme['stylesheet'] = $a->getBaseURL() . '/view/install/style.css';
+		Renderer::$theme['stylesheet'] = $a->getBaseURL() . '/view/install/style.css';
 
 		self::$installer = new Core\Installer();
 		self::$currentWizardStep = defaults($_POST, 'pass', self::SYSTEM_CHECK);

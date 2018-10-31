@@ -15,7 +15,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
 function smoothly_init(App $a) {
-	$a->setActiveTemplateEngine('smarty3');
+	Renderer::setActiveTemplateEngine('smarty3');
 
 	$cssFile = null;
 	$ssl_state = null;

@@ -136,30 +136,6 @@ class App
 		$this->footerScripts[] = trim($url, '/');
 	}
 
-	/**
-	 * @brief An array for all theme-controllable parameters
-	 *
-	 * Mostly unimplemented yet. Only options 'template_engine' and
-	 * beyond are used.
-	 */
-	public $theme = [
-		'sourcename' => '',
-		'videowidth' => 425,
-		'videoheight' => 350,
-		'force_max_items' => 0,
-		'stylesheet' => '',
-		'template_engine' => 'smarty3',
-	];
-
-	/**
-	 * @brief An array of registered template engines ('name'=>'class name')
-	 */
-	public $template_engines = [];
-
-	/**
-	 * @brief An array of instanced template engines ('name'=>'instance')
-	 */
-	public $template_engine_instance = [];
 	public $process_id;
 	public $queue;
 	private $scheme;
@@ -301,7 +277,7 @@ class App
 		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
 
 		// Register template engines
-		$this->registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
+		Core\Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
 	}
 
 	/**
@@ -744,8 +720,8 @@ class App
 			$this->page['title'] = $this->config['sitename'];
 		}
 
-		if (!empty($this->theme['stylesheet'])) {
-			$stylesheet = $this->theme['stylesheet'];
+		if (!empty(Core\Renderer::$theme['stylesheet'])) {
+			$stylesheet = Core\Renderer::$theme['stylesheet'];
 		} else {
 			$stylesheet = $this->getCurrentThemeStylesheetPath();
 		}
@@ -850,70 +826,6 @@ class App
 		} else {
 			return $url;
 		}
-	}
-
-	/**
-	 * @brief Register template engine class
-	 *
-	 * @param string $class
-	 */
-	private function registerTemplateEngine($class)
-	{
-		$v = get_class_vars($class);
-		if (!empty($v['name'])) {
-			$name = $v['name'];
-			$this->template_engines[$name] = $class;
-		} else {
-			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
-			die();
-		}
-	}
-
-	/**
-	 * @brief Return template engine instance.
-	 *
-	 * If $name is not defined, return engine defined by theme,
-	 * or default
-	 *
-	 * @return object Template Engine instance
-	 */
-	public function getTemplateEngine()
-	{
-		$template_engine = defaults($this->theme, 'template_engine', 'smarty3');
-
-		if (isset($this->template_engines[$template_engine])) {
-			if (isset($this->template_engine_instance[$template_engine])) {
-				return $this->template_engine_instance[$template_engine];
-			} else {
-				$class = $this->template_engines[$template_engine];
-				$obj = new $class;
-				$this->template_engine_instance[$template_engine] = $obj;
-				return $obj;
-			}
-		}
-
-		echo "template engine <tt>$template_engine</tt> is not registered!\n";
-		exit();
-	}
-
-	/**
-	 * @brief Returns the active template engine.
-	 *
-	 * @return string the active template engine
-	 */
-	public function getActiveTemplateEngine()
-	{
-		return $this->theme['template_engine'];
-	}
-
-	/**
-	 * sets the active template engine
-	 *
-	 * @param string $engine the template engine (default is Smarty3)
-	 */
-	public function setActiveTemplateEngine($engine = 'smarty3')
-	{
-		$this->theme['template_engine'] = $engine;
 	}
 
 	/**

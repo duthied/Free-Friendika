@@ -26,7 +26,7 @@ function vier_init(App $a)
 {
 	$a->theme_events_in_profile = false;
 
-	$a->setActiveTemplateEngine('smarty3');
+	Renderer::setActiveTemplateEngine('smarty3');
 
 	if (!empty($a->argv[0]) && $a->argv[0] . defaults($a->argv, 1, '') === "profile".$a->user['nickname'] || $a->argv[0] === "network" && local_user()) {
 		vier_community_info();
