@@ -27,10 +27,10 @@ trait AppMockTrait
 	 */
 	public function mockApp($root)
 	{
-		/// @todo This mock is ugly. We return an empty string for each translation - no workaround yet
+		// simply returning the input when using L10n::t()
 		$l10nMock = \Mockery::mock('alias:Friendica\Core\L10n');
 		$l10nMock->shouldReceive('t')
-			->andReturn('');
+			->andReturnUsing(function ($arg) { return $arg; });
 
 		$this->mockConfigGet('system', 'theme', 'testtheme');
 

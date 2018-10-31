@@ -168,7 +168,7 @@ Creating config file...
 Checking database...
 
 [Error] --------
-: 
+Could not connect to database.: 
 
 
 FIN;
