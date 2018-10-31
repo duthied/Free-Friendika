@@ -6,6 +6,7 @@ use Friendica\Core\Console\AutomaticInstallation;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamFile;
 
 /**
  * @runTestsInSeparateProcesses
@@ -23,7 +24,13 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	private $db_user;
 	private $db_pass;
 
+	/**
+	 * @var vfsStreamFile Assert file without DB credentials
+	 */
 	private $assertFile;
+	/**
+	 * @var vfsStreamFile Assert file with DB credentials
+	 */
 	private $assertFileDb;
 
 	public function setUp()
@@ -43,18 +50,38 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 
 		$this->mockConfigGet('config', 'php_path', false);
 
-		$this->assertFile  = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+		$assertFile  = dirname(__DIR__) . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
 			'ini' . DIRECTORY_SEPARATOR .
 			'assert.ini.php';
-		$this->assertFileDb  = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'ini' . DIRECTORY_SEPARATOR .
-			'assert_db.ini.php';
+		$this->assertFile = vfsStream::newFile('assert.ini.php')
+			->at($this->root->getChild('test'))
+			->setContent($this->replaceEnvironmentSettings($assertFile, false));
+		$this->assertFileDb = vfsStream::newFile('assert_db.ini.php')
+			->at($this->root->getChild('test'))
+			->setContent($this->replaceEnvironmentSettings($assertFile, true));
+	}
+
+	/**
+	 * Replacing environment specific variables in the assertion file
+	 *
+	 * @param string $file The file to compare in later tests
+	 * @param bool $withDb If true, db settings are replaced too
+	 * @return string The file content
+	 */
+	private function replaceEnvironmentSettings($file, $withDb)
+	{
+		$fileContent = file_get_contents($file);
+		$fileContent = str_replace("/usr/bin/php", trim(shell_exec('which php')), $fileContent);
+		if ($withDb) {
+			$fileContent = str_replace("hostname = \"\"", "hostname = \"" . $this->db_host . (!empty($this->db_port) ? ":" . $this->db_port : "") . "\"", $fileContent);
+			$fileContent = str_replace("username = \"\"", "username = \"" . $this->db_user . "\"", $fileContent);
+			$fileContent = str_replace("password = \"\"", "password = \"" . $this->db_pass . "\"", $fileContent);
+			$fileContent = str_replace("database = \"\"", "database = \"" . $this->db_data . "\"", $fileContent);
+		}
+		return $fileContent;
 	}
 
 	private function assertFinished($txt, $withconfig = false, $copyfile = false)
@@ -232,7 +259,7 @@ CONF;
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
 		$this->assertFileEquals(
-			$this->assertFileDb,
+			$this->assertFileDb->url(),
 			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
@@ -260,7 +287,7 @@ CONF;
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
 		$this->assertFileEquals(
-			$this->assertFile,
+			$this->assertFile->url(),
 			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
@@ -299,7 +326,7 @@ CONF;
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
 		$this->assertFileEquals(
-			$this->assertFileDb,
+			$this->assertFileDb->url(),
 			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 

@@ -20,7 +20,8 @@ trait VFSTrait
 		// the used directories inside the App class
 		$structure = [
 			'config' => [],
-			'bin' => []
+			'bin' => [],
+			'test' => []
 		];
 
 		// create a virtual directory and copy all needed files and folders to it
