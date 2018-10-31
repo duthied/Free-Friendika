@@ -163,7 +163,7 @@ class Update
 				}
 			}
 		} else {
-			logger('Skipping \'' . $funcname . '\' without executing', LOGGER_DEBUG);
+			 Logger::log('Skipping \'' . $funcname . '\' without executing', Logger::DEBUG);
 
 			Config::set('database', 'last_successful_update_function', $funcname);
 			Config::set('database', 'last_successful_update_function_time', time());
@@ -189,7 +189,7 @@ class Update
 
 		// No valid result?
 		if (!DBA::isResult($adminlist)) {
-			logger(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), LOGGER_INFO);
+			Logger::log(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), Logger::INFO);
 
 			// Don't continue
 			return;
@@ -220,7 +220,7 @@ class Update
 		}
 
 		//try the logger
-		logger("CRITICAL: Database structure update failed: ".$error_message);
+		Logger::log("CRITICAL: Database structure update failed: " . $error_message);
 	}
 
 	private static function updateSuccessfull($from_build, $to_build)
@@ -252,6 +252,6 @@ class Update
 		}
 
 		//try the logger
-		logger("Database structure update successful.", LOGGER_TRACE);
+		Logger::log("Database structure update successful.", Logger::TRACE);
 	}
 }
