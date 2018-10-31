@@ -19,7 +19,11 @@ if (!isset($minimal)) {
 	$minimal = false;
 }
 
+$basepath = $a->getURLPath() ? "/" . $a->getURLPath() . "/" : "/";
+$frio = "view/theme/frio";
 $view_mode_class = ($a->is_mobile || $a->is_tablet) ? 'mobile-view' : 'desktop-view';
+$is_singleuser = Config::get('system', 'singleuser');
+$is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 <html>
 	<head>
@@ -28,9 +32,6 @@ $view_mode_class = ($a->is_mobile || $a->is_tablet) ? 'mobile-view' : 'desktop-v
 		<script  type="text/javascript">var baseurl = "<?php echo System::baseUrl(); ?>";</script>
 		<script type="text/javascript">var frio = "<?php echo 'view/theme/frio'; ?>";</script>
 <?php
-		$basepath = $a->getURLPath() ? "/" . $a->getURLPath() . "/" : "/";
-		$frio = "view/theme/frio";
-
 		// Because we use minimal for modals the header and the included js stuff should be only loaded
 		// if the page is an standard page (so we don't have it twice for modals)
 		//
@@ -54,14 +55,12 @@ $view_mode_class = ($a->is_mobile || $a->is_tablet) ? 'mobile-view' : 'desktop-v
 		} else {
 			$nav_bg = PConfig::get($uid, 'frio', 'nav_bg');
 		}
+
 		if (empty($nav_bg)) {
 			$nav_bg = "#708fa0";
 		}
-		echo '
-			<meta name="theme-color" content="' . $nav_bg . '" />';
 
-		$is_singleuser = Config::get('system','singleuser');
-		$is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
+		echo '<meta name="theme-color" content="' . $nav_bg . '" />';
 ?>
 	</head>
 
@@ -83,7 +82,7 @@ $view_mode_class = ($a->is_mobile || $a->is_tablet) ? 'mobile-view' : 'desktop-v
 	// special minimal style for modal dialogs
 	if ($minimal) {
 ?>
-		<section class="minimal" style="margin:0px!important; padding:0px!important; float:none!important;display:block!important;">
+		<section class="minimal" style="margin:0px!important; padding:0px!important; float:none!important; display:block!important;">
 			<?php if (x($page, 'content')) echo $page['content']; ?>
 			<div id="page-footer"></div>
 		</section>
