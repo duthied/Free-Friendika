@@ -2,7 +2,11 @@
 
 namespace Friendica\Test\src\Core\Console;
 
+use Friendica\Core\Console\AutomaticInstallation;
+use Friendica\Test\Util\DBAMockTrait;
+use Friendica\Test\Util\DBStructureMockTrait;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamFile;
 
 /**
  * @runTestsInSeparateProcesses
@@ -11,11 +15,23 @@ use org\bovigo\vfs\vfsStream;
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
 {
+	use DBAMockTrait;
+	use DBStructureMockTrait;
+
 	private $db_host;
 	private $db_port;
 	private $db_data;
 	private $db_user;
 	private $db_pass;
+
+	/**
+	 * @var vfsStreamFile Assert file without DB credentials
+	 */
+	private $assertFile;
+	/**
+	 * @var vfsStreamFile Assert file with DB credentials
+	 */
+	private $assertFileDb;
 
 	public function setUp()
 	{
@@ -32,19 +48,40 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->db_user = getenv('MYSQL_USERNAME') . getenv('MYSQL_USER');
 		$this->db_pass = getenv('MYSQL_PASSWORD');
 
-		// Mocking 'DBStructure::existsTable()' because with CI, we cannot create an empty database
-		// therefore we temporary override the existing database
-		/// @todo Mocking the DB-Calls of ConsoleTest so we don't need this specific mock anymore
-		$existsMock = \Mockery::mock('alias:Friendica\Database\DBStructure');
-		$existsMock->shouldReceive('existsTable')
-			->with('user')
-			->andReturn(false);
+		$this->mockConfigGet('config', 'php_path', false);
+
+		$assertFile  = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
+			'datasets' . DIRECTORY_SEPARATOR .
+			'ini' . DIRECTORY_SEPARATOR .
+			'assert.ini.php';
+		$this->assertFile = vfsStream::newFile('assert.ini.php')
+			->at($this->root->getChild('test'))
+			->setContent($this->replaceEnvironmentSettings($assertFile, false));
+		$this->assertFileDb = vfsStream::newFile('assert_db.ini.php')
+			->at($this->root->getChild('test'))
+			->setContent($this->replaceEnvironmentSettings($assertFile, true));
 	}
 
-	private function assertConfig($family, $key, $value)
+	/**
+	 * Replacing environment specific variables in the assertion file
+	 *
+	 * @param string $file The file to compare in later tests
+	 * @param bool $withDb If true, db settings are replaced too
+	 * @return string The file content
+	 */
+	private function replaceEnvironmentSettings($file, $withDb)
 	{
-		$config = $this->execute(['config', $family, $key]);
-		$this->assertEquals($family . "." . $key . " => " . $value . "\n", $config);
+		$fileContent = file_get_contents($file);
+		$fileContent = str_replace("/usr/bin/php", trim(shell_exec('which php')), $fileContent);
+		if ($withDb) {
+			$fileContent = str_replace("hostname = \"\"", "hostname = \"" . $this->db_host . (!empty($this->db_port) ? ":" . $this->db_port : "") . "\"", $fileContent);
+			$fileContent = str_replace("username = \"\"", "username = \"" . $this->db_user . "\"", $fileContent);
+			$fileContent = str_replace("password = \"\"", "password = \"" . $this->db_pass . "\"", $fileContent);
+			$fileContent = str_replace("database = \"\"", "database = \"" . $this->db_data . "\"", $fileContent);
+		}
+		return $fileContent;
 	}
 
 	private function assertFinished($txt, $withconfig = false, $copyfile = false)
@@ -113,14 +150,17 @@ FIN;
 		$finished = <<<FIN
 Initializing setup...
 
-Creating config file...
+ Complete!
+
+
+Checking environment...
+
+ NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.
 
  Complete!
 
 
-Checking basic setup...
-
- NOTICE: Not checking .htaccess/URL-Rewrite during CLI installation.
+Creating config file...
 
  Complete!
 
@@ -128,7 +168,7 @@ Checking basic setup...
 Checking database...
 
 [Error] --------
-MySQL Connection: Failed, please check your MySQL settings and credentials.
+Could not connect to database.: 
 
 
 FIN;
@@ -141,6 +181,11 @@ FIN;
 	 */
 	public function testWithConfig()
 	{
+		$this->mockConnect(true, 1);
+		$this->mockConnected(true, 1);
+		$this->mockExistsTable('user', false, 1);
+		$this->mockUpdate([false, true, true], null, 1);
+
 		$config = <<<CONF
 <?php return <<<INI
 
@@ -179,7 +224,10 @@ CONF;
 			->at($this->root)
 			->setContent($config);
 
-		$txt = $this->execute(['autoinstall', '-f', 'prepared.ini.php']);
+		$console = new AutomaticInstallation($this->consoleArgv);
+		$console->setOption('f', 'prepared.ini.php');
+
+		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, false, true);
 
@@ -191,23 +239,28 @@ CONF;
 	 */
 	public function testWithEnvironmentAndSave()
 	{
+		$this->mockConnect(true, 1);
+		$this->mockConnected(true, 1);
+		$this->mockExistsTable('user', false, 1);
+		$this->mockUpdate([false, true, true], null, 1);
+
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
 		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
 		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
+		$this->assertTrue(putenv('FRIENDICA_URL_PATH=/friendica'));
 
-		$txt = $this->execute(['autoinstall', '--savedb']);
+		$console = new AutomaticInstallation($this->consoleArgv);
+		$console->setOption('savedb', true);
+
+		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
 
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
-		$this->assertConfig('database', 'hostname', $this->db_host . (!empty($this->db_port) ? ':' . $this->db_port : ''));
-		$this->assertConfig('database', 'username', $this->db_user);
-		$this->assertConfig('database', 'database', $this->db_data);
-		$this->assertConfig('config', 'admin_email', 'admin@friendica.local');
-		$this->assertConfig('system', 'default_timezone', 'Europe/Berlin');
-		// TODO language changes back to en
-		//$this->assertConfig('system', 'language', 'de');
+		$this->assertFileEquals(
+			$this->assertFileDb->url(),
+			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
 	/**
@@ -215,25 +268,27 @@ CONF;
 	 */
 	public function testWithEnvironmentWithoutSave()
 	{
+		$this->mockConnect(true, 1);
+		$this->mockConnected(true, 1);
+		$this->mockExistsTable('user', false, 1);
+		$this->mockUpdate([false, true, true], null, 1);
+
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
 		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
 		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
 		$this->assertTrue(putenv('FRIENDICA_URL_PATH=/friendica'));
 
-		$txt = $this->execute(['autoinstall']);
+		$console = new AutomaticInstallation($this->consoleArgv);
+
+		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
 
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
-		$this->assertConfig('database', 'hostname', '');
-		$this->assertConfig('database', 'username', '');
-		$this->assertConfig('database', 'database', '');
-		$this->assertConfig('config', 'admin_email', 'admin@friendica.local');
-		$this->assertConfig('system', 'default_timezone', 'Europe/Berlin');
-		$this->assertConfig('system', 'urlpath', '/friendica');
-		// TODO language changes back to en
-		//$this->assertConfig('system', 'language', 'de');
+		$this->assertFileEquals(
+			$this->assertFile->url(),
+			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
 	/**
@@ -241,46 +296,38 @@ CONF;
 	 */
 	public function testWithArguments()
 	{
-		$args = ['autoinstall'];
-		array_push($args, '--dbhost');
-		array_push($args, $this->db_host);
-		array_push($args, '--dbuser');
-		array_push($args, $this->db_user);
+		$this->mockConnect(true, 1);
+		$this->mockConnected(true, 1);
+		$this->mockExistsTable('user', false, 1);
+		$this->mockUpdate([false, true, true], null, 1);
+
+		$console = new AutomaticInstallation($this->consoleArgv);
+
+		$console->setOption('dbhost', $this->db_host);
+		$console->setOption('dbuser', $this->db_user);
 		if (!empty($this->db_pass)) {
-			array_push($args, '--dbpass');
-			array_push($args, $this->db_pass);
+			$console->setOption('dbpass', $this->db_pass);
 		}
 		if (!empty($this->db_port)) {
-			array_push($args, '--dbport');
-			array_push($args, $this->db_port);
+			$console->setOption('dbport', $this->db_port);
 		}
-		array_push($args, '--dbdata');
-		array_push($args, $this->db_data);
+		$console->setOption('dbdata', $this->db_data);
 
-		array_push($args, '--admin');
-		array_push($args, 'admin@friendica.local');
-		array_push($args, '--tz');
-		array_push($args, 'Europe/Berlin');
-		array_push($args, '--lang');
-		array_push($args, 'de');
+		$console->setOption('admin', 'admin@friendica.local');
+		$console->setOption('tz', 'Europe/Berlin');
+		$console->setOption('lang', 'de');
 
-		array_push($args, '--urlpath');
-		array_push($args, '/friendica');
+		$console->setOption('urlpath', '/friendica');
 
-		$txt = $this->execute($args);
+		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
 
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
-		$this->assertConfig('database', 'hostname', $this->db_host . (!empty($this->db_port) ? ':' . $this->db_port : ''));
-		$this->assertConfig('database', 'username', $this->db_user);
-		$this->assertConfig('database', 'database', $this->db_data);
-		$this->assertConfig('config', 'admin_email', 'admin@friendica.local');
-		$this->assertConfig('system', 'default_timezone', 'Europe/Berlin');
-		$this->assertConfig('system', 'urlpath', '/friendica');
-		// TODO language changes back to en
-		//$this->assertConfig('system', 'language', 'de');
+		$this->assertFileEquals(
+			$this->assertFileDb->url(),
+			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
 	/**
@@ -289,15 +336,11 @@ CONF;
 	 */
 	public function testNoDatabaseConnection()
 	{
-		// TODO DBA mocking for whole console tests make this test work again
-		$this->markTestSkipped('DBA is already loaded, we have to mock the whole App to make it work');
+		$this->mockConnect(false, 1);
 
-		$dbaMock = \Mockery::mock('alias:Friendica\Database\DBA');
-		$dbaMock
-			->shouldReceive('connected')
-			->andReturn(false);
+		$console = new AutomaticInstallation($this->consoleArgv);
 
-		$txt = $this->execute(['autoinstall']);
+		$txt = $this->dumpExecute($console);
 
 		$this->assertStuckDB($txt);
 	}
@@ -357,7 +400,10 @@ Examples
 
 HELP;
 
-		$txt = $this->execute(['autoinstall', '-h']);
+		$console = new AutomaticInstallation($this->consoleArgv);
+		$console->setOption('help', true);
+
+		$txt = $this->dumpExecute($console);
 
 		$this->assertEquals($txt, $theHelp);
 	}

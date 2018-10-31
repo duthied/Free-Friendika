@@ -2,71 +2,57 @@
 
 namespace Friendica\Test\src\Core\Console;
 
-use Friendica\App;
-use Friendica\BaseObject;
-use Friendica\Database\DBA;
+use Asika\SimpleConsole\Console;
+use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\Intercept;
 use Friendica\Test\Util\VFSTrait;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
 abstract class ConsoleTest extends TestCase
 {
 	use VFSTrait;
+	use AppMockTrait;
 
 	/**
-	 * @var MultiUseConsole Extension of the basic Friendica Console for testing purpose
+	 * @var array The default argv for a Console Instance
 	 */
-	private $console;
-	/**
-	 * @var App The Friendica App
-	 */
-	protected $app;
-
-	protected $stdout;
+	protected $consoleArgv = [ 'consoleTest.php' ];
 
 	protected function setUp()
 	{
 		parent::setUp();
 
-		Intercept::setUp();
-
 		if (!getenv('MYSQL_DATABASE')) {
 			$this->markTestSkipped('Please set the MYSQL_* environment variables to your test database credentials.');
 		}
 
+		Intercept::setUp();
+
 		$this->setUpVfsDir();
-
-		// fake console.php for setting an executable
-		vfsStream::newFile('console.php')
-			->at($this->root->getChild('bin'))
-			->setContent('<? php');
-
-		// Reusable App object
-		$this->app = new App($this->root->url());
-		BaseObject::setApp($this->app);
-		$this->console = new MultiUseConsole();
+		$this->mockApp($this->root);
 	}
 
-	public function execute($args) {
-		$this->app->reload();
+	protected function tearDown()
+	{
+		\Mockery::close();
 
-		array_unshift($args, $this->getExecutablePath());
-		Intercept::reset();
-		$this->console->reset();
-		$this->console->parseTestArgv($args);
-		$this->console->execute();
-
-		$returnStr = Intercept::$cache;
-		Intercept::reset();
-		return $returnStr;
+		parent::tearDown();
 	}
 
 	/**
-	 * @return string returns the path to the console executable during tests
+	 * Dumps the execution of an console output to a string and returns it
+	 *
+	 * @param Console $console The current console instance
+	 *
+	 * @return string the output of the execution
 	 */
-	protected function getExecutablePath() {
-		return $this->root->getChild('bin' . DIRECTORY_SEPARATOR . 'console.php')->url();
+	protected function dumpExecute($console)
+	{
+		Intercept::reset();
+		$console->execute();
+		$returnStr = Intercept::$cache;
+		Intercept::reset();
+
+		return $returnStr;
 	}
 }

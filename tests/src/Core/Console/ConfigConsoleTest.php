@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\src\Core\Console;
 
-use Friendica\Database\DBA;
+use Friendica\Core\Console\Config;
 
 /**
  * @runTestsInSeparateProcesses
@@ -11,76 +11,147 @@ use Friendica\Database\DBA;
  */
 class ConfigConsoleTest extends ConsoleTest
 {
-	public function tearDown()
+	protected function setUp()
 	{
-		DBA::delete('config', ['k' => 'test']);
+		parent::setUp();
 
-		parent::tearDown();
-	}
+		\Mockery::getConfiguration()->setConstantsMap([
+			'Friendica\App\Mode' => [
+				'DBCONFIGAVAILABLE' => 0
+			]
+		]);
 
-	private function assertGet($family, $key, $value) {
-		$config = $this->execute(['config', $family, $key]);
-		$this->assertEquals($family . "." . $key . " => " . $value . "\n", $config);
-	}
+		$mode = \Mockery::mock('alias:Friendica\App\Mode');
+		$mode
+			->shouldReceive('has')
+			->andReturn(true);
 
-	private function assertSet($family, $key, $value) {
-		$config = $this->execute(['config', $family, $key, $value]);
-		$this->assertEquals($family . "." . $key . " <= " . $value . "\n", $config);
+		$this->app
+			->shouldReceive('getMode')
+			->andReturn($mode);
 	}
 
 	function testSetGetKeyValue() {
-		$this->assertSet( 'config', 'test', 'now');
-		$this->assertGet('config', 'test', 'now');
-		$this->assertSet('config', 'test', '');
-		$this->assertGet('config', 'test', '');
-		DBA::delete('config', ['k' => 'test']);
-		$this->assertGet('config', 'test', null);
+		$this->mockConfigSet('config', 'test', 'now', 1);
+		$console = new Config($this->consoleArgv);
+		$console->setArgument(0, 'config');
+		$console->setArgument(1, 'test');
+		$console->setArgument(2, 'now');
+		$txt = $this->dumpExecute($console);
+		$this->assertEquals("config.test <= now\n", $txt);
+
+		$this->mockConfigGet('config', 'test', 'now', 1);
+		$console = new Config($this->consoleArgv);
+		$console->setArgument(0, 'config');
+		$console->setArgument(1, 'test');
+		$txt = $this->dumpExecute($console);
+		$this->assertEquals("config.test => now\n", $txt);
+
+		$this->mockConfigGet('config', 'test', null, 1);
+		$console = new Config($this->consoleArgv);
+		$console->setArgument(0, 'config');
+		$console->setArgument(1, 'test');
+		$txt = $this->dumpExecute($console);
+		$this->assertEquals("config.test => \n", $txt);
 	}
 
 	function testSetArrayValue() {
 		$testArray = [1, 2, 3];
-		DBA::insert('config', ['cat' => 'config', 'k' => 'test', 'v' => serialize($testArray)]);
+		$this->mockConfigGet('config', 'test', $testArray, 1);
 
-		$txt = $this->execute(['config', 'config', 'test', 'now']);
+		$console = new Config($this->consoleArgv);
+		$console->setArgument(0, 'config');
+		$console->setArgument(1, 'test');
+		$console->setArgument(2, 'now');
+		$txt = $this->dumpExecute($console);
 
 		$this->assertEquals("[Error] config.test is an array and can't be set using this command.\n", $txt);
 	}
 
 	function testTooManyArguments() {
-		$txt = $this->execute(['config', 'config', 'test', 'it', 'now']);
+		$console = new Config($this->consoleArgv);
+		$console->setArgument(0, 'config');
+		$console->setArgument(1, 'test');
+		$console->setArgument(2, 'it');
+		$console->setArgument(3, 'now');
+		$txt = $this->dumpExecute($console);
 		$assertion = '[Warning] Too many arguments';
 		$firstline = substr($txt, 0, strlen($assertion));
-
 		$this->assertEquals($assertion, $firstline);
 	}
 
 	function testVerbose() {
-		$this->assertSet('test', 'it', 'now');
-		$executable = $this->getExecutablePath();
+		$this->mockConfigGet('test', 'it', 'now', 1);
+		$console = new Config($this->consoleArgv);
+		$console->setArgument(0, 'test');
+		$console->setArgument(1, 'it');
+		$console->setOption('v', 1);
+		$executable = $this->consoleArgv[0];
 		$assertion = <<<CONF
-Executable: {$executable}
-Arguments: array (
-  0 => 'config',
-  1 => 'test',
-)
-Options: array (
-  'v' => 1,
-)
-Command: config
 Executable: {$executable}
 Class: Friendica\Core\Console\Config
 Arguments: array (
   0 => 'test',
+  1 => 'it',
 )
 Options: array (
   'v' => 1,
 )
-[test]
-it => now
+test.it => now
 
 CONF;
-		$txt = $this->execute(['config', 'test', '-v']);
-
+		$txt = $this->dumpExecute($console);
 		$this->assertEquals($assertion, $txt);
+	}
+
+	function testUnableToSet() {
+		$this->mockConfigSet('test', 'it', 'now', 1, false);
+		$console = new Config();
+		$console->setArgument(0, 'test');
+		$console->setArgument(1, 'it');
+		$console->setArgument(2, 'now');
+		$txt = $this->dumpExecute($console);
+		$this->assertSame("Unable to set test.it\n", $txt);
+	}
+
+	public function testGetHelp()
+	{
+		// Usable to purposely fail if new commands are added without taking tests into account
+		$theHelp = <<<HELP
+console config - Manage site configuration
+Synopsis
+	bin/console config [-h|--help|-?] [-v]
+	bin/console config <category> [-h|--help|-?] [-v]
+	bin/console config <category> <key> [-h|--help|-?] [-v]
+	bin/console config <category> <key> <value> [-h|--help|-?] [-v]
+
+Description
+	bin/console config
+		Lists all config values
+
+	bin/console config <category>
+		Lists all config values in the provided category
+
+	bin/console config <category> <key>
+		Shows the value of the provided key in the category
+
+	bin/console config <category> <key> <value>
+		Sets the value of the provided key in the category
+
+Notes:
+	Setting config entries which are manually set in config/local.ini.php may result in
+	conflict between database settings and the manual startup settings.
+
+Options
+    -h|--help|-? Show help information
+    -v           Show more debug information.
+
+HELP;
+		$console = new Config($this->consoleArgv);
+		$console->setOption('help', true);
+
+		$txt = $this->dumpExecute($console);
+
+		$this->assertEquals($txt, $theHelp);
 	}
 }
