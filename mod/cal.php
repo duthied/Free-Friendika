@@ -12,6 +12,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -61,7 +62,7 @@ function cal_init(App $a)
 
 	$tpl = get_markup_template("vcard-widget.tpl");
 
-	$vcard_widget = replace_macros($tpl, [
+	$vcard_widget = Renderer::replaceMacros($tpl, [
 		'$name' => $profile['name'],
 		'$photo' => $profile['photo'],
 		'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
@@ -89,7 +90,7 @@ function cal_content(App $a)
 	$i18n = Event::getStrings();
 
 	$htpl = get_markup_template('event_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($htpl, [
+	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
 		'$modparams' => 2,
@@ -267,7 +268,7 @@ function cal_content(App $a)
 			$events[$key]['item'] = $event_item;
 		}
 
-		$o = replace_macros($tpl, [
+		$o = Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(),
 			'$tabs' => $tabs,
 			'$title' => L10n::t('Events'),

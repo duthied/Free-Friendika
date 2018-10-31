@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Salmon;
@@ -107,7 +108,7 @@ function xrd_xml($a, $uri, $alias, $profile_url, $r)
 
 	$tpl = get_markup_template('xrd_person.tpl');
 
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$nick'        => $r['nickname'],
 		'$accturi'     => $uri,
 		'$alias'       => $alias,

@@ -13,6 +13,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -82,7 +83,7 @@ class Contact extends BaseModule
 			}
 
 			/// @TODO Add nice spaces
-			$vcard_widget = replace_macros(get_markup_template('vcard-widget.tpl'), [
+			$vcard_widget = Renderer::replaceMacros(get_markup_template('vcard-widget.tpl'), [
 				'$name'         => htmlentities($contact['name']),
 				'$photo'        => $contact['photo'],
 				'$url'          => Model\Contact::MagicLink($contact['url']),
@@ -113,7 +114,7 @@ class Contact extends BaseModule
 			$groups_widget = null;
 		}
 
-		$a->page['aside'] .= replace_macros(get_markup_template('contacts-widget-sidebar.tpl'), [
+		$a->page['aside'] .= Renderer::replaceMacros(get_markup_template('contacts-widget-sidebar.tpl'), [
 			'$vcard_widget'      => $vcard_widget,
 			'$findpeople_widget' => $findpeople_widget,
 			'$follow_widget'     => $follow_widget,
@@ -123,7 +124,7 @@ class Contact extends BaseModule
 
 		$base = $a->getBaseURL();
 		$tpl = get_markup_template('contacts-head.tpl');
-		$a->page['htmlhead'] .= replace_macros($tpl, [
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$base' => $base
 		]);
@@ -438,7 +439,7 @@ class Contact extends BaseModule
 
 					$a->page['aside'] = '';
 
-					return replace_macros(get_markup_template('contact_drop_confirm.tpl'), [
+					return Renderer::replaceMacros(get_markup_template('contact_drop_confirm.tpl'), [
 						'$header' => L10n::t('Drop contact'),
 						'$contact' => self::getContactTemplateVars($orig_record),
 						'$method' => 'get',
@@ -475,7 +476,7 @@ class Contact extends BaseModule
 			$contact_id = $a->data['contact']['id'];
 			$contact = $a->data['contact'];
 
-			$a->page['htmlhead'] .= replace_macros(get_markup_template('contact_head.tpl'), [
+			$a->page['htmlhead'] .= Renderer::replaceMacros(get_markup_template('contact_head.tpl'), [
 				'$baseurl' => $a->getBaseURL(true),
 			]);
 
@@ -592,7 +593,7 @@ class Contact extends BaseModule
 			}
 
 			$tpl = get_markup_template('contact_edit.tpl');
-			$o .= replace_macros($tpl, [
+			$o .= Renderer::replaceMacros($tpl, [
 				'$header'         => L10n::t('Contact'),
 				'$tab_str'        => $tab_str,
 				'$submit'         => L10n::t('Submit'),
@@ -756,7 +757,7 @@ class Contact extends BaseModule
 		];
 
 		$tab_tpl = get_markup_template('common_tabs.tpl');
-		$t = replace_macros($tab_tpl, ['$tabs' => $tabs]);
+		$t = Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
 
 		$total = 0;
 		$searching = false;
@@ -801,7 +802,7 @@ class Contact extends BaseModule
 		}
 
 		$tpl = get_markup_template('contacts-template.tpl');
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$baseurl'    => System::baseUrl(),
 			'$header'     => L10n::t('Contacts') . (($nets) ? ' - ' . ContactSelector::networkToName($nets) : ''),
 			'$tabs'       => $t,
@@ -904,7 +905,7 @@ class Contact extends BaseModule
 		}
 
 		$tab_tpl = get_markup_template('common_tabs.tpl');
-		$tab_str = replace_macros($tab_tpl, ['$tabs' => $tabs]);
+		$tab_str = Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
 
 		return $tab_str;
 	}

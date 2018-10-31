@@ -10,6 +10,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -111,7 +112,7 @@ function hovercard_content()
 	];
 	if ($datatype == 'html') {
 		$tpl = get_markup_template('hovercard.tpl');
-		$o = replace_macros($tpl, [
+		$o = Renderer::replaceMacros($tpl, [
 			'$profile' => $profile,
 		]);
 

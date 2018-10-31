@@ -10,6 +10,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -250,7 +251,7 @@ function dirfind_content(App $a, $prefix = "") {
 			}
 
 			$tpl = get_markup_template('viewcontact_template.tpl');
-			$o .= replace_macros($tpl,[
+			$o .= Renderer::replaceMacros($tpl,[
 				'title' => $header,
 				'$contacts' => $entries,
 				'$paginate' => $pager->renderFull($j->total),

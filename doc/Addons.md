@@ -164,7 +164,7 @@ $tpl = get_markup_template('mytemplate.tpl', 'addon/addon_name/');
 
 # apply template. first argument is the loaded template,
 # second an array of 'name' => 'values' to pass to template
-$output = replace_macros($tpl, array(
+$output = Renderer::replaceMacros($tpl, array(
 	'title' => 'My beautiful addon',
 ));
 ```

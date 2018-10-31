@@ -9,6 +9,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -63,7 +64,7 @@ class Nav
 
 		$tpl = get_markup_template('nav.tpl');
 
-		$nav .= replace_macros($tpl, [
+		$nav .= Renderer::replaceMacros($tpl, [
 			'$baseurl'      => System::baseUrl(),
 			'$sitelocation' => $nav_info['sitelocation'],
 			'$nav'          => $nav_info['nav'],

@@ -8,6 +8,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
 function load_doc_file($s)
@@ -61,7 +62,7 @@ function help_content(App $a)
 	if (!strlen($text)) {
 		header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . L10n::t('Not Found'));
 		$tpl = get_markup_template("404.tpl");
-		return replace_macros($tpl, [
+		return Renderer::replaceMacros($tpl, [
 			'$message' => L10n::t('Page not found.')
 		]);
 	}

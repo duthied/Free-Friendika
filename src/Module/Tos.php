@@ -11,6 +11,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Content\Text\BBCode;
 
@@ -66,7 +67,7 @@ class Tos extends BaseModule
 	public static function content() {
 		$tpl = get_markup_template('tos.tpl');
 		if (Config::get('system', 'tosdisplay')) {
-			return replace_macros($tpl, [
+			return Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Terms of Service'),
 				'$tostext' => BBCode::convert(Config::get('system', 'tostext')),
 				'$displayprivstatement' => Config::get('system', 'tosprivstatement'),

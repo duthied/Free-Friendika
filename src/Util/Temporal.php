@@ -11,6 +11,7 @@ use DateTimeZone;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 
 require_once 'boot.php';
@@ -115,7 +116,7 @@ class Temporal
 		$options = str_replace('</select>', '', $options);
 
 		$tpl = get_markup_template('field_select_raw.tpl');
-		return replace_macros($tpl, [
+		return Renderer::replaceMacros($tpl, [
 			'$field' => [$name, $label, $current, $help, $options],
 		]);
 	}
@@ -141,7 +142,7 @@ class Temporal
 		$age = (intval($value) ? self::getAgeByTimezone($value, $a->user["timezone"], $a->user["timezone"]) : "");
 
 		$tpl = get_markup_template("field_input.tpl");
-		$o = replace_macros($tpl,
+		$o = Renderer::replaceMacros($tpl,
 			[
 			'$field' => [
 				'dob',
@@ -247,7 +248,7 @@ class Temporal
 		$readable_format = str_replace(['Y', 'm', 'd', 'H', 'i'], ['yyyy', 'mm', 'dd', 'HH', 'MM'], $dateformat);
 
 		$tpl = get_markup_template('field_datetime.tpl');
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$field' => [
 				$id,
 				$label,

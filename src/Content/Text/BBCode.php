@@ -17,6 +17,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
@@ -987,7 +988,7 @@ class BBCode extends BaseObject
 					$text = ($is_quote_share? "\n" : '');
 
 					$tpl = get_markup_template('shared_content.tpl');
-					$text .= replace_macros($tpl, [
+					$text .= Renderer::replaceMacros($tpl, [
 						'$profile' => $attributes['profile'],
 						'$avatar'  => $attributes['avatar'],
 						'$author'  => $attributes['author'],

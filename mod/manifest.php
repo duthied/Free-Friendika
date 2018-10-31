@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\Core\Config;
+use Friendica\Core\Renderer;
 
 function manifest_content(App $a) {
 
@@ -15,7 +16,7 @@ function manifest_content(App $a) {
 		$touch_icon = 'images/friendica-128.png';
 	}
 
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$baseurl' => System::baseUrl(),
 		'$touch_icon' => $touch_icon,
 		'$title' => Config::get('config', 'sitename', 'Friendica'),

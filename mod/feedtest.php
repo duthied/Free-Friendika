@@ -6,6 +6,7 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\Feed;
@@ -44,7 +45,7 @@ function feedtest_content(App $a)
 	}
 
 	$tpl = get_markup_template('feedtest.tpl');
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$url'    => ['url', L10n::t('Source URL'), defaults($_REQUEST, 'url', ''), ''],
 		'$result' => $result
 	]);

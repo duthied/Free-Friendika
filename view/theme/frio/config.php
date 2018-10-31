@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
 require_once 'view/theme/frio/php/Image.php';
@@ -137,7 +138,7 @@ function frio_form($arr)
 		$ctx['$login_bg_color'] = ['frio_login_bg_color', L10n::t('Login page background color'), $arr['login_bg_color'], L10n::t('Leave background image and color empty for theme defaults'), false];
 	}
 
-	$o = replace_macros($t, $ctx);
+	$o = Renderer::replaceMacros($t, $ctx);
 
 	return $o;
 }

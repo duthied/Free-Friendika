@@ -11,6 +11,7 @@ use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
@@ -301,7 +302,7 @@ class Login extends BaseModule
 		if (local_user()) {
 			$tpl = get_markup_template('logout.tpl');
 		} else {
-			$a->page['htmlhead'] .= replace_macros(
+			$a->page['htmlhead'] .= Renderer::replaceMacros(
 				get_markup_template('login_head.tpl'),
 				[
 					'$baseurl' => $a->getBaseURL(true)
@@ -312,7 +313,7 @@ class Login extends BaseModule
 			$_SESSION['return_path'] = $return_path;
 		}
 
-		$o .= replace_macros(
+		$o .= Renderer::replaceMacros(
 			$tpl,
 			[
 				'$dest_url'     => self::getApp()->getBaseURL(true) . '/login',

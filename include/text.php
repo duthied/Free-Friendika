@@ -267,7 +267,7 @@ function unxmlify($s) {
  */
 function scroll_loader() {
 	$tpl = get_markup_template("scroll_loader.tpl");
-	return replace_macros($tpl, [
+	return Renderer::replaceMacros($tpl, [
 		'wait' => L10n::t('Loading more entries...'),
 		'end' => L10n::t('The end')
 	]);
@@ -514,7 +514,7 @@ function contact_block() {
 	}
 
 	$tpl = get_markup_template('contact_block.tpl');
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$contacts' => $contacts,
 		'$nickname' => $a->profile['nickname'],
 		'$viewcontacts' => L10n::t('View Contacts'),
@@ -571,7 +571,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		$url = '';
 	}
 
-	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),[
+	return Renderer::replaceMacros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),[
 		'$click' => defaults($contact, 'click', ''),
 		'$class' => $class,
 		'$url' => $url,
@@ -626,7 +626,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 		}
 	}
 
-	return replace_macros(get_markup_template('searchbox.tpl'), $values);
+	return Renderer::replaceMacros(get_markup_template('searchbox.tpl'), $values);
 }
 
 /**
@@ -904,14 +904,14 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 		if (strpos($mime, 'video') !== false) {
 			if (!$vhead) {
 				$vhead = true;
-				$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
+				$a->page['htmlhead'] .= Renderer::replaceMacros(get_markup_template('videos_head.tpl'), [
 					'$baseurl' => System::baseUrl(),
 				]);
 			}
 
 			$url_parts = explode('/', $the_url);
 			$id = end($url_parts);
-			$as .= replace_macros(get_markup_template('video_top.tpl'), [
+			$as .= Renderer::replaceMacros(get_markup_template('video_top.tpl'), [
 				'$video' => [
 					'id'     => $id,
 					'title'  => L10n::t('View Video'),
@@ -1007,7 +1007,7 @@ function apply_content_filter($html, array $reasons)
 {
 	if (count($reasons)) {
 		$tpl = get_markup_template('wall/content_filter.tpl');
-		$html = replace_macros($tpl, [
+		$html = Renderer::replaceMacros($tpl, [
 			'$reasons'   => $reasons,
 			'$rnd'       => random_string(8),
 			'$openclose' => L10n::t('Click to open/close'),

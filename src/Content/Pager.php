@@ -3,6 +3,7 @@
 namespace Friendica\Content;
 
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 
 /**
  * The Pager has two very different output, Minimal and Full, see renderMinimal() and renderFull() for more details.
@@ -173,7 +174,7 @@ class Pager
 		];
 
 		$tpl = get_markup_template('paginate.tpl');
-		return replace_macros($tpl, ['pager' => $data]);
+		return Renderer::replaceMacros($tpl, ['pager' => $data]);
 	}
 
 	/**
@@ -277,6 +278,6 @@ class Pager
 		}
 
 		$tpl = get_markup_template('paginate.tpl');
-		return replace_macros($tpl, ['pager' => $data]);
+		return Renderer::replaceMacros($tpl, ['pager' => $data]);
 	}
 }

@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Module\Login;
 use Friendica\Util\Network;
@@ -13,7 +14,7 @@ function oexchange_init(App $a) {
 	if (($a->argc > 1) && ($a->argv[1] === 'xrd')) {
 		$tpl = get_markup_template('oexchange_xrd.tpl');
 
-		$o = replace_macros($tpl, ['$base' => System::baseUrl()]);
+		$o = Renderer::replaceMacros($tpl, ['$base' => System::baseUrl()]);
 		echo $o;
 		killme();
 	}

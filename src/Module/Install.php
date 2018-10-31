@@ -8,6 +8,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Core;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Util\Temporal;
 
 class Install extends BaseModule
@@ -124,7 +125,7 @@ class Install extends BaseModule
 				$status = self::$installer->checkEnvironment($a->getBaseURL(), $phppath);
 
 				$tpl = get_markup_template('install_checks.tpl');
-				$output .= replace_macros($tpl, [
+				$output .= Renderer::replaceMacros($tpl, [
 					'$title'		=> $install_title,
 					'$pass'			=> L10n::t('System check'),
 					'$checks'		=> self::$installer->getChecks(),
@@ -146,7 +147,7 @@ class Install extends BaseModule
 				$adminmail = notags(trim(defaults($_POST, 'adminmail', ''                          )));
 
 				$tpl = get_markup_template('install_db.tpl');
-				$output .= replace_macros($tpl, [
+				$output .= Renderer::replaceMacros($tpl, [
 					'$title' 	=> $install_title,
 					'$pass' 	=> L10n::t('Database connection'),
 					'$info_01' 	=> L10n::t('In order to install Friendica we need to know how to connect to your database.'),
@@ -202,7 +203,7 @@ class Install extends BaseModule
 				$lang_choices = L10n::getAvailableLanguages();
 
 				$tpl = get_markup_template('install_settings.tpl');
-				$output .= replace_macros($tpl, [
+				$output .= Renderer::replaceMacros($tpl, [
 					'$title' 		=> $install_title,
 					'$checks' 		=> self::$installer->getChecks(),
 					'$pass' 		=> L10n::t('Site settings'),
@@ -233,7 +234,7 @@ class Install extends BaseModule
 				}
 
 				$tpl = get_markup_template('install_finished.tpl');
-				$output .= replace_macros($tpl, [
+				$output .= Renderer::replaceMacros($tpl, [
 					'$title'  => $install_title,
 					'$checks' => self::$installer->getChecks(),
 					'$pass'   => L10n::t('Installation finished'),

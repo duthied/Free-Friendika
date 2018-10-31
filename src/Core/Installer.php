@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
@@ -140,7 +141,7 @@ class Installer
 	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
 	{
 		$tpl = get_markup_template('local.ini.tpl');
-		$txt = replace_macros($tpl, [
+		$txt = Renderer::replaceMacros($tpl, [
 			'$phpath' => $phppath,
 			'$dbhost' => $dbhost,
 			'$dbuser' => $dbuser,
@@ -238,7 +239,7 @@ class Installer
 			$help .= L10n::t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
 			$help .= EOL . EOL;
 			$tpl = get_markup_template('field_input.tpl');
-			$help .= replace_macros($tpl, [
+			$help .= Renderer::replaceMacros($tpl, [
 				'$field' => ['phpath', L10n::t('PHP executable path'), $phppath, L10n::t('Enter full path to php executable. You can leave this blank to continue the installation.')],
 			]);
 			$phppath = "";

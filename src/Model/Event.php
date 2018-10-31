@@ -11,6 +11,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -899,7 +900,7 @@ class Event extends BaseObject
 		$profile_link = Contact::magicLinkById($item['author-id']);
 
 		$tpl = get_markup_template('event_stream_item.tpl');
-		$return = replace_macros($tpl, [
+		$return = Renderer::replaceMacros($tpl, [
 			'$id'             => $item['event-id'],
 			'$title'          => prepare_text($item['event-summary']),
 			'$dtstart_label'  => L10n::t('Starts:'),

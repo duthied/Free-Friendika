@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
@@ -75,7 +76,7 @@ function removeme_content(App $a)
 	$_SESSION['remove_account_verify'] = $hash;
 
 	$tpl = get_markup_template('removeme.tpl');
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$basedir' => $a->getBaseURL(),
 		'$hash' => $hash,
 		'$title' => L10n::t('Remove My Account'),

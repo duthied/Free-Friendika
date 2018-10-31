@@ -10,6 +10,7 @@ use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -37,14 +38,14 @@ function message_init(App $a)
 	];
 
 	$tpl = get_markup_template('message_side.tpl');
-	$a->page['aside'] = replace_macros($tpl, [
+	$a->page['aside'] = Renderer::replaceMacros($tpl, [
 		'$tabs' => $tabs,
 		'$new' => $new,
 	]);
 	$base = System::baseUrl();
 
 	$head_tpl = get_markup_template('message-head.tpl');
-	$a->page['htmlhead'] .= replace_macros($head_tpl, [
+	$a->page['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	]);
@@ -119,7 +120,7 @@ function message_content(App $a)
 			'accesskey' => 'm',
 		];
 	}
-	$header = replace_macros($tpl, [
+	$header = Renderer::replaceMacros($tpl, [
 		'$messages' => L10n::t('Messages'),
 		'$button' => $button,
 	]);
@@ -143,7 +144,7 @@ function message_content(App $a)
 			}
 
 			//$a->page['aside'] = '';
-			return replace_macros(get_markup_template('confirm.tpl'), [
+			return Renderer::replaceMacros(get_markup_template('confirm.tpl'), [
 				'$method' => 'get',
 				'$message' => L10n::t('Do you really want to delete this message?'),
 				'$extra_inputs' => $inputs,
@@ -199,7 +200,7 @@ function message_content(App $a)
 		$o .= $header;
 
 		$tpl = get_markup_template('msg-header.tpl');
-		$a->page['htmlhead'] .= replace_macros($tpl, [
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')
@@ -244,7 +245,7 @@ function message_content(App $a)
 		$select = ACL::getMessageContactSelectHTML('messageto', 'message-to-select', $preselect, 4, 10);
 
 		$tpl = get_markup_template('prv_message.tpl');
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$header' => L10n::t('Send Private Message'),
 			'$to' => L10n::t('To:'),
 			'$showinputs' => 'true',
@@ -339,7 +340,7 @@ function message_content(App $a)
 		);
 
 		$tpl = get_markup_template('msg-header.tpl');
-		$a->page['htmlhead'] .= replace_macros($tpl, [
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')
@@ -399,7 +400,7 @@ function message_content(App $a)
 		$parent = '<input type="hidden" name="replyto" value="' . $message['parent-uri'] . '" />';
 
 		$tpl = get_markup_template('mail_display.tpl');
-		$o = replace_macros($tpl, [
+		$o = Renderer::replaceMacros($tpl, [
 			'$thread_id' => $a->argv[1],
 			'$thread_subject' => $message['title'],
 			'$thread_seen' => $seen,
@@ -478,7 +479,7 @@ function render_messages(array $msg, $t)
 			$from_photo = (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']);
 		}
 
-		$rslt .= replace_macros($tpl, [
+		$rslt .= Renderer::replaceMacros($tpl, [
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
 			'$from_url' => Contact::magicLink($rr['url']),

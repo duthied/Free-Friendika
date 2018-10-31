@@ -12,6 +12,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -526,12 +527,12 @@ function profiles_content(App $a) {
 			return;
 		}
 
-		$a->page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), [
+		$a->page['htmlhead'] .= Renderer::replaceMacros(get_markup_template('profed_head.tpl'), [
 			'$baseurl' => System::baseUrl(true),
 		]);
 
 		$opt_tpl = get_markup_template("profile-hide-friends.tpl");
-		$hide_friends = replace_macros($opt_tpl,[
+		$hide_friends = Renderer::replaceMacros($opt_tpl,[
 			'$yesno' => [
 				'hide-friends', //Name
 				L10n::t('Hide contacts and friends:'), //Label
@@ -553,7 +554,7 @@ function profiles_content(App $a) {
 
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = get_markup_template("profile_edit.tpl");
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$personal_account' => $personal_account,
 			'$detailled_profile' => $detailled_profile,
 
@@ -667,7 +668,7 @@ function profiles_content(App $a) {
 
 			$profiles = '';
 			foreach ($r as $rr) {
-				$profiles .= replace_macros($tpl, [
+				$profiles .= Renderer::replaceMacros($tpl, [
 					'$photo'        => $a->removeBaseURL($rr['thumb']),
 					'$id'           => $rr['id'],
 					'$alt'          => L10n::t('Profile Image'),
@@ -678,7 +679,7 @@ function profiles_content(App $a) {
 			}
 
 			$tpl_header = get_markup_template('profile_listing_header.tpl');
-			$o .= replace_macros($tpl_header,[
+			$o .= Renderer::replaceMacros($tpl_header,[
 				'$header'      => L10n::t('Edit/Manage Profiles'),
 				'$chg_photo'   => L10n::t('Change profile photo'),
 				'$cr_new'      => L10n::t('Create New Profile'),

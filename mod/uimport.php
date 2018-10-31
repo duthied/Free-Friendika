@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\UserImport;
+use Friendica\Core\Renderer;
 
 function uimport_post(App $a)
 {
@@ -49,7 +50,7 @@ function uimport_content(App $a)
 	}
 
 	$tpl = get_markup_template("uimport.tpl");
-	return replace_macros($tpl, [
+	return Renderer::replaceMacros($tpl, [
 		'$regbutt' => L10n::t('Import'),
 		'$import' => [
 			'title' => L10n::t("Move account"),

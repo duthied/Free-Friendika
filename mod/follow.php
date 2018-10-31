@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
@@ -144,7 +145,7 @@ function follow_content(App $a)
 
 	$header = L10n::t('Connect/Follow');
 
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => htmlentities($header),
 		//'$photo'         => ProxyUtils::proxifyUrl($ret['photo'], false, ProxyUtils::SIZE_SMALL),
 		'$desc'          => '',
@@ -187,7 +188,7 @@ function follow_content(App $a)
 	}
 
 	if ($gcontact_id <> 0) {
-		$o .= replace_macros(get_markup_template('section_title.tpl'),
+		$o .= Renderer::replaceMacros(get_markup_template('section_title.tpl'),
 			['$title' => L10n::t('Status Messages and Posts')]
 		);
 
