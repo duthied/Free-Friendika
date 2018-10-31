@@ -13,6 +13,9 @@ trait VFSTrait
 	 */
 	protected $root;
 
+	/**
+	 * Sets up the Virtual File System for Friendica with common files (config, dbstructure)
+	 */
 	protected function setUpVfsDir() {
 		// the used directories inside the App class
 		$structure = [
@@ -29,6 +32,11 @@ trait VFSTrait
 		$this->setConfigFile('dbstructure.php');
 	}
 
+	/**
+	 * Copying a config file from the file system to the Virtual File System
+	 *
+	 * @param string $filename The filename of the config file
+	 */
 	protected function setConfigFile($filename)
 	{
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
@@ -43,6 +51,11 @@ trait VFSTrait
 		}
 	}
 
+	/**
+	 * Delets a config file from the Virtual File System
+	 *
+	 * @param string $filename The filename of the config file
+	 */
 	protected function delConfigFile($filename)
 	{
 		if ($this->root->hasChild('config/' . $filename)) {

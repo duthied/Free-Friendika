@@ -2,11 +2,16 @@
 
 namespace Friendica\Test\Util;
 
+use Mockery\MockInterface;
+
 /**
  * Trait to Mock Config settings
  */
 trait ConfigMockTrait
 {
+	/**
+	 * @var MockInterface The mocking interface of Friendica\Core\Config
+	 */
 	private $configMock;
 
 	/**

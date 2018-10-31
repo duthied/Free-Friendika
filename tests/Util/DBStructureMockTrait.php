@@ -2,13 +2,25 @@
 
 namespace Friendica\Test\Util;
 
+use Mockery\MockInterface;
+
 /**
  * Trait to mock the DBStructure connection status
  */
 trait DBStructureMockTrait
 {
+	/**
+	 * @var MockInterface The mocking interface of Friendica\Database\DBStructure
+	 */
 	private $dbStructure;
 
+	/**
+	 * Mocking DBStructure::update()
+	 *
+	 * @param array $args The arguments for the update call
+	 * @param bool $return True, if the connect was successful, otherwise false
+	 * @param null|int $times How often the method will get used
+	 */
 	public function mockUpdate($args = [], $return = true, $times = null)
 	{
 		if (!isset($this->dbStructure)) {
@@ -22,6 +34,13 @@ trait DBStructureMockTrait
 			->andReturn($return);
 	}
 
+	/**
+	 * Mocking DBStructure::existsTable()
+	 *
+	 * @param string $tableName The name of the table to check
+	 * @param bool $return True, if the connect was successful, otherwise false
+	 * @param null|int $times How often the method will get used
+	 */
 	public function mockExistsTable($tableName, $return = true, $times = null)
 	{
 		if (!isset($this->dbStructure)) {

@@ -3,6 +3,7 @@
 namespace Friendica\Test\src\Core\Console;
 
 use Friendica\Core\Console\AutomaticInstallation;
+use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
 use org\bovigo\vfs\vfsStream;
 
@@ -13,6 +14,7 @@ use org\bovigo\vfs\vfsStream;
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
 {
+	use DBAMockTrait;
 	use DBStructureMockTrait;
 
 	private $db_host;
@@ -251,9 +253,9 @@ CONF;
 
 		$console = new AutomaticInstallation();
 
-		$returnStr = $this->dumpExecute($console);
+		$txt = $this->dumpExecute($console);
 
-		$this->assertFinished($returnStr, true);
+		$this->assertFinished($txt, true);
 
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
@@ -290,9 +292,9 @@ CONF;
 
 		$console->setOption('urlpath', '/friendica');
 
-		$returnStr = $this->dumpExecute($console);
+		$txt = $this->dumpExecute($console);
 
-		$this->assertFinished($returnStr, true);
+		$this->assertFinished($txt, true);
 
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
 
@@ -311,9 +313,9 @@ CONF;
 
 		$console = new AutomaticInstallation();
 
-		$returnStr = $this->dumpExecute($console);
+		$txt = $this->dumpExecute($console);
 
-		$this->assertStuckDB($returnStr);
+		$this->assertStuckDB($txt);
 	}
 
 	public function testGetHelp()

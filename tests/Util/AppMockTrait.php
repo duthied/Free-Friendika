@@ -5,6 +5,7 @@ namespace Friendica\Test\Util;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Render\FriendicaSmartyEngine;
+use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStreamDirectory;
 
 /**
@@ -13,10 +14,9 @@ use org\bovigo\vfs\vfsStreamDirectory;
 trait AppMockTrait
 {
 	use ConfigMockTrait;
-	use DBAMockTrait;
 
 	/**
-	 * @var App The Friendica global App Mock
+	 * @var MockInterface|App The mocked Friendica\App
 	 */
 	protected $app;
 
@@ -35,7 +35,7 @@ trait AppMockTrait
 		$this->mockConfigGet('system', 'theme', 'testtheme');
 
 		// Mocking App and most used functions
-		$this->app = \Mockery::mock('Friendica\App');
+		$this->app = \Mockery::mock(App::class);
 		$this->app
 			->shouldReceive('getBasePath')
 			->andReturn($root->url());
