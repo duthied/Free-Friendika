@@ -48,7 +48,7 @@ class Lock
 					self::useAutoDriver();
 			}
 		} catch (\Exception $exception) {
-			logger ('Driver \'' . $lock_driver . '\' failed - Fallback to \'useAutoDriver()\'');
+			Logger::log('Driver \'' . $lock_driver . '\' failed - Fallback to \'useAutoDriver()\'');
 			self::useAutoDriver();
 		}
 	}
@@ -70,7 +70,7 @@ class Lock
 				self::$driver = new Lock\SemaphoreLockDriver();
 				return;
 			} catch (\Exception $exception) {
-				logger ('Using Semaphore driver for locking failed: ' . $exception->getMessage());
+				Logger::log('Using Semaphore driver for locking failed: ' . $exception->getMessage());
 			}
 		}
 
