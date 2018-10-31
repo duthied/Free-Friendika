@@ -11,6 +11,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model;
@@ -228,8 +229,8 @@ function register_content(App $a)
 	if (Config::get('system', 'publish_all')) {
 		$profile_publish = '<input type="hidden" name="profile_publish_reg" value="1" />';
 	} else {
-		$publish_tpl = get_markup_template("profile_publish.tpl");
-		$profile_publish = replace_macros($publish_tpl, [
+		$publish_tpl = Renderer::getMarkupTemplate("profile_publish.tpl");
+		$profile_publish = Renderer::replaceMacros($publish_tpl, [
 			'$instance' => 'reg',
 			'$pubdesc' => L10n::t('Include your profile in member directory?'),
 			'$yes_selected' => '',
@@ -244,7 +245,7 @@ function register_content(App $a)
 
 	$license = '';
 
-	$tpl = get_markup_template("register.tpl");
+	$tpl = Renderer::getMarkupTemplate("register.tpl");
 
 	$arr = ['template' => $tpl];
 
@@ -254,7 +255,7 @@ function register_content(App $a)
 
 	$tos = new Tos();
 
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$oidhtml' => $oidhtml,
 		'$invitations' => Config::get('system', 'invitation_only'),
 		'$permonly'    => intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE,

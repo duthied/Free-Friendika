@@ -7,6 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendcia\Model\FileTag;
 use Friendica\Model\Item;
@@ -40,19 +41,19 @@ function editpost_content(App $a)
 
 	$geotag = '';
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"), [
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate("section_title.tpl"), [
 		'$title' => L10n::t('Edit post')
 	]);
 
-	$tpl = get_markup_template('jot-header.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$baseurl' => System::baseUrl(),
 		'$ispublic' => '&nbsp;', // L10n::t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
 	]);
 
-	$tpl = get_markup_template("jot.tpl");
+	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 	if (strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {
 		$lockstate = 'lock';
@@ -85,7 +86,7 @@ function editpost_content(App $a)
 	Addon::callHooks('jot_tool', $jotplugins);
 	//Addon::callHooks('jot_networks', $jotnets);
 
-	$o .= replace_macros($tpl, [
+	$o .= Renderer::replaceMacros($tpl, [
 		'$is_edit' => true,
 		'$return_path' => '/display/' . $item['guid'],
 		'$action' => 'item',

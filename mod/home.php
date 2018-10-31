@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Module\Login;
 
@@ -53,8 +54,8 @@ function home_content(App $a) {
 	Addon::callHooks("home_content",$content);
 
 
-	$tpl = get_markup_template('home.tpl');
-	return replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('home.tpl');
+	return Renderer::replaceMacros($tpl, [
 		'$defaultheader' => $defaultheader,
 		'$customhome' => $customhome,
 		'$login' => $login,

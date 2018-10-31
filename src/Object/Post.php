@@ -13,6 +13,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -785,8 +786,8 @@ class Post extends BaseObject
 				$uid = $parent_uid;
 			}
 
-			$template = get_markup_template($this->getCommentBoxTemplate());
-			$comment_box = replace_macros($template, [
+			$template = Renderer::getMarkupTemplate($this->getCommentBoxTemplate());
+			$comment_box = Renderer::replaceMacros($template, [
 				'$return_path' => $a->query_string,
 				'$threaded'    => $this->isThreaded(),
 				'$jsreload'    => '',

@@ -3,6 +3,7 @@
 namespace Friendica\Module;
 
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Model;
 
 /**
@@ -27,8 +28,8 @@ class Itemsource extends \Friendica\BaseModule
 			$source = htmlspecialchars($conversation['source']);
 		}
 
-		$tpl = get_markup_template('debug/itemsource.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('debug/itemsource.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$guid'          => ['guid', L10n::t('Item Guid'), htmlentities(defaults($_REQUEST, 'guid', '')), ''],
 			'$source'        => $source,
 			'$item_uri'      => $item_uri

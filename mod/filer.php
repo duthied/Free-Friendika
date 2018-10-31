@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
 
 require_once 'include/items.php';
@@ -30,8 +31,8 @@ function filer_content(App $a)
 		$filetags = FileTag::fileToList($filetags, 'file');
 		$filetags = explode(",", $filetags);
 
-		$tpl = get_markup_template("filer_dialog.tpl");
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
+		$o = Renderer::replaceMacros($tpl, [
 			'$field' => ['term', L10n::t("Save to Folder:"), '', '', $filetags, L10n::t('- select -')],
 			'$submit' => L10n::t('Save'),
 		]);

@@ -14,6 +14,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Update;
@@ -91,7 +92,7 @@ function admin_post(App $a)
 
 				$theme = $a->argv[2];
 				if (is_file("view/theme/$theme/config.php")) {
-					$orig_theme = $a->theme;
+					$orig_theme = Renderer::$theme;
 					$orig_page = $a->page;
 					$orig_session_theme = $_SESSION['theme'];
 					require_once "view/theme/$theme/theme.php";
@@ -107,7 +108,7 @@ function admin_post(App $a)
 					}
 
 					$_SESSION['theme'] = $orig_session_theme;
-					$a->theme = $orig_theme;
+					Renderer::$theme = $orig_theme;
 					$a->page = $orig_page;
 				}
 
@@ -175,7 +176,7 @@ function admin_content(App $a)
 	//	apc_delete($toDelete);
 	//}
 	// Header stuff
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('admin/settings_head.tpl'), []);
+	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/settings_head.tpl'), []);
 
 	/*
 	 * Side bar links
@@ -226,8 +227,8 @@ function admin_content(App $a)
 		$addons_admin[] = $addon;
 	}
 
-	$t = get_markup_template('admin/aside.tpl');
-	$a->page['aside'] .= replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/aside.tpl');
+	$a->page['aside'] .= Renderer::replaceMacros($t, [
 		'$admin' => $aside_tools,
 		'$subpages' => $aside_sub,
 		'$admtxt' => L10n::t('Admin'),
@@ -314,8 +315,8 @@ function admin_content(App $a)
 function admin_page_tos(App $a)
 {
 	$tos = new Tos();
-	$t = get_markup_template('admin/tos.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/tos.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Terms of Service'),
 		'$displaytos' => ['displaytos', L10n::t('Display Terms of Service'), Config::get('system', 'tosdisplay'), L10n::t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
@@ -376,8 +377,8 @@ function admin_page_blocklist(App $a)
 			];
 		}
 	}
-	$t = get_markup_template('admin/blocklist.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/blocklist.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Server Blocklist'),
 		'$intro' => L10n::t('This page can be used to define a black list of servers from the federated network that are not allowed to interact with your node. For all entered domains you should also give a reason why you have blocked the remote server.'),
@@ -491,8 +492,8 @@ function admin_page_contactblock(App $a)
 
 	$contacts = DBA::toArray($statement);
 
-	$t = get_markup_template('admin/contactblock.tpl');
-	$o = replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/contactblock.tpl');
+	$o = Renderer::replaceMacros($t, [
 		// strings //
 		'$title'       => L10n::t('Administration'),
 		'$page'        => L10n::t('Remote Contact Blocklist'),
@@ -533,9 +534,9 @@ function admin_page_contactblock(App $a)
  */
 function admin_page_deleteitem(App $a)
 {
-	$t = get_markup_template('admin/deleteitem.tpl');
+	$t = Renderer::getMarkupTemplate('admin/deleteitem.tpl');
 
-	return replace_macros($t, [
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Delete Item'),
 		'$submit' => L10n::t('Delete this Item'),
@@ -726,8 +727,8 @@ function admin_page_federation(App $a)
 	$hint = L10n::t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
 
 	// load the template, replace the macros and return the page content
-	$t = get_markup_template('admin/federation.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/federation.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Federation Statistics'),
 		'$intro' => $intro,
@@ -769,8 +770,8 @@ function admin_page_queue(App $a)
 	}
 	DBA::close($entries);
 
-	$t = get_markup_template('admin/queue.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/queue.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Inspect Queue'),
 		'$count' => count($r),
@@ -820,8 +821,8 @@ function admin_page_workerqueue(App $a, $deferred)
 	}
 	DBA::close($entries);
 
-	$t = get_markup_template('admin/workerqueue.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/workerqueue.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => $sub_title,
 		'$count' => count($r),
@@ -938,8 +939,8 @@ function admin_page_summary(App $a)
 						  'memory_limit' => ini_get('memory_limit')],
 				'mysql' => ['max_allowed_packet' => $max_allowed_packet]];
 
-	$t = get_markup_template('admin/summary.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/summary.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Summary'),
 		'$queues' => $queues,
@@ -1449,8 +1450,8 @@ function admin_page_site(App $a)
 		$optimize_max_tablesize = -1;
 	}
 
-	$t = get_markup_template('admin/site.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/site.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Site'),
 		'$submit' => L10n::t('Save Settings'),
@@ -1644,13 +1645,13 @@ function admin_page_dbsync(App $a)
 	}
 
 	if (!count($failed)) {
-		$o = replace_macros(get_markup_template('structure_check.tpl'), [
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('structure_check.tpl'), [
 			'$base' => System::baseUrl(true),
 			'$banner' => L10n::t('No failed updates.'),
 			'$check' => L10n::t('Check database structure'),
 		]);
 	} else {
-		$o = replace_macros(get_markup_template('failed_updates.tpl'), [
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('failed_updates.tpl'), [
 			'$base' => System::baseUrl(true),
 			'$banner' => L10n::t('Failed Updates'),
 			'$desc' => L10n::t('This does not include updates prior to 1139, which did not return a status.'),
@@ -1911,8 +1912,8 @@ function admin_page_users(App $a)
 
 	$th_users = array_map(null, [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Type')], $valid_orders);
 
-	$t = get_markup_template('admin/users.tpl');
-	$o = replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/users.tpl');
+	$o = Renderer::replaceMacros($t, [
 		// strings //
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Users'),
@@ -2027,9 +2028,9 @@ function admin_page_addons(App $a, array $addons_admin)
 			$func($a, $admin_form);
 		}
 
-		$t = get_markup_template('admin/addon_details.tpl');
+		$t = Renderer::getMarkupTemplate('admin/addon_details.tpl');
 
-		return replace_macros($t, [
+		return Renderer::replaceMacros($t, [
 			'$title' => L10n::t('Administration'),
 			'$page' => L10n::t('Addons'),
 			'$toggle' => L10n::t('Toggle'),
@@ -2088,8 +2089,8 @@ function admin_page_addons(App $a, array $addons_admin)
 		}
 	}
 
-	$t = get_markup_template('admin/addons.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/addons.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Addons'),
 		'$submit' => L10n::t('Save Settings'),
@@ -2272,7 +2273,7 @@ function admin_page_themes(App $a)
 
 		$admin_form = '';
 		if (is_file("view/theme/$theme/config.php")) {
-			$orig_theme = $a->theme;
+			$orig_theme = Renderer::$theme;
 			$orig_page = $a->page;
 			$orig_session_theme = $_SESSION['theme'];
 			require_once "view/theme/$theme/theme.php";
@@ -2289,7 +2290,7 @@ function admin_page_themes(App $a)
 			}
 
 			$_SESSION['theme'] = $orig_session_theme;
-			$a->theme = $orig_theme;
+			Renderer::$theme = $orig_theme;
 			$a->page = $orig_page;
 		}
 
@@ -2298,8 +2299,8 @@ function admin_page_themes(App $a)
 			$screenshot = null;
 		}
 
-		$t = get_markup_template('admin/addon_details.tpl');
-		return replace_macros($t, [
+		$t = Renderer::getMarkupTemplate('admin/addon_details.tpl');
+		return Renderer::replaceMacros($t, [
 			'$title' => L10n::t('Administration'),
 			'$page' => L10n::t('Themes'),
 			'$toggle' => L10n::t('Toggle'),
@@ -2342,8 +2343,8 @@ function admin_page_themes(App $a)
 		$addons[] = [$th['name'], (($th['allowed']) ? "on" : "off"), Theme::getInfo($th['name'])];
 	}
 
-	$t = get_markup_template('admin/addons.tpl');
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate('admin/addons.tpl');
+	return Renderer::replaceMacros($t, [
 		'$title'               => L10n::t('Administration'),
 		'$page'                => L10n::t('Themes'),
 		'$submit'              => L10n::t('Save Settings'),
@@ -2416,9 +2417,9 @@ function admin_page_logs(App $a)
 		$phplogenabled = L10n::t('PHP log currently disabled.');
 	}
 
-	$t = get_markup_template('admin/logs.tpl');
+	$t = Renderer::getMarkupTemplate('admin/logs.tpl');
 
-	return replace_macros($t, [
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Logs'),
 		'$submit' => L10n::t('Save Settings'),
@@ -2457,7 +2458,7 @@ function admin_page_logs(App $a)
  */
 function admin_page_viewlogs(App $a)
 {
-	$t = get_markup_template('admin/viewlogs.tpl');
+	$t = Renderer::getMarkupTemplate('admin/viewlogs.tpl');
 	$f = Config::get('system', 'logfile');
 	$data = '';
 
@@ -2485,7 +2486,7 @@ function admin_page_viewlogs(App $a)
 			fclose($fp);
 		}
 	}
-	return replace_macros($t, [
+	return Renderer::replaceMacros($t, [
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('View Logs'),
 		'$data' => $data,
@@ -2563,8 +2564,8 @@ function admin_page_features(App $a)
 			}
 		}
 
-		$tpl = get_markup_template('admin/settings_features.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('admin/settings_features.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("admin_manage_features"),
 			'$title' => L10n::t('Manage Additional Features'),
 			'$features' => $arr,

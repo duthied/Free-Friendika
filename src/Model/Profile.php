@@ -15,6 +15,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -163,7 +164,7 @@ class Profile
 		* load/reload current theme info
 		*/
 
-		$a->setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
+		Renderer::setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
 		$theme_info_file = 'view/theme/' . $a->getCurrentTheme() . '/theme.php';
 		if (file_exists($theme_info_file)) {
@@ -171,8 +172,8 @@ class Profile
 		}
 
 		if (local_user() && local_user() == $a->profile['uid'] && $profiledata) {
-			$a->page['aside'] .= replace_macros(
-				get_markup_template('profile_edlink.tpl'),
+			$a->page['aside'] .= Renderer::replaceMacros(
+				Renderer::getMarkupTemplate('profile_edlink.tpl'),
 				[
 					'$editprofile' => L10n::t('Edit profile'),
 					'$profid' => $a->profile['id']
@@ -516,8 +517,8 @@ class Profile
 
 		$p['url'] = Contact::magicLink(defaults($p, 'url', $profile_url));
 
-		$tpl = get_markup_template('profile_vcard.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('profile_vcard.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$profile' => $p,
 			'$xmpp' => $xmpp,
 			'$connect' => $connect,
@@ -621,8 +622,8 @@ class Profile
 				}
 			}
 		}
-		$tpl = get_markup_template('birthdays_reminder.tpl');
-		return replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('birthdays_reminder.tpl');
+		return Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => $total,
@@ -710,8 +711,8 @@ class Profile
 			DBA::close($s);
 			$classtoday = (($istoday) ? 'event-today' : '');
 		}
-		$tpl = get_markup_template('events_reminder.tpl');
-		return replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('events_reminder.tpl');
+		return Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => count($r),
@@ -726,13 +727,13 @@ class Profile
 		$o = '';
 		$uid = $a->profile['uid'];
 
-		$o .= replace_macros(
-			get_markup_template('section_title.tpl'),
+		$o .= Renderer::replaceMacros(
+			Renderer::getMarkupTemplate('section_title.tpl'),
 			['$title' => L10n::t('Profile')]
 		);
 
 		if ($a->profile['name']) {
-			$tpl = get_markup_template('profile_advanced.tpl');
+			$tpl = Renderer::getMarkupTemplate('profile_advanced.tpl');
 
 			$profile = [];
 
@@ -860,7 +861,7 @@ class Profile
 				$profile['edit'] = [System::baseUrl() . '/profiles/' . $a->profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
 			}
 
-			return replace_macros($tpl, [
+			return Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Profile'),
 				'$basic' => L10n::t('Basic'),
 				'$advanced' => L10n::t('Advanced'),
@@ -977,9 +978,9 @@ class Profile
 		$arr = ['is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => $tab, 'tabs' => $tabs];
 		Addon::callHooks('profile_tabs', $arr);
 
-		$tpl = get_markup_template('common_tabs.tpl');
+		$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 
-		return replace_macros($tpl, ['$tabs' => $arr['tabs']]);
+		return Renderer::replaceMacros($tpl, ['$tabs' => $arr['tabs']]);
 	}
 
 	/**

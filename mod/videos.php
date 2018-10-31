@@ -8,6 +8,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -50,9 +51,9 @@ function videos_init(App $a)
 
 		$account_type = Contact::getAccountType($profile);
 
-		$tpl = get_markup_template("vcard-widget.tpl");
+		$tpl = Renderer::getMarkupTemplate("vcard-widget.tpl");
 
-		$vcard_widget = replace_macros($tpl, [
+		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
 			'$addr' => defaults($profile, 'addr', ''),
@@ -102,8 +103,8 @@ function videos_init(App $a)
 
 		$a->page['aside'] .= $vcard_widget;
 
-		$tpl = get_markup_template("videos_head.tpl");
-		$a->page['htmlhead'] .= replace_macros($tpl,[
+		$tpl = Renderer::getMarkupTemplate("videos_head.tpl");
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
 			'$baseurl' => System::baseUrl(),
 		]);
 	}
@@ -128,7 +129,7 @@ function videos_post(App $a)
 
 			$drop_url = $a->query_string;
 
-			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
+			$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => L10n::t('Do you really want to delete this video?'),
 				'$extra_inputs' => [
@@ -381,8 +382,8 @@ function videos_content(App $a)
 		}
 	}
 
-	$tpl = get_markup_template('videos_recent.tpl');
-	$o .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('videos_recent.tpl');
+	$o .= Renderer::replaceMacros($tpl, [
 		'$title'      => L10n::t('Recent Videos'),
 		'$can_post'   => $can_post,
 		'$upload'     => [L10n::t('Upload New Videos'), System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/upload'],

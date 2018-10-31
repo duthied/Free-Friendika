@@ -10,6 +10,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -119,8 +120,8 @@ function community_content(App $a, $update = 0)
 			];
 		}
 
-		$tab_tpl = get_markup_template('common_tabs.tpl');
-		$o .= replace_macros($tab_tpl, ['$tabs' => $tabs]);
+		$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
+		$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
 
 		Nav::setSelected('community');
 
@@ -198,8 +199,8 @@ function community_content(App $a, $update = 0)
 		$o .= $pager->renderMinimal(count($r));
 	}
 
-	$t = get_markup_template("community.tpl");
-	return replace_macros($t, [
+	$t = Renderer::getMarkupTemplate("community.tpl");
+	return Renderer::replaceMacros($t, [
 		'$content' => $o,
 		'$header' => '',
 		'$show_global_community_hint' => ($content == 'global') && Config::get('system', 'show_global_community_hint'),

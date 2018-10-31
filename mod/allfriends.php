@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model;
@@ -98,9 +99,9 @@ function allfriends_content(App $a)
 
 	$tab_str = Module\Contact::getTabsHTML($a, $contact, 4);
 
-	$tpl = get_markup_template('viewcontact_template.tpl');
+	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl, [
+	$o .= Renderer::replaceMacros($tpl, [
 		//'$title' => L10n::t('Friends of %s', htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,

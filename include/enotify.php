@@ -8,6 +8,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -517,7 +518,7 @@ function notification($params)
 		}
 
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
-		$msg = replace_macros($epreamble, ['$itemlink' => $itemlink]);
+		$msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $itemlink]);
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
 
 		$fields = ['msg' => $msg, 'msg_cache' => $msg_cache];
@@ -589,8 +590,8 @@ function notification($params)
 		$content_allowed = ((!Config::get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
-		$tpl = get_markup_template('email_notify_html.tpl');
-		$email_html_body = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('email_notify_html.tpl');
+		$email_html_body = Renderer::replaceMacros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
 			'$preamble'     => str_replace("\n", "<br>\n", $datarray['preamble']),
@@ -610,8 +611,8 @@ function notification($params)
 		]);
 
 		// load the template for private message notifications
-		$tpl = get_markup_template('email_notify_text.tpl');
-		$email_text_body = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('email_notify_text.tpl');
+		$email_text_body = Renderer::replaceMacros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
 			'$preamble'     => $datarray['preamble'],

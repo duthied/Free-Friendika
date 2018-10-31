@@ -13,6 +13,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
@@ -49,8 +50,8 @@ function settings_init(App $a)
 
 	// These lines provide the javascript needed by the acl selector
 
-	$tpl = get_markup_template('settings/head.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('settings/head.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => L10n::t('everybody')
 	]);
 
@@ -129,8 +130,8 @@ function settings_init(App $a)
 	];
 
 
-	$tabtpl = get_markup_template("generic_links_widget.tpl");
-	$a->page['aside'] = replace_macros($tabtpl, [
+	$tabtpl = Renderer::getMarkupTemplate("generic_links_widget.tpl");
+	$a->page['aside'] = Renderer::replaceMacros($tabtpl, [
 		'$title' => L10n::t('Settings'),
 		'$class' => 'settings-widget',
 		'$items' => $tabs,
@@ -671,8 +672,8 @@ function settings_content(App $a)
 
 	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
 		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
-			$tpl = get_markup_template('settings/oauth_edit.tpl');
-			$o .= replace_macros($tpl, [
+			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
+			$o .= Renderer::replaceMacros($tpl, [
 				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
 				'$submit'	=> L10n::t('Save Settings'),
@@ -697,8 +698,8 @@ function settings_content(App $a)
 			}
 			$app = $r[0];
 
-			$tpl = get_markup_template('settings/oauth_edit.tpl');
-			$o .= replace_macros($tpl, [
+			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
+			$o .= Renderer::replaceMacros($tpl, [
 				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
 				'$submit'	=> L10n::t('Update'),
@@ -729,8 +730,8 @@ function settings_content(App $a)
 				local_user());
 
 
-		$tpl = get_markup_template('settings/oauth.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 			'$baseurl'	=> $a->getBaseURL(true),
 			'$title'	=> L10n::t('Connected Apps'),
@@ -756,8 +757,8 @@ function settings_content(App $a)
 		Addon::callHooks('addon_settings', $settings_addons);
 
 
-		$tpl = get_markup_template('settings/addons.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_addon"),
 			'$title'	=> L10n::t('Addon Settings'),
 			'$settings_addons' => $settings_addons
@@ -777,8 +778,8 @@ function settings_content(App $a)
 			}
 		}
 
-		$tpl = get_markup_template('settings/features.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/features.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_features"),
 			'$title'               => L10n::t('Additional Features'),
 			'$features'            => $arr,
@@ -833,11 +834,11 @@ function settings_content(App $a)
 		$mail_chk          = ((DBA::isResult($r)) ? $r[0]['last_check'] : DBA::NULL_DATETIME);
 
 
-		$tpl = get_markup_template('settings/connectors.tpl');
+		$tpl = Renderer::getMarkupTemplate('settings/connectors.tpl');
 
 		$mail_disabled_message = (($mail_disabled) ? L10n::t('Email access is disabled on this site.') : '');
 
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_connectors"),
 
 			'$title'	=> L10n::t('Social Networks'),
@@ -955,8 +956,8 @@ function settings_content(App $a)
 			$theme_config = theme_content($a);
 		}
 
-		$tpl = get_markup_template('settings/display.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/display.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$ptitle' 	=> L10n::t('Display Settings'),
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_display"),
 			'$submit' 	=> L10n::t('Save Settings'),
@@ -1031,9 +1032,9 @@ function settings_content(App $a)
 		($a->user['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY))
 		$a->user['account-type'] = Contact::ACCOUNT_TYPE_COMMUNITY;
 
-	$pageset_tpl = get_markup_template('settings/pagetypes.tpl');
+	$pageset_tpl = Renderer::getMarkupTemplate('settings/pagetypes.tpl');
 
-	$pagetype = replace_macros($pageset_tpl, [
+	$pagetype = Renderer::replaceMacros($pageset_tpl, [
 		'$account_types'	=> L10n::t("Account Types"),
 		'$user' 		=> L10n::t("Personal Page Subtypes"),
 		'$community'		=> L10n::t("Community Forum Subtypes"),
@@ -1090,44 +1091,44 @@ function settings_content(App $a)
 		$openid_field = ['openid_url', L10n::t('OpenID:'), $openid, L10n::t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url"];
 	}
 
-	$opt_tpl = get_markup_template("field_yesno.tpl");
+	$opt_tpl = Renderer::getMarkupTemplate("field_yesno.tpl");
 	if (Config::get('system', 'publish_all')) {
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
-		$profile_in_dir = replace_macros($opt_tpl, [
+		$profile_in_dir = Renderer::replaceMacros($opt_tpl, [
 			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	}
 
 	if (strlen(Config::get('system', 'directory'))) {
-		$profile_in_net_dir = replace_macros($opt_tpl, [
+		$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
 			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory')), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	} else {
 		$profile_in_net_dir = '';
 	}
 
-	$hide_friends = replace_macros($opt_tpl, [
+	$hide_friends = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['hide-friends', L10n::t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], L10n::t('Your contact list won\'t be shown in your default profile page. You can decide to show your contact list separately for each additional profile you create'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$hide_wall = replace_macros($opt_tpl, [
+	$hide_wall = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['hidewall', L10n::t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], L10n::t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$blockwall = replace_macros($opt_tpl, [
+	$blockwall = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['blockwall', L10n::t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), L10n::t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$blocktags = replace_macros($opt_tpl, [
+	$blocktags = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['blocktags', L10n::t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), L10n::t('Your contacts can add additional tags to your posts.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$suggestme = replace_macros($opt_tpl, [
+	$suggestme = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['suggestme', L10n::t('Allow us to suggest you as a potential friend to new members?'), $suggestme, L10n::t('If you like, Friendica may suggest new members to add you as a contact.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$unkmail = replace_macros($opt_tpl, [
+	$unkmail = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['unkmail', L10n::t('Permit unknown people to send you private mail?'), $unkmail, L10n::t('Friendica network users may send you private messages even if they are not in your contact list.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
@@ -1135,14 +1136,14 @@ function settings_content(App $a)
 		info(L10n::t('Profile is <strong>not published</strong>.') . EOL);
 	}
 
-	$tpl_addr = get_markup_template('settings/nick_set.tpl');
+	$tpl_addr = Renderer::getMarkupTemplate('settings/nick_set.tpl');
 
-	$prof_addr = replace_macros($tpl_addr,[
+	$prof_addr = Renderer::replaceMacros($tpl_addr,[
 		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLPath(), System::baseUrl() . '/profile/' . $nickname),
 		'$basepath' => $a->getHostName()
 	]);
 
-	$stpl = get_markup_template('settings/settings.tpl');
+	$stpl = Renderer::getMarkupTemplate('settings/settings.tpl');
 
 	$expire_arr = [
 		'days' => ['expire',  L10n::t("Automatically expire posts after this many days:"), $expire, L10n::t('If empty, posts will not expire. Expired posts will be deleted')],
@@ -1181,7 +1182,7 @@ function settings_content(App $a)
 	$lang_choices = L10n::getAvailableLanguages();
 
 	/// @TODO Fix indending (or so)
-	$o .= replace_macros($stpl, [
+	$o .= Renderer::replaceMacros($stpl, [
 		'$ptitle' 	=> L10n::t('Account Settings'),
 
 		'$submit' 	=> L10n::t('Save Settings'),

@@ -8,6 +8,7 @@ namespace Friendica\Content\Widget;
 
 use Friendica\Content\Feature;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 
 require_once 'boot.php';
 require_once 'include/text.php';
@@ -60,8 +61,8 @@ class CalendarExport
 		// of the profile page it should be the personal /events page. So we can use $a->user.
 		$user = defaults($a->data['user'], 'nickname', $a->user['nickname']);
 
-		$tpl = get_markup_template("events_aside.tpl");
-		$return = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate("events_aside.tpl");
+		$return = Renderer::replaceMacros($tpl, [
 			'$etitle'      => L10n::t("Export"),
 			'$export_ical' => L10n::t("Export calendar as ical"),
 			'$export_csv'  => L10n::t("Export calendar as csv"),

@@ -11,6 +11,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -390,7 +391,7 @@ function drop_item($id)
 				}
 			}
 
-			return replace_macros(get_markup_template('confirm.tpl'), [
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'get',
 				'$message' => L10n::t('Do you really want to delete this item?'),
 				'$extra_inputs' => $inputs,
@@ -481,7 +482,7 @@ function posted_date_widget($url, $uid, $wall)
 	$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
 
-	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[
+	$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('posted_date_widget.tpl'),[
 		'$title' => L10n::t('Archives'),
 		'$size' => $visible_years,
 		'$cutoff_year' => $cutoff_year,

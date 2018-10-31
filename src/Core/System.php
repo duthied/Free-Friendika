@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\XML;
 
@@ -139,8 +140,8 @@ class System extends BaseObject
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
 
 		if (isset($description["title"])) {
-			$tpl = get_markup_template('http_status.tpl');
-			echo replace_macros($tpl, ['$title' => $description["title"],
+			$tpl = Renderer::getMarkupTemplate('http_status.tpl');
+			echo Renderer::replaceMacros($tpl, ['$title' => $description["title"],
 				'$description' => defaults($description, 'description', '')]);
 		}
 

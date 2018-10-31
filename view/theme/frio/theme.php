@@ -15,6 +15,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model;
@@ -30,7 +31,7 @@ function frio_init(App $a)
 	$a->theme_events_in_profile = false;
 	$a->videowidth = 622;
 
-	$a->setActiveTemplateEngine('smarty3');
+	Renderer::setActiveTemplateEngine('smarty3');
 
 	$baseurl = System::baseUrl();
 

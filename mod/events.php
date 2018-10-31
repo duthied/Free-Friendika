@@ -10,6 +10,7 @@ use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -225,8 +226,8 @@ function events_content(App $a)
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
 
-	$htpl = get_markup_template('event_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($htpl, [
+	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/events',
 		'$modparams' => 1,
@@ -367,9 +368,9 @@ function events_content(App $a)
 		}
 
 		if (!empty($_GET['id'])) {
-			$tpl = get_markup_template("event.tpl");
+			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
-			$tpl = get_markup_template("events_js.tpl");
+			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
 		}
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
@@ -382,7 +383,7 @@ function events_content(App $a)
 			$events[$key]['item'] = $event_item;
 		}
 
-		$o = replace_macros($tpl, [
+		$o = Renderer::replaceMacros($tpl, [
 			'$baseurl'   => System::baseUrl(),
 			'$tabs'      => $tabs,
 			'$title'     => L10n::t('Events'),
@@ -497,9 +498,9 @@ function events_content(App $a)
 			$uri = '';
 		}
 
-		$tpl = get_markup_template('event_form.tpl');
+		$tpl = Renderer::getMarkupTemplate('event_form.tpl');
 
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$post' => System::baseUrl() . '/events',
 			'$eid'  => $eid,
 			'$cid'  => $cid,

@@ -11,6 +11,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Email;
@@ -110,7 +111,7 @@ function invite_content(App $a) {
 		return;
 	}
 
-	$tpl = get_markup_template('invite.tpl');
+	$tpl = Renderer::getMarkupTemplate('invite.tpl');
 	$invonly = false;
 
 	if (Config::get('system', 'invitation_only')) {
@@ -140,7 +141,7 @@ function invite_content(App $a) {
 		}
 	}
 
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$form_security_token' => BaseModule::getFormSecurityToken("send_invite"),
 		'$title'               => L10n::t('Send invitations'),
 		'$recipients'          => ['recipients', L10n::t('Enter email addresses, one per line:')],

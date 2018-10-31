@@ -10,6 +10,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\PortableContact;
@@ -374,7 +375,7 @@ function poco_init(App $a) {
 
 	if ($format === 'xml') {
 		header('Content-type: text/xml');
-		echo replace_macros(get_markup_template('poco_xml.tpl'), array_xmlify(['$response' => $ret]));
+		echo Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), array_xmlify(['$response' => $ret]));
 		killme();
 	}
 	if ($format === 'json') {

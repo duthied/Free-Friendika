@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -238,9 +239,9 @@ function profile_photo_content(App $a)
 	);
 
 	if (empty($imagecrop)) {
-		$tpl = get_markup_template('profile_photo.tpl');
+		$tpl = Renderer::getMarkupTemplate('profile_photo.tpl');
 
-		$o = replace_macros($tpl,
+		$o = Renderer::replaceMacros($tpl,
 			[
 			'$user' => $a->user['nickname'],
 			'$lbl_upfile' => L10n::t('Upload File:'),
@@ -256,8 +257,8 @@ function profile_photo_content(App $a)
 		return $o;
 	} else {
 		$filename = $imagecrop['hash'] . '-' . $imagecrop['resolution'] . '.' . $imagecrop['ext'];
-		$tpl = get_markup_template("cropbody.tpl");
-		$o = replace_macros($tpl,
+		$tpl = Renderer::getMarkupTemplate("cropbody.tpl");
+		$o = Renderer::replaceMacros($tpl,
 			[
 			'$filename'  => $filename,
 			'$profile'   => (isset($_REQUEST['profile']) ? intval($_REQUEST['profile']) : 0),
@@ -318,7 +319,7 @@ function profile_photo_crop_ui_head(App $a, Image $image)
 		}
 	}
 
-	$a->page['htmlhead'] .= replace_macros(get_markup_template("crophead.tpl"), []);
+	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate("crophead.tpl"), []);
 
 	$imagecrop = [
 		'hash'       => $hash,

@@ -1,15 +1,16 @@
 <?php
 
 use Friendica\App;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
 function opensearch_content(App $a) {
 
-	$tpl = get_markup_template('opensearch.tpl');
+	$tpl = Renderer::getMarkupTemplate('opensearch.tpl');
 
 	header("Content-type: application/opensearchdescription+xml");
 
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$baseurl' => System::baseUrl(),
 		'$nodename' => $a->getHostName(),
 	]);

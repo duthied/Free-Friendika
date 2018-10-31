@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
@@ -81,8 +82,8 @@ function api_content(App $a)
 				killme();
 			}
 
-			$tpl = get_markup_template("oauth_authorize_done.tpl");
-			$o = replace_macros($tpl, [
+			$tpl = Renderer::getMarkupTemplate("oauth_authorize_done.tpl");
+			$o = Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Authorize application connection'),
 				'$info' => L10n::t('Return to your app and insert this Securty Code:'),
 				'$code' => $verifier,
@@ -103,8 +104,8 @@ function api_content(App $a)
 			return "Invalid request. Unknown token.";
 		}
 
-		$tpl = get_markup_template('oauth_authorize.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('oauth_authorize.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$title' => L10n::t('Authorize application connection'),
 			'$app' => $app,
 			'$authorize' => L10n::t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),

@@ -11,6 +11,7 @@ use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
@@ -132,7 +133,7 @@ function notifications_content(App $a)
 		System::jsonExit($notifs);
 	}
 
-	$notif_tpl = get_markup_template('notifications.tpl');
+	$notif_tpl = Renderer::getMarkupTemplate('notifications.tpl');
 
 	$notif_show_lnk = [
 		'href' => ($show ? 'notifications/' . $notifs['ident'] : 'notifications/' . $notifs['ident'] . '?show=all' ),
@@ -141,8 +142,8 @@ function notifications_content(App $a)
 
 	// Process the data for template creation
 	if (defaults($notifs, 'ident', '') === 'introductions') {
-		$sugg = get_markup_template('suggestions.tpl');
-		$tpl = get_markup_template('intros.tpl');
+		$sugg = Renderer::getMarkupTemplate('suggestions.tpl');
+		$tpl = Renderer::getMarkupTemplate('intros.tpl');
 
 		// The link to switch between ignored and normal connection requests
 		$notif_show_lnk = [
@@ -158,7 +159,7 @@ function notifications_content(App $a)
 			// We have to distinguish between these two because they use different data.
 			switch ($notif['label']) {
 				case 'friend_suggestion':
-					$notif_content[] = replace_macros($sugg, [
+					$notif_content[] = Renderer::replaceMacros($sugg, [
 						'$type'       => $notif['label'],
 						'$str_notifytype' => L10n::t('Notification type:'),
 						'$notify_type'=> $notif['notify_type'],
@@ -208,8 +209,8 @@ function notifications_content(App $a)
 						$helptext3 = L10n::t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notif['name']);
 					}
 
-					$dfrn_tpl = get_markup_template('netfriend.tpl');
-					$dfrn_text = replace_macros($dfrn_tpl, [
+					$dfrn_tpl = Renderer::getMarkupTemplate('netfriend.tpl');
+					$dfrn_text = Renderer::replaceMacros($dfrn_tpl, [
 						'$intro_id'    => $notif['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected'=> $fan_selected,
@@ -234,7 +235,7 @@ function notifications_content(App $a)
 						$discard = '';
 					}
 
-					$notif_content[] = replace_macros($tpl, [
+					$notif_content[] = Renderer::replaceMacros($tpl, [
 						'$type'        => $notif['label'],
 						'$header'      => htmlentities($header),
 						'$str_notifytype' => L10n::t('Notification type:'),
@@ -293,9 +294,9 @@ function notifications_content(App $a)
 				'notify'      => 'notify.tpl',
 			];
 
-			$tpl_notif = get_markup_template($notification_templates[$notif['label']]);
+			$tpl_notif = Renderer::getMarkupTemplate($notification_templates[$notif['label']]);
 
-			$notif_content[] = replace_macros($tpl_notif, [
+			$notif_content[] = Renderer::replaceMacros($tpl_notif, [
 				'$item_label' => $notif['label'],
 				'$item_link'  => $notif['link'],
 				'$item_image' => $notif['image'],
@@ -310,7 +311,7 @@ function notifications_content(App $a)
 		$notif_nocontent = L10n::t('No more %s notifications.', $notifs['ident']);
 	}
 
-	$o .= replace_macros($notif_tpl, [
+	$o .= Renderer::replaceMacros($notif_tpl, [
 		'$notif_header'    => $notif_header,
 		'$tabs'            => $tabs,
 		'$notif_content'   => $notif_content,
