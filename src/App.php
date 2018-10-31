@@ -162,14 +162,6 @@ class App
 	public $template_engine_instance = [];
 	public $process_id;
 	public $queue;
-	private $ldelim = [
-		'internal' => '',
-		'smarty3' => '{{'
-	];
-	private $rdelim = [
-		'internal' => '',
-		'smarty3' => '}}'
-	];
 	private $scheme;
 	private $hostname;
 
@@ -922,38 +914,6 @@ class App
 	public function setActiveTemplateEngine($engine = 'smarty3')
 	{
 		$this->theme['template_engine'] = $engine;
-	}
-
-	/**
-	 * Gets the right delimiter for a template engine
-	 *
-	 * Currently:
-	 * Internal = ''
-	 * Smarty3 = '{{'
-	 *
-	 * @param string $engine The template engine (default is Smarty3)
-	 *
-	 * @return string the right delimiter
-	 */
-	public function getTemplateLeftDelimiter($engine = 'smarty3')
-	{
-		return $this->ldelim[$engine];
-	}
-
-	/**
-	 * Gets the left delimiter for a template engine
-	 *
-	 * Currently:
-	 * Internal = ''
-	 * Smarty3 = '}}'
-	 *
-	 * @param string $engine The template engine (default is Smarty3)
-	 *
-	 * @return string the left delimiter
-	 */
-	public function getTemplateRightDelimiter($engine = 'smarty3')
-	{
-		return $this->rdelim[$engine];
 	}
 
 	/**

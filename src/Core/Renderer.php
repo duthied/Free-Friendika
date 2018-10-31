@@ -15,6 +15,15 @@ use Friendica\Render\FriendicaSmarty;
  */
 class Renderer extends BaseObject
 {
+    private static $ldelim = [
+		'internal' => '',
+		'smarty3' => '{{'
+	];
+	private static $rdelim = [
+		'internal' => '',
+		'smarty3' => '}}'
+    ];
+    
     /**
      * @brief This is our template processor
      *
@@ -69,4 +78,36 @@ class Renderer extends BaseObject
 
         return $template;
     }
+
+    /**
+	 * Gets the right delimiter for a template engine
+	 *
+	 * Currently:
+	 * Internal = ''
+	 * Smarty3 = '{{'
+	 *
+	 * @param string $engine The template engine (default is Smarty3)
+	 *
+	 * @return string the right delimiter
+	 */
+	public static function getTemplateLeftDelimiter($engine = 'smarty3')
+	{
+		return self::$ldelim[$engine];
+	}
+
+	/**
+	 * Gets the left delimiter for a template engine
+	 *
+	 * Currently:
+	 * Internal = ''
+	 * Smarty3 = '}}'
+	 *
+	 * @param string $engine The template engine (default is Smarty3)
+	 *
+	 * @return string the left delimiter
+	 */
+	public static function getTemplateRightDelimiter($engine = 'smarty3')
+	{
+		return self::$rdelim[$engine];
+	}
 }
