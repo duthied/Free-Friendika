@@ -18,6 +18,8 @@ require_once 'view/theme/frio/php/frio_boot.php';
 if (!isset($minimal)) {
 	$minimal = false;
 }
+
+$view_mode_class = ($a->is_mobile || $a->is_tablet) ? 'mobile-view' : 'desktop-view';
 ?>
 <html>
 	<head>
@@ -63,7 +65,7 @@ if (!isset($minimal)) {
 ?>
 	</head>
 
-	<body id="top" class="mod-<?php echo $a->module." ".$is_singleuser_class;?>">
+	<body id="top" class="mod-<?php echo $a->module . " " . $is_singleuser_class . " " . $view_mode_class;?>">
 		<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
 	if (x($page, 'nav') && !$minimal) {
