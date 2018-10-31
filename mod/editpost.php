@@ -8,6 +8,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendcia\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Database\DBA;
 
@@ -118,7 +119,7 @@ function editpost_content(App $a)
 		'$jotnets' => $jotnets,
 		'$title' => htmlspecialchars($item['title']),
 		'$placeholdertitle' => L10n::t('Set title'),
-		'$category' => file_tag_file_to_list($item['file'], 'category'),
+		'$category' => FileTag::fileToList($item['file'], 'category'),
 		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t("Categories \x28comma-separated list\x29") : ''),
 		'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,

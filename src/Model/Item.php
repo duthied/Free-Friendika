@@ -18,6 +18,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\FileTag;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\ItemURI;
 use Friendica\Object\Image;
@@ -1002,18 +1003,24 @@ class Item extends BaseObject
 
 		$matches = false;
 		$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],true);
+
+		if ($cnt)
+		{
+			foreach ($matches as $mtch)
+			{
+				FileTag::unsaveFile($item['uid'], $item['id'], $mtch[1],true);
 			}
 		}
 
 		$matches = false;
 
 		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				file_tag_unsave_file($item['uid'], $item['id'], $mtch[1],false);
+
+		if ($cnt)
+		{
+			foreach ($matches as $mtch)
+			{
+				FileTag::unsaveFile($item['uid'], $item['id'], $mtch[1],false);
 			}
 		}
 
