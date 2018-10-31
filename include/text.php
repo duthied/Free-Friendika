@@ -30,31 +30,6 @@ use Friendica\Model\FileTag;
 require_once "include/conversation.php";
 
 /**
- * This is our template processor
- *
- * @param string|FriendicaSmarty $s the string requiring macro substitution,
- *				or an instance of FriendicaSmarty
- * @param array $r key value pairs (search => replace)
- * @return string substituted string
- */
-function replace_macros($s, $r)
-{
-	return Renderer::replaceMacros($s, $r);
-}
-
-/**
- * load template $s
- *
- * @param string $s
- * @param string $root
- * @return string
- */
-function get_markup_template($s, $root = '')
-{
-	return Renderer::getMarkupTemplate($s, $root);
-}
-
-/**
  * @brief Generates a pseudo-random string of hexadecimal characters
  *
  * @param int $size
