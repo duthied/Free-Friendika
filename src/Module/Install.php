@@ -116,7 +116,7 @@ class Install extends BaseModule
 
 		$output = '';
 
-		$install_title = L10n::t('Friendica Communctions Server - Setup');
+		$install_title = L10n::t('Friendica Communications Server - Setup');
 
 		switch (self::$currentWizardStep) {
 			case self::SYSTEM_CHECK:
@@ -130,7 +130,7 @@ class Install extends BaseModule
 					'$pass'			=> L10n::t('System check'),
 					'$checks'		=> self::$installer->getChecks(),
 					'$passed'		=> $status,
-					'$see_install'	=> L10n::t('Please see the file "Install.txt".'),
+					'$see_install'	=> L10n::t('Please see the file "INSTALL.txt".'),
 					'$next' 		=> L10n::t('Next'),
 					'$reload' 		=> L10n::t('Check again'),
 					'$phpath' 		=> $phppath,
