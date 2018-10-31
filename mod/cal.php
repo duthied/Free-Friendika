@@ -60,7 +60,7 @@ function cal_init(App $a)
 
 	$account_type = Contact::getAccountType($profile);
 
-	$tpl = get_markup_template("vcard-widget.tpl");
+	$tpl = Renderer::getMarkupTemplate("vcard-widget.tpl");
 
 	$vcard_widget = Renderer::replaceMacros($tpl, [
 		'$name' => $profile['name'],
@@ -89,7 +89,7 @@ function cal_content(App $a)
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
 
-	$htpl = get_markup_template('event_head.tpl');
+	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
@@ -249,12 +249,12 @@ function cal_content(App $a)
 
 		// links: array('href', 'text', 'extra css classes', 'title')
 		if (x($_GET, 'id')) {
-			$tpl = get_markup_template("event.tpl");
+			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
 //			if (Config::get('experimentals','new_calendar')==1){
-			$tpl = get_markup_template("events_js.tpl");
+			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
 //			} else {
-//				$tpl = get_markup_template("events.tpl");
+//				$tpl = Renderer::getMarkupTemplate("events.tpl");
 //			}
 		}
 

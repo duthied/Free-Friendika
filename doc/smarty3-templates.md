@@ -22,7 +22,7 @@ directory.
 
 To render a template use the function *getMarkupTemplate* to load the template and *replaceMacros* to replace the macros/variables in the just loaded template file.
 
-		$tpl = get_markup_template('install_settings.tpl');
+		$tpl = Renderer::getMarkupTemplate('install_settings.tpl');
         $o .= Renderer::replaceMacros($tpl, array( ... ));
 
 the array consists of an association of an identifier and the value for that identifier, i.e.

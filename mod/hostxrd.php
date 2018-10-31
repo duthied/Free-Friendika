@@ -22,7 +22,7 @@ function hostxrd_init(App $a)
 		Config::set('system','site_pubkey', $res['pubkey']);
 	}
 
-	$tpl = get_markup_template('xrd_host.tpl');
+	$tpl = Renderer::getMarkupTemplate('xrd_host.tpl');
 	echo Renderer::replaceMacros($tpl, [
 		'$zhost' => $a->getHostName(),
 		'$zroot' => System::baseUrl(),

@@ -987,7 +987,7 @@ class BBCode extends BaseObject
 				} else {
 					$text = ($is_quote_share? "\n" : '');
 
-					$tpl = get_markup_template('shared_content.tpl');
+					$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
 					$text .= Renderer::replaceMacros($tpl, [
 						'$profile' => $attributes['profile'],
 						'$avatar'  => $attributes['avatar'],

@@ -140,7 +140,7 @@ class System extends BaseObject
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
 
 		if (isset($description["title"])) {
-			$tpl = get_markup_template('http_status.tpl');
+			$tpl = Renderer::getMarkupTemplate('http_status.tpl');
 			echo Renderer::replaceMacros($tpl, ['$title' => $description["title"],
 				'$description' => defaults($description, 'description', '')]);
 		}

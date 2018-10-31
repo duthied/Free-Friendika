@@ -41,11 +41,11 @@ function editpost_content(App $a)
 
 	$geotag = '';
 
-	$o .= Renderer::replaceMacros(get_markup_template("section_title.tpl"), [
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate("section_title.tpl"), [
 		'$title' => L10n::t('Edit post')
 	]);
 
-	$tpl = get_markup_template('jot-header.tpl');
+	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$baseurl' => System::baseUrl(),
 		'$ispublic' => '&nbsp;', // L10n::t('Visible to <strong>everybody</strong>'),
@@ -53,7 +53,7 @@ function editpost_content(App $a)
 		'$nickname' => $a->user['nickname']
 	]);
 
-	$tpl = get_markup_template("jot.tpl");
+	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 	if (strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {
 		$lockstate = 'lock';

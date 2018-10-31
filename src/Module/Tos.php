@@ -65,7 +65,7 @@ class Tos extends BaseModule
 	 * @return string
 	 **/
 	public static function content() {
-		$tpl = get_markup_template('tos.tpl');
+		$tpl = Renderer::getMarkupTemplate('tos.tpl');
 		if (Config::get('system', 'tosdisplay')) {
 			return Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Terms of Service'),

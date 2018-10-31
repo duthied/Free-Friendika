@@ -124,7 +124,7 @@ class Install extends BaseModule
 
 				$status = self::$installer->checkEnvironment($a->getBaseURL(), $phppath);
 
-				$tpl = get_markup_template('install_checks.tpl');
+				$tpl = Renderer::getMarkupTemplate('install_checks.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'		=> $install_title,
 					'$pass'			=> L10n::t('System check'),
@@ -146,7 +146,7 @@ class Install extends BaseModule
 				$phpath    = notags(trim(defaults($_POST, 'phpath'   , ''                          )));
 				$adminmail = notags(trim(defaults($_POST, 'adminmail', ''                          )));
 
-				$tpl = get_markup_template('install_db.tpl');
+				$tpl = Renderer::getMarkupTemplate('install_db.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title' 	=> $install_title,
 					'$pass' 	=> L10n::t('Database connection'),
@@ -202,7 +202,7 @@ class Install extends BaseModule
 				/* Installed langs */
 				$lang_choices = L10n::getAvailableLanguages();
 
-				$tpl = get_markup_template('install_settings.tpl');
+				$tpl = Renderer::getMarkupTemplate('install_settings.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title' 		=> $install_title,
 					'$checks' 		=> self::$installer->getChecks(),
@@ -233,7 +233,7 @@ class Install extends BaseModule
 					$db_return_text .= $txt;
 				}
 
-				$tpl = get_markup_template('install_finished.tpl');
+				$tpl = Renderer::getMarkupTemplate('install_finished.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'  => $install_title,
 					'$checks' => self::$installer->getChecks(),

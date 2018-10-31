@@ -28,7 +28,7 @@ class Itemsource extends \Friendica\BaseModule
 			$source = htmlspecialchars($conversation['source']);
 		}
 
-		$tpl = get_markup_template('debug/itemsource.tpl');
+		$tpl = Renderer::getMarkupTemplate('debug/itemsource.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$guid'          => ['guid', L10n::t('Item Guid'), htmlentities(defaults($_REQUEST, 'guid', '')), ''],
 			'$source'        => $source,

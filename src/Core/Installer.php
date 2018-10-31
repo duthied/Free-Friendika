@@ -140,7 +140,7 @@ class Installer
 	 */
 	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
 	{
-		$tpl = get_markup_template('local.ini.tpl');
+		$tpl = Renderer::getMarkupTemplate('local.ini.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
 			'$phpath' => $phppath,
 			'$dbhost' => $dbhost,
@@ -238,7 +238,7 @@ class Installer
 			$help .= L10n::t('Could not find a command line version of PHP in the web server PATH.') . EOL;
 			$help .= L10n::t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
 			$help .= EOL . EOL;
-			$tpl = get_markup_template('field_input.tpl');
+			$tpl = Renderer::getMarkupTemplate('field_input.tpl');
 			$help .= Renderer::replaceMacros($tpl, [
 				'$field' => ['phpath', L10n::t('PHP executable path'), $phppath, L10n::t('Enter full path to php executable. You can leave this blank to continue the installation.')],
 			]);

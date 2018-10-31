@@ -772,7 +772,7 @@ class App
 
 		Core\Addon::callHooks('head', $this->page['htmlhead']);
 
-		$tpl = get_markup_template('head.tpl');
+		$tpl = Core\Renderer::getMarkupTemplate('head.tpl');
 		/* put the head template at the beginning of page['htmlhead']
 		 * since the code added by the modules frequently depends on it
 		 * being first
@@ -823,7 +823,7 @@ class App
 			} else {
 				$link = 'toggle_mobile?off=1&address=' . curPageURL();
 			}
-			$this->page['footer'] .= Core\Renderer::replaceMacros(get_markup_template("toggle_mobile_footer.tpl"), [
+			$this->page['footer'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate("toggle_mobile_footer.tpl"), [
 				'$toggle_link' => $link,
 				'$toggle_text' => Core\L10n::t('toggle mobile')
 			]);
@@ -831,7 +831,7 @@ class App
 
 		Core\Addon::callHooks('footer', $this->page['footer']);
 
-		$tpl = get_markup_template('footer.tpl');
+		$tpl = Core\Renderer::getMarkupTemplate('footer.tpl');
 		$this->page['footer'] = Core\Renderer::replaceMacros($tpl, [
 			'$baseurl' => $this->getBaseURL(),
 			'$footerScripts' => $this->footerScripts,
@@ -1792,7 +1792,7 @@ class App
 				Core\Logger::log('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], Core\Logger::DEBUG);
 
 				header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . Core\L10n::t('Not Found'));
-				$tpl = get_markup_template("404.tpl");
+				$tpl = Core\Renderer::getMarkupTemplate("404.tpl");
 				$this->page['content'] = Core\Renderer::replaceMacros($tpl, [
 					'$message' =>  Core\L10n::t('Page not found.')
 				]);
@@ -1881,7 +1881,7 @@ class App
 
 		// Add the navigation (menu) template
 		if ($this->module != 'install' && $this->module != 'maintenance') {
-			$this->page['htmlhead'] .= Core\Renderer::replaceMacros(get_markup_template('nav_head.tpl'), []);
+			$this->page['htmlhead'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate('nav_head.tpl'), []);
 			$this->page['nav']       = Content\Nav::build($this);
 		}
 

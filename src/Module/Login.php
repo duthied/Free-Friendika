@@ -300,16 +300,16 @@ class Login extends BaseModule
 		}
 
 		if (local_user()) {
-			$tpl = get_markup_template('logout.tpl');
+			$tpl = Renderer::getMarkupTemplate('logout.tpl');
 		} else {
 			$a->page['htmlhead'] .= Renderer::replaceMacros(
-				get_markup_template('login_head.tpl'),
+				Renderer::getMarkupTemplate('login_head.tpl'),
 				[
 					'$baseurl' => $a->getBaseURL(true)
 				]
 			);
 
-			$tpl = get_markup_template('login.tpl');
+			$tpl = Renderer::getMarkupTemplate('login.tpl');
 			$_SESSION['return_path'] = $return_path;
 		}
 

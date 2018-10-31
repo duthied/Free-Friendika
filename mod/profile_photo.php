@@ -239,7 +239,7 @@ function profile_photo_content(App $a)
 	);
 
 	if (empty($imagecrop)) {
-		$tpl = get_markup_template('profile_photo.tpl');
+		$tpl = Renderer::getMarkupTemplate('profile_photo.tpl');
 
 		$o = Renderer::replaceMacros($tpl,
 			[
@@ -257,7 +257,7 @@ function profile_photo_content(App $a)
 		return $o;
 	} else {
 		$filename = $imagecrop['hash'] . '-' . $imagecrop['resolution'] . '.' . $imagecrop['ext'];
-		$tpl = get_markup_template("cropbody.tpl");
+		$tpl = Renderer::getMarkupTemplate("cropbody.tpl");
 		$o = Renderer::replaceMacros($tpl,
 			[
 			'$filename'  => $filename,
@@ -319,7 +319,7 @@ function profile_photo_crop_ui_head(App $a, Image $image)
 		}
 	}
 
-	$a->page['htmlhead'] .= Renderer::replaceMacros(get_markup_template("crophead.tpl"), []);
+	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate("crophead.tpl"), []);
 
 	$imagecrop = [
 		'hash'       => $hash,

@@ -123,7 +123,7 @@ class ForumManager
 				$entries[] = $entry;
 			}
 
-			$tpl = get_markup_template('widget_forumlist.tpl');
+			$tpl = Renderer::getMarkupTemplate('widget_forumlist.tpl');
 
 			$o .= Renderer::replaceMacros(
 				$tpl,

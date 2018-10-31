@@ -50,7 +50,7 @@ function settings_init(App $a)
 
 	// These lines provide the javascript needed by the acl selector
 
-	$tpl = get_markup_template('settings/head.tpl');
+	$tpl = Renderer::getMarkupTemplate('settings/head.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => L10n::t('everybody')
 	]);
@@ -130,7 +130,7 @@ function settings_init(App $a)
 	];
 
 
-	$tabtpl = get_markup_template("generic_links_widget.tpl");
+	$tabtpl = Renderer::getMarkupTemplate("generic_links_widget.tpl");
 	$a->page['aside'] = Renderer::replaceMacros($tabtpl, [
 		'$title' => L10n::t('Settings'),
 		'$class' => 'settings-widget',
@@ -672,7 +672,7 @@ function settings_content(App $a)
 
 	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
 		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
-			$tpl = get_markup_template('settings/oauth_edit.tpl');
+			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
 			$o .= Renderer::replaceMacros($tpl, [
 				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
@@ -698,7 +698,7 @@ function settings_content(App $a)
 			}
 			$app = $r[0];
 
-			$tpl = get_markup_template('settings/oauth_edit.tpl');
+			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
 			$o .= Renderer::replaceMacros($tpl, [
 				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
@@ -730,7 +730,7 @@ function settings_content(App $a)
 				local_user());
 
 
-		$tpl = get_markup_template('settings/oauth.tpl');
+		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 			'$baseurl'	=> $a->getBaseURL(true),
@@ -757,7 +757,7 @@ function settings_content(App $a)
 		Addon::callHooks('addon_settings', $settings_addons);
 
 
-		$tpl = get_markup_template('settings/addons.tpl');
+		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_addon"),
 			'$title'	=> L10n::t('Addon Settings'),
@@ -778,7 +778,7 @@ function settings_content(App $a)
 			}
 		}
 
-		$tpl = get_markup_template('settings/features.tpl');
+		$tpl = Renderer::getMarkupTemplate('settings/features.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_features"),
 			'$title'               => L10n::t('Additional Features'),
@@ -834,7 +834,7 @@ function settings_content(App $a)
 		$mail_chk          = ((DBA::isResult($r)) ? $r[0]['last_check'] : DBA::NULL_DATETIME);
 
 
-		$tpl = get_markup_template('settings/connectors.tpl');
+		$tpl = Renderer::getMarkupTemplate('settings/connectors.tpl');
 
 		$mail_disabled_message = (($mail_disabled) ? L10n::t('Email access is disabled on this site.') : '');
 
@@ -956,7 +956,7 @@ function settings_content(App $a)
 			$theme_config = theme_content($a);
 		}
 
-		$tpl = get_markup_template('settings/display.tpl');
+		$tpl = Renderer::getMarkupTemplate('settings/display.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$ptitle' 	=> L10n::t('Display Settings'),
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_display"),
@@ -1032,7 +1032,7 @@ function settings_content(App $a)
 		($a->user['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY))
 		$a->user['account-type'] = Contact::ACCOUNT_TYPE_COMMUNITY;
 
-	$pageset_tpl = get_markup_template('settings/pagetypes.tpl');
+	$pageset_tpl = Renderer::getMarkupTemplate('settings/pagetypes.tpl');
 
 	$pagetype = Renderer::replaceMacros($pageset_tpl, [
 		'$account_types'	=> L10n::t("Account Types"),
@@ -1091,7 +1091,7 @@ function settings_content(App $a)
 		$openid_field = ['openid_url', L10n::t('OpenID:'), $openid, L10n::t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url"];
 	}
 
-	$opt_tpl = get_markup_template("field_yesno.tpl");
+	$opt_tpl = Renderer::getMarkupTemplate("field_yesno.tpl");
 	if (Config::get('system', 'publish_all')) {
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
@@ -1136,14 +1136,14 @@ function settings_content(App $a)
 		info(L10n::t('Profile is <strong>not published</strong>.') . EOL);
 	}
 
-	$tpl_addr = get_markup_template('settings/nick_set.tpl');
+	$tpl_addr = Renderer::getMarkupTemplate('settings/nick_set.tpl');
 
 	$prof_addr = Renderer::replaceMacros($tpl_addr,[
 		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLPath(), System::baseUrl() . '/profile/' . $nickname),
 		'$basepath' => $a->getHostName()
 	]);
 
-	$stpl = get_markup_template('settings/settings.tpl');
+	$stpl = Renderer::getMarkupTemplate('settings/settings.tpl');
 
 	$expire_arr = [
 		'days' => ['expire',  L10n::t("Automatically expire posts after this many days:"), $expire, L10n::t('If empty, posts will not expire. Expired posts will be deleted')],

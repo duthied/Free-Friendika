@@ -115,14 +115,14 @@ function wallmessage_content(App $a) {
 		return;
 	}
 
-	$tpl = get_markup_template('wallmsg-header.tpl');
+	$tpl = Renderer::getMarkupTemplate('wallmsg-header.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$nickname' => $user['nickname'],
 		'$linkurl' => L10n::t('Please enter a link URL:')
 	]);
 
-	$tpl = get_markup_template('wallmessage.tpl');
+	$tpl = Renderer::getMarkupTemplate('wallmessage.tpl');
 	$o = Renderer::replaceMacros($tpl, [
 		'$header' => L10n::t('Send Private Message'),
 		'$subheader' => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),

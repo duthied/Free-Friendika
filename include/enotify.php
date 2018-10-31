@@ -590,7 +590,7 @@ function notification($params)
 		$content_allowed = ((!Config::get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
-		$tpl = get_markup_template('email_notify_html.tpl');
+		$tpl = Renderer::getMarkupTemplate('email_notify_html.tpl');
 		$email_html_body = Renderer::replaceMacros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
@@ -611,7 +611,7 @@ function notification($params)
 		]);
 
 		// load the template for private message notifications
-		$tpl = get_markup_template('email_notify_text.tpl');
+		$tpl = Renderer::getMarkupTemplate('email_notify_text.tpl');
 		$email_text_body = Renderer::replaceMacros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],

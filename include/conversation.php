@@ -554,7 +554,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	$threads = [];
 	$threadsid = -1;
 
-	$page_template = get_markup_template("conversation.tpl");
+	$page_template = Renderer::getMarkupTemplate("conversation.tpl");
 
 	if (!empty($items)) {
 		if (in_array($mode, ['community', 'contacts'])) {
@@ -713,7 +713,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 			}
 		} else {
 			// Normal View
-			$page_template = get_markup_template("threaded_conversation.tpl");
+			$page_template = Renderer::getMarkupTemplate("threaded_conversation.tpl");
 
 			$conv = new Thread($mode, $preview, $writable);
 
@@ -1063,7 +1063,7 @@ function format_like($cnt, array $arr, $type, $id) {
 	}
 
 	$phrase .= EOL ;
-	$o .= Renderer::replaceMacros(get_markup_template('voting_fakelink.tpl'), [
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
 		'$phrase' => $phrase,
 		'$type' => $type,
 		'$id' => $id
@@ -1077,9 +1077,9 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 {
 	$o = '';
 
-	$geotag = x($x, 'allow_location') ? Renderer::replaceMacros(get_markup_template('jot_geotag.tpl'), []) : '';
+	$geotag = x($x, 'allow_location') ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
 
-	$tpl = get_markup_template('jot-header.tpl');
+	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$newpost'   => 'true',
 		'$baseurl'   => System::baseUrl(true),
@@ -1119,7 +1119,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	}
 
 	// $tpl = Renderer::replaceMacros($tpl,array('$jotplugins' => $jotplugins));
-	$tpl = get_markup_template("jot.tpl");
+	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 	$o .= Renderer::replaceMacros($tpl,[
 		'$new_post' => L10n::t('New Post'),

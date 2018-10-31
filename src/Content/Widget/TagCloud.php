@@ -50,7 +50,7 @@ class TagCloud
 				$tags[] = $tag;
 			}
 
-			$tpl = get_markup_template('tagblock_widget.tpl');
+			$tpl = Renderer::getMarkupTemplate('tagblock_widget.tpl');
 			$o = Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Tags'),
 				'$tags' => $tags

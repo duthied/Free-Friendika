@@ -250,7 +250,7 @@ function dirfind_content(App $a, $prefix = "") {
 				$entries[] = $entry;
 			}
 
-			$tpl = get_markup_template('viewcontact_template.tpl');
+			$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 			$o .= Renderer::replaceMacros($tpl,[
 				'title' => $header,
 				'$contacts' => $entries,

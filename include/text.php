@@ -266,7 +266,7 @@ function unxmlify($s) {
  * @return string html for loader
  */
 function scroll_loader() {
-	$tpl = get_markup_template("scroll_loader.tpl");
+	$tpl = Renderer::getMarkupTemplate("scroll_loader.tpl");
 	return Renderer::replaceMacros($tpl, [
 		'wait' => L10n::t('Loading more entries...'),
 		'end' => L10n::t('The end')
@@ -513,7 +513,7 @@ function contact_block() {
 		}
 	}
 
-	$tpl = get_markup_template('contact_block.tpl');
+	$tpl = Renderer::getMarkupTemplate('contact_block.tpl');
 	$o = Renderer::replaceMacros($tpl, [
 		'$contacts' => $contacts,
 		'$nickname' => $a->profile['nickname'],
@@ -571,7 +571,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		$url = '';
 	}
 
-	return Renderer::replaceMacros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),[
+	return Renderer::replaceMacros(Renderer::getMarkupTemplate(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),[
 		'$click' => defaults($contact, 'click', ''),
 		'$class' => $class,
 		'$url' => $url,
@@ -626,7 +626,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 		}
 	}
 
-	return Renderer::replaceMacros(get_markup_template('searchbox.tpl'), $values);
+	return Renderer::replaceMacros(Renderer::getMarkupTemplate('searchbox.tpl'), $values);
 }
 
 /**
@@ -904,14 +904,14 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 		if (strpos($mime, 'video') !== false) {
 			if (!$vhead) {
 				$vhead = true;
-				$a->page['htmlhead'] .= Renderer::replaceMacros(get_markup_template('videos_head.tpl'), [
+				$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'), [
 					'$baseurl' => System::baseUrl(),
 				]);
 			}
 
 			$url_parts = explode('/', $the_url);
 			$id = end($url_parts);
-			$as .= Renderer::replaceMacros(get_markup_template('video_top.tpl'), [
+			$as .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 				'$video' => [
 					'id'     => $id,
 					'title'  => L10n::t('View Video'),
@@ -1006,7 +1006,7 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 function apply_content_filter($html, array $reasons)
 {
 	if (count($reasons)) {
-		$tpl = get_markup_template('wall/content_filter.tpl');
+		$tpl = Renderer::getMarkupTemplate('wall/content_filter.tpl');
 		$html = Renderer::replaceMacros($tpl, [
 			'$reasons'   => $reasons,
 			'$rnd'       => random_string(8),

@@ -226,7 +226,7 @@ function events_content(App $a)
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
 
-	$htpl = get_markup_template('event_head.tpl');
+	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/events',
@@ -368,9 +368,9 @@ function events_content(App $a)
 		}
 
 		if (!empty($_GET['id'])) {
-			$tpl = get_markup_template("event.tpl");
+			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
-			$tpl = get_markup_template("events_js.tpl");
+			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
 		}
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
@@ -498,7 +498,7 @@ function events_content(App $a)
 			$uri = '';
 		}
 
-		$tpl = get_markup_template('event_form.tpl');
+		$tpl = Renderer::getMarkupTemplate('event_form.tpl');
 
 		$o .= Renderer::replaceMacros($tpl, [
 			'$post' => System::baseUrl() . '/events',

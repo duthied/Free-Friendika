@@ -25,7 +25,7 @@ function apps_content()
 		notice(L10n::t('No installed applications.') . EOL);
 	}
 
-	$tpl = get_markup_template('apps.tpl');
+	$tpl = Renderer::getMarkupTemplate('apps.tpl');
 	return Renderer::replaceMacros($tpl, [
 		'$title' => $title,
 		'$apps'  => $apps,
