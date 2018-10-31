@@ -9,7 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendcia\Model\FileTag;
+use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Database\DBA;
 
