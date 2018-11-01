@@ -63,27 +63,11 @@ trait AppMockTrait
 			->shouldReceive('getCurrentTheme')
 			->andReturn('Smarty3');
 		$this->app
-			->shouldReceive('getTemplateLeftDelimiter')
-			->with('smarty3')
-			->andReturn('{{');
-		$this->app
-			->shouldReceive('getTemplateRightDelimiter')
-			->with('smarty3')
-			->andReturn('}}');
-		$this->app
 			->shouldReceive('saveTimestamp')
 			->andReturn(true);
 		$this->app
 			->shouldReceive('getBaseUrl')
 			->andReturn('http://friendica.local');
-
-		// Mocking the Theme
-		// Necessary for macro engine with template files
-		$themeMock = \Mockery::mock('alias:Friendica\Core\Theme');
-		$themeMock
-			->shouldReceive('install')
-			->with('testtheme')
-			->andReturn(true);
 
 		BaseObject::setApp($this->app);
 	}
