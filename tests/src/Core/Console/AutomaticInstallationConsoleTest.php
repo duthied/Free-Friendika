@@ -53,6 +53,13 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->mockConfigGet('config', 'php_path', false);
 	}
 
+	/**
+	 * Creates the arguments which is asserted to be passed to 'replaceMacros()' for creating the local.ini.php
+	 *
+	 * @param bool $withDb if true, DB will get saved too
+	 *
+	 * @return array The arguments to pass to the mock for 'replaceMacros()'
+	 */
 	private function createArgumentsForMacro($withDb)
 	{
 		$args = [
