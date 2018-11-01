@@ -38,7 +38,7 @@ class BaseObjectTest extends TestCase
 	 */
 	public function testSetApp()
 	{
-		$app = new App(__DIR__.'/../');
+		$app = new App(__DIR__ . '/../../');
 		$this->assertNull($this->baseObject->setApp($app));
 		$this->assertEquals($app, $this->baseObject->getApp());
 	}

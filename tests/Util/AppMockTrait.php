@@ -27,11 +27,6 @@ trait AppMockTrait
 	 */
 	public function mockApp($root)
 	{
-		// simply returning the input when using L10n::t()
-		$l10nMock = \Mockery::mock('alias:Friendica\Core\L10n');
-		$l10nMock->shouldReceive('t')
-			->andReturnUsing(function ($arg) { return $arg; });
-
 		$this->mockConfigGet('system', 'theme', 'testtheme');
 
 		// Mocking App and most used functions

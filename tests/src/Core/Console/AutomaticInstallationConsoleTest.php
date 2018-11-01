@@ -5,6 +5,7 @@ namespace Friendica\Test\src\Core\Console;
 use Friendica\Core\Console\AutomaticInstallation;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
+use Friendica\Test\Util\L10nMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
@@ -16,6 +17,7 @@ use org\bovigo\vfs\vfsStreamFile;
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
 {
+	use L10nMockTrait;
 	use DBAMockTrait;
 	use DBStructureMockTrait;
 	use RendererMockTrait;
@@ -51,6 +53,8 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->db_pass = getenv('MYSQL_PASSWORD');
 
 		$this->mockConfigGet('config', 'php_path', false);
+
+		$this->mockL10nT();
 	}
 
 	/**

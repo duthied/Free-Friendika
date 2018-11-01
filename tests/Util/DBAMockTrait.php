@@ -49,4 +49,24 @@ trait DBAMockTrait
 			->times($times)
 			->andReturn($return);
 	}
+
+	/**
+	 * Mocking DBA::fetchFirst()
+	 *
+	 * @param string $arg The argument of fetchFirst
+	 * @param bool $return True, if the DB is connected, otherwise false
+	 * @param null|int $times How often the method will get used
+	 */
+	public function mockFetchFirst($arg, $return = true, $times = null)
+	{
+		if (!isset($this->dbaMock)) {
+			$this->dbaMock = \Mockery::mock('alias:Friendica\Database\DBA');
+		}
+
+		$this->dbaMock
+			->shouldReceive('fetchFirst')
+			->with($arg)
+			->times($times)
+			->andReturn($return);
+	}
 }
