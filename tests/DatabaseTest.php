@@ -5,13 +5,9 @@
 
 namespace Friendica\Test;
 
-use Friendica\App;
-use Friendica\BaseObject;
-use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
-use PHPUnit\Framework\TestCase;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 
 require_once __DIR__ . '/../boot.php';
@@ -19,7 +15,7 @@ require_once __DIR__ . '/../boot.php';
 /**
  * Abstract class used by tests that need a database.
  */
-abstract class DatabaseTest extends TestCase
+abstract class DatabaseTest extends MockedTest
 {
 	use TestCaseTrait;
 

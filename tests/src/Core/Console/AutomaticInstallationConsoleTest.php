@@ -5,6 +5,7 @@ namespace Friendica\Test\src\Core\Console;
 use Friendica\Core\Console\AutomaticInstallation;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
+use Friendica\Test\Util\L10nMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
@@ -16,6 +17,7 @@ use org\bovigo\vfs\vfsStreamFile;
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
 {
+	use L10nMockTrait;
 	use DBAMockTrait;
 	use DBStructureMockTrait;
 	use RendererMockTrait;
@@ -51,8 +53,17 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->db_pass = getenv('MYSQL_PASSWORD');
 
 		$this->mockConfigGet('config', 'php_path', false);
+
+		$this->mockL10nT();
 	}
 
+	/**
+	 * Creates the arguments which is asserted to be passed to 'replaceMacros()' for creating the local.ini.php
+	 *
+	 * @param bool $withDb if true, DB will get saved too
+	 *
+	 * @return array The arguments to pass to the mock for 'replaceMacros()'
+	 */
 	private function createArgumentsForMacro($withDb)
 	{
 		$args = [

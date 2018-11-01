@@ -3,16 +3,20 @@
 namespace Friendica\Test\src\App;
 
 use Friendica\App\Mode;
+use Friendica\Test\MockedTest;
+use Friendica\Test\Util\ConfigMockTrait;
+use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\VFSTrait;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-class ModeTest extends TestCase
+class ModeTest extends MockedTest
 {
 	use VFSTrait;
+	use DBAMockTrait;
+	use ConfigMockTrait;
 
 	public function setUp()
 	{
@@ -48,10 +52,7 @@ class ModeTest extends TestCase
 
 	public function testWithoutDatabase()
 	{
-		$dba =  \Mockery::mock('alias:Friendica\Database\DBA');
-		$dba
-			->shouldReceive('connected')
-			->andReturn(false);
+		$this->mockConnected(false, 1);
 
 		$mode = new Mode($this->root->url());
 		$mode->determine();
@@ -65,14 +66,8 @@ class ModeTest extends TestCase
 
 	public function testWithoutDatabaseSetup()
 	{
-		$dba =  \Mockery::mock('alias:Friendica\Database\DBA');
-		$dba
-			->shouldReceive('connected')
-			->andReturn(true);
-		$dba
-			->shouldReceive('fetchFirst')
-			->with('SHOW TABLES LIKE \'config\'')
-			->andReturn(false);
+		$this->mockConnected(true, 1);
+		$this->mockFetchFirst('SHOW TABLES LIKE \'config\'', false, 1);
 
 		$mode = new Mode($this->root->url());
 		$mode->determine();
@@ -85,20 +80,9 @@ class ModeTest extends TestCase
 
 	public function testWithMaintenanceMode()
 	{
-		$dba =  \Mockery::mock('alias:Friendica\Database\DBA');
-		$dba
-			->shouldReceive('connected')
-			->andReturn(true);
-		$dba
-			->shouldReceive('fetchFirst')
-			->with('SHOW TABLES LIKE \'config\'')
-			->andReturn(true);
-
-		$conf = \Mockery::mock('alias:Friendica\Core\Config');
-		$conf
-			->shouldReceive('get')
-			->with('system', 'maintenance')
-			->andReturn(true);
+		$this->mockConnected(true, 1);
+		$this->mockFetchFirst('SHOW TABLES LIKE \'config\'', true, 1);
+		$this->mockConfigGet('system', 'maintenance', true, 1);
 
 		$mode = new Mode($this->root->url());
 		$mode->determine();
@@ -112,20 +96,9 @@ class ModeTest extends TestCase
 
 	public function testNormalMode()
 	{
-		$dba =  \Mockery::mock('alias:Friendica\Database\DBA');
-		$dba
-			->shouldReceive('connected')
-			->andReturn(true);
-		$dba
-			->shouldReceive('fetchFirst')
-			->with('SHOW TABLES LIKE \'config\'')
-			->andReturn(true);
-
-		$conf = \Mockery::mock('alias:Friendica\Core\Config');
-		$conf
-			->shouldReceive('get')
-			->with('system', 'maintenance')
-			->andReturn(false);
+		$this->mockConnected(true, 1);
+		$this->mockFetchFirst('SHOW TABLES LIKE \'config\'', true, 1);
+		$this->mockConfigGet('system', 'maintenance', false, 1);
 
 		$mode = new Mode($this->root->url());
 		$mode->determine();
