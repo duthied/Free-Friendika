@@ -5,6 +5,7 @@ namespace Friendica\Test\src\Core\Console;
 use Friendica\Core\Console\AutomaticInstallation;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
+use Friendica\Test\Util\RendererMockTrait;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
@@ -17,6 +18,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 {
 	use DBAMockTrait;
 	use DBStructureMockTrait;
+	use RendererMockTrait;
 
 	private $db_host;
 	private $db_port;
@@ -49,39 +51,23 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->db_pass = getenv('MYSQL_PASSWORD');
 
 		$this->mockConfigGet('config', 'php_path', false);
-
-		$assertFile  = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'ini' . DIRECTORY_SEPARATOR .
-			'assert.ini.php';
-		$this->assertFile = vfsStream::newFile('assert.ini.php')
-			->at($this->root->getChild('test'))
-			->setContent($this->replaceEnvironmentSettings($assertFile, false));
-		$this->assertFileDb = vfsStream::newFile('assert_db.ini.php')
-			->at($this->root->getChild('test'))
-			->setContent($this->replaceEnvironmentSettings($assertFile, true));
 	}
 
-	/**
-	 * Replacing environment specific variables in the assertion file
-	 *
-	 * @param string $file The file to compare in later tests
-	 * @param bool $withDb If true, db settings are replaced too
-	 * @return string The file content
-	 */
-	private function replaceEnvironmentSettings($file, $withDb)
+	private function createArgumentsForMacro($withDb)
 	{
-		$fileContent = file_get_contents($file);
-		$fileContent = str_replace("/usr/bin/php", trim(shell_exec('which php')), $fileContent);
-		if ($withDb) {
-			$fileContent = str_replace("hostname = \"\"", "hostname = \"" . $this->db_host . (!empty($this->db_port) ? ":" . $this->db_port : "") . "\"", $fileContent);
-			$fileContent = str_replace("username = \"\"", "username = \"" . $this->db_user . "\"", $fileContent);
-			$fileContent = str_replace("password = \"\"", "password = \"" . $this->db_pass . "\"", $fileContent);
-			$fileContent = str_replace("database = \"\"", "database = \"" . $this->db_data . "\"", $fileContent);
-		}
-		return $fileContent;
+		$args = [
+			'$phpath' => trim(shell_exec('which php')),
+			'$dbhost' => (($withDb) ? $this->db_host . (isset($this->db_port) ? ':' . $this->db_port : '') : ''),
+			'$dbuser' => (($withDb) ? $this->db_user : ''),
+			'$dbpass' => (($withDb) ? $this->db_pass : ''),
+			'$dbdata' => (($withDb) ? $this->db_data : ''),
+			'$timezone' => 'Europe/Berlin',
+			'$language' => 'de',
+			'$urlpath' => '/friendica',
+			'$adminmail' => 'admin@friendica.local'
+		];
+
+		return $args;
 	}
 
 	private function assertFinished($txt, $withconfig = false, $copyfile = false)
@@ -244,6 +230,9 @@ CONF;
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([false, true, true], null, 1);
 
+		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(true), '', 1);
+
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
 		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
 		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
@@ -255,12 +244,6 @@ CONF;
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
-
-		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
-
-		$this->assertFileEquals(
-			$this->assertFileDb->url(),
-			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
 	/**
@@ -273,6 +256,9 @@ CONF;
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([false, true, true], null, 1);
 
+		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(false), '', 1);
+
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
 		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
 		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
@@ -283,12 +269,6 @@ CONF;
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
-
-		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
-
-		$this->assertFileEquals(
-			$this->assertFile->url(),
-			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
 	/**
@@ -300,6 +280,9 @@ CONF;
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([false, true, true], null, 1);
+
+		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(true), '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
@@ -322,12 +305,6 @@ CONF;
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
-
-		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
-
-		$this->assertFileEquals(
-			$this->assertFileDb->url(),
-			$this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')->url());
 	}
 
 	/**
@@ -337,6 +314,14 @@ CONF;
 	public function testNoDatabaseConnection()
 	{
 		$this->mockConnect(false, 1);
+
+		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(false), '', 1);
+
+		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
+		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
+		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
+		$this->assertTrue(putenv('FRIENDICA_URL_PATH=/friendica'));
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
