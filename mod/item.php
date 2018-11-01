@@ -839,6 +839,12 @@ function item_post(App $a) {
 	// We don't fork a new process since this is done anyway with the following command
 	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "CreateShadowEntry", $post_id);
 
+	// When we are doing some forum posting via ! we have to start the notifier manually.
+	// These kind of posts don't initiate the notifier call in the item class.
+	if ($only_to_forum) {
+		Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
+	}
+
 	Logger::log('post_complete');
 
 	if ($api_source) {
