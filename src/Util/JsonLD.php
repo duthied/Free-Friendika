@@ -85,11 +85,12 @@ class JsonLD
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
 			'w3id' => 'https://w3id.org/security#',
+			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id'],
 			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
-			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+			'dfrn' => (object)['@id' => 'http://purl.org/macgirvin/dfrn/1.0/', '@type' => '@id'],
 			'diaspora' => (object)['@id' => 'https://diasporafoundation.org/ns/', '@type' => '@id'],
-			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
-			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id']];
+			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id']];
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
