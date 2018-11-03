@@ -26,6 +26,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
+use Friendica\Util\XML;
 
 require_once "include/conversation.php";
 
@@ -160,80 +161,6 @@ function autoname($len) {
 	}
 
 	return $word;
-}
-
-
-/**
- * escape text ($str) for XML transport
- * @param string $str
- * @return string Escaped text.
- */
-function xmlify($str) {
-	/// @TODO deprecated code found?
-/*	$buffer = '';
-
-	$len = mb_strlen($str);
-	for ($x = 0; $x < $len; $x ++) {
-		$char = mb_substr($str,$x,1);
-
-		switch($char) {
-
-			case "\r" :
-				break;
-			case "&" :
-				$buffer .= '&amp;';
-				break;
-			case "'" :
-				$buffer .= '&apos;';
-				break;
-			case "\"" :
-				$buffer .= '&quot;';
-				break;
-			case '<' :
-				$buffer .= '&lt;';
-				break;
-			case '>' :
-				$buffer .= '&gt;';
-				break;
-			case "\n" :
-				$buffer .= "\n";
-				break;
-			default :
-				$buffer .= $char;
-				break;
-		}
-	}*/
-	/*
-	$buffer = mb_ereg_replace("&", "&amp;", $str);
-	$buffer = mb_ereg_replace("'", "&apos;", $buffer);
-	$buffer = mb_ereg_replace('"', "&quot;", $buffer);
-	$buffer = mb_ereg_replace("<", "&lt;", $buffer);
-	$buffer = mb_ereg_replace(">", "&gt;", $buffer);
-	*/
-	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
-	$buffer = trim($buffer);
-
-	return $buffer;
-}
-
-
-/**
- * undo an xmlify
- * @param string $s xml escaped text
- * @return string unescaped text
- */
-function unxmlify($s) {
-	/// @TODO deprecated code found?
-//	$ret = str_replace('&amp;','&', $s);
-//	$ret = str_replace(array('&lt;','&gt;','&quot;','&apos;'),array('<','>','"',"'"),$ret);
-	/*$ret = mb_ereg_replace('&amp;', '&', $s);
-	$ret = mb_ereg_replace('&apos;', "'", $ret);
-	$ret = mb_ereg_replace('&quot;', '"', $ret);
-	$ret = mb_ereg_replace('&lt;', "<", $ret);
-	$ret = mb_ereg_replace('&gt;', ">", $ret);
-	*/
-	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
-	return $ret;
 }
 
 /**
@@ -1047,9 +974,9 @@ function get_cats_and_terms($item)
 	if ($cnt) {
 		foreach ($matches as $mtch) {
 			$categories[] = [
-				'name' => xmlify(FileTag::decode($mtch[1])),
+				'name' => XML::xmlify(FileTag::decode($mtch[1])),
 				'url' =>  "#",
-				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . xmlify(FileTag::decode($mtch[1])):""),
+				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . XML::xmlify(FileTag::decode($mtch[1])):""),
 				'first' => $first,
 				'last' => false
 			];
@@ -1068,9 +995,9 @@ function get_cats_and_terms($item)
 		if ($cnt) {
 			foreach ($matches as $mtch) {
 				$folders[] = [
-					'name' => xmlify(FileTag::decode($mtch[1])),
+					'name' => XML::xmlify(FileTag::decode($mtch[1])),
 					'url' =>  "#",
-					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . xmlify(FileTag::decode($mtch[1])) : ""),
+					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . XML::xmlify(FileTag::decode($mtch[1])) : ""),
 					'first' => $first,
 					'last' => false
 				];
@@ -1233,21 +1160,6 @@ function html2bb_video($s) {
 
 	return $s;
 }
-
-/**
- * apply xmlify() to all values of array $val, recursively
- * @param array $val
- * @return array
- */
-function array_xmlify($val){
-	if (is_bool($val)) {
-		return $val?"true":"false";
-	} elseif (is_array($val)) {
-		return array_map('array_xmlify', $val);
-	}
-	return xmlify((string) $val);
-}
-
 
 /**
  * transform link href and img src from relative to absolute
