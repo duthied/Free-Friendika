@@ -301,7 +301,9 @@ class Processor
 			return;
 		}
 
-		$object = ActivityPub::fetchContent($url);
+		$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
+
+		$object = ActivityPub::fetchContent($url, $uid);
 		if (empty($object)) {
 			Logger::log('Activity ' . $url . ' was not fetchable, aborting.');
 			return;

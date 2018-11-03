@@ -7,6 +7,7 @@ namespace Friendica\Protocol;
 use Friendica\Util\Network;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
+use Friendica\Util\HTTPSignature;
 
 /**
  * @brief ActivityPub Protocol class
@@ -59,11 +60,16 @@ class ActivityPub
 	/**
 	 * Fetches ActivityPub content from the given url
 	 *
-	 * @param string $url content url
+	 * @param string  $url content url
+	 * @param integer $uid User ID for the signature
 	 * @return array
 	 */
-	public static function fetchContent($url)
+	public static function fetchContent($url, $uid = 0)
 	{
+		if (!empty($uid)) {
+			return HTTPSignature::fetch($url, 1);
+		}
+
 		$curlResult = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
