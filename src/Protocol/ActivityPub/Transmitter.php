@@ -1000,11 +1000,10 @@ class Transmitter
 	public static function sendContactSuggestion($uid, $inbox, $suggestion_id)
 	{
 		$owner = User::getOwnerDataById($uid);
-		$profile = APContact::getByURL($owner['url']);
 
 		$suggestion = DBA::selectFirst('fsuggest', ['url', 'note', 'created'], ['id' => $suggestion_id]);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Announce',
 			'actor' => $owner['url'],
@@ -1021,6 +1020,34 @@ class Transmitter
 	}
 
 	/**
+	 * Transmits a profile relocation to a given inbox
+	 *
+	 * @param integer $uid User ID
+	 * @param string $inbox Target inbox
+	 *
+	 * @return boolean was the transmission successful?
+	 */
+	public static function sendProfileRelocation($uid, $inbox)
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		$data = ['@context' => ActivityPub::CONTEXT,
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'type' => 'dfrn:relocate',
+			'actor' => $owner['url'],
+			'object' => $owner['url'],
+			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'to' => [ActivityPub::PUBLIC_COLLECTION],
+			'cc' => []];
+
+		$signed = LDSignature::sign($data, $owner);
+
+		Logger::log('Deliver profile relocation for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
+		return HTTPSignature::transmit($signed, $inbox, $uid);
+	}
+
+	/**
 	 * Transmits a profile deletion to a given inbox
 	 *
 	 * @param integer $uid User ID
@@ -1031,9 +1058,8 @@ class Transmitter
 	public static function sendProfileDeletion($uid, $inbox)
 	{
 		$owner = User::getOwnerDataById($uid);
-		$profile = APContact::getByURL($owner['url']);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Delete',
 			'actor' => $owner['url'],
@@ -1062,7 +1088,7 @@ class Transmitter
 		$owner = User::getOwnerDataById($uid);
 		$profile = APContact::getByURL($owner['url']);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Update',
 			'actor' => $owner['url'],
@@ -1091,7 +1117,7 @@ class Transmitter
 
 		$owner = User::getOwnerDataById($uid);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => $activity,
 			'actor' => $owner['url'],
@@ -1117,7 +1143,7 @@ class Transmitter
 		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
@@ -1145,7 +1171,7 @@ class Transmitter
 		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
 			'actor' => $owner['url'],
@@ -1174,7 +1200,7 @@ class Transmitter
 		$id = System::baseUrl() . '/activity/' . System::createGUID();
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => $id,
 			'type' => 'Undo',
 			'actor' => $owner['url'],

@@ -106,6 +106,10 @@ class APContact extends BaseObject
 
 		$compacted = JsonLD::compact($data);
 
+		if (empty($compacted['@id'])) {
+			return false;
+		}
+
 		$apcontact = [];
 		$apcontact['url'] = $compacted['@id'];
 		$apcontact['uuid'] = JsonLD::fetchElement($compacted, 'diaspora:guid');
