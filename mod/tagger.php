@@ -67,7 +67,7 @@ function tagger_content(App $a) {
 	}
 
 	$uri = Item::newURI($owner_uid);
-	$xterm = XML::xmlify($term);
+	$xterm = XML::escape($term);
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
 
@@ -77,9 +77,9 @@ function tagger_content(App $a) {
 		$href = System::baseUrl() . '/display/' . $item['guid'];
 	}
 
-	$link = XML::xmlify('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n") ;
+	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n") ;
 
-	$body = XML::xmlify($item['body']);
+	$body = XML::escape($item['body']);
 
 	$target = <<< EOT
 	<target>

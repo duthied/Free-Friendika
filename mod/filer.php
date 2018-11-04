@@ -18,7 +18,7 @@ function filer_content(App $a)
 		killme();
 	}
 
-	$term = XML::unxmlify(trim(defaults($_GET, 'term', '')));
+	$term = XML::unescape(trim(defaults($_GET, 'term', '')));
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	Logger::log('filer: tag ' . $term . ' item ' . $item_id);

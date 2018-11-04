@@ -190,7 +190,7 @@ class Widget
 		if ($cnt) {
 			foreach ($matches as $mtch)
 			{
-				$unescaped = XML::xmlify(FileTag::decode($mtch[1]));
+				$unescaped = XML::escape(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}
@@ -230,7 +230,7 @@ class Widget
 
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				$unescaped = XML::xmlify(FileTag::decode($mtch[1]));
+				$unescaped = XML::escape(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}

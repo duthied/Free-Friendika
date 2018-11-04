@@ -13,8 +13,8 @@ function filerm_content(App $a)
 		killme();
 	}
 
-	$term = XML::unxmlify(trim($_GET['term']));
-	$cat = XML::unxmlify(trim($_GET['cat']));
+	$term = XML::unescape(trim($_GET['term']));
+	$cat = XML::unescape(trim($_GET['cat']));
 
 	$category = (($cat) ? true : false);
 

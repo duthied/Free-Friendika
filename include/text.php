@@ -974,9 +974,9 @@ function get_cats_and_terms($item)
 	if ($cnt) {
 		foreach ($matches as $mtch) {
 			$categories[] = [
-				'name' => XML::xmlify(FileTag::decode($mtch[1])),
+				'name' => XML::escape(FileTag::decode($mtch[1])),
 				'url' =>  "#",
-				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . XML::xmlify(FileTag::decode($mtch[1])):""),
+				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . XML::escape(FileTag::decode($mtch[1])):""),
 				'first' => $first,
 				'last' => false
 			];
@@ -995,9 +995,9 @@ function get_cats_and_terms($item)
 		if ($cnt) {
 			foreach ($matches as $mtch) {
 				$folders[] = [
-					'name' => XML::xmlify(FileTag::decode($mtch[1])),
+					'name' => XML::escape(FileTag::decode($mtch[1])),
 					'url' =>  "#",
-					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . XML::xmlify(FileTag::decode($mtch[1])) : ""),
+					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . XML::escape(FileTag::decode($mtch[1])) : ""),
 					'first' => $first,
 					'last' => false
 				];
