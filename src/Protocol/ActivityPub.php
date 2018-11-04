@@ -67,7 +67,7 @@ class ActivityPub
 	public static function fetchContent($url, $uid = 0)
 	{
 		if (!empty($uid)) {
-			return HTTPSignature::fetch($url, 1);
+			return HTTPSignature::fetch($url, $uid);
 		}
 
 		$curlResult = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
