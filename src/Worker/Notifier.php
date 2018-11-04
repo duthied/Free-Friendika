@@ -174,7 +174,6 @@ class Notifier
 
 		$followup = false;
 		$recipients_followup = [];
-		$conversants = [];
 
 		if (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::RELOCATION])) {
 			$parent = $items[0];
@@ -245,11 +244,10 @@ class Notifier
 				// local followup to remote post
 				$followup = true;
 				$public_message = false; // not public
-				$conversant_str = DBA::escape($parent['contact-id']);
 				$recipients = [$parent['contact-id']];
 				$recipients_followup  = [$parent['contact-id']];
 
-				Logger::log('notifier: followup '.$target_item["guid"].' to '.$conversant_str, Logger::DEBUG);
+				Logger::log('notifier: followup ' . $target_item['guid'] . ' to ' . $parent['contact-id'], Logger::DEBUG);
 
 				//if (!$target_item['private'] && $target_item['wall'] &&
 				if (!$target_item['private'] &&
@@ -313,14 +311,12 @@ class Notifier
 
 				foreach ($items as $item) {
 					$recipients[] = $item['contact-id'];
-					$conversants[] = $item['contact-id'];
 					// pull out additional tagged people to notify (if public message)
 					if ($public_message && strlen($item['inform'])) {
 						$people = explode(',',$item['inform']);
 						foreach ($people as $person) {
 							if (substr($person,0,4) === 'cid:') {
 								$recipients[] = intval(substr($person,4));
-								$conversants[] = intval(substr($person,4));
 							} else {
 								$url_recipients[] = substr($person,4);
 							}
@@ -332,13 +328,9 @@ class Notifier
 					Logger::log('notifier: '.$target_item["guid"].' url_recipients ' . print_r($url_recipients,true));
 				}
 
-				$conversants = array_unique($conversants);
-
-				$recipients = array_unique(array_merge($recipients,$allow_people,$allow_groups));
-				$deny = array_unique(array_merge($deny_people,$deny_groups));
-				$recipients = array_diff($recipients,$deny);
-
-				$conversant_str = DBA::escape(implode(', ',$conversants));
+				$recipients = array_unique(array_merge($recipients, $allow_people, $allow_groups));
+				$deny = array_unique(array_merge($deny_people, $deny_groups));
+				$recipients = array_diff($recipients, $deny);
 			}
 
 			// If the thread parent is OStatus then do some magic to distribute the messages.
@@ -403,7 +395,7 @@ class Notifier
 		}
 
 		if (($cmd == Delivery::RELOCATION)) {
-			$r = $recipients_relocate;
+			$contacts = $recipients_relocate;
 		} else {
 			if ($followup) {
 				$recipients = $recipients_followup;
@@ -413,41 +405,19 @@ class Notifier
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
 			}
-			$contacts = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
-			$r = DBA::toArray($contacts);
+			$result = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
+			$contacts = DBA::toArray($result);
 		}
 
-		// delivery loop
-		if (DBA::isResult($r)) {
-			foreach ($r as $contact) {
-				if (($contact['network'] == Protocol::DIASPORA) && $diaspora_delivery && $public_message && !empty($contact['batch'])
-					&& !in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
-					continue;
-				}
-				Logger::log("Deliver ".$item_id." to ".$contact['url']." via network ".$contact['network'], Logger::DEBUG);
+		$conversants = [];
+		$batch_delivery = false;
 
-				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-						'Delivery', $cmd, $item_id, (int)$contact['id']);
-			}
-		}
-
-		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
-		// They are especially used for notifications to OStatus users that don't follow us.
-		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
-			$slap = OStatus::salmon($target_item, $owner);
-			foreach ($url_recipients as $url) {
-				if ($url) {
-					Logger::log('notifier: urldelivery: ' . $url);
-					$deliver_status = Salmon::slapper($owner, $url, $slap);
-					/// @TODO Redeliver/queue these items on failure, though there is no contact record
-				}
-			}
-		}
-
-		if ($public_message) {
+		if ($public_message && !in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
 			$r1 = [];
 
 			if ($diaspora_delivery) {
+				$batch_delivery = true;
+
 				$r1 = q("SELECT `batch`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`name`) AS `name`, ANY_VALUE(`network`) AS `network`
 					FROM `contact` WHERE `network` = '%s' AND `batch` != ''
 					AND `uid` = %d AND `rel` != %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` GROUP BY `batch`",
@@ -477,23 +447,48 @@ class Notifier
 				Logger::log('pubdeliver '.$target_item["guid"].': '.print_r($r,true), Logger::DEBUG);
 
 				foreach ($r as $rr) {
-					// except for Diaspora batch jobs
-					// Don't deliver to folks who have already been delivered to
-
-					if (($rr['network'] !== Protocol::DIASPORA) && (in_array($rr['id'], $conversants))) {
-						Logger::log('notifier: already delivered id=' . $rr['id']);
-						continue;
-					}
-
-					if (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
-						Logger::log('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
-						Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-								'Delivery', $cmd, $item_id, (int)$rr['id']);
-					}
+					$conversants[] = $rr['id'];
+					Logger::log('notifier: delivery agent: '.$rr['name'].' '.$rr['id'].' '.$rr['network'].' '.$target_item["guid"]);
+					Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+						'Delivery', $cmd, $item_id, (int)$rr['id']);
 				}
 			}
 
 			$push_notify = true;
+		}
+
+		// delivery loop
+		if (DBA::isResult($contacts)) {
+			foreach ($contacts as $contact) {
+				// Don't deliver to Diaspora if it already had been done as batch delivery
+				if (($contact['network'] == Protocol::DIASPORA) && $batch_delivery) {
+					continue;
+				}
+
+				// Don't deliver to folks who have already been delivered to
+				if (in_array($contact['id'], $conversants)) {
+					Logger::log('notifier: already delivered id=' . $rr['id']);
+					continue;
+				}
+
+				Logger::log("Deliver ".$item_id." to ".$contact['url']." via network ".$contact['network'], Logger::DEBUG);
+
+				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+						'Delivery', $cmd, $item_id, (int)$contact['id']);
+			}
+		}
+
+		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
+		// They are especially used for notifications to OStatus users that don't follow us.
+		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
+			$slap = OStatus::salmon($target_item, $owner);
+			foreach ($url_recipients as $url) {
+				if ($url) {
+					Logger::log('notifier: urldelivery: ' . $url);
+					$deliver_status = Salmon::slapper($owner, $url, $slap);
+					/// @TODO Redeliver/queue these items on failure, though there is no contact record
+				}
+			}
 		}
 
 		// Notify PuSH subscribers (Used for OStatus distribution of regular posts)
