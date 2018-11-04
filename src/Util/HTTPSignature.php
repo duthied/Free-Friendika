@@ -90,7 +90,7 @@ class HTTPSignature
 			$key = $key($sig_block['keyId']);
 		}
 
-		Logger::log('Got keyID ' . $sig_block['keyId']);
+		Logger::log('Got keyID ' . $sig_block['keyId'], Logger::DEBUG);
 
 		if (!$key) {
 			return $result;
@@ -308,9 +308,57 @@ class HTTPSignature
 		$postResult = Network::post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
-		Logger::log('Transmit to ' . $target . ' returned ' . $return_code);
+		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
 
 		return ($return_code >= 200) && ($return_code <= 299);
+	}
+
+	/**
+	 * @brief Fetches JSON data for a user
+	 *
+	 * @param string $request request url
+	 * @param integer $uid User id of the requester
+	 *
+	 * @return array JSON array
+	 */
+	public static function fetch($request, $uid)
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		if (!$owner) {
+			return;
+		}
+
+		// Header data that is about to be signed.
+		$host = parse_url($request, PHP_URL_HOST);
+		$path = parse_url($request, PHP_URL_PATH);
+
+		$headers = ['Host: ' . $host];
+
+		$signed_data = "(request-target): get " . $path . "\nhost: " . $host;
+
+		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
+
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) host",signature="' . $signature . '"';
+
+		$headers[] = 'Accept: application/activity+json, application/ld+json';
+
+		$curlResult = Network::curl($request, false, $redirects, ['header' => $headers]);
+		$return_code = $curlResult->getReturnCode();
+
+		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
+
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+			return false;
+		}
+
+		$content = json_decode($curlResult->getBody(), true);
+
+		if (empty($content) || !is_array($content)) {
+			return false;
+		}
+
+		return $content;
 	}
 
 	/**

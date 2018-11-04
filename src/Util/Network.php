@@ -83,6 +83,7 @@ class Network
 	 *                           'novalidate' => do not validate SSL certs, default is to validate using our CA list
 	 *                           'nobody' => only return the header
 	 *                           'cookiejar' => path to cookie jar file
+	 *                           'header' => header array
 	 *
 	 * @return CurlResult
 	 */
@@ -134,6 +135,10 @@ class Network
 				CURLOPT_HTTPHEADER,
 				['Accept: ' . $opts['accept_content']]
 			);
+		}
+
+		if (!empty($opts['header'])) {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['header']);
 		}
 
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
