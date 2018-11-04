@@ -10,6 +10,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model;
@@ -97,7 +98,7 @@ function group_content(App $a) {
 		$switchtotext = Config::get('system', 'groupedit_image_limit', 400);
 	}
 
-	$tpl = get_markup_template('group_edit.tpl');
+	$tpl = Renderer::getMarkupTemplate('group_edit.tpl');
 
 	$context = [
 		'$submit' => L10n::t('Save Group'),
@@ -105,7 +106,7 @@ function group_content(App $a) {
 	];
 
 	if (($a->argc == 2) && ($a->argv[1] === 'new')) {
-		return replace_macros($tpl, $context + [
+		return Renderer::replaceMacros($tpl, $context + [
 			'$title' => L10n::t('Create a group of contacts/friends.'),
 			'$gname' => ['groupname', L10n::t('Group Name: '), '', ''],
 			'$gid' => 'new',
@@ -214,8 +215,8 @@ function group_content(App $a) {
 			}
 		}
 
-		$drop_tpl = get_markup_template('group_drop.tpl');
-		$drop_txt = replace_macros($drop_tpl, [
+		$drop_tpl = Renderer::getMarkupTemplate('group_drop.tpl');
+		$drop_txt = Renderer::replaceMacros($drop_tpl, [
 			'$id' => $group['id'],
 			'$delete' => L10n::t('Delete Group'),
 			'$form_security_token' => BaseModule::getFormSecurityToken("group_drop"),
@@ -306,11 +307,11 @@ function group_content(App $a) {
 	$context['$shortmode'] = (($switchtotext && ($total > $switchtotext)) ? true : false);
 
 	if ($change) {
-		$tpl = get_markup_template('groupeditor.tpl');
-		echo replace_macros($tpl, $context);
+		$tpl = Renderer::getMarkupTemplate('groupeditor.tpl');
+		echo Renderer::replaceMacros($tpl, $context);
 		killme();
 	}
 
-	return replace_macros($tpl, $context);
+	return Renderer::replaceMacros($tpl, $context);
 
 }

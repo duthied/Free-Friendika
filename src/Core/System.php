@@ -5,6 +5,8 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\XML;
 
@@ -100,7 +102,7 @@ class System extends BaseObject
 		}
 
 		if ($st) {
-			logger('xml_status returning non_zero: ' . $st . " message=" . $message);
+			Logger::log('xml_status returning non_zero: ' . $st . " message=" . $message);
 		}
 
 		header("Content-type: text/xml");
@@ -134,12 +136,12 @@ class System extends BaseObject
 			$err = 'OK';
 		}
 
-		logger('http_status_exit ' . $val);
+		Logger::log('http_status_exit ' . $val);
 		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $val . ' ' . $err);
 
 		if (isset($description["title"])) {
-			$tpl = get_markup_template('http_status.tpl');
-			echo replace_macros($tpl, ['$title' => $description["title"],
+			$tpl = Renderer::getMarkupTemplate('http_status.tpl');
+			echo Renderer::replaceMacros($tpl, ['$title' => $description["title"],
 				'$description' => defaults($description, 'description', '')]);
 		}
 

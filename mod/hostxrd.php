@@ -4,6 +4,7 @@
  */
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
@@ -21,8 +22,8 @@ function hostxrd_init(App $a)
 		Config::set('system','site_pubkey', $res['pubkey']);
 	}
 
-	$tpl = get_markup_template('xrd_host.tpl');
-	echo replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('xrd_host.tpl');
+	echo Renderer::replaceMacros($tpl, [
 		'$zhost' => $a->getHostName(),
 		'$zroot' => System::baseUrl(),
 		'$domain' => System::baseUrl(),

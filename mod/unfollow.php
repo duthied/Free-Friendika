@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -99,7 +100,7 @@ function unfollow_content(App $a)
 	}
 
 	$request = System::baseUrl() . '/unfollow';
-	$tpl = get_markup_template('auto_request.tpl');
+	$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 
 	$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 
@@ -114,7 +115,7 @@ function unfollow_content(App $a)
 
 	$header = L10n::t('Disconnect/Unfollow');
 
-	$o = replace_macros($tpl, [
+	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => htmlentities($header),
 		'$desc'          => '',
 		'$pls_answer'    => '',
@@ -144,7 +145,7 @@ function unfollow_content(App $a)
 	$a->page['aside'] = '';
 	Profile::load($a, '', 0, Contact::getDetailsByURL($contact['url']));
 
-	$o .= replace_macros(get_markup_template('section_title.tpl'), ['$title' => L10n::t('Status Messages and Posts')]);
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => L10n::t('Status Messages and Posts')]);
 
 	// Show last public posts
 	$o .= Contact::getPostsFromUrl($contact['url']);

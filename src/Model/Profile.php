@@ -12,8 +12,10 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -106,7 +108,7 @@ class Profile
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
 		if (!DBA::isResult($user) && empty($profiledata)) {
-			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
+			Logger::log('profile error: ' . $a->query_string, Logger::DEBUG);
 			notice(L10n::t('Requested account is not available.') . EOL);
 			$a->error = 404;
 			return;
@@ -124,7 +126,7 @@ class Profile
 		$pdata = self::getByNickname($nickname, $user['uid'], $profile);
 
 		if (empty($pdata) && empty($profiledata)) {
-			logger('profile error: ' . $a->query_string, LOGGER_DEBUG);
+			Logger::log('profile error: ' . $a->query_string, Logger::DEBUG);
 			notice(L10n::t('Requested profile is not available.') . EOL);
 			$a->error = 404;
 			return;
@@ -162,7 +164,7 @@ class Profile
 		* load/reload current theme info
 		*/
 
-		$a->setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
+		Renderer::setActiveTemplateEngine(); // reset the template engine to the default in case the user's theme doesn't specify one
 
 		$theme_info_file = 'view/theme/' . $a->getCurrentTheme() . '/theme.php';
 		if (file_exists($theme_info_file)) {
@@ -170,8 +172,8 @@ class Profile
 		}
 
 		if (local_user() && local_user() == $a->profile['uid'] && $profiledata) {
-			$a->page['aside'] .= replace_macros(
-				get_markup_template('profile_edlink.tpl'),
+			$a->page['aside'] .= Renderer::replaceMacros(
+				Renderer::getMarkupTemplate('profile_edlink.tpl'),
 				[
 					'$editprofile' => L10n::t('Edit profile'),
 					'$profid' => $a->profile['id']
@@ -515,8 +517,8 @@ class Profile
 
 		$p['url'] = Contact::magicLink(defaults($p, 'url', $profile_url));
 
-		$tpl = get_markup_template('profile_vcard.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('profile_vcard.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$profile' => $p,
 			'$xmpp' => $xmpp,
 			'$connect' => $connect,
@@ -620,8 +622,8 @@ class Profile
 				}
 			}
 		}
-		$tpl = get_markup_template('birthdays_reminder.tpl');
-		return replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('birthdays_reminder.tpl');
+		return Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => $total,
@@ -709,8 +711,8 @@ class Profile
 			DBA::close($s);
 			$classtoday = (($istoday) ? 'event-today' : '');
 		}
-		$tpl = get_markup_template('events_reminder.tpl');
-		return replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('events_reminder.tpl');
+		return Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => count($r),
@@ -725,13 +727,13 @@ class Profile
 		$o = '';
 		$uid = $a->profile['uid'];
 
-		$o .= replace_macros(
-			get_markup_template('section_title.tpl'),
+		$o .= Renderer::replaceMacros(
+			Renderer::getMarkupTemplate('section_title.tpl'),
 			['$title' => L10n::t('Profile')]
 		);
 
 		if ($a->profile['name']) {
-			$tpl = get_markup_template('profile_advanced.tpl');
+			$tpl = Renderer::getMarkupTemplate('profile_advanced.tpl');
 
 			$profile = [];
 
@@ -859,7 +861,7 @@ class Profile
 				$profile['edit'] = [System::baseUrl() . '/profiles/' . $a->profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
 			}
 
-			return replace_macros($tpl, [
+			return Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Profile'),
 				'$basic' => L10n::t('Basic'),
 				'$advanced' => L10n::t('Advanced'),
@@ -976,9 +978,9 @@ class Profile
 		$arr = ['is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => $tab, 'tabs' => $tabs];
 		Addon::callHooks('profile_tabs', $arr);
 
-		$tpl = get_markup_template('common_tabs.tpl');
+		$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 
-		return replace_macros($tpl, ['$tabs' => $arr['tabs']]);
+		return Renderer::replaceMacros($tpl, ['$tabs' => $arr['tabs']]);
 	}
 
 	/**
@@ -1020,27 +1022,27 @@ class Profile
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($my_url);
 		if (!$cid) {
-			logger('No contact record found for ' . $my_url, LOGGER_DEBUG);
+			Logger::log('No contact record found for ' . $my_url, Logger::DEBUG);
 			return;
 		}
 
 		$contact = DBA::selectFirst('contact',['id', 'url'], ['id' => $cid]);
 
 		if (DBA::isResult($contact) && remote_user() && remote_user() == $contact['id']) {
-			logger('The visitor ' . $my_url . ' is already authenticated', LOGGER_DEBUG);
+			Logger::log('The visitor ' . $my_url . ' is already authenticated', Logger::DEBUG);
 			return;
 		}
 
 		// Avoid endless loops
 		$cachekey = 'zrlInit:' . $my_url;
 		if (Cache::get($cachekey)) {
-			logger('URL ' . $my_url . ' already tried to authenticate.', LOGGER_DEBUG);
+			Logger::log('URL ' . $my_url . ' already tried to authenticate.', Logger::DEBUG);
 			return;
 		} else {
 			Cache::set($cachekey, true, Cache::MINUTE);
 		}
 
-		logger('Not authenticated. Invoking reverse magic-auth for ' . $my_url, LOGGER_DEBUG);
+		Logger::log('Not authenticated. Invoking reverse magic-auth for ' . $my_url, Logger::DEBUG);
 
 		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
 
@@ -1061,7 +1063,7 @@ class Profile
 			// We have to check if the remote server does understand /magic without invoking something
 			$serverret = Network::curl($basepath . '/magic');
 			if ($serverret->isSuccess()) {
-				logger('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, LOGGER_DEBUG);
+				Logger::log('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, Logger::DEBUG);
 				System::externalRedirect($magic_path);
 			}
 		}
@@ -1092,7 +1094,7 @@ class Profile
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($visitor_handle);
 		if(!$cid) {
-			logger('owt: unable to finger ' . $visitor_handle, LOGGER_DEBUG);
+			Logger::log('owt: unable to finger ' . $visitor_handle, Logger::DEBUG);
 			return;
 		}
 
@@ -1121,7 +1123,7 @@ class Profile
 
 		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->getHostName(), $visitor['name']));
 
-		logger('OpenWebAuth: auth success from ' . $visitor['addr'], LOGGER_DEBUG);
+		Logger::log('OpenWebAuth: auth success from ' . $visitor['addr'], Logger::DEBUG);
 	}
 
 	public static function zrl($s, $force = false)

@@ -7,6 +7,8 @@ namespace Friendica\Model;
 use Friendica\BaseModule;
 use Friendica\BaseObject;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Util\Security;
 
@@ -325,13 +327,13 @@ class Group extends BaseObject
 				'selected' => $gid == $group['id'] ? 'true' : ''
 			];
 		}
-		logger('groups: ' . print_r($display_groups, true));
+		Logger::log('groups: ' . print_r($display_groups, true));
 
 		if ($label == '') {
 			$label = L10n::t('Default privacy group for new contacts');
 		}
 
-		$o = replace_macros(get_markup_template('group_selection.tpl'), [
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('group_selection.tpl'), [
 			'$label' => $label,
 			'$groups' => $display_groups
 		]);
@@ -398,8 +400,8 @@ class Group extends BaseObject
 			];
 		}
 
-		$tpl = get_markup_template('group_side.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('group_side.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$add' => L10n::t('add'),
 			'$title' => L10n::t('Groups'),
 			'$groups' => $display_groups,

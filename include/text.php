@@ -23,37 +23,11 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Proxy as ProxyUtils;
 
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
+use Friendica\Model\FileTag;
+
 require_once "include/conversation.php";
-
-/**
- * This is our template processor
- *
- * @param string|FriendicaSmarty $s the string requiring macro substitution,
- *				or an instance of FriendicaSmarty
- * @param array $r key value pairs (search => replace)
- * @return string substituted string
- */
-function replace_macros($s, $r) {
-
-	$stamp1 = microtime(true);
-
-	$a = get_app();
-
-	// pass $baseurl to all templates
-	$r['$baseurl'] = System::baseUrl();
-
-	$t = $a->getTemplateEngine();
-	try {
-		$output = $t->replaceMacros($s, $r);
-	} catch (Exception $e) {
-		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-		killme();
-	}
-
-	$a->saveTimestamp($stamp1, "rendering");
-
-	return $output;
-}
 
 /**
  * @brief Generates a pseudo-random string of hexadecimal characters
@@ -267,8 +241,8 @@ function unxmlify($s) {
  * @return string html for loader
  */
 function scroll_loader() {
-	$tpl = get_markup_template("scroll_loader.tpl");
-	return replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate("scroll_loader.tpl");
+	return Renderer::replaceMacros($tpl, [
 		'wait' => L10n::t('Loading more entries...'),
 		'end' => L10n::t('The end')
 	]);
@@ -337,30 +311,6 @@ function perms2str($p) {
 }
 
 /**
- * load template $s
- *
- * @param string $s
- * @param string $root
- * @return string
- */
-function get_markup_template($s, $root = '') {
-	$stamp1 = microtime(true);
-
-	$a = get_app();
-	$t = $a->getTemplateEngine();
-	try {
-		$template = $t->getTemplateFile($s, $root);
-	} catch (Exception $e) {
-		echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-		killme();
-	}
-
-	$a->saveTimestamp($stamp1, "file");
-
-	return $template;
-}
-
-/**
  *  for html,xml parsing - let's say you've got
  *  an attribute foobar="class1 class2 class3"
  *  and you want to find out if it contains 'class3'.
@@ -378,139 +328,6 @@ function attribute_contains($attr, $s) {
 	$a = explode(' ', $attr);
 	return (count($a) && in_array($s,$a));
 }
-
-
-/* setup int->string log level map */
-$LOGGER_LEVELS = [];
-
-/**
- * @brief Logs the given message at the given log level
- *
- * log levels:
- * LOGGER_WARNING
- * LOGGER_INFO (default)
- * LOGGER_TRACE
- * LOGGER_DEBUG
- * LOGGER_DATA
- * LOGGER_ALL
- *
- * @global array $LOGGER_LEVELS
- * @param string $msg
- * @param int $level
- */
-function logger($msg, $level = LOGGER_INFO) {
-	$a = get_app();
-	global $LOGGER_LEVELS;
-
-	$debugging = Config::get('system', 'debugging');
-	$logfile   = Config::get('system', 'logfile');
-	$loglevel = intval(Config::get('system', 'loglevel'));
-
-	if (
-		!$debugging
-		|| !$logfile
-		|| $level > $loglevel
-	) {
-		return;
-	}
-
-	if (count($LOGGER_LEVELS) == 0) {
-		foreach (get_defined_constants() as $k => $v) {
-			if (substr($k, 0, 7) == "LOGGER_") {
-				$LOGGER_LEVELS[$v] = substr($k, 7, 7);
-			}
-		}
-	}
-
-	$process_id = session_id();
-
-	if ($process_id == '') {
-		$process_id = get_app()->process_id;
-	}
-
-	$callers = debug_backtrace();
-
-	if (count($callers) > 1) {
-		$function = $callers[1]['function'];
-	} else {
-		$function = '';
-	}
-
-	$logline = sprintf("%s@%s\t[%s]:%s:%s:%s\t%s\n",
-			DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-			$process_id,
-			$LOGGER_LEVELS[$level],
-			basename($callers[0]['file']),
-			$callers[0]['line'],
-			$function,
-			$msg
-		);
-
-	$stamp1 = microtime(true);
-	@file_put_contents($logfile, $logline, FILE_APPEND);
-	$a->saveTimestamp($stamp1, "file");
-}
-
-/**
- * @brief An alternative logger for development.
- * Works largely as logger() but allows developers
- * to isolate particular elements they are targetting
- * personally without background noise
- *
- * log levels:
- * LOGGER_WARNING
- * LOGGER_INFO (default)
- * LOGGER_TRACE
- * LOGGER_DEBUG
- * LOGGER_DATA
- * LOGGER_ALL
- *
- * @global array $LOGGER_LEVELS
- * @param string $msg
- * @param int $level
- */
-function dlogger($msg, $level = LOGGER_INFO) {
-	$a = get_app();
-
-	$logfile = Config::get('system', 'dlogfile');
-	if (!$logfile) {
-		return;
-	}
-
-	$dlogip = Config::get('system', 'dlogip');
-	if (!is_null($dlogip) && $_SERVER['REMOTE_ADDR'] != $dlogip) {
-		return;
-	}
-
-	if (count($LOGGER_LEVELS) == 0) {
-		foreach (get_defined_constants() as $k => $v) {
-			if (substr($k, 0, 7) == "LOGGER_") {
-				$LOGGER_LEVELS[$v] = substr($k, 7, 7);
-			}
-		}
-	}
-
-	$process_id = session_id();
-
-	if ($process_id == '') {
-		$process_id = $a->process_id;
-	}
-
-	$callers = debug_backtrace();
-	$logline = sprintf("%s@\t%s:\t%s:\t%s\t%s\t%s\n",
-			DateTimeFormat::utcNow(),
-			$process_id,
-			basename($callers[0]['file']),
-			$callers[0]['line'],
-			$callers[1]['function'],
-			$msg
-		);
-
-	$stamp1 = microtime(true);
-	@file_put_contents($logfile, $logline, FILE_APPEND);
-	$a->saveTimestamp($stamp1, "file");
-}
-
 
 /**
  * Compare activity uri. Knows about activity namespace.
@@ -671,8 +488,8 @@ function contact_block() {
 		}
 	}
 
-	$tpl = get_markup_template('contact_block.tpl');
-	$o = replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('contact_block.tpl');
+	$o = Renderer::replaceMacros($tpl, [
 		'$contacts' => $contacts,
 		'$nickname' => $a->profile['nickname'],
 		'$viewcontacts' => L10n::t('View Contacts'),
@@ -729,7 +546,7 @@ function micropro($contact, $redirect = false, $class = '', $textmode = false) {
 		$url = '';
 	}
 
-	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),[
+	return Renderer::replaceMacros(Renderer::getMarkupTemplate(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),[
 		'$click' => defaults($contact, 'click', ''),
 		'$class' => $class,
 		'$url' => $url,
@@ -784,7 +601,7 @@ function search($s, $id = 'search-box', $url = 'search', $save = false, $aside =
 		}
 	}
 
-	return replace_macros(get_markup_template('searchbox.tpl'), $values);
+	return Renderer::replaceMacros(Renderer::getMarkupTemplate('searchbox.tpl'), $values);
 }
 
 /**
@@ -1062,14 +879,14 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 		if (strpos($mime, 'video') !== false) {
 			if (!$vhead) {
 				$vhead = true;
-				$a->page['htmlhead'] .= replace_macros(get_markup_template('videos_head.tpl'), [
+				$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'), [
 					'$baseurl' => System::baseUrl(),
 				]);
 			}
 
 			$url_parts = explode('/', $the_url);
 			$id = end($url_parts);
-			$as .= replace_macros(get_markup_template('video_top.tpl'), [
+			$as .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 				'$video' => [
 					'id'     => $id,
 					'title'  => L10n::t('View Video'),
@@ -1164,8 +981,8 @@ function prepare_body(array &$item, $attach = false, $is_preview = false)
 function apply_content_filter($html, array $reasons)
 {
 	if (count($reasons)) {
-		$tpl = get_markup_template('wall/content_filter.tpl');
-		$html = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('wall/content_filter.tpl');
+		$html = Renderer::replaceMacros($tpl, [
 			'$reasons'   => $reasons,
 			'$rnd'       => random_string(8),
 			'$openclose' => L10n::t('Click to open/close'),
@@ -1230,9 +1047,9 @@ function get_cats_and_terms($item)
 	if ($cnt) {
 		foreach ($matches as $mtch) {
 			$categories[] = [
-				'name' => xmlify(file_tag_decode($mtch[1])),
+				'name' => xmlify(FileTag::decode($mtch[1])),
 				'url' =>  "#",
-				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . xmlify(file_tag_decode($mtch[1])):""),
+				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . xmlify(FileTag::decode($mtch[1])):""),
 				'first' => $first,
 				'last' => false
 			];
@@ -1251,9 +1068,9 @@ function get_cats_and_terms($item)
 		if ($cnt) {
 			foreach ($matches as $mtch) {
 				$folders[] = [
-					'name' => xmlify(file_tag_decode($mtch[1])),
+					'name' => xmlify(FileTag::decode($mtch[1])),
 					'url' =>  "#",
-					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . xmlify(file_tag_decode($mtch[1])) : ""),
+					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . xmlify(FileTag::decode($mtch[1])) : ""),
 					'first' => $first,
 					'last' => false
 				];
@@ -1353,7 +1170,7 @@ function base64url_encode($s, $strip_padding = false) {
 function base64url_decode($s) {
 
 	if (is_array($s)) {
-		logger('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
+		Logger::log('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
 		return $s;
 	}
 
@@ -1489,199 +1306,6 @@ function item_post_type($item) {
 	}
 
 	return L10n::t('post');
-}
-
-// post categories and "save to file" use the same item.file table for storage.
-// We will differentiate the different uses by wrapping categories in angle brackets
-// and save to file categories in square brackets.
-// To do this we need to escape these characters if they appear in our tag.
-
-function file_tag_encode($s) {
-	return str_replace(['<','>','[',']'],['%3c','%3e','%5b','%5d'],$s);
-}
-
-function file_tag_decode($s) {
-	return str_replace(['%3c', '%3e', '%5b', '%5d'], ['<', '>', '[', ']'], $s);
-}
-
-function file_tag_file_query($table,$s,$type = 'file') {
-
-	if ($type == 'file') {
-		$str = preg_quote('[' . str_replace('%', '%%', file_tag_encode($s)) . ']');
-	} else {
-		$str = preg_quote('<' . str_replace('%', '%%', file_tag_encode($s)) . '>');
-	}
-	return " AND " . (($table) ? DBA::escape($table) . '.' : '') . "file regexp '" . DBA::escape($str) . "' ";
-}
-
-// ex. given music,video return <music><video> or [music][video]
-function file_tag_list_to_file($list, $type = 'file') {
-	$tag_list = '';
-	if (strlen($list)) {
-		$list_array = explode(",",$list);
-		if ($type == 'file') {
-			$lbracket = '[';
-			$rbracket = ']';
-		} else {
-			$lbracket = '<';
-			$rbracket = '>';
-		}
-
-		foreach ($list_array as $item) {
-			if (strlen($item)) {
-				$tag_list .= $lbracket . file_tag_encode(trim($item))  . $rbracket;
-			}
-		}
-	}
-	return $tag_list;
-}
-
-// ex. given <music><video>[friends], return music,video or friends
-function file_tag_file_to_list($file, $type = 'file') {
-	$matches = false;
-	$list = '';
-	if ($type == 'file') {
-		$cnt = preg_match_all('/\[(.*?)\]/', $file, $matches, PREG_SET_ORDER);
-	} else {
-		$cnt = preg_match_all('/<(.*?)>/', $file, $matches, PREG_SET_ORDER);
-	}
-	if ($cnt) {
-		foreach ($matches as $mtch) {
-			if (strlen($list)) {
-				$list .= ',';
-			}
-			$list .= file_tag_decode($mtch[1]);
-		}
-	}
-
-	return $list;
-}
-
-function file_tag_update_pconfig($uid, $file_old, $file_new, $type = 'file') {
-	// $file_old - categories previously associated with an item
-	// $file_new - new list of categories for an item
-
-	if (!intval($uid)) {
-		return false;
-	} elseif ($file_old == $file_new) {
-		return true;
-	}
-
-	$saved = PConfig::get($uid, 'system', 'filetags');
-	if (strlen($saved)) {
-		if ($type == 'file') {
-			$lbracket = '[';
-			$rbracket = ']';
-			$termtype = TERM_FILE;
-		} else {
-			$lbracket = '<';
-			$rbracket = '>';
-			$termtype = TERM_CATEGORY;
-		}
-
-		$filetags_updated = $saved;
-
-		// check for new tags to be added as filetags in pconfig
-		$new_tags = [];
-		$check_new_tags = explode(",",file_tag_file_to_list($file_new,$type));
-
-		foreach ($check_new_tags as $tag) {
-			if (!stristr($saved,$lbracket . file_tag_encode($tag) . $rbracket)) {
-				$new_tags[] = $tag;
-			}
-		}
-
-		$filetags_updated .= file_tag_list_to_file(implode(",",$new_tags),$type);
-
-		// check for deleted tags to be removed from filetags in pconfig
-		$deleted_tags = [];
-		$check_deleted_tags = explode(",",file_tag_file_to_list($file_old,$type));
-
-		foreach ($check_deleted_tags as $tag) {
-			if (!stristr($file_new,$lbracket . file_tag_encode($tag) . $rbracket)) {
-				$deleted_tags[] = $tag;
-			}
-		}
-
-		foreach ($deleted_tags as $key => $tag) {
-			$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-				DBA::escape($tag),
-				intval(TERM_OBJ_POST),
-				intval($termtype),
-				intval($uid));
-
-			if (DBA::isResult($r)) {
-				unset($deleted_tags[$key]);
-			} else {
-				$filetags_updated = str_replace($lbracket . file_tag_encode($tag) . $rbracket,'',$filetags_updated);
-			}
-		}
-
-		if ($saved != $filetags_updated) {
-			PConfig::set($uid, 'system', 'filetags', $filetags_updated);
-		}
-		return true;
-	} elseif (strlen($file_new)) {
-		PConfig::set($uid, 'system', 'filetags', $file_new);
-	}
-	return true;
-}
-
-function file_tag_save_file($uid, $item_id, $file)
-{
-	if (!intval($uid)) {
-		return false;
-	}
-
-	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
-	if (DBA::isResult($item)) {
-		if (!stristr($item['file'],'[' . file_tag_encode($file) . ']')) {
-			$fields = ['file' => $item['file'] . '[' . file_tag_encode($file) . ']'];
-			Item::update($fields, ['id' => $item_id]);
-		}
-		$saved = PConfig::get($uid, 'system', 'filetags');
-		if (!strlen($saved) || !stristr($saved, '[' . file_tag_encode($file) . ']')) {
-			PConfig::set($uid, 'system', 'filetags', $saved . '[' . file_tag_encode($file) . ']');
-		}
-		info(L10n::t('Item filed'));
-	}
-	return true;
-}
-
-function file_tag_unsave_file($uid, $item_id, $file, $cat = false)
-{
-	if (!intval($uid)) {
-		return false;
-	}
-
-	if ($cat == true) {
-		$pattern = '<' . file_tag_encode($file) . '>' ;
-		$termtype = TERM_CATEGORY;
-	} else {
-		$pattern = '[' . file_tag_encode($file) . ']' ;
-		$termtype = TERM_FILE;
-	}
-
-	$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
-	if (!DBA::isResult($item)) {
-		return false;
-	}
-
-	$fields = ['file' => str_replace($pattern,'',$item['file'])];
-	Item::update($fields, ['id' => $item_id]);
-
-	$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-		DBA::escape($file),
-		intval(TERM_OBJ_POST),
-		intval($termtype),
-		intval($uid)
-	);
-	if (!DBA::isResult($r)) {
-		$saved = PConfig::get($uid, 'system', 'filetags');
-		PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
-	}
-
-	return true;
 }
 
 function normalise_openid($s) {

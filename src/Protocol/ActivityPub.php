@@ -7,6 +7,7 @@ namespace Friendica\Protocol;
 use Friendica\Util\Network;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
+use Friendica\Util\HTTPSignature;
 
 /**
  * @brief ActivityPub Protocol class
@@ -40,6 +41,7 @@ class ActivityPub
 	const PUBLIC_COLLECTION = 'https://www.w3.org/ns/activitystreams#Public';
 	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
 		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
+		'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
 		'diaspora' => 'https://diasporafoundation.org/ns/',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
@@ -58,11 +60,16 @@ class ActivityPub
 	/**
 	 * Fetches ActivityPub content from the given url
 	 *
-	 * @param string $url content url
+	 * @param string  $url content url
+	 * @param integer $uid User ID for the signature
 	 * @return array
 	 */
-	public static function fetchContent($url)
+	public static function fetchContent($url, $uid = 0)
 	{
+		if (!empty($uid)) {
+			return HTTPSignature::fetch($url, 1);
+		}
+
 		$curlResult = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;

@@ -10,6 +10,8 @@ use Friendica\Content\Pager;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -42,9 +44,9 @@ function search_saved_searches() {
 		}
 
 
-		$tpl = get_markup_template("saved_searches_aside.tpl");
+		$tpl = Renderer::getMarkupTemplate("saved_searches_aside.tpl");
 
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$title'	=> L10n::t('Saved Searches'),
 			'$add'		=> '',
 			'$searchbox'	=> '',
@@ -157,7 +159,7 @@ function search_content(App $a) {
 	}
 
 	// contruct a wrapper for the search header
-	$o = replace_macros(get_markup_template("content_wrapper.tpl"),[
+	$o = Renderer::replaceMacros(Renderer::getMarkupTemplate("content_wrapper.tpl"),[
 		'name' => "search-header",
 		'$title' => L10n::t("Search"),
 		'$title_size' => 3,
@@ -204,7 +206,7 @@ function search_content(App $a) {
 	$pager = new Pager($a->query_string);
 
 	if ($tag) {
-		logger("Start tag search for '".$search."'", LOGGER_DEBUG);
+		Logger::log("Start tag search for '".$search."'", Logger::DEBUG);
 
 		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
@@ -227,7 +229,7 @@ function search_content(App $a) {
 			$r = [];
 		}
 	} else {
-		logger("Start fulltext search for '".$search."'", LOGGER_DEBUG);
+		Logger::log("Start fulltext search for '".$search."'", Logger::DEBUG);
 
 		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `body` LIKE CONCAT('%',?,'%')",
@@ -250,16 +252,16 @@ function search_content(App $a) {
 		$title = L10n::t('Results for: %s', $search);
 	}
 
-	$o .= replace_macros(get_markup_template("section_title.tpl"),[
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate("section_title.tpl"),[
 		'$title' => $title
 	]);
 
-	logger("Start Conversation for '".$search."'", LOGGER_DEBUG);
+	Logger::log("Start Conversation for '".$search."'", Logger::DEBUG);
 	$o .= conversation($a, $r, $pager, 'search', false, false, 'commented', local_user());
 
 	$o .= $pager->renderMinimal(count($r));
 
-	logger("Done '".$search."'", LOGGER_DEBUG);
+	Logger::log("Done '".$search."'", Logger::DEBUG);
 
 	return $o;
 }

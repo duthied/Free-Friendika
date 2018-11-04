@@ -5,6 +5,7 @@
 use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 
 function apps_content()
 {
@@ -24,8 +25,8 @@ function apps_content()
 		notice(L10n::t('No installed applications.') . EOL);
 	}
 
-	$tpl = get_markup_template('apps.tpl');
-	return replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('apps.tpl');
+	return Renderer::replaceMacros($tpl, [
 		'$title' => $title,
 		'$apps'  => $apps,
 	]);

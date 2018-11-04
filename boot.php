@@ -28,9 +28,9 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Util\DateTimeFormat;
@@ -42,13 +42,6 @@ define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
 define('FRIENDICA_VERSION',      '2018.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
-
-/**
- * @brief Constants for the database update check
- */
-const DB_UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
-const DB_UPDATE_SUCCESSFUL = 1;  // Database check was successful
-const DB_UPDATE_FAILED = 2;      // Database check failed
 
 /**
  * @brief Constant with a HTML line break.
@@ -107,20 +100,6 @@ define('SSL_POLICY_SELFSIGN',     2);
 /* @}*/
 
 /**
- * @name Logger
- *
- * log levels
- * @{
- */
-define('LOGGER_WARNING',         0);
-define('LOGGER_INFO',            1);
-define('LOGGER_TRACE',           2);
-define('LOGGER_DEBUG',           3);
-define('LOGGER_DATA',            4);
-define('LOGGER_ALL',             5);
-/* @}*/
-
-/**
  * @name Register
  *
  * Registration policies
@@ -132,18 +111,6 @@ define('REGISTER_OPEN',          2);
 /**
  * @}
 */
-
-/**
- * @name Update
- *
- * DB update return values
- * @{
- */
-define('UPDATE_SUCCESS', 0);
-define('UPDATE_FAILED',  1);
-/**
- * @}
- */
 
 /**
  * @name CP
@@ -444,143 +411,6 @@ function defaults() {
 	}
 
 	return $return;
-}
-
-/**
- * @brief Function to check if request was an AJAX (xmlhttprequest) request.
- *
- * @param boolean $via_worker boolean Is the check run via the worker?
- */
-function check_db($via_worker)
-{
-	$build = Config::get('system', 'build');
-
-	if (empty($build)) {
-		Config::set('system', 'build', DB_UPDATE_VERSION - 1);
-		$build = DB_UPDATE_VERSION - 1;
-	}
-
-	// We don't support upgrading from very old versions anymore
-	if ($build < NEW_UPDATE_ROUTINE_VERSION) {
-		die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
-	}
-
-	if ($build < DB_UPDATE_VERSION) {
-		// When we cannot execute the database update via the worker, we will do it directly
-		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
-			update_db();
-		}
-	}
-}
-
-/**
- * @brief Automatic database updates
- * @param object $a App
- */
-function update_db()
-{
-	$build = Config::get('system', 'build');
-
-	if (empty($build) || ($build > DB_UPDATE_VERSION)) {
-		$build = DB_UPDATE_VERSION - 1;
-		Config::set('system', 'build', $build);
-	}
-
-	if ($build != DB_UPDATE_VERSION) {
-		require_once 'update.php';
-
-		$stored = intval($build);
-		$current = intval(DB_UPDATE_VERSION);
-		if ($stored < $current) {
-			Config::load('database');
-
-			// Compare the current structure with the defined structure
-			$t = Config::get('database', 'dbupdate_' . DB_UPDATE_VERSION);
-			if (!is_null($t)) {
-				return;
-			}
-
-			// run the pre_update_nnnn functions in update.php
-			for ($x = $stored + 1; $x <= $current; $x++) {
-				$r = run_update_function($x, 'pre_update');
-				if (!$r) {
-					break;
-				}
-			}
-
-			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, time());
-
-			// update the structure in one call
-			$retval = DBStructure::update(false, true);
-			if ($retval) {
-				DBStructure::updateFail(
-					DB_UPDATE_VERSION,
-					$retval
-				);
-				return;
-			} else {
-				Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
-			}
-
-			// run the update_nnnn functions in update.php
-			for ($x = $stored + 1; $x <= $current; $x++) {
-				$r = run_update_function($x, 'update');
-				if (!$r) {
-					break;
-				}
-			}
-		}
-	}
-
-	return;
-}
-
-function run_update_function($x, $prefix)
-{
-	$funcname = $prefix . '_' . $x;
-
-	if (function_exists($funcname)) {
-		// There could be a lot of processes running or about to run.
-		// We want exactly one process to run the update command.
-		// So store the fact that we're taking responsibility
-		// after first checking to see if somebody else already has.
-		// If the update fails or times-out completely you may need to
-		// delete the config entry to try again.
-
-		$t = Config::get('database', $funcname);
-		if (!is_null($t)) {
-			return false;
-		}
-		Config::set('database', $funcname, time());
-
-		// call the specific update
-		$retval = $funcname();
-
-		if ($retval) {
-			//send the administrator an e-mail
-			DBStructure::updateFail(
-				$x,
-				L10n::t('Update %s failed. See error logs.', $x)
-			);
-			return false;
-		} else {
-			Config::set('database', $funcname, 'success');
-
-			if ($prefix == 'update') {
-				Config::set('system', 'build', $x);
-			}
-
-			return true;
-		}
-	} else {
-		Config::set('database', $funcname, 'success');
-
-		if ($prefix == 'update') {
-			Config::set('system', 'build', $x);
-		}
-
-		return true;
-	}
 }
 
 /**

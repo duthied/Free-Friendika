@@ -7,6 +7,7 @@ namespace Friendica\Core;
  * @brief Functions for preventing parallel execution of functions
  */
 
+use Friendica\Core\Logger;
 use Friendica\Core\Cache\CacheDriverFactory;
 use Friendica\Core\Cache\IMemoryCacheDriver;
 
@@ -47,7 +48,7 @@ class Lock
 					self::useAutoDriver();
 			}
 		} catch (\Exception $exception) {
-			logger ('Driver \'' . $lock_driver . '\' failed - Fallback to \'useAutoDriver()\'');
+			Logger::log('Driver \'' . $lock_driver . '\' failed - Fallback to \'useAutoDriver()\'');
 			self::useAutoDriver();
 		}
 	}
@@ -69,7 +70,7 @@ class Lock
 				self::$driver = new Lock\SemaphoreLockDriver();
 				return;
 			} catch (\Exception $exception) {
-				logger ('Using Semaphore driver for locking failed: ' . $exception->getMessage());
+				Logger::log('Using Semaphore driver for locking failed: ' . $exception->getMessage());
 			}
 		}
 
@@ -83,7 +84,7 @@ class Lock
 				}
 				return;
 			} catch (\Exception $exception) {
-				logger('Using Cache driver for locking failed: ' . $exception->getMessage());
+				Logger::log('Using Cache driver for locking failed: ' . $exception->getMessage());
 			}
 		}
 
@@ -110,12 +111,13 @@ class Lock
 	 *
 	 * @param string  $key Name of the lock
 	 * @param integer $timeout Seconds until we give up
+	 * @param integer $ttl The Lock lifespan, must be one of the Cache constants
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public static function acquire($key, $timeout = 120)
+	public static function acquire($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
 	{
-		return self::getDriver()->acquireLock($key, $timeout);
+		return self::getDriver()->acquireLock($key, $timeout, $ttl);
 	}
 
 	/**

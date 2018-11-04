@@ -7,6 +7,7 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Object\Image;
@@ -93,9 +94,9 @@ function fbrowser_content(App $a)
 			}
 			$files = array_map("_map_files1", $r);
 
-			$tpl = get_markup_template($template_file);
+			$tpl = Renderer::getMarkupTemplate($template_file);
 
-			$o =  replace_macros($tpl, [
+			$o =  Renderer::replaceMacros($tpl, [
 				'$type'     => 'image',
 				'$baseurl'  => System::baseUrl(),
 				'$path'     => $path,
@@ -125,8 +126,8 @@ function fbrowser_content(App $a)
 				$files = array_map("_map_files2", $files);
 
 
-				$tpl = get_markup_template($template_file);
-				$o = replace_macros($tpl, [
+				$tpl = Renderer::getMarkupTemplate($template_file);
+				$o = Renderer::replaceMacros($tpl, [
 					'$type'     => 'file',
 					'$baseurl'  => System::baseUrl(),
 					'$path'     => [ [ "", L10n::t("Files")] ],

@@ -5,6 +5,7 @@
 
 use Friendica\Content\Text;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 
 function visible_whitespace($s)
 {
@@ -139,8 +140,8 @@ function babel_content()
 		}
 	}
 
-	$tpl = get_markup_template('babel.tpl');
-	$o = replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('babel.tpl');
+	$o = Renderer::replaceMacros($tpl, [
 		'$text'          => ['text', L10n::t('Source text'), htmlentities(defaults($_REQUEST, 'text', '')), ''],
 		'$type_bbcode'   => ['type', L10n::t('BBCode'), 'bbcode', '', defaults($_REQUEST, 'type', 'bbcode') == 'bbcode'],
 		'$type_markdown' => ['type', L10n::t('Markdown'), 'markdown', '', defaults($_REQUEST, 'type', 'bbcode') == 'markdown'],

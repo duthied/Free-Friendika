@@ -22,12 +22,14 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
+use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
@@ -56,7 +58,7 @@ function item_post(App $a) {
 
 	Addon::callHooks('post_local_start', $_REQUEST);
 
-	logger('postvars ' . print_r($_REQUEST, true), LOGGER_DATA);
+	Logger::log('postvars ' . print_r($_REQUEST, true), Logger::DATA);
 
 	$api_source = defaults($_REQUEST, 'api_source', false);
 
@@ -72,7 +74,7 @@ function item_post(App $a) {
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
 		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
-			logger("item post: duplicate post", LOGGER_DEBUG);
+			Logger::log("item post: duplicate post", Logger::DEBUG);
 			item_post_return(System::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -130,7 +132,7 @@ function item_post(App $a) {
 	}
 
 	if ($parent) {
-		logger('mod_item: item_post parent=' . $parent);
+		Logger::log('mod_item: item_post parent=' . $parent);
 	}
 
 	$post_id     = intval(defaults($_REQUEST, 'post_id', 0));
@@ -153,7 +155,7 @@ function item_post(App $a) {
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
 		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
-			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
+			Logger::log("Message with URI ".$message_id." already exists for user ".$profile_uid, Logger::DEBUG);
 			return 0;
 		}
 	}
@@ -290,17 +292,21 @@ function item_post(App $a) {
 		}
 	}
 
-	if (!empty($categories)) {
+	if (!empty($categories))
+	{
 		// get the "fileas" tags for this post
-		$filedas = file_tag_file_to_list($categories, 'file');
+		$filedas = FileTag::fileToList($categories, 'file');
 	}
+
 	// save old and new categories, so we can determine what needs to be deleted from pconfig
 	$categories_old = $categories;
-	$categories = file_tag_list_to_file(trim(defaults($_REQUEST, 'category', '')), 'category');
+	$categories = FileTag::listToFile(trim(defaults($_REQUEST, 'category', '')), 'category');
 	$categories_new = $categories;
-	if (!empty($filedas)) {
+
+	if (!empty($filedas))
+	{
 		// append the fileas stuff to the new categories list
-		$categories .= file_tag_list_to_file($filedas, 'file');
+		$categories .= FileTag::listToFile($filedas, 'file');
 	}
 
 	// get contact info for poster
@@ -669,7 +675,7 @@ function item_post(App $a) {
 		$datarray["author-network"] = Protocol::DFRN;
 
 		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager($a->query_string), 'search', false, true);
-		logger('preview: ' . $o);
+		Logger::log('preview: ' . $o);
 		echo json_encode(['preview' => $o]);
 		exit();
 	}
@@ -677,7 +683,7 @@ function item_post(App $a) {
 	Addon::callHooks('post_local',$datarray);
 
 	if (!empty($datarray['cancel'])) {
-		logger('mod_item: post cancelled by addon.');
+		Logger::log('mod_item: post cancelled by addon.');
 		if ($return_path) {
 			$a->internalRedirect($return_path);
 		}
@@ -711,10 +717,10 @@ function item_post(App $a) {
 		Item::update($fields, ['id' => $post_id]);
 
 		// update filetags in pconfig
-		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
+		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 		if (!empty($_REQUEST['return']) && strlen($return_path)) {
-			logger('return: ' . $return_path);
+			Logger::log('return: ' . $return_path);
 			$a->internalRedirect($return_path);
 		}
 		killme();
@@ -736,19 +742,19 @@ function item_post(App $a) {
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		logger("Item wasn't stored.");
+		Logger::log("Item wasn't stored.");
 		$a->internalRedirect($return_path);
 	}
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBA::isResult($datarray)) {
-		logger("Item with id ".$post_id." couldn't be fetched.");
+		Logger::log("Item with id ".$post_id." couldn't be fetched.");
 		$a->internalRedirect($return_path);
 	}
 
 	// update filetags in pconfig
-	file_tag_update_pconfig($uid, $categories_old, $categories_new, 'category');
+	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 	// These notifications are sent if someone else is commenting other your wall
 	if ($parent) {
@@ -833,7 +839,13 @@ function item_post(App $a) {
 	// We don't fork a new process since this is done anyway with the following command
 	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "CreateShadowEntry", $post_id);
 
-	logger('post_complete');
+	// When we are doing some forum posting via ! we have to start the notifier manually.
+	// These kind of posts don't initiate the notifier call in the item class.
+	if ($only_to_forum) {
+		Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
+	}
+
+	Logger::log('post_complete');
 
 	if ($api_source) {
 		return $post_id;
@@ -861,7 +873,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
-	logger('post_json: ' . print_r($json, true), LOGGER_DEBUG);
+	Logger::log('post_json: ' . print_r($json, true), Logger::DEBUG);
 
 	echo json_encode($json);
 	killme();
@@ -875,11 +887,16 @@ function item_content(App $a)
 
 	$o = '';
 
-	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
+	if (($a->argc >= 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
 		if ($a->isAjax()) {
 			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
-			$o = drop_item($a->argv[2]);
+			if (!empty($a->argv[3])) {
+				$o = drop_item($a->argv[2], $a->argv[3]);
+			}
+			else {
+				$o = drop_item($a->argv[2]);
+			}
 		}
 
 		if ($a->isAjax()) {

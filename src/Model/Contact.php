@@ -9,6 +9,7 @@ use Friendica\Content\Pager;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -586,7 +587,7 @@ class Contact extends BaseObject
 				return;
 			}
 		} elseif (!isset($contact['url'])) {
-			logger('Empty contact: ' . json_encode($contact) . ' - ' . System::callstack(20), LOGGER_DEBUG);
+			Logger::log('Empty contact: ' . json_encode($contact) . ' - ' . System::callstack(20), Logger::DEBUG);
 		}
 
 		// Contact already archived or "self" contact? => nothing to do
@@ -1027,7 +1028,7 @@ class Contact extends BaseObject
 	 */
 	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [], $in_loop = false)
 	{
-		logger("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), LOGGER_DEBUG);
+		Logger::log("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), Logger::DEBUG);
 
 		$contact_id = 0;
 
@@ -1618,7 +1619,7 @@ class Contact extends BaseObject
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {
-			logger('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
+			Logger::log('Expected network ' . $network . ' does not match actual network ' . $ret['network']);
 			return $result;
 		}
 
@@ -1770,10 +1771,10 @@ class Contact extends BaseObject
 				}
 			} elseif ($contact['network'] == Protocol::DIASPORA) {
 				$ret = Diaspora::sendShare($a->user, $contact);
-				logger('share returns: ' . $ret);
+				Logger::log('share returns: ' . $ret);
 			} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
 				$ret = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid);
-				logger('Follow returns: ' . $ret);
+				Logger::log('Follow returns: ' . $ret);
 			}
 		}
 
@@ -1855,7 +1856,7 @@ class Contact extends BaseObject
 			// send email notification to owner?
 		} else {
 			if (DBA::exists('contact', ['nurl' => normalise_link($url), 'uid' => $importer['uid'], 'pending' => true])) {
-				logger('ignoring duplicated connection request from pending contact ' . $url);
+				Logger::log('ignoring duplicated connection request from pending contact ' . $url);
 				return;
 			}
 			// create contact record
@@ -1961,7 +1962,7 @@ class Contact extends BaseObject
 		$r = q("SELECT * FROM `contact` WHERE `bd` != '' AND `bd` > '0001-01-01' AND SUBSTRING(`bd`, 1, 4) != `bdyear` ");
 		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
-				logger('update_contact_birthday: ' . $rr['bd']);
+				Logger::log('update_contact_birthday: ' . $rr['bd']);
 
 				$nextbd = DateTimeFormat::utcNow('Y') . substr($rr['bd'], 4);
 

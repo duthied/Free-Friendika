@@ -11,8 +11,10 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -552,7 +554,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	$threads = [];
 	$threadsid = -1;
 
-	$page_template = get_markup_template("conversation.tpl");
+	$page_template = Renderer::getMarkupTemplate("conversation.tpl");
 
 	if (!empty($items)) {
 		if (in_array($mode, ['community', 'contacts'])) {
@@ -711,7 +713,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 			}
 		} else {
 			// Normal View
-			$page_template = get_markup_template("threaded_conversation.tpl");
+			$page_template = Renderer::getMarkupTemplate("threaded_conversation.tpl");
 
 			$conv = new Thread($mode, $preview, $writable);
 
@@ -751,13 +753,13 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 			$threads = $conv->getTemplateData($conv_responses);
 			if (!$threads) {
-				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
+				Logger::log('[ERROR] conversation : Failed to get template data.', Logger::DEBUG);
 				$threads = [];
 			}
 		}
 	}
 
-	$o = replace_macros($page_template, [
+	$o = Renderer::replaceMacros($page_template, [
 		'$baseurl' => System::baseUrl($ssl_state),
 		'$return_path' => $a->query_string,
 		'$live_update' => $live_update_div,
@@ -1061,7 +1063,7 @@ function format_like($cnt, array $arr, $type, $id) {
 	}
 
 	$phrase .= EOL ;
-	$o .= replace_macros(get_markup_template('voting_fakelink.tpl'), [
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
 		'$phrase' => $phrase,
 		'$type' => $type,
 		'$id' => $id
@@ -1075,10 +1077,10 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 {
 	$o = '';
 
-	$geotag = x($x, 'allow_location') ? replace_macros(get_markup_template('jot_geotag.tpl'), []) : '';
+	$geotag = x($x, 'allow_location') ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
 
-	$tpl = get_markup_template('jot-header.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$newpost'   => 'true',
 		'$baseurl'   => System::baseUrl(true),
 		'$geotag'    => $geotag,
@@ -1116,10 +1118,10 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		$public_post_link = '&public=1';
 	}
 
-	// $tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
-	$tpl = get_markup_template("jot.tpl");
+	// $tpl = Renderer::replaceMacros($tpl,array('$jotplugins' => $jotplugins));
+	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
-	$o .= replace_macros($tpl,[
+	$o .= Renderer::replaceMacros($tpl,[
 		'$new_post' => L10n::t('New Post'),
 		'$return_path'  => $query_str,
 		'$action'       => 'item',

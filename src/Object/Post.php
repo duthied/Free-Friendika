@@ -10,8 +10,10 @@ use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -412,6 +414,7 @@ class Post extends BaseObject
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
+			'return'          => ($a->cmd) ? bin2hex($a->cmd) : '',
 		];
 
 		$arr = ['item' => $item, 'output' => $tmp_item];
@@ -487,10 +490,10 @@ class Post extends BaseObject
 	{
 		$item_id = $item->getId();
 		if (!$item_id) {
-			logger('[ERROR] Post::addChild : Item has no ID!!', LOGGER_DEBUG);
+			Logger::log('[ERROR] Post::addChild : Item has no ID!!', Logger::DEBUG);
 			return false;
 		} elseif ($this->getChild($item->getId())) {
-			logger('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').', LOGGER_DEBUG);
+			Logger::log('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').', Logger::DEBUG);
 			return false;
 		}
 		/*
@@ -584,7 +587,7 @@ class Post extends BaseObject
 				return true;
 			}
 		}
-		logger('[WARN] Item::removeChild : Item is not a child (' . $id . ').', LOGGER_DEBUG);
+		Logger::log('[WARN] Item::removeChild : Item is not a child (' . $id . ').', Logger::DEBUG);
 		return false;
 	}
 
@@ -650,7 +653,7 @@ class Post extends BaseObject
 	public function getDataValue($name)
 	{
 		if (!isset($this->data[$name])) {
-			// logger('[ERROR] Item::getDataValue : Item has no value name "'. $name .'".', LOGGER_DEBUG);
+			// Logger::log('[ERROR] Item::getDataValue : Item has no value name "'. $name .'".', Logger::DEBUG);
 			return false;
 		}
 
@@ -667,7 +670,7 @@ class Post extends BaseObject
 	private function setTemplate($name)
 	{
 		if (!x($this->available_templates, $name)) {
-			logger('[ERROR] Item::setTemplate : Template not available ("' . $name . '").', LOGGER_DEBUG);
+			Logger::log('[ERROR] Item::setTemplate : Template not available ("' . $name . '").', Logger::DEBUG);
 			return false;
 		}
 
@@ -784,8 +787,8 @@ class Post extends BaseObject
 				$uid = $parent_uid;
 			}
 
-			$template = get_markup_template($this->getCommentBoxTemplate());
-			$comment_box = replace_macros($template, [
+			$template = Renderer::getMarkupTemplate($this->getCommentBoxTemplate());
+			$comment_box = Renderer::replaceMacros($template, [
 				'$return_path' => $a->query_string,
 				'$threaded'    => $this->isThreaded(),
 				'$jsreload'    => '',

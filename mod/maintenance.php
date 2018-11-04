@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 
 function maintenance_content(App $a)
 {
@@ -20,7 +21,7 @@ function maintenance_content(App $a)
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 600');
 
-	return replace_macros(get_markup_template('maintenance.tpl'), [
+	return Renderer::replaceMacros(Renderer::getMarkupTemplate('maintenance.tpl'), [
 		'$sysdown' => L10n::t('System down for maintenance'),
 		'$reason' => $reason
 	]);

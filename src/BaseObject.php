@@ -34,7 +34,7 @@ class BaseObject
 	/**
 	 * Set the app
 	 *
-	 * @param object $app App
+	 * @param App $app App
 	 *
 	 * @return void
 	 */

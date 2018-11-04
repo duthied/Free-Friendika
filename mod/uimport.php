@@ -7,7 +7,9 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\UserImport;
+use Friendica\Core\Renderer;
 
 function uimport_post(App $a)
 {
@@ -33,7 +35,7 @@ function uimport_content(App $a)
 	if ($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if ($r && $r[0]['total'] >= $max_dailies) {
-			logger('max daily registrations exceeded.');
+			Logger::log('max daily registrations exceeded.');
 			notice(L10n::t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
 			return;
 		}
@@ -47,8 +49,8 @@ function uimport_content(App $a)
 		unset($_SESSION['mobile-theme']);
 	}
 
-	$tpl = get_markup_template("uimport.tpl");
-	return replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate("uimport.tpl");
+	return Renderer::replaceMacros($tpl, [
 		'$regbutt' => L10n::t('Import'),
 		'$import' => [
 			'title' => L10n::t("Move account"),

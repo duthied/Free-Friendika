@@ -14,6 +14,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
@@ -178,8 +179,8 @@ class OEmbed
 
 					$th = 120;
 					$tw = $th * $tr;
-					$tpl = get_markup_template('oembed_video.tpl');
-					$ret .= replace_macros($tpl, [
+					$tpl = Renderer::getMarkupTemplate('oembed_video.tpl');
+					$ret .= Renderer::replaceMacros($tpl, [
 						'$baseurl' => System::baseUrl(),
 						'$embedurl' => $oembed->embed_url,
 						'$escapedhtml' => base64_encode($oembed->html),

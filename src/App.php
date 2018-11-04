@@ -136,40 +136,8 @@ class App
 		$this->footerScripts[] = trim($url, '/');
 	}
 
-	/**
-	 * @brief An array for all theme-controllable parameters
-	 *
-	 * Mostly unimplemented yet. Only options 'template_engine' and
-	 * beyond are used.
-	 */
-	public $theme = [
-		'sourcename' => '',
-		'videowidth' => 425,
-		'videoheight' => 350,
-		'force_max_items' => 0,
-		'stylesheet' => '',
-		'template_engine' => 'smarty3',
-	];
-
-	/**
-	 * @brief An array of registered template engines ('name'=>'class name')
-	 */
-	public $template_engines = [];
-
-	/**
-	 * @brief An array of instanced template engines ('name'=>'instance')
-	 */
-	public $template_engine_instance = [];
 	public $process_id;
 	public $queue;
-	private $ldelim = [
-		'internal' => '',
-		'smarty3' => '{{'
-	];
-	private $rdelim = [
-		'internal' => '',
-		'smarty3' => '}}'
-	];
 	private $scheme;
 	private $hostname;
 
@@ -309,7 +277,7 @@ class App
 		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
 
 		// Register template engines
-		$this->registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
+		Core\Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
 	}
 
 	/**
@@ -505,6 +473,7 @@ class App
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URI'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_SCRIPT_URL', $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
+		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
 
 		$this->urlPath = $this->getConfigValue('system', 'urlpath');
 
@@ -751,8 +720,8 @@ class App
 			$this->page['title'] = $this->config['sitename'];
 		}
 
-		if (!empty($this->theme['stylesheet'])) {
-			$stylesheet = $this->theme['stylesheet'];
+		if (!empty(Core\Renderer::$theme['stylesheet'])) {
+			$stylesheet = Core\Renderer::$theme['stylesheet'];
 		} else {
 			$stylesheet = $this->getCurrentThemeStylesheetPath();
 		}
@@ -771,12 +740,12 @@ class App
 
 		Core\Addon::callHooks('head', $this->page['htmlhead']);
 
-		$tpl = get_markup_template('head.tpl');
+		$tpl = Core\Renderer::getMarkupTemplate('head.tpl');
 		/* put the head template at the beginning of page['htmlhead']
 		 * since the code added by the modules frequently depends on it
 		 * being first
 		 */
-		$this->page['htmlhead'] = replace_macros($tpl, [
+		$this->page['htmlhead'] = Core\Renderer::replaceMacros($tpl, [
 			'$baseurl'         => $this->getBaseURL(),
 			'$local_user'      => local_user(),
 			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
@@ -822,7 +791,7 @@ class App
 			} else {
 				$link = 'toggle_mobile?off=1&address=' . curPageURL();
 			}
-			$this->page['footer'] .= replace_macros(get_markup_template("toggle_mobile_footer.tpl"), [
+			$this->page['footer'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate("toggle_mobile_footer.tpl"), [
 				'$toggle_link' => $link,
 				'$toggle_text' => Core\L10n::t('toggle mobile')
 			]);
@@ -830,8 +799,8 @@ class App
 
 		Core\Addon::callHooks('footer', $this->page['footer']);
 
-		$tpl = get_markup_template('footer.tpl');
-		$this->page['footer'] = replace_macros($tpl, [
+		$tpl = Core\Renderer::getMarkupTemplate('footer.tpl');
+		$this->page['footer'] = Core\Renderer::replaceMacros($tpl, [
 			'$baseurl' => $this->getBaseURL(),
 			'$footerScripts' => $this->footerScripts,
 		]) . $this->page['footer'];
@@ -857,102 +826,6 @@ class App
 		} else {
 			return $url;
 		}
-	}
-
-	/**
-	 * @brief Register template engine class
-	 *
-	 * @param string $class
-	 */
-	private function registerTemplateEngine($class)
-	{
-		$v = get_class_vars($class);
-		if (!empty($v['name'])) {
-			$name = $v['name'];
-			$this->template_engines[$name] = $class;
-		} else {
-			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
-			die();
-		}
-	}
-
-	/**
-	 * @brief Return template engine instance.
-	 *
-	 * If $name is not defined, return engine defined by theme,
-	 * or default
-	 *
-	 * @return object Template Engine instance
-	 */
-	public function getTemplateEngine()
-	{
-		$template_engine = defaults($this->theme, 'template_engine', 'smarty3');
-
-		if (isset($this->template_engines[$template_engine])) {
-			if (isset($this->template_engine_instance[$template_engine])) {
-				return $this->template_engine_instance[$template_engine];
-			} else {
-				$class = $this->template_engines[$template_engine];
-				$obj = new $class;
-				$this->template_engine_instance[$template_engine] = $obj;
-				return $obj;
-			}
-		}
-
-		echo "template engine <tt>$template_engine</tt> is not registered!\n";
-		exit();
-	}
-
-	/**
-	 * @brief Returns the active template engine.
-	 *
-	 * @return string the active template engine
-	 */
-	public function getActiveTemplateEngine()
-	{
-		return $this->theme['template_engine'];
-	}
-
-	/**
-	 * sets the active template engine
-	 *
-	 * @param string $engine the template engine (default is Smarty3)
-	 */
-	public function setActiveTemplateEngine($engine = 'smarty3')
-	{
-		$this->theme['template_engine'] = $engine;
-	}
-
-	/**
-	 * Gets the right delimiter for a template engine
-	 *
-	 * Currently:
-	 * Internal = ''
-	 * Smarty3 = '{{'
-	 *
-	 * @param string $engine The template engine (default is Smarty3)
-	 *
-	 * @return string the right delimiter
-	 */
-	public function getTemplateLeftDelimiter($engine = 'smarty3')
-	{
-		return $this->ldelim[$engine];
-	}
-
-	/**
-	 * Gets the left delimiter for a template engine
-	 *
-	 * Currently:
-	 * Internal = ''
-	 * Smarty3 = '}}'
-	 *
-	 * @param string $engine The template engine (default is Smarty3)
-	 *
-	 * @return string the left delimiter
-	 */
-	public function getTemplateRightDelimiter($engine = 'smarty3')
-	{
-		return $this->rdelim[$engine];
 	}
 
 	/**
@@ -1100,10 +973,10 @@ class App
 
 		$processlist = DBA::processlist();
 		if ($processlist['list'] != '') {
-			logger('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], LOGGER_DEBUG);
+			Core\Logger::log('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], Core\Logger::DEBUG);
 
 			if ($processlist['amount'] > $max_processes) {
-				logger('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.', LOGGER_DEBUG);
+				Core\Logger::log('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.', Core\Logger::DEBUG);
 				return true;
 			}
 		}
@@ -1149,7 +1022,7 @@ class App
 		$reached = ($free < $min_memory);
 
 		if ($reached) {
-			logger('Minimal memory reached: ' . $free . '/' . $meminfo['MemTotal'] . ' - limit ' . $min_memory, LOGGER_DEBUG);
+			Core\Logger::log('Minimal memory reached: ' . $free . '/' . $meminfo['MemTotal'] . ' - limit ' . $min_memory, Core\Logger::DEBUG);
 		}
 
 		return $reached;
@@ -1179,7 +1052,7 @@ class App
 		$load = Core\System::currentLoad();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				logger('system: load ' . $load . ' for ' . $process . ' tasks (' . $maxsysload . ') too high.');
+				Core\Logger::log('system: load ' . $load . ' for ' . $process . ' tasks (' . $maxsysload . ') too high.');
 				return true;
 			}
 		}
@@ -1221,7 +1094,7 @@ class App
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
 		}
 		if (!is_resource($resource)) {
-			logger('We got no resource for command ' . $cmdline, LOGGER_DEBUG);
+			Core\Logger::log('We got no resource for command ' . $cmdline, Core\Logger::DEBUG);
 			return;
 		}
 		proc_close($resource);
@@ -1252,27 +1125,27 @@ class App
 	public static function isDirectoryUsable($directory, $check_writable = true)
 	{
 		if ($directory == '') {
-			logger('Directory is empty. This shouldn\'t happen.', LOGGER_DEBUG);
+			Core\Logger::log('Directory is empty. This shouldn\'t happen.', Core\Logger::DEBUG);
 			return false;
 		}
 
 		if (!file_exists($directory)) {
-			logger('Path "' . $directory . '" does not exist for user ' . self::getSystemUser(), LOGGER_DEBUG);
+			Core\Logger::log('Path "' . $directory . '" does not exist for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
 		if (is_file($directory)) {
-			logger('Path "' . $directory . '" is a file for user ' . self::getSystemUser(), LOGGER_DEBUG);
+			Core\Logger::log('Path "' . $directory . '" is a file for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
 		if (!is_dir($directory)) {
-			logger('Path "' . $directory . '" is not a directory for user ' . self::getSystemUser(), LOGGER_DEBUG);
+			Core\Logger::log('Path "' . $directory . '" is not a directory for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
 		if ($check_writable && !is_writable($directory)) {
-			logger('Path "' . $directory . '" is not writable for user ' . self::getSystemUser(), LOGGER_DEBUG);
+			Core\Logger::log('Path "' . $directory . '" is not writable for user ' . self::getSystemUser(), Core\Logger::DEBUG);
 			return false;
 		}
 
@@ -1645,7 +1518,7 @@ class App
 				} else {
 					// Someone came with an invalid parameter, maybe as a DDoS attempt
 					// We simply stop processing here
-					logger("Invalid ZRL parameter " . $_GET['zrl'], LOGGER_DEBUG);
+					Core\Logger::log("Invalid ZRL parameter " . $_GET['zrl'], Core\Logger::DEBUG);
 					Core\System::httpExit(403, ['title' => '403 Forbidden']);
 				}
 			}
@@ -1681,7 +1554,7 @@ class App
 			$this->module = 'maintenance';
 		} else {
 			$this->checkURL();
-			check_db(false);
+			Core\Update::check(false);
 			Core\Addon::loadAddons();
 			Core\Hook::loadHooks();
 		}
@@ -1784,15 +1657,15 @@ class App
 				}
 
 				if (!empty($_SERVER['QUERY_STRING']) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
-					logger('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
+					Core\Logger::log('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
 					$this->internalRedirect($_SERVER['REQUEST_URI']);
 				}
 
-				logger('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], LOGGER_DEBUG);
+				Core\Logger::log('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], Core\Logger::DEBUG);
 
 				header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . Core\L10n::t('Not Found'));
-				$tpl = get_markup_template("404.tpl");
-				$this->page['content'] = replace_macros($tpl, [
+				$tpl = Core\Renderer::getMarkupTemplate("404.tpl");
+				$this->page['content'] = Core\Renderer::replaceMacros($tpl, [
 					'$message' =>  Core\L10n::t('Page not found.')
 				]);
 			}
@@ -1880,7 +1753,7 @@ class App
 
 		// Add the navigation (menu) template
 		if ($this->module != 'install' && $this->module != 'maintenance') {
-			$this->page['htmlhead'] .= replace_macros(get_markup_template('nav_head.tpl'), []);
+			$this->page['htmlhead'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate('nav_head.tpl'), []);
 			$this->page['nav']       = Content\Nav::build($this);
 		}
 

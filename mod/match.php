@@ -8,6 +8,7 @@ use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -112,9 +113,9 @@ function match_content(App $a)
 				}
 			}
 
-			$tpl = get_markup_template('viewcontact_template.tpl');
+			$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 
-			$o .= replace_macros($tpl, [
+			$o .= Renderer::replaceMacros($tpl, [
 				'$title'    => L10n::t('Profile Match'),
 				'$contacts' => $entries,
 				'$paginate' => $pager->renderFull($j->total)

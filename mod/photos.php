@@ -12,6 +12,8 @@ use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -61,9 +63,9 @@ function photos_init(App $a) {
 
 		$account_type = Contact::getAccountType($profile);
 
-		$tpl = get_markup_template("vcard-widget.tpl");
+		$tpl = Renderer::getMarkupTemplate("vcard-widget.tpl");
 
-		$vcard_widget = replace_macros($tpl, [
+		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
 			'$addr' => defaults($profile, 'addr', ''),
@@ -108,7 +110,7 @@ function photos_init(App $a) {
 		}
 
 		if ($ret['success']) {
-			$photo_albums_widget = replace_macros(get_markup_template('photo_albums.tpl'), [
+			$photo_albums_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('photo_albums.tpl'), [
 				'$nick'     => $a->data['user']['nickname'],
 				'$title'    => L10n::t('Photo Albums'),
 				'$recent'   => L10n::t('Recent Photos'),
@@ -129,9 +131,9 @@ function photos_init(App $a) {
 			$a->page['aside'] .= $photo_albums_widget;
 		}
 
-		$tpl = get_markup_template("photos_head.tpl");
+		$tpl = Renderer::getMarkupTemplate("photos_head.tpl");
 
-		$a->page['htmlhead'] .= replace_macros($tpl,[
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
 			'$ispublic' => L10n::t('everybody')
 		]);
 	}
@@ -141,9 +143,9 @@ function photos_init(App $a) {
 
 function photos_post(App $a)
 {
-	logger('mod-photos: photos_post: begin' , LOGGER_DEBUG);
-	logger('mod_photos: REQUEST ' . print_r($_REQUEST, true), LOGGER_DATA);
-	logger('mod_photos: FILES '   . print_r($_FILES, true), LOGGER_DATA);
+	Logger::log('mod-photos: photos_post: begin' , Logger::DEBUG);
+	Logger::log('mod_photos: REQUEST ' . print_r($_REQUEST, true), Logger::DATA);
+	Logger::log('mod_photos: FILES '   . print_r($_FILES, true), Logger::DATA);
 
 	$phototypes = Image::supportedTypes();
 
@@ -189,7 +191,7 @@ function photos_post(App $a)
 
 	if (!$owner_record) {
 		notice(L10n::t('Contact information unavailable') . EOL);
-		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
+		Logger::log('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		killme();
 	}
 
@@ -245,7 +247,7 @@ function photos_post(App $a)
 					['name' => 'albumname', 'value' => $_POST['albumname']],
 				];
 
-				$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
+				$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 					'$method' => 'post',
 					'$message' => L10n::t('Do you really want to delete this photo album and all its photos?'),
 					'$extra_inputs' => $extra_inputs,
@@ -317,7 +319,7 @@ function photos_post(App $a)
 		if (!empty($_REQUEST['confirm'])) {
 			$drop_url = $a->query_string;
 
-			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
+			$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => L10n::t('Do you really want to delete this photo?'),
 				'$extra_inputs' => [],
@@ -379,7 +381,7 @@ function photos_post(App $a)
 		}
 
 		if (!empty($_POST['rotate']) && (intval($_POST['rotate']) == 1 || intval($_POST['rotate']) == 2)) {
-			logger('rotate');
+			Logger::log('rotate');
 
 			$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = 0 LIMIT 1",
 				DBA::escape($resource_id),
@@ -706,7 +708,7 @@ function photos_post(App $a)
 	$album    = !empty($_REQUEST['album'])    ? notags(trim($_REQUEST['album']))    : '';
 	$newalbum = !empty($_REQUEST['newalbum']) ? notags(trim($_REQUEST['newalbum'])) : '';
 
-	logger('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , LOGGER_DEBUG);
+	Logger::log('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , Logger::DEBUG);
 
 	if (!strlen($album)) {
 		if (strlen($newalbum)) {
@@ -799,7 +801,7 @@ function photos_post(App $a)
 		$type = Image::guessType($filename);
 	}
 
-	logger('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
+	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
 
 	$maximagesize = Config::get('system', 'maximagesize');
 
@@ -819,14 +821,14 @@ function photos_post(App $a)
 		return;
 	}
 
-	logger('mod/photos.php: photos_post(): loading the contents of ' . $src , LOGGER_DEBUG);
+	Logger::log('mod/photos.php: photos_post(): loading the contents of ' . $src , Logger::DEBUG);
 
 	$imagedata = @file_get_contents($src);
 
 	$image = new Image($imagedata, $type);
 
 	if (!$image->isValid()) {
-		logger('mod/photos.php: photos_post(): unable to process image' , LOGGER_DEBUG);
+		Logger::log('mod/photos.php: photos_post(): unable to process image' , Logger::DEBUG);
 		notice(L10n::t('Unable to process image.') . EOL);
 		@unlink($src);
 		$foo = 0;
@@ -855,7 +857,7 @@ function photos_post(App $a)
 	$r = Photo::store($image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
-		logger('mod/photos.php: photos_post(): image store failed', LOGGER_DEBUG);
+		Logger::log('mod/photos.php: photos_post(): image store failed', Logger::DEBUG);
 		notice(L10n::t('Image upload failed.') . EOL);
 		killme();
 	}
@@ -1083,18 +1085,18 @@ function photos_content(App $a)
 
 		Addon::callHooks('photo_upload_form',$ret);
 
-		$default_upload_box = replace_macros(get_markup_template('photos_default_uploader_box.tpl'), []);
-		$default_upload_submit = replace_macros(get_markup_template('photos_default_uploader_submit.tpl'), [
+		$default_upload_box = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_box.tpl'), []);
+		$default_upload_submit = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_submit.tpl'), [
 			'$submit' => L10n::t('Submit'),
 		]);
 
 		$usage_message = '';
 
-		$tpl = get_markup_template('photos_upload.tpl');
+		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
 		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML($a->user));
 
-		$o .= replace_macros($tpl,[
+		$o .= Renderer::replaceMacros($tpl,[
 			'$pagename' => L10n::t('Upload Photos'),
 			'$sessid' => session_id(),
 			'$usage' => $usage_message,
@@ -1164,11 +1166,11 @@ function photos_content(App $a)
 		if ($cmd === 'edit') {
 			if (($album !== L10n::t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== L10n::t('Contact Photos'))) {
 				if ($can_post) {
-					$edit_tpl = get_markup_template('album_edit.tpl');
+					$edit_tpl = Renderer::getMarkupTemplate('album_edit.tpl');
 
 					$album_e = $album;
 
-					$o .= replace_macros($edit_tpl,[
+					$o .= Renderer::replaceMacros($edit_tpl,[
 						'$nametext' => L10n::t('New album name: '),
 						'$nickname' => $a->data['user']['nickname'],
 						'$album' => $album_e,
@@ -1218,8 +1220,8 @@ function photos_content(App $a)
 			}
 		}
 
-		$tpl = get_markup_template('photo_album.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('photo_album.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$photos' => $photos,
 			'$album' => $album,
 			'$can_post' => $can_post,
@@ -1340,8 +1342,8 @@ function photos_content(App $a)
 		}
 
 		if ($cmd === 'edit') {
-			$tpl = get_markup_template('photo_edit_head.tpl');
-			$a->page['htmlhead'] .= replace_macros($tpl,[
+			$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
+			$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
 				'$prevlink' => $prevlink,
 				'$nextlink' => $nextlink
 			]);
@@ -1427,13 +1429,13 @@ function photos_content(App $a)
 
 		$edit = Null;
 		if ($cmd === 'edit' && $can_post) {
-			$edit_tpl = get_markup_template('photo_edit.tpl');
+			$edit_tpl = Renderer::getMarkupTemplate('photo_edit.tpl');
 
 			$album_e = $ph[0]['album'];
 			$caption_e = $ph[0]['desc'];
 			$aclselect_e = ACL::getFullSelectorHTML($a->user, false, $ph[0]);
 
-			$edit = replace_macros($edit_tpl, [
+			$edit = Renderer::replaceMacros($edit_tpl, [
 				'$id' => $ph[0]['id'],
 				'$album' => ['albname', L10n::t('New album name'), $album_e,''],
 				'$caption' => ['desc', L10n::t('Caption'), $caption_e, ''],
@@ -1466,13 +1468,13 @@ function photos_content(App $a)
 		$responses = '';
 
 		if (count($linked_items)) {
-			$cmnt_tpl = get_markup_template('comment_item.tpl');
-			$tpl = get_markup_template('photo_item.tpl');
+			$cmnt_tpl = Renderer::getMarkupTemplate('comment_item.tpl');
+			$tpl = Renderer::getMarkupTemplate('photo_item.tpl');
 			$return_path = $a->cmd;
 
 			if ($can_post || Security::canWriteToUserWall($owner_uid)) {
-				$like_tpl = get_markup_template('like_noshare.tpl');
-				$likebuttons = replace_macros($like_tpl, [
+				$like_tpl = Renderer::getMarkupTemplate('like_noshare.tpl');
+				$likebuttons = Renderer::replaceMacros($like_tpl, [
 					'$id' => $link_item['id'],
 					'$likethis' => L10n::t("I like this \x28toggle\x29"),
 					'$nolike' => (Feature::isEnabled(local_user(), 'dislike') ? L10n::t("I don't like this \x28toggle\x29") : ''),
@@ -1483,7 +1485,7 @@ function photos_content(App $a)
 
 			if (!DBA::isResult($items)) {
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
-					$comments .= replace_macros($cmnt_tpl, [
+					$comments .= Renderer::replaceMacros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_path,
 						'$id' => $link_item['id'],
@@ -1522,7 +1524,7 @@ function photos_content(App $a)
 				}
 
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
-					$comments .= replace_macros($cmnt_tpl,[
+					$comments .= Renderer::replaceMacros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_path,
 						'$id' => $link_item['id'],
@@ -1567,7 +1569,7 @@ function photos_content(App $a)
 					$title_e = $item['title'];
 					$body_e = BBCode::convert($item['body']);
 
-					$comments .= replace_macros($template,[
+					$comments .= Renderer::replaceMacros($template,[
 						'$id' => $item['id'],
 						'$profile_url' => $profile_url,
 						'$name' => $item['author-name'],
@@ -1582,7 +1584,7 @@ function photos_content(App $a)
 					]);
 
 					if (($can_post || Security::canWriteToUserWall($owner_uid))) {
-						$comments .= replace_macros($cmnt_tpl, [
+						$comments .= Renderer::replaceMacros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_path,
 							'$id' => $item['item_id'],
@@ -1610,8 +1612,8 @@ function photos_content(App $a)
 			$paginate = $pager->renderFull($total);
 		}
 
-		$photo_tpl = get_markup_template('photo_view.tpl');
-		$o .= replace_macros($photo_tpl, [
+		$photo_tpl = Renderer::getMarkupTemplate('photo_view.tpl');
+		$o .= Renderer::replaceMacros($photo_tpl, [
 			'$id' => $ph[0]['id'],
 			'$album' => [$album_link, $ph[0]['album']],
 			'$tools' => $tools,
@@ -1702,8 +1704,8 @@ function photos_content(App $a)
 		}
 	}
 
-	$tpl = get_markup_template('photos_recent.tpl');
-	$o .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('photos_recent.tpl');
+	$o .= Renderer::replaceMacros($tpl, [
 		'$title' => L10n::t('Recent Photos'),
 		'$can_post' => $can_post,
 		'$upload' => [L10n::t('Upload New Photos'), 'photos/'.$a->data['user']['nickname'].'/upload'],

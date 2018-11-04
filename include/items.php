@@ -8,8 +8,10 @@ use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -109,7 +111,7 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 		$data["images"][0]["src"] = $photo;
 	}
 
-	logger('fetch page info for ' . $url . ' ' . print_r($data, true), LOGGER_DEBUG);
+	Logger::log('fetch page info for ' . $url . ' ' . print_r($data, true), Logger::DEBUG);
 
 	if (!$keywords && isset($data["keywords"])) {
 		unset($data["keywords"]);
@@ -167,7 +169,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false)
 {
-	logger('add_page_info_to_body: fetch page info for body ' . $body, LOGGER_DEBUG);
+	Logger::log('add_page_info_to_body: fetch page info for body ' . $body, Logger::DEBUG);
 
 	$URLSearchString = "^\[\]";
 
@@ -251,7 +253,7 @@ function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0
 			// Test - remove before flight
 			//$tempfile = tempnam(get_temppath(), "ostatus2");
 			//file_put_contents($tempfile, $xml);
-			logger("Consume OStatus messages ", LOGGER_DEBUG);
+			Logger::log("Consume OStatus messages ", Logger::DEBUG);
 			OStatus::import($xml, $importer, $contact, $hub);
 		}
 
@@ -260,7 +262,7 @@ function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0
 
 	if ($contact['network'] === Protocol::FEED) {
 		if ($pass < 2) {
-			logger("Consume feeds", LOGGER_DEBUG);
+			Logger::log("Consume feeds", Logger::DEBUG);
 			Feed::import($xml, $importer, $contact, $hub);
 		}
 
@@ -268,10 +270,10 @@ function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0
 	}
 
 	if ($contact['network'] === Protocol::DFRN) {
-		logger("Consume DFRN messages", LOGGER_DEBUG);
+		Logger::log("Consume DFRN messages", Logger::DEBUG);
 		$dfrn_importer = DFRN::getImporter($contact["id"], $importer["uid"]);
 		if (!empty($dfrn_importer)) {
-			logger("Now import the DFRN feed");
+			Logger::log("Now import the DFRN feed");
 			DFRN::import($xml, $dfrn_importer, true);
 			return;
 		}
@@ -310,7 +312,7 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 
 	$params= 'hub.mode=' . $hubmode . '&hub.callback=' . urlencode($push_url) . '&hub.topic=' . urlencode($contact['poll']) . '&hub.verify=async&hub.verify_token=' . $verify_token;
 
-	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
+	Logger::log('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
 	if (!strlen($contact['hub-verify']) || ($contact['hub-verify'] != $verify_token)) {
 		DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
@@ -318,7 +320,7 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 
 	$postResult = Network::post($url, $params);
 
-	logger('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), LOGGER_DEBUG);
+	Logger::log('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), Logger::DEBUG);
 
 	return;
 
@@ -343,7 +345,7 @@ function drop_items(array $items)
 	}
 }
 
-function drop_item($id)
+function drop_item($id, $return = '')
 {
 	$a = BaseObject::getApp();
 
@@ -389,7 +391,7 @@ function drop_item($id)
 				}
 			}
 
-			return replace_macros(get_markup_template('confirm.tpl'), [
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'get',
 				'$message' => L10n::t('Do you really want to delete this item?'),
 				'$extra_inputs' => $inputs,
@@ -407,8 +409,15 @@ function drop_item($id)
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		$a->internalRedirect('network');
-		//NOTREACHED
+		$return_url = hex2bin($return);
+		if (empty($return_url) || strpos($return_url, 'display') !== false) {
+			$a->internalRedirect('network');
+			//NOTREACHED
+		}
+		else {
+			$a->internalRedirect($return_url);
+			//NOTREACHED
+		}
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
 		$a->internalRedirect('display/' . $item['guid']);
@@ -480,7 +489,7 @@ function posted_date_widget($url, $uid, $wall)
 	$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
 	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
 
-	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[
+	$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('posted_date_widget.tpl'),[
 		'$title' => L10n::t('Archives'),
 		'$size' => $visible_years,
 		'$cutoff_year' => $cutoff_year,

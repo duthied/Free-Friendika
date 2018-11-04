@@ -7,6 +7,7 @@ namespace Friendica\Util;
 
 use Friendica\BaseObject;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Model\APContact;
@@ -59,7 +60,7 @@ class HTTPSignature
 		$sig_block = self::parseSigheader($headers['authorization']);
 
 		if (!$sig_block) {
-			logger('no signature provided.');
+			Logger::log('no signature provided.');
 			return $result;
 		}
 
@@ -89,7 +90,7 @@ class HTTPSignature
 			$key = $key($sig_block['keyId']);
 		}
 
-		logger('Got keyID ' . $sig_block['keyId']);
+		Logger::log('Got keyID ' . $sig_block['keyId'], Logger::DEBUG);
 
 		if (!$key) {
 			return $result;
@@ -97,7 +98,7 @@ class HTTPSignature
 
 		$x = Crypto::rsaVerify($signed_data, $sig_block['signature'], $key, $algorithm);
 
-		logger('verified: ' . $x, LOGGER_DEBUG);
+		Logger::log('verified: ' . $x, Logger::DEBUG);
 
 		if (!$x) {
 			return $result;
@@ -307,9 +308,57 @@ class HTTPSignature
 		$postResult = Network::post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
-		logger('Transmit to ' . $target . ' returned ' . $return_code);
+		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
 
 		return ($return_code >= 200) && ($return_code <= 299);
+	}
+
+	/**
+	 * @brief Fetches JSON data for a user
+	 *
+	 * @param string $request request url
+	 * @param integer $uid User id of the requester
+	 *
+	 * @return array JSON array
+	 */
+	public static function fetch($request, $uid)
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		if (!$owner) {
+			return;
+		}
+
+		// Header data that is about to be signed.
+		$host = parse_url($request, PHP_URL_HOST);
+		$path = parse_url($request, PHP_URL_PATH);
+
+		$headers = ['Host: ' . $host];
+
+		$signed_data = "(request-target): get " . $path . "\nhost: " . $host;
+
+		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
+
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) host",signature="' . $signature . '"';
+
+		$headers[] = 'Accept: application/activity+json, application/ld+json';
+
+		$curlResult = Network::curl($request, false, $redirects, ['header' => $headers]);
+		$return_code = $curlResult->getReturnCode();
+
+		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
+
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+			return false;
+		}
+
+		$content = json_decode($curlResult->getBody(), true);
+
+		if (empty($content) || !is_array($content)) {
+			return false;
+		}
+
+		return $content;
 	}
 
 	/**
@@ -432,12 +481,12 @@ class HTTPSignature
 
 		$profile = APContact::getByURL($url);
 		if (!empty($profile)) {
-			logger('Taking key from id ' . $id, LOGGER_DEBUG);
+			Logger::log('Taking key from id ' . $id, Logger::DEBUG);
 			return ['url' => $url, 'pubkey' => $profile['pubkey']];
 		} elseif ($url != $actor) {
 			$profile = APContact::getByURL($actor);
 			if (!empty($profile)) {
-				logger('Taking key from actor ' . $actor, LOGGER_DEBUG);
+				Logger::log('Taking key from actor ' . $actor, Logger::DEBUG);
 				return ['url' => $actor, 'pubkey' => $profile['pubkey']];
 			}
 		}

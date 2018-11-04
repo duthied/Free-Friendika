@@ -7,6 +7,8 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -29,7 +31,7 @@ function notification($params)
 
 	// Temporary logging for finding the origin
 	if (!isset($params['language']) || !isset($params['uid'])) {
-		logger('Missing parameters.' . System::callstack());
+		Logger::log('Missing parameters.' . System::callstack());
 	}
 
 	// Ensure that the important fields are set at any time
@@ -37,7 +39,7 @@ function notification($params)
 	$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 	if (!DBA::isResult($user)) {
-		logger('Unknown user ' . $params['uid']);
+		Logger::log('Unknown user ' . $params['uid']);
 		return;
 	}
 
@@ -133,7 +135,7 @@ function notification($params)
 	if ($params['type'] == NOTIFY_COMMENT) {
 		$thread = Item::selectFirstThreadForUser($params['uid'] ,['ignored'], ['iid' => $parent_id]);
 		if (DBA::isResult($thread) && $thread["ignored"]) {
-			logger("Thread ".$parent_id." will be ignored", LOGGER_DEBUG);
+			Logger::log("Thread ".$parent_id." will be ignored", Logger::DEBUG);
 			L10n::popLang();
 			return;
 		}
@@ -452,7 +454,7 @@ function notification($params)
 	$itemlink  = $h['itemlink'];
 
 	if ($show_in_notification_page) {
-		logger("adding notification entry", LOGGER_DEBUG);
+		Logger::log("adding notification entry", Logger::DEBUG);
 		do {
 			$dups = false;
 			$hash = random_string();
@@ -516,7 +518,7 @@ function notification($params)
 		}
 
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
-		$msg = replace_macros($epreamble, ['$itemlink' => $itemlink]);
+		$msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $itemlink]);
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
 
 		$fields = ['msg' => $msg, 'msg_cache' => $msg_cache];
@@ -529,14 +531,14 @@ function notification($params)
 		|| $params['type'] == NOTIFY_SYSTEM
 		|| $params['type'] == SYSTEM_EMAIL) {
 
-		logger('sending notification email');
+		Logger::log('sending notification email');
 
 		if (isset($params['parent']) && (intval($params['parent']) != 0)) {
 			$id_for_parent = $params['parent']."@".$hostname;
 
 			// Is this the first email notification for this parent item and user?
 			if (!DBA::exists('notify-threads', ['master-parent-item' => $params['parent'], 'receiver-uid' => $params['uid']])) {
-				logger("notify_id:".intval($notify_id).", parent: ".intval($params['parent'])."uid: ".intval($params['uid']), LOGGER_DEBUG);
+				Logger::log("notify_id:".intval($notify_id).", parent: ".intval($params['parent'])."uid: ".intval($params['uid']), Logger::DEBUG);
 
 				$fields = ['notify-id' => $notify_id, 'master-parent-item' => $params['parent'],
 					'receiver-uid' => $params['uid'], 'parent-item' => 0];
@@ -545,11 +547,11 @@ function notification($params)
 				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
 				$log_msg = "include/enotify: No previous notification found for this parent:\n".
 						"  parent: ${params['parent']}\n"."  uid   : ${params['uid']}\n";
-				logger($log_msg, LOGGER_DEBUG);
+				Logger::log($log_msg, Logger::DEBUG);
 			} else {
 				// If not, just "follow" the thread.
 				$additional_mail_header .= "References: <${id_for_parent}>\nIn-Reply-To: <${id_for_parent}>\n";
-				logger("There's already a notification for this parent.", LOGGER_DEBUG);
+				Logger::log("There's already a notification for this parent.", Logger::DEBUG);
 			}
 		}
 
@@ -588,8 +590,8 @@ function notification($params)
 		$content_allowed = ((!Config::get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
-		$tpl = get_markup_template('email_notify_html.tpl');
-		$email_html_body = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('email_notify_html.tpl');
+		$email_html_body = Renderer::replaceMacros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
 			'$preamble'     => str_replace("\n", "<br>\n", $datarray['preamble']),
@@ -609,8 +611,8 @@ function notification($params)
 		]);
 
 		// load the template for private message notifications
-		$tpl = get_markup_template('email_notify_text.tpl');
-		$email_text_body = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('email_notify_text.tpl');
+		$email_text_body = Renderer::replaceMacros($tpl, [
 			'$banner'       => $datarray['banner'],
 			'$product'      => $datarray['product'],
 			'$preamble'     => $datarray['preamble'],

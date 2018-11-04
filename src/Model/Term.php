@@ -86,7 +86,7 @@ class Term
 
 		$tags_string = '';
 		foreach ($taglist as $tag) {
-			if ((substr(trim($tag), 0, 1) == '#') || (substr(trim($tag), 0, 1) == '@')) {
+			if ((substr(trim($tag), 0, 1) == '#') || (substr(trim($tag), 0, 1) == '@') || (substr(trim($tag), 0, 1) == '!')) {
 				$tags_string .= ' ' . trim($tag);
 			} else {
 				$tags_string .= ' #' . trim($tag);
@@ -107,11 +107,11 @@ class Term
 			}
 		}
 
-		$pattern = '/\W([\#@])\[url\=(.*?)\](.*?)\[\/url\]/ism';
+		$pattern = '/\W([\#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism';
 		if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
 
-				if ($match[1] == '@') {
+				if (($match[1] == '@') || ($match[1] == '!')) {
 					$contact = Contact::getDetailsByURL($match[2], 0);
 					if (!empty($contact['addr'])) {
 						$match[3] = $contact['addr'];
@@ -140,7 +140,7 @@ class Term
 
 				$type = TERM_HASHTAG;
 				$term = substr($tag, 1);
-			} elseif (substr(trim($tag), 0, 1) == '@') {
+			} elseif ((substr(trim($tag), 0, 1) == '@') || (substr(trim($tag), 0, 1) == '!')) {
 				$type = TERM_MENTION;
 
 				$contact = Contact::getDetailsByURL($link, 0);
@@ -179,7 +179,7 @@ class Term
 			]);
 
 			// Search for mentions
-			if ((substr($tag, 0, 1) == '@') && (strpos($link, $profile_base_friendica) || strpos($link, $profile_base_diaspora))) {
+			if (((substr($tag, 0, 1) == '@') || (substr($tag, 0, 1) == '!')) && (strpos($link, $profile_base_friendica) || strpos($link, $profile_base_diaspora))) {
 				$users = q("SELECT `uid` FROM `contact` WHERE self AND (`url` = '%s' OR `nurl` = '%s')", $link, $link);
 				foreach ($users AS $user) {
 					if ($user['uid'] == $message['uid']) {

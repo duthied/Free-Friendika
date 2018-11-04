@@ -10,6 +10,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -110,8 +111,8 @@ function hovercard_content()
 		'actions'  => $actions,
 	];
 	if ($datatype == 'html') {
-		$tpl = get_markup_template('hovercard.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('hovercard.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$profile' => $profile,
 		]);
 
@@ -133,7 +134,7 @@ function get_template_content($template, $root = '')
 {
 	// We load the whole template system to get the filename.
 	// Maybe we can do it a little bit smarter if I get time.
-	$t = get_markup_template($template, $root);
+	$t = Renderer::getMarkupTemplate($template, $root);
 	$filename = $t->filename;
 
 	// Get the content of the template file

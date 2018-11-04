@@ -6,6 +6,7 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
@@ -999,11 +1000,10 @@ class Transmitter
 	public static function sendContactSuggestion($uid, $inbox, $suggestion_id)
 	{
 		$owner = User::getOwnerDataById($uid);
-		$profile = APContact::getByURL($owner['url']);
 
 		$suggestion = DBA::selectFirst('fsuggest', ['url', 'note', 'created'], ['id' => $suggestion_id]);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Announce',
 			'actor' => $owner['url'],
@@ -1015,7 +1015,35 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		logger('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
+		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
+		return HTTPSignature::transmit($signed, $inbox, $uid);
+	}
+
+	/**
+	 * Transmits a profile relocation to a given inbox
+	 *
+	 * @param integer $uid User ID
+	 * @param string $inbox Target inbox
+	 *
+	 * @return boolean was the transmission successful?
+	 */
+	public static function sendProfileRelocation($uid, $inbox)
+	{
+		$owner = User::getOwnerDataById($uid);
+
+		$data = ['@context' => ActivityPub::CONTEXT,
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'type' => 'dfrn:relocate',
+			'actor' => $owner['url'],
+			'object' => $owner['url'],
+			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'to' => [ActivityPub::PUBLIC_COLLECTION],
+			'cc' => []];
+
+		$signed = LDSignature::sign($data, $owner);
+
+		Logger::log('Deliver profile relocation for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1030,9 +1058,8 @@ class Transmitter
 	public static function sendProfileDeletion($uid, $inbox)
 	{
 		$owner = User::getOwnerDataById($uid);
-		$profile = APContact::getByURL($owner['url']);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Delete',
 			'actor' => $owner['url'],
@@ -1044,7 +1071,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		logger('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
+		Logger::log('Deliver profile deletion for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1061,7 +1088,7 @@ class Transmitter
 		$owner = User::getOwnerDataById($uid);
 		$profile = APContact::getByURL($owner['url']);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Update',
 			'actor' => $owner['url'],
@@ -1073,7 +1100,7 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 
-		logger('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', LOGGER_DEBUG);
+		Logger::log('Deliver profile update for user ' . $uid . ' to ' . $inbox . ' via ActivityPub', Logger::DEBUG);
 		return HTTPSignature::transmit($signed, $inbox, $uid);
 	}
 
@@ -1090,7 +1117,7 @@ class Transmitter
 
 		$owner = User::getOwnerDataById($uid);
 
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => $activity,
 			'actor' => $owner['url'],
@@ -1098,7 +1125,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		logger('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, LOGGER_DEBUG);
+		Logger::log('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1116,7 +1143,7 @@ class Transmitter
 		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
@@ -1126,7 +1153,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		logger('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		Logger::log('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1144,7 +1171,7 @@ class Transmitter
 		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
 			'actor' => $owner['url'],
@@ -1154,7 +1181,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		logger('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		Logger::log('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1173,7 +1200,7 @@ class Transmitter
 		$id = System::baseUrl() . '/activity/' . System::createGUID();
 
 		$owner = User::getOwnerDataById($uid);
-		$data = ['@context' => 'https://www.w3.org/ns/activitystreams',
+		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => $id,
 			'type' => 'Undo',
 			'actor' => $owner['url'],
@@ -1183,7 +1210,7 @@ class Transmitter
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
 			'to' => $profile['url']];
 
-		logger('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, LOGGER_DEBUG);
+		Logger::log('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);

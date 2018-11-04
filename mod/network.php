@@ -15,8 +15,10 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -199,8 +201,8 @@ function saved_searches($search)
 		];
 	}
 
-	$tpl = get_markup_template('saved_searches_aside.tpl');
-	$o = replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('saved_searches_aside.tpl');
+	$o = Renderer::replaceMacros($tpl, [
 		'$title'     => L10n::t('Saved Searches'),
 		'$add'       => L10n::t('add'),
 		'$searchbox' => search($search, 'netsearch-box', $srchurl, true),
@@ -652,7 +654,7 @@ function networkThreadedView(App $a, $update, $parent)
 			info(L10n::t('Group is empty'));
 		}
 
-		$o = replace_macros(get_markup_template('section_title.tpl'), [
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
 			'$title' => L10n::t('Group: %s', $group['name'])
 		]) . $o;
 	} elseif ($cid) {
@@ -673,7 +675,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 			$entries[0]['account_type'] = Contact::getAccountType($contact);
 
-			$o = replace_macros(get_markup_template('viewcontact_template.tpl'), [
+			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('viewcontact_template.tpl'), [
 				'contacts' => $entries,
 				'id' => 'network',
 			]) . $o;
@@ -871,7 +873,7 @@ function networkThreadedView(App $a, $update, $parent)
 				$_SESSION['network_last_date'] = $tag_top_limit;
 			}
 
-			logger('Tagged items: ' . count($data) . ' - ' . $bottom_limit . ' - ' . $top_limit . ' - ' . local_user().' - '.(int)$update);
+			Logger::log('Tagged items: ' . count($data) . ' - ' . $bottom_limit . ' - ' . $top_limit . ' - ' . local_user().' - '.(int)$update);
 			$s = [];
 			foreach ($r as $item) {
 				$s[$item['uri']] = $item;
@@ -1031,9 +1033,9 @@ function network_tabs(App $a)
 	$arr = ['tabs' => $tabs];
 	Addon::callHooks('network_tabs', $arr);
 
-	$tpl = get_markup_template('common_tabs.tpl');
+	$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 
-	return replace_macros($tpl, ['$tabs' => $arr['tabs']]);
+	return Renderer::replaceMacros($tpl, ['$tabs' => $arr['tabs']]);
 
 	// --- end item filter tabs
 }
@@ -1057,8 +1059,8 @@ function network_infinite_scroll_head(App $a, &$htmlhead)
 	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
 		&& defaults($_GET, 'mode', '') != 'minimal'
 	) {
-		$tpl = get_markup_template('infinite_scroll_head.tpl');
-		$htmlhead .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+		$htmlhead .= Renderer::replaceMacros($tpl, [
 			'$pageno'     => $pager->getPage(),
 			'$reload_uri' => $pager->getBaseQueryString()
 		]);

@@ -7,6 +7,7 @@
 namespace Friendica\Content\Widget;
 
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -49,8 +50,8 @@ class TagCloud
 				$tags[] = $tag;
 			}
 
-			$tpl = get_markup_template('tagblock_widget.tpl');
-			$o = replace_macros($tpl, [
+			$tpl = Renderer::getMarkupTemplate('tagblock_widget.tpl');
+			$o = Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Tags'),
 				'$tags' => $tags
 			]);

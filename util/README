@@ -39,7 +39,7 @@ text which you don't care for.
 
 Note: The view/lang/en directory contains many HTML template files, some of which
 only have a few words of English text amongst the HTML. Over time we will move
-the translation to the replace_macros() function which calls these files and
+the translation to the Renderer::replaceMacros() function which calls these files and
 then relocate the files to the view directory. The files in the top-level view
 directory are template files which do not require translation.
 

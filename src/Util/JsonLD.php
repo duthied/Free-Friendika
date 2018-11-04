@@ -5,6 +5,7 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Cache;
+use Friendica\Core\Logger;
 use Exception;
 
 /**
@@ -33,7 +34,7 @@ class JsonLD
 		}
 
 		if ($recursion > 5) {
-			logger('jsonld bomb detected at: ' . $url);
+			Logger::log('jsonld bomb detected at: ' . $url);
 			exit();
 		}
 
@@ -65,7 +66,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$normalized = false;
-			logger('normalise error:' . print_r($e, true), LOGGER_DEBUG);
+			Logger::log('normalise error:' . print_r($e, true), Logger::DEBUG);
 		}
 
 		return $normalized;
@@ -84,11 +85,12 @@ class JsonLD
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
 			'w3id' => 'https://w3id.org/security#',
+			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id'],
 			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
-			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+			'dfrn' => (object)['@id' => 'http://purl.org/macgirvin/dfrn/1.0/', '@type' => '@id'],
 			'diaspora' => (object)['@id' => 'https://diasporafoundation.org/ns/', '@type' => '@id'],
-			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
-			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id']];
+			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id']];
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
@@ -98,7 +100,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			logger('compacting error:' . print_r($e, true), LOGGER_DEBUG);
+			Logger::log('compacting error:' . print_r($e, true), Logger::DEBUG);
 		}
 
 		return json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);

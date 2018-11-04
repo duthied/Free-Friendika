@@ -9,7 +9,9 @@ use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -224,7 +226,7 @@ class Event extends BaseObject
 		}
 
 		DBA::delete('event', ['id' => $event_id]);
-		logger("Deleted event ".$event_id, LOGGER_DEBUG);
+		Logger::log("Deleted event ".$event_id, Logger::DEBUG);
 	}
 
 	/**
@@ -897,8 +899,8 @@ class Event extends BaseObject
 		// Construct the profile link (magic-auth).
 		$profile_link = Contact::magicLinkById($item['author-id']);
 
-		$tpl = get_markup_template('event_stream_item.tpl');
-		$return = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('event_stream_item.tpl');
+		$return = Renderer::replaceMacros($tpl, [
 			'$id'             => $item['event-id'],
 			'$title'          => prepare_text($item['event-summary']),
 			'$dtstart_label'  => L10n::t('Starts:'),

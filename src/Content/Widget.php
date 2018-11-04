@@ -11,9 +11,11 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 
@@ -29,7 +31,7 @@ class Widget
 	 */
 	public static function follow($value = "")
 	{
-		return replace_macros(get_markup_template('follow.tpl'), array(
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('follow.tpl'), array(
 			'$connect' => L10n::t('Add New Contact'),
 			'$desc' => L10n::t('Enter address or web location'),
 			'$hint' => L10n::t('Example: bob@example.com, http://example.com/barbara'),
@@ -72,7 +74,7 @@ class Widget
 		$aside = [];
 		$aside['$nv'] = $nv;
 
-		return replace_macros(get_markup_template('peoplefind.tpl'), $aside);
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('peoplefind.tpl'), $aside);
 	}
 
 	/**
@@ -150,7 +152,7 @@ class Widget
 			return '';
 		}
 
-		return replace_macros(get_markup_template('nets.tpl'), array(
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('nets.tpl'), array(
 			'$title' => L10n::t('Networks'),
 			'$desc' => '',
 			'$sel_all' => (($selected == '') ? 'selected' : ''),
@@ -185,13 +187,14 @@ class Widget
 		$terms = array();
 		$cnt = preg_match_all('/\[(.*?)\]/', $saved, $matches, PREG_SET_ORDER);
 		if ($cnt) {
-			foreach ($matches as $mtch) {
-				$unescaped = xmlify(file_tag_decode($mtch[1]));
+			foreach ($matches as $mtch)
+			{
+				$unescaped = xmlify(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}
 
-		return replace_macros(get_markup_template('fileas_widget.tpl'), array(
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('fileas_widget.tpl'), array(
 			'$title' => L10n::t('Saved Folders'),
 			'$desc' => '',
 			'$sel_all' => (($selected == '') ? 'selected' : ''),
@@ -226,12 +229,12 @@ class Widget
 
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				$unescaped = xmlify(file_tag_decode($mtch[1]));
+				$unescaped = xmlify(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}
 
-		return replace_macros(get_markup_template('categories_widget.tpl'), array(
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('categories_widget.tpl'), array(
 			'$title' => L10n::t('Categories'),
 			'$desc' => '',
 			'$sel_all' => (($selected == '') ? 'selected' : ''),
@@ -298,7 +301,7 @@ class Widget
 			$r = GContact::commonFriendsZcid($profile_uid, $zcid, 0, 5, true);
 		}
 
-		return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('remote_friends_common.tpl'), array(
 			'$desc' => L10n::tt("%d contact in common", "%d contacts in common", $t),
 			'$base' => System::baseUrl(),
 			'$uid' => $profile_uid,

@@ -10,6 +10,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
@@ -201,9 +202,9 @@ function directory_content(App $a)
 		}
 		DBA::close($r);
 
-		$tpl = get_markup_template('directory_header.tpl');
+		$tpl = Renderer::getMarkupTemplate('directory_header.tpl');
 
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$search'    => $search,
 			'$globaldir' => L10n::t('Global Directory'),
 			'$gdirpath'  => $gdirpath,

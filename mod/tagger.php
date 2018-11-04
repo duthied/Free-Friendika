@@ -5,6 +5,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -28,13 +29,13 @@ function tagger_content(App $a) {
 
 	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
 
-	logger('tagger: tag ' . $term . ' item ' . $item_id);
+	Logger::log('tagger: tag ' . $term . ' item ' . $item_id);
 
 
 	$item = Item::selectFirst([], ['id' => $item_id]);
 
 	if (!$item_id || !DBA::isResult($item)) {
-		logger('tagger: no item ' . $item_id);
+		Logger::log('tagger: no item ' . $item_id);
 		return;
 	}
 
@@ -60,7 +61,7 @@ function tagger_content(App $a) {
 	if (DBA::isResult($r)) {
 			$contact = $r[0];
 	} else {
-		logger('tagger: no contact_id');
+		Logger::log('tagger: no contact_id');
 		return;
 	}
 

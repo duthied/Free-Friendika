@@ -6,6 +6,7 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
 use Friendica\Util\HTTPSignature;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
@@ -59,16 +60,16 @@ class Receiver
 	{
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if (empty($http_signer)) {
-			logger('Invalid HTTP signature, message will be discarded.', LOGGER_DEBUG);
+			Logger::log('Invalid HTTP signature, message will be discarded.', Logger::DEBUG);
 			return;
 		} else {
-			logger('HTTP signature is signed by ' . $http_signer, LOGGER_DEBUG);
+			Logger::log('HTTP signature is signed by ' . $http_signer, Logger::DEBUG);
 		}
 
 		$activity = json_decode($body, true);
 
 		if (empty($activity)) {
-			logger('Invalid body.', LOGGER_DEBUG);
+			Logger::log('Invalid body.', Logger::DEBUG);
 			return;
 		}
 
@@ -76,31 +77,31 @@ class Receiver
 
 		$actor = JsonLD::fetchElement($ldactivity, 'as:actor');
 
-		logger('Message for user ' . $uid . ' is from actor ' . $actor, LOGGER_DEBUG);
+		Logger::log('Message for user ' . $uid . ' is from actor ' . $actor, Logger::DEBUG);
 
 		if (LDSignature::isSigned($activity)) {
 			$ld_signer = LDSignature::getSigner($activity);
 			if (empty($ld_signer)) {
-				logger('Invalid JSON-LD signature from ' . $actor, LOGGER_DEBUG);
+				Logger::log('Invalid JSON-LD signature from ' . $actor, Logger::DEBUG);
 			}
 			if (!empty($ld_signer && ($actor == $http_signer))) {
-				logger('The HTTP and the JSON-LD signature belong to ' . $ld_signer, LOGGER_DEBUG);
+				Logger::log('The HTTP and the JSON-LD signature belong to ' . $ld_signer, Logger::DEBUG);
 				$trust_source = true;
 			} elseif (!empty($ld_signer)) {
-				logger('JSON-LD signature is signed by ' . $ld_signer, LOGGER_DEBUG);
+				Logger::log('JSON-LD signature is signed by ' . $ld_signer, Logger::DEBUG);
 				$trust_source = true;
 			} elseif ($actor == $http_signer) {
-				logger('Bad JSON-LD signature, but HTTP signer fits the actor.', LOGGER_DEBUG);
+				Logger::log('Bad JSON-LD signature, but HTTP signer fits the actor.', Logger::DEBUG);
 				$trust_source = true;
 			} else {
-				logger('Invalid JSON-LD signature and the HTTP signer is different.', LOGGER_DEBUG);
+				Logger::log('Invalid JSON-LD signature and the HTTP signer is different.', Logger::DEBUG);
 				$trust_source = false;
 			}
 		} elseif ($actor == $http_signer) {
-			logger('Trusting post without JSON-LD signature, The actor fits the HTTP signer.', LOGGER_DEBUG);
+			Logger::log('Trusting post without JSON-LD signature, The actor fits the HTTP signer.', Logger::DEBUG);
 			$trust_source = true;
 		} else {
-			logger('No JSON-LD signature, different actor.', LOGGER_DEBUG);
+			Logger::log('No JSON-LD signature, different actor.', Logger::DEBUG);
 			$trust_source = false;
 		}
 
@@ -110,12 +111,13 @@ class Receiver
 	/**
 	 * Fetches the object type for a given object id
 	 *
-	 * @param array  $activity
-	 * @param string $object_id Object ID of the the provided object
+	 * @param array   $activity
+	 * @param string  $object_id Object ID of the the provided object
+	 * @param integer $uid User ID
 	 *
 	 * @return string with object type
 	 */
-	private static function fetchObjectType($activity, $object_id)
+	private static function fetchObjectType($activity, $object_id, $uid = 0)
 	{
 		if (!empty($activity['as:object'])) {
 			$object_type = JsonLD::fetchElement($activity['as:object'], '@type');
@@ -134,7 +136,7 @@ class Receiver
 			return 'as:' . $profile['type'];
 		}
 
-		$data = ActivityPub::fetchContent($object_id);
+		$data = ActivityPub::fetchContent($object_id, $uid);
 		if (!empty($data)) {
 			$object = JsonLD::compact($data);
 			$type = JsonLD::fetchElement($object, '@type');
@@ -159,7 +161,7 @@ class Receiver
 	{
 		$actor = JsonLD::fetchElement($activity, 'as:actor');
 		if (empty($actor)) {
-			logger('Empty actor', LOGGER_DEBUG);
+			Logger::log('Empty actor', Logger::DEBUG);
 			return [];
 		}
 
@@ -170,29 +172,32 @@ class Receiver
 
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
-			$owner = User::getOwnerDataById($uid);
 			$additional = ['uid:' . $uid => $uid];
 			$receivers = array_merge($receivers, $additional);
+		} else {
+			// We possibly need some user to fetch private content,
+			// so we fetch the first out ot the list.
+			$uid = self::getFirstUserFromReceivers($receivers);
 		}
 
-		logger('Receivers: ' . json_encode($receivers), LOGGER_DEBUG);
+		Logger::log('Receivers: ' . $uid . ' - ' . json_encode($receivers), Logger::DEBUG);
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object');
 		if (empty($object_id)) {
-			logger('No object found', LOGGER_DEBUG);
+			Logger::log('No object found', Logger::DEBUG);
 			return [];
 		}
 
-		$object_type = self::fetchObjectType($activity, $object_id);
+		$object_type = self::fetchObjectType($activity, $object_id, $uid);
 
 		// Fetch the content only on activities where this matters
 		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce'])) {
 			if ($type == 'as:Announce') {
 				$trust_source = false;
 			}
-			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source);
+			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source, $uid);
 			if (empty($object_data)) {
-				logger("Object data couldn't be processed", LOGGER_DEBUG);
+				Logger::log("Object data couldn't be processed", Logger::DEBUG);
 				return [];
 			}
 			// We had been able to retrieve the object data - so we can trust the source
@@ -215,7 +220,7 @@ class Receiver
 
 			// An Undo is done on the object of an object, so we need that type as well
 			if ($type == 'as:Undo') {
-				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object']);
+				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $uid);
 			}
 		}
 
@@ -229,9 +234,25 @@ class Receiver
 		$object_data['actor'] = $actor;
 		$object_data['receiver'] = array_merge(defaults($object_data, 'receiver', []), $receivers);
 
-		logger('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], LOGGER_DEBUG);
+		Logger::log('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], Logger::DEBUG);
 
 		return $object_data;
+	}
+
+	/**
+	 * Fetches the first uider id from the receiver array
+	 *
+	 * @param array $receivers Array with receivers
+	 * @return integer user id;
+	 */
+	public static function getFirstUserFromReceivers($receivers)
+	{
+		foreach ($receivers as $receiver) {
+			if (!empty($receiver)) {
+				return $receiver;
+			}
+		}
+		return 0;
 	}
 
 	/**
@@ -272,17 +293,17 @@ class Receiver
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
-			logger('Empty type', LOGGER_DEBUG);
+			Logger::log('Empty type', Logger::DEBUG);
 			return;
 		}
 
 		if (!JsonLD::fetchElement($activity, 'as:object')) {
-			logger('Empty object', LOGGER_DEBUG);
+			Logger::log('Empty object', Logger::DEBUG);
 			return;
 		}
 
 		if (!JsonLD::fetchElement($activity, 'as:actor')) {
-			logger('Empty actor', LOGGER_DEBUG);
+			Logger::log('Empty actor', Logger::DEBUG);
 			return;
 
 		}
@@ -290,12 +311,12 @@ class Receiver
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
 		if (empty($object_data)) {
-			logger('No object data found', LOGGER_DEBUG);
+			Logger::log('No object data found', Logger::DEBUG);
 			return;
 		}
 
 		if (!$trust_source) {
-			logger('No trust for activity type "' . $type . '", so we quit now.', LOGGER_DEBUG);
+			Logger::log('No trust for activity type "' . $type . '", so we quit now.', Logger::DEBUG);
 			return;
 		}
 
@@ -384,7 +405,7 @@ class Receiver
 				break;
 
 			default:
-				logger('Unknown activity: ' . $type . ' ' . $object_data['object_type'], LOGGER_DEBUG);
+				Logger::log('Unknown activity: ' . $type . ' ' . $object_data['object_type'], Logger::DEBUG);
 				break;
 		}
 	}
@@ -394,10 +415,11 @@ class Receiver
 	 *
 	 * @param array $activity
 	 * @param string $actor
+	 * @param array $tags
 	 *
 	 * @return array with receivers (user id)
 	 */
-	private static function getReceivers($activity, $actor)
+	private static function getReceivers($activity, $actor, $tags = [])
 	{
 		$receivers = [];
 
@@ -414,9 +436,9 @@ class Receiver
 			$profile = APContact::getByURL($actor);
 			$followers = defaults($profile, 'followers', '');
 
-			logger('Actor: ' . $actor . ' - Followers: ' . $followers, LOGGER_DEBUG);
+			Logger::log('Actor: ' . $actor . ' - Followers: ' . $followers, Logger::DEBUG);
 		} else {
-			logger('Empty actor', LOGGER_DEBUG);
+			Logger::log('Empty actor', Logger::DEBUG);
 			$followers = '';
 		}
 
@@ -445,24 +467,34 @@ class Receiver
 				}
 
 				if (in_array($receiver, [$followers, self::PUBLIC_COLLECTION]) && !empty($actor)) {
-					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
-					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
-						'network' => $networks, 'archive' => false, 'pending' => false];
-					$contacts = DBA::select('contact', ['uid'], $condition);
-					while ($contact = DBA::fetch($contacts)) {
-						if ($contact['uid'] != 0) {
-							$receivers['uid:' . $contact['uid']] = $contact['uid'];
-						}
-					}
-					DBA::close($contacts);
+					$receivers = array_merge($receivers, self::getReceiverForActor($actor, $tags));
 					continue;
 				}
 
+				// Fetching all directly addressed receivers
 				$condition = ['self' => true, 'nurl' => normalise_link($receiver)];
-				$contact = DBA::selectFirst('contact', ['uid'], $condition);
+				$contact = DBA::selectFirst('contact', ['uid', 'contact-type'], $condition);
 				if (!DBA::isResult($contact)) {
 					continue;
 				}
+
+				// Check if the potential receiver is following the actor
+				// Exception: The receiver is targetted via "to" or this is a comment
+				if ((($element != 'as:to') && empty($replyto)) || ($contact['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY)) {
+					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
+						'network' => $networks, 'archive' => false, 'pending' => false, 'uid' => $contact['uid']];
+
+					// Forum posts are only accepted from forum contacts
+					if ($contact['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+						$condition['rel'] = [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER];
+					}
+
+					if (!DBA::exists('contact', $condition)) {
+						continue;
+					}
+				}
+
 				$receivers['uid:' . $contact['uid']] = $contact['uid'];
 			}
 		}
@@ -470,6 +502,71 @@ class Receiver
 		self::switchContacts($receivers, $actor);
 
 		return $receivers;
+	}
+
+	/**
+	 * Fetch the receiver list of a given actor
+	 *
+	 * @param string $actor
+	 * @param array $tags
+	 *
+	 * @return array with receivers (user id)
+	 */
+	public static function getReceiverForActor($actor, $tags)
+	{
+		$receivers = [];
+		$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+		$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
+			'network' => $networks, 'archive' => false, 'pending' => false];
+		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			if (self::isValidReceiverForActor($contact, $actor, $tags)) {
+				$receivers['uid:' . $contact['uid']] = $contact['uid'];
+			}
+		}
+		DBA::close($contacts);
+		return $receivers;
+	}
+
+	/**
+	 * Tests if the contact is a valid receiver for this actor
+	 *
+	 * @param array $contact
+	 * @param string $actor
+	 * @param array $tags
+	 *
+	 * @return array with receivers (user id)
+	 */
+	private static function isValidReceiverForActor($contact, $actor, $tags)
+	{
+		// Public contacts are no valid receiver
+		if ($contact['uid'] == 0) {
+			return false;
+		}
+
+		// Are we following the contact? Then this is a valid receiver
+		if (in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
+			return true;
+		}
+
+		// When the possible receiver isn't a community, then it is no valid receiver
+		$owner = User::getOwnerDataById($contact['uid']);
+		if (empty($owner) || ($owner['contact-type'] != Contact::ACCOUNT_TYPE_COMMUNITY)) {
+			return false;
+		}
+
+		// Is the community account tagged?
+		foreach ($tags as $tag) {
+			if ($tag['type'] != 'Mention') {
+				continue;
+			}
+
+			if ($tag['href'] == $owner['url']) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -486,7 +583,7 @@ class Receiver
 			return;
 		}
 
-		logger('Switch contact ' . $cid . ' (' . $profile['url'] . ') for user ' . $uid . ' to ActivityPub');
+		Logger::log('Switch contact ' . $cid . ' (' . $profile['url'] . ') for user ' . $uid . ' to ActivityPub');
 
 		$photo = defaults($profile, 'photo', null);
 		unset($profile['photo']);
@@ -500,7 +597,7 @@ class Receiver
 		// Send a new follow request to be sure that the connection still exists
 		if (($uid != 0) && DBA::exists('contact', ['id' => $cid, 'rel' => [Contact::SHARING, Contact::FRIEND]])) {
 			ActivityPub\Transmitter::sendActivity('Follow', $profile['url'], $uid);
-			logger('Send a new follow request to ' . $profile['url'] . ' for user ' . $uid, LOGGER_DEBUG);
+			Logger::log('Send a new follow request to ' . $profile['url'] . ' for user ' . $uid, Logger::DEBUG);
 		}
 	}
 
@@ -558,39 +655,40 @@ class Receiver
 	 * @param string  $object_id    Object ID of the the provided object
 	 * @param array   $object       The provided object array
 	 * @param boolean $trust_source Do we trust the provided object?
+	 * @param integer $uid          User ID for the signature that we use to fetch data
 	 *
 	 * @return array with trusted and valid object data
 	 */
-	private static function fetchObject($object_id, $object = [], $trust_source = false)
+	private static function fetchObject($object_id, $object = [], $trust_source = false, $uid = 0)
 	{
 		// By fetching the type we check if the object is complete.
 		$type = JsonLD::fetchElement($object, '@type');
 
 		if (!$trust_source || empty($type)) {
-			$data = ActivityPub::fetchContent($object_id);
+			$data = ActivityPub::fetchContent($object_id, $uid);
 			if (!empty($data)) {
 				$object = JsonLD::compact($data);
-				logger('Fetched content for ' . $object_id, LOGGER_DEBUG);
+				Logger::log('Fetched content for ' . $object_id, Logger::DEBUG);
 			} else {
-				logger('Empty content for ' . $object_id . ', check if content is available locally.', LOGGER_DEBUG);
+				Logger::log('Empty content for ' . $object_id . ', check if content is available locally.', Logger::DEBUG);
 
 				$item = Item::selectFirst([], ['uri' => $object_id]);
 				if (!DBA::isResult($item)) {
-					logger('Object with url ' . $object_id . ' was not found locally.', LOGGER_DEBUG);
+					Logger::log('Object with url ' . $object_id . ' was not found locally.', Logger::DEBUG);
 					return false;
 				}
-				logger('Using already stored item for url ' . $object_id, LOGGER_DEBUG);
+				Logger::log('Using already stored item for url ' . $object_id, Logger::DEBUG);
 				$data = ActivityPub\Transmitter::createNote($item);
 				$object = JsonLD::compact($data);
 			}
 		} else {
-			logger('Using original object for url ' . $object_id, LOGGER_DEBUG);
+			Logger::log('Using original object for url ' . $object_id, Logger::DEBUG);
 		}
 
 		$type = JsonLD::fetchElement($object, '@type');
 
 		if (empty($type)) {
-			logger('Empty type', LOGGER_DEBUG);
+			Logger::log('Empty type', Logger::DEBUG);
 			return false;
 		}
 
@@ -603,10 +701,10 @@ class Receiver
 			if (empty($object_id)) {
 				return false;
 			}
-			return self::fetchObject($object_id);
+			return self::fetchObject($object_id, [], false, $uid);
 		}
 
-		logger('Unhandled object type: ' . $type, LOGGER_DEBUG);
+		Logger::log('Unhandled object type: ' . $type, Logger::DEBUG);
 	}
 
 	/**
@@ -735,7 +833,7 @@ class Receiver
 			}
 		}
 
-		$object_data['receiver'] = self::getReceivers($object, $object_data['actor']);
+		$object_data['receiver'] = self::getReceivers($object, $object_data['actor'], $object_data['tags']);
 
 		// Common object data:
 

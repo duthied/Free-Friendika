@@ -10,6 +10,8 @@ use Friendica\Core\Addon;
 use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
@@ -146,7 +148,7 @@ class Login extends BaseModule
 				);
 			}
 		} catch (Exception $e) {
-			logger('authenticate: failed login attempt: ' . notags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
+			Logger::log('authenticate: failed login attempt: ' . notags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
 			info('Login failed. Please check your credentials.' . EOL);
 			$a->internalRedirect();
 		}
@@ -195,7 +197,7 @@ class Login extends BaseModule
 				);
 				if (DBA::isResult($user)) {
 					if ($data->hash != Authentication::getCookieHashForUser($user)) {
-						logger("Hash for user " . $data->uid . " doesn't fit.");
+						Logger::log("Hash for user " . $data->uid . " doesn't fit.");
 						Authentication::deleteSession();
 						$a->internalRedirect();
 					}
@@ -231,7 +233,7 @@ class Login extends BaseModule
 				$check = Config::get('system', 'paranoia');
 				// extra paranoia - if the IP changed, log them out
 				if ($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
-					logger('Session address changed. Paranoid setting in effect, blocking session. ' .
+					Logger::log('Session address changed. Paranoid setting in effect, blocking session. ' .
 						$_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
 					Authentication::deleteSession();
 					$a->internalRedirect();
@@ -298,20 +300,20 @@ class Login extends BaseModule
 		}
 
 		if (local_user()) {
-			$tpl = get_markup_template('logout.tpl');
+			$tpl = Renderer::getMarkupTemplate('logout.tpl');
 		} else {
-			$a->page['htmlhead'] .= replace_macros(
-				get_markup_template('login_head.tpl'),
+			$a->page['htmlhead'] .= Renderer::replaceMacros(
+				Renderer::getMarkupTemplate('login_head.tpl'),
 				[
 					'$baseurl' => $a->getBaseURL(true)
 				]
 			);
 
-			$tpl = get_markup_template('login.tpl');
+			$tpl = Renderer::getMarkupTemplate('login.tpl');
 			$_SESSION['return_path'] = $return_path;
 		}
 
-		$o .= replace_macros(
+		$o .= Renderer::replaceMacros(
 			$tpl,
 			[
 				'$dest_url'     => self::getApp()->getBaseURL(true) . '/login',

@@ -10,7 +10,9 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -74,7 +76,7 @@ function display_init(App $a)
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-		logger('Directly serving XML for id '.$item["id"], LOGGER_DEBUG);
+		Logger::log('Directly serving XML for id '.$item["id"], Logger::DEBUG);
 		displayShowFeed($item["id"], false);
 	}
 
@@ -262,7 +264,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$conversation = '';
 	}
 
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'),
+	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'),
 				['$alternate' => $alternate,
 					'$conversation' => $conversation]);
 
