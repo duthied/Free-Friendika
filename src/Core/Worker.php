@@ -668,9 +668,10 @@ class Worker
 				DBA::close($processes);
 
 				// Now adding all processes with workerqueue entries
-				$entries = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` GROUP BY `priority`");
+				$entries = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` AND `next_try` < ? GROUP BY `priority`", DateTimeFormat::utcNow());
 				while ($entry = DBA::fetch($entries)) {
-					$processes = DBA::p("SELECT COUNT(*) AS `running` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done` WHERE `priority` = ?", $entry["priority"]);
+					$processes = DBA::p("SELECT COUNT(*) AS `running` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` WHERE NOT `done` AND `next_try` < ? AND `priority` = ?",
+						DateTimeFormat::utcNow(), $entry["priority"]);
 					if ($process = DBA::fetch($processes)) {
 						$listitem[$entry["priority"]] = $entry["priority"].":".$process["running"]."/".$entry["entries"];
 					}

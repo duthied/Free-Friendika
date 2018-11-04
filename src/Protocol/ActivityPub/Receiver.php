@@ -240,7 +240,7 @@ class Receiver
 	}
 
 	/**
-	 * Fetches the first uider id from the receiver array
+	 * Fetches the first user id from the receiver array
 	 *
 	 * @param array $receivers Array with receivers
 	 * @return integer user id;
