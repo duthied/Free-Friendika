@@ -52,6 +52,7 @@ function noscrape_init(App $a)
 	$json_info['fn'] = $a->profile['name'];
 	$json_info['photo'] = $contactPhoto["photo"];
 	$json_info['tags'] = $keywords;
+	$json_info['language'] = $a->profile['language'];
 
 	if (is_array($a->profile) && !$a->profile['hide-friends']) {
 		/// @todo What should this value tell us?
