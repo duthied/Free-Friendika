@@ -27,6 +27,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
+use Friendica\Util\Crypto;
 
 function item_extract_images($body) {
 
@@ -1166,7 +1167,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$notes_cid'    => $notes_cid,
 		'$sourceapp'    => L10n::t($a->sourcename),
 		'$cancel'       => L10n::t('Cancel'),
-		'$rand_num'     => random_digits(12),
+		'$rand_num'     => Crypto::randomDigits(12),
 
 		// ACL permissions box
 		'$acl'           => $x['acl'],

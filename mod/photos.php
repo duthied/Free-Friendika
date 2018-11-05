@@ -26,6 +26,7 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Security;
@@ -1500,7 +1501,7 @@ function photos_content(App $a)
 						'$preview' => L10n::t('Preview'),
 						'$sourceapp' => L10n::t($a->sourcename),
 						'$ww' => '',
-						'$rand_num' => random_digits(12)
+						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
 			}
@@ -1539,7 +1540,7 @@ function photos_content(App $a)
 						'$preview' => L10n::t('Preview'),
 						'$sourceapp' => L10n::t($a->sourcename),
 						'$ww' => '',
-						'$rand_num' => random_digits(12)
+						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
 
@@ -1599,7 +1600,7 @@ function photos_content(App $a)
 							'$preview' => L10n::t('Preview'),
 							'$sourceapp' => L10n::t($a->sourcename),
 							'$ww' => '',
-							'$rand_num' => random_digits(12)
+							'$rand_num' => Crypto::randomDigits(12)
 						]);
 					}
 				}

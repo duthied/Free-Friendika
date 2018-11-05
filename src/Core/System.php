@@ -265,7 +265,6 @@ class System extends BaseObject
 	function notice($s)
 	function info($s)
 	function is_site_admin()
-	function random_digits($digits)
 	function get_server()
 	function get_temppath()
 	function get_cachefile($file, $writemode = true)
