@@ -22,7 +22,7 @@ class CryptoTest extends TestCase
 	}
 
 	/**
-	 * Replaces rand results with given mocks
+	 * Replaces random_int results with given mocks
 	 *
 	 */
 	private function assertRandomInt($min, $max)
