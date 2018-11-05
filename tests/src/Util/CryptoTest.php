@@ -8,20 +8,6 @@ use PHPUnit\Framework\TestCase;
 class CryptoTest extends TestCase
 {
 	/**
-	 * Replaces rand results with given mocks
-	 *
-	 */
-	private function assertRand($min, $max)
-	{
-		global $phpMock;
-		$phpMock['rand'] = function($mMin, $mMax) use ($min, $max) {
-			$this->assertEquals($min, $mMin);
-			$this->assertEquals($max, $mMax);
-			return 1;
-		};
-	}
-
-	/**
 	 * Replaces random_int results with given mocks
 	 *
 	 */
