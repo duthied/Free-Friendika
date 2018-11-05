@@ -18,7 +18,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
-use Friendica\Util\XML;
+use Friendica\Util\Strings;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -190,7 +190,7 @@ class Widget
 		if ($cnt) {
 			foreach ($matches as $mtch)
 			{
-				$unescaped = XML::escape(FileTag::decode($mtch[1]));
+				$unescaped = Strings::escape(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}
@@ -230,7 +230,7 @@ class Widget
 
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				$unescaped = XML::escape(FileTag::decode($mtch[1]));
+				$unescaped = Strings::escape(FileTag::decode($mtch[1]));
 				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
 			}
 		}

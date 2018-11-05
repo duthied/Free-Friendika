@@ -44,7 +44,7 @@ class Strings
 		if (is_bool($val)) {
 			return $val?"true":"false";
 		} elseif (is_array($val)) {
-			return array_map('XML::arrayEscape', $val);
+			return array_map('Strings::arrayEscape', $val);
 		}
 		return self::escape((string) $val);
 	}

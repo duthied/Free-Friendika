@@ -10,7 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
-use Friendica\Util\XML;
+use Friendica\Util\Strings;
 
 require_once 'include/items.php';
 
@@ -67,7 +67,7 @@ function tagger_content(App $a) {
 	}
 
 	$uri = Item::newURI($owner_uid);
-	$xterm = XML::escape($term);
+	$xterm = Strings::escape($term);
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
 
@@ -77,9 +77,9 @@ function tagger_content(App $a) {
 		$href = System::baseUrl() . '/display/' . $item['guid'];
 	}
 
-	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n") ;
+	$link = Strings::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n") ;
 
-	$body = XML::escape($item['body']);
+	$body = Strings::escape($item['body']);
 
 	$target = <<< EOT
 	<target>

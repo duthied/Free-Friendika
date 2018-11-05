@@ -15,7 +15,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\XML;
+use Friendica\Util\Strings;
 
 function poco_init(App $a) {
 	$system_mode = false;
@@ -376,7 +376,7 @@ function poco_init(App $a) {
 
 	if ($format === 'xml') {
 		header('Content-type: text/xml');
-		echo Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), XML::arrayEscape(['$response' => $ret]));
+		echo Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), Strings::arrayEscape(['$response' => $ret]));
 		killme();
 	}
 	if ($format === 'json') {

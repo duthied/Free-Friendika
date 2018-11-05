@@ -4,7 +4,7 @@ use Friendica\App;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Model\FileTag;
-use Friendica\Util\XML;
+use Friendica\Util\Strings;
 
 function filerm_content(App $a)
 {
@@ -13,8 +13,8 @@ function filerm_content(App $a)
 		killme();
 	}
 
-	$term = XML::unescape(trim($_GET['term']));
-	$cat = XML::unescape(trim($_GET['cat']));
+	$term = Strings::unescape(trim($_GET['term']));
+	$cat = Strings::unescape(trim($_GET['cat']));
 
 	$category = (($cat) ? true : false);
 

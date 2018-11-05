@@ -33,6 +33,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/enotify.php';
@@ -256,7 +257,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 			$xml = XML::parseString($res);
 			$status = (int) $xml->status;
-			$message = XML::unescape($xml->message);   // human readable text of what may have gone wrong.
+			$message = Strings::unescape($xml->message);   // human readable text of what may have gone wrong.
 			switch ($status) {
 				case 0:
 					info(L10n::t("Confirmation completed successfully.") . EOL);

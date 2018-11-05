@@ -26,7 +26,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
-use Friendica\Util\XML;
+use Friendica\Util\Strings;
 
 require_once "include/conversation.php";
 
@@ -974,9 +974,9 @@ function get_cats_and_terms($item)
 	if ($cnt) {
 		foreach ($matches as $mtch) {
 			$categories[] = [
-				'name' => XML::escape(FileTag::decode($mtch[1])),
+				'name' => Strings::escape(FileTag::decode($mtch[1])),
 				'url' =>  "#",
-				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . XML::escape(FileTag::decode($mtch[1])):""),
+				'removeurl' => ((local_user() == $item['uid'])?'filerm/' . $item['id'] . '?f=&cat=' . Strings::escape(FileTag::decode($mtch[1])):""),
 				'first' => $first,
 				'last' => false
 			];
@@ -995,9 +995,9 @@ function get_cats_and_terms($item)
 		if ($cnt) {
 			foreach ($matches as $mtch) {
 				$folders[] = [
-					'name' => XML::escape(FileTag::decode($mtch[1])),
+					'name' => Strings::escape(FileTag::decode($mtch[1])),
 					'url' =>  "#",
-					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . XML::escape(FileTag::decode($mtch[1])) : ""),
+					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . Strings::escape(FileTag::decode($mtch[1])) : ""),
 					'first' => $first,
 					'last' => false
 				];

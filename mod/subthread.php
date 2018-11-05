@@ -10,7 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Security;
-use Friendica\Util\XML;
+use Friendica\Util\Strings;
 
 require_once 'include/items.php';
 
@@ -88,7 +88,7 @@ function subthread_content(App $a) {
 
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
-	$link = XML::escape('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+	$link = Strings::escape('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
 	$body = $item['body'];
 
 	$obj = <<< EOT
