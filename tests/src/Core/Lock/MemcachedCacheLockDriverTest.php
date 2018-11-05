@@ -8,6 +8,8 @@ use Friendica\Core\Lock\CacheLockDriver;
 
 /**
  * @requires extension memcached
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class MemcachedCacheLockDriverTest extends LockTest
 {

@@ -463,7 +463,7 @@ class Diaspora
 		}
 
 		return ['message' => (string)base64url_decode($base->data),
-				'author' => unxmlify($author_addr),
+				'author' => XML::unescape($author_addr),
 				'key' => (string)$key];
 	}
 
@@ -603,7 +603,7 @@ class Diaspora
 		Logger::log('Message verified.');
 
 		return ['message' => (string)$inner_decrypted,
-				'author' => unxmlify($author_link),
+				'author' => XML::unescape($author_link),
 				'key' => (string)$key];
 	}
 
@@ -1505,9 +1505,9 @@ class Diaspora
 	 */
 	private static function receiveAccountMigration(array $importer, $data)
 	{
-		$old_handle = notags(unxmlify($data->author));
-		$new_handle = notags(unxmlify($data->profile->author));
-		$signature = notags(unxmlify($data->signature));
+		$old_handle = notags(XML::unescape($data->author));
+		$new_handle = notags(XML::unescape($data->profile->author));
+		$signature = notags(XML::unescape($data->signature));
 
 		$contact = self::contactByHandle($importer["uid"], $old_handle);
 		if (!$contact) {
@@ -1565,7 +1565,7 @@ class Diaspora
 	 */
 	private static function receiveAccountDeletion($data)
 	{
-		$author = notags(unxmlify($data->author));
+		$author = notags(XML::unescape($data->author));
 
 		$contacts = DBA::select('contact', ['id'], ['addr' => $author]);
 		while ($contact = DBA::fetch($contacts)) {
@@ -1656,19 +1656,19 @@ class Diaspora
 	 */
 	private static function receiveComment(array $importer, $sender, $data, $xml)
 	{
-		$author = notags(unxmlify($data->author));
-		$guid = notags(unxmlify($data->guid));
-		$parent_guid = notags(unxmlify($data->parent_guid));
-		$text = unxmlify($data->text);
+		$author = notags(XML::unescape($data->author));
+		$guid = notags(XML::unescape($data->guid));
+		$parent_guid = notags(XML::unescape($data->parent_guid));
+		$text = XML::unescape($data->text);
 
 		if (isset($data->created_at)) {
-			$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
+			$created_at = DateTimeFormat::utc(notags(XML::unescape($data->created_at)));
 		} else {
 			$created_at = DateTimeFormat::utcNow();
 		}
 
 		if (isset($data->thread_parent_guid)) {
-			$thread_parent_guid = notags(unxmlify($data->thread_parent_guid));
+			$thread_parent_guid = notags(XML::unescape($data->thread_parent_guid));
 			$thr_uri = self::getUriFromGuid("", $thread_parent_guid, true);
 		} else {
 			$thr_uri = "";
@@ -1773,24 +1773,24 @@ class Diaspora
 	 */
 	private static function receiveConversationMessage(array $importer, array $contact, $data, $msg, $mesg, $conversation)
 	{
-		$author = notags(unxmlify($data->author));
-		$guid = notags(unxmlify($data->guid));
-		$subject = notags(unxmlify($data->subject));
+		$author = notags(XML::unescape($data->author));
+		$guid = notags(XML::unescape($data->guid));
+		$subject = notags(XML::unescape($data->subject));
 
 		// "diaspora_handle" is the element name from the old version
 		// "author" is the element name from the new version
 		if ($mesg->author) {
-			$msg_author = notags(unxmlify($mesg->author));
+			$msg_author = notags(XML::unescape($mesg->author));
 		} elseif ($mesg->diaspora_handle) {
-			$msg_author = notags(unxmlify($mesg->diaspora_handle));
+			$msg_author = notags(XML::unescape($mesg->diaspora_handle));
 		} else {
 			return false;
 		}
 
-		$msg_guid = notags(unxmlify($mesg->guid));
-		$msg_conversation_guid = notags(unxmlify($mesg->conversation_guid));
-		$msg_text = unxmlify($mesg->text);
-		$msg_created_at = DateTimeFormat::utc(notags(unxmlify($mesg->created_at)));
+		$msg_guid = notags(XML::unescape($mesg->guid));
+		$msg_conversation_guid = notags(XML::unescape($mesg->conversation_guid));
+		$msg_text = XML::unescape($mesg->text);
+		$msg_created_at = DateTimeFormat::utc(notags(XML::unescape($mesg->created_at)));
 
 		if ($msg_conversation_guid != $guid) {
 			Logger::log("message conversation guid does not belong to the current conversation.");
@@ -1861,11 +1861,11 @@ class Diaspora
 	 */
 	private static function receiveConversation(array $importer, $msg, $data)
 	{
-		$author = notags(unxmlify($data->author));
-		$guid = notags(unxmlify($data->guid));
-		$subject = notags(unxmlify($data->subject));
-		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
-		$participants = notags(unxmlify($data->participants));
+		$author = notags(XML::unescape($data->author));
+		$guid = notags(XML::unescape($data->guid));
+		$subject = notags(XML::unescape($data->subject));
+		$created_at = DateTimeFormat::utc(notags(XML::unescape($data->created_at)));
+		$participants = notags(XML::unescape($data->participants));
 
 		$messages = $data->message;
 
@@ -1919,11 +1919,11 @@ class Diaspora
 	 */
 	private static function receiveLike(array $importer, $sender, $data)
 	{
-		$author = notags(unxmlify($data->author));
-		$guid = notags(unxmlify($data->guid));
-		$parent_guid = notags(unxmlify($data->parent_guid));
-		$parent_type = notags(unxmlify($data->parent_type));
-		$positive = notags(unxmlify($data->positive));
+		$author = notags(XML::unescape($data->author));
+		$guid = notags(XML::unescape($data->guid));
+		$parent_guid = notags(XML::unescape($data->parent_guid));
+		$parent_type = notags(XML::unescape($data->parent_type));
+		$positive = notags(XML::unescape($data->positive));
 
 		// likes on comments aren't supported by Diaspora - only on posts
 		// But maybe this will be supported in the future, so we will accept it.
@@ -2028,11 +2028,11 @@ class Diaspora
 	 */
 	private static function receiveMessage(array $importer, $data)
 	{
-		$author = notags(unxmlify($data->author));
-		$guid = notags(unxmlify($data->guid));
-		$conversation_guid = notags(unxmlify($data->conversation_guid));
-		$text = unxmlify($data->text);
-		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
+		$author = notags(XML::unescape($data->author));
+		$guid = notags(XML::unescape($data->guid));
+		$conversation_guid = notags(XML::unescape($data->conversation_guid));
+		$text = XML::unescape($data->text);
+		$created_at = DateTimeFormat::utc(notags(XML::unescape($data->created_at)));
 
 		$contact = self::allowedContactByHandle($importer, $author, true);
 		if (!$contact) {
@@ -2103,8 +2103,8 @@ class Diaspora
 	 */
 	private static function receiveParticipation(array $importer, $data)
 	{
-		$author = strtolower(notags(unxmlify($data->author)));
-		$parent_guid = notags(unxmlify($data->parent_guid));
+		$author = strtolower(notags(XML::unescape($data->author)));
+		$parent_guid = notags(XML::unescape($data->parent_guid));
 
 		$contact_id = Contact::getIdForURL($author);
 		if (!$contact_id) {
@@ -2196,22 +2196,22 @@ class Diaspora
 	 */
 	private static function receiveProfile(array $importer, $data)
 	{
-		$author = strtolower(notags(unxmlify($data->author)));
+		$author = strtolower(notags(XML::unescape($data->author)));
 
 		$contact = self::contactByHandle($importer["uid"], $author);
 		if (!$contact) {
 			return false;
 		}
 
-		$name = unxmlify($data->first_name).((strlen($data->last_name)) ? " ".unxmlify($data->last_name) : "");
-		$image_url = unxmlify($data->image_url);
-		$birthday = unxmlify($data->birthday);
-		$gender = unxmlify($data->gender);
-		$about = Markdown::toBBCode(unxmlify($data->bio));
-		$location = Markdown::toBBCode(unxmlify($data->location));
-		$searchable = (unxmlify($data->searchable) == "true");
-		$nsfw = (unxmlify($data->nsfw) == "true");
-		$tags = unxmlify($data->tag_string);
+		$name = XML::unescape($data->first_name).((strlen($data->last_name)) ? " ".XML::unescape($data->last_name) : "");
+		$image_url = XML::unescape($data->image_url);
+		$birthday = XML::unescape($data->birthday);
+		$gender = XML::unescape($data->gender);
+		$about = Markdown::toBBCode(XML::unescape($data->bio));
+		$location = Markdown::toBBCode(XML::unescape($data->location));
+		$searchable = (XML::unescape($data->searchable) == "true");
+		$nsfw = (XML::unescape($data->nsfw) == "true");
+		$tags = XML::unescape($data->tag_string);
 
 		$tags = explode("#", $tags);
 
@@ -2310,8 +2310,8 @@ class Diaspora
 	 */
 	private static function receiveContactRequest(array $importer, $data)
 	{
-		$author = unxmlify($data->author);
-		$recipient = unxmlify($data->recipient);
+		$author = XML::unescape($data->author);
+		$recipient = XML::unescape($data->recipient);
 
 		if (!$author || !$recipient) {
 			return false;
@@ -2320,13 +2320,13 @@ class Diaspora
 		// the current protocol version doesn't know these fields
 		// That means that we will assume their existance
 		if (isset($data->following)) {
-			$following = (unxmlify($data->following) == "true");
+			$following = (XML::unescape($data->following) == "true");
 		} else {
 			$following = true;
 		}
 
 		if (isset($data->sharing)) {
-			$sharing = (unxmlify($data->sharing) == "true");
+			$sharing = (XML::unescape($data->sharing) == "true");
 		} else {
 			$sharing = true;
 		}
@@ -2573,13 +2573,13 @@ class Diaspora
 	 */
 	private static function receiveReshare(array $importer, $data, $xml)
 	{
-		$author = notags(unxmlify($data->author));
-		$guid = notags(unxmlify($data->guid));
-		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
-		$root_author = notags(unxmlify($data->root_author));
-		$root_guid = notags(unxmlify($data->root_guid));
+		$author = notags(XML::unescape($data->author));
+		$guid = notags(XML::unescape($data->guid));
+		$created_at = DateTimeFormat::utc(notags(XML::unescape($data->created_at)));
+		$root_author = notags(XML::unescape($data->root_author));
+		$root_guid = notags(XML::unescape($data->root_guid));
 		/// @todo handle unprocessed property "provider_display_name"
-		$public = notags(unxmlify($data->public));
+		$public = notags(XML::unescape($data->public));
 
 		$contact = self::allowedContactByHandle($importer, $author, false);
 		if (!$contact) {
@@ -2665,9 +2665,9 @@ class Diaspora
 	 */
 	private static function itemRetraction(array $importer, array $contact, $data)
 	{
-		$author = notags(unxmlify($data->author));
-		$target_guid = notags(unxmlify($data->target_guid));
-		$target_type = notags(unxmlify($data->target_type));
+		$author = notags(XML::unescape($data->author));
+		$target_guid = notags(XML::unescape($data->target_guid));
+		$target_type = notags(XML::unescape($data->target_type));
 
 		$person = self::personByHandle($author);
 		if (!is_array($person)) {
@@ -2729,7 +2729,7 @@ class Diaspora
 	 */
 	private static function receiveRetraction(array $importer, $sender, $data)
 	{
-		$target_type = notags(unxmlify($data->target_type));
+		$target_type = notags(XML::unescape($data->target_type));
 
 		$contact = self::contactByHandle($importer["uid"], $sender);
 		if (!$contact && (in_array($target_type, ["Contact", "Person"]))) {
@@ -2774,12 +2774,12 @@ class Diaspora
 	 */
 	private static function receiveStatusMessage(array $importer, SimpleXMLElement $data, $xml)
 	{
-		$author = notags(unxmlify($data->author));
-		$guid = notags(unxmlify($data->guid));
-		$created_at = DateTimeFormat::utc(notags(unxmlify($data->created_at)));
-		$public = notags(unxmlify($data->public));
-		$text = unxmlify($data->text);
-		$provider_display_name = notags(unxmlify($data->provider_display_name));
+		$author = notags(XML::unescape($data->author));
+		$guid = notags(XML::unescape($data->guid));
+		$created_at = DateTimeFormat::utc(notags(XML::unescape($data->created_at)));
+		$public = notags(XML::unescape($data->public));
+		$text = XML::unescape($data->text);
+		$provider_display_name = notags(XML::unescape($data->provider_display_name));
 
 		$contact = self::allowedContactByHandle($importer, $author, false);
 		if (!$contact) {
@@ -2794,7 +2794,7 @@ class Diaspora
 		$address = [];
 		if ($data->location) {
 			foreach ($data->location->children() as $fieldname => $data) {
-				$address[$fieldname] = notags(unxmlify($data));
+				$address[$fieldname] = notags(XML::unescape($data));
 			}
 		}
 
@@ -2805,8 +2805,8 @@ class Diaspora
 		// Attach embedded pictures to the body
 		if ($data->photo) {
 			foreach ($data->photo as $photo) {
-				$body = "[img]".unxmlify($photo->remote_photo_path).
-					unxmlify($photo->remote_photo_name)."[/img]\n".$body;
+				$body = "[img]".XML::unescape($photo->remote_photo_path).
+					XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
 			}
 
 			$datarray["object-type"] = ACTIVITY_OBJ_IMAGE;

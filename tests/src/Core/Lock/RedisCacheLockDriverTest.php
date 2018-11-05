@@ -8,6 +8,8 @@ use Friendica\Core\Lock\CacheLockDriver;
 
 /**
  * @requires extension redis
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class RedisCacheLockDriverTest extends LockTest
 {

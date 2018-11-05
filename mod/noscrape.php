@@ -27,12 +27,13 @@ function noscrape_init(App $a)
 	Profile::load($a, $which, $profile);
 
 	$json_info = [
-		'addr'     => $a->profile['addr'],
-		'nick'     => $which,
-		'guid'     => $a->profile['guid'],
-		'key'      => $a->profile['pubkey'],
-		'homepage' => System::baseUrl()."/profile/{$which}",
-		'comm'     => ($a->profile['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY),
+		'addr'         => $a->profile['addr'],
+		'nick'         => $which,
+		'guid'         => $a->profile['guid'],
+		'key'          => $a->profile['pubkey'],
+		'homepage'     => System::baseUrl()."/profile/{$which}",
+		'comm'         => ($a->profile['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY),
+		'account-type' => $a->profile['account-type'],
 	];
 
 	if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
@@ -51,6 +52,7 @@ function noscrape_init(App $a)
 	$json_info['fn'] = $a->profile['name'];
 	$json_info['photo'] = $contactPhoto["photo"];
 	$json_info['tags'] = $keywords;
+	$json_info['language'] = $a->profile['language'];
 
 	if (is_array($a->profile) && !$a->profile['hide-friends']) {
 		/// @todo What should this value tell us?
