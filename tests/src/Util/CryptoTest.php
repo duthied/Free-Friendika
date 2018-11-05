@@ -1,6 +1,6 @@
 <?php
 
-// this is in the same namespace as Install for mocking 'rand' and 'random_init'
+// this is in the same namespace as Crypto for mocking 'rand' and 'random_init'
 namespace Friendica\Util;
 
 use PHPUnit\Framework\TestCase;
