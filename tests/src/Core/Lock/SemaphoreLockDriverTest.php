@@ -4,6 +4,10 @@ namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\Core\Lock\SemaphoreLockDriver;
 
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ */
 class SemaphoreLockDriverTest extends LockTest
 {
 	protected function getInstance()

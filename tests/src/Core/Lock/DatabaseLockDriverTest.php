@@ -5,6 +5,10 @@ namespace Friendica\Test\src\Core\Lock;
 use Friendica\Core\Lock\DatabaseLockDriver;
 use Friendica\Database\DBA;
 
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ */
 class DatabaseLockDriverTest extends LockTest
 {
 	protected function getInstance()
