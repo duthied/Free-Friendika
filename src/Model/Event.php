@@ -17,7 +17,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
-use Friendica\Util\Strings;
+use Friendica\Util\XML;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -303,8 +303,8 @@ class Event extends BaseObject
 
 			$item = Item::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
 			if (DBA::isResult($item)) {
-				$object = '<object><type>' . Strings::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . Strings::escape($event['uri']) . '</id>';
-				$object .= '<content>' . Strings::escape(self::getBBCode($event)) . '</content>';
+				$object = '<object><type>' . XML::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
+				$object .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
 				$object .= '</object>' . "\n";
 
 				$fields = ['body' => self::getBBCode($event), 'object' => $object, 'edited' => $event['edited']];
@@ -354,8 +354,8 @@ class Event extends BaseObject
 			$item_arr['body']          = self::getBBCode($event);
 			$item_arr['event-id']      = $event['id'];
 
-			$item_arr['object']  = '<object><type>' . Strings::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . Strings::escape($event['uri']) . '</id>';
-			$item_arr['object'] .= '<content>' . Strings::escape(self::getBBCode($event)) . '</content>';
+			$item_arr['object']  = '<object><type>' . XML::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
+			$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
 			$item_arr['object'] .= '</object>' . "\n";
 
 			$item_id = Item::insert($item_arr);

@@ -8,7 +8,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
-use Friendica\Util\Strings;
+use Friendica\Util\XML;
 
 require_once 'include/items.php';
 
@@ -18,7 +18,7 @@ function filer_content(App $a)
 		killme();
 	}
 
-	$term = Strings::unescape(trim(defaults($_GET, 'term', '')));
+	$term = XML::unescape(trim(defaults($_GET, 'term', '')));
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	Logger::log('filer: tag ' . $term . ' item ' . $item_id);

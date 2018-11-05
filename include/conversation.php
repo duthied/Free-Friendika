@@ -25,7 +25,6 @@ use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
@@ -196,7 +195,7 @@ function localize_item(&$item)
 		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
 
 		$obj = XML::parseString($xmlhead.$item['object']);
-		$links = XML::parseString($xmlhead."<links>".Strings::unescape($obj->link)."</links>");
+		$links = XML::parseString($xmlhead."<links>".XML::unescape($obj->link)."</links>");
 
 		$Bname = $obj->title;
 		$Blink = "";
