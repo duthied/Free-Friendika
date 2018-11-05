@@ -12,6 +12,7 @@ use Friendica\Core\System;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Database\DBA;
+use Friendica\Util\Crypto;
 
 function editpost_content(App $a)
 {
@@ -131,7 +132,7 @@ function editpost_content(App $a)
 		'$jotplugins' => $jotplugins,
 		'$sourceapp' => L10n::t($a->sourcename),
 		'$cancel' => L10n::t('Cancel'),
-		'$rand_num' => random_digits(12),
+		'$rand_num' => Crypto::randomDigits(12),
 
 		//jot nav tab (used in some themes)
 		'$message' => L10n::t('Message'),

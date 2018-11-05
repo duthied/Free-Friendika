@@ -673,16 +673,6 @@ function curPageURL()
 	return $pageURL;
 }
 
-function random_digits($digits)
-{
-	$rn = '';
-	for ($i = 0; $i < $digits; $i++) {
-		/// @TODO Avoid rand/mt_rand, when it comes to cryptography, they are generating predictable (seedable) numbers.
-		$rn .= rand(0, 9);
-	}
-	return $rn;
-}
-
 function get_server()
 {
 	$server = Config::get("system", "directory");

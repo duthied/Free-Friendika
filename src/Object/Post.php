@@ -18,6 +18,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
+use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
@@ -815,7 +816,7 @@ class Post extends BaseObject
 				'$indent'      => $indent,
 				'$sourceapp'   => L10n::t($a->sourcename),
 				'$ww'          => $conv->getMode() === 'network' ? $ww : '',
-				'$rand_num'    => random_digits(12)
+				'$rand_num'    => Crypto::randomDigits(12)
 			]);
 		}
 

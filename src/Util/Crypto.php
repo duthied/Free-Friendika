@@ -476,4 +476,25 @@ class Crypto
 
 		return self::decryptAES256CBC(base64url_decode($data['data']), $k, $i);
 	}
+
+
+	/**
+	 * Creates cryptographic secure random digits
+	 *
+	 * @param string $digits The count of digits
+	 * @return int The random Digits
+	 *
+	 * @throws \Exception In case 'random_int' isn't usable
+	 */
+	public static function randomDigits($digits)
+	{
+		$rn = '';
+
+		// generating cryptographically secure pseudo-random integers
+		for ($i = 0; $i < $digits; $i++) {
+			$rn .= random_int(0, 9);
+		}
+
+		return $rn;
+	}
 }
