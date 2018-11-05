@@ -1,16 +1,16 @@
 <?php
 /**
- * @file tests/src/Util/StringsTest.php
+ * @file tests/src/Util/XmlTest.php
  */
 namespace Friendica\Test\Util;
 
-use Friendica\Util\Strings;
+use Friendica\Util\XML;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @brief Strings utility test class
+ * @brief XML utility test class
  */
-class StringsTest extends TestCase
+class XmlTest extends TestCase
 {
     /**
 	* escape and unescape
