@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Core\Addon;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 
