@@ -711,7 +711,7 @@ class HTML
 	 *
 	 * @param string $s
 	 */
-	public static function htmlToBBVideo($s)
+	public static function toBBVideo($s)
 	{
 		$s = preg_replace(
 			'#<object[^>]+>(.*?)https?://www.youtube.com/((?:v|cp)/[A-Za-z0-9\-_=]+)(.*?)</object>#ism',

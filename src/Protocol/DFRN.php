@@ -2502,7 +2502,7 @@ class DFRN
 			$base_url = get_app()->getBaseURL();
 			$item['body'] = HTML::relToAbs($item['body'], $base_url);
 
-			$item['body'] = HTML::htmlToBBVideo($item['body']);
+			$item['body'] = HTML::toBBVideo($item['body']);
 
 			$item['body'] = OEmbed::HTML2BBCode($item['body']);
 

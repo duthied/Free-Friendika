@@ -1046,7 +1046,7 @@ function api_statuses_mediap($type)
 	//$txt = urldecode(requestdata('status'));
 
 	if ((strpos($txt, '<') !== false) || (strpos($txt, '>') !== false)) {
-		$txt = HTML::htmlToBBVideo($txt);
+		$txt = HTML::toBBVideo($txt);
 		$config = HTMLPurifier_Config::createDefault();
 		$config->set('Cache.DefinitionImpl', null);
 		$purifier = new HTMLPurifier($config);
@@ -1092,7 +1092,7 @@ function api_statuses_update($type)
 	if (requestdata('htmlstatus')) {
 		$txt = requestdata('htmlstatus');
 		if ((strpos($txt, '<') !== false) || (strpos($txt, '>') !== false)) {
-			$txt = HTML::htmlToBBVideo($txt);
+			$txt = HTML::toBBVideo($txt);
 
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Cache.DefinitionImpl', null);
