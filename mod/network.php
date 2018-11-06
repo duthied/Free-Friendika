@@ -10,6 +10,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
@@ -205,7 +206,7 @@ function saved_searches($search)
 	$o = Renderer::replaceMacros($tpl, [
 		'$title'     => L10n::t('Saved Searches'),
 		'$add'       => L10n::t('add'),
-		'$searchbox' => search($search, 'netsearch-box', $srchurl, true),
+		'$searchbox' => HTML::search($search, 'netsearch-box', $srchurl, true),
 		'$saved'     => $saved,
 	]);
 
@@ -348,7 +349,7 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 
 	if (!$update) {
 		if (PConfig::get(local_user(), 'system', 'infinite_scroll')) {
-			$o .= scroll_loader();
+			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal(count($items));
 		}

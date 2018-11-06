@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -163,7 +164,7 @@ function search_content(App $a) {
 		'name' => "search-header",
 		'$title' => L10n::t("Search"),
 		'$title_size' => 3,
-		'$content' => search($search,'search-box','search',((local_user()) ? true : false), false)
+		'$content' => HTML::search($search,'search-box','search',((local_user()) ? true : false), false)
 	]);
 
 	if (strpos($search,'#') === 0) {

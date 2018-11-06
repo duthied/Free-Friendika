@@ -2500,9 +2500,9 @@ class DFRN
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
 			$base_url = get_app()->getBaseURL();
-			$item['body'] = reltoabs($item['body'], $base_url);
+			$item['body'] = HTML::relToAbs($item['body'], $base_url);
 
-			$item['body'] = html2bb_video($item['body']);
+			$item['body'] = HTML::toBBCodeVideo($item['body']);
 
 			$item['body'] = OEmbed::HTML2BBCode($item['body']);
 

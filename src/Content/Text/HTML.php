@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file src/Content/Text/HTML.php
  */
@@ -9,7 +8,15 @@ namespace Friendica\Content\Text;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Core\Addon;
+use Friendica\Core\L10n;
+use Friendica\Core\Config;
+use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 use League\HTMLToMarkdown\HtmlConverter;
 
@@ -140,12 +147,14 @@ class HTML
 
 		$message = str_replace(
 			[
-			"<li><p>",
-			"</p></li>",
-			], [
-			"<li>",
-			"</li>",
-			], $message
+				"<li><p>",
+				"</p></li>",
+			],
+			[
+				"<li>",
+				"</li>",
+			],
+			$message
 		);
 
 		// remove namespaces
@@ -184,8 +193,13 @@ class HTML
 		self::tagToBBCode($doc, 'p', ['class' => 'MsoNormal', 'style' => 'margin-left:35.4pt'], '[quote]', '[/quote]');
 
 		// Outlook-Quote - Variant 2
-		self::tagToBBCode($doc, 'div', ['style' => 'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'],
-			'[quote]', '[/quote]');
+		self::tagToBBCode(
+			$doc,
+			'div',
+			['style' => 'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'],
+			'[quote]',
+			'[/quote]'
+		);
 
 		// MyBB-Stuff
 		self::tagToBBCode($doc, 'span', ['style' => 'text-decoration: underline;'], '[u]', '[/u]');
@@ -274,8 +288,7 @@ class HTML
 		self::tagToBBCode($doc, 'a', ['href' => '/mailto:(.+)/'], '[mail=$1]', '[/mail]');
 		self::tagToBBCode($doc, 'a', ['href' => '/(.+)/'], '[url=$1]', '[/url]');
 
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1',
-			'[/img]');
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]');
 		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]');
 
 
@@ -344,12 +357,15 @@ class HTML
 				"[/",
 				"[list]",
 				"[list=1]",
-				"[*]"], $message
+				"[*]"],
+				$message
 			);
 		} while ($message != $oldmessage);
 
 		$message = str_replace(
-			['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'], ['[b]', '[/b]', '[i]', '[/i]'], $message
+			['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'],
+			['[b]', '[/b]', '[i]', '[/i]'],
+			$message
 		);
 
 		// Handling Yahoo style of mails
@@ -424,7 +440,8 @@ class HTML
 
 		foreach ($matches as $match) {
 			$body = preg_replace_callback(
-				$match, function ($match) use ($basepath) {
+				$match,
+				function ($match) use ($basepath) {
 					return self::qualifyURLsSub($match, $basepath);
 				},
 				$body
@@ -687,5 +704,328 @@ class HTML
 		$markdown = $converter->convert($html);
 
 		return $markdown;
+	}
+
+	/**
+	 * @brief Convert video HTML to BBCode tags
+	 *
+	 * @param string $s
+	 */
+	public static function toBBCodeVideo($s)
+	{
+		$s = preg_replace(
+			'#<object[^>]+>(.*?)https?://www.youtube.com/((?:v|cp)/[A-Za-z0-9\-_=]+)(.*?)</object>#ism',
+			'[youtube]$2[/youtube]',
+			$s
+		);
+	
+		$s = preg_replace(
+			'#<iframe[^>](.*?)https?://www.youtube.com/embed/([A-Za-z0-9\-_=]+)(.*?)</iframe>#ism',
+			'[youtube]$2[/youtube]',
+			$s
+		);
+	
+		$s = preg_replace(
+			'#<iframe[^>](.*?)https?://player.vimeo.com/video/([0-9]+)(.*?)</iframe>#ism',
+			'[vimeo]$2[/vimeo]',
+			$s
+		);
+	
+		return $s;
+	}
+	
+	/**
+	 * transform link href and img src from relative to absolute
+	 *
+	 * @param string $text
+	 * @param string $base base url
+	 * @return string
+	 */
+	public static function relToAbs($text, $base)
+	{
+		if (empty($base)) {
+			return $text;
+		}
+	
+		$base = rtrim($base, '/');
+	
+		$base2 = $base . "/";
+	
+		// Replace links
+		$pattern = "/<a([^>]*) href=\"(?!http|https|\/)([^\"]*)\"/";
+		$replace = "<a\${1} href=\"" . $base2 . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+		$pattern = "/<a([^>]*) href=\"(?!http|https)([^\"]*)\"/";
+		$replace = "<a\${1} href=\"" . $base . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+		// Replace images
+		$pattern = "/<img([^>]*) src=\"(?!http|https|\/)([^\"]*)\"/";
+		$replace = "<img\${1} src=\"" . $base2 . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+		$pattern = "/<img([^>]*) src=\"(?!http|https)([^\"]*)\"/";
+		$replace = "<img\${1} src=\"" . $base . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+	
+		// Done
+		return $text;
+	}
+
+	/**
+	 * return div element with class 'clear'
+	 * @return string
+	 * @deprecated
+	 */
+	public static function clearDiv()
+	{
+		return '<div class="clear"></div>';
+	}
+
+	/**
+	 * Loader for infinite scrolling
+	 * @return string html for loader
+	 */
+	public static function scrollLoader()
+	{
+		$tpl = Renderer::getMarkupTemplate("scroll_loader.tpl");
+		return Renderer::replaceMacros($tpl, [
+			'wait' => L10n::t('Loading more entries...'),
+			'end' => L10n::t('The end')
+		]);
+	}
+
+	/**
+	 * Get html for contact block.
+	 *
+	 * @template contact_block.tpl
+	 * @hook contact_block_end (contacts=>array, output=>string)
+	 * @return string
+	 */
+	public static function contactBlock()
+	{
+		$o = '';
+		$a = get_app();
+
+		$shown = PConfig::get($a->profile['uid'], 'system', 'display_friend_count', 24);
+		if ($shown == 0) {
+			return;
+		}
+
+		if (!is_array($a->profile) || $a->profile['hide-friends']) {
+			return $o;
+		}
+
+		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
+				WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
+					AND NOT `pending` AND NOT `hidden` AND NOT `archive`
+					AND `network` IN ('%s', '%s', '%s')",
+			intval($a->profile['uid']),
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::OSTATUS),
+			DBA::escape(Protocol::DIASPORA)
+		);
+
+		if (DBA::isResult($r)) {
+			$total = intval($r[0]['total']);
+		}
+
+		if (!$total) {
+			$contacts = L10n::t('No contacts');
+			$micropro = null;
+		} else {
+			// Splitting the query in two parts makes it much faster
+			$r = q("SELECT `id` FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
+						AND NOT `pending` AND NOT `hidden` AND NOT `archive`
+						AND `network` IN ('%s', '%s', '%s')
+					ORDER BY RAND() LIMIT %d",
+				intval($a->profile['uid']),
+				DBA::escape(Protocol::DFRN),
+				DBA::escape(Protocol::OSTATUS),
+				DBA::escape(Protocol::DIASPORA),
+				intval($shown)
+			);
+
+			if (DBA::isResult($r)) {
+				$contacts = [];
+				foreach ($r as $contact) {
+					$contacts[] = $contact["id"];
+				}
+
+				$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
+					DBA::escape(implode(",", $contacts))
+				);
+
+				if (DBA::isResult($r)) {
+					$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
+					$micropro = [];
+					foreach ($r as $rr) {
+						$micropro[] = self::micropro($rr, true, 'mpfriend');
+					}
+				}
+			}
+		}
+
+		$tpl = Renderer::getMarkupTemplate('contact_block.tpl');
+		$o = Renderer::replaceMacros($tpl, [
+			'$contacts' => $contacts,
+			'$nickname' => $a->profile['nickname'],
+			'$viewcontacts' => L10n::t('View Contacts'),
+			'$micropro' => $micropro,
+		]);
+
+		$arr = ['contacts' => $r, 'output' => $o];
+
+		Addon::callHooks('contact_block_end', $arr);
+
+		return $o;
+	}
+
+	/**
+	 * @brief Format contacts as picture links or as texxt links
+	 *
+	 * @param array $contact Array with contacts which contains an array with
+	 *	int 'id' => The ID of the contact
+	*	int 'uid' => The user ID of the user who owns this data
+	*	string 'name' => The name of the contact
+	*	string 'url' => The url to the profile page of the contact
+	*	string 'addr' => The webbie of the contact (e.g.) username@friendica.com
+	*	string 'network' => The network to which the contact belongs to
+	*	string 'thumb' => The contact picture
+	*	string 'click' => js code which is performed when clicking on the contact
+	* @param boolean $redirect If true try to use the redir url if it's possible
+	* @param string $class CSS class for the
+	* @param boolean $textmode If true display the contacts as text links
+	*	if false display the contacts as picture links
+
+	* @return string Formatted html
+	*/
+	public static function micropro($contact, $redirect = false, $class = '', $textmode = false)
+	{
+		// Use the contact URL if no address is available
+		if (!x($contact, "addr")) {
+			$contact["addr"] = $contact["url"];
+		}
+
+		$url = $contact['url'];
+		$sparkle = '';
+		$redir = false;
+
+		if ($redirect) {
+			$url = Contact::magicLink($contact['url']);
+			if (strpos($url, 'redir/') === 0) {
+				$sparkle = ' sparkle';
+			}
+		}
+
+		// If there is some js available we don't need the url
+		if (x($contact, 'click')) {
+			$url = '';
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'), [
+			'$click' => defaults($contact, 'click', ''),
+			'$class' => $class,
+			'$url' => $url,
+			'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'$name' => $contact['name'],
+			'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
+			'$parkle' => $sparkle,
+			'$redir' => $redir
+		]);
+	}
+
+	/**
+	 * Search box.
+	 *
+	 * @param string $s     Search query.
+	 * @param string $id    HTML id
+	 * @param string $url   Search url.
+	 * @param bool   $save  Show save search button.
+	 * @param bool   $aside Display the search widgit aside.
+	 *
+	 * @return string Formatted HTML.
+	 */
+	public static function search($s, $id = 'search-box', $url = 'search', $save = false, $aside = true)
+	{
+		$mode = 'text';
+
+		if (strpos($s, '#') === 0) {
+			$mode = 'tag';
+		}
+		$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
+
+		$values = [
+				'$s' => htmlspecialchars($s),
+				'$id' => $id,
+				'$action_url' => $url,
+				'$search_label' => L10n::t('Search'),
+				'$save_label' => $save_label,
+				'$savedsearch' => local_user() && Feature::isEnabled(local_user(), 'savedsearch'),
+				'$search_hint' => L10n::t('@name, !forum, #tags, content'),
+				'$mode' => $mode
+			];
+
+		if (!$aside) {
+			$values['$searchoption'] = [
+						L10n::t("Full Text"),
+						L10n::t("Tags"),
+						L10n::t("Contacts")];
+
+			if (Config::get('system', 'poco_local_search')) {
+				$values['$searchoption'][] = L10n::t("Forums");
+			}
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('searchbox.tpl'), $values);
+	}
+
+	/**
+	 * Replace naked text hyperlink with HTML formatted hyperlink
+	 *
+	 * @param string $s
+	 */
+	public static function toLink($s)
+	{
+		$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\'\%\$\!\+]*)/", ' <a href="$1" target="_blank">$1</a>', $s);
+		$s = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $s);
+		return $s;
+	}
+
+	/**
+	 * Given a HTML text and a set of filtering reasons, adds a content hiding header with the provided reasons
+	 *
+	 * Reasons are expected to have been translated already.
+	 *
+	 * @param string $html
+	 * @param array  $reasons
+	 * @return string
+	 */
+	public static function applyContentFilter($html, array $reasons)
+	{
+		if (count($reasons)) {
+			$tpl = Renderer::getMarkupTemplate('wall/content_filter.tpl');
+			$html = Renderer::replaceMacros($tpl, [
+				'$reasons'   => $reasons,
+				'$rnd'       => random_string(8),
+				'$openclose' => L10n::t('Click to open/close'),
+				'$html'      => $html
+			]);
+		}
+
+		return $html;
+	}
+
+	/**
+	 * replace html amp entity with amp char
+	 * @param string $s
+	 * @return string
+	 */
+	public static function unamp($s)
+	{
+		return str_replace('&amp;', '&', $s);
 	}
 }
