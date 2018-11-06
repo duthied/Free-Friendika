@@ -153,7 +153,7 @@ class HTML
 				"<li>",
 				"</li>",
 			],
-			message
+			$message
 		);
 
 		// remove namespaces
