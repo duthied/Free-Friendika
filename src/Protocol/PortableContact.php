@@ -1378,7 +1378,7 @@ class PortableContact
 					if (in_array($data['register_policy'], ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'])) {
 						$register_policy = constant($data['register_policy']);
 					} else {
-						Logger::log("Register policy '".$data['register_policy']."' from $server_url is invalid.");
+						Logger::log("Register policy '{$data['register_policy']}' from $server_url is invalid.");
 						$register_policy = REGISTER_CLOSED; // set a default value
 					}
 					$platform = $data['platform'];

@@ -52,7 +52,7 @@ function friendica_init(App $a)
 			'locked_features'  => $locked_features,
 			'explicit_content' => (int)Config::get('system', 'explicit_content', false),
 			'language'         => Config::get('system','language'),
-			'register_policy' => $register_policy[intval(Config::get('config', 'register_policy'))],
+			'register_policy'  => $register_policy[intval(Config::get('config', 'register_policy'))],
 			'admin'            => $admin,
 			'site_name'        => Config::get('config', 'sitename'),
 			'platform'         => FRIENDICA_PLATFORM,
