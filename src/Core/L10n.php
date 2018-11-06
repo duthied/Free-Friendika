@@ -355,11 +355,11 @@ class L10n extends BaseObject
 	 */
 	public static function getDay($s)
 	{
-		$ret = str_replace(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+		$ret = str_replace(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
 			[self::t('Monday'), self::t('Tuesday'), self::t('Wednesday'), self::t('Thursday'), self::t('Friday'), self::t('Saturday'), self::t('Sunday')],
 			$s);
 
-		$ret = str_replace(['January','February','March','April','May','June','July','August','September','October','November','December'],
+		$ret = str_replace(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 			[self::t('January'), self::t('February'), self::t('March'), self::t('April'), self::t('May'), self::t('June'), self::t('July'), self::t('August'), self::t('September'), self::t('October'), self::t('November'), self::t('December')],
 			$ret);
 
@@ -378,7 +378,7 @@ class L10n extends BaseObject
 			[self::t('Mon'), self::t('Tue'), self::t('Wed'), self::t('Thu'), self::t('Fri'), self::t('Sat'), self::t('Sun')],
 			$s);
 
-		$ret = str_replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'],
+		$ret = str_replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 			[self::t('Jan'), self::t('Feb'), self::t('Mar'), self::t('Apr'), self::t('May'), ('Jun'), self::t('Jul'), self::t('Aug'), self::t('Sep'), self::t('Oct'), self::t('Nov'), self::t('Dec')],
 			$ret);
 
