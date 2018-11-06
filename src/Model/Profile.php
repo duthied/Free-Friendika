@@ -8,6 +8,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
@@ -467,7 +468,7 @@ class Profile
 		$updated = '';
 		$contacts = 0;
 		if (!$block) {
-			$contact_block = contact_block();
+			$contact_block = HTML::contactBlock();
 
 			if (is_array($a->profile) && !$a->profile['hide-friends']) {
 				$r = q(
@@ -785,11 +786,11 @@ class Profile
 			}
 
 			if ($a->profile['homepage']) {
-				$profile['homepage'] = [L10n::t('Homepage:'), linkify($a->profile['homepage'])];
+				$profile['homepage'] = [L10n::t('Homepage:'), HTML::toLink($a->profile['homepage'])];
 			}
 
 			if ($a->profile['hometown']) {
-				$profile['hometown'] = [L10n::t('Hometown:'), linkify($a->profile['hometown'])];
+				$profile['hometown'] = [L10n::t('Hometown:'), HTML::toLink($a->profile['hometown'])];
 			}
 
 			if ($a->profile['pub_keywords']) {

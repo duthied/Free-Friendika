@@ -862,7 +862,7 @@ class HTML
 					$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
 					$micropro = [];
 					foreach ($r as $rr) {
-						$micropro[] = micropro($rr, true, 'mpfriend');
+						$micropro[] = self::micropro($rr, true, 'mpfriend');
 					}
 				}
 			}

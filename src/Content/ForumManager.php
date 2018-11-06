@@ -7,6 +7,7 @@ namespace Friendica\Content;
 
 use Friendica\Core\Protocol;
 use Friendica\Content\Feature;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -169,7 +170,7 @@ class ForumManager
 		$total_shown = 0;
 		$forumlist = '';
 		foreach ($contacts as $contact) {
-			$forumlist .= micropro($contact, false, 'forumlist-profile-advanced');
+			$forumlist .= HTML::micropro($contact, false, 'forumlist-profile-advanced');
 			$total_shown ++;
 			if ($total_shown == $show_total) {
 				break;
