@@ -27,6 +27,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
 use Friendica\Util\XML;
+use Friendica\Content\Text\HTML;
 
 require_once "include/conversation.php";
 
