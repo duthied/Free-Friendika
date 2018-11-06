@@ -451,7 +451,7 @@ function list_post_dates($uid, $wall)
 		$dend = substr($dnow, 0, 8) . Temporal::getDaysInMonth(intval($dnow), intval(substr($dnow, 5)));
 		$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
 		$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
-		$str = day_translate(DateTimeFormat::utc($dnow, 'F'));
+		$str = L10n::getDay(DateTimeFormat::utc($dnow, 'F'));
 
 		if (empty($ret[$dyear])) {
 			$ret[$dyear] = [];
