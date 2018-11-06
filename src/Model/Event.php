@@ -37,13 +37,13 @@ class Event extends BaseObject
 
 		$bd_format = L10n::t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
 
-		$event_start = day_translate(
+		$event_start = L10n::getDay(
 			!empty($event['adjust']) ?
 			DateTimeFormat::local($event['start'], $bd_format) : DateTimeFormat::utc($event['start'], $bd_format)
 		);
 
 		if (!empty($event['finish'])) {
-			$event_end = day_translate(
+			$event_end = L10n::getDay(
 				!empty($event['adjust']) ?
 				DateTimeFormat::local($event['finish'], $bd_format) : DateTimeFormat::utc($event['finish'], $bd_format)
 			);
@@ -564,7 +564,7 @@ class Event extends BaseObject
 			$start = $event['adjust'] ? DateTimeFormat::local($event['start'], 'c')  : DateTimeFormat::utc($event['start'], 'c');
 			$j     = $event['adjust'] ? DateTimeFormat::local($event['start'], 'j')  : DateTimeFormat::utc($event['start'], 'j');
 			$day   = $event['adjust'] ? DateTimeFormat::local($event['start'], $fmt) : DateTimeFormat::utc($event['start'], $fmt);
-			$day   = day_translate($day);
+			$day   = L10n::getDay($day);
 
 			if ($event['nofinish']) {
 				$end = null;
@@ -841,14 +841,14 @@ class Event extends BaseObject
 		$tformat       = L10n::t('g:i A'); // 8:01 AM.
 
 		// Convert the time to different formats.
-		$dtstart_dt = day_translate(
+		$dtstart_dt = L10n::getDay(
 			$item['event-adjust'] ?
 				DateTimeFormat::local($item['event-start'], $dformat)
 				: DateTimeFormat::utc($item['event-start'], $dformat)
 		);
 		$dtstart_title = DateTimeFormat::utc($item['event-start'], $item['event-adjust'] ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s');
 		// Format: Jan till Dec.
-		$month_short = day_short_translate(
+		$month_short = L10n::getDayShort(
 			$item['event-adjust'] ?
 				DateTimeFormat::local($item['event-start'], 'M')
 				: DateTimeFormat::utc($item['event-start'], 'M')
@@ -860,7 +860,7 @@ class Event extends BaseObject
 		$start_time = $item['event-adjust'] ?
 			DateTimeFormat::local($item['event-start'], $tformat)
 			: DateTimeFormat::utc($item['event-start'], $tformat);
-		$start_short = day_short_translate(
+		$start_short = L10n::getDayShort(
 			$item['event-adjust'] ?
 				DateTimeFormat::local($item['event-start'], $dformat_short)
 				: DateTimeFormat::utc($item['event-start'], $dformat_short)
@@ -869,13 +869,13 @@ class Event extends BaseObject
 		// If the option 'nofinisch' isn't set, we need to format the finish date/time.
 		if (!$item['event-nofinish']) {
 			$finish = true;
-			$dtend_dt  = day_translate(
+			$dtend_dt  = L10n::getDay(
 				$item['event-adjust'] ?
 					DateTimeFormat::local($item['event-finish'], $dformat)
 					: DateTimeFormat::utc($item['event-finish'], $dformat)
 			);
 			$dtend_title = DateTimeFormat::utc($item['event-finish'], $item['event-adjust'] ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s');
-			$end_short = day_short_translate(
+			$end_short = L10n::getDayShort(
 				$item['event-adjust'] ?
 					DateTimeFormat::local($item['event-finish'], $dformat_short)
 					: DateTimeFormat::utc($item['event-finish'], $dformat_short)

@@ -40,7 +40,7 @@ function poke_init(App $a)
 
 	$verb = notags(trim($_GET['verb']));
 
-	$verbs = get_poke_verbs();
+	$verbs = L10n::getPokeVerbs();
 
 	if (!array_key_exists($verb, $verbs)) {
 		return;
@@ -171,7 +171,7 @@ function poke_content(App $a)
 	$parent = (x($_GET,'parent') ? intval($_GET['parent']) : '0');
 
 
-	$verbs = get_poke_verbs();
+	$verbs = L10n::getPokeVerbs();
 
 	$shortlist = [];
 	foreach ($verbs as $k => $v) {

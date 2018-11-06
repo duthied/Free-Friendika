@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Core\Addon;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 
@@ -344,5 +345,68 @@ class L10n extends BaseObject
 			}
 		}
 		return $langs;
+	}
+
+	/**
+	 * @brief Translate days and months names.
+	 *
+	 * @param string $s String with day or month name.
+	 * @return string Translated string.
+	 */
+	public static function getDay($s)
+	{
+		$ret = str_replace(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+			[self::t('Monday'), self::t('Tuesday'), self::t('Wednesday'), self::t('Thursday'), self::t('Friday'), self::t('Saturday'), self::t('Sunday')],
+			$s);
+
+		$ret = str_replace(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+			[self::t('January'), self::t('February'), self::t('March'), self::t('April'), self::t('May'), self::t('June'), self::t('July'), self::t('August'), self::t('September'), self::t('October'), self::t('November'), self::t('December')],
+			$ret);
+
+		return $ret;
+	}
+
+	/**
+	 * @brief Translate short days and months names.
+	 *
+	 * @param string $s String with short day or month name.
+	 * @return string Translated string.
+	 */
+	public static function getDayShort($s)
+	{
+		$ret = str_replace(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+			[self::t('Mon'), self::t('Tue'), self::t('Wed'), self::t('Thu'), self::t('Fri'), self::t('Sat'), self::t('Sun')],
+			$s);
+
+		$ret = str_replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+			[self::t('Jan'), self::t('Feb'), self::t('Mar'), self::t('Apr'), self::t('May'), ('Jun'), self::t('Jul'), self::t('Aug'), self::t('Sep'), self::t('Oct'), self::t('Nov'), self::t('Dec')],
+			$ret);
+
+		return $ret;
+	}
+
+	/**
+	 * Load poke verbs
+	 *
+	 * @return array index is present tense verb
+	 * 				 value is array containing past tense verb, translation of present, translation of past
+	 * @hook poke_verbs pokes array
+	 */
+	public static function getPokeVerbs()
+	{
+		// index is present tense verb
+		// value is array containing past tense verb, translation of present, translation of past
+		$arr = [
+			'poke' => ['poked', self::t('poke'), self::t('poked')],
+			'ping' => ['pinged', self::t('ping'), self::t('pinged')],
+			'prod' => ['prodded', self::t('prod'), self::t('prodded')],
+			'slap' => ['slapped', self::t('slap'), self::t('slapped')],
+			'finger' => ['fingered', self::t('finger'), self::t('fingered')],
+			'rebuff' => ['rebuffed', self::t('rebuff'), self::t('rebuffed')],
+		];
+
+		Addon::callHooks('poke_verbs', $arr);
+
+		return $arr;
 	}
 }

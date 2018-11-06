@@ -349,65 +349,6 @@ function valid_email($email_address)
 }
 
 /**
- * Load poke verbs
- *
- * @return array index is present tense verb
- * 				 value is array containing past tense verb, translation of present, translation of past
- * @hook poke_verbs pokes array
- */
-function get_poke_verbs() {
-
-	// index is present tense verb
-	// value is array containing past tense verb, translation of present, translation of past
-
-	$arr = [
-		'poke' => ['poked', L10n::t('poke'), L10n::t('poked')],
-		'ping' => ['pinged', L10n::t('ping'), L10n::t('pinged')],
-		'prod' => ['prodded', L10n::t('prod'), L10n::t('prodded')],
-		'slap' => ['slapped', L10n::t('slap'), L10n::t('slapped')],
-		'finger' => ['fingered', L10n::t('finger'), L10n::t('fingered')],
-		'rebuff' => ['rebuffed', L10n::t('rebuff'), L10n::t('rebuffed')],
-	];
-	Addon::callHooks('poke_verbs', $arr);
-	return $arr;
-}
-
-/**
- * @brief Translate days and months names.
- *
- * @param string $s String with day or month name.
- * @return string Translated string.
- */
-function day_translate($s) {
-	$ret = str_replace(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
-		[L10n::t('Monday'), L10n::t('Tuesday'), L10n::t('Wednesday'), L10n::t('Thursday'), L10n::t('Friday'), L10n::t('Saturday'), L10n::t('Sunday')],
-		$s);
-
-	$ret = str_replace(['January','February','March','April','May','June','July','August','September','October','November','December'],
-		[L10n::t('January'), L10n::t('February'), L10n::t('March'), L10n::t('April'), L10n::t('May'), L10n::t('June'), L10n::t('July'), L10n::t('August'), L10n::t('September'), L10n::t('October'), L10n::t('November'), L10n::t('December')],
-		$ret);
-
-	return $ret;
-}
-
-/**
- * @brief Translate short days and months names.
- *
- * @param string $s String with short day or month name.
- * @return string Translated string.
- */
-function day_short_translate($s) {
-	$ret = str_replace(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-		[L10n::t('Mon'), L10n::t('Tue'), L10n::t('Wed'), L10n::t('Thu'), L10n::t('Fri'), L10n::t('Sat'), L10n::t('Sun')],
-		$s);
-	$ret = str_replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov','Dec'],
-		[L10n::t('Jan'), L10n::t('Feb'), L10n::t('Mar'), L10n::t('Apr'), L10n::t('May'), ('Jun'), L10n::t('Jul'), L10n::t('Aug'), L10n::t('Sep'), L10n::t('Oct'), L10n::t('Nov'), L10n::t('Dec')],
-		$ret);
-	return $ret;
-}
-
-
-/**
  * Normalize url
  *
  * @param string $url
