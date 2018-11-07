@@ -493,42 +493,6 @@ function get_cats_and_terms($item)
 	return [$categories, $folders];
 }
 
-
-/**
- * get private link for item
- * @param array $item
- * @return boolean|array False if item has not plink, otherwise array('href'=>plink url, 'title'=>translated title)
- */
-function get_plink($item) {
-	$a = get_app();
-
-	if ($a->user['nickname'] != "") {
-		$ret = [
-				//'href' => "display/" . $a->user['nickname'] . "/" . $item['id'],
-				'href' => "display/" . $item['guid'],
-				'orig' => "display/" . $item['guid'],
-				'title' => L10n::t('View on separate page'),
-				'orig_title' => L10n::t('view on separate page'),
-			];
-
-		if (x($item, 'plink')) {
-			$ret["href"] = $a->removeBaseURL($item['plink']);
-			$ret["title"] = L10n::t('link to source');
-		}
-
-	} elseif (x($item, 'plink') && ($item['private'] != 1)) {
-		$ret = [
-				'href' => $item['plink'],
-				'orig' => $item['plink'],
-				'title' => L10n::t('link to source'),
-			];
-	} else {
-		$ret = [];
-	}
-
-	return $ret;
-}
-
 /**
  * return number of bytes in size (K, M, G)
  * @param string $size_str

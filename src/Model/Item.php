@@ -3297,7 +3297,7 @@ class Item extends BaseObject
 			|| $rendered_hash != hash("md5", $item["body"])
 			|| Config::get("system", "ignore_cache")
 		) {
-			$a = get_app();
+			$a = self::getApp();
 			redir_private_images($a, $item);
 
 			$item["rendered-html"] = prepare_text($item["body"]);
@@ -3348,7 +3348,7 @@ class Item extends BaseObject
 	 */
 	public static function prepareBody(array &$item, $attach = false, $is_preview = false)
 	{
-		$a = get_app();
+		$a = self::getApp();
 		Addon::callHooks('prepare_body_init', $item);
 
 		// In order to provide theme developers more possibilities, event items
@@ -3508,5 +3508,40 @@ class Item extends BaseObject
 		Addon::callHooks('prepare_body_final', $hook_data);
 
 		return $hook_data['html'];
+	}
+
+	/**
+	 * get private link for item
+	 * @param array $item
+	 * @return boolean|array False if item has not plink, otherwise array('href'=>plink url, 'title'=>translated title)
+	 */
+	public static function getPlink($item)
+	{
+		$a = self::getApp();
+
+		if ($a->user['nickname'] != "") {
+			$ret = [
+					'href' => "display/" . $item['guid'],
+					'orig' => "display/" . $item['guid'],
+					'title' => L10n::t('View on separate page'),
+					'orig_title' => L10n::t('view on separate page'),
+				];
+
+			if (x($item, 'plink')) {
+				$ret["href"] = $a->removeBaseURL($item['plink']);
+				$ret["title"] = L10n::t('link to source');
+			}
+
+		} elseif (x($item, 'plink') && ($item['private'] != 1)) {
+			$ret = [
+					'href' => $item['plink'],
+					'orig' => $item['plink'],
+					'title' => L10n::t('link to source'),
+				];
+		} else {
+			$ret = [];
+		}
+
+		return $ret;
 	}
 }
