@@ -12,6 +12,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
+use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -103,55 +104,16 @@ class Authentication extends BaseObject
 			$a->timezone = $a->user['timezone'];
 		}
 
-		$master_record = $a->user;
+		$masterUid = $user_record['uid'];
 
 		if ((x($_SESSION, 'submanage')) && intval($_SESSION['submanage'])) {
-			$user = DBA::selectFirst('user', [], ['uid' => $_SESSION['submanage']]);
+			$user = DBA::selectFirst('user', ['uid'], ['uid' => $_SESSION['submanage']]);
 			if (DBA::isResult($user)) {
-				$master_record = $user;
+				$masterUid = $user['uid'];
 			}
 		}
 
-		if ($master_record['parent-uid'] == 0) {
-			// First add our own entry
-			$a->identities = [['uid' => $master_record['uid'],
-					'username' => $master_record['username'],
-					'nickname' => $master_record['nickname']]];
-
-			// Then add all the children
-			$r = DBA::select('user', ['uid', 'username', 'nickname'],
-				['parent-uid' => $master_record['uid'], 'account_removed' => false]);
-			if (DBA::isResult($r)) {
-				$a->identities = array_merge($a->identities, DBA::toArray($r));
-			}
-		} else {
-			// Just ensure that the array is always defined
-			$a->identities = [];
-
-			// First entry is our parent
-			$r = DBA::select('user', ['uid', 'username', 'nickname'],
-				['uid' => $master_record['parent-uid'], 'account_removed' => false]);
-			if (DBA::isResult($r)) {
-				$a->identities = DBA::toArray($r);
-			}
-
-			// Then add all siblings
-			$r = DBA::select('user', ['uid', 'username', 'nickname'],
-				['parent-uid' => $master_record['parent-uid'], 'account_removed' => false]);
-			if (DBA::isResult($r)) {
-				$a->identities = array_merge($a->identities, DBA::toArray($r));
-			}
-		}
-
-		$r = DBA::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
-			FROM `manage`
-			INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
-			WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
-			$master_record['uid']
-		);
-		if (DBA::isResult($r)) {
-			$a->identities = array_merge($a->identities, DBA::toArray($r));
-		}
+		$a->identities = User::identities($masterUid);
 
 		if ($login_initial) {
 			Logger::log('auth_identities: ' . print_r($a->identities, true), Logger::DEBUG);
@@ -174,7 +136,7 @@ class Authentication extends BaseObject
 
 			// Set the login date for all identities of the user
 			DBA::update('user', ['login_date' => DateTimeFormat::utcNow()],
-				['parent-uid' => $master_record['uid'], 'account_removed' => false]);
+				['parent-uid' => $masterUid, 'account_removed' => false]);
 		}
 
 		if ($login_initial) {

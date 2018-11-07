@@ -813,4 +813,74 @@ class User
 			$a->internalRedirect();
 		}
 	}
+
+	/**
+	 * Return all identities to a user
+	 *
+	 * @param int $uid The user id
+	 * @return array All identities for this user
+	 *
+	 * Example for a return:
+	 * 	[
+	 * 		[
+	 * 			'uid' => 1,
+	 * 			'username' => 'maxmuster',
+	 * 			'nickname' => 'Max Mustermann'
+	 * 		],
+	 * 		[
+	 * 			'uid' => 2,
+	 * 			'username' => 'johndoe',
+	 * 			'nickname' => 'John Doe'
+	 * 		]
+	 * 	]
+	 */
+	public static function identities($uid)
+	{
+		$identities = [];
+
+		$user = DBA::selectFirst('user', ['uid', 'nickname', 'username', 'parent-uid'], ['uid' => $uid]);
+		if (!DBA::isResult($user)) {
+			return $identities;
+		}
+
+		if ($user['parent-uid'] == 0) {
+			// First add our own entry
+			$identities = [['uid' => $user['uid'],
+				'username' => $user['username'],
+				'nickname' => $user['nickname']]];
+
+			// Then add all the children
+			$r = DBA::select('user', ['uid', 'username', 'nickname'],
+				['parent-uid' => $user['uid'], 'account_removed' => false]);
+			if (DBA::isResult($r)) {
+				$identities = array_merge($identities, DBA::toArray($r));
+			}
+		} else {
+			// First entry is our parent
+			$r = DBA::select('user', ['uid', 'username', 'nickname'],
+				['uid' => $user['parent-uid'], 'account_removed' => false]);
+			if (DBA::isResult($r)) {
+				$identities = DBA::toArray($r);
+			}
+
+			// Then add all siblings
+			$r = DBA::select('user', ['uid', 'username', 'nickname'],
+				['parent-uid' => $user['parent-uid'], 'account_removed' => false]);
+			if (DBA::isResult($r)) {
+				$identities = array_merge($identities, DBA::toArray($r));
+			}
+		}
+
+		$r = DBA::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
+			FROM `manage`
+			INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
+			WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
+			$user['uid']
+		);
+		if (DBA::isResult($r)) {
+			$identities = array_merge($identities, DBA::toArray($r));
+		}
+
+		return $identities;
+	}
 }
