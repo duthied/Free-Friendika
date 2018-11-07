@@ -118,72 +118,73 @@ class GContact
 	 */
 	public static function sanitize($gcontact)
 	{
-		if ($gcontact['url'] == "") {
+		if ($gcontact['url'] == '') {
 			throw new Exception('URL is empty');
 		}
 
+		$gcontact['server_url'] = defaults($gcontact, 'server_url', '');
+
 		$urlparts = parse_url($gcontact['url']);
-		if (!isset($urlparts["scheme"])) {
+		if (!isset($urlparts['scheme'])) {
 			throw new Exception("This (".$gcontact['url'].") doesn't seem to be an url.");
 		}
 
-		if (in_array($urlparts["host"],	["twitter.com", "identi.ca"])) {
+		if (in_array($urlparts['host'],	['twitter.com', 'identi.ca'])) {
 			throw new Exception('Contact from a non federated network ignored. ('.$gcontact['url'].')');
 		}
 
 		// Don't store the statusnet connector as network
 		// We can't simply set this to Protocol::OSTATUS since the connector could have fetched posts from friendica as well
 		if ($gcontact['network'] == Protocol::STATUSNET) {
-			$gcontact['network'] = "";
+			$gcontact['network'] = '';
 		}
 
 		// Assure that there are no parameter fragments in the profile url
-		if (in_array($gcontact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (in_array($gcontact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ''])) {
 			$gcontact['url'] = self::cleanContactUrl($gcontact['url']);
 		}
 
 		$alternate = PortableContact::alternateOStatusUrl($gcontact['url']);
 
 		// The global contacts should contain the original picture, not the cached one
-		if (($gcontact['generation'] != 1) && stristr(normalise_link($gcontact['photo']), normalise_link(System::baseUrl()."/photo/"))) {
-			$gcontact['photo'] = "";
+		if (($gcontact['generation'] != 1) && stristr(normalise_link($gcontact['photo']), normalise_link(System::baseUrl().'/photo/'))) {
+			$gcontact['photo'] = '';
 		}
 
-		if (!isset($gcontact['network'])) {
+		if (empty($gcontact['network'])) {
+			$gcontact['network'] = '';
+
 			$condition = ["`uid` = 0 AND `nurl` = ? AND `network` != '' AND `network` != ?",
 				normalise_link($gcontact['url']), Protocol::STATUSNET];
 			$contact = DBA::selectFirst('contact', ['network'], $condition);
 			if (DBA::isResult($contact)) {
-				$gcontact['network'] = $contact["network"];
+				$gcontact['network'] = $contact['network'];
 			}
 
-			if (($gcontact['network'] == "") || ($gcontact['network'] == Protocol::OSTATUS)) {
+			if (($gcontact['network'] == '') || ($gcontact['network'] == Protocol::OSTATUS)) {
 				$condition = ["`uid` = 0 AND `alias` IN (?, ?) AND `network` != '' AND `network` != ?",
 					$gcontact['url'], normalise_link($gcontact['url']), Protocol::STATUSNET];
 				$contact = DBA::selectFirst('contact', ['network'], $condition);
 				if (DBA::isResult($contact)) {
-					$gcontact['network'] = $contact["network"];
+					$gcontact['network'] = $contact['network'];
 				}
 			}
 		}
 
-		$gcontact['server_url'] = '';
-		$gcontact['network'] = '';
-
 		$fields = ['network', 'updated', 'server_url', 'url', 'addr'];
 		$gcnt = DBA::selectFirst('gcontact', $fields, ['nurl' => normalise_link($gcontact['url'])]);
 		if (DBA::isResult($gcnt)) {
-			if (!isset($gcontact['network']) && ($gcnt["network"] != Protocol::STATUSNET)) {
-				$gcontact['network'] = $gcnt["network"];
+			if (!isset($gcontact['network']) && ($gcnt['network'] != Protocol::STATUSNET)) {
+				$gcontact['network'] = $gcnt['network'];
 			}
 			if ($gcontact['updated'] <= DBA::NULL_DATETIME) {
-				$gcontact['updated'] = $gcnt["updated"];
+				$gcontact['updated'] = $gcnt['updated'];
 			}
-			if (!isset($gcontact['server_url']) && (normalise_link($gcnt["server_url"]) != normalise_link($gcnt["url"]))) {
-				$gcontact['server_url'] = $gcnt["server_url"];
+			if (!isset($gcontact['server_url']) && (normalise_link($gcnt['server_url']) != normalise_link($gcnt['url']))) {
+				$gcontact['server_url'] = $gcnt['server_url'];
 			}
 			if (!isset($gcontact['addr'])) {
-				$gcontact['addr'] = $gcnt["addr"];
+				$gcontact['addr'] = $gcnt['addr'];
 			}
 		}
 
@@ -192,13 +193,13 @@ class GContact
 		) {
 			$data = Probe::uri($gcontact['url']);
 
-			if ($data["network"] == Protocol::PHANTOM) {
+			if ($data['network'] == Protocol::PHANTOM) {
 				throw new Exception('Probing for URL '.$gcontact['url'].' failed');
 			}
 
 			$orig_profile = $gcontact['url'];
 
-			$gcontact["server_url"] = $data["baseurl"];
+			$gcontact['server_url'] = $data['baseurl'];
 
 			$gcontact = array_merge($gcontact, $data);
 
@@ -218,19 +219,19 @@ class GContact
 			throw new Exception('No federated network ('.$gcontact['network'].') detected for URL '.$gcontact['url']);
 		}
 
-		if (!isset($gcontact['server_url'])) {
+		if (empty($gcontact['server_url'])) {
 			// We check the server url to be sure that it is a real one
 			$server_url = PortableContact::detectServer($gcontact['url']);
 
 			// We are now sure that it is a correct URL. So we use it in the future
-			if ($server_url != "") {
+			if ($server_url != '') {
 				$gcontact['server_url'] = $server_url;
 			}
 		}
 
 		// The server URL doesn't seem to be valid, so we don't store it.
 		if (!PortableContact::checkServer($gcontact['server_url'], $gcontact['network'])) {
-			$gcontact['server_url'] = "";
+			$gcontact['server_url'] = '';
 		}
 
 		return $gcontact;
