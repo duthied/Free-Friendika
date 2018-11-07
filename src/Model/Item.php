@@ -3497,7 +3497,7 @@ class Item extends BaseObject
 		}
 
 		// Replace friendica image url size with theme preference.
-		if (x($a->theme_info, 'item_image_size')) {
+		if (!empty($a->theme_info['item_image_size'])) {
 			$ps = $a->theme_info['item_image_size'];
 			$s = preg_replace('|(<img[^>]+src="[^"]+/photo/[0-9a-f]+)-[0-9]|', "$1-" . $ps, $s);
 		}
@@ -3521,23 +3521,23 @@ class Item extends BaseObject
 
 		if ($a->user['nickname'] != "") {
 			$ret = [
-					'href' => "display/" . $item['guid'],
-					'orig' => "display/" . $item['guid'],
-					'title' => L10n::t('View on separate page'),
-					'orig_title' => L10n::t('view on separate page'),
-				];
+				'href' => "display/" . $item['guid'],
+				'orig' => "display/" . $item['guid'],
+				'title' => L10n::t('View on separate page'),
+				'orig_title' => L10n::t('view on separate page'),
+			];
 
-			if (x($item, 'plink')) {
+			if (!empty($item['plink'])) {
 				$ret["href"] = $a->removeBaseURL($item['plink']);
 				$ret["title"] = L10n::t('link to source');
 			}
 
-		} elseif (x($item, 'plink') && ($item['private'] != 1)) {
+		} elseif (!empty($item['plink']) && ($item['private'] != 1)) {
 			$ret = [
-					'href' => $item['plink'],
-					'orig' => $item['plink'],
-					'title' => L10n::t('link to source'),
-				];
+				'href' => $item['plink'],
+				'orig' => $item['plink'],
+				'title' => L10n::t('link to source'),
+			];
 		} else {
 			$ret = [];
 		}
