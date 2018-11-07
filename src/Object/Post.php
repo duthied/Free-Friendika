@@ -315,7 +315,7 @@ class Post extends BaseObject
 
 		localize_item($item);
 
-		$body = prepare_body($item, true);
+		$body = Item::prepareBody($item, true);
 
 		list($categories, $folders) = get_cats_and_terms($item);
 

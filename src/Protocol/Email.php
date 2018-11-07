@@ -7,6 +7,7 @@ namespace Friendica\Protocol;
 use Friendica\Core\Logger;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Protocol;
+use Friendica\Model\Item;
 
 /**
  * @brief Email class
@@ -331,7 +332,7 @@ class Email
 
 		$part = uniqid("", true);
 
-		$html    = prepare_body($item);
+		$html    = Item::prepareBody($item);
 
 		$headers .= "Mime-Version: 1.0\n";
 		$headers .= 'Content-Type: multipart/alternative; boundary="=_'.$part.'"'."\n\n";
