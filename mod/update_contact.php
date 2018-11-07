@@ -7,7 +7,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Module\Contact;
 
-function update_contacts_content(App $a)
+function update_contact_content(App $a)
 {
 	header("Content-type: text/html");
 	echo "<!DOCTYPE html><html><body>\r\n";

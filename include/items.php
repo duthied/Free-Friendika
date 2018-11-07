@@ -410,6 +410,10 @@ function drop_item($id, $return = '')
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
 		$return_url = hex2bin($return);
+
+		// removes update_* from return_url to ignore Ajax refresh
+		$return_url = str_replace("update_", "", $return_url);
+
 		if (empty($return_url) || strpos($return_url, 'display') !== false) {
 			$a->internalRedirect('network');
 			//NOTREACHED
