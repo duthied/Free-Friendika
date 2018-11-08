@@ -270,7 +270,7 @@ class User
 	 */
 	public static function generateNewPassword()
 	{
-		return autoname(6) . mt_rand(100, 9999);
+		return Strings::getRandomName(6) . mt_rand(100, 9999);
 	}
 
 	/**

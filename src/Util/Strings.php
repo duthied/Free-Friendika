@@ -68,7 +68,7 @@ class Strings
      * 
      * @return string
      */
-    public static function getRandomName($len) // autoname()
+    public static function getRandomName($len)
     {
         if ($len <= 0) {
             return '';

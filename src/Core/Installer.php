@@ -11,6 +11,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * Contains methods for installation purpose of Friendica
@@ -264,7 +265,7 @@ class Installer
 		}
 
 		if ($passed2) {
-			$str = autoname(8);
+			$str = Strings::getRandomName(8);
 			$cmd = "$phppath util/testargs.php $str";
 			$result = trim(shell_exec($cmd));
 			$passed3 = $result == $str;

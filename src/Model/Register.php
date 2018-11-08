@@ -78,7 +78,7 @@ class Register
 	 */
 	public static function createForInvitation()
 	{
-		$code = autoname(8) . srand(1000, 9999);
+		$code = Strings::getRandomName(8) . srand(1000, 9999);
 
 		$fields = [
 			'hash' => $code,
