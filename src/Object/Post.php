@@ -315,7 +315,7 @@ class Post extends BaseObject
 
 		localize_item($item);
 
-		$body = prepare_body($item, true);
+		$body = Item::prepareBody($item, true);
 
 		list($categories, $folders) = get_cats_and_terms($item);
 
@@ -392,7 +392,7 @@ class Post extends BaseObject
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
-			'plink'           => get_plink($item),
+			'plink'           => Item::getPlink($item),
 			'edpost'          => Feature::isEnabled($conv->getProfileOwner(), 'edit_posts') ? $edpost : '',
 			'isstarred'       => $isstarred,
 			'star'            => Feature::isEnabled($conv->getProfileOwner(), 'star_posts') ? $star : '',
