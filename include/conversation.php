@@ -843,7 +843,7 @@ function item_photo_menu($item) {
 	$cid = 0;
 	$network = '';
 	$rel = 0;
-	$condition = ['uid' => local_user(), 'nurl' => normalise_link($item['author-link'])];
+	$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];
 	$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 	if (DBA::isResult($contact)) {
 		$cid = $contact['id'];

@@ -10,6 +10,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
+use Friendica\Util\Strings;
 
 require_once "include/dba.php";
 
@@ -119,8 +120,8 @@ class UserImport
 		$oldbaseurl = $account['baseurl'];
 		$newbaseurl = System::baseUrl();
 
-		$oldaddr = str_replace('http://', '@', normalise_link($oldbaseurl));
-		$newaddr = str_replace('http://', '@', normalise_link($newbaseurl));
+		$oldaddr = str_replace('http://', '@', Strings::normaliseLink($oldbaseurl));
+		$newaddr = str_replace('http://', '@', Strings::normaliseLink($newbaseurl));
 
 		if (!empty($account['profile']['addr'])) {
 			$old_handle = $account['profile']['addr'];

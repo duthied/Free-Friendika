@@ -12,7 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module;
 use Friendica\Util\Proxy as ProxyUtils;
-
+use Friendica\Util\Strings;
 
 require_once 'include/dba.php';
 
@@ -67,11 +67,11 @@ function common_content(App $a)
 	}
 
 	if (!$cid && Model\Profile::getMyURL()) {
-		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => normalise_link(Model\Profile::getMyURL()), 'uid' => $uid]);
+		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => Strings::normaliseLink(Model\Profile::getMyURL()), 'uid' => $uid]);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
 		} else {
-			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Model\Profile::getMyURL())]);
+			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(Model\Profile::getMyURL())]);
 			if (DBA::isResult($gcontact)) {
 				$zcid = $gcontact['id'];
 			}

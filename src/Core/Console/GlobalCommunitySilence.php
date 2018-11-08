@@ -5,6 +5,7 @@ namespace Friendica\Core\Console;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
+use Friendica\Util\Strings;
 use RuntimeException;
 
 require_once 'include/text.php';
@@ -79,7 +80,7 @@ HELP;
 			throw new RuntimeException('This account seems not to exist.');
 		}
 
-		$nurl = normalise_link($net['url']);
+		$nurl = Strings::normaliseLink($net['url']);
 		$contact = DBA::selectFirst("contact", ["id"], ["nurl" => $nurl, "uid" => 0]);
 		if (DBA::isResult($contact)) {
 			DBA::update("contact", ["hidden" => true], ["id" => $contact["id"]]);

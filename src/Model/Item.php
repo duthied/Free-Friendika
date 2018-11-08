@@ -1535,7 +1535,7 @@ class Item extends BaseObject
 				Logger::log("Checking if parent ".$parent_id." has to be tagged as mention for user ".$item['uid'], Logger::DEBUG);
 				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
 				if (DBA::isResult($user)) {
-					$self = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
+					$self = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
 					$self_id = Contact::getIdForURL($self, 0, true);
 					Logger::log("'myself' is ".$self_id." for parent ".$parent_id." checking against ".$item['author-id']." and ".$item['owner-id'], Logger::DEBUG);
 					if (($item['author-id'] == $self_id) || ($item['owner-id'] == $self_id)) {
@@ -2545,13 +2545,13 @@ class Item extends BaseObject
 			return;
 		}
 
-		$link = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
+		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
 
 		/*
 		 * Diaspora uses their own hardwired link URL in @-tags
 		 * instead of the one we supply with webfinger
 		 */
-		$dlink = normalise_link(System::baseUrl() . '/u/' . $user['nickname']);
+		$dlink = Strings::normaliseLink(System::baseUrl() . '/u/' . $user['nickname']);
 
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {

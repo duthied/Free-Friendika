@@ -883,7 +883,7 @@ function networkThreadedView(App $a, $update, $parent)
 			foreach ($data as $item) {
 				// Don't show hash tag posts from blocked or ignored contacts
 				$condition = ["`nurl` = ? AND `uid` = ? AND (`blocked` OR `readonly`)",
-					normalise_link($item['author-link']), local_user()];
+					Strings::normaliseLink($item['author-link']), local_user()];
 				if (!DBA::exists('contact', $condition)) {
 					$s[$item['uri']] = $item;
 				}

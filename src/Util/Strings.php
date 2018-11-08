@@ -369,7 +369,7 @@ class Strings
      * 
      * @return string   Normalized URL.
      */
-    public static function normaliseLink($url) // normalise_link()
+    public static function normaliseLink($url)
     {
         $ret = str_replace(['https:', '//www.'], ['http:', '//'], $url);
         return rtrim($ret, '/');

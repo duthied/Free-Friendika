@@ -7,13 +7,14 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Network;
 use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Content\Text\HTML;
+use Friendica\Util\Strings;
 
 require_once 'boot.php';
 
@@ -186,16 +187,16 @@ class APContact extends BaseObject
 
 		// Update some data in the contact table with various ways to catch them all
 		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about']];
-		DBA::update('contact', $contact_fields, ['nurl' => normalise_link($url)]);
+		DBA::update('contact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
 
-		$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => normalise_link($url)]);
+		$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => Strings::normaliseLink($url)]);
 		while ($contact = DBA::fetch($contacts)) {
 			Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
 		}
 		DBA::close($contacts);
 
 		// Update the gcontact table
-		DBA::update('gcontact', $contact_fields, ['nurl' => normalise_link($url)]);
+		DBA::update('gcontact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
 
 		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
 

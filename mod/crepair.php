@@ -12,6 +12,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module;
+use Friendica\Util\Strings;
 
 function crepair_init(App $a)
 {
@@ -61,7 +62,7 @@ function crepair_post(App $a)
 	$attag       = defaults($_POST, 'attag'      , '');
 	$photo       = defaults($_POST, 'photo'      , '');
 	$remote_self = defaults($_POST, 'remote_self', false);
-	$nurl        = normalise_link($url);
+	$nurl        = Strings::normaliseLink($url);
 
 	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `nurl` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
 		WHERE `id` = %d AND `uid` = %d",

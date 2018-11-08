@@ -26,6 +26,7 @@ use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/dba.php';
@@ -98,7 +99,7 @@ class OStatus
 			}
 
 			$condition = ["`uid` = ? AND `nurl` IN (?, ?) AND `network` != ? AND `rel` IN (?, ?)",
-					$importer["uid"], normalise_link($author["author-link"]), normalise_link($aliaslink),
+					$importer["uid"], Strings::normaliseLink($author["author-link"]), Strings::normaliseLink($aliaslink),
 					Protocol::STATUSNET, Contact::SHARING, Contact::FRIEND];
 			$contact = DBA::selectFirst('contact', [], $condition);
 		}
@@ -164,7 +165,7 @@ class OStatus
 			//	$contact["poll"] = $value;
 
 			$contact['url'] = $author["author-link"];
-			$contact['nurl'] = normalise_link($contact['url']);
+			$contact['nurl'] = Strings::normaliseLink($contact['url']);
 
 			$value = XML::getFirstNodeValue($xpath, 'atom:author/atom:uri/text()', $context);
 			if ($value != "") {
@@ -209,7 +210,7 @@ class OStatus
 
 				// Update it with the current values
 				$fields = ['url' => $author["author-link"], 'name' => $contact["name"],
-						'nurl' => normalise_link($author["author-link"]),
+						'nurl' => Strings::normaliseLink($author["author-link"]),
 						'nick' => $contact["nick"], 'alias' => $contact["alias"],
 						'about' => $contact["about"], 'location' => $contact["location"],
 						'success_update' => DateTimeFormat::utcNow(), 'last-update' => DateTimeFormat::utcNow()];
@@ -1599,7 +1600,7 @@ class OStatus
 	{
 		$r = q(
 			"SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
-			DBA::escape(normalise_link($url)),
+			DBA::escape(Strings::normaliseLink($url)),
 			intval($owner["uid"])
 		);
 		if (DBA::isResult($r)) {
@@ -1608,7 +1609,7 @@ class OStatus
 		}
 
 		if (!DBA::isResult($r)) {
-			$gcontact = DBA::selectFirst('gcontact', [], ['nurl' => normalise_link($url)]);
+			$gcontact = DBA::selectFirst('gcontact', [], ['nurl' => Strings::normaliseLink($url)]);
 			if (DBA::isResult($r)) {
 				$contact = $gcontact;
 				$contact["uid"] = -1;
@@ -1651,7 +1652,7 @@ class OStatus
 	 */
 	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid, $toplevel)
 	{
-		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
@@ -1714,7 +1715,7 @@ class OStatus
 	 */
 	private static function likeEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
 	{
-		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
@@ -1811,7 +1812,7 @@ class OStatus
 			$item['follow'] = $contact['alias'];
 		}
 
-		$condition = ['uid' => $owner['uid'], 'nurl' => normalise_link($contact["url"])];
+		$condition = ['uid' => $owner['uid'], 'nurl' => Strings::normaliseLink($contact["url"])];
 		$user_contact = DBA::selectFirst('contact', ['id'], $condition);
 
 		if (DBA::isResult($user_contact)) {
@@ -1861,7 +1862,7 @@ class OStatus
 	 */
 	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
 	{
-		if (($item["id"] != $item["parent"]) && (normalise_link($item["author-link"]) != normalise_link($owner["url"]))) {
+		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
@@ -2048,7 +2049,7 @@ class OStatus
 		$mentioned = $newmentions;
 
 		foreach ($mentioned as $mention) {
-			$condition = ['uid' => $owner['uid'], 'nurl' => normalise_link($mention)];
+			$condition = ['uid' => $owner['uid'], 'nurl' => Strings::normaliseLink($mention)];
 			$contact = DBA::selectFirst('contact', ['forum', 'prv', 'self', 'contact-type'], $condition);
 			if ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) ||
 				($contact['self'] && ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY))) {

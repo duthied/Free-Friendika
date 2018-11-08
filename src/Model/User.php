@@ -61,7 +61,7 @@ class User
 	 */
 	public static function getIdForURL($url)
 	{
-		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($url), 'self' => true]);
+		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => Strings::normaliseLink($url), 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return false;
 		} else {

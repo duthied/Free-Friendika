@@ -511,7 +511,7 @@ class Installer
 		if (function_exists('curl_init')) {
 			$fetchResult = Network::fetchUrlFull($baseurl . "/install/testrewrite");
 
-			$url = normalise_link($baseurl . "/install/testrewrite");
+			$url = Strings::normaliseLink($baseurl . "/install/testrewrite");
 			if ($fetchResult->getReturnCode() != 204) {
 				$fetchResult = Network::fetchUrlFull($url);
 			}

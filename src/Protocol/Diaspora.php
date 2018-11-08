@@ -147,7 +147,7 @@ class Diaspora
 		$fields = ['batch', 'id', 'name', 'network', 'archive', 'blocked'];
 
 		// Fetch the relay contact
-		$condition = ['uid' => 0, 'nurl' => normalise_link($server_url),
+		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
 			'contact-type' => Contact::ACCOUNT_TYPE_RELAY];
 		$contact = DBA::selectFirst('contact', $fields, $condition);
 
@@ -186,7 +186,7 @@ class Diaspora
 
 		$fields = array_merge($fields, $network_fields);
 
-		$condition = ['uid' => 0, 'nurl' => normalise_link($server_url),
+		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
 			'contact-type' => Contact::ACCOUNT_TYPE_RELAY];
 
 		if (DBA::exists('contact', $condition)) {
@@ -1434,7 +1434,7 @@ class Diaspora
 	 */
 	private static function authorContactByUrl($def_contact, $person, $uid)
 	{
-		$condition = ['nurl' => normalise_link($person["url"]), 'uid' => $uid];
+		$condition = ['nurl' => Strings::normaliseLink($person["url"]), 'uid' => $uid];
 		$contact = DBA::selectFirst('contact', ['id', 'network'], $condition);
 		if (DBA::isResult($contact)) {
 			$cid = $contact["id"];
@@ -1536,7 +1536,7 @@ class Diaspora
 			return false;
 		}
 
-		$fields = ['url' => $data['url'], 'nurl' => normalise_link($data['url']),
+		$fields = ['url' => $data['url'], 'nurl' => Strings::normaliseLink($data['url']),
 				'name' => $data['name'], 'nick' => $data['nick'],
 				'addr' => $data['addr'], 'batch' => $data['batch'],
 				'notify' => $data['notify'], 'poll' => $data['poll'],
@@ -1544,7 +1544,7 @@ class Diaspora
 
 		DBA::update('contact', $fields, ['addr' => $old_handle]);
 
-		$fields = ['url' => $data['url'], 'nurl' => normalise_link($data['url']),
+		$fields = ['url' => $data['url'], 'nurl' => Strings::normaliseLink($data['url']),
 				'name' => $data['name'], 'nick' => $data['nick'],
 				'addr' => $data['addr'], 'connect' => $data['addr'],
 				'notify' => $data['notify'], 'photo' => $data['photo'],
@@ -2392,7 +2392,7 @@ class Diaspora
 			DBA::escape($ret["addr"]),
 			DateTimeFormat::utcNow(),
 			DBA::escape($ret["url"]),
-			DBA::escape(normalise_link($ret["url"])),
+			DBA::escape(Strings::normaliseLink($ret["url"])),
 			DBA::escape($batch),
 			DBA::escape($ret["name"]),
 			DBA::escape($ret["nick"]),

@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Strings;
 
 class GProbe {
 	public static function execute($url = '')
@@ -22,10 +23,10 @@ class GProbe {
 
 		$r = q(
 			"SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
-			DBA::escape(normalise_link($url))
+			DBA::escape(Strings::normaliseLink($url))
 		);
 
-		Logger::log("gprobe start for ".normalise_link($url), Logger::DEBUG);
+		Logger::log("gprobe start for ".Strings::normaliseLink($url), Logger::DEBUG);
 
 		if (!DBA::isResult($r)) {
 			// Is it a DDoS attempt?
@@ -51,7 +52,7 @@ class GProbe {
 
 			$r = q(
 				"SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
-				DBA::escape(normalise_link($url))
+				DBA::escape(Strings::normaliseLink($url))
 			);
 		}
 		if (DBA::isResult($r)) {
@@ -61,7 +62,7 @@ class GProbe {
 			}
 		}
 
-		Logger::log("gprobe end for ".normalise_link($url), Logger::DEBUG);
+		Logger::log("gprobe end for ".Strings::normaliseLink($url), Logger::DEBUG);
 		return;
 	}
 }

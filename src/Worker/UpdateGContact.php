@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 class UpdateGContact
 {
@@ -78,13 +79,13 @@ class UpdateGContact
 					DBA::escape($data["nick"]),
 					DBA::escape($data["addr"]),
 					DBA::escape($data["photo"]),
-					DBA::escape(normalise_link($data["url"]))
+					DBA::escape(Strings::normaliseLink($data["url"]))
 		);
 
 		q("UPDATE `contact` SET `addr` = '%s'
 					WHERE `uid` != 0 AND `addr` = '' AND `nurl` = '%s'",
 					DBA::escape($data["addr"]),
-					DBA::escape(normalise_link($data["url"]))
+					DBA::escape(Strings::normaliseLink($data["url"]))
 		);
 	}
 }

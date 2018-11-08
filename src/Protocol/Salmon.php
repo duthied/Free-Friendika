@@ -52,7 +52,7 @@ class Salmon
 					} else {
 						$ret[$x] = substr($ret[$x], 5);
 					}
-				} elseif (normalise_link($ret[$x]) == 'http://') {
+				} elseif (Strings::normaliseLink($ret[$x]) == 'http://') {
 					$ret[$x] = Network::fetchUrl($ret[$x]);
 				}
 			}

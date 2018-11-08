@@ -21,6 +21,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function vier_init(App $a)
 {
@@ -277,7 +278,7 @@ function vier_community_info()
 					$query .= ",";
 				}
 
-				$query .= "'".DBA::escape(normalise_link(trim($helper)))."'";
+				$query .= "'".DBA::escape(Strings::normaliseLink(trim($helper)))."'";
 			}
 
 			$r = q("SELECT `url`, `name` FROM `gcontact` WHERE `nurl` IN (%s)", $query);

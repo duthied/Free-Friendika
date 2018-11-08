@@ -816,12 +816,12 @@ class App
 	public function removeBaseURL($origURL)
 	{
 		// Remove the hostname from the url if it is an internal link
-		$nurl = normalise_link($origURL);
-		$base = normalise_link($this->getBaseURL());
+		$nurl = Util\Strings::normaliseLink($origURL);
+		$base = Util\Strings::normaliseLink($this->getBaseURL());
 		$url = str_replace($base . '/', '', $nurl);
 
 		// if it is an external link return the orignal value
-		if ($url == normalise_link($origURL)) {
+		if ($url == Util\Strings::normaliseLink($origURL)) {
 			return $origURL;
 		} else {
 			return $url;
