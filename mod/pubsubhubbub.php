@@ -93,7 +93,7 @@ function pubsubhubbub_init(App $a) {
 		}
 
 		// do subscriber verification according to the PuSH protocol
-		$hub_challenge = random_string(40);
+		$hub_challenge = Strings::getRandomHex(40);
 		$params = 'hub.mode=' .
 			($subscribe == 1 ? 'subscribe' : 'unsubscribe') .
 			'&hub.topic=' . urlencode($hub_topic) .

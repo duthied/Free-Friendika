@@ -25,6 +25,7 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 require_once 'boot.php';
 require_once 'include/dba.php';
@@ -1889,7 +1890,7 @@ class Contact extends BaseObject
 			$user = DBA::selectFirst('user', $fields, ['uid' => $importer['uid']]);
 			if (DBA::isResult($user) && !in_array($user['page-flags'], [self::PAGE_SOAPBOX, self::PAGE_FREELOVE, self::PAGE_COMMUNITY])) {
 				// create notification
-				$hash = random_string();
+				$hash = Strings::getRandomHex();
 
 				if (is_array($contact_record)) {
 					DBA::insert('intro', ['uid' => $importer['uid'], 'contact-id' => $contact_record['id'],

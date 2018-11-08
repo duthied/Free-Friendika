@@ -68,7 +68,7 @@ function removeme_content(App $a)
 		$a->internalRedirect();
 	}
 
-	$hash = random_string();
+	$hash = Strings::getRandomHex();
 
 	require_once("mod/settings.php");
 	settings_init($a);

@@ -33,6 +33,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/enotify.php';
@@ -263,7 +264,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					break;
 				case 1:
 					// birthday paradox - generate new dfrn-id and fall through.
-					$new_dfrn_id = random_string();
+					$new_dfrn_id = Strings::getRandomHex();
 					q("UPDATE contact SET `issued-id` = '%s' WHERE `id` = %d AND `uid` = %d",
 						DBA::escape($new_dfrn_id),
 						intval($contact_id),

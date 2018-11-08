@@ -43,6 +43,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/conversation.php';
@@ -4802,7 +4803,7 @@ function api_friendica_remoteauth()
 		$dfrn_id = '0:' . $orig_id;
 	}
 
-	$sec = random_string();
+	$sec = Strings::getRandomHex();
 
 	$fields = ['uid' => api_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id,
 		'sec' => $sec, 'expire' => time() + 45];

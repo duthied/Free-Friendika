@@ -24,6 +24,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use DomXPath;
 
@@ -1648,8 +1649,8 @@ class Probe
 		$data["nick"]    = $data["name"];
 		$data["photo"]   = Network::lookupAvatarByEmail($uri);
 		$data["url"]     = 'mailto:'.$uri;
-		$data["notify"]  = 'smtp '.random_string();
-		$data["poll"]    = 'email '.random_string();
+		$data["notify"]  = 'smtp ' . Strings::getRandomHex();
+		$data["poll"]    = 'email ' . Strings::getRandomHex();
 
 		$x = Email::messageMeta($mbox, $msgs[0]);
 		if (stristr($x[0]->from, $uri)) {

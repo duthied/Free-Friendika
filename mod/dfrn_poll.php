@@ -14,6 +14,7 @@ use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/items.php';
@@ -415,7 +416,7 @@ function dfrn_poll_content(App $a)
 
 	if ($dfrn_id != '') {
 		// initial communication from external contact
-		$hash = random_string();
+		$hash = Strings::getRandomHex();
 
 		$status = 0;
 

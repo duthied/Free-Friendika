@@ -33,6 +33,7 @@ use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use HTMLPurifier;
 use HTMLPurifier_Config;
@@ -2009,7 +2010,7 @@ class DFRN
 
 		$fid = $r[0]["id"];
 
-		$hash = random_string();
+		$hash = Strings::getRandomHex();
 
 		$r = q(
 			"INSERT INTO `intro` (`uid`, `fid`, `contact-id`, `note`, `hash`, `datetime`, `blocked`)
@@ -3030,7 +3031,7 @@ class DFRN
 				return;
 			}
 
-			$sec = random_string();
+			$sec = Strings::getRandomHex();
 
 			DBA::insert('profile_check', ['uid' => local_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id, 'sec' => $sec, 'expire' => time() + 45]);
 

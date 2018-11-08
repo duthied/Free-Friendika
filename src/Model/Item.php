@@ -33,6 +33,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\XML;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 use Text_LanguageDetect;
 
 require_once 'boot.php';
@@ -3479,7 +3480,7 @@ class Item extends BaseObject
 
 		while ((strpos($s, $spoilersearch) !== false)) {
 			$pos = strpos($s, $spoilersearch);
-			$rnd = random_string(8);
+			$rnd = Strings::getRandomHex(8);
 			$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
 						'<blockquote class="spoiler" id="spoiler-' . $rnd . '" style="display: none;">';
 			$s = substr($s, 0, $pos) . $spoilerreplace . substr($s, $pos + strlen($spoilersearch));
@@ -3490,7 +3491,7 @@ class Item extends BaseObject
 
 		while ((strpos($s, $authorsearch) !== false)) {
 			$pos = strpos($s, $authorsearch);
-			$rnd = random_string(8);
+			$rnd = Strings::getRandomHex(8);
 			$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
 						'<blockquote class="author" id="author-' . $rnd . '" style="display: block;">';
 			$s = substr($s, 0, $pos) . $authorreplace . substr($s, $pos + strlen($authorsearch));

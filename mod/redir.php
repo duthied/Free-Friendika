@@ -8,6 +8,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Util\Strings;
 
 function redir_init(App $a) {
 
@@ -93,7 +94,7 @@ function redir_init(App $a) {
 				$dfrn_id = '0:' . $orig_id;
 			}
 
-			$sec = random_string();
+			$sec = Strings::getRandomHex();
 
 			$fields = ['uid' => local_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id,
 				'sec' => $sec, 'expire' => time() + 45];

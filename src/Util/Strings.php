@@ -16,7 +16,7 @@ class Strings
      * @param int $size
      * @return string
      */
-    public static function getRandomHex($size = 64) // random_string()
+    public static function getRandomHex($size = 64)
     {
         $byte_size = ceil($size / 2);
 

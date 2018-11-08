@@ -28,6 +28,7 @@ use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 require_once 'include/enotify.php';
 
@@ -320,7 +321,7 @@ function dfrn_request_post(App $a)
 				}
 			}
 
-			$issued_id = random_string();
+			$issued_id = Strings::getRandomHex();
 
 			if (is_array($contact_record)) {
 				// There is a contact record but no issued-id, so this
@@ -415,7 +416,7 @@ function dfrn_request_post(App $a)
 				return;
 			}
 
-			$hash = random_string() . (string) time();   // Generate a confirm_key
+			$hash = Strings::getRandomHex() . (string) time();   // Generate a confirm_key
 
 			if (is_array($contact_record)) {
 				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)

@@ -34,6 +34,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use SimpleXMLElement;
 
@@ -2421,7 +2422,7 @@ class Diaspora
 		if (in_array($importer["page-flags"], [Contact::PAGE_NORMAL, Contact::PAGE_PRVGROUP])) {
 			Logger::log("Sending intra message for author ".$author.".", Logger::DEBUG);
 
-			$hash = random_string().(string)time();   // Generate a confirm_key
+			$hash = Strings::getRandomHex().(string)time();   // Generate a confirm_key
 
 			$ret = q(
 				"INSERT INTO `intro` (`uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
@@ -3055,7 +3056,7 @@ class Diaspora
 			return 200;
 		}
 
-		$logid = random_string(4);
+		$logid = String::getRandomHex(4);
 
 		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 

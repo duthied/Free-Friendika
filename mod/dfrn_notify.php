@@ -14,6 +14,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Strings;
 
 require_once 'include/items.php';
 
@@ -267,7 +268,7 @@ function dfrn_notify_content(App $a) {
 			$dfrn_id = substr($dfrn_id,2);
 		}
 
-		$hash = random_string();
+		$hash = Strings::getRandomHex();
 
 		$status = 0;
 

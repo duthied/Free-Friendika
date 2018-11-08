@@ -15,6 +15,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
+use Friendica\Util\Strings;
 
 /**
  * @brief Creates a notification entry and possibly sends a mail
@@ -457,7 +458,7 @@ function notification($params)
 		Logger::log("adding notification entry", Logger::DEBUG);
 		do {
 			$dups = false;
-			$hash = random_string();
+			$hash = Strings::getRandomHex();
 			if (DBA::exists('notify', ['hash' => $hash])) {
 				$dups = true;
 			}

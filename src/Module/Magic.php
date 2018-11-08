@@ -11,6 +11,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * Magic Auth (remote authentication) module.
@@ -74,7 +75,7 @@ class Magic extends BaseModule
 
 				$headers = [];
 				$headers['Accept'] = 'application/x-dfrn+json';
-				$headers['X-Open-Web-Auth'] = random_string();
+				$headers['X-Open-Web-Auth'] = Strings::getRandomHex();
 
 				// Create a header that is signed with the local users private key.
 				$headers = HTTPSignature::createSig(
