@@ -1,11 +1,15 @@
 <?php
 
-namespace Friendica\Test\Object;
+namespace Friendica\Test\Model;
 
 use Friendica\Model\User;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\DBAMockTrait;
 
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ */
 class UserTest extends MockedTest
 {
 	use DBAMockTrait;
