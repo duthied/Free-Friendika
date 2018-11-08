@@ -78,7 +78,7 @@ class Contact extends BaseModule
 			$a->data['contact'] = $contact;
 
 			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
-				$networkname = format_network_name($contact['network'], $contact['url']);
+				$networkname = Strings::formatNetworkName($contact['network'], $contact['url']);
 			} else {
 				$networkname = '';
 			}

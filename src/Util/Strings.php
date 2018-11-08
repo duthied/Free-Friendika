@@ -151,7 +151,7 @@ class Strings
      * 
      * @return string   Formatted network name
      */
-    public static function formatNetworkName($network, $url = 0) // format_network_name()
+    public static function formatNetworkName($network, $url = 0)
     {
         if ($network != "") {
             if ($url != "") {

@@ -18,8 +18,8 @@ class TextTest extends TestCase
 	 */
 	public function testAutonameEven()
 	{
-		$autoname1=autoname(10);
-		$autoname2=autoname(10);
+		$autoname1= Friendica\Util\Strings::getRandomName(10);
+		$autoname2= Friendica\Util\Strings::getRandomName(10);
 
 		$this->assertNotEquals($autoname1, $autoname2);
 	}
@@ -29,8 +29,8 @@ class TextTest extends TestCase
 	 */
 	public function testAutonameOdd()
 	{
-		$autoname1=autoname(9);
-		$autoname2=autoname(9);
+		$autoname1= Friendica\Util\Strings::getRandomName(9);
+		$autoname2= Friendica\Util\Strings::getRandomName(9);
 
 		$this->assertNotEquals($autoname1, $autoname2);
 	}
@@ -40,7 +40,7 @@ class TextTest extends TestCase
 	 */
 	public function testAutonameNoLength()
 	{
-		$autoname1=autoname(0);
+		$autoname1= Friendica\Util\Strings::getRandomName(0);
 		$this->assertEquals(0, strlen($autoname1));
 	}
 
@@ -51,7 +51,7 @@ class TextTest extends TestCase
 	 */
 	public function testAutonameNegativeLength()
 	{
-		$autoname1=autoname(-23);
+		$autoname1= Friendica\Util\Strings::getRandomName(-23);
 		$this->assertEquals(0, strlen($autoname1));
 	}
 
@@ -60,10 +60,10 @@ class TextTest extends TestCase
 	 */
 	public function testAutonameLength1()
 	{
-		$autoname1=autoname(1);
+		$autoname1= Friendica\Util\Strings::getRandomName(1);
 		$this->assertEquals(1, strlen($autoname1));
 
-		$autoname2=autoname(1);
+		$autoname2= Friendica\Util\Strings::getRandomName(1);
 		$this->assertEquals(1, strlen($autoname2));
 	}
 

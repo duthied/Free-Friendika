@@ -16,6 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function hovercard_init(App $a)
 {
@@ -104,7 +105,7 @@ function hovercard_content()
 		'location' => $contact['location'],
 		'gender'   => $contact['gender'],
 		'about'    => $contact['about'],
-		'network'  => format_network_name($contact['network'], $contact['url']),
+		'network'  => Strings::formatNetworkName($contact['network'], $contact['url']),
 		'tags'     => $contact['keywords'],
 		'bd'       => $contact['birthday'] <= '0001-01-01' ? '' : $contact['birthday'],
 		'account_type' => Contact::getAccountType($contact),

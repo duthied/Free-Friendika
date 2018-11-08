@@ -297,7 +297,7 @@ class Profile
 		$profile['picdate'] = urlencode(defaults($profile, 'picdate', ''));
 
 		if (($profile['network'] != '') && ($profile['network'] != Protocol::DFRN)) {
-			$profile['network_name'] = format_network_name($profile['network'], $profile['url']);
+			$profile['network_name'] = Strings::formatNetworkName($profile['network'], $profile['url']);
 		} else {
 			$profile['network_name'] = '';
 		}
