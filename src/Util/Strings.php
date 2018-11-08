@@ -5,6 +5,9 @@
 
 namespace Friendica\Util;
 
+use Friendica\Content\ContactSelector;
+use Friendica\Core\Logger;
+
 /**
  * @brief This class handles string functions
  */
