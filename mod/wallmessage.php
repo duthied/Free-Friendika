@@ -21,7 +21,7 @@ function wallmessage_post(App $a) {
 	}
 
 	$subject   = ((x($_REQUEST,'subject'))   ? Strings::removeTags(trim($_REQUEST['subject']))   : '');
-	$body      = ((x($_REQUEST,'body'))      ? escape_tags(trim($_REQUEST['body'])) : '');
+	$body      = ((x($_REQUEST,'body'))      ? Strings::escapeTags(trim($_REQUEST['body'])) : '');
 
 	$recipient = (($a->argc > 1) ? Strings::removeTags($a->argv[1]) : '');
 	if ((! $recipient) || (! $body)) {
@@ -132,7 +132,7 @@ function wallmessage_content(App $a) {
 		'$recipname' => $user['username'],
 		'$nickname' => $user['nickname'],
 		'$subjtxt' => ((x($_REQUEST, 'subject')) ? strip_tags($_REQUEST['subject']) : ''),
-		'$text' => ((x($_REQUEST, 'body')) ? escape_tags(htmlspecialchars($_REQUEST['body'])) : ''),
+		'$text' => ((x($_REQUEST, 'body')) ? Strings::escapeTags(htmlspecialchars($_REQUEST['body'])) : ''),
 		'$readonly' => '',
 		'$yourmessage' => L10n::t('Your message:'),
 		'$parent' => '',

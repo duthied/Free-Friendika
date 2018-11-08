@@ -507,7 +507,7 @@ class OnePoll
 								Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 								continue;
 							}
-							$datarray['body'] = escape_tags($r['body']);
+							$datarray['body'] = Strings::escapeTags($r['body']);
 							$datarray['body'] = BBCode::limitBodySize($datarray['body']);
 
 							Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);

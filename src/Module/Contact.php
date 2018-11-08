@@ -214,14 +214,14 @@ class Contact extends BaseModule
 
 		$fetch_further_information = intval(defaults($_POST, 'fetch_further_information', 0));
 
-		$ffi_keyword_blacklist = escape_tags(trim(defaults($_POST, 'ffi_keyword_blacklist', '')));
+		$ffi_keyword_blacklist = Strings::escapeTags(trim(defaults($_POST, 'ffi_keyword_blacklist', '')));
 
 		$priority = intval(defaults($_POST, 'poll', 0));
 		if ($priority > 5 || $priority < 0) {
 			$priority = 0;
 		}
 
-		$info = escape_tags(trim($_POST['info']));
+		$info = Strings::escapeTags(trim($_POST['info']));
 
 		$r = DBA::update('contact', [
 			'profile-id' => $profile_id,

@@ -240,7 +240,7 @@ class TextTest extends TestCase
 		$invalidstring='<submit type="button" onclick="alert(\'failed!\');" />';
 
 		$validstring = Friendica\Util\Strings::removeTags($invalidstring);
-		$escapedString=escape_tags($invalidstring);
+		$escapedString = Friendica\Util\Strings::escapeTags($invalidstring);
 
 		$this->assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);
 		$this->assertEquals(

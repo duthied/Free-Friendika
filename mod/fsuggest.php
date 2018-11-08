@@ -37,7 +37,7 @@ function fsuggest_post(App $a)
 
 	$hash = Strings::getRandomHex();
 
-	$note = escape_tags(trim(defaults($_POST, 'note', '')));
+	$note = Strings::escapeTags(trim(defaults($_POST, 'note', '')));
 
 	if ($new_contact) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",

@@ -208,7 +208,7 @@ function profiles_post(App $a) {
 			return;
 		}
 
-		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00';
+		$dob = $_POST['dob'] ? Strings::escapeTags(trim($_POST['dob'])) : '0000-00-00';
 
 		$y = substr($dob, 0, 4);
 		if ((! ctype_digit($y)) || ($y < 1900)) {
@@ -323,19 +323,19 @@ function profiles_post(App $a) {
 		$politic = Strings::removeTags(trim($_POST['politic']));
 		$religion = Strings::removeTags(trim($_POST['religion']));
 
-		$likes = escape_tags(trim($_POST['likes']));
-		$dislikes = escape_tags(trim($_POST['dislikes']));
+		$likes = Strings::escapeTags(trim($_POST['likes']));
+		$dislikes = Strings::escapeTags(trim($_POST['dislikes']));
 
-		$about = escape_tags(trim($_POST['about']));
-		$interest = escape_tags(trim($_POST['interest']));
-		$contact = escape_tags(trim($_POST['contact']));
-		$music = escape_tags(trim($_POST['music']));
-		$book = escape_tags(trim($_POST['book']));
-		$tv = escape_tags(trim($_POST['tv']));
-		$film = escape_tags(trim($_POST['film']));
-		$romance = escape_tags(trim($_POST['romance']));
-		$work = escape_tags(trim($_POST['work']));
-		$education = escape_tags(trim($_POST['education']));
+		$about = Strings::escapeTags(trim($_POST['about']));
+		$interest = Strings::escapeTags(trim($_POST['interest']));
+		$contact = Strings::escapeTags(trim($_POST['contact']));
+		$music = Strings::escapeTags(trim($_POST['music']));
+		$book = Strings::escapeTags(trim($_POST['book']));
+		$tv = Strings::escapeTags(trim($_POST['tv']));
+		$film = Strings::escapeTags(trim($_POST['film']));
+		$romance = Strings::escapeTags(trim($_POST['romance']));
+		$work = Strings::escapeTags(trim($_POST['work']));
+		$education = Strings::escapeTags(trim($_POST['education']));
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 

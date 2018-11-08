@@ -56,7 +56,7 @@ class Strings
      * 
      * @return string
      */
-    public static function escapeTags($string) // escape_tags()
+    public static function escapeTags($string)
     {
         return htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false);
     }
