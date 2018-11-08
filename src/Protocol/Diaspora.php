@@ -3056,7 +3056,7 @@ class Diaspora
 			return 200;
 		}
 
-		$logid = String::getRandomHex(4);
+		$logid = Strings::getRandomHex(4);
 
 		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
