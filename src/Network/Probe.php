@@ -1313,8 +1313,8 @@ class Probe
 					$key = explode(".", $pubkey);
 
 					if (sizeof($key) >= 3) {
-						$m = base64url_decode($key[1]);
-						$e = base64url_decode($key[2]);
+						$m = Strings::base64UrlDecode($key[1]);
+						$e = Strings::base64UrlDecode($key[2]);
 						$data["pubkey"] = Crypto::meToPem($m, $e);
 					}
 				}

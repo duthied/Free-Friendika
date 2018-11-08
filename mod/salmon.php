@@ -58,7 +58,7 @@ function salmon_post(App $a, $xml = '') {
 	// Stash the signature away for now. We have to find their key or it won't be good for anything.
 
 
-	$signature = base64url_decode($base->sig);
+	$signature = Strings::base64UrlDecode($base->sig);
 
 	// unpack the  data
 
@@ -77,13 +77,13 @@ function salmon_post(App $a, $xml = '') {
 
 	$stnet_signed_data = $data;
 
-	$signed_data = $data  . '.' . base64url_encode($type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($alg);
+	$signed_data = $data  . '.' . Strings::base64UrlEncode($type) . '.' . Strings::base64UrlEncode($encoding) . '.' . Strings::base64UrlEncode($alg);
 
 	$compliant_format = str_replace('=', '', $signed_data);
 
 
 	// decode the data
-	$data = base64url_decode($data);
+	$data = Strings::base64UrlDecode($data);
 
 	$author = OStatus::salmonAuthor($data, $importer);
 	$author_link = $author["author-link"];
@@ -106,8 +106,8 @@ function salmon_post(App $a, $xml = '') {
 
 	$key_info = explode('.',$key);
 
-	$m = base64url_decode($key_info[1]);
-	$e = base64url_decode($key_info[2]);
+	$m = Strings::base64UrlDecode($key_info[1]);
+	$e = Strings::base64UrlDecode($key_info[2]);
 
 	Logger::log('key details: ' . print_r($key_info,true), Logger::DEBUG);
 

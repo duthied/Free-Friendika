@@ -1002,7 +1002,7 @@ class DFRN
 		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"] . "+00:00", DateTimeFormat::ATOM));
 
 		// "dfrn:env" is used to read the content
-		XML::addElement($doc, $entry, "dfrn:env", base64url_encode($body, true));
+		XML::addElement($doc, $entry, "dfrn:env", Strings::base64UrlEncode($body, true));
 
 		// The "content" field is not read by the receiver. We could remove it when the type is "text"
 		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
@@ -2494,7 +2494,7 @@ class DFRN
 		$item["body"] = XML::getFirstNodeValue($xpath, "dfrn:env/text()", $entry);
 		$item["body"] = str_replace([' ',"\t","\r","\n"], ['','','',''], $item["body"]);
 		// make sure nobody is trying to sneak some html tags by us
-		$item["body"] = Strings::removeTags(base64url_decode($item["body"]));
+		$item["body"] = Strings::removeTags(Strings::base64UrlDecode($item["body"]));
 
 		$item["body"] = BBCode::limitBodySize($item["body"]);
 

@@ -298,23 +298,23 @@ class Diaspora
 
 		$handle = "";
 
-		$data = base64url_decode($children->data);
+		$data = Strings::base64UrlDecode($children->data);
 		$type = $children->data->attributes()->type[0];
 
 		$encoding = $children->encoding;
 
 		$alg = $children->alg;
 
-		$sig = base64url_decode($children->sig);
+		$sig = Strings::base64UrlDecode($children->sig);
 		$key_id = $children->sig->attributes()->key_id[0];
 		if ($key_id != "") {
-			$handle = base64url_decode($key_id);
+			$handle = Strings::base64UrlDecode($key_id);
 		}
 
-		$b64url_data = base64url_encode($data);
+		$b64url_data = Strings::base64UrlEncode($data);
 		$msg = str_replace(["\n", "\r", " ", "\t"], ["", "", "", ""], $b64url_data);
 
-		$signable_data = $msg.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
+		$signable_data = $msg.".".Strings::base64UrlEncode($type).".".Strings::base64UrlEncode($encoding).".".Strings::base64UrlEncode($alg);
 
 		if ($handle == '') {
 			Logger::log('No author could be decoded. Discarding. Message: ' . $envelope);
@@ -426,10 +426,10 @@ class Diaspora
 		$type = $base->data[0]->attributes()->type[0];
 		$encoding = $base->encoding;
 		$alg = $base->alg;
-		$signed_data = $data.'.'.base64url_encode($type).'.'.base64url_encode($encoding).'.'.base64url_encode($alg);
+		$signed_data = $data.'.'.Strings::base64UrlEncode($type).'.'.Strings::base64UrlEncode($encoding).'.'.Strings::base64UrlEncode($alg);
 
 		// This is the signature
-		$signature = base64url_decode($base->sig);
+		$signature = Strings::base64UrlDecode($base->sig);
 
 		// Get the senders' public key
 		$key_id = $base->sig[0]->attributes()->key_id[0];
@@ -463,7 +463,7 @@ class Diaspora
 			}
 		}
 
-		return ['message' => (string)base64url_decode($base->data),
+		return ['message' => (string)Strings::base64UrlDecode($base->data),
 				'author' => XML::unescape($author_addr),
 				'key' => (string)$key];
 	}
@@ -547,7 +547,7 @@ class Diaspora
 
 
 		// Stash the signature away for now. We have to find their key or it won't be good for anything.
-		$signature = base64url_decode($base->sig);
+		$signature = Strings::base64UrlDecode($base->sig);
 
 		// unpack the  data
 
@@ -563,11 +563,11 @@ class Diaspora
 		$alg = $base->alg;
 
 
-		$signed_data = $data.'.'.base64url_encode($type).'.'.base64url_encode($encoding).'.'.base64url_encode($alg);
+		$signed_data = $data.'.'.Strings::base64UrlEncode($type).'.'.Strings::base64UrlEncode($encoding).'.'.Strings::base64UrlEncode($alg);
 
 
 		// decode the data
-		$data = base64url_decode($data);
+		$data = Strings::base64UrlDecode($data);
 
 
 		if ($public) {
@@ -2962,14 +2962,14 @@ class Diaspora
 	 */
 	public static function buildMagicEnvelope($msg, array $user)
 	{
-		$b64url_data = base64url_encode($msg);
+		$b64url_data = Strings::base64UrlEncode($msg);
 		$data = str_replace(["\n", "\r", " ", "\t"], ["", "", "", ""], $b64url_data);
 
-		$key_id = base64url_encode(self::myHandle($user));
+		$key_id = Strings::base64UrlEncode(self::myHandle($user));
 		$type = "application/xml";
 		$encoding = "base64url";
 		$alg = "RSA-SHA256";
-		$signable_data = $data.".".base64url_encode($type).".".base64url_encode($encoding).".".base64url_encode($alg);
+		$signable_data = $data.".".Strings::base64UrlEncode($type).".".Strings::base64UrlEncode($encoding).".".Strings::base64UrlEncode($alg);
 
 		// Fallback if the private key wasn't transmitted in the expected field
 		if ($user['uprvkey'] == "") {
@@ -2977,7 +2977,7 @@ class Diaspora
 		}
 
 		$signature = Crypto::rsaSign($signable_data, $user["uprvkey"]);
-		$sig = base64url_encode($signature);
+		$sig = Strings::base64UrlEncode($signature);
 
 		$xmldata = ["me:env" => ["me:data" => $data,
 							"@attributes" => ["type" => $type],

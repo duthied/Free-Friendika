@@ -21,6 +21,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 require_once 'include/dba.php';
 
@@ -373,7 +374,7 @@ class OEmbed
 		}
 		$width = '100%';
 
-		$src = System::baseUrl() . '/oembed/' . base64url_encode($src);
+		$src = System::baseUrl() . '/oembed/' . Strings::base64UrlEncode($src);
 		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $src . '" allowfullscreen scrolling="no" frameborder="no">' . L10n::t('Embedded content') . '</iframe>';
 	}
 

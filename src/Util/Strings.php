@@ -220,7 +220,7 @@ class Strings
      * 
      * @return string   Transformed string.
      */
-    public static function protectSprintf($s) // protect_sprintf()
+    public static function protectSprintf($s)
     {
         return str_replace('%', '%%', $s);
     }
@@ -233,7 +233,7 @@ class Strings
      * 
      * @return string   Encoded URL
      */
-    public static function base64UrlEncode($s, $strip_padding = false) //base64url_encode()
+    public static function base64UrlEncode($s, $strip_padding = false)
     {
         $s = strtr(base64_encode($s), '+/', '-_');
 
@@ -250,7 +250,7 @@ class Strings
      * 
      * @return string   Decoded URL
      */
-    public static function base64url_decode($s) // base64url_decode()
+    public static function base64UrlDecode($s)
     {
         if (is_array($s)) {
             Logger::log('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
