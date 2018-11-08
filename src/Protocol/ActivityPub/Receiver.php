@@ -727,11 +727,46 @@ class Receiver
 				continue;
 			}
 
-			$taglist[] = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type')),
+			$element = ['type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type')),
 				'href' => JsonLD::fetchElement($tag, 'as:href'),
 				'name' => JsonLD::fetchElement($tag, 'as:name')];
+
+			if (empty($element['type'])) {
+				continue;
+			}
+
+			$taglist[] = $element;
 		}
 		return $taglist;
+	}
+
+	/**
+	 * Convert emojis from JSON-LD format into a simplified format
+	 *
+	 * @param array $tags Tags in JSON-LD format
+	 *
+	 * @return array with emojis in a simplified format
+	 */
+	private static function processEmojis($emojis)
+	{
+		$emojilist = [];
+
+		if (empty($emojis)) {
+			return [];
+		}
+
+		foreach ($emojis as $emoji) {
+			if (empty($emoji) || (JsonLD::fetchElement($emoji, '@type') != 'toot:Emoji') || empty($emoji['as:icon'])) {
+				continue;
+			}
+
+			$url = JsonLD::fetchElement($emoji['as:icon'], 'as:url');
+			$element = ['name' => JsonLD::fetchElement($emoji, 'as:name'),
+				'href' => $url];
+
+			$emojilist[] = $element;
+		}
+		return $emojilist;
 	}
 
 	/**
@@ -821,6 +856,7 @@ class Receiver
 		$object_data['longitude'] = JsonLD::fetchElement($object_data, 'longitude', '@value');
 		$object_data['attachments'] = self::processAttachments(JsonLD::fetchElementArray($object, 'as:attachment'));
 		$object_data['tags'] = self::processTags(JsonLD::fetchElementArray($object, 'as:tag'));
+		$object_data['emojis'] = self::processEmojis(JsonLD::fetchElementArray($object, 'as:tag', 'toot:Emoji'));
 		$object_data['generator'] = JsonLD::fetchElement($object, 'as:generator', 'as:name', '@type', 'as:Application');
 		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'as:url');
 

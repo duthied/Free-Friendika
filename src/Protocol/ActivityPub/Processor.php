@@ -40,6 +40,22 @@ class Processor
 	}
 
 	/**
+	 * Replaces emojis in the body
+	 *
+	 * @param array $emojis
+	 * @param string $body
+	 *
+	 * @return string with replaced emojis
+	 */
+	public static function replaceEmojis($emojis, $body)
+	{
+		foreach ($emojis as $emoji) {
+			$body = str_replace($emoji['name'], '[img=16x16]' . $emoji['href'] . '[/img]', $body);
+		}
+		return $body;
+	}
+
+	/**
 	 * Constructs a string with tags for a given tag array
 	 *
 	 * @param array $tags
@@ -115,7 +131,8 @@ class Processor
 		$item['edited'] = $activity['updated'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
+		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
+		$item['body'] = self::convertMentions($content);
 		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
 
 		Item::update($item, ['uri' => $activity['id']]);
@@ -250,7 +267,8 @@ class Processor
 		$item['guid'] = $activity['diaspora:guid'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
+		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
+		$item['body'] = self::convertMentions($content);
 
 		if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
 			$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
