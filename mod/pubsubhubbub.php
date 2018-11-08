@@ -88,7 +88,7 @@ function pubsubhubbub_init(App $a) {
 
 		// sanity check that topic URLs are the same
 		$hub_topic2 = str_replace('/feed/', '/dfrn_poll/', $hub_topic);
-		if (!link_compare($hub_topic, $contact['poll']) && !link_compare($hub_topic2, $contact['poll'])) {
+		if (!Strings::compareLink($hub_topic, $contact['poll']) && !Strings::compareLink($hub_topic2, $contact['poll'])) {
 			Logger::log('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
 			System::httpExit(404);
 		}

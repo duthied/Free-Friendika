@@ -2403,7 +2403,7 @@ class Item extends BaseObject
 	public static function setHashtags(&$item)
 	{
 
-		$tags = get_tags($item["body"]);
+		$tags = Strings::getTags($item["body"]);
 
 		// No hashtags?
 		if (!count($tags)) {
@@ -2556,7 +2556,7 @@ class Item extends BaseObject
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				if (link_compare($link, $mtch[1]) || link_compare($dlink, $mtch[1])) {
+				if (Strings::compareLink($link, $mtch[1]) || Strings::compareLink($dlink, $mtch[1])) {
 					$mention = true;
 					Logger::log('mention found: ' . $mtch[2]);
 				}

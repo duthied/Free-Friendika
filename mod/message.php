@@ -463,7 +463,7 @@ function render_messages(array $msg, $t)
 	foreach ($msg as $rr) {
 		if ($rr['unknown']) {
 			$participants = L10n::t("Unknown sender - %s", $rr['from-name']);
-		} elseif (link_compare($rr['from-url'], $myprofile)) {
+		} elseif (Strings::compareLink($rr['from-url'], $myprofile)) {
 			$participants = L10n::t("You and %s", $rr['name']);
 		} else {
 			$participants = L10n::t("%s and You", $rr['from-name']);

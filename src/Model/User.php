@@ -499,7 +499,7 @@ class User
 			throw new Exception(L10n::t('Your email domain is not among those allowed on this site.'));
 		}
 
-		if (!valid_email($email) || !Network::isEmailDomainValid($email)) {
+		if (!Strings::isValidEmail($email) || !Network::isEmailDomainValid($email)) {
 			throw new Exception(L10n::t('Not a valid email address.'));
 		}
 		if (self::isNicknameBlocked($nickname)) {

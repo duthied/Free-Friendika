@@ -1141,7 +1141,7 @@ class Profile
 		}
 		$achar = strpos($s, '?') ? '&' : '?';
 		$mine = self::getMyURL();
-		if ($mine && !link_compare($mine, $s)) {
+		if ($mine && !Strings::compareLink($mine, $s)) {
 			return $s . $achar . 'zrl=' . urlencode($mine);
 		}
 		return $s;

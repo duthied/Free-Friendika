@@ -44,7 +44,7 @@ function openid_content(App $a) {
 				AND `blocked` = 0 AND `account_expired` = 0
 				AND `account_removed` = 0 AND `verified` = 1
 				LIMIT 1",
-				DBA::escape($authid), DBA::escape(normalise_openid($authid))
+				DBA::escape($authid), DBA::escape(Strings::normaliseOpenID($authid))
 			);
 
 			if (DBA::isResult($r)) {

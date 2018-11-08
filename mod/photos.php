@@ -525,7 +525,7 @@ function photos_post(App $a)
 			}
 
 			$taginfo = [];
-			$tags = get_tags($rawtags);
+			$tags = Strings::getTags($rawtags);
 
 			if (count($tags)) {
 				foreach ($tags as $tag) {

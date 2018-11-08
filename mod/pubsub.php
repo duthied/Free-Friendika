@@ -64,7 +64,7 @@ function pubsub_init(App $a)
 			hub_return(false, '');
 		}
 
-		if (!empty($hub_topic) && !link_compare($hub_topic, $contact['poll'])) {
+		if (!empty($hub_topic) && !Strings::compareLink($hub_topic, $contact['poll'])) {
 			Logger::log('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
 			hub_return(false, '');
 		}

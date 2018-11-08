@@ -18,6 +18,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
+use Friendica\Util\Strings;
 
 require_once 'include/items.php';
 
@@ -247,7 +248,7 @@ class Delivery extends BaseObject
 
 		// perform local delivery if we are on the same site
 
-		if (link_compare($basepath, System::baseUrl())) {
+		if (Strings::compareLink($basepath, System::baseUrl())) {
 			$condition = ['nurl' => normalise_link($contact['url']), 'self' => true];
 			$target_self = DBA::selectFirst('contact', ['uid'], $condition);
 			if (!DBA::isResult($target_self)) {

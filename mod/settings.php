@@ -517,7 +517,7 @@ function settings_post(App $a)
 			$email = $a->user['email'];
 		}
 		//  check the email is valid
-		if (!valid_email($email)) {
+		if (!Strings::isValidEmail($email)) {
 			$err .= L10n::t('Invalid email.');
 		}
 		//  ensure new email is not the admin mail
@@ -545,7 +545,7 @@ function settings_post(App $a)
 	$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
 
 	$openidserver = $a->user['openidserver'];
-	//$openid = normalise_openid($openid);
+	//$openid = Strings::normaliseOpenID($openid);
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {

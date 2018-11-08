@@ -289,7 +289,7 @@ class Strings
      * 
      * @return array List of tag and person names
      */
-    public static function getTags($string) // get_tags()
+    public static function getTags($string)
     {
         $ret = [];
 
@@ -357,7 +357,7 @@ class Strings
      * 
      * @return boolean  Value indicating whether or not the string is a valid email address.
      */
-    public static function isValidEmail($email_address) // valid_email()
+    public static function isValidEmail($email_address)
     {
         return preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $email_address);
     }
@@ -382,7 +382,7 @@ class Strings
      * 
      * @return string   normalized OpenId Identity
      */
-    function normaliseOpenID($s) // normalize_openid()
+    function normaliseOpenID($s)
     {
         return trim(str_replace(['http://', 'https://'], ['', ''], $s), '/');
     }
@@ -398,8 +398,8 @@ class Strings
      * @return boolean True if the URLs match, otherwise False
      *
      */
-    public static function compareLink($a, $b) // link_compare()
+    public static function compareLink($a, $b)
     {
-        return (strcasecmp(normalise_link($a), normalise_link($b)) === 0);
+        return (strcasecmp(self::normaliseLink($a), self::normaliseLink($b)) === 0);
     }
 }

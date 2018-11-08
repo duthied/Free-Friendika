@@ -56,7 +56,7 @@ function invite_post(App $a)
 	foreach ($recipients as $recipient) {
 		$recipient = trim($recipient);
 
-		if (! valid_email($recipient)) {
+		if (! Strings::isValidEmail($recipient)) {
 			notice(L10n::t('%s : Not a valid email address.', $recipient) . EOL);
 			continue;
 		}
