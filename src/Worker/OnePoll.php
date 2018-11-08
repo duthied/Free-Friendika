@@ -18,6 +18,7 @@ use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/dba.php';
@@ -474,9 +475,9 @@ class OnePoll
 									$datarray['title'] .= $subpart->text;
 								}
 							}
-							$datarray['title'] = notags(trim($datarray['title']));
+							$datarray['title'] = Strings::removeTags(trim($datarray['title']));
 
-							//$datarray['title'] = notags(trim($meta->subject));
+							//$datarray['title'] = Strings::removeTags(trim($meta->subject));
 							$datarray['created'] = DateTimeFormat::utc($meta->date);
 
 							// Is it a reply?

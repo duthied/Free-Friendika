@@ -44,7 +44,7 @@ class Strings
      * @param string $string Input string
      * @return string Filtered string
      */
-    public static function removeTags($string) // notags()
+    public static function removeTags($string)
     {
         return str_replace(["<", ">"], ['[', ']'], $string);
     }

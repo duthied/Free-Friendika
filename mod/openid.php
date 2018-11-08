@@ -10,6 +10,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Util\Strings;
 
 function openid_content(App $a) {
 
@@ -74,16 +75,16 @@ function openid_content(App $a) {
 			if (is_array($attr) && count($attr)) {
 				foreach ($attr as $k => $v) {
 					if ($k === 'namePerson/friendly') {
-						$nick = notags(trim($v));
+						$nick = Strings::removeTags(trim($v));
 					}
 					if($k === 'namePerson/first') {
-						$first = notags(trim($v));
+						$first = Strings::removeTags(trim($v));
 					}
 					if($k === 'namePerson') {
-						$args .= '&username=' . urlencode(notags(trim($v)));
+						$args .= '&username=' . urlencode(Strings::removeTags(trim($v)));
 					}
 					if ($k === 'contact/email') {
-						$args .= '&email=' . urlencode(notags(trim($v)));
+						$args .= '&email=' . urlencode(Strings::removeTags(trim($v)));
 					}
 					if ($k === 'media/image/aspect11') {
 						$photosq = bin2hex(trim($v));
@@ -107,7 +108,7 @@ function openid_content(App $a) {
 				$args .= '&photo=' . urlencode($photo);
 			}
 
-			$args .= '&openid_url=' . urlencode(notags(trim($authid)));
+			$args .= '&openid_url=' . urlencode(Strings::removeTags(trim($authid)));
 
 			$a->internalRedirect('register?' . $args);
 

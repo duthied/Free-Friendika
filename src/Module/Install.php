@@ -9,6 +9,7 @@ use Friendica\Database\DBStructure;
 use Friendica\Core;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 class Install extends BaseModule
@@ -70,10 +71,10 @@ class Install extends BaseModule
 				break;
 
 			case self::SITE_SETTINGS:
-				$dbhost  = notags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
-				$dbuser  = notags(trim(defaults($_POST, 'dbuser', '')));
-				$dbpass  = notags(trim(defaults($_POST, 'dbpass', '')));
-				$dbdata  = notags(trim(defaults($_POST, 'dbdata', '')));
+				$dbhost  = Strings::removeTags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
+				$dbuser  = Strings::removeTags(trim(defaults($_POST, 'dbuser', '')));
+				$dbpass  = Strings::removeTags(trim(defaults($_POST, 'dbpass', '')));
+				$dbdata  = Strings::removeTags(trim(defaults($_POST, 'dbdata', '')));
 
 				// If we cannot connect to the database, return to the previous step
 				if (!self::$installer->checkDB($dbhost, $dbuser, $dbpass, $dbdata)) {
@@ -84,13 +85,13 @@ class Install extends BaseModule
 
 			case self::FINISHED:
 				$urlpath   = $a->getURLPath();
-				$dbhost    = notags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
-				$dbuser    = notags(trim(defaults($_POST, 'dbuser', '')));
-				$dbpass    = notags(trim(defaults($_POST, 'dbpass', '')));
-				$dbdata    = notags(trim(defaults($_POST, 'dbdata', '')));
-				$timezone  = notags(trim(defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ)));
-				$language  = notags(trim(defaults($_POST, 'language', Core\Installer::DEFAULT_LANG)));
-				$adminmail = notags(trim(defaults($_POST, 'adminmail', '')));
+				$dbhost    = Strings::removeTags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
+				$dbuser    = Strings::removeTags(trim(defaults($_POST, 'dbuser', '')));
+				$dbpass    = Strings::removeTags(trim(defaults($_POST, 'dbpass', '')));
+				$dbdata    = Strings::removeTags(trim(defaults($_POST, 'dbdata', '')));
+				$timezone  = Strings::removeTags(trim(defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ)));
+				$language  = Strings::removeTags(trim(defaults($_POST, 'language', Core\Installer::DEFAULT_LANG)));
+				$adminmail = Strings::removeTags(trim(defaults($_POST, 'adminmail', '')));
 
 				// If we cannot connect to the database, return to the Database config wizard
 				if (!self::$installer->checkDB($dbhost, $dbuser, $dbpass, $dbdata)) {
@@ -139,12 +140,12 @@ class Install extends BaseModule
 				break;
 
 			case self::DATABASE_CONFIG:
-				$dbhost    = notags(trim(defaults($_POST, 'dbhost'   , Core\Installer::DEFAULT_HOST)));
-				$dbuser    = notags(trim(defaults($_POST, 'dbuser'   , ''                          )));
-				$dbpass    = notags(trim(defaults($_POST, 'dbpass'   , ''                          )));
-				$dbdata    = notags(trim(defaults($_POST, 'dbdata'   , ''                          )));
-				$phpath    = notags(trim(defaults($_POST, 'phpath'   , ''                          )));
-				$adminmail = notags(trim(defaults($_POST, 'adminmail', ''                          )));
+				$dbhost    = Strings::removeTags(trim(defaults($_POST, 'dbhost'   , Core\Installer::DEFAULT_HOST)));
+				$dbuser    = Strings::removeTags(trim(defaults($_POST, 'dbuser'   , ''                          )));
+				$dbpass    = Strings::removeTags(trim(defaults($_POST, 'dbpass'   , ''                          )));
+				$dbdata    = Strings::removeTags(trim(defaults($_POST, 'dbdata'   , ''                          )));
+				$phpath    = Strings::removeTags(trim(defaults($_POST, 'phpath'   , ''                          )));
+				$adminmail = Strings::removeTags(trim(defaults($_POST, 'adminmail', ''                          )));
 
 				$tpl = Renderer::getMarkupTemplate('install_db.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
@@ -190,13 +191,13 @@ class Install extends BaseModule
 				break;
 
 			case self::SITE_SETTINGS:
-				$dbhost = notags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
-				$dbuser = notags(trim(defaults($_POST, 'dbuser', ''                          )));
-				$dbpass = notags(trim(defaults($_POST, 'dbpass', ''                          )));
-				$dbdata = notags(trim(defaults($_POST, 'dbdata', ''                          )));
-				$phpath = notags(trim(defaults($_POST, 'phpath', ''                          )));
+				$dbhost = Strings::removeTags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
+				$dbuser = Strings::removeTags(trim(defaults($_POST, 'dbuser', ''                          )));
+				$dbpass = Strings::removeTags(trim(defaults($_POST, 'dbpass', ''                          )));
+				$dbdata = Strings::removeTags(trim(defaults($_POST, 'dbdata', ''                          )));
+				$phpath = Strings::removeTags(trim(defaults($_POST, 'phpath', ''                          )));
 
-				$adminmail = notags(trim(defaults($_POST, 'adminmail', '')));
+				$adminmail = Strings::removeTags(trim(defaults($_POST, 'adminmail', '')));
 
 				$timezone = defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ);
 				/* Installed langs */

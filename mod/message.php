@@ -18,6 +18,7 @@ use Friendica\Model\Mail;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/conversation.php';
@@ -58,8 +59,8 @@ function message_post(App $a)
 		return;
 	}
 
-	$replyto   = x($_REQUEST, 'replyto')   ? notags(trim($_REQUEST['replyto']))   : '';
-	$subject   = x($_REQUEST, 'subject')   ? notags(trim($_REQUEST['subject']))   : '';
+	$replyto   = x($_REQUEST, 'replyto')   ? Strings::removeTags(trim($_REQUEST['replyto']))   : '';
+	$subject   = x($_REQUEST, 'subject')   ? Strings::removeTags(trim($_REQUEST['subject']))   : '';
 	$body      = x($_REQUEST, 'body')      ? escape_tags(trim($_REQUEST['body'])) : '';
 	$recipient = x($_REQUEST, 'messageto') ? intval($_REQUEST['messageto'])       : 0;
 

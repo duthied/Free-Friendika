@@ -24,6 +24,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 function profile_init(App $a)
@@ -193,7 +194,7 @@ function profile_content(App $a, $update = 0)
 	if (!$update) {
 		$tab = false;
 		if (!empty($_GET['tab'])) {
-			$tab = notags(trim($_GET['tab']));
+			$tab = Strings::removeTags(trim($_GET['tab']));
 		}
 
 		$o .= Profile::getTabs($a, $is_owner, $a->profile['nickname']);

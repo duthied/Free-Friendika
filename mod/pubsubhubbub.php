@@ -7,9 +7,10 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\PushSubscriber;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 function post_var($name) {
-	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
+	return (x($_POST, $name)) ? Strings::removeTags(trim($_POST[$name])) : '';
 }
 
 function pubsubhubbub_init(App $a) {

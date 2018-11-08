@@ -22,6 +22,7 @@ use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 /**
  *  Manages and show Contacts and their content
@@ -601,7 +602,7 @@ class Contact extends BaseModule
 				'$lbl_vis2'       => L10n::t('Please choose the profile you would like to display to %s when viewing your profile securely.', $contact['name']),
 				'$lbl_info1'      => $lbl_info1,
 				'$lbl_info2'      => L10n::t('Their personal note'),
-				'$reason'         => trim(notags($contact['reason'])),
+				'$reason'         => trim(Strings::removeTags($contact['reason'])),
 				'$infedit'        => L10n::t('Edit contact notes'),
 				'$common_link'    => 'common/loc/' . local_user() . '/' . $contact['id'],
 				'$relation_text'  => $relation_text,
@@ -694,8 +695,8 @@ class Contact extends BaseModule
 
 		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
 
-		$search = notags(trim(defaults($_GET, 'search', '')));
-		$nets   = notags(trim(defaults($_GET, 'nets'  , '')));
+		$search = Strings::removeTags(trim(defaults($_GET, 'search', '')));
+		$nets   = Strings::removeTags(trim(defaults($_GET, 'nets'  , '')));
 
 		$tabs = [
 			[

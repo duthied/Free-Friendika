@@ -8,6 +8,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Module\Login;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 function oexchange_init(App $a) {
 
@@ -33,13 +34,13 @@ function oexchange_content(App $a) {
 	}
 
 	$url = ((x($_REQUEST,'url') && strlen($_REQUEST['url']))
-		? urlencode(notags(trim($_REQUEST['url']))) : '');
+		? urlencode(Strings::removeTags(trim($_REQUEST['url']))) : '');
 	$title = ((x($_REQUEST,'title') && strlen($_REQUEST['title']))
-		? '&title=' . urlencode(notags(trim($_REQUEST['title']))) : '');
+		? '&title=' . urlencode(Strings::removeTags(trim($_REQUEST['title']))) : '');
 	$description = ((x($_REQUEST,'description') && strlen($_REQUEST['description']))
-		? '&description=' . urlencode(notags(trim($_REQUEST['description']))) : '');
+		? '&description=' . urlencode(Strings::removeTags(trim($_REQUEST['description']))) : '');
 	$tags = ((x($_REQUEST,'tags') && strlen($_REQUEST['tags']))
-		? '&tags=' . urlencode(notags(trim($_REQUEST['tags']))) : '');
+		? '&tags=' . urlencode(Strings::removeTags(trim($_REQUEST['tags']))) : '');
 
 	$s = Network::fetchUrl(System::baseUrl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
 

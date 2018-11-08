@@ -36,6 +36,7 @@ use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 
 require_once 'include/enotify.php';
 require_once 'include/text.php';
@@ -203,7 +204,7 @@ function item_post(App $a) {
 		$objecttype        = $orig_post['object-type'];
 		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'];
-		$title             = notags(trim($_REQUEST['title']));
+		$title             = Strings::removeTags(trim($_REQUEST['title']));
 		$body              = escape_tags(trim($_REQUEST['body']));
 		$private           = $orig_post['private'];
 		$pubmail_enabled   = $orig_post['pubmail'];
@@ -235,13 +236,13 @@ function item_post(App $a) {
 			$str_contact_deny  = perms2str(defaults($_REQUEST, 'contact_deny', ''));
 		}
 
-		$title             =      notags(trim(defaults($_REQUEST, 'title'   , '')));
-		$location          =      notags(trim(defaults($_REQUEST, 'location', '')));
-		$coord             =      notags(trim(defaults($_REQUEST, 'coord'   , '')));
-		$verb              =      notags(trim(defaults($_REQUEST, 'verb'    , '')));
-		$emailcc           =      notags(trim(defaults($_REQUEST, 'emailcc' , '')));
+		$title             =      Strings::removeTags(trim(defaults($_REQUEST, 'title'   , '')));
+		$location          =      Strings::removeTags(trim(defaults($_REQUEST, 'location', '')));
+		$coord             =      Strings::removeTags(trim(defaults($_REQUEST, 'coord'   , '')));
+		$verb              =      Strings::removeTags(trim(defaults($_REQUEST, 'verb'    , '')));
+		$emailcc           =      Strings::removeTags(trim(defaults($_REQUEST, 'emailcc' , '')));
 		$body              = escape_tags(trim(defaults($_REQUEST, 'body'    , '')));
-		$network           =      notags(trim(defaults($_REQUEST, 'network' , Protocol::DFRN)));
+		$network           =      Strings::removeTags(trim(defaults($_REQUEST, 'network' , Protocol::DFRN)));
 		$guid              =      System::createUUID();
 
 		$postopts = defaults($_REQUEST, 'postopts', '');

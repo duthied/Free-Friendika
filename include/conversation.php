@@ -26,6 +26,7 @@ use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Util\Crypto;
 
@@ -482,7 +483,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (!$update) {
 			$tab = 'posts';
 			if (x($_GET, 'tab')) {
-				$tab = notags(trim($_GET['tab']));
+				$tab = Strings::removeTags(trim($_GET['tab']));
 			}
 			if ($tab === 'posts') {
 				/*

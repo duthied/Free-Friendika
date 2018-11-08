@@ -22,6 +22,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/items.php';
@@ -38,7 +39,7 @@ function poke_init(App $a)
 		return;
 	}
 
-	$verb = notags(trim($_GET['verb']));
+	$verb = Strings::removeTags(trim($_GET['verb']));
 
 	$verbs = L10n::getPokeVerbs();
 

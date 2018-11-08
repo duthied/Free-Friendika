@@ -26,6 +26,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Content\Text\HTML;
 
@@ -61,7 +62,7 @@ function expand_acl($s) {
  */
 function sanitise_acl(&$item) {
 	if (intval($item)) {
-		$item = '<' . intval(notags(trim($item))) . '>';
+		$item = '<' . intval(Strings::removeTags(trim($item))) . '>';
 	} else {
 		unset($item);
 	}

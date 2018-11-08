@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
+use Friendica\Util\Strings;
 
 function wallmessage_post(App $a) {
 
@@ -19,10 +20,10 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$subject   = ((x($_REQUEST,'subject'))   ? notags(trim($_REQUEST['subject']))   : '');
+	$subject   = ((x($_REQUEST,'subject'))   ? Strings::removeTags(trim($_REQUEST['subject']))   : '');
 	$body      = ((x($_REQUEST,'body'))      ? escape_tags(trim($_REQUEST['body'])) : '');
 
-	$recipient = (($a->argc > 1) ? notags($a->argv[1]) : '');
+	$recipient = (($a->argc > 1) ? Strings::removeTags($a->argv[1]) : '');
 	if ((! $recipient) || (! $body)) {
 		return;
 	}

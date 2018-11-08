@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Util\Strings;
 
 function unfollow_post(App $a)
 {
@@ -24,7 +25,7 @@ function unfollow_post(App $a)
 	}
 
 	$uid = local_user();
-	$url = notags(trim(defaults($_REQUEST, 'url', '')));
+	$url = Strings::removeTags(trim(defaults($_REQUEST, 'url', '')));
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 		$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
@@ -79,7 +80,7 @@ function unfollow_content(App $a)
 	}
 
 	$uid = local_user();
-	$url = notags(trim($_REQUEST['url']));
+	$url = Strings::removeTags(trim($_REQUEST['url']));
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 		local_user(), Contact::SHARING, Contact::FRIEND, normalise_link($url),

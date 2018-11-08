@@ -6,6 +6,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\Strings;
 
 require_once 'include/items.php';
 
@@ -30,15 +31,15 @@ function hub_post_return()
 
 function pubsub_init(App $a)
 {
-	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
+	$nick       = (($a->argc > 1) ? Strings::removeTags(trim($a->argv[1])) : '');
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );
 
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-		$hub_mode      = notags(trim(defaults($_GET, 'hub_mode', '')));
-		$hub_topic     = notags(trim(defaults($_GET, 'hub_topic', '')));
-		$hub_challenge = notags(trim(defaults($_GET, 'hub_challenge', '')));
-		$hub_lease     = notags(trim(defaults($_GET, 'hub_lease_seconds', '')));
-		$hub_verify    = notags(trim(defaults($_GET, 'hub_verify_token', '')));
+		$hub_mode      = Strings::removeTags(trim(defaults($_GET, 'hub_mode', '')));
+		$hub_topic     = Strings::removeTags(trim(defaults($_GET, 'hub_topic', '')));
+		$hub_challenge = Strings::removeTags(trim(defaults($_GET, 'hub_challenge', '')));
+		$hub_lease     = Strings::removeTags(trim(defaults($_GET, 'hub_lease_seconds', '')));
+		$hub_verify    = Strings::removeTags(trim(defaults($_GET, 'hub_verify_token', '')));
 
 		Logger::log('Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
 		Logger::log('Data: ' . print_r($_GET,true), Logger::DATA);
@@ -91,7 +92,7 @@ function pubsub_post(App $a)
 	Logger::log('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  $a->cmd . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
 	Logger::log('Data: ' . $xml, Logger::DATA);
 
-	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
+	$nick       = (($a->argc > 1) ? Strings::removeTags(trim($a->argv[1])) : '');
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );
 
 	$importer = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);

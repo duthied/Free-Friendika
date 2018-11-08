@@ -28,6 +28,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 require_once 'include/conversation.php';
 require_once 'include/items.php';
@@ -536,7 +537,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$star  = intval(defaults($_GET, 'star' , 0));
 	$bmark = intval(defaults($_GET, 'bmark', 0));
 	$conv  = intval(defaults($_GET, 'conv' , 0));
-	$order = notags(defaults($_GET, 'order', 'comment'));
+	$order = Strings::removeTags(defaults($_GET, 'order', 'comment'));
 	$nets  =        defaults($_GET, 'nets' , '');
 
 	if ($cid) {

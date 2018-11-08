@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 require_once 'include/dba.php';
 
@@ -188,7 +189,7 @@ function acl_content(App $a)
 		);
 	} elseif ($type == 'x') {
 		// autocomplete for global contact search (e.g. navbar search)
-		$search = notags(trim($_REQUEST['search']));
+		$search = Strings::removeTags(trim($_REQUEST['search']));
 		$mode = $_REQUEST['smode'];
 
 		$r = ACL::contactAutocomplete($search, $mode);

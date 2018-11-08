@@ -25,6 +25,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/dba.php';
@@ -881,7 +882,7 @@ class Profile
 
 		$tab = false;
 		if (x($_GET, 'tab')) {
-			$tab = notags(trim($_GET['tab']));
+			$tab = Strings::removeTags(trim($_GET['tab']));
 		}
 
 		$url = System::baseUrl() . '/profile/' . $nickname;

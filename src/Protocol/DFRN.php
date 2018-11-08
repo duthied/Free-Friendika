@@ -2494,7 +2494,7 @@ class DFRN
 		$item["body"] = XML::getFirstNodeValue($xpath, "dfrn:env/text()", $entry);
 		$item["body"] = str_replace([' ',"\t","\r","\n"], ['','','',''], $item["body"]);
 		// make sure nobody is trying to sneak some html tags by us
-		$item["body"] = notags(base64url_decode($item["body"]));
+		$item["body"] = Strings::removeTags(base64url_decode($item["body"]));
 
 		$item["body"] = BBCode::limitBodySize($item["body"]);
 

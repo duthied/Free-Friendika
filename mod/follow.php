@@ -13,6 +13,7 @@ use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Database\DBA;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function follow_post(App $a)
 {
@@ -25,7 +26,7 @@ function follow_post(App $a)
 	}
 
 	$uid = local_user();
-	$url = notags(trim($_REQUEST['url']));
+	$url = Strings::removeTags(trim($_REQUEST['url']));
 	$return_path = 'contacts';
 
 	// Makes the connection request for friendica contacts easier
@@ -60,7 +61,7 @@ function follow_content(App $a)
 	}
 
 	$uid = local_user();
-	$url = notags(trim($_REQUEST['url']));
+	$url = Strings::removeTags(trim($_REQUEST['url']));
 
 	$submit = L10n::t('Submit Request');
 

@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 require_once 'boot.php';
 require_once 'include/enotify.php';
@@ -18,7 +19,7 @@ require_once 'include/text.php';
 
 function lostpass_post(App $a)
 {
-	$loginame = notags(trim($_POST['login-name']));
+	$loginame = Strings::removeTags(trim($_POST['login-name']));
 	if (!$loginame) {
 		$a->internalRedirect();
 	}

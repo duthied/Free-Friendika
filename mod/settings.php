@@ -25,6 +25,7 @@ use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Protocol\Email;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 function get_theme_config_file($theme)
@@ -314,8 +315,8 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
 
-		$theme             = x($_POST, 'theme')             ? notags(trim($_POST['theme']))        : $a->user['theme'];
-		$mobile_theme      = x($_POST, 'mobile_theme')      ? notags(trim($_POST['mobile_theme'])) : '';
+		$theme             = x($_POST, 'theme')             ? Strings::removeTags(trim($_POST['theme']))        : $a->user['theme'];
+		$mobile_theme      = x($_POST, 'mobile_theme')      ? Strings::removeTags(trim($_POST['mobile_theme'])) : '';
 		$nosmile           = x($_POST, 'nosmile')           ? intval($_POST['nosmile'])            : 0;
 		$first_day_of_week = x($_POST, 'first_day_of_week') ? intval($_POST['first_day_of_week'])  : 0;
 		$noinfo            = x($_POST, 'noinfo')            ? intval($_POST['noinfo'])             : 0;
@@ -422,13 +423,13 @@ function settings_post(App $a)
 		}
 	}
 
-	$username         = ((x($_POST, 'username'))   ? notags(trim($_POST['username']))     : '');
-	$email            = ((x($_POST, 'email'))      ? notags(trim($_POST['email']))        : '');
-	$timezone         = ((x($_POST, 'timezone'))   ? notags(trim($_POST['timezone']))     : '');
-	$language         = ((x($_POST, 'language'))   ? notags(trim($_POST['language']))     : '');
+	$username         = ((x($_POST, 'username'))   ? Strings::removeTags(trim($_POST['username']))     : '');
+	$email            = ((x($_POST, 'email'))      ? Strings::removeTags(trim($_POST['email']))        : '');
+	$timezone         = ((x($_POST, 'timezone'))   ? Strings::removeTags(trim($_POST['timezone']))     : '');
+	$language         = ((x($_POST, 'language'))   ? Strings::removeTags(trim($_POST['language']))     : '');
 
-	$defloc           = ((x($_POST, 'defloc'))     ? notags(trim($_POST['defloc']))       : '');
-	$openid           = ((x($_POST, 'openid_url')) ? notags(trim($_POST['openid_url']))   : '');
+	$defloc           = ((x($_POST, 'defloc'))     ? Strings::removeTags(trim($_POST['defloc']))       : '');
+	$openid           = ((x($_POST, 'openid_url')) ? Strings::removeTags(trim($_POST['openid_url']))   : '');
 	$maxreq           = ((x($_POST, 'maxreq'))     ? intval($_POST['maxreq'])             : 0);
 	$expire           = ((x($_POST, 'expire'))     ? intval($_POST['expire'])             : 0);
 	$def_gid          = ((x($_POST, 'group-selection')) ? intval($_POST['group-selection']) : 0);

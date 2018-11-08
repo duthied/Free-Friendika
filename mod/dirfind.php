@@ -20,6 +20,7 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 
 function dirfind_init(App $a) {
@@ -45,7 +46,7 @@ function dirfind_content(App $a, $prefix = "") {
 
 	$local = Config::get('system','poco_local_search');
 
-	$search = $prefix.notags(trim(defaults($_REQUEST, 'search', '')));
+	$search = $prefix.Strings::removeTags(trim(defaults($_REQUEST, 'search', '')));
 
 	$header = '';
 
