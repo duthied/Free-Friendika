@@ -50,7 +50,8 @@ class Processor
 	public static function replaceEmojis($emojis, $body)
 	{
 		foreach ($emojis as $emoji) {
-			$body = str_replace($emoji['name'], '[img=16x16]' . $emoji['href'] . '[/img]', $body);
+			$replace = '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
+			$body = str_replace($emoji['name'], $replace, $body);
 		}
 		return $body;
 	}
