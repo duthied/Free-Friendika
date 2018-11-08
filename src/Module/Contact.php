@@ -766,7 +766,7 @@ class Contact extends BaseModule
 		if ($search) {
 			$searching = true;
 			$search_hdr = $search;
-			$search_txt = DBA::escape(protect_sprintf(preg_quote($search)));
+			$search_txt = DBA::escape(Strings::protectSprintf(preg_quote($search)));
 			$sql_extra .= " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') ";
 		}
 
