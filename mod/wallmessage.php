@@ -20,10 +20,10 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$subject   = ((x($_REQUEST,'subject'))   ? Strings::removeTags(trim($_REQUEST['subject']))   : '');
+	$subject   = ((x($_REQUEST,'subject'))   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '');
 	$body      = ((x($_REQUEST,'body'))      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '');
 
-	$recipient = (($a->argc > 1) ? Strings::removeTags($a->argv[1]) : '');
+	$recipient = (($a->argc > 1) ? Strings::escapeTags($a->argv[1]) : '');
 	if ((! $recipient) || (! $body)) {
 		return;
 	}

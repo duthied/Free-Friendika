@@ -59,8 +59,8 @@ function message_post(App $a)
 		return;
 	}
 
-	$replyto   = x($_REQUEST, 'replyto')   ? Strings::removeTags(trim($_REQUEST['replyto']))   : '';
-	$subject   = x($_REQUEST, 'subject')   ? Strings::removeTags(trim($_REQUEST['subject']))   : '';
+	$replyto   = x($_REQUEST, 'replyto')   ? Strings::escapeTags(trim($_REQUEST['replyto']))   : '';
+	$subject   = x($_REQUEST, 'subject')   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '';
 	$body      = x($_REQUEST, 'body')      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '';
 	$recipient = x($_REQUEST, 'messageto') ? intval($_REQUEST['messageto'])       : 0;
 

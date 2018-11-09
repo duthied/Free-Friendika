@@ -13,13 +13,13 @@ function like_content(App $a) {
 	}
 
 
-	$verb = Strings::removeTags(trim($_GET['verb']));
+	$verb = Strings::escapeTags(trim($_GET['verb']));
 
 	if (!$verb) {
 		$verb = 'like';
 	}
 
-	$item_id = (($a->argc > 1) ? Strings::removeTags(trim($a->argv[1])) : 0);
+	$item_id = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : 0);
 
 	$r = Item::performLike($item_id, $verb);
 	if (!$r) {

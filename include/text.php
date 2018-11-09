@@ -62,7 +62,7 @@ function expand_acl($s) {
  */
 function sanitise_acl(&$item) {
 	if (intval($item)) {
-		$item = '<' . intval(Strings::removeTags(trim($item))) . '>';
+		$item = '<' . intval(Strings::escapeTags(trim($item))) . '>';
 	} else {
 		unset($item);
 	}

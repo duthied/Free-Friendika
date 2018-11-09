@@ -189,7 +189,7 @@ function acl_content(App $a)
 		);
 	} elseif ($type == 'x') {
 		// autocomplete for global contact search (e.g. navbar search)
-		$search = Strings::removeTags(trim($_REQUEST['search']));
+		$search = Strings::escapeTags(trim($_REQUEST['search']));
 		$mode = $_REQUEST['smode'];
 
 		$r = ACL::contactAutocomplete($search, $mode);

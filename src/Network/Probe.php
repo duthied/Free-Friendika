@@ -1674,7 +1674,7 @@ class Probe
 						}
 					}
 
-					$data["name"] = Strings::removeTags($data["name"]);
+					$data["name"] = Strings::escapeTags($data["name"]);
 				}
 			}
 		}

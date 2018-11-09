@@ -537,7 +537,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$star  = intval(defaults($_GET, 'star' , 0));
 	$bmark = intval(defaults($_GET, 'bmark', 0));
 	$conv  = intval(defaults($_GET, 'conv' , 0));
-	$order = Strings::removeTags(defaults($_GET, 'order', 'comment'));
+	$order = Strings::escapeTags(defaults($_GET, 'order', 'comment'));
 	$nets  =        defaults($_GET, 'nets' , '');
 
 	if ($cid) {

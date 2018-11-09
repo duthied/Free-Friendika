@@ -73,7 +73,7 @@ class StringsTest extends TestCase
 	{
 		$invalidstring='<submit type="button" onclick="alert(\'failed!\');" />';
 
-		$validstring = Strings::removeTags($invalidstring);
+		$validstring = Strings::escapeTags($invalidstring);
 		$escapedString = Strings::escapeHtml($invalidstring);
 
 		$this->assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);

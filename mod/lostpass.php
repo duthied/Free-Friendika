@@ -19,7 +19,7 @@ require_once 'include/text.php';
 
 function lostpass_post(App $a)
 {
-	$loginame = Strings::removeTags(trim($_POST['login-name']));
+	$loginame = Strings::escapeTags(trim($_POST['login-name']));
 	if (!$loginame) {
 		$a->internalRedirect();
 	}

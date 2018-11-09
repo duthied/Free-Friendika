@@ -882,7 +882,7 @@ class Profile
 
 		$tab = false;
 		if (x($_GET, 'tab')) {
-			$tab = Strings::removeTags(trim($_GET['tab']));
+			$tab = Strings::escapeTags(trim($_GET['tab']));
 		}
 
 		$url = System::baseUrl() . '/profile/' . $nickname;

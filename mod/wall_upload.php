@@ -24,7 +24,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	Logger::log("wall upload: starting new upload", Logger::DEBUG);
 
 	$r_json = (x($_GET, 'response') && $_GET['response'] == 'json');
-	$album = (x($_GET, 'album') ? Strings::removeTags(trim($_GET['album'])) : '');
+	$album = (x($_GET, 'album') ? Strings::escapeTags(trim($_GET['album'])) : '');
 
 	if ($a->argc > 1) {
 		if (!x($_FILES, 'media')) {

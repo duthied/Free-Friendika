@@ -475,9 +475,9 @@ class OnePoll
 									$datarray['title'] .= $subpart->text;
 								}
 							}
-							$datarray['title'] = Strings::removeTags(trim($datarray['title']));
+							$datarray['title'] = Strings::escapeTags(trim($datarray['title']));
 
-							//$datarray['title'] = Strings::removeTags(trim($meta->subject));
+							//$datarray['title'] = Strings::escapeTags(trim($meta->subject));
 							$datarray['created'] = DateTimeFormat::utc($meta->date);
 
 							// Is it a reply?

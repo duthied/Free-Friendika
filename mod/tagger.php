@@ -21,7 +21,7 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$term = Strings::removeTags(trim($_GET['term']));
+	$term = Strings::escapeTags(trim($_GET['term']));
 	// no commas allowed
 	$term = str_replace([',',' '],['','_'],$term);
 
@@ -29,7 +29,7 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$item_id = (($a->argc > 1) ? Strings::removeTags(trim($a->argv[1])) : 0);
+	$item_id = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : 0);
 
 	Logger::log('tagger: tag ' . $term . ' item ' . $item_id);
 

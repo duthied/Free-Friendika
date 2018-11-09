@@ -39,7 +39,7 @@ function poke_init(App $a)
 		return;
 	}
 
-	$verb = Strings::removeTags(trim($_GET['verb']));
+	$verb = Strings::escapeTags(trim($_GET['verb']));
 
 	$verbs = L10n::getPokeVerbs();
 

@@ -41,7 +41,7 @@ function invite_post(App $a)
 
 
 	$recipients  = !empty($_POST['recipients']) ? explode("\n", $_POST['recipients']) : [];
-	$message     = !empty($_POST['message'])    ? Strings::removeTags(trim($_POST['message']))     : '';
+	$message     = !empty($_POST['message'])    ? Strings::escapeTags(trim($_POST['message']))     : '';
 
 	$total = 0;
 

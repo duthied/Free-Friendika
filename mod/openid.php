@@ -75,16 +75,16 @@ function openid_content(App $a) {
 			if (is_array($attr) && count($attr)) {
 				foreach ($attr as $k => $v) {
 					if ($k === 'namePerson/friendly') {
-						$nick = Strings::removeTags(trim($v));
+						$nick = Strings::escapeTags(trim($v));
 					}
 					if($k === 'namePerson/first') {
-						$first = Strings::removeTags(trim($v));
+						$first = Strings::escapeTags(trim($v));
 					}
 					if($k === 'namePerson') {
-						$args .= '&username=' . urlencode(Strings::removeTags(trim($v)));
+						$args .= '&username=' . urlencode(Strings::escapeTags(trim($v)));
 					}
 					if ($k === 'contact/email') {
-						$args .= '&email=' . urlencode(Strings::removeTags(trim($v)));
+						$args .= '&email=' . urlencode(Strings::escapeTags(trim($v)));
 					}
 					if ($k === 'media/image/aspect11') {
 						$photosq = bin2hex(trim($v));
@@ -108,7 +108,7 @@ function openid_content(App $a) {
 				$args .= '&photo=' . urlencode($photo);
 			}
 
-			$args .= '&openid_url=' . urlencode(Strings::removeTags(trim($authid)));
+			$args .= '&openid_url=' . urlencode(Strings::escapeTags(trim($authid)));
 
 			$a->internalRedirect('register?' . $args);
 

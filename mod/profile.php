@@ -194,7 +194,7 @@ function profile_content(App $a, $update = 0)
 	if (!$update) {
 		$tab = false;
 		if (!empty($_GET['tab'])) {
-			$tab = Strings::removeTags(trim($_GET['tab']));
+			$tab = Strings::escapeTags(trim($_GET['tab']));
 		}
 
 		$o .= Profile::getTabs($a, $is_owner, $a->profile['nickname']);

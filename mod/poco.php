@@ -26,7 +26,7 @@ function poco_init(App $a) {
 	}
 
 	if ($a->argc > 1) {
-		$user = Strings::removeTags(trim($a->argv[1]));
+		$user = Strings::escapeTags(trim($a->argv[1]));
 	}
 	if (empty($user)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");

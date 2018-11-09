@@ -48,7 +48,7 @@ function help_content(App $a)
 		$title = basename($path);
 		$filename = $path;
 		$text = load_doc_file('doc/' . $path . '.md');
-		$a->page['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::removeTags($title));
+		$a->page['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
 	}
 
 	$home = load_doc_file('doc/Home.md');

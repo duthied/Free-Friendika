@@ -48,9 +48,9 @@ function directory_content(App $a)
 	Nav::setSelected('directory');
 
 	if (x($a->data, 'search')) {
-		$search = Strings::removeTags(trim($a->data['search']));
+		$search = Strings::escapeTags(trim($a->data['search']));
 	} else {
-		$search = ((x($_GET, 'search')) ? Strings::removeTags(trim(rawurldecode($_GET['search']))) : '');
+		$search = ((x($_GET, 'search')) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 	}
 
 	$gdirpath = '';

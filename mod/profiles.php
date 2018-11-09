@@ -202,7 +202,7 @@ function profiles_post(App $a) {
 
 		$is_default = (($orig[0]['is-default']) ? 1 : 0);
 
-		$profile_name = Strings::removeTags(trim($_POST['profile_name']));
+		$profile_name = Strings::escapeTags(trim($_POST['profile_name']));
 		if (! strlen($profile_name)) {
 			notice(L10n::t('Profile Name is required.') . EOL);
 			return;
@@ -229,7 +229,7 @@ function profiles_post(App $a) {
 			}
 		}
 
-		$name = Strings::removeTags(trim($_POST['name']));
+		$name = Strings::escapeTags(trim($_POST['name']));
 
 		if (! strlen($name)) {
 			$name = '[No Name]';
@@ -239,19 +239,19 @@ function profiles_post(App $a) {
 			$namechanged = true;
 		}
 
-		$pdesc = Strings::removeTags(trim($_POST['pdesc']));
-		$gender = Strings::removeTags(trim($_POST['gender']));
-		$address = Strings::removeTags(trim($_POST['address']));
-		$locality = Strings::removeTags(trim($_POST['locality']));
-		$region = Strings::removeTags(trim($_POST['region']));
-		$postal_code = Strings::removeTags(trim($_POST['postal_code']));
-		$country_name = Strings::removeTags(trim($_POST['country_name']));
-		$pub_keywords = profile_clean_keywords(Strings::removeTags(trim($_POST['pub_keywords'])));
-		$prv_keywords = profile_clean_keywords(Strings::removeTags(trim($_POST['prv_keywords'])));
-		$marital = Strings::removeTags(trim($_POST['marital']));
-		$howlong = Strings::removeTags(trim($_POST['howlong']));
+		$pdesc = Strings::escapeTags(trim($_POST['pdesc']));
+		$gender = Strings::escapeTags(trim($_POST['gender']));
+		$address = Strings::escapeTags(trim($_POST['address']));
+		$locality = Strings::escapeTags(trim($_POST['locality']));
+		$region = Strings::escapeTags(trim($_POST['region']));
+		$postal_code = Strings::escapeTags(trim($_POST['postal_code']));
+		$country_name = Strings::escapeTags(trim($_POST['country_name']));
+		$pub_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['pub_keywords'])));
+		$prv_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['prv_keywords'])));
+		$marital = Strings::escapeTags(trim($_POST['marital']));
+		$howlong = Strings::escapeTags(trim($_POST['howlong']));
 
-		$with = ((x($_POST,'with')) ? Strings::removeTags(trim($_POST['with'])) : '');
+		$with = ((x($_POST,'with')) ? Strings::escapeTags(trim($_POST['with'])) : '');
 
 		if (! strlen($howlong)) {
 			$howlong = DBA::NULL_DATETIME;
@@ -312,16 +312,16 @@ function profiles_post(App $a) {
 		}
 
 		/// @TODO Not flexible enough for later expansion, let's have more OOP here
-		$sexual = Strings::removeTags(trim($_POST['sexual']));
-		$xmpp = Strings::removeTags(trim($_POST['xmpp']));
-		$homepage = Strings::removeTags(trim($_POST['homepage']));
+		$sexual = Strings::escapeTags(trim($_POST['sexual']));
+		$xmpp = Strings::escapeTags(trim($_POST['xmpp']));
+		$homepage = Strings::escapeTags(trim($_POST['homepage']));
 		if ((strpos($homepage, 'http') !== 0) && (strlen($homepage))) {
 			// neither http nor https in URL, add them
 			$homepage = 'http://'.$homepage;
 		}
-		$hometown = Strings::removeTags(trim($_POST['hometown']));
-		$politic = Strings::removeTags(trim($_POST['politic']));
-		$religion = Strings::removeTags(trim($_POST['religion']));
+		$hometown = Strings::escapeTags(trim($_POST['hometown']));
+		$politic = Strings::escapeTags(trim($_POST['politic']));
+		$religion = Strings::escapeTags(trim($_POST['religion']));
 
 		$likes = Strings::escapeHtml(trim($_POST['likes']));
 		$dislikes = Strings::escapeHtml(trim($_POST['dislikes']));

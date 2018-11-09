@@ -31,14 +31,7 @@ class Strings
     }
 
     /**
-     * This is our primary input filter.
-     *
-     * The high bit hack only involved some old IE browser, forget which (IE5/Mac?)
-     * that had an XSS attack vector due to stripping the high-bit on an 8-bit character
-     * after cleansing, and angle chars with the high bit set could get through as markup.
-     *
-     * This is now disabled because it was interfering with some legitimate unicode sequences
-     * and hopefully there aren't a lot of those browsers left.
+     * @brief This is our primary input filter.
      *
      * Use this on any text input where angle chars are not valid or permitted
      * They will be replaced with safer brackets. This may be filtered further
@@ -47,7 +40,7 @@ class Strings
      * @param string $string Input string
      * @return string Filtered string
      */
-    public static function removeTags($string)
+    public static function escapeTags($string)
     {
         return str_replace(["<", ">"], ['[', ']'], $string);
     }

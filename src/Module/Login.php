@@ -149,7 +149,7 @@ class Login extends BaseModule
 				);
 			}
 		} catch (Exception $e) {
-			Logger::log('authenticate: failed login attempt: ' . Strings::removeTags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
+			Logger::log('authenticate: failed login attempt: ' . Strings::escapeTags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
 			info('Login failed. Please check your credentials.' . EOL);
 			$a->internalRedirect();
 		}

@@ -85,7 +85,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$cid      = 0;
 			$hidden   = intval(defaults($handsfree, 'hidden'  , 0));
 		} else {
-			$dfrn_id  = Strings::removeTags(trim(defaults($_POST, 'dfrn_id'   , '')));
+			$dfrn_id  = Strings::escapeTags(trim(defaults($_POST, 'dfrn_id'   , '')));
 			$intro_id =      intval(defaults($_POST, 'intro_id'  , 0));
 			$duplex   =      intval(defaults($_POST, 'duplex'    , 0));
 			$cid      =      intval(defaults($_POST, 'contact_id', 0));

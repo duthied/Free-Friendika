@@ -483,7 +483,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (!$update) {
 			$tab = 'posts';
 			if (x($_GET, 'tab')) {
-				$tab = Strings::removeTags(trim($_GET['tab']));
+				$tab = Strings::escapeTags(trim($_GET['tab']));
 			}
 			if ($tab === 'posts') {
 				/*
