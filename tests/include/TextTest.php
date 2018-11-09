@@ -12,61 +12,6 @@ use PHPUnit\Framework\TestCase;
  */
 class TextTest extends TestCase
 {
-
-	/**
-	 *autonames should be random, even length
-	 */
-	public function testAutonameEven()
-	{
-		$autoname1= Friendica\Util\Strings::getRandomName(10);
-		$autoname2= Friendica\Util\Strings::getRandomName(10);
-
-		$this->assertNotEquals($autoname1, $autoname2);
-	}
-
-	/**
-	 *autonames should be random, odd length
-	 */
-	public function testAutonameOdd()
-	{
-		$autoname1= Friendica\Util\Strings::getRandomName(9);
-		$autoname2= Friendica\Util\Strings::getRandomName(9);
-
-		$this->assertNotEquals($autoname1, $autoname2);
-	}
-
-	/**
-	 * try to fail autonames
-	 */
-	public function testAutonameNoLength()
-	{
-		$autoname1= Friendica\Util\Strings::getRandomName(0);
-		$this->assertEquals(0, strlen($autoname1));
-	}
-
-	/**
-	 * try to fail it with invalid input
-	 *
-	 * @todo What's corect behaviour here? An exception?
-	 */
-	public function testAutonameNegativeLength()
-	{
-		$autoname1= Friendica\Util\Strings::getRandomName(-23);
-		$this->assertEquals(0, strlen($autoname1));
-	}
-
-	/**
-	 * test with a length, that may be too short
-	 */
-	public function testAutonameLength1()
-	{
-		$autoname1= Friendica\Util\Strings::getRandomName(1);
-		$this->assertEquals(1, strlen($autoname1));
-
-		$autoname2= Friendica\Util\Strings::getRandomName(1);
-		$this->assertEquals(1, strlen($autoname2));
-	}
-
 	/**
 	 * test attribute contains
 	 */
@@ -230,23 +175,6 @@ class TextTest extends TestCase
 	{
 		$text="<1><><3>";
 		$this->assertEquals(array(1,3), expand_acl($text));
-	}
-
-	/**
-	 * test, that tags are escaped
-	 */
-	public function testEscapeTags()
-	{
-		$invalidstring='<submit type="button" onclick="alert(\'failed!\');" />';
-
-		$validstring = Friendica\Util\Strings::removeTags($invalidstring);
-		$escapedString = Friendica\Util\Strings::escapeTags($invalidstring);
-
-		$this->assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);
-		$this->assertEquals(
-			"&lt;submit type=&quot;button&quot; onclick=&quot;alert('failed!');&quot; /&gt;",
-			$escapedString
-		);
 	}
 
 	/**
