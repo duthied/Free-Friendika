@@ -2403,7 +2403,7 @@ class Item extends BaseObject
 	public static function setHashtags(&$item)
 	{
 
-		$tags = Strings::getTags($item["body"]);
+		$tags = BBCode::getTags($item["body"]);
 
 		// No hashtags?
 		if (!count($tags)) {

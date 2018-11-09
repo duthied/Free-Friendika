@@ -348,7 +348,7 @@ function item_post(App $a) {
 	$str_tags = '';
 	$inform   = '';
 
-	$tags = Strings::getTags($body);
+	$tags = BBCode::getTags($body);
 
 	// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
 	if ($parent && in_array($thr_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
