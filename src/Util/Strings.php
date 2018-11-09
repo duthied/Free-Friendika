@@ -354,18 +354,6 @@ class Strings
     }
 
     /**
-     * @brief Check for a valid email string
-     *
-     * @param string $email_address Email address to be evaluated.
-     * 
-     * @return boolean  Value indicating whether or not the string is a valid email address.
-     */
-    public static function isValidEmail($email_address)
-    {
-        return preg_match('/^[_a-zA-Z0-9\-\+]+(\.[_a-zA-Z0-9\-\+]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/', $email_address);
-    }
-
-    /**
      * @brief Normalize url
      *
      * @param string $url   URL to be normalized.
