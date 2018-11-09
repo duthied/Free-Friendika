@@ -69,12 +69,12 @@ class StringsTest extends TestCase
     /**
 	 * test, that tags are escaped
 	 */
-	public function testEscapeTags()
+	public function testEscapeHtml()
 	{
 		$invalidstring='<submit type="button" onclick="alert(\'failed!\');" />';
 
 		$validstring = Strings::removeTags($invalidstring);
-		$escapedString = Strings::escapeTags($invalidstring);
+		$escapedString = Strings::escapeHtml($invalidstring);
 
 		$this->assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);
 		$this->assertEquals(

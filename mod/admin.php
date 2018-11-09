@@ -2478,9 +2478,9 @@ function admin_page_viewlogs(App $a)
 				}
 				$seek = fseek($fp, 0 - $size, SEEK_END);
 				if ($seek === 0) {
-					$data = Strings::escapeTags(fread($fp, $size));
+					$data = Strings::escapeHtml(fread($fp, $size));
 					while (!feof($fp)) {
-						$data .= Strings::escapeTags(fread($fp, 4096));
+						$data .= Strings::escapeHtml(fread($fp, 4096));
 					}
 				}
 			}

@@ -22,7 +22,7 @@ class Hashtag extends BaseModule
 	{
 		$result = [];
 
-		$t = Strings::escapeTags($_REQUEST['t']);
+		$t = Strings::escapeHtml($_REQUEST['t']);
 		if (empty($t)) {
 			System::jsonExit($result);
 		}

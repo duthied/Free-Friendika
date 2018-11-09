@@ -205,7 +205,7 @@ function item_post(App $a) {
 		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'];
 		$title             = Strings::removeTags(trim($_REQUEST['title']));
-		$body              = Strings::escapeTags(trim($_REQUEST['body']));
+		$body              = Strings::escapeHtml(trim($_REQUEST['body']));
 		$private           = $orig_post['private'];
 		$pubmail_enabled   = $orig_post['pubmail'];
 		$network           = $orig_post['network'];
@@ -241,7 +241,7 @@ function item_post(App $a) {
 		$coord             = Strings::removeTags(trim(defaults($_REQUEST, 'coord'   , '')));
 		$verb              = Strings::removeTags(trim(defaults($_REQUEST, 'verb'    , '')));
 		$emailcc           = Strings::removeTags(trim(defaults($_REQUEST, 'emailcc' , '')));
-		$body              = Strings::escapeTags(trim(defaults($_REQUEST, 'body'    , '')));
+		$body              = Strings::escapeHtml(trim(defaults($_REQUEST, 'body'    , '')));
 		$network           = Strings::removeTags(trim(defaults($_REQUEST, 'network' , Protocol::DFRN)));
 		$guid              = System::createUUID();
 

@@ -3447,7 +3447,7 @@ class Item extends BaseObject
 				$filesubtype = 'unkn';
 			}
 
-			$title = Strings::escapeTags(trim(!empty($mtch[4]) ? $mtch[4] : $mtch[1]));
+			$title = Strings::escapeHtml(trim(!empty($mtch[4]) ? $mtch[4] : $mtch[1]));
 			$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';

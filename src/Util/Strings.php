@@ -59,7 +59,7 @@ class Strings
      * 
      * @return string
      */
-    public static function escapeTags($string)
+    public static function escapeHtml($string)
     {
         return htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false);
     }

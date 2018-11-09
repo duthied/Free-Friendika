@@ -115,9 +115,9 @@ function profile_content(App $a, $update = 0)
 		for ($x = 2; $x < $a->argc; $x ++) {
 			if (is_a_date_arg($a->argv[$x])) {
 				if ($datequery) {
-					$datequery2 = Strings::escapeTags($a->argv[$x]);
+					$datequery2 = Strings::escapeHtml($a->argv[$x]);
 				} else {
-					$datequery = Strings::escapeTags($a->argv[$x]);
+					$datequery = Strings::escapeHtml($a->argv[$x]);
 				}
 			} else {
 				$category = $a->argv[$x];

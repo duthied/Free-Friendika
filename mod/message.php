@@ -61,7 +61,7 @@ function message_post(App $a)
 
 	$replyto   = x($_REQUEST, 'replyto')   ? Strings::removeTags(trim($_REQUEST['replyto']))   : '';
 	$subject   = x($_REQUEST, 'subject')   ? Strings::removeTags(trim($_REQUEST['subject']))   : '';
-	$body      = x($_REQUEST, 'body')      ? Strings::escapeTags(trim($_REQUEST['body'])) : '';
+	$body      = x($_REQUEST, 'body')      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '';
 	$recipient = x($_REQUEST, 'messageto') ? intval($_REQUEST['messageto'])       : 0;
 
 	$ret = Mail::send($recipient, $body, $subject, $replyto);
@@ -254,7 +254,7 @@ function message_content(App $a)
 			'$preid' => $preid,
 			'$subject' => L10n::t('Subject:'),
 			'$subjtxt' => x($_REQUEST, 'subject') ? strip_tags($_REQUEST['subject']) : '',
-			'$text' => x($_REQUEST, 'body') ? Strings::escapeTags(htmlspecialchars($_REQUEST['body'])) : '',
+			'$text' => x($_REQUEST, 'body') ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : '',
 			'$readonly' => '',
 			'$yourmessage' => L10n::t('Your message:'),
 			'$select' => $select,
