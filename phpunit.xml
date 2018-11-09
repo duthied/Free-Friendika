@@ -26,4 +26,7 @@
 	<logging>
 		<log type="coverage-clover" target="clover.xml" />
 	</logging>
+	<listeners>
+		<listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+	</listeners>
 </phpunit>
