@@ -5,18 +5,19 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
-use Friendica\Util\HTTPSignature;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
-use Friendica\Protocol\ActivityPub;
-use Friendica\Model\Conversation;
-use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 /**
  * @brief ActivityPub Receiver Protocol class
@@ -455,7 +456,7 @@ class Receiver
 
 				if (($receiver == self::PUBLIC_COLLECTION) && !empty($actor)) {
 					// This will most likely catch all OStatus connections to Mastodon
-					$condition = ['alias' => [$actor, normalise_link($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]
+					$condition = ['alias' => [$actor, Strings::normaliseLink($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]
 						, 'archive' => false, 'pending' => false];
 					$contacts = DBA::select('contact', ['uid'], $condition);
 					while ($contact = DBA::fetch($contacts)) {
@@ -472,7 +473,7 @@ class Receiver
 				}
 
 				// Fetching all directly addressed receivers
-				$condition = ['self' => true, 'nurl' => normalise_link($receiver)];
+				$condition = ['self' => true, 'nurl' => Strings::normaliseLink($receiver)];
 				$contact = DBA::selectFirst('contact', ['uid', 'contact-type'], $condition);
 				if (!DBA::isResult($contact)) {
 					continue;
@@ -482,7 +483,7 @@ class Receiver
 				// Exception: The receiver is targetted via "to" or this is a comment
 				if ((($element != 'as:to') && empty($replyto)) || ($contact['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY)) {
 					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
-					$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
+					$condition = ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
 						'network' => $networks, 'archive' => false, 'pending' => false, 'uid' => $contact['uid']];
 
 					// Forum posts are only accepted from forum contacts
@@ -516,7 +517,7 @@ class Receiver
 	{
 		$receivers = [];
 		$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
-		$condition = ['nurl' => normalise_link($actor), 'rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
+		$condition = ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => $networks, 'archive' => false, 'pending' => false];
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
@@ -589,7 +590,7 @@ class Receiver
 		unset($profile['photo']);
 		unset($profile['baseurl']);
 
-		$profile['nurl'] = normalise_link($profile['url']);
+		$profile['nurl'] = Strings::normaliseLink($profile['url']);
 		DBA::update('contact', $profile, ['id' => $cid]);
 
 		Contact::updateAvatar($photo, $uid, $cid);
@@ -614,12 +615,12 @@ class Receiver
 		}
 
 		foreach ($receivers as $receiver) {
-			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'nurl' => normalise_link($actor)]);
+			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'nurl' => Strings::normaliseLink($actor)]);
 			if (DBA::isResult($contact)) {
 				self::switchContact($contact['id'], $receiver, $actor);
 			}
 
-			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'alias' => [normalise_link($actor), $actor]]);
+			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'alias' => [Strings::normaliseLink($actor), $actor]]);
 			if (DBA::isResult($contact)) {
 				self::switchContact($contact['id'], $receiver, $actor);
 			}

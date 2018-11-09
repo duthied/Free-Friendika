@@ -17,13 +17,14 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
+use Friendica\Util\Strings;
 
 function wall_upload_post(App $a, $desktopmode = true)
 {
 	Logger::log("wall upload: starting new upload", Logger::DEBUG);
 
 	$r_json = (x($_GET, 'response') && $_GET['response'] == 'json');
-	$album = (x($_GET, 'album') ? notags(trim($_GET['album'])) : '');
+	$album = (x($_GET, 'album') ? Strings::escapeTags(trim($_GET['album'])) : '');
 
 	if ($a->argc > 1) {
 		if (!x($_FILES, 'media')) {
@@ -193,7 +194,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$maximagesize = Config::get('system', 'maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
-		$msg = L10n::t('Image exceeds size limit of %s', formatBytes($maximagesize));
+		$msg = L10n::t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize));
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {

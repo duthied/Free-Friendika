@@ -22,6 +22,7 @@ use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 /**
  *  Manages and show Contacts and their content
@@ -77,7 +78,7 @@ class Contact extends BaseModule
 			$a->data['contact'] = $contact;
 
 			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
-				$networkname = format_network_name($contact['network'], $contact['url']);
+				$networkname = Strings::formatNetworkName($contact['network'], $contact['url']);
 			} else {
 				$networkname = '';
 			}
@@ -213,14 +214,14 @@ class Contact extends BaseModule
 
 		$fetch_further_information = intval(defaults($_POST, 'fetch_further_information', 0));
 
-		$ffi_keyword_blacklist = escape_tags(trim(defaults($_POST, 'ffi_keyword_blacklist', '')));
+		$ffi_keyword_blacklist = Strings::escapeHtml(trim(defaults($_POST, 'ffi_keyword_blacklist', '')));
 
 		$priority = intval(defaults($_POST, 'poll', 0));
 		if ($priority > 5 || $priority < 0) {
 			$priority = 0;
 		}
 
-		$info = escape_tags(trim($_POST['info']));
+		$info = Strings::escapeHtml(trim($_POST['info']));
 
 		$r = DBA::update('contact', [
 			'profile-id' => $profile_id,
@@ -303,7 +304,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		$fields['nurl'] = normalise_link($data['url']);
+		$fields['nurl'] = Strings::normaliseLink($data['url']);
 
 		if (!empty($data['priority'])) {
 			$fields['priority'] = intval($data['priority']);
@@ -601,7 +602,7 @@ class Contact extends BaseModule
 				'$lbl_vis2'       => L10n::t('Please choose the profile you would like to display to %s when viewing your profile securely.', $contact['name']),
 				'$lbl_info1'      => $lbl_info1,
 				'$lbl_info2'      => L10n::t('Their personal note'),
-				'$reason'         => trim(notags($contact['reason'])),
+				'$reason'         => trim(Strings::escapeTags($contact['reason'])),
 				'$infedit'        => L10n::t('Edit contact notes'),
 				'$common_link'    => 'common/loc/' . local_user() . '/' . $contact['id'],
 				'$relation_text'  => $relation_text,
@@ -694,8 +695,8 @@ class Contact extends BaseModule
 
 		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
 
-		$search = notags(trim(defaults($_GET, 'search', '')));
-		$nets   = notags(trim(defaults($_GET, 'nets'  , '')));
+		$search = Strings::escapeTags(trim(defaults($_GET, 'search', '')));
+		$nets   = Strings::escapeTags(trim(defaults($_GET, 'nets'  , '')));
 
 		$tabs = [
 			[
@@ -765,7 +766,7 @@ class Contact extends BaseModule
 		if ($search) {
 			$searching = true;
 			$search_hdr = $search;
-			$search_txt = DBA::escape(protect_sprintf(preg_quote($search)));
+			$search_txt = DBA::escape(Strings::protectSprintf(preg_quote($search)));
 			$sql_extra .= " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') ";
 		}
 

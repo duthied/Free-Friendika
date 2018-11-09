@@ -25,6 +25,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/dba.php';
@@ -296,7 +297,7 @@ class Profile
 		$profile['picdate'] = urlencode(defaults($profile, 'picdate', ''));
 
 		if (($profile['network'] != '') && ($profile['network'] != Protocol::DFRN)) {
-			$profile['network_name'] = format_network_name($profile['network'], $profile['url']);
+			$profile['network_name'] = Strings::formatNetworkName($profile['network'], $profile['url']);
 		} else {
 			$profile['network_name'] = '';
 		}
@@ -326,9 +327,9 @@ class Profile
 		// Is the local user already connected to that user?
 		if ($connect && local_user()) {
 			if (isset($profile['url'])) {
-				$profile_url = normalise_link($profile['url']);
+				$profile_url = Strings::normaliseLink($profile['url']);
 			} else {
-				$profile_url = normalise_link(System::baseUrl() . '/profile/' . $profile['nickname']);
+				$profile_url = Strings::normaliseLink(System::baseUrl() . '/profile/' . $profile['nickname']);
 			}
 
 			if (DBA::exists('contact', ['pending' => false, 'uid' => local_user(), 'nurl' => $profile_url])) {
@@ -370,7 +371,7 @@ class Profile
 				$r = q(
 					"SELECT `url` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
 					intval($profile['uid']),
-					DBA::escape(normalise_link(self::getMyURL())),
+					DBA::escape(Strings::normaliseLink(self::getMyURL())),
 					intval(Contact::FRIEND)
 				);
 			}
@@ -881,7 +882,7 @@ class Profile
 
 		$tab = false;
 		if (x($_GET, 'tab')) {
-			$tab = notags(trim($_GET['tab']));
+			$tab = Strings::escapeTags(trim($_GET['tab']));
 		}
 
 		$url = System::baseUrl() . '/profile/' . $nickname;
@@ -1140,7 +1141,7 @@ class Profile
 		}
 		$achar = strpos($s, '?') ? '&' : '?';
 		$mine = self::getMyURL();
-		if ($mine && !link_compare($mine, $s)) {
+		if ($mine && !Strings::compareLink($mine, $s)) {
 			return $s . $achar . 'zrl=' . urlencode($mine);
 		}
 		return $s;

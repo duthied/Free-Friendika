@@ -11,6 +11,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * Contains methods for installation purpose of Friendica
@@ -264,7 +265,7 @@ class Installer
 		}
 
 		if ($passed2) {
-			$str = autoname(8);
+			$str = Strings::getRandomName(8);
 			$cmd = "$phppath util/testargs.php $str";
 			$result = trim(shell_exec($cmd));
 			$passed3 = $result == $str;
@@ -510,7 +511,7 @@ class Installer
 		if (function_exists('curl_init')) {
 			$fetchResult = Network::fetchUrlFull($baseurl . "/install/testrewrite");
 
-			$url = normalise_link($baseurl . "/install/testrewrite");
+			$url = Strings::normaliseLink($baseurl . "/install/testrewrite");
 			if ($fetchResult->getReturnCode() != 204) {
 				$fetchResult = Network::fetchUrlFull($url);
 			}

@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/items.php';
@@ -22,7 +23,7 @@ function subthread_content(App $a) {
 
 	$activity = ACTIVITY_FOLLOW;
 
-	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
+	$item_id = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : 0);
 
 	$condition = ["`parent` = ? OR `parent-uri` = ? AND `parent` = `id`", $item_id, $item_id];
 	$item = Item::selectFirst([], $condition);

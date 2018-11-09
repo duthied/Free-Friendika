@@ -7,6 +7,7 @@ namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Config;
@@ -17,9 +18,9 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use League\HTMLToMarkdown\HtmlConverter;
-use Friendica\Content\Feature;
 
 class HTML
 {
@@ -1011,7 +1012,7 @@ class HTML
 			$tpl = Renderer::getMarkupTemplate('wall/content_filter.tpl');
 			$html = Renderer::replaceMacros($tpl, [
 				'$reasons'   => $reasons,
-				'$rnd'       => random_string(8),
+				'$rnd'       => Strings::getRandomHex(8),
 				'$openclose' => L10n::t('Click to open/close'),
 				'$html'      => $html
 			]);

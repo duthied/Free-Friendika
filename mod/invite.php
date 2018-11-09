@@ -17,6 +17,7 @@ use Friendica\Database\DBA;
 use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 
 function invite_post(App $a)
 {
@@ -40,7 +41,7 @@ function invite_post(App $a)
 
 
 	$recipients  = !empty($_POST['recipients']) ? explode("\n", $_POST['recipients']) : [];
-	$message     = !empty($_POST['message'])    ? notags(trim($_POST['message']))     : '';
+	$message     = !empty($_POST['message'])    ? Strings::escapeTags(trim($_POST['message']))     : '';
 
 	$total = 0;
 
@@ -55,7 +56,7 @@ function invite_post(App $a)
 	foreach ($recipients as $recipient) {
 		$recipient = trim($recipient);
 
-		if (! valid_email($recipient)) {
+		if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
 			notice(L10n::t('%s : Not a valid email address.', $recipient) . EOL);
 			continue;
 		}

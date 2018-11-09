@@ -27,6 +27,7 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 class BBCode extends BaseObject
 {
@@ -943,7 +944,7 @@ class BBCode extends BaseObject
 			case 3: // Diaspora
 				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . $mention . ':</b></p>' . "\n";
 
-				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0) {
+				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
 					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
 					$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
@@ -978,7 +979,7 @@ class BBCode extends BaseObject
 				break;
 			default:
 				// Transforms quoted tweets in rich attachments to avoid nested tweets
-				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
+				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
 					try {
 						$text = ($is_quote_share? '<br />' : '') . OEmbed::getHTML($attributes['link']);
 					} catch (Exception $e) {
@@ -1910,4 +1911,78 @@ class BBCode extends BaseObject
 
 		return $text;
 	}
+
+	/**
+     * @brief Pull out all #hashtags and @person tags from $string.
+     *
+     * We also get @person@domain.com - which would make
+     * the regex quite complicated as tags can also
+     * end a sentence. So we'll run through our results
+     * and strip the period from any tags which end with one.
+     * Returns array of tags found, or empty array.
+     *
+     * @param string $string Post content
+     * 
+     * @return array List of tag and person names
+     */
+    public static function getTags($string)
+    {
+        $ret = [];
+
+        // Convert hashtag links to hashtags
+        $string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
+
+        // ignore anything in a code block
+        $string = preg_replace('/\[code\](.*?)\[\/code\]/sm', '', $string);
+
+        // Force line feeds at bbtags
+        $string = str_replace(['[', ']'], ["\n[", "]\n"], $string);
+
+        // ignore anything in a bbtag
+        $string = preg_replace('/\[(.*?)\]/sm', '', $string);
+
+        // Match full names against @tags including the space between first and last
+        // We will look these up afterward to see if they are full names or not recognisable.
+
+        if (preg_match_all('/(@[^ \x0D\x0A,:?]+ [^ \x0D\x0A@,:?]+)([ \x0D\x0A@,:?]|$)/', $string, $matches)) {
+            foreach ($matches[1] as $match) {
+                if (strstr($match, ']')) {
+                    // we might be inside a bbcode color tag - leave it alone
+                    continue;
+                }
+
+                if (substr($match, -1, 1) === '.') {
+                    $ret[] = substr($match, 0, -1);
+                } else {
+                    $ret[] = $match;
+                }
+            }
+        }
+
+        // Otherwise pull out single word tags. These can be @nickname, @first_last
+        // and #hash tags.
+
+        if (preg_match_all('/([!#@][^\^ \x0D\x0A,;:?]+)([ \x0D\x0A,;:?]|$)/', $string, $matches)) {
+            foreach ($matches[1] as $match) {
+                if (strstr($match, ']')) {
+                    // we might be inside a bbcode color tag - leave it alone
+                    continue;
+                }
+                if (substr($match, -1, 1) === '.') {
+                    $match = substr($match,0,-1);
+                }
+                // ignore strictly numeric tags like #1
+                if ((strpos($match, '#') === 0) && ctype_digit(substr($match, 1))) {
+                    continue;
+                }
+                // try not to catch url fragments
+                if (strpos($string, $match) && preg_match('/[a-zA-z0-9\/]/', substr($string, strpos($string, $match) - 1, 1))) {
+                    continue;
+                }
+                $ret[] = $match;
+            }
+        }
+
+        return $ret;
+    }
 }

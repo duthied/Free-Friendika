@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Module\Login;
+use Friendica\Util\Strings;
 
 require_once 'include/conversation.php';
 require_once 'include/items.php';
@@ -26,8 +27,8 @@ function bookmarklet_content(App $a)
 		return $o;
 	}
 
-	$referer = normalise_link(defaults($_SERVER, 'HTTP_REFERER', ''));
-	$page = normalise_link(System::baseUrl() . "/bookmarklet");
+	$referer = Strings::normaliseLink(defaults($_SERVER, 'HTTP_REFERER', ''));
+	$page = Strings::normaliseLink(System::baseUrl() . "/bookmarklet");
 
 	if (!strstr($referer, $page)) {
 		if (empty($_REQUEST["url"])) {

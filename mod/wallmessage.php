@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
+use Friendica\Util\Strings;
 
 function wallmessage_post(App $a) {
 
@@ -19,10 +20,10 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$subject   = ((x($_REQUEST,'subject'))   ? notags(trim($_REQUEST['subject']))   : '');
-	$body      = ((x($_REQUEST,'body'))      ? escape_tags(trim($_REQUEST['body'])) : '');
+	$subject   = ((x($_REQUEST,'subject'))   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '');
+	$body      = ((x($_REQUEST,'body'))      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '');
 
-	$recipient = (($a->argc > 1) ? notags($a->argv[1]) : '');
+	$recipient = (($a->argc > 1) ? Strings::escapeTags($a->argv[1]) : '');
 	if ((! $recipient) || (! $body)) {
 		return;
 	}
@@ -131,7 +132,7 @@ function wallmessage_content(App $a) {
 		'$recipname' => $user['username'],
 		'$nickname' => $user['nickname'],
 		'$subjtxt' => ((x($_REQUEST, 'subject')) ? strip_tags($_REQUEST['subject']) : ''),
-		'$text' => ((x($_REQUEST, 'body')) ? escape_tags(htmlspecialchars($_REQUEST['body'])) : ''),
+		'$text' => ((x($_REQUEST, 'body')) ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : ''),
 		'$readonly' => '',
 		'$yourmessage' => L10n::t('Your message:'),
 		'$parent' => '',

@@ -24,6 +24,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 function profile_init(App $a)
@@ -114,9 +115,9 @@ function profile_content(App $a, $update = 0)
 		for ($x = 2; $x < $a->argc; $x ++) {
 			if (is_a_date_arg($a->argv[$x])) {
 				if ($datequery) {
-					$datequery2 = escape_tags($a->argv[$x]);
+					$datequery2 = Strings::escapeHtml($a->argv[$x]);
 				} else {
-					$datequery = escape_tags($a->argv[$x]);
+					$datequery = Strings::escapeHtml($a->argv[$x]);
 				}
 			} else {
 				$category = $a->argv[$x];
@@ -193,7 +194,7 @@ function profile_content(App $a, $update = 0)
 	if (!$update) {
 		$tab = false;
 		if (!empty($_GET['tab'])) {
-			$tab = notags(trim($_GET['tab']));
+			$tab = Strings::escapeTags(trim($_GET['tab']));
 		}
 
 		$o .= Profile::getTabs($a, $is_owner, $a->profile['nickname']);
@@ -272,19 +273,19 @@ function profile_content(App $a, $update = 0)
 
 		if (!empty($category)) {
 			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(protect_sprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['profile_uid']));
+				DBA::escape(Strings::protectSprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['profile_uid']));
 		}
 
 		if (!empty($hashtags)) {
 			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(protect_sprintf($hashtags)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval($a->profile['profile_uid']));
+				DBA::escape(Strings::protectSprintf($hashtags)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval($a->profile['profile_uid']));
 		}
 
 		if (!empty($datequery)) {
-			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` <= '%s' ", DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
+			$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`created` <= '%s' ", DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 		}
 		if (!empty($datequery2)) {
-			$sql_extra2 .= protect_sprintf(sprintf(" AND `thread`.`created` >= '%s' ", DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
+			$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`created` >= '%s' ", DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 		}
 
 		// Does the profile page belong to a forum?

@@ -16,6 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function hovercard_init(App $a)
 {
@@ -55,7 +56,7 @@ function hovercard_content()
 
 	$contact = [];
 	// if it's the url containing https it should be converted to http
-	$nurl = normalise_link(GContact::cleanContactUrl($profileurl));
+	$nurl = Strings::normaliseLink(GContact::cleanContactUrl($profileurl));
 	if (!$nurl) {
 		return;
 	}
@@ -73,12 +74,12 @@ function hovercard_content()
 
 	// Feeds url could have been destroyed through "cleanContactUrl", so we now use the original url
 	if (!count($contact) && local_user()) {
-		$nurl = normalise_link($profileurl);
+		$nurl = Strings::normaliseLink($profileurl);
 		$contact = Contact::getDetailsByURL($nurl, local_user());
 	}
 
 	if (!count($contact)) {
-		$nurl = normalise_link($profileurl);
+		$nurl = Strings::normaliseLink($profileurl);
 		$contact = Contact::getDetailsByURL($nurl);
 	}
 
@@ -104,7 +105,7 @@ function hovercard_content()
 		'location' => $contact['location'],
 		'gender'   => $contact['gender'],
 		'about'    => $contact['about'],
-		'network'  => format_network_name($contact['network'], $contact['url']),
+		'network'  => Strings::formatNetworkName($contact['network'], $contact['url']),
 		'tags'     => $contact['keywords'],
 		'bd'       => $contact['birthday'] <= '0001-01-01' ? '' : $contact['birthday'],
 		'account_type' => Contact::getAccountType($contact),

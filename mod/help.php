@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Util\Strings;
 
 function load_doc_file($s)
 {
@@ -47,7 +48,7 @@ function help_content(App $a)
 		$title = basename($path);
 		$filename = $path;
 		$text = load_doc_file('doc/' . $path . '.md');
-		$a->page['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', notags($title));
+		$a->page['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
 	}
 
 	$home = load_doc_file('doc/Home.md');

@@ -33,6 +33,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\XML;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 use Text_LanguageDetect;
 
 require_once 'boot.php';
@@ -1149,7 +1150,7 @@ class Item extends BaseObject
 	private static function guid($item, $notify)
 	{
 		if (!empty($item['guid'])) {
-			return notags(trim($item['guid']));
+			return Strings::escapeTags(trim($item['guid']));
 		}
 
 		if ($notify) {
@@ -1264,7 +1265,7 @@ class Item extends BaseObject
 		}
 
 		$item['guid'] = self::guid($item, $notify);
-		$item['uri'] = notags(trim(defaults($item, 'uri', self::newURI($item['uid'], $item['guid']))));
+		$item['uri'] = Strings::escapeTags(trim(defaults($item, 'uri', self::newURI($item['uid'], $item['guid']))));
 
 		// Store URI data
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
@@ -1534,7 +1535,7 @@ class Item extends BaseObject
 				Logger::log("Checking if parent ".$parent_id." has to be tagged as mention for user ".$item['uid'], Logger::DEBUG);
 				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
 				if (DBA::isResult($user)) {
-					$self = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
+					$self = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
 					$self_id = Contact::getIdForURL($self, 0, true);
 					Logger::log("'myself' is ".$self_id." for parent ".$parent_id." checking against ".$item['author-id']." and ".$item['owner-id'], Logger::DEBUG);
 					if (($item['author-id'] == $self_id) || ($item['owner-id'] == $self_id)) {
@@ -2402,7 +2403,7 @@ class Item extends BaseObject
 	public static function setHashtags(&$item)
 	{
 
-		$tags = get_tags($item["body"]);
+		$tags = BBCode::getTags($item["body"]);
 
 		// No hashtags?
 		if (!count($tags)) {
@@ -2544,18 +2545,18 @@ class Item extends BaseObject
 			return;
 		}
 
-		$link = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
+		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
 
 		/*
 		 * Diaspora uses their own hardwired link URL in @-tags
 		 * instead of the one we supply with webfinger
 		 */
-		$dlink = normalise_link(System::baseUrl() . '/u/' . $user['nickname']);
+		$dlink = Strings::normaliseLink(System::baseUrl() . '/u/' . $user['nickname']);
 
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				if (link_compare($link, $mtch[1]) || link_compare($dlink, $mtch[1])) {
+				if (Strings::compareLink($link, $mtch[1]) || Strings::compareLink($dlink, $mtch[1])) {
 					$mention = true;
 					Logger::log('mention found: ' . $mtch[2]);
 				}
@@ -3446,7 +3447,7 @@ class Item extends BaseObject
 				$filesubtype = 'unkn';
 			}
 
-			$title = escape_tags(trim(!empty($mtch[4]) ? $mtch[4] : $mtch[1]));
+			$title = Strings::escapeHtml(trim(!empty($mtch[4]) ? $mtch[4] : $mtch[1]));
 			$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
@@ -3479,7 +3480,7 @@ class Item extends BaseObject
 
 		while ((strpos($s, $spoilersearch) !== false)) {
 			$pos = strpos($s, $spoilersearch);
-			$rnd = random_string(8);
+			$rnd = Strings::getRandomHex(8);
 			$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
 						'<blockquote class="spoiler" id="spoiler-' . $rnd . '" style="display: none;">';
 			$s = substr($s, 0, $pos) . $spoilerreplace . substr($s, $pos + strlen($spoilersearch));
@@ -3490,7 +3491,7 @@ class Item extends BaseObject
 
 		while ((strpos($s, $authorsearch) !== false)) {
 			$pos = strpos($s, $authorsearch);
-			$rnd = random_string(8);
+			$rnd = Strings::getRandomHex(8);
 			$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
 						'<blockquote class="author" id="author-' . $rnd . '" style="display: block;">';
 			$s = substr($s, 0, $pos) . $authorreplace . substr($s, $pos + strlen($authorsearch));

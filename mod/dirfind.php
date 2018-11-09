@@ -20,6 +20,7 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 
 function dirfind_init(App $a) {
@@ -45,15 +46,15 @@ function dirfind_content(App $a, $prefix = "") {
 
 	$local = Config::get('system','poco_local_search');
 
-	$search = $prefix.notags(trim(defaults($_REQUEST, 'search', '')));
+	$search = $prefix.Strings::escapeTags(trim(defaults($_REQUEST, 'search', '')));
 
 	$header = '';
 
 	if (strpos($search,'@') === 0) {
 		$search = substr($search,1);
 		$header = L10n::t('People Search - %s', $search);
-		if ((valid_email($search) && Network::isEmailDomainValid($search)) ||
-			(substr(normalise_link($search), 0, 7) == "http://")) {
+		if ((filter_var($search, FILTER_VALIDATE_EMAIL) && Network::isEmailDomainValid($search)) ||
+			(substr(Strings::normaliseLink($search), 0, 7) == "http://")) {
 			$user_data = Probe::uri($search);
 			$discover_user = (in_array($user_data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]));
 		}
@@ -125,8 +126,8 @@ function dirfind_content(App $a, $prefix = "") {
 						(`url` LIKE '%s' OR `name` LIKE '%s' OR `location` LIKE '%s' OR
 						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql",
 					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
-					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
-					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)));
+					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)),
+					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)));
 
 			$results = q("SELECT `nurl`
 					FROM `gcontact`
@@ -137,8 +138,8 @@ function dirfind_content(App $a, $prefix = "") {
 						GROUP BY `nurl`
 						ORDER BY `updated` DESC LIMIT %d, %d",
 					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
-					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
-					DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)), DBA::escape(escape_tags($search2)),
+					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)),
+					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)),
 					$pager->getStart(), $pager->getItemsPerPage());
 			$j = new stdClass();
 			$j->total = $count[0]["total"];

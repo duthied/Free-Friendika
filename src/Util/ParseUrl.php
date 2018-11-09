@@ -12,6 +12,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Object\Image;
+use Friendica\Util\Strings;
 
 require_once 'include/dba.php';
 
@@ -49,7 +50,7 @@ class ParseUrl
 		}
 
 		$parsed_url = DBA::selectFirst('parsed_url', ['content'],
-			['url' => normalise_link($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
+			['url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
 		);
 		if (!empty($parsed_url['content'])) {
 			$data = unserialize($parsed_url['content']);
@@ -61,7 +62,7 @@ class ParseUrl
 		DBA::insert(
 			'parsed_url',
 			[
-				'url' => normalise_link($url), 'guessing' => !$no_guessing,
+				'url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing,
 				'oembed' => $do_oembed, 'content' => serialize($data),
 				'created' => DateTimeFormat::utcNow()
 			],

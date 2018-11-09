@@ -43,6 +43,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/conversation.php';
@@ -526,7 +527,7 @@ function api_get_user(App $a, $contact_id = null)
 
 	// Searching for contact URL
 	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
-		$user = DBA::escape(normalise_link($contact_id));
+		$user = DBA::escape(Strings::normaliseLink($contact_id));
 		$url = $user;
 		$extra_query = "AND `contact`.`nurl` = '%s' ";
 		if (api_user() !== false) {
@@ -571,7 +572,7 @@ function api_get_user(App $a, $contact_id = null)
 	}
 
 	if (is_null($user) && x($_GET, 'profileurl')) {
-		$user = DBA::escape(normalise_link($_GET['profileurl']));
+		$user = DBA::escape(Strings::normaliseLink($_GET['profileurl']));
 		$extra_query = "AND `contact`.`nurl` = '%s' ";
 		if (api_user() !== false) {
 			$extra_query .= "AND `contact`.`uid`=".intval(api_user());
@@ -639,7 +640,7 @@ function api_get_user(App $a, $contact_id = null)
 			throw new BadRequestException("User not found.");
 		}
 
-		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => normalise_link($url)]);
+		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 
 		if (DBA::isResult($contact)) {
 			$network_name = ContactSelector::networkToName($contact['network'], $contact['url']);
@@ -2662,7 +2663,7 @@ function api_get_entitities(&$text, $bbcode)
 							"id" => $start+1,
 							"id_str" => (string)$start+1,
 							"indices" => [$start, $start+strlen($url)],
-							"media_url" => normalise_link($media_url),
+							"media_url" => Strings::normaliseLink($media_url),
 							"media_url_https" => $media_url,
 							"url" => $url,
 							"display_url" => $display_url,
@@ -3665,8 +3666,8 @@ function api_friendships_destroy($type)
 	$url = $contact["url"];
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
-			$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
-			normalise_link($url), $url];
+			$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
+			Strings::normaliseLink($url), $url];
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
@@ -3790,9 +3791,9 @@ function api_direct_messages_box($type, $box, $verbose)
 	foreach ($r as $item) {
 		if ($box == "inbox" || $item['from-url'] != $profile_url) {
 			$recipient = $user_info;
-			$sender = api_get_user($a, normalise_link($item['contact-url']));
+			$sender = api_get_user($a, Strings::normaliseLink($item['contact-url']));
 		} elseif ($box == "sentbox" || $item['from-url'] == $profile_url) {
-			$recipient = api_get_user($a, normalise_link($item['contact-url']));
+			$recipient = api_get_user($a, Strings::normaliseLink($item['contact-url']));
 			$sender = $user_info;
 		}
 
@@ -4499,7 +4500,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	// check against max upload size within Friendica instance
 	$maximagesize = Config::get('system', 'maximagesize');
 	if ($maximagesize && ($filesize > $maximagesize)) {
-		$formattedBytes = formatBytes($maximagesize);
+		$formattedBytes = Strings::formatBytes($maximagesize);
 		throw new InternalServerErrorException("image size exceeds Friendica config setting (uploaded size: $formattedBytes)");
 	}
 
@@ -4779,7 +4780,7 @@ function api_friendica_remoteauth()
 		throw new BadRequestException("Wrong parameters.");
 	}
 
-	$c_url = normalise_link($c_url);
+	$c_url = Strings::normaliseLink($c_url);
 
 	// traditional DFRN
 
@@ -4802,7 +4803,7 @@ function api_friendica_remoteauth()
 		$dfrn_id = '0:' . $orig_id;
 	}
 
-	$sec = random_string();
+	$sec = Strings::getRandomHex();
 
 	$fields = ['uid' => api_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id,
 		'sec' => $sec, 'expire' => time() + 45];
@@ -4943,7 +4944,7 @@ function api_get_nick($profile)
 
 	$r = q(
 		"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-		DBA::escape(normalise_link($profile))
+		DBA::escape(Strings::normaliseLink($profile))
 	);
 
 	if (DBA::isResult($r)) {
@@ -4953,7 +4954,7 @@ function api_get_nick($profile)
 	if (!$nick == "") {
 		$r = q(
 			"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-			DBA::escape(normalise_link($profile))
+			DBA::escape(Strings::normaliseLink($profile))
 		);
 
 		if (DBA::isResult($r)) {
@@ -5836,9 +5837,9 @@ function api_friendica_direct_messages_search($type, $box = "")
 		foreach ($r as $item) {
 			if ($box == "inbox" || $item['from-url'] != $profile_url) {
 				$recipient = $user_info;
-				$sender = api_get_user($a, normalise_link($item['contact-url']));
+				$sender = api_get_user($a, Strings::normaliseLink($item['contact-url']));
 			} elseif ($box == "sentbox" || $item['from-url'] == $profile_url) {
-				$recipient = api_get_user($a, normalise_link($item['contact-url']));
+				$recipient = api_get_user($a, Strings::normaliseLink($item['contact-url']));
 				$sender = $user_info;
 			}
 

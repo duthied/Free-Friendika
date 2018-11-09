@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Protocol\Diaspora;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Database\DBA;
 
@@ -35,7 +36,7 @@ function fetch_init(App $a)
 			$parts = parse_url($item["author-link"]);
 			$host = $parts["scheme"]."://".$parts["host"];
 
-			if (normalise_link($host) != normalise_link(System::baseUrl())) {
+			if (Strings::normaliseLink($host) != Strings::normaliseLink(System::baseUrl())) {
 				$location = $host."/fetch/".$a->argv[1]."/".urlencode($guid);
 
 				header("HTTP/1.1 301 Moved Permanently");

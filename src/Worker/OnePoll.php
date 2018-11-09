@@ -18,6 +18,7 @@ use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/dba.php';
@@ -474,9 +475,9 @@ class OnePoll
 									$datarray['title'] .= $subpart->text;
 								}
 							}
-							$datarray['title'] = notags(trim($datarray['title']));
+							$datarray['title'] = Strings::escapeTags(trim($datarray['title']));
 
-							//$datarray['title'] = notags(trim($meta->subject));
+							//$datarray['title'] = Strings::escapeTags(trim($meta->subject));
 							$datarray['created'] = DateTimeFormat::utc($meta->date);
 
 							// Is it a reply?
@@ -506,7 +507,7 @@ class OnePoll
 								Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 								continue;
 							}
-							$datarray['body'] = escape_tags($r['body']);
+							$datarray['body'] = Strings::escapeHtml($r['body']);
 							$datarray['body'] = BBCode::limitBodySize($datarray['body']);
 
 							Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);

@@ -28,6 +28,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 require_once 'include/conversation.php';
 require_once 'include/items.php';
@@ -41,7 +42,7 @@ function network_init(App $a)
 
 	Hook::add('head', __FILE__, 'network_infinite_scroll_head');
 
-	$search = (x($_GET, 'search') ? escape_tags($_GET['search']) : '');
+	$search = (x($_GET, 'search') ? Strings::escapeHtml($_GET['search']) : '');
 
 	if (($search != '') && !empty($_GET['submit'])) {
 		$a->internalRedirect('search?search=' . urlencode($search));
@@ -518,9 +519,9 @@ function networkThreadedView(App $a, $update, $parent)
 		for ($x = 1; $x < $a->argc; $x ++) {
 			if (is_a_date_arg($a->argv[$x])) {
 				if ($datequery) {
-					$datequery2 = escape_tags($a->argv[$x]);
+					$datequery2 = Strings::escapeHtml($a->argv[$x]);
 				} else {
-					$datequery = escape_tags($a->argv[$x]);
+					$datequery = Strings::escapeHtml($a->argv[$x]);
 					$_GET['order'] = 'post';
 				}
 			} elseif (intval($a->argv[$x])) {
@@ -536,7 +537,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$star  = intval(defaults($_GET, 'star' , 0));
 	$bmark = intval(defaults($_GET, 'bmark', 0));
 	$conv  = intval(defaults($_GET, 'conv' , 0));
-	$order = notags(defaults($_GET, 'order', 'comment'));
+	$order = Strings::escapeTags(defaults($_GET, 'order', 'comment'));
 	$nets  =        defaults($_GET, 'nets' , '');
 
 	if ($cid) {
@@ -649,7 +650,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 			$sql_post_table .= " INNER JOIN `item` AS `temp1` ON `temp1`.`id` = " . $sql_table . "." . $sql_parent;
 			$sql_extra3 .= " AND (`thread`.`contact-id` IN ($contact_str) ";
-			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '" . protect_sprintf('%<' . intval($gid) . '>%') . "' AND `temp1`.`private`))";
+			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '" . Strings::protectSprintf('%<' . intval($gid) . '>%') . "' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
 			info(L10n::t('Group is empty'));
@@ -697,11 +698,11 @@ function networkThreadedView(App $a, $update, $parent)
 	}
 
 	if ($datequery) {
-		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created <= '%s' ",
+		$sql_extra3 .= Strings::protectSprintf(sprintf(" AND $sql_table.created <= '%s' ",
 				DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 	}
 	if ($datequery2) {
-		$sql_extra3 .= protect_sprintf(sprintf(" AND $sql_table.created >= '%s' ",
+		$sql_extra3 .= Strings::protectSprintf(sprintf(" AND $sql_table.created >= '%s' ",
 				DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 	}
 
@@ -882,7 +883,7 @@ function networkThreadedView(App $a, $update, $parent)
 			foreach ($data as $item) {
 				// Don't show hash tag posts from blocked or ignored contacts
 				$condition = ["`nurl` = ? AND `uid` = ? AND (`blocked` OR `readonly`)",
-					normalise_link($item['author-link']), local_user()];
+					Strings::normaliseLink($item['author-link']), local_user()];
 				if (!DBA::exists('contact', $condition)) {
 					$s[$item['uri']] = $item;
 				}

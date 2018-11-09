@@ -11,6 +11,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * Magic Auth (remote authentication) module.
@@ -49,7 +50,7 @@ class Magic extends BaseModule
 		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
 		// Redirect if the contact is already authenticated on this site.
-		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->getBaseURL())) !== false) {
+		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], Strings::normaliseLink(self::getApp()->getBaseURL())) !== false) {
 			if ($test) {
 				$ret['success'] = true;
 				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;
@@ -74,7 +75,7 @@ class Magic extends BaseModule
 
 				$headers = [];
 				$headers['Accept'] = 'application/x-dfrn+json';
-				$headers['X-Open-Web-Auth'] = random_string();
+				$headers['X-Open-Web-Auth'] = Strings::getRandomHex();
 
 				// Create a header that is signed with the local users private key.
 				$headers = HTTPSignature::createSig(
@@ -94,7 +95,7 @@ class Magic extends BaseModule
 						if ($j['encrypted_token']) {
 							// The token is encrypted. If the local user is really the one the other instance
 							// thinks he/she is, the token can be decrypted with the local users public key.
-							openssl_private_decrypt(base64url_decode($j['encrypted_token']), $token, $user['prvkey']);
+							openssl_private_decrypt(Strings::base64UrlDecode($j['encrypted_token']), $token, $user['prvkey']);
 						} else {
 							$token = $j['token'];
 						}

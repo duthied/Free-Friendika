@@ -9,6 +9,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 function fsuggest_post(App $a)
 {
@@ -34,9 +35,9 @@ function fsuggest_post(App $a)
 
 	$new_contact = intval($_POST['suggest']);
 
-	$hash = random_string();
+	$hash = Strings::getRandomHex();
 
-	$note = escape_tags(trim(defaults($_POST, 'note', '')));
+	$note = Strings::escapeHtml(trim(defaults($_POST, 'note', '')));
 
 	if ($new_contact) {
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",

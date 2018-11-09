@@ -11,12 +11,12 @@ First create a global unique userid
 Site userid:
 https://macgirvin.com/1
 
-$guuid = base64url_encode(hash('whirlpool','https://macgirvin.com/1.' . mt_rand(1000000,9999999),1);
+$guuid = Strings::base64UrlEncode(hash('whirlpool','https://macgirvin.com/1.' . mt_rand(1000000,9999999),1);
 
 
 Then create a hashed site destination.
 
-$gduid = base64url_encode(hash('whirlpool', $guuid . 'https://macgirvin.com',1);
+$gduid = Strings::base64UrlEncode(hash('whirlpool', $guuid . 'https://macgirvin.com',1);
 
 These two keys will identify you as a person+site pair in the future.
 You will also obtain a password upon introducing yourself to a site.

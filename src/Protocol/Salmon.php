@@ -8,6 +8,7 @@ use Friendica\Core\Logger;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
@@ -51,7 +52,7 @@ class Salmon
 					} else {
 						$ret[$x] = substr($ret[$x], 5);
 					}
-				} elseif (normalise_link($ret[$x]) == 'http://') {
+				} elseif (Strings::normaliseLink($ret[$x]) == 'http://') {
 					$ret[$x] = Network::fetchUrl($ret[$x]);
 				}
 			}
@@ -70,7 +71,7 @@ class Salmon
 			return $ret[0];
 		} else {
 			foreach ($ret as $a) {
-				$hash = base64url_encode(hash('sha256', $a));
+				$hash = Strings::base64UrlEncode(hash('sha256', $a));
 				if ($hash == $keyhash) {
 					return $a;
 				}
@@ -104,22 +105,22 @@ class Salmon
 
 		// create a magic envelope
 
-		$data      = base64url_encode($slap);
+		$data      = Strings::base64UrlEncode($slap);
 		$data_type = 'application/atom+xml';
 		$encoding  = 'base64url';
 		$algorithm = 'RSA-SHA256';
-		$keyhash   = base64url_encode(hash('sha256', self::salmonKey($owner['spubkey'])), true);
+		$keyhash   = Strings::base64UrlEncode(hash('sha256', self::salmonKey($owner['spubkey'])), true);
 
-		$precomputed = '.' . base64url_encode($data_type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($algorithm);
+		$precomputed = '.' . Strings::base64UrlEncode($data_type) . '.' . Strings::base64UrlEncode($encoding) . '.' . Strings::base64UrlEncode($algorithm);
 
 		// GNU Social format
-		$signature   = base64url_encode(Crypto::rsaSign($data . $precomputed, $owner['sprvkey']));
+		$signature   = Strings::base64UrlEncode(Crypto::rsaSign($data . $precomputed, $owner['sprvkey']));
 
 		// Compliant format
-		$signature2  = base64url_encode(Crypto::rsaSign(str_replace('=', '', $data . $precomputed), $owner['sprvkey']));
+		$signature2  = Strings::base64UrlEncode(Crypto::rsaSign(str_replace('=', '', $data . $precomputed), $owner['sprvkey']));
 
 		// Old Status.net format
-		$signature3  = base64url_encode(Crypto::rsaSign($data, $owner['sprvkey']));
+		$signature3  = Strings::base64UrlEncode(Crypto::rsaSign($data, $owner['sprvkey']));
 
 		// At first try the non compliant method that works for GNU Social
 		$xmldata = ["me:env" => ["me:data" => $data,
@@ -208,6 +209,6 @@ class Salmon
 	public static function salmonKey($pubkey)
 	{
 		Crypto::pemToMe($pubkey, $m, $e);
-		return 'RSA' . '.' . base64url_encode($m, true) . '.' . base64url_encode($e, true);
+		return 'RSA' . '.' . Strings::base64UrlEncode($m, true) . '.' . Strings::base64UrlEncode($e, true);
 	}
 }

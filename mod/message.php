@@ -18,6 +18,7 @@ use Friendica\Model\Mail;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/conversation.php';
@@ -58,9 +59,9 @@ function message_post(App $a)
 		return;
 	}
 
-	$replyto   = x($_REQUEST, 'replyto')   ? notags(trim($_REQUEST['replyto']))   : '';
-	$subject   = x($_REQUEST, 'subject')   ? notags(trim($_REQUEST['subject']))   : '';
-	$body      = x($_REQUEST, 'body')      ? escape_tags(trim($_REQUEST['body'])) : '';
+	$replyto   = x($_REQUEST, 'replyto')   ? Strings::escapeTags(trim($_REQUEST['replyto']))   : '';
+	$subject   = x($_REQUEST, 'subject')   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '';
+	$body      = x($_REQUEST, 'body')      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '';
 	$recipient = x($_REQUEST, 'messageto') ? intval($_REQUEST['messageto'])       : 0;
 
 	$ret = Mail::send($recipient, $body, $subject, $replyto);
@@ -218,7 +219,7 @@ function message_content(App $a)
 			if (!DBA::isResult($r)) {
 				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
 					intval(local_user()),
-					DBA::escape(normalise_link(base64_decode($a->argv[2])))
+					DBA::escape(Strings::normaliseLink(base64_decode($a->argv[2])))
 				);
 			}
 
@@ -253,7 +254,7 @@ function message_content(App $a)
 			'$preid' => $preid,
 			'$subject' => L10n::t('Subject:'),
 			'$subjtxt' => x($_REQUEST, 'subject') ? strip_tags($_REQUEST['subject']) : '',
-			'$text' => x($_REQUEST, 'body') ? escape_tags(htmlspecialchars($_REQUEST['body'])) : '',
+			'$text' => x($_REQUEST, 'body') ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : '',
 			'$readonly' => '',
 			'$yourmessage' => L10n::t('Your message:'),
 			'$select' => $select,
@@ -462,7 +463,7 @@ function render_messages(array $msg, $t)
 	foreach ($msg as $rr) {
 		if ($rr['unknown']) {
 			$participants = L10n::t("Unknown sender - %s", $rr['from-name']);
-		} elseif (link_compare($rr['from-url'], $myprofile)) {
+		} elseif (Strings::compareLink($rr['from-url'], $myprofile)) {
 			$participants = L10n::t("You and %s", $rr['name']);
 		} else {
 			$participants = L10n::t("%s and You", $rr['from-name']);

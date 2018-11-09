@@ -5,6 +5,8 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
+use Friendica\Content\Text\HTML;
+use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
@@ -13,11 +15,10 @@ use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\Event;
 use Friendica\Model\User;
-use Friendica\Content\Text\HTML;
-use Friendica\Util\JsonLD;
-use Friendica\Core\Config;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\JsonLD;
+use Friendica\Util\Strings;
 
 /**
  * ActivityPub Processor Protocol class
@@ -417,7 +418,7 @@ class Processor
 			return;
 		}
 
-		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($activity['object_id'])]);
+		$contacts = DBA::select('contact', ['id'], ['nurl' => Strings::normaliseLink($activity['object_id'])]);
 		while ($contact = DBA::fetch($contacts)) {
 			Contact::remove($contact['id']);
 		}

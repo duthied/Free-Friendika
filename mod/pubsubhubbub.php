@@ -7,9 +7,10 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\PushSubscriber;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 function post_var($name) {
-	return (x($_POST, $name)) ? notags(trim($_POST[$name])) : '';
+	return (x($_POST, $name)) ? Strings::escapeTags(trim($_POST[$name])) : '';
 }
 
 function pubsubhubbub_init(App $a) {
@@ -87,13 +88,13 @@ function pubsubhubbub_init(App $a) {
 
 		// sanity check that topic URLs are the same
 		$hub_topic2 = str_replace('/feed/', '/dfrn_poll/', $hub_topic);
-		if (!link_compare($hub_topic, $contact['poll']) && !link_compare($hub_topic2, $contact['poll'])) {
+		if (!Strings::compareLink($hub_topic, $contact['poll']) && !Strings::compareLink($hub_topic2, $contact['poll'])) {
 			Logger::log('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
 			System::httpExit(404);
 		}
 
 		// do subscriber verification according to the PuSH protocol
-		$hub_challenge = random_string(40);
+		$hub_challenge = Strings::getRandomHex(40);
 		$params = 'hub.mode=' .
 			($subscribe == 1 ? 'subscribe' : 'unsubscribe') .
 			'&hub.topic=' . urlencode($hub_topic) .

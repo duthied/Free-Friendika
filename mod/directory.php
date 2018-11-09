@@ -15,6 +15,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function directory_init(App $a)
 {
@@ -47,9 +48,9 @@ function directory_content(App $a)
 	Nav::setSelected('directory');
 
 	if (x($a->data, 'search')) {
-		$search = notags(trim($a->data['search']));
+		$search = Strings::escapeTags(trim($a->data['search']));
 	} else {
-		$search = ((x($_GET, 'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
+		$search = ((x($_GET, 'search')) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 	}
 
 	$gdirpath = '';

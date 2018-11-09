@@ -33,6 +33,7 @@ use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use HTMLPurifier;
 use HTMLPurifier_Config;
@@ -240,7 +241,7 @@ class DFRN
 		if (isset($category)) {
 			$sql_post_table = sprintf(
 				"INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(protect_sprintf($category)),
+				DBA::escape(Strings::protectSprintf($category)),
 				intval(TERM_OBJ_POST),
 				intval(TERM_CATEGORY),
 				intval($owner_id)
@@ -1001,7 +1002,7 @@ class DFRN
 		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"] . "+00:00", DateTimeFormat::ATOM));
 
 		// "dfrn:env" is used to read the content
-		XML::addElement($doc, $entry, "dfrn:env", base64url_encode($body, true));
+		XML::addElement($doc, $entry, "dfrn:env", Strings::base64UrlEncode($body, true));
 
 		// The "content" field is not read by the receiver. We could remove it when the type is "text"
 		// We keep it at the moment, maybe there is some old version that doesn't read "dfrn:env"
@@ -1096,7 +1097,7 @@ class DFRN
 		}
 
 		foreach ($mentioned as $mention) {
-			$condition = ['uid' => $owner["uid"], 'nurl' => normalise_link($mention)];
+			$condition = ['uid' => $owner["uid"], 'nurl' => Strings::normaliseLink($mention)];
 			$contact = DBA::selectFirst('contact', ['forum', 'prv'], $condition);
 
 			if (DBA::isResult($contact) && ($contact["forum"] || $contact["prv"])) {
@@ -1568,7 +1569,7 @@ class DFRN
 		$fields = ['id', 'uid', 'url', 'network', 'avatar-date', 'avatar', 'name-date', 'uri-date', 'addr',
 			'name', 'nick', 'about', 'location', 'keywords', 'xmpp', 'bdyear', 'bd', 'hidden', 'contact-type'];
 		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ?",
-			$importer["importer_uid"], normalise_link($author["link"]), Protocol::STATUSNET];
+			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET];
 		$contact_old = DBA::selectFirst('contact', $fields, $condition);
 
 		if (DBA::isResult($contact_old)) {
@@ -1959,7 +1960,7 @@ class DFRN
 		 *
 		 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
 		 */
-		$condition = ['name' => $suggest["name"], 'nurl' => normalise_link($suggest["url"]),
+		$condition = ['name' => $suggest["name"], 'nurl' => Strings::normaliseLink($suggest["url"]),
 			'uid' => $suggest["uid"]];
 		if (DBA::exists('contact', $condition)) {
 			return false;
@@ -2009,7 +2010,7 @@ class DFRN
 
 		$fid = $r[0]["id"];
 
-		$hash = random_string();
+		$hash = Strings::getRandomHex();
 
 		$r = q(
 			"INSERT INTO `intro` (`uid`, `fid`, `contact-id`, `note`, `hash`, `datetime`, `blocked`)
@@ -2099,18 +2100,18 @@ class DFRN
 		$relocate["server_url"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $relocate["url"]);
 
 		$fields = ['name' => $relocate["name"], 'photo' => $relocate["avatar"],
-			'url' => $relocate["url"], 'nurl' => normalise_link($relocate["url"]),
+			'url' => $relocate["url"], 'nurl' => Strings::normaliseLink($relocate["url"]),
 			'addr' => $relocate["addr"], 'connect' => $relocate["addr"],
 			'notify' => $relocate["notify"], 'server_url' => $relocate["server_url"]];
-		DBA::update('gcontact', $fields, ['nurl' => normalise_link($old["url"])]);
+		DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($old["url"])]);
 
 		// Update the contact table. We try to find every entry.
 		$fields = ['name' => $relocate["name"], 'avatar' => $relocate["avatar"],
-			'url' => $relocate["url"], 'nurl' => normalise_link($relocate["url"]),
+			'url' => $relocate["url"], 'nurl' => Strings::normaliseLink($relocate["url"]),
 			'addr' => $relocate["addr"], 'request' => $relocate["request"],
 			'confirm' => $relocate["confirm"], 'notify' => $relocate["notify"],
 			'poll' => $relocate["poll"], 'site-pubkey' => $relocate["sitepubkey"]];
-		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer["id"], normalise_link($old["url"])];
+		$condition = ["(`id` = ?) OR (`nurl` = ?)", $importer["id"], Strings::normaliseLink($old["url"])];
 
 		DBA::update('contact', $fields, $condition);
 
@@ -2255,7 +2256,7 @@ class DFRN
 				}
 			}
 
-			if ($Blink && link_compare($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
+			if ($Blink && Strings::compareLink($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
 				$author = DBA::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
 				$item['id'] = $posted_id;
@@ -2493,7 +2494,7 @@ class DFRN
 		$item["body"] = XML::getFirstNodeValue($xpath, "dfrn:env/text()", $entry);
 		$item["body"] = str_replace([' ',"\t","\r","\n"], ['','','',''], $item["body"]);
 		// make sure nobody is trying to sneak some html tags by us
-		$item["body"] = notags(base64url_decode($item["body"]));
+		$item["body"] = Strings::escapeTags(Strings::base64UrlDecode($item["body"]));
 
 		$item["body"] = BBCode::limitBodySize($item["body"]);
 
@@ -2737,7 +2738,7 @@ class DFRN
 				Logger::log("Contact ".$importer["id"]." isn't known to user ".$importer["importer_uid"].". The post will be ignored.", Logger::DEBUG);
 				return;
 			}
-			if (!link_compare($item["owner-link"], $importer["url"])) {
+			if (!Strings::compareLink($item["owner-link"], $importer["url"])) {
 				/*
 				 * The item owner info is not our contact. It's OK and is to be expected if this is a tgroup delivery,
 				 * but otherwise there's a possible data mixup on the sender's system.
@@ -2985,7 +2986,7 @@ class DFRN
 				return;
 			}
 			$baseurl = substr($baseurl, $domain_st + 3);
-			$nurl = normalise_link($baseurl);
+			$nurl = Strings::normaliseLink($baseurl);
 
 			/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
 			$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
@@ -3030,7 +3031,7 @@ class DFRN
 				return;
 			}
 
-			$sec = random_string();
+			$sec = Strings::getRandomHex();
 
 			DBA::insert('profile_check', ['uid' => local_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id, 'sec' => $sec, 'expire' => time() + 45]);
 
@@ -3078,18 +3079,18 @@ class DFRN
 		$community_page = ($user['page-flags'] == Contact::PAGE_COMMUNITY);
 		$prvgroup = ($user['page-flags'] == Contact::PAGE_PRVGROUP);
 
-		$link = normalise_link(System::baseUrl() . '/profile/' . $user['nickname']);
+		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
 
 		/*
 		 * Diaspora uses their own hardwired link URL in @-tags
 		 * instead of the one we supply with webfinger
 		 */
-		$dlink = normalise_link(System::baseUrl() . '/u/' . $user['nickname']);
+		$dlink = Strings::normaliseLink(System::baseUrl() . '/u/' . $user['nickname']);
 
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
 			foreach ($matches as $mtch) {
-				if (link_compare($link, $mtch[1]) || link_compare($dlink, $mtch[1])) {
+				if (Strings::compareLink($link, $mtch[1]) || Strings::compareLink($dlink, $mtch[1])) {
 					$mention = true;
 					Logger::log('mention found: ' . $mtch[2]);
 				}

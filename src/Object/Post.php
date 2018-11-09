@@ -21,6 +21,7 @@ use Friendica\Model\Term;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/dba.php';
@@ -156,7 +157,7 @@ class Post extends BaseObject
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
 
-		if (local_user() && link_compare($a->contact['url'], $item['author-link'])) {
+		if (local_user() && Strings::compareLink($a->contact['url'], $item['author-link'])) {
 			if ($item["event-id"] != 0) {
 				$edpost = ["events/event/" . $item['event-id'], L10n::t("Edit")];
 			} else {
@@ -854,8 +855,8 @@ class Post extends BaseObject
 					$this->owner_name = $a->page_contact['name'];
 					$this->wall_to_wall = true;
 				} elseif ($this->getDataValue('owner-link')) {
-					$owner_linkmatch = (($this->getDataValue('owner-link')) && link_compare($this->getDataValue('owner-link'), $this->getDataValue('author-link')));
-					$alias_linkmatch = (($this->getDataValue('alias')) && link_compare($this->getDataValue('alias'), $this->getDataValue('author-link')));
+					$owner_linkmatch = (($this->getDataValue('owner-link')) && Strings::compareLink($this->getDataValue('owner-link'), $this->getDataValue('author-link')));
+					$alias_linkmatch = (($this->getDataValue('alias')) && Strings::compareLink($this->getDataValue('alias'), $this->getDataValue('author-link')));
 					$owner_namematch = (($this->getDataValue('owner-name')) && $this->getDataValue('owner-name') == $this->getDataValue('author-name'));
 
 					if (!$owner_linkmatch && !$alias_linkmatch && !$owner_namematch) {

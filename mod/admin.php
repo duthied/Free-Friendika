@@ -30,6 +30,7 @@ use Friendica\Module\Tos;
 use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/enotify.php';
@@ -416,8 +417,8 @@ function admin_page_blocklist_post(App $a)
 		//  Add new item to blocklist
 		$blocklist = Config::get('system', 'blocklist');
 		$blocklist[] = [
-			'domain' => notags(trim($_POST['newentry_domain'])),
-			'reason' => notags(trim($_POST['newentry_reason']))
+			'domain' => Strings::escapeTags(trim($_POST['newentry_domain'])),
+			'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
 		];
 		Config::set('system', 'blocklist', $blocklist);
 		info(L10n::t('Server added to blocklist.') . EOL);
@@ -426,8 +427,8 @@ function admin_page_blocklist_post(App $a)
 		$blocklist = [];
 		foreach ($_POST['domain'] as $id => $domain) {
 			// Trimming whitespaces as well as any lingering slashes
-			$domain = notags(trim($domain, "\x00..\x1F/"));
-			$reason = notags(trim($_POST['reason'][$id]));
+			$domain = Strings::escapeTags(trim($domain, "\x00..\x1F/"));
+			$reason = Strings::escapeTags(trim($_POST['reason'][$id]));
 			if (!x($_POST['delete'][$id])) {
 				$blocklist[] = [
 					'domain' => $domain,
@@ -565,7 +566,7 @@ function admin_page_deleteitem_post(App $a)
 	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/deleteitem/', 'admin_deleteitem');
 
 	if (x($_POST['page_deleteitem_submit'])) {
-		$guid = trim(notags($_POST['deleteitemguid']));
+		$guid = trim(Strings::escapeTags($_POST['deleteitemguid']));
 		// The GUID should not include a "/", so if there is one, we got an URL
 		// and the last part of it is most likely the GUID.
 		if (strpos($guid, '/')) {
@@ -996,8 +997,8 @@ function admin_page_site_post(App $a)
 		$old_url = $a->getBaseURL(true);
 
 		// Generate host names for relocation the addresses in the format user@address.tld
-		$new_host = str_replace("http://", "@", normalise_link($new_url));
-		$old_host = str_replace("http://", "@", normalise_link($old_url));
+		$new_host = str_replace("http://", "@", Strings::normaliseLink($new_url));
+		$old_host = str_replace("http://", "@", Strings::normaliseLink($old_url));
 
 		function update_table(App $a, $table_name, $fields, $old_url, $new_url)
 		{
@@ -1048,16 +1049,16 @@ function admin_page_site_post(App $a)
 	}
 	// end relocate
 
-	$sitename 		=	((x($_POST,'sitename'))			? notags(trim($_POST['sitename']))		: '');
-	$hostname 		=	((x($_POST,'hostname'))			? notags(trim($_POST['hostname']))		: '');
-	$sender_email		=	((x($_POST,'sender_email'))		? notags(trim($_POST['sender_email']))		: '');
+	$sitename 		=	((x($_POST,'sitename'))			? Strings::escapeTags(trim($_POST['sitename']))		: '');
+	$hostname 		=	((x($_POST,'hostname'))			? Strings::escapeTags(trim($_POST['hostname']))		: '');
+	$sender_email		=	((x($_POST,'sender_email'))		? Strings::escapeTags(trim($_POST['sender_email']))		: '');
 	$banner			=	((x($_POST,'banner'))			? trim($_POST['banner'])			: false);
-	$shortcut_icon 		=	((x($_POST,'shortcut_icon'))		? notags(trim($_POST['shortcut_icon']))		: '');
-	$touch_icon 		=	((x($_POST,'touch_icon'))		? notags(trim($_POST['touch_icon']))		: '');
+	$shortcut_icon 		=	((x($_POST,'shortcut_icon'))		? Strings::escapeTags(trim($_POST['shortcut_icon']))		: '');
+	$touch_icon 		=	((x($_POST,'touch_icon'))		? Strings::escapeTags(trim($_POST['touch_icon']))		: '');
 	$info			=	((x($_POST,'info'))			? trim($_POST['info'])				: false);
-	$language		=	((x($_POST,'language'))			? notags(trim($_POST['language']))		: '');
-	$theme			=	((x($_POST,'theme'))			? notags(trim($_POST['theme']))			: '');
-	$theme_mobile		=	((x($_POST,'theme_mobile'))		? notags(trim($_POST['theme_mobile']))		: '');
+	$language		=	((x($_POST,'language'))			? Strings::escapeTags(trim($_POST['language']))		: '');
+	$theme			=	((x($_POST,'theme'))			? Strings::escapeTags(trim($_POST['theme']))			: '');
+	$theme_mobile		=	((x($_POST,'theme_mobile'))		? Strings::escapeTags(trim($_POST['theme_mobile']))		: '');
 	$maximagesize		=	((x($_POST,'maximagesize'))		? intval(trim($_POST['maximagesize']))		:  0);
 	$maximagelength		=	((x($_POST,'maximagelength'))		? intval(trim($_POST['maximagelength']))	:  MAX_IMAGE_LENGTH);
 	$jpegimagequality	=	((x($_POST,'jpegimagequality'))		? intval(trim($_POST['jpegimagequality']))	:  JPEG_QUALITY);
@@ -1069,14 +1070,14 @@ function admin_page_site_post(App $a)
 
 	$register_text		=	((x($_POST,'register_text'))		? strip_tags(trim($_POST['register_text']))		: '');
 
-	$allowed_sites		=	((x($_POST,'allowed_sites'))		? notags(trim($_POST['allowed_sites']))		: '');
-	$allowed_email		=	((x($_POST,'allowed_email'))		? notags(trim($_POST['allowed_email']))		: '');
-	$forbidden_nicknames	=	((x($_POST,'forbidden_nicknames'))	? strtolower(notags(trim($_POST['forbidden_nicknames'])))		: '');
+	$allowed_sites		=	((x($_POST,'allowed_sites'))		? Strings::escapeTags(trim($_POST['allowed_sites']))		: '');
+	$allowed_email		=	((x($_POST,'allowed_email'))		? Strings::escapeTags(trim($_POST['allowed_email']))		: '');
+	$forbidden_nicknames	=	((x($_POST,'forbidden_nicknames'))	? strtolower(Strings::escapeTags(trim($_POST['forbidden_nicknames'])))		: '');
 	$no_oembed_rich_content = x($_POST,'no_oembed_rich_content');
-	$allowed_oembed		=	((x($_POST,'allowed_oembed'))		? notags(trim($_POST['allowed_oembed']))		: '');
+	$allowed_oembed		=	((x($_POST,'allowed_oembed'))		? Strings::escapeTags(trim($_POST['allowed_oembed']))		: '');
 	$block_public		=	((x($_POST,'block_public'))		? True						: False);
 	$force_publish		=	((x($_POST,'publish_all'))		? True						: False);
-	$global_directory	=	((x($_POST,'directory'))		? notags(trim($_POST['directory']))		: '');
+	$global_directory	=	((x($_POST,'directory'))		? Strings::escapeTags(trim($_POST['directory']))		: '');
 	$newuser_private		=	((x($_POST,'newuser_private'))		? True					: False);
 	$enotify_no_content		=	((x($_POST,'enotify_no_content'))	? True					: False);
 	$private_addons			=	((x($_POST,'private_addons'))		? True					: False);
@@ -1091,8 +1092,8 @@ function admin_page_site_post(App $a)
 	$max_author_posts_community_page	=	((x($_POST,'max_author_posts_community_page'))	? intval(trim($_POST['max_author_posts_community_page']))	: 0);
 
 	$verifyssl		=	((x($_POST,'verifyssl'))		? True						: False);
-	$proxyuser		=	((x($_POST,'proxyuser'))		? notags(trim($_POST['proxyuser']))		: '');
-	$proxy			=	((x($_POST,'proxy'))			? notags(trim($_POST['proxy']))			: '');
+	$proxyuser		=	((x($_POST,'proxyuser'))		? Strings::escapeTags(trim($_POST['proxyuser']))		: '');
+	$proxy			=	((x($_POST,'proxy'))			? Strings::escapeTags(trim($_POST['proxy']))			: '');
 	$timeout		=	((x($_POST,'timeout'))			? intval(trim($_POST['timeout']))		: 60);
 	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
 	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
@@ -1116,16 +1117,16 @@ function admin_page_site_post(App $a)
 	$dbclean_expire_days	=	((x($_POST,'dbclean_expire_days'))	? intval($_POST['dbclean_expire_days'])		: 0);
 	$dbclean_unclaimed	=	((x($_POST,'dbclean_unclaimed'))	? intval($_POST['dbclean_unclaimed'])		: 0);
 	$suppress_tags		=	((x($_POST,'suppress_tags'))		? True   					: False);
-	$itemcache		=	((x($_POST,'itemcache'))		? notags(trim($_POST['itemcache']))		: '');
+	$itemcache		=	((x($_POST,'itemcache'))		? Strings::escapeTags(trim($_POST['itemcache']))		: '');
 	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
 	$max_comments		=	((x($_POST,'max_comments'))		? intval($_POST['max_comments'])		: 0);
-	$temppath		=	((x($_POST,'temppath'))			? notags(trim($_POST['temppath']))		: '');
-	$basepath		=	((x($_POST,'basepath'))			? notags(trim($_POST['basepath']))		: '');
-	$singleuser		=	((x($_POST,'singleuser'))		? notags(trim($_POST['singleuser']))		: '');
+	$temppath		=	((x($_POST,'temppath'))			? Strings::escapeTags(trim($_POST['temppath']))		: '');
+	$basepath		=	((x($_POST,'basepath'))			? Strings::escapeTags(trim($_POST['basepath']))		: '');
+	$singleuser		=	((x($_POST,'singleuser'))		? Strings::escapeTags(trim($_POST['singleuser']))		: '');
 	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
 	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
 	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
-	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	notags(trim($_POST['check_new_version_url']))	: 'none');
+	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	Strings::escapeTags(trim($_POST['check_new_version_url']))	: 'none');
 
 	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 10);
 	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
@@ -1133,10 +1134,10 @@ function admin_page_site_post(App $a)
 	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
 
 	$relay_directly		=	((x($_POST,'relay_directly'))		? True						: False);
-	$relay_server		=	((x($_POST,'relay_server'))		? notags(trim($_POST['relay_server']))		: '');
+	$relay_server		=	((x($_POST,'relay_server'))		? Strings::escapeTags(trim($_POST['relay_server']))		: '');
 	$relay_subscribe	=	((x($_POST,'relay_subscribe'))		? True						: False);
-	$relay_scope		=	((x($_POST,'relay_scope'))		? notags(trim($_POST['relay_scope']))		: '');
-	$relay_server_tags	=	((x($_POST,'relay_server_tags'))	? notags(trim($_POST['relay_server_tags']))	: '');
+	$relay_scope		=	((x($_POST,'relay_scope'))		? Strings::escapeTags(trim($_POST['relay_scope']))		: '');
+	$relay_server_tags	=	((x($_POST,'relay_server_tags'))	? Strings::escapeTags(trim($_POST['relay_server_tags']))	: '');
 	$relay_user_tags	=	((x($_POST,'relay_user_tags'))		? True						: False);
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
@@ -1695,10 +1696,10 @@ function admin_page_users_post(App $a)
 		}
 
 		$user = $result['user'];
-		$preamble = deindent(L10n::t('
+		$preamble = Strings::deindent(L10n::t('
 			Dear %1$s,
 				the administrator of %2$s has set up an account for you.'));
-		$body = deindent(L10n::t('
+		$body = Strings::deindent(L10n::t('
 			The login details are as follows:
 
 			Site Location:	%1$s
@@ -2370,7 +2371,7 @@ function admin_page_logs_post(App $a)
 	if (x($_POST, "page_logs")) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/admin/logs', 'admin_logs');
 
-		$logfile   = ((x($_POST,'logfile'))   ? notags(trim($_POST['logfile']))  : '');
+		$logfile   = ((x($_POST,'logfile'))   ? Strings::escapeTags(trim($_POST['logfile']))  : '');
 		$debugging = ((x($_POST,'debugging')) ? true                             : false);
 		$loglevel  = ((x($_POST,'loglevel'))  ? intval(trim($_POST['loglevel'])) : 0);
 
@@ -2477,9 +2478,9 @@ function admin_page_viewlogs(App $a)
 				}
 				$seek = fseek($fp, 0 - $size, SEEK_END);
 				if ($seek === 0) {
-					$data = escape_tags(fread($fp, $size));
+					$data = Strings::escapeHtml(fread($fp, $size));
 					while (!feof($fp)) {
-						$data .= escape_tags(fread($fp, 4096));
+						$data .= Strings::escapeHtml(fread($fp, 4096));
 					}
 				}
 			}
