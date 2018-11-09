@@ -123,6 +123,8 @@ abstract class CacheTest extends DatabaseTest
 	 * @medium
 	 */
 	function testTTL() {
+		$this->markTestSkipped('taking too much time without mocking');
+
 		$this->assertNull($this->instance->get('value1'));
 
 		$value = 'foobar';
