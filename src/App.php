@@ -787,9 +787,9 @@ class App
 		 */
 		if ($this->is_mobile || $this->is_tablet) {
 			if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-				$link = 'toggle_mobile?address=' . curPageURL();
+				$link = 'toggle_mobile?address=' . urlencode(curPageURL());
 			} else {
-				$link = 'toggle_mobile?off=1&address=' . curPageURL();
+				$link = 'toggle_mobile?off=1&address=' . urlencode(curPageURL());
 			}
 			$this->page['footer'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate("toggle_mobile_footer.tpl"), [
 				'$toggle_link' => $link,
