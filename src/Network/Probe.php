@@ -575,7 +575,7 @@ class Probe
 	{
 		$parts = parse_url($uri);
 
-		if (!empty($parts["scheme"]) && !empty($parts["host"]) && !empty($parts["path"])) {
+		if (!empty($parts["scheme"]) && !empty($parts["host"])) {
 			$host = $parts["host"];
 			if (!empty($parts["port"])) {
 				$host .= ':'.$parts["port"];
@@ -590,7 +590,7 @@ class Probe
 				return [];
 			}
 
-			$path_parts = explode("/", trim($parts["path"], "/"));
+			$path_parts = explode("/", trim(defaults($parts, 'path', ''), "/"));
 
 			while (!$lrdd && (sizeof($path_parts) > 1)) {
 				$host .= "/".array_shift($path_parts);
