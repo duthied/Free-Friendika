@@ -602,3 +602,8 @@ img.invalid-src:after { vertical-align: top;}
 #register-explicid-content {
   font-weight: bold;
 }
+
+span.emoji.mastodon img {
+  height: 1.2em;
+  vertical-align: middle;
+}

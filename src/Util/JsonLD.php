@@ -90,7 +90,8 @@ class JsonLD
 			'dfrn' => (object)['@id' => 'http://purl.org/macgirvin/dfrn/1.0/', '@type' => '@id'],
 			'diaspora' => (object)['@id' => 'https://diasporafoundation.org/ns/', '@type' => '@id'],
 			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
-			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id']];
+			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
+			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id']];
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 

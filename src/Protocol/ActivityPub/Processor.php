@@ -5,6 +5,8 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
+use Friendica\Content\Text\HTML;
+use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
@@ -13,11 +15,10 @@ use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\Event;
 use Friendica\Model\User;
-use Friendica\Content\Text\HTML;
-use Friendica\Util\JsonLD;
-use Friendica\Core\Config;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\JsonLD;
+use Friendica\Util\Strings;
 
 /**
  * ActivityPub Processor Protocol class
@@ -36,6 +37,23 @@ class Processor
 		$URLSearchString = "^\[\]";
 		$body = preg_replace("/\[url\=([$URLSearchString]*)\]([#@!])(.*?)\[\/url\]/ism", '$2[url=$1]$3[/url]', $body);
 
+		return $body;
+	}
+
+	/**
+	 * Replaces emojis in the body
+	 *
+	 * @param array $emojis
+	 * @param string $body
+	 *
+	 * @return string with replaced emojis
+	 */
+	public static function replaceEmojis($emojis, $body)
+	{
+		foreach ($emojis as $emoji) {
+			$replace = '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
+			$body = str_replace($emoji['name'], $replace, $body);
+		}
 		return $body;
 	}
 
@@ -115,7 +133,8 @@ class Processor
 		$item['edited'] = $activity['updated'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
+		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
+		$item['body'] = self::convertMentions($content);
 		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
 
 		Item::update($item, ['uri' => $activity['id']]);
@@ -250,7 +269,8 @@ class Processor
 		$item['guid'] = $activity['diaspora:guid'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$item['body'] = self::convertMentions(HTML::toBBCode($activity['content']));
+		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
+		$item['body'] = self::convertMentions($content);
 
 		if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
 			$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
@@ -398,7 +418,7 @@ class Processor
 			return;
 		}
 
-		$contacts = DBA::select('contact', ['id'], ['nurl' => normalise_link($activity['object_id'])]);
+		$contacts = DBA::select('contact', ['id'], ['nurl' => Strings::normaliseLink($activity['object_id'])]);
 		while ($contact = DBA::fetch($contacts)) {
 			Contact::remove($contact['id']);
 		}

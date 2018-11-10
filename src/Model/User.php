@@ -20,6 +20,7 @@ use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use LightOpenID;
 
 require_once 'boot.php';
@@ -60,7 +61,7 @@ class User
 	 */
 	public static function getIdForURL($url)
 	{
-		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($url), 'self' => true]);
+		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => Strings::normaliseLink($url), 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return false;
 		} else {
@@ -269,7 +270,7 @@ class User
 	 */
 	public static function generateNewPassword()
 	{
-		return autoname(6) . mt_rand(100, 9999);
+		return Strings::getRandomName(6) . mt_rand(100, 9999);
 	}
 
 	/**
@@ -401,18 +402,18 @@ class User
 		$using_invites = Config::get('system', 'invitation_only');
 		$num_invites   = Config::get('system', 'number_invites');
 
-		$invite_id  = !empty($data['invite_id'])  ? notags(trim($data['invite_id']))  : '';
-		$username   = !empty($data['username'])   ? notags(trim($data['username']))   : '';
-		$nickname   = !empty($data['nickname'])   ? notags(trim($data['nickname']))   : '';
-		$email      = !empty($data['email'])      ? notags(trim($data['email']))      : '';
-		$openid_url = !empty($data['openid_url']) ? notags(trim($data['openid_url'])) : '';
-		$photo      = !empty($data['photo'])      ? notags(trim($data['photo']))      : '';
+		$invite_id  = !empty($data['invite_id'])  ? Strings::escapeTags(trim($data['invite_id']))  : '';
+		$username   = !empty($data['username'])   ? Strings::escapeTags(trim($data['username']))   : '';
+		$nickname   = !empty($data['nickname'])   ? Strings::escapeTags(trim($data['nickname']))   : '';
+		$email      = !empty($data['email'])      ? Strings::escapeTags(trim($data['email']))      : '';
+		$openid_url = !empty($data['openid_url']) ? Strings::escapeTags(trim($data['openid_url'])) : '';
+		$photo      = !empty($data['photo'])      ? Strings::escapeTags(trim($data['photo']))      : '';
 		$password   = !empty($data['password'])   ? trim($data['password'])           : '';
 		$password1  = !empty($data['password1'])  ? trim($data['password1'])          : '';
 		$confirm    = !empty($data['confirm'])    ? trim($data['confirm'])            : '';
 		$blocked    = !empty($data['blocked'])    ? intval($data['blocked'])          : 0;
 		$verified   = !empty($data['verified'])   ? intval($data['verified'])         : 0;
-		$language   = !empty($data['language'])   ? notags(trim($data['language']))   : 'en';
+		$language   = !empty($data['language'])   ? Strings::escapeTags(trim($data['language']))   : 'en';
 
 		$publish = !empty($data['profile_publish_reg']) && intval($data['profile_publish_reg']) ? 1 : 0;
 		$netpublish = strlen(Config::get('system', 'directory')) ? $publish : 0;
@@ -498,7 +499,7 @@ class User
 			throw new Exception(L10n::t('Your email domain is not among those allowed on this site.'));
 		}
 
-		if (!valid_email($email) || !Network::isEmailDomainValid($email)) {
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !Network::isEmailDomainValid($email)) {
 			throw new Exception(L10n::t('Not a valid email address.'));
 		}
 		if (self::isNicknameBlocked($nickname)) {
@@ -692,7 +693,7 @@ class User
 	 */
 	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
-		$body = deindent(L10n::t('
+		$body = Strings::deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account is pending for approval by the administrator.
 
@@ -727,13 +728,13 @@ class User
 	 */
 	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
 	{
-		$preamble = deindent(L10n::t('
+		$preamble = Strings::deindent(L10n::t('
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
 		',
 			$preamble, $user['username'], $sitename
 		));
-		$body = deindent(L10n::t('
+		$body = Strings::deindent(L10n::t('
 			The login details are as follows:
 
 			Site Location:	%3$s
@@ -812,5 +813,75 @@ class User
 			unset($_SESSION['uid']);
 			$a->internalRedirect();
 		}
+	}
+
+	/**
+	 * Return all identities to a user
+	 *
+	 * @param int $uid The user id
+	 * @return array All identities for this user
+	 *
+	 * Example for a return:
+	 * 	[
+	 * 		[
+	 * 			'uid' => 1,
+	 * 			'username' => 'maxmuster',
+	 * 			'nickname' => 'Max Mustermann'
+	 * 		],
+	 * 		[
+	 * 			'uid' => 2,
+	 * 			'username' => 'johndoe',
+	 * 			'nickname' => 'John Doe'
+	 * 		]
+	 * 	]
+	 */
+	public static function identities($uid)
+	{
+		$identities = [];
+
+		$user = DBA::selectFirst('user', ['uid', 'nickname', 'username', 'parent-uid'], ['uid' => $uid]);
+		if (!DBA::isResult($user)) {
+			return $identities;
+		}
+
+		if ($user['parent-uid'] == 0) {
+			// First add our own entry
+			$identities = [['uid' => $user['uid'],
+				'username' => $user['username'],
+				'nickname' => $user['nickname']]];
+
+			// Then add all the children
+			$r = DBA::select('user', ['uid', 'username', 'nickname'],
+				['parent-uid' => $user['uid'], 'account_removed' => false]);
+			if (DBA::isResult($r)) {
+				$identities = array_merge($identities, DBA::toArray($r));
+			}
+		} else {
+			// First entry is our parent
+			$r = DBA::select('user', ['uid', 'username', 'nickname'],
+				['uid' => $user['parent-uid'], 'account_removed' => false]);
+			if (DBA::isResult($r)) {
+				$identities = DBA::toArray($r);
+			}
+
+			// Then add all siblings
+			$r = DBA::select('user', ['uid', 'username', 'nickname'],
+				['parent-uid' => $user['parent-uid'], 'account_removed' => false]);
+			if (DBA::isResult($r)) {
+				$identities = array_merge($identities, DBA::toArray($r));
+			}
+		}
+
+		$r = DBA::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
+			FROM `manage`
+			INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
+			WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
+			$user['uid']
+		);
+		if (DBA::isResult($r)) {
+			$identities = array_merge($identities, DBA::toArray($r));
+		}
+
+		return $identities;
 	}
 }

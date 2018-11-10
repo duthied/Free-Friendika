@@ -7,6 +7,7 @@ namespace Friendica\Model;
 
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 /**
  * Class interacting with the register database table
@@ -77,7 +78,7 @@ class Register
 	 */
 	public static function createForInvitation()
 	{
-		$code = autoname(8) . srand(1000, 9999);
+		$code = Strings::getRandomName(8) . srand(1000, 9999);
 
 		$fields = [
 			'hash' => $code,
@@ -100,7 +101,7 @@ class Register
 	 */
 	public static function createForApproval($uid, $language, $note = '')
 	{
-		$hash = random_string();
+		$hash = Strings::getRandomHex();
 
 		if (!User::exists($uid)) {
 			return false;

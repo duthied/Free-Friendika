@@ -12,6 +12,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 
 require_once 'mod/settings.php';
 
@@ -72,7 +73,7 @@ function delegate_content(App $a)
 		if (DBA::isResult($user)) {
 			$condition = [
 				'uid' => local_user(),
-				'nurl' => normalise_link(System::baseUrl() . '/profile/' . $user['nickname'])
+				'nurl' => Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname'])
 			];
 			if (DBA::exists('contact', $condition)) {
 				DBA::insert('manage', ['uid' => $user_id, 'mid' => local_user()]);
@@ -114,7 +115,7 @@ function delegate_content(App $a)
 		AND SUBSTRING_INDEX(`nurl`, '/', 3) = '%s'
 		AND `uid` = %d
 		AND `network` = '%s' ",
-		DBA::escape(normalise_link(System::baseUrl())),
+		DBA::escape(Strings::normaliseLink(System::baseUrl())),
 		intval(local_user()),
 		DBA::escape(Protocol::DFRN)
 	);

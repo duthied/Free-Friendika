@@ -22,6 +22,7 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 function profiles_init(App $a) {
@@ -201,13 +202,13 @@ function profiles_post(App $a) {
 
 		$is_default = (($orig[0]['is-default']) ? 1 : 0);
 
-		$profile_name = notags(trim($_POST['profile_name']));
+		$profile_name = Strings::escapeTags(trim($_POST['profile_name']));
 		if (! strlen($profile_name)) {
 			notice(L10n::t('Profile Name is required.') . EOL);
 			return;
 		}
 
-		$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00';
+		$dob = $_POST['dob'] ? Strings::escapeHtml(trim($_POST['dob'])) : '0000-00-00';
 
 		$y = substr($dob, 0, 4);
 		if ((! ctype_digit($y)) || ($y < 1900)) {
@@ -228,7 +229,7 @@ function profiles_post(App $a) {
 			}
 		}
 
-		$name = notags(trim($_POST['name']));
+		$name = Strings::escapeTags(trim($_POST['name']));
 
 		if (! strlen($name)) {
 			$name = '[No Name]';
@@ -238,19 +239,19 @@ function profiles_post(App $a) {
 			$namechanged = true;
 		}
 
-		$pdesc = notags(trim($_POST['pdesc']));
-		$gender = notags(trim($_POST['gender']));
-		$address = notags(trim($_POST['address']));
-		$locality = notags(trim($_POST['locality']));
-		$region = notags(trim($_POST['region']));
-		$postal_code = notags(trim($_POST['postal_code']));
-		$country_name = notags(trim($_POST['country_name']));
-		$pub_keywords = profile_clean_keywords(notags(trim($_POST['pub_keywords'])));
-		$prv_keywords = profile_clean_keywords(notags(trim($_POST['prv_keywords'])));
-		$marital = notags(trim($_POST['marital']));
-		$howlong = notags(trim($_POST['howlong']));
+		$pdesc = Strings::escapeTags(trim($_POST['pdesc']));
+		$gender = Strings::escapeTags(trim($_POST['gender']));
+		$address = Strings::escapeTags(trim($_POST['address']));
+		$locality = Strings::escapeTags(trim($_POST['locality']));
+		$region = Strings::escapeTags(trim($_POST['region']));
+		$postal_code = Strings::escapeTags(trim($_POST['postal_code']));
+		$country_name = Strings::escapeTags(trim($_POST['country_name']));
+		$pub_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['pub_keywords'])));
+		$prv_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['prv_keywords'])));
+		$marital = Strings::escapeTags(trim($_POST['marital']));
+		$howlong = Strings::escapeTags(trim($_POST['howlong']));
 
-		$with = ((x($_POST,'with')) ? notags(trim($_POST['with'])) : '');
+		$with = ((x($_POST,'with')) ? Strings::escapeTags(trim($_POST['with'])) : '');
 
 		if (! strlen($howlong)) {
 			$howlong = DBA::NULL_DATETIME;
@@ -311,30 +312,30 @@ function profiles_post(App $a) {
 		}
 
 		/// @TODO Not flexible enough for later expansion, let's have more OOP here
-		$sexual = notags(trim($_POST['sexual']));
-		$xmpp = notags(trim($_POST['xmpp']));
-		$homepage = notags(trim($_POST['homepage']));
+		$sexual = Strings::escapeTags(trim($_POST['sexual']));
+		$xmpp = Strings::escapeTags(trim($_POST['xmpp']));
+		$homepage = Strings::escapeTags(trim($_POST['homepage']));
 		if ((strpos($homepage, 'http') !== 0) && (strlen($homepage))) {
 			// neither http nor https in URL, add them
 			$homepage = 'http://'.$homepage;
 		}
-		$hometown = notags(trim($_POST['hometown']));
-		$politic = notags(trim($_POST['politic']));
-		$religion = notags(trim($_POST['religion']));
+		$hometown = Strings::escapeTags(trim($_POST['hometown']));
+		$politic = Strings::escapeTags(trim($_POST['politic']));
+		$religion = Strings::escapeTags(trim($_POST['religion']));
 
-		$likes = escape_tags(trim($_POST['likes']));
-		$dislikes = escape_tags(trim($_POST['dislikes']));
+		$likes = Strings::escapeHtml(trim($_POST['likes']));
+		$dislikes = Strings::escapeHtml(trim($_POST['dislikes']));
 
-		$about = escape_tags(trim($_POST['about']));
-		$interest = escape_tags(trim($_POST['interest']));
-		$contact = escape_tags(trim($_POST['contact']));
-		$music = escape_tags(trim($_POST['music']));
-		$book = escape_tags(trim($_POST['book']));
-		$tv = escape_tags(trim($_POST['tv']));
-		$film = escape_tags(trim($_POST['film']));
-		$romance = escape_tags(trim($_POST['romance']));
-		$work = escape_tags(trim($_POST['work']));
-		$education = escape_tags(trim($_POST['education']));
+		$about = Strings::escapeHtml(trim($_POST['about']));
+		$interest = Strings::escapeHtml(trim($_POST['interest']));
+		$contact = Strings::escapeHtml(trim($_POST['contact']));
+		$music = Strings::escapeHtml(trim($_POST['music']));
+		$book = Strings::escapeHtml(trim($_POST['book']));
+		$tv = Strings::escapeHtml(trim($_POST['tv']));
+		$film = Strings::escapeHtml(trim($_POST['film']));
+		$romance = Strings::escapeHtml(trim($_POST['romance']));
+		$work = Strings::escapeHtml(trim($_POST['work']));
+		$education = Strings::escapeHtml(trim($_POST['education']));
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 

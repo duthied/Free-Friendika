@@ -19,6 +19,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/items.php';
@@ -59,8 +60,8 @@ function events_post(App $a)
 	$cid = !empty($_POST['cid']) ? intval($_POST['cid']) : 0;
 	$uid = local_user();
 
-	$start_text  = escape_tags(defaults($_REQUEST, 'start_text', ''));
-	$finish_text = escape_tags(defaults($_REQUEST, 'finish_text', ''));
+	$start_text  = Strings::escapeHtml(defaults($_REQUEST, 'start_text', ''));
+	$finish_text = Strings::escapeHtml(defaults($_REQUEST, 'finish_text', ''));
 
 	$adjust   = intval(defaults($_POST, 'adjust', 0));
 	$nofinish = intval(defaults($_POST, 'nofinish', 0));
@@ -96,9 +97,9 @@ function events_post(App $a)
 	// and we'll waste a bunch of time responding to it. Time that
 	// could've been spent doing something else.
 
-	$summary  = escape_tags(trim(defaults($_POST, 'summary', '')));
-	$desc     = escape_tags(trim(defaults($_POST, 'desc', '')));
-	$location = escape_tags(trim(defaults($_POST, 'location', '')));
+	$summary  = Strings::escapeHtml(trim(defaults($_POST, 'summary', '')));
+	$desc     = Strings::escapeHtml(trim(defaults($_POST, 'desc', '')));
+	$location = Strings::escapeHtml(trim(defaults($_POST, 'location', '')));
 	$type     = 'event';
 
 	$action = ($event_id == '') ? 'new' : "event/" . $event_id;

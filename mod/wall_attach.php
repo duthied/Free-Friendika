@@ -11,6 +11,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
+use Friendica\Util\Strings;
 
 function wall_attach_post(App $a) {
 
@@ -115,7 +116,7 @@ function wall_attach_post(App $a) {
 	}
 
 	if ($maxfilesize && $filesize > $maxfilesize) {
-		$msg = L10n::t('File exceeds size limit of %s', formatBytes($maxfilesize));
+		$msg = L10n::t('File exceeds size limit of %s', Strings::formatBytes($maxfilesize));
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {

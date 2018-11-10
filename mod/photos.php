@@ -31,6 +31,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Security;
 use Friendica\Util\Temporal;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/items.php';
@@ -222,7 +223,7 @@ function photos_post(App $a)
 		}
 
 		// RENAME photo album
-		$newalbum = notags(trim($_POST['albumname']));
+		$newalbum = Strings::escapeTags(trim($_POST['albumname']));
 		if ($newalbum != $album) {
 			q("UPDATE `photo` SET `album` = '%s' WHERE `album` = '%s' AND `uid` = %d",
 				DBA::escape($newalbum),
@@ -365,11 +366,11 @@ function photos_post(App $a)
 	}
 
 	if ($a->argc > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || !empty($_POST['albname']) !== false)) {
-		$desc        = !empty($_POST['desc'])      ? notags(trim($_POST['desc']))      : '';
-		$rawtags     = !empty($_POST['newtag'])    ? notags(trim($_POST['newtag']))    : '';
+		$desc        = !empty($_POST['desc'])      ? Strings::escapeTags(trim($_POST['desc']))      : '';
+		$rawtags     = !empty($_POST['newtag'])    ? Strings::escapeTags(trim($_POST['newtag']))    : '';
 		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])         : 0;
-		$albname     = !empty($_POST['albname'])   ? notags(trim($_POST['albname']))   : '';
-		$origaname   = !empty($_POST['origaname']) ? notags(trim($_POST['origaname'])) : '';
+		$albname     = !empty($_POST['albname'])   ? Strings::escapeTags(trim($_POST['albname']))   : '';
+		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
 
 		$str_group_allow   = !empty($_POST['group_allow'])   ? perms2str($_POST['group_allow'])   : '';
 		$str_contact_allow = !empty($_POST['contact_allow']) ? perms2str($_POST['contact_allow']) : '';
@@ -524,7 +525,7 @@ function photos_post(App $a)
 			}
 
 			$taginfo = [];
-			$tags = get_tags($rawtags);
+			$tags = BBCode::getTags($rawtags);
 
 			if (count($tags)) {
 				foreach ($tags as $tag) {
@@ -707,8 +708,8 @@ function photos_post(App $a)
 	Addon::callHooks('photo_post_init', $_POST);
 
 	// Determine the album to use
-	$album    = !empty($_REQUEST['album'])    ? notags(trim($_REQUEST['album']))    : '';
-	$newalbum = !empty($_REQUEST['newalbum']) ? notags(trim($_REQUEST['newalbum'])) : '';
+	$album    = !empty($_REQUEST['album'])    ? Strings::escapeTags(trim($_REQUEST['album']))    : '';
+	$newalbum = !empty($_REQUEST['newalbum']) ? Strings::escapeTags(trim($_REQUEST['newalbum'])) : '';
 
 	Logger::log('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , Logger::DEBUG);
 
@@ -779,7 +780,7 @@ function photos_post(App $a)
 				notice(L10n::t('Image exceeds size limit of %s', ini_get('upload_max_filesize')) . EOL);
 				break;
 			case UPLOAD_ERR_FORM_SIZE:
-				notice(L10n::t('Image exceeds size limit of %s', formatBytes(defaults($_REQUEST, 'MAX_FILE_SIZE', 0))) . EOL);
+				notice(L10n::t('Image exceeds size limit of %s', Strings::formatBytes(defaults($_REQUEST, 'MAX_FILE_SIZE', 0))) . EOL);
 				break;
 			case UPLOAD_ERR_PARTIAL:
 				notice(L10n::t('Image upload didn\'t complete, please try again') . EOL);
@@ -808,7 +809,7 @@ function photos_post(App $a)
 	$maximagesize = Config::get('system', 'maximagesize');
 
 	if ($maximagesize && ($filesize > $maximagesize)) {
-		notice(L10n::t('Image exceeds size limit of %s', formatBytes($maximagesize)) . EOL);
+		notice(L10n::t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		$foo = 0;
 		Addon::callHooks('photo_post_end', $foo);

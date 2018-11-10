@@ -16,6 +16,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model;
 use Friendica\Module\Tos;
+use Friendica\Util\Strings;
 
 require_once 'include/enotify.php';
 
@@ -83,7 +84,7 @@ function register_post(App $a)
 
 	$using_invites = Config::get('system', 'invitation_only');
 	$num_invites   = Config::get('system', 'number_invites');
-	$invite_id = ((x($_POST, 'invite_id')) ? notags(trim($_POST['invite_id'])) : '');
+	$invite_id = ((x($_POST, 'invite_id')) ? Strings::escapeTags(trim($_POST['invite_id'])) : '');
 
 	if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN) {
 		if ($using_invites && $invite_id) {

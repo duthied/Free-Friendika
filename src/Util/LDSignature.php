@@ -54,7 +54,7 @@ class LDSignature
 	{
 		$options = [
 			'type' => 'RsaSignature2017',
-			'nonce' => random_string(64),
+			'nonce' => Strings::getRandomHex(64),
 			'creator' => $owner['url'] . '#main-key',
 			'created' => DateTimeFormat::utcNow(DateTimeFormat::ATOM)
 		];

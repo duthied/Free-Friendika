@@ -9,6 +9,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\CurlResult;
+use Friendica\Util\Strings;
 use DOMDocument;
 use DomXPath;
 
@@ -718,8 +719,8 @@ class Network
 			return "";
 		}
 
-		$url1 = normalise_link($url1);
-		$url2 = normalise_link($url2);
+		$url1 = Strings::normaliseLink($url1);
+		$url2 = Strings::normaliseLink($url2);
 
 		$parts1 = parse_url($url1);
 		$parts2 = parse_url($url2);
@@ -790,7 +791,7 @@ class Network
 
 		$match .= $path;
 
-		return normalise_link($match);
+		return Strings::normaliseLink($match);
 	}
 
 	/**

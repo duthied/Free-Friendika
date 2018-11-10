@@ -9,6 +9,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\Strings;
 
 function xrd_init(App $a)
 {
@@ -17,7 +18,7 @@ function xrd_init(App $a)
 			System::httpExit(404);
 		}
 
-		$uri = urldecode(notags(trim($_GET['uri'])));
+		$uri = urldecode(Strings::escapeTags(trim($_GET['uri'])));
 		if (defaults($_SERVER, 'HTTP_ACCEPT', '') == 'application/jrd+json') {
 			$mode = 'json';
 		} else {
@@ -28,7 +29,7 @@ function xrd_init(App $a)
 			System::httpExit(404);
 		}
 
-		$uri = urldecode(notags(trim($_GET['resource'])));
+		$uri = urldecode(Strings::escapeTags(trim($_GET['resource'])));
 		if (defaults($_SERVER, 'HTTP_ACCEPT', '') == 'application/xrd+xml') {
 			$mode = 'xml';
 		} else {

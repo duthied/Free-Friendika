@@ -28,6 +28,7 @@ use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 require_once 'include/enotify.php';
 
@@ -75,7 +76,7 @@ function dfrn_request_post(App $a)
 	if ((x($_POST, 'localconfirm')) && ($_POST['localconfirm'] == 1)) {
 		// Ensure this is a valid request
 		if (local_user() && ($a->user['nickname'] == $a->argv[1]) && (x($_POST, 'dfrn_url'))) {
-			$dfrn_url = notags(trim($_POST['dfrn_url']));
+			$dfrn_url = Strings::escapeTags(trim($_POST['dfrn_url']));
 			$aes_allow = (((x($_POST, 'aes_allow')) && ($_POST['aes_allow'] == 1)) ? 1 : 0);
 			$confirm_key = ((x($_POST, 'confirm_key')) ? $_POST['confirm_key'] : "");
 			$hidden = ((x($_POST, 'hidden-contact')) ? intval($_POST['hidden-contact']) : 0);
@@ -87,7 +88,7 @@ function dfrn_request_post(App $a)
 				// Lookup the contact based on their URL (which is the only unique thing we have at the moment)
 				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND NOT `self` LIMIT 1",
 					intval(local_user()),
-					DBA::escape(normalise_link($dfrn_url))
+					DBA::escape(Strings::normaliseLink($dfrn_url))
 				);
 
 				if (DBA::isResult($r)) {
@@ -141,7 +142,7 @@ function dfrn_request_post(App $a)
 						intval(local_user()),
 						DateTimeFormat::utcNow(),
 						DBA::escape($dfrn_url),
-						DBA::escape(normalise_link($dfrn_url)),
+						DBA::escape(Strings::normaliseLink($dfrn_url)),
 						$parms['addr'],
 						$parms['fn'],
 						$parms['nick'],
@@ -269,7 +270,7 @@ function dfrn_request_post(App $a)
 			}
 		}
 
-		$real_name = x($_POST, 'realname') ? notags(trim($_POST['realname'])) : '';
+		$real_name = x($_POST, 'realname') ? Strings::escapeTags(trim($_POST['realname'])) : '';
 
 		$url = trim($_POST['dfrn_url']);
 		if (!strlen($url)) {
@@ -320,7 +321,7 @@ function dfrn_request_post(App $a)
 				}
 			}
 
-			$issued_id = random_string();
+			$issued_id = Strings::getRandomHex();
 
 			if (is_array($contact_record)) {
 				// There is a contact record but no issued-id, so this
@@ -380,7 +381,7 @@ function dfrn_request_post(App $a)
 					intval($uid),
 					DBA::escape(DateTimeFormat::utcNow()),
 					$parms['url'],
-					DBA::escape(normalise_link($url)),
+					DBA::escape(Strings::normaliseLink($url)),
 					$parms['addr'],
 					$parms['fn'],
 					$parms['nick'],
@@ -415,7 +416,7 @@ function dfrn_request_post(App $a)
 				return;
 			}
 
-			$hash = random_string() . (string) time();   // Generate a confirm_key
+			$hash = Strings::getRandomHex() . (string) time();   // Generate a confirm_key
 
 			if (is_array($contact_record)) {
 				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
@@ -423,7 +424,7 @@ function dfrn_request_post(App $a)
 					intval($uid),
 					intval($contact_record['id']),
 					((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
-					DBA::escape(notags(trim(defaults($_POST, 'dfrn-request-message', '')))),
+					DBA::escape(Strings::escapeTags(trim(defaults($_POST, 'dfrn-request-message', '')))),
 					DBA::escape($hash),
 					DBA::escape(DateTimeFormat::utcNow())
 				);
@@ -497,12 +498,12 @@ function dfrn_request_content(App $a)
 			return Login::form();
 		}
 
-		$dfrn_url = notags(trim(hex2bin($_GET['dfrn_url'])));
+		$dfrn_url = Strings::escapeTags(trim(hex2bin($_GET['dfrn_url'])));
 		$aes_allow = x($_GET, 'aes_allow') && $_GET['aes_allow'] == 1 ? 1 : 0;
 		$confirm_key = x($_GET, 'confirm_key') ? $_GET['confirm_key'] : "";
 
 		// Checking fastlane for validity
-		if (x($_SESSION, "fastlane") && (normalise_link($_SESSION["fastlane"]) == normalise_link($dfrn_url))) {
+		if (x($_SESSION, "fastlane") && (Strings::normaliseLink($_SESSION["fastlane"]) == Strings::normaliseLink($dfrn_url))) {
 			$_POST["dfrn_url"] = $dfrn_url;
 			$_POST["confirm_key"] = $confirm_key;
 			$_POST["localconfirm"] = 1;

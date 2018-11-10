@@ -9,6 +9,7 @@ use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
+use Friendica\Util\Strings;
 
 function tagrm_post(App $a)
 {
@@ -22,7 +23,7 @@ function tagrm_post(App $a)
 
 	$tags = [];
 	foreach (defaults($_POST, 'tag', []) as $tag) {
-		$tags[] = hex2bin(notags(trim($tag)));
+		$tags[] = hex2bin(Strings::escapeTags(trim($tag)));
 	}
 
 	$item_id = defaults($_POST,'item', 0);
@@ -73,7 +74,7 @@ function tagrm_content(App $a)
 	}
 
 	if ($a->argc == 3) {
-		update_tags($a->argv[1], [notags(trim(hex2bin($a->argv[2])))]);
+		update_tags($a->argv[1], [Strings::escapeTags(trim(hex2bin($a->argv[2])))]);
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 

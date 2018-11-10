@@ -15,6 +15,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
+use Friendica\Util\Strings;
 
 /**
  * @brief Creates a notification entry and possibly sends a mail
@@ -157,7 +158,7 @@ function notification($params)
 			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id]);
 		}
 
-		$item_post_type = item_post_type($item);
+		$item_post_type = Item::postType($item);
 		$itemlink = $item['plink'];
 
 		// "a post"
@@ -457,7 +458,7 @@ function notification($params)
 		Logger::log("adding notification entry", Logger::DEBUG);
 		do {
 			$dups = false;
-			$hash = random_string();
+			$hash = Strings::getRandomHex();
 			if (DBA::exists('notify', ['hash' => $hash])) {
 				$dups = true;
 			}
@@ -703,11 +704,11 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 		// Check for invalid profile urls. 13 should be the shortest possible profile length:
 		// http://a.bc/d
 		// Additionally check for invalid urls that would return the normalised value "http:"
-		if ((strlen($profile) >= 13) && (normalise_link($profile) != "http:")) {
+		if ((strlen($profile) >= 13) && (Strings::normaliseLink($profile) != "http:")) {
 			if (!in_array($profile, $profiles2))
 				$profiles2[] = $profile;
 
-			$profile = normalise_link($profile);
+			$profile = Strings::normaliseLink($profile);
 			if (!in_array($profile, $profiles2))
 				$profiles2[] = $profile;
 
@@ -761,7 +762,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 			if (DBA::isResult($tags)) {
 				foreach ($tags AS $tag) {
-					$condition = ['nurl' => normalise_link($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true];
+					$condition = ['nurl' => Strings::normaliseLink($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true];
 					$r = DBA::exists('contact', $condition);
 					if ($r) {
 						$send_notification = true;

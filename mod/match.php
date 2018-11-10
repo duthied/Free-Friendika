@@ -14,6 +14,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 require_once 'include/text.php';
 
@@ -76,7 +77,7 @@ function match_content(App $a)
 			$id = 0;
 
 			foreach ($j->results as $jj) {
-				$match_nurl = normalise_link($jj->url);
+				$match_nurl = Strings::normaliseLink($jj->url);
 				$match = q(
 					"SELECT `nurl` FROM `contact` WHERE `uid` = '%d' AND nurl='%s' LIMIT 1",
 					intval(local_user()),

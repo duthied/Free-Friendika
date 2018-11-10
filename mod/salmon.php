@@ -12,6 +12,7 @@ use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
+use Friendica\Util\Strings;
 
 require_once 'include/items.php';
 
@@ -23,7 +24,7 @@ function salmon_post(App $a, $xml = '') {
 
 	Logger::log('new salmon ' . $xml, Logger::DATA);
 
-	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
+	$nick       = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : '');
 	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
 
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
@@ -57,7 +58,7 @@ function salmon_post(App $a, $xml = '') {
 	// Stash the signature away for now. We have to find their key or it won't be good for anything.
 
 
-	$signature = base64url_decode($base->sig);
+	$signature = Strings::base64UrlDecode($base->sig);
 
 	// unpack the  data
 
@@ -76,13 +77,13 @@ function salmon_post(App $a, $xml = '') {
 
 	$stnet_signed_data = $data;
 
-	$signed_data = $data  . '.' . base64url_encode($type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($alg);
+	$signed_data = $data  . '.' . Strings::base64UrlEncode($type) . '.' . Strings::base64UrlEncode($encoding) . '.' . Strings::base64UrlEncode($alg);
 
 	$compliant_format = str_replace('=', '', $signed_data);
 
 
 	// decode the data
-	$data = base64url_decode($data);
+	$data = Strings::base64UrlDecode($data);
 
 	$author = OStatus::salmonAuthor($data, $importer);
 	$author_link = $author["author-link"];
@@ -105,8 +106,8 @@ function salmon_post(App $a, $xml = '') {
 
 	$key_info = explode('.',$key);
 
-	$m = base64url_decode($key_info[1]);
-	$e = base64url_decode($key_info[2]);
+	$m = Strings::base64UrlDecode($key_info[1]);
+	$e = Strings::base64UrlDecode($key_info[2]);
 
 	Logger::log('key details: ' . print_r($key_info,true), Logger::DEBUG);
 
@@ -149,9 +150,9 @@ function salmon_post(App $a, $xml = '') {
 						AND `uid` = %d LIMIT 1",
 		DBA::escape(Protocol::OSTATUS),
 		DBA::escape(Protocol::DFRN),
-		DBA::escape(normalise_link($author_link)),
+		DBA::escape(Strings::normaliseLink($author_link)),
 		DBA::escape($author_link),
-		DBA::escape(normalise_link($author_link)),
+		DBA::escape(Strings::normaliseLink($author_link)),
 		intval($importer['uid'])
 	);
 

@@ -18,6 +18,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'boot.php';
@@ -270,11 +271,11 @@ class Widget
 		if (!$cid) {
 			if (Profile::getMyURL()) {
 				$contact = DBA::selectFirst('contact', ['id'],
-						['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $profile_uid]);
+						['nurl' => Strings::normaliseLink(Profile::getMyURL()), 'uid' => $profile_uid]);
 				if (DBA::isResult($contact)) {
 					$cid = $contact['id'];
 				} else {
-					$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
+					$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(Profile::getMyURL())]);
 					if (DBA::isResult($gcontact)) {
 						$zcid = $gcontact['id'];
 					}

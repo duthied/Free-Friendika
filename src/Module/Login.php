@@ -17,6 +17,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use LightOpenID;
 
 require_once 'boot.php';
@@ -148,7 +149,7 @@ class Login extends BaseModule
 				);
 			}
 		} catch (Exception $e) {
-			Logger::log('authenticate: failed login attempt: ' . notags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
+			Logger::log('authenticate: failed login attempt: ' . Strings::escapeTags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
 			info('Login failed. Please check your credentials.' . EOL);
 			$a->internalRedirect();
 		}

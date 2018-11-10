@@ -21,6 +21,7 @@ use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 require_once 'include/text.php';
@@ -308,7 +309,7 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 	$push_url = System::baseUrl() . '/pubsub/' . $user['nickname'] . '/' . $contact['id'];
 
 	// Use a single verify token, even if multiple hubs
-	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : random_string());
+	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : Strings::getRandomHex());
 
 	$params= 'hub.mode=' . $hubmode . '&hub.callback=' . urlencode($push_url) . '&hub.topic=' . urlencode($contact['poll']) . '&hub.verify=async&hub.verify_token=' . $verify_token;
 

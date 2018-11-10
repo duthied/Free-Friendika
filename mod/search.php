@@ -16,6 +16,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Util\Strings;
 
 require_once 'include/conversation.php';
 require_once 'mod/dirfind.php';
@@ -23,7 +24,7 @@ require_once 'mod/dirfind.php';
 function search_saved_searches() {
 
 	$o = '';
-	$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
+	$search = ((x($_GET,'search')) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 
 	if (!Feature::isEnabled(local_user(),'savedsearch'))
 		return $o;
@@ -62,7 +63,7 @@ function search_saved_searches() {
 
 function search_init(App $a) {
 
-	$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
+	$search = ((x($_GET,'search')) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 
 	if (local_user()) {
 		if (x($_GET,'save') && $search) {
@@ -149,14 +150,14 @@ function search_content(App $a) {
 
 	$search = '';
 	if (x($a->data,'search'))
-		$search = notags(trim($a->data['search']));
+		$search = Strings::escapeTags(trim($a->data['search']));
 	else
-		$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
+		$search = ((x($_GET,'search')) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 
 	$tag = false;
 	if (x($_GET,'tag')) {
 		$tag = true;
-		$search = (x($_GET,'tag') ? '#' . notags(trim(rawurldecode($_GET['tag']))) : '');
+		$search = (x($_GET,'tag') ? '#' . Strings::escapeTags(trim(rawurldecode($_GET['tag']))) : '');
 	}
 
 	// contruct a wrapper for the search header

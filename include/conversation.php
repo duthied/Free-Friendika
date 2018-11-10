@@ -26,6 +26,7 @@ use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Util\Crypto;
 
@@ -482,7 +483,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (!$update) {
 			$tab = 'posts';
 			if (x($_GET, 'tab')) {
-				$tab = notags(trim($_GET['tab']));
+				$tab = Strings::escapeTags(trim($_GET['tab']));
 			}
 			if ($tab === 'posts') {
 				/*
@@ -638,7 +639,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				$lock = false;
 				$likebuttons = false;
 
-				$body = prepare_body($item, true, $preview);
+				$body = Item::prepareBody($item, true, $preview);
 
 				list($categories, $folders) = get_cats_and_terms($item);
 
@@ -689,7 +690,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'owner_name' => $owner_name_e,
 					'owner_url' => $owner_url,
 					'owner_photo' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
-					'plink' => get_plink($item),
+					'plink' => Item::getPlink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
 					'star' => $star,
@@ -842,7 +843,7 @@ function item_photo_menu($item) {
 	$cid = 0;
 	$network = '';
 	$rel = 0;
-	$condition = ['uid' => local_user(), 'nurl' => normalise_link($item['author-link'])];
+	$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];
 	$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 	if (DBA::isResult($contact)) {
 		$cid = $contact['id'];

@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'include/items.php';
@@ -20,7 +21,7 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$term = notags(trim($_GET['term']));
+	$term = Strings::escapeTags(trim($_GET['term']));
 	// no commas allowed
 	$term = str_replace([',',' '],['','_'],$term);
 
@@ -28,7 +29,7 @@ function tagger_content(App $a) {
 		return;
 	}
 
-	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
+	$item_id = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : 0);
 
 	Logger::log('tagger: tag ' . $term . ' item ' . $item_id);
 

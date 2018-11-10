@@ -21,6 +21,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\Strings;
 
 function display_init(App $a)
 {
@@ -90,8 +91,8 @@ function display_init(App $a)
 
 	$profiledata = display_fetchauthor($a, $item);
 
-	if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
-		$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
+	if (strstr(Strings::normaliseLink($profiledata["url"]), Strings::normaliseLink(System::baseUrl()))) {
+		$nickname = str_replace(Strings::normaliseLink(System::baseUrl())."/profile/", "", Strings::normaliseLink($profiledata["url"]));
 
 		if (($nickname != $a->user["nickname"])) {
 			$profile = DBA::fetchFirst("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
