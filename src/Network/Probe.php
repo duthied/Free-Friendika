@@ -979,7 +979,9 @@ class Probe
 	{
 		$hcard_url = "";
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == NAMESPACE_DFRN) && !empty($link["href"])) {
 				$data["network"] = Protocol::DFRN;
 			} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
@@ -1182,7 +1184,9 @@ class Probe
 	{
 		$hcard_url = "";
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == "http://microformats.org/profile/hcard") && !empty($link["href"])) {
 				$hcard_url = $link["href"];
 			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") && !empty($link["href"])) {
@@ -1283,7 +1287,9 @@ class Probe
 
 		$pubkey = "";
 		if (is_array($webfinger["links"])) {
-			foreach ($webfinger["links"] as $link) {
+			// The array is reversed to take into account the order of preference for same-rel links
+			// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+			foreach (array_reverse($webfinger["links"]) as $link) {
 				if (($link["rel"] == "http://webfinger.net/rel/profile-page")
 					&& (defaults($link, "type", "") == "text/html")
 					&& ($link["href"] != "")
@@ -1447,7 +1453,9 @@ class Probe
 	private static function pumpio($webfinger, $addr)
 	{
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
 				&& (defaults($link, "type", "") == "text/html")
 				&& ($link["href"] != "")
