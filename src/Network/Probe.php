@@ -318,10 +318,10 @@ class Probe
 	 *
 	 * @return array uri data
 	 */
-	public static function uri($uri, $network = "", $uid = -1, $cache = true)
+	public static function uri($uri, $network = '', $uid = -1, $cache = true)
 	{
 		if ($cache) {
-			$result = Cache::get("Probe::uri:".$network.":".$uri);
+			$result = Cache::get('Probe::uri:' . $network . ':' . $uri);
 			if (!is_null($result)) {
 				return $result;
 			}
@@ -343,28 +343,28 @@ class Probe
 			$data = $ap_profile;
 		}
 
-		if (!isset($data["url"])) {
-			$data["url"] = $uri;
+		if (!isset($data['url'])) {
+			$data['url'] = $uri;
 		}
 
-		if (x($data, "photo")) {
-			$data["baseurl"] = Network::getUrlMatch(Strings::normaliseLink(defaults($data, "baseurl", "")), Strings::normaliseLink($data["photo"]));
+		if (x($data, 'photo')) {
+			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink(defaults($data, 'baseurl', '')), Strings::normaliseLink($data['photo']));
 		} else {
-			$data["photo"] = System::baseUrl().'/images/person-300.jpg';
+			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
 		}
 
-		if (empty($data["name"])) {
-			if (!empty($data["nick"])) {
-				$data["name"] = $data["nick"];
+		if (empty($data['name'])) {
+			if (!empty($data['nick'])) {
+				$data['name'] = $data['nick'];
 			}
 
-			if (!x($data, "name")) {
-				$data["name"] = $data["url"];
+			if (!x($data, 'name')) {
+				$data['name'] = $data['url'];
 			}
 		}
 
-		if (empty($data["nick"])) {
-			$data["nick"] = strtolower($data["name"]);
+		if (empty($data['nick'])) {
+			$data['nick'] = strtolower($data['name']);
 
 			if (strpos($data['nick'], ' ')) {
 				$data['nick'] = trim(substr($data['nick'], 0, strpos($data['nick'], ' ')));
@@ -372,42 +372,44 @@ class Probe
 		}
 
 		if (!empty(self::$baseurl)) {
-			$data["baseurl"] = self::$baseurl;
+			$data['baseurl'] = self::$baseurl;
 		}
 
-		if (empty($data["network"])) {
-			$data["network"] = Protocol::PHANTOM;
+		if (empty($data['network'])) {
+			$data['network'] = Protocol::PHANTOM;
 		}
 
 		$data = self::rearrangeData($data);
 
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			Cache::set("Probe::uri:".$network.":".$uri, $data, Cache::DAY);
+			Cache::set('Probe::uri:' . $network . ':' . $uri, $data, Cache::DAY);
 
 			/// @todo temporary fix - we need a real contact update function that updates only changing fields
 			/// The biggest problem is the avatar picture that could have a reduced image size.
 			/// It should only be updated if the existing picture isn't existing anymore.
 			/// We only update the contact when it is no probing for a specific network.
 			if (($data['network'] != Protocol::FEED)
-				&& ($network == "")
-				&& $data["name"]
-				&& $data["nick"]
-				&& $data["url"]
-				&& $data["addr"]
-				&& $data["poll"]
+				&& ($network == '')
+				&& $data['name']
+				&& $data['nick']
+				&& $data['url']
+				&& $data['addr']
+				&& $data['poll']
 			) {
-				$fields = ['name' => $data['name'],
-						'nick' => $data['nick'],
-						'url' => $data['url'],
-						'addr' => $data['addr'],
-						'photo' => $data['photo'],
-						'keywords' => $data['keywords'],
-						'location' => $data['location'],
-						'about' => $data['about'],
-						'notify' => $data['notify'],
-						'network' => $data['network'],
-						'server_url' => $data['baseurl']];
+				$fields = [
+					'name' => $data['name'],
+					'nick' => $data['nick'],
+					'url' => $data['url'],
+					'addr' => $data['addr'],
+					'photo' => $data['photo'],
+					'keywords' => $data['keywords'],
+					'location' => $data['location'],
+					'about' => $data['about'],
+					'notify' => $data['notify'],
+					'network' => $data['network'],
+					'server_url' => $data['baseurl']
+				];
 
 				// This doesn't cover the case when a community isn't a community anymore
 				if (!empty($data['community']) && $data['community']) {
@@ -427,7 +429,7 @@ class Probe
 
 				$fields['updated'] = DateTimeFormat::utcNow();
 
-				$condition = ['nurl' => Strings::normaliseLink($data["url"])];
+				$condition = ['nurl' => Strings::normaliseLink($data['url'])];
 
 				$old_fields = DBA::selectFirst('gcontact', $fieldnames, $condition);
 
@@ -444,25 +446,27 @@ class Probe
 
 				DBA::update('gcontact', $fields, $condition, $old_fields);
 
-				$fields = ['name' => $data['name'],
-						'nick' => $data['nick'],
-						'url' => $data['url'],
-						'addr' => $data['addr'],
-						'alias' => $data['alias'],
-						'keywords' => $data['keywords'],
-						'location' => $data['location'],
-						'about' => $data['about'],
-						'batch' => $data['batch'],
-						'notify' => $data['notify'],
-						'poll' => $data['poll'],
-						'request' => $data['request'],
-						'confirm' => $data['confirm'],
-						'poco' => $data['poco'],
-						'network' => $data['network'],
-						'pubkey' => $data['pubkey'],
-						'priority' => $data['priority'],
-						'writable' => true,
-						'rel' => Contact::SHARING];
+				$fields = [
+					'name' => $data['name'],
+					'nick' => $data['nick'],
+					'url' => $data['url'],
+					'addr' => $data['addr'],
+					'alias' => $data['alias'],
+					'keywords' => $data['keywords'],
+					'location' => $data['location'],
+					'about' => $data['about'],
+					'batch' => $data['batch'],
+					'notify' => $data['notify'],
+					'poll' => $data['poll'],
+					'request' => $data['request'],
+					'confirm' => $data['confirm'],
+					'poco' => $data['poco'],
+					'network' => $data['network'],
+					'pubkey' => $data['pubkey'],
+					'priority' => $data['priority'],
+					'writable' => true,
+					'rel' => Contact::SHARING
+				];
 
 				$fieldnames = [];
 
@@ -474,7 +478,7 @@ class Probe
 					}
 				}
 
-				$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'self' => false, 'uid' => 0];
+				$condition = ['nurl' => Strings::normaliseLink($data['url']), 'self' => false, 'uid' => 0];
 
 				// "$old_fields" will return a "false" when the contact doesn't exist.
 				// This won't trigger an insert. This is intended, since we only need
@@ -575,7 +579,7 @@ class Probe
 	{
 		$parts = parse_url($uri);
 
-		if (!empty($parts["scheme"]) && !empty($parts["host"]) && !empty($parts["path"])) {
+		if (!empty($parts["scheme"]) && !empty($parts["host"])) {
 			$host = $parts["host"];
 			if (!empty($parts["port"])) {
 				$host .= ':'.$parts["port"];
@@ -590,7 +594,7 @@ class Probe
 				return [];
 			}
 
-			$path_parts = explode("/", trim($parts["path"], "/"));
+			$path_parts = explode("/", trim(defaults($parts, 'path', ''), "/"));
 
 			while (!$lrdd && (sizeof($path_parts) > 1)) {
 				$host .= "/".array_shift($path_parts);
@@ -979,7 +983,9 @@ class Probe
 	{
 		$hcard_url = "";
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == NAMESPACE_DFRN) && !empty($link["href"])) {
 				$data["network"] = Protocol::DFRN;
 			} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
@@ -1182,7 +1188,9 @@ class Probe
 	{
 		$hcard_url = "";
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == "http://microformats.org/profile/hcard") && !empty($link["href"])) {
 				$hcard_url = $link["href"];
 			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") && !empty($link["href"])) {
@@ -1283,7 +1291,9 @@ class Probe
 
 		$pubkey = "";
 		if (is_array($webfinger["links"])) {
-			foreach ($webfinger["links"] as $link) {
+			// The array is reversed to take into account the order of preference for same-rel links
+			// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+			foreach (array_reverse($webfinger["links"]) as $link) {
 				if (($link["rel"] == "http://webfinger.net/rel/profile-page")
 					&& (defaults($link, "type", "") == "text/html")
 					&& ($link["href"] != "")
@@ -1447,7 +1457,9 @@ class Probe
 	private static function pumpio($webfinger, $addr)
 	{
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
 				&& (defaults($link, "type", "") == "text/html")
 				&& ($link["href"] != "")

@@ -115,6 +115,10 @@ class Logger extends BaseObject
             $processId = $a->process_id;
         }
 
+        if (!is_string($msg)) {
+        	$msg = var_export($msg, true);
+        }
+
         $callers = debug_backtrace();
         $logline = sprintf("%s@\t%s:\t%s:\t%s\t%s\t%s\n",
                 DateTimeFormat::utcNow(),

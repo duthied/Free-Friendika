@@ -123,7 +123,13 @@ class Feed {
 				$author["author-name"] = $value;
 			}
 			if ($simulate) {
-				$author["author-id"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:uri/text()');
+				$author["author-id"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:id/text()');
+
+				// See https://tools.ietf.org/html/rfc4287#section-3.2.2
+				$value = XML::getFirstNodeValue($xpath, 'atom:author/atom:uri/text()');
+				if ($value != "") {
+					$author["author-link"] = $value;
+				}
 
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:preferredUsername/text()');
 				if ($value != "") {
