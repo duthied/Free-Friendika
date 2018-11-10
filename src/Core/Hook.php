@@ -7,7 +7,6 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Core\Logger;
 
 /**
  * Some functions to handle hooks
