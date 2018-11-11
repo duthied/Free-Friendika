@@ -133,6 +133,11 @@ class CurlResult
 	{
 		$this->isSuccess = ($this->returnCode >= 200 && $this->returnCode <= 299) || $this->errorNumber == 0;
 
+		// Everything higher than 299 is not an success
+		if ($this->returnCode > 299) {
+			$this->isSuccess = false;
+		}
+
 		if (!$this->isSuccess) {
 			Logger::log('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, Logger::INFO);
 			Logger::log('debug: ' . print_r($this->info, true), Logger::DATA);
