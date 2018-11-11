@@ -136,6 +136,22 @@ class Hook extends BaseObject
 	{
 		if (array_key_exists($name, self::$hooks)) {
 			foreach (self::$hooks[$name] as $hook) {
+				// Call a hook to check if this hook call needs to be forked
+				if (array_key_exists('hook_fork', self::$hooks)) {
+					$hookdata = ['name' => $name, 'data' => $data, 'execute' => true];
+
+					foreach (self::$hooks['hook_fork'] as $fork_hook) {
+						if ($hook[0] != $fork_hook[0]) {
+							continue;
+						}
+						self::callSingle(self::getApp(), 'hook_fork', $fork_hook, $hookdata);
+					}
+
+					if (!$hookdata['execute']) {
+						continue;
+					}
+				}
+
 				Worker::add($priority, 'ForkHook', $name, $hook, $data);
 			}
 		}

@@ -693,6 +693,9 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Addon::callHooks('logged_in', $a->user);
 
+### src/Core/Hook.php
+
+    self::callSingle(self::getApp(), 'hook_fork', $fork_hook, $hookdata);
 
 ### src/Core/Worker.php
 
