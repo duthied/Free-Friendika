@@ -8,13 +8,13 @@ use Friendica\BaseObject;
 use Friendica\Content\Pager;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\ActivityPub;
@@ -1606,7 +1606,7 @@ class Contact extends BaseObject
 
 		$arr = ['url' => $url, 'contact' => []];
 
-		Addon::callHooks('follow', $arr);
+		Hook::callAll('follow', $arr);
 
 		if (empty($arr)) {
 			$result['message'] = L10n::t('The contact could not be added. Please check the relevant network credentials in your Settings -> Social Networks page.');

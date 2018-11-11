@@ -116,6 +116,8 @@ abstract class LockTest extends DatabaseTest
 	 * @medium
 	 */
 	function testLockTTL() {
+		$this->markTestSkipped('taking too much time without mocking');
+
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
 

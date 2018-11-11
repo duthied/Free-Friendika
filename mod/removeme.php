@@ -10,6 +10,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
+use Friendica\Util\Strings;
 
 require_once 'include/enotify.php';
 
