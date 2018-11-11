@@ -2923,6 +2923,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			$retweeted_item = api_share_as_retweet($item);
 			if ($retweeted_item !== false) {
 				$retweeted_status = $status;
+				$status['user'] = $status['friendica_owner'];
 				try {
 					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
 				} catch (BadRequestException $e) {
