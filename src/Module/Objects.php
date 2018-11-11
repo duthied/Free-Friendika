@@ -27,7 +27,7 @@ class Objects extends BaseModule
 			$a->internalRedirect(str_replace('objects/', 'display/', $a->query_string));
 		}
 
-		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'wall' => true, 'private' => false]);
+		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'origin' => true, 'private' => false]);
 		if (!DBA::isResult($item)) {
 			System::httpExit(404);
 		}
