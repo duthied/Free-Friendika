@@ -24,7 +24,7 @@ class RemoveUser {
 		do {
 			$items = Item::select(['id'], $condition, ['limit' => 100]);
 			while ($item = Item::fetch($items)) {
-				Item::deleteById($item['id'], PRIORITY_LOW);
+				Item::deleteById($item['id'], PRIORITY_NEGLIGIBLE);
 			}
 			DBA::close($items);
 		} while (Item::exists($condition));
