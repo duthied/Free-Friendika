@@ -4,6 +4,7 @@ namespace Friendica\Core\Console;
 
 use Friendica\Core\L10n;
 use Friendica\Core\Config;
+use Friendica\Core\Update;
 
 /**
  * Performs database post updates
@@ -53,6 +54,10 @@ HELP;
 		if ($a->getMode()->isInstall()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
+
+		echo L10n::t('Check for pending update actions.') . "\n";
+		Update::run(true, true, false);
+		echo L10n::t('Done.') . "\n";
 
 		echo L10n::t('Execute pending post updates.') . "\n";
 
