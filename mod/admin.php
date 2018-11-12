@@ -651,6 +651,29 @@ function admin_page_federation(App $a)
 				$v[$key] = ['total' => $v[$key]['total'], 'version' => L10n::t('unknown')];
 			}
 		}
+
+		// Reformat and compact version numbers
+		if ($p == 'Pleroma') {
+			$compacted = [];
+
+			foreach ($v as $key => $value) {
+				$version = $v[$key]['version'];
+				$parts = explode(' ', trim($version));
+				do {
+					$part = array_pop($parts);
+				} while (!empty($parts) && ((strlen($part) >= 40) || (strlen($part) <= 3)));
+
+				if (!empty($part)) {
+					$compacted[$part] += $v[$key]['total'];
+				}
+			}
+
+			$v = [];
+			foreach ($compacted as $version => $total) {
+				$v[] = ['version' => $version, 'total' => $total];
+			}
+		}
+
 		// in the DB the Diaspora versions have the format x.x.x.x-xx the last
 		// part (-xx) should be removed to clean up the versions from the "head
 		// commit" information and combined into a single entry for x.x.x.x
