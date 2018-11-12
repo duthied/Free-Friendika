@@ -268,6 +268,8 @@ function profile_content(App $a, $update = 0)
 		if (!DBA::isResult($items)) {
 			return '';
 		}
+
+		$pager = new Pager($a->query_string);
 	} else {
 		$sql_post_table = "";
 
