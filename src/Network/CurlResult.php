@@ -133,8 +133,8 @@ class CurlResult
 	{
 		$this->isSuccess = ($this->returnCode >= 200 && $this->returnCode <= 299) || $this->errorNumber == 0;
 
-		// Everything higher than 299 is not an success
-		if ($this->returnCode > 299) {
+		// Everything higher or equal 400 is not a success
+		if ($this->returnCode >= 400) {
 			$this->isSuccess = false;
 		}
 
