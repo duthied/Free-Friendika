@@ -59,8 +59,8 @@ function profile_init(App $a)
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $which]);
 		if (DBA::isResult($user)) {
 			$data = ActivityPub\Transmitter::getProfile($user['uid']);
-			echo json_encode($data);
 			header('Content-Type: application/activity+json');
+			echo json_encode($data);
 			exit();
 		}
 	}
