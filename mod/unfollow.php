@@ -16,7 +16,7 @@ use Friendica\Util\Strings;
 
 function unfollow_post(App $a)
 {
-	$return_path = 'contacts';
+	$base_return_path = 'contact';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
@@ -34,17 +34,17 @@ function unfollow_post(App $a)
 
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t("You aren't following this contact."));
-		$a->internalRedirect($return_path);
+		$a->internalRedirect($base_return_path);
 		// NOTREACHED
 	}
 
 	if (!empty($_REQUEST['cancel'])) {
-		$a->internalRedirect($return_path . '/' . $contact['id']);
+		$a->internalRedirect($base_return_path . '/' . $contact['id']);
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		$a->internalRedirect($return_path . '/' . $contact['id']);
+		$a->internalRedirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
 
@@ -58,10 +58,10 @@ function unfollow_post(App $a)
 	// Sharing-only contacts get deleted as there no relationship any more
 	if ($dissolve) {
 		Contact::remove($contact['id']);
-		$return_path = 'contacts';
+		$return_path = $base_return_path;
 	} else {
 		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
-		$return_path = 'contact/' . $contact['id'];
+		$return_path = $base_return_path . '/' . $contact['id'];
 	}
 
 	info(L10n::t('Contact unfollowed'));
@@ -71,7 +71,7 @@ function unfollow_post(App $a)
 
 function unfollow_content(App $a)
 {
-	$return_path = 'contacts';
+	$base_return_path = 'contact';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
@@ -90,13 +90,13 @@ function unfollow_content(App $a)
 
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t("You aren't following this contact."));
-		$a->internalRedirect($return_path);
+		$a->internalRedirect($base_return_path);
 		// NOTREACHED
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		$a->internalRedirect('contact/' . $contact['id']);
+		$a->internalRedirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
 
@@ -107,7 +107,7 @@ function unfollow_content(App $a)
 
 	if (!DBA::isResult($self)) {
 		notice(L10n::t('Permission denied.'));
-		$a->internalRedirect($return_path);
+		$a->internalRedirect($base_return_path);
 		// NOTREACHED
 	}
 
