@@ -121,23 +121,23 @@ function dirfind_content(App $a, $prefix = "") {
 
 			/// @TODO These 2 SELECTs are not checked on validity with DBA::isResult()
 			$count = q("SELECT count(*) AS `total` FROM `gcontact`
-					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s') AND
+					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s', '%s') AND
 						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
 						(`url` LIKE '%s' OR `name` LIKE '%s' OR `location` LIKE '%s' OR
 						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql",
-					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
+					DBA::escape(Protocol::ACTIVITYPUB), DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
 					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)),
 					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)));
 
 			$results = q("SELECT `nurl`
 					FROM `gcontact`
-					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s') AND
+					WHERE NOT `hide` AND `network` IN ('%s', '%s', '%s', '%s') AND
 						((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
 						(`url` LIKE '%s' OR `name` LIKE '%s' OR `location` LIKE '%s' OR
 						`addr` LIKE '%s' OR `about` LIKE '%s' OR `keywords` LIKE '%s') $extra_sql
 						GROUP BY `nurl`
 						ORDER BY `updated` DESC LIMIT %d, %d",
-					DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
+					DBA::escape(Protocol::ACTIVITYPUB), DBA::escape(Protocol::DFRN), DBA::escape($ostatus), DBA::escape($diaspora),
 					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)),
 					DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)), DBA::escape(Strings::escapeHtml($search2)),
 					$pager->getStart(), $pager->getItemsPerPage());
