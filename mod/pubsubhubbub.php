@@ -65,7 +65,7 @@ function pubsubhubbub_init(App $a) {
 
 		// fetch user from database given the nickname
 		$condition = ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false];
-		$owner = DBA::selectFirst('user', ['uid', 'hidewall'], $condition);
+		$owner = DBA::selectFirst('user', ['uid', 'hidewall', 'nickname'], $condition);
 		if (!DBA::isResult($owner)) {
 			Logger::log('Local account not found: ' . $nick . ' - topic: ' . $hub_topic . ' - callback: ' . $hub_callback);
 			System::httpExit(404);
@@ -88,7 +88,9 @@ function pubsubhubbub_init(App $a) {
 
 		// sanity check that topic URLs are the same
 		$hub_topic2 = str_replace('/feed/', '/dfrn_poll/', $hub_topic);
-		if (!Strings::compareLink($hub_topic, $contact['poll']) && !Strings::compareLink($hub_topic2, $contact['poll'])) {
+		$self = System::baseUrl() . '/api/statuses/user_timeline/' . $owner['nickname'] . '.atom';
+
+		if (!Strings::compareLink($hub_topic, $contact['poll']) && !Strings::compareLink($hub_topic2, $contact['poll']) && !Strings::compareLink($hub_topic, $self)) {
 			Logger::log('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
 			System::httpExit(404);
 		}
