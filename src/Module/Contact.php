@@ -221,7 +221,7 @@ class Contact extends BaseModule
 			$priority = 0;
 		}
 
-		$info = Strings::escapeHtml(trim($_POST['info']));
+		$info = Strings::escapeHtml(trim(defaults($_POST, 'info', '')));
 
 		$r = DBA::update('contact', [
 			'profile-id' => $profile_id,
