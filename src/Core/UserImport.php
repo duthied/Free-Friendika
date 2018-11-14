@@ -129,6 +129,9 @@ class UserImport
 			$old_handle = $account['user']['nickname'].$oldaddr;
 		}
 
+		// Creating a new guid to avoid problems with Diaspora
+		$account['user']['guid'] = System::createUUID();
+
 		$olduid = $account['user']['uid'];
 
 		unset($account['user']['uid']);
