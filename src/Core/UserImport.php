@@ -7,6 +7,7 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
@@ -128,6 +129,9 @@ class UserImport
 		} else {
 			$old_handle = $account['user']['nickname'].$oldaddr;
 		}
+
+		// Creating a new guid to avoid problems with Diaspora
+		$account['user']['guid'] = System::createUUID();
 
 		$olduid = $account['user']['uid'];
 
