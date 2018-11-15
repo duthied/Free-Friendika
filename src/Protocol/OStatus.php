@@ -1874,7 +1874,7 @@ class OStatus
 
 		self::entryContent($doc, $entry, $item, $owner, $title, '', true, $feed_mode);
 
-		self::entryFooter($doc, $entry, $item, $owner);
+		self::entryFooter($doc, $entry, $item, $owner, !$feed_mode, $feed_mode);
 
 		return $entry;
 	}
@@ -1961,11 +1961,13 @@ class OStatus
 								"href" => System::baseUrl()."/display/".$item["guid"]]
 		);
 
-		if ($complete && ($item["id"] > 0)) {
+		if (!$feed_mode && $complete && ($item["id"] > 0)) {
 			XML::addElement($doc, $entry, "status_net", "", ["notice_id" => $item["id"]]);
 		}
 
-		XML::addElement($doc, $entry, "activity:verb", $verb);
+		if (!$feed_mode) {
+			XML::addElement($doc, $entry, "activity:verb", $verb);
+		}
 
 		XML::addElement($doc, $entry, "published", DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM));
 		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM));
@@ -1974,14 +1976,15 @@ class OStatus
 	/**
 	 * @brief Adds the elements at the foot of an entry to the XML document
 	 *
-	 * @param object $doc      XML document
-	 * @param object $entry    The entry element where the elements are added
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $complete default true
+	 * @param object $doc       XML document
+	 * @param object $entry     The entry element where the elements are added
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param bool   $complete  default true
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 * @return void
 	 */
-	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner, $complete = true)
+	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner, $complete = true, $feed_mode = false)
 	{
 		$mentioned = [];
 
@@ -2012,7 +2015,7 @@ class OStatus
 			XML::addElement($doc, $entry, "link", "", $attributes);
 		}
 
-		if (intval($item["parent"]) > 0) {
+		if (!$feed_mode && (intval($item["parent"]) > 0)) {
 			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
 
 			if (isset($parent_item)) {
@@ -2084,7 +2087,7 @@ class OStatus
 			]);
 		}
 
-		if (!$item["private"]) {
+		if (!$item["private"] && !$feed_mode) {
 			XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:attention",
 									"href" => "http://activityschema.org/collection/public"]);
 			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
