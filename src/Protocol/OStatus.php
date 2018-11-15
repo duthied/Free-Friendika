@@ -1538,14 +1538,15 @@ class OStatus
 	/**
 	 * @brief Adds an entry element to the XML document
 	 *
-	 * @param object $doc      XML document
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $toplevel optional default false
+	 * @param object $doc       XML document
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param bool   $toplevel  optional default false
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return object Entry element
 	 */
-	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false)
+	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false, $feed_mode = false)
 	{
 		$xml = null;
 
@@ -1563,7 +1564,7 @@ class OStatus
 		} elseif (in_array($item["verb"], [ACTIVITY_FOLLOW, NAMESPACE_OSTATUS."/unfollow"])) {
 			return self::followEntry($doc, $item, $owner, $toplevel);
 		} else {
-			return self::noteEntry($doc, $item, $owner, $toplevel);
+			return self::noteEntry($doc, $item, $owner, $toplevel, $feed_mode);
 		}
 	}
 
@@ -1853,14 +1854,15 @@ class OStatus
 	/**
 	 * @brief Adds a regular entry element
 	 *
-	 * @param object $doc      XML document
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param object $doc       XML document
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param bool   $toplevel  Is it for en entry element (false) or a feed entry (true)?
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return object Entry element
 	 */
-	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
+	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel, $feed_mode)
 	{
 		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
@@ -1870,7 +1872,7 @@ class OStatus
 
 		XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 
-		self::entryContent($doc, $entry, $item, $owner, $title);
+		self::entryContent($doc, $entry, $item, $owner, $title, '', true, $feed_mode);
 
 		self::entryFooter($doc, $entry, $item, $owner);
 
@@ -1892,7 +1894,11 @@ class OStatus
 		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
-			$title = sprintf("New note by %s", $owner["nick"]);
+			if (!empty($item['title'])) {
+				$title = BBCode::convert($item['title'], false, 7);
+			} else {
+				$title = sprintf("New note by %s", $owner["nick"]);
+			}
 
 			if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
 				$contact = self::contactEntry($item['author-link'], $owner);
@@ -1922,16 +1928,17 @@ class OStatus
 	/**
 	 * @brief Adds elements to the XML document
 	 *
-	 * @param object $doc      XML document
-	 * @param object $entry    Entry element where the content is added
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param string $title    Title for the post
-	 * @param string $verb     The activity verb
-	 * @param bool   $complete Add the "status_net" element?
+	 * @param object $doc       XML document
+	 * @param object $entry     Entry element where the content is added
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param string $title     Title for the post
+	 * @param string $verb      The activity verb
+	 * @param bool   $complete  Add the "status_net" element?
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 * @return void
 	 */
-	private static function entryContent(DOMDocument $doc, $entry, array $item, array $owner, $title, $verb = "", $complete = true)
+	private static function entryContent(DOMDocument $doc, $entry, array $item, array $owner, $title, $verb = "", $complete = true, $feed_mode = false)
 	{
 		if ($verb == "") {
 			$verb = self::constructVerb($item);
@@ -1942,7 +1949,7 @@ class OStatus
 
 		$body = self::formatPicturePost($item['body']);
 
-		if ($item['title'] != "") {
+		if (!empty($item['title']) && !$feed_mode) {
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
 		}
 
@@ -2134,10 +2141,11 @@ class OStatus
 	 * @param integer $max_items   Number of maximum items to fetch
 	 * @param string  $filter      Feed items filter (activity, posts or comments)
 	 * @param boolean $nocache     Wether to bypass caching
+	 * @param boolean $feed_mode   Behave like a regular feed for users if true
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false)
+	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false, $feed_mode = false)
 	{
 		$stamp = microtime(true);
 
@@ -2201,7 +2209,8 @@ class OStatus
 			if (Config::get('system', 'ostatus_debug')) {
 				$item['body'] .= '🍼';
 			}
-			$entry = self::entry($doc, $item, $owner);
+
+			$entry = self::entry($doc, $item, $owner, false, $feed_mode);
 			$root->appendChild($entry);
 
 			if ($last_update < $item['created']) {

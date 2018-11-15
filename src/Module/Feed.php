@@ -54,7 +54,7 @@ class Feed extends BaseModule
 
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml");
-		echo OStatus::feed($nickname, $last_update, 10, $type, $nocache);
+		echo OStatus::feed($nickname, $last_update, 10, $type, $nocache, true);
 		killme();
 	}
 }
