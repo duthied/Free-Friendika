@@ -1320,7 +1320,7 @@ class OStatus
 		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = ["href" => System::baseUrl() . "/api/statuses/user_timeline/" . $owner["nick"] . ".atom",
+		$attributes = ["href" => System::baseUrl() . "/dfrn_poll/" . $owner["nick"],
 			"rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
