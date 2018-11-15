@@ -190,8 +190,13 @@ class Post extends BaseObject
 			}
 		}
 
-		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
-		$delete = $origin ? L10n::t('Delete globally') : L10n::t('Remove locally');
+		if ($origin && ($item['id'] != $item['parent']) && ($item['network'] == Protocol::ACTIVITYPUB)) {
+			// ActivityPub doesn't allow removal of remote comments
+			$delete = L10n::t('Delete locally');
+		} else {
+			// Showing the one or the other text, depending upon if we can only hide it or really delete it.
+			$delete = $origin ? L10n::t('Delete globally') : L10n::t('Remove locally');
+		}
 
 		$drop = [
 			'dropping' => $dropping,
