@@ -50,13 +50,15 @@ function pubsubhubbub_init(App $a) {
 
 		Logger::log("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
 
-		// get the nick name from the topic, a bit hacky but needed as a fallback
-		$nick = substr(strrchr($hub_topic, "/"), 1);
-
-		// Normally the url should now contain the nick name as last part of the url
 		if ($a->argc > 1) {
+			// Normally the url should now contain the nick name as last part of the url
 			$nick = $a->argv[1];
+		} else {
+			// Get the nick name from the topic as a fallback
+			$nick = $hub_topic;
 		}
+		// Extract nick name and strip any .atom extension
+		$nick = basename($nick, '.atom');
 
 		if (!$nick) {
 			Logger::log('Bad hub_topic=$hub_topic, ignoring.');
@@ -97,18 +99,23 @@ function pubsubhubbub_init(App $a) {
 
 		// do subscriber verification according to the PuSH protocol
 		$hub_challenge = Strings::getRandomHex(40);
-		$params = 'hub.mode=' .
-			($subscribe == 1 ? 'subscribe' : 'unsubscribe') .
-			'&hub.topic=' . urlencode($hub_topic) .
-			'&hub.challenge=' . $hub_challenge .
-			'&hub.lease_seconds=604800' .
-			'&hub.verify_token=' . $hub_verify_token;
 
-		// lease time is hard coded to one week (in seconds)
-		// we don't actually enforce the lease time because GNU
-		// Social/StatusNet doesn't honour it (yet)
+		$params = http_build_query([
+			'hub.mode' => $subscribe == 1 ? 'subscribe' : 'unsubscribe',
+			'hub.topic' => $hub_topic,
+			'hub.challenge' => $hub_challenge,
+			'hub.verify_token' => $hub_verify_token,
 
-		$fetchResult = Network::fetchUrlFull($hub_callback . "?" . $params);
+			// lease time is hard coded to one week (in seconds)
+			// we don't actually enforce the lease time because GNU
+			// Social/StatusNet doesn't honour it (yet)
+			'hub.lease_seconds' => 604800,
+		]);
+
+		$hub_callback = rtrim($hub_callback, ' ?&#');
+		$separator = parse_url($hub_callback, PHP_URL_QUERY) === null ? '?' : '&';
+
+		$fetchResult = Network::fetchUrlFull($hub_callback . $separator . $params);
 		$body = $fetchResult->getBody();
 		$ret = $fetchResult->getReturnCode();
 
