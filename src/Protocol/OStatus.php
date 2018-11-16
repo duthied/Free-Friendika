@@ -1945,7 +1945,11 @@ class OStatus
 		}
 
 		XML::addElement($doc, $entry, "id", $item["uri"]);
-		XML::addElement($doc, $entry, "title", $title);
+		if ($feed_mode) {
+			XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
+		} else {
+			XML::addElement($doc, $entry, "title", $title);
+		}
 
 		$body = self::formatPicturePost($item['body']);
 
