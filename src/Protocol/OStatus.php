@@ -1320,7 +1320,13 @@ class OStatus
 		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = ["href" => System::baseUrl() . "/dfrn_poll/" . $owner["nick"],
+		if (empty($_SERVER['REQUEST_URI']) || strpos($_SERVER['REQUEST_URI'], '/dfrn_poll/') !== false) {
+			$selfUri = "/dfrn_poll/" . $owner["nick"];
+		} else {
+			$selfUri = $_SERVER['REQUEST_URI'];
+		}
+
+		$attributes = ["href" => System::baseUrl() . $selfUri,
 			"rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
