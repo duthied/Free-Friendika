@@ -116,7 +116,7 @@ class App
 	public function registerStylesheet($path)
 	{
 		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
-
+		$url = htmlspecialchars($url, ENT_COMPAT, 'UTF-8');
 		$this->stylesheets[] = trim($url, '/');
 	}
 
