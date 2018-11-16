@@ -2071,16 +2071,16 @@ $a->strings["The error message was:"] = "Komunikat o błędzie:";
 $a->strings["Please enter the required information."] = "Wprowadź wymagane informacje.";
 $a->strings["system.username_min_length (%s) and system.username_max_length (%s) are excluding each other, swapping values."] = "system.username_min_length (%s) i system.username_max_length (%s) wykluczają się nawzajem, zamieniając wartości.";
 $a->strings["Username should be at least %s character."] = [
-	0 => "",
-	1 => "",
-	2 => "",
-	3 => "",
+	0 => "Nazwa użytkownika powinna wynosić co najmniej %s znaków.",
+	1 => "Nazwa użytkownika powinna wynosić co najmniej %s znaków.",
+	2 => "Nazwa użytkownika powinna wynosić co najmniej %s znaków.",
+	3 => "Nazwa użytkownika powinna wynosić co najmniej %s znaków.",
 ];
 $a->strings["Username should be at most %s character."] = [
-	0 => "",
-	1 => "",
-	2 => "",
-	3 => "",
+	0 => "Nazwa użytkownika nie może mieć więcej niż %s znaków.",
+	1 => "Nazwa użytkownika nie może mieć więcej niż %s znaków.",
+	2 => "Nazwa użytkownika nie może mieć więcej niż %s znaków.",
+	3 => "Nazwa użytkownika nie może mieć więcej niż %s znaków.",
 ];
 $a->strings["That doesn't appear to be your full (First Last) name."] = "Wydaje mi się, że to nie jest twoje pełne imię (pierwsze imię) i nazwisko.";
 $a->strings["Your email domain is not among those allowed on this site."] = "Twoja domena internetowa nie jest obsługiwana na tej stronie.";
