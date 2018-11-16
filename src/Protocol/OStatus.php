@@ -1263,10 +1263,11 @@ class OStatus
 	 * @param object $doc    XML document
 	 * @param array  $owner  Contact data of the poster
 	 * @param string $filter The related feed filter (activity, posts or comments)
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return object header root element
 	 */
-	private static function addHeader(DOMDocument $doc, array $owner, $filter)
+	private static function addHeader(DOMDocument $doc, array $owner, $filter, $feed_mode = false)
 	{
 		$a = get_app();
 
@@ -1283,10 +1284,19 @@ class OStatus
 		$root->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
 
 		$title = '';
+		$selfUri = '/feed/' . $owner["nick"] . '/';
 		switch ($filter) {
-			case 'activity': $title = L10n::t('%s\'s timeline', $owner['name']); break;
-			case 'posts'   : $title = L10n::t('%s\'s posts'   , $owner['name']); break;
-			case 'comments': $title = L10n::t('%s\'s comments', $owner['name']); break;
+			case 'activity':
+				$title = L10n::t('%s\'s timeline', $owner['name']);
+				$selfUri .= $filter;
+				break;
+			case 'posts':
+				$title = L10n::t('%s\'s posts', $owner['name']);
+				break;
+			case 'comments':
+				$title = L10n::t('%s\'s comments', $owner['name']);
+				$selfUri .= $filter;
+				break;
 		}
 
 		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION];
@@ -1320,14 +1330,10 @@ class OStatus
 		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		if (empty($_SERVER['REQUEST_URI']) || strpos($_SERVER['REQUEST_URI'], '/dfrn_poll/') !== false) {
+		if (!$feed_mode) {
 			$selfUri = "/dfrn_poll/" . $owner["nick"];
-		} else {
-			$selfUri = $_SERVER['REQUEST_URI'];
 		}
-
-		$attributes = ["href" => System::baseUrl() . $selfUri,
-			"rel" => "self", "type" => "application/atom+xml"];
+		$attributes = ["href" => System::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
 		if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
@@ -2212,7 +2218,7 @@ class OStatus
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner, $filter);
+		$root = self::addHeader($doc, $owner, $filter, $feed_mode);
 
 		foreach ($items as $item) {
 			if (Config::get('system', 'ostatus_debug')) {
