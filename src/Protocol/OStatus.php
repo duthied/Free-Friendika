@@ -1299,6 +1299,10 @@ class OStatus
 				break;
 		}
 
+		if (!$feed_mode) {
+			$selfUri = "/dfrn_poll/" . $owner["nick"];
+		}
+
 		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION];
 		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 		XML::addElement($doc, $root, "id", System::baseUrl() . "/profile/" . $owner["nick"]);
@@ -1330,9 +1334,6 @@ class OStatus
 		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		if (!$feed_mode) {
-			$selfUri = "/dfrn_poll/" . $owner["nick"];
-		}
 		$attributes = ["href" => System::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
