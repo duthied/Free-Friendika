@@ -373,9 +373,15 @@ function openClose(theID) {
 
 function showHide(theID) {
 	var elem = document.getElementById(theID);
+	var edit = document.getElementById("comment-edit-submit-wrapper-" + theID.match('[0-9$]+'));
 
-	if( $(elem).is(':visible') ) {
-		elem.style.display = "none";
+	if ($(elem).is(':visible')) {
+		if (!$(edit).is(':visible')) {
+			edit.style.display = "block";
+		}
+		else {
+			elem.style.display = "none";
+		}
 	}
 	else {
 		elem.style.display = "block";
