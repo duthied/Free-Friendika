@@ -291,9 +291,6 @@ class FileTag
         }
 
         $fields = ['file' => str_replace($pattern, '', $item['file'])];
-        if ($fields === '') {
-        	$fields = null;
-        }
 
         Item::update($fields, ['id' => $item_id]);
 

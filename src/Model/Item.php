@@ -832,7 +832,7 @@ class Item extends BaseObject
 			$files = $fields['file'];
 			$fields['file'] = null;
 		} else {
-			$files = '';
+			$files = null;
 		}
 
 		$delivery_data = ['postopts' => defaults($fields, 'postopts', ''),
