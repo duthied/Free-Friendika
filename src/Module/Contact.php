@@ -755,6 +755,14 @@ class Contact extends BaseModule
 				'id'    => 'showhidden-tab',
 				'accesskey' => 'h',
 			],
+			[
+				'label' => L10n::t('Groups'),
+				'url'   => 'group',
+				'sel'   => ($hidden) ? 'active' : '',
+				'title' => L10n::t('Organize your contact groups'),
+				'id'    => 'contactgroups-tab',
+				'accesskey' => 'e',
+			],
 		];
 
 		$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
