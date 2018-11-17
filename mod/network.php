@@ -394,7 +394,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 		$o = networkThreadedView($a, $update, $parent);
 	}
 
-	if ($o === ''){
+	if ($o === '') {
 		info("No items found");
 	}
 
@@ -472,7 +472,7 @@ function networkFlatView(App $a, $update = 0)
 		}
 		DBA::close($result);
 
-		if (count($posts) == 0){
+		if (count($posts) == 0) {
 			return '';
 		}
 		$condition = ['uid' => local_user(), 'id' => $posts];

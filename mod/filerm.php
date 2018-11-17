@@ -27,9 +27,8 @@ function filerm_content(App $a)
 
 	Logger::log('filerm: tag ' . $term . ' item ' . $item_id  . ' category ' . ($category ? 'true' :  'false'));
 
-	if ($item_id && strlen($term))
-	{
-		if (FileTag::unsaveFile(local_user(), $item_id, $term, $category)){
+	if ($item_id && strlen($term)) {
+		if (FileTag::unsaveFile(local_user(), $item_id, $term, $category)) {
 			info('Item removed');
 		}
 	}
