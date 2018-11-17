@@ -290,7 +290,11 @@ class FileTag
             return false;
         }
 
-        $fields = ['file' => str_replace($pattern, null, $item['file'])];
+        $fields = ['file' => str_replace($pattern, '', $item['file'])];
+        if ($fields === '') {
+        	$fields = null;
+        }
+
         Item::update($fields, ['id' => $item_id]);
 
         $r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
