@@ -346,6 +346,7 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
 
+	$items = (empty($items) ? [] : $items);
 	$o = conversation($a, $items, $pager, $mode, $update, false, $ordering, local_user());
 
 	if (!$update) {

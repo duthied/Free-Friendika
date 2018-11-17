@@ -911,7 +911,7 @@ class Item extends BaseObject
 				}
 			}
 
-			if (!empty($files)) {
+			if (!is_null($files)) {
 				Term::insertFromFileFieldByItemId($item['id'], $files);
 				if (!empty($item['file'])) {
 					DBA::update('item', ['file' => ''], ['id' => $item['id']]);
