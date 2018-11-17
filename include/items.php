@@ -352,7 +352,7 @@ function drop_item($id, $return = '')
 
 	// locate item to be deleted
 
-	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted'];
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
@@ -407,6 +407,8 @@ function drop_item($id, $return = '')
 			$a->internalRedirect('display/' . $item['guid']);
 		}
 
+		$is_comment = ($item['gravity'] == GRAVITY_COMMENT) ? true : false;
+
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
@@ -415,7 +417,8 @@ function drop_item($id, $return = '')
 		// removes update_* from return_url to ignore Ajax refresh
 		$return_url = str_replace("update_", "", $return_url);
 
-		if (empty($return_url) || strpos($return_url, 'display') !== false) {
+		// if unknown location or top level post called from display
+		if (empty($return_url) || ((strpos($return_url, 'display') !== false) AND (!$is_comment))) {
 			$a->internalRedirect('network');
 			//NOTREACHED
 		}
