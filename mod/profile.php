@@ -92,7 +92,7 @@ function profile_init(App $a)
 	}
 
 	$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which . '" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
