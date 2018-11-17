@@ -346,7 +346,7 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
 
-	if (!is_array($items)){
+	if (!is_array($items)) {
 		Logger::log("Expecting items to be an array. Got " . print_r($items, true));
 		$items = [];
 	}
