@@ -346,6 +346,11 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 	// Set this so that the conversation function can find out contact info for our wall-wall items
 	$a->page_contact = $a->contact;
 
+	if (!is_array($items)) {
+		Logger::log("Expecting items to be an array. Got " . print_r($items, true));
+		$items = [];
+	}
+
 	$o = conversation($a, $items, $pager, $mode, $update, false, $ordering, local_user());
 
 	if (!$update) {
@@ -387,6 +392,10 @@ function network_content(App $a, $update = 0, $parent = 0)
 		$o = networkFlatView($a, $update);
 	} else {
 		$o = networkThreadedView($a, $update, $parent);
+	}
+
+	if ($o === '') {
+		info("No items found");
 	}
 
 	return $o;
@@ -463,6 +472,9 @@ function networkFlatView(App $a, $update = 0)
 		}
 		DBA::close($result);
 
+		if (count($posts) == 0) {
+			return '';
+		}
 		$condition = ['uid' => local_user(), 'id' => $posts];
 	} else {
 		$condition = ['uid' => local_user()];
