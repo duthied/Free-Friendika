@@ -468,7 +468,7 @@ function item_post(App $a) {
 
 				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
-				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid, 'album' => L10n::t('Wall Photos')];
+				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid];
 				DBA::update('photo', $fields, $condition);
 			}
 		}
