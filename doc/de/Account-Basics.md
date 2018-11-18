@@ -41,7 +41,7 @@ Diese Nachrichten sind in den Einstellungen jederzeit an- oder abschaltbar.
 
 Der Spitzname wird benötigt, um eine Webadresse (Profiladresse) für viele Deiner persönlichen Seiten zu erstellen. 
 Auch wird dieser wie eine Email-Adresse genutzt, wenn eine Verbindung zu anderen Personen hergestellt werden soll. 
-Durch die Art, wie der Spitzname genutzt wird, gibt es bestimmte **Einschränkungen**: 
+Durch die Art, wie der Spitzname genutzt wird, gibt es bestimmte Einschränkungen: 
 
 * **er muss mit einem Buchstaben beginnen**
 * **er darf nur US-ASCII-Textzeichen und Nummern enthalten**
