@@ -176,10 +176,6 @@ class Widget
 			return '';
 		}
 
-		if (!Feature::isEnabled(local_user(), 'filing')) {
-			return '';
-		}
-
 		$saved = PConfig::get(local_user(), 'system', 'filetags');
 		if (!strlen($saved)) {
 			return;
