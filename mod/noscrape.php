@@ -36,6 +36,11 @@ function noscrape_init(App $a)
 		'account-type' => $a->profile['account-type'],
 	];
 
+	$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
+	foreach ($dfrn_pages as $dfrn) {
+		$json_info["dfrn-{$dfrn}"] = System::baseUrl()."/dfrn_{$dfrn}/{$which}";
+	}
+
 	if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
 		header('Content-type: application/json; charset=utf-8');
 		$json_info["hide"] = true;
@@ -97,11 +102,6 @@ function noscrape_init(App $a)
 		if (!empty($a->profile[$field])) {
 			$json_info["$field"] = $a->profile[$field];
 		}
-	}
-
-	$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
-	foreach ($dfrn_pages as $dfrn) {
-		$json_info["dfrn-{$dfrn}"] = System::baseUrl()."/dfrn_{$dfrn}/{$which}";
 	}
 
 	//Output all the JSON!

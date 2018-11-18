@@ -59,8 +59,8 @@ function profile_init(App $a)
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $which]);
 		if (DBA::isResult($user)) {
 			$data = ActivityPub\Transmitter::getProfile($user['uid']);
-			echo json_encode($data);
 			header('Content-Type: application/activity+json');
+			echo json_encode($data);
 			exit();
 		}
 	}
@@ -92,7 +92,7 @@ function profile_init(App $a)
 	}
 
 	$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
-	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which . '" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
+	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . $which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\r\n";
 	$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . $which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\r\n";
@@ -268,6 +268,8 @@ function profile_content(App $a, $update = 0)
 		if (!DBA::isResult($items)) {
 			return '';
 		}
+
+		$pager = new Pager($a->query_string);
 	} else {
 		$sql_post_table = "";
 

@@ -57,7 +57,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-31 09:45+0100\n"
-"PO-Revision-Date: 2018-10-31 15:07+0000\n"
+"PO-Revision-Date: 2018-11-06 19:33+0000\n"
 "Last-Translator: Waldemar Stoczkowski <waldemar.stoczkowski@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -8981,19 +8981,19 @@ msgstr "system.username_min_length (%s) i system.username_max_length (%s) wykluc
 #, php-format
 msgid "Username should be at least %s character."
 msgid_plural "Username should be at least %s characters."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Nazwa użytkownika powinna wynosić co najmniej %s znaków."
+msgstr[1] "Nazwa użytkownika powinna wynosić co najmniej %s znaków."
+msgstr[2] "Nazwa użytkownika powinna wynosić co najmniej %s znaków."
+msgstr[3] "Nazwa użytkownika powinna wynosić co najmniej %s znaków."
 
 #: src/Model/User.php:485
 #, php-format
 msgid "Username should be at most %s character."
 msgid_plural "Username should be at most %s characters."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Nazwa użytkownika nie może mieć więcej niż %s znaków."
+msgstr[1] "Nazwa użytkownika nie może mieć więcej niż %s znaków."
+msgstr[2] "Nazwa użytkownika nie może mieć więcej niż %s znaków."
+msgstr[3] "Nazwa użytkownika nie może mieć więcej niż %s znaków."
 
 #: src/Model/User.php:493
 msgid "That doesn't appear to be your full (First Last) name."

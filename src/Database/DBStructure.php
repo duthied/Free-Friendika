@@ -329,8 +329,9 @@ class DBStructure
 				}
 
 				if (isset($database[$name]["table_status"]["Comment"])) {
-					if ($database[$name]["table_status"]["Comment"] != $structure['comment']) {
-						$sql2 = "COMMENT = '".DBA::escape($structure['comment'])."'";
+					$structurecomment = defaults($structure, "comment", "");
+					if ($database[$name]["table_status"]["Comment"] != $structurecomment) {
+						$sql2 = "COMMENT = '".DBA::escape($structurecomment)."'";
 
 						if ($sql3 == "") {
 							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;

@@ -430,7 +430,7 @@ class GContact
 		//	return $list;
 		//}
 
-		$network = [Protocol::DFRN];
+		$network = [Protocol::DFRN, Protocol::ACTIVITYPUB];
 
 		if (Config::get('system', 'diaspora_enabled')) {
 			$network[] = Protocol::DIASPORA;
@@ -451,7 +451,7 @@ class GContact
 			where uid = %d and not gcontact.nurl in ( select nurl from contact where uid = %d )
 			AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
 			AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
-			AND `gcontact`.`updated` >= '%s'
+			AND `gcontact`.`updated` >= '%s' AND NOT `gcontact`.`hide`
 			AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
 			AND `gcontact`.`network` IN (%s)
 			GROUP BY `glink`.`gcid` ORDER BY `gcontact`.`updated` DESC,`total` DESC LIMIT %d, %d",

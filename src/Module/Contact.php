@@ -221,7 +221,7 @@ class Contact extends BaseModule
 			$priority = 0;
 		}
 
-		$info = Strings::escapeHtml(trim($_POST['info']));
+		$info = Strings::escapeHtml(trim(defaults($_POST, 'info', '')));
 
 		$r = DBA::update('contact', [
 			'profile-id' => $profile_id,
@@ -754,6 +754,14 @@ class Contact extends BaseModule
 				'title' => L10n::t('Only show hidden contacts'),
 				'id'    => 'showhidden-tab',
 				'accesskey' => 'h',
+			],
+			[
+				'label' => L10n::t('Groups'),
+				'url'   => 'group',
+				'sel'   => ($hidden) ? 'active' : '',
+				'title' => L10n::t('Organize your contact groups'),
+				'id'    => 'contactgroups-tab',
+				'accesskey' => 'e',
 			],
 		];
 

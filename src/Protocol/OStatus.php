@@ -1320,7 +1320,7 @@ class OStatus
 		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = ["href" => System::baseUrl() . "/api/statuses/user_timeline/" . $owner["nick"] . ".atom",
+		$attributes = ["href" => System::baseUrl() . "/dfrn_poll/" . $owner["nick"],
 			"rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
@@ -1538,14 +1538,15 @@ class OStatus
 	/**
 	 * @brief Adds an entry element to the XML document
 	 *
-	 * @param object $doc      XML document
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $toplevel optional default false
+	 * @param object $doc       XML document
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param bool   $toplevel  optional default false
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return object Entry element
 	 */
-	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false)
+	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false, $feed_mode = false)
 	{
 		$xml = null;
 
@@ -1563,7 +1564,7 @@ class OStatus
 		} elseif (in_array($item["verb"], [ACTIVITY_FOLLOW, NAMESPACE_OSTATUS."/unfollow"])) {
 			return self::followEntry($doc, $item, $owner, $toplevel);
 		} else {
-			return self::noteEntry($doc, $item, $owner, $toplevel);
+			return self::noteEntry($doc, $item, $owner, $toplevel, $feed_mode);
 		}
 	}
 
@@ -1853,14 +1854,15 @@ class OStatus
 	/**
 	 * @brief Adds a regular entry element
 	 *
-	 * @param object $doc      XML document
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param object $doc       XML document
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param bool   $toplevel  Is it for en entry element (false) or a feed entry (true)?
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return object Entry element
 	 */
-	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
+	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel, $feed_mode)
 	{
 		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
@@ -1870,9 +1872,9 @@ class OStatus
 
 		XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 
-		self::entryContent($doc, $entry, $item, $owner, $title);
+		self::entryContent($doc, $entry, $item, $owner, $title, '', true, $feed_mode);
 
-		self::entryFooter($doc, $entry, $item, $owner);
+		self::entryFooter($doc, $entry, $item, $owner, !$feed_mode, $feed_mode);
 
 		return $entry;
 	}
@@ -1892,7 +1894,11 @@ class OStatus
 		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
-			$title = sprintf("New note by %s", $owner["nick"]);
+			if (!empty($item['title'])) {
+				$title = BBCode::convert($item['title'], false, 7);
+			} else {
+				$title = sprintf("New note by %s", $owner["nick"]);
+			}
 
 			if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
 				$contact = self::contactEntry($item['author-link'], $owner);
@@ -1922,27 +1928,28 @@ class OStatus
 	/**
 	 * @brief Adds elements to the XML document
 	 *
-	 * @param object $doc      XML document
-	 * @param object $entry    Entry element where the content is added
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param string $title    Title for the post
-	 * @param string $verb     The activity verb
-	 * @param bool   $complete Add the "status_net" element?
+	 * @param object $doc       XML document
+	 * @param object $entry     Entry element where the content is added
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param string $title     Title for the post
+	 * @param string $verb      The activity verb
+	 * @param bool   $complete  Add the "status_net" element?
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 * @return void
 	 */
-	private static function entryContent(DOMDocument $doc, $entry, array $item, array $owner, $title, $verb = "", $complete = true)
+	private static function entryContent(DOMDocument $doc, $entry, array $item, array $owner, $title, $verb = "", $complete = true, $feed_mode = false)
 	{
 		if ($verb == "") {
 			$verb = self::constructVerb($item);
 		}
 
 		XML::addElement($doc, $entry, "id", $item["uri"]);
-		XML::addElement($doc, $entry, "title", $title);
+		XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
 		$body = self::formatPicturePost($item['body']);
 
-		if ($item['title'] != "") {
+		if (!empty($item['title']) && !$feed_mode) {
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
 		}
 
@@ -1954,11 +1961,13 @@ class OStatus
 								"href" => System::baseUrl()."/display/".$item["guid"]]
 		);
 
-		if ($complete && ($item["id"] > 0)) {
+		if (!$feed_mode && $complete && ($item["id"] > 0)) {
 			XML::addElement($doc, $entry, "status_net", "", ["notice_id" => $item["id"]]);
 		}
 
-		XML::addElement($doc, $entry, "activity:verb", $verb);
+		if (!$feed_mode) {
+			XML::addElement($doc, $entry, "activity:verb", $verb);
+		}
 
 		XML::addElement($doc, $entry, "published", DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM));
 		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM));
@@ -1967,14 +1976,15 @@ class OStatus
 	/**
 	 * @brief Adds the elements at the foot of an entry to the XML document
 	 *
-	 * @param object $doc      XML document
-	 * @param object $entry    The entry element where the elements are added
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $complete default true
+	 * @param object $doc       XML document
+	 * @param object $entry     The entry element where the elements are added
+	 * @param array  $item      Data of the item that is to be posted
+	 * @param array  $owner     Contact data of the poster
+	 * @param bool   $complete  default true
+	 * @param bool   $feed_mode Behave like a regular feed for users if true
 	 * @return void
 	 */
-	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner, $complete = true)
+	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner, $complete = true, $feed_mode = false)
 	{
 		$mentioned = [];
 
@@ -2005,7 +2015,7 @@ class OStatus
 			XML::addElement($doc, $entry, "link", "", $attributes);
 		}
 
-		if (intval($item["parent"]) > 0) {
+		if (!$feed_mode && (intval($item["parent"]) > 0)) {
 			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
 
 			if (isset($parent_item)) {
@@ -2077,7 +2087,7 @@ class OStatus
 			]);
 		}
 
-		if (!$item["private"]) {
+		if (!$item["private"] && !$feed_mode) {
 			XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:attention",
 									"href" => "http://activityschema.org/collection/public"]);
 			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
@@ -2134,10 +2144,11 @@ class OStatus
 	 * @param integer $max_items   Number of maximum items to fetch
 	 * @param string  $filter      Feed items filter (activity, posts or comments)
 	 * @param boolean $nocache     Wether to bypass caching
+	 * @param boolean $feed_mode   Behave like a regular feed for users if true
 	 *
 	 * @return string XML feed
 	 */
-	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false)
+	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false, $feed_mode = false)
 	{
 		$stamp = microtime(true);
 
@@ -2201,7 +2212,8 @@ class OStatus
 			if (Config::get('system', 'ostatus_debug')) {
 				$item['body'] .= '🍼';
 			}
-			$entry = self::entry($doc, $item, $owner);
+
+			$entry = self::entry($doc, $item, $owner, false, $feed_mode);
 			$root->appendChild($entry);
 
 			if ($last_update < $item['created']) {

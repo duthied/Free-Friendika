@@ -89,6 +89,9 @@ php bin/composer.phar install
 #cp /vagrant/util/htconfig.vagrant.php /vagrant/.htconfig.php
 cp /vagrant/util/local.ini.vagrant.php /vagrant/config/local.ini.php
 
+# copy the .htaccess-dist file to .htaccess so that rewrite rules work
+cp /vagrant/.htaccess-dist /vagrant/.htaccess
+
 # create the friendica database
 echo "create database friendica DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci" | $MYSQL -u root -proot
 # import test database

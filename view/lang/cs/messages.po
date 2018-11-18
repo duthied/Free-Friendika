@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-31 09:45+0100\n"
-"PO-Revision-Date: 2018-10-31 19:03+0000\n"
+"PO-Revision-Date: 2018-11-01 17:16+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -3038,7 +3038,7 @@ msgstr "Nový uživatel"
 
 #: mod/admin.php:1935
 msgid "Delete in"
-msgstr ""
+msgstr "Smazat v"
 
 #: mod/admin.php:1940
 msgid ""
@@ -8931,7 +8931,7 @@ msgstr "Zadejte prosím požadované informace."
 msgid ""
 "system.username_min_length (%s) and system.username_max_length (%s) are "
 "excluding each other, swapping values."
-msgstr ""
+msgstr "system.username_min_length (%s) a system.username_max_length (%s) se vzájemně vylučují, čímž se vyměňují hodnoty."
 
 #: src/Model/User.php:481
 #, php-format
@@ -9763,7 +9763,7 @@ msgstr "Formulářový bezpečnostní token nebyl správný. To pravděpodobně 
 #: src/LegacyModule.php:29
 #, php-format
 msgid "Legacy module file not found: %s"
-msgstr ""
+msgstr "Soubor legacy modulu nenalezen: %s"
 
 #: boot.php:549
 #, php-format

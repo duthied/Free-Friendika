@@ -291,6 +291,7 @@ class FileTag
         }
 
         $fields = ['file' => str_replace($pattern, '', $item['file'])];
+
         Item::update($fields, ['id' => $item_id]);
 
         $r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",

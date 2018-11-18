@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2018.12-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1287
+-- DB_UPDATE_VERSION 1290
 -- ------------------------------------------
 
 
@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`url`),
 	 INDEX `addr` (`addr`(32)),
+	 INDEX `alias` (`alias`(190)),
 	 INDEX `url` (`followers`(190))
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub compatible contacts - used in the ActivityPub implementation';
 
@@ -598,7 +599,8 @@ CREATE TABLE IF NOT EXISTS `item-activity` (
 	`activity` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-hash` (`uri-hash`),
-	 INDEX `uri` (`uri`(191))
+	 INDEX `uri` (`uri`(191)),
+	 INDEX `uri-id` (`uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activities for items';
 
 --
@@ -626,7 +628,8 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams verb',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-plink-hash` (`uri-plink-hash`),
-	 INDEX `uri` (`uri`(191))
+	 INDEX `uri` (`uri`(191)),
+	 INDEX `uri-id` (`uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
@@ -1258,7 +1261,10 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `pid` (`pid`),
 	 INDEX `parameter` (`parameter`(64)),
 	 INDEX `priority_created_next_try` (`priority`,`created`,`next_try`),
-	 INDEX `done_executed_next_try` (`done`,`executed`,`next_try`)
+	 INDEX `done_priority_executed_next_try` (`done`,`priority`,`executed`,`next_try`),
+	 INDEX `done_executed_next_try` (`done`,`executed`,`next_try`),
+	 INDEX `done_priority_next_try` (`done`,`priority`,`next_try`),
+	 INDEX `done_next_try` (`done`,`next_try`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
 
 

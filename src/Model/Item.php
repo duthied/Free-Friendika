@@ -832,7 +832,7 @@ class Item extends BaseObject
 			$files = $fields['file'];
 			$fields['file'] = null;
 		} else {
-			$files = '';
+			$files = null;
 		}
 
 		$delivery_data = ['postopts' => defaults($fields, 'postopts', ''),
@@ -911,7 +911,7 @@ class Item extends BaseObject
 				}
 			}
 
-			if (!empty($files)) {
+			if (!is_null($files)) {
 				Term::insertFromFileFieldByItemId($item['id'], $files);
 				if (!empty($item['file'])) {
 					DBA::update('item', ['file' => ''], ['id' => $item['id']]);
@@ -1011,10 +1011,8 @@ class Item extends BaseObject
 		$matches = false;
 		$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
 
-		if ($cnt)
-		{
-			foreach ($matches as $mtch)
-			{
+		if ($cnt) {
+			foreach ($matches as $mtch) {
 				FileTag::unsaveFile($item['uid'], $item['id'], $mtch[1],true);
 			}
 		}
@@ -1023,10 +1021,8 @@ class Item extends BaseObject
 
 		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
 
-		if ($cnt)
-		{
-			foreach ($matches as $mtch)
-			{
+		if ($cnt) {
+			foreach ($matches as $mtch) {
 				FileTag::unsaveFile($item['uid'], $item['id'], $mtch[1],false);
 			}
 		}

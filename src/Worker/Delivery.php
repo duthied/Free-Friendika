@@ -214,7 +214,7 @@ class Delivery extends BaseObject
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
-		Logger::log('Deliver ' . $target_item["guid"] . ' via DFRN to ' . (empty($contact['addr']) ? $contact['url'] : $contact['addr']));
+		Logger::log('Deliver ' . defaults($target_item, 'guid', $target_item['id']) . ' via DFRN to ' . (empty($contact['addr']) ? $contact['url'] : $contact['addr']));
 
 		if ($cmd == self::MAIL) {
 			$item = $target_item;
@@ -242,7 +242,7 @@ class Delivery extends BaseObject
 			$atom = DFRN::entries($msgitems, $owner);
 		}
 
-		Logger::log('Notifier entry: ' . $contact["url"] . ' ' . $target_item["guid"] . ' entry: ' . $atom, Logger::DATA);
+		Logger::log('Notifier entry: ' . $contact["url"] . ' ' . defaults($target_item, 'guid', $target_item['id']) . ' entry: ' . $atom, Logger::DATA);
 
 		$basepath =  implode('/', array_slice(explode('/', $contact['url']), 0, 3));
 
@@ -301,10 +301,10 @@ class Delivery extends BaseObject
 			$deliver_status = DFRN::deliver($owner, $contact, $atom, false, true);
 		}
 
-		Logger::log('Delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+		Logger::log('Delivery to ' . $contact['url'] . ' with guid ' . defaults($target_item, 'guid', $target_item['id']) . ' returns ' . $deliver_status);
 
 		if ($deliver_status < 0) {
-			Logger::log('Delivery failed: queuing message ' . $target_item["guid"] );
+			Logger::log('Delivery failed: queuing message ' . defaults($target_item, 'guid', $target_item['id']));
 			Queue::add($contact['id'], Protocol::DFRN, $atom, false, $target_item['guid']);
 		}
 
@@ -344,7 +344,7 @@ class Delivery extends BaseObject
 			$loc = $contact['addr'];
 		}
 
-		Logger::log('Deliver ' . $target_item["guid"] . ' via Diaspora to ' . $loc);
+		Logger::log('Deliver ' . defaults($target_item, 'guid', $target_item['id']) . ' via Diaspora to ' . $loc);
 
 		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
 			return;
@@ -360,13 +360,13 @@ class Delivery extends BaseObject
 		if (!$contact['pubkey'] && !$public_message) {
 			return;
 		}
-		if (($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
+		if ($cmd == self::RELOCATION) {
+			Diaspora::sendAccountMigration($owner, $contact, $owner['uid']);
+			return;
+		} elseif ($target_item['deleted'] && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 			// top-level retraction
 			Logger::log('diaspora retract: ' . $loc);
 			Diaspora::sendRetraction($target_item, $owner, $contact, $public_message);
-			return;
-		} elseif ($cmd == self::RELOCATION) {
-			Diaspora::sendAccountMigration($owner, $contact, $owner['uid']);
 			return;
 		} elseif ($followup) {
 			// send comments and likes to owner to relay

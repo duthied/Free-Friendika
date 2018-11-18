@@ -157,11 +157,13 @@ class Post extends BaseObject
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
 
-		if (local_user() && Strings::compareLink($a->contact['url'], $item['author-link'])) {
-			if ($item["event-id"] != 0) {
-				$edpost = ["events/event/" . $item['event-id'], L10n::t("Edit")];
-			} else {
-				$edpost = ["editpost/" . $item['id'], L10n::t("Edit")];
+		if (local_user()) {
+			if (Strings::compareLink($a->contact['url'], $item['author-link'])) {
+				if ($item["event-id"] != 0) {
+					$edpost = ["events/event/" . $item['event-id'], L10n::t("Edit")];
+				} else {
+					$edpost = ["editpost/" . $item['id'], L10n::t("Edit")];
+				}
 			}
 			$dropping = in_array($item['uid'], [0, local_user()]);
 		} else {
@@ -190,8 +192,13 @@ class Post extends BaseObject
 			}
 		}
 
-		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
-		$delete = $origin ? L10n::t('Delete globally') : L10n::t('Remove locally');
+		if ($origin && ($item['id'] != $item['parent']) && ($item['network'] == Protocol::ACTIVITYPUB)) {
+			// ActivityPub doesn't allow removal of remote comments
+			$delete = L10n::t('Delete locally');
+		} else {
+			// Showing the one or the other text, depending upon if we can only hide it or really delete it.
+			$delete = $origin ? L10n::t('Delete globally') : L10n::t('Remove locally');
+		}
 
 		$drop = [
 			'dropping' => $dropping,
@@ -200,7 +207,7 @@ class Post extends BaseObject
 			'delete'   => $delete,
 		];
 
-		if (!local_user() || ($item['uid'] == 0)) {
+		if (!local_user()) {
 			$drop = false;
 		}
 

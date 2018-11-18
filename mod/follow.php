@@ -22,7 +22,7 @@ function follow_post(App $a)
 	}
 
 	if (isset($_REQUEST['cancel'])) {
-		$a->internalRedirect('contacts');
+		$a->internalRedirect('contact');
 	}
 
 	$uid = local_user();
@@ -52,7 +52,7 @@ function follow_post(App $a)
 
 function follow_content(App $a)
 {
-	$return_path = 'contacts';
+	$return_path = 'contact';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));

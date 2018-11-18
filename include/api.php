@@ -1649,6 +1649,7 @@ function api_statuses_home_timeline($type)
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
 			break;
@@ -1731,6 +1732,7 @@ function api_statuses_public_timeline($type)
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
 			break;
@@ -1787,6 +1789,7 @@ function api_statuses_networkpublic_timeline($type)
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
 			break;
@@ -2108,6 +2111,7 @@ function api_statuses_mentions($type)
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
 			break;
@@ -2188,6 +2192,7 @@ function api_statuses_user_timeline($type)
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
 			break;
@@ -2263,8 +2268,10 @@ function api_favorites_create_destroy($type)
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
+			break;
 	}
 
 	return api_format_data("status", $type, $data);
@@ -2330,8 +2337,10 @@ function api_favorites($type)
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
+			break;
 	}
 
 	return api_format_data("statuses", $type, $data);
@@ -2923,6 +2932,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			$retweeted_item = api_share_as_retweet($item);
 			if ($retweeted_item !== false) {
 				$retweeted_status = $status;
+				$status['user'] = $status['friendica_owner'];
 				try {
 					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
 				} catch (BadRequestException $e) {
@@ -3144,6 +3154,7 @@ function api_lists_statuses($type)
 	$data = ['status' => $items];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
 			break;
@@ -3540,8 +3551,10 @@ function api_direct_messages_new($type)
 
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $sender);
+			break;
 	}
 
 	return api_format_data("direct-messages", $type, $data);
@@ -3806,8 +3819,10 @@ function api_direct_messages_box($type, $box, $verbose)
 	$data = ['direct_message' => $ret];
 	switch ($type) {
 		case "atom":
+			break;
 		case "rss":
 			$data = api_rss_extra($a, $data, $user_info);
+			break;
 	}
 
 	return api_format_data("direct-messages", $type, $data);
