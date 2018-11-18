@@ -352,7 +352,7 @@ function drop_item($id, $return = '')
 
 	// locate item to be deleted
 
-	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity'];
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', parent];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
@@ -408,6 +408,11 @@ function drop_item($id, $return = '')
 		}
 
 		$is_comment = ($item['gravity'] == GRAVITY_COMMENT) ? true : false;
+		$parentitem = null;
+		if (!empty($item['parent'])){
+			$fields = ['guid'];
+			$parentitem = Item::selectFirstForUser(local_user(), $fields, ['id' => $item['parent']]);
+		}
 
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
@@ -417,14 +422,23 @@ function drop_item($id, $return = '')
 		// removes update_* from return_url to ignore Ajax refresh
 		$return_url = str_replace("update_", "", $return_url);
 
-		// if unknown location or top level post called from display
-		if (empty($return_url) || ((strpos($return_url, 'display') !== false) AND (!$is_comment))) {
-			$a->internalRedirect('network');
-			//NOTREACHED
+		// Check if delete a comment
+		if ($is_comment) {
+			// Return to parent guid
+			if (!empty($parentitem)) {
+				$a->internalRedirect('display/' . $parentitem['guid']);
+				//NOTREACHED
+			}
 		}
 		else {
-			$a->internalRedirect($return_url);
-			//NOTREACHED
+			// if unknown location or deleting top level post called from display
+			if (empty($return_url) || strpos($return_url, 'display') !== false) {
+				$a->internalRedirect('network');
+				//NOTREACHED
+			} else {
+				$a->internalRedirect($return_url);
+				//NOTREACHED
+			}
 		}
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
