@@ -94,7 +94,7 @@ class ApiTest extends DatabaseTest
 		$this->assertEquals($this->selfUser['id'], $user['uid']);
 		$this->assertEquals($this->selfUser['id'], $user['cid']);
 		$this->assertEquals(1, $user['self']);
-		$this->assertEquals('Friendica', $user['location']);
+		$this->assertEquals('DFRN', $user['location']);
 		$this->assertEquals($this->selfUser['name'], $user['name']);
 		$this->assertEquals($this->selfUser['nick'], $user['screen_name']);
 		$this->assertEquals('dfrn', $user['network']);
