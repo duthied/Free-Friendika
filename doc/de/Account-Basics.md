@@ -7,13 +7,14 @@ Account - Basics
 ## Registrierung
 
 Viele, aber nicht alle Friendica-Knoten (Server) bieten die Möglichkeit zur Registrierung an.
-Falls der Friendica-Knoten, den Du besuchst, keine Registrierung anbietet, oder Du glaubst, dass Dir ein anderer Knoten möglicherweise besser gefällt, dann findest Du hier eine <a href="https://dir.friendica.social/servers">Liste von öffentlichen Friendica-Knoten</a>, aus der Du Dir eine netten Knoten heraussuchen kannst.
+Falls der Friendica-Knoten, den Du besuchst, keine Registrierung anbietet, oder Du glaubst, dass Dir ein anderer Knoten möglicherweise besser gefällt, dann findest Du hier eine [Liste von öffentlichen Friendica-Knoten](https://dir.friendica.social/servers), aus der Du Dir eine netten Knoten heraussuchen kannst.
 
-Auf der Startseite des Knotens wird unter dem Login-Feld ein "Registrieren"-Link angezeigt. Dieser Link führt dann direkt auf das Registrierungsformular. 
+Auf der Startseite des Knotens wird unter dem Login-Feld ein "Registrieren"-Link angezeigt. 
+Dieser Link führt dann direkt auf das Registrierungsformular. 
 
 ### OpenID
 
-Falls du keine <a href="https://de.wikipedia.org/wiki/OpenID">OpenID-Adresse</a> hast, kannst du diesen Punkt ignorieren.
+Falls du keine [OpenID-Adresse](https://de.wikipedia.org/wiki/OpenID">OpenID-Adresse) hast, kannst du diesen Punkt ignorieren.
 
 Solltest du eine OpenID Adresse haben, kannst Du sie im ersten Feld eintragen und "Registrieren" klicken. 
 Friendica wird versuchen, so viele Informationen wie möglich von Deinem OpenID-Provider zu übernehmen, um diese in Dein Profil auf dieser Seite einzutragen.
@@ -53,7 +54,7 @@ Dieser Spitzname wird an vielen Stellen genutzt, um Deinen Account zu identifizi
 
 ### Verzeichnis-Eintrag
 
-Das Registrierungsformular erlaubt es dir, direkt auszuwählen, ob Du im <a href="https://dir.friendica.social/">Onlineverzeichnis</a> (Friendica Directory) aufgelistet wirst oder nicht. 
+Das Registrierungsformular erlaubt es dir, direkt auszuwählen, ob Du im [Onlineverzeichnis](https://dir.friendica.social/) (Friendica Directory) aufgelistet wirst oder nicht. 
 Das ist wie ein Telefonbuch und Du entscheidest, ob du darin eingetragen werden möchtest, oder nicht. 
 
 * Wir bitten dich, "Ja" zu wählen, damit Andere Dich finden können, so wie Du sie finden kannst
@@ -116,7 +117,7 @@ Ein ['Tipp für neue Mitglieder'](newmember)-Link zeigt sich in den ersten beide
 
 ### Der eigene Friendica-Knoten
 Wenn Du Deinen eigenen Friendica-Knoten auf einem Server aufsetzen willst, kannst Du das ebenfalls machen.
-Besuche <a href="http://friendi.ca">die Friendica-Webseite</a>, um den Code mit den Installationsanleitungen herunterzuladen.
+Besuche die [Friendica-Webseite](https://friendi.ca), um den Code mit den Installationsanleitungen herunterzuladen.
 Es ist ein einfacher Installationsprozess, den jeder mit ein wenig technischen Erfahrungen im Webseiten-Hosting oder mit grundlegenden Linux-Erfahrungen handhaben kann.
 
 
