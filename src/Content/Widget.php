@@ -155,10 +155,10 @@ class Widget
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('nets.tpl'), array(
-			'$title' => L10n::t('Networks'),
+			'$title' => L10n::t('Protocols'),
 			'$desc' => '',
 			'$sel_all' => (($selected == '') ? 'selected' : ''),
-			'$all' => L10n::t('All Networks'),
+			'$all' => L10n::t('All Protocols'),
 			'$nets' => $nets,
 			'$base' => $baseurl,
 		));
