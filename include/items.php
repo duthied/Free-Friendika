@@ -429,6 +429,11 @@ function drop_item($id, $return = '')
 				$a->internalRedirect('display/' . $parentitem['guid']);
 				//NOTREACHED
 			}
+			// In case something goes wrong
+			else {
+				$a->internalRedirect('network');
+				//NOTREACHED
+			}
 		}
 		else {
 			// if unknown location or deleting top level post called from display
