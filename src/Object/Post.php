@@ -157,6 +157,8 @@ class Post extends BaseObject
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
 
+		$edpost = false;
+
 		if (local_user()) {
 			if (Strings::compareLink($a->contact['url'], $item['author-link'])) {
 				if ($item["event-id"] != 0) {
@@ -166,8 +168,6 @@ class Post extends BaseObject
 				}
 			}
 			$dropping = in_array($item['uid'], [0, local_user()]);
-		} else {
-			$edpost = false;
 		}
 
 		// Editing on items of not subscribed users isn't currently possible
@@ -202,7 +202,7 @@ class Post extends BaseObject
 
 		$drop = [
 			'dropping' => $dropping,
-			'pagedrop' => ((Feature::isEnabled($conv->getProfileOwner(), 'multi_delete')) ? $item['pagedrop'] : ''),
+			'pagedrop' => $item['pagedrop'],
 			'select'   => L10n::t('Select'),
 			'delete'   => $delete,
 		];
@@ -294,12 +294,10 @@ class Post extends BaseObject
 					'starred'   => L10n::t('starred'),
 				];
 
-				if (Feature::isEnabled($conv->getProfileOwner(), 'commtag')) {
-					$tagger = [
-						'add'   => L10n::t("add tag"),
-						'class' => "",
-					];
-				}
+				$tagger = [
+					'add'   => L10n::t("add tag"),
+					'class' => "",
+				];
 			}
 		} else {
 			$indent = 'comment';
@@ -308,7 +306,7 @@ class Post extends BaseObject
 		if ($conv->isWritable()) {
 			$buttons = [
 				'like'    => [L10n::t("I like this \x28toggle\x29"), L10n::t("like")],
-				'dislike' => Feature::isEnabled($conv->getProfileOwner(), 'dislike') ? [L10n::t("I don't like this \x28toggle\x29"), L10n::t("dislike")] : '',
+				'dislike' => [L10n::t("I don't like this \x28toggle\x29"), L10n::t("dislike")],
 			];
 			if ($shareable) {
 				$buttons['share'] = [L10n::t('Share this'), L10n::t('share')];
@@ -401,12 +399,12 @@ class Post extends BaseObject
 			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => htmlentities($owner_name_e),
 			'plink'           => Item::getPlink($item),
-			'edpost'          => Feature::isEnabled($conv->getProfileOwner(), 'edit_posts') ? $edpost : '',
+			'edpost'          => $edpost,
 			'isstarred'       => $isstarred,
-			'star'            => Feature::isEnabled($conv->getProfileOwner(), 'star_posts') ? $star : '',
-			'ignore'          => Feature::isEnabled($conv->getProfileOwner(), 'ignore_posts') ? $ignore : '',
+			'star'            => $star,
+			'ignore'          => $ignore,
 			'tagger'          => $tagger,
-			'filer'           => Feature::isEnabled($conv->getProfileOwner(), 'filing') ? $filer : '',
+			'filer'           => $filer,
 			'drop'            => $drop,
 			'vote'            => $buttons,
 			'like'            => $responses['like']['output'],
@@ -820,7 +818,7 @@ class Post extends BaseObject
 				'$edurl'       => L10n::t('Link'),
 				'$edattach'    => L10n::t('Link or Media'),
 				'$prompttext'  => L10n::t('Please enter a image/video/audio/webpage URL:'),
-				'$preview'     => ((Feature::isEnabled($conv->getProfileOwner(), 'preview')) ? L10n::t('Preview') : ''),
+				'$preview'     => L10n::t('Preview'),
 				'$indent'      => $indent,
 				'$sourceapp'   => L10n::t($a->sourcename),
 				'$ww'          => $conv->getMode() === 'network' ? $ww : '',

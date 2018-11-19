@@ -966,7 +966,7 @@ class HTML
 				'$action_url' => $url,
 				'$search_label' => L10n::t('Search'),
 				'$save_label' => $save_label,
-				'$savedsearch' => local_user() && Feature::isEnabled(local_user(), 'savedsearch'),
+				'$savedsearch' => 'savedsearch',
 				'$search_hint' => L10n::t('@name, !forum, #tags, content'),
 				'$mode' => $mode
 			];
