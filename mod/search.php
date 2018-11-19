@@ -26,9 +26,6 @@ function search_saved_searches() {
 	$o = '';
 	$search = ((x($_GET,'search')) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 
-	if (!Feature::isEnabled(local_user(),'savedsearch'))
-		return $o;
-
 	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
 		intval(local_user())
 	);

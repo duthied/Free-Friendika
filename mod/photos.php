@@ -1480,7 +1480,7 @@ function photos_content(App $a)
 				$likebuttons = Renderer::replaceMacros($like_tpl, [
 					'$id' => $link_item['id'],
 					'$likethis' => L10n::t("I like this \x28toggle\x29"),
-					'$nolike' => (Feature::isEnabled(local_user(), 'dislike') ? L10n::t("I don't like this \x28toggle\x29") : ''),
+					'$nolike' => L10n::t("I don't like this \x28toggle\x29"),
 					'$wait' => L10n::t('Please wait'),
 					'$return_path' => $a->query_string,
 				]);
@@ -1607,9 +1607,7 @@ function photos_content(App $a)
 				}
 			}
 			$response_verbs = ['like'];
-			if (Feature::isEnabled($owner_uid, 'dislike')) {
-				$response_verbs[] = 'dislike';
-			}
+			$response_verbs[] = 'dislike';
 			$responses = get_responses($conv_responses, $response_verbs, '', $link_item);
 
 			$paginate = $pager->renderFull($total);

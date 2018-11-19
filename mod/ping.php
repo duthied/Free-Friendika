@@ -150,25 +150,21 @@ function ping_init(App $a)
 		}
 
 		if ($network_count) {
-			if (intval(Feature::isEnabled(local_user(), 'groups'))) {
-				// Find out how unseen network posts are spread across groups
-				$group_counts = Group::countUnseen();
-				if (DBA::isResult($group_counts)) {
-					foreach ($group_counts as $group_count) {
-						if ($group_count['count'] > 0) {
-							$groups_unseen[] = $group_count;
-						}
+			// Find out how unseen network posts are spread across groups
+			$group_counts = Group::countUnseen();
+			if (DBA::isResult($group_counts)) {
+				foreach ($group_counts as $group_count) {
+					if ($group_count['count'] > 0) {
+						$groups_unseen[] = $group_count;
 					}
 				}
 			}
 
-			if (intval(Feature::isEnabled(local_user(), 'forumlist_widget'))) {
-				$forum_counts = ForumManager::countUnseenItems();
-				if (DBA::isResult($forum_counts)) {
-					foreach ($forum_counts as $forum_count) {
-						if ($forum_count['count'] > 0) {
-							$forums_unseen[] = $forum_count;
-						}
+			$forum_counts = ForumManager::countUnseenItems();
+			if (DBA::isResult($forum_counts)) {
+				foreach ($forum_counts as $forum_count) {
+					if ($forum_count['count'] > 0) {
+						$forums_unseen[] = $forum_count;
 					}
 				}
 			}
