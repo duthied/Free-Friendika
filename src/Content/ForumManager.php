@@ -93,10 +93,6 @@ class ForumManager
 	 */
 	public static function widget($uid, $cid = 0)
 	{
-		if (! intval(Feature::isEnabled(local_user(), 'forumlist_widget'))) {
-			return;
-		}
-
 		$o = '';
 
 		//sort by last updated item

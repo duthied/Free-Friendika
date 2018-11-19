@@ -78,7 +78,7 @@ class ContactSelector
 	public static function networkToName($network, $profile = "")
 	{
 		$nets = [
-			Protocol::DFRN      =>   L10n::t('Friendica'),
+			Protocol::DFRN      =>   L10n::t('DFRN'),
 			Protocol::OSTATUS   =>   L10n::t('OStatus'),
 			Protocol::FEED      =>   L10n::t('RSS/Atom'),
 			Protocol::MAIL      =>   L10n::t('Email'),

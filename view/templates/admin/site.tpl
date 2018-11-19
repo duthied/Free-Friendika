@@ -142,6 +142,7 @@
 	{{include file="field_checkbox.tpl" field=$dbclean}}
 	{{include file="field_input.tpl" field=$dbclean_expire_days}}
 	{{include file="field_input.tpl" field=$dbclean_unclaimed}}
+	{{include file="field_input.tpl" field=$dbclean_expire_conv}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
 	<h3>{{$worker_title}}</h3>

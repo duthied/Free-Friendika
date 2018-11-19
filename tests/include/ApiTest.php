@@ -94,7 +94,7 @@ class ApiTest extends DatabaseTest
 		$this->assertEquals($this->selfUser['id'], $user['uid']);
 		$this->assertEquals($this->selfUser['id'], $user['cid']);
 		$this->assertEquals(1, $user['self']);
-		$this->assertEquals('Friendica', $user['location']);
+		$this->assertEquals('DFRN', $user['location']);
 		$this->assertEquals($this->selfUser['name'], $user['name']);
 		$this->assertEquals($this->selfUser['nick'], $user['screen_name']);
 		$this->assertEquals('dfrn', $user['network']);
@@ -1289,7 +1289,7 @@ class ApiTest extends DatabaseTest
 		$result = api_users_show('json');
 		// We can't use assertSelfUser() here because the user object is missing some properties.
 		$this->assertEquals($this->selfUser['id'], $result['user']['cid']);
-		$this->assertEquals('Friendica', $result['user']['location']);
+		$this->assertEquals('DFRN', $result['user']['location']);
 		$this->assertEquals($this->selfUser['name'], $result['user']['name']);
 		$this->assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
 		$this->assertEquals('dfrn', $result['user']['network']);
@@ -3296,7 +3296,7 @@ class ApiTest extends DatabaseTest
 		$result = api_account_update_profile('json');
 		// We can't use assertSelfUser() here because the user object is missing some properties.
 		$this->assertEquals($this->selfUser['id'], $result['user']['cid']);
-		$this->assertEquals('Friendica', $result['user']['location']);
+		$this->assertEquals('DFRN', $result['user']['location']);
 		$this->assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
 		$this->assertEquals('dfrn', $result['user']['network']);
 		$this->assertEquals('new_name', $result['user']['name']);
@@ -3650,7 +3650,7 @@ class ApiTest extends DatabaseTest
 		$result = api_friendica_profile_show('json');
 		// We can't use assertSelfUser() here because the user object is missing some properties.
 		$this->assertEquals($this->selfUser['id'], $result['$result']['friendica_owner']['cid']);
-		$this->assertEquals('Friendica', $result['$result']['friendica_owner']['location']);
+		$this->assertEquals('DFRN', $result['$result']['friendica_owner']['location']);
 		$this->assertEquals($this->selfUser['name'], $result['$result']['friendica_owner']['name']);
 		$this->assertEquals($this->selfUser['nick'], $result['$result']['friendica_owner']['screen_name']);
 		$this->assertEquals('dfrn', $result['$result']['friendica_owner']['network']);

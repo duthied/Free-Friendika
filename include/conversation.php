@@ -769,7 +769,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		'$mode' => $mode,
 		'$user' => $a->user,
 		'$threads' => $threads,
-		'$dropping' => ($page_dropping && Feature::isEnabled(local_user(), 'multi_delete') ? L10n::t('Delete Selected Items') : False),
+		'$dropping' => ($page_dropping ? L10n::t('Delete Selected Items') : False),
 	]);
 
 	return $o;
@@ -1163,7 +1163,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$lockstate'    => $x['lockstate'],
 		'$bang'         => $x['bang'],
 		'$profile_uid'  => $x['profile_uid'],
-		'$preview'      => Feature::isEnabled($x['profile_uid'], 'preview') ? L10n::t('Preview') : '',
+		'$preview'      => L10n::t('Preview'),
 		'$jotplugins'   => $jotplugins,
 		'$notes_cid'    => $notes_cid,
 		'$sourceapp'    => L10n::t($a->sourcename),

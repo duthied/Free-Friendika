@@ -160,9 +160,8 @@ function network_init(App $a)
 		$a->page['aside'] = '';
 	}
 
-	$a->page['aside'] .= (Feature::isEnabled(local_user(), 'groups') ?
-		Group::sidebarWidget('network/0', 'network', 'standard', $group_id) : '');
-	$a->page['aside'] .= (Feature::isEnabled(local_user(), 'forumlist_widget') ? ForumManager::widget(local_user(), $cid) : '');
+	$a->page['aside'] .= Group::sidebarWidget('network/0', 'network', 'standard', $group_id);
+	$a->page['aside'] .= ForumManager::widget(local_user(), $cid);
 	$a->page['aside'] .= posted_date_widget('network', local_user(), false);
 	$a->page['aside'] .= Widget::networks('network', (x($_GET, 'nets') ? $_GET['nets'] : ''));
 	$a->page['aside'] .= saved_searches($search);
@@ -171,10 +170,6 @@ function network_init(App $a)
 
 function saved_searches($search)
 {
-	if (!Feature::isEnabled(local_user(), 'savedsearch')) {
-		return '';
-	}
-
 	$a = get_app();
 
 	$srchurl = '/network?f='
@@ -993,16 +988,14 @@ function network_tabs(App $a)
 		],
 	];
 
-	if (Feature::isEnabled(local_user(), 'personal_tab')) {
-		$tabs[] = [
-			'label'	=> L10n::t('Personal'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
-			'sel'	=> $conv_active,
-			'title'	=> L10n::t('Posts that mention or involve you'),
-			'id'	=> 'personal-tab',
-			'accesskey' => 'r',
-		];
-	}
+	$tabs[] = [
+		'label'	=> L10n::t('Personal'),
+		'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
+		'sel'	=> $conv_active,
+		'title'	=> L10n::t('Posts that mention or involve you'),
+		'id'	=> 'personal-tab',
+		'accesskey' => 'r',
+	];
 
 	if (Feature::isEnabled(local_user(), 'new_tab')) {
 		$tabs[] = [
@@ -1026,16 +1019,14 @@ function network_tabs(App $a)
 		];
 	}
 
-	if (Feature::isEnabled(local_user(), 'star_posts')) {
-		$tabs[] = [
-			'label'	=> L10n::t('Starred'),
-			'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
-			'sel'	=> $starred_active,
-			'title'	=> L10n::t('Favourite Posts'),
-			'id'	=> 'starred-posts-tab',
-			'accesskey' => 'm',
-		];
-	}
+	$tabs[] = [
+		'label'	=> L10n::t('Starred'),
+		'url'	=> str_replace('/new', '', $cmd) . ((x($_GET,'cid')) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
+		'sel'	=> $starred_active,
+		'title'	=> L10n::t('Favourite Posts'),
+		'id'	=> 'starred-posts-tab',
+		'accesskey' => 'm',
+	];
 
 	// save selected tab, but only if not in file mode
 	if (!x($_GET, 'file')) {
