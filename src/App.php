@@ -1013,11 +1013,11 @@ class App
 			$meminfo[$key] = (int) ($meminfo[$key] / 1024);
 		}
 
-		if (!isset($meminfo['MemAvailable']) || !isset($meminfo['MemFree'])) {
+		if (!isset($meminfo['MemFree'])) {
 			return false;
 		}
 
-		$free = $meminfo['MemAvailable'] + $meminfo['MemFree'];
+		$free = $meminfo['MemFree'];
 
 		$reached = ($free < $min_memory);
 
