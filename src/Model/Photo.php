@@ -58,7 +58,7 @@ class Photo extends BaseObject
 	public static function selectFirst(array $fields = [], array $condition = [], array $params = [])
 	{
 		if (empty($fields)) {
-			$selected = self::getFields();
+			$fields = self::getFields();
 		}
 
 		return DBA::selectFirst("photo", $fields, $condition, $params);
@@ -68,7 +68,7 @@ class Photo extends BaseObject
 	 * @brief Get a single photo given resource id and scale
 	 *
 	 * This method checks for permissions. Returns associative array
-	 * on success, a generic "red sign" data if user has no permission,
+	 * on success, "no sign" image info, if user has no permission,
 	 * false if photo does not exists
 	 *
 	 * @param string  $resourceid  Rescource ID for the photo
@@ -92,7 +92,7 @@ class Photo extends BaseObject
 
 		$photo = self::selectFirst([], $condition, $params);
 		if ($photo === false) {
-			return false; ///TODO: Return info for red sign image
+			return self::createPhotoForSystemResource("images/nosign.jpg");
 		}
 		return $photo;
 	}
@@ -116,13 +116,26 @@ class Photo extends BaseObject
 	 *
 	 * @return \Friendica\Object\Image
 	 */
-	public static function getImageForPhotoId($id)
+	public static function getImageForPhoto($photo)
 	{
-		$i = self::selectFirst(["data", "type"],["id"=>$id]);
-		if ($i===false) {
+		$data = "";
+		if ($photo["backend-class"] == "") {
+			// legacy data storage in "data" column
+			$i = self::selectFirst(["data"], ["id"=>$photo["id"]]);
+			if ($i===false) {
+				return null;
+			}
+			$data = $i["data"];
+		} else {
+			$backendClass = $photo["backend-class"];
+			$backendRef = $photo["backend-ref"];
+			$data = $backendClass::get($backendRef);
+		}
+
+		if ($data === "") {
 			return null;
 		}
-		return new Image($i["data"], $i["type"]);
+		return new Image($data, $photo["type"]);
 	}
 
 	/**
@@ -138,6 +151,25 @@ class Photo extends BaseObject
 		return $fields;
 	}
 
+	/**
+	 * @brief Construct a photo array for a system resource image
+	 *
+	 * @param string  $filename  Image file name relative to code root
+	 * @param string  $mimetype  Image mime type. Defaults to "image/jpeg"
+	 *
+	 * @return array
+	 */
+	public static function createPhotoForSystemResource($filename, $mimetype = "image/jpeg")
+	{
+		$fields = self::getFields();
+		$values = array_fill(0, count($fields), "");
+		$photo = array_combine($fields, $values);
+		$photo["backend-class"] = "\Friendica\Model\Storage\SystemResource";
+		$photo["backend-ref"] = $filename;
+		$photo["type"] = $mimetype;
+		$photo['cacheable'] = false;
+		return $photo;
+	}
 
 
 	/**
