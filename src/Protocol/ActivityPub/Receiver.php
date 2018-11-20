@@ -309,6 +309,16 @@ class Receiver
 
 		}
 
+		// Don't trust the source if "actor" differs from "attributedTo". The content could be forged.
+		if ($trust_source && ($type == 'as:Create') && is_array($activity['as:object'])) {
+			$actor = JsonLD::fetchElement($activity, 'as:actor');
+			$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo');
+			$trust_source = ($actor == $attributed_to);
+			if (!$trust_source) {
+				Logger::log('Not trusting actor: ' . $actor . '. It differs from  attributedTo: ' . $attributed_to, Logger::DEBUG);
+			}
+		}
+
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
 		if (empty($object_data)) {
