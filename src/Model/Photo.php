@@ -6,11 +6,13 @@
  */
 namespace Friendica\Model;
 
+use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -19,9 +21,128 @@ use Friendica\Util\Security;
 /**
  * Class to handle photo dabatase table
  */
-class Photo
+class Photo extends BaseObject
 {
 	/**
+	 * @brief Select rows from the photo table
+	 *
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|array
+	 *
+	 * @see \Friendica\Database\DBA::select
+	 */
+	public static function select(array $fields = [], array $condition = [], array $params = [])
+	{
+		if (empty($fields)) {
+			$selected = self::getFields();
+		}
+
+		$r = DBA::select("photo", $fields, $condition, $params);
+		return DBA::toArray($r);
+	}
+
+	/**
+	 * @brief Retrieve a single record from the photo table
+	 *
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return bool|array
+	 *
+	 * @see \Friendica\Database\DBA::select
+	 */
+	public static function selectFirst(array $fields = [], array $condition = [], array $params = [])
+	{
+		if (empty($fields)) {
+			$selected = self::getFields();
+		}
+
+		return DBA::selectFirst("photo", $fields, $condition, $params);
+   	}
+
+	/**
+	 * @brief Get a single photo given resource id and scale
+	 *
+	 * This method checks for permissions. Returns associative array
+	 * on success, a generic "red sign" data if user has no permission,
+	 * false if photo does not exists
+	 *
+	 * @param string  $resourceid  Rescource ID for the photo
+	 * @param integer $scale       Scale of the photo. Defaults to 0
+	 *
+	 * @return boolean|array
+	 */
+	public static function getPhoto($resourceid, $scale = 0)
+	{
+		$r = self::selectFirst(["uid"], ["resource-id" => $resourceid]);
+		if ($r===false) return false;
+
+		$sql_acl = Security::getPermissionsSQLByUserId($r["uid"]);
+
+		$condition = [
+			"`resource-id` = ? AND `scale` <= ? " . $sql_acl,
+			$resourceid, $scale
+		];
+
+		$params = [ "order" => ["scale" => true]];
+
+		$photo = self::selectFirst([], $condition, $params);
+		if ($photo === false) {
+			return false; ///TODO: Return info for red sign image
+		}
+		return $photo;
+	}
+
+	/**
+	 * @brief Check if photo with given resource id exists
+	 *
+	 * @param string  $resourceid  Resource ID of the photo
+	 *
+	 * @return boolean
+	 */
+	public static function exists($resourceid)
+	{
+		return DBA::count("photo", ["resource-id" => $resourceid]) > 0;
+	}
+
+	/**
+	 * @brief Get Image object for given row id. null if row id does not exist
+	 *
+	 * @param integer  $id  Row id
+	 *
+	 * @return \Friendica\Object\Image
+	 */
+	public static function getImageForPhotoId($id)
+	{
+		$i = self::selectFirst(["data", "type"],["id"=>$id]);
+		if ($i===false) {
+			return null;
+		}
+		return new Image($i["data"], $i["type"]);
+	}
+
+	/**
+	 * @brief Return a list of fields that are associated with the photo table
+	 *
+	 * @return array field list
+	 */
+	private static function getFields()
+	{
+		$allfields = DBStructure::definition(false);
+		$fields = array_keys($allfields["photo"]["fields"]);
+		array_splice($fields, array_search("data", $fields), 1);
+		return $fields;
+	}
+
+
+
+	/**
+	 * @brief store photo metadata in db and binary in default backend
+	 *
 	 * @param Image   $Image     image
 	 * @param integer $uid       uid
 	 * @param integer $cid       cid
@@ -35,7 +156,8 @@ class Photo
 	 * @param string  $deny_cid  optional, default = ''
 	 * @param string  $deny_gid  optional, default = ''
 	 * @param string  $desc      optional, default = ''
-	 * @return object
+	 *
+	 * @return boolean True on success
 	 */
 	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '')
 	{
