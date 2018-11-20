@@ -315,7 +315,7 @@ class Receiver
 			$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo');
 			$trust_source = ($actor == $attributed_to);
 			if (!$trust_source) {
-				Logger::log('Not trusting actor: ' . $actor . '. It differs from  attributedTo: ' . $attributed_to, Logger::DEBUG);
+				Logger::log('Not trusting actor: ' . $actor . '. It differs from attributedTo: ' . $attributed_to, Logger::DEBUG);
 			}
 		}
 
