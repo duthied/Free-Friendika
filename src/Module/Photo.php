@@ -72,7 +72,7 @@ class Photo extends BaseModule
 			break;
 		}
 
-		if ($photo===false) {
+		if ($photo === false) {
 			// not using System::httpExit() because we don't want html here.
 			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found" , true, 404);
 			killme();
