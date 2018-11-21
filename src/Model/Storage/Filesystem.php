@@ -46,6 +46,36 @@ class Filesystem implements IStorage
 		return "{$base}/{$fold1}/{$fold2}/{$file}";
 	}
 
+
+	/**
+	 * @brief Create dirctory tree to store file, with .htaccess and index.html files
+	 * @param string  $file  Path and filename
+	 */
+	private static function createFoldersForFile($file)
+	{
+		$path = dirname($file);
+
+		if (!is_dir($path)) {
+			if (!mkdir($path, 0770, true)) {
+				Logger::log("Failed to create dirs {$path}");
+				echo L10n::t("Filesystem storage failed to create '%s'. Check you write permissions.", $path);
+				killme();
+			}
+		}
+
+		$base = self::getBasePath();
+		
+		while ($path !== $base) {
+			if (!is_file($path . "/index.html")) {
+				file_put_contents($path . "/index.html", "");
+			}
+			$path = dirname($path);
+		}
+		if (!is_file($path . "/index.html")) {
+			file_put_contents($path . "/index.html", "");
+		}
+	}
+
 	public static function get($ref)
 	{
 		$file = self::pathForRef($ref);
@@ -61,17 +91,9 @@ class Filesystem implements IStorage
 		if ($ref === "") {
 			$ref = Strings::getRandomHex();
 		}
-
 		$file = self::pathForRef($ref);
-		$path = dirname($file);
 
-		if (!is_dir($path)) {
-			if (!mkdir($path, 0770, true)) {
-				Logger::log("Failed to create dirs {$path}");
-				echo L10n::t("Filesystem storage failed to create '%s'. Check you write permissions.", $path);
-				killme();
-			}
-		}
+		self::createFoldersForFile($file);
 
 		$r = file_put_contents($file, $data);
 		if ($r === FALSE) {
