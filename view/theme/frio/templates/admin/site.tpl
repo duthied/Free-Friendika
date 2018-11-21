@@ -38,6 +38,16 @@
 			return false;
 		});
 	});
+	$(function(){
+		$(".collapse").on('show.bs.collapse', function(e) {
+			localStorage.setItem('activeTab', $(e.target).attr('id'));
+		});
+		var activeTab = localStorage.getItem('activeTab');
+		if (activeTab) {
+			$("#" + activeTab).collapse('show');
+			window.scroll(0, $("#" + activeTab).offset().top - 120);
+		}
+	});
 </script>
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css" type="text/css" media="screen"/>
 
