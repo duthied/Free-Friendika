@@ -46,6 +46,7 @@
 		if (activeTab) {
 			$("#" + activeTab).collapse('show');
 			window.scroll(0, $("#" + activeTab).offset().top - 120);
+			localStorage.removeItem('activeTab');
 		}
 	});
 </script>
