@@ -73,14 +73,12 @@ function profile_photo_post(App $a)
 		$srcW = $_POST['xfinal'] - $srcX;
 		$srcH = $_POST['yfinal'] - $srcY;
 
-		$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = %d LIMIT 1", DBA::escape($image_id),
-			DBA::escape(local_user()), intval($scale));
+		$base_image = Photo::selectFirst([], ['resource-id' => $image_id, 'uid' => local_user(), 'scale' => $scale]);
 
 		$path = 'profile/' . $a->user['nickname'];
-		if (DBA::isResult($r)) {
-			$base_image = $r[0];
+		if (DBA::isResult($base_image)) {
 
-			$Image = new Image($base_image['data'], $base_image['type']);
+			$Image = Photo::getImageForPhoto($base_image);
 			if ($Image->isValid()) {
 				$Image->crop(300, $srcX, $srcY, $srcW, $srcH);
 
@@ -194,9 +192,14 @@ function profile_photo_content(App $a)
 
 		$resource_id = $a->argv[2];
 		//die(":".local_user());
+
+		$r = Photo::select([], ["resource-id" => $resource_id, "uid" => local_user()], ["order" => ["scale"=>false]]);
+
+		/*
 		$r = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' ORDER BY `scale` ASC", intval(local_user()),
 			DBA::escape($resource_id)
 		);
+		*/
 
 		if (!DBA::isResult($r)) {
 			notice(L10n::t('Permission denied.') . EOL);
@@ -230,7 +233,8 @@ function profile_photo_content(App $a)
 			$a->internalRedirect('profile/' . $a->user['nickname']);
 			return; // NOTREACHED
 		}
-		$ph = new Image($r[0]['data'], $r[0]['type']);
+		$ph = Photo::getImageForPhoto($r[0]);
+		
 		$imagecrop = profile_photo_crop_ui_head($a, $ph);
 		// go ahead as we have jus uploaded a new photo to crop
 	}

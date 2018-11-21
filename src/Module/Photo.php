@@ -124,7 +124,7 @@ class Photo extends BaseModule
 	private static function stripExtension($name)
 	{
 		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
-		foreach (Image::supportedTypes() AS $m => $e) {
+		foreach (Image::supportedTypes() as $m => $e) {
 			$name = str_replace("." . $e, "", $name);
 		}
 		return $name;
