@@ -345,6 +345,8 @@ class Photo extends BaseObject
 			}
 		}
 
+		$fields['updated'] = DateTimeFormat::utcNow();
+
 		return DBA::update("photo", $fields, $conditions);
 	}
 
