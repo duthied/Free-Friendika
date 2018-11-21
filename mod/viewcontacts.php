@@ -68,8 +68,9 @@ function viewcontacts_content(App $a)
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
 		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
 			AND NOT `hidden` AND NOT `archive`
-			AND `network` IN ('%s', '%s', '%s')",
+			AND `network` IN ('%s', '%s', '%s', '%s')",
 		intval($a->profile['uid']),
+		DBA::escape(Protocol::ACTIVITYPUB),
 		DBA::escape(Protocol::DFRN),
 		DBA::escape(Protocol::DIASPORA),
 		DBA::escape(Protocol::OSTATUS)
@@ -82,9 +83,10 @@ function viewcontacts_content(App $a)
 	$r = q("SELECT * FROM `contact`
 		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
 			AND NOT `hidden` AND NOT `archive`
-			AND `network` IN ('%s', '%s', '%s')
+			AND `network` IN ('%s', '%s', '%s', '%s')
 		ORDER BY `name` ASC LIMIT %d, %d",
 		intval($a->profile['uid']),
+		DBA::escape(Protocol::ACTIVITYPUB),
 		DBA::escape(Protocol::DFRN),
 		DBA::escape(Protocol::DIASPORA),
 		DBA::escape(Protocol::OSTATUS),
