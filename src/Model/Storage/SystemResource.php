@@ -1,6 +1,7 @@
 <?php
 /**
  * @file src/Model/Storage/SystemStorage.php
+ * @brief Storage backend system
  */
 
 namespace Friendica\Model\Storage;
@@ -11,19 +12,12 @@ namespace Friendica\Model\Storage;
  * This class is used to load system resources, like images.
  * Is not itended to be selectable by admins as default storage class.
  */
-class SystemResource
+class SystemResource implements IStorage
 {
 	// Valid folders to look for resources
 	const VALID_FOLDERS = [ "images" ];
 
-	/**
-	 * @brief get data
-	 *
-	 * @param string  $resourceid
-	 *
-	 * @return string
-	 */
-	static function get($filename)
+	public static function get($filename)
 	{
 		$folder = dirname($filename);
 		if (!in_array($folder, self::VALID_FOLDERS)) return "";
@@ -31,9 +25,16 @@ class SystemResource
 		return file_get_contents($filename);
 	}
 
-	static function put($filename, $data)
+
+	public static function put($data, $filename=null)
 	{
 		throw new \BadMethodCallException();
 	}
+
+	public static function delete($filename)
+	{
+		throw new \BadMethodCallException();
+	}
+
 }
 
