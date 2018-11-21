@@ -30,7 +30,7 @@ class SystemResource implements IStorage
 	}
 
 
-	public static function put($data, $filename="")
+	public static function put($data, $filename = "")
 	{
 		throw new \BadMethodCallException();
 	}

@@ -150,7 +150,7 @@ class Photo extends BaseModule
 		}
 
 		$photo = MPhoto::selectFirst([], ["scale" => $scale, "uid" => $uid, "profile" => 1]);
-		if ($photo===false) {
+		if ($photo === false) {
 			$photo = MPhoto::createPhotoForSystemResource($default);
 		}
 		return $photo;

@@ -19,7 +19,7 @@ interface IStorage
 	public static function get($ref);
 
 	/**
-	 * @brief Put data in backend as $ref. If $ref is not defiend a new reference is created.
+	 * @brief Put data in backend as $ref. If $ref is not defined a new reference is created.
 	 * @param string  $data  Data to save
 	 * @param string  $ref   Data referece. Optional.
 	 * @return string Saved data referece

@@ -125,7 +125,7 @@ class Photo extends BaseObject
 		$data = "";
 		if ($photo["backend-class"] == "") {
 			// legacy data storage in "data" column
-			$i = self::selectFirst(["data"], ["id"=>$photo["id"]]);
+			$i = self::selectFirst(["data"], ["id" => $photo["id"]]);
 			if ($i === false) {
 				return null;
 			}
@@ -168,7 +168,7 @@ class Photo extends BaseObject
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 		$photo = array_combine($fields, $values);
-		$photo["backend-class"] = "\Friendica\Model\Storage\SystemResource";
+		$photo["backend-class"] = \Friendica\Model\Storage\SystemResource::class;
 		$photo["backend-ref"] = $filename;
 		$photo["type"] = $mimetype;
 		$photo["cacheable"] = false;
