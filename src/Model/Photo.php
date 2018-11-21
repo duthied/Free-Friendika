@@ -67,13 +67,55 @@ class Photo extends BaseObject
 	}
 
 	/**
+	 * @brief Get a photo for user id
+	 *
+	 * @param integer  $uid          User id
+	 * @param string   $resourceid   Rescource ID of the photo
+	 * @param array    $conditions   Array of fields for conditions
+	 * @param array    $params       Array of several parameters
+	 *
+	 * @return bool|array
+	 *
+	 * @see \Friendica\Database\DBA::select
+	 */
+	public static function getPhotosForUser($uid, $resourceid, array $conditions = [], array $params = [])
+	{
+		$conditions["resource-id"] = $resourceid;
+		$conditions["uid"] = $uid;
+
+		return self::select([], $conditions, $params);
+	}
+
+	/**
+	 * @brief Get a photo for user id
+	 *
+	 * @param integer  $uid          User id
+	 * @param string   $resourceid   Rescource ID of the photo
+	 * @param integer  $scale        Scale of the photo. Defaults to 0
+	 * @param array    $conditions   Array of fields for conditions
+	 * @param array    $params       Array of several parameters
+	 *
+	 * @return bool|array
+	 *
+	 * @see \Friendica\Database\DBA::select
+	 */
+	public static function getPhotoForUser($uid, $resourceid, $scale = 0, array $conditions = [], array $params = [])
+	{
+		$conditions["resource-id"] = $resourceid;
+		$conditions["uid"] = $uid;
+		$conditions["scale"] = $scale;
+
+		return self::selectFirst([], $conditions, $params);
+	}
+
+	/**
 	 * @brief Get a single photo given resource id and scale
 	 *
 	 * This method checks for permissions. Returns associative array
 	 * on success, "no sign" image info, if user has no permission,
 	 * false if photo does not exists
 	 *
-	 * @param string  $resourceid  Rescource ID for the photo
+	 * @param string  $resourceid  Rescource ID of the photo
 	 * @param integer $scale       Scale of the photo. Defaults to 0
 	 *
 	 * @return boolean|array
@@ -273,6 +315,37 @@ class Photo extends BaseObject
 		}
 
 		return DBA::delete("photo", $conditions, $options);
+	}
+
+	/**
+	 * @brief Update a photo
+	 *
+	 * @param array         $fields     Contains the fields that are updated
+	 * @param array         $conditions Condition array with the key values
+	 * @param Image         $img        Image to update. Optional, default null.
+	 * @param array|boolean $old_fields Array with the old field values that are about to be replaced (true = update on duplicate)
+	 *
+	 * @return boolean  Was the update successfull?
+	 *
+	 * @see \Friendica\Database\DBA::update
+	 */
+	public static function update($fields, $conditions, Image $img = null, array $old_fields = [])
+	{
+		if (!is_null($img)) {
+			// get photo to update
+			$photos = self::select(["backend-class","backend-ref"], $conditions);
+
+			foreach($photos as $photo) {
+				$backend_class = (string)$photo["backend-class"];
+				if ($backend_class !== "") {
+					$fields["backend-ref"] = $backend_class::put($img->asString(), $photo["backend-ref"]);
+				} else {
+					$fields["data"] = $img->asString();
+				}
+			}
+		}
+
+		return DBA::update("photo", $fields, $conditions);
 	}
 
 	/**
