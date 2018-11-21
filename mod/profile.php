@@ -253,7 +253,7 @@ function profile_content(App $a, $update = 0)
 			$sql_extra4 = " AND `item`.`received` > '" . $gmupdate . "'";
 		}
 
-		$items = q("SELECT DISTINCT(`parent-uri`) AS `uri`
+		$items = q("SELECT DISTINCT(`parent-uri`) AS `uri`, `item`.`created`
 			FROM `item` INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			AND NOT `contact`.`blocked` AND NOT `contact`.`pending`
 			WHERE `item`.`uid` = %d AND `item`.`visible` AND
