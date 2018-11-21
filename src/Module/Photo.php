@@ -78,7 +78,7 @@ class Photo extends BaseModule
 			killme();
 		}
 
-		$cacheable = ($photo["allow_cid"].$photo["allow_gid"].$photo["deny_cid"].$photo["deny_gid"] === "") && (isset($photo["cacheable"])?$photo["cacheable"]:true);
+		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
 
 		$img = MPhoto::getImageForPhoto($photo);
 
