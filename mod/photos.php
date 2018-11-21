@@ -281,19 +281,15 @@ function photos_post(App $a)
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
-					$res[] = "'" . DBA::escape($rr['rid']) . "'";
+					$res[] = $rr['rid'];
 				}
 			} else {
 				$a->internalRedirect($_SESSION['photo_return']);
 				return; // NOTREACHED
 			}
 
-			$str_res = implode(',', $res);
-
 			// remove the associated photos
-			q("DELETE FROM `photo` WHERE `resource-id` IN ($str_res) AND `uid` = %d",
-				intval($page_owner_uid)
-			);
+			Photo::delete(['resource-id' => $res, 'uid' => $page_owner_uid]);
 
 			// find and delete the corresponding item with all the comments and likes/dislikes
 			Item::deleteForUser(['resource-id' => $res, 'uid' => $page_owner_uid], $page_owner_uid);
@@ -348,10 +344,7 @@ function photos_post(App $a)
 		}
 
 		if (DBA::isResult($r)) {
-			q("DELETE FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
-				intval($page_owner_uid),
-				DBA::escape($r[0]['resource-id'])
-			);
+			Photo::delete(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid]);
 
 			Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
 
@@ -1678,7 +1671,6 @@ function photos_content(App $a)
 			}
 
 			$twist = !$twist;
-
 			$ext = $phototypes[$rr['type']];
 
 			$alt_e = $rr['filename'];
