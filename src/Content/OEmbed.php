@@ -247,8 +247,7 @@ class OEmbed
 
 		$ret .= '</div>';
 
-		$ret = str_replace("\n", "", $ret);
-		return mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
+		return str_replace("\n", "", $ret);
 	}
 
 	public static function BBCode2HTML($text)
