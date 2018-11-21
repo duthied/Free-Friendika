@@ -9,7 +9,6 @@ use DOMDocument;
 use DOMXPath;
 use Exception;
 use Friendica\Database\DBA;
-use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 
 /**
@@ -1719,72 +1718,62 @@ class App
 			}
 		}
 
+		$content = '';
+
 		// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
-		try {
-			$content = '';
+		if ($this->module_loaded) {
+			$this->page['page_title'] = $this->module;
+			$placeholder = '';
 
-			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
-			if ($this->module_loaded) {
-				$this->page['page_title'] = $this->module;
-				$placeholder = '';
+			Core\Addon::callHooks($this->module . '_mod_init', $placeholder);
 
-				Core\Addon::callHooks($this->module . '_mod_init', $placeholder);
+			call_user_func([$this->module_class, 'init']);
 
-				call_user_func([$this->module_class, 'init']);
-
-				// "rawContent" is especially meant for technical endpoints.
-				// This endpoint doesn't need any theme initialization or other comparable stuff.
-				if (!$this->error) {
-					call_user_func([$this->module_class, 'rawContent']);
-				}
+			// "rawContent" is especially meant for technical endpoints.
+			// This endpoint doesn't need any theme initialization or other comparable stuff.
+			if (!$this->error) {
+				call_user_func([$this->module_class, 'rawContent']);
 			}
-
-			// Load current theme info after module has been initialized as theme could have been set in module
-			$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
-			if (file_exists($theme_info_file)) {
-				require_once $theme_info_file;
-			}
-
-			if (function_exists(str_replace('-', '_', $this->getCurrentTheme()) . '_init')) {
-				$func = str_replace('-', '_', $this->getCurrentTheme()) . '_init';
-				$func($this);
-			}
-
-			if ($this->module_loaded) {
-				if (! $this->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
-					Core\Addon::callHooks($this->module . '_mod_post', $_POST);
-					call_user_func([$this->module_class, 'post']);
-				}
-
-				if (! $this->error) {
-					Core\Addon::callHooks($this->module . '_mod_afterpost', $placeholder);
-					call_user_func([$this->module_class, 'afterpost']);
-				}
-
-				if (! $this->error) {
-					$arr = ['content' => $content];
-					Core\Addon::callHooks($this->module . '_mod_content', $arr);
-					$content = $arr['content'];
-					$arr = ['content' => call_user_func([$this->module_class, 'content'])];
-					Core\Addon::callHooks($this->module . '_mod_aftercontent', $arr);
-					$content .= $arr['content'];
-				}
-			}
-
-			// initialise content region
-			if ($this->getMode()->isNormal()) {
-				Core\Addon::callHooks('page_content_top', $this->page['content']);
-			}
-
-			$this->page['content'] .= $content;
-		} catch (HTTPException $e) {
-			header($_SERVER["SERVER_PROTOCOL"] . " " . $e->httpcode . " " . $e->httpdesc , true, $e->httpcode);
-			$error = ($e->getMessage() !== "" ? $e->getMessage() : $e->httpdesc);
-			$tpl = Core\Renderer::getMarkupTemplate("404.tpl");
-			$this->page['content'] = Core\Renderer::replaceMacros($tpl, [
-				'$message' => $error
-			]);
 		}
+
+		// Load current theme info after module has been initialized as theme could have been set in module
+		$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
+		if (file_exists($theme_info_file)) {
+			require_once $theme_info_file;
+		}
+
+		if (function_exists(str_replace('-', '_', $this->getCurrentTheme()) . '_init')) {
+			$func = str_replace('-', '_', $this->getCurrentTheme()) . '_init';
+			$func($this);
+		}
+
+		if ($this->module_loaded) {
+			if (! $this->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
+				Core\Addon::callHooks($this->module . '_mod_post', $_POST);
+				call_user_func([$this->module_class, 'post']);
+			}
+
+			if (! $this->error) {
+				Core\Addon::callHooks($this->module . '_mod_afterpost', $placeholder);
+				call_user_func([$this->module_class, 'afterpost']);
+			}
+
+			if (! $this->error) {
+				$arr = ['content' => $content];
+				Core\Addon::callHooks($this->module . '_mod_content', $arr);
+				$content = $arr['content'];
+				$arr = ['content' => call_user_func([$this->module_class, 'content'])];
+				Core\Addon::callHooks($this->module . '_mod_aftercontent', $arr);
+				$content .= $arr['content'];
+			}
+		}
+
+		// initialise content region
+		if ($this->getMode()->isNormal()) {
+			Core\Addon::callHooks('page_content_top', $this->page['content']);
+		}
+
+		$this->page['content'] .= $content;
 
 		/* Create the page head after setting the language
 		 * and getting any auth credentials.
