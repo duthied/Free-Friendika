@@ -15,18 +15,22 @@ namespace Friendica\Model\Storage;
 class SystemResource implements IStorage
 {
 	// Valid folders to look for resources
-	const VALID_FOLDERS = [ "images" ];
+	const VALID_FOLDERS = ["images"];
 
 	public static function get($filename)
 	{
 		$folder = dirname($filename);
-		if (!in_array($folder, self::VALID_FOLDERS)) return "";
-		if (!file_exists($filename)) return "";
+		if (!in_array($folder, self::VALID_FOLDERS)) {
+			return "";
+		}
+		if (!file_exists($filename)) {
+			return "";
+		}
 		return file_get_contents($filename);
 	}
 
 
-	public static function put($data, $filename=null)
+	public static function put($data, $filename="")
 	{
 		throw new \BadMethodCallException();
 	}

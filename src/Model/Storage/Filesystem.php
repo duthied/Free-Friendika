@@ -24,7 +24,7 @@ use Friendica\Util\Strings;
 class Filesystem implements IStorage
 {
 	// Default base folder
-	const DEFAULT_BASE_FOLDER="storage";
+	const DEFAULT_BASE_FOLDER = "storage";
 
 	private static function getBasePath()
 	{
@@ -39,28 +39,26 @@ class Filesystem implements IStorage
 	private static function pathForRef($ref)
 	{
 		$base = self::getBasePath();
-		$fold1 = substr($ref,0,2);
-		$fold2 = substr($ref,2,2);
-		$file = substr($ref,4);
+		$fold1 = substr($ref, 0, 2);
+		$fold2 = substr($ref, 2, 2);
+		$file = substr($ref, 4);
 
 		return "{$base}/{$fold1}/{$fold2}/{$file}";
 	}
-	/*
-
-	}
-	*/
 
 	public static function get($ref)
 	{
 		$file = self::pathForRef($ref);
-		if (!is_file($file)) return "";
+		if (!is_file($file)) {
+			return "";
+		}
 
 		return file_get_contents($file);
 	}
 
-	public static function put($data, $ref = null)
+	public static function put($data, $ref = "")
 	{
-		if (is_null($ref)) {
+		if ($ref === "") {
 			$ref = Strings::getRandomHex();
 		}
 
@@ -87,6 +85,10 @@ class Filesystem implements IStorage
 	public static function delete($ref)
 	{
 		$file = self::pathForRef($ref);
+		// return true if file doesn't exists. we want to delete it: success with zero work!
+		if (!is_file($file)) { 
+			return true;
+		}
 		return unlink($file);
 	}
 

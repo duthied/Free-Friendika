@@ -7,6 +7,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Model\Photo as MPhoto;
 use Friendica\Object\Image;
 use Friendica\Util\Security;
@@ -30,22 +31,21 @@ class Photo extends BaseModule
 	{
 		$a = self::getApp();
 		if ($a->argc <= 1 || $a->argc > 4) {
-			throw new BadRequestException();
-			killme();
+			System::httpExit(400, "Bad Request");
 		}
 
-		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-			header('HTTP/1.1 304 Not Modified');
+		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
+			header("HTTP/1.1 304 Not Modified");
 			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
-			if (!empty($_SERVER['HTTP_IF_NONE_MATCH'])) {
-				header('Etag: ' . $_SERVER['HTTP_IF_NONE_MATCH']);
+			if (!empty($_SERVER["HTTP_IF_NONE_MATCH"])) {
+				header("Etag: " . $_SERVER["HTTP_IF_NONE_MATCH"]);
 			}
 			header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
 			header("Cache-Control: max-age=31536000");
-			if (function_exists('header_remove')) {
-				header_remove('Last-Modified');
-				header_remove('Expires');
-				header_remove('Cache-Control');
+			if (function_exists("header_remove")) {
+				header_remove("Last-Modified");
+				header_remove("Expires");
+				header_remove("Cache-Control");
 			}
 			exit;
 		}
@@ -64,7 +64,7 @@ class Photo extends BaseModule
 		case 2:
 			$photoid = self::stripExtension($a->argv[1]);
 			$scale = 0;
-			if (substr($photoid, -2, 1) == '-') {
+			if (substr($photoid, -2, 1) == "-") {
 				$scale = intval(substr($photoid, -1, 1));
 				$photoid = substr($photoid, 0, -2);
 			}
@@ -73,6 +73,7 @@ class Photo extends BaseModule
 		}
 
 		if ($photo===false) {
+			// not using System::httpExit() because we don't want html here.
 			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found" , true, 404);
 			killme();
 		}
@@ -82,8 +83,8 @@ class Photo extends BaseModule
 		$img = MPhoto::getImageForPhoto($photo);
 
 		if (is_null($img) || !$img->isValid()) {
-			Logger::log("Invalid photo with id {$photo['id']}.");
-			throw new InternalServerErrorException();
+			Logger::log("Invalid photo with id {$photo["id"]}.");
+			System::httpExit(500, "Internal Server Error");
 		}
 
 
@@ -93,9 +94,9 @@ class Photo extends BaseModule
 		}
 
 
-		if (function_exists('header_remove')) {
-			header_remove('Pragma');
-			header_remove('pragma');
+		if (function_exists("header_remove")) {
+			header_remove("Pragma");
+			header_remove("pragma");
 		}
 
 		header("Content-type: " . $img->getType());
@@ -106,12 +107,12 @@ class Photo extends BaseModule
 			// and subsequently have permission to see it
 			header("Cache-Control: no-store, no-cache, must-revalidate");
 		} else {
+			$md5 = md5($img->asString());
 			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
-			header('Etag: "' . md5($img->asString()) . '"');
+			header("Etag: \"{$md5}\"");
 			header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
 			header("Cache-Control: max-age=31536000");
 		}
-
 
 
 		echo $img->asString();
@@ -124,7 +125,7 @@ class Photo extends BaseModule
 	{
 		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
 		foreach (Image::supportedTypes() AS $m => $e) {
-			$name = str_replace('.' . $e, '', $name);
+			$name = str_replace("." . $e, "", $name);
 		}
 		return $name;
 	}

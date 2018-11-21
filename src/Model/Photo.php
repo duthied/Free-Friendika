@@ -62,7 +62,7 @@ class Photo extends BaseObject
 		}
 
 		return DBA::selectFirst("photo", $fields, $condition, $params);
-   	}
+	}
 
 	/**
 	 * @brief Get a single photo given resource id and scale
@@ -79,7 +79,9 @@ class Photo extends BaseObject
 	public static function getPhoto($resourceid, $scale = 0)
 	{
 		$r = self::selectFirst(["uid"], ["resource-id" => $resourceid]);
-		if ($r===false) return false;
+		if ($r === false) {
+			return false;
+		}
 
 		$sql_acl = Security::getPermissionsSQLByUserId($r["uid"]);
 
@@ -122,7 +124,7 @@ class Photo extends BaseObject
 		if ($photo["backend-class"] == "") {
 			// legacy data storage in "data" column
 			$i = self::selectFirst(["data"], ["id"=>$photo["id"]]);
-			if ($i===false) {
+			if ($i === false) {
 				return null;
 			}
 			$data = $i["data"];
@@ -207,7 +209,7 @@ class Photo extends BaseObject
 		$data = "";
 		$backend_ref = "";
 		$backend_class = Config::get("storage", "class", "");
-		if ($backend_class==="") {
+		if ($backend_class === "") {
 			$data = $Image->asString();
 		} else {
 			$backend_ref = $backend_class::put($Image->asString());
