@@ -18,6 +18,8 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Security;
 
+require_once "include/dba.php";
+
 /**
  * Class to handle photo dabatase table
  */
@@ -26,42 +28,42 @@ class Photo extends BaseObject
 	/**
 	 * @brief Select rows from the photo table
 	 *
-	 * @param array  $fields    Array of selected fields, empty for all
-	 * @param array  $condition Array of fields for condition
-	 * @param array  $params    Array of several parameters
+	 * @param array  $fields     Array of selected fields, empty for all
+	 * @param array  $conditions Array of fields for conditions
+	 * @param array  $params     Array of several parameters
 	 *
 	 * @return boolean|array
 	 *
 	 * @see \Friendica\Database\DBA::select
 	 */
-	public static function select(array $fields = [], array $condition = [], array $params = [])
+	public static function select(array $fields = [], array $conditions = [], array $params = [])
 	{
 		if (empty($fields)) {
 			$selected = self::getFields();
 		}
 
-		$r = DBA::select("photo", $fields, $condition, $params);
+		$r = DBA::select("photo", $fields, $conditions, $params);
 		return DBA::toArray($r);
 	}
 
 	/**
 	 * @brief Retrieve a single record from the photo table
 	 *
-	 * @param array  $fields    Array of selected fields, empty for all
-	 * @param array  $condition Array of fields for condition
-	 * @param array  $params    Array of several parameters
+	 * @param array  $fields     Array of selected fields, empty for all
+	 * @param array  $conditions Array of fields for conditions
+	 * @param array  $params     Array of several parameters
 	 *
 	 * @return bool|array
 	 *
 	 * @see \Friendica\Database\DBA::select
 	 */
-	public static function selectFirst(array $fields = [], array $condition = [], array $params = [])
+	public static function selectFirst(array $fields = [], array $conditions = [], array $params = [])
 	{
 		if (empty($fields)) {
 			$fields = self::getFields();
 		}
 
-		return DBA::selectFirst("photo", $fields, $condition, $params);
+		return DBA::selectFirst("photo", $fields, $conditions, $params);
 	}
 
 	/**
@@ -85,14 +87,14 @@ class Photo extends BaseObject
 
 		$sql_acl = Security::getPermissionsSQLByUserId($r["uid"]);
 
-		$condition = [
+		$conditions = [
 			"`resource-id` = ? AND `scale` <= ? " . $sql_acl,
 			$resourceid, $scale
 		];
 
-		$params = [ "order" => ["scale" => true]];
+		$params = ["order" => ["scale" => true]];
 
-		$photo = self::selectFirst([], $condition, $params);
+		$photo = self::selectFirst([], $conditions, $params);
 		if ($photo === false) {
 			return self::createPhotoForSystemResource("images/nosign.jpg");
 		}
@@ -169,7 +171,7 @@ class Photo extends BaseObject
 		$photo["backend-class"] = "\Friendica\Model\Storage\SystemResource";
 		$photo["backend-ref"] = $filename;
 		$photo["type"] = $mimetype;
-		$photo['cacheable'] = false;
+		$photo["cacheable"] = false;
 		return $photo;
 	}
 
@@ -185,68 +187,92 @@ class Photo extends BaseObject
 	 * @param string  $album     album name
 	 * @param integer $scale     scale
 	 * @param integer $profile   optional, default = 0
-	 * @param string  $allow_cid optional, default = ''
-	 * @param string  $allow_gid optional, default = ''
-	 * @param string  $deny_cid  optional, default = ''
-	 * @param string  $deny_gid  optional, default = ''
-	 * @param string  $desc      optional, default = ''
+	 * @param string  $allow_cid optional, default = ""
+	 * @param string  $allow_gid optional, default = ""
+	 * @param string  $deny_cid  optional, default = ""
+	 * @param string  $deny_gid  optional, default = ""
+	 * @param string  $desc      optional, default = ""
 	 *
 	 * @return boolean True on success
 	 */
-	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '', $desc = '')
+	public static function store(Image $Image, $uid, $cid, $rid, $filename, $album, $scale, $profile = 0, $allow_cid = "", $allow_gid = "", $deny_cid = "", $deny_gid = "", $desc = "")
 	{
-		$photo = DBA::selectFirst('photo', ['guid'], ["`resource-id` = ? AND `guid` != ?", $rid, '']);
+		$photo = self::selectFirst(["guid"], ["`resource-id` = ? AND `guid` != ?", $rid, ""]);
 		if (DBA::isResult($photo)) {
-			$guid = $photo['guid'];
+			$guid = $photo["guid"];
 		} else {
 			$guid = System::createGUID();
 		}
 
-		$existing_photo = DBA::selectFirst('photo', ['id'], ['resource-id' => $rid, 'uid' => $uid, 'contact-id' => $cid, 'scale' => $scale]);
+		$existing_photo = self::selectFirst(["id", "backend-class", "backend-ref"], ["resource-id" => $rid, "uid" => $uid, "contact-id" => $cid, "scale" => $scale]);
 
 		// Get defined storage backend.
 		// if no storage backend, we use old "data" column in photo table.
+		// if is an existing photo, reuse same backend
 		$data = "";
 		$backend_ref = "";
-		$backend_class = Config::get("storage", "class", "");
+		$backend_class = "";
+
+		if (DBA::isResult($existing_photo)) {
+			$backend_ref = (string)$existing_photo["backend-ref"];
+			$backend_class = (string)$existing_photo["backend-class"];
+		} else {
+			$backend_class = Config::get("storage", "class", "");
+		}
 		if ($backend_class === "") {
 			$data = $Image->asString();
 		} else {
-			$backend_ref = $backend_class::put($Image->asString());
+			$backend_ref = $backend_class::put($Image->asString(), $backend_ref);
 		}
 
+
 		$fields = [
-			'uid' => $uid,
-			'contact-id' => $cid,
-			'guid' => $guid,
-			'resource-id' => $rid,
-			'created' => DateTimeFormat::utcNow(),
-			'edited' => DateTimeFormat::utcNow(),
-			'filename' => basename($filename),
-			'type' => $Image->getType(),
-			'album' => $album,
-			'height' => $Image->getHeight(),
-			'width' => $Image->getWidth(),
-			'datasize' => strlen($Image->asString()),
-			'data' => $data,
-			'scale' => $scale,
-			'profile' => $profile,
-			'allow_cid' => $allow_cid,
-			'allow_gid' => $allow_gid,
-			'deny_cid' => $deny_cid,
-			'deny_gid' => $deny_gid,
-			'desc' => $desc,
-			'backend-class' => $backend_class,
-			'backend-ref' => $backend_ref
+			"uid" => $uid,
+			"contact-id" => $cid,
+			"guid" => $guid,
+			"resource-id" => $rid,
+			"created" => DateTimeFormat::utcNow(),
+			"edited" => DateTimeFormat::utcNow(),
+			"filename" => basename($filename),
+			"type" => $Image->getType(),
+			"album" => $album,
+			"height" => $Image->getHeight(),
+			"width" => $Image->getWidth(),
+			"datasize" => strlen($Image->asString()),
+			"data" => $data,
+			"scale" => $scale,
+			"profile" => $profile,
+			"allow_cid" => $allow_cid,
+			"allow_gid" => $allow_gid,
+			"deny_cid" => $deny_cid,
+			"deny_gid" => $deny_gid,
+			"desc" => $desc,
+			"backend-class" => $backend_class,
+			"backend-ref" => $backend_ref
 		];
 
 		if (DBA::isResult($existing_photo)) {
-			$r = DBA::update('photo', $fields, ['id' => $existing_photo['id']]);
+			$r = DBA::update("photo", $fields, ["id" => $existing_photo["id"]]);
 		} else {
-			$r = DBA::insert('photo', $fields);
+			$r = DBA::insert("photo", $fields);
 		}
 
 		return $r;
+	}
+
+	public static function delete(array $conditions, $options = [])
+	{
+		// get photo to delete data info
+		$photos = self::select(["backend-class","backend-ref"], $conditions);
+		
+		foreach($photos as $photo) {
+			$backend_class = (string)$photo["backend-class"];
+			if ($backend_class !== "") {
+				$backend_class::delete($photo["backend-ref"]);
+			}
+		}
+
+		return DBA::delete("photo", $conditions, $options);
 	}
 
 	/**
@@ -258,14 +284,14 @@ class Photo extends BaseObject
 	 */
 	public static function importProfilePhoto($image_url, $uid, $cid, $quit_on_error = false)
 	{
-		$thumb = '';
-		$micro = '';
+		$thumb = "";
+		$micro = "";
 
 		$photo = DBA::selectFirst(
-			'photo', ['resource-id'], ['uid' => $uid, 'contact-id' => $cid, 'scale' => 4, 'album' => 'Contact Photos']
+			"photo", ["resource-id"], ["uid" => $uid, "contact-id" => $cid, "scale" => 4, "album" => "Contact Photos"]
 		);
 		if (!empty($photo['resource-id'])) {
-			$hash = $photo['resource-id'];
+			$hash = $photo["resource-id"];
 		} else {
 			$hash = self::newResource();
 		}
@@ -284,7 +310,7 @@ class Photo extends BaseObject
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(300);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, 'Contact Photos', 4);
+			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 4);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -292,7 +318,7 @@ class Photo extends BaseObject
 
 			$Image->scaleDown(80);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, 'Contact Photos', 5);
+			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 5);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -300,32 +326,32 @@ class Photo extends BaseObject
 
 			$Image->scaleDown(48);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, 'Contact Photos', 6);
+			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 6);
 
 			if ($r === false) {
 				$photo_failure = true;
 			}
 
-			$suffix = '?ts=' . time();
+			$suffix = "?ts=" . time();
 
-			$image_url = System::baseUrl() . '/photo/' . $hash . '-4.' . $Image->getExt() . $suffix;
-			$thumb = System::baseUrl() . '/photo/' . $hash . '-5.' . $Image->getExt() . $suffix;
-			$micro = System::baseUrl() . '/photo/' . $hash . '-6.' . $Image->getExt() . $suffix;
+			$image_url = System::baseUrl() . "/photo/" . $hash . "-4." . $Image->getExt() . $suffix;
+			$thumb = System::baseUrl() . "/photo/" . $hash . "-5." . $Image->getExt() . $suffix;
+			$micro = System::baseUrl() . "/photo/" . $hash . "-6." . $Image->getExt() . $suffix;
 
 			// Remove the cached photo
 			$a = \get_app();
 			$basepath = $a->getBasePath();
 
 			if (is_dir($basepath . "/photo")) {
-				$filename = $basepath . '/photo/' . $hash . '-4.' . $Image->getExt();
+				$filename = $basepath . "/photo/" . $hash . "-4." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
-				$filename = $basepath . '/photo/' . $hash . '-5.' . $Image->getExt();
+				$filename = $basepath . "/photo/" . $hash . "-5." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
-				$filename = $basepath . '/photo/' . $hash . '-6.' . $Image->getExt();
+				$filename = $basepath . "/photo/" . $hash . "-6." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
@@ -339,9 +365,9 @@ class Photo extends BaseObject
 		}
 
 		if ($photo_failure) {
-			$image_url = System::baseUrl() . '/images/person-300.jpg';
-			$thumb = System::baseUrl() . '/images/person-80.jpg';
-			$micro = System::baseUrl() . '/images/person-48.jpg';
+			$image_url = System::baseUrl() . "/images/person-300.jpg";
+			$thumb = System::baseUrl() . "/images/person-80.jpg";
+			$micro = System::baseUrl() . "/images/person-48.jpg";
 		}
 
 		return [$image_url, $thumb, $micro];
@@ -358,7 +384,7 @@ class Photo extends BaseObject
 		$minutes = count($exifCoord) > 1 ? self::gps2Num($exifCoord[1]) : 0;
 		$seconds = count($exifCoord) > 2 ? self::gps2Num($exifCoord[2]) : 0;
 
-		$flip = ($hemi == 'W' || $hemi == 'S') ? -1 : 1;
+		$flip = ($hemi == "W" || $hemi == "S") ? -1 : 1;
 
 		return floatval($flip * ($degrees + ($minutes / 60) + ($seconds / 3600)));
 	}
@@ -369,7 +395,7 @@ class Photo extends BaseObject
 	 */
 	private static function gps2Num($coordPart)
 	{
-		$parts = explode('/', $coordPart);
+		$parts = explode("/", $coordPart);
 
 		if (count($parts) <= 0) {
 			return 0;
@@ -399,7 +425,7 @@ class Photo extends BaseObject
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		$albums = Cache::get($key);
 		if (is_null($albums) || $update) {
-			if (!Config::get('system', 'no_count', false)) {
+			if (!Config::get("system", "no_count", false)) {
 				/// @todo This query needs to be renewed. It is really slow
 				// At this time we just store the data in the cache
 				$albums = q("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
@@ -407,8 +433,8 @@ class Photo extends BaseObject
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
 					intval($uid),
-					DBA::escape('Contact Photos'),
-					DBA::escape(L10n::t('Contact Photos'))
+					DBA::escape("Contact Photos"),
+					DBA::escape(L10n::t("Contact Photos"))
 				);
 			} else {
 				// This query doesn't do the count and is much faster
@@ -416,8 +442,8 @@ class Photo extends BaseObject
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
 					intval($uid),
-					DBA::escape('Contact Photos'),
-					DBA::escape(L10n::t('Contact Photos'))
+					DBA::escape("Contact Photos"),
+					DBA::escape(L10n::t("Contact Photos"))
 				);
 			}
 			Cache::set($key, $albums, Cache::DAY);
