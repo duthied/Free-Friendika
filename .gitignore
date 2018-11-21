@@ -71,3 +71,6 @@ venv/
 
 #ignore .htaccess
 .htaccess
+
+#ignore filesystem storage default path
+/storage

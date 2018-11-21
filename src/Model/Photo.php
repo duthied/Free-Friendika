@@ -202,6 +202,17 @@ class Photo extends BaseObject
 
 		$existing_photo = DBA::selectFirst('photo', ['id'], ['resource-id' => $rid, 'uid' => $uid, 'contact-id' => $cid, 'scale' => $scale]);
 
+		// Get defined storage backend.
+		// if no storage backend, we use old "data" column in photo table.
+		$data = "";
+		$backend_ref = "";
+		$backend_class = Config::get("storage", "class", "");
+		if ($backend_class==="") {
+			$data = $Image->asString();
+		} else {
+			$backend_ref = $backend_class::put($Image->asString());
+		}
+
 		$fields = [
 			'uid' => $uid,
 			'contact-id' => $cid,
@@ -215,14 +226,16 @@ class Photo extends BaseObject
 			'height' => $Image->getHeight(),
 			'width' => $Image->getWidth(),
 			'datasize' => strlen($Image->asString()),
-			'data' => $Image->asString(),
+			'data' => $data,
 			'scale' => $scale,
 			'profile' => $profile,
 			'allow_cid' => $allow_cid,
 			'allow_gid' => $allow_gid,
 			'deny_cid' => $deny_cid,
 			'deny_gid' => $deny_gid,
-			'desc' => $desc
+			'desc' => $desc,
+			'backend-class' => $backend_class,
+			'backend-ref' => $backend_ref
 		];
 
 		if (DBA::isResult($existing_photo)) {
