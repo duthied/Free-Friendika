@@ -27,6 +27,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Core\Cache;
 use Friendica\Util\Map;
+use Friendica\Util\Network;
 
 require_once 'include/api.php';
 
@@ -446,6 +447,10 @@ class Transmitter
 
 		$contacts = DBA::select('contact', ['url'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
+			if (Network::isUrlBlocked($contact['url'])) {
+				continue;
+			}
+
 			$profile = APContact::getByURL($contact['url'], false);
 			if (!empty($profile)) {
 				if (empty($profile['sharedinbox']) || $personal) {
@@ -493,6 +498,10 @@ class Transmitter
 			$blindcopy = in_array($element, ['bto', 'bcc']);
 
 			foreach ($permissions[$element] as $receiver) {
+				if (Network::isUrlBlocked($receiver)) {
+					continue;
+				}
+
 				if ($receiver == $item_profile['followers']) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
