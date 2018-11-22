@@ -1285,10 +1285,15 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		$blocked = DBA::selectFirst('contact', ['blocked'], ['id' => $cid]);
+		$blocked = DBA::selectFirst('contact', ['blocked', 'url'], ['id' => $cid]);
 		if (!DBA::isResult($blocked)) {
 			return false;
 		}
+
+		if (Network::isUrlBlocked($blocked['url'])) {
+			return true;
+		}
+
 		return (bool) $blocked['blocked'];
 	}
 
