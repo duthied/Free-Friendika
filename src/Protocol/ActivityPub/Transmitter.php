@@ -498,6 +498,10 @@ class Transmitter
 			$blindcopy = in_array($element, ['bto', 'bcc']);
 
 			foreach ($permissions[$element] as $receiver) {
+				if (Network::isUrlBlocked($receiver)) {
+					continue;
+				}
+
 				if ($receiver == $item_profile['followers']) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
