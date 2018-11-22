@@ -1510,43 +1510,6 @@ class DFRN
 	}
 
 	/**
-	 * @brief Add new birthday event for this person
-	 *
-	 * @param array  $contact  Contact record
-	 * @param string $birthday Birthday of the contact
-	 * @return void
-	 * @todo Add array type-hint for $contact
-	 */
-	private static function birthdayEvent($contact, $birthday)
-	{
-		// Check for duplicates
-		$condition = ['uid' => $contact['uid'], 'cid' => $contact['id'],
-			'start' => DateTimeFormat::utc($birthday), 'type' => 'birthday'];
-		if (DBA::exists('event', $condition)) {
-			return;
-		}
-
-		Logger::log('updating birthday: ' . $birthday . ' for contact ' . $contact['id']);
-
-		$bdtext = L10n::t('%s\'s birthday', $contact['name']);
-		$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]');
-
-		$r = q(
-			"INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
-			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-			intval($contact['uid']),
-			intval($contact['id']),
-			DBA::escape(DateTimeFormat::utcNow()),
-			DBA::escape(DateTimeFormat::utcNow()),
-			DBA::escape(DateTimeFormat::utc($birthday)),
-			DBA::escape(DateTimeFormat::utc($birthday . ' + 1 day ')),
-			DBA::escape($bdtext),
-			DBA::escape($bdtext2),
-			DBA::escape('birthday')
-		);
-	}
-
-	/**
 	 * @brief Fetch the author data from head or entry items
 	 *
 	 * @param object $xpath     XPath object
@@ -1736,7 +1699,7 @@ class DFRN
 			$contact = array_merge($contact_old, $poco);
 
 			if ($contact_old["bdyear"] != $contact["bdyear"]) {
-				self::birthdayEvent($contact, $birthday);
+				Event::createBirthday($contact, $birthday);
 			}
 
 			// Get all field names
