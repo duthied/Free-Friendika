@@ -572,9 +572,18 @@ class Profile
 		if (is_null($r)) {
 			$s = DBA::p(
 				"SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
-				INNER JOIN `contact` ON `contact`.`id` = `event`.`cid`
+				INNER JOIN `contact`
+					ON `contact`.`id` = `event`.`cid`
+					AND (`contact`.`rel` = ? OR `contact`.`rel` = ?)
+					AND NOT `contact`.`pending`
+					AND NOT `contact`.`hidden`
+					AND NOT `contact`.`blocked`
+					AND NOT `contact`.`archive`
+					AND NOT `contact`.`deleted`
 				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
 				ORDER BY `start` ASC ",
+				Contact::SHARING,
+				Contact::FRIEND,
 				local_user(),
 				DateTimeFormat::utc('now + 6 days'),
 				DateTimeFormat::utcNow()

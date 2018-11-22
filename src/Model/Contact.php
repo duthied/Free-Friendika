@@ -1957,44 +1957,33 @@ class Contact extends BaseObject
 	 */
 	public static function updateBirthdays()
 	{
-		// This only handles foreign or alien networks where a birthday has been provided.
-		// In-network birthdays are handled within local_delivery
+		$condition = [
+			'`bd` != ""
+			AND `bd` > "0001-01-01"
+			AND SUBSTRING(`bd`, 1, 4) != `bdyear`
+			AND (`contact`.`rel` = ? OR `contact`.`rel` = ?)
+			AND NOT `contact`.`pending`
+			AND NOT `contact`.`hidden`
+			AND NOT `contact`.`blocked`
+			AND NOT `contact`.`archive`
+			AND NOT `contact`.`deleted`',
+			Contact::SHARING,
+			Contact::FRIEND
+		];
 
-		$r = q("SELECT * FROM `contact` WHERE `bd` != '' AND `bd` > '0001-01-01' AND SUBSTRING(`bd`, 1, 4) != `bdyear` ");
-		if (DBA::isResult($r)) {
-			foreach ($r as $rr) {
-				Logger::log('update_contact_birthday: ' . $rr['bd']);
+		$contacts = DBA::select('contact', ['id', 'uid', 'name', 'url', 'bd'], $condition);
 
-				$nextbd = DateTimeFormat::utcNow('Y') . substr($rr['bd'], 4);
+		while ($contact = DBA::fetch($contacts)) {
+			Logger::log('update_contact_birthday: ' . $contact['bd']);
 
-				/*
-				 * Add new birthday event for this person
-				 *
-				 * $bdtext is just a readable placeholder in case the event is shared
-				 * with others. We will replace it during presentation to our $importer
-				 * to contain a sparkle link and perhaps a photo.
-				 */
+			$nextbd = DateTimeFormat::utcNow('Y') . substr($contact['bd'], 4);
 
-				// Check for duplicates
-				$condition = ['uid' => $rr['uid'], 'cid' => $rr['id'],
-					'start' => DateTimeFormat::utc($nextbd), 'type' => 'birthday'];
-				if (DBA::exists('event', $condition)) {
-					continue;
-				}
-
-				$bdtext = L10n::t('%s\'s birthday', $rr['name']);
-				$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $rr['url'] . ']' . $rr['name'] . '[/url]');
-
-				q("INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`,`adjust`)
-				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ) ", intval($rr['uid']), intval($rr['id']),
-					DBA::escape(DateTimeFormat::utcNow()), DBA::escape(DateTimeFormat::utcNow()), DBA::escape(DateTimeFormat::utc($nextbd)),
-					DBA::escape(DateTimeFormat::utc($nextbd . ' + 1 day ')), DBA::escape($bdtext), DBA::escape($bdtext2), DBA::escape('birthday'),
-					intval(0)
-				);
-
+			if (Event::createBirthday($contact, $nextbd)) {
 				// update bdyear
-				q("UPDATE `contact` SET `bdyear` = '%s', `bd` = '%s' WHERE `uid` = %d AND `id` = %d", DBA::escape(substr($nextbd, 0, 4)),
-					DBA::escape($nextbd), intval($rr['uid']), intval($rr['id'])
+				DBA::update(
+					'contact',
+					['bdyear' => substr($nextbd, 0, 4), 'bd' => $nextbd],
+					['id' => $contact['id']]
 				);
 			}
 		}
