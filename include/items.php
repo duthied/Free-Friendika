@@ -97,7 +97,7 @@ function add_page_info_data(array $data, $no_photos = false)
 			/// @TODO make a positive list of allowed characters
 			$hashtag = str_replace([" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"],
 						["", "", "", "", "", "", "", "", "", "", "", ""], $keyword);
-			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url] ";
+			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url] ";
 		}
 	}
 
@@ -148,7 +148,7 @@ function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blackl
 				$tags .= ", ";
 			}
 
-			$tags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
+			$tags .= "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
 		}
 	}
 

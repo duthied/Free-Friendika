@@ -93,7 +93,7 @@ function tagger_content(App $a) {
 	</target>
 EOT;
 
-	$tagid = System::baseUrl() . '/search?tag=' . $term;
+	$tagid = System::baseUrl() . '/search?tag=' . $xterm;
 	$objtype = ACTIVITY_OBJ_TAGTERM;
 
 	$obj = <<< EOT
@@ -113,7 +113,7 @@ EOT;
 		return;
 	}
 
-	$termlink = html_entity_decode('&#x2317;') . '[url=' . System::baseUrl() . '/search?tag=' . urlencode($term) . ']'. $term . '[/url]';
+	$termlink = html_entity_decode('&#x2317;') . '[url=' . System::baseUrl() . '/search?tag=' . $term . ']'. $term . '[/url]';
 
 	$arr = [];
 
