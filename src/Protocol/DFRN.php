@@ -16,7 +16,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -690,7 +689,7 @@ class DFRN
 			XML::addElement($doc, $author, "poco:displayName", $profile["name"]);
 			XML::addElement($doc, $author, "poco:updated", $namdate);
 
-			if (trim($profile["dob"]) > '0001-01-01') {
+			if (trim($profile["dob"]) > DBA::NULL_DATE) {
 				XML::addElement($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
 			}
 
@@ -1722,9 +1721,9 @@ class DFRN
 			// "poco:birthday" is the birthday in the format "yyyy-mm-dd"
 			$value = XML::getFirstNodeValue($xpath, $element . "/poco:birthday/text()", $context);
 
-			if (!in_array($value, ["", "0000-00-00", "0001-01-01"])) {
+			if (!in_array($value, ["", "0000-00-00", DBA::NULL_DATE])) {
 				$bdyear = date("Y");
-				$value = str_replace("0000", $bdyear, $value);
+				$value = str_replace(["0000", "0001"], $bdyear, $value);
 
 				if (strtotime($value) < time()) {
 					$value = str_replace($bdyear, $bdyear + 1, $value);

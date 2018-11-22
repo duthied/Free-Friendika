@@ -749,7 +749,7 @@ class Profile
 				$profile['gender'] = [L10n::t('Gender:'), $a->profile['gender']];
 			}
 
-			if (($a->profile['dob']) && ($a->profile['dob'] > '0001-01-01')) {
+			if (!empty($a->profile['dob']) && $a->profile['dob'] > DBA::NULL_DATE) {
 				$year_bd_format = L10n::t('j F, Y');
 				$short_bd_format = L10n::t('j F');
 
@@ -763,7 +763,7 @@ class Profile
 			}
 
 			if (!empty($a->profile['dob'])
-				&& $a->profile['dob'] > '0001-01-01'
+				&& $a->profile['dob'] > DBA::NULL_DATE
 				&& $age = Temporal::getAgeByTimezone($a->profile['dob'], $a->profile['timezone'], '')
 			) {
 				$profile['age'] = [L10n::t('Age:'), $age];

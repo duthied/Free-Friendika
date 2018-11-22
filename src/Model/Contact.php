@@ -740,7 +740,7 @@ class Contact extends BaseObject
 
 			// "bd" always contains the upcoming birthday of a contact.
 			// "birthday" might contain the birthday including the year of birth.
-			if ($profile["birthday"] > '0001-01-01') {
+			if ($profile["birthday"] > DBA::NULL_DATE) {
 				$bd_timestamp = strtotime($profile["birthday"]);
 				$month = date("m", $bd_timestamp);
 				$day = date("d", $bd_timestamp);
@@ -757,7 +757,7 @@ class Contact extends BaseObject
 					$profile["bd"] = ( ++$current_year) . "-" . $month . "-" . $day;
 				}
 			} else {
-				$profile["bd"] = '0001-01-01';
+				$profile["bd"] = DBA::NULL_DATE;
 			}
 		} else {
 			$profile = $default;
@@ -794,7 +794,7 @@ class Contact extends BaseObject
 			$profile["location"] = "";
 			$profile["about"] = "";
 			$profile["gender"] = "";
-			$profile["birthday"] = '0001-01-01';
+			$profile["birthday"] = DBA::NULL_DATE;
 		}
 
 		$cache[$url][$uid] = $profile;

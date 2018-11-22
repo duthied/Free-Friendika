@@ -864,7 +864,7 @@ class GContact
 						'location' => $contact['location'], 'about' => $contact['about']];
 
 				// Don't update the birthday field if not set or invalid
-				if (empty($contact['birthday']) || ($contact['birthday'] < '0001-01-01')) {
+				if (empty($contact['birthday']) || ($contact['birthday'] <= DBA::NULL_DATE)) {
 					unset($fields['bd']);
 				}
 
