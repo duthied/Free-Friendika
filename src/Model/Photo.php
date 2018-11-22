@@ -67,7 +67,7 @@ class Photo extends BaseObject
 	}
 
 	/**
-	 * @brief Get a photo for user id
+	 * @brief Get photos for user id
 	 *
 	 * @param integer  $uid          User id
 	 * @param string   $resourceid   Rescource ID of the photo
@@ -543,6 +543,6 @@ class Photo extends BaseObject
 	 */
 	public static function newResource()
 	{
-		return system::createGUID(32, false);
+		return System::createGUID(32, false);
 	}
 }
