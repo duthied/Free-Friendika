@@ -140,6 +140,7 @@ class Term
 
 				$type = TERM_HASHTAG;
 				$term = substr($tag, 1);
+				$link = '';
 			} elseif ((substr(trim($tag), 0, 1) == '@') || (substr(trim($tag), 0, 1) == '!')) {
 				$type = TERM_MENTION;
 
@@ -152,6 +153,7 @@ class Term
 			} else { // This shouldn't happen
 				$type = TERM_HASHTAG;
 				$term = $tag;
+				$link = '';
 			}
 
 			if (DBA::exists('term', ['uid' => $message['uid'], 'otype' => TERM_OBJ_POST, 'oid' => $itemid, 'url' => $link])) {
@@ -262,8 +264,8 @@ class Term
 		);
 
 		while ($tag = DBA::fetch($taglist)) {
-			if ($tag["url"] == "") {
-				$tag["url"] = $searchpath . $tag["term"];
+			if ($tag['url'] == '') {
+				$tag['url'] = $searchpath . rawurlencode($tag['term']);
 			}
 
 			$orig_tag = $tag['url'];

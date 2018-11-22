@@ -170,7 +170,7 @@ EOT;
 		   $term_objtype,
 		   TERM_HASHTAG,
 		   DBA::escape($term),
-		   DBA::escape(System::baseUrl() . '/search?tag=' . $term),
+		   '',
 		   intval($owner_uid)
 		);
 	}
@@ -192,7 +192,7 @@ EOT;
 				$term_objtype,
 				TERM_HASHTAG,
 				DBA::escape($term),
-				DBA::escape(System::baseUrl() . '/search?tag=' . $term),
+				'',
 				intval($owner_uid)
 			);
 		}
