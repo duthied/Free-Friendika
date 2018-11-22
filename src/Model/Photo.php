@@ -221,19 +221,19 @@ class Photo extends BaseObject
 	/**
 	 * @brief store photo metadata in db and binary in default backend
 	 *
-	 * @param Image   $Image     image
-	 * @param integer $uid       uid
-	 * @param integer $cid       cid
-	 * @param integer $rid       rid
-	 * @param string  $filename  filename
-	 * @param string  $album     album name
-	 * @param integer $scale     scale
-	 * @param integer $profile   optional, default = 0
-	 * @param string  $allow_cid optional, default = ""
-	 * @param string  $allow_gid optional, default = ""
-	 * @param string  $deny_cid  optional, default = ""
-	 * @param string  $deny_gid  optional, default = ""
-	 * @param string  $desc      optional, default = ""
+	 * @param Image   $Image     Image object with data
+	 * @param integer $uid       User ID
+	 * @param integer $cid       Contact ID
+	 * @param integer $rid       Resource ID
+	 * @param string  $filename  Filename
+	 * @param string  $album     Album name
+	 * @param integer $scale     Scale
+	 * @param integer $profile   Is a profile image? optional, default = 0
+	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ""
+	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ""
+	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ""
+	 * @param string  $deny_gid  Permissions, denied greoup.optional, default = ""
+	 * @param string  $desc      Photo caption. optional, default = ""
 	 *
 	 * @return boolean True on success
 	 */
@@ -246,7 +246,11 @@ class Photo extends BaseObject
 			$guid = System::createGUID();
 		}
 
-		$existing_photo = self::selectFirst(["id", "backend-class", "backend-ref"], ["resource-id" => $rid, "uid" => $uid, "contact-id" => $cid, "scale" => $scale]);
+		$existing_photo = self::selectFirst(["id", "created", "backend-class", "backend-ref"], ["resource-id" => $rid, "uid" => $uid, "contact-id" => $cid, "scale" => $scale]);
+		$created = DateTimeFormat::utcNow();
+		if (DBA::isResult($existing_photo)) {
+			$created = $existing_photo["created"];
+		}
 
 		// Get defined storage backend.
 		// if no storage backend, we use old "data" column in photo table.
@@ -273,7 +277,7 @@ class Photo extends BaseObject
 			"contact-id" => $cid,
 			"guid" => $guid,
 			"resource-id" => $rid,
-			"created" => DateTimeFormat::utcNow(),
+			"created" => $created,
 			"edited" => DateTimeFormat::utcNow(),
 			"filename" => basename($filename),
 			"type" => $Image->getType(),
