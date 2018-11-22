@@ -19,6 +19,7 @@ use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\Strings;
+use Friendica\Util\Network;
 
 require_once 'include/items.php';
 
@@ -155,6 +156,10 @@ class Delivery extends BaseObject
 			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
 		if (!DBA::isResult($contact)) {
+			return;
+		}
+
+		if (Network::isUrlBlocked($contact['url'])) {
 			return;
 		}
 
