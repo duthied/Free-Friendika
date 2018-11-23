@@ -57,6 +57,10 @@ function ostatus_subscribe_content(App $a)
 
 	$friends = json_decode(PConfig::get($uid, 'ostatus', 'legacy_friends'));
 
+	if (empty($friends)) {
+		$friends = [];
+	}
+
 	$total = sizeof($friends);
 
 	if ($counter >= $total) {
