@@ -170,7 +170,6 @@ function network_init(App $a)
 
 function saved_searches($search)
 {
-	$a = get_app();
 
 	$srchurl = '/network?f='
 		. ((x($_GET, 'cid'))   ? '&cid='   . $_GET['cid']   : '')
@@ -182,8 +181,6 @@ function saved_searches($search)
 		. ((x($_GET, 'cmax'))  ? '&cmax='  . $_GET['cmax']  : '')
 		. ((x($_GET, 'file'))  ? '&file='  . $_GET['file']  : '');
 	;
-
-	$o = '';
 
 	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
 	$saved = [];
@@ -202,7 +199,7 @@ function saved_searches($search)
 	$o = Renderer::replaceMacros($tpl, [
 		'$title'     => L10n::t('Saved Searches'),
 		'$add'       => L10n::t('add'),
-		'$searchbox' => HTML::search($search, 'netsearch-box', $srchurl, true),
+		'$searchbox' => HTML::search($search, 'netsearch-box', $srchurl),
 		'$saved'     => $saved,
 	]);
 

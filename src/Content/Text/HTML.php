@@ -951,7 +951,7 @@ class HTML
 	 *
 	 * @return string Formatted HTML.
 	 */
-	public static function search($s, $id = 'search-box', $url = 'search', $save = false, $aside = true)
+	public static function search($s, $id = 'search-box', $url = 'search', $aside = true)
 	{
 		$mode = 'text';
 
