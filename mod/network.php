@@ -170,20 +170,16 @@ function network_init(App $a)
 
 function saved_searches($search)
 {
-	$a = get_app();
-
 	$srchurl = '/network?f='
-		. ((x($_GET, 'cid'))   ? '&cid='   . $_GET['cid']   : '')
-		. ((x($_GET, 'star'))  ? '&star='  . $_GET['star']  : '')
-		. ((x($_GET, 'bmark')) ? '&bmark=' . $_GET['bmark'] : '')
-		. ((x($_GET, 'conv'))  ? '&conv='  . $_GET['conv']  : '')
-		. ((x($_GET, 'nets'))  ? '&nets='  . $_GET['nets']  : '')
-		. ((x($_GET, 'cmin'))  ? '&cmin='  . $_GET['cmin']  : '')
-		. ((x($_GET, 'cmax'))  ? '&cmax='  . $_GET['cmax']  : '')
-		. ((x($_GET, 'file'))  ? '&file='  . $_GET['file']  : '');
+		. ((x($_GET, 'cid'))   ? '&cid='   . rawurlencode($_GET['cid'])   : '')
+		. ((x($_GET, 'star'))  ? '&star='  . rawurlencode($_GET['star'])  : '')
+		. ((x($_GET, 'bmark')) ? '&bmark=' . rawurlencode($_GET['bmark']) : '')
+		. ((x($_GET, 'conv'))  ? '&conv='  . rawurlencode($_GET['conv'])  : '')
+		. ((x($_GET, 'nets'))  ? '&nets='  . rawurlencode($_GET['nets'])  : '')
+		. ((x($_GET, 'cmin'))  ? '&cmin='  . rawurlencode($_GET['cmin'])  : '')
+		. ((x($_GET, 'cmax'))  ? '&cmax='  . rawurlencode($_GET['cmax'])  : '')
+		. ((x($_GET, 'file'))  ? '&file='  . rawurlencode($_GET['file'])  : '');
 	;
-
-	$o = '';
 
 	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
 	$saved = [];
@@ -202,7 +198,7 @@ function saved_searches($search)
 	$o = Renderer::replaceMacros($tpl, [
 		'$title'     => L10n::t('Saved Searches'),
 		'$add'       => L10n::t('add'),
-		'$searchbox' => HTML::search($search, 'netsearch-box', $srchurl, true),
+		'$searchbox' => HTML::search($search, 'netsearch-box', $srchurl),
 		'$saved'     => $saved,
 	]);
 

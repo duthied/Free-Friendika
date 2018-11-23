@@ -36,6 +36,6 @@ function filerm_content(App $a)
 		info('Item was not deleted');
 	}
 
-	$a->internalRedirect('/network?f=&file=' . $term);
+	$a->internalRedirect('/network?f=&file=' . rawurlencode($term));
 	killme();
 }
