@@ -570,12 +570,12 @@ class Contact extends BaseModule
 			/// @todo Only show the following link with DFRN when the remote version supports it
 			$follow = '';
 			$follow_text = '';
-			if (in_array($contact['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
+			if ($contact['uid'] && in_array($contact['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
 				if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 					$follow = $a->getBaseURL(true) . '/unfollow?url=' . urlencode($contact['url']);
 					$follow_text = L10n::t('Disconnect/Unfollow');
 				}
-			} else {
+			} elseif(!$contact['pending']) {
 				$follow = $a->getBaseURL(true) . '/follow?url=' . urlencode($contact['url']);
 				$follow_text = L10n::t('Connect/Follow');
 			}
