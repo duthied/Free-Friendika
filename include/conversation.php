@@ -462,17 +462,17 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr($a->cmd, 8)
 				. '?f='
-				. ((x($_GET, 'cid'))    ? '&cid='    . $_GET['cid']    : '')
-				. ((x($_GET, 'search')) ? '&search=' . $_GET['search'] : '')
-				. ((x($_GET, 'star'))   ? '&star='   . $_GET['star']   : '')
-				. ((x($_GET, 'order'))  ? '&order='  . $_GET['order']  : '')
-				. ((x($_GET, 'bmark'))  ? '&bmark='  . $_GET['bmark']  : '')
-				. ((x($_GET, 'liked'))  ? '&liked='  . $_GET['liked']  : '')
-				. ((x($_GET, 'conv'))   ? '&conv='   . $_GET['conv']   : '')
-				. ((x($_GET, 'nets'))   ? '&nets='   . $_GET['nets']   : '')
-				. ((x($_GET, 'cmin'))   ? '&cmin='   . $_GET['cmin']   : '')
-				. ((x($_GET, 'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
-				. ((x($_GET, 'file'))   ? '&file='   . $_GET['file']   : '')
+				. ((x($_GET, 'cid'))    ? '&cid='    . rawurlencode($_GET['cid'])    : '')
+				. ((x($_GET, 'search')) ? '&search=' . rawurlencode($_GET['search']) : '')
+				. ((x($_GET, 'star'))   ? '&star='   . rawurlencode($_GET['star'])   : '')
+				. ((x($_GET, 'order'))  ? '&order='  . rawurlencode($_GET['order'])  : '')
+				. ((x($_GET, 'bmark'))  ? '&bmark='  . rawurlencode($_GET['bmark'])  : '')
+				. ((x($_GET, 'liked'))  ? '&liked='  . rawurlencode($_GET['liked'])  : '')
+				. ((x($_GET, 'conv'))   ? '&conv='   . rawurlencode($_GET['conv'])   : '')
+				. ((x($_GET, 'nets'))   ? '&nets='   . rawurlencode($_GET['nets'])   : '')
+				. ((x($_GET, 'cmin'))   ? '&cmin='   . rawurlencode($_GET['cmin'])   : '')
+				. ((x($_GET, 'cmax'))   ? '&cmax='   . rawurlencode($_GET['cmax'])   : '')
+				. ((x($_GET, 'file'))   ? '&file='   . rawurlencode($_GET['file'])   : '')
 
 				. "'; var profile_page = " . $pager->getPage() . "; </script>\r\n";
 		}
