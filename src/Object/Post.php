@@ -270,34 +270,36 @@ class Post extends BaseObject
 		$tagger = '';
 
 		if ($this->isToplevel()) {
-			$thread = Item::selectFirstThreadForUser(local_user(), ['ignored'], ['iid' => $item['id']]);
-			if (DBA::isResult($thread)) {
-				$ignore = [
-					'do'        => L10n::t("ignore thread"),
-					'undo'      => L10n::t("unignore thread"),
-					'toggle'    => L10n::t("toggle ignore status"),
-					'classdo'   => $thread['ignored'] ? "hidden" : "",
-					'classundo' => $thread['ignored'] ? "" : "hidden",
-					'ignored'   => L10n::t('ignored'),
-				];
-			}
+			if(local_user()) {
+				$thread = Item::selectFirstThreadForUser(local_user(), ['ignored'], ['iid' => $item['id']]);
+				if (DBA::isResult($thread)) {
+					$ignore = [
+						'do'        => L10n::t("ignore thread"),
+						'undo'      => L10n::t("unignore thread"),
+						'toggle'    => L10n::t("toggle ignore status"),
+						'classdo'   => $thread['ignored'] ? "hidden" : "",
+						'classundo' => $thread['ignored'] ? "" : "hidden",
+						'ignored'   => L10n::t('ignored'),
+					];
+				}
 
-			if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
-				$isstarred = (($item['starred']) ? "starred" : "unstarred");
+				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
+					$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
-				$star = [
-					'do'        => L10n::t("add star"),
-					'undo'      => L10n::t("remove star"),
-					'toggle'    => L10n::t("toggle star status"),
-					'classdo'   => $item['starred'] ? "hidden" : "",
-					'classundo' => $item['starred'] ? "" : "hidden",
-					'starred'   => L10n::t('starred'),
-				];
+					$star = [
+						'do'        => L10n::t("add star"),
+						'undo'      => L10n::t("remove star"),
+						'toggle'    => L10n::t("toggle star status"),
+						'classdo'   => $item['starred'] ? "hidden" : "",
+						'classundo' => $item['starred'] ? "" : "hidden",
+						'starred'   => L10n::t('starred'),
+					];
 
-				$tagger = [
-					'add'   => L10n::t("add tag"),
-					'class' => "",
-				];
+					$tagger = [
+						'add'   => L10n::t("add tag"),
+						'class' => "",
+					];
+				}
 			}
 		} else {
 			$indent = 'comment';
