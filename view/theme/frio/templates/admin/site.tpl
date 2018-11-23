@@ -40,13 +40,14 @@
 	});
 	$(function(){
 		$(".collapse").on('show.bs.collapse', function(e) {
-			localStorage.setItem('activeTab', $(e.target).attr('id'));
+			var id = $(e.target).attr('id');
+			$("input[name=active_panel]").val(id);
 		});
-		var activeTab = localStorage.getItem('activeTab');
-		if (activeTab) {
-			$("#" + activeTab).collapse('show');
-			window.scroll(0, $("#" + activeTab).offset().top - 120);
-			localStorage.removeItem('activeTab');
+		var url = document.location.toString();
+		if ( url.match('#') ) {
+			var element = '#'+url.split('#')[1];
+				$(element).addClass('in');
+			window.scroll(0, $(element).offset().top - 120);
 		}
 	});
 </script>
@@ -56,6 +57,7 @@
 	<h1>{{$title}} - {{$page}}</h1>
 	<form action="{{$baseurl}}/admin/site" method="post">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+		<input type='hidden' name='active_panel' value=''>
 		<div class="panel-group panel-group-settings" id="admin-settings" role="tablist" aria-multiselectable="true">
 			<!--
 			/*
@@ -355,6 +357,7 @@
 				<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 				{{include file="field_input.tpl" field=$relocate_url}}
 				<input type="hidden" name="page_site" value="{{$submit|escape:'html'}}">
+				<input type='hidden' name='active_panel' value='admin-settings-relocate-collapse'>
 				<div class="panel-footer">
 					<input type="submit" name="relocate" class="btn btn-primary" value="{{$relocate_button|escape:'html'}}"/>
 				</div>
