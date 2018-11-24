@@ -351,7 +351,9 @@
 			</h4>
 		</div>
 		<div id="admin-settings-relocate-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-relocate">
-
+			<div class="alert alert-danger">
+				<b>WARNING!</b> {{$relocate_warning}}
+			</div>
 			{{* separate form for relocate... *}}
 			<form action="{{$baseurl}}/admin/site" method="post">
 				<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>

@@ -1492,7 +1492,8 @@ function admin_page_site(App $a)
 		'$performance' => L10n::t('Performance'),
 		'$worker_title' => L10n::t('Worker'),
 		'$relay_title' => L10n::t('Message Relay'),
-		'$relocate' => L10n::t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
+		'$relocate' => L10n::t('Relocate Instance'),
+		'$relocate_warning' => L10n::t('Advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> ['sitename', L10n::t("Site name"), Config::get('config', 'sitename'),''],
