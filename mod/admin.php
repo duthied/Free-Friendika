@@ -664,13 +664,17 @@ function admin_page_federation(App $a)
 				} while (!empty($parts) && ((strlen($part) >= 40) || (strlen($part) <= 3)));
 
 				if (!empty($part)) {
-					$compacted[$part] += $v[$key]['total'];
+					if (empty($compacted[$part])) {
+						$compacted[$part] = $v[$key]['total'];
+					} else {
+						$compacted[$part] += $v[$key]['total'];
+					}
 				}
 			}
 
 			$v = [];
-			foreach ($compacted as $version => $total) {
-				$v[] = ['version' => $version, 'total' => $total];
+			foreach ($compacted as $version => $pl_total) {
+				$v[] = ['version' => $version, 'total' => $pl_total];
 			}
 		}
 
