@@ -400,6 +400,11 @@ class Group extends BaseObject
 			];
 		}
 
+		// Don't show the groups when there is only one
+		if (count($display_groups) <= 2) {
+			return '';
+		}
+
 		$tpl = Renderer::getMarkupTemplate('group_side.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$add' => L10n::t('add'),
