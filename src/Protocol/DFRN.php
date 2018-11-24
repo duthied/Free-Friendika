@@ -16,7 +16,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -690,7 +689,7 @@ class DFRN
 			XML::addElement($doc, $author, "poco:displayName", $profile["name"]);
 			XML::addElement($doc, $author, "poco:updated", $namdate);
 
-			if (trim($profile["dob"]) > '0001-01-01') {
+			if (trim($profile["dob"]) > DBA::NULL_DATE) {
 				XML::addElement($doc, $author, "poco:birthday", "0000-".date("m-d", strtotime($profile["dob"])));
 			}
 
@@ -1511,43 +1510,6 @@ class DFRN
 	}
 
 	/**
-	 * @brief Add new birthday event for this person
-	 *
-	 * @param array  $contact  Contact record
-	 * @param string $birthday Birthday of the contact
-	 * @return void
-	 * @todo Add array type-hint for $contact
-	 */
-	private static function birthdayEvent($contact, $birthday)
-	{
-		// Check for duplicates
-		$condition = ['uid' => $contact['uid'], 'cid' => $contact['id'],
-			'start' => DateTimeFormat::utc($birthday), 'type' => 'birthday'];
-		if (DBA::exists('event', $condition)) {
-			return;
-		}
-
-		Logger::log('updating birthday: ' . $birthday . ' for contact ' . $contact['id']);
-
-		$bdtext = L10n::t('%s\'s birthday', $contact['name']);
-		$bdtext2 = L10n::t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]');
-
-		$r = q(
-			"INSERT INTO `event` (`uid`,`cid`,`created`,`edited`,`start`,`finish`,`summary`,`desc`,`type`)
-			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-			intval($contact['uid']),
-			intval($contact['id']),
-			DBA::escape(DateTimeFormat::utcNow()),
-			DBA::escape(DateTimeFormat::utcNow()),
-			DBA::escape(DateTimeFormat::utc($birthday)),
-			DBA::escape(DateTimeFormat::utc($birthday . ' + 1 day ')),
-			DBA::escape($bdtext),
-			DBA::escape($bdtext2),
-			DBA::escape('birthday')
-		);
-	}
-
-	/**
 	 * @brief Fetch the author data from head or entry items
 	 *
 	 * @param object $xpath     XPath object
@@ -1722,9 +1684,9 @@ class DFRN
 			// "poco:birthday" is the birthday in the format "yyyy-mm-dd"
 			$value = XML::getFirstNodeValue($xpath, $element . "/poco:birthday/text()", $context);
 
-			if (!in_array($value, ["", "0000-00-00", "0001-01-01"])) {
+			if (!in_array($value, ["", "0000-00-00", DBA::NULL_DATE])) {
 				$bdyear = date("Y");
-				$value = str_replace("0000", $bdyear, $value);
+				$value = str_replace(["0000", "0001"], $bdyear, $value);
 
 				if (strtotime($value) < time()) {
 					$value = str_replace($bdyear, $bdyear + 1, $value);
@@ -1737,7 +1699,7 @@ class DFRN
 			$contact = array_merge($contact_old, $poco);
 
 			if ($contact_old["bdyear"] != $contact["bdyear"]) {
-				self::birthdayEvent($contact, $birthday);
+				Event::createBirthday($contact, $birthday);
 			}
 
 			// Get all field names

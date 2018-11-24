@@ -322,43 +322,48 @@ class Event extends BaseObject
 			// New event. Store it.
 			DBA::insert('event', $event);
 
-			$event['id'] = DBA::lastInsertId();
+			$item_id = 0;
 
-			$item_arr = [];
+			// Don't create an item for birthday events
+			if ($event['type'] == 'event') {
+				$event['id'] = DBA::lastInsertId();
 
-			$item_arr['uid']           = $event['uid'];
-			$item_arr['contact-id']    = $event['cid'];
-			$item_arr['uri']           = $event['uri'];
-			$item_arr['parent-uri']    = $event['uri'];
-			$item_arr['guid']          = $event['guid'];
-			$item_arr['plink']         = defaults($arr, 'plink', '');
-			$item_arr['post-type']     = Item::PT_EVENT;
-			$item_arr['wall']          = $event['cid'] ? 0 : 1;
-			$item_arr['contact-id']    = $contact['id'];
-			$item_arr['owner-name']    = $contact['name'];
-			$item_arr['owner-link']    = $contact['url'];
-			$item_arr['owner-avatar']  = $contact['thumb'];
-			$item_arr['author-name']   = $contact['name'];
-			$item_arr['author-link']   = $contact['url'];
-			$item_arr['author-avatar'] = $contact['thumb'];
-			$item_arr['title']         = '';
-			$item_arr['allow_cid']     = $event['allow_cid'];
-			$item_arr['allow_gid']     = $event['allow_gid'];
-			$item_arr['deny_cid']      = $event['deny_cid'];
-			$item_arr['deny_gid']      = $event['deny_gid'];
-			$item_arr['private']       = $private;
-			$item_arr['visible']       = 1;
-			$item_arr['verb']          = ACTIVITY_POST;
-			$item_arr['object-type']   = ACTIVITY_OBJ_EVENT;
-			$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
-			$item_arr['body']          = self::getBBCode($event);
-			$item_arr['event-id']      = $event['id'];
+				$item_arr = [];
 
-			$item_arr['object']  = '<object><type>' . XML::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
-			$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
-			$item_arr['object'] .= '</object>' . "\n";
+				$item_arr['uid']           = $event['uid'];
+				$item_arr['contact-id']    = $event['cid'];
+				$item_arr['uri']           = $event['uri'];
+				$item_arr['parent-uri']    = $event['uri'];
+				$item_arr['guid']          = $event['guid'];
+				$item_arr['plink']         = defaults($arr, 'plink', '');
+				$item_arr['post-type']     = Item::PT_EVENT;
+				$item_arr['wall']          = $event['cid'] ? 0 : 1;
+				$item_arr['contact-id']    = $contact['id'];
+				$item_arr['owner-name']    = $contact['name'];
+				$item_arr['owner-link']    = $contact['url'];
+				$item_arr['owner-avatar']  = $contact['thumb'];
+				$item_arr['author-name']   = $contact['name'];
+				$item_arr['author-link']   = $contact['url'];
+				$item_arr['author-avatar'] = $contact['thumb'];
+				$item_arr['title']         = '';
+				$item_arr['allow_cid']     = $event['allow_cid'];
+				$item_arr['allow_gid']     = $event['allow_gid'];
+				$item_arr['deny_cid']      = $event['deny_cid'];
+				$item_arr['deny_gid']      = $event['deny_gid'];
+				$item_arr['private']       = $private;
+				$item_arr['visible']       = 1;
+				$item_arr['verb']          = ACTIVITY_POST;
+				$item_arr['object-type']   = ACTIVITY_OBJ_EVENT;
+				$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
+				$item_arr['body']          = self::getBBCode($event);
+				$item_arr['event-id']      = $event['id'];
 
-			$item_id = Item::insert($item_arr);
+				$item_arr['object']  = '<object><type>' . XML::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
+				$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
+				$item_arr['object'] .= '</object>' . "\n";
+
+				$item_id = Item::insert($item_arr);
+			}
 
 			Addon::callHooks("event_created", $event['id']);
 		}
@@ -980,5 +985,48 @@ class Event extends BaseObject
 		}
 
 		return $location;
+	}
+
+	/**
+	 * @brief Add new birthday event for this person
+	 *
+	 * @param array  $contact  Contact array, expects: id, uid, url, name
+	 * @param string $birthday Birthday of the contact
+	 * @return bool
+	 */
+	public static function createBirthday($contact, $birthday)
+	{
+		// Check for duplicates
+		$condition = [
+			'uid' => $contact['uid'],
+			'cid' => $contact['id'],
+			'start' => DateTimeFormat::utc($birthday),
+			'type' => 'birthday'
+		];
+		if (DBA::exists('event', $condition)) {
+			return false;
+		}
+
+		/*
+		 * Add new birthday event for this person
+		 *
+		 * summary is just a readable placeholder in case the event is shared
+		 * with others. We will replace it during presentation to our $importer
+		 * to contain a sparkle link and perhaps a photo.
+		 */
+		$values = [
+			'uid'     => $contact['uid'],
+			'cid'     => $contact['id'],
+			'start'   => DateTimeFormat::utc($birthday),
+			'finish'  => DateTimeFormat::utc($birthday . ' + 1 day '),
+			'summary' => L10n::t('%s\'s birthday', $contact['name']),
+			'desc'    => L10n::t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]'),
+			'type'    => 'birthday',
+			'adjust'  => 0
+		];
+
+		self::store($values);
+
+		return true;
 	}
 }

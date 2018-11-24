@@ -572,9 +572,18 @@ class Profile
 		if (is_null($r)) {
 			$s = DBA::p(
 				"SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
-				INNER JOIN `contact` ON `contact`.`id` = `event`.`cid`
+				INNER JOIN `contact`
+					ON `contact`.`id` = `event`.`cid`
+					AND (`contact`.`rel` = ? OR `contact`.`rel` = ?)
+					AND NOT `contact`.`pending`
+					AND NOT `contact`.`hidden`
+					AND NOT `contact`.`blocked`
+					AND NOT `contact`.`archive`
+					AND NOT `contact`.`deleted`
 				WHERE `event`.`uid` = ? AND `type` = 'birthday' AND `start` < ? AND `finish` > ?
 				ORDER BY `start` ASC ",
+				Contact::SHARING,
+				Contact::FRIEND,
 				local_user(),
 				DateTimeFormat::utc('now + 6 days'),
 				DateTimeFormat::utcNow()
@@ -749,7 +758,7 @@ class Profile
 				$profile['gender'] = [L10n::t('Gender:'), $a->profile['gender']];
 			}
 
-			if (($a->profile['dob']) && ($a->profile['dob'] > '0001-01-01')) {
+			if (!empty($a->profile['dob']) && $a->profile['dob'] > DBA::NULL_DATE) {
 				$year_bd_format = L10n::t('j F, Y');
 				$short_bd_format = L10n::t('j F');
 
@@ -763,7 +772,7 @@ class Profile
 			}
 
 			if (!empty($a->profile['dob'])
-				&& $a->profile['dob'] > '0001-01-01'
+				&& $a->profile['dob'] > DBA::NULL_DATE
 				&& $age = Temporal::getAgeByTimezone($a->profile['dob'], $a->profile['timezone'], '')
 			) {
 				$profile['age'] = [L10n::t('Age:'), $age];

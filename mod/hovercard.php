@@ -107,7 +107,7 @@ function hovercard_content()
 		'about'    => $contact['about'],
 		'network'  => Strings::formatNetworkName($contact['network'], $contact['url']),
 		'tags'     => $contact['keywords'],
-		'bd'       => $contact['birthday'] <= '0001-01-01' ? '' : $contact['birthday'],
+		'bd'       => $contact['birthday'] <= DBA::NULL_DATE ? '' : $contact['birthday'],
 		'account_type' => Contact::getAccountType($contact),
 		'actions'  => $actions,
 	];
