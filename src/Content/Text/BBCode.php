@@ -28,6 +28,7 @@ use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
+use Friendica\Util\XML;
 
 class BBCode extends BaseObject
 {
@@ -1340,15 +1341,21 @@ class BBCode extends BaseObject
 		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
 		$text = preg_replace($expression, System::baseUrl()."/display/$1", $text);
 
-		$text = preg_replace("/([#])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-					'$1<a href="' . System::baseUrl() . '/search?tag=$3" class="tag" title="$3">$3</a>', $text);
-
-		$text = preg_replace("/\[url\=([$URLSearchString]*)\]#(.*?)\[\/url\]/ism",
-					'#<a href="' . System::baseUrl() . '/search?tag=$2" class="tag" title="$2">$2</a>', $text);
+		/* Tag conversion
+		 * Supports:
+		 * - #[url=<anything>]<term>[/url]
+		 * - [url=<anything>]#<term>[/url]
+		 */
+		$text = preg_replace_callback("/(?:#\[url\=[$URLSearchString]*\]|\[url\=[$URLSearchString]*\]#)(.*?)\[\/url\]/ism", function($matches) {
+			return '#<a href="'
+				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
+				. '" class="tag" title="' . XML::escape($matches[1]) . '">'
+				. XML::escape($matches[1])
+				. '</a>';
+		}, $text);
 
 		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
 		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
-		//$Text = preg_replace("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $Text);
 
 		// Red compatibility, though the link can't be authenticated on Friendica
 		$text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a href="$1" target="_blank">$2</a>', $text);

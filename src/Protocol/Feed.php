@@ -350,7 +350,7 @@ class Feed {
 					$tags .= ', ';
 				}
 
-				$taglink = "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
+				$taglink = "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
 				$tags .= $taglink;
 			}
 

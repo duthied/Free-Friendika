@@ -634,15 +634,15 @@ class OStatus
 		if ($categories) {
 			foreach ($categories as $category) {
 				foreach ($category->attributes as $attributes) {
-					if ($attributes->name == "term") {
+					if ($attributes->name == 'term') {
 						$term = $attributes->textContent;
-						if (!empty($item["tag"])) {
-							$item["tag"] .= ',';
+						if (!empty($item['tag'])) {
+							$item['tag'] .= ',';
 						} else {
-							$item["tag"] = '';
+							$item['tag'] = '';
 						}
 
-						$item["tag"] .= "#[url=".System::baseUrl()."/search?tag=".$term."]".$term."[/url]";
+						$item['tag'] .= '#[url=' . System::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
 					}
 				}
 			}

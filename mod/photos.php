@@ -613,7 +613,7 @@ function photos_post(App $a)
 							}
 
 							$profile = str_replace(',', '%2c', $profile);
-							$str_tags .= '@[url='.$profile.']'.$newname.'[/url]';
+							$str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]';
 						}
 					} elseif (strpos($tag, '#') === 0) {
 						$tagname = substr($tag, 1);

@@ -140,6 +140,7 @@ class Term
 
 				$type = TERM_HASHTAG;
 				$term = substr($tag, 1);
+				$link = '';
 			} elseif ((substr(trim($tag), 0, 1) == '@') || (substr(trim($tag), 0, 1) == '!')) {
 				$type = TERM_MENTION;
 
@@ -152,6 +153,7 @@ class Term
 			} else { // This shouldn't happen
 				$type = TERM_HASHTAG;
 				$term = $tag;
+				$link = '';
 			}
 
 			if (DBA::exists('term', ['uid' => $message['uid'], 'otype' => TERM_OBJ_POST, 'oid' => $itemid, 'url' => $link])) {
@@ -262,29 +264,29 @@ class Term
 		);
 
 		while ($tag = DBA::fetch($taglist)) {
-			if ($tag["url"] == "") {
-				$tag["url"] = $searchpath . $tag["term"];
+			if ($tag['url'] == '') {
+				$tag['url'] = $searchpath . rawurlencode($tag['term']);
 			}
 
-			$orig_tag = $tag["url"];
+			$orig_tag = $tag['url'];
 
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$tag["url"] = Contact::magicLinkByContact($author, $tag['url']);
+			$tag['url'] = Contact::magicLinkByContact($author, $tag['url']);
 
-			if ($tag["type"] == TERM_HASHTAG) {
-				if ($orig_tag != $tag["url"]) {
-					$item['body'] = str_replace($orig_tag, $tag["url"], $item['body']);
+			if ($tag['type'] == TERM_HASHTAG) {
+				if ($orig_tag != $tag['url']) {
+					$item['body'] = str_replace($orig_tag, $tag['url'], $item['body']);
 				}
 
-				$return['hashtags'][] = "#<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-				$prefix = "#";
-			} elseif ($tag["type"] == TERM_MENTION) {
-				$return['mentions'][] = "@<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
-				$prefix = "@";
+				$return['hashtags'][] = '#<a href="' . $tag['url'] . '" target="_blank">' . $tag['term'] . '</a>';
+				$prefix = '#';
+			} elseif ($tag['type'] == TERM_MENTION) {
+				$return['mentions'][] = '@<a href="' . $tag['url'] . '" target="_blank">' . $tag['term'] . '</a>';
+				$prefix = '@';
 			}
 
-			$return['tags'][] = $prefix . "<a href=\"" . $tag["url"] . "\" target=\"_blank\">" . $tag["term"] . "</a>";
+			$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank">' . $tag['term'] . '</a>';
 		}
 		DBA::close($taglist);
 
