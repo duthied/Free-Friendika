@@ -160,19 +160,19 @@ class CurlResult
 		}
 
 		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
-			$redirect_parts = parse_url($this->info['redirect_url']);
+			$redirect_parts = parse_url(defaults($this->info, 'redirect_url', ''));
 			if (preg_match('/(Location:|URI:)(.*?)\n/i', $this->header, $matches)) {
 				$redirect_parts = array_merge($redirect_parts, parse_url(trim(array_pop($matches))));
 			}
 
-			$parts = parse_url($this->info['url']);
+			$parts = parse_url(defaults($this->info, 'url', ''));
 
-			if (empty($redirect_parts['scheme']) && !empty($parts['scheme'])) {
-				$redirect_parts['scheme'] = $parts['scheme'];
-			}
-
-			if (empty($redirect_parts['host']) && !empty($parts['host'])) {
-				$redirect_parts['host'] = $parts['host'];
+			/// @todo Checking the corresponding RFC which parts of a redirect can be ommitted.
+			$components = ['scheme', 'host', 'path', 'query', 'fragment'];
+			foreach ($components as $component) {
+				if (empty($redirect_parts[$component]) && !empty($parts[$component])) {
+					$redirect_parts[$component] = $parts[$component];
+				}
 			}
 
 			$this->redirectUrl = Network::unparseURL($redirect_parts);
