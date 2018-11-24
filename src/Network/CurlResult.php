@@ -4,6 +4,7 @@ namespace Friendica\Network;
 
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Network;
 
 /**
  * A content class for Curl call results
@@ -159,28 +160,22 @@ class CurlResult
 		}
 
 		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
-			$new_location_info = (!array_key_exists('redirect_url', $this->info) ? '' : @parse_url($this->info['redirect_url']));
-			$old_location_info = (!array_key_exists('url', $this->info) ? '' : @parse_url($this->info['url']));
-
-			$this->redirectUrl = $new_location_info;
-
-			if (empty($new_location_info['path']) && !empty($new_location_info['host'])) {
-				$this->redirectUrl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
-			}
-
-			$matches = [];
-
+			$redirect_parts = parse_url($this->info['redirect_url']);
 			if (preg_match('/(Location:|URI:)(.*?)\n/i', $this->header, $matches)) {
-				$this->redirectUrl = trim(array_pop($matches));
+				$redirect_parts = array_merge($redirect_parts, parse_url(trim(array_pop($matches))));
 			}
-			if (strpos($this->redirectUrl, '/') === 0) {
-				$this->redirectUrl = $old_location_info["scheme"] . "://" . $old_location_info["host"] . $this->redirectUrl;
-			}
-			$old_location_query = @parse_url($this->url, PHP_URL_QUERY);
 
-			if ($old_location_query != '') {
-				$this->redirectUrl .= '?' . $old_location_query;
+			$parts = parse_url($this->info['url']);
+
+			if (empty($redirect_parts['scheme']) && !empty($parts['scheme'])) {
+				$redirect_parts['scheme'] = $parts['scheme'];
 			}
+
+			if (empty($redirect_parts['host']) && !empty($parts['host'])) {
+				$redirect_parts['host'] = $parts['host'];
+			}
+
+			$this->redirectUrl = Network::unparseURL($redirect_parts);
 
 			$this->isRedirectUrl = filter_var($this->redirectUrl, FILTER_VALIDATE_URL) !== false;
 		} else {
