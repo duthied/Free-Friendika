@@ -171,6 +171,7 @@
 	<form action="{{$baseurl}}/admin/site" method="post">
 	<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 	<h3>{{$relocate}}</h3>
+	<b>{{$relocate_warning}}</b>
 	{{include file="field_input.tpl" field=$relocate_url}}
 	<input type="hidden" name="page_site" value="{{$submit|escape:'html'}}">
 	<div class="submit"><input type="submit" name="relocate" value="{{$relocate_button|escape:'html'}}" /></div>

@@ -1167,6 +1167,7 @@ function admin_page_site_post(App $a)
 	$relay_scope		=	((x($_POST,'relay_scope'))		? Strings::escapeTags(trim($_POST['relay_scope']))		: '');
 	$relay_server_tags	=	((x($_POST,'relay_server_tags'))	? Strings::escapeTags(trim($_POST['relay_server_tags']))	: '');
 	$relay_user_tags	=	((x($_POST,'relay_user_tags'))		? True						: False);
+	$active_panel           =       (defaults($_POST, 'active_panel', '')   ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
@@ -1348,7 +1349,8 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'rino_encrypt', $rino);
 
 	info(L10n::t('Site settings updated.') . EOL);
-	$a->internalRedirect('admin/site');
+
+	$a->internalRedirect('admin/site' . $active_panel);
 	return; // NOTREACHED
 }
 
@@ -1494,7 +1496,8 @@ function admin_page_site(App $a)
 		'$performance' => L10n::t('Performance'),
 		'$worker_title' => L10n::t('Worker'),
 		'$relay_title' => L10n::t('Message Relay'),
-		'$relocate' => L10n::t('Relocate - WARNING: advanced function. Could make this server unreachable.'),
+		'$relocate' => L10n::t('Relocate Instance'),
+		'$relocate_warning' => L10n::t('Warning! Advanced function. Could make this server unreachable.'),
 		'$baseurl' => System::baseUrl(true),
 		// name, label, value, help string, extra data...
 		'$sitename' 		=> ['sitename', L10n::t("Site name"), Config::get('config', 'sitename'),''],
