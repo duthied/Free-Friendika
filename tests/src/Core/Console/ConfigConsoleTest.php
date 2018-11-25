@@ -139,7 +139,7 @@ Description
 		Sets the value of the provided key in the category
 
 Notes:
-	Setting config entries which are manually set in config/local.ini.php may result in
+	Setting config entries which are manually set in config/local.config.php may result in
 	conflict between database settings and the manual startup settings.
 
 Options

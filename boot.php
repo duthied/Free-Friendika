@@ -56,13 +56,13 @@ define('EOL',                    "<br />\r\n");
  * @brief Image storage quality.
  *
  * Lower numbers save space at cost of image detail.
- * For ease of upgrade, please do not change here. Set [system] jpegquality = n in config/local.ini.php,
+ * For ease of upgrade, please do not change here. Set system.jpegquality = n in config/local.config.php,
  * where n is between 1 and 100, and with very poor results below about 50
  */
 define('JPEG_QUALITY',            100);
 
 /**
- * [system] png_quality = n where is between 0 (uncompressed) to 9
+ * system.png_quality = n where is between 0 (uncompressed) to 9
  */
 define('PNG_QUALITY',             8);
 
@@ -73,10 +73,12 @@ define('PNG_QUALITY',             8);
  * this length (on the longest side, the other side will be scaled appropriately).
  * Modify this value using
  *
- * [system]
- * max_image_length = n;
+ * 'system' => [
+ *      'max_image_length' => 'n',
+ *      ...
+ * ],
  *
- * in config/local.ini.php
+ * in config/local.config.php
  *
  * If you don't want to set a maximum length, set to -1. The default value is
  * defined by 'MAX_IMAGE_LENGTH' below.
