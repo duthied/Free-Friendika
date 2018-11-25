@@ -33,8 +33,8 @@
 				<tr>
 					<td class="checkbox"><input type="checkbox" class="contacts_ckbx" id="id_contact_{{$contact.id}}" name="contacts[]" value="{{$contact.id}}"/></td>
 					<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname|escape}}" title="{{$contact.nickname|escape}}"></td>
-					<td class="name">{{$contact.name}}</td>
-					<td class="addr">{{$contact.addr}}</td>
+					<td class="name">{{$contact.name|escaped}}</td>
+					<td class="addr">{{$contact.addr|escaped}}</td>
 					<td class="addr"><a href="{{$contact.url}}" title="{{$contact.nickname|escape}}" >{{$contact.url}}</a></td>
 				</tr>
 				{{/foreach}}

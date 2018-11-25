@@ -11,7 +11,7 @@
 					<h4 class="left-align1"><a href="{{$profile.url}}">{{$profile.name|escape}}</a></h4>{{if $profile.account_type}}<span>{{$profile.account_type}}</span>{{/if}}
 				</div>
 				<div class="profile-details">
-					<span class="profile-addr">{{$profile.addr}}</span>
+					<span class="profile-addr">{{$profile.addr|escaped}}</span>
 					{{if $profile.network}}<span class="profile-network"> ({{$profile.network}})</span>{{/if}}
 				</div>
 				{{*{{if $profile.about}}<div class="profile-details profile-about">{{$profile.about}}</div>{{/if}}*}}

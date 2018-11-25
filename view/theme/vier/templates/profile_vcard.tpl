@@ -13,7 +13,7 @@
 		{{/if}}
 	</div>
 
-	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr|escaped}}</div>{{/if}}
 
 	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 

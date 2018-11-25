@@ -3,7 +3,7 @@
 
 	<div class="fn label p-name">{{$profile.name|escape}}</div>
 	
-	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr|escaped}}</div>{{/if}}
 	
 	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 	<div id="profile-photo-wrapper"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name|escape}}"></div>
