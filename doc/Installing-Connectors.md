@@ -19,7 +19,7 @@ Addons must be installed by the site administrator before they can be used.
 This is accomplished through the site administration panel.
 
 Each of the connectors also requires an "API key" from the service you wish to connect with.
-Some addons allow you to enter this information in the site administration pages, while others may require you to edit your configuration file (config/local.ini.php).
+Some addons allow you to enter this information in the site administration pages, while others may require you to edit your configuration file (config/local.config.php).
 The ways to obtain these keys vary between the services, but they all require an existing account on the target service.
 Once installed, these API keys can usually be shared by all site members.
 
@@ -39,7 +39,7 @@ You can get it from [Twitter](https://twitter.com/apps).
 Register your Friendica site as "Client" application with "Read & Write" access.
 We do not need "Twitter as login".
 When you've registered the app you get a key pair with an OAuth Consumer key and a secret key for your application/site.
-Add this key pair to your config/local.ini.php:
+Add this key pair to your config/local.config.php:
 
 	[twitter]
 	consumerkey = your consumer_key here

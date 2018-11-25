@@ -18,7 +18,7 @@ Erweiterung müssen vom Administrator installiert werden, bevor sie genutzt werd
 Dieses kann über das Administrationsmenü erstellt werden.
 
 Jeder der Konnektoren benötigt zudem einen API-Schlüssel vom Service, der verbunden werden soll.
-Einige Erweiterung erlaube es, diese Informationen auf den Administrationsseiten einzustellen, wohingegen andere eine direkte Bearbeitung der Konfigurationsdatei "config/local.ini.php" erfordern.
+Einige Erweiterung erlaube es, diese Informationen auf den Administrationsseiten einzustellen, wohingegen andere eine direkte Bearbeitung der Konfigurationsdatei "config/local.config.php" erfordern.
 Der Weg, um diese Schlüssel zu erhalten, variiert stark, jedoch brauchen fast alle einen bestehenden Account im gewünschten Service.
 Einmal installiert, können diese Schlüssel von allen Seitennutzern genutzt werden.
 
@@ -37,7 +37,7 @@ Um dieses Erweiterung zu nutzen, benötigst du einen OAuth Consumer-Schlüsselpa
 
 Registriere deine Friendica-Seite als "Client"-Anwendung mit "Read&Write"-Zugriff. Wir benötigen "Twitter als Login" nicht. Sobald du deine Anwendung installiert hast, erhältst du das Schlüsselpaar für deine Seite.
 
-Trage dieses Schlüsselpaar in deine globale "config/local.ini.php"-Datei ein.
+Trage dieses Schlüsselpaar in deine globale "config/local.config.php"-Datei ein.
 
 ```
 [twitter]

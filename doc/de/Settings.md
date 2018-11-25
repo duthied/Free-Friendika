@@ -66,7 +66,7 @@ Dabei kannst du zwischen den folgenden Optionen wählen:
 ##### Einladungen
 
 Zusätzlich zu den oben genannten Möglichkeiten, kann die Registrierung eines neuen Nutzerkontos an eine Einladung durch einen bestehenden Nutzer gekoppelt werden.
-Hierzu muss in der [config/local.ini.php](/help/Config) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
+Hierzu muss in der [config/local.config.php](/help/Config) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
 
 #### Namen auf Vollständigkeit überprüfen
 
@@ -313,7 +313,7 @@ Du solltest deshalb einen Dienst zur [log rotation](https://en.wikipedia.org/wik
 **Bekannte Probleme**: Der Dateiname `friendica.log` kann bei speziellen Server Konfigurationen zu Problemen führen (siehe [issue 2209](https://github.com/friendica/friendica/issues/2209)).
 
 Normalerweise werden Fehler- und Warnmeldungen von PHP unterdrückt.
-Wenn du sie aktivieren willst, musst du folgendes in der `config/local.ini.php` Datei eintragen um die Meldungen in die Datei `php.out` zu speichern
+Wenn du sie aktivieren willst, musst du folgendes in der `config/local.config.php` Datei eintragen um die Meldungen in die Datei `php.out` zu speichern
 
 	error_reporting(E_ERROR | E_WARNING | E_PARSE );
 	ini_set('error_log','php.out');
@@ -347,10 +347,13 @@ Dies sind die Datenbank Einstellungen, die Administrator Accounts, der PHP Pfad 
 
 Mit den folgenden Einstellungen kannst du die Zugriffsdaten für den Datenbank Server festlegen.
 
-    $db_host = 'your.db.host';
-    $db_user = 'db_username';
-    $db_pass = 'db_password';
-    $db_data = 'database_name';
+    'database' => [
+        'hostname' => 'localhost',
+        'username' => 'mysqlusername',
+        'password' => 'mysqlpassword',
+        'database' => 'mysqldatabasename',
+        'charset' => 'utf8mb4',
+    ],
 
 Sollten alle der folgenden Environment-Variablen gesetzt sein, wird Friendica diese anstatt der vorher konfigurierten Werte nutzen.
 
@@ -367,16 +370,18 @@ Normalerweise trifft dies auf den ersten Account zu, der nach der Installation a
 Die Liste der E-Mail Adressen kann aber einfach erweitert werden.
 Mit keiner der angegebenen E-Mail Adressen können weitere Accounts registriert werden.
 
-    [config]
-    admin_email = you@example.com, buddy@example.com
+	'config' => [
+        'admin_email' => 'you@example.com, buddy@example.com',
+    ],
 
 ## PHP Pfad
 
 Einige Prozesse von Friendica laufen im Hintergrund.
 Für diese Prozesse muss der Pfad zu der PHP Version gesetzt sein, die verwendet werden soll.
 
-    [config]
-    php_path = {{$phpath}}
+    'config' => [
+        'php_path' => '/usr/bin/php',
+    ],
 
 ## Unterverzeichnis Konfiguration
 
@@ -384,10 +389,11 @@ Man kann Friendica in ein Unterverzeichnis des Webservers installieren.
 Wir raten allerdings dringen davon ab, da es die Interoperabilität mit anderen Netzwerken (z.B. Diaspora, GNU Social, Hubzilla) verhindert.
 Mal angenommen, du hast ein Unterverzeichnis tests und willst Friendica in ein weiteres Unterverzeichnis installieren, dann lautet die Konfiguration hierfür:
 
-    [system]
-    urlpath = tests/friendica
+    'system' => [
+        'urlpath' => 'tests/friendica',
+    ],
 
 ## Weitere Ausnahmen
 
-Es gibt noch einige experimentelle Einstellungen, die nur in der ``config/local.ini.php`` Datei konfiguriert werden können.
-Im [Konfigurationswerte, die nur in der config/local.ini.php gesetzt werden können (EN)](help/Config) Artikel kannst du mehr darüber erfahren.
+Es gibt noch einige experimentelle Einstellungen, die nur in der ``config/local.config.php`` Datei konfiguriert werden können.
+Im [Konfigurationswerte, die nur in der config/local.config.php gesetzt werden können (EN)](help/Config) Artikel kannst du mehr darüber erfahren.
