@@ -127,7 +127,7 @@ function acl_content(App $a)
 			$groups[] = [
 				'type'  => 'g',
 				'photo' => 'images/twopeople.png',
-				'name'  => htmlentities($g['name']),
+				'name'  => htmlspecialchars($g['name']),
 				'id'    => intval($g['id']),
 				'uids'  => array_map('intval', explode(',', $g['uids'])),
 				'link'  => '',
@@ -198,7 +198,7 @@ function acl_content(App $a)
 		foreach ($r as $g) {
 			$contacts[] = [
 				'photo'   => ProxyUtils::proxifyUrl($g['photo'], false, ProxyUtils::SIZE_MICRO),
-				'name'    => $g['name'],
+				'name'    => htmlspecialchars($g['name']),
 				'nick'    => defaults($g, 'addr', $g['url']),
 				'network' => $g['network'],
 				'link'    => $g['url'],
@@ -220,7 +220,7 @@ function acl_content(App $a)
 			$entry = [
 				'type'    => 'c',
 				'photo'   => ProxyUtils::proxifyUrl($g['micro'], false, ProxyUtils::SIZE_MICRO),
-				'name'    => htmlentities($g['name']),
+				'name'    => htmlspecialchars($g['name']),
 				'id'      => intval($g['id']),
 				'network' => $g['network'],
 				'link'    => $g['url'],
@@ -281,7 +281,7 @@ function acl_content(App $a)
 				$unknown_contacts[] = [
 					'type'    => 'c',
 					'photo'   => ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO),
-					'name'    => htmlentities($contact['name']),
+					'name'    => htmlspecialchars($contact['name']),
 					'id'      => intval($contact['cid']),
 					'network' => $contact['network'],
 					'link'    => $contact['url'],
