@@ -39,7 +39,7 @@
 	});
 </script>
 <div id='adminpage'>
-	<h1>{{$title}} - {{$page}}</h1>
+	<h1>{{$title|escape}} - {{$page|escape}}</h1>
 
 	<form action="{{$baseurl}}/admin/site" method="post">
     <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
@@ -145,7 +145,7 @@
 	{{include file="field_input.tpl" field=$dbclean_expire_conv}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
-	<h3>{{$worker_title}}</h3>
+	<h3>{{$worker_title|escape}}</h3>
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$min_memory}}
 	{{include file="field_input.tpl" field=$worker_queues}}
@@ -155,7 +155,7 @@
 
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
 
-	<h3>{{$relay_title}}</h3>
+	<h3>{{$relay_title|escape}}</h3>
 	{{include file="field_checkbox.tpl" field=$relay_subscribe}}
 	{{include file="field_input.tpl" field=$relay_server}}
 	{{include file="field_checkbox.tpl" field=$relay_directly}}

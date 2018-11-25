@@ -65,7 +65,7 @@
 		</div>
 
 		<div itemprop="description" class="wall-item-content">
-			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
+			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title|escape}}</a></h2>{{/if}}
 			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body}}</span>
 		</div>
 	</div>
@@ -91,7 +91,7 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
-			{{if $item.plink}}<a role="button" title="{{$item.plink.orig_title|escape}}" href="{{$item.plink.orig}}"><i class="icon-link icon-large"><span class="sr-only">{{$item.plink.orig_title}}</span></i></a>{{/if}}
+			{{if $item.plink}}<a role="button" title="{{$item.plink.orig_title|escape}}" href="{{$item.plink.orig}}"><i class="icon-link icon-large"><span class="sr-only">{{$item.plink.orig_title|escape}}</span></i></a>{{/if}}
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-social">

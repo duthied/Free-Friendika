@@ -48,7 +48,7 @@
 				<div class="wall-item-ago"  id="wall-item-ago-{{$item.id}}" title="{{$item.localtime|escape:'html'}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></div>
 		</div>
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}" >
-			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
+			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title|escape}}</div>
 			<div class="wall-item-title-end"></div>
 			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body}}<span>
 			<div class="body-tag">

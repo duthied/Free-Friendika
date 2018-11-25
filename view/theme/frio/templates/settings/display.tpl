@@ -89,7 +89,7 @@
 				<div class="section-subtitle-wrapper" role="tab" id="calendar-settings-title">
 					<h4>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#calendar-settings-content" aria-expanded="false" aria-controls="calendar-settings-content">
-							{{$calendar_title}}
+							{{$calendar_title|escape}}
 						</a>
 					</h4>
 				</div>

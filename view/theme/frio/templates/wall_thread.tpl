@@ -91,7 +91,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
 					{{if $item.plink}}	{{*link to the original source of the item *}}
 					<li role="menuitem">
-						<a title="{{$item.plink.title|escape}}" href="{{$item.plink.href}}" class="navicon plink u-url"><i class="fa fa-external-link" aria-hidden="true"></i> {{$item.plink.title}}</a>
+						<a title="{{$item.plink.title|escape}}" href="{{$item.plink.href}}" class="navicon plink u-url"><i class="fa fa-external-link" aria-hidden="true"></i> {{$item.plink.title|escape}}</a>
 					</li>
 					{{/if}}
 

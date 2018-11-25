@@ -52,7 +52,7 @@
 
 						{{if $item.subthread}}
 						<li role="menuitem">
-							<button type="button" id="subthread-{{$item.id}}" onclick="{{$item.subthread.action}}" class="btn-link" title="{{$item.subthread.title|escape}}"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{{$item.subthread.title}}</button>
+							<button type="button" id="subthread-{{$item.id}}" onclick="{{$item.subthread.action}}" class="btn-link" title="{{$item.subthread.title|escape}}"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{{$item.subthread.title|escape}}</button>
 						</li>
 						{{/if}}
 
@@ -129,7 +129,7 @@
 				{{/if}}
 
 				{{if $item.title}}
-				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
+				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title|escape}}</a></h4><br /></span>
 				{{/if}}
 
 				<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body}}</div>

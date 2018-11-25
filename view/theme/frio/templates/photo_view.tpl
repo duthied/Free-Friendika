@@ -5,24 +5,24 @@
 
 <div id="photo-view-{{$id}}" class="generic-page-wrapper">
 	<div class="pull-left" id="photo-edit-link-wrap">
-		<a class="page-action faded-icon" id="photo-album-link" href="{{$album.0}}" title="{{$album.1}}" data-toggle="tooltip">
+		<a class="page-action faded-icon" id="photo-album-link" href="{{$album.0}}" title="{{$album.1|escape}}" data-toggle="tooltip">
 			<i class="fa fa-folder-open"></i>&nbsp;{{$album.1}}
 		</a>
 	</div>
 	<div class="pull-right" id="photo-edit-link-wrap">
 		{{if $tools}}
 		<span class="icon-padding"> </span>
-		<a id="photo-edit-link" href="{{$tools.edit.0}}" title="{{$tools.edit.1}}" data-toggle="tooltip">
+		<a id="photo-edit-link" href="{{$tools.edit.0}}" title="{{$tools.edit.1|escape}}" data-toggle="tooltip">
 			<i class="page-action faded-icon fa fa-pencil"></i>
 		</a>
 		<span class="icon-padding"> </span>
-		<a id="photo-toprofile-link" href="{{$tools.profile.0}}" title="{{$tools.profile.1}}" data-toggle="tooltip">
+		<a id="photo-toprofile-link" href="{{$tools.profile.0}}" title="{{$tools.profile.1|escape}}" data-toggle="tooltip">
 			<i class="page-action faded-icon fa fa-user"></i>
 		</a>
 		{{/if}}
 		{{if $lock}}
 		<span class="icon-padding"> </span>
-		<a id="photo-lock-link" onclick="lockview(event,'photo/{{$id}}');" title="{{$lock}}" data-toggle="tooltip">
+		<a id="photo-lock-link" onclick="lockview(event,'photo/{{$id}}');" title="{{$lock|escape}}" data-toggle="tooltip">
 			<i class="page-action faded-icon fa fa-lock"></i>
 		</a>
 		{{/if}}
@@ -33,7 +33,7 @@
 		<div id="photo-photo">
 			{{* The photo *}}
 			<div class="photo-container">
-				<a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" alt="{{$photo.filename|escape}}"/></a>
+				<a href="{{$photo.href}}" title="{{$photo.title|escape}}"><img src="{{$photo.src}}" alt="{{$photo.filename|escape}}"/></a>
 			</div>
 
 			{{* Overlay buttons for previous and next photo *}}
