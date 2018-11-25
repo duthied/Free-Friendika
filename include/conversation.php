@@ -524,7 +524,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				."/?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
 		}
 	} elseif ($mode === 'contacts') {
-		$items = conversation_add_children($items, true, $order, $uid);
+		$items = conversation_add_children($items, false, $order, $uid);
 		$profile_owner = 0;
 
 		if (!$update) {
