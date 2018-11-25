@@ -9,6 +9,7 @@ use DivineOmega\PasswordExposed;
 use Exception;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -732,7 +733,7 @@ class User
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
 		',
-			$preamble, $user['username'], $sitename
+			$user['username'], $sitename
 		));
 		$body = Strings::deindent(L10n::t('
 			The login details are as follows:
@@ -782,7 +783,7 @@ class User
 	public static function remove($uid)
 	{
 		if (!$uid) {
-			return;
+			return false;
 		}
 
 		$a = get_app();
@@ -791,28 +792,24 @@ class User
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
 
-		Addon::callHooks('remove_user', $user);
+		Hook::callAll('remove_user', $user);
 
 		// save username (actually the nickname as it is guaranteed
 		// unique), so it cannot be re-registered in the future.
 		DBA::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc(DateTimeFormat::utcNow() . " + 7 day")], ['uid' => $uid]);
-		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
+		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
+		Worker::add(PRIORITY_HIGH, 'Notifier', 'removeme', $uid);
 
 		// Send an update to the directory
 		$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
-		Worker::add(PRIORITY_LOW, "Directory", $self['url']);
+		Worker::add(PRIORITY_LOW, 'Directory', $self['url']);
 
 		// Remove the user relevant data
-		Worker::add(PRIORITY_LOW, "RemoveUser", $uid);
+		Worker::add(PRIORITY_LOW, 'RemoveUser', $uid);
 
-		if ($uid == local_user()) {
-			unset($_SESSION['authenticated']);
-			unset($_SESSION['uid']);
-			$a->internalRedirect();
-		}
+		return true;
 	}
 
 	/**

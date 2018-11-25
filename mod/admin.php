@@ -1783,7 +1783,11 @@ function admin_page_users_post(App $a)
 	}
 	if (x($_POST, 'page_users_delete')) {
 		foreach ($users as $uid) {
-			User::remove($uid);
+			if (local_user() != $uid) {
+				User::remove($uid);
+			} else {
+				notice(L10n::t('You can\'t remove yourself'));
+			}
 		}
 		notice(L10n::tt("%s user deleted", "%s users deleted", count($users)));
 	}
@@ -1828,11 +1832,15 @@ function admin_page_users(App $a)
 		}
 		switch ($a->argv[2]) {
 			case "delete":
-				BaseModule::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
-				// delete user
-				User::remove($uid);
+				if (local_user() != $uid) {
+					BaseModule::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
+					// delete user
+					User::remove($uid);
 
-				notice(L10n::t("User '%s' deleted", $user['username']) . EOL);
+					notice(L10n::t("User '%s' deleted", $user['username']));
+				} else {
+					notice(L10n::t('You can\'t remove yourself'));
+				}
 				break;
 			case "block":
 				BaseModule::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
