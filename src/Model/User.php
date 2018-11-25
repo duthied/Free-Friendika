@@ -732,7 +732,7 @@ class User
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
 		',
-			$preamble, $user['username'], $sitename
+			$user['username'], $sitename
 		));
 		$body = Strings::deindent(L10n::t('
 			The login details are as follows:
