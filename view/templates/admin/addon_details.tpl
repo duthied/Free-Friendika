@@ -18,7 +18,7 @@
 	</p>
 
 	{{if $screenshot}}
-	<a href="{{$screenshot.0}}" class='screenshot'><img src="{{$screenshot.0}}" alt="{{$screenshot.1}}" /></a>
+	<a href="{{$screenshot.0}}" class='screenshot'><img src="{{$screenshot.0}}" alt="{{$screenshot.1|escape}}" /></a>
 	{{/if}}
 
 	{{if $admin_form}}

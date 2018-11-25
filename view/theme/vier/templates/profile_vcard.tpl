@@ -1,7 +1,7 @@
 <div class="vcard h-card">
 
 	<div class="tool">
-		<div class="fn label p-name">{{$profile.name}}</div>
+		<div class="fn label p-name">{{$profile.name|escape}}</div>
 		{{if $profile.edit}}
 			<div class="action">
 				<a class="icon s16 edit ttright" href="{{$profile.edit.0}}" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
@@ -18,9 +18,9 @@
 	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
 	{{if $profile.picdate}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name|escape}}"></a></div>
 	{{else}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name|escape}}"></a></div>
 	{{/if}}
 
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}

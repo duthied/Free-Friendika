@@ -213,7 +213,7 @@ class Post extends BaseObject
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? L10n::t("save to folder") : false);
 
-		$profile_name = htmlentities($item['author-name']);
+		$profile_name = $item['author-name'];
 		if (!empty($item['author-link']) && empty($item['author-name'])) {
 			$profile_name = $item['author-link'];
 		}
@@ -377,7 +377,7 @@ class Post extends BaseObject
 			'isevent'         => $isevent,
 			'attend'          => $attend,
 			'linktitle'       => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
-			'olinktitle'      => L10n::t('View %s\'s profile @ %s', htmlentities($this->getOwnerName()), $item['owner-link']),
+			'olinktitle'      => L10n::t('View %s\'s profile @ %s', $this->getOwnerName(), $item['owner-link']),
 			'to'              => L10n::t('to'),
 			'via'             => L10n::t('via'),
 			'wall'            => L10n::t('Wall-to-Wall'),
@@ -399,7 +399,7 @@ class Post extends BaseObject
 			'shiny'           => $shiny,
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
-			'owner_name'      => htmlentities($owner_name_e),
+			'owner_name'      => $owner_name_e,
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,
 			'isstarred'       => $isstarred,

@@ -13,7 +13,7 @@
 
 	<form id="crepair-form" action="crepair/{{$contact_id}}" method="post" >
 
-		<!-- <h4>{{$contact_name}}</h4> -->
+		<!-- <h4>{{$contact_name|escape}}</h4> -->
 
 		<div id="contact-update-profile-wrapper">
 		{{if $update_profile}}

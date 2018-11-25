@@ -35,8 +35,8 @@
 					<td class="email">{{$u.email}}</td>
 					<td class="checkbox"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}" /></td>
 					<td class="tools">
-						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" title='{{$approve}}'><span class='icon like'></span></a>
-						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" title='{{$deny}}'><span class='icon dislike'></span></a>
+						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" title='{{$approve|escape}}'><span class='icon like'></span></a>
+						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" title='{{$deny|escape}}'><span class='icon dislike'></span></a>
 					</td>
 				</tr>
 				<tr>
@@ -79,8 +79,8 @@
 				<tbody>
 				{{foreach $users as $u}}
 					<tr>
-						<td><img class='icon' src="{{$u.micro}}" alt="{{$u.nickname}}" title="{{$u.nickname}}"></td>
-						<td class='name'><a href="{{$u.url}}" title="{{$u.nickname}}" >{{$u.name}}</a></td>
+						<td><img class='icon' src="{{$u.micro}}" alt="{{$u.nickname|escape}}" title="{{$u.nickname|escape}}"></td>
+						<td class='name'><a href="{{$u.url}}" title="{{$u.nickname|escape}}" >{{$u.name}}</a></td>
 						<td class='email'>{{$u.email}}</td>
 						<td class='register_date'>{{$u.register_date}}</td>
 						<td class='login_date'>{{$u.login_date}}</td>
@@ -94,8 +94,8 @@
 						{{/if}}
 						<td class="tools">
 						{{if $u.is_deletable}}
-							<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" title='{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}'><span class='icon block {{if $u.blocked==0}}dim{{/if}}'></span></a>
-							<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><span class='icon drop'></span></a>
+							<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" title='{{if $u.blocked}}{{$unblock|escape}}{{else}}{{$block|escape}}{{/if}}'><span class='icon block {{if $u.blocked==0}}dim{{/if}}'></span></a>
+							<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" title='{{$delete|escape}}' onclick="return confirm_delete('{{$u.name}}')"><span class='icon drop'></span></a>
 						{{else}}
 							&nbsp;
 						{{/if}}
@@ -122,8 +122,8 @@
 				<tbody>
 				{{foreach $deleted as $u}}
 					<tr>
-						<td><img class='icon' src="{{$u.micro}}" alt="{{$u.nickname}}" title="{{$u.nickname}}"></td>
-						<td class='name'><a href="{{$u.url}}" title="{{$u.nickname}}" >{{$u.name}}</a></td>
+						<td><img class='icon' src="{{$u.micro}}" alt="{{$u.nickname|escape}}" title="{{$u.nickname|escape}}"></td>
+						<td class='name'><a href="{{$u.url}}" title="{{$u.nickname|escape}}" >{{$u.name}}</a></td>
 						<td class='email'>{{$u.email}}</td>
 						<td class='register_date'>{{$u.register_date}}</td>
 						<td class='login_date'>{{$u.login_date}}</td>

@@ -33,7 +33,7 @@
 		<div id="photo-photo">
 			{{* The photo *}}
 			<div class="photo-container">
-				<a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" alt="{{$photo.filename}}"/></a>
+				<a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" alt="{{$photo.filename|escape}}"/></a>
 			</div>
 
 			{{* Overlay buttons for previous and next photo *}}
@@ -54,7 +54,7 @@
 		<div id="photo-tags">{{$tags.title}}
 			{{foreach $tags.tags as $t}}
 			<span class="category label btn-success sm">
-				<span class="p-category">{{$t.name}}</span>
+				<span class="p-category">{{$t.name|escape}}</span>
 				{{if $t.removeurl}} <a href="{{$t.removeurl}}">(X)</a> {{/if}}
 			</span>
 			{{/foreach}}

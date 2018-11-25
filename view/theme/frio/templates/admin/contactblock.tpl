@@ -67,9 +67,9 @@
 											<label for="id_contact_{{$contact.id}}"></label>
 										</div>
 									</td>
-									<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname}}" title="{{$contact.addr}}"></td>
-									<td class="name">{{$contact.name}}</td>
-									<td class="addr" colspan="3"><a href="{{$contact.url}}" title="{{$contact.addr}}" >{{$contact.url}}</a></td>
+									<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname|escape}}" title="{{$contact.addr|escape}}"></td>
+									<td class="name">{{$contact.name|escape}}</td>
+									<td class="addr" colspan="3"><a href="{{$contact.url}}" title="{{$contact.addr|escape}}" >{{$contact.url|escape}}</a></td>
 								</tr>
 							{{/foreach}}
 						</tbody>
@@ -78,7 +78,7 @@
 								<td>
 									{{* Checkbox to select all blocked contacts *}}
 									<div class="checkbox">
-										<input type="checkbox" id="contactblock-select" class="selecttoggle contacts_ckbx" data-select-class="contacts_ckbx" data-select-all="{{$select_all}}" data-select-none="{{$select_none}}" title="{{$select_all}}"/>
+										<input type="checkbox" id="contactblock-select" class="selecttoggle contacts_ckbx" data-select-class="contacts_ckbx" data-select-all="{{$select_all}}" data-select-none="{{$select_none}}" title="{{$select_all|escape}}"/>
 										<label for="contactblock-select"></label>
 									</div>
 								</td>

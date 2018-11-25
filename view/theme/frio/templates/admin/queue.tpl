@@ -13,12 +13,12 @@
 		</tr>
 		{{foreach $entries as $e}}
 		<tr>
-			<td>{{$e.id}}</td>
-			<td>{{$e.name}}</td>
-			<td><a href="{{$e.nurl}}">{{$e.nurl}}</a></td>
-			<td>{{$e.network}}</td>
-			<td>{{$e.created}}</td>
-			<td>{{$e.last}}</td>
+			<td>{{$e.id|escape}}</td>
+			<td>{{$e.name|escape}}</td>
+			<td><a href="{{$e.nurl}}">{{$e.nurl|escape}}</a></td>
+			<td>{{$e.network|escape}}</td>
+			<td>{{$e.created|escape}}</td>
+			<td>{{$e.last|escape}}</td>
 		</tr>
 		{{/foreach}}
 	</table>

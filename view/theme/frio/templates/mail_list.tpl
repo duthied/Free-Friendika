@@ -5,7 +5,7 @@
 		<div class="media">
 			<div class="pull-left contact-photo-wrapper">
 				<a href="{{$from_url}}" title="{{$from_addr}}">
-					<img class="media-object" src="{{$from_photo}}" alt="{{$from_name}}" title="{{$from_addr}}" />
+					<img class="media-object" src="{{$from_photo}}" alt="{{$from_name|escape}}" title="{{$from_addr|escape}}" />
 				</a>
 			</div>
 			<div class="media-body">

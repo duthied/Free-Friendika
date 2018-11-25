@@ -2,9 +2,9 @@
 
 	<div id="profile-photo-wrapper">
 		{{if $url}}
-		<a href="{{$url}}"><img class="photo u-photo" src="{{$photo}}" alt="{{$name}}" /></a>
+		<a href="{{$url}}"><img class="photo u-photo" src="{{$photo}}" alt="{{$name|escape}}" /></a>
 		{{else}}
-		<img class="photo u-photo" src="{{$photo}}" alt="{{$name}}" />
+		<img class="photo u-photo" src="{{$photo}}" alt="{{$name|escape}}" />
 		{{/if}}
 	</div>
 
@@ -12,11 +12,11 @@
 	<div id="vcard-short-info-wrapper" style="display: none;">
 		<div id="vcard-short-info" class="media" style="display: none">
 			<div id="vcard-short-photo-wrapper" class="pull-left">
-				<img class="media-object" src="{{$photo}}" alt="{{$name}}" />
+				<img class="media-object" src="{{$photo}}" alt="{{$name|escape}}" />
 			</div>
 
 			<div id="vcard-short-desc" class="media-body">
-				<h4 class="media-heading">{{$name}}</h4>
+				<h4 class="media-heading">{{$name|escape}}</h4>
 				{{if $addr}}<div class="vcard-short-addr">{{$addr}}</div>{{/if}}
 			</div>
 		</div>
@@ -24,7 +24,7 @@
 
 	<div class="panel-body">
 		<div class="profile-header">
-			<h3 class="fn p-name">{{$name}}</h3>
+			<h3 class="fn p-name">{{$name|escape}}</h3>
 
 			{{if $addr}}<div class="p-addr">{{$addr}}</div>{{/if}}
 

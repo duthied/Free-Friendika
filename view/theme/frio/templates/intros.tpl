@@ -18,7 +18,7 @@
 				{{if $discard}}<button class="btn-link intro-submit-discard intro-action-link" type="submit" name="submit" value="{{$discard|escape:'html'}}" aria-label="{{$discard|escape:'html'}}" title="{{$discard|escape:'html'}}" data-toggle="tooltip"><i class="fa fa-trash-o" aria-hidden="true"></i></button>{{/if}}
 			</form>
 		</div>
-		<div class='intro-enty-name'><h4 class="media-heading"><a href="{{$zrl}}">{{$fullname}}</a></h4></div>
+		<div class='intro-enty-name'><h4 class="media-heading"><a href="{{$zrl}}">{{$fullname|escape}}</a></h4></div>
 		<div class="intro-desc"><span class="intro-desc-label">{{$str_notifytype}}</span>&nbsp;{{$notify_type}}</div>
 		{{* if the contact was suggestested by another contact, the contact who made the suggestion is displayed*}}
 		{{if $madeby}}<div class="intro-madeby"><span class="intro-madeby-label">{{$lbl_madeby}}</span>&nbsp;<a href="{{$madeby_zrl}}">{{$madeby}}</a></div>{{/if}}
@@ -51,7 +51,7 @@
 		a bootstrap modal in the case of approval *}}
 		<div id="intro-approve-wrapper-{{$intro_id}}" style="display: none;">
 
-			<h3 class="heading">{{$fullname}}{{if $addr}}&nbsp;({{$addr}}){{/if}}</h3>
+			<h3 class="heading">{{$fullname|escape}}{{if $addr}}&nbsp;({{$addr}}){{/if}}</h3>
 			<form class="intro-approve-form" {{if $request}}action="{{$request}}" method="get"{{else}}action="dfrn_confirm" method="post"{{/if}}>
 				{{include file="field_checkbox.tpl" field=$hidden}}
 				{{if $type != "friend_suggestion"}}
