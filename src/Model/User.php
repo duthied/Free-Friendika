@@ -799,15 +799,15 @@ class User
 		DBA::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc(DateTimeFormat::utcNow() . " + 7 day")], ['uid' => $uid]);
-		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
+		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc(DateTimeFormat::utcNow() . ' + 7 day')], ['uid' => $uid]);
+		Worker::add(PRIORITY_HIGH, 'Notifier', 'removeme', $uid);
 
 		// Send an update to the directory
 		$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
-		Worker::add(PRIORITY_LOW, "Directory", $self['url']);
+		Worker::add(PRIORITY_LOW, 'Directory', $self['url']);
 
 		// Remove the user relevant data
-		Worker::add(PRIORITY_LOW, "RemoveUser", $uid);
+		Worker::add(PRIORITY_LOW, 'RemoveUser', $uid);
 
 		if ($uid == local_user()) {
 			unset($_SESSION['authenticated']);
