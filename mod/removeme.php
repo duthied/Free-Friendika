@@ -57,7 +57,7 @@ function removeme_post(App $a)
 		]);
 	}
 
-	if (User::authenticate($a->user, trim($_POST['qxz_password']))) {
+	if (User::getIdFromPasswordAuthentication($a->user, trim($_POST['qxz_password']))) {
 		User::remove($a->user['uid']);
 		// NOTREACHED
 	}

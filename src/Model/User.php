@@ -9,6 +9,7 @@ use DivineOmega\PasswordExposed;
 use Exception;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -791,7 +792,7 @@ class User
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
 
-		Addon::callHooks('remove_user', $user);
+		Hook::callAll('remove_user', $user);
 
 		// save username (actually the nickname as it is guaranteed
 		// unique), so it cannot be re-registered in the future.
