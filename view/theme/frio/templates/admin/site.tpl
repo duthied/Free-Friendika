@@ -353,7 +353,7 @@
 		<div id="admin-settings-relocate-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-relocate">
 			<div class="alert alert-danger alert-dismissible">
 				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-				<b>{{$relocate_warning}}</b>
+				<strong>{{$relocate_warning}}</strong>
 			</div>
 			{{* separate form for relocate... *}}
 			<form action="{{$baseurl}}/admin/site" method="post">
