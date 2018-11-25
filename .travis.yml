@@ -17,7 +17,7 @@ env:
 install:
  - composer install
 before_script:
- - cp config/local-sample.ini.php config/local.ini.php
+ - cp config/local-sample.config.php config/local.config.php
  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
  - mysql -utravis test < database.sql
  - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini

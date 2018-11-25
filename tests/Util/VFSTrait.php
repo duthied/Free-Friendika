@@ -27,9 +27,9 @@ trait VFSTrait
 		// create a virtual directory and copy all needed files and folders to it
 		$this->root = vfsStream::setup('friendica', null, $structure);
 
-		$this->setConfigFile('config.ini.php');
-		$this->setConfigFile('settings.ini.php');
-		$this->setConfigFile('local.ini.php');
+		$this->setConfigFile('defaults.config.php');
+		$this->setConfigFile('settings.config.php');
+		$this->setConfigFile('local.config.php');
 		$this->setConfigFile('dbstructure.config.php');
 	}
 

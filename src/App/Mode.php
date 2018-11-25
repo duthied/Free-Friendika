@@ -52,8 +52,9 @@ class Mode
 
 		$this->mode = 0;
 
-		if (!file_exists($this->basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')
-			&& !file_exists($this->basepath . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+		if (!file_exists($this->basepath . '/config/local.config.php')
+			&& !file_exists($this->basepath . '/config/local.ini.php')
+			&& !file_exists($this->basepath . '/.htconfig.php')) {
 			return;
 		}
 

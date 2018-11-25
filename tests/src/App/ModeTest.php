@@ -36,11 +36,11 @@ class ModeTest extends MockedTest
 	{
 		$mode = new Mode($this->root->url());
 
-		$this->assertTrue($this->root->hasChild('config/local.ini.php'));
+		$this->assertTrue($this->root->hasChild('config/local.config.php'));
 
-		$this->delConfigFile('local.ini.php');
+		$this->delConfigFile('local.config.php');
 
-		$this->assertFalse($this->root->hasChild('config/local.ini.php'));
+		$this->assertFalse($this->root->hasChild('config/local.config.php'));
 
 		$mode->determine();
 

@@ -86,8 +86,7 @@ cd /var/www
 php bin/composer.phar install
 
 # initial config file for friendica in vagrant
-#cp /vagrant/util/htconfig.vagrant.php /vagrant/.htconfig.php
-cp /vagrant/util/local.ini.vagrant.php /vagrant/config/local.ini.php
+cp /vagrant/util/local.config.vagrant.php /vagrant/config/local.config.php
 
 # copy the .htaccess-dist file to .htaccess so that rewrite rules work
 cp /vagrant/.htaccess-dist /vagrant/.htaccess
