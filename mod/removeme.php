@@ -59,6 +59,10 @@ function removeme_post(App $a)
 
 	if (User::getIdFromPasswordAuthentication($a->user, trim($_POST['qxz_password']))) {
 		User::remove($a->user['uid']);
+
+		unset($_SESSION['authenticated']);
+		unset($_SESSION['uid']);
+		$a->internalRedirect();
 		// NOTREACHED
 	}
 }

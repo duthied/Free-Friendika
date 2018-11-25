@@ -783,7 +783,7 @@ class User
 	public static function remove($uid)
 	{
 		if (!$uid) {
-			return;
+			return false;
 		}
 
 		$a = get_app();
@@ -809,11 +809,7 @@ class User
 		// Remove the user relevant data
 		Worker::add(PRIORITY_LOW, 'RemoveUser', $uid);
 
-		if ($uid == local_user()) {
-			unset($_SESSION['authenticated']);
-			unset($_SESSION['uid']);
-			$a->internalRedirect();
-		}
+		return true;
 	}
 
 	/**
