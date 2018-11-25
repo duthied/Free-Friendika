@@ -9,7 +9,7 @@
 					<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name|escape}}" />
 				</div>
 
-				{{* For very small displays we use a drobdown menu for contact relating actions *}}
+				{{* For very small displays we use a dropdown menu for contact relating actions *}}
 				<button type="button" class="btn btn-link dropdown-toggle visible-xs" id="contact-photo-menu-button-{{$contact.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{{* use a smaller picture on very small displays (e.g. mobiles) *}}
 					<div class="contact-photo-image-wrapper visible-xs">
