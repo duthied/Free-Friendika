@@ -3,7 +3,7 @@
 
 	<div class="fn label p-name">{{$profile.name|escape}}</div>
 	
-	{{if $profile.addr}}<div class="p-addr">{{$profile.addr|escaped}}</div>{{/if}}
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr|escape}}</div>{{/if}}
 	
 	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 

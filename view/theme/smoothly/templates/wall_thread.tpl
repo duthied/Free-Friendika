@@ -15,7 +15,7 @@
 			{{if $item.owner_url}}
 			<div class="wall-item-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-{{$item.id}}" >
 				<a href="{{$item.owner_url}}" title="{{$item.olinktitle|escape}}" class="wall-item-photo-link" id="wall-item-ownerphoto-link-{{$item.id}}">
-				<img src="{{$item.owner_photo}}" class="wall-item-photo{{$item.osparkle}}" id="wall-item-ownerphoto-{{$item.id}}" style="height: 80px; width: 80px;" alt="{{$item.owner_name|escaped}}" /></a>
+				<img src="{{$item.owner_photo}}" class="wall-item-photo{{$item.osparkle}}" id="wall-item-ownerphoto-{{$item.id}}" style="height: 80px; width: 80px;" alt="{{$item.owner_name|escape}}" /></a>
 			</div>
 			<div class="wall-item-arrowphoto-wrapper" ><img src="view/theme/smoothly/images/larrow.gif" alt="{{$item.wall}}" /></div>
 			{{/if}}
@@ -23,7 +23,7 @@
 				onmouseover="if (typeof t{{$item.id}} != 'undefined') clearTimeout(t{{$item.id}}); openMenu('wall-item-photo-menu-button-{{$item.id}}')"
                 onmouseout="t{{$item.id}}=setTimeout('closeMenu(\'wall-item-photo-menu-button-{{$item.id}}\'); closeMenu(\'wall-item-photo-menu-{{$item.id}}\');',200)">
 				<a href="{{$item.profile_url}}" title="{{$item.linktitle|escape}}" class="wall-item-photo-link u-url" id="wall-item-photo-link-{{$item.id}}">
-				<img src="{{$item.thumb}}" class="wall-item-photo{{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" style="height: 80px; width: 80px;" alt="{{$item.name|escaped}}" /></a>
+				<img src="{{$item.thumb}}" class="wall-item-photo{{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" style="height: 80px; width: 80px;" alt="{{$item.name|escape}}" /></a>
 				<span onclick="openClose('wall-item-photo-menu-{{$item.id}}');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-{{$item.id}}">menu</span>
                 <div class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
                     <ul>
@@ -47,7 +47,7 @@
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}" >
 		<div class="wall-item-author">
 			<a href="{{$item.profile_url}}" title="{{$item.linktitle|escape}}" class="wall-item-name-link">
-			<span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name|escaped}}</span>
+			<span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name|escape}}</span>
 			</a>
 			<div class="wall-item-ago">&bull;</div>
 			<div class="wall-item-ago" id="wall-item-ago-{{$item.id}}" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></div>

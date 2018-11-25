@@ -44,7 +44,7 @@
 			</div>
 		</div>
 		<div class="wall-item-author">
-				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle|escape:'html'}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name|escaped}}</span></a>{{if $item.owner_url}} {{$item.to}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle|escape:'html'}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name|escaped}}</span></a> {{$item.vwall}}{{/if}}<br />
+				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle|escape:'html'}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name|escape}}</span></a>{{if $item.owner_url}} {{$item.to}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle|escape:'html'}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name|escape}}</span></a> {{$item.vwall}}{{/if}}<br />
 				<div class="wall-item-ago"  id="wall-item-ago-{{$item.id}}" title="{{$item.localtime|escape:'html'}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></div>
 		</div>
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}" >

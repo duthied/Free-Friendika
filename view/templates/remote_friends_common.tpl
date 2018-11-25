@@ -6,12 +6,12 @@
 	<div class="profile-match-wrapper">
 		<div class="profile-match-photo">
 			<a href="{{$item.url}}">
-				<img src="{{$item.photo}}" width="80" height="80" alt="{{$item.name|escaped}}" title="{{$item.name|escaped}}" />
+				<img src="{{$item.photo}}" width="80" height="80" alt="{{$item.name|escape}}" title="{{$item.name|escape}}" />
 			</a>
 		</div>
 		<div class="profile-match-break"></div>
 		<div class="profile-match-name">
-			<a href="{{$item.url}}" title="{{$item.name|escaped}}">{{$item.name|escaped}}</a>
+			<a href="{{$item.url}}" title="{{$item.name|escape}}">{{$item.name|escape}}</a>
 		</div>
 		<div class="profile-match-end"></div>
 	</div>
