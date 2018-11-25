@@ -30,7 +30,7 @@ trait VFSTrait
 		$this->setConfigFile('config.ini.php');
 		$this->setConfigFile('settings.ini.php');
 		$this->setConfigFile('local.ini.php');
-		$this->setConfigFile('dbstructure.php');
+		$this->setConfigFile('dbstructure.config.php');
 	}
 
 	/**

@@ -28,7 +28,7 @@ class DBStructure
 	const UPDATE_FAILED      = 2; // Database check failed
 
 	/**
-	 * Database structure definition loaded from config/dbstructure.php
+	 * Database structure definition loaded from config/dbstructure.config.php
 	 *
 	 * @var array
 	 */
@@ -783,10 +783,10 @@ class DBStructure
 	}
 
 	/**
-	 * Loads the database structure definition from the config/dbstructure.php file.
+	 * Loads the database structure definition from the config/dbstructure.config.php file.
 	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
-	 * @see config/dbstructure.php
+	 * @see config/dbstructure.config.php
 	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
 	 * @return array
 	 * @throws Exception
@@ -796,16 +796,16 @@ class DBStructure
 		if (!self::$definition) {
 			$a = \Friendica\BaseObject::getApp();
 
-			$filename = $a->getBasePath() . '/config/dbstructure.php';
+			$filename = $a->getBasePath() . '/config/dbstructure.config.php';
 
 			if (!is_readable($filename)) {
-				throw new Exception('Missing database structure config file config/dbstructure.php');
+				throw new Exception('Missing database structure config file config/dbstructure.config.php');
 			}
 
 			$definition = require $filename;
 
 			if (!$definition) {
-				throw new Exception('Corrupted database structure config file config/dbstructure.php');
+				throw new Exception('Corrupted database structure config file config/dbstructure.config.php');
 			}
 
 			self::$definition = $definition;
