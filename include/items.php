@@ -352,7 +352,7 @@ function drop_item($id, $return = '')
 
 	// locate item to be deleted
 
-	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', parent];
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
