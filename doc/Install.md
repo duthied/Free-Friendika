@@ -32,7 +32,7 @@ Requirements
   * Curl, GD, PDO, MySQLi, hash, xml, zip and OpenSSL extensions
   * The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
   * some form of email server or email gateway such that PHP mail() works
-* Mysql 5.5.3+ or an equivalant alternative for MySQL (MariaDB, Percona Server etc.)
+* Mysql 5.5.3+ or an equivalent alternative for MySQL (MariaDB, Percona Server etc.)
 * the ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows) (Note: other options are presented in Section 7 of this document.)
 * Installation into a top-level domain or sub-domain (without a directory/path component in the URL) is preferred. Directory paths will not be as convenient to use and have not been thoroughly tested.
 * If your hosting provider doesn't allow Unix shell access, you might have trouble getting everything to work.
@@ -75,7 +75,7 @@ Clone the addon repository (separately):
 
 If you copy the directory tree to your webserver, make sure that you also copy .htaccess - as "dot" files are often hidden and aren't normally copied.
 
-If you want to use the development version of Friendica you can switch to the devel branch in the repository by running
+If you want to use the development version of Friendica you can switch to the develop branch in the repository by running
 
     git checkout develop
     bin/composer.phar install
@@ -108,19 +108,19 @@ If you need to specify a port for the connection to the database, you can do so 
 
 *If* the manual installation fails for any reason, check the following:
 
-* Does "config/local.ini.php" exist? If not, edit config/local-sample.ini.php and change the system settings.
-* Rename to `config/local.ini.php`.
+* Does "config/local.config.php" exist? If not, edit config/local-sample.config.php and change the system settings.
+* Rename to `config/local.config.php`.
 * Is the database is populated? If not, import the contents of `database.sql` with phpmyadmin or the mysql command line.
 
 At this point visit your website again, and register your personal account.
 Registration errors should all be recoverable automatically.
 If you get any *critical* failure at this point, it generally indicates the database was not installed correctly.
-You might wish to move/rename `config/local.ini.php` to another name and empty (called 'dropping') the database tables, so that you can start fresh.
+You might wish to move/rename `config/local.config.php` to another name and empty (called 'dropping') the database tables, so that you can start fresh.
 
 ### Option B: Run the automatic install script
 
 You have the following options to automatically install Friendica:
--	creating a prepared config file (f.e. `prepared.ini.php`)
+-	creating a prepared config file (f.e. `prepared.config.php`)
 -	using environment variables (f.e. `MYSQL_HOST`)
 -	using options (f.e. `--dbhost <host>`)
 
@@ -136,17 +136,17 @@ If you wish to include all optional checks, use `-a` like this statement:
     
 *If* the automatic installation fails for any reason, check the following:
 
-*	Does `config/local.ini.php` already exist? If yes, the automatic installation won't start
-*	Are the options in the `config/local.ini.php` correct? If not, edit them directly.
+*	Does `config/local.config.php` already exist? If yes, the automatic installation won't start
+*	Are the options in the `config/local.config.php` correct? If not, edit them directly.
 *	Is the empty MySQL-database created? If not, create it.
 
 #### B.1: Config file
 
-You can use a prepared config file like [local-sample.ini.php](config/local-sample.ini.php).
+You can use a prepared config file like [local-sample.config.php](config/local-sample.config.php).
 
 Navigate to the main Friendica directory and execute the following command:
 
-    bin/console autoinstall -f <prepared.ini.php>
+    bin/console autoinstall -f <prepared.config.php>
     
 #### B.2: Environment variables
 
@@ -158,7 +158,7 @@ You can use the options during installation too and skip some of the environment
 
 **Database credentials**
 
-if you don't use the option `--savedb` during installation, the DB credentials will **not** be saved in the `config/local.ini.php`.
+if you don't use the option `--savedb` during installation, the DB credentials will **not** be saved in the `config/local.config.php`.
 
 -	`MYSQL_HOST` The host of the mysql/mariadb database
 -	`MYSQL_PORT` The port of the mysql/mariadb database
@@ -170,13 +170,13 @@ if you don't use the option `--savedb` during installation, the DB credentials w
 **Friendica settings**
 
 This variables wont be used at normal Friendica runtime.
-Instead, they get saved into `config/local.ini.php`. 
+Instead, they get saved into `config/local.config.php`. 
 
 -	`FRIENDICA_URL_PATH` The URL path of Friendica (f.e. '/friendica')
 -	`FRIENDICA_PHP_PATH` The path of the PHP binary
 -	`FRIENDICA_ADMIN_MAIL` The admin email address of Friendica (this email will be used for admin access)
 -	`FRIENDICA_TZ` The timezone of Friendica
--	`FRIENDICA_LANG` The langauge of Friendica
+-	`FRIENDICA_LANG` The language of Friendica
 
 Navigate to the main Friendica directory and execute the following command:
 
@@ -184,7 +184,7 @@ Navigate to the main Friendica directory and execute the following command:
 
 #### B.3: Execution options
 
-All options will be saved in the `config/local.ini.php` and are overruling the associated environment variables.
+All options will be saved in the `config/local.config.php` and are overruling the associated environment variables.
 
 -	`-H|--dbhost <host>` The host of the mysql/mariadb database (env `MYSQL_HOST`)
 -	`-p|--dbport <port>` The port of the mysql/mariadb database (env `MYSQL_PORT`)
@@ -256,5 +256,5 @@ Bad things will happen.
 Let there be a hardware failure, a corrupted database or whatever you can think of.
 So once the installation of your Friendica node is done, you should make yourself a backup plan.
 
-The most important file is the `config/local.ini.php` file.
+The most important file is the `config/local.config.php` file.
 As it stores all your data, you should also have a recent dump of your Friendica database at hand, should you have to recover your node.

@@ -123,7 +123,7 @@ class Installer
 
 	/**
 	 * Executes the installation of Friendica in the given environment.
-	 * - Creates `config/local.ini.php`
+	 * - Creates `config/local.config.php`
 	 * - Installs Database Structure
 	 *
 	 * @param string 	$phppath 	Path to the PHP-Binary (optional, if not set e.g. 'php' or '/usr/bin/php')
@@ -141,7 +141,7 @@ class Installer
 	 */
 	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
 	{
-		$tpl = Renderer::getMarkupTemplate('local.ini.tpl');
+		$tpl = Renderer::getMarkupTemplate('local.config.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
 			'$phpath' => $phppath,
 			'$dbhost' => $dbhost,
@@ -154,10 +154,10 @@ class Installer
 			'$adminmail' => $adminmail,
 		]);
 
-		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', $txt);
+		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php', $txt);
 
 		if (!$result) {
-			$this->addCheck(L10n::t('The database configuration file "config/local.ini.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.'), false, false, htmlentities($txt, ENT_COMPAT, 'UTF-8'));
+			$this->addCheck(L10n::t('The database configuration file "config/local.config.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.'), false, false, htmlentities($txt, ENT_COMPAT, 'UTF-8'));
 		}
 
 		return $result;
@@ -444,9 +444,9 @@ class Installer
 	}
 
 	/**
-	 * "config/local.ini.php" - Check
+	 * "config/local.config.php" - Check
 	 *
-	 * Checks if it's possible to create the "config/local.ini.php"
+	 * Checks if it's possible to create the "config/local.config.php"
 	 *
 	 * @return bool false if something required failed
 	 */
@@ -454,17 +454,17 @@ class Installer
 	{
 		$status = true;
 		$help = "";
-		if ((file_exists('config/local.ini.php') && !is_writable('config/local.ini.php')) ||
-			(!file_exists('config/local.ini.php') && !is_writable('.'))) {
+		if ((file_exists('config/local.config.php') && !is_writable('config/local.config.php')) ||
+			(!file_exists('config/local.config.php') && !is_writable('.'))) {
 
 			$status = false;
-			$help = L10n::t('The web installer needs to be able to create a file called "local.ini.php" in the "config" folder of your web server and it is unable to do so.') . EOL;
+			$help = L10n::t('The web installer needs to be able to create a file called "local.config.php" in the "config" folder of your web server and it is unable to do so.') . EOL;
 			$help .= L10n::t('This is most often a permission setting, as the web server may not be able to write files in your folder - even if you can.') . EOL;
-			$help .= L10n::t('At the end of this procedure, we will give you a text to save in a file named local.ini.php in your Friendica "config" folder.') . EOL;
+			$help .= L10n::t('At the end of this procedure, we will give you a text to save in a file named local.config.php in your Friendica "config" folder.') . EOL;
 			$help .= L10n::t('You can alternatively skip this procedure and perform a manual installation. Please see the file "INSTALL.txt" for instructions.') . EOL;
 		}
 
-		$this->addCheck(L10n::t('config/local.ini.php is writable'), $status, false, $help);
+		$this->addCheck(L10n::t('config/local.config.php is writable'), $status, false, $help);
 
 		// Local INI File is not required
 		return true;

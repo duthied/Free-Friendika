@@ -41,9 +41,9 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
-		if ($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
+		if ($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
 			$this->root->getChild('config')
-				->removeChild('local.ini.php');
+				->removeChild('local.config.php');
 		}
 
 		$this->db_host = getenv('MYSQL_HOST');
@@ -58,7 +58,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	}
 
 	/**
-	 * Creates the arguments which is asserted to be passed to 'replaceMacros()' for creating the local.ini.php
+	 * Creates the arguments which is asserted to be passed to 'replaceMacros()' for creating the local.config.php
 	 *
 	 * @param bool $withDb if true, DB will get saved too
 	 *
@@ -184,51 +184,53 @@ FIN;
 		$this->mockUpdate([false, true, true], null, 1);
 
 		$config = <<<CONF
-<?php return <<<INI
+<?php
 
-[database]
-hostname = 
-username = 
-password = 
-database = 
-charset = utf8mb4
+// Local configuration
 
+// If you're unsure about what any of the config keys below do, please check the config/defaults.config.php for detailed
+// documentation of their data type and behavior.
 
-; ****************************************************************
-; The configuration below will be overruled by the admin panel.
-; Changes made below will only have an effect if the database does
-; not contain any configuration for the friendica system.
-; ****************************************************************
+return [
+	'database' => [
+		'hostname' => '',
+		'username' => '',
+		'password' => '',
+		'database' => '',
+		'charset' => 'utf8mb4',
+	],
 
-[config]
-admin_email =
+	// ****************************************************************
+	// The configuration below will be overruled by the admin panel.
+	// Changes made below will only have an effect if the database does
+	// not contain any configuration for the friendica system.
+	// ****************************************************************
 
-sitename = Friendica Social Network
-
-register_policy = REGISTER_OPEN
-register_text =
-
-[system]
-default_timezone = UTC
-
-language = en
-INI;
-// Keep this line
-
+	'config' => [
+		'admin_email' => '',
+		'sitename' => 'Friendica Social Network',
+		'register_policy' => REGISTER_OPEN,
+		'register_text' => '',
+	],
+	'system' => [
+		'default_timezone' => 'UTC',
+		'language' => 'en',
+	],
+];
 CONF;
 
-		vfsStream::newFile('prepared.ini.php')
+		vfsStream::newFile('prepared.config.php')
 			->at($this->root)
 			->setContent($config);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
-		$console->setOption('f', 'prepared.ini.php');
+		$console->setOption('f', 'prepared.config.php');
 
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, false, true);
 
-		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.ini.php'));
+		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 	}
 
 	/**
@@ -241,7 +243,7 @@ CONF;
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([false, true, true], null, 1);
 
-		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(true), '', 1);
 
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
@@ -267,7 +269,7 @@ CONF;
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([false, true, true], null, 1);
 
-		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(false), '', 1);
 
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
@@ -292,7 +294,7 @@ CONF;
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([false, true, true], null, 1);
 
-		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(true), '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
@@ -326,7 +328,7 @@ CONF;
 	{
 		$this->mockConnect(false, 1);
 
-		$this->mockGetMarkupTemplate('local.ini.tpl', 'testTemplate', 1);
+		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(false), '', 1);
 
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
@@ -350,7 +352,7 @@ Synopsis
 	bin/console autoinstall [-h|--help|-?] [-v] [-a] [-f]
 
 Description
-    Installs Friendica with data based on the local.ini.php file or environment variables
+    Installs Friendica with data based on the local.config.php file or environment variables
 
 Notes
     Not checking .htaccess/URL-Rewrite during CLI installation.
@@ -359,7 +361,7 @@ Options
     -h|--help|-?            Show help information
     -v                      Show more debug information.
     -a                      All setup checks are required (except .htaccess)
-    -f|--file <config>      prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
+    -f|--file <config>      prepared config file (e.g. "config/local.config.php" itself) which will override every other config option - except the environment variables)
     -s|--savedb             Save the DB credentials to the file (if environment variables is used)
     -H|--dbhost <host>      The host of the mysql/mariadb database (env MYSQL_HOST)
     -p|--dbport <port>      The port of the mysql/mariadb database (env MYSQL_PORT)
@@ -385,11 +387,11 @@ Environment variables
    FRIENDICA_LANG              The langauge of Friendica
    
 Examples
-	bin/console autoinstall -f 'input.ini.php
-		Installs Friendica with the prepared 'input.ini.php' file
+	bin/console autoinstall -f 'input.config.php
+		Installs Friendica with the prepared 'input.config.php' file
 
 	bin/console autoinstall --savedb
-		Installs Friendica with environment variables and saves them to the 'config/local.ini.php' file
+		Installs Friendica with environment variables and saves them to the 'config/local.config.php' file
 
 	bin/console autoinstall -h localhost -p 3365 -U user -P passwort1234 -d friendica
 		Installs Friendica with a local mysql database with credentials

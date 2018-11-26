@@ -42,9 +42,14 @@ if ($a->getMode()->isInstall()) {
 Config::load();
 
 if (empty(Config::get('system', 'pidfile'))) {
-	die('Please set system.pidfile in config/local.ini.php. For example:'."\n".
-		'[system]'."\n".
-		'pidfile = /path/to/daemon.pid'."\n");
+	die(<<<TXT
+Please set system.pidfile in config/local.config.php. For example:
+    
+    'system' => [ 
+        'pidfile' => '/path/to/daemon.pid',
+    ],
+TXT
+    );
 }
 
 $pidfile = Config::get('system', 'pidfile');

@@ -199,7 +199,7 @@ Admin
 
 Ja, das ist möglich.
 Es ist allerdings nicht möglich, eine Datenbank durch zwei Domains zu nutzen.
-Solange Du Deine config/local.ini.php allerdings so einrichtest, dass das System nicht versucht, eine Installation durchzuführen, kannst Du die richtige Config-Datei in include/$hostname/config/local.ini.php hinterlegen.
+Solange Du Deine config/local.config.php allerdings so einrichtest, dass das System nicht versucht, eine Installation durchzuführen, kannst Du die richtige Config-Datei in include/$hostname/config/local.config.php hinterlegen.
 Alle Cache-Aspekte und der Zugriffsschutz können pro Instanz konfiguriert werden.
 
 <a name="sources"></a>
@@ -216,13 +216,13 @@ Wenn Du neue Themen suchst, findest Du sie auf [Friendica-Themes.com](http://fri
 <a name="adminaccount1"></a>
 ### Ich habe meine E-Mail Adresse geändern und jetzt ist das Admin Panel verschwunden?
 
-Bitte aktualisiere deine E-Mail Adresse in der <tt>config/local.ini.php</tt> Datei.
+Bitte aktualisiere deine E-Mail Adresse in der <tt>config/local.config.php</tt> Datei.
 
 <a name="adminaccount2"></a>
 ### Kann es mehr als einen Admin auf einer Friendica Instanz geben?
 
 Ja.
-Du kannst in der <tt>config/local.ini.php</tt> Datei mehrere E-Mail Adressen auflisten.
+Du kannst in der <tt>config/local.config.php</tt> Datei mehrere E-Mail Adressen auflisten.
 Die aufgelisteten Adressen werden mit Kommata von einander getrennt.
 
 <a name="dbupdate">

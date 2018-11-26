@@ -195,14 +195,14 @@ class InstallerTest extends MockedTest
 	 */
 	public function testCheckLocalIni()
 	{
-		$this->assertTrue($this->root->hasChild('config/local.ini.php'));
+		$this->assertTrue($this->root->hasChild('config/local.config.php'));
 
 		$install = new Installer();
 		$this->assertTrue($install->checkLocalIni());
 
-		$this->delConfigFile('local.ini.php');
+		$this->delConfigFile('local.config.php');
 
-		$this->assertFalse($this->root->hasChild('config/local.ini.php'));
+		$this->assertFalse($this->root->hasChild('config/local.config.php'));
 
 		$install = new Installer();
 		$this->assertTrue($install->checkLocalIni());

@@ -23,7 +23,7 @@ Synopsis
 	bin/console autoinstall [-h|--help|-?] [-v] [-a] [-f]
 
 Description
-    Installs Friendica with data based on the local.ini.php file or environment variables
+    Installs Friendica with data based on the local.config.php file or environment variables
 
 Notes
     Not checking .htaccess/URL-Rewrite during CLI installation.
@@ -32,7 +32,7 @@ Options
     -h|--help|-?            Show help information
     -v                      Show more debug information.
     -a                      All setup checks are required (except .htaccess)
-    -f|--file <config>      prepared config file (e.g. "config/local.ini.php" itself) which will override every other config option - except the environment variables)
+    -f|--file <config>      prepared config file (e.g. "config/local.config.php" itself) which will override every other config option - except the environment variables)
     -s|--savedb             Save the DB credentials to the file (if environment variables is used)
     -H|--dbhost <host>      The host of the mysql/mariadb database (env MYSQL_HOST)
     -p|--dbport <port>      The port of the mysql/mariadb database (env MYSQL_PORT)
@@ -58,11 +58,11 @@ Environment variables
    FRIENDICA_LANG              The langauge of Friendica
    
 Examples
-	bin/console autoinstall -f 'input.ini.php
-		Installs Friendica with the prepared 'input.ini.php' file
+	bin/console autoinstall -f 'input.config.php
+		Installs Friendica with the prepared 'input.config.php' file
 
 	bin/console autoinstall --savedb
-		Installs Friendica with environment variables and saves them to the 'config/local.ini.php' file
+		Installs Friendica with environment variables and saves them to the 'config/local.config.php' file
 
 	bin/console autoinstall -h localhost -p 3365 -U user -P passwort1234 -d friendica
 		Installs Friendica with a local mysql database with credentials
@@ -96,11 +96,11 @@ HELP;
 		$config_file = $this->getOption(['f', 'file']);
 
 		if (!empty($config_file)) {
-			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.ini.php') {
+			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.config.php') {
 				// Copy config file
 				$this->out("Copying config file...\n");
-				if (!copy($a->getBasePath() . DIRECTORY_SEPARATOR . $config_file, $a->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
-					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $a->getBasePath() . "'"  . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.ini.php' manually.\n");
+				if (!copy($a->getBasePath() . DIRECTORY_SEPARATOR . $config_file, $a->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
+					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $a->getBasePath() . "'"  . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
 				}
 			}
 
@@ -175,7 +175,7 @@ HELP;
 			Theme::install(Config::get('system', 'theme'));
 			$this->out(" Complete\n\n");
 		} else {
-			$this->out(" Theme setting is empty. Please check the file 'config/local.ini.php'\n\n");
+			$this->out(" Theme setting is empty. Please check the file 'config/local.config.php'\n\n");
 		}
 
 		$this->out("\nInstallation is finished\n");

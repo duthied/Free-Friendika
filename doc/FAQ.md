@@ -64,7 +64,7 @@ However, instead of a direct upload you have to use one of the following methods
 
 Friendica uses HTML5 for embedding content.
 Therefore, the supported files are dependent on your browser and operating system.
-Some supported filetypes are WebM, MP4, MP3 and OGG.
+Some supported file types are WebM, MP4, MP3 and OGG.
 See Wikipedia for more of them ([video](http://en.wikipedia.org/wiki/HTML5_video), [audio](http://en.wikipedia.org/wiki/HTML5_audio)).
 
 <a name="avatars"></a>
@@ -140,7 +140,7 @@ Example: Friendica Support
 <a name="clients"></a>
 ### Are there any clients for friendica I can use?
 
-Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your plattform as long as you can change the API path in its settings.
+Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
 Here is a list of known working clients:
 
 * Android
@@ -187,7 +187,7 @@ No, this function is no longer supported as of Friendica 3.3 onwards.
 <a name="sources"></a>
 ### Where can I find the source code of friendica, addons and themes?
 
-You can find the main respository [here](https://github.com/friendica/friendica).
+You can find the main repository [here](https://github.com/friendica/friendica).
 There you will always find the current stable version of friendica.
 
 Addons are listed at [this page](https://github.com/friendica/friendica-addons).
@@ -197,14 +197,14 @@ If you are searching for new themes, you can find them at [Friendica-Themes.com]
 <a name="adminaccount1"></a>
 ### I've changed my email address now the admin panel is gone?
 
-Have a look into your <tt>config/local.ini.php</tt> and fix your email address there.
+Have a look into your <tt>config/local.config.php</tt> and fix your email address there.
 
 <a name="adminaccount2"></a>
 ### Can there be more then one admin for a node?
 
 Yes.
 You just have to list more then one email address in the
-<tt>config/local.ini.php</tt> file.
+<tt>config/local.config.php</tt> file.
 The listed emails need to be separated by a comma.
 
 <a name="dbupdate">

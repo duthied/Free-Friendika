@@ -214,7 +214,7 @@ class App
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
 			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
-			. $this->getBasePath(). DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
+			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
 			. $this->getBasePath());
 
 		if (!empty($_SERVER['QUERY_STRING']) && strpos($_SERVER['QUERY_STRING'], 'pagename=') === 0) {
@@ -329,24 +329,24 @@ class App
 	 * Load the configuration files
 	 *
 	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
-	 * expected local.ini.php
+	 * expected local.config.php
 	 */
 	private function loadConfigFiles()
 	{
-		$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.ini.php');
-		$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'settings.ini.php');
+		$this->loadConfigFile($this->getBasePath() . '/config/defaults.config.php');
+		$this->loadConfigFile($this->getBasePath() . '/config/settings.config.php');
 
 		// Legacy .htconfig.php support
-		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
+		if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
 			$a = $this;
-			include $this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php';
+			include $this->getBasePath() . '/.htpreconfig.php';
 		}
 
 		// Legacy .htconfig.php support
-		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . '.htconfig.php')) {
+		if (file_exists($this->getBasePath() . '/.htconfig.php')) {
 			$a = $this;
 
-			include $this->getBasePath() . DIRECTORY_SEPARATOR . '.htconfig.php';
+			include $this->getBasePath() . '/.htconfig.php';
 
 			$this->setConfigValue('database', 'hostname', $db_host);
 			$this->setConfigValue('database', 'username', $db_user);
@@ -374,24 +374,50 @@ class App
 			}
 		}
 
-		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php')) {
-			$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.ini.php', true);
+		if (file_exists($this->getBasePath() . '/config/local.config.php')) {
+			$this->loadConfigFile($this->getBasePath() . '/config/local.config.php', true);
+		} elseif (file_exists($this->getBasePath() . '/config/local.ini.php')) {
+			$this->loadINIConfigFile($this->getBasePath() . '/config/local.ini.php', true);
 		}
+	}
+
+	/**
+	 * Tries to load the specified legacy configuration file into the App->config array.
+	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 *
+	 * @deprecated since version 2018.12
+	 * @param string $filepath
+	 * @param bool $overwrite Force value overwrite if the config key already exists
+	 * @throws Exception
+	 */
+	public function loadINIConfigFile($filepath, $overwrite = false)
+	{
+		if (!file_exists($filepath)) {
+			throw new Exception('Error parsing non-existent INI config file ' . $filepath);
+		}
+
+		$contents = include($filepath);
+
+		$config = parse_ini_string($contents, true, INI_SCANNER_TYPED);
+
+		if ($config === false) {
+			throw new Exception('Error parsing INI config file ' . $filepath);
+		}
+
+		$this->loadConfigArray($config, $overwrite);
 	}
 
 	/**
 	 * Tries to load the specified configuration file into the App->config array.
 	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
 	 *
-	 * The config format is INI and the template for configuration files is the following:
+	 * The config format is PHP array and the template for configuration files is the following:
 	 *
-	 * <?php return <<<INI
-	 *
-	 * [section]
-	 * key = value
-	 *
-	 * INI;
-	 * // Keep this line
+	 * <?php return [
+	 *      'section' => [
+	 *          'key' => 'value',
+	 *      ],
+	 * ];
 	 *
 	 * @param string $filepath
 	 * @param bool $overwrite Force value overwrite if the config key already exists
@@ -400,17 +426,46 @@ class App
 	public function loadConfigFile($filepath, $overwrite = false)
 	{
 		if (!file_exists($filepath)) {
-			throw new Exception('Error parsing non-existent config file ' . $filepath);
+			throw new Exception('Error loading non-existent config file ' . $filepath);
 		}
 
-		$contents = include($filepath);
+		$config = include($filepath);
 
-		$config = parse_ini_string($contents, true, INI_SCANNER_TYPED);
-
-		if ($config === false) {
-			throw new Exception('Error parsing config file ' . $filepath);
+		if (!is_array($config)) {
+			throw new Exception('Error loading config file ' . $filepath);
 		}
 
+		$this->loadConfigArray($config, $overwrite);
+	}
+
+	/**
+	 * Loads addons configuration files
+	 *
+	 * First loads all activated addons default configuration through the load_config hook, then load the local.config.php
+	 * again to overwrite potential local addon configuration.
+	 */
+	private function loadAddonConfig()
+	{
+		// Loads addons default config
+		Core\Hook::callAll('load_config');
+
+		// Load the local addon config file to overwritten default addon config values
+		if (file_exists($this->getBasePath() . '/config/addon.config.php')) {
+			$this->loadConfigFile($this->getBasePath() . '/config/addon.config.php', true);
+		} elseif (file_exists($this->getBasePath() . '/config/addon.ini.php')) {
+			$this->loadINIConfigFile($this->getBasePath() . '/config/addon.ini.php', true);
+		}
+	}
+
+	/**
+	 * Tries to load the specified configuration array into the App->config array.
+	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 *
+	 * @param array $config
+	 * @param bool  $overwrite Force value overwrite if the config key already exists
+	 */
+	private function loadConfigArray(array $config, $overwrite = false)
+	{
 		foreach ($config as $category => $values) {
 			foreach ($values as $key => $value) {
 				if ($overwrite) {
@@ -419,23 +474,6 @@ class App
 					$this->setDefaultConfigValue($category, $key, $value);
 				}
 			}
-		}
-	}
-
-	/**
-	 * Loads addons configuration files
-	 *
-	 * First loads all activated addons default configuration throught the load_config hook, then load the local.ini.php
-	 * again to overwrite potential local addon configuration.
-	 */
-	private function loadAddonConfig()
-	{
-		// Loads addons default config
-		Core\Addon::callHooks('load_config');
-
-		// Load the local addon config file to overwritten default addon config values
-		if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php')) {
-			$this->loadConfigFile($this->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'addon.ini.php', true);
 		}
 	}
 
@@ -661,8 +699,8 @@ class App
 				$this->urlPath = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists($this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php')) {
-				include $this->getBasePath() . DIRECTORY_SEPARATOR . '.htpreconfig.php';
+			if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
+				include $this->getBasePath() . '/.htpreconfig.php';
 			}
 
 			if (Core\Config::get('config', 'hostname') != '') {
