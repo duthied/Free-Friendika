@@ -5,7 +5,7 @@
 	{{* The link to create a new event *}}
 	{{if $new_event.0}}
 	<div class="pull-right" id="new-event-link">
-		<button type="button" class="btn-link page-action faded-icon" onclick="addToModal('{{$new_event.0}}')" title="{{$new_event.1}}" data-toggle="tooltip">
+		<button type="button" class="btn-link page-action faded-icon" onclick="addToModal('{{$new_event.0}}')" title="{{$new_event.1|escape}}" data-toggle="tooltip">
 			<i class="fa fa-plus"></i>
 		</button>
 	</div>
@@ -40,9 +40,9 @@
 
 		{{* The buttons to change the month/weeks/days *}}
 		<div id="fc-fc-header-left" class="btn-group">
-			<button class="btn btn-eventnav" onclick="changeView('prev', false);" title="{{$previous.1}}"><i class="fa fa-angle-up" aria-hidden="true"></i></button>
-			<button class="btn btn-eventnav btn-separator" onclick="changeView('next', false);" title="{{$next.1}}"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
-			<button class="btn btn-eventnav btn-separator" onclick="changeView('today', false);" title="{{$today}}"><i class="fa fa-bullseye" aria-hidden="true"></i></button>
+			<button class="btn btn-eventnav" onclick="changeView('prev', false);" title="{{$previous.1|escape}}"><i class="fa fa-angle-up" aria-hidden="true"></i></button>
+			<button class="btn btn-eventnav btn-separator" onclick="changeView('next', false);" title="{{$next.1|escape}}"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+			<button class="btn btn-eventnav btn-separator" onclick="changeView('today', false);" title="{{$today|escape}}"><i class="fa fa-bullseye" aria-hidden="true"></i></button>
 		</div>
 
 		{{* The title (e.g. name of the mont/week/day) *}}

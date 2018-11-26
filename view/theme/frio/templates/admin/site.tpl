@@ -54,7 +54,7 @@
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css" type="text/css" media="screen"/>
 
 <div id='adminpage' class="adminpage generic-page-wrapper">
-	<h1>{{$title}} - {{$page}}</h1>
+	<h1>{{$title|escape}} - {{$page}}</h1>
 	<form action="{{$baseurl}}/admin/site" method="post">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 		<input type='hidden' name='active_panel' value=''>
@@ -293,7 +293,7 @@
 				<div class="section-subtitle-wrapper" role="tab" id="admin-settings-worker">
 					<h4>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-worker-collapse" aria-expanded="false" aria-controls="admin-settings-worker-collapse">
-							{{$worker_title}}
+							{{$worker_title|escape}}
 						</a>
 					</h4>
 				</div>
@@ -319,7 +319,7 @@
 				<div class="section-subtitle-wrapper" role="tab" id="admin-relay-corporate">
 					<h4>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-relay-collapse" aria-expanded="false" aria-controls="admin-settings-relay-collapse">
-							{{$relay_title}}
+							{{$relay_title|escape}}
 						</a>
 					</h4>
 				</div>

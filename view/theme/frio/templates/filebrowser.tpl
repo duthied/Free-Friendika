@@ -9,8 +9,8 @@
 
 <div class="fbrowser {{$type}}">
 	<div class="fbrowser-content">
-		<input id="fb-nickname" type="hidden" name="type" value="{{$nickname}}" />
-		<input id="fb-type" type="hidden" name="type" value="{{$type}}" />
+		<input id="fb-nickname" type="hidden" name="type" value="{{$nickname|escape}}" />
+		<input id="fb-type" type="hidden" name="type" value="{{$type|escape}}" />
 
 		<div class="error hidden">
 			<span></span> <button type="button" class="btn btn-link close" aria-label="Close">X</a>
@@ -47,9 +47,9 @@
 				<div class="fbrowser-content-container">
 					{{foreach $files as $f}}
 					<div class="photo-album-image-wrapper">
-						<a href="#" class="photo-album-photo-link" data-link="{{$f.0}}" data-filename="{{$f.1}}" data-img="{{$f.2}}">
-							<img src="{{$f.2}}" alt="{{$f.1}}">
-							<p>{{$f.1}}</p>
+						<a href="#" class="photo-album-photo-link" data-link="{{$f.0}}" data-filename="{{$f.1|escape}}" data-img="{{$f.2|escape}}">
+							<img src="{{$f.2}}" alt="{{$f.1|escape}}">
+							<p>{{$f.1|escape}}</p>
 						</a>
 					</div>
 					{{/foreach}}

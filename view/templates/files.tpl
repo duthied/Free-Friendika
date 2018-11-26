@@ -1,4 +1,4 @@
 {{foreach $items as $item }}
-<p>{{$item.title}}  ({{$item.mime}}) ({{$item.filename}})</p>
+<p>{{$item.title|escape}}  ({{$item.mime|escape}}) ({{$item.filename|escape}})</p>
 {{/foreach}}
 {{include "paginate.tpl"}}

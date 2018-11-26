@@ -26,8 +26,8 @@
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper">
-				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="contact-photo-link" id="wall-item-photo-link-{{$item.id}}">
-					<img src="{{$item.thumb}}" class="contact-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
+				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle|escape}}" class="contact-photo-link" id="wall-item-photo-link-{{$item.id}}">
+					<img src="{{$item.thumb}}" class="contact-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name|escape}}" />
 				</a>
 				<ul class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
 				{{$item.item_photo_menu}}
@@ -41,10 +41,10 @@
 		</div>
 			<div class="wall-item-tools">
 				{{if $item.drop.pagedrop}}
-					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" class="item-select" value="{{$item.id}}" />
+					<input type="checkbox" title="{{$item.drop.select|escape}}" name="itemselected[]" class="item-select" value="{{$item.id}}" />
 				{{/if}}
 				{{if $item.drop.dropping}}
-					<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$item.drop.delete}}">{{$item.drop.delete}}</a>
+					<a href="item/drop/{{$item.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$item.drop.delete|escape}}">{{$item.drop.delete}}</a>
 				{{/if}}
 			</div>
 	</div>

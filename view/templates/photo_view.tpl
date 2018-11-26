@@ -12,7 +12,7 @@
 </div>
 
 {{if $prevlink}}<div id="photo-prev-link"><a href="{{$prevlink.0}}">{{$prevlink.1}}</a></div>{{/if}}
-<div id="photo-photo"><a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" /></a></div>
+<div id="photo-photo"><a href="{{$photo.href}}" title="{{$photo.title|escape}}"><img src="{{$photo.src}}" /></a></div>
 {{if $nextlink}}<div id="photo-next-link"><a href="{{$nextlink.0}}">{{$nextlink.1}}</a></div>{{/if}}
 <div id="photo-photo-end"></div>
 <div id="photo-caption">{{$desc}}</div>

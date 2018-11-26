@@ -5,8 +5,8 @@
 		<!-- onmouseover="if (typeof t{{$contact.id}} != 'undefined') clearTimeout(t{{$contact.id}}); openMenu('contact-photo-menu-button-{{$contact.id}}')" 
 		onmouseout="t{{$contact.id}}=setTimeout('closeMenu(\'contact-photo-menu-button-{{$contact.id}}\'); closeMenu(\'contact-photo-menu-{{$contact.id}}\');',200)" > -->
 
-			<!-- <a href="{{$contact.url}}" title="{{$contact.img_hover}}" /></a> -->
-			<img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+			<!-- <a href="{{$contact.url}}" title="{{$contact.img_hover|escape}}" /></a> -->
+			<img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name|escape}}" />
 
 			{{if $multiselect}}
 			<input type="checkbox" class="contact-select" name="contact_batch[]" value="{{$contact.id}}">
@@ -32,7 +32,7 @@
 	
 	<div class="contact-entry-desc">
 		<div class="contact-entry-name" id="contact-entry-name-{{$contact.id}}" >
-			{{$contact.name}}
+			{{$contact.name|escape}}
 			{{if $contact.account_type}} <span class="contact-entry-details" id="contact-entry-accounttype-{{$contact.id}}">({{$contact.account_type}})</span>{{/if}}
 		</div>
 		{{if $contact.alt_text}}<div class="contact-entry-details" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}

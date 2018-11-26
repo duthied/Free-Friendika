@@ -24,7 +24,7 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="">
-			{{if $plink}}<a class="icon s16 link" title="{{$plink.title}}" href="{{$plink.href}}">{{$plink.title}}</a>{{/if}}
+			{{if $plink}}<a class="icon s16 link" title="{{$plink.title|escape}}" href="{{$plink.href}}">{{$plink.title|escape}}</a>{{/if}}
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
@@ -69,7 +69,7 @@
 		<div class="wall-item-dislike" id="wall-item-dislike-{{$id}}">{{$dislike}}</div>
 		{{if $conv}}
 		<div class="wall-item-conv" id="wall-item-conv-{{$id}}" >
-			<a href='{{$conv.href}}' id='context-{{$id}}' title='{{$conv.title}}'>{{$conv.title}}</a>
+			<a href='{{$conv.href}}' id='context-{{$id}}' title='{{$conv.title|escape}}'>{{$conv.title|escape}}</a>
 		</div>
 		{{/if}}
 	</div>
