@@ -31,7 +31,7 @@ return [
 	'config' => [
 		'admin_email' => 'admin@friendica.local',
 		'sitename' => 'Friendica Social Network',
-		'register_policy' => 'REGISTER_OPEN',
+		'register_policy' => REGISTER_OPEN,
 		'register_text' => '',
 	],
 	'system' => [

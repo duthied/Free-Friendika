@@ -19,7 +19,7 @@ return [
 		// Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
 		// Be certain to create your own personal account before setting REGISTER_CLOSED.
 		// REGISTER_APPROVE requires you set system.admin_email to the email address of an already registered person who can authorize and/or approve/deny the request.
-		'register_policy' => 'REGISTER_CLOSED',
+		'register_policy' => REGISTER_CLOSED,
 
 		// register_text (String)
 		// Will be displayed prominently on the registration page.
