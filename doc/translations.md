@@ -7,16 +7,16 @@ Translation Process
 -------------------
 
 The strings used in the UI of Friendica are translated at [Transifex] [1] and then included in the git repository at github.
-If you want to help with translation for any language, be it correcting terms or translating friendica to a currently not supported language, please register an account at transifex.com and contact the friendica translation team there.
+If you want to help with translation for any language, be it correcting terms or translating friendica to a currently not supported language, please register an account at Transifex.com and contact the friendica translation team there.
 
 Translating friendica is simple.
-Just use the online tool at transifex.
+Just use the online tool at Transifex.
 If you don't want to deal with git & co. that is fine, we check the status of the translations regularly and import them into the source tree at github so that others can use them.
 
-We do not include every translation from transifex in the source tree to avoid a scattered and disturbed overall experience.
-As an uneducated guess we have a lower limit of 50% translated strings before we include the language (for the core messages.po file, addont translation will be included once all strings of an addon are translated.
+We do not include every translation from Transifex in the source tree to avoid a scattered and disturbed overall experience.
+As an uneducated guess we have a lower limit of 50% translated strings before we include the language (for the core messages.po file, addon translation will be included once all strings of an addon are translated.
 This limit is judging only by the amount of translated strings under the assumption that the most prominent strings for the UI will be translated first by a translation team.
-If you feel your translation useable before this limit, please contact us and we will probably include your teams work in the source tree.
+If you feel your translation usable before this limit, please contact us and we will probably include your teams work in the source tree.
 
 If you want to help translating, please concentrate on the core messages.po file first.
 We will only include translations with a sufficient translated messages.po file.
@@ -28,7 +28,7 @@ The process is simple and friendica ships with all the tools necessary.
 The location of the translated files in the source tree is
     /view/lang/LNG-CODE/
 where LNG-CODE is the language code used, e.g. de for German or fr for French.
-The translated strings come as a "message.po" file from transifex which needs to be translated into the PHP file friendica uses.
+The translated strings come as a "message.po" file from Transifex which needs to be translated into the PHP file friendica uses.
 To do so, place the file in the directory mentioned above and use the "po2php" command from the Friendica Console.
 
 Assuming you want to convert the German localization which is placed in view/lang/de/message.po you would do the following.
@@ -70,6 +70,12 @@ If you only want to translate friendica into another language you wont need any 
 
 For further information see the utils/README file.
 
+Help, Tobias asked me to regenerate the master messages.po file!
+----------------------------------------------------------------
+
+Don't panic.
+Just run `bin/run_xgettext.sh` from your base Friendica directory and commit `util/messages.po` to your branch. 
+
 Transifex-Client
 ----------------
 
@@ -82,14 +88,14 @@ To use it, first create a configuration file with your credentials.
 On Linux this file should be placed into your home directory `~/.transifexrc`.
 The content of the file should be something like the following:
 
-    [https://www.transifex.com]
+    [https://www.Transifex.com]
     username = user
     token =
     password = p@ssw0rd
-    hostname = https://www.transifex.com
+    hostname = https://www.Transifex.com
 
 Since Friendica version 3.5.1 we ship configuration files for the Transifex client in the core repository and the addon repository.
-To update the translation files after you have translated strings of e.g. Esperanto in the web-UI of transifex you can use `tx` to download the file.
+To update the translation files after you have translated strings of e.g. Esperanto in the web-UI of Transifex you can use `tx` to download the file.
 
     $> tx pull -l eo
 
@@ -99,6 +105,6 @@ And then use the `po2php` command described above to convert the `messages.po` f
 
 Afterwards, just commit the two changed files to a feature branch of your Friendica repository, push the changes to github and open a pull request for your changes.
 
-[1]:   https://www.transifex.com/projects/p/friendica/
-[2]:   https://docs.transifex.com/client/introduction
+[1]:   https://www.Transifex.com/projects/p/friendica/
+[2]:   https://docs.Transifex.com/client/introduction
 

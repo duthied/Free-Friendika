@@ -2,18 +2,23 @@
 
 * [Home](help)
 
-If you are the admin of a Friendica node, you have access to the so called **Admin Panel** where you can configure your Friendica node.
+If you are the admin of a Friendica node, you have access to the **Admin Panel** where you can configure your Friendica node.
 
-On the front page of the admin panel you will see a summary of information about your node.
-These information include the amount of messages currently being processed in the queues.
-The first number is the number of messages which could not been delivered for various reasons.
-They will be resend later.
-You can have a quick glance into that second queues in the "Inspect Queue" section of the admin panel.
-The second number represents the current number of jobs for the background workers.
-These worker tasks are prioritised and are done accordingly.
+## Overview
+
+In the main page of the admin panel you will see an information summary about your node.
+
+### Queues
+
+The three numbers shown are respectively:
+- The retry queue: These outgoing messages couldn't be received by the remote host, and will be resent at longer intervals before being dropped entirely after 30 days.
+- The deferred queue: These internal tasks failed and will be retried at most 14 times.
+- The task queue: These internal tasks are queued for execution during the next background worker run.
+
+### Additional information
 
 Then you get an overview of the accounts on your node, which can be moderated in the "Users" section of the panel.
-As well as an overview of the currently active addons
+As well as an overview of the currently active addons.
 The list is linked, so you can have quick access to the Addon settings.
 And finally you are informed about the version of Friendica you have installed.
 If you contact the developers with a bug or problem, please also mention the version of your node.
