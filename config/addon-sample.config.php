@@ -6,7 +6,7 @@
 
 return [
 	'twitter' => [
-		'consumerkey' => 'localhost',
-		'consumersecret' => 'mysqlusername',
+		'consumerkey' => '1234567890',
+		'consumersecret' => 'ABCDEFGHIJKLMONPQRSTUVWXYZ',
 	],
 ];
