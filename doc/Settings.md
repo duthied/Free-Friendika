@@ -361,13 +361,13 @@ These are the data base settings, the admin account settings, the path of PHP an
 
 With the following settings, you specify the data base server, the username and password for Friendica and the database to use.
 
-    'database' => [
-        'hostname' => 'localhost',
-        'username' => 'mysqlusername',
-        'password' => 'mysqlpassword',
-        'database' => 'mysqldatabasename',
-        'charset' => 'utf8mb4',
-    ],
+	'database' => [
+		'hostname' => 'localhost',
+		'username' => 'mysqlusername',
+		'password' => 'mysqlpassword',
+		'database' => 'mysqldatabasename',
+		'charset' => 'utf8mb4',
+	],
 
 ## Admin users
 
@@ -377,17 +377,17 @@ But you can expand the list of email addresses by any used email address you wan
 Registration of new accounts with a listed email address is not possible.
 
 	'config' => [
-        'admin_email' => 'you@example.com, buddy@example.com',
-    ],
+		'admin_email' => 'you@example.com, buddy@example.com',
+	],
 
 ## PHP Path
 
 Some of Friendica's processes are running in the background.
 For this you need to specify the path to the PHP binary to be used.
 
-    'config' => [
-        'php_path' => '/usr/bin/php',
-    ],
+	'config' => [
+		'php_path' => '/usr/bin/php',
+	],
 
 ## Subdirectory configuration
 
@@ -395,9 +395,9 @@ It is possible to install Friendica into a subdirectory of your web server.
 We strongly discourage you from doing so, as this will break federation to other networks (e.g. Diaspora, GNU Social, Hubzilla)
 Say you have a subdirectory for tests and put Friendica into a further subdirectory, the config would be:
 
-    'system' => [
-        'urlpath' => 'tests/friendica',
-    ],
+	'system' => [
+		'urlpath' => 'tests/friendica',
+	],
 
 ## Other exceptions
 
