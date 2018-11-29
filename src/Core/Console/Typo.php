@@ -86,8 +86,6 @@ HELP;
 			$this->out('String files');
 		}
 
-		$this->checkFile($php_path, 'util/strings.php');
-
 		$files = glob('view/lang/*/strings.php');
 		$this->checkFiles($php_path, $files);
 
