@@ -11,6 +11,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
@@ -263,7 +264,7 @@ class Photo extends BaseObject
 			$backend_ref = (string)$existing_photo["backend-ref"];
 			$backend_class = (string)$existing_photo["backend-class"];
 		} else {
-			$backend_class = Config::get("storage", "class", "");
+			$backend_class = StorageManager::getBackend();
 		}
 		if ($backend_class === "") {
 			$data = $Image->asString();
