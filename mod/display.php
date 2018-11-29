@@ -82,7 +82,16 @@ function display_init(App $a)
 	}
 
 	if (ActivityPub::isRequest()) {
-		$a->internalRedirect(str_replace('display/', 'objects/', $a->query_string));
+		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'origin' => true, 'private' => false]);
+		if (!DBA::isResult($item)) {
+			System::httpExit(404);
+		}
+
+		$data = ActivityPub\Transmitter::createObjectFromItemID($item['id']);
+
+		header('Content-Type: application/activity+json');
+		echo json_encode($data);
+		exit();
 	}
 
 	if ($item["id"] != $item["parent"]) {
