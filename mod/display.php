@@ -22,6 +22,7 @@ use Friendica\Model\Profile;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\Strings;
+use Friendica\Module\Objects;
 
 function display_init(App $a)
 {
@@ -82,7 +83,7 @@ function display_init(App $a)
 	}
 
 	if (ActivityPub::isRequest()) {
-		$a->internalRedirect(str_replace('display/', 'objects/', $a->query_string));
+		Objects::rawContent();
 	}
 
 	if ($item["id"] != $item["parent"]) {
