@@ -53,7 +53,8 @@
 	"autoload": {
 		"psr-4": {
 			"Friendica\\": "src/",
-			"Friendica\\Test\\": "tests/"
+			"Friendica\\Test\\": "tests/",
+			"Friendica\\Addon\\": "addon/"
 		},
 		"psr-0": {
 			"": "library/"
