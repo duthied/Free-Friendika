@@ -30,6 +30,7 @@ class Console extends \Asika\SimpleConsole\Console
 		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
 		'typo'                   => __NAMESPACE__ . '\Console\Typo',
 		'postupdate'             => __NAMESPACE__ . '\Console\PostUpdate',
+		'storage'                => __NAMESPACE__ . '\Console\Storage',
 	];
 
 	protected function getHelp()
@@ -55,6 +56,7 @@ Commands:
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
 	postupdate             Execute pending post update scripts (can last days)
+	storage                Manage storage backend
 
 Options:
 	-h|--help|-? Show help information

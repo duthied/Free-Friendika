@@ -14,17 +14,17 @@ use Friendica\Core\Config;
  */
 class StorageManager
 {
-	private static $default_storages = [
+	private static $default_backends = [
 		'Filesystem' => \Friendica\Model\Storage\Filesystem::class,
 		'Database' => \Friendica\Model\Storage\Database::class,
 	];
 
-	private static $storages = [];
+	private static $backends = [];
 
 	private static function setup()
 	{
-		if (count(self::$storages)==0) {
-			self::$storage = Config::get('storage', 'backends', self::$default_storages);
+		if (count(self::$backends)==0) {
+			self::$backends = Config::get('storage', 'backends', self::$default_backends);
 		}
 	}
 
@@ -46,7 +46,7 @@ class StorageManager
 	public static function getByName($name)
 	{
 		self::setup();
-		return defaults(self::$storages, $name, '');
+		return defaults(self::$backends, $name, '');
 	}
 
 	/**
@@ -83,8 +83,8 @@ class StorageManager
 	{
 		/// @todo Check that $class implements IStorage
 		self::setup();
-		self::$storages[$name] = $class;
-		Config::set('storage', 'backends', self::$storages);
+		self::$backends[$name] = $class;
+		Config::set('storage', 'backends', self::$backends);
 	}
 
 
@@ -96,7 +96,7 @@ class StorageManager
 	public static function unregister($class)
 	{
 		self::setup();
-		unset(self::$storages[$name]);
-		Config::set('storage', 'backends', self::$storages);
+		unset(self::$backends[$name]);
+		Config::set('storage', 'backends', self::$backends);
 	}
 }
