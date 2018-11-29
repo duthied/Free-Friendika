@@ -58,13 +58,13 @@ class Filesystem implements IStorage
 		if (!is_dir($path)) {
 			if (!mkdir($path, 0770, true)) {
 				Logger::log("Failed to create dirs {$path}");
-				echo L10n::t("Filesystem storage failed to create '%s'. Check you write permissions.", $path);
+				throw new StorageException(L10n::t("Filesystem storage failed to create '%s'. Check you write permissions.", $path));
 				killme();
 			}
 		}
 
 		$base = self::getBasePath();
-		
+
 		while ($path !== $base) {
 			if (!is_file($path . "/index.html")) {
 				file_put_contents($path . "/index.html", "");
@@ -98,7 +98,7 @@ class Filesystem implements IStorage
 		$r = file_put_contents($file, $data);
 		if ($r === FALSE) {
 			Logger::log("Failed to write data to {$file}");
-			echo L10n::t("Filesystem storage failed to save data to '%s'. Check your write permissions", $file);
+			throw new StorageException(L10n::t("Filesystem storage failed to save data to '%s'. Check your write permissions", $file));
 			killme();
 		}
 		return $ref;
@@ -108,7 +108,7 @@ class Filesystem implements IStorage
 	{
 		$file = self::pathForRef($ref);
 		// return true if file doesn't exists. we want to delete it: success with zero work!
-		if (!is_file($file)) { 
+		if (!is_file($file)) {
 			return true;
 		}
 		return unlink($file);
