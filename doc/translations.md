@@ -37,13 +37,13 @@ Otherwise:
 	cd /path/to/friendica-addons/<addon_name>
 	/path/to/friendica/bin/run_xgettext.sh -s
 
-In either case, you need to commit the updated `<addon_name>/lang/C/messages.po`.
+In either case, you need to commit the updated `<addon_name>/lang/C/messages.po` to your working branch.
 
 ## Update translations from Transifex
 
 Please download the Transifex file "for use" in `view/lang/<language>/messages.po`.
 
-Then run `bin/console po2php view/lang/<language>/messages.po` to update the related `strings.php` file.
+Then run `bin/console po2php view/lang/<language>/messages.po` to update the related `strings.php` file and commit both files to your working branch.
 
 ### Using the Transifex client
 
@@ -67,7 +67,7 @@ To update the PO files after you have translated strings of e.g. Esperanto on th
 
     $> tx pull -l eo
 
-Then run `bin/console po2php view/lang/<language>/messages.po` to update the related `strings.php` file.
+Then run `bin/console po2php view/lang/<language>/messages.po` to update the related `strings.php` file and commit both files to your working branch.
 
 ## Translation functions usage
 
