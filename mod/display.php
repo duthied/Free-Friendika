@@ -22,6 +22,7 @@ use Friendica\Model\Profile;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\Strings;
+use Friendica\Module\Objects;
 
 function display_init(App $a)
 {
@@ -82,16 +83,7 @@ function display_init(App $a)
 	}
 
 	if (ActivityPub::isRequest()) {
-		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'origin' => true, 'private' => false]);
-		if (!DBA::isResult($item)) {
-			System::httpExit(404);
-		}
-
-		$data = ActivityPub\Transmitter::createObjectFromItemID($item['id']);
-
-		header('Content-Type: application/activity+json');
-		echo json_encode($data);
-		exit();
+		Objects::rawContent();
 	}
 
 	if ($item["id"] != $item["parent"]) {
