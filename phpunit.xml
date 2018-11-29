@@ -18,7 +18,6 @@
 				<directory suffix=".php">library/</directory>
 				<directory suffix=".php">spec/</directory>
 				<directory suffix=".php">tests/</directory>
-				<directory suffix=".php">util/</directory>
 				<directory suffix=".php">view/</directory>
 			</exclude>
 		</whitelist>
