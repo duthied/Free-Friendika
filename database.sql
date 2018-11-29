@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.03-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1294
+-- DB_UPDATE_VERSION 1295
 -- ------------------------------------------
 
 
@@ -1273,5 +1273,14 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `done_priority_next_try` (`done`,`priority`,`next_try`),
 	 INDEX `done_next_try` (`done`,`next_try`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
+
+--
+-- TABLE storage
+--
+CREATE TABLE IF NOT EXISTS `storage` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'Auto incremented image data id',
+	`data` longblob NOT NULL COMMENT 'file data',
+	 PRIMARY KEY(`id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
 
 

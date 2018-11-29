@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1294);
+	define('DB_UPDATE_VERSION', 1295);
 }
 
 return [
@@ -1380,5 +1380,16 @@ return [
 			"done_priority_next_try" => ["done", "priority", "next_try"],
 			"done_next_try" => ["done", "next_try"]
 		]
+	],
+	"storage" => [
+		"comment" => "Data stored by Database storage backend",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented image data id"],
+			"data" => ["type" => "longblob", "not null" => "1", "comment" => "file data"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"]
+		]
 	]
 ];
+
