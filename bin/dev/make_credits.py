@@ -5,7 +5,7 @@
 This script will collect the contributors to friendica and its translations from
   * the git log of the friendica core and addons repositories
   * the translated messages.po from core and the addons.
-The collected names will be saved in /util/credits.txt which is also parsed from
+The collected names will be saved in CREDITS.txt which is also parsed from
 yourfriendica.tld/credits.
 
 The output is not perfect, so remember to open a fresh (re)created credits.txt file
@@ -26,7 +26,7 @@ dontinclude = ['root', 'friendica', 'bavatar', 'tony baldwin', 'Taek', 'silke m'
                'Michal Supler', 'michal_s', 'Manuel Pérez', 'rabuzarus', 'Alberto Díaz']
 
 
-#  this script is in the /util sub-directory of the friendica installation
+#  this script is in the /bin/dev directory of the friendica installation
 #  so the friendica path is the 0th argument of calling this script but we
 #  need to remove the name of the file and the name of the directory
 path = os.path.abspath(argv[0].split('bin/dev/make_credits.py')[0])
@@ -101,7 +101,7 @@ print('  > found %d translators' % (n3-n2))
 print('> found a total of %d contributors and translators' % n3)
 contributors.sort(key=str.lower)
 
-f = open(path+'/util/credits.txt', 'w')
+f = open(path+'/CREDITS.txt', 'w')
 f.write("\n".join(contributors))
 f.close()
-print('> list saved to util/credits.txt')
+print('> list saved to CREDITS.txt')

@@ -12,7 +12,7 @@ use Friendica\Core\Renderer;
 function credits_content()
 {
 	/* fill the page with credits */
-	$credits_string = file_get_contents('util/credits.txt');
+	$credits_string = file_get_contents('CREDITS.txt');
 	$names = explode("\n", htmlspecialchars($credits_string));
 	$tpl = Renderer::getMarkupTemplate('credits.tpl');
 	return Renderer::replaceMacros($tpl, [
