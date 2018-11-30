@@ -3644,7 +3644,7 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 /**
  * Unfollow Contact
  *
- * @brief unfollow contact 
+ * @brief unfollow contact
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4082,7 +4082,7 @@ function api_fr_photo_create_update($type)
 	$deny_cid  = defaults($_REQUEST, 'deny_cid' , (array_key_exists('deny_cid' , $_REQUEST) ? " " : null));
 	$allow_gid = defaults($_REQUEST, 'allow_gid', (array_key_exists('allow_gid', $_REQUEST) ? " " : null));
 	$deny_gid  = defaults($_REQUEST, 'deny_gid' , (array_key_exists('deny_gid' , $_REQUEST) ? " " : null));
-	$visibility = !empty($_REQUEST['visibility']) || $_REQUEST['visibility'] !== "false";
+	$visibility = !empty($_REQUEST['visibility']) && $_REQUEST['visibility'] !== "false";
 
 	// do several checks on input parameters
 	// we do not allow calls without album string
