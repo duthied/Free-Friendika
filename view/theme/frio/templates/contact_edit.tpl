@@ -62,7 +62,7 @@
 					</ul>
 
 					<ul>
-						<!-- <li><a href="network/0?nets=all&cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent|escape}}</a></li> -->
+						<!-- <li><a href="network/?cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent|escape}}</a></li> -->
 						{{if $follow}}<li><div id="contact-edit-follow"><a href="{{$follow}}">{{$follow_text|escape}}</a></div></li>{{/if}}
 					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}
