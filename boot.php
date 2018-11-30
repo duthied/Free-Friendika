@@ -339,42 +339,6 @@ function get_app()
 }
 
 /**
- * @brief Multi-purpose function to check variable state.
- *
- * Usage: x($var) or x($array, 'key')
- *
- * returns false if variable/key is not set
- * if variable is set, returns 1 if has 'non-zero' value, otherwise returns 0.
- * e.g. x('') or x(0) returns 0;
- *
- * @deprecated since version 2018.12
- * @param string|array $s variable to check
- * @param string       $k key inside the array to check
- *
- * @return bool|int
- */
-function x($s, $k = null)
-{
-	if ($k != null) {
-		if ((is_array($s)) && (array_key_exists($k, $s))) {
-			if ($s[$k]) {
-				return (int) 1;
-			}
-			return (int) 0;
-		}
-		return false;
-	} else {
-		if (isset($s)) {
-			if ($s) {
-				return (int) 1;
-			}
-			return (int) 0;
-		}
-		return false;
-	}
-}
-
-/**
  * Return the provided variable value if it exists and is truthy or the provided
  * default value instead.
  *
