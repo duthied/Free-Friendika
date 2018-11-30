@@ -1880,7 +1880,7 @@ class App
 	 */
 	public function internalRedirect($toUrl = '', $ssl = false)
 	{
-		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
+		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			throw new InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
 		}
 
@@ -1897,7 +1897,7 @@ class App
 	 */
 	public function redirect($toUrl)
 	{
-		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
+		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			Core\System::externalRedirect($toUrl);
 		} else {
 			$this->internalRedirect($toUrl);
