@@ -43,7 +43,7 @@ class Magic extends BaseModule
 		}
 
 		if (!$cid) {
-			Logger::log('No contact record found: ' . print_r($_REQUEST, true), Logger::DEBUG);
+			Logger::log('No contact record found: ' . json_encode($_REQUEST), Logger::DEBUG);
 			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
 			$a->redirect($dest);
 		}
