@@ -20,7 +20,7 @@ function suggest_init(App $a)
 		return;
 	}
 
-	if (x($_GET,'ignore') && intval($_GET['ignore'])) {
+	if (!empty($_GET['ignore'])) {
 		// Check if we should do HTML-based delete confirmation
 		if ($_REQUEST['confirm']) {
 			// <form> can't take arguments in its "action" parameter

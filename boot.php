@@ -341,12 +341,13 @@ function get_app()
 /**
  * @brief Multi-purpose function to check variable state.
  *
- * Usage: x($var) or $x($array, 'key')
+ * Usage: x($var) or x($array, 'key')
  *
  * returns false if variable/key is not set
  * if variable is set, returns 1 if has 'non-zero' value, otherwise returns 0.
  * e.g. x('') or x(0) returns 0;
  *
+ * @deprecated since version 2018.12
  * @param string|array $s variable to check
  * @param string       $k key inside the array to check
  *
@@ -383,13 +384,12 @@ function x($s, $k = null)
  * - defaults($var, $default)
  * - defaults($array, 'key', $default)
  *
+ * @param array $args
  * @brief Returns a defaut value if the provided variable or array key is falsy
- * @see x()
  * @return mixed
  */
-function defaults() {
-	$args = func_get_args();
-
+function defaults(...$args)
+{
 	if (count($args) < 2) {
 		throw new BadFunctionCallException('defaults() requires at least 2 parameters');
 	}
@@ -400,16 +400,15 @@ function defaults() {
 		throw new BadFunctionCallException('defaults($arr, $key, $def) $key is null');
 	}
 
-	$default = array_pop($args);
+	// The default value always is the last argument
+	$return = array_pop($args);
 
-	if (call_user_func_array('x', $args)) {
-		if (count($args) === 1) {
-			$return = $args[0];
-		} else {
-			$return = $args[0][$args[1]];
-		}
-	} else {
-		$return = $default;
+	if (count($args) == 2 && is_array($args[0]) && !empty($args[0][$args[1]])) {
+		$return = $args[0][$args[1]];
+	}
+
+	if (count($args) == 1 && !empty($args[0])) {
+		$return = $args[0];
 	}
 
 	return $return;
@@ -446,15 +445,15 @@ function public_contact()
 {
 	static $public_contact_id = false;
 
-	if (!$public_contact_id && x($_SESSION, 'authenticated')) {
-		if (x($_SESSION, 'my_address')) {
+	if (!$public_contact_id && !empty($_SESSION['authenticated'])) {
+		if (!empty($_SESSION['my_address'])) {
 			// Local user
 			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, true));
-		} elseif (x($_SESSION, 'visitor_home')) {
+		} elseif (!empty($_SESSION['visitor_home'])) {
 			// Remote user
 			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, true));
 		}
-	} elseif (!x($_SESSION, 'authenticated')) {
+	} elseif (empty($_SESSION['authenticated'])) {
 		$public_contact_id = false;
 	}
 
@@ -479,7 +478,7 @@ function remote_user()
 		return false;
 	}
 
-	if (x($_SESSION, 'authenticated') && x($_SESSION, 'visitor_id')) {
+	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
 	return false;
@@ -499,7 +498,7 @@ function notice($s)
 	}
 
 	$a = get_app();
-	if (!x($_SESSION, 'sysmsg')) {
+	if (empty($_SESSION['sysmsg'])) {
 		$_SESSION['sysmsg'] = [];
 	}
 	if ($a->interactive) {
@@ -522,7 +521,7 @@ function info($s)
 		return;
 	}
 
-	if (!x($_SESSION, 'sysmsg_info')) {
+	if (empty($_SESSION['sysmsg_info'])) {
 		$_SESSION['sysmsg_info'] = [];
 	}
 	if ($a->interactive) {

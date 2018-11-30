@@ -28,7 +28,7 @@ function modexp_init(App $a) {
 	$e = $r[0]->asnData[1]->asnData[0]->asnData[1]->asnData;
 
 	header("Content-type: application/magic-public-key");
-	echo 'RSA' . '.' . $m . '.' . $e ;
+	echo 'RSA' . '.' . $m . '.' . $e;
 
 	killme();
 

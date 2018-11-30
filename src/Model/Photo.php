@@ -97,7 +97,7 @@ class Photo
 		$photo = DBA::selectFirst(
 			'photo', ['resource-id'], ['uid' => $uid, 'contact-id' => $cid, 'scale' => 4, 'album' => 'Contact Photos']
 		);
-		if (x($photo['resource-id'])) {
+		if (!empty($photo['resource-id'])) {
 			$hash = $photo['resource-id'];
 		} else {
 			$hash = self::newResource();

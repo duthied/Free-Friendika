@@ -67,7 +67,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 
 		if (file_exists("{$root}view/theme/$theme/$filename")) {
 			$template_file = "{$root}view/theme/$theme/$filename";
-		} elseif (x($a->theme_info, 'extends') && file_exists(sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename))) {
+		} elseif (!empty($a->theme_info['extends']) && file_exists(sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename))) {
 			$template_file = sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename);
 		} elseif (file_exists("{$root}/$filename")) {
 			$template_file = "{$root}/$filename";

@@ -146,18 +146,18 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		return;
 	}
 
-	if (count($a->user) && x($a->user, 'uid') && $a->user['uid'] != local_user()) {
+	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
 	$old_page_flags = $a->user['page-flags'];
 
-	if (($a->argc > 1) && ($a->argv[1] === 'oauth') && x($_POST, 'remove')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'oauth') && !empty($_POST['remove'])) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
 		$key = $_POST['remove'];
@@ -166,7 +166,7 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && x($_POST, 'submit')) {
+	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && !empty($_POST['submit'])) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
 		$name     = defaults($_POST, 'name'    , '');
@@ -222,23 +222,23 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
 
-		if (x($_POST, 'general-submit')) {
+		if (!empty($_POST['general-submit'])) {
 			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
 			PConfig::set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			PConfig::set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
 			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			PConfig::set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
-		} elseif (x($_POST, 'imap-submit')) {
+		} elseif (!empty($_POST['imap-submit'])) {
 
-			$mail_server       = ((x($_POST, 'mail_server')) ? $_POST['mail_server'] : '');
-			$mail_port         = ((x($_POST, 'mail_port')) ? $_POST['mail_port'] : '');
-			$mail_ssl          = ((x($_POST, 'mail_ssl')) ? strtolower(trim($_POST['mail_ssl'])) : '');
-			$mail_user         = ((x($_POST, 'mail_user')) ? $_POST['mail_user'] : '');
-			$mail_pass         = ((x($_POST, 'mail_pass')) ? trim($_POST['mail_pass']) : '');
-			$mail_action       = ((x($_POST, 'mail_action')) ? trim($_POST['mail_action']) : '');
-			$mail_movetofolder = ((x($_POST, 'mail_movetofolder')) ? trim($_POST['mail_movetofolder']) : '');
-			$mail_replyto      = ((x($_POST, 'mail_replyto')) ? $_POST['mail_replyto'] : '');
-			$mail_pubmail      = ((x($_POST, 'mail_pubmail')) ? $_POST['mail_pubmail'] : '');
+			$mail_server       = defaults($_POST, 'mail_server', '');
+			$mail_port         = defaults($_POST, 'mail_port', '');
+			$mail_ssl          = (!empty($_POST['mail_ssl']) ? strtolower(trim($_POST['mail_ssl'])) : '');
+			$mail_user         = defaults($_POST, 'mail_user', '');
+			$mail_pass         = (!empty($_POST['mail_pass']) ? trim($_POST['mail_pass']) : '');
+			$mail_action       = (!empty($_POST['mail_action']) ? trim($_POST['mail_action']) : '');
+			$mail_movetofolder = (!empty($_POST['mail_movetofolder']) ? trim($_POST['mail_movetofolder']) : '');
+			$mail_replyto      = defaults($_POST, 'mail_replyto', '');
+			$mail_pubmail      = defaults($_POST, 'mail_pubmail', '');
 
 
 			$mail_disabled = ((function_exists('imap_open') && (!Config::get('system', 'imap_disabled'))) ? 0 : 1);
@@ -315,17 +315,17 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
 
-		$theme             = x($_POST, 'theme')             ? Strings::escapeTags(trim($_POST['theme']))        : $a->user['theme'];
-		$mobile_theme      = x($_POST, 'mobile_theme')      ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
-		$nosmile           = x($_POST, 'nosmile')           ? intval($_POST['nosmile'])            : 0;
-		$first_day_of_week = x($_POST, 'first_day_of_week') ? intval($_POST['first_day_of_week'])  : 0;
-		$noinfo            = x($_POST, 'noinfo')            ? intval($_POST['noinfo'])             : 0;
-		$infinite_scroll   = x($_POST, 'infinite_scroll')   ? intval($_POST['infinite_scroll'])    : 0;
-		$no_auto_update    = x($_POST, 'no_auto_update')    ? intval($_POST['no_auto_update'])     : 0;
-		$bandwidth_saver   = x($_POST, 'bandwidth_saver')   ? intval($_POST['bandwidth_saver'])    : 0;
-		$smart_threading   = x($_POST, 'smart_threading')   ? intval($_POST['smart_threading'])    : 0;
-		$nowarn_insecure   = x($_POST, 'nowarn_insecure')   ? intval($_POST['nowarn_insecure'])    : 0;
-		$browser_update    = x($_POST, 'browser_update')    ? intval($_POST['browser_update'])     : 0;
+		$theme             = !empty($_POST['theme'])             ? Strings::escapeTags(trim($_POST['theme']))        : $a->user['theme'];
+		$mobile_theme      = !empty($_POST['mobile_theme'])      ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
+		$nosmile           = !empty($_POST['nosmile'])           ? intval($_POST['nosmile'])            : 0;
+		$first_day_of_week = !empty($_POST['first_day_of_week']) ? intval($_POST['first_day_of_week'])  : 0;
+		$noinfo            = !empty($_POST['noinfo'])            ? intval($_POST['noinfo'])             : 0;
+		$infinite_scroll   = !empty($_POST['infinite_scroll'])   ? intval($_POST['infinite_scroll'])    : 0;
+		$no_auto_update    = !empty($_POST['no_auto_update'])    ? intval($_POST['no_auto_update'])     : 0;
+		$bandwidth_saver   = !empty($_POST['bandwidth_saver'])   ? intval($_POST['bandwidth_saver'])    : 0;
+		$smart_threading   = !empty($_POST['smart_threading'])   ? intval($_POST['smart_threading'])    : 0;
+		$nowarn_insecure   = !empty($_POST['nowarn_insecure'])   ? intval($_POST['nowarn_insecure'])    : 0;
+		$browser_update    = !empty($_POST['browser_update'])    ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
 			if ($browser_update < 10000) {
@@ -333,11 +333,11 @@ function settings_post(App $a)
 			}
 		}
 
-		$itemspage_network = x($_POST, 'itemspage_network')  ? intval($_POST['itemspage_network'])  : 40;
+		$itemspage_network = !empty($_POST['itemspage_network'])  ? intval($_POST['itemspage_network'])  : 40;
 		if ($itemspage_network > 100) {
 			$itemspage_network = 100;
 		}
-		$itemspage_mobile_network = x($_POST, 'itemspage_mobile_network') ? intval($_POST['itemspage_mobile_network']) : 20;
+		$itemspage_mobile_network = !empty($_POST['itemspage_mobile_network']) ? intval($_POST['itemspage_mobile_network']) : 20;
 		if ($itemspage_mobile_network > 100) {
 			$itemspage_mobile_network = 100;
 		}
@@ -379,7 +379,7 @@ function settings_post(App $a)
 
 	BaseModule::checkFormSecurityTokenRedirectOnError('/settings', 'settings');
 
-	if (x($_POST,'resend_relocate')) {
+	if (!empty($_POST['resend_relocate'])) {
 		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
 		info(L10n::t("Relocate message has been send to your contacts"));
 		$a->internalRedirect('settings');
@@ -387,7 +387,7 @@ function settings_post(App $a)
 
 	Addon::callHooks('settings_post', $_POST);
 
-	if (x($_POST, 'password') || x($_POST, 'confirm')) {
+	if (!empty($_POST['password']) || !empty($_POST['confirm'])) {
 		$newpass = $_POST['password'];
 		$confirm = $_POST['confirm'];
 
@@ -397,7 +397,7 @@ function settings_post(App $a)
 			$err = true;
 		}
 
-		if (!x($newpass) || !x($confirm)) {
+		if (empty($newpass) || empty($confirm)) {
 			notice(L10n::t('Empty passwords are not allowed. Password unchanged.') . EOL);
 			$err = true;
 		}
@@ -423,35 +423,35 @@ function settings_post(App $a)
 		}
 	}
 
-	$username         = ((x($_POST, 'username'))   ? Strings::escapeTags(trim($_POST['username']))     : '');
-	$email            = ((x($_POST, 'email'))      ? Strings::escapeTags(trim($_POST['email']))        : '');
-	$timezone         = ((x($_POST, 'timezone'))   ? Strings::escapeTags(trim($_POST['timezone']))     : '');
-	$language         = ((x($_POST, 'language'))   ? Strings::escapeTags(trim($_POST['language']))     : '');
+	$username         = (!empty($_POST['username'])   ? Strings::escapeTags(trim($_POST['username']))     : '');
+	$email            = (!empty($_POST['email'])      ? Strings::escapeTags(trim($_POST['email']))        : '');
+	$timezone         = (!empty($_POST['timezone'])   ? Strings::escapeTags(trim($_POST['timezone']))     : '');
+	$language         = (!empty($_POST['language'])   ? Strings::escapeTags(trim($_POST['language']))     : '');
 
-	$defloc           = ((x($_POST, 'defloc'))     ? Strings::escapeTags(trim($_POST['defloc']))       : '');
-	$openid           = ((x($_POST, 'openid_url')) ? Strings::escapeTags(trim($_POST['openid_url']))   : '');
-	$maxreq           = ((x($_POST, 'maxreq'))     ? intval($_POST['maxreq'])             : 0);
-	$expire           = ((x($_POST, 'expire'))     ? intval($_POST['expire'])             : 0);
-	$def_gid          = ((x($_POST, 'group-selection')) ? intval($_POST['group-selection']) : 0);
+	$defloc           = (!empty($_POST['defloc'])     ? Strings::escapeTags(trim($_POST['defloc']))       : '');
+	$openid           = (!empty($_POST['openid_url']) ? Strings::escapeTags(trim($_POST['openid_url']))   : '');
+	$maxreq           = (!empty($_POST['maxreq'])     ? intval($_POST['maxreq'])             : 0);
+	$expire           = (!empty($_POST['expire'])     ? intval($_POST['expire'])             : 0);
+	$def_gid          = (!empty($_POST['group-selection']) ? intval($_POST['group-selection']) : 0);
 
 
-	$expire_items     = ((x($_POST, 'expire_items')) ? intval($_POST['expire_items'])	 : 0);
-	$expire_notes     = ((x($_POST, 'expire_notes')) ? intval($_POST['expire_notes'])	 : 0);
-	$expire_starred   = ((x($_POST, 'expire_starred')) ? intval($_POST['expire_starred']) : 0);
-	$expire_photos    = ((x($_POST, 'expire_photos'))? intval($_POST['expire_photos'])	 : 0);
-	$expire_network_only    = ((x($_POST, 'expire_network_only'))? intval($_POST['expire_network_only'])	 : 0);
+	$expire_items     = (!empty($_POST['expire_items']) ? intval($_POST['expire_items'])	 : 0);
+	$expire_notes     = (!empty($_POST['expire_notes']) ? intval($_POST['expire_notes'])	 : 0);
+	$expire_starred   = (!empty($_POST['expire_starred']) ? intval($_POST['expire_starred']) : 0);
+	$expire_photos    = (!empty($_POST['expire_photos'])? intval($_POST['expire_photos'])	 : 0);
+	$expire_network_only    = (!empty($_POST['expire_network_only'])? intval($_POST['expire_network_only'])	 : 0);
 
-	$allow_location   = (((x($_POST, 'allow_location')) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
-	$publish          = (((x($_POST, 'profile_in_directory')) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
-	$net_publish      = (((x($_POST, 'profile_in_netdirectory')) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
-	$old_visibility   = (((x($_POST, 'visibility')) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
-	$account_type     = (((x($_POST, 'account-type')) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
-	$page_flags       = (((x($_POST, 'page-flags')) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
-	$blockwall        = (((x($_POST, 'blockwall')) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
-	$blocktags        = (((x($_POST, 'blocktags')) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
-	$unkmail          = (((x($_POST, 'unkmail')) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
-	$cntunkmail       = ((x($_POST, 'cntunkmail')) ? intval($_POST['cntunkmail']) : 0);
-	$suggestme        = ((x($_POST, 'suggestme')) ? intval($_POST['suggestme'])  : 0);
+	$allow_location   = ((!empty($_POST['allow_location']) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
+	$publish          = ((!empty($_POST['profile_in_directory']) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
+	$net_publish      = ((!empty($_POST['profile_in_netdirectory']) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
+	$old_visibility   = ((!empty($_POST['visibility']) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
+	$account_type     = ((!empty($_POST['account-type']) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
+	$page_flags       = ((!empty($_POST['page-flags']) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
+	$blockwall        = ((!empty($_POST['blockwall']) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
+	$blocktags        = ((!empty($_POST['blocktags']) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
+	$unkmail          = ((!empty($_POST['unkmail']) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
+	$cntunkmail       = (!empty($_POST['cntunkmail']) ? intval($_POST['cntunkmail']) : 0);
+	$suggestme        = (!empty($_POST['suggestme']) ? intval($_POST['suggestme'])  : 0);
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
 
@@ -460,28 +460,28 @@ function settings_post(App $a)
 
 	$notify = 0;
 
-	if (x($_POST, 'notify1')) {
+	if (!empty($_POST['notify1'])) {
 		$notify += intval($_POST['notify1']);
 	}
-	if (x($_POST, 'notify2')) {
+	if (!empty($_POST['notify2'])) {
 		$notify += intval($_POST['notify2']);
 	}
-	if (x($_POST, 'notify3')) {
+	if (!empty($_POST['notify3'])) {
 		$notify += intval($_POST['notify3']);
 	}
-	if (x($_POST, 'notify4')) {
+	if (!empty($_POST['notify4'])) {
 		$notify += intval($_POST['notify4']);
 	}
-	if (x($_POST, 'notify5')) {
+	if (!empty($_POST['notify5'])) {
 		$notify += intval($_POST['notify5']);
 	}
-	if (x($_POST, 'notify6')) {
+	if (!empty($_POST['notify6'])) {
 		$notify += intval($_POST['notify6']);
 	}
-	if (x($_POST, 'notify7')) {
+	if (!empty($_POST['notify7'])) {
 		$notify += intval($_POST['notify7']);
 	}
-	if (x($_POST, 'notify8')) {
+	if (!empty($_POST['notify8'])) {
 		$notify += intval($_POST['notify8']);
 	}
 
@@ -666,7 +666,7 @@ function settings_content(App $a)
 		return Login::form();
 	}
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -796,7 +796,7 @@ function settings_content(App $a)
 		$default_group             = PConfig::get(local_user(), 'ostatus', 'default_group');
 		$legacy_contact            = PConfig::get(local_user(), 'ostatus', 'legacy_contact');
 
-		if (x($legacy_contact)) {
+		if (!empty($legacy_contact)) {
 			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
 			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}

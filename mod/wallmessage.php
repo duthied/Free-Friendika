@@ -20,8 +20,8 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$subject   = ((x($_REQUEST,'subject'))   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '');
-	$body      = ((x($_REQUEST,'body'))      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '');
+	$subject   = (!empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '');
+	$body      = (!empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '');
 
 	$recipient = (($a->argc > 1) ? Strings::escapeTags($a->argv[1]) : '');
 	if ((! $recipient) || (! $body)) {
@@ -131,8 +131,8 @@ function wallmessage_content(App $a) {
 		'$subject' => L10n::t('Subject:'),
 		'$recipname' => $user['username'],
 		'$nickname' => $user['nickname'],
-		'$subjtxt' => ((x($_REQUEST, 'subject')) ? strip_tags($_REQUEST['subject']) : ''),
-		'$text' => ((x($_REQUEST, 'body')) ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : ''),
+		'$subjtxt' => (!empty($_REQUEST['subject']) ? strip_tags($_REQUEST['subject']) : ''),
+		'$text' => (!empty($_REQUEST['body']) ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : ''),
 		'$readonly' => '',
 		'$yourmessage' => L10n::t('Your message:'),
 		'$parent' => '',

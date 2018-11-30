@@ -27,7 +27,7 @@ function delegate_post(App $a)
 		return;
 	}
 
-	if (count($a->user) && x($a->user, 'uid') && $a->user['uid'] != local_user()) {
+	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -63,7 +63,7 @@ function delegate_content(App $a)
 
 	if ($a->argc > 2 && $a->argv[1] === 'add' && intval($a->argv[2])) {
 		// delegated admins can view but not change delegation permissions
-		if (x($_SESSION, 'submanage')) {
+		if (!empty($_SESSION['submanage'])) {
 			$a->internalRedirect('delegate');
 		}
 
@@ -84,7 +84,7 @@ function delegate_content(App $a)
 
 	if ($a->argc > 2 && $a->argv[1] === 'remove' && intval($a->argv[2])) {
 		// delegated admins can view but not change delegation permissions
-		if (x($_SESSION, 'submanage')) {
+		if (!empty($_SESSION['submanage'])) {
 			$a->internalRedirect('delegate');
 		}
 

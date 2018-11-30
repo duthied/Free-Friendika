@@ -23,11 +23,11 @@ function wall_upload_post(App $a, $desktopmode = true)
 {
 	Logger::log("wall upload: starting new upload", Logger::DEBUG);
 
-	$r_json = (x($_GET, 'response') && $_GET['response'] == 'json');
-	$album = (x($_GET, 'album') ? Strings::escapeTags(trim($_GET['album'])) : '');
+	$r_json = (!empty($_GET['response']) && $_GET['response'] == 'json');
+	$album = (!empty($_GET['album']) ? Strings::escapeTags(trim($_GET['album'])) : '');
 
 	if ($a->argc > 1) {
-		if (!x($_FILES, 'media')) {
+		if (empty($_FILES['media'])) {
 			$nick = $a->argv[1];
 			$r = q("SELECT `user`.*, `contact`.`id` FROM `user`
 				INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
@@ -110,7 +110,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		killme();
 	}
 
-	if (!x($_FILES, 'userfile') && !x($_FILES, 'media')) {
+	if (empty($_FILES['userfile']) && empty($_FILES['media'])) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
 		}
@@ -121,13 +121,13 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$filename = '';
 	$filesize = 0;
 	$filetype = '';
-	if (x($_FILES, 'userfile')) {
+	if (!empty($_FILES['userfile'])) {
 		$src      = $_FILES['userfile']['tmp_name'];
 		$filename = basename($_FILES['userfile']['name']);
 		$filesize = intval($_FILES['userfile']['size']);
 		$filetype = $_FILES['userfile']['type'];
 
-	} elseif (x($_FILES, 'media')) {
+	} elseif (!empty($_FILES['media'])) {
 		if (!empty($_FILES['media']['tmp_name'])) {
 			if (is_array($_FILES['media']['tmp_name'])) {
 				$src = $_FILES['media']['tmp_name'][0];

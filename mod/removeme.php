@@ -20,15 +20,15 @@ function removeme_post(App $a)
 		return;
 	}
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		return;
 	}
 
-	if ((!x($_POST, 'qxz_password')) || (!strlen(trim($_POST['qxz_password'])))) {
+	if (empty($_POST['qxz_password'])) {
 		return;
 	}
 
-	if ((!x($_POST, 'verify')) || (!strlen(trim($_POST['verify'])))) {
+	if (empty($_POST['verify'])) {
 		return;
 	}
 

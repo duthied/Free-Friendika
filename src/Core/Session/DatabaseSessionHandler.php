@@ -26,7 +26,7 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 
 	public function read($session_id)
 	{
-		if (!x($session_id)) {
+		if (empty($session_id)) {
 			return '';
 		}
 
