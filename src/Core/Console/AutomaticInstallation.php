@@ -119,11 +119,11 @@ HELP;
 			$db_data = $this->getOption(['d', 'dbdata'], ($save_db) ? getenv('MYSQL_DATABASE') : '');
 			$db_user = $this->getOption(['U', 'dbuser'], ($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : '');
 			$db_pass = $this->getOption(['P', 'dbpass'], ($save_db) ? getenv('MYSQL_PASSWORD') : '');
-			$url_path = $this->getOption(['u', 'urlpath'], (!empty('FRIENDICA_URL_PATH')) ? getenv('FRIENDICA_URL_PATH') : null);
-			$php_path = $this->getOption(['b', 'phppath'], (!empty('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : null);
-			$admin_mail = $this->getOption(['A', 'admin'], (!empty('FRIENDICA_ADMIN_MAIL')) ? getenv('FRIENDICA_ADMIN_MAIL') : '');
-			$tz = $this->getOption(['T', 'tz'], (!empty('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : '');
-			$lang = $this->getOption(['L', 'lang'], (!empty('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : '');
+			$url_path = $this->getOption(['u', 'urlpath'], !empty('FRIENDICA_URL_PATH') ? getenv('FRIENDICA_URL_PATH') : null);
+			$php_path = $this->getOption(['b', 'phppath'], !empty('FRIENDICA_PHP_PATH') ? getenv('FRIENDICA_PHP_PATH') : null);
+			$admin_mail = $this->getOption(['A', 'admin'], !empty('FRIENDICA_ADMIN_MAIL') ? getenv('FRIENDICA_ADMIN_MAIL') : '');
+			$tz = $this->getOption(['T', 'tz'], !empty('FRIENDICA_TZ') ? getenv('FRIENDICA_TZ') : '');
+			$lang = $this->getOption(['L', 'lang'], !empty('FRIENDICA_LANG') ? getenv('FRIENDICA_LANG') : '');
 
 			if (empty($php_path)) {
 				$php_path = $installer->getPHPPath();
@@ -132,7 +132,7 @@ HELP;
 			$installer->createConfig(
 				$php_path,
 				$url_path,
-				((!empty($db_port)) ? $db_host . ':' . $db_port : $db_host),
+				(!empty($db_port) ? $db_host . ':' . $db_port : $db_host),
 				$db_user,
 				$db_pass,
 				$db_data,

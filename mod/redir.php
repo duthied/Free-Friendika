@@ -67,7 +67,7 @@ function redir_init(App $a) {
 			// for authentification everytime he/she is visiting a profile page of the local
 			// contact.
 			if ($host == $remotehost
-				&& x($_SESSION, 'remote')
+				&& !empty($_SESSION['remote'])
 				&& is_array($_SESSION['remote']))
 			{
 				foreach ($_SESSION['remote'] as $v) {

@@ -2637,7 +2637,7 @@ class DFRN
 			if (($item["object-type"] == ACTIVITY_OBJ_EVENT) && !$owner_unknown) {
 				Logger::log("Item ".$item["uri"]." seems to contain an event.", Logger::DEBUG);
 				$ev = Event::fromBBCode($item["body"]);
-				if ((x($ev, "desc") || x($ev, "summary")) && x($ev, "start")) {
+				if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
 					Logger::log("Event in item ".$item["uri"]." was found.", Logger::DEBUG);
 					$ev["cid"]     = $importer["id"];
 					$ev["uid"]     = $importer["importer_uid"];
@@ -2925,7 +2925,7 @@ class DFRN
 	public static function autoRedir(App $a, $contact_nick)
 	{
 		// prevent looping
-		if (x($_REQUEST, 'redir') && intval($_REQUEST['redir'])) {
+		if (!empty($_REQUEST['redir'])) {
 			return;
 		}
 
@@ -3077,10 +3077,10 @@ class DFRN
 	 */
 	private static function isEditedTimestampNewer($existing, $update)
 	{
-		if (!x($existing, 'edited') || !$existing['edited']) {
+		if (empty($existing['edited'])) {
 			return true;
 		}
-		if (!x($update, 'edited') || !$update['edited']) {
+		if (empty($update['edited'])) {
 			return false;
 		}
 

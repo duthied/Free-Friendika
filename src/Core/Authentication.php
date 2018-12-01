@@ -106,7 +106,7 @@ class Authentication extends BaseObject
 
 		$masterUid = $user_record['uid'];
 
-		if ((x($_SESSION, 'submanage')) && intval($_SESSION['submanage'])) {
+		if (!empty($_SESSION['submanage'])) {
 			$user = DBA::selectFirst('user', ['uid'], ['uid' => $_SESSION['submanage']]);
 			if (DBA::isResult($user)) {
 				$masterUid = $user['uid'];

@@ -78,7 +78,7 @@ function tagger_content(App $a) {
 		$href = System::baseUrl() . '/display/' . $item['guid'];
 	}
 
-	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n") ;
+	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n");
 
 	$body = XML::escape($item['body']);
 

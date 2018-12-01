@@ -277,7 +277,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$contact_id = 0;
 
-	if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
+	if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
 		foreach ($_SESSION['remote'] as $v) {
 			if ($v['uid'] == $a->profile['uid']) {
 				$contact_id = $v['cid'];
@@ -308,7 +308,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
-	if (x($a->profile, 'hidewall') && !$is_owner && !$is_remote_contact) {
+	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
 		notice(L10n::t('Access to this profile has been restricted.') . EOL);
 		return;
 	}

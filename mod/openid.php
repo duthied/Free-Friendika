@@ -20,7 +20,7 @@ function openid_content(App $a) {
 
 	Logger::log('mod_openid ' . print_r($_REQUEST,true), Logger::DATA);
 
-	if((x($_GET,'openid_mode')) && (x($_SESSION,'openid'))) {
+	if(!empty($_GET['openid_mode']) && !empty($_SESSION['openid'])) {
 
 		$openid = new LightOpenID($a->getHostName());
 

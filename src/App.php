@@ -549,7 +549,7 @@ class App
 
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty(getenv('MYSQL_HOST'))
-			&& (!empty(getenv('MYSQL_USERNAME')) || !empty(getenv('MYSQL_USER')))
+			&& !empty(getenv('MYSQL_USERNAME') || !empty(getenv('MYSQL_USER')))
 			&& getenv('MYSQL_PASSWORD') !== false
 			&& !empty(getenv('MYSQL_DATABASE')))
 		{
@@ -668,7 +668,7 @@ class App
 			$this->hostname = Core\Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
+		return $scheme . '://' . $this->hostname . !empty($this->getURLPath() ? '/' . $this->getURLPath() : '' );
 	}
 
 	/**

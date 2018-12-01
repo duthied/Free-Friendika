@@ -55,7 +55,7 @@ function common_content(App $a)
 				'url'    => 'contact/' . $cid
 			]);
 
-			if (!x($a->page, 'aside')) {
+			if (empty($a->page['aside'])) {
 				$a->page['aside'] = '';
 			}
 			$a->page['aside'] .= $vcard_widget;

@@ -28,7 +28,7 @@ class FriendicaSmarty extends Smarty
 		// setTemplateDir can be set to an array, which Smarty will parse in order.
 		// The order is thus very important here
 		$template_dirs = ['theme' => "view/theme/$theme/" . self::SMARTY3_TEMPLATE_FOLDER . "/"];
-		if (x($a->theme_info, "extends")) {
+		if (!empty($a->theme_info['extends'])) {
 			$template_dirs = $template_dirs + ['extends' => "view/theme/" . $a->theme_info["extends"] . "/" . self::SMARTY3_TEMPLATE_FOLDER . "/"];
 		}
 

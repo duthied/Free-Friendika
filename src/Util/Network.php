@@ -121,7 +121,7 @@ class Network
 
 		@curl_setopt($ch, CURLOPT_HEADER, true);
 
-		if (x($opts, "cookiejar")) {
+		if (!empty($opts['cookiejar'])) {
 			curl_setopt($ch, CURLOPT_COOKIEJAR, $opts["cookiejar"]);
 			curl_setopt($ch, CURLOPT_COOKIEFILE, $opts["cookiejar"]);
 		}
@@ -130,7 +130,7 @@ class Network
 		//	@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		//	@curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 
-		if (x($opts, 'accept_content')) {
+		if (!empty($opts['accept_content'])) {
 			curl_setopt(
 				$ch,
 				CURLOPT_HTTPHEADER,
@@ -156,15 +156,15 @@ class Network
 		/// @todo  We could possibly set this value to "gzip" or something similar
 		curl_setopt($ch, CURLOPT_ENCODING, '');
 
-		if (x($opts, 'headers')) {
+		if (!empty($opts['headers'])) {
 			@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
 		}
 
-		if (x($opts, 'nobody')) {
+		if (!empty($opts['nobody'])) {
 			@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
 		}
 
-		if (x($opts, 'timeout')) {
+		if (!empty($opts['timeout'])) {
 			@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 		} else {
 			$curl_time = Config::get('system', 'curl_timeout', 60);
@@ -489,7 +489,7 @@ class Network
 		}
 
 		$str_allowed = Config::get('system', 'allowed_email', '');
-		if (!x($str_allowed)) {
+		if (empty($str_allowed)) {
 			return true;
 		}
 

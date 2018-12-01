@@ -214,10 +214,7 @@ function vier_community_info()
 
 	//Community_Pages at right_aside
 	if ($show_pages && local_user()) {
-		$cid = null;
-		if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
-			$cid = $_GET['cid'];
-		}
+		$cid = defaults($_GET, 'cid', null);
 
 		//sort by last updated item
 		$lastitem = true;

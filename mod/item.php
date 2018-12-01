@@ -166,7 +166,7 @@ function item_post(App $a) {
 
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
-		notice(L10n::t('Permission denied.') . EOL) ;
+		notice(L10n::t('Permission denied.') . EOL);
 
 		if (!empty($_REQUEST['return'])) {
 			$a->internalRedirect($return_path);
@@ -690,7 +690,7 @@ function item_post(App $a) {
 		}
 
 		$json = ['cancel' => 1];
-		if (!empty($_REQUEST['jsreload']) && strlen($_REQUEST['jsreload'])) {
+		if (!empty($_REQUEST['jsreload'])) {
 			$json['reload'] = System::baseUrl() . '/' . $_REQUEST['jsreload'];
 		}
 
@@ -869,7 +869,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 	}
 
 	$json = ['success' => 1];
-	if (!empty($_REQUEST['jsreload']) && strlen($_REQUEST['jsreload'])) {
+	if (!empty($_REQUEST['jsreload'])) {
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 

@@ -276,10 +276,10 @@ class FileTag
         }
 
         if ($cat == true) {
-            $pattern = '<' . self::encode($file) . '>' ;
+            $pattern = '<' . self::encode($file) . '>';
             $termtype = TERM_CATEGORY;
         } else {
-            $pattern = '[' . self::encode($file) . ']' ;
+            $pattern = '[' . self::encode($file) . ']';
             $termtype = TERM_FILE;
         }
 

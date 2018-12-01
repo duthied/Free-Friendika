@@ -30,7 +30,7 @@ function directory_init(App $a)
 
 function directory_post(App $a)
 {
-	if (x($_POST, 'search')) {
+	if (!empty($_POST['search'])) {
 		$a->data['search'] = $_POST['search'];
 	}
 }
@@ -47,10 +47,10 @@ function directory_content(App $a)
 	$o = '';
 	Nav::setSelected('directory');
 
-	if (x($a->data, 'search')) {
+	if (!empty($a->data['search'])) {
 		$search = Strings::escapeTags(trim($a->data['search']));
 	} else {
-		$search = ((x($_GET, 'search')) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
+		$search = (!empty($_GET['search']) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 	}
 
 	$gdirpath = '';
@@ -138,28 +138,28 @@ function directory_content(App $a)
 			}
 //			if(strlen($rr['dob'])) {
 //				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
-//					$details .= '<br />' . L10n::t('Age: ') . $years ;
+//					$details .= '<br />' . L10n::t('Age: ') . $years;
 //			}
 //			if(strlen($rr['gender']))
 //				$details .= '<br />' . L10n::t('Gender: ') . $rr['gender'];
 
 			$profile = $rr;
 
-			if ((x($profile, 'address')             == 1)
-				|| (x($profile, 'locality')     == 1)
-				|| (x($profile, 'region')       == 1)
-				|| (x($profile, 'postal-code')  == 1)
-				|| (x($profile, 'country-name') == 1)
+			if (!empty($profile['address'])
+				|| !empty($profile['locality'])
+				|| !empty($profile['region'])
+				|| !empty($profile['postal-code'])
+				|| !empty($profile['country-name'])
 			) {
 				$location = L10n::t('Location:');
 			} else {
 				$location = '';
 			}
 
-			$gender   = ((x($profile, 'gender')   == 1) ? L10n::t('Gender:')   : false);
-			$marital  = ((x($profile, 'marital')  == 1) ? L10n::t('Status:')   : false);
-			$homepage = ((x($profile, 'homepage') == 1) ? L10n::t('Homepage:') : false);
-			$about    = ((x($profile, 'about')    == 1) ? L10n::t('About:')    : false);
+			$gender   = (!empty($profile['gender']) ? L10n::t('Gender:')   : false);
+			$marital  = (!empty($profile['marital']) ? L10n::t('Status:')   : false);
+			$homepage = (!empty($profile['homepage']) ? L10n::t('Homepage:') : false);
+			$about    = (!empty($profile['about']) ? L10n::t('About:')    : false);
 
 			$location_e = $location;
 

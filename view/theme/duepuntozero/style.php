@@ -15,7 +15,7 @@ $uid = Profile::getThemeUid();
 $s_colorset = Config::get('duepuntozero', 'colorset');
 $colorset = PConfig::get($uid, 'duepuntozero', 'colorset');
 
-if (!x($colorset)) {
+if (empty($colorset)) {
 	$colorset = $s_colorset;
 }
 

@@ -27,7 +27,7 @@ function fbrowser_content(App $a)
 
 	$template_file = "filebrowser.tpl";
 	$mode = "";
-	if (x($_GET, 'mode')) {
+	if (!empty($_GET['mode'])) {
 		$mode  = "?mode=".$_GET['mode'];
 	}
 
@@ -142,7 +142,7 @@ function fbrowser_content(App $a)
 			break;
 	}
 
-	if (x($_GET, 'mode')) {
+	if (!empty($_GET['mode'])) {
 		return $o;
 	} else {
 		echo $o;

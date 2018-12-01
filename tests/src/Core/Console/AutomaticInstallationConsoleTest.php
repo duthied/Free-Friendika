@@ -47,7 +47,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		}
 
 		$this->db_host = getenv('MYSQL_HOST');
-		$this->db_port = (!empty(getenv('MYSQL_PORT'))) ? getenv('MYSQL_PORT') : null;
+		$this->db_port = !empty(getenv('MYSQL_PORT')) ? getenv('MYSQL_PORT') : null;
 		$this->db_data = getenv('MYSQL_DATABASE');
 		$this->db_user = getenv('MYSQL_USERNAME') . getenv('MYSQL_USER');
 		$this->db_pass = getenv('MYSQL_PASSWORD');

@@ -58,7 +58,7 @@ function admin_post(App $a)
 
 	// do not allow a page manager to access the admin panel at all.
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		return;
 	}
 
@@ -167,14 +167,14 @@ function admin_content(App $a)
 		return Login::form();
 	}
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		return "";
 	}
 
 	// APC deactivated, since there are problems with PHP 5.5
 	//if (function_exists("apc_delete")) {
-	//	$toDelete = new APCIterator('user', APC_ITER_VALUE);
-	//	apc_delete($toDelete);
+	// $toDelete = new APCIterator('user', APC_ITER_VALUE);
+	// apc_delete($toDelete);
 	//}
 	// Header stuff
 	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/settings_head.tpl'), []);
@@ -321,7 +321,7 @@ function admin_page_tos(App $a)
 		'$title' => L10n::t('Administration'),
 		'$page' => L10n::t('Terms of Service'),
 		'$displaytos' => ['displaytos', L10n::t('Display Terms of Service'), Config::get('system', 'tosdisplay'), L10n::t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
-		'$displayprivstatement' => ['displayprivstatement', L10n::t('Display Privacy Statement'), Config::get('system','tosprivstatement'), L10n::t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.','https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
+		'$displayprivstatement' => ['displayprivstatement', L10n::t('Display Privacy Statement'), Config::get('system', 'tosprivstatement'), L10n::t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.', 'https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
 		'$preview' => L10n::t('Privacy Statement Preview'),
 		'$privtext' => $tos->privacy_complete,
 		'$tostext' => ['tostext', L10n::t('The Terms of Service'), Config::get('system', 'tostext'), L10n::t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
@@ -329,6 +329,7 @@ function admin_page_tos(App $a)
 		'$submit' => L10n::t('Save Settings'),
 	]);
 }
+
 /**
  * @brief Process send data from Admin TOS Page
  *
@@ -338,13 +339,13 @@ function admin_page_tos_post(App $a)
 {
 	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/tos', 'admin_tos');
 
-	if (!x($_POST, "page_tos")) {
+	if (empty($_POST['page_tos'])) {
 		return;
 	}
 
-	$displaytos = ((x($_POST, 'displaytos')) ? True : False);
-	$displayprivstatement = ((x($_POST, 'displayprivstatement')) ? True : False);
-	$tostext = ((x($_POST, 'tostext')) ? strip_tags(trim($_POST['tostext'])) : '');
+	$displaytos = !empty($_POST['displaytos']);
+	$displayprivstatement = !empty($_POST['displayprivstatement']);
+	$tostext = (!empty($_POST['tostext']) ? strip_tags(trim($_POST['tostext'])) : '');
 
 	Config::set('system', 'tosdisplay', $displaytos);
 	Config::set('system', 'tosprivstatement', $displayprivstatement);
@@ -354,6 +355,7 @@ function admin_page_tos_post(App $a)
 
 	return; // NOTREACHED
 }
+
 /**
  * @brief Subpage to modify the server wide block list via the admin panel.
  *
@@ -407,13 +409,13 @@ function admin_page_blocklist(App $a)
  */
 function admin_page_blocklist_post(App $a)
 {
-	if (!x($_POST, "page_blocklist_save") && (!x($_POST['page_blocklist_edit']))) {
+	if (empty($_POST['page_blocklist_save']) && empty($_POST['page_blocklist_edit'])) {
 		return;
 	}
 
 	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/blocklist', 'admin_blocklist');
 
-	if (x($_POST['page_blocklist_save'])) {
+	if (!empty($_POST['page_blocklist_save'])) {
 		//  Add new item to blocklist
 		$blocklist = Config::get('system', 'blocklist');
 		$blocklist[] = [
@@ -429,7 +431,7 @@ function admin_page_blocklist_post(App $a)
 			// Trimming whitespaces as well as any lingering slashes
 			$domain = Strings::escapeTags(trim($domain, "\x00..\x1F/"));
 			$reason = Strings::escapeTags(trim($_POST['reason'][$id]));
-			if (!x($_POST['delete'][$id])) {
+			if (empty($_POST['delete'][$id])) {
 				$blocklist[] = [
 					'domain' => $domain,
 					'reason' => $reason
@@ -451,12 +453,12 @@ function admin_page_blocklist_post(App $a)
  */
 function admin_page_contactblock_post(App $a)
 {
-	$contact_url = x($_POST, 'contact_url') ? $_POST['contact_url'] : '';
-	$contacts    = x($_POST, 'contacts')    ? $_POST['contacts']    : [];
+	$contact_url = defaults($_POST, 'contact_url', '');
+	$contacts    = defaults($_POST, 'contacts', []);
 
 	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/contactblock', 'admin_contactblock');
 
-	if (x($_POST, 'page_contactblock_block')) {
+	if (!empty($_POST['page_contactblock_block'])) {
 		$contact_id = Contact::getIdForURL($contact_url);
 		if ($contact_id) {
 			Contact::block($contact_id);
@@ -465,7 +467,7 @@ function admin_page_contactblock_post(App $a)
 			notice(L10n::t("Could not find any contact entry for this URL \x28%s\x29", $contact_url));
 		}
 	}
-	if (x($_POST, 'page_contactblock_unblock')) {
+	if (!empty($_POST['page_contactblock_unblock'])) {
 		foreach ($contacts as $uid) {
 			Contact::unblock($uid);
 		}
@@ -559,13 +561,13 @@ function admin_page_deleteitem(App $a)
  */
 function admin_page_deleteitem_post(App $a)
 {
-	if (!x($_POST['page_deleteitem_submit'])) {
+	if (empty($_POST['page_deleteitem_submit'])) {
 		return;
 	}
 
 	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/deleteitem/', 'admin_deleteitem');
 
-	if (x($_POST['page_deleteitem_submit'])) {
+	if (!empty($_POST['page_deleteitem_submit'])) {
 		$guid = trim(Strings::escapeTags($_POST['deleteitemguid']));
 		// The GUID should not include a "/", so if there is one, we got an URL
 		// and the last part of it is most likely the GUID.
@@ -838,7 +840,7 @@ function admin_page_workerqueue(App $a, $deferred)
 		$info = L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.');
 	}
 
-	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], $condition, ['order'=> ['priority']]);
+	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], $condition, ['order' => ['priority']]);
 
 	$r = [];
 	while ($entry = DBA::fetch($entries)) {
@@ -938,7 +940,7 @@ function admin_page_summary(App $a)
 	$users = 0;
 	foreach ($r as $u) {
 		$accounts[$u['page-flags']][1] = $u['count'];
-		$users+= $u['count'];
+		$users += $u['count'];
 	}
 
 	Logger::log('accounts: ' . print_r($accounts, true), Logger::DATA);
@@ -962,10 +964,10 @@ function admin_page_summary(App $a)
 	$max_allowed_packet = (($r) ? $r[0]['Value'] : 0);
 
 	$server_settings = ['label' => L10n::t('Server Settings'),
-				'php' => ['upload_max_filesize' => ini_get('upload_max_filesize'),
-						  'post_max_size' => ini_get('post_max_size'),
-						  'memory_limit' => ini_get('memory_limit')],
-				'mysql' => ['max_allowed_packet' => $max_allowed_packet]];
+		'php' => ['upload_max_filesize' => ini_get('upload_max_filesize'),
+			'post_max_size' => ini_get('post_max_size'),
+			'memory_limit' => ini_get('memory_limit')],
+		'mysql' => ['max_allowed_packet' => $max_allowed_packet]];
 
 	$t = Renderer::getMarkupTemplate('admin/summary.tpl');
 	return Renderer::replaceMacros($t, [
@@ -1001,17 +1003,17 @@ function admin_page_site_post(App $a)
 		return;
 	}
 
-	if (!x($_POST, "page_site")) {
+	if (empty($_POST['page_site'])) {
 		return;
 	}
 
 	// relocate
-	if (x($_POST, 'relocate') && x($_POST, 'relocate_url') && $_POST['relocate_url'] != "") {
+	if (!empty($_POST['relocate']) && !empty($_POST['relocate_url']) && $_POST['relocate_url'] != "") {
 		$new_url = $_POST['relocate_url'];
 		$new_url = rtrim($new_url, "/");
 
 		$parsed = @parse_url($new_url);
-		if (!is_array($parsed) || !x($parsed, 'host') || !x($parsed, 'scheme')) {
+		if (!is_array($parsed) || empty($parsed['host']) || empty($parsed['scheme'])) {
 			notice(L10n::t("Can not parse base url. Must have at least <scheme>://<domain>"));
 			$a->internalRedirect('admin/site');
 		}
@@ -1046,6 +1048,7 @@ function admin_page_site_post(App $a)
 				$a->internalRedirect('admin/site');
 			}
 		}
+
 		// update tables
 		// update profile links in the format "http://server.tld"
 		update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
@@ -1059,7 +1062,7 @@ function admin_page_site_post(App $a)
 		update_table($a, "gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
-		Config::set('system', 'hostname', parse_url($new_url,  PHP_URL_HOST));
+		Config::set('system', 'hostname', parse_url($new_url, PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
 		$a->setBaseURL($new_url);
 
@@ -1076,98 +1079,97 @@ function admin_page_site_post(App $a)
 	}
 	// end relocate
 
-	$sitename 		=	((x($_POST,'sitename'))			? Strings::escapeTags(trim($_POST['sitename']))		: '');
-	$hostname 		=	((x($_POST,'hostname'))			? Strings::escapeTags(trim($_POST['hostname']))		: '');
-	$sender_email		=	((x($_POST,'sender_email'))		? Strings::escapeTags(trim($_POST['sender_email']))		: '');
-	$banner			=	((x($_POST,'banner'))			? trim($_POST['banner'])			: false);
-	$shortcut_icon 		=	((x($_POST,'shortcut_icon'))		? Strings::escapeTags(trim($_POST['shortcut_icon']))		: '');
-	$touch_icon 		=	((x($_POST,'touch_icon'))		? Strings::escapeTags(trim($_POST['touch_icon']))		: '');
-	$info			=	((x($_POST,'info'))			? trim($_POST['info'])				: false);
-	$language		=	((x($_POST,'language'))			? Strings::escapeTags(trim($_POST['language']))		: '');
-	$theme			=	((x($_POST,'theme'))			? Strings::escapeTags(trim($_POST['theme']))			: '');
-	$theme_mobile		=	((x($_POST,'theme_mobile'))		? Strings::escapeTags(trim($_POST['theme_mobile']))		: '');
-	$maximagesize		=	((x($_POST,'maximagesize'))		? intval(trim($_POST['maximagesize']))		:  0);
-	$maximagelength		=	((x($_POST,'maximagelength'))		? intval(trim($_POST['maximagelength']))	:  MAX_IMAGE_LENGTH);
-	$jpegimagequality	=	((x($_POST,'jpegimagequality'))		? intval(trim($_POST['jpegimagequality']))	:  JPEG_QUALITY);
+	$sitename         = (!empty($_POST['sitename'])         ? Strings::escapeTags(trim($_POST['sitename']))      : '');
+	$hostname         = (!empty($_POST['hostname'])         ? Strings::escapeTags(trim($_POST['hostname']))      : '');
+	$sender_email     = (!empty($_POST['sender_email'])     ? Strings::escapeTags(trim($_POST['sender_email']))  : '');
+	$banner           = (!empty($_POST['banner'])           ? trim($_POST['banner'])                             : false);
+	$shortcut_icon    = (!empty($_POST['shortcut_icon'])    ? Strings::escapeTags(trim($_POST['shortcut_icon'])) : '');
+	$touch_icon       = (!empty($_POST['touch_icon'])       ? Strings::escapeTags(trim($_POST['touch_icon']))    : '');
+	$info             = (!empty($_POST['info'])             ? trim($_POST['info'])                               : false);
+	$language         = (!empty($_POST['language'])         ? Strings::escapeTags(trim($_POST['language']))      : '');
+	$theme            = (!empty($_POST['theme'])            ? Strings::escapeTags(trim($_POST['theme']))         : '');
+	$theme_mobile     = (!empty($_POST['theme_mobile'])     ? Strings::escapeTags(trim($_POST['theme_mobile']))  : '');
+	$maximagesize     = (!empty($_POST['maximagesize'])     ? intval(trim($_POST['maximagesize']))               : 0);
+	$maximagelength   = (!empty($_POST['maximagelength'])   ? intval(trim($_POST['maximagelength']))             : MAX_IMAGE_LENGTH);
+	$jpegimagequality = (!empty($_POST['jpegimagequality']) ? intval(trim($_POST['jpegimagequality']))           : JPEG_QUALITY);
 
+	$register_policy        = (!empty($_POST['register_policy'])         ? intval(trim($_POST['register_policy']))             : 0);
+	$daily_registrations    = (!empty($_POST['max_daily_registrations']) ? intval(trim($_POST['max_daily_registrations']))     : 0);
+	$abandon_days           = (!empty($_POST['abandon_days'])            ? intval(trim($_POST['abandon_days']))                : 0);
 
-	$register_policy	=	((x($_POST,'register_policy'))		? intval(trim($_POST['register_policy']))	:  0);
-	$daily_registrations	=	((x($_POST,'max_daily_registrations'))	? intval(trim($_POST['max_daily_registrations']))	:0);
-	$abandon_days	    	=	((x($_POST,'abandon_days'))		? intval(trim($_POST['abandon_days']))		:  0);
+	$register_text          = (!empty($_POST['register_text'])           ? strip_tags(trim($_POST['register_text']))           : '');
 
-	$register_text		=	((x($_POST,'register_text'))		? strip_tags(trim($_POST['register_text']))		: '');
+	$allowed_sites          = (!empty($_POST['allowed_sites'])           ? Strings::escapeTags(trim($_POST['allowed_sites']))  : '');
+	$allowed_email          = (!empty($_POST['allowed_email'])           ? Strings::escapeTags(trim($_POST['allowed_email']))  : '');
+	$forbidden_nicknames    = (!empty($_POST['forbidden_nicknames'])     ? strtolower(Strings::escapeTags(trim($_POST['forbidden_nicknames']))) : '');
+	$no_oembed_rich_content = !empty($_POST['no_oembed_rich_content']);
+	$allowed_oembed         = (!empty($_POST['allowed_oembed'])          ? Strings::escapeTags(trim($_POST['allowed_oembed'])) : '');
+	$block_public           = !empty($_POST['block_public']);
+	$force_publish          = !empty($_POST['publish_all']);
+	$global_directory       = (!empty($_POST['directory'])               ? Strings::escapeTags(trim($_POST['directory']))      : '');
+	$newuser_private        = !empty($_POST['newuser_private']);
+	$enotify_no_content     = !empty($_POST['enotify_no_content']);
+	$private_addons         = !empty($_POST['private_addons']);
+	$disable_embedded       = !empty($_POST['disable_embedded']);
+	$allow_users_remote_self = !empty($_POST['allow_users_remote_self']);
+	$explicit_content       = !empty($_POST['explicit_content']);
 
-	$allowed_sites		=	((x($_POST,'allowed_sites'))		? Strings::escapeTags(trim($_POST['allowed_sites']))		: '');
-	$allowed_email		=	((x($_POST,'allowed_email'))		? Strings::escapeTags(trim($_POST['allowed_email']))		: '');
-	$forbidden_nicknames	=	((x($_POST,'forbidden_nicknames'))	? strtolower(Strings::escapeTags(trim($_POST['forbidden_nicknames'])))		: '');
-	$no_oembed_rich_content = x($_POST,'no_oembed_rich_content');
-	$allowed_oembed		=	((x($_POST,'allowed_oembed'))		? Strings::escapeTags(trim($_POST['allowed_oembed']))		: '');
-	$block_public		=	((x($_POST,'block_public'))		? True						: False);
-	$force_publish		=	((x($_POST,'publish_all'))		? True						: False);
-	$global_directory	=	((x($_POST,'directory'))		? Strings::escapeTags(trim($_POST['directory']))		: '');
-	$newuser_private		=	((x($_POST,'newuser_private'))		? True					: False);
-	$enotify_no_content		=	((x($_POST,'enotify_no_content'))	? True					: False);
-	$private_addons			=	((x($_POST,'private_addons'))		? True					: False);
-	$disable_embedded		=	((x($_POST,'disable_embedded'))		? True					: False);
-	$allow_users_remote_self	=	((x($_POST,'allow_users_remote_self'))	? True					: False);
-	$explicit_content	=	((x($_POST,'explicit_content'))	? True					: False);
+	$no_multi_reg           = !empty($_POST['no_multi_reg']);
+	$no_openid              = !empty($_POST['no_openid']);
+	$no_regfullname         = !empty($_POST['no_regfullname']);
+	$community_page_style   = (!empty($_POST['community_page_style']) ? intval(trim($_POST['community_page_style'])) : 0);
+	$max_author_posts_community_page = (!empty($_POST['max_author_posts_community_page']) ? intval(trim($_POST['max_author_posts_community_page'])) : 0);
 
-	$no_multi_reg		=	((x($_POST,'no_multi_reg'))		? True						: False);
-	$no_openid		=	!((x($_POST,'no_openid'))		? True						: False);
-	$no_regfullname		=	!((x($_POST,'no_regfullname'))		? True						: False);
-	$community_page_style	=	((x($_POST,'community_page_style'))	? intval(trim($_POST['community_page_style']))	: 0);
-	$max_author_posts_community_page	=	((x($_POST,'max_author_posts_community_page'))	? intval(trim($_POST['max_author_posts_community_page']))	: 0);
+	$verifyssl              = !empty($_POST['verifyssl']);
+	$proxyuser              = (!empty($_POST['proxyuser'])              ? Strings::escapeTags(trim($_POST['proxyuser'])) : '');
+	$proxy                  = (!empty($_POST['proxy'])                  ? Strings::escapeTags(trim($_POST['proxy']))     : '');
+	$timeout                = (!empty($_POST['timeout'])                ? intval(trim($_POST['timeout']))                : 60);
+	$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 50);
+	$maxloadavg_frontend    = (!empty($_POST['maxloadavg_frontend'])    ? intval(trim($_POST['maxloadavg_frontend']))    : 50);
+	$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
+	$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
+	$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
+	$poco_completion        = (!empty($_POST['poco_completion'])        ? intval(trim($_POST['poco_completion']))        : false);
+	$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
+	$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : 0);
+	$poco_discovery_since   = (!empty($_POST['poco_discovery_since'])   ? intval(trim($_POST['poco_discovery_since']))   : 30);
+	$poco_local_search      = !empty($_POST['poco_local_search']);
+	$nodeinfo               = !empty($_POST['nodeinfo']);
+	$dfrn_only              = !empty($_POST['dfrn_only']);
+	$ostatus_disabled       = !empty($_POST['ostatus_disabled']);
+	$ostatus_full_threads   = !empty($_POST['ostatus_full_threads']);
+	$diaspora_enabled       = !empty($_POST['diaspora_enabled']);
+	$ssl_policy             = (!empty($_POST['ssl_policy'])             ? intval($_POST['ssl_policy'])                    : 0);
+	$force_ssl              = !empty($_POST['force_ssl']);
+	$hide_help              = !empty($_POST['hide_help']);
+	$dbclean                = !empty($_POST['dbclean']);
+	$dbclean_expire_days    = (!empty($_POST['dbclean_expire_days'])    ? intval($_POST['dbclean_expire_days'])           : 0);
+	$dbclean_unclaimed      = (!empty($_POST['dbclean_unclaimed'])      ? intval($_POST['dbclean_unclaimed'])             : 0);
+	$dbclean_expire_conv    = (!empty($_POST['dbclean_expire_conv'])    ? intval($_POST['dbclean_expire_conv'])           : 0);
+	$suppress_tags          = !empty($_POST['suppress_tags']);
+	$itemcache              = (!empty($_POST['itemcache'])              ? Strings::escapeTags(trim($_POST['itemcache']))  : '');
+	$itemcache_duration     = (!empty($_POST['itemcache_duration'])     ? intval($_POST['itemcache_duration'])            : 0);
+	$max_comments           = (!empty($_POST['max_comments'])           ? intval($_POST['max_comments'])                  : 0);
+	$temppath               = (!empty($_POST['temppath'])               ? Strings::escapeTags(trim($_POST['temppath']))   : '');
+	$basepath               = (!empty($_POST['basepath'])               ? Strings::escapeTags(trim($_POST['basepath']))   : '');
+	$singleuser             = (!empty($_POST['singleuser'])             ? Strings::escapeTags(trim($_POST['singleuser'])) : '');
+	$proxy_disabled         = !empty($_POST['proxy_disabled']);
+	$only_tag_search        = !empty($_POST['only_tag_search']);
+	$rino                   = (!empty($_POST['rino'])                   ? intval($_POST['rino'])                          : 0);
+	$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? Strings::escapeTags(trim($_POST['check_new_version_url'])) : 'none');
 
-	$verifyssl		=	((x($_POST,'verifyssl'))		? True						: False);
-	$proxyuser		=	((x($_POST,'proxyuser'))		? Strings::escapeTags(trim($_POST['proxyuser']))		: '');
-	$proxy			=	((x($_POST,'proxy'))			? Strings::escapeTags(trim($_POST['proxy']))			: '');
-	$timeout		=	((x($_POST,'timeout'))			? intval(trim($_POST['timeout']))		: 60);
-	$maxloadavg		=	((x($_POST,'maxloadavg'))		? intval(trim($_POST['maxloadavg']))		: 50);
-	$maxloadavg_frontend	=	((x($_POST,'maxloadavg_frontend'))	? intval(trim($_POST['maxloadavg_frontend']))	: 50);
-	$min_memory		=	((x($_POST,'min_memory'))		? intval(trim($_POST['min_memory']))		: 0);
-	$optimize_max_tablesize	=	((x($_POST,'optimize_max_tablesize'))	? intval(trim($_POST['optimize_max_tablesize'])): 100);
-	$optimize_fragmentation	=	((x($_POST,'optimize_fragmentation'))	? intval(trim($_POST['optimize_fragmentation'])): 30);
-	$poco_completion	=	((x($_POST,'poco_completion'))		? intval(trim($_POST['poco_completion']))	: false);
-	$poco_requery_days	=	((x($_POST,'poco_requery_days'))	? intval(trim($_POST['poco_requery_days']))	: 7);
-	$poco_discovery		=	((x($_POST,'poco_discovery'))		? intval(trim($_POST['poco_discovery']))	: 0);
-	$poco_discovery_since	=	((x($_POST,'poco_discovery_since'))	? intval(trim($_POST['poco_discovery_since']))	: 30);
-	$poco_local_search	=	((x($_POST,'poco_local_search'))	? intval(trim($_POST['poco_local_search']))	: false);
-	$nodeinfo		=	((x($_POST,'nodeinfo'))			? intval(trim($_POST['nodeinfo']))		: false);
-	$dfrn_only		=	((x($_POST,'dfrn_only'))		? True						: False);
-	$ostatus_disabled	=	!((x($_POST,'ostatus_disabled'))	? True  					: False);
-	$ostatus_full_threads	=	((x($_POST,'ostatus_full_threads'))	? True  					: False);
-	$diaspora_enabled	=	((x($_POST,'diaspora_enabled'))		? True   					: False);
-	$ssl_policy		=	((x($_POST,'ssl_policy'))		? intval($_POST['ssl_policy']) 			: 0);
-	$force_ssl		=	((x($_POST,'force_ssl'))		? True   					: False);
-	$hide_help		=	((x($_POST,'hide_help'))		? True   					: False);
-	$dbclean		=	((x($_POST,'dbclean'))			? True   					: False);
-	$dbclean_expire_days	=	((x($_POST,'dbclean_expire_days'))	? intval($_POST['dbclean_expire_days'])		: 0);
-	$dbclean_unclaimed	=	((x($_POST,'dbclean_unclaimed'))	? intval($_POST['dbclean_unclaimed'])		: 0);
-	$dbclean_expire_conv	=	((x($_POST,'dbclean_expire_conv'))	? intval($_POST['dbclean_expire_conv'])		: 0);
-	$suppress_tags		=	((x($_POST,'suppress_tags'))		? True   					: False);
-	$itemcache		=	((x($_POST,'itemcache'))		? Strings::escapeTags(trim($_POST['itemcache']))		: '');
-	$itemcache_duration	=	((x($_POST,'itemcache_duration'))	? intval($_POST['itemcache_duration'])		: 0);
-	$max_comments		=	((x($_POST,'max_comments'))		? intval($_POST['max_comments'])		: 0);
-	$temppath		=	((x($_POST,'temppath'))			? Strings::escapeTags(trim($_POST['temppath']))		: '');
-	$basepath		=	((x($_POST,'basepath'))			? Strings::escapeTags(trim($_POST['basepath']))		: '');
-	$singleuser		=	((x($_POST,'singleuser'))		? Strings::escapeTags(trim($_POST['singleuser']))		: '');
-	$proxy_disabled		=	((x($_POST,'proxy_disabled'))		? True						: False);
-	$only_tag_search	=	((x($_POST,'only_tag_search'))		? True						: False);
-	$rino			=	((x($_POST,'rino'))			? intval($_POST['rino'])			: 0);
-	$check_new_version_url	=	((x($_POST, 'check_new_version_url'))	?	Strings::escapeTags(trim($_POST['check_new_version_url']))	: 'none');
+	$worker_queues    = (!empty($_POST['worker_queues'])                ? intval($_POST['worker_queues'])                 : 10);
+	$worker_dont_fork = !empty($_POST['worker_dont_fork']);
+	$worker_fastlane  = !empty($_POST['worker_fastlane']);
+	$worker_frontend  = !empty($_POST['worker_frontend']);
 
-	$worker_queues		=	((x($_POST,'worker_queues'))		? intval($_POST['worker_queues'])		: 10);
-	$worker_dont_fork	=	((x($_POST,'worker_dont_fork'))		? True						: False);
-	$worker_fastlane	=	((x($_POST,'worker_fastlane'))		? True						: False);
-	$worker_frontend	=	((x($_POST,'worker_frontend'))		? True						: False);
-
-	$relay_directly		=	((x($_POST,'relay_directly'))		? True						: False);
-	$relay_server		=	((x($_POST,'relay_server'))		? Strings::escapeTags(trim($_POST['relay_server']))		: '');
-	$relay_subscribe	=	((x($_POST,'relay_subscribe'))		? True						: False);
-	$relay_scope		=	((x($_POST,'relay_scope'))		? Strings::escapeTags(trim($_POST['relay_scope']))		: '');
-	$relay_server_tags	=	((x($_POST,'relay_server_tags'))	? Strings::escapeTags(trim($_POST['relay_server_tags']))	: '');
-	$relay_user_tags	=	((x($_POST,'relay_user_tags'))		? True						: False);
-	$active_panel           =       (defaults($_POST, 'active_panel', '')   ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
+	$relay_directly    = !empty($_POST['relay_directly']);
+	$relay_server      = (!empty($_POST['relay_server'])      ? Strings::escapeTags(trim($_POST['relay_server']))       : '');
+	$relay_subscribe   = !empty($_POST['relay_subscribe']);
+	$relay_scope       = (!empty($_POST['relay_scope'])       ? Strings::escapeTags(trim($_POST['relay_scope']))        : '');
+	$relay_server_tags = (!empty($_POST['relay_server_tags']) ? Strings::escapeTags(trim($_POST['relay_server_tags']))  : '');
+	$relay_user_tags   = !empty($_POST['relay_user_tags']);
+	$active_panel      = (!empty($_POST['active_panel'])      ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
@@ -1217,24 +1219,24 @@ function admin_page_site_post(App $a)
 			);
 		}
 	}
-	Config::set('system', 'ssl_policy', $ssl_policy);
-	Config::set('system', 'maxloadavg', $maxloadavg);
-	Config::set('system', 'maxloadavg_frontend', $maxloadavg_frontend);
-	Config::set('system', 'min_memory', $min_memory);
+	Config::set('system', 'ssl_policy'            , $ssl_policy);
+	Config::set('system', 'maxloadavg'            , $maxloadavg);
+	Config::set('system', 'maxloadavg_frontend'   , $maxloadavg_frontend);
+	Config::set('system', 'min_memory'            , $min_memory);
 	Config::set('system', 'optimize_max_tablesize', $optimize_max_tablesize);
 	Config::set('system', 'optimize_fragmentation', $optimize_fragmentation);
-	Config::set('system', 'poco_completion', $poco_completion);
-	Config::set('system', 'poco_requery_days', $poco_requery_days);
-	Config::set('system', 'poco_discovery', $poco_discovery);
-	Config::set('system', 'poco_discovery_since', $poco_discovery_since);
-	Config::set('system', 'poco_local_search', $poco_local_search);
-	Config::set('system', 'nodeinfo', $nodeinfo);
-	Config::set('config', 'sitename', $sitename);
-	Config::set('config', 'hostname', $hostname);
-	Config::set('config', 'sender_email', $sender_email);
-	Config::set('system', 'suppress_tags', $suppress_tags);
-	Config::set('system', 'shortcut_icon', $shortcut_icon);
-	Config::set('system', 'touch_icon', $touch_icon);
+	Config::set('system', 'poco_completion'       , $poco_completion);
+	Config::set('system', 'poco_requery_days'     , $poco_requery_days);
+	Config::set('system', 'poco_discovery'        , $poco_discovery);
+	Config::set('system', 'poco_discovery_since'  , $poco_discovery_since);
+	Config::set('system', 'poco_local_search'     , $poco_local_search);
+	Config::set('system', 'nodeinfo'              , $nodeinfo);
+	Config::set('config', 'sitename'              , $sitename);
+	Config::set('config', 'hostname'              , $hostname);
+	Config::set('config', 'sender_email'          , $sender_email);
+	Config::set('system', 'suppress_tags'         , $suppress_tags);
+	Config::set('system', 'shortcut_icon'         , $shortcut_icon);
+	Config::set('system', 'touch_icon'            , $touch_icon);
 
 	if ($banner == "") {
 		Config::delete('system', 'banner');
@@ -1261,49 +1263,49 @@ function admin_page_site_post(App $a)
 	} else {
 		Config::set('system', 'singleuser', $singleuser);
 	}
-	Config::set('system', 'maximagesize', $maximagesize);
-	Config::set('system', 'max_image_length', $maximagelength);
-	Config::set('system', 'jpeg_quality', $jpegimagequality);
+	Config::set('system', 'maximagesize'           , $maximagesize);
+	Config::set('system', 'max_image_length'       , $maximagelength);
+	Config::set('system', 'jpeg_quality'           , $jpegimagequality);
 
-	Config::set('config', 'register_policy', $register_policy);
+	Config::set('config', 'register_policy'        , $register_policy);
 	Config::set('system', 'max_daily_registrations', $daily_registrations);
-	Config::set('system', 'account_abandon_days', $abandon_days);
-	Config::set('config', 'register_text', $register_text);
-	Config::set('system', 'allowed_sites', $allowed_sites);
-	Config::set('system', 'allowed_email', $allowed_email);
-	Config::set('system', 'forbidden_nicknames', $forbidden_nicknames);
-	Config::set('system', 'no_oembed_rich_content', $no_oembed_rich_content);
-	Config::set('system', 'allowed_oembed', $allowed_oembed);
-	Config::set('system', 'block_public', $block_public);
-	Config::set('system', 'publish_all', $force_publish);
-	Config::set('system', 'newuser_private', $newuser_private);
-	Config::set('system', 'enotify_no_content', $enotify_no_content);
-	Config::set('system', 'disable_embedded', $disable_embedded);
+	Config::set('system', 'account_abandon_days'   , $abandon_days);
+	Config::set('config', 'register_text'          , $register_text);
+	Config::set('system', 'allowed_sites'          , $allowed_sites);
+	Config::set('system', 'allowed_email'          , $allowed_email);
+	Config::set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
+	Config::set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
+	Config::set('system', 'allowed_oembed'         , $allowed_oembed);
+	Config::set('system', 'block_public'           , $block_public);
+	Config::set('system', 'publish_all'            , $force_publish);
+	Config::set('system', 'newuser_private'        , $newuser_private);
+	Config::set('system', 'enotify_no_content'     , $enotify_no_content);
+	Config::set('system', 'disable_embedded'       , $disable_embedded);
 	Config::set('system', 'allow_users_remote_self', $allow_users_remote_self);
-	Config::set('system', 'explicit_content', $explicit_content);
-	Config::set('system', 'check_new_version_url', $check_new_version_url);
+	Config::set('system', 'explicit_content'       , $explicit_content);
+	Config::set('system', 'check_new_version_url'  , $check_new_version_url);
 
 	Config::set('system', 'block_extended_register', $no_multi_reg);
-	Config::set('system', 'no_openid', $no_openid);
-	Config::set('system', 'no_regfullname', $no_regfullname);
-	Config::set('system', 'community_page_style', $community_page_style);
+	Config::set('system', 'no_openid'              , $no_openid);
+	Config::set('system', 'no_regfullname'         , $no_regfullname);
+	Config::set('system', 'community_page_style'   , $community_page_style);
 	Config::set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
-	Config::set('system', 'verifyssl', $verifyssl);
-	Config::set('system', 'proxyuser', $proxyuser);
-	Config::set('system', 'proxy', $proxy);
-	Config::set('system', 'curl_timeout', $timeout);
-	Config::set('system', 'dfrn_only', $dfrn_only);
-	Config::set('system', 'ostatus_disabled', $ostatus_disabled);
-	Config::set('system', 'ostatus_full_threads', $ostatus_full_threads);
-	Config::set('system', 'diaspora_enabled', $diaspora_enabled);
+	Config::set('system', 'verifyssl'              , $verifyssl);
+	Config::set('system', 'proxyuser'              , $proxyuser);
+	Config::set('system', 'proxy'                  , $proxy);
+	Config::set('system', 'curl_timeout'           , $timeout);
+	Config::set('system', 'dfrn_only'              , $dfrn_only);
+	Config::set('system', 'ostatus_disabled'       , $ostatus_disabled);
+	Config::set('system', 'ostatus_full_threads'   , $ostatus_full_threads);
+	Config::set('system', 'diaspora_enabled'       , $diaspora_enabled);
 
-	Config::set('config', 'private_addons', $private_addons);
+	Config::set('config', 'private_addons'         , $private_addons);
 
-	Config::set('system', 'force_ssl', $force_ssl);
-	Config::set('system', 'hide_help', $hide_help);
+	Config::set('system', 'force_ssl'              , $force_ssl);
+	Config::set('system', 'hide_help'              , $hide_help);
 
-	Config::set('system', 'dbclean', $dbclean);
-	Config::set('system', 'dbclean-expire-days', $dbclean_expire_days);
+	Config::set('system', 'dbclean'                , $dbclean);
+	Config::set('system', 'dbclean-expire-days'    , $dbclean_expire_days);
 	Config::set('system', 'dbclean_expire_conversation', $dbclean_expire_conv);
 
 	if ($dbclean_unclaimed == 0) {
@@ -1330,23 +1332,23 @@ function admin_page_site_post(App $a)
 		$basepath = App::getRealPath($basepath);
 	}
 
-	Config::set('system', 'basepath', $basepath);
-	Config::set('system', 'proxy_disabled', $proxy_disabled);
-	Config::set('system', 'only_tag_search', $only_tag_search);
+	Config::set('system', 'basepath'         , $basepath);
+	Config::set('system', 'proxy_disabled'   , $proxy_disabled);
+	Config::set('system', 'only_tag_search'  , $only_tag_search);
 
-	Config::set('system', 'worker_queues', $worker_queues);
-	Config::set('system', 'worker_dont_fork', $worker_dont_fork);
-	Config::set('system', 'worker_fastlane', $worker_fastlane);
-	Config::set('system', 'frontend_worker', $worker_frontend);
+	Config::set('system', 'worker_queues'    , $worker_queues);
+	Config::set('system', 'worker_dont_fork' , $worker_dont_fork);
+	Config::set('system', 'worker_fastlane'  , $worker_fastlane);
+	Config::set('system', 'frontend_worker'  , $worker_frontend);
 
-	Config::set('system', 'relay_directly', $relay_directly);
-	Config::set('system', 'relay_server', $relay_server);
-	Config::set('system', 'relay_subscribe', $relay_subscribe);
-	Config::set('system', 'relay_scope', $relay_scope);
+	Config::set('system', 'relay_directly'   , $relay_directly);
+	Config::set('system', 'relay_server'     , $relay_server);
+	Config::set('system', 'relay_subscribe'  , $relay_subscribe);
+	Config::set('system', 'relay_scope'      , $relay_scope);
 	Config::set('system', 'relay_server_tags', $relay_server_tags);
-	Config::set('system', 'relay_user_tags', $relay_user_tags);
+	Config::set('system', 'relay_user_tags'  , $relay_user_tags);
 
-	Config::set('system', 'rino_encrypt', $rino);
+	Config::set('system', 'rino_encrypt'     , $rino);
 
 	info(L10n::t('Site settings updated.') . EOL);
 
@@ -1484,120 +1486,121 @@ function admin_page_site(App $a)
 
 	$t = Renderer::getMarkupTemplate('admin/site.tpl');
 	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('Site'),
-		'$submit' => L10n::t('Save Settings'),
-		'$republish' => L10n::t('Republish users to directory'),
-		'$registration' => L10n::t('Registration'),
-		'$upload' => L10n::t('File upload'),
-		'$corporate' => L10n::t('Policies'),
-		'$advanced' => L10n::t('Advanced'),
+		'$title'             => L10n::t('Administration'),
+		'$page'              => L10n::t('Site'),
+		'$submit'            => L10n::t('Save Settings'),
+		'$republish'         => L10n::t('Republish users to directory'),
+		'$registration'      => L10n::t('Registration'),
+		'$upload'            => L10n::t('File upload'),
+		'$corporate'         => L10n::t('Policies'),
+		'$advanced'          => L10n::t('Advanced'),
 		'$portable_contacts' => L10n::t('Auto Discovered Contact Directory'),
-		'$performance' => L10n::t('Performance'),
-		'$worker_title' => L10n::t('Worker'),
-		'$relay_title' => L10n::t('Message Relay'),
-		'$relocate' => L10n::t('Relocate Instance'),
-		'$relocate_warning' => L10n::t('Warning! Advanced function. Could make this server unreachable.'),
-		'$baseurl' => System::baseUrl(true),
+		'$performance'       => L10n::t('Performance'),
+		'$worker_title'      => L10n::t('Worker'),
+		'$relay_title'       => L10n::t('Message Relay'),
+		'$relocate'          => L10n::t('Relocate Instance'),
+		'$relocate_warning'  => L10n::t('Warning! Advanced function. Could make this server unreachable.'),
+		'$baseurl'           => System::baseUrl(true),
+
 		// name, label, value, help string, extra data...
-		'$sitename' 		=> ['sitename', L10n::t("Site name"), Config::get('config', 'sitename'),''],
-		'$hostname' 		=> ['hostname', L10n::t("Host name"), Config::get('config', 'hostname'), ""],
-		'$sender_email'		=> ['sender_email', L10n::t("Sender Email"), Config::get('config', 'sender_email'), L10n::t("The email address your server shall use to send notification emails from."), "", "", "email"],
-		'$banner'		=> ['banner', L10n::t("Banner/Logo"), $banner, ""],
-		'$shortcut_icon'	=> ['shortcut_icon', L10n::t("Shortcut icon"), Config::get('system','shortcut_icon'),  L10n::t("Link to an icon that will be used for browsers.")],
-		'$touch_icon'		=> ['touch_icon', L10n::t("Touch icon"), Config::get('system','touch_icon'),  L10n::t("Link to an icon that will be used for tablets and mobiles.")],
-		'$info'			=> ['info', L10n::t('Additional Info'), $info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
-		'$language' 		=> ['language', L10n::t("System language"), Config::get('system','language'), "", $lang_choices],
-		'$theme' 		=> ['theme', L10n::t("System theme"), Config::get('system','theme'), L10n::t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices],
-		'$theme_mobile' 	=> ['theme_mobile', L10n::t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), L10n::t("Theme for mobile devices"), $theme_choices_mobile],
-		'$ssl_policy'		=> ['ssl_policy', L10n::t("SSL link policy"), (string) intval(Config::get('system','ssl_policy')), L10n::t("Determines whether generated links should be forced to use SSL"), $ssl_choices],
-		'$force_ssl'		=> ['force_ssl', L10n::t("Force SSL"), Config::get('system','force_ssl'), L10n::t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")],
-		'$hide_help'		=> ['hide_help', L10n::t("Hide help entry from navigation menu"), Config::get('system','hide_help'), L10n::t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")],
-		'$singleuser' 		=> ['singleuser', L10n::t("Single user instance"), Config::get('system', 'singleuser', '---'), L10n::t("Make this instance multi-user or single-user for the named user"), $user_names],
-		'$maximagesize'		=> ['maximagesize', L10n::t("Maximum image size"), Config::get('system','maximagesize'), L10n::t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")],
-		'$maximagelength'	=> ['maximagelength', L10n::t("Maximum image length"), Config::get('system','max_image_length'), L10n::t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
-		'$jpegimagequality'	=> ['jpegimagequality', L10n::t("JPEG image quality"), Config::get('system','jpeg_quality'), L10n::t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")],
+		'$sitename'         => ['sitename', L10n::t("Site name"), Config::get('config', 'sitename'), ''],
+		'$hostname'         => ['hostname', L10n::t("Host name"), Config::get('config', 'hostname'), ""],
+		'$sender_email'     => ['sender_email', L10n::t("Sender Email"), Config::get('config', 'sender_email'), L10n::t("The email address your server shall use to send notification emails from."), "", "", "email"],
+		'$banner'           => ['banner', L10n::t("Banner/Logo"), $banner, ""],
+		'$shortcut_icon'    => ['shortcut_icon', L10n::t("Shortcut icon"), Config::get('system', 'shortcut_icon'), L10n::t("Link to an icon that will be used for browsers.")],
+		'$touch_icon'       => ['touch_icon', L10n::t("Touch icon"), Config::get('system', 'touch_icon'), L10n::t("Link to an icon that will be used for tablets and mobiles.")],
+		'$info'             => ['info', L10n::t('Additional Info'), $info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
+		'$language'         => ['language', L10n::t("System language"), Config::get('system', 'language'), "", $lang_choices],
+		'$theme'            => ['theme', L10n::t("System theme"), Config::get('system', 'theme'), L10n::t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices],
+		'$theme_mobile'     => ['theme_mobile', L10n::t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), L10n::t("Theme for mobile devices"), $theme_choices_mobile],
+		'$ssl_policy'       => ['ssl_policy', L10n::t("SSL link policy"), (string)intval(Config::get('system', 'ssl_policy')), L10n::t("Determines whether generated links should be forced to use SSL"), $ssl_choices],
+		'$force_ssl'        => ['force_ssl', L10n::t("Force SSL"), Config::get('system', 'force_ssl'), L10n::t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")],
+		'$hide_help'        => ['hide_help', L10n::t("Hide help entry from navigation menu"), Config::get('system', 'hide_help'), L10n::t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")],
+		'$singleuser'       => ['singleuser', L10n::t("Single user instance"), Config::get('system', 'singleuser', '---'), L10n::t("Make this instance multi-user or single-user for the named user"), $user_names],
+		'$maximagesize'     => ['maximagesize', L10n::t("Maximum image size"), Config::get('system', 'maximagesize'), L10n::t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")],
+		'$maximagelength'   => ['maximagelength', L10n::t("Maximum image length"), Config::get('system', 'max_image_length'), L10n::t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
+		'$jpegimagequality' => ['jpegimagequality', L10n::t("JPEG image quality"), Config::get('system', 'jpeg_quality'), L10n::t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")],
 
-		'$register_policy'	=> ['register_policy', L10n::t("Register policy"), Config::get('config', 'register_policy'), "", $register_choices],
-		'$daily_registrations'	=> ['max_daily_registrations', L10n::t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), L10n::t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
-		'$register_text'	=> ['register_text', L10n::t("Register text"), Config::get('config', 'register_text'), L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
-		'$forbidden_nicknames' => ['forbidden_nicknames', L10n::t('Forbidden Nicknames'), Config::get('system', 'forbidden_nicknames'), L10n::t('Comma separated list of nicknames that are forbidden from registration. Preset is a list of role names according RFC 2142.')],
-		'$abandon_days'		=> ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system','account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
-		'$allowed_sites'	=> ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system','allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
-		'$allowed_email'	=> ['allowed_email', L10n::t("Allowed email domains"), Config::get('system','allowed_email'), L10n::t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
-		'$no_oembed_rich_content' => ['no_oembed_rich_content', L10n::t("No OEmbed rich content"), Config::get('system','no_oembed_rich_content'), L10n::t("Don't show the rich content \x28e.g. embedded PDF\x29, except from the domains listed below.")],
-		'$allowed_oembed'	=> ['allowed_oembed', L10n::t("Allowed OEmbed domains"), Config::get('system','allowed_oembed'), L10n::t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")],
-		'$block_public'		=> ['block_public', L10n::t("Block public"), Config::get('system','block_public'), L10n::t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")],
-		'$force_publish'	=> ['publish_all', L10n::t("Force publish"), Config::get('system','publish_all'), L10n::t("Check to force all profiles on this site to be listed in the site directory.") . '<strong>' . L10n::t('Enabling this may violate privacy laws like the GDPR') . '</strong>'],
-		'$global_directory'	=> ['directory', L10n::t("Global directory URL"), Config::get('system', 'directory', 'https://dir.friendica.social'), L10n::t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")],
-		'$newuser_private'	=> ['newuser_private', L10n::t("Private posts by default for new users"), Config::get('system','newuser_private'), L10n::t("Set default post permissions for all new members to the default privacy group rather than public.")],
-		'$enotify_no_content'	=> ['enotify_no_content', L10n::t("Don't include post content in email notifications"), Config::get('system','enotify_no_content'), L10n::t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")],
-		'$private_addons'	=> ['private_addons', L10n::t("Disallow public access to addons listed in the apps menu."), Config::get('config','private_addons'), L10n::t("Checking this box will restrict addons listed in the apps menu to members only.")],
-		'$disable_embedded'	=> ['disable_embedded', L10n::t("Don't embed private images in posts"), Config::get('system','disable_embedded'), L10n::t("Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.")],
-		'$explicit_content' => ['explicit_content', L10n::t('Explicit Content'), Config::get('system', 'explicit_content', False), L10n::t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
-		'$allow_users_remote_self' => ['allow_users_remote_self', L10n::t('Allow Users to set remote_self'), Config::get('system','allow_users_remote_self'), L10n::t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
-		'$no_multi_reg'		=> ['no_multi_reg', L10n::t("Block multiple registrations"),  Config::get('system','block_extended_register'), L10n::t("Disallow users to register additional accounts for use as pages.")],
-		'$no_openid'		=> ['no_openid', L10n::t("OpenID support"), !Config::get('system','no_openid'), L10n::t("OpenID support for registration and logins.")],
-		'$no_regfullname'	=> ['no_regfullname', L10n::t("Fullname check"), !Config::get('system','no_regfullname'), L10n::t("Force users to register with a space between firstname and lastname in Full name, as an antispam measure")],
-		'$community_page_style' => ['community_page_style', L10n::t("Community pages for visitors"), Config::get('system','community_page_style'), L10n::t("Which community pages should be available for visitors. Local users always see both pages."), $community_page_style_choices],
-		'$max_author_posts_community_page' => ['max_author_posts_community_page', L10n::t("Posts per user on community page"), Config::get('system','max_author_posts_community_page'), L10n::t("The maximum number of posts per user on the community page. \x28Not valid for 'Global Community'\x29")],
-		'$ostatus_disabled' 	=> ['ostatus_disabled', L10n::t("Enable OStatus support"), !Config::get('system','ostatus_disabled'), L10n::t("Provide built-in OStatus \x28StatusNet, GNU Social etc.\x29 compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")],
-		'$ostatus_full_threads'	=> ['ostatus_full_threads', L10n::t("Only import OStatus/ActivityPub threads from our contacts"), Config::get('system','ostatus_full_threads'), L10n::t("Normally we import every content from our OStatus and ActivityPub contacts. With this option we only store threads that are started by a contact that is known on our system.")],
-		'$ostatus_not_able'	=> L10n::t("OStatus support can only be enabled if threading is enabled."),
-		'$diaspora_able'	=> $diaspora_able,
-		'$diaspora_not_able'	=> L10n::t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
-		'$diaspora_enabled'	=> ['diaspora_enabled', L10n::t("Enable Diaspora support"), Config::get('system', 'diaspora_enabled', $diaspora_able), L10n::t("Provide built-in Diaspora network compatibility.")],
-		'$dfrn_only'		=> ['dfrn_only', L10n::t('Only allow Friendica contacts'), Config::get('system','dfrn_only'), L10n::t("All contacts must use Friendica protocols. All other built-in communication protocols disabled.")],
-		'$verifyssl' 		=> ['verifyssl', L10n::t("Verify SSL"), Config::get('system','verifyssl'), L10n::t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect \x28at all\x29 to self-signed SSL sites.")],
-		'$proxyuser'		=> ['proxyuser', L10n::t("Proxy user"), Config::get('system','proxyuser'), ""],
-		'$proxy'		=> ['proxy', L10n::t("Proxy URL"), Config::get('system','proxy'), ""],
-		'$timeout'		=> ['timeout', L10n::t("Network timeout"), Config::get('system', 'curl_timeout', 60), L10n::t("Value is in seconds. Set to 0 for unlimited \x28not recommended\x29.")],
-		'$maxloadavg'		=> ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
-		'$maxloadavg_frontend'	=> ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), Config::get('system', 'maxloadavg_frontend', 50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
-		'$min_memory'		=> ['min_memory', L10n::t("Minimal Memory"), Config::get('system', 'min_memory', 0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
-		'$optimize_max_tablesize'=> ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization. Enter -1 to disable it.")],
-		'$optimize_fragmentation'=> ['optimize_fragmentation', L10n::t("Minimum level of fragmentation"), Config::get('system', 'optimize_fragmentation', 30), L10n::t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")],
+		'$register_policy'        => ['register_policy', L10n::t("Register policy"), Config::get('config', 'register_policy'), "", $register_choices],
+		'$daily_registrations'    => ['max_daily_registrations', L10n::t("Maximum Daily Registrations"), Config::get('system', 'max_daily_registrations'), L10n::t("If registration is permitted above, this sets the maximum number of new user registrations to accept per day.  If register is set to closed, this setting has no effect.")],
+		'$register_text'          => ['register_text', L10n::t("Register text"), Config::get('config', 'register_text'), L10n::t("Will be displayed prominently on the registration page. You can use BBCode here.")],
+		'$forbidden_nicknames'    => ['forbidden_nicknames', L10n::t('Forbidden Nicknames'), Config::get('system', 'forbidden_nicknames'), L10n::t('Comma separated list of nicknames that are forbidden from registration. Preset is a list of role names according RFC 2142.')],
+		'$abandon_days'           => ['abandon_days', L10n::t('Accounts abandoned after x days'), Config::get('system', 'account_abandon_days'), L10n::t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
+		'$allowed_sites'          => ['allowed_sites', L10n::t("Allowed friend domains"), Config::get('system', 'allowed_sites'), L10n::t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")],
+		'$allowed_email'          => ['allowed_email', L10n::t("Allowed email domains"), Config::get('system', 'allowed_email'), L10n::t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")],
+		'$no_oembed_rich_content' => ['no_oembed_rich_content', L10n::t("No OEmbed rich content"), Config::get('system', 'no_oembed_rich_content'), L10n::t("Don't show the rich content \x28e.g. embedded PDF\x29, except from the domains listed below.")],
+		'$allowed_oembed'         => ['allowed_oembed', L10n::t("Allowed OEmbed domains"), Config::get('system', 'allowed_oembed'), L10n::t("Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.")],
+		'$block_public'           => ['block_public', L10n::t("Block public"), Config::get('system', 'block_public'), L10n::t("Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.")],
+		'$force_publish'          => ['publish_all', L10n::t("Force publish"), Config::get('system', 'publish_all'), L10n::t("Check to force all profiles on this site to be listed in the site directory.") . '<strong>' . L10n::t('Enabling this may violate privacy laws like the GDPR') . '</strong>'],
+		'$global_directory'       => ['directory', L10n::t("Global directory URL"), Config::get('system', 'directory', 'https://dir.friendica.social'), L10n::t("URL to the global directory. If this is not set, the global directory is completely unavailable to the application.")],
+		'$newuser_private'        => ['newuser_private', L10n::t("Private posts by default for new users"), Config::get('system', 'newuser_private'), L10n::t("Set default post permissions for all new members to the default privacy group rather than public.")],
+		'$enotify_no_content'     => ['enotify_no_content', L10n::t("Don't include post content in email notifications"), Config::get('system', 'enotify_no_content'), L10n::t("Don't include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.")],
+		'$private_addons'         => ['private_addons', L10n::t("Disallow public access to addons listed in the apps menu."), Config::get('config', 'private_addons'), L10n::t("Checking this box will restrict addons listed in the apps menu to members only.")],
+		'$disable_embedded'       => ['disable_embedded', L10n::t("Don't embed private images in posts"), Config::get('system', 'disable_embedded'), L10n::t("Don't replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.")],
+		'$explicit_content'       => ['explicit_content', L10n::t('Explicit Content'), Config::get('system', 'explicit_content', false), L10n::t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
+		'$allow_users_remote_self'=> ['allow_users_remote_self', L10n::t('Allow Users to set remote_self'), Config::get('system', 'allow_users_remote_self'), L10n::t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
+		'$no_multi_reg'           => ['no_multi_reg', L10n::t("Block multiple registrations"), Config::get('system', 'block_extended_register'), L10n::t("Disallow users to register additional accounts for use as pages.")],
+		'$no_openid'              => ['no_openid', L10n::t("Disable OpenID"), Config::get('system', 'no_openid'), L10n::t("Disable OpenID support for registration and logins.")],
+		'$no_regfullname'         => ['no_regfullname', L10n::t("No Fullname check"), Config::get('system', 'no_regfullname'), L10n::t("Allow users to register without a space between the first name and the last name in their full name.")],
+		'$community_page_style'   => ['community_page_style', L10n::t("Community pages for visitors"), Config::get('system', 'community_page_style'), L10n::t("Which community pages should be available for visitors. Local users always see both pages."), $community_page_style_choices],
+		'$max_author_posts_community_page' => ['max_author_posts_community_page', L10n::t("Posts per user on community page"), Config::get('system', 'max_author_posts_community_page'), L10n::t("The maximum number of posts per user on the community page. \x28Not valid for 'Global Community'\x29")],
+		'$ostatus_disabled'       => ['ostatus_disabled', L10n::t("Disable OStatus support"), Config::get('system', 'ostatus_disabled'), L10n::t("Disable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.")],
+		'$ostatus_full_threads'   => ['ostatus_full_threads', L10n::t("Only import OStatus/ActivityPub threads from our contacts"), Config::get('system', 'ostatus_full_threads'), L10n::t("Normally we import every content from our OStatus and ActivityPub contacts. With this option we only store threads that are started by a contact that is known on our system.")],
+		'$ostatus_not_able'       => L10n::t("OStatus support can only be enabled if threading is enabled."),
+		'$diaspora_able'          => $diaspora_able,
+		'$diaspora_not_able'      => L10n::t("Diaspora support can't be enabled because Friendica was installed into a sub directory."),
+		'$diaspora_enabled'       => ['diaspora_enabled', L10n::t("Enable Diaspora support"), Config::get('system', 'diaspora_enabled', $diaspora_able), L10n::t("Provide built-in Diaspora network compatibility.")],
+		'$dfrn_only'              => ['dfrn_only', L10n::t('Only allow Friendica contacts'), Config::get('system', 'dfrn_only'), L10n::t("All contacts must use Friendica protocols. All other built-in communication protocols disabled.")],
+		'$verifyssl'              => ['verifyssl', L10n::t("Verify SSL"), Config::get('system', 'verifyssl'), L10n::t("If you wish, you can turn on strict certificate checking. This will mean you cannot connect \x28at all\x29 to self-signed SSL sites.")],
+		'$proxyuser'              => ['proxyuser', L10n::t("Proxy user"), Config::get('system', 'proxyuser'), ""],
+		'$proxy'                  => ['proxy', L10n::t("Proxy URL"), Config::get('system', 'proxy'), ""],
+		'$timeout'                => ['timeout', L10n::t("Network timeout"), Config::get('system', 'curl_timeout', 60), L10n::t("Value is in seconds. Set to 0 for unlimited \x28not recommended\x29.")],
+		'$maxloadavg'             => ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
+		'$maxloadavg_frontend'    => ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), Config::get('system', 'maxloadavg_frontend', 50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
+		'$min_memory'             => ['min_memory', L10n::t("Minimal Memory"), Config::get('system', 'min_memory', 0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
+		'$optimize_max_tablesize' => ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization. Enter -1 to disable it.")],
+		'$optimize_fragmentation' => ['optimize_fragmentation', L10n::t("Minimum level of fragmentation"), Config::get('system', 'optimize_fragmentation', 30), L10n::t("Minimum fragmenation level to start the automatic optimization - default value is 30%.")],
 
-		'$poco_completion'	=> ['poco_completion', L10n::t("Periodical check of global contacts"), Config::get('system','poco_completion'), L10n::t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
-		'$poco_requery_days'	=> ['poco_requery_days', L10n::t("Days between requery"), Config::get('system','poco_requery_days'), L10n::t("Number of days after which a server is requeried for his contacts.")],
-		'$poco_discovery'	=> ['poco_discovery', L10n::t("Discover contacts from other servers"), (string) intval(Config::get('system','poco_discovery')), L10n::t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommened setting is 'Users, Global Contacts'."), $poco_discovery_choices],
-		'$poco_discovery_since'	=> ['poco_discovery_since', L10n::t("Timeframe for fetching global contacts"), (string) intval(Config::get('system','poco_discovery_since')), L10n::t("When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers."), $poco_discovery_since_choices],
-		'$poco_local_search'	=> ['poco_local_search', L10n::t("Search the local directory"), Config::get('system','poco_local_search'), L10n::t("Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.")],
+		'$poco_completion'        => ['poco_completion', L10n::t("Periodical check of global contacts"), Config::get('system', 'poco_completion'), L10n::t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
+		'$poco_requery_days'      => ['poco_requery_days', L10n::t("Days between requery"), Config::get('system', 'poco_requery_days'), L10n::t("Number of days after which a server is requeried for his contacts.")],
+		'$poco_discovery'         => ['poco_discovery', L10n::t("Discover contacts from other servers"), (string)intval(Config::get('system', 'poco_discovery')), L10n::t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommened setting is 'Users, Global Contacts'."), $poco_discovery_choices],
+		'$poco_discovery_since'   => ['poco_discovery_since', L10n::t("Timeframe for fetching global contacts"), (string)intval(Config::get('system', 'poco_discovery_since')), L10n::t("When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers."), $poco_discovery_since_choices],
+		'$poco_local_search'      => ['poco_local_search', L10n::t("Search the local directory"), Config::get('system', 'poco_local_search'), L10n::t("Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.")],
 
-		'$nodeinfo'		=> ['nodeinfo', L10n::t("Publish server information"), Config::get('system','nodeinfo'), L10n::t("If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href='http://the-federation.info/'>the-federation.info</a> for details.")],
+		'$nodeinfo'               => ['nodeinfo', L10n::t("Publish server information"), Config::get('system', 'nodeinfo'), L10n::t("If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href='http://the-federation.info/'>the-federation.info</a> for details.")],
 
-		'$check_new_version_url' => ['check_new_version_url', L10n::t("Check upstream version"), Config::get('system', 'check_new_version_url'), L10n::t("Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview."), $check_git_version_choices],
-		'$suppress_tags'	=> ['suppress_tags', L10n::t("Suppress Tags"), Config::get('system','suppress_tags'), L10n::t("Suppress showing a list of hashtags at the end of the posting.")],
-		'$dbclean'		=> ['dbclean', L10n::t("Clean database"), Config::get('system','dbclean', false), L10n::t("Remove old remote items, orphaned database records and old content from some other helper tables.")],
-		'$dbclean_expire_days' 	=> ['dbclean_expire_days', L10n::t("Lifespan of remote items"), Config::get('system','dbclean-expire-days', 0), L10n::t("When the database cleanup is enabled, this defines the days after which remote items will be deleted. Own items, and marked or filed items are always kept. 0 disables this behaviour.")],
-		'$dbclean_unclaimed' 	=> ['dbclean_unclaimed', L10n::t("Lifespan of unclaimed items"), Config::get('system','dbclean-expire-unclaimed', 90), L10n::t("When the database cleanup is enabled, this defines the days after which unclaimed remote items (mostly content from the relay) will be deleted. Default value is 90 days. Defaults to the general lifespan value of remote items if set to 0.")],
-		'$dbclean_expire_conv' 	=> ['dbclean_expire_conv', L10n::t("Lifespan of raw conversation data"), Config::get('system','dbclean_expire_conversation', 90), L10n::t("The conversation data is used for ActivityPub and OStatus, as well as for debug purposes. It should be safe to remove it after 14 days, default is 90 days.")],
-		'$itemcache'		=> ['itemcache', L10n::t("Path to item cache"), Config::get('system','itemcache'), L10n::t("The item caches buffers generated bbcode and external images.")],
-		'$itemcache_duration' 	=> ['itemcache_duration', L10n::t("Cache duration in seconds"), Config::get('system','itemcache_duration'), L10n::t("How long should the cache files be hold? Default value is 86400 seconds \x28One day\x29. To disable the item cache, set the value to -1.")],
-		'$max_comments' 	=> ['max_comments', L10n::t("Maximum numbers of comments per post"), Config::get('system','max_comments'), L10n::t("How much comments should be shown for each post? Default value is 100.")],
-		'$temppath'		=> ['temppath', L10n::t("Temp path"), Config::get('system','temppath'), L10n::t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")],
-		'$basepath'		=> ['basepath', L10n::t("Base path to installation"), Config::get('system','basepath'), L10n::t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")],
-		'$proxy_disabled'	=> ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system','proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth.")],
-		'$only_tag_search'	=> ['only_tag_search', L10n::t("Only search in tags"), Config::get('system','only_tag_search'), L10n::t("On large systems the text search can slow down the system extremely.")],
+		'$check_new_version_url'  => ['check_new_version_url', L10n::t("Check upstream version"), Config::get('system', 'check_new_version_url'), L10n::t("Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview."), $check_git_version_choices],
+		'$suppress_tags'          => ['suppress_tags', L10n::t("Suppress Tags"), Config::get('system', 'suppress_tags'), L10n::t("Suppress showing a list of hashtags at the end of the posting.")],
+		'$dbclean'                => ['dbclean', L10n::t("Clean database"), Config::get('system', 'dbclean', false), L10n::t("Remove old remote items, orphaned database records and old content from some other helper tables.")],
+		'$dbclean_expire_days'    => ['dbclean_expire_days', L10n::t("Lifespan of remote items"), Config::get('system', 'dbclean-expire-days', 0), L10n::t("When the database cleanup is enabled, this defines the days after which remote items will be deleted. Own items, and marked or filed items are always kept. 0 disables this behaviour.")],
+		'$dbclean_unclaimed'      => ['dbclean_unclaimed', L10n::t("Lifespan of unclaimed items"), Config::get('system', 'dbclean-expire-unclaimed', 90), L10n::t("When the database cleanup is enabled, this defines the days after which unclaimed remote items (mostly content from the relay) will be deleted. Default value is 90 days. Defaults to the general lifespan value of remote items if set to 0.")],
+		'$dbclean_expire_conv'    => ['dbclean_expire_conv', L10n::t("Lifespan of raw conversation data"), Config::get('system', 'dbclean_expire_conversation', 90), L10n::t("The conversation data is used for ActivityPub and OStatus, as well as for debug purposes. It should be safe to remove it after 14 days, default is 90 days.")],
+		'$itemcache'              => ['itemcache', L10n::t("Path to item cache"), Config::get('system', 'itemcache'), L10n::t("The item caches buffers generated bbcode and external images.")],
+		'$itemcache_duration'     => ['itemcache_duration', L10n::t("Cache duration in seconds"), Config::get('system', 'itemcache_duration'), L10n::t("How long should the cache files be hold? Default value is 86400 seconds \x28One day\x29. To disable the item cache, set the value to -1.")],
+		'$max_comments'           => ['max_comments', L10n::t("Maximum numbers of comments per post"), Config::get('system', 'max_comments'), L10n::t("How much comments should be shown for each post? Default value is 100.")],
+		'$temppath'               => ['temppath', L10n::t("Temp path"), Config::get('system', 'temppath'), L10n::t("If you have a restricted system where the webserver can't access the system temp path, enter another path here.")],
+		'$basepath'               => ['basepath', L10n::t("Base path to installation"), Config::get('system', 'basepath'), L10n::t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot.")],
+		'$proxy_disabled'         => ['proxy_disabled', L10n::t("Disable picture proxy"), Config::get('system', 'proxy_disabled'), L10n::t("The picture proxy increases performance and privacy. It shouldn't be used on systems with very low bandwidth.")],
+		'$only_tag_search'        => ['only_tag_search', L10n::t("Only search in tags"), Config::get('system', 'only_tag_search'), L10n::t("On large systems the text search can slow down the system extremely.")],
 
-		'$relocate_url'		=> ['relocate_url', L10n::t("New base url"), System::baseUrl(), L10n::t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],
+		'$relocate_url'           => ['relocate_url', L10n::t("New base url"), System::baseUrl(), L10n::t("Change base url for this server. Sends relocate message to all Friendica and Diaspora* contacts of all users.")],
 
-		'$rino' 		=> ['rino', L10n::t("RINO Encryption"), intval(Config::get('system','rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => L10n::t("Disabled"), 1 => L10n::t("Enabled")]],
+		'$rino'                   => ['rino', L10n::t("RINO Encryption"), intval(Config::get('system', 'rino_encrypt')), L10n::t("Encryption layer between nodes."), [0 => L10n::t("Disabled"), 1 => L10n::t("Enabled")]],
 
-		'$worker_queues' 	=> ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system','worker_queues'), L10n::t("On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.", 5, 20, 10)],
-		'$worker_dont_fork'	=> ['worker_dont_fork', L10n::t("Don't use 'proc_open' with the worker"), Config::get('system','worker_dont_fork'), L10n::t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
-		'$worker_fastlane'	=> ['worker_fastlane', L10n::t("Enable fastlane"), Config::get('system','worker_fastlane'), L10n::t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
-		'$worker_frontend'	=> ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system','frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed \x28e.g. messages being delivered\x29. On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
+		'$worker_queues'          => ['worker_queues', L10n::t("Maximum number of parallel workers"), Config::get('system', 'worker_queues'), L10n::t("On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.", 5, 20, 10)],
+		'$worker_dont_fork'       => ['worker_dont_fork', L10n::t("Don't use 'proc_open' with the worker"), Config::get('system', 'worker_dont_fork'), L10n::t("Enable this if your system doesn't allow the use of 'proc_open'. This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.")],
+		'$worker_fastlane'        => ['worker_fastlane', L10n::t("Enable fastlane"), Config::get('system', 'worker_fastlane'), L10n::t("When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.")],
+		'$worker_frontend'        => ['worker_frontend', L10n::t('Enable frontend worker'), Config::get('system', 'frontend_worker'), L10n::t('When enabled the Worker process is triggered when backend access is performed \x28e.g. messages being delivered\x29. On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', System::baseUrl())],
 
-		'$relay_subscribe' 	=> ['relay_subscribe', L10n::t("Subscribe to relay"), Config::get('system','relay_subscribe'), L10n::t("Enables the receiving of public posts from the relay. They will be included in the search, subscribed tags and on the global community page.")],
-		'$relay_server'		=> ['relay_server', L10n::t("Relay server"), Config::get('system', 'relay_server', 'https://relay.diasp.org'), L10n::t("Address of the relay server where public posts should be send to. For example https://relay.diasp.org")],
-		'$relay_directly'	=> ['relay_directly', L10n::t("Direct relay transfer"), Config::get('system','relay_directly'), L10n::t("Enables the direct transfer to other servers without using the relay servers")],
-		'$relay_scope'		=> ['relay_scope', L10n::t("Relay scope"), Config::get('system','relay_scope'), L10n::t("Can be 'all' or 'tags'. 'all' means that every public post should be received. 'tags' means that only posts with selected tags should be received."), ['' => L10n::t('Disabled'), 'all' => L10n::t('all'), 'tags' => L10n::t('tags')]],
-		'$relay_server_tags' 	=> ['relay_server_tags', L10n::t("Server tags"), Config::get('system','relay_server_tags'), L10n::t("Comma separated list of tags for the 'tags' subscription.")],
-		'$relay_user_tags' 	=> ['relay_user_tags', L10n::t("Allow user tags"), Config::get('system', 'relay_user_tags', true), L10n::t("If enabled, the tags from the saved searches will used for the 'tags' subscription in addition to the 'relay_server_tags'.")],
+		'$relay_subscribe'        => ['relay_subscribe', L10n::t("Subscribe to relay"), Config::get('system', 'relay_subscribe'), L10n::t("Enables the receiving of public posts from the relay. They will be included in the search, subscribed tags and on the global community page.")],
+		'$relay_server'           => ['relay_server', L10n::t("Relay server"), Config::get('system', 'relay_server', 'https://relay.diasp.org'), L10n::t("Address of the relay server where public posts should be send to. For example https://relay.diasp.org")],
+		'$relay_directly'         => ['relay_directly', L10n::t("Direct relay transfer"), Config::get('system', 'relay_directly'), L10n::t("Enables the direct transfer to other servers without using the relay servers")],
+		'$relay_scope'            => ['relay_scope', L10n::t("Relay scope"), Config::get('system', 'relay_scope'), L10n::t("Can be 'all' or 'tags'. 'all' means that every public post should be received. 'tags' means that only posts with selected tags should be received."), ['' => L10n::t('Disabled'), 'all' => L10n::t('all'), 'tags' => L10n::t('tags')]],
+		'$relay_server_tags'      => ['relay_server_tags', L10n::t("Server tags"), Config::get('system', 'relay_server_tags'), L10n::t("Comma separated list of tags for the 'tags' subscription.")],
+		'$relay_user_tags'        => ['relay_user_tags', L10n::t("Allow user tags"), Config::get('system', 'relay_user_tags', true), L10n::t("If enabled, the tags from the saved searches will used for the 'tags' subscription in addition to the 'relay_server_tags'.")],
 
-		'$form_security_token'	=> BaseModule::getFormSecurityToken("admin_site"),
-		'$relocate_button'      => L10n::t('Start Relocation'),
+		'$form_security_token'    => BaseModule::getFormSecurityToken("admin_site"),
+		'$relocate_button'        => L10n::t('Start Relocation'),
 	]);
 }
 
@@ -1774,14 +1777,14 @@ function admin_page_users_post(App $a)
 			'body'     => $body]);
 	}
 
-	if (x($_POST, 'page_users_block')) {
+	if (!empty($_POST['page_users_block'])) {
 		foreach ($users as $uid) {
 			q("UPDATE `user` SET `blocked` = 1-`blocked` WHERE `uid` = %s", intval($uid)
 			);
 		}
 		notice(L10n::tt("%s user blocked/unblocked", "%s users blocked/unblocked", count($users)));
 	}
-	if (x($_POST, 'page_users_delete')) {
+	if (!empty($_POST['page_users_delete'])) {
 		foreach ($users as $uid) {
 			if (local_user() != $uid) {
 				User::remove($uid);
@@ -1792,13 +1795,13 @@ function admin_page_users_post(App $a)
 		notice(L10n::tt("%s user deleted", "%s users deleted", count($users)));
 	}
 
-	if (x($_POST, 'page_users_approve')) {
+	if (!empty($_POST['page_users_approve'])) {
 		require_once "mod/regmod.php";
 		foreach ($pending as $hash) {
 			user_allow($hash);
 		}
 	}
-	if (x($_POST, 'page_users_deny')) {
+	if (!empty($_POST['page_users_deny'])) {
 		require_once "mod/regmod.php";
 		foreach ($pending as $hash) {
 			user_deny($hash);
@@ -1872,7 +1875,7 @@ function admin_page_users(App $a)
 
 	$order = "contact.name";
 	$order_direction = "+";
-	if (x($_GET, 'o')) {
+	if (!empty($_GET['o'])) {
 		$new_order = $_GET['o'];
 		if ($new_order[0] === "-") {
 			$order_direction = "-";
@@ -2098,7 +2101,7 @@ function admin_page_addons(App $a, array $addons_admin)
 	/*
 	 * List addons
 	 */
-	if (x($_GET, "a") && $_GET['a'] == "r") {
+	if (!empty($_GET['a']) && $_GET['a'] == "r") {
 		BaseModule::checkFormSecurityTokenRedirectOnError($a->getBaseURL() . '/admin/addons', 'admin_themes', 't');
 		Addon::reload();
 		info("Addons reloaded");
@@ -2147,14 +2150,14 @@ function admin_page_addons(App $a, array $addons_admin)
 }
 
 /**
- * @param array $themes
+ * @param array  $themes
  * @param string $th
- * @param int $result
+ * @param int    $result
  */
 function toggle_theme(&$themes, $th, &$result)
 {
 	$count = count($themes);
-	for ($x = 0; $x < $count; $x ++) {
+	for ($x = 0; $x < $count; $x++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				$themes[$x]['allowed'] = 0;
@@ -2168,14 +2171,14 @@ function toggle_theme(&$themes, $th, &$result)
 }
 
 /**
- * @param array $themes
+ * @param array  $themes
  * @param string $th
  * @return int
  */
 function theme_status($themes, $th)
 {
 	$count = count($themes);
-	for ($x = 0; $x < $count; $x ++) {
+	for ($x = 0; $x < $count; $x++) {
 		if ($themes[$x]['name'] === $th) {
 			if ($themes[$x]['allowed']) {
 				return 1;
@@ -2276,7 +2279,7 @@ function admin_page_themes(App $a)
 			return '';
 		}
 
-		if (x($_GET, "a") && $_GET['a'] == "t") {
+		if (!empty($_GET['a']) && $_GET['a'] == "t") {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/admin/themes', 'admin_themes', 't');
 
 			// Toggle theme status
@@ -2364,7 +2367,7 @@ function admin_page_themes(App $a)
 	}
 
 	// reload active themes
-	if (x($_GET, "a") && $_GET['a'] == "r") {
+	if (!empty($_GET['a']) && $_GET['a'] == "r") {
 		BaseModule::checkFormSecurityTokenRedirectOnError(System::baseUrl() . '/admin/themes', 'admin_themes', 't');
 		foreach ($themes as $th) {
 			if ($th['allowed']) {
@@ -2409,12 +2412,12 @@ function admin_page_themes(App $a)
  */
 function admin_page_logs_post(App $a)
 {
-	if (x($_POST, "page_logs")) {
+	if (!empty($_POST['page_logs'])) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/admin/logs', 'admin_logs');
 
-		$logfile   = ((x($_POST,'logfile'))   ? Strings::escapeTags(trim($_POST['logfile']))  : '');
-		$debugging = ((x($_POST,'debugging')) ? true                             : false);
-		$loglevel  = ((x($_POST,'loglevel'))  ? intval(trim($_POST['loglevel'])) : 0);
+		$logfile   = (!empty($_POST['logfile']) ? Strings::escapeTags(trim($_POST['logfile'])) : '');
+		$debugging = !empty($_POST['debugging']);
+		$loglevel  = (!empty($_POST['loglevel']) ? intval(trim($_POST['loglevel'])) : 0);
 
 		Config::set('system', 'logfile', $logfile);
 		Config::set('system', 'debugging', $debugging);
@@ -2555,14 +2558,14 @@ function admin_page_features_post(App $a)
 			$feature_state = 'feature_' . $feature;
 			$featurelock = 'featurelock_' . $feature;
 
-			if (x($_POST, $feature_state)) {
+			if (!empty($_POST[$feature_state])) {
 				$val = intval($_POST[$feature_state]);
 			} else {
 				$val = 0;
 			}
 			Config::set('feature', $feature, $val);
 
-			if (x($_POST, $featurelock)) {
+			if (!empty($_POST[$featurelock])) {
 				Config::set('feature_lock', $feature, $val);
 			} else {
 				Config::delete('feature_lock', $feature);

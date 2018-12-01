@@ -30,7 +30,7 @@ function dirfind_init(App $a) {
 		return;
 	}
 
-	if (! x($a->page,'aside')) {
+	if (empty($a->page['aside'])) {
 		$a->page['aside'] = '';
 	}
 

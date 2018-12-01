@@ -21,7 +21,7 @@ function manage_post(App $a) {
 	$uid = local_user();
 	$orig_record = $a->user;
 
-	if((x($_SESSION,'submanage')) && intval($_SESSION['submanage'])) {
+	if(!empty($_SESSION['submanage'])) {
 		$r = q("select * from user where uid = %d limit 1",
 			intval($_SESSION['submanage'])
 		);
@@ -37,7 +37,7 @@ function manage_post(App $a) {
 
 	$submanage = $r;
 
-	$identity = (x($_POST['identity']) ? intval($_POST['identity']) : 0);
+	$identity = (!empty($_POST['identity']) ? intval($_POST['identity']) : 0);
 	if (!$identity) {
 		return;
 	}
@@ -101,13 +101,13 @@ function manage_post(App $a) {
 	unset($_SESSION['mobile-theme']);
 	unset($_SESSION['page_flags']);
 	unset($_SESSION['return_path']);
-	if (x($_SESSION, 'submanage')) {
+	if (!empty($_SESSION['submanage'])) {
 		unset($_SESSION['submanage']);
 	}
-	if (x($_SESSION, 'sysmsg')) {
+	if (!empty($_SESSION['sysmsg'])) {
 		unset($_SESSION['sysmsg']);
 	}
-	if (x($_SESSION, 'sysmsg_info')) {
+	if (!empty($_SESSION['sysmsg_info'])) {
 		unset($_SESSION['sysmsg_info']);
 	}
 
