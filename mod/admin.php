@@ -1977,7 +1977,7 @@ function admin_page_users(App $a)
 
 		'$h_users' => L10n::t('Users'),
 		'$h_newuser' => L10n::t('New User'),
-		'$th_deleted' => [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Delete in')],
+		'$th_deleted' => [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Permanet deletion')],
 		'$th_users' => $th_users,
 		'$order_users' => $order,
 		'$order_direction_users' => $order_direction,
