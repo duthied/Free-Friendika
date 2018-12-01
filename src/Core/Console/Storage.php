@@ -94,7 +94,7 @@ HELP;
 		$name = $this->args[1];
 		$class = StorageManager::getByName($name);
 
-		if ($class === "") {
+		if ($class === '') {
 			$this->out($name . ' is not a registered backend.');
 			return -1;
 		}
@@ -111,6 +111,6 @@ HELP;
 
 		$current = StorageManager::getBackend();
 		$r = StorageManager::move($current);
-		$this->out(sprintf("Moved %d files", $r));
+		$this->out(sprintf('Moved %d files', $r));
 	}
 }

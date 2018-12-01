@@ -130,10 +130,10 @@ class StorageManager
 					}
 					$ref = $dest::put($data);
 
-					if ($ref !== "") {
-						$ru = DBA::update($table, ["backend-class" => $dest, "backend-ref" => $ref, "data" => ""], ["id" => $id]);
+					if ($ref !== '') {
+						$ru = DBA::update($table, ['backend-class' => $dest, 'backend-ref' => $ref, 'data' => ''], ['id' => $id]);
 						if ($ru) {
-							if ($backendClass !== "") {
+							if ($backendClass !== '') {
 								$backendClass::delete($backendRef);
 							}
 							$moved++;
