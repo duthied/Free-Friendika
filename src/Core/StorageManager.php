@@ -2,6 +2,7 @@
 
 namespace Friendica\Core;
 
+use Friendica\Database\DBA;
 use Friendica\Core\Config;
 
 
@@ -15,8 +16,8 @@ use Friendica\Core\Config;
 class StorageManager
 {
 	private static $default_backends = [
-		'Filesystem' => \Friendica\Model\Storage\Filesystem::class,
-		'Database' => \Friendica\Model\Storage\Database::class,
+		'Filesystem' => Friendica\Model\Storage\Filesystem::class,
+		'Database' => Friendica\Model\Storage\Database::class,
 	];
 
 	private static $backends = [];
@@ -98,5 +99,50 @@ class StorageManager
 		self::setup();
 		unset(self::$backends[$name]);
 		Config::set('storage', 'backends', self::$backends);
+	}
+
+
+	/**
+	 * @brief Move resources to storage $dest
+	 *
+	 * @param string  $dest    Destination storage class name
+	 * @param array   $tables  Tables to look in for resources. Optional, defaults to ['photo']
+	 *
+	 * @retur int Number of moved resources
+	 */
+	public static function move($dest, $tables = null)
+	{
+		if (is_null($tables)) {
+			$tables = ['photo'];
+		}
+
+		$moved = 0;
+		foreach ($tables as $table) {
+			$rr = DBA::select($table, ['id', 'data', 'backend-class', 'backend-ref'], ['`backend-class` != ?', $dest]);
+			if (DBA::isResult($rr)) {
+				while($r = $rr->fetch()) {
+					$id = $r['id'];
+					$data = $r['data'];
+					$backendClass = $r['backend-class'];
+					$backendRef = $r['backend-ref'];
+					if ($backendClass !== '') {
+						$data = $backendClass::get($backendRef);
+					}
+					$ref = $dest::put($data);
+
+					if ($ref !== "") {
+						$ru = DBA::update($table, ["backend-class" => $dest, "backend-ref" => $ref, "data" => ""], ["id" => $id]);
+						if ($ru) {
+							if ($backendClass !== "") {
+								$backendClass::delete($backendRef);
+							}
+							$moved++;
+						}
+					}
+				}
+			}
+		}
+
+		return $moved;
 	}
 }

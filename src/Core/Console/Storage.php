@@ -105,6 +105,12 @@ HELP;
 
 	protected function do_move()
 	{
+		if (count($this->args) !== 1) {
+			throw new CommandArgsException('Invalid arguments');
+		}
 
+		$current = StorageManager::getBackend();
+		$r = StorageManager::move($current);
+		$this->out(sprintf("Moved %d files", $r));
 	}
 }
