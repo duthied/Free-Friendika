@@ -1147,7 +1147,7 @@ class Contact extends BaseObject
 
 		$url = $data["url"];
 		if (!$contact_id) {
-			DBA::insert('contact', [
+			$fields = [
 				'uid'       => $uid,
 				'created'   => DateTimeFormat::utcNow(),
 				'url'       => $data["url"],
@@ -1176,10 +1176,13 @@ class Contact extends BaseObject
 				'writable'  => 1,
 				'blocked'   => 0,
 				'readonly'  => 0,
-				'pending'   => 0]
-			);
+				'pending'   => 0];
 
-			$s = DBA::select('contact', ['id'], ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid], ['order' => ['id'], 'limit' => 2]);
+			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
+
+			DBA::update('contact', $fields, $condition, true);
+
+			$s = DBA::select('contact', ['id'], $condition, ['order' => ['id'], 'limit' => 2]);
 			$contacts = DBA::toArray($s);
 			if (!DBA::isResult($contacts)) {
 				return 0;
@@ -1204,8 +1207,10 @@ class Contact extends BaseObject
 			}
 
 			if (count($contacts) > 1 && $uid == 0 && $contact_id != 0 && $data["url"] != "") {
-				DBA::delete('contact', ["`nurl` = ? AND `uid` = 0 AND `id` != ? AND NOT `self`",
-					Strings::normaliseLink($data["url"]), $contact_id]);
+				$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self`",
+					Strings::normaliseLink($data["url"]), 0, $contact_id];
+				Logger::log('Deleting duplicate contact ' . json_encode($condition), Logger::DEBUG);
+				DBA::delete('contact', $condition);
 			}
 		}
 
