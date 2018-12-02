@@ -1044,12 +1044,11 @@ class DBA
 	 * @param array   $options
 	 *                - cascade: If true we delete records in other tables that depend on the one we're deleting through
 	 *                           relations (default: true)
-	 * @param boolean $in_process  Internal use: Only do a commit after the last delete
 	 * @param array   $callstack   Internal use: prevent endless loops
 	 *
-	 * @return boolean|array was the delete successful? When $in_process is set: deletion data
+	 * @return boolean was the delete successful?
 	 */
-	public static function delete($table, array $conditions, array $options = [], $in_process = false, array &$callstack = [])
+	public static function delete($table, array $conditions, array $options = [], array &$callstack = [])
 	{
 		if (empty($table) || empty($conditions)) {
 			Logger::log('Table and conditions have to be set');
@@ -1098,22 +1097,18 @@ class DBA
 			if ((count($conditions) == 1) && ($field == array_keys($conditions)[0])) {
 				foreach ($rel_def AS $rel_table => $rel_fields) {
 					foreach ($rel_fields AS $rel_field) {
-						$retval = self::delete($rel_table, [$rel_field => array_values($conditions)[0]], $options, true, $callstack);
-						$commands = array_merge($commands, $retval);
+						$retval = self::delete($rel_table, [$rel_field => array_values($conditions)[0]], $options, $callstack);
 					}
 				}
 				// We quit when this key already exists in the callstack.
 			} elseif (!isset($callstack[$qkey])) {
-
 				$callstack[$qkey] = true;
 
 				// Fetch all rows that are to be deleted
 				$data = self::select($table, [$field], $conditions);
 
 				while ($row = self::fetch($data)) {
-					// Now we accumulate the delete commands
-					$retval = self::delete($table, [$field => $row[$field]], $options, true, $callstack);
-					$commands = array_merge($commands, $retval);
+					self::delete($table, [$field => $row[$field]], $options, $callstack);
 				}
 
 				self::close($data);
@@ -1123,74 +1118,70 @@ class DBA
 			}
 		}
 
-		if (!$in_process) {
-			// Now we finalize the process
-			$do_transaction = !self::$in_transaction;
+		// Now we finalize the process
+		$do_transaction = !self::$in_transaction;
 
-			if ($do_transaction) {
-				self::transaction();
+		if ($do_transaction) {
+			self::transaction();
+		}
+
+		$compacted = [];
+		$counter = [];
+
+		foreach ($commands AS $command) {
+			$conditions = $command['conditions'];
+			reset($conditions);
+			$first_key = key($conditions);
+
+			$condition_string = self::buildCondition($conditions);
+
+			if ((count($command['conditions']) > 1) || is_int($first_key)) {
+				$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
+				Logger::log(self::replaceParameters($sql, $conditions), Logger::DATA);
+
+				if (!self::e($sql, $conditions)) {
+					if ($do_transaction) {
+						self::rollback();
+					}
+					return false;
+				}
+			} else {
+				$key_table = $command['table'];
+				$key_condition = array_keys($command['conditions'])[0];
+				$value = array_values($command['conditions'])[0];
+
+				// Split the SQL queries in chunks of 100 values
+				// We do the $i stuff here to make the code better readable
+				$i = isset($counter[$key_table][$key_condition]) ? $counter[$key_table][$key_condition] : 0;
+				if (isset($compacted[$key_table][$key_condition][$i]) && count($compacted[$key_table][$key_condition][$i]) > 100) {
+					++$i;
+				}
+
+				$compacted[$key_table][$key_condition][$i][$value] = $value;
+				$counter[$key_table][$key_condition] = $i;
 			}
+		}
+		foreach ($compacted AS $table => $values) {
+			foreach ($values AS $field => $field_value_list) {
+				foreach ($field_value_list AS $field_values) {
+					$sql = "DELETE FROM `" . $table . "` WHERE `" . $field . "` IN (" .
+						substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
 
-			$compacted = [];
-			$counter = [];
+					Logger::log(self::replaceParameters($sql, $field_values), Logger::DATA);
 
-			foreach ($commands AS $command) {
-				$conditions = $command['conditions'];
-				reset($conditions);
-				$first_key = key($conditions);
-
-				$condition_string = self::buildCondition($conditions);
-
-				if ((count($command['conditions']) > 1) || is_int($first_key)) {
-					$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
-					Logger::log(self::replaceParameters($sql, $conditions), Logger::DATA);
-
-					if (!self::e($sql, $conditions)) {
+					if (!self::e($sql, $field_values)) {
 						if ($do_transaction) {
 							self::rollback();
 						}
 						return false;
 					}
-				} else {
-					$key_table = $command['table'];
-					$key_condition = array_keys($command['conditions'])[0];
-					$value = array_values($command['conditions'])[0];
-
-					// Split the SQL queries in chunks of 100 values
-					// We do the $i stuff here to make the code better readable
-					$i = isset($counter[$key_table][$key_condition]) ? $counter[$key_table][$key_condition] : 0;
-					if (isset($compacted[$key_table][$key_condition][$i]) && count($compacted[$key_table][$key_condition][$i]) > 100) {
-						++$i;
-					}
-
-					$compacted[$key_table][$key_condition][$i][$value] = $value;
-					$counter[$key_table][$key_condition] = $i;
 				}
 			}
-			foreach ($compacted AS $table => $values) {
-				foreach ($values AS $field => $field_value_list) {
-					foreach ($field_value_list AS $field_values) {
-						$sql = "DELETE FROM `" . $table . "` WHERE `" . $field . "` IN (" .
-							substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
-
-						Logger::log(self::replaceParameters($sql, $field_values), Logger::DATA);
-
-						if (!self::e($sql, $field_values)) {
-							if ($do_transaction) {
-								self::rollback();
-							}
-							return false;
-						}
-					}
-				}
-			}
-			if ($do_transaction) {
-				self::commit();
-			}
-			return true;
 		}
-
-		return $commands;
+		if ($do_transaction) {
+			self::commit();
+		}
+		return true;
 	}
 
 	/**

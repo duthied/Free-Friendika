@@ -118,6 +118,8 @@ class Update
 					Lock::release('dbupdate');
 				}
 			}
+		} elseif ($force) {
+			DBStructure::update($verbose, true);
 		}
 
 		return '';
