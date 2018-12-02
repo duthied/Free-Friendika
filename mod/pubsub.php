@@ -7,6 +7,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Strings;
+use Friendica\Core\System;
 
 require_once 'include/items.php';
 
@@ -16,7 +17,7 @@ function hub_return($valid, $body)
 		header($_SERVER["SERVER_PROTOCOL"] . ' 200 OK');
 		echo $body;
 	} else {
-		header($_SERVER["SERVER_PROTOCOL"] . ' 404 Not Found');
+		System::httpExit(404, ['title' => L10n::t('Not found.')]);
 	}
 	killme();
 }
