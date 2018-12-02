@@ -156,7 +156,7 @@ class Term
 				$link = '';
 			}
 
-			if (DBA::exists('term', ['uid' => $message['uid'], 'otype' => TERM_OBJ_POST, 'oid' => $itemid, 'url' => $link])) {
+			if (DBA::exists('term', ['uid' => $message['uid'], 'otype' => TERM_OBJ_POST, 'oid' => $itemid, 'term' => $term])) {
 				continue;
 			}
 

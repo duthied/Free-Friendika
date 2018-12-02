@@ -41,7 +41,7 @@ class Contact extends BaseModule
 
 		$nets = defaults($_GET, 'nets', '');
 
-		if (!x($a->page, 'aside')) {
+		if (empty($a->page['aside'])) {
 			$a->page['aside'] = '';
 		}
 

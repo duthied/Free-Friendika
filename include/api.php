@@ -68,7 +68,7 @@ $called_api = [];
  */
 function api_user()
 {
-	if (x($_SESSION, 'allow_api')) {
+	if (!empty($_SESSION['allow_api'])) {
 		return local_user();
 	}
 
@@ -186,8 +186,8 @@ function api_login(App $a)
 	}
 
 	// workaround for HTTP-auth in CGI mode
-	if (x($_SERVER, 'REDIRECT_REMOTE_USER')) {
-		$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"], 6)) ;
+	if (!empty($_SERVER['REDIRECT_REMOTE_USER'])) {
+		$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"], 6));
 		if (strlen($userpass)) {
 			list($name, $password) = explode(':', $userpass);
 			$_SERVER['PHP_AUTH_USER'] = $name;
@@ -195,7 +195,7 @@ function api_login(App $a)
 		}
 	}
 
-	if (!x($_SERVER, 'PHP_AUTH_USER')) {
+	if (empty($_SERVER['PHP_AUTH_USER'])) {
 		Logger::log('API_login: ' . print_r($_SERVER, true), Logger::DEBUG);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		throw new UnauthorizedException("This API requires login");
@@ -396,7 +396,7 @@ function api_call(App $a)
 					case "json":
 						header("Content-Type: application/json");
 						$json = json_encode(end($return));
-						if (x($_GET, 'callback')) {
+						if (!empty($_GET['callback'])) {
 							$json = $_GET['callback'] . "(" . $json . ")";
 						}
 						$return = $json;
@@ -550,7 +550,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
-	if (is_null($user) && x($_GET, 'user_id')) {
+	if (is_null($user) && !empty($_GET['user_id'])) {
 		$user = DBA::escape(api_unique_id_to_nurl($_GET['user_id']));
 
 		if ($user == "") {
@@ -563,7 +563,7 @@ function api_get_user(App $a, $contact_id = null)
 			$extra_query .= "AND `contact`.`uid`=" . intval(api_user());
 		}
 	}
-	if (is_null($user) && x($_GET, 'screen_name')) {
+	if (is_null($user) && !empty($_GET['screen_name'])) {
 		$user = DBA::escape($_GET['screen_name']);
 		$extra_query = "AND `contact`.`nick` = '%s' ";
 		if (api_user() !== false) {
@@ -571,7 +571,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
-	if (is_null($user) && x($_GET, 'profileurl')) {
+	if (is_null($user) && !empty($_GET['profileurl'])) {
 		$user = DBA::escape(Strings::normaliseLink($_GET['profileurl']));
 		$extra_query = "AND `contact`.`nurl` = '%s' ";
 		if (api_user() !== false) {
@@ -980,7 +980,7 @@ function api_account_verify_credentials($type)
 	unset($_REQUEST["screen_name"]);
 	unset($_GET["screen_name"]);
 
-	$skip_status = (x($_REQUEST, 'skip_status')?$_REQUEST['skip_status'] : false);
+	$skip_status = defaults($_REQUEST, 'skip_status', false);
 
 	$user_info = api_get_user($a);
 
@@ -1014,10 +1014,10 @@ api_register_func('api/account/verify_credentials', 'api_account_verify_credenti
  */
 function requestdata($k)
 {
-	if (x($_POST, $k)) {
+	if (!empty($_POST[$k])) {
 		return $_POST[$k];
 	}
-	if (x($_GET, $k)) {
+	if (!empty($_GET[$k])) {
 		return $_GET[$k];
 	}
 	return null;
@@ -1172,7 +1172,7 @@ function api_statuses_update($type)
 		}
 	}
 
-	if (x($_FILES, 'media')) {
+	if (!empty($_FILES['media'])) {
 		// upload the image if we have one
 		$picture = wall_upload_post($a, false);
 		if (is_array($picture)) {
@@ -1199,7 +1199,7 @@ function api_statuses_update($type)
 
 	$_REQUEST['api_source'] = true;
 
-	if (!x($_REQUEST, "source")) {
+	if (empty($_REQUEST['source'])) {
 		$_REQUEST["source"] = api_source();
 	}
 
@@ -1231,7 +1231,7 @@ function api_media_upload()
 
 	api_get_user($a);
 
-	if (!x($_FILES, 'media')) {
+	if (empty($_FILES['media'])) {
 		// Output error
 		throw new BadRequestException("No media.");
 	}
@@ -1445,7 +1445,7 @@ function api_users_search($type)
 
 	$userlist = [];
 
-	if (x($_GET, 'q')) {
+	if (!empty($_GET['q'])) {
 		$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", DBA::escape($_GET["q"]));
 
 		if (!DBA::isResult($r)) {
@@ -1530,21 +1530,21 @@ function api_search($type)
 
 	$data = [];
 
-	if (!x($_REQUEST, 'q')) {
+	if (empty($_REQUEST['q'])) {
 		throw new BadRequestException("q parameter is required.");
 	}
 
-	if (x($_REQUEST, 'rpp')) {
+	if (!empty($_REQUEST['rpp'])) {
 		$count = $_REQUEST['rpp'];
-	} elseif (x($_REQUEST, 'count')) {
+	} elseif (!empty($_REQUEST['count'])) {
 		$count = $_REQUEST['count'];
 	} else {
 		$count = 15;
 	}
 
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+	$since_id = defaults($_REQUEST, 'since_id', 0);
+	$max_id = defaults($_REQUEST, 'max_id', 0);
+	$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] - 1 : 0);
 
 	$start = $page * $count;
 
@@ -1598,16 +1598,15 @@ function api_statuses_home_timeline($type)
 	// get last network messages
 
 	// params
-	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+	$count = defaults($_REQUEST, 'count', 20);
+	$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] - 1 : 0);
 	if ($page < 0) {
 		$page = 0;
 	}
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
-	//$since_id = 0;//$since_id = (x($_REQUEST, 'since_id')?$_REQUEST['since_id'] : 0);
-	$exclude_replies = (x($_REQUEST, 'exclude_replies') ? 1 : 0);
-	$conversation_id = (x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0);
+	$since_id = defaults($_REQUEST, 'since_id', 0);
+	$max_id = defaults($_REQUEST, 'max_id', 0);
+	$exclude_replies = !empty($_REQUEST['exclude_replies']);
+	$conversation_id = defaults($_REQUEST, 'conversation_id', 0);
 
 	$start = $page * $count;
 
@@ -1618,7 +1617,7 @@ function api_statuses_home_timeline($type)
 		$condition[0] .= " AND `item`.`id` <= ?";
 		$condition[] = $max_id;
 	}
-	if ($exclude_replies > 0) {
+	if ($exclude_replies) {
 		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 	if ($conversation_id > 0) {
@@ -1681,19 +1680,17 @@ function api_statuses_public_timeline($type)
 	// get last network messages
 
 	// params
-	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] -1 : 0);
+	$count = defaults($_REQUEST, 'count', 20);
+	$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] -1 : 0);
 	if ($page < 0) {
 		$page = 0;
 	}
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
-	//$since_id = 0;//$since_id = (x($_REQUEST, 'since_id')?$_REQUEST['since_id'] : 0);
-	$exclude_replies = (x($_REQUEST, 'exclude_replies') ? 1 : 0);
-	$conversation_id = (x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0);
+	$since_id = defaults($_REQUEST, 'since_id', 0);
+	$max_id = defaults($_REQUEST, 'max_id', 0);
+	$exclude_replies = (!empty($_REQUEST['exclude_replies']) ? 1 : 0);
+	$conversation_id = defaults($_REQUEST, 'conversation_id', 0);
 
 	$start = $page * $count;
-	$sql_extra = '';
 
 	if ($exclude_replies && !$conversation_id) {
 		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
@@ -1762,12 +1759,12 @@ function api_statuses_networkpublic_timeline($type)
 		throw new ForbiddenException();
 	}
 
-	$since_id        = x($_REQUEST, 'since_id')        ? $_REQUEST['since_id']        : 0;
-	$max_id          = x($_REQUEST, 'max_id')          ? $_REQUEST['max_id']          : 0;
+	$since_id        = defaults($_REQUEST, 'since_id', 0);
+	$max_id          = defaults($_REQUEST, 'max_id', 0);
 
 	// pagination
-	$count = x($_REQUEST, 'count') ? $_REQUEST['count']   : 20;
-	$page  = x($_REQUEST, 'page')  ? $_REQUEST['page']    : 1;
+	$count = defaults($_REQUEST, 'count', 20);
+	$page  = defaults($_REQUEST, 'page', 1);
 	if ($page < 1) {
 		$page = 1;
 	}
@@ -2001,7 +1998,7 @@ function api_statuses_repeat($type)
 		$_REQUEST['profile_uid'] = api_user();
 		$_REQUEST['api_source'] = true;
 
-		if (!x($_REQUEST, "source")) {
+		if (empty($_REQUEST['source'])) {
 			$_REQUEST["source"] = api_source();
 		}
 
@@ -2150,14 +2147,14 @@ function api_statuses_user_timeline($type)
 		Logger::DEBUG
 	);
 
-	$since_id        = x($_REQUEST, 'since_id')        ? $_REQUEST['since_id']        : 0;
-	$max_id          = x($_REQUEST, 'max_id')          ? $_REQUEST['max_id']          : 0;
-	$exclude_replies = x($_REQUEST, 'exclude_replies') ? 1                            : 0;
-	$conversation_id = x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0;
+	$since_id        = defaults($_REQUEST, 'since_id', 0);
+	$max_id          = defaults($_REQUEST, 'max_id', 0);
+	$exclude_replies = !empty($_REQUEST['exclude_replies']);
+	$conversation_id = defaults($_REQUEST, 'conversation_id', 0);
 
 	// pagination
-	$count = x($_REQUEST, 'count') ? $_REQUEST['count'] : 20;
-	$page  = x($_REQUEST, 'page')  ? $_REQUEST['page']  : 1;
+	$count = defaults($_REQUEST, 'count', 20);
+	$page  = defaults($_REQUEST, 'page', 1);
 	if ($page < 1) {
 		$page = 1;
 	}
@@ -2170,7 +2167,7 @@ function api_statuses_user_timeline($type)
 		$condition[0] .= ' AND `item`.`wall` ';
 	}
 
-	if ($exclude_replies > 0) {
+	if ($exclude_replies) {
 		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
 	}
 
@@ -2309,10 +2306,10 @@ function api_favorites($type)
 		$ret = [];
 	} else {
 		// params
-		$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-		$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
-		$count = (x($_GET, 'count') ? $_GET['count'] : 20);
-		$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] -1 : 0);
+		$since_id = defaults($_REQUEST, 'since_id', 0);
+		$max_id = defaults($_REQUEST, 'max_id', 0);
+		$count = defaults($_GET, 'count', 20);
+		$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] -1 : 0);
 		if ($page < 0) {
 			$page = 0;
 		}
@@ -2390,7 +2387,7 @@ function api_format_messages($item, $recipient, $sender)
 	}
 
 	//don't send title to regular StatusNET requests to avoid confusing these apps
-	if (x($_GET, 'getText')) {
+	if (!empty($_GET['getText'])) {
 		$ret['title'] = $item['title'];
 		if ($_GET['getText'] == 'html') {
 			$ret['text'] = BBCode::convert($item['body'], false);
@@ -2400,7 +2397,7 @@ function api_format_messages($item, $recipient, $sender)
 	} else {
 		$ret['text'] = $item['title'] . "\n" . HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0);
 	}
-	if (x($_GET, 'getUserObjects') && $_GET['getUserObjects'] == 'false') {
+	if (!empty($_GET['getUserObjects']) && $_GET['getUserObjects'] == 'false') {
 		unset($ret['sender']);
 		unset($ret['recipient']);
 	}
@@ -2530,7 +2527,7 @@ function api_get_attachments(&$body)
  */
 function api_get_entitities(&$text, $bbcode)
 {
-	$include_entities = strtolower(x($_REQUEST, 'include_entities') ? $_REQUEST['include_entities'] : "false");
+	$include_entities = strtolower(defaults($_REQUEST, 'include_entities', "false"));
 
 	if ($include_entities != "true") {
 		preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
@@ -3119,15 +3116,15 @@ function api_lists_statuses($type)
 	}
 
 	// params
-	$count = (x($_REQUEST, 'count') ? $_REQUEST['count'] : 20);
-	$page = (x($_REQUEST, 'page') ? $_REQUEST['page'] - 1 : 0);
+	$count = defaults($_REQUEST, 'count', 20);
+	$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] - 1 : 0);
 	if ($page < 0) {
 		$page = 0;
 	}
-	$since_id = (x($_REQUEST, 'since_id') ? $_REQUEST['since_id'] : 0);
-	$max_id = (x($_REQUEST, 'max_id') ? $_REQUEST['max_id'] : 0);
-	$exclude_replies = (x($_REQUEST, 'exclude_replies') ? 1 : 0);
-	$conversation_id = (x($_REQUEST, 'conversation_id') ? $_REQUEST['conversation_id'] : 0);
+	$since_id = defaults($_REQUEST, 'since_id', 0);
+	$max_id = defaults($_REQUEST, 'max_id', 0);
+	$exclude_replies = (!empty($_REQUEST['exclude_replies']) ? 1 : 0);
+	$conversation_id = defaults($_REQUEST, 'conversation_id', 0);
 
 	$start = $page * $count;
 
@@ -3185,8 +3182,8 @@ function api_statuses_f($qtype)
 	}
 
 	// pagination
-	$count = x($_GET, 'count') ? $_GET['count'] : 20;
-	$page = x($_GET, 'page') ? $_GET['page'] : 1;
+	$count = defaults($_GET, 'count', 20);
+	$page = defaults($_GET, 'page', 1);
 	if ($page < 1) {
 		$page = 1;
 	}
@@ -3194,7 +3191,7 @@ function api_statuses_f($qtype)
 
 	$user_info = api_get_user($a);
 
-	if (x($_GET, 'cursor') && $_GET['cursor'] == 'undefined') {
+	if (!empty($_GET['cursor']) && $_GET['cursor'] == 'undefined') {
 		/* this is to stop Hotot to load friends multiple times
 		*  I'm not sure if I'm missing return something or
 		*  is a bug in hotot. Workaround, meantime
@@ -3522,7 +3519,7 @@ function api_direct_messages_new($type)
 
 	$replyto = '';
 	$sub     = '';
-	if (x($_REQUEST, 'replyto')) {
+	if (!empty($_REQUEST['replyto'])) {
 		$r = q(
 			'SELECT `parent-uri`, `title` FROM `mail` WHERE `uid`=%d AND `id`=%d',
 			intval(api_user()),
@@ -3531,7 +3528,7 @@ function api_direct_messages_new($type)
 		$replyto = $r[0]['parent-uri'];
 		$sub     = $r[0]['title'];
 	} else {
-		if (x($_REQUEST, 'title')) {
+		if (!empty($_REQUEST['title'])) {
 			$sub = $_REQUEST['title'];
 		} else {
 			$sub = ((strlen($_POST['text'])>10) ? substr($_POST['text'], 0, 10)."...":$_POST['text']);
@@ -3583,10 +3580,10 @@ function api_direct_messages_destroy($type)
 	// params
 	$user_info = api_get_user($a);
 	//required
-	$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
+	$id = defaults($_REQUEST, 'id', 0);
 	// optional
-	$parenturi = (x($_REQUEST, 'friendica_parenturi') ? $_REQUEST['friendica_parenturi'] : "");
-	$verbose = (x($_GET, 'friendica_verbose') ? strtolower($_GET['friendica_verbose']) : "false");
+	$parenturi = defaults($_REQUEST, 'friendica_parenturi', "");
+	$verbose = (!empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false");
 	/// @todo optional parameter 'include_entities' from Twitter API not yet implemented
 
 	$uid = $user_info['uid'];
@@ -3647,7 +3644,7 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 /**
  * Unfollow Contact
  *
- * @brief unfollow contact 
+ * @brief unfollow contact
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -3838,7 +3835,7 @@ function api_direct_messages_box($type, $box, $verbose)
  */
 function api_direct_messages_sentbox($type)
 {
-	$verbose = (x($_GET, 'friendica_verbose') ? strtolower($_GET['friendica_verbose']) : "false");
+	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "sentbox", $verbose);
 }
 
@@ -3852,7 +3849,7 @@ function api_direct_messages_sentbox($type)
  */
 function api_direct_messages_inbox($type)
 {
-	$verbose = (x($_GET, 'friendica_verbose') ? strtolower($_GET['friendica_verbose']) : "false");
+	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "inbox", $verbose);
 }
 
@@ -3864,7 +3861,7 @@ function api_direct_messages_inbox($type)
  */
 function api_direct_messages_all($type)
 {
-	$verbose = (x($_GET, 'friendica_verbose') ? strtolower($_GET['friendica_verbose']) : "false");
+	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "all", $verbose);
 }
 
@@ -3876,7 +3873,7 @@ function api_direct_messages_all($type)
  */
 function api_direct_messages_conversation($type)
 {
-	$verbose = (x($_GET, 'friendica_verbose') ? strtolower($_GET['friendica_verbose']) : "false");
+	$verbose = !empty($_GET['friendica_verbose']) ? strtolower($_GET['friendica_verbose']) : "false";
 	return api_direct_messages_box($type, "conversation", $verbose);
 }
 
@@ -3940,7 +3937,7 @@ function api_fr_photoalbum_delete($type)
 		throw new ForbiddenException();
 	}
 	// input params
-	$album = (x($_REQUEST, 'album') ? $_REQUEST['album'] : "");
+	$album = defaults($_REQUEST, 'album', "");
 
 	// we do not allow calls without album string
 	if ($album == "") {
@@ -3992,8 +3989,8 @@ function api_fr_photoalbum_update($type)
 		throw new ForbiddenException();
 	}
 	// input params
-	$album = (x($_REQUEST, 'album') ? $_REQUEST['album'] : "");
-	$album_new = (x($_REQUEST, 'album_new') ? $_REQUEST['album_new'] : "");
+	$album = defaults($_REQUEST, 'album', "");
+	$album_new = defaults($_REQUEST, 'album_new', "");
 
 	// we do not allow calls without album string
 	if ($album == "") {
@@ -4077,15 +4074,15 @@ function api_fr_photo_create_update($type)
 		throw new ForbiddenException();
 	}
 	// input params
-	$photo_id = (x($_REQUEST, 'photo_id') ? $_REQUEST['photo_id'] : null);
-	$desc = (x($_REQUEST, 'desc') ? $_REQUEST['desc'] : (array_key_exists('desc', $_REQUEST) ? "" : null)); // extra check necessary to distinguish between 'not provided' and 'empty string'
-	$album = (x($_REQUEST, 'album') ? $_REQUEST['album'] : null);
-	$album_new = (x($_REQUEST, 'album_new') ? $_REQUEST['album_new'] : null);
-	$allow_cid = (x($_REQUEST, 'allow_cid') ? $_REQUEST['allow_cid'] : (array_key_exists('allow_cid', $_REQUEST) ? " " : null));
-	$deny_cid = (x($_REQUEST, 'deny_cid') ? $_REQUEST['deny_cid'] : (array_key_exists('deny_cid', $_REQUEST) ? " " : null));
-	$allow_gid = (x($_REQUEST, 'allow_gid') ? $_REQUEST['allow_gid'] : (array_key_exists('allow_gid', $_REQUEST) ? " " : null));
-	$deny_gid = (x($_REQUEST, 'deny_gid') ? $_REQUEST['deny_gid'] : (array_key_exists('deny_gid', $_REQUEST) ? " " : null));
-	$visibility = (x($_REQUEST, 'visibility') ? (($_REQUEST['visibility'] == "true" || $_REQUEST['visibility'] == 1) ? true : false) : false);
+	$photo_id = defaults($_REQUEST, 'photo_id', null);
+	$desc = defaults($_REQUEST, 'desc', (array_key_exists('desc', $_REQUEST) ? "" : null)) ; // extra check necessary to distinguish between 'not provided' and 'empty string'
+	$album = defaults($_REQUEST, 'album', null);
+	$album_new = defaults($_REQUEST, 'album_new', null);
+	$allow_cid = defaults($_REQUEST, 'allow_cid', (array_key_exists('allow_cid', $_REQUEST) ? " " : null));
+	$deny_cid  = defaults($_REQUEST, 'deny_cid' , (array_key_exists('deny_cid' , $_REQUEST) ? " " : null));
+	$allow_gid = defaults($_REQUEST, 'allow_gid', (array_key_exists('allow_gid', $_REQUEST) ? " " : null));
+	$deny_gid  = defaults($_REQUEST, 'deny_gid' , (array_key_exists('deny_gid' , $_REQUEST) ? " " : null));
+	$visibility = !empty($_REQUEST['visibility']) && $_REQUEST['visibility'] !== "false";
 
 	// do several checks on input parameters
 	// we do not allow calls without album string
@@ -4097,7 +4094,7 @@ function api_fr_photo_create_update($type)
 		$mode = "create";
 
 		// error if no media posted in create-mode
-		if (!x($_FILES, 'media')) {
+		if (empty($_FILES['media'])) {
 			// Output error
 			throw new BadRequestException("no media data submitted");
 		}
@@ -4188,7 +4185,7 @@ function api_fr_photo_create_update($type)
 			$nothingtodo = true;
 		}
 
-		if (x($_FILES, 'media')) {
+		if (!empty($_FILES['media'])) {
 			$nothingtodo = false;
 			$media = $_FILES['media'];
 			$data = save_media_to_database("photo", $media, $type, $album, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $desc, 0, $visibility, $photo_id);
@@ -4224,7 +4221,7 @@ function api_fr_photo_delete($type)
 		throw new ForbiddenException();
 	}
 	// input params
-	$photo_id = (x($_REQUEST, 'photo_id') ? $_REQUEST['photo_id'] : null);
+	$photo_id = defaults($_REQUEST, 'photo_id', null);
 
 	// do several checks on input parameters
 	// we do not allow calls without photo id
@@ -4275,11 +4272,11 @@ function api_fr_photo_detail($type)
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
-	if (!x($_REQUEST, 'photo_id')) {
+	if (empty($_REQUEST['photo_id'])) {
 		throw new BadRequestException("No photo id.");
 	}
 
-	$scale = (x($_REQUEST, 'scale') ? intval($_REQUEST['scale']) : false);
+	$scale = (!empty($_REQUEST['scale']) ? intval($_REQUEST['scale']) : false);
 	$photo_id = $_REQUEST['photo_id'];
 
 	// prepare json/xml output with data from database for the requested photo
@@ -4308,7 +4305,7 @@ function api_account_update_profile_image($type)
 	$profile_id = defaults($_REQUEST, 'profile_id', 0);
 
 	// error if image data is missing
-	if (!x($_FILES, 'image')) {
+	if (empty($_FILES['image'])) {
 		throw new BadRequestException("no media data submitted");
 	}
 
@@ -4326,9 +4323,9 @@ function api_account_update_profile_image($type)
 
 	// get mediadata from image or media (Twitter call api/account/update_profile_image provides image)
 	$media = null;
-	if (x($_FILES, 'image')) {
+	if (!empty($_FILES['image'])) {
 		$media = $_FILES['image'];
-	} elseif (x($_FILES, 'media')) {
+	} elseif (!empty($_FILES['media'])) {
 		$media = $_FILES['media'];
 	}
 	// save new profile image
@@ -4788,8 +4785,8 @@ function prepare_photo_data($type, $scale, $photo_id)
  */
 function api_friendica_remoteauth()
 {
-	$url = (x($_GET, 'url') ? $_GET['url'] : '');
-	$c_url = (x($_GET, 'c_url') ? $_GET['c_url'] : '');
+	$url = defaults($_GET, 'url', '');
+	$c_url = defaults($_GET, 'c_url', '');
 
 	if ($url === '' || $c_url === '') {
 		throw new BadRequestException("Wrong parameters.");
@@ -5092,7 +5089,7 @@ function api_in_reply_to($item)
  */
 function api_clean_plain_items($text)
 {
-	$include_entities = strtolower(x($_REQUEST, 'include_entities') ? $_REQUEST['include_entities'] : "false");
+	$include_entities = strtolower(defaults($_REQUEST, 'include_entities', "false"));
 
 	$text = BBCode::cleanPictureLinks($text);
 	$URLSearchString = "^\[\]";
@@ -5224,7 +5221,7 @@ function api_friendica_group_show($type)
 
 	// params
 	$user_info = api_get_user($a);
-	$gid = (x($_REQUEST, 'gid') ? $_REQUEST['gid'] : 0);
+	$gid = defaults($_REQUEST, 'gid', 0);
 	$uid = $user_info['uid'];
 
 	// get data of the specified group id or all groups if not specified
@@ -5289,8 +5286,8 @@ function api_friendica_group_delete($type)
 
 	// params
 	$user_info = api_get_user($a);
-	$gid = (x($_REQUEST, 'gid') ? $_REQUEST['gid'] : 0);
-	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$gid = defaults($_REQUEST, 'gid', 0);
+	$name = defaults($_REQUEST, 'name', "");
 	$uid = $user_info['uid'];
 
 	// error if no gid specified
@@ -5351,7 +5348,7 @@ function api_lists_destroy($type)
 
 	// params
 	$user_info = api_get_user($a);
-	$gid = (x($_REQUEST, 'list_id') ? $_REQUEST['list_id'] : 0);
+	$gid = defaults($_REQUEST, 'list_id', 0);
 	$uid = $user_info['uid'];
 
 	// error if no gid specified
@@ -5467,7 +5464,7 @@ function api_friendica_group_create($type)
 
 	// params
 	$user_info = api_get_user($a);
-	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$name = defaults($_REQUEST, 'name', "");
 	$uid = $user_info['uid'];
 	$json = json_decode($_POST['json'], true);
 	$users = $json['user'];
@@ -5496,7 +5493,7 @@ function api_lists_create($type)
 
 	// params
 	$user_info = api_get_user($a);
-	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$name = defaults($_REQUEST, 'name', "");
 	$uid = $user_info['uid'];
 
 	$success = group_create($name, $uid);
@@ -5531,8 +5528,8 @@ function api_friendica_group_update($type)
 	// params
 	$user_info = api_get_user($a);
 	$uid = $user_info['uid'];
-	$gid = (x($_REQUEST, 'gid') ? $_REQUEST['gid'] : 0);
-	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$gid = defaults($_REQUEST, 'gid', 0);
+	$name = defaults($_REQUEST, 'name', "");
 	$json = json_decode($_POST['json'], true);
 	$users = $json['user'];
 
@@ -5604,8 +5601,8 @@ function api_lists_update($type)
 
 	// params
 	$user_info = api_get_user($a);
-	$gid = (x($_REQUEST, 'list_id') ? $_REQUEST['list_id'] : 0);
-	$name = (x($_REQUEST, 'name') ? $_REQUEST['name'] : "");
+	$gid = defaults($_REQUEST, 'list_id', 0);
+	$name = defaults($_REQUEST, 'name', "");
 	$uid = $user_info['uid'];
 
 	// error if no gid specified
@@ -5650,7 +5647,7 @@ function api_friendica_activity($type)
 	$verb = strtolower($a->argv[3]);
 	$verb = preg_replace("|\..*$|", "", $verb);
 
-	$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
+	$id = defaults($_REQUEST, 'id', 0);
 
 	$res = Item::performLike($id, $verb);
 
@@ -5732,7 +5729,7 @@ function api_friendica_notification_seen($type)
 		throw new BadRequestException("Invalid argument count");
 	}
 
-	$id = (x($_REQUEST, 'id') ? intval($_REQUEST['id']) : 0);
+	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
 	$nm = new NotificationsManager();
 	$note = $nm->getByID($id);
@@ -5775,7 +5772,7 @@ function api_friendica_direct_messages_setseen($type)
 	// params
 	$user_info = api_get_user($a);
 	$uid = $user_info['uid'];
-	$id = (x($_REQUEST, 'id') ? $_REQUEST['id'] : 0);
+	$id = defaults($_REQUEST, 'id', 0);
 
 	// return error if id is zero
 	if ($id == "") {
@@ -5824,7 +5821,7 @@ function api_friendica_direct_messages_search($type, $box = "")
 
 	// params
 	$user_info = api_get_user($a);
-	$searchstring = (x($_REQUEST, 'searchstring') ? $_REQUEST['searchstring'] : "");
+	$searchstring = defaults($_REQUEST, 'searchstring', "");
 	$uid = $user_info['uid'];
 
 	// error if no searchstring specified
@@ -5886,7 +5883,7 @@ function api_friendica_profile_show($type)
 	}
 
 	// input params
-	$profile_id = (x($_REQUEST, 'profile_id') ? $_REQUEST['profile_id'] : 0);
+	$profile_id = defaults($_REQUEST, 'profile_id', 0);
 
 	// retrieve general information about profiles for user
 	$multi_profiles = Feature::isEnabled(api_user(), 'multi_profiles');

@@ -1061,7 +1061,7 @@ class Contact extends BaseObject
 			$update_contact = ($contact['avatar-date'] < DateTimeFormat::utc('now -7 days'));
 
 			// We force the update if the avatar is empty
-			if (!x($contact, 'avatar')) {
+			if (empty($contact['avatar'])) {
 				$update_contact = true;
 			}
 			if (!$update_contact || $no_update) {
@@ -1618,7 +1618,7 @@ class Contact extends BaseObject
 			return $result;
 		}
 
-		if (x($arr['contact'], 'name')) {
+		if (!empty($arr['contact']['name'])) {
 			$ret = $arr['contact'];
 		} else {
 			$ret = Probe::uri($url, $network, $uid, false);
@@ -1664,16 +1664,15 @@ class Contact extends BaseObject
 		}
 
 		// do we have enough information?
-
-		if (!((x($ret, 'name')) && (x($ret, 'poll')) && ((x($ret, 'url')) || (x($ret, 'addr'))))) {
+		if (empty($ret['name']) || empty($ret['poll']) || (empty($ret['url']) && empty($ret['addr']))) {
 			$result['message'] .= L10n::t('The profile address specified does not provide adequate information.') . EOL;
-			if (!x($ret, 'poll')) {
+			if (empty($ret['poll'])) {
 				$result['message'] .= L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			}
-			if (!x($ret, 'name')) {
+			if (empty($ret['name'])) {
 				$result['message'] .= L10n::t('An author or name was not found.') . EOL;
 			}
-			if (!x($ret, 'url')) {
+			if (empty($ret['url'])) {
 				$result['message'] .= L10n::t('No browser URL could be matched to this address.') . EOL;
 			}
 			if (strpos($url, '@') !== false) {

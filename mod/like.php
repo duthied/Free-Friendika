@@ -27,7 +27,7 @@ function like_content(App $a) {
 	}
 
 	// See if we've been passed a return path to redirect to
-	$return_path = ((x($_REQUEST,'return')) ? $_REQUEST['return'] : '');
+	$return_path = defaults($_REQUEST, 'return', '');
 
 	like_content_return($a, $return_path);
 	killme(); // NOTREACHED

@@ -481,7 +481,7 @@ class Temporal
 			$o .= "<td $today>";
 			$day = str_replace(' ', '&nbsp;', sprintf('%2.2d', $d));
 			if ($started) {
-				if (x($links, $d) !== false) {
+				if (isset($links[$d])) {
 					$o .= "<a href=\"{$links[$d]}\">$day</a>";
 				} else {
 					$o .= $day;

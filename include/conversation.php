@@ -462,17 +462,17 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr($a->cmd, 8)
 				. '?f='
-				. ((x($_GET, 'cid'))    ? '&cid='    . rawurlencode($_GET['cid'])    : '')
-				. ((x($_GET, 'search')) ? '&search=' . rawurlencode($_GET['search']) : '')
-				. ((x($_GET, 'star'))   ? '&star='   . rawurlencode($_GET['star'])   : '')
-				. ((x($_GET, 'order'))  ? '&order='  . rawurlencode($_GET['order'])  : '')
-				. ((x($_GET, 'bmark'))  ? '&bmark='  . rawurlencode($_GET['bmark'])  : '')
-				. ((x($_GET, 'liked'))  ? '&liked='  . rawurlencode($_GET['liked'])  : '')
-				. ((x($_GET, 'conv'))   ? '&conv='   . rawurlencode($_GET['conv'])   : '')
-				. ((x($_GET, 'nets'))   ? '&nets='   . rawurlencode($_GET['nets'])   : '')
-				. ((x($_GET, 'cmin'))   ? '&cmin='   . rawurlencode($_GET['cmin'])   : '')
-				. ((x($_GET, 'cmax'))   ? '&cmax='   . rawurlencode($_GET['cmax'])   : '')
-				. ((x($_GET, 'file'))   ? '&file='   . rawurlencode($_GET['file'])   : '')
+				. (!empty($_GET['cid'])    ? '&cid='    . rawurlencode($_GET['cid'])    : '')
+				. (!empty($_GET['search']) ? '&search=' . rawurlencode($_GET['search']) : '')
+				. (!empty($_GET['star'])   ? '&star='   . rawurlencode($_GET['star'])   : '')
+				. (!empty($_GET['order'])  ? '&order='  . rawurlencode($_GET['order'])  : '')
+				. (!empty($_GET['bmark'])  ? '&bmark='  . rawurlencode($_GET['bmark'])  : '')
+				. (!empty($_GET['liked'])  ? '&liked='  . rawurlencode($_GET['liked'])  : '')
+				. (!empty($_GET['conv'])   ? '&conv='   . rawurlencode($_GET['conv'])   : '')
+				. (!empty($_GET['nets'])   ? '&nets='   . rawurlencode($_GET['nets'])   : '')
+				. (!empty($_GET['cmin'])   ? '&cmin='   . rawurlencode($_GET['cmin'])   : '')
+				. (!empty($_GET['cmax'])   ? '&cmax='   . rawurlencode($_GET['cmax'])   : '')
+				. (!empty($_GET['file'])   ? '&file='   . rawurlencode($_GET['file'])   : '')
 
 				. "'; var profile_page = " . $pager->getPage() . "; </script>\r\n";
 		}
@@ -482,7 +482,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 		if (!$update) {
 			$tab = 'posts';
-			if (x($_GET, 'tab')) {
+			if (!empty($_GET['tab'])) {
 				$tab = Strings::escapeTags(trim($_GET['tab']));
 			}
 			if ($tab === 'posts') {
@@ -951,7 +951,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
-			if (!x($item, 'thr-parent')) {
+			if (empty($item['thr-parent'])) {
 				$item['thr-parent'] = $item['parent-uri'];
 			}
 
@@ -1064,7 +1064,7 @@ function format_like($cnt, array $arr, $type, $id) {
 		$expanded .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</div>';
 	}
 
-	$phrase .= EOL ;
+	$phrase .= EOL;
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
 		'$phrase' => $phrase,
 		'$type' => $type,
@@ -1079,7 +1079,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 {
 	$o = '';
 
-	$geotag = x($x, 'allow_location') ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
+	$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
 
 	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
@@ -1100,7 +1100,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;
-	if (x($_REQUEST, 'public')) {
+	if (!empty($_REQUEST['public'])) {
 		$private_post = 0;
 	}
 
@@ -1432,11 +1432,11 @@ function sort_thr_commented(array $a, array $b)
 }
 
 function render_location_dummy(array $item) {
-	if (x($item, 'location') && !empty($item['location'])) {
+	if (!empty($item['location']) && !empty($item['location'])) {
 		return $item['location'];
 	}
 
-	if (x($item, 'coord') && !empty($item['coord'])) {
+	if (!empty($item['coord']) && !empty($item['coord'])) {
 		return $item['coord'];
 	}
 }

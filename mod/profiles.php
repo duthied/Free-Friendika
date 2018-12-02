@@ -251,7 +251,7 @@ function profiles_post(App $a) {
 		$marital = Strings::escapeTags(trim($_POST['marital']));
 		$howlong = Strings::escapeTags(trim($_POST['howlong']));
 
-		$with = ((x($_POST,'with')) ? Strings::escapeTags(trim($_POST['with'])) : '');
+		$with = (!empty($_POST['with']) ? Strings::escapeTags(trim($_POST['with'])) : '');
 
 		if (! strlen($howlong)) {
 			$howlong = DBA::NULL_DATETIME;

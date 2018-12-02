@@ -63,7 +63,7 @@ if ($a->module !== 'install') {
 // Setting $scheme to '' wasn't working for some reason, so we'll check it's
 // not --- like the mobile theme does instead.
 // Allow layouts to over-ride the scheme.
-if (x($_REQUEST, 'scheme')) {
+if (!empty($_REQUEST['scheme'])) {
 	$scheme = $_REQUEST['scheme'];
 }
 

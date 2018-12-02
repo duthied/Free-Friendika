@@ -59,10 +59,10 @@ function message_post(App $a)
 		return;
 	}
 
-	$replyto   = x($_REQUEST, 'replyto')   ? Strings::escapeTags(trim($_REQUEST['replyto']))   : '';
-	$subject   = x($_REQUEST, 'subject')   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '';
-	$body      = x($_REQUEST, 'body')      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '';
-	$recipient = x($_REQUEST, 'messageto') ? intval($_REQUEST['messageto'])       : 0;
+	$replyto   = !empty($_REQUEST['replyto'])   ? Strings::escapeTags(trim($_REQUEST['replyto'])) : '';
+	$subject   = !empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject'])) : '';
+	$body      = !empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body']))    : '';
+	$recipient = !empty($_REQUEST['messageto']) ? intval($_REQUEST['messageto'])                  : 0;
 
 	$ret = Mail::send($recipient, $body, $subject, $replyto);
 	$norecip = false;
@@ -253,8 +253,8 @@ function message_content(App $a)
 			'$prefill' => $prefill,
 			'$preid' => $preid,
 			'$subject' => L10n::t('Subject:'),
-			'$subjtxt' => x($_REQUEST, 'subject') ? strip_tags($_REQUEST['subject']) : '',
-			'$text' => x($_REQUEST, 'body') ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : '',
+			'$subjtxt' => !empty($_REQUEST['subject']) ? strip_tags($_REQUEST['subject']) : '',
+			'$text' => !empty($_REQUEST['body']) ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : '',
 			'$readonly' => '',
 			'$yourmessage' => L10n::t('Your message:'),
 			'$select' => $select,

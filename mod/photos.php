@@ -283,7 +283,7 @@ function photos_post(App $a)
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
-					$res[] = "'" . DBA::escape($rr['rid']) . "'" ;
+					$res[] = "'" . DBA::escape($rr['rid']) . "'";
 				}
 			} else {
 				$a->internalRedirect($_SESSION['photo_return']);
@@ -365,10 +365,10 @@ function photos_post(App $a)
 		return; // NOTREACHED
 	}
 
-	if ($a->argc > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || !empty($_POST['albname']) !== false)) {
+	if ($a->argc > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || isset($_POST['albname']))) {
 		$desc        = !empty($_POST['desc'])      ? Strings::escapeTags(trim($_POST['desc']))      : '';
 		$rawtags     = !empty($_POST['newtag'])    ? Strings::escapeTags(trim($_POST['newtag']))    : '';
-		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])         : 0;
+		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])                      : 0;
 		$albname     = !empty($_POST['albname'])   ? Strings::escapeTags(trim($_POST['albname']))   : '';
 		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
 
@@ -681,8 +681,8 @@ function photos_post(App $a)
 					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
-					$arr['body']          = L10n::t('%1$s was tagged in %2$s by %3$s', '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . L10n::t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
-					$arr['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . System::baseUrl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
+					$arr['body']          = L10n::t('%1$s was tagged in %2$s by %3$s', '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . L10n::t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]');
+					$arr['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . System::baseUrl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n";
 
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
 					$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
@@ -1353,7 +1353,7 @@ function photos_content(App $a)
 		}
 
 		if ($prevlink) {
-			$prevlink = [$prevlink, '<div class="icon prev"></div>'] ;
+			$prevlink = [$prevlink, '<div class="icon prev"></div>'];
 		}
 
 		$photo = [

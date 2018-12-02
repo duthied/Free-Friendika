@@ -48,7 +48,7 @@ function noscrape_init(App $a)
 		exit;
 	}
 
-	$keywords = ((x($a->profile, 'pub_keywords')) ? $a->profile['pub_keywords'] : '');
+	$keywords = defaults($a->profile, 'pub_keywords', '');
 	$keywords = str_replace(['#',',',' ',',,'], ['',' ',',',','], $keywords);
 	$keywords = explode(',', $keywords);
 

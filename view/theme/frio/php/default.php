@@ -36,7 +36,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 		// if the page is an standard page (so we don't have it twice for modals)
 		//
 		/// @todo Think about to move js stuff in the footer
-		if (!$minimal && x($page, 'htmlhead')) {
+		if (!$minimal && !empty($page['htmlhead'])) {
 			echo $page['htmlhead'];
 		}
 
@@ -67,7 +67,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 	<body id="top" class="mod-<?php echo $a->module . " " . $is_singleuser_class . " " . $view_mode_class;?>">
 		<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
-	if (x($page, 'nav') && !$minimal) {
+	if (!empty($page['nav']) && !$minimal) {
 		echo str_replace(
 			"~config.sitename~",
 			Config::get('config', 'sitename'),
@@ -83,7 +83,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 	if ($minimal) {
 ?>
 		<section class="minimal" style="margin:0px!important; padding:0px!important; float:none!important; display:block!important;">
-			<?php if (x($page, 'content')) echo $page['content']; ?>
+			<?php if (!empty($page['content'])) echo $page['content']; ?>
 			<div id="page-footer"></div>
 		</section>
 <?php
@@ -94,15 +94,15 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 			<div class="container">
 				<div class="row">
 <?php
-				if ((!x($_REQUEST, 'pagename') || $_REQUEST['pagename'] != "lostpass") && ($_SERVER['REQUEST_URI'] != $basepath)) {
+				if ((empty($_REQUEST['pagename']) || $_REQUEST['pagename'] != "lostpass") && ($_SERVER['REQUEST_URI'] != $basepath)) {
 					echo '
 					<aside class="col-lg-3 col-md-3 offcanvas-sm offcanvas-xs">';
 
-						if (x($page, 'aside')) {
+						if (!empty($page['aside'])) {
 							echo $page['aside'];
 						}
 
-						if (x($page, 'right_aside')) {
+						if (!empty($page['right_aside'])) {
 							echo $page['right_aside'];
 						}
 
@@ -113,7 +113,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 						<section class="sectiontop ';
 							echo $a->argv[0];
 							echo '-content-wrapper">';
-							if (x($page, 'content')) {
+							if (!empty($page['content'])) {
 								echo $page['content'];
 							}
 							echo '
@@ -124,7 +124,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 				} else {
 					echo '
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="content" style="margin-top:50px;">';
-						if (x($page, 'content')) {
+						if (!empty($page['content'])) {
 							echo $page['content'];
 						}
 						echo '

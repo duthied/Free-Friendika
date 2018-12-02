@@ -36,7 +36,7 @@ class Emailer
 		Addon::callHooks('emailer_send_prepare', $params);
 
 		$email_textonly = false;
-		if (x($params, "uid")) {
+		if (!empty($params['uid'])) {
 			$email_textonly = PConfig::get($params['uid'], "system", "email_textonly");
 		}
 

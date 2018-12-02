@@ -58,7 +58,7 @@ class Nav
 	public static function build(App $a)
 	{
 		// Placeholder div for popup panel
-		$nav = '<div id="panel" style="display: none;"></div>' ;
+		$nav = '<div id="panel" style="display: none;"></div>';
 
 		$nav_info = self::getInfo($a);
 
@@ -170,7 +170,7 @@ class Nav
 		// "Home" should also take you home from an authenticated remote profile connection
 		$homelink = Profile::getMyURL();
 		if (! $homelink) {
-			$homelink = ((x($_SESSION, 'visitor_home')) ? $_SESSION['visitor_home'] : '');
+			$homelink = defaults($_SESSION, 'visitor_home', '');
 		}
 
 		if (($a->module != 'home') && (! (local_user()))) {

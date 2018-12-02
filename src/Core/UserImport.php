@@ -105,7 +105,7 @@ class UserImport
 		}
 
 
-		if (!x($account, 'version')) {
+		if (empty($account['version'])) {
 			notice(L10n::t("Error! No version data in file! This is not a Friendica account file?"));
 			return;
 		}

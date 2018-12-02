@@ -201,7 +201,7 @@ class OnePoll
 			$url = $contact['poll'] . '?dfrn_id=' . $idtosend
 				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
 				. '&type=data&last_update=' . $last_update
-				. '&perm=' . $perm ;
+				. '&perm=' . $perm;
 
 			$curlResult = Network::curl($url);
 

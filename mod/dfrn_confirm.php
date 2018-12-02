@@ -63,7 +63,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 	 * this being a page type which supports automatic friend acceptance. That is also Scenario 1
 	 * since we are operating on behalf of our registered user to approve a friendship.
 	 */
-	if (!x($_POST, 'source_url')) {
+	if (empty($_POST['source_url'])) {
 		$uid = defaults($handsfree, 'uid', local_user());
 		if (!$uid) {
 			notice(L10n::t('Permission denied.') . EOL);
@@ -417,7 +417,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 	 * In the section above where the confirming party makes a POST and
 	 * retrieves xml status information, they are communicating with the following code.
 	 */
-	if (x($_POST, 'source_url')) {
+	if (!empty($_POST['source_url'])) {
 		// We are processing an external confirmation to an introduction created by our user.
 		$public_key =         defaults($_POST, 'public_key', '');
 		$dfrn_id    = hex2bin(defaults($_POST, 'dfrn_id'   , ''));
@@ -435,7 +435,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 
-		if (x($aes_key)) {
+		if (!empty($aes_key)) {
 			$aes_key = hex2bin($aes_key);
 			$public_key = hex2bin($public_key);
 		}

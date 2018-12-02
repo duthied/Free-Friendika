@@ -301,7 +301,7 @@ function frio_remote_nav($a, &$nav)
  */
 function frio_acl_lookup(App $a, &$results)
 {
-	$nets = x($_GET, 'nets') ? Strings::escapeTags(trim($_GET['nets'])) : '';
+	$nets = !empty($_GET['nets']) ? Strings::escapeTags(trim($_GET['nets'])) : '';
 
 	// we introduce a new search type, r should do the same query like it's
 	// done in /src/Module/Contact.php for connections

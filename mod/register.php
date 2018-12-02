@@ -84,7 +84,7 @@ function register_post(App $a)
 
 	$using_invites = Config::get('system', 'invitation_only');
 	$num_invites   = Config::get('system', 'number_invites');
-	$invite_id = ((x($_POST, 'invite_id')) ? Strings::escapeTags(trim($_POST['invite_id'])) : '');
+	$invite_id = (!empty($_POST['invite_id']) ? Strings::escapeTags(trim($_POST['invite_id'])) : '');
 
 	if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN) {
 		if ($using_invites && $invite_id) {
@@ -93,7 +93,7 @@ function register_post(App $a)
 		}
 
 		// Only send a password mail when the password wasn't manually provided
-		if (!x($_POST, 'password1') || !x($_POST, 'confirm')) {
+		if (empty($_POST['password1']) || empty($_POST['confirm'])) {
 			$res = Model\User::sendRegisterOpenEmail(
 				$user,
 				Config::get('config', 'sitename'),
@@ -195,20 +195,20 @@ function register_content(App $a)
 		}
 	}
 
-	if (x($_SESSION, 'theme')) {
+	if (!empty($_SESSION['theme'])) {
 		unset($_SESSION['theme']);
 	}
-	if (x($_SESSION, 'mobile-theme')) {
+	if (!empty($_SESSION['mobile-theme'])) {
 		unset($_SESSION['mobile-theme']);
 	}
 
 
-	$username   = x($_REQUEST, 'username')   ? $_REQUEST['username']   : '';
-	$email      = x($_REQUEST, 'email')      ? $_REQUEST['email']      : '';
-	$openid_url = x($_REQUEST, 'openid_url') ? $_REQUEST['openid_url'] : '';
-	$nickname   = x($_REQUEST, 'nickname')   ? $_REQUEST['nickname']   : '';
-	$photo      = x($_REQUEST, 'photo')      ? $_REQUEST['photo']      : '';
-	$invite_id  = x($_REQUEST, 'invite_id')  ? $_REQUEST['invite_id']  : '';
+	$username   = defaults($_REQUEST, 'username'  , '');
+	$email      = defaults($_REQUEST, 'email'     , '');
+	$openid_url = defaults($_REQUEST, 'openid_url', '');
+	$nickname   = defaults($_REQUEST, 'nickname'  , '');
+	$photo      = defaults($_REQUEST, 'photo'     , '');
+	$invite_id  = defaults($_REQUEST, 'invite_id' , '');
 
 	$noid = Config::get('system', 'no_openid');
 

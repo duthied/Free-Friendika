@@ -88,7 +88,7 @@ function poco_init(App $a) {
 	if (!empty($cid)) {
 		$sql_extra = sprintf(" AND `contact`.`id` = %d ", intval($cid));
 	}
-	if (x($_GET, 'updatedSince')) {
+	if (!empty($_GET['updatedSince'])) {
 		$update_limit = date(DateTimeFormat::MYSQL, strtotime($_GET['updatedSince']));
 	}
 	if ($global) {
@@ -122,7 +122,7 @@ function poco_init(App $a) {
 	} else {
 		$startIndex = 0;
 	}
-	$itemsPerPage = ((x($_GET, 'count') && intval($_GET['count'])) ? intval($_GET['count']) : $totalResults);
+	$itemsPerPage = ((!empty($_GET['count'])) ? intval($_GET['count']) : $totalResults);
 
 	if ($global) {
 		Logger::log("Start global query", Logger::DEBUG);
@@ -164,13 +164,13 @@ function poco_init(App $a) {
 	Logger::log("Query done", Logger::DEBUG);
 
 	$ret = [];
-	if (x($_GET, 'sorted')) {
+	if (!empty($_GET['sorted'])) {
 		$ret['sorted'] = false;
 	}
-	if (x($_GET, 'filtered')) {
+	if (!empty($_GET['filtered'])) {
 		$ret['filtered'] = false;
 	}
-	if (x($_GET, 'updatedSince') && ! $global) {
+	if (!empty($_GET['updatedSince']) && ! $global) {
 		$ret['updatedSince'] = false;
 	}
 	$ret['startIndex']   = (int) $startIndex;
@@ -196,7 +196,7 @@ function poco_init(App $a) {
 		'generation' => false
 	];
 
-	if ((! x($_GET, 'fields')) || ($_GET['fields'] === '@all')) {
+	if (empty($_GET['fields']) || ($_GET['fields'] === '@all')) {
 		foreach ($fields_ret as $k => $v) {
 			$fields_ret[$k] = true;
 		}

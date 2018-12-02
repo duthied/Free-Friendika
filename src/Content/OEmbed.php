@@ -308,12 +308,12 @@ class OEmbed
 		}
 
 		$domain = parse_url($url, PHP_URL_HOST);
-		if (!x($domain)) {
+		if (empty($domain)) {
 			return false;
 		}
 
 		$str_allowed = Config::get('system', 'allowed_oembed', '');
-		if (!x($str_allowed)) {
+		if (empty($str_allowed)) {
 			return false;
 		}
 
@@ -334,7 +334,7 @@ class OEmbed
 			throw new Exception('OEmbed failed for URL: ' . $url);
 		}
 
-		if (x($title)) {
+		if (!empty($title)) {
 			$o->title = $title;
 		}
 

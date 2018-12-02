@@ -188,7 +188,7 @@ function ping_init(App $a)
 		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1 + $intros2;
 
-		$myurl = System::baseUrl() . '/profile/' . $a->user['nickname'] ;
+		$myurl = System::baseUrl() . '/profile/' . $a->user['nickname'];
 		$mails = q(
 			"SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
@@ -373,12 +373,12 @@ function ping_init(App $a)
 	$sysmsgs = [];
 	$sysmsgs_info = [];
 
-	if (x($_SESSION, 'sysmsg')) {
+	if (!empty($_SESSION['sysmsg'])) {
 		$sysmsgs = $_SESSION['sysmsg'];
 		unset($_SESSION['sysmsg']);
 	}
 
-	if (x($_SESSION, 'sysmsg_info')) {
+	if (!empty($_SESSION['sysmsg_info'])) {
 		$sysmsgs_info = $_SESSION['sysmsg_info'];
 		unset($_SESSION['sysmsg_info']);
 	}
@@ -483,7 +483,7 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]
-				&& !(x($result, $notification["parent"]) && !empty($result[$notification["parent"]]))
+				&& empty($result[$notification["parent"]])
 			) {
 				// Should we condense the notifications or show them all?
 				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {

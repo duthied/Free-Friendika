@@ -412,12 +412,12 @@ class User
 		$password   = !empty($data['password'])   ? trim($data['password'])           : '';
 		$password1  = !empty($data['password1'])  ? trim($data['password1'])          : '';
 		$confirm    = !empty($data['confirm'])    ? trim($data['confirm'])            : '';
-		$blocked    = !empty($data['blocked'])    ? intval($data['blocked'])          : 0;
-		$verified   = !empty($data['verified'])   ? intval($data['verified'])         : 0;
+		$blocked    = !empty($data['blocked']);
+		$verified   = !empty($data['verified']);
 		$language   = !empty($data['language'])   ? Strings::escapeTags(trim($data['language']))   : 'en';
 
-		$publish = !empty($data['profile_publish_reg']) && intval($data['profile_publish_reg']) ? 1 : 0;
-		$netpublish = strlen(Config::get('system', 'directory')) ? $publish : 0;
+		$publish = !empty($data['profile_publish_reg']);
+		$netpublish = $publish && Config::get('system', 'directory');
 
 		if ($password1 != $confirm) {
 			throw new Exception(L10n::t('Passwords do not match. Password unchanged.'));
