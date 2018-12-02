@@ -26,8 +26,7 @@ function hub_return($valid, $body)
 
 function hub_post_return()
 {
-	header($_SERVER["SERVER_PROTOCOL"] . ' 200 OK');
-	killme();
+	System::httpExit(200);
 }
 
 function pubsub_init(App $a)

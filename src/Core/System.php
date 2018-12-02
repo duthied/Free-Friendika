@@ -126,9 +126,33 @@ class System extends BaseObject
 	{
 		$err = '';
 		if ($val >= 400) {
-			$err = 'Error';
-			if (!isset($description["title"])) {
-				$description["title"] = $err." ".$val;
+			if (!empty($description['title'])) {
+				$err = $description['title'];
+			} else {
+				$title = [
+					'400' => L10n::t('Error 400 - Bad Request'),
+					'401' => L10n::t('Error 401 - Unauthorized'),
+					'403' => L10n::t('Error 403 - Forbidden'),
+					'404' => L10n::t('Error 404 - Not Found'),
+					'500' => L10n::t('Error 500 - Internal Server Error'),
+					'503' => L10n::t('Error 503 - Service Unavailable'),
+					];
+				$err = defaults($title, $val, 'Error ' . $val);
+				$description['title'] = $err;
+			}
+			if (empty($description['description'])) {
+				// Explanations are taken from https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+				$explanation = [
+					'400' => L10n::t('The server cannot or will not process the request due to an apparent client error.'),
+					'401' => L10n::t('Authentication is required and has failed or has not yet been provided.'),
+					'403' => L10n::t('The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource, or may need an account.'),
+					'404' => L10n::t('The requested resource could not be found but may be available in the future.'),
+					'500' => L10n::t('An unexpected condition was encountered and no more specific message is suitable.'),
+					'503' => L10n::t('The server is currently unavailable (because it is overloaded or down for maintenance). Please try again later.'),
+					];
+				if (!empty($explanation[$val])) {
+					$description['description'] = $explanation[$val];
+				}
 			}
 		}
 
