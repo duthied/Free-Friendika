@@ -599,6 +599,7 @@ class Receiver
 		$photo = defaults($profile, 'photo', null);
 		unset($profile['photo']);
 		unset($profile['baseurl']);
+		unset($profile['guid']);
 
 		$profile['nurl'] = Strings::normaliseLink($profile['url']);
 		DBA::update('contact', $profile, ['id' => $cid]);
