@@ -65,7 +65,7 @@ function network_init(App $a)
 	$cid = 0;
 	if (!empty($_GET['cid'])) {
 		$cid = $_GET['cid'];
-		$_GET['nets'] = 'all';
+		$_GET['nets'] = '';
 		$group_id = 0;
 	}
 
@@ -86,7 +86,7 @@ function network_init(App $a)
 
 	// fetch last used network view and redirect if needed
 	if (!$is_a_date_query) {
-		$sel_nets = defaults($_GET, 'nets', false);
+		$sel_nets = defaults($_GET, 'nets', '');
 		$sel_tabs = network_query_get_sel_tab($a);
 		$sel_groups = network_query_get_sel_group($a);
 		$last_sel_tabs = PConfig::get(local_user(), 'network.view', 'tab.selected');
@@ -137,7 +137,7 @@ function network_init(App $a)
 			}
 		}
 
-		if ($sel_nets !== false) {
+		if ($sel_nets) {
 			$net_args['nets'] = $sel_nets;
 		}
 
@@ -149,11 +149,6 @@ function network_init(App $a)
 
 			$a->internalRedirect($redir_url);
 		}
-	}
-
-	// If nets is set to all, unset it
-	if (!empty($_GET['nets']) && $_GET['nets'] === 'all') {
-		unset($_GET['nets']);
 	}
 
 	if (empty($a->page['aside'])) {
