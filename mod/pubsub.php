@@ -17,7 +17,7 @@ function hub_return($valid, $body)
 		header($_SERVER["SERVER_PROTOCOL"] . ' 200 OK');
 		echo $body;
 	} else {
-		System::httpExit(404, ['title' => L10n::t('Not found.')]);
+		System::httpExit(404);
 	}
 	killme();
 }
