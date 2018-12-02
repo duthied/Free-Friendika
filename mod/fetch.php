@@ -18,8 +18,7 @@ function fetch_init(App $a)
 {
 
 	if (($a->argc != 3) || (!in_array($a->argv[1], ["post", "status_message", "reshare"]))) {
-		header($_SERVER["SERVER_PROTOCOL"].' 404 '.L10n::t('Not Found'));
-		killme();
+		System::httpExit(404);
 	}
 
 	$guid = $a->argv[2];
@@ -45,15 +44,13 @@ function fetch_init(App $a)
 			}
 		}
 
-		header($_SERVER["SERVER_PROTOCOL"].' 404 '.L10n::t('Not Found'));
-		killme();
+		System::httpExit(404);
 	}
 
 	// Fetch some data from the author (We could combine both queries - but I think this is more readable)
 	$user = User::getOwnerDataById($item["uid"]);
 	if (!$user) {
-		header($_SERVER["SERVER_PROTOCOL"].' 404 '.L10n::t('Not Found'));
-		killme();
+		System::httpExit(404);
 	}
 
 	$status = Diaspora::buildStatus($item, $user);
