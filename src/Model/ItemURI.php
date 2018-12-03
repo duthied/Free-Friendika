@@ -22,11 +22,14 @@ class ItemURI extends BaseObject
 	 */
 	public static function insert($fields)
 	{
-		if (!DBA::exists('item-uri', ['uri' => $fields['uri']])) {
+		// If the URI gets too long we only take the first parts and hope for best
+		$uri = substr($fields['uri'], 0, 255);
+
+		if (!DBA::exists('item-uri', ['uri' => $uri])) {
 			DBA::insert('item-uri', $fields, true);
 		}
 
-		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $fields['uri']]);
+		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
 
 		if (!DBA::isResult($itemuri)) {
 			// This shouldn't happen
@@ -45,6 +48,9 @@ class ItemURI extends BaseObject
 	 */
 	public static function getIdByURI($uri)
 	{
+		// If the URI gets too long we only take the first parts and hope for best
+		$uri = substr($uri, 0, 255);
+
 		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
 
 		if (!DBA::isResult($itemuri)) {
