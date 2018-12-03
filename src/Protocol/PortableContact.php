@@ -734,7 +734,7 @@ class PortableContact
 			}
 		}
 
-		if (is_array($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
+		if (!empty($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
 			$server['site_name'] = $nodeinfo['metadata']['nodeName'];
 		}
 
@@ -817,7 +817,7 @@ class PortableContact
 			}
 		}
 
-		if (is_array($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
+		if (!empty($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
 			$server['site_name'] = $nodeinfo['metadata']['nodeName'];
 		}
 
