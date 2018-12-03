@@ -22,7 +22,7 @@
 						</span>
 						{{if $location.name}}
 						<span role="presentation" aria-hidden="true"> · </span>
-						<span class="event-location event-card-location">{{$location.name|escape}}</span>
+						<span class="event-location event-card-location">{{$location.name}}</span>
 						{{/if}}
 					</div>
 					<div class="event-card-profile-name profile-entry-name">
