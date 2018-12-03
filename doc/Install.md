@@ -248,7 +248,10 @@ Friendica will not work correctly if you cannot perform this step.
 
 If it is not possible to set up a cron job then please activate the "frontend worker" in the administration interface.
 
-Once you have installed Friendica and created an admin account as part of the process, you can access the admin panel of your installation and do most of the server wide configuration from there
+Once you have installed Friendica and created an admin account as part of the process, you can access the admin panel of your installation and do most of the server wide configuration from there.
+
+At this point it is recommended that you set up logging and logrotation.
+To do so please visit [Settings](help/Settings) and search the 'Logs' section for more information.
 
 ### Set up a backup plan
 
