@@ -177,7 +177,7 @@ class CurlResult
 
 			$this->redirectUrl = Network::unparseURL($redirect_parts);
 
-			$this->isRedirectUrl = filter_var($this->redirectUrl, FILTER_VALIDATE_URL) !== false;
+			$this->isRedirectUrl = true;
 		} else {
 			$this->isRedirectUrl = false;
 		}

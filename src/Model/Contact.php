@@ -99,6 +99,26 @@ class Contact extends BaseObject
 	 */
 
 	/**
+	 * @brief Get the basepath for a given contact link
+	 *
+	 * @param string $url The contact link
+	 *
+	 * @return string basepath
+	 */
+	public static function getBasepath($url)
+	{
+		$data = Probe::uri($url);
+		if (!empty($data['baseurl'])) {
+			return $data['baseurl'];
+		}
+
+		$urlarr = explode('/profile/', $url);
+                $basepath = $urlarr[0];
+
+		return $basepath;
+	}
+
+	/**
 	 * @brief Returns the contact id for the user and the public contact id for a given contact id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
