@@ -100,6 +100,7 @@ class Contact extends BaseObject
 
 	/**
 	 * @brief Get the basepath for a given contact link
+	 * @todo Add functionality to store this value in the contact table
 	 *
 	 * @param string $url The contact link
 	 *
