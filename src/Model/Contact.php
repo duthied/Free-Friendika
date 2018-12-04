@@ -112,10 +112,8 @@ class Contact extends BaseObject
 			return $data['baseurl'];
 		}
 
-		$urlarr = explode('/profile/', $url);
-                $basepath = $urlarr[0];
-
-		return $basepath;
+		// When we can't probe the server, we use some ugly function that does some pattern matching
+		return PortableContact::detectServer($url);
 	}
 
 	/**
