@@ -561,11 +561,7 @@ function dfrn_poll_content(App $a)
 					break;
 				default:
 					$appendix = (strstr($destination_url, '?') ? '&f=&redir=1' : '?f=&redir=1');
-					if (filter_var($url, FILTER_VALIDATE_URL)) {
-						System::externalRedirect($destination_url . $appendix);
-					} else {
-						$a->internalRedirect($destination_url . $appendix);
-					}
+					$a->redirect($destination_url . $appendix);
 					break;
 			}
 			// NOTREACHED

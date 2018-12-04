@@ -27,7 +27,7 @@ class LDSignature
 		}
 
 		$actor = JsonLD::fetchElement($data, 'actor', 'id');
-		if (empty($actor)) {
+		if (empty($actor) || !is_string($actor)) {
 			return false;
 		}
 

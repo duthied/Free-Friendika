@@ -99,6 +99,25 @@ class Contact extends BaseObject
 	 */
 
 	/**
+	 * @brief Get the basepath for a given contact link
+	 * @todo Add functionality to store this value in the contact table
+	 *
+	 * @param string $url The contact link
+	 *
+	 * @return string basepath
+	 */
+	public static function getBasepath($url)
+	{
+		$data = Probe::uri($url);
+		if (!empty($data['baseurl'])) {
+			return $data['baseurl'];
+		}
+
+		// When we can't probe the server, we use some ugly function that does some pattern matching
+		return PortableContact::detectServer($url);
+	}
+
+	/**
 	 * @brief Returns the contact id for the user and the public contact id for a given contact id
 	 *
 	 * @param int $cid Either public contact id or user's contact id

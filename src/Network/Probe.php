@@ -164,7 +164,7 @@ class Probe
 			}
 		}
 
-		self::$baseurl = "http://".$host;
+		self::$baseurl = $host_url;
 
 		Logger::log("Probing successful for ".$host, Logger::DEBUG);
 
