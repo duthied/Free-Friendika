@@ -23,6 +23,8 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 
+require_once 'include/items.php';
+
 /*
  * The notifier is typically called with:
  *
@@ -61,7 +63,7 @@ class Notifier
 		$url_recipients = [];
 
 		$normal_mode = true;
-		$recipients_relocate = [];
+		$delivery_contacts_stmt = null;
 		$target_item = [];
 		$items = [];
 
@@ -87,8 +89,8 @@ class Notifier
 			$normal_mode = false;
 			$uid = $target_id;
 
-			$recipients_relocate = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND `network` IN ('%s', '%s')",
-						intval($uid), Protocol::DFRN, Protocol::DIASPORA);
+			$condition = ['uid' => $target_id, 'self' => false, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
 		} else {
 			// find ancestors
 			$condition = ['id' => $target_id, 'visible' => true, 'moderated' => false];
@@ -235,15 +237,12 @@ class Notifier
 					if ($parent["network"] == Protocol::OSTATUS) {
 						// Distribute the message to the DFRN contacts as if this wasn't a followup since OStatus can't relay comments
 						// Currently it is work at progress
-						$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `network` = '%s' AND NOT `blocked` AND NOT `pending` AND NOT `archive`",
-							intval($uid),
-							DBA::escape(Protocol::DFRN)
-						);
-						if (DBA::isResult($r)) {
-							foreach ($r as $rr) {
-								$recipients_followup[] = $rr['id'];
-							}
+						$condition = ['uid' => $uid, 'network' => Protocol::DFRN, 'blocked' => false, 'pending' => false, 'archive' => false];
+						$followup_contacts_stmt = DBA::select('contact', ['id'], $condition);
+						while($followup_contact = DBA::fetch($followup_contacts_stmt)) {
+							$recipients_followup[] = $followup_contact['id'];
 						}
+						DBA::close($followup_contacts_stmt);
 					}
 				}
 
@@ -356,21 +355,15 @@ class Notifier
 			if (!strlen($target_item['allow_cid']) && !strlen($target_item['allow_gid'])
 				&& !strlen($target_item['deny_cid']) && !strlen($target_item['deny_gid'])
 				&& intval($target_item['pubmail'])) {
-				$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `network` = '%s'",
-					intval($uid),
-					DBA::escape(Protocol::MAIL)
-				);
-				if (DBA::isResult($r)) {
-					foreach ($r as $rr) {
-						$recipients[] = $rr['id'];
-					}
+				$mail_contacts_stmt = DBA::select('contact', ['id'], ['uid' => $uid, 'network' => Protocol::MAIL]);
+				while ($mail_contact = DBA::fetch($mail_contacts_stmt)) {
+					$recipients[] = $mail_contact['id'];
 				}
+				DBA::close($mail_contacts_stmt);
 			}
 		}
 
-		if ($cmd == Delivery::RELOCATION) {
-			$contacts = $recipients_relocate;
-		} else {
+		if (empty($delivery_contacts_stmt)) {
 			if ($followup) {
 				$recipients = $recipients_followup;
 			}
@@ -379,35 +372,47 @@ class Notifier
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
 			}
-			$result = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
-			$contacts = DBA::toArray($result);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
 		}
 
 		$conversants = [];
 		$batch_delivery = false;
 
 		if ($public_message && !in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
-			$r1 = [];
+			$relay_list = [];
 
 			if ($diaspora_delivery) {
 				$batch_delivery = true;
 
-				$r1 = q("SELECT `batch`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`name`) AS `name`, ANY_VALUE(`network`) AS `network`
-					FROM `contact` WHERE `network` = '%s' AND `batch` != ''
-					AND `uid` = %d AND `rel` != %d AND NOT `blocked` AND NOT `pending` AND NOT `archive` GROUP BY `batch`",
-					DBA::escape(Protocol::DIASPORA),
-					intval($owner['uid']),
-					intval(Contact::SHARING)
+				$relay_list_stmt = DBA::p(
+					"SELECT
+       					`batch`,
+       					ANY_VALUE(`id`) AS `id`,
+       					ANY_VALUE(`name`) AS `name`,
+       					ANY_VALUE(`network`) AS `network`
+					FROM `contact`
+					WHERE `network` = ?
+					AND `batch` != ''
+					AND `uid` = ?
+					AND `rel` != ?
+					AND NOT `blocked`
+					AND NOT `pending`
+					AND NOT `archive`
+					GROUP BY `batch`",
+					Protocol::DIASPORA,
+					$owner['uid'],
+					Contact::SHARING
 				);
+				$relay_list = DBA::toArray($relay_list_stmt);
 
 				// Fetch the participation list
 				// The function will ensure that there are no duplicates
-				$r1 = Diaspora::participantsForThread($target_id, $r1);
+				$relay_list = Diaspora::participantsForThread($target_id, $relay_list);
 
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
 				if (!$followup && !self::isForumPost($target_item, $owner)) {
-					$r1 = Diaspora::relayList($target_id, $r1);
+					$relay_list = Diaspora::relayList($target_id, $relay_list);
 				}
 			}
 
@@ -416,7 +421,7 @@ class Notifier
 
 			$r2 = DBA::toArray(DBA::select('contact', ['id', 'name', 'network'], $condition));
 
-			$r = array_merge($r2, $r1);
+			$r = array_merge($r2, $relay_list);
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
@@ -439,33 +444,32 @@ class Notifier
 		}
 
 		// delivery loop
-		if (DBA::isResult($contacts)) {
-			foreach ($contacts as $contact) {
-				// Don't deliver to Diaspora if it already had been done as batch delivery
-				if (($contact['network'] == Protocol::DIASPORA) && $batch_delivery) {
-					Logger::log('Already delivered  id ' . $target_id . ' via batch to ' . json_encode($contact), Logger::DEBUG);
-					continue;
-				}
-
-				// Don't deliver to folks who have already been delivered to
-				if (in_array($contact['id'], $conversants)) {
-					Logger::log('Already delivered id ' . $target_id. ' to ' . json_encode($contact), Logger::DEBUG);
-					continue;
-				}
-
-				Logger::log('Delivery of item ' . $target_id . ' to ' . json_encode($contact), Logger::DEBUG);
-
-				// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
-				// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
-				// The conversion in Markdown reduces the formatting, so these posts should arrive after the Friendica posts.
-				if ($contact['network'] == Protocol::DIASPORA) {
-					$deliver_options = ['priority' => $a->queue['priority'], 'dont_fork' => true];
-				} else {
-					$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
-				}
-				Worker::add($deliver_options, 'Delivery', $cmd, $target_id, (int)$contact['id']);
+		while ($contact = DBA::fetch($delivery_contacts_stmt)) {
+			// Don't deliver to Diaspora if it already had been done as batch delivery
+			if (($contact['network'] == Protocol::DIASPORA) && $batch_delivery) {
+				Logger::log('Already delivered  id ' . $target_id . ' via batch to ' . json_encode($contact), Logger::DEBUG);
+				continue;
 			}
+
+			// Don't deliver to folks who have already been delivered to
+			if (in_array($contact['id'], $conversants)) {
+				Logger::log('Already delivered id ' . $target_id. ' to ' . json_encode($contact), Logger::DEBUG);
+				continue;
+			}
+
+			Logger::log('Delivery of item ' . $target_id . ' to ' . json_encode($contact), Logger::DEBUG);
+
+			// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
+			// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
+			// The conversion in Markdown reduces the formatting, so these posts should arrive after the Friendica posts.
+			if ($contact['network'] == Protocol::DIASPORA) {
+				$deliver_options = ['priority' => $a->queue['priority'], 'dont_fork' => true];
+			} else {
+				$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
+			}
+			Worker::add($deliver_options, 'Delivery', $cmd, $target_id, (int)$contact['id']);
 		}
+		DBA::close($delivery_contacts_stmt);
 
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
@@ -520,6 +524,7 @@ class Notifier
 		while($contact = DBA::fetch($contacts_stmt)) {
 			Contact::terminateFriendship($owner, $contact, true);
 		}
+		DBA::close($contacts_stmt);
 
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
 		foreach ($inboxes as $inbox) {
