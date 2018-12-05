@@ -82,33 +82,7 @@ class Notifier
 			$uid = $suggest['uid'];
 			$recipients[] = $suggest['cid'];
 		} elseif ($cmd == Delivery::REMOVAL) {
-			$r = q("SELECT `contact`.*, `user`.`prvkey` AS `uprvkey`,
-					`user`.`timezone`, `user`.`nickname`, `user`.`sprvkey`, `user`.`spubkey`,
-					`user`.`page-flags`, `user`.`prvnets`, `user`.`account-type`, `user`.`guid`
-				FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-					WHERE `contact`.`uid` = %d AND `contact`.`self` LIMIT 1",
-					intval($target_id));
-			if (!$r) {
-				return;
-			}
-			$user = $r[0];
-
-			$r = q("SELECT * FROM `contact` WHERE NOT `self` AND `uid` = %d", intval($target_id));
-			if (!$r) {
-				return;
-			}
-			foreach ($r as $contact) {
-				Contact::terminateFriendship($user, $contact, true);
-			}
-
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
-			foreach ($inboxes as $inbox) {
-				Logger::log('Account removal for user ' . $target_id . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
-				Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $a->queue['created'], 'dont_fork' => true],
-					'APDelivery', Delivery::REMOVAL, '', $inbox, $target_id);
-			}
-
-			return;
+			return self::notifySelfRemoval($target_id, $a->queue['priority'], $a->queue['created']);
 		} elseif ($cmd == Delivery::RELOCATION) {
 			$normal_mode = false;
 			$uid = $target_id;
@@ -523,6 +497,38 @@ class Notifier
 		Hook::callAll('notifier_end',$target_item);
 
 		return;
+	}
+
+	/**
+	 * @param int    $self_user_id
+	 * @param int    $priority     The priority the Notifier queue item was created with
+	 * @param string $created      The date the Notifier queue item was created on
+	 * @return bool
+	 */
+	private static function notifySelfRemoval($self_user_id, $priority, $created)
+	{
+		$owner = User::getOwnerDataById($self_user_id);
+		if (!$owner) {
+			return false;
+		}
+
+		$contacts_stmt = DBA::select('contact', [], ['self' => false, 'uid' => $self_user_id]);
+		if (!DBA::isResult($contacts_stmt)) {
+			return false;
+		}
+
+		while($contact = DBA::fetch($contacts_stmt)) {
+			Contact::terminateFriendship($owner, $contact, true);
+		}
+
+		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
+		foreach ($inboxes as $inbox) {
+			Logger::log('Account removal for user ' . $self_user_id . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
+			Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
+				'APDelivery', Delivery::REMOVAL, '', $inbox, $self_user_id);
+		}
+
+		return true;
 	}
 
 	/**
