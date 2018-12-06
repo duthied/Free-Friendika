@@ -62,13 +62,11 @@ class Notifier
 		$recipients = [];
 		$url_recipients = [];
 
-		$normal_mode = true;
 		$delivery_contacts_stmt = null;
 		$target_item = [];
 		$items = [];
 
 		if ($cmd == Delivery::MAIL) {
-			$normal_mode = false;
 			$message = DBA::selectFirst('mail', ['uid', 'contact-id'], ['id' => $target_id]);
 			if (!DBA::isResult($message)) {
 				return;
@@ -76,7 +74,6 @@ class Notifier
 			$uid = $message['uid'];
 			$recipients[] = $message['contact-id'];
 		} elseif ($cmd == Delivery::SUGGESTION) {
-			$normal_mode = false;
 			$suggest = DBA::selectFirst('fsuggest', ['uid', 'cid'], ['id' => $target_id]);
 			if (!DBA::isResult($suggest)) {
 				return;
@@ -86,7 +83,6 @@ class Notifier
 		} elseif ($cmd == Delivery::REMOVAL) {
 			return self::notifySelfRemoval($target_id, $a->queue['priority'], $a->queue['created']);
 		} elseif ($cmd == Delivery::RELOCATION) {
-			$normal_mode = false;
 			$uid = $target_id;
 
 			$condition = ['uid' => $target_id, 'self' => false, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
@@ -304,6 +300,20 @@ class Notifier
 				$recipients = array_unique(array_merge($recipients, $allow_people, $allow_groups));
 				$deny = array_unique(array_merge($deny_people, $deny_groups));
 				$recipients = array_diff($recipients, $deny);
+
+				// If this is a public message and pubmail is set on the parent, include all your email contacts
+				if (
+					function_exists('imap_open')
+					&& !Config::get('system','imap_disabled')
+					&& $public_message
+					&& intval($target_item['pubmail'])
+				) {
+					$mail_contacts_stmt = DBA::select('contact', ['id'], ['uid' => $uid, 'network' => Protocol::MAIL]);
+					while ($mail_contact = DBA::fetch($mail_contacts_stmt)) {
+						$recipients[] = $mail_contact['id'];
+					}
+					DBA::close($mail_contacts_stmt);
+				}
 			}
 
 			// If the thread parent is OStatus then do some magic to distribute the messages.
@@ -348,19 +358,6 @@ class Notifier
 			}
 		} else {
 			$public_message = false;
-		}
-
-		// If this is a public message and pubmail is set on the parent, include all your email contacts
-		if (!empty($target_item) && function_exists('imap_open') && !Config::get('system','imap_disabled')) {
-			if (!strlen($target_item['allow_cid']) && !strlen($target_item['allow_gid'])
-				&& !strlen($target_item['deny_cid']) && !strlen($target_item['deny_gid'])
-				&& intval($target_item['pubmail'])) {
-				$mail_contacts_stmt = DBA::select('contact', ['id'], ['uid' => $uid, 'network' => Protocol::MAIL]);
-				while ($mail_contact = DBA::fetch($mail_contacts_stmt)) {
-					$recipients[] = $mail_contact['id'];
-				}
-				DBA::close($mail_contacts_stmt);
-			}
 		}
 
 		if (empty($delivery_contacts_stmt)) {
@@ -471,16 +468,16 @@ class Notifier
 		}
 		DBA::close($delivery_contacts_stmt);
 
+
+		$url_recipients = array_filter($url_recipients);
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
-		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && $normal_mode) {
+		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && !empty($target_item)) {
 			$slap = OStatus::salmon($target_item, $owner);
 			foreach ($url_recipients as $url) {
-				if ($url) {
-					Logger::log('Salmon delivery of item ' . $target_id . ' to ' . $url);
-					/// @TODO Redeliver/queue these items on failure, though there is no contact record
-					Salmon::slapper($owner, $url, $slap);
-				}
+				Logger::log('Salmon delivery of item ' . $target_id . ' to ' . $url);
+				/// @TODO Redeliver/queue these items on failure, though there is no contact record
+				Salmon::slapper($owner, $url, $slap);
 			}
 		}
 
@@ -492,13 +489,13 @@ class Notifier
 			PushSubscriber::publishFeed($owner['uid'], $a->queue['priority']);
 		}
 
-		Logger::log('Calling hooks for ' . $cmd . ' ' . $target_id, Logger::DEBUG);
+		if (!empty($target_item)) {
+			Logger::log('Calling hooks for ' . $cmd . ' ' . $target_id, Logger::DEBUG);
 
-		if ($normal_mode) {
 			Hook::fork($a->queue['priority'], 'notifier_normal', $target_item);
-		}
 
-		Hook::callAll('notifier_end',$target_item);
+			Hook::callAll('notifier_end', $target_item);
+		}
 
 		return;
 	}
