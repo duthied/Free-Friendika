@@ -16,27 +16,27 @@ class APDelivery extends BaseObject
 	/**
 	 * @brief Delivers ActivityPub messages
 	 *
-	 * @param string $cmd
-	 * @param integer $item_id
-	 * @param string $inbox
+	 * @param string  $cmd
+	 * @param integer $target_id
+	 * @param string  $inbox
 	 * @param integer $uid
 	 */
-	public static function execute($cmd, $item_id, $inbox, $uid)
+	public static function execute($cmd, $target_id, $inbox, $uid)
 	{
-		Logger::log('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $inbox, Logger::DEBUG);
+		Logger::log('Invoked: ' . $cmd . ': ' . $target_id . ' to ' . $inbox, Logger::DEBUG);
 
 		$success = true;
 
 		if ($cmd == Delivery::MAIL) {
 		} elseif ($cmd == Delivery::SUGGESTION) {
-			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $item_id);
+			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $target_id);
 		} elseif ($cmd == Delivery::RELOCATION) {
 		} elseif ($cmd == Delivery::REMOVAL) {
 			$success = ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
 		} elseif ($cmd == Delivery::PROFILEUPDATE) {
 			$success = ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
 		} else {
-			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
+			$data = ActivityPub\Transmitter::createCachedActivityFromItem($target_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
 			}
