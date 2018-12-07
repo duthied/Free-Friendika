@@ -20,7 +20,7 @@ use Friendica\Util\Strings;
 
 function group_init(App $a) {
 	if (local_user()) {
-		$a->page['aside'] = Model\Group::sidebarWidget('contacts', 'group', 'extended', (($a->argc > 1) ? $a->argv[1] : 'everyone'));
+		$a->page['aside'] = Model\Group::sidebarWidget('contact', 'group', 'extended', (($a->argc > 1) ? $a->argv[1] : 'everyone'));
 	}
 }
 
