@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.03-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1295
+-- DB_UPDATE_VERSION 1297
 -- ------------------------------------------
 
 
@@ -641,6 +641,8 @@ CREATE TABLE IF NOT EXISTS `item-delivery-data` (
 	`iid` int unsigned NOT NULL COMMENT 'Item id',
 	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
 	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
+	`queue_count` mediumint(9) NOT NULL DEFAULT '0' COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
+	`queue_done` mediumint(9) NOT NULL DEFAULT '0' COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
 	 PRIMARY KEY(`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
