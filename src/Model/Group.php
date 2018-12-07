@@ -351,8 +351,6 @@ class Group extends BaseObject
 	 */
 	public static function sidebarWidget($every = 'contact', $each = 'group', $editmode = 'standard', $group_id = '', $cid = 0)
 	{
-		$o = '';
-
 		if (!local_user()) {
 			return '';
 		}

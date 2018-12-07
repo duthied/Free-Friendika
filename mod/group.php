@@ -129,7 +129,6 @@ function group_content(App $a) {
 
 		$members = [];
 		$preselected = [];
-		$entry = [];
 
 		$context = $context + [
 			'$title' => $group['name'],
@@ -191,8 +190,6 @@ function group_content(App $a) {
 		$group = $r[0];
 		$members = Model\Contact::getByGroupId($group['id']);
 		$preselected = [];
-		$entry = [];
-		$id = 0;
 
 		if (count($members)) {
 			foreach ($members as $member) {

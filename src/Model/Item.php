@@ -1238,8 +1238,6 @@ class Item extends BaseObject
 
 	public static function insert($item, $force_parent = false, $notify = false, $dontcache = false)
 	{
-		$a = \get_app();
-
 		// If it is a posting where users should get notifications, then define it as wall posting
 		if ($notify) {
 			$item['wall'] = 1;
@@ -1883,6 +1881,7 @@ class Item extends BaseObject
 	 * @brief Insert a new item content entry
 	 *
 	 * @param array $item The item fields that are to be inserted
+	 * @return bool
 	 */
 	private static function insertActivity(&$item)
 	{

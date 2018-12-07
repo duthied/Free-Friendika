@@ -6,7 +6,6 @@ namespace Friendica\Object;
 
 use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
-use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -16,6 +15,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
 use Friendica\Util\Crypto;
@@ -38,8 +38,15 @@ class Post extends BaseObject
 	private $comment_box_template = 'comment_item.tpl';
 	private $toplevel = false;
 	private $writable = false;
+	/**
+	 * @var Post[]
+	 */
 	private $children = [];
 	private $parent = null;
+
+	/**
+	 * @var Thread
+	 */
 	private $thread = null;
 	private $redirect_url = null;
 	private $owner_url = '';
@@ -56,8 +63,6 @@ class Post extends BaseObject
 	 */
 	public function __construct(array $data)
 	{
-		$a = self::getApp();
-
 		$this->data = $data;
 		$this->setTemplate('wall');
 		$this->toplevel = $this->getId() == $this->getDataValue('parent');
@@ -105,16 +110,14 @@ class Post extends BaseObject
 	/**
 	 * Get data in a form usable by a conversation template
 	 *
-	 * @param object  $conv_responses conversation responses
+	 * @param array   $conv_responses conversation responses
 	 * @param integer $thread_level   default = 1
 	 *
 	 * @return mixed The data requested on success
 	 *               false on failure
 	 */
-	public function getTemplateData($conv_responses, $thread_level = 1)
+	public function getTemplateData(array $conv_responses, $thread_level = 1)
 	{
-		$result = [];
-
 		$a = self::getApp();
 
 		$item = $this->getData();
@@ -131,7 +134,6 @@ class Post extends BaseObject
 				'relative' => Temporal::getRelativeDate($item['edited'])
 			];
 		}
-		$commentww = '';
 		$sparkle = '';
 		$buttons = '';
 		$dropping = false;
@@ -486,7 +488,7 @@ class Post extends BaseObject
 	/**
 	 * Add a child item
 	 *
-	 * @param object $item The child item to add
+	 * @param Post $item The child item to add
 	 *
 	 * @return mixed
 	 */
@@ -536,7 +538,7 @@ class Post extends BaseObject
 	/**
 	 * Get all our children
 	 *
-	 * @return object
+	 * @return Post[]
 	 */
 	public function getChildren()
 	{
@@ -546,11 +548,11 @@ class Post extends BaseObject
 	/**
 	 * Set our parent
 	 *
-	 * @param object $item The item to set as parent
+	 * @param Post $item The item to set as parent
 	 *
 	 * @return void
 	 */
-	protected function setParent($item)
+	protected function setParent(Post $item)
 	{
 		$parent = $this->getParent();
 		if ($parent) {
@@ -575,11 +577,11 @@ class Post extends BaseObject
 	/**
 	 * Remove a child
 	 *
-	 * @param object $item The child to be removed
+	 * @param Post $item The child to be removed
 	 *
 	 * @return boolean Success or failure
 	 */
-	public function removeChild($item)
+	public function removeChild(Post $item)
 	{
 		$id = $item->getId();
 		foreach ($this->getChildren() as $key => $child) {
@@ -606,28 +608,26 @@ class Post extends BaseObject
 	}
 
 	/**
-	 * Set conversation
+	 * Set conversation thread
 	 *
-	 * @param object $conv The conversation
+	 * @param Thread $thread
 	 *
 	 * @return void
 	 */
-	public function setThread($conv)
+	public function setThread(Thread $thread = null)
 	{
-		$previous_mode = ($this->thread ? $this->thread->getMode() : '');
-
-		$this->thread = $conv;
+		$this->thread = $thread;
 
 		// Set it on our children too
 		foreach ($this->getChildren() as $child) {
-			$child->setThread($conv);
+			$child->setThread($thread);
 		}
 	}
 
 	/**
 	 * Get conversation
 	 *
-	 * @return object
+	 * @return Thread
 	 */
 	public function getThread()
 	{
@@ -649,7 +649,7 @@ class Post extends BaseObject
 	/**
 	 * Get a data value
 	 *
-	 * @param object $name key
+	 * @param string $name key
 	 *
 	 * @return mixed value on success
 	 *               false on failure
@@ -667,9 +667,8 @@ class Post extends BaseObject
 	/**
 	 * Set template
 	 *
-	 * @param object $name template name
-	 *
-	 * @return void
+	 * @param string $name template name
+	 * @return bool
 	 */
 	private function setTemplate($name)
 	{
@@ -679,6 +678,8 @@ class Post extends BaseObject
 		}
 
 		$this->template = $this->available_templates[$name];
+
+		return true;
 	}
 
 	/**

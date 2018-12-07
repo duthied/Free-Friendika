@@ -912,7 +912,7 @@ function item_content(App $a)
  * the appropiate link.
  *
  * @param App $a Application instance @TODO is unused in this function's scope (excluding included files)
- * @param unknown_type $body the text to replace the tag in
+ * @param string $body the text to replace the tag in
  * @param string $inform a comma-seperated string containing everybody to inform
  * @param string $str_tags string to add the tag to
  * @param integer $profile_uid
