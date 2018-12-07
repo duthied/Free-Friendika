@@ -15,6 +15,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -65,6 +66,7 @@ class Notifier
 		$delivery_contacts_stmt = null;
 		$target_item = [];
 		$items = [];
+		$delivery_queue_count = 0;
 
 		if ($cmd == Delivery::MAIL) {
 			$message = DBA::selectFirst('mail', ['uid', 'contact-id'], ['id' => $target_id]);
@@ -150,7 +152,7 @@ class Notifier
 		if (!empty($target_item) && !empty($items)) {
 			$parent = $items[0];
 
-			self::activityPubDelivery($cmd, $target_item, $parent, $a->queue['priority'], $a->query_string['created']);
+			$delivery_queue_count += self::activityPubDelivery($cmd, $target_item, $parent, $a->queue['priority'], $a->query_string['created']);
 
 			$fields = ['network', 'author-id', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
@@ -423,6 +425,9 @@ class Notifier
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
 					$conversants[] = $rr['id'];
+
+					$delivery_queue_count++;
+
 					Logger::log('Public delivery of item ' . $target_item["guid"] . ' (' . $target_id . ') to ' . json_encode($rr), Logger::DEBUG);
 
 					// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
@@ -454,6 +459,8 @@ class Notifier
 				continue;
 			}
 
+			$delivery_queue_count++;
+
 			Logger::log('Delivery of item ' . $target_id . ' to ' . json_encode($contact), Logger::DEBUG);
 
 			// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
@@ -473,11 +480,13 @@ class Notifier
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
 		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && !empty($target_item)) {
+			$delivery_queue_count += count($url_recipients);
 			$slap = OStatus::salmon($target_item, $owner);
 			foreach ($url_recipients as $url) {
 				Logger::log('Salmon delivery of item ' . $target_id . ' to ' . $url);
 				/// @TODO Redeliver/queue these items on failure, though there is no contact record
 				Salmon::slapper($owner, $url, $slap);
+				ItemDeliveryData::incrementQueueDone($target_id);
 			}
 		}
 
@@ -491,6 +500,10 @@ class Notifier
 
 		if (!empty($target_item)) {
 			Logger::log('Calling hooks for ' . $cmd . ' ' . $target_id, Logger::DEBUG);
+
+			if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+				ItemDeliveryData::update($target_item['id'], ['queue_count' => $delivery_queue_count]);
+			}
 
 			Hook::fork($a->queue['priority'], 'notifier_normal', $target_item);
 
@@ -539,6 +552,7 @@ class Notifier
 	 * @param array  $parent
 	 * @param int    $priority    The priority the Notifier queue item was created with
 	 * @param string $created     The date the Notifier queue item was created on
+	 * @return int The number of delivery tasks created
 	 */
 	private static function activityPubDelivery($cmd, array $target_item, array $parent, $priority, $created)
 	{
@@ -549,7 +563,7 @@ class Notifier
 			Logger::log('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
 			Logger::log('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', Logger::DEBUG);
-			return;
+			return 0;
 		} elseif ($parent['origin']) {
 			// Remote items are transmitted via the personal inboxes.
 			// Doing so ensures that the dedicated receiver will get the message.
@@ -559,7 +573,7 @@ class Notifier
 
 		if (empty($inboxes)) {
 			Logger::log('No inboxes found for item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . '. It will not be distributed.', Logger::DEBUG);
-			return;
+			return 0;
 		}
 
 		// Fill the item cache
@@ -571,6 +585,8 @@ class Notifier
 			Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
 					'APDelivery', $cmd, $target_item['id'], $inbox, $target_item['contact-uid']);
 		}
+
+		return count($inboxes);
 	}
 
 	private static function isForumPost(array $item, array $owner)

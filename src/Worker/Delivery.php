@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
@@ -180,10 +181,18 @@ class Delivery extends BaseObject
 
 			case Protocol::DFRN:
 				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
+
+				if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+					ItemDeliveryData::incrementQueueDone($target_id);
+				}
 				break;
 
 			case Protocol::DIASPORA:
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
+
+				if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+					ItemDeliveryData::incrementQueueDone($target_id);
+				}
 				break;
 
 			case Protocol::OSTATUS:
@@ -201,6 +210,10 @@ class Delivery extends BaseObject
 
 			case Protocol::MAIL:
 				self::deliverMail($cmd, $contact, $owner, $target_item);
+
+				if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+					ItemDeliveryData::incrementQueueDone($target_id);
+				}
 				break;
 
 			default:

@@ -7,6 +7,7 @@ namespace Friendica\Worker;
 use Friendica\BaseObject;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\Model\ItemDeliveryData;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Model\Item;
 use Friendica\Util\HTTPSignature;
@@ -39,6 +40,10 @@ class APDelivery extends BaseObject
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($target_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
+			}
+
+			if ($success && in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+				ItemDeliveryData::incrementQueueDone($target_id);
 			}
 		}
 
