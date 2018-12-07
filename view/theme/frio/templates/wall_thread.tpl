@@ -12,8 +12,8 @@ The div get's closed if thread_level = 2 and the value of $top_child_nr is the s
 as the value of $top_child_total (this is done at the end of this file)
 *}}
 {{if $item.thread_level==1}}
-	{{assign var="top_child_total" count($item.children)}}
-	{{assign var="top_child_nr" 0}}
+	{{assign var="top_child_total" value=count($item.children)}}
+	{{assign var="top_child_nr" value=0}}
 {{/if}}
 {{if $item.thread_level==2}}
 	{{assign var="top_child_nr" value=$top_child_nr+1 scope=parent}}
@@ -55,15 +55,14 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 {{/if}}
 
-<!-- TODO => Unknow block -->
+{{* TODO => Unknown block *}}
 <div class="wall-item-decor" style="display:none;">
 	{{if $item.star}}
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
 	{{/if}}
 	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>{{/if}}
 </div>
-<!-- ./TODO => Unknow block -->
-
+{{* /TODO => Unknown block *}}
 
 
 {{* Use a different div container in dependence max thread-level = 7 *}}
@@ -220,7 +219,14 @@ as the value of $top_child_total (this is done at the end of this file)
 			<h5 class="media-heading">
 				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span>{{$item.name}}</span></a>
 				<p class="text-muted">
-					<small><a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}</small>
+					<small>
+						<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
+						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
+						{{if $item.owner_self}}
+							&bullet;
+							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+						{{/if}}
+					</small>
 				</p>
 			</h5>
 		</div>

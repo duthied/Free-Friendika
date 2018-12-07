@@ -394,6 +394,7 @@ class Post extends BaseObject
 			'location'        => $location_e,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
+			'owner_self'      => $item['author-link'] == defaults($_SESSION, 'my_url', null),
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => $owner_name_e,
@@ -421,6 +422,14 @@ class Post extends BaseObject
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
 			'return'          => ($a->cmd) ? bin2hex($a->cmd) : '',
+			'delivery'        => [
+				'queue_count'       => $item['delivery_queue_count'],
+				'queue_done'        => $item['delivery_queue_done'],
+				'notifier_pending'  => L10n::t('Notifier task is pending'),
+				'delivery_pending'  => L10n::t('Delivery to remote servers is pending'),
+				'delivery_underway' => L10n::t('Delivery to remote servers is underway'),
+				'delivery_almost'   => L10n::t('Delivery to remote servers is mostly done'),
+			],
 		];
 
 		$arr = ['item' => $item, 'output' => $tmp_item];
