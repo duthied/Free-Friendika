@@ -210,10 +210,6 @@ class Delivery extends BaseObject
 
 			case Protocol::MAIL:
 				self::deliverMail($cmd, $contact, $owner, $target_item);
-
-				if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
-					ItemDeliveryData::incrementQueueDone($target_id);
-				}
 				break;
 
 			default:
