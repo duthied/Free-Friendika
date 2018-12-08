@@ -272,33 +272,17 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$groups = [];
 
-	$contact = null;
-	$is_remote_contact = false;
-
-	$contact_id = 0;
-
-	if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $v) {
-			if ($v['uid'] == $a->profile['uid']) {
-				$contact_id = $v['cid'];
-				break;
-			}
-		}
+	$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
+	if (DBA::isResult($parent)) {
+		$a->profile['profile_uid'] = $parent['uid'];
 	}
 
-	if ($contact_id) {
-		$groups = Group::getIdsByContactId($contact_id);
-		$remote_contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $a->profile['uid']]);
-		if (DBA::isResult($remote_contact)) {
-			$contact = $remote_contact;
-			$is_remote_contact = true;
-		}
-	}
+	$is_remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
 
-	if (!$is_remote_contact) {
-		if (local_user()) {
-			$contact_id = $_SESSION['cid'];
-			$contact = $a->contact;
+	if ($is_remote_contact) {
+		$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
+		if (!empty($cdata['user'])) {
+			$groups = Group::getIdsByContactId($cdata['user']);
 		}
 	}
 

@@ -163,6 +163,8 @@ function delegate_content(App $a)
 
 	if (!is_null($parent_user)) {
 		$parent_password = ['parent_password', L10n::t('Parent Password:'), '', L10n::t('Please enter the password of the parent account to legitimize your request.')];
+	} else {
+		$parent_password = '';
 	}
 
 	$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('delegate.tpl'), [

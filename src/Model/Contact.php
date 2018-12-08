@@ -99,6 +99,29 @@ class Contact extends BaseObject
 	 */
 
 	/**
+	 * @brief Tests if the given contact is a follower
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return boolean is the contact id a follower?
+	 */
+	public static function isFollower($cid, $uid)
+	{
+		if (self::isBlockedByUser($cid, $uid)) {
+			return false;
+		}
+
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata['user'])) {
+			return false;
+		}
+
+		$condition = ['id' => $cdata['user'], 'rel' => [self::FOLLOWER, self::FRIEND]];
+		return DBA::exists('contact', $condition);
+	}
+
+	/**
 	 * @brief Get the basepath for a given contact link
 	 * @todo Add functionality to store this value in the contact table
 	 *
@@ -125,7 +148,7 @@ class Contact extends BaseObject
 	 *
 	 * @return array with public and user's contact id
 	 */
-	private static function getPublicAndUserContacID($cid, $uid)
+	public static function getPublicAndUserContacID($cid, $uid)
 	{
 		if (empty($uid) || empty($cid)) {
 			return [];
@@ -2054,6 +2077,10 @@ class Contact extends BaseObject
 	 */
 	public static function magicLink($contact_url, $url = '')
 	{
+		if (!local_user()) {
+			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
+		}
+
 		$cid = self::getIdForURL($contact_url, 0, true);
 		if (empty($cid)) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
@@ -2087,7 +2114,7 @@ class Contact extends BaseObject
 	 */
 	public static function magicLinkbyContact($contact, $url = '')
 	{
-		if ($contact['network'] != Protocol::DFRN) {
+		if (!local_user() || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 		}
 
