@@ -551,7 +551,7 @@ class Item extends BaseObject
 
 		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
-		$fields['item-delivery-data'] = ItemDeliveryData::FIELD_LIST;
+		$fields['item-delivery-data'] = array_merge(ItemDeliveryData::LEGACY_FIELD_LIST, ItemDeliveryData::FIELD_LIST);
 
 		$fields['permissionset'] = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 
@@ -730,7 +730,7 @@ class Item extends BaseObject
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
-					$legacy_fields = array_merge(ItemDeliveryData::FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
+					$legacy_fields = array_merge(ItemDeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
 					if (self::isLegacyMode() && in_array($select, $legacy_fields)) {
 						$selection[] = "`item`.`".$select."` AS `internal-item-" . $select . "`";
 					}

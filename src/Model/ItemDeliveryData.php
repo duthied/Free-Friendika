@@ -10,10 +10,13 @@ use Friendica\Database\DBA;
 
 class ItemDeliveryData
 {
-	const FIELD_LIST = [
+	const LEGACY_FIELD_LIST = [
 		// Legacy fields moved from item table
 		'postopts',
 		'inform',
+	];
+
+	const FIELD_LIST = [
 		// New delivery fields with virtual field name in item fields
 		'queue_count' => 'delivery_queue_count',
 		'queue_done'  => 'delivery_queue_done',
