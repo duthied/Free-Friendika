@@ -84,7 +84,7 @@ class Photo extends BaseModule
 
 		if (is_null($img) || !$img->isValid()) {
 			Logger::log("Invalid photo with id {$photo["id"]}.");
-			System::httpExit(500, "Internal Server Error");
+			System::httpExit(500, ["description" => "Invalid photo with id {$photo["id"]}."]);
 		}
 
 
