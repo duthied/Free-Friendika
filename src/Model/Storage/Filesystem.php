@@ -24,11 +24,11 @@ use Friendica\Util\Strings;
 class Filesystem implements IStorage
 {
 	// Default base folder
-	const DEFAULT_BASE_FOLDER = "storage";
+	const DEFAULT_BASE_FOLDER = 'storage';
 
 	private static function getBasePath()
 	{
-		return Config::get("storage", "filesystem_path", self::DEFAULT_BASE_FOLDER);
+		return Config::get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
 	}
 
 	/**
@@ -43,7 +43,7 @@ class Filesystem implements IStorage
 		$fold2 = substr($ref, 2, 2);
 		$file = substr($ref, 4);
 
-		return "{$base}/{$fold1}/{$fold2}/{$file}";
+		return implode('/', [$base, $fold1, $fold2, $file]);
 	}
 
 
@@ -57,8 +57,8 @@ class Filesystem implements IStorage
 
 		if (!is_dir($path)) {
 			if (!mkdir($path, 0770, true)) {
-				Logger::log("Failed to create dirs {$path}");
-				throw new StorageException(L10n::t("Filesystem storage failed to create '%s'. Check you write permissions.", $path));
+				Logger::log('Failed to create dirs ' . $path);
+				throw new StorageException(L10n::t('Filesystem storage failed to create "%s". Check you write permissions.', $path));
 				killme();
 			}
 		}
@@ -66,13 +66,13 @@ class Filesystem implements IStorage
 		$base = self::getBasePath();
 
 		while ($path !== $base) {
-			if (!is_file($path . "/index.html")) {
-				file_put_contents($path . "/index.html", "");
+			if (!is_file($path . '/index.html')) {
+				file_put_contents($path . '/index.html', '');
 			}
 			$path = dirname($path);
 		}
-		if (!is_file($path . "/index.html")) {
-			file_put_contents($path . "/index.html", "");
+		if (!is_file($path . '/index.html')) {
+			file_put_contents($path . '/index.html', '');
 		}
 	}
 
@@ -80,15 +80,15 @@ class Filesystem implements IStorage
 	{
 		$file = self::pathForRef($ref);
 		if (!is_file($file)) {
-			return "";
+			return '';
 		}
 
 		return file_get_contents($file);
 	}
 
-	public static function put($data, $ref = "")
+	public static function put($data, $ref = '')
 	{
-		if ($ref === "") {
+		if ($ref === '') {
 			$ref = Strings::getRandomHex();
 		}
 		$file = self::pathForRef($ref);
@@ -97,8 +97,8 @@ class Filesystem implements IStorage
 
 		$r = file_put_contents($file, $data);
 		if ($r === FALSE) {
-			Logger::log("Failed to write data to {$file}");
-			throw new StorageException(L10n::t("Filesystem storage failed to save data to '%s'. Check your write permissions", $file));
+			Logger::log('Failed to write data to ' . $file);
+			throw new StorageException(L10n::t('Filesystem storage failed to save data to "%s". Check your write permissions', $file));
 			killme();
 		}
 		return $ref;
@@ -112,6 +112,30 @@ class Filesystem implements IStorage
 			return true;
 		}
 		return unlink($file);
+	}
+
+	public static function getOptions()
+	{
+		return [
+			'storagepath' => [
+				'input',
+				L10n::t('Storage base path'),
+				self::getBasePath(),
+				L10n::t('Folder were uploaded files are saved. For maximum security, This should be a path outside web server folder tree')
+			]
+		];
+	}
+	
+	public static function saveOptions($data)
+	{
+		$storagepath = defaults($data, 'storagepath', '');
+		if ($storagepath === '' || !is_dir($storagepath)) {
+			return [
+				'storagepath' => L10n::t('Enter a valid existing folder')
+			];
+		};
+		Config::set('storage', 'filesystem_path', $storagepath);
+		return [];
 	}
 
 }

@@ -51,4 +51,8 @@ class Database implements IStorage
 	{
 		return DBA::delete('storage', ['id' => $ref]);
 	}
+	
+	public static function getOptions() { return []; }
+	
+	public static function saveOptions($data) { return []; }
 }

@@ -19,6 +19,7 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
+use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
@@ -1170,6 +1171,39 @@ function admin_page_site_post(App $a)
 	$relay_server_tags = (!empty($_POST['relay_server_tags']) ? Strings::escapeTags(trim($_POST['relay_server_tags']))  : '');
 	$relay_user_tags   = !empty($_POST['relay_user_tags']);
 	$active_panel      = (!empty($_POST['active_panel'])      ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
+	
+	$storagebackend    = Strings::escapeTags(trim(defaults($_POST, 'storagebackend', '')));
+	StorageManager::setBackend($storagebackend);
+	
+	// save storage backend form
+	$storage_opts = $storagebackend::getOptions();
+	$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storagebackend);
+	$storage_opts_data = [];
+	foreach($storage_opts as $name => $info) {
+		$fieldname = $storage_form_prefix . '_' . $name;
+		switch ($info[0]) { // type
+			case 'checkbox':
+			case 'yesno':
+				$value = !empty($_POST[$fieldname]);
+				break;
+			default:
+				$value = defaults($_POST, $fieldname, '');
+		}
+		$storage_opts_data[$name] = $value;
+	}
+	unset($name);
+	unset($info);
+	
+	$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
+	if (count($storage_form_errors)) {
+		foreach($storage_form_errors as $name => $err) {
+			notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+		}
+		$a->internalRedirect('admin/site' . $active_panel);
+	}
+	
+
+	
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
@@ -1482,6 +1516,31 @@ function admin_page_site(App $a)
 		$optimize_max_tablesize = -1;
 	}
 
+	/* storage backend */
+	$storage_backends = StorageManager::listBackends();
+	$storage_current_backend = StorageManager::getBackend();
+
+	$storage_backends_choices = [
+		'' => L10n::t('None')
+	];
+	foreach($storage_backends as $name=>$class) {
+		$storage_backends_choices[$class] = $name;
+	}
+	unset($storage_backends);
+
+	// build storage config form,
+	$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storage_current_backend);
+	
+	$storage_form = [];
+	foreach($storage_current_backend::getOptions() as $name => $info) {
+		$type = $info[0];
+		$info[0] = $storage_form_prefix . '_' . $name;
+		$info['type'] = $type;
+		$info['field'] = 'field_' . $type . '.tpl';
+		$storage_form[$name] = $info;
+	}
+
+
 	$t = Renderer::getMarkupTemplate('admin/site.tpl');
 	return Renderer::replaceMacros($t, [
 		'$title'             => L10n::t('Administration'),
@@ -1515,6 +1574,9 @@ function admin_page_site(App $a)
 		'$force_ssl'        => ['force_ssl', L10n::t("Force SSL"), Config::get('system', 'force_ssl'), L10n::t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")],
 		'$hide_help'        => ['hide_help', L10n::t("Hide help entry from navigation menu"), Config::get('system', 'hide_help'), L10n::t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")],
 		'$singleuser'       => ['singleuser', L10n::t("Single user instance"), Config::get('system', 'singleuser', '---'), L10n::t("Make this instance multi-user or single-user for the named user"), $user_names],
+
+		'$storagebackend'   => ['storagebackend', L10n::t("File storage backend"), $storage_current_backend, L10n::t('Backend used to store uploaded files data'), $storage_backends_choices],
+		'$storageform'      => $storage_form,
 		'$maximagesize'     => ['maximagesize', L10n::t("Maximum image size"), Config::get('system', 'maximagesize'), L10n::t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")],
 		'$maximagelength'   => ['maximagelength', L10n::t("Maximum image length"), Config::get('system', 'max_image_length'), L10n::t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
 		'$jpegimagequality' => ['jpegimagequality', L10n::t("JPEG image quality"), Config::get('system', 'jpeg_quality'), L10n::t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")],
