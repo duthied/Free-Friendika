@@ -139,6 +139,7 @@ function profile_content(App $a, $update = 0)
 	require_once 'include/items.php';
 
 	$groups = [];
+	$remote_cid = null;
 
 	$tab = 'posts';
 	$o = '';
@@ -158,6 +159,7 @@ function profile_content(App $a, $update = 0)
 		$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
 		if (!empty($cdata['user'])) {
 			$groups = Group::getIdsByContactId($cdata['user']);
+			$remote_cid = $cdata['user'];
 		}
 	}
 
@@ -211,9 +213,8 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
-
 	// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups);
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups, $remote_cid);
 	$sql_extra2 = '';
 
 	if ($update) {
@@ -325,7 +326,7 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
-	$o .= conversation($a, $items, $pager, 'profile', $update, false, 'created', local_user());
+	$o .= conversation($a, $items, $pager, 'profile', $update, false, 'created', $a->profile['profile_uid']);
 
 	if (!$update) {
 		$o .= $pager->renderMinimal(count($items));

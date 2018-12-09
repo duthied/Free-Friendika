@@ -3214,7 +3214,7 @@ class Item extends BaseObject
 		}
 	}
 
-	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null)
+	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null, $remote_cid = null)
 	{
 		$local_user = local_user();
 		$remote_user = remote_user();
@@ -3237,7 +3237,7 @@ class Item extends BaseObject
 			 * If pre-verified, the caller is expected to have already
 			 * done this and passed the groups into this function.
 			 */
-			$set = PermissionSet::get($owner_id, $remote_user, $groups);
+			$set = PermissionSet::get($owner_id, $remote_cid, $groups);
 
 			if (!empty($set)) {
 				$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
