@@ -798,7 +798,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	foreach ($parents AS $parent) {
 		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) ",
-			$parent['uri'], local_user()];
+			$parent['uri'], $uid];
 		if ($block_authors) {
 			$condition[0] .= "AND NOT `author`.`hidden`";
 		}
