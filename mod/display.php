@@ -291,6 +291,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
 	if (DBA::isResult($parent)) {
+		$a->profile['uid'] = $parent['uid'];
 		$a->profile['profile_uid'] = $parent['uid'];
 		$is_remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
 	}
