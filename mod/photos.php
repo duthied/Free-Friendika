@@ -344,7 +344,7 @@ function photos_post(App $a)
 		}
 
 		if (DBA::isResult($r)) {
-			Photo::delete(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid]);
+			Photo::delete(['uid' => $page_owner_uid, 'resource-id' => $r[0]['resource-id']]);
 
 			Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
 

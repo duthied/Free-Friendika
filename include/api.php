@@ -3961,7 +3961,7 @@ function api_fr_photoalbum_delete($type)
 	}
 
 	// now let's delete all photos from the album
-	$result = DBA::delete('photo', ['uid' => api_user(), 'album' => $album]);
+	$result = Photo::delete(['uid' => api_user(), 'album' => $album]);
 
 	// return success of deletion or error message
 	if ($result) {
@@ -3995,11 +3995,11 @@ function api_fr_photoalbum_update($type)
 		throw new BadRequestException("no new albumname specified");
 	}
 	// check if album is existing
-	if (!DBA::exists('photo', ['uid' => api_user(), 'album' => $album])) {
+	if (!Photo::exists(null, ['uid' => api_user(), 'album' => $album])) {
 		throw new BadRequestException("album not available");
 	}
 	// now let's update all photos to the albumname
-	$result = DBA::update('photo', ['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
+	$result = Photo::update(['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
 
 	// return success of updating or error message
 	if ($result) {
@@ -4099,14 +4099,8 @@ function api_fr_photo_create_update($type)
 	} else {
 		$mode = "update";
 
-		// check if photo is existing in database
-		$r = q(
-			"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
-			intval(api_user()),
-			DBA::escape($photo_id),
-			DBA::escape($album)
-		);
-		if (!DBA::isResult($r)) {
+		// check if photo is existing in databasei
+		if (!Photo::exists($photo_id, ['uid' => api_user(), 'album' => $album]) {
 			throw new BadRequestException("photo not available");
 		}
 	}
@@ -4135,47 +4129,40 @@ function api_fr_photo_create_update($type)
 
 	// now let's do the changes in update-mode
 	if ($mode == "update") {
-		$sql_extra = "";
+		$updated_fields = [];
 
 		if (!is_null($desc)) {
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`desc` = '$desc'";
+			$updated_fields['desc'] = $desc;
 		}
 
 		if (!is_null($album_new)) {
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`album` = '$album_new'";
+			$updated_fields['album'] = $album_new;
 		}
 
 		if (!is_null($allow_cid)) {
 			$allow_cid = trim($allow_cid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`allow_cid` = '$allow_cid'";
+			$updated_fields['allow_cid'] = $allow_cid;
 		}
 
 		if (!is_null($deny_cid)) {
 			$deny_cid = trim($deny_cid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`deny_cid` = '$deny_cid'";
+			$updated_fields['deny_cid'] = $deny_cid;
 		}
 
 		if (!is_null($allow_gid)) {
 			$allow_gid = trim($allow_gid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`allow_gid` = '$allow_gid'";
+			$updated_fields['allow_gid'] = $allow_gid;
 		}
 
 		if (!is_null($deny_gid)) {
 			$deny_gid = trim($deny_gid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`deny_gid` = '$deny_gid'";
+			$updated_fields['deny_gid'] = $deny_gid;
 		}
 
 		$result = false;
-		if ($sql_extra != "") {
+		if (count($updated_fields) > 0) {
 			$nothingtodo = false;
-			$result = q(
-				"UPDATE `photo` SET %s, `edited`='%s' WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
-				$sql_extra,
-				DateTimeFormat::utcNow(),   // update edited timestamp
-				intval(api_user()),
-				DBA::escape($photo_id),
-				DBA::escape($album)
-			);
+			$result = Photo::update($updated_fields, ['uid' => api_user(), 'resource-id' => $photo_id, 'album' => $album]);
 		} else {
 			$nothingtodo = true;
 		}
@@ -4224,16 +4211,12 @@ function api_fr_photo_delete($type)
 		throw new BadRequestException("no photo_id specified");
 	}
 	// check if photo is existing in database
-	$r = q(
-		"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
-		intval(api_user()),
-		DBA::escape($photo_id)
-	);
-	if (!DBA::isResult($r)) {
+	$r = Photo::exists($photo_id, ['uid' => api_user()]);
+	if (!$r) {
 		throw new BadRequestException("photo not available");
 	}
 	// now we can perform on the deletion of the photo
-	$result = DBA::delete('photo', ['uid' => api_user(), 'resource-id' => $photo_id]);
+	$result = Photo::delete(['uid' => api_user(), 'resource-id' => $photo_id]);
 
 	// return success of deletion or error message
 	if ($result) {
@@ -4343,7 +4326,7 @@ function api_account_update_profile_image($type)
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
-		DBA::update('photo', ['profile' => false], $condition);
+		Photo::update(['profile' => false], $condition);
 	} else {
 		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype,
 			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype];

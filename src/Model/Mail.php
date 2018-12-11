@@ -10,6 +10,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 
@@ -141,7 +142,7 @@ class Mail
 					}
 					$image_uri = substr($image, strrpos($image, '/') + 1);
 					$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-					DBA::update('photo', ['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
+					Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
 				}
 			}
 		}

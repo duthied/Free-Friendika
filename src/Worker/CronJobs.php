@@ -173,7 +173,7 @@ class CronJobs
 			}
 
 			$condition = ['`uid` = 0 AND `resource-id` LIKE "pic:%" AND `created` < NOW() - INTERVAL ? SECOND', $cachetime];
-			DBA::delete('photo', $condition);
+			Photo::delete($condition);
 		}
 
 		// Delete the cached OEmbed entries that are older than three month

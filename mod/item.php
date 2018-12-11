@@ -31,6 +31,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
@@ -456,16 +457,18 @@ function item_post(App $a) {
 				// Ensure to only modify photos that you own
 				$srch = '<' . intval($original_contact_id) . '>';
 
-				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-						'resource-id' => $image_uri, 'uid' => $profile_uid];
-				if (!DBA::exists('photo', $condition)) {
+				$condition = [
+					'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
+					'uid' => $profile_uid
+				];
+				if (!Photo::exists($image_uri, $condition)) {
 					continue;
 				}
 
 				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
 				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid];
-				DBA::update('photo', $fields, $condition);
+				Photo::update($fields, $condition);
 			}
 		}
 	}

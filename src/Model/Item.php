@@ -1030,7 +1030,7 @@ class Item extends BaseObject
 		 * generate a resource-id and therefore aren't intimately linked to the item.
 		 */
 		if (strlen($item['resource-id'])) {
-			DBA::delete('photo', ['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
+			Photo::delete(['resource-id' => $item['resource-id'], 'uid' => $item['uid']]);
 		}
 
 		// If item is a link to an event, delete the event.
@@ -2737,8 +2737,7 @@ class Item extends BaseObject
 				if ($x) {
 					$res = substr($i, $x + 1);
 					$i = substr($i, 0, $x);
-					$fields = ['data', 'type', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
-					$photo = DBA::selectFirst('photo', $fields, ['resource-id' => $i, 'scale' => $res, 'uid' => $uid]);
+					$photo = Photo::getPhotoForUser($uid, $i, $res);
 					if (DBA::isResult($photo)) {
 						/*
 						 * Check to see if we should replace this photo link with an embedded image
@@ -2762,9 +2761,7 @@ class Item extends BaseObject
 							}
 						}
 						if ($replace) {
-							$data = $photo['data'];
-							$type = $photo['type'];
-
+							$photo_img = Photo::getImageForPhoto($photo);
 							// If a custom width and height were specified, apply before embedding
 							if (preg_match("/\[img\=([0-9]*)x([0-9]*)\]/is", substr($orig_body, $img_start, $img_st_close), $match)) {
 								Logger::log('scaling photo', Logger::DEBUG);
@@ -2772,13 +2769,11 @@ class Item extends BaseObject
 								$width = intval($match[1]);
 								$height = intval($match[2]);
 
-								$Image = new Image($data, $type);
-								if ($Image->isValid()) {
-									$Image->scaleDown(max($width, $height));
-									$data = $Image->asString();
-									$type = $Image->getType();
-								}
+								$photo_img->scaleDown(max($width, $height));
 							}
+
+							$data = $photo_img->asString();
+							$type = $photo_img->getType();
 
 							Logger::log('replacing photo', Logger::DEBUG);
 							$image = 'data:' . $type . ';base64,' . base64_encode($data);
