@@ -1,3 +1,4 @@
+<div class="generic-page-wrapper">
 <h1>{{$header}}</h1>
 
 {{if $myaddr == ""}}
@@ -53,8 +54,9 @@
 
 	<div id="dfrn-request-submit-wrapper">
 		{{if $submit}}
-			<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
+			<input class="btn btn-primary" type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
 		{{/if}}
-		<input type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel|escape:'html'}}" />
+		<input class="btn btn-primary" type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel|escape:'html'}}" />
 	</div>
 </form>
+</div>
