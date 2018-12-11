@@ -4100,7 +4100,7 @@ function api_fr_photo_create_update($type)
 		$mode = "update";
 
 		// check if photo is existing in databasei
-		if (!Photo::exists($photo_id, ['uid' => api_user(), 'album' => $album]) {
+		if (!Photo::exists($photo_id, ['uid' => api_user(), 'album' => $album])) {
 			throw new BadRequestException("photo not available");
 		}
 	}
