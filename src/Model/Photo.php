@@ -148,22 +148,31 @@ class Photo extends BaseObject
 	 * @brief Check if photo with given resource id exists
 	 *
 	 * @param string  $resourceid  Resource ID of the photo
+	 * @param array   $conditions  Array of extra conditions. Optional
 	 *
 	 * @return boolean
 	 */
-	public static function exists($resourceid)
+	public static function exists($resourceid, array $conditions = [])
 	{
-		return DBA::count("photo", ["resource-id" => $resourceid]) > 0;
+		if (!is_null($resourceid)) {
+			$conditions["resource-id"] = $resourceid;
+		}
+		if (count($conditions) == 0) {
+			// no conditions defined. return false
+			return false;
+		}
+		return DBA::count("photo", $conditions) > 0;
 	}
+
 
 	/**
 	 * @brief Get Image object for given row id. null if row id does not exist
 	 *
-	 * @param integer  $id  Row id
+	 * @param array  $photo  Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
 	 *
 	 * @return \Friendica\Object\Image
 	 */
-	public static function getImageForPhoto($photo)
+	public static function getImageForPhoto(array $photo)
 	{
 		$data = "";
 		if ($photo["backend-class"] == "") {
@@ -307,11 +316,21 @@ class Photo extends BaseObject
 		return $r;
 	}
 
-	public static function delete(array $conditions, $options = [])
+	/**
+	 * @brief Delete info from table and data from storage
+	 *
+	 * @param array  $conditions  Field condition(s)
+	 * @param array  $options     Options array, Optional
+	 *
+	 * @return boolean
+	 *
+	 * @see \Friendica\Database\DBA::delete
+	 */
+	public static function delete(array $conditions, array $options = [])
 	{
 		// get photo to delete data info
 		$photos = self::select(["backend-class","backend-ref"], $conditions);
-		
+
 		foreach($photos as $photo) {
 			$backend_class = (string)$photo["backend-class"];
 			if ($backend_class !== "") {
@@ -348,9 +367,10 @@ class Photo extends BaseObject
 					$fields["data"] = $img->asString();
 				}
 			}
+			$fields['updated'] = DateTimeFormat::utcNow();
 		}
 
-		$fields['updated'] = DateTimeFormat::utcNow();
+		$fields['edited'] = DateTimeFormat::utcNow();
 
 		return DBA::update("photo", $fields, $conditions);
 	}
