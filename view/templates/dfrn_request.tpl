@@ -1,3 +1,4 @@
+<div class="generic-page-wrapper">
 <h1>{{$header}}</h1>
 
 {{if $myaddr}}
@@ -61,7 +62,7 @@
 		<label id="dfrn-request-knowyou-yes-label" for="dfrn-request-knowyouyes">{{$yes}}</label>
 		<input type="radio" name="knowyou" id="knowyouyes" value="1" />
 
-		<div id="dfrn-request-knowyou-break" ></div>	
+		<div id="dfrn-request-knowyou-break" ></div>
 		</div>
 		<div id="dfrn-request-know-no-wrapper">
 		<label id="dfrn-request-knowyou-no-label" for="dfrn-request-knowyouno">{{$no}}</label>
@@ -83,8 +84,9 @@
 
 	<div id="dfrn-request-submit-wrapper">
 		{{if $submit}}
-			<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
+			<input class="btn btn-primary" type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
 		{{/if}}
-		<input type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel|escape:'html'}}" />
+		<input class="btn btn-primary" type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel|escape:'html'}}" />
 	</div>
 </form>
+</div>
