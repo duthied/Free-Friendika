@@ -1,4 +1,3 @@
-
 <?php
 /**
  * @file src/Model/Storage/StorageException.php
