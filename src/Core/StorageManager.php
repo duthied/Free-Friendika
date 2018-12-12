@@ -4,6 +4,7 @@ namespace Friendica\Core;
 
 use Friendica\Database\DBA;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 
 
 
@@ -105,35 +106,55 @@ class StorageManager
 	/**
 	 * @brief Move resources to storage $dest
 	 *
+	 * Copy existing data to destination storage and delete from source.
+	 * This method cannot move to legacy in-table `data` field.
+	 *
 	 * @param string  $dest    Destination storage class name
 	 * @param array   $tables  Tables to look in for resources. Optional, defaults to ['photo']
 	 *
 	 * @retur int Number of moved resources
 	 */
-	public static function move($dest, $tables = null)
+	public static function move(string $dest, $tables = null)
 	{
+		if (is_null($dest) || empty($dest)) {
+			throw Exception('Can\'t move to NULL storage backend');
+		}
+		
 		if (is_null($tables)) {
 			$tables = ['photo'];
 		}
 
 		$moved = 0;
 		foreach ($tables as $table) {
-			$rr = DBA::select($table, ['id', 'data', 'backend-class', 'backend-ref'], ['`backend-class` != ?', $dest]);
+			// Get the rows where backend class is not the destination backend class
+			$rr = DBA::select(
+				$table, 
+				['id', 'data', 'backend-class', 'backend-ref'],
+				['`backend-class` IS NULL or `backend-class` != ?' , $dest ]
+			);
+
 			if (DBA::isResult($rr)) {
 				while($r = $rr->fetch()) {
 					$id = $r['id'];
 					$data = $r['data'];
 					$backendClass = $r['backend-class'];
 					$backendRef = $r['backend-ref'];
-					if ($backendClass !== '') {
+					if (!is_null($backendClass) && $backendClass !== '') {
+						Logger::log("get data from old backend " .  $backendClass . " : " . $backendRef);
 						$data = $backendClass::get($backendRef);
 					}
+					
+					Logger::log("save data to new backend " . $dest);
 					$ref = $dest::put($data);
+					Logger::log("saved data as " . $ref);
 
 					if ($ref !== '') {
+						Logger::log("update row");
 						$ru = DBA::update($table, ['backend-class' => $dest, 'backend-ref' => $ref, 'data' => ''], ['id' => $id]);
+						
 						if ($ru) {
-							if ($backendClass !== '') {
+							if (!is_null($backendClass) && $backendClass !== '') {
+								Logger::log("delete data from old backend " . $backendClass . " : " . $backendRef);
 								$backendClass::delete($backendRef);
 							}
 							$moved++;
@@ -146,3 +167,4 @@ class StorageManager
 		return $moved;
 	}
 }
+
