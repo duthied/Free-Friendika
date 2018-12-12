@@ -147,20 +147,12 @@ class Photo extends BaseObject
 	/**
 	 * @brief Check if photo with given resource id exists
 	 *
-	 * @param string  $resourceid  Resource ID of the photo
 	 * @param array   $conditions  Array of extra conditions. Optional
 	 *
 	 * @return boolean
 	 */
-	public static function exists($resourceid, array $conditions = [])
+	public static function exists(array $conditions = [])
 	{
-		if (!is_null($resourceid)) {
-			$conditions["resource-id"] = $resourceid;
-		}
-		if (count($conditions) == 0) {
-			// no conditions defined. return false
-			return false;
-		}
 		return DBA::count("photo", $conditions) > 0;
 	}
 

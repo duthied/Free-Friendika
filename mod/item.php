@@ -459,9 +459,9 @@ function item_post(App $a) {
 
 				$condition = [
 					'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-					'uid' => $profile_uid
+					'resource-id' => $image_uri, 'uid' => $profile_uid
 				];
-				if (!Photo::exists($image_uri, $condition)) {
+				if (!Photo::exists($condition)) {
 					continue;
 				}
 

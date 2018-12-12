@@ -3995,7 +3995,7 @@ function api_fr_photoalbum_update($type)
 		throw new BadRequestException("no new albumname specified");
 	}
 	// check if album is existing
-	if (!Photo::exists(null, ['uid' => api_user(), 'album' => $album])) {
+	if (!Photo::exists(['uid' => api_user(), 'album' => $album])) {
 		throw new BadRequestException("album not available");
 	}
 	// now let's update all photos to the albumname
@@ -4100,7 +4100,7 @@ function api_fr_photo_create_update($type)
 		$mode = "update";
 
 		// check if photo is existing in databasei
-		if (!Photo::exists($photo_id, ['uid' => api_user(), 'album' => $album])) {
+		if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user(), 'album' => $album])) {
 			throw new BadRequestException("photo not available");
 		}
 	}
@@ -4211,7 +4211,7 @@ function api_fr_photo_delete($type)
 		throw new BadRequestException("no photo_id specified");
 	}
 	// check if photo is existing in database
-	$r = Photo::exists($photo_id, ['uid' => api_user()]);
+	$r = Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()]);
 	if (!$r) {
 		throw new BadRequestException("photo not available");
 	}
