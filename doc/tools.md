@@ -9,6 +9,7 @@ Friendica Tools
 Friendica has a build in command console you can find in the *bin* directory.
 The console provides the following commands:
 
+* cache:                  Manage node cache
 * config:                 Edit site config
 * createdoxygen:          Generate Doxygen headers
 * dbstructure:            Do database updates
@@ -24,6 +25,8 @@ The console provides the following commands:
 * php2po:                 Generate a messages.po file from a strings.php file
 * po2php:                 Generate a strings.php file from a messages.po file
 * typo:                   Checks for parse errors in Friendica files
+* postupdate:             Execute pending post update scripts (can last days)
+* storage:                Manage storage backend
 
 Please consult *bin/console help* on the command line interface of your server for details about the commands.
 
