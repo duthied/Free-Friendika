@@ -14,14 +14,16 @@ The class must implement `Friendica\Model\Storage\IStorage` interface. All metho
 
 namespace Friendica\Model\Storage;
 
-	interface IStorage
-	{
-		public static function get($ref);
-		public static function put($data, $ref = "");
-		public static function delete($ref);
-		public static function getOptions();
-		public static function saveOptions($data);
-	}
+```php
+interface IStorage
+{
+	public static function get($ref);
+	public static function put($data, $ref = "");
+	public static function delete($ref);
+	public static function getOptions();
+	public static function saveOptions($data);
+}
+```
 
 - `get($ref)` returns data pointed by `$ref`
 - `put($data, $ref)` saves data in `$data` to position `$ref`, or a new position if `$ref` is empty.
@@ -196,7 +198,7 @@ function samplestorage_unistall()
 	// when the plugin is uninstalled, we unregister the backend.
 	StorageManager::unregister("Sample Storage");
 }
-
+```
 
 
 
