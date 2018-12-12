@@ -95,7 +95,7 @@ class StorageManager
 	 *
 	 * @param string  $name   User readable backend name
 	 */
-	public static function unregister($class)
+	public static function unregister($name)
 	{
 		self::setup();
 		unset(self::$backends[$name]);
@@ -114,7 +114,7 @@ class StorageManager
 	 *
 	 * @retur int Number of moved resources
 	 */
-	public static function move(string $dest, $tables = null)
+	public static function move($dest, $tables = null)
 	{
 		if (is_null($dest) || empty($dest)) {
 			throw Exception('Can\'t move to NULL storage backend');
