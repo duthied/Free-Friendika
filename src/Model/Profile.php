@@ -1117,6 +1117,8 @@ class Profile
 		$_SESSION['visitor_handle'] = $visitor['addr'];
 		$_SESSION['visitor_home'] = $visitor['url'];
 		$_SESSION['my_url'] = $visitor['url'];
+
+		/// @todo replace this and the query for this variable with some cleaner functionality
 		$_SESSION['remote'] = [];
 
 		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => $visitor['nurl'], 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
