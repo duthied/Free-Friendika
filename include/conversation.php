@@ -497,7 +497,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 			}
 		}
 	} elseif ($mode === 'notes') {
-		$items = conversation_add_children($items, false, $order, $uid);
+		$items = conversation_add_children($items, false, $order, local_user());
 		$profile_owner = local_user();
 
 		if (!$update) {

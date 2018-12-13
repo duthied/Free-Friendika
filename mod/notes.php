@@ -59,7 +59,7 @@ function notes_content(App $a, $update = false)
 	}
 
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
-		'wall' => false, 'contact-id'=> $a->contact['id']];
+		'contact-id'=> $a->contact['id']];
 
 	$pager = new Pager($a->query_string, 40);
 
@@ -70,7 +70,7 @@ function notes_content(App $a, $update = false)
 	$count = 0;
 
 	if (DBA::isResult($r)) {
-		$notes = DBA::toArray($r);
+		$notes = Item::inArray($r);
 
 		$count = count($notes);
 
