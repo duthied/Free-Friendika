@@ -338,13 +338,7 @@ class Profile
 		}
 
 		// Is the remote user already connected to that user?
-		if ($connect && remote_user()
-			&& DBA::exists('contact', [
-				'uid'  => $profile['uid'],
-				'nurl' => Strings::normaliseLink(self::getMyURL()),
-				'rel'  => [Contact::SHARING, Contact::FRIEND]
-			])
-		) {
+		if ($connect && Contact::isFollower(remote_user(), $profile['uid'])) {
 			$connect = false;
 		}
 
