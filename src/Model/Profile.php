@@ -99,7 +99,7 @@ class Profile
 	 *      load a lot of theme-specific content
 	 *
 	 * @brief Loads a profile into the page sidebar.
-	 * @param object  $a            App
+	 * @param App     $a
 	 * @param string  $nickname     string
 	 * @param int     $profile      int
 	 * @param array   $profiledata  array
@@ -335,6 +335,11 @@ class Profile
 			if (DBA::exists('contact', ['pending' => false, 'uid' => local_user(), 'nurl' => $profile_url])) {
 				$connect = false;
 			}
+		}
+
+		// Is the remote user already connected to that user?
+		if ($connect && Contact::isFollower(remote_user(), $profile['uid'])) {
+			$connect = false;
 		}
 
 		if ($connect && ($profile['network'] != Protocol::DFRN) && !isset($profile['remoteconnect'])) {
