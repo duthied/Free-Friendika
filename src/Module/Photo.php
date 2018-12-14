@@ -69,6 +69,9 @@ class Photo extends BaseModule
 				$photoid = substr($photoid, 0, -2);
 			}
 			$photo = MPhoto::getPhoto($photoid, $scale);
+			if ($photo === false) {
+				$photo = MPhoto::createPhotoForSystemResource("images/nosign.jpg");
+			}
 			break;
 		}
 

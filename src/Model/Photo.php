@@ -138,9 +138,7 @@ class Photo extends BaseObject
 		$params = ["order" => ["scale" => true]];
 
 		$photo = self::selectFirst([], $conditions, $params);
-		if ($photo === false) {
-			return self::createPhotoForSystemResource("images/nosign.jpg");
-		}
+
 		return $photo;
 	}
 
