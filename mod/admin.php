@@ -1532,12 +1532,14 @@ function admin_page_site(App $a)
 	$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storage_current_backend);
 	
 	$storage_form = [];
-	foreach($storage_current_backend::getOptions() as $name => $info) {
-		$type = $info[0];
-		$info[0] = $storage_form_prefix . '_' . $name;
-		$info['type'] = $type;
-		$info['field'] = 'field_' . $type . '.tpl';
-		$storage_form[$name] = $info;
+	if (!is_null($storage_current_backend) && $storage_current_backend != "") {
+		foreach($storage_current_backend::getOptions() as $name => $info) {
+			$type = $info[0];
+			$info[0] = $storage_form_prefix . '_' . $name;
+			$info['type'] = $type;
+			$info['field'] = 'field_' . $type . '.tpl';
+			$storage_form[$name] = $info;
+		}
 	}
 
 
