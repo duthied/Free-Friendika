@@ -3,7 +3,7 @@
 
 <div id="admin-contactblock" class="adminpage generic-page-wrapper">
 	<h1>{{$title}} - {{$page}}</h1>
-	<p>{{$description}}</p>
+	<p>{{$description nofilter}}</p>
 
 	{{* We organize the settings in collapsable panel-groups *}}
 	<div class="panel-group panel-group-settings" id="admin-settings" role="tablist" aria-multiselectable="true">

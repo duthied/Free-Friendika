@@ -29,7 +29,7 @@
 						<a href="{{$author_link}}" class="userinfo">{{$author_name}}</a>
 					</div>
 					{{if $location.map}}
-					<div id="event-location-map-{{$id}}" class="event-location-map">{{$location.map}}</div>
+					<div id="event-location-map-{{$id}}" class="event-location-map">{{$location.map nofilter}}</div>
 					{{/if}}
 				</div>
 				<div class="clearfix"></div>
@@ -41,7 +41,7 @@
 	{{* The content of the event description *}}
 	{{if $description}}
 	<div class="description event-description">
-		{{$description}}
+		{{$description nofilter}}
 	</div>
 	{{/if}}
 </div>

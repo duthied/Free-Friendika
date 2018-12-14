@@ -10,7 +10,7 @@
 </script>
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
-	<p>{{$description}}</p>
+	<p>{{$description nofilter}}</p>
 	<form action="{{$baseurl}}/admin/contactblock" method="post">
         <input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 

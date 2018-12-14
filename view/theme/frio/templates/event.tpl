@@ -10,7 +10,7 @@
 					{{/if}}
 				</div>
 				<div class="media-body">
-					{{$event.html}}
+					{{$event.html nofilter}}
 				</div>
 			</div>
 

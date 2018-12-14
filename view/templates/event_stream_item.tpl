@@ -15,7 +15,7 @@
 	{{/if}}
 
 	{{if $description}}
-	<div class="description event-description">{{$description}}</div>
+	<div class="description event-description">{{$description nofilter}}</div>
 	{{/if}}
 
 	{{if $location}}
@@ -24,7 +24,7 @@
 		{{if $location.name}}
 		<span class="location">{{$location.name nofilter}}</span>
 		{{/if}}
-		{{if $location.map}}{{$location.map}}{{/if}}
+		{{if $location.map}}{{$location.map nofilter}}{{/if}}
 		
 	</div>
 	{{/if}}
