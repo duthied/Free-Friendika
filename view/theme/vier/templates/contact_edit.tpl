@@ -100,7 +100,7 @@
 					<div id="contact-edit-profile-select-end"></div>
 				{{/if}}
 			</div>
-			<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+			<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit}}" />
 			{{/if}}
 
 			<div class="contact-edit-submit-end clearfix"></div>

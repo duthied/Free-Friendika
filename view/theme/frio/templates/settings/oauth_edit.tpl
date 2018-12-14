@@ -11,7 +11,7 @@
 	{{include file="field_input.tpl" field=$icon}}
 
 	<div class="form-group pull-right settings-submit-wrapper" >
-		<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+		<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 	</div>
 	<div class="clear"></div>
 

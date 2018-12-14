@@ -6,7 +6,7 @@
 
 {{if $comunity_profiles_title}}
 <div id="right_profiles" class="widget">
-<h3>{{$comunity_profiles_title|escape}}</h3>
+<h3>{{$comunity_profiles_title}}</h3>
 <div id='lastusers-wrapper' class='items-wrapper'>
 {{foreach $comunity_profiles_items as $i}}
 	{{$i}}
@@ -44,7 +44,7 @@
 
 {{if $lastusers_title}}
 <div id="right_lastusers" class="widget">
-<h3>{{$lastusers_title|escape}}</h3>
+<h3>{{$lastusers_title}}</h3>
 <div id='lastusers-wrapper' class='items-wrapper'>
 {{foreach $lastusers_items as $i}}
 	{{$i}}
@@ -55,7 +55,7 @@
 {{/if}}
 
 {{if $activeusers_title}}
-<h3>{{$activeusers_title|escape}}</h3>
+<h3>{{$activeusers_title}}</h3>
 <div class='items-wrapper'>
 {{foreach $activeusers_items as $i}}
 	{{$i}}

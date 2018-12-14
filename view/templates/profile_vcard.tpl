@@ -1,16 +1,16 @@
 
 <div class="vcard h-card">
 
-	<div class="fn label p-name">{{$profile.name|escape}}</div>
+	<div class="fn label p-name">{{$profile.name}}</div>
 	
-	{{if $profile.addr}}<div class="p-addr">{{$profile.addr|escape}}</div>{{/if}}
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 	
 	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
 	{{if $profile.picdate}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name|escape}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a></div>
 	{{else}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}" alt="{{$profile.name|escape}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}" alt="{{$profile.name}}"></a></div>
 	{{/if}}
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
 	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}

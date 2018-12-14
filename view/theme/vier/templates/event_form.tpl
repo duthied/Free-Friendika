@@ -59,8 +59,8 @@
 {{$acl}}
 
 <div class="clear"></div>
-<input id="event-edit-preview" type="submit" name="preview" value="{{$preview|escape:'html'}}" onclick="doEventPreview(); return false;" />
-<input id="event-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+<input id="event-edit-preview" type="submit" name="preview" value="{{$preview}}" onclick="doEventPreview(); return false;" />
+<input id="event-submit" type="submit" name="submit" value="{{$submit}}" />
 </form>
 
 

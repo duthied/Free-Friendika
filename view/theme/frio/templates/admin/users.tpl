@@ -46,11 +46,11 @@
 									</div>
 								</td>
 								<td>{{$u.created}}</td>
-								<td>{{$u.name|escape}}</td>
+								<td>{{$u.name}}</td>
 								<td>{{$u.email}}</td>
 								<td>
-									<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" class="admin-settings-action-link" title="{{$approve|escape}}"><i class="fa fa-check" aria-hidden="true"></i></a>
-									<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" class="admin-settings-action-link" title="{{$deny|escape}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+									<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" class="admin-settings-action-link" title="{{$approve}}"><i class="fa fa-check" aria-hidden="true"></i></a>
+									<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" class="admin-settings-action-link" title="{{$deny}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
 								</td>
 							</tr>
 							{{if $u.note}}
@@ -145,8 +145,8 @@
 								&nbsp;
 								{{/if}}
 								</td>
-								<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname|escape}}"></td>
-								<td><a href="{{$u.url}}" title="{{$u.nickname|escape}}"> {{$u.name|escape}}</a></td>
+								<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
+								<td><a href="{{$u.url}}" title="{{$u.nickname}}"> {{$u.name}}</a></td>
 								<td>{{$u.email}}</td>
 								{{if $order_users == $th_users.2.1}}
 								<td>{{$u.register_date}}</td>
@@ -169,18 +169,18 @@
 										{{if $u.page_flags_raw==3}}fa-heart{{/if}}		{{* PAGE_FREELOVE *}}
 										{{if $u.page_flags_raw==4}}fa-rss{{/if}}		{{* PAGE_BLOG *}}
 										{{if $u.page_flags_raw==5}}fa-user-secret{{/if}}	{{* PAGE_PRVGROUP *}}
-										" title="{{$u.page_flags|escape}}">
+										" title="{{$u.page_flags}}">
 									</i>
 									{{if $u.page_flags_raw==0 && $u.account_type_raw > 0}}
 									<i class="fa
 										{{if $u.account_type_raw==1}}fa-sitemap{{/if}}		{{* ACCOUNT_TYPE_ORGANISATION *}}
 										{{if $u.account_type_raw==2}}fa-newspaper-o{{/if}}	{{* ACCOUNT_TYPE_NEWS *}}
 										{{if $u.account_type_raw==3}}fa-comments{{/if}}		{{* ACCOUNT_TYPE_COMMUNITY *}}
-										" title="{{$u.account_type|escape}}">
+										" title="{{$u.account_type}}">
 									</i>
 									{{/if}}
-									{{if $u.is_admin}}<i class="fa fa-user-md text-primary" title="{{$siteadmin|escape}}"></i>{{/if}}
-									{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired|escape}}"></i>{{/if}}
+									{{if $u.is_admin}}<i class="fa fa-user-md text-primary" title="{{$siteadmin}}"></i>{{/if}}
+									{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired}}"></i>{{/if}}
 								</td>
 								{{/if}}
 
@@ -229,7 +229,7 @@
 										<i class="fa fa-circle-o" aria-hidden="true"></i>
 										{{/if}}
 									</a>
-									<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$delete|escape}}" onclick="return confirm_delete('{{$confirm_delete}}','{{$u.name|escape}}')">
+									<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$delete}}" onclick="return confirm_delete('{{$confirm_delete}}','{{$u.name}}')">
 										<i class="fa fa-trash" aria-hidden="true"></i>
 									</a>
 									{{else}}
@@ -297,8 +297,8 @@
 						<tbody>
 						{{foreach $deleted as $u}}
 							<tr>
-								<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname|escape}}"></td>
-								<td><a href="{{$u.url}}" title="{{$u.nickname|escape}}" >{{$u.name|escape}}</a></td>
+								<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
+								<td><a href="{{$u.url}}" title="{{$u.nickname}}" >{{$u.name}}</a></td>
 								<td>{{$u.email}}</td>
 								<td>{{$u.deleted}}</td>
 							</tr>

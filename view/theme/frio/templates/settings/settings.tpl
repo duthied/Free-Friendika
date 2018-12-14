@@ -29,7 +29,7 @@
 						{{/if}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -57,7 +57,7 @@
 						{{include file="field_checkbox.tpl" field=$allowloc}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -151,7 +151,7 @@
 
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -241,7 +241,7 @@
 						</div>
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -265,7 +265,7 @@
 						{{$pagetype}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -288,7 +288,7 @@
 
 						<br/>
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="resend_relocate" class="btn btn-primary" value="{{$relocate_button|escape:'html'}}">{{$relocate_button|escape:'html'}}</button>
+							<button type="submit" name="resend_relocate" class="btn btn-primary" value="{{$relocate_button}}">{{$relocate_button}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>

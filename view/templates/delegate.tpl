@@ -8,7 +8,7 @@
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 {{include file="field_select.tpl" field=$parent_user}}
 {{include file="field_password.tpl" field=$parent_password}}
-<div class="submit"><input type="submit" name="delegate" value="{{$submit|escape:'html'}}" /></div>
+<div class="submit"><input type="submit" name="delegate" value="{{$submit}}" /></div>
 </form>
 </div>
 {{/if}}

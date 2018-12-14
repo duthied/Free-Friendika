@@ -43,6 +43,6 @@
 	{{include file="field_select.tpl" field=$remote_self}}
 	{{/if}}
 
-	<input type="submit" name="submit" value="{{$lbl_submit|escape:'html'}}" />
+	<input type="submit" name="submit" value="{{$lbl_submit}}" />
 
 </form>

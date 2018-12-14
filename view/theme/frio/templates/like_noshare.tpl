@@ -9,5 +9,5 @@
 		<i class="faded-icon page-action fa fa-thumbs-down" aria-hidden="true"></i>
 	</button>
 	{{/if}}
-	<img id="like-rotator-{{$id}}" class="like-rotator" src="images/rotator.gif" alt="{{$wait|escape}}" title="{{$wait|escape}}" style="display: none;" />
+	<img id="like-rotator-{{$id}}" class="like-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
 </div>

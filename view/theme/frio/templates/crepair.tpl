@@ -13,7 +13,7 @@
 
 	<form id="crepair-form" action="crepair/{{$contact_id}}" method="post" >
 
-		<!-- <h4>{{$contact_name|escape}}</h4> -->
+		<!-- <h4>{{$contact_name}}</h4> -->
 
 		<div id="contact-update-profile-wrapper">
 		{{if $update_profile}}
@@ -46,7 +46,7 @@
 		{{/if}}
 
 		<div class="pull-right settings-submit-wrapper" >
-			<button type="submit" name="submit" class="btn btn-primary" value="{{$lbl_submit|escape:'html'}}">{{$lbl_submit|escape:'html'}}</button>
+			<button type="submit" name="submit" class="btn btn-primary" value="{{$lbl_submit}}">{{$lbl_submit}}</button>
 		</div>
 		<div class="clear"></div>
 

@@ -14,7 +14,7 @@
 				<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 
 				<div class="comment-edit-photo" id="comment-edit-photo-{{$id}}">
-					<a class="comment-edit-photo-link" href="{{$mylink}}" title="{{$mytitle|escape}}"><img class="my-comment-photo" src="{{$myphoto}}" alt="{{$mytitle|escape}}" title="{{$mytitle|escape}}" /></a>
+					<a class="comment-edit-photo-link" href="{{$mylink}}" title="{{$mytitle}}"><img class="my-comment-photo" src="{{$myphoto}}" alt="{{$mytitle}}" title="{{$mytitle}}" /></a>
 				</div>
 				<div class="comment-edit-photo-end"></div>
 				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});"></textarea>
@@ -31,14 +31,14 @@
 				<div class="comment-edit-submit-wrapper" id="comment-edit-submit-wrapper-{{$id}}" style="display: none;">
 
 				<div class="comment-edit-bb">
-	                                <a title="{{$edimg|escape}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}"><i class="icon-picture"></i></a>
-	                                <a title="{{$edurl|escape}}" data-role="insert-formatting" data-bbcode="url" data-id="{{$id}}"><i class="icon-link"></i></a>
-	                                <a title="{{$edvideo|escape}}" data-role="insert-formatting" data-bbcode="video" data-id="{{$id}}"><i class="icon-film"></i></a>
+	                                <a title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}"><i class="icon-picture"></i></a>
+	                                <a title="{{$edurl}}" data-role="insert-formatting" data-bbcode="url" data-id="{{$id}}"><i class="icon-link"></i></a>
+	                                <a title="{{$edvideo}}" data-role="insert-formatting" data-bbcode="video" data-id="{{$id}}"><i class="icon-film"></i></a>
 
-	                                <a title="{{$eduline|escape}}" data-role="insert-formatting" data-bbcode="u" data-id="{{$id}}"><i class="icon-underline"></i></a>
-	                                <a title="{{$editalic|escape}}" data-role="insert-formatting" data-bbcode="i" data-id="{{$id}}"><i class="icon-italic"></i></a>
-	                                <a title="{{$edbold|escape}}" data-role="insert-formatting" data-bbcode="b" data-id="{{$id}}"><i class="icon-bold"></i></a>
-	                                <a title="{{$edquote|escape}}" data-role="insert-formatting" data-bbcode="quote" data-id="{{$id}}"><i class="icon-quote-left"></i></a>
+	                                <a title="{{$eduline}}" data-role="insert-formatting" data-bbcode="u" data-id="{{$id}}"><i class="icon-underline"></i></a>
+	                                <a title="{{$editalic}}" data-role="insert-formatting" data-bbcode="i" data-id="{{$id}}"><i class="icon-italic"></i></a>
+	                                <a title="{{$edbold}}" data-role="insert-formatting" data-bbcode="b" data-id="{{$id}}"><i class="icon-bold"></i></a>
+	                                <a title="{{$edquote}}" data-role="insert-formatting" data-bbcode="quote" data-id="{{$id}}"><i class="icon-quote-left"></i></a>
 
                                 </div>
 					<input type="submit" onclick="post_comment({{$id}}); return false;" id="comment-edit-submit-{{$id}}" class="comment-edit-submit" name="submit" value="{{$submit}}" />

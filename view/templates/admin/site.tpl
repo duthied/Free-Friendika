@@ -39,7 +39,7 @@
 	});
 </script>
 <div id='adminpage'>
-	<h1>{{$title|escape}} - {{$page|escape}}</h1>
+	<h1>{{$title}} - {{$page}}</h1>
 
 	<form action="{{$baseurl}}/admin/site" method="post">
     <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
@@ -58,7 +58,7 @@
 	{{if $ssl_policy.2 == 1}}{{include file="field_checkbox.tpl" field=$force_ssl}}{{/if}}
 	{{include file="field_checkbox.tpl" field=$hide_help}}
 	{{include file="field_select.tpl" field=$singleuser}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	<h3>{{$registration}}</h3>
 	{{include file="field_input.tpl" field=$register_text}}
@@ -67,13 +67,13 @@
 	{{include file="field_checkbox.tpl" field=$no_multi_reg}}
 	{{include file="field_checkbox.tpl" field=$no_openid}}
 	{{include file="field_checkbox.tpl" field=$no_regfullname}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	<h3>{{$upload}}</h3>
 	{{include file="field_input.tpl" field=$maximagesize}}
 	{{include file="field_input.tpl" field=$maximagelength}}
 	{{include file="field_input.tpl" field=$jpegimagequality}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	<h3>{{$corporate}}</h3>
 	{{include file="field_input.tpl" field=$allowed_sites}}
@@ -99,14 +99,14 @@
 	{{/if}}
 	{{include file="field_checkbox.tpl" field=$dfrn_only}}
 	{{include file="field_input.tpl" field=$global_directory}}
-	<div class="submit"><input type="submit" name="republish_directory" value="{{$republish|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="republish_directory" value="{{$republish}}" /></div>
 	{{include file="field_checkbox.tpl" field=$newuser_private}}
 	{{include file="field_checkbox.tpl" field=$enotify_no_content}}
 	{{include file="field_checkbox.tpl" field=$private_addons}}
 	{{include file="field_checkbox.tpl" field=$disable_embedded}}
 	{{include file="field_checkbox.tpl" field=$allow_users_remote_self}}
 	{{include file="field_checkbox.tpl" field=$explicit_content}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	<h3>{{$advanced}}</h3>
 	{{include file="field_select.tpl" field=$rino}}
@@ -123,7 +123,7 @@
 	{{include file="field_checkbox.tpl" field=$suppress_tags}}
 	{{include file="field_checkbox.tpl" field=$nodeinfo}}
 	{{include file="field_select.tpl" field=$check_new_version_url}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	<h3>{{$portable_contacts}}</h3>
 	{{include file="field_checkbox.tpl" field=$poco_completion}}
@@ -131,7 +131,7 @@
 	{{include file="field_select.tpl" field=$poco_discovery}}
 	{{include file="field_select.tpl" field=$poco_discovery_since}}
 	{{include file="field_checkbox.tpl" field=$poco_local_search}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	<h3>{{$performance}}</h3>
 	{{include file="field_checkbox.tpl" field=$only_tag_search}}
@@ -143,9 +143,9 @@
 	{{include file="field_input.tpl" field=$dbclean_expire_days}}
 	{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 	{{include file="field_input.tpl" field=$dbclean_expire_conv}}
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
-	<h3>{{$worker_title|escape}}</h3>
+	<h3>{{$worker_title}}</h3>
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$min_memory}}
 	{{include file="field_input.tpl" field=$worker_queues}}
@@ -153,9 +153,9 @@
 	{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 	{{include file="field_checkbox.tpl" field=$worker_frontend}}
 
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
-	<h3>{{$relay_title|escape}}</h3>
+	<h3>{{$relay_title}}</h3>
 	{{include file="field_checkbox.tpl" field=$relay_subscribe}}
 	{{include file="field_input.tpl" field=$relay_server}}
 	{{include file="field_checkbox.tpl" field=$relay_directly}}
@@ -163,7 +163,7 @@
 	{{include file="field_input.tpl" field=$relay_server_tags}}
 	{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit|escape:'html'}}" /></div>
+	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
 	</form>
 
@@ -173,8 +173,8 @@
 	<h3>{{$relocate}}</h3>
 	<strong>{{$relocate_warning}}</strong>
 	{{include file="field_input.tpl" field=$relocate_url}}
-	<input type="hidden" name="page_site" value="{{$submit|escape:'html'}}">
-	<div class="submit"><input type="submit" name="relocate" value="{{$relocate_button|escape:'html'}}" /></div>
+	<input type="hidden" name="page_site" value="{{$submit}}">
+	<div class="submit"><input type="submit" name="relocate" value="{{$relocate_button}}" /></div>
 	</form>
 
 </div>

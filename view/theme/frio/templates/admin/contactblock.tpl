@@ -24,7 +24,7 @@
 					{{include file="field_input.tpl" field=$contacturl}}
 
 					<div class="admin-settings-submit-wrapper form-group pull-right">
-						<button type="submit" class="btn btn-primary" name="page_contactblock_block" value="1">{{$submit|escape:'html'}}</button>
+						<button type="submit" class="btn btn-primary" name="page_contactblock_block" value="1">{{$submit}}</button>
 					</div>
 					<div class="clear"></div>
 				</form>
@@ -67,9 +67,9 @@
 											<label for="id_contact_{{$contact.id}}"></label>
 										</div>
 									</td>
-									<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname|escape}}" title="{{$contact.addr|escape}}"></td>
-									<td class="name">{{$contact.name|escape}}</td>
-									<td class="addr" colspan="3"><a href="{{$contact.url}}" title="{{$contact.addr|escape}}" >{{$contact.url|escape}}</a></td>
+									<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname}}" title="{{$contact.addr}}"></td>
+									<td class="name">{{$contact.name}}</td>
+									<td class="addr" colspan="3"><a href="{{$contact.url}}" title="{{$contact.addr}}" >{{$contact.url}}</a></td>
 								</tr>
 							{{/foreach}}
 						</tbody>
@@ -78,14 +78,14 @@
 								<td>
 									{{* Checkbox to select all blocked contacts *}}
 									<div class="checkbox">
-										<input type="checkbox" id="contactblock-select" class="selecttoggle contacts_ckbx" data-select-class="contacts_ckbx" data-select-all="{{$select_all}}" data-select-none="{{$select_none}}" title="{{$select_all|escape}}"/>
+										<input type="checkbox" id="contactblock-select" class="selecttoggle contacts_ckbx" data-select-class="contacts_ckbx" data-select-all="{{$select_all}}" data-select-none="{{$select_none}}" title="{{$select_all}}"/>
 										<label for="contactblock-select"></label>
 									</div>
 								</td>
 								<td colspan="5">
 									{{$total_contacts}}
 									<div class="admin-settings-submit-wrapper form-group pull-right">
-										<button type="submit" class="btn btn-small btn-default pull-right" name="page_contactblock_unblock" value="1">{{$unblock|escape:'html'}}</button>
+										<button type="submit" class="btn btn-small btn-default pull-right" name="page_contactblock_unblock" value="1">{{$unblock}}</button>
 									</div>
 									<div class="clear"></div>
 								</td>
@@ -96,7 +96,7 @@
 					{{$paginate}}
 
 					{{else}}
-					<p>{{$no_data|escape:'html'}}</p>
+					<p>{{$no_data}}</p>
 					{{/if}}
 				</form>
 			</div>

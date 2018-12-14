@@ -32,8 +32,8 @@
 				{{include file="field_input.tpl" field=$gname label=false}}
 				</div>
 				<div id="group-edit-submit-wrapper" class="form-group pull-right">
-					<button class="btn btn-primary btn-small" type="submit" name="submit" value="{{$submit|escape:'html'}}">
-						{{$submit|escape:'html'}}
+					<button class="btn btn-primary btn-small" type="submit" name="submit" value="{{$submit}}">
+						{{$submit}}
 					</button>
 				</div>
 			</form>

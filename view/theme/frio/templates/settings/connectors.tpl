@@ -29,7 +29,7 @@
 						<p><a href="{{$repair_ostatus_url}}">{{$repair_ostatus_text}}</a></p>
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" id="general-submit" name="general-submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" id="general-submit" name="general-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -61,9 +61,9 @@
 		{{include file="field_select.tpl" field=$mail_action}}
 		{{include file="field_input.tpl" field=$mail_movetofolder}}
 
-		<div class="settings-submit-wrapper" >
-			<input type="submit" id="imap-submit" name="imap-submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
-		</div>
+			<div class="settings-submit-wrapper" >
+				<input type="submit" id="imap-submit" name="imap-submit" class="settings-submit" value="{{$submit}}" />
+			</div>
 		</div>
 {{/if}}
 

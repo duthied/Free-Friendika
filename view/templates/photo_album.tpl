@@ -10,8 +10,8 @@
 
 {{foreach $photos as $photo}}
 <div class="photo-album-image-wrapper" id="photo-album-image-wrapper-{{$photo.id}}">
-	<a href="{{$photo.link}}" class="photo-album-photo-link" id="photo-album-photo-link-{{$photo.id}}" title="{{$photo.title|escape}}">
-		<img src="{{$photo.src}}" alt="{{if $photo.album.name}}{{$photo.album.name|escape}}{{elseif $photo.desc}}{{$photo.desc}}{{elseif $photo.alt}}{{$photo.alt|escape}}{{else}}{{$photo.unknown}}{{/if}}" title="{{$photo.title|escape}}" class="photo-album-photo lframe resize{{$photo.twist}}" id="photo-album-photo-{{$photo.id}}" />
+	<a href="{{$photo.link}}" class="photo-album-photo-link" id="photo-album-photo-link-{{$photo.id}}" title="{{$photo.title}}">
+		<img src="{{$photo.src}}" alt="{{if $photo.album.name}}{{$photo.album.name}}{{elseif $photo.desc}}{{$photo.desc}}{{elseif $photo.alt}}{{$photo.alt}}{{else}}{{$photo.unknown}}{{/if}}" title="{{$photo.title}}" class="photo-album-photo lframe resize{{$photo.twist}}" id="photo-album-photo-{{$photo.id}}" />
 		<p class='caption'>{{$photo.desc}}</p>		
 	</a>
 </div>

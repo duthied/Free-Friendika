@@ -28,14 +28,14 @@
 </table>
 
 {{if $phpath}}
-	<input type="hidden" name="phpath" value="{{$phpath|escape:'html'}}">
+	<input type="hidden" name="phpath" value="{{$phpath}}">
 {{/if}}
 
 {{if $passed}}
 	<input type="hidden" name="pass" value="2">
-	<input type="submit" value="{{$next|escape:'html'}}">
+	<input type="submit" value="{{$next}}">
 {{else}}
 	<input type="hidden" name="pass" value="1">
-	<input type="submit" value="{{$reload|escape:'html'}}">
+	<input type="submit" value="{{$reload}}">
 {{/if}}
 </form>

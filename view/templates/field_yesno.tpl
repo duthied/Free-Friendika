@@ -2,7 +2,7 @@
 	<div class='field yesno'>
 		<label for='id_{{$field.0}}'>{{$field.1}}</label>
 		<div class='onoff' id="id_{{$field.0}}_onoff">
-			<input  type="hidden" name='{{$field.0}}' id='id_{{$field.0}}' value="{{$field.2|escape:'html'}}" aria-describedby='{{$field.0}}_tip'>
+			<input  type="hidden" name='{{$field.0}}' id='id_{{$field.0}}' value="{{$field.2}}" aria-describedby='{{$field.0}}_tip'>
 			<a href="#" class='off'>
 				{{if $field.4}}{{$field.4.0}}{{else}}OFF{{/if}}
 			</a>

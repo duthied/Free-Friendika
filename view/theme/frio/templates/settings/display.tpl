@@ -28,7 +28,7 @@
 						{{/if}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 
@@ -78,7 +78,7 @@
 						{{include file="field_checkbox.tpl" field=$smart_threading}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -89,7 +89,7 @@
 				<div class="section-subtitle-wrapper" role="tab" id="calendar-settings-title">
 					<h4>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#calendar-settings-content" aria-expanded="false" aria-controls="calendar-settings-content">
-							{{$calendar_title|escape}}
+							{{$calendar_title}}
 						</a>
 					</h4>
 				</div>
@@ -99,7 +99,7 @@
 						{{include file="field_select.tpl" field=$first_day_of_week}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>

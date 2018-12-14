@@ -10,7 +10,7 @@
 		{{include file="field_input.tpl" field=$gname}}
 		{{if $drop}}{{$drop}}{{/if}}
 		<div id="group-edit-submit-wrapper" >
-			<input type="submit" name="submit" value="{{$submit|escape:'html'}}" >
+			<input type="submit" name="submit" value="{{$submit}}" >
 		</div>
 		<div id="group-edit-select-end" ></div>
 	</form>

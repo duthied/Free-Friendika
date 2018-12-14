@@ -20,7 +20,7 @@
 <hr style="clear:both"/>
 <div class="form-group">
 	<label for="profile-jot-email" id="profile-jot-email-label">{{$emailcc}}</label>
-	<input type="text" name="emailcc" id="profile-jot-email" class="form-control" title="{{$emtitle|escape:'html'}}" />
+	<input type="text" name="emailcc" id="profile-jot-email" class="form-control" title="{{$emtitle}}" />
 </div>
 <div id="profile-jot-email-end"></div>
 
