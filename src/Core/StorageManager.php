@@ -17,8 +17,8 @@ use Friendica\Core\Logger;
 class StorageManager
 {
 	private static $default_backends = [
-		'Filesystem' => Friendica\Model\Storage\Filesystem::class,
-		'Database' => Friendica\Model\Storage\Database::class,
+		'Filesystem' => \Friendica\Model\Storage\Filesystem::class,
+		'Database' => \Friendica\Model\Storage\Database::class,
 	];
 
 	private static $backends = [];
