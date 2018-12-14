@@ -47,9 +47,9 @@
 				<div id="custom-settings-content" class="panel-collapse collapse{{if !$theme && !$mobile_theme}} in{{/if}}" role="tabpanel" aria-labelledby="custom-settings">
 					<div class="section-content-tools-wrapper">
 
-						{{if $theme_config}}
-						{{$theme_config}}
-						{{/if}}
+					{{if $theme_config}}
+						{{$theme_config nofilter}}
+					{{/if}}
 
 					</div>
 				</div>

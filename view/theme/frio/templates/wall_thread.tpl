@@ -255,7 +255,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h4><br /></span>
 			{{/if}}
 
-			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}">{{$item.body}}</div>
+			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}">{{$item.body nofilter}}</div>
 		</div>
 
 		<!-- TODO -->
@@ -356,7 +356,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{if $item.responses}}
 			<div class="wall-item-responses">
 				{{foreach $item.responses as $verb=>$response}}
-				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output}}</div>
+				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
 				{{/foreach}}
 			</div>
 		{{/if}}
@@ -370,7 +370,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* Insert comment box of threaded children *}}
 		{{if $item.threaded}}{{if $item.comment}}{{if $item.indent==comment}}
 		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">
-			{{$item.comment}}
+			{{$item.comment nofilter}}
 		</div>
 		{{/if}}{{/if}}{{/if}}
 
@@ -391,19 +391,19 @@ as the value of $top_child_total (this is done at the end of this file)
 			case it could be opend with the "comment" button *}}
 		{{if $item.total_comments_num}}
 			{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}">{{$item.comment}}</div>
+				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
 			{{/if}}{{/if}}{{/if}}
 
 			{{if $item.flatten}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}">{{$item.comment}}</div>
+				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
 			{{/if}}
 		{{else}}
 			{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment}}</div>
+				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
 			{{/if}}{{/if}}{{/if}}
 
 			{{if $item.flatten}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment}}</div>
+				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
 			{{/if}}
 		{{/if}}
 	</div><!-- /media -->

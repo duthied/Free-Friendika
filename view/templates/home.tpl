@@ -1,7 +1,7 @@
 
 {{* custom content from hook will replace everything. *}}
 {{if $content != '' }}
-	{{$content}}
+	{{$content nofilter}}
 {{else}}
 
 	{{if $customhome != false }}

@@ -1,7 +1,7 @@
 
 <h3>{{$title}}</h3>
 
-<div id="poke-desc">{{$desc}}</div>
+<div id="poke-desc">{{$desc nofilter}}</div>
 
 
 <div id="poke-wrapper">

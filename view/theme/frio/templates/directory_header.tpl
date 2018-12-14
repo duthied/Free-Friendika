@@ -37,4 +37,4 @@
 
 <div class="directory-end" ></div>
 
-{{$paginate}}
+{{$paginate nofilter}}

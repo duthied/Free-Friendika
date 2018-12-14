@@ -1,10 +1,10 @@
 {{include file="section_title.tpl"}}
 
-{{$tab_str}}
+{{$tab_str nofilter}}
 
-<div class="crepair-error-message">{{$warning}}</div><br>
+<div class="crepair-error-message">{{$warning nofilter}}</div><br>
 <div class="crepair-return">
-	{{$info}}<br>
+	{{$info nofilter}}<br>
 	<!-- <a href="{{$returnaddr}}">{{$return}}</a> -->
 </div>
 <br />

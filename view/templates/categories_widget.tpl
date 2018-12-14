@@ -1,7 +1,7 @@
 
 <div id="categories-sidebar" class="widget">
 	<h3>{{$title}}</h3>
-	<div id="nets-desc">{{$desc}}</div>
+	<div id="nets-desc">{{$desc nofilter}}</div>
 	
 	<ul class="categories-ul">
 		<li class="tool"><a href="{{$base}}" class="categories-link categories-all{{if $sel_all}} categories-selected{{/if}}">{{$all}}</a></li>

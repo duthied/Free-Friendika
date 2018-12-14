@@ -13,7 +13,7 @@
 {{$invite_desc}}
 </p>
 <p>
-{{$desc}}
+{{$desc nofilter}}
 </p>
 {{/if}}
 
@@ -30,7 +30,7 @@
 {{if $url}}<dl><dt>{{$url_label}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>{{/if}}
 {{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location}}</dd></dl>{{/if}}
 {{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
-{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about}}</dd></dl>{{/if}}
+{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about nofilter}}</dd></dl>{{/if}}
 
 <div id="dfrn-request-url-wrapper" >
 	<label id="dfrn-url-label" for="dfrn-url" >{{$your_address}}</label>

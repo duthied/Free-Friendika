@@ -2,7 +2,7 @@
 <h3>{{$title}}</h3>
 
 <p>
-{{$desc}}
+{{$desc nofilter}}
 </p>
 
 <form id="event-edit-form" action="{{$post}}" method="post" >

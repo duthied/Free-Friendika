@@ -5,7 +5,7 @@
 	<div id="contact-edit-wrapper" >
 
 		{{* Insert Tab-Nav *}}
-		{{$tab_str}}
+		{{$tab_str nofilter}}
 
 
 		<div id="contact-edit-content-wrapper">
@@ -113,8 +113,8 @@
 								{{if $about}}
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<hr class="profile-separator">
-									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$about}}</div>
 									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$about_label}}</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$about nofilter}}</div>
 								</div>
 								{{/if}}
 							</div>

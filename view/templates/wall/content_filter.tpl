@@ -18,5 +18,5 @@
 </p>
 {{/if}}
 <div id="content-filter-{{$rnd}}" class="content-filter-content" style="display: none;">
-	{{$html}}
+	{{$html nofilter}}
 </div>

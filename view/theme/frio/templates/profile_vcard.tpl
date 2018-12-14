@@ -129,6 +129,6 @@
 
 {{if $contact_block}}
 <div class="widget" id="widget-contacts">
-	{{$contact_block}}
+	{{$contact_block nofilter}}
 </div>
 {{/if}}

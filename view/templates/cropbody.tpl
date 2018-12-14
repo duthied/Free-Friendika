@@ -1,6 +1,6 @@
 <h1>{{$title}}</h1>
 <p id="cropimage-desc">
-	{{$desc}}
+	{{$desc nofilter}}
 </p>
 
 <div id="cropimage-wrapper">

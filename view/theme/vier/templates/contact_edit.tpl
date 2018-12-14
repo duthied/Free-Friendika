@@ -2,7 +2,7 @@
 <div id="contact-edit-wrapper" >
 
 	{{* Insert Tab-Nav *}}
-	{{$tab_str}}
+	{{$tab_str nofilter}}
 
 
 	<div id="contact-edit-nav-wrapper" >
@@ -57,7 +57,7 @@
 				{{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location}}</dd></dl>{{/if}}
 				{{if $xmpp}}<dl><dt>{{$xmpp_label}}</dt><dd>{{$xmpp}}</dd></dl>{{/if}}
 				{{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
-				{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about}}</dd></dl>{{/if}}
+				{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about nofilter}}</dd></dl>{{/if}}
 			</div>{{* End of contact-edit-links *}}
 
 			<div id="contact-edit-links-end"></div>

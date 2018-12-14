@@ -30,7 +30,7 @@
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
-			<div class="wall-item-body">{{$item.body}}</div>
+			<div class="wall-item-body">{{$item.body nofilter}}</div>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -87,7 +87,7 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
-		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like}}</div>
-		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike}}</div>
+		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like nofilter}}</div>
+		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike nofilter}}</div>
 	</div>
 </div>

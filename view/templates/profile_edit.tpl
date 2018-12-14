@@ -1,5 +1,5 @@
 
-{{$default}}
+{{$default nofilter}}
 
 <h1>{{$banner}}</h1>
 
@@ -44,16 +44,16 @@
 
 <div id="profile-edit-gender-wrapper" >
 <label id="profile-edit-gender-label" for="gender-select" >{{$lbl_gender}} </label>
-{{$gender}}
+{{$gender nofilter}}
 </div>
 <div id="profile-edit-gender-end"></div>
 
 <div id="profile-edit-dob-wrapper" >
-{{$dob}}
+{{$dob nofilter}}
 </div>
 <div id="profile-edit-dob-end"></div>
 
-{{$hide_friends}}
+{{$hide_friends nofilter}}
 
 <div class="profile-edit-submit-wrapper" >
 <input type="submit" name="submit" class="profile-edit-submit-button" value="{{$submit}}" />
@@ -110,8 +110,8 @@
 <div class="profile-edit-submit-end"></div>
 
 <div id="profile-edit-marital-wrapper" >
-<label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital}} </label>
-{{$marital}}
+<label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital nofilter}} </label>
+{{$marital nofilter}}
 </div>
 <label id="profile-edit-with-label" for="profile-edit-with" > {{$with.1}} </label>
 <input type="text" size="32" name="with" id="profile-edit-with" title="{{$with.3}}" value="{{$with.2}}" />
@@ -122,7 +122,7 @@
 
 <div id="profile-edit-sexual-wrapper" >
 <label id="profile-edit-sexual-label" for="sexual-select" >{{$lbl_sexual}} </label>
-{{$sexual}}
+{{$sexual nofilter}}
 </div>
 <div id="profile-edit-sexual-end"></div>
 
@@ -343,12 +343,12 @@
 {{if $personal_account}}
 <div id="profile-edit-gender-wrapper" >
 <label id="profile-edit-gender-label" for="gender-select" >{{$lbl_gender}} </label>
-{{$gender}}
+{{$gender nofilter}}
 </div>
 <div id="profile-edit-gender-end"></div>
 
 <div id="profile-edit-dob-wrapper" >
-{{$dob}}
+{{$dob nofilter}}
 </div>
 <div id="profile-edit-dob-end"></div>
 {{/if}}
@@ -366,7 +366,7 @@
 <div id="profile-edit-xmpp-end"></div>
 
 
-{{$hide_friends}}
+{{$hide_friends nofilter}}
 
 <div id="profile-edit-address-wrapper" >
 <label id="profile-edit-address-label" for="profile-edit-address" >{{$address.1}} </label>

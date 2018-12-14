@@ -30,7 +30,7 @@
 			{{if $location}}<div class="intro-location"><span class="intro-location-label">{{$lbl_location}}</span>&nbsp;{{$location}}</div>{{/if}}
 			{{if $gender}}<div class="intro-gender"><span class="intro-gender-label">{{$lbl_gender}}</span>&nbsp;{{$gender}}</div>{{/if}}
 			{{if $keywords}}<div class="intro-keywords"><span class="intro-keywords-label">{{$lbl_keywords}}</span>&nbsp;{{$keywords}}</div>{{/if}}
-			{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$lbl_about}}</span>&nbsp;{{$about}}</div>{{/if}}
+			{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$lbl_about}}</span>&nbsp;{{$about nofilter}}</div>{{/if}}
 			<div class="intro-knowyou"><span class="intro-knowyou-label">{{$lbl_knowyou}}</span>{{$knowyou}}</div>
 			<div class="intro-note intro-note-{{$intro_id}}">{{$note}}</div>
 		</div>
@@ -42,7 +42,7 @@
 			{{if $location}}<div class="intro-location"><span class="intro-location-label">{{$lbl_location}}</span>{{$location}}</div>{{/if}}
 			{{if $gender}}<div class="intro-gender"><span class="intro-gender-label">{{$lbl_gender}}</span>{{$gender}}</div>{{/if}}
 			{{if $keywords}}<div class="intro-keywords"><span class="intro-keywords-label">{{$lbl_keywords}}</span>{{$keywords}}</div>{{/if}}
-			{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$lbl_about}}</span>{{$about}}</div>{{/if}}
+			{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$lbl_about}}</span>{{$about nofilter}}</div>{{/if}}
 			<div class="intro-knowyou"><span class="intro-knowyou-label">{{$lbl_knowyou}}</span>{{$knowyou}}</div>
 			<div class="intro-note intro-note-{{$intro_id}}">{{$note}}</div>
 		</div>

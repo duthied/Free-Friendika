@@ -41,7 +41,7 @@
 			</tbody>
 		</table>
 		<p><a href="#" onclick="return selectall('contacts_ckbx');">{{$select_all}}</a> | <a href="#" onclick="return selectnone('contacts_ckbx');">{{$select_none}}</a></p>
-		{{$paginate}}
+		{{$paginate nofilter}}
 		<div class="submit"><input type="submit" name="page_contactblock_unblock" value="{{$unblock}}" /></div>
 	{{else}}
 		<p>{{$no_data}}</p>

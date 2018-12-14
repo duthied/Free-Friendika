@@ -18,4 +18,4 @@
 <div class="photo-album-image-wrapper-end"></div>
 {{/foreach}}
 
-{{$paginate}}
+{{$paginate nofilter}}

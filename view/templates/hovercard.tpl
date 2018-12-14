@@ -14,7 +14,7 @@
 					<span class="profile-addr">{{$profile.addr}}</span>
 					{{if $profile.network}}<span class="profile-network"> ({{$profile.network}})</span>{{/if}}
 				</div>
-				{{*{{if $profile.about}}<div class="profile-details profile-about">{{$profile.about}}</div>{{/if}}*}}
+				{{*{{if $profile.about}}<div class="profile-details profile-about">{{$profile.about nofilter}}</div>{{/if}}*}}
 
 			</div>
 			<div class="hover-card-actions  right-aligned">

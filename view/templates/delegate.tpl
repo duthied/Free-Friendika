@@ -15,7 +15,7 @@
 
 <h4>{{$delegates_header}}</h4>
 
-<div id="delegate-desc" class="delegate-desc">{{$desc}}</div>
+<div id="delegate-desc" class="delegate-desc">{{$desc nofilter}}</div>
 
 <h4>{{$head_delegates}}</h4>
 

@@ -34,7 +34,7 @@
 
 	<div style="display: none;">
 		<div id="photos-upload-permissions-wrapper">
-			{{$aclselect}}
+			{{$aclselect nofilter}}
 		</div>
 	</div>
 

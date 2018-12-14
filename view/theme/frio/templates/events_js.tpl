@@ -1,5 +1,5 @@
 <div class="generic-page-wrapper">
-	{{$tabs}}
+	{{$tabs nofilter}}
 	{{include file="section_title.tpl" title=$title pullright=1}}
 
 	{{* The link to create a new event *}}

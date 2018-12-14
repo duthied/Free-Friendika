@@ -7,7 +7,7 @@
 		<span class="input-group-addon image-select"><i class="fa fa-picture-o"></i></span>
 	</div>
 	{{if $field.3}}
-	<span class="help-block" id="{{$field.0}}_tip" role="tooltip">{{$field.3}}</span>
+	<span class="help-block" id="{{$field.0}}_tip" role="tooltip">{{$field.3 nofilter}}</span>
 	{{/if}}
 	<div id="end_{{$field.0}}" class="field_end"></div>
 </div>

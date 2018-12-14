@@ -22,7 +22,7 @@
 	<div class="event-location">
 		<span class="event-label">{{$location_label}}</span>&nbsp;
 		{{if $location.name}}
-		<span class="location">{{$location.name}}</span>
+		<span class="location">{{$location.name nofilter}}</span>
 		{{/if}}
 		{{if $location.map}}{{$location.map}}{{/if}}
 		

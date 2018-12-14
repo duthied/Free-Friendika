@@ -10,7 +10,7 @@
 	</form>
 	<h2>{{$preview}}</h2>
 	{{for $i=1 to 3}}
-	<p>{{$privtext[$i]}}</p>
+	<p>{{$privtext[$i] nofilter}}</p>
 	{{/for}}
 </div>
 

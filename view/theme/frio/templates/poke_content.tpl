@@ -2,7 +2,7 @@
 <div id="poke-wrapper">
 
 	<h3 class="heading">{{$title}}</h3>
-	<div id="poke-desc">{{$desc}}</div>
+	<div id="poke-desc">{{$desc nofilter}}</div>
 
 	<form id="poke-form" action="poke" method="get">
 

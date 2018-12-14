@@ -65,8 +65,8 @@
 		</div>
 
 		<div itemprop="description" class="wall-item-content">
-			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body}}</span>
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
+			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body nofilter}}</span>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -170,7 +170,7 @@
 		<div class="wall-item-links">
 		</div>
 		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">
-					{{$item.comment}}
+					{{$item.comment nofilter}}
 		</div>
 	</div>
 	{{/if}}{{/if}}
@@ -195,18 +195,18 @@
 
 {{if $item.total_comments_num}}
 	{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment}}</div>
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
 	{{/if}}{{/if}}{{/if}}
 
 	{{if $item.flatten}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment}}</div>
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
 	{{/if}}
 {{else}}
 	{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment}}</div>
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
 	{{/if}}{{/if}}{{/if}}
 
 	{{if $item.flatten}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment}}</div>
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
 	{{/if}}
 {{/if}}

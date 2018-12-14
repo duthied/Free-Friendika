@@ -6,7 +6,7 @@
 	<h3>{{$header}}</h3>
 	*}}
 
-	{{$parent}}
+	{{$parent nofilter}}
 
 	{{* The To: form-group which contains the message recipient *}}
 	<div id="prvmail-to-label" class="form-group">

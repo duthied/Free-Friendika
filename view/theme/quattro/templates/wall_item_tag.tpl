@@ -37,7 +37,7 @@
 			<div class="wall-item-location">{{$item.location}}</div>	
 		</div>
 		<div class="wall-item-content">
-			{{$item.ago}} {{$item.body}} 
+			{{$item.ago}} {{$item.body nofilter}}
 		</div>
 			<div class="wall-item-tools">
 				{{if $item.drop.pagedrop}}
@@ -59,9 +59,9 @@
 
 {{* top thread comment box *}}
 {{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >{{$item.comment}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
 {{/if}}{{/if}}{{/if}}
 
 {{if $item.flatten}}
-<div class="wall-item-comment-wrapper" >{{$item.comment}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
 {{/if}}

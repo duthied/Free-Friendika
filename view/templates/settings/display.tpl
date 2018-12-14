@@ -31,7 +31,7 @@
 
 {{if $theme_config}}
 <h2>{{$stitle}}</h2>
-{{$theme_config}}
+{{$theme_config nofilter}}
 {{/if}}
 
 </form>

@@ -15,7 +15,7 @@
 <div id="photo-photo"><a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" /></a></div>
 {{if $nextlink}}<div id="photo-next-link"><a href="{{$nextlink.0}}">{{$nextlink.1}}</a></div>{{/if}}
 <div id="photo-photo-end"></div>
-<div id="photo-caption">{{$desc}}</div>
+<div id="photo-caption">{{$desc nofilter}}</div>
 {{if $tags}}
 <div id="in-this-photo-text">{{$tags.0}}</div>
 <div id="in-this-photo">{{$tags.1}}</div>
@@ -36,5 +36,5 @@
 {{$comments}}
 </div>
 
-{{$paginate}}
+{{$paginate nofilter}}
 

@@ -58,7 +58,7 @@
 {{if $profile.homepage}}
 <dl id="aprofile-homepage" class="aprofile">
  <dt>{{$profile.homepage.0}}</dt>
- <dd>{{$profile.homepage.1}}</dd>
+ <dd>{{$profile.homepage.1 nofilter}}</dd>
 </dl>
 {{/if}}
 

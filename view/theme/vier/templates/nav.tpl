@@ -105,7 +105,7 @@
 				<a class=" {{$nav.apps.2}}" title="{{$nav.apps.3}}" >{{$nav.apps.1}}</a>
 				<ul id="nav-apps-menu" class="menu-popup">
 					{{foreach $apps as $ap}}
-					<li role="menuitem">{{$ap}}</li>
+					<li role="menuitem">{{$ap nofilter}}</li>
 					{{/foreach}}
 				</ul>
 			</li>

@@ -34,5 +34,5 @@
 
 {{$comments}}
 
-{{$paginate}}
+{{$paginate nofilter}}
 

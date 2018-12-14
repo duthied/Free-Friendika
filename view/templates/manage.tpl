@@ -1,6 +1,6 @@
 
 <h3>{{$title}}</h3>
-<div id="identity-manage-desc">{{$desc}}</div>
+<div id="identity-manage-desc">{{$desc nofilter}}</div>
 <div id="identity-manage-choose">{{$choose}}</div>
 
 <div id="identity-selector-wrapper" role="menu">

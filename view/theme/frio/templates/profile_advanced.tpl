@@ -82,7 +82,7 @@
 			<div id="aprofile-homepage" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 aprofile">
 				<hr class="profile-separator">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 profile-label-name text-muted">{{$profile.homepage.0}}</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 profile-entry">{{$profile.homepage.1}}</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 profile-entry">{{$profile.homepage.1 nofilter}}</div>
 			</div>
 			{{/if}}
 

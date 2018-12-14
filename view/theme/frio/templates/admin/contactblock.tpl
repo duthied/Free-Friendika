@@ -93,7 +93,7 @@
 						</tfoot>
 					</table>
 
-					{{$paginate}}
+					{{$paginate nofilter}}
 
 					{{else}}
 					<p>{{$no_data}}</p>

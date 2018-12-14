@@ -22,8 +22,8 @@
 			<div class="wall-item-location">{{$item.location}}</div>
 		</div>
 		<div class="wall-item-content">
-			<div class="wall-item-body">{{$item.body}}</div>
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
+			<div class="wall-item-body">{{$item.body nofilter}}</div>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -80,8 +80,8 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
-		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like}}</div>
-		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike}}</div>
+		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like nofilter}}</div>
+		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike nofilter}}</div>
 		{{if $item.conv}}
 		<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}" >
 			<a href='{{$item.conv.href}}' id='context-{{$item.id}}' title='{{$item.conv.title}}'>{{$item.conv.title}}</a>

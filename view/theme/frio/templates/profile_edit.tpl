@@ -65,7 +65,7 @@
 
 		{{* Some hints to characteristics of the current profile (if available) *}}
 		{{if $is_default}}
-		<div class="section-content-info-wrapper">{{$default}}</div>
+		<div class="section-content-info-wrapper">{{$default nofilter}}</div>
 		{{/if}}
 
 		{{* friendica differs in $detailled_profile (all fields available and a short Version if this is variable false *}}
@@ -91,16 +91,15 @@
 
 						{{include file="field_input.tpl" field=$pdesc}}
 
-
 						<div id="profile-edit-gender-wrapper" class="form-group field select">
 							<label id="profile-edit-gender-label" for="gender-select" >{{$lbl_gender}} </label>
-							{{$gender}}
+							{{$gender nofilter}}
 						</div>
 						<div class="clear"></div>
 
-						{{$dob}}
+						{{$dob nofilter}}
 
-						{{$hide_friends}}
+						{{$hide_friends nofilter}}
 
 						<div class="form-group pull-right" >
 							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
@@ -168,8 +167,8 @@
 				<div id="relation-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="relation">
 					<div class="section-content-tools-wrapper">
 						<div id="profile-edit-marital-wrapper" class="form-group field select" >
-								<label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital}}</label>
-								{{$marital.selector}}
+								<label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital nofilter}}</label>
+								{{$marital.selector nofilter}}
 						</div>
 						<div class="clear"></div>
 
@@ -179,7 +178,7 @@
 
 						<div id="profile-edit-sexual-wrapper" class="form-group field select" >
 							<label id="profile-edit-sexual-label" for="sexual-select" >{{$lbl_sexual}}</label>
-							{{$sexual.selector}}
+							{{$sexual.selector nofilter}}
 						</div>
 						<div class="clear"></div>
 
@@ -261,11 +260,11 @@
 		{{if $personal_account}}
 		<div id="profile-edit-gender-wrapper" class="form-group field select">
 			<label id="profile-edit-gender-label" for="gender-select" >{{$lbl_gender}} </label>
-			{{$gender}}
+			{{$gender nofilter}}
 		</div>
 		<div class="clear"></div>
 
-		{{$dob}}
+		{{$dob nofilter}}
 
 		{{/if}}
 
@@ -273,7 +272,7 @@
 
 		{{include file="field_input.tpl" field=$xmpp}}
 
-		{{$hide_friends}}
+		{{$hide_friends nofilter}}
 
 		{{include file="field_input.tpl" field=$address}}
 

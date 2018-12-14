@@ -2,7 +2,7 @@
 <h3>{{$title}}</h3>
 
 <p id="lostpass-desc">
-{{$desc}}
+{{$desc nofilter}}
 </p>
 
 <form action="lostpass" method="post" >

@@ -5,7 +5,7 @@
 <div id="prvmail-wrapper" >
 <form id="prvmail-form" action="message" method="post" >
 
-{{$parent}}
+{{$parent nofilter}}
 
 <div id="prvmail-to-label">{{$to}}</div>
 {{$select}}

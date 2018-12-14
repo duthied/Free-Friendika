@@ -3,7 +3,7 @@
 	var dropContact = "{{$contact_drop_confirm}}";
 </script>
 
-{{$tabs}}
+{{$tabs nofilter}}
 
 <div id="contacts" class="generic-page-wrapper">
 
@@ -61,5 +61,5 @@
 		<div id="contact-edit-end" class="clear"></div>
 	</form>
 
-	{{$paginate}}
+	{{$paginate nofilter}}
 </div>

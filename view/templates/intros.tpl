@@ -8,7 +8,7 @@
 {{if $location}}<dl><dt>{{$lbl_location}}</dt><dd>{{$location}}</dd></dl>{{/if}}
 {{if $gender}}<dl><dt>{{$lbl_gender}}</dt><dd>{{$gender}}</dd></dl>{{/if}}
 {{if $keywords}}<dl><dt>{{$lbl_keywords}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
-{{if $about}}<dl><dt>{{$lbl_about}}</dt><dd>{{$about}}</dd></dl>{{/if}}
+{{if $about}}<dl><dt>{{$lbl_about}}</dt><dd>{{$about nofilter}}</dd></dl>{{/if}}
 <div class="intro-knowyou">{{$lbl_knowyou}} {{$knowyou}}</div>
 <div class="intro-note" id="intro-note-{{$contact_id}}">{{$note}}</div>
 <div class="intro-wrapper-end" id="intro-wrapper-end-{{$contact_id}}"></div>

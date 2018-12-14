@@ -21,7 +21,7 @@
 
 		<div style="display: none;">
 			<div id="photo-edit-perms-select" >
-				{{$aclselect}}
+				{{$aclselect nofilter}}
 			</div>
 		</div>
 	</div>

@@ -33,7 +33,7 @@
 
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
 
-	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
+	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name nofilter}}</dd></dl>{{/if}}
 
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 
@@ -89,6 +89,6 @@
 	</div>
 </div>
 
-{{$contact_block}}
+{{$contact_block nofilter}}
 
 

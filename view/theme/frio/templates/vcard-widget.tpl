@@ -32,7 +32,7 @@
 
 			{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
 
-			{{if $network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$network_name}}</dd></dl>{{/if}}
+			{{if $network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$network_name nofilter}}</dd></dl>{{/if}}
 		</div>
 	</div>
 </div>
