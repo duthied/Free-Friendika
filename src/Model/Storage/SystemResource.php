@@ -10,7 +10,7 @@ namespace Friendica\Model\Storage;
  * @brief System resource storage class
  *
  * This class is used to load system resources, like images.
- * Is not itended to be selectable by admins as default storage class.
+ * Is not intended to be selectable by admins as default storage class.
  */
 class SystemResource implements IStorage
 {
@@ -40,5 +40,14 @@ class SystemResource implements IStorage
 		throw new \BadMethodCallException();
 	}
 
+	public static function getOptions()
+	{
+		return [];
+	}
+
+	public static function saveOptions($data)
+	{
+		return [];
+	}
 }
 
