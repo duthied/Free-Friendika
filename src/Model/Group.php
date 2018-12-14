@@ -400,8 +400,8 @@ class Group extends BaseObject
 			];
 		}
 
-		// Don't show the groups when there is only one
-		if (count($display_groups) <= 2) {
+		// Don't show the groups on the network page when there is only one
+		if ((count($display_groups) <= 2) && ($each == 'network')) {
 			return '';
 		}
 
