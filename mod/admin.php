@@ -1176,32 +1176,33 @@ function admin_page_site_post(App $a)
 	StorageManager::setBackend($storagebackend);
 	
 	// save storage backend form
-	$storage_opts = $storagebackend::getOptions();
-	$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storagebackend);
-	$storage_opts_data = [];
-	foreach($storage_opts as $name => $info) {
-		$fieldname = $storage_form_prefix . '_' . $name;
-		switch ($info[0]) { // type
-			case 'checkbox':
-			case 'yesno':
-				$value = !empty($_POST[$fieldname]);
-				break;
-			default:
-				$value = defaults($_POST, $fieldname, '');
+	if (!is_null($storagebackend) && $storagebackend != "") {
+		$storage_opts = $storagebackend::getOptions();
+		$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storagebackend);
+		$storage_opts_data = [];
+		foreach($storage_opts as $name => $info) {
+			$fieldname = $storage_form_prefix . '_' . $name;
+			switch ($info[0]) { // type
+				case 'checkbox':
+				case 'yesno':
+					$value = !empty($_POST[$fieldname]);
+					break;
+				default:
+					$value = defaults($_POST, $fieldname, '');
+			}
+			$storage_opts_data[$name] = $value;
 		}
-		$storage_opts_data[$name] = $value;
-	}
-	unset($name);
-	unset($info);
+		unset($name);
+		unset($info);
 	
-	$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
-	if (count($storage_form_errors)) {
-		foreach($storage_form_errors as $name => $err) {
-			notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+		$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
+		if (count($storage_form_errors)) {
+			foreach($storage_form_errors as $name => $err) {
+				notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+			}
+			$a->internalRedirect('admin/site' . $active_panel);
 		}
-		$a->internalRedirect('admin/site' . $active_panel);
 	}
-	
 
 	
 
