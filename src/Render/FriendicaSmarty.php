@@ -42,6 +42,8 @@ class FriendicaSmarty extends Smarty
 		$this->left_delimiter = Renderer::getTemplateLeftDelimiter('smarty3');
 		$this->right_delimiter = Renderer::getTemplateRightDelimiter('smarty3');
 
+		$this->escape_html = true;
+
 		// Don't report errors so verbosely
 		$this->error_reporting = E_ALL & ~E_NOTICE;
 	}
