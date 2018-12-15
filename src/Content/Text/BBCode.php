@@ -626,7 +626,7 @@ class BBCode extends BaseObject
 			$data["title"] = $data["url"];
 		}
 
-		if (($data["text"] == "") && ($data["title"] != "") && ($data["url"] == "")) {
+		if (empty($data["text"]) && !empty($data["title"]) && empty($data["url"])) {
 			return $data["title"] . $data["after"];
 		}
 
