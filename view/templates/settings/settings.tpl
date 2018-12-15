@@ -130,13 +130,6 @@
 {{include file="field_checkbox.tpl" field=$email_textonly}}
 {{include file="field_checkbox.tpl" field=$detailed_notif}}
 
-
-<!--
-<div class="field">
- <button onclick="javascript:Notification.requestPermission(function(perm){if(perm === 'granted')alert('{{$desktop_notifications_success_message}}');});return false;">{{$desktop_notifications}}</button>
- <span class="field_help">{{$desktop_notifications_note}}</span>
-</div>
--->
 {{include file="field_yesno.tpl" field=$desktop_notifications}}
 <script>
 (function(){
