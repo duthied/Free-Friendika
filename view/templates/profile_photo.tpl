@@ -23,5 +23,5 @@
 </form>
 
 <div id="profile-photo-link-select-wrapper">
-{{$select}}
+{{$select nofilter}}
 </div>

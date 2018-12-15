@@ -3,7 +3,7 @@
 	{{* {{$langselector}} *}}
 
 	<div id="site-location">{{$sitelocation}}</div>
-	<div id="banner">{{$banner}}</div>
+	<div id="banner">{{$banner nofilter}}</div>
 </header>
 <nav role="menubar">
 	<ul>

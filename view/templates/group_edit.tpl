@@ -8,7 +8,7 @@
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 		
 		{{include file="field_input.tpl" field=$gname}}
-		{{if $drop}}{{$drop}}{{/if}}
+		{{if $drop}}{{$drop nofilter}}{{/if}}
 		<div id="group-edit-submit-wrapper" >
 			<input type="submit" name="submit" value="{{$submit}}" >
 		</div>

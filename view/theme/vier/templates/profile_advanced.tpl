@@ -181,6 +181,6 @@
 {{if $profile.forumlist}}
 <dl id="aprofile-forumlist" class="aprofile">
  <dt>{{$profile.forumlist.0}}</dt>
- <dd>{{$profile.forumlist.1}}</dd>
+ <dd>{{$profile.forumlist.1 nofilter}}</dd>
 </dl>
 {{/if}}

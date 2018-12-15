@@ -75,7 +75,7 @@
 
 	<div style="display: none;">
 		<div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
-			{{$acl}}
+			{{$acl nofilter}}
 		</div>
 	</div>
 

@@ -7,7 +7,7 @@
 		   {{foreach $field.4 as $opt=>$val}}<option value="{{$val}}">{{/foreach}}
 		</datalist> *}}
 		
-		<input id="id_{{$field.0}}" type="text" value="{{$field.2}}" aria-describedby='{{$field.0}}_tip'>
+		<input id="id_{{$field.0}}" type="text" value="{{$field.2 nofilter}}" aria-describedby='{{$field.0}}_tip'>
 		<select id="select_{{$field.0}}" onChange="$('#id_{{$field.0}}').val($(this).val())">
 			<option value="">{{$field.5}}</option>
 			{{foreach $field.4 as $opt=>$val}}<option value="{{$val}}">{{$val}}</option>{{/foreach}}

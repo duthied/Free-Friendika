@@ -45,10 +45,10 @@
 
 			<div id="event-edit-time">
 				{{* The field for event starting time *}}
-				{{$s_dsel}}
+				{{$s_dsel nofilter}}
 
 				{{* The field for event finish time *}}
-				{{$f_dsel}}
+				{{$f_dsel nofilter}}
 
 				{{* checkbox if the the event doesn't have a finish time *}}
 				{{include file="field_checkbox.tpl" field=$nofinish}}
@@ -169,7 +169,7 @@
 
 		{{* The tab for the permissions (if event sharing is enabled) *}}
 		<div id="event-acl-wrapper" style="display: none">
-			{{$acl}}
+			{{$acl nofilter}}
 		</div>
 
 		{{* The tab for the event preview (content is inserted by js) *}}

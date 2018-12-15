@@ -10,6 +10,6 @@
 		{{/foreach}}
 	</ul>
 	
-	{{$searchbox}}
+	{{$searchbox nofilter}}
 	
 </div>

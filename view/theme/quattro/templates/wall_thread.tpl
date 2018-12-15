@@ -45,7 +45,7 @@
 				</a>
 				<a href="#" rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a>
 				<ul class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
-				{{$item.item_photo_menu}}
+				{{$item.item_photo_menu nofilter}}
 				</ul>
 
 			</div>
@@ -153,7 +153,7 @@
 		<div class="wall-item-links"></div>
 		{{if $item.responses}}
 			{{foreach $item.responses as $verb=>$response}}
-				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output}}</div>
+				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
 			{{/foreach}}
 		{{/if}}
 	</div>

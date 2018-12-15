@@ -117,7 +117,7 @@
 				</div>
 
 				<div id="profile-jot-acl-wrapper" class="minimize" aria-labelledby="jot-perms-lnk" role="tabpanel" aria-hidden="true">
-					{{$acl}}
+					{{$acl nofilter}}
 				</div>
 
 				<div id="jot-preview-content" class="minimize" aria-labelledby="jot-preview-lnk" role="tabpanel" aria-hidden="true"></div>

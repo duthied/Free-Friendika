@@ -14,7 +14,7 @@
 				<a href='{{$baseurl}}/admin/{{$function}}/{{$p.0}}'><span class='name'>{{$p.2.name}}</span></a> - <span class="version">{{$p.2.version}}</span>
 				{{if $p.2.experimental}} {{$experimental}} {{/if}}{{if $p.2.unsupported}} {{$unsupported}} {{/if}}
 
-					<div class='desc'>{{$p.2.description}}</div>
+				<div class='desc'>{{$p.2.description nofilter}}</div>
 			</li>
 		{{/foreach}}
 		</ul>

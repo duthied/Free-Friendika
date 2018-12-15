@@ -25,7 +25,7 @@
 <div id="profile-jot-email-end"></div>
 
 {{if $jotnets}}
-{{$jotnets}}
+{{$jotnets nofilter}}
 {{/if}}{{/if}}
 
 <script type="text/javascript">
@@ -33,7 +33,7 @@ $(document).ready(function() {
 	if(typeof acl=="undefined"){
 		acl = new ACL(
 			baseurl+"/acl",
-			[ {{$allowcid}},{{$allowgid}},{{$denycid}},{{$denygid}} ],
+			[ {{$allowcid nofilter}},{{$allowgid nofilter}},{{$denycid nofilter}},{{$denygid nofilter}} ],
 			{{$features.aclautomention}},
 			{{if $APP->is_mobile}}true{{else}}false{{/if}}
 		);

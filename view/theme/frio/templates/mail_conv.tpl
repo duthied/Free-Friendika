@@ -11,7 +11,7 @@
 			<h4 class="media-heading"><a href="{{$mail.from_url}}" title="{{$mail.from_addr}}">{{$mail.from_name}}</a></h4>
 
 			<div class="mail-body">
-				{{$mail.body}}
+				{{$mail.body nofilter}}
 			</div>
 			{{*<a href="message/dropconv/{{$mail.id}}" onclick="return confirmDelete();" title="{{$delete}}" class="close pull-right" onmouseover="imgbright(this);" onmouseout="imgdull(this);" >&times;</a> *}}
 		</div>

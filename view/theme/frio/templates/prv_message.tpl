@@ -15,7 +15,7 @@
 		<input type="text" id="recip" class="form-control" name="messagerecip" value="{{$prefill}}" tabindex="10" {{if $prefill}}disabled{{else}}aria-required="true"{{/if}} />
 		<input type="hidden" id="recip-complete" name="messageto" value="{{$preid}}">
 		{{else}}
-		{{$select}}
+		{{$select nofilter}}
 		{{/if}}
 	</div>
 

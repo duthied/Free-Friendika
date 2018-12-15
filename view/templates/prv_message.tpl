@@ -8,7 +8,7 @@
 {{$parent nofilter}}
 
 <div id="prvmail-to-label">{{$to}}</div>
-{{$select}}
+{{$select nofilter}}
 
 <div id="prvmail-subject-label">{{$subject}}</div>
 <input type="text" size="64" maxlength="255" id="prvmail-subject" name="subject" value="{{$subjtxt}}" {{$readonly}} tabindex="11" />
