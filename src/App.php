@@ -523,7 +523,7 @@ class App
 		if (!empty($relative_script_path)) {
 			// Module
 			if (!empty($_SERVER['QUERY_STRING'])) {
-				$path = trim(dirname($relative_script_path, substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
+				$path = trim(rdirname($relative_script_path, substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
 			} else {
 				// Root page
 				$path = trim($relative_script_path, '/');
