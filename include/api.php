@@ -1242,8 +1242,9 @@ function api_media_upload()
 	$returndata["media_id_string"] = (string)$media["id"];
 	$returndata["size"] = $media["size"];
 	$returndata["image"] = ["w" => $media["width"],
-					"h" => $media["height"],
-					"image_type" => $media["type"]];
+				"h" => $media["height"],
+				"image_type" => $media["type"],
+				"preview" => $media["preview"]];
 
 	Logger::log("Media uploaded: " . print_r($returndata, true), Logger::DEBUG);
 
