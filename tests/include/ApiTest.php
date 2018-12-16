@@ -1249,6 +1249,7 @@ class ApiTest extends DatabaseTest
 		$this->assertEquals('image/png', $result['media']['image']['image_type']);
 		$this->assertEquals(1, $result['media']['image']['w']);
 		$this->assertEquals(1, $result['media']['image']['h']);
+		$this->assertNotEmpty($result['media']['image']['friendica_preview_url']);
 	}
 
 	/**

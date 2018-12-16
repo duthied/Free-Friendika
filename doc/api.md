@@ -379,6 +379,18 @@ Friendica doesn't allow showing the friends of other users.
 
 * media: image data
 
+#### Return values
+
+Object of:
+
+* media_id: a media identifier (integer)
+* media_id_string: a media identifier (string)
+* size: size in byte
+* image.w: image width
+* image.h: image height
+* image.image_type: image mime type
+* image.friendica_preview_url: image preview url
+
 ---
 
 ### oauth/request_token (*)
