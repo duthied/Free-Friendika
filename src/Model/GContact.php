@@ -966,8 +966,8 @@ class GContact
 
 		$statistics = json_decode($curlResult->getBody());
 
-		if (!empty($statistics->config)) {
-			if ($statistics->config->instance_with_ssl) {
+		if (!empty($statistics->config->instance_address)) {
+			if (!empty($statistics->config->instance_with_ssl)) {
 				$server = "https://";
 			} else {
 				$server = "http://";
@@ -976,8 +976,8 @@ class GContact
 			$server .= $statistics->config->instance_address;
 
 			$hostname = $statistics->config->instance_address;
-		} elseif (!empty($statistics)) {
-			if ($statistics->instance_with_ssl) {
+		} elseif (!empty($statistics->instance_address)) {
+			if (!empty($statistics->instance_with_ssl)) {
 				$server = "https://";
 			} else {
 				$server = "http://";

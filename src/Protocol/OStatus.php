@@ -1543,8 +1543,10 @@ class OStatus
 	 */
 	private static function constructObjecttype(array $item)
 	{
-		if (in_array($item['object-type'], [ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT]))
+		if (!empty($item['object-type']) && in_array($item['object-type'], [ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT])) {
 			return $item['object-type'];
+		}
+
 		return ACTIVITY_OBJ_NOTE;
 	}
 
