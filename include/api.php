@@ -1519,41 +1519,53 @@ function api_search($type)
 	$a = \get_app();
 	$user_info = api_get_user($a);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
+	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
+
+	if (empty($_REQUEST['q']) && empty($_REQUEST['friendica_tag'])) { throw new BadRequestException("q or friendica_tag parameter is required."); }
 
 	$data = [];
-
-	if (empty($_REQUEST['q'])) {
-		throw new BadRequestException("q parameter is required.");
-	}
-
+	$count = 15;
 	if (!empty($_REQUEST['rpp'])) {
 		$count = $_REQUEST['rpp'];
 	} elseif (!empty($_REQUEST['count'])) {
 		$count = $_REQUEST['count'];
-	} else {
-		$count = 15;
 	}
 
 	$since_id = defaults($_REQUEST, 'since_id', 0);
 	$max_id = defaults($_REQUEST, 'max_id', 0);
 	$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] - 1 : 0);
-
 	$start = $page * $count;
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 
-	$condition = ["`gravity` IN (?, ?) AND `item`.`id` > ?
-		AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
-		AND `item`.`body` LIKE CONCAT('%',?,'%')",
-		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, api_user(), $_REQUEST['q']];
-
-	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
-		$condition[] = $max_id;
+	if (!empty($_REQUEST['q'])) {
+		$condition = [
+			"`id` > ? 
+			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
+			AND `body` LIKE CONCAT('%',?,'%')",
+			$since_id, api_user(), $_REQUEST['q']];
+		if ($max_id > 0) {
+			$condition[0] .= " AND `id` <= ?";
+			$condition[] = $max_id;
+		}
+	} elseif (!empty($_REQUEST['friendica_tag'])) {
+		$condition = [
+			"`oid` > ?
+			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) 
+			AND `otype` = ? AND `type` = ? AND `term` = ?",
+			$since_id, local_user(), TERM_OBJ_POST, TERM_HASHTAG, 
+			Strings::escapeTags(trim(rawurldecode($_REQUEST['friendica_tag'])))
+		];
+		if ($max_id > 0) {
+			$condition[0] .= " AND `oid` <= ?";
+			$condition[] = $max_id;
+		}
+		$terms = DBA::select('term', ['oid'], $condition, []);
+		$itemIds = [];
+		while($term = DBA::fetch($terms)){ $itemIds[] = $term['oid']; }
+		DBA::close($terms);
+		$condition = ['id' => empty($itemIds) ? [0] : $itemIds ];
 	}
 
-	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
@@ -2863,7 +2875,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 
 	$ret = [];
 
-	foreach ($r as $item) {
+	foreach ((array)$r as $item) {
 		localize_item($item);
 		list($status_user, $owner_user) = api_item_get_user($a, $item);
 

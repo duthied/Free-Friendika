@@ -1118,7 +1118,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiStatusesUpdate()
 	{
-		$_GET['status'] = 'Status content';
+		$_GET['status'] = 'Status content #friendica';
 		$_GET['in_reply_to_status_id'] = -1;
 		$_GET['lat'] = 48;
 		$_GET['long'] = 7;
@@ -1387,6 +1387,20 @@ class ApiTest extends DatabaseTest
 		foreach ($result['status'] as $status) {
 			$this->assertStatus($status);
 			$this->assertContains('reply', $status['text'], null, true);
+		}
+	}
+
+	/**
+	 * Test the api_search() function with friendica_tag 
+	 * @return void
+	 */
+	public function testApiSearchWithFriendicaTag()
+	{
+		$_REQUEST['friendica_tag'] = 'friendica';
+		$result = api_search('json');
+		foreach ($result['status'] as $status) {
+			$this->assertStatus($status);
+			$this->assertContains('#friendica', $status['text'], null, true);
 		}
 	}
 
