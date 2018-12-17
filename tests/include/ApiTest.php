@@ -1391,20 +1391,6 @@ class ApiTest extends DatabaseTest
 	}
 
 	/**
-	 * Test the api_search() function with friendica_tag 
-	 * @return void
-	 */
-	public function testApiSearchWithFriendicaTag()
-	{
-		$_REQUEST['friendica_tag'] = 'friendica';
-		$result = api_search('json');
-		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
-			$this->assertContains('#friendica', $status['text'], null, true);
-		}
-	}
-
-	/**
 	 * Test the api_search() function with an rpp parameter.
 	 * @return void
 	 */

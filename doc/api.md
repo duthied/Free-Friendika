@@ -751,7 +751,6 @@ Friendica doesn't allow showing followers of other users.
 #### Parameters
 
 * q: search query
-* friendica_tag: search hashtag (optional; query condition only accept one of the two [ q | friendica_tag ] )
 * page: the page number (starting at 1) to return
 * rpp: the number of statuses to return per page
 * count: alias for the rpp parameter

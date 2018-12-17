@@ -1521,7 +1521,9 @@ function api_search($type)
 
 	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
 
-	if (empty($_REQUEST['q']) && empty($_REQUEST['friendica_tag'])) { throw new BadRequestException("q or friendica_tag parameter is required."); }
+	if (empty($_REQUEST['q'])) { throw new BadRequestException("q parameter is required."); }
+	
+	$searchTerm = trim(rawurldecode($_REQUEST['q']));
 
 	$data = [];
 	$count = 15;
@@ -1530,31 +1532,18 @@ function api_search($type)
 	} elseif (!empty($_REQUEST['count'])) {
 		$count = $_REQUEST['count'];
 	}
-
+	
 	$since_id = defaults($_REQUEST, 'since_id', 0);
 	$max_id = defaults($_REQUEST, 'max_id', 0);
 	$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] - 1 : 0);
 	$start = $page * $count;
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-
-	if (!empty($_REQUEST['q'])) {
-		$condition = [
-			"`id` > ? 
-			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
-			AND `body` LIKE CONCAT('%',?,'%')",
-			$since_id, api_user(), $_REQUEST['q']];
-		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
-			$condition[] = $max_id;
-		}
-	} elseif (!empty($_REQUEST['friendica_tag'])) {
-		$condition = [
-			"`oid` > ?
+	if (preg_match('/^\#([^#]+)/', $searchTerm, $matches) === 1 && isset($matches[1])) {
+		$searchTerm = $matches[1];
+		$condition = ["`oid` > ?
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) 
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
-			$since_id, local_user(), TERM_OBJ_POST, TERM_HASHTAG, 
-			Strings::escapeTags(trim(rawurldecode($_REQUEST['friendica_tag'])))
-		];
+			$since_id, local_user(), TERM_OBJ_POST, TERM_HASHTAG, $searchTerm];
 		if ($max_id > 0) {
 			$condition[0] .= " AND `oid` <= ?";
 			$condition[] = $max_id;
@@ -1564,6 +1553,16 @@ function api_search($type)
 		while($term = DBA::fetch($terms)){ $itemIds[] = $term['oid']; }
 		DBA::close($terms);
 		$condition = ['id' => empty($itemIds) ? [0] : $itemIds ];
+	} else {
+		$condition = ["`id` > ? 
+			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
+			AND `body` LIKE CONCAT('%',?,'%')",
+			$since_id, api_user(), $_REQUEST['q']];
+		if ($max_id > 0) {
+			$condition[0] .= " AND `id` <= ?";
+			$condition[] = $max_id;
+		}
+
 	}
 
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
