@@ -1405,6 +1405,19 @@ class ApiTest extends DatabaseTest
 		}
 	}
 
+	/**
+	 * Test the api_search() function with an q parameter contains hashtag.
+	 * @return void
+	 */
+	public function testApiSearchWithHashtag()
+	{
+		$_REQUEST['q'] = '#friendica';
+		$result = api_search('json');
+		foreach ($result['status'] as $status) {
+			$this->assertStatus($status);
+			$this->assertContains('#friendica', $status['text'], null, true);
+		}
+	}
 
 	/**
 	 * Test the api_search() function without an authenticated user.
