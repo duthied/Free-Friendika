@@ -1411,7 +1411,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiSearchWithHashtag()
 	{
-		$_REQUEST['q'] = '#friendica';
+		$_REQUEST['q'] = '%23friendica';
 		$result = api_search('json');
 		foreach ($result['status'] as $status) {
 			$this->assertStatus($status);
