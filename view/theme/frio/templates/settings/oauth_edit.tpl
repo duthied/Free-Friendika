@@ -1,4 +1,4 @@
-
+<div class="generic-page-wrapper">
 <h2 class="heading">{{$title}}</h2>
 
 <form method="POST">
@@ -16,3 +16,4 @@
 	<div class="clear"></div>
 
 </form>
+</div>
