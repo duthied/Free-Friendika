@@ -262,8 +262,8 @@ function update_1293() {
 	$allLangs = L10n::getAvailableLanguages();
 	$success = 0;
 	$fail = 0;
-	foreach ($allGenders as $key=>$gender) {
-		foreach ($allLangs as $key=>$lang) {
+	foreach ($allGenders as $key => $gender) {
+		foreach ($allLangs as $key => $lang) {
 
 			$a = new \stdClass();
 			$a->strings = [];
