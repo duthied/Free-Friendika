@@ -204,6 +204,8 @@ class HTTPSignature
 
 		if (preg_match('/algorithm="(.*?)"/ism', $header, $matches)) {
 			$ret['algorithm'] = $matches[1];
+		} else {
+			$ret['algorithm'] = 'rsa-sha256';
 		}
 
 		if (preg_match('/headers="(.*?)"/ism', $header, $matches)) {

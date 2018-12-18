@@ -45,10 +45,8 @@
 						{{if $poll_enabled}}
 							<li><div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
 							{{if $poll_interval}}
-								<form id="contact-edit-poll-form" action="/contact/{{$contact_id}}" method="post"> 
-									<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}}
-									<input class="btn btn-primary" type="submit" name="submit" value="{{$submit}}" />
-								</form>
+								<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval nofilter}}
+								<input class="btn btn-primary" type="submit" name="submit" value="{{$submit" />
 							{{/if}}
 							</li>
 						{{/if}}
