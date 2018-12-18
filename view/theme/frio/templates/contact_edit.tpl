@@ -46,7 +46,7 @@
 							<li><div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
 							{{if $poll_interval}}
 								<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval nofilter}}
-								<input class="btn btn-primary" type="submit" name="submit" value="{{$submit" />
+								<input class="btn btn-primary" type="submit" name="submit" value="{{$submit}}" />
 							{{/if}}
 							</li>
 						{{/if}}
