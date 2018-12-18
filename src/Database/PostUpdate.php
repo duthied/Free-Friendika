@@ -377,46 +377,46 @@ class PostUpdate
 
 	// Post-update script of PR 5596
 	function fixGenderStrings() {
-	    $allGenders = DBA::select('contact', ['id', 'gender']);
-        $allLangs = L10n::getAvailableLanguages();
-        $success = 0;
-        $fail = 0;
-	    foreach($allGenders as $key=>$gender) {
-            foreach($allLangs as $key=>$lang) {
+		$allGenders = DBA::select('contact', ['id', 'gender']);
+		$allLangs = L10n::getAvailableLanguages();
+		$success = 0;
+		$fail = 0;
+		foreach($allGenders as $key=>$gender) {
+			foreach($allLangs as $key=>$lang) {
 
-                $a = new \stdClass();
-                $a->strings = [];
+				$a = new \stdClass();
+				$a->strings = [];
 
-                // First we get the the localizations
-                if (file_exists("view/lang/$lang/strings.php")) {
-                    include "view/lang/$lang/strings.php";
-                }
-                if (file_exists("addon/morechoice/lang/$lang/strings.php")) {
-                    include "addon/morechoice/lang/$lang/strings.php";
-                }
+				// First we get the the localizations
+				if (file_exists("view/lang/$lang/strings.php")) {
+					include "view/lang/$lang/strings.php";
+				}
+				if (file_exists("addon/morechoice/lang/$lang/strings.php")) {
+					include "addon/morechoice/lang/$lang/strings.php";
+				}
 
-                $localizedStrings = $a->strings;
-                unset($a);
+				$localizedStrings = $a->strings;
+				unset($a);
 
-                $key = array_search($gender['gender'], $localizedStrings);
-                if($key !== false) {
-                    break;
-                }
+				$key = array_search($gender['gender'], $localizedStrings);
+				if($key !== false) {
+					break;
+				}
 
-                // defaulting to empty string
-                $key = '';
-            }
-            DBA::update('contact', ['gender' => $key], ['id' => $gender['id']]);
-            logger::log('Updated contact ' . $gender['id'] . ' to gender ' . $key . ' (was: ' . $gender['gender'] . ')');
+				// defaulting to empty string
+				$key = '';
+			}
+			DBA::update('contact', ['gender' => $key], ['id' => $gender['id']]);
+			logger::log('Updated contact ' . $gender['id'] . ' to gender ' . $key . ' (was: ' . $gender['gender'] . ')');
 
-            if ($key == '') {
-                $fail++;
-            }
-            else {
-                $success++;
-            }
-        }
-
-	    Logger::log("Gender fix completed. Success: $success. Fail: $fail");
-    }
+			if ($key == '') {
+				$fail++;
+			}
+			else {
+				$success++;
+			}
+		}
+		
+		Logger::log("Gender fix completed. Success: $success. Fail: $fail");
+	}
 }
