@@ -134,7 +134,7 @@ class StorageManager
 			);
 
 			if (DBA::isResult($rr)) {
-				while($r = $rr->fetch()) {
+				while($r = DBA::fetch($rr)) {
 					$id = $r['id'];
 					$data = $r['data'];
 					$backendClass = $r['backend-class'];
