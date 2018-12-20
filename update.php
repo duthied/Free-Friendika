@@ -265,37 +265,39 @@ function update_1293()
 	$success = 0;
 	$fail = 0;
 	foreach ($allGenders as $key => $gender) {
-		foreach ($allLangs as $key => $lang) {
+		if ($gender['gender'] != '') {
+			foreach ($allLangs as $key => $lang) {
 
-			$a = new \stdClass();
-			$a->strings = [];
+				$a = new \stdClass();
+				$a->strings = [];
 
-			// First we get the the localizations
-			if (file_exists("view/lang/$lang/strings.php")) {
-				include "view/lang/$lang/strings.php";
+				// First we get the the localizations
+				if (file_exists("view/lang/$lang/strings.php")) {
+					include "view/lang/$lang/strings.php";
+				}
+				if (file_exists("addon/morechoice/lang/$lang/strings.php")) {
+					include "addon/morechoice/lang/$lang/strings.php";
+				}
+
+				$localizedStrings = $a->strings;
+				unset($a);
+
+				$key = array_search($gender['gender'], $localizedStrings);
+				if ($key !== false) {
+					break;
+				}
+
+				// defaulting to empty string
+				$key = '';
 			}
-			if (file_exists("addon/morechoice/lang/$lang/strings.php")) {
-				include "addon/morechoice/lang/$lang/strings.php";
+
+			if ($key == '') {
+				$fail++;
+			} else {
+				DBA::update('contact', ['gender' => $key], ['id' => $gender['id']]);
+				logger::log('Updated contact ' . $gender['id'] . ' to gender ' . $key . ' (was: ' . $gender['gender'] . ')');
+				$success++;
 			}
-
-			$localizedStrings = $a->strings;
-			unset($a);
-
-			$key = array_search($gender['gender'], $localizedStrings);
-			if ($key !== false) {
-				break;
-			}
-
-			// defaulting to empty string
-			$key = '';
-		}
-
-		if ($key == '') {
-			$fail++;
-		} else {
-			DBA::update('contact', ['gender' => $key], ['id' => $gender['id']]);
-			logger::log('Updated contact ' . $gender['id'] . ' to gender ' . $key . ' (was: ' . $gender['gender'] . ')');
-			$success++;
 		}
 	}
 
