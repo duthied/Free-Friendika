@@ -91,7 +91,7 @@
 {{if $profile.about}}
 <dl id="aprofile-about" class="aprofile">
  <dt>{{$profile.about.0}}</dt>
- <dd>{{$profile.about.1}}</dd>
+ <dd>{{$profile.about.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
