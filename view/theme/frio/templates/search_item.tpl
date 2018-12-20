@@ -141,11 +141,11 @@
 				<div class="wall-item-tags">
 			{{if !$item.suppress_tags}}
 				{{foreach $item.hashtags as $tag}}
-					<span class="tag label btn-info sm">{{$tag}} <i class="fa fa-bolt" aria-hidden="true"></i></span>
+					<span class="tag label btn-info sm">{{$tag nofilter}} <i class="fa fa-bolt" aria-hidden="true"></i></span>
 				{{/foreach}}
 
 				{{foreach $item.mentions as $tag}}
-					<span class="mention label btn-warning sm">{{$tag}} <i class="fa fa-user" aria-hidden="true"></i></span>
+					<span class="mention label btn-warning sm">{{$tag nofilter}} <i class="fa fa-user" aria-hidden="true"></i></span>
 				{{/foreach}}
 			{{/if}}
 
