@@ -257,7 +257,8 @@ function update_1288() {
 
 	
 // Post-update script of PR 5751
-function update_1293() {
+function update_1293()
+{
 	$allGenders = DBA::select('contact', ['id', 'gender']);
 	$allLangs = L10n::getAvailableLanguages();
 	$success = 0;
