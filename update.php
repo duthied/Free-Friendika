@@ -289,12 +289,12 @@ function update_1293()
 			// defaulting to empty string
 			$key = '';
 		}
-		DBA::update('contact', ['gender' => $key], ['id' => $gender['id']]);
-		logger::log('Updated contact ' . $gender['id'] . ' to gender ' . $key . ' (was: ' . $gender['gender'] . ')');
 
 		if ($key == '') {
 			$fail++;
 		} else {
+			DBA::update('contact', ['gender' => $key], ['id' => $gender['id']]);
+			logger::log('Updated contact ' . $gender['id'] . ' to gender ' . $key . ' (was: ' . $gender['gender'] . ')');
 			$success++;
 		}
 	}
