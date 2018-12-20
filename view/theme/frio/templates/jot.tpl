@@ -89,7 +89,7 @@
 
 					{{* The jot text field in which the post text is inserted *}}
 					<div id="jot-text-wrap">
-						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{/if}}</textarea>
+						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
@@ -107,7 +107,7 @@
 						<li role="presentation" class="pull-right"><button class="btn btn-primary" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw" aria-hidden="true"></i> {{$share}}</button></li>
 						<li role="presentation" id="character-counter" class="grey jothidden text-info pull-right"></li>
 						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};" >
-							<img role="presentation" id="profile-rotator" src="images/rotator.gif" alt="{{$wait|escape}}" title="{{$wait|escape}}" style="display: none;" />
+							<img role="presentation" id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
 						</li>
 						<li role="presentation" id="profile-jot-plugin-wrapper">
 							{{$jotplugins}}
@@ -117,7 +117,7 @@
 				</div>
 
 				<div id="profile-jot-acl-wrapper" class="minimize" aria-labelledby="jot-perms-lnk" role="tabpanel" aria-hidden="true">
-					{{$acl}}
+					{{$acl nofilter}}
 				</div>
 
 				<div id="jot-preview-content" class="minimize" aria-labelledby="jot-preview-lnk" role="tabpanel" aria-hidden="true"></div>

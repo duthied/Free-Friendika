@@ -3,7 +3,7 @@
 
   {{if $tabs}}
 	<div id="message-preview">
-		{{$tabs}}
+		{{$tabs nofilter}}
 	</div>
   {{/if}}
 

@@ -1,7 +1,7 @@
 <div class="vcard h-card">
 
 	<div class="tool">
-		<div class="fn label p-name">{{$profile.name|escape}}</div>
+		<div class="fn label p-name">{{$profile.name}}</div>
 		{{if $profile.edit}}
 			<div class="action">
 				<a class="icon s16 edit ttright" href="{{$profile.edit.0}}" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
@@ -13,18 +13,18 @@
 		{{/if}}
 	</div>
 
-	{{if $profile.addr}}<div class="p-addr">{{$profile.addr|escape}}</div>{{/if}}
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 
 	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
 
 	{{if $profile.picdate}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name|escape}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a></div>
 	{{else}}
-		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name|escape}}"></a></div>
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name}}"></a></div>
 	{{/if}}
 
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
-	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
+	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name nofilter}}</dd></dl>{{/if}}
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 
 		<dd class="adr h-adr">
@@ -58,7 +58,7 @@
 
 	{{if $homepage}}<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt><dd class="homepage-url"><a href="{{$profile.homepage}}" class="u-url" rel="me" target="_blank">{{$profile.homepage}}</a></dd></dl>{{/if}}
 
-	{{if $about}}<dl class="about"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about}}</dd></dl>{{/if}}
+	{{if $about}}<dl class="about"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about nofilter}}</dd></dl>{{/if}}
 
 	{{include file="diaspora_vcard.tpl"}}
 	
@@ -81,4 +81,4 @@
 	</div>
 </div>
 
-{{$contact_block}}
+{{$contact_block nofilter}}

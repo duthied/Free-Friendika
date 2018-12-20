@@ -54,7 +54,7 @@
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css" type="text/css" media="screen"/>
 
 <div id='adminpage' class="adminpage generic-page-wrapper">
-	<h1>{{$title|escape}} - {{$page}}</h1>
+	<h1>{{$title}} - {{$page}}</h1>
 	<form action="{{$baseurl}}/admin/site" method="post">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 		<input type='hidden' name='active_panel' value=''>
@@ -88,7 +88,7 @@
 					{{include file="field_checkbox.tpl" field=$hide_help}}
 					{{include file="field_select.tpl" field=$singleuser}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -114,7 +114,7 @@
 					{{include file="field_checkbox.tpl" field=$no_openid}}
 					{{include file="field_checkbox.tpl" field=$no_regfullname}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -139,7 +139,7 @@
 					{{include file="field_input.tpl" field=$maximagelength}}
 					{{include file="field_input.tpl" field=$jpegimagequality}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -182,7 +182,7 @@
 					{{include file="field_checkbox.tpl" field=$dfrn_only}}
 					{{include file="field_input.tpl" field=$global_directory}}
 					<div class="panel-footer">
-						<input type="submit" name="republish_directory" class="btn btn-primary" value="{{$republish|escape:'html'}}"/>
+						<input type="submit" name="republish_directory" class="btn btn-primary" value="{{$republish}}"/>
 					</div>
 					{{include file="field_checkbox.tpl" field=$newuser_private}}
 					{{include file="field_checkbox.tpl" field=$enotify_no_content}}
@@ -192,7 +192,7 @@
 					{{include file="field_checkbox.tpl" field=$explicit_content}}
 
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -226,7 +226,7 @@
 					{{include file="field_checkbox.tpl" field=$nodeinfo}}
 					{{include file="field_select.tpl" field=$check_new_version_url}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -251,7 +251,7 @@
 					{{include file="field_select.tpl" field=$poco_discovery_since}}
 					{{include file="field_checkbox.tpl" field=$poco_local_search}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -280,7 +280,7 @@
 					{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 					{{include file="field_input.tpl" field=$dbclean_expire_conv}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -293,7 +293,7 @@
 				<div class="section-subtitle-wrapper" role="tab" id="admin-settings-worker">
 					<h4>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-worker-collapse" aria-expanded="false" aria-controls="admin-settings-worker-collapse">
-							{{$worker_title|escape}}
+							{{$worker_title}}
 						</a>
 					</h4>
 				</div>
@@ -306,7 +306,7 @@
 					{{include file="field_checkbox.tpl" field=$worker_fastlane}}
 					{{include file="field_checkbox.tpl" field=$worker_frontend}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -319,7 +319,7 @@
 				<div class="section-subtitle-wrapper" role="tab" id="admin-relay-corporate">
 					<h4>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-relay-collapse" aria-expanded="false" aria-controls="admin-settings-relay-collapse">
-							{{$relay_title|escape}}
+							{{$relay_title}}
 						</a>
 					</h4>
 				</div>
@@ -332,7 +332,7 @@
 					{{include file="field_input.tpl" field=$relay_server_tags}}
 					{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 					<div class="panel-footer">
-						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit|escape:'html'}}"/>
+						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
 					</div>
 				</div>
 			</div>
@@ -359,10 +359,10 @@
 			<form action="{{$baseurl}}/admin/site" method="post">
 				<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 				{{include file="field_input.tpl" field=$relocate_url}}
-				<input type="hidden" name="page_site" value="{{$submit|escape:'html'}}">
+				<input type="hidden" name="page_site" value="{{$submit}}">
 				<input type='hidden' name='active_panel' value='admin-settings-relocate-collapse'>
 				<div class="panel-footer">
-					<input type="submit" name="relocate" class="btn btn-primary" value="{{$relocate_button|escape:'html'}}"/>
+					<input type="submit" name="relocate" class="btn btn-primary" value="{{$relocate_button}}"/>
 				</div>
 			</form>
 		</div>

@@ -45,10 +45,10 @@
 
 			<div id="event-edit-time">
 				{{* The field for event starting time *}}
-				{{$s_dsel}}
+				{{$s_dsel nofilter}}
 
 				{{* The field for event finish time *}}
-				{{$f_dsel}}
+				{{$f_dsel nofilter}}
 
 				{{* checkbox if the the event doesn't have a finish time *}}
 				{{include file="field_checkbox.tpl" field=$nofinish}}
@@ -64,7 +64,7 @@
 
 			{{* The submit button - saves the event *}}
 			<div class="pull-right" >
-				<button id="event-submit" type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+				<button id="event-submit" type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 			</div>
 			<div class="clear"></div>
 		</div>
@@ -79,39 +79,39 @@
 				<ul id="event-desc-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
 					{{* commented out because it isn't implemented yet
 					<li>
-						<button type="button" class="btn-link icon bb-img" style="cursor: pointer;" title="{{$edimg|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="img" data-id="desc">
+						<button type="button" class="btn-link icon bb-img" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-comment=" " data-bbcode="img" data-id="desc">
 							<i class="fa fa-picture-o"></i>
 						</button>
 					</li>
 					*}}
 					<li>
-						<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" title="{{$edurl|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="desc">
+						<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" title="{{$edurl}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="desc">
 							<i class="fa fa-link"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" title="{{$edvideo|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="video" data-id="desc">
+						<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" title="{{$edvideo}}" data-role="insert-formatting" data-comment=" " data-bbcode="video" data-id="desc">
 							<i class="fa fa-video-camera"></i>
 						</button>
 					</li>
 
 					<li>
-						<button type="button" class="btn-link icon underline" style="cursor: pointer;" title="{{$eduline|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="u" data-id="desc">
+						<button type="button" class="btn-link icon underline" style="cursor: pointer;" title="{{$eduline}}" data-role="insert-formatting" data-comment=" " data-bbcode="u" data-id="desc">
 							<i class="fa fa-underline"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon italic" style="cursor: pointer;" title="{{$editalic|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="i" data-id="desc">
+						<button type="button" class="btn-link icon italic" style="cursor: pointer;" title="{{$editalic}}" data-role="insert-formatting" data-comment=" " data-bbcode="i" data-id="desc">
 							<i class="fa fa-italic"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon bold" style="cursor: pointer;"  title="{{$edbold|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="b" data-id="desc">
+						<button type="button" class="btn-link icon bold" style="cursor: pointer;"  title="{{$edbold}}" data-role="insert-formatting" data-comment=" " data-bbcode="b" data-id="desc">
 							<i class="fa fa-bold"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon quote" style="cursor: pointer;" title="{{$edquote|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="quote" data-id="desc">
+						<button type="button" class="btn-link icon quote" style="cursor: pointer;" title="{{$edquote}}" data-role="insert-formatting" data-comment=" " data-bbcode="quote" data-id="desc">
 							<i class="fa fa-quote-left"></i>
 						</button>
 					</li>
@@ -126,39 +126,39 @@
 				<ul id="comment-tools-loc" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
 					{{* commented out because it isn't implemented yet
 					<li>
-						<button type="button" class="btn-link icon bb-img" style="cursor: pointer;" title="{{$edimg|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="img" data-id="loc">
+						<button type="button" class="btn-link icon bb-img" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-comment=" " data-bbcode="img" data-id="loc">
 							<i class="fa fa-picture-o"></i>
 						</button>
 					</li>
 					*}}
 					<li>
-						<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" title="{{$edurl|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="loc">
+						<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" title="{{$edurl}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="loc">
 							<i class="fa fa-link"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" title="{{$edvideo|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="video" data-id="loc">
+						<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" title="{{$edvideo}}" data-role="insert-formatting" data-comment=" " data-bbcode="video" data-id="loc">
 							<i class="fa fa-video-camera"></i>
 						</button>
 					</li>
 
 					<li>
-						<button type="button" class="btn-link icon underline" style="cursor: pointer;" title="{{$eduline|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="u" data-id="loc">
+						<button type="button" class="btn-link icon underline" style="cursor: pointer;" title="{{$eduline}}" data-role="insert-formatting" data-comment=" " data-bbcode="u" data-id="loc">
 							<i class="fa fa-underline"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon italic" style="cursor: pointer;" title="{{$editalic|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="i" data-id="loc">
+						<button type="button" class="btn-link icon italic" style="cursor: pointer;" title="{{$editalic}}" data-role="insert-formatting" data-comment=" " data-bbcode="i" data-id="loc">
 							<i class="fa fa-italic"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon bold" style="cursor: pointer;"  title="{{$edbold|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="b" data-id="loc">
+						<button type="button" class="btn-link icon bold" style="cursor: pointer;"  title="{{$edbold}}" data-role="insert-formatting" data-comment=" " data-bbcode="b" data-id="loc">
 							<i class="fa fa-bold"></i>
 						</button>
 					</li>
 					<li>
-						<button type="button" class="btn-link icon quote" style="cursor: pointer;" title="{{$edquote|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="quote" data-id="loc">
+						<button type="button" class="btn-link icon quote" style="cursor: pointer;" title="{{$edquote}}" data-role="insert-formatting" data-comment=" " data-bbcode="quote" data-id="loc">
 							<i class="fa fa-quote-left"></i>
 						</button>
 					</li>
@@ -169,7 +169,7 @@
 
 		{{* The tab for the permissions (if event sharing is enabled) *}}
 		<div id="event-acl-wrapper" style="display: none">
-			{{$acl}}
+			{{$acl nofilter}}
 		</div>
 
 		{{* The tab for the event preview (content is inserted by js) *}}

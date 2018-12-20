@@ -20,7 +20,7 @@ Orange - #fec01d
 /* For general iPad layouts */
 #body {
 	-moz-background-clip: border;
-	-moz-background-origin: pdading;
+	-moz-background-origin: padding;
 	-moz-background-size: auto auto;
 	background-attachment: scroll;
 	background-color: transparent;

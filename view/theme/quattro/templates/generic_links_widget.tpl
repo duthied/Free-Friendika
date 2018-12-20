@@ -1,6 +1,6 @@
 <div class="widget">
 	{{if $title}}<h3>{{$title}}</h3>{{/if}}
-	{{if $desc}}<div class="desc">{{$desc}}</div>{{/if}}
+	{{if $desc}}<div class="desc">{{$desc nofilter}}</div>{{/if}}
 
 	<ul role="menu">
 		{{foreach $items as $item}}

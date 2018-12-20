@@ -5,8 +5,8 @@
 		{{* The search field *}}
 		<label for="side-peoplefind-url" id="peoplefind-desc">{{$nv.desc}}</label>
 		<div class="form-group form-group-search">
-			<input id="side-peoplefind-url" class="search-input form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$nv.hint|escape:'html'}}" />
-			<button id="side-peoplefind-submit" class="btn btn-default btn-sm form-button-search" type="submit">{{$nv.findthem|escape: 'html'}}</button>
+			<input id="side-peoplefind-url" class="search-input form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$nv.hint}}" />
+			<button id="side-peoplefind-submit" class="btn btn-default btn-sm form-button-search" type="submit">{{$nv.findthem}}</button>
 		</div>
 	</form>
 

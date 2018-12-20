@@ -994,6 +994,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 function format_like($cnt, array $arr, $type, $id) {
 	$o = '';
 	$expanded = '';
+	$phrase = '';
 
 	if ($cnt == 1) {
 		$likers = $arr[0];

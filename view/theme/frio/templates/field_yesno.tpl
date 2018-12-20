@@ -4,7 +4,7 @@
 		<div class="onoff toggle btn btn-xs pull-right" id="id_{{$field.0}}_onoff">
 			
 			<div class="switchlabel toggle-group">
-				<input  type="hidden" name="{{$field.0}}" id="id_{{$field.0}}" value="{{$field.2|escape:'html'}}" aria-describedby="{{$field.0}}_tip">
+				<input  type="hidden" name="{{$field.0}}" id="id_{{$field.0}}" value="{{$field.2 nofilter}}" aria-describedby="{{$field.0}}_tip">
 				<label class="btn btn-default btn-xs  active toggle-off">
 					{{if $field.4}}{{$field.4.0}}{{else}}OFF{{/if}}
 				</label>
@@ -15,7 +15,7 @@
 			</div>
 		</div>
 		{{if $field.3}}
-		<span class="help-block" id="{{$field.0}}_tip" role="tooltip">{{$field.3}}</span>
+		<span class="help-block" id="{{$field.0}}_tip" role="tooltip">{{$field.3 nofilter}}</span>
 		{{/if}}
 	</div>
 	<div class="clear"></div>

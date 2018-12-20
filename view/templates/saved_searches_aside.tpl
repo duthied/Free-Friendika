@@ -1,7 +1,7 @@
 
 <div class="widget" id="saved-search-list">
 	<h3 id="search">{{$title}}</h3>
-	{{$searchbox}}
+	{{$searchbox nofilter}}
 	
 	<ul role="menu" id="saved-search-ul">
 		{{foreach $saved as $search}}

@@ -1,4 +1,4 @@
-{{$live_update}}
+{{$live_update nofilter}}
 
 {{foreach $threads as $thread}}
 <hr class="sr-only" />

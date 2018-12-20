@@ -1,5 +1,5 @@
 
-{{$tabs}}
+{{$tabs nofilter}}
 {{include file="section_title.tpl"}}
 
 <div id="new-event-link"><a href="{{$new_event.0}}" >{{$new_event.1}}</a></div>
@@ -16,7 +16,7 @@
 	<div class="event">
 	{{if $event.is_first}}<hr /><a name="link-{{$event.j}}" ><div class="event-list-date">{{$event.d}}</div></a>{{/if}}
 	{{if $event.item.author_name}}<a href="{{$event.item.author_link}}" ><img src="{{$event.item.author_avatar}}" height="32" width="32" />{{$event.item.author_name}}</a>{{/if}}
-	{{$event.html}}
+	{{$event.html nofilter}}
 	{{if $event.item.plink}}<a href="{{$event.plink.0}}" title="{{$event.plink.1}}" target="_blank" class="plink-event-link icon s22 remote-link"></a>{{/if}}
 	{{if $event.edit}}<a href="{{$event.edit.0}}" title="{{$event.edit.1}}" class="edit-event-link icon s22 pencil"></a>{{/if}}
 	</div>

@@ -1,7 +1,7 @@
 
 <div id="fileas-sidebar" class="widget">
 	<h3>{{$title}}</h3>
-	<div id="nets-desc">{{$desc}}</div>
+	<div id="nets-desc">{{$desc nofilter}}</div>
 	
 	<ul class="fileas-ul">
 		<li class="tool"><a href="{{$base}}" class="fileas-link fileas-all{{if $sel_all}} fileas-selected{{/if}}">{{$all}}</a></li>

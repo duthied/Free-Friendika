@@ -10,7 +10,7 @@
 </script>
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
-	<p>{{$description}}</p>
+	<p>{{$description nofilter}}</p>
 	<form action="{{$baseurl}}/admin/contactblock" method="post">
         <input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
@@ -32,19 +32,19 @@
 				{{foreach $contacts as $contact}}
 				<tr>
 					<td class="checkbox"><input type="checkbox" class="contacts_ckbx" id="id_contact_{{$contact.id}}" name="contacts[]" value="{{$contact.id}}"/></td>
-					<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname|escape}}" title="{{$contact.nickname|escape}}"></td>
-					<td class="name">{{$contact.name|escape}}</td>
-					<td class="addr">{{$contact.addr|escape}}</td>
-					<td class="addr"><a href="{{$contact.url}}" title="{{$contact.nickname|escape}}" >{{$contact.url}}</a></td>
+					<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname}}" title="{{$contact.nickname}}"></td>
+					<td class="name">{{$contact.name}}</td>
+					<td class="addr">{{$contact.addr}}</td>
+					<td class="addr"><a href="{{$contact.url}}" title="{{$contact.nickname}}" >{{$contact.url}}</a></td>
 				</tr>
 				{{/foreach}}
 			</tbody>
 		</table>
 		<p><a href="#" onclick="return selectall('contacts_ckbx');">{{$select_all}}</a> | <a href="#" onclick="return selectnone('contacts_ckbx');">{{$select_none}}</a></p>
-		{{$paginate}}
-		<div class="submit"><input type="submit" name="page_contactblock_unblock" value="{{$unblock|escape:'html'}}" /></div>
+		{{$paginate nofilter}}
+		<div class="submit"><input type="submit" name="page_contactblock_unblock" value="{{$unblock}}" /></div>
 	{{else}}
-		<p>{{$no_data|escape:'html'}}</p>
+		<p>{{$no_data}}</p>
 	{{/if}}
 	</form>
 
@@ -58,6 +58,6 @@
 				</tr>
 			</tbody>
 		</table>
-		<div class="submit"><input type="submit" name="page_contactblock_block" value="{{$submit|escape:'html'}}" /></div>
+		<div class="submit"><input type="submit" name="page_contactblock_block" value="{{$submit}}" /></div>
 	</form>
 </div>

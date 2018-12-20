@@ -18,20 +18,20 @@
 	</p>
 
 	{{if $screenshot}}
-	<a href="{{$screenshot.0}}" class='screenshot'><img src="{{$screenshot.0}}" alt="{{$screenshot.1|escape}}" /></a>
+	<a href="{{$screenshot.0}}" class='screenshot'><img src="{{$screenshot.0}}" alt="{{$screenshot.1}}" /></a>
 	{{/if}}
 
 	{{if $admin_form}}
 	<h3>{{$settings}}</h3>
 	<form method="post" action="{{$baseurl}}/admin/{{$function}}/{{$addon}}/">
-		{{$admin_form}}
+		{{$admin_form nofilter}}
 	</form>
 	{{/if}}
 
 	{{if $readme}}
 	<h3>Readme</h3>
 	<div id="addon_readme">
-		{{$readme}}
+		{{$readme nofilter}}
 	</div>
 	{{/if}}
 </div>

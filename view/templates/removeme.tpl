@@ -3,7 +3,7 @@
 
 <div id="remove-account-wrapper">
 
-<div id="remove-account-desc">{{$desc}}</div>
+<div id="remove-account-desc">{{$desc nofilter}}</div>
 
 <form action="{{$basedir}}/removeme" autocomplete="off" method="post" >
 <input type="hidden" name="verify" value="{{$hash}}" />
@@ -14,7 +14,7 @@
 </div>
 <div id="remove-account-pass-end"></div>
 
-<input type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" value="{{$submit}}" />
 
 </form>
 </div>

@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="view/asset/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
 
 {{foreach $stylesheets as $stylesheetUrl}}
-<link rel="stylesheet" href="{{$stylesheetUrl|escape:"html":"UTF-8"}}" type="text/css" media="screen" />
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
 {{/foreach}}
 
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />

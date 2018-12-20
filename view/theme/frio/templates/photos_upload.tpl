@@ -63,7 +63,7 @@
 						<h4 id="modal-title" class="modal-title">{{$permissions}}</h4>
 					</div>
 					<div id="photos-upload-permissions-wrapper" class="modal-body">
-						{{$aclselect}}
+						{{$aclselect nofilter}}
 					</div>
 				</div>
 			</div>

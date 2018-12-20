@@ -1,7 +1,7 @@
 
 <div id="nets-sidebar" class="widget">
 	<h3>{{$title}}</h3>
-	<div id="nets-desc">{{$desc}}</div>
+	<div id="nets-desc">{{$desc nofilter}}</div>
 	<ul role="menu" class="nets-ul">
 		<li role="menuitem" {{if $sel_all}}class="selected"{{/if}}><a href="{{$base}}" class="nets-link{{if $sel_all}} nets-selected{{/if}} nets-all">{{$all}}</a></li>
 		{{foreach $nets as $net}}

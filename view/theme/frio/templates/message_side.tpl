@@ -2,7 +2,7 @@
 	{{if $tabs}}
 	<div id="message-preview" class="panel panel-default">
 		<ul class="media-list">
-		{{$tabs}}
+		{{$tabs nofilter}}
 		</ul>
 	</div>
 	{{/if}}

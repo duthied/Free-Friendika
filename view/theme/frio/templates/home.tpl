@@ -5,7 +5,7 @@
 	<div class="col-sm-12">
 		<div class="panel panel-default login-panel-content">
 			<div class="panel-body">
-				{{$content}}
+				{{$content nofilter}}
 			</div>
 		</div>
 	</div>

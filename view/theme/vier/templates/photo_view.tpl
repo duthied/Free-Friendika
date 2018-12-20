@@ -8,14 +8,14 @@
 |
 <a id="photo-toprofile-link" href="{{$tools.profile.0}}">{{$tools.profile.1}}</a>
 {{/if}}
-{{if $lock}} | <img src="images/lock_icon.gif" class="lockview" alt="{{$lock|escape}}" onclick="lockview(event,'photo/{{$id}}');" /> {{/if}}
+{{if $lock}} | <img src="images/lock_icon.gif" class="lockview" alt="{{$lock}}" onclick="lockview(event,'photo/{{$id}}');" /> {{/if}}
 </div>
 
 {{if $prevlink}}<div id="photo-prev-link"><a href="{{$prevlink.0}}">{{$prevlink.1}}</a></div>{{/if}}
-<div id="photo-photo"><a href="{{$photo.href}}" title="{{$photo.title|escape}}"><img src="{{$photo.src}}" /></a></div>
+<div id="photo-photo"><a href="{{$photo.href}}" title="{{$photo.title}}"><img src="{{$photo.src}}" /></a></div>
 {{if $nextlink}}<div id="photo-next-link"><a href="{{$nextlink.0}}">{{$nextlink.1}}</a></div>{{/if}}
 <div id="photo-photo-end"></div>
-<div id="photo-caption">{{$desc}}</div>
+<div id="photo-caption">{{$desc nofilter}}</div>
 {{if $tags}}
 <div id="in-this-photo-text">{{$tags.0}}</div>
 <div id="in-this-photo">{{$tags.1}}</div>
@@ -36,5 +36,5 @@
 {{$comments}}
 </div>
 
-{{$paginate}}
+{{$paginate nofilter}}
 

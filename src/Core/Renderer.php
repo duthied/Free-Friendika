@@ -48,29 +48,29 @@ class Renderer extends BaseObject
 		'internal' => '',
 		'smarty3' => '}}'
     ];
-    
-    /**
-     * @brief This is our template processor
-     *
-     * @param string|FriendicaSmarty $s The string requiring macro substitution or an instance of FriendicaSmarty
-     * @param array $r                  key value pairs (search => replace)
-     * 
-     * @return string substituted string
-    */
-    public static function replaceMacros($s, $r)
+
+	/**
+	 * @brief This is our template processor
+	 *
+	 * @param string|FriendicaSmarty $s    The string requiring macro substitution or an instance of FriendicaSmarty
+	 * @param array                  $vars key value pairs (search => replace)
+	 *
+	 * @return string substituted string
+	 */
+    public static function replaceMacros($s, $vars)
     {
         $stamp1 = microtime(true);
         $a = self::getApp();
 
         // pass $baseurl to all templates
-        $r['$baseurl'] = System::baseUrl();
+        $vars['$baseurl'] = System::baseUrl();
         $t = self::getTemplateEngine();
 
         try {
-            $output = $t->replaceMacros($s, $r);
+            $output = $t->replaceMacros($s, $vars);
         } catch (Exception $e) {
             echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-            killme();
+            exit();
         }
 
         $a->saveTimestamp($stamp1, "rendering");

@@ -4,7 +4,7 @@ at the suggest page and also at many other places *}}
 
 {{include file="section_title.tpl"}}
 
-{{$tab_str}}
+{{$tab_str nofilter}}
 
 <ul id="viewcontact_wrapper{{if $id}}-{{$id}}{{/if}}" class="viewcontact_wrapper media-list">
 {{foreach $contacts as $contact}}
@@ -14,4 +14,4 @@ at the suggest page and also at many other places *}}
 <div class="clear"></div>
 <div id="view-contact-end"></div>
 
-{{$paginate}}
+{{$paginate nofilter}}
