@@ -51,8 +51,7 @@ function update_1178()
 		$profile["pub_keywords"] = profile_clean_keywords($profile["pub_keywords"]);
 
 		$r = q(
-			"UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s'
-			WHERE `self` AND `uid` = %d",
+			"UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 			DBA::escape($profile["about"]),
 			DBA::escape($profile["locality"]),
 			DBA::escape($profile["pub_keywords"]),
@@ -261,11 +260,7 @@ function update_1260()
 function update_1261()
 {
 	// This fixes the results of an issue in the develop branch of 2018-05.
-	DBA::update(
-		'contact',
-		['blocked' => false, 'pending' => false],
-		['uid' => 0, 'blocked' => true, 'pending' => true]
-	);
+	DBA::update('contact', ['blocked' => false, 'pending' => false], ['uid' => 0, 'blocked' => true, 'pending' => true]);
 	return Update::SUCCESS;
 }
 
@@ -293,14 +288,8 @@ function update_1288()
 {
 	// Updates missing `uri-id` values
 
-	DBA::e("UPDATE `item-activity`
-		INNER JOIN `item` ON `item`.`iaid` = `item-activity`.`id`
-		SET `item-activity`.`uri-id` = `item`.`uri-id`
-		WHERE `item-activity`.`uri-id` IS NULL OR `item-activity`.`uri-id` = 0");
-	DBA::e("UPDATE `item-content`
-		INNER JOIN `item` ON `item`.`icid` = `item-content`.`id`
-		SET `item-content`.`uri-id` = `item`.`uri-id`
-		WHERE `item-content`.`uri-id` IS NULL OR `item-content`.`uri-id` = 0");
+	DBA::e("UPDATE `item-activity` INNER JOIN `item` ON `item`.`iaid` = `item-activity`.`id` SET `item-activity`.`uri-id` = `item`.`uri-id` WHERE `item-activity`.`uri-id` IS NULL OR `item-activity`.`uri-id` = 0");
+	DBA::e("UPDATE `item-content` INNER JOIN `item` ON `item`.`icid` = `item-content`.`id` SET `item-content`.`uri-id` = `item`.`uri-id` WHERE `item-content`.`uri-id` IS NULL OR `item-content`.`uri-id` = 0");
 
 	return Update::SUCCESS;
 }
