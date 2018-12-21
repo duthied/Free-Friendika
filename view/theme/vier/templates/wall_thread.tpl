@@ -134,7 +134,7 @@
 			{{/if}}
 			</div>
 
-			<div class="wall-item-location">{{$item.location}} {{$item.postopts}}</div>
+			<div class="wall-item-location">{{$item.location nofilter}} {{$item.postopts}}</div>
 
 			<div class="wall-item-actions-isevent">
 			</div>
