@@ -32,7 +32,7 @@
 			<li><a id="profile-nolocation" onclick="jotClearLocation();return false;" title="{{$noloc}}">{{$shortnoloc}}</a></li>
 			-->
 			<li><a id="jot-preview-link" onclick="preview_post(); return false;" title="{{$preview}}">{{$preview}}</a></li>
-			{{$jotplugins}}
+			{{$jotplugins nofilter}}
 
 			{{if !$is_edit}}
 			<li class="perms"><a id="jot-perms-icon" href="#profile-jot-acl-wrapper" class="icon s22 {{$lockstate}} {{$bang}}"  title="{{$permset}}" ></a></li>
