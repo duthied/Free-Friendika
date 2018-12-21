@@ -28,7 +28,7 @@
 
 			<div id="photos-upload-spacer"></div>
 
-			{{$alt_uploader}}
+			{{$alt_uploader nofilter}}
 		{{/if}}
 
 
