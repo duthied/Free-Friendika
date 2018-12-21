@@ -61,7 +61,7 @@
 	</div>
 
 	<div id="profile-jot-plugin-wrapper" style="display: none;">
-	{{$jotplugins}}
+	{{$jotplugins nofilter}}
 	</div>
 	<div id="profile-jot-tools-end"></div>
 
