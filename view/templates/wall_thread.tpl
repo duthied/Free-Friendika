@@ -54,7 +54,7 @@
 			<div class="body-tag">
 			{{if !$item.suppress_tags}}
 				{{foreach $item.tags as $tag}}
-				<span class="tag">{{$tag}}</span>
+				<span class="tag">{{$tag nofilter}}</span>
 				{{/foreach}}
 			{{/if}}
 			</div>
