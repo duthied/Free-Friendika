@@ -75,10 +75,10 @@
 		<div class="wall-item-tags">
 		{{if !$item.suppress_tags}}
 			{{foreach $item.hashtags as $tag}}
-				<span class="tag">{{$tag}}</span>
+				<span class="tag">{{$tag nofilter}}</span>
 			{{/foreach}}
 			{{foreach $item.mentions as $tag}}
-				<span class="mention">{{$tag}}</span>
+				<span class="mention">{{$tag nofilter}}</span>
 			{{/foreach}}
 		{{/if}}
 			{{foreach $item.folders as $cat}}

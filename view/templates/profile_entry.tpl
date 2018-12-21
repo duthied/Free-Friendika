@@ -7,6 +7,6 @@
 	<div class="profile-listing-name" id="profile-listing-name-{{$id}}">
 		<a href="profiles/{{$id}}" class="profile-listing-edit-link" >{{$profile_name}}</a>
 	</div>
-	<div class="profile-listing-visible">{{$visible}}</div>
+	<div class="profile-listing-visible">{{$visible nofilter}}</div>
 </div>
 <div class="profile-listing-end"></div>

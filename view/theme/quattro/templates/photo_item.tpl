@@ -18,7 +18,7 @@
 		</div>
 		<div class="wall-item-tags">
 			{{foreach $tags as $tag}}
-				<span class='tag'>{{$tag}}</span>
+				<span class='tag'>{{$tag nofilter}}</span>
 			{{/foreach}}
 		</div>
 	</div>

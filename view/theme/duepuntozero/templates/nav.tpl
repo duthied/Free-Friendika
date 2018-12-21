@@ -65,7 +65,7 @@
 	{{if $nav.manage}}<a id="nav-manage-link" class="nav-link {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}">{{$nav.manage.1}}</a>{{/if}}
 	</span>
 	<span id="nav-end"></span>
-	<span id="banner">{{$banner}}</span>
+	<span id="banner">{{$banner nofilter}}</span>
 </nav>
 
 <ul id="nav-notifications-template" style="display:none;" rel="template">
