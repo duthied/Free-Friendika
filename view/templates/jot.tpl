@@ -64,7 +64,7 @@
 
 
 	<div id="profile-jot-plugin-wrapper">
-	{{$jotplugins}}
+	{{$jotplugins nofilter}}
 	</div>
 
 	<div id="profile-rotator-wrapper" style="display: {{$visitor}};" >
