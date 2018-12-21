@@ -98,28 +98,28 @@
 {{if $profile.interest}}
 <dl id="aprofile-interest" class="aprofile">
  <dt>{{$profile.interest.0}}</dt>
- <dd>{{$profile.interest.1}}</dd>
+ <dd>{{$profile.interest.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
 {{if $profile.likes}}
 <dl id="aprofile-likes" class="aprofile">
  <dt>{{$profile.likes.0}}</dt>
- <dd>{{$profile.likes.1}}</dd>
+ <dd>{{$profile.likes.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
 {{if $profile.dislikes}}
 <dl id="aprofile-dislikes" class="aprofile">
  <dt>{{$profile.dislikes.0}}</dt>
- <dd>{{$profile.dislikes.1}}</dd>
+ <dd>{{$profile.dislikes.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
 {{if $profile.contact}}
 <dl id="aprofile-contact" class="aprofile">
  <dt>{{$profile.contact.0}}</dt>
- <dd>{{$profile.contact.1}}</dd>
+ <dd>{{$profile.contact.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
@@ -127,7 +127,7 @@
 {{if $profile.music}}
 <dl id="aprofile-music" class="aprofile">
  <dt>{{$profile.music.0}}</dt>
- <dd>{{$profile.music.1}}</dd>
+ <dd>{{$profile.music.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
@@ -135,7 +135,7 @@
 {{if $profile.book}}
 <dl id="aprofile-book" class="aprofile">
  <dt>{{$profile.book.0}}</dt>
- <dd>{{$profile.book.1}}</dd>
+ <dd>{{$profile.book.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
@@ -143,7 +143,7 @@
 {{if $profile.tv}}
 <dl id="aprofile-tv" class="aprofile">
  <dt>{{$profile.tv.0}}</dt>
- <dd>{{$profile.tv.1}}</dd>
+ <dd>{{$profile.tv.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
@@ -151,7 +151,7 @@
 {{if $profile.film}}
 <dl id="aprofile-film" class="aprofile">
  <dt>{{$profile.film.0}}</dt>
- <dd>{{$profile.film.1}}</dd>
+ <dd>{{$profile.film.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
@@ -159,7 +159,7 @@
 {{if $profile.romance}}
 <dl id="aprofile-romance" class="aprofile">
  <dt>{{$profile.romance.0}}</dt>
- <dd>{{$profile.romance.1}}</dd>
+ <dd>{{$profile.romance.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
@@ -167,14 +167,14 @@
 {{if $profile.work}}
 <dl id="aprofile-work" class="aprofile">
  <dt>{{$profile.work.0}}</dt>
- <dd>{{$profile.work.1}}</dd>
+ <dd>{{$profile.work.1 nofilter}}</dd>
 </dl>
 {{/if}}
 
 {{if $profile.education}}
 <dl id="aprofile-education" class="aprofile">
  <dt>{{$profile.education.0}}</dt>
- <dd>{{$profile.education.1}}</dd>
+ <dd>{{$profile.education.1 nofilter}}</dd>
 </dl>
 {{/if}}
 

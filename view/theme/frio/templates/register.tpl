@@ -1,4 +1,3 @@
-
 <div class="generic-page-wrapper">
 
 	<form action="register" method="post" id="register-form">
@@ -8,10 +7,9 @@
 
 		<h3 class="heading">{{$regtitle}}</h3>
 
-		{{if $registertext != ""}}<div class="error-message">{{$registertext}} </div>{{/if}}
+		{{if $registertext != ""}}<div class="error-message">{{$registertext nofilter}}</div>{{/if}}
 
 		{{if $explicit_content}} <p id="register-explicid-content">{{$explicit_content_note}}</p> {{/if}}
-
 
 		{{if $oidlabel}}
 		<div id="register-openid-wrapper" class="form-group">
@@ -82,6 +80,4 @@
 			<a href="uimport">{{$importt}}</a>
 		</div>
 	</form>
-
-	{{$license}}
 </div>

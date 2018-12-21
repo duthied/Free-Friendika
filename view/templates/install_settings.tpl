@@ -14,7 +14,7 @@
 <input type="hidden" name="pass" value="4" />
 
 {{include file="field_input.tpl" field=$adminmail}}
-{{$timezone}}
+{{$timezone nofilter}}
 {{include file="field_select.tpl" field=$language}}
 
 <input id="install-submit" type="submit" name="submit" value="{{$submit}}" />
