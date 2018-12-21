@@ -3,7 +3,7 @@
 	<h1>{{$title}} - {{$page}}</h1>
 
 	<p><span class='toggleaddon icon {{$status}}'></span> {{$info.name}} - {{$info.version}} : <a href="{{$baseurl}}/admin/{{$function}}/{{$addon}}/?a=t&amp;t={{$form_security_token}}">{{$action}}</a></p>
-	<p>{{$info.description}}</p>
+	<p>{{$info.description nofilter}}</p>
 
 	<p class="author">{{$str_author}}
 	{{foreach $info.author as $a name=authors}}
