@@ -7,8 +7,8 @@
 	{{if $customhome != false }}
 		{{include file="$customhome"}}
 	{{else}}
-		{{$defaultheader}}
+		{{$defaultheader nofilter}}
 	{{/if}}
 
-	{{$login}}
+	{{$login nofilter}}
 {{/if}}
