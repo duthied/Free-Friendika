@@ -50,8 +50,7 @@ function update_1178()
 
 		$profile["pub_keywords"] = profile_clean_keywords($profile["pub_keywords"]);
 
-		$r = q(
-			"UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
+		$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
 			DBA::escape($profile["about"]),
 			DBA::escape($profile["locality"]),
 			DBA::escape($profile["pub_keywords"]),
@@ -119,8 +118,7 @@ function update_1191()
 	}
 
 	// select old formlist addon entries
-	$r = q(
-		"SELECT `uid`, `cat`, `k`, `v` FROM `pconfig` WHERE `cat` = '%s' ",
+	$r = q("SELECT `uid`, `cat`, `k`, `v` FROM `pconfig` WHERE `cat` = '%s' ",
 		DBA::escape('forumlist')
 	);
 
@@ -161,8 +159,7 @@ function update_1191()
 
 function update_1203()
 {
-	$r = q(
-		"UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
+	$r = q("UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
 		DBA::escape(Contact::ACCOUNT_TYPE_COMMUNITY),
 		DBA::escape(Contact::PAGE_COMMUNITY),
 		DBA::escape(Contact::PAGE_PRVGROUP)
