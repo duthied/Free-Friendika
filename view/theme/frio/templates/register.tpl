@@ -58,7 +58,7 @@
 		{{include file="field_textarea.tpl" field=$permonlybox}}
 		{{/if}}
 
-		{{$publish}}
+		{{$publish nofilter}}
 
 		{{if $showtoslink}}
 		<p><a href="{{$baseurl}}/tos">{{$tostext}}</a></p>
@@ -66,7 +66,7 @@
 		{{if $showprivstatement}}
 		<h4>{{$privstatement.0}}</h4>
 		{{for $i=1 to 3}}
-		<p>{{$privstatement[$i]}}</p>
+		<p>{{$privstatement[$i] nofilter}}</p>
 		{{/for}}
 		{{/if}}
 
