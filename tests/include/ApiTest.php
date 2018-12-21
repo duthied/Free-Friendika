@@ -1420,6 +1420,20 @@ class ApiTest extends DatabaseTest
 	}
 
 	/**
+	 * Test the api_search() function with an exclude_replies parameter.
+	 * @return void
+	 */
+	public function testApiSearchWithExcludeReplies()
+	{
+		$_REQUEST['max_id'] = 10;
+		$_REQUEST['exclude_replies'] = true;
+		$result = api_search('json');
+		foreach ($result['status'] as $status) {
+			$this->assertStatus($status);
+		}
+	}
+
+	/**
 	 * Test the api_search() function without an authenticated user.
 	 * @return void
 	 * @expectedException Friendica\Network\HTTPException\ForbiddenException
