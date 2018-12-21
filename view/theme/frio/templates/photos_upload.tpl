@@ -43,9 +43,9 @@
 						<i id="jot-perms-icon" class="fa {{$lockstate}}"></i> 
 					</button>
 
-					{{$default_upload_submit}}
+					{{$default_upload_submit nofilter}}
 				</div>
-				{{$default_upload_box}}
+				{{$default_upload_box nofilter}}
 			</div>
 			<div class="clearfix"></div>
 		{{/if}}
