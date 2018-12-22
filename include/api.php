@@ -1521,7 +1521,7 @@ function api_search($type)
 
 	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
 
-	if (empty($_REQUEST['q'])) { throw new BadRequestException("q parameter is required."); }
+	if (empty($_REQUEST['q'])) { throw new BadRequestException('q parameter is required.'); }
 	
 	$searchTerm = trim(rawurldecode($_REQUEST['q']));
 
@@ -1547,34 +1547,34 @@ function api_search($type)
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
 			$since_id, local_user(), TERM_OBJ_POST, TERM_HASHTAG, $searchTerm];
 		if ($max_id > 0) {
-			$condition[0] .= " AND `oid` <= ?";
+			$condition[0] .= ' AND `oid` <= ?';
 			$condition[] = $max_id;
 		}
 		$terms = DBA::select('term', ['oid'], $condition, []);
 		$itemIds = [];
-		while ( $term = DBA::fetch($terms) ) {
+		while ($term = DBA::fetch($terms)) {
 			$itemIds[] = $term['oid'];
 		}
 		DBA::close($terms);
 
 		if (empty($itemIds)) {
-			return api_format_data("statuses", $type, $data);
+			return api_format_data('statuses', $type, $data);
 		}
 
-		$tmpAr = ['`id` IN ('.implode(", ", $itemIds).')'];
+		$preCondition = ['`id` IN (' . implode(', ', $itemIds) . ')'];
 		if ($exclude_replies) {
-			$tmpAr[] = "`id` = `parent`";
+			$preCondition[] = '`id` = `parent`';
 		}
 
-		$condition = [ implode(" AND ", $tmpAr) ];
+		$condition = [implode(' AND ', $preCondition)];
 	} else {
 		$condition = ["`id` > ? 
-			" . ( $exclude_replies ? " AND `id` = `parent` " : ' ' ) . "
+			" . ($exclude_replies ? " AND `id` = `parent` " : ' ') . "
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `body` LIKE CONCAT('%',?,'%')",
 			$since_id, api_user(), $_REQUEST['q']];
 		if ($max_id > 0) {
-			$condition[0] .= " AND `id` <= ?";
+			$condition[0] .= ' AND `id` <= ?';
 			$condition[] = $max_id;
 		}
 	}
@@ -1585,7 +1585,7 @@ function api_search($type)
 
 	bindComments($data['status']);
 
-	return api_format_data("statuses", $type, $data);
+	return api_format_data('statuses', $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -6016,7 +6016,7 @@ function bindComments(&$data)
 		$ids[] = $item['id'];
 	}
 
-	$idStr = DBA::escape(implode(", ", $ids));
+	$idStr = DBA::escape(implode(', ', $ids));
 	$sql = "SELECT `parent`, COUNT(*) as comments FROM `item` WHERE `parent` IN ($idStr) AND `deleted` = ? AND `gravity`= ? GROUP BY `parent`";
 	$items = DBA::p($sql, 0, GRAVITY_COMMENT);
 	$itemsData = DBA::toArray($items);
