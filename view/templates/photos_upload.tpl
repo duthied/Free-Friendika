@@ -40,10 +40,10 @@
 
 	<div id="photos-upload-spacer"></div>
 
-	{{$alt_uploader}}
+	{{$alt_uploader nofilter}}
 
-	{{$default_upload_box}}
-	{{$default_upload_submit}}
+	{{$default_upload_box nofilter}}
+	{{$default_upload_submit nofilter}}
 
 	<div class="photos-upload-end" ></div>
 </form>
