@@ -1778,7 +1778,7 @@ class PortableContact
 				$curlResult = Network::curl($url);
 
 				if ($curlResult->isSuccess()) {
-					$data = json_decode($curlResult["body"], true);
+					$data = json_decode($curlResult[->getBody(), true);
 
 					if (!empty($data)) {
 						self::discoverServer($data, 3);
