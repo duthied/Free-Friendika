@@ -1427,6 +1427,7 @@ class ApiTest extends DatabaseTest
 	{
 		$_REQUEST['max_id'] = 10;
 		$_REQUEST['exclude_replies'] = true;
+		$_REQUEST['q'] = 'friendica';
 		$result = api_search('json');
 		foreach ($result['status'] as $status) {
 			$this->assertStatus($status);
