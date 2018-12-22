@@ -43,6 +43,8 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('Error: iconv PHP module required but not installed.', 1);
 		$this->mockL10nT('POSIX PHP module', 1);
 		$this->mockL10nT('Error: POSIX PHP module required but not installed.', 1);
+		$this->mockL10nT('JSON PHP module', 1);
+		$this->mockL10nT('Error: JSON PHP module required but not installed.', 1);
 	}
 
 	private function assertCheckExist($position, $title, $help, $status, $required, $assertionArray)
