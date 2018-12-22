@@ -195,7 +195,8 @@ class InstallerTest extends MockedTest
 			'openssl_public_encrypt' => true,
 			'mb_strlen' => true,
 			'iconv_strlen' => true,
-			'posix_kill' => true
+			'posix_kill' => true,
+			'json_encode' => true
 		]);
 		$install = new Installer();
 		$this->assertTrue($install->checkFunctions());
