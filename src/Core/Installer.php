@@ -405,13 +405,6 @@ class Installer
 		);
 		$returnVal = $returnVal ? $status : false;
 
-		$status = $this->checkFunction('json_encode',
-			L10n::t('JSON PHP module'),
-			L10n::t('Error: JSON PHP module required but not installed.'),
-			true
-		);
-		$returnVal = $returnVal ? $status : false;
-
 		$status = $this->checkFunction('imagecreatefromjpeg',
 			L10n::t('GD graphics PHP module'),
 			L10n::t('Error: GD graphics PHP module with JPEG support required but not installed.'),
@@ -443,6 +436,13 @@ class Installer
 		$status = $this->checkFunction('posix_kill',
 			L10n::t('POSIX PHP module'),
 			L10n::t('Error: POSIX PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('json_encode',
+			L10n::t('JSON PHP module'),
+			L10n::t('Error: JSON PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;

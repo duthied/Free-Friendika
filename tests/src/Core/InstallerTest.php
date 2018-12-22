@@ -178,6 +178,17 @@ class InstallerTest extends MockedTest
 			$install->getChecks());
 
 		$this->mockFunctionL10TCalls();
+		$this->setFunctions(['json_encode' => false]);
+		$install = new Installer();
+		$this->assertFalse($install->checkFunctions());
+		$this->assertCheckExist(9,
+			'JSON PHP module',
+			'Error: JSON PHP module required but not installed.',
+			false,
+			true,
+			$install->getChecks());
+
+		$this->mockFunctionL10TCalls();
 		$this->setFunctions([
 			'curl_init' => true,
 			'imagecreatefromjpeg' => true,
