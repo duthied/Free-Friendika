@@ -98,6 +98,19 @@ class User
 		if (!DBA::isResult($r)) {
 			return false;
 		}
+
+		if (empty($r['nickname'])) {
+			return false;
+		}
+
+		// Check if the returned data is valid, otherwise fix it. See issue #6122
+		$url = System::baseUrl() . '/profile/' . $r['nickname'];
+		$addr = $r['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+
+		if (($addr != $r['addr']) || ($r['url'] != $url) || ($r['nurl'] != Strings::normaliseLink($r['url']))) {
+			Contact::updateSelfFromUserID($uid);
+		}
+
 		return $r;
 	}
 

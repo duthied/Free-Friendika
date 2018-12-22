@@ -460,7 +460,8 @@ class Contact extends BaseObject
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
-			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'nurl'];
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl',
+			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return;
@@ -523,15 +524,15 @@ class Contact extends BaseObject
 		$fields['nurl'] = Strings::normaliseLink($fields['url']);
 		$fields['addr'] = $user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 		$fields['request'] = System::baseUrl() . '/dfrn_request/' . $user['nickname'];
-		$fields['notify'] = System::baseUrl() . '/dfrn_notify/'  . $user['nickname'];
-		$fields['poll'] = System::baseUrl() . '/dfrn_poll/'    . $user['nickname'];
+		$fields['notify'] = System::baseUrl() . '/dfrn_notify/' . $user['nickname'];
+		$fields['poll'] = System::baseUrl() . '/dfrn_poll/'. $user['nickname'];
 		$fields['confirm'] = System::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
-		$fields['poco'] = System::baseUrl() . '/poco/'         . $user['nickname'];
+		$fields['poco'] = System::baseUrl() . '/poco/' . $user['nickname'];
 
 		$update = false;
 
 		foreach ($fields as $field => $content) {
-			if (isset($self[$field]) && $self[$field] != $content) {
+			if ($self[$field] != $content) {
 				$update = true;
 			}
 		}
