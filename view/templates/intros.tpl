@@ -24,7 +24,7 @@
 <input type="hidden" name="intro_id" value="{{$intro_id}}" >
 <input type="hidden" name="contact_id" value="{{$contact_id}}" >
 
-{{$dfrn_text}}
+{{$dfrn_text nofilter}}
 
 <input class="intro-submit-approve" type="submit" name="submit" value="{{$approve}}" />
 </form>

@@ -60,7 +60,7 @@
 				<input type="hidden" name="contact_id" value="{{$contact_id}}" >
 				{{/if}}
 
-				{{$dfrn_text}}
+				{{$dfrn_text nofilter}}
 
 				<div class="pull-right">
 					<button class="btn btn-primary intro-submit-approve" type="submit" name="submit" value="{{$approve}}">{{$approve}}</button>
