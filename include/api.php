@@ -4932,6 +4932,7 @@ function api_share_as_retweet(&$item)
 	}
 
 	$reshared_item["body"] = $shared_body;
+	$reshared_item["author-id"] = Contact::getIdForURL($profile, 0, true);
 	$reshared_item["author-name"] = $author;
 	$reshared_item["author-link"] = $profile;
 	$reshared_item["author-avatar"] = $avatar;
