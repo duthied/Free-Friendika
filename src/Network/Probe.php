@@ -1317,7 +1317,7 @@ class Probe
 						if ($curlResult->isTimeout()) {
 							return false;
 						}
-						$pubkey = $curlResult['body'];
+						$pubkey = $curlResult->getBody();
 					}
 
 					$key = explode(".", $pubkey);
