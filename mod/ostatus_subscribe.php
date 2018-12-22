@@ -77,8 +77,8 @@ function ostatus_subscribe_content(App $a)
 
 	$o .= '<p>' . $counter . '/' . $total . ': ' . $url;
 
-	$curlResult = Probe::uri($url);
-	if ($curlResult['network'] == Protocol::OSTATUS) {
+	$probed = Probe::uri($url);
+	if ($probed['network'] == Protocol::OSTATUS) {
 		$result = Contact::createFromProbe($uid, $url, true, Protocol::OSTATUS);
 		if ($result['success']) {
 			$o .= ' - ' . L10n::t('success');
