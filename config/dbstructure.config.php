@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1291);
+	define('DB_UPDATE_VERSION', 1292);
 }
 
 return [
@@ -1059,6 +1059,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid_is-default" => ["uid", "is-default"],
+			"pub_keywords" => ["FULLTEXT", "pub_keywords"],
 		]
 	],
 	"profile_check" => [
