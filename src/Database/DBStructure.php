@@ -220,9 +220,9 @@ class DBStructure
 			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
 		}
 
-		if ($fieldnames[0] == "UNIQUE") {
-			array_shift($fieldnames);
-			$method .= ' UNIQUE';
+		if (in_array($fieldnames[0], ["UNIQUE", "FULLTEXT"])) {
+			$index_type = array_shift($fieldnames);
+			$method .= " " . $index_type;
 		}
 
 		$names = "";
@@ -407,9 +407,7 @@ class DBStructure
 						$sql2 = self::createIndex($indexname, $fieldnames);
 
 						// Fetch the "group by" fields for unique indexes
-						if ($fieldnames[0] == "UNIQUE") {
-							$group_by = self::groupBy($indexname, $fieldnames);
-						}
+						$group_by = self::groupBy($fieldnames);
 						if ($sql2 != "") {
 							if ($sql3 == "") {
 								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
@@ -610,8 +608,12 @@ class DBStructure
 
 		if (DBA::isResult($indexes)) {
 			foreach ($indexes AS $index) {
-				if ($index['Key_name'] != 'PRIMARY' && $index['Non_unique'] == '0' && !isset($indexdata[$index["Key_name"]])) {
-					$indexdata[$index["Key_name"]] = ['UNIQUE'];
+				if ($index["Key_name"] != "PRIMARY" && $index["Non_unique"] == "0" && !isset($indexdata[$index["Key_name"]])) {
+					$indexdata[$index["Key_name"]] = ["UNIQUE"];
+				}
+
+				if ($index["Index_type"] == "FULLTEXT" && !isset($indexdata[$index["Key_name"]])) {
+					$indexdata[$index["Key_name"]] = ["FULLTEXT"];
 				}
 
 				$column = $index["Column_name"];
@@ -676,7 +678,13 @@ class DBStructure
 		return ($sql);
 	}
 
-	private static function groupBy($indexname, $fieldnames)
+	/**
+	 * Constructs a GROUP BY clause from a UNIQUE index definition.
+	 *
+	 * @param array $fieldnames
+	 * @return string
+	 */
+	private static function groupBy(array $fieldnames)
 	{
 		if ($fieldnames[0] != "UNIQUE") {
 			return "";
