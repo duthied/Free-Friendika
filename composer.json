@@ -14,6 +14,7 @@
 	},
 	"require": {
 		"php": ">=5.6.1",
+		"ext-curl": "*",
 		"ext-dom": "*",
 		"ext-json": "*",
 		"ext-xml": "*",
@@ -41,7 +42,7 @@
 		"npm-asset/fullcalendar": "^3.0.1",
 		"npm-asset/cropperjs": "1.2.2",
 		"npm-asset/imagesloaded": "4.1.4"
-	},
+    },
 	"repositories": [
 		{
 			"type": "vcs",
