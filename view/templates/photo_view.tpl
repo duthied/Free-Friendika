@@ -22,17 +22,17 @@
 {{/if}}
 {{if $tags.2}}<div id="tag-remove"><a href="{{$tags.2}}">{{$tags.3}}</a></div>{{/if}}
 
-{{if $edit}}{{$edit}}{{/if}}
+{{if $edit}}{{$edit nofilter}}{{/if}}
 
 {{if $likebuttons}}
 <div id="photo-like-div">
-	{{$likebuttons}}
-	{{$like}}
-	{{$dislike}}	
+	{{$likebuttons nofilter}}
+	{{$like nofilter}}
+	{{$dislike nofilter}}
 </div>
 {{/if}}
 
-{{$comments}}
+{{$comments nofilter}}
 
 {{$paginate nofilter}}
 
