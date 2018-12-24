@@ -3727,12 +3727,12 @@ class Diaspora
 		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			$message = self::constructLike($item, $owner);
 			$type = "like";
-		} else {
+		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW])) {
 			$message = self::constructComment($item, $owner);
 			$type = "comment";
 		}
 
-		if (!$message) {
+		if (empty($message)) {
 			return false;
 		}
 
