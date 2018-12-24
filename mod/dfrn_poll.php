@@ -17,8 +17,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/items.php';
-
 function dfrn_poll_init(App $a)
 {
 	Login::sessionAuth();

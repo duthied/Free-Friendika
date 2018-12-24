@@ -19,8 +19,6 @@ use OAuthToken;
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
 
-require_once 'include/dba.php';
-
 /**
  * @brief OAuthDataStore class
  */

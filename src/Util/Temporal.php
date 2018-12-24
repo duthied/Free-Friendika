@@ -14,9 +14,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 
-require_once 'boot.php';
-require_once 'include/text.php';
-
 /**
  * @brief Temporal class
  */

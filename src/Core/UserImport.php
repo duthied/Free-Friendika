@@ -13,8 +13,6 @@ use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Strings;
 
-require_once "include/dba.php";
-
 /**
  * @brief UserImport class
  */

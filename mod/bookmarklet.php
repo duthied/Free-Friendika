@@ -11,9 +11,6 @@ use Friendica\Core\System;
 use Friendica\Module\Login;
 use Friendica\Util\Strings;
 
-require_once 'include/conversation.php';
-require_once 'include/items.php';
-
 function bookmarklet_init()
 {
 	$_GET["mode"] = "minimal";

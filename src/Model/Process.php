@@ -8,8 +8,6 @@ use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 /**
  * @brief functions for interacting with a process
  */

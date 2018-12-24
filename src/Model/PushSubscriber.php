@@ -9,8 +9,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 class PushSubscriber
 {
 	/**

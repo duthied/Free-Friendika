@@ -14,8 +14,6 @@ use Friendica\Model\Item;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
-require_once 'include/dba.php';
-
 function acl_content(App $a)
 {
 	if (!local_user()) {

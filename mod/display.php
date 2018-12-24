@@ -214,8 +214,6 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		return;
 	}
 
-	require_once 'include/conversation.php';
-
 	$o = '';
 
 	if ($update) {

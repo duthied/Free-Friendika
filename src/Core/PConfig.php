@@ -11,8 +11,6 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\BaseObject;
 
-require_once 'include/dba.php';
-
 /**
  * @brief Management of user configuration storage
  * Note:

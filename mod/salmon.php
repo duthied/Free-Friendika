@@ -14,8 +14,6 @@ use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
 use Friendica\Util\Strings;
 
-require_once 'include/items.php';
-
 function salmon_post(App $a, $xml = '') {
 
 	if (empty($xml)) {

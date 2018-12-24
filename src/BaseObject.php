@@ -4,8 +4,6 @@
  */
 namespace Friendica;
 
-require_once 'boot.php';
-
 /**
  * Basic object
  *

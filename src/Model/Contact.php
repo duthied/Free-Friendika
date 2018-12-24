@@ -27,10 +27,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-require_once 'include/text.php';
-
 /**
  * @brief functions for interacting with a contact
  */
@@ -1375,8 +1371,6 @@ class Contact extends BaseObject
 	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0)
 	{
 		$a = self::getApp();
-
-		require_once 'include/conversation.php';
 
 		$cid = Self::getIdForURL($contact_url);
 

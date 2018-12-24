@@ -10,9 +10,6 @@ use Friendica\Core\Addon;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-
 /**
  * Provide Language, Translation, and Localization functions to the application
  * Localization can be referred to by the numeronym L10N (as in: "L", followed by ten more letters, and then "N").

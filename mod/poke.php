@@ -25,8 +25,6 @@ use Friendica\Model\Item;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/items.php';
-
 function poke_init(App $a)
 {
 	if (!local_user()) {

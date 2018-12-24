@@ -10,8 +10,6 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
-require_once "include/dba.php";
-
 class Conversation
 {
 	/*

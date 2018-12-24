@@ -11,8 +11,6 @@ use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 
-require_once 'include/dba.php';
-
 /**
  * @file src/Core/Worker.php
  *

@@ -13,8 +13,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Security;
 
-require_once 'include/dba.php';
-
 /**
  * TagCloud widget
  *

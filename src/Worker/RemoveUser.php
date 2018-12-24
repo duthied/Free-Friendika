@@ -8,8 +8,6 @@ namespace Friendica\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
-require_once 'include/dba.php';
-
 class RemoveUser {
 	public static function execute($uid)
 	{

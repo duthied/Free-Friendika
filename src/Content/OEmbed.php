@@ -23,8 +23,6 @@ use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
-require_once 'include/dba.php';
-
 /**
  * Handles all OEmbed content fetching and replacement
  *

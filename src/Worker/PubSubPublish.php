@@ -13,8 +13,6 @@ use Friendica\Model\PushSubscriber;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
 
-require_once 'include/items.php';
-
 class PubSubPublish
 {
 	public static function execute($pubsubpublish_id = 0)

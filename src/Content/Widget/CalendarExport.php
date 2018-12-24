@@ -10,9 +10,6 @@ use Friendica\Content\Feature;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 
-require_once 'boot.php';
-require_once 'include/text.php';
-
 /**
  * TagCloud widget
  *

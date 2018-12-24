@@ -30,8 +30,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
-require_once 'include/enotify.php';
-
 function dfrn_request_init(App $a)
 {
 	if ($a->argc > 1) {

@@ -46,7 +46,6 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/conversation.php';
 require_once 'mod/share.php';
 require_once 'mod/item.php';
 require_once 'mod/wall_upload.php';

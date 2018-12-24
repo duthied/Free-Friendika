@@ -16,8 +16,6 @@ use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
-require_once 'boot.php';
-
 class APContact extends BaseObject
 {
 	/**

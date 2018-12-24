@@ -31,7 +31,6 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 }
 
 require_once "boot.php";
-require_once "include/dba.php";
 
 $a = new App(dirname(__DIR__));
 

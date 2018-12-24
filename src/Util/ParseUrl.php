@@ -14,8 +14,6 @@ use Friendica\Database\DBA;
 use Friendica\Object\Image;
 use Friendica\Util\Strings;
 
-require_once 'include/dba.php';
-
 /**
  * @brief Class with methods for extracting certain content from an url
  */

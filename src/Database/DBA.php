@@ -16,8 +16,6 @@ use PDO;
 use PDOException;
 use PDOStatement;
 
-require_once 'include/dba.php';
-
 /**
  * @class MySQL database class
  *

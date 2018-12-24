@@ -13,10 +13,6 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
-require_once 'boot.php';
-require_once 'include/enotify.php';
-require_once 'include/text.php';
-
 function lostpass_post(App $a)
 {
 	$loginame = Strings::escapeTags(trim($_POST['login-name']));

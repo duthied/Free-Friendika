@@ -14,8 +14,6 @@ use Friendica\Module;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
-require_once 'include/dba.php';
-
 function common_content(App $a)
 {
 	$o = '';

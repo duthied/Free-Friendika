@@ -19,10 +19,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\XML;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-require_once 'include/items.php';
-
 /**
  * @brief functions for interacting with the event database table
  */

@@ -12,8 +12,6 @@ use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
 
-require_once 'include/dba.php';
-
 /**
  * @brief Arbitrary system configuration storage
  *

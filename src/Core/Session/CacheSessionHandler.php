@@ -8,9 +8,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use SessionHandlerInterface;
 
-require_once 'boot.php';
-require_once 'include/text.php';
-
 /**
  * SessionHandler using Friendica Cache
  *

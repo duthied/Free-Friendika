@@ -11,8 +11,6 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use RuntimeException;
 
-require_once 'include/dba.php';
-
 class AutomaticInstallation extends Console
 {
 	protected function getHelp()

@@ -12,8 +12,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Network;
-require_once 'include/dba.php';
-
 function nodeinfo_wellknown(App $a) {
 	$nodeinfo = ['links' => [['rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
 					'href' => System::baseUrl().'/nodeinfo/1.0']]];

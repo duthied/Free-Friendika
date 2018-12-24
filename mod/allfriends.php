@@ -15,8 +15,6 @@ use Friendica\Module;
 use Friendica\Util\Proxy as ProxyUtils;
 
 
-require_once 'include/dba.php';
-
 function allfriends_content(App $a)
 {
 	$o = '';

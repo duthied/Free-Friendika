@@ -20,9 +20,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use LightOpenID;
 
-require_once 'boot.php';
-require_once 'include/text.php';
-
 /**
  * Login module
  *

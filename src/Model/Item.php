@@ -36,10 +36,6 @@ use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Text_LanguageDetect;
 
-require_once 'boot.php';
-require_once 'include/items.php';
-require_once 'include/text.php';
-
 class Item extends BaseObject
 {
 	// Posting types, inspired by https://www.w3.org/TR/activitystreams-vocabulary/#object-types

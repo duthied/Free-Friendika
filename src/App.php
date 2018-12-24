@@ -11,9 +11,6 @@ use Exception;
 use Friendica\Database\DBA;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 
-require_once 'boot.php';
-require_once 'include/text.php';
-
 /**
  *
  * class: App

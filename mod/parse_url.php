@@ -15,8 +15,6 @@ use Friendica\Core\Logger;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 
-require_once 'include/items.php';
-
 function parse_url_content(App $a)
 {
 	$text = null;

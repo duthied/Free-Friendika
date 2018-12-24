@@ -20,7 +20,6 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Proxy as ProxyUtils;
 
-require_once 'include/dba.php';
 require_once 'mod/nodeinfo.php';
 
 class CronJobs

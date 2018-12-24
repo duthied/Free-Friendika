@@ -11,10 +11,6 @@ use Friendica\Content\Text;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 
-require_once 'boot.php';
-require_once 'include/items.php';
-require_once 'include/text.php';
-
 class ItemContent extends BaseObject
 {
 	/**

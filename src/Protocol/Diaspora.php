@@ -38,9 +38,6 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use SimpleXMLElement;
 
-require_once 'include/dba.php';
-require_once 'include/items.php';
-
 /**
  * @brief This class contain functions to create and send Diaspora XML files
  *

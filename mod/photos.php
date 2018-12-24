@@ -34,8 +34,6 @@ use Friendica\Util\Temporal;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/items.php';
-
 function photos_init(App $a) {
 
 	if ($a->argc > 1) {
@@ -945,8 +943,6 @@ function photos_content(App $a)
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
-
-	require_once 'include/conversation.php';
 
 	if (empty($a->data['user'])) {
 		notice(L10n::t('No photos selected') . EOL);

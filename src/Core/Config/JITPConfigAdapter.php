@@ -4,8 +4,6 @@ namespace Friendica\Core\Config;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
-require_once 'include/dba.php';
-
 /**
  * JustInTime User Configuration Adapter
  *
