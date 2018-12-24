@@ -15,3 +15,4 @@ require __DIR__ . '/vendor/autoload.php';
 $a = new Friendica\App(__DIR__, false);
 
 $a->runFrontend();
+
