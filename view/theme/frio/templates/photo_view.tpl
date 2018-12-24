@@ -68,13 +68,13 @@
 		{{/if}}
 
 		{{* The part for editing the photo - only available for the edit subpage *}}
-		{{if $edit}}{{$edit}}{{/if}}
+		{{if $edit}}{{$edit nofilter}}{{/if}}
 
 		{{if $likebuttons}}
 		<div id="photo-like-div">
-			{{$likebuttons}}
-			{{$like}}
-			{{$dislike}}
+			{{$likebuttons nofilter}}
+			{{$like nofilter}}
+			{{$dislike nofilter}}
 		</div>
 		{{/if}}
 		<hr>
@@ -82,7 +82,7 @@
 
 	{{* Insert the comments *}}
 	<div id="photo-comment-wrapper-{{$id}}" class="photo-comment-wrapper">
-		{{$comments}}
+		{{$comments nofilter}}
 	</div>
 
 	{{$paginate nofilter}}
