@@ -12,7 +12,8 @@
 					</span>
 				</div>
 				<div class="event-card-content media-body">
-					<div class="event-title event-card-title summary event-summary">{{$title}}</div>
+					<div class="event-title event-card-title summary event-summary">{{$title nofilter}}</div>
+
 					{{* If there is a map, we insert a button for showing/hiding the map *}}
 					{{if $location.map}}<button id="event-map-btn-{{$id}}" class="event-map-btn btn-link fakelink nav nav-pills preferences" data-map-id="event-location-map-{{$id}}" data-show-label="{{$show_map_label}}" data-hide-label="{{$hide_map_label}}">{{$map_btn_label}}</button>{{/if}}
 					<div class="event-property">
