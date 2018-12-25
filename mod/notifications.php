@@ -237,7 +237,7 @@ function notifications_content(App $a)
 
 					$notif_content[] = Renderer::replaceMacros($tpl, [
 						'$type'        => $notif['label'],
-						'$header'      => htmlentities($header),
+						'$header'      => $header,
 						'$str_notifytype' => L10n::t('Notification type:'),
 						'$notify_type' => $notif['notify_type'],
 						'$dfrn_text'   => $dfrn_text,
