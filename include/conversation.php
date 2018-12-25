@@ -389,7 +389,7 @@ function visible_activity($item) {
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
 	 * in which case we handle them specially
 	 */
-	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
+	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_FOLLOW];
 	foreach ($hidden_activities as $act) {
 		if (activity_match($item['verb'], $act)) {
 			return false;
