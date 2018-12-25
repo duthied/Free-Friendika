@@ -29,18 +29,13 @@ function viewcontacts_init(App $a)
 
 	Nav::setSelected('home');
 
-	$nick = $a->argv[1];
-	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-		DBA::escape($nick)
-	);
-
-	if (!DBA::isResult($r)) {
+	$user = DBA::selectFirst('user', [], ['nickname' => $a->argv[1], 'blocked' => false]);
+	if (!DBA::isResult($user)) {
 		System::httpExit(404, ["title" => L10n::t('Page not found.')]);
 	}
 
-	$a->data['user'] = $r[0];
-	$a->profile_uid = $r[0]['uid'];
-	$is_owner = (local_user() && (local_user() == $a->profile_uid));
+	$a->data['user'] = $user;
+	$a->profile_uid  = $user['uid'];
 
 	Profile::load($a, $a->argv[1]);
 }
@@ -54,82 +49,69 @@ function viewcontacts_content(App $a)
 
 	$is_owner = $a->profile['profile_uid'] == local_user();
 
-	$o = "";
-
 	// tabs
-	$o .= Profile::getTabs($a, $is_owner, $a->data['user']['nickname']);
+	$o = Profile::getTabs($a, $is_owner, $a->data['user']['nickname']);
 
 	if (!count($a->profile) || $a->profile['hide-friends']) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return $o;
 	}
 
-	$total = 0;
-	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
-			AND NOT `hidden` AND NOT `archive`
-			AND `network` IN ('%s', '%s', '%s', '%s')",
-		intval($a->profile['uid']),
-		DBA::escape(Protocol::ACTIVITYPUB),
-		DBA::escape(Protocol::DFRN),
-		DBA::escape(Protocol::DIASPORA),
-		DBA::escape(Protocol::OSTATUS)
-	);
-	if (DBA::isResult($r)) {
-		$total = $r[0]['total'];
-	}
+	$condition = [
+		'uid'     => $a->profile['uid'],
+		'blocked' => false,
+		'pending' => false,
+		'hidden'  => false,
+		'archive' => false,
+		'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]
+	];
+
+	$total = DBA::count('count', $condition);
+
 	$pager = new Pager($a->query_string);
 
-	$r = q("SELECT * FROM `contact`
-		WHERE `uid` = %d AND NOT `blocked` AND NOT `pending`
-			AND NOT `hidden` AND NOT `archive`
-			AND `network` IN ('%s', '%s', '%s', '%s')
-		ORDER BY `name` ASC LIMIT %d, %d",
-		intval($a->profile['uid']),
-		DBA::escape(Protocol::ACTIVITYPUB),
-		DBA::escape(Protocol::DFRN),
-		DBA::escape(Protocol::DIASPORA),
-		DBA::escape(Protocol::OSTATUS),
-		$pager->getStart(),
-		$pager->getItemsPerPage()
-	);
-	if (!DBA::isResult($r)) {
-		info(L10n::t('No contacts.').EOL);
+	$params = ['order' => ['name' => false], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+
+	$contacts_stmt = DBA::select('contact', [], $condition, $params);
+
+	if (!DBA::isResult($contacts_stmt)) {
+		info(L10n::t('No contacts.') . EOL);
 		return $o;
 	}
 
 	$contacts = [];
 
-	foreach ($r as $rr) {
+	while ($contact = DBA::fetch($contacts_stmt)) {
 		/// @TODO This triggers an E_NOTICE if 'self' is not there
-		if ($rr['self']) {
+		if ($contact['self']) {
 			continue;
 		}
 
-		$contact_details = Contact::getDetailsByURL($rr['url'], $a->profile['uid'], $rr);
+		$contact_details = Contact::getDetailsByURL($contact['url'], $a->profile['uid'], $contact);
 
 		$contacts[] = [
-			'id' => $rr['id'],
-			'img_hover' => L10n::t('Visit %s\'s profile [%s]', $contact_details['name'], $rr['url']),
-			'photo_menu' => Contact::photoMenu($rr),
-			'thumb' => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
-			'name' => htmlentities(substr($contact_details['name'], 0, 20)),
-			'username' => htmlentities($contact_details['name']),
-			'details'       => $contact_details['location'],
-			'tags'          => $contact_details['keywords'],
-			'about'         => $contact_details['about'],
-			'account_type'  => Contact::getAccountType($contact_details),
-			'url' => Contact::magicLink($rr['url']),
-			'sparkle' => '',
-			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
-			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
+			'id'           => $contact['id'],
+			'img_hover'    => L10n::t('Visit %s\'s profile [%s]', $contact_details['name'], $contact['url']),
+			'photo_menu'   => Contact::photoMenu($contact),
+			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'name'         => substr($contact_details['name'], 0, 20),
+			'username'     => $contact_details['name'],
+			'details'      => $contact_details['location'],
+			'tags'         => $contact_details['keywords'],
+			'about'        => $contact_details['about'],
+			'account_type' => Contact::getAccountType($contact_details),
+			'url'          => Contact::magicLink($contact['url']),
+			'sparkle'      => '',
+			'itemurl'      => (($contact_details['addr'] != "") ? $contact_details['addr'] : $contact['url']),
+			'network'      => ContactSelector::networkToName($contact['network'], $contact['url']),
 		];
 	}
 
+	DBA::close($contacts_stmt);
 
 	$tpl = Renderer::getMarkupTemplate("viewcontact_template.tpl");
 	$o .= Renderer::replaceMacros($tpl, [
-		'$title' => L10n::t('Contacts'),
+		'$title'    => L10n::t('Contacts'),
 		'$contacts' => $contacts,
 		'$paginate' => $pager->renderFull($total),
 	]);
