@@ -511,7 +511,7 @@ class Contact extends BaseModule
 				$relation_text = '';
 			}
 
-			$relation_text = sprintf($relation_text, htmlentities($contact['name']));
+			$relation_text = sprintf($relation_text, $contact['name']);
 
 			$url = Model\Contact::magicLink($contact['url']);
 			if (strpos($url, 'redir/') === 0) {

@@ -1378,7 +1378,7 @@ class PortableContact
 					$info = defaults($data, 'info', '');
 					$register_policy = defaults($data, 'register_policy', REGISTER_CLOSED);
 					if (in_array($register_policy, ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'])) {
-						$register_policy = constant($data['register_policy']);
+						$register_policy = constant($register_policy);
 					} else {
 						Logger::log("Register policy '$register_policy' from $server_url is invalid.");
 						$register_policy = REGISTER_CLOSED; // set a default value
