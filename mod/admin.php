@@ -1444,9 +1444,7 @@ function admin_page_site(App $a)
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
 
-	$banner = htmlspecialchars($banner);
 	$info = Config::get('config', 'info');
-	$info = htmlspecialchars($info);
 
 	// Automatically create temporary paths
 	get_temppath();

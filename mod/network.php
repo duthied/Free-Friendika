@@ -667,7 +667,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 			$entries[0] = [
 				'id' => 'network',
-				'name' => htmlentities($contact['name']),
+				'name' => $contact['name'],
 				'itemurl' => defaults($contact, 'addr', $contact['nurl']),
 				'thumb' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
 				'details' => $contact['location'],

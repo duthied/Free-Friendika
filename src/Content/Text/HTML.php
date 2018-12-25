@@ -961,7 +961,7 @@ class HTML
 		$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
 
 		$values = [
-				'$s' => htmlspecialchars($s),
+				'$s' => $s,
 				'$id' => $id,
 				'$action_url' => $url,
 				'$search_label' => L10n::t('Search'),

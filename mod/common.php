@@ -50,7 +50,7 @@ function common_content(App $a)
 
 		if (DBA::isResult($contact)) {
 			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate("vcard-widget.tpl"), [
-				'$name'  => htmlentities($contact['name']),
+				'$name'  => $contact['name'],
 				'$photo' => $contact['photo'],
 				'url'    => 'contact/' . $cid
 			]);
@@ -123,7 +123,7 @@ function common_content(App $a)
 			'itemurl'      => defaults($contact_details, 'addr', $common_friend['url']),
 			'name'         => $contact_details['name'],
 			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
-			'img_hover'    => htmlentities($contact_details['name']),
+			'img_hover'    => $contact_details['name'],
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
