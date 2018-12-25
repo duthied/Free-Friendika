@@ -436,7 +436,7 @@ function dfrn_poll_content(App $a)
 		switch ($direction) {
 			case -1:
 				if ($type === 'profile') {
-					$sql_extra = sprintf(" AND ( `dfrn-id` = '%s' OR `issued-id` = '%s' ) ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
+					$sql_extra = sprintf(" AND (`dfrn-id` = '%s' OR `issued-id` = '%s') ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
 				} else {
 					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
 				}

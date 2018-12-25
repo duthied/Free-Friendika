@@ -83,14 +83,15 @@ function redir_init(App $a) {
 
 		// When the remote page does support OWA, then we enforce the use of it
 		$basepath = Contact::getBasepath($contact_url);
-		$serverret = Network::curl($basepath . '/magic');
-		if ($serverret->isSuccess()) {
-			$contact['issued-id'] = '';
-			$contact['dfrn-id'] = '';
+		if ($basepath == System::baseUrl()) {
+			$use_magic = true;
+		} else {
+			$serverret = Network::curl($basepath . '/magic');
+			$use_magic = $serverret->isSuccess();
 		}
 
 		// Doing remote auth with dfrn.
-		if (local_user() && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
+		if (local_user() && !$use_magic && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
 			$dfrn_id = $orig_id = (($contact['issued-id']) ? $contact['issued-id'] : $contact['dfrn-id']);
 
 			if ($contact['duplex'] && $contact['issued-id']) {
