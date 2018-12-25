@@ -13,7 +13,7 @@
 {{$aes_allow}}
 
 <label id="dfrn-request-homecoming-hide-label" for="dfrn-request-homecoming-hide">{{$hidethem}}</label>
-<input type="checkbox" name="hidden-contact" value="1" {{if $hidechecked}}checked="checked" {{/if}} />
+<input type="checkbox" name="hidden-contact" value="1" />
 
 
 <div id="dfrn-request-homecoming-submit-wrapper" >

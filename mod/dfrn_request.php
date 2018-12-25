@@ -512,8 +512,7 @@ function dfrn_request_content(App $a)
 
 			dfrn_request_post($a);
 
-			killme();
-			return; // NOTREACHED
+			exit();
 		}
 
 		$tpl = Renderer::getMarkupTemplate("dfrn_req_confirm.tpl");
@@ -521,7 +520,6 @@ function dfrn_request_content(App $a)
 			'$dfrn_url' => $dfrn_url,
 			'$aes_allow' => (($aes_allow) ? '<input type="hidden" name="aes_allow" value="1" />' : "" ),
 			'$hidethem' => L10n::t('Hide this contact'),
-			'$hidechecked' => '',
 			'$confirm_key' => $confirm_key,
 			'$welcome' => L10n::t('Welcome home %s.', $a->user['username']),
 			'$please' => L10n::t('Please confirm your introduction/connection request to %s.', $dfrn_url),
