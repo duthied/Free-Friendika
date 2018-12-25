@@ -10,10 +10,10 @@
 <input type="hidden" name="dfrn_url" value="{{$dfrn_url}}" />
 <input type="hidden" name="confirm_key" value="{{$confirm_key}}" />
 <input type="hidden" name="localconfirm" value="1" />
-{{$aes_allow}}
+{{$aes_allow nofilter}}
 
 <label id="dfrn-request-homecoming-hide-label" for="dfrn-request-homecoming-hide">{{$hidethem}}</label>
-<input type="checkbox" name="hidden-contact" value="1" {{if $hidechecked}}checked="checked" {{/if}} />
+<input type="checkbox" name="hidden-contact" value="1" />
 
 
 <div id="dfrn-request-homecoming-submit-wrapper" >
