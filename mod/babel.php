@@ -142,7 +142,7 @@ function babel_content()
 
 	$tpl = Renderer::getMarkupTemplate('babel.tpl');
 	$o = Renderer::replaceMacros($tpl, [
-		'$text'          => ['text', L10n::t('Source text'), htmlentities(defaults($_REQUEST, 'text', '')), ''],
+		'$text'          => ['text', L10n::t('Source text'), defaults($_REQUEST, 'text', ''), ''],
 		'$type_bbcode'   => ['type', L10n::t('BBCode'), 'bbcode', '', defaults($_REQUEST, 'type', 'bbcode') == 'bbcode'],
 		'$type_markdown' => ['type', L10n::t('Markdown'), 'markdown', '', defaults($_REQUEST, 'type', 'bbcode') == 'markdown'],
 		'$type_html'     => ['type', L10n::t('HTML'), 'html', '', defaults($_REQUEST, 'type', 'bbcode') == 'html'],

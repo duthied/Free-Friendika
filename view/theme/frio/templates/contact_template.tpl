@@ -188,7 +188,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 				{/if}
 				{if $photo_menu.edit}
 				<a class="contact-action-link btn-link" href="{$photo_menu.edit.1}" data-toggle="tooltip" title="{$photo_menu.edit.0}">
-					<i class="fa fa-pencil" aria-hidden="true"></i>
+					<i class="fa fa-user" aria-hidden="true"></i>
 				</a>
 				{/if}
 				{if $photo_menu.drop}

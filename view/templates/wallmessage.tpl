@@ -1,4 +1,4 @@
-
+<div class="generic-page-wrapper">
 
 <h3>{{$header}}</h3>
 
@@ -30,4 +30,5 @@
 </div>
 <div id="prvmail-end"></div>
 </form>
+</div>
 </div>

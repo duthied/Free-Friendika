@@ -125,20 +125,20 @@ function wallmessage_content(App $a) {
 
 	$tpl = Renderer::getMarkupTemplate('wallmessage.tpl');
 	$o = Renderer::replaceMacros($tpl, [
-		'$header' => L10n::t('Send Private Message'),
-		'$subheader' => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
-		'$to' => L10n::t('To:'),
-		'$subject' => L10n::t('Subject:'),
-		'$recipname' => $user['username'],
-		'$nickname' => $user['nickname'],
-		'$subjtxt' => (!empty($_REQUEST['subject']) ? strip_tags($_REQUEST['subject']) : ''),
-		'$text' => (!empty($_REQUEST['body']) ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : ''),
-		'$readonly' => '',
-		'$yourmessage' => L10n::t('Your message:'),
-		'$parent' => '',
-		'$upload' => L10n::t('Upload photo'),
-		'$insert' => L10n::t('Insert web link'),
-		'$wait' => L10n::t('Please wait')
+		'$header'     => L10n::t('Send Private Message'),
+		'$subheader'  => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
+		'$to'         => L10n::t('To:'),
+		'$subject'    => L10n::t('Subject:'),
+		'$recipname'  => $user['username'],
+		'$nickname'   => $user['nickname'],
+		'$subjtxt'    => defaults($_REQUEST, 'subject', ''),
+		'$text'       => defaults($_REQUEST, 'body', ''),
+		'$readonly'   => '',
+		'$yourmessage'=> L10n::t('Your message:'),
+		'$parent'     => '',
+		'$upload'     => L10n::t('Upload photo'),
+		'$insert'     => L10n::t('Insert web link'),
+		'$wait'       => L10n::t('Please wait')
 	]);
 
 	return $o;

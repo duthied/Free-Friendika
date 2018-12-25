@@ -13,7 +13,7 @@ function credits_content()
 {
 	/* fill the page with credits */
 	$credits_string = file_get_contents('util/credits.txt');
-	$names = explode("\n", htmlspecialchars($credits_string));
+	$names = explode("\n", $credits_string);
 	$tpl = Renderer::getMarkupTemplate('credits.tpl');
 	return Renderer::replaceMacros($tpl, [
 		'$title'  => L10n::t('Credits'),

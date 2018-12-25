@@ -247,22 +247,22 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('prv_message.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
-			'$header' => L10n::t('Send Private Message'),
-			'$to' => L10n::t('To:'),
+			'$header'     => L10n::t('Send Private Message'),
+			'$to'         => L10n::t('To:'),
 			'$showinputs' => 'true',
-			'$prefill' => $prefill,
-			'$preid' => $preid,
-			'$subject' => L10n::t('Subject:'),
-			'$subjtxt' => !empty($_REQUEST['subject']) ? strip_tags($_REQUEST['subject']) : '',
-			'$text' => !empty($_REQUEST['body']) ? Strings::escapeHtml(htmlspecialchars($_REQUEST['body'])) : '',
-			'$readonly' => '',
-			'$yourmessage' => L10n::t('Your message:'),
-			'$select' => $select,
-			'$parent' => '',
-			'$upload' => L10n::t('Upload photo'),
-			'$insert' => L10n::t('Insert web link'),
-			'$wait' => L10n::t('Please wait'),
-			'$submit' => L10n::t('Submit')
+			'$prefill'    => $prefill,
+			'$preid'      => $preid,
+			'$subject'    => L10n::t('Subject:'),
+			'$subjtxt'    => defaults($_REQUEST, 'subject', ''),
+			'$text'       => defaults($_REQUEST, 'body', ''),
+			'$readonly'   => '',
+			'$yourmessage'=> L10n::t('Your message:'),
+			'$select'     => $select,
+			'$parent'     => '',
+			'$upload'     => L10n::t('Upload photo'),
+			'$insert'     => L10n::t('Insert web link'),
+			'$wait'       => L10n::t('Please wait'),
+			'$submit'     => L10n::t('Submit')
 		]);
 		return $o;
 	}

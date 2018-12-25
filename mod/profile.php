@@ -33,24 +33,16 @@ function profile_init(App $a)
 		$a->page['aside'] = '';
 	}
 
-	if ($a->argc > 1) {
-		$which = htmlspecialchars($a->argv[1]);
-	} else {
-		$r = q("SELECT `nickname` FROM `user` WHERE `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 ORDER BY RAND() LIMIT 1");
-		if (DBA::isResult($r)) {
-			$a->internalRedirect('profile/' . $r[0]['nickname']);
-		} else {
-			Logger::log('profile error: mod_profile ' . $a->query_string, Logger::DEBUG);
-			notice(L10n::t('Requested profile is not available.') . EOL);
-			$a->error = 404;
-			return;
-		}
+	if ($a->argc < 2) {
+		System::httpExit(400);
 	}
+
+	$which = filter_var($a->argv[1], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_BACKTICK);
 
 	$profile = 0;
 	if (local_user() && $a->argc > 2 && $a->argv[2] === 'view') {
 		$which = $a->user['nickname'];
-		$profile = htmlspecialchars($a->argv[1]);
+		$profile = filter_var($a->argv[1], FILTER_SANITIZE_NUMBER_INT);
 	} else {
 		DFRN::autoRedir($a, $which);
 	}
