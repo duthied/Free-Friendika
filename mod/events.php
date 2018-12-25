@@ -97,9 +97,9 @@ function events_post(App $a)
 	// and we'll waste a bunch of time responding to it. Time that
 	// could've been spent doing something else.
 
-	$summary  = Strings::escapeHtml(trim(defaults($_POST, 'summary', '')));
-	$desc     = Strings::escapeHtml(trim(defaults($_POST, 'desc', '')));
-	$location = Strings::escapeHtml(trim(defaults($_POST, 'location', '')));
+	$summary  = trim(defaults($_POST, 'summary' , ''));
+	$desc     = trim(defaults($_POST, 'desc'    , ''));
+	$location = trim(defaults($_POST, 'location', ''));
 	$type     = 'event';
 
 	$params = [

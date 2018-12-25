@@ -209,20 +209,20 @@ class Processor
 	 */
 	public static function createEvent($activity, $item)
 	{
-		$event['summary'] = $activity['name'];
-		$event['desc'] = $activity['content'];
-		$event['start'] = $activity['start-time'];
-		$event['finish'] = $activity['end-time'];
+		$event['summary']  = HTML::toBBCode($activity['name']);
+		$event['desc']     = HTML::toBBCode($activity['content']);
+		$event['start']    = $activity['start-time'];
+		$event['finish']   = $activity['end-time'];
 		$event['nofinish'] = empty($event['finish']);
 		$event['location'] = $activity['location'];
-		$event['adjust'] = true;
-		$event['cid'] = $item['contact-id'];
-		$event['uid'] = $item['uid'];
-		$event['uri'] = $item['uri'];
-		$event['edited'] = $item['edited'];
-		$event['private'] = $item['private'];
-		$event['guid'] = $item['guid'];
-		$event['plink'] = $item['plink'];
+		$event['adjust']   = true;
+		$event['cid']      = $item['contact-id'];
+		$event['uid']      = $item['uid'];
+		$event['uri']      = $item['uri'];
+		$event['edited']   = $item['edited'];
+		$event['private']  = $item['private'];
+		$event['guid']     = $item['guid'];
+		$event['plink']    = $item['plink'];
 
 		$condition = ['uri' => $item['uri'], 'uid' => $item['uid']];
 		$ev = DBA::selectFirst('event', ['id'], $condition);
