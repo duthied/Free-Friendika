@@ -102,8 +102,18 @@ function events_post(App $a)
 	$location = Strings::escapeHtml(trim(defaults($_POST, 'location', '')));
 	$type     = 'event';
 
-	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
-	$onerror_path = "events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
+	$params = [
+		'summary'     => $summary,
+		'description' => $desc,
+		'location'    => $location,
+		'start'       => $start_text,
+		'finish'      => $finish_text,
+		'adjust'      => $adjust,
+		'nofinish'    => $nofinish,
+	];
+
+	$action = ($event_id == '') ? 'new' : 'event/' . $event_id;
+	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
 		notice(L10n::t('Event can not end before it has started.') . EOL);
@@ -137,10 +147,10 @@ function events_post(App $a)
 
 
 	if ($share) {
-		$str_group_allow   = !empty($_POST['group_allow'])   ? perms2str($_POST['group_allow'])   : '';
-		$str_contact_allow = !empty($_POST['contact_allow']) ? perms2str($_POST['contact_allow']) : '';
-		$str_group_deny    = !empty($_POST['group_deny'])    ? perms2str($_POST['group_deny'])    : '';
-		$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
+		$str_group_allow   = perms2str(defaults($_POST, 'group_allow'  , ''));
+		$str_contact_allow = perms2str(defaults($_POST, 'contact_allow', ''));
+		$str_group_deny    = perms2str(defaults($_POST, 'group_deny'   , ''));
+		$str_contact_deny  = perms2str(defaults($_POST, 'contact_deny' , ''));
 
 		// Undo the pseudo-contact of self, since there are real contacts now
 		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {
@@ -181,7 +191,7 @@ function events_post(App $a)
 	if (intval($_REQUEST['preview'])) {
 		$html = Event::getHTML($datarray);
 		echo $html;
-		killme();
+		exit();
 	}
 
 	$item_id = Event::store($datarray);
@@ -364,8 +374,9 @@ function events_content(App $a)
 		}
 
 		if ($a->argc > 1 && $a->argv[1] === 'json') {
+			header('Content-Type: application/json');
 			echo json_encode($events);
-			killme();
+			exit();
 		}
 
 		if (!empty($_GET['id'])) {
