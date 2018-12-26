@@ -8,6 +8,7 @@ use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -229,7 +230,7 @@ class Post extends BaseObject
 		}
 
 		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
-		Addon::callHooks('render_location', $locate);
+		Hook::callAll('render_location', $locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
@@ -433,7 +434,7 @@ class Post extends BaseObject
 		];
 
 		$arr = ['item' => $item, 'output' => $tmp_item];
-		Addon::callHooks('display_item', $arr);
+		Hook::callAll('display_item', $arr);
 
 		$result = $arr['output'];
 

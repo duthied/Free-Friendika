@@ -4,7 +4,7 @@
  */
 namespace Friendica\Network;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -69,6 +69,6 @@ class FKOAuth1 extends OAuthServer
 
 		DBA::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $_SESSION['uid']]);
 
-		Addon::callHooks('logged_in', $a->user);
+		Hook::callAll('logged_in', $a->user);
 	}
 }

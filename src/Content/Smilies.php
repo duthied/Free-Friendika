@@ -14,9 +14,8 @@
  */
 namespace Friendica\Content;
 
-use Friendica\App;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
 use Friendica\Util\Strings;
@@ -141,7 +140,7 @@ class Smilies
 		];
 
 		$params = ['texts' => $texts, 'icons' => $icons];
-		Addon::callHooks('smilie', $params);
+		Hook::callAll('smilie', $params);
 
 		return $params;
 	}

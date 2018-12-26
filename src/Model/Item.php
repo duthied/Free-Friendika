@@ -9,8 +9,8 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\Lock;
 use Friendica\Core\Logger;
 use Friendica\Core\L10n;
@@ -1608,11 +1608,11 @@ class Item extends BaseObject
 		if ($notify) {
 			$item['edit'] = false;
 			$item['parent'] = $parent_id;
-			Addon::callHooks('post_local', $item);
+			Hook::callAll('post_local', $item);
 			unset($item['edit']);
 			unset($item['parent']);
 		} else {
-			Addon::callHooks('post_remote', $item);
+			Hook::callAll('post_remote', $item);
 		}
 
 		// This array field is used to trigger some automatic reactions
@@ -1785,9 +1785,9 @@ class Item extends BaseObject
 			$posted_item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
 			if (DBA::isResult($posted_item)) {
 				if ($notify) {
-					Addon::callHooks('post_local_end', $posted_item);
+					Hook::callAll('post_local_end', $posted_item);
 				} else {
-					Addon::callHooks('post_remote_end', $posted_item);
+					Hook::callAll('post_remote_end', $posted_item);
 				}
 			} else {
 				Logger::log('new item not found in DB, id ' . $current_post);
@@ -2532,7 +2532,7 @@ class Item extends BaseObject
 
 		$arr = ['item' => $item, 'user' => $user];
 
-		Addon::callHooks('tagged', $arr);
+		Hook::callAll('tagged', $arr);
 
 		if (!$community_page && !$prvgroup) {
 			return;
@@ -3090,7 +3090,7 @@ class Item extends BaseObject
 
 		$new_item['id'] = $new_item_id;
 
-		Addon::callHooks('post_local_end', $new_item);
+		Hook::callAll('post_local_end', $new_item);
 
 		return true;
 	}
@@ -3255,7 +3255,7 @@ class Item extends BaseObject
 			$item["rendered-hash"] = hash("md5", $item["body"]);
 
 			$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
-			Addon::callHooks('put_item_in_cache', $hook_data);
+			Hook::callAll('put_item_in_cache', $hook_data);
 			$item['rendered-html'] = $hook_data['rendered-html'];
 			$item['rendered-hash'] = $hook_data['rendered-hash'];
 			unset($hook_data);
@@ -3300,7 +3300,7 @@ class Item extends BaseObject
 	public static function prepareBody(array &$item, $attach = false, $is_preview = false)
 	{
 		$a = self::getApp();
-		Addon::callHooks('prepare_body_init', $item);
+		Hook::callAll('prepare_body_init', $item);
 
 		// In order to provide theme developers more possibilities, event items
 		// are treated differently.
@@ -3326,7 +3326,7 @@ class Item extends BaseObject
 				'item' => $item,
 				'filter_reasons' => $filter_reasons
 			];
-			Addon::callHooks('prepare_body_content_filter', $hook_data);
+			Hook::callAll('prepare_body_content_filter', $hook_data);
 			$filter_reasons = $hook_data['filter_reasons'];
 			unset($hook_data);
 		}
@@ -3348,7 +3348,7 @@ class Item extends BaseObject
 			'preview' => $is_preview,
 			'filter_reasons' => $filter_reasons
 		];
-		Addon::callHooks('prepare_body', $hook_data);
+		Hook::callAll('prepare_body', $hook_data);
 		$s = $hook_data['html'];
 		unset($hook_data);
 
@@ -3456,7 +3456,7 @@ class Item extends BaseObject
 		$s = HTML::applyContentFilter($s, $filter_reasons);
 
 		$hook_data = ['item' => $item, 'html' => $s];
-		Addon::callHooks('prepare_body_final', $hook_data);
+		Hook::callAll('prepare_body_final', $hook_data);
 
 		return $hook_data['html'];
 	}

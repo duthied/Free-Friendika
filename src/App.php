@@ -781,7 +781,7 @@ class App
 			$touch_icon = 'images/friendica-128.png';
 		}
 
-		Core\Addon::callHooks('head', $this->page['htmlhead']);
+		Core\Hook::callAll('head', $this->page['htmlhead']);
 
 		$tpl = Core\Renderer::getMarkupTemplate('head.tpl');
 		/* put the head template at the beginning of page['htmlhead']
@@ -840,7 +840,7 @@ class App
 			]);
 		}
 
-		Core\Addon::callHooks('footer', $this->page['footer']);
+		Core\Hook::callAll('footer', $this->page['footer']);
 
 		$tpl = Core\Renderer::getMarkupTemplate('footer.tpl');
 		$this->page['footer'] = Core\Renderer::replaceMacros($tpl, [
@@ -1534,7 +1534,7 @@ class App
 			}
 
 			Core\Session::init();
-			Core\Addon::callHooks('init_1');
+			Core\Hook::callAll('init_1');
 		}
 
 		// Exclude the backend processes from the session management
@@ -1725,7 +1725,7 @@ class App
 			$this->page['page_title'] = $this->module;
 			$placeholder = '';
 
-			Core\Addon::callHooks($this->module . '_mod_init', $placeholder);
+			Core\Hook::callAll($this->module . '_mod_init', $placeholder);
 
 			call_user_func([$this->module_class, 'init']);
 
@@ -1749,28 +1749,28 @@ class App
 
 		if ($this->module_loaded) {
 			if (! $this->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
-				Core\Addon::callHooks($this->module . '_mod_post', $_POST);
+				Core\Hook::callAll($this->module . '_mod_post', $_POST);
 				call_user_func([$this->module_class, 'post']);
 			}
 
 			if (! $this->error) {
-				Core\Addon::callHooks($this->module . '_mod_afterpost', $placeholder);
+				Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
 				call_user_func([$this->module_class, 'afterpost']);
 			}
 
 			if (! $this->error) {
 				$arr = ['content' => $content];
-				Core\Addon::callHooks($this->module . '_mod_content', $arr);
+				Core\Hook::callAll($this->module . '_mod_content', $arr);
 				$content = $arr['content'];
 				$arr = ['content' => call_user_func([$this->module_class, 'content'])];
-				Core\Addon::callHooks($this->module . '_mod_aftercontent', $arr);
+				Core\Hook::callAll($this->module . '_mod_aftercontent', $arr);
 				$content .= $arr['content'];
 			}
 		}
 
 		// initialise content region
 		if ($this->getMode()->isNormal()) {
-			Core\Addon::callHooks('page_content_top', $this->page['content']);
+			Core\Hook::callAll('page_content_top', $this->page['content']);
 		}
 
 		$this->page['content'] .= $content;
@@ -1797,7 +1797,7 @@ class App
 		}
 
 		// Report anything which needs to be communicated in the notification area (before the main body)
-		Core\Addon::callHooks('page_end', $this->page['content']);
+		Core\Hook::callAll('page_end', $this->page['content']);
 
 		// Add the navigation (menu) template
 		if ($this->module != 'install' && $this->module != 'maintenance') {

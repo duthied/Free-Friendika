@@ -8,8 +8,6 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Protocol;
-use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
@@ -69,7 +67,7 @@ class ACL extends BaseObject
 
 		$x = ['options' => $options, 'size' => $size, 'single' => $single, 'mutual' => $mutual, 'exclude' => $exclude, 'networks' => $networks];
 
-		Addon::callHooks('contact_select_options', $x);
+		Hook::callAll('contact_select_options', $x);
 
 		$o = '';
 
@@ -111,7 +109,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll($a->module . '_pre_' . $selname, $arr);
 
 		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
@@ -129,7 +127,7 @@ class ACL extends BaseObject
 
 		$o .= '</select>' . PHP_EOL;
 
-		Addon::callHooks($a->module . '_post_' . $selname, $o);
+		Hook::callAll($a->module . '_post_' . $selname, $o);
 
 		return $o;
 	}
@@ -176,7 +174,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll($a->module . '_pre_' . $selname, $arr);
 
 		$receiverlist = [];
 
@@ -202,7 +200,7 @@ class ACL extends BaseObject
 			$o .= implode(', ', $receiverlist);
 		}
 
-		Addon::callHooks($a->module . '_post_' . $selname, $o);
+		Hook::callAll($a->module . '_post_' . $selname, $o);
 
 		return $o;
 	}
@@ -285,7 +283,7 @@ class ACL extends BaseObject
 					$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . L10n::t("Post to Email") . '</div>';
 				}
 
-				Addon::callHooks('jot_networks', $jotnets);
+				Hook::callAll('jot_networks', $jotnets);
 			} else {
 				$jotnets .= L10n::t('Connectors disabled, since "%s" is enabled.',
 						L10n::t('Hide your profile details from unknown viewers?'));

@@ -5,8 +5,8 @@
  */
 namespace Friendica\Content;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 
@@ -36,7 +36,7 @@ class Feature
 		}
 
 		$arr = ['uid' => $uid, 'feature' => $feature, 'enabled' => $x];
-		Addon::callHooks('isEnabled', $arr);
+		Hook::callAll('isEnabled', $arr);
 		return($arr['enabled']);
 	}
 
@@ -139,7 +139,7 @@ class Feature
 			}
 		}
 
-		Addon::callHooks('get', $arr);
+		Hook::callAll('get', $arr);
 		return $arr;
 	}
 }

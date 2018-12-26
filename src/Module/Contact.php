@@ -10,7 +10,7 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -194,7 +194,7 @@ class Contact extends BaseModule
 			return; // NOTREACHED
 		}
 
-		Addon::callHooks('contact_edit_post', $_POST);
+		Hook::callAll('contact_edit_post', $_POST);
 
 		$profile_id = intval(defaults($_POST, 'profile-assign', 0));
 		if ($profile_id) {
@@ -659,7 +659,7 @@ class Contact extends BaseModule
 
 			$arr = ['contact' => $contact, 'output' => $o];
 
-			Addon::callHooks('contact_edit', $arr);
+			Hook::callAll('contact_edit', $arr);
 
 			return $arr['output'];
 		}

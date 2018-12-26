@@ -6,9 +6,6 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Core\Addon;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
 
 /**
  * Provide Language, Translation, and Localization functions to the application
@@ -402,7 +399,7 @@ class L10n extends BaseObject
 			'rebuff' => ['rebuffed', self::t('rebuff'), self::t('rebuffed')],
 		];
 
-		Addon::callHooks('poke_verbs', $arr);
+		Hook::callAll('poke_verbs', $arr);
 
 		return $arr;
 	}

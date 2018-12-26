@@ -10,7 +10,7 @@
  * @see ParseUrl::getSiteinfo() for more information about scraping embeddable content
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -97,7 +97,7 @@ function parse_url_content(App $a)
 
 	$arr = ['url' => $url, 'text' => ''];
 
-	Addon::callHooks('parse_link', $arr);
+	Hook::callAll('parse_link', $arr);
 
 	if (strlen($arr['text'])) {
 		echo $arr['text'];

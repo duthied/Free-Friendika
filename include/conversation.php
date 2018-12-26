@@ -8,8 +8,8 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -543,7 +543,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	}
 
 	$cb = ['items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview];
-	Addon::callHooks('conversation_start',$cb);
+	Hook::callAll('conversation_start',$cb);
 
 	$items = $cb['items'];
 
@@ -615,7 +615,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				}
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
-				Addon::callHooks('render_location',$locate);
+				Hook::callAll('render_location',$locate);
 
 				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
@@ -706,7 +706,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				];
 
 				$arr = ['item' => $item, 'output' => $tmp_item];
-				Addon::callHooks('display_item', $arr);
+				Hook::callAll('display_item', $arr);
 
 				$threads[$threadsid]['id'] = $item['id'];
 				$threads[$threadsid]['network'] = $item['network'];
@@ -743,7 +743,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				/// @todo Check if this call is needed or not
 				$arr = ['item' => $item];
-				Addon::callHooks('display_item', $arr);
+				Hook::callAll('display_item', $arr);
 
 				$item['pagedrop'] = $page_dropping;
 
@@ -892,7 +892,7 @@ function item_photo_menu($item) {
 
 	$args = ['item' => $item, 'menu' => $menu];
 
-	Addon::callHooks('item_photo_menu', $args);
+	Hook::callAll('item_photo_menu', $args);
 
 	$menu = $args['menu'];
 
@@ -1097,7 +1097,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	]);
 
 	$jotplugins = '';
-	Addon::callHooks('jot_tool', $jotplugins);
+	Hook::callAll('jot_tool', $jotplugins);
 
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;

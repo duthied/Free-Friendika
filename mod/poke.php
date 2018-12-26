@@ -14,12 +14,11 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Strings;
@@ -129,9 +128,9 @@ function poke_init(App $a)
 	$arr['object'] .= XML::escape('<link rel="photo" type="image/jpeg" href="' . $target['photo'] . '" />' . "\n");
 	$arr['object'] .= '</link></object>' . "\n";
 
-	$item_id = Item::insert($arr);
+	Item::insert($arr);
 
-	Addon::callHooks('post_local_end', $arr);
+	Hook::callAll('post_local_end', $arr);
 
 	return;
 }
@@ -142,9 +141,6 @@ function poke_content(App $a)
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
-
-	$name = '';
-	$id = '';
 
 	if (empty($_GET['c'])) {
 		return;

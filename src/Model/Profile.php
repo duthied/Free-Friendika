@@ -9,9 +9,9 @@ use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -300,7 +300,7 @@ class Profile
 			$profile['network_link'] = '';
 		}
 
-		Addon::callHooks('profile_sidebar_enter', $profile);
+		Hook::callAll('profile_sidebar_enter', $profile);
 
 
 		// don't show connect link to yourself
@@ -548,7 +548,7 @@ class Profile
 
 		$arr = ['profile' => &$profile, 'entry' => &$o];
 
-		Addon::callHooks('profile_sidebar', $arr);
+		Hook::callAll('profile_sidebar', $arr);
 
 		return $o;
 	}
@@ -992,7 +992,7 @@ class Profile
 		}
 
 		$arr = ['is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => $tab, 'tabs' => $tabs];
-		Addon::callHooks('profile_tabs', $arr);
+		Hook::callAll('profile_tabs', $arr);
 
 		$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 
@@ -1033,7 +1033,7 @@ class Profile
 		}
 
 		$arr = ['zrl' => $my_url, 'url' => $a->cmd];
-		Addon::callHooks('zrl_init', $arr);
+		Hook::callAll('zrl_init', $arr);
 
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($my_url);
@@ -1144,7 +1144,7 @@ class Profile
 		 *   * \e array \b visitor
 		 *   * \e string \b url
 		 */
-		Addon::callHooks('magic_auth_success', $arr);
+		Hook::callAll('magic_auth_success', $arr);
 
 		$a->contact = $arr['visitor'];
 

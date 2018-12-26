@@ -7,8 +7,7 @@ namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\Content\Feature;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
@@ -315,7 +314,7 @@ class HTML
 		$message = preg_replace('=\r *\r=i', "\n", $message);
 		$message = str_replace("\r", "\n", $message);
 
-		Addon::callHooks('html2bbcode', $message);
+		Hook::callAll('html2bbcode', $message);
 
 		$message = strip_tags($message);
 
@@ -883,7 +882,7 @@ class HTML
 
 		$arr = ['contacts' => $r, 'output' => $o];
 
-		Addon::callHooks('contact_block_end', $arr);
+		Hook::callAll('contact_block_end', $arr);
 
 		return $o;
 	}

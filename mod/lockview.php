@@ -3,7 +3,7 @@
  * @file mod/lockview.php
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -40,7 +40,7 @@ function lockview_content(App $a)
 		exit();
 	}
 
-	Addon::callHooks('lockview_content', $item);
+	Hook::callAll('lockview_content', $item);
 
 	if ($item['uid'] != local_user()) {
 		echo L10n::t('Remote privacy information not available.') . '<br />';

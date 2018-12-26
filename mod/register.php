@@ -6,8 +6,8 @@
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -26,7 +26,7 @@ function register_post(App $a)
 	$blocked  = 1;
 
 	$arr = ['post' => $_POST];
-	Addon::callHooks('register_post', $arr);
+	Hook::callAll('register_post', $arr);
 
 	$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
 	if ($max_dailies) {
@@ -241,7 +241,7 @@ function register_content(App $a)
 
 	$arr = ['template' => $tpl];
 
-	Addon::callHooks('register_form', $arr);
+	Hook::callAll('register_form', $arr);
 
 	$tpl = $arr['template'];
 

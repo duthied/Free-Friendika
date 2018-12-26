@@ -4,10 +4,9 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Util\Strings;
 use ASN_BASE;
 use ASNValue;
 
@@ -372,7 +371,7 @@ class Crypto
 			return $result;
 		} else {
 			$x = ['data' => $data, 'pubkey' => $pubkey, 'alg' => $alg, 'result' => $data];
-			Addon::callHooks('other_encapsulate', $x);
+			Hook::callAll('other_encapsulate', $x);
 
 			return $x['result'];
 		}
@@ -455,7 +454,7 @@ class Crypto
 			return self::$fn(Strings::base64UrlDecode($data['data']), $k, $i);
 		} else {
 			$x = ['data' => $data, 'prvkey' => $prvkey, 'alg' => $alg, 'result' => $data];
-			Addon::callHooks('other_unencapsulate', $x);
+			Hook::callAll('other_unencapsulate', $x);
 
 			return $x['result'];
 		}

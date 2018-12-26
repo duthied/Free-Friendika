@@ -3,7 +3,7 @@
  * @file mod/uexport.php
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -45,7 +45,7 @@ function uexport_content(App $a) {
 		['uexport/account', L10n::t('Export account'), L10n::t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
 		['uexport/backup', L10n::t('Export all'), L10n::t("Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account \x28photos are not exported\x29")],
 	];
-	Addon::callHooks('uexport_options', $options);
+	Hook::callAll('uexport_options', $options);
 
 	$tpl = Renderer::getMarkupTemplate("uexport.tpl");
 	return Renderer::replaceMacros($tpl, [

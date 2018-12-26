@@ -4,12 +4,11 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Config;
 use Friendica\Network\CurlResult;
-use Friendica\Util\Strings;
 use DOMDocument;
 use DomXPath;
 
@@ -533,7 +532,7 @@ class Network
 		$avatar['url'] = '';
 		$avatar['success'] = false;
 
-		Addon::callHooks('avatar_lookup', $avatar);
+		Hook::callAll('avatar_lookup', $avatar);
 
 		if (! $avatar['success']) {
 			$avatar['url'] = System::baseUrl() . '/images/person-300.jpg';

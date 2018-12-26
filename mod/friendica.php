@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -126,7 +127,7 @@ function friendica_content(App $a)
 		$o .= '</tbody></table></div>' . PHP_EOL;
 	}
 
-	Addon::callHooks('about_hook', $o);
+	Hook::callAll('about_hook', $o);
 
 	return $o;
 }

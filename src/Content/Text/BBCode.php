@@ -11,9 +11,9 @@ use Exception;
 use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -1756,7 +1756,7 @@ class BBCode extends BaseObject
 		//$Text = str_replace('<br /><li>', '<li>', $Text);
 		//$Text = str_replace('<br /><ul', '<ul ', $Text);
 
-		Addon::callHooks('bbcode', $text);
+		Hook::callAll('bbcode', $text);
 
 		return trim($text);
 	}
@@ -1917,7 +1917,7 @@ class BBCode extends BaseObject
 			);
 		}
 
-		Addon::callHooks('bb2diaspora', $text);
+		Hook::callAll('bb2diaspora', $text);
 
 		return $text;
 	}

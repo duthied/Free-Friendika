@@ -10,9 +10,9 @@ use DOMNode;
 use DOMText;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -159,7 +159,7 @@ class OEmbed
 			}
 		}
 
-		Addon::callHooks('oembed_fetch_url', $embedurl, $oembed);
+		Hook::callAll('oembed_fetch_url', $embedurl, $oembed);
 
 		return $oembed;
 	}

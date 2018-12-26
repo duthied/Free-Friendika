@@ -5,8 +5,8 @@
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -27,7 +27,7 @@ use Friendica\Util\Temporal;
 require_once 'mod/share.php';
 function add_page_info_data(array $data, $no_photos = false)
 {
-	Addon::callHooks('page_info_data', $data);
+	Hook::callAll('page_info_data', $data);
 
 	if (empty($data['type'])) {
 		return '';

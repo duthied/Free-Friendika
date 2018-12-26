@@ -8,8 +8,8 @@ use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -215,7 +215,7 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
 
-		Addon::callHooks('addon_settings_post', $_POST);
+		Hook::callAll('addon_settings_post', $_POST);
 		return;
 	}
 
@@ -297,7 +297,7 @@ function settings_post(App $a)
 			}
 		}
 
-		Addon::callHooks('connector_settings_post', $_POST);
+		Hook::callAll('connector_settings_post', $_POST);
 		return;
 	}
 
@@ -372,7 +372,7 @@ function settings_post(App $a)
 				intval(local_user())
 		);
 
-		Addon::callHooks('display_settings_post', $_POST);
+		Hook::callAll('display_settings_post', $_POST);
 		$a->internalRedirect('settings/display');
 		return; // NOTREACHED
 	}
@@ -385,7 +385,7 @@ function settings_post(App $a)
 		$a->internalRedirect('settings');
 	}
 
-	Addon::callHooks('settings_post', $_POST);
+	Hook::callAll('settings_post', $_POST);
 
 	if (!empty($_POST['password']) || !empty($_POST['confirm'])) {
 		$newpass = $_POST['password'];
@@ -743,7 +743,7 @@ function settings_content(App $a)
 			$settings_addons = L10n::t('No Addon settings configured');
 		}
 
-		Addon::callHooks('addon_settings', $settings_addons);
+		Hook::callAll('addon_settings', $settings_addons);
 
 
 		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
@@ -790,7 +790,7 @@ function settings_content(App $a)
 		}
 
 		$settings_connectors = '';
-		Addon::callHooks('connector_settings', $settings_connectors);
+		Hook::callAll('connector_settings', $settings_connectors);
 
 		if (is_site_admin()) {
 			$diasp_enabled = L10n::t('Built-in support for %s connectivity is %s', L10n::t('Diaspora'), ((Config::get('system', 'diaspora_enabled')) ? L10n::t('enabled') : L10n::t('disabled')));
@@ -863,7 +863,7 @@ function settings_content(App $a)
 			'$submit' => L10n::t('Save Settings'),
 		]);
 
-		Addon::callHooks('display_settings', $o);
+		Hook::callAll('display_settings', $o);
 		return $o;
 	}
 
@@ -1262,7 +1262,7 @@ function settings_content(App $a)
 
 	]);
 
-	Addon::callHooks('settings_form', $o);
+	Hook::callAll('settings_form', $o);
 
 	$o .= '</form>' . "\r\n";
 

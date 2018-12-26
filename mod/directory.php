@@ -7,8 +7,8 @@ use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
@@ -190,7 +190,7 @@ function directory_content(App $a)
 
 			$arr = ['contact' => $rr, 'entry' => $entry];
 
-			Addon::callHooks('directory_item', $arr);
+			Hook::callAll('directory_item', $arr);
 
 			unset($profile);
 			unset($location);

@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\BaseObject;
 use Friendica\Content\Pager;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -1007,7 +1006,7 @@ class Contact extends BaseObject
 
 		$args = ['contact' => $contact, 'menu' => &$menu];
 
-		Addon::callHooks('contact_photo_menu', $args);
+		Hook::callAll('contact_photo_menu', $args);
 
 		$menucondensed = [];
 

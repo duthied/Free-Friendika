@@ -8,8 +8,8 @@ use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
@@ -186,7 +186,7 @@ function profiles_post(App $a) {
 
 	$namechanged = false;
 
-	Addon::callHooks('profile_post', $_POST);
+	Hook::callAll('profile_post', $_POST);
 
 	if (($a->argc > 1) && ($a->argv[1] !== "new") && intval($a->argv[1])) {
 		$orig = q("SELECT * FROM `profile` WHERE `id` = %d AND `uid` = %d LIMIT 1",
@@ -645,7 +645,7 @@ function profiles_content(App $a) {
 		]);
 
 		$arr = ['profile' => $r[0], 'entry' => $o];
-		Addon::callHooks('profile_edit', $arr);
+		Hook::callAll('profile_edit', $arr);
 
 		return $o;
 	} else {

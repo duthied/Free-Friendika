@@ -4,8 +4,8 @@
  */
 
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -441,7 +441,7 @@ function notification($params)
 		'itemlink'  => $itemlink
 	];
 
-	Addon::callHooks('enotify', $h);
+	Hook::callAll('enotify', $h);
 
 	$subject   = $h['subject'];
 
@@ -481,7 +481,7 @@ function notification($params)
 		$datarray['otype'] = $params['otype'];
 		$datarray['abort'] = false;
 
-		Addon::callHooks('enotify_store', $datarray);
+		Hook::callAll('enotify_store', $datarray);
 
 		if ($datarray['abort']) {
 			L10n::popLang();
@@ -584,7 +584,7 @@ function notification($params)
 		$datarray['subject'] = $subject;
 		$datarray['headers'] = $additional_mail_header;
 
-		Addon::callHooks('enotify_mail', $datarray);
+		Hook::callAll('enotify_mail', $datarray);
 
 		// check whether sending post content in email notifications is allowed
 		// always true for SYSTEM_EMAIL
@@ -677,7 +677,7 @@ function check_user_notification($itemid) {
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$notification_data = ["uid" => $uid, "profiles" => []];
-	Addon::callHooks('check_item_notification', $notification_data);
+	Hook::callAll('check_item_notification', $notification_data);
 
 	$profiles = $notification_data["profiles"];
 

@@ -6,11 +6,6 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Addon;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
-use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
@@ -154,7 +149,7 @@ class Authentication extends BaseObject
 		}
 
 		if ($login_initial) {
-			Addon::callHooks('logged_in', $a->user);
+			Hook::callAll('logged_in', $a->user);
 
 			if (($a->module !== 'home') && isset($_SESSION['return_path'])) {
 				$a->internalRedirect($_SESSION['return_path']);

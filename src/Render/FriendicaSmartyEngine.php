@@ -4,7 +4,7 @@
  */
 namespace Friendica\Render;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 
 /**
  * Smarty implementation of the Friendica template engine interface
@@ -39,7 +39,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 			"template" => basename($s->filename),
 			"vars" => $r
 		];
-		Addon::callHooks("template_vars", $arr);
+		Hook::callAll("template_vars", $arr);
 		$r = $arr['vars'];
 
 		foreach ($r as $key => $value) {

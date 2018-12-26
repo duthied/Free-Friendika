@@ -6,9 +6,9 @@ namespace Friendica\Module;
 
 use Exception;
 use Friendica\BaseModule;
-use Friendica\Core\Addon;
 use Friendica\Core\Authentication;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -131,7 +131,7 @@ class Login extends BaseModule
 		 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
 		 * and later addons should not interfere with an earlier one that succeeded.
 		 */
-		Addon::callHooks('authenticate', $addon_auth);
+		Hook::callAll('authenticate', $addon_auth);
 
 		try {
 			if ($addon_auth['authenticated']) {
@@ -340,7 +340,7 @@ class Login extends BaseModule
 			]
 		);
 
-		Addon::callHooks('login_hook', $o);
+		Hook::callAll('login_hook', $o);
 
 		return $o;
 	}

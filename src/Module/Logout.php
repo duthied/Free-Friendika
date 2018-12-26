@@ -2,13 +2,13 @@
 /**
  * @file src/Module/Logout.php
  */
+
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Addon;
 use Friendica\Core\Authentication;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 
 /**
  * Logout module
@@ -22,7 +22,7 @@ class Logout extends BaseModule
 	 */
 	public static function init()
 	{
-		Addon::callHooks("logging_out");
+		Hook::callAll("logging_out");
 		Authentication::deleteSession();
 		info(L10n::t('Logged out.') . EOL);
 		self::getApp()->internalRedirect();

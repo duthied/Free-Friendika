@@ -8,11 +8,10 @@ namespace Friendica\Util;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Content\OEmbed;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Object\Image;
-use Friendica\Util\Strings;
 
 /**
  * @brief Class with methods for extracting certain content from an url
@@ -422,7 +421,7 @@ class ParseUrl
 
 		Logger::log('Siteinfo for ' . $url . ' ' . print_r($siteinfo, true), Logger::DEBUG);
 
-		Addon::callHooks('getsiteinfo', $siteinfo);
+		Hook::callAll('getsiteinfo', $siteinfo);
 
 		return $siteinfo;
 	}

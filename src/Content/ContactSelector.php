@@ -4,10 +4,9 @@
  */
 namespace Friendica\Content;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -96,7 +95,7 @@ class ContactSelector
 			Protocol::PNUT      =>   L10n::t('pnut'),
 		];
 
-		Addon::callHooks('network_to_name', $nets);
+		Hook::callAll('network_to_name', $nets);
 
 		$search  = array_keys($nets);
 		$replace = array_values($nets);
@@ -141,6 +140,7 @@ class ContactSelector
 	/**
 	 * @param string $current optional, default empty
 	 * @param string $suffix  optionsl, default empty
+	 * @return string
 	 */
 	public static function gender($current = "", $suffix = "")
 	{
@@ -163,7 +163,7 @@ class ContactSelector
 			'Undecided'        => L10n::t('Undecided'),
 		];
 
-		Addon::callHooks('gender_selector', $select);
+		Hook::callAll('gender_selector', $select);
 
 		$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
 		foreach ($select as $neutral => $selection) {
@@ -179,6 +179,7 @@ class ContactSelector
 	/**
 	 * @param string $current optional, default empty
 	 * @param string $suffix  optionsl, default empty
+	 * @return string
 	 */
 	public static function sexualPreference($current = "", $suffix = "")
 	{
@@ -200,7 +201,7 @@ class ContactSelector
 			'Nonsexual'     => L10n::t('Nonsexual'),
 		];
 
-		Addon::callHooks('sexpref_selector', $select);
+		Hook::callAll('sexpref_selector', $select);
 
 		$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
 		foreach ($select as $neutral => $selection) {
@@ -215,6 +216,7 @@ class ContactSelector
 
 	/**
 	 * @param string $current optional, default empty
+	 * @return string
 	 */
 	public static function maritalStatus($current = "")
 	{
@@ -254,7 +256,7 @@ class ContactSelector
 			'Ask me'               => L10n::t('Ask me'),
 		];
 
-		Addon::callHooks('marital_selector', $select);
+		Hook::callAll('marital_selector', $select);
 
 		$o .= '<select name="marital" id="marital-select" size="1" >';
 		foreach ($select as $neutral => $selection) {

@@ -9,13 +9,12 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -666,7 +665,7 @@ function photos_post(App $a)
 
 
 	// default post action - upload a photo
-	Addon::callHooks('photo_post_init', $_POST);
+	Hook::callAll('photo_post_init', $_POST);
 
 	// Determine the album to use
 	$album    = !empty($_REQUEST['album'])    ? Strings::escapeTags(trim($_REQUEST['album']))    : '';
@@ -714,7 +713,7 @@ function photos_post(App $a)
 
 	$ret = ['src' => '', 'filename' => '', 'filesize' => 0, 'type' => ''];
 
-	Addon::callHooks('photo_post_file', $ret);
+	Hook::callAll('photo_post_file', $ret);
 
 	if (!empty($ret['src']) && !empty($ret['filesize'])) {
 		$src      = $ret['src'];
@@ -754,7 +753,7 @@ function photos_post(App $a)
 		}
 		@unlink($src);
 		$foo = 0;
-		Addon::callHooks('photo_post_end', $foo);
+		Hook::callAll('photo_post_end', $foo);
 		return;
 	}
 
@@ -770,7 +769,7 @@ function photos_post(App $a)
 		notice(L10n::t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		$foo = 0;
-		Addon::callHooks('photo_post_end', $foo);
+		Hook::callAll('photo_post_end', $foo);
 		return;
 	}
 
@@ -778,7 +777,7 @@ function photos_post(App $a)
 		notice(L10n::t('Image file is empty.') . EOL);
 		@unlink($src);
 		$foo = 0;
-		Addon::callHooks('photo_post_end', $foo);
+		Hook::callAll('photo_post_end', $foo);
 		return;
 	}
 
@@ -793,7 +792,7 @@ function photos_post(App $a)
 		notice(L10n::t('Unable to process image.') . EOL);
 		@unlink($src);
 		$foo = 0;
-		Addon::callHooks('photo_post_end',$foo);
+		Hook::callAll('photo_post_end',$foo);
 		exit();
 	}
 
@@ -879,7 +878,7 @@ function photos_post(App $a)
 	// Update the photo albums cache
 	Photo::clearAlbumCache($page_owner_uid);
 
-	Addon::callHooks('photo_post_end', $item_id);
+	Hook::callAll('photo_post_end', $item_id);
 
 	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
 	// if they do not wish to be redirected
@@ -1042,7 +1041,7 @@ function photos_content(App $a)
 				'addon_text' => $uploader,
 				'default_upload' => true];
 
-		Addon::callHooks('photo_upload_form',$ret);
+		Hook::callAll('photo_upload_form',$ret);
 
 		$default_upload_box = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_box.tpl'), []);
 		$default_upload_submit = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_submit.tpl'), [

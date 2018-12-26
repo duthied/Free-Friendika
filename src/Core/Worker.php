@@ -5,7 +5,6 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
@@ -1070,7 +1069,7 @@ class Worker
 
 		$arr = ['args' => $args, 'run_cmd' => true];
 
-		Addon::callHooks("proc_run", $arr);
+		Hook::callAll("proc_run", $arr);
 		if (!$arr['run_cmd'] || !count($args)) {
 			return true;
 		}
