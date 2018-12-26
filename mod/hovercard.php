@@ -96,20 +96,20 @@ function hovercard_content()
 
 	// Move the contact data to the profile array so we can deliver it to
 	$profile = [
-		'name'     => $contact['name'],
-		'nick'     => $contact['nick'],
-		'addr'     => defaults($contact, 'addr', $contact['url']),
-		'thumb'    => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
-		'url'      => Contact::magicLink($contact['url']),
-		'nurl'     => $contact['nurl'], // We additionally store the nurl as identifier
-		'location' => $contact['location'],
-		'gender'   => $contact['gender'],
-		'about'    => $contact['about'],
-		'network'  => Strings::formatNetworkName($contact['network'], $contact['url']),
-		'tags'     => $contact['keywords'],
-		'bd'       => $contact['birthday'] <= DBA::NULL_DATE ? '' : $contact['birthday'],
+		'name'         => $contact['name'],
+		'nick'         => $contact['nick'],
+		'addr'         => defaults($contact, 'addr', $contact['url']),
+		'thumb'        => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+		'url'          => Contact::magicLink($contact['url']),
+		'nurl'         => $contact['nurl'], // We additionally store the nurl as identifier
+		'location'     => $contact['location'],
+		'gender'       => $contact['gender'],
+		'about'        => $contact['about'],
+		'network_link' => Strings::formatNetworkName($contact['network'], $contact['url']),
+		'tags'         => $contact['keywords'],
+		'bd'           => $contact['birthday'] <= DBA::NULL_DATE ? '' : $contact['birthday'],
 		'account_type' => Contact::getAccountType($contact),
-		'actions'  => $actions,
+		'actions'      => $actions,
 	];
 	if ($datatype == 'html') {
 		$tpl = Renderer::getMarkupTemplate('hovercard.tpl');

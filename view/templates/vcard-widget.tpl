@@ -9,6 +9,6 @@
 	<div id="profile-photo-wrapper"><img class="vcard-photo photo u-photo" style="width: 175px; height: 175px;" src="{{$photo}}" alt="{{$name}}" /></div>
 	{{/if}}
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
-	{{if $network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$network_name}}</dd></dl>{{/if}}
+	{{if $network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$network_link nofilter}}</dd></dl>{{/if}}
 	<div id="profile-vcard-break"></div>
 </div>
