@@ -512,10 +512,8 @@ class Profile
 			$p['about'] = BBCode::convert($p['about']);
 		}
 
-		if (isset($p['address'])) {
-			$p['address'] = BBCode::convert($p['address']);
-		} elseif (isset($p['location'])) {
-			$p['address'] = BBCode::convert($p['location']);
+		if (empty($p['address']) && !empty($p['location'])) {
+			$p['address'] = $p['location'];
 		}
 
 		if (isset($p['photo'])) {
