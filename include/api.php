@@ -643,8 +643,6 @@ function api_get_user(App $a, $contact_id = null)
 		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 
 		if (DBA::isResult($contact)) {
-			$network_name = ContactSelector::networkToName($contact['network'], $contact['url']);
-
 			// If no nick where given, extract it from the address
 			if (($contact['nick'] == "") || ($contact['name'] == $contact['nick'])) {
 				$contact['nick'] = api_get_nick($contact["url"]);
@@ -655,7 +653,7 @@ function api_get_user(App $a, $contact_id = null)
 				'id_str' => (string) $contact["id"],
 				'name' => $contact["name"],
 				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
-				'location' => ($contact["location"] != "") ? $contact["location"] : $network_name,
+				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url']),
 				'description' => $contact["about"],
 				'profile_image_url' => $contact["micro"],
 				'profile_image_url_https' => $contact["micro"],
@@ -713,8 +711,6 @@ function api_get_user(App $a, $contact_id = null)
 		$uinfo[0]['nick'] = api_get_nick($uinfo[0]["url"]);
 	}
 
-	$network_name = ContactSelector::networkToName($uinfo[0]['network'], $uinfo[0]['url']);
-
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
 	if (!empty($profile['about'])) {
@@ -728,7 +724,7 @@ function api_get_user(App $a, $contact_id = null)
 	} elseif (!empty($uinfo[0]["location"])) {
 		$location = $uinfo[0]["location"];
 	} else {
-		$location = $network_name;
+		$location = ContactSelector::networkToName($uinfo[0]['network'], $uinfo[0]['url']);
 	}
 
 	$ret = [
