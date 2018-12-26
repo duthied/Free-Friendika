@@ -12,7 +12,7 @@
 				</div>
 				<div class="profile-details">
 					<span class="profile-addr">{{$profile.addr}}</span>
-					{{if $profile.network}}<span class="profile-network"> ({{$profile.network}})</span>{{/if}}
+					{{if $profile.network_link}}<span class="profile-network">({{$profile.network_link nofilter}})</span>{{/if}}
 				</div>
 				{{*{{if $profile.about}}<div class="profile-details profile-about">{{$profile.about nofilter}}</div>{{/if}}*}}
 

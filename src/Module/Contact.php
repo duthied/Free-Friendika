@@ -75,18 +75,17 @@ class Contact extends BaseModule
 			$a->data['contact'] = $contact;
 
 			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
-				$networkname = Strings::formatNetworkName($contact['network'], $contact['url']);
+				$network_link = Strings::formatNetworkName($contact['network'], $contact['url']);
 			} else {
-				$networkname = '';
+				$network_link = '';
 			}
 
-			/// @TODO Add nice spaces
 			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('vcard-widget.tpl'), [
 				'$name'         => $contact['name'],
 				'$photo'        => $contact['photo'],
 				'$url'          => Model\Contact::MagicLink($contact['url']),
 				'$addr'         => defaults($contact, 'addr', ''),
-				'$network_name' => $networkname,
+				'$network_link' => $network_link,
 				'$network'      => L10n::t('Network:'),
 				'$account_type' => Model\Contact::getAccountType($contact)
 			]);

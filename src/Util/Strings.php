@@ -140,18 +140,18 @@ class Strings
     }
 
     /**
-     * @brief translate and format the networkname of a contact
+     * @brief Translate and format the network name of a contact
      *
-     * @param string $network   Networkname of the contact (e.g. dfrn, rss and so on)
-     * @param string $url       The contact url
+     * @param string $network Network name of the contact (e.g. dfrn, rss and so on)
+     * @param string $url     The contact url
      * 
-     * @return string   Formatted network name
+     * @return string Formatted network name
      */
-    public static function formatNetworkName($network, $url = 0)
+    public static function formatNetworkName($network, $url = '')
     {
-        if ($network != "") {
-            if ($url != "") {
-                $network_name = '<a href="' . $url  .'">' . ContactSelector::networkToName($network, $url) . "</a>";
+        if ($network != '') {
+            if ($url != '') {
+                $network_name = '<a href="' . $url  .'">' . ContactSelector::networkToName($network, $url) . '</a>';
             } else {
                 $network_name = ContactSelector::networkToName($network);
             }
@@ -161,7 +161,7 @@ class Strings
     }
 
     /**
-     * @brief Remove intentation from a text
+     * @brief Remove indentation from a text
      * 
      * @param string $text  String to be transformed.
      * @param string $chr   Optional. Indentation tag. Default tab (\t).
