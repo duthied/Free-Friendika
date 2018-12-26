@@ -11,7 +11,7 @@ use Friendica\Database\DBA;
 
 function uexport_init(App $a) {
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 
 	require_once("mod/settings.php");
@@ -26,14 +26,14 @@ function uexport_content(App $a) {
 		switch ($a->argv[1]) {
 			case "backup":
 				uexport_all($a);
-				killme();
+				exit();
 				break;
 			case "account":
 				uexport_account($a);
-				killme();
+				exit();
 				break;
 			default:
-				killme();
+				exit();
 		}
 	}
 
@@ -130,7 +130,6 @@ function uexport_account($a) {
 		'group_member' => $group_member,
 	];
 
-	//echo "<pre>"; var_dump(json_encode($output)); killme();
 	echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR);
 }
 
@@ -152,7 +151,6 @@ function uexport_all(App $a) {
 	// chunk the output to avoid exhausting memory
 
 	for ($x = 0; $x < $total; $x += 500) {
-		$item = [];
 		$r = q("SELECT * FROM `item` WHERE `uid` = %d LIMIT %d, %d",
 			intval(local_user()),
 			intval($x),

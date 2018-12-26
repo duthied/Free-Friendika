@@ -48,7 +48,7 @@ function notify_init(App $a)
 		$r = $nm->setAllSeen();
 		$j = json_encode(['result' => ($r) ? 'success' : 'fail']);
 		echo $j;
-		killme();
+		exit();
 	}
 }
 

@@ -15,7 +15,7 @@ function noscrape_init(App $a)
 	if ($a->argc > 1) {
 		$which = $a->argv[1];
 	} else {
-		killme();
+		exit();
 	}
 
 	$profile = 0;

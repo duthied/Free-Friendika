@@ -10,7 +10,7 @@ function filerm_content(App $a)
 {
 	if (! local_user())
 	{
-		killme();
+		exit();
 	}
 
 	$term = XML::unescape(trim($_GET['term']));
@@ -37,5 +37,5 @@ function filerm_content(App $a)
 	}
 
 	$a->internalRedirect('/network?f=&file=' . rawurlencode($term));
-	killme();
+	exit();
 }

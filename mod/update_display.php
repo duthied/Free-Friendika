@@ -35,5 +35,5 @@ function update_display_content(App $a)
 	echo str_replace("\t", "       ", $text);
 	echo "</section>";
 	echo "</body></html>\r\n";
-	killme();
+	exit();
 }

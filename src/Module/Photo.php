@@ -20,7 +20,6 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class Photo extends BaseModule
 {
-
 	/**
 	 * @brief Module initializer
 	 *
@@ -78,7 +77,7 @@ class Photo extends BaseModule
 		if ($photo === false) {
 			// not using System::httpExit() because we don't want html here.
 			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found" , true, 404);
-			killme();
+			exit();
 		}
 
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
@@ -90,12 +89,10 @@ class Photo extends BaseModule
 			System::httpExit(500, ["description" => "Invalid photo with id {$photo["id"]}."]);
 		}
 
-
 		// if customsize is set and image is not a gif, resize it
 		if ($img->getType() !== "image/gif" && $customsize > 0 && $customsize < 501) {
 			$img->scaleToSquare($customsize);
 		}
-
 
 		if (function_exists("header_remove")) {
 			header_remove("Pragma");
@@ -117,11 +114,9 @@ class Photo extends BaseModule
 			header("Cache-Control: max-age=31536000");
 		}
 
-
 		echo $img->asString();
 
-
-		killme();
+		exit();
 	}
 
 	private static function stripExtension($name)

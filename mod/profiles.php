@@ -117,7 +117,7 @@ function profiles_init(App $a) {
 		);
 		if(! DBA::isResult($r1)) {
 			notice(L10n::t('Profile unavailable to clone.') . EOL);
-			killme();
+			exit();
 			return;
 		}
 		unset($r1[0]['id']);
@@ -150,7 +150,7 @@ function profiles_init(App $a) {
 		);
 		if (! DBA::isResult($r)) {
 			notice(L10n::t('Profile not found.') . EOL);
-			killme();
+			exit();
 			return;
 		}
 

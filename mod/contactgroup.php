@@ -8,7 +8,7 @@ use Friendica\Model\Group;
 function contactgroup_content(App $a)
 {
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 
 	$change = null;
@@ -28,7 +28,7 @@ function contactgroup_content(App $a)
 			intval(local_user())
 		);
 		if (!DBA::isResult($r)) {
-			killme();
+			exit();
 		}
 
 		$group = $r[0];
@@ -49,5 +49,5 @@ function contactgroup_content(App $a)
 		}
 	}
 
-	killme();
+	exit();
 }

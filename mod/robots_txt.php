@@ -26,5 +26,5 @@ function robots_txt_init(App $a)
 	foreach ($allDisalloweds as $disallowed) {
 		echo 'Disallow: ' . $disallowed . PHP_EOL;
 	}
-	killme();
+	exit();
 }

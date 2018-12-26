@@ -165,7 +165,7 @@ function profperm_content(App $a) {
 
 	if (!empty($change)) {
 		echo $o;
-		killme();
+		exit();
 	}
 	$o .= '</div>';
 	return $o;

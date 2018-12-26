@@ -68,7 +68,7 @@ function friendica_init(App $a)
 
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($data);
-		killme();
+		exit();
 	}
 }
 

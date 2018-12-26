@@ -44,7 +44,7 @@ $spawn = array_key_exists('s', $options) || array_key_exists('spawn', $options);
 
 if ($spawn) {
 	Worker::spawnWorker();
-	killme();
+	exit();
 }
 
 $run_cron = !array_key_exists('n', $options) && !array_key_exists('no_cron', $options);

@@ -6,7 +6,7 @@ use Friendica\Database\DBA;
 function modexp_init(App $a) {
 
 	if($a->argc != 2)
-		killme();
+		exit();
 
 	$nick = $a->argv[1];
 	$r = q("SELECT `spubkey` FROM `user` WHERE `nickname` = '%s' LIMIT 1",
@@ -14,7 +14,7 @@ function modexp_init(App $a) {
 	);
 
 	if (! DBA::isResult($r)) {
-		killme();
+		exit();
 	}
 
 	$lines = explode("\n",$r[0]['spubkey']);
@@ -30,7 +30,7 @@ function modexp_init(App $a) {
 	header("Content-type: application/magic-public-key");
 	echo 'RSA' . '.' . $m . '.' . $e;
 
-	killme();
+	exit();
 
 }
 

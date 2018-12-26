@@ -40,7 +40,7 @@ function fetch_init(App $a)
 
 				header("HTTP/1.1 301 Moved Permanently");
 				header("Location:".$location);
-				killme();
+				exit();
 			}
 		}
 
@@ -60,5 +60,5 @@ function fetch_init(App $a)
 	header("Content-Type: application/magic-envelope+xml; charset=utf-8");
 	echo Diaspora::buildMagicEnvelope($xml, $user);
 
-	killme();
+	exit();
 }

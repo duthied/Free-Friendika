@@ -97,7 +97,7 @@ function xrd_json($a, $uri, $alias, $profile_url, $r)
 	];
 
 	echo json_encode($json);
-	killme();
+	exit();
 }
 
 function xrd_xml($a, $uri, $alias, $profile_url, $r)
@@ -130,5 +130,5 @@ function xrd_xml($a, $uri, $alias, $profile_url, $r)
 	Addon::callHooks('personal_xrd', $arr);
 
 	echo $arr['xml'];
-	killme();
+	exit();
 }

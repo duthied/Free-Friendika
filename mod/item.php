@@ -51,7 +51,7 @@ function item_post(App $a) {
 		drop_items($arr_drop);
 		$json = ['success' => 1];
 		echo json_encode($json);
-		killme();
+		exit();
 	}
 
 	Addon::callHooks('post_local_start', $_REQUEST);
@@ -118,7 +118,7 @@ function item_post(App $a) {
 			if (!empty($_REQUEST['return'])) {
 				$a->internalRedirect($return_path);
 			}
-			killme();
+			exit();
 		}
 
 		$parent = $parent_item['id'];
@@ -169,7 +169,7 @@ function item_post(App $a) {
 			$a->internalRedirect($return_path);
 		}
 
-		killme();
+		exit();
 	}
 
 	// Init post instance
@@ -280,13 +280,13 @@ function item_post(App $a) {
 
 		if (!strlen($body)) {
 			if ($preview) {
-				killme();
+				exit();
 			}
 			info(L10n::t('Empty post discarded.') . EOL);
 			if (!empty($_REQUEST['return'])) {
 				$a->internalRedirect($return_path);
 			}
-			killme();
+			exit();
 		}
 	}
 
@@ -693,7 +693,7 @@ function item_post(App $a) {
 		}
 
 		echo json_encode($json);
-		killme();
+		exit();
 	}
 
 	if ($orig_post)	{
@@ -721,7 +721,7 @@ function item_post(App $a) {
 			Logger::log('return: ' . $return_path);
 			$a->internalRedirect($return_path);
 		}
-		killme();
+		exit();
 	} else {
 		$post_id = 0;
 	}
@@ -874,7 +874,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 	Logger::log('post_json: ' . print_r($json, true), Logger::DEBUG);
 
 	echo json_encode($json);
-	killme();
+	exit();
 }
 
 function item_content(App $a)
@@ -900,7 +900,7 @@ function item_content(App $a)
 		if ($a->isAjax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
 			echo json_encode([intval($a->argv[2]), intval($o)]);
-			killme();
+			exit();
 		}
 	}
 

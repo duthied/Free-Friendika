@@ -21,5 +21,5 @@ function pretheme_init(App $a) {
 		echo json_encode(['img' => Theme::getScreenshot($theme), 'desc' => $desc, 'version' => $version, 'credits' => $credits]);
 	}
 
-	killme();
+	exit();
 }

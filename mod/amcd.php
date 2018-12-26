@@ -47,5 +47,5 @@ function amcd_content()
   }
 }
 JSON;
-	killme();
+	exit();
 }

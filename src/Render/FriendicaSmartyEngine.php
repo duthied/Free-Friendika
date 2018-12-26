@@ -19,7 +19,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 	{
 		if (!is_writable('view/smarty3/')) {
 			echo "<b>ERROR:</b> folder <tt>view/smarty3/</tt> must be writable by webserver.";
-			killme();
+			exit();
 		}
 	}
 

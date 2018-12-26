@@ -111,7 +111,7 @@ class System extends BaseObject
 
 		echo XML::fromArray($xmldata, $xml);
 
-		killme();
+		exit();
 	}
 
 	/**
@@ -185,7 +185,7 @@ class System extends BaseObject
 	public static function jsonExit($x, $content_type = 'application/json') {
 		header("Content-type: $content_type");
 		echo json_encode($x);
-		killme();
+		exit();
 	}
 
 	/**

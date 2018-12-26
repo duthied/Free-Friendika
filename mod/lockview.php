@@ -19,11 +19,11 @@ function lockview_content(App $a)
 	}
 
 	if (!$item_id) {
-		killme();
+		exit();
 	}
 
 	if (!in_array($type, ['item','photo','event'])) {
-		killme();
+		exit();
 	}
 
 	$fields = ['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
@@ -37,14 +37,14 @@ function lockview_content(App $a)
 	}
 
 	if (!DBA::isResult($item)) {
-		killme();
+		exit();
 	}
 
 	Addon::callHooks('lockview_content', $item);
 
 	if ($item['uid'] != local_user()) {
 		echo L10n::t('Remote privacy information not available.') . '<br />';
-		killme();
+		exit();
 	}
 
 	if (isset($item['private'])
@@ -55,7 +55,7 @@ function lockview_content(App $a)
 		&& empty($item['deny_gid']))
 	{
 		echo L10n::t('Remote privacy information not available.') . '<br />';
-		killme();
+		exit();
 	}
 
 	$allowed_users  = expand_acl($item['allow_cid']);
@@ -111,6 +111,6 @@ function lockview_content(App $a)
 	}
 
 	echo $o . implode(', ', $l);
-	killme();
+	exit();
 
 }

@@ -3928,10 +3928,10 @@ function api_oauth_request_token()
 		$r = $oauth1->fetch_request_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=" . OAuthUtil::urlencode_rfc3986($e->getMessage());
-		killme();
+		exit();
 	}
 	echo $r;
-	killme();
+	exit();
 }
 
 /**
@@ -3947,10 +3947,10 @@ function api_oauth_access_token()
 		$r = $oauth1->fetch_access_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=". OAuthUtil::urlencode_rfc3986($e->getMessage());
-		killme();
+		exit();
 	}
 	echo $r;
-	killme();
+	exit();
 }
 
 /// @TODO move to top of file or somewhere better

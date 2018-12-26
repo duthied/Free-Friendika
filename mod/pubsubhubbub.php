@@ -136,5 +136,5 @@ function pubsubhubbub_init(App $a) {
 
 		System::httpExit(202);
 	}
-	killme();
+	exit();
 }

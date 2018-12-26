@@ -22,5 +22,5 @@ function rsd_xml_content(App $a)
   </service>
 </rsd>';
 
-	killme();
+	exit();
 }

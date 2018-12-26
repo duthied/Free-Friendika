@@ -307,7 +307,7 @@ function group_content(App $a) {
 	if ($change) {
 		$tpl = Renderer::getMarkupTemplate('groupeditor.tpl');
 		echo Renderer::replaceMacros($tpl, $context);
-		killme();
+		exit();
 	}
 
 	return Renderer::replaceMacros($tpl, $context);

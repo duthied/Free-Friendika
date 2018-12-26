@@ -12,18 +12,18 @@ function starred_init(App $a) {
 	$message_id = null;
 
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 	if ($a->argc > 1) {
 		$message_id = intval($a->argv[1]);
 	}
 	if (!$message_id) {
-		killme();
+		exit();
 	}
 
 	$item = Item::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $message_id]);
 	if (!DBA::isResult($item)) {
-		killme();
+		exit();
 	}
 
 	if (!intval($item['starred'])) {
@@ -48,5 +48,5 @@ function starred_init(App $a) {
 	// the json doesn't really matter, it will either be 0 or 1
 
 	echo json_encode($starred);
-	killme();
+	exit();
 }

@@ -24,5 +24,5 @@ function manifest_content(App $a) {
 
 	echo $o;
 
-	killme();
+	exit();
 }

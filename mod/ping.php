@@ -115,7 +115,7 @@ function ping_init(App $a)
 				header("Content-type: text/xml");
 				echo XML::fromArray($data, $xml);
 			}
-			killme();
+			exit();
 		}
 
 		$notifs = ping_get_notifications(local_user());
@@ -386,7 +386,7 @@ function ping_init(App $a)
 		echo XML::fromArray(["result" => $data], $xml);
 	}
 
-	killme();
+	exit();
 }
 
 /**

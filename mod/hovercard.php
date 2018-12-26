@@ -41,7 +41,7 @@ function hovercard_content()
 	if ($datatype == 'tpl') {
 		$templatecontent = get_template_content('hovercard.tpl');
 		echo $templatecontent;
-		killme();
+		exit();
 	}
 
 	// If a contact is connected the url is internally changed to 'redir/CID'. We need the pure url to search for

@@ -88,8 +88,9 @@ class Emailer
 			'headers' => $messageHeader,
 			'parameters' => $sendmail_params
 		];
-		//echo "<pre>"; var_dump($hookdata); killme();
+
 		Addon::callHooks("emailer_send", $hookdata);
+
 		$res = mail(
 			$hookdata['to'],
 			$hookdata['subject'],

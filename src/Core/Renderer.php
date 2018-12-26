@@ -96,7 +96,7 @@ class Renderer extends BaseObject
             $template = $t->getTemplateFile($s, $root);
         } catch (Exception $e) {
             echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-            killme();
+            exit();
         }
 
         $a->saveTimestamp($stamp1, "file");

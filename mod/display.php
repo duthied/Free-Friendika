@@ -426,5 +426,5 @@ function displayShowFeed($item_id, $conversation)
 	}
 	header("Content-type: application/atom+xml");
 	echo $xml;
-	killme();
+	exit();
 }

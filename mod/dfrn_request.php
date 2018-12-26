@@ -589,8 +589,7 @@ function dfrn_request_content(App $a)
 			}
 		}
 
-		killme();
-		return; // NOTREACHED
+		exit();
 	} else {
 		// Normal web request. Display our user's introduction form.
 		if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {

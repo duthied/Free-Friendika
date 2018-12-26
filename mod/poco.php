@@ -46,7 +46,7 @@ function poco_init(App $a) {
 		$ret = PortableContact::serverlist();
 		header('Content-type: application/json');
 		echo json_encode($ret);
-		killme();
+		exit();
 	}
 
 	if ($a->argc > 1 && $a->argv[1] === '@global') {
@@ -378,12 +378,12 @@ function poco_init(App $a) {
 	if ($format === 'xml') {
 		header('Content-type: text/xml');
 		echo Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), XML::arrayEscape(['$response' => $ret]));
-		killme();
+		exit();
 	}
 	if ($format === 'json') {
 		header('Content-type: application/json');
 		echo json_encode($ret);
-		killme();
+		exit();
 	} else {
 		System::httpExit(500);
 	}

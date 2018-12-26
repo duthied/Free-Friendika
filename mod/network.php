@@ -625,7 +625,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$group = DBA::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
 		if (!DBA::isResult($group)) {
 			if ($update) {
-				killme();
+				exit();
 			}
 			notice(L10n::t('No such group') . EOL);
 			$a->internalRedirect('network/0');

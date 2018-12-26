@@ -18,11 +18,11 @@ use Friendica\Object\Image;
 function fbrowser_content(App $a)
 {
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 
 	if ($a->argc == 1) {
-		killme();
+		exit();
 	}
 
 	$template_file = "filebrowser.tpl";
@@ -146,6 +146,6 @@ function fbrowser_content(App $a)
 		return $o;
 	} else {
 		echo $o;
-		killme();
+		exit();
 	}
 }

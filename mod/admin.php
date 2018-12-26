@@ -301,8 +301,7 @@ function admin_content(App $a)
 
 	if ($a->isAjax()) {
 		echo $o;
-		killme();
-		return '';
+		exit();
 	} else {
 		return $o;
 	}

@@ -13,5 +13,5 @@ function view_init($a){
 			require_once("view/theme/$theme/style.php");
 	}
 	
-	killme();
+	exit();
 }

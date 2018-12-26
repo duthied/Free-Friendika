@@ -58,5 +58,5 @@ function worker_init()
 
 	Logger::log("Front end worker ended: ".getmypid());
 
-	killme();
+	exit();
 }

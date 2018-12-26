@@ -102,7 +102,7 @@ function search_content(App $a) {
 		System::httpExit(403,
 				["title" => L10n::t("Public access denied."),
 					"description" => L10n::t("Only logged in users are permitted to perform a search.")]);
-		killme();
+		exit();
 		//notice(L10n::t('Public access denied.').EOL);
 		//return;
 	}
@@ -127,7 +127,7 @@ function search_content(App $a) {
 				System::httpExit(429,
 						["title" => L10n::t("Too Many Requests"),
 							"description" => L10n::t("Only one search per minute is permitted for not logged in users.")]);
-				killme();
+				exit();
 			}
 			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => $resultdata->accesses + 1]), Cache::HOUR);
 		} else

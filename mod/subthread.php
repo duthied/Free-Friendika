@@ -151,6 +151,6 @@ EOT;
 
 	Addon::callHooks('post_local_end', $arr);
 
-	killme();
+	exit();
 
 }

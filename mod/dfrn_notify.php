@@ -281,7 +281,7 @@ function dfrn_notify_content(App $a) {
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
 		if (!DBA::isResult($user)) {
 			Logger::log('User not found for nickname ' . $a->argv[1]);
-			killme();
+			exit();
 		}
 
 		$condition = [];
@@ -313,7 +313,7 @@ function dfrn_notify_content(App $a) {
 		$importer = DFRN::getImporter($contact['id'], $user['uid']);
 		if (empty($importer)) {
 			Logger::log('No importer data found for user ' . $a->argv[1] . ' and contact ' . $dfrn_id);
-			killme();
+			exit();
 		}
 
 		Logger::log("Remote rino version: ".$rino_remote." for ".$importer["url"], Logger::DATA);
@@ -370,6 +370,6 @@ function dfrn_notify_content(App $a) {
 			. "\t" . '<challenge>' . $challenge . '</challenge>' . "\r\n"
 			. '</dfrn_notify>' . "\r\n";
 
-		killme();
+		exit();
 	}
 }

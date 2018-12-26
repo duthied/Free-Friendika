@@ -151,7 +151,7 @@ class Cron
 			$restart = true;
 			$generation = intval($generation);
 			if (!$generation) {
-				killme();
+				exit();
 			}
 		}
 

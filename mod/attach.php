@@ -49,6 +49,6 @@ function attach_init(App $a)
 	}
 
 	echo $r[0]['data'];
-	killme();
+	exit();
 	// NOTREACHED
 }

@@ -27,7 +27,6 @@ function _well_known_init(App $a)
 		}
 	}
 	System::httpExit(404);
-	killme();
 }
 
 function wk_social_relay()

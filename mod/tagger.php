@@ -203,7 +203,5 @@ EOT;
 
 	Worker::add(PRIORITY_HIGH, "Notifier", "tag", $post_id);
 
-	killme();
-
-	return; // NOTREACHED
+	exit();
 }

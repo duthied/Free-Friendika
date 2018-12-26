@@ -24,12 +24,10 @@ function nodeinfo_wellknown(App $a) {
 function nodeinfo_init(App $a) {
 	if (!Config::get('system', 'nodeinfo')) {
 		System::httpExit(404);
-		killme();
 	}
 
 	if (($a->argc != 2) || ($a->argv[1] != '1.0')) {
 		System::httpExit(404);
-		killme();
 	}
 
 	$smtp = (function_exists('imap_open') && !Config::get('system', 'imap_disabled') && !Config::get('system', 'dfrn_only'));
@@ -149,7 +147,6 @@ function nodeinfo_cron() {
 
 		$addon = 'statistics_json';
 		$addons = Config::get('system', 'addon');
-		$addons_arr = [];
 
 		if ($addons) {
 			$addons_arr = explode(',',str_replace(' ', '',$addons));

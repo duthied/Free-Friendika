@@ -117,7 +117,7 @@ function events_post(App $a)
 		notice(L10n::t('Event can not end before it has started.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo L10n::t('Event can not end before it has started.');
-			killme();
+			exit();
 		}
 		$a->internalRedirect($onerror_path);
 	}
@@ -126,7 +126,7 @@ function events_post(App $a)
 		notice(L10n::t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo L10n::t('Event title and start time are required.');
-			killme();
+			exit();
 		}
 		$a->internalRedirect($onerror_path);
 	}
@@ -414,7 +414,7 @@ function events_content(App $a)
 
 		if (!empty($_GET['id'])) {
 			echo $o;
-			killme();
+			exit();
 		}
 
 		return $o;

@@ -26,14 +26,14 @@ function wall_attach_post(App $a) {
 		if (! DBA::isResult($r)) {
 			if ($r_json) {
 				echo json_encode(['error' => L10n::t('Invalid request.')]);
-				killme();
+				exit();
 			}
 			return;
 		}
 	} else {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
-			killme();
+			exit();
 		}
 
 		return;
@@ -79,17 +79,17 @@ function wall_attach_post(App $a) {
 	if (! $can_post) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Permission denied.')]);
-			killme();
+			exit();
 		}
 		notice(L10n::t('Permission denied.') . EOL );
-		killme();
+		exit();
 	}
 
 	if (empty($_FILES['userfile'])) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
 		}
-		killme();
+		exit();
 	}
 
 	$src      = $_FILES['userfile']['tmp_name'];
@@ -112,7 +112,7 @@ function wall_attach_post(App $a) {
 			notice($msg . EOL);
 		}
 		@unlink($src);
-		killme();
+		exit();
 	}
 
 	if ($maxfilesize && $filesize > $maxfilesize) {
@@ -123,7 +123,7 @@ function wall_attach_post(App $a) {
 			echo $msg . EOL;
 		}
 		@unlink($src);
-		killme();
+		exit();
 	}
 
 	$filedata = @file_get_contents($src);
@@ -146,7 +146,7 @@ function wall_attach_post(App $a) {
 		} else {
 			echo $msg . EOL;
 		}
-		killme();
+		exit();
 	}
 
 	$r = q("SELECT `id` FROM `attach` WHERE `uid` = %d AND `created` = '%s' AND `hash` = '%s' LIMIT 1",
@@ -162,18 +162,18 @@ function wall_attach_post(App $a) {
 		} else {
 			echo $msg . EOL;
 		}
-		killme();
+		exit();
 	}
 
 	if ($r_json) {
 		echo json_encode(['ok' => true]);
-		killme();
+		exit();
 	}
 
 	$lf = "\n";
 
 	echo  $lf . $lf . '[attachment]' . $r[0]['id'] . '[/attachment]' . $lf;
 
-	killme();
+	exit();
 	// NOTREACHED
 }
