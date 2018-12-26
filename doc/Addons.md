@@ -32,7 +32,7 @@ It will be displayed in the admin panel and should include some further informat
 
 Register your addon hooks during installation.
 
-    Addon::registerHook($hookname, $file, $function);
+    \Friendica\Core\Hook::register($hookname, $file, $function);
 
 $hookname is a string and corresponds to a known Friendica PHP hook.
 
@@ -74,7 +74,7 @@ If your addon requires adding a stylesheet on all pages of Friendica, add the fo
 ```php
 function <addon>_install()
 {
-	Addon::registerHook('head', __FILE__, '<addon>_head');
+	\Friendica\Core\Hook::register('head', __FILE__, '<addon>_head');
 	...
 }
 
@@ -97,7 +97,7 @@ If your addon requires adding a script on all pages of Friendica, add the follow
 ```php
 function <addon>_install()
 {
-	Addon::registerHook('footer', __FILE__, '<addon>_footer');
+	\Friendica\Core\Hook::register('footer', __FILE__, '<addon>_footer');
 	...
 }
 

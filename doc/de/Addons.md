@@ -26,7 +26,7 @@ Addons sollten einen Kommentarblock mit den folgenden vier Parametern enthalten:
 
 Registriere deine Addon-Hooks während der Installation.
 
-    Addon::registerHook($hookname, $file, $function);
+    \Friendica\Core\Hook::register($hookname, $file, $function);
 
 $hookname ist ein String und entspricht einem bekannten Friendica-Hook.
 

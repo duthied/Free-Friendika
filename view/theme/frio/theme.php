@@ -10,8 +10,8 @@
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -46,24 +46,24 @@ EOT;
 
 function frio_install()
 {
-	Addon::registerHook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Addon::registerHook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Addon::registerHook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Addon::registerHook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Addon::registerHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Addon::registerHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
+	Hook::register('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	Hook::register('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	Hook::register('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
+	Hook::register('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	Hook::register('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	Hook::register('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	Logger::log('installed theme frio');
 }
 
 function frio_uninstall()
 {
-	Addon::unregisterHook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Addon::unregisterHook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Addon::unregisterHook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Addon::unregisterHook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Addon::unregisterHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Addon::unregisterHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
+	Hook::unregister('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	Hook::unregister('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	Hook::unregister('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
+	Hook::unregister('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	Hook::unregister('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	Hook::unregister('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	Logger::log('uninstalled theme frio');
 }
