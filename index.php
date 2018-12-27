@@ -4,7 +4,7 @@
  * Friendica
  */
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 // We assume that the index.php is called by a frontend process
 // The value is set to "true" by default in App
