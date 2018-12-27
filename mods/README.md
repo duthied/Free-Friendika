@@ -14,7 +14,7 @@ Unmaintained and unsupported.
 ## `home.css` and `home.html`
 
 Example files to customize the landing page of your Friendica node.
-The `home.html file` contains the text of the page, the `home.css` file the style information.
+The `home.html` file contains the text of the page, the `home.css` file the style information.
 The login box will be added according to the other system settings.
 Both files have to be placed in the base directory of your Friendica installation to be used for the landing page.
 
