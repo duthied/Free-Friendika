@@ -1,7 +1,7 @@
 
-{{$vcard_widget}}
-{{$findpeople_widget}}
-{{$follow_widget}}
-{{$groups_widget}}
-{{$networks_widget}}
+{{$vcard_widget nofilter}}
+{{$findpeople_widget nofilter}}
+{{$follow_widget nofilter}}
+{{$groups_widget nofilter}}
+{{$networks_widget nofilter}}
 

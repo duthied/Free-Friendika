@@ -40,11 +40,8 @@ class Contact extends BaseModule
 		}
 
 		$nets = defaults($_GET, 'nets', '');
-		if ($nets == 'all') {
-			$nets = '';
-		}
 
-		if (!x($a->page, 'aside')) {
+		if (empty($a->page['aside'])) {
 			$a->page['aside'] = '';
 		}
 
@@ -78,18 +75,17 @@ class Contact extends BaseModule
 			$a->data['contact'] = $contact;
 
 			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
-				$networkname = Strings::formatNetworkName($contact['network'], $contact['url']);
+				$network_link = Strings::formatNetworkName($contact['network'], $contact['url']);
 			} else {
-				$networkname = '';
+				$network_link = '';
 			}
 
-			/// @TODO Add nice spaces
 			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('vcard-widget.tpl'), [
 				'$name'         => $contact['name'],
 				'$photo'        => $contact['photo'],
 				'$url'          => Model\Contact::MagicLink($contact['url']),
 				'$addr'         => defaults($contact, 'addr', ''),
-				'$network_name' => $networkname,
+				'$network_link' => $network_link,
 				'$network'      => L10n::t('Network:'),
 				'$account_type' => Model\Contact::getAccountType($contact)
 			]);
@@ -514,7 +510,7 @@ class Contact extends BaseModule
 				$relation_text = '';
 			}
 
-			$relation_text = sprintf($relation_text, htmlentities($contact['name']));
+			$relation_text = sprintf($relation_text, $contact['name']);
 
 			$url = Model\Contact::magicLink($contact['url']);
 			if (strpos($url, 'redir/') === 0) {
@@ -646,7 +642,7 @@ class Contact extends BaseModule
 				'$profileurllabel'=> L10n::t('Profile URL'),
 				'$profileurl'     => $contact['url'],
 				'$account_type'   => Model\Contact::getAccountType($contact),
-				'$location'       => BBCode::convert($contact['location']),
+				'$location'       => $contact['location'],
 				'$location_label' => L10n::t('Location:'),
 				'$xmpp'           => BBCode::convert($contact['xmpp']),
 				'$xmpp_label'     => L10n::t('XMPP:'),

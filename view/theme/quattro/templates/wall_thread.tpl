@@ -40,27 +40,27 @@
 			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}} p-author h-card"
 				onmouseover="if (typeof t{{$item.id}} != 'undefined') clearTimeout(t{{$item.id}}); openMenu('wall-item-photo-menu-button-{{$item.id}}')"
 				onmouseout="t{{$item.id}}=setTimeout('closeMenu(\'wall-item-photo-menu-button-{{$item.id}}\'); closeMenu(\'wall-item-photo-menu-{{$item.id}}\');',200)">
-				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle|escape}}" class="contact-photo-link u-url" id="wall-item-photo-link-{{$item.id}}">
-					<img src="{{$item.thumb}}" class="contact-photo {{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" alt="{{$item.name|escape}}" />
+				<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="contact-photo-link u-url" id="wall-item-photo-link-{{$item.id}}">
+					<img src="{{$item.thumb}}" class="contact-photo {{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 				</a>
 				<a href="#" rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a>
 				<ul class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
-				{{$item.item_photo_menu}}
+				{{$item.item_photo_menu nofilter}}
 				</ul>
 
 			</div>
 			{{if $item.owner_url}}
 			<div class="contact-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-{{$item.id}}" >
-				<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle|escape}}" class="contact-photo-link" id="wall-item-ownerphoto-link-{{$item.id}}">
-					<img src="{{$item.owner_photo}}" class="contact-photo {{$item.osparkle}}" id="wall-item-ownerphoto-{{$item.id}}" alt="{{$item.owner_name|escape}}" />
+				<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="contact-photo-link" id="wall-item-ownerphoto-link-{{$item.id}}">
+					<img src="{{$item.owner_photo}}" class="contact-photo {{$item.osparkle}}" id="wall-item-ownerphoto-{{$item.id}}" alt="{{$item.owner_name}}" />
 				</a>
 			</div>
 			{{/if}}
-			<div class="wall-item-location">{{$item.location}}</div>
+			<div class="wall-item-location">{{$item.location nofilter}}</div>
 		</div>
 		<div class="wall-item-content">
-			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title|escape}}</a></h2>{{/if}}
-			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body}}</span>
+			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
+			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body nofilter}}</span>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -69,10 +69,10 @@
 		<div class="wall-item-tags">
 		{{if !$item.suppress_tags}}
 			{{foreach $item.hashtags as $tag}}
-				<span class="tag">{{$tag}}</span>
+				<span class="tag">{{$tag nofilter}}</span>
 			{{/foreach}}
 			{{foreach $item.mentions as $tag}}
-				<span class="mention">{{$tag}}</span>
+				<span class="mention">{{$tag nofilter}}</span>
 			{{/foreach}}
 			{{foreach $item.folders as $cat}}
 				<span class="folder p-category">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
@@ -85,16 +85,16 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
-			{{if $item.plink}}<a class="icon s16 link{{$item.sparkle}} u-url" title="{{$item.plink.title|escape}}" href="{{$item.plink.href}}">{{$item.plink.title|escape}}</a>{{/if}}
+			{{if $item.plink}}<a class="icon s16 link{{$item.sparkle}} u-url" title="{{$item.plink.title}}" href="{{$item.plink.href}}">{{$item.plink.title}}</a>{{/if}}
 		</div>
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
 				<a href="{{$item.profile_url}}" target="redir"
-                                title="{{$item.linktitle|escape}}"
+                                title="{{$item.linktitle}}"
                                 class="wall-item-name-link"><span
-                                class="wall-item-name{{$item.sparkle}}">{{$item.name|escape}}</span></a>
+                                class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a>
                                 <span class="wall-item-ago" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></span>
-				 {{if $item.owner_url}}<br/>{{$item.to}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle|escape}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name|escape}}</span></a> {{$item.vwall}}
+				 {{if $item.owner_url}}<br/>{{$item.to}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a> {{$item.vwall}}
 				 {{/if}}
 			</div>
 
@@ -153,7 +153,7 @@
 		<div class="wall-item-links"></div>
 		{{if $item.responses}}
 			{{foreach $item.responses as $verb=>$response}}
-				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output}}</div>
+				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
 			{{/foreach}}
 		{{/if}}
 	</div>
@@ -162,7 +162,7 @@
 	<div class="wall-item-bottom commentbox">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
-					{{$item.comment}}
+					{{$item.comment nofilter}}
 		</div>
 	</div>
 	{{/if}}{{/if}}{{/if}}
@@ -187,10 +187,10 @@
 
 {{* top thread comment box *}}
 {{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >{{$item.comment}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
 {{/if}}{{/if}}{{/if}}
 
 
 {{if $item.flatten}}
-<div class="wall-item-comment-wrapper" >{{$item.comment}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
 {{/if}}

@@ -25,7 +25,7 @@
 {{if $background_image}}{{include file="field_fileinput.tpl" field=$background_image}}{{/if}}
 
 <div id="frio_bg_image_options" style="display: none;">
-	<label>{{$bg_image_options_title|escape}}:</label>
+	<label>{{$bg_image_options_title}}:</label>
 {{foreach $bg_image_options as $options}}
 	{{include file="field_radio.tpl" field=$options}}
 {{/foreach}}

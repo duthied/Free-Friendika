@@ -643,7 +643,7 @@ class Transmitter
 			$data['object'] = $item['thr-parent'];
 		}
 
-		$owner = User::getOwnerDataById($item['uid']);
+		$owner = User::getOwnerDataById($item['contact-uid']);
 
 		if (!$object_mode) {
 			return LDSignature::sign($data, $owner);

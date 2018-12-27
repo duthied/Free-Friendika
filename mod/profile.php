@@ -33,24 +33,16 @@ function profile_init(App $a)
 		$a->page['aside'] = '';
 	}
 
-	if ($a->argc > 1) {
-		$which = htmlspecialchars($a->argv[1]);
-	} else {
-		$r = q("SELECT `nickname` FROM `user` WHERE `blocked` = 0 AND `account_expired` = 0 AND `account_removed` = 0 AND `verified` = 1 ORDER BY RAND() LIMIT 1");
-		if (DBA::isResult($r)) {
-			$a->internalRedirect('profile/' . $r[0]['nickname']);
-		} else {
-			Logger::log('profile error: mod_profile ' . $a->query_string, Logger::DEBUG);
-			notice(L10n::t('Requested profile is not available.') . EOL);
-			$a->error = 404;
-			return;
-		}
+	if ($a->argc < 2) {
+		System::httpExit(400);
 	}
+
+	$which = filter_var($a->argv[1], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_BACKTICK);
 
 	$profile = 0;
 	if (local_user() && $a->argc > 2 && $a->argv[2] === 'view') {
 		$which = $a->user['nickname'];
-		$profile = htmlspecialchars($a->argv[1]);
+		$profile = filter_var($a->argv[1], FILTER_SANITIZE_NUMBER_INT);
 	} else {
 		DFRN::autoRedir($a, $which);
 	}
@@ -139,6 +131,7 @@ function profile_content(App $a, $update = 0)
 	require_once 'include/items.php';
 
 	$groups = [];
+	$remote_cid = null;
 
 	$tab = 'posts';
 	$o = '';
@@ -150,41 +143,17 @@ function profile_content(App $a, $update = 0)
 		Nav::setSelected('home');
 	}
 
-	$contact = null;
-	$remote_contact = false;
-
-	$contact_id = 0;
-
-	if (!empty($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $v) {
-			if ($v['uid'] == $a->profile['profile_uid']) {
-				$contact_id = $v['cid'];
-				break;
-			}
-		}
-	}
-
-	if ($contact_id) {
-		$groups = Group::getIdsByContactId($contact_id);
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($contact_id),
-			intval($a->profile['profile_uid'])
-		);
-		if (DBA::isResult($r)) {
-			$contact = $r[0];
-			$remote_contact = true;
-		}
-	}
-
-	if (!$remote_contact) {
-		if (local_user()) {
-			$contact_id = $_SESSION['cid'];
-			$contact = $a->contact;
-		}
-	}
-
+	$remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
 	$is_owner = local_user() == $a->profile['profile_uid'];
 	$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . remote_user();
+
+	if ($remote_contact) {
+		$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
+		if (!empty($cdata['user'])) {
+			$groups = Group::getIdsByContactId($cdata['user']);
+			$remote_cid = $cdata['user'];
+		}
+	}
 
 	if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
 		notice(L10n::t('Access to this profile has been restricted.') . EOL);
@@ -236,13 +205,12 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
-
 	// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups);
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups, $remote_cid);
 	$sql_extra2 = '';
 
 	if ($update) {
-		$last_updated = (!empty($_SESSION['last_updated'][$last_updated_key]) ? $_SESSION['last_updated'][$last_updated_key] : 0);
+		$last_updated = (defaults($_SESSION['last_updated'], $last_updated_key, 0));
 
 		// If the page user is the owner of the page we should query for unseen
 		// items. Otherwise use a timestamp of the last succesful update request.
@@ -350,7 +318,7 @@ function profile_content(App $a, $update = 0)
 		}
 	}
 
-	$o .= conversation($a, $items, $pager, 'profile', $update, false, 'created', local_user());
+	$o .= conversation($a, $items, $pager, 'profile', $update, false, 'created', $a->profile['profile_uid']);
 
 	if (!$update) {
 		$o .= $pager->renderMinimal(count($items));

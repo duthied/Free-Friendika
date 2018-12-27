@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -54,8 +55,6 @@ function editpost_content(App $a)
 		'$nickname' => $a->user['nickname']
 	]);
 
-	$tpl = Renderer::getMarkupTemplate("jot.tpl");
-
 	if (strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {
 		$lockstate = 'lock';
 	} else {
@@ -84,9 +83,9 @@ function editpost_content(App $a)
 		}
 	}
 
-	Addon::callHooks('jot_tool', $jotplugins);
-	//Addon::callHooks('jot_networks', $jotnets);
+	Hook::callAll('jot_tool', $jotplugins);
 
+	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 	$o .= Renderer::replaceMacros($tpl, [
 		'$is_edit' => true,
 		'$return_path' => '/display/' . $item['guid'],
@@ -119,7 +118,7 @@ function editpost_content(App $a)
 		'$emailcc' => L10n::t('CC: email addresses'),
 		'$public' => L10n::t('Public post'),
 		'$jotnets' => $jotnets,
-		'$title' => htmlspecialchars($item['title']),
+		'$title' => $item['title'],
 		'$placeholdertitle' => L10n::t('Set title'),
 		'$category' => FileTag::fileToList($item['file'], 'category'),
 		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t("Categories \x28comma-separated list\x29") : ''),

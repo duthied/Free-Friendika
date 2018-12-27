@@ -67,7 +67,7 @@ class Post extends BaseObject
 		$this->setTemplate('wall');
 		$this->toplevel = $this->getId() == $this->getDataValue('parent');
 
-		if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
+		if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $visitor) {
 				if ($visitor['cid'] == $this->getDataValue('contact-id')) {
 					$this->visiting = true;
@@ -253,7 +253,7 @@ class Post extends BaseObject
 		$responses = get_responses($conv_responses, $response_verbs, $this, $item);
 
 		foreach ($response_verbs as $value => $verbs) {
-			$responses[$verbs]['output'] = x($conv_responses[$verbs], $item['uri']) ? format_like($conv_responses[$verbs][$item['uri']], $conv_responses[$verbs][$item['uri'] . '-l'], $verbs, $item['uri']) : '';
+			$responses[$verbs]['output'] = !empty($conv_responses[$verbs][$item['uri']]) ? format_like($conv_responses[$verbs][$item['uri']], $conv_responses[$verbs][$item['uri'] . '-l'], $verbs, $item['uri']) : '';
 		}
 
 		/*
@@ -678,7 +678,7 @@ class Post extends BaseObject
 	 */
 	private function setTemplate($name)
 	{
-		if (!x($this->available_templates, $name)) {
+		if (empty($this->available_templates[$name])) {
 			Logger::log('[ERROR] Item::setTemplate : Template not available ("' . $name . '").', Logger::DEBUG);
 			return false;
 		}

@@ -38,7 +38,7 @@ function api_post(App $a)
 		return;
 	}
 
-	if (count($a->user) && x($a->user, 'uid') && $a->user['uid'] != local_user()) {
+	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -62,7 +62,7 @@ function api_content(App $a)
 			killme();
 		}
 
-		if (x($_POST, 'oauth_yes')) {
+		if (!empty($_POST['oauth_yes'])) {
 			$app = oauth_get_client($request);
 			if (is_null($app)) {
 				return "Invalid request. Unknown token.";

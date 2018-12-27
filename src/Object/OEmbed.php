@@ -45,6 +45,8 @@ class OEmbed
 			if (in_array($key, ['thumbnail_width', 'thumbnail_height', 'width', 'height'])) {
 				// These values should be numbers, so ensure that they really are numbers.
 				$value = (int)$value;
+			} elseif (is_array($value)) {
+				// Ignoring arrays.
 			} elseif ($key != 'html') {
 				// Avoid being able to inject some ugly stuff through these fields.
 				$value = htmlentities($value);

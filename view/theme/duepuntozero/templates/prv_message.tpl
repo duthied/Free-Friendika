@@ -5,7 +5,7 @@
 <div id="prvmail-wrapper" >
 <form id="prvmail-form" action="message" method="post" >
 
-{{$parent}}
+{{$parent nofilter}}
 
 <div id="prvmail-to-label">{{$to}}</div>
 
@@ -13,7 +13,7 @@
 <input type="text" id="recip" name="messagerecip" value="{{$prefill}}" maxlength="255" size="64" tabindex="10" />
 <input type="hidden" id="recip-complete" name="messageto" value="{{$preid}}">
 {{else}}
-{{$select}}
+{{$select nofilter}}
 {{/if}}
 
 <div id="prvmail-subject-label">{{$subject}}</div>

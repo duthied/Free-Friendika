@@ -7,5 +7,5 @@
  * only the pure content
  */
 
-if(x($page,'content')) echo $page['content'];
+if(!empty($page['content'])) echo $page['content'];
 

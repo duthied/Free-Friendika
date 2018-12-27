@@ -34,11 +34,11 @@ class Login extends BaseModule
 	{
 		$a = self::getApp();
 
-		if (x($_SESSION, 'theme')) {
+		if (!empty($_SESSION['theme'])) {
 			unset($_SESSION['theme']);
 		}
 
-		if (x($_SESSION, 'mobile-theme')) {
+		if (!empty($_SESSION['mobile-theme'])) {
 			unset($_SESSION['mobile-theme']);
 		}
 
@@ -68,7 +68,7 @@ class Login extends BaseModule
 			self::openIdAuthentication($openid_url, !empty($_POST['remember']));
 		}
 
-		if (x($_POST, 'auth-params') && $_POST['auth-params'] === 'login') {
+		if (!empty($_POST['auth-params']) && $_POST['auth-params'] === 'login') {
 			self::passwordAuthentication(
 				trim($_POST['username']),
 				trim($_POST['password']),
@@ -163,7 +163,7 @@ class Login extends BaseModule
 		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 		Authentication::setAuthenticatedSessionForUser($record, true, true);
 
-		if (x($_SESSION, 'return_path')) {
+		if (!empty($_SESSION['return_path'])) {
 			$return_path = $_SESSION['return_path'];
 			unset($_SESSION['return_path']);
 		} else {
@@ -221,15 +221,15 @@ class Login extends BaseModule
 			}
 		}
 
-		if (isset($_SESSION) && x($_SESSION, 'authenticated')) {
-			if (x($_SESSION, 'visitor_id') && !x($_SESSION, 'uid')) {
+		if (!empty($_SESSION['authenticated'])) {
+			if (!empty($_SESSION['visitor_id']) && empty($_SESSION['uid'])) {
 				$contact = DBA::selectFirst('contact', [], ['id' => $_SESSION['visitor_id']]);
 				if (DBA::isResult($contact)) {
 					self::getApp()->contact = $contact;
 				}
 			}
 
-			if (x($_SESSION, 'uid')) {
+			if (!empty($_SESSION['uid'])) {
 				// already logged in user returning
 				$check = Config::get('system', 'paranoia');
 				// extra paranoia - if the IP changed, log them out

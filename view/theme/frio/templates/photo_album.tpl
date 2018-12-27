@@ -37,7 +37,7 @@
 	</div>
 	<div class="photo-album-end"></div>
 
-	{{$paginate}}
+	{{$paginate nofilter}}
 </div>
 
 <script type="text/javascript">$(document).ready(function() { loadingPage = false; justifyPhotos(); });</script>

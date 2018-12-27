@@ -99,6 +99,48 @@ class Contact extends BaseObject
 	 */
 
 	/**
+	 * @brief Tests if the given contact is a follower
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return boolean is the contact id a follower?
+	 */
+	public static function isFollower($cid, $uid)
+	{
+		if (self::isBlockedByUser($cid, $uid)) {
+			return false;
+		}
+
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata['user'])) {
+			return false;
+		}
+
+		$condition = ['id' => $cdata['user'], 'rel' => [self::FOLLOWER, self::FRIEND]];
+		return DBA::exists('contact', $condition);
+	}
+
+	/**
+	 * @brief Get the basepath for a given contact link
+	 * @todo Add functionality to store this value in the contact table
+	 *
+	 * @param string $url The contact link
+	 *
+	 * @return string basepath
+	 */
+	public static function getBasepath($url)
+	{
+		$data = Probe::uri($url);
+		if (!empty($data['baseurl'])) {
+			return $data['baseurl'];
+		}
+
+		// When we can't probe the server, we use some ugly function that does some pattern matching
+		return PortableContact::detectServer($url);
+	}
+
+	/**
 	 * @brief Returns the contact id for the user and the public contact id for a given contact id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
@@ -106,7 +148,7 @@ class Contact extends BaseObject
 	 *
 	 * @return array with public and user's contact id
 	 */
-	private static function getPublicAndUserContacID($cid, $uid)
+	public static function getPublicAndUserContacID($cid, $uid)
 	{
 		if (empty($uid) || empty($cid)) {
 			return [];
@@ -418,7 +460,8 @@ class Contact extends BaseObject
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
-			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'nurl'];
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl',
+			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return;
@@ -481,15 +524,15 @@ class Contact extends BaseObject
 		$fields['nurl'] = Strings::normaliseLink($fields['url']);
 		$fields['addr'] = $user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
 		$fields['request'] = System::baseUrl() . '/dfrn_request/' . $user['nickname'];
-		$fields['notify'] = System::baseUrl() . '/dfrn_notify/'  . $user['nickname'];
-		$fields['poll'] = System::baseUrl() . '/dfrn_poll/'    . $user['nickname'];
+		$fields['notify'] = System::baseUrl() . '/dfrn_notify/' . $user['nickname'];
+		$fields['poll'] = System::baseUrl() . '/dfrn_poll/'. $user['nickname'];
 		$fields['confirm'] = System::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
-		$fields['poco'] = System::baseUrl() . '/poco/'         . $user['nickname'];
+		$fields['poco'] = System::baseUrl() . '/poco/' . $user['nickname'];
 
 		$update = false;
 
 		foreach ($fields as $field => $content) {
-			if (isset($self[$field]) && $self[$field] != $content) {
+			if ($self[$field] != $content) {
 				$update = true;
 			}
 		}
@@ -1061,7 +1104,7 @@ class Contact extends BaseObject
 			$update_contact = ($contact['avatar-date'] < DateTimeFormat::utc('now -7 days'));
 
 			// We force the update if the avatar is empty
-			if (!x($contact, 'avatar')) {
+			if (empty($contact['avatar'])) {
 				$update_contact = true;
 			}
 			if (!$update_contact || $no_update) {
@@ -1147,7 +1190,7 @@ class Contact extends BaseObject
 
 		$url = $data["url"];
 		if (!$contact_id) {
-			DBA::insert('contact', [
+			$fields = [
 				'uid'       => $uid,
 				'created'   => DateTimeFormat::utcNow(),
 				'url'       => $data["url"],
@@ -1176,10 +1219,13 @@ class Contact extends BaseObject
 				'writable'  => 1,
 				'blocked'   => 0,
 				'readonly'  => 0,
-				'pending'   => 0]
-			);
+				'pending'   => 0];
 
-			$s = DBA::select('contact', ['id'], ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid], ['order' => ['id'], 'limit' => 2]);
+			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
+
+			DBA::update('contact', $fields, $condition, true);
+
+			$s = DBA::select('contact', ['id'], $condition, ['order' => ['id'], 'limit' => 2]);
 			$contacts = DBA::toArray($s);
 			if (!DBA::isResult($contacts)) {
 				return 0;
@@ -1204,8 +1250,10 @@ class Contact extends BaseObject
 			}
 
 			if (count($contacts) > 1 && $uid == 0 && $contact_id != 0 && $data["url"] != "") {
-				DBA::delete('contact', ["`nurl` = ? AND `uid` = 0 AND `id` != ? AND NOT `self`",
-					Strings::normaliseLink($data["url"]), $contact_id]);
+				$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self`",
+					Strings::normaliseLink($data["url"]), 0, $contact_id];
+				Logger::log('Deleting duplicate contact ' . json_encode($condition), Logger::DEBUG);
+				DBA::delete('contact', $condition);
 			}
 		}
 
@@ -1618,7 +1666,7 @@ class Contact extends BaseObject
 			return $result;
 		}
 
-		if (x($arr['contact'], 'name')) {
+		if (!empty($arr['contact']['name'])) {
 			$ret = $arr['contact'];
 		} else {
 			$ret = Probe::uri($url, $network, $uid, false);
@@ -1664,16 +1712,15 @@ class Contact extends BaseObject
 		}
 
 		// do we have enough information?
-
-		if (!((x($ret, 'name')) && (x($ret, 'poll')) && ((x($ret, 'url')) || (x($ret, 'addr'))))) {
+		if (empty($ret['name']) || empty($ret['poll']) || (empty($ret['url']) && empty($ret['addr']))) {
 			$result['message'] .= L10n::t('The profile address specified does not provide adequate information.') . EOL;
-			if (!x($ret, 'poll')) {
+			if (empty($ret['poll'])) {
 				$result['message'] .= L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			}
-			if (!x($ret, 'name')) {
+			if (empty($ret['name'])) {
 				$result['message'] .= L10n::t('An author or name was not found.') . EOL;
 			}
-			if (!x($ret, 'url')) {
+			if (empty($ret['url'])) {
 				$result['message'] .= L10n::t('No browser URL could be matched to this address.') . EOL;
 			}
 			if (strpos($url, '@') !== false) {
@@ -2031,6 +2078,10 @@ class Contact extends BaseObject
 	 */
 	public static function magicLink($contact_url, $url = '')
 	{
+		if (!local_user()) {
+			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
+		}
+
 		$cid = self::getIdForURL($contact_url, 0, true);
 		if (empty($cid)) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
@@ -2064,7 +2115,7 @@ class Contact extends BaseObject
 	 */
 	public static function magicLinkbyContact($contact, $url = '')
 	{
-		if ($contact['network'] != Protocol::DFRN) {
+		if (!local_user() || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 		}
 

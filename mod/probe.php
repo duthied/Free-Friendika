@@ -15,7 +15,8 @@ function probe_content(App $a)
 		killme();
 	}
 
-	$o  = '<h3>Probe Diagnostic</h3>';
+	$o = '<div class="generic-page-wrapper">';
+	$o .= '<h3>Probe Diagnostic</h3>';
 
 	$o .= '<form action="probe" method="get">';
 	$o .= 'Lookup address: <input type="text" style="width: 250px;" name="addr" value="' . defaults($_GET, 'addr', '') . '" />';
@@ -30,6 +31,7 @@ function probe_content(App $a)
 		$o .= str_replace("\n", '<br />', print_r($res, true));
 		$o .= '</pre>';
 	}
+	$o .= '</div>';
 
 	return $o;
 }

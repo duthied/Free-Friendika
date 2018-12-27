@@ -39,16 +39,16 @@ function dfrn_notify_post(App $a) {
 		}
 	}
 
-	$dfrn_id      = ((x($_POST,'dfrn_id'))      ? Strings::escapeTags(trim($_POST['dfrn_id']))   : '');
-	$dfrn_version = ((x($_POST,'dfrn_version')) ? (float) $_POST['dfrn_version']    : 2.0);
-	$challenge    = ((x($_POST,'challenge'))    ? Strings::escapeTags(trim($_POST['challenge'])) : '');
-	$data         = ((x($_POST,'data'))         ? $_POST['data']                    : '');
-	$key          = ((x($_POST,'key'))          ? $_POST['key']                     : '');
-	$rino_remote  = ((x($_POST,'rino'))         ? intval($_POST['rino'])            :  0);
-	$dissolve     = ((x($_POST,'dissolve'))     ? intval($_POST['dissolve'])        :  0);
-	$perm         = ((x($_POST,'perm'))         ? Strings::escapeTags(trim($_POST['perm']))      : 'r');
-	$ssl_policy   = ((x($_POST,'ssl_policy'))   ? Strings::escapeTags(trim($_POST['ssl_policy'])): 'none');
-	$page         = ((x($_POST,'page'))         ? intval($_POST['page'])            :  0);
+	$dfrn_id      = (!empty($_POST['dfrn_id'])      ? Strings::escapeTags(trim($_POST['dfrn_id']))   : '');
+	$dfrn_version = (!empty($_POST['dfrn_version']) ? (float) $_POST['dfrn_version']    : 2.0);
+	$challenge    = (!empty($_POST['challenge'])    ? Strings::escapeTags(trim($_POST['challenge'])) : '');
+	$data         = defaults($_POST, 'data', '');
+	$key          = defaults($_POST, 'key', '');
+	$rino_remote  = (!empty($_POST['rino'])         ? intval($_POST['rino'])            :  0);
+	$dissolve     = (!empty($_POST['dissolve'])     ? intval($_POST['dissolve'])        :  0);
+	$perm         = (!empty($_POST['perm'])         ? Strings::escapeTags(trim($_POST['perm']))      : 'r');
+	$ssl_policy   = (!empty($_POST['ssl_policy'])   ? Strings::escapeTags(trim($_POST['ssl_policy'])): 'none');
+	$page         = (!empty($_POST['page'])         ? intval($_POST['page'])            :  0);
 
 	$forum = (($page == 1) ? 1 : 0);
 	$prv   = (($page == 2) ? 1 : 0);
@@ -247,7 +247,7 @@ function dfrn_dispatch_private($user, $postdata)
 
 function dfrn_notify_content(App $a) {
 
-	if (x($_GET,'dfrn_id')) {
+	if (!empty($_GET['dfrn_id'])) {
 
 		/*
 		 * initial communication from external contact, $direction is their direction.
@@ -256,7 +256,7 @@ function dfrn_notify_content(App $a) {
 
 		$dfrn_id = Strings::escapeTags(trim($_GET['dfrn_id']));
 		$dfrn_version = (float) $_GET['dfrn_version'];
-		$rino_remote = ((x($_GET,'rino')) ? intval($_GET['rino']) : 0);
+		$rino_remote = (!empty($_GET['rino']) ? intval($_GET['rino']) : 0);
 		$type = "";
 		$last_update = "";
 
@@ -370,7 +370,7 @@ function dfrn_notify_content(App $a) {
 			. "\t" . '<perm>' . $perm . '</perm>' . "\r\n"
 			. "\t" . '<dfrn_id>' . $encrypted_id . '</dfrn_id>' . "\r\n"
 			. "\t" . '<challenge>' . $challenge . '</challenge>' . "\r\n"
-			. '</dfrn_notify>' . "\r\n" ;
+			. '</dfrn_notify>' . "\r\n";
 
 		killme();
 	}

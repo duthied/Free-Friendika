@@ -9,7 +9,7 @@
 			{{include file="field_input.tpl" field=$lname}}
 			{{include file="field_password.tpl" field=$lpassword}}
 			<div id="login-lost-password-link">
-				<a href="lostpass" title="{{$lostpass|escape:'html'}}" id="lost-password-link" >{{$lostlink}}</a>
+				<a href="lostpass" title="{{$lostpass}}" id="lost-password-link" >{{$lostlink}}</a>
 			</div>
 			<div id="login-end"></div>
 		</div>
@@ -24,13 +24,13 @@
 
 		<div id="login-submit-wrapper">
 			<div class="pull-right" >
-				<button type="submit" name="submit" id="login-submit-button" class="btn btn-primary" value="{{$login|escape:'html'}}">{{$login|escape:'html'}}</button>
+				<button type="submit" name="submit" id="login-submit-button" class="btn btn-primary" value="{{$login}}">{{$login}}</button>
 			</div>
 		</div>
 
 
 		{{foreach $hiddens as $k=>$v}}
-			<input type="hidden" name="{{$k}}" value="{{$v|escape:'html'}}" />
+			<input type="hidden" name="{{$k}}" value="{{$v}}" />
 		{{/foreach}}
 
 		<div id="login-end"></div>
@@ -39,8 +39,8 @@
 
 {{if $register}}
 <div id="login-extra-links">
-	<h3 id="login-head" class="sr-only">{{$register.title|escape:'html'}}</h3>
-	<a href="register" title="{{$register.title|escape:'html'}}" id="register-link" class="btn btn-default">{{$register.desc}}</a>
+	<h3 id="login-head" class="sr-only">{{$register.title}}</h3>
+	<a href="register" title="{{$register.title}}" id="register-link" class="btn btn-default">{{$register.desc}}</a>
 </div>
 {{/if}}
 

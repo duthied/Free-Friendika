@@ -538,7 +538,7 @@ class DBStructure
 		$primary_keys = [];
 		foreach ($structure["fields"] AS $fieldname => $field) {
 			$sql_rows[] = "`".DBA::escape($fieldname)."` ".self::FieldCommand($field);
-			if (x($field,'primary') && $field['primary']!='') {
+			if (!empty($field['primary'])) {
 				$primary_keys[] = $fieldname;
 			}
 		}

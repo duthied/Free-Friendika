@@ -523,7 +523,7 @@ class App
 		if (!empty($relative_script_path)) {
 			// Module
 			if (!empty($_SERVER['QUERY_STRING'])) {
-				$path = trim(dirname($relative_script_path, substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
+				$path = trim(rdirname($relative_script_path, substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
 			} else {
 				// Root page
 				$path = trim($relative_script_path, '/');
@@ -549,7 +549,7 @@ class App
 
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty(getenv('MYSQL_HOST'))
-			&& (!empty(getenv('MYSQL_USERNAME')) || !empty(getenv('MYSQL_USER')))
+			&& !empty(getenv('MYSQL_USERNAME') || !empty(getenv('MYSQL_USER')))
 			&& getenv('MYSQL_PASSWORD') !== false
 			&& !empty(getenv('MYSQL_DATABASE')))
 		{
@@ -668,7 +668,7 @@ class App
 			$this->hostname = Core\Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
+		return $scheme . '://' . $this->hostname . !empty($this->getURLPath() ? '/' . $this->getURLPath() : '' );
 	}
 
 	/**
@@ -1880,7 +1880,7 @@ class App
 	 */
 	public function internalRedirect($toUrl = '', $ssl = false)
 	{
-		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
+		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			throw new InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
 		}
 
@@ -1897,7 +1897,7 @@ class App
 	 */
 	public function redirect($toUrl)
 	{
-		if (filter_var($toUrl, FILTER_VALIDATE_URL)) {
+		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			Core\System::externalRedirect($toUrl);
 		} else {
 			$this->internalRedirect($toUrl);

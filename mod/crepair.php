@@ -25,7 +25,7 @@ function crepair_init(App $a)
 		$contact = DBA::selectFirst('contact', [], ['uid' => local_user(), 'id' => $a->argv[1]]);
 	}
 
-	if (!x($a->page, 'aside')) {
+	if (empty($a->page['aside'])) {
 		$a->page['aside'] = '';
 	}
 
@@ -158,8 +158,8 @@ function crepair_content(App $a)
 			$remote_self_options
 		],
 
-		'$name'		=> ['name', L10n::t('Name') , htmlentities($contact['name'])],
-		'$nick'		=> ['nick', L10n::t('Account Nickname'), htmlentities($contact['nick'])],
+		'$name'		=> ['name', L10n::t('Name') , $contact['name']],
+		'$nick'		=> ['nick', L10n::t('Account Nickname'), $contact['nick']],
 		'$attag'	=> ['attag', L10n::t('@Tagname - overrides Name/Nickname'), $contact['attag']],
 		'$url'		=> ['url', L10n::t('Account URL'), $contact['url']],
 		'$request'	=> ['request', L10n::t('Friend Request URL'), $contact['request']],

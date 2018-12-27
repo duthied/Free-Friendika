@@ -8,7 +8,8 @@ use Friendica\Core\L10n;
 
 function newmember_content(App $a)
 {
-	$o = '<h1>' . L10n::t('Welcome to Friendica') . '</h1>';
+	$o = '<div class="generic-page-wrapper">';
+	$o .= '<h1>' . L10n::t('Welcome to Friendica') . '</h1>';
 	$o .= '<h3>' . L10n::t('New Member Checklist') . '</h3>';
 	$o .= '<div style="font-size: 120%;">';
 	$o .= L10n::t('We would like to offer some tips and links to help make your experience enjoyable. Click any item to visit the relevant page. A link to this page will be visible from your home page for two weeks after your initial registration and then will quietly disappear.');
@@ -53,6 +54,7 @@ function newmember_content(App $a)
 	$o .= '<ul>';
 	$o .= '<li>' . '<a target="newmember" href="help">' . L10n::t('Go to the Help Section') . '</a><br />' . L10n::t('Our <strong>help</strong> pages may be consulted for detail on other program features and resources.') . '</li>' . EOL;
 	$o .= '</ul>';
+	$o .= '</div>';
 	$o .= '</div>';
 
 	return $o;

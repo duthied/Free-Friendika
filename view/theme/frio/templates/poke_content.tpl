@@ -2,7 +2,7 @@
 <div id="poke-wrapper">
 
 	<h3 class="heading">{{$title}}</h3>
-	<div id="poke-desc">{{$desc}}</div>
+	<div id="poke-desc">{{$desc nofilter}}</div>
 
 	<form id="poke-form" action="poke" method="get">
 
@@ -11,7 +11,7 @@
 			{{* The input field with the recipient name*}}
 			<div id="poke-recip-wrapper" class="form-group">
 				<label for="poke-recip">{{$clabel}}</label>
-				<input id="poke-recip" class="form-control" type="text" size="64" maxlength="255" value="{{$name|escape:'html'}}" name="pokename" autocomplete="off" />
+				<input id="poke-recip" class="form-control" type="text" size="64" maxlength="255" value="{{$name}}" name="pokename" autocomplete="off" />
 				<input id="poke-recip-complete" type="hidden" value="{{$id}}" name="cid" />
 				<input id="poke-parent" type="hidden" value="{{$parent}}" name="parent" />
 			</div>
@@ -37,7 +37,7 @@
 		<div id="poke-content-wrapper-end"></div>
 
 		<div id="poke-submit-wrapper">
-			<button class="btn btn-primary pull-right" type="submit" name="submit" value="{{$submit|escape:'html'}}"><i class="fa fa-slideshare"></i>&nbsp;{{$submit|escape:'html'}}</button>
+			<button class="btn btn-primary pull-right" type="submit" name="submit" value="{{$submit}}"><i class="fa fa-slideshare"></i>&nbsp;{{$submit}}</button>
 		</div>
 
 		<div id="poke-submit-wrapper-end"></div>

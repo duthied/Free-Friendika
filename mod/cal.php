@@ -72,7 +72,7 @@ function cal_init(App $a)
 
 	$cal_widget = Widget\CalendarExport::getHTML();
 
-	if (!x($a->page, 'aside')) {
+	if (empty($a->page['aside'])) {
 		$a->page['aside'] = '';
 	}
 
@@ -100,7 +100,7 @@ function cal_content(App $a)
 	$mode = 'view';
 	$y = 0;
 	$m = 0;
-	$ignored = (x($_REQUEST, 'ignored') ? intval($_REQUEST['ignored']) : 0);
+	$ignored = (!empty($_REQUEST['ignored']) ? intval($_REQUEST['ignored']) : 0);
 
 	$format = 'ical';
 	if ($a->argc == 4 && $a->argv[2] == 'export') {
@@ -115,7 +115,7 @@ function cal_content(App $a)
 	$owner_uid = $a->data['user']['uid'];
 	$nick = $a->data['user']['nickname'];
 
-	if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
+	if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
 		foreach ($_SESSION['remote'] as $v) {
 			if ($v['uid'] == $a->profile['profile_uid']) {
 				$contact_id = $v['cid'];
@@ -195,11 +195,11 @@ function cal_content(App $a)
 
 
 		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
-			if (x($_GET, 'start')) {
+			if (!empty($_GET['start'])) {
 				$start = $_GET['start'];
 			}
 
-			if (x($_GET, 'end')) {
+			if (!empty($_GET['end'])) {
 				$finish = $_GET['end'];
 			}
 		}
@@ -233,7 +233,7 @@ function cal_content(App $a)
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
-				if (!x($links, $j)) {
+				if (empty($links[$j])) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}
@@ -248,7 +248,7 @@ function cal_content(App $a)
 		}
 
 		// links: array('href', 'text', 'extra css classes', 'title')
-		if (x($_GET, 'id')) {
+		if (!empty($_GET['id'])) {
 			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
 //			if (Config::get('experimentals','new_calendar')==1){
@@ -284,7 +284,7 @@ function cal_content(App $a)
 			"list" => L10n::t("list"),
 		]);
 
-		if (x($_GET, 'id')) {
+		if (!empty($_GET['id'])) {
 			echo $o;
 			killme();
 		}

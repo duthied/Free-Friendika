@@ -98,6 +98,19 @@ class User
 		if (!DBA::isResult($r)) {
 			return false;
 		}
+
+		if (empty($r['nickname'])) {
+			return false;
+		}
+
+		// Check if the returned data is valid, otherwise fix it. See issue #6122
+		$url = System::baseUrl() . '/profile/' . $r['nickname'];
+		$addr = $r['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+
+		if (($addr != $r['addr']) || ($r['url'] != $url) || ($r['nurl'] != Strings::normaliseLink($r['url']))) {
+			Contact::updateSelfFromUserID($uid);
+		}
+
 		return $r;
 	}
 
@@ -412,12 +425,12 @@ class User
 		$password   = !empty($data['password'])   ? trim($data['password'])           : '';
 		$password1  = !empty($data['password1'])  ? trim($data['password1'])          : '';
 		$confirm    = !empty($data['confirm'])    ? trim($data['confirm'])            : '';
-		$blocked    = !empty($data['blocked'])    ? intval($data['blocked'])          : 0;
-		$verified   = !empty($data['verified'])   ? intval($data['verified'])         : 0;
+		$blocked    = !empty($data['blocked']);
+		$verified   = !empty($data['verified']);
 		$language   = !empty($data['language'])   ? Strings::escapeTags(trim($data['language']))   : 'en';
 
-		$publish = !empty($data['profile_publish_reg']) && intval($data['profile_publish_reg']) ? 1 : 0;
-		$netpublish = strlen(Config::get('system', 'directory')) ? $publish : 0;
+		$publish = !empty($data['profile_publish_reg']);
+		$netpublish = $publish && Config::get('system', 'directory');
 
 		if ($password1 != $confirm) {
 			throw new Exception(L10n::t('Passwords do not match. Password unchanged.'));

@@ -26,7 +26,7 @@
 <link rel="stylesheet" href="view/theme/frio/font/open_sans/open-sans.css" type="text/css" media="screen"/>
 
 {{foreach $stylesheets as $stylesheetUrl}}
-<link rel="stylesheet" href="{{$stylesheetUrl|escape:"html":"UTF-8"}}" type="text/css" media="screen" />
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
 {{/foreach}}
 
 {{* own css files *}}

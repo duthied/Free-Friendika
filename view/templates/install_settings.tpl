@@ -6,18 +6,18 @@
 
 <form id="install-form" action="{{$baseurl}}/install" method="post">
 
-<input type="hidden" name="phpath" value="{{$phpath|escape:'html'}}" />
-<input type="hidden" name="dbhost" value="{{$dbhost|escape:'html'}}" />
-<input type="hidden" name="dbuser" value="{{$dbuser|escape:'html'}}" />
-<input type="hidden" name="dbpass" value="{{$dbpass|escape:'html'}}" />
-<input type="hidden" name="dbdata" value="{{$dbdata|escape:'html'}}" />
+<input type="hidden" name="phpath" value="{{$phpath}}" />
+<input type="hidden" name="dbhost" value="{{$dbhost}}" />
+<input type="hidden" name="dbuser" value="{{$dbuser}}" />
+<input type="hidden" name="dbpass" value="{{$dbpass}}" />
+<input type="hidden" name="dbdata" value="{{$dbdata}}" />
 <input type="hidden" name="pass" value="4" />
 
 {{include file="field_input.tpl" field=$adminmail}}
-{{$timezone}}
+{{$timezone nofilter}}
 {{include file="field_select.tpl" field=$language}}
 
-<input id="install-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" /> 
+<input id="install-submit" type="submit" name="submit" value="{{$submit}}" />
 
 </form>
 

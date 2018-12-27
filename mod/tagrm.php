@@ -17,7 +17,7 @@ function tagrm_post(App $a)
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
-	if (x($_POST,'submit') && ($_POST['submit'] === L10n::t('Cancel'))) {
+	if (!empty($_POST['submit']) && ($_POST['submit'] === L10n::t('Cancel'))) {
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 

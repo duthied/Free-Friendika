@@ -18,6 +18,10 @@ class Update
 	 */
 	public static function check($via_worker)
 	{
+		if (!DBA::connected()) {
+			return;
+		}
+
 		$build = Config::get('system', 'build');
 
 		if (empty($build)) {
@@ -118,6 +122,8 @@ class Update
 					Lock::release('dbupdate');
 				}
 			}
+		} elseif ($force) {
+			DBStructure::update($verbose, true);
 		}
 
 		return '';

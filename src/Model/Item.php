@@ -1359,15 +1359,15 @@ class Item extends BaseObject
 		$item['owner-name']    = trim(defaults($item, 'owner-name', ''));
 		$item['owner-link']    = trim(defaults($item, 'owner-link', ''));
 		$item['owner-avatar']  = trim(defaults($item, 'owner-avatar', ''));
-		$item['received']      = ((x($item, 'received') !== false) ? DateTimeFormat::utc($item['received']) : DateTimeFormat::utcNow());
-		$item['created']       = ((x($item, 'created') !== false) ? DateTimeFormat::utc($item['created']) : $item['received']);
-		$item['edited']        = ((x($item, 'edited') !== false) ? DateTimeFormat::utc($item['edited']) : $item['created']);
-		$item['changed']       = ((x($item, 'changed') !== false) ? DateTimeFormat::utc($item['changed']) : $item['created']);
-		$item['commented']     = ((x($item, 'commented') !== false) ? DateTimeFormat::utc($item['commented']) : $item['created']);
+		$item['received']      = (isset($item['received'])  ? DateTimeFormat::utc($item['received'])  : DateTimeFormat::utcNow());
+		$item['created']       = (isset($item['created'])   ? DateTimeFormat::utc($item['created'])   : $item['received']);
+		$item['edited']        = (isset($item['edited'])    ? DateTimeFormat::utc($item['edited'])    : $item['created']);
+		$item['changed']       = (isset($item['changed'])   ? DateTimeFormat::utc($item['changed'])   : $item['created']);
+		$item['commented']     = (isset($item['commented']) ? DateTimeFormat::utc($item['commented']) : $item['created']);
 		$item['title']         = trim(defaults($item, 'title', ''));
 		$item['location']      = trim(defaults($item, 'location', ''));
 		$item['coord']         = trim(defaults($item, 'coord', ''));
-		$item['visible']       = ((x($item, 'visible') !== false) ? intval($item['visible'])         : 1);
+		$item['visible']       = (isset($item['visible']) ? intval($item['visible']) : 1);
 		$item['deleted']       = 0;
 		$item['parent-uri']    = trim(defaults($item, 'parent-uri', $item['uri']));
 		$item['post-type']     = defaults($item, 'post-type', self::PT_ARTICLE);
@@ -1626,7 +1626,7 @@ class Item extends BaseObject
 		// It is mainly used in the "post_local" hook.
 		unset($item['api_source']);
 
-		if (x($item, 'cancel')) {
+		if (!empty($item['cancel'])) {
 			Logger::log('post cancelled by addon.');
 			return 0;
 		}
@@ -3214,7 +3214,7 @@ class Item extends BaseObject
 		}
 	}
 
-	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null)
+	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null, $remote_cid = null)
 	{
 		$local_user = local_user();
 		$remote_user = remote_user();
@@ -3237,7 +3237,7 @@ class Item extends BaseObject
 			 * If pre-verified, the caller is expected to have already
 			 * done this and passed the groups into this function.
 			 */
-			$set = PermissionSet::get($owner_id, $remote_user, $groups);
+			$set = PermissionSet::get($owner_id, $remote_cid, $groups);
 
 			if (!empty($set)) {
 				$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
@@ -3443,7 +3443,7 @@ class Item extends BaseObject
 				$filesubtype = 'unkn';
 			}
 
-			$title = Strings::escapeHtml(trim(!empty($mtch[4]) ? $mtch[4] : $mtch[1]));
+			$title = Strings::escapeHtml(trim(defaults($mtch, 4, $mtch[1])));
 			$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
@@ -3455,7 +3455,7 @@ class Item extends BaseObject
 		}
 
 		// Map.
-		if (strpos($s, '<div class="map">') !== false && x($item, 'coord')) {
+		if (strpos($s, '<div class="map">') !== false && !empty($item['coord'])) {
 			$x = Map::byCoordinates(trim($item['coord']));
 			if ($x) {
 				$s = preg_replace('/\<div class\=\"map\"\>/', '$0' . $x, $s);

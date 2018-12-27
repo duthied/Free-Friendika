@@ -10,7 +10,7 @@
 
 	<div class="section-content-wrapper">
 		<div id="profile-listing-profiles" class="profile-listing-table">
-			{{$profiles}}
+			{{$profiles nofilter}}
 		</div>
 	</div>
 </div>

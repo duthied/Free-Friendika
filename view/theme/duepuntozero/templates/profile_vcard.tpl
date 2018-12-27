@@ -1,16 +1,16 @@
 
 <div class="vcard h-card">
 
-	<div class="fn label p-name">{{$profile.name|escape}}</div>
+	<div class="fn label p-name">{{$profile.name}}</div>
 	
-	{{if $profile.addr}}<div class="p-addr">{{$profile.addr|escape}}</div>{{/if}}
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 	
 	{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
-	<div id="profile-photo-wrapper"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name|escape}}"></div>
+	<div id="profile-photo-wrapper"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></div>
 
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
 
-	{{if $profile.network_name}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_name}}</dd></dl>{{/if}}
+	{{if $profile.network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_link nofilter}}</dd></dl>{{/if}}
 
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 
@@ -56,6 +56,6 @@
 	</div>
 </div>
 
-{{$contact_block}}
+{{$contact_block nofilter}}
 
 

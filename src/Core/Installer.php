@@ -440,6 +440,13 @@ class Installer
 		);
 		$returnVal = $returnVal ? $status : false;
 
+		$status = $this->checkFunction('json_encode',
+			L10n::t('JSON PHP module'),
+			L10n::t('Error: JSON PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
 		return $returnVal;
 	}
 

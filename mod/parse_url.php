@@ -47,8 +47,8 @@ function parse_url_content(App $a)
 
 	// Add url scheme if it is missing
 	$arrurl = parse_url($url);
-	if (!x($arrurl, 'scheme')) {
-		if (x($arrurl, 'host')) {
+	if (empty($arrurl['scheme'])) {
+		if (!empty($arrurl['host'])) {
 			$url = 'http:' . $url;
 		} else {
 			$url = 'http://' . $url;

@@ -63,7 +63,7 @@
 	{{if $nav.contacts}}<a id="nav-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}" >{{$nav.contacts.1}}</a>{{/if}}
 	</span>
 	<span id="nav-end"></span>
-	<span id="banner">{{$banner}}</span>
+	<span id="banner">{{$banner nofilter}}</span>
 </nav>
 
 <ul id="nav-notifications-template" style="display:none;" rel="template">

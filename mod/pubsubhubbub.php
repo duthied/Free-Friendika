@@ -10,7 +10,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 function post_var($name) {
-	return (x($_POST, $name)) ? Strings::escapeTags(trim($_POST[$name])) : '';
+	return !empty($_POST[$name]) ? Strings::escapeTags(trim($_POST[$name])) : '';
 }
 
 function pubsubhubbub_init(App $a) {

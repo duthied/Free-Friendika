@@ -81,9 +81,9 @@ function allfriends_content(App $a)
 		$entry = [
 			'url'          => $rr['url'],
 			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
-			'name'         => htmlentities($contact_details['name']),
+			'name'         => $contact_details['name'],
 			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
-			'img_hover'    => htmlentities($contact_details['name']),
+			'img_hover'    => $contact_details['name'],
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
@@ -100,9 +100,7 @@ function allfriends_content(App $a)
 	$tab_str = Module\Contact::getTabsHTML($a, $contact, 4);
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
-
 	$o .= Renderer::replaceMacros($tpl, [
-		//'$title' => L10n::t('Friends of %s', htmlentities($c[0]['name'])),
 		'$tab_str' => $tab_str,
 		'$contacts' => $entries,
 		'$paginate' => $pager->renderFull($total),

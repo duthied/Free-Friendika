@@ -9,6 +9,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Util\Strings;
+use Friendica\Util\Network;
 
 function redir_init(App $a) {
 
@@ -34,8 +35,7 @@ function redir_init(App $a) {
 
 		$contact_url = $contact['url'];
 
-		if ($contact['network'] !== Protocol::DFRN // Authentication isn't supported for non DFRN contacts.
-			|| (!local_user() && !remote_user()) // Visitors (not logged in or not remotes) can't authenticate.
+		if ((!local_user() && !remote_user()) // Visitors (not logged in or not remotes) can't authenticate.
 			|| (!empty($a->contact['id']) && $a->contact['id'] == $cid)) // Local user is already authenticated.
 		{
 			$a->redirect(defaults($url, $contact_url));
@@ -67,7 +67,7 @@ function redir_init(App $a) {
 			// for authentification everytime he/she is visiting a profile page of the local
 			// contact.
 			if ($host == $remotehost
-				&& x($_SESSION, 'remote')
+				&& !empty($_SESSION['remote'])
 				&& is_array($_SESSION['remote']))
 			{
 				foreach ($_SESSION['remote'] as $v) {
@@ -81,8 +81,17 @@ function redir_init(App $a) {
 			}
 		}
 
+		// When the remote page does support OWA, then we enforce the use of it
+		$basepath = Contact::getBasepath($contact_url);
+		if ($basepath == System::baseUrl()) {
+			$use_magic = true;
+		} else {
+			$serverret = Network::curl($basepath . '/magic');
+			$use_magic = $serverret->isSuccess();
+		}
+
 		// Doing remote auth with dfrn.
-		if (local_user() && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
+		if (local_user() && !$use_magic && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
 			$dfrn_id = $orig_id = (($contact['issued-id']) ? $contact['issued-id'] : $contact['dfrn-id']);
 
 			if ($contact['duplex'] && $contact['issued-id']) {

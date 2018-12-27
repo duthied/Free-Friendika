@@ -164,7 +164,7 @@ class Probe
 			}
 		}
 
-		self::$baseurl = "http://".$host;
+		self::$baseurl = $host_url;
 
 		Logger::log("Probing successful for ".$host, Logger::DEBUG);
 
@@ -347,7 +347,7 @@ class Probe
 			$data['url'] = $uri;
 		}
 
-		if (x($data, 'photo')) {
+		if (!empty($data['photo'])) {
 			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink(defaults($data, 'baseurl', '')), Strings::normaliseLink($data['photo']));
 		} else {
 			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
@@ -358,7 +358,7 @@ class Probe
 				$data['name'] = $data['nick'];
 			}
 
-			if (!x($data, 'name')) {
+			if (empty($data['name'])) {
 				$data['name'] = $data['url'];
 			}
 		}
@@ -1317,7 +1317,7 @@ class Probe
 						if ($curlResult->isTimeout()) {
 							return false;
 						}
-						$pubkey = $curlResult['body'];
+						$pubkey = $curlResult->getBody();
 					}
 
 					$key = explode(".", $pubkey);

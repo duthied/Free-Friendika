@@ -31,7 +31,7 @@ function dfrn_poll_init(App $a)
 	$sec             = defaults($_GET, 'sec'            , '');
 	$dfrn_version    = (float) defaults($_GET, 'dfrn_version'   , 2.0);
 	$perm            = defaults($_GET, 'perm'           , 'r');
-	$quiet			 = x($_GET, 'quiet');
+	$quiet			 = !empty($_GET['quiet']);
 
 	// Possibly it is an OStatus compatible server that requests a user feed
 	$user_agent = defaults($_SERVER, 'HTTP_USER_AGENT', '');
@@ -51,7 +51,7 @@ function dfrn_poll_init(App $a)
 
 	$hidewall = false;
 
-	if (($dfrn_id === '') && (!x($_POST, 'dfrn_id'))) {
+	if (($dfrn_id === '') && empty($_POST['dfrn_id'])) {
 		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 			System::httpExit(403);
 		}
@@ -113,7 +113,7 @@ function dfrn_poll_init(App $a)
 
 				if ((int)$xml->status === 1) {
 					$_SESSION['authenticated'] = 1;
-					if (!x($_SESSION, 'remote')) {
+					if (empty($_SESSION['remote'])) {
 						$_SESSION['remote'] = [];
 					}
 
@@ -230,13 +230,13 @@ function dfrn_poll_init(App $a)
 
 function dfrn_poll_post(App $a)
 {
-	$dfrn_id      = x($_POST,'dfrn_id')      ? $_POST['dfrn_id']              : '';
-	$challenge    = x($_POST,'challenge')    ? $_POST['challenge']            : '';
-	$url          = x($_POST,'url')          ? $_POST['url']                  : '';
-	$sec          = x($_POST,'sec')          ? $_POST['sec']                  : '';
-	$ptype        = x($_POST,'type')         ? $_POST['type']                 : '';
-	$dfrn_version = x($_POST,'dfrn_version') ? (float) $_POST['dfrn_version'] : 2.0;
-	$perm         = x($_POST,'perm')         ? $_POST['perm']                 : 'r';
+	$dfrn_id      = defaults($_POST, 'dfrn_id'  , '');
+	$challenge    = defaults($_POST, 'challenge', '');
+	$url          = defaults($_POST, 'url'      , '');
+	$sec          = defaults($_POST, 'sec'      , '');
+	$ptype        = defaults($_POST, 'type'     , '');
+	$perm         = defaults($_POST, 'perm'     , 'r');
+	$dfrn_version = !empty($_POST['dfrn_version']) ? (float) $_POST['dfrn_version'] : 2.0;
 
 	if ($ptype === 'profile-check') {
 		if (strlen($challenge) && strlen($sec)) {
@@ -399,14 +399,13 @@ function dfrn_poll_post(App $a)
 
 function dfrn_poll_content(App $a)
 {
-	$dfrn_id         = x($_GET,'dfrn_id')         ? $_GET['dfrn_id']              : '';
-	$type            = x($_GET,'type')            ? $_GET['type']                 : 'data';
-	$last_update     = x($_GET,'last_update')     ? $_GET['last_update']          : '';
-	$destination_url = x($_GET,'destination_url') ? $_GET['destination_url']      : '';
-	$sec             = x($_GET,'sec')             ? $_GET['sec']                  : '';
-	$dfrn_version    = x($_GET,'dfrn_version')    ? (float) $_GET['dfrn_version'] : 2.0;
-	$perm            = x($_GET,'perm')            ? $_GET['perm']                 : 'r';
-	$quiet           = x($_GET,'quiet')           ? true                          : false;
+	$dfrn_id         = defaults($_GET, 'dfrn_id'        , '');
+	$type            = defaults($_GET, 'type'           , 'data');
+	$last_update     = defaults($_GET, 'last_update'    , '');
+	$destination_url = defaults($_GET, 'destination_url', '');
+	$sec             = defaults($_GET, 'sec'            , '');
+	$dfrn_version    = !empty($_GET['dfrn_version'])    ? (float) $_GET['dfrn_version'] : 2.0;
+	$quiet           = !empty($_GET['quiet']);
 
 	$direction = -1;
 	if (strpos($dfrn_id, ':') == 1) {
@@ -437,7 +436,7 @@ function dfrn_poll_content(App $a)
 		switch ($direction) {
 			case -1:
 				if ($type === 'profile') {
-					$sql_extra = sprintf(" AND ( `dfrn-id` = '%s' OR `issued-id` = '%s' ) ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
+					$sql_extra = sprintf(" AND (`dfrn-id` = '%s' OR `issued-id` = '%s') ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
 				} else {
 					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
 				}
@@ -524,7 +523,7 @@ function dfrn_poll_content(App $a)
 
 				if (((int) $xml->status == 0) && ($xml->challenge == $hash) && ($xml->sec == $sec)) {
 					$_SESSION['authenticated'] = 1;
-					if (!x($_SESSION, 'remote')) {
+					if (empty($_SESSION['remote'])) {
 						$_SESSION['remote'] = [];
 					}
 
@@ -562,11 +561,7 @@ function dfrn_poll_content(App $a)
 					break;
 				default:
 					$appendix = (strstr($destination_url, '?') ? '&f=&redir=1' : '?f=&redir=1');
-					if (filter_var($url, FILTER_VALIDATE_URL)) {
-						System::externalRedirect($destination_url . $appendix);
-					} else {
-						$a->internalRedirect($destination_url . $appendix);
-					}
+					$a->redirect($destination_url . $appendix);
 					break;
 			}
 			// NOTREACHED

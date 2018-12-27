@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1290);
+	define('DB_UPDATE_VERSION', 1291);
 }
 
 return [
@@ -643,6 +643,7 @@ return [
 			"uid_contactid_created" => ["uid", "contact-id", "created"],
 			"authorid_created" => ["author-id", "created"],
 			"ownerid" => ["owner-id"],
+			"contact-id" => ["contact-id"],
 			"uid_uri" => ["uid", "uri(190)"],
 			"resource-id" => ["resource-id"],
 			"deleted_changed" => ["deleted", "changed"],
@@ -894,7 +895,9 @@ return [
 			"fid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["fcontact" => "id"], "comment" => ""],
 		],
 		"indexes" => [
-			"PRIMARY" => ["iid", "server"]
+			"PRIMARY" => ["iid", "server"],
+			"cid" => ["cid"],
+			"fid" => ["fid"]
 		]
 	],
 	"pconfig" => [

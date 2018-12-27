@@ -10,7 +10,7 @@
 
 	<div class='contact-block-content'>
 		{{foreach $micropro as $m}}
-			{{$m}}
+			{{$m nofilter}}
 		{{/foreach}}
 	</div>
 	{{/if}}

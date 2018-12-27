@@ -908,7 +908,7 @@ class HTML
 	public static function micropro($contact, $redirect = false, $class = '', $textmode = false)
 	{
 		// Use the contact URL if no address is available
-		if (!x($contact, "addr")) {
+		if (empty($contact['addr'])) {
 			$contact["addr"] = $contact["url"];
 		}
 
@@ -924,7 +924,7 @@ class HTML
 		}
 
 		// If there is some js available we don't need the url
-		if (x($contact, 'click')) {
+		if (!empty($contact['click'])) {
 			$url = '';
 		}
 
@@ -961,7 +961,7 @@ class HTML
 		$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
 
 		$values = [
-				'$s' => htmlspecialchars($s),
+				'$s' => $s,
 				'$id' => $id,
 				'$action_url' => $url,
 				'$search_label' => L10n::t('Search'),

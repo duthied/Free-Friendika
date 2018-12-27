@@ -114,10 +114,8 @@ function unfollow_content(App $a)
 	// Makes the connection request for friendica contacts easier
 	$_SESSION['fastlane'] = $contact['url'];
 
-	$header = L10n::t('Disconnect/Unfollow');
-
 	$o = Renderer::replaceMacros($tpl, [
-		'$header'        => htmlentities($header),
+		'$header'        => L10n::t('Disconnect/Unfollow'),
 		'$desc'          => '',
 		'$pls_answer'    => '',
 		'$does_know_you' => '',

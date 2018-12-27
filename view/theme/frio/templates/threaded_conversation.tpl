@@ -1,7 +1,7 @@
 <script type="text/javascript" src="view/theme/frio/frameworks/jquery-color/jquery.color.js"></script>
 {{if $mode == display}}<script type="text/javascript" src="view/theme/frio/js/mod_display.js"></script>{{/if}}
 
-{{$live_update}}
+{{$live_update nofilter}}
 
 {{foreach $threads as $thread}}
 <hr class="sr-only" />

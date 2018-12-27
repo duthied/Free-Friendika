@@ -84,7 +84,7 @@ function register_post(App $a)
 
 	$using_invites = Config::get('system', 'invitation_only');
 	$num_invites   = Config::get('system', 'number_invites');
-	$invite_id = ((x($_POST, 'invite_id')) ? Strings::escapeTags(trim($_POST['invite_id'])) : '');
+	$invite_id = (!empty($_POST['invite_id']) ? Strings::escapeTags(trim($_POST['invite_id'])) : '');
 
 	if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN) {
 		if ($using_invites && $invite_id) {
@@ -93,7 +93,7 @@ function register_post(App $a)
 		}
 
 		// Only send a password mail when the password wasn't manually provided
-		if (!x($_POST, 'password1') || !x($_POST, 'confirm')) {
+		if (empty($_POST['password1']) || empty($_POST['confirm'])) {
 			$res = Model\User::sendRegisterOpenEmail(
 				$user,
 				Config::get('config', 'sitename'),
@@ -195,37 +195,32 @@ function register_content(App $a)
 		}
 	}
 
-	if (x($_SESSION, 'theme')) {
+	if (!empty($_SESSION['theme'])) {
 		unset($_SESSION['theme']);
 	}
-	if (x($_SESSION, 'mobile-theme')) {
+	if (!empty($_SESSION['mobile-theme'])) {
 		unset($_SESSION['mobile-theme']);
 	}
 
 
-	$username   = x($_REQUEST, 'username')   ? $_REQUEST['username']   : '';
-	$email      = x($_REQUEST, 'email')      ? $_REQUEST['email']      : '';
-	$openid_url = x($_REQUEST, 'openid_url') ? $_REQUEST['openid_url'] : '';
-	$nickname   = x($_REQUEST, 'nickname')   ? $_REQUEST['nickname']   : '';
-	$photo      = x($_REQUEST, 'photo')      ? $_REQUEST['photo']      : '';
-	$invite_id  = x($_REQUEST, 'invite_id')  ? $_REQUEST['invite_id']  : '';
+	$username   = defaults($_REQUEST, 'username'  , '');
+	$email      = defaults($_REQUEST, 'email'     , '');
+	$openid_url = defaults($_REQUEST, 'openid_url', '');
+	$nickname   = defaults($_REQUEST, 'nickname'  , '');
+	$photo      = defaults($_REQUEST, 'photo'     , '');
+	$invite_id  = defaults($_REQUEST, 'invite_id' , '');
 
 	$noid = Config::get('system', 'no_openid');
 
 	if ($noid) {
-		$oidhtml  = '';
 		$fillwith = '';
 		$fillext  = '';
 		$oidlabel = '';
 	} else {
-		$oidhtml  = '<label for="register-openid" id="label-register-openid" >$oidlabel</label><input type="text" maxlength="60" size="32" name="openid_url" class="openid" id="register-openid" value="$openid" >';
 		$fillwith = L10n::t("You may \x28optionally\x29 fill in this form via OpenID by supplying your OpenID and clicking 'Register'.");
 		$fillext  = L10n::t('If you are not familiar with OpenID, please leave that field blank and fill in the rest of the items.');
 		$oidlabel = L10n::t("Your OpenID \x28optional\x29: ");
 	}
-
-	// I set this and got even more fake names than before...
-	$realpeople = ''; // L10n::t('Members of this network prefer to communicate with real people who use their real names.');
 
 	if (Config::get('system', 'publish_all')) {
 		$profile_publish = '<input type="hidden" name="profile_publish_reg" value="1" />';
@@ -244,8 +239,6 @@ function register_content(App $a)
 	$r = q("SELECT COUNT(*) AS `contacts` FROM `contact`");
 	$passwords = !$r[0]["contacts"];
 
-	$license = '';
-
 	$tpl = Renderer::getMarkupTemplate("register.tpl");
 
 	$arr = ['template' => $tpl];
@@ -257,14 +250,12 @@ function register_content(App $a)
 	$tos = new Tos();
 
 	$o = Renderer::replaceMacros($tpl, [
-		'$oidhtml' => $oidhtml,
 		'$invitations' => Config::get('system', 'invitation_only'),
 		'$permonly'    => intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE,
 		'$permonlybox' => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node')],
 		'$invite_desc' => L10n::t('Membership on this site is by invitation only.'),
 		'$invite_label' => L10n::t('Your invitation code: '),
 		'$invite_id'  => $invite_id,
-		'$realpeople' => $realpeople,
 		'$regtitle'  => L10n::t('Registration'),
 		'$registertext' => BBCode::convert(Config::get('config', 'register_text', '')),
 		'$fillwith'  => $fillwith,
@@ -284,7 +275,6 @@ function register_content(App $a)
 		'$username'  => $username,
 		'$email'     => $email,
 		'$nickname'  => $nickname,
-		'$license'   => $license,
 		'$sitename'  => $a->getHostName(),
 		'$importh'   => L10n::t('Import'),
 		'$importt'   => L10n::t('Import your profile to this friendica instance'),

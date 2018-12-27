@@ -33,7 +33,7 @@ class Group extends BaseObject
 	public static function create($uid, $name)
 	{
 		$return = false;
-		if (x($uid) && x($name)) {
+		if (!empty($uid) && !empty($name)) {
 			$gid = self::getIdByName($uid, $name); // check for dupes
 			if ($gid !== false) {
 				// This could be a problem.
@@ -202,7 +202,7 @@ class Group extends BaseObject
 	 */
 	public static function removeByName($uid, $name) {
 		$return = false;
-		if (x($uid) && x($name)) {
+		if (!empty($uid) && !empty($name)) {
 			$gid = self::getIdByName($uid, $name);
 
 			$return = self::remove($gid);
@@ -400,8 +400,8 @@ class Group extends BaseObject
 			];
 		}
 
-		// Don't show the groups when there is only one
-		if (count($display_groups) <= 2) {
+		// Don't show the groups on the network page when there is only one
+		if ((count($display_groups) <= 2) && ($each == 'network')) {
 			return '';
 		}
 

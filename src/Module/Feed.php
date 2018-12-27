@@ -28,8 +28,8 @@ class Feed extends BaseModule
 	{
 		$a = self::getApp();
 
-		$last_update = x($_GET, 'last_update') ? $_GET['last_update'] : '';
-		$nocache     = x($_GET, 'nocache') && local_user();
+		$last_update = defaults($_GET, 'last_update', '');
+		$nocache     = !empty($_GET['nocache']) && local_user();
 
 		if ($a->argc < 2) {
 			System::httpExit(400);
@@ -44,6 +44,7 @@ class Feed extends BaseModule
 			case 'posts':
 			case 'comments':
 			case 'activity':
+				// Correct type names, no change needed
 				break;
 			case 'replies':
 				$type = 'comments';
@@ -53,8 +54,8 @@ class Feed extends BaseModule
 		}
 
 		$nickname = $a->argv[1];
-		header("Content-type: application/atom+xml");
+		header("Content-type: application/atom+xml; charset=utf-8");
 		echo OStatus::feed($nickname, $last_update, 10, $type, $nocache, true);
-		killme();
+		exit();
 	}
 }

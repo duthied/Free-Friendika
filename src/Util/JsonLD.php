@@ -93,8 +93,13 @@ class JsonLD
 			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
 			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id']];
 
-		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		// Trying to avoid memory problems with large content fields
+		if (!empty($json['object']['source']['content'])) {
+			$content = $json['object']['source']['content'];
+			$json['object']['source']['content'] = '';
+		}
 
+		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
 		try {
 			$compacted = jsonld_compact($jsonobj, $context);
@@ -104,7 +109,13 @@ class JsonLD
 			Logger::log('compacting error:' . print_r($e, true), Logger::DEBUG);
 		}
 
-		return json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
+		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
+
+		if (isset($json['as:object']['as:source']['as:content']) && !empty($content)) {
+			$json['as:object']['as:source']['as:content'] = $content;
+		}
+
+		return $json;
 	}
 
 	/**

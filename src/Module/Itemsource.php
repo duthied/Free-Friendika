@@ -25,12 +25,12 @@ class Itemsource extends \Friendica\BaseModule
 			$conversation = Model\Conversation::getByItemUri($item['uri']);
 
 			$item_uri = $item['uri'];
-			$source = htmlspecialchars($conversation['source']);
+			$source = $conversation['source'];
 		}
 
 		$tpl = Renderer::getMarkupTemplate('debug/itemsource.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$guid'          => ['guid', L10n::t('Item Guid'), htmlentities(defaults($_REQUEST, 'guid', '')), ''],
+			'$guid'          => ['guid', L10n::t('Item Guid'), defaults($_REQUEST, 'guid', ''), ''],
 			'$source'        => $source,
 			'$item_uri'      => $item_uri
 		]);

@@ -21,14 +21,14 @@
 
 		<div style="display: none;">
 			<div id="photo-edit-perms-select" >
-				{{$aclselect}}
+				{{$aclselect nofilter}}
 			</div>
 		</div>
 	</div>
 	<div id="photo-edit-perms-end"></div>
 
-	<input id="photo-edit-submit-button" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
-	<input id="photo-edit-delete-button" type="submit" name="delete" value="{{$delete|escape:'html'}}" onclick="return confirmDelete();" />
+	<input id="photo-edit-submit-button" type="submit" name="submit" value="{{$submit}}" />
+	<input id="photo-edit-delete-button" type="submit" name="delete" value="{{$delete}}" onclick="return confirmDelete();" />
 
 	<div id="photo-edit-end"></div>
 </form>

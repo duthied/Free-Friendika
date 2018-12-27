@@ -10,7 +10,7 @@
 		<id>{{$item_id}}</id>
 		<title>{{$title}}</title>
 		<published>{{$published}}</published>
-		<content type="{{$type}}" >{{$content}}</content>
+		<content type="{{$type}}" >{{$content nofilter}}</content>
 		<link rel="mentioned" href="{{$accturi}}" />
 		<as:actor>
 		<as:object-type>http://activitystrea.ms/schema/1.0/person</as:object-type>

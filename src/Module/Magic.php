@@ -28,10 +28,10 @@ class Magic extends BaseModule
 
 		Logger::log('args: ' . print_r($_REQUEST, true), Logger::DATA);
 
-		$addr = ((x($_REQUEST, 'addr')) ? $_REQUEST['addr'] : '');
-		$dest = ((x($_REQUEST, 'dest')) ? $_REQUEST['dest'] : '');
-		$test = ((x($_REQUEST, 'test')) ? intval($_REQUEST['test']) : 0);
-		$owa  = ((x($_REQUEST, 'owa'))  ? intval($_REQUEST['owa'])  : 0);
+		$addr = defaults($_REQUEST, 'addr', '');
+		$dest = defaults($_REQUEST, 'dest', '');
+		$test = (!empty($_REQUEST['test']) ? intval($_REQUEST['test']) : 0);
+		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
 
 		// NOTE: I guess $dest isn't just the profile url (could be also
 		// other profile pages e.g. photo). We need to find a solution
@@ -43,7 +43,7 @@ class Magic extends BaseModule
 		}
 
 		if (!$cid) {
-			Logger::log('No contact record found: ' . print_r($_REQUEST, true), Logger::DEBUG);
+			Logger::log('No contact record found: ' . json_encode($_REQUEST), Logger::DEBUG);
 			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
 			$a->redirect($dest);
 		}

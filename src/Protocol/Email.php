@@ -117,7 +117,7 @@ class Email
 			return $ret;
 		}
 
-		if (!$struc->parts) {
+		if (empty($struc->parts)) {
 			$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'html');
 			$html = $ret['body'];
 
@@ -482,13 +482,11 @@ class Email
 			'[\r\n]\s*-----BEGIN PGP SIGNATURE-----\s*[\r\n].*'.
 			'[\r\n]\s*-----END PGP SIGNATURE-----(.*)/is';
 
-		preg_match($pattern, $message, $result);
+		if (preg_match($pattern, $message, $result)) {
+			$cleaned = trim($result[1].$result[2].$result[3]);
 
-		$cleaned = trim($result[1].$result[2].$result[3]);
-
-		$cleaned = str_replace(["\n- --\n", "\n- -"], ["\n-- \n", "\n-"], $cleaned);
-
-		if ($cleaned == '') {
+			$cleaned = str_replace(["\n- --\n", "\n- -"], ["\n-- \n", "\n-"], $cleaned);
+		} else {
 			$cleaned = $message;
 		}
 

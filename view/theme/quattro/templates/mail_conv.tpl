@@ -2,13 +2,13 @@
 	<div class="wall-item-item">
 		<div class="wall-item-info">
 			<div class="contact-photo-wrapper"
-				<a href="{{$mail.profile_url}}" target="redir" title="{{$mail.from_name|escape}}" class="contact-photo-link" id="wall-item-photo-link-{{$mail.id}}">
-					<img src="{{$mail.from_photo}}" class="contact-photo{{$mail.sparkle}}" id="wall-item-photo-{{$mail.id}}" alt="{{$mail.from_name|escape}}" />
+				<a href="{{$mail.profile_url}}" target="redir" title="{{$mail.from_name}}" class="contact-photo-link" id="wall-item-photo-link-{{$mail.id}}">
+					<img src="{{$mail.from_photo}}" class="contact-photo{{$mail.sparkle}}" id="wall-item-photo-{{$mail.id}}" alt="{{$mail.from_name}}" />
 				</a>
 			</div>
 		</div>
 		<div class="wall-item-content">
-			{{$mail.body}}
+			{{$mail.body nofilter}}
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -23,16 +23,16 @@
 		<div class="wall-item-actions">
 			<div class="wall-item-actions-author">
 				<a href="{{$mail.from_url}}" target="redir"
-                                class="wall-item-name-link" title="{{$mail.from_addr|escape}}"><span
-                                class="wall-item-name{{$mail.sparkle}}">{{$mail.from_name|escape}}</span></a>
-                                <span class="wall-item-ago" title="{{$mail.date|escape}}">{{$mail.ago|escape}}</span>
+                                class="wall-item-name-link" title="{{$mail.from_addr}}"><span
+                                class="wall-item-name{{$mail.sparkle}}">{{$mail.from_name}}</span></a>
+                                <span class="wall-item-ago" title="{{$mail.date}}">{{$mail.ago}}</span>
 			</div>
 			
 			<div class="wall-item-actions-social">
 			</div>
 			
 			<div class="wall-item-actions-tools">
-				<a href="message/drop/{{$mail.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$mail.delete|escape}}">{{$mail.delete|escape}}</a>
+				<a href="message/drop/{{$mail.id}}" onclick="return confirmDelete();" class="icon delete s16" title="{{$mail.delete}}">{{$mail.delete}}</a>
 			</div>
 			
 		</div>
@@ -47,14 +47,14 @@
 
 <div class="mail-conv-outside-wrapper">
 	<div class="mail-conv-sender" >
-		<a href="{{$mail.from_url}}" title="{{$mail.from_addr|escape}}" class="mail-conv-sender-url" ><img class="mframe mail-conv-sender-photo{{$mail.sparkle}}" src="{{$mail.from_photo}}" heigth="80" width="80" alt="{{$mail.from_name|escape}}" title="{{$mail.from_addr|escape}}" /></a>
+		<a href="{{$mail.from_url}}" title="{{$mail.from_addr}}" class="mail-conv-sender-url" ><img class="mframe mail-conv-sender-photo{{$mail.sparkle}}" src="{{$mail.from_photo}}" heigth="80" width="80" alt="{{$mail.from_name}}" title="{{$mail.from_addr}}" /></a>
 	</div>
 	<div class="mail-conv-detail" >
-		<div class="mail-conv-sender-name" >{{$mail.from_name|escape}}</div>
+		<div class="mail-conv-sender-name" >{{$mail.from_name}}</div>
 		<div class="mail-conv-date">{{$mail.date}}</div>
 		<div class="mail-conv-subject">{{$mail.subject}}</div>
-		<div class="mail-conv-body">{{$mail.body}}</div>
-	<div class="mail-conv-delete-wrapper" id="mail-conv-delete-wrapper-{{$mail.id}}" ><a href="message/drop/{{$mail.id}}" class="icon drophide delete-icon mail-list-delete-icon" onclick="return confirmDelete();" title="{{$mail.delete|escape}}" id="mail-conv-delete-icon-{{$mail.id}}" class="mail-conv-delete-icon" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a></div><div class="mail-conv-delete-end"></div>
+		<div class="mail-conv-body">{{$mail.body nofilter}}</div>
+	<div class="mail-conv-delete-wrapper" id="mail-conv-delete-wrapper-{{$mail.id}}" ><a href="message/drop/{{$mail.id}}" class="icon drophide delete-icon mail-list-delete-icon" onclick="return confirmDelete();" title="{{$mail.delete}}" id="mail-conv-delete-icon-{{$mail.id}}" class="mail-conv-delete-icon" onmouseover="imgbright(this);" onmouseout="imgdull(this);" ></a></div><div class="mail-conv-delete-end"></div>
 	<div class="mail-conv-outside-wrapper-end"></div>
 </div>
 </div>

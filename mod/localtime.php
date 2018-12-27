@@ -42,7 +42,7 @@ function localtime_content(App $a)
 		$o .= '<p>' . L10n::t('Current timezone: %s', $_REQUEST['timezone']) . '</p>';
 	}
 
-	if (x($a->data, 'mod-localtime')) {
+	if (!empty($a->data['mod-localtime'])) {
 		$o .= '<p>' . L10n::t('Converted localtime: %s', $a->data['mod-localtime']) . '</p>';
 	}
 

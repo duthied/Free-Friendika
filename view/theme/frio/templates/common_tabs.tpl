@@ -6,7 +6,7 @@
 		<li>
 			<ul class="tabs  flex-nav" role="menu" >
 			{{foreach $tabs as $tab}}
-				<li id="{{$tab.id}}" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.accesskey}}accesskey="{{$tab.accesskey}}"{{/if}} {{if $tab.title}} title="{{$tab.title|escape}}"{{/if}}>{{$tab.label}}</a></li>
+				<li id="{{$tab.id}}" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.accesskey}}accesskey="{{$tab.accesskey}}"{{/if}} {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
 			{{/foreach}}
 			</ul>
 		</li>
@@ -31,7 +31,7 @@
 			<ul class="tabs" role="menu">
 				{{foreach $tabs as $tab}}
 					{{if $tab.sel}}
-					<li id="{{$tab.id}}-xs" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title|escape}}"{{/if}}>{{$tab.label}}</a></li>
+					<li id="{{$tab.id}}-xs" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
 					{{else}}
 					{{$exttabs[]=$tab}}
 					{{/if}}
@@ -50,7 +50,7 @@
 					</button>
 					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools">
 						{{foreach $exttabs as $tab}}
-						<li id="{{$tab.id}}-xs" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title|escape}}"{{/if}}>{{$tab.label}}</a></li>
+						<li id="{{$tab.id}}-xs" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
 						{{/foreach}}
 					</ul>
 				</li>

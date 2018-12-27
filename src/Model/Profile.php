@@ -99,7 +99,7 @@ class Profile
 	 *      load a lot of theme-specific content
 	 *
 	 * @brief Loads a profile into the page sidebar.
-	 * @param object  $a            App
+	 * @param App     $a
 	 * @param string  $nickname     string
 	 * @param int     $profile      int
 	 * @param array   $profiledata  array
@@ -288,7 +288,7 @@ class Profile
 		$location = false;
 
 		// This function can also use contact information in $profile
-		$is_contact = x($profile, 'cid');
+		$is_contact = !empty($profile['cid']);
 
 		if (!is_array($profile) && !count($profile)) {
 			return $o;
@@ -297,9 +297,9 @@ class Profile
 		$profile['picdate'] = urlencode(defaults($profile, 'picdate', ''));
 
 		if (($profile['network'] != '') && ($profile['network'] != Protocol::DFRN)) {
-			$profile['network_name'] = Strings::formatNetworkName($profile['network'], $profile['url']);
+			$profile['network_link'] = Strings::formatNetworkName($profile['network'], $profile['url']);
 		} else {
-			$profile['network_name'] = '';
+			$profile['network_link'] = '';
 		}
 
 		Addon::callHooks('profile_sidebar_enter', $profile);
@@ -337,6 +337,11 @@ class Profile
 			}
 		}
 
+		// Is the remote user already connected to that user?
+		if ($connect && Contact::isFollower(remote_user(), $profile['uid'])) {
+			$connect = false;
+		}
+
 		if ($connect && ($profile['network'] != Protocol::DFRN) && !isset($profile['remoteconnect'])) {
 			$connect = false;
 		}
@@ -357,7 +362,7 @@ class Profile
 
 		// See issue https://github.com/friendica/friendica/issues/3838
 		// Either we remove the message link for remote users or we enable creating messages from remote users
-		if (remote_user() || (self::getMyURL() && x($profile, 'unkmail') && ($profile['uid'] != local_user()))) {
+		if (remote_user() || (self::getMyURL() && !empty($profile['unkmail']) && ($profile['uid'] != local_user()))) {
 			$wallmessage = L10n::t('Message');
 
 			if (remote_user()) {
@@ -424,23 +429,23 @@ class Profile
 		// Fetch the account type
 		$account_type = Contact::getAccountType($profile);
 
-		if (x($profile, 'address')
-			|| x($profile, 'location')
-			|| x($profile, 'locality')
-			|| x($profile, 'region')
-			|| x($profile, 'postal-code')
-			|| x($profile, 'country-name')
+		if (!empty($profile['address'])
+			|| !empty($profile['location'])
+			|| !empty($profile['locality'])
+			|| !empty($profile['region'])
+			|| !empty($profile['postal-code'])
+			|| !empty($profile['country-name'])
 		) {
 			$location = L10n::t('Location:');
 		}
 
-		$gender   = x($profile, 'gender')   ? L10n::t('Gender:')   : false;
-		$marital  = x($profile, 'marital')  ? L10n::t('Status:')   : false;
-		$homepage = x($profile, 'homepage') ? L10n::t('Homepage:') : false;
-		$about    = x($profile, 'about')    ? L10n::t('About:')    : false;
-		$xmpp     = x($profile, 'xmpp')     ? L10n::t('XMPP:')     : false;
+		$gender   = !empty($profile['gender'])   ? L10n::t('Gender:')   : false;
+		$marital  = !empty($profile['marital'])  ? L10n::t('Status:')   : false;
+		$homepage = !empty($profile['homepage']) ? L10n::t('Homepage:') : false;
+		$about    = !empty($profile['about'])    ? L10n::t('About:')    : false;
+		$xmpp     = !empty($profile['xmpp'])     ? L10n::t('XMPP:')     : false;
 
-		if ((x($profile, 'hidewall') || $block) && !local_user() && !remote_user()) {
+		if ((!empty($profile['hidewall']) || $block) && !local_user() && !remote_user()) {
 			$location = $gender = $marital = $homepage = $about = false;
 		}
 
@@ -448,7 +453,7 @@ class Profile
 		$firstname = $split_name['first'];
 		$lastname = $split_name['last'];
 
-		if (x($profile, 'guid')) {
+		if (!empty($profile['guid'])) {
 			$diaspora = [
 				'guid' => $profile['guid'],
 				'podloc' => System::baseUrl(),
@@ -507,10 +512,8 @@ class Profile
 			$p['about'] = BBCode::convert($p['about']);
 		}
 
-		if (isset($p['address'])) {
-			$p['address'] = BBCode::convert($p['address']);
-		} elseif (isset($p['location'])) {
-			$p['address'] = BBCode::convert($p['location']);
+		if (empty($p['address']) && !empty($p['location'])) {
+			$p['address'] = $p['location'];
 		}
 
 		if (isset($p['photo'])) {
@@ -890,7 +893,7 @@ class Profile
 		}
 
 		$tab = false;
-		if (x($_GET, 'tab')) {
+		if (!empty($_GET['tab'])) {
 			$tab = Strings::escapeTags(trim($_GET['tab']));
 		}
 
@@ -1001,7 +1004,7 @@ class Profile
 	 */
 	public static function getMyURL()
 	{
-		if (x($_SESSION, 'my_url')) {
+		if (!empty($_SESSION['my_url'])) {
 			return $_SESSION['my_url'];
 		}
 		return null;
@@ -1118,6 +1121,17 @@ class Profile
 		$_SESSION['visitor_home'] = $visitor['url'];
 		$_SESSION['my_url'] = $visitor['url'];
 
+		/// @todo replace this and the query for this variable with some cleaner functionality
+		$_SESSION['remote'] = [];
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => $visitor['nurl'], 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
+		while ($contact = DBA::fetch($remote_contacts)) {
+			if (($contact['uid'] == 0) || Contact::isBlockedByUser($visitor['id'], $contact['uid'])) {
+				continue;
+			}
+
+			$_SESSION['remote'][] = ['cid' => $contact['id'], 'uid' => $contact['uid'], 'url' => $visitor['url']];
+		}
 		$arr = [
 			'visitor' => $visitor,
 			'url' => $a->query_string
@@ -1173,7 +1187,7 @@ class Profile
 	 */
 	public static function getThemeUid()
 	{
-		$uid = ((!empty($_REQUEST['puid'])) ? intval($_REQUEST['puid']) : 0);
+		$uid = (!empty($_REQUEST['puid']) ? intval($_REQUEST['puid']) : 0);
 		if ((local_user()) && ((PConfig::get(local_user(), 'system', 'always_my_theme')) || (!$uid))) {
 			return local_user();
 		}

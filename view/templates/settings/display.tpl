@@ -21,17 +21,17 @@
 {{include file="field_checkbox.tpl" field=$infinite_scroll}}
 {{include file="field_checkbox.tpl" field=$bandwidth_saver}}
 {{include file="field_checkbox.tpl" field=$smart_threading}}
-<h2>{{$calendar_title|escape}}</h2>
+<h2>{{$calendar_title}}</h2>
 {{include file="field_select.tpl" field=$first_day_of_week}}
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 
 {{if $theme_config}}
 <h2>{{$stitle}}</h2>
-{{$theme_config}}
+{{$theme_config nofilter}}
 {{/if}}
 
 </form>

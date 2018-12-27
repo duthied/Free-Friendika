@@ -14,9 +14,9 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 require_once 'boot.php';
@@ -53,11 +53,11 @@ class Event extends BaseObject
 
 		if ($simple) {
 			if (!empty($event['summary'])) {
-				$o = "<h3>" . BBCode::convert($event['summary'], false, $simple) . "</h3>";
+				$o = "<h3>" . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . "</h3>";
 			}
 
 			if (!empty($event['desc'])) {
-				$o .= "<div>" . BBCode::convert($event['desc'], false, $simple) . "</div>";
+				$o .= "<div>" . BBCode::convert(Strings::escapeHtml($event['desc']), false, $simple) . "</div>";
 			}
 
 			$o .= "<h4>" . L10n::t('Starts:') . "</h4><p>" . $event_start . "</p>";
@@ -67,7 +67,7 @@ class Event extends BaseObject
 			}
 
 			if (!empty($event['location'])) {
-				$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . BBCode::convert($event['location'], false, $simple) . "</p>";
+				$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . BBCode::convert(Strings::escapeHtml($event['location']), false, $simple) . "</p>";
 			}
 
 			return $o;
@@ -75,7 +75,7 @@ class Event extends BaseObject
 
 		$o = '<div class="vevent">' . "\r\n";
 
-		$o .= '<div class="summary event-summary">' . BBCode::convert($event['summary'], false, $simple) . '</div>' . "\r\n";
+		$o .= '<div class="summary event-summary">' . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . '</div>' . "\r\n";
 
 		$o .= '<div class="event-start"><span class="event-label">' . L10n::t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 			. DateTimeFormat::utc($event['start'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
@@ -90,12 +90,12 @@ class Event extends BaseObject
 		}
 
 		if (!empty($event['desc'])) {
-			$o .= '<div class="description event-description">' . BBCode::convert($event['desc'], false, $simple) . '</div>' . "\r\n";
+			$o .= '<div class="description event-description">' . BBCode::convert(Strings::escapeHtml($event['desc']), false, $simple) . '</div>' . "\r\n";
 		}
 
 		if (!empty($event['location'])) {
 			$o .= '<div class="event-location"><span class="event-label">' . L10n::t('Location:') . '</span>&nbsp;<span class="location">'
-				. BBCode::convert($event['location'], false, $simple)
+				. BBCode::convert(Strings::escapeHtml($event['location']), false, $simple)
 				. '</span></div>' . "\r\n";
 
 			// Include a map of the location if the [map] BBCode is used.
@@ -592,10 +592,9 @@ class Event extends BaseObject
 				$drop =                  [System::baseUrl() . '/events/drop/' . $event['id'] , L10n::t('Delete event')   , '', ''];
 			}
 
-			$title = strip_tags(html_entity_decode(BBCode::convert($event['summary']), ENT_QUOTES, 'UTF-8'));
+			$title = BBCode::convert(Strings::escapeHtml($event['summary']));
 			if (!$title) {
-				list($title, $_trash) = explode("<br", BBCode::convert($event['desc']), 2);
-				$title = strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
+				list($title, $_trash) = explode("<br", BBCode::convert(Strings::escapeHtml($event['desc'])), 2);
 			}
 
 			$author_link = $event['author-link'];
@@ -605,8 +604,9 @@ class Event extends BaseObject
 			$event['plink']       = Contact::magicLink($author_link, $plink);
 
 			$html = self::getHTML($event);
-			$event['desc']     = BBCode::convert($event['desc']);
-			$event['location'] = BBCode::convert($event['location']);
+			$event['summary']  = BBCode::convert(Strings::escapeHtml($event['summary']));
+			$event['desc']     = BBCode::convert(Strings::escapeHtml($event['desc']));
+			$event['location'] = BBCode::convert(Strings::escapeHtml($event['location']));
 			$event_list[] = [
 				'id'       => $event['id'],
 				'start'    => $start,

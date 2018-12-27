@@ -144,11 +144,8 @@ function follow_content(App $a)
 		$r[0]['about'] = '';
 	}
 
-	$header = L10n::t('Connect/Follow');
-
 	$o = Renderer::replaceMacros($tpl, [
-		'$header'        => htmlentities($header),
-		//'$photo'         => ProxyUtils::proxifyUrl($ret['photo'], false, ProxyUtils::SIZE_SMALL),
+		'$header'        => L10n::t('Connect/Follow'),
 		'$desc'          => '',
 		'$pls_answer'    => L10n::t('Please answer the following:'),
 		'$does_know_you' => ['knowyou', L10n::t('Does %s know you?', $ret['name']), false, '', [L10n::t('No'), L10n::t('Yes')]],
@@ -170,13 +167,6 @@ function follow_content(App $a)
 		'$url_label'     => L10n::t('Profile URL'),
 		'$myaddr'        => $myaddr,
 		'$request'       => $request,
-		/*
-		 * @TODO commented out?
-		'$location'      => Friendica\Content\Text\BBCode::::convert($r[0]['location']),
-		'$location_label'=> L10n::t('Location:'),
-		'$about'         => Friendica\Content\Text\BBCode::::convert($r[0]['about'], false, false),
-		'$about_label'   => L10n::t('About:'),
-		*/
 		'$keywords'      => $r[0]['keywords'],
 		'$keywords_label'=> L10n::t('Tags:')
 	]);

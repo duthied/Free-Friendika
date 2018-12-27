@@ -42,10 +42,10 @@ function uimport_content(App $a)
 	}
 
 
-	if (x($_SESSION, 'theme')) {
+	if (!empty($_SESSION['theme'])) {
 		unset($_SESSION['theme']);
 	}
-	if (x($_SESSION, 'mobile-theme')) {
+	if (!empty($_SESSION['mobile-theme'])) {
 		unset($_SESSION['mobile-theme']);
 	}
 

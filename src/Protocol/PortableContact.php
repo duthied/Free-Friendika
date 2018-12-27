@@ -84,7 +84,7 @@ class PortableContact
 			return;
 		}
 
-		$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation') ;
+		$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation');
 
 		Logger::log('load: ' . $url, Logger::DEBUG);
 
@@ -734,7 +734,7 @@ class PortableContact
 			}
 		}
 
-		if (is_array($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
+		if (isset($nodeinfo['metadata']['nodeName'])) {
 			$server['site_name'] = $nodeinfo['metadata']['nodeName'];
 		}
 
@@ -817,7 +817,7 @@ class PortableContact
 			}
 		}
 
-		if (is_array($nodeinfo['metadata']) && isset($nodeinfo['metadata']['nodeName'])) {
+		if (isset($nodeinfo['metadata']['nodeName'])) {
 			$server['site_name'] = $nodeinfo['metadata']['nodeName'];
 		}
 
@@ -1375,15 +1375,15 @@ class PortableContact
 						$site_name = $data['site_name'];
 					}
 
-					$info = $data['info'];
+					$info = defaults($data, 'info', '');
 					$register_policy = defaults($data, 'register_policy', REGISTER_CLOSED);
 					if (in_array($register_policy, ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'])) {
-						$register_policy = constant($data['register_policy']);
+						$register_policy = constant($register_policy);
 					} else {
 						Logger::log("Register policy '$register_policy' from $server_url is invalid.");
 						$register_policy = REGISTER_CLOSED; // set a default value
 					}
-					$platform = $data['platform'];
+					$platform = defaults($data, 'platform', '');
 				}
 			}
 		}
@@ -1778,7 +1778,7 @@ class PortableContact
 				$curlResult = Network::curl($url);
 
 				if ($curlResult->isSuccess()) {
-					$data = json_decode($curlResult["body"], true);
+					$data = json_decode($curlResult->getBody(), true);
 
 					if (!empty($data)) {
 						self::discoverServer($data, 3);

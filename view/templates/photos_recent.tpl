@@ -11,4 +11,4 @@
 </div>
 <div class="photos-end"></div>
 
-{{$paginate}}
+{{$paginate nofilter}}
