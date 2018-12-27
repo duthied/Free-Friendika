@@ -9,9 +9,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Strings;
 
-require_once 'include/dba.php';
-require_once 'include/text.php';
-
 /**
  * Hashtag module.
  */

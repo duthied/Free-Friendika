@@ -22,8 +22,6 @@ use Friendica\Util\Temporal;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
-require_once 'include/enotify.php';
-
 /**
  * @brief Outputs the counts and the lists of various notifications
  *

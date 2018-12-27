@@ -10,8 +10,6 @@ use Friendica\Core\Authentication;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 
-require_once 'boot.php';
-
 /**
  * Logout module
  *

@@ -19,8 +19,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
-require_once 'include/dba.php';
-
 /**
  * @brief This class handles GlobalContact related functions
  */

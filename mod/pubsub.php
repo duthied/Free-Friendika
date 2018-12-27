@@ -9,8 +9,6 @@ use Friendica\Protocol\OStatus;
 use Friendica\Util\Strings;
 use Friendica\Core\System;
 
-require_once 'include/items.php';
-
 function hub_return($valid, $body)
 {
 	if ($valid) {

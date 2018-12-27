@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-include_once dirname(__DIR__) . '/boot.php';
+require dirname(__DIR__) . '/vendor/autoload.php';
 
 $a = new Friendica\App(dirname(__DIR__));
 \Friendica\BaseObject::setApp($a);

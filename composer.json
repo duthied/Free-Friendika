@@ -14,6 +14,7 @@
 	},
 	"require": {
 		"php": ">=5.6.1",
+		"ext-curl": "*",
 		"ext-dom": "*",
 		"ext-json": "*",
 		"ext-xml": "*",
@@ -55,7 +56,15 @@
 		},
 		"psr-0": {
 			"": "library/"
-		}
+		},
+		"files": [
+			"include/conversation.php",
+			"include/dba.php",
+			"include/enotify.php",
+			"include/items.php",
+			"include/text.php",
+			"boot.php"
+		]
 	},
 	"config": {
 		"autoloader-suffix": "Friendica",

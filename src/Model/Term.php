@@ -7,10 +7,6 @@ namespace Friendica\Model;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 
-require_once 'boot.php';
-require_once 'include/conversation.php';
-require_once 'include/dba.php';
-
 class Term
 {
 	public static function tagTextFromItemId($itemid)

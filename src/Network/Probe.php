@@ -28,8 +28,6 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use DomXPath;
 
-require_once 'include/dba.php';
-
 /**
  * @brief This class contain functions for probing URL
  *

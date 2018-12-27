@@ -39,8 +39,6 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 
-require_once 'include/dba.php';
-
 class ExAuth
 {
 	private $bDebug;

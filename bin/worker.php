@@ -26,7 +26,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 	chdir($directory);
 }
 
-require_once "boot.php";
+require dirname(__DIR__) . '/vendor/autoload.php';
 
 $a = new App(dirname(__DIR__));
 

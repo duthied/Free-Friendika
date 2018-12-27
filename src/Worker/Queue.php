@@ -20,9 +20,6 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 
-require_once 'include/dba.php';
-require_once 'include/items.php';
-
 class Queue
 {
 	public static function execute($queue_id = 0)

@@ -34,8 +34,6 @@ function notes_content(App $a, $update = false)
 		return;
 	}
 
-	require_once 'include/conversation.php';
-
 	$o = Profile::getTabs($a, true);
 
 	if (!$update) {

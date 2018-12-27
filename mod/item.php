@@ -38,10 +38,6 @@ use Friendica\Util\Emailer;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
 
-require_once 'include/enotify.php';
-require_once 'include/text.php';
-require_once 'include/items.php';
-
 function item_post(App $a) {
 	if (!local_user() && !remote_user()) {
 		return 0;
@@ -668,7 +664,6 @@ function item_post(App $a) {
 
 	// preview mode - prepare the body for display and send it via json
 	if ($preview) {
-		require_once 'include/conversation.php';
 		// We set the datarray ID to -1 because in preview mode the dataray
 		// doesn't have an ID.
 		$datarray["id"] = -1;

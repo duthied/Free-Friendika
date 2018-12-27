@@ -7,8 +7,6 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
-require_once 'include/dba.php';
-
 /**
  * @brief functions for interacting with the permission set of an object (item, photo, event, ...)
  */

@@ -127,9 +127,6 @@ function profile_content(App $a, $update = 0)
 		return Login::form();
 	}
 
-	require_once 'include/conversation.php';
-	require_once 'include/items.php';
-
 	$groups = [];
 	$remote_cid = null;
 

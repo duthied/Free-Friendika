@@ -26,8 +26,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/dba.php';
-
 class PortableContact
 {
 	/**

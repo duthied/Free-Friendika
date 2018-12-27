@@ -30,9 +30,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
-require_once 'include/conversation.php';
-require_once 'include/items.php';
-
 function network_init(App $a)
 {
 	if (!local_user()) {

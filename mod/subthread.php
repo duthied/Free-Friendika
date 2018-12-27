@@ -13,8 +13,6 @@ use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/items.php';
-
 function subthread_content(App $a) {
 
 	if (!local_user() && !remote_user()) {

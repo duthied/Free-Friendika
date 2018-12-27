@@ -2,6 +2,7 @@
 /**
  * @file src/Database/DBStructure.php
  */
+
 namespace Friendica\Database;
 
 use Exception;
@@ -10,11 +11,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Util\DateTimeFormat;
-
-require_once 'boot.php';
-require_once 'include/dba.php';
-require_once 'include/enotify.php';
-require_once 'include/text.php';
 
 /**
  * @brief This class contain functions for the database management
@@ -27,6 +23,9 @@ class DBStructure
 	const UPDATE_SUCCESSFUL  = 1; // Database check was successful
 	const UPDATE_FAILED      = 2; // Database check failed
 
+	const RENAME_COLUMN      = 0;
+	const RENAME_PRIMARY_KEY = 1;
+
 	/**
 	 * Database structure definition loaded from config/dbstructure.config.php
 	 *
@@ -37,18 +36,19 @@ class DBStructure
 	/*
 	 * Converts all tables from MyISAM to InnoDB
 	 */
-	public static function convertToInnoDB() {
+	public static function convertToInnoDB()
+	{
 		$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
 			DBA::escape(DBA::databaseName()));
 
 		if (!DBA::isResult($r)) {
-			echo L10n::t('There are no tables on MyISAM.')."\n";
+			echo L10n::t('There are no tables on MyISAM.') . "\n";
 			return;
 		}
 
 		foreach ($r AS $table) {
 			$sql = sprintf("ALTER TABLE `%s` engine=InnoDB;", DBA::escape($table['TABLE_NAME']));
-			echo $sql."\n";
+			echo $sql . "\n";
 
 			$result = DBA::e($sql);
 			if (!DBA::isResult($result)) {
@@ -57,80 +57,28 @@ class DBStructure
 		}
 	}
 
-	private static function tableStructure($table) {
-		$structures = q("DESCRIBE `%s`", $table);
+	/**
+	 * @brief Print out database error messages
+	 *
+	 * @param string $message Message to be added to the error message
+	 *
+	 * @return string Error message
+	 */
+	private static function printUpdateError($message)
+	{
+		echo L10n::t("\nError %d occurred during database update:\n%s\n",
+			DBA::errorNo(), DBA::errorMessage());
 
-		$full_columns = q("SHOW FULL COLUMNS FROM `%s`", $table);
-
-		$indexes = q("SHOW INDEX FROM `%s`", $table);
-
-		$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
-
-		if (DBA::isResult($table_status)) {
-			$table_status = $table_status[0];
-		} else {
-			$table_status = [];
-		}
-
-		$fielddata = [];
-		$indexdata = [];
-
-		if (DBA::isResult($indexes)) {
-			foreach ($indexes AS $index) {
-				if ($index['Key_name'] != 'PRIMARY' && $index['Non_unique'] == '0' && !isset($indexdata[$index["Key_name"]])) {
-					$indexdata[$index["Key_name"]] = ['UNIQUE'];
-				}
-
-				$column = $index["Column_name"];
-
-				if ($index["Sub_part"] != "") {
-					$column .= "(".$index["Sub_part"].")";
-				}
-
-				$indexdata[$index["Key_name"]][] = $column;
-			}
-		}
-		if (DBA::isResult($structures)) {
-			foreach ($structures AS $field) {
-				// Replace the default size values so that we don't have to define them
-				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
-				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
-				$field["Type"] = str_replace($search, $replace, $field["Type"]);
-
-				$fielddata[$field["Field"]]["type"] = $field["Type"];
-				if ($field["Null"] == "NO") {
-					$fielddata[$field["Field"]]["not null"] = true;
-				}
-
-				if (isset($field["Default"])) {
-					$fielddata[$field["Field"]]["default"] = $field["Default"];
-				}
-
-				if ($field["Extra"] != "") {
-					$fielddata[$field["Field"]]["extra"] = $field["Extra"];
-				}
-
-				if ($field["Key"] == "PRI") {
-					$fielddata[$field["Field"]]["primary"] = true;
-				}
-			}
-		}
-		if (DBA::isResult($full_columns)) {
-			foreach ($full_columns AS $column) {
-				$fielddata[$column["Field"]]["Collation"] = $column["Collation"];
-				$fielddata[$column["Field"]]["comment"] = $column["Comment"];
-			}
-		}
-
-		return ["fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status];
+		return L10n::t('Errors encountered performing database changes: ') . $message . EOL;
 	}
 
-	public static function printStructure() {
+	public static function printStructure()
+	{
 		$database = self::definition(false);
 
 		echo "-- ------------------------------------------\n";
-		echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
-		echo "-- DB_UPDATE_VERSION ".DB_UPDATE_VERSION."\n";
+		echo "-- " . FRIENDICA_PLATFORM . " " . FRIENDICA_VERSION . " (" . FRIENDICA_CODENAME, ")\n";
+		echo "-- DB_UPDATE_VERSION " . DB_UPDATE_VERSION . "\n";
 		echo "-- ------------------------------------------\n\n\n";
 		foreach ($database AS $name => $structure) {
 			echo "--\n";
@@ -143,17 +91,155 @@ class DBStructure
 	}
 
 	/**
-	 * @brief Print out database error messages
+	 * Loads the database structure definition from the config/dbstructure.config.php file.
+	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
-	 * @param string $message Message to be added to the error message
-	 *
-	 * @return string Error message
+	 * @see config/dbstructure.config.php
+	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
+	 * @return array
+	 * @throws Exception
 	 */
-	private static function printUpdateError($message) {
-		echo L10n::t("\nError %d occurred during database update:\n%s\n",
-			DBA::errorNo(), DBA::errorMessage());
+	public static function definition($with_addons_structure = true)
+	{
+		if (!self::$definition) {
+			$a = \Friendica\BaseObject::getApp();
 
-		return L10n::t('Errors encountered performing database changes: ').$message.EOL;
+			$filename = $a->getBasePath() . '/config/dbstructure.config.php';
+
+			if (!is_readable($filename)) {
+				throw new Exception('Missing database structure config file config/dbstructure.config.php');
+			}
+
+			$definition = require $filename;
+
+			if (!$definition) {
+				throw new Exception('Corrupted database structure config file config/dbstructure.config.php');
+			}
+
+			self::$definition = $definition;
+		} else {
+			$definition = self::$definition;
+		}
+
+		if ($with_addons_structure) {
+			Hook::callAll('dbstructure_definition', $definition);
+		}
+
+		return $definition;
+	}
+
+	private static function createTable($name, $structure, $verbose, $action)
+	{
+		$r = true;
+
+		$engine = "";
+		$comment = "";
+		$sql_rows = [];
+		$primary_keys = [];
+		foreach ($structure["fields"] AS $fieldname => $field) {
+			$sql_rows[] = "`" . DBA::escape($fieldname) . "` " . self::FieldCommand($field);
+			if (!empty($field['primary'])) {
+				$primary_keys[] = $fieldname;
+			}
+		}
+
+		if (!empty($structure["indexes"])) {
+			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
+				$sql_index = self::createIndex($indexname, $fieldnames, "");
+				if (!is_null($sql_index)) {
+					$sql_rows[] = $sql_index;
+				}
+			}
+		}
+
+		if (isset($structure["engine"])) {
+			$engine = " ENGINE=" . $structure["engine"];
+		}
+
+		if (isset($structure["comment"])) {
+			$comment = " COMMENT='" . DBA::escape($structure["comment"]) . "'";
+		}
+
+		$sql = implode(",\n\t", $sql_rows);
+
+		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", DBA::escape($name)) . $sql .
+			"\n)" . $engine . " DEFAULT COLLATE utf8mb4_general_ci" . $comment;
+		if ($verbose) {
+			echo $sql . ";\n";
+		}
+
+		if ($action) {
+			$r = DBA::e($sql);
+		}
+
+		return $r;
+	}
+
+	private static function FieldCommand($parameters, $create = true)
+	{
+		$fieldstruct = $parameters["type"];
+
+		if (isset($parameters["Collation"])) {
+			$fieldstruct .= " COLLATE " . $parameters["Collation"];
+		}
+
+		if (isset($parameters["not null"])) {
+			$fieldstruct .= " NOT NULL";
+		}
+
+		if (isset($parameters["default"])) {
+			if (strpos(strtolower($parameters["type"]), "int") !== false) {
+				$fieldstruct .= " DEFAULT " . $parameters["default"];
+			} else {
+				$fieldstruct .= " DEFAULT '" . $parameters["default"] . "'";
+			}
+		}
+		if (isset($parameters["extra"])) {
+			$fieldstruct .= " " . $parameters["extra"];
+		}
+
+		if (isset($parameters["comment"])) {
+			$fieldstruct .= " COMMENT '" . DBA::escape($parameters["comment"]) . "'";
+		}
+
+		/*if (($parameters["primary"] != "") && $create)
+			$fieldstruct .= " PRIMARY KEY";*/
+
+		return ($fieldstruct);
+	}
+
+	private static function createIndex($indexname, $fieldnames, $method = "ADD")
+	{
+		$method = strtoupper(trim($method));
+		if ($method != "" && $method != "ADD") {
+			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
+		}
+
+		if (in_array($fieldnames[0], ["UNIQUE", "FULLTEXT"])) {
+			$index_type = array_shift($fieldnames);
+			$method .= " " . $index_type;
+		}
+
+		$names = "";
+		foreach ($fieldnames AS $fieldname) {
+			if ($names != "") {
+				$names .= ",";
+			}
+
+			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
+				$names .= "`" . DBA::escape($matches[1]) . "`(" . intval($matches[2]) . ")";
+			} else {
+				$names .= "`" . DBA::escape($fieldname) . "`";
+			}
+		}
+
+		if ($indexname == "PRIMARY") {
+			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
+		}
+
+
+		$sql = sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexname), $names);
+		return ($sql);
 	}
 
 	/**
@@ -166,10 +252,11 @@ class DBStructure
 	 * @param array $definition An array of the definition tables
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 */
-	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null) {
+	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null)
+	{
 		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DateTimeFormat::utcNow().' '.date('e')));
+			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
 
 		$errors = '';
@@ -221,16 +308,16 @@ class DBStructure
 			} else {
 				foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 					if (isset($database[$name]["indexes"][$indexname])) {
-						$current_index_definition = implode(",",$database[$name]["indexes"][$indexname]);
+						$current_index_definition = implode(",", $database[$name]["indexes"][$indexname]);
 					} else {
 						$current_index_definition = "__NOT_SET__";
 					}
-					$new_index_definition = implode(",",$fieldnames);
+					$new_index_definition = implode(",", $fieldnames);
 					if ($current_index_definition != $new_index_definition) {
 						if ($fieldnames[0] == "UNIQUE") {
 							$is_unique = true;
 							if ($ignore == "") {
-								$temp_name = "temp-".$name;
+								$temp_name = "temp-" . $name;
 							}
 						}
 					}
@@ -242,29 +329,29 @@ class DBStructure
 				 * and index name doesn't start with "local_"
 				 */
 				foreach ($database[$name]["indexes"] as $indexname => $fieldnames) {
-					$current_index_definition = implode(",",$fieldnames);
+					$current_index_definition = implode(",", $fieldnames);
 					if (isset($structure["indexes"][$indexname])) {
-						$new_index_definition = implode(",",$structure["indexes"][$indexname]);
+						$new_index_definition = implode(",", $structure["indexes"][$indexname]);
 					} else {
 						$new_index_definition = "__NOT_SET__";
 					}
 					if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
-						$sql2=self::dropIndex($indexname);
+						$sql2 = self::dropIndex($indexname);
 						if ($sql3 == "") {
-							$sql3 = "ALTER".$ignore." TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
 				// Compare the field structure field by field
 				foreach ($structure["fields"] AS $fieldname => $parameters) {
 					if (!isset($database[$name]["fields"][$fieldname])) {
-						$sql2=self::addTableField($fieldname, $parameters);
+						$sql2 = self::addTableField($fieldname, $parameters);
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					} else {
 						// Compare the field definition
@@ -289,9 +376,9 @@ class DBStructure
 						if ($current_field_definition != $new_field_definition) {
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {
-								$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 							} else {
-								$sql3 .= ", ".$sql2;
+								$sql3 .= ", " . $sql2;
 							}
 						}
 					}
@@ -306,23 +393,21 @@ class DBStructure
 			if (!$is_new_table) {
 				foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 					if (isset($database[$name]["indexes"][$indexname])) {
-						$current_index_definition = implode(",",$database[$name]["indexes"][$indexname]);
+						$current_index_definition = implode(",", $database[$name]["indexes"][$indexname]);
 					} else {
 						$current_index_definition = "__NOT_SET__";
 					}
-					$new_index_definition = implode(",",$fieldnames);
+					$new_index_definition = implode(",", $fieldnames);
 					if ($current_index_definition != $new_index_definition) {
 						$sql2 = self::createIndex($indexname, $fieldnames);
 
 						// Fetch the "group by" fields for unique indexes
-						if ($fieldnames[0] == "UNIQUE") {
-							$group_by = self::groupBy($indexname, $fieldnames);
-						}
+						$group_by = self::groupBy($fieldnames);
 						if ($sql2 != "") {
 							if ($sql3 == "") {
-								$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 							} else {
-								$sql3 .= ", ".$sql2;
+								$sql3 .= ", " . $sql2;
 							}
 						}
 					}
@@ -331,24 +416,24 @@ class DBStructure
 				if (isset($database[$name]["table_status"]["Comment"])) {
 					$structurecomment = defaults($structure, "comment", "");
 					if ($database[$name]["table_status"]["Comment"] != $structurecomment) {
-						$sql2 = "COMMENT = '".DBA::escape($structurecomment)."'";
+						$sql2 = "COMMENT = '" . DBA::escape($structurecomment) . "'";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
 
 				if (isset($database[$name]["table_status"]["Engine"]) && isset($structure['engine'])) {
 					if ($database[$name]["table_status"]["Engine"] != $structure['engine']) {
-						$sql2 = "ENGINE = '".DBA::escape($structure['engine'])."'";
+						$sql2 = "ENGINE = '" . DBA::escape($structure['engine']) . "'";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
@@ -358,9 +443,9 @@ class DBStructure
 						$sql2 = "DEFAULT COLLATE utf8mb4_general_ci";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
@@ -385,9 +470,9 @@ class DBStructure
 					if ($field_definition['Collation'] != $parameters['Collation']) {
 						$sql2 = self::modifyTableField($fieldname, $parameters);
 						if (($sql3 == "") || (substr($sql3, -2, 2) == "; ")) {
-							$sql3 .= "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 .= "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
@@ -412,27 +497,27 @@ class DBStructure
 						if ($ignore != "") {
 							echo "SET session old_alter_table=1;\n";
 						} else {
-							echo "DROP TABLE IF EXISTS `".$temp_name."`;\n";
-							echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
+							echo "DROP TABLE IF EXISTS `" . $temp_name . "`;\n";
+							echo "CREATE TABLE `" . $temp_name . "` LIKE `" . $name . "`;\n";
 						}
 					}
 
-					echo $sql3."\n";
+					echo $sql3 . "\n";
 
 					if ($is_unique && ($temp_name != $name)) {
 						if ($ignore != "") {
 							echo "SET session old_alter_table=0;\n";
 						} else {
-							echo "INSERT INTO `".$temp_name."` SELECT ".DBA::anyValueFallback($field_list)." FROM `".$name."`".$group_by.";\n";
-							echo "DROP TABLE `".$name."`;\n";
-							echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
+							echo "INSERT INTO `" . $temp_name . "` SELECT " . DBA::anyValueFallback($field_list) . " FROM `" . $name . "`" . $group_by . ";\n";
+							echo "DROP TABLE `" . $name . "`;\n";
+							echo "RENAME TABLE `" . $temp_name . "` TO `" . $name . "`;\n";
 						}
 					}
 				}
 
 				if ($action) {
 					if (!$install) {
-						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DateTimeFormat::utcNow().' '.date('e'), $name));
+						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
 					// Ensure index conversion to unique removes duplicates
@@ -440,13 +525,13 @@ class DBStructure
 						if ($ignore != "") {
 							DBA::e("SET session old_alter_table=1;");
 						} else {
-							$r = DBA::e("DROP TABLE IF EXISTS `".$temp_name."`;");
+							$r = DBA::e("DROP TABLE IF EXISTS `" . $temp_name . "`;");
 							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
 
-							$r = DBA::e("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
+							$r = DBA::e("CREATE TABLE `" . $temp_name . "` LIKE `" . $name . "`;");
 							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
@@ -462,17 +547,17 @@ class DBStructure
 						if ($ignore != "") {
 							DBA::e("SET session old_alter_table=0;");
 						} else {
-							$r = DBA::e("INSERT INTO `".$temp_name."` SELECT ".$field_list." FROM `".$name."`".$group_by.";");
+							$r = DBA::e("INSERT INTO `" . $temp_name . "` SELECT " . $field_list . " FROM `" . $name . "`" . $group_by . ";");
 							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
-							$r = DBA::e("DROP TABLE `".$name."`;");
+							$r = DBA::e("DROP TABLE `" . $name . "`;");
 							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
-							$r = DBA::e("RENAME TABLE `".$temp_name."` TO `".$name."`;");
+							$r = DBA::e("RENAME TABLE `" . $temp_name . "` TO `" . $name . "`;");
 							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
@@ -497,133 +582,105 @@ class DBStructure
 		return $errors;
 	}
 
-	private static function FieldCommand($parameters, $create = true) {
-		$fieldstruct = $parameters["type"];
+	private static function tableStructure($table)
+	{
+		$structures = q("DESCRIBE `%s`", $table);
 
-		if (isset($parameters["Collation"])) {
-			$fieldstruct .= " COLLATE ".$parameters["Collation"];
+		$full_columns = q("SHOW FULL COLUMNS FROM `%s`", $table);
+
+		$indexes = q("SHOW INDEX FROM `%s`", $table);
+
+		$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
+
+		if (DBA::isResult($table_status)) {
+			$table_status = $table_status[0];
+		} else {
+			$table_status = [];
 		}
 
-		if (isset($parameters["not null"])) {
-			$fieldstruct .= " NOT NULL";
-		}
+		$fielddata = [];
+		$indexdata = [];
 
-		if (isset($parameters["default"])) {
-			if (strpos(strtolower($parameters["type"]),"int")!==false) {
-				$fieldstruct .= " DEFAULT ".$parameters["default"];
-			} else {
-				$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
+		if (DBA::isResult($indexes)) {
+			foreach ($indexes AS $index) {
+				if ($index["Key_name"] != "PRIMARY" && $index["Non_unique"] == "0" && !isset($indexdata[$index["Key_name"]])) {
+					$indexdata[$index["Key_name"]] = ["UNIQUE"];
+				}
+
+				if ($index["Index_type"] == "FULLTEXT" && !isset($indexdata[$index["Key_name"]])) {
+					$indexdata[$index["Key_name"]] = ["FULLTEXT"];
+				}
+
+				$column = $index["Column_name"];
+
+				if ($index["Sub_part"] != "") {
+					$column .= "(" . $index["Sub_part"] . ")";
+				}
+
+				$indexdata[$index["Key_name"]][] = $column;
 			}
 		}
-		if (isset($parameters["extra"])) {
-			$fieldstruct .= " ".$parameters["extra"];
-		}
+		if (DBA::isResult($structures)) {
+			foreach ($structures AS $field) {
+				// Replace the default size values so that we don't have to define them
+				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
+				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
+				$field["Type"] = str_replace($search, $replace, $field["Type"]);
 
-		if (isset($parameters["comment"])) {
-			$fieldstruct .= " COMMENT '".DBA::escape($parameters["comment"])."'";
-		}
+				$fielddata[$field["Field"]]["type"] = $field["Type"];
+				if ($field["Null"] == "NO") {
+					$fielddata[$field["Field"]]["not null"] = true;
+				}
 
-		/*if (($parameters["primary"] != "") && $create)
-			$fieldstruct .= " PRIMARY KEY";*/
+				if (isset($field["Default"])) {
+					$fielddata[$field["Field"]]["default"] = $field["Default"];
+				}
 
-		return($fieldstruct);
-	}
+				if ($field["Extra"] != "") {
+					$fielddata[$field["Field"]]["extra"] = $field["Extra"];
+				}
 
-	private static function createTable($name, $structure, $verbose, $action) {
-		$r = true;
-
-		$engine = "";
-		$comment = "";
-		$sql_rows = [];
-		$primary_keys = [];
-		foreach ($structure["fields"] AS $fieldname => $field) {
-			$sql_rows[] = "`".DBA::escape($fieldname)."` ".self::FieldCommand($field);
-			if (!empty($field['primary'])) {
-				$primary_keys[] = $fieldname;
-			}
-		}
-
-		if (!empty($structure["indexes"])) {
-			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
-				$sql_index = self::createIndex($indexname, $fieldnames, "");
-				if (!is_null($sql_index)) {
-					$sql_rows[] = $sql_index;
+				if ($field["Key"] == "PRI") {
+					$fielddata[$field["Field"]]["primary"] = true;
 				}
 			}
 		}
-
-		if (isset($structure["engine"])) {
-			$engine = " ENGINE=" . $structure["engine"];
+		if (DBA::isResult($full_columns)) {
+			foreach ($full_columns AS $column) {
+				$fielddata[$column["Field"]]["Collation"] = $column["Collation"];
+				$fielddata[$column["Field"]]["comment"] = $column["Comment"];
+			}
 		}
 
-		if (isset($structure["comment"])) {
-			$comment = " COMMENT='" . DBA::escape($structure["comment"]) . "'";
-		}
-
-		$sql = implode(",\n\t", $sql_rows);
-
-		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", DBA::escape($name)).$sql.
-				"\n)" . $engine . " DEFAULT COLLATE utf8mb4_general_ci" . $comment;
-		if ($verbose) {
-			echo $sql.";\n";
-		}
-
-		if ($action) {
-			$r = DBA::e($sql);
-		}
-
-		return $r;
+		return ["fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status];
 	}
 
-	private static function addTableField($fieldname, $parameters) {
-		$sql = sprintf("ADD `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters));
-		return($sql);
-	}
-
-	private static function modifyTableField($fieldname, $parameters) {
-		$sql = sprintf("MODIFY `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters, false));
-		return($sql);
-	}
-
-	private static function dropIndex($indexname) {
+	private static function dropIndex($indexname)
+	{
 		$sql = sprintf("DROP INDEX `%s`", DBA::escape($indexname));
-		return($sql);
+		return ($sql);
 	}
 
-	private static function createIndex($indexname, $fieldnames, $method = "ADD") {
-		$method = strtoupper(trim($method));
-		if ($method!="" && $method!="ADD") {
-			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
-		}
-
-		if ($fieldnames[0] == "UNIQUE") {
-			array_shift($fieldnames);
-			$method .= ' UNIQUE';
-		}
-
-		$names = "";
-		foreach ($fieldnames AS $fieldname) {
-			if ($names != "") {
-				$names .= ",";
-			}
-
-			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
-				$names .= "`".DBA::escape($matches[1])."`(".intval($matches[2]).")";
-			} else {
-				$names .= "`".DBA::escape($fieldname)."`";
-			}
-		}
-
-		if ($indexname == "PRIMARY") {
-			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
-		}
-
-
-		$sql = sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexname), $names);
-		return($sql);
+	private static function addTableField($fieldname, $parameters)
+	{
+		$sql = sprintf("ADD `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters));
+		return ($sql);
 	}
 
-	private static function groupBy($indexname, $fieldnames) {
+	private static function modifyTableField($fieldname, $parameters)
+	{
+		$sql = sprintf("MODIFY `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters, false));
+		return ($sql);
+	}
+
+	/**
+	 * Constructs a GROUP BY clause from a UNIQUE index definition.
+	 *
+	 * @param array $fieldnames
+	 * @return string
+	 */
+	private static function groupBy(array $fieldnames)
+	{
 		if ($fieldnames[0] != "UNIQUE") {
 			return "";
 		}
@@ -637,9 +694,9 @@ class DBStructure
 			}
 
 			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
-				$names .= "`".DBA::escape($matches[1])."`";
+				$names .= "`" . DBA::escape($matches[1]) . "`";
 			} else {
-				$names .= "`".DBA::escape($fieldname)."`";
+				$names .= "`" . DBA::escape($fieldname) . "`";
 			}
 		}
 
@@ -648,91 +705,20 @@ class DBStructure
 	}
 
 	/**
-	 * 	Check if a table exists
-	 *
-	 * @param string $table Table name
-	 *
-	 * @return boolean Does the table exist?
-	 */
-	public static function existsTable($table)
-	{
-		if (empty($table)) {
-			return false;
-		}
-
-		$table = DBA::escape($table);
-
-		$sql = "SHOW TABLES LIKE '" . $table . "';";
-
-		$stmt = DBA::p($sql);
-
-		if (is_bool($stmt)) {
-			$retval = $stmt;
-		} else {
-			$retval = (DBA::numRows($stmt) > 0);
-		}
-
-		DBA::close($stmt);
-
-		return $retval;
-	}
-
-	/**
-	 * 	Check if the columns of the table exists
-	 *
-	 * @param string $table   Table name
-	 * @param array  $columns Columns to check ( Syntax: [ $col1, $col2, .. ] )
-	 *
-	 * @return boolean Does the table exist?
-	 */
-	public static function existsColumn($table, $columns = []) {
-		if (empty($table)) {
-			return false;
-		}
-
-		if (is_null($columns) || empty($columns)) {
-			return self::existsTable($table);
-		}
-
-		$table = DBA::escape($table);
-
-		foreach ($columns AS $column) {
-			$sql = "SHOW COLUMNS FROM `" . $table . "` LIKE '" . $column . "';";
-
-			$stmt = DBA::p($sql);
-
-			if (is_bool($stmt)) {
-				$retval = $stmt;
-			} else {
-				$retval = (DBA::numRows($stmt) > 0);
-			}
-
-			DBA::close($stmt);
-
-			if (!$retval) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	const RENAME_COLUMN = 0;
-	const RENAME_PRIMARY_KEY = 1;
-
-	/**
 	 * Renames columns or the primary key of a table
+	 *
 	 * @todo You cannot rename a primary key if "auto increment" is set
 	 *
-	 * @param string $table    Table name
-	 * @param array  $columns  Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ] )
+	 * @param string $table            Table name
+	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ] )
 	 *                                 Syntax for Primary Key: [ $col1, $col2, ...] )
-	 * @param int    $type     The type of renaming (Default is Column)
+	 * @param int    $type             The type of renaming (Default is Column)
 	 *
 	 * @return boolean Was the renaming successful?
 	 *
 	 */
-	public static function rename($table, $columns, $type = self::RENAME_COLUMN) {
+	public static function rename($table, $columns, $type = self::RENAME_COLUMN)
+	{
 		if (empty($table) || empty($columns)) {
 			return false;
 		}
@@ -783,40 +769,73 @@ class DBStructure
 	}
 
 	/**
-	 * Loads the database structure definition from the config/dbstructure.config.php file.
-	 * On first pass, defines DB_UPDATE_VERSION constant.
+	 *    Check if the columns of the table exists
 	 *
-	 * @see config/dbstructure.config.php
-	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
-	 * @return array
-	 * @throws Exception
+	 * @param string $table   Table name
+	 * @param array  $columns Columns to check ( Syntax: [ $col1, $col2, .. ] )
+	 *
+	 * @return boolean Does the table exist?
 	 */
-	public static function definition($with_addons_structure = true)
+	public static function existsColumn($table, $columns = [])
 	{
-		if (!self::$definition) {
-			$a = \Friendica\BaseObject::getApp();
+		if (empty($table)) {
+			return false;
+		}
 
-			$filename = $a->getBasePath() . '/config/dbstructure.config.php';
+		if (is_null($columns) || empty($columns)) {
+			return self::existsTable($table);
+		}
 
-			if (!is_readable($filename)) {
-				throw new Exception('Missing database structure config file config/dbstructure.config.php');
+		$table = DBA::escape($table);
+
+		foreach ($columns AS $column) {
+			$sql = "SHOW COLUMNS FROM `" . $table . "` LIKE '" . $column . "';";
+
+			$stmt = DBA::p($sql);
+
+			if (is_bool($stmt)) {
+				$retval = $stmt;
+			} else {
+				$retval = (DBA::numRows($stmt) > 0);
 			}
 
-			$definition = require $filename;
+			DBA::close($stmt);
 
-			if (!$definition) {
-				throw new Exception('Corrupted database structure config file config/dbstructure.config.php');
+			if (!$retval) {
+				return false;
 			}
+		}
 
-			self::$definition = $definition;
+		return true;
+	}
+
+	/**
+	 *    Check if a table exists
+	 *
+	 * @param string $table Table name
+	 *
+	 * @return boolean Does the table exist?
+	 */
+	public static function existsTable($table)
+	{
+		if (empty($table)) {
+			return false;
+		}
+
+		$table = DBA::escape($table);
+
+		$sql = "SHOW TABLES LIKE '" . $table . "';";
+
+		$stmt = DBA::p($sql);
+
+		if (is_bool($stmt)) {
+			$retval = $stmt;
 		} else {
-			$definition = self::$definition;
+			$retval = (DBA::numRows($stmt) > 0);
 		}
 
-		if ($with_addons_structure) {
-			Hook::callAll('dbstructure_definition', $definition);
-		}
+		DBA::close($stmt);
 
-		return $definition;
+		return $retval;
 	}
 }

@@ -13,8 +13,6 @@ use Friendica\Model\Item;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/items.php';
-
 function tagger_content(App $a) {
 
 	if (!local_user() && !remote_user()) {

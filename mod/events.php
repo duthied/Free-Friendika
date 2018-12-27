@@ -22,8 +22,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-require_once 'include/items.php';
-
 function events_init(App $a)
 {
 	if (!local_user()) {

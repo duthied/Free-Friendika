@@ -7,14 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class CurlResultTest extends TestCase
 {
-	public function setUp()
-	{
-		parent::setUp();
-
-		require_once __DIR__.'/../../../boot.php';
-		require_once __DIR__.'/../../../include/text.php';
-	}
-
 	/**
 	 * @small
 	 */

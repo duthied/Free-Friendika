@@ -585,7 +585,6 @@ class Installer
 	 */
 	public function checkDB($dbhost, $dbuser, $dbpass, $dbdata)
 	{
-		require_once 'include/dba.php';
 		if (!DBA::connect($dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
 

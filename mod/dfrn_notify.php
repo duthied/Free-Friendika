@@ -16,8 +16,6 @@ use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Strings;
 
-require_once 'include/items.php';
-
 function dfrn_notify_post(App $a) {
 	Logger::log(__function__, Logger::TRACE);
 

@@ -4,9 +4,6 @@ namespace Friendica\Core\Console;
 
 use Friendica\Core;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-
 /**
  * @brief Sets maintenance mode for this node
  *

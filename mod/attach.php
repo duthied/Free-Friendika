@@ -8,8 +8,6 @@ use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Util\Security;
 
-require_once 'include/dba.php';
-
 function attach_init(App $a)
 {
 	if ($a->argc != 2) {

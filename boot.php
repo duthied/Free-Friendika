@@ -17,8 +17,6 @@
  * easily as email does today.
  */
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Addon;
@@ -34,8 +32,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Util\DateTimeFormat;
-
-require_once 'include/text.php';
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');

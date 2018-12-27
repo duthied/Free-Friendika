@@ -49,8 +49,7 @@ $directory = realpath($directory . DIRECTORY_SEPARATOR . "..");
 
 chdir($directory);
 
-require_once "boot.php";
-require_once "include/dba.php";
+require dirname(__DIR__) . '/vendor/autoload.php';
 
 $a = new App(dirname(__DIR__));
 

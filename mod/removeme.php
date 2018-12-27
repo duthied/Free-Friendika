@@ -12,8 +12,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Util\Strings;
 
-require_once 'include/enotify.php';
-
 function removeme_post(App $a)
 {
 	if (!local_user()) {

@@ -19,8 +19,6 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
-require_once 'include/dba.php';
-
 /**
  * @brief Methods for read and write notifications from/to database
  *  or for formatting notifications

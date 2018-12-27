@@ -169,7 +169,7 @@ class Pager
 			'next'  => [
 				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
 				'text'  => L10n::t('older'),
-				'class' =>  'next' . ($displayedItemCount <= 0 ? ' disabled' : '')
+				'class' =>  'next' . ($displayedItemCount < $this->getItemsPerPage() ? ' disabled' : '')
 			]
 		];
 

@@ -9,8 +9,6 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 class Queue
 {
 	/**

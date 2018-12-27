@@ -13,8 +13,6 @@ use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 /**
  * Class to handle private messages
  */

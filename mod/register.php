@@ -18,8 +18,6 @@ use Friendica\Model;
 use Friendica\Module\Tos;
 use Friendica\Util\Strings;
 
-require_once 'include/enotify.php';
-
 function register_post(App $a)
 {
 	BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');

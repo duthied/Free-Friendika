@@ -13,8 +13,6 @@ use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 
-require_once 'include/enotify.php';
-
 function user_allow($hash)
 {
 	$a = get_app();

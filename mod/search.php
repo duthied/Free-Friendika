@@ -18,7 +18,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Strings;
 
-require_once 'include/conversation.php';
 require_once 'mod/dirfind.php';
 
 function search_saved_searches() {

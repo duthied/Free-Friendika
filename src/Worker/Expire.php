@@ -14,15 +14,11 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
-require_once 'include/dba.php';
-
 class Expire
 {
 	public static function execute($param = '', $hook_function = '')
 	{
 		$a = BaseObject::getApp();
-
-		require_once 'include/items.php';
 
 		Hook::loadHooks();
 

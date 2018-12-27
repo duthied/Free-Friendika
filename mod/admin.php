@@ -33,10 +33,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-require_once 'include/enotify.php';
-require_once 'include/text.php';
-require_once 'include/items.php';
-
 /**
  * @brief Process send data from the admin panels subpages
  *

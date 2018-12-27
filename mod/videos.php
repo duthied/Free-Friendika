@@ -18,8 +18,6 @@ use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\Security;
 
-require_once 'include/items.php';
-
 function videos_init(App $a)
 {
 	if ($a->argc > 1) {
@@ -194,8 +192,6 @@ function videos_content(App $a)
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
-
-	require_once 'include/conversation.php';
 
 	if (empty($a->data['user'])) {
 		notice(L10n::t('No videos selected') . EOL );

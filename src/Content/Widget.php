@@ -21,9 +21,6 @@ use Friendica\Model\Profile;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-
 class Widget
 {
 	/**

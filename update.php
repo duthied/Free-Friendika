@@ -12,8 +12,6 @@ use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 /**
  *
  * update.php - automatic system update

@@ -36,9 +36,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/enotify.php';
-require_once 'include/items.php';
-
 function dfrn_confirm_post(App $a, $handsfree = null)
 {
 	$node = null;

@@ -21,15 +21,11 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/dba.php';
-
 class OnePoll
 {
 	public static function execute($contact_id = 0, $command = '')
 	{
 		$a = BaseObject::getApp();
-
-		require_once 'include/items.php';
 
 		Logger::log('start');
 

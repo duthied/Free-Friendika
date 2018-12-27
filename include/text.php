@@ -30,8 +30,6 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Content\Text\HTML;
 
-require_once "include/conversation.php";
-
 /**
  * Turn user/group ACLs stored as angle bracketed text into arrays
  *

@@ -5,8 +5,6 @@ use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Util\Strings;
 
-require_once 'include/items.php';
-
 function like_content(App $a) {
 	if (!local_user() && !remote_user()) {
 		return false;

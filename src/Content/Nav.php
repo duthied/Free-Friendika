@@ -15,9 +15,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 
-require_once 'boot.php';
-require_once 'include/text.php';
-
 class Nav
 {
 	private static $selected = [

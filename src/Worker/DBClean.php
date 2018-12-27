@@ -11,8 +11,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 
-require_once 'include/dba.php';
-
 class DBClean {
 	public static function execute($stage = 0) {
 

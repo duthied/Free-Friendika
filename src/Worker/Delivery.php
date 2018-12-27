@@ -21,8 +21,6 @@ use Friendica\Protocol\Email;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
 
-require_once 'include/items.php';
-
 class Delivery extends BaseObject
 {
 	const MAIL          = 'mail';

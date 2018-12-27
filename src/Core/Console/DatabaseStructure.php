@@ -8,9 +8,6 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use RuntimeException;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-
 /**
  * @brief Performs database updates from the command line
  *

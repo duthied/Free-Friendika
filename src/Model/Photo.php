@@ -16,8 +16,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Security;
 
-require_once 'include/dba.php';
-
 /**
  * Class to handle photo dabatase table
  */

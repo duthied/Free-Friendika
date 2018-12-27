@@ -9,8 +9,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Model\Item;
 
-require_once "include/items.php";
-
 class SpoolPost {
 	public static function execute() {
 		$path = get_spoolpath();

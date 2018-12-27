@@ -19,8 +19,6 @@
  */
 use Friendica\Core\PConfig;
 
-require_once 'boot.php';
-
 function get_scheme_info($scheme)
 {
 	$theme = get_app()->getCurrentTheme();

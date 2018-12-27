@@ -9,8 +9,6 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
-require_once 'boot.php';
-
 class ItemURI extends BaseObject
 {
 	/**

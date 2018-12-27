@@ -21,8 +21,6 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-require_once 'include/conversation.php';
-
 function message_init(App $a)
 {
 	$tabs = '';

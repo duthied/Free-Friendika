@@ -29,10 +29,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'include/dba.php';
-require_once 'include/items.php';
 require_once 'mod/share.php';
-require_once 'include/enotify.php';
 require_once 'include/api.php';
 
 /**

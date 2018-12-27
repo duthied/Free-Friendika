@@ -10,8 +10,6 @@ use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
 use Friendica\Util\XML;
 
-require_once 'include/items.php';
-
 function filer_content(App $a)
 {
 	if (! local_user()) {

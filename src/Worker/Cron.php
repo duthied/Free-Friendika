@@ -15,8 +15,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 class Cron
 {
 	public static function execute($parameter = '', $generation = 0)
