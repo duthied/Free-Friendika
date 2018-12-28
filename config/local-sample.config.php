@@ -34,7 +34,7 @@ return [
 	'config' => [
 		'admin_email' => '',
 		'sitename' => 'Friendica Social Network',
-		'register_policy' => REGISTER_OPEN,
+		'register_policy' => \Friendica\Module\Register::OPEN,
 		'register_text' => '',
 	],
 	'system' => [

@@ -20,6 +20,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Module\Register;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -705,10 +706,10 @@ class PortableContact
 
 		$server = [];
 
-		$server['register_policy'] = REGISTER_CLOSED;
+		$server['register_policy'] = Register::CLOSED;
 
 		if (is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
-			$server['register_policy'] = REGISTER_OPEN;
+			$server['register_policy'] = Register::OPEN;
 		}
 
 		if (is_array($nodeinfo['software'])) {
@@ -789,10 +790,10 @@ class PortableContact
 
 		$server = [];
 
-		$server['register_policy'] = REGISTER_CLOSED;
+		$server['register_policy'] = Register::CLOSED;
 
 		if (is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
-			$server['register_policy'] = REGISTER_OPEN;
+			$server['register_policy'] = Register::OPEN;
 		}
 
 		if (is_array($nodeinfo['software'])) {
@@ -1192,16 +1193,16 @@ class PortableContact
 				if (!empty($data['register_policy'])) {
 					switch ($data['register_policy']) {
 						case "REGISTER_OPEN":
-							$register_policy = REGISTER_OPEN;
+							$register_policy = Register::OPEN;
 							break;
 
 						case "REGISTER_APPROVE":
-							$register_policy = REGISTER_APPROVE;
+							$register_policy = Register::APPROVE;
 							break;
 
 						case "REGISTER_CLOSED":
 						default:
-							$register_policy = REGISTER_CLOSED;
+							$register_policy = Register::CLOSED;
 							break;
 					}
 				}
@@ -1267,11 +1268,11 @@ class PortableContact
 						}
 
 						if (!$closed && !$private and $inviteonly) {
-							$register_policy = REGISTER_APPROVE;
+							$register_policy = Register::APPROVE;
 						} elseif (!$closed && !$private) {
-							$register_policy = REGISTER_OPEN;
+							$register_policy = Register::OPEN;
 						} else {
-							$register_policy = REGISTER_CLOSED;
+							$register_policy = Register::CLOSED;
 						}
 					}
 				}
@@ -1305,9 +1306,9 @@ class PortableContact
 				}
 
 				if (!empty($data['registrations_open']) && $data['registrations_open']) {
-					$register_policy = REGISTER_OPEN;
+					$register_policy = Register::OPEN;
 				} else {
-					$register_policy = REGISTER_CLOSED;
+					$register_policy = Register::CLOSED;
 				}
 			}
 		}
@@ -1367,13 +1368,27 @@ class PortableContact
 					}
 
 					$info = defaults($data, 'info', '');
-					$register_policy = defaults($data, 'register_policy', REGISTER_CLOSED);
-					if (in_array($register_policy, ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'])) {
-						$register_policy = constant($register_policy);
-					} else {
-						Logger::log("Register policy '$register_policy' from $server_url is invalid.");
-						$register_policy = REGISTER_CLOSED; // set a default value
+
+					$register_policy = defaults($data, 'register_policy', 'REGISTER_CLOSED');
+					switch ($register_policy) {
+						case 'REGISTER_OPEN':
+							$register_policy = Register::OPEN;
+							break;
+
+						case 'REGISTER_APPROVE':
+							$register_policy = Register::APPROVE;
+							break;
+
+						default:
+							Logger::log("Register policy '$register_policy' from $server_url is invalid.");
+							// Defaulting to closed
+
+						case 'REGISTER_CLOSED':
+						case 'REGISTER_INVITATION':
+							$register_policy = Register::CLOSED;
+							break;
 					}
+
 					$platform = defaults($data, 'platform', '');
 				}
 			}
