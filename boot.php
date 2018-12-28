@@ -103,9 +103,9 @@ define('SSL_POLICY_SELFSIGN',     2);
  * Registration policies
  * @{
  */
-define('REGISTER_CLOSED',        0);
-define('REGISTER_APPROVE',       1);
-define('REGISTER_OPEN',          2);
+define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
+define('REGISTER_APPROVE',       \Friendica\Module\Register::APPROVE);
+define('REGISTER_OPEN',          \Friendica\Module\Register::OPEN);
 /**
  * @}
 */
