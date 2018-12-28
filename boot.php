@@ -98,19 +98,6 @@ define('SSL_POLICY_SELFSIGN',     2);
 /* @}*/
 
 /**
- * @name Register
- *
- * Registration policies
- * @{
- */
-define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
-define('REGISTER_APPROVE',       \Friendica\Module\Register::APPROVE);
-define('REGISTER_OPEN',          \Friendica\Module\Register::OPEN);
-/**
- * @}
-*/
-
-/**
  * @name CP
  *
  * Type of the community page
