@@ -518,7 +518,7 @@ class GContact
 	 */
 	public static function updateSuggestions()
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$done = [];
 

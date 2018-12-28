@@ -811,7 +811,7 @@ class HTML
 	public static function contactBlock()
 	{
 		$o = '';
-		$a = get_app();
+		$a = \get_app();
 
 		$shown = PConfig::get($a->profile['uid'], 'system', 'display_friend_count', 24);
 		if ($shown == 0) {

@@ -46,7 +46,7 @@ class Theme
 			return $info;
 		}
 
-		$a = get_app();
+		$a = \get_app();
 		$stamp1 = microtime(true);
 		$theme_file = file_get_contents("view/theme/$theme/theme.php");
 		$a->saveTimestamp($stamp1, "file");
@@ -155,13 +155,13 @@ class Theme
 		if ($root !== '' && $root[strlen($root) - 1] !== '/') {
 			$root = $root . '/';
 		}
-		$theme_info = get_app()->theme_info;
+		$theme_info = \get_app()->theme_info;
 		if (is_array($theme_info) && array_key_exists('extends', $theme_info)) {
 			$parent = $theme_info['extends'];
 		} else {
 			$parent = 'NOPATH';
 		}
-		$theme = get_app()->getCurrentTheme();
+		$theme = \get_app()->getCurrentTheme();
 		$thname = $theme;
 		$ext = substr($file, strrpos($file, '.') + 1);
 		$paths = [
@@ -191,7 +191,7 @@ class Theme
 	 */
 	public static function getStylesheetPath($theme)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 		if (file_exists('view/theme/' . $theme . '/style.php')) {

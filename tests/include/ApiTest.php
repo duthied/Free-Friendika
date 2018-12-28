@@ -1242,7 +1242,7 @@ class ApiTest extends DatabaseTest
 				'type' => 'image/png'
 			]
 		];
-		$app = get_app();
+		$app = \get_app();
 		$app->argc = 2;
 
 		$result = api_media_upload();

@@ -1148,7 +1148,7 @@ class Item extends BaseObject
 		if ($notify) {
 			// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
 			// We add the hash of our own host because our host is the original creator of the post.
-			$prefix_host = get_app()->getHostName();
+			$prefix_host = \get_app()->getHostName();
 		} else {
 			$prefix_host = '';
 
@@ -1238,7 +1238,7 @@ class Item extends BaseObject
 
 	public static function insert($item, $force_parent = false, $notify = false, $dontcache = false)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// If it is a posting where users should get notifications, then define it as wall posting
 		if ($notify) {
@@ -2611,7 +2611,7 @@ class Item extends BaseObject
 
 	public static function isRemoteSelf($contact, &$datarray)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$contact['remote_self']) {
 			return false;

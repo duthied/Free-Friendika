@@ -63,7 +63,7 @@ class PortableContact
 	 */
 	public static function load($cid, $uid, $zcid, $url)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if ($cid) {
 			if (!$url || !$uid) {

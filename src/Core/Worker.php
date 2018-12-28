@@ -35,7 +35,7 @@ class Worker
 	 */
 	public static function processQueue($run_cron = true)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		self::$up_start = microtime(true);
 
@@ -206,7 +206,7 @@ class Worker
 	 */
 	public static function execute($queue)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$mypid = getmypid();
 
@@ -319,7 +319,7 @@ class Worker
 	 */
 	private static function execFunction($queue, $funcname, $argv, $method_call)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$mypid = getmypid();
 

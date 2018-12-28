@@ -41,7 +41,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		$a = get_app();
+		$a = \get_app();
 
 		$php_path = $a->getConfigValue('config', 'php_path', 'php');
 

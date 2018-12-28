@@ -47,7 +47,7 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);

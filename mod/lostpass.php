@@ -127,7 +127,7 @@ function lostpass_form()
 function lostpass_generate_password($user)
 {
 	$o = '';
-	$a = get_app();
+	$a = \get_app();
 
 	$new_password = User::generateNewPassword();
 	$result = User::updatePassword($user['uid'], $new_password);

@@ -36,7 +36,7 @@ class FKOAuth1 extends OAuthServer
 	public function loginUser($uid)
 	{
 		Logger::log("FKOAuth1::loginUser $uid");
-		$a = get_app();
+		$a = \get_app();
 		$record = DBA::selectFirst('user', [], ['uid' => $uid, 'blocked' => 0, 'account_expired' => 0, 'account_removed' => 0, 'verified' => 1]);
 
 		if (!DBA::isResult($record)) {

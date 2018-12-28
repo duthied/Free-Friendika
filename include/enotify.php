@@ -28,7 +28,7 @@ use Friendica\Util\Strings;
  */
 function notification($params)
 {
-	$a = get_app();
+	$a = \get_app();
 
 	// Temporary logging for finding the origin
 	if (!isset($params['language']) || !isset($params['uid'])) {

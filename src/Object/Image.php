@@ -652,7 +652,7 @@ class Image
 
 		$string = $this->asString();
 
-		$a = get_app();
+		$a = \get_app();
 
 		$stamp1 = microtime(true);
 		file_put_contents($path, $string);
@@ -730,7 +730,7 @@ class Image
 		Logger::log('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), Logger::DEBUG);
 		$type = null;
 		if ($fromcurl) {
-			$a = get_app();
+			$a = \get_app();
 			$headers=[];
 			$h = explode("\n", $header);
 			foreach ($h as $l) {
@@ -798,7 +798,7 @@ class Image
 				} else {
 					$tempfile = tempnam(get_temppath(), "cache");
 
-					$a = get_app();
+					$a = \get_app();
 					$stamp1 = microtime(true);
 					file_put_contents($tempfile, $img_str);
 					$a->saveTimestamp($stamp1, "file");

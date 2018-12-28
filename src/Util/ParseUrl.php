@@ -111,7 +111,7 @@ class ParseUrl
 	 */
 	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$siteinfo = [];
 

@@ -107,7 +107,7 @@ if (! function_exists('_js_in_foot')) {
 	function _js_in_foot() {
 		/** @purpose insert stuff in bottom of page
 		*/
-		$a = get_app();
+		$a = \get_app();
 		$ssl_state = null;
 		$baseurl = System::baseUrl($ssl_state);
 		$bottom['$baseurl'] = $baseurl;

@@ -44,7 +44,7 @@ class Widget
 	 */
 	public static function findPeople()
 	{
-		$a = get_app();
+		$a = \get_app();
 		$global_dir = Config::get('system', 'directory');
 
 		if (Config::get('system', 'invitation_only')) {
@@ -207,7 +207,7 @@ class Widget
 	 */
 	public static function categories($baseurl, $selected = '')
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if (!Feature::isEnabled($a->profile['profile_uid'], 'categories')) {
 			return '';
@@ -316,7 +316,7 @@ class Widget
 	 */
 	public static function tagCloud($limit = 50)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$a->profile['profile_uid'] || !$a->profile['url']) {
 			return '';

@@ -144,7 +144,7 @@ class Photo
 			$micro = System::baseUrl() . '/photo/' . $hash . '-6.' . $Image->getExt() . $suffix;
 
 			// Remove the cached photo
-			$a = get_app();
+			$a = \get_app();
 			$basepath = $a->getBasePath();
 
 			if (is_dir($basepath . "/photo")) {

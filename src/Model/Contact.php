@@ -909,7 +909,7 @@ class Contact extends BaseObject
 	public static function photoMenu(array $contact, $uid = 0)
 	{
 		// @todo Unused, to be removed
-		$a = get_app();
+		$a = \get_app();
 
 		$contact_url = '';
 		$pm_url = '';
@@ -1631,7 +1631,7 @@ class Contact extends BaseObject
 	{
 		$result = ['cid' => -1, 'success' => false, 'message' => ''];
 
-		$a = get_app();
+		$a = \get_app();
 
 		// remove ajax junk, e.g. Twitter
 		$url = str_replace('/#!/', '/', $url);

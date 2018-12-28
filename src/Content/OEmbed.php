@@ -56,7 +56,7 @@ class OEmbed
 	{
 		$embedurl = trim($embedurl, '\'"');
 
-		$a = get_app();
+		$a = \get_app();
 
 		$cache_key = 'oembed:' . $a->videowidth . ':' . $embedurl;
 
@@ -364,7 +364,7 @@ class OEmbed
 	 */
 	private static function iframe($src, $width, $height)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$height || strstr($height, '%')) {
 			$height = '200';

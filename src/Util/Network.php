@@ -94,7 +94,7 @@ class Network
 
 		$stamp1 = microtime(true);
 
-		$a = get_app();
+		$a = \get_app();
 
 		$parts = parse_url($url);
 		$path_parts = explode('/', defaults($parts, 'path', ''));
@@ -251,7 +251,7 @@ class Network
 			return CurlResult::createErrorCurl($url);
 		}
 
-		$a = get_app();
+		$a = \get_app();
 		$ch = curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
@@ -604,7 +604,7 @@ class Network
 	 */
 	public static function finalUrl($url, $depth = 1, $fetchbody = false)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$url = self::stripTrackingQueryParams($url);
 

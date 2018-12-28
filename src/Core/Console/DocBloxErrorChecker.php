@@ -59,7 +59,7 @@ HELP;
 			throw new \RuntimeException('DocBlox isn\'t available.');
 		}
 
-		$dir = get_app()->getBasePath();
+		$dir = \get_app()->getBasePath();
 
 		//stack for dirs to search
 		$dirstack = [];
