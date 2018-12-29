@@ -27,7 +27,7 @@ Description
 
 Options
 	-p <n>        Number of plural forms. Default: 2
-	--base <file> Path to base messages.po file. Default: util/messages.po
+	--base <file> Path to base messages.po file. Default: view/lang/C/messages.po
 	-h|--help|-?  Show help information
 	-v            Show more debug information.
 HELP;
@@ -107,7 +107,7 @@ HELP;
 		$out .= sprintf('"Plural-Forms: nplurals=%s; plural=%s;\n"', $lang_pnum, $lang_logic) . "\n";
 		$out .= "\n";
 
-		$base_path = $this->getOption('base', 'util' . DIRECTORY_SEPARATOR . 'messages.po');
+		$base_path = $this->getOption('base', 'view/lang/C/messages.po');
 
 		// load base messages.po and extract msgids
 		$base_msgids = [];

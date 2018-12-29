@@ -61,7 +61,7 @@ HELP;
 
 		$outfile = dirname($pofile) . DIRECTORY_SEPARATOR . 'strings.php';
 
-		if (strstr($outfile, 'util')) {
+		if (basename(dirname($pofile)) == 'C') {
 			$lang = 'en';
 		} else {
 			$lang = str_replace('-', '_', basename(dirname($pofile)));

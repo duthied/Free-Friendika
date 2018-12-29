@@ -137,6 +137,16 @@ $a->config["key"] = "value";
 </pre></td>
 		</tr>
 		<tr>
+            <td><pre>
+$a->config['register_policy'] = REGISTER_CLOSED;
+</pre></td>
+                    <td><pre>
+'config' => [
+    'register_policty' => REGISTER_CLOSED,
+],
+</pre></td>
+        </tr>
+		<tr>
 			<td><pre>
 $a->path = "value";
 </pre></td>
@@ -226,6 +236,17 @@ key = value
 </pre></td>
 		</tr>
 		<tr>
+            <td><pre>
+[config]
+register_policty = REGISTER_CLOSED
+</pre></td>
+        			<td><pre>
+'config' => [
+    'register_policty' => REGISTER_CLOSED,
+],
+</pre></td>
+        </tr>
+		<tr>
 			<td><pre>
 [section]
 key[] = value1
@@ -250,7 +271,6 @@ If you need to specify a port to access the database, you can do so by appending
 
     'database' => [
         'hostname' => 'your.mysqlhost.com:123456',
-        ...
     ]
 
 If all of the following environment variables are set, Friendica will use them instead of the previously configured variables for the db:

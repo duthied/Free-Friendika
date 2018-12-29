@@ -347,21 +347,21 @@ Dies sind die Datenbank Einstellungen, die Administrator Accounts, der PHP Pfad 
 
 Mit den folgenden Einstellungen kannst du die Zugriffsdaten für den Datenbank Server festlegen.
 
-    'database' => [
-        'hostname' => 'localhost',
-        'username' => 'mysqlusername',
-        'password' => 'mysqlpassword',
-        'database' => 'mysqldatabasename',
-        'charset' => 'utf8mb4',
-    ],
+	'database' => [
+		'hostname' => 'localhost',
+		'username' => 'mysqlusername',
+		'password' => 'mysqlpassword',
+		'database' => 'mysqldatabasename',
+		'charset' => 'utf8mb4',
+	],
 
 Sollten alle der folgenden Environment-Variablen gesetzt sein, wird Friendica diese anstatt der vorher konfigurierten Werte nutzen.
 
-    MYSQL_HOST
-    MYSQL_PORT
-    MYSQL_USERNAME
-    MYSQL_PASSWORD
-    MYSQL_DATABASE
+	MYSQL_HOST
+	MYSQL_PORT
+	MYSQL_USERNAME
+	MYSQL_PASSWORD
+	MYSQL_DATABASE
 
 ## Administratoren
 
@@ -371,17 +371,17 @@ Die Liste der E-Mail Adressen kann aber einfach erweitert werden.
 Mit keiner der angegebenen E-Mail Adressen können weitere Accounts registriert werden.
 
 	'config' => [
-        'admin_email' => 'you@example.com, buddy@example.com',
-    ],
+		'admin_email' => 'you@example.com, buddy@example.com',
+	],
 
 ## PHP Pfad
 
 Einige Prozesse von Friendica laufen im Hintergrund.
 Für diese Prozesse muss der Pfad zu der PHP Version gesetzt sein, die verwendet werden soll.
 
-    'config' => [
-        'php_path' => '/usr/bin/php',
-    ],
+	'config' => [
+		'php_path' => '/usr/bin/php',
+	],
 
 ## Unterverzeichnis Konfiguration
 
@@ -389,9 +389,9 @@ Man kann Friendica in ein Unterverzeichnis des Webservers installieren.
 Wir raten allerdings dringen davon ab, da es die Interoperabilität mit anderen Netzwerken (z.B. Diaspora, GNU Social, Hubzilla) verhindert.
 Mal angenommen, du hast ein Unterverzeichnis tests und willst Friendica in ein weiteres Unterverzeichnis installieren, dann lautet die Konfiguration hierfür:
 
-    'system' => [
-        'urlpath' => 'tests/friendica',
-    ],
+	'system' => [
+		'urlpath' => 'tests/friendica',
+	],
 
 ## Weitere Ausnahmen
 

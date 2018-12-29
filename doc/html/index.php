@@ -8,7 +8,7 @@
 
 To get the Doxygen API Documentation you must render it with the program <a href="http://www.doxygen.org">Doxygen</a> (included in most distributions).
 <pre>
-$ doxygen util/Doxyfile
+$ doxygen Doxyfile
 </pre>
 <br>
 <a href="javascript:history.back()">back</a>

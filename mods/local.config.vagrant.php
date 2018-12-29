@@ -16,9 +16,9 @@
 return [
 	'database' => [
 		'hostname' => 'localhost',
-		'username' => 'mysqlusername',
-		'password' => 'mysqlpassword',
-		'database' => 'mysqldatabasename',
+		'username' => 'friendica',
+		'password' => 'friendica',
+		'database' => 'friendica',
 		'charset' => 'utf8mb4',
 	],
 

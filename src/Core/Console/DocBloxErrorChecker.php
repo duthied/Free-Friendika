@@ -59,7 +59,6 @@ HELP;
 			throw new \RuntimeException('DocBlox isn\'t available.');
 		}
 
-		//return from util folder to frindica base dir
 		$dir = get_app()->getBasePath();
 
 		//stack for dirs to search
@@ -130,8 +129,6 @@ HELP;
 	/**
 	 * This function generates a comma separated list of file names.
 	 *
-	 * @package util
-	 *
 	 * @param array $fileset Set of file names
 	 *
 	 * @return string comma-separated list of the file names
@@ -143,7 +140,6 @@ HELP;
 
 	/**
 	 * This functions runs phpdoc on the provided list of files
-	 * @package util
 	 *
 	 * @param array $fileset Set of filenames
 	 *
@@ -168,8 +164,6 @@ HELP;
 	 * it was meant to be recursive, but php's maximum stack size is to small. So it just simulates recursion.
 	 *
 	 * In that version, it does not necessarily generate the smallest set, because it may not alter the elements order enough.
-	 *
-	 * @package util
 	 *
 	 * @param array $fileset set of filenames
 	 * @param int $ps number of files in subsets

@@ -266,7 +266,7 @@ class Installer
 
 		if ($passed2) {
 			$str = Strings::getRandomName(8);
-			$cmd = "$phppath util/testargs.php $str";
+			$cmd = "$phppath bin/testargs.php $str";
 			$result = trim(shell_exec($cmd));
 			$passed3 = $result == $str;
 			$help = "";
