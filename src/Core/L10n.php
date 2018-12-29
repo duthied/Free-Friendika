@@ -74,7 +74,7 @@ class L10n extends BaseObject
 				}
 			}
 		}
-		//if $_GET['lang'] is set force $_GET['lang']
+
 		if (isset($_GET['lang'])) {
 			$_SESSION['language'] = $_GET['lang'];
 		}
@@ -113,10 +113,11 @@ class L10n extends BaseObject
 				}
 			}
 		}
-		//if $_GET['lang'] is set force $_GET['lang']
+
 		if (isset($_GET['lang'])) {
 			$lang_list = [$_GET['lang']];
 		}
+
 		// check if we have translations for the preferred languages and pick the 1st that has
 		foreach ($lang_list as $lang) {
 			if ($lang === 'en' || (file_exists("view/lang/$lang") && is_dir("view/lang/$lang"))) {
