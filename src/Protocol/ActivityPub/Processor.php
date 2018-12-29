@@ -329,6 +329,11 @@ class Processor
 			return;
 		}
 
+		if (empty($object['id'])) {
+			Logger::log('Activity ' . $url . ' has got not id, aborting. ' . json_encode($object));
+			return;
+		}
+
 		$activity = [];
 		$activity['@context'] = $object['@context'];
 		unset($object['@context']);

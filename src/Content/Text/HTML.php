@@ -180,7 +180,9 @@ class HTML
 		$xpath = new DomXPath($doc);
 		$list = $xpath->query("//pre");
 		foreach ($list as $node) {
-			$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
+			// Ensure to escape unescaped & - they will otherwise raise a warning
+			$safe_value = preg_replace('/&(?!\w+;)/', '&amp;', $node->nodeValue);
+			$node->nodeValue = str_replace("\n", "\r", $safe_value);
 		}
 
 		$message = $doc->saveHTML();
