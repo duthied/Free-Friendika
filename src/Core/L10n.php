@@ -74,6 +74,10 @@ class L10n extends BaseObject
 				}
 			}
 		}
+		//if $_GET['lang'] is set force $_GET['lang']
+		if (isset($_GET['lang'])) {
+			$_SESSION['language'] = $_GET['lang'];
+		}
 	}
 
 	public static function setLangFromSession()
