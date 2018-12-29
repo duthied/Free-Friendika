@@ -23,7 +23,7 @@
 
 	{{if $admin_form}}
 	<h3>{{$settings}}</h3>
-	<form method="post" action="{{$baseurl}}/admin/{{$function}}/{{$addon}}/">
+	<form method="post" action="{{$baseurl}}/admin/{{$function}}/{{$addon}}">
 		{{$admin_form nofilter}}
 	</form>
 	{{/if}}
