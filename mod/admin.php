@@ -89,12 +89,10 @@ function admin_post(App $a)
 
 				$theme = $a->argv[2];
 				if (is_file("view/theme/$theme/config.php")) {
-					$orig_theme = Renderer::$theme;
-					$orig_page = $a->page;
-					$orig_session_theme = $_SESSION['theme'];
+					$a->setCurrentTheme($theme);
+
 					require_once "view/theme/$theme/theme.php";
 					require_once "view/theme/$theme/config.php";
-					$_SESSION['theme'] = $theme;
 
 					$init = $theme . '_init';
 					if (function_exists($init)) {
@@ -103,17 +101,13 @@ function admin_post(App $a)
 					if (function_exists('theme_admin_post')) {
 						theme_admin_post($a);
 					}
-
-					$_SESSION['theme'] = $orig_session_theme;
-					Renderer::$theme = $orig_theme;
-					$a->page = $orig_page;
 				}
 
 				info(L10n::t('Theme settings updated.'));
 				if ($a->isAjax()) {
 					return;
 				}
-				$return_path = 'admin/themes/' . $theme;
+				$return_path = 'admin/themes/' . $theme . (!empty($_GET['mode']) ? '?mode=' . $_GET['mode'] : '');
 				break;
 			case 'tos':
 				admin_page_tos_post($a);
@@ -2312,12 +2306,10 @@ function admin_page_themes(App $a)
 
 		$admin_form = '';
 		if (is_file("view/theme/$theme/config.php")) {
-			$orig_theme = Renderer::$theme;
-			$orig_page = $a->page;
-			$orig_session_theme = $_SESSION['theme'];
+			$a->setCurrentTheme($theme);
+
 			require_once "view/theme/$theme/theme.php";
 			require_once "view/theme/$theme/config.php";
-			$_SESSION['theme'] = $theme;
 
 			$init = $theme . "_init";
 			if (function_exists($init)) {
@@ -2327,10 +2319,6 @@ function admin_page_themes(App $a)
 			if (function_exists('theme_admin')) {
 				$admin_form = theme_admin($a);
 			}
-
-			$_SESSION['theme'] = $orig_session_theme;
-			Renderer::$theme = $orig_theme;
-			$a->page = $orig_page;
 		}
 
 		$screenshot = [Theme::getScreenshot($theme), L10n::t('Screenshot')];
@@ -2345,7 +2333,7 @@ function admin_page_themes(App $a)
 			'$toggle' => L10n::t('Toggle'),
 			'$settings' => L10n::t('Settings'),
 			'$baseurl' => System::baseUrl(true),
-			'$addon' => $theme,
+			'$addon' => $theme . (!empty($_GET['mode']) ? '?mode=' . $_GET['mode'] : ''),
 			'$status' => $status,
 			'$action' => $action,
 			'$info' => Theme::getInfo($theme),

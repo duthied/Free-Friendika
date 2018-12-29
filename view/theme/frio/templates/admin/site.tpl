@@ -10,7 +10,8 @@
 					var theme = $("#id_theme :selected").val();
 					$("#cnftheme").attr('href',"{{$baseurl}}/admin/themes/"+theme);
 				},*/
-				href: "{{$baseurl}}/admin/themes/" + $("#id_theme :selected").val(),
+                iframe: true,
+                href: "{{$baseurl}}/admin/themes/" + $("#id_theme :selected").val() + "?mode=minimal",
 				onComplete: function(){
 					$("div#fancybox-content form").submit(function(e){
 						var url = $(this).attr('action');
