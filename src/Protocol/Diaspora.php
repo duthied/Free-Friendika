@@ -1824,6 +1824,8 @@ class Diaspora
 			'created'    => $msg_created_at
 		]);
 
+		$message_id = DBA::lastInsertId();
+
 		DBA::unlock();
 
 		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
@@ -1834,8 +1836,9 @@ class Diaspora
 			"language" => $importer["language"],
 			"to_name" => $importer["username"],
 			"to_email" => $importer["email"],
-			"uid" =>$importer["uid"],
-			"item" => ["id" => $conversation["id"], "title" => $subject, "subject" => $subject, "body" => $body],
+			"uid" => $importer["uid"],
+			"item" => ["id" => $message_id, "title" => $subject, "subject" => $subject, "body" => $body],
+			"parent" => $conversation["id"],
 			"source_name" => $person["name"],
 			"source_link" => $person["url"],
 			"source_photo" => $person["photo"],
@@ -2081,9 +2084,28 @@ class Diaspora
 			'created'    => $created_at
 		]);
 
+		$message_id = DBA::lastInsertId();
+
 		DBA::unlock();
 
 		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
+
+		notification([
+			"type" => NOTIFY_MAIL,
+			"notify_flags" => $importer["notify-flags"],
+			"language" => $importer["language"],
+			"to_name" => $importer["username"],
+			"to_email" => $importer["email"],
+			"uid" => $importer["uid"],
+			"item" => ["id" => $message_id, "title" => $conversation["subject"], "subject" => $conversation["subject"], "body" => $body],
+			"parent" => $conversation["id"],
+			"source_name" => $person["name"],
+			"source_link" => $person["url"],
+			"source_photo" => $person["photo"],
+			"verb" => ACTIVITY_POST,
+			"otype" => "mail"
+		]);
+
 		return true;
 	}
 
