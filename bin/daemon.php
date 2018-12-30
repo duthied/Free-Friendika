@@ -32,7 +32,9 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = new App(dirname(__DIR__));
+$logger = Logger::create('daemon');
+
+$a = new App(dirname(__DIR__), $logger);
 
 if ($a->getMode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
@@ -102,7 +104,7 @@ if ($mode == "stop") {
 
 	unlink($pidfile);
 
-	Logger::log("Worker daemon process $pid was killed.", Logger::DEBUG);
+	$logger->notice("Worker daemon process was killed", ["pid" => $pid]);
 
 	Config::set('system', 'worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
@@ -112,7 +114,7 @@ if (!empty($pid) && posix_kill($pid, 0)) {
 	die("Daemon process $pid is already running.\n");
 }
 
-Logger::log('Starting worker daemon.', Logger::DEBUG);
+$logger->notice('Starting worker daemon.', ["pid" => $pid]);
 
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
@@ -160,7 +162,7 @@ $last_cron = 0;
 // Now running as a daemon.
 while (true) {
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
-		Logger::log('Forcing cron worker call.', Logger::DEBUG);
+		$logger->info('Forcing cron worker call.', ["pid" => $pid]);
 		$do_cron = true;
 	}
 
@@ -174,7 +176,7 @@ while (true) {
 		$last_cron = time();
 	}
 
-	Logger::log("Sleeping", Logger::DEBUG);
+	$logger->info("Sleeping", ["pid" => $pid]);
 	$start = time();
 	do {
 		$seconds = (time() - $start);
@@ -191,10 +193,10 @@ while (true) {
 
 	if ($timeout) {
 		$do_cron = true;
-		Logger::log("Woke up after $wait_interval seconds.", Logger::DEBUG);
+		$logger->info("Woke up after $wait_interval seconds.", ["pid" => $pid, 'sleep' => $wait_interval]);
 	} else {
 		$do_cron = false;
-		Logger::log("Worker jobs are calling to be forked.", Logger::DEBUG);
+		$logger->info("Worker jobs are calling to be forked.", ["pid" => $pid]);
 	}
 }
 
