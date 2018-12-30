@@ -164,21 +164,21 @@ define('MAX_LIKERS',    75);
  * Email notification options
  * @{
  */
-define('NOTIFY_INTRO',    0x0001);
-define('NOTIFY_CONFIRM',  0x0002);
-define('NOTIFY_WALL',     0x0004);
-define('NOTIFY_COMMENT',  0x0008);
-define('NOTIFY_MAIL',     0x0010);
-define('NOTIFY_SUGGEST',  0x0020);
-define('NOTIFY_PROFILE',  0x0040);
-define('NOTIFY_TAGSELF',  0x0080);
-define('NOTIFY_TAGSHARE', 0x0100);
-define('NOTIFY_POKE',     0x0200);
-define('NOTIFY_SHARE',    0x0400);
+define('NOTIFY_INTRO',        1);
+define('NOTIFY_CONFIRM',      2);
+define('NOTIFY_WALL',         4);
+define('NOTIFY_COMMENT',      8);
+define('NOTIFY_MAIL',        16);
+define('NOTIFY_SUGGEST',     32);
+define('NOTIFY_PROFILE',     64);
+define('NOTIFY_TAGSELF',    128);
+define('NOTIFY_TAGSHARE',   256);
+define('NOTIFY_POKE',       512);
+define('NOTIFY_SHARE',     1024);
 
-define('SYSTEM_EMAIL',    0x4000);
+define('SYSTEM_EMAIL',    16384);
 
-define('NOTIFY_SYSTEM',   0x8000);
+define('NOTIFY_SYSTEM',   32768);
 /* @}*/
 
 
