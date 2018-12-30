@@ -8,8 +8,10 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Psr\Log\LoggerInterface;
 
 /**
  *
@@ -107,6 +109,11 @@ class App
 	public $mobileDetect;
 
 	/**
+	 * @var LoggerInterface The current logger of this App
+	 */
+	private $logger;
+
+	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -146,13 +153,16 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string $basePath  Path to the app base folder
-	 * @param bool   $isBackend Whether it is used for backend or frontend (Default true=backend)
+	 * @param string           $basePath  Path to the app base folder
+	 * @param LoggerInterface  $logger    Logger of this application
+	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basePath, $isBackend = true)
+	public function __construct($basePath, LoggerInterface $logger, $isBackend = true)
 	{
+		$this->logger = $logger;
+
 		if (!static::isDirectoryUsable($basePath, false)) {
 			throw new Exception('Basepath ' . $basePath . ' isn\'t usable.');
 		}
@@ -302,6 +312,21 @@ class App
 	}
 
 	/**
+	 * Returns the Logger of the Application
+	 *
+	 * @return LoggerInterface The Logger
+	 * @throws InternalServerErrorException when the logger isn't created
+	 */
+	public function getLogger()
+	{
+		if (empty($this->logger)) {
+			throw new InternalServerErrorException('Logger of the Application is not defined');
+		}
+
+		return $this->logger;
+	}
+
+	/**
 	 * Reloads the whole app instance
 	 */
 	public function reload()
@@ -328,6 +353,8 @@ class App
 		Core\L10n::init();
 
 		$this->process_id = Core\System::processID('log');
+
+		Core\Logger::setLogger($this->logger);
 	}
 
 	/**

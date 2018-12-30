@@ -8,6 +8,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Core\Update;
+use Friendica\Util\LoggerFactory;
 
 // Get options
 $shortopts = 'sn';
@@ -28,7 +29,9 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = new App(dirname(__DIR__));
+$logger = LoggerFactory::create('worker');
+
+$a = new App(dirname(__DIR__), $logger);
 
 // Check the database structure and possibly fixes it
 Update::check(true);

@@ -6,6 +6,8 @@ namespace Friendica;
 
 require_once 'boot.php';
 
+use Friendica\Util\LoggerFactory;
+
 /**
  * Basic object
  *
@@ -25,7 +27,8 @@ class BaseObject
 	public static function getApp()
 	{
 		if (empty(self::$app)) {
-			self::$app = new App(dirname(__DIR__));
+			$logger = $logger = LoggerFactory::create('app');
+			self::$app = new App(dirname(__DIR__), $logger);
 		}
 
 		return self::$app;
