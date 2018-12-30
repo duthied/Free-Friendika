@@ -499,7 +499,6 @@ function render_messages(array $msg, $t)
 			$participants = L10n::t("%s and You", $rr['from-name']);
 		}
 
-		$subject_e = (($rr['mailseen']) ? $rr['title'] : '<strong>' . $rr['title'] . '</strong>');
 		$body_e = $rr['body'];
 		$to_name_e = $rr['name'];
 
@@ -517,7 +516,7 @@ function render_messages(array $msg, $t)
 			'$from_addr' => defaults($contact, 'addr', ''),
 			'$sparkle' => ' sparkle',
 			'$from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
-			'$subject' => $subject_e,
+			'$subject' => $rr['title'],
 			'$delete' => L10n::t('Delete conversation'),
 			'$body' => $body_e,
 			'$to_name' => $to_name_e,

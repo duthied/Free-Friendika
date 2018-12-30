@@ -12,7 +12,16 @@
 				<div class="text-muted time ago pull-right" title="{{$date}}">{{$ago}}</div>
 
 				<h4 class="media-heading">{{$from_name}}</h4>
-				<div class="mail-list-subject"><a href="message/{{$id}}">{{$subject}}</a></div>
+				<div class="mail-list-subject">
+					<a href="message/{{$id}}">
+					{{if !$seen}}
+						<strong>
+					{{/if}}
+						{{$subject}}
+					{{if !$seen}}
+						</strong>
+					{{/if}}
+					</a></div>
 				<a href="message/dropconv/{{$id}}" onclick="return confirmDelete();"  title="{{$delete}}" class="pull-right" onmouseover="imgbright(this);" onmouseout="imgdull(this);">
 				<i class="faded-icon fa fa-trash"></i>
 				</a>
