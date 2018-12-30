@@ -1360,12 +1360,16 @@ class App
 			return '';
 		}
 
-		//// @TODO Compute the current theme only once (this behavior has
-		/// already been implemented, but it didn't work well -
-		/// https://github.com/friendica/friendica/issues/5092)
-		$this->computeCurrentTheme();
+		if (!$this->currentTheme) {
+			$this->computeCurrentTheme();
+		}
 
 		return $this->currentTheme;
+	}
+
+	public function setCurrentTheme($theme)
+	{
+		$this->currentTheme = $theme;
 	}
 
 	/**
@@ -1706,16 +1710,7 @@ class App
 			}
 		}
 
-		// Load current theme info
-		$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
-		if (file_exists($theme_info_file)) {
-			require_once $theme_info_file;
-		}
-
-		// initialise content region
-		if ($this->getMode()->isNormal()) {
-			Core\Addon::callHooks('page_content_top', $this->page['content']);
-		}
+		$content = '';
 
 		// Call module functions
 		if ($this->module_loaded) {
@@ -1748,19 +1743,27 @@ class App
 			}
 
 			if (! $this->error) {
-				$arr = ['content' => $this->page['content']];
+				$arr = ['content' => $content];
 				Core\Addon::callHooks($this->module . '_mod_content', $arr);
-				$this->page['content'] = $arr['content'];
+				$content = $arr['content'];
 				$arr = ['content' => call_user_func([$this->module_class, 'content'])];
 				Core\Addon::callHooks($this->module . '_mod_aftercontent', $arr);
-				$this->page['content'] .= $arr['content'];
-			}
-
-			if (function_exists(str_replace('-', '_', $this->getCurrentTheme()) . '_content_loaded')) {
-				$func = str_replace('-', '_', $this->getCurrentTheme()) . '_content_loaded';
-				$func($this);
+				$content .= $arr['content'];
 			}
 		}
+
+		// Load current theme info after module has been executed as theme could have been set in module
+		$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
+		if (file_exists($theme_info_file)) {
+			require_once $theme_info_file;
+		}
+
+		// initialise content region
+		if ($this->getMode()->isNormal()) {
+			Core\Addon::callHooks('page_content_top', $this->page['content']);
+		}
+
+		$this->page['content'] .= $content;
 
 		/* Create the page head after setting the language
 		 * and getting any auth credentials.
