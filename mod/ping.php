@@ -64,14 +64,7 @@ function ping_init(App $a)
 		$format = 'json';
 	}
 
-	$tags          = [];
-	$comments      = [];
-	$likes         = [];
-	$dislikes      = [];
-	$friends       = [];
-	$posts         = [];
 	$regs          = [];
-	$mails         = [];
 	$notifications = [];
 
 	$intro_count    = 0;
@@ -427,8 +420,6 @@ function ping_get_notifications($uid)
 	$order   = "DESC";
 	$quit    = false;
 
-	$a = get_app();
-
 	do {
 		$r = q(
 			"SELECT `notify`.*, `item`.`visible`, `item`.`deleted`
@@ -505,8 +496,8 @@ function ping_get_notifications($uid)
  * @param array $notifs          Complete list of notification
  * @param array $sysmsgs         List of system notice messages
  * @param array $sysmsgs_info    List of system info messages
- * @param int   $groups_unseen   Number of unseen group items
- * @param int   $forums_unseen   Number of unseen forum items
+ * @param array $groups_unseen   List of unseen group messages
+ * @param array $forums_unseen   List of unseen forum messages
  *
  * @return array XML-transform ready data array
  */

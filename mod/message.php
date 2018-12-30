@@ -303,40 +303,50 @@ function message_content(App $a)
 
 		$o .= $header;
 
-		$r = q("SELECT `mail`.*, `contact`.`name`, `contact`.`url`, `contact`.`thumb`
-			FROM `mail` LEFT JOIN `contact` ON `mail`.`contact-id` = `contact`.`id`
-			WHERE `mail`.`uid` = %d AND `mail`.`id` = %d LIMIT 1",
-			intval(local_user()),
-			intval($a->argv[1])
+		$message = DBA::fetchFirst("
+			SELECT `mail`.*, `contact`.`name`, `contact`.`url`, `contact`.`thumb`
+			FROM `mail`
+			LEFT JOIN `contact` ON `mail`.`contact-id` = `contact`.`id`
+			WHERE `mail`.`uid` = ? AND `mail`.`id` = ?
+			LIMIT 1",
+			local_user(),
+			$a->argv[1]
 		);
-		if (DBA::isResult($r)) {
-			$contact_id = $r[0]['contact-id'];
-			$convid = $r[0]['convid'];
+		if (DBA::isResult($message)) {
+			$contact_id = $message['contact-id'];
 
-			$sql_extra = sprintf(" and `mail`.`parent-uri` = '%s' ", DBA::escape($r[0]['parent-uri']));
-			if ($convid)
-				$sql_extra = sprintf(" and ( `mail`.`parent-uri` = '%s' OR `mail`.`convid` = '%d' ) ",
-					DBA::escape($r[0]['parent-uri']),
-					intval($convid)
-				);
+			$params = [
+				local_user(),
+				$message['parent-uri']
+			];
 
-			$messages = q("SELECT `mail`.*, `contact`.`name`, `contact`.`url`, `contact`.`thumb`
-				FROM `mail` LEFT JOIN `contact` ON `mail`.`contact-id` = `contact`.`id`
-				WHERE `mail`.`uid` = %d $sql_extra ORDER BY `mail`.`created` ASC",
-				intval(local_user())
+			if ($message['convid']) {
+				$sql_extra = "AND (`mail`.`parent-uri` = ? OR `mail`.`convid` = ?)";
+				$params[] = $message['convid'];
+			} else {
+				$sql_extra = "AND `mail`.`parent-uri` = ?";
+			}
+			$messages_stmt = DBA::p("
+				SELECT `mail`.*, `contact`.`name`, `contact`.`url`, `contact`.`thumb`
+				FROM `mail`
+				LEFT JOIN `contact` ON `mail`.`contact-id` = `contact`.`id`
+				WHERE `mail`.`uid` = ?
+				$sql_extra
+				ORDER BY `mail`.`created` ASC",
+				...$params
 			);
+
+			$messages = DBA::toArray($messages_stmt);
+
+			DBA::update('mail', ['seen' => 1], ['parent-uri' => $message['parent-uri'], 'uid' => local_user()]);
 		} else {
 			$messages = false;
 		}
+
 		if (!DBA::isResult($messages)) {
 			notice(L10n::t('Message not available.') . EOL);
 			return $o;
 		}
-
-		$r = q("UPDATE `mail` SET `seen` = 1 WHERE `parent-uri` = '%s' AND `uid` = %d",
-			DBA::escape($r[0]['parent-uri']),
-			intval(local_user())
-		);
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
@@ -350,8 +360,10 @@ function message_content(App $a)
 		$unknown = false;
 
 		foreach ($messages as $message) {
-			if ($message['unknown'])
+			if ($message['unknown']) {
 				$unknown = true;
+			}
+
 			if ($message['from-url'] == $myprofile) {
 				$from_url = $myprofile;
 				$sparkle = '';
