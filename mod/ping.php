@@ -275,22 +275,6 @@ function ping_init(App $a)
 			}
 		}
 
-		if (DBA::isResult($mails)) {
-			foreach ($mails as $mail) {
-				$notif = [
-					'id'      => 0,
-					'href'    => System::baseUrl() . '/message/' . $mail['id'],
-					'name'    => $mail['from-name'],
-					'url'     => $mail['from-url'],
-					'photo'   => $mail['from-photo'],
-					'date'    => $mail['created'],
-					'seen'    => false,
-					'message' => L10n::t('{0} sent you a message'),
-				];
-				$notifs[] = $notif;
-			}
-		}
-
 		if (DBA::isResult($regs)) {
 			foreach ($regs as $reg) {
 				$notif = [
@@ -377,7 +361,7 @@ function ping_init(App $a)
 	if ($format == 'json') {
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
-		$data['notify'] = $sysnotify_count + $intro_count + $mail_count + $register_count;
+		$data['notify'] = $sysnotify_count + $intro_count + $register_count;
 		$data['notifications'] = $notifications;
 		$data['sysmsgs'] = [
 			'notice' => $sysmsgs,
