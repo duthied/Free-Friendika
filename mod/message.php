@@ -339,6 +339,13 @@ function message_content(App $a)
 			$messages = DBA::toArray($messages_stmt);
 
 			DBA::update('mail', ['seen' => 1], ['parent-uri' => $message['parent-uri'], 'uid' => local_user()]);
+
+			if ($message['convid']) {
+				// Clear Diaspora private message notifications
+				DBA::update('notify', ['seen' => 1], ['type' => NOTIFY_MAIL, 'parent' => $message['convid'], 'uid' => local_user()]);
+			}
+			// Clear DFRN private message notifications
+			DBA::update('notify', ['seen' => 1], ['type' => NOTIFY_MAIL, 'parent' => $message['parent-uri'], 'uid' => local_user()]);
 		} else {
 			$messages = false;
 		}
