@@ -5,7 +5,7 @@
 	{{if $showwarning}}
 	<div id="admin-warning-message-wrapper" class="alert alert-warning">
 		{{foreach $warningtext as $wt}}
-		<p>{{$wt}}</p>
+		<p>{{$wt nofilter}}</p>
 		{{/foreach}}
 	</div>
 	{{/if}}
