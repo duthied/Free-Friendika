@@ -79,7 +79,27 @@ To avoid privacy leakage, we only display the photograph associated with your de
 <a name="language"></a>
 ### How can I view Friendica in a certain language?
 
-You can do this by adding the `lang` parameter to the url in your url bar. The data in the parameter is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code. eg. https://social.example.com/profile/example translated in German becomes https://social.example.com/profile/example?lang=de. If the question mark is already in the url you need to do it using a ampersand. eg. https://social.example.com/profile/example?tab=profile becomes https://social.example.com/profile/example&lang=de.
+You can do this by adding the `lang` parameter to the url in your url bar.
+The data in the parameter is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code.
+A question mark is required for the separation between url and parameters.
+
+Example:
+
+    https://social.example.com/profile/example 
+    
+    in German:
+    
+    https://social.example.com/profile/example?lang=de.
+
+If the question mark is already in the url you need to do it using a ampersand.
+
+Example:
+
+    https://social.example.com/profile/example?tab=profile
+    
+    in German:
+    
+    https://social.example.com/profile/example?tab=profile&lang=de.
 
 When a certain language is forced, the language remains until session is closed.
 
