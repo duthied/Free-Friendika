@@ -1,17 +1,14 @@
 
-
-{{$preamble}}
+{{$preamble nofilter}}
 
 {{if $content_allowed}}
-{{$title}}
+{{$title nofilter}}
 
-{{$textversion}}
+{{$textversion nofilter}}
 
 {{/if}}
-{{$tsitelink}}
-{{$titemlink}}
+{{$tsitelink nofilter}}
+{{$titemlink nofilter}}
 
-{{$thanks}}
-{{$site_admin}}
-
-
+{{$thanks nofilter}}
+{{$site_admin nofilter}}
