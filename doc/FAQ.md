@@ -86,9 +86,9 @@ A question mark is required for the separation between url and parameters.
 Example:
 
     https://social.example.com/profile/example 
-    
-    in German:
-    
+
+in German:
+
     https://social.example.com/profile/example?lang=de.
 
 If the question mark is already in the url you need to do it using a ampersand.
@@ -96,9 +96,9 @@ If the question mark is already in the url you need to do it using a ampersand.
 Example:
 
     https://social.example.com/profile/example?tab=profile
-    
-    in German:
-    
+
+in German:
+
     https://social.example.com/profile/example?tab=profile&lang=de.
 
 When a certain language is forced, the language remains until session is closed.
