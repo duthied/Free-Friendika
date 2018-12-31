@@ -1807,44 +1807,45 @@ class Diaspora
 			return false;
 		}
 
-		q(
-			"INSERT INTO `mail` (`uid`, `guid`, `convid`, `from-name`,`from-photo`,`from-url`,`contact-id`,`title`,`body`,`seen`,`reply`,`uri`,`parent-uri`,`created`)
-			VALUES (%d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, '%s','%s','%s')",
-			intval($importer["uid"]),
-			DBA::escape($msg_guid),
-			intval($conversation["id"]),
-			DBA::escape($person["name"]),
-			DBA::escape($person["photo"]),
-			DBA::escape($person["url"]),
-			intval($contact["id"]),
-			DBA::escape($subject),
-			DBA::escape($body),
-			0,
-			0,
-			DBA::escape($message_uri),
-			DBA::escape($author.":".$guid),
-			DBA::escape($msg_created_at)
-		);
+		DBA::insert('mail', [
+			'uid'        => $importer['uid'],
+			'guid'       => $msg_guid,
+			'convid'     => $conversation['id'],
+			'from-name'  => $person['name'],
+			'from-photo' => $person['photo'],
+			'from-url'   => $person['url'],
+			'contact-id' => $contact['id'],
+			'title'      => $subject,
+			'body'       => $body,
+			'seen'       => 0,
+			'reply'      => 0,
+			'uri'        => $message_uri,
+			'parent-uri' => $author . ':' . $guid,
+			'created'    => $msg_created_at
+		]);
+
+		$message_id = DBA::lastInsertId();
 
 		DBA::unlock();
 
 		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
 
-		notification(
-			[
+		notification([
 			"type" => NOTIFY_MAIL,
 			"notify_flags" => $importer["notify-flags"],
 			"language" => $importer["language"],
 			"to_name" => $importer["username"],
 			"to_email" => $importer["email"],
-			"uid" =>$importer["uid"],
-			"item" => ["id" => $conversation["id"], "title" => $subject, "subject" => $subject, "body" => $body],
+			"uid" => $importer["uid"],
+			"item" => ["id" => $message_id, "title" => $subject, "subject" => $subject, "body" => $body],
+			"parent" => $conversation["id"],
 			"source_name" => $person["name"],
 			"source_link" => $person["url"],
 			"source_photo" => $person["photo"],
 			"verb" => ACTIVITY_POST,
-			"otype" => "mail"]
-		);
+			"otype" => "mail"
+		]);
+
 		return true;
 	}
 
@@ -2066,28 +2067,45 @@ class Diaspora
 			return false;
 		}
 
-		q(
-			"INSERT INTO `mail` (`uid`, `guid`, `convid`, `from-name`,`from-photo`,`from-url`,`contact-id`,`title`,`body`,`seen`,`reply`,`uri`,`parent-uri`,`created`)
-				VALUES ( %d, '%s', %d, '%s', '%s', '%s', %d, '%s', '%s', %d, %d, '%s','%s','%s')",
-			intval($importer["uid"]),
-			DBA::escape($guid),
-			intval($conversation["id"]),
-			DBA::escape($person["name"]),
-			DBA::escape($person["photo"]),
-			DBA::escape($person["url"]),
-			intval($contact["id"]),
-			DBA::escape($conversation["subject"]),
-			DBA::escape($body),
-			0,
-			1,
-			DBA::escape($message_uri),
-			DBA::escape($author.":".$conversation["guid"]),
-			DBA::escape($created_at)
-		);
+		DBA::insert('mail', [
+			'uid'        => $importer['uid'],
+			'guid'       => $guid,
+			'convid'     => $conversation['id'],
+			'from-name'  => $person['name'],
+			'from-photo' => $person['photo'],
+			'from-url'   => $person['url'],
+			'contact-id' => $contact['id'],
+			'title'      => $conversation['subject'],
+			'body'       => $body,
+			'seen'       => 0,
+			'reply'      => 1,
+			'uri'        => $message_uri,
+			'parent-uri' => $author.":".$conversation['guid'],
+			'created'    => $created_at
+		]);
+
+		$message_id = DBA::lastInsertId();
 
 		DBA::unlock();
 
 		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
+
+		notification([
+			"type" => NOTIFY_MAIL,
+			"notify_flags" => $importer["notify-flags"],
+			"language" => $importer["language"],
+			"to_name" => $importer["username"],
+			"to_email" => $importer["email"],
+			"uid" => $importer["uid"],
+			"item" => ["id" => $message_id, "title" => $conversation["subject"], "subject" => $conversation["subject"], "body" => $body],
+			"parent" => $conversation["id"],
+			"source_name" => $person["name"],
+			"source_link" => $person["url"],
+			"source_photo" => $person["photo"],
+			"verb" => ACTIVITY_POST,
+			"otype" => "mail"
+		]);
+
 		return true;
 	}
 

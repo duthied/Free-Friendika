@@ -1870,6 +1870,7 @@ class DFRN
 			"to_email" => $importer["email"],
 			"uid" => $importer["importer_uid"],
 			"item" => $msg,
+			"parent" => $msg["parent-uri"],
 			"source_name" => $msg["from-name"],
 			"source_link" => $importer["url"],
 			"source_photo" => $importer["thumb"],

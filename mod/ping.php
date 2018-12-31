@@ -64,14 +64,7 @@ function ping_init(App $a)
 		$format = 'json';
 	}
 
-	$tags          = [];
-	$comments      = [];
-	$likes         = [];
-	$dislikes      = [];
-	$friends       = [];
-	$posts         = [];
 	$regs          = [];
-	$mails         = [];
 	$notifications = [];
 
 	$intro_count    = 0;
@@ -282,22 +275,6 @@ function ping_init(App $a)
 			}
 		}
 
-		if (DBA::isResult($mails)) {
-			foreach ($mails as $mail) {
-				$notif = [
-					'id'      => 0,
-					'href'    => System::baseUrl() . '/message/' . $mail['id'],
-					'name'    => $mail['from-name'],
-					'url'     => $mail['from-url'],
-					'photo'   => $mail['from-photo'],
-					'date'    => $mail['created'],
-					'seen'    => false,
-					'message' => L10n::t('{0} sent you a message'),
-				];
-				$notifs[] = $notif;
-			}
-		}
-
 		if (DBA::isResult($regs)) {
 			foreach ($regs as $reg) {
 				$notif = [
@@ -384,7 +361,7 @@ function ping_init(App $a)
 	if ($format == 'json') {
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
-		$data['notify'] = $sysnotify_count + $intro_count + $mail_count + $register_count;
+		$data['notify'] = $sysnotify_count + $intro_count + $register_count;
 		$data['notifications'] = $notifications;
 		$data['sysmsgs'] = [
 			'notice' => $sysmsgs,
@@ -426,8 +403,6 @@ function ping_get_notifications($uid)
 	$seensql = "NOT";
 	$order   = "DESC";
 	$quit    = false;
-
-	$a = get_app();
 
 	do {
 		$r = q(
@@ -505,8 +480,8 @@ function ping_get_notifications($uid)
  * @param array $notifs          Complete list of notification
  * @param array $sysmsgs         List of system notice messages
  * @param array $sysmsgs_info    List of system info messages
- * @param int   $groups_unseen   Number of unseen group items
- * @param int   $forums_unseen   Number of unseen forum items
+ * @param array $groups_unseen   List of unseen group messages
+ * @param array $forums_unseen   List of unseen forum messages
  *
  * @return array XML-transform ready data array
  */
