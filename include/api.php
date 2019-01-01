@@ -55,6 +55,8 @@ define('API_METHOD_GET', 'GET');
 define('API_METHOD_POST', 'POST,PUT');
 define('API_METHOD_DELETE', 'POST,DELETE');
 
+define('API_LOG_PREFIX', 'API {action} - ');
+
 $API = [];
 $called_api = [];
 
@@ -97,9 +99,9 @@ function api_source()
 			return "Twidere";
 		}
 
-		Logger::log("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], Logger::DEBUG);
+		Logger::info(API_LOG_PREFIX . 'Unrecognized user-agent', ['module' => 'api', 'action' => 'source', 'http_user_agent' => $_SERVER['HTTP_USER_AGENT']]);
 	} else {
-		Logger::log("Empty user-agent", Logger::DEBUG);
+		Logger::info(API_LOG_PREFIX . 'Empty user-agent', ['module' => 'api', 'action' => 'source']);
 	}
 
 	return "api";
@@ -181,7 +183,7 @@ function api_login(App $a)
 		var_dump($consumer, $token);
 		die();
 	} catch (Exception $e) {
-		Logger::warning('API {action}: error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
+		Logger::warning(API_LOG_PREFIX . 'error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
 	}
 
 	// workaround for HTTP-auth in CGI mode
@@ -195,7 +197,7 @@ function api_login(App $a)
 	}
 
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
-		Logger::debug('API {action}: failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
+		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		throw new UnauthorizedException("This API requires login");
 	}
@@ -236,7 +238,7 @@ function api_login(App $a)
 	}
 
 	if (!DBA::isResult($record)) {
-		Logger::debug('API {action}: failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
+		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
 		//die('This api requires login');
@@ -309,14 +311,14 @@ function api_call(App $a)
 					api_login($a);
 				}
 
-				Logger::info('API {action}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username']]);
-				Logger::debug('API {action} parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);
+				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username']]);
+				Logger::debug(API_LOG_PREFIX . 'parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);
 
 				$stamp =  microtime(true);
 				$return = call_user_func($info['func'], $type);
 				$duration = (float) (microtime(true) - $stamp);
 
-				Logger::info('API {action} for {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username'], 'duration' => round($duration, 2)]);
+				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username'], 'duration' => round($duration, 2)]);
 
 				if (Config::get("system", "profiler")) {
 					$duration = microtime(true)-$a->performance["start"];
@@ -415,7 +417,7 @@ function api_call(App $a)
 			}
 		}
 
-		Logger::warning('API {action} not implemented', ['module' => 'api', 'action' => 'call']);
+		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call']);
 		throw new NotImplementedException();
 	} catch (HTTPException $e) {
 		header("HTTP/1.1 {$e->httpcode} {$e->httpdesc}");
@@ -524,7 +526,7 @@ function api_get_user(App $a, $contact_id = null)
 	$extra_query = "";
 	$url = "";
 
-	Logger::info('API {action}: Fetching data for user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $contact_id]);
+	Logger::info(API_LOG_PREFIX . 'Fetching data for user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $contact_id]);
 
 	// Searching for contact URL
 	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
@@ -608,7 +610,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
-	Logger::info('API {action}: getting user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user]);
+	Logger::info(API_LOG_PREFIX . 'getting user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user]);
 
 	if (!$user) {
 		if (api_user() === false) {
@@ -620,7 +622,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
-	Logger::info('API {action}: found user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user, 'extra_query' => $extra_query]);
+	Logger::info(API_LOG_PREFIX . 'found user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user, 'extra_query' => $extra_query]);
 
 	// user info
 	$uinfo = q(
@@ -1939,7 +1941,7 @@ function api_conversation_show($type)
 		$id = intval(defaults($a->argv, 4, 0));
 	}
 
-	Logger::info('API: {action} - {subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
+	Logger::info(API_LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
 	$item = Item::selectFirst(['parent-uri'], ['id' => $id]);
@@ -2333,7 +2335,7 @@ function api_favorites($type)
 
 	// in friendica starred item are private
 	// return favorites only for self
-	Logger::info('API: {action}', ['module' => 'api', 'action' => 'favorites', 'self' => $user_info['self']]);
+	Logger::info(API_LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites', 'self' => $user_info['self']]);
 
 	if ($user_info['self'] == 0) {
 		$ret = [];
@@ -3697,7 +3699,7 @@ function api_friendships_destroy($type)
 	$contact_id = defaults($_REQUEST, 'user_id');
 
 	if (empty($contact_id)) {
-		Logger::notice('API {action} - No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);
+		Logger::notice(API_LOG_PREFIX . 'No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);
 		throw new BadRequestException("no user_id specified");
 	}
 
@@ -3705,7 +3707,7 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
 
 	if(!DBA::isResult($contact)) {
-		Logger::notice('API {action} - No contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
+		Logger::notice(API_LOG_PREFIX . 'No contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
 		throw new NotFoundException("no contact found to given ID");
 	}
 
@@ -3717,12 +3719,12 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		Logger::notice('API {action} - Not following contact', ['module' => 'api', 'action' => 'friendships_destroy']);
+		Logger::notice(API_LOG_PREFIX . 'Not following contact', ['module' => 'api', 'action' => 'friendships_destroy']);
 		throw new NotFoundException("Not following Contact");
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		Logger::notice('API {action} - Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
+		Logger::notice(API_LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
 		throw new ExpectationFailedException("Not supported");
 	}
 
@@ -3733,7 +3735,7 @@ function api_friendships_destroy($type)
 		Contact::terminateFriendship($owner, $contact, $dissolve);
 	}
 	else {
-		Logger::notice('API {action} - No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
+		Logger::notice(API_LOG_PREFIX . 'No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
 		throw new NotFoundException("Error Processing Request");
 	}
 
@@ -4841,7 +4843,7 @@ function api_friendica_remoteauth()
 	DBA::insert('profile_check', $fields);
 
 	$a = get_app();
-	Logger::info('API: {action}', ['module' => 'api', 'action' => 'friendica_remoteauth', 'contact' => $contact['name'], 'hey' => $sec]);
+	Logger::info(API_LOG_PREFIX . 'for contact {contact}', ['module' => 'api', 'action' => 'friendica_remoteauth', 'contact' => $contact['name'], 'hey' => $sec]);
 	$dest = ($url ? '&destination_url=' . $url : '');
 
 	System::externalRedirect(
@@ -5091,7 +5093,7 @@ function api_in_reply_to($item)
 		// This is a bugfix for that.
 		if (intval($in_reply_to['status_id']) == intval($item['id'])) {
 			$a = get_app();
-			Logger::warning('API {action}: ID {id} is similar to reply-to {reply-to}', ['module' => 'api', 'action' => 'in_reply_to', 'id' => $item['id'], 'reply-to' => $in_reply_to['status_id']]);
+			Logger::warning(API_LOG_PREFIX . 'ID {id} is similar to reply-to {reply-to}', ['module' => 'api', 'action' => 'in_reply_to', 'id' => $item['id'], 'reply-to' => $in_reply_to['status_id']]);
 			$in_reply_to['status_id'] = null;
 			$in_reply_to['user_id'] = null;
 			$in_reply_to['status_id_str'] = null;
