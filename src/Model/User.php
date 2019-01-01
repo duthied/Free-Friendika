@@ -192,7 +192,7 @@ class User
 		if (strpos($user['password'], '$') === false) {
 			//Legacy hash that has not been replaced by a new hash yet
 			if (self::hashPasswordLegacy($password) === $user['password']) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 
 				return $user['uid'];
 			}
@@ -200,14 +200,14 @@ class User
 			//Legacy hash that has been double-hashed and not replaced by a new hash yet
 			//Warning: `legacy_password` is not necessary in sync with the content of `password`
 			if (password_verify(self::hashPasswordLegacy($password), $user['password'])) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 
 				return $user['uid'];
 			}
 		} elseif (password_verify($password, $user['password'])) {
 			//New password hash
 			if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 			}
 
 			return $user['uid'];
