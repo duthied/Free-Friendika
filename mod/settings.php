@@ -391,35 +391,23 @@ function settings_post(App $a)
 		$newpass = $_POST['password'];
 		$confirm = $_POST['confirm'];
 
-		$err = false;
-		if ($newpass != $confirm) {
-			notice(L10n::t('Passwords do not match. Password unchanged.') . EOL);
-			$err = true;
-		}
-
-		if (empty($newpass) || empty($confirm)) {
-			notice(L10n::t('Empty passwords are not allowed. Password unchanged.') . EOL);
-			$err = true;
-		}
-
-		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($newpass)) {
-			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
-			$err = true;
-		}
-
-		//  check if the old password was supplied correctly before changing it to the new value
-		if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
-			notice(L10n::t('Wrong password.') . EOL);
-			$err = true;
-		}
-
-		if (!$err) {
-			$result = User::updatePassword(local_user(), $newpass);
-			if (DBA::isResult($result)) {
-				info(L10n::t('Password changed.') . EOL);
-			} else {
-				notice(L10n::t('Password update failed. Please try again.') . EOL);
+		try {
+			if ($newpass != $confirm) {
+				throw new Exception(L10n::t('Passwords do not match.'));
 			}
+
+			//  check if the old password was supplied correctly before changing it to the new value
+			User::getIdFromPasswordAuthentication(local_user(), $_POST['opassword']);
+
+			$result = User::updatePassword(local_user(), $newpass);
+			if (!DBA::isResult($result)) {
+				throw new Exception(L10n::t('Password update failed. Please try again.'));
+			}
+
+			info(L10n::t('Password changed.'));
+		} catch (Exception $e) {
+			notice($e->getMessage());
+			notice(L10n::t('Password unchanged.'));
 		}
 	}
 
@@ -1193,7 +1181,7 @@ function settings_content(App $a)
 		'$nickname_block' => $prof_addr,
 
 		'$h_pass' 	=> L10n::t('Password Settings'),
-		'$password1'=> ['password', L10n::t('New Password:'), '', ''],
+		'$password1'=> ['password', L10n::t('New Password:'), '', L10n::t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces and colon (:).')],
 		'$password2'=> ['confirm', L10n::t('Confirm:'), '', L10n::t('Leave password fields blank unless changing')],
 		'$password3'=> ['opassword', L10n::t('Current Password:'), '', L10n::t('Your current password to confirm the changes')],
 		'$password4'=> ['mpassword', L10n::t('Password:'), '', L10n::t('Your current password to confirm the changes')],
