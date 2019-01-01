@@ -193,7 +193,7 @@
 										<p>{{$lbl_vis2}}</p>
 									</div>
 									<div class="form-group">
-									{{$profile_select}}
+									{{$profile_select nofilter}}
 									</div>
 									<div class="clear"></div>
 								{{/if}}
