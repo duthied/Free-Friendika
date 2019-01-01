@@ -8,10 +8,9 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Monolog;
+use Psr\Log\LoggerInterface;
 
 /**
  *
@@ -109,7 +108,7 @@ class App
 	public $mobileDetect;
 
 	/**
-	 * @var Monolog\Logger The current logger of this App
+	 * @var LoggerInterface The current logger of this App
 	 */
 	private $logger;
 
@@ -153,9 +152,9 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string $basePath  Path to the app base folder
-	 * @param Monolog\Logger    Logger of this application
-	 * @param bool   $isBackend Whether it is used for backend or frontend (Default true=backend)
+	 * @param string           $basePath  Path to the app base folder
+	 * @param LoggerInterface  $logger    Logger of this application
+	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
@@ -314,7 +313,7 @@ class App
 	/**
 	 * Returns the Logger of the Application
 	 *
-	 * @return Monolog\Logger The Logger
+	 * @return LoggerInterface The Logger
 	 * @throws InternalServerErrorException when the logger isn't created
 	 */
 	public function getLogger()
@@ -354,7 +353,7 @@ class App
 
 		$this->process_id = Core\System::processID('log');
 
-		Logger::loadDefaultHandler($this->logger, $this);
+		Core\Logger::setLogger($this->logger);
 	}
 
 	/**

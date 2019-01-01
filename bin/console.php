@@ -3,9 +3,9 @@
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-use Friendica\Core\Logger;
+use Friendica\Util\LoggerFactory;
 
-$logger = Logger::create('console');
+$logger = LoggerFactory::create('console');
 
 $a = new Friendica\App(dirname(__DIR__), $logger);
 \Friendica\BaseObject::setApp($a);

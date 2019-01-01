@@ -9,9 +9,9 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Util\LoggerFactory;
 
 // Get options
 $shortopts = 'f';
@@ -32,7 +32,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$logger = Logger::create('daemon');
+$logger = LoggerFactory::create('daemon');
 
 $a = new App(dirname(__DIR__), $logger);
 

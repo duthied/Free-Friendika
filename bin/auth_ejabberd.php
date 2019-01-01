@@ -33,8 +33,8 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Logger;
 use Friendica\Util\ExAuth;
+use Friendica\Util\LoggerFactory;
 
 if (sizeof($_SERVER["argv"]) == 0) {
 	die();
@@ -52,7 +52,7 @@ chdir($directory);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$logger = Logger::create('ejabberd');
+$logger = LoggerFactory::create('auth_ejabberd');
 
 $a = new App(dirname(__DIR__), $logger);
 
