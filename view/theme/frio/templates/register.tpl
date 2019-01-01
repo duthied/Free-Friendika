@@ -24,7 +24,7 @@
 		<div id="register-invite-wrapper" class="form-group">
 			<label for="register-invite" id="label-register-invite" >{{$invite_label}}</label>
 			<input type="text" maxlength="60" size="32" name="invite_id" id="register-invite" class="form-control" value="{{$invite_id}}">
-			<span class="help-block" id="invite_id_tip">{{$invite_desc}}</span>
+			<span class="help-block" id="invite_id_tip">{{$invite_desc nofilter}}</span>
 		</div>
 		<div id="register-name-end" ></div>
 		{{/if}}

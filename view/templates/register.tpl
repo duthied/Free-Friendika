@@ -20,7 +20,7 @@
 {{/if}}
 
 {{if $invitations}}
-	<p id="register-invite-desc">{{$invite_desc}}</p>
+	<p id="register-invite-desc">{{$invite_desc nofilter}}</p>
 	<div id="register-invite-wrapper" >
 		<label for="register-invite" id="label-register-invite" >{{$invite_label}}</label>
 		<input type="text" maxlength="60" size="32" name="invite_id" id="register-invite" value="{{$invite_id}}" >
