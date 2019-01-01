@@ -96,7 +96,7 @@
 					<h4>{{$lbl_vis1}}</h4>
 					<p>{{$lbl_vis2}}</p> 
 					</div>
-					{{$profile_select}}
+					{{$profile_select nofilter}}
 					<div id="contact-edit-profile-select-end"></div>
 				{{/if}}
 			</div>
