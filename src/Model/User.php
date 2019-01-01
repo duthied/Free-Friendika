@@ -317,6 +317,7 @@ class User
 	 *
 	 * @param string $password
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function hashPassword($password)
 	{
@@ -333,9 +334,26 @@ class User
 	 * @param int    $uid
 	 * @param string $password
 	 * @return bool
+	 * @throws Exception
 	 */
 	public static function updatePassword($uid, $password)
 	{
+		$password = trim($password);
+
+		if (empty($password)) {
+			throw new Exception(L10n::t('Empty passwords are not allowed.'));
+		}
+
+		if (!Config::get('system', 'disable_password_exposed', false) && self::isPasswordExposed($password)) {
+			throw new Exception(L10n::t('The new password has been exposed in a public data dump, please choose another.'));
+		}
+
+		$allowed_characters = '!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+
+		if (!preg_match('/^[a-z0-9' . preg_quote($allowed_characters, '/') . ']+$/i', $password)) {
+			throw new Exception(L10n::t('The password can\'t contain accentuated letters, white spaces or colons (:)'));
+		}
+
 		return self::updatePasswordHashed($uid, self::hashPassword($password));
 	}
 
@@ -400,9 +418,11 @@ class User
 	 * - Create self-contact
 	 * - Create profile image
 	 *
-	 * @param array $data
-	 * @return string
-	 * @throw Exception
+	 * @param  array $data
+	 * @return array
+	 * @throws \ErrorException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
 	public static function create(array $data)
 	{
