@@ -280,7 +280,7 @@ class User
 	 */
 	public static function generateNewPassword()
 	{
-		return Strings::getRandomName(6) . mt_rand(100, 9999);
+		return ucfirst(Strings::getRandomName(8)) . mt_rand(1000, 9999);
 	}
 
 	/**
