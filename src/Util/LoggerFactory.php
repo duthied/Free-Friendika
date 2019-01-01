@@ -26,6 +26,10 @@ class LoggerFactory
 	{
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
+		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
+
+		// Add more information in case of a warning and more
+		$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(LogLevel::WARNING));
 
 		return $logger;
 	}
@@ -47,6 +51,9 @@ class LoggerFactory
 	{
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
+		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
+
+		$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor());
 
 		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
 
