@@ -29,7 +29,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 
 		// Add more information in case of a warning and more
-		$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(LogLevel::WARNING));
+		$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(LogLevel::WARNING, [], 1));
 
 		return $logger;
 	}
@@ -53,7 +53,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 
-		$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor());
+		$logger->pushProcessor(new Monolog\Processor\IntrospectionProcessor(Loglevel::DEBUG, [], 1));
 
 		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
 
