@@ -34,7 +34,7 @@ function acl_content(App $a)
 		$search = $_REQUEST['query'];
 	}
 
-	$a->getLogger()->info("Searching for " . $search . " - type " . $type . " conversation " . $conv_id);
+	Logger::info('ACL {action} - {subaction}', ['module' => 'acl', 'action' => 'content', 'subaction' => 'search', 'search' => $search, 'type' => $type, 'conversation' => $conv_id]);
 
 	if ($search != '') {
 		$sql_extra = "AND `name` LIKE '%%" . DBA::escape($search) . "%%'";
