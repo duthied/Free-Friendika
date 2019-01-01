@@ -70,7 +70,7 @@ class LoggerFactory
 		if ($logger instanceof Monolog\Logger) {
 			$fileHandler = new Monolog\Handler\StreamHandler($stream . ".1", Monolog\Logger::toMonologLevel($level));
 
-			$formatter = new Monolog\Formatter\LineFormatter("%channel% [%level_name%]: %message% %context% %extra%");
+			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
 			$fileHandler->setFormatter($formatter);
 
 			$logger->pushHandler($fileHandler);
