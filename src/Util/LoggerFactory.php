@@ -68,12 +68,40 @@ class LoggerFactory
 	public static function addStreamHandler($logger, $stream, $level = LogLevel::NOTICE)
 	{
 		if ($logger instanceof Monolog\Logger) {
-			$fileHandler = new Monolog\Handler\StreamHandler($stream . ".1", Monolog\Logger::toMonologLevel($level));
+			$fileHandler = new Monolog\Handler\StreamHandler($stream, Monolog\Logger::toMonologLevel($level));
 
 			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
 			$fileHandler->setFormatter($formatter);
 
 			$logger->pushHandler($fileHandler);
+		} else {
+			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
+		}
+	}
+
+	/**
+	 * This method enables the test mode of a given logger
+	 *
+	 * @param LoggerInterface $logger The logger
+	 *
+	 * @return Monolog\Handler\TestHandler the Handling for tests
+	 *
+	 * @throws InternalServerErrorException if the logger is incompatible to the logger factory
+	 */
+	public static function enableTest($logger)
+	{
+		if ($logger instanceof Monolog\Logger) {
+			// disable every handler so far
+			$logger->pushHandler(new Monolog\Handler\NullHandler());
+
+			// enable the test handler
+			$fileHandler = new Monolog\Handler\TestHandler();
+			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
+			$fileHandler->setFormatter($formatter);
+
+			$logger->pushHandler($fileHandler);
+
+			return $fileHandler;
 		} else {
 			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
 		}

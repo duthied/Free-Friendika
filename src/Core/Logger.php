@@ -89,7 +89,10 @@ class Logger extends BaseObject
 			return;
 		}
 
-		LoggerFactory::addStreamHandler($logger, $logfile, $loglevel);
+		$level = self::mapPSR3Level($loglevel);
+		LoggerFactory::addStreamHandler($logger, $logfile, $level);
+
+		self::$logger = $logger;
 
 		$logfile = Config::get('system', 'dlogfile');
 
@@ -185,6 +188,7 @@ class Logger extends BaseObject
 	public static function error($message, $context = [])
 	{
 		if (!isset(self::$logger)) {
+			echo "not set!?\n";
 			return;
 		}
 
