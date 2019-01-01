@@ -11,7 +11,7 @@
 </ul>
 </p>
 <p>
-{{$invite_desc}}
+{{$invite_desc nofilter}}
 </p>
 <p>
 {{$desc}}

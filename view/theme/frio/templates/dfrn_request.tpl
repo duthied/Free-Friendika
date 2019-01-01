@@ -10,7 +10,7 @@
 <li><a href="https://diasporafoundation.org" title="{{$diaspora}}">{{$diaspora}}</a> {{$diasnote}}</li>
 <li><a href="https://gnu.io/social/" title="{{$statusnet}}" >{{$statusnet}}</a></li>
 </ul>
-{{$invite_desc}}
+{{$invite_desc nofilter}}
 </p>
 <p>
 {{$desc}}
