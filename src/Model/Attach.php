@@ -7,11 +7,13 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
+use Friendica\Core\System;
 use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Util\Security;
-
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Mimetype;
 
 /**
  * Class to handle attach dabatase table
@@ -156,8 +158,8 @@ class Attach extends BaseObject
 	 * @param string  $data  Binary data
 	 * @param integer $uid       User ID
 	 * @param string  $filename  Filename
-	 * @param string  $filetype  Mimetype. optional
-	 * @param integer $filesize  File size in bytes. optional
+	 * @param string  $filetype  Mimetype. optional, default = ''
+	 * @param integer $filesize  File size in bytes. optional, default = null
 	 * @param string  $allow_cid Permissions, allowed contacts. optional, default = ''
 	 * @param string  $allow_gid Permissions, allowed groups. optional, default = ''
 	 * @param string  $deny_cid  Permissions, denied contacts.optional, default = ''
@@ -165,13 +167,13 @@ class Attach extends BaseObject
 	 *
 	 * @return boolean/integer Row id on success, False on errors
 	 */
-	public function store($data, $uid, $filename, $filetype = '' , $filesize = -1, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '')
+	public function store($data, $uid, $filename, $filetype = '' , $filesize = null, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '')
 	{
 		if ($filetype === '') {
 			$filetype = Mimetype::getContentType($filename);
 		}
 
-		if ($filesize < 0) {
+		if (is_null($filesize)) {
 			$filesize = strlen($data);
 		}
 
@@ -206,6 +208,7 @@ class Attach extends BaseObject
 		if ($r === true) {
 			return DBA::lastInsertId();
 		}
+		return $r;
 	}
 
 	/**
@@ -221,7 +224,7 @@ class Attach extends BaseObject
 
 		$data = @file_get_contents($src);
 
-		return 	self::store($data, $uid, $filename, '', '', $allow_cid, $allow_gid,  $deny_cid, $deny_gid);
+		return 	self::store($data, $uid, $filename, '', null, $allow_cid, $allow_gid,  $deny_cid, $deny_gid);
 	}
 
 

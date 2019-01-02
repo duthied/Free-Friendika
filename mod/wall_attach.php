@@ -6,12 +6,9 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Mimetype;
 use Friendica\Util\Strings;
 
 function wall_attach_post(App $a) {
