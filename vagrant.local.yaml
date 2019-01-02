@@ -1,0 +1,2 @@
+server:
+  memory: "1024" # MB
