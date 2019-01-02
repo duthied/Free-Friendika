@@ -26,6 +26,8 @@ use Friendica\Model\FileTag;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Term;
 use Friendica\Model\ItemURI;
+use Friendica\Model\Photo;
+use Friendica\Model\Attach;
 use Friendica\Object\Image;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -1039,7 +1041,7 @@ class Item extends BaseObject
 		foreach (explode(", ", $item['attach']) as $attach) {
 			preg_match("|attach/(\d+)|", $attach, $matches);
 			if (is_array($matches) && count($matches) > 1) {
-				DBA::delete('attach', ['id' => $matches[1], 'uid' => $item['uid']]);
+				Attach::delete(['id' => $matches[1], 'uid' => $item['uid']]);
 			}
 		}
 

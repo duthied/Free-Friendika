@@ -8,6 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
@@ -126,20 +127,11 @@ function wall_attach_post(App $a) {
 		exit();
 	}
 
-	$filedata = @file_get_contents($src);
-	$mimetype = Mimetype::getContentType($filename);
-	$hash = System::createGUID(64);
-	$created = DateTimeFormat::utcNow();
-
-	$fields = ['uid' => $page_owner_uid, 'hash' => $hash, 'filename' => $filename, 'filetype' => $mimetype,
-		'filesize' => $filesize, 'data' => $filedata, 'created' => $created, 'edited' => $created,
-		'allow_cid' => '<' . $page_owner_cid . '>', 'allow_gid' => '','deny_cid' => '', 'deny_gid' => ''];
-
-	$r = DBA::insert('attach', $fields);
+	$newid = Attach::storeFile($src, $page_owner_uid, $filename, '<' . $page_owner_cid . '>');
 
 	@unlink($src);
 
-	if (! $r) {
+	if ($newid === false) {
 		$msg =  L10n::t('File upload failed.');
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
@@ -149,30 +141,14 @@ function wall_attach_post(App $a) {
 		exit();
 	}
 
-	$r = q("SELECT `id` FROM `attach` WHERE `uid` = %d AND `created` = '%s' AND `hash` = '%s' LIMIT 1",
-		intval($page_owner_uid),
-		DBA::escape($created),
-		DBA::escape($hash)
-	);
-
-	if (! DBA::isResult($r)) {
-		$msg = L10n::t('File upload failed.');
-		if ($r_json) {
-			echo json_encode(['error' => $msg]);
-		} else {
-			echo $msg . EOL;
-		}
-		exit();
-	}
-
 	if ($r_json) {
-		echo json_encode(['ok' => true]);
+		echo json_encode(['ok' => true, 'id' => $newid]);
 		exit();
 	}
 
 	$lf = "\n";
 
-	echo  $lf . $lf . '[attachment]' . $r[0]['id'] . '[/attachment]' . $lf;
+	echo  $lf . $lf . '[attachment]' . $newid . '[/attachment]' . $lf;
 
 	exit();
 	// NOTREACHED
