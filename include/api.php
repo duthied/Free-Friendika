@@ -3690,7 +3690,6 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 function api_friendships_destroy($type)
 {
 	$uid = api_user();
-	$a = get_app();
 
 	if ($uid === false) {
 		throw new ForbiddenException();
@@ -5091,7 +5090,6 @@ function api_in_reply_to($item)
 		// https://github.com/friendica/friendica/issues/1010
 		// This is a bugfix for that.
 		if (intval($in_reply_to['status_id']) == intval($item['id'])) {
-			$a = get_app();
 			Logger::warning(API_LOG_PREFIX . 'ID {id} is similar to reply-to {reply-to}', ['module' => 'api', 'action' => 'in_reply_to', 'id' => $item['id'], 'reply-to' => $in_reply_to['status_id']]);
 			$in_reply_to['status_id'] = null;
 			$in_reply_to['user_id'] = null;
