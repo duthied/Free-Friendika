@@ -2072,7 +2072,7 @@ class Contact extends BaseObject
 	 */
 	public static function magicLink($contact_url, $url = '')
 	{
-		if (!local_user()) {
+		if (!local_user() && remote_user()) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
@@ -2097,7 +2097,7 @@ class Contact extends BaseObject
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], ['id' => $cid]);
 
 		return self::magicLinkbyContact($contact, $url);
-        }
+	}
 
 	/**
 	 * @brief Returns a magic link to authenticate remote visitors
@@ -2109,7 +2109,7 @@ class Contact extends BaseObject
 	 */
 	public static function magicLinkbyContact($contact, $url = '')
 	{
-		if (!local_user() || ($contact['network'] != Protocol::DFRN)) {
+		if ((!local_user() && !remote_user()) || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 		}
 
