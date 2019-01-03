@@ -32,6 +32,7 @@ use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
+use Friendica\Model\Attach;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
@@ -489,14 +490,14 @@ function item_post(App $a) {
 
 				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
 						'id' => $attach];
-				if (!DBA::exists('attach', $condition)) {
+				if (!Attach::exists($condition)) {
 					continue;
 				}
 
 				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
 				$condition = ['id' => $attach];
-				DBA::update('attach', $fields, $condition);
+				Attach::update($fields, $condition);
 			}
 		}
 	}
@@ -539,8 +540,8 @@ function item_post(App $a) {
 	if (preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
 		foreach ($match[2] as $mtch) {
 			$fields = ['id', 'filename', 'filesize', 'filetype'];
-			$attachment = DBA::selectFirst('attach', $fields, ['id' => $mtch]);
-			if (DBA::isResult($attachment)) {
+			$attachment = Attach::selectFirst($fields, ['id' => $mtch]);
+			if ($attachment !== false) {
 				if (strlen($attachments)) {
 					$attachments .= ',';
 				}
