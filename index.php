@@ -13,7 +13,7 @@ if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 require __DIR__ . '/vendor/autoload.php';
 
-$logger = LoggerFactory::create('app');
+$logger = LoggerFactory::create('index');
 
 // We assume that the index.php is called by a frontend process
 // The value is set to "true" by default in App
