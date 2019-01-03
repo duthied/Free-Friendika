@@ -116,6 +116,8 @@ class Proxy extends BaseModule
 			// stop.
 		}
 		
+		$basepath = $a->getBasePath();
+		
 		// Store original image
 		if ($direct_cache) {
 			// direct cache , store under ./proxy/
