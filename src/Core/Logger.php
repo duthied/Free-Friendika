@@ -16,35 +16,29 @@ use Psr\Log\LogLevel;
 class Logger extends BaseObject
 {
 	/**
-	 * @deprecated 2019.03 use Logger::error() instead
 	 * @see Logger::error()
 	 */
-	const WARNING = 0;
+	const WARNING = LogLevel::ERROR;
 	/**
-	 * @deprecated 2019.03 use Logger::warning() instead
 	 * @see Logger::warning()
 	 */
-	const INFO = 1;
+	const INFO = LogLevel::WARNING;
 	/**
-	 * @deprecated 2019.03 use Logger::notice() instead
 	 * @see Logger::notice()
 	 */
-	const TRACE = 2;
+	const TRACE = LogLevel::NOTICE;
 	/**
-	 * @deprecated 2019.03 use Logger::info() instead
 	 * @see Logger::info()
 	 */
-	const DEBUG = 3;
+	const DEBUG = LogLevel::INFO;
 	/**
-	 * @deprecated 2019.03 use Logger::debug() instead
 	 * @see Logger::debug()
 	 */
-	const DATA = 4;
+	const DATA = LogLevel::DEBUG;
 	/**
-	 * @deprecated 2019.03 use Logger::debug() instead
 	 * @see Logger::debug()
 	 */
-	const ALL = 5;
+	const ALL = LogLevel::DEBUG;
 
 	/**
 	 * @var array the legacy loglevels
@@ -285,34 +279,6 @@ class Logger extends BaseObject
 		self::getApp()->saveTimestamp($stamp1, 'file');
 	}
 
-	/**
-	 * Mapping a legacy level to the PSR-3 compliant levels
-	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
-	 *
-	 * @param int $level the level to be mapped
-	 *
-	 * @return string the PSR-3 compliant level
-	 */
-	private static function mapPSR3Level($level)
-	{
-		switch ($level) {
-			case self::WARNING:
-				return LogLevel::ERROR;
-			case self::INFO:
-				return LogLevel::WARNING;
-			case self::TRACE:
-				return LogLevel::NOTICE;
-			case self::DEBUG:
-				return LogLevel::INFO;
-			case self::DATA:
-				return LogLevel::DEBUG;
-			case self::ALL:
-				return LogLevel::DEBUG;
-			default:
-				return LogLevel::CRITICAL;
-		}
-	}
-
     /**
      * @brief Logs the given message at the given log level
      *
@@ -321,16 +287,14 @@ class Logger extends BaseObject
 	 *
 	 * @deprecated since 2019.03 Use Logger::debug() Logger::info() , ... instead
      */
-    public static function log($msg, $level = self::INFO)
+    public static function log($msg, $level = LogLevel::NOTICE)
     {
 		if (!isset(self::$logger)) {
 			return;
 		}
 
-		$loglevel = self::mapPSR3Level($level);
-
         $stamp1 = microtime(true);
-		self::$logger->log($loglevel, $msg);
+		self::$logger->log($level, $msg);
         self::getApp()->saveTimestamp($stamp1, "file");
     }
 

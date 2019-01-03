@@ -325,7 +325,7 @@ function api_call(App $a)
 
 					/// @TODO round() really everywhere?
 					Logger::debug(
-						'API {action} performance',
+						API_LOG_PREFIX . 'performance',
 						[
 							'module' => 'api',
 							'action' => 'call',
@@ -380,7 +380,7 @@ function api_call(App $a)
 								$o .= $func . ": " . $time . "\n";
 							}
 						}
-						Logger::debug($o, ['module' => 'api', 'action' => 'call']);
+						Logger::debug(API_LOG_PREFIX . $o, ['module' => 'api', 'action' => 'call']);
 					}
 				}
 
@@ -4842,7 +4842,6 @@ function api_friendica_remoteauth()
 		'sec' => $sec, 'expire' => time() + 45];
 	DBA::insert('profile_check', $fields);
 
-	$a = get_app();
 	Logger::info(API_LOG_PREFIX . 'for contact {contact}', ['module' => 'api', 'action' => 'friendica_remoteauth', 'contact' => $contact['name'], 'hey' => $sec]);
 	$dest = ($url ? '&destination_url=' . $url : '');
 

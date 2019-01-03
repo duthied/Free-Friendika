@@ -159,7 +159,7 @@ class App
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basePath, $logger, $isBackend = true)
+	public function __construct($basePath, LoggerInterface $logger, $isBackend = true)
 	{
 		$this->logger = $logger;
 
