@@ -19,9 +19,18 @@ class Storage extends \Asika\SimpleConsole\Console
 console storage - manage storage backend and stored data
 Synopsis
     bin/console storage [-h|--help|-?] [-v]
+        Show this help
+    
     bin/console storage list
+        List avaiable storage backends
+    
     bin/console storage set <name>
-    bin/console storage move
+        Set current storage backend
+            name        storage backend to use. see "list".
+    
+    bin/console storage move [table]
+        Move stored data to current storage backend.
+            table       one of "photo" or "attach". default to both
 HELP;
 		return $help;
 	}
@@ -105,8 +114,15 @@ HELP;
 
 	protected function do_move()
 	{
-		if (count($this->args) !== 1) {
+		$table = null;
+		if (count($this->args) < 1 || count($this->args) > 2) {
 			throw new CommandArgsException('Invalid arguments');
+		}
+		if (count($this->args) == 2) {
+			$table = strtolower($this->args[1]);
+			if (!in_array($table, ['photo', 'attach'])) {
+				throw new CommandArgsException('Invalid table');
+			}
 		}
 
 		$current = StorageManager::getBackend();

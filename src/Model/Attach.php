@@ -224,7 +224,7 @@ class Attach extends BaseObject
 
 		$data = @file_get_contents($src);
 
-		return 	self::store($data, $uid, $filename, '', null, $allow_cid, $allow_gid,  $deny_cid, $deny_gid);
+		return self::store($data, $uid, $filename, '', null, $allow_cid, $allow_gid,  $deny_cid, $deny_gid);
 	}
 
 

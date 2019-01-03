@@ -110,7 +110,7 @@ class StorageManager
 	 * This method cannot move to legacy in-table `data` field.
 	 *
 	 * @param string  $dest    Destination storage class name
-	 * @param array   $tables  Tables to look in for resources. Optional, defaults to ['photo']
+	 * @param array   $tables  Tables to look in for resources. Optional, defaults to ['photo', 'attach']
 	 *
 	 * @retur int Number of moved resources
 	 */
@@ -121,7 +121,7 @@ class StorageManager
 		}
 		
 		if (is_null($tables)) {
-			$tables = ['photo'];
+			$tables = ['photo', 'attach'];
 		}
 
 		$moved = 0;
