@@ -14,16 +14,20 @@
 		</li>
 		{{if $nav.home}}
 			<li role="menuitem" id="nav-home-link" class="nav-menu {{$sel.home}}">
-				<a accesskey="p" class="{{$nav.home.2}} desktop-view" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
-				<a class="{{$nav.home.2}} mobile-view" href="{{$nav.home.0}}" title="{{$nav.home.3}}" ><i class="icon s22 icon-home"></i></a>
-				<span id="home-update" class="nav-notify"></span>
+				<a accesskey="p" class="{{$nav.home.2}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >
+					<span class="desktop-view">{{$nav.home.1}}</span>
+					<i class="icon s22 icon-home mobile-view"><span class="sr-only">{{$nav.home.1}}</span></i>
+					<span id="home-update" class="nav-notify"></span>
+				</a>
 			</li>
 		{{/if}}
 		{{if $nav.network}}
 			<li role="menuitem" id="nav-network-link" class="nav-menu {{$sel.network}}">
-				<a accesskey="n" class="{{$nav.network.2}} desktop-view" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
-				<a class="{{$nav.network.2}} mobile-view" href="{{$nav.network.0}}" title="{{$nav.network.3}}" ><i class="icon s22 icon-th"></i></a>
-				<span id="net-update" class="nav-notify"></span>
+				<a accesskey="n" class="{{$nav.network.2}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >
+					<span class="desktop-view">{{$nav.network.1}}</span>
+					<i class="icon s22 icon-th mobile-view"><span class="sr-only">{{$nav.network.1}}</span></i>
+					<span id="net-update" class="nav-notify"></span>
+				</a>
 			</li>
 		{{/if}}
 		{{if $nav.events}}
@@ -48,9 +52,22 @@
 			</ul>
 		</li>
 
+		{{if $nav.messages}}
+			<li role="menu" aria-haspopup="true" id="nav-messages-linkmenu" class="nav-menu-icon">
+				<a href="{{$nav.messages.0}}" title="{{$nav.messages.1}}">
+					<span class="icon s22 icon-envelope"><span class="sr-only">{{$nav.messages.1}}</span></span>
+					<span id="mail-update" class="nav-notify"></span>
+				</a>
+			</li>
+		{{/if}}
+
+
 		{{if $nav.notifications}}
-			<li role="menu" aria-haspopup="true" id="nav-notifications-linkmenu" class="nav-menu-icon"><a title="{{$nav.notifications.1}}"><span class="icon s22 icon-bell tilted-icon"><span class="sr-only">{{$nav.notifications.1}}</span></span></a>
-				<span id="notify-update" class="nav-notify"></span>
+			<li role="menu" aria-haspopup="true" id="nav-notifications-linkmenu" class="nav-menu-icon">
+				<a title="{{$nav.notifications.1}}">
+					<span class="icon s22 icon-bell tilted-icon"><span class="sr-only">{{$nav.notifications.1}}</span></span>
+					<span id="notify-update" class="nav-notify"></span>
+				</a>
 				<ul id="nav-notifications-menu" class="menu-popup">
 					<li role="menuitem" id="nav-notifications-mark-all"><a onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.1}}</a></li>
 					<li role="menuitem" id="nav-notifications-see-all"><a href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a></li>
@@ -65,7 +82,7 @@
 				<ul id="nav-user-menu" class="menu-popup">
 					{{if $nav.introductions}}<li role="menuitem"><a class="{{$nav.introductions.2}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >{{$nav.introductions.1}}</a><span id="intro-update-li" class="nav-notify"></span></li>{{/if}}
 					{{if $nav.contacts}}<li role="menuitem"><a class="{{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}" >{{$nav.contacts.1}}</a></li>{{/if}}
-					{{if $nav.messages}}<li role="menuitem"><a class="{{$nav.messages.2}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" >{{$nav.messages.1}}</a><span id="mail-update" class="nav-notify"></span></a></li>{{/if}}
+					{{if $nav.messages}}<li role="menuitem"><a class="{{$nav.messages.2}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" >{{$nav.messages.1}} <span id="mail-update-li" class="nav-notify"></span></a></li>{{/if}}
 					{{if $nav.manage}}<li role="menuitem"><a class="{{$nav.manage.2}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}">{{$nav.manage.1}}</a></li>{{/if}}
 					{{if $nav.usermenu.1}}<li role="menuitem"><a class="{{$nav.usermenu.1.2}}" href="{{$nav.usermenu.1.0}}" title="{{$nav.usermenu.1.3}}">{{$nav.usermenu.1.1}}</a></li>{{/if}}
 					{{if $nav.settings}}<li role="menuitem"><a class="{{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}">{{$nav.settings.1}}</a></li>{{/if}}
