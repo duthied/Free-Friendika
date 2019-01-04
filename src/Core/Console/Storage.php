@@ -22,7 +22,7 @@ Synopsis
         Show this help
     
     bin/console storage list
-        List avaiable storage backends
+        List available storage backends
     
     bin/console storage set <name>
         Set current storage backend

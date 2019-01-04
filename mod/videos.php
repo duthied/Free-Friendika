@@ -114,8 +114,7 @@ function videos_post(App $a)
 
 		$video_id = $_POST['id'];
 
-		$r = Attach::exists(['id' => $video_id, 'uid' => local_user()]);
-		if ($r === true) {
+		if (Attach::exists(['id' => $video_id, 'uid' => local_user()])) {
 			// delete the attachment
 			Attach::delete(['id' => $video_id, 'uid' => local_user()]);
 

@@ -18,11 +18,9 @@ use Friendica\Model\Attach as MAttach;
 class Attach extends BaseModule
 {
 	/**
-	 * @brief Module initializer
-	 *
-	 * Fetch an attached file given the id
+	 * @brief Return to user an attached file given the id
 	 */
-	public static function init()
+	public static function rawContent()
 	{
 		$a = self::getApp();
 		if ($a->argc != 2) {
