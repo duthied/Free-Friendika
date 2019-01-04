@@ -2087,8 +2087,8 @@ ul.dropdown-menu li:hover {
 }
 
 /* Notificaiotn badges */
-.nav-notify .show {
-    display: block;
+#mail-update-li.show {
+    display: inline-block!important;
 }
 
 /* Media Classes */
