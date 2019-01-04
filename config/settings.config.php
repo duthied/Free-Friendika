@@ -43,6 +43,10 @@ return [
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'quattro,vier,duepuntozero,smoothly',
 
+		// debugging (boolean)
+		// Enable/Disable Debugging (logging)
+		'debugging' => false,
+
 		// default_timezone (String)
 		// Choose a default timezone. See https://secure.php.net/manual/en/timezones.php
 		// It only applies to timestamps for anonymous viewers.
@@ -65,6 +69,16 @@ return [
 		// System default languague, inluding admin-created user default language.
 		// Two-letters ISO 639-1 code.
 		'language' => 'en',
+
+		// logfile (String)
+		// The logfile for storing logs.
+		// Can be a full path or a relative path to the Friendica home directory
+		'logfile' => 'friendica.log',
+
+		// loglevel (String)
+		// The loglevel for all logs.
+		// Has to be one of these values: emergency, alert, critical, error, warning, notice, info, debug
+		'loglevel' => 'notice',
 
 		// max_image_length (Integer)
 		// An alternate way of limiting picture upload sizes.
