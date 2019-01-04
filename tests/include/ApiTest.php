@@ -11,8 +11,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Network\HTTPException;
-use Friendica\Util\LoggerFactory;
-use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -25,11 +23,6 @@ require_once __DIR__ . '/../../include/api.php';
 class ApiTest extends DatabaseTest
 {
 	/**
-	 * @var TestHandler Can handle log-outputs
-	 */
-	protected $logOutput;
-
-	/**
 	 * Create variables used by tests.
 	 */
 	public function setUp()
@@ -37,7 +30,6 @@ class ApiTest extends DatabaseTest
 		parent::setUp();
 
 		$this->app = BaseObject::getApp();
-		$this->logOutput = LoggerFactory::enableTest($this->app->getLogger());
 
 		// User data that the test database is populated with
 		$this->selfUser = [

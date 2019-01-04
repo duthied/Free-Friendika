@@ -332,8 +332,8 @@ function update_1298()
 					$fail++;
 				} else {
 					DBA::update('profile', [$translateKey => $key], ['id' => $data['id']]);
-					Logger::notice('Updated contact', ['action' => 'update', 'contact' => $data['id'], "$translateKey" => $key,
-						'was' => $data[$translateKey]]);
+					logger::log('Updated contact ' . $data['id'] . " to $translateKey " . $key .
+						' (was: ' . $data[$translateKey] . ')');
 					Worker::add(PRIORITY_LOW, 'ProfileUpdate', $data['id']);		
 					Contact::updateSelfFromUserID($data['id']);
 					GContact::updateForUser($data['id']);
@@ -342,7 +342,7 @@ function update_1298()
 			}
 		}
 
-		Logger::notice($translateKey . " fix completed", ['action' => 'update', 'translateKey' => $translateKey, 'Success' => $success, 'Fail' => $fail ]);
+		Logger::log($translateKey . " fix completed. Success: $success. Fail: $fail");	
 	}
 	return Update::SUCCESS;
 }
