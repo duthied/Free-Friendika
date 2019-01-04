@@ -1228,7 +1228,7 @@ class OStatus
 	{
 		$siteinfo = BBCode::getAttachedData($body);
 
-		if (($siteinfo["type"] == "photo")) {
+		if (($siteinfo["type"] == "photo") && (!empty($siteinfo["preview"]) || !empty($siteinfo["image"]))) {
 			if (isset($siteinfo["preview"])) {
 				$preview = $siteinfo["preview"];
 			} else {
