@@ -106,7 +106,7 @@ auf Deutsch:
 
      https://social.example.com/profile/example?lang=de.
 
-Wenn das Fragezeichen bereits in der URL verwendet wird, werden die einzelnen URL Parameter mit einem kaufmännisches Und getrennt werden.
+Wenn das Fragezeichen bereits in der URL verwendet wird, werden die einzelnen URL Parameter mit einem kaufmännischen Und getrennt werden.
 
 Ein Beispiel:
 
