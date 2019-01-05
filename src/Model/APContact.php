@@ -196,6 +196,12 @@ class APContact extends BaseObject
 			$contact_type = array_pop($contact_types);
 			if (is_int($contact_type)) {
 				$contact_fields['contact-type'] = $contact_type;
+
+				// Resetting the 'forum' and 'prv' field when it isn't a forum
+				if ($contact_fields['contact-type'] != Contact::ACCOUNT_TYPE_COMMUNITY) {
+					$contact_fields['forum'] = false;
+					$contact_fields['prv'] = false;
+				}
 			}
 		}
 
@@ -208,6 +214,9 @@ class APContact extends BaseObject
 		DBA::close($contacts);
 
 		// Update the gcontact table
+		// These two fields don't exist in the gcontact table
+		unset($contact_fields['forum']);
+		unset($contact_fields['prv']);
 		DBA::update('gcontact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
 
 		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
