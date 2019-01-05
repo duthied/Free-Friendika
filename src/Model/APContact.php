@@ -61,7 +61,7 @@ class APContact extends BaseObject
 	 * Fetches a profile from a given url
 	 *
 	 * @param string  $url    profile url
-	 * @param boolean $update true = always update, false = never update, null = update when not found
+	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
 	 * @return array profile array
 	 */
 	public static function getByURL($url, $update = null)
@@ -71,18 +71,22 @@ class APContact extends BaseObject
 		}
 
 		if (empty($update)) {
+			if (is_null($update)) {
+				$ref_update = DateTimeFormat::utc('now - 1 month');
+			} else {
+				$ref_update = DBA::NULL_DATETIME;
+			}
+
 			$apcontact = DBA::selectFirst('apcontact', [], ['url' => $url]);
-			if (DBA::isResult($apcontact)) {
-				return $apcontact;
+			if (!DBA::isResult($apcontact)) {
+				$apcontact = DBA::selectFirst('apcontact', [], ['alias' => $url]);
 			}
 
-			$apcontact = DBA::selectFirst('apcontact', [], ['alias' => $url]);
-			if (DBA::isResult($apcontact)) {
-				return $apcontact;
+			if (!DBA::isResult($apcontact)) {
+				$apcontact = DBA::selectFirst('apcontact', [], ['addr' => $url]);
 			}
 
-			$apcontact = DBA::selectFirst('apcontact', [], ['addr' => $url]);
-			if (DBA::isResult($apcontact)) {
+			if (DBA::isResult($apcontact) && ($apcontact['updated'] > $ref_update)) {
 				return $apcontact;
 			}
 
@@ -185,6 +189,16 @@ class APContact extends BaseObject
 
 		// Update some data in the contact table with various ways to catch them all
 		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about']];
+
+		// Fetch the type and match it with the contact type
+		$contact_types = array_keys(ActivityPub::ACCOUNT_TYPES, $apcontact['type']);
+		if (!empty($contact_types)) {
+			$contact_type = array_pop($contact_types);
+			if (is_int($contact_type)) {
+				$contact_fields['contact-type'] = $contact_type;
+			}
+		}
+
 		DBA::update('contact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
 
 		$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => Strings::normaliseLink($url)]);
