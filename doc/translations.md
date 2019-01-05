@@ -20,7 +20,7 @@ Thank you for your interest in improving Friendica's translation!
 Please register a free Transifex account and ask over at [the Transifex Friendica page](https://www.transifex.com/Friendica/friendica/dashboard/) to join the translation team for your favorite language.
 
 As a rule of thumb, we add support for a language in Friendica when at least 50% of the strings have been translated to avoid a scattered experience.
-For addons, we add support for a language when all the strings for this addon have been translated and only if we already support the language in Friendica.
+For addons, we add support for a language when if we already support the language in Friendica.
 
 ## Add new translation strings
 
