@@ -8,6 +8,7 @@ Nutzer
 * **[Warum erhalte ich Warnungen über fehlende Zertifikate?](help/FAQ#ssl)**
 * **[Wie kann ich Bilder, Dateien, Links, Video und Audio in Beiträge einfügen?](help/FAQ#upload)**
 * **[Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?](help/FAQ#avatars)**
+* **[Wie kann ich Friendica in einer bestimmten Sprache ansehen?](help/FAQ#language)**
 * **[Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?](help/FAQ#contacts)**
 * **[Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?](help/FAQ#removed)**
 * **[Kann ich einem Hashtag folgen?](help/FAQ#hashtag)**
@@ -89,6 +90,31 @@ Auf Deiner ["Profile verwalten/editieren"-Seite](../profiles) wählst Du zunäch
 Anschließend siehst Du eine Seite mit allen Infos zu diesem Profil.
 Klicke nun oben auf den Link "Profilbild ändern" und lade im nächsten Fenster ein Bild von Deinem PC hoch.
 Um Deine privaten Daten zu schützen, wird in Beiträgen nur das Bild aus Deinem öffentlichen Profil angezeigt.
+
+<a name="language"></a>
+### Wie kann ich Friendica in einer bestimmten Sprache ansehen?
+
+Die Sprache des Friendica Interfaces kann durch den `lang` Parameter un der URL beeinflusst werden.
+Das Argument des Parameters ist ein  [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)  Code.
+Zwischen der URL und dem Parameter muss ein Fragezeichen als Trennzeichen verwendet werden.
+
+Ein Beispiel:
+
+     https://social.example.com/profile/example 
+
+auf Deutsch:
+
+     https://social.example.com/profile/example?lang=de.
+
+Wenn das Fragezeichen bereits in der URL verwendet wird, werden die einzelnen URL Parameter mit einem kaufmännisches Und getrennt werden.
+
+Ein Beispiel:
+
+    https://social.example.com/profile/example?tab=profile
+
+auf Deutsch:
+
+    https://social.example.com/profile/example?tab=profile&lang=de.
 
 <a name="contacts"></a>
 ### Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?
