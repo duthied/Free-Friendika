@@ -514,6 +514,10 @@ class Profile
 			$p['address'] = $p['location'];
 		}
 
+		if (isset($p['address'])) {
+			$p['address'] = BBCode::convert($p['address']);
+		}
+
 		if (isset($p['photo'])) {
 			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
 		}

@@ -38,7 +38,7 @@
 	{{if $location}}
 		<dl class="location"><dt class="location-label">{{$location}}</dt> 
 		<dd class="adr h-adr">
-			{{if $profile.address}}<div class="street-address p-street-address">{{$profile.address}}</div>{{/if}}
+			{{if $profile.address}}<div class="street-address p-street-address">{{$profile.address nofilter}}</div>{{/if}}
 			<span class="city-state-zip">
 				<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
 				<span class="region p-region">{{$profile.region}}</span>
