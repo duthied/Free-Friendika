@@ -439,10 +439,10 @@ function justifyPhotos() {
 		margins: 3,
 		border: 0,
 		sizeRangeSuffixes: {
-			'lt100': '-2',
-			'lt240': '-2',
+			'lt48': '-6',
+			'lt80': '-5',
+			'lt300': '-4',
 			'lt320': '-2',
-			'lt500': '',
 			'lt640': '-1',
 			'lt1024': '-0'
 		}
