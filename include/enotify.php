@@ -126,17 +126,17 @@ function notification($params)
 		$subject = L10n::t('[Friendica:Notify] New mail received at %s', $sitename);
 
 		$preamble = L10n::t('%1$s sent you a new private message at %2$s.', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=$itemlink]'.L10n::t('a private message').'[/url]');
+		$epreamble = L10n::t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=' . $itemlink . ']'.L10n::t('a private message').'[/url]');
 
 		$sitelink = L10n::t('Please visit %s to view and/or reply to your private messages.');
 		$tsitelink = sprintf($sitelink, $siteurl.'/message/'.$params['item']['id']);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'/message/'.$params['item']['id'].'">'.$sitename.'</a>');
 	}
 
-	if ($params['type'] == NOTIFY_COMMENT) {
-		$thread = Item::selectFirstThreadForUser($params['uid'] ,['ignored'], ['iid' => $parent_id]);
-		if (DBA::isResult($thread) && $thread["ignored"]) {
-			Logger::log("Thread ".$parent_id." will be ignored", Logger::DEBUG);
+	if ($params['type'] == NOTIFY_COMMENT || $params['type'] == NOTIFY_TAGSELF) {
+		$thread = Item::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id]);
+		if (DBA::isResult($thread) && $thread['ignored']) {
+			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
 			L10n::popLang();
 			return;
 		}
@@ -151,9 +151,7 @@ function notification($params)
 		}
 
 		// if it's a post figure out who's post it is.
-
 		$item = null;
-
 		if ($params['otype'] === 'item' && $parent_id) {
 			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id]);
 		}
@@ -162,44 +160,92 @@ function notification($params)
 		$itemlink = $item['plink'];
 
 		// "a post"
-		$dest_str = L10n::t('%1$s commented on [url=%2$s]a %3$s[/url]',
-			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-			$itemlink,
-			$item_post_type
-		);
-
-		// "George Bull's post"
-		if ($item) {
-			$dest_str = L10n::t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
-				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
+		if ($params['type'] == NOTIFY_TAGSELF) {
+			$dest_str = L10n::t('%1$s tagged you on [url=%2$s]a %3$s[/url]',
+				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 				$itemlink,
-				$item['author-name'],
 				$item_post_type
 			);
+		} else {
+			$dest_str = L10n::t('%1$s commented on [url=%2$s]a %3$s[/url]',
+				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+				$itemlink,
+				$item_post_type
+			);
+		}
+
+		// "George Bull's post"
+		if (DBA::isResult($item)) {
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]%3$s\'s %4$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item['author-name'],
+					$item_post_type
+				);
+			} else {
+				$dest_str = L10n::t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item['author-name'],
+					$item_post_type
+				);
+			}
 		}
 
 		// "your post"
 		if (DBA::isResult($item) && $item['owner-id'] == $item['author-id'] && $item['wall']) {
-			$dest_str = L10n::t('%1$s commented on [url=%2$s]your %3$s[/url]',
-				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-				$itemlink,
-				$item_post_type
-			);
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]your %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			} else {
+				$dest_str = L10n::t('%1$s commented on [url=%2$s]your %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			}
 		}
 
-		// Some mail softwares relies on subject field for threading.
+		// "their post"
+		if (DBA::isResult($item) && $item['author-link'] == $params['source_link']) {
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]their %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			} else {
+				$dest_str = L10n::t('%1$s commented on [url=%2$s]their %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			}
+		}
+
+		// Some mail software relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
 		// Before this we have the name of the replier on the subject rendering
-		// differents subjects for messages on the same thread.
+		// different subjects for messages on the same thread.
+		if ($params['type'] == NOTIFY_TAGSELF) {
+			$subject = L10n::t('[Friendica:Notify] %s tagged you', $params['source_name']);
 
-		$subject = L10n::t('[Friendica:Notify] Comment to conversation #%1$d by %2$s', $parent_id, $params['source_name']);
+			$preamble = L10n::t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
+		} else {
+			$subject = L10n::t('[Friendica:Notify] Comment to conversation #%1$d by %2$s', $parent_id, $params['source_name']);
 
-		$preamble = L10n::t('%s commented on an item/conversation you have been following.', $params['source_name']);
+			$preamble = L10n::t('%s commented on an item/conversation you have been following.', $params['source_name']);
+		}
+
 		$epreamble = $dest_str;
 
 		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
-		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
+		$hsitelink = sprintf($sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
 		$itemlink =  $params['link'];
 	}
 
@@ -208,21 +254,6 @@ function notification($params)
 
 		$preamble = L10n::t('%1$s posted to your profile wall at %2$s', $params['source_name'], $sitename);
 		$epreamble = L10n::t('%1$s posted to [url=%2$s]your wall[/url]',
-			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-			$params['link']
-		);
-
-		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
-		$tsitelink = sprintf($sitelink, $siteurl);
-		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
-		$itemlink =  $params['link'];
-	}
-
-	if ($params['type'] == NOTIFY_TAGSELF) {
-		$subject = L10n::t('[Friendica:Notify] %s tagged you', $params['source_name']);
-
-		$preamble = L10n::t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s [url=%2$s]tagged you[/url].',
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 			$params['link']
 		);
