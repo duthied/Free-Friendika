@@ -76,7 +76,7 @@
 		<div class="location detail">
 			<span class="location-label icon"><i class="fa fa-map-marker"></i></span>
 			<span class="adr">
-				{{if $profile.address}}<span class="street-address p-street-address">{{$profile.address}}</span>{{/if}}
+				{{if $profile.address}}<span class="street-address p-street-address">{{$profile.address nofilter}}</span>{{/if}}
 				<span class="city-state-zip">
 					<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
 					<span class="region p-region">{{$profile.region}}</span>

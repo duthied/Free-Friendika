@@ -642,7 +642,7 @@ class Contact extends BaseModule
 				'$profileurllabel'=> L10n::t('Profile URL'),
 				'$profileurl'     => $contact['url'],
 				'$account_type'   => Model\Contact::getAccountType($contact),
-				'$location'       => $contact['location'],
+				'$location'       => BBCode::convert($contact['location']),
 				'$location_label' => L10n::t('Location:'),
 				'$xmpp'           => BBCode::convert($contact['xmpp']),
 				'$xmpp_label'     => L10n::t('XMPP:'),
