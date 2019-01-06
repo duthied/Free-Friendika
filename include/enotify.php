@@ -78,7 +78,7 @@ function notification($params)
 			['uid' => $params['uid']]);
 
 		// There is no need to create notifications for forum accounts
-		if (!DBA::isResult($user) || in_array($user["page-flags"], [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP])) {
+		if (!DBA::isResult($user) || in_array($user["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
 			return;
 		}
 		$nickname = $user["nickname"];

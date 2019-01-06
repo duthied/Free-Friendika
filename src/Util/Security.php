@@ -9,6 +9,7 @@ use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\User;
 
 /**
  * Secures that User is allow to do requests
@@ -65,7 +66,7 @@ class Security extends BaseObject
 					intval($cid),
 					intval(Contact::SHARING),
 					intval(Contact::FRIEND),
-					intval(Contact::PAGE_COMMUNITY)
+					intval(User::PAGE_FLAGS_COMMUNITY)
 				);
 
 				if (DBA::isResult($r)) {

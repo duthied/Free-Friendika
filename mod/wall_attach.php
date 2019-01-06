@@ -41,7 +41,7 @@ function wall_attach_post(App $a) {
 
 	$page_owner_uid   = $r[0]['uid'];
 	$page_owner_cid   = $r[0]['id'];
-	$community_page   = (($r[0]['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
+	$community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 	if ((local_user()) && (local_user() == $page_owner_uid)) {
 		$can_post = true;

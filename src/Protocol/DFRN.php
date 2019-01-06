@@ -587,14 +587,14 @@ class DFRN
 		}
 
 		// For backward compatibility we keep this element
-		if ($owner['page-flags'] == Contact::PAGE_COMMUNITY) {
+		if ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 			XML::addElement($doc, $root, "dfrn:community", 1);
 		}
 
 		// The former element is replaced by this one
 		XML::addElement($doc, $root, "dfrn:account_type", $owner["account-type"]);
 
-		/// @todo We need a way to transmit the different page flags like "Contact::PAGE_PRVGROUP"
+		/// @todo We need a way to transmit the different page flags like "User::PAGE_FLAGS_PRVGROUP"
 
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
@@ -1264,11 +1264,11 @@ class DFRN
 		$perm         = (($res->perm) ? $res->perm : null);
 		$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
 		$rino_remote_version = intval($res->rino);
-		$page         = (($owner['page-flags'] == Contact::PAGE_COMMUNITY) ? 1 : 0);
+		$page         = (($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? 1 : 0);
 
 		Logger::log("Remote rino version: ".$rino_remote_version." for ".$contact["url"], Logger::DEBUG);
 
-		if ($owner['page-flags'] == Contact::PAGE_PRVGROUP) {
+		if ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) {
 			$page = 2;
 		}
 
@@ -1285,7 +1285,7 @@ class DFRN
 		}
 
 		if (($contact['duplex'] && strlen($contact['pubkey']))
-			|| ($owner['page-flags'] == Contact::PAGE_COMMUNITY && strlen($contact['pubkey']))
+			|| ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY && strlen($contact['pubkey']))
 			|| ($contact['rel'] == Contact::SHARING && strlen($contact['pubkey']))
 		) {
 			openssl_public_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['pubkey']);
@@ -1314,7 +1314,7 @@ class DFRN
 			$postvars['dissolve'] = '1';
 		}
 
-		if ((($contact['rel']) && ($contact['rel'] != Contact::SHARING) && (! $contact['blocked'])) || ($owner['page-flags'] == Contact::PAGE_COMMUNITY)) {
+		if ((($contact['rel']) && ($contact['rel'] != Contact::SHARING) && (! $contact['blocked'])) || ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 			$postvars['data'] = $atom;
 			$postvars['perm'] = 'rw';
 		} else {
@@ -1349,7 +1349,7 @@ class DFRN
 
 			if ($dfrn_version >= 2.1) {
 				if (($contact['duplex'] && strlen($contact['pubkey']))
-					|| ($owner['page-flags'] == Contact::PAGE_COMMUNITY && strlen($contact['pubkey']))
+					|| ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY && strlen($contact['pubkey']))
 					|| ($contact['rel'] == Contact::SHARING && strlen($contact['pubkey']))
 				) {
 					openssl_public_encrypt($key, $postvars['key'], $contact['pubkey']);
@@ -1357,7 +1357,7 @@ class DFRN
 					openssl_private_encrypt($key, $postvars['key'], $contact['prvkey']);
 				}
 			} else {
-				if (($contact['duplex'] && strlen($contact['prvkey'])) || ($owner['page-flags'] == Contact::PAGE_COMMUNITY)) {
+				if (($contact['duplex'] && strlen($contact['prvkey'])) || ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 					openssl_private_encrypt($key, $postvars['key'], $contact['prvkey']);
 				} else {
 					openssl_public_encrypt($key, $postvars['key'], $contact['pubkey']);
@@ -2146,7 +2146,7 @@ class DFRN
 		if ($item["parent-uri"] != $item["uri"]) {
 			$community = false;
 
-			if ($importer["page-flags"] == Contact::PAGE_COMMUNITY || $importer["page-flags"] == Contact::PAGE_PRVGROUP) {
+			if ($importer["page-flags"] == User::PAGE_FLAGS_COMMUNITY || $importer["page-flags"] == User::PAGE_FLAGS_PRVGROUP) {
 				$sql_extra = "";
 				$community = true;
 				Logger::log("possible community action");
@@ -3073,8 +3073,8 @@ class DFRN
 			return false;
 		}
 
-		$community_page = ($user['page-flags'] == Contact::PAGE_COMMUNITY);
-		$prvgroup = ($user['page-flags'] == Contact::PAGE_PRVGROUP);
+		$community_page = ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY);
+		$prvgroup = ($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP);
 
 		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
 

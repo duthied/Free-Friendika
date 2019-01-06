@@ -899,7 +899,7 @@ class Image
 
 		/// @TODO
 		/// $default_cid      = $r[0]['id'];
-		/// $community_page   = (($r[0]['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
+		/// $community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 		if ((strlen($imagedata) == 0) && ($url == "")) {
 			Logger::log("No image data and no url provided", Logger::DEBUG);

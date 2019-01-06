@@ -29,6 +29,26 @@ use LightOpenID;
 class User
 {
 	/**
+	 * @name page/profile types
+	 *
+	 * PAGE_NORMAL is a typical personal profile account
+	 * PAGE_SOAPBOX automatically approves all friend requests as Contact::SHARING, (readonly)
+	 * PAGE_COMMUNITY automatically approves all friend requests as Contact::SHARING, but with
+	 *      write access to wall and comments (no email and not included in page owner's ACL lists)
+	 * PAGE_FREELOVE automatically approves all friend requests as full friends (Contact::FRIEND).
+	 *
+	 * @{
+	 */
+	const PAGE_FLAGS_NORMAL    = 0;
+	const PAGE_FLAGS_SOAPBOX   = 1;
+	const PAGE_FLAGS_COMMUNITY = 2;
+	const PAGE_FLAGS_FREELOVE  = 3;
+	const PAGE_FLAGS_BLOG      = 4;
+	const PAGE_FLAGS_PRVGROUP  = 5;
+	/**
+	 * @}
+	 */
+	/**
 	 * Returns true if a user record exists with the provided id
 	 *
 	 * @param  integer $uid

@@ -351,7 +351,7 @@ function dfrn_notify_content(App $a) {
 			$rino = $rino_remote;
 		}
 
-		if (($importer['rel'] && ($importer['rel'] != Contact::SHARING)) || ($importer['page-flags'] == Contact::PAGE_COMMUNITY)) {
+		if (($importer['rel'] && ($importer['rel'] != Contact::SHARING)) || ($importer['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 			$perm = 'rw';
 		} else {
 			$perm = 'r';

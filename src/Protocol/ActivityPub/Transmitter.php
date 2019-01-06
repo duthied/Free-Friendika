@@ -232,7 +232,7 @@ class Transmitter
 			'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
 		$data['summary'] = $contact['about'];
 		$data['url'] = $contact['url'];
-		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [Contact::PAGE_NORMAL, Contact::PAGE_PRVGROUP]);
+		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];

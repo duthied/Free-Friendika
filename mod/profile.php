@@ -62,7 +62,7 @@ function profile_init(App $a)
 	$blocked   = !local_user() && !remote_user() && Config::get('system', 'block_public');
 	$userblock = !local_user() && !remote_user() && $a->profile['hidewall'];
 
-	if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == Contact::PAGE_COMMUNITY) {
+	if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 		$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
 	}
 
@@ -172,7 +172,7 @@ function profile_content(App $a, $update = 0)
 
 		$o .= Widget::commonFriendsVisitor($a->profile['profile_uid']);
 
-		$commpage = $a->profile['page-flags'] == Contact::PAGE_COMMUNITY;
+		$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$commvisitor = $commpage && $remote_contact;
 
 		$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'], true);
@@ -256,7 +256,7 @@ function profile_content(App $a, $update = 0)
 
 		// Does the profile page belong to a forum?
 		// If not then we can improve the performance with an additional condition
-		$condition = ['uid' => $a->profile['profile_uid'], 'page-flags' => [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP]];
+		$condition = ['uid' => $a->profile['profile_uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
 		if (!DBA::exists('user', $condition)) {
 			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
 		} else {

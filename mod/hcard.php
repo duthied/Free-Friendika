@@ -29,7 +29,7 @@ function hcard_init(App $a)
 
 	Profile::load($a, $which, $profile);
 
-	if (!empty($a->profile['page-flags']) && ($a->profile['page-flags'] == Contact::PAGE_COMMUNITY)) {
+	if (!empty($a->profile['page-flags']) && ($a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 		$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
 	}
 	if (!empty($a->profile['openidserver'])) {
