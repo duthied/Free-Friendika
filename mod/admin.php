@@ -1995,10 +1995,11 @@ function admin_page_users(App $a)
 			User::PAGE_FLAGS_PRVGROUP  => L10n::t('Private Forum')
 		];
 		$account_types = [
-			Contact::ACCOUNT_TYPE_PERSON       => L10n::t('Personal Page'),
-			Contact::ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
-			Contact::ACCOUNT_TYPE_NEWS         => L10n::t('News Page'),
-			Contact::ACCOUNT_TYPE_COMMUNITY    => L10n::t('Community Forum')
+			User::ACCOUNT_TYPE_PERSON       => L10n::t('Personal Page'),
+			User::ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
+			User::ACCOUNT_TYPE_NEWS         => L10n::t('News Page'),
+			User::ACCOUNT_TYPE_COMMUNITY    => L10n::t('Community Forum'),
+			User::ACCOUNT_TYPE_RELAY        => L10n::t('Relay'),
 		];
 
 		$e['page_flags_raw'] = $e['page-flags'];

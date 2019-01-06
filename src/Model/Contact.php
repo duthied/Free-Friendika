@@ -74,27 +74,30 @@ class Contact extends BaseObject
 	/**
 	 * @name account types
 	 *
-	 * ACCOUNT_TYPE_PERSON - the account belongs to a person
+	 * TYPE_UNKNOWN - the account has been imported from gcontact where this is the default type value
+	 *
+	 * TYPE_PERSON - the account belongs to a person
 	 *	Associated page types: PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE
 	 *
-	 * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+	 * TYPE_ORGANISATION - the account belongs to an organisation
 	 *	Associated page type: PAGE_SOAPBOX
 	 *
-	 * ACCOUNT_TYPE_NEWS - the account is a news reflector
+	 * TYPE_NEWS - the account is a news reflector
 	 *	Associated page type: PAGE_SOAPBOX
 	 *
-	 * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+	 * TYPE_COMMUNITY - the account is community forum
 	 *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
 	 *
-	 * ACCOUNT_TYPE_RELAY - the account is a relay
+	 * TYPE_RELAY - the account is a relay
 	 *      This will only be assigned to contacts, not to user accounts
 	 * @{
 	 */
-	const ACCOUNT_TYPE_PERSON =       0;
-	const ACCOUNT_TYPE_ORGANISATION = 1;
-	const ACCOUNT_TYPE_NEWS =         2;
-	const ACCOUNT_TYPE_COMMUNITY =    3;
-	const ACCOUNT_TYPE_RELAY =        4;
+	const TYPE_UNKNOWN =     -1;
+	const TYPE_PERSON =       User::ACCOUNT_TYPE_PERSON;
+	const TYPE_ORGANISATION = User::ACCOUNT_TYPE_ORGANISATION;
+	const TYPE_NEWS =         User::ACCOUNT_TYPE_NEWS;
+	const TYPE_COMMUNITY =    User::ACCOUNT_TYPE_COMMUNITY;
+	const TYPE_RELAY =        User::ACCOUNT_TYPE_RELAY;
 	/**
 	 * @}
 	 */
@@ -740,7 +743,7 @@ class Contact extends BaseObject
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
 
 		if (!empty($contact['batch'])) {
-			$condition = ['batch' => $contact['batch'], 'contact-type' => self::ACCOUNT_TYPE_RELAY];
+			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			DBA::update('contact', $fields, $condition);
 		}
 	}
@@ -1436,7 +1439,7 @@ class Contact extends BaseObject
 			$sql = "`item`.`uid` = ?";
 		}
 
-		$contact_field = ($contact["contact-type"] == self::ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
+		$contact_field = ($contact["contact-type"] == self::TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
 		if ($thread_mode) {
 			$condition = ["`$contact_field` = ? AND `gravity` = ? AND " . $sql,
@@ -1492,9 +1495,9 @@ class Contact extends BaseObject
 			|| (isset($contact['prv']) && intval($contact['prv']))
 			|| (isset($contact['community']) && intval($contact['community']))
 		) {
-			$type = self::ACCOUNT_TYPE_COMMUNITY;
+			$type = self::TYPE_COMMUNITY;
 		} else {
-			$type = self::ACCOUNT_TYPE_PERSON;
+			$type = self::TYPE_PERSON;
 		}
 
 		// The "contact-type" (contact table) and "account-type" (user table) are more general then the chaos from above.
@@ -1507,15 +1510,15 @@ class Contact extends BaseObject
 		}
 
 		switch ($type) {
-			case self::ACCOUNT_TYPE_ORGANISATION:
+			case self::TYPE_ORGANISATION:
 				$account_type = L10n::t("Organisation");
 				break;
 
-			case self::ACCOUNT_TYPE_NEWS:
+			case self::TYPE_NEWS:
 				$account_type = L10n::t('News');
 				break;
 
-			case self::ACCOUNT_TYPE_COMMUNITY:
+			case self::TYPE_COMMUNITY:
 				$account_type = L10n::t("Forum");
 				break;
 

@@ -2878,7 +2878,7 @@ class DFRN
 				DBA::update('contact', ['contact-type' => $accounttype], ['uid' => 0, 'nurl' => $importer['nurl']]);
 			}
 			// A forum contact can either have set "forum" or "prv" - but not both
-			if ($accounttype == Contact::ACCOUNT_TYPE_COMMUNITY) {
+			if ($accounttype == User::ACCOUNT_TYPE_COMMUNITY) {
 				// It's a forum, so either set the public or private forum flag
 				$condition = ['(`forum` != ? OR `prv` != ?) AND `id` = ?', $forum, !$forum, $importer['id']];
 				DBA::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);

@@ -48,6 +48,35 @@ class User
 	/**
 	 * @}
 	 */
+
+	/**
+	 * Account types
+	 *
+	 * ACCOUNT_TYPE_PERSON - the account belongs to a person
+	 *	Associated page types: PAGE_FLAGS_NORMAL, PAGE_FLAGS_SOAPBOX, PAGE_FLAGS_FREELOVE
+	 *
+	 * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+	 *	Associated page type: PAGE_FLAGS_SOAPBOX
+	 *
+	 * ACCOUNT_TYPE_NEWS - the account is a news reflector
+	 *	Associated page type: PAGE_FLAGS_SOAPBOX
+	 *
+	 * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+	 *	Associated page types: PAGE_COMMUNITY, PAGE_FLAGS_PRVGROUP
+	 *
+	 * ACCOUNT_TYPE_RELAY - the account is a relay
+	 *      This will only be assigned to contacts, not to user accounts
+	 * @{
+	 */
+	const ACCOUNT_TYPE_PERSON =       0;
+	const ACCOUNT_TYPE_ORGANISATION = 1;
+	const ACCOUNT_TYPE_NEWS =         2;
+	const ACCOUNT_TYPE_COMMUNITY =    3;
+	const ACCOUNT_TYPE_RELAY =        4;
+	/**
+	 * @}
+	 */
+
 	/**
 	 * Returns true if a user record exists with the provided id
 	 *

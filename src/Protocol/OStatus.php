@@ -1349,7 +1349,7 @@ class OStatus
 		$attributes = ["href" => System::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] == Contact::TYPE_COMMUNITY) {
 			$condition = ['uid' => $owner['uid'], 'self' => false, 'pending' => false,
 					'archive' => false, 'hidden' => false, 'blocked' => false];
 			$members = DBA::count('contact', $condition);
@@ -1461,7 +1461,7 @@ class OStatus
 		$profile = DBA::selectFirst('profile', ['homepage', 'publish'], ['uid' => $owner['uid'], 'is-default' => true]);
 		$author = $doc->createElement("author");
 		XML::addElement($doc, $author, "id", $owner["url"]);
-		if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_GROUP);
 		} else {
 			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
@@ -1945,7 +1945,7 @@ class OStatus
 				$title = sprintf("New note by %s", $owner["nick"]);
 			}
 
-			if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 				$contact = self::contactEntry($item['author-link'], $owner);
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
@@ -2108,8 +2108,8 @@ class OStatus
 		foreach ($mentioned as $mention) {
 			$condition = ['uid' => $owner['uid'], 'nurl' => Strings::normaliseLink($mention)];
 			$contact = DBA::selectFirst('contact', ['forum', 'prv', 'self', 'contact-type'], $condition);
-			if ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) ||
-				($contact['self'] && ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY))) {
+			if ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == Contact::TYPE_COMMUNITY) ||
+				($contact['self'] && ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY))) {
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
@@ -2126,7 +2126,7 @@ class OStatus
 			}
 		}
 
-		if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			XML::addElement($doc, $entry, "link", "", [
 				"rel" => "mentioned",
 				"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
@@ -2236,7 +2236,7 @@ class OStatus
 			$condition[] = ACTIVITY_OBJ_COMMENT;
 		}
 
-		if ($owner['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
 			$condition[0] .= " AND `contact-id` = ? AND `author-id` = ?";
 			$condition[] = $owner["id"];
 			$condition[] = $authorid;

@@ -14,6 +14,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\User;
 
 function community_init(App $a)
 {
@@ -44,16 +45,16 @@ function community_content(App $a, $update = 0)
 	if ($a->argc > 2) {
 		switch ($a->argv[2]) {
 			case 'person':
-				$accounttype = Contact::ACCOUNT_TYPE_PERSON;
+				$accounttype = User::ACCOUNT_TYPE_PERSON;
 				break;
 			case 'organisation':
-				$accounttype = Contact::ACCOUNT_TYPE_ORGANISATION;
+				$accounttype = User::ACCOUNT_TYPE_ORGANISATION;
 				break;
 			case 'news':
-				$accounttype = Contact::ACCOUNT_TYPE_NEWS;
+				$accounttype = User::ACCOUNT_TYPE_NEWS;
 				break;
 			case 'community':
-				$accounttype = Contact::ACCOUNT_TYPE_COMMUNITY;
+				$accounttype = User::ACCOUNT_TYPE_COMMUNITY;
 				break;
 		}
 	}
