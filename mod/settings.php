@@ -1181,7 +1181,7 @@ function settings_content(App $a)
 		'$nickname_block' => $prof_addr,
 
 		'$h_pass' 	=> L10n::t('Password Settings'),
-		'$password1'=> ['password', L10n::t('New Password:'), '', L10n::t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces and colon (:).')],
+		'$password1'=> ['password', L10n::t('New Password:'), '', L10n::t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).')],
 		'$password2'=> ['confirm', L10n::t('Confirm:'), '', L10n::t('Leave password fields blank unless changing')],
 		'$password3'=> ['opassword', L10n::t('Current Password:'), '', L10n::t('Your current password to confirm the changes')],
 		'$password4'=> ['mpassword', L10n::t('Password:'), '', L10n::t('Your current password to confirm the changes')],
