@@ -7,9 +7,9 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Model\Profile;
+
+require_once 'boot.php';
 
 /**
  * Some functions to handle themes

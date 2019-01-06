@@ -5,14 +5,10 @@
  */
 namespace Friendica\Util;
 
-use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
-use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Model\APContact;
-use Friendica\Protocol\ActivityPub;
-use Friendica\Util\DateTimeFormat;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
