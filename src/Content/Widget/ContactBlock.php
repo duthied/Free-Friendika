@@ -14,6 +14,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 
 /**
  * ContactBlock widget
@@ -59,6 +60,13 @@ class ContactBlock
 		if (!$total) {
 			$micropro = [];
 		} else {
+			// Only show followed for personal accounts, followers for pages
+			if (defaults($profile, 'account-type', User::ACCOUNT_TYPE_PERSON) == User::ACCOUNT_TYPE_PERSON) {
+				$rel = [Contact::FOLLOWER, Contact::FRIEND];
+			} else {
+				$rel = [Contact::SHARING, Contact::FRIEND];
+			}
+
 			$contact_ids_stmt = DBA::select('contact', ['id'], [
 				'uid' => $profile['uid'],
 				'self' => false,
@@ -66,7 +74,7 @@ class ContactBlock
 				'pending' => false,
 				'hidden' => false,
 				'archive' => false,
-				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
+				'rel' => $rel,
 				'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
 			], ['limit' => $shown]);
 
