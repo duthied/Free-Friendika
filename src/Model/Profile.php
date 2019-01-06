@@ -9,6 +9,7 @@ use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
+use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
@@ -475,9 +476,9 @@ class Profile
 
 		$contact_block = '';
 		$updated = '';
-		$contacts = 0;
+		$contact_count = 0;
 		if (!$block) {
-			$contact_block = HTML::contactBlock();
+			$contact_block = ContactBlock::getHTML($a->profile);
 
 			if (is_array($a->profile) && !$a->profile['hide-friends']) {
 				$r = q(
@@ -488,20 +489,15 @@ class Profile
 					$updated = date('c', strtotime($r[0]['updated']));
 				}
 
-				$r = q(
-					"SELECT COUNT(*) AS `total` FROM `contact`
-					WHERE `uid` = %d
-						AND NOT `self` AND NOT `blocked` AND NOT `pending`
-						AND NOT `hidden` AND NOT `archive`
-						AND `network` IN ('%s', '%s', '%s', '')",
-					intval($profile['uid']),
-					DBA::escape(Protocol::DFRN),
-					DBA::escape(Protocol::DIASPORA),
-					DBA::escape(Protocol::OSTATUS)
-				);
-				if (DBA::isResult($r)) {
-					$contacts = intval($r[0]['total']);
-				}
+				$contact_count = DBA::count('contact', [
+					'uid' => $profile['uid'],
+					'self' => false,
+					'blocked' => false,
+					'pending' => false,
+					'hidden' => false,
+					'archive' => false,
+					'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
+				]);
 			}
 		}
 
@@ -545,7 +541,7 @@ class Profile
 			'$homepage' => $homepage,
 			'$about' => $about,
 			'$network' => L10n::t('Network:'),
-			'$contacts' => $contacts,
+			'$contacts' => $contact_count,
 			'$updated' => $updated,
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,

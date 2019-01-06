@@ -7,6 +7,7 @@ namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Config;
@@ -807,90 +808,17 @@ class HTML
 	/**
 	 * Get html for contact block.
 	 *
-	 * @template contact_block.tpl
-	 * @hook     contact_block_end (contacts=>array, output=>string)
+	 * @deprecated since version 2019.03
+	 * @see ContactBlock::getHTML()
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function contactBlock()
 	{
-		$o = '';
 		$a = \get_app();
 
-		$shown = PConfig::get($a->profile['uid'], 'system', 'display_friend_count', 24);
-		if ($shown == 0) {
-			return;
-		}
-
-		if (!is_array($a->profile) || $a->profile['hide-friends']) {
-			return $o;
-		}
-
-		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
-					AND NOT `pending` AND NOT `hidden` AND NOT `archive`
-					AND `network` IN ('%s', '%s', '%s')",
-			intval($a->profile['uid']),
-			DBA::escape(Protocol::DFRN),
-			DBA::escape(Protocol::OSTATUS),
-			DBA::escape(Protocol::DIASPORA)
-		);
-
-		if (DBA::isResult($r)) {
-			$total = intval($r[0]['total']);
-		}
-
-		if (!$total) {
-			$contacts = L10n::t('No contacts');
-			$micropro = null;
-		} else {
-			// Splitting the query in two parts makes it much faster
-			$r = q("SELECT `id` FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
-						AND NOT `pending` AND NOT `hidden` AND NOT `archive`
-						AND `network` IN ('%s', '%s', '%s')
-					ORDER BY RAND() LIMIT %d",
-				intval($a->profile['uid']),
-				DBA::escape(Protocol::DFRN),
-				DBA::escape(Protocol::OSTATUS),
-				DBA::escape(Protocol::DIASPORA),
-				intval($shown)
-			);
-
-			if (DBA::isResult($r)) {
-				$contacts = [];
-				foreach ($r as $contact) {
-					$contacts[] = $contact["id"];
-				}
-
-				$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
-					DBA::escape(implode(",", $contacts))
-				);
-
-				if (DBA::isResult($r)) {
-					$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
-					$micropro = [];
-					foreach ($r as $rr) {
-						$micropro[] = self::micropro($rr, true, 'mpfriend');
-					}
-				}
-			}
-		}
-
-		$tpl = Renderer::getMarkupTemplate('contact_block.tpl');
-		$o = Renderer::replaceMacros($tpl, [
-			'$contacts' => $contacts,
-			'$nickname' => $a->profile['nickname'],
-			'$viewcontacts' => L10n::t('View Contacts'),
-			'$micropro' => $micropro,
-		]);
-
-		$arr = ['contacts' => $r, 'output' => $o];
-
-		Hook::callAll('contact_block_end', $arr);
-
-		return $o;
+		return ContactBlock::getHTML($a->profile);
 	}
 
 	/**
