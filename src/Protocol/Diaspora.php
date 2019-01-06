@@ -1326,15 +1326,8 @@ class Diaspora
 			$x = false;
 		}
 
-		// This will work for older Diaspora and Friendica servers
 		if (!$x) {
-			$source_url = $server."/p/".urlencode($guid).".xml";
-			Logger::log("Fetch post from ".$source_url, Logger::DEBUG);
-
-			$x = Network::fetchUrl($source_url);
-			if (!$x) {
-				return false;
-			}
+			return false;
 		}
 
 		$source_xml = XML::parseString($x);
