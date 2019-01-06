@@ -1752,7 +1752,7 @@ function admin_page_users_post(App $a)
 			Thank you and welcome to %4$s.'));
 
 		$preamble = sprintf($preamble, $user['username'], Config::get('config', 'sitename'));
-		$body = sprintf($body, System::baseUrl(), $user['email'], $result['password'], Config::get('config', 'sitename'));
+		$body = sprintf($body, System::baseUrl(), $user['nickname'], $result['password'], Config::get('config', 'sitename'));
 
 		notification([
 			'type'     => SYSTEM_EMAIL,

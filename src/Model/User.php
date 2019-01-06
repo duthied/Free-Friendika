@@ -771,7 +771,7 @@ class User
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
 			Thank you and welcome to %2$s.',
-			$user['email'], $sitename, $siteurl, $user['username'], $password
+			$user['nickname'], $sitename, $siteurl, $user['username'], $password
 		));
 
 		return notification([

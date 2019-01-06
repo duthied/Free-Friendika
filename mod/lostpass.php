@@ -21,7 +21,7 @@ function lostpass_post(App $a)
 	}
 
 	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
-	$user = DBA::selectFirst('user', ['uid', 'username', 'email', 'language'], $condition);
+	$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'language'], $condition);
 	if (!DBA::isResult($user)) {
 		notice(L10n::t('No valid account found.') . EOL);
 		$a->internalRedirect();
@@ -63,7 +63,7 @@ function lostpass_post(App $a)
 		The login details are as follows:
 
 		Site Location:	%2$s
-		Login Name:	%3$s', $resetlink, System::baseUrl(), $user['email']));
+		Login Name:	%3$s', $resetlink, System::baseUrl(), $user['nickname']));
 
 	notification([
 		'type'     => SYSTEM_EMAIL,
@@ -85,7 +85,7 @@ function lostpass_content(App $a)
 	if ($a->argc > 1) {
 		$pwdreset_token = $a->argv[1];
 
-		$user = DBA::selectFirst('user', ['uid', 'username', 'email', 'pwdreset_time', 'language'], ['pwdreset' => $pwdreset_token]);
+		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'pwdreset_time', 'language'], ['pwdreset' => $pwdreset_token]);
 		if (!DBA::isResult($user)) {
 			notice(L10n::t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
 
@@ -161,7 +161,7 @@ function lostpass_generate_password($user)
 			Password:	%3$s
 
 			You may change that password from your account settings page after logging in.
-		', System::baseUrl(), $user['email'], $new_password));
+		', System::baseUrl(), $user['nickname'], $new_password));
 
 		notification([
 			'type'     => SYSTEM_EMAIL,
