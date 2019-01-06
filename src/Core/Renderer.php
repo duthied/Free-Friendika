@@ -56,6 +56,7 @@ class Renderer extends BaseObject
 	 * @param array                  $vars key value pairs (search => replace)
 	 *
 	 * @return string substituted string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
     public static function replaceMacros($s, $vars)
     {
@@ -78,14 +79,15 @@ class Renderer extends BaseObject
         return $output;
     }
 
-    /**
-     * @brief Load a given template $s
-     *
-     * @param string $s     Template to load.
-     * @param string $root  Optional.
-     * 
-     * @return string template.
-     */
+	/**
+	 * @brief Load a given template $s
+	 *
+	 * @param string $s    Template to load.
+	 * @param string $root Optional.
+	 *
+	 * @return string template.
+	 * @throws Exception
+	 */
     public static function getMarkupTemplate($s, $root = '')
     {
         $stamp1 = microtime(true);

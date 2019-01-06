@@ -121,6 +121,7 @@ class App
 	 * @see initHead()
 	 *
 	 * @param string $path
+	 * @throws InternalServerErrorException
 	 */
 	public function registerStylesheet($path)
 	{
@@ -137,6 +138,7 @@ class App
 	 * @see initFooter()
 	 *
 	 * @param string $path
+	 * @throws InternalServerErrorException
 	 */
 	public function registerFooterScript($path)
 	{
@@ -617,6 +619,7 @@ class App
 	 * finally for PWD
 	 *
 	 * @return string
+	 * @throws InternalServerErrorException
 	 */
 	public function getBasePath()
 	{
@@ -676,6 +679,7 @@ class App
 	 *
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
 	 * @return string Friendica server base URL
+	 * @throws InternalServerErrorException
 	 */
 	public function getBaseURL($ssl = false)
 	{
@@ -709,6 +713,7 @@ class App
 	 * Clears the baseurl cache to prevent inconsistencies
 	 *
 	 * @param string $url
+	 * @throws InternalServerErrorException
 	 */
 	public function setBaseURL($url)
 	{
@@ -882,6 +887,7 @@ class App
 	 * @param string $origURL
 	 *
 	 * @return string The cleaned url
+	 * @throws InternalServerErrorException
 	 */
 	public function removeBaseURL($origURL)
 	{
@@ -935,6 +941,7 @@ class App
 	 * Returns the current UserAgent as a String
 	 *
 	 * @return string the UserAgent as a String
+	 * @throws InternalServerErrorException
 	 */
 	public function getUserAgent()
 	{
@@ -1058,6 +1065,7 @@ class App
 	 * @brief Checks if the minimal memory is reached
 	 *
 	 * @return bool Is the memory limit reached?
+	 * @throws InternalServerErrorException
 	 */
 	public function isMinMemoryReached()
 	{
@@ -1102,6 +1110,7 @@ class App
 	 * @brief Checks if the maximum load is reached
 	 *
 	 * @return bool Is the load reached?
+	 * @throws InternalServerErrorException
 	 */
 	public function isMaxLoadReached()
 	{
@@ -1134,6 +1143,7 @@ class App
 	 *
 	 * @param string $command The command to execute
 	 * @param array  $args    Arguments to pass to the command ( [ 'key' => value, 'key2' => value2, ... ]
+	 * @throws InternalServerErrorException
 	 */
 	public function proc_run($command, $args)
 	{
@@ -1190,7 +1200,10 @@ class App
 	/**
 	 * @brief Checks if a given directory is usable for the system
 	 *
+	 * @param      $directory
+	 * @param bool $check_writable
 	 * @return boolean the directory is usable
+	 * @throws Exception
 	 */
 	public static function isDirectoryUsable($directory, $check_writable = true)
 	{
@@ -1368,6 +1381,7 @@ class App
 	 * Generates the site's default sender email address
 	 *
 	 * @return string
+	 * @throws InternalServerErrorException
 	 */
 	public function getSenderEmailAddress()
 	{
@@ -1388,6 +1402,7 @@ class App
 	 * Returns the current theme name.
 	 *
 	 * @return string the name of the current theme
+	 * @throws InternalServerErrorException
 	 */
 	public function getCurrentTheme()
 	{
@@ -1469,6 +1484,7 @@ class App
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
 	 * @return string
+	 * @throws InternalServerErrorException
 	 */
 	public function getCurrentThemeStylesheetPath()
 	{
@@ -1930,7 +1946,7 @@ class App
 	 * Should only be used if it isn't clear if the URL is either internal or external
 	 *
 	 * @param string $toUrl The target URL
-	 *
+	 * @throws InternalServerErrorException
 	 */
 	public function redirect($toUrl)
 	{

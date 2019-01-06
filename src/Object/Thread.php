@@ -26,9 +26,10 @@ class Thread extends BaseObject
 	/**
 	 * Constructor
 	 *
-	 * @param string  $mode    The mode
-	 * @param boolean $preview Are we in the preview mode?
+	 * @param string  $mode     The mode
+	 * @param boolean $preview  Are we in the preview mode?
 	 * @param boolean $writable Override the writable check
+	 * @throws \Exception
 	 */
 	public function __construct($mode, $preview, $writable = false)
 	{
@@ -39,10 +40,11 @@ class Thread extends BaseObject
 	/**
 	 * Set the mode we'll be displayed on
 	 *
-	 * @param string $mode The mode to set
+	 * @param string  $mode     The mode to set
 	 * @param boolean $writable Override the writable check
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	private function setMode($mode, $writable)
 	{
@@ -125,10 +127,11 @@ class Thread extends BaseObject
 	/**
 	 * Add a thread to the conversation
 	 *
-	 * @param object $item The item to insert
+	 * @param Post $item The item to insert
 	 *
 	 * @return mixed The inserted item on success
 	 *               false on failure
+	 * @throws \Exception
 	 */
 	public function addParent(Post $item)
 	{
@@ -172,6 +175,7 @@ class Thread extends BaseObject
 	 *
 	 * @return mixed The data requested on success
 	 *               false on failure
+	 * @throws \Exception
 	 */
 	public function getTemplateData($conv_responses)
 	{

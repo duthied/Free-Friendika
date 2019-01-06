@@ -56,6 +56,7 @@ class DFRN
 	 * @param integer $uid User id
 	 *
 	 * @return array importer
+	 * @throws \Exception
 	 */
 	public static function getImporter($cid, $uid = 0)
 	{
@@ -96,7 +97,9 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN entries
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find proper type-hints
 	 */
 	public static function entries($items, $owner)
 	{
@@ -134,6 +137,8 @@ class DFRN
 	 * @param boolean $onlyheader  Output only the header without content? (Default is "no")
 	 *
 	 * @return string DFRN feed entries
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false)
 	{
@@ -341,6 +346,8 @@ class DFRN
 	 * @param boolean $conversation Show the conversation. If false show the single post.
 	 *
 	 * @return string DFRN feed entry
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function itemFeed($item_id, $conversation = false)
 	{
@@ -406,7 +413,8 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN mail
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	public static function mail($item, $owner)
 	{
@@ -442,7 +450,8 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN suggestions
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	public static function fsuggest($item, $owner)
 	{
@@ -471,7 +480,8 @@ class DFRN
 	 * @param int   $uid   User ID
 	 *
 	 * @return string DFRN relocations
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	public static function relocate($owner, $uid)
 	{
@@ -532,7 +542,8 @@ class DFRN
 	 * @param bool   $public        Is it a header for public posts?
 	 *
 	 * @return object XML root object
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	private static function addHeader($doc, $owner, $authorelement, $alternatelink = "", $public = false)
 	{
@@ -608,7 +619,8 @@ class DFRN
 	 * @param boolean $public        boolean
 	 *
 	 * @return object XML author object
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	private static function addAuthor($doc, $owner, $authorelement, $public)
 	{
@@ -752,7 +764,8 @@ class DFRN
 	 * @param array  $item        Item elements
 	 *
 	 * @return object XML author object
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	private static function addEntryAuthor($doc, $element, $contact_url, $item)
 	{
@@ -793,7 +806,8 @@ class DFRN
 	 * @param string $activity activity value
 	 *
 	 * @return object XML activity object
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	private static function createActivity($doc, $element, $activity)
 	{
@@ -858,8 +872,8 @@ class DFRN
 	 * @param object $root XML root
 	 * @param array  $item Item element
 	 *
-	 * @return object XML attachment object
-	 * @todo Find proper type-hints
+	 * @return void XML attachment object
+	 * @todo  Find proper type-hints
 	 */
 	private static function getAttachment($doc, $root, $item)
 	{
@@ -899,7 +913,9 @@ class DFRN
 	 * @param bool   $single  If set, the entry is created as an XML document with a single "entry" element
 	 *
 	 * @return object XML entry object
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find proper type-hints
 	 */
 	private static function entry($doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
 	{
@@ -1155,8 +1171,11 @@ class DFRN
 	 * @param string $atom     Content that will be transmitted
 	 * @param bool   $dissolve (to be documented)
 	 *
+	 * @param bool   $legacy_transport
 	 * @return int Deliver status. Negative values mean an error.
-	 * @todo Add array type-hint for $owner, $contact
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Add array type-hint for $owner, $contact
 	 */
 	public static function deliver($owner, $contact, $atom, $dissolve = false, $legacy_transport = false)
 	{
@@ -1412,11 +1431,14 @@ class DFRN
 	/**
 	 * @brief Transmits atom content to the contacts via the Diaspora transport layer
 	 *
-	 * @param array  $owner    Owner record
-	 * @param array  $contact  Contact record of the receiver
-	 * @param string $atom     Content that will be transmitted
+	 * @param array  $owner   Owner record
+	 * @param array  $contact Contact record of the receiver
+	 * @param string $atom    Content that will be transmitted
 	 *
+	 * @param bool   $public_batch
 	 * @return int Deliver status. Negative values mean an error.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function transmit($owner, $contact, $atom, $public_batch = false)
 	{
@@ -1514,7 +1536,9 @@ class DFRN
 	 * @param string $xml       optional, default empty
 	 *
 	 * @return array Relevant data of the author
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function fetchauthor($xpath, $context, $importer, $element, $onlyfetch, $xml = "")
 	{
@@ -1835,7 +1859,8 @@ class DFRN
 	 * @param object $mail     mail elements
 	 * @param array  $importer Record of the importer user mixed with contact of the content
 	 * @return void
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Exception
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function processMail($xpath, $mail, $importer)
 	{
@@ -1890,7 +1915,8 @@ class DFRN
 	 * @param object $suggestion suggestion elements
 	 * @param array  $importer   Record of the importer user mixed with contact of the content
 	 * @return boolean
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function processSuggestion($xpath, $suggestion, $importer)
 	{
@@ -2008,7 +2034,9 @@ class DFRN
 	 * @param object $relocation relocation elements
 	 * @param array  $importer   Record of the importer user mixed with contact of the content
 	 * @return boolean
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function processRelocation($xpath, $relocation, $importer)
 	{
@@ -2092,7 +2120,8 @@ class DFRN
 	 * @param array $importer  Record of the importer user mixed with contact of the content
 	 * @param int   $entrytype Is it a toplevel entry, a comment or a relayed comment?
 	 * @return mixed
-	 * @todo set proper type-hints (array?)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function updateContent($current, $item, $importer, $entrytype)
 	{
@@ -2123,7 +2152,8 @@ class DFRN
 	 * @param array $item     the new item record
 	 *
 	 * @return int Is it a toplevel entry, a comment or a relayed comment?
-	 * @todo set proper type-hints (array?)
+	 * @throws \Exception
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function getEntryType($importer, $item)
 	{
@@ -2190,7 +2220,8 @@ class DFRN
 	 * @param array $importer  Record of the importer user mixed with contact of the content
 	 * @param int   $posted_id The record number of item record that was just posted
 	 * @return void
-	 * @todo set proper type-hints (array?)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function doPoke($item, $importer, $posted_id)
 	{
@@ -2253,7 +2284,8 @@ class DFRN
 	 * @param bool  $is_like   Is the verb a "like"?
 	 *
 	 * @return bool Should the processing of the entries be continued?
-	 * @todo set proper type-hints (array?)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function processVerbs($entrytype, $importer, &$item, &$is_like)
 	{
@@ -2400,7 +2432,9 @@ class DFRN
 	 * @param array  $importer Record of the importer user mixed with contact of the content
 	 * @param object $xml      xml
 	 * @return void
-	 * @todo Add type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Add type-hints
 	 */
 	private static function processEntry($header, $xpath, $entry, $importer, $xml)
 	{
@@ -2741,7 +2775,8 @@ class DFRN
 	 * @param object $deletion deletion elements
 	 * @param array  $importer Record of the importer user mixed with contact of the content
 	 * @return void
-	 * @todo set proper type-hints
+	 * @throws \Exception
+	 * @todo  set proper type-hints
 	 */
 	private static function processDeletion($xpath, $deletion, $importer)
 	{
@@ -2801,7 +2836,9 @@ class DFRN
 	 * @param array  $importer     Record of the importer user mixed with contact of the content
 	 * @param bool   $sort_by_date Is used when feeds are polled
 	 * @return integer Import status
-	 * @todo set proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  set proper type-hints
 	 */
 	public static function import($xml, $importer, $sort_by_date = false)
 	{
@@ -2938,6 +2975,7 @@ class DFRN
 	/**
 	 * @param App    $a            App
 	 * @param string $contact_nick contact nickname
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function autoRedir(App $a, $contact_nick)
 	{
@@ -3091,6 +3129,10 @@ class DFRN
 	 * item is assumed to be up-to-date.  If the timestamps are equal it
 	 * assumes the update has been seen before and should be ignored.
 	 *
+	 * @param $existing
+	 * @param $update
+	 * @return bool
+	 * @throws \Exception
 	 */
 	private static function isEditedTimestampNewer($existing, $update)
 	{

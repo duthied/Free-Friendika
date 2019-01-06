@@ -29,11 +29,12 @@ class ForumManager
 	 * @param boolean $showprivate Show private groups
 	 *
 	 * @return array
-	 *	'url'	=> forum url
-	 *	'name'	=> forum name
-	 *	'id'	=> number of the key from the array
-	 *	'micro' => contact photo in format micro
-	 *	'thumb' => contact photo in format thumb
+	 *    'url'    => forum url
+	 *    'name'    => forum name
+	 *    'id'    => number of the key from the array
+	 *    'micro' => contact photo in format micro
+	 *    'thumb' => contact photo in format thumb
+	 * @throws \Exception
 	 */
 	public static function getList($uid, $lastitem, $showhidden = true, $showprivate = false)
 	{
@@ -88,6 +89,8 @@ class ForumManager
 	 * @param int $uid The ID of the User
 	 * @param int $cid The contact id which is used to mark a forum as "selected"
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function widget($uid, $cid = 0)
 	{
@@ -143,6 +146,8 @@ class ForumManager
 	 *
 	 * @param int $uid The ID of the User
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function profileAdvanced($uid)
 	{

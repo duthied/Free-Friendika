@@ -195,6 +195,7 @@ class DBA
 	 * @brief Returns the selected database name
 	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function databaseName() {
 		$ret = self::p("SELECT DATABASE() AS `db`");
@@ -206,6 +207,7 @@ class DBA
 	 * @brief Analyze a database query and log this if some conditions are met.
 	 *
 	 * @param string $query The database query that will be analyzed
+	 * @throws \Exception
 	 */
 	private static function logIndex($query) {
 		$a = \get_app();
@@ -386,6 +388,7 @@ class DBA
 	 *
 	 * @param string $sql SQL statement
 	 * @return bool|object statement object or result object
+	 * @throws \Exception
 	 */
 	public static function p($sql) {
 		$a = \get_app();
@@ -604,6 +607,7 @@ class DBA
 	 *
 	 * @param string $sql SQL statement
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
+	 * @throws \Exception
 	 */
 	public static function e($sql) {
 		$a = \get_app();
@@ -657,10 +661,11 @@ class DBA
 	/**
 	 * @brief Check if data exists
 	 *
-	 * @param string $table Table name
-	 * @param array $condition array of fields for condition
+	 * @param string $table     Table name
+	 * @param array  $condition array of fields for condition
 	 *
 	 * @return boolean Are there rows for that condition?
+	 * @throws \Exception
 	 */
 	public static function exists($table, $condition) {
 		if (empty($table)) {
@@ -700,6 +705,7 @@ class DBA
 	 * @brief Fetches the first row
 	 * @param string $sql SQL statement
 	 * @return array first row of query
+	 * @throws \Exception
 	 */
 	public static function fetchFirst($sql) {
 		$params = self::getParam(func_get_args());
@@ -825,11 +831,12 @@ class DBA
 	/**
 	 * @brief Insert a row into a table
 	 *
-	 * @param string $table Table name
-	 * @param array $param parameter array
-	 * @param bool $on_duplicate_update Do an update on a duplicate entry
+	 * @param string $table               Table name
+	 * @param array  $param               parameter array
+	 * @param bool   $on_duplicate_update Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successful?
+	 * @throws \Exception
 	 */
 	public static function insert($table, $param, $on_duplicate_update = false) {
 
@@ -876,6 +883,7 @@ class DBA
 	 * @param string $table Table name
 	 *
 	 * @return boolean was the lock successful?
+	 * @throws \Exception
 	 */
 	public static function lock($table) {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
@@ -908,6 +916,7 @@ class DBA
 	 * @brief Unlocks all locked tables
 	 *
 	 * @return boolean was the unlock successful?
+	 * @throws \Exception
 	 */
 	public static function unlock() {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
@@ -1037,14 +1046,15 @@ class DBA
 	/**
 	 * @brief Delete a row from a table
 	 *
-	 * @param string  $table       Table name
-	 * @param array   $conditions  Field condition(s)
-	 * @param array   $options
-	 *                - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 * @param string $table      Table name
+	 * @param array  $conditions Field condition(s)
+	 * @param array  $options
+	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
 	 *                           relations (default: true)
-	 * @param array   $callstack   Internal use: prevent endless loops
+	 * @param array  $callstack  Internal use: prevent endless loops
 	 *
 	 * @return boolean was the delete successful?
+	 * @throws \Exception
 	 */
 	public static function delete($table, array $conditions, array $options = [], array &$callstack = [])
 	{
@@ -1203,12 +1213,13 @@ class DBA
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
-	 * @param string $table Table name
-	 * @param array $fields contains the fields that are updated
-	 * @param array $condition condition array with the key values
+	 * @param string        $table      Table name
+	 * @param array         $fields     contains the fields that are updated
+	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
 	 *
 	 * @return boolean was the update successfull?
+	 * @throws \Exception
 	 */
 	public static function update($table, $fields, $condition, $old_fields = []) {
 
@@ -1270,7 +1281,8 @@ class DBA
 	 * @param array  $condition
 	 * @param array  $params
 	 * @return bool|array
-	 * @see self::select
+	 * @throws \Exception
+	 * @see   self::select
 	 */
 	public static function selectFirst($table, array $fields = [], array $condition = [], $params = [])
 	{
@@ -1307,6 +1319,7 @@ class DBA
 	 * $params = array("order" => array("id", "received" => true), "limit" => 10);
 	 *
 	 * $data = DBA::select($table, $fields, $condition, $params);
+	 * @throws \Exception
 	 */
 	public static function select($table, array $fields = [], array $condition = [], array $params = [])
 	{
@@ -1336,8 +1349,8 @@ class DBA
 	/**
 	 * @brief Counts the rows from a table satisfying the provided condition
 	 *
-	 * @param string $table Table name
-	 * @param array $condition array of fields for condition
+	 * @param string $table     Table name
+	 * @param array  $condition array of fields for condition
 	 *
 	 * @return int
 	 *
@@ -1349,6 +1362,7 @@ class DBA
 	 * $condition = ["`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr'];
 	 *
 	 * $count = DBA::count($table, $condition);
+	 * @throws \Exception
 	 */
 	public static function count($table, array $condition = [])
 	{
@@ -1476,6 +1490,7 @@ class DBA
 	 * @brief Fills an array with data from a query
 	 *
 	 * @param object $stmt statement object
+	 * @param bool   $do_close
 	 * @return array Data array
 	 */
 	public static function toArray($stmt, $do_close = true) {
@@ -1557,6 +1572,7 @@ class DBA
 	 * @return array
 	 *      'list' => List of processes, separated in their different states
 	 *      'amount' => Number of concurrent database processes
+	 * @throws \Exception
 	 */
 	public static function processlist()
 	{

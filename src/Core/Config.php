@@ -22,7 +22,7 @@ use Friendica\Core\Config;
 class Config extends BaseObject
 {
 	/**
-	 * @var Friendica\Core\Config\IConfigAdapter
+	 * @var \Friendica\Core\Config\IConfigAdapter
 	 */
 	private static $adapter = null;
 
@@ -49,6 +49,7 @@ class Config extends BaseObject
 	 * @param string $family The category of the configuration value
 	 *
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function load($family = "config")
 	{
@@ -82,6 +83,7 @@ class Config extends BaseObject
 	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
 	 *
 	 * @return mixed Stored value or null if it does not exist
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function get($family, $key, $default_value = null, $refresh = false)
 	{
@@ -110,6 +112,7 @@ class Config extends BaseObject
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return bool Operation success
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function set($family, $key, $value)
 	{
@@ -135,6 +138,7 @@ class Config extends BaseObject
 	 * @param string $key    The configuration key to delete
 	 *
 	 * @return mixed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function delete($family, $key)
 	{

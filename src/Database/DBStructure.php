@@ -251,6 +251,7 @@ class DBStructure
 	 * @param array $tables     An array of the database tables
 	 * @param array $definition An array of the definition tables
 	 * @return string Empty string if the update is successful, error messages otherwise
+	 * @throws Exception
 	 */
 	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
@@ -715,7 +716,7 @@ class DBStructure
 	 * @param int    $type             The type of renaming (Default is Column)
 	 *
 	 * @return boolean Was the renaming successful?
-	 *
+	 * @throws Exception
 	 */
 	public static function rename($table, $columns, $type = self::RENAME_COLUMN)
 	{
@@ -775,6 +776,7 @@ class DBStructure
 	 * @param array  $columns Columns to check ( Syntax: [ $col1, $col2, .. ] )
 	 *
 	 * @return boolean Does the table exist?
+	 * @throws Exception
 	 */
 	public static function existsColumn($table, $columns = [])
 	{
@@ -815,6 +817,7 @@ class DBStructure
 	 * @param string $table Table name
 	 *
 	 * @return boolean Does the table exist?
+	 * @throws Exception
 	 */
 	public static function existsTable($table)
 	{

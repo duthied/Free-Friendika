@@ -192,7 +192,9 @@ class Term
 
 	/**
 	 * @param integer $itemid item id
+	 * @param         $files
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function insertFromFileFieldByItemId($itemid, $files)
 	{
@@ -241,6 +243,8 @@ class Term
 	 *
 	 * @param array $item
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function populateTagsFromItem(&$item)
 	{
@@ -291,8 +295,10 @@ class Term
 
 	/**
 	 * Delete all tags from an item
+	 *
 	 * @param int itemid - choose from which item the tags will be removed
-	 * @param array type - items type. default is [TERM_HASHTAG, TERM_MENTION]
+	 * @param array $type
+	 * @throws \Exception
 	 */
 	public static function deleteByItemId($itemid, $type = [TERM_HASHTAG, TERM_MENTION])
 	{

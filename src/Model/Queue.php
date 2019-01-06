@@ -13,6 +13,7 @@ class Queue
 {
 	/**
 	 * @param string $id id
+	 * @throws \Exception
 	 */
 	public static function updateTime($id)
 	{
@@ -37,6 +38,7 @@ class Queue
 
 	/**
 	 * @param string $id id
+	 * @throws \Exception
 	 */
 	public static function removeItem($id)
 	{
@@ -78,6 +80,8 @@ class Queue
 	 * @param string  $network network
 	 * @param string  $msg     message
 	 * @param boolean $batch   batch, default false
+	 * @param string  $guid
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function add($cid, $network, $msg, $batch = false, $guid = '')
 	{

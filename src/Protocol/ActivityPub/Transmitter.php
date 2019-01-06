@@ -42,10 +42,11 @@ class Transmitter
 	/**
 	 * collects the lost of followers of the given owner
 	 *
-	 * @param array $owner Owner array
-	 * @param integer $page Page number
+	 * @param array   $owner Owner array
+	 * @param integer $page  Page number
 	 *
 	 * @return array of owners
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getFollowers($owner, $page = null)
 	{
@@ -89,10 +90,11 @@ class Transmitter
 	/**
 	 * Create list of following contacts
 	 *
-	 * @param array $owner Owner array
-	 * @param integer $page Page numbe
+	 * @param array   $owner Owner array
+	 * @param integer $page  Page numbe
 	 *
 	 * @return array of following contacts
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getFollowing($owner, $page = null)
 	{
@@ -136,10 +138,12 @@ class Transmitter
 	/**
 	 * Public posts for the given owner
 	 *
-	 * @param array $owner Owner array
-	 * @param integer $page Page numbe
+	 * @param array   $owner Owner array
+	 * @param integer $page  Page numbe
 	 *
 	 * @return array of posts
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function getOutbox($owner, $page = null)
 	{
@@ -186,6 +190,7 @@ class Transmitter
 	 *
 	 * @param integer $uid User ID
 	 * @return array with profile data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getProfile($uid)
 	{
@@ -246,6 +251,8 @@ class Transmitter
 	 * @param array $item
 	 *
 	 * @return array with permissions
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function fetchPermissionBlockFromConversation($item)
 	{
@@ -295,11 +302,13 @@ class Transmitter
 	/**
 	 * Creates an array of permissions from an item thread
 	 *
-	 * @param array $item
+	 * @param array   $item
 	 * @param boolean $blindcopy
 	 * @param boolean $last_id
 	 *
 	 * @return array with permission data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0)
 	{
@@ -441,10 +450,12 @@ class Transmitter
 	/**
 	 * Fetches a list of inboxes of followers of a given user
 	 *
-	 * @param integer $uid User ID
+	 * @param integer $uid      User ID
 	 * @param boolean $personal fetch personal inboxes
 	 *
 	 * @return array of follower inboxes
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function fetchTargetInboxesforUser($uid, $personal = false)
 	{
@@ -486,12 +497,14 @@ class Transmitter
 	/**
 	 * Fetches an array of inboxes for the given item and user
 	 *
-	 * @param array $item
-	 * @param integer $uid User ID
+	 * @param array   $item
+	 * @param integer $uid      User ID
 	 * @param boolean $personal fetch personal inboxes
 	 * @param integer $last_id Last item id for adding receivers
 	 *
 	 * @return array with inboxes
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0)
 	{
@@ -545,6 +558,8 @@ class Transmitter
 	 * @param array $item
 	 *
 	 * @return string with activity type
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function getTypeOfItem($item)
 	{
@@ -585,9 +600,10 @@ class Transmitter
 	 * Creates the activity or fetches it from the cache
 	 *
 	 * @param integer $item_id
-	 * @param boolean $force   Force new cache entry
+	 * @param boolean $force Force new cache entry
 	 *
 	 * @return array with the activity
+	 * @throws \Exception
 	 */
 	public static function createCachedActivityFromItem($item_id, $force = false)
 	{
@@ -613,6 +629,7 @@ class Transmitter
 	 * @param boolean $object_mode Is the activity item is used inside another object?
 	 *
 	 * @return array of activity
+	 * @throws \Exception
 	 */
 	public static function createActivityFromItem($item_id, $object_mode = false)
 	{
@@ -692,6 +709,8 @@ class Transmitter
 	 * @param integer $item_id
 	 *
 	 * @return array with the object data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function createObjectFromItemID($item_id)
 	{
@@ -747,6 +766,7 @@ class Transmitter
 	 * @param array $item
 	 *
 	 * @return array of tags
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function createTagList($item)
 	{
@@ -774,10 +794,11 @@ class Transmitter
 	/**
 	 * Adds attachment data to the JSON document
 	 *
-	 * @param array $item Data of the item that is to be posted
-	 * @param text $type Object type
+	 * @param array  $item Data of the item that is to be posted
+	 * @param string $type Object type
 	 *
 	 * @return array with attachment data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function createAttachmentList($item, $type)
 	{
@@ -826,11 +847,12 @@ class Transmitter
 		return $attachments;
 	}
 
-        /**
+	/**
 	 * @brief Callback function to replace a Friendica style mention in a mention that is used on AP
 	 *
 	 * @param array $match Matching values for the callback
 	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function mentionCallback($match)
 	{
@@ -870,6 +892,7 @@ class Transmitter
 	 * @param array $item
 	 *
 	 * @return string with context url
+	 * @throws \Exception
 	 */
 	private static function fetchContextURLForItem($item)
 	{
@@ -890,6 +913,7 @@ class Transmitter
 	 * @param integer $item_id
 	 *
 	 * @return boolean
+	 * @throws \Exception
 	 */
 	private static function isSensitive($item_id)
 	{
@@ -903,6 +927,7 @@ class Transmitter
 	 * @param array $item
 	 *
 	 * @return array with the event data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function createEvent($item)
 	{
@@ -929,6 +954,8 @@ class Transmitter
 	 * @param array $item
 	 *
 	 * @return array with the object data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function createNote($item)
 	{
@@ -1019,6 +1046,8 @@ class Transmitter
 	 * @param array $item
 	 *
 	 * @return string with announced object url
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function createAnnounce($item)
 	{
@@ -1062,11 +1091,12 @@ class Transmitter
 	/**
 	 * Transmits a contact suggestion to a given inbox
 	 *
-	 * @param integer $uid User ID
-	 * @param string $inbox Target inbox
+	 * @param integer $uid           User ID
+	 * @param string  $inbox         Target inbox
 	 * @param integer $suggestion_id Suggestion ID
 	 *
 	 * @return boolean was the transmission successful?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sendContactSuggestion($uid, $inbox, $suggestion_id)
 	{
@@ -1093,10 +1123,11 @@ class Transmitter
 	/**
 	 * Transmits a profile relocation to a given inbox
 	 *
-	 * @param integer $uid User ID
-	 * @param string $inbox Target inbox
+	 * @param integer $uid   User ID
+	 * @param string  $inbox Target inbox
 	 *
 	 * @return boolean was the transmission successful?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sendProfileRelocation($uid, $inbox)
 	{
@@ -1121,10 +1152,11 @@ class Transmitter
 	/**
 	 * Transmits a profile deletion to a given inbox
 	 *
-	 * @param integer $uid User ID
-	 * @param string $inbox Target inbox
+	 * @param integer $uid   User ID
+	 * @param string  $inbox Target inbox
 	 *
 	 * @return boolean was the transmission successful?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sendProfileDeletion($uid, $inbox)
 	{
@@ -1149,10 +1181,12 @@ class Transmitter
 	/**
 	 * Transmits a profile change to a given inbox
 	 *
-	 * @param integer $uid User ID
-	 * @param string $inbox Target inbox
+	 * @param integer $uid   User ID
+	 * @param string  $inbox Target inbox
 	 *
 	 * @return boolean was the transmission successful?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function sendProfileUpdate($uid, $inbox)
 	{
@@ -1178,10 +1212,12 @@ class Transmitter
 	/**
 	 * Transmits a given activity to a target
 	 *
-	 * @param array $activity
-	 * @param string $target Target profile
-	 * @param integer $uid User ID
-	 * @param string $id activity id
+	 * @param array   $activity
+	 * @param string  $target Target profile
+	 * @param integer $uid    User ID
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @throws \Exception
 	 */
 	public static function sendActivity($activity, $target, $uid, $id = '')
 	{
@@ -1210,9 +1246,11 @@ class Transmitter
 	/**
 	 * Transmit a message that the contact request had been accepted
 	 *
-	 * @param string $target Target profile
-	 * @param $id
-	 * @param integer $uid User ID
+	 * @param string  $target Target profile
+	 * @param         $id
+	 * @param integer $uid    User ID
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function sendContactAccept($target, $id, $uid)
 	{
@@ -1238,9 +1276,11 @@ class Transmitter
 	/**
 	 * Reject a contact request or terminates the contact relation
 	 *
-	 * @param string $target Target profile
-	 * @param $id
-	 * @param integer $uid User ID
+	 * @param string  $target Target profile
+	 * @param         $id
+	 * @param integer $uid    User ID
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function sendContactReject($target, $id, $uid)
 	{
@@ -1266,9 +1306,11 @@ class Transmitter
 	/**
 	 * Transmits a message that we don't want to follow this contact anymore
 	 *
-	 * @param string $target Target profile
-	 * @param integer $cid Contact ID of target
-	 * @param integer $uid User ID
+	 * @param string  $target Target profile
+	 * @param integer $uid    User ID
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @throws \Exception
 	 */
 	public static function sendContactUndo($target, $cid, $uid)
 	{

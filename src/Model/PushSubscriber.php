@@ -14,8 +14,9 @@ class PushSubscriber
 	/**
 	 * @brief Send subscription notifications for the given user
 	 *
-	 * @param integer $uid      User ID
-	 * @param string  $priority Priority for push workers
+	 * @param integer $uid User ID
+	 * @param int     $default_priority
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function publishFeed($uid, $default_priority = PRIORITY_HIGH)
 	{
@@ -28,7 +29,8 @@ class PushSubscriber
 	/**
 	 * @brief start workers to transmit the feed data
 	 *
-	 * @param string $priority Priority for push workers
+	 * @param int $default_priority
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function requeue($default_priority = PRIORITY_HIGH)
 	{
@@ -60,6 +62,7 @@ class PushSubscriber
 	 * @param string  $hub_callback Callback address
 	 * @param string  $hub_topic    Feed topic
 	 * @param string  $hub_secret   Subscription secret
+	 * @throws \Exception
 	 */
 	public static function renew($uid, $nick, $subscribe, $hub_callback, $hub_topic, $hub_secret)
 	{
@@ -98,6 +101,7 @@ class PushSubscriber
 	 * @brief Delay the push subscriber
 	 *
 	 * @param integer $id Subscriber ID
+	 * @throws \Exception
 	 */
 	public static function delay($id)
 	{
@@ -135,7 +139,8 @@ class PushSubscriber
 	 * @brief Reset the push subscriber
 	 *
 	 * @param integer $id          Subscriber ID
-	 * @param date    $last_update Date of last transmitted item
+	 * @param string  $last_update Date of last transmitted item
+	 * @throws \Exception
 	 */
 	public static function reset($id, $last_update)
 	{

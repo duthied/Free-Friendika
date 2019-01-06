@@ -42,6 +42,8 @@ class Nav
 
 	/**
 	 * Set a menu item in navbar as selected
+	 *
+	 * @param string $item
 	 */
 	public static function setSelected($item)
 	{
@@ -50,6 +52,10 @@ class Nav
 
 	/**
 	 * Build page header and site navigation bars
+	 *
+	 * @param  App    $a
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function build(App $a)
 	{
@@ -114,12 +120,13 @@ class Nav
 	 * Prepares a list of navigation links
 	 *
 	 * @brief Prepares a list of navigation links
-	 * @param App $a
+	 * @param  App   $a
 	 * @return array Navigation links
-	 *	string 'sitelocation' => The webbie (username@site.com)
-	 *	array 'nav' => Array of links used in the nav menu
-	 *	string 'banner' => Formatted html link with banner image
-	 *	array 'userinfo' => Array of user information (name, icon)
+	 *    string 'sitelocation' => The webbie (username@site.com)
+	 *    array 'nav' => Array of links used in the nav menu
+	 *    string 'banner' => Formatted html link with banner image
+	 *    array 'userinfo' => Array of user information (name, icon)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getInfo(App $a)
 	{

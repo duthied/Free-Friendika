@@ -230,6 +230,8 @@ class Delivery extends BaseObject
 	 * @param boolean $public_message Is the content public?
 	 * @param boolean $top_level      Is it a thread starter?
 	 * @param boolean $followup       Is it an answer to a remote post?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
@@ -351,6 +353,8 @@ class Delivery extends BaseObject
 	 * @param boolean $public_message Is the content public?
 	 * @param boolean $top_level      Is it a thread starter?
 	 * @param boolean $followup       Is it an answer to a remote post?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
@@ -414,6 +418,8 @@ class Delivery extends BaseObject
 	 * @param array  $contact     Contact record of the receiver
 	 * @param array  $owner       Owner record of the sender
 	 * @param array  $target_item Item record of the content
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function deliverMail($cmd, $contact, $owner, $target_item)
 	{
