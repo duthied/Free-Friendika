@@ -75,7 +75,13 @@ class LoggerFactory
 	public static function addStreamHandler($logger, $stream, $level = LogLevel::NOTICE)
 	{
 		if ($logger instanceof Monolog\Logger) {
-			$fileHandler = new Monolog\Handler\StreamHandler($stream, Monolog\Logger::toMonologLevel($level));
+			$loglevel = Monolog\Logger::toMonologLevel($level);
+
+			// fallback to notice if an invalid loglevel is set
+			if (!is_int($loglevel)) {
+				$loglevel = LogLevel::NOTICE;
+			}
+			$fileHandler = new Monolog\Handler\StreamHandler($stream, $loglevel);
 
 			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
 			$fileHandler->setFormatter($formatter);
