@@ -105,7 +105,7 @@ class Logger extends BaseObject
 	 * Mapping a legacy level to the PSR-3 compliant levels
 	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
 	 *
-	 * @param mixed $level the level to be mapped
+	 * @param string $level the level to be mapped
 	 *
 	 * @return string the PSR-3 compliant level
 	 */
