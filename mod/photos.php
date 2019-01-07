@@ -409,9 +409,12 @@ function photos_post(App $a)
 			}
 		}
 
-		$photo = Photo::getPhotoForUser($page_owner_uid, $resource_id);
+		$photos_stmt = DBA::select('photo', [], ['resource-id' => $resource_id, 'uid' => $page_owner_uid], ['order' => ['scale' => true]]);
 
-		if (DBA::isResult($photo)) {
+		$photos = DBA::toArray($photos_stmt);
+
+		if (DBA::isResult($photos)) {
+			$photo = $photos[0];
 			$ext = $phototypes[$photo['type']];
 			Photo::update(
 				['desc' => $desc, 'album' => $albname, 'allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow, 'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny],
@@ -422,16 +425,15 @@ function photos_post(App $a)
 			if ($albname !== $origaname) {
 				Photo::clearAlbumCache($page_owner_uid);
 			}
+			/* Don't make the item visible if the only change was the album name */
+
+			$visibility = 0;
+			if ($photo['desc'] !== $desc || strlen($rawtags)) {
+				$visibility = 1;
+			}
 		}
 
-		/* Don't make the item visible if the only change was the album name */
-
-		$visibility = 0;
-		if ($photo['desc'] !== $desc || strlen($rawtags)) {
-			$visibility = 1;
-		}
-
-		if (!$item_id) {
+		if (DBA::isResult($photos) && !$item_id) {
 			// Create item container
 			$title = '';
 			$uri = Item::newURI($page_owner_uid);
@@ -527,7 +529,7 @@ function photos_post(App $a)
 							if ($tagcid) {
 								$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 									intval($tagcid),
-									intval($profile_uid)
+									intval($page_owner_uid)
 								);
 							} else {
 								$newname = str_replace('_',' ',$name);
@@ -598,7 +600,7 @@ function photos_post(App $a)
 			Item::update($fields, $condition);
 
 			$best = 0;
-			foreach ($p as $scales) {
+			foreach ($photos as $scales) {
 				if (intval($scales['scale']) == 2) {
 					$best = 2;
 					break;
@@ -646,13 +648,13 @@ function photos_post(App $a)
 					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
 					$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
 					if ($tagged[3]) {
-						$arr['object'] .= XML::escape('<link rel="photo" type="'.$photo['type'].'" href="' . $tagged[3]['photo'] . '" />' . "\n");
+						$arr['object'] .= XML::escape('<link rel="photo" type="' . $photo['type'] . '" href="' . $tagged[3]['photo'] . '" />' . "\n");
 					}
 					$arr['object'] .= '</link></object>' . "\n";
 
 					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_IMAGE . '</type><title>' . $photo['desc'] . '</title><id>'
 						. System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '</id>';
-					$arr['target'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '" />' . "\n" . '<link rel="preview" type="'.$photo['type'].'" href="' . System::baseUrl() . "/photo/" . $photo['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
+					$arr['target'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '" />' . "\n" . '<link rel="preview" type="' . $photo['type'] . '" href="' . System::baseUrl() . "/photo/" . $photo['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
 					Item::insert($arr);
 				}
