@@ -367,7 +367,7 @@ function settings_post(App $a)
 		}
 		Theme::install($theme);
 
-		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
+		q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
 				DBA::escape($theme),
 				intval(local_user())
 		);
@@ -484,8 +484,6 @@ function settings_post(App $a)
 		$page_flags = Contact::PAGE_COMMUNITY;
 	}
 
-	$email_changed = false;
-
 	$err = '';
 
 	if ($username != $a->user['username']) {
@@ -498,7 +496,6 @@ function settings_post(App $a)
 	}
 
 	if ($email != $a->user['email']) {
-		$email_changed = true;
 		//  check for the correct password
 		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
 			$err .= L10n::t('Wrong Password') . EOL;
@@ -611,7 +608,7 @@ function settings_post(App $a)
 	// clear session language
 	unset($_SESSION['language']);
 
-	$r = q("UPDATE `profile`
+	q("UPDATE `profile`
 		SET `publish` = %d,
 		`name` = '%s',
 		`net-publish` = %d,

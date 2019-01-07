@@ -31,8 +31,6 @@ function videos_init(App $a)
 
 	Nav::setSelected('home');
 
-	$o = '';
-
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
 		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
@@ -163,17 +161,10 @@ function videos_content(App $a)
 	//
 	if ($a->argc > 3) {
 		$datatype = $a->argv[2];
-		$datum = $a->argv[3];
 	} elseif(($a->argc > 2) && ($a->argv[2] === 'upload')) {
 		$datatype = 'upload';
 	} else {
 		$datatype = 'summary';
-	}
-
-	if ($a->argc > 4) {
-		$cmd = $a->argv[4];
-	} else {
-		$cmd = 'view';
 	}
 
 	//
@@ -209,7 +200,6 @@ function videos_content(App $a)
 
 			if (DBA::isResult($r)) {
 				$can_post = true;
-				$contact = $r[0];
 				$remote_contact = true;
 				$visitor = $contact_id;
 			}
@@ -239,15 +229,9 @@ function videos_content(App $a)
 			);
 
 			if (DBA::isResult($r)) {
-				$contact = $r[0];
 				$remote_contact = true;
 			}
 		}
-	}
-
-	if (!$remote_contact && local_user()) {
-		$contact_id = $_SESSION['cid'];
-		$contact = $a->contact;
 	}
 
 	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (!$remote_contact)) {

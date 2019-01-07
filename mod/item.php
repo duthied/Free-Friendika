@@ -125,8 +125,6 @@ function item_post(App $a) {
 		$parent = $parent_item['id'];
 		$parent_user = $parent_item['uid'];
 
-		$parent_contact = Contact::getDetailsByURL($parent_item["author-link"]);
-
 		$objecttype = ACTIVITY_OBJ_COMMENT;
 	}
 
@@ -386,7 +384,7 @@ function item_post(App $a) {
 				continue;
 			}
 
-			$success = handle_tag($a, $body, $inform, $str_tags, local_user() ? local_user() : $profile_uid, $tag, $network);
+			$success = handle_tag($body, $inform, $str_tags, local_user() ? local_user() : $profile_uid, $tag, $network);
 			if ($success['replaced']) {
 				$tagged[] = $tag;
 			}
@@ -723,8 +721,6 @@ function item_post(App $a) {
 			$a->internalRedirect($return_path);
 		}
 		exit();
-	} else {
-		$post_id = 0;
 	}
 
 	unset($datarray['edit']);
@@ -924,11 +920,10 @@ function item_content(App $a)
  * @throws ImagickException
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
+function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
 {
 	$replaced = false;
 	$r = null;
-	$tag_type = '@';
 
 	//is it a person tag?
 	if ((strpos($tag, '@') === 0) || (strpos($tag, '!') === 0)) {
@@ -964,7 +959,6 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			return $replaced;
 		}
 
-		$stat = false;
 		//get the person's name
 		$name = substr($tag, 1);
 
