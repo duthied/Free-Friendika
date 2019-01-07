@@ -120,6 +120,12 @@ function notification($params)
 	}
 
 	$epreamble = '';
+	$preamble  = '';
+	$subject   = '';
+	$sitelink  = '';
+	$tsitelink = '';
+	$hsitelink = '';
+	$itemlink  = '';
 
 	if ($params['type'] == NOTIFY_MAIL) {
 		$itemlink = $siteurl.'/message/'.$params['item']['id'];
@@ -453,10 +459,6 @@ function notification($params)
 
 		$body =  $params['body'];
 
-		$sitelink = "";
-		$tsitelink = "";
-		$hsitelink = "";
-		$itemlink =  "";
 		$show_in_notification_page = false;
 	}
 
@@ -486,6 +488,8 @@ function notification($params)
 	$tsitelink = $h['tsitelink'];
 	$hsitelink = $h['hsitelink'];
 	$itemlink  = $h['itemlink'];
+
+	$notify_id = 0;
 
 	if ($show_in_notification_page) {
 		Logger::log("adding notification entry", Logger::DEBUG);

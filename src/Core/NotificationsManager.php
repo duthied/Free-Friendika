@@ -637,6 +637,8 @@ class NotificationsManager extends BaseObject
 	{
 		$knowyou = '';
 
+		$arr = [];
+
 		foreach ($intros as $it) {
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.

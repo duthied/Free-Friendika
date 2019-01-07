@@ -48,8 +48,10 @@ class Event extends BaseObject
 		}
 
 		if ($simple) {
+			$o = '';
+
 			if (!empty($event['summary'])) {
-				$o = "<h3>" . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . "</h3>";
+				$o .= "<h3>" . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . "</h3>";
 			}
 
 			if (!empty($event['desc'])) {

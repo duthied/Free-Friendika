@@ -1963,6 +1963,7 @@ class DFRN
 				DBA::escape($suggest["photo"]),
 				DBA::escape($suggest["request"])
 			);
+			$fid = $r[0]["id"];
 		}
 
 		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
@@ -1976,8 +1977,6 @@ class DFRN
 			// Database record did not get created. Quietly give up.
 			exit();
 		}
-
-		$fid = $r[0]["id"];
 
 		$hash = Strings::getRandomHex();
 
@@ -2219,6 +2218,7 @@ class DFRN
 
 		if (($xo->type == ACTIVITY_OBJ_PERSON) && ($xo->id)) {
 			// somebody was poked/prodded. Was it me?
+			$Blink = '';
 			foreach ($xo->link as $l) {
 				$atts = $l->attributes();
 				switch ($atts["rel"]) {

@@ -79,6 +79,8 @@ HELP;
 				DBStructure::convertToInnoDB();
 				$output = ob_get_clean();
 				break;
+			default:
+				$output = 'Unknown command: ' . $this->getArgument(0);
 		}
 
 		$this->out($output);

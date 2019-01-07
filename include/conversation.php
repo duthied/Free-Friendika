@@ -176,6 +176,7 @@ function localize_item(&$item)
 
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
+		$bodyverb = '';
 		if (activity_match($item['verb'], ACTIVITY_LIKE)) {
 			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
 		} elseif (activity_match($item['verb'], ACTIVITY_DISLIKE)) {
@@ -1043,25 +1044,22 @@ function format_like($cnt, array $arr, $type, $id) {
 		}
 	}
 
+	$phrase = '';
 	if ($cnt > 1) {
 		$total = count($arr);
-		if ($total >= MAX_LIKERS) {
-			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
-		}
 		if ($total < MAX_LIKERS) {
 			$last = L10n::t('and') . ' ' . $arr[count($arr)-1];
 			$arr2 = array_slice($arr, 0, -1);
-			$str = implode(', ', $arr2) . ' ' . $last;
+			$likers = implode(', ', $arr2) . ' ' . $last;
+		} else  {
+			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
+			$likers = implode(', ', $arr);
+			$likers .= L10n::t('and %d other people', $total - MAX_LIKERS);
 		}
-		if ($total >= MAX_LIKERS) {
-			$str = implode(', ', $arr);
-			$str .= L10n::t('and %d other people', $total - MAX_LIKERS);
-		}
-
-		$likers = $str;
 
 		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
 
+		$explikers = '';
 		switch ($type) {
 			case 'like':
 				$phrase = L10n::t('<span  %1$s>%2$d people</span> like this', $spanatts, $cnt);
@@ -1497,6 +1495,7 @@ function get_responses(array $conv_responses, array $response_verbs, $ob, array 
 
 function get_response_button_text($v, $count)
 {
+	$return = '';
 	switch ($v) {
 		case 'like':
 			$return = L10n::tt('Like', 'Likes', $count);

@@ -35,12 +35,6 @@ class Contact extends BaseObject
 	 * @deprecated since version 2019.03
 	 * @see User::PAGE_FLAGS_NORMAL
 	 */
-	const PAGE_NORMAL    = 0;
-	const PAGE_SOAPBOX   = 1;
-	const PAGE_COMMUNITY = 2;
-	const PAGE_FREELOVE  = 3;
-	const PAGE_BLOG      = 4;
-	const PAGE_PRVGROUP  = 5;
 	const PAGE_NORMAL    = User::PAGE_FLAGS_NORMAL;
 	/**
 	 * @deprecated since version 2019.03
@@ -1205,9 +1199,10 @@ class Contact extends BaseObject
 				$contact = DBA::selectFirst('contact', $fields, ['addr' => $url]);
 			}
 
+			// The link could be provided as http although we stored it as https
+			$ssl_url = str_replace('http://', 'https://', $url);
+
 			if (!DBA::isResult($contact)) {
-				// The link could be provided as http although we stored it as https
-				$ssl_url = str_replace('http://', 'https://', $url);
 				$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
 				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
@@ -1426,7 +1421,7 @@ class Contact extends BaseObject
 	{
 		$a = self::getApp();
 
-		$cid = Self::getIdForURL($contact_url);
+		$cid = self::getIdForURL($contact_url);
 
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {

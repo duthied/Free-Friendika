@@ -20,6 +20,8 @@ function msearch_post(App $a)
 		exit();
 	}
 
+	$total = 0;
+
 	$count_stmt = DBA::p(
 		"SELECT COUNT(*) AS `total`
 			FROM `profile`
@@ -29,7 +31,6 @@ function msearch_post(App $a)
 		  	AND MATCH(`pub_keywords`) AGAINST (?)",
 		$search
 	);
-
 	if (DBA::isResult($count_stmt)) {
 		$row = DBA::fetch($count_stmt);
 		$total = $row['total'];
