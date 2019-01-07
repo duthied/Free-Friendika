@@ -16,6 +16,7 @@ use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
+use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Util\Strings;
 

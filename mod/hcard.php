@@ -8,6 +8,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 
 function hcard_init(App $a)
 {

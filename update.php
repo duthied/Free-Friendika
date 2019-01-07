@@ -161,7 +161,7 @@ function update_1191()
 function update_1203()
 {
 	$r = q("UPDATE `user` SET `account-type` = %d WHERE `page-flags` IN (%d, %d)",
-		DBA::escape(Contact::ACCOUNT_TYPE_COMMUNITY),
+		DBA::escape(User::ACCOUNT_TYPE_COMMUNITY),
 		DBA::escape(User::PAGE_FLAGS_COMMUNITY),
 		DBA::escape(User::PAGE_FLAGS_PRVGROUP)
 	);

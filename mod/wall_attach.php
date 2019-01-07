@@ -8,7 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
-use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Util\Strings;
 
 function wall_attach_post(App $a) {

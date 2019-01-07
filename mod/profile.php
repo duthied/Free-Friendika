@@ -19,6 +19,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
