@@ -32,7 +32,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 			$s = new FriendicaSmarty();
 		}
 
-		$r['$APP'] = get_app();
+		$r['$APP'] = \get_app();
 
 		// "middleware": inject variables into templates
 		$arr = [
@@ -54,7 +54,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 
 	public function getTemplateFile($file, $root = '')
 	{
-		$a = get_app();
+		$a = \get_app();
 		$template = new FriendicaSmarty();
 
 		// Make sure $root ends with a slash /

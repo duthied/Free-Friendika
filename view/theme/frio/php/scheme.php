@@ -21,7 +21,7 @@ use Friendica\Core\PConfig;
 
 function get_scheme_info($scheme)
 {
-	$theme = get_app()->getCurrentTheme();
+	$theme = \get_app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
 	$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'scheme'));
 

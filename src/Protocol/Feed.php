@@ -35,7 +35,7 @@ class Feed {
 	 */
 	public static function import($xml, $importer, &$contact, &$hub, $simulate = false) {
 
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$simulate) {
 			Logger::log("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], Logger::DEBUG);

@@ -22,7 +22,7 @@ class FriendicaSmarty extends Smarty
 	{
 		parent::__construct();
 
-		$a = get_app();
+		$a = \get_app();
 		$theme = $a->getCurrentTheme();
 
 		// setTemplateDir can be set to an array, which Smarty will parse in order.

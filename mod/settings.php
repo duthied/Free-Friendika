@@ -30,7 +30,7 @@ use Friendica\Util\Temporal;
 
 function get_theme_config_file($theme)
 {
-	$a = get_app();
+	$a = \get_app();
 	$base_theme = defaults($a->theme_info, 'extends');
 
 	if (file_exists("view/theme/$theme/config.php")) {

@@ -23,7 +23,7 @@ class CalendarExport
 	 * @return string Formated HTML of the calendar widget.
 	 */
 	public static function getHTML() {
-		$a = get_app();
+		$a = \get_app();
 
 		if (empty($a->data['user'])) {
 			return;

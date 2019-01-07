@@ -2298,7 +2298,7 @@ class Diaspora
 	 */
 	private static function receiveRequestMakeFriend(array $importer, array $contact)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if ($contact["rel"] == Contact::SHARING) {
 			DBA::update(
@@ -3057,7 +3057,7 @@ class Diaspora
 	 */
 	public static function transmit(array $owner, array $contact, $envelope, $public_batch, $queue_run = false, $guid = "", $no_queue = false)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$enabled = intval(Config::get("system", "diaspora_enabled"));
 		if (!$enabled) {

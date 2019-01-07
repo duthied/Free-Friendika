@@ -47,7 +47,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		$a = get_app();
+		$a = \get_app();
 
 		$pofile = realpath($this->getArgument(0));
 

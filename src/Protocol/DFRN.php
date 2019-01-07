@@ -137,7 +137,7 @@ class DFRN
 	 */
 	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$sitefeed    = ((strlen($owner_nick)) ? false : true); // not yet implemented, need to rewrite huge chunks of following logic
 		$public_feed = (($dfrn_id) ? false : true);
@@ -1160,7 +1160,7 @@ class DFRN
 	 */
 	public static function deliver($owner, $contact, $atom, $dissolve = false, $legacy_transport = false)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// At first try the Diaspora transport layer
 		if (!$dissolve && !$legacy_transport) {
@@ -1420,7 +1420,7 @@ class DFRN
 	 */
 	public static function transmit($owner, $contact, $atom, $public_batch = false)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$public_batch) {
 			if (empty($contact['addr'])) {
@@ -1894,7 +1894,7 @@ class DFRN
 	 */
 	private static function processSuggestion($xpath, $suggestion, $importer)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		Logger::log("Processing suggestions");
 
@@ -2457,7 +2457,7 @@ class DFRN
 
 		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
 		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
-			$base_url = get_app()->getBaseURL();
+			$base_url = \get_app()->getBaseURL();
 			$item['body'] = HTML::relToAbs($item['body'], $base_url);
 
 			$item['body'] = HTML::toBBCodeVideo($item['body']);

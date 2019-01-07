@@ -50,7 +50,7 @@
 		<div id="register-nickname-wrapper" class="form-group">
 			<label for="register-nickname" id="label-register-nickname" >{{$nicklabel}}</label>
 			<input type="text" maxlength="60" size="32" name="nickname" id="register-nickname" class="form-control" value="{{$nickname}}">
-			<span class="help-block" id="nickname_tip">{{$nickdesc}}</span>
+			<span class="help-block" id="nickname_tip">{{$nickdesc nofilter}}</span>
 		</div>
 		<div id="register-nickname-end" ></div>
 

@@ -129,7 +129,7 @@ function get_vier_config($key, $default = false, $admin = false)
 
 function vier_community_info()
 {
-	$a = get_app();
+	$a = \get_app();
 
 	$show_pages      = get_vier_config("show_pages", 1);
 	$show_profiles   = get_vier_config("show_profiles", 1);

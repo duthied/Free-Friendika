@@ -22,7 +22,7 @@ function repair_ostatus_content(App $a) {
 
 	$uid = local_user();
 
-	$a = get_app();
+	$a = \get_app();
 
 	$counter = intval($_REQUEST['counter']);
 

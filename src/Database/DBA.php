@@ -208,7 +208,7 @@ class DBA
 	 * @param string $query The database query that will be analyzed
 	 */
 	private static function logIndex($query) {
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$a->getConfigVariable('system', 'db_log_index')) {
 			return;
@@ -388,7 +388,7 @@ class DBA
 	 * @return bool|object statement object or result object
 	 */
 	public static function p($sql) {
-		$a = get_app();
+		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -606,7 +606,7 @@ class DBA
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
 	 */
 	public static function e($sql) {
-		$a = get_app();
+		$a = \get_app();
 
 		$stamp = microtime(true);
 
@@ -770,7 +770,7 @@ class DBA
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {
-		$a = get_app();
+		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -1518,7 +1518,7 @@ class DBA
 	 * @return boolean was the close successful?
 	 */
 	public static function close($stmt) {
-		$a = get_app();
+		$a = \get_app();
 
 		$stamp1 = microtime(true);
 

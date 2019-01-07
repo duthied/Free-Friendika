@@ -51,7 +51,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		$a = get_app();
+		$a = \get_app();
 
 		$phpfile = realpath($this->getArgument(0));
 

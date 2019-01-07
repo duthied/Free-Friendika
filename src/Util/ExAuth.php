@@ -122,7 +122,7 @@ class ExAuth
 	 */
 	private function isUser(array $aCommand)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// Check if there is a username
 		if (!isset($aCommand[1])) {
@@ -202,7 +202,7 @@ class ExAuth
 	 */
 	private function auth(array $aCommand)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// check user authentication
 		if (sizeof($aCommand) != 4) {

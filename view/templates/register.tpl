@@ -46,7 +46,7 @@
 	{{include file="field_password.tpl" field=$password2}}
 {{/if}}
 
-	<p id="register-nickname-desc" >{{$nickdesc}}</p>
+	<p id="register-nickname-desc" >{{$nickdesc nofilter}}</p>
 
 	<div id="register-nickname-wrapper" >
 		<label for="register-nickname" id="label-register-nickname" >{{$nicklabel}}</label>

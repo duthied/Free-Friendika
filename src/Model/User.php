@@ -406,7 +406,7 @@ class User
 	 */
 	public static function create(array $data)
 	{
-		$a = get_app();
+		$a = \get_app();
 		$return = ['user' => null, 'password' => ''];
 
 		$using_invites = Config::get('system', 'invitation_only');
@@ -795,7 +795,7 @@ class User
 			return false;
 		}
 
-		$a = get_app();
+		$a = \get_app();
 
 		Logger::log('Removing user: ' . $uid);
 

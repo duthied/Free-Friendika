@@ -502,7 +502,7 @@ function get_messages($uid, $start, $limit)
 
 function render_messages(array $msg, $t)
 {
-	$a = get_app();
+	$a = \get_app();
 
 	$tpl = Renderer::getMarkupTemplate($t);
 	$rslt = '';

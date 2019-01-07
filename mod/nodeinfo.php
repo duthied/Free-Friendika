@@ -145,7 +145,7 @@ function nodeinfo_init(App $a) {
 
 function nodeinfo_cron() {
 
-	$a = get_app();
+	$a = \get_app();
 
 	// If the addon 'statistics_json' is enabled then disable it and activate nodeinfo.
 	if (Addon::isEnabled('statistics_json')) {

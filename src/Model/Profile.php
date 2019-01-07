@@ -280,7 +280,7 @@ class Profile
 	 */
 	private static function sidebar($profile, $block = 0, $show_connect = true)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$o = '';
 		$location = false;
@@ -555,7 +555,7 @@ class Profile
 
 	public static function getBirthdays()
 	{
-		$a = get_app();
+		$a = \get_app();
 		$o = '';
 
 		if (!local_user() || $a->is_mobile || $a->is_tablet) {
@@ -653,7 +653,7 @@ class Profile
 
 	public static function getEventsReminderHTML()
 	{
-		$a = get_app();
+		$a = \get_app();
 		$o = '';
 
 		if (!local_user() || $a->is_mobile || $a->is_tablet) {
@@ -1094,7 +1094,7 @@ class Profile
 	 */
 	public static function openWebAuthInit($token)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// Clean old OpenWebAuthToken entries.
 		OpenWebAuthToken::purge('owt', '3 MINUTE');

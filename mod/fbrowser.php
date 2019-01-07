@@ -72,7 +72,7 @@ function fbrowser_content(App $a)
 
 			function _map_files1($rr)
 			{
-				$a = get_app();
+				$a = \get_app();
 				$types = Image::supportedTypes();
 				$ext = $types[$rr['type']];
 				$filename_e = $rr['filename'];
@@ -116,7 +116,7 @@ function fbrowser_content(App $a)
 
 				function _map_files2($rr)
 				{
-					$a = get_app();
+					$a = \get_app();
 					list($m1,$m2) = explode("/", $rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 					$filename_e = $rr['filename'];
