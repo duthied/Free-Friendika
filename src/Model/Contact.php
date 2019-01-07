@@ -1753,7 +1753,7 @@ class Contact extends BaseObject
 			}
 		} elseif (Config::get('system', 'dfrn_only') && ($ret['network'] != Protocol::DFRN)) {
 			$result['message'] = L10n::t('This site is not configured to allow communications with other networks.') . EOL;
-			$result['message'] != L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
+			$result['message'] .= L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			return $result;
 		}
 

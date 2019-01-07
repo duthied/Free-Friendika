@@ -2476,7 +2476,7 @@ class Item extends BaseObject
 		$id = 0;
 
 		if ($uid == 0) {
-			$uid == local_user();
+			$uid = local_user();
 		}
 
 		// Does the given user have this item?
