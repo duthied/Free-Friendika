@@ -662,7 +662,7 @@ class Contact extends BaseObject
 	{
 		if (!isset($contact['url']) && !empty($contact['id'])) {
 			$fields = ['id', 'url', 'archive', 'self', 'term-date'];
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact['id']]);
+			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact['id']]);
 			if (!DBA::isResult($contact)) {
 				return;
 			}
@@ -725,7 +725,7 @@ class Contact extends BaseObject
 
 		if (!isset($contact['url']) && !empty($contact['id'])) {
 			$fields = ['id', 'url', 'batch'];
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact['id']]);
+			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact['id']]);
 			if (!DBA::isResult($contact)) {
 				return;
 			}

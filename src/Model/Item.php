@@ -2019,7 +2019,7 @@ class Item extends BaseObject
 		$condition = ['id' => $itemid, 'uid' => 0,
 			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""],
 			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
-		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, $condition);
 		if (!DBA::isResult($item)) {
 			return;
 		}
