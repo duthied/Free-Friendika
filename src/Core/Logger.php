@@ -84,7 +84,7 @@ class Logger extends BaseObject
 		}
 
 		if (is_int($loglevel)) {
-			$loglevel = self::mapLegacyConfigDebugLevel($loglevel);
+			$loglevel = self::mapLegacyDebugLevel($loglevel);
 		}
 
 		LoggerFactory::addStreamHandler($logger, $logfile, $loglevel);
@@ -111,7 +111,7 @@ class Logger extends BaseObject
 	 *
 	 * @return string the PSR-3 compliant level
 	 */
-	private static function mapLegacyConfigDebugLevel($level)
+	private static function mapLegacyDebugLevel($level)
 	{
 		switch ($level) {
 			// legacy WARNING
@@ -319,23 +319,25 @@ class Logger extends BaseObject
 		self::getApp()->saveTimestamp($stamp1, 'file');
 	}
 
-	/**
-	 * @brief      Logs the given message at the given log level
-	 *
-	 * @param string $msg
-	 * @param string $level
+    /**
+     * @brief Logs the given message at the given log level
+     *
+     * @param string $msg
+     * @param int    $level
 	 *
 	 * @throws \Exception
 	 * @deprecated since 2019.03 Use Logger::debug() Logger::info() , ... instead
-	 */
-    public static function log($msg, $level = LogLevel::NOTICE)
+     */
+    public static function log($msg, $level = 3)
     {
 		if (!isset(self::$logger)) {
 			return;
 		}
 
+		$loglevel = self::mapLegacyDebugLevel($level);
+
         $stamp1 = microtime(true);
-		self::$logger->log($level, $msg);
+		self::$logger->log($loglevel, $msg);
         self::getApp()->saveTimestamp($stamp1, "file");
     }
 
