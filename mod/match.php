@@ -25,6 +25,9 @@ use Friendica\Util\Proxy as ProxyUtils;
  * @param App $a App
  *
  * @return string
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @throws Exception
  */
 function match_content(App $a)
 {

@@ -63,7 +63,7 @@ class Image
 
 	/**
 	 * @brief Constructor
-	 * @param object  $data data
+	 * @param string  $data
 	 * @param boolean $type optional, default null
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -127,7 +127,7 @@ class Image
 	}
 
 	/**
-	 * @param object $data data
+	 * @param string $data data
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException

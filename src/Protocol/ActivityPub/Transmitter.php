@@ -1212,9 +1212,10 @@ class Transmitter
 	/**
 	 * Transmits a given activity to a target
 	 *
-	 * @param array   $activity
-	 * @param string  $target Target profile
-	 * @param integer $uid    User ID
+	 * @param string  $activity Type name
+	 * @param string  $target   Target profile
+	 * @param integer $uid      User ID
+	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws \Exception
