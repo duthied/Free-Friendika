@@ -30,11 +30,7 @@ class OnePoll
 
 		Logger::log('Start for contact ' . $contact_id);
 
-		$manual_id  = 0;
-		$generation = 0;
-		$hub_update = false;
 		$force      = false;
-		$restart    = false;
 
 		if ($command == "force") {
 			$force = true;
@@ -45,7 +41,6 @@ class OnePoll
 			return;
 		}
 
-		$d = DateTimeFormat::utcNow();
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		if (!DBA::isResult($contact)) {
@@ -580,7 +575,7 @@ class OnePoll
 								$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 							}
 
-							$stored_item = Item::insert($datarray);
+							Item::insert($datarray);
 
 							switch ($mailconf['action']) {
 								case 0:

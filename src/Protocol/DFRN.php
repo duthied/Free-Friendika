@@ -181,24 +181,19 @@ class DFRN
 
 		$owner = $r[0];
 		$owner_id = $owner['uid'];
-		$owner_nick = $owner['nickname'];
 
 		$sql_post_table = "";
 
 		if (! $public_feed) {
-			$sql_extra = '';
 			switch ($direction) {
 				case (-1):
 					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
-					$my_id = $dfrn_id;
 					break;
 				case 0:
 					$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-					$my_id = '1:' . $dfrn_id;
 					break;
 				case 1:
 					$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-					$my_id = '0:' . $dfrn_id;
 					break;
 				default:
 					return false;
@@ -244,7 +239,6 @@ class DFRN
 				intval(TERM_CATEGORY),
 				intval($owner_id)
 			);
-			//$sql_extra .= FileTag::fileQuery('item',$category,'category');
 		}
 
 		if ($public_feed && ! $converse) {
@@ -1179,8 +1173,6 @@ class DFRN
 	 */
 	public static function deliver($owner, $contact, $atom, $dissolve = false, $legacy_transport = false)
 	{
-		$a = \get_app();
-
 		// At first try the Diaspora transport layer
 		if (!$dissolve && !$legacy_transport) {
 			$curlResult = self::transmit($owner, $contact, $atom);
@@ -1205,7 +1197,6 @@ class DFRN
 		Logger::log("Local rino version: ". $rino, Logger::DEBUG);
 
 		$ssl_val = intval(Config::get('system', 'ssl_policy'));
-		$ssl_policy = '';
 
 		switch ($ssl_val) {
 			case SSL_POLICY_FULL:
@@ -1442,8 +1433,6 @@ class DFRN
 	 */
 	public static function transmit($owner, $contact, $atom, $public_batch = false)
 	{
-		$a = \get_app();
-
 		if (!$public_batch) {
 			if (empty($contact['addr'])) {
 				Logger::log('Empty contact handle for ' . $contact['id'] . ' - ' . $contact['url'] . ' - trying to update it.');
@@ -1708,7 +1697,6 @@ class DFRN
 
 				if (strtotime($value) < time()) {
 					$value = str_replace($bdyear, $bdyear + 1, $value);
-					$bdyear = $bdyear + 1;
 				}
 
 				$poco["bd"] = $value;
@@ -1920,8 +1908,6 @@ class DFRN
 	 */
 	private static function processSuggestion($xpath, $suggestion, $importer)
 	{
-		$a = \get_app();
-
 		Logger::log("Processing suggestions");
 
 		/// @TODO Rewrite this to one statement
@@ -1995,7 +1981,7 @@ class DFRN
 
 		$hash = Strings::getRandomHex();
 
-		$r = q(
+		q(
 			"INSERT INTO `intro` (`uid`, `fid`, `contact-id`, `note`, `hash`, `datetime`, `blocked`)
 			VALUES(%d, %d, %d, '%s', '%s', '%s', %d)",
 			intval($suggest["uid"]),
@@ -2408,8 +2394,6 @@ class DFRN
 						$item["plink"] = $href;
 						break;
 					case "enclosure":
-						$enclosure = $href;
-
 						if (!empty($item["attach"])) {
 							$item["attach"] .= ",";
 						} else {
@@ -2596,8 +2580,6 @@ class DFRN
 			}
 		}
 
-		$enclosure = "";
-
 		$links = $xpath->query("atom:link", $entry);
 		if ($links) {
 			self::parseLinks($links, $item);
@@ -2713,8 +2695,6 @@ class DFRN
 
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
 			$posted_id = Item::insert($item);
-			$parent = 0;
-
 			if ($posted_id) {
 				Logger::log("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, Logger::DEBUG);
 

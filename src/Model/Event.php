@@ -239,8 +239,6 @@ class Event extends BaseObject
 	 */
 	public static function store($arr)
 	{
-		$a = self::getApp();
-
 		$event = [];
 		$event['id']        = intval(defaults($arr, 'id'       , 0));
 		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
@@ -418,7 +416,6 @@ class Event extends BaseObject
 			"February"  => L10n::t("February"),
 			"March"     => L10n::t("March"),
 			"April"     => L10n::t("April"),
-			"May"       => L10n::t("May"),
 			"June"      => L10n::t("June"),
 			"July"      => L10n::t("July"),
 			"August"    => L10n::t("August"),
@@ -643,7 +640,7 @@ class Event extends BaseObject
 	 *
 	 * @todo  Implement timezone support
 	 */
-	private static function formatListForExport(array $events, $format, $timezone)
+	private static function formatListForExport(array $events, $format)
 	{
 		if (!count($events)) {
 			return '';
@@ -795,19 +792,14 @@ class Event extends BaseObject
 	{
 		$process = false;
 
-		$user = DBA::selectFirst('user', ['timezone'], ['uid' => $uid]);
-		if (DBA::isResult($user)) {
-			$timezone = $user['timezone'];
-		}
-
 		// Get all events which are owned by a uid (respects permissions).
 		$events = self::getListByUserId($uid);
 
 		// We have the events that are available for the requestor.
 		// Now format the output according to the requested format.
-		$res = self::formatListForExport($events, $format, $timezone);
+		$res = self::formatListForExport($events, $format);
 
-		// If there are results the precess was successfull.
+		// If there are results the precess was successful.
 		if (!empty($res)) {
 			$process = true;
 		}

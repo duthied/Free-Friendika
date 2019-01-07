@@ -438,7 +438,6 @@ class User
 		$return = ['user' => null, 'password' => ''];
 
 		$using_invites = Config::get('system', 'invitation_only');
-		$num_invites   = Config::get('system', 'number_invites');
 
 		$invite_id  = !empty($data['invite_id'])  ? Strings::escapeTags(trim($data['invite_id']))  : '';
 		$username   = !empty($data['username'])   ? Strings::escapeTags(trim($data['username']))   : '';
@@ -500,8 +499,6 @@ class User
 		if (!Network::isUrlValid($openid_url)) {
 			$openid_url = '';
 		}
-
-		$err = '';
 
 		// collapse multiple spaces in name
 		$username = preg_replace('/ +/', ' ', $username);
@@ -825,8 +822,6 @@ class User
 		if (!$uid) {
 			return false;
 		}
-
-		$a = \get_app();
 
 		Logger::log('Removing user: ' . $uid);
 

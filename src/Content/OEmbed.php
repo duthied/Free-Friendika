@@ -370,8 +370,6 @@ class OEmbed
 	 */
 	private static function iframe($src, $width, $height)
 	{
-		$a = \get_app();
-
 		if (!$height || strstr($height, '%')) {
 			$height = '200';
 		}

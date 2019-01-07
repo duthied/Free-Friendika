@@ -1236,12 +1236,16 @@ class Item extends BaseObject
 	// This function will finally cover most of the preparation functionality in mod/item.php
 	public static function prepare(&$item)
 	{
+		/*
+		 * @TODO: Unused code triggering inspection errors
+		 *
 		$data = BBCode::getAttachmentData($item['body']);
 		if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $item['body'], $match, PREG_SET_ORDER) || isset($data["type"]))
 			&& ($posttype != Item::PT_PERSONAL_NOTE)) {
 			$posttype = Item::PT_PAGE;
 			$objecttype = ACTIVITY_OBJ_BOOKMARK;
 		}
+		 */
 	}
 
 	public static function insert($item, $force_parent = false, $notify = false, $dontcache = false)
@@ -3040,7 +3044,6 @@ class Item extends BaseObject
 		// Contact-id is the uid-dependant author contact
 		if (local_user() == $uid) {
 			$item_contact_id = $owner_self_contact['id'];
-			$item_contact = $owner_self_contact;
 		} else {
 			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid, true);
 			$item_contact = DBA::selectFirst('contact', [], ['id' => $item_contact_id]);
@@ -3166,8 +3169,6 @@ class Item extends BaseObject
 		if ($setmention) {
 			$item["mention"] = 1;
 		}
-
-		$sql = "";
 
 		$fields = [];
 

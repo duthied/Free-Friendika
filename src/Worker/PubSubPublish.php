@@ -26,8 +26,6 @@ class PubSubPublish
 
 	private static function publish($id)
 	{
-		$a = BaseObject::getApp();
-
 		$subscriber = DBA::selectFirst('push_subscriber', [], ['id' => $id]);
 		if (!DBA::isResult($subscriber)) {
 			return;
@@ -57,8 +55,6 @@ class PubSubPublish
 
 		$postResult = Network::post($subscriber['callback_url'], $params, $headers);
 		$ret = $postResult->getReturnCode();
-
-		$condition = ['id' => $subscriber['id']];
 
 		if ($ret >= 200 && $ret <= 299) {
 			Logger::log('Successfully pushed to ' . $subscriber['callback_url']);
