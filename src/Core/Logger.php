@@ -84,7 +84,7 @@ class Logger extends BaseObject
 		}
 
 		if (is_int($loglevel)) {
-			$loglevel = self::mapLegacyDebugLevel($loglevel);
+			$loglevel = self::mapLegacyConfigDebugLevel($loglevel);
 		}
 
 		LoggerFactory::addStreamHandler($logger, $logfile, $loglevel);
@@ -111,7 +111,7 @@ class Logger extends BaseObject
 	 *
 	 * @return string the PSR-3 compliant level
 	 */
-	private static function mapLegacyDebugLevel($level)
+	private static function mapLegacyConfigDebugLevel($level)
 	{
 		switch ($level) {
 			// legacy WARNING
