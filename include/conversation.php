@@ -117,6 +117,10 @@ function item_redir_and_replace_images($body, $images, $cid) {
 
 /**
  * Render actions localized
+ *
+ * @param $item
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function localize_item(&$item)
 {
@@ -367,6 +371,8 @@ function localize_item(&$item)
 /**
  * Count the total of comments on this item and its desendants
  * @TODO proper type-hint + doc-tag
+ * @param $item
+ * @return int
  */
 function count_descendants($item) {
 	$total = count($item['children']);
@@ -436,7 +442,17 @@ function conv_get_blocklist()
  * The $mode parameter decides between the various renderings and also
  * figures out how to determine page owner and other contextual items
  * that are based on unique features of the calling module.
- *
+ * @param App    $a
+ * @param array  $items
+ * @param Pager  $pager
+ * @param        $mode
+ * @param        $update
+ * @param bool   $preview
+ * @param string $order
+ * @param int    $uid
+ * @return string
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation(App $a, array $items, Pager $pager, $mode, $update, $preview = false, $order = 'commented', $uid = 0)
 {
@@ -783,7 +799,11 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
  *
  * @param array $parents Parent items
  *
+ * @param       $block_authors
+ * @param       $order
+ * @param       $uid
  * @return array items with parents and comments
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation_add_children(array $parents, $block_authors, $order, $uid) {
 	$max_comments = Config::get('system', 'max_comments', 100);
@@ -912,9 +932,11 @@ function item_photo_menu($item) {
  * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
  * Increments the count of each matching activity and adds a link to the author as needed.
  *
- * @param array $item
+ * @param array  $item
  * @param array &$conv_responses (already created with builtin activity structure)
  * @return void
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function builtin_activity_puller($item, &$conv_responses) {
 	foreach ($conv_responses as $mode => $v) {
@@ -985,11 +1007,13 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 /**
  * Format the vote text for a profile item
- * @param int $cnt = number of people who vote the item
- * @param array $arr = array of pre-linked names of likers/dislikers
+ *
+ * @param int    $cnt  = number of people who vote the item
+ * @param array  $arr  = array of pre-linked names of likers/dislikers
  * @param string $type = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
- * @param int $id  = item id
+ * @param int    $id   = item id
  * @return string formatted text
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function format_like($cnt, array $arr, $type, $id) {
 	$o = '';
@@ -1199,8 +1223,8 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
  *
  * @param array $item_list
  * @param array $parent
- * @param bool $recursive
- * @return type
+ * @param bool  $recursive
+ * @return array
  */
 function get_item_children(array &$item_list, array $parent, $recursive = true)
 {
@@ -1330,6 +1354,7 @@ function smart_flatten_conversation(array $parent)
  * @param array  $item_list A list of items belonging to one or more conversations
  * @param string $order     Either on "created" or "commented"
  * @return array
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conv_sort(array $item_list, $order)
 {
@@ -1425,7 +1450,7 @@ function sort_thr_created_rev(array $a, array $b)
  *
  * @param array $a
  * @param array $b
- * @return type
+ * @return int|lt
  */
 function sort_thr_commented(array $a, array $b)
 {

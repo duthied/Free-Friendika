@@ -188,9 +188,10 @@ class ForumManager
 	 * Count unread items of connected forums and private groups
 	 *
 	 * @return array
-	 *	'id' => contact id
-	 *	'name' => contact/forum name
-	 *	'count' => counted unseen forum items
+	 *    'id' => contact id
+	 *    'name' => contact/forum name
+	 *    'count' => counted unseen forum items
+	 * @throws \Exception
 	 */
 	public static function countUnseenItems()
 	{

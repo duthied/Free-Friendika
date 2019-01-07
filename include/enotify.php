@@ -21,10 +21,12 @@ use Friendica\Util\Strings;
  * @brief Creates a notification entry and possibly sends a mail
  *
  * @param array $params Array with the elements:
- *			uid, item, parent, type, otype, verb, event,
- *			link, subject, body, to_name, to_email, source_name,
- *			source_link, activity, preamble, notify_flags,
- *			language, show_in_notification_page
+ *                      uid, item, parent, type, otype, verb, event,
+ *                      link, subject, body, to_name, to_email, source_name,
+ *                      source_link, activity, preamble, notify_flags,
+ *                      language, show_in_notification_page
+ * @return bool|object
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function notification($params)
 {
@@ -687,6 +689,7 @@ function notification($params)
  * @brief Checks for users who should be notified
  *
  * @param int $itemid ID of the item for which the check should be done
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_user_notification($itemid) {
 	// fetch all users in the thread
@@ -702,9 +705,11 @@ function check_user_notification($itemid) {
 /**
  * @brief Checks for item related notifications and sends them
  *
- * @param int $itemid ID of the item for which the check should be done
- * @param int $uid User ID
+ * @param int    $itemid      ID of the item for which the check should be done
+ * @param int    $uid         User ID
  * @param string $defaulttype (Optional) Forces a notification with this type.
+ * @return bool
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$notification_data = ["uid" => $uid, "profiles" => []];

@@ -135,6 +135,9 @@ function uexport_account($a) {
 
 /**
  * echoes account data and items as separated json, one per line
+ *
+ * @param App $a
+ * @throws Exception
  */
 function uexport_all(App $a) {
 

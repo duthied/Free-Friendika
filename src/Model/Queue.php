@@ -52,6 +52,7 @@ class Queue
 	 * @param int $cid Contact id
 	 *
 	 * @return bool The communication with this contact has currently problems
+	 * @throws \Exception
 	 */
 	public static function wasDelayed($cid)
 	{

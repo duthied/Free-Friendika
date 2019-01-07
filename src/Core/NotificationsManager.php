@@ -132,6 +132,7 @@ class NotificationsManager extends BaseObject
 	 * @param array $note note array
 	 * @param bool  $seen optional true or false, default true
 	 * @return bool true on success, false on errors
+	 * @throws \Exception
 	 */
 	public function setSeen($note, $seen = true)
 	{
@@ -150,6 +151,7 @@ class NotificationsManager extends BaseObject
 	 *
 	 * @param bool $seen optional true or false. default true
 	 * @return bool true on success, false on error
+	 * @throws \Exception
 	 */
 	public function setAllSeen($seen = true)
 	{

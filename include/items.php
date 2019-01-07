@@ -242,6 +242,15 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false)
  * model where comments can have sub-threads. That would require some massive sorting
  * to get all the feed items into a mostly linear ordering, and might still require
  * recursion.
+ *
+ * @param       $xml
+ * @param array $importer
+ * @param array $contact
+ * @param       $hub
+ * @param int   $datedir
+ * @param int   $pass
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0, $pass = 0)
 {

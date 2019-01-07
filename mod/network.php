@@ -328,6 +328,7 @@ function networkSetSeen($condition)
  * @param integer $update Used for the automatic reloading
  * @param string  $ordering
  * @return string HTML of the conversation
+ * @throws ImagickException
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function networkConversation(App $a, $items, Pager $pager, $mode, $update, $ordering = '')
@@ -396,6 +397,7 @@ function network_content(App $a, $update = 0, $parent = 0)
  * @param App     $a      The global App
  * @param integer $update Used for the automatic reloading
  * @return string HTML of the network content in flat view
+ * @throws ImagickException
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  * @global Pager  $pager
  */
@@ -489,6 +491,7 @@ function networkFlatView(App $a, $update = 0)
  * @param  integer $update Used for the automatic reloading
  * @param  integer $parent
  * @return string HTML of the network content in flat view
+ * @throws ImagickException
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  * @global Pager   $pager
  */
@@ -949,6 +952,7 @@ function networkThreadedView(App $a, $update, $parent)
  *
  * @param App $a The global App
  * @return string Html of the networktab
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function network_tabs(App $a)
 {
@@ -1048,6 +1052,7 @@ function network_tabs(App $a)
  * of the page to make the correct asynchronous call. This is obtained through the Pager that was instantiated in
  * networkThreadedView or networkFlatView.
  *
+ * @param App     $a
  * @param  string $htmlhead The head tag HTML string
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  * @global Pager  $pager

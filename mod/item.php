@@ -912,6 +912,7 @@ function item_content(App $a)
  * This function removes the tag $tag from the text $body and replaces it with
  * the appropriate link.
  *
+ * @param App     $a
  * @param string  $body     the text to replace the tag in
  * @param string  $inform   a comma-seperated string containing everybody to inform
  * @param string  $str_tags string to add the tag to

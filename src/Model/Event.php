@@ -471,6 +471,7 @@ class Event extends BaseObject
 	 * @param int    $event_id  The ID of the event in the event table
 	 * @param string $sql_extra
 	 * @return array Query result
+	 * @throws \Exception
 	 */
 	public static function getListById($owner_uid, $event_id, $sql_extra = '')
 	{
@@ -499,17 +500,18 @@ class Event extends BaseObject
 	/**
 	 * @brief Get all events in a specific time frame.
 	 *
-	 * @param int $owner_uid The User ID of the owner of the events.
-	 * @param array $event_params An associative array with
-	 *	int 'ignore' =>
-	 *	string 'start' => Start time of the timeframe.
-	 *	string 'finish' => Finish time of the timeframe.
-	 *	string 'adjust_start' =>
-	 *	string 'adjust_finish' =>
+	 * @param int    $owner_uid    The User ID of the owner of the events.
+	 * @param array  $event_params An associative array with
+	 *                             int 'ignore' =>
+	 *                             string 'start' => Start time of the timeframe.
+	 *                             string 'finish' => Finish time of the timeframe.
+	 *                             string 'adjust_start' =>
+	 *                             string 'adjust_finish' =>
 	 *
-	 * @param string $sql_extra Additional sql conditions (e.g. permission request).
+	 * @param string $sql_extra    Additional sql conditions (e.g. permission request).
 	 *
 	 * @return array Query results.
+	 * @throws \Exception
 	 */
 	public static function getListByDate($owner_uid, $event_params, $sql_extra = '')
 	{
@@ -633,12 +635,13 @@ class Event extends BaseObject
 	/**
 	 * @brief Format event to export format (ical/csv).
 	 *
-	 * @param array  $events   Query result for events.
-	 * @param string $format   The output format (ical/csv).
+	 * @param array  $events Query result for events.
+	 * @param string $format The output format (ical/csv).
 	 *
+	 * @param        $timezone
 	 * @return string Content according to selected export format.
 	 *
-	 * @todo Implement timezone support
+	 * @todo  Implement timezone support
 	 */
 	private static function formatListForExport(array $events, $format, $timezone)
 	{
@@ -954,6 +957,7 @@ class Event extends BaseObject
 	 *  'name' => The name of the location,<br>
 	 * 'address' => The address of the location,<br>
 	 * 'coordinates' => Latitude‎ and longitude‎ (e.g. '48.864716,2.349014').<br>
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function locationToArray($s = '') {
 		if ($s == '') {
