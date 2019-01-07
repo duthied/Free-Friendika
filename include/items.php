@@ -302,8 +302,6 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 		return;
 	}
 
-	$a = BaseObject::getApp();
-
 	$user = DBA::selectFirst('user', ['nickname'], ['uid' => $importer['uid']]);
 
 	// No user, no nickname, we quit
