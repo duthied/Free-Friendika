@@ -4,31 +4,14 @@
  */
 
 use Friendica\App;
-use Friendica\Content\ContactSelector;
-use Friendica\Content\Feature;
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Event;
-use Friendica\Model\Item;
-use Friendica\Render\FriendicaSmarty;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Map;
-use Friendica\Util\Proxy as ProxyUtils;
 
-use Friendica\Core\Logger;
-use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use Friendica\Content\Text\HTML;
 
 /**
  * Turn user/group ACLs stored as angle bracketed text into arrays

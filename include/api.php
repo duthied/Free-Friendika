@@ -31,6 +31,7 @@ use Friendica\Model\User;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Network\HTTPException\ExpectationFailedException;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
