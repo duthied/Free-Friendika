@@ -323,21 +323,19 @@ class Logger extends BaseObject
      * @brief Logs the given message at the given log level
      *
      * @param string $msg
-     * @param int    $level
+     * @param string $level
 	 *
 	 * @throws \Exception
 	 * @deprecated since 2019.03 Use Logger::debug() Logger::info() , ... instead
      */
-    public static function log($msg, $level = 3)
+    public static function log($msg, $level = LogLevel::INFO)
     {
 		if (!isset(self::$logger)) {
 			return;
 		}
 
-		$loglevel = self::mapLegacyDebugLevel($level);
-
         $stamp1 = microtime(true);
-		self::$logger->log($loglevel, $msg);
+		self::$logger->log($level, $msg);
         self::getApp()->saveTimestamp($stamp1, "file");
     }
 

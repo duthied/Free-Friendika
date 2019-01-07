@@ -56,7 +56,7 @@ In */etc/fail2ban/jail.local* create a section for Friendica:
 And create a filter definition in */etc/fail2ban/filter.d/friendica.conf*:
 
 	[Definition]
-	failregex = ^.*Login\.php.*failed login attempt.*from IP <HOST>.*$
+	failregex = ^.*authenticate\: failed login attempt.*\"ip\"\:\"<HOST>\".*$
 	ignoreregex =
 
 Additionally you have to define the number of failed logins before the ban should be activated.
