@@ -74,7 +74,7 @@ class Magic extends BaseModule
 				$basepath = $exp[0];
 
 				$headers = [];
-				$headers['Accept'] = 'application/x-dfrn+json';
+				$headers['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
 				$headers['X-Open-Web-Auth'] = Strings::getRandomHex();
 
 				// Create a header that is signed with the local users private key.

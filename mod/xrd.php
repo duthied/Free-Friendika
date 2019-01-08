@@ -92,7 +92,7 @@ function xrd_json($a, $uri, $alias, $profile_url, $r)
 			['rel' => 'http://salmon-protocol.org/ns/salmon-mention', 'href' => System::baseUrl().'/salmon/'.$r['nickname'].'/mention'],
 			['rel' => 'http://ostatus.org/schema/1.0/subscribe', 'template' => System::baseUrl().'/follow?url={uri}'],
 			['rel' => 'magic-public-key', 'href' => 'data:application/magic-public-key,'.$salmon_key],
-			['rel' => 'http://purl.org/openwebauth/v1', 'type' => 'application/x-dfrn+json', 'href' => System::baseUrl().'/owa']
+			['rel' => 'http://purl.org/openwebauth/v1', 'type' => 'application/x-zot+json', 'href' => System::baseUrl().'/owa']
 		]
 	];
 
