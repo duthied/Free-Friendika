@@ -86,6 +86,6 @@ class Owa extends BaseModule
 				}
 			}
 		}
-		System::jsonExit($ret, 'application/x-dfrn+json');
+		System::jsonExit($ret, 'application/x-zot+json');
 	}
 }
