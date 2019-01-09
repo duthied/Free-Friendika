@@ -114,8 +114,6 @@ function directory_content(App $a)
 		$entries = [];
 
 		while ($rr = DBA::fetch($r)) {
-
-		while ($rr = DBA::fetch($r)) {
 			$itemurl = (($rr['addr'] != "") ? $rr['addr'] : $rr['profile_url']);
 
 			$profile_link = $rr['profile_url'];
