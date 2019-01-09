@@ -1809,6 +1809,9 @@ class BBCode extends BaseObject
 	 * @brief Callback function to replace a Friendica style mention in a mention for Diaspora
 	 *
 	 * @param array $match Matching values for the callback
+	 *                     [1] = Mention type (! or @)
+	 *                     [2] = Name
+	 *                     [3] = Address
 	 * @return string Replaced mention
 	 */
 	private static function bbCodeMention2DiasporaCallback($match)
@@ -1823,7 +1826,7 @@ class BBCode extends BaseObject
 			return $match[0];
 		}
 
-		$mention = '@{' . $match[2] . '; ' . $contact['addr'] . '}';
+		$mention = $match[1] . '{' . $match[2] . '; ' . $contact['addr'] . '}';
 		return $mention;
 	}
 
@@ -1908,7 +1911,7 @@ class BBCode extends BaseObject
 		if ($for_diaspora) {
 			$url_search_string = "^\[\]";
 			$text = preg_replace_callback(
-				"/([@]\[(.*?)\])\(([$url_search_string]*?)\)/ism",
+				"/([@!])\[(.*?)\]\(([$url_search_string]*?)\)/ism",
 				['self', 'bbCodeMention2DiasporaCallback'],
 				$text
 			);

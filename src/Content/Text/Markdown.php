@@ -44,27 +44,30 @@ class Markdown extends BaseObject
 	 * @brief Callback function to replace a Diaspora style mention in a mention for Friendica
 	 *
 	 * @param array $match Matching values for the callback
+	 *                     [1] = mention type (@ or !)
+	 *                     [2] = name (optional)
+	 *                     [3] = address
 	 * @return string Replaced mention
 	 */
 	private static function diasporaMention2BBCodeCallback($match)
 	{
-		if ($match[2] == '') {
+		if ($match[3] == '') {
 			return;
 		}
 
-		$data = Contact::getDetailsByAddr($match[2]);
+		$data = Contact::getDetailsByAddr($match[3]);
 
 		if (empty($data)) {
 			return;
 		}
 
-		$name = $match[1];
+		$name = $match[2];
 
 		if ($name == '') {
 			$name = $data['name'];
 		}
 
-		return '@[url=' . $data['url'] . ']' . $name . '[/url]';
+		return $match[1] . '[url=' . $data['url'] . ']' . $name . '[/url]';
 	}
 
 	/*
@@ -93,7 +96,7 @@ class Markdown extends BaseObject
 
 		$s = self::convert($s);
 
-		$regexp = "/@\{(?:([^\}]+?); )?([^\} ]+)\}/";
+		$regexp = "/([@!])\{(?:([^\}]+?); ?)?([^\} ]+)\}/";
 		$s = preg_replace_callback($regexp, ['self', 'diasporaMention2BBCodeCallback'], $s);
 
 		$s = str_replace('&#35;', '#', $s);
