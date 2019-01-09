@@ -101,7 +101,7 @@ class ACL extends BaseObject
 		}
 
 		$stmt = DBA::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
-			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != ''
 			$sql_extra
 			ORDER BY `name` ASC ", intval(local_user())
 		);
@@ -166,7 +166,7 @@ class ACL extends BaseObject
 		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\"$tabindex_attr$hidepreselected>\r\n";
 
 		$stmt = DBA::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
-			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != ''
 			$sql_extra
 			ORDER BY `name` ASC ", intval(local_user())
 		);

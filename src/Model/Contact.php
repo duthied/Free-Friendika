@@ -1739,6 +1739,8 @@ class Contact extends BaseObject
 
 		$hidden = (($ret['network'] === Protocol::MAIL) ? 1 : 0);
 
+		$pending = in_array($ret['network'], [Protocol::ACTIVITYPUB]);
+
 		if (in_array($ret['network'], [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 			$writeable = 1;
 		}
@@ -1774,7 +1776,7 @@ class Contact extends BaseObject
 				'hidden'  => $hidden,
 				'blocked' => 0,
 				'readonly'=> 0,
-				'pending' => 0,
+				'pending' => $pending,
 				'subhub'  => $subhub
 			]);
 		}

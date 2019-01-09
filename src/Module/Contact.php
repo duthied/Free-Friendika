@@ -51,10 +51,10 @@ class Contact extends BaseModule
 			|| $a->argc == 3 && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])
 		) {
 			$contact_id = intval($a->argv[1]);
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 
 			if (!DBA::isResult($contact)) {
-				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => 0]);
+				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => 0, 'deleted' => false]);
 			}
 
 			// Don't display contacts that are about to be deleted
@@ -135,7 +135,7 @@ class Contact extends BaseModule
 
 		$contacts_id = $_POST['contact_batch'];
 
-		$stmt = DBA::select('contact', ['id', 'archive'], ['id' => $contacts_id, 'uid' => local_user(), 'self' => false]);
+		$stmt = DBA::select('contact', ['id', 'archive'], ['id' => $contacts_id, 'uid' => local_user(), 'self' => false, 'deleted' => false]);
 		$orig_records = DBA::toArray($stmt);
 
 		$count_actions = 0;
@@ -188,7 +188,7 @@ class Contact extends BaseModule
 			return;
 		}
 
-		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
+		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false])) {
 			notice(L10n::t('Could not access contact record.') . EOL);
 			$a->internalRedirect('contact');
 			return; // NOTREACHED
@@ -198,7 +198,7 @@ class Contact extends BaseModule
 
 		$profile_id = intval(defaults($_POST, 'profile-assign', 0));
 		if ($profile_id) {
-			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
+			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user(), 'deleted' => false])) {
 				notice(L10n::t('Could not locate selected profile.') . EOL);
 				return;
 			}
@@ -236,7 +236,7 @@ class Contact extends BaseModule
 			notice(L10n::t('Failed to update contact record.') . EOL);
 		}
 
-		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 		if (DBA::isResult($contact)) {
 			$a->data['contact'] = $contact;
 		}
@@ -248,7 +248,7 @@ class Contact extends BaseModule
 
 	private static function updateContactFromPoll($contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -269,7 +269,7 @@ class Contact extends BaseModule
 
 	private static function updateContactFromProbe($contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -370,7 +370,7 @@ class Contact extends BaseModule
 
 			$cmd = $a->argv[2];
 
-			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false]);
+			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
 			if (!DBA::isResult($orig_record)) {
 				notice(L10n::t('Could not access contact record.') . EOL);
 				$a->internalRedirect('contact');
@@ -778,6 +778,8 @@ class Contact extends BaseModule
 			$sql_extra .= sprintf(" AND network = '%s' ", DBA::escape($nets));
 		}
 
+		$sql_extra .=  " AND NOT `deleted` ";
+
 		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= Model\Contact::FRIEND)) ? sprintf(" AND `rel` = %d ", intval($sort_type)) : '');
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
@@ -937,7 +939,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id]);
+		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
 		if (!$update) {
 			$o .= self::getTabsHTML($a, $contact, 1);
@@ -961,7 +963,7 @@ class Contact extends BaseModule
 
 	private static function getPostsHTML($a, $contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id]);
+		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
 		$o = self::getTabsHTML($a, $contact, 2);
 
