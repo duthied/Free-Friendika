@@ -2,7 +2,6 @@
 
 namespace Friendica\Core\Console;
 
-use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
@@ -74,19 +73,17 @@ HELP;
 			$password = \Seld\CliPrompt\CliPrompt::hiddenPrompt(true);
 		}
 
-		if (!$password) {
-			throw new RuntimeException(L10n::t('Password can\'t be empty'));
-		}
+		try {
+			$result = User::updatePassword($user['uid'], $password);
 
-		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($password)) {
-			throw new RuntimeException(L10n::t('The new password has been exposed in a public data dump, please choose another.'));
-		}
+			if (!DBA::isResult($result)) {
+				throw new \Exception(L10n::t('Password update failed. Please try again.'));
+			}
 
-		if (!User::updatePassword($user['uid'], $password)) {
-			throw new RuntimeException(L10n::t('Password update failed. Please try again.'));
+			$this->out(L10n::t('Password changed.'));
+		} catch (\Exception $e) {
+			throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
 		}
-
-		$this->out(L10n::t('Password changed.'));
 
 		return 0;
 	}

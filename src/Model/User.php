@@ -192,7 +192,7 @@ class User
 		if (strpos($user['password'], '$') === false) {
 			//Legacy hash that has not been replaced by a new hash yet
 			if (self::hashPasswordLegacy($password) === $user['password']) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 
 				return $user['uid'];
 			}
@@ -200,14 +200,14 @@ class User
 			//Legacy hash that has been double-hashed and not replaced by a new hash yet
 			//Warning: `legacy_password` is not necessary in sync with the content of `password`
 			if (password_verify(self::hashPasswordLegacy($password), $user['password'])) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 
 				return $user['uid'];
 			}
 		} elseif (password_verify($password, $user['password'])) {
 			//New password hash
 			if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 			}
 
 			return $user['uid'];
@@ -280,7 +280,7 @@ class User
 	 */
 	public static function generateNewPassword()
 	{
-		return Strings::getRandomName(6) . mt_rand(100, 9999);
+		return ucfirst(Strings::getRandomName(8)) . mt_rand(1000, 9999);
 	}
 
 	/**
@@ -317,6 +317,7 @@ class User
 	 *
 	 * @param string $password
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function hashPassword($password)
 	{
@@ -333,9 +334,26 @@ class User
 	 * @param int    $uid
 	 * @param string $password
 	 * @return bool
+	 * @throws Exception
 	 */
 	public static function updatePassword($uid, $password)
 	{
+		$password = trim($password);
+
+		if (empty($password)) {
+			throw new Exception(L10n::t('Empty passwords are not allowed.'));
+		}
+
+		if (!Config::get('system', 'disable_password_exposed', false) && self::isPasswordExposed($password)) {
+			throw new Exception(L10n::t('The new password has been exposed in a public data dump, please choose another.'));
+		}
+
+		$allowed_characters = '!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+
+		if (!preg_match('/^[a-z0-9' . preg_quote($allowed_characters, '/') . ']+$/i', $password)) {
+			throw new Exception(L10n::t('The password can\'t contain accentuated letters, white spaces or colons (:)'));
+		}
+
 		return self::updatePasswordHashed($uid, self::hashPassword($password));
 	}
 
@@ -400,9 +418,11 @@ class User
 	 * - Create self-contact
 	 * - Create profile image
 	 *
-	 * @param array $data
-	 * @return string
-	 * @throw Exception
+	 * @param  array $data
+	 * @return array
+	 * @throws \ErrorException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
 	public static function create(array $data)
 	{
