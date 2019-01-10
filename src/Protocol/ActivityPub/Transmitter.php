@@ -998,6 +998,25 @@ class Transmitter
 	}
 
 	/**
+	 * Creates an activity id for a given contact id
+	 *
+	 * @param integer $cid Contact ID of target
+	 *
+	 * @return bool|string activity id
+	 */
+	public static function activityIDFromContact($cid)
+	{
+		$contact = DBA::selectFirst('contact', ['uid', 'id', 'created'], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
+			return false;
+		}
+
+		$hash = hash('ripemd128', $contact['uid'].'-'.$contact['id'].'-'.$contact['created']);
+		$uuid = substr($hash, 0, 8). '-' . substr($hash, 8, 4) . '-' . substr($hash, 12, 4) . '-' . substr($hash, 16, 4) . '-' . substr($hash, 20, 12);
+		return System::baseUrl() . '/activity/' . $uuid;
+	}
+
+	/**
 	 * Transmits a contact suggestion to a given inbox
 	 *
 	 * @param integer $uid User ID
@@ -1119,15 +1138,20 @@ class Transmitter
 	 * @param array $activity
 	 * @param string $target Target profile
 	 * @param integer $uid User ID
+	 * @param string $id activity id
 	 */
-	public static function sendActivity($activity, $target, $uid)
+	public static function sendActivity($activity, $target, $uid, $id = '')
 	{
 		$profile = APContact::getByURL($target);
 
 		$owner = User::getOwnerDataById($uid);
 
+		if (empty($id)) {
+			$id = System::baseUrl() . '/activity/' . System::createGUID();
+		}
+
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => $id,
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url'],
@@ -1200,11 +1224,17 @@ class Transmitter
 	 * Transmits a message that we don't want to follow this contact anymore
 	 *
 	 * @param string $target Target profile
+	 * @param integer $cid Contact ID of target
 	 * @param integer $uid User ID
 	 */
-	public static function sendContactUndo($target, $uid)
+	public static function sendContactUndo($target, $cid, $uid)
 	{
 		$profile = APContact::getByURL($target);
+
+		$object_id = self::activityIDFromContact($cid);
+		if (empty($object_id)) {
+			return;
+		}
 
 		$id = System::baseUrl() . '/activity/' . System::createGUID();
 
@@ -1213,7 +1243,7 @@ class Transmitter
 			'id' => $id,
 			'type' => 'Undo',
 			'actor' => $owner['url'],
-			'object' => ['id' => $id, 'type' => 'Follow',
+			'object' => ['id' => $object_id, 'type' => 'Follow',
 				'actor' => $owner['url'],
 				'object' => $profile['url']],
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
