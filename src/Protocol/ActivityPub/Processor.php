@@ -264,6 +264,19 @@ class Processor
 		}
 
 		$item['uri'] = $activity['id'];
+
+		if (($item['parent-uri'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+			$item_private = !in_array(0, $activity['item_receiver']);
+			$parent = Item::selectFirst(['private'], ['uri' => $item['parent-uri']]);
+			if (!DBA::isResult($parent)) {
+				return;
+			}
+			if ($item_private && !$parent['private']) {
+				Logger::log('Item ' . $item['uri'] . ' is private but the parent ' . $item['parent-uri'] . ' is not. So we drop it.');
+				return;
+			}
+		}
+
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
 		$item['guid'] = $activity['diaspora:guid'];

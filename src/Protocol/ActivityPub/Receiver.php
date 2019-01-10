@@ -233,6 +233,7 @@ class Receiver
 
 		$object_data['type'] = $type;
 		$object_data['actor'] = $actor;
+		$object_data['item_receiver'] = $receivers;
 		$object_data['receiver'] = array_merge(defaults($object_data, 'receiver', []), $receivers);
 
 		Logger::log('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], Logger::DEBUG);
