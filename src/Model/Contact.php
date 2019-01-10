@@ -598,7 +598,7 @@ class Contact extends BaseObject
 		} elseif ($contact['network'] == Protocol::DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
 		} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
-			ActivityPub\Transmitter::sendContactUndo($contact['url'], $user['uid']);
+			ActivityPub\Transmitter::sendContactUndo($contact['url'], $contact['id'], $user['uid']);
 
 			if ($dissolve) {
 				ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $user['uid']);
@@ -1822,7 +1822,13 @@ class Contact extends BaseObject
 				$ret = Diaspora::sendShare($a->user, $contact);
 				Logger::log('share returns: ' . $ret);
 			} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
-				$ret = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid);
+				$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact_id);
+				if (empty($activity_id)) {
+					// This really should never happen
+					return false;
+				}
+
+				$ret = ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid, $activity_id);
 				Logger::log('Follow returns: ' . $ret);
 			}
 		}

@@ -337,7 +337,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		} else {
 			if ($network == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $uid);
-				$pending = true;
+				$pending = $duplex;
 			} else {
 				$pending = false;
 			}
