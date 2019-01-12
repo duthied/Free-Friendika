@@ -193,6 +193,10 @@ class Theme
 	 */
 	public static function getStylesheetPath($theme)
 	{
+		if (!file_exists('view/theme/' . $theme . '/style.php')) {
+			return 'view/theme/' . $theme . '/style.css';
+		}
+
 		$a = BaseObject::getApp();
 
 		$query_params = [];
@@ -202,10 +206,6 @@ class Theme
 			$query_params['puid'] = $puid;
 		}
 
-		if (file_exists('view/theme/' . $theme . '/style.php')) {
-			return 'view/theme/' . $theme . '/style.pcss' . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
-		}
-
-		return 'view/theme/' . $theme . '/style.css';
+		return 'view/theme/' . $theme . '/style.pcss' . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 	}
 }
