@@ -312,4 +312,20 @@ class Strings
     {
         return (strcasecmp(self::normaliseLink($a), self::normaliseLink($b)) === 0);
     }
+
+
+	/**
+	 * Ensures the provided URI has its query string punctuation in order.
+	 *
+	 * @param string $uri
+	 * @return string
+	 */
+	public static function ensureQueryParameter($uri)
+	{
+		if (strpos($uri, '?') === false && ($pos = strpos($uri, '&')) !== false) {
+			$uri = substr($uri, 0, $pos) . '?' . substr($uri, $pos + 1);
+		}
+
+		return $uri;
+	}
 }
