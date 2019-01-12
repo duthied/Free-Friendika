@@ -124,21 +124,6 @@ class Pager
 	}
 
 	/**
-	 * Ensures the provided URI has its query string punctuation in order.
-	 *
-	 * @param string $uri
-	 * @return string
-	 */
-	private function ensureQueryParameter($uri)
-	{
-		if (strpos($uri, '?') === false && ($pos = strpos($uri, '&')) !== false) {
-			$uri = substr($uri, 0, $pos) . '?' . substr($uri, $pos + 1);
-		}
-
-		return $uri;
-	}
-
-	/**
 	 * @brief Minimal pager (newer/older)
 	 *
 	 * This mode is intended for reverse chronological pages and presents only two links, newer (previous) and older (next).
