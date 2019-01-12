@@ -2850,18 +2850,40 @@ class DFRN
 
 		// The account type is new since 3.5.1
 		if ($xpath->query("/atom:feed/dfrn:account_type")->length > 0) {
+			// Hint: We are using separate update calls for uid=0 and uid!=0 since a combined call is bad for the database performance
+
 			$accounttype = intval(XML::getFirstNodeValue($xpath, "/atom:feed/dfrn:account_type/text()"));
 
 			if ($accounttype != $importer["contact-type"]) {
-				DBA::update('contact', ['contact-type' => $accounttype], ['id' => $importer["id"]]);
+				DBA::update('contact', ['contact-type' => $accounttype], ['id' => $importer['id']]);
+
+				// Updating the public contact as well
+				DBA::update('contact', ['contact-type' => $accounttype], ['uid' => 0, 'nurl' => $importer['nurl']]);
 			}
 			// A forum contact can either have set "forum" or "prv" - but not both
-			if (($accounttype == Contact::ACCOUNT_TYPE_COMMUNITY) && (($forum != $importer["forum"]) || ($forum == $importer["prv"]))) {
-				$condition = ['(`forum` != ? OR `prv` != ?) AND `id` = ?', $forum, !$forum, $importer["id"]];
+			if ($accounttype == Contact::ACCOUNT_TYPE_COMMUNITY) {
+				// It's a forum, so either set the public or private forum flag
+				$condition = ['(`forum` != ? OR `prv` != ?) AND `id` = ?', $forum, !$forum, $importer['id']];
 				DBA::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);
+
+				// Updating the public contact as well
+				$condition = ['(`forum` != ? OR `prv` != ?) AND `uid` = 0 AND `nurl` = ?', $forum, !$forum, $importer['nurl']];
+				DBA::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);
+			} else {
+				// It's not a forum, so remove the flags
+				$condition = ['(`forum` OR `prv`) AND `id` = ?', $importer['id']];
+				DBA::update('contact', ['forum' => false, 'prv' => false], $condition);
+
+				// Updating the public contact as well
+				$condition = ['(`forum` OR `prv`) AND `uid` = 0 AND `nurl` = ?', $importer['nurl']];
+				DBA::update('contact', ['forum' => false, 'prv' => false], $condition);
 			}
 		} elseif ($forum != $importer["forum"]) { // Deprecated since 3.5.1
 			$condition = ['`forum` != ? AND `id` = ?', $forum, $importer["id"]];
+			DBA::update('contact', ['forum' => $forum], $condition);
+
+			// Updating the public contact as well
+			$condition = ['`forum` != ? AND `uid` = 0 AND `nurl` = ?', $forum, $importer['nurl']];
 			DBA::update('contact', ['forum' => $forum], $condition);
 		}
 

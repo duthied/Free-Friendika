@@ -157,8 +157,9 @@ class APContact extends BaseObject
 
 		$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted, 'w3id:publicKey', 'w3id:publicKeyPem'));
 
+		$manually_approve = JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
+
 		// To-Do
-		// manuallyApprovesFollowers
 
 		// Unhandled
 		// @context, tag, attachment, image, nomadicLocations, signature, following, followers, featured, movedTo, liked
@@ -197,10 +198,14 @@ class APContact extends BaseObject
 			if (is_int($contact_type)) {
 				$contact_fields['contact-type'] = $contact_type;
 
-				// Resetting the 'forum' and 'prv' field when it isn't a forum
 				if ($contact_fields['contact-type'] != Contact::ACCOUNT_TYPE_COMMUNITY) {
+					// Resetting the 'forum' and 'prv' field when it isn't a forum
 					$contact_fields['forum'] = false;
 					$contact_fields['prv'] = false;
+				} else {
+					// Otherwise set the corresponding forum type
+					$contact_fields['forum'] = !$manually_approve;
+					$contact_fields['prv'] = $manually_approve;
 				}
 			}
 		}

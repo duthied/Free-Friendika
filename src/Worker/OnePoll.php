@@ -11,6 +11,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Protocol\ActivityPub;
@@ -60,7 +61,12 @@ class OnePoll
 			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		}
 
-		// We currently don't do anything with AP here
+		// These three networks can be able to speak AP, so we are trying to fetch AP profile data here
+		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN])) {
+			APContact::getByURL($contact['url']);
+		}
+
+		// We currently don't do anything more with AP here
 		if ($contact['network'] === Protocol::ACTIVITYPUB) {
 			return;
 		}
