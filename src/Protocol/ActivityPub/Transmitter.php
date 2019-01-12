@@ -50,7 +50,7 @@ class Transmitter
 	public static function getFollowers($owner, $page = null)
 	{
 		$condition = ['rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
-			'self' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
+			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
 		$count = DBA::count('contact', $condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
@@ -97,7 +97,7 @@ class Transmitter
 	public static function getFollowing($owner, $page = null)
 	{
 		$condition = ['rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
-			'self' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
+			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
 		$count = DBA::count('contact', $condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];

@@ -358,6 +358,7 @@ class Contact extends BaseObject
 				WHERE `gid` = ?
 				AND `contact`.`uid` = ?
 				AND NOT `contact`.`self`
+				AND NOT `contact`.`deleted`
 				AND NOT `contact`.`blocked`
 				AND NOT `contact`.`pending`
 				ORDER BY `contact`.`name` ASC',
@@ -1030,6 +1031,7 @@ class Contact extends BaseObject
 			   FROM `contact`
 			   WHERE `uid` = %d
 			   AND NOT `self`
+			   AND NOT `deleted`
 			   AND NOT `blocked`
 			   AND NOT `pending`
 			   AND `id` NOT IN (
