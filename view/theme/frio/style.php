@@ -14,7 +14,7 @@ $scheme_modified = 0;
 
 if ($a->module !== 'install') {
 	// Get the UID of the profile owner.
-	$uid = Profile::getThemeUid();
+	$uid = defaults($_REQUEST, 'puid', 0);
 	if ($uid) {
 		PConfig::load($uid, 'frio');
 

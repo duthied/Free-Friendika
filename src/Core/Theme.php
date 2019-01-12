@@ -6,8 +6,10 @@
 
 namespace Friendica\Core;
 
+use Friendica\BaseObject;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Model\Profile;
 
 /**
  * Some functions to handle themes
@@ -191,13 +193,19 @@ class Theme
 	 */
 	public static function getStylesheetPath($theme)
 	{
-		$a = get_app();
-
-		$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
-		if (file_exists('view/theme/' . $theme . '/style.php')) {
-			return 'view/theme/' . $theme . '/style.pcss' . $opts;
+		if (!file_exists('view/theme/' . $theme . '/style.php')) {
+			return 'view/theme/' . $theme . '/style.css';
 		}
 
-		return 'view/theme/' . $theme . '/style.css';
+		$a = BaseObject::getApp();
+
+		$query_params = [];
+
+		$puid = Profile::getThemeUid($a);
+		if ($puid) {
+			$query_params['puid'] = $puid;
+		}
+
+		return 'view/theme/' . $theme . '/style.pcss' . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 	}
 }
