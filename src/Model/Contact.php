@@ -66,7 +66,7 @@ class Contact extends BaseObject
 	 */
 
 	/**
-	 * @name account types
+	 * Account types
 	 *
 	 * TYPE_UNKNOWN - the account has been imported from gcontact where this is the default type value
 	 *
