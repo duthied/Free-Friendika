@@ -102,6 +102,11 @@ class App
 	private $isAjax;
 
 	/**
+	 * @var MobileDetect
+	 */
+	public $mobileDetect;
+
+	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -268,6 +273,9 @@ class App
 
 		// Detect mobile devices
 		$mobile_detect = new MobileDetect();
+
+		$this->mobileDetect = $mobile_detect;
+
 		$this->is_mobile = $mobile_detect->isMobile();
 		$this->is_tablet = $mobile_detect->isTablet();
 
