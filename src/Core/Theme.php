@@ -9,6 +9,7 @@ namespace Friendica\Core;
 use Friendica\BaseObject;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Model\Profile;
 
 /**
  * Some functions to handle themes
@@ -196,15 +197,10 @@ class Theme
 
 		$query_params = [];
 
-		// Workaround for iOS Safari not initially sending the cookie for static files
-		if ($a->mobileDetect->isIos() && $a->mobileDetect->isSafari()) {
-			$query_params['t'] = time();
+		$puid = Profile::getThemeUid($a);
+		if ($puid) {
+			$query_params['puid'] = $puid;
 		}
-
-		if ($a->profile_uid) {
-			$query_params['puid'] = $a->profile_uid;
-		}
-
 
 		if (file_exists('view/theme/' . $theme . '/style.php')) {
 			return 'view/theme/' . $theme . '/style.pcss' . (!empty($query_params) ? '?' . http_build_query($query_params) : '');

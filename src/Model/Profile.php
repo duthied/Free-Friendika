@@ -1176,7 +1176,7 @@ class Profile
 	 * Get the user ID of the page owner.
 	 *
 	 * Used from within PCSS themes to set theme parameters. If there's a
-	 * puid request variable, that is the "page owner" and normally their theme
+	 * profile_uid variable set in App, that is the "page owner" and normally their theme
 	 * settings take precedence; unless a local user sets the "always_my_theme"
 	 * system pconfig, which means they don't want to see anybody else's theme
 	 * settings except their own while on this site.
@@ -1184,13 +1184,12 @@ class Profile
 	 * @brief Get the user ID of the page owner
 	 * @return int user ID
 	 *
-	 * @note Returns local_user instead of user ID if "always_my_theme"
-	 *      is set to true
+	 * @note Returns local_user instead of user ID if "always_my_theme" is set to true
 	 */
-	public static function getThemeUid()
+	public static function getThemeUid(App $a)
 	{
-		$uid = (!empty($_REQUEST['puid']) ? intval($_REQUEST['puid']) : 0);
-		if ((local_user()) && ((PConfig::get(local_user(), 'system', 'always_my_theme')) || (!$uid))) {
+		$uid = !empty($a->profile_uid) ? intval($a->profile_uid) : 0;
+		if (local_user() && (PConfig::get(local_user(), 'system', 'always_my_theme') || !$uid)) {
 			return local_user();
 		}
 
@@ -1198,7 +1197,7 @@ class Profile
 	}
 
 	/**
-	* Stip zrl parameter from a string.
+	* Strip zrl parameter from a string.
 	*
 	* @param string $s The input string.
 	* @return string The zrl.
