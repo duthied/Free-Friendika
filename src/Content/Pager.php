@@ -4,6 +4,7 @@ namespace Friendica\Content;
 
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Util\Strings;
 
 /**
  * The Pager has two very different output, Minimal and Full, see renderMinimal() and renderFull() for more details.
@@ -162,12 +163,12 @@ class Pager
 		$data = [
 			'class' => 'pager',
 			'prev'  => [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
 				'text'  => L10n::t('newer'),
 				'class' => 'previous' . ($this->getPage() == 1 ? ' disabled' : '')
 			],
 			'next'  => [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
 				'text'  => L10n::t('older'),
 				'class' =>  'next' . ($displayedItemCount < $this->getItemsPerPage() ? ' disabled' : '')
 			]
@@ -206,12 +207,12 @@ class Pager
 		$data['class'] = 'pagination';
 		if ($totalItemCount > $this->getItemsPerPage()) {
 			$data['first'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=1'),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=1'),
 				'text'  => L10n::t('first'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
 			$data['prev'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
 				'text'  => L10n::t('prev'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
@@ -238,7 +239,7 @@ class Pager
 					];
 				} else {
 					$pages[$i] = [
-						'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . $i),
+						'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $i),
 						'text'  => $i,
 						'class' => 'n'
 					];
@@ -254,7 +255,7 @@ class Pager
 					];
 				} else {
 					$pages[$i] = [
-						'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . $i),
+						'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $i),
 						'text'  => $i,
 						'class' => 'n'
 					];
@@ -266,12 +267,12 @@ class Pager
 			$lastpage = (($numpages > intval($numpages)) ? intval($numpages)+1 : $numpages);
 
 			$data['next'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
 				'text'  => L10n::t('next'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
 			$data['last'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . $lastpage),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $lastpage),
 				'text'  => L10n::t('last'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
