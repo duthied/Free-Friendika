@@ -47,7 +47,7 @@ function acl_content(App $a)
 	// count groups and contacts
 	$group_count = 0;
 	if ($type == '' || $type == 'g') {
-		$r = q("SELECT COUNT(*) AS g FROM `group` WHERE `deleted` = 0 AND `uid` = %d $sql_extra",
+		$r = q("SELECT COUNT(*) AS g FROM `group` WHERE NOT `deleted` AND `uid` = %d $sql_extra",
 			intval(local_user())
 		);
 		$group_count = (int) $r[0]['g'];
@@ -59,7 +59,7 @@ function acl_content(App $a)
 	if ($type == '' || $type == 'c') {
 		// autocomplete for editor mentions
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND NOT `self`
+				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `success_update` >= `failure_update`
 				AND `notify` != '' $sql_extra2",
@@ -69,7 +69,7 @@ function acl_content(App $a)
 	} elseif ($type == 'f') {
 		// autocomplete for editor mentions of forums
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND NOT `self`
+				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND (`forum` OR `prv`)
 				AND `success_update` >= `failure_update`
@@ -80,7 +80,7 @@ function acl_content(App $a)
 	} elseif ($type == 'm') {
 		// autocomplete for Private Messages
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND NOT `self`
+				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `success_update` >= `failure_update`
 				AND `network` IN ('%s', '%s', '%s') $sql_extra2",
@@ -94,7 +94,7 @@ function acl_content(App $a)
 		// autocomplete for Contacts
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self`
-				AND NOT `pending` $sql_extra2",
+				AND NOT `pending` AND NOT `deleted` $sql_extra2",
 			intval(local_user())
 		);
 		$contact_count = (int) $r[0]['c'];
@@ -140,7 +140,7 @@ function acl_content(App $a)
 	$r = [];
 	if ($type == '') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 				AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s', '%s'))
 				$sql_extra2
 				ORDER BY `name` ASC ",
@@ -150,7 +150,7 @@ function acl_content(App $a)
 		);
 	} elseif ($type == 'c') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 				AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s'))
 				$sql_extra2
 				ORDER BY `name` ASC ",
@@ -159,7 +159,7 @@ function acl_content(App $a)
 		);
 	} elseif ($type == 'f') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 				AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s'))
 				AND (`forum` OR `prv`)
 				$sql_extra2
@@ -169,7 +169,7 @@ function acl_content(App $a)
 		);
 	} elseif ($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
+				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s', '%s')
 				$sql_extra2
 				ORDER BY `name` ASC ",
@@ -180,7 +180,7 @@ function acl_content(App $a)
 		);
 	} elseif ($type == 'a') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-				WHERE `uid` = %d AND `pending` = 0 AND `success_update` >= `failure_update`
+				WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND `success_update` >= `failure_update`
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user())

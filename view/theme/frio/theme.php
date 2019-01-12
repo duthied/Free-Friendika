@@ -321,14 +321,14 @@ function frio_acl_lookup(App $a, &$results)
 
 	$total = 0;
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-		WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
+		WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
 	if (DBA::isResult($r)) {
 		$total = $r[0]['total'];
 	}
 
 	$sql_extra3 = Widget::unavailableNetworks();
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT %d, %d ",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT %d, %d ",
 		intval($_SESSION['uid']), intval($results['start']), intval($results['count'])
 	);
 

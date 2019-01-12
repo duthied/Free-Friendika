@@ -337,7 +337,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		} else {
 			if ($network == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $uid);
-				$pending = $duplex;
+				// Setting "pending" to true on a bidirectional contact request could create a problem when it isn't accepted on the other side
+				// Then we have got a situation where - although one direction is accepted - the contact still appears as pending.
+				// Possibly we need two different "pending" fields, one for incoming, one for outgoing?
+				// This has to be thought over, but for now this here is a better solution.
+				// $pending = $duplex;
+				$pending = false;
 			} else {
 				$pending = false;
 			}
