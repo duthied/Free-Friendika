@@ -83,7 +83,7 @@ class Pager
 	 */
 	public function getBaseQueryString()
 	{
-		return $this->baseQueryString;
+		return Strings::ensureQueryParameter($this->baseQueryString);
 	}
 
 	/**
