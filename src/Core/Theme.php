@@ -6,7 +6,6 @@
 
 namespace Friendica\Core;
 
-use Friendica\BaseObject;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 
@@ -192,16 +191,11 @@ class Theme
 	 */
 	public static function getStylesheetPath($theme)
 	{
-		$a = BaseObject::getApp();
+		$a = get_app();
 
 		$opts = (($a->profile_uid) ? '?f=&puid=' . $a->profile_uid : '');
 		if (file_exists('view/theme/' . $theme . '/style.php')) {
-			if ($a->is_mobile) {
-				// Workaround for iOS Safari not sending the cookie for static files
-				return 'view/theme/' . $theme . '/style' . $opts;
-			} else {
-				return 'view/theme/' . $theme . '/style.pcss' . $opts;
-			}
+			return 'view/theme/' . $theme . '/style.pcss' . $opts;
 		}
 
 		return 'view/theme/' . $theme . '/style.css';
