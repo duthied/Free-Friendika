@@ -79,10 +79,10 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBA::isResult($item)) {
-			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
+			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
 		}
 	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
-		$item = Item::selectFirst($fields, ['id' => $a->argv[2], 'private' => [0, 2], 'uid' => 0]);
+		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => [0, 2], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
