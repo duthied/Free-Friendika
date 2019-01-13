@@ -22,7 +22,7 @@ function friendica_init(App $a)
 		];
 
 		$register_policy_int = intval(Config::get('config', 'register_policy'));
-		if ($register_policy_int === Register::OPEN && Config::get('config', 'invitation_only')) {
+		if ($register_policy_int !== Register::CLOSED && Config::get('config', 'invitation_only')) {
 			$register_policy = 'REGISTER_INVITATION';
 		} else {
 			$register_policy = $register_policies[$register_policy_int];
