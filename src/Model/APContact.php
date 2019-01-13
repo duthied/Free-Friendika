@@ -137,7 +137,7 @@ class APContact extends BaseObject
 		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($compacted, 'as:summary'));
 
 		$apcontact['photo'] = JsonLD::fetchElement($compacted, 'as:icon', '@id');
-		if (is_array($apcontact['photo'])) {
+		if (is_array($apcontact['photo']) || !empty($compacted['as:icon']['as:url']['@id'])) {
 			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
 		}
 

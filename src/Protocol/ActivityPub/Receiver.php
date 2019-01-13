@@ -826,10 +826,10 @@ class Receiver
 		$object_data = [];
 		$object_data['object_type'] = JsonLD::fetchElement($object, '@type');
 		$object_data['id'] = JsonLD::fetchElement($object, '@id');
-
 		$object_data['reply-to-id'] = JsonLD::fetchElement($object, 'as:inReplyTo');
 
-		if (empty($object_data['reply-to-id'])) {
+		// An empty "id" field is translated to "./" by the compactor, so we have to check for this content
+		if (empty($object_data['reply-to-id']) || ($object_data['reply-to-id'] == './')) {
 			$object_data['reply-to-id'] = $object_data['id'];
 		}
 

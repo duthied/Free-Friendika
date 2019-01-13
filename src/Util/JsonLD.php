@@ -93,6 +93,10 @@ class JsonLD
 			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
 			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id']];
 
+		// Workaround for Nextcloud Social
+		// See issue https://github.com/nextcloud/social/issues/330
+		$json['@context'][] = 'https://w3id.org/security/v1';
+
 		// Trying to avoid memory problems with large content fields
 		if (!empty($json['object']['source']['content'])) {
 			$content = $json['object']['source']['content'];
