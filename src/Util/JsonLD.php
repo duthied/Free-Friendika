@@ -95,7 +95,7 @@ class JsonLD
 
 		// Workaround for Nextcloud Social
 		// See issue https://github.com/nextcloud/social/issues/330
-		if (is_array($json['@context'])) {
+		if (!empty($json['@context']) && is_array($json['@context'])) {
 			$json['@context'][] = 'https://w3id.org/security/v1';
 		}
 
