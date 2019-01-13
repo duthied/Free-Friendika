@@ -48,10 +48,10 @@ class Login extends BaseModule
 
 	public static function post()
 	{
-		$return_path = $_SESSION['return_path'];
+		$return_path = defaults($_SESSION, 'return_path', '');
 		session_unset();
 		$_SESSION['return_path'] = $return_path;
-		
+
 		// OpenId Login
 		if (
 			empty($_POST['password'])

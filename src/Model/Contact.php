@@ -579,6 +579,9 @@ class Contact extends BaseObject
 	 */
 	public static function terminateFriendship(array $user, array $contact, $dissolve = false)
 	{
+		if (empty($contact['network'])) {
+			return;
+		}
 		if (($contact['network'] == Protocol::DFRN) && $dissolve) {
 			DFRN::deliver($user, $contact, 'placeholder', true);
 		} elseif (in_array($contact['network'], [Protocol::OSTATUS, Protocol::DFRN])) {
