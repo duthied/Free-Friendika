@@ -17,5 +17,5 @@ function toggle_mobile_init(App $a) {
 		$address = '';
 	}
 
-	System::externalRedirect($address);
+	$a->redirect($address);
 }
