@@ -336,14 +336,15 @@ class HTTPSignature
 		// Header data that is about to be signed.
 		$host = parse_url($request, PHP_URL_HOST);
 		$path = parse_url($request, PHP_URL_PATH);
+		$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-		$headers = ['Host: ' . $host];
+		$headers = ['Date: ' . $date, 'Host: ' . $host];
 
-		$signed_data = "(request-target): get " . $path . "\nhost: " . $host;
+		$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
 
 		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) host",signature="' . $signature . '"';
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
 
 		$headers[] = 'Accept: application/activity+json, application/ld+json';
 
@@ -459,7 +460,14 @@ class HTTPSignature
 			}
 		}
 
-		/// @todo Check if the signed date field is in an acceptable range
+		//  Check if the signed date field is in an acceptable range
+		if (in_array('date', $sig_block['headers'])) {
+			$diff = abs(strtotime($headers['date']) - time());
+			if ($diff > 300) {
+				Logger::log("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
+				return false;
+			}
+		}
 
 		// Check the content-length when it is part of the signed data
 		if (in_array('content-length', $sig_block['headers'])) {
