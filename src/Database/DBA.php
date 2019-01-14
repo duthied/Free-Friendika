@@ -1239,7 +1239,7 @@ class DBA
 
 		foreach ($old_fields AS $fieldname => $content) {
 			if (isset($fields[$fieldname])) {
-				if ($fields[$fieldname] == $content) {
+				if (($fields[$fieldname] == $content) && !is_null($content)) {
 					unset($fields[$fieldname]);
 				} else {
 					$do_update = true;
