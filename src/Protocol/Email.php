@@ -514,7 +514,7 @@ class Email
 
 		preg_match($pattern, $message, $result);
 
-		if (($result[1] != '') && ($result[2] != '')) {
+		if (!empty($result[1]) && !empty($result[2])) {
 			$cleaned = trim($result[1])."\n";
 			$sig = trim($result[2]);
 		} else {
@@ -545,7 +545,7 @@ class Email
 			}
 
 			$quotelevel = 0;
-			$nextline = trim($arrbody[$i+1]);
+			$nextline = trim(defaults($arrbody, $i + 1, ''));
 			while ((strlen($nextline)>0) && ((substr($nextline, 0, 1) == '>')
 				|| (substr($nextline, 0, 1) == ' '))) {
 				if (substr($nextline, 0, 1) == '>') {
@@ -575,7 +575,7 @@ class Email
 						(substr(rtrim($line), -7) == '[/size]'));
 			}
 
-			if ($lines[$lineno] != '') {
+			if (!empty($lines[$lineno])) {
 				if (substr($lines[$lineno], -1) != ' ') {
 					$lines[$lineno] .= ' ';
 				}
@@ -585,13 +585,15 @@ class Email
 
 					$line = ltrim(substr($line, 1));
 				}
+			} else {
+				$lines[$lineno] = '';
 			}
 
 			$lines[$lineno] .= $line;
 			if (((substr($line, -1, 1) != ' '))
 				|| ($quotelevel != $currquotelevel)) {
 				$lineno++;
-				}
+			}
 		}
 		return implode("\n", $lines);
 	}
