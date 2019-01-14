@@ -23,7 +23,9 @@ import os, glob, subprocess
 #  not work in some cases.
 dontinclude = ['root', 'friendica', 'bavatar', 'tony baldwin', 'Taek', 'silke m',
                'leberwurscht', 'abinoam', 'fabrixxm', 'FULL NAME', 'Hauke Zuehl',
-               'Michal Supler', 'michal_s', 'Manuel Pérez', 'rabuzarus', 'Alberto Díaz']
+               'Michal Supler', 'michal_s', 'Manuel Pérez', 'rabuzarus',
+	       'Alberto Díaz', 'hoergen oostende', 'Friendica', 'vinzv',
+               'Vincent Vindarel']
 
 
 #  this script is in the /bin/dev directory of the friendica installation
@@ -88,10 +90,14 @@ for f in glob.glob(path+'/addon/*/lang/*/messages.po'):
     for ll in l:
         if intrans and ll.strip()=='':
             intrans = False;
-        if intrans and ll[0]=='#':
-            name = ll.split('# ')[1].split(',')[0].split(' <')[0]
-            if not name in contributors and name not in dontinclude:
-                contributors.append(name)
+        # at this point Transifex sometimes includes a "#, fuzzy" we eill
+        # ignore all lines starting with "#," as they do not contains any
+        # "Name email, year" information.
+        if not "#," in ll:
+            if intrans and ll[0]=='#':
+                name = ll.split('# ')[1].split(',')[0].split(' <')[0]
+                if not name in contributors and name not in dontinclude:
+                    contributors.append(name)
         if "# Translators:" in ll:
             intrans = True
 #  done with the translators
