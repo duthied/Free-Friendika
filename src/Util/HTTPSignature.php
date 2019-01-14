@@ -459,7 +459,14 @@ class HTTPSignature
 			}
 		}
 
-		/// @todo Check if the signed date field is in an acceptable range
+		//  Check if the signed date field is in an acceptable range
+		if (in_array('date', $sig_block['headers'])) {
+			$diff = abs(strtotime($headers['date']) - time());
+			if ($diff > 300) {
+				Logger::log("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
+				return false;
+			}
+		}
 
 		// Check the content-length when it is part of the signed data
 		if (in_array('content-length', $sig_block['headers'])) {
