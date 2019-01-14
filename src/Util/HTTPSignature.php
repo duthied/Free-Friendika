@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Model\APContact;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\DateTimeFormat;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -296,14 +297,15 @@ class HTTPSignature
 		$path = parse_url($target, PHP_URL_PATH);
 		$digest = 'SHA-256=' . base64_encode(hash('sha256', $content, true));
 		$content_length = strlen($content);
+		$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-		$headers = ['Content-Length: ' . $content_length, 'Digest: ' . $digest, 'Host: ' . $host];
+		$headers = ['Date: ' . $date, 'Content-Length: ' . $content_length, 'Digest: ' . $digest, 'Host: ' . $host];
 
-		$signed_data = "(request-target): post " . $path . "\ncontent-length: " . $content_length . "\ndigest: " . $digest . "\nhost: " . $host;
+		$signed_data = "(request-target): post " . $path . "\ndate: ". $date . "\ncontent-length: " . $content_length . "\ndigest: " . $digest . "\nhost: " . $host;
 
 		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) content-length digest host",signature="' . $signature . '"';
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date content-length digest host",signature="' . $signature . '"';
 
 		$headers[] = 'Content-Type: application/activity+json';
 
