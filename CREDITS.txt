@@ -21,7 +21,7 @@ Andreas Neustifter
 Andrej Stieben
 André Alves
 André Lohan
-Andy H3
+Andy
 Andy Hee
 AndyHee
 Angristan
@@ -49,6 +49,7 @@ Christian M. Grube
 Christian Vogeley
 Cohan Robinson
 Copiis Praeesse
+CrystalStiletto
 Cyboulette
 Cyryl Sochacki
 czarnystokrotek
@@ -78,6 +79,7 @@ Fabian Dost
 Fabio Comuni
 felixgilles
 Filip Bugaj
+Filip H.F. "FiXato" Slagter
 FlxAlbroscheit
 foss
 Francesco Apruzzese
@@ -111,6 +113,7 @@ jeroenpraat
 Johannes Schwab
 John Brazil
 Jonatan Nyberg
+Jonny Tischbein
 Josef Moravek
 juanman
 julia.domagalska
@@ -131,7 +134,9 @@ Magdalena Gazda
 Mai Anh Nguyen
 Manuel Pérez Monís
 Marcin Klessa
+Marcin Mikołajczak
 Marcus Müller
+Marie Olive
 Mariusz Pisz
 marmor
 Marquis_de_Carabas
@@ -173,6 +178,7 @@ Rabuzarus
 Radek
 Rafael Garau
 Rainulf Pineda
+Ralf Thees
 Ralph
 Ratten
 rcmaniac
@@ -212,6 +218,7 @@ Thecross
 Thomas
 Thomas Willingham
 thorsten23
+Tim Stahel
 Tino
 Tobias Diekershoff
 Tobias Hößl
@@ -229,10 +236,13 @@ ufic
 Unknown
 Vasudev Kamath
 Vasya Novikov
+Vinzenz Vietzke
 vislav
+vladimir N
 VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski
+Wouter Broers
 Yasen Pramatarov
 ylms
 Zach Prezkuta
