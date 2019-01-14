@@ -336,14 +336,15 @@ class HTTPSignature
 		// Header data that is about to be signed.
 		$host = parse_url($request, PHP_URL_HOST);
 		$path = parse_url($request, PHP_URL_PATH);
+		$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-		$headers = ['Host: ' . $host];
+		$headers = ['Date: ' . $date, 'Host: ' . $host];
 
-		$signed_data = "(request-target): get " . $path . "\nhost: " . $host;
+		$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
 
 		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) host",signature="' . $signature . '"';
+		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
 
 		$headers[] = 'Accept: application/activity+json, application/ld+json';
 
