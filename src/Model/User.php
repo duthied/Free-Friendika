@@ -29,13 +29,13 @@ use LightOpenID;
 class User
 {
 	/**
-	 * @name page/profile types
+	 * Page/profile types
 	 *
-	 * PAGE_NORMAL is a typical personal profile account
-	 * PAGE_SOAPBOX automatically approves all friend requests as Contact::SHARING, (readonly)
-	 * PAGE_COMMUNITY automatically approves all friend requests as Contact::SHARING, but with
+	 * PAGE_FLAGS_NORMAL is a typical personal profile account
+	 * PAGE_FLAGS_SOAPBOX automatically approves all friend requests as Contact::SHARING, (readonly)
+	 * PAGE_FLAGS_COMMUNITY automatically approves all friend requests as Contact::SHARING, but with
 	 *      write access to wall and comments (no email and not included in page owner's ACL lists)
-	 * PAGE_FREELOVE automatically approves all friend requests as full friends (Contact::FRIEND).
+	 * PAGE_FLAGS_FREELOVE automatically approves all friend requests as full friends (Contact::FRIEND).
 	 *
 	 * @{
 	 */
