@@ -1156,7 +1156,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $profile['url'],
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
-			'to' => $profile['url']];
+			'to' => [$profile['url']]];
 
 		Logger::log('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
 
@@ -1184,7 +1184,7 @@ class Transmitter
 				'actor' => $profile['url'],
 				'object' => $owner['url']],
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
-			'to' => $profile['url']];
+			'to' => [$profile['url']]];
 
 		Logger::log('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
@@ -1212,7 +1212,7 @@ class Transmitter
 				'actor' => $profile['url'],
 				'object' => $owner['url']],
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
-			'to' => $profile['url']];
+			'to' => [$profile['url']]];
 
 		Logger::log('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
@@ -1247,7 +1247,7 @@ class Transmitter
 				'actor' => $owner['url'],
 				'object' => $profile['url']],
 			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
-			'to' => $profile['url']];
+			'to' => [$profile['url']]];
 
 		Logger::log('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
