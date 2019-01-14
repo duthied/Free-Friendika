@@ -157,7 +157,7 @@ class APContact extends BaseObject
 
 		$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted, 'w3id:publicKey', 'w3id:publicKeyPem'));
 
-		$manually_approve = JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
+		$apcontact['manually-approve'] = (int)JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
 
 		// To-Do
 
@@ -204,8 +204,8 @@ class APContact extends BaseObject
 					$contact_fields['prv'] = false;
 				} else {
 					// Otherwise set the corresponding forum type
-					$contact_fields['forum'] = !$manually_approve;
-					$contact_fields['prv'] = $manually_approve;
+					$contact_fields['forum'] = !$apcontact['manually-approve'];
+					$contact_fields['prv'] = $apcontact['manually-approve'];
 				}
 			}
 		}

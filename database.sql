@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2018.12-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1290
+-- Friendica 2019.01-rc (The Tazmans Flax-lily)
+-- DB_UPDATE_VERSION 1293
 -- ------------------------------------------
 
 
@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`inbox` varchar(255) NOT NULL COMMENT '',
 	`outbox` varchar(255) COMMENT '',
 	`sharedinbox` varchar(255) COMMENT '',
+	`manually-approve` boolean COMMENT '',
 	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`name` varchar(255) COMMENT '',
 	`about` text COMMENT '',
@@ -578,6 +579,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_contactid_created` (`uid`,`contact-id`,`created`),
 	 INDEX `authorid_created` (`author-id`,`created`),
 	 INDEX `ownerid` (`owner-id`),
+	 INDEX `contact-id` (`contact-id`),
 	 INDEX `uid_uri` (`uid`,`uri`(190)),
 	 INDEX `resource-id` (`resource-id`),
 	 INDEX `deleted_changed` (`deleted`,`changed`),
@@ -813,7 +815,9 @@ CREATE TABLE IF NOT EXISTS `participation` (
 	`server` varchar(60) NOT NULL COMMENT '',
 	`cid` int unsigned NOT NULL COMMENT '',
 	`fid` int unsigned NOT NULL COMMENT '',
-	 PRIMARY KEY(`iid`,`server`)
+	 PRIMARY KEY(`iid`,`server`),
+	 INDEX `cid` (`cid`),
+	 INDEX `fid` (`fid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Storage for participation messages from Diaspora';
 
 --
@@ -967,7 +971,8 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`publish` boolean NOT NULL DEFAULT '0' COMMENT 'publish default profile in local directory',
 	`net-publish` boolean NOT NULL DEFAULT '0' COMMENT 'publish profile in global directory',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid_is-default` (`uid`,`is-default`)
+	 INDEX `uid_is-default` (`uid`,`is-default`),
+	 FULLTEXT INDEX `pub_keywords` (`pub_keywords`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='user profiles data';
 
 --

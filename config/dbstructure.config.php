@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1292);
+	define('DB_UPDATE_VERSION', 1293);
 }
 
 return [
@@ -65,6 +65,7 @@ return [
 			"inbox" => ["type" => "varchar(255)", "not null" => "1", "comment" => ""],
 			"outbox" => ["type" => "varchar(255)", "comment" => ""],
 			"sharedinbox" => ["type" => "varchar(255)", "comment" => ""],
+			"manually-approve" => ["type" => "boolean", "comment" => ""],
 			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"name" => ["type" => "varchar(255)", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
