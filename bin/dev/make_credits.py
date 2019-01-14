@@ -24,7 +24,7 @@ import os, glob, subprocess
 dontinclude = ['root', 'friendica', 'bavatar', 'tony baldwin', 'Taek', 'silke m',
                'leberwurscht', 'abinoam', 'fabrixxm', 'FULL NAME', 'Hauke Zuehl',
                'Michal Supler', 'michal_s', 'Manuel Pérez', 'rabuzarus',
-	       'Alberto Díaz', 'hoergen oostende', 'Friendica', 'vinzv',
+               'Alberto Díaz', 'hoergen oostende', 'Friendica', 'vinzv',
                'Vincent Vindarel']
 
 
