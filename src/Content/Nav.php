@@ -11,8 +11,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 
 class Nav
 {
