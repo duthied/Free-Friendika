@@ -217,7 +217,7 @@ class HTTPSignature
 			$ret['signature'] = base64_decode(preg_replace('/\s+/', '', $matches[1]));
 		}
 
-		if (($ret['signature']) && ($ret['algorithm']) && (!$ret['headers'])) {
+		if (!empty($ret['signature']) && !empty($ret['algorithm']) && empty($ret['headers'])) {
 			$ret['headers'] = ['date'];
 		}
 
@@ -376,13 +376,20 @@ class HTTPSignature
 	 */
 	public static function getSigner($content, $http_headers)
 	{
-		$object = json_decode($content, true);
-
-		if (empty($object)) {
+		if (empty($http_headers['HTTP_SIGNATURE'])) {
 			return false;
 		}
 
-		$actor = JsonLD::fetchElement($object, 'actor', 'id');
+		if (!empty($content)) {
+			$object = json_decode($content, true);
+			if (empty($object)) {
+				return false;
+			}
+
+			$actor = JsonLD::fetchElement($object, 'actor', 'id');
+		} else {
+			$actor = '';
+		}
 
 		$headers = [];
 		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . $http_headers['REQUEST_URI'];
