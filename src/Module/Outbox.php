@@ -8,6 +8,7 @@ use Friendica\BaseModule;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 use Friendica\Model\User;
+use Friendica\Util\HTTPSignature;
 
 /**
  * ActivityPub Outbox
@@ -28,6 +29,9 @@ class Outbox extends BaseModule
 		}
 
 		$page = defaults($_REQUEST, 'page', null);
+
+		/// @todo Add Authentication to enable fetching of non public content
+		// $requester = HTTPSignature::getSigner('', $_SERVER);
 
 		$outbox = ActivityPub\Transmitter::getOutbox($owner, $page);
 
