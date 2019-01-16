@@ -28,7 +28,7 @@ class OnePoll
 	{
 		$a = BaseObject::getApp();
 
-		Logger::log('start');
+		Logger::log('Start for contact ' . $contact_id);
 
 		$manual_id  = 0;
 		$generation = 0;
@@ -69,6 +69,7 @@ class OnePoll
 			if (($contact['network'] === Protocol::ACTIVITYPUB) && empty($apcontact)) {
 				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 				Contact::markForArchival($contact);
+				Logger::log('Contact archived');
 				return;
 			} elseif (!empty($apcontact)) {
 				$fields = ['last-update' => $updated, 'success_update' => $updated];
@@ -96,6 +97,7 @@ class OnePoll
 			} else {
 				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 				Contact::markForArchival($contact);
+				Logger::log('Contact archived');
 				return;
 			}
 		}
@@ -116,6 +118,7 @@ class OnePoll
 				// set the last-update so we don't keep polling
 				self::updateContact($contact, ['last-update' => $updated]);
 				Contact::markForArchival($contact);
+				Logger::log('Contact archived');
 				return;
 			} else {
 				$fields = ['last-update' => $updated, 'success_update' => $updated];
@@ -125,7 +128,7 @@ class OnePoll
 		}
 
 		// load current friends if possible.
-		if (!emoty($contact['poco']) && ($contact['success_update'] > $contact['failure_update'])) {
+		if (!empty($contact['poco']) && ($contact['success_update'] > $contact['failure_update'])) {
 			$r = q("SELECT count(*) AS total FROM glink
 				WHERE `cid` = %d AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
 				intval($contact['id'])
@@ -139,16 +142,19 @@ class OnePoll
 
 		// We don't poll our followers
 		if ($contact["rel"] == Contact::FOLLOWER) {
+			Logger::log("Don't poll follower");
 			return;
 		}
 
 		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)
 		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
+			Logger::log('Polling is disabled');
 			return;
 		}
 
 		// We don't poll AP contacts by now
 		if ($contact['network'] === Protocol::ACTIVITYPUB) {
+			Logger::log("Don't poll AP contact");
 			return;
 		}
 
@@ -225,6 +231,7 @@ class OnePoll
 				// set the last-update so we don't keep polling
 				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 				Contact::markForArchival($contact);
+				Logger::log('Contact archived');
 				return;
 			}
 
@@ -273,6 +280,7 @@ class OnePoll
 			if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
 				// set the last-update so we don't keep polling
 				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				Logger::log('Contact status is ' . $res->status);
 				return;
 			}
 
@@ -300,6 +308,13 @@ class OnePoll
 
 			if (strpos($final_dfrn_id, ':') == 1) {
 				$final_dfrn_id = substr($final_dfrn_id, 2);
+			}
+
+			// There are issues with the legacy DFRN transport layer.
+			// Since we mostly don't use it anyway, we won't dig into it deeper, but simply ignore it.
+			if (empty($final_dfrn_id) || empty($orig_id)) {
+				Logger::log('Contact has got no ID - quitting');
+				return;
 			}
 
 			if ($final_dfrn_id != $orig_id) {
@@ -342,6 +357,7 @@ class OnePoll
 			if ($contact['rel'] == Contact::FOLLOWER || $contact['blocked']) {
 				// set the last-update so we don't keep polling
 				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				Logger::log('Contact is blocked or only a follower');
 				return;
 			}
 
@@ -353,6 +369,7 @@ class OnePoll
 				// set the last-update so we don't keep polling
 				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 				Contact::markForArchival($contact);
+				Logger::log('Contact archived');
 				return;
 			}
 
@@ -366,6 +383,7 @@ class OnePoll
 				// set the last-update so we don't keep polling
 				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 				Contact::markForArchival($contact);
+				Logger::log('Contact archived');
 				return;
 			}
 
@@ -663,6 +681,7 @@ class OnePoll
 			self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 		}
 
+		Logger::log('End');
 		return;
 	}
 
