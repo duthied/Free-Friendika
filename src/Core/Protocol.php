@@ -14,24 +14,26 @@ use Friendica\Util\Network;
 class Protocol
 {
 	// Native support
-	const ACTIVITYPUB = 'apub';    // ActivityPub
+	const ACTIVITYPUB = 'apub';    // ActivityPub (Pleroma, Mastodon, Osada, ...)
 	const DFRN        = 'dfrn';    // Friendica, Mistpark, other DFRN implementations
-	const DIASPORA    = 'dspr';    // Diaspora
+	const DIASPORA    = 'dspr';    // Diaspora, Hubzilla, Socialhome, Ganggo
 	const FEED        = 'feed';    // RSS/Atom feeds with no known "post/notify" protocol
 	const MAIL        = 'mail';    // IMAP/POP
-	const OSTATUS     = 'stat';    // GNU-social, Pleroma, Mastodon, other OStatus implementations
+	const OSTATUS     = 'stat';    // GNU Social and other OStatus implementations
 
 	const NATIVE_SUPPORT = [self::DFRN, self::DIASPORA, self::OSTATUS, self::FEED, self::MAIL, self::ACTIVITYPUB];
 
 	// Supported through a connector
-	const APPNET    = 'apdn';    // app.net - Dead protocol
 	const DIASPORA2 = 'dspc';    // Diaspora connector
-	const FACEBOOK  = 'face';    // Facebook API
-	const GPLUS     = 'goog';    // Google+
 	const LINKEDIN  = 'lnkd';    // LinkedIn
 	const PUMPIO    = 'pump';    // pump.io
 	const STATUSNET = 'stac';    // Statusnet connector
 	const TWITTER   = 'twit';    // Twitter
+
+	// Dead protocols
+	const APPNET    = 'apdn';    // app.net - Dead protocol
+	const FACEBOOK  = 'face';    // Facebook API - Not working anymore, API is closed
+	const GPLUS     = 'goog';    // Google+ - Dead in 2019
 
 	// Currently unsupported
 	const ICALENDAR = 'ical';    // iCalendar

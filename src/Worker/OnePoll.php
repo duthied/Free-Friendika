@@ -63,29 +63,22 @@ class OnePoll
 
 		// These three networks can be able to speak AP, so we are trying to fetch AP profile data here
 		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN])) {
-			APContact::getByURL($contact['url']);
-		}
+			$apcontact = APContact::getByURL($contact['url'], true);
 
-		// We currently don't do anything more with AP here
-		if ($contact['network'] === Protocol::ACTIVITYPUB) {
-			return;
-		}
-
-		// load current friends if possible.
-		if (($contact['poco'] != "") && ($contact['success_update'] > $contact['failure_update'])) {
-			$r = q("SELECT count(*) AS total FROM glink
-				WHERE `cid` = %d AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
-				intval($contact['id'])
-			);
-			if (DBA::isResult($r)) {
-				if (!$r[0]['total']) {
-					PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
-				}
+			$updated = DateTimeFormat::utcNow();
+			if (($contact['network'] === Protocol::ACTIVITYPUB) && empty($apcontact)) {
+				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
+				Contact::markForArchival($contact);
+				return;
+			} elseif (!empty($apcontact)) {
+				$fields = ['last-update' => $updated, 'success_update' => $updated];
+				self::updateContact($contact, $fields);
+				Contact::unmarkForArchival($contact);
 			}
 		}
 
 		// Diaspora users, archived users and followers are only checked if they still exist.
-		if ($contact['archive'] || ($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER)) {
+		if (($contact['network'] != Protocol::ACTIVITYPUB) && ($contact['archive'] || ($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER))) {
 			$last_updated = PortableContact::lastUpdated($contact["url"], true);
 			$updated = DateTimeFormat::utcNow();
 
@@ -103,56 +96,59 @@ class OnePoll
 			} else {
 				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 				Contact::markForArchival($contact);
-				Logger::log('Contact '.$contact['id'].' is marked for archival', Logger::DEBUG);
+				return;
 			}
-
-			return;
 		}
-
-		$xml = false;
-
-		$t = $contact['last-update'];
-
-		if ($contact['subhub']) {
-			$poll_interval = Config::get('system', 'pushpoll_frequency', 3);
-			$contact['priority'] = intval($poll_interval);
-			$hub_update = false;
-
-			if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 day")) {
-				$hub_update = true;
-			}
-		} else {
-			$hub_update = false;
-		}
-
-		$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME)
-			? DateTimeFormat::utc('now - 7 days', DateTimeFormat::ATOM)
-			: DateTimeFormat::utc($contact['last-update'], DateTimeFormat::ATOM)
-		);
 
 		// Update the contact entry
-		if (($contact['network'] === Protocol::OSTATUS) || ($contact['network'] === Protocol::DIASPORA) || ($contact['network'] === Protocol::DFRN)) {
-			if (!PortableContact::reachable($contact['url'])) {
+		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN])) {
+			$updated = DateTimeFormat::utcNow();
+			// Currently we can't check every AP implementation, so we don't do it at all
+			if (($contact['network' != Protocol::ACTIVITYPUB]) && !PortableContact::reachable($contact['url'])) {
 				Logger::log("Skipping probably dead contact ".$contact['url']);
 
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				self::updateContact($contact, ['last-update' => $updated]);
 				return;
 			}
 
 			if (!Contact::updateFromProbe($contact["id"])) {
-				Contact::markForArchival($contact);
-				Logger::log('Contact is marked dead');
-
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				self::updateContact($contact, ['last-update' => $updated]);
+				Contact::markForArchival($contact);
 				return;
 			} else {
+				$fields = ['last-update' => $updated, 'success_update' => $updated];
+				self::updateContact($contact, $fields);
 				Contact::unmarkForArchival($contact);
 			}
 		}
 
+		// load current friends if possible.
+		if (!emoty($contact['poco']) && ($contact['success_update'] > $contact['failure_update'])) {
+			$r = q("SELECT count(*) AS total FROM glink
+				WHERE `cid` = %d AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
+				intval($contact['id'])
+			);
+			if (DBA::isResult($r)) {
+				if (!$r[0]['total']) {
+					PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
+				}
+			}
+		}
+
+		// We don't poll our followers
+		if ($contact["rel"] == Contact::FOLLOWER) {
+			return;
+		}
+
+		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)
 		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
+			return;
+		}
+
+		// We don't poll AP contacts by now
+		if ($contact['network'] === Protocol::ACTIVITYPUB) {
 			return;
 		}
 
@@ -178,6 +174,24 @@ class OnePoll
 
 		$importer = $r[0];
 		$url = '';
+		$xml = false;
+
+		if ($contact['subhub']) {
+			$poll_interval = Config::get('system', 'pushpoll_frequency', 3);
+			$contact['priority'] = intval($poll_interval);
+			$hub_update = false;
+
+			if (DateTimeFormat::utcNow() > DateTimeFormat::utc($contact['last-update'] . " + 1 day")) {
+				$hub_update = true;
+			}
+		} else {
+			$hub_update = false;
+		}
+
+		$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME)
+			? DateTimeFormat::utc('now - 7 days', DateTimeFormat::ATOM)
+			: DateTimeFormat::utc($contact['last-update'], DateTimeFormat::ATOM)
+		);
 
 		Logger::log("poll: ({$contact['network']}-{$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
@@ -209,7 +223,7 @@ class OnePoll
 
 			if (!$curlResult->isSuccess() && ($curlResult->getErrorNumber() == CURLE_OPERATION_TIMEDOUT)) {
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -220,27 +234,24 @@ class OnePoll
 			Logger::log('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, Logger::DATA);
 
 			if (!strlen($handshake_xml) || ($html_code >= 400) || !$html_code) {
-				Logger::log("$url appears to be dead - marking for death ");
-
 				// dead connection - might be a transient event, or this might
 				// mean the software was uninstalled or the domain expired.
 				// Will keep trying for one month.
-
-				Contact::markForArchival($contact);
+				Logger::log("$url appears to be dead - marking for death ");
 
 				// set the last-update so we don't keep polling
 				$fields = ['last-update' => DateTimeFormat::utcNow(), 'failure_update' => DateTimeFormat::utcNow()];
 				self::updateContact($contact, $fields);
+				Contact::markForArchival($contact);
 				return;
 			}
 
 			if (!strstr($handshake_xml, '<')) {
 				Logger::log('response from ' . $url . ' did not contain XML.');
 
-				Contact::markForArchival($contact);
-
 				$fields = ['last-update' => DateTimeFormat::utcNow(), 'failure_update' => DateTimeFormat::utcNow()];
 				self::updateContact($contact, $fields);
+				Contact::markForArchival($contact);
 				return;
 			}
 
@@ -248,16 +259,14 @@ class OnePoll
 			$res = XML::parseString($handshake_xml);
 
 			if (intval($res->status) == 1) {
+				// we may not be friends anymore. Will keep trying for one month.
 				Logger::log("$url replied status 1 - marking for death ");
 
-				// we may not be friends anymore. Will keep trying for one month.
 				// set the last-update so we don't keep polling
 				$fields = ['last-update' => DateTimeFormat::utcNow(), 'failure_update' => DateTimeFormat::utcNow()];
 				self::updateContact($contact, $fields);
-
 				Contact::markForArchival($contact);
 			} elseif ($contact['term-date'] > DBA::NULL_DATETIME) {
-				Logger::log("$url back from the dead - removing mark for death");
 				Contact::unmarkForArchival($contact);
 			}
 
@@ -330,7 +339,6 @@ class OnePoll
 			}
 
 			// Are we allowed to import from this person?
-
 			if ($contact['rel'] == Contact::FOLLOWER || $contact['blocked']) {
 				// set the last-update so we don't keep polling
 				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
@@ -343,7 +351,7 @@ class OnePoll
 
 			if ($curlResult->isTimeout()) {
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -356,7 +364,7 @@ class OnePoll
 			$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
 			if ($mail_disabled) {
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -652,8 +660,7 @@ class OnePoll
 			DBA::update('gcontact', ['last_failure' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::markForArchival($contact);
 		} else {
-			$updated = DateTimeFormat::utcNow();
-			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
+			self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
 		}
 
 		return;
