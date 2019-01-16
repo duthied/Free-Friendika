@@ -96,6 +96,11 @@ class Network
 
 		$a = \get_app();
 
+		if (strlen($url) > 1000) {
+			Logger::log('URL is longer than 1000 characters. Callstack: ' . System::callstack(20), Logger::DEBUG);
+			return CurlResult::createErrorCurl(substr($url, 0, 200));
+		}
+
 		$parts = parse_url($url);
 		$path_parts = explode('/', defaults($parts, 'path', ''));
 		foreach ($path_parts as $part) {
