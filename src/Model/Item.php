@@ -2370,7 +2370,7 @@ class Item extends BaseObject
 		$update = (!$arr['private'] && ((defaults($arr, 'author-link', '') === defaults($arr, 'owner-link', '')) || ($arr["parent-uri"] === $arr["uri"])));
 
 		// Is it a forum? Then we don't care about the rules from above
-		if (!$update && ($arr["network"] == Protocol::DFRN) && ($arr["parent-uri"] === $arr["uri"])) {
+		if (!$update && in_array($arr["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN]) && ($arr["parent-uri"] === $arr["uri"])) {
 			if (DBA::exists('contact', ['id' => $arr['contact-id'], 'forum' => true])) {
 				$update = true;
 			}

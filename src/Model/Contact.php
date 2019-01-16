@@ -634,6 +634,8 @@ class Contact extends BaseObject
 			Logger::log('Empty contact: ' . json_encode($contact) . ' - ' . System::callstack(20), Logger::DEBUG);
 		}
 
+		Logger::log('Contact '.$contact['id'].' is marked for archival', Logger::DEBUG);
+
 		// Contact already archived or "self" contact? => nothing to do
 		if ($contact['archive'] || $contact['self']) {
 			return;
@@ -681,6 +683,8 @@ class Contact extends BaseObject
 		if (!$exists) {
 			return;
 		}
+
+		Logger::log('Contact '.$contact['id'].' is marked as vital again', Logger::DEBUG);
 
 		if (!isset($contact['url']) && !empty($contact['id'])) {
 			$fields = ['id', 'url', 'batch'];
@@ -1571,8 +1575,8 @@ class Contact extends BaseObject
 
 		$ret = Probe::uri($contact["url"], $network);
 
-		// If Probe::uri fails the network code will be different
-		if (($ret["network"] != $contact["network"]) && !in_array($ret["network"], [Protocol::ACTIVITYPUB, $network])) {
+		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
+		if (($ret["network"] != $contact["network"]) && !in_array($ret["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, $network])) {
 			return false;
 		}
 

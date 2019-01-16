@@ -334,7 +334,7 @@ class PortableContact
 			$server_url = Strings::normaliseLink(self::detectServer($profile));
 		}
 
-		if (!in_array($gcontacts[0]["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::FEED, Protocol::OSTATUS, ""])) {
+		if (!in_array($gcontacts[0]["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::FEED, Protocol::OSTATUS, ""])) {
 			Logger::log("Profile ".$profile.": Network type ".$gcontacts[0]["network"]." can't be checked", Logger::DEBUG);
 			return false;
 		}
