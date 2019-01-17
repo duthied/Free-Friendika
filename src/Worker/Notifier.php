@@ -124,7 +124,16 @@ class Notifier
 			}
 
 			$parent_id = intval($target_item['parent']);
-			$uid = $target_item['contact-uid'];
+
+			if (!empty($target_item['contact-uid'])) {
+				$uid = $target_item['contact-uid'];
+			} elseif (!empty($target_item['uid'])) {
+				$uid = $target_item['uid'];
+			} else {
+				Logger::log('Only public users for item ' . $item_id, Logger::DEBUG);
+				return;
+			}
+
 			$updated = $target_item['edited'];
 
 			$condition = ['parent' => $parent_id, 'visible' => true, 'moderated' => false];
@@ -508,7 +517,6 @@ class Notifier
 	private static function activityPubDelivery($a, $cmd, $item_id, $uid, $target_item, $parent)
 	{
 		$inboxes = [];
-		$personal = false;
 
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
@@ -516,16 +524,11 @@ class Notifier
 		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
 			Logger::log('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', Logger::DEBUG);
 			return;
-		} else {
+		} elseif ($parent['origin']) {
 			// Remote items are transmitted via the personal inboxes.
 			// Doing so ensures that the dedicated receiver will get the message.
-			$personal = true;
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true, $item_id);
 			Logger::log('Remote item ' . $item_id . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
-		}
-
-		if ($parent['origin']) {
-			$parent_inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, $personal);
-			$inboxes = array_merge($inboxes, $parent_inboxes);
 		}
 
 		if (empty($inboxes)) {

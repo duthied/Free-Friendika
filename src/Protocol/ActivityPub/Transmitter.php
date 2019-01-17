@@ -297,11 +297,16 @@ class Transmitter
 	 *
 	 * @param array $item
 	 * @param boolean $blindcopy
+	 * @param boolean $last_id
 	 *
 	 * @return array with permission data
 	 */
-	private static function createPermissionBlockForItem($item, $blindcopy)
+	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0)
 	{
+		if ($last_id == 0) {
+			$last_id = $item['id'];
+		}
+
 		// Will be activated in a later step
 		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 
@@ -356,7 +361,7 @@ class Transmitter
 		$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
 			// Don't include data from future posts
-			if ($parent['id'] >= $item['id']) {
+			if ($parent['id'] >= $last_id) {
 				continue;
 			}
 
@@ -472,12 +477,13 @@ class Transmitter
 	 * @param array $item
 	 * @param integer $uid User ID
 	 * @param boolean $personal fetch personal inboxes
+	 * @param integer $last_id Last item id for adding receivers
 	 *
 	 * @return array with inboxes
 	 */
-	public static function fetchTargetInboxes($item, $uid, $personal = false)
+	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0)
 	{
-		$permissions = self::createPermissionBlockForItem($item, true);
+		$permissions = self::createPermissionBlockForItem($item, true, $last_id);
 		if (empty($permissions)) {
 			return [];
 		}
@@ -643,9 +649,15 @@ class Transmitter
 			$data['object'] = $item['thr-parent'];
 		}
 
-		$owner = User::getOwnerDataById($item['contact-uid']);
+		if (!empty($item['contact-uid'])) {
+			$uid = $item['contact-uid'];
+		} else {
+			$uid = $item['uid'];
+		}
 
-		if (!$object_mode) {
+		$owner = User::getOwnerDataById($uid);
+
+		if (!$object_mode && !empty($owner)) {
 			return LDSignature::sign($data, $owner);
 		} else {
 			return $data;
