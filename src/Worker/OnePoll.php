@@ -106,7 +106,7 @@ class OnePoll
 		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN])) {
 			$updated = DateTimeFormat::utcNow();
 			// Currently we can't check every AP implementation, so we don't do it at all
-			if (($contact['network' != Protocol::ACTIVITYPUB]) && !PortableContact::reachable($contact['url'])) {
+			if (($contact['network'] != Protocol::ACTIVITYPUB) && !PortableContact::reachable($contact['url'])) {
 				Logger::log("Skipping probably dead contact ".$contact['url']);
 
 				// set the last-update so we don't keep polling
