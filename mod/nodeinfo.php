@@ -83,10 +83,6 @@ function nodeinfo_init(App $a) {
 			$nodeinfo['services']['inbound'][] = 'gnusocial';
 			$nodeinfo['services']['outbound'][] = 'gnusocial';
 		}
-
-		if (Addon::isEnabled('gpluspost') || Addon::isEnabled('buffer')) {
-			$nodeinfo['services']['outbound'][] = 'google';
-		}
 		if (Addon::isEnabled('ijpost')) {
 			$nodeinfo['services']['outbound'][] = 'insanejournal';
 		}
