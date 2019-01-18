@@ -889,7 +889,7 @@ class HTML
 	}
 
 	/**
-	 * @brief Format contacts as picture links or as texxt links
+	 * @brief Format contacts as picture links or as text links
 	 *
 	 * @param array $contact Array with contacts which contains an array with
 	 *	int 'id' => The ID of the contact
