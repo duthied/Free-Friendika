@@ -1414,7 +1414,7 @@ class Contact extends BaseObject
 
 			$items = Item::inArray($r);
 
-			$o = conversation($a, $items, $pager, 'contacts', $update);
+			$o = conversation($a, $items, $pager, 'contacts', $update, false, 'commented', local_user());
 		} else {
 			$r = Item::selectForUser(local_user(), [], $condition, $params);
 
