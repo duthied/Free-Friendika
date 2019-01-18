@@ -88,7 +88,14 @@ class Delivery extends BaseObject
 				return;
 			}
 
-			$uid = $target_item['contact-uid'];
+			if (!empty($target_item['contact-uid'])) {
+				$uid = $target_item['contact-uid'];
+			} elseif (!empty($target_item['uid'])) {
+				$uid = $target_item['uid'];
+			} else {
+				Logger::log('Only public users for item ' . $item_id, Logger::DEBUG);
+				return;
+			}
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {
