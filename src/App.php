@@ -1720,6 +1720,12 @@ class App
 
 		$content = '';
 
+		// Load current theme info after module has been executed as theme could have been set in module
+		$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
+		if (file_exists($theme_info_file)) {
+			require_once $theme_info_file;
+		}
+
 		// Call module functions
 		if ($this->module_loaded) {
 			$this->page['page_title'] = $this->module;
@@ -1758,12 +1764,6 @@ class App
 				Core\Addon::callHooks($this->module . '_mod_aftercontent', $arr);
 				$content .= $arr['content'];
 			}
-		}
-
-		// Load current theme info after module has been executed as theme could have been set in module
-		$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
-		if (file_exists($theme_info_file)) {
-			require_once $theme_info_file;
 		}
 
 		// initialise content region
