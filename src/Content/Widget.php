@@ -18,6 +18,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -296,15 +297,30 @@ class Widget
 			$r = GContact::commonFriendsZcid($profile_uid, $zcid, 0, 5, true);
 		}
 
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('remote_friends_common.tpl'), array(
-			'$desc' => L10n::tt("%d contact in common", "%d contacts in common", $t),
-			'$base' => System::baseUrl(),
-			'$uid' => $profile_uid,
-			'$cid' => (($cid) ? $cid : '0'),
+		if (!DBA::isResult($r)) {
+			return;
+		}
+
+		$entries = [];
+		foreach ($r as $rr) {
+			$entry = [
+				'url'   => Contact::magicLink($rr['url']),
+				'name'  => $rr['name'],
+				'photo' => ProxyUtils::proxifyUrl($rr['photo'], false, ProxyUtils::SIZE_THUMB),
+			];
+			$entries[] = $entry;
+		}
+
+		$tpl = Renderer::getMarkupTemplate('remote_friends_common.tpl');
+		return Renderer::replaceMacros($tpl, [
+			'$desc'     => L10n::tt("%d contact in common", "%d contacts in common", $t),
+			'$base'     => System::baseUrl(),
+			'$uid'      => $profile_uid,
+			'$cid'      => (($cid) ? $cid : '0'),
 			'$linkmore' => (($t > 5) ? 'true' : ''),
-			'$more' => L10n::t('show more'),
-			'$items' => $r)
-		);
+			'$more'     => L10n::t('show more'),
+			'$items'    => $entries
+		]);
 	}
 
 	/**

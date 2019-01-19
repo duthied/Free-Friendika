@@ -77,7 +77,7 @@ function allfriends_content(App $a)
 		}
 
 		$entry = [
-			'url'          => $rr['url'],
+			'url'          => Model\Contact::magicLink($rr['url']),
 			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
 			'name'         => $contact_details['name'],
 			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),

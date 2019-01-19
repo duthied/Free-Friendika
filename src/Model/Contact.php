@@ -2089,7 +2089,7 @@ class Contact extends BaseObject
 	 */
 	public static function magicLink($contact_url, $url = '')
 	{
-		if (!local_user() && remote_user()) {
+		if (!local_user() && !remote_user()) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
