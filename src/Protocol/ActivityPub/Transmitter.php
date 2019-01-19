@@ -307,6 +307,16 @@ class Transmitter
 			$last_id = $item['id'];
 		}
 
+		$always_bcc = false;
+
+		// Check if we should always deliver our stuff via BCC
+		if (!empty($item['uid'])) {
+			$profile = Profile::getByUID($item['uid']);
+			if (!empty($profile)) {
+				$always_bcc = $profile['hide-friends'];
+			}
+		}
+
 		// Will be activated in a later step
 		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 
@@ -349,11 +359,13 @@ class Transmitter
 			}
 
 			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url'], ['id' => $receiver, 'network' => $networks]);
+				$contact = DBA::selectFirst('contact', ['url', 'hidden'], ['id' => $receiver, 'network' => $networks]);
 				if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
-					// BCC is currently deactivated, due to Pleroma and Mastodon not reacting like expected
-					// $data['bcc'][] = $profile['url'];
-					$data['cc'][] = $profile['url'];
+					if ($contact['hidden'] || $always_bcc) {
+						$data['bcc'][] = $profile['url'];
+					} else {
+						$data['cc'][] = $profile['url'];
+					}
 				}
 			}
 		}

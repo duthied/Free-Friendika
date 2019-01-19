@@ -332,7 +332,10 @@ class Receiver
 			return;
 		}
 
-		self::storeConversation($object_data, $body);
+		// Only store content related stuff - and no announces, since they possibly overwrite the original content
+		if (in_array($object_data['object_type'], self::CONTENT_TYPES) && ($type != 'as:Announce')) {
+			self::storeConversation($object_data, $body);
+		}
 
 		// Internal flag for thread completion. See Processor.php
 		if (!empty($activity['thread-completion'])) {
