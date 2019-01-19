@@ -117,7 +117,7 @@ function common_content(App $a)
 		$photo_menu = Model\Contact::photoMenu($common_friend);
 
 		$entry = [
-			'url'          => $common_friend['url'],
+			'url'          => Model\Contact::magicLink($common_friend['url']),
 			'itemurl'      => defaults($contact_details, 'addr', $common_friend['url']),
 			'name'         => $contact_details['name'],
 			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),

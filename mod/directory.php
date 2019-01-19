@@ -116,7 +116,7 @@ function directory_content(App $a)
 
 			$itemurl = (($rr['addr'] != "") ? $rr['addr'] : $rr['profile_url']);
 
-			$profile_link = 'profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
+			$profile_link = $rr['profile_url'];
 
 			$pdesc = (($rr['pdesc']) ? $rr['pdesc'] . '<br />' : '');
 
@@ -169,7 +169,7 @@ function directory_content(App $a)
 
 			$entry = [
 				'id'           => $rr['id'],
-				'url'          => $profile_link,
+				'url'          => Contact::magicLInk($profile_link),
 				'itemurl'      => $itemurl,
 				'thumb'        => ProxyUtils::proxifyUrl($rr[$photo], false, ProxyUtils::SIZE_THUMB),
 				'img_hover'    => $rr['name'],
