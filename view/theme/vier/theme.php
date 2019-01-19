@@ -313,10 +313,6 @@ function vier_community_info()
 		/// @TODO This whole thing is hard-coded, better rewrite to Intercepting Filter Pattern (future-todo)
 		$r = [];
 
-		if (Addon::isEnabled("appnet")) {
-			$r[] = ["photo" => "images/appnet.png", "name" => "App.net"];
-		}
-
 		if (Addon::isEnabled("buffer")) {
 			$r[] = ["photo" => "images/buffer.png", "name" => "Buffer"];
 		}
@@ -329,20 +325,12 @@ function vier_community_info()
 			$r[] = ["photo" => "images/dreamwidth.png", "name" => "Dreamwidth"];
 		}
 
-		if (Addon::isEnabled("fbpost")) {
-			$r[] = ["photo" => "images/facebook.png", "name" => "Facebook"];
-		}
-
 		if (Addon::isEnabled("ifttt")) {
 			$r[] = ["photo" => "addon/ifttt/ifttt.png", "name" => "IFTTT"];
 		}
 
 		if (Addon::isEnabled("statusnet")) {
 			$r[] = ["photo" => "images/gnusocial.png", "name" => "GNU Social"];
-		}
-
-		if (Addon::isEnabled("gpluspost")) {
-			$r[] = ["photo" => "images/googleplus.png", "name" => "Google+"];
 		}
 
 		/// @TODO old-lost code (and below)?
