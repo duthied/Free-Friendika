@@ -436,8 +436,9 @@ class Notifier
 				// The function will ensure that there are no duplicates
 				$r1 = Diaspora::participantsForThread($item_id, $r1);
 
-				// Add the relay to the list, avoid duplicates
-				if (!$followup) {
+				// Add the relay to the list, avoid duplicates.
+				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
+				if (!$followup && !self::isForumPost($target_item, $owner)) {
 					$r1 = Diaspora::relayList($item_id, $r1);
 				}
 			}
@@ -453,8 +454,16 @@ class Notifier
 				foreach ($r as $rr) {
 					$conversants[] = $rr['id'];
 					Logger::log('Public delivery of item ' . $target_item["guid"] . ' (' . $item_id . ') to ' . json_encode($rr), Logger::DEBUG);
-					Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-						'Delivery', $cmd, $item_id, (int)$rr['id']);
+
+					// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
+					// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
+					// The conversion in Markdown reduces the formatting, so these posts should arrive after the Friendica posts.
+					if ($rr['network'] == Protocol::DIASPORA) {
+						$deliver_options = ['priority' => $a->queue['priority'], 'dont_fork' => true];
+					} else {
+						$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
+					}
+					Worker::add($deliver_options, 'Delivery', $cmd, $item_id, (int)$rr['id']);
 				}
 			}
 
@@ -477,8 +486,16 @@ class Notifier
 				}
 
 				Logger::log('Delivery of item ' . $item_id . ' to ' . json_encode($contact), Logger::DEBUG);
-				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-						'Delivery', $cmd, $item_id, (int)$contact['id']);
+
+				// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
+				// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
+				// The conversion in Markdown reduces the formatting, so these posts should arrive after the Friendica posts.
+				if ($contact['network'] == Protocol::DIASPORA) {
+					$deliver_options = ['priority' => $a->queue['priority'], 'dont_fork' => true];
+				} else {
+					$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
+				}
+				Worker::add($deliver_options, 'Delivery', $cmd, $item_id, (int)$contact['id']);
 			}
 		}
 
