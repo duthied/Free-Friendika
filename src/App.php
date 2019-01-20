@@ -1728,6 +1728,12 @@ class App
 			Core\Addon::callHooks($this->module . '_mod_init', $placeholder);
 
 			call_user_func([$this->module_class, 'init']);
+
+			// "rawContent" is especially meant for technical endpoints.
+			// This endpoint doesn't need any theme initialization or other comparable stuff.
+			if (!$this->error) {
+				call_user_func([$this->module_class, 'rawContent']);
+			}
 		}
 
 		// Load current theme info after module has been initialized as theme could have been set in module
@@ -1742,12 +1748,6 @@ class App
 		}
 
 		if ($this->module_loaded) {
-			// "rawContent" is especially meant for technical endpoints.
-			// This endpoint doesn't need any theme initialization or other comparable stuff.
-			if (!$this->error) {
-				call_user_func([$this->module_class, 'rawContent']);
-			}
-
 			if (! $this->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
 				Core\Addon::callHooks($this->module . '_mod_post', $_POST);
 				call_user_func([$this->module_class, 'post']);
