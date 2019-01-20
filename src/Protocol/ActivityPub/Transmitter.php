@@ -1029,8 +1029,17 @@ class Transmitter
 			return self::createNote($item);
 		}
 
-		/// @todo Better fetch the real object url.
-		return $announce['plink'];
+		// Fetch the original id of the object
+		$activity = ActivityPub::fetchContent($announce['plink'], $item['uid']);
+		if (!empty($activity)) {
+			$ldactivity = JsonLD::compact($activity);
+			$id = JsonLD::fetchElement($ldactivity, '@id');
+			if (!empty($id)) {
+				return $id;
+			}
+		}
+
+		return self::createNote($item);
 	}
 
 	/**
