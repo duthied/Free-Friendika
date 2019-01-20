@@ -22,25 +22,16 @@ use Friendica\Model;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
-$frio = 'view/theme/frio';
-
-global $frio;
-
 function frio_init(App $a)
 {
+	global $frio;
+	$frio = 'view/theme/frio';
+
 	// disable the events module link in the profile tab
 	$a->theme_events_in_profile = false;
 	$a->videowidth = 622;
 
 	Renderer::setActiveTemplateEngine('smarty3');
-
-	$baseurl = System::baseUrl();
-
-	$style = PConfig::get(local_user(), 'frio', 'style');
-
-	$frio = 'view/theme/frio';
-
-	global $frio;
 
 	// if the device is a mobile device set js is_mobile
 	// variable so the js scripts can use this information
@@ -50,10 +41,6 @@ function frio_init(App $a)
 				var is_mobile = 1;
 			</script>
 EOT;
-	}
-
-	if ($style == '') {
-		$style = Config::get('frio', 'style');
 	}
 }
 
