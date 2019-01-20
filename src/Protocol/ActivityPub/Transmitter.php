@@ -553,10 +553,7 @@ class Transmitter
 		// Only check for a reshare, if it is a real reshare and no quoted reshare
 		if (strpos($item['body'], "[share") === 0) {
 			$announce = api_share_as_retweet($item);
-			if (!empty($announce['plink'])) {
-				$data = ActivityPub::fetchContent($announce['plink'], $item['uid']);
-				$reshared = !empty($data);
-			}
+			$reshared = !empty($announce['plink']);
 		}
 
 		if ($reshared) {
