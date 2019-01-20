@@ -34,7 +34,9 @@ use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 /**
- * Sets the current theme for theme settings pages. This needs to be done before the post() or content() are called
+ * Sets the current theme for theme settings pages.
+ *
+ * This needs to be done before the post() or content() methods are called.
  *
  * @param App $a
  */
