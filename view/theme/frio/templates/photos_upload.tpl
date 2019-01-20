@@ -9,7 +9,7 @@
 			<label id="photos-upload-text" for="photos-upload-newalbum" >{{$newalbum}}</label>
 
 			<input id="photos-upload-album-select" class="form-control" placeholder="{{$existalbumtext}}" list="dl-photo-upload" type="text" name="album" size="4">
-			<datalist id="dl-photo-upload">{{$albumselect}}</datalist>
+			<datalist id="dl-photo-upload">{{$albumselect  nofilter}}</datalist>
 		</div>
 		<div id="photos-upload-end" class="clearfix"></div>
 
