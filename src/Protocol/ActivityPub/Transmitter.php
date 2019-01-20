@@ -548,7 +548,18 @@ class Transmitter
 	 */
 	private static function getTypeOfItem($item)
 	{
-		if (!empty(Diaspora::isReshare($item['body'], false))) {
+		$reshared = false;
+
+		// Only check for a reshare, if it is a real reshare and no quoted reshare
+		if (strpos($item['body'], "[share") === 0) {
+			$announce = api_share_as_retweet($item);
+			if (!empty($announce['plink'])) {
+				$data = ActivityPub::fetchContent($announce['plink'], $item['uid']);
+				$reshared = !empty($data);
+			}
+		}
+
+		if ($reshared) {
 			$type = 'Announce';
 		} elseif ($item['verb'] == ACTIVITY_POST) {
 			if ($item['created'] == $item['edited']) {
@@ -1018,6 +1029,7 @@ class Transmitter
 			return self::createNote($item);
 		}
 
+		/// @todo Better fetch the real object url.
 		return $announce['plink'];
 	}
 
