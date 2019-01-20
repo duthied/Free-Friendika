@@ -34,6 +34,23 @@ use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 /**
+ * Sets the current theme for theme settings pages.
+ *
+ * This needs to be done before the post() or content() methods are called.
+ *
+ * @param App $a
+ */
+function admin_init(App $a)
+{
+	if ($a->argc > 2 && $a->argv[1] == 'themes') {
+		$theme = $a->argv[2];
+		if (is_file("view/theme/$theme/config.php")) {
+			$a->setCurrentTheme($theme);
+		}
+	}
+}
+
+/**
  * @brief Process send data from the admin panels subpages
  *
  * This function acts as relay for processing the data send from the subpages
@@ -89,15 +106,8 @@ function admin_post(App $a)
 
 				$theme = $a->argv[2];
 				if (is_file("view/theme/$theme/config.php")) {
-					$a->setCurrentTheme($theme);
-
-					require_once "view/theme/$theme/theme.php";
 					require_once "view/theme/$theme/config.php";
 
-					$init = $theme . '_init';
-					if (function_exists($init)) {
-						$init($a);
-					}
 					if (function_exists('theme_admin_post')) {
 						theme_admin_post($a);
 					}
@@ -2306,15 +2316,7 @@ function admin_page_themes(App $a)
 
 		$admin_form = '';
 		if (is_file("view/theme/$theme/config.php")) {
-			$a->setCurrentTheme($theme);
-
-			require_once "view/theme/$theme/theme.php";
 			require_once "view/theme/$theme/config.php";
-
-			$init = $theme . "_init";
-			if (function_exists($init)) {
-				$init($a);
-			}
 
 			if (function_exists('theme_admin')) {
 				$admin_form = theme_admin($a);

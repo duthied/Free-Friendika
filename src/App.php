@@ -1720,13 +1720,7 @@ class App
 
 		$content = '';
 
-		// Load current theme info after module has been executed as theme could have been set in module
-		$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
-		if (file_exists($theme_info_file)) {
-			require_once $theme_info_file;
-		}
-
-		// Call module functions
+		// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
 		if ($this->module_loaded) {
 			$this->page['page_title'] = $this->module;
 			$placeholder = '';
@@ -1740,12 +1734,20 @@ class App
 			if (!$this->error) {
 				call_user_func([$this->module_class, 'rawContent']);
 			}
+		}
 
-			if (function_exists(str_replace('-', '_', $this->getCurrentTheme()) . '_init')) {
-				$func = str_replace('-', '_', $this->getCurrentTheme()) . '_init';
-				$func($this);
-			}
+		// Load current theme info after module has been initialized as theme could have been set in module
+		$theme_info_file = 'view/theme/' . $this->getCurrentTheme() . '/theme.php';
+		if (file_exists($theme_info_file)) {
+			require_once $theme_info_file;
+		}
 
+		if (function_exists(str_replace('-', '_', $this->getCurrentTheme()) . '_init')) {
+			$func = str_replace('-', '_', $this->getCurrentTheme()) . '_init';
+			$func($this);
+		}
+
+		if ($this->module_loaded) {
 			if (! $this->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
 				Core\Addon::callHooks($this->module . '_mod_post', $_POST);
 				call_user_func([$this->module_class, 'post']);
