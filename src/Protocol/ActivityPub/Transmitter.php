@@ -755,7 +755,8 @@ class Transmitter
 		$terms = Term::tagArrayFromItemId($item['id']);
 		foreach ($terms as $term) {
 			if ($term['type'] == TERM_HASHTAG) {
-				$tags[] = ['type' => 'Hashtag', 'href' => $term['url'], 'name' => '#' . $term['term']];
+				$url = System::baseUrl() . '/search?tag=' . urlencode($term['term']);
+				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['term']];
 			} elseif ($term['type'] == TERM_MENTION) {
 				$contact = Contact::getDetailsByURL($term['url']);
 				if (!empty($contact['addr'])) {
