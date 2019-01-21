@@ -1,3 +1,89 @@
+Version 2019.01 (2019-01-xx)
+  Friendica Core:
+    Update to the translation (CS, DE, EN-UK, EN-US, FR, NB-NO, NL, PL) [translation teams]
+    Update to the documentation [AndyHee, FiXato, hoergen, JeroenED, MrPetovan, rebeka-catalina, tobiasd, wouter705]
+    Enhancements to the themes (frio, vier) [annando, JonnyTischbein, MrPetovan, rabuzarus]
+    Enhancements to the usage of MagicLinks [annando, rabuzarus]
+    Enhancements to the escaping of user submitted content [annando, MrPetovan, tobiasd]
+    Enhancements to the installation wizard [annando, JonnyTischbein, vinzv]
+    Enhancements to the OWA compatibility with Hubzilla [annando]
+    Enhancements to Friendica on the iOS Home Screen [MrPetovan]
+    Enhancements to the Welcome email after registration [MrPetovan]
+    Enhancements to the API [annando]
+    Enhancements to the methods to find potentially interesting contacts [MrPetovan]
+    Enhancements to the remote detection of already existing relationships  [MrPetovan]
+    Enhancements to the handling of large posts [annando]
+    Enhancements to the user removal process [annando, MrPetovan]
+    Enhancements to the generation of HTTP error messages [annando]
+    Enhancements to the admin panel [AndyHee, annando]
+    Enhancements to the display of birthday reminders [MrPetovan]
+    Enhancements to the display of the group filter [annando]
+    Enhancements to the Worker [annando]
+    Enhancements to the exported Atom feeds [Alkarex]
+    Enhancements to the Vagrant VM [fabrixxm, tobiasd]
+    Enhancements to the tests [nupplaphil]
+    Enhancements to the node info [annando]
+    Enhancements to the DBclean process [annando]
+    Enhancements to the PasswordExposedChecker [MrPetovan]
+    Enhancements to the BBCode handling [MrPetovan]
+    Enhancements to the diaspora* protocol implementation [annando]
+    Enhancements to the automatic installation [nupplaphil]
+    Fixed various PHP notice occurrences [annando, MrPetovan]
+    Fixed the display of private postings in contact overview [annando]
+    Fixed a problem with the display of forums in the widget [annando]
+    Fixed a bug in the email support [MrPetovan]
+    Fixed a bug in the endless scroll of the network stream [MrPetovan]
+    Fixed a style problem with iOS mobile browser [MrPetovan]
+    Fixed a bug handling links to Hubzilla forums [MrPetovan]
+    Fixed a bug in the character set detection [MrPetovan]
+    Fixed a bug with the display of private notes [annando]
+    Fixed a bug in setting the photo permissions [JonnyTischbein]
+    Fixed a bug that caused some photo albums having no permissions [JonnyTischbein]
+    Fixed a problem adding multiple hashtags [JonnyTischbein]
+    Fixed a bug when subscribing to OStatus accounts [MrPetovan]
+    Fixed a bug in SQL grammar [Alkarex]
+    Fixed a bug with WebSub [Alkarex]
+    Fixed a bug in the generated node info JSON [fabrixxm]
+    Fixed a bug displaying videos when using the frio theme [JeroenED]
+    Moved config format to PHP arrays [MrPetovan]
+    Moved several additional features back to the default features [annando]
+    Started to deprecate the Google+ support [annando]
+    Added support of ActivityPub (tested with Hubzilla, Mastodon, Nextcloud Social, Osada, PeerTube, Pixelfed, Pleroma) [annando]
+    Added support for custom emojis [annando, MrPetovan]
+    The util folder was removed and the content restructured elsewhere [MrPetovan]
+    Removed the old /p endpoint from diaspora* compatibility [annando]
+
+  Friendica Addons:
+    Updating the translations (DE, FR) [translation teams]
+    twitter:
+      use original URL for link display [MrPetovan]
+      enhancements to shares [MrPetovan]
+    leistungsschutzrecht:
+      show preview pictures of videos [annando]
+      optionally suppress pictures [annando]
+    wordpress:
+      posting should work again [annando]
+    forumdirectory:
+      paging enhancements [MrPetovan]
+    mathjax:
+      addon rewritten [MrPetovan]
+    highlightjs:
+      added addon to highlight source code [MrPetovan]
+
+  Closed Issues:
+    1430, 1495, 1572, 1575, 1580, 1581, 2123, 2893, 3016, 3466, 3777,
+    3870, 3897, 4242, 4584, 4592, 4609, 4688, 4708, 4715, 4738, 4804,
+    5264, 5368, 5547, 5596, 5627, 5716, 5723, 5737, 5757, 5771, 5779,
+    5797, 5798, 5811, 5809, 5814, 5820, 5834, 5847, 5801, 5805, 5857,
+    5858, 5859, 5863, 5875, 5879, 5886, 5890, 5893, 5896, 5908, 5911,
+    5915, 5913, 5924, 5932, 5934, 5943, 5955, 5956, 5960, 5966, 5968,
+    5971, 5975, 5992, 5994, 5996, 6006, 6010, 6015, 6027, 6032, 6036,
+    6038, 6047, 6081, 6100, 6109, 6119, 6124, 6125, 6128, 6140, 6149,
+    6157, 6173, 6202, 6211, 6212, 6213, 6236, 6243, 6255, 6257, 6259,
+    6268, 6282, 6283, 6208, 6289, 6294, 6308, 6309, 6313, 6316, 6323,
+    6329, 6334, 6344, 6347, 6343, 6349, 6350, 6355, 6358, 6360, 6361,
+    6363, 6368, 6370, 6391, 6394, 6424, 6425, 6439, 6459
+ 
 Version 2018.09 (2018-09-23)
   Friendica Core:
     Update to the translation (CS, DE, EN-US, FI, IT, NL, PL, ZH-CN) [translation teams]
