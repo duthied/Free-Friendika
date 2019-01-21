@@ -122,7 +122,7 @@ function qp($s) {
  */
 function redir_private_images($a, &$item)
 {
-	$matches = false;
+	$matches = [];
 	$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $mtch) {
@@ -187,7 +187,7 @@ function get_cats_and_terms($item)
 	$categories = [];
 	$folders = [];
 
-	$matches = false;
+	$matches = [];
 	$first = true;
 	$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
@@ -208,7 +208,7 @@ function get_cats_and_terms($item)
 	}
 
 	if (local_user() == $item['uid']) {
-		$matches = false;
+		$matches = [];
 		$first = true;
 		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
