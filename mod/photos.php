@@ -1564,7 +1564,7 @@ function photos_content(App $a)
 			}
 			$response_verbs = ['like'];
 			$response_verbs[] = 'dislike';
-			$responses = get_responses($conv_responses, $response_verbs, '', $link_item);
+			$responses = get_responses($conv_responses, $response_verbs, $link_item);
 
 			$paginate = $pager->renderFull($total);
 		}

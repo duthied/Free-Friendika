@@ -1464,7 +1464,7 @@ function render_location_dummy(array $item) {
 	}
 }
 
-function get_responses(array $conv_responses, array $response_verbs, $ob, array $item) {
+function get_responses(array $conv_responses, array $response_verbs, array $item, Post $ob = null) {
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
