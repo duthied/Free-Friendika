@@ -23,7 +23,6 @@ use Friendica\Util\LDSignature;
 use Friendica\Model\Profile;
 use Friendica\Object\Image;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Protocol\Diaspora;
 use Friendica\Core\Cache;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
