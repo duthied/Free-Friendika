@@ -176,7 +176,7 @@ class Attach extends BaseObject
 	 * @return boolean/integer Row id on success, False on errors
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function store($data, $uid, $filename, $filetype = '' , $filesize = null, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '')
+	public static function store($data, $uid, $filename, $filetype = '' , $filesize = null, $allow_cid = '', $allow_gid = '', $deny_cid = '', $deny_gid = '')
 	{
 		if ($filetype === '') {
 			$filetype = Mimetype::getContentType($filename);
