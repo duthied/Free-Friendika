@@ -247,30 +247,21 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false)
  * @param array $importer
  * @param array $contact
  * @param       $hub
- * @param int   $datedir
- * @param int   $pass
  * @throws ImagickException
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0, $pass = 0)
+function consume_feed($xml, array $importer, array $contact, &$hub)
 {
 	if ($contact['network'] === Protocol::OSTATUS) {
-		if ($pass < 2) {
-			// Test - remove before flight
-			//$tempfile = tempnam(get_temppath(), "ostatus2");
-			//file_put_contents($tempfile, $xml);
-			Logger::log("Consume OStatus messages ", Logger::DEBUG);
-			OStatus::import($xml, $importer, $contact, $hub);
-		}
+		Logger::log("Consume OStatus messages ", Logger::DEBUG);
+		OStatus::import($xml, $importer, $contact, $hub);
 
 		return;
 	}
 
 	if ($contact['network'] === Protocol::FEED) {
-		if ($pass < 2) {
-			Logger::log("Consume feeds", Logger::DEBUG);
-			Feed::import($xml, $importer, $contact, $hub);
-		}
+		Logger::log("Consume feeds", Logger::DEBUG);
+		Feed::import($xml, $importer, $contact, $hub);
 
 		return;
 	}
