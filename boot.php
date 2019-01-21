@@ -35,7 +35,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
-define('FRIENDICA_VERSION',      '2019.01');
+define('FRIENDICA_VERSION',      '2019.03-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
