@@ -423,13 +423,13 @@ class Crypto
 	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 *
-	 * @param string $data
+	 * @param array $data ['iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data]
 	 * @param string $prvkey The private key used for decryption.
 	 *
 	 * @return string|boolean The decrypted string or false on failure.
 	 * @throws \Exception
 	 */
-	public static function unencapsulate($data, $prvkey)
+	public static function unencapsulate(array $data, $prvkey)
 	{
 		if (!$data) {
 			return;
@@ -437,23 +437,23 @@ class Crypto
 
 		$alg = ((array_key_exists('alg', $data)) ? $data['alg'] : 'aes256cbc');
 		if ($alg === 'aes256cbc') {
-			return self::encapsulateAes($data, $prvkey);
+			return self::encapsulateAes($data['data'], $prvkey);
 		}
-		return self::encapsulateOther($data, $prvkey, $alg);
+		return self::encapsulateOther($data['data'], $prvkey, $alg);
 	}
 
 	/**
 	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
 	 *
-	 * @param string $data
+	 * @param array $data
 	 * @param string $prvkey The private key used for decryption.
 	 * @param string $alg
 	 *
 	 * @return string|boolean The decrypted string or false on failure.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function unencapsulateOther($data, $prvkey, $alg)
+	private static function unencapsulateOther(array $data, $prvkey, $alg)
 	{
 		$fn = 'decrypt' . strtoupper($alg);
 
