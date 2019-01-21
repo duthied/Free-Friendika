@@ -198,7 +198,7 @@ class Contact extends BaseModule
 
 		$profile_id = intval(defaults($_POST, 'profile-assign', 0));
 		if ($profile_id) {
-			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user(), 'deleted' => false])) {
+			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
 				notice(L10n::t('Could not locate selected profile.') . EOL);
 				return;
 			}
