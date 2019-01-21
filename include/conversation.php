@@ -1447,7 +1447,7 @@ function sort_thr_created_rev(array $a, array $b)
  *
  * @param array $a
  * @param array $b
- * @return int|lt
+ * @return int
  */
 function sort_thr_commented(array $a, array $b)
 {

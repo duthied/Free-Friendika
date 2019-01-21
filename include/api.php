@@ -528,7 +528,7 @@ function api_unique_id_to_nurl($id)
  *
  * @param App        $a          App
  * @param int|string $contact_id Contact ID or URL
- * @return array
+ * @return array|bool
  * @throws BadRequestException
  * @throws ImagickException
  * @throws InternalServerErrorException

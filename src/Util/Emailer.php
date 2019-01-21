@@ -29,7 +29,7 @@ class Emailer
 	 *                      additionalMailHeader additions to the SMTP mail header
 	 *                      optional             uid user id of the destination user
 	 *
-	 * @return object
+	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function send($params)

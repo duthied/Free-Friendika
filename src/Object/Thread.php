@@ -170,7 +170,7 @@ class Thread extends BaseObject
 	 *
 	 * We should find a way to avoid using those arguments (at least most of them)
 	 *
-	 * @param object $conv_responses data
+	 * @param array $conv_responses data
 	 *
 	 * @return mixed The data requested on success
 	 *               false on failure

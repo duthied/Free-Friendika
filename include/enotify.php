@@ -25,7 +25,7 @@ use Friendica\Util\Strings;
  *                      link, subject, body, to_name, to_email, source_name,
  *                      source_link, activity, preamble, notify_flags,
  *                      language, show_in_notification_page
- * @return bool|object
+ * @return bool
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function notification($params)
@@ -43,7 +43,7 @@ function notification($params)
 
 	if (!DBA::isResult($user)) {
 		Logger::log('Unknown user ' . $params['uid']);
-		return;
+		return false;
 	}
 
 	$params['notify_flags'] = defaults($params, 'notify_flags', $user['notify-flags']);
@@ -79,7 +79,7 @@ function notification($params)
 
 		// There is no need to create notifications for forum accounts
 		if (!DBA::isResult($user) || in_array($user["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
-			return;
+			return false;
 		}
 		$nickname = $user["nickname"];
 	} else {
@@ -146,7 +146,7 @@ function notification($params)
 		if (DBA::isResult($thread) && $thread['ignored']) {
 			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
 			L10n::popLang();
-			return;
+			return false;
 		}
 
 		// Check to see if there was already a tag notify or comment notify for this post.
@@ -155,7 +155,7 @@ function notification($params)
 			'link' => $params['link'], 'uid' => $params['uid']];
 		if (DBA::exists('notify', $condition)) {
 			L10n::popLang();
-			return;
+			return false;
 		}
 
 		// if it's a post figure out who's post it is.
@@ -522,7 +522,7 @@ function notification($params)
 
 		if ($datarray['abort']) {
 			L10n::popLang();
-			return False;
+			return false;
 		}
 
 		// create notification entry in DB
@@ -671,8 +671,7 @@ function notification($params)
 
 		L10n::popLang();
 		// use the Emailer class to send the message
-		return Emailer::send(
-			[
+		return Emailer::send([
 			'uid' => $params['uid'],
 			'fromName' => $sender_name,
 			'fromEmail' => $sender_email,
@@ -681,8 +680,8 @@ function notification($params)
 			'messageSubject' => $datarray['subject'],
 			'htmlVersion' => $email_html_body,
 			'textVersion' => $email_text_body,
-			'additionalMailHeader' => $datarray['headers']]
-		);
+			'additionalMailHeader' => $datarray['headers']
+		]);
 	}
 
 	L10n::popLang();
@@ -778,7 +777,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 	$item = Item::selectFirst($fields, $condition);
 	if (!DBA::isResult($item) || in_array($item['author-id'], $contacts)) {
-		return;
+		return false;
 	}
 
 	// Generate the notification array

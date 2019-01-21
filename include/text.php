@@ -235,7 +235,7 @@ function get_cats_and_terms($item)
 /**
  * return number of bytes in size (K, M, G)
  * @param string $size_str
- * @return number
+ * @return int
  */
 function return_bytes($size_str) {
 	switch (substr ($size_str, -1)) {
