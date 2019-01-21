@@ -548,7 +548,15 @@ class Transmitter
 	 */
 	private static function getTypeOfItem($item)
 	{
-		if (!empty(Diaspora::isReshare($item['body'], false))) {
+		$reshared = false;
+
+		// Only check for a reshare, if it is a real reshare and no quoted reshare
+		if (strpos($item['body'], "[share") === 0) {
+			$announce = api_share_as_retweet($item);
+			$reshared = !empty($announce['plink']);
+		}
+
+		if ($reshared) {
 			$type = 'Announce';
 		} elseif ($item['verb'] == ACTIVITY_POST) {
 			if ($item['created'] == $item['edited']) {
@@ -747,7 +755,8 @@ class Transmitter
 		$terms = Term::tagArrayFromItemId($item['id']);
 		foreach ($terms as $term) {
 			if ($term['type'] == TERM_HASHTAG) {
-				$tags[] = ['type' => 'Hashtag', 'href' => $term['url'], 'name' => '#' . $term['term']];
+				$url = System::baseUrl() . '/search?tag=' . urlencode($term['term']);
+				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['term']];
 			} elseif ($term['type'] == TERM_MENTION) {
 				$contact = Contact::getDetailsByURL($term['url']);
 				if (!empty($contact['addr'])) {
@@ -1018,7 +1027,17 @@ class Transmitter
 			return self::createNote($item);
 		}
 
-		return $announce['plink'];
+		// Fetch the original id of the object
+		$activity = ActivityPub::fetchContent($announce['plink'], $item['uid']);
+		if (!empty($activity)) {
+			$ldactivity = JsonLD::compact($activity);
+			$id = JsonLD::fetchElement($ldactivity, '@id');
+			if (!empty($id)) {
+				return $id;
+			}
+		}
+
+		return self::createNote($item);
 	}
 
 	/**
