@@ -135,14 +135,14 @@ class XML
 	/**
 	 * @brief Create an XML element
 	 *
-	 * @param object $doc        XML root
-	 * @param string $element    XML element name
-	 * @param string $value      XML value
-	 * @param array  $attributes array containing the attributes
+	 * @param \DOMDocument $doc        XML root
+	 * @param string       $element    XML element name
+	 * @param string       $value      XML value
+	 * @param array        $attributes array containing the attributes
 	 *
-	 * @return object XML element object
+	 * @return \DOMElement XML element object
 	 */
-	public static function createElement($doc, $element, $value = "", $attributes = [])
+	public static function createElement(\DOMDocument $doc, $element, $value = "", $attributes = [])
 	{
 		$element = $doc->createElement($element, self::escape($value));
 
@@ -157,14 +157,14 @@ class XML
 	/**
 	 * @brief Create an XML and append it to the parent object
 	 *
-	 * @param object $doc        XML root
+	 * @param \DOMDocument $doc        XML root
 	 * @param object $parent     parent object
 	 * @param string $element    XML element name
 	 * @param string $value      XML value
 	 * @param array  $attributes array containing the attributes
 	 * @return void
 	 */
-	public static function addElement($doc, $parent, $element, $value = "", $attributes = [])
+	public static function addElement(\DOMDocument $doc, $parent, $element, $value = "", $attributes = [])
 	{
 		$element = self::createElement($doc, $element, $value, $attributes);
 		$parent->appendChild($element);
@@ -402,11 +402,11 @@ class XML
 	/**
 	 * @brief Delete a node in a XML object
 	 *
-	 * @param object $doc  XML document
+	 * @param \DOMDocument $doc  XML document
 	 * @param string $node Node name
 	 * @return void
 	 */
-	public static function deleteNode(&$doc, $node)
+	public static function deleteNode(\DOMDocument $doc, $node)
 	{
 		$xpath = new DOMXPath($doc);
 		$list = $xpath->query("//".$node);
@@ -431,7 +431,7 @@ class XML
 		return $x;
 	}
 
-	public static function getFirstNodeValue($xpath, $element, $context = null)
+	public static function getFirstNodeValue(DOMXPath $xpath, $element, $context = null)
 	{
 		$result = $xpath->evaluate($element, $context);
 		if (!is_object($result)) {
@@ -446,7 +446,7 @@ class XML
 		return $first_item->nodeValue;
 	}
 
-	public static function getFirstAttributes($xpath, $element, $context = null)
+	public static function getFirstAttributes(DOMXPath $xpath, $element, $context = null)
 	{
 		$result = $xpath->query($element, $context);
 		if (!is_object($result)) {

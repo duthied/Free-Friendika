@@ -158,10 +158,10 @@ class Temporal
 	/**
 	 * @brief Returns a date selector
 	 *
-	 * @param string $min     Unix timestamp of minimum date
-	 * @param string $max     Unix timestap of maximum date
-	 * @param string $default Unix timestamp of default date
-	 * @param string $id      ID and name of datetimepicker (defaults to "datetimepicker")
+	 * @param DateTime $min     Minimum date
+	 * @param DateTime $max     Maximum date
+	 * @param DateTime $default Default date
+	 * @param string   $id      ID and name of datetimepicker (defaults to "datetimepicker")
 	 *
 	 * @return string Parsed HTML output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

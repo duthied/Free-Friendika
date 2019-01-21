@@ -11,6 +11,7 @@ use Friendica\Core\System;
 use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
 use Friendica\Util\Security;
 use Friendica\Util\DateTimeFormat;
@@ -186,6 +187,7 @@ class Attach extends BaseObject
 			$filesize = strlen($data);
 		}
 
+		/** @var IStorage $backend_class */
 		$backend_class = StorageManager::getBackend();
 		$backend_ref = '';
 		if ($backend_class !== '') {
@@ -265,6 +267,7 @@ class Attach extends BaseObject
 			$items = self::select(['backend-class','backend-ref'], $conditions);
 
 			foreach($items as $item) {
+				/** @var IStorage $backend_class */
 				$backend_class = (string)$item['backend-class'];
 				if ($backend_class !== '') {
 					$fields['backend-ref'] = $backend_class::put($img->asString(), $item['backend-ref']);
@@ -297,6 +300,7 @@ class Attach extends BaseObject
 		$items = self::select(['backend-class','backend-ref'], $conditions);
 
 		foreach($items as $item) {
+			/** @var IStorage $backend_class */
 			$backend_class = (string)$item['backend-class'];
 			if ($backend_class !== '') {
 				$backend_class::delete($item['backend-ref']);

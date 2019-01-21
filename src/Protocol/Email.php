@@ -17,7 +17,7 @@ class Email
 	 * @param string $mailbox  The mailbox name
 	 * @param string $username The username
 	 * @param string $password The password
-	 * @return object
+	 * @return resource
 	 * @throws \Exception
 	 */
 	public static function connect($mailbox, $username, $password)
@@ -42,8 +42,8 @@ class Email
 	}
 
 	/**
-	 * @param object $mbox       mailbox
-	 * @param string $email_addr email
+	 * @param resource $mbox       mailbox
+	 * @param string   $email_addr email
 	 * @return array
 	 * @throws \Exception
 	 */
@@ -92,8 +92,8 @@ class Email
 	}
 
 	/**
-	 * @param object  $mbox mailbox
-	 * @param integer $uid  user id
+	 * @param resource $mbox mailbox
+	 * @param integer  $uid  user id
 	 * @return mixed
 	 */
 	public static function messageMeta($mbox, $uid)
@@ -103,9 +103,9 @@ class Email
 	}
 
 	/**
-	 * @param object  $mbox  mailbox
-	 * @param integer $uid   user id
-	 * @param string  $reply reply
+	 * @param resource $mbox  mailbox
+	 * @param integer  $uid   user id
+	 * @param string   $reply reply
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -166,11 +166,11 @@ class Email
 	// At the moment - only return plain/text.
 	// Later we'll repackage inline images as data url's and make the HTML safe
 	/**
-	 * @param object  $mbox    mailbox
-	 * @param integer $uid     user id
-	 * @param object  $p       parts
-	 * @param integer $partno  part number
-	 * @param string  $subtype sub type
+	 * @param resource $mbox    mailbox
+	 * @param integer  $uid     user id
+	 * @param object   $p       parts
+	 * @param integer  $partno  part number
+	 * @param string   $subtype sub type
 	 * @return string
 	 */
 	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)

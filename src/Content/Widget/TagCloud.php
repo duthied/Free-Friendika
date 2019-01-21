@@ -113,7 +113,7 @@ class TagCloud
 	 * @param array $arr Array of tags/terms with tag/term name and total count of use.
 	 * @return array     Alphabetical sorted array of used tags/terms of an user.
 	 */
-	private static function tagCalc($arr)
+	private static function tagCalc(array $arr)
 	{
 		$tags = [];
 		$min = 1e9;

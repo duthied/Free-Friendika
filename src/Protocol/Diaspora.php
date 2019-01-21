@@ -648,15 +648,15 @@ class Diaspora
 	/**
 	 * @brief Dispatches the different message types to the different functions
 	 *
-	 * @param array  $importer Array of the importer user
-	 * @param array  $msg      The post that will be dispatched
-	 * @param object $fields   SimpleXML object that contains the message
+	 * @param array            $importer Array of the importer user
+	 * @param array            $msg      The post that will be dispatched
+	 * @param SimpleXMLElement $fields   SimpleXML object that contains the message
 	 *
 	 * @return int The message id of the generated message, "true" or "false" if there was an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function dispatch(array $importer, $msg, $fields = null)
+	public static function dispatch(array $importer, $msg, SimpleXMLElement $fields = null)
 	{
 		// The sender is the handle of the contact that sent the message.
 		// This will often be different with relayed messages (for example "like" and "comment")
@@ -758,7 +758,7 @@ class Diaspora
 	 *
 	 * @param array $msg Array with the XML, the sender handle and the sender signature
 	 *
-	 * @return bool|array If the posting is valid then an array with an SimpleXML object is returned
+	 * @return bool|SimpleXMLElement If the posting is valid then an array with an SimpleXML object is returned
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1077,7 +1077,7 @@ class Diaspora
 	 * @param int    $uid    The user id
 	 * @param string $handle The handle in the format user@domain.tld
 	 *
-	 * @return int Contact id
+	 * @return array Contact data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */

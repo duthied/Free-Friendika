@@ -3,6 +3,7 @@
 namespace Friendica\Core;
 
 use Friendica\Database\DBA;
+use Friendica\Model\Storage\IStorage;
 
 
 /**
@@ -138,6 +139,7 @@ class StorageManager
 				while($r = DBA::fetch($rr)) {
 					$id = $r['id'];
 					$data = $r['data'];
+					/** @var IStorage $backendClass */
 					$backendClass = $r['backend-class'];
 					$backendRef = $r['backend-ref'];
 					if (!is_null($backendClass) && $backendClass !== '') {
@@ -146,6 +148,7 @@ class StorageManager
 					}
 					
 					Logger::log("save data to new backend " . $dest);
+					/** @var IStorage $dest */
 					$ref = $dest::put($data);
 					Logger::log("saved data as " . $ref);
 

@@ -23,6 +23,7 @@ use ImagickPixel;
  */
 class Image
 {
+	/** @var Imagick|resource */
 	private $image;
 
 	/*
