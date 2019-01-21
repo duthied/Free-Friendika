@@ -528,7 +528,7 @@ function api_unique_id_to_nurl($id)
  *
  * @param App        $a          App
  * @param int|string $contact_id Contact ID or URL
- * @return array
+ * @return array|bool
  * @throws BadRequestException
  * @throws ImagickException
  * @throws InternalServerErrorException
@@ -1320,12 +1320,6 @@ function api_status_show($type, $item_id = 0)
 
 	Logger::log('api_status_show: user_info: '.print_r($user_info, true), Logger::DEBUG);
 
-	if ($type == "raw") {
-		$privacy_sql = "AND NOT `private`";
-	} else {
-		$privacy_sql = "";
-	}
-
 	if (!empty($item_id)) {
 		// Get the item with the given id
 		$condition = ['id' => $item_id];
@@ -1334,6 +1328,11 @@ function api_status_show($type, $item_id = 0)
 		$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
 			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 	}
+
+	if ($type == "raw") {
+		$condition['private'] = false;
+	}
+
 	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
 	if (DBA::isResult($lastwall)) {
@@ -2834,7 +2833,7 @@ function api_get_entitities(&$text, $bbcode)
 
 				$entities["media"][] = [
 							"id" => $start+1,
-							"id_str" => (string)$start+1,
+							"id_str" => (string) ($start + 1),
 							"indices" => [$start, $start+strlen($url)],
 							"media_url" => Strings::normaliseLink($media_url),
 							"media_url_https" => $media_url,
@@ -4597,8 +4596,8 @@ function api_account_update_profile_image($type)
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
 		Photo::update(['profile' => false], $condition);
 	} else {
-		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype,
-			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype];
+		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $fileext,
+			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $fileext];
 		DBA::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
 	}
 

@@ -210,8 +210,8 @@ function localize_item(&$item)
 		foreach ($links->link as $l) {
 			$atts = $l->attributes();
 			switch ($atts['rel']) {
-				case "alternate": $Blink = $atts['href'];
-				case "photo": $Bphoto = $atts['href'];
+				case "alternate": $Blink = $atts['href']; break;
+				case "photo": $Bphoto = $atts['href']; break;
 			}
 		}
 
@@ -1044,7 +1044,6 @@ function format_like($cnt, array $arr, $type, $id) {
 		}
 	}
 
-	$phrase = '';
 	if ($cnt > 1) {
 		$total = count($arr);
 		if ($total < MAX_LIKERS) {
@@ -1447,7 +1446,7 @@ function sort_thr_created_rev(array $a, array $b)
  *
  * @param array $a
  * @param array $b
- * @return int|lt
+ * @return int
  */
 function sort_thr_commented(array $a, array $b)
 {
@@ -1464,7 +1463,7 @@ function render_location_dummy(array $item) {
 	}
 }
 
-function get_responses(array $conv_responses, array $response_verbs, $ob, array $item) {
+function get_responses(array $conv_responses, array $response_verbs, array $item, Post $ob = null) {
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
