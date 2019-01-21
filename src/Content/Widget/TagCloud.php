@@ -89,7 +89,7 @@ class TagCloud
 		}
 
 		// Fetch tags
-		$r = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
+		$tag_stmt = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
 			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
 			WHERE `term`.`uid` = ? AND `term`.`type` = ?
 			AND `term`.`otype` = ?
@@ -100,9 +100,11 @@ class TagCloud
 			$type,
 			TERM_OBJ_POST
 		);
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($tag_stmt)) {
 			return [];
 		}
+
+		$r = DBA::toArray($tag_stmt);
 
 		return self::tagCalc($r);
 	}
