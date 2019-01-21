@@ -40,6 +40,7 @@ class TagCloud
 			$contact = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 			$url = System::removedBaseUrl($contact['url']);
 
+			$tags = [];
 			foreach ($r as $rr) {
 				$tag['level'] = $rr[2];
 				$tag['url'] = $url . '?tag=' . urlencode($rr[0]);

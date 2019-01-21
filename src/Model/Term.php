@@ -274,6 +274,7 @@ class Term
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$tag['url'] = Contact::magicLinkByContact($author, $tag['url']);
 
+			$prefix = '';
 			if ($tag['type'] == TERM_HASHTAG) {
 				if ($orig_tag != $tag['url']) {
 					$item['body'] = str_replace($orig_tag, $tag['url'], $item['body']);

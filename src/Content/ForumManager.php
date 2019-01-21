@@ -105,6 +105,8 @@ class ForumManager
 		if (DBA::isResult($contacts)) {
 			$id = 0;
 
+			$entries = [];
+
 			foreach ($contacts as $contact) {
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
