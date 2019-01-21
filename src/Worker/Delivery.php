@@ -94,7 +94,7 @@ class Delivery extends BaseObject
 			} elseif (!empty($target_item['uid'])) {
 				$uid = $target_item['uid'];
 			} else {
-				Logger::log('Only public users for item ' . $item_id, Logger::DEBUG);
+				Logger::log('Only public users for item ' . $target_id, Logger::DEBUG);
 				return;
 			}
 
