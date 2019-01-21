@@ -210,8 +210,8 @@ function localize_item(&$item)
 		foreach ($links->link as $l) {
 			$atts = $l->attributes();
 			switch ($atts['rel']) {
-				case "alternate": $Blink = $atts['href'];
-				case "photo": $Bphoto = $atts['href'];
+				case "alternate": $Blink = $atts['href']; break;
+				case "photo": $Bphoto = $atts['href']; break;
 			}
 		}
 
@@ -1044,7 +1044,6 @@ function format_like($cnt, array $arr, $type, $id) {
 		}
 	}
 
-	$phrase = '';
 	if ($cnt > 1) {
 		$total = count($arr);
 		if ($total < MAX_LIKERS) {
