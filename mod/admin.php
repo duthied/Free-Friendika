@@ -34,6 +34,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use Psr\Log\LogLevel;
 
 /**
  * Sets the current theme for theme settings pages.
@@ -2497,7 +2498,7 @@ function admin_page_logs_post(App $a)
 
 		$logfile   = (!empty($_POST['logfile']) ? Strings::escapeTags(trim($_POST['logfile'])) : '');
 		$debugging = !empty($_POST['debugging']);
-		$loglevel  = (!empty($_POST['loglevel']) ? intval(trim($_POST['loglevel'])) : 0);
+		$loglevel  = defaults($_POST, 'loglevel', LogLevel::ERROR);
 
 		Config::set('system', 'logfile', $logfile);
 		Config::set('system', 'debugging', $debugging);
@@ -2529,12 +2530,11 @@ function admin_page_logs_post(App $a)
 function admin_page_logs(App $a)
 {
 	$log_choices = [
-		Logger::WARNING => 'Warning',
-		Logger::INFO    => 'Info',
-		Logger::TRACE   => 'Trace',
-		Logger::DEBUG   => 'Debug',
-		Logger::DATA    => 'Data',
-		Logger::ALL     => 'All'
+		LogLevel::ERROR   => 'Error',
+		LogLevel::WARNING => 'Warning',
+		LogLevel::NOTICE  => 'Notice',
+		LogLevel::INFO    => 'Info',
+		LogLevel::DEBUG   => 'Debug',
 	];
 
 	if (ini_get('log_errors')) {
