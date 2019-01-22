@@ -562,8 +562,10 @@ class Notifier
 	{
 		$inboxes = [];
 
+		$uid = $target_item['contact-uid'] ?: $target_item['uid'];
+
 		if ($target_item['origin']) {
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $target_item['contact-uid']);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
 			Logger::log('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
 			Logger::log('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', Logger::DEBUG);
@@ -571,7 +573,7 @@ class Notifier
 		} elseif ($parent['origin']) {
 			// Remote items are transmitted via the personal inboxes.
 			// Doing so ensures that the dedicated receiver will get the message.
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $target_item['contact-uid'], true, $target_item['id']);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true, $target_item['id']);
 			Logger::log('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		}
 
@@ -587,7 +589,7 @@ class Notifier
 			Logger::log('Deliver ' . $target_item['id'] .' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
 
 			Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
-					'APDelivery', $cmd, $target_item['id'], $inbox, $target_item['contact-uid'] ?: $target_item['uid']);
+					'APDelivery', $cmd, $target_item['id'], $inbox, $uid);
 		}
 
 		return count($inboxes);
