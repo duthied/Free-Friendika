@@ -184,7 +184,7 @@ function salmon_post(App $a, $xml = '') {
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	$contact_rec = ((DBA::isResult($r)) ? $r[0] : null);
+	$contact_rec = ((DBA::isResult($r)) ? $r[0] : []);
 
 	OStatus::import($data, $importer, $contact_rec, $hub);
 

@@ -201,7 +201,7 @@ class APContact extends BaseObject
 			if (is_int($contact_type)) {
 				$contact_fields['contact-type'] = $contact_type;
 
-				if ($contact_fields['contact-type'] != Contact::ACCOUNT_TYPE_COMMUNITY) {
+				if ($contact_fields['contact-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
 					// Resetting the 'forum' and 'prv' field when it isn't a forum
 					$contact_fields['forum'] = false;
 					$contact_fields['prv'] = false;
