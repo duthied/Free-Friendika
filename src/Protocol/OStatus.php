@@ -1693,7 +1693,7 @@ class OStatus
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
-		self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => false,
 			'network' => [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]];
@@ -1758,7 +1758,7 @@ class OStatus
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
-		self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		$verb = NAMESPACE_ACTIVITY_SCHEMA."favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
@@ -1879,7 +1879,7 @@ class OStatus
 
 		$item["body"] = sprintf($message, $owner["nick"], $contact["nick"]);
 
-		self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		self::entryContent($doc, $entry, $item, $owner, $title);
 
@@ -1910,7 +1910,17 @@ class OStatus
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
-		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		if (!$toplevel) {
+			if (!empty($item['title'])) {
+				$title = BBCode::convert($item['title'], false, 7);
+			} else {
+				$title = sprintf("New note by %s", $owner["nick"]);
+			}
+		} else {
+			$title = sprintf("New comment by %s", $owner["nick"]);
+		}
+
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 
@@ -1925,25 +1935,18 @@ class OStatus
 	 * @brief Adds a header element to the XML document
 	 *
 	 * @param DOMDocument $doc      XML document
-	 * @param object      $entry    The entry element where the elements are added
 	 * @param array       $owner    Contact data of the poster
 	 * @param array       $item
 	 * @param bool        $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return string The title for the element
+	 * @return \DOMElement The entry element where the elements are added
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function entryHeader(DOMDocument $doc, &$entry, array $owner, array $item, $toplevel)
+	private static function entryHeader(DOMDocument $doc, array $owner, array $item, $toplevel)
 	{
-		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
-			if (!empty($item['title'])) {
-				$title = BBCode::convert($item['title'], false, 7);
-			} else {
-				$title = sprintf("New note by %s", $owner["nick"]);
-			}
 
 			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 				$contact = self::contactEntry($item['author-link'], $owner);
@@ -1964,10 +1967,9 @@ class OStatus
 
 			$author = self::addAuthor($doc, $owner);
 			$entry->appendChild($author);
-
-			$title = sprintf("New comment by %s", $owner["nick"]);
 		}
-		return $title;
+
+		return $entry;
 	}
 
 	/**
