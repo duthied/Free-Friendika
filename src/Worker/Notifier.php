@@ -587,7 +587,7 @@ class Notifier
 			Logger::log('Deliver ' . $target_item['id'] .' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
 
 			Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
-					'APDelivery', $cmd, $target_item['id'], $inbox, $target_item['contact-uid']);
+					'APDelivery', $cmd, $target_item['id'], $inbox, $target_item['contact-uid'] ?: $target_item['uid']);
 		}
 
 		return count($inboxes);
