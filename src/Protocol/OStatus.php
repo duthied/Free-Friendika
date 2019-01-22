@@ -74,7 +74,7 @@ class OStatus
 
 		$author["contact-id"] = $contact["id"];
 
-		$contact = null;
+		$contact = [];
 
 /*
 		This here would be better, but we would get problems with contacts from the statusnet addon
@@ -231,7 +231,7 @@ class OStatus
 
 			GContact::link($gcid, $contact["uid"], $contact["id"]);
 		} elseif ($contact["network"] != Protocol::DFRN) {
-			$contact = null;
+			$contact = [];
 		}
 
 		return $author;
