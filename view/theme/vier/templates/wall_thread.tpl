@@ -57,7 +57,6 @@
 			<span class="wall-item-ago">
 				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="u-url" style="color: #999"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time></a>{{else}} <time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time> {{/if}}
 				{{if $item.owner_self}}
-					&bullet;
 					{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 				{{/if}}
 			</span>
