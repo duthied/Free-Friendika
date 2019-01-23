@@ -2094,6 +2094,7 @@ ul.dropdown-menu li:hover {
 /* Media Classes */
 .media .time,
 .media .shared-time,
+.media .delivery,
 .media .location,
 .media .location a {
     font-size: 11px;

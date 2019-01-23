@@ -209,7 +209,6 @@ as the value of $top_child_total (this is done at the end of this file)
 							</span>
 						</a>
 						{{if $item.owner_self}}
-							&bullet;
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 						{{/if}}
 					</small>
@@ -233,7 +232,6 @@ as the value of $top_child_total (this is done at the end of this file)
 						<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
 						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
 						{{if $item.owner_self}}
-							&bullet;
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 						{{/if}}
 					</small>
@@ -253,7 +251,6 @@ as the value of $top_child_total (this is done at the end of this file)
 						<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</a>
 						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
 						{{if $item.owner_self}}
-							&bullet;
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 						{{/if}}
 					</small>
