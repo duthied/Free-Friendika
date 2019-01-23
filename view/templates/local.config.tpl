@@ -24,7 +24,7 @@ return [
 		'php_path' => '{{$phpath}}',
 		'admin_email' => '{{$adminmail}}',
 		'sitename' => 'Friendica Social Network',
-		'register_policy' => REGISTER_OPEN,
+		'register_policy' => \Friendica\Module\Register::OPEN,
 		'max_import_size' => 200000,
 	],
 	'system' => [

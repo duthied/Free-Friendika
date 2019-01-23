@@ -43,7 +43,7 @@ class Login extends BaseModule
 			$a->internalRedirect();
 		}
 
-		return self::form(defaults($_SESSION, 'return_path', null), intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED);
+		return self::form(defaults($_SESSION, 'return_path', null), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
 	public static function post()

@@ -188,7 +188,7 @@ function ping_init(App $a)
 		);
 		$mail_count = count($mails);
 
-		if (intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE && is_site_admin()) {
+		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::APPROVE && is_site_admin()) {
 			$regs = Friendica\Model\Register::getPending();
 
 			if (DBA::isResult($regs)) {

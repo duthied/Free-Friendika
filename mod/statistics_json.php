@@ -16,11 +16,15 @@ function statistics_json_init(App $a) {
 		System::httpExit(404);
 	}
 
+	$registration_open =
+		intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED
+		&& ! Config::get('config', 'invitation_only');
+
 	$statistics = [
 		"name" => Config::get('config', 'sitename'),
 		"network" => FRIENDICA_PLATFORM,
 		"version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION,
-		"registrations_open" => intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED,
+		"registrations_open" => $registration_open,
 		"total_users" => Config::get('nodeinfo', 'total_users'),
 		"active_users_halfyear" => Config::get('nodeinfo', 'active_users_halfyear'),
 		"active_users_monthly" => Config::get('nodeinfo', 'active_users_monthly'),

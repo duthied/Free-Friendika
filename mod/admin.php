@@ -26,6 +26,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Register;
 use Friendica\Model\User;
+use Friendica\Module;
 use Friendica\Module\Login;
 use Friendica\Module\Tos;
 use Friendica\Util\Arrays;
@@ -1509,9 +1510,9 @@ function admin_page_site(App $a)
 
 	/* Register policy */
 	$register_choices = [
-		REGISTER_CLOSED => L10n::t("Closed"),
-		REGISTER_APPROVE => L10n::t("Requires approval"),
-		REGISTER_OPEN => L10n::t("Open")
+		Module\Register::CLOSED => L10n::t("Closed"),
+		Module\Register::APPROVE => L10n::t("Requires approval"),
+		Module\Register::OPEN => L10n::t("Open")
 	];
 
 	$ssl_choices = [

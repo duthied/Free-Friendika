@@ -41,7 +41,7 @@
 	</div>
 	<div id="register-email-end" ></div>
 
-{{if $passwords}}
+{{if $ask_password}}
 	{{include file="field_password.tpl" field=$password1}}
 	{{include file="field_password.tpl" field=$password2}}
 {{/if}}

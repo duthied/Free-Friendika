@@ -3557,7 +3557,7 @@ function api_statusnet_config($type)
 	$server    = $a->getHostName();
 	$logo      = System::baseUrl() . '/images/friendica-64.png';
 	$email     = Config::get('config', 'admin_email');
-	$closed    = intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 'true' : 'false';
+	$closed    = intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 'true' : 'false';
 	$private   = Config::get('system', 'block_public') ? 'true' : 'false';
 	$textlimit = (string) Config::get('config', 'api_import_size', Config::get('config', 'max_import_size', 200000));
 	$ssl       = Config::get('system', 'have_ssl') ? 'true' : 'false';

@@ -59,7 +59,7 @@ function nodeinfo_init(App $a) {
 
 	$nodeinfo['usage'] = [];
 
-	$nodeinfo['openRegistrations'] = intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED;
+	$nodeinfo['openRegistrations'] = intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED;
 
 	$nodeinfo['metadata'] = ['nodeName' => Config::get('config', 'sitename')];
 

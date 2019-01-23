@@ -10,16 +10,22 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Module\Register;
 
 function friendica_init(App $a)
 {
 	if (!empty($a->argv[1]) && ($a->argv[1] == "json")) {
-		$register_policies = ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'];
+		$register_policies = [
+			Register::CLOSED  => 'REGISTER_CLOSED',
+			Register::APPROVE => 'REGISTER_APPROVE',
+			Register::OPEN    => 'REGISTER_OPEN'
+		];
 
-		$register_policy = $register_policies[intval(Config::get('config', 'register_policy'))];
-
-		if ($register_policy == 'REGISTER_OPEN' && Config::get('config', 'invitation_only')) {
+		$register_policy_int = intval(Config::get('config', 'register_policy'));
+		if ($register_policy_int !== Register::CLOSED && Config::get('config', 'invitation_only')) {
 			$register_policy = 'REGISTER_INVITATION';
+		} else {
+			$register_policy = $register_policies[$register_policy_int];
 		}
 
 		$sql_extra = '';

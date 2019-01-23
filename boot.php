@@ -98,19 +98,6 @@ define('SSL_POLICY_SELFSIGN',     2);
 /* @}*/
 
 /**
- * @name Register
- *
- * Registration policies
- * @{
- */
-define('REGISTER_CLOSED',        0);
-define('REGISTER_APPROVE',       1);
-define('REGISTER_OPEN',          2);
-/**
- * @}
-*/
-
-/**
  * @name CP
  *
  * Type of the community page
