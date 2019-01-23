@@ -1790,13 +1790,13 @@ class Item extends BaseObject
 			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $diaspora_signed_text], true);
 		}
 
-		$deleted = self::tagDeliver($item['uid'], $current_post);
+		self::tagDeliver($item['uid'], $current_post);
 
 		/*
 		 * current post can be deleted if is for a community page and no mention are
 		 * in it.
 		 */
-		if (!$deleted && !$dontcache) {
+		if (!$dontcache) {
 			$posted_item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
 			if (DBA::isResult($posted_item)) {
 				if ($notify) {

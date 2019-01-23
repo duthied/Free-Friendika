@@ -644,15 +644,17 @@ class Event extends BaseObject
 	 */
 	private static function formatListForExport(array $events, $format)
 	{
+		$o = '';
+
 		if (!count($events)) {
-			return '';
+			return $o;
 		}
 
 		switch ($format) {
 			// Format the exported data as a CSV file.
 			case "csv":
 				header("Content-type: text/csv");
-				$o = '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
+				$o .= '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
 
 				foreach ($events as $event) {
 					/// @todo The time / date entries don't include any information about the

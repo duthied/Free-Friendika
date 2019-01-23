@@ -2,6 +2,7 @@
 /**
  * @file src/Module/Inbox.php
  */
+
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
@@ -25,19 +26,17 @@ class Inbox extends BaseModule
 			System::httpExit(400);
 		}
 
-// Enable for test purposes
-/*
-		if (HTTPSignature::getSigner($postdata, $_SERVER)) {
-			$filename = 'signed-activitypub';
-		} else {
-			$filename = 'failed-activitypub';
+		if (Config::get('debug', 'ap_inbox_log')) {
+			if (HTTPSignature::getSigner($postdata, $_SERVER)) {
+				$filename = 'signed-activitypub';
+			} else {
+				$filename = 'failed-activitypub';
+			}
+			$tempfile = tempnam(get_temppath(), $filename);
+			file_put_contents($tempfile, json_encode(['argv' => $a->argv, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+			Logger::log('Incoming message stored under ' . $tempfile);
 		}
 
-		$tempfile = tempnam(get_temppath(), $filename);
-		file_put_contents($tempfile, json_encode(['argv' => $a->argv, 'header' => $_SERVER, 'body' => $postdata], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-
-		Logger::log('Incoming message stored under ' . $tempfile);
-*/
 		if (!empty($a->argv[1])) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
 			if (!DBA::isResult($user)) {

@@ -157,7 +157,7 @@ class Mail
 	}
 
 	/**
-	 * @param string $recipient recipient, default empty
+	 * @param array  $recipient recipient, default empty
 	 * @param string $body      message body, default empty
 	 * @param string $subject   message subject, default empty
 	 * @param string $replyto   reply to, default empty
@@ -165,7 +165,7 @@ class Mail
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function sendWall($recipient = '', $body = '', $subject = '', $replyto = '')
+	public static function sendWall(array $recipient = [], $body = '', $subject = '', $replyto = '')
 	{
 		if (!$recipient) {
 			return -1;

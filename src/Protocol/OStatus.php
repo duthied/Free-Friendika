@@ -1453,7 +1453,7 @@ class OStatus
 	 * @param array       $owner        Contact data of the poster
 	 * @param bool        $show_profile Whether to show profile
 	 *
-	 * @return object author element
+	 * @return \DOMElement author element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function addAuthor(DOMDocument $doc, array $owner, $show_profile = true)
@@ -1573,7 +1573,7 @@ class OStatus
 	 * @param bool        $toplevel  optional default false
 	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
-	 * @return object Entry element
+	 * @return \DOMElement Entry element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1605,7 +1605,7 @@ class OStatus
 	 * @param DOMDocument $doc     XML document
 	 * @param array       $contact Array of the contact that is added
 	 *
-	 * @return object Source element
+	 * @return \DOMElement Source element
 	 * @throws \Exception
 	 */
 	private static function sourceEntry(DOMDocument $doc, array $contact)
@@ -1748,7 +1748,7 @@ class OStatus
 	 * @param array       $owner    Contact data of the poster
 	 * @param bool        $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return object Entry element with "like"
+	 * @return \DOMElement Entry element with "like"
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1835,7 +1835,7 @@ class OStatus
 	 * @param array       $owner    Contact data of the poster
 	 * @param bool        $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return object Entry element
+	 * @return \DOMElement Entry element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1900,7 +1900,7 @@ class OStatus
 	 * @param bool        $toplevel  Is it for en entry element (false) or a feed entry (true)?
 	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
-	 * @return object Entry element
+	 * @return \DOMElement Entry element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -1976,7 +1976,7 @@ class OStatus
 	 * @brief Adds elements to the XML document
 	 *
 	 * @param DOMDocument $doc       XML document
-	 * @param object      $entry     Entry element where the content is added
+	 * @param \DOMElement $entry     Entry element where the content is added
 	 * @param array       $item      Data of the item that is to be posted
 	 * @param array       $owner     Contact data of the poster
 	 * @param string      $title     Title for the post
@@ -1986,7 +1986,7 @@ class OStatus
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function entryContent(DOMDocument $doc, $entry, array $item, array $owner, $title, $verb = "", $complete = true, $feed_mode = false)
+	private static function entryContent(DOMDocument $doc, \DOMElement $entry, array $item, array $owner, $title, $verb = "", $complete = true, $feed_mode = false)
 	{
 		if ($verb == "") {
 			$verb = self::constructVerb($item);

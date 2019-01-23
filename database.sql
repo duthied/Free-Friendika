@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.03-dev (The Tazmans Flax-lily)
--- DB_UPDATE_VERSION 1299
+-- DB_UPDATE_VERSION 1300
 -- ------------------------------------------
 
 
@@ -1260,7 +1260,7 @@ CREATE TABLE IF NOT EXISTS `worker-ipc` (
 --
 CREATE TABLE IF NOT EXISTS `workerqueue` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'Auto incremented worker task id',
-	`parameter` mediumblob COMMENT 'Task command',
+	`parameter` mediumtext COMMENT 'Task command',
 	`priority` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Task priority',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
 	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',

@@ -46,28 +46,29 @@ class Photo extends BaseModule
 		}
 
 		$customsize = 0;
+		$photo = false;
 		switch($a->argc) {
-		case 4:
-			$customsize = intval($a->argv[2]);
-			$uid = self::stripExtension($a->argv[3]);
-			$photo = self::getAvatar($uid, $a->argv[1]);
-			break;
-		case 3:
-			$uid = self::stripExtension($a->argv[2]);
-			$photo = self::getAvatar($uid, $a->argv[1]);
-			break;
-		case 2:
-			$photoid = self::stripExtension($a->argv[1]);
-			$scale = 0;
-			if (substr($photoid, -2, 1) == "-") {
-				$scale = intval(substr($photoid, -1, 1));
-				$photoid = substr($photoid, 0, -2);
-			}
-			$photo = MPhoto::getPhoto($photoid, $scale);
-			if ($photo === false) {
-				$photo = MPhoto::createPhotoForSystemResource("images/nosign.jpg");
-			}
-			break;
+			case 4:
+				$customsize = intval($a->argv[2]);
+				$uid = self::stripExtension($a->argv[3]);
+				$photo = self::getAvatar($uid, $a->argv[1]);
+				break;
+			case 3:
+				$uid = self::stripExtension($a->argv[2]);
+				$photo = self::getAvatar($uid, $a->argv[1]);
+				break;
+			case 2:
+				$photoid = self::stripExtension($a->argv[1]);
+				$scale = 0;
+				if (substr($photoid, -2, 1) == "-") {
+					$scale = intval(substr($photoid, -1, 1));
+					$photoid = substr($photoid, 0, -2);
+				}
+				$photo = MPhoto::getPhoto($photoid, $scale);
+				if ($photo === false) {
+					$photo = MPhoto::createPhotoForSystemResource("images/nosign.jpg");
+				}
+				break;
 		}
 
 		if ($photo === false) {

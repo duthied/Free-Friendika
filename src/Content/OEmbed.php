@@ -86,7 +86,8 @@ class OEmbed
 				$redirects = 0;
 				$html_text = Network::fetchUrl($embedurl, false, $redirects, 15, 'text/*');
 				if ($html_text) {
-					$dom = @DOMDocument::loadHTML($html_text);
+					$dom = new DOMDocument();
+					$dom->loadHTML($html_text);
 					if ($dom) {
 						$xpath = new DOMXPath($dom);
 						$entries = $xpath->query("//link[@type='application/json+oembed']");
@@ -274,7 +275,8 @@ class OEmbed
 			$html_text = mb_convert_encoding($text, 'HTML-ENTITIES', mb_detect_encoding($text));
 
 			// If it doesn't parse at all, just return the text.
-			$dom = @DOMDocument::loadHTML($html_text);
+			$dom = new DOMDocument();
+			$dom->loadHTML($html_text);
 			if (!$dom) {
 				return $text;
 			}

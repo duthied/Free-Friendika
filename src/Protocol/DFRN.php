@@ -529,17 +529,17 @@ class DFRN
 	/**
 	 * @brief Adds the header elements for the DFRN protocol
 	 *
-	 * @param object $doc           XML document
-	 * @param array  $owner         Owner record
-	 * @param string $authorelement Element name for the author
-	 * @param string $alternatelink link to profile or category
-	 * @param bool   $public        Is it a header for public posts?
+	 * @param DOMDocument $doc           XML document
+	 * @param array       $owner         Owner record
+	 * @param string      $authorelement Element name for the author
+	 * @param string      $alternatelink link to profile or category
+	 * @param bool        $public        Is it a header for public posts?
 	 *
 	 * @return object XML root object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function addHeader($doc, $owner, $authorelement, $alternatelink = "", $public = false)
+	private static function addHeader(DOMDocument $doc, $owner, $authorelement, $alternatelink = "", $public = false)
 	{
 
 		if ($alternatelink == "") {
@@ -607,16 +607,16 @@ class DFRN
 	/**
 	 * @brief Adds the author element in the header for the DFRN protocol
 	 *
-	 * @param object  $doc           XML document
-	 * @param array   $owner         Owner record
-	 * @param string  $authorelement Element name for the author
-	 * @param boolean $public        boolean
+	 * @param DOMDocument $doc           XML document
+	 * @param array       $owner         Owner record
+	 * @param string      $authorelement Element name for the author
+	 * @param boolean     $public        boolean
 	 *
-	 * @return object XML author object
+	 * @return \DOMElement XML author object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function addAuthor($doc, $owner, $authorelement, $public)
+	private static function addAuthor(DOMDocument $doc, array $owner, $authorelement, $public)
 	{
 		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
 		$r = q(
@@ -752,16 +752,16 @@ class DFRN
 	/**
 	 * @brief Adds the author elements in the "entry" elements of the DFRN protocol
 	 *
-	 * @param object $doc         XML document
+	 * @param DOMDocument $doc         XML document
 	 * @param string $element     Element name for the author
 	 * @param string $contact_url Link of the contact
 	 * @param array  $item        Item elements
 	 *
-	 * @return object XML author object
+	 * @return \DOMElement XML author object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function addEntryAuthor($doc, $element, $contact_url, $item)
+	private static function addEntryAuthor(DOMDocument $doc, $element, $contact_url, $item)
 	{
 		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
 
@@ -795,15 +795,15 @@ class DFRN
 	/**
 	 * @brief Adds the activity elements
 	 *
-	 * @param object $doc      XML document
-	 * @param string $element  Element name for the activity
-	 * @param string $activity activity value
+	 * @param DOMDocument $doc      XML document
+	 * @param string      $element  Element name for the activity
+	 * @param string      $activity activity value
 	 *
-	 * @return object XML activity object
+	 * @return \DOMElement XML activity object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	private static function createActivity($doc, $element, $activity)
+	private static function createActivity(DOMDocument $doc, $element, $activity)
 	{
 		if ($activity) {
 			$entry = $doc->createElement($element);
@@ -898,20 +898,20 @@ class DFRN
 	/**
 	 * @brief Adds the "entry" elements for the DFRN protocol
 	 *
-	 * @param object $doc     XML document
-	 * @param string $type    "text" or "html"
-	 * @param array  $item    Item element
-	 * @param array  $owner   Owner record
-	 * @param bool   $comment Trigger the sending of the "comment" element
-	 * @param int    $cid     Contact ID of the recipient
-	 * @param bool   $single  If set, the entry is created as an XML document with a single "entry" element
+	 * @param DOMDocument $doc     XML document
+	 * @param string      $type    "text" or "html"
+	 * @param array       $item    Item element
+	 * @param array       $owner   Owner record
+	 * @param bool        $comment Trigger the sending of the "comment" element
+	 * @param int         $cid     Contact ID of the recipient
+	 * @param bool        $single  If set, the entry is created as an XML document with a single "entry" element
 	 *
-	 * @return object XML entry object
+	 * @return \DOMElement XML entry object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
 	 */
-	private static function entry($doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
+	private static function entry(DOMDocument $doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
 	{
 		$mentioned = [];
 
@@ -2414,7 +2414,7 @@ class DFRN
 	 * @param object $xpath    XPath object
 	 * @param object $entry    entry elements
 	 * @param array  $importer Record of the importer user mixed with contact of the content
-	 * @param object $xml      xml
+	 * @param string $xml      xml
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -2513,7 +2513,7 @@ class DFRN
 
 		$notice_info = $xpath->query("statusnet:notice_info", $entry);
 		if ($notice_info && ($notice_info->length > 0)) {
-			foreach ($notice_info->item(0)->attributes as $attributes) {
+			foreach ($notice_info->item[0]->attributes as $attributes) {
 				if ($attributes->name == "source") {
 					$item["app"] = strip_tags($attributes->textContent);
 				}
@@ -2588,8 +2588,8 @@ class DFRN
 		$item['conversation-uri'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
 
 		$conv = $xpath->query('ostatus:conversation', $entry);
-		if (is_object($conv->item(0))) {
-			foreach ($conv->item(0)->attributes as $attributes) {
+		if (is_object($conv->item[0])) {
+			foreach ($conv->item[0]->attributes as $attributes) {
 				if ($attributes->name == "ref") {
 					$item['conversation-uri'] = $attributes->textContent;
 				}
@@ -2603,8 +2603,8 @@ class DFRN
 		$item["parent-uri"] = $item["uri"];
 
 		$inreplyto = $xpath->query("thr:in-reply-to", $entry);
-		if (is_object($inreplyto->item(0))) {
-			foreach ($inreplyto->item(0)->attributes as $attributes) {
+		if (is_object($inreplyto->item[0])) {
+			foreach ($inreplyto->item[0]->attributes as $attributes) {
 				if ($attributes->name == "ref") {
 					$item["parent-uri"] = $attributes->textContent;
 				}

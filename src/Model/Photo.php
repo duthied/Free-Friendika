@@ -14,6 +14,7 @@ use Friendica\Core\System;
 use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -268,6 +269,7 @@ class Photo extends BaseObject
 		$data = "";
 		$backend_ref = "";
 
+		/** @var IStorage $backend_class */
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
 			$backend_class = (string)$existing_photo["backend-class"];
@@ -334,6 +336,7 @@ class Photo extends BaseObject
 		$photos = self::select(["backend-class","backend-ref"], $conditions);
 
 		foreach($photos as $photo) {
+			/** @var IStorage $backend_class */
 			$backend_class = (string)$photo["backend-class"];
 			if ($backend_class !== "") {
 				$backend_class::delete($photo["backend-ref"]);
@@ -363,6 +366,7 @@ class Photo extends BaseObject
 			$photos = self::select(["backend-class","backend-ref"], $conditions);
 
 			foreach($photos as $photo) {
+				/** @var IStorage $backend_class */
 				$backend_class = (string)$photo["backend-class"];
 				if ($backend_class !== "") {
 					$fields["backend-ref"] = $backend_class::put($img->asString(), $photo["backend-ref"]);
@@ -479,7 +483,7 @@ class Photo extends BaseObject
 	}
 
 	/**
-	 * @param string $exifCoord coordinate
+	 * @param array $exifCoord coordinate
 	 * @param string $hemi      hemi
 	 * @return float
 	 */

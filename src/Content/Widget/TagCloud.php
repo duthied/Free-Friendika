@@ -40,6 +40,7 @@ class TagCloud
 			$contact = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 			$url = System::removedBaseUrl($contact['url']);
 
+			$tags = [];
 			foreach ($r as $rr) {
 				$tag['level'] = $rr[2];
 				$tag['url'] = $url . '?tag=' . urlencode($rr[0]);
@@ -88,7 +89,7 @@ class TagCloud
 		}
 
 		// Fetch tags
-		$r = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
+		$tag_stmt = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
 			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
 			WHERE `term`.`uid` = ? AND `term`.`type` = ?
 			AND `term`.`otype` = ?
@@ -99,9 +100,11 @@ class TagCloud
 			$type,
 			TERM_OBJ_POST
 		);
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($tag_stmt)) {
 			return [];
 		}
+
+		$r = DBA::toArray($tag_stmt);
 
 		return self::tagCalc($r);
 	}
@@ -113,7 +116,7 @@ class TagCloud
 	 * @param array $arr Array of tags/terms with tag/term name and total count of use.
 	 * @return array     Alphabetical sorted array of used tags/terms of an user.
 	 */
-	private static function tagCalc($arr)
+	private static function tagCalc(array $arr)
 	{
 		$tags = [];
 		$min = 1e9;

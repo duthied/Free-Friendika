@@ -121,6 +121,7 @@ HELP;
 
 		$className = $this->subConsoles[$command];
 
+		/** @var Console $subconsole */
 		$subconsole = new $className($subargs);
 
 		foreach ($this->options as $name => $value) {
