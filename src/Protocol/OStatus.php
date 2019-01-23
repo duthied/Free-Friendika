@@ -53,7 +53,7 @@ class OStatus
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchAuthor(DOMXPath $xpath, $context, array $importer, array &$contact, $onlyfetch)
+	private static function fetchAuthor(DOMXPath $xpath, $context, array $importer, &$contact, $onlyfetch)
 	{
 		$author = [];
 		$author["author-link"] = XML::getFirstNodeValue($xpath, 'atom:author/atom:uri/text()', $context);
@@ -322,7 +322,7 @@ class OStatus
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function process($xml, array $importer, array &$contact, &$hub, $stored = false, $initialize = true)
+	private static function process($xml, array $importer, &$contact, &$hub, $stored = false, $initialize = true)
 	{
 		if ($initialize) {
 			self::$itemlist = [];

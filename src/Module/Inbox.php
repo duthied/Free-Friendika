@@ -10,6 +10,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\HTTPSignature;
+use Friendica\Core\Config;
 
 /**
  * ActivityPub Inbox
