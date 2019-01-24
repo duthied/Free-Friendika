@@ -2512,7 +2512,7 @@ class DFRN
 		}
 
 		$notice_info = $xpath->query("statusnet:notice_info", $entry);
-		if ($notice_info && ($notice_info->length > 0)) {
+		if ($notice_info && ($notice_info->length > 0) && !empty($notice_info->item)) {
 			foreach ($notice_info->item[0]->attributes as $attributes) {
 				if ($attributes->name == "source") {
 					$item["app"] = strip_tags($attributes->textContent);
@@ -2588,7 +2588,7 @@ class DFRN
 		$item['conversation-uri'] = XML::getFirstNodeValue($xpath, 'ostatus:conversation/text()', $entry);
 
 		$conv = $xpath->query('ostatus:conversation', $entry);
-		if (is_object($conv->item[0])) {
+		if (!empty($conv->item[0])) {
 			foreach ($conv->item[0]->attributes as $attributes) {
 				if ($attributes->name == "ref") {
 					$item['conversation-uri'] = $attributes->textContent;
@@ -2603,7 +2603,7 @@ class DFRN
 		$item["parent-uri"] = $item["uri"];
 
 		$inreplyto = $xpath->query("thr:in-reply-to", $entry);
-		if (is_object($inreplyto->item[0])) {
+		if (!empty($inreplyto->item[0])) {
 			foreach ($inreplyto->item[0]->attributes as $attributes) {
 				if ($attributes->name == "ref") {
 					$item["parent-uri"] = $attributes->textContent;

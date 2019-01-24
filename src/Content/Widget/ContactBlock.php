@@ -57,9 +57,9 @@ class ContactBlock
 
 		$contacts_title = L10n::t('No contacts');
 
-		if (!$total) {
-			$micropro = [];
-		} else {
+		$micropro = [];
+
+		if ($total) {
 			// Only show followed for personal accounts, followers for pages
 			if (defaults($profile, 'account-type', User::ACCOUNT_TYPE_PERSON) == User::ACCOUNT_TYPE_PERSON) {
 				$rel = [Contact::FOLLOWER, Contact::FRIEND];
