@@ -31,7 +31,7 @@ class ItemDeliveryData
 	public static function extractFields(array &$fields)
 	{
 		$delivery_data = [];
-		foreach (ItemDeliveryData::FIELD_LIST as $key => $field) {
+		foreach (array_merge(ItemDeliveryData::FIELD_LIST, ItemDeliveryData::LEGACY_FIELD_LIST) as $key => $field) {
 			if (is_int($key) && isset($fields[$field])) {
 				// Legacy field moved from item table
 				$delivery_data[$field] = $fields[$field];
