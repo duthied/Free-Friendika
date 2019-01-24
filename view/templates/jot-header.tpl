@@ -230,7 +230,7 @@ function enableOnUser(){
 		$("#profile-jot-text").val(currentText + data);
 	}
 
-	{{$geotag}}
+	{{$geotag nofilter}}
 
 </script>
 

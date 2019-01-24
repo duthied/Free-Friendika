@@ -263,6 +263,6 @@ function enableOnUser(){
 	}
 
 
-	{{$geotag}}
+	{{$geotag nofilter}}
 
 </script>
