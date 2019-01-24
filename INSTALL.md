@@ -29,14 +29,14 @@ is self-signed).
 ## 1. Requirements
 
 - Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-- PHP 5.6.1+ (PHP 7 recommended for performance).
+- PHP 5.6.1+ (PHP 7.1+ recommended for performance and official support).
 	- PHP *command line* with `register_argc_argv = true` in php.ini
 	- curl, gd (with at least jpeg support), mysql, mbstring, xml, zip and openssl extensions
 	- Some form of email server or email gateway such that PHP mail() works
 	- The POSIX module of PHP needs to be activated (e.g. RHEL, CentOS have disabled it)
 	- Composer for a Git install
 
-- Mysql 5.5.3+ or an equivalant alternative for MySQL (MariaDB, Percona Server etc.)
+- Mysql 5.6+ or an equivalent alternative for MySQL (MariaDB 10.0.5+, Percona Server etc.)
 - Ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows)
 - Installation into a top-level domain or sub-domain (without a directory/path 
   component in the URL) is preferred. This is REQUIRED if you wish to communicate
