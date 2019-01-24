@@ -72,7 +72,7 @@ class OStatus
 		}
 		$author["author-id"] = Contact::getIdForURL($author["author-link"]);
 
-		$author["contact-id"] = $contact["id"];
+		$author['contact-id'] = defaults($contact, 'id', $author['author-id']);
 
 		$contact = [];
 
