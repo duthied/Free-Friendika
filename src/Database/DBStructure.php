@@ -12,6 +12,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Util\DateTimeFormat;
 
+require_once 'include/dba.php';
+
 /**
  * @brief This class contain functions for the database management
  *
