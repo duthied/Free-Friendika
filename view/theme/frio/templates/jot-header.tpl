@@ -275,7 +275,7 @@
 		autosize.update($("#profile-jot-text"));
 	}
 
-	{{$geotag}}
+	{{$geotag nofilter}}
 
 	function jotShow() {
 		var modal = $('#jot-modal').modal();
