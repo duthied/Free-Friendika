@@ -22,6 +22,10 @@ class FriendicaProcessor implements ProcessorInterface
 		'call_user_func_array',
 	];
 
+	private $skipFiles = [
+		'Logger.php'
+	];
+
 	/**
 	 * @param string|int $level The minimum logging level at which this Processor will be triggered
 	 * @param int $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
@@ -41,44 +45,25 @@ class FriendicaProcessor implements ProcessorInterface
 
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-		// skip first since it's always the current method
-		array_shift($trace);
-		// the call_user_func call is also skipped
-		array_shift($trace);
+		$i = 1;
 
-		$i = 0;
-
-		while ($this->isSkippedFunction($trace, $i)) {
-			if (in_array($trace[$i]['function'], $this->skipFunctions)) {
-				$i++;
-
-				continue;
-			}
-
-			break;
+		// Skip everything that we shouldn't display
+		while (in_array($trace[$i]['function'], $this->skipFunctions) ||
+			!isset($trace[$i - 1]['file']) ||
+			in_array(basename($trace[$i - 1]['file']), $this->skipFiles)) {
+			$i++;
 		}
-
-		$i += $this->skipStackFramesCount;
 
 		// we should have the call source now
 		$record['extra'] = array_merge(
 			$record['extra'],
 			[
-				'file'      => isset($trace[$i - 1]['file']) ? $trace[$i - 1]['file'] : null,
+				'file'      => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
 				'line'      => isset($trace[$i - 1]['line']) ? $trace[$i - 1]['line'] : null,
 				'function'  => isset($trace[$i]['function']) ? $trace[$i]['function'] : null,
 			]
 		);
 
 		return $record;
-	}
-
-	private function isSkippedFunction(array $trace, $index)
-	{
-		if (!isset($trace[$index])) {
-			return false;
-		}
-
-		return in_array($trace[$index]['function'], $this->skipFunctions);
 	}
 }
