@@ -6,6 +6,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Logger;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
