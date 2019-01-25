@@ -1,6 +1,6 @@
 
 <nav>
-	<span id="banner">{{$banner}}</span>
+	<span id="banner">{{$banner nofilter}}</span>
 
 	<div id="notifications">	
 		{{if $nav.network}}<a id="net-update" class="nav-ajax-update" href="{{$nav.network.0}}" title="{{$nav.network.1}}"></a>{{/if}}
