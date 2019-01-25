@@ -1362,13 +1362,10 @@ class BBCode extends BaseObject
 		}, $text);
 
 		// We need no target="_blank" for local links
-		// convert links start with System::baseUrl() as local link
+		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
 		$escapedBaseUrl = str_replace('://', '\:\/\/', System::baseUrl());
 		$text = preg_replace("/\[url\]($escapedBaseUrl)([$URLSearchString]*)\[\/url\]/ism", '<a href="$1$2">$1$2</a>', $text);
 		$text = preg_replace("/\[url\=($escapedBaseUrl)([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1$2">$3</a>', $text);		
-		// convert links that start with / as local link
-		$text = preg_replace("/\[url\](\/[$URLSearchString]*)\[\/url\]/ism", '<a href="'.System::baseUrl().'$1">$1</a>', $text);
-		$text = preg_replace("/\[url\=(\/[$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="'.System::baseUrl().'$1">$2</a>', $text);		
 
 		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
 		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
