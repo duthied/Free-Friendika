@@ -15,7 +15,7 @@ function newmember_content(App $a)
 	$o .= L10n::t('We would like to offer some tips and links to help make your experience enjoyable. Click any item to visit the relevant page. A link to this page will be visible from your home page for two weeks after your initial registration and then will quietly disappear.');
 	$o .= '<h4>' . L10n::t('Getting Started') . '</h4>';
 	$o .= '<ul>';
-	$o .= '<li> ' . '<a target="newmember" href="help/guide">' . L10n::t('Friendica Walk-Through') . '</a><br />' . L10n::t('On your <em>Quick Start</em> page - find a brief introduction to your profile and network tabs, make some new connections, and find some groups to join.') . '</li>' . EOL;
+	$o .= '<li> ' . '<a target="newmember" href="help/Quick-Start-guide">' . L10n::t('Friendica Walk-Through') . '</a><br />' . L10n::t('On your <em>Quick Start</em> page - find a brief introduction to your profile and network tabs, make some new connections, and find some groups to join.') . '</li>' . EOL;
 	$o .= '</ul>';
 	$o .= '<h4>' . L10n::t('Settings') . '</h4>';
 	$o .= '<ul>';
