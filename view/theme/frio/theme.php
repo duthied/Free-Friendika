@@ -243,6 +243,7 @@ function frio_remote_nav($a, &$nav)
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			DBA::escape($webbie));
 		$nav['remote'] = L10n::t('Visitor');
+		$remoteUser = $r[0];
 	} else {
 		$r = false;
 	}
