@@ -1361,6 +1361,12 @@ class BBCode extends BaseObject
 				. '</a>';
 		}, $text);
 
+		// We need no target="_blank" for local links
+		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
+		$escapedBaseUrl = preg_quote(System::baseUrl(), '/');
+		$text = preg_replace("/\[url\](".$escapedBaseUrl."[$URLSearchString]*)\[\/url\]/ism", '<a href="$1">$1</a>', $text);
+		$text = preg_replace("/\[url\=(".$escapedBaseUrl."[$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);		
+
 		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
 		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
 
