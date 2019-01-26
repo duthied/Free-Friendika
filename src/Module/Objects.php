@@ -31,8 +31,12 @@ class Objects extends BaseModule
 		/// @todo Add Authentication to enable fetching of non public content
 		// $requester = HTTPSignature::getSigner('', $_SERVER);
 
-		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'origin' => true, 'private' => false]);
+		$item = Item::selectFirst(['id', 'author-link'], ['guid' => $a->argv[1], 'private' => false]);
 		if (!DBA::isResult($item)) {
+			System::httpExit(404);
+		}
+
+		if (!strstr($item['author-link'], System::baseUrl())) {
 			System::httpExit(404);
 		}
 
