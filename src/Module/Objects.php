@@ -31,9 +31,14 @@ class Objects extends BaseModule
 		/// @todo Add Authentication to enable fetching of non public content
 		// $requester = HTTPSignature::getSigner('', $_SERVER);
 
+		// At first we try the original post with that guid
 		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'origin' => true, 'private' => false]);
 		if (!DBA::isResult($item)) {
-			System::httpExit(404);
+			// If no original post could be found, it could possibly be a forum post, there we remove the "origin" field.
+			$item = Item::selectFirst(['id', 'author-link'], ['guid' => $a->argv[1], 'private' => false]);
+			if (!DBA::isResult($item) || !strstr($item['author-link'], System::baseUrl())) {
+				System::httpExit(404);
+			}
 		}
 
 		$data = ActivityPub\Transmitter::createObjectFromItemID($item['id']);
