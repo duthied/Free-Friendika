@@ -66,7 +66,7 @@ function viewcontacts_content(App $a)
 		'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]
 	];
 
-	$total = DBA::count('count', $condition);
+	$total = DBA::count('contact', $condition);
 
 	$pager = new Pager($a->query_string);
 
