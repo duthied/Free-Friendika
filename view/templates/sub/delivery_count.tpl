@@ -4,7 +4,7 @@
 *}}
 {{if $delivery.queue_count >= -1 && $delivery.queue_count !== '' && $delivery.queue_count !== null}}
 <span class="delivery">
-	&bullet;
+	&bull;
 	{{if $delivery.queue_count == 0}}
 		{{$delivery.notifier_pending}}
 	{{elseif $delivery.queue_done == 0}}
