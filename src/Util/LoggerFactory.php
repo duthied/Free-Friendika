@@ -4,7 +4,7 @@ namespace Friendica\Util;
 
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Logger\FriendicaDevelopHandler;
-use Friendica\Util\Logger\FriendicaProcessor;
+use Friendica\Util\Logger\FriendicaIntrospectionProcessor;
 use Monolog;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -29,7 +29,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
+		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
 
 		return $logger;
 	}
@@ -53,7 +53,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
+		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
 
 
 		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));

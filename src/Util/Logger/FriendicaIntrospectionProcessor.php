@@ -11,7 +11,7 @@ use Monolog\Processor\ProcessorInterface;
  * Based on the class IntrospectionProcessor without the "class" information
  * @see IntrospectionProcessor
  */
-class FriendicaProcessor implements ProcessorInterface
+class FriendicaIntrospectionProcessor implements ProcessorInterface
 {
 	private $level;
 
