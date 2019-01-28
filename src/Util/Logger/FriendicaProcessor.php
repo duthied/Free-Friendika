@@ -48,19 +48,7 @@ class FriendicaProcessor implements ProcessorInterface
 		$i = 1;
 
 		while ($this->isTraceClassOrSkippedFunction($trace, $i)) {
-			if (isset($trace[$i]['class'])) {
-				foreach ($this->skipClassesPartials as $part) {
-					if (strpos($trace[$i]['class'], $part) !== false) {
-						$i++;
-						continue 2;
-					}
-				}
-			} elseif (in_array($trace[$i]['function'], $this->skipFunctions)) {
-				$i++;
-				continue;
-			}
-
-			break;
+			$i++;
 		}
 
 		$i += $this->skipStackFramesCount;
@@ -78,12 +66,29 @@ class FriendicaProcessor implements ProcessorInterface
 		return $record;
 	}
 
+	/**
+	 * Checks if the current trace class or function has to be skipped
+	 *
+	 * @param array $trace The current trace array
+	 * @param int   $index The index of the current hierarchy level
+	 * @return bool True if the class or function should get skipped, otherwise false
+	 */
 	private function isTraceClassOrSkippedFunction(array $trace, $index)
 	{
 		if (!isset($trace[$index])) {
 			return false;
 		}
 
-		return isset($trace[$index]['class']) || in_array($trace[$index]['function'], $this->skipFunctions);
+		if (isset($trace[$index]['class'])) {
+			foreach ($this->skipClassesPartials as $part) {
+				if (strpos($trace[$index]['class'], $part) !== false) {
+					return true;
+				}
+			}
+		} elseif (in_array($trace[$index]['function'], $this->skipFunctions)) {
+			return true;
+		}
+
+		return false;
 	}
 }
