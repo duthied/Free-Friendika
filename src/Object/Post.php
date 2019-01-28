@@ -781,7 +781,7 @@ class Post extends BaseObject
 			return '';
 		}
 
-		$text = '@'.$item['author-addr'].' ';
+		$text = '@' . $item['author-addr'] . ' ';
 
 		$terms = Term::tagArrayFromItemId($this->getId(), TERM_MENTION);
 
