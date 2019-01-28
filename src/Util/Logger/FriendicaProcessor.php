@@ -29,7 +29,7 @@ class FriendicaProcessor implements ProcessorInterface
 	 * @param array $skipClassesPartials An array of classes to skip during logging
 	 * @param int $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
 	 */
-	public function __construct($level = Logger::DEBUG, array $skipClassesPartials = array(), $skipStackFramesCount = 0)
+	public function __construct($level = Logger::DEBUG, $skipClassesPartials = array(), $skipStackFramesCount = 0)
 	{
 		$this->level = Logger::toMonologLevel($level);
 		$this->skipClassesPartials = array_merge(array('Monolog\\'), $skipClassesPartials);
