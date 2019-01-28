@@ -17,22 +17,22 @@ class FriendicaProcessor implements ProcessorInterface
 
 	private $skipStackFramesCount;
 
+	private $skipClassesPartials;
+
 	private $skipFunctions = [
 		'call_user_func',
 		'call_user_func_array',
 	];
 
-	private $skipFiles = [
-		'Logger.php'
-	];
-
 	/**
 	 * @param string|int $level The minimum logging level at which this Processor will be triggered
+	 * @param array $skipClassesPartials An array of classes to skip during logging
 	 * @param int $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
 	 */
-	public function __construct($level = Logger::DEBUG, $skipStackFramesCount = 0)
+	public function __construct($level = Logger::DEBUG, array $skipClassesPartials = array(), $skipStackFramesCount = 0)
 	{
 		$this->level = Logger::toMonologLevel($level);
+		$this->skipClassesPartials = array_merge(array('Monolog\\'), $skipClassesPartials);
 		$this->skipStackFramesCount = $skipStackFramesCount;
 	}
 
@@ -47,12 +47,23 @@ class FriendicaProcessor implements ProcessorInterface
 
 		$i = 1;
 
-		// Skip everything that we shouldn't display
-		while (in_array($trace[$i]['function'], $this->skipFunctions) ||
-			!isset($trace[$i - 1]['file']) ||
-			in_array(basename($trace[$i - 1]['file']), $this->skipFiles)) {
-			$i++;
+		while ($this->isTraceClassOrSkippedFunction($trace, $i)) {
+			if (isset($trace[$i]['class'])) {
+				foreach ($this->skipClassesPartials as $part) {
+					if (strpos($trace[$i]['class'], $part) !== false) {
+						$i++;
+						continue 2;
+					}
+				}
+			} elseif (in_array($trace[$i]['function'], $this->skipFunctions)) {
+				$i++;
+				continue;
+			}
+
+			break;
 		}
+
+		$i += $this->skipStackFramesCount;
 
 		// we should have the call source now
 		$record['extra'] = array_merge(
@@ -65,5 +76,14 @@ class FriendicaProcessor implements ProcessorInterface
 		);
 
 		return $record;
+	}
+
+	private function isTraceClassOrSkippedFunction(array $trace, $index)
+	{
+		if (!isset($trace[$index])) {
+			return false;
+		}
+
+		return isset($trace[$index]['class']) || in_array($trace[$index]['function'], $this->skipFunctions);
 	}
 }
