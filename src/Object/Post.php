@@ -771,13 +771,11 @@ class Post extends BaseObject
 	/**
 	 * Get default text for the comment box
 	 *
-	 * @param integer $parent_id ID of the parent item
-	 *
 	 * @return string
 	 */
-	private function getDefaultText($parent_id)
+	private function getDefaultText()
 	{
-		$item = Item::selectFirst(['author-addr'], ['id' => $parent_id]);
+		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
@@ -785,7 +783,7 @@ class Post extends BaseObject
 
 		$text = '@'.$item['author-addr'].' ';
 
-		$terms = Term::tagArrayFromItemId($parent_id, TERM_MENTION);
+		$terms = Term::tagArrayFromItemId($this->getId(), TERM_MENTION);
 
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
@@ -833,7 +831,7 @@ class Post extends BaseObject
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
-			$default_text = $this->getDefaultText($this->getId());
+			$default_text = $this->getDefaultText();
 
 			if (!is_null($parent_uid) && ($uid != $parent_uid)) {
 				$uid = $parent_uid;
