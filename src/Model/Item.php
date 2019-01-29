@@ -2387,6 +2387,17 @@ class Item extends BaseObject
 	public static function setHashtags(&$item)
 	{
 
+		// What happens in [code], stays in [code]!
+		// escape the # and the [
+		// hint: we will also get in trouble with #tags, when we want markdown in posts -> ### Headline 3
+		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
+			function ($match) {
+				// we truly ESCape all # and [ to prevent gettin weird tags in [code] blocks
+				$find = ['#', '['];
+				$replace = [chr(27).'sharp', chr(27).'leftsquarebracket'];
+				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
+			}, $item["body"]);
+		
 		$tags = BBCode::getTags($item["body"]);
 
 		// No hashtags?
@@ -2400,17 +2411,6 @@ class Item extends BaseObject
 
 		$URLSearchString = "^\[\]";
 
-		// What happens in [code], stays in [code]!
-		// escape the # and the [
-		// hint: we will also get in trouble with #tags, when we want markdown in posts -> ### Headline 3
-		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
-			function ($match) {
-				// we truly ESCape all # and [ to prevent gettin weird tags in [code] blocks
-				$find = ['#', '['];
-				$replace = [chr(27).'sharp', chr(27).'leftsquarebracket'];
-				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
-			}, $item["body"]);
-		
 		// All hashtags should point to the home server if "local_tags" is activated
 		if (Config::get('system', 'local_tags')) {
 			$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
