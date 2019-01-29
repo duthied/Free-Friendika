@@ -2400,6 +2400,17 @@ class Item extends BaseObject
 
 		$URLSearchString = "^\[\]";
 
+		// What happens in [code], stays in [code]!
+		// escape the # and the [
+		// hint: we will also get in trouble with #tags, when we want markdown in posts -> ### Headline 3
+		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
+			function ($match) {
+				// we truly ESCape all # and [ to prevent gettin weird tags in [code] blocks
+				$find = ['#', '['];
+				$replace = [chr(27).'sharp', chr(27).'leftsquarebracket'];
+				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
+			}, $item["body"]);
+		
 		// All hashtags should point to the home server if "local_tags" is activated
 		if (Config::get('system', 'local_tags')) {
 			$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
@@ -2435,18 +2446,32 @@ class Item extends BaseObject
 			}
 
 			$basetag = str_replace('_',' ',substr($tag,1));
+			if($basetag[0] != '#') { 
+				$newtag = '#[url=' . System::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
 
-			$newtag = '#[url=' . System::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
+				$item["body"] = str_replace($tag, $newtag, $item["body"]);
 
-			$item["body"] = str_replace($tag, $newtag, $item["body"]);
-
-			if (!stristr($item["tag"], "/search?tag=" . $basetag . "]" . $basetag . "[/url]")) {
-				if (strlen($item["tag"])) {
-					$item["tag"] = ',' . $item["tag"];
+				if (!stristr($item["tag"], "/search?tag=" . $basetag . "]" . $basetag . "[/url]")) {
+					if (strlen($item["tag"])) {
+						$item["tag"] = ',' . $item["tag"];
+					}
+					$item["tag"] = $newtag . $item["tag"];
 				}
-				$item["tag"] = $newtag . $item["tag"];
 			}
 		}
+
+		// Convert back the masked hashtags
+		$item["body"] = str_replace("&num;", "#", $item["body"]);
+
+		// Remember! What happens in [code], stays in [code]
+		// roleback the # and [
+		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
+			function ($match) {
+				// we truly unESCape all sharp and leftsquarebracket
+				$find = [chr(27).'sharp', chr(27).'leftsquarebracket'];
+				$replace = ['#', '['];
+				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
+			}, $item["body"]);
 
 		// Convert back the masked hashtags
 		$item["body"] = str_replace("&num;", "#", $item["body"]);

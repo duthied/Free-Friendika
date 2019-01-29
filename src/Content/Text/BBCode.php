@@ -1178,7 +1178,7 @@ class BBCode extends BaseObject
 		// Extracting multi-line code blocks before the whitespace processing
 		$codeblocks = [];
 
-		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#ism",
 			function ($matches) use (&$codeblocks) {
 				$return = $matches[0];
 				if (strpos($matches[2], "\n") !== false) {
