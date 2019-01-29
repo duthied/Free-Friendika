@@ -2387,6 +2387,17 @@ class Item extends BaseObject
 	public static function setHashtags(&$item)
 	{
 
+		// What happens in [code], stays in [code]!
+		// escape the # and the [
+		// hint: we will also get in trouble with #tags, when we want markdown in posts -> ### Headline 3
+		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
+			function ($match) {
+				// we truly ESCape all # and [ to prevent gettin weird tags in [code] blocks
+				$find = ['#', '['];
+				$replace = [chr(27).'sharp', chr(27).'leftsquarebracket'];
+				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
+			}, $item["body"]);
+		
 		$tags = BBCode::getTags($item["body"]);
 
 		// No hashtags?
@@ -2430,12 +2441,11 @@ class Item extends BaseObject
 				"&num;$2", $item["body"]);
 
 		foreach ($tags as $tag) {
-			if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=')) {
+			if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=') || $tag[1] == '#') {
 				continue;
 			}
 
 			$basetag = str_replace('_',' ',substr($tag,1));
-
 			$newtag = '#[url=' . System::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
 
 			$item["body"] = str_replace($tag, $newtag, $item["body"]);
@@ -2450,6 +2460,16 @@ class Item extends BaseObject
 
 		// Convert back the masked hashtags
 		$item["body"] = str_replace("&num;", "#", $item["body"]);
+
+		// Remember! What happens in [code], stays in [code]
+		// roleback the # and [
+		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
+			function ($match) {
+				// we truly unESCape all sharp and leftsquarebracket
+				$find = [chr(27).'sharp', chr(27).'leftsquarebracket'];
+				$replace = ['#', '['];
+				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
+			}, $item["body"]);
 	}
 
 	public static function getGuidById($id)
