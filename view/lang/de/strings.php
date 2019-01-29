@@ -135,18 +135,22 @@ $a->strings["%1\$s sent you a new private message at %2\$s."] = "%1\$s hat Dir e
 $a->strings["a private message"] = "eine private Nachricht";
 $a->strings["%1\$s sent you %2\$s."] = "%1\$s schickte Dir %2\$s.";
 $a->strings["Please visit %s to view and/or reply to your private messages."] = "Bitte besuche %s, um Deine privaten Nachrichten anzusehen und/oder zu beantworten.";
+$a->strings["%1\$s tagged you on [url=%2\$s]a %3\$s[/url]"] = "%1\$s markierte dich auf [url=%2\$s]a %3\$s[/url]";
 $a->strings["%1\$s commented on [url=%2\$s]a %3\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]a %3\$s[/url]";
+$a->strings["%1\$s tagged you on [url=%2\$s]%3\$s's %4\$s[/url]"] = "%1\$s markierte dich auf  [url=%2\$s]%3\$s's %4\$s[/url]";
 $a->strings["%1\$s commented on [url=%2\$s]%3\$s's %4\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]%3\$ss %4\$s[/url]";
+$a->strings["%1\$s tagged you on [url=%2\$s]your %3\$s[/url]"] = "%1\$s markierte dich auf [url=%2\$s]a %3\$s[/url]";
 $a->strings["%1\$s commented on [url=%2\$s]your %3\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]deinen %3\$s[/url]";
+$a->strings["%1\$s tagged you on [url=%2\$s]their %3\$s[/url]"] = "%1\$s markierte dich auf [url=%2\$s]a %3\$s[/url]";
+$a->strings["%1\$s commented on [url=%2\$s]their %3\$s[/url]"] = "%1\$s kommentierte [url=%2\$s]a %3\$s[/url]";
+$a->strings["[Friendica:Notify] %s tagged you"] = "[Friendica-Meldung] %s hat Dich erwähnt";
+$a->strings["%1\$s tagged you at %2\$s"] = "%1\$s erwähnte Dich auf %2\$s";
 $a->strings["[Friendica:Notify] Comment to conversation #%1\$d by %2\$s"] = "[Friendica-Meldung] Kommentar zum Beitrag #%1\$d von %2\$s";
 $a->strings["%s commented on an item/conversation you have been following."] = "%s hat einen Beitrag kommentiert, dem Du folgst.";
 $a->strings["Please visit %s to view and/or reply to the conversation."] = "Bitte besuche %s, um die Konversation anzusehen und/oder zu kommentieren.";
 $a->strings["[Friendica:Notify] %s posted to your profile wall"] = "[Friendica-Meldung] %s hat auf Deine Pinnwand geschrieben";
 $a->strings["%1\$s posted to your profile wall at %2\$s"] = "%1\$s schrieb um %2\$s auf Deine Pinnwand";
 $a->strings["%1\$s posted to [url=%2\$s]your wall[/url]"] = "%1\$s hat etwas auf [url=%2\$s]Deiner Pinnwand[/url] gepostet";
-$a->strings["[Friendica:Notify] %s tagged you"] = "[Friendica-Meldung] %s hat Dich erwähnt";
-$a->strings["%1\$s tagged you at %2\$s"] = "%1\$s erwähnte Dich auf %2\$s";
-$a->strings["%1\$s [url=%2\$s]tagged you[/url]."] = "%1\$s [url=%2\$s]erwähnte Dich[/url].";
 $a->strings["[Friendica:Notify] %s shared a new post"] = "[Friendica Benachrichtigung] %s hat einen Beitrag geteilt";
 $a->strings["%1\$s shared a new post at %2\$s"] = "%1\$s hat einen neuen Beitrag auf %2\$s geteilt";
 $a->strings["%1\$s [url=%2\$s]shared a post[/url]."] = "%1\$s [url=%2\$s]hat einen Beitrag geteilt[/url].";
@@ -281,7 +285,7 @@ $a->strings["The GUID of the item you want to delete."] = "Die GUID des zu lösc
 $a->strings["Item marked for deletion."] = "Eintrag wurden zur Löschung markiert";
 $a->strings["unknown"] = "Unbekannt";
 $a->strings["This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of."] = "Diese Seite präsentiert einige Zahlen zu dem bekannten Teil des föderalen sozialen Netzwerks, von dem deine Friendica Installation ein Teil ist. Diese Zahlen sind nicht absolut und reflektieren nur den Teil des Netzwerks, den dein Knoten kennt.";
-$a->strings["The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here."] = "Die Funktion um <em>Automatisch ein Kontaktverzeichnis erstellen</em> ist nicht aktiv. Es wird die hier angezeigten Daten verbessern.";
+$a->strings["The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here."] = "Die Funktion um <em>Regelmäßig globale Kontakte überprüfen</em> ist nicht aktiv. Es wird die hier angezeigten Daten verbessern.";
 $a->strings["Currently this node is aware of %d nodes with %d registered users from the following platforms:"] = "Momentan kennt dieser Knoten %d Knoten mit insgesamt %d registrierten Nutzern, die die folgenden Plattformen verwenden:";
 $a->strings["ID"] = "ID";
 $a->strings["Recipient Name"] = "Empfänger Name";
@@ -341,6 +345,7 @@ $a->strings["Self-signed certificate, use SSL for local links only (discouraged)
 $a->strings["Don't check"] = "Nicht überprüfen";
 $a->strings["check the stable version"] = "überprüfe die stabile Version";
 $a->strings["check the development version"] = "überprüfe die Entwicklungsversion";
+$a->strings["None"] = "Keine";
 $a->strings["Republish users to directory"] = "Nutzer erneut im globalen Verzeichnis veröffentlichen.";
 $a->strings["Registration"] = "Registrierung";
 $a->strings["File upload"] = "Datei hochladen";
@@ -376,6 +381,8 @@ $a->strings["Hide help entry from navigation menu"] = "Verberge den Menüeintrag
 $a->strings["Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly."] = "Verbirgt den Menüeintrag für die Hilfe-Seiten im Navigationsmenü. Die Seiten können weiterhin über /help aufgerufen werden.";
 $a->strings["Single user instance"] = "Ein-Nutzer Instanz";
 $a->strings["Make this instance multi-user or single-user for the named user"] = "Regelt ob es sich bei dieser Instanz um eine ein Personen Installation oder eine Installation mit mehr als einem Nutzer handelt.";
+$a->strings["File storage backend"] = "Datenspeicher im Hintergrund";
+$a->strings["Backend used to store uploaded files data"] = "Benutzter Datenspeicher um hochgeladene Daten zu speichern";
 $a->strings["Maximum image size"] = "Maximale Bildgröße";
 $a->strings["Maximum size in bytes of uploaded images. Default is 0, which means no limits."] = "Maximale Uploadgröße von Bildern in Bytes. Standard ist 0, d.h. ohne Limit.";
 $a->strings["Maximum image length"] = "Maximale Bildlänge";
@@ -623,8 +630,6 @@ $a->strings["No"] = "Nein";
 $a->strings["You must be logged in to use addons. "] = "Sie müssen angemeldet sein um Addons benutzen zu können.";
 $a->strings["Applications"] = "Anwendungen";
 $a->strings["No installed applications."] = "Keine Applikationen installiert.";
-$a->strings["Item not available."] = "Beitrag nicht verfügbar.";
-$a->strings["Item was not found."] = "Beitrag konnte nicht gefunden werden.";
 $a->strings["Source input"] = "Originaltext:";
 $a->strings["BBCode::toPlaintext"] = "BBCode::toPlaintext";
 $a->strings["BBCode::convert (raw HTML)"] = "BBCode::convert (pures HTML)";
@@ -1331,7 +1336,6 @@ $a->strings["Last successful email check:"] = "Letzter erfolgreicher E-Mail Chec
 $a->strings["IMAP server name:"] = "IMAP-Server-Name:";
 $a->strings["IMAP port:"] = "IMAP-Port:";
 $a->strings["Security:"] = "Sicherheit:";
-$a->strings["None"] = "Keine";
 $a->strings["Email login name:"] = "E-Mail-Login-Name:";
 $a->strings["Email password:"] = "E-Mail-Passwort:";
 $a->strings["Reply-to address:"] = "Reply-to Adresse:";
@@ -1962,6 +1966,13 @@ $a->strings["Profile Details"] = "Profildetails";
 $a->strings["Only You Can See This"] = "Nur Du kannst das sehen";
 $a->strings["Tips for New Members"] = "Tipps für neue Nutzer";
 $a->strings["OpenWebAuth: %1\$s welcomes %2\$s"] = "OpenWebAuth: %1\$s heißt %2\$sherzlich willkommen";
+$a->strings["Database storage failed to update %s"] = "Datenbankspeicher konnte nicht aktualisiert werden %s";
+$a->strings["Database storage failed to insert data"] = "Der Datenbankspeicher konnte keine Daten einfügen";
+$a->strings["Filesystem storage failed to create \"%s\". Check you write permissions."] = "Dateisystemspeicher konnte nicht erstellt werden \"%s\". Überprüfen Sie, ob Sie Schreibberechtigungen haben.";
+$a->strings["Filesystem storage failed to save data to \"%s\". Check your write permissions"] = "Der Dateisystemspeicher konnte die Daten nicht in \"%s\", speichern. Überprüfen Sie Ihre Schreibberechtigungen";
+$a->strings["Storage base path"] = "Speicherbasispfad";
+$a->strings["Folder were uploaded files are saved. For maximum security, This should be a path outside web server folder tree"] = "Ordner in die Dateien hochgeladen werden. Für maximale Sicherheit sollte dies ein Pfad außerhalb der Webserver-Ordnerstruktur sein";
+$a->strings["Enter a valid existing folder"] = "Geben Sie einen gültigen, existierenden Ordner ein";
 $a->strings["Login failed"] = "Anmeldung fehlgeschlagen";
 $a->strings["Not enough information to authenticate"] = "Nicht genügend Informationen für die Authentifizierung";
 $a->strings["Password can't be empty"] = "Das Passwort kann nicht leer sein";
@@ -2001,6 +2012,7 @@ $a->strings["\n\t\t\tDear %1\$s,\n\t\t\t\tThank you for registering at %2\$s. Yo
 $a->strings["Registration at %s"] = "Registrierung als %s";
 $a->strings["\n\t\t\tDear %1\$s,\n\t\t\t\tThank you for registering at %2\$s. Your account has been created.\n\t\t"] = "\nHallo %1\$s,\n\ndanke für Deine Registrierung auf %2\$s. Dein Account wurde eingerichtet.";
 $a->strings["\n\t\t\tThe login details are as follows:\n\n\t\t\tSite Location:\t%3\$s\n\t\t\tLogin Name:\t\t%1\$s\n\t\t\tPassword:\t\t%5\$s\n\n\t\t\tYou may change your password from your account \"Settings\" page after logging\n\t\t\tin.\n\n\t\t\tPlease take a few moments to review the other account settings on that page.\n\n\t\t\tYou may also wish to add some basic information to your default profile\n\t\t\t(on the \"Profiles\" page) so that other people can easily find you.\n\n\t\t\tWe recommend setting your full name, adding a profile photo,\n\t\t\tadding some profile \"keywords\" (very useful in making new friends) - and\n\t\t\tperhaps what country you live in; if you do not wish to be more specific\n\t\t\tthan that.\n\n\t\t\tWe fully respect your right to privacy, and none of these items are necessary.\n\t\t\tIf you are new and do not know anybody here, they may help\n\t\t\tyou to make some new and interesting friends.\n\n\t\t\tIf you ever want to delete your account, you can do so at %3\$s/removeme\n\n\t\t\tThank you and welcome to %2\$s."] = "\nDie Anmelde-Details sind die folgenden:\n\tAdresse der Seite:\t%3\$s\n\tBenutzernamename:\t%1\$s\n\tPasswort:\t%5\$s\n\nDu kannst Dein Passwort unter \"Einstellungen\" ändern, sobald Du Dich\nangemeldet hast.\n\nBitte nimm Dir ein paar Minuten um die anderen Einstellungen auf dieser\nSeite zu kontrollieren.\n\nEventuell magst Du ja auch einige Informationen über Dich in Deinem\nProfil veröffentlichen, damit andere Leute Dich einfacher finden können.\nBearbeite hierfür einfach Dein Standard-Profil (über die Profil-Seite).\n\nWir empfehlen Dir, Deinen kompletten Namen anzugeben und ein zu Dir\npassendes Profilbild zu wählen, damit Dich alte Bekannte wieder finden.\nAußerdem ist es nützlich, wenn Du auf Deinem Profil Schlüsselwörter\nangibst. Das erleichtert es, Leute zu finden, die Deine Interessen teilen.\n\nWir respektieren Deine Privatsphäre - keine dieser Angaben ist nötig.\nWenn Du neu im Netzwerk bist und noch niemanden kennst, dann können sie\nallerdings dabei helfen, neue und interessante Kontakte zu knüpfen.\n\nSolltest du dein Nutzerkonto löschen wollen, kannst du dies unter %3\$s/removeme jederzeit tun.\n\nDanke für Deine Aufmerksamkeit und willkommen auf %2\$s.";
+$a->strings["Item was not found."] = "Beitrag konnte nicht gefunden werden.";
 $a->strings["%d contact edited."] = [
 	0 => "%d Kontakt bearbeitet.",
 	1 => "%d Kontakte bearbeitet.",
@@ -2151,6 +2163,10 @@ $a->strings["to"] = "zu";
 $a->strings["via"] = "via";
 $a->strings["Wall-to-Wall"] = "Wall-to-Wall";
 $a->strings["via Wall-To-Wall:"] = "via Wall-To-Wall:";
+$a->strings["Notifier task is pending"] = "Die Benachrichtigungsaufgabe ist ausstehend";
+$a->strings["Delivery to remote servers is pending"] = "Die Auslieferung an Remote-Server steht noch aus";
+$a->strings["Delivery to remote servers is underway"] = "Die Auslieferung an Remote-Server ist unterwegs";
+$a->strings["Delivery to remote servers is mostly done"] = "Die Zustellung an Remote-Server ist fast erledigt";
 $a->strings["%d comment"] = [
 	0 => "%d Kommentar",
 	1 => "%d Kommentare",
