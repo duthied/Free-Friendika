@@ -28,7 +28,8 @@ class Filesystem implements IStorage
 
 	private static function getBasePath()
 	{
-		return Config::get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
+		$path = Config::get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
+		return rtrim($path, '/');
 	}
 
 	/**
