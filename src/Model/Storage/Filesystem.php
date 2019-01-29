@@ -28,7 +28,8 @@ class Filesystem implements IStorage
 
 	private static function getBasePath()
 	{
-		return Config::get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
+		$path = Config::get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
+		return rtrim($path, '/');
 	}
 
 	/**
@@ -69,10 +70,13 @@ class Filesystem implements IStorage
 			if (!is_file($path . '/index.html')) {
 				file_put_contents($path . '/index.html', '');
 			}
+			chmod($path . '/index.html', 0660);
+			chmod($path, 0770);
 			$path = dirname($path);
 		}
 		if (!is_file($path . '/index.html')) {
 			file_put_contents($path . '/index.html', '');
+			chmod($path . '/index.html', 0660);
 		}
 	}
 
@@ -100,6 +104,7 @@ class Filesystem implements IStorage
 			Logger::log('Failed to write data to ' . $file);
 			throw new StorageException(L10n::t('Filesystem storage failed to save data to "%s". Check your write permissions', $file));
 		}
+		chmod($file, 0660);
 		return $ref;
 	}
 
