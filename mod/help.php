@@ -84,7 +84,7 @@ function help_content(App $a)
 					$level = intval($level);
 					if ($level < $lastlevel) {
 						for ($k = $level; $k < $lastlevel; $k++) {
-							$toc .= "</ul>";
+							$toc .= "</ul></li>";
 						}
 
 						for ($k = $level + 1; $k < count($idnum); $k++) {
@@ -93,7 +93,7 @@ function help_content(App $a)
 					}
 
 					if ($level > $lastlevel) {
-						$toc .= "<ul>";
+						$toc .= "<li><ul>";
 					}
 
 					$idnum[$level] ++;
