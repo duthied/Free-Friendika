@@ -769,6 +769,33 @@ class Post extends BaseObject
 	}
 
 	/**
+	 * Get default text for the comment box
+	 *
+	 * @return string
+	 */
+	private function getDefaultText()
+	{
+		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
+		if (!DBA::isResult($item) || empty($item['author-addr'])) {
+			// Should not happen
+			return '';
+		}
+
+		$text = '@' . $item['author-addr'] . ' ';
+
+		$terms = Term::tagArrayFromItemId($this->getId(), TERM_MENTION);
+
+		foreach ($terms as $term) {
+			$profile = Contact::getDetailsByURL($term['url']);
+			if (!empty($profile['addr']) && !strstr($text, $profile['addr'])) {
+				$text .= '@' . $profile['addr'] . ' ';
+			}
+		}
+
+		return $text;
+	}
+
+	/**
 	 * Get the comment box
 	 *
 	 * @param string $indent Indent value
@@ -804,6 +831,8 @@ class Post extends BaseObject
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
+			$default_text = $this->getDefaultText();
+
 			if (!is_null($parent_uid) && ($uid != $parent_uid)) {
 				$uid = $parent_uid;
 			}
@@ -817,6 +846,7 @@ class Post extends BaseObject
 				'$id'          => $this->getId(),
 				'$parent'      => $this->getId(),
 				'$qcomment'    => $qcomment,
+				'$default'     => $default_text,
 				'$profile_uid' => $uid,
 				'$mylink'      => $a->removeBaseURL($a->contact['url']),
 				'$mytitle'     => L10n::t('This is you'),

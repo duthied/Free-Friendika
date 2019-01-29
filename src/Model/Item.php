@@ -559,10 +559,10 @@ class Item extends BaseObject
 
 		$fields['permissionset'] = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 
-		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name',
+		$fields['author'] = ['url' => 'author-link', 'name' => 'author-name', 'addr' => 'author-addr',
 			'thumb' => 'author-avatar', 'nick' => 'author-nick', 'network' => 'author-network'];
 
-		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name',
+		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name', 'addr' => 'owner-addr',
 			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
