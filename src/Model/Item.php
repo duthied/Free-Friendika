@@ -2441,22 +2441,20 @@ class Item extends BaseObject
 				"&num;$2", $item["body"]);
 
 		foreach ($tags as $tag) {
-			if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=')) {
+			if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=') || $tag[1] == '#') {
 				continue;
 			}
 
 			$basetag = str_replace('_',' ',substr($tag,1));
-			if($basetag[0] != '#') { 
-				$newtag = '#[url=' . System::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
+			$newtag = '#[url=' . System::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
 
-				$item["body"] = str_replace($tag, $newtag, $item["body"]);
+			$item["body"] = str_replace($tag, $newtag, $item["body"]);
 
-				if (!stristr($item["tag"], "/search?tag=" . $basetag . "]" . $basetag . "[/url]")) {
-					if (strlen($item["tag"])) {
-						$item["tag"] = ',' . $item["tag"];
-					}
-					$item["tag"] = $newtag . $item["tag"];
+			if (!stristr($item["tag"], "/search?tag=" . $basetag . "]" . $basetag . "[/url]")) {
+				if (strlen($item["tag"])) {
+					$item["tag"] = ',' . $item["tag"];
 				}
+				$item["tag"] = $newtag . $item["tag"];
 			}
 		}
 
