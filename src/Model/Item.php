@@ -2472,9 +2472,6 @@ class Item extends BaseObject
 				$replace = ['#', '['];
 				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
 			}, $item["body"]);
-
-		// Convert back the masked hashtags
-		$item["body"] = str_replace("&num;", "#", $item["body"]);
 	}
 
 	public static function getGuidById($id)
