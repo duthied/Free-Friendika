@@ -2386,24 +2386,23 @@ class Item extends BaseObject
 
 	public static function setHashtags(&$item)
 	{
-
-		// What happens in [code], stays in [code]!
-		// escape the # and the [
-		// hint: we will also get in trouble with #tags, when we want markdown in posts -> ### Headline 3
-		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
-			function ($match) {
-				// we truly ESCape all # and [ to prevent gettin weird tags in [code] blocks
-				$find = ['#', '['];
-				$replace = [chr(27).'sharp', chr(27).'leftsquarebracket'];
-				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
-			}, $item["body"]);
-		
 		$tags = BBCode::getTags($item["body"]);
 
 		// No hashtags?
 		if (!count($tags)) {
 			return false;
 		}
+
+		// What happens in [code], stays in [code]!
+		// escape the # and the [
+		// hint: we will also get in trouble with #tags, when we want markdown in posts -> ### Headline 3
+		$item["body"] = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism",
+			function ($match) {
+				// we truly ESCape all # and [ to prevent gettin weird tags in [code] blocks
+				$find = ['#', '['];
+				$replace = [chr(27).'sharp', chr(27).'leftsquarebracket'];
+				return ("[code" . $match[1] . "]" . str_replace($find, $replace, $match[2]) . "[/code]");
+			}, $item["body"]);
 
 		// This sorting is important when there are hashtags that are part of other hashtags
 		// Otherwise there could be problems with hashtags like #test and #test2
@@ -2463,12 +2462,12 @@ class Item extends BaseObject
 
 		// Remember! What happens in [code], stays in [code]
 		// roleback the # and [
-		$item["body"] = preg_replace_callback("/\[code(.*)\](.*?)\[\/code\]/ism",
+		$item["body"] = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism",
 			function ($match) {
 				// we truly unESCape all sharp and leftsquarebracket
 				$find = [chr(27).'sharp', chr(27).'leftsquarebracket'];
 				$replace = ['#', '['];
-				return ("[code" . str_replace($find, $replace, $match[1]) . "]" . $match[2] . "[/code]");
+				return ("[code" . $match[1] . "]" . str_replace($find, $replace, $match[2]) . "[/code]");
 			}, $item["body"]);
 	}
 
