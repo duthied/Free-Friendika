@@ -936,7 +936,7 @@ function admin_page_summary(App $a)
 		$showwarning = true;
 		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
 	}
-	if (file_exists('local.ini.php')) {
+	if (file_exists('config/local.ini.php')) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>config/local.ini.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
 	}
