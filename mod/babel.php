@@ -72,6 +72,21 @@ function babel_content()
 					'title' => L10n::t('BBCode::toMarkdown =>  Markdown::convert => HTML::toBBCode'),
 					'content' => visible_whitespace($bbcode4)
 				];
+
+				$item = [
+					'body' => $bbcode,
+					'tag' => '',
+				];
+
+				\Friendica\Model\Item::setHashtags($item);
+				$results[] = [
+					'title' => L10n::t('Item Body'),
+					'content' => visible_whitespace($item['body'])
+				];
+				$results[] = [
+					'title' => L10n::t('Item Tags'),
+					'content' => $item['tag']
+				];
 				break;
 			case 'markdown':
 				$markdown = trim($_REQUEST['text']);
