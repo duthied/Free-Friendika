@@ -333,7 +333,11 @@ class Transmitter
 
 		$data = ['to' => [], 'cc' => [], 'bcc' => []];
 
-		$actor_profile = APContact::getByURL($item['author-link']);
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			$actor_profile = APContact::getByURL($item['owner-link']);
+		} else {
+			$actor_profile = APContact::getByURL($item['author-link']);
+		}
 
 		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
 
@@ -341,9 +345,6 @@ class Transmitter
 			$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
 			$data['to'][] = ActivityPub::PUBLIC_COLLECTION;
-			if (!empty($actor_profile['followers'])) {
-				$data['cc'][] = $actor_profile['followers'];
-			}
 
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
@@ -378,6 +379,29 @@ class Transmitter
 
 		$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
 		while ($parent = Item::fetch($parents)) {
+			if ($parent['gravity'] == GRAVITY_PARENT) {
+				$profile = APContact::getByURL($parent['owner-link'], false);
+				if (!empty($profile)) {
+					if ($item['gravity'] != GRAVITY_PARENT) {
+						// Comments to forums are directed to the forum
+						// But comments to forums aren't directed to the followers collection
+						if ($profile['type'] == 'Group') {
+							$data['to'][] = $profile['url'];
+						} else {
+							$data['cc'][] = $profile['url'];
+							if (!$item['private']) {
+								$data['cc'][] = $actor_profile['followers'];
+							}
+						}
+					} else {
+						// Public thread parent post always are directed to the followes
+						if (!$item['private']) {
+							$data['cc'][] = $actor_profile['followers'];
+						}
+					}
+				}
+			}
+
 			// Don't include data from future posts
 			if ($parent['id'] >= $last_id) {
 				continue;
@@ -385,20 +409,11 @@ class Transmitter
 
 			$profile = APContact::getByURL($parent['author-link'], false);
 			if (!empty($profile)) {
-				if ($parent['uri'] == $item['thr-parent']) {
+				if (($profile['type'] == 'Group') || ($parent['uri'] == $item['thr-parent'])) {
 					$data['to'][] = $profile['url'];
 				} else {
 					$data['cc'][] = $profile['url'];
 				}
-			}
-
-			if ($item['gravity'] != GRAVITY_PARENT) {
-				continue;
-			}
-
-			$profile = APContact::getByURL($parent['owner-link'], false);
-			if (!empty($profile)) {
-				$data['cc'][] = $profile['url'];
 			}
 		}
 		DBA::close($parents);
@@ -1054,8 +1069,9 @@ class Transmitter
 	 * Creates an announce object entry
 	 *
 	 * @param array $item
+	 * @param array $data activity data
 	 *
-	 * @return string with announced object url
+	 * @return array with activity data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
