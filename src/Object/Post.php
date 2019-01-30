@@ -775,19 +775,26 @@ class Post extends BaseObject
 	 */
 	private function getDefaultText()
 	{
+		$a = self::getApp();
+
 		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
 		}
 
-		$text = '@' . $item['author-addr'] . ' ';
+		if ($item['author-addr'] != $a->profile['addr']) {
+			$text = '@' . $item['author-addr'] . ' ';
+		} else {
+			$text = '';
+		}
 
 		$terms = Term::tagArrayFromItemId($this->getId(), TERM_MENTION);
 
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
-			if (!empty($profile['addr']) && !strstr($text, $profile['addr'])) {
+			if (!empty($profile['addr']) && ($profile['contact-type'] != Contact::TYPE_COMMUNITY) &&
+				($profile['addr'] != $a->profile['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}
 		}
