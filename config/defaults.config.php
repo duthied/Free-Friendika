@@ -421,9 +421,13 @@ return [
 		// Must be writable by the ejabberd process. if set then it will prevent the running of multiple processes.
 		'lockpath' => '',
 	],
-    'debug' => [
-        // ap_inbox_log (Boolean)
-        // Logs every call to /inbox as a JSON file in Friendica's temporary directory
-        'ap_inbox_log' => false,
-    ]
+	'debug' => [
+		// ap_inbox_log (Boolean)
+		// Logs every call to /inbox as a JSON file in Friendica's temporary directory
+		'ap_inbox_log' => false,
+
+		// total_ap_delivery (Boolean)
+		// Deliver via AP to every possible receiver and we suppress the delivery to these contacts with other protocols
+		'total_ap_delivery' => false,
+	]
 ];
