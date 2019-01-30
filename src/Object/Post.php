@@ -775,6 +775,10 @@ class Post extends BaseObject
 	 */
 	private function getDefaultText()
 	{
+		if (!local_user()) {
+			return;
+		}
+
 		$a = self::getApp();
 
 		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);

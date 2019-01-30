@@ -329,6 +329,15 @@ class Processor
 			$item_id = Item::insert($item);
 			Logger::log('Storing for user ' . $item['uid'] . ': ' . $item_id);
 		}
+
+		if (!$item['private'] && ($item['gravity'] == GRAVITY_PARENT) && ($item['author-link'] != $item['owner-link'])) {
+			$author = APContact::getByURL($item['owner-link'], false);
+			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
+			if ($author['type'] != 'Group') {
+				Logger::log('Send follow request for ' . $item['uri'] . ' to ' . $item['author-link'], Logger::DEBUG);
+				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
+			}
+		}
 	}
 
 	/**

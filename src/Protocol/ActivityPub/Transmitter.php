@@ -6,6 +6,7 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\HTTPSignature;
@@ -1295,9 +1296,19 @@ class Transmitter
 	 * @throws \ImagickException
 	 * @throws \Exception
 	 */
-	public static function sendFollowObject($object, $target, $uid)
+	public static function sendFollowObject($object, $target, $uid = 0)
 	{
 		$profile = APContact::getByURL($target);
+
+		if (empty($uid)) {
+			// Fetch the list of administrators
+			$admin_mail = explode(',', str_replace(' ', '', Config::get('config', 'admin_email')));
+
+			// We need to use some user as a sender. It doesn't care who it will send. We will use an administrator account.
+			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false, 'email' => $admin_mail];
+			$first_user = DBA::selectFirst('user', ['uid'], $condition);
+			$uid = $first_user['uid'];
+		}
 
 		$owner = User::getOwnerDataById($uid);
 
