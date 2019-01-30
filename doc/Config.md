@@ -242,7 +242,7 @@ register_policty = REGISTER_CLOSED
 </pre></td>
         			<td><pre>
 'config' => [
-    'register_policty' => REGISTER_CLOSED,
+    'register_policy' => \Friendica\Module\Register::CLOSED,
 ],
 </pre></td>
         </tr>
