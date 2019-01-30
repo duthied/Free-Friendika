@@ -703,7 +703,7 @@ class App
 			$this->hostname = Core\Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . !empty($this->getURLPath() ? '/' . $this->getURLPath() : '' );
+		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
 	}
 
 	/**
