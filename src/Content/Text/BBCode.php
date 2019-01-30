@@ -1178,7 +1178,7 @@ class BBCode extends BaseObject
 		// Extracting multi-line code blocks before the whitespace processing
 		$codeblocks = [];
 
-		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#ism",
 			function ($matches) use (&$codeblocks) {
 				$return = $matches[0];
 				if (strpos($matches[2], "\n") !== false) {
@@ -1743,7 +1743,7 @@ class BBCode extends BaseObject
 
 		// Clean up the HTML by loading and saving the HTML with the DOM.
 		// Bad structured html can break a whole page.
-		// For performance reasons do it only with ativated item cache or at export.
+		// For performance reasons do it only with activated item cache or at export.
 		if (!$try_oembed || (get_itemcachepath() != "")) {
 			$doc = new DOMDocument();
 			$doc->preserveWhiteSpace = false;
@@ -1959,7 +1959,7 @@ class BBCode extends BaseObject
         $string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
 
         // ignore anything in a code block
-        $string = preg_replace('/\[code\](.*?)\[\/code\]/sm', '', $string);
+        $string = preg_replace('/\[code.*?\].*?\[\/code\]/sm', '', $string);
 
         // Force line feeds at bbtags
         $string = str_replace(['[', ']'], ["\n[", "]\n"], $string);

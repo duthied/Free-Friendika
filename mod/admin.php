@@ -936,6 +936,10 @@ function admin_page_summary(App $a)
 		$showwarning = true;
 		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
 	}
+	if (file_exists('config/local.ini.php')) {
+		$showwarning = true;
+		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>config/local.ini.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
+	}
 
 	// Check server vitality
 	if (!admin_page_server_vital()) {
@@ -1104,7 +1108,7 @@ function admin_page_site_post(App $a)
 	$banner           = (!empty($_POST['banner'])           ? trim($_POST['banner'])                             : false);
 	$shortcut_icon    = (!empty($_POST['shortcut_icon'])    ? Strings::escapeTags(trim($_POST['shortcut_icon'])) : '');
 	$touch_icon       = (!empty($_POST['touch_icon'])       ? Strings::escapeTags(trim($_POST['touch_icon']))    : '');
-	$info             = (!empty($_POST['info'])             ? trim($_POST['info'])                               : false);
+	$additional_info  = (!empty($_POST['additional_info'])  ? trim($_POST['additional_info'])                    : '');
 	$language         = (!empty($_POST['language'])         ? Strings::escapeTags(trim($_POST['language']))      : '');
 	$theme            = (!empty($_POST['theme'])            ? Strings::escapeTags(trim($_POST['theme']))         : '');
 	$theme_mobile     = (!empty($_POST['theme_mobile'])     ? Strings::escapeTags(trim($_POST['theme_mobile']))  : '');
@@ -1300,10 +1304,10 @@ function admin_page_site_post(App $a)
 		Config::set('system', 'banner', $banner);
 	}
 
-	if (empty($info)) {
+	if (empty($additional_info)) {
 		Config::delete('config', 'info');
 	} else {
-		Config::set('config', 'info', $info);
+		Config::set('config', 'info', $additional_info);
 	}
 	Config::set('system', 'language', $language);
 	Config::set('system', 'theme', $theme);
@@ -1501,7 +1505,7 @@ function admin_page_site(App $a)
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
 
-	$info = Config::get('config', 'info');
+	$additional_info = Config::get('config', 'info');
 
 	// Automatically create temporary paths
 	get_temppath();
@@ -1594,7 +1598,7 @@ function admin_page_site(App $a)
 		'$banner'           => ['banner', L10n::t("Banner/Logo"), $banner, ""],
 		'$shortcut_icon'    => ['shortcut_icon', L10n::t("Shortcut icon"), Config::get('system', 'shortcut_icon'), L10n::t("Link to an icon that will be used for browsers.")],
 		'$touch_icon'       => ['touch_icon', L10n::t("Touch icon"), Config::get('system', 'touch_icon'), L10n::t("Link to an icon that will be used for tablets and mobiles.")],
-		'$info'             => ['info', L10n::t('Additional Info'), $info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
+		'$additional_info'  => ['additional_info', L10n::t('Additional Info'), $additional_info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
 		'$language'         => ['language', L10n::t("System language"), Config::get('system', 'language'), "", $lang_choices],
 		'$theme'            => ['theme', L10n::t("System theme"), Config::get('system', 'theme'), L10n::t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices],
 		'$theme_mobile'     => ['theme_mobile', L10n::t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), L10n::t("Theme for mobile devices"), $theme_choices_mobile],

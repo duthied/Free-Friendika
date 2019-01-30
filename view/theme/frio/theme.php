@@ -237,25 +237,25 @@ function frio_remote_nav($a, &$nav)
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
 		$nav['remote'] = L10n::t('Guest');
-		$remoteUser = $r[0];
 	} elseif (Model\Profile::getMyURL()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			DBA::escape($webbie));
 		$nav['remote'] = L10n::t('Visitor');
-		$remoteUser = $r[0];
 	} else {
 		$r = false;
 	}
 
+	$remoteUser = null;
 	if (DBA::isResult($r)) {
 		$nav['userinfo'] = [
 			'icon' => (DBA::isResult($r) ? $r[0]['photo'] : 'images/person-48.jpg'),
 			'name' => $r[0]['name'],
 		];
+		$remoteUser = $r[0];
 	}
 
-	if (!local_user() && !empty($server_url)) {
+	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
 		$nav['logout'] = [$server_url . '/logout', L10n::t('Logout'), '', L10n::t('End this session')];
 
 		// user menu

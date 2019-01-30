@@ -45,12 +45,45 @@
 <script type="text/javascript" src="view/js/main.js" ></script>
 <script>
 
-	var updateInterval = {{$update_interval}};
+	// Lifted from https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/
+    jQuery.fn.putCursorAtEnd = function() {
+        return this.each(function() {
+            // Cache references
+            var $el = $(this),
+                el = this;
+
+            // Only focus if input isn't already
+            if (!$el.is(":focus")) {
+                $el.focus();
+            }
+
+            // If this function exists... (IE 9+)
+            if (el.setSelectionRange) {
+                // Double the length because Opera is inconsistent about whether a carriage return is one character or two.
+                var len = $el.val().length * 2;
+
+                // Timeout seems to be required for Blink
+                setTimeout(function() {
+                    el.setSelectionRange(len, len);
+                }, 1);
+            } else {
+                // As a fallback, replace the contents with itself
+                // Doesn't work in Chrome, but Chrome supports setSelectionRange
+                $el.val($el.val());
+            }
+
+            // Scroll to the bottom, in case we're in a tall textarea
+            // (Necessary for Firefox and Chrome)
+            this.scrollTop = 999999;
+        });
+    };
+
+    var updateInterval = {{$update_interval}};
 	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
 
 	function confirmDelete() { return confirm("{{$delitem}}"); }
 	function commentExpand(id) {
-		$("#comment-edit-text-" + id).value = "";
+		$("#comment-edit-text-" + id).putCursorAtEnd();
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
 		$("#comment-edit-text-" + id).focus();

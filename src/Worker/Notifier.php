@@ -603,15 +603,20 @@ class Notifier
 			return false;
 		}
 
+		return self::isForum($item['contact-id']);
+	}
+
+	private static function isForum($contactid)
+	{
 		$fields = ['forum', 'prv'];
-		$condition = ['id' => $item['contact-id']];
+		$condition = ['id' => $contactid];
 		$contact = DBA::selectFirst('contact', $fields, $condition);
 		if (!DBA::isResult($contact)) {
 			// Should never happen
 			return false;
 		}
 
-		// Is the post from a forum?
+		// Is it a forum?
 		return ($contact['forum'] || $contact['prv']);
 	}
 }

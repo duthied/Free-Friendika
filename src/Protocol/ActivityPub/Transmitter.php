@@ -28,6 +28,7 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 
 require_once 'include/api.php';
+require_once 'mod/share.php';
 
 /**
  * @brief ActivityPub Transmitter Protocol class
@@ -635,16 +636,29 @@ class Transmitter
 			return false;
 		}
 
-		$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
-		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-		if (DBA::isResult($conversation)) {
-			$data = json_decode($conversation['source']);
-			if (!empty($data)) {
-				return $data;
+		if ($item['wall']) {
+			$owner = User::getOwnerDataById($item['uid']);
+			if (($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) && ($item['author-link'] != $owner['url'])) {
+				$type = 'Announce';
+
+				// Disguise forum posts as reshares. Will later be converted to a real announce
+				$item['body'] = share_header($item['author-name'], $item['author-link'], $item['author-avatar'],
+					$item['guid'], $item['created'], $item['plink']) . $item['body'] . '[/share]';
 			}
 		}
 
-		$type = self::getTypeOfItem($item);
+		if (empty($type)) {
+			$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
+			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
+			if (DBA::isResult($conversation)) {
+				$data = json_decode($conversation['source']);
+				if (!empty($data)) {
+					return $data;
+				}
+			}
+
+			$type = self::getTypeOfItem($item);
+		}
 
 		if (!$object_mode) {
 			$data = ['@context' => ActivityPub::CONTEXT];
@@ -671,7 +685,7 @@ class Transmitter
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
 		} elseif ($data['type'] == 'Announce') {
-			$data['object'] = self::createAnnounce($item);
+			$data = self::createAnnounce($item, $data);
 		} elseif ($data['type'] == 'Undo') {
 			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
@@ -1045,11 +1059,13 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function createAnnounce($item)
+	private static function createAnnounce($item, $data)
 	{
 		$announce = api_share_as_retweet($item);
 		if (empty($announce['plink'])) {
-			return self::createNote($item);
+			$data['type'] = 'Create';
+			$data['object'] = self::createNote($item);
+			return $data;
 		}
 
 		// Fetch the original id of the object
@@ -1058,11 +1074,14 @@ class Transmitter
 			$ldactivity = JsonLD::compact($activity);
 			$id = JsonLD::fetchElement($ldactivity, '@id');
 			if (!empty($id)) {
-				return $id;
+				$data['object'] = $id;
+				return $data;
 			}
 		}
 
-		return self::createNote($item);
+		$data['type'] = 'Create';
+		$data['object'] = self::createNote($item);
+		return $data;
 	}
 
 	/**

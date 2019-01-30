@@ -42,7 +42,7 @@
 					class="comment-edit-text-empty"
 					name="body"
 					placeholder="{{$comment}}"
-					onFocus="commentOpen(this,{{$id}}) && cmtBbOpen({{$id}});"></textarea>
+					onFocus="commentOpen(this,{{$id}}) && cmtBbOpen({{$id}});">{{if $threaded != false}}{{$default}}{{/if}}</textarea>
 				{{if $qcomment}}
 					<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
 					<option value=""></option>
