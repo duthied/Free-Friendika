@@ -1293,7 +1293,7 @@ class BBCode extends BaseObject
 				$text);
 		} elseif ($simple_html == 7) {
 			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'$1<span class="vcard"><a href="$2" class="url" title="$3"><span class="fn nickname mention">$3</span></a></span>',
+				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
 				$text);
 		} elseif (!$simple_html) {
 			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
