@@ -10,6 +10,14 @@ use Friendica\Core\Lock\SemaphoreLockDriver;
  */
 class SemaphoreLockDriverTest extends LockTest
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		$this->app->shouldReceive('getHostname')->andReturn('friendica.local');
+		$this->mockConfigGet('system', 'temppath', '/tmp/');
+	}
+
 	protected function getInstance()
 	{
 		return new SemaphoreLockDriver();

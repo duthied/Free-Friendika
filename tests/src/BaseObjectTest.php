@@ -7,20 +7,33 @@ namespace Friendica\Test;
 
 use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Util\LoggerFactory;
+use Friendica\Test\Util\AppMockTrait;
+use Friendica\Test\Util\VFSTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the BaseObject class.
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class BaseObjectTest extends TestCase
 {
+	use VFSTrait;
+	use AppMockTrait;
+
+	/**
+	 * @var BaseObject
+	 */
+	private $baseObject;
 
 	/**
 	 * Create variables used in tests.
 	 */
 	protected function setUp()
 	{
+		$this->setUpVfsDir();
+		$this->mockApp($this->root);
+
 		$this->baseObject = new BaseObject();
 	}
 
@@ -39,10 +52,7 @@ class BaseObjectTest extends TestCase
 	 */
 	public function testSetApp()
 	{
-		$logger = $logger = LoggerFactory::create('test');
-		$app = new App(__DIR__ . '/../../', $logger);
-		LoggerFactory::enableTest($logger);
-		$this->assertNull($this->baseObject->setApp($app));
-		$this->assertEquals($app, $this->baseObject->getApp());
+		$this->assertNull($this->baseObject->setApp($this->app));
+		$this->assertEquals($this->app, $this->baseObject->getApp());
 	}
 }

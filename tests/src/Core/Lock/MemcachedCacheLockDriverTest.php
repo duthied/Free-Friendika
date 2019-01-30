@@ -15,6 +15,8 @@ class MemcachedCacheLockDriverTest extends LockTest
 {
 	protected function getInstance()
 	{
+		$this->mockConfigGet('system', 'memcached_hosts', [0 => 'localhost, 11211']);
+
 		return new CacheLockDriver(CacheDriverFactory::create('memcached'));
 	}
 }

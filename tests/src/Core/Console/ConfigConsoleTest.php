@@ -21,7 +21,7 @@ class ConfigConsoleTest extends ConsoleTest
 			]
 		]);
 
-		$mode = \Mockery::mock('alias:Friendica\App\Mode');
+		$mode = \Mockery::mock('Friendica\App\Mode');
 		$mode
 			->shouldReceive('has')
 			->andReturn(true);
