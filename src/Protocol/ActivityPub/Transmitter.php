@@ -601,6 +601,8 @@ class Transmitter
 			$type = 'Reject';
 		} elseif ($item['verb'] == ACTIVITY_ATTENDMAYBE) {
 			$type = 'TentativeAccept';
+		} elseif ($item['verb'] == ACTIVITY_FOLLOW) {
+			$type = 'Follow';
 		} else {
 			$type = '';
 		}
@@ -701,6 +703,8 @@ class Transmitter
 			$data['object'] = self::createNote($item);
 		} elseif ($data['type'] == 'Announce') {
 			$data = self::createAnnounce($item, $data);
+		} elseif ($data['type'] == 'Follow') {
+			$data['object'] = $item['parent-uri'];
 		} elseif ($data['type'] == 'Undo') {
 			$data['object'] = self::createActivityFromItem($item_id, true);
 		} else {
@@ -1270,6 +1274,38 @@ class Transmitter
 			'to' => [$profile['url']]];
 
 		Logger::log('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
+
+		$signed = LDSignature::sign($data, $owner);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+	}
+
+	/**
+	 * Transmits a "follow object" activity to a target
+	 * This is a preparation for sending automated "follow" requests when receiving "Announce" messages
+	 *
+	 * @param string  $object Object URL
+	 * @param string  $target Target profile
+	 * @param integer $uid    User ID
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @throws \Exception
+	 */
+	public static function sendFollowObject($object, $target, $uid)
+	{
+		$profile = APContact::getByURL($target);
+
+		$owner = User::getOwnerDataById($uid);
+
+		$data = ['@context' => ActivityPub::CONTEXT,
+			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'type' => 'Follow',
+			'actor' => $owner['url'],
+			'object' => $object,
+			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'to' => [$profile['url']]];
+
+		Logger::log('Sending follow ' . $object . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
