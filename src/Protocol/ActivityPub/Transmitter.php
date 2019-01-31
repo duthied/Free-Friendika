@@ -325,11 +325,13 @@ class Transmitter
 			}
 		}
 
-		// Will be activated in a later step
-		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
-
-		// For now only send to these contacts:
-		$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
+		if (Config::get('debug', 'total_ap_delivery')) {
+			// Will be activated in a later step
+			$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+		} else {
+			// For now only send to these contacts:
+			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
+		}
 
 		$data = ['to' => [], 'cc' => [], 'bcc' => []];
 
@@ -473,11 +475,13 @@ class Transmitter
 	{
 		$inboxes = [];
 
-		// Will be activated in a later step
-		// $networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
-
-		// For now only send to these contacts:
-		$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
+		if (Config::get('debug', 'total_ap_delivery')) {
+			// Will be activated in a later step
+			$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+		} else {
+			// For now only send to these contacts:
+			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
+		}
 
 		$condition = ['uid' => $uid, 'network' => $networks, 'archive' => false, 'pending' => false];
 

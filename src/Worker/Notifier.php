@@ -11,6 +11,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Group;
@@ -418,12 +419,17 @@ class Notifier
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
-			$r2 = DBA::toArray(DBA::select('contact', ['id', 'name', 'network'], $condition));
+			$r2 = DBA::toArray(DBA::select('contact', ['id', 'url', 'name', 'network'], $condition));
 
 			$r = array_merge($r2, $relay_list);
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
+					if (Config::get('debug', 'total_ap_delivery') && !empty($rr['url']) && ($rr['network'] == Protocol::DFRN) && !empty(APContact::getByURL($rr['url'], false))) {
+						Logger::log('Skipping contact ' . $rr['url'] . ' since it will be delivered via AP', Logger::DEBUG);
+						continue;
+					}
+
 					$conversants[] = $rr['id'];
 
 					$delivery_queue_count++;
@@ -447,6 +453,11 @@ class Notifier
 
 		// delivery loop
 		while ($contact = DBA::fetch($delivery_contacts_stmt)) {
+			if (Config::get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
+				Logger::log('Skipping contact ' . $contact['url'] . ' since it will be delivered via AP', Logger::DEBUG);
+				continue;
+			}
+
 			// Don't deliver to Diaspora if it already had been done as batch delivery
 			if (($contact['network'] == Protocol::DIASPORA) && $batch_delivery) {
 				Logger::log('Already delivered  id ' . $target_id . ' via batch to ' . json_encode($contact), Logger::DEBUG);
