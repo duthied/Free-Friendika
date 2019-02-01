@@ -12,6 +12,7 @@
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 
@@ -19,6 +20,8 @@ function parse_url_content(App $a)
 {
 	$text = null;
 	$str_tags = '';
+	$format = '';
+	$ret= ['success' => false, 'contentType' => ''];
 
 	$br = "\n";
 
@@ -41,6 +44,10 @@ function parse_url_content(App $a)
 		if (count($arr_tags)) {
 			$str_tags = $br . implode(' ', $arr_tags) . $br;
 		}
+	}
+
+	if (isset($_GET['dataType']) && $_GET['dataType'] == 'json') {
+		$format = 'json';
 	}
 
 	// Add url scheme if it is missing
@@ -73,22 +80,35 @@ function parse_url_content(App $a)
 			}
 		}
 		$type = null;
+		$content_type = '';
+		$bbcode = '';
 		if (array_key_exists('Content-Type', $hdrs)) {
 			$type = $hdrs['Content-Type'];
 		}
 		if ($type) {
 			if (stripos($type, 'image/') !== false) {
-				echo $br . '[img]' . $url . '[/img]' . $br;
-				exit();
+				$content_type = 'image';
+				$bbcode = $br . '[img]' . $url . '[/img]' . $br;
 			}
 			if (stripos($type, 'video/') !== false) {
-				echo $br . '[video]' . $url . '[/video]' . $br;
-				exit();
+				$content_type = 'video';
+				$bbcode = $br . '[video]' . $url . '[/video]' . $br;
 			}
 			if (stripos($type, 'audio/') !== false) {
-				echo $br . '[audio]' . $url . '[/audio]' . $br;
-				exit();
+				$content_type = 'audio';
+				$bbcode = $br . '[audio]' . $url . '[/audio]' . $br;
 			}
+		}
+		if (!empty($content_type)) {
+			if ($format == 'json') {
+				$ret['contentType'] = $content_type;
+				$ret['data'] = ['url' => $url];
+				$ret['success'] = true;
+				System::jsonExit($ret);
+			}
+
+			echo $bbcode;
+			exit();
 		}
 	}
 
@@ -128,6 +148,14 @@ function parse_url_content(App $a)
 	if (!empty($_GET['noAttachment'])) {
 		echo $br . '[url=' . $url . ']' . $siteinfo['title'] . '[/url]';
 		exit();
+	}
+
+	if ($format == 'json') {
+		$ret['data'] = $siteinfo;
+		$ret['contentType'] = 'attachment';
+		$ret['success'] = true;
+
+		System::jsonExit($ret);
 	}
 
 	// Format it as BBCode attachment

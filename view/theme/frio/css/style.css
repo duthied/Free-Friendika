@@ -1340,6 +1340,67 @@ section #jotOpen {
 #jot-text-wrap textarea {
     min-height: 100px;
 }
+/*#jot-attachment-preview {
+    display: none;
+}*/
+#jot-text-wrap .preview textarea {
+    width: 100%;
+}
+#preview_profile-jot-text {
+    position: relative;
+    padding: 0px 10px;
+    margin-top: -2px;
+    border: 2px solid #ededed;
+    border-top: none;
+    box-shadow: none;
+    border-radius: 0 0 4px 4px;
+    background: #fff;
+    color: #555;
+}
+textarea#profile-jot-text:focus + #preview_profile-jot-text {
+    border: 2px solid #6fdbe8;
+    border-top: none;
+}
+.preview hr.previewseparator {
+    margin-top: 0px;
+    border-color: #D2D2D2;
+}
+#previewImgBtn_profile-jot-text,
+.closePreview  {
+    position: absolute;
+    top: 15px;
+}
+.closePreview {
+    right: 15px;
+    z-index: 1;
+}
+.previewImgBtn {
+    left: 15px;
+}
+.preview button.previewActionBtn {
+    display:block;
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 3px gray;
+    background: #777;
+    text-align: center;
+    line-height: 2px;
+    text-decoration: none;
+    padding: 0 0 1px 1px;
+    opacity: 0.7;
+}
+.preview button.previewActionBtn:hover {
+    opacity: 1;
+}
+.preview .closePreview button.previewActionBtn {
+    font-size: 25px;
+}
+#previewInputTitle_profile-jot-text {
+    width: 100%;
+}
 #profile-jot-wrapper button#profile-jot-submit {
     margin-top: 5px;
 }
@@ -1347,7 +1408,7 @@ section #jotOpen {
     padding: 10px 15px;
 }
 
-/* ACL */
+/* ACL 
 /*#jot-modal-body {
     height: auto;
     max-height: calc(100vh - 130px);
