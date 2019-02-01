@@ -16,8 +16,13 @@
 		selector = selector.substr(1);
 
 		var previewTpl = '\
-			<div id="preview_' + selector + '" class="preview {0}">{1}</div>\
-			<div style="clear: both"></div>';
+			<div id="preview_' + selector + '" class="preview {0}">\
+				{1}\
+				<input type="hidden" name="has_attachment" id="hasAttachment_' + selector + '" value="{2}" />\
+				<input type="hidden" name="attachment_url" id="attachmentUrl_' + selector + '" value="{3}" />\
+				<input type="hidden" name="attachment_type" id="attachmentType_' + selector + '" value="{4}" />\
+			</div>';
+
 		var attachmentTpl = '\
 			<hr class="previewseparator">\
 			<div id="closePreview_' + selector + '" title="Remove" class="closePreview" >\
@@ -32,6 +37,9 @@
 				<div id="previewImage_' + selector + '" class="previewImage">\
 				</div>\
 				<input type="hidden" id="photoNumber_' + selector + '" class="photoNumber" value="0" />\
+				<input type="hidden" name="attachment_img_src" id="attachmentImageSrc_' + selector + '" value="" />\
+				<input type="hidden" name="attachment_img_width" id="attachmentImageWidth_' + selector + '" value="0" />\
+				<input type="hidden" name="attachment_img_height" id="attachmentImageHeight_' + selector + '" value="0" />\
 			</div>\
 			<div id="previewContent_' + selector + '" class="previewContent">\
 				<h4 id="previewTitle_' + selector + '" class="previewTitle"></h4>\
@@ -73,8 +81,7 @@
 			});
 		};
 		var resetPreview = function() {
-			$('#previewChangeImg_' + selector).removeClass('buttonChangeActive');
-			$('#previewChangeImg_' + selector).addClass('buttonChangeDeactive');
+			$('#hasAttachment_' + selector).val(0);
 			photoNumber = 0;
 			images = "";
 		}
@@ -88,6 +95,12 @@
 				text = getPrevWord(selector);
 			} else {
 				isExtern = true;
+			}
+
+			// Don't procces the textarea input if we have already
+			// an attachment preview.
+			if (!isExtern && isActive) {
+				return;
 			}
 
 			if (trim(text) !== "") {
@@ -186,10 +199,12 @@
 			// Note: if we finish the Preview of other media content type,
 			// we can move this condition to the beggining of crawlText();
 			if (isActive) {
+				$('#profile-rotator').hide();
 				return;
 			}
 
 			if (json.type != 'link' && json.type != 'video' && json.type != 'photo' || json.url == json.title) {
+				$('#profile-rotator').hide();
 				return;
 			}
 
@@ -203,7 +218,13 @@
 
 			// Load and add the template if it isn't allready loaded.
 			if ($('#preview_' + selector).length == 0) {
-				var tpl = previewTpl.format(typeClass, attachmentTpl);
+				var tpl = previewTpl.format(
+					typeClass,
+					attachmentTpl,
+					1,
+					bin2hex(json.url),
+					json.type
+				);
 				$('#' + selector).after(tpl);
 			}
 
@@ -215,13 +236,12 @@
 
 			$('#previewTitle_' + selector).html("\
 				<span id='previewSpanTitle_" + selector + "' class='previewSpanTitle' >" + escapeHTML(json.title) + "</span>\
-				<input type='text' value='" + escapeHTML(json.title) + "' id='previewInputTitle_" + selector + "' class='previewInputTitle inputPreview' style='display: none;'/>"
+				<input type='text' name='attachment_title' value='" + escapeHTML(json.title) + "' id='previewInputTitle_" + selector + "' class='previewInputTitle inputPreview' style='display: none;'/>"
 			);
-
 
 			$('#previewDescription_' + selector).html("\
 				<span id='previewSpanDescription_" + selector + "' class='previewSpanDescription' >" + escapeHTML(description) + "</span>\n\
-				<textarea id='previewInputDescription_" + selector + "' class='previewInputDescription' style='display: none;' class='inputPreview' >" + escapeHTML(json.text) + "</textarea>"
+				<textarea id='previewInputDescription_" + selector + "' name='attachment_text' class='previewInputDescription' style='display: none;' class='inputPreview' >" + escapeHTML(json.text) + "</textarea>"
 			);
 
 			if (json.url) {
@@ -235,6 +255,9 @@
 
 			if (Array.isArray(images)) {
 				$('#previewImages_' + selector).show();
+				$('#attachmentImageSrc_' + selector).val(bin2hex(images[photoNumber].src));
+				$('#attachmentImageWidth_' + selector).val(images[photoNumber].width);
+				$('#attachmentImageHeight_' + selector).val(images[photoNumber].height);
 			} else {
 				$('#previewImages_' + selector).hide();
 			}
@@ -259,7 +282,7 @@
 
 			$('#previewImage_' + selector).html(appendImage + "<div id='whiteImage' style='color: transparent; display:none;'>...</div>");
 
-			// more than just one image.
+			// More than just one image.
 			if (images.length > 1) {
 				// Enable the the button to change the preview pictures.
 				$('#previewChangeImg_' + selector).show();
@@ -270,7 +293,6 @@
 					$('#previewChangeImg_' + selector).unbind('click').click(function (e) {
 						e.stopPropagation();
 						if (images.length > 1) {
-//							photoNumber = parseInt($('#photoNumber_' + selector).val());
 							$('#imagePreview_' + selector + '_' + photoNumber).css({
 								'display': 'none'
 							});
@@ -285,6 +307,9 @@
 								'display': 'block'
 							});
 							$('#photoNumber_' + selector).val(photoNumber);
+							$('#attachmentImageSrc_' + selector).val(bin2hex(images[photoNumber].src));
+							$('#attachmentImageWidth_' + selector).val(images[photoNumber].width);
+							$('#attachmentImageHeight_' + selector).val(images[photoNumber].height);
 						}
 					});
 				}

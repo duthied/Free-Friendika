@@ -40,6 +40,8 @@ use Friendica\Util\Emailer;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
 
+require_once 'include/items.php';
+
 function item_post(App $a) {
 	if (!local_user() && !remote_user()) {
 		return 0;
@@ -188,6 +190,40 @@ function item_post(App $a) {
 	$categories = '';
 	$postopts = '';
 	$emailcc = '';
+	$body = defaults($_REQUEST, 'body', '');
+	$has_attachment = defaults($_REQUEST, 'has_attachment', 0);
+
+	// If we have a speparate attachment, we need to add it to the body.
+	if (!empty($has_attachment)) {
+		$attachment_type  = defaults($_REQUEST, 'attachment_type',  '');
+		$attachment_title = defaults($_REQUEST, 'attachment_title', '');
+		$attachment_text  = defaults($_REQUEST, 'attachment_text',  '');
+
+		$attachment_url     = hex2bin(defaults($_REQUEST, 'attachment_url',     ''));
+		$attachment_img_src = hex2bin(defaults($_REQUEST, 'attachment_img_src', ''));
+
+		$attachment_img_width  = defaults($_REQUEST, 'attachment_img_width',  0);
+		$attachment_img_height = defaults($_REQUEST, 'attachment_img_height', 0);
+		$attachment = [
+			'type'   => $attachment_type,
+			'title'  => $attachment_title,
+			'text'   => $attachment_text,
+			'url'    => $attachment_url,
+		];
+
+		if (!empty($attachment_img_src)) {
+			$attachment['images'] = [
+				0 => [
+					'src'    => $attachment_img_src,
+					'width'  => $attachment_img_width,
+					'height' => $attachment_img_height
+				]
+			];
+		}
+
+		$att_bbcode = add_page_info_data($attachment);
+		$body .= $att_bbcode;
+	}
 
 	if (!empty($orig_post)) {
 		$str_group_allow   = $orig_post['allow_gid'];
@@ -201,7 +237,7 @@ function item_post(App $a) {
 		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'];
 		$title             = Strings::escapeTags(trim($_REQUEST['title']));
-		$body              = Strings::escapeHtml(trim($_REQUEST['body']));
+		$body              = Strings::escapeHtml(trim($body));
 		$private           = $orig_post['private'];
 		$pubmail_enabled   = $orig_post['pubmail'];
 		$network           = $orig_post['network'];
@@ -237,7 +273,7 @@ function item_post(App $a) {
 		$coord             = Strings::escapeTags(trim(defaults($_REQUEST, 'coord'   , '')));
 		$verb              = Strings::escapeTags(trim(defaults($_REQUEST, 'verb'    , '')));
 		$emailcc           = Strings::escapeTags(trim(defaults($_REQUEST, 'emailcc' , '')));
-		$body              = Strings::escapeHtml(trim(defaults($_REQUEST, 'body'    , '')));
+		$body              = Strings::escapeHtml(trim($body));
 		$network           = Strings::escapeTags(trim(defaults($_REQUEST, 'network' , Protocol::DFRN)));
 		$guid              = System::createUUID();
 
