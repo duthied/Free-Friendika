@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-01-21 10:24-0500\n"
-"PO-Revision-Date: 2019-01-26 17:28+0000\n"
+"PO-Revision-Date: 2019-01-30 15:44+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -7195,7 +7195,7 @@ msgstr "Štítkový oblak"
 
 #: src/Content/Feature.php:116
 msgid "Provide a personal tag cloud on your profile page"
-msgstr "Poskytne na Vaší profilové stránce osobní \"štítkový oblak\""
+msgstr "Poskytne na Vaší profilové stránce osobní „štítkový oblak“"
 
 #: src/Content/Feature.php:117
 msgid "Display Membership Date"
