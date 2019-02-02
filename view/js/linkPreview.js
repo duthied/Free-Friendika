@@ -412,6 +412,23 @@
 			});
 		};
 
+		var destroy = function() {
+			$('#' + selector).unbind();
+			$('#preview_' + selector).remove();
+			binurl;
+			block = false;
+			blockTitle = false;
+			blockDescription = false;
+			cache = {};
+			images = "";
+			isExtern = false;
+			photoNumber = 0;
+			firstPosted = false;
+			isActive = false;
+			isCrawling = false;
+			selector = "";
+		};
+
 		var trim = function(str) {
 			return str.replace(/^\s+|\s+$/g, "");
 		};
@@ -431,8 +448,11 @@
 
 		return {
 			// make crawlText() accessable from the outside.
-			crawlText: function (text) {
+			crawlText: function(text) {
 				crawlText(text);
+			},
+			destroy: function() {
+				destroy();
 			}
 		};
 	};
