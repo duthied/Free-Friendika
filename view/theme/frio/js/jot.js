@@ -1,9 +1,7 @@
+// We apptend the linkPreview to a global Variable to make linkPreview
+// accessable on other places. Note: search on other places before you
+// delete or move the variable.
 var linkPreview;
-
-$(document).ready(function() {
-	linkPreview = $('#profile-jot-text').linkPreview();
-});
-
 
 /**
  * Insert a link into friendica jot.
@@ -25,7 +23,17 @@ function jotGetLink() {
 
 		// We use the linkPreview library to have a preview
 		// of the attachments.
-		linkPreview.crawlText(reply + noAttachment);
+		if (typeof linkPreview === 'object') {
+			linkPreview.crawlText(reply + noAttachment);
+
+		// Fallback: insert the attachment bbcode directly into the textarea
+		// if the attachment live preview isn't available
+		} else {
+			$.get('parse_url?binurl=' + bin2hex(reply) + noAttachment, function(data) {
+				addeditortext(data);
+				$('#profile-rotator').hide();
+			});
+		}
 		autosize.update($("#profile-jot-text"));
 	}
 }

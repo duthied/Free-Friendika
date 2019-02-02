@@ -273,6 +273,9 @@
 			.find('#jot-modal-content')
 			.append(jotcache)
 			.modal.show;
+
+		// Jot attachment live preview.
+		linkPreview = $('#profile-jot-text').linkPreview();
 	}
 
 	// Activate the jot text section in the jot modal
