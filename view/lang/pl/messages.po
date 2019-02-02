@@ -57,7 +57,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-01-21 10:24-0500\n"
-"PO-Revision-Date: 2019-01-24 20:24+0000\n"
+"PO-Revision-Date: 2019-02-01 08:22+0000\n"
 "Last-Translator: Waldemar Stoczkowski\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -6422,7 +6422,7 @@ msgstr "Ustawienia hasła"
 msgid ""
 "Allowed characters are a-z, A-Z, 0-9 and special characters except white "
 "spaces, accentuated letters and colon (:)."
-msgstr ""
+msgstr "Dozwolone znaki to a-z, A-Z, 0-9 i znaki specjalne, z wyjątkiem białych znaków, podkreślonych liter i dwukropka (:)."
 
 #: mod/settings.php:1185
 msgid "Leave password fields blank unless changing"
@@ -7720,7 +7720,7 @@ msgid ""
 "The database configuration file \"config/local.config.php\" could not be "
 "written. Please use the enclosed text to create a configuration file in your"
 " web server root."
-msgstr ""
+msgstr "Plik konfiguracyjny bazy danych \"config/local.config.php\" nie mógł zostać zapisany. Proszę użyć załączonego tekstu, aby utworzyć plik konfiguracyjny w katalogu głównym serwera."
 
 #: src/Core/Installer.php:176
 msgid ""
@@ -7904,7 +7904,7 @@ msgstr "Jest to najczęściej ustawienie uprawnień, ponieważ serwer sieciowy m
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named local.config.php in your Friendica \"config\" folder."
-msgstr ""
+msgstr "Pod koniec tej procedury otrzymasz tekst do zapisania w pliku o nazwie local.config.php w folderze \"config\" Friendica."
 
 #: src/Core/Installer.php:471
 msgid ""
@@ -8737,7 +8737,7 @@ msgstr "OpenWebAuth: %1$s wita %2$s"
 #: src/Model/Storage/Database.php:37
 #, php-format
 msgid "Database storage failed to update %s"
-msgstr ""
+msgstr "Przechowywanie bazy danych nie powiodło się %s"
 
 #: src/Model/Storage/Database.php:44
 msgid "Database storage failed to insert data"
@@ -8767,7 +8767,7 @@ msgstr ""
 
 #: src/Model/Storage/Filesystem.php:134
 msgid "Enter a valid existing folder"
-msgstr ""
+msgstr "Wprowadź poprawny istniejący folder"
 
 #: src/Model/User.php:216
 msgid "Login failed"
@@ -9613,19 +9613,19 @@ msgstr "via Wall-To-Wall:"
 
 #: src/Object/Post.php:429
 msgid "Notifier task is pending"
-msgstr ""
+msgstr "Zadanie Notifier jest w toku"
 
 #: src/Object/Post.php:430
 msgid "Delivery to remote servers is pending"
-msgstr ""
+msgstr "Trwa przesyłanie do serwerów zdalnych"
 
 #: src/Object/Post.php:431
 msgid "Delivery to remote servers is underway"
-msgstr ""
+msgstr "Trwa dostawa do serwerów zdalnych"
 
 #: src/Object/Post.php:432
 msgid "Delivery to remote servers is mostly done"
-msgstr ""
+msgstr "Dostawa do zdalnych serwerów jest w większości wykonywana"
 
 #: src/Object/Post.php:451
 #, php-format
