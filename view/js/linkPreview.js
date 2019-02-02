@@ -3,8 +3,8 @@
  * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
  * 
- * restructured from rabzuarus (https://friendica.kommune4.de/profile/rabuzarus)
- * for the decental social network Friendica.
+ * Restructured from Rabzuarus (https://friendica.kommune4.de/profile/rabuzarus)
+ * to use it for the decental social network Friendica (https://friendi.ca).
  * 
  * Version: 1.4.0
  */
@@ -65,6 +65,11 @@
 		var defaultTitle = opts.defaultTitle;
 		var defaultDescription = opts.defaultDescription;
 
+		/**
+		 * Initialize the plugin
+		 * 
+		 * @returns {void}
+		 */
 		var init = function() {
 			$('#' + selector).bind({
 				paste: function () {
@@ -79,18 +84,41 @@
 					}
 				}
 			});
+
+			// Check if we have already attachment bbcode in the textarea
+			// and add it to the attachment preview.
+			var content = $('#' + selector).val();
+			addBBCodeToPreview(content);
 		};
+
+		/**
+		 * Reset some values.
+		 * 
+		 * @returns {void}
+		 */
 		var resetPreview = function() {
 			$('#hasAttachment_' + selector).val(0);
 			photoNumber = 0;
 			images = "";
-		}
+		};
 
+		/**
+		 * Crawl a text string if it contains an url and try
+		 * to attach it.
+		 * 
+		 * If no text is passed to crawlText() we take
+		 * the previous word before the cursor of the textarea.
+		 * 
+		 * @param {string} text (optional)
+		 * @returns {void}
+		 */
 		var crawlText = function (text) {
 			block = false;
 			images = '';
 			isExtern = false;
 
+			// If no text is passed to crawlText() we 
+			// take the previous word before the cursor.
 			if (typeof text === 'undefined') {
 				text = getPrevWord(selector);
 			} else {
@@ -121,80 +149,99 @@
 			}
 		};
 
+		/**
+		 * Process the attachment data according to
+		 * its content type (image, audio, video, attachment)
+		 * 
+		 * @param {object} result
+		 * @returns {void}
+		 */
 		var processContentData = function(result) {
 			if (result.contentType === 'image') {
 				insertImage(result.data);
+			}
+			if (result.contentType === 'audio') {
+				insertAudio(result.data);
+			}
+			if (result.contentType === 'video') {
+				insertVideo(result.data);
 			}
 			if (result.contentType === 'attachment') {
 				insertAttachment(result.data);
 			}
 			$('#profile-rotator').hide();
-		}
+		};
 
+		/**
+		 * Fetch the content of link which should be attached.
+		 * 
+		 * @param {string} binurl Link which should be attached as hexadecimal string.
+		 * @param {type} callback
+		 * @returns {void}
+		 */
 		var getContentData = function(binurl, callback) {
 			$.get('parse_url?binurl='+ binurl + '&dataType=json', function (answer) {
-				if (typeof answer.contentType === 'undefined'
-					|| answer.contentType === null)
-				{
-					answer.contentType = "";
-				}
-				if (typeof answer.data.url === 'undefined'
-					|| answer.data.url === null)
-				{
-					answer.data.url = "";
-				}
-				if (typeof answer.data.title === 'undefined'
-					|| answer.data.title === null
-					|| answer.data.title === "")
-				{
-					answer.data.title = defaultTitle;
-				}
-				if (typeof answer.data.text === 'undefined'
-					|| answer.data.text === null
-					|| answer.data.text === "")
-				{
-					answer.data.text = "";
-				}
-				if (typeof answer.data.images === 'undefined'
-					|| answer.data.images === null)
-				{
-					answer.data.images = "";
-				}
+				obj = sanitizeInputData(answer);
 
 				// Put the data into a cache
-				cache[binurl] = answer;
+				cache[binurl] = obj;
 
-				callback(answer);
+				callback(obj);
 
 				isCrawling = false;
 			});
-		}
+		};
 
-		var insertImage = function(json) {
+		/*
+		 * Add a [img] bbtag with the image url to the jot editor.
+		 * 
+		 * @param {type} data
+		 * @returns {void}
+		 */
+		var insertImage = function(data) {
 			if (!isExtern) {
-				return
+				return;
 			}
-			var bbcode = '\n[img]' + json.url + '[/img]\n';
+			var bbcode = '\n[img]' + data.url + '[/img]\n';
 			addeditortext(bbcode);
 		};
 
-		var insertAudio = function(json) {
+		/*
+		 * Add a [audio] bbtag with the audio url to the jot editor.
+		 * 
+		 * @param {type} data
+		 * @returns {void}
+		 */
+		var insertAudio = function(data) {
 			if (!isExtern) {
-				return
+				return;
 			}
-			var bbcode = '\n[audio]' + json.url + '[/audio]\n';
+			var bbcode = '\n[audio]' + data.url + '[/audio]\n';
 			addeditortext(bbcode);
 		};
 
-		var insertVideo = function(json) {
+		/*
+		 * Add a [video] bbtag with the video url to the jot editor.
+		 * 
+		 * @param {type} data
+		 * @returns {void}
+		 */
+		var insertVideo = function(data) {
 			if (!isExtern) {
-				return
+				return;
 			}
 			var bbcode = '\n[video]' + json.url + '[/video]\n';
 			addeditortext(bbcode);
 		};
 
-		var insertAttachment = function(json) {
+		/**
+		 * Proccess all attachment data and show up a html
+		 * attachment preview.
+		 * 
+		 * @param {obj} data Attachment data.
+		 * @returns {void}
+		 */
+		var insertAttachment = function(data) {
 			// If we have already a preview, leaver here.
 			// Note: if we finish the Preview of other media content type,
 			// we can move this condition to the beggining of crawlText();
@@ -203,7 +250,7 @@
 				return;
 			}
 
-			if (json.type != 'link' && json.type != 'video' && json.type != 'photo' || json.url == json.title) {
+			if (data.type !== 'link' && data.type !== 'video' && data.type !== 'photo' || data.url === data.title) {
 				$('#profile-rotator').hide();
 				return;
 			}
@@ -211,48 +258,88 @@
 			$('#photoNumber_' + selector).val(0);
 			resetPreview();
 
-			var typeClass = 'type-' + json.type;
-			var imageClass = 'attachment-preview';
-			var urlHost = "";
-			var description = json.text;
+			processAttachmentTpl(data, 'type-' + data.type);
+			addTitleDescription(data);
+			addHostToAttachment(data.url);
+			addImagesToAttachment(data.images);
 
+			processEventListener();
+			$('#profile-rotator').hide();
+		};
+
+		/**
+		 * Construct the attachment html from the attachment template and
+		 * add it to the DOM.
+		 * 
+		 * @param {object} data Attachment data.
+		 * @returns {void}
+		 */
+		var processAttachmentTpl = function(data) {
 			// Load and add the template if it isn't allready loaded.
-			if ($('#preview_' + selector).length == 0) {
+			if ($('#preview_' + selector).length === 0) {
 				var tpl = previewTpl.format(
-					typeClass,
+					'type-' + data.type,
 					attachmentTpl,
 					1,
-					bin2hex(json.url),
-					json.type
+					bin2hex(data.url),
+					data.type
 				);
 				$('#' + selector).after(tpl);
 			}
 
 			isActive = true;
+		};
+
+		/**
+		 * Add the attachment title and the description
+		 * to the attachment preview.
+		 * 
+		 * @param {object} data Attachment data.
+		 * @returns {void}
+		 */
+		var addTitleDescription = function(data) {
+			var description = data.text;
 
 			if (description === '') {
 				description = defaultDescription;
 			}
 
 			$('#previewTitle_' + selector).html("\
-				<span id='previewSpanTitle_" + selector + "' class='previewSpanTitle' >" + escapeHTML(json.title) + "</span>\
-				<input type='text' name='attachment_title' value='" + escapeHTML(json.title) + "' id='previewInputTitle_" + selector + "' class='previewInputTitle inputPreview' style='display: none;'/>"
+				<span id='previewSpanTitle_" + selector + "' class='previewSpanTitle' >" + escapeHTML(data.title) + "</span>\
+				<input type='text' name='attachment_title' value='" + escapeHTML(data.title) + "' id='previewInputTitle_" + selector + "' class='previewInputTitle inputPreview' style='display: none;'/>"
 			);
 
 			$('#previewDescription_' + selector).html("\
 				<span id='previewSpanDescription_" + selector + "' class='previewSpanDescription' >" + escapeHTML(description) + "</span>\n\
-				<textarea id='previewInputDescription_" + selector + "' name='attachment_text' class='previewInputDescription' style='display: none;' class='inputPreview' >" + escapeHTML(json.text) + "</textarea>"
+				<textarea id='previewInputDescription_" + selector + "' name='attachment_text' class='previewInputDescription' style='display: none;' class='inputPreview' >" + escapeHTML(data.text) + "</textarea>"
 			);
+		};
 
-			if (json.url) {
+		/**
+		 * Add the host to the attachment preview.
+		 * 
+		 * @param {string} url The url of the link attachment.
+		 * @returns {void}
+		 */
+		var addHostToAttachment = function(url) {
+			if (url) {
 				var regexpr = "(https?://)([^:^/]*)(:\\d*)?(.*)?";
-				var regResult = json.url.match(regexpr);
+				var regResult = url.match(regexpr);
 				var urlHost = regResult[1] + regResult[2];
-				$('#previewUrl_' + selector).html("<a href='" + json.url + "'>" + urlHost + "</a>");
+				$('#previewUrl_' + selector).html("<a href='" + url + "'>" + urlHost + "</a>");
 			}
+		};
 
-			images = json.images;
-
+		/**
+		 * Add preview images to the attachment.
+		 * 
+		 * @param {array} images
+		 * 
+		 * @returns {void}
+		 */
+		var addImagesToAttachment = function(images) {
+			var imageClass = 'attachment-preview';
+	
 			if (Array.isArray(images)) {
 				$('#previewImages_' + selector).show();
 				$('#attachmentImageSrc_' + selector).val(bin2hex(images[photoNumber].src));
@@ -267,12 +354,11 @@
 
 			for (i = 0; i < images.length; i++) {
 				// For small preview images we use a smaller attachment format.
-//				if (Array.isArray(images) && typeof images[i].width !== 'undefined') {
-					///@todo here we need to add a check for !Config::get('system', 'always_show_preview').
-					if (images[i].width >= 500 && images[i].width >= images[i].height) {
-							imageClass = 'attachment-image';
-					}
-//				}
+				///@todo here we need to add a check for !Config::get('system', 'always_show_preview').
+				if (images[i].width >= 500 && images[i].width >= images[i].height) {
+						imageClass = 'attachment-image';
+				}
+
 				if (i === 0) {
 					appendImage += "<img id='imagePreview_" + selector + "_" + i + "' src='" + images[i].src + "' class='" + imageClass + "' ></img>";
 				} else {
@@ -314,11 +400,13 @@
 					});
 				}
 			}
-
-			processEventListener();
-			$('#profile-rotator').hide();
 		};
 
+		/**
+		 * Add event listener to control the attachment preview.
+		 * 
+		 * @returns {void}
+		 */
 		var processEventListener = function() {
 			$('#previewSpanTitle_' + selector).unbind('click').click(function (e) {
 				e.stopPropagation();
@@ -407,11 +495,262 @@
 				$('#preview_' + selector).fadeOut("fast", function () {
 					$('#preview_' + selector).remove();
 					$('#profile-rotator').hide();
+					$('#' + selector).focus();
 				});
 
 			});
 		};
 
+		/**
+		 * Convert attachmant bbcode into an array.
+		 * 
+		 * @param {string} content Text content with the attachment bbcode.
+		 * @returns {object || null}
+		 */
+		var getAttachmentData = function(content) {
+			var data = {};
+
+			var match = content.match(/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism);
+			if (match === null || match.length < 5) {
+				return null;
+			}
+
+			var attributes = match[2];
+			data.text = trim(match[1]);
+
+			var type = '';
+			var matches = attributes.match(/type='(.*?)'/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				type = matches[1].toLowerCase();
+			}
+
+			matches = attributes.match(/type="(.*?)"/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				type = matches[1].toLowerCase();
+			}
+
+			if (type === '') {
+				return null;
+			}
+
+			if (
+				type !== 'link'
+				&& type !== 'audio'
+				&& type !== 'photo'
+				&& type !== 'video')
+			{
+				return null;
+			}
+
+			if (type !== '') {
+				data.type = type;
+			}
+
+			var url = '';
+
+			matches = attributes.match(/url='(.*?)'/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				url = matches[1].toLowerCase();
+			}
+
+			matches = attributes.match(/url="(.*?)"/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				url = matches[1].toLowerCase();
+			}
+
+			if(url !== '') {
+				data.url = escapeHTML(url);
+			}
+
+			var title = '';
+
+			matches = attributes.match(/title='(.*?)'/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				title = matches[1].toLowerCase();
+			}
+
+			matches = attributes.match(/title="(.*?)"/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				title = matches[1].toLowerCase();
+			}
+
+			if (title !== '') {
+				data.title = escapeHTML(title);
+			}
+
+			var image = '';
+
+			matches = attributes.match(/image='(.*?)'/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				image = matches[1].toLowerCase();
+			}
+
+			matches = attributes.match(/image="(.*?)"/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				image = matches[1].toLowerCase();
+			}
+
+			if (image !== '') {
+				data.image = escapeHTML(image);
+			}
+
+			var preview = '';
+
+			matches = attributes.match(/preview='(.*?)'/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				preview = matches[1].toLowerCase();
+			}
+
+			matches = attributes.match(/preview="(.*?)"/ism);
+			if (matches !== null && typeof matches[1] !== 'undefined') {
+				preview = matches[1].toLowerCase();
+			}
+
+			if (preview !== '') {
+				data.preview = escapeHTML(preview);
+			}
+
+			data.text = trim(match[3]);
+			data.after = trim(match[4]);
+
+			return data;
+		};
+
+		/**
+		 * Process txt content and if it contains attachment bbcode
+		 * add it to the attachment preview .
+		 * 
+		 * @param {string} content
+		 * @returns {void}
+		 */
+		var addBBCodeToPreview =function(content) {
+			var attachmentData = getAttachmentData(content);
+			if (attachmentData) {
+				reAddAttachment(attachmentData);
+				// Remove the attachment bbcode from the textarea.
+				var content = content.replace(/\[attachment.*\[\/attachment]/ism, '');
+				$('#' + selector).val(content);
+				$('#' + selector).focus();
+			}
+		};
+
+		/**
+		 * Add an Attachment with data from an old bbcode
+		 * generated attachment.
+		 * 
+		 * @param {object} json The attachment data.
+		 * @returns {void}
+		 */
+		var reAddAttachment = function(json) {
+			if (isActive) {
+				$('#profile-rotator').hide();
+				return;
+			}
+
+			if (json.type !== 'link' && json.type !== 'video' && json.type !== 'photo' || json.url === json.title) {
+				$('#profile-rotator').hide();
+				return;
+			}
+
+			var obj = {data: json};
+			obj = sanitizeInputData(obj);
+
+			var data = obj.data;
+
+			resetPreview();
+
+			processAttachmentTpl(data);
+			addTitleDescription(data);
+			addHostToAttachment(data.url);
+
+			// Since we don't have an array of image data,
+			// we need to add the preview images in a different way
+			// than in function addImagesToAttachment().
+			var imageClass = 'attachment-preview';
+			var image = '';
+
+			if (data.image !== '') {
+				imageClass = 'attachment-image';
+				image = data.image;
+			} else {
+				image = data.preview;
+			}
+
+			if (image !== '') {
+				var appendImage = "<img id='imagePreview_" + selector + "' src='" + image + "' class='" + imageClass + "' ></img>"
+				$('#previewImage_' + selector).html(appendImage);
+				$('#attachmentImageSrc_' + selector).val(bin2hex(image));
+
+				// We need to add the image widht and height when it is 
+				// loaded.
+				$('<img/>' ,{
+					load : function(){
+						$('#attachmentImageWidth_' + selector).val(this.width);
+						$('#attachmentImageHeight_' + selector).val(this.height);
+					},
+					src  : image
+				});
+			}
+
+			processEventListener();
+			$('#profile-rotator').hide();
+		};
+
+		/**
+		 * Add missing default properties to the input data object.
+		 * 
+		 * @param {object} obj Input data.
+		 * @returns {object}
+		 */
+		var sanitizeInputData = function(obj) {
+			if (typeof obj.contentType === 'undefined'
+				|| obj.contentType === null)
+			{
+				obj.contentType = "";
+			}
+			if (typeof obj.data.url === 'undefined'
+				|| obj.data.url === null)
+			{
+				obj.data.url = "";
+			}
+			if (typeof obj.data.title === 'undefined'
+				|| obj.data.title === null
+				|| obj.data.title === "")
+			{
+				obj.data.title = defaultTitle;
+			}
+			if (typeof obj.data.text === 'undefined'
+				|| obj.data.text === null
+				|| obj.data.text === "")
+			{
+				obj.data.text = "";
+			}
+			if (typeof obj.data.images === 'undefined'
+				|| obj.data.images === null)
+			{
+				obj.data.images = "";
+			}
+
+			if (typeof obj.data.image === 'undefined'
+				|| obj.data.image === null)
+			{
+				obj.data.image = "";
+			}
+
+			if (typeof obj.data.preview === 'undefined'
+				|| obj.data.preview === null)
+			{
+				obj.data.preview = "";
+			}
+
+			return obj;
+		};
+
+		/**
+		 * Destroy the plugin.
+		 * 
+		 * @returns {void}
+		 */
 		var destroy = function() {
 			$('#' + selector).unbind();
 			$('#preview_' + selector).remove();
@@ -441,7 +780,7 @@
 				.replace(/\[/g, '&#91;')
 				.replace(/\]/g, '&#93;')
 				.replace(/\'/g, '&#39;'); // '&apos;' is not valid HTML 4
-		}
+		};
 
 		// Initialize LinkPreview 
 		init();
@@ -450,6 +789,9 @@
 			// make crawlText() accessable from the outside.
 			crawlText: function(text) {
 				crawlText(text);
+			},
+			addBBCodeToPreview: function(content) {
+				addBBCodeToPreview(content);
 			},
 			destroy: function() {
 				destroy();
