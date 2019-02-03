@@ -2,12 +2,20 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\BaseObject;
-use Friendica\Core\Config;
-use Friendica\Test\DatabaseTest;
+use Friendica\Test\MockedTest;
+use Friendica\Test\Util\AppMockTrait;
+use Friendica\Test\Util\VFSTrait;
 
-abstract class LockTest extends DatabaseTest
+abstract class LockTest extends MockedTest
 {
+	use VFSTrait;
+	use AppMockTrait;
+
+	/**
+	 * @var int Start time of the mock (used for time operations)
+	 */
+	protected $startTime = 1417011228;
+
 	/**
 	 * @var \Friendica\Core\Lock\ILockDriver
 	 */
@@ -22,20 +30,24 @@ abstract class LockTest extends DatabaseTest
 		$this->instance->releaseAll();
 
 		// Reusable App object
-		$this->app = BaseObject::getApp();
+		$this->setUpVfsDir();
+		$this->mockApp($this->root);
+		$this->app
+			->shouldReceive('getHostname')
+			->andReturn('friendica.local');
 
 		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
+		$this->mockConfigGet('config', 'hostname', 'localhost');
+		$this->mockConfigGet('system', 'throttle_limit_day', 100);
+		$this->mockConfigGet('system', 'throttle_limit_week', 100);
+		$this->mockConfigGet('system', 'throttle_limit_month', 100);
+		$this->mockConfigGet('system', 'theme', 'system_theme');
 	}
 
 	protected function tearDown()
 	{
-		parent::tearDown();
 		$this->instance->releaseAll();
+		parent::tearDown();
 	}
 
 	/**

@@ -3,12 +3,12 @@
 namespace Friendica\Test\src\Core\Console;
 
 use Asika\SimpleConsole\Console;
+use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\Intercept;
 use Friendica\Test\Util\VFSTrait;
-use PHPUnit\Framework\TestCase;
 
-abstract class ConsoleTest extends TestCase
+abstract class ConsoleTest extends MockedTest
 {
 	use VFSTrait;
 	use AppMockTrait;
@@ -30,13 +30,6 @@ abstract class ConsoleTest extends TestCase
 
 		$this->setUpVfsDir();
 		$this->mockApp($this->root);
-	}
-
-	protected function tearDown()
-	{
-		\Mockery::close();
-
-		parent::tearDown();
 	}
 
 	/**

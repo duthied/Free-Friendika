@@ -15,7 +15,9 @@ class RedisCacheLockDriverTest extends LockTest
 {
 	protected function getInstance()
 	{
-		return new CacheLockDriver(CacheDriverFactory::create('redis'));
+		$this->mockConfigGet('system', 'redis_host', 'localhost', 1);
+		$this->mockConfigGet('system', 'redis_port', null, 1);
 
+		return new CacheLockDriver(CacheDriverFactory::create('redis'));
 	}
 }

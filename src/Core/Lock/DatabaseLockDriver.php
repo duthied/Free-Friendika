@@ -12,6 +12,21 @@ use Friendica\Util\DateTimeFormat;
 class DatabaseLockDriver extends AbstractLockDriver
 {
 	/**
+	 * The current ID of the process
+	 *
+	 * @var int
+	 */
+	private $pid;
+
+	/**
+	 * @param null|int $pid The Id of the current process (null means determine automatically)
+	 */
+	public function __construct($pid = null)
+	{
+		$this->pid = isset($pid) ? $pid : getmypid();
+	}
+
+	/**
 	 * (@inheritdoc)
 	 */
 	public function acquireLock($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
@@ -26,16 +41,16 @@ class DatabaseLockDriver extends AbstractLockDriver
 			if (DBA::isResult($lock)) {
 				if ($lock['locked']) {
 					// We want to lock something that was already locked by us? So we got the lock.
-					if ($lock['pid'] == getmypid()) {
+					if ($lock['pid'] == $this->pid) {
 						$got_lock = true;
 					}
 				}
 				if (!$lock['locked']) {
-					DBA::update('locks', ['locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds')], ['name' => $key]);
+					DBA::update('locks', ['locked' => true, 'pid' => $this->pid, 'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds')], ['name' => $key]);
 					$got_lock = true;
 				}
 			} else {
-				DBA::insert('locks', ['name' => $key, 'locked' => true, 'pid' => getmypid(), 'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds')]);
+				DBA::insert('locks', ['name' => $key, 'locked' => true, 'pid' => $this->pid, 'expires' => DateTimeFormat::utc('now + ' . $ttl . 'seconds')]);
 				$got_lock = true;
 				$this->markAcquire($key);
 			}
@@ -55,7 +70,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	 */
 	public function releaseLock($key)
 	{
-		DBA::delete('locks', ['name' => $key, 'pid' => getmypid()]);
+		DBA::delete('locks', ['name' => $key, 'pid' => $this->pid]);
 
 		$this->markRelease($key);
 
@@ -67,7 +82,7 @@ class DatabaseLockDriver extends AbstractLockDriver
 	 */
 	public function releaseAll()
 	{
-		DBA::delete('locks', ['pid' => getmypid()]);
+		DBA::delete('locks', ['pid' => $this->pid]);
 
 		$this->acquiredLocks = [];
 	}
