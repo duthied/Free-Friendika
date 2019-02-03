@@ -31,7 +31,8 @@ abstract class LockTest extends MockedTest
 
 		// Reusable App object
 		$this->setUpVfsDir();
-		$this->mockApp($this->root);
+		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$this->mockApp($this->root, $configMock);
 		$this->app
 			->shouldReceive('getHostname')
 			->andReturn('friendica.local');

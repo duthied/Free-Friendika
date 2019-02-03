@@ -124,9 +124,9 @@ HELP;
 			$cat = $this->getArgument(0);
 			Core\Config::load($cat);
 
-			if (Core\Config::getConfigValue($cat) !== null) {
+			if ($a->getConfig()->get($cat) !== null) {
 				$this->out("[{$cat}]");
-				$catVal = Core\Config::getConfigValue($cat);
+				$catVal = $a->getConfig()->get($cat);
 				foreach ($catVal as $key => $value) {
 					if (is_array($value)) {
 						foreach ($value as $k => $v) {
@@ -148,7 +148,7 @@ HELP;
 				$this->out('Warning: The JIT (Just In Time) Config adapter doesn\'t support loading the entire configuration, showing file config only');
 			}
 
-			$config = Core\Config::getAll();
+			$config = $a->getConfig()->getAll();
 			foreach ($config as $cat => $section) {
 				if (is_array($section)) {
 					foreach ($section as $key => $value) {

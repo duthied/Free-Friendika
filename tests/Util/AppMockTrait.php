@@ -4,6 +4,7 @@ namespace Friendica\Test\Util;
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Core\Config\ConfigCache;
 use Friendica\Render\FriendicaSmartyEngine;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -24,8 +25,9 @@ trait AppMockTrait
 	 * Mock the App
 	 *
 	 * @param vfsStreamDirectory $root The root directory
+	 * @param MockInterface|ConfigCache $config The config cache
 	 */
-	public function mockApp($root)
+	public function mockApp($root, $config)
 	{
 		$this->mockConfigGet('system', 'theme', 'testtheme');
 
@@ -35,22 +37,26 @@ trait AppMockTrait
 			->shouldReceive('getBasePath')
 			->andReturn($root->url());
 
-		$this->app
-			->shouldReceive('getConfigValue')
+		$config
+			->shouldReceive('get')
 			->with('database', 'hostname')
 			->andReturn(getenv('MYSQL_HOST'));
-		$this->app
-			->shouldReceive('getConfigValue')
+		$config
+			->shouldReceive('get')
 			->with('database', 'username')
 			->andReturn(getenv('MYSQL_USERNAME'));
-		$this->app
-			->shouldReceive('getConfigValue')
+		$config
+			->shouldReceive('get')
 			->with('database', 'password')
 			->andReturn(getenv('MYSQL_PASSWORD'));
-		$this->app
-			->shouldReceive('getConfigValue')
+		$config
+			->shouldReceive('get')
 			->with('database', 'database')
 			->andReturn(getenv('MYSQL_DATABASE'));
+		$this->app
+			->shouldReceive('getConfig')
+			->andReturn($config);
+
 		$this->app
 			->shouldReceive('getTemplateEngine')
 			->andReturn(new FriendicaSmartyEngine());
