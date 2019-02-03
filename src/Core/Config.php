@@ -162,7 +162,7 @@ class Config extends BaseObject
 	 * @param array $config
 	 * @param bool  $overwrite Force value overwrite if the config key already exists
 	 */
-	public function loadConfigArray(array $config, $overwrite = false)
+	public static function loadConfigArray(array $config, $overwrite = false)
 	{
 		foreach ($config as $category => $values) {
 			foreach ($values as $key => $value) {
