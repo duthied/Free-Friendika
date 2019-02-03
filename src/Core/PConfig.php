@@ -20,6 +20,8 @@ use Friendica\BaseObject;
  */
 class PConfig extends BaseObject
 {
+	private static $config;
+
 	/**
 	 * @var \Friendica\Core\Config\IPConfigAdapter
 	 */
@@ -45,7 +47,7 @@ class PConfig extends BaseObject
 	 * @brief Loads all configuration values of a user's config family into a cached storage.
 	 *
 	 * All configuration values of the given user are stored in global cache
-	 * which is available under the global variable $a->config[$uid].
+	 * which is available under the global variable self::$config[$uid].
 	 *
 	 * @param string $uid    The user_id
 	 * @param string $family The category of the configuration value
@@ -72,7 +74,7 @@ class PConfig extends BaseObject
 	 * ($family) and a key.
 	 *
 	 * Get a particular user's config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
+	 * and the $key from a cached storage in self::$config[$uid].
 	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $family        The category of the configuration value
@@ -130,7 +132,7 @@ class PConfig extends BaseObject
 	/**
 	 * @brief Deletes the given key from the users's configuration.
 	 *
-	 * Removes the configured value from the stored cache in $a->config[$uid]
+	 * Removes the configured value from the stored cache in self::$config[$uid]
 	 * and removes it from the database.
 	 *
 	 * @param string $uid    The user_id
@@ -152,5 +154,69 @@ class PConfig extends BaseObject
 		}
 
 		return self::$adapter->delete($uid, $family, $key);
+	}
+
+
+	/**
+	 * Retrieves a value from the user config cache
+	 *
+	 * @param int    $uid     User Id
+	 * @param string $cat     Config category
+	 * @param string $k       Config key
+	 * @param mixed  $default Default value if key isn't set
+	 *
+	 * @return string The value of the config entry
+	 */
+	public static function getPConfigValue($uid, $cat, $k = null, $default = null)
+	{
+		$return = $default;
+
+		if (isset(self::$config[$uid][$cat][$k])) {
+			$return = self::$config[$uid][$cat][$k];
+		} elseif ($k == null && isset(self::$config[$uid][$cat])) {
+			$return = self::$config[$uid][$cat];
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Sets a value in the user config cache
+	 *
+	 * Accepts raw output from the pconfig table
+	 *
+	 * @param int    $uid User Id
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Value to set
+	 */
+	public static function setPConfigValue($uid, $cat, $k, $v)
+	{
+		// Only arrays are serialized in database, so we have to unserialize sparingly
+		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
+
+		if (!isset(self::$config[$uid]) || !is_array(self::$config[$uid])) {
+			self::$config[$uid] = [];
+		}
+
+		if (!isset(self::$config[$uid][$cat]) || !is_array(self::$config[$uid][$cat])) {
+			self::$config[$uid][$cat] = [];
+		}
+
+		self::$config[$uid][$cat][$k] = $value;
+	}
+
+	/**
+	 * Deletes a value from the user config cache
+	 *
+	 * @param int    $uid User Id
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 */
+	public static function deletePConfigValue($uid, $cat, $k)
+	{
+		if (isset(self::$config[$uid][$cat][$k])) {
+			unset(self::$config[$uid][$cat][$k]);
+		}
 	}
 }

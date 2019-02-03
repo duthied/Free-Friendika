@@ -30,7 +30,6 @@ class App
 	public $module_loaded = false;
 	public $module_class = null;
 	public $query_string = '';
-	public $config = [];
 	public $page = [];
 	public $profile;
 	public $profile_uid;
@@ -1215,67 +1214,6 @@ class App
 		}
 
 		return true;
-	}
-
-	/**
-	 * Retrieves a value from the user config cache
-	 *
-	 * @param int    $uid     User Id
-	 * @param string $cat     Config category
-	 * @param string $k       Config key
-	 * @param mixed  $default Default value if key isn't set
-	 *
-	 * @return string The value of the config entry
-	 */
-	public function getPConfigValue($uid, $cat, $k, $default = null)
-	{
-		$return = $default;
-
-		if (isset($this->config[$uid][$cat][$k])) {
-			$return = $this->config[$uid][$cat][$k];
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Sets a value in the user config cache
-	 *
-	 * Accepts raw output from the pconfig table
-	 *
-	 * @param int    $uid User Id
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Value to set
-	 */
-	public function setPConfigValue($uid, $cat, $k, $v)
-	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
-
-		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
-			$this->config[$uid] = [];
-		}
-
-		if (!isset($this->config[$uid][$cat]) || !is_array($this->config[$uid][$cat])) {
-			$this->config[$uid][$cat] = [];
-		}
-
-		$this->config[$uid][$cat][$k] = $value;
-	}
-
-	/**
-	 * Deletes a value from the user config cache
-	 *
-	 * @param int    $uid User Id
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 */
-	public function deletePConfigValue($uid, $cat, $k)
-	{
-		if (isset($this->config[$uid][$cat][$k])) {
-			unset($this->config[$uid][$cat][$k]);
-		}
 	}
 
 	/**

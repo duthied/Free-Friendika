@@ -18,7 +18,7 @@ interface IPConfigAdapter
 	 * @brief Loads all configuration values of a user's config family into a cached storage.
 	 *
 	 * All configuration values of the given user are stored in global cache
-	 * which is available under the global variable $a->config[$uid].
+	 * which is available under the global variable self::$config[$uid].
 	 *
 	 * @param string $uid The user_id
 	 * @param string $cat The category of the configuration value
@@ -32,7 +32,7 @@ interface IPConfigAdapter
 	 * ($family) and a key.
 	 *
 	 * Get a particular user's config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
+	 * and the $key from a cached storage in self::$config[$uid].
 	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $cat           The category of the configuration value
@@ -64,7 +64,7 @@ interface IPConfigAdapter
 	/**
 	 * @brief Deletes the given key from the users's configuration.
 	 *
-	 * Removes the configured value from the stored cache in $a->config[$uid]
+	 * Removes the configured value from the stored cache in self::$config[$uid]
 	 * and removes it from the database.
 	 *
 	 * @param string $uid The user_id

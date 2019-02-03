@@ -12,7 +12,7 @@ interface IConfigAdapter
 	 * @brief Loads all configuration values into a cached storage.
 	 *
 	 * All configuration values of the system are stored in global cache
-	 * which is available under the global variable $a->config
+	 * which is available under the global variable Config::$config
 	 *
 	 * @param string  $cat The category of the configuration values to load
 	 *
@@ -60,7 +60,7 @@ interface IConfigAdapter
 	/**
 	 * @brief Deletes the given key from the system configuration.
 	 *
-	 * Removes the configured value from the stored cache in $a->config
+	 * Removes the configured value from the stored cache in Config::$config
 	 * and removes it from the database.
 	 *
 	 * @param string $cat The category of the configuration value

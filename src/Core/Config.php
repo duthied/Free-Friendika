@@ -45,7 +45,7 @@ class Config extends BaseObject
 	 * @brief Loads all configuration values of family into a cached storage.
 	 *
 	 * All configuration values of the system are stored in global cache
-	 * which is available under the global variable $a->config
+	 * which is available under the global variable self::$config
 	 *
 	 * @param string $family The category of the configuration value
 	 *
@@ -132,7 +132,7 @@ class Config extends BaseObject
 	/**
 	 * @brief Deletes the given key from the system configuration.
 	 *
-	 * Removes the configured value from the stored cache in $a->config
+	 * Removes the configured value from the stored cache in Config::$config
 	 * and removes it from the database.
 	 *
 	 * @param string $family The category of the configuration value
