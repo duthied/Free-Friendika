@@ -1323,6 +1323,29 @@ section #jotOpen {
 .jothidden {
     /*display: none;*/
 }
+.modal #jot-sections {
+    max-height: calc(100vh - 22px);
+}
+@media (min-width: 768px) {
+    .modal #jot-sections {
+        max-height: calc(100vh - 62px);
+    }
+}
+#jot-modal #jot-sections,
+#jot-modal #jot-modal-body,
+#jot-modal #profile-jot-form,
+#jot-modal #profile-jot-wrapper,
+#jot-modal #jot-text-wrap,
+#jot-modal #jot-preview-content,
+#jot-modal #tread-wrapper--1,
+#jot-modal #item-Q0,
+#jot-modal #profile-jot-acl-wrapper,
+#jot-modal #acl-wrapper {
+    overflow: hidden;
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+}
 #jot-modal .modal-header a, #jot-modal .modal-header .btn-link,
 #profile-jot-submit-wrapper a, #profile-jot-submit-wrapper .btn-link {
     color: #555;
@@ -1339,6 +1362,8 @@ section #jotOpen {
 }
 #jot-text-wrap textarea {
     min-height: 100px;
+    overflow-y: auto !important;
+    overflow-y: overlay !important;
 }
 /*#jot-attachment-preview {
     display: none;
@@ -1407,7 +1432,10 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text {
 #profile-jot-wrapper #character-counter {
     padding: 10px 15px;
 }
-
+.modal .wall-item-container.preview {
+    overflow-y: auto;
+    overflow-y: overlay;
+}
 /* ACL */
 /*#jot-modal-body {
     height: auto;
@@ -1415,7 +1443,7 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text {
     overflow-y: hidden;
 }*/
 #acl-search {
-    margin-top: 20px;
+    /*margin-top: 20px;*/
     /*padding: 8px;*/
     /*border: 1px solid #ccc;*/
     width: 100%;
@@ -1423,7 +1451,6 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text {
 #acl-list {
     display: block;
     border: 1px solid #ccc;
-    overflow: auto;
     clear: both;
     min-height: 62px;
     margin-top: 20px;
@@ -1431,10 +1458,10 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
+    overflow-y: auto;
 }
 #acl-list-content {
-    overflow-y: auto;
-    max-height: calc(100vh - 330px);
+    overflow-y: hidden;
     height: auto !important;
 }
 .acl-list-item {
