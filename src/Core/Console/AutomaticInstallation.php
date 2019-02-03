@@ -158,7 +158,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->installDatabase()) {
+		if (!$installer->installDatabase($a->getBasePath())) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}

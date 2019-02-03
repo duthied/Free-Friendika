@@ -11,7 +11,8 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Util\LoggerFactory;
+use Friendica\Factory;
+use Friendica\Util\BasePath;
 
 // Get options
 $shortopts = 'f';
@@ -32,9 +33,12 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$logger = LoggerFactory::create('daemon');
+$basedir = BasePath::create(dirname(__DIR__));
+$configLoader = new Config\ConfigCacheLoader($basedir);
+$config = Factory\ConfigFactory::createCache($configLoader);
+$logger = Factory\LoggerFactory::create('daemon', $config);
 
-$a = new App(dirname(__DIR__), $logger);
+$a = new App($config, $logger);
 
 if ($a->getMode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");

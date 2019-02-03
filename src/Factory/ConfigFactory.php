@@ -6,6 +6,11 @@ use Friendica\Core\Config;
 
 class ConfigFactory
 {
+	/**
+	 * @param Config\ConfigCacheLoader $loader The Config Cache loader (INI/config/.htconfig)
+	 *
+	 * @return Config\ConfigCache
+	 */
 	public static function createCache(Config\ConfigCacheLoader $loader)
 	{
 		$configCache = new Config\ConfigCache();
@@ -17,6 +22,7 @@ class ConfigFactory
 	/**
 	 * @param string              $type   The adapter type
 	 * @param Config\IConfigCache $config The config cache of this adapter
+	 *
 	 * @return Config\IConfigAdapter
 	 */
 	public static function createConfig($type, $config)
@@ -32,6 +38,7 @@ class ConfigFactory
 	 * @param string               $type   The adapter type
 	 * @param int                  $uid    The UID of the current user
 	 * @param Config\IPConfigCache $config The config cache of this adapter
+	 *
 	 * @return Config\IPConfigAdapter
 	 */
 	public static function createPConfig($type, $uid, $config)

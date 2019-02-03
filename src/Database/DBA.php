@@ -2,7 +2,7 @@
 
 namespace Friendica\Database;
 
-use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\IConfigCache;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
@@ -32,7 +32,7 @@ class DBA
 	public static $connected = false;
 
 	/**
-	 * @var ConfigCache
+	 * @var IConfigCache
 	 */
 	private static $config;
 	private static $server_info = '';
@@ -1031,7 +1031,7 @@ class DBA
 	 * This process must only be started once, since the value is cached.
 	 */
 	private static function buildRelationData() {
-		$definition = DBStructure::definition();
+		$definition = DBStructure::definition(self::$config->get('system', 'basepath'));
 
 		foreach ($definition AS $table => $structure) {
 			foreach ($structure['fields'] AS $field => $field_struct) {

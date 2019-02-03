@@ -10,8 +10,8 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Factory\LoggerFactory;
 use Friendica\Network\HTTPException;
-use Friendica\Util\LoggerFactory;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';

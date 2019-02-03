@@ -5,12 +5,13 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Update;
 
-class DBUpdate
+class DBUpdate extends BaseObject
 {
 	public static function execute()
 	{
-		Update::run();
+		Update::run(self::getApp()->getBasePath());
 	}
 }

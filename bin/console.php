@@ -3,11 +3,16 @@
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-use Friendica\Util\LoggerFactory;
+use Friendica\Core\Config;
+use Friendica\Factory;
+use Friendica\Util\BasePath;
 
-$logger = LoggerFactory::create('console');
+$basedir = BasePath::create(dirname(__DIR__));
+$configLoader = new Config\ConfigCacheLoader($basedir);
+$config = Factory\ConfigFactory::createCache($configLoader);
+$logger = Factory\LoggerFactory::create('console', $config);
 
-$a = new Friendica\App(dirname(__DIR__), $logger);
+$a = new Friendica\App($config, $logger);
 \Friendica\BaseObject::setApp($a);
 
 (new Friendica\Core\Console($argv))->execute();

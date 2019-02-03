@@ -916,7 +916,7 @@ function admin_page_summary(App $a)
 	}
 
 	if (Config::get('system', 'dbupdate', DBStructure::UPDATE_NOT_CHECKED) == DBStructure::UPDATE_NOT_CHECKED) {
-		DBStructure::update(false, true);
+		DBStructure::update($a->getBasePath(), false, true);
 	}
 	if (Config::get('system', 'dbupdate') == DBStructure::UPDATE_FAILED) {
 		$showwarning = true;
@@ -1725,7 +1725,7 @@ function admin_page_dbsync(App $a)
 	}
 
 	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
-		$retval = DBStructure::update(false, true);
+		$retval = DBStructure::update($a->getBasePath(), false, true);
 		if ($retval === '') {
 			$o .= L10n::t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
 			Config::set('database', 'last_successful_update', DB_UPDATE_VERSION);

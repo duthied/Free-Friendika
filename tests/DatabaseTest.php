@@ -36,7 +36,9 @@ abstract class DatabaseTest extends MockedTest
 			$this->markTestSkipped('Please set the MYSQL_* environment variables to your test database credentials.');
 		}
 
-		DBA::connect(getenv('MYSQL_HOST'),
+		DBA::connect(
+			__DIR__,
+			getenv('MYSQL_HOST'),
 			getenv('MYSQL_USERNAME'),
 			getenv('MYSQL_PASSWORD'),
 			getenv('MYSQL_DATABASE'));

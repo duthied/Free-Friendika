@@ -1288,7 +1288,7 @@ class App
 			$this->module = 'maintenance';
 		} else {
 			$this->checkURL();
-			Core\Update::check(false);
+			Core\Update::check($this->basePath, false);
 			Core\Addon::loadAddons();
 			Core\Hook::loadHooks();
 		}
