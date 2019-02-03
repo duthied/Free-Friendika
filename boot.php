@@ -634,7 +634,7 @@ function get_temppath()
 
 	$temppath = Config::get("system", "temppath");
 
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && BasePath::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
 		return BasePath::getRealPath($temppath);
 	}
@@ -643,7 +643,7 @@ function get_temppath()
 	$temppath = sys_get_temp_dir();
 
 	// Check if it is usable
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && BasePath::isDirectoryUsable($temppath)) {
 		// Always store the real path, not the path through symlinks
 		$temppath = BasePath::getRealPath($temppath);
 
@@ -654,7 +654,7 @@ function get_temppath()
 			mkdir($new_temppath);
 		}
 
-		if (App::isDirectoryUsable($new_temppath)) {
+		if (BasePath::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "temppath", $new_temppath);
 			return $new_temppath;
@@ -736,7 +736,7 @@ function get_itemcachepath()
 	}
 
 	$itemcache = Config::get('system', 'itemcache');
-	if (($itemcache != "") && App::isDirectoryUsable($itemcache)) {
+	if (($itemcache != "") && BasePath::isDirectoryUsable($itemcache)) {
 		return BasePath::getRealPath($itemcache);
 	}
 
@@ -748,7 +748,7 @@ function get_itemcachepath()
 			mkdir($itemcache);
 		}
 
-		if (App::isDirectoryUsable($itemcache)) {
+		if (BasePath::isDirectoryUsable($itemcache)) {
 			Config::set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
@@ -764,7 +764,7 @@ function get_itemcachepath()
 function get_spoolpath()
 {
 	$spoolpath = Config::get('system', 'spoolpath');
-	if (($spoolpath != "") && App::isDirectoryUsable($spoolpath)) {
+	if (($spoolpath != "") && BasePath::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -779,7 +779,7 @@ function get_spoolpath()
 			mkdir($spoolpath);
 		}
 
-		if (App::isDirectoryUsable($spoolpath)) {
+		if (BasePath::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "spoolpath", $spoolpath);
 			return $spoolpath;
