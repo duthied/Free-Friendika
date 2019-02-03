@@ -1408,7 +1408,7 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text {
     padding: 10px 15px;
 }
 
-/* ACL 
+/* ACL */
 /*#jot-modal-body {
     height: auto;
     max-height: calc(100vh - 130px);

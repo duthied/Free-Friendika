@@ -46,7 +46,7 @@ function parse_url_content(App $a)
 		}
 	}
 
-	if (isset($_GET['dataType']) && $_GET['dataType'] == 'json') {
+	if (isset($_GET['format']) && $_GET['format'] == 'json') {
 		$format = 'json';
 	}
 

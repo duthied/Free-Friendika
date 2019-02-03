@@ -1,4 +1,4 @@
-// We apptend the linkPreview to a global Variable to make linkPreview
+// We append the linkPreview to a global Variable to make linkPreview
 // accessable on other places. Note: search on other places before you
 // delete or move the variable.
 var linkPreview;

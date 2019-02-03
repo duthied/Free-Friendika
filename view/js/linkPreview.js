@@ -3,8 +3,8 @@
  * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
  * 
- * Restructured from Rabzuarus (https://friendica.kommune4.de/profile/rabuzarus)
- * to use it for the decental social network Friendica (https://friendi.ca).
+ * Restructured by Rabzuarus (https://friendica.kommune4.de/profile/rabuzarus)
+ * to use it in the decentralized social network Friendica (https://friendi.ca).
  * 
  * Version: 1.4.0
  */
@@ -180,7 +180,7 @@
 		 * @returns {void}
 		 */
 		var getContentData = function(binurl, callback) {
-			$.get('parse_url?binurl='+ binurl + '&dataType=json', function (answer) {
+			$.get('parse_url?binurl='+ binurl + '&format=json', function (answer) {
 				obj = sanitizeInputData(answer);
 
 				// Put the data into a cache
