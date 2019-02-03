@@ -36,15 +36,15 @@ class ConfigFactory
 
 	/**
 	 * @param string               $type   The adapter type
-	 * @param int                  $uid    The UID of the current user
 	 * @param Config\IPConfigCache $config The config cache of this adapter
+	 * @param int                  $uid    The UID of the current user
 	 *
 	 * @return Config\IPConfigAdapter
 	 */
-	public static function createPConfig($type, $uid, $config)
+	public static function createPConfig($type, $config, $uid = null)
 	{
 		if ($type == 'preload') {
-			return new Config\PreloadPConfigAdapter($uid, $config);
+			return new Config\PreloadPConfigAdapter($config, $uid);
 		} else {
 			return new Config\JITPConfigAdapter($config);
 		}

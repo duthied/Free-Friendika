@@ -23,13 +23,15 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 	private $config;
 
 	/**
-	 * @param int           $uid    The UID of the current user
 	 * @param IPConfigCache $config The config cache of this adapter
+	 * @param int           $uid    The UID of the current user
 	 */
-	public function __construct($uid, $config)
+	public function __construct($config, $uid = null)
 	{
 		$this->config = $config;
-		$this->load($uid, 'config');
+		if (isset($uid)) {
+			$this->load($uid, 'config');
+		}
 	}
 
 	public function load($uid, $family)

@@ -375,7 +375,7 @@ class App
 			$adapterType = $this->config->get('system', 'config_adapter');
 			$adapter = ConfigFactory::createConfig($adapterType, $this->config);
 			Core\Config::setAdapter($adapter);
-			$adapterP = ConfigFactory::createConfig($adapterType, $this->config);
+			$adapterP = ConfigFactory::createPConfig($adapterType, $this->config);
 			Core\PConfig::setAdapter($adapterP);
 			Core\Config::load();
 		}

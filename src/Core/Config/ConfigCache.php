@@ -121,7 +121,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 
 		if (isset($this->config[$uid][$cat][$key])) {
 			$return = $this->config[$uid][$cat][$key];
-		} elseif ($key == null && isset($this->config[$uid][$cat])) {
+		} elseif ($key === null && isset($this->config[$uid][$cat])) {
 			$return = $this->config[$uid][$cat];
 		}
 
