@@ -15,11 +15,11 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
-use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
@@ -30,6 +30,7 @@ use Friendica\Module;
 use Friendica\Module\Login;
 use Friendica\Module\Tos;
 use Friendica\Util\Arrays;
+use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -1375,7 +1376,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
 	if ($itemcache != '') {
-		$itemcache = App::getRealPath($itemcache);
+		$itemcache = BasePath::getRealPath($itemcache);
 	}
 
 	Config::set('system', 'itemcache', $itemcache);
@@ -1383,13 +1384,13 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'max_comments', $max_comments);
 
 	if ($temppath != '') {
-		$temppath = App::getRealPath($temppath);
+		$temppath = BasePath::getRealPath($temppath);
 	}
 
 	Config::set('system', 'temppath', $temppath);
 
 	if ($basepath != '') {
-		$basepath = App::getRealPath($basepath);
+		$basepath = BasePath::getRealPath($basepath);
 	}
 
 	Config::set('system', 'basepath'         , $basepath);

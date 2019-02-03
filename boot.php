@@ -19,18 +19,12 @@
 
 use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Core\Addon;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
-use Friendica\Core\Update;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Conversation;
+use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
@@ -642,7 +636,7 @@ function get_temppath()
 
 	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
-		return App::getRealPath($temppath);
+		return BasePath::getRealPath($temppath);
 	}
 
 	// We don't have a working preconfigured temp path, so we take the system path.
@@ -651,7 +645,7 @@ function get_temppath()
 	// Check if it is usable
 	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
 		// Always store the real path, not the path through symlinks
-		$temppath = App::getRealPath($temppath);
+		$temppath = BasePath::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
 		$new_temppath = $temppath . "/" . $a->getHostName();
@@ -743,7 +737,7 @@ function get_itemcachepath()
 
 	$itemcache = Config::get('system', 'itemcache');
 	if (($itemcache != "") && App::isDirectoryUsable($itemcache)) {
-		return App::getRealPath($itemcache);
+		return BasePath::getRealPath($itemcache);
 	}
 
 	$temppath = get_temppath();

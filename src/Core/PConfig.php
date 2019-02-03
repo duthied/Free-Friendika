@@ -8,8 +8,7 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
-use Friendica\BaseObject;
+use Friendica\Core\Config\IPConfigCache;
 
 /**
  * @brief Management of user configuration storage
@@ -18,29 +17,36 @@ use Friendica\BaseObject;
  * The PConfig::get() functions return boolean false for keys that are unset,
  * and this could lead to subtle bugs.
  */
-class PConfig extends BaseObject
+class PConfig
 {
-	private static $config;
-
 	/**
 	 * @var \Friendica\Core\Config\IPConfigAdapter
 	 */
-	private static $adapter = null;
+	private static $adapter;
 
-	public static function init($uid)
+	/**
+	 * @var IPConfigCache
+	 */
+	private static $config;
+
+	/**
+	 * Initialize the config with only the cache
+	 *
+	 * @param IPConfigCache $config  The configuration cache
+	 */
+	public static function init($config)
 	{
-		$a = self::getApp();
+		self::$config  = $config;
+	}
 
-		// Database isn't ready or populated yet
-		if (!$a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
-
-		if (Config::getConfigValue('system', 'config_adapter') == 'preload') {
-			self::$adapter = new Config\PreloadPConfigAdapter($uid);
-		} else {
-			self::$adapter = new Config\JITPConfigAdapter();
-		}
+	/**
+	 * Add the adapter for DB-backend
+	 *
+	 * @param $adapter
+	 */
+	public static function setAdapter($adapter)
+	{
+		self::$adapter = $adapter;
 	}
 
 	/**
@@ -57,13 +63,8 @@ class PConfig extends BaseObject
 	 */
 	public static function load($uid, $family)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+		if (!isset(self::$adapter)) {
 			return;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
 		}
 
 		self::$adapter->load($uid, $family);
@@ -83,17 +84,11 @@ class PConfig extends BaseObject
 	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
 	 *
 	 * @return mixed Stored value or null if it does not exist
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function get($uid, $family, $key, $default_value = null, $refresh = false)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
+		if (!isset(self::$adapter)) {
+			return self::$config->getP($uid, $family, $key, $default_value);
 		}
 
 		return self::$adapter->get($uid, $family, $key, $default_value, $refresh);
@@ -113,17 +108,11 @@ class PConfig extends BaseObject
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return bool Operation success
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function set($uid, $family, $key, $value)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
+		if (!isset(self::$adapter)) {
+			return self::$config->setP($uid, $family, $key, $value);
 		}
 
 		return self::$adapter->set($uid, $family, $key, $value);
@@ -144,83 +133,10 @@ class PConfig extends BaseObject
 	 */
 	public static function delete($uid, $family, $key)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
+		if (!isset(self::$adapter)) {
+			return self::$config->deleteP($uid, $family, $key);
 		}
 
 		return self::$adapter->delete($uid, $family, $key);
-	}
-
-
-	/**
-	 * Retrieves a value from the user config cache
-	 *
-	 * @param int    $uid     User Id
-	 * @param string $cat     Config category
-	 * @param string $k       Config key
-	 * @param mixed  $default Default value if key isn't set
-	 *
-	 * @return string The value of the config entry
-	 */
-	public static function getPConfigValue($uid, $cat, $k = null, $default = null)
-	{
-		$return = $default;
-
-		if (isset(self::$config[$uid][$cat][$k])) {
-			$return = self::$config[$uid][$cat][$k];
-		} elseif ($k == null && isset(self::$config[$uid][$cat])) {
-			$return = self::$config[$uid][$cat];
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Sets a value in the user config cache
-	 *
-	 * Accepts raw output from the pconfig table
-	 *
-	 * @param int    $uid User Id
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Value to set
-	 */
-	public static function setPConfigValue($uid, $cat, $k, $v)
-	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
-
-		if (!isset(self::$config[$uid]) || !is_array(self::$config[$uid])) {
-			self::$config[$uid] = [];
-		}
-
-		if (!isset(self::$config[$uid][$cat]) || !is_array(self::$config[$uid][$cat])) {
-			self::$config[$uid][$cat] = [];
-		}
-
-		if ($k === null) {
-			self::$config[$uid][$cat] = $value;
-		} else {
-			self::$config[$uid][$cat][$k] = $value;
-		}
-	}
-
-	/**
-	 * Deletes a value from the user config cache
-	 *
-	 * @param int    $uid User Id
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 */
-	public static function deletePConfigValue($uid, $cat, $k)
-	{
-		if (isset(self::$config[$uid][$cat][$k])) {
-			unset(self::$config[$uid][$cat][$k]);
-		}
 	}
 }

@@ -1,7 +1,6 @@
 <?php
 namespace Friendica\Core\Config;
 
-use Friendica\Core\Config;
 use Friendica\Database\DBA;
 
 /**
@@ -16,6 +15,19 @@ class JITConfigAdapter implements IConfigAdapter
 	private $cache;
 	private $in_db;
 
+	/**
+	 * @var IConfigCache The config cache of this driver
+	 */
+	private $config;
+
+	/**
+	 * @param IConfigCache $config The config cache of this driver
+	 */
+	public function __construct($config)
+	{
+		$this->config = $config;
+	}
+
 	public function load($cat = "config")
 	{
 		// We don't preload "system" anymore.
@@ -28,7 +40,7 @@ class JITConfigAdapter implements IConfigAdapter
 		while ($config = DBA::fetch($configs)) {
 			$k = $config['k'];
 
-			Config::setConfigValue($cat, $k, $config['v']);
+			$this->config->set($cat, $k, $config['v']);
 
 			if ($cat !== 'config') {
 				$this->cache[$cat][$k] = $config['v'];
@@ -60,18 +72,18 @@ class JITConfigAdapter implements IConfigAdapter
 			$this->cache[$cat][$k] = $value;
 			$this->in_db[$cat][$k] = true;
 			return $value;
-		} elseif (Config::getConfigValue($cat, $k) !== null) {
+		} elseif ($this->config->get($cat, $k) !== null) {
 			// Assign the value (mostly) from config/local.config.php file to the cache
-			$this->cache[$cat][$k] = Config::getConfigValue($cat, $k);
+			$this->cache[$cat][$k] = $this->config->get($cat, $k);
 			$this->in_db[$cat][$k] = false;
 
-			return Config::getConfigValue($cat, $k);
-		} elseif (Config::getConfigValue('config', $k) !== null) {
+			return $this->config->get($cat, $k);
+		} elseif ($this->config->get('config', $k) !== null) {
 			// Assign the value (mostly) from config/local.config.php file to the cache
-			$this->cache[$k] = Config::getConfigValue('config', $k);
+			$this->cache[$k] = $this->config->get('config', $k);
 			$this->in_db[$k] = false;
 
-			return Config::getConfigValue('config', $k);
+			return $this->config->get('config', $k);
 		}
 
 		$this->cache[$cat][$k] = '!<unset>!';
@@ -100,7 +112,7 @@ class JITConfigAdapter implements IConfigAdapter
 			return true;
 		}
 
-		Config::setConfigValue($cat, $k, $value);
+		$this->config->set($cat, $k, $value);
 
 		// Assign the just added value to the cache
 		$this->cache[$cat][$k] = $dbvalue;

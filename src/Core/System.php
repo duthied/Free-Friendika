@@ -286,6 +286,23 @@ class System extends BaseObject
 		exit();
 	}
 
+	/**
+	 * @brief Returns the system user that is executing the script
+	 *
+	 * This mostly returns something like "www-data".
+	 *
+	 * @return string system username
+	 */
+	public static function getUser()
+	{
+		if (!function_exists('posix_getpwuid') || !function_exists('posix_geteuid')) {
+			return '';
+		}
+
+		$processUser = posix_getpwuid(posix_geteuid());
+		return $processUser['name'];
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
 	function killme()

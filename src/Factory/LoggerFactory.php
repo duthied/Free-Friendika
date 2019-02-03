@@ -1,7 +1,8 @@
 <?php
 
-namespace Friendica\Util;
+namespace Friendica\Factory;
 
+use Friendica\Core\Config\ConfigCache;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Logger\FriendicaDevelopHandler;
 use Friendica\Util\Logger\FriendicaIntrospectionProcessor;
@@ -19,17 +20,28 @@ class LoggerFactory
 	/**
 	 * Creates a new PSR-3 compliant logger instances
 	 *
-	 * @param string $channel The channel of the logger instance
+	 * @param string      $channel The channel of the logger instance
+	 * @param ConfigCache $config  The config
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public static function create($channel)
+	public static function create($channel, $config = null)
 	{
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
 		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
+
+		if (isset($config)) {
+			$debugging = $config->get('system', 'debugging');
+			$stream = $config->get('system', 'logfile');
+			$level = $config->get('system', 'loglevel');
+
+			if ($debugging) {
+				static::addStreamHandler($logger, $stream, $level);
+			}
+		}
 
 		return $logger;
 	}

@@ -101,12 +101,11 @@ class DBStructure
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function definition($with_addons_structure = true)
+	public static function definition($basepath, $with_addons_structure = true)
 	{
 		if (!self::$definition) {
-			$a = \Friendica\BaseObject::getApp();
 
-			$filename = $a->getBasePath() . '/config/dbstructure.config.php';
+			$filename = $basepath . '/config/dbstructure.config.php';
 
 			if (!is_readable($filename)) {
 				throw new Exception('Missing database structure config file config/dbstructure.config.php');

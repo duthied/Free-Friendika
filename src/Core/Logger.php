@@ -5,8 +5,8 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
+use Friendica\Factory\LoggerFactory;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\LoggerFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 

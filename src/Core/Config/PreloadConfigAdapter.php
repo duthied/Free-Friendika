@@ -3,7 +3,6 @@
 namespace Friendica\Core\Config;
 
 use Exception;
-use Friendica\Core\Config;
 use Friendica\Database\DBA;
 
 /**
@@ -17,8 +16,17 @@ class PreloadConfigAdapter implements IConfigAdapter
 {
 	private $config_loaded = false;
 
-	public function __construct()
+	/**
+	 * @var IConfigCache The config cache of this driver
+	 */
+	private $config;
+
+	/**
+	 * @param IConfigCache $config The config cache of this driver
+	 */
+	public function __construct($config)
 	{
+		$this->config = $config;
 		$this->load();
 	}
 
@@ -30,7 +38,7 @@ class PreloadConfigAdapter implements IConfigAdapter
 
 		$configs = DBA::select('config', ['cat', 'v', 'k']);
 		while ($config = DBA::fetch($configs)) {
-			Config::setConfigValue($config['cat'], $config['k'], $config['v']);
+			$this->config->set($config['cat'], $config['k'], $config['v']);
 		}
 		DBA::close($configs);
 
@@ -42,11 +50,11 @@ class PreloadConfigAdapter implements IConfigAdapter
 		if ($refresh) {
 			$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
 			if (DBA::isResult($config)) {
-				Config::setConfigValue($cat, $k, $config['v']);
+				$this->config->set($cat, $k, $config['v']);
 			}
 		}
 
-		$return = Config::getConfigValue($cat, $k, $default_value);
+		$return = $this->config->get($cat, $k, $default_value);
 
 		return $return;
 	}
@@ -58,11 +66,11 @@ class PreloadConfigAdapter implements IConfigAdapter
 		// The exception are array values.
 		$compare_value = !is_array($value) ? (string)$value : $value;
 
-		if (Config::getConfigValue($cat, $k) === $compare_value) {
+		if ($this->config->get($cat, $k) === $compare_value) {
 			return true;
 		}
 
-		Config::setConfigValue($cat, $k, $value);
+		$this->config->set($cat, $k, $value);
 
 		// manage array value
 		$dbvalue = is_array($value) ? serialize($value) : $value;
@@ -77,7 +85,7 @@ class PreloadConfigAdapter implements IConfigAdapter
 
 	public function delete($cat, $k)
 	{
-		Config::deleteConfigValue($cat, $k);
+		$this->config->delete($cat, $k);
 
 		$result = DBA::delete('config', ['cat' => $cat, 'k' => $k]);
 

@@ -8,8 +8,8 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
-use Friendica\BaseObject;
+use Friendica\Core\Config\IConfigAdapter;
+use Friendica\Core\Config\IConfigCache;
 
 /**
  * @brief Arbitrary system configuration storage
@@ -18,27 +18,36 @@ use Friendica\BaseObject;
  * If we ever would decide to return exactly the variable type as entered,
  * we will have fun with the additional features. :-)
  */
-class Config extends BaseObject
+class Config
 {
-	public static $config = [];
+	/**
+	 * @var IConfigAdapter
+	 */
+	private static $adapter;
 
 	/**
-	 * @var \Friendica\Core\Config\IConfigAdapter
+	 * @var IConfigCache
 	 */
-	private static $adapter = null;
+	private static $config;
 
-	public static function init()
+	/**
+	 * Initialize the config with only the cache
+	 *
+	 * @param IConfigCache $config  The configuration cache
+	 */
+	public static function init($config)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
+		self::$config  = $config;
+	}
 
-		if (self::getConfigValue('system', 'config_adapter') == 'preload') {
-			self::$adapter = new Config\PreloadConfigAdapter();
-		} else {
-			self::$adapter = new Config\JITConfigAdapter();
-		}
+	/**
+	 * Add the adapter for DB-backend
+	 *
+	 * @param $adapter
+	 */
+	public static function setAdapter($adapter)
+	{
+		self::$adapter = $adapter;
 	}
 
 	/**
@@ -50,17 +59,11 @@ class Config extends BaseObject
 	 * @param string $family The category of the configuration value
 	 *
 	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function load($family = "config")
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+		if (!isset(self::$adapter)) {
 			return;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
 		}
 
 		self::$adapter->load($family);
@@ -84,17 +87,11 @@ class Config extends BaseObject
 	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
 	 *
 	 * @return mixed Stored value or null if it does not exist
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function get($family, $key, $default_value = null, $refresh = false)
 	{
-		// Database isn't ready or populated yet, fallback to file config
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return self::getConfigValue($family, $key, $default_value);
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
+		if (!isset(self::$adapter)) {
+			return self::$config->get($family, $key, $default_value);
 		}
 
 		return self::$adapter->get($family, $key, $default_value, $refresh);
@@ -113,17 +110,12 @@ class Config extends BaseObject
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return bool Operation success
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function set($family, $key, $value)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
+		if (!isset(self::$adapter)) {
+			self::$config->set($family, $key, $value);
+			return true;
 		}
 
 		return self::$adapter->set($family, $key, $value);
@@ -139,131 +131,13 @@ class Config extends BaseObject
 	 * @param string $key    The configuration key to delete
 	 *
 	 * @return mixed
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function delete($family, $key)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
+		if (!isset(self::$adapter)) {
+			self::$config->delete($family, $key);
 		}
 
 		return self::$adapter->delete($family, $key);
-	}
-
-	/**
-	 * Tries to load the specified configuration array into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * @param array $config
-	 * @param bool  $overwrite Force value overwrite if the config key already exists
-	 */
-	public static function loadConfigArray(array $config, $overwrite = false)
-	{
-		foreach ($config as $category => $values) {
-			foreach ($values as $key => $value) {
-				if ($overwrite) {
-					self::setConfigValue($category, $key, $value);
-				} else {
-					self::setDefaultConfigValue($category, $key, $value);
-				}
-			}
-		}
-	}
-
-	/**
-	 * @param string $cat     Config category
-	 * @param string $k       Config key
-	 * @param mixed  $default Default value if it isn't set
-	 *
-	 * @return string Returns the value of the Config entry
-	 */
-	public static function getConfigValue($cat, $k = null, $default = null)
-	{
-		$return = $default;
-
-		if ($cat === 'config') {
-			if (isset(self::$config[$k])) {
-				$return = self::$config[$k];
-			}
-		} else {
-			if (isset(self::$config[$cat][$k])) {
-				$return = self::$config[$cat][$k];
-			} elseif ($k == null && isset(self::$config[$cat])) {
-				$return = self::$config[$cat];
-			}
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Sets a default value in the config cache. Ignores already existing keys.
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Default value to set
-	 */
-	private static function setDefaultConfigValue($cat, $k, $v)
-	{
-		if (!isset(self::$config[$cat][$k])) {
-			self::setConfigValue($cat, $k, $v);
-		}
-	}
-
-	/**
-	 * Sets a value in the config cache. Accepts raw output from the config table
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Value to set
-	 */
-	public static function setConfigValue($cat, $k, $v)
-	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
-
-		if ($cat === 'config') {
-			self::$config[$k] = $value;
-		} else {
-			if (!isset(self::$config[$cat])) {
-				self::$config[$cat] = [];
-			}
-
-			self::$config[$cat][$k] = $value;
-		}
-	}
-
-	/**
-	 * Deletes a value from the config cache
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 */
-	public static function deleteConfigValue($cat, $k)
-	{
-		if ($cat === 'config') {
-			if (isset(self::$config[$k])) {
-				unset(self::$config[$k]);
-			}
-		} else {
-			if (isset(self::$config[$cat][$k])) {
-				unset(self::$config[$cat][$k]);
-			}
-		}
-	}
-
-	/**
-	 * Returns the whole configuration
-	 *
-	 * @return array The configuration
-	 */
-	public static function getAll()
-	{
-		return self::$config;
 	}
 }

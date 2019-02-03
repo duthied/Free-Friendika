@@ -8,8 +8,12 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\ConfigCacheLoader;
 use Friendica\Database\DBA;
+use Friendica\Factory\ConfigFactory;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\BasePath;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -112,6 +116,31 @@ class App
 	private $logger;
 
 	/**
+	 * @var ConfigCache The cached config
+	 */
+	private $config;
+
+	/**
+	 * Returns the current config cache of this node
+	 *
+	 * @return ConfigCache
+	 */
+	public function getConfig()
+	{
+		return $this->config;
+	}
+
+	/**
+	 * The basepath of this app
+	 *
+	 * @return string
+	 */
+	public function getBasePath()
+	{
+		return $this->basePath;
+	}
+
+	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -123,7 +152,7 @@ class App
 	 */
 	public function registerStylesheet($path)
 	{
-		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->stylesheets[] = trim($url, '/');
 	}
@@ -140,7 +169,7 @@ class App
 	 */
 	public function registerFooterScript($path)
 	{
-		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->footerScripts[] = trim($url, '/');
 	}
@@ -153,23 +182,25 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string           $basePath  Path to the app base folder
+	 * @param ConfigCache      $config    The Cached Config
 	 * @param LoggerInterface  $logger    Logger of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basePath, LoggerInterface $logger, $isBackend = true)
+	public function __construct(ConfigCache $config, LoggerInterface $logger, $isBackend = true)
 	{
-		$this->logger = $logger;
+		$this->config   = $config;
+		$this->logger   = $logger;
+		$this->basePath = $this->config->get('system', 'basepath');
 
-		if (!static::isDirectoryUsable($basePath, false)) {
-			throw new Exception('Basepath ' . $basePath . ' isn\'t usable.');
+		if (!BasePath::isDirectoryUsable($this->basePath, false)) {
+			throw new Exception('Basepath ' . $this->basePath . ' isn\'t usable.');
 		}
+		$this->basePath = rtrim($this->basePath, DIRECTORY_SEPARATOR);
 
 		BaseObject::setApp($this);
 
-		$this->basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
 
@@ -194,7 +225,7 @@ class App
 		$this->callstack['rendering'] = [];
 		$this->callstack['parser'] = [];
 
-		$this->mode = new App\Mode($basePath);
+		$this->mode = new App\Mode($this->basePath);
 
 		$this->reload();
 
@@ -225,9 +256,9 @@ class App
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
-			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
-			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
-			. $this->getBasePath());
+			. $this->basePath . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
+			. $this->basePath . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
+			. $this->basePath);
 
 		if (!empty($_SERVER['QUERY_STRING']) && strpos($_SERVER['QUERY_STRING'], 'pagename=') === 0) {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
@@ -331,21 +362,32 @@ class App
 	 */
 	public function reload()
 	{
-		// The order of the following calls is important to ensure proper initialization
-		$this->loadConfigFiles();
+		Core\Config::init($this->config);
+		Core\PConfig::init($this->config);
 
 		$this->loadDatabase();
 
-		$this->getMode()->determine($this->getBasePath());
+		$this->getMode()->determine($this->basePath);
 
 		$this->determineURLPath();
 
-		Core\Config::load();
+		if ($this->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+			$adapterType = $this->config->get('system', 'config_adapter');
+			$adapter = ConfigFactory::createConfig($adapterType, $this->config);
+			Core\Config::setAdapter($adapter);
+			$adapterP = ConfigFactory::createConfig($adapterType, $this->config);
+			Core\PConfig::setAdapter($adapterP);
+			Core\Config::load();
+		}
+
+		// again because DB-config could change the config
+		$this->getMode()->determine($this->basePath);
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
 			Core\Hook::loadHooks();
-
-			$this->loadAddonConfig();
+			$loader = new ConfigCacheLoader($this->basePath);
+			Core\Hook::callAll('load_config', $loader);
+			$this->config->loadConfigArray($loader->loadAddonConfig(), true);
 		}
 
 		$this->loadDefaultTimezone();
@@ -358,139 +400,6 @@ class App
 	}
 
 	/**
-	 * Load the configuration files
-	 *
-	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
-	 * expected local.config.php
-	 */
-	private function loadConfigFiles()
-	{
-		$this->loadConfigFile($this->getBasePath() . '/config/defaults.config.php');
-		$this->loadConfigFile($this->getBasePath() . '/config/settings.config.php');
-
-		// Legacy .htconfig.php support
-		if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
-			$a = $this;
-			include $this->getBasePath() . '/.htpreconfig.php';
-		}
-
-		// Legacy .htconfig.php support
-		if (file_exists($this->getBasePath() . '/.htconfig.php')) {
-			$a = $this;
-
-			include $this->getBasePath() . '/.htconfig.php';
-
-			Core\Config::setConfigValue('database', 'hostname', $db_host);
-			Core\Config::setConfigValue('database', 'username', $db_user);
-			Core\Config::setConfigValue('database', 'password', $db_pass);
-			Core\Config::setConfigValue('database', 'database', $db_data);
-			$charset = Core\Config::getConfigValue('system', 'db_charset');
-			if (isset($charset)) {
-				Core\Config::setConfigValue('database', 'charset', $charset);
-			}
-
-			unset($db_host, $db_user, $db_pass, $db_data);
-
-			if (isset($default_timezone)) {
-				Core\Config::setConfigValue('system', 'default_timezone', $default_timezone);
-				unset($default_timezone);
-			}
-
-			if (isset($pidfile)) {
-				Core\Config::setConfigValue('system', 'pidfile', $pidfile);
-				unset($pidfile);
-			}
-
-			if (isset($lang)) {
-				Core\Config::setConfigValue('system', 'language', $lang);
-				unset($lang);
-			}
-		}
-
-		if (file_exists($this->getBasePath() . '/config/local.config.php')) {
-			$this->loadConfigFile($this->getBasePath() . '/config/local.config.php', true);
-		} elseif (file_exists($this->getBasePath() . '/config/local.ini.php')) {
-			$this->loadINIConfigFile($this->getBasePath() . '/config/local.ini.php', true);
-		}
-	}
-
-	/**
-	 * Tries to load the specified legacy configuration file into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * @deprecated since version 2018.12
-	 * @param string $filepath
-	 * @param bool $overwrite Force value overwrite if the config key already exists
-	 * @throws Exception
-	 */
-	public function loadINIConfigFile($filepath, $overwrite = false)
-	{
-		if (!file_exists($filepath)) {
-			throw new Exception('Error parsing non-existent INI config file ' . $filepath);
-		}
-
-		$contents = include($filepath);
-
-		$config = parse_ini_string($contents, true, INI_SCANNER_TYPED);
-
-		if ($config === false) {
-			throw new Exception('Error parsing INI config file ' . $filepath);
-		}
-
-		Core\Config::loadConfigArray($config, $overwrite);
-	}
-
-	/**
-	 * Tries to load the specified configuration file into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * The config format is PHP array and the template for configuration files is the following:
-	 *
-	 * <?php return [
-	 *      'section' => [
-	 *          'key' => 'value',
-	 *      ],
-	 * ];
-	 *
-	 * @param string $filepath
-	 * @param bool $overwrite Force value overwrite if the config key already exists
-	 * @throws Exception
-	 */
-	public function loadConfigFile($filepath, $overwrite = false)
-	{
-		if (!file_exists($filepath)) {
-			throw new Exception('Error loading non-existent config file ' . $filepath);
-		}
-
-		$config = include($filepath);
-
-		if (!is_array($config)) {
-			throw new Exception('Error loading config file ' . $filepath);
-		}
-
-		Core\Config::loadConfigArray($config, $overwrite);
-	}
-
-	/**
-	 * Loads addons configuration files
-	 *
-	 * First loads all activated addons default configuration through the load_config hook, then load the local.config.php
-	 * again to overwrite potential local addon configuration.
-	 */
-	private function loadAddonConfig()
-	{
-		// Loads addons default config
-		Core\Hook::callAll('load_config');
-
-		// Load the local addon config file to overwritten default addon config values
-		if (file_exists($this->getBasePath() . '/config/addon.config.php')) {
-			$this->loadConfigFile($this->getBasePath() . '/config/addon.config.php', true);
-		} elseif (file_exists($this->getBasePath() . '/config/addon.ini.php')) {
-			$this->loadINIConfigFile($this->getBasePath() . '/config/addon.ini.php', true);
-		}
-	}
-
-	/**
 	 * Loads the default timezone
 	 *
 	 * Include support for legacy $default_timezone
@@ -499,8 +408,8 @@ class App
 	 */
 	private function loadDefaultTimezone()
 	{
-		if (Core\Config::getConfigValue('system', 'default_timezone')) {
-			$this->timezone = Core\Config::getConfigValue('system', 'default_timezone');
+		if ($this->config->get('system', 'default_timezone')) {
+			$this->timezone = $this->config->get('system', 'default_timezone');
 		} else {
 			global $default_timezone;
 			$this->timezone = !empty($default_timezone) ? $default_timezone : 'UTC';
@@ -526,7 +435,7 @@ class App
 		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
 
-		$this->urlPath = Core\Config::getConfigValue('system', 'urlpath');
+		$this->urlPath = $this->config->get('system', 'urlpath');
 
 		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
 		 * QUERY_STRING gives pagename=module/parameter
@@ -554,11 +463,11 @@ class App
 			return;
 		}
 
-		$db_host = Core\Config::getConfigValue('database', 'hostname');
-		$db_user = Core\Config::getConfigValue('database', 'username');
-		$db_pass = Core\Config::getConfigValue('database', 'password');
-		$db_data = Core\Config::getConfigValue('database', 'database');
-		$charset = Core\Config::getConfigValue('database', 'charset');
+		$db_host = $this->config->get('database', 'hostname');
+		$db_user = $this->config->get('database', 'username');
+		$db_pass = $this->config->get('database', 'password');
+		$db_data = $this->config->get('database', 'database');
+		$charset = $this->config->get('database', 'charset');
 
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty(getenv('MYSQL_HOST'))
@@ -581,63 +490,14 @@ class App
 
 		$stamp1 = microtime(true);
 
-		if (DBA::connect($db_host, $db_user, $db_pass, $db_data, $charset)) {
+		if (DBA::connect($this->config, $db_host, $db_user, $db_pass, $db_data, $charset)) {
 			// Loads DB_UPDATE_VERSION constant
-			Database\DBStructure::definition(false);
+			Database\DBStructure::definition($this->basePath, false);
 		}
 
 		unset($db_host, $db_user, $db_pass, $db_data, $charset);
 
 		$this->saveTimestamp($stamp1, 'network');
-	}
-
-	/**
-	 * @brief Returns the base filesystem path of the App
-	 *
-	 * It first checks for the internal variable, then for DOCUMENT_ROOT and
-	 * finally for PWD
-	 *
-	 * @return string
-	 * @throws InternalServerErrorException
-	 */
-	public function getBasePath()
-	{
-		$basepath = $this->basePath;
-
-		if (!$basepath) {
-			$basepath = Core\Config::get('system', 'basepath');
-		}
-
-		if (!$basepath && !empty($_SERVER['DOCUMENT_ROOT'])) {
-			$basepath = $_SERVER['DOCUMENT_ROOT'];
-		}
-
-		if (!$basepath && !empty($_SERVER['PWD'])) {
-			$basepath = $_SERVER['PWD'];
-		}
-
-		return self::getRealPath($basepath);
-	}
-
-	/**
-	 * @brief Returns a normalized file path
-	 *
-	 * This is a wrapper for the "realpath" function.
-	 * That function cannot detect the real path when some folders aren't readable.
-	 * Since this could happen with some hosters we need to handle this.
-	 *
-	 * @param string $path The path that is about to be normalized
-	 * @return string normalized path - when possible
-	 */
-	public static function getRealPath($path)
-	{
-		$normalized = realpath($path);
-
-		if (!is_bool($normalized)) {
-			return $normalized;
-		} else {
-			return $path;
-		}
 	}
 
 	public function getScheme()
@@ -715,8 +575,8 @@ class App
 				$this->urlPath = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
-				include $this->getBasePath() . '/.htpreconfig.php';
+			if (file_exists($this->basePath . '/.htpreconfig.php')) {
+				include $this->basePath . '/.htpreconfig.php';
 			}
 
 			if (Core\Config::get('config', 'hostname') != '') {
@@ -769,9 +629,9 @@ class App
 		// compose the page title from the sitename and the
 		// current module called
 		if (!$this->module == '') {
-			$this->page['title'] = Core\Config::getConfigValue('config', 'sitename') . ' (' . $this->module . ')';
+			$this->page['title'] = $this->config->get('config', 'sitename') . ' (' . $this->module . ')';
 		} else {
-			$this->page['title'] = Core\Config::getConfigValue('config', 'sitename');
+			$this->page['title'] = $this->config->get('config', 'sitename');
 		}
 
 		if (!empty(Core\Renderer::$theme['stylesheet'])) {
@@ -892,7 +752,7 @@ class App
 	 */
 	public function saveTimestamp($timestamp, $value)
 	{
-		$profiler = Core\Config::getConfigValue('system', 'profiler');
+		$profiler = $this->config->get('system', 'profiler');
 
 		if (!isset($profiler) || !$profiler) {
 			return;
@@ -1132,7 +992,7 @@ class App
 			return;
 		}
 
-		$cmdline = Core\Config::getConfigValue('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
+		$cmdline = $this->config->get('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
 
 		foreach ($args as $key => $value) {
 			if (!is_null($value) && is_bool($value) && !$value) {
@@ -1150,70 +1010,15 @@ class App
 		}
 
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->getBasePath());
+			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->basePath);
 		} else {
-			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
+			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
 		}
 		if (!is_resource($resource)) {
 			Core\Logger::log('We got no resource for command ' . $cmdline, Core\Logger::DEBUG);
 			return;
 		}
 		proc_close($resource);
-	}
-
-	/**
-	 * @brief Returns the system user that is executing the script
-	 *
-	 * This mostly returns something like "www-data".
-	 *
-	 * @return string system username
-	 */
-	private static function getSystemUser()
-	{
-		if (!function_exists('posix_getpwuid') || !function_exists('posix_geteuid')) {
-			return '';
-		}
-
-		$processUser = posix_getpwuid(posix_geteuid());
-		return $processUser['name'];
-	}
-
-	/**
-	 * @brief Checks if a given directory is usable for the system
-	 *
-	 * @param      $directory
-	 * @param bool $check_writable
-	 * @return boolean the directory is usable
-	 * @throws Exception
-	 */
-	public static function isDirectoryUsable($directory, $check_writable = true)
-	{
-		if ($directory == '') {
-			Core\Logger::log('Directory is empty. This shouldn\'t happen.', Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (!file_exists($directory)) {
-			Core\Logger::log('Path "' . $directory . '" does not exist for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (is_file($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is a file for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (!is_dir($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not a directory for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if ($check_writable && !is_writable($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not writable for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		return true;
 	}
 
 	/**

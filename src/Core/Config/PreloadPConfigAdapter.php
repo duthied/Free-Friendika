@@ -3,7 +3,6 @@
 namespace Friendica\Core\Config;
 
 use Exception;
-use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 
 /**
@@ -17,8 +16,19 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 {
 	private $config_loaded = false;
 
-	public function __construct($uid)
+	/**
+	 * The config cache of this adapter
+	 * @var IPConfigCache
+	 */
+	private $config;
+
+	/**
+	 * @param int           $uid    The UID of the current user
+	 * @param IPConfigCache $config The config cache of this adapter
+	 */
+	public function __construct($uid, $config)
 	{
+		$this->config = $config;
 		$this->load($uid, 'config');
 	}
 
@@ -34,7 +44,7 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 
 		$pconfigs = DBA::select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		while ($pconfig = DBA::fetch($pconfigs)) {
-			PConfig::setPConfigValue($uid, $pconfig['cat'], $pconfig['k'], $pconfig['v']);
+			$this->config->setP($uid, $pconfig['cat'], $pconfig['k'], $pconfig['v']);
 		}
 		DBA::close($pconfigs);
 
@@ -50,15 +60,13 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 		if ($refresh) {
 			$config = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
 			if (DBA::isResult($config)) {
-				PConfig::setPConfigValue($uid, $cat, $k, $config['v']);
+				$this->config->setP($uid, $cat, $k, $config['v']);
 			} else {
-				PConfig::deletePConfigValue($uid, $cat, $k);
+				$this->config->deleteP($uid, $cat, $k);
 			}
 		}
 
-		$return = PConfig::getPConfigValue($uid, $cat, $k, $default_value);
-
-		return $return;
+		return $this->config->getP($uid, $cat, $k, $default_value);;
 	}
 
 	public function set($uid, $cat, $k, $value)
@@ -71,11 +79,11 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 		// The exception are array values.
 		$compare_value = !is_array($value) ? (string)$value : $value;
 
-		if (PConfig::getPConfigValue($uid, $cat, $k) === $compare_value) {
+		if ($this->config->getP($uid, $cat, $k) === $compare_value) {
 			return true;
 		}
 
-		PConfig::setPConfigValue($uid, $cat, $k, $value);
+		$this->config->setP($uid, $cat, $k, $value);
 
 		// manage array value
 		$dbvalue = is_array($value) ? serialize($value) : $value;
@@ -94,7 +102,7 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 			$this->load($uid, $cat);
 		}
 
-		PConfig::deletePConfigValue($uid, $cat, $k);
+		$this->config->deleteP($uid, $cat, $k);
 
 		$result = DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $k]);
 

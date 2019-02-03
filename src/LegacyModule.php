@@ -68,7 +68,7 @@ class LegacyModule extends BaseModule
 
 		if (\function_exists($function_name)) {
 			$a = self::getApp();
-			return $function_name($a);
+			return $function_name($a, $a->getConfig());
 		} else {
 			return parent::{$function_suffix}();
 		}
