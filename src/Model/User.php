@@ -891,7 +891,7 @@ class User
 		Worker::add(PRIORITY_LOW, 'Directory', $self['url']);
 
 		// Remove the user relevant data
-		Worker::add(PRIORITY_LOW, 'RemoveUser', $uid);
+		Worker::add(PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
 
 		return true;
 	}
