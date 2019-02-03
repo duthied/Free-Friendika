@@ -2,6 +2,9 @@
 
 namespace Friendica\Core\Config;
 
+/**
+ * The interface for a user-specific config cache
+ */
 interface IPConfigCache
 {
 	/**

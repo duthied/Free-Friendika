@@ -8,8 +8,6 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Config\IPConfigCache;
-
 /**
  * @brief Management of user configuration storage
  * Note:
@@ -20,19 +18,19 @@ use Friendica\Core\Config\IPConfigCache;
 class PConfig
 {
 	/**
-	 * @var \Friendica\Core\Config\IPConfigAdapter
+	 * @var Config\IPConfigAdapter
 	 */
 	private static $adapter;
 
 	/**
-	 * @var IPConfigCache
+	 * @var Config\IPConfigCache
 	 */
 	private static $config;
 
 	/**
 	 * Initialize the config with only the cache
 	 *
-	 * @param IPConfigCache $config  The configuration cache
+	 * @param Config\IPConfigCache $config  The configuration cache
 	 */
 	public static function init($config)
 	{
@@ -42,7 +40,7 @@ class PConfig
 	/**
 	 * Add the adapter for DB-backend
 	 *
-	 * @param $adapter
+	 * @param Config\IPConfigAdapter $adapter
 	 */
 	public static function setAdapter($adapter)
 	{
@@ -59,7 +57,6 @@ class PConfig
 	 * @param string $family The category of the configuration value
 	 *
 	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function load($uid, $family)
 	{
@@ -129,7 +126,6 @@ class PConfig
 	 * @param string $key    The configuration key to delete
 	 *
 	 * @return mixed
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function delete($uid, $family, $key)
 	{

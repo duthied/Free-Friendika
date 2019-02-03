@@ -2,15 +2,29 @@
 
 namespace Friendica\Core\Config;
 
+/**
+ * The ConfigCacheLoader loads config-files and stores them in a ConfigCache ( @see ConfigCache )
+ *
+ * It is capable of loading the following config files:
+ * - *.config.php   (current)
+ * - *.ini.php      (deprecated)
+ * - *.htconfig.php (deprecated)
+ */
 class ConfigCacheLoader
 {
+	/**
+	 * The Sub directory of the config-files
+	 * @var string
+	 */
+	const SUBDIRECTORY = '/config/';
+
 	private $baseDir;
 	private $configDir;
 
 	public function __construct($baseDir)
 	{
 		$this->baseDir = $baseDir;
-		$this->configDir = $baseDir . '/config/';
+		$this->configDir = $baseDir . self::SUBDIRECTORY;
 	}
 
 	/**

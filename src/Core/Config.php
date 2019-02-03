@@ -8,9 +8,6 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Config\IConfigAdapter;
-use Friendica\Core\Config\IConfigCache;
-
 /**
  * @brief Arbitrary system configuration storage
  *
@@ -21,19 +18,19 @@ use Friendica\Core\Config\IConfigCache;
 class Config
 {
 	/**
-	 * @var IConfigAdapter
+	 * @var Config\IConfigAdapter
 	 */
 	private static $adapter;
 
 	/**
-	 * @var IConfigCache
+	 * @var Config\IConfigCache
 	 */
 	private static $config;
 
 	/**
 	 * Initialize the config with only the cache
 	 *
-	 * @param IConfigCache $config  The configuration cache
+	 * @param Config\IConfigCache $config  The configuration cache
 	 */
 	public static function init($config)
 	{
@@ -43,7 +40,7 @@ class Config
 	/**
 	 * Add the adapter for DB-backend
 	 *
-	 * @param $adapter
+	 * @param Config\IConfigAdapter $adapter
 	 */
 	public static function setAdapter($adapter)
 	{

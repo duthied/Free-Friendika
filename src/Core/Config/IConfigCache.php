@@ -2,6 +2,9 @@
 
 namespace Friendica\Core\Config;
 
+/**
+ * The interface for a system-wide ConfigCache
+ */
 interface IConfigCache
 {
 	/**

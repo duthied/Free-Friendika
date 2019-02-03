@@ -2,6 +2,13 @@
 
 namespace Friendica\Core\Config;
 
+/**
+ * The Friendica config cache for the application
+ * Initial, all *.config.php files are loaded into this cache with the
+ * ConfigCacheLoader ( @see ConfigCacheLoader )
+ *
+ * Is used for further caching operations too (depending on the ConfigAdapter )
+ */
 class ConfigCache implements IConfigCache, IPConfigCache
 {
 	/**
@@ -12,12 +19,15 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public $config;
 
-	public function __construct($config = [], $overwrite = false)
+	/**
+	 * @param array $config    A initial config array
+	 */
+	public function __construct($config = [])
 	{
 		$this->config = [];
 
 		if (isset($config)) {
-			$this->loadConfigArray($config, $overwrite);
+			$this->loadConfigArray($config, true);
 		}
 	}
 
