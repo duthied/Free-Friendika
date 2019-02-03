@@ -34,6 +34,7 @@ class Markdown extends BaseObject
 		$MarkdownParser->hard_wrap = $hardwrap;
 		$MarkdownParser->code_class_prefix = 'language-';
 		$html = $MarkdownParser->transform($text);
+		$html = str_replace('<a href="#', '<a href="' . ltrim($_SERVER['REQUEST_URI'], '/') . '#', $html);
 
 		self::getApp()->saveTimestamp($stamp1, "parser");
 
