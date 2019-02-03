@@ -423,7 +423,7 @@ class DBA
 
 		$orig_sql = $sql;
 
-		if (self::$config->get('system', 'db_callstack')) {
+		if (self::$config->get('system', 'db_callstack') !== null) {
 			$sql = "/*".System::callstack()." */ ".$sql;
 		}
 
