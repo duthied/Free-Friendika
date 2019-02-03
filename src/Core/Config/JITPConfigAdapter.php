@@ -28,7 +28,7 @@ class JITPConfigAdapter implements IPConfigAdapter
 			}
 		} else if ($cat != 'config') {
 			// Negative caching
-			PConfig::setPConfigValue($uid, $cat, "!<unset>!");
+			PConfig::setPConfigValue($uid, $cat, null, "!<unset>!");
 		}
 		DBA::close($pconfigs);
 	}

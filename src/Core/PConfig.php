@@ -203,7 +203,11 @@ class PConfig extends BaseObject
 			self::$config[$uid][$cat] = [];
 		}
 
-		self::$config[$uid][$cat][$k] = $value;
+		if ($k === null) {
+			self::$config[$uid][$cat] = $value;
+		} else {
+			self::$config[$uid][$cat][$k] = $value;
+		}
 	}
 
 	/**
