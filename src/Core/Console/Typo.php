@@ -41,9 +41,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		$a = \get_app();
-
-		$php_path = $a->getConfigValue('config', 'php_path', 'php');
+		$php_path = \Friendica\Core\Config::getConfigValue('config', 'php_path', 'php');
 
 		if ($this->getOption('v')) {
 			$this->out('Directory: src');

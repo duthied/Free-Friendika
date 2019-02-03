@@ -100,10 +100,10 @@ HELP;
 				}
 			}
 
-			$db_host = $a->getConfigValue('database', 'hostname');
-			$db_user = $a->getConfigValue('database', 'username');
-			$db_pass = $a->getConfigValue('database', 'password');
-			$db_data = $a->getConfigValue('database', 'database');
+			$db_host = Config::getConfigValue('database', 'hostname');
+			$db_user = Config::getConfigValue('database', 'username');
+			$db_pass = Config::getConfigValue('database', 'password');
+			$db_data = Config::getConfigValue('database', 'database');
 		} else {
 			// Creating config file
 			$this->out("Creating config file...\n");

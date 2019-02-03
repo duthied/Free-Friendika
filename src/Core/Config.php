@@ -20,6 +20,8 @@ use Friendica\BaseObject;
  */
 class Config extends BaseObject
 {
+	public static $config = [];
+
 	/**
 	 * @var \Friendica\Core\Config\IConfigAdapter
 	 */
@@ -32,7 +34,7 @@ class Config extends BaseObject
 			return;
 		}
 
-		if (self::getApp()->getConfigValue('system', 'config_adapter') == 'preload') {
+		if (self::getConfigValue('system', 'config_adapter') == 'preload') {
 			self::$adapter = new Config\PreloadConfigAdapter();
 		} else {
 			self::$adapter = new Config\JITConfigAdapter();
@@ -69,7 +71,7 @@ class Config extends BaseObject
 	 * ($family) and a key.
 	 *
 	 * Get a particular config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
+	 * and the $key from a cached storage in static::config[$uid].
 	 * $instore is only used by the set_config function
 	 * to determine if the key already exists in the DB
 	 * If a key is found in the DB but doesn't exist in
@@ -88,7 +90,7 @@ class Config extends BaseObject
 	{
 		// Database isn't ready or populated yet, fallback to file config
 		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return self::getApp()->getConfigValue($family, $key, $default_value);
+			return self::getConfigValue($family, $key, $default_value);
 		}
 
 		if (empty(self::$adapter)) {
@@ -151,5 +153,117 @@ class Config extends BaseObject
 		}
 
 		return self::$adapter->delete($family, $key);
+	}
+
+	/**
+	 * Tries to load the specified configuration array into the App->config array.
+	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 *
+	 * @param array $config
+	 * @param bool  $overwrite Force value overwrite if the config key already exists
+	 */
+	public function loadConfigArray(array $config, $overwrite = false)
+	{
+		foreach ($config as $category => $values) {
+			foreach ($values as $key => $value) {
+				if ($overwrite) {
+					self::setConfigValue($category, $key, $value);
+				} else {
+					self::setDefaultConfigValue($category, $key, $value);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param string $cat     Config category
+	 * @param string $k       Config key
+	 * @param mixed  $default Default value if it isn't set
+	 *
+	 * @return string Returns the value of the Config entry
+	 */
+	public static function getConfigValue($cat, $k = null, $default = null)
+	{
+		$return = $default;
+
+		if ($cat === 'config') {
+			if (isset(self::$config[$k])) {
+				$return = self::$config[$k];
+			}
+		} else {
+			if (isset(self::$config[$cat][$k])) {
+				$return = self::$config[$cat][$k];
+			} elseif ($k == null && isset(self::$config[$cat])) {
+				$return = self::$config[$cat];
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Sets a default value in the config cache. Ignores already existing keys.
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Default value to set
+	 */
+	private static function setDefaultConfigValue($cat, $k, $v)
+	{
+		if (!isset(self::$config[$cat][$k])) {
+			self::setConfigValue($cat, $k, $v);
+		}
+	}
+
+	/**
+	 * Sets a value in the config cache. Accepts raw output from the config table
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 * @param mixed  $v   Value to set
+	 */
+	public static function setConfigValue($cat, $k, $v)
+	{
+		// Only arrays are serialized in database, so we have to unserialize sparingly
+		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
+
+		if ($cat === 'config') {
+			self::$config[$k] = $value;
+		} else {
+			if (!isset(self::$config[$cat])) {
+				self::$config[$cat] = [];
+			}
+
+			self::$config[$cat][$k] = $value;
+		}
+	}
+
+	/**
+	 * Deletes a value from the config cache
+	 *
+	 * @param string $cat Config category
+	 * @param string $k   Config key
+	 */
+	public static function deleteConfigValue($cat, $k)
+	{
+		if ($cat === 'config') {
+			if (isset(self::$config[$k])) {
+				unset(self::$config[$k]);
+			}
+		} else {
+			if (isset(self::$config[$cat][$k])) {
+				unset(self::$config[$cat][$k]);
+			}
+		}
+	}
+
+	/**
+	 * Returns the whole configuration
+	 *
+	 * @return array The configuration
+	 */
+	public static function getAll()
+	{
+		return self::$config;
 	}
 }

@@ -381,28 +381,29 @@ class App
 
 			include $this->getBasePath() . '/.htconfig.php';
 
-			$this->setConfigValue('database', 'hostname', $db_host);
-			$this->setConfigValue('database', 'username', $db_user);
-			$this->setConfigValue('database', 'password', $db_pass);
-			$this->setConfigValue('database', 'database', $db_data);
-			if (isset($a->config['system']['db_charset'])) {
-				$this->setConfigValue('database', 'charset', $a->config['system']['db_charset']);
+			Core\Config::setConfigValue('database', 'hostname', $db_host);
+			Core\Config::setConfigValue('database', 'username', $db_user);
+			Core\Config::setConfigValue('database', 'password', $db_pass);
+			Core\Config::setConfigValue('database', 'database', $db_data);
+			$charset = Core\Config::getConfigValue('system', 'db_charset');
+			if (isset($charset)) {
+				Core\Config::setConfigValue('database', 'charset', $charset);
 			}
 
 			unset($db_host, $db_user, $db_pass, $db_data);
 
 			if (isset($default_timezone)) {
-				$this->setConfigValue('system', 'default_timezone', $default_timezone);
+				Core\Config::setConfigValue('system', 'default_timezone', $default_timezone);
 				unset($default_timezone);
 			}
 
 			if (isset($pidfile)) {
-				$this->setConfigValue('system', 'pidfile', $pidfile);
+				Core\Config::setConfigValue('system', 'pidfile', $pidfile);
 				unset($pidfile);
 			}
 
 			if (isset($lang)) {
-				$this->setConfigValue('system', 'language', $lang);
+				Core\Config::setConfigValue('system', 'language', $lang);
 				unset($lang);
 			}
 		}
@@ -437,7 +438,7 @@ class App
 			throw new Exception('Error parsing INI config file ' . $filepath);
 		}
 
-		$this->loadConfigArray($config, $overwrite);
+		Core\Config::loadConfigArray($config, $overwrite);
 	}
 
 	/**
@@ -468,7 +469,7 @@ class App
 			throw new Exception('Error loading config file ' . $filepath);
 		}
 
-		$this->loadConfigArray($config, $overwrite);
+		Core\Config::loadConfigArray($config, $overwrite);
 	}
 
 	/**
@@ -491,26 +492,6 @@ class App
 	}
 
 	/**
-	 * Tries to load the specified configuration array into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * @param array $config
-	 * @param bool  $overwrite Force value overwrite if the config key already exists
-	 */
-	private function loadConfigArray(array $config, $overwrite = false)
-	{
-		foreach ($config as $category => $values) {
-			foreach ($values as $key => $value) {
-				if ($overwrite) {
-					$this->setConfigValue($category, $key, $value);
-				} else {
-					$this->setDefaultConfigValue($category, $key, $value);
-				}
-			}
-		}
-	}
-
-	/**
 	 * Loads the default timezone
 	 *
 	 * Include support for legacy $default_timezone
@@ -519,8 +500,8 @@ class App
 	 */
 	private function loadDefaultTimezone()
 	{
-		if ($this->getConfigValue('system', 'default_timezone')) {
-			$this->timezone = $this->getConfigValue('system', 'default_timezone');
+		if (Core\Config::getConfigValue('system', 'default_timezone')) {
+			$this->timezone = Core\Config::getConfigValue('system', 'default_timezone');
 		} else {
 			global $default_timezone;
 			$this->timezone = !empty($default_timezone) ? $default_timezone : 'UTC';
@@ -546,7 +527,7 @@ class App
 		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
 
-		$this->urlPath = $this->getConfigValue('system', 'urlpath');
+		$this->urlPath = Core\Config::getConfigValue('system', 'urlpath');
 
 		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
 		 * QUERY_STRING gives pagename=module/parameter
@@ -574,11 +555,11 @@ class App
 			return;
 		}
 
-		$db_host = $this->getConfigValue('database', 'hostname');
-		$db_user = $this->getConfigValue('database', 'username');
-		$db_pass = $this->getConfigValue('database', 'password');
-		$db_data = $this->getConfigValue('database', 'database');
-		$charset = $this->getConfigValue('database', 'charset');
+		$db_host = Core\Config::getConfigValue('database', 'hostname');
+		$db_user = Core\Config::getConfigValue('database', 'username');
+		$db_pass = Core\Config::getConfigValue('database', 'password');
+		$db_data = Core\Config::getConfigValue('database', 'database');
+		$charset = Core\Config::getConfigValue('database', 'charset');
 
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty(getenv('MYSQL_HOST'))
@@ -789,9 +770,9 @@ class App
 		// compose the page title from the sitename and the
 		// current module called
 		if (!$this->module == '') {
-			$this->page['title'] = $this->config['sitename'] . ' (' . $this->module . ')';
+			$this->page['title'] = Core\Config::getConfigValue('config', 'sitename') . ' (' . $this->module . ')';
 		} else {
-			$this->page['title'] = $this->config['sitename'];
+			$this->page['title'] = Core\Config::getConfigValue('config', 'sitename');
 		}
 
 		if (!empty(Core\Renderer::$theme['stylesheet'])) {
@@ -912,7 +893,9 @@ class App
 	 */
 	public function saveTimestamp($timestamp, $value)
 	{
-		if (!isset($this->config['system']['profiler']) || !$this->config['system']['profiler']) {
+		$profiler = Core\Config::getConfigValue('system', 'profiler');
+
+		if (!isset($profiler) || !$profiler) {
 			return;
 		}
 
@@ -1150,7 +1133,7 @@ class App
 			return;
 		}
 
-		$cmdline = $this->getConfigValue('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
+		$cmdline = Core\Config::getConfigValue('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
 
 		foreach ($args as $key => $value) {
 			if (!is_null($value) && is_bool($value) && !$value) {
@@ -1233,87 +1216,6 @@ class App
 
 		return true;
 	}
-
-	/**
-	 * @param string $cat     Config category
-	 * @param string $k       Config key
-	 * @param mixed  $default Default value if it isn't set
-	 *
-	 * @return string Returns the value of the Config entry
-	 */
-	public function getConfigValue($cat, $k, $default = null)
-	{
-		$return = $default;
-
-		if ($cat === 'config') {
-			if (isset($this->config[$k])) {
-				$return = $this->config[$k];
-			}
-		} else {
-			if (isset($this->config[$cat][$k])) {
-				$return = $this->config[$cat][$k];
-			}
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Sets a default value in the config cache. Ignores already existing keys.
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Default value to set
-	 */
-	private function setDefaultConfigValue($cat, $k, $v)
-	{
-		if (!isset($this->config[$cat][$k])) {
-			$this->setConfigValue($cat, $k, $v);
-		}
-	}
-
-	/**
-	 * Sets a value in the config cache. Accepts raw output from the config table
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Value to set
-	 */
-	public function setConfigValue($cat, $k, $v)
-	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
-
-		if ($cat === 'config') {
-			$this->config[$k] = $value;
-		} else {
-			if (!isset($this->config[$cat])) {
-				$this->config[$cat] = [];
-			}
-
-			$this->config[$cat][$k] = $value;
-		}
-	}
-
-	/**
-	 * Deletes a value from the config cache
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 */
-	public function deleteConfigValue($cat, $k)
-	{
-		if ($cat === 'config') {
-			if (isset($this->config[$k])) {
-				unset($this->config[$k]);
-			}
-		} else {
-			if (isset($this->config[$cat][$k])) {
-				unset($this->config[$cat][$k]);
-			}
-		}
-	}
-
 
 	/**
 	 * Retrieves a value from the user config cache

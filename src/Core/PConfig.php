@@ -34,7 +34,7 @@ class PConfig extends BaseObject
 			return;
 		}
 
-		if ($a->getConfigValue('system', 'config_adapter') == 'preload') {
+		if (Config::getConfigValue('system', 'config_adapter') == 'preload') {
 			self::$adapter = new Config\PreloadPConfigAdapter($uid);
 		} else {
 			self::$adapter = new Config\JITPConfigAdapter();

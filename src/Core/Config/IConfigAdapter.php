@@ -25,7 +25,7 @@ interface IConfigAdapter
 	 * ($family) and a key.
 	 *
 	 * Get a particular config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
+	 * and the $key from a cached storage in static::$config[$uid].
 	 * $instore is only used by the set_config function
 	 * to determine if the key already exists in the DB
 	 * If a key is found in the DB but doesn't exist in

@@ -2,10 +2,9 @@
 
 namespace Friendica\Database;
 
-// Do not use Core\Config in this class at risk of infinite loop.
-// Please use App->getConfigVariable() instead.
-//use Friendica\Core\Config;
-
+// Do not use native get/set/load of Core\Config in this class at risk of infinite loop.
+// Please use Core\Config::getConfigVariable() instead.
+use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
@@ -212,7 +211,7 @@ class DBA
 	private static function logIndex($query) {
 		$a = \get_app();
 
-		if (!$a->getConfigVariable('system', 'db_log_index')) {
+		if (!Config::getConfigValue('system', 'db_log_index')) {
 			return;
 		}
 
@@ -231,18 +230,18 @@ class DBA
 			return;
 		}
 
-		$watchlist = explode(',', $a->getConfigVariable('system', 'db_log_index_watch'));
-		$blacklist = explode(',', $a->getConfigVariable('system', 'db_log_index_blacklist'));
+		$watchlist = explode(',', Config::getConfigValue('system', 'db_log_index_watch'));
+		$blacklist = explode(',', Config::getConfigValue('system', 'db_log_index_blacklist'));
 
 		while ($row = self::fetch($r)) {
-			if ((intval($a->getConfigVariable('system', 'db_loglimit_index')) > 0)) {
+			if ((intval(Config::getConfigValue('system', 'db_loglimit_index')) > 0)) {
 				$log = (in_array($row['key'], $watchlist) &&
-					($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index'))));
+					($row['rows'] >= intval(Config::getConfigValue('system', 'db_loglimit_index'))));
 			} else {
 				$log = false;
 			}
 
-			if ((intval($a->getConfigVariable('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index_high')))) {
+			if ((intval(Config::getConfigValue('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval($Config::getConfigValue('system', 'db_loglimit_index_high')))) {
 				$log = true;
 			}
 
@@ -252,7 +251,7 @@ class DBA
 
 			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-				@file_put_contents($a->getConfigVariable('system', 'db_log_index'), DateTimeFormat::utcNow()."\t".
+				@file_put_contents(Config::getConfigValue('system', 'db_log_index'), DateTimeFormat::utcNow()."\t".
 						$row['key']."\t".$row['rows']."\t".$row['Extra']."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
@@ -422,7 +421,7 @@ class DBA
 
 		$orig_sql = $sql;
 
-		if ($a->getConfigValue('system', 'db_callstack')) {
+		if (Config::getConfigValue('system', 'db_callstack')) {
 			$sql = "/*".System::callstack()." */ ".$sql;
 		}
 
@@ -583,15 +582,15 @@ class DBA
 
 		$a->saveTimestamp($stamp1, 'database');
 
-		if ($a->getConfigValue('system', 'db_log')) {
+		if (Config::getConfigValue('system', 'db_log')) {
 			$stamp2 = microtime(true);
 			$duration = (float)($stamp2 - $stamp1);
 
-			if (($duration > $a->getConfigValue('system', 'db_loglimit'))) {
+			if (($duration > Config::getConfigValue('system', 'db_loglimit'))) {
 				$duration = round($duration, 3);
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-				@file_put_contents($a->getConfigValue('system', 'db_log'), DateTimeFormat::utcNow()."\t".$duration."\t".
+				@file_put_contents(Config::getConfigValue('system', 'db_log'), DateTimeFormat::utcNow()."\t".$duration."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
 						substr(self::replaceParameters($sql, $args), 0, 2000)."\n", FILE_APPEND);
