@@ -113,7 +113,7 @@ HELP;
 
 			if (is_array($value)) {
 				foreach ($value as $k => $v) {
-					$this->out("{$cat}.{$key}[{$k}] => " . $v);
+					$this->out("{$cat}.{$key}[{$k}] => " . (is_array($v) ? implode(', ', $v) : $v));
 				}
 			} else {
 				$this->out("{$cat}.{$key} => " . $value);
@@ -130,7 +130,7 @@ HELP;
 				foreach ($catVal as $key => $value) {
 					if (is_array($value)) {
 						foreach ($value as $k => $v) {
-							$this->out("{$key}[{$k}] => " . $v);
+							$this->out("{$key}[{$k}] => " . (is_array($v) ? implode(', ', $v) : $v));
 						}
 					} else {
 						$this->out("{$key} => " . $value);
@@ -154,7 +154,7 @@ HELP;
 					foreach ($section as $key => $value) {
 						if (is_array($value)) {
 							foreach ($value as $k => $v) {
-								$this->out("{$cat}.{$key}[{$k}] => " . $v);
+								$this->out("{$cat}.{$key}[{$k}] => " . (is_array($v) ? implode(', ', $v) : $v));
 							}
 						} else {
 							$this->out("{$cat}.{$key} => " . $value);
