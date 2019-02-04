@@ -815,11 +815,19 @@
 	function returnWord(text, caretPos) {
 		var index = text.indexOf(caretPos);
 		var preText = text.substring(0, caretPos);
-		// If the last charachter is a space remove the one space
+		// If the last charachter is a space or enter remove it
 		// We need this in friendica for the url  preview.
-		if (preText.slice(-1) == " ") {
+		var lastChar = preText.slice(-1)
+		if ( lastChar === " "
+			|| lastChar === "\n"
+			|| lastChar === "\r"
+			)
+		{
 			preText = preText.substring(0, preText.length -1);
 		}
+
+		// Replace new line with space.
+		preText = preText.replace(/\n/g, " ");
 
 		if (preText.indexOf(" ") > 0) {
 			var words = preText.split(" ");
