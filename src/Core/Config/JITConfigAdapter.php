@@ -18,14 +18,14 @@ class JITConfigAdapter implements IConfigAdapter
 	/**
 	 * @var IConfigCache The config cache of this driver
 	 */
-	private $config;
+	private $configCache;
 
 	/**
-	 * @param IConfigCache $config The config cache of this driver
+	 * @param IConfigCache $configCache The config cache of this driver
 	 */
-	public function __construct($config)
+	public function __construct(IConfigCache $configCache)
 	{
-		$this->config = $config;
+		$this->configCache = $configCache;
 	}
 
 	public function load($cat = "config")
@@ -40,7 +40,7 @@ class JITConfigAdapter implements IConfigAdapter
 		while ($config = DBA::fetch($configs)) {
 			$k = $config['k'];
 
-			$this->config->set($cat, $k, $config['v']);
+			$this->configCache->set($cat, $k, $config['v']);
 
 			if ($cat !== 'config') {
 				$this->cache[$cat][$k] = $config['v'];
@@ -72,18 +72,18 @@ class JITConfigAdapter implements IConfigAdapter
 			$this->cache[$cat][$k] = $value;
 			$this->in_db[$cat][$k] = true;
 			return $value;
-		} elseif ($this->config->get($cat, $k) !== null) {
+		} elseif ($this->configCache->get($cat, $k) !== null) {
 			// Assign the value (mostly) from config/local.config.php file to the cache
-			$this->cache[$cat][$k] = $this->config->get($cat, $k);
+			$this->cache[$cat][$k] = $this->configCache->get($cat, $k);
 			$this->in_db[$cat][$k] = false;
 
-			return $this->config->get($cat, $k);
-		} elseif ($this->config->get('config', $k) !== null) {
+			return $this->configCache->get($cat, $k);
+		} elseif ($this->configCache->get('config', $k) !== null) {
 			// Assign the value (mostly) from config/local.config.php file to the cache
-			$this->cache[$k] = $this->config->get('config', $k);
+			$this->cache[$k] = $this->configCache->get('config', $k);
 			$this->in_db[$k] = false;
 
-			return $this->config->get('config', $k);
+			return $this->configCache->get('config', $k);
 		}
 
 		$this->cache[$cat][$k] = '!<unset>!';
@@ -112,7 +112,7 @@ class JITConfigAdapter implements IConfigAdapter
 			return true;
 		}
 
-		$this->config->set($cat, $k, $value);
+		$this->configCache->set($cat, $k, $value);
 
 		// Assign the just added value to the cache
 		$this->cache[$cat][$k] = $dbvalue;

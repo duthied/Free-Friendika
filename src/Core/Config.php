@@ -32,7 +32,7 @@ class Config
 	 *
 	 * @param Config\IConfigCache $config  The configuration cache
 	 */
-	public static function init($config)
+	public static function init(Config\IConfigCache $config)
 	{
 		self::$config  = $config;
 	}
@@ -42,7 +42,7 @@ class Config
 	 *
 	 * @param Config\IConfigAdapter $adapter
 	 */
-	public static function setAdapter($adapter)
+	public static function setAdapter(Config\IConfigAdapter $adapter)
 	{
 		self::$adapter = $adapter;
 	}

@@ -19,14 +19,14 @@ class PreloadConfigAdapter implements IConfigAdapter
 	/**
 	 * @var IConfigCache The config cache of this driver
 	 */
-	private $config;
+	private $configCache;
 
 	/**
-	 * @param IConfigCache $config The config cache of this driver
+	 * @param IConfigCache $configCache The config cache of this driver
 	 */
-	public function __construct($config)
+	public function __construct(IConfigCache $configCache)
 	{
-		$this->config = $config;
+		$this->configCache = $configCache;
 		$this->load();
 	}
 
@@ -38,7 +38,7 @@ class PreloadConfigAdapter implements IConfigAdapter
 
 		$configs = DBA::select('config', ['cat', 'v', 'k']);
 		while ($config = DBA::fetch($configs)) {
-			$this->config->set($config['cat'], $config['k'], $config['v']);
+			$this->configCache->set($config['cat'], $config['k'], $config['v']);
 		}
 		DBA::close($configs);
 
@@ -50,11 +50,11 @@ class PreloadConfigAdapter implements IConfigAdapter
 		if ($refresh) {
 			$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
 			if (DBA::isResult($config)) {
-				$this->config->set($cat, $k, $config['v']);
+				$this->configCache->set($cat, $k, $config['v']);
 			}
 		}
 
-		$return = $this->config->get($cat, $k, $default_value);
+		$return = $this->configCache->get($cat, $k, $default_value);
 
 		return $return;
 	}
@@ -66,11 +66,11 @@ class PreloadConfigAdapter implements IConfigAdapter
 		// The exception are array values.
 		$compare_value = !is_array($value) ? (string)$value : $value;
 
-		if ($this->config->get($cat, $k) === $compare_value) {
+		if ($this->configCache->get($cat, $k) === $compare_value) {
 			return true;
 		}
 
-		$this->config->set($cat, $k, $value);
+		$this->configCache->set($cat, $k, $value);
 
 		// manage array value
 		$dbvalue = is_array($value) ? serialize($value) : $value;
@@ -85,7 +85,7 @@ class PreloadConfigAdapter implements IConfigAdapter
 
 	public function delete($cat, $k)
 	{
-		$this->config->delete($cat, $k);
+		$this->configCache->delete($cat, $k);
 
 		$result = DBA::delete('config', ['cat' => $cat, 'k' => $k]);
 

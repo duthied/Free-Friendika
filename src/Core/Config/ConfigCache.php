@@ -22,7 +22,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	/**
 	 * @param array $config    A initial config array
 	 */
-	public function __construct($config = [])
+	public function __construct(array $config = [])
 	{
 		$this->config = [];
 
@@ -43,9 +43,9 @@ class ConfigCache implements IConfigCache, IPConfigCache
 		foreach ($config as $category => $values) {
 			foreach ($values as $key => $value) {
 				if ($overwrite) {
-					self::set($category, $key, $value);
+					$this->set($category, $key, $value);
 				} else {
-					self::setDefault($category, $key, $value);
+					$this->setDefault($category, $key, $value);
 				}
 			}
 		}
@@ -83,7 +83,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	private function setDefault($cat, $k, $v)
 	{
 		if (!isset($this->config[$cat][$k])) {
-			self::set($cat, $k, $v);
+			$this->set($cat, $k, $v);
 		}
 	}
 

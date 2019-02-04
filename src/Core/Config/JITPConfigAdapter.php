@@ -18,14 +18,14 @@ class JITPConfigAdapter implements IPConfigAdapter
 	 * The config cache of this adapter
 	 * @var IPConfigCache
 	 */
-	private $config;
+	private $configCache;
 
 	/**
-	 * @param IPConfigCache $config The config cache of this adapter
+	 * @param IPConfigCache $configCache The config cache of this adapter
 	 */
-	public function __construct($config)
+	public function __construct(IPConfigCache $configCache)
 	{
-		$this->config = $config;
+		$this->configCache = $configCache;
 	}
 
 	public function load($uid, $cat)
@@ -35,13 +35,13 @@ class JITPConfigAdapter implements IPConfigAdapter
 			while ($pconfig = DBA::fetch($pconfigs)) {
 				$k = $pconfig['k'];
 
-				$this->config->setP($uid, $cat, $k, $pconfig['v']);
+				$this->configCache->setP($uid, $cat, $k, $pconfig['v']);
 
 				$this->in_db[$uid][$cat][$k] = true;
 			}
 		} else if ($cat != 'config') {
 			// Negative caching
-			$this->config->setP($uid, $cat, null, "!<unset>!");
+			$this->configCache->setP($uid, $cat, null, "!<unset>!");
 		}
 		DBA::close($pconfigs);
 	}
@@ -50,17 +50,17 @@ class JITPConfigAdapter implements IPConfigAdapter
 	{
 		if (!$refresh) {
 			// Looking if the whole family isn't set
-			if ($this->config->getP($uid, $cat) !== null) {
-				if ($this->config->getP($uid, $cat) === '!<unset>!') {
+			if ($this->configCache->getP($uid, $cat) !== null) {
+				if ($this->configCache->getP($uid, $cat) === '!<unset>!') {
 					return $default_value;
 				}
 			}
 
-			if ($this->config->getP($uid, $cat, $k) !== null) {
-				if ($this->config->getP($uid, $cat, $k) === '!<unset>!') {
+			if ($this->configCache->getP($uid, $cat, $k) !== null) {
+				if ($this->configCache->getP($uid, $cat, $k) === '!<unset>!') {
 					return $default_value;
 				}
-				return $this->config->getP($uid, $cat, $k);
+				return $this->configCache->getP($uid, $cat, $k);
 			}
 		}
 
@@ -68,13 +68,13 @@ class JITPConfigAdapter implements IPConfigAdapter
 		if (DBA::isResult($pconfig)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
 
-			$this->config->setP($uid, $cat, $k, $val);
+			$this->configCache->setP($uid, $cat, $k, $val);
 
 			$this->in_db[$uid][$cat][$k] = true;
 
 			return $val;
 		} else {
-			$this->config->setP($uid, $cat, $k, '!<unset>!');
+			$this->configCache->setP($uid, $cat, $k, '!<unset>!');
 
 			$this->in_db[$uid][$cat][$k] = false;
 
@@ -95,7 +95,7 @@ class JITPConfigAdapter implements IPConfigAdapter
 			return true;
 		}
 
-		$this->config->setP($uid, $cat, $k, $value);
+		$this->configCache->setP($uid, $cat, $k, $value);
 
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
@@ -111,7 +111,7 @@ class JITPConfigAdapter implements IPConfigAdapter
 
 	public function delete($uid, $cat, $k)
 	{
-		$this->config->deleteP($uid, $cat, $k);
+		$this->configCache->deleteP($uid, $cat, $k);
 
 		if (!empty($this->in_db[$uid][$cat][$k])) {
 			unset($this->in_db[$uid][$cat][$k]);

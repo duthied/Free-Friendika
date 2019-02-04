@@ -25,7 +25,7 @@ class ConfigFactory
 	 *
 	 * @return Config\IConfigAdapter
 	 */
-	public static function createConfig($type, $config)
+	public static function createConfig($type, Config\IConfigCache $config)
 	{
 		if ($type == 'preload') {
 			return new Config\PreloadConfigAdapter($config);
@@ -41,7 +41,7 @@ class ConfigFactory
 	 *
 	 * @return Config\IPConfigAdapter
 	 */
-	public static function createPConfig($type, $config, $uid = null)
+	public static function createPConfig($type, Config\IPConfigCache $config, $uid = null)
 	{
 		if ($type == 'preload') {
 			return new Config\PreloadPConfigAdapter($config, $uid);
