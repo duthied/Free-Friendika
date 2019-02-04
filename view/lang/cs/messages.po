@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-01-21 10:24-0500\n"
-"PO-Revision-Date: 2019-01-30 15:44+0000\n"
+"PO-Revision-Date: 2019-02-03 16:48+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -711,12 +711,12 @@ msgstr "Uživatel %1$s s vámi sdílí na %2$s"
 
 #: include/enotify.php:345
 msgid "[Friendica:Notify] You have a new follower"
-msgstr "[Friendica:Oznámení] Máte nového sledovatele"
+msgstr "[Friendica:Oznámení] Máte nového sledujícího"
 
 #: include/enotify.php:347 include/enotify.php:348
 #, php-format
 msgid "You have a new follower at %2$s : %1$s"
-msgstr "Máte nového sledovatele na %2$s : %1$s"
+msgstr "Máte nového sledujícího na %2$s : %1$s"
 
 #: include/enotify.php:361
 msgid "[Friendica:Notify] Friend suggestion received"
@@ -1393,7 +1393,7 @@ msgstr "Normální účet"
 
 #: mod/admin.php:933
 msgid "Automatic Follower Account"
-msgstr "Účet s automatickými sledovateli"
+msgstr "Účet s automatickými sledujícími"
 
 #: mod/admin.php:934
 msgid "Public Forum Account"
@@ -4645,7 +4645,7 @@ msgid ""
 "The Directory page lets you find other people in this network or other "
 "federated sites. Look for a <em>Connect</em> or <em>Follow</em> link on "
 "their profile page. Provide your own Identity Address if requested."
-msgstr "Stránka Adresář Vám pomůže najít další lidi na tomto serveru nebo v jiných propojených serverech. Najděte na jejich stránce odkaz <em>Spojit</em> nebo <em>Sledovat</em>. Uveďte svou vlastní adresu identity, je-li požadována."
+msgstr "Stránka Adresář Vám pomůže najít další lidi na tomto serveru nebo v jiných propojených serverech. Najděte na jejich stránce odkaz <em>Spojit se</em> nebo <em>Sledovat</em>. Uveďte svou vlastní adresu identity, je-li požadována."
 
 #: mod/newmember.php:42
 msgid "Finding New People"
@@ -5951,7 +5951,7 @@ msgstr "Normálně se systém snaží nalézt nejlepší odkaz pro přidání zk
 
 #: mod/settings.php:841
 msgid "Automatically follow any GNU Social (OStatus) followers/mentioners"
-msgstr "Automaticky sledovat jakékoliv sledovatele/zmiňovatele na GNU social (OStatus) "
+msgstr "Automaticky sledovat jakékoliv sledující/zmiňující na GNU social (OStatus) "
 
 #: mod/settings.php:841
 msgid ""
@@ -6189,13 +6189,13 @@ msgstr "Účet pro osobní profil."
 msgid ""
 "Account for an organisation that automatically approves contact requests as "
 "\"Followers\"."
-msgstr "Účet pro organizaci, který automaticky potvrzuje požadavky o přidání kontaktu jako „Sledovatele“."
+msgstr "Účet pro organizaci, který automaticky potvrzuje požadavky o přidání kontaktu jako „Sledující“."
 
 #: mod/settings.php:1045
 msgid ""
 "Account for a news reflector that automatically approves contact requests as"
 " \"Followers\"."
-msgstr "Účet pro zpravodaje, který automaticky potvrzuje požadavky o přidání kontaktu jako „Sledovatele“."
+msgstr "Účet pro zpravodaje, který automaticky potvrzuje požadavky o přidání kontaktu jako „Sledující“."
 
 #: mod/settings.php:1049
 msgid "Account for community discussions."
@@ -6205,13 +6205,13 @@ msgstr "Účet pro komunitní diskuze."
 msgid ""
 "Account for a regular personal profile that requires manual approval of "
 "\"Friends\" and \"Followers\"."
-msgstr "Účet pro běžný osobní profil, který vyžaduje manuální potvrzení „Přátel“ a „Sledovatelů“."
+msgstr "Účet pro běžný osobní profil, který vyžaduje manuální potvrzení „Přátel“ a „Sledujících“."
 
 #: mod/settings.php:1057
 msgid ""
 "Account for a public profile that automatically approves contact requests as"
 " \"Followers\"."
-msgstr "Účet pro veřejný profil, který automaticky potvrzuje požadavky o přidání kontaktu jako „Sledovatele“."
+msgstr "Účet pro veřejný profil, který automaticky potvrzuje požadavky o přidání kontaktu jako „Sledující“."
 
 #: mod/settings.php:1061
 msgid "Automatically approves all contact requests."
@@ -6557,7 +6557,7 @@ msgstr "Znovu odeslat správu o přemístění Vašim kontaktům"
 #: mod/subthread.php:104
 #, php-format
 msgid "%1$s is following %2$s's %3$s"
-msgstr "%1$s následuje %3$s uživatele %2$s"
+msgstr "%1$s sleduje %3$s uživatele %2$s"
 
 #: mod/suggest.php:39
 msgid "Do you really want to delete this suggestion?"
@@ -8175,7 +8175,7 @@ msgstr "Požadavek o přátelství/spojení"
 
 #: src/Core/NotificationsManager.php:671
 msgid "New Follower"
-msgstr "Nový sledovatel"
+msgstr "Nový sledující"
 
 #: src/Core/System.php:133
 msgid "Error 400 - Bad Request"
