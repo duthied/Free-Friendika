@@ -21,7 +21,7 @@ class ConfigCacheLoader
 	 * The addon sub-directory
 	 * @var string
 	 */
-	const ADDONDIRECTORY = '/addon/';
+	const ADDONSDIRECTORY = '/addons/';
 
 	private $baseDir;
 	private $configDir;
@@ -141,7 +141,7 @@ class ConfigCacheLoader
 	public function loadConfigFile($filename, $addon = false)
 	{
 		if ($addon) {
-			$filepath = $this->baseDir . self::ADDONDIRECTORY . self::SUBDIRECTORY . $filename . ".config.php";
+			$filepath = $this->baseDir . self::ADDONSDIRECTORY . self::SUBDIRECTORY . $filename . ".config.php";
 		} else {
 			$filepath = $this->configDir . $filename . ".config.php";
 		}
