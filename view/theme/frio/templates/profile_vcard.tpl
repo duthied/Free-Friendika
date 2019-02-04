@@ -42,6 +42,8 @@
 			{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 
 			{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
+
+			{{if $account_type}}<div class="account-type">({{$account_type}})</div>{{/if}}
 		</div>
 
 		<div id="profile-extra-links">
