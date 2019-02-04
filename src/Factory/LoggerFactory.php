@@ -25,7 +25,7 @@ class LoggerFactory
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public static function create($channel, $config = null)
+	public static function create($channel, ConfigCache $config = null)
 	{
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
