@@ -13,6 +13,12 @@ use Friendica\Database\DBA;
 class Addon extends BaseObject
 {
 	/**
+	 * The addon sub-directory
+	 * @var string
+	 */
+	const DIRECTORY = '/addon/';
+
+	/**
 	 * List of the names of enabled addons
 	 *
 	 * @var array

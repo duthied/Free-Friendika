@@ -2,6 +2,8 @@
 
 namespace Friendica\Core\Config;
 
+use Friendica\Core\Addon;
+
 /**
  * The ConfigCacheLoader loads config-files and stores them in a ConfigCache ( @see ConfigCache )
  *
@@ -17,11 +19,6 @@ class ConfigCacheLoader
 	 * @var string
 	 */
 	const SUBDIRECTORY   = '/config/';
-	/**
-	 * The addon sub-directory
-	 * @var string
-	 */
-	const ADDONDIRECTORY = '/addon/';
 
 	private $baseDir;
 	private $configDir;
@@ -141,7 +138,7 @@ class ConfigCacheLoader
 	public function loadConfigFile($filename, $addon = false)
 	{
 		if ($addon) {
-			$filepath = $this->baseDir . self::ADDONDIRECTORY . $filename . self::SUBDIRECTORY . $filename . ".config.php";
+			$filepath = $this->baseDir . Addon::DIRECTORY . $filename . self::SUBDIRECTORY . $filename . ".config.php";
 		} else {
 			$filepath = $this->configDir . $filename . ".config.php";
 		}
