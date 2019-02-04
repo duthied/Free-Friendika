@@ -83,26 +83,19 @@ class Markdown extends BaseObject
 	{
 		$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
 
-		// Handles single newlines
-		$s = str_replace("\r\n", "\n", $s);
-		$s = str_replace("\n", " \n", $s);
-		$s = str_replace("\r", " \n", $s);
-
 		// Replace lonely stars in lines not starting with it with literal stars
 		$s = preg_replace('/^([^\*]+)\*([^\*]*)$/im', '$1\*$2', $s);
 
 		// The parser cannot handle paragraphs correctly
 		$s = str_replace(['</p>', '<p>', '<p dir="ltr">'], ['<br>', '<br>', '<br>'], $s);
 
-		// Escaping the hash tags
-		$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
+		// Escaping hashtags that could be titles
+		$s = preg_replace('/^\#([^\s\#])/im', '\#$1', $s);
 
 		$s = self::convert($s);
 
 		$regexp = "/([@!])\{(?:([^\}]+?); ?)?([^\} ]+)\}/";
 		$s = preg_replace_callback($regexp, ['self', 'diasporaMention2BBCodeCallback'], $s);
-
-		$s = str_replace('&#35;', '#', $s);
 
 		$s = HTML::toBBCode($s);
 
