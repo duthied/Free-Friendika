@@ -16,7 +16,12 @@ class ConfigCacheLoader
 	 * The Sub directory of the config-files
 	 * @var string
 	 */
-	const SUBDIRECTORY = '/config/';
+	const SUBDIRECTORY   = '/config/';
+	/**
+	 * The addon sub-directory
+	 * @var string
+	 */
+	const ADDONDIRECTORY = '/addon/';
 
 	private $baseDir;
 	private $configDir;
@@ -129,12 +134,17 @@ class ConfigCacheLoader
 	 * ];
 	 *
 	 * @param string $filename
+	 * @param bool   $addon     True, if a config for an addon should be loaded
 	 * @return array The configuration
 	 * @throws \Exception
 	 */
-	public function loadConfigFile($filename)
+	public function loadConfigFile($filename, $addon = false)
 	{
-		$filepath = $this->configDir . $filename . ".config.php";
+		if ($addon) {
+			$filepath = $this->baseDir . self::ADDONDIRECTORY . self::SUBDIRECTORY . $filename . ".config.php";
+		} else {
+			$filepath = $this->configDir . $filename . ".config.php";
+		}
 
 		if (!file_exists($filepath)) {
 			throw new \Exception('Error loading non-existent config file ' . $filepath);
