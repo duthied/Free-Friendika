@@ -141,7 +141,7 @@ class ConfigCacheLoader
 	public function loadConfigFile($filename, $addon = false)
 	{
 		if ($addon) {
-			$filepath = $this->baseDir . self::ADDONSDIRECTORY . self::SUBDIRECTORY . $filename . ".config.php";
+			$filepath = $this->baseDir . self::ADDONSDIRECTORY . $filename . self::SUBDIRECTORY . $filename . ".config.php";
 		} else {
 			$filepath = $this->configDir . $filename . ".config.php";
 		}
