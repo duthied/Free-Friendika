@@ -25,16 +25,16 @@ class Config
 	/**
 	 * @var Config\IConfigCache
 	 */
-	private static $config;
+	private static $cache;
 
 	/**
 	 * Initialize the config with only the cache
 	 *
-	 * @param Config\IConfigCache $config  The configuration cache
+	 * @param Config\IConfigCache $cache  The configuration cache
 	 */
-	public static function init(Config\IConfigCache $config)
+	public static function init(Config\IConfigCache $cache)
 	{
-		self::$config  = $config;
+		self::$cache  = $cache;
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Config
 	public static function get($family, $key, $default_value = null, $refresh = false)
 	{
 		if (!isset(self::$adapter)) {
-			return self::$config->get($family, $key, $default_value);
+			return self::$cache->get($family, $key, $default_value);
 		}
 
 		return self::$adapter->get($family, $key, $default_value, $refresh);
@@ -111,7 +111,7 @@ class Config
 	public static function set($family, $key, $value)
 	{
 		if (!isset(self::$adapter)) {
-			self::$config->set($family, $key, $value);
+			self::$cache->set($family, $key, $value);
 			return true;
 		}
 
@@ -132,7 +132,7 @@ class Config
 	public static function delete($family, $key)
 	{
 		if (!isset(self::$adapter)) {
-			self::$config->delete($family, $key);
+			self::$cache->delete($family, $key);
 		}
 
 		return self::$adapter->delete($family, $key);

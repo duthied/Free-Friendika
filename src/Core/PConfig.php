@@ -25,16 +25,16 @@ class PConfig
 	/**
 	 * @var Config\IPConfigCache
 	 */
-	private static $config;
+	private static $cache;
 
 	/**
 	 * Initialize the config with only the cache
 	 *
-	 * @param Config\IPConfigCache $config  The configuration cache
+	 * @param Config\IPConfigCache $cache  The configuration cache
 	 */
-	public static function init($config)
+	public static function init(Config\IPConfigCache $cache)
 	{
-		self::$config  = $config;
+		self::$cache  = $cache;
 	}
 
 	/**
@@ -42,7 +42,7 @@ class PConfig
 	 *
 	 * @param Config\IPConfigAdapter $adapter
 	 */
-	public static function setAdapter($adapter)
+	public static function setAdapter(Config\IPConfigAdapter $adapter)
 	{
 		self::$adapter = $adapter;
 	}
@@ -85,7 +85,7 @@ class PConfig
 	public static function get($uid, $family, $key, $default_value = null, $refresh = false)
 	{
 		if (!isset(self::$adapter)) {
-			return self::$config->getP($uid, $family, $key, $default_value);
+			return self::$cache->getP($uid, $family, $key, $default_value);
 		}
 
 		return self::$adapter->get($uid, $family, $key, $default_value, $refresh);
@@ -109,7 +109,7 @@ class PConfig
 	public static function set($uid, $family, $key, $value)
 	{
 		if (!isset(self::$adapter)) {
-			return self::$config->setP($uid, $family, $key, $value);
+			return self::$cache->setP($uid, $family, $key, $value);
 		}
 
 		return self::$adapter->set($uid, $family, $key, $value);
@@ -130,7 +130,7 @@ class PConfig
 	public static function delete($uid, $family, $key)
 	{
 		if (!isset(self::$adapter)) {
-			return self::$config->deleteP($uid, $family, $key);
+			return self::$cache->deleteP($uid, $family, $key);
 		}
 
 		return self::$adapter->delete($uid, $family, $key);
