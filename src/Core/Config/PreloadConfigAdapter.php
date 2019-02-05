@@ -30,6 +30,9 @@ class PreloadConfigAdapter implements IConfigAdapter
 		$this->load();
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function load($family = 'config')
 	{
 		if ($this->config_loaded) {
@@ -45,6 +48,9 @@ class PreloadConfigAdapter implements IConfigAdapter
 		$this->config_loaded = true;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function get($cat, $k, $default_value = null, $refresh = false)
 	{
 		if ($refresh) {
@@ -59,6 +65,9 @@ class PreloadConfigAdapter implements IConfigAdapter
 		return $return;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function set($cat, $k, $value)
 	{
 		// We store our setting values as strings.
@@ -83,6 +92,9 @@ class PreloadConfigAdapter implements IConfigAdapter
 		return true;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($cat, $k)
 	{
 		$this->configCache->delete($cat, $k);

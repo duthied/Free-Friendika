@@ -28,6 +28,9 @@ class JITConfigAdapter implements IConfigAdapter
 		$this->configCache = $configCache;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function load($cat = "config")
 	{
 		// We don't preload "system" anymore.
@@ -50,6 +53,9 @@ class JITConfigAdapter implements IConfigAdapter
 		DBA::close($configs);
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function get($cat, $k, $default_value = null, $refresh = false)
 	{
 		if (!$refresh) {
@@ -92,6 +98,9 @@ class JITConfigAdapter implements IConfigAdapter
 		return $default_value;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function set($cat, $k, $value)
 	{
 		// We store our setting values in a string variable.
@@ -129,6 +138,9 @@ class JITConfigAdapter implements IConfigAdapter
 		return $result;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($cat, $k)
 	{
 		if (isset($this->cache[$cat][$k])) {

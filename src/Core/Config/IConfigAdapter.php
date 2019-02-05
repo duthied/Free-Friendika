@@ -9,10 +9,7 @@ namespace Friendica\Core\Config;
 interface IConfigAdapter
 {
 	/**
-	 * @brief Loads all configuration values into a cached storage.
-	 *
-	 * All configuration values of the system are stored in global cache
-	 * which is available under the global variable Config::$config
+	 * Loads all configuration values into a cached storage.
 	 *
 	 * @param string  $cat The category of the configuration values to load
 	 *
@@ -21,16 +18,8 @@ interface IConfigAdapter
 	public function load($cat = "config");
 
 	/**
-	 * @brief Get a particular user's config variable given the category name
+	 * Get a particular user's config variable given the category name
 	 * ($family) and a key.
-	 *
-	 * Get a particular config value from the given category ($family)
-	 * and the $key from a cached storage in static::$config[$uid].
-	 * $instore is only used by the set_config function
-	 * to determine if the key already exists in the DB
-	 * If a key is found in the DB but doesn't exist in
-	 * local config cache, pull it into the cache so we don't have
-	 * to hit the DB again for this item.
 	 *
 	 * @param string  $cat           The category of the configuration value
 	 * @param string  $k             The configuration key to query
@@ -42,8 +31,6 @@ interface IConfigAdapter
 	public function get($cat, $k, $default_value = null, $refresh = false);
 
 	/**
-	 * @brief Sets a configuration value for system config
-	 *
 	 * Stores a config value ($value) in the category ($family) under the key ($key)
 	 * for the user_id $uid.
 	 *
@@ -58,9 +45,7 @@ interface IConfigAdapter
 	public function set($cat, $k, $value);
 
 	/**
-	 * @brief Deletes the given key from the system configuration.
-	 *
-	 * Removes the configured value from the stored cache in Config::$config
+	 * Removes the configured value from the stored cache
 	 * and removes it from the database.
 	 *
 	 * @param string $cat The category of the configuration value

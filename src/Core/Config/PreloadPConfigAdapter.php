@@ -34,6 +34,9 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 		}
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function load($uid, $family)
 	{
 		if ($this->config_loaded) {
@@ -53,6 +56,9 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 		$this->config_loaded = true;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function get($uid, $cat, $k, $default_value = null, $refresh = false)
 	{
 		if (!$this->config_loaded) {
@@ -71,6 +77,9 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 		return $this->configCache->getP($uid, $cat, $k, $default_value);;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function set($uid, $cat, $k, $value)
 	{
 		if (!$this->config_loaded) {
@@ -98,6 +107,9 @@ class PreloadPConfigAdapter implements IPConfigAdapter
 		return true;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($uid, $cat, $k)
 	{
 		if (!$this->config_loaded) {

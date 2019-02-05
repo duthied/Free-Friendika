@@ -28,6 +28,9 @@ class JITPConfigAdapter implements IPConfigAdapter
 		$this->configCache = $configCache;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function load($uid, $cat)
 	{
 		$pconfigs = DBA::select('pconfig', ['v', 'k'], ['cat' => $cat, 'uid' => $uid]);
@@ -46,6 +49,9 @@ class JITPConfigAdapter implements IPConfigAdapter
 		DBA::close($pconfigs);
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function get($uid, $cat, $k, $default_value = null, $refresh = false)
 	{
 		if (!$refresh) {
@@ -82,6 +88,9 @@ class JITPConfigAdapter implements IPConfigAdapter
 		}
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function set($uid, $cat, $k, $value)
 	{
 		// We store our setting values in a string variable.
@@ -109,6 +118,9 @@ class JITPConfigAdapter implements IPConfigAdapter
 		return $result;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($uid, $cat, $k)
 	{
 		$this->configCache->deleteP($uid, $cat, $k);
