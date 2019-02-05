@@ -110,8 +110,9 @@ Two storage backends are avaiable with Friendica:
 - **Filesystem** : Data is stored as file on the filesystem.
 
 More storage backends can be avaiable from third-party addons.
+If you use those, please refer to the documentation of those addons for further information.
 
-Default value is 'None': it's the legacy way used to store data directly in database.
+Default value is 'Database (legacy)': it's the legacy way used to store data directly in database.
 
 Existing data can be moved to the current active backend using the ['storage move' console command](help/tools)
 

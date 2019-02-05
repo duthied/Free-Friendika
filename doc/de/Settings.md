@@ -12,7 +12,7 @@ Die zweite Zahl steht für die Anzahl der Aufgaben, die die Worker noch vor sich
 Die Worker arbeiten Hintergrundprozesse ab.
 Die Aufgaben der Worker sind priorisiert und werden anhand dieser Prioritäten abgearbeitet.
 
-Desweiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
+Des weiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
 Sowie eine Liste der derzeit aktivierten Addons.
 Diese Liste ist verlinkt, so dass du schnellen Zugriff auf die Informationsseiten der einzelnen Addons hast.
 Abschließend findest du auf der Startseite des Admin Panels die installierte Version von Friendica.
@@ -47,7 +47,7 @@ Mehr Informationen zum Übersetzungsprozess von Friendica findest du [auf dieser
 
 Hier kann das Theme bestimmt werden, welches standardmäßig zum Anzeigen der Seite verwendet werden soll.
 Nutzer können in ihren Einstellungen andere Themes wählen.
-Derzeit ist das "duepunto zero" Theme das vorausgewählte Theme.
+Derzeit ist das "vier" Theme das vorausgewählte Theme.
 
 Für mobile Geräte kannst du ein spezielles Theme wählen, wenn das Standardtheme ungeeignet für mobile Geräte sein sollte.
 Das `vier` Theme z.B. unterstützt kleine Anzeigen und benötigt kein zusätzliches mobiles Theme.
@@ -91,6 +91,32 @@ Wenn du die Erstellung weiterer Accounts blockieren willst, dann setze die Einst
 Standardmäßig ist hier "false" gesetzt.
 
 ### Datei hochladen
+
+#### Datenspeicher Backend
+
+Legt das Datenspeicher Backend fest, mit dem Friendica hoch geladene Daten speichert.
+Zwei Speicher Backends sind standardmäßig bei Friendica verfügbar:
+
+- **Database** : Die Daten werden in einer speziellen Tabelle in der Datenbank (`storage`) gespeichert.
+- **Filesystem** : Die Daten werden als Dateien im Dateisystem gespeichert.
+
+Weitere Speicher Backends können als Addons von Drittanbietern verfügbar sein.
+Falls ein solches verwendet wird, sei an dieser Stelle nur auf deren Dokumentation für weitere Informationen verwiesen.
+
+Die Grundeinstellung ist 'Datenbank (legacy)': Dies ist die alte Methode von Friendica Daten direkt in der Datenbank abzulegen.
+
+Bestehende Daten können zum aktuell ausgewählten Backend verschoben werden.
+Hierfür kann der ['storage move'](help/tools) Befehl der Friendica Konsole verwendet werden.
+
+Sollte das ausgewählte Speicher Backand zusätzliche Konfigurationsparameter besitzen, werden nach der Auswahl des Backends hier weitere Felder angezeigt.
+
+##### Dateipfad zum Speicher
+
+Der Basispfad unter dem das Filesystem Datenspeicher Backend die Daten speichern soll.
+
+Um zu verhindern, dass Daten unter Umgehung der Privatsphären-Einstellungen herunter geladen werden, sollte dieser Pfad außerhalb der Verzeichnisstruktur des Webservers liegen.
+
+Die Grundeinstellung ist `storage`, das ist das `storage` Unterverzeichnis innerhalb des Friendica Verzeichnisses.
 
 #### Maximale Bildgröße
 
