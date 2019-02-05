@@ -50,8 +50,8 @@ class PConfig
 	/**
 	 * @brief Loads all configuration values of a user's config family into a cached storage.
 	 *
-	 * All configuration values of the given user are stored in global cache
-	 * which is available under the global variable self::$config[$uid].
+	 * All configuration values of the given user are stored with the $uid in
+	 * the cache ( @see IPConfigCache )
 	 *
 	 * @param string $uid    The user_id
 	 * @param string $family The category of the configuration value
@@ -72,7 +72,8 @@ class PConfig
 	 * ($family) and a key.
 	 *
 	 * Get a particular user's config value from the given category ($family)
-	 * and the $key from a cached storage in self::$config[$uid].
+	 * and the $key with the $uid from a cached storage either from the self::$adapter
+	 * (@see IConfigAdapter ) or from the static::$cache (@see IConfigCache ).
 	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $family        The category of the configuration value
@@ -118,8 +119,9 @@ class PConfig
 	/**
 	 * @brief Deletes the given key from the users's configuration.
 	 *
-	 * Removes the configured value from the stored cache in self::$config[$uid]
-	 * and removes it from the database.
+	 * Removes the configured value from the stored cache in self::$config
+	 * (@see ConfigCache ) and removes it from the database (@see IConfigAdapter )
+	 * with the given $uid.
 	 *
 	 * @param string $uid    The user_id
 	 * @param string $family The category of the configuration value

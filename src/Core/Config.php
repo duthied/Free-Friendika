@@ -8,6 +8,10 @@
  */
 namespace Friendica\Core;
 
+use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\IConfigAdapter;
+use Friendica\Core\Config\IConfigCache;
+
 /**
  * @brief Arbitrary system configuration storage
  *
@@ -50,8 +54,7 @@ class Config
 	/**
 	 * @brief Loads all configuration values of family into a cached storage.
 	 *
-	 * All configuration values of the system are stored in global cache
-	 * which is available under the global variable self::$config
+	 * All configuration values of the system are stored in the cache ( @see IConfigCache )
 	 *
 	 * @param string $family The category of the configuration value
 	 *
@@ -71,12 +74,8 @@ class Config
 	 * ($family) and a key.
 	 *
 	 * Get a particular config value from the given category ($family)
-	 * and the $key from a cached storage in static::config[$uid].
-	 * $instore is only used by the set_config function
-	 * to determine if the key already exists in the DB
-	 * If a key is found in the DB but doesn't exist in
-	 * local config cache, pull it into the cache so we don't have
-	 * to hit the DB again for this item.
+	 * and the $key from a cached storage either from the self::$adapter
+	 * (@see IConfigAdapter ) or from the static::$cache (@see IConfigCache ).
 	 *
 	 * @param string  $family        The category of the configuration value
 	 * @param string  $key           The configuration key to query
@@ -98,7 +97,6 @@ class Config
 	 * @brief Sets a configuration value for system config
 	 *
 	 * Stores a config value ($value) in the category ($family) under the key ($key)
-	 * for the user_id $uid.
 	 *
 	 * Note: Please do not store booleans - convert to 0/1 integer values!
 	 *
@@ -121,8 +119,8 @@ class Config
 	/**
 	 * @brief Deletes the given key from the system configuration.
 	 *
-	 * Removes the configured value from the stored cache in Config::$config
-	 * and removes it from the database.
+	 * Removes the configured value from the stored cache in self::$config
+	 * (@see ConfigCache ) and removes it from the database (@see IConfigAdapter ).
 	 *
 	 * @param string $family The category of the configuration value
 	 * @param string $key    The configuration key to delete

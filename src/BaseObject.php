@@ -6,9 +6,7 @@ namespace Friendica;
 
 require_once 'boot.php';
 
-use Friendica\Core\Config;
-use Friendica\Factory;
-use Friendica\Util\BasePath;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 
 /**
  * Basic object
@@ -30,11 +28,7 @@ class BaseObject
 	public static function getApp()
 	{
 		if (empty(self::$app)) {
-			$basedir = BasePath::create(dirname(__DIR__));
-			$configLoader = new Config\ConfigCacheLoader($basedir);
-			$config = Factory\ConfigFactory::createCache($configLoader);
-			$logger = Factory\LoggerFactory::create('app', $config);
-			self::$app = new App($config, $logger);
+			throw new InternalServerErrorException('App isn\' initialized.');
 		}
 
 		return self::$app;
