@@ -108,15 +108,13 @@ class ConfigCacheLoader
 	 * Tries to load the specified legacy configuration file and returns the config array.
 	 *
 	 * @deprecated since version 2018.12
-	 * @param string $filename
+	 * @param string $filepath
 	 *
 	 * @return array The configuration array
 	 * @throws \Exception
 	 */
-	public function loadINIConfigFile($filename)
+	public function loadINIConfigFile($filepath)
 	{
-		$filepath = $this->configDir . DIRECTORY_SEPARATOR . $filename . ".ini.php";
-
 		if (!file_exists($filepath)) {
 			throw new \Exception('Error parsing non-existent INI config file ' . $filepath);
 		}
