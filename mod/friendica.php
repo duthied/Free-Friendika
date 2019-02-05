@@ -12,7 +12,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Register;
 
-function friendica_init(App $a, Config\ConfigCache $config)
+function friendica_init(App $a)
 {
 	if (!empty($a->argv[1]) && ($a->argv[1] == "json")) {
 		$register_policies = [
@@ -29,7 +29,7 @@ function friendica_init(App $a, Config\ConfigCache $config)
 		}
 
 		$sql_extra = '';
-		if ($config->get('config', 'admin_nickname') !== null) {
+		if (Config::get('config', 'admin_nickname') !== null) {
 			$sql_extra = sprintf(" AND `nickname` = '%s' ", DBA::escape(Config::get('config', 'admin_nickname')));
 		}
 		if (!empty(Config::get('config', 'admin_email'))) {
