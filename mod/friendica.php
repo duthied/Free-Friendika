@@ -48,7 +48,7 @@ function friendica_init(App $a)
 
 		Config::load('feature_lock');
 		$locked_features = [];
-		$featureLock = $config->get('config', 'feature_lock');
+		$featureLock = Config::get('config', 'feature_lock');
 		if (isset($featureLock)) {
 			foreach ($featureLock as $k => $v) {
 				if ($k === 'config_loaded') {
