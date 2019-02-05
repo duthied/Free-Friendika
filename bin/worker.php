@@ -31,7 +31,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$basedir = BasePath::create(dirname(__DIR__));
+$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
 $configLoader = new Config\ConfigCacheLoader($basedir);
 $config = Factory\ConfigFactory::createCache($configLoader);
 $logger = Factory\LoggerFactory::create('worker', $config);

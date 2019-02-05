@@ -40,8 +40,8 @@ class ConfigCacheLoader
 		// Setting at least the basepath we know
 		$config->set('system', 'basepath', $this->baseDir);
 
-		$config->loadConfigArray($this->loadConfigFile('defaults'));
-		$config->loadConfigArray($this->loadConfigFile('settings'));
+		$config->loadConfigArray($this->loadCoreConfig('defaults'));
+		$config->loadConfigArray($this->loadCoreConfig('settings'));
 
 		// Legacy .htconfig.php support
 		if (file_exists($this->baseDir  . '/.htpreconfig.php')) {
@@ -82,16 +82,11 @@ class ConfigCacheLoader
 			}
 		}
 
-		if (file_exists($this->baseDir . '/config/local.config.php')) {
-			$config->loadConfigArray($this->loadConfigFile('local'), true);
-		} elseif (file_exists($this->baseDir . '/config/local.ini.php')) {
-			$config->loadConfigArray($this->loadINIConfigFile('local'), true);
-		}
+		$config->loadConfigArray($this->loadCoreConfig('local'), true);
 	}
 
 	/**
-	 * Tries to load the specified legacy configuration file into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 * Tries to load the specified legacy configuration file into the ConfigCache (@see ConfigCache ).
 	 *
 	 * @deprecated since version 2018.12
 	 * @param string $filename
@@ -119,8 +114,7 @@ class ConfigCacheLoader
 	}
 
 	/**
-	 * Tries to load the specified configuration file into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 * Tries to load the specified configuration file and returns the config array.
 	 *
 	 * The config format is PHP array and the template for configuration files is the following:
 	 *
@@ -130,19 +124,13 @@ class ConfigCacheLoader
 	 *      ],
 	 * ];
 	 *
-	 * @param string $filename
-	 * @param bool   $addon     True, if a config for an addon should be loaded
-	 * @return array The configuration
-	 * @throws \Exception
+	 * @param  string $filepath The filepath of the
+	 * @return array The config array0
+	 *
+	 * @throws \Exception if the config cannot get loaded.
 	 */
-	public function loadConfigFile($filename, $addon = false)
+	private function loadConfigFile($filepath)
 	{
-		if ($addon) {
-			$filepath = $this->baseDir . Addon::DIRECTORY . $filename . self::SUBDIRECTORY . $filename . ".config.php";
-		} else {
-			$filepath = $this->configDir . $filename . ".config.php";
-		}
-
 		if (!file_exists($filepath)) {
 			throw new \Exception('Error loading non-existent config file ' . $filepath);
 		}
@@ -157,22 +145,43 @@ class ConfigCacheLoader
 	}
 
 	/**
-	 * Loads addons configuration files
+	 * Tries to load the specified core-configuration and returns the config array.
+	 *
+	 * @param string $name The name of the configuration
+	 *
+	 * @return array The config array (empty if no config found)
+	 *
+	 * @throws \Exception if the configuration file isn't readable
+	 */
+	public function loadCoreConfig($name)
+	{
+		if (file_exists($this->configDir . $name . '.config.php')) {
+			return $this->loadConfigFile($this->configDir . $name . '.config.php');
+		} elseif (file_exists($this->configDir . $name . '.ini.php')) {
+			return $this->loadINIConfigFile($this->configDir . $name . '.ini.php');
+		} else {
+			return [];
+		}
+	}
+
+	/**
+	 * Tries to load the specified addon-configuration and returns the config array.
 	 *
 	 * First loads all activated addons default configuration through the load_config hook, then load the local.config.php
 	 * again to overwrite potential local addon configuration.
 	 *
-	 * @return array The config array
+	 * @param string $name The name of the configuration
 	 *
-	 * @throws \Exception
+	 * @return array The config array (empty if no config found)
+	 *
+	 * @throws \Exception if the configuration file isn't readable
 	 */
-	public function loadAddonConfig()
+	public function loadAddonConfig($name)
 	{
-		// Load the local addon config file to overwritten default addon config values
-		if (file_exists($this->configDir . 'addon.config.php')) {
-			return $this->loadConfigFile('addon');
-		} elseif (file_exists($this->configDir . 'addon.ini.php')) {
-			return $this->loadINIConfigFile('addon');
+		$filepath = $this->baseDir . Addon::DIRECTORY . $name . self::SUBDIRECTORY . $name . ".config.php";
+
+		if (file_exists($filepath)) {
+			return $this->loadConfigFile($filepath);
 		} else {
 			return [];
 		}

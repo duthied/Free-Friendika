@@ -12,23 +12,24 @@ class BasePath
 	 * It first checks for the internal variable, then for DOCUMENT_ROOT and
 	 * finally for PWD
 	 *
-	 * @param string|null $basepath
+	 * @param string|null $basePath The default base path
+	 * @param array       $server   server arguments
 	 *
 	 * @return string
 	 *
 	 * @throws \Exception if directory isn't usable
 	 */
-	public static function create($basepath)
+	public static function create($basePath, $server = [])
 	{
-		if (!$basepath && !empty($_SERVER['DOCUMENT_ROOT'])) {
-			$basepath = $_SERVER['DOCUMENT_ROOT'];
+		if (!$basePath && !empty($server['DOCUMENT_ROOT'])) {
+			$basePath = $server['DOCUMENT_ROOT'];
 		}
 
-		if (!$basepath && !empty($_SERVER['PWD'])) {
-			$basepath = $_SERVER['PWD'];
+		if (!$basePath && !empty($server['PWD'])) {
+			$basePath = $server['PWD'];
 		}
 
-		return self::getRealPath($basepath);
+		return self::getRealPath($basePath);
 	}
 
 	/**
@@ -51,7 +52,6 @@ class BasePath
 			return $path;
 		}
 	}
-
 
 	/**
 	 * @brief Checks if a given directory is usable for the system

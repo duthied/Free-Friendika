@@ -7,7 +7,7 @@ use Friendica\Core\Config;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
 
-$basedir = BasePath::create(dirname(__DIR__));
+$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
 $configLoader = new Config\ConfigCacheLoader($basedir);
 $config = Factory\ConfigFactory::createCache($configLoader);
 $logger = Factory\LoggerFactory::create('console', $config);

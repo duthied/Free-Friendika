@@ -387,7 +387,7 @@ class App
 			Core\Hook::loadHooks();
 			$loader = new ConfigCacheLoader($this->basePath);
 			Core\Hook::callAll('load_config', $loader);
-			$this->config->loadConfigArray($loader->loadAddonConfig(), true);
+			$this->config->loadConfigArray($loader->loadCoreConfig('addon'), true);
 		}
 
 		$this->loadDefaultTimezone();

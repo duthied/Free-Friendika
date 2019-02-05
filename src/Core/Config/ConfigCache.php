@@ -11,24 +11,14 @@ namespace Friendica\Core\Config;
  */
 class ConfigCache implements IConfigCache, IPConfigCache
 {
-	/**
-	 * NEVER, EVER use this public config array outside of the class
-	 * It is only public due to backward compatibility to .htconfig.php
-	 *
-	 * @var array The cached config array
-	 */
-	public $config;
+	private $config;
 
 	/**
 	 * @param array $config    A initial config array
 	 */
 	public function __construct(array $config = [])
 	{
-		$this->config = [];
-
-		if (isset($config)) {
-			$this->loadConfigArray($config, true);
-		}
+		$this->config = $config;
 	}
 
 	/**
