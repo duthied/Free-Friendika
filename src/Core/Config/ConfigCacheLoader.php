@@ -43,21 +43,66 @@ class ConfigCacheLoader
 		$config->loadConfigArray($this->loadCoreConfig('defaults'));
 		$config->loadConfigArray($this->loadCoreConfig('settings'));
 
-		$config->loadConfigArray($this->loadLegacyConfigFile('htpreconfig'), true);
-		$config->loadConfigArray($this->loadLegacyConfigFile('htconfig'), true);
+		$config->loadConfigArray($this->loadLegacyConfig('htpreconfig'), true);
+		$config->loadConfigArray($this->loadLegacyConfig('htconfig'), true);
 
 		$config->loadConfigArray($this->loadCoreConfig('local'), true);
 	}
 
 	/**
-	 * Tries to load the legacy config files (.htconfig.php, .htpreconfig.php)
+	 * Tries to load the specified core-configuration and returns the config array.
+	 *
+	 * @param string $name The name of the configuration
+	 *
+	 * @return array The config array (empty if no config found)
+	 *
+	 * @throws \Exception if the configuration file isn't readable
+	 */
+	public function loadCoreConfig($name)
+	{
+		if (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php')) {
+			return $this->loadConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php');
+		} elseif (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php')) {
+			return $this->loadINIConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php');
+		} else {
+			return [];
+		}
+	}
+
+	/**
+	 * Tries to load the specified addon-configuration and returns the config array.
+	 *
+	 * @param string $name The name of the configuration
+	 *
+	 * @return array The config array (empty if no config found)
+	 *
+	 * @throws \Exception if the configuration file isn't readable
+	 */
+	public function loadAddonConfig($name)
+	{
+		$filepath = $this->baseDir . DIRECTORY_SEPARATOR . // /var/www/html/
+			Addon::DIRECTORY       . DIRECTORY_SEPARATOR . // addon/
+			$name                  . DIRECTORY_SEPARATOR . // openstreetmap/
+			self::SUBDIRECTORY     . DIRECTORY_SEPARATOR . // config/
+			$name . ".config.php";                         // openstreetmap.config.php
+
+		if (file_exists($filepath)) {
+			return $this->loadConfigFile($filepath);
+		} else {
+			return [];
+		}
+	}
+
+	/**
+	 * Tries to load the legacy config files (.htconfig.php, .htpreconfig.php) and returns the config array.
 	 *
 	 * @param string $name The name of the config file
-	 * @return array The configuration array
+	 *
+	 * @return array The configuration array (empty if no config found)
 	 *
 	 * @deprecated since version 2018.09
 	 */
-	private function loadLegacyConfigFile($name)
+	private function loadLegacyConfig($name)
 	{
 		$filePath = $this->baseDir  . DIRECTORY_SEPARATOR . '.' . $name . '.php';
 
@@ -113,7 +158,7 @@ class ConfigCacheLoader
 	 * @return array The configuration array
 	 * @throws \Exception
 	 */
-	public function loadINIConfigFile($filepath)
+	private function loadINIConfigFile($filepath)
 	{
 		if (!file_exists($filepath)) {
 			throw new \Exception('Error parsing non-existent INI config file ' . $filepath);
@@ -159,49 +204,5 @@ class ConfigCacheLoader
 		}
 
 		return $config;
-	}
-
-	/**
-	 * Tries to load the specified core-configuration and returns the config array.
-	 *
-	 * @param string $name The name of the configuration
-	 *
-	 * @return array The config array (empty if no config found)
-	 *
-	 * @throws \Exception if the configuration file isn't readable
-	 */
-	public function loadCoreConfig($name)
-	{
-		if (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php')) {
-			return $this->loadConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php');
-		} elseif (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php')) {
-			return $this->loadINIConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php');
-		} else {
-			return [];
-		}
-	}
-
-	/**
-	 * Tries to load the specified addon-configuration and returns the config array.
-	 *
-	 * @param string $name The name of the configuration
-	 *
-	 * @return array The config array (empty if no config found)
-	 *
-	 * @throws \Exception if the configuration file isn't readable
-	 */
-	public function loadAddonConfig($name)
-	{
-		$filepath = $this->baseDir . DIRECTORY_SEPARATOR . // /var/www/html/
-			Addon::DIRECTORY       . DIRECTORY_SEPARATOR . // addon/
-			$name                  . DIRECTORY_SEPARATOR . // openstreetmap/
-			self::SUBDIRECTORY     . DIRECTORY_SEPARATOR . // config/
-			$name . ".config.php";                         // openstreetmap.config.php
-
-		if (file_exists($filepath)) {
-			return $this->loadConfigFile($filepath);
-		} else {
-			return [];
-		}
 	}
 }
