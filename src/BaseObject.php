@@ -28,7 +28,7 @@ class BaseObject
 	public static function getApp()
 	{
 		if (empty(self::$app)) {
-			throw new InternalServerErrorException('App isn\' initialized.');
+			throw new InternalServerErrorException('App isn\'t initialized.');
 		}
 
 		return self::$app;
