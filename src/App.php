@@ -13,7 +13,6 @@ use Friendica\Core\Config\ConfigCacheLoader;
 use Friendica\Database\DBA;
 use Friendica\Factory\ConfigFactory;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\BasePath;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -194,7 +193,7 @@ class App
 		$this->logger   = $logger;
 		$this->basePath = $this->config->get('system', 'basepath');
 
-		if (!BasePath::isDirectoryUsable($this->basePath, false)) {
+		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
 			throw new Exception('Basepath ' . $this->basePath . ' isn\'t usable.');
 		}
 		$this->basePath = rtrim($this->basePath, DIRECTORY_SEPARATOR);

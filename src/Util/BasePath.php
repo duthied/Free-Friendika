@@ -2,8 +2,6 @@
 
 namespace Friendica\Util;
 
-use Friendica\Core;
-
 class BasePath
 {
 	/**
@@ -51,43 +49,5 @@ class BasePath
 		} else {
 			return $path;
 		}
-	}
-
-	/**
-	 * @brief Checks if a given directory is usable for the system
-	 *
-	 * @param      $directory
-	 * @param bool $check_writable
-	 *
-	 * @return boolean the directory is usable
-	 */
-	public static function isDirectoryUsable($directory, $check_writable = true)
-	{
-		if ($directory == '') {
-			Core\Logger::log('Directory is empty. This shouldn\'t happen.', Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (!file_exists($directory)) {
-			Core\Logger::log('Path "' . $directory . '" does not exist for user ' . Core\System::getUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (is_file($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is a file for user ' . Core\System::getUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (!is_dir($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not a directory for user ' . Core\System::getUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if ($check_writable && !is_writable($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not writable for user ' . Core\System::getUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		return true;
 	}
 }

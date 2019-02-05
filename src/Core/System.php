@@ -303,6 +303,44 @@ class System extends BaseObject
 		return $processUser['name'];
 	}
 
+	/**
+	 * @brief Checks if a given directory is usable for the system
+	 *
+	 * @param      $directory
+	 * @param bool $check_writable
+	 *
+	 * @return boolean the directory is usable
+	 */
+	public static function isDirectoryUsable($directory, $check_writable = true)
+	{
+		if ($directory == '') {
+			Logger::log('Directory is empty. This shouldn\'t happen.', Logger::DEBUG);
+			return false;
+		}
+
+		if (!file_exists($directory)) {
+			Logger::log('Path "' . $directory . '" does not exist for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if (is_file($directory)) {
+			Logger::log('Path "' . $directory . '" is a file for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if (!is_dir($directory)) {
+			Logger::log('Path "' . $directory . '" is not a directory for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if ($check_writable && !is_writable($directory)) {
+			Logger::log('Path "' . $directory . '" is not writable for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		return true;
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
 	function killme()
