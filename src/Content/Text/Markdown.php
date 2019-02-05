@@ -83,9 +83,6 @@ class Markdown extends BaseObject
 	{
 		$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
 
-		// Replace lonely stars in lines not starting with it with literal stars
-		$s = preg_replace('/^([^\*]+)\*([^\*]*)$/im', '$1\*$2', $s);
-
 		// The parser cannot handle paragraphs correctly
 		$s = str_replace(['</p>', '<p>', '<p dir="ltr">'], ['<br>', '<br>', '<br>'], $s);
 
