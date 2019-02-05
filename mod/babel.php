@@ -98,7 +98,7 @@ function babel_content()
 				$html = Text\Markdown::convert($markdown);
 				$results[] = [
 					'title' => L10n::t('Markdown::convert (raw HTML)'),
-					'content' => htmlspecialchars($html)
+					'content' => visible_whitespace(htmlspecialchars($html))
 				];
 
 				$results[] = [
