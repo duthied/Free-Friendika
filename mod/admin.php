@@ -1551,7 +1551,7 @@ function admin_page_site(App $a)
 	$storage_current_backend = StorageManager::getBackend();
 
 	$storage_backends_choices = [
-		'' => L10n::t('None')
+		'' => L10n::t('Database (legacy)')
 	];
 	foreach($storage_backends as $name=>$class) {
 		$storage_backends_choices[$class] = $name;
@@ -1607,7 +1607,7 @@ function admin_page_site(App $a)
 		'$hide_help'        => ['hide_help', L10n::t("Hide help entry from navigation menu"), Config::get('system', 'hide_help'), L10n::t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")],
 		'$singleuser'       => ['singleuser', L10n::t("Single user instance"), Config::get('system', 'singleuser', '---'), L10n::t("Make this instance multi-user or single-user for the named user"), $user_names],
 
-		'$storagebackend'   => ['storagebackend', L10n::t("File storage backend"), $storage_current_backend, L10n::t('Backend used to store uploaded files data'), $storage_backends_choices],
+		'$storagebackend'   => ['storagebackend', L10n::t("File storage backend"), $storage_current_backend, L10n::t('The backend used to store uploaded files data. If you change the storage backend, you have to manually move the existing files see <a href="/help/Settings#1_2_3_1">the settings documentation</a> for more information about the choices and the moving procedure.'), $storage_backends_choices],
 		'$storageform'      => $storage_form,
 		'$maximagesize'     => ['maximagesize', L10n::t("Maximum image size"), Config::get('system', 'maximagesize'), L10n::t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")],
 		'$maximagelength'   => ['maximagelength', L10n::t("Maximum image length"), Config::get('system', 'max_image_length'), L10n::t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
