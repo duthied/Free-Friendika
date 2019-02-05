@@ -170,7 +170,7 @@ class ForumManager
 		$total_shown = 0;
 		$forumlist = '';
 		foreach ($contacts as $contact) {
-			$forumlist .= HTML::micropro($contact, false, 'forumlist-profile-advanced');
+			$forumlist .= HTML::micropro($contact, true, 'forumlist-profile-advanced');
 			$total_shown ++;
 			if ($total_shown == $show_total) {
 				break;
