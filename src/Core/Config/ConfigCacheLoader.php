@@ -184,9 +184,6 @@ class ConfigCacheLoader
 	/**
 	 * Tries to load the specified addon-configuration and returns the config array.
 	 *
-	 * First loads all activated addons default configuration through the load_config hook, then load the local.config.php
-	 * again to overwrite potential local addon configuration.
-	 *
 	 * @param string $name The name of the configuration
 	 *
 	 * @return array The config array (empty if no config found)
