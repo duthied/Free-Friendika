@@ -18,7 +18,7 @@ class ConfigCacheLoader
 	 * The Sub directory of the config-files
 	 * @var string
 	 */
-	const SUBDIRECTORY   = '/config/';
+	const SUBDIRECTORY = 'config';
 
 	private $baseDir;
 	private $configDir;
@@ -26,7 +26,7 @@ class ConfigCacheLoader
 	public function __construct($baseDir)
 	{
 		$this->baseDir = $baseDir;
-		$this->configDir = $baseDir . self::SUBDIRECTORY;
+		$this->configDir = $baseDir . DIRECTORY_SEPARATOR . self::SUBDIRECTORY;
 	}
 
 	/**
@@ -43,60 +43,79 @@ class ConfigCacheLoader
 		$config->loadConfigArray($this->loadCoreConfig('defaults'));
 		$config->loadConfigArray($this->loadCoreConfig('settings'));
 
-		// Legacy .htconfig.php support
-		if (file_exists($this->baseDir  . '/.htpreconfig.php')) {
-			$a = $config;
-			include $this->baseDir . '/.htpreconfig.php';
-		}
-
-		// Legacy .htconfig.php support
-		if (file_exists($this->baseDir . '/.htconfig.php')) {
-			$a = $config;
-
-			include $this->baseDir . '/.htconfig.php';
-
-			$config->set('database', 'hostname', $db_host);
-			$config->set('database', 'username', $db_user);
-			$config->set('database', 'password', $db_pass);
-			$config->set('database', 'database', $db_data);
-			$charset = $config->get('system', 'db_charset');
-			if (isset($charset)) {
-				$config->set('database', 'charset', $charset);
-			}
-
-			unset($db_host, $db_user, $db_pass, $db_data);
-
-			if (isset($default_timezone)) {
-				$config->set('system', 'default_timezone', $default_timezone);
-				unset($default_timezone);
-			}
-
-			if (isset($pidfile)) {
-				$config->set('system', 'pidfile', $pidfile);
-				unset($pidfile);
-			}
-
-			if (isset($lang)) {
-				$config->set('system', 'language', $lang);
-				unset($lang);
-			}
-		}
+		$config->loadConfigArray($this->loadLegacyConfigFile('htpreconfig'), true);
+		$config->loadConfigArray($this->loadLegacyConfigFile('htconfig'), true);
 
 		$config->loadConfigArray($this->loadCoreConfig('local'), true);
 	}
 
 	/**
-	 * Tries to load the specified legacy configuration file into the ConfigCache (@see ConfigCache ).
+	 * Tries to load the legacy config files (.htconfig.php, .htpreconfig.php)
+	 *
+	 * @param string $name The name of the config file
+	 * @return array The configuration array
+	 *
+	 * @deprecated since version 2018.09
+	 */
+	private function loadLegacyConfigFile($name)
+	{
+		$filePath = $this->baseDir  . DIRECTORY_SEPARATOR . '.' . $name . '.php';
+
+		if (file_exists($filePath)) {
+			$a = new \stdClass();
+			$a->config = [];
+			include $filePath;
+
+			if (isset($db_host)) {
+				$a->config['database']['hostname'] = $db_host;
+				unset($db_host);
+			}
+			if (isset($db_user)) {
+				$a->config['database']['username'] = $db_user;
+				unset($db_user);
+			}
+			if (isset($db_pass)) {
+				$a->config['database']['password'] = $db_pass;
+				unset($db_pass);
+			}
+			if (isset($db_data)) {
+				$a->config['database']['database'] = $db_data;
+				unset($db_data);
+			}
+			if (isset($a->config['system']['db_charset'])) {
+				$a->config['database']['charset'] = $a->config['system']['charset'];
+			}
+			if (isset($pidfile)) {
+				$a->config['system']['pidfile'] = $pidfile;
+				unset($pidfile);
+			}
+			if (isset($default_timezone)) {
+				$a->config['system']['default_timezone'] = $default_timezone;
+				unset($default_timezone);
+			}
+			if (isset($lang)) {
+				$a->config['system']['language'] = $lang;
+				unset($lang);
+			}
+
+			return $a->config;
+		} else {
+			return [];
+		}
+	}
+
+	/**
+	 * Tries to load the specified legacy configuration file and returns the config array.
 	 *
 	 * @deprecated since version 2018.12
 	 * @param string $filename
 	 *
-	 * @return array The configuration
+	 * @return array The configuration array
 	 * @throws \Exception
 	 */
 	public function loadINIConfigFile($filename)
 	{
-		$filepath = $this->configDir . $filename . ".ini.php";
+		$filepath = $this->configDir . DIRECTORY_SEPARATOR . $filename . ".ini.php";
 
 		if (!file_exists($filepath)) {
 			throw new \Exception('Error parsing non-existent INI config file ' . $filepath);
@@ -155,10 +174,10 @@ class ConfigCacheLoader
 	 */
 	public function loadCoreConfig($name)
 	{
-		if (file_exists($this->configDir . $name . '.config.php')) {
-			return $this->loadConfigFile($this->configDir . $name . '.config.php');
-		} elseif (file_exists($this->configDir . $name . '.ini.php')) {
-			return $this->loadINIConfigFile($this->configDir . $name . '.ini.php');
+		if (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php')) {
+			return $this->loadConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php');
+		} elseif (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php')) {
+			return $this->loadINIConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php');
 		} else {
 			return [];
 		}
@@ -178,7 +197,11 @@ class ConfigCacheLoader
 	 */
 	public function loadAddonConfig($name)
 	{
-		$filepath = $this->baseDir . Addon::DIRECTORY . $name . self::SUBDIRECTORY . $name . ".config.php";
+		$filepath = $this->baseDir . DIRECTORY_SEPARATOR . // /var/www/html/
+			Addon::DIRECTORY       . DIRECTORY_SEPARATOR . // addon/
+			$name                  . DIRECTORY_SEPARATOR . // openstreetmap/
+			self::SUBDIRECTORY     . DIRECTORY_SEPARATOR . // config/
+			$name . ".config.php";                         // openstreetmap.config.php
 
 		if (file_exists($filepath)) {
 			return $this->loadConfigFile($filepath);
