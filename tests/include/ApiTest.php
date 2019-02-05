@@ -5,13 +5,14 @@
 
 namespace Friendica\Test;
 
-use Friendica\BaseObject;
+use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Factory\LoggerFactory;
+use Friendica\Factory;
 use Friendica\Network\HTTPException;
+use Friendica\Util\BasePath;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -34,10 +35,14 @@ class ApiTest extends DatabaseTest
 	 */
 	public function setUp()
 	{
-		parent::setUp();
+		$basedir = BasePath::create(dirname(__DIR__) . '/../');
+		$configLoader = new Config\ConfigCacheLoader($basedir);
+		$config = Factory\ConfigFactory::createCache($configLoader);
+		$logger = Factory\LoggerFactory::create('test', $config);
+		$this->app = new App($config, $logger, false);
+		$this->logOutput = FActory\LoggerFactory::enableTest($this->app->getLogger());
 
-		$this->app = BaseObject::getApp();
-		$this->logOutput = LoggerFactory::enableTest($this->app->getLogger());
+		parent::setUp();
 
 		// User data that the test database is populated with
 		$this->selfUser = [

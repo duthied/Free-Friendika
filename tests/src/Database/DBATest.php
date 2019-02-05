@@ -1,19 +1,25 @@
 <?php
 namespace Friendica\Test\Database;
 
-use Friendica\BaseObject;
+use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
+use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
+use Friendica\Util\BasePath;
 
 class DBATest extends DatabaseTest
 {
 	public function setUp()
 	{
-		parent::setUp();
+		$basedir = BasePath::create(dirname(__DIR__) . '/../../');
+		$configLoader = new Config\ConfigCacheLoader($basedir);
+		$config = Factory\ConfigFactory::createCache($configLoader);
+		$logger = Factory\LoggerFactory::create('test', $config);
+		$this->app = new App($config, $logger, false);
+		$this->logOutput = FActory\LoggerFactory::enableTest($this->app->getLogger());
 
-		// Reusable App object
-		$this->app = BaseObject::getApp();
+		parent::setUp();
 
 		// Default config
 		Config::set('config', 'hostname', 'localhost');
