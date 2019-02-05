@@ -1135,7 +1135,9 @@ aside .vcard .p-addr {
     white-space: nowrap;
     padding-bottom: 2px;
 }
-
+aside .vcard .title {
+    margin-top: 10px;
+}
 aside .vcard .detail {
     display: table;
     padding: 5px 0;
@@ -1150,6 +1152,7 @@ aside .vcard .icon {
 }
 #profile-extra-links {
     overflow: auto;
+    margin-bottom: 10px;
 }
 aside .vcard #dfrn-request-link-button,
 aside .vcard #wallmessage-link-botton {
