@@ -1298,6 +1298,10 @@ class Transmitter
 	 */
 	public static function sendFollowObject($object, $target, $uid = 0)
 	{
+		// Currently deactivated, due to notification problems.
+		// The follow message is reflected back and then causes false notifications.
+		return true;
+
 		$profile = APContact::getByURL($target);
 
 		if (empty($uid)) {
