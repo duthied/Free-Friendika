@@ -775,11 +775,11 @@ class Post extends BaseObject
 	 */
 	private function getDefaultText()
 	{
-		if (!local_user()) {
+		$a = self::getApp();
+
+		if (!local_user() || empty($a->profile['addr'])) {
 			return;
 		}
-
-		$a = self::getApp();
 
 		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
