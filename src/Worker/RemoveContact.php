@@ -24,7 +24,7 @@ class RemoveContact {
 		do {
 			$items = Item::select(['id'], $condition, ['limit' => 100]);
 			while ($item = Item::fetch($items)) {
-				Item::deleteById($item['id'], PRIORITY_NEGLIGIBLE);
+				DBA::delete('item', ['id' => $item['id']]);
 			}
 			DBA::close($items);
 		} while (Item::exists($condition));
