@@ -1819,6 +1819,10 @@ code > .hl-main {
 .wall-item-bottom .label a {
     color: #fff;
 }
+.wall-item-tags .category,
+.wall-item-tags .folder {
+    margin-right: 3px;
+}
 
 /* item social action buttons */
 .wall-item-actions {
