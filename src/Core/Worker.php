@@ -657,6 +657,19 @@ class Worker
 
 			$processlist = '';
 
+			if (Config::get('system', 'worker_jpm')) {
+				$intervals = [1, 10, 60];
+				$jobs_per_minute = [];
+				foreach ($intervals as $interval) {
+					$jobs = DBA::p("SELECT COUNT(*) AS `jobs` FROM `workerqueue` WHERE `done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ".intval($interval)." MINUTE");
+					if ($job = DBA::fetch($jobs)) {
+						$jobs_per_minute[$interval] = number_format($job['jobs'] / $interval, 0);
+					}
+					DBA::close($jobs);
+				}
+				$processlist = ' - jpm: '.implode('/', $jobs_per_minute);
+			}
+
 			if (Config::get('system', 'worker_debug')) {
 				// Create a list of queue entries grouped by their priority
 				$listitem = [];
@@ -686,16 +699,7 @@ class Worker
 				}
 				DBA::close($entries);
 
-				$intervals = [1, 10, 60];
-				$jobs_per_minute = [];
-				foreach ($intervals as $interval) {
-					$jobs = DBA::p("SELECT COUNT(*) AS `jobs` FROM `workerqueue` WHERE `done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ".intval($interval)." MINUTE");
-					if ($job = DBA::fetch($jobs)) {
-						$jobs_per_minute[$interval] = number_format($job['jobs'] / $interval, 0);
-					}
-					DBA::close($jobs);
-				}
-				$processlist = ' - jpm: '.implode('/', $jobs_per_minute).' ('.implode(', ', $listitem).')';
+				$processlist .= ' ('.implode(', ', $listitem).')';
 			}
 
 			$entries = self::totalEntries();
