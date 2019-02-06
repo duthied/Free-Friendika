@@ -293,11 +293,11 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{/if}}
 
 			{{foreach $item.folders as $cat}}
-				<span class="folder label btn-danger sm"><span class="p-category">{{$cat.name}}</span></a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+				<span class="folder label btn-danger sm p-category">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 
 			{{foreach $item.categories as $cat}}
-				<span class="category label btn-success sm"><span class="p-category">{{$cat.name}}</span></a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+				<span class="category label btn-success sm p-category">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 			</div>
 			{{if $item.edited}}<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>{{/if}}

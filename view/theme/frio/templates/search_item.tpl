@@ -150,11 +150,11 @@
 			{{/if}}
 
 				{{foreach $item.folders as $cat}}
-					<span class="folder label btn-danger sm">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class="folder label btn-danger sm">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 
 				{{foreach $item.categories as $cat}}
-					<span class="category label btn-success sm">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class="category label btn-success sm">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 				</div>
 				{{if $item.edited}}<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>{{/if}}
