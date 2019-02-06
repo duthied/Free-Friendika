@@ -6,7 +6,7 @@ namespace Friendica;
 
 require_once 'boot.php';
 
-use Friendica\Util\LoggerFactory;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 
 /**
  * Basic object
@@ -28,8 +28,7 @@ class BaseObject
 	public static function getApp()
 	{
 		if (empty(self::$app)) {
-			$logger = $logger = LoggerFactory::create('app');
-			self::$app = new App(dirname(__DIR__), $logger);
+			throw new InternalServerErrorException('App isn\'t initialized.');
 		}
 
 		return self::$app;

@@ -15,11 +15,11 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
-use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
@@ -30,6 +30,7 @@ use Friendica\Module;
 use Friendica\Module\Login;
 use Friendica\Module\Tos;
 use Friendica\Util\Arrays;
+use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -915,7 +916,7 @@ function admin_page_summary(App $a)
 	}
 
 	if (Config::get('system', 'dbupdate', DBStructure::UPDATE_NOT_CHECKED) == DBStructure::UPDATE_NOT_CHECKED) {
-		DBStructure::update(false, true);
+		DBStructure::update($a->getBasePath(), false, true);
 	}
 	if (Config::get('system', 'dbupdate') == DBStructure::UPDATE_FAILED) {
 		$showwarning = true;
@@ -1375,7 +1376,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
 	if ($itemcache != '') {
-		$itemcache = App::getRealPath($itemcache);
+		$itemcache = BasePath::getRealPath($itemcache);
 	}
 
 	Config::set('system', 'itemcache', $itemcache);
@@ -1383,13 +1384,13 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'max_comments', $max_comments);
 
 	if ($temppath != '') {
-		$temppath = App::getRealPath($temppath);
+		$temppath = BasePath::getRealPath($temppath);
 	}
 
 	Config::set('system', 'temppath', $temppath);
 
 	if ($basepath != '') {
-		$basepath = App::getRealPath($basepath);
+		$basepath = BasePath::getRealPath($basepath);
 	}
 
 	Config::set('system', 'basepath'         , $basepath);
@@ -1724,7 +1725,7 @@ function admin_page_dbsync(App $a)
 	}
 
 	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
-		$retval = DBStructure::update(false, true);
+		$retval = DBStructure::update($a->getBasePath(), false, true);
 		if ($retval === '') {
 			$o .= L10n::t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
 			Config::set('database', 'last_successful_update', DB_UPDATE_VERSION);

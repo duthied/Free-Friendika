@@ -103,7 +103,7 @@ class Install extends BaseModule
 					return;
 				}
 
-				self::$installer->installDatabase();
+				self::$installer->installDatabase($a->getBasePath());
 
 				break;
 		}

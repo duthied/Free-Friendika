@@ -113,7 +113,7 @@ HELP;
 
 			if (is_array($value)) {
 				foreach ($value as $k => $v) {
-					$this->out("{$cat}.{$key}[{$k}] => " . $v);
+					$this->out("{$cat}.{$key}[{$k}] => " . (is_array($v) ? implode(', ', $v) : $v));
 				}
 			} else {
 				$this->out("{$cat}.{$key} => " . $value);
@@ -124,12 +124,13 @@ HELP;
 			$cat = $this->getArgument(0);
 			Core\Config::load($cat);
 
-			if (!is_null($a->config[$cat])) {
+			if ($a->getConfig()->get($cat) !== null) {
 				$this->out("[{$cat}]");
-				foreach ($a->config[$cat] as $key => $value) {
+				$catVal = $a->getConfig()->get($cat);
+				foreach ($catVal as $key => $value) {
 					if (is_array($value)) {
 						foreach ($value as $k => $v) {
-							$this->out("{$key}[{$k}] => " . $v);
+							$this->out("{$key}[{$k}] => " . (is_array($v) ? implode(', ', $v) : $v));
 						}
 					} else {
 						$this->out("{$key} => " . $value);
@@ -147,12 +148,13 @@ HELP;
 				$this->out('Warning: The JIT (Just In Time) Config adapter doesn\'t support loading the entire configuration, showing file config only');
 			}
 
-			foreach ($a->config as $cat => $section) {
+			$config = $a->getConfig()->getAll();
+			foreach ($config as $cat => $section) {
 				if (is_array($section)) {
 					foreach ($section as $key => $value) {
 						if (is_array($value)) {
 							foreach ($value as $k => $v) {
-								$this->out("{$cat}.{$key}[{$k}] => " . $v);
+								$this->out("{$cat}.{$key}[{$k}] => " . (is_array($v) ? implode(', ', $v) : $v));
 							}
 						} else {
 							$this->out("{$cat}.{$key} => " . $value);

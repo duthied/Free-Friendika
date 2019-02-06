@@ -14,10 +14,11 @@ class Update
 	/**
 	 * @brief Function to check if the Database structure needs an update.
 	 *
+	 * @param string $basePath The base path of this application
 	 * @param boolean $via_worker boolean Is the check run via the worker?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function check($via_worker)
+	public static function check($basePath, $via_worker)
 	{
 		if (!DBA::connected()) {
 			return;
@@ -38,7 +39,7 @@ class Update
 		if ($build < DB_UPDATE_VERSION) {
 			// When we cannot execute the database update via the worker, we will do it directly
 			if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
-				self::run();
+				self::run($basePath);
 			}
 		}
 	}
@@ -46,14 +47,15 @@ class Update
 	/**
 	 * Automatic database updates
 	 *
-	 * @param bool $force    Force the Update-Check even if the lock is set
-	 * @param bool $verbose  Run the Update-Check verbose
-	 * @param bool $sendMail Sends a Mail to the administrator in case of success/failure
+	 * @param string $basePath The base path of this application
+	 * @param bool $force      Force the Update-Check even if the lock is set
+	 * @param bool $verbose    Run the Update-Check verbose
+	 * @param bool $sendMail   Sends a Mail to the administrator in case of success/failure
 	 *
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function run($force = false, $verbose = false, $sendMail = true)
+	public static function run($basePath, $force = false, $verbose = false, $sendMail = true)
 	{
 		// In force mode, we release the dbupdate lock first
 		// Necessary in case of an stuck update
@@ -91,7 +93,7 @@ class Update
 					}
 
 					// update the structure in one call
-					$retval = DBStructure::update($verbose, true);
+					$retval = DBStructure::update($basePath, $verbose, true);
 					if ($retval) {
 						if ($sendMail) {
 							self::updateFailed(
@@ -125,7 +127,7 @@ class Update
 				}
 			}
 		} elseif ($force) {
-			DBStructure::update($verbose, true);
+			DBStructure::update($basePath, $verbose, true);
 		}
 
 		return '';

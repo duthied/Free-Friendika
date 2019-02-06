@@ -15,10 +15,7 @@ namespace Friendica\Core\Config;
 interface IPConfigAdapter
 {
 	/**
-	 * @brief Loads all configuration values of a user's config family into a cached storage.
-	 *
-	 * All configuration values of the given user are stored in global cache
-	 * which is available under the global variable $a->config[$uid].
+	 * Loads all configuration values of a user's config family into a cached storage.
 	 *
 	 * @param string $uid The user_id
 	 * @param string $cat The category of the configuration value
@@ -28,11 +25,8 @@ interface IPConfigAdapter
 	public function load($uid, $cat);
 
 	/**
-	 * @brief Get a particular user's config variable given the category name
+	 * Get a particular user's config variable given the category name
 	 * ($family) and a key.
-	 *
-	 * Get a particular user's config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
 	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $cat           The category of the configuration value
@@ -45,8 +39,6 @@ interface IPConfigAdapter
 	public function get($uid, $cat, $k, $default_value = null, $refresh = false);
 
 	/**
-	 * @brief Sets a configuration value for a user
-	 *
 	 * Stores a config value ($value) in the category ($family) under the key ($key)
 	 * for the user_id $uid.
 	 *
@@ -62,9 +54,7 @@ interface IPConfigAdapter
 	public function set($uid, $cat, $k, $value);
 
 	/**
-	 * @brief Deletes the given key from the users's configuration.
-	 *
-	 * Removes the configured value from the stored cache in $a->config[$uid]
+	 * Removes the configured value from the stored cache
 	 * and removes it from the database.
 	 *
 	 * @param string $uid The user_id

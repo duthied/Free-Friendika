@@ -61,17 +61,19 @@ HELP;
 
 		Core\Config::load();
 
+		$a = get_app();
+
 		switch ($this->getArgument(0)) {
 			case "dryrun":
-				$output = DBStructure::update(true, false);
+				$output = DBStructure::update($a->getBasePath(), true, false);
 				break;
 			case "update":
 				$force = $this->getOption(['f', 'force'], false);
-				$output = Update::run($force, true, false);
+				$output = Update::run($a->getBasePath(), $force, true, false);
 				break;
 			case "dumpsql":
 				ob_start();
-				DBStructure::printStructure();
+				DBStructure::printStructure($a->getBasePath());
 				$output = ob_get_clean();
 				break;
 			case "toinnodb":

@@ -19,18 +19,13 @@
 
 use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Core\Addon;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Core\Update;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Conversation;
+use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
@@ -640,18 +635,18 @@ function get_temppath()
 
 	$temppath = Config::get("system", "temppath");
 
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
-		return App::getRealPath($temppath);
+		return BasePath::getRealPath($temppath);
 	}
 
 	// We don't have a working preconfigured temp path, so we take the system path.
 	$temppath = sys_get_temp_dir();
 
 	// Check if it is usable
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// Always store the real path, not the path through symlinks
-		$temppath = App::getRealPath($temppath);
+		$temppath = BasePath::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
 		$new_temppath = $temppath . "/" . $a->getHostName();
@@ -660,7 +655,7 @@ function get_temppath()
 			mkdir($new_temppath);
 		}
 
-		if (App::isDirectoryUsable($new_temppath)) {
+		if (System::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "temppath", $new_temppath);
 			return $new_temppath;
@@ -742,8 +737,8 @@ function get_itemcachepath()
 	}
 
 	$itemcache = Config::get('system', 'itemcache');
-	if (($itemcache != "") && App::isDirectoryUsable($itemcache)) {
-		return App::getRealPath($itemcache);
+	if (($itemcache != "") && System::isDirectoryUsable($itemcache)) {
+		return BasePath::getRealPath($itemcache);
 	}
 
 	$temppath = get_temppath();
@@ -754,7 +749,7 @@ function get_itemcachepath()
 			mkdir($itemcache);
 		}
 
-		if (App::isDirectoryUsable($itemcache)) {
+		if (System::isDirectoryUsable($itemcache)) {
 			Config::set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
@@ -770,7 +765,7 @@ function get_itemcachepath()
 function get_spoolpath()
 {
 	$spoolpath = Config::get('system', 'spoolpath');
-	if (($spoolpath != "") && App::isDirectoryUsable($spoolpath)) {
+	if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -785,7 +780,7 @@ function get_spoolpath()
 			mkdir($spoolpath);
 		}
 
-		if (App::isDirectoryUsable($spoolpath)) {
+		if (System::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "spoolpath", $spoolpath);
 			return $spoolpath;

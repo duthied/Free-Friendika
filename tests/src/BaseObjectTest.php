@@ -31,9 +31,6 @@ class BaseObjectTest extends TestCase
 	 */
 	protected function setUp()
 	{
-		$this->setUpVfsDir();
-		$this->mockApp($this->root);
-
 		$this->baseObject = new BaseObject();
 	}
 
@@ -43,6 +40,10 @@ class BaseObjectTest extends TestCase
 	 */
 	public function testGetApp()
 	{
+		$this->setUpVfsDir();
+		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$this->mockApp($this->root, $configMock);
+
 		$this->assertInstanceOf(App::class, $this->baseObject->getApp());
 	}
 
@@ -52,7 +53,20 @@ class BaseObjectTest extends TestCase
 	 */
 	public function testSetApp()
 	{
+		$this->setUpVfsDir();
+		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$this->mockApp($this->root, $configMock);
+
 		$this->assertNull($this->baseObject->setApp($this->app));
 		$this->assertEquals($this->app, $this->baseObject->getApp());
+	}
+
+	/**
+	 * Test the getApp() function without App
+	 * @expectedException Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function testGetAppFailed()
+	{
+		BaseObject::getApp();
 	}
 }

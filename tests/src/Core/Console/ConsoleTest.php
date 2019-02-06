@@ -29,7 +29,8 @@ abstract class ConsoleTest extends MockedTest
 		Intercept::setUp();
 
 		$this->setUpVfsDir();
-		$this->mockApp($this->root);
+		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$this->mockApp($this->root, $configMock);
 	}
 
 	/**

@@ -8,9 +8,6 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
-use Friendica\BaseObject;
-
 /**
  * @brief Management of user configuration storage
  * Note:
@@ -18,50 +15,53 @@ use Friendica\BaseObject;
  * The PConfig::get() functions return boolean false for keys that are unset,
  * and this could lead to subtle bugs.
  */
-class PConfig extends BaseObject
+class PConfig
 {
 	/**
-	 * @var \Friendica\Core\Config\IPConfigAdapter
+	 * @var Config\IPConfigAdapter
 	 */
-	private static $adapter = null;
+	private static $adapter;
 
-	public static function init($uid)
+	/**
+	 * @var Config\IPConfigCache
+	 */
+	private static $cache;
+
+	/**
+	 * Initialize the config with only the cache
+	 *
+	 * @param Config\IPConfigCache $cache  The configuration cache
+	 */
+	public static function init(Config\IPConfigCache $cache)
 	{
-		$a = self::getApp();
+		self::$cache  = $cache;
+	}
 
-		// Database isn't ready or populated yet
-		if (!$a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
-
-		if ($a->getConfigValue('system', 'config_adapter') == 'preload') {
-			self::$adapter = new Config\PreloadPConfigAdapter($uid);
-		} else {
-			self::$adapter = new Config\JITPConfigAdapter();
-		}
+	/**
+	 * Add the adapter for DB-backend
+	 *
+	 * @param Config\IPConfigAdapter $adapter
+	 */
+	public static function setAdapter(Config\IPConfigAdapter $adapter)
+	{
+		self::$adapter = $adapter;
 	}
 
 	/**
 	 * @brief Loads all configuration values of a user's config family into a cached storage.
 	 *
-	 * All configuration values of the given user are stored in global cache
-	 * which is available under the global variable $a->config[$uid].
+	 * All configuration values of the given user are stored with the $uid in
+	 * the cache ( @see IPConfigCache )
 	 *
 	 * @param string $uid    The user_id
 	 * @param string $family The category of the configuration value
 	 *
 	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function load($uid, $family)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+		if (!isset(self::$adapter)) {
 			return;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
 		}
 
 		self::$adapter->load($uid, $family);
@@ -72,7 +72,8 @@ class PConfig extends BaseObject
 	 * ($family) and a key.
 	 *
 	 * Get a particular user's config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
+	 * and the $key with the $uid from a cached storage either from the self::$adapter
+	 * (@see IConfigAdapter ) or from the static::$cache (@see IConfigCache ).
 	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $family        The category of the configuration value
@@ -81,17 +82,11 @@ class PConfig extends BaseObject
 	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
 	 *
 	 * @return mixed Stored value or null if it does not exist
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function get($uid, $family, $key, $default_value = null, $refresh = false)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
+		if (!isset(self::$adapter)) {
+			return self::$cache->getP($uid, $family, $key, $default_value);
 		}
 
 		return self::$adapter->get($uid, $family, $key, $default_value, $refresh);
@@ -111,17 +106,11 @@ class PConfig extends BaseObject
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return bool Operation success
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function set($uid, $family, $key, $value)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
+		if (!isset(self::$adapter)) {
+			return self::$cache->setP($uid, $family, $key, $value);
 		}
 
 		return self::$adapter->set($uid, $family, $key, $value);
@@ -130,25 +119,20 @@ class PConfig extends BaseObject
 	/**
 	 * @brief Deletes the given key from the users's configuration.
 	 *
-	 * Removes the configured value from the stored cache in $a->config[$uid]
-	 * and removes it from the database.
+	 * Removes the configured value from the stored cache in self::$config
+	 * (@see ConfigCache ) and removes it from the database (@see IConfigAdapter )
+	 * with the given $uid.
 	 *
 	 * @param string $uid    The user_id
 	 * @param string $family The category of the configuration value
 	 * @param string $key    The configuration key to delete
 	 *
 	 * @return mixed
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function delete($uid, $family, $key)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init($uid);
+		if (!isset(self::$adapter)) {
+			return self::$cache->deleteP($uid, $family, $key);
 		}
 
 		return self::$adapter->delete($uid, $family, $key);

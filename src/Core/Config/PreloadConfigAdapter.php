@@ -3,7 +3,6 @@
 namespace Friendica\Core\Config;
 
 use Exception;
-use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
 /**
@@ -13,15 +12,27 @@ use Friendica\Database\DBA;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
+class PreloadConfigAdapter implements IConfigAdapter
 {
 	private $config_loaded = false;
 
-	public function __construct()
+	/**
+	 * @var IConfigCache The config cache of this driver
+	 */
+	private $configCache;
+
+	/**
+	 * @param IConfigCache $configCache The config cache of this driver
+	 */
+	public function __construct(IConfigCache $configCache)
 	{
+		$this->configCache = $configCache;
 		$this->load();
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function load($family = 'config')
 	{
 		if ($this->config_loaded) {
@@ -30,27 +41,33 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 
 		$configs = DBA::select('config', ['cat', 'v', 'k']);
 		while ($config = DBA::fetch($configs)) {
-			self::getApp()->setConfigValue($config['cat'], $config['k'], $config['v']);
+			$this->configCache->set($config['cat'], $config['k'], $config['v']);
 		}
 		DBA::close($configs);
 
 		$this->config_loaded = true;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function get($cat, $k, $default_value = null, $refresh = false)
 	{
 		if ($refresh) {
 			$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
 			if (DBA::isResult($config)) {
-				self::getApp()->setConfigValue($cat, $k, $config['v']);
+				$this->configCache->set($cat, $k, $config['v']);
 			}
 		}
 
-		$return = self::getApp()->getConfigValue($cat, $k, $default_value);
+		$return = $this->configCache->get($cat, $k, $default_value);
 
 		return $return;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function set($cat, $k, $value)
 	{
 		// We store our setting values as strings.
@@ -58,11 +75,11 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 		// The exception are array values.
 		$compare_value = !is_array($value) ? (string)$value : $value;
 
-		if (self::getApp()->getConfigValue($cat, $k) === $compare_value) {
+		if ($this->configCache->get($cat, $k) === $compare_value) {
 			return true;
 		}
 
-		self::getApp()->setConfigValue($cat, $k, $value);
+		$this->configCache->set($cat, $k, $value);
 
 		// manage array value
 		$dbvalue = is_array($value) ? serialize($value) : $value;
@@ -75,9 +92,12 @@ class PreloadConfigAdapter extends BaseObject implements IConfigAdapter
 		return true;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($cat, $k)
 	{
-		self::getApp()->deleteConfigValue($cat, $k);
+		$this->configCache->delete($cat, $k);
 
 		$result = DBA::delete('config', ['cat' => $cat, 'k' => $k]);
 

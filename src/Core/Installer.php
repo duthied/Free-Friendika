@@ -168,12 +168,14 @@ class Installer
 	/***
 	 * Installs the DB-Scheme for Friendica
 	 *
+	 * @param string $basePath The base path of this application
+	 *
 	 * @return bool true if the installation was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function installDatabase()
+	public function installDatabase($basePath)
 	{
-		$result = DBStructure::update(false, true, true);
+		$result = DBStructure::update($basePath, false, true, true);
 
 		if ($result) {
 			$txt = L10n::t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;

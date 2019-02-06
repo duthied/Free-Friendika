@@ -29,7 +29,7 @@ function friendica_init(App $a)
 		}
 
 		$sql_extra = '';
-		if (!empty($a->config['admin_nickname'])) {
+		if (Config::get('config', 'admin_nickname') !== null) {
 			$sql_extra = sprintf(" AND `nickname` = '%s' ", DBA::escape(Config::get('config', 'admin_nickname')));
 		}
 		if (!empty(Config::get('config', 'admin_email'))) {
@@ -48,8 +48,9 @@ function friendica_init(App $a)
 
 		Config::load('feature_lock');
 		$locked_features = [];
-		if (!empty($a->config['feature_lock'])) {
-			foreach ($a->config['feature_lock'] as $k => $v) {
+		$featureLock = Config::get('config', 'feature_lock');
+		if (isset($featureLock)) {
+			foreach ($featureLock as $k => $v) {
 				if ($k === 'config_loaded') {
 					continue;
 				}

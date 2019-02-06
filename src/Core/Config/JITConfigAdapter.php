@@ -1,7 +1,6 @@
 <?php
 namespace Friendica\Core\Config;
 
-use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
 /**
@@ -11,11 +10,27 @@ use Friendica\Database\DBA;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class JITConfigAdapter extends BaseObject implements IConfigAdapter
+class JITConfigAdapter implements IConfigAdapter
 {
 	private $cache;
 	private $in_db;
 
+	/**
+	 * @var IConfigCache The config cache of this driver
+	 */
+	private $configCache;
+
+	/**
+	 * @param IConfigCache $configCache The config cache of this driver
+	 */
+	public function __construct(IConfigCache $configCache)
+	{
+		$this->configCache = $configCache;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function load($cat = "config")
 	{
 		// We don't preload "system" anymore.
@@ -28,7 +43,7 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 		while ($config = DBA::fetch($configs)) {
 			$k = $config['k'];
 
-			self::getApp()->setConfigValue($cat, $k, $config['v']);
+			$this->configCache->set($cat, $k, $config['v']);
 
 			if ($cat !== 'config') {
 				$this->cache[$cat][$k] = $config['v'];
@@ -38,10 +53,11 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 		DBA::close($configs);
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function get($cat, $k, $default_value = null, $refresh = false)
 	{
-		$a = self::getApp();
-
 		if (!$refresh) {
 			// Do we have the cached value? Then return it
 			if (isset($this->cache[$cat][$k])) {
@@ -62,18 +78,18 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 			$this->cache[$cat][$k] = $value;
 			$this->in_db[$cat][$k] = true;
 			return $value;
-		} elseif (isset($a->config[$cat][$k])) {
+		} elseif ($this->configCache->get($cat, $k) !== null) {
 			// Assign the value (mostly) from config/local.config.php file to the cache
-			$this->cache[$cat][$k] = $a->config[$cat][$k];
+			$this->cache[$cat][$k] = $this->configCache->get($cat, $k);
 			$this->in_db[$cat][$k] = false;
 
-			return $a->config[$cat][$k];
-		} elseif (isset($a->config[$k])) {
+			return $this->configCache->get($cat, $k);
+		} elseif ($this->configCache->get('config', $k) !== null) {
 			// Assign the value (mostly) from config/local.config.php file to the cache
-			$this->cache[$k] = $a->config[$k];
+			$this->cache[$k] = $this->configCache->get('config', $k);
 			$this->in_db[$k] = false;
 
-			return $a->config[$k];
+			return $this->configCache->get('config', $k);
 		}
 
 		$this->cache[$cat][$k] = '!<unset>!';
@@ -82,6 +98,9 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 		return $default_value;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function set($cat, $k, $value)
 	{
 		// We store our setting values in a string variable.
@@ -102,7 +121,7 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 			return true;
 		}
 
-		self::getApp()->setConfigValue($cat, $k, $value);
+		$this->configCache->set($cat, $k, $value);
 
 		// Assign the just added value to the cache
 		$this->cache[$cat][$k] = $dbvalue;
@@ -119,6 +138,9 @@ class JITConfigAdapter extends BaseObject implements IConfigAdapter
 		return $result;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($cat, $k)
 	{
 		if (isset($this->cache[$cat][$k])) {

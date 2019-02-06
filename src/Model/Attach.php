@@ -7,15 +7,15 @@
 namespace Friendica\Model;
 
 use Friendica\BaseObject;
-use Friendica\Core\System;
 use Friendica\Core\StorageManager;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
-use Friendica\Util\Security;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
+use Friendica\Util\Security;
 
 /**
  * Class to handle attach dabatase table
@@ -31,7 +31,7 @@ class Attach extends BaseObject
 	 */
 	private static function getFields()
 	{
-		$allfields = DBStructure::definition(false);
+		$allfields = DBStructure::definition(self::getApp()->getBasePath(), false);
 		$fields = array_keys($allfields['attach']['fields']);
 		array_splice($fields, array_search('data', $fields), 1);
 		return $fields;

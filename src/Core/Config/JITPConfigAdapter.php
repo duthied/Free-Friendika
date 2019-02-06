@@ -1,7 +1,6 @@
 <?php
 namespace Friendica\Core\Config;
 
-use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
 /**
@@ -11,47 +10,63 @@ use Friendica\Database\DBA;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
+class JITPConfigAdapter implements IPConfigAdapter
 {
 	private $in_db;
 
+	/**
+	 * The config cache of this adapter
+	 * @var IPConfigCache
+	 */
+	private $configCache;
+
+	/**
+	 * @param IPConfigCache $configCache The config cache of this adapter
+	 */
+	public function __construct(IPConfigCache $configCache)
+	{
+		$this->configCache = $configCache;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function load($uid, $cat)
 	{
-		$a = self::getApp();
-
 		$pconfigs = DBA::select('pconfig', ['v', 'k'], ['cat' => $cat, 'uid' => $uid]);
 		if (DBA::isResult($pconfigs)) {
 			while ($pconfig = DBA::fetch($pconfigs)) {
 				$k = $pconfig['k'];
 
-				self::getApp()->setPConfigValue($uid, $cat, $k, $pconfig['v']);
+				$this->configCache->setP($uid, $cat, $k, $pconfig['v']);
 
 				$this->in_db[$uid][$cat][$k] = true;
 			}
 		} else if ($cat != 'config') {
 			// Negative caching
-			$a->config[$uid][$cat] = "!<unset>!";
+			$this->configCache->setP($uid, $cat, null, "!<unset>!");
 		}
 		DBA::close($pconfigs);
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function get($uid, $cat, $k, $default_value = null, $refresh = false)
 	{
-		$a = self::getApp();
-
 		if (!$refresh) {
 			// Looking if the whole family isn't set
-			if (isset($a->config[$uid][$cat])) {
-				if ($a->config[$uid][$cat] === '!<unset>!') {
+			if ($this->configCache->getP($uid, $cat) !== null) {
+				if ($this->configCache->getP($uid, $cat) === '!<unset>!') {
 					return $default_value;
 				}
 			}
 
-			if (isset($a->config[$uid][$cat][$k])) {
-				if ($a->config[$uid][$cat][$k] === '!<unset>!') {
+			if ($this->configCache->getP($uid, $cat, $k) !== null) {
+				if ($this->configCache->getP($uid, $cat, $k) === '!<unset>!') {
 					return $default_value;
 				}
-				return $a->config[$uid][$cat][$k];
+				return $this->configCache->getP($uid, $cat, $k);
 			}
 		}
 
@@ -59,13 +74,13 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 		if (DBA::isResult($pconfig)) {
 			$val = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
 
-			self::getApp()->setPConfigValue($uid, $cat, $k, $val);
+			$this->configCache->setP($uid, $cat, $k, $val);
 
 			$this->in_db[$uid][$cat][$k] = true;
 
 			return $val;
 		} else {
-			self::getApp()->setPConfigValue($uid, $cat, $k, '!<unset>!');
+			$this->configCache->setP($uid, $cat, $k, '!<unset>!');
 
 			$this->in_db[$uid][$cat][$k] = false;
 
@@ -73,6 +88,9 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 		}
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function set($uid, $cat, $k, $value)
 	{
 		// We store our setting values in a string variable.
@@ -86,7 +104,7 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 			return true;
 		}
 
-		self::getApp()->setPConfigValue($uid, $cat, $k, $value);
+		$this->configCache->setP($uid, $cat, $k, $value);
 
 		// manage array value
 		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
@@ -100,9 +118,12 @@ class JITPConfigAdapter extends BaseObject implements IPConfigAdapter
 		return $result;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($uid, $cat, $k)
 	{
-		self::getApp()->deletePConfigValue($uid, $cat, $k);
+		$this->configCache->deleteP($uid, $cat, $k);
 
 		if (!empty($this->in_db[$uid][$cat][$k])) {
 			unset($this->in_db[$uid][$cat][$k]);

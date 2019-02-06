@@ -4,11 +4,13 @@
  * @file bin/worker.php
  * @brief Starts the background processing
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\Worker;
 use Friendica\Core\Update;
-use Friendica\Util\LoggerFactory;
+use Friendica\Core\Worker;
+use Friendica\Factory;
+use Friendica\Util\BasePath;
 
 // Get options
 $shortopts = 'sn';
@@ -29,12 +31,15 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$logger = LoggerFactory::create('worker');
+$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
+$configLoader = new Config\ConfigCacheLoader($basedir);
+$config = Factory\ConfigFactory::createCache($configLoader);
+$logger = Factory\LoggerFactory::create('worker', $config);
 
-$a = new App(dirname(__DIR__), $logger);
+$a = new App($config, $logger);
 
 // Check the database structure and possibly fixes it
-Update::check(true);
+Update::check($a->getBasePath(), true);
 
 // Quit when in maintenance
 if (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED)) {

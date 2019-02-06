@@ -8,8 +8,9 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
-use Friendica\BaseObject;
+use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\IConfigAdapter;
+use Friendica\Core\Config\IConfigCache;
 
 /**
  * @brief Arbitrary system configuration storage
@@ -18,47 +19,51 @@ use Friendica\BaseObject;
  * If we ever would decide to return exactly the variable type as entered,
  * we will have fun with the additional features. :-)
  */
-class Config extends BaseObject
+class Config
 {
 	/**
-	 * @var \Friendica\Core\Config\IConfigAdapter
+	 * @var Config\IConfigAdapter
 	 */
-	private static $adapter = null;
+	private static $adapter;
 
-	public static function init()
+	/**
+	 * @var Config\IConfigCache
+	 */
+	private static $cache;
+
+	/**
+	 * Initialize the config with only the cache
+	 *
+	 * @param Config\IConfigCache $cache  The configuration cache
+	 */
+	public static function init(Config\IConfigCache $cache)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
+		self::$cache  = $cache;
+	}
 
-		if (self::getApp()->getConfigValue('system', 'config_adapter') == 'preload') {
-			self::$adapter = new Config\PreloadConfigAdapter();
-		} else {
-			self::$adapter = new Config\JITConfigAdapter();
-		}
+	/**
+	 * Add the adapter for DB-backend
+	 *
+	 * @param Config\IConfigAdapter $adapter
+	 */
+	public static function setAdapter(Config\IConfigAdapter $adapter)
+	{
+		self::$adapter = $adapter;
 	}
 
 	/**
 	 * @brief Loads all configuration values of family into a cached storage.
 	 *
-	 * All configuration values of the system are stored in global cache
-	 * which is available under the global variable $a->config
+	 * All configuration values of the system are stored in the cache ( @see IConfigCache )
 	 *
 	 * @param string $family The category of the configuration value
 	 *
 	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function load($family = "config")
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+		if (!isset(self::$adapter)) {
 			return;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
 		}
 
 		self::$adapter->load($family);
@@ -69,12 +74,8 @@ class Config extends BaseObject
 	 * ($family) and a key.
 	 *
 	 * Get a particular config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
-	 * $instore is only used by the set_config function
-	 * to determine if the key already exists in the DB
-	 * If a key is found in the DB but doesn't exist in
-	 * local config cache, pull it into the cache so we don't have
-	 * to hit the DB again for this item.
+	 * and the $key from a cached storage either from the self::$adapter
+	 * (@see IConfigAdapter ) or from the static::$cache (@see IConfigCache ).
 	 *
 	 * @param string  $family        The category of the configuration value
 	 * @param string  $key           The configuration key to query
@@ -82,17 +83,11 @@ class Config extends BaseObject
 	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
 	 *
 	 * @return mixed Stored value or null if it does not exist
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function get($family, $key, $default_value = null, $refresh = false)
 	{
-		// Database isn't ready or populated yet, fallback to file config
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return self::getApp()->getConfigValue($family, $key, $default_value);
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
+		if (!isset(self::$adapter)) {
+			return self::$cache->get($family, $key, $default_value);
 		}
 
 		return self::$adapter->get($family, $key, $default_value, $refresh);
@@ -102,7 +97,6 @@ class Config extends BaseObject
 	 * @brief Sets a configuration value for system config
 	 *
 	 * Stores a config value ($value) in the category ($family) under the key ($key)
-	 * for the user_id $uid.
 	 *
 	 * Note: Please do not store booleans - convert to 0/1 integer values!
 	 *
@@ -111,17 +105,12 @@ class Config extends BaseObject
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return bool Operation success
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function set($family, $key, $value)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
+		if (!isset(self::$adapter)) {
+			self::$cache->set($family, $key, $value);
+			return true;
 		}
 
 		return self::$adapter->set($family, $key, $value);
@@ -130,24 +119,18 @@ class Config extends BaseObject
 	/**
 	 * @brief Deletes the given key from the system configuration.
 	 *
-	 * Removes the configured value from the stored cache in $a->config
-	 * and removes it from the database.
+	 * Removes the configured value from the stored cache in self::$config
+	 * (@see ConfigCache ) and removes it from the database (@see IConfigAdapter ).
 	 *
 	 * @param string $family The category of the configuration value
 	 * @param string $key    The configuration key to delete
 	 *
 	 * @return mixed
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function delete($family, $key)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
+		if (!isset(self::$adapter)) {
+			self::$cache->delete($family, $key);
 		}
 
 		return self::$adapter->delete($family, $key);

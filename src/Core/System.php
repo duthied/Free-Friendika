@@ -286,6 +286,61 @@ class System extends BaseObject
 		exit();
 	}
 
+	/**
+	 * @brief Returns the system user that is executing the script
+	 *
+	 * This mostly returns something like "www-data".
+	 *
+	 * @return string system username
+	 */
+	public static function getUser()
+	{
+		if (!function_exists('posix_getpwuid') || !function_exists('posix_geteuid')) {
+			return '';
+		}
+
+		$processUser = posix_getpwuid(posix_geteuid());
+		return $processUser['name'];
+	}
+
+	/**
+	 * @brief Checks if a given directory is usable for the system
+	 *
+	 * @param      $directory
+	 * @param bool $check_writable
+	 *
+	 * @return boolean the directory is usable
+	 */
+	public static function isDirectoryUsable($directory, $check_writable = true)
+	{
+		if ($directory == '') {
+			Logger::log('Directory is empty. This shouldn\'t happen.', Logger::DEBUG);
+			return false;
+		}
+
+		if (!file_exists($directory)) {
+			Logger::log('Path "' . $directory . '" does not exist for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if (is_file($directory)) {
+			Logger::log('Path "' . $directory . '" is a file for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if (!is_dir($directory)) {
+			Logger::log('Path "' . $directory . '" is not a directory for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if ($check_writable && !is_writable($directory)) {
+			Logger::log('Path "' . $directory . '" is not writable for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		return true;
+	}
+
 	/// @todo Move the following functions from boot.php
 	/*
 	function killme()

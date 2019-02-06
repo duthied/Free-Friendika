@@ -74,9 +74,9 @@ class DBStructure
 		return L10n::t('Errors encountered performing database changes: ') . $message . EOL;
 	}
 
-	public static function printStructure()
+	public static function printStructure($basePath)
 	{
-		$database = self::definition(false);
+		$database = self::definition($basePath, false);
 
 		echo "-- ------------------------------------------\n";
 		echo "-- " . FRIENDICA_PLATFORM . " " . FRIENDICA_VERSION . " (" . FRIENDICA_CODENAME, ")\n";
@@ -98,15 +98,15 @@ class DBStructure
 	 *
 	 * @see config/dbstructure.config.php
 	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
+	 * @param string  $basePath              The base path of this application
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function definition($with_addons_structure = true)
+	public static function definition($basePath, $with_addons_structure = true)
 	{
 		if (!self::$definition) {
-			$a = \Friendica\BaseObject::getApp();
 
-			$filename = $a->getBasePath() . '/config/dbstructure.config.php';
+			$filename = $basePath . '/config/dbstructure.config.php';
 
 			if (!is_readable($filename)) {
 				throw new Exception('Missing database structure config file config/dbstructure.config.php');
@@ -247,15 +247,16 @@ class DBStructure
 	/**
 	 * Updates DB structure and returns eventual errors messages
 	 *
-	 * @param bool  $verbose
-	 * @param bool  $action     Whether to actually apply the update
-	 * @param bool  $install    Is this the initial update during the installation?
-	 * @param array $tables     An array of the database tables
-	 * @param array $definition An array of the definition tables
+	 * @param string $basePath   The base path of this application
+	 * @param bool   $verbose
+	 * @param bool   $action     Whether to actually apply the update
+	 * @param bool   $install    Is this the initial update during the installation?
+	 * @param array  $tables     An array of the database tables
+	 * @param array  $definition An array of the definition tables
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null)
+	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
 		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
@@ -284,7 +285,7 @@ class DBStructure
 
 		// Get the definition
 		if (is_null($definition)) {
-			$definition = self::definition();
+			$definition = self::definition($basePath);
 		}
 
 		// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements

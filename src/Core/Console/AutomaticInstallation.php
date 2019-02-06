@@ -100,10 +100,10 @@ HELP;
 				}
 			}
 
-			$db_host = $a->getConfigValue('database', 'hostname');
-			$db_user = $a->getConfigValue('database', 'username');
-			$db_pass = $a->getConfigValue('database', 'password');
-			$db_data = $a->getConfigValue('database', 'database');
+			$db_host = $a->getConfig()->get('database', 'hostname');
+			$db_user = $a->getConfig()->get('database', 'username');
+			$db_pass = $a->getConfig()->get('database', 'password');
+			$db_data = $a->getConfig()->get('database', 'database');
 		} else {
 			// Creating config file
 			$this->out("Creating config file...\n");
@@ -158,7 +158,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->installDatabase()) {
+		if (!$installer->installDatabase($a->getBasePath())) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}

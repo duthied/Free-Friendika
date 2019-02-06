@@ -2,6 +2,8 @@
 
 namespace Friendica\Core\Console;
 
+use Friendica\BaseObject;
+
 /**
  * Tired of chasing typos and finding them after a commit.
  * Run this and quickly see if we've got any parse errors in our application files.
@@ -41,9 +43,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		$a = \get_app();
-
-		$php_path = $a->getConfigValue('config', 'php_path', 'php');
+		$php_path = BaseObject::getApp()->getConfig()->get('config', 'php_path', 'php');
 
 		if ($this->getOption('v')) {
 			$this->out('Directory: src');
