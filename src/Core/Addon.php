@@ -112,7 +112,7 @@ class Addon extends BaseObject
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
 		if (function_exists($addon . '_install')) {
 			$func = $addon . '_install';
-			$func();
+			$func(self::getApp());
 
 			$addon_admin = (function_exists($addon . "_addon_admin") ? 1 : 0);
 
@@ -168,11 +168,11 @@ class Addon extends BaseObject
 
 								if (function_exists($addon . '_uninstall')) {
 									$func = $addon . '_uninstall';
-									$func();
+									$func(self::getApp());
 								}
 								if (function_exists($addon . '_install')) {
 									$func = $addon . '_install';
-									$func();
+									$func(self::getApp());
 								}
 								DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
 							}
