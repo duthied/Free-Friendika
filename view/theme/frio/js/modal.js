@@ -22,6 +22,10 @@ $(document).ready(function(){
 		$("#jot-content").append(jotcache);
 		// Clear the jotcache.
 		jotcache = '';
+		// Destroy the attachment linkPreviw for Jot.
+		if (typeof linkPreview === 'object') {
+			linkPreview.destroy();
+		}
 	});
 
 	// Add Colorbox for viewing Network page images.
@@ -292,6 +296,7 @@ function editpost(url) {
 
 				modal.show();
 				$("#jot-popup").show();
+				linkPreview = $('#profile-jot-text').linkPreview();
 			}
 		});
 }
