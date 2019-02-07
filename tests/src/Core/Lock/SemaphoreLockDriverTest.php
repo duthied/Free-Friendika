@@ -4,10 +4,6 @@ namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\Core\Lock\SemaphoreLockDriver;
 
-/**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
- */
 class SemaphoreLockDriverTest extends LockTest
 {
 	public function setUp()
@@ -15,7 +11,11 @@ class SemaphoreLockDriverTest extends LockTest
 		parent::setUp();
 
 		$this->app->shouldReceive('getHostname')->andReturn('friendica.local');
-		$this->mockConfigGet('system', 'temppath', '/tmp/');
+
+		$this->configCache
+			->shouldReceive('get')
+			->with('system', 'temppath', NULL)
+			->andReturn('/tmp/');
 	}
 
 	protected function getInstance()

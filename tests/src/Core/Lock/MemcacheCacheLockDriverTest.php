@@ -8,15 +8,20 @@ use Friendica\Core\Lock\CacheLockDriver;
 
 /**
  * @requires extension Memcache
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
 class MemcacheCacheLockDriverTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$this->mockConfigGet('system', 'memcache_host', 'localhost', 1);
-		$this->mockConfigGet('system', 'memcache_port', 11211, 1);
+		$this->configCache
+			->shouldReceive('get')
+			->with('system', 'memcache_host', NULL)
+			->andReturn('localhost');
+
+		$this->configCache
+			->shouldReceive('get')
+			->with('system', 'memcache_port', NULL)
+			->andReturn(11211);
 
 		return new CacheLockDriver(CacheDriverFactory::create('memcache'));
 	}

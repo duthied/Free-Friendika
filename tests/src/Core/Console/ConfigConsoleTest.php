@@ -32,7 +32,17 @@ class ConfigConsoleTest extends ConsoleTest
 	}
 
 	function testSetGetKeyValue() {
-		$this->mockConfigSet('config', 'test', 'now', 1);
+		$this->configCache
+			->shouldReceive('set')
+			->with('config', 'test', 'now')
+			->andReturn(true)
+			->once();
+		$this->configCache
+			->shouldReceive('get')
+			->with('config', 'test', NULL)
+			->andReturn('now')
+			->twice();
+
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
@@ -40,14 +50,24 @@ class ConfigConsoleTest extends ConsoleTest
 		$txt = $this->dumpExecute($console);
 		$this->assertEquals("config.test <= now\n", $txt);
 
-		$this->mockConfigGet('config', 'test', 'now', 1);
+		$this->configCache
+			->shouldReceive('get')
+			->with('config', 'test', null)
+			->andReturn('now')
+			->once();
+
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
 		$this->assertEquals("config.test => now\n", $txt);
 
-		$this->mockConfigGet('config', 'test', null, 1);
+		$this->configCache
+			->shouldReceive('get')
+			->with('config', 'test', null)
+			->andReturn(null)
+			->once();
+
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
@@ -57,7 +77,11 @@ class ConfigConsoleTest extends ConsoleTest
 
 	function testSetArrayValue() {
 		$testArray = [1, 2, 3];
-		$this->mockConfigGet('config', 'test', $testArray, 1);
+		$this->configCache
+			->shouldReceive('get')
+			->with('config', 'test', null)
+			->andReturn($testArray)
+			->once();
 
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
@@ -81,7 +105,11 @@ class ConfigConsoleTest extends ConsoleTest
 	}
 
 	function testVerbose() {
-		$this->mockConfigGet('test', 'it', 'now', 1);
+		$this->configCache
+			->shouldReceive('get')
+			->with('test', 'it', null)
+			->andReturn('now')
+			->once();
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'test');
 		$console->setArgument(1, 'it');
@@ -105,7 +133,16 @@ CONF;
 	}
 
 	function testUnableToSet() {
-		$this->mockConfigSet('test', 'it', 'now', 1, false);
+		$this->configCache
+			->shouldReceive('set')
+			->with('test', 'it', 'now')
+			->andReturn(false)
+			->once();
+		$this->configCache
+			->shouldReceive('get')
+			->with('test', 'it', NULL)
+			->andReturn(NULL)
+			->once();
 		$console = new Config();
 		$console->setArgument(0, 'test');
 		$console->setArgument(1, 'it');

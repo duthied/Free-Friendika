@@ -52,7 +52,10 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->db_user = getenv('MYSQL_USERNAME') . getenv('MYSQL_USER');
 		$this->db_pass = getenv('MYSQL_PASSWORD');
 
-		$this->mockConfigGet('config', 'php_path', false);
+		$this->configCache
+			->shouldReceive('get')
+			->with('config', 'php_path', NULL)
+			->andReturn(false);
 
 		$this->mockL10nT();
 	}

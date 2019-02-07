@@ -94,6 +94,8 @@ class ConfigCache implements IConfigCache, IPConfigCache
 
 			$this->config[$cat][$key] = $value;
 		}
+
+		return true;
 	}
 
 	/**

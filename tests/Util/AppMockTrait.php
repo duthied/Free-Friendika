@@ -4,6 +4,7 @@ namespace Friendica\Test\Util;
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Core\Config;
 use Friendica\Core\Config\ConfigCache;
 use Friendica\Render\FriendicaSmartyEngine;
 use Mockery\MockInterface;
@@ -14,12 +15,15 @@ use org\bovigo\vfs\vfsStreamDirectory;
  */
 trait AppMockTrait
 {
-	use ConfigMockTrait;
-
 	/**
 	 * @var MockInterface|App The mocked Friendica\App
 	 */
 	protected $app;
+
+	/**
+	 * @var MockInterface|ConfigCache The mocked Config Cache
+	 */
+	protected $configCache;
 
 	/**
 	 * Mock the App
@@ -29,8 +33,7 @@ trait AppMockTrait
 	 */
 	public function mockApp($root, $config)
 	{
-		$this->mockConfigGet('system', 'theme', 'testtheme');
-
+		$this->configCache = $config;
 		// Mocking App and most used functions
 		$this->app = \Mockery::mock(App::class);
 		$this->app
@@ -53,6 +56,15 @@ trait AppMockTrait
 			->shouldReceive('get')
 			->with('database', 'database')
 			->andReturn(getenv('MYSQL_DATABASE'));
+		$config
+			->shouldReceive('get')
+			->with('config', 'hostname')
+			->andReturn('localhost');
+		$config
+			->shouldReceive('get')
+			->with('system', 'theme', NULL)
+			->andReturn('system_theme');
+
 		$this->app
 			->shouldReceive('getConfig')
 			->andReturn($config);
@@ -69,6 +81,14 @@ trait AppMockTrait
 		$this->app
 			->shouldReceive('getBaseUrl')
 			->andReturn('http://friendica.local');
+
+		// Initialize empty Config
+		Config::init($config);
+		$configAdapter = \Mockery::mock('Friendica\Core\Config\IConfigAdapter');
+		$configAdapter
+			->shouldReceive('isConnected')
+			->andReturn(false);
+		Config::setAdapter($configAdapter);
 
 		BaseObject::setApp($this->app);
 	}

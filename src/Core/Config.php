@@ -22,7 +22,7 @@ use Friendica\Core\Config\IConfigCache;
 class Config
 {
 	/**
-	 * @var Config\IConfigAdapter
+	 * @var Config\IConfigAdapter|null
 	 */
 	private static $adapter;
 
@@ -62,7 +62,7 @@ class Config
 	 */
 	public static function load($family = "config")
 	{
-		if (!isset(self::$adapter)) {
+		if (!isset(self::$adapter) || !self::$adapter->isConnected()) {
 			return;
 		}
 
@@ -86,7 +86,7 @@ class Config
 	 */
 	public static function get($family, $key, $default_value = null, $refresh = false)
 	{
-		if (!isset(self::$adapter)) {
+		if (!isset(self::$adapter) || !self::$adapter->isConnected()) {
 			return self::$cache->get($family, $key, $default_value);
 		}
 
@@ -108,9 +108,8 @@ class Config
 	 */
 	public static function set($family, $key, $value)
 	{
-		if (!isset(self::$adapter)) {
-			self::$cache->set($family, $key, $value);
-			return true;
+		if (!isset(self::$adapter) || !self::$adapter->isConnected()) {
+			return self::$cache->set($family, $key, $value);
 		}
 
 		return self::$adapter->set($family, $key, $value);
@@ -129,7 +128,7 @@ class Config
 	 */
 	public static function delete($family, $key)
 	{
-		if (!isset(self::$adapter)) {
+		if (!isset(self::$adapter) || !self::$adapter->isConnected()) {
 			self::$cache->delete($family, $key);
 		}
 

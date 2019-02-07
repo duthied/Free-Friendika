@@ -22,6 +22,8 @@ interface IConfigCache
 	 * @param string $cat   Config category
 	 * @param string $key   Config key
 	 * @param mixed  $value Value to set
+	 *
+	 * @return bool True, if the value is set
 	 */
 	function set($cat, $key, $value);
 

@@ -54,4 +54,11 @@ interface IConfigAdapter
 	 * @return mixed
 	 */
 	public function delete($cat, $k);
+
+	/**
+	 * Checks, if the current adapter is connected to the backend
+	 *
+	 * @return bool
+	 */
+	public function isConnected();
 }

@@ -16,6 +16,8 @@ class DatabaseCacheDriverTest extends CacheTest
 
 	public function setUp()
 	{
+		$this->mockUtcNow($this->startTime);
+
 		$this->mockConnected();
 		$this->mockConnect();
 
