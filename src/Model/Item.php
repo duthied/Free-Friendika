@@ -1535,17 +1535,10 @@ class Item extends BaseObject
 					$item['private'] = 0;
 				}
 
-				// If its a post from myself then tag the thread as "mention"
-				Logger::log("Checking if parent ".$parent_id." has to be tagged as mention for user ".$item['uid'], Logger::DEBUG);
-				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
-				if (DBA::isResult($user)) {
-					$self = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
-					$self_id = Contact::getIdForURL($self, 0, true);
-					Logger::log("'myself' is ".$self_id." for parent ".$parent_id." checking against ".$item['author-id']." and ".$item['owner-id'], Logger::DEBUG);
-					if (($item['author-id'] == $self_id) || ($item['owner-id'] == $self_id)) {
-						DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
-						Logger::log("tagged thread ".$parent_id." as mention for user ".$self, Logger::DEBUG);
-					}
+				// If its a post that originated here then tag the thread as "mention"
+				if ($item['origin'] && $item['uid']) {
+					DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
+					Logger::log('tagged thread ' . $parent_id . ' as mention for user ' . $item['uid'], Logger::DEBUG);
 				}
 			} else {
 				/*
