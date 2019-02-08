@@ -5,7 +5,6 @@ namespace Friendica\Test\src\Core\Cache;
 use Friendica\Core\Cache\MemcachedCacheDriver;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
-use Friendica\Test\Util\DateTimeFormatMockTrait;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\PidFile;
 
@@ -13,7 +12,6 @@ abstract class CacheTest extends MockedTest
 {
 	use VFSTrait;
 	use AppMockTrait;
-	use DateTimeFormatMockTrait;
 
 	/**
 	 * @var int Start time of the mock (used for time operations)
@@ -75,18 +73,9 @@ abstract class CacheTest extends MockedTest
 			->shouldReceive('getHostname')
 			->andReturn('friendica.local');
 
-		$this->mockUtcNow($this->startTime);
-
 		parent::setUp();
 
 		$this->instance = $this->getInstance();
-
-		// Default config
-		$this->mockConfigGet('config', 'hostname', 'localhost');
-		$this->mockConfigGet('system', 'throttle_limit_day', 100);
-		$this->mockConfigGet('system', 'throttle_limit_week', 100);
-		$this->mockConfigGet('system', 'throttle_limit_month', 100);
-		$this->mockConfigGet('system', 'theme', 'system_theme');
 
 		$this->instance->clear(false);
 	}

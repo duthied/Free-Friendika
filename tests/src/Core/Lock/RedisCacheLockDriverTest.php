@@ -8,15 +8,20 @@ use Friendica\Core\Lock\CacheLockDriver;
 
 /**
  * @requires extension redis
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
 class RedisCacheLockDriverTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$this->mockConfigGet('system', 'redis_host', 'localhost', 1);
-		$this->mockConfigGet('system', 'redis_port', null, 1);
+		$this->configCache
+			->shouldReceive('get')
+			->with('system', 'redis_host', NULL)
+			->andReturn('localhost');
+
+		$this->configCache
+			->shouldReceive('get')
+			->with('system', 'redis_port', NULL)
+			->andReturn(null);
 
 		return new CacheLockDriver(CacheDriverFactory::create('redis'));
 	}

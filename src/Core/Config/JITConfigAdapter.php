@@ -10,7 +10,7 @@ use Friendica\Database\DBA;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class JITConfigAdapter implements IConfigAdapter
+class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapter
 {
 	private $cache;
 	private $in_db;
@@ -33,6 +33,10 @@ class JITConfigAdapter implements IConfigAdapter
 	 */
 	public function load($cat = "config")
 	{
+		if (!$this->isConnected()) {
+			return;
+		}
+
 		// We don't preload "system" anymore.
 		// This reduces the number of database reads a lot.
 		if ($cat === 'system') {
@@ -58,6 +62,10 @@ class JITConfigAdapter implements IConfigAdapter
 	 */
 	public function get($cat, $k, $default_value = null, $refresh = false)
 	{
+		if (!$this->isConnected()) {
+			return $default_value;
+		}
+
 		if (!$refresh) {
 			// Do we have the cached value? Then return it
 			if (isset($this->cache[$cat][$k])) {
@@ -103,6 +111,10 @@ class JITConfigAdapter implements IConfigAdapter
 	 */
 	public function set($cat, $k, $value)
 	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
 		// We store our setting values in a string variable.
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
@@ -143,6 +155,10 @@ class JITConfigAdapter implements IConfigAdapter
 	 */
 	public function delete($cat, $k)
 	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
 		if (isset($this->cache[$cat][$k])) {
 			unset($this->cache[$cat][$k]);
 			unset($this->in_db[$cat][$k]);

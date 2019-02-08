@@ -12,7 +12,7 @@ use Friendica\Database\DBA;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class PreloadConfigAdapter implements IConfigAdapter
+class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapter
 {
 	private $config_loaded = false;
 
@@ -35,6 +35,10 @@ class PreloadConfigAdapter implements IConfigAdapter
 	 */
 	public function load($family = 'config')
 	{
+		if (!$this->isConnected()) {
+			return;
+		}
+
 		if ($this->config_loaded) {
 			return;
 		}
@@ -53,6 +57,10 @@ class PreloadConfigAdapter implements IConfigAdapter
 	 */
 	public function get($cat, $k, $default_value = null, $refresh = false)
 	{
+		if (!$this->isConnected()) {
+			return $default_value;
+		}
+
 		if ($refresh) {
 			$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $k]);
 			if (DBA::isResult($config)) {
@@ -70,6 +78,10 @@ class PreloadConfigAdapter implements IConfigAdapter
 	 */
 	public function set($cat, $k, $value)
 	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
 		// We store our setting values as strings.
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
@@ -97,6 +109,10 @@ class PreloadConfigAdapter implements IConfigAdapter
 	 */
 	public function delete($cat, $k)
 	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
 		$this->configCache->delete($cat, $k);
 
 		$result = DBA::delete('config', ['cat' => $cat, 'k' => $k]);

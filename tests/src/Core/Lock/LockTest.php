@@ -25,10 +25,6 @@ abstract class LockTest extends MockedTest
 
 	protected function setUp()
 	{
-		parent::setUp();
-		$this->instance = $this->getInstance();
-		$this->instance->releaseAll();
-
 		// Reusable App object
 		$this->setUpVfsDir();
 		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
@@ -37,12 +33,9 @@ abstract class LockTest extends MockedTest
 			->shouldReceive('getHostname')
 			->andReturn('friendica.local');
 
-		// Default config
-		$this->mockConfigGet('config', 'hostname', 'localhost');
-		$this->mockConfigGet('system', 'throttle_limit_day', 100);
-		$this->mockConfigGet('system', 'throttle_limit_week', 100);
-		$this->mockConfigGet('system', 'throttle_limit_month', 100);
-		$this->mockConfigGet('system', 'theme', 'system_theme');
+		parent::setUp();
+		$this->instance = $this->getInstance();
+		$this->instance->releaseAll();
 	}
 
 	protected function tearDown()

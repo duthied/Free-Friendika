@@ -21,13 +21,6 @@ class DBStructureTest extends DatabaseTest
 		$this->logOutput = FActory\LoggerFactory::enableTest($this->app->getLogger());
 
 		parent::setUp();
-
-		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
 	}
 
 	/**
