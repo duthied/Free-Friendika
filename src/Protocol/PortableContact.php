@@ -1698,8 +1698,8 @@ class PortableContact
 					}
 				}
 
-				if (!$success && (Config::get('system', 'poco_discovery') > 2)) {
-					Logger::log("Fetch contacts from users of the server " . $server["nurl"], Logger::DEBUG);
+				if (!$success && !empty($data) && Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS_FALLBACK) {
+					Logger::info("Fetch contacts from users of the server " . $server["nurl"]);
 					self::discoverServerUsers($data, $server);
 				}
 			}
