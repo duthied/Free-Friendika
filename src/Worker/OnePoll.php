@@ -138,18 +138,27 @@ class OnePoll
 		// We don't poll our followers
 		if ($contact["rel"] == Contact::FOLLOWER) {
 			Logger::log("Don't poll follower");
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
 		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)
 		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
 			Logger::log('Polling is disabled');
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
 		// We don't poll AP contacts by now
 		if ($contact['network'] === Protocol::ACTIVITYPUB) {
 			Logger::log("Don't poll AP contact");
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
