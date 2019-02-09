@@ -11,8 +11,10 @@
 		{{$delivery.delivery_pending}} {{$item.delivery.queue_done}}/{{$item.delivery.queue_count}}
 	{{elseif $delivery.queue_done / $delivery.queue_count < 0.75}}
 		{{$delivery.delivery_underway}} {{$item.delivery.queue_done}}/{{$item.delivery.queue_count}}
-	{{else}}
+	{{elseif $delivery.queue_done < $delivery.queue_count}}
 		{{$delivery.delivery_almost}} {{$item.delivery.queue_done}}/{{$item.delivery.queue_count}}
+	{{else}}
+		{{$delivery.delivery_done}} {{$item.delivery.queue_done}}/{{$item.delivery.queue_count}}
 	{{/if}}
 </span>
 {{/if}}

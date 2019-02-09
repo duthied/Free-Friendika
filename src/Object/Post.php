@@ -432,6 +432,7 @@ class Post extends BaseObject
 				'delivery_pending'  => L10n::t('Delivery to remote servers is pending'),
 				'delivery_underway' => L10n::t('Delivery to remote servers is underway'),
 				'delivery_almost'   => L10n::t('Delivery to remote servers is mostly done'),
+				'delivery_done'     => L10n::t('Delivery to remote servers is done'),
 			],
 		];
 
