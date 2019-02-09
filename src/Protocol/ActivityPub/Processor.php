@@ -131,7 +131,7 @@ class Processor
 	{
 		$item = Item::selectFirst(['uri', 'parent-uri', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
-			Logger::warning('Unknown item with uri: ' . $activity['id']);
+			Logger::warning('Unknown item', ['uri' => $activity['id']]);
 			return;
 		}
 
@@ -148,7 +148,7 @@ class Processor
 		if (($item['parent-uri'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 			$parent = Item::selectFirst(['id', 'author-link', 'alias'], ['uri' => $item['parent-uri']]);
 			if (!DBA::isResult($parent)) {
-				Logger::warning('Unknown item parent with uri: ' . $item['parent-uri']);
+				Logger::warning('Unknown parent item.', ['uri' => $item['parent-uri']]);
 				return;
 			}
 
