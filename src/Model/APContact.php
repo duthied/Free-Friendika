@@ -192,7 +192,7 @@ class APContact extends BaseObject
 		DBA::update('apcontact', $apcontact, ['url' => $url], true);
 
 		// Update some data in the contact table with various ways to catch them all
-		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about']];
+		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about'], 'alias' => $apcontact['alias']];
 
 		// Fetch the type and match it with the contact type
 		$contact_types = array_keys(ActivityPub::ACCOUNT_TYPES, $apcontact['type']);
