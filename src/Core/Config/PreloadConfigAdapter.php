@@ -27,6 +27,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 	public function __construct(IConfigCache $configCache)
 	{
 		$this->configCache = $configCache;
+		$this->connected = DBA::connected();
 		$this->load();
 	}
 
