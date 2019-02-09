@@ -398,7 +398,7 @@ return [
 		'worker_jpm' => false,
 
 		// worker_jpm_limit (String)
-		// List of minutes for the JPM calculation
+		// List of minutes for the jobs per minute (JPM) calculation
 		'worker_jpm_limit' => '1, 10, 60',
 
 		// worker_load_exponent (Integer)
