@@ -17,10 +17,18 @@ class Itemsource extends \Friendica\BaseModule
 			return;
 		}
 
+		$a = self::getApp();
+
+		if (!empty($a->argv[1])) {
+			$guid = $a->argv[1];
+		}
+
+		$guid = defaults($_REQUEST['guid'], $guid);
+
 		$source = '';
 		$item_uri = '';
-		if (!empty($_REQUEST['guid'])) {
-			$item = Model\Item::selectFirst([], ['guid' => $_REQUEST['guid']]);
+		if (!empty($guid)) {
+			$item = Model\Item::selectFirst([], ['guid' => $guid]);
 
 			$conversation = Model\Conversation::getByItemUri($item['uri']);
 
