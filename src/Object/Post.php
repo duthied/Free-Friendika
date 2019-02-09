@@ -6,6 +6,7 @@ namespace Friendica\Object;
 
 use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
@@ -772,13 +773,18 @@ class Post extends BaseObject
 	 * Get default text for the comment box
 	 *
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function getDefaultText()
 	{
 		$a = self::getApp();
 
 		if (!local_user() || empty($a->profile['addr'])) {
-			return;
+			return '';
+		}
+
+		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
+			return '';
 		}
 
 		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
