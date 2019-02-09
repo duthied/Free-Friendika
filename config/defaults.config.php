@@ -397,6 +397,10 @@ return [
 		// If enabled, it prints out the jobs per minute.
 		'worker_jpm' => false,
 
+		// worker_jpm_limit (String)
+		// List of minutes for the JPM calculation
+		'worker_jpm_limit' => '1, 10, 60',
+
 		// worker_load_exponent (Integer)
 		// Default 3, which allows only 25% of the maximum worker queues when server load reaches around 37% of maximum load.
 		// For a linear response where 25% of worker queues are allowed at 75% of maximum load, set this to 1.
