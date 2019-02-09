@@ -92,6 +92,13 @@ define('SSL_POLICY_FULL',         1);
 define('SSL_POLICY_SELFSIGN',     2);
 /* @}*/
 
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::CLOSED instead */
+define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::APPROVE instead */
+define('REGISTER_APPROVE',       \Friendica\Module\Register::APPROVE);
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::OPEN instead */
+define('REGISTER_OPEN',          \Friendica\Module\Register::OPEN);
+
 /**
  * @name CP
  *
