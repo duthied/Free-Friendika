@@ -29,6 +29,11 @@ use Friendica\Util\XML;
 
 class PortableContact
 {
+	const DISABLED = 0;
+	const USERS = 1;
+	const USERS_GCONTACTS = 2;
+	const USERS_GCONTACTS_FALLBACK = 3;
+
 	/**
 	 * @brief Fetch POCO data
 	 *
@@ -1645,13 +1650,11 @@ class PortableContact
 
 	public static function discoverSingleServer($id)
 	{
-		$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `id` = %d", intval($id));
+		$server = DBA::selectFirst('gserver', ['poco', 'nurl', 'url', 'network'], ['id' => $id]);
 
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($server)) {
 			return false;
 		}
-
-		$server = $r[0];
 
 		// Discover new servers out there (Works from Friendica version 3.5.2)
 		self::fetchServerlist($server["poco"]);
@@ -1659,7 +1662,7 @@ class PortableContact
 		// Fetch all users from the other server
 		$url = $server["poco"] . "/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
 
-		Logger::log("Fetch all users from the server " . $server["url"], Logger::DEBUG);
+		Logger::info("Fetch all users from the server " . $server["url"]);
 
 		$curlResult = Network::curl($url);
 
@@ -1670,7 +1673,7 @@ class PortableContact
 				self::discoverServer($data, 2);
 			}
 
-			if (Config::get('system', 'poco_discovery') > 1) {
+			if (Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS) {
 				$timeframe = Config::get('system', 'poco_discovery_since');
 
 				if ($timeframe == 0) {
@@ -1687,7 +1690,7 @@ class PortableContact
 				$curlResult = Network::curl($url);
 
 				if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
-					Logger::log("Fetch all global contacts from the server " . $server["nurl"], Logger::DEBUG);
+					Logger::info("Fetch all global contacts from the server " . $server["nurl"]);
 					$data = json_decode($curlResult->getBody(), true);
 
 					if (!empty($data)) {
@@ -1695,8 +1698,8 @@ class PortableContact
 					}
 				}
 
-				if (!$success && (Config::get('system', 'poco_discovery') > 2)) {
-					Logger::log("Fetch contacts from users of the server " . $server["nurl"], Logger::DEBUG);
+				if (!$success && !empty($data) && Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS_FALLBACK) {
+					Logger::info("Fetch contacts from users of the server " . $server["nurl"]);
 					self::discoverServerUsers($data, $server);
 				}
 			}

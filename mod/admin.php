@@ -29,6 +29,7 @@ use Friendica\Model\User;
 use Friendica\Module;
 use Friendica\Module\Login;
 use Friendica\Module\Tos;
+use Friendica\Protocol\PortableContact;
 use Friendica\Util\Arrays;
 use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
@@ -1155,7 +1156,7 @@ function admin_page_site_post(App $a)
 	$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
 	$poco_completion        = (!empty($_POST['poco_completion'])        ? intval(trim($_POST['poco_completion']))        : false);
 	$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
-	$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : 0);
+	$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : PortableContact::DISABLED);
 	$poco_discovery_since   = (!empty($_POST['poco_discovery_since'])   ? intval(trim($_POST['poco_discovery_since']))   : 30);
 	$poco_local_search      = !empty($_POST['poco_local_search']);
 	$nodeinfo               = !empty($_POST['nodeinfo']);
@@ -1477,10 +1478,10 @@ function admin_page_site(App $a)
 	];
 
 	$poco_discovery_choices = [
-		"0" => L10n::t("Disabled"),
-		"1" => L10n::t("Users"),
-		"2" => L10n::t("Users, Global Contacts"),
-		"3" => L10n::t("Users, Global Contacts/fallback"),
+		PortableContact::DISABLED => L10n::t("Disabled"),
+		PortableContact::USERS => L10n::t("Users"),
+		PortableContact::USERS_GCONTACTS => L10n::t("Users, Global Contacts"),
+		PortableContact::USERS_GCONTACTS_FALLBACK => L10n::t("Users, Global Contacts/fallback"),
 	];
 
 	$poco_discovery_since_choices = [
@@ -1656,7 +1657,7 @@ function admin_page_site(App $a)
 
 		'$poco_completion'        => ['poco_completion', L10n::t("Periodical check of global contacts"), Config::get('system', 'poco_completion'), L10n::t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
 		'$poco_requery_days'      => ['poco_requery_days', L10n::t("Days between requery"), Config::get('system', 'poco_requery_days'), L10n::t("Number of days after which a server is requeried for his contacts.")],
-		'$poco_discovery'         => ['poco_discovery', L10n::t("Discover contacts from other servers"), (string)intval(Config::get('system', 'poco_discovery')), L10n::t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommened setting is 'Users, Global Contacts'."), $poco_discovery_choices],
+		'$poco_discovery'         => ['poco_discovery', L10n::t("Discover contacts from other servers"), (string)intval(Config::get('system', 'poco_discovery')), L10n::t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommended setting is 'Users, Global Contacts'."), $poco_discovery_choices],
 		'$poco_discovery_since'   => ['poco_discovery_since', L10n::t("Timeframe for fetching global contacts"), (string)intval(Config::get('system', 'poco_discovery_since')), L10n::t("When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers."), $poco_discovery_since_choices],
 		'$poco_local_search'      => ['poco_local_search', L10n::t("Search the local directory"), Config::get('system', 'poco_local_search'), L10n::t("Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.")],
 
