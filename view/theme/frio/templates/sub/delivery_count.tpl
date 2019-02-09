@@ -10,9 +10,12 @@
 	{{elseif $delivery.queue_done / $delivery.queue_count < 0.75}}
 		<i class="fa fa-paper-plane-o" aria-hidden="true" title="{{$delivery.delivery_underway}} {{$item.delivery.queue_done}}/{{$item.delivery.queue_count}}"></i>
 		<span class="sr-only">{{$delivery.delivery_underway}}</span>
-	{{else}}
+	{{elseif $delivery.queue_done < $delivery.queue_count}}
 		<i class="fa fa-paper-plane" aria-hidden="true" title="{{$delivery.delivery_almost}} {{$item.delivery.queue_done}}/{{$item.delivery.queue_count}}"></i>
 		<span class="sr-only">{{$delivery.delivery_almost}}</span>
+	{{else}}
+		<i class="fa fa-paper-plane" aria-hidden="true" title="{{$delivery.delivery_done}} {{$item.delivery.queue_done}}/{{$item.delivery.queue_count}}"></i>
+		<span class="sr-only">{{$delivery.delivery_done}}</span>
 	{{/if}}
 </span>
 {{/if}}
