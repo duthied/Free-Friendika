@@ -90,6 +90,7 @@ class Feature
 			'composition' => [
 				L10n::t('Post Composition Features'),
 				['aclautomention', L10n::t('Auto-mention Forums'), L10n::t('Add/remove mention when a forum page is selected/deselected in ACL window.'), false, Config::get('feature_lock', 'aclautomention', false)],
+				['explicit_mentions', L10n::t('Explicit Mentions'), L10n::t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, Config::get('feature_lock', 'explicit_mentions', false)],
 			],
 
 			// Network sidebar widgets
