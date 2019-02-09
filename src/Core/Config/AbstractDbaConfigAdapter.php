@@ -6,8 +6,11 @@ use Friendica\Database\DBA;
 
 abstract class AbstractDbaConfigAdapter
 {
+	/** @var bool */
+	protected $connected = true;
+
 	public function isConnected()
 	{
-		return DBA::connected();
+		return $this->connected;
 	}
 }

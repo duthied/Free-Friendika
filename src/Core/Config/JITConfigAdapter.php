@@ -26,6 +26,7 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 	public function __construct(IConfigCache $configCache)
 	{
 		$this->configCache = $configCache;
+		$this->connected = DBA::connected();
 	}
 
 	/**
