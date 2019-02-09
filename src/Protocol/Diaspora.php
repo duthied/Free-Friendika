@@ -10,6 +10,7 @@
 
 namespace Friendica\Protocol;
 
+use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Cache;
@@ -3666,6 +3667,20 @@ class Diaspora
 		return $msg;
 	}
 
+	private static function prependParentAuthorMention($body, $profile_url)
+	{
+		$profile = Contact::getDetailsByURL($profile_url);
+		if (!empty($profile['addr'])
+			&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
+			&& !strstr($body, $profile['addr'])
+			&& !strstr($body, $profile_url)
+		) {
+			$body = '@[url=' . $profile_url . ']' . $profile['nick'] . '[/url] ' . $body;
+		}
+
+		return $body;
+	}
+
 	/**
 	 * @brief Sends a post
 	 *
@@ -3773,12 +3788,18 @@ class Diaspora
 			return $result;
 		}
 
-		$parent = Item::selectFirst(['guid'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
+		$parent = Item::selectFirst(['guid', 'author-link'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
 		if (!DBA::isResult($parent)) {
 			return false;
 		}
 
-		$text = html_entity_decode(BBCode::toMarkdown($item["body"]));
+		$body = $item["body"];
+
+		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
+			$body = self::prependParentAuthorMention($body, $parent['author-link']);
+		}
+
+		$text = html_entity_decode(BBCode::toMarkdown($body));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
 		$comment = ["author" => self::myHandle($owner),

@@ -5,6 +5,7 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\BaseObject;
+use Friendica\Content\Feature;
 use Friendica\Database\DBA;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
@@ -891,12 +892,12 @@ class Transmitter
 	private static function mentionCallback($match)
 	{
 		if (empty($match[1])) {
-			return;
+			return '';
 		}
 
 		$data = Contact::getDetailsByURL($match[1]);
-		if (empty($data) || empty($data['nick'])) {
-			return;
+		if (empty($data['nick'])) {
+			return $match[0];
 		}
 
 		return '@[url=' . $data['url'] . ']' . $data['nick'] . '[/url]';
@@ -1037,7 +1038,13 @@ class Transmitter
 			$data['name'] = BBCode::toPlaintext($item['title'], false);
 		}
 
+		$permission_block = self::createPermissionBlockForItem($item, false);
+
 		$body = $item['body'];
+
+		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
+			$body = self::prependMentions($body, $permission_block);
+		}
 
 		if ($type == 'Note') {
 			$body = self::removePictures($body);
@@ -1069,7 +1076,7 @@ class Transmitter
 			$data['generator'] = ['type' => 'Application', 'name' => $item['app']];
 		}
 
-		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
+		$data = array_merge($data, $permission_block);
 
 		return $data;
 	}
@@ -1421,5 +1428,25 @@ class Transmitter
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+	}
+
+	private static function prependMentions($body, array $permission_block)
+	{
+		$mentions = [];
+
+		foreach ($permission_block['to'] as $profile_url) {
+			$profile = Contact::getDetailsByURL($profile_url);
+			if (!empty($profile['addr'])
+				&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
+				&& !strstr($body, $profile['addr'])
+				&& !strstr($body, $profile_url)
+			) {
+				$mentions[] = '@[url=' . $profile_url . ']' . $profile['nick'] . '[/url]';
+			}
+		}
+
+		$mentions[] = $body;
+
+		return implode(' ', $mentions);
 	}
 }

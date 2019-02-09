@@ -19,20 +19,6 @@ function crepair_init(App $a)
 	if (!local_user()) {
 		return;
 	}
-
-	$contact = null;
-	if (($a->argc == 2) && intval($a->argv[1])) {
-		$contact = DBA::selectFirst('contact', [], ['uid' => local_user(), 'id' => $a->argv[1]]);
-	}
-
-	if (empty($a->page['aside'])) {
-		$a->page['aside'] = '';
-	}
-
-	if (DBA::isResult($contact)) {
-		$a->data['contact'] = $contact;
-		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
-	}
 }
 
 function crepair_post(App $a)
@@ -55,6 +41,7 @@ function crepair_post(App $a)
 	$name        = defaults($_POST, 'name'       , $contact['name']);
 	$nick        = defaults($_POST, 'nick'       , '');
 	$url         = defaults($_POST, 'url'        , '');
+	$alias       = defaults($_POST, 'alias'      , '');
 	$request     = defaults($_POST, 'request'    , '');
 	$confirm     = defaults($_POST, 'confirm'    , '');
 	$notify      = defaults($_POST, 'notify'     , '');
@@ -64,20 +51,22 @@ function crepair_post(App $a)
 	$remote_self = defaults($_POST, 'remote_self', false);
 	$nurl        = Strings::normaliseLink($url);
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `nurl` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
-		WHERE `id` = %d AND `uid` = %d",
-		DBA::escape($name),
-		DBA::escape($nick),
-		DBA::escape($url),
-		DBA::escape($nurl),
-		DBA::escape($request),
-		DBA::escape($confirm),
-		DBA::escape($notify),
-		DBA::escape($poll),
-		DBA::escape($attag),
-		intval($remote_self),
-		intval($contact['id']),
-		local_user()
+	$r = DBA::update(
+		'contact',
+		[
+			'name'        => $name,
+			'nick'        => $nick,
+			'url'         => $url,
+			'nurl'        => $nurl,
+			'alias'       => $alias,
+			'request'     => $request,
+			'confirm'     => $confirm,
+			'notify'      => $notify,
+			'poll'        => $poll,
+			'attag'       => $attag,
+			'remote_self' => $remote_self,
+		],
+		['id' => $contact['id'], 'uid' => local_user()]
 	);
 
 	if ($photo) {
@@ -112,6 +101,15 @@ function crepair_content(App $a)
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t('Contact not found.') . EOL);
 		return;
+	}
+
+	if (empty($a->page['aside'])) {
+		$a->page['aside'] = '';
+	}
+
+	if (DBA::isResult($contact)) {
+		$a->data['contact'] = $contact;
+		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 	}
 
 	$warning = L10n::t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
@@ -162,6 +160,7 @@ function crepair_content(App $a)
 		'$nick'		=> ['nick', L10n::t('Account Nickname'), $contact['nick']],
 		'$attag'	=> ['attag', L10n::t('@Tagname - overrides Name/Nickname'), $contact['attag']],
 		'$url'		=> ['url', L10n::t('Account URL'), $contact['url']],
+		'$alias'	=> ['alias', L10n::t('Account URL Alias'), $contact['alias']],
 		'$request'	=> ['request', L10n::t('Friend Request URL'), $contact['request']],
 		'confirm'	=> ['confirm', L10n::t('Friend Confirm URL'), $contact['confirm']],
 		'notify'	=> ['notify', L10n::t('Notification Endpoint URL'), $contact['notify']],

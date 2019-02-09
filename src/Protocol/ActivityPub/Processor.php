@@ -13,6 +13,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\Event;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
@@ -47,7 +48,7 @@ class Processor
 	 *
 	 * @return string with replaced emojis
 	 */
-	public static function replaceEmojis($emojis, $body)
+	public static function replaceEmojis($body, array $emojis)
 	{
 		foreach ($emojis as $emoji) {
 			$replace = '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
@@ -59,12 +60,12 @@ class Processor
 	/**
 	 * Constructs a string with tags for a given tag array
 	 *
-	 * @param array $tags
+	 * @param array   $tags
 	 * @param boolean $sensitive
-	 *
+	 * @param array   $implicit_mentions List of profile URLs to skip
 	 * @return string with tags
 	 */
-	private static function constructTagList($tags, $sensitive)
+	private static function constructTagString($tags, $sensitive, array $implicit_mentions)
 	{
 		if (empty($tags)) {
 			return '';
@@ -72,7 +73,7 @@ class Processor
 
 		$tag_text = '';
 		foreach ($tags as $tag) {
-			if (in_array(defaults($tag, 'type', ''), ['Mention', 'Hashtag'])) {
+			if (in_array(defaults($tag, 'type', ''), ['Mention', 'Hashtag']) && !in_array($tag['href'], $implicit_mentions)) {
 				if (!empty($tag_text)) {
 					$tag_text .= ',';
 				}
@@ -128,14 +129,35 @@ class Processor
 	 */
 	public static function updateItem($activity)
 	{
-		$item = [];
+		$item = Item::selectFirst(['uri', 'parent-uri', 'gravity'], ['uri' => $activity['id']]);
+		if (!DBA::isResult($item)) {
+			Logger::warning('Unknown item', ['uri' => $activity['id']]);
+			return;
+		}
+
 		$item['changed'] = DateTimeFormat::utcNow();
 		$item['edited'] = $activity['updated'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
-		$item['body'] = self::convertMentions($content);
-		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
+
+		$content = HTML::toBBCode($activity['content']);
+		$content = self::replaceEmojis($content, $activity['emojis']);
+		$content = self::convertMentions($content);
+
+		$implicit_mentions = [];
+		if (($item['parent-uri'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+			$parent = Item::selectFirst(['id', 'author-link', 'alias'], ['uri' => $item['parent-uri']]);
+			if (!DBA::isResult($parent)) {
+				Logger::warning('Unknown parent item.', ['uri' => $item['parent-uri']]);
+				return;
+			}
+
+			$implicit_mentions = self::getImplicitMentionList($parent);
+			$content = self::removeImplicitMentionsFromBody($content, $implicit_mentions);
+		}
+
+		$item['body'] = $content;
+		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive'], $implicit_mentions);
 
 		Item::update($item, ['uri' => $activity['id']]);
 	}
@@ -273,10 +295,15 @@ class Processor
 		}
 
 		$item['uri'] = $activity['id'];
+		$content = HTML::toBBCode($activity['content']);
+		$content = self::replaceEmojis($content, $activity['emojis']);
+		$content = self::convertMentions($content);
+
+		$implicit_mentions = [];
 
 		if (($item['parent-uri'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 			$item_private = !in_array(0, $activity['item_receiver']);
-			$parent = Item::selectFirst(['private'], ['uri' => $item['parent-uri']]);
+			$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['parent-uri']]);
 			if (!DBA::isResult($parent)) {
 				return;
 			}
@@ -284,6 +311,9 @@ class Processor
 				Logger::log('Item ' . $item['uri'] . ' is private but the parent ' . $item['parent-uri'] . ' is not. So we drop it.');
 				return;
 			}
+
+			$implicit_mentions = self::getImplicitMentionList($parent);
+			$content = self::removeImplicitMentionsFromBody($content, $implicit_mentions);
 		}
 
 		$item['created'] = $activity['published'];
@@ -291,8 +321,7 @@ class Processor
 		$item['guid'] = $activity['diaspora:guid'];
 		$item['title'] = HTML::toBBCode($activity['name']);
 		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
-		$item['body'] = self::convertMentions($content);
+		$item['body'] = $content;
 
 		if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
 			$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
@@ -304,7 +333,7 @@ class Processor
 			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
 		}
 
-		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
+		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive'], $implicit_mentions);
 		$item['app'] = $activity['generator'];
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
 
@@ -609,5 +638,63 @@ class Processor
 
 		Logger::log('Change existing contact ' . $cid . ' from ' . $contact['network'] . ' to ActivityPub.');
 		Contact::updateFromProbe($cid, Protocol::ACTIVITYPUB);
+	}
+
+	/**
+	 * Collects implicit mentions like:
+	 * - the author of the parent item
+	 * - all the mentioned conversants in the parent item
+	 *
+	 * @param array $parent Item array with at least ['id', 'author-link', 'alias']
+	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function getImplicitMentionList(array $parent)
+	{
+		$parent_terms = Term::tagArrayFromItemId($parent['id'], [TERM_MENTION]);
+
+		$implicit_mentions = [
+			$parent['author-link']
+		];
+
+		if ($parent['alias']) {
+			$implicit_mentions[] = $parent['alias'];
+		}
+
+		foreach ($parent_terms as $term) {
+			$contact = Contact::getDetailsByURL($term['url']);
+
+			$implicit_mentions[] = $contact['url'];
+			$implicit_mentions[] = $contact['nurl'];
+			$implicit_mentions[] = $contact['alias'];
+		}
+
+		return $implicit_mentions;
+	}
+
+	/**
+	 * Strips from the body prepended implicit mentions
+	 *
+	 * @param string $body
+	 * @param array  $implicit_mentions List of profile URLs
+	 * @return string
+	 */
+	private static function removeImplicitMentionsFromBody($body, array $implicit_mentions)
+	{
+		$kept_mentions = [];
+
+		// Extract one prepended mention at a time from the body
+		while(preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#mi', $body, $matches)) {
+			if (!in_array($matches[2], $implicit_mentions) ) {
+				$kept_mentions[] = $matches[1];
+			}
+
+			$body = $matches[3];
+		}
+
+		// Re-appending the kept mentions to the body after extraction
+		$kept_mentions[] = $body;
+
+		return implode('', $kept_mentions);
 	}
 }

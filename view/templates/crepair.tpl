@@ -27,6 +27,8 @@
 
 	{{include file="field_input.tpl" field=$url}}
 
+	{{include file="field_input.tpl" field=$alias}}
+
 	{{include file="field_input.tpl" field=$request}}
 
 	{{include file="field_input.tpl" field=$confirm}}
