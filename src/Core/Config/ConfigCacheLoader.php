@@ -160,10 +160,6 @@ class ConfigCacheLoader
 	 */
 	private function loadINIConfigFile($filepath)
 	{
-		if (!file_exists($filepath)) {
-			throw new \Exception('Error parsing non-existent INI config file ' . $filepath);
-		}
-
 		$contents = include($filepath);
 
 		$config = parse_ini_string($contents, true, INI_SCANNER_TYPED);
@@ -193,10 +189,6 @@ class ConfigCacheLoader
 	 */
 	private function loadConfigFile($filepath)
 	{
-		if (!file_exists($filepath)) {
-			throw new \Exception('Error loading non-existent config file ' . $filepath);
-		}
-
 		$config = include($filepath);
 
 		if (!is_array($config)) {
