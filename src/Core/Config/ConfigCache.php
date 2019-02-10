@@ -18,7 +18,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public function __construct(array $config = [])
 	{
-		$this->config = $config;
+		$this->loadConfigArray($config);
 	}
 
 	/**
@@ -110,6 +110,9 @@ class ConfigCache implements IConfigCache, IPConfigCache
 		} else {
 			if (isset($this->config[$cat][$key])) {
 				unset($this->config[$cat][$key]);
+				if (count($this->config[$cat]) == 0) {
+					unset($this->config[$cat]);
+				}
 			}
 		}
 	}
@@ -160,6 +163,12 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			unset($this->config[$uid][$cat][$key]);
+			if (count($this->config[$uid][$cat]) == 0) {
+				unset($this->config[$uid][$cat]);
+				if (count($this->config[$uid]) == 0) {
+					unset($this->config[$uid]);
+				}
+			}
 		}
 	}
 
