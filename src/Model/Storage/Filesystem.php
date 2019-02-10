@@ -125,7 +125,7 @@ class Filesystem implements IStorage
 				'input',
 				L10n::t('Storage base path'),
 				self::getBasePath(),
-				L10n::t('Folder were uploaded files are saved. For maximum security, This should be a path outside web server folder tree')
+				L10n::t('Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree')
 			]
 		];
 	}
