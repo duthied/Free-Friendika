@@ -156,6 +156,23 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Returns the public contact id of the given user id
+	 *
+	 * @param  integer $uid User ID
+	 *
+	 * @return integer|boolean Public contact id for given user id
+	 * @throws Exception
+	 */
+	public static function getPublicIdByUserId($uid)
+	{
+		$self = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
+		if (!DBA::isResult($self)) {
+			return false;
+		}
+		return self::getIdForURL($self['url'], 0, true);
+	}
+
+	/**
 	 * @brief Returns the contact id for the user and the public contact id for a given contact id
 	 *
 	 * @param int $cid Either public contact id or user's contact id

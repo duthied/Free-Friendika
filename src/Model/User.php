@@ -100,20 +100,6 @@ class User
 	}
 
 	/**
-	 * @param  integer       $uid
-	 * @return array|boolean User record if it exists, false otherwise
-	 * @throws Exception
-	 */
-	public static function getPublicContactById($uid)
-	{
-		$self = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
-		if (!DBA::isResult($self)) {
-			return false;
-		}
-		return Contact::getIdForURL($self['url'], 0, true);
-	}
-
-	/**
 	 * @brief Returns the user id of a given profile URL
 	 *
 	 * @param string $url

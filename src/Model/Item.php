@@ -1462,8 +1462,8 @@ class Item extends BaseObject
 		}
 
 		if ($item['verb'] == ACTIVITY_FOLLOW) {
-			if (!$item['origin'] && ($item['author-id'] == User::getPublicContactById($uid))) {
-				// Our own follow request can be relayed to us. We don't store them to avoid notification chaos.
+			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($uid))) {
+				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
 				Logger::log("Follow: Don't store not origin follow request from us for " . $item['parent-uri'], Logger::DEBUG);
 				return 0;
 			}
