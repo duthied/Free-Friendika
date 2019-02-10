@@ -2,8 +2,6 @@
 
 namespace Friendica\Core\Config;
 
-use Friendica\Database\DBA;
-
 abstract class AbstractDbaConfigAdapter
 {
 	/** @var bool */
