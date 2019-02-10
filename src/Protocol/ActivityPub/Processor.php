@@ -360,8 +360,8 @@ class Processor
 			$item_id = Item::insert($item);
 			Logger::log('Storing for user ' . $item['uid'] . ': ' . $item_id);
 
-			if ($item_id) {
-				$stored = true;
+			if ($item['uid'] == 0) {
+				$stored = $item_id;
 			}
 		}
 
@@ -370,7 +370,7 @@ class Processor
 			$author = APContact::getByURL($item['owner-link'], false);
 			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
 			if ($author['type'] != 'Group') {
-				Logger::log('Send follow request for ' . $item['uri'] . ' to ' . $item['author-link'], Logger::DEBUG);
+				Logger::log('Send follow request for ' . $item['uri'] . ' (' . $stored . ') to ' . $item['author-link'], Logger::DEBUG);
 				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
 			}
 		}
