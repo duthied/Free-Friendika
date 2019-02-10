@@ -69,6 +69,10 @@ table.bbcodes > * > tr > th {
   <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Immagine/foto"></td>
 </tr>
 <tr>
+  <td>[img=https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg]The Friendica Logo[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="The Friendica Logo"></td>
+</tr>
+<tr>
   <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]<br>
 <br>Note: provided height is simply discarded.</td>
   <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" style="width: 64px;"></td>
