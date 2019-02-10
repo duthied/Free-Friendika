@@ -537,6 +537,7 @@ td.pendingnote > p > span {
 }
 
 /* warning message */
+.crepair-error-message,
 .warning-message {
   padding: 10px;
   margin: 5px;
