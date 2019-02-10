@@ -219,9 +219,9 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 		}
 
 		$r = DBA::p("SELECT `item`.`uri`, `author`.`url` AS `author-link` FROM `thread`
-			INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
-			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
+			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND NOT `thread`.`private` AND `thread`.`wall` AND `thread`.`origin` $sql_accounttype
 			ORDER BY `thread`.`commented` DESC LIMIT ?, ?", $values);
