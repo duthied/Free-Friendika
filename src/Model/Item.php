@@ -1315,6 +1315,8 @@ class Item extends BaseObject
 			$item['gravity'] = GRAVITY_PARENT;
 		} elseif (activity_match($item['verb'], ACTIVITY_POST)) {
 			$item['gravity'] = GRAVITY_COMMENT;
+		} elseif (activity_match($item['verb'], ACTIVITY_FOLLOW)) {
+			$item['gravity'] = GRAVITY_ACTIVITY;
 		} else {
 			$item['gravity'] = GRAVITY_UNKNOWN;   // Should not happen
 			Logger::log('Unknown gravity for verb: ' . $item['verb'], Logger::DEBUG);
@@ -1451,11 +1453,18 @@ class Item extends BaseObject
 			Logger::log("Set network to " . $item["network"] . " for " . $item["uri"], Logger::DEBUG);
 		}
 
+		// Checking if there is already an item with the same guid
+		Logger::log('Checking for an item for user '.$item['uid'].' on network '.$item['network'].' with the guid '.$item['guid'], Logger::DEBUG);
+		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
+		if (self::exists($condition)) {
+			Logger::log('found item with guid '.$item['guid'].' for user '.$item['uid'].' on network '.$item['network'], Logger::DEBUG);
+			return 0;
+		}
+
 		if ($item['verb'] == ACTIVITY_FOLLOW) {
-			Logger::log('Blubb: '.$item['uid'].' - '.$item['parent-uri']);
 			if (!$item['origin'] && ($item['author-id'] == User::getPublicContactById($uid))) {
 				// Our own follow request can be relayed to us. We don't store them to avoid notification chaos.
-				Logger::log("Blubb: Don't store not origin follow request from us for " . $item['parent-uri'], Logger::DEBUG);
+				Logger::log("Follow: Don't store not origin follow request from us for " . $item['parent-uri'], Logger::DEBUG);
 				return 0;
 			}
 
@@ -1463,17 +1472,9 @@ class Item extends BaseObject
 				'parent-uri' => $item['parent-uri'], 'author-id' => $item['author-id']];
 			if (self::exists($condition)) {
 				// It happens that we receive multiple follow requests by the same author - we only store one.
-				Logger::log('Blubb: Found existing follow request from author ' . $item['author-id'] . ' for ' . $item['parent-uri'], Logger::DEBUG);
+				Logger::log('Follow: Found existing follow request from author ' . $item['author-id'] . ' for ' . $item['parent-uri'], Logger::DEBUG);
 				return 0;
 			}
-		}
-
-		// Checking if there is already an item with the same guid
-		Logger::log('Checking for an item for user '.$item['uid'].' on network '.$item['network'].' with the guid '.$item['guid'], Logger::DEBUG);
-		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
-		if (self::exists($condition)) {
-			Logger::log('found item with guid '.$item['guid'].' for user '.$item['uid'].' on network '.$item['network'], Logger::DEBUG);
-			return 0;
 		}
 
 		// Check for hashtags in the body and repair or add hashtag links
