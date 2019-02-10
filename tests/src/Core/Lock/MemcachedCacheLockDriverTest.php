@@ -15,7 +15,7 @@ class MemcachedCacheLockDriverTest extends LockTest
 	{
 		$this->configCache
 			->shouldReceive('get')
-			->with('system', 'memcached_hosts', NULL)
+			->with('system', 'memcached_hosts', NULL, false)
 			->andReturn([0 => 'localhost, 11211']);
 
 		return new CacheLockDriver(CacheDriverFactory::create('memcached'));

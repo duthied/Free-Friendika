@@ -14,12 +14,12 @@ class RedisCacheDriverTest extends MemoryCacheTest
 	{
 		$this->configCache
 			->shouldReceive('get')
-			->with('system', 'redis_host', NULL)
+			->with('system', 'redis_host', NULL, false)
 			->andReturn('localhost');
 
 		$this->configCache
 			->shouldReceive('get')
-			->with('system', 'redis_port', NULL)
+			->with('system', 'redis_port', NULL, false)
 			->andReturn(null);
 
 		$this->cache = CacheDriverFactory::create('redis');

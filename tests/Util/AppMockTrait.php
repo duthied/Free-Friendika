@@ -5,7 +5,6 @@ namespace Friendica\Test\Util;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
-use Friendica\Core\Config\ConfigCache;
 use Friendica\Render\FriendicaSmartyEngine;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -21,7 +20,7 @@ trait AppMockTrait
 	protected $app;
 
 	/**
-	 * @var MockInterface|ConfigCache The mocked Config Cache
+	 * @var MockInterface|Config\Configuration The mocked Config Cache
 	 */
 	protected $configCache;
 
@@ -29,9 +28,9 @@ trait AppMockTrait
 	 * Mock the App
 	 *
 	 * @param vfsStreamDirectory $root The root directory
-	 * @param MockInterface|ConfigCache $config The config cache
+	 * @param MockInterface|Config\Configuration $config The config cache
 	 */
-	public function mockApp($root, $config)
+	public function mockApp($root, Config\Configuration $config)
 	{
 		$this->configCache = $config;
 		// Mocking App and most used functions
@@ -62,11 +61,14 @@ trait AppMockTrait
 			->andReturn('localhost');
 		$config
 			->shouldReceive('get')
-			->with('system', 'theme', NULL)
+			->with('system', 'theme', NULL, false)
 			->andReturn('system_theme');
+		$config
+			->shouldReceive('getConfig')
+			->andReturn($config);
 
 		$this->app
-			->shouldReceive('getConfig')
+			->shouldReceive('getConfigCache')
 			->andReturn($config);
 
 		$this->app
@@ -84,11 +86,6 @@ trait AppMockTrait
 
 		// Initialize empty Config
 		Config::init($config);
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\IConfigAdapter');
-		$configAdapter
-			->shouldReceive('isConnected')
-			->andReturn(false);
-		Config::setAdapter($configAdapter);
 
 		BaseObject::setApp($this->app);
 	}

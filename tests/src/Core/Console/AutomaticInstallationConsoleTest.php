@@ -54,7 +54,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 
 		$this->configCache
 			->shouldReceive('get')
-			->with('config', 'php_path', NULL)
+			->with('config', 'php_path', NULL, false)
 			->andReturn(false);
 
 		$this->mockL10nT();

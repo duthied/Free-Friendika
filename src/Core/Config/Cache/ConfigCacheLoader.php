@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Config;
+namespace Friendica\Core\Config\Cache;
 
 use Friendica\Core\Addon;
 
@@ -40,13 +40,13 @@ class ConfigCacheLoader
 		// Setting at least the basepath we know
 		$config->set('system', 'basepath', $this->baseDir);
 
-		$config->loadConfigArray($this->loadCoreConfig('defaults'));
-		$config->loadConfigArray($this->loadCoreConfig('settings'));
+		$config->load($this->loadCoreConfig('defaults'));
+		$config->load($this->loadCoreConfig('settings'));
 
-		$config->loadConfigArray($this->loadLegacyConfig('htpreconfig'), true);
-		$config->loadConfigArray($this->loadLegacyConfig('htconfig'), true);
+		$config->load($this->loadLegacyConfig('htpreconfig'), true);
+		$config->load($this->loadLegacyConfig('htconfig'), true);
 
-		$config->loadConfigArray($this->loadCoreConfig('local'), true);
+		$config->load($this->loadCoreConfig('local'), true);
 	}
 
 	/**

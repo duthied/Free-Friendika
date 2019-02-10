@@ -14,7 +14,7 @@ class MemcachedCacheDriverTest extends MemoryCacheTest
 	{
 		$this->configCache
 			->shouldReceive('get')
-			->with('system', 'memcached_hosts', NULL)
+			->with('system', 'memcached_hosts', NULL, false)
 			->andReturn([0 => 'localhost, 11211']);
 
 		$this->cache = CacheDriverFactory::create('memcached');

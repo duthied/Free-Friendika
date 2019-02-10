@@ -31,7 +31,7 @@ class BaseObjectTest extends TestCase
 	{
 		$baseObject = new BaseObject();
 		$this->setUpVfsDir();
-		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$configMock = \Mockery::mock('Friendica\Core\Config\Configuration');
 		$this->mockApp($this->root, $configMock);
 
 		$this->assertNull($baseObject->setApp($this->app));

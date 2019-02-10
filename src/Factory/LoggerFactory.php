@@ -2,7 +2,7 @@
 
 namespace Friendica\Factory;
 
-use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\Configuration;
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Logger\FriendicaDevelopHandler;
@@ -22,12 +22,12 @@ class LoggerFactory
 	/**
 	 * Creates a new PSR-3 compliant logger instances
 	 *
-	 * @param string      $channel The channel of the logger instance
-	 * @param ConfigCache $config  The config
+	 * @param string        $channel The channel of the logger instance
+	 * @param Configuration $config  The config
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public static function create($channel, ConfigCache $config = null)
+	public static function create($channel, Configuration $config)
 	{
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());

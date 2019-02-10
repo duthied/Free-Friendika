@@ -7,6 +7,7 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Factory;
@@ -32,8 +33,11 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $basedir = BasePath::create(dirname(__DIR__), $_SERVER);
-$configLoader = new Config\ConfigCacheLoader($basedir);
-$config = Factory\ConfigFactory::createCache($configLoader);
+$configLoader = new Cache\ConfigCacheLoader($basedir);
+$configCache = Factory\ConfigFactory::createCache($configLoader);
+Factory\DBFactory::init($configCache, $_SERVER);
+$config = Factory\ConfigFactory::createConfig($configCache);
+$pconfig = Factory\ConfigFactory::createPConfig($configCache);
 $logger = Factory\LoggerFactory::create('worker', $config);
 $profiler = Factory\ProfilerFactory::create($logger, $config);
 

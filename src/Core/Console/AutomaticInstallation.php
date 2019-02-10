@@ -100,10 +100,10 @@ HELP;
 				}
 			}
 
-			$db_host = $a->getConfig()->get('database', 'hostname');
-			$db_user = $a->getConfig()->get('database', 'username');
-			$db_pass = $a->getConfig()->get('database', 'password');
-			$db_data = $a->getConfig()->get('database', 'database');
+			$db_host = $a->getConfigCache()->get('database', 'hostname');
+			$db_user = $a->getConfigCache()->get('database', 'username');
+			$db_pass = $a->getConfigCache()->get('database', 'password');
+			$db_data = $a->getConfigCache()->get('database', 'database');
 		} else {
 			// Creating config file
 			$this->out("Creating config file...\n");
@@ -146,7 +146,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->checkDB($a->getConfig(), $a->getProfiler(), $db_host, $db_user, $db_pass, $db_data)) {
+		if (!$installer->checkDB($a->getConfigCache(), $a->getProfiler(), $db_host, $db_user, $db_pass, $db_data)) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}

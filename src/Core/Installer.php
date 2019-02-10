@@ -6,7 +6,7 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
@@ -583,7 +583,7 @@ class Installer
 	/**
 	 * Checking the Database connection and if it is available for the current installation
 	 *
-	 * @param ConfigCache $configCache The configuration cache
+	 * @param IConfigCache $configCache The configuration cache
 	 * @param Profiler    $profiler    The profiler of this app
 	 * @param string $dbhost           Hostname/IP of the Friendica Database
 	 * @param string $dbuser           Username of the Database connection credentials
@@ -593,7 +593,7 @@ class Installer
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB(ConfigCache $configCache, Profiler $profiler, $dbhost, $dbuser, $dbpass, $dbdata)
+	public function checkDB(IConfigCache $configCache, Profiler $profiler, $dbhost, $dbuser, $dbpass, $dbdata)
 	{
 		if (!DBA::connect($configCache, $profiler, $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');

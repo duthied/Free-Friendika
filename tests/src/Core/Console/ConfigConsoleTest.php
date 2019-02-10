@@ -39,7 +39,7 @@ class ConfigConsoleTest extends ConsoleTest
 			->once();
 		$this->configCache
 			->shouldReceive('get')
-			->with('config', 'test', NULL)
+			->with('config', 'test', NULL, false)
 			->andReturn('now')
 			->twice();
 
@@ -52,7 +52,7 @@ class ConfigConsoleTest extends ConsoleTest
 
 		$this->configCache
 			->shouldReceive('get')
-			->with('config', 'test', null)
+			->with('config', 'test', null, false)
 			->andReturn('now')
 			->once();
 
@@ -64,7 +64,7 @@ class ConfigConsoleTest extends ConsoleTest
 
 		$this->configCache
 			->shouldReceive('get')
-			->with('config', 'test', null)
+			->with('config', 'test', null, false)
 			->andReturn(null)
 			->once();
 
@@ -79,7 +79,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$testArray = [1, 2, 3];
 		$this->configCache
 			->shouldReceive('get')
-			->with('config', 'test', null)
+			->with('config', 'test', null, false)
 			->andReturn($testArray)
 			->once();
 
@@ -107,7 +107,7 @@ class ConfigConsoleTest extends ConsoleTest
 	function testVerbose() {
 		$this->configCache
 			->shouldReceive('get')
-			->with('test', 'it', null)
+			->with('test', 'it', null, false)
 			->andReturn('now')
 			->once();
 		$console = new Config($this->consoleArgv);
@@ -140,7 +140,7 @@ CONF;
 			->once();
 		$this->configCache
 			->shouldReceive('get')
-			->with('test', 'it', NULL)
+			->with('test', 'it', NULL, false)
 			->andReturn(NULL)
 			->once();
 		$console = new Config();

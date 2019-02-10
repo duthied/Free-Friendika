@@ -14,7 +14,7 @@ class SemaphoreLockDriverTest extends LockTest
 
 		$this->configCache
 			->shouldReceive('get')
-			->with('system', 'temppath', NULL)
+			->with('system', 'temppath', NULL, false)
 			->andReturn('/tmp/');
 	}
 

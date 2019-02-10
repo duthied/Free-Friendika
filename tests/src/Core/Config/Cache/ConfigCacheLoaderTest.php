@@ -1,9 +1,9 @@
 <?php
 
-namespace Friendica\Test\Core\Config;
+namespace Friendica\Test\Core\Config\Cache;
 
-use Friendica\Core\Config\ConfigCache;
-use Friendica\Core\Config\ConfigCacheLoader;
+use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache\ConfigCacheLoader;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 use org\bovigo\vfs\vfsStream;
@@ -61,6 +61,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
 			'config' . DIRECTORY_SEPARATOR .
 			'local.config.php';
@@ -93,6 +94,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
 			'config' . DIRECTORY_SEPARATOR .
 			'local.ini.php';
@@ -122,6 +124,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
@@ -160,6 +163,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		vfsStream::create($structure, $this->root);
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .

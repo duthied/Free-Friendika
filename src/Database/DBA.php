@@ -2,7 +2,7 @@
 
 namespace Friendica\Database;
 
-use Friendica\Core\Config\IConfigCache;
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;

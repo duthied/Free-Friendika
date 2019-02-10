@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Config;
+namespace Friendica\Core\Config\Cache;
 
 /**
  * The Friendica config cache for the application
@@ -11,6 +11,9 @@ namespace Friendica\Core\Config;
  */
 class ConfigCache implements IConfigCache, IPConfigCache
 {
+	/**
+	 * @var array
+	 */
 	private $config;
 
 	/**
@@ -18,24 +21,28 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public function __construct(array $config = [])
 	{
-		$this->loadConfigArray($config);
+		$this->load($config);
 	}
 
 	/**
-	 * Tries to load the specified configuration array into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * @param array $config
-	 * @param bool  $overwrite Force value overwrite if the config key already exists
+	 * {@inheritdoc}
 	 */
-	public function loadConfigArray(array $config, $overwrite = false)
+	public function load(array $config, $overwrite = false)
 	{
-		foreach ($config as $category => $values) {
-			foreach ($values as $key => $value) {
-				if ($overwrite) {
-					$this->set($category, $key, $value);
-				} else {
-					$this->setDefault($category, $key, $value);
+		$categories = array_keys($config);
+
+		foreach ($categories as $category) {
+			if (isset($config[$category]) && is_array($config[$category])) {
+				$keys = array_keys($config[$category]);
+
+				foreach ($keys as $key) {
+					if (isset($config[$category][$key])) {
+						if ($overwrite) {
+							$this->set($category, $key, $config[$category][$key]);
+						} else {
+							$this->setDefault($category, $key, $config[$category][$key]);
+						}
+					}
 				}
 			}
 		}
@@ -44,23 +51,22 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get($cat, $key = null, $default = null)
+	public function get($cat, $key = null)
 	{
-		$return = $default;
-
-		if ($cat === 'config') {
-			if (isset($this->config[$key])) {
-				$return = $this->config[$key];
-			}
+		if (isset($this->config[$cat][$key])) {
+			return $this->config[$cat][$key];
 		} else {
-			if (isset($this->config[$cat][$key])) {
-				$return = $this->config[$cat][$key];
-			} elseif ($key == null && isset($this->config[$cat])) {
-				$return = $this->config[$cat];
-			}
+			return '!<unset>!';
 		}
+	}
 
-		return $return;
+	/**
+	 * {@inheritdoc}
+	 */
+	public function has($cat, $key = null)
+	{
+		return isset($this->config[$cat][$key])
+			&& $this->config[$cat][$key] !== '!<unset>!';
 	}
 
 	/**
@@ -85,15 +91,11 @@ class ConfigCache implements IConfigCache, IPConfigCache
 		// Only arrays are serialized in database, so we have to unserialize sparingly
 		$value = is_string($value) && preg_match("|^a:[0-9]+:{.*}$|s", $value) ? unserialize($value) : $value;
 
-		if ($cat === 'config') {
-			$this->config[$key] = $value;
-		} else {
-			if (!isset($this->config[$cat])) {
-				$this->config[$cat] = [];
-			}
-
-			$this->config[$cat][$key] = $value;
+		if (!isset($this->config[$cat])) {
+			$this->config[$cat] = [];
 		}
+
+		$this->config[$cat][$key] = $value;
 
 		return true;
 	}
@@ -101,18 +103,36 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	/**
 	 * {@inheritdoc}
 	 */
+	public function hasP($uid, $cat, $key = null)
+	{
+		return isset($this->config[$uid][$cat][$key])
+			&& $this->config[$uid][$cat][$key] !== '!<unset>!';
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function delete($cat, $key)
 	{
-		if ($cat === 'config') {
-			if (isset($this->config[$key])) {
-				unset($this->config[$key]);
+		if (isset($this->config[$cat][$key])) {
+			unset($this->config[$cat][$key]);
+			if (count($this->config[$cat]) == 0) {
+				unset($this->config[$cat]);
 			}
+			return true;
 		} else {
-			if (isset($this->config[$cat][$key])) {
-				unset($this->config[$cat][$key]);
-				if (count($this->config[$cat]) == 0) {
-					unset($this->config[$cat]);
-				}
+			return false;
+		}
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function loadP($uid, array $config)
+	{
+		foreach ($config as $category => $values) {
+			foreach ($values as $key => $value) {
+				$this->setP($uid, $category, $key, $value);
 			}
 		}
 	}
@@ -120,17 +140,13 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getP($uid, $cat, $key = null, $default = null)
+	public function getP($uid, $cat, $key = null)
 	{
-		$return = $default;
-
 		if (isset($this->config[$uid][$cat][$key])) {
-			$return = $this->config[$uid][$cat][$key];
-		} elseif ($key === null && isset($this->config[$uid][$cat])) {
-			$return = $this->config[$uid][$cat];
+			return $this->config[$uid][$cat][$key];
+		} else {
+			return '!<unset>!';
 		}
-
-		return $return;
 	}
 
 	/**
@@ -145,15 +161,13 @@ class ConfigCache implements IConfigCache, IPConfigCache
 			$this->config[$uid] = [];
 		}
 
-		if (!isset($this->config[$uid][$cat]) || !is_array($this->config[$uid][$cat])) {
+		if (!isset($this->config[$uid][$cat])) {
 			$this->config[$uid][$cat] = [];
 		}
 
-		if ($key === null) {
-			$this->config[$uid][$cat] = $value;
-		} else {
-			$this->config[$uid][$cat][$key] = $value;
-		}
+		$this->config[$uid][$cat][$key] = $value;
+
+		return true;
 	}
 
 	/**
@@ -169,6 +183,10 @@ class ConfigCache implements IConfigCache, IPConfigCache
 					unset($this->config[$uid]);
 				}
 			}
+
+			return true;
+		} else {
+			return false;
 		}
 	}
 

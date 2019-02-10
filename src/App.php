@@ -8,8 +8,9 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Config\ConfigCache;
-use Friendica\Core\Config\ConfigCacheLoader;
+use Friendica\Core\Config\Cache\ConfigCacheLoader;
+use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Configuration;
 use Friendica\Database\DBA;
 use Friendica\Factory\ConfigFactory;
 use Friendica\Network\HTTPException\InternalServerErrorException;
@@ -114,7 +115,7 @@ class App
 	private $logger;
 
 	/**
-	 * @var ConfigCache The cached config
+	 * @var Configuration The config
 	 */
 	private $config;
 
@@ -126,11 +127,11 @@ class App
 	/**
 	 * Returns the current config cache of this node
 	 *
-	 * @return ConfigCache
+	 * @return IConfigCache
 	 */
-	public function getConfig()
+	public function getConfigCache()
 	{
-		return $this->config;
+		return $this->config->getCache();
 	}
 
 	/**
@@ -195,14 +196,14 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param ConfigCache      $config    The Cached Config
+	 * @param Configuration    $config    The Configuration
 	 * @param LoggerInterface  $logger    Logger of this application
 	 * @param Profiler         $profiler  The profiler of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(ConfigCache $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
+	public function __construct(Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		$this->config   = $config;
 		$this->logger   = $logger;
@@ -358,21 +359,11 @@ class App
 	 */
 	public function reload()
 	{
-		Core\Config::init($this->config);
-		Core\PConfig::init($this->config);
-
-		$this->loadDatabase();
-
 		$this->getMode()->determine($this->basePath);
 
 		$this->determineURLPath();
 
 		if ($this->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			$adapterType = $this->config->get('system', 'config_adapter');
-			$adapter = ConfigFactory::createConfig($adapterType, $this->config);
-			Core\Config::setAdapter($adapter);
-			$adapterP = ConfigFactory::createPConfig($adapterType, $this->config);
-			Core\PConfig::setAdapter($adapterP);
 			Core\Config::load();
 		}
 
@@ -383,7 +374,7 @@ class App
 			Core\Hook::loadHooks();
 			$loader = new ConfigCacheLoader($this->basePath);
 			Core\Hook::callAll('load_config', $loader);
-			$this->config->loadConfigArray($loader->loadCoreConfig('addon'), true);
+			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
 		}
 
 		$this->loadDefaultTimezone();
@@ -451,49 +442,6 @@ class App
 				$this->urlPath = $path;
 			}
 		}
-	}
-
-	public function loadDatabase()
-	{
-		if (DBA::connected()) {
-			return;
-		}
-
-		$db_host = $this->config->get('database', 'hostname');
-		$db_user = $this->config->get('database', 'username');
-		$db_pass = $this->config->get('database', 'password');
-		$db_data = $this->config->get('database', 'database');
-		$charset = $this->config->get('database', 'charset');
-
-		// Use environment variables for mysql if they are set beforehand
-		if (!empty(getenv('MYSQL_HOST'))
-			&& !empty(getenv('MYSQL_USERNAME') || !empty(getenv('MYSQL_USER')))
-			&& getenv('MYSQL_PASSWORD') !== false
-			&& !empty(getenv('MYSQL_DATABASE')))
-		{
-			$db_host = getenv('MYSQL_HOST');
-			if (!empty(getenv('MYSQL_PORT'))) {
-				$db_host .= ':' . getenv('MYSQL_PORT');
-			}
-			if (!empty(getenv('MYSQL_USERNAME'))) {
-				$db_user = getenv('MYSQL_USERNAME');
-			} else {
-				$db_user = getenv('MYSQL_USER');
-			}
-			$db_pass = (string) getenv('MYSQL_PASSWORD');
-			$db_data = getenv('MYSQL_DATABASE');
-		}
-
-		$stamp1 = microtime(true);
-
-		if (DBA::connect($this->config, $this->profiler, $db_host, $db_user, $db_pass, $db_data, $charset)) {
-			// Loads DB_UPDATE_VERSION constant
-			Database\DBStructure::definition($this->basePath, false);
-		}
-
-		unset($db_host, $db_user, $db_pass, $db_data, $charset);
-
-		$this->profiler->saveTimestamp($stamp1, 'network', Core\System::callstack());
 	}
 
 	public function getScheme()
