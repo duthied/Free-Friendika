@@ -28,20 +28,21 @@ function friendica_init(App $a)
 			$register_policy = $register_policies[$register_policy_int];
 		}
 
-		$sql_extra = '';
-		if (Config::get('config', 'admin_nickname') !== null) {
-			$sql_extra = sprintf(" AND `nickname` = '%s' ", DBA::escape(Config::get('config', 'admin_nickname')));
+		$condition = [];
+		$admin = false;
+		if (!empty(Config::get('config', 'admin_nickname'))) {
+			$condition['nickname'] = Config::get('config', 'admin_nickname');
 		}
 		if (!empty(Config::get('config', 'admin_email'))) {
 			$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
-
-			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", DBA::escape($adminlist[0]));
-			$admin = [
-				'name' => $r[0]['username'],
-				'profile'=> System::baseUrl() . '/profile/' . $r[0]['nickname'],
-			];
-		} else {
-			$admin = false;
+			$condition['email'] = $adminlist[0];
+			$administrator = DBA::selectFirst('user', ['username', 'nickname'], $condition);
+			if (DBA::isResult($administrator)) {
+				$admin = [
+					'name' => $administrator['username'],
+					'profile'=> System::baseUrl() . '/profile/' . $administrator['nickname'],
+				];
+			}
 		}
 
 		$visible_addons = Addon::getVisibleList();
