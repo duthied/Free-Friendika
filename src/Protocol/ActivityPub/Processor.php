@@ -343,6 +343,8 @@ class Processor
 			$item['body'] = $activity['source'];
 		}
 
+		$stored = false;
+
 		foreach ($activity['receiver'] as $receiver) {
 			$item['uid'] = $receiver;
 			$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
@@ -357,9 +359,14 @@ class Processor
 
 			$item_id = Item::insert($item);
 			Logger::log('Storing for user ' . $item['uid'] . ': ' . $item_id);
+
+			if ($item_id) {
+				$stored = true;
+			}
 		}
 
-		if (!$item['private'] && ($item['gravity'] == GRAVITY_PARENT) && ($item['author-link'] != $item['owner-link'])) {
+		// Store send a follow request for every reshare - but only when the item had been stored
+		if ($stored && !$item['private'] && ($item['gravity'] == GRAVITY_PARENT) && ($item['author-link'] != $item['owner-link'])) {
 			$author = APContact::getByURL($item['owner-link'], false);
 			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
 			if ($author['type'] != 'Group') {
@@ -662,11 +669,12 @@ class Processor
 		}
 
 		foreach ($parent_terms as $term) {
-			$contact = Contact::getDetailsByURL($term['url']);
-
-			$implicit_mentions[] = $contact['url'];
-			$implicit_mentions[] = $contact['nurl'];
-			$implicit_mentions[] = $contact['alias'];
+			$contact = Contact::getDetailsByURL($term['url'], 0);
+			if (!empty($contact)) {
+				$implicit_mentions[] = $contact['url'];
+				$implicit_mentions[] = $contact['nurl'];
+				$implicit_mentions[] = $contact['alias'];
+			}
 		}
 
 		return $implicit_mentions;
