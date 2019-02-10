@@ -39,8 +39,10 @@ function worker_init()
 	Worker::callWorker();
 
 	$passing_slow = false;
+	$entries = 0;
+	$deferred = 0;
 
-	if ($r = Worker::workerProcess($passing_slow)) {
+	if ($r = Worker::workerProcess($passing_slow, $entries, $deferred)) {
 		// On most configurations this parameter wouldn't have any effect.
 		// But since it doesn't destroy anything, we just try to get more execution time in any way.
 		set_time_limit(0);
