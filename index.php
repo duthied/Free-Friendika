@@ -20,7 +20,8 @@ $configLoader = new Cache\ConfigCacheLoader($basedir);
 $configCache = Factory\ConfigFactory::createCache($configLoader);
 Factory\DBFactory::init($configCache, $_SERVER);
 $config = Factory\ConfigFactory::createConfig($configCache);
-$pconfig = Factory\ConfigFactory::createPConfig($configCache);
+// needed to call PConfig::init()
+Factory\ConfigFactory::createPConfig($configCache);
 $logger = Factory\LoggerFactory::create('index', $config);
 $profiler = Factory\ProfilerFactory::create($logger, $config);
 

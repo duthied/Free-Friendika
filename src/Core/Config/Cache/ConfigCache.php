@@ -55,6 +55,8 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	{
 		if (isset($this->config[$cat][$key])) {
 			return $this->config[$cat][$key];
+		} elseif ($key == null && isset($this->config[$cat])) {
+			return $this->config[$cat];
 		} else {
 			return '!<unset>!';
 		}
@@ -65,8 +67,8 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public function has($cat, $key = null)
 	{
-		return isset($this->config[$cat][$key])
-			&& $this->config[$cat][$key] !== '!<unset>!';
+		return (isset($this->config[$cat][$key]) && $this->config[$cat][$key] !== '!<unset>!') ||
+		($key == null && isset($this->config[$cat]) && $this->config[$cat] !== '!<unset>!' && is_array($this->config[$cat]));
 	}
 
 	/**
@@ -105,8 +107,8 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public function hasP($uid, $cat, $key = null)
 	{
-		return isset($this->config[$uid][$cat][$key])
-			&& $this->config[$uid][$cat][$key] !== '!<unset>!';
+		return (isset($this->config[$uid][$cat][$key]) && $this->config[$uid][$cat][$key] !== '!<unset>!') ||
+			($key == null && isset($this->config[$uid][$cat]) && $this->config[$uid][$cat] !== '!<unset>!' && is_array($this->config[$uid][$cat]));
 	}
 
 	/**
@@ -144,6 +146,8 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			return $this->config[$uid][$cat][$key];
+		} elseif ($key == null && isset($this->config[$uid][$cat])) {
+			return $this->config[$uid][$cat];
 		} else {
 			return '!<unset>!';
 		}

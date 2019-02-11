@@ -35,15 +35,16 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
 		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, [Logger::class, Profiler::class]));
 
-		if (isset($config)) {
-			$debugging = $config->get('system', 'debugging');
-			$stream = $config->get('system', 'logfile');
-			$level = $config->get('system', 'loglevel');
+		$debugging = $config->get('system', 'debugging');
+		$stream    = $config->get('system', 'logfile');
+		$level     = $config->get('system', 'loglevel');
 
-			if ($debugging) {
-				static::addStreamHandler($logger, $stream, $level);
-			}
+		if ($debugging) {
+			$loglevel = self::mapLegacyConfigDebugLevel((string)$level);
+			static::addStreamHandler($logger, $stream, $loglevel);
 		}
+
+		Logger::setLogger($logger);
 
 		return $logger;
 	}
@@ -56,23 +57,69 @@ class LoggerFactory
 	 *
 	 * It should never get filled during normal usage of Friendica
 	 *
-	 * @param string $channel      The channel of the logger instance
-	 * @param string $developerIp  The IP of the developer who wants to use the logger
+	 * @param string        $channel The channel of the logger instance
+	 * @param Configuration $config  The config
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public static function createDev($channel, $developerIp)
+	public static function createDev($channel, Configuration $config)
 	{
+		$debugging   = $config->get('system', 'debugging');
+		$stream      = $config->get('system', 'dlogfile');
+		$developerIp = $config->get('system', 'dlogip');
+
+		if (!isset($developerIp) || !$debugging) {
+			return null;
+		}
+
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
 		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
 
-
 		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
 
+		static::addStreamHandler($logger, $stream, LogLevel::DEBUG);
+
+		Logger::setDevLogger($logger);
+
 		return $logger;
+	}
+
+	/**
+	 * Mapping a legacy level to the PSR-3 compliant levels
+	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
+	 *
+	 * @param string $level the level to be mapped
+	 *
+	 * @return string the PSR-3 compliant level
+	 */
+	private static function mapLegacyConfigDebugLevel($level)
+	{
+		switch ($level) {
+			// legacy WARNING
+			case "0":
+				return LogLevel::ERROR;
+			// legacy INFO
+			case "1":
+				return LogLevel::WARNING;
+			// legacy TRACE
+			case "2":
+				return LogLevel::NOTICE;
+			// legacy DEBUG
+			case "3":
+				return LogLevel::INFO;
+			// legacy DATA
+			case "4":
+				return LogLevel::DEBUG;
+			// legacy ALL
+			case "5":
+				return LogLevel::DEBUG;
+			// default if nothing set
+			default:
+				return $level;
+		}
 	}
 
 	/**
@@ -102,34 +149,6 @@ class LoggerFactory
 			$fileHandler->setFormatter($formatter);
 
 			$logger->pushHandler($fileHandler);
-		} else {
-			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
-		}
-	}
-
-	/**
-	 * This method enables the test mode of a given logger
-	 *
-	 * @param LoggerInterface $logger The logger
-	 *
-	 * @return Monolog\Handler\TestHandler the Handling for tests
-	 *
-	 * @throws InternalServerErrorException if the logger is incompatible to the logger factory
-	 */
-	public static function enableTest($logger)
-	{
-		if ($logger instanceof Monolog\Logger) {
-			// disable every handler so far
-			$logger->pushHandler(new Monolog\Handler\NullHandler());
-
-			// enable the test handler
-			$fileHandler = new Monolog\Handler\TestHandler();
-			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
-			$fileHandler->setFormatter($formatter);
-
-			$logger->pushHandler($fileHandler);
-
-			return $fileHandler;
 		} else {
 			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
 		}

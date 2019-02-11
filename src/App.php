@@ -110,11 +110,6 @@ class App
 	public $mobileDetect;
 
 	/**
-	 * @var LoggerInterface The current logger of this App
-	 */
-	private $logger;
-
-	/**
 	 * @var Configuration The config
 	 */
 	private $config;
@@ -340,34 +335,12 @@ class App
 	}
 
 	/**
-	 * Returns the Logger of the Application
-	 *
-	 * @return LoggerInterface The Logger
-	 * @throws InternalServerErrorException when the logger isn't created
-	 */
-	public function getLogger()
-	{
-		if (empty($this->logger)) {
-			throw new InternalServerErrorException('Logger of the Application is not defined');
-		}
-
-		return $this->logger;
-	}
-
-	/**
 	 * Reloads the whole app instance
 	 */
 	public function reload()
 	{
-		$this->getMode()->determine($this->basePath);
-
 		$this->determineURLPath();
 
-		if ($this->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			Core\Config::load();
-		}
-
-		// again because DB-config could change the config
 		$this->getMode()->determine($this->basePath);
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
@@ -382,8 +355,6 @@ class App
 		Core\L10n::init();
 
 		$this->process_id = Core\System::processID('log');
-
-		Core\Logger::setLogger($this->logger);
 	}
 
 	/**

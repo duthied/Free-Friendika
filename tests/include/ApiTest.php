@@ -41,7 +41,7 @@ class ApiTest extends DatabaseTest
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		Factory\DBFactory::init($configCache, $_SERVER);
 		$config = Factory\ConfigFactory::createConfig($configCache);
-		$pconfig = Factory\ConfigFactory::createPConfig($configCache);
+		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create('test', $config);
 		$profiler = Factory\ProfilerFactory::create($logger, $config);
 		$this->app = new App($config, $logger, $profiler, false);

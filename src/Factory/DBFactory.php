@@ -7,6 +7,14 @@ use Friendica\Database;
 
 class DBFactory
 {
+	/**
+	 * Initialize the DBA connection
+	 *
+	 * @param Cache\ConfigCache $configCache The configuration cache
+	 * @param array             $server      The $_SERVER variables
+	 *
+	 * @throws \Exception if connection went bad
+	 */
 	public static function init(Cache\ConfigCache $configCache, array $server)
 	{
 		if (Database\DBA::connected()) {

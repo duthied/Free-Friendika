@@ -5,8 +5,6 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Factory\LoggerFactory;
-use Friendica\Network\HTTPException\InternalServerErrorException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -67,73 +65,22 @@ class Logger extends BaseObject
 
 	/**
 	 * Sets the default logging handler for Friendica.
-	 * @todo Can be combined with other handlers too if necessary, could be configurable.
 	 *
 	 * @param LoggerInterface $logger The Logger instance of this Application
-	 *
-	 * @throws InternalServerErrorException if the logger factory is incompatible to this logger
 	 */
 	public static function setLogger($logger)
 	{
-		$debugging = Config::get('system', 'debugging');
-		$logfile = Config::get('system', 'logfile');
-		$loglevel = Config::get('system', 'loglevel');
-
-		if (!$debugging || !$logfile) {
-			return;
-		}
-
-		$loglevel = self::mapLegacyConfigDebugLevel((string)$loglevel);
-
-		LoggerFactory::addStreamHandler($logger, $logfile, $loglevel);
-
 		self::$logger = $logger;
-
-		$logfile = Config::get('system', 'dlogfile');
-
-		if (!$logfile) {
-			return;
-		}
-
-		$developIp = Config::get('system', 'dlogip');
-
-		self::$devLogger = LoggerFactory::createDev('develop', $developIp);
-		LoggerFactory::addStreamHandler(self::$devLogger, $logfile, LogLevel::DEBUG);
 	}
 
 	/**
-	 * Mapping a legacy level to the PSR-3 compliant levels
-	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
+	 * Sets the default dev-logging handler for Friendica.
 	 *
-	 * @param string $level the level to be mapped
-	 *
-	 * @return string the PSR-3 compliant level
+	 * @param LoggerInterface $logger The Logger instance of this Application
 	 */
-	private static function mapLegacyConfigDebugLevel($level)
+	public static function setDevLogger($logger)
 	{
-		switch ($level) {
-			// legacy WARNING
-			case "0":
-				return LogLevel::ERROR;
-			// legacy INFO
-			case "1":
-				return LogLevel::WARNING;
-			// legacy TRACE
-			case "2":
-				return LogLevel::NOTICE;
-			// legacy DEBUG
-			case "3":
-				return LogLevel::INFO;
-			// legacy DATA
-			case "4":
-				return LogLevel::DEBUG;
-			// legacy ALL
-			case "5":
-				return LogLevel::DEBUG;
-			// default if nothing set
-			default:
-				return $level;
-		}
+		self::$devLogger = $logger;
 	}
 
 	/**

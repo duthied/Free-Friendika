@@ -8,10 +8,6 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Config\ConfigCache;
-use Friendica\Core\Config\IConfigAdapter;
-use Friendica\Core\Config\IConfigCache;
-
 /**
  * @brief Arbitrary system configuration storage
  *

@@ -149,13 +149,34 @@ class ConfigCacheTest extends MockedTest
 		$configCache = new ConfigCache();
 
 		$this->assertFalse($configCache->has('system', 'test'));
+		$this->assertFalse($configCache->has('system'));
 
 		$configCache->set('system', 'test', 'it');
 		$this->assertTrue($configCache->has('system', 'test'));
+		$this->assertTrue($configCache->has('system'));
+	}
 
-		$this->assertFalse($configCache->has('system', null));
-		$configCache->set('system', null, 'it');
-		$this->assertTrue($configCache->has('system', null));
+	/**
+	 * Test the get() method with a category
+	 */
+	public function testGetCat()
+	{
+		$configCache = new ConfigCache([
+			'system' => [
+				'key1' => 'value1',
+				'key2' => 'value2',
+			],
+			'config' => [
+				'key3' => 'value3',
+			],
+		]);
+
+		$this->assertTrue($configCache->has('system'));
+
+		$this->assertEquals([
+			'key1' => 'value1',
+			'key2' => 'value2',
+		], $configCache->get('system'));
 	}
 
 	/**
@@ -195,6 +216,32 @@ class ConfigCacheTest extends MockedTest
 
 
 	/**
+	 * Test the getP() method with a category
+	 */
+	public function testGetPCat()
+	{
+		$configCache = new ConfigCache();
+		$uid = 345;
+
+		$configCache->loadP($uid, [
+			'system' => [
+				'key1' => 'value1',
+				'key2' => 'value2',
+			],
+			'config' => [
+				'key3' => 'value3',
+			],
+		]);
+
+		$this->assertTrue($configCache->hasP($uid,'system'));
+
+		$this->assertEquals([
+			'key1' => 'value1',
+			'key2' => 'value2',
+		], $configCache->get($uid, 'system'));
+	}
+
+	/**
 	 * Test the deleteP() method
 	 * @dataProvider dataTests
 	 */
@@ -227,12 +274,10 @@ class ConfigCacheTest extends MockedTest
 		$uid = 345;
 
 		$this->assertFalse($configCache->hasP($uid, 'system', 'test'));
+		$this->assertFalse($configCache->hasP($uid, 'system'));
 
 		$configCache->setP($uid, 'system', 'test', 'it');
 		$this->assertTrue($configCache->hasP($uid, 'system', 'test'));
-
-		$this->assertFalse($configCache->hasP($uid, 'system', null));
-		$configCache->setP($uid, 'system', null, 'it');
-		$this->assertTrue($configCache->hasP($uid, 'system', null));
+		$this->assertTrue($configCache->hasP($uid, 'system'));
 	}
 }
