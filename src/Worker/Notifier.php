@@ -153,7 +153,9 @@ class Notifier
 		if (!empty($target_item) && !empty($items)) {
 			$parent = $items[0];
 
-			$delivery_queue_count += self::activityPubDelivery($cmd, $target_item, $parent, $a->queue['priority'], $a->queue['created']);
+			if (!self::isRemovalActivity($cmd, $owner, Protocol::ACTIVITYPUB)) {
+				$delivery_queue_count += self::activityPubDelivery($cmd, $target_item, $parent, $a->queue['priority'], $a->queue['created']);
+			}
 
 			$fields = ['network', 'author-id', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
@@ -425,6 +427,11 @@ class Notifier
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
+					if (self::isRemovalActivity($cmd, $owner, $rr['network'])) {
+						Logger::log('Skipping dropping for ' . $rr['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+						continue;
+					}
+
 					if (Config::get('debug', 'total_ap_delivery') && !empty($rr['url']) && ($rr['network'] == Protocol::DFRN) && !empty(APContact::getByURL($rr['url'], false))) {
 						Logger::log('Skipping contact ' . $rr['url'] . ' since it will be delivered via AP', Logger::DEBUG);
 						continue;
@@ -453,6 +460,11 @@ class Notifier
 
 		// delivery loop
 		while ($contact = DBA::fetch($delivery_contacts_stmt)) {
+			if (self::isRemovalActivity($cmd, $owner, $contact['network'])) {
+				Logger::log('Skipping dropping for ' . $contact['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+				continue;
+			}
+
 			if (Config::get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
 				Logger::log('Skipping contact ' . $contact['url'] . ' since it will be delivered via AP', Logger::DEBUG);
 				continue;
@@ -522,6 +534,23 @@ class Notifier
 		}
 
 		return;
+	}
+
+	/**
+	 * Checks if the current action is a deletion command of a account removal activity
+	 * For Diaspora and ActivityPub we don't need to send single item deletion calls.
+	 * These protocols do have a dedicated command for deleting a whole account.
+	 *
+	 * @param string $cmd     Notifier command
+	 * @param array  $owner   Sender of the post
+	 * @param string $network Receiver network
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function isRemovalActivity($cmd, $owner, $network)
+	{
+		return ($cmd == Delivery::DELETION) && $owner['account_removed'] && in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA]);
 	}
 
 	/**
