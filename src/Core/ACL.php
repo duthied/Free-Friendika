@@ -293,16 +293,16 @@ class ACL extends BaseObject
 						L10n::t('Hide your profile details from unknown viewers?'));
 			}
 		}
-
+		
 		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$showall' => L10n::t('Visible to everybody'),
 			'$show' => L10n::t('show'),
 			'$hide' => L10n::t('don\'t show'),
-			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', '')),
-			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', '')),
-			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', '')),
-			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', '')),
+			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', [])), // we need arrays for Javascript since we call .remove() and .push() on this values
+			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', [])),
+			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', [])),
+			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', [])),
 			'$networks' => $show_jotnets,
 			'$emailcc' => L10n::t('CC: email addresses'),
 			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
