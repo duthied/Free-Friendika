@@ -49,7 +49,7 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 	public function get($uid, $cat, $key)
 	{
 		if (!$this->isConnected()) {
-			return null;
+			return '!<unset>!';
 		}
 
 		$pconfig = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $key]);

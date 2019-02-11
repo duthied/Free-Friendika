@@ -47,7 +47,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 	public function get($cat, $key)
 	{
 		if (!$this->isConnected()) {
-			return null;
+			return '!<unset>!';
 		}
 
 		$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);

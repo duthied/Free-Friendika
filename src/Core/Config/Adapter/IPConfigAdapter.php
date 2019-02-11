@@ -15,7 +15,7 @@ namespace Friendica\Core\Config\Adapter;
 interface IPConfigAdapter
 {
 	/**
-	 * Loads all configuration values of a user's config family into a cached storage.
+	 * Loads all configuration values of a user's config family and returns the loaded category as an array.
 	 *
 	 * @param string $uid The user_id
 	 * @param string $cat The category of the configuration value
@@ -71,7 +71,7 @@ interface IPConfigAdapter
 	public function isConnected();
 
 	/**
-	 * Checks, if a config value ($value) in the category ($cat) is already loaded for the user_id $uid.
+	 * Checks, if a config key ($key) in the category ($cat) is already loaded for the user_id $uid.
 	 *
 	 * @param string $uid The user_id
 	 * @param string $cat The configuration category

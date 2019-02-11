@@ -59,7 +59,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 	public function get($uid, $cat, $key)
 	{
 		if (!$this->isConnected()) {
-			return null;
+			return '!<unset>!';
 		}
 
 		if (!$this->config_loaded) {

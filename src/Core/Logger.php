@@ -68,7 +68,7 @@ class Logger extends BaseObject
 	 *
 	 * @param LoggerInterface $logger The Logger instance of this Application
 	 */
-	public static function init($logger)
+	public static function init(LoggerInterface $logger)
 	{
 		self::$logger = $logger;
 	}
@@ -78,7 +78,7 @@ class Logger extends BaseObject
 	 *
 	 * @param LoggerInterface $logger The Logger instance of this Application
 	 */
-	public static function setDevLogger($logger)
+	public static function setDevLogger(LoggerInterface $logger)
 	{
 		self::$devLogger = $logger;
 	}

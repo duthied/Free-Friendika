@@ -9,7 +9,7 @@ namespace Friendica\Core\Config\Adapter;
 interface IConfigAdapter
 {
 	/**
-	 * Loads all configuration values into a cached storage.
+	 * Loads all configuration values and returns the loaded category as an array.
 	 *
 	 * @param string  $cat The category of the configuration values to load
 	 *
@@ -18,7 +18,7 @@ interface IConfigAdapter
 	public function load($cat = "config");
 
 	/**
-	 * Get a particular user's config variable given the category name
+	 * Get a particular system-wide config variable given the category name
 	 * ($family) and a key.
 	 *
 	 * @param string  $cat The category of the configuration value
@@ -60,7 +60,7 @@ interface IConfigAdapter
 	public function isConnected();
 
 	/**
-	 * Checks, if a config value ($value) in the category ($cat) is already loaded.
+	 * Checks, if a config key ($key) in the category ($cat) is already loaded.
 	 *
 	 * @param string $cat The configuration category
 	 * @param string $key The configuration key
