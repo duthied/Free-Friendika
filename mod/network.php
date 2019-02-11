@@ -525,7 +525,7 @@ function networkThreadedView(App $a, $update, $parent)
 				}
 			} elseif (intval($a->argv[$x])) {
 				$gid = intval($a->argv[$x]);
-				$default_permissions = ['allow_gid' => '<' . $gid . '>'];
+				$default_permissions['allow_gid'] = [$gid];
 			}
 		}
 	}
@@ -540,18 +540,18 @@ function networkThreadedView(App $a, $update, $parent)
 	$nets  =        defaults($_GET, 'nets' , '');
 
 	if ($cid) {
-		$default_permissions = ['allow_cid' => '<' . intval($cid) . '>'];
+		$default_permissions['allow_cid'] = [(int) $cid];
 	}
 
 	if ($nets) {
 		$r = DBA::select('contact', ['id'], ['uid' => local_user(), 'network' => $nets], ['self' => false]);
 
-		$str = '';
+		$str = [];
 		while ($rr = DBA::fetch($r)) {
-			$str .= '<' . $rr['id'] . '>';
+			$str[] = (int) $rr['id'];
 		}
 		if (strlen($str)) {
-			$default_permissions = ['allow_cid' => $str];
+			$default_permissions['allow_cid'] = $str;
 		}
 	}
 
