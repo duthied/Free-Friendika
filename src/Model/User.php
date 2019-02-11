@@ -134,7 +134,8 @@ class User
 			`user`.`spubkey`,
 			`user`.`page-flags`,
 			`user`.`account-type`,
-			`user`.`prvnets`
+			`user`.`prvnets`,
+			`user`.`account_removed`
 			FROM `contact`
 			INNER JOIN `user`
 				ON `user`.`uid` = `contact`.`uid`
