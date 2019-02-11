@@ -650,7 +650,8 @@ class Worker
 				$argv[0] = basename($argv[0]);
 
 				// How long is the process already running?
-				$duration = (time() - strtotime($entry["executed"])) / 60;
+				// For some weird reasons we cannot use "time()" here. It doesn't seem to be in UTC.
+				$duration = (strtotime(DateTimeFormat::utcNow()) - strtotime($entry["executed"])) / 60;
 				if ($duration > $max_duration) {
 					Logger::log("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") took more than ".$max_duration." minutes. It will be killed now.");
 					posix_kill($entry["pid"], SIGTERM);
