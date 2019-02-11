@@ -120,4 +120,16 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 
 		return $result;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isLoaded($cat, $key)
+	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
+		return (isset($this->in_db[$cat][$key])) && $this->in_db[$cat][$key];
+	}
 }

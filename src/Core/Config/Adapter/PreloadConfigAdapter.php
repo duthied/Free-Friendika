@@ -32,13 +32,13 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 
 		$configs = DBA::select('config', ['cat', 'v', 'k']);
 		while ($config = DBA::fetch($configs)) {
-			$return[$config['k']] = $config['v'];
+			$return[$config['cat']][$config['k']] = $config['v'];
 		}
 		DBA::close($configs);
 
 		$this->config_loaded = true;
 
-		return [$cat => $return];
+		return $return;
 	}
 
 	/**
@@ -100,5 +100,17 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 		$result = DBA::delete('config', ['cat' => $cat, 'k' => $key]);
 
 		return $result;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isLoaded($cat, $key)
+	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
+		return $this->config_loaded;
 	}
 }

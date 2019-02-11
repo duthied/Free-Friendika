@@ -44,13 +44,13 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 
 		$pconfigs = DBA::select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		while ($pconfig = DBA::fetch($pconfigs)) {
-			$return[$pconfig['k']] = $pconfig['v'];
+			$return[$pconfig['cat']][$pconfig['k']] = $pconfig['v'];
 		}
 		DBA::close($pconfigs);
 
 		$this->config_loaded = true;
 
-		return [$cat => $return];
+		return $return;
 	}
 
 	/**
@@ -122,5 +122,17 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 		$result = DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 
 		return $result;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isLoaded($uid, $cat, $key)
+	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
+		return $this->config_loaded;
 	}
 }

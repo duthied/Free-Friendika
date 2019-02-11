@@ -36,7 +36,7 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 			}
 		} else if ($cat != 'config') {
 			// Negative caching
-			$return[null] = "!<unset>!";
+			$return = "!<unset>!";
 		}
 		DBA::close($pconfigs);
 
@@ -122,5 +122,17 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 		$result = DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 
 		return $result;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isLoaded($uid, $cat, $key)
+	{
+		if (!$this->isConnected()) {
+			return false;
+		}
+
+		return (isset($this->in_db[$uid][$cat][$key])) && $this->in_db[$uid][$cat][$key];
 	}
 }

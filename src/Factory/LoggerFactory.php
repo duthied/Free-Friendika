@@ -44,7 +44,7 @@ class LoggerFactory
 			static::addStreamHandler($logger, $stream, $loglevel);
 		}
 
-		Logger::setLogger($logger);
+		Logger::init($logger);
 
 		return $logger;
 	}

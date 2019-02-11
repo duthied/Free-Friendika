@@ -29,8 +29,7 @@ interface IConfigAdapter
 	public function get($cat, $key);
 
 	/**
-	 * Stores a config value ($value) in the category ($family) under the key ($key)
-	 * for the user_id $uid.
+	 * Stores a config value ($value) in the category ($family) under the key ($key).
 	 *
 	 * Note: Please do not store booleans - convert to 0/1 integer values!
 	 *
@@ -59,4 +58,14 @@ interface IConfigAdapter
 	 * @return bool
 	 */
 	public function isConnected();
+
+	/**
+	 * Checks, if a config value ($value) in the category ($cat) is already loaded.
+	 *
+	 * @param string $cat The configuration category
+	 * @param string $key The configuration key
+	 *
+	 * @return bool
+	 */
+	public function isLoaded($cat, $key);
 }

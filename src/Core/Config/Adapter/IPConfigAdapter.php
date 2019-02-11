@@ -69,4 +69,15 @@ interface IPConfigAdapter
 	 * @return bool
 	 */
 	public function isConnected();
+
+	/**
+	 * Checks, if a config value ($value) in the category ($cat) is already loaded for the user_id $uid.
+	 *
+	 * @param string $uid The user_id
+	 * @param string $cat The configuration category
+	 * @param string $key The configuration key
+	 *
+	 * @return bool
+	 */
+	public function isLoaded($uid, $cat, $key);
 }

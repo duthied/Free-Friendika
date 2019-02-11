@@ -71,22 +71,20 @@ class PConfiguration
 	 */
 	public function get($uid, $cat, $key, $default_value = null, $refresh = false)
 	{
-		// Return the value of the cache if found and no refresh is forced
-		if (!$refresh && $this->configCache->hasP($uid, $cat, $key)) {
+		// if the value isn't loaded or refresh is needed, load it to the cache
+		if ($this->configAdapter->isConnected() &&
+			(!$this->configAdapter->isLoaded($uid, $cat, $key) ||
+				$refresh)) {
+			$dbValue = $this->configAdapter->get($uid, $cat, $key);
+
+			if ($dbValue !== '!<unset>!') {
+				$this->configCache->setP($uid, $cat, $key, $dbValue);
+			}
+		}
+
+		// use the config cache for return
+		if ($this->configCache->hasP($uid, $cat, $key)) {
 			return $this->configCache->getP($uid, $cat, $key);
-		}
-
-		// if we don't find the value in the cache and the adapter isn't ready, return the default value
-		if (!$this->configAdapter->isConnected()) {
-			return $default_value;
-		}
-
-		// load DB value to cache
-		$dbvalue = $this->configAdapter->get($uid, $cat, $key);
-
-		if ($dbvalue !== '!<unset>!') {
-			$this->configCache->setP($uid, $cat, $key, $dbvalue);
-			return $dbvalue;
 		} else {
 			return $default_value;
 		}

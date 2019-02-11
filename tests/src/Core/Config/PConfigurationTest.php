@@ -8,17 +8,35 @@ use Friendica\Test\MockedTest;
 
 class PConfigurationTest extends MockedTest
 {
+	public function dataTests()
+	{
+		return [
+			'string'       => ['data' => 'it'],
+			'boolTrue'     => ['data' => true],
+			'boolFalse'    => ['data' => false],
+			'integer'      => ['data' => 235],
+			'decimal'      => ['data' => 2.456],
+			'array'        => ['data' => ['1', 2, '3', true, false]],
+			'boolIntTrue'  => ['data' => 1],
+			'boolIntFalse' => ['Data' => 0],
+		];
+	}
+
 	/**
-	 * Test if the configuration load() method
+	 * Test the configuration load() method
 	 */
 	public function testCacheLoad()
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
 		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->once();
+		$configAdapter->shouldReceive('isConnected')->andReturn(true)->twice();
 		// expected loading
-		$configAdapter->shouldReceive('load')->andReturn(['testing' => ['test' => 'it']])->once();
+		$configAdapter->shouldReceive('load')
+			->with($uid, 'testing')
+			->andReturn(['testing' => ['test' => 'it']])
+			->once();
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'testing', 'test')->andReturn(true)->once();
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
 		$configuration->load($uid, 'testing');
@@ -27,16 +45,17 @@ class PConfigurationTest extends MockedTest
 	}
 
 	/**
-	 * Test if the configuration load() method with overwrite
+	 * Test the configuration load() method with overwrite
 	 */
 	public function testCacheLoadDouble()
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
 		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->twice();
+		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
 		// expected loading
-		$configAdapter->shouldReceive('load')->andReturn(['testing' => ['test' => 'it']])->once();
+		$configAdapter->shouldReceive('load')->with($uid, 'testing')->andReturn(['testing' => ['test' => 'it']])->once();
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'testing', 'test')->andReturn(true)->twice();
 		// expected next loading
 		$configAdapter->shouldReceive('load')->andReturn(['testing' => ['test' => 'again']])->once();
 
@@ -51,38 +70,41 @@ class PConfigurationTest extends MockedTest
 	}
 
 	/**
-	 * Test if the configuration get() and set() methods without adapter
+	 * Test the configuration get() and set() methods without adapter
+	 * @dataProvider dataTests
 	 */
-	public function testSetGetWithoutDB()
+	public function testSetGetWithoutDB($data)
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
 		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->once();
+		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(2);
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
 
-		$this->assertTrue($configuration->set($uid, 'test', 'it', 'now'));
+		$this->assertTrue($configuration->set($uid, 'test', 'it', $data));
 
-		$this->assertEquals('now', $configuration->get($uid, 'test', 'it'));
+		$this->assertEquals($data, $configuration->get($uid, 'test', 'it'));
 	}
 
 	/**
-	 * Test if the configuration get() and set() methods with adapter
+	 * Test the configuration get() and set() methods with adapter
+	 * @dataProvider dataTests
 	 */
-	public function testSetGetWithDB()
+	public function testSetGetWithDB($data)
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
 		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->once();
-		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', 'now')->andReturn(true)->once();
+		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(2);
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
+		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', $data)->andReturn(true)->once();
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
 
-		$this->assertTrue($configuration->set($uid, 'test', 'it', 'now'));
+		$this->assertTrue($configuration->set($uid, 'test', 'it', $data));
 
-		$this->assertEquals('now', $configuration->get($uid, 'test', 'it'));
+		$this->assertEquals($data, $configuration->get($uid, 'test', 'it'));
 	}
 
 	/**
@@ -109,15 +131,19 @@ class PConfigurationTest extends MockedTest
 
 	/**
 	 * Test the configuration get() method with refresh
+	 * @dataProvider dataTests
 	 */
-	public function testGetWithRefresh()
+	public function testGetWithRefresh($data)
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
 		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
+		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
 		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn('now')->once();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn('again')->once();
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->twice();
+		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn($data)->once();
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'not')->andReturn(false)->once();
 		$configAdapter->shouldReceive('get')->with($uid, 'test', 'not')->andReturn('!<unset>!')->once();
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
@@ -128,26 +154,58 @@ class PConfigurationTest extends MockedTest
 		$this->assertEquals('now', $configuration->get($uid, 'test', 'it'));
 
 		// with refresh (and load the second value out of the db)
-		$this->assertEquals('again', $configuration->get($uid, 'test', 'it', null, true));
+		$this->assertEquals($data, $configuration->get($uid, 'test', 'it', null, true));
 
 		// without refresh and wrong value and default
 		$this->assertEquals('default', $configuration->get($uid, 'test', 'not', 'default'));
 	}
 
 	/**
-	 * Test the configuration delete() method without adapter
+	 * Test the configuration get() method with different isLoaded settings
+	 * @dataProvider dataTests
 	 */
-	public function testDeleteWithoutDB()
+	public function testGetWithoutLoaded($data)
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
 		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(3);
+		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
+
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
+		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn('!<unset>!')->once();
+
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
+		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn($data)->once();
+
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
 
-		$this->assertTrue($configuration->set($uid, 'test', 'it', 'now'));
-		$this->assertEquals('now', $configuration->get($uid, 'test', 'it'));
+		// first run is not loaded and no data is found in the DB
+		$this->assertNull($configuration->get($uid, 'test', 'it'));
+
+		// second run is not loaded, but now data is found in the db (overwrote cache)
+		$this->assertEquals($data, $configuration->get($uid,'test', 'it'));
+
+		// third run is loaded and therefore cache is used
+		$this->assertEquals($data, $configuration->get($uid,'test', 'it'));
+	}
+
+	/**
+	 * Test the configuration delete() method without adapter
+	 * @dataProvider dataTests
+	 */
+	public function testDeleteWithoutDB($data)
+	{
+		$uid = 234;
+		$configCache = new ConfigCache();
+		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
+
+		$configuration = new PConfiguration($configCache, $configAdapter);
+
+		$this->assertTrue($configuration->set($uid, 'test', 'it', $data));
+		$this->assertEquals($data, $configuration->get($uid, 'test', 'it'));
 
 		$this->assertTrue($configuration->delete($uid, 'test', 'it'));
 		$this->assertNull($configuration->get($uid, 'test', 'it'));
@@ -161,8 +219,10 @@ class PConfigurationTest extends MockedTest
 		$uid = 234;
 		$configCache = new ConfigCache();
 		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(5);
+		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(6);
 		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', 'now')->andReturn(false)->once();
+		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
+
 		$configAdapter->shouldReceive('delete')->with($uid, 'test', 'it')->andReturn(false)->once();
 
 		$configAdapter->shouldReceive('delete')->with($uid, 'test', 'second')->andReturn(true)->once();
