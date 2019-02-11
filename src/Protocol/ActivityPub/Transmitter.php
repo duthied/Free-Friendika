@@ -1317,6 +1317,13 @@ class Transmitter
 			$uid = $first_user['uid'];
 		}
 
+		$condition = ['verb' => ACTIVITY_FOLLOW, 'uid' => 0, 'parent-uri' => $object,
+			'author-id' => Contact::getPublicIdByUserId($uid)];
+		if (Item::exists($condition)) {
+			Logger::log('Follow for ' . $object . ' for user ' . $uid . ' does already exist.', Logger::DEBUG);
+			return false;
+		}
+
 		$owner = User::getOwnerDataById($uid);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
