@@ -79,6 +79,7 @@ class PConfiguration
 
 			if ($dbValue !== '!<unset>!') {
 				$this->configCache->setP($uid, $cat, $key, $dbValue);
+				return $dbValue;
 			}
 		}
 
