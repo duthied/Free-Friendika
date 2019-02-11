@@ -718,6 +718,12 @@ class Worker
 				$intervals = explode(',', Config::get('system', 'worker_jpm_range'));
 				$jobs_per_minute = [];
 				foreach ($intervals as $interval) {
+					if ($interval == 0) {
+						continue;
+					} else {
+						$interval = (int)$interval;
+					}
+
 					$stamp = (float)microtime(true);
 					$jobs = DBA::p("SELECT COUNT(*) AS `jobs` FROM `workerqueue` WHERE `done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ? MINUTE", $interval);
 					self::$db_duration += (microtime(true) - $stamp);
