@@ -7,13 +7,11 @@
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
 
-use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\Config\Cache;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Factory;
-use Friendica\Util\BasePath;
 
 // Get options
 $shortopts = 'f';
@@ -34,17 +32,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
-$configLoader = new Cache\ConfigCacheLoader($basedir);
-$configCache = Factory\ConfigFactory::createCache($configLoader);
-Factory\DBFactory::init($configCache, $_SERVER);
-$config = Factory\ConfigFactory::createConfig($configCache);
-// needed to call PConfig::init()
-Factory\ConfigFactory::createPConfig($configCache);
-$logger = Factory\LoggerFactory::create('daemon', $config);
-$profiler = Factory\ProfilerFactory::create($logger, $config);
-
-$a = new App($config, $logger, $profiler);
+$a = Factory\DependencyFactory::setUp('daemon', dirname(__DIR__));
 
 if ($a->getMode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
@@ -114,7 +102,7 @@ if ($mode == "stop") {
 
 	unlink($pidfile);
 
-	$logger->notice("Worker daemon process was killed", ["pid" => $pid]);
+	Logger::notice("Worker daemon process was killed", ["pid" => $pid]);
 
 	Config::set('system', 'worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
@@ -124,7 +112,7 @@ if (!empty($pid) && posix_kill($pid, 0)) {
 	die("Daemon process $pid is already running.\n");
 }
 
-$logger->notice('Starting worker daemon.', ["pid" => $pid]);
+Logger::notice('Starting worker daemon.', ["pid" => $pid]);
 
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
@@ -172,7 +160,7 @@ $last_cron = 0;
 // Now running as a daemon.
 while (true) {
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
-		$logger->info('Forcing cron worker call.', ["pid" => $pid]);
+		Logger::info('Forcing cron worker call.', ["pid" => $pid]);
 		$do_cron = true;
 	}
 
@@ -186,7 +174,7 @@ while (true) {
 		$last_cron = time();
 	}
 
-	$logger->info("Sleeping", ["pid" => $pid]);
+	Logger::info("Sleeping", ["pid" => $pid]);
 	$start = time();
 	do {
 		$seconds = (time() - $start);
@@ -203,10 +191,10 @@ while (true) {
 
 	if ($timeout) {
 		$do_cron = true;
-		$logger->info("Woke up after $wait_interval seconds.", ["pid" => $pid, 'sleep' => $wait_interval]);
+		Logger::info("Woke up after $wait_interval seconds.", ["pid" => $pid, 'sleep' => $wait_interval]);
 	} else {
 		$do_cron = false;
-		$logger->info("Worker jobs are calling to be forked.", ["pid" => $pid]);
+		Logger::info("Worker jobs are calling to be forked.", ["pid" => $pid]);
 	}
 }
 

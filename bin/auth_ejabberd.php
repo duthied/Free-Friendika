@@ -32,10 +32,7 @@
  *
  */
 
-use Friendica\App;
-use Friendica\Core\Config\Cache;
 use Friendica\Factory;
-use Friendica\Util\BasePath;
 use Friendica\Util\ExAuth;
 
 if (sizeof($_SERVER["argv"]) == 0) {
@@ -54,17 +51,7 @@ chdir($directory);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
-$configLoader = new Cache\ConfigCacheLoader($basedir);
-$configCache = Factory\ConfigFactory::createCache($configLoader);
-Factory\DBFactory::init($configCache, $_SERVER);
-$config = Factory\ConfigFactory::createConfig($configCache);
-// needed to call PConfig::init()
-Factory\ConfigFactory::createPConfig($configCache);
-$logger = Factory\LoggerFactory::create('auth_ejabberd', $config);
-$profiler = Factory\ProfilerFactory::create($logger, $config);
-
-$a = new App($config, $logger, $profiler);
+$a = Factory\DependencyFactory::setUp('auth_ejabbered', dirname(__DIR__));
 
 if ($a->getMode()->isNormal()) {
 	$oAuth = new ExAuth();
