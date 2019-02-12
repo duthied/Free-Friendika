@@ -1,3 +1,4 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 function ACL(backend_url, preset, automention, is_mobile){
 
 	this.url = backend_url;
@@ -354,3 +355,4 @@ ACL.prototype.deselectCid = function(id) {
 	}
 	this.remove_mention(id);
 };
+// @license-end
