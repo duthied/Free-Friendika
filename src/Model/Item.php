@@ -1609,7 +1609,7 @@ class Item extends BaseObject
 			$item["global"] = true;
 
 			// Set the global flag on all items if this was a global item entry
-			self::update(['global' => true], ['uri' => $item["uri"]]);
+			DBA::update('item', ['global' => true], ['uri' => $item["uri"]]);
 		} else {
 			$item["global"] = self::exists(['uid' => 0, 'uri' => $item["uri"]]);
 		}
@@ -1765,7 +1765,7 @@ class Item extends BaseObject
 		}
 
 		// Set parent id
-		self::update(['parent' => $parent_id], ['id' => $current_post]);
+		DBA::update('item', ['parent' => $parent_id], ['id' => $current_post]);
 
 		$item['id'] = $current_post;
 		$item['parent'] = $parent_id;
@@ -1773,9 +1773,9 @@ class Item extends BaseObject
 		// update the commented timestamp on the parent
 		// Only update "commented" if it is really a comment
 		if (($item['gravity'] != GRAVITY_ACTIVITY) || !Config::get("system", "like_no_comment")) {
-			self::update(['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			DBA::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
-			self::update(['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
 		if ($dsprsig) {
