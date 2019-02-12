@@ -17,6 +17,9 @@ function worker_init()
 		return;
 	}
 
+	// Ensure that all "strtotime" operations do run timezone independent
+	date_default_timezone_set('UTC');
+
 	// We don't need the following lines if we can execute background jobs.
 	// So we just wake up the worker if it sleeps.
 	if (function_exists("proc_open")) {
