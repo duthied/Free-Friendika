@@ -650,7 +650,8 @@ class Worker
 				$argv[0] = basename($argv[0]);
 
 				// How long is the process already running?
-				$duration = (time() - strtotime($entry["executed"])) / 60;
+				// For some weird reasons we cannot use "time()" here. It doesn't seem to be in UTC.
+				$duration = (strtotime(DateTimeFormat::utcNow()) - strtotime($entry["executed"])) / 60;
 				if ($duration > $max_duration) {
 					Logger::log("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") took more than ".$max_duration." minutes. It will be killed now.");
 					posix_kill($entry["pid"], SIGTERM);
@@ -741,7 +742,15 @@ class Worker
 
 			$idle_workers = $active;
 
+			if (empty($deferred) && empty($entries)) {
+				$deferred = self::deferredEntries();
+				$entries = max(self::totalEntries() - $deferred, 0);
+			}
+
+			$waiting_processes = max(0, $entries - $deferred);
+
 			if (Config::get('system', 'worker_debug')) {
+				$waiting_processes = 0;
 				// Now adding all processes with workerqueue entries
 				$stamp = (float)microtime(true);
 				$jobs = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` AND `next_try` < ? GROUP BY `priority`", DateTimeFormat::utcNow());
@@ -754,6 +763,7 @@ class Worker
 					self::$db_duration_stat += (microtime(true) - $stamp);
 					if ($process = DBA::fetch($processes)) {
 						$idle_workers -= $process["running"];
+						$waiting_processes += $entry["entries"];
 						$listitem[$entry["priority"]] = $entry["priority"].":".$process["running"]."/".$entry["entries"];
 					}
 					DBA::close($processes);
@@ -775,11 +785,6 @@ class Worker
 
 			$processlist .= ' ('.implode(', ', $listitem).')';
 
-			if (empty($deferred) && empty($entries)) {
-				$deferred = self::deferredEntries();
-				$entries = max(self::totalEntries() - $deferred, 0);
-			}
-
 			if (Config::get("system", "worker_fastlane", false) && ($queues > 0) && self::entriesExists() && ($active >= $queues)) {
 				$top_priority = self::highestPriority();
 				$high_running = self::processWithPriorityActive($top_priority);
@@ -790,7 +795,7 @@ class Worker
 				}
 			}
 
-			Logger::log("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . ($entries - $deferred) . $processlist . " - maximum: " . $queues . "/" . $maxqueues, Logger::DEBUG);
+			Logger::log("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . $waiting_processes . $processlist . " - maximum: " . $queues . "/" . $maxqueues, Logger::DEBUG);
 
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!Config::get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && ($entries > 1)) {
