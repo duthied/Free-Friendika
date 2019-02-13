@@ -689,6 +689,10 @@ class Processor
 	 */
 	private static function removeImplicitMentionsFromBody($body, array $implicit_mentions)
 	{
+		if (Config::get('system', 'disable_mentions_removal')) {
+			return $body;
+		}
+
 		$kept_mentions = [];
 
 		// Extract one prepended mention at a time from the body
