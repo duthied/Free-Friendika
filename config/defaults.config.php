@@ -135,6 +135,10 @@ return [
 		// Disables the check if a mail address is in a valid format and can be resolved via DNS.
 		'disable_email_validation' => false,
 
+		// disable_mentions_removal (Boolean)
+		// Disables the automatic removal of mentions in ActivityPub postings.
+		'disable_mentions_removal' => false,
+
 		// disable_url_validation (Boolean)
 		// Disables the DNS lookup of an URL.
 		'disable_url_validation' => false,
