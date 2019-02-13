@@ -245,7 +245,7 @@ class Event extends BaseObject
 		$event['id']        = intval(defaults($arr, 'id'       , 0));
 		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
 		$event['cid']       = intval(defaults($arr, 'cid'      , 0));
-		$event['guid']      = defaults($arr, 'guid', System::createUUID());
+		$event['guid']      =        defaults($arr, 'guid'     , System::createUUID());
 		$event['uri']       =        defaults($arr, 'uri'      , Item::newURI($event['uid'], $event['guid']));
 		$event['type']      =        defaults($arr, 'type'     , 'event');
 		$event['summary']   =        defaults($arr, 'summary'  , '');
