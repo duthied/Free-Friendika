@@ -512,7 +512,7 @@
 		var getAttachmentData = function(content) {
 			var data = {};
 
-			var match = content.match(/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism);
+			var match = content.match(/([\s\S]*)\[attachment([\s\S]*?)\]([\s\S]*?)\[\/attachment\]([\s\S]*)/im);
 			if (match === null || match.length < 5) {
 				return null;
 			}
@@ -521,12 +521,12 @@
 			data.text = trim(match[1]);
 
 			var type = '';
-			var matches = attributes.match(/type='(.*?)'/ism);
+			var matches = attributes.match(/type='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				type = matches[1].toLowerCase();
 			}
 
-			matches = attributes.match(/type="(.*?)"/ism);
+			matches = attributes.match(/type="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				type = matches[1].toLowerCase();
 			}
@@ -550,12 +550,12 @@
 
 			var url = '';
 
-			matches = attributes.match(/url='(.*?)'/ism);
+			matches = attributes.match(/url='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				url = matches[1].toLowerCase();
 			}
 
-			matches = attributes.match(/url="(.*?)"/ism);
+			matches = attributes.match(/url="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				url = matches[1].toLowerCase();
 			}
@@ -566,12 +566,12 @@
 
 			var title = '';
 
-			matches = attributes.match(/title='(.*?)'/ism);
+			matches = attributes.match(/title='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				title = matches[1].toLowerCase();
 			}
 
-			matches = attributes.match(/title="(.*?)"/ism);
+			matches = attributes.match(/title="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				title = matches[1].toLowerCase();
 			}
@@ -582,12 +582,12 @@
 
 			var image = '';
 
-			matches = attributes.match(/image='(.*?)'/ism);
+			matches = attributes.match(/image='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				image = matches[1].toLowerCase();
 			}
 
-			matches = attributes.match(/image="(.*?)"/ism);
+			matches = attributes.match(/image="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				image = matches[1].toLowerCase();
 			}
@@ -598,12 +598,12 @@
 
 			var preview = '';
 
-			matches = attributes.match(/preview='(.*?)'/ism);
+			matches = attributes.match(/preview='([\s\S]*?)'/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				preview = matches[1].toLowerCase();
 			}
 
-			matches = attributes.match(/preview="(.*?)"/ism);
+			matches = attributes.match(/preview="([\s\S]*?)"/im);
 			if (matches !== null && typeof matches[1] !== 'undefined') {
 				preview = matches[1].toLowerCase();
 			}
@@ -630,7 +630,7 @@
 			if (attachmentData) {
 				reAddAttachment(attachmentData);
 				// Remove the attachment bbcode from the textarea.
-				var content = content.replace(/\[attachment.*\[\/attachment]/ism, '');
+				var content = content.replace(/\[attachment[\s\S]*\[\/attachment]/im, '');
 				$('#' + selector).val(content);
 				$('#' + selector).focus();
 			}
