@@ -136,7 +136,7 @@ return [
 		'disable_email_validation' => false,
 
 		// disable_mentions_removal (Boolean)
-		// Disables the automatic removal of mentions in ActivityPub postings.
+		// Disables the automatic removal of implicit mentions in ActivityPub postings.
 		'disable_mentions_removal' => false,
 
 		// disable_url_validation (Boolean)
