@@ -370,7 +370,9 @@ class Worker
 
 		$argc = count($argv);
 
-		$new_process_id = System::processID("wrk");
+		// Currently deactivated, since the new logger doesn't support this
+		//$new_process_id = System::processID("wrk");
+		$new_process_id = '';
 
 		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]." - Process PID: ".$new_process_id);
 
@@ -448,7 +450,7 @@ class Worker
 			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", Logger::DEBUG);
 		}
 
-		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".$duration." seconds. Process PID: ".$new_process_id);
+		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".number_format($duration, 4)." seconds. Process PID: ".$new_process_id);
 
 		// Write down the performance values into the log
 		if (Config::get("system", "profiler")) {
@@ -930,7 +932,7 @@ class Worker
 				['id'],
 				["`pid` = 0 AND `priority` < ? AND NOT `done` AND `next_try` < ?",
 				$highest_priority, DateTimeFormat::utcNow()],
-				['limit' => $limit, 'order' => ['priority', 'created']]
+				['limit' => 1, 'order' => ['priority', 'created']]
 			);
 			self::$db_duration += (microtime(true) - $stamp);
 
@@ -949,7 +951,7 @@ class Worker
 					['id'],
 					["`pid` = 0 AND `priority` > ? AND NOT `done` AND `next_try` < ?",
 					$highest_priority, DateTimeFormat::utcNow()],
-					['limit' => $limit, 'order' => ['priority', 'created']]
+					['limit' => 1, 'order' => ['priority', 'created']]
 				);
 				self::$db_duration += (microtime(true) - $stamp);
 
@@ -963,6 +965,26 @@ class Worker
 			}
 		}
 
+		// At first try to fetch a bunch of high or medium tasks
+		if (!$found && ($limit > 1)) {
+			$stamp = (float)microtime(true);
+			$result = DBA::select(
+				'workerqueue',
+				['id'],
+				["`pid` = 0 AND NOT `done` AND `priority` <= ? AND `next_try` < ? AND `retrial` = 0",
+				PRIORITY_MEDIUM, DateTimeFormat::utcNow()],
+				['limit' => $limit, 'order' => ['created']]
+			);
+			self::$db_duration += (microtime(true) - $stamp);
+
+			while ($id = DBA::fetch($result)) {
+				$ids[] = $id["id"];
+			}
+			DBA::close($result);
+
+			$found = (count($ids) > 0);
+		}
+
 		// If there is no result (or we shouldn't pass lower processes) we check without priority limit
 		if (!$found) {
 			$stamp = (float)microtime(true);
@@ -971,7 +993,7 @@ class Worker
 				['id'],
 				["`pid` = 0 AND NOT `done` AND `next_try` < ?",
 				DateTimeFormat::utcNow()],
-				['limit' => $limit, 'order' => ['priority', 'created']]
+				['limit' => 1, 'order' => ['priority', 'created']]
 			);
 			self::$db_duration += (microtime(true) - $stamp);
 
