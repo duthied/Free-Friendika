@@ -370,7 +370,9 @@ class Worker
 
 		$argc = count($argv);
 
-		$new_process_id = System::processID("wrk");
+		// Currently deactivated, since the new logger doesn't support this
+		//$new_process_id = System::processID("wrk");
+		$new_process_id = '';
 
 		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]." - Process PID: ".$new_process_id);
 
