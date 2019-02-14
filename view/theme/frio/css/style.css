@@ -3165,7 +3165,33 @@ section.help-content-wrapper li {
     pointer-events: none;
 }
 
-/* Register Page*/
+/* Manage Page */
+#identity-selector-wrapper {
+    width: auto;
+    height: auto;
+    margin-top: 20px;
+}
+#identity-selector-wrapper .identity-match-photo {
+    width: auto;
+    float: none;
+}
+#identity-selector-wrapper .identity-match-photo button {
+    position: relative;
+}
+#identity-selector-wrapper .identity-match-photo .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+}
+#identity-selector-wrapper .identity-match-name {
+    text-align: center;
+}
+#identity-selector-wrapper .identity-match-details {
+    width: auto;
+    float: none;
+}
+
+/* Register Page */
 #register-openid-wrapper, #register-name-wrapper, #register-invite-wrapper, #profile-publish-wrapper {
     margin-top: 20px;
 }
