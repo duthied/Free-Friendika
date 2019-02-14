@@ -591,7 +591,7 @@ class Installer
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB($configCache, $dbhost, $dbuser, $dbpass, $dbdata)
+	public function checkDB(ConfigCache $configCache, $dbhost, $dbuser, $dbpass, $dbdata)
 	{
 		if (!DBA::connect($configCache, $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
