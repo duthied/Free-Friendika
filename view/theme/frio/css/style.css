@@ -2044,9 +2044,16 @@ code > .hl-main {
 .comment-fake-form {
     border-color: #d9d9d9;
 }
+.comment-fake-form textarea {
+    resize: none;
+}
 
 .comment-container .wall-item-comment-wrapper {
     margin-top: 0.5em;
+}
+
+.comment-edit-form textarea {
+    resize: vertical;
 }
 
 .comment-edit-submit-wrapper {
