@@ -40,7 +40,7 @@
 </script>
 
 <script type="text/javascript">
-	var ispublic = '{{$ispublic}}';
+	var ispublic = '{{$ispublic nofilter}}';
 	aStr.linkurl = '{{$linkurl}}';
 
 
