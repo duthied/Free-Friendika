@@ -146,9 +146,6 @@
 		$(obj).val("");
 	}
 
-	window.showMore = "{{$showmore}}";
-	window.showFewer = "{{$showfewer}}";
-
 	function showHideCommentBox(id) {
 		if ($("#comment-edit-form-" + id).is(":visible")) {
 			$("#comment-edit-form-" + id).hide();

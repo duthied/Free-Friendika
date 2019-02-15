@@ -656,12 +656,14 @@ function preview_comment(id) {
 }
 
 function showHideComments(id) {
-	if ($("#collapsed-comments-" + id).is(":visible")) {
-		$("#collapsed-comments-" + id).hide();
-		$("#hide-comments-" + id).html(window.showMore);
+	if ($('#collapsed-comments-' + id).is(':visible')) {
+		$('#collapsed-comments-' + id).slideUp();
+		$('#hide-comments-' + id).hide();
+		$('#hide-comments-total-' + id).show();
 	} else {
-		$("#collapsed-comments-" + id).show();
-		$("#hide-comments-" + id).html(window.showFewer);
+		$('#collapsed-comments-' + id).slideDown();
+		$('#hide-comments-' + id).show();
+		$('#hide-comments-total-' + id).hide();
 	}
 }
 

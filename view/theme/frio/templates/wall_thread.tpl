@@ -41,12 +41,15 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{if $item.thread_level<3}}
 		<div class="hide-comments-outer-wrapper">
 			<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
-				<span id="hide-comments-total-{{$item.id}}"
-					class="hide-comments-total">{{$item.num_comments}}</span>
-				<span id="hide-comments-{{$item.id}}"
-					class="hide-comments">{{$item.hide_text}}</span>
+				<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+					<i class="fa fa-plus-square" aria-hidden="true"></i>
+					{{$item.num_comments}} - {{$item.show_text}}
+				</span>
+				<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+					<i class="fa fa-minus-square" aria-hidden="true"></i>
+					{{$item.num_comments}} - {{$item.hide_text}}
+				</span>
 			</div>
-			<hr />
 		</div>
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 	{{else}}

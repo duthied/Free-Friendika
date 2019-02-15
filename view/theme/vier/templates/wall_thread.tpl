@@ -2,12 +2,13 @@
 {{else}}
 {{if $item.comment_firstcollapsed}}
 	{{if $item.thread_level<3}}
-		<div class="hide-comments-outer">
-			<span id="hide-comments-total-{{$item.id}}"
-				class="hide-comments-total">{{$item.num_comments}}</span>
-			<span id="hide-comments-{{$item.id}}"
-				class="hide-comments fakelink"
-				onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
+		<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
+			<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+				{{$item.num_comments}} - {{$item.show_text}}
+			</span>
+			<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+				{{$item.num_comments}} - {{$item.hide_text}}
+			</span>
 		</div>
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 	{{else}}
