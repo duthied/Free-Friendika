@@ -2050,8 +2050,7 @@ code > .hl-main {
 }
 
 .comment-edit-submit-wrapper {
-    display: flex;
-    justify-content: flex-end;
+    text-align: right;
 }
 
 .comment-icon-list {
