@@ -17,25 +17,30 @@ function _resizeIframe(obj, desth) {
 }
 
 function openClose(theID) {
-	if (document.getElementById(theID).style.display == "block") {
-		document.getElementById(theID).style.display = "none"
-	} else {
-		document.getElementById(theID).style.display = "block"
+	var el = document.getElementById(theID);
+	if (el) {
+		if (window.getComputedStyle(el).display === "none") {
+			openMenu(theID);
+		} else {
+			closeMenu(theID);
+		}
 	}
 }
 
 function openMenu(theID) {
 	var el = document.getElementById(theID);
-
 	if (el) {
-		el.style.display = "block";
+		if (!el.dataset.display) {
+			el.dataset.display = 'block';
+		}
+		el.style.display = el.dataset.display;
 	}
 }
 
 function closeMenu(theID) {
-	var el = document.getElementById(theID)
-
+	var el = document.getElementById(theID);
 	if (el) {
+		el.dataset.display = window.getComputedStyle(el).display;
 		el.style.display = "none";
 	}
 }
