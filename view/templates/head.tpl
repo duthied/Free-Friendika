@@ -88,7 +88,6 @@
 		$("#comment-edit-text-" + id).putCursorAtEnd();
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		$("#comment-edit-text-" + id).focus();
 		$("#mod-cmnt-wrap-" + id).show();
 		openMenu("comment-edit-submit-wrapper-" + id);
 		return true;
