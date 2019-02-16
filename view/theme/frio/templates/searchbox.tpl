@@ -46,16 +46,18 @@ Some parts of this template will be moved by js to other places (see theme.js) -
 			
 		</form>
 	</div>
-	{{* This form is inserted as experiment to move the search-save button to the second navbar with js *}}
-	{{if $savedsearch}}
+
+{{if $savedsearch}}
 	<form id="search-save-form" action="{{$action_url}}" method="get" >
 		<input type="hidden" name="search" value="{{$s}}" />
-		{{* In dependence of the search content we show different buttons *}}
-		{{if $mode == "tag"}}
-		<button class="btn btn-primary btn-sm btn-main pull-right" type="submit" name="save" id="search-save" title="{{$save_label}}" value="{{$save_label}}" data-toggle="tooltip"><i class="fa fa-plus fa-2x" aria-hidden="true"></i></button>
-		{{else}}
-		<button class="btn btn-primary btn-sm btn-main pull-right" type="submit" name="save" id="search-save" title="{{$save_label}}" value="{{$save_label}}" data-toggle="tooltip"><i class="fa fa-floppy-o fa-2x" aria-hidden="true"></i></button>
-		{{/if}}
-	</form>
+		<button class="btn btn-sm btn-main pull-right" type="submit" name="save" id="search-save" title="{{$save_label}}" aria-label="{{$save_label}}" value="{{$save_label}}" data-toggle="tooltip">
+	{{if $mode == "tag"}}
+			<i class="fa fa-plus fa-2x" aria-hidden="true"></i>
+	{{else}}
+			<i class="fa fa-floppy-o fa-2x" aria-hidden="true"></i>
 	{{/if}}
+			<span class="sr-only">{{$save_label}}</span>
+		</button>
+	</form>
+{{/if}}
 </div>
