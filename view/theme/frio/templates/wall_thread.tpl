@@ -408,23 +408,21 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* Insert the comment box of the top level post at the bottom of the thread.
 			Display this comment box if there are any comments. If not hide it. In this
 			case it could be opend with the "comment" button *}}
-		{{if $item.total_comments_num}}
+		{{if $item.comment && $item.thread_level==1}}
+			{{if $item.total_comments_num}}
 			<div class="comment-fake-form" id="comment-fake-form-{{$item.id}}">
 				<textarea id="comment-fake-text-{{$item.id}}" class="comment-fake-text-empty form-control" placeholder="{{$item.reply_label}}" onFocus="commentOpenUI(this, {{$item.id}});"  rows="1"></textarea>
 			</div>
-		{{/if}}
-		{{if $item.comment && $item.thread_level==1}}
+			{{/if}}
 			<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment nofilter}}</div>
 		{{/if}}
 	</div><!-- /media -->
 </div><!-- ./panel-body or ./wall-item-container -->
 
-
 {{if $mode == display}}
 {{else}}
 {{if $item.comment_lastcollapsed}}</div>{{/if}}
 {{/if}}
-
 
 {{* close the comment-container div if no more thread_level = 2 children are left *}}
 {{if $item.thread_level==2 && $top_child_nr==$top_child_total}}
