@@ -37,7 +37,7 @@ $basedir = BasePath::create(dirname(__DIR__), $_SERVER);
 $configLoader = new Config\ConfigCacheLoader($basedir);
 $config = Factory\ConfigFactory::createCache($configLoader);
 $logger = Factory\LoggerFactory::create('daemon', $config);
-$profiler = Factory\ProfilerFactory::create($config);
+$profiler = Factory\ProfilerFactory::create($logger, $config);
 
 $a = new App($config, $logger, $profiler);
 
