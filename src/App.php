@@ -493,7 +493,7 @@ class App
 
 		unset($db_host, $db_user, $db_pass, $db_data, $charset);
 
-		$this->profiler->saveTimestamp($stamp1, 'network');
+		$this->profiler->saveTimestamp($stamp1, 'network', Core\System::callstack());
 	}
 
 	public function getScheme()
@@ -1189,7 +1189,7 @@ class App
 		if (!$this->isBackend()) {
 			$stamp1 = microtime(true);
 			session_start();
-			$this->profiler->saveTimestamp($stamp1, 'parser');
+			$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
 			Core\L10n::setSessionVariable();
 			Core\L10n::setLangFromSession();
 		} else {

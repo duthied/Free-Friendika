@@ -587,7 +587,7 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		self::$profiler->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		if (self::$configCache->get('system', 'db_log')) {
 			$stamp2 = microtime(true);
@@ -658,7 +658,7 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		self::$profiler->saveTimestamp($stamp, "database_write");
+		self::$profiler->saveTimestamp($stamp, "database_write", System::callstack());
 
 		return $retval;
 	}
@@ -827,7 +827,7 @@ class DBA
 				}
 		}
 
-		self::$profiler->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		return $columns;
 	}
@@ -1564,7 +1564,7 @@ class DBA
 				break;
 		}
 
-		self::$profiler->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		return $ret;
 	}

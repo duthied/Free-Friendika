@@ -7,6 +7,7 @@
 namespace Friendica\Content\Text;
 
 use Friendica\BaseObject;
+use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Michelf\MarkdownExtra;
 
@@ -36,7 +37,7 @@ class Markdown extends BaseObject
 		$html = $MarkdownParser->transform($text);
 		$html = preg_replace('/<a(.*?)href="#/is', '<a$1href="' . ltrim($_SERVER['REQUEST_URI'], '/') . '#', $html);
 
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, "parser");
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
 
 		return $html;
 	}

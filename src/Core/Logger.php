@@ -155,7 +155,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->emergency($message, $context);
-		self::getApp()->GetProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->GetProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -179,7 +179,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->alert($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -202,7 +202,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->critical($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -225,7 +225,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->error($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -249,7 +249,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->warning($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -270,7 +270,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->notice($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -293,7 +293,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->info($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -314,7 +314,7 @@ class Logger extends BaseObject
 
 		$stamp1 = microtime(true);
 		self::$logger->debug($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file');
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
     /**
@@ -334,7 +334,7 @@ class Logger extends BaseObject
 
         $stamp1 = microtime(true);
 		self::$logger->log($level, $msg);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file");
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
     }
 
 	/**
@@ -355,6 +355,6 @@ class Logger extends BaseObject
 
         $stamp1 = microtime(true);
         self::$devLogger->log($level, $msg);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file");
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
     }
 }

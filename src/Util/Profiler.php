@@ -2,7 +2,6 @@
 
 namespace Friendica\Util;
 
-use Friendica\Core;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -58,8 +57,9 @@ class Profiler implements ContainerInterface
 	 *
 	 * @param int $timestamp the Timestamp
 	 * @param string $value A value to profile
+	 * @param string $callstack The callstack of the current profiling data
 	 */
-	public function saveTimestamp($timestamp, $value)
+	public function saveTimestamp($timestamp, $value, $callstack = '')
 	{
 		if (!$this->enabled) {
 			return;
@@ -74,8 +74,6 @@ class Profiler implements ContainerInterface
 
 		$this->performance[$value] += (float) $duration;
 		$this->performance['marktime'] += (float) $duration;
-
-		$callstack = Core\System::callstack();
 
 		if (!isset($this->callstack[$value][$callstack])) {
 			// Prevent ugly E_NOTICE

@@ -232,7 +232,7 @@ class Network
 
 		@curl_close($ch);
 
-		$a->getProfiler()->saveTimestamp($stamp1, 'network');
+		$a->getProfiler()->saveTimestamp($stamp1, 'network', System::callstack());
 
 		return $curlResponse;
 	}
@@ -334,7 +334,7 @@ class Network
 
 		curl_close($ch);
 
-		$a->getProfiler()->saveTimestamp($stamp1, 'network');
+		$a->getProfiler()->saveTimestamp($stamp1, 'network', System::callstack());
 
 		Logger::log('post_url: end ' . $url, Logger::DATA);
 
@@ -641,7 +641,7 @@ class Network
 		$http_code = $curl_info['http_code'];
 		curl_close($ch);
 
-		$a->getProfiler()->saveTimestamp($stamp1, "network");
+		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 		if ($http_code == 0) {
 			return $url;
@@ -683,7 +683,7 @@ class Network
 		$body = curl_exec($ch);
 		curl_close($ch);
 
-		$a->getProfiler()->saveTimestamp($stamp1, "network");
+		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 		if (trim($body) == "") {
 			return $url;
