@@ -36,7 +36,7 @@ class Markdown extends BaseObject
 		$html = $MarkdownParser->transform($text);
 		$html = preg_replace('/<a(.*?)href="#/is', '<a$1href="' . ltrim($_SERVER['REQUEST_URI'], '/') . '#', $html);
 
-		self::getApp()->saveTimestamp($stamp1, "parser");
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, "parser");
 
 		return $html;
 	}

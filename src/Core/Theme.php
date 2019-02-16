@@ -51,7 +51,7 @@ class Theme
 		$a = \get_app();
 		$stamp1 = microtime(true);
 		$theme_file = file_get_contents("view/theme/$theme/theme.php");
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file");
 
 		$result = preg_match("|/\*.*\*/|msU", $theme_file, $matches);
 

@@ -58,8 +58,9 @@ $basedir = BasePath::create(dirname(__DIR__), $_SERVER);
 $configLoader = new Config\ConfigCacheLoader($basedir);
 $config = Factory\ConfigFactory::createCache($configLoader);
 $logger = Factory\LoggerFactory::create('auth_ejabberd', $config);
+$profiler = Factory\ProfilerFactory::create($config);
 
-$a = new App($config, $logger);
+$a = new App($config, $logger, $profiler);
 
 if ($a->getMode()->isNormal()) {
 	$oAuth = new ExAuth();

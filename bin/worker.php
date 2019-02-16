@@ -35,8 +35,9 @@ $basedir = BasePath::create(dirname(__DIR__), $_SERVER);
 $configLoader = new Config\ConfigCacheLoader($basedir);
 $config = Factory\ConfigFactory::createCache($configLoader);
 $logger = Factory\LoggerFactory::create('worker', $config);
+$profiler = Factory\ProfilerFactory::create($config);
 
-$a = new App($config, $logger);
+$a = new App($config, $logger, $profiler);
 
 // Check the database structure and possibly fixes it
 Update::check($a->getBasePath(), true);

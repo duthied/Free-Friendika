@@ -4,13 +4,13 @@
  */
 namespace Friendica\Util;
 
+use DOMDocument;
+use DomXPath;
+use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Core\Config;
 use Friendica\Network\CurlResult;
-use DOMDocument;
-use DomXPath;
 
 class Network
 {
@@ -232,7 +232,7 @@ class Network
 
 		@curl_close($ch);
 
-		$a->saveTimestamp($stamp1, 'network');
+		$a->getProfiler()->saveTimestamp($stamp1, 'network');
 
 		return $curlResponse;
 	}
@@ -334,7 +334,7 @@ class Network
 
 		curl_close($ch);
 
-		$a->saveTimestamp($stamp1, 'network');
+		$a->getProfiler()->saveTimestamp($stamp1, 'network');
 
 		Logger::log('post_url: end ' . $url, Logger::DATA);
 
@@ -641,7 +641,7 @@ class Network
 		$http_code = $curl_info['http_code'];
 		curl_close($ch);
 
-		$a->saveTimestamp($stamp1, "network");
+		$a->getProfiler()->saveTimestamp($stamp1, "network");
 
 		if ($http_code == 0) {
 			return $url;
@@ -683,7 +683,7 @@ class Network
 		$body = curl_exec($ch);
 		curl_close($ch);
 
-		$a->saveTimestamp($stamp1, "network");
+		$a->getProfiler()->saveTimestamp($stamp1, "network");
 
 		if (trim($body) == "") {
 			return $url;

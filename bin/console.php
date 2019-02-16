@@ -11,8 +11,9 @@ $basedir = BasePath::create(dirname(__DIR__), $_SERVER);
 $configLoader = new Config\ConfigCacheLoader($basedir);
 $config = Factory\ConfigFactory::createCache($configLoader);
 $logger = Factory\LoggerFactory::create('console', $config);
+$profiler = Factory\ProfilerFactory::create($config);
 
-$a = new Friendica\App($config, $logger);
+$a = new Friendica\App($config, $logger, $profiler);
 \Friendica\BaseObject::setApp($a);
 
 (new Friendica\Core\Console($argv))->execute();

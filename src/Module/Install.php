@@ -75,7 +75,7 @@ class Install extends BaseModule
 				$dbdata  = Strings::escapeTags(trim(defaults($_POST, 'dbdata', '')));
 
 				// If we cannot connect to the database, return to the previous step
-				if (!self::$installer->checkDB($a->getConfig(), $dbhost, $dbuser, $dbpass, $dbdata)) {
+				if (!self::$installer->checkDB($a->getConfig(), $a->getProfiler(), $dbhost, $dbuser, $dbpass, $dbdata)) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 				}
 
@@ -92,7 +92,7 @@ class Install extends BaseModule
 				$adminmail = Strings::escapeTags(trim(defaults($_POST, 'adminmail', '')));
 
 				// If we cannot connect to the database, return to the Database config wizard
-				if (!self::$installer->checkDB($a->getConfig(), $dbhost, $dbuser, $dbpass, $dbdata)) {
+				if (!self::$installer->checkDB($a->getConfig(), $a->getProfiler(), $dbhost, $dbuser, $dbpass, $dbdata)) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 					return;
 				}

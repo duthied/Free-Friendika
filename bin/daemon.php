@@ -37,8 +37,9 @@ $basedir = BasePath::create(dirname(__DIR__), $_SERVER);
 $configLoader = new Config\ConfigCacheLoader($basedir);
 $config = Factory\ConfigFactory::createCache($configLoader);
 $logger = Factory\LoggerFactory::create('daemon', $config);
+$profiler = Factory\ProfilerFactory::create($config);
 
-$a = new App($config, $logger);
+$a = new App($config, $logger, $profiler);
 
 if ($a->getMode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");

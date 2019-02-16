@@ -74,7 +74,7 @@ class Renderer extends BaseObject
             exit();
         }
 
-        $a->saveTimestamp($stamp1, "rendering");
+		$a->getProfiler()->saveTimestamp($stamp1, "rendering");
 
         return $output;
     }
@@ -101,7 +101,7 @@ class Renderer extends BaseObject
             exit();
         }
 
-        $a->saveTimestamp($stamp1, "file");
+        $a->getProfiler()->saveTimestamp($stamp1, "file");
 
         return $template;
     }

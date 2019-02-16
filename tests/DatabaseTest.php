@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
+use Friendica\Util\Profiler;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
@@ -43,8 +44,11 @@ abstract class DatabaseTest extends MockedTest
 		$configLoader = new Config\ConfigCacheLoader($basedir);
 		$config = Factory\ConfigFactory::createCache($configLoader);
 
+		$profiler = \Mockery::mock(Profiler::class);
+
 		DBA::connect(
 			$config,
+			$profiler,
 			getenv('MYSQL_HOST'),
 			getenv('MYSQL_USERNAME'),
 			getenv('MYSQL_PASSWORD'),

@@ -13,6 +13,7 @@ use Friendica\Core\Config\ConfigCacheLoader;
 use Friendica\Database\DBA;
 use Friendica\Factory\ConfigFactory;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -53,8 +54,6 @@ class App
 	public $identities;
 	public $is_mobile = false;
 	public $is_tablet = false;
-	public $performance = [];
-	public $callstack = [];
 	public $theme_info = [];
 	public $category;
 	// Allow themes to control internal parameters
@@ -120,6 +119,11 @@ class App
 	private $config;
 
 	/**
+	 * @var Profiler The profiler of this app
+	 */
+	private $profiler;
+
+	/**
 	 * Returns the current config cache of this node
 	 *
 	 * @return ConfigCache
@@ -137,6 +141,16 @@ class App
 	public function getBasePath()
 	{
 		return $this->basePath;
+	}
+
+	/**
+	 * The profiler of this app
+	 *
+	 * @return Profiler
+	 */
+	public function getProfiler()
+	{
+		return $this->profiler;
 	}
 
 	/**
@@ -183,14 +197,16 @@ class App
 	 *
 	 * @param ConfigCache      $config    The Cached Config
 	 * @param LoggerInterface  $logger    Logger of this application
+	 * @param Profiler         $profiler  The profiler of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(ConfigCache $config, LoggerInterface $logger, $isBackend = true)
+	public function __construct(ConfigCache $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		$this->config   = $config;
 		$this->logger   = $logger;
+		$this->profiler = $profiler;
 		$this->basePath = $this->config->get('system', 'basepath');
 
 		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
@@ -203,26 +219,7 @@ class App
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
 
-		$this->performance['start'] = microtime(true);
-		$this->performance['database'] = 0;
-		$this->performance['database_write'] = 0;
-		$this->performance['cache'] = 0;
-		$this->performance['cache_write'] = 0;
-		$this->performance['network'] = 0;
-		$this->performance['file'] = 0;
-		$this->performance['rendering'] = 0;
-		$this->performance['parser'] = 0;
-		$this->performance['marktime'] = 0;
-		$this->performance['markstart'] = microtime(true);
-
-		$this->callstack['database'] = [];
-		$this->callstack['database_write'] = [];
-		$this->callstack['cache'] = [];
-		$this->callstack['cache_write'] = [];
-		$this->callstack['network'] = [];
-		$this->callstack['file'] = [];
-		$this->callstack['rendering'] = [];
-		$this->callstack['parser'] = [];
+		$this->profiler->reset();
 
 		$this->mode = new App\Mode($this->basePath);
 
@@ -489,14 +486,14 @@ class App
 
 		$stamp1 = microtime(true);
 
-		if (DBA::connect($this->config, $db_host, $db_user, $db_pass, $db_data, $charset)) {
+		if (DBA::connect($this->config, $this->profiler, $db_host, $db_user, $db_pass, $db_data, $charset)) {
 			// Loads DB_UPDATE_VERSION constant
 			Database\DBStructure::definition($this->basePath, false);
 		}
 
 		unset($db_host, $db_user, $db_pass, $db_data, $charset);
 
-		$this->saveTimestamp($stamp1, 'network');
+		$this->profiler->saveTimestamp($stamp1, 'network');
 	}
 
 	public function getScheme()
@@ -740,41 +737,6 @@ class App
 		} else {
 			return $url;
 		}
-	}
-
-	/**
-	 * Saves a timestamp for a value - f.e. a call
-	 * Necessary for profiling Friendica
-	 *
-	 * @param int $timestamp the Timestamp
-	 * @param string $value A value to profile
-	 */
-	public function saveTimestamp($timestamp, $value)
-	{
-		$profiler = $this->config->get('system', 'profiler');
-
-		if (!isset($profiler) || !$profiler) {
-			return;
-		}
-
-		$duration = (float) (microtime(true) - $timestamp);
-
-		if (!isset($this->performance[$value])) {
-			// Prevent ugly E_NOTICE
-			$this->performance[$value] = 0;
-		}
-
-		$this->performance[$value] += (float) $duration;
-		$this->performance['marktime'] += (float) $duration;
-
-		$callstack = Core\System::callstack();
-
-		if (!isset($this->callstack[$value][$callstack])) {
-			// Prevent ugly E_NOTICE
-			$this->callstack[$value][$callstack] = 0;
-		}
-
-		$this->callstack[$value][$callstack] += (float) $duration;
 	}
 
 	/**
@@ -1227,7 +1189,7 @@ class App
 		if (!$this->isBackend()) {
 			$stamp1 = microtime(true);
 			session_start();
-			$this->saveTimestamp($stamp1, 'parser');
+			$this->profiler->saveTimestamp($stamp1, 'parser');
 			Core\L10n::setSessionVariable();
 			Core\L10n::setLangFromSession();
 		} else {
