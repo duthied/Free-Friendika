@@ -47,8 +47,7 @@ class Profiler implements ContainerInterface
 		$this->enabled = $enabled;
 		$this->rendertime = $renderTime;
 		$this->logger = $logger;
-		$this->performance = [];
-		$this->callstack   = [];
+		$this->reset();
 	}
 
 	/**
@@ -103,7 +102,7 @@ class Profiler implements ContainerInterface
 			$this->performance['rendering'] = 0;
 			$this->performance['parser'] = 0;
 			$this->performance['marktime'] = 0;
-			$this->performance['markstart'] = microtime(true);
+			$this->performance['marktime'] = microtime(true);
 		}
 
 		if ($callstack) {
@@ -123,7 +122,7 @@ class Profiler implements ContainerInterface
 	 *
 	 * @param string $message Additional message for the log
 	 */
-	public function saveLog($message)
+	public function saveLog($message = '')
 	{
 		// Write down the performance values into the log
 		if ($this->enabled) {
@@ -166,18 +165,18 @@ class Profiler implements ContainerInterface
 						}
 					}
 				}
-				if (isset($this->callstack["dache"])) {
+				if (isset($this->callstack["cache"])) {
 					$o .= "\nCache Read:\n";
-					foreach ($this->callstack["dache"] as $func => $time) {
+					foreach ($this->callstack["cache"] as $func => $time) {
 						$time = round($time, 3);
 						if ($time > 0) {
 							$o .= $func.": ".$time."\n";
 						}
 					}
 				}
-				if (isset($this->callstack["dache_write"])) {
+				if (isset($this->callstack["cache_write"])) {
 					$o .= "\nCache Write:\n";
-					foreach ($this->callstack["dache_write"] as $func => $time) {
+					foreach ($this->callstack["cache_write"] as $func => $time) {
 						$time = round($time, 3);
 						if ($time > 0) {
 							$o .= $func.": ".$time."\n";
@@ -193,23 +192,9 @@ class Profiler implements ContainerInterface
 						}
 					}
 				}
+				$this->logger->info($message . ": " . $o);
 			}
 
-			$this->logger->info(
-				$message . ": " . sprintf(
-					"DB: %s/%s, Cache: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s".$o,
-					number_format($this->get('database') - $this->get('database_write'), 2),
-					number_format($this->get('database_write'), 2),
-					number_format($this->get('cache'), 2),
-					number_format($this->get('cache_write'), 2),
-					number_format($this->get('network'), 2),
-					number_format($this->get('file'), 2),
-					number_format($duration - ($this->get('database')
-							+ $this->get('cache') + $this->get('cache_write')
-							+ $this->get('network') + $this->get('file')), 2),
-					number_format($duration, 2)
-				)
-			);
 		}
 	}
 
