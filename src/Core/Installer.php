@@ -357,6 +357,7 @@ class Installer
 	 * - mb_string
 	 * - XML
 	 * - iconv
+	 * - fileinfo
 	 * - POSIX
 	 *
 	 * @return bool false if something required failed
@@ -448,6 +449,13 @@ class Installer
 		$status = $this->checkFunction('json_encode',
 			L10n::t('JSON PHP module'),
 			L10n::t('Error: JSON PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('finfo_open',
+			L10n::t('File Information PHP module'),
+			L10n::t('Error: File Information PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;

@@ -45,6 +45,8 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('Error: POSIX PHP module required but not installed.', 1);
 		$this->mockL10nT('JSON PHP module', 1);
 		$this->mockL10nT('Error: JSON PHP module required but not installed.', 1);
+		$this->mockL10nT('File Information PHP module', 1);
+		$this->mockL10nT('Error: File Information PHP module required but not installed.', 1);
 	}
 
 	private function assertCheckExist($position, $title, $help, $status, $required, $assertionArray)
@@ -193,6 +195,17 @@ class InstallerTest extends MockedTest
 			$install->getChecks());
 
 		$this->mockFunctionL10TCalls();
+		$this->setFunctions(['finfo_open' => false]);
+		$install = new Installer();
+		$this->assertFalse($install->checkFunctions());
+		$this->assertCheckExist(10,
+			'File Information PHP module',
+			'Error: File Information PHP module required but not installed.',
+			false,
+			true,
+			$install->getChecks());
+
+		$this->mockFunctionL10TCalls();
 		$this->setFunctions([
 			'curl_init' => true,
 			'imagecreatefromjpeg' => true,
@@ -200,7 +213,8 @@ class InstallerTest extends MockedTest
 			'mb_strlen' => true,
 			'iconv_strlen' => true,
 			'posix_kill' => true,
-			'json_encode' => true
+			'json_encode' => true,
+			'finfo_open' => true,
 		]);
 		$install = new Installer();
 		$this->assertTrue($install->checkFunctions());
