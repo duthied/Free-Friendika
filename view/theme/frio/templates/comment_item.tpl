@@ -54,12 +54,12 @@
 		</p>
 {{/if}}
 
-		<div class="comment-edit-submit-wrapper">
+		<p class="comment-edit-submit-wrapper">
 {{if $preview}}
 			<button type="button" class="btn btn-defaul btn-sm" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
 {{/if}}
 			<button type="submit" class="btn btn-primary btn-sm" id="comment-edit-submit-{{$id}}" name="submit"><i class="fa fa-envelope"></i> {{$submit}}</button>
-		</div>
+		</p>
 
 		<div class="comment-edit-end clear"></div>
 	</form>
