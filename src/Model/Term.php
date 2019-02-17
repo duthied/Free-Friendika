@@ -272,10 +272,10 @@ class Term
 
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$tag['url'] = Contact::magicLinkByContact($author, $tag['url']);
 
 			$prefix = '';
 			if ($tag['type'] == TERM_HASHTAG) {
+				$tag['url'] = Contact::magicLinkByContact($author, $tag['url']);
 				if ($orig_tag != $tag['url']) {
 					$item['body'] = str_replace($orig_tag, $tag['url'], $item['body']);
 				}
@@ -283,6 +283,7 @@ class Term
 				$return['hashtags'][] = '#<a href="' . $tag['url'] . '" target="_blank">' . $tag['term'] . '</a>';
 				$prefix = '#';
 			} elseif ($tag['type'] == TERM_MENTION) {
+				$tag['url'] = Contact::magicLink($tag['url']);
 				$return['mentions'][] = '@<a href="' . $tag['url'] . '" target="_blank">' . $tag['term'] . '</a>';
 				$prefix = '@';
 			}
