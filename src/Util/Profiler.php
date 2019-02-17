@@ -84,19 +84,11 @@ class Profiler implements ContainerInterface
 
 	/**
 	 * Resets the performance and callstack profiling
-	 *
-	 * @param bool $performance If true, reset the performance (Default true)
-	 * @param bool $callstack   If true, reset the callstack (Default true)
 	 */
-	public function reset($performance = true, $callstack = true)
+	public function reset()
 	{
-		if ($performance) {
-			$this->resetPerformance();
-		}
-
-		if ($callstack) {
-			$this->resetCallstack();
-		}
+		$this->resetPerformance();
+		$this->resetCallstack();
 	}
 
 	/**
