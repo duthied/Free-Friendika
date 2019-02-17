@@ -214,17 +214,17 @@ class App
 	 */
 	public function __construct(Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
+		BaseObject::setApp($this);
+
 		$this->logger   = $logger;
 		$this->config   = $config;
 		$this->profiler = $profiler;
 		$this->basePath = $this->config->get('system', 'basepath');
 
 		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
-			throw new Exception('Basepath ' . $this->basePath . ' isn\'t usable.');
+			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');
 		}
 		$this->basePath = rtrim($this->basePath, DIRECTORY_SEPARATOR);
-
-		BaseObject::setApp($this);
 
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
