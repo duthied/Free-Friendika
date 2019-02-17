@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\Database\DBStructure;
 use Mockery\MockInterface;
 
 /**
@@ -16,6 +17,7 @@ trait DBStructureMockTrait
 
 	/**
 	 * Mocking DBStructure::update()
+	 * @see DBStructure::update();
 	 *
 	 * @param array $args The arguments for the update call
 	 * @param bool $return True, if the connect was successful, otherwise false

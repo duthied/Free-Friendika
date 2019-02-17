@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Core\Config;
 
+use Friendica\Core\Config\Adapter\IConfigAdapter;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
@@ -29,7 +30,7 @@ class ConfigurationTest extends MockedTest
 	public function testSetUp()
 	{
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->once();
 
 		$configuration = new Configuration($configCache, $configAdapter);
@@ -43,7 +44,7 @@ class ConfigurationTest extends MockedTest
 	public function testCacheLoad()
 	{
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
 		// constructor loading
 		$configAdapter->shouldReceive('load')->andReturn([])->once();
@@ -64,7 +65,7 @@ class ConfigurationTest extends MockedTest
 	public function testCacheLoadDouble()
 	{
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(5);
 		// constructor loading
 		$configAdapter->shouldReceive('load')->andReturn([])->once();
@@ -93,7 +94,7 @@ class ConfigurationTest extends MockedTest
 	public function testSetGetWithoutDB($data)
 	{
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(3);
 
 		$configuration = new Configuration($configCache, $configAdapter);
@@ -111,7 +112,7 @@ class ConfigurationTest extends MockedTest
 	public function testSetGetWithDB($data)
 	{
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
 		// constructor loading
 		$configAdapter->shouldReceive('load')->andReturn([])->once();
@@ -132,7 +133,7 @@ class ConfigurationTest extends MockedTest
 	public function testGetWrongWithoutDB()
 	{
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
 
 		$configuration = new Configuration($configCache, $configAdapter);
@@ -157,7 +158,7 @@ class ConfigurationTest extends MockedTest
 	public function testGetWithRefresh($data)
 	{
 		$configCache = new ConfigCache(['test' => ['it' => 'now']]);
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
 		// constructor loading
 		$configAdapter->shouldReceive('load')->andReturn([])->once();
@@ -188,7 +189,7 @@ class ConfigurationTest extends MockedTest
 	public function testGetWithoutLoaded($data)
 	{
 		$configCache = new ConfigCache(['test' => ['it' => 'now']]);
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
 		// constructor loading
 		$configAdapter->shouldReceive('load')->andReturn([])->once();
@@ -223,7 +224,7 @@ class ConfigurationTest extends MockedTest
 	public function testDeleteWithoutDB($data)
 	{
 		$configCache = new ConfigCache(['test' => ['it' => $data]]);
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
 
 		$configuration = new Configuration($configCache, $configAdapter);
@@ -244,7 +245,7 @@ class ConfigurationTest extends MockedTest
 	public function testDeleteWithDB()
 	{
 		$configCache = new ConfigCache(['test' => ['it' => 'now', 'quarter' => 'true']]);
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IConfigAdapter');
+		$configAdapter = \Mockery::mock(IConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(6);
 		// constructor loading
 		$configAdapter->shouldReceive('load')->andReturn([])->once();

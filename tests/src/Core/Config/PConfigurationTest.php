@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Core\Config;
 
+use Friendica\Core\Config\Adapter\IPConfigAdapter;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\PConfiguration;
 use Friendica\Test\MockedTest;
@@ -29,7 +30,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->twice();
 		// expected loading
 		$configAdapter->shouldReceive('load')
@@ -51,7 +52,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
 		// expected loading
 		$configAdapter->shouldReceive('load')->with($uid, 'testing')->andReturn(['testing' => ['test' => 'it']])->once();
@@ -77,7 +78,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(2);
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
@@ -95,7 +96,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(2);
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
 		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', $data)->andReturn(true)->once();
@@ -114,7 +115,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(3);
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
@@ -137,7 +138,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
 		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn('now')->once();
@@ -168,7 +169,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
 
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
@@ -199,7 +200,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
@@ -218,7 +219,7 @@ class PConfigurationTest extends MockedTest
 	{
 		$uid = 234;
 		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\Adapter\IPConfigAdapter');
+		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(6);
 		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', 'now')->andReturn(false)->once();
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();

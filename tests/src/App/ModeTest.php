@@ -90,7 +90,7 @@ class ModeTest extends MockedTest
 		$this->mockConnected(true, 1);
 		$this->mockFetchFirst('SHOW TABLES LIKE \'config\'', true, 1);
 
-		$config = \Mockery::mock('Friendica\Core\Config\Configuration');
+		$config = \Mockery::mock(Config\Configuration::class);
 		$config
 			->shouldReceive('get')
 			->with('system', 'maintenance', null, false)
@@ -118,7 +118,7 @@ class ModeTest extends MockedTest
 		$this->mockConnected(true, 1);
 		$this->mockFetchFirst('SHOW TABLES LIKE \'config\'', true, 1);
 
-		$config = \Mockery::mock('Friendica\Core\Config\Configuration');
+		$config = \Mockery::mock(Config\Configuration::class);
 		$config
 			->shouldReceive('get')
 			->with('system', 'maintenance', null, false)
