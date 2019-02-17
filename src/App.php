@@ -663,8 +663,6 @@ class App
 			'$local_user'      => local_user(),
 			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem'         => Core\L10n::t('Delete this item?'),
-			'$showmore'        => Core\L10n::t('show more'),
-			'$showfewer'       => Core\L10n::t('show fewer'),
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,

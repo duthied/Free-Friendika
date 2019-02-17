@@ -415,6 +415,7 @@ class Post extends BaseObject
 			'dislike'         => $responses['dislike']['output'],
 			'responses'       => $responses,
 			'switchcomment'   => L10n::t('Comment'),
+			'reply_label'     => L10n::t('Reply to %s', $name_e),
 			'comment'         => $comment,
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
 			'wait'            => L10n::t('Please wait'),
@@ -449,13 +450,13 @@ class Post extends BaseObject
 			foreach ($children as $child) {
 				$result['children'][] = $child->getTemplateData($conv_responses, $thread_level + 1);
 			}
+
 			// Collapse
 			if (($nb_children > 2) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = L10n::tt('%d comment', '%d comments', $total_children);
-				$result['children'][0]['hidden_comments_num'] = $total_children;
-				$result['children'][0]['hidden_comments_text'] = L10n::tt('comment', 'comments', $total_children);
-				$result['children'][0]['hide_text'] = L10n::t('show more');
+				$result['children'][0]['show_text'] = L10n::t('Show more');
+				$result['children'][0]['hide_text'] = L10n::t('Show fewer');
 				if ($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
 				} else {

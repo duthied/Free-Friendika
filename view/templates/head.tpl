@@ -88,7 +88,6 @@
 		$("#comment-edit-text-" + id).putCursorAtEnd();
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		$("#comment-edit-text-" + id).focus();
 		$("#mod-cmnt-wrap-" + id).show();
 		openMenu("comment-edit-submit-wrapper-" + id);
 		return true;
@@ -145,9 +144,6 @@
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
 		$(obj).val("");
 	}
-
-	window.showMore = "{{$showmore}}";
-	window.showFewer = "{{$showfewer}}";
 
 	function showHideCommentBox(id) {
 		if ($("#comment-edit-form-" + id).is(":visible")) {
