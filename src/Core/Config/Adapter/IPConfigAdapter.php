@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Friendica\Core\Config;
+namespace Friendica\Core\Config\Adapter;
 
 /**
  *
@@ -15,12 +15,12 @@ namespace Friendica\Core\Config;
 interface IPConfigAdapter
 {
 	/**
-	 * Loads all configuration values of a user's config family into a cached storage.
+	 * Loads all configuration values of a user's config family and returns the loaded category as an array.
 	 *
 	 * @param string $uid The user_id
 	 * @param string $cat The category of the configuration value
 	 *
-	 * @return void
+	 * @return array
 	 */
 	public function load($uid, $cat);
 
@@ -30,13 +30,11 @@ interface IPConfigAdapter
 	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $cat           The category of the configuration value
-	 * @param string  $k             The configuration key to query
-	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
-	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
+	 * @param string  $key           The configuration key to query
 	 *
-	 * @return mixed Stored value or null if it does not exist
+	 * @return mixed Stored value or "!<unset>!" if it does not exist
 	 */
-	public function get($uid, $cat, $k, $default_value = null, $refresh = false);
+	public function get($uid, $cat, $key);
 
 	/**
 	 * Stores a config value ($value) in the category ($family) under the key ($key)
@@ -46,12 +44,12 @@ interface IPConfigAdapter
 	 *
 	 * @param string $uid   The user_id
 	 * @param string $cat   The category of the configuration value
-	 * @param string $k     The configuration key to set
+	 * @param string $key   The configuration key to set
 	 * @param string $value The value to store
 	 *
 	 * @return bool Operation success
 	 */
-	public function set($uid, $cat, $k, $value);
+	public function set($uid, $cat, $key, $value);
 
 	/**
 	 * Removes the configured value from the stored cache
@@ -59,9 +57,27 @@ interface IPConfigAdapter
 	 *
 	 * @param string $uid The user_id
 	 * @param string $cat The category of the configuration value
-	 * @param string $k   The configuration key to delete
+	 * @param string $key The configuration key to delete
 	 *
-	 * @return mixed
+	 * @return bool
 	 */
-	public function delete($uid, $cat, $k);
+	public function delete($uid, $cat, $key);
+
+	/**
+	 * Checks, if the current adapter is connected to the backend
+	 *
+	 * @return bool
+	 */
+	public function isConnected();
+
+	/**
+	 * Checks, if a config key ($key) in the category ($cat) is already loaded for the user_id $uid.
+	 *
+	 * @param string $uid The user_id
+	 * @param string $cat The configuration category
+	 * @param string $key The configuration key
+	 *
+	 * @return bool
+	 */
+	public function isLoaded($uid, $cat, $key);
 }

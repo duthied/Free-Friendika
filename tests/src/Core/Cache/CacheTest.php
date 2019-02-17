@@ -67,8 +67,7 @@ abstract class CacheTest extends MockedTest
 	protected function setUp()
 	{
 		$this->setUpVfsDir();
-		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
-		$this->mockApp($this->root, $configMock);
+		$this->mockApp($this->root);
 		$this->app
 			->shouldReceive('getHostname')
 			->andReturn('friendica.local');

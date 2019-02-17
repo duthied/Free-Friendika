@@ -13,14 +13,14 @@ class RedisCacheLockDriverTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'redis_host', NULL)
+			->with('system', 'redis_host')
 			->andReturn('localhost');
 
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'redis_port', NULL)
+			->with('system', 'redis_port')
 			->andReturn(null);
 
 		return new CacheLockDriver(CacheDriverFactory::create('redis'));

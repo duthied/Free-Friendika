@@ -12,9 +12,9 @@ class SemaphoreLockDriverTest extends LockTest
 
 		$this->app->shouldReceive('getHostname')->andReturn('friendica.local');
 
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'temppath', NULL)
+			->with('system', 'temppath')
 			->andReturn('/tmp/');
 	}
 

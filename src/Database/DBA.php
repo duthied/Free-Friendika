@@ -2,10 +2,11 @@
 
 namespace Friendica\Database;
 
-use Friendica\Core\Config\IConfigCache;
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Profiler;
 use mysqli;
 use mysqli_result;
 use mysqli_stmt;
@@ -35,6 +36,10 @@ class DBA
 	 * @var IConfigCache
 	 */
 	private static $configCache;
+	/**
+	 * @var Profiler
+	 */
+	private static $profiler;
 	private static $server_info = '';
 	private static $connection;
 	private static $driver;
@@ -50,7 +55,7 @@ class DBA
 	private static $db_name = '';
 	private static $db_charset = '';
 
-	public static function connect($configCache, $serveraddr, $user, $pass, $db, $charset = null)
+	public static function connect(IConfigCache $configCache, Profiler $profiler, $serveraddr, $user, $pass, $db, $charset = null)
 	{
 		if (!is_null(self::$connection) && self::connected()) {
 			return true;
@@ -58,6 +63,7 @@ class DBA
 
 		// We are storing these values for being able to perform a reconnect
 		self::$configCache = $configCache;
+		self::$profiler = $profiler;
 		self::$db_serveraddr = $serveraddr;
 		self::$db_user = $user;
 		self::$db_pass = $pass;
@@ -158,7 +164,7 @@ class DBA
 	public static function reconnect() {
 		self::disconnect();
 
-		$ret = self::connect(self::$configCache, self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
+		$ret = self::connect(self::$configCache, self::$profiler, self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
 		return $ret;
 	}
 
@@ -392,7 +398,6 @@ class DBA
 	 * @throws \Exception
 	 */
 	public static function p($sql) {
-		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -582,7 +587,7 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		$a->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		if (self::$configCache->get('system', 'db_log')) {
 			$stamp2 = microtime(true);
@@ -611,7 +616,6 @@ class DBA
 	 * @throws \Exception
 	 */
 	public static function e($sql) {
-		$a = \get_app();
 
 		$stamp = microtime(true);
 
@@ -654,7 +658,7 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		$a->saveTimestamp($stamp, "database_write");
+		self::$profiler->saveTimestamp($stamp, "database_write", System::callstack());
 
 		return $retval;
 	}
@@ -777,7 +781,6 @@ class DBA
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {
-		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -824,7 +827,7 @@ class DBA
 				}
 		}
 
-		$a->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		return $columns;
 	}
@@ -1534,7 +1537,6 @@ class DBA
 	 * @return boolean was the close successful?
 	 */
 	public static function close($stmt) {
-		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -1562,7 +1564,7 @@ class DBA
 				break;
 		}
 
-		$a->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		return $ret;
 	}

@@ -2,51 +2,66 @@
 
 namespace Friendica\Factory;
 
+use Friendica\Core;
 use Friendica\Core\Config;
+use Friendica\Core\Config\Adapter;
+use Friendica\Core\Config\Cache;
 
 class ConfigFactory
 {
 	/**
-	 * @param Config\ConfigCacheLoader $loader The Config Cache loader (INI/config/.htconfig)
+	 * @param Cache\ConfigCacheLoader $loader The Config Cache loader (INI/config/.htconfig)
 	 *
-	 * @return Config\ConfigCache
+	 * @return Cache\ConfigCache
 	 */
-	public static function createCache(Config\ConfigCacheLoader $loader)
+	public static function createCache(Cache\ConfigCacheLoader $loader)
 	{
-		$configCache = new Config\ConfigCache();
+		$configCache = new Cache\ConfigCache();
 		$loader->loadConfigFiles($configCache);
 
 		return $configCache;
 	}
 
 	/**
-	 * @param string              $type   The adapter type
-	 * @param Config\IConfigCache $config The config cache of this adapter
+	 * @param Cache\ConfigCache $configCache The config cache of this adapter
 	 *
-	 * @return Config\IConfigAdapter
+	 * @return Config\Configuration
 	 */
-	public static function createConfig($type, Config\IConfigCache $config)
+	public static function createConfig(Cache\ConfigCache $configCache)
 	{
-		if ($type == 'preload') {
-			return new Config\PreloadConfigAdapter($config);
+		if ($configCache->get('system', 'config_adapter') === 'preload') {
+			$configAdapter = new Adapter\PreloadConfigAdapter();
 		} else {
-			return new Config\JITConfigAdapter($config);
+			$configAdapter = new Adapter\JITConfigAdapter();
 		}
+
+		$configuration = new Config\Configuration($configCache, $configAdapter);
+
+		// Set the config in the static container for legacy usage
+		Core\Config::init($configuration);
+
+		return $configuration;
 	}
 
 	/**
-	 * @param string               $type   The adapter type
-	 * @param Config\IPConfigCache $config The config cache of this adapter
-	 * @param int                  $uid    The UID of the current user
+	 * @param Cache\ConfigCache  $configCache The config cache of this adapter
+	 * @param int                $uid         The UID of the current user
 	 *
-	 * @return Config\IPConfigAdapter
+	 * @return Config\PConfiguration
 	 */
-	public static function createPConfig($type, Config\IPConfigCache $config, $uid = null)
+	public static function createPConfig(Cache\ConfigCache $configCache, $uid = null)
 	{
-		if ($type == 'preload') {
-			return new Config\PreloadPConfigAdapter($config, $uid);
+		if ($configCache->get('system', 'config_adapter') === 'preload') {
+			$configAdapter = new Adapter\PreloadPConfigAdapter($uid);
 		} else {
-			return new Config\JITPConfigAdapter($config);
+			$configAdapter = new Adapter\JITPConfigAdapter();
 		}
+
+		$configuration = new Config\PConfiguration($configCache, $configAdapter);
+
+		// Set the config in the static container for legacy usage
+		Core\PConfig::init($configuration);
+
+		return $configuration;
 	}
 }

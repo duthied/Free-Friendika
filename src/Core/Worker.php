@@ -380,20 +380,7 @@ class Worker
 
 		// We use the callstack here to analyze the performance of executed worker entries.
 		// For this reason the variables have to be initialized.
-		if (Config::get("system", "profiler")) {
-			$a->performance["start"] = microtime(true);
-			$a->performance["database"] = 0;
-			$a->performance["database_write"] = 0;
-			$a->performance["cache"] = 0;
-			$a->performance["cache_write"] = 0;
-			$a->performance["network"] = 0;
-			$a->performance["file"] = 0;
-			$a->performance["rendering"] = 0;
-			$a->performance["parser"] = 0;
-			$a->performance["marktime"] = 0;
-			$a->performance["markstart"] = microtime(true);
-			$a->callstack = [];
-		}
+		$a->getProfiler()->reset();
 
 		// For better logging create a new process id for every worker call
 		// But preserve the old one for the worker
@@ -452,76 +439,7 @@ class Worker
 
 		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".number_format($duration, 4)." seconds. Process PID: ".$new_process_id);
 
-		// Write down the performance values into the log
-		if (Config::get("system", "profiler")) {
-			$duration = microtime(true)-$a->performance["start"];
-
-			$o = '';
-			if (Config::get("rendertime", "callstack")) {
-				if (isset($a->callstack["database"])) {
-					$o .= "\nDatabase Read:\n";
-					foreach ($a->callstack["database"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["database_write"])) {
-					$o .= "\nDatabase Write:\n";
-					foreach ($a->callstack["database_write"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["dache"])) {
-					$o .= "\nCache Read:\n";
-					foreach ($a->callstack["dache"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["dache_write"])) {
-					$o .= "\nCache Write:\n";
-					foreach ($a->callstack["dache_write"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["network"])) {
-					$o .= "\nNetwork:\n";
-					foreach ($a->callstack["network"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-			}
-
-			Logger::log(
-				"ID ".$queue["id"].": ".$funcname.": ".sprintf(
-					"DB: %s/%s, Cache: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s".$o,
-					number_format($a->performance["database"] - $a->performance["database_write"], 2),
-					number_format($a->performance["database_write"], 2),
-					number_format($a->performance["cache"], 2),
-					number_format($a->performance["cache_write"], 2),
-					number_format($a->performance["network"], 2),
-					number_format($a->performance["file"], 2),
-					number_format($duration - ($a->performance["database"]
-						+ $a->performance["cache"] + $a->performance["cache_write"]
-						+ $a->performance["network"] + $a->performance["file"]), 2),
-					number_format($duration, 2)
-				),
-				Logger::DEBUG
-			);
-		}
+		$a->getProfiler()->saveLog("ID " . $queue["id"] . ": " . $funcname);
 
 		$cooldown = Config::get("system", "worker_cooldown", 0);
 

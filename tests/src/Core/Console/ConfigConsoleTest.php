@@ -32,14 +32,14 @@ class ConfigConsoleTest extends ConsoleTest
 	}
 
 	function testSetGetKeyValue() {
-		$this->configCache
+		$this->configMock
 			->shouldReceive('set')
 			->with('config', 'test', 'now')
 			->andReturn(true)
 			->once();
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('config', 'test', NULL)
+			->with('config', 'test')
 			->andReturn('now')
 			->twice();
 
@@ -50,9 +50,9 @@ class ConfigConsoleTest extends ConsoleTest
 		$txt = $this->dumpExecute($console);
 		$this->assertEquals("config.test <= now\n", $txt);
 
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('config', 'test', null)
+			->with('config', 'test')
 			->andReturn('now')
 			->once();
 
@@ -62,9 +62,9 @@ class ConfigConsoleTest extends ConsoleTest
 		$txt = $this->dumpExecute($console);
 		$this->assertEquals("config.test => now\n", $txt);
 
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('config', 'test', null)
+			->with('config', 'test')
 			->andReturn(null)
 			->once();
 
@@ -77,9 +77,9 @@ class ConfigConsoleTest extends ConsoleTest
 
 	function testSetArrayValue() {
 		$testArray = [1, 2, 3];
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('config', 'test', null)
+			->with('config', 'test')
 			->andReturn($testArray)
 			->once();
 
@@ -105,9 +105,9 @@ class ConfigConsoleTest extends ConsoleTest
 	}
 
 	function testVerbose() {
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('test', 'it', null)
+			->with('test', 'it')
 			->andReturn('now')
 			->once();
 		$console = new Config($this->consoleArgv);
@@ -133,14 +133,14 @@ CONF;
 	}
 
 	function testUnableToSet() {
-		$this->configCache
+		$this->configMock
 			->shouldReceive('set')
 			->with('test', 'it', 'now')
 			->andReturn(false)
 			->once();
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('test', 'it', NULL)
+			->with('test', 'it')
 			->andReturn(NULL)
 			->once();
 		$console = new Config();
