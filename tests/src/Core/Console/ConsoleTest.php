@@ -3,10 +3,12 @@
 namespace Friendica\Test\src\Core\Console;
 
 use Asika\SimpleConsole\Console;
+use Friendica\Core\Config\ConfigCache;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\Intercept;
 use Friendica\Test\Util\VFSTrait;
+use Friendica\Util\Profiler;
 
 abstract class ConsoleTest extends MockedTest
 {
@@ -29,8 +31,10 @@ abstract class ConsoleTest extends MockedTest
 		Intercept::setUp();
 
 		$this->setUpVfsDir();
-		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$configMock = \Mockery::mock(ConfigCache::class);
 		$this->mockApp($this->root, $configMock);
+		$profileMock = \Mockery::mock(Profiler::class);
+		$this->app->shouldReceive('getProfiler')->andReturn($profileMock);
 	}
 
 	/**

@@ -91,30 +91,47 @@ class Profiler implements ContainerInterface
 	public function reset($performance = true, $callstack = true)
 	{
 		if ($performance) {
-			$this->performance = [];
-			$this->performance['start'] = microtime(true);
-			$this->performance['database'] = 0;
-			$this->performance['database_write'] = 0;
-			$this->performance['cache'] = 0;
-			$this->performance['cache_write'] = 0;
-			$this->performance['network'] = 0;
-			$this->performance['file'] = 0;
-			$this->performance['rendering'] = 0;
-			$this->performance['parser'] = 0;
-			$this->performance['marktime'] = 0;
-			$this->performance['marktime'] = microtime(true);
+			$this->resetPerformance();
 		}
 
 		if ($callstack) {
-			$this->callstack['database'] = [];
-			$this->callstack['database_write'] = [];
-			$this->callstack['cache'] = [];
-			$this->callstack['cache_write'] = [];
-			$this->callstack['network'] = [];
-			$this->callstack['file'] = [];
-			$this->callstack['rendering'] = [];
-			$this->callstack['parser'] = [];
+			$this->resetCallstack();
 		}
+	}
+
+	/**
+	 * Resets the performance profiling data
+	 */
+	public function resetPerformance()
+	{
+		$this->performance = [];
+		$this->performance['start'] = microtime(true);
+		$this->performance['database'] = 0;
+		$this->performance['database_write'] = 0;
+		$this->performance['cache'] = 0;
+		$this->performance['cache_write'] = 0;
+		$this->performance['network'] = 0;
+		$this->performance['file'] = 0;
+		$this->performance['rendering'] = 0;
+		$this->performance['parser'] = 0;
+		$this->performance['marktime'] = 0;
+		$this->performance['marktime'] = microtime(true);
+	}
+
+	/**
+	 * Resets the callstack profiling data
+	 */
+	public function resetCallstack()
+	{
+		$this->callstack = [];
+		$this->callstack['database'] = [];
+		$this->callstack['database_write'] = [];
+		$this->callstack['cache'] = [];
+		$this->callstack['cache_write'] = [];
+		$this->callstack['network'] = [];
+		$this->callstack['file'] = [];
+		$this->callstack['rendering'] = [];
+		$this->callstack['parser'] = [];
 	}
 
 	/**
@@ -125,77 +142,79 @@ class Profiler implements ContainerInterface
 	public function saveLog($message = '')
 	{
 		// Write down the performance values into the log
-		if ($this->enabled) {
-			$duration = microtime(true)-$this->get('start');
-			$this->logger->info(
-				$message,
-				[
-					'module' => 'api',
-					'action' => 'call',
-					'database_read' => round($this->get('database') - $this->get('database_write'), 3),
-					'database_write' => round($this->get('database_write'), 3),
-					'cache_read' => round($this->get('cache'), 3),
-					'cache_write' => round($this->get('cache_write'), 3),
-					'network_io' => round($this->get('network'), 2),
-					'file_io' => round($this->get('file'), 2),
-					'other_io' => round($duration - ($this->get('database')
-							+ $this->get('cache') + $this->get('cache_write')
-							+ $this->get('network') + $this->get('file')), 2),
-					'total' => round($duration, 2)
-				]
-			);
-
-			$o = '';
-			if ($this->rendertime) {
-				if (isset($this->callstack["database"])) {
-					$o .= "\nDatabase Read:\n";
-					foreach ($this->callstack["database"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($this->callstack["database_write"])) {
-					$o .= "\nDatabase Write:\n";
-					foreach ($this->callstack["database_write"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($this->callstack["cache"])) {
-					$o .= "\nCache Read:\n";
-					foreach ($this->callstack["cache"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($this->callstack["cache_write"])) {
-					$o .= "\nCache Write:\n";
-					foreach ($this->callstack["cache_write"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($this->callstack["network"])) {
-					$o .= "\nNetwork:\n";
-					foreach ($this->callstack["network"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				$this->logger->info($message . ": " . $o);
-			}
-
+		if (!$this->enabled) {
+			return;
 		}
+		$duration = microtime(true) - $this->get('start');
+		$this->logger->info(
+			$message,
+			[
+				'module' => 'api',
+				'action' => 'call',
+				'database_read' => round($this->get('database') - $this->get('database_write'), 3),
+				'database_write' => round($this->get('database_write'), 3),
+				'cache_read' => round($this->get('cache'), 3),
+				'cache_write' => round($this->get('cache_write'), 3),
+				'network_io' => round($this->get('network'), 2),
+				'file_io' => round($this->get('file'), 2),
+				'other_io' => round($duration - ($this->get('database')
+						+ $this->get('cache') + $this->get('cache_write')
+						+ $this->get('network') + $this->get('file')), 2),
+				'total' => round($duration, 2)
+			]
+		);
+
+		if (!$this->rendertime) {
+			return;
+		}
+		
+		$o = '';
+		if (isset($this->callstack["database"])) {
+			$o .= "\nDatabase Read:\n";
+			foreach ($this->callstack["database"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$o .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["database_write"])) {
+			$o .= "\nDatabase Write:\n";
+			foreach ($this->callstack["database_write"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$o .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["cache"])) {
+			$o .= "\nCache Read:\n";
+			foreach ($this->callstack["cache"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$o .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["cache_write"])) {
+			$o .= "\nCache Write:\n";
+			foreach ($this->callstack["cache_write"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$o .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["network"])) {
+			$o .= "\nNetwork:\n";
+			foreach ($this->callstack["network"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$o .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		$this->logger->info($message . ": " . $o);
 	}
 
 	/**

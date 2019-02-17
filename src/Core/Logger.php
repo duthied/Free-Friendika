@@ -354,7 +354,7 @@ class Logger extends BaseObject
 		}
 
         $stamp1 = microtime(true);
-        self::$devLogger->log($level, $msg);
+		self::$devLogger->log($level, $msg);
 		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
     }
 }
