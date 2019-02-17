@@ -149,8 +149,7 @@ class Profiler implements ContainerInterface
 		$this->logger->info(
 			$message,
 			[
-				'module' => 'api',
-				'action' => 'call',
+				'action' => 'profiling',
 				'database_read' => round($this->get('database') - $this->get('database_write'), 3),
 				'database_write' => round($this->get('database_write'), 3),
 				'cache_read' => round($this->get('cache'), 3),
@@ -214,7 +213,7 @@ class Profiler implements ContainerInterface
 				}
 			}
 		}
-		$this->logger->info($message . ": " . $o);
+		$this->logger->info($message . ": " . $o, ['action' => 'profiling']);
 	}
 
 	/**
