@@ -12,8 +12,6 @@ if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 require __DIR__ . '/vendor/autoload.php';
 
-// We assume that the index.php is called by a frontend process
-// The value is set to "true" by default in App
 $a = Factory\DependencyFactory::setUp('index', __DIR__, true);
 
 $a->runFrontend();
