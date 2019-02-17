@@ -317,25 +317,25 @@ class Logger extends BaseObject
 		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
-    /**
-     * @brief Logs the given message at the given log level
-     *
-     * @param string $msg
-     * @param string $level
+	    /**
+	 * @brief Logs the given message at the given log level
+	 *
+	 * @param string $msg
+	 * @param string $level
 	 *
 	 * @throws \Exception
 	 * @deprecated since 2019.03 Use Logger::debug() Logger::info() , ... instead
-     */
-    public static function log($msg, $level = LogLevel::INFO)
-    {
+	 */
+	public static function log($msg, $level = LogLevel::INFO)
+	{
 		if (!isset(self::$logger)) {
 			return;
 		}
 
-        $stamp1 = microtime(true);
+		$stamp1 = microtime(true);
 		self::$logger->log($level, $msg);
 		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
-    }
+	}
 
 	/**
 	 * @brief An alternative logger for development.
@@ -347,14 +347,14 @@ class Logger extends BaseObject
 	 * @param string $level
 	 * @throws \Exception
 	 */
-    public static function devLog($msg, $level = LogLevel::DEBUG)
-    {
+	public static function devLog($msg, $level = LogLevel::DEBUG)
+	{
 		if (!isset(self::$logger)) {
 			return;
 		}
 
-        $stamp1 = microtime(true);
+		$stamp1 = microtime(true);
 		self::$devLogger->log($level, $msg);
 		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
-    }
+	}
 }
