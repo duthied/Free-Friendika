@@ -718,7 +718,7 @@ class Worker
 					$stamp = (float)microtime(true);
 					$jobs = DBA::p("SELECT COUNT(*) AS `jobs` FROM `workerqueue` WHERE `done` AND `executed` > UTC_TIMESTAMP() - INTERVAL ? MINUTE", $interval);
 					self::$db_duration += (microtime(true) - $stamp);
-					//self::$db_duration_stat += (microtime(true) - $stamp);
+					self::$db_duration_stat += (microtime(true) - $stamp);
 					if ($job = DBA::fetch($jobs)) {
 						$jobs_per_minute[$interval] = number_format($job['jobs'] / $interval, 0);
 					}
@@ -819,6 +819,12 @@ class Worker
 		return $count;
 	}
 
+	/**
+	 * @brief Returns waiting jobs for the current process id
+	 *
+	 * @return array waiting workerqueue jobs
+	 * @throws \Exception
+	 */
 	private static function getWaitingJobForPID()
 	{
 		$stamp = (float)microtime(true);
@@ -832,6 +838,12 @@ class Worker
 		return false;
 	}
 
+	/**
+	 * @brief Returns the next jobs that should be executed
+	 *
+	 * @return array array with next jobs
+	 * @throws \Exception
+	 */
 	private static function nextProcess()
 	{
 		$priority = self::nextPriority();
@@ -860,6 +872,12 @@ class Worker
 		return $ids;
 	}
 
+	/**
+	 * @brief Returns the priority of the next workerqueue job
+	 *
+	 * @return string priority
+	 * @throws \Exception
+	 */
 	private static function nextPriority()
 	{
 		$waiting = [];
@@ -942,13 +960,8 @@ class Worker
 		// If there is no result we check without priority limit
 		if (empty($ids)) {
 			$stamp = (float)microtime(true);
-			$result = DBA::select(
-				'workerqueue',
-				['id'],
-				["`pid` = 0 AND NOT `done` AND `next_try` < ?",
-				DateTimeFormat::utcNow()],
-				['limit' => 1, 'order' => ['priority', 'created']]
-			);
+			$condition = ["`pid` = 0 AND NOT `done` AND `next_try` < ?", DateTimeFormat::utcNow()];
+			$result = DBA::select('workerqueue', ['id'], $condition, ['limit' => 1, 'order' => ['priority', 'created']]);
 			self::$db_duration += (microtime(true) - $stamp);
 
 			while ($id = DBA::fetch($result)) {
@@ -959,9 +972,8 @@ class Worker
 
 		if (!empty($ids)) {
 			$stamp = (float)microtime(true);
-			$condition = "`id` IN (".substr(str_repeat("?, ", count($ids)), 0, -2).") AND `pid` = 0 AND NOT `done`";
-			array_unshift($ids, $condition);
-			DBA::update('workerqueue', ['executed' => DateTimeFormat::utcNow(), 'pid' => $mypid], $ids);
+			$condition = ['id' => $ids, 'done' => false, 'pid' => 0];
+			DBA::update('workerqueue', ['executed' => DateTimeFormat::utcNow(), 'pid' => $mypid], $condition);
 			self::$db_duration += (microtime(true) - $stamp);
 			self::$db_duration_write += (microtime(true) - $stamp);
 		}
