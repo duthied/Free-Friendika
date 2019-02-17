@@ -33,20 +33,13 @@ class Profiler implements ContainerInterface
 	private $rendertime;
 
 	/**
-	 * @var LoggerInterface The profiler logger
-	 */
-	private $logger;
-
-	/**
-	 * @param LoggerInterface $logger The profiler logger
 	 * @param bool $enabled           True, if the Profiler is enabled
 	 * @param bool $renderTime        True, if the Profiler should measure the whole rendertime including functions
 	 */
-	public function __construct(LoggerInterface $logger, $enabled = false, $renderTime = false)
+	public function __construct($enabled = false, $renderTime = false)
 	{
 		$this->enabled = $enabled;
 		$this->rendertime = $renderTime;
-		$this->logger = $logger;
 		$this->reset();
 	}
 
@@ -129,16 +122,17 @@ class Profiler implements ContainerInterface
 	/**
 	 * Save the current profiling data to a log entry
 	 *
-	 * @param string $message Additional message for the log
+	 * @param LoggerInterface $logger The logger to save the current log
+	 * @param string          $message Additional message for the log
 	 */
-	public function saveLog($message = '')
+	public function saveLog(LoggerInterface $logger, $message = '')
 	{
 		// Write down the performance values into the log
 		if (!$this->enabled) {
 			return;
 		}
 		$duration = microtime(true) - $this->get('start');
-		$this->logger->info(
+		$logger->info(
 			$message,
 			[
 				'action' => 'profiling',
@@ -205,7 +199,7 @@ class Profiler implements ContainerInterface
 				}
 			}
 		}
-		$this->logger->info($message . ": " . $o, ['action' => 'profiling']);
+		$logger->info($message . ": " . $o, ['action' => 'profiling']);
 	}
 
 	/**

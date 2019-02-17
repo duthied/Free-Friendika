@@ -12,7 +12,6 @@ use Friendica\Core\Config\Cache\ConfigCacheLoader;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Database\DBA;
-use Friendica\Factory\ConfigFactory;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -115,6 +114,11 @@ class App
 	private $config;
 
 	/**
+	 * @var LoggerInterface The logger
+	 */
+	private $logger;
+
+	/**
 	 * @var Profiler The profiler of this app
 	 */
 	private $profiler;
@@ -137,6 +141,16 @@ class App
 	public function getBasePath()
 	{
 		return $this->basePath;
+	}
+
+	/**
+	 * The Logger of this app
+	 *
+	 * @return LoggerInterface
+	 */
+	public function getLogger()
+	{
+		return $this->logger;
 	}
 
 	/**
@@ -192,7 +206,7 @@ class App
 	 * @brief App constructor.
 	 *
 	 * @param Configuration    $config    The Configuration
-	 * @param LoggerInterface  $logger    Logger of this application
+	 * @param LoggerInterface  $logger    The current app logger
 	 * @param Profiler         $profiler  The profiler of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
@@ -200,8 +214,8 @@ class App
 	 */
 	public function __construct(Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
-		$this->config   = $config;
 		$this->logger   = $logger;
+		$this->config   = $config;
 		$this->profiler = $profiler;
 		$this->basePath = $this->config->get('system', 'basepath');
 

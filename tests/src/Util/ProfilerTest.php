@@ -26,7 +26,7 @@ class ProfilerTest extends MockedTest
 	 */
 	public function testSetUp()
 	{
-		$profiler = new Profiler($this->logger, true, true);
+		$profiler = new Profiler(true, true);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class ProfilerTest extends MockedTest
 	 */
 	public function testSaveTimestamp($timestamp, $name, array $functions)
 	{
-		$profiler = new Profiler($this->logger, true, true);
+		$profiler = new Profiler(true, true);
 
 		foreach ($functions as $function) {
 			$profiler->saveTimestamp($timestamp, $name, $function);
@@ -111,7 +111,7 @@ class ProfilerTest extends MockedTest
 	 */
 	public function testReset($timestamp, $name, array $functions)
 	{
-		$profiler = new Profiler($this->logger, true, true);
+		$profiler = new Profiler(true, true);
 
 		$profiler->saveTimestamp($timestamp, $name);
 		$profiler->reset();
@@ -168,7 +168,7 @@ class ProfilerTest extends MockedTest
 			->shouldReceive('info')
 			->once();
 
-		$profiler = new Profiler($this->logger, true, true);
+		$profiler = new Profiler(true, true);
 
 		foreach ($data as $perf => $items) {
 			foreach ($items['functions'] as $function) {
@@ -176,6 +176,6 @@ class ProfilerTest extends MockedTest
 			}
 		}
 
-		$profiler->saveLog('test');
+		$profiler->saveLog($this->logger, 'test');
 	}
 }

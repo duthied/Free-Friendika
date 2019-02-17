@@ -144,7 +144,7 @@ if (!$foreground) {
 	file_put_contents($pidfile, $pid);
 
 	// We lose the database connection upon forking
-	Factory\DBFactory::init($configCache, $_SERVER);
+	Factory\DBFactory::init($a->getConfigCache(), $a->getProfiler(), $_SERVER);
 }
 
 Config::set('system', 'worker_daemon_mode', true);

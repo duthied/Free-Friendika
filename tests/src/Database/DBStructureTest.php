@@ -16,13 +16,12 @@ class DBStructureTest extends DatabaseTest
 		$basedir = BasePath::create(dirname(__DIR__) . '/../../');
 		$configLoader = new Cache\ConfigCacheLoader($basedir);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
-		Factory\DBFactory::init($configCache, $_SERVER);
+		$profiler = Factory\ProfilerFactory::create($configCache);
+		Factory\DBFactory::init($configCache, $profiler, $_SERVER);
 		$config = Factory\ConfigFactory::createConfig($configCache);
-		$pconfig = Factory\ConfigFactory::createPConfig($configCache);
+		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create('test', $config);
-		$profiler = Factory\ProfilerFactory::create($logger, $config);
 		$this->app = new App($config, $logger, $profiler, false);
-		$this->logOutput = FActory\LoggerFactory::enableTest($this->app->getLogger());
 
 		parent::setUp();
 	}

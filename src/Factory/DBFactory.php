@@ -4,18 +4,20 @@ namespace Friendica\Factory;
 
 use Friendica\Core\Config\Cache;
 use Friendica\Database;
+use Friendica\Util\Profiler;
 
 class DBFactory
 {
 	/**
 	 * Initialize the DBA connection
 	 *
-	 * @param Cache\ConfigCache $configCache The configuration cache
+	 * @param Cache\IConfigCache $configCache The configuration cache
+	 * @param Profiler          $profiler    The profiler
 	 * @param array             $server      The $_SERVER variables
 	 *
 	 * @throws \Exception if connection went bad
 	 */
-	public static function init(Cache\ConfigCache $configCache, array $server)
+	public static function init(Cache\IConfigCache $configCache, Profiler $profiler, array $server)
 	{
 		if (Database\DBA::connected()) {
 			return;
@@ -46,7 +48,7 @@ class DBFactory
 			$db_data = $server['MYSQL_DATABASE'];
 		}
 
-		if (Database\DBA::connect($configCache, $db_host, $db_user, $db_pass, $db_data, $charset)) {
+		if (Database\DBA::connect($configCache, $profiler, $db_host, $db_user, $db_pass, $db_data, $charset)) {
 			// Loads DB_UPDATE_VERSION constant
 			Database\DBStructure::definition($configCache->get('system', 'basepath'), false);
 		}

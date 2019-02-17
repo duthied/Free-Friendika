@@ -42,6 +42,8 @@ class LoggerFactory
 		if ($debugging) {
 			$loglevel = self::mapLegacyConfigDebugLevel((string)$level);
 			static::addStreamHandler($logger, $stream, $loglevel);
+		} else {
+			static::addVoidHandler($logger);
 		}
 
 		Logger::init($logger);
@@ -151,6 +153,13 @@ class LoggerFactory
 			$logger->pushHandler($fileHandler);
 		} else {
 			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
+		}
+	}
+
+	public static function addVoidHandler($logger)
+	{
+		if ($logger instanceof Monolog\Logger) {
+			$logger->pushHandler(new Monolog\Handler\NullHandler());
 		}
 	}
 }
