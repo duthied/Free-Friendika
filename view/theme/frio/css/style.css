@@ -375,9 +375,6 @@ header #site-location {
 header #banner {
     position: fixed;
     top: 0px;
-/*    width: 33%;
-    margin-left: 33%;
-    margin-right: 33%;*/
     left:49%;
     right: 49%;
     z-index: 1040;
@@ -393,8 +390,6 @@ header #banner {
 }
 header #banner #logo-img,
 .navbar-brand #logo-img {
-    /*mask: url('network#m1');*/
-    /*mask-image: url('img/friendica-25.png');*/
     -webkit-mask-image: url('img/friendica-25.png');
     background-color: $nav_icon_color;
     height: 25px;
@@ -2125,8 +2120,8 @@ img.acpopup-img {
 .wall-item-container.thread_level_5,
 .wall-item-container.thread_level_6,
 .wall-item-container.thread_level_7 {
-  margin-left: 15px;
-
+    margin-left: 15px;
+    margin-right: -0.5em;
 }
 /* Menubar Tabs */
 section > .tabbar-wrapper {
@@ -3619,4 +3614,12 @@ section .profile-match-wrapper {
 	.form-control {
 		font-size: 16px;
 	}
+
+    .wall-item-container.thread_level_3,
+    .wall-item-container.thread_level_4,
+    .wall-item-container.thread_level_5,
+    .wall-item-container.thread_level_6,
+    .wall-item-container.thread_level_7 {
+        margin-left: 5px;
+    }
 }
