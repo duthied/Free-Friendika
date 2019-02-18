@@ -45,6 +45,8 @@ function directory_content(App $a)
 	}
 
 	$o = '';
+	$entries = [];
+
 	Nav::setSelected('directory');
 
 	if (!empty($a->data['search'])) {
@@ -98,7 +100,7 @@ function directory_content(App $a)
 	$limit = $pager->getStart()."," . $pager->getItemsPerPage();
 
 	$r = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
-			`contact`.`addr`, `contact`.`url` AS profile_url FROM `profile`
+			`contact`.`addr`, `contact`.`url` AS `profile_url` FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
@@ -111,39 +113,68 @@ function directory_content(App $a)
 			$photo = 'photo';
 		}
 
-		$entries = [];
-
 		while ($rr = DBA::fetch($r)) {
-			$itemurl = (($rr['addr'] != "") ? $rr['addr'] : $rr['profile_url']);
+			$entries[] = format_directory_entry($rr, $photo);
+		}
+		DBA::close($r);
+	} else {
+		info(L10n::t("No entries \x28some entries may be hidden\x29.") . EOL);
+	}
 
-			$profile_link = $rr['profile_url'];
+	$tpl = Renderer::getMarkupTemplate('directory_header.tpl');
 
-			$pdesc = (($rr['pdesc']) ? $rr['pdesc'] . '<br />' : '');
+	$o .= Renderer::replaceMacros($tpl, [
+		'$search'    => $search,
+		'$globaldir' => L10n::t('Global Directory'),
+		'$gdirpath'  => $gdirpath,
+		'$desc'      => L10n::t('Find on this site'),
+		'$contacts'  => $entries,
+		'$finding'   => L10n::t('Results for:'),
+		'$findterm'  => (strlen($search) ? $search : ""),
+		'$title'     => L10n::t('Site Directory'),
+		'$search_mod' => 'directory',
+		'$submit'    => L10n::t('Find'),
+		'$paginate'  => $pager->renderFull($total),
+	]);
+
+	return $o;
+}
+
+/**
+ * Format contact/profile/user data from the database into an usable
+ * array for displaying directory entries.
+ * 
+ * @param type $r The directory entry from the database.
+ * @param string $photo_size Avatar size (thumb, photo or micro).
+ * 
+ * @return array
+ */
+function format_directory_entry($arr, $photo_size = 'photo')
+{
+			$itemurl = (($arr['addr'] != "") ? $arr['addr'] : $arr['profile_url']);
+
+			$profile_link = $arr['profile_url'];
+
+			$pdesc = (($arr['pdesc']) ? $arr['pdesc'] . '<br />' : '');
 
 			$details = '';
-			if (strlen($rr['locality'])) {
-				$details .= $rr['locality'];
+			if (strlen($arr['locality'])) {
+				$details .= $arr['locality'];
 			}
-			if (strlen($rr['region'])) {
-				if (strlen($rr['locality'])) {
+			if (strlen($arr['region'])) {
+				if (strlen($arr['locality'])) {
 					$details .= ', ';
 				}
-				$details .= $rr['region'];
+				$details .= $arr['region'];
 			}
-			if (strlen($rr['country-name'])) {
+			if (strlen($arr['country-name'])) {
 				if (strlen($details)) {
 					$details .= ', ';
 				}
-				$details .= $rr['country-name'];
+				$details .= $arr['country-name'];
 			}
-//			if(strlen($rr['dob'])) {
-//				if(($years = age($rr['dob'],$rr['timezone'],'')) != 0)
-//					$details .= '<br />' . L10n::t('Age: ') . $years;
-//			}
-//			if(strlen($rr['gender']))
-//				$details .= '<br />' . L10n::t('Gender: ') . $rr['gender'];
 
-			$profile = $rr;
+			$profile = $arr;
 
 			if (!empty($profile['address'])
 				|| !empty($profile['locality'])
@@ -156,10 +187,10 @@ function directory_content(App $a)
 				$location = '';
 			}
 
-			$gender   = (!empty($profile['gender']) ? L10n::t('Gender:')   : false);
-			$marital  = (!empty($profile['marital']) ? L10n::t('Status:')   : false);
+			$gender   = (!empty($profile['gender'])   ? L10n::t('Gender:')   : false);
+			$marital  = (!empty($profile['marital'])  ? L10n::t('Status:')   : false);
 			$homepage = (!empty($profile['homepage']) ? L10n::t('Homepage:') : false);
-			$about    = (!empty($profile['about']) ? L10n::t('About:')    : false);
+			$about    = (!empty($profile['about'])    ? L10n::t('About:')    : false);
 
 			$location_e = $location;
 
@@ -168,17 +199,17 @@ function directory_content(App $a)
 			];
 
 			$entry = [
-				'id'           => $rr['id'],
+				'id'           => $arr['id'],
 				'url'          => Contact::magicLInk($profile_link),
 				'itemurl'      => $itemurl,
-				'thumb'        => ProxyUtils::proxifyUrl($rr[$photo], false, ProxyUtils::SIZE_THUMB),
-				'img_hover'    => $rr['name'],
-				'name'         => $rr['name'],
+				'thumb'        => ProxyUtils::proxifyUrl($arr[$photo_size], false, ProxyUtils::SIZE_THUMB),
+				'img_hover'    => $arr['name'],
+				'name'         => $arr['name'],
 				'details'      => $details,
-				'account_type' => Contact::getAccountType($rr),
+				'account_type' => Contact::getAccountType($arr),
 				'profile'      => $profile,
 				'location'     => $location_e,
-				'tags'         => $rr['pub_keywords'],
+				'tags'         => $arr['pub_keywords'],
 				'gender'       => $gender,
 				'pdesc'        => $pdesc,
 				'marital'      => $marital,
@@ -188,38 +219,12 @@ function directory_content(App $a)
 
 			];
 
-			$arr = ['contact' => $rr, 'entry' => $entry];
+			$hook = ['contact' => $arr, 'entry' => $entry];
 
-			Hook::callAll('directory_item', $arr);
+			Hook::callAll('directory_item', $hook);
 
 			unset($profile);
 			unset($location);
 
-			if (!$arr['entry']) {
-				continue;
-			}
-
-			$entries[] = $arr['entry'];
-		}
-		DBA::close($r);
-
-		$tpl = Renderer::getMarkupTemplate('directory_header.tpl');
-
-		$o .= Renderer::replaceMacros($tpl, [
-			'$search'    => $search,
-			'$globaldir' => L10n::t('Global Directory'),
-			'$gdirpath'  => $gdirpath,
-			'$desc'      => L10n::t('Find on this site'),
-			'$contacts'  => $entries,
-			'$finding'   => L10n::t('Results for:'),
-			'$findterm'  => (strlen($search) ? $search : ""),
-			'$title'     => L10n::t('Site Directory'),
-			'$submit'    => L10n::t('Find'),
-			'$paginate'  => $pager->renderFull($total),
-		]);
-	} else {
-		info(L10n::t("No entries \x28some entries may be hidden\x29.") . EOL);
-	}
-
-	return $o;
+			return $hook['entry'];
 }
