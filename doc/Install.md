@@ -18,10 +18,7 @@ If you do not have a Friendica account yet, you can register a temporary one at 
 The account will expire after 7 days, but you can ask the server admin to keep your account longer, should the problem not be resolved after that.
 
 Before you begin: Choose a domain name or subdomain name for your server.
-Put some thought into this. Changing it after installation is currently not supported.
-Things will break, and some of your friends may have difficulty communicating with you.
-We plan to address this limitation in a future release.
-
+Put some thought into this. While changing it after installation is supported, things still might break.
 
 Requirements
 ---
