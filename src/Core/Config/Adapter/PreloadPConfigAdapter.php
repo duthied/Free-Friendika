@@ -97,7 +97,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			return false;
 		}
 
-		if ($this->isLoaded($uid, $cat, $key)) {
+		if (!$this->isLoaded($uid, $cat, $key)) {
 			$this->load($uid, $cat);
 		}
 		// We store our setting values as strings.
