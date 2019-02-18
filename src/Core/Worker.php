@@ -439,7 +439,7 @@ class Worker
 
 		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".number_format($duration, 4)." seconds. Process PID: ".$new_process_id);
 
-		$a->getProfiler()->saveLog("ID " . $queue["id"] . ": " . $funcname);
+		$a->getProfiler()->saveLog($a->getLogger(), "ID " . $queue["id"] . ": " . $funcname);
 
 		$cooldown = Config::get("system", "worker_cooldown", 0);
 

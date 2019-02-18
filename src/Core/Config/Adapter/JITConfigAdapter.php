@@ -57,13 +57,14 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 
-			$this->in_db[$cat][$key] = true;
-			return $value;
-		} else {
-
-			$this->in_db[$cat][$key] = false;
-			return '!<unset>!';
+			if (isset($value) && $value !== '') {
+				$this->in_db[$cat][$key] = true;
+				return $value;
+			}
 		}
+
+		$this->in_db[$cat][$key] = false;
+		return '!<unset>!';
 	}
 
 	/**
