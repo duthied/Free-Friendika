@@ -57,7 +57,7 @@ The Linux commands to clone the repository into a directory "mywebsite" would be
 
     git clone https://github.com/friendica/friendica.git -b master mywebsite
     cd mywebsite
-    bin/composer.phar install
+    bin/composer.phar install --no-dev
 
 Make sure the folder *view/smarty3* exists and is writable by the webserver user, in this case `www-data`
 
