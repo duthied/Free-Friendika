@@ -13,7 +13,10 @@ use Friendica\Database\DBA;
  */
 class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdapter
 {
-	private $config_loaded = false;
+	/**
+	 * @var array true if config for user is loaded
+	 */
+	private $config_loaded;
 
 	/**
 	 * @param int $uid The UID of the current user
@@ -21,6 +24,8 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 	public function __construct($uid = null)
 	{
 		parent::__construct();
+
+		$this->config_loaded = [];
 
 		if (isset($uid)) {
 			$this->load($uid, 'config');
@@ -34,21 +39,26 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 	{
 		$return = [];
 
-		if ($this->config_loaded) {
+		if (empty($uid)) {
 			return $return;
 		}
 
-		if (empty($uid)) {
+		if (!$this->isLoaded($uid, $cat, null)) {
 			return $return;
 		}
 
 		$pconfigs = DBA::select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		while ($pconfig = DBA::fetch($pconfigs)) {
-			$return[$pconfig['cat']][$pconfig['k']] = $pconfig['v'];
+			$value = $pconfig['v'];
+			if (isset($value) && $value !== '') {
+				$return[$pconfig['cat']][$pconfig['k']] = $value;
+			} else {
+				$return[$pconfig['cat']][$pconfig['k']] = '!<unset>!';
+			}
 		}
 		DBA::close($pconfigs);
 
-		$this->config_loaded = true;
+		$this->config_loaded[$uid] = true;
 
 		return $return;
 	}
@@ -62,7 +72,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			return '!<unset>!';
 		}
 
-		if (!$this->config_loaded) {
+		if (!$this->isLoaded($uid, $cat, $key)) {
 			$this->load($uid, $cat);
 		}
 
@@ -87,7 +97,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			return false;
 		}
 
-		if (!$this->config_loaded) {
+		if (!$this->isLoaded($uid, $cat, $key)) {
 			$this->load($uid, $cat);
 		}
 		// We store our setting values as strings.
@@ -116,7 +126,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			return false;
 		}
 
-		if (!$this->config_loaded) {
+		if (!$this->isLoaded($uid, $cat, $key)) {
 			$this->load($uid, $cat);
 		}
 
@@ -134,6 +144,6 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			return false;
 		}
 
-		return $this->config_loaded;
+		return isset($this->config_loaded[$uid]) && $this->config_loaded[$uid];
 	}
 }

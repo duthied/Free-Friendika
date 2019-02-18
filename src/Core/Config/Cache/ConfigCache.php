@@ -36,11 +36,12 @@ class ConfigCache implements IConfigCache, IPConfigCache
 				$keys = array_keys($config[$category]);
 
 				foreach ($keys as $key) {
-					if (isset($config[$category][$key])) {
+					$value = $config[$category][$key];
+					if (isset($value) && $value !== '!<unset>!') {
 						if ($overwrite) {
-							$this->set($category, $key, $config[$category][$key]);
+							$this->set($category, $key, $value);
 						} else {
-							$this->setDefault($category, $key, $config[$category][$key]);
+							$this->setDefault($category, $key, $value);
 						}
 					}
 				}
@@ -132,9 +133,19 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public function loadP($uid, array $config)
 	{
-		foreach ($config as $category => $values) {
-			foreach ($values as $key => $value) {
-				$this->setP($uid, $category, $key, $value);
+		$categories = array_keys($config);
+
+		foreach ($categories as $category) {
+			if (isset($config[$category]) && is_array($config[$category])) {
+
+				$keys = array_keys($config[$category]);
+
+				foreach ($keys as $key) {
+					$value = $config[$category][$key];
+					if (isset($value) && $value !== '!<unset>!') {
+						$this->setP($uid, $category, $key, $value);
+					}
+				}
 			}
 		}
 	}
