@@ -219,7 +219,7 @@ class App
 		$this->logger   = $logger;
 		$this->config   = $config;
 		$this->profiler = $profiler;
-		$this->basePath = $this->config->get('system', 'basepath');
+		$this->basePath = $this->config->getCache()->get('system', 'basepath');
 
 		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
 			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');
