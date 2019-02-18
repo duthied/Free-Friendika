@@ -55,11 +55,12 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 
-			return $value;
-		} else {
-
-			return '!<unset>!';
+			if (isset($value) && $value !== '') {
+				return $value;
+			}
 		}
+
+		return '!<unset>!';
 	}
 
 	/**

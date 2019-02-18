@@ -2,8 +2,6 @@
 
 namespace Friendica\Core\Config;
 
-use Friendica\Core\Logger;
-
 /**
  * This class is responsible for all system-wide configuration values in Friendica
  * There are two types of storage
@@ -116,10 +114,6 @@ class Configuration
 	 */
 	public function set($cat, $key, $value)
 	{
-		if ($key === 'last_worker_execution') {
-			Logger::alert('catchmeifyou', ['value' => $value]);
-		}
-
 		// set the cache first
 		$cached = $this->configCache->set($cat, $key, $value);
 

@@ -1,7 +1,6 @@
 <?php
 namespace Friendica\Core\Config\Adapter;
 
-use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 
 /**
@@ -58,22 +57,14 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 
-			if ($key === 'last_worker_execution') {
-				Logger::alert('catchmeifyou', ['store' => $value, 'in_db' => $this->in_db[$cat][$key]]);
-			}
-
 			if (isset($value) && $value !== '') {
 				$this->in_db[$cat][$key] = true;
 				return $value;
-			} else {
-				$this->in_db[$cat][$key] = false;
-				return '!<unset>!';
 			}
-		} else {
-
-			$this->in_db[$cat][$key] = false;
-			return '!<unset>!';
 		}
+
+		$this->in_db[$cat][$key] = false;
+		return '!<unset>!';
 	}
 
 	/**
@@ -97,10 +88,6 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 		}
 		if (!isset($this->in_db[$cat][$key])) {
 			$this->in_db[$cat][$key] = false;
-		}
-
-		if ($key === 'last_worker_execution') {
-			Logger::alert('catchmeifyou', ['db' => $dbvalue, 'store' => $stored, 'in_db' => $this->in_db[$cat][$key]]);
 		}
 
 		if (($stored === $dbvalue) && $this->in_db[$cat][$key]) {

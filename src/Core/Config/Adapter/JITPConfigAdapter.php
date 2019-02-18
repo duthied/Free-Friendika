@@ -57,13 +57,14 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
 
-			$this->in_db[$uid][$cat][$key] = true;
-			return $value;
-		} else {
-
-			$this->in_db[$uid][$cat][$key] = false;
-			return '!<unset>!';
+			if (isset($value) && $value !== '') {
+				$this->in_db[$uid][$cat][$key] = true;
+				return $value;
+			}
 		}
+
+		$this->in_db[$uid][$cat][$key] = false;
+		return '!<unset>!';
 	}
 
 	/**

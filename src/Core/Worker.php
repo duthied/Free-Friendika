@@ -277,8 +277,6 @@ class Worker
 			$age = (time() - self::$last_update) / 60;
 			self::$last_update = time();
 
-			Logger::alert('last_update', ['age' => $age, 'last_update' => self::$last_update]);
-
 			if ($age > 1) {
 				$stamp = (float)microtime(true);
 				DBA::update('workerqueue', ['executed' => DateTimeFormat::utcNow()], ['pid' => $mypid, 'done' => false]);
