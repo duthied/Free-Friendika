@@ -25,11 +25,11 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 	{
 		parent::__construct();
 
+		$this->config_loaded = [];
+
 		if (isset($uid)) {
 			$this->load($uid, 'config');
 		}
-
-		$this->config_loaded = [];
 	}
 
 	/**
@@ -43,7 +43,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			return $return;
 		}
 
-		if ($this->isLoaded($uid, $cat, null)) {
+		if (!$this->isLoaded($uid, $cat, null)) {
 			return $return;
 		}
 
