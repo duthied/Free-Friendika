@@ -20,7 +20,6 @@ if ($a->module !== 'install') {
 
 		// Load the profile owners pconfig.
 		$scheme           = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
-		\Friendica\Core\Logger::alert($scheme);
 		$nav_bg           = PConfig::get($uid, 'frio', 'nav_bg');
 		$nav_icon_color   = PConfig::get($uid, 'frio', 'nav_icon_color');
 		$link_color       = PConfig::get($uid, 'frio', 'link_color');
