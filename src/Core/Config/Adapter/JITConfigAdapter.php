@@ -33,10 +33,13 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 
 		$configs = DBA::select('config', ['v', 'k'], ['cat' => $cat]);
 		while ($config = DBA::fetch($configs)) {
-			$key = $config['k'];
+			$key   = $config['k'];
+			$value = $config['v'];
 
-			$return[$key] = $config['v'];
-			$this->in_db[$cat][$key] = true;
+			if (isset($value) && $value !== '') {
+				$return[$key] = $value;
+				$this->in_db[$cat][$key] = true;
+			}
 		}
 		DBA::close($configs);
 

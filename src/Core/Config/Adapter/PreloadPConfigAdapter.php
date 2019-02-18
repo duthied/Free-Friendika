@@ -44,7 +44,10 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 
 		$pconfigs = DBA::select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		while ($pconfig = DBA::fetch($pconfigs)) {
-			$return[$pconfig['cat']][$pconfig['k']] = $pconfig['v'];
+			$value = $pconfig['v'];
+			if (isset($value) && $value !== '') {
+				$return[$pconfig['cat']][$pconfig['k']] = $value;
+			}
 		}
 		DBA::close($pconfigs);
 

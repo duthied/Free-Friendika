@@ -29,10 +29,12 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 		if (DBA::isResult($pconfigs)) {
 			while ($pconfig = DBA::fetch($pconfigs)) {
 				$key = $pconfig['k'];
+				$value = $pconfig['v'];
 
-				$return[$key] = $pconfig['v'];
-
-				$this->in_db[$uid][$cat][$key] = true;
+				if (isset($value) && $value !== '') {
+					$return[$key] = $value;
+					$this->in_db[$uid][$cat][$key] = true;
+				}
 			}
 		} else if ($cat != 'config') {
 			// Negative caching

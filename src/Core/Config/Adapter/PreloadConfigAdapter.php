@@ -32,7 +32,10 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 
 		$configs = DBA::select('config', ['cat', 'v', 'k']);
 		while ($config = DBA::fetch($configs)) {
-			$return[$config['cat']][$config['k']] = $config['v'];
+			$value = $config['v'];
+			if (isset($value) && $value !== '') {
+				$return[$config['cat']][$config['k']] = $value;
+			}
 		}
 		DBA::close($configs);
 
