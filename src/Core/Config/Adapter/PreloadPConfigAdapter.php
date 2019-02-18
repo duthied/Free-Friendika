@@ -47,6 +47,8 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			$value = $pconfig['v'];
 			if (isset($value) && $value !== '') {
 				$return[$pconfig['cat']][$pconfig['k']] = $value;
+			} else {
+				$return[$pconfig['cat']][$pconfig['k']] = '!<unset>!';
 			}
 		}
 		DBA::close($pconfigs);

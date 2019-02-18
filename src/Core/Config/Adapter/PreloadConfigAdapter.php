@@ -35,6 +35,8 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 			$value = $config['v'];
 			if (isset($value) && $value !== '') {
 				$return[$config['cat']][$config['k']] = $value;
+			} else {
+				$return[$config['cat']][$config['k']] = '!<unset>!';
 			}
 		}
 		DBA::close($configs);
