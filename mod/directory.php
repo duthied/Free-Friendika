@@ -144,87 +144,87 @@ function directory_content(App $a)
  * Format contact/profile/user data from the database into an usable
  * array for displaying directory entries.
  * 
- * @param type $r The directory entry from the database.
+ * @param type $arr The directory entry from the database.
  * @param string $photo_size Avatar size (thumb, photo or micro).
  * 
  * @return array
  */
-function format_directory_entry($arr, $photo_size = 'photo')
+function format_directory_entry(array $arr, $photo_size = 'photo')
 {
-			$itemurl = (($arr['addr'] != "") ? $arr['addr'] : $arr['profile_url']);
+	$itemurl = (($arr['addr'] != "") ? $arr['addr'] : $arr['profile_url']);
 
-			$profile_link = $arr['profile_url'];
+	$profile_link = $arr['profile_url'];
 
-			$pdesc = (($arr['pdesc']) ? $arr['pdesc'] . '<br />' : '');
+	$pdesc = (($arr['pdesc']) ? $arr['pdesc'] . '<br />' : '');
 
-			$details = '';
-			if (strlen($arr['locality'])) {
-				$details .= $arr['locality'];
-			}
-			if (strlen($arr['region'])) {
-				if (strlen($arr['locality'])) {
-					$details .= ', ';
-				}
-				$details .= $arr['region'];
-			}
-			if (strlen($arr['country-name'])) {
-				if (strlen($details)) {
-					$details .= ', ';
-				}
-				$details .= $arr['country-name'];
-			}
+	$details = '';
+	if (strlen($arr['locality'])) {
+		$details .= $arr['locality'];
+	}
+	if (strlen($arr['region'])) {
+		if (strlen($arr['locality'])) {
+			$details .= ', ';
+		}
+		$details .= $arr['region'];
+	}
+	if (strlen($arr['country-name'])) {
+		if (strlen($details)) {
+			$details .= ', ';
+		}
+		$details .= $arr['country-name'];
+	}
 
-			$profile = $arr;
+	$profile = $arr;
 
-			if (!empty($profile['address'])
-				|| !empty($profile['locality'])
-				|| !empty($profile['region'])
-				|| !empty($profile['postal-code'])
-				|| !empty($profile['country-name'])
-			) {
-				$location = L10n::t('Location:');
-			} else {
-				$location = '';
-			}
+	if (!empty($profile['address'])
+		|| !empty($profile['locality'])
+		|| !empty($profile['region'])
+		|| !empty($profile['postal-code'])
+		|| !empty($profile['country-name'])
+	) {
+		$location = L10n::t('Location:');
+	} else {
+		$location = '';
+	}
 
-			$gender   = (!empty($profile['gender'])   ? L10n::t('Gender:')   : false);
-			$marital  = (!empty($profile['marital'])  ? L10n::t('Status:')   : false);
-			$homepage = (!empty($profile['homepage']) ? L10n::t('Homepage:') : false);
-			$about    = (!empty($profile['about'])    ? L10n::t('About:')    : false);
+	$gender   = (!empty($profile['gender'])   ? L10n::t('Gender:')   : false);
+	$marital  = (!empty($profile['marital'])  ? L10n::t('Status:')   : false);
+	$homepage = (!empty($profile['homepage']) ? L10n::t('Homepage:') : false);
+	$about    = (!empty($profile['about'])    ? L10n::t('About:')    : false);
 
-			$location_e = $location;
+	$location_e = $location;
 
-			$photo_menu = [
-				'profile' => [L10n::t("View Profile"), Contact::magicLink($profile_link)]
-			];
+	$photo_menu = [
+		'profile' => [L10n::t("View Profile"), Contact::magicLink($profile_link)]
+	];
 
-			$entry = [
-				'id'           => $arr['id'],
-				'url'          => Contact::magicLInk($profile_link),
-				'itemurl'      => $itemurl,
-				'thumb'        => ProxyUtils::proxifyUrl($arr[$photo_size], false, ProxyUtils::SIZE_THUMB),
-				'img_hover'    => $arr['name'],
-				'name'         => $arr['name'],
-				'details'      => $details,
-				'account_type' => Contact::getAccountType($arr),
-				'profile'      => $profile,
-				'location'     => $location_e,
-				'tags'         => $arr['pub_keywords'],
-				'gender'       => $gender,
-				'pdesc'        => $pdesc,
-				'marital'      => $marital,
-				'homepage'     => $homepage,
-				'about'        => $about,
-				'photo_menu'   => $photo_menu,
+	$entry = [
+		'id'           => $arr['id'],
+		'url'          => Contact::magicLInk($profile_link),
+		'itemurl'      => $itemurl,
+		'thumb'        => ProxyUtils::proxifyUrl($arr[$photo_size], false, ProxyUtils::SIZE_THUMB),
+		'img_hover'    => $arr['name'],
+		'name'         => $arr['name'],
+		'details'      => $details,
+		'account_type' => Contact::getAccountType($arr),
+		'profile'      => $profile,
+		'location'     => $location_e,
+		'tags'         => $arr['pub_keywords'],
+		'gender'       => $gender,
+		'pdesc'        => $pdesc,
+		'marital'      => $marital,
+		'homepage'     => $homepage,
+		'about'        => $about,
+		'photo_menu'   => $photo_menu,
 
-			];
+	];
 
-			$hook = ['contact' => $arr, 'entry' => $entry];
+	$hook = ['contact' => $arr, 'entry' => $entry];
 
-			Hook::callAll('directory_item', $hook);
+	Hook::callAll('directory_item', $hook);
 
-			unset($profile);
-			unset($location);
+	unset($profile);
+	unset($location);
 
-			return $hook['entry'];
+	return $hook['entry'];
 }

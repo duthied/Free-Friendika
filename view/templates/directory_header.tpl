@@ -7,7 +7,6 @@
 	</ul>
 {{/if}}
 
-
 <div id="directory-search-wrapper">
 	<form id="directory-search-form" action="{{$search_mod}}" method="get" >
 		<span class="dirsearch-desc">{{$desc nofilter}}</span>

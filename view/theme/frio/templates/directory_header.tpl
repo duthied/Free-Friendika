@@ -8,7 +8,6 @@
 
 	{{include file="section_title.tpl"}}
 
-
 	{{* The search input field to search for contacts *}}
 	<div id="directory-search-wrapper">
 		<form id="directory-search-form" class="navbar-form" role="search" action="{{$search_mod}}" method="get" >
