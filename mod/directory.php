@@ -144,7 +144,7 @@ function directory_content(App $a)
  * Format contact/profile/user data from the database into an usable
  * array for displaying directory entries.
  * 
- * @param type $arr The directory entry from the database.
+ * @param array $arr The directory entry from the database.
  * @param string $photo_size Avatar size (thumb, photo or micro).
  * 
  * @return array
