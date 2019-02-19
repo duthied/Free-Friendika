@@ -15,3 +15,4 @@ require __DIR__ . '/vendor/autoload.php';
 $a = Factory\DependencyFactory::setUp('index', __DIR__, false);
 
 $a->runFrontend();
+

@@ -173,6 +173,8 @@ class Photo extends BaseObject
 	 */
 	public static function getImageForPhoto(array $photo)
 	{
+		$data = "";
+
 		if ($photo["backend-class"] == "") {
 			// legacy data storage in "data" column
 			$i = self::selectFirst(["data"], ["id" => $photo["id"]]);
@@ -189,6 +191,7 @@ class Photo extends BaseObject
 		if ($data === "") {
 			return null;
 		}
+
 		return new Image($data, $photo["type"]);
 	}
 
@@ -219,11 +222,13 @@ class Photo extends BaseObject
 	{
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
+
 		$photo = array_combine($fields, $values);
 		$photo["backend-class"] = Storage\SystemResource::class;
 		$photo["backend-ref"] = $filename;
 		$photo["type"] = $mimetype;
 		$photo["cacheable"] = false;
+
 		return $photo;
 	}
 

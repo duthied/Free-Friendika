@@ -7,6 +7,7 @@
 namespace Friendica\Model;
 
 use Friendica\Database\DBA;
+use \BadMethodCallException;
 
 class ItemDeliveryData
 {
@@ -71,7 +72,7 @@ class ItemDeliveryData
 	public static function insert($item_id, array $fields)
 	{
 		if (empty($item_id)) {
-			throw new \BadMethodCallException('Empty item_id');
+			throw new BadMethodCallException('Empty item_id');
 		}
 
 		$fields['iid'] = $item_id;
@@ -92,7 +93,7 @@ class ItemDeliveryData
 	public static function update($item_id, array $fields)
 	{
 		if (empty($item_id)) {
-			throw new \BadMethodCallException('Empty item_id');
+			throw new BadMethodCallException('Empty item_id');
 		}
 
 		if (empty($fields)) {
@@ -113,7 +114,7 @@ class ItemDeliveryData
 	public static function delete($item_id)
 	{
 		if (empty($item_id)) {
-			throw new \BadMethodCallException('Empty item_id');
+			throw new BadMethodCallException('Empty item_id');
 		}
 
 		return DBA::delete('item-delivery-data', ['iid' => $item_id]);
