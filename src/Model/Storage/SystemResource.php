@@ -6,6 +6,8 @@
 
 namespace Friendica\Model\Storage;
 
+use \BadMethodCallException;
+
 /**
  * @brief System resource storage class
  *
@@ -32,12 +34,12 @@ class SystemResource implements IStorage
 
 	public static function put($data, $filename = "")
 	{
-		throw new \BadMethodCallException();
+		throw new BadMethodCallException();
 	}
 
 	public static function delete($filename)
 	{
-		throw new \BadMethodCallException();
+		throw new BadMethodCallException();
 	}
 
 	public static function getOptions()

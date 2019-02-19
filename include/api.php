@@ -1528,8 +1528,10 @@ function api_search($type)
 
 	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
 
-	if (empty($_REQUEST['q'])) { throw new BadRequestException('q parameter is required.'); }
-	
+	if (empty($_REQUEST['q'])) {
+		throw new BadRequestException('q parameter is required.');
+	}
+
 	$searchTerm = trim(rawurldecode($_REQUEST['q']));
 
 	$data = [];
@@ -4399,6 +4401,7 @@ function api_fr_photo_delete($type)
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
+
 	// input params
 	$photo_id = defaults($_REQUEST, 'photo_id', null);
 
@@ -4407,11 +4410,12 @@ function api_fr_photo_delete($type)
 	if ($photo_id == null) {
 		throw new BadRequestException("no photo_id specified");
 	}
+
 	// check if photo is existing in database
-	$r = Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()]);
-	if (!$r) {
+	if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()])) {
 		throw new BadRequestException("photo not available");
 	}
+
 	// now we can perform on the deletion of the photo
 	$result = Photo::delete(['uid' => api_user(), 'resource-id' => $photo_id]);
 
