@@ -4,7 +4,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
     Update to the themes (frio, smoothy, quattro) [lxiter, MrPetovan. rabuzarus,  tobiasd]
     Enhancements to the API [jasonscheng]
-    Enhancements to the Vagrand development VM [JeroenED]
+    Enhancements to the Vagrant development VM [JeroenED]
     Enhancements to the storage of gender, sexual preferences and maritial status [JeroenED]
     Enhancements to the wording of notifications [MrPetovan]
     Enhancements to the display of contacts in the profile [MrPetovan]
