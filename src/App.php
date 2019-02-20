@@ -397,16 +397,25 @@ class App
 	 */
 	private function determineURLPath()
 	{
+		/*
+		 * The automatic path detection in this function is currently deactivated,
+		 * see issue https://github.com/friendica/friendica/issues/6679
+		 *
+		 * The problem is that the function seems to be confused with some url.
+		 * These then confuses the detection which changes the url path.
+		 */
+
 		/* Relative script path to the web server root
 		 * Not all of those $_SERVER properties can be present, so we do by inverse priority order
 		 */
+/*
 		$relative_script_path = '';
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URL'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URI'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_SCRIPT_URL', $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
-
+*/
 		$this->urlPath = $this->config->get('system', 'urlpath');
 
 		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
@@ -414,6 +423,7 @@ class App
 		 *
 		 * To get /relative/path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
 		 */
+/*
 		if (!empty($relative_script_path)) {
 			// Module
 			if (!empty($_SERVER['QUERY_STRING'])) {
@@ -427,6 +437,7 @@ class App
 				$this->urlPath = $path;
 			}
 		}
+*/
 	}
 
 	public function getScheme()
