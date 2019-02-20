@@ -120,17 +120,75 @@ class Profiler implements ContainerInterface
 	}
 
 	/**
+	 * Returns the rendertime string
+	 *
+	 * @return string the rendertime
+	 */
+	public function getRendertimeString()
+	{
+		$output = '';
+
+		if (!$this->enabled || !$this->rendertime) {
+			return $output;
+		}
+
+		if (isset($this->callstack["database"])) {
+			$output .= "\nDatabase Read:\n";
+			foreach ($this->callstack["database"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$output .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["database_write"])) {
+			$output .= "\nDatabase Write:\n";
+			foreach ($this->callstack["database_write"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$output .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["cache"])) {
+			$output .= "\nCache Read:\n";
+			foreach ($this->callstack["cache"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$output .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["cache_write"])) {
+			$output .= "\nCache Write:\n";
+			foreach ($this->callstack["cache_write"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$output .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+		if (isset($this->callstack["network"])) {
+			$output .= "\nNetwork:\n";
+			foreach ($this->callstack["network"] as $func => $time) {
+				$time = round($time, 3);
+				if ($time > 0) {
+					$output .= $func . ": " . $time . "\n";
+				}
+			}
+		}
+
+		return $output;
+	}
+
+	/**
 	 * Save the current profiling data to a log entry
 	 *
-	 * @param LoggerInterface $logger The logger to save the current log
+	 * @param LoggerInterface $logger  The logger to save the current log
 	 * @param string          $message Additional message for the log
 	 */
 	public function saveLog(LoggerInterface $logger, $message = '')
 	{
-		// Write down the performance values into the log
-		if (!$this->enabled) {
-			return;
-		}
 		$duration = microtime(true) - $this->get('start');
 		$logger->info(
 			$message,
@@ -149,57 +207,8 @@ class Profiler implements ContainerInterface
 			]
 		);
 
-		if (!$this->rendertime) {
-			return;
-		}
-		
-		$o = '';
-		if (isset($this->callstack["database"])) {
-			$o .= "\nDatabase Read:\n";
-			foreach ($this->callstack["database"] as $func => $time) {
-				$time = round($time, 3);
-				if ($time > 0) {
-					$o .= $func . ": " . $time . "\n";
-				}
-			}
-		}
-		if (isset($this->callstack["database_write"])) {
-			$o .= "\nDatabase Write:\n";
-			foreach ($this->callstack["database_write"] as $func => $time) {
-				$time = round($time, 3);
-				if ($time > 0) {
-					$o .= $func . ": " . $time . "\n";
-				}
-			}
-		}
-		if (isset($this->callstack["cache"])) {
-			$o .= "\nCache Read:\n";
-			foreach ($this->callstack["cache"] as $func => $time) {
-				$time = round($time, 3);
-				if ($time > 0) {
-					$o .= $func . ": " . $time . "\n";
-				}
-			}
-		}
-		if (isset($this->callstack["cache_write"])) {
-			$o .= "\nCache Write:\n";
-			foreach ($this->callstack["cache_write"] as $func => $time) {
-				$time = round($time, 3);
-				if ($time > 0) {
-					$o .= $func . ": " . $time . "\n";
-				}
-			}
-		}
-		if (isset($this->callstack["network"])) {
-			$o .= "\nNetwork:\n";
-			foreach ($this->callstack["network"] as $func => $time) {
-				$time = round($time, 3);
-				if ($time > 0) {
-					$o .= $func . ": " . $time . "\n";
-				}
-			}
-		}
-		$logger->info($message . ": " . $o, ['action' => 'profiling']);
+		$output = $this->getRendertimeString();
+		$logger->info($message . ": " . $output, ['action' => 'profiling']);
 	}
 
 	/**
