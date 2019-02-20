@@ -33,6 +33,16 @@ class Profiler implements ContainerInterface
 	private $rendertime;
 
 	/**
+	 * True, if the Profiler should measure the whole rendertime including functions
+	 *
+	 * @return bool
+	 */
+	public function isRendertime()
+	{
+		return $this->rendertime;
+	}
+
+	/**
 	 * @param bool $enabled           True, if the Profiler is enabled
 	 * @param bool $renderTime        True, if the Profiler should measure the whole rendertime including functions
 	 */
@@ -207,8 +217,10 @@ class Profiler implements ContainerInterface
 			]
 		);
 
-		$output = $this->getRendertimeString();
-		$logger->info($message . ": " . $output, ['action' => 'profiling']);
+		if ($this->isRendertime()) {
+			$output = $this->getRendertimeString();
+			$logger->info($message . ": " . $output, ['action' => 'profiling']);
+		}
 	}
 
 	/**

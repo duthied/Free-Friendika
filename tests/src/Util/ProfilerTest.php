@@ -177,5 +177,25 @@ class ProfilerTest extends MockedTest
 		}
 
 		$profiler->saveLog($this->logger, 'test');
+
+		$output = $profiler->getRendertimeString();
+
+		foreach ($data as $perf => $items) {
+			foreach ($items['functions'] as $function) {
+				// assert that the output contains the functions
+				$this->assertRegExp('/' . $function . ': \d+/', $output);
+			}
+		}
+	}
+
+	/**
+	 * Test if no rendertime is set
+	 */
+	public function testNoRenderTime()
+	{
+		$profiler = new Profiler(true, false);
+
+		$this->assertFalse($profiler->isRendertime());
+		self::assertEmpty($profiler->getRendertimeString());
 	}
 }
