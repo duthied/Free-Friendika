@@ -34,9 +34,9 @@ Version 2019.03-dev (UNRELEASED, 2019-03-xx)
     Updates to the translations (CS, DE, ES, FR, NL, PL) [translation teams]
     Updated documentation [softmetz, tobiasd]
     cookienotice:
-	  Added new addon to display a cookie usage notice in the browser [lxiter]
-	forumdirectory:
-	  Fixed a theming issue with frio [rabuzarus]
+      Added new addon to display a cookie usage notice in the browser [lxiter]
+    forumdirectory:
+      Fixed a theming issue with frio [rabuzarus]
     mailstream:
       Fixed a curl issue [MrPetovan]
     piwik:
