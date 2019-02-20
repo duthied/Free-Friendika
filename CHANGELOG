@@ -1,3 +1,57 @@
+Version 2019.03-dev (UNRELEASED, 2019-03-xx)
+  Friendica Core:
+    Update to the translation (CS, DE, EN_US, ES, PL, ZH-CN) [translation teams]
+    Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
+    Update to the themes (frio, smoothy, quattro) [lxiter, MrPetovan. rabuzarus,  tobiasd]
+    Enhancements to the API [jasonscheng]
+    Enhancements to the Vagrand development VM [JeroenED]
+    Enhancements to the storage of gender, sexual preferences and maritial status [JeroenED]
+    Enhancements to the wording of notifications [MrPetovan]
+    Enhancements to the display of contacts in the profile [MrPetovan]
+    Enhancements to the handling of local links [lxiter]
+    Enhancements to the explicit and implicit mentioning in conversations [annando, MrPetovan]
+    Enhancements to the warnings in the admin panel [tobiasd]
+    Enhancements to the AP implementation [annando]
+    Enhancements to the worker process of deleting items [annando]
+    Enhancements to the testing process [nupplaphil]
+    Enhancements to the LibreJS compatibility [tobiasd]
+    Fixed several bugs with weird tagging in code blocks [lxiter]
+    Fixed a bug during updating contact entries [rabuzarus]
+    Fixed several PHP warnings and errors [annando, MrPetovan, tobiasd]
+    Fixed an issue when Friendica is installaed in a subdirectory [rabuzarus]
+    Fixed several issues in the handling of the Markdown parsing from and to d* [lxiter, MrPetovan]
+    Fixed a bug in the ACL with preselected items [lxiter]
+    Fixed an issue with polling Events via AP [annando]
+    Fixed a memory issue with the JSON-LD parser [annando]
+    General Code cleaning and restructureing [annando, JeroenED, MrPetovan]
+    Switched logging engine to monolog [nupplaphil]
+    Added plugable storage backend [fabrixxm]
+    Added item delivery indicator to posting header [MrPetovan]
+    Added URL parameter to force a specific language [JeroenED]
+    Added live preview of attachments to frio [rabuzarus]
+
+  Friendica Addons:
+    Updates to the translations (CS, DE, ES, FR, NL, PL) [translation teams]
+    Updated documentation [softmetz, tobiasd]
+    cookienotice:
+	  Added new addon to display a cookie usage notice in the browser [lxiter]
+	forumdirectory:
+	  Fixed a theming issue with frio [rabuzarus]
+    mailstream:
+      Fixed a curl issue [MrPetovan]
+    piwik:
+      Make it clear that Piwik and Matomo is meant [tobiasd]
+    securemail:
+      updated the addon dependencies [MrPetovan]
+    twitter:
+      @ mentions are now stripped from the posts send to Twitter [MrPetovan]
+
+  Closed Issues:
+    3218, 4496, 6087, 6232, 6274, 6292, 6375, 6378, 6382, 6384, 6403,
+    6405, 6449, 6468, 6489, 6491, 6492, 6495, 6505, 6511, 6514, 6522,
+    6529, 6533, 6544, 6545, 6551, 6553, 6558, 6552, 6561, 6570, 6575,
+    6585, 6603, 6610, 6629, 6635, 6652, 6656, 6667, 6669, 6674, 6668
+
 Version 2019.01 (2019-01-21)
   Friendica Core:
     Update to the translation (CS, DE, EN-UK, EN-US, FR, NB-NO, NL, PL) [translation teams]
