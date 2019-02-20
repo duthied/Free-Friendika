@@ -21,6 +21,6 @@ Solltest Du beim Stöbern durch die vielen Gruppen nicht wieder hierher zurück 
 
 Wenn Du einige Gruppen hinzugefügt hast, gehe <a href="help/Quick-Start-andfinally">weiter zum nächsten Schritt</a>.
 
-<iframe src="https://dir.friendica.social/home" width="950" height="600"></iframe>
+<iframe src="https://dir.friendica.social/forum" width="950" height="600"></iframe>
 
 
