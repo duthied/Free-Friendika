@@ -196,6 +196,6 @@ class ProfilerTest extends MockedTest
 		$profiler = new Profiler(true, false);
 
 		$this->assertFalse($profiler->isRendertime());
-		self::assertEmpty($profiler->getRendertimeString());
+		$this->assertEmpty($profiler->getRendertimeString());
 	}
 }
