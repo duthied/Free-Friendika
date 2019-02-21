@@ -16,14 +16,14 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Enhancements to the testing process [nupplaphil]
     Enhancements to the LibreJS compatibility [tobiasd]
     Fixed several bugs with weird tagging in code blocks [lxiter]
-    Fixed a bug during updating contact entries [rabuzarus]
+    Fixed a bug during contact entries update [rabuzarus]
     Fixed several PHP warnings and errors [annando, MrPetovan, tobiasd]
-    Fixed an issue when Friendica is installaed in a subdirectory [rabuzarus]
+    Fixed an issue when Friendica is installed in a subdirectory [rabuzarus]
     Fixed several issues in the handling of the Markdown parsing from and to d* [lxiter, MrPetovan]
     Fixed a bug in the ACL with preselected items [lxiter]
     Fixed an issue with polling Events via AP [annando]
     Fixed a memory issue with the JSON-LD parser [annando]
-    General Code cleaning and restructureing [annando, JeroenED, MrPetovan]
+    General Code cleaning and restructuring [annando, JeroenED, MrPetovan]
     Switched logging engine to monolog [nupplaphil]
     Added plugable storage backend [fabrixxm]
     Added item delivery indicator to posting header [MrPetovan]
@@ -40,7 +40,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     mailstream:
       Fixed a curl issue [MrPetovan]
     piwik:
-      Make it clear that Piwik and Matomo is meant [tobiasd]
+      Make it clear that Piwik is now Matomo but the addon supports both [tobiasd]
     securemail:
       updated the addon dependencies [MrPetovan]
     twitter:
