@@ -37,6 +37,19 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
+
+	    // Parse initial share_string
+	    var nav_bg = $("#id_frio_nav_bg").val();
+	    var nav_icon_color = $("#id_frio_nav_icon_color").val();
+	    var link_color = $("#id_frio_link_color").val();
+	    var background_color = $("#id_frio_background_color").val();
+	    var contentbg_transp = $("#id_frio_contentbg_transp").val();
+	    var background_image = $("#id_frio_background_image").val();
+
+	    var share_string = "{nav_bg: '" + nav_bg + "', nav_icon_color: '" + nav_icon_color + "', link_color: '" + link_color + "',  background_color: '" + background_color + "', contentbg_transp: '" + contentbg_transp + "', background_image: '" + background_image + "'}";
+        $("#id_frio_share_string").val(share_string);
+
+	    // Create colorpickers
 		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color, #frio_login_bg_color").colorpicker({format: 'hex', align: 'left'});
 
 		// show image options when user user starts to type the address of the image
