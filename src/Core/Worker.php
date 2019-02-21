@@ -130,7 +130,7 @@ class Worker
 			}
 
 			// Quit the worker once every 5 minutes
-			if (time() > ($starttime + 300)) {
+			if (time() > ($starttime + 30)) {
 				Logger::log('Process lifetime reached, quitting.', Logger::DEBUG);
 				return;
 			}
@@ -411,16 +411,15 @@ class Worker
 		 * The execution time is the productive time.
 		 * By changing parameters like the maximum number of workers we can check the effectivness.
 		*/
-		Logger::log(
-			'DB: '.number_format(self::$db_duration - (self::$db_duration_count + self::$db_duration_write + self::$db_duration_stat), 4).
-			' - DB-Count: '.number_format(self::$db_duration_count, 4).
-			' - DB-Stat: '.number_format(self::$db_duration_stat, 4).
-			' - DB-Write: '.number_format(self::$db_duration_write, 4).
-			' - Lock: '.number_format(self::$lock_duration, 4).
-			' - Rest: '.number_format(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 4).
-			' - Execution: '.number_format($duration, 4),
-			Logger::DEBUG
-		);
+		$dbtotal = number_format(self::$db_duration - (self::$db_duration_count + self::$db_duration_write + self::$db_duration_stat), 4);
+		$dbcount = number_format(self::$db_duration_count, 4);
+		$dbstat  = number_format(self::$db_duration_stat, 4);
+		$dbwrite = number_format(self::$db_duration_write, 4);
+		$dblock  = number_format(self::$lock_duration, 4);
+		$rest    = number_format(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 4);
+		$exec    = number_format($duration, 4);
+
+		Logger::info('Performance:', ['total' => $dbtotal, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'block' => $dblock, 'rest' => $rest, 'exec' => $exec]);
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
@@ -848,7 +847,7 @@ class Worker
 	{
 		$priority = self::nextPriority();
 		if (empty($priority)) {
-			Logger::log('No tasks found', Logger::DEBUG);
+			Logger::info('No tasks found');
 			return [];
 		}
 
@@ -868,7 +867,7 @@ class Worker
 		}
 		DBA::close($tasks);
 
-		Logger::log('Found task(s) ' . implode(', ', $ids) . ' with priority ' .$priority, Logger::DEBUG);
+		Logger::info('Found:', ['id' => $ids, 'priority' => $priority]);
 		return $ids;
 	}
 
@@ -909,7 +908,7 @@ class Worker
 
 		foreach ($priorities as $priority) {
 			if (!empty($waiting[$priority]) && empty($running[$priority])) {
-				Logger::log('No running worker found with priority ' . $priority . ' - assigning it.', Logger::DEBUG);
+				Logger::info('No running worker found with priority {priority} - assigning it.', ['priority' => $priority]);
 				return $priority;
 			}
 		}
@@ -931,14 +930,14 @@ class Worker
 		$i = 0;
 		foreach ($running as $priority => $workers) {
 			if ($workers < $limit[$i++]) {
-				Logger::log('Priority ' . $priority . ' has got ' . $workers . ' workers out of a limit of ' . $limit[$i - 1], Logger::DEBUG);
+				Logger::info('Priority {priority} has got {workers} workers out of a limit of {limit}', ['priority' => $priority, 'workers' => $workers, 'limit' => $limit[$i - 1]]);
 				return $priority;
 			}
 		}
 
 		if (!empty($waiting)) {
 			$priority =  array_shift(array_keys($waiting));
-			Logger::log('No underassigned priority found, now taking the highest priority (' . $priority . ').', Logger::DEBUG);
+			Logger::info('No underassigned priority found, now taking the highest priority.', ['priority' => $priority]);
 			return $priority;
 		}
 

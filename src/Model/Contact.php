@@ -616,7 +616,7 @@ class Contact extends BaseObject
 		DBA::update('contact', ['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
 
 		// Delete it in the background
-		Worker::add(PRIORITY_LOW, 'RemoveContact', $id);
+		Worker::add(PRIORITY_MEDIUM, 'RemoveContact', $id);
 	}
 
 	/**
