@@ -43,7 +43,7 @@
 	    var nav_icon_color = $("#id_frio_nav_icon_color").val();
 	    var link_color = $("#id_frio_link_color").val();
 	    var background_color = $("#id_frio_background_color").val();
-	    var contentbg_transp = $("#id_frio_contentbg_transp").val();
+	    var contentbg_transp = $("#frio_contentbg_transp").val();
 	    var background_image = $("#id_frio_background_image").val();
 
 	    var share_string = "{nav_bg: '" + nav_bg + "', nav_icon_color: '" + nav_icon_color + "', link_color: '" + link_color + "',  background_color: '" + background_color + "', contentbg_transp: '" + contentbg_transp + "', background_image: '" + background_image + "'}";
