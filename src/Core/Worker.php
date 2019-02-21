@@ -130,7 +130,7 @@ class Worker
 			}
 
 			// Quit the worker once every 5 minutes
-			if (time() > ($starttime + 30)) {
+			if (time() > ($starttime + 300)) {
 				Logger::log('Process lifetime reached, quitting.', Logger::DEBUG);
 				return;
 			}
