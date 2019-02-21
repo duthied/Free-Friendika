@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1302);
+	define('DB_UPDATE_VERSION', 1303);
 }
 
 return [
@@ -1378,9 +1378,8 @@ return [
 			"PRIMARY" => ["id"],
 			"done_parameter" => ["done", "parameter(64)"],
 			"done_executed" => ["done", "executed"],
-			"done_priority" => ["done", "priority"],
 			"done_priority_created" => ["done", "priority", "created"],
-			"done_pid" => ["done", "pid"],
+			"done_priority_next_try" => ["done", "priority", "next_try"],
 			"done_pid_next_try" => ["done", "pid", "next_try"],
 			"done_pid_priority_created" => ["done", "pid", "priority", "created"]
 		]
