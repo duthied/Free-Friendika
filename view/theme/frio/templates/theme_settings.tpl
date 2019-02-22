@@ -96,6 +96,7 @@
 		window.setInterval(GenerateShareString, 500);
 		GenerateShareString();
 
+		// Take advantage of the effects of previous comment
 		$(document).on("keyup", "#id_frio_share_string", function() {
 			theme = JSON.parse($("#id_frio_share_string").val());
 
