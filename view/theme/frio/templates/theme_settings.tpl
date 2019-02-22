@@ -77,6 +77,37 @@
 		window.setInterval(GenerateShareString, 500);
 		GenerateShareString();
 
+		$(document).on("keyup", "#id_frio_share_string", function() {
+			theme = JSON.parse($("#id_frio_share_string").val());
+
+			if ($("#id_frio_nav_bg").length) {
+				$("#id_frio_nav_bg").val(theme.nav_bg);
+			}
+
+			if ($("#id_frio_nav_icon_color").length) {
+				$("#id_frio_nav_icon_color").val(theme.nav_icon_color);
+			}
+
+			if ($("#id_frio_link_color").length) {
+				 $("#id_frio_link_color").val(theme.link_color);
+			}
+
+			if ($("#id_frio_background_color").length) {
+				$("#id_frio_background_color").val(theme.background_color);
+			}
+
+			if ($("#frio_contentbg_transp").length) {
+				$("#frio_contentbg_transp").val(theme.contentbg_transp);
+			}
+
+			if ($("#id_frio_login_bg_image").length) {
+				$("#id_frio_login_bg_image").val(theme.login_bg_image);
+			}
+
+			if ($("#id_frio_login_bg_color").length) {
+				$("#id_frio_login_bg_color").val(theme.login_bg_color);
+			}
+		});
 		// Create colorpickers
 		$("#frio_nav_bg, #frio_nav_icon_color, #frio_background_color, #frio_link_color, #frio_login_bg_color").colorpicker({format: 'hex', align: 'left'});
 
